@@ -6,20 +6,6 @@ typedef enum {
 } Lba;
 
 typedef enum {
-    INIT_YAMADA,
-    INIT_WINDOW,
-    INIT_KERNEL,
-    BATTLE_BROM,
-    BATTLE_TITLE,
-    BATTLE_BATTLE,
-    BATTLE_BATINI,
-    BATTLE_SCENE,
-    BATTLE_BATRES,
-    BATTLE_CO,
-    YAMADA_FILE_NUM,
-} YamadaFile;
-
-typedef enum {
     KERNEL_COMMAND,
     KERNEL_ATTACK,
     KERNEL_GROWTH,

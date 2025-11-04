@@ -2,13 +2,14 @@
 
 extern Unk801B2308 D_80163624;
 extern u16 D_8016376C;
-int func_800A3354(); // unknown func prototype, move to battle.h
+void func_800A3354(void); // battle callback for batini, move to battle.h
 void func_801B2308(void);
 
 // entrypoint
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B0050);
 
-void func_801B0490(s32 arg0) {
+static void func_801B23E0(s32 sceneID, void (*cb)(void));
+void func_801B0490(s32 sceneID) {
     s32 i;
     s32 var_s1;
     s8* temp;
@@ -30,7 +31,7 @@ void func_801B0490(s32 arg0) {
     if (D_8016376C) {
         func_801B0F08();
     }
-    func_801B23E0(arg0, func_800A3354);
+    func_801B23E0(sceneID, func_800A3354);
     func_801B1E0C();
     D_800F83AE[0][0] = 0;
     for (i = 0; i < 10; i++) {
@@ -40,7 +41,7 @@ void func_801B0490(s32 arg0) {
             D_800F83AE[0][0] |= 1 << i;
         }
     }
-    D_800F83CC = arg0;
+    D_800F83CC = sceneID;
     D_800F83A8 = D_80163624.unk2;
     func_801B19AC();
     func_800A4540();
@@ -172,9 +173,82 @@ void func_801B2308(void) {
     }
 }
 
-const s8 D_801B0044[] = {
+static const s8 D_801B0044[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x03, 0x03, 0x03, 0x05, 0x6E, 0x64, 0x62};
-INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B23E0);
+static void func_801B23E0(s32 sceneID, void (*cb)(void)) {
+    u8 dummy[0x100];
+    UnkSceneStuff sp110;
+    s32 chunkID;
+    s32 temp_s1;
+    s32 formationIndex;
+    s32 var_s3;
+    s32* var_s2;
+    s32* var_s5;
+    s32* var_s3_2;
+
+    var_s5 = (s32*)0x801C0000;
+    chunkID = sceneID / 4;
+    temp_s1 = func_801B2738(chunkID); // sector modified based on the Chunk ID
+    func_80033E34(                    // load file from disk
+        func_800144D8(BATTLE_SCENE) +
+            temp_s1 * 4, // Disk sector where to load the file from
+        0x800 * 4,       // Size in bytes to copy
+        var_s5,          // Destination
+        0);
+    formationIndex = chunkID - D_80083184[temp_s1];
+    func_800145BC(cb); // wait until all data is read, keep executing the vsync
+                       // callback until then
+    var_s3 = var_s5[formationIndex];
+    var_s3_2 = &var_s5[var_s3];
+    var_s2 = (s32*)sp110.unk0;
+    func_80017108( // gzip decompress
+        var_s3_2,  // src
+        var_s2);   // dst
+    formationIndex = sceneID - chunkID * 4;
+    func_80014A00(D_8016360C.unk0, sp110.unk0, sizeof(sp110.unk0));
+    func_80014A00((s32*)&D_8016360C.unk8, &sp110.unk8[formationIndex],
+                  sizeof(Unk8016360C_1));
+    func_80014A00((s32*)&D_8016360C.unk1C, &sp110.unk58[formationIndex],
+                  sizeof(Unk8016360C_2));
+    func_80014A00((s32*)&D_8016360C.unk4C, &sp110.unk118[formationIndex],
+                  sizeof(Unk8016360C_3));
+    func_80014A00(
+        (s32*)&D_800F5F44.enemy, &sp110.sp3A8, sizeof(Unk800F5F44_1) * 3);
+    func_80014A00((s32*)&D_800F5F44._2, &sp110.sp5D0, sizeof(Unk800F5F44_2));
+    func_80014A00((s32*)&D_800F5F44._3, &sp110.sp950, sizeof(Unk800F5F44_3));
+    func_80014A00((s32*)&D_800F5F44._4, &sp110.sp990, sizeof(Unk800F5F44_4));
+    func_80014A00((s32*)&D_800F5F44._5, &sp110.spD90, sizeof(Unk800F5F44_5));
+    func_80014A00((s32*)&D_800F5F44._6, &sp110.spF90, sizeof(Unk800F5F44_6));
+    if (D_8016376A & 4 && D_8016360C.unk8.D_80163624 & 0x10) {
+        if (D_8016360C.unk8.D_80163626 == 0) {
+            D_8016360C.unk8.D_80163626 = 1;
+        }
+    }
+    D_800F5F44.D_800F7DC8 = (u8)D_801B0044[D_8016360C.unk8.D_80163626];
+    if (D_8016376A & 0x40) {
+        D_8016360C.unk8.D_80163614 = 0x25;
+        D_8016360C.unk8.D_80163624 |= 4;
+        D_8016360C.unk8.D_80163627 = (func_80014B70() & 3) + 0x60;
+        D_8016360C.unk8.D_80163618 = 1;
+        for (var_s3 = 0; var_s3 < 3; var_s3++) {
+            D_800F5F44.enemy[var_s3].unk90[5] *= 2;
+            D_800F5F44.enemy[var_s3].strength =
+                func_801B2770(D_800F5F44.enemy[var_s3].strength);
+            D_800F5F44.enemy[var_s3].magic =
+                func_801B2770(D_800F5F44.enemy[var_s3].magic);
+        }
+    } else if (D_8016376A & 8) {
+        D_8016360C.unk8.D_80163624 &= ~4;
+    }
+    if (!(D_8016360C.unk8.D_80163624 & 4)) {
+        D_8016376A |= 8;
+    }
+    D_800F5F44.D_800F7DB2 = D_8016360C.unk8.D_80163618;
+    if (D_800F5F44.D_800F7DC8 == 1 || D_800F5F44.D_800F7DC8 == 3) {
+        D_800F5F44.D_800F7DB2 = 1;
+    }
+    D_800F5F44.D_800F7DB6 = D_800F5F44.D_800F7DB2;
+}
 
 s32 func_801B2738(s32 arg0) {
     u32 i;

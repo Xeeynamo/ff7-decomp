@@ -52,6 +52,7 @@ extern u16 D_800F7DC2[1]; // part of a struct
 extern u16 D_800F7DC4[1]; // 100% part of a struct
 extern u16 D_800F83C6;    // part of struct?
 extern u16 D_800F83D0;
+extern u8 D_800F83E4[];
 extern u16 D_800F9DA4;
 extern u8 D_800FAFDC;
 extern s32 D_800FAFEC;
@@ -902,7 +903,14 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0B94);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0C14);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0DF8);
+void func_800B0DF8(void) {
+    s32 temp_v1;
+
+    if (D_80063014->unk234 & 2) {
+        temp_v1 = D_80063014->unk208 * 0x68;
+        *(s32*)&D_800F83E4[temp_v1] ^= 0x80;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0E5C);
 

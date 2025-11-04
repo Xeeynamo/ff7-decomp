@@ -20,6 +20,20 @@ typedef enum {
     LABEL_GIL,
 } Labels;
 
+typedef enum {
+    INIT_YAMADA,
+    INIT_WINDOW,
+    INIT_KERNEL,
+    BATTLE_BROM,
+    BATTLE_TITLE,
+    BATTLE_BATTLE,
+    BATTLE_BATINI,
+    BATTLE_SCENE,
+    BATTLE_BATRES,
+    BATTLE_CO,
+    YAMADA_FILE_NUM,
+} YamadaFile;
+
 typedef struct {
     s16 unk0;
     s16 unk2; // current page
