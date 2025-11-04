@@ -143,7 +143,7 @@ void func_801D370C(s32 x, s32 y, s32 slot_no) {
     RECT rect;
     s32 i;
     s32 j;
-    SaveHeder* save;
+    SaveHeader* save;
     u8* data;
 
     save = func_801D1D1C(slot_no);
