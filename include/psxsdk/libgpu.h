@@ -527,13 +527,6 @@ typedef struct {
     /* 0x13 */ u_char pad1;    /* reserved */
 } DISPENV;                     /* size = 0x14 */
 
-typedef struct PixPattern {
-    u8 w;
-    u8 h;
-    u8 x;
-    u8 y;
-} PixPattern;
-
 /*
  *	Multi-purpose TIM image
  */

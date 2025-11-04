@@ -1,4 +1,8 @@
 //! PSYQ=3.3 CC1=2.7.2
+#include <psxsdk/libapi.h>
+#include <psxsdk/libgpu.h>
+#include <psxsdk/kernel.h>
+
 #include "savemenu.h"
 
 static void func_801D0408(u16 arg0) {
@@ -468,22 +472,21 @@ void func_801D19C4(void) {
     s32 i;
 
     if (D_80062DCC == 0) {
-        i = 0;
         EnterCriticalSection();
-        D_8009A024[0] = OpenEvent(0xF4000001, 0x0004, 0x2000, 0);
-        D_8009A024[1] = OpenEvent(0xF4000001, 0x8000, 0x2000, 0);
-        D_8009A024[2] = OpenEvent(0xF4000001, 0x0100, 0x2000, 0);
-        D_8009A024[3] = OpenEvent(0xF4000001, 0x2000, 0x2000, 0);
-        D_8009A024[4] = OpenEvent(0xF0000011, 0x0004, 0x2000, 0);
-        D_8009A024[5] = OpenEvent(0xF0000011, 0x8000, 0x2000, 0);
-        D_8009A024[6] = OpenEvent(0xF0000011, 0x0100, 0x2000, 0);
-        D_8009A024[7] = OpenEvent(0xF0000011, 0x2000, 0x2000, 0);
+        D_8009A024[0] = OpenEvent(SwCARD, EvSpIOE, EvMdNOINTR, NULL);
+        D_8009A024[1] = OpenEvent(SwCARD, EvSpERROR, EvMdNOINTR, NULL);
+        D_8009A024[2] = OpenEvent(SwCARD, EvSpTIMOUT, EvMdNOINTR, NULL);
+        D_8009A024[3] = OpenEvent(SwCARD, EvSpNEW, EvMdNOINTR, NULL);
+        D_8009A024[4] = OpenEvent(HwCARD, EvSpIOE, EvMdNOINTR, NULL);
+        D_8009A024[5] = OpenEvent(HwCARD, EvSpERROR, EvMdNOINTR, NULL);
+        D_8009A024[6] = OpenEvent(HwCARD, EvSpTIMOUT, EvMdNOINTR, NULL);
+        D_8009A024[7] = OpenEvent(HwCARD, EvSpNEW, EvMdNOINTR, NULL);
         InitCARD(1);
         func_80048A44();
         ChangeClearPAD(0);
         _bu_init();
         _card_auto(0);
-        for (; i < 8; i++) {
+        for (i = 0; i < 8; i++) {
             EnableEvent(D_8009A024[i]);
         }
         ExitCriticalSection();
@@ -499,7 +502,7 @@ void func_801D19C4(void) {
 void func_801D1BA4(void) {}
 
 static void func_801D1BAC(s32 arg0, s32 arg1) {
-    TestEvent(D_8009A024[arg1], arg1 * 4);
+    TestEvent(D_8009A024[arg1]);
 }
 
 // strcmp?
@@ -557,7 +560,7 @@ end:
 const char D_801D018C[] = "bu10:%s";
 const char D_801D0194[] = "bu00:%s";
 
-SaveHeder* func_801D1D1C(s32 arg0) { return &D_801E3864[arg0]; }
+SaveHeader* func_801D1D1C(s32 arg0) { return &D_801E3864[arg0]; }
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D1D40);
 
@@ -626,7 +629,7 @@ static s16 func_801D2A34(s32 save_id) {
     D_801E3D50 = slot;
     ret = func_801D2408(&sp10, D_801E2CB8[slot]);
     if (!(s16)ret) {
-        __builtin_memcpy(&D_801E3864[slot], &_work.header, sizeof(SaveHeder));
+        memcpy(&D_801E3864[slot], &_work.header, sizeof(SaveHeader));
     }
     return ret;
 }

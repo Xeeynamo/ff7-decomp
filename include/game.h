@@ -56,7 +56,7 @@ typedef struct {
     s32 time;
     s8 place_name[0x20];
     s32 menu_color[3];
-} SaveHeder; // size: 0x54
+} SaveHeader; // size: 0x54
 
 // partially inspired by Q-Gears 'VI. The Save game format'
 typedef struct {
@@ -101,7 +101,7 @@ typedef struct {
     u8 unk50[0x34];
 } SavePartyMember; // size:0x84
 typedef struct {
-    SaveHeder header;
+    SaveHeader header;
     /* 0x54 */ SavePartyMember party[MAX_PARTY_COUNT];
     /* 0x4F8 */ u8 partyID[4];
     /* 0x4FC */ u16 inventory[MAX_INVENTORY_COUNT];

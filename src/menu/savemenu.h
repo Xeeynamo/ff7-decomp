@@ -41,7 +41,7 @@ extern DISPENV D_801E3774[2];
 extern Menus menus;
 extern u_long* D_801E3854; // otag pointer
 extern u_long* D_801E3858[2][1];
-extern SaveHeder D_801E3864[];
+extern SaveHeader D_801E3864[];
 extern s32 D_801E3D50;
 extern s32 D_801E3D54;
 extern s32 D_801E3D58;     // backbuffer id?
@@ -75,7 +75,7 @@ extern unsigned char D_801E33B0[][0x30];
 
 void func_801D19C4(void);
 void func_801D1BA4(void);
-SaveHeder* func_801D1D1C(s32 arg0);
+SaveHeader* func_801D1D1C(s32 arg0);
 static s16 func_801D2A34(s32 save_id);
 void func_801D3668(s32 arg0);
 void func_801D370C(s32 x, s32 y, s32 slot_no);
