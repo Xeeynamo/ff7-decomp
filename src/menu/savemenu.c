@@ -501,9 +501,7 @@ void func_801D19C4(void) {
 
 void func_801D1BA4(void) {}
 
-static void func_801D1BAC(s32 arg0, s32 arg1) {
-    TestEvent(D_8009A024[arg1]);
-}
+static void func_801D1BAC(s32 arg0, s32 arg1) { TestEvent(D_8009A024[arg1]); }
 
 // strcmp?
 static s32 func_801D1BE0(u8* arg0, u8* arg1) {
