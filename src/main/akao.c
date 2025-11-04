@@ -1,3 +1,5 @@
+//! PSYQ=3.3 CC1=2.6.3
+
 #include "common.h"
 #include "psxsdk/libspu.h"
 
@@ -7,9 +9,11 @@ typedef struct {
 } Unk8002C5A8;
 
 typedef struct {
-    u8* unk0;
-    s32 unk4;
-    s8 unk8[0x20];
+    u8* addr;
+    u8* loop_addr[4];
+    u8* drum_addr;
+    u8 pad1[0xC];
+    u32 overlay_voice;
     s32 unk28;
     s32 unk2C;
     s32 unk30;
@@ -21,7 +25,8 @@ typedef struct {
     s16 unk64;
     u16 unk66;
     u32 unk68;
-    u32 unk6C;
+    s16 unk6C;
+    s16 unk6E;
     u8 unk70[0x20];
     s16 unk90;
     s16 unk92;
@@ -40,7 +45,10 @@ typedef struct {
     s16 unkAC;
     s16 unkAE;
     u8 unkB0[0x10];
-    u8 unkC0[0xC];
+    u8 unkC0[0x2];
+    u16 unkC2;
+    u16 unkC4;
+    u8 unkC6[0x6];
     s16 unkCC;
     s16 unkCE;
     s32 unkD0;
@@ -50,28 +58,23 @@ typedef struct {
     s16 unkDA;
     s32 unkDC;
     s32 unkE0;
-} Unk80031FC0;
+} AKAO_TRACK;
 
 typedef struct {
-    u8 unk0[0x54];
-    s16 unk54;
-} Unk800335CC; // might be the same as Unk80031FC0
-
-typedef struct {
-    u8 unk0[0x6C];
-    s16 unk6C;
-} Unk800325B8;
-
-typedef struct {
-    u8 unk0[0x6C];
-    s16 unk6C;
-    s16 unk6E;
-} Unk80032D44;
-
-typedef struct {
-    u8 unk0[0x38];
-    s32 unk38;
-} Unk80033788;
+    u8 unk0[0x48];
+    u16 tempo_slide_length;
+    u16 song_id;
+    u16 last_condition;
+    u16 condition;
+    u16 reverb_depth_slide_length;
+    u16 noise_clock;
+    u16 field_54;
+    u16 beats_per_measure;
+    u16 beat;
+    u16 ticks_per_beat;
+    u16 tick;
+    u16 measure;
+} AKAO_CONFIG;
 
 extern s16 D_80062F40;
 extern s16 D_80062F48;
@@ -86,6 +89,9 @@ extern s32 D_80099DB8;
 
 extern u32 g_ReverbMode;
 extern SpuReverbAttr g_ReverbAttr;
+
+#define READ_S8(addr) ((s8)(*(addr)++))
+#define READ_S16(addr) ((s16)(*(addr)++ | (*(addr)++ << 8)))
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800293D0);
 
@@ -408,9 +414,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031BA0);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031BE4);
 
-void func_80031C88(Unk80031FC0* arg0) {
-    arg0->unk2C = *arg0->unk0++;
-    arg0->unkE0 |= 3;
+void func_80031C88(AKAO_TRACK* track) {
+    track->unk2C = *track->addr++;
+    track->unkE0 |= 3;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031CB0);
@@ -425,20 +431,22 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031EEC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031F30);
 
-void func_80031FC0(Unk80031FC0* arg0) {
-    arg0->unk60 = *arg0->unk0++ << 8;
-    arg0->unk62 = 0;
-    arg0->unkE0 |= 3;
+void func_80031FC0(AKAO_TRACK* track) {
+    track->unk60 = *track->addr++ << 8;
+    track->unk62 = 0;
+    track->unkE0 |= 3;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031FF0);
 
-void func_80032078(Unk80031FC0* arg0) { arg0->unk66 = *arg0->unk0++; }
+void func_80032078(AKAO_TRACK* track) { track->unk66 = *track->addr++; }
 
-void func_80032094(Unk80031FC0* arg0) { arg0->unk66 = (arg0->unk66 + 1) & 0xF; }
+void func_80032094(AKAO_TRACK* track) {
+    track->unk66 = (track->unk66 + 1) & 0xF;
+}
 
-void func_800320AC(Unk80031FC0* arg0) {
-    arg0->unk66 = (arg0->unk66 + 0xFFFF) & 0xF;
+void func_800320AC(AKAO_TRACK* track) {
+    track->unk66 = (track->unk66 + 0xFFFF) & 0xF;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800320C4);
@@ -447,22 +455,22 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032274);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800323CC);
 
-void func_800324D8(Unk80031FC0* arg0) { arg0->unkCC = (s8)*arg0->unk0++; }
+void func_800324D8(AKAO_TRACK* track) { track->unkCC = (s8)*track->addr++; }
 
-void func_80032500(Unk80031FC0* arg0) {
-    arg0->unkCC = (s8)*arg0->unk0++ + arg0->unkCC;
+void func_80032500(AKAO_TRACK* track) {
+    track->unkCC = (s8)*track->addr++ + track->unkCC;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003252C);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003257C);
 
-void func_800325B8(Unk800325B8* arg0) { arg0->unk6C = 0; }
+void func_800325B8(AKAO_TRACK* track) { track->unk6C = 0; }
 
-void func_800325C0(Unk80031FC0* arg0) { arg0->unkCE = (s8)*arg0->unk0++; }
+void func_800325C0(AKAO_TRACK* track) { track->unkCE = (s8)*track->addr++; }
 
-void func_800325E8(Unk80031FC0* arg0) {
-    arg0->unkCE = (s8)*arg0->unk0++ + arg0->unkCE;
+void func_800325E8(AKAO_TRACK* track) {
+    track->unkCE = (s8)*track->addr++ + track->unkCE;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032614);
@@ -471,34 +479,34 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032718);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032770);
 
-void func_800327E0(Unk80031FC0* arg0) {
-    arg0->unkD6 = 0;
-    arg0->unk38 &= ~1;
-    arg0->unkE0 |= 0x10;
+void func_800327E0(AKAO_TRACK* track) {
+    track->unkD6 = 0;
+    track->unk38 &= ~1;
+    track->unkE0 |= 0x10;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032804);
 
-void func_800328D4(Unk80031FC0* arg0) { arg0->unk90 = *arg0->unk0++ << 8; }
+void func_800328D4(AKAO_TRACK* track) { track->unk90 = *track->addr++ << 8; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800328F8);
 
-void func_80032968(Unk80031FC0* arg0) {
-    arg0->unkD8 = 0;
-    arg0->unk38 &= ~2;
-    arg0->unkE0 |= 3;
+void func_80032968(AKAO_TRACK* track) {
+    track->unkD8 = 0;
+    track->unk38 &= ~2;
+    track->unkE0 |= 3;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003298C);
 
-void func_80032A04(Unk80031FC0* arg0) { arg0->unk9E = *arg0->unk0++ << 7; }
+void func_80032A04(AKAO_TRACK* track) { track->unk9E = *track->addr++ << 7; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032A28);
 
-void func_80032A98(Unk80031FC0* arg0) {
-    arg0->unkDA = 0;
-    arg0->unk38 &= ~4;
-    arg0->unkE0 |= 3;
+void func_80032A98(AKAO_TRACK* track) {
+    track->unkDA = 0;
+    track->unk38 &= ~4;
+    track->unkE0 |= 3;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032ABC);
@@ -513,11 +521,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032C8C);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032CE8);
 
-void func_80032D44(Unk80032D44* arg0) { arg0->unk6E = 1; }
+void func_80032D44(AKAO_TRACK* track) { track->unk6E = 1; }
 
 void func_80032D50(void) {}
 
-void func_80032D58(Unk80032D44* arg0) { arg0->unk6E = 4; }
+void func_80032D58(AKAO_TRACK* track) { track->unk6E = 4; }
 
 void func_80032D64(void) {}
 
@@ -555,60 +563,131 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033420);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003345C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033488);
+void func_80033488(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    short delta = READ_S8(track->addr);
+    if (delta != 0) {
+        delta += track->unkC2;
+        if (delta < 1) {
+            delta = 1;
+        } else if (delta > 255) {
+            delta = 255;
+        }
+    }
+    track->unkC4 = delta;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800334EC);
+void func_800334EC(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    track->drum_addr = track->addr + READ_S16(track->addr);
+    track->unk38 |= 0x8;
+}
 
-void func_80033534(Unk80033788* arg0) { arg0->unk38 &= ~8; }
+void func_80033534(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    track->unk38 &= ~0x8;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033548);
+void func_80033548(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    config->ticks_per_beat = *track->addr++;
+    config->beats_per_measure = *track->addr++;
+    config->tick = 0;
+    config->beat = 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033588);
+void func_80033588(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    config->measure = *track->addr++;
+    config->measure |= *track->addr++ << 8;
+}
 
-void func_800335CC(void* arg0, Unk800335CC* arg1) { arg1->unk54 = 1; }
+void func_800335CC(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    config->field_54 = 1;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800335D8);
+void func_800335D8(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    func_80032E6C(track, config, mask);
+    func_80032ED0(track, config, mask);
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033628);
+void func_80033628(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    int delay = *track->addr++;
+    if (delay == 0) {
+        track->unkA4 = 257;
+    } else {
+        track->unkA4 = delay + 1;
+    }
+    func_80032ABC(track, config, mask);
+}
 
-void func_8003366C(Unk80031FC0* arg0) {
-    s16 var_v0 = *arg0->unk0++;
+void func_8003366C(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    s16 var_v0 = *track->addr++;
     if (var_v0 == 0) {
-        var_v0 = 0x101;
+        var_v0 = 257;
     } else {
         var_v0++;
     }
-    arg0->unkA4 = var_v0;
+    track->unkA4 = var_v0;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033698);
+void func_80033698(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    int delay = *track->addr++;
+    if (delay == 0) {
+        track->unkA6 = 257;
+    } else {
+        track->unkA6 = delay + 1;
+    }
+    func_80032BB4(track, config, mask);
+}
 
-void func_800336DC(Unk80031FC0* arg0) {
-    s16 var_v0 = *arg0->unk0++;
+void func_800336DC(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    s16 var_v0 = *track->addr++;
     if (var_v0 == 0) {
-        var_v0 = 0x101;
+        var_v0 = 257;
     } else {
         var_v0++;
     }
-    arg0->unkA6 = var_v0;
+    track->unkA6 = var_v0;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033708);
+void func_80033708(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    track->unk38 &= ~0x37;
+    func_80032B30(track, config, mask);
+    func_80032C20(track, config, mask);
+    func_80032CE8(track, config, mask);
+    track->unk6E &= ~0x5;
+}
 
-void func_80033788(Unk80033788* arg0) { arg0->unk38 |= 0x10; }
+void func_80033788(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    track->unk38 |= 0x10;
+}
 
-void func_8003379C(Unk80033788* arg0) { arg0->unk38 &= ~0x10; }
+void func_8003379C(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    track->unk38 &= ~0x10;
+}
 
-void func_800337B0(Unk80033788* arg0) { arg0->unk38 |= 0x20; }
+void func_800337B0(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    track->unk38 |= 0x20;
+}
 
-void func_800337C4(Unk80033788* arg0) { arg0->unk38 &= ~0x20; }
+void func_800337C4(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    track->unk38 &= ~0x20;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800337D8);
+void func_800337D8(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    track->addr += READ_S16(track->addr);
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033818);
+void func_80033818(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    int cond = *track->addr++;
+    if (config->condition != 0 && cond <= config->condition) {
+        track->addr += READ_S16(track->addr);
+        config->last_condition = cond;
+    } else {
+        track->addr += 2;
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033894);
 
-void func_80033A70() { func_80033894(); }
+void func_80033A70(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
+    func_80033894(track, config, mask);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033A90);
