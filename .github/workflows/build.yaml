@@ -1,11 +1,14 @@
 name: build
 on:
   push:
-  pull_request:
+  pull_request_target:
   workflow_dispatch:
-
+permissions:
+  contents: read
 jobs:
   build:
+    # Building and testing cannot work if the repository owner is not Xeeynamo
+    # due to the missing secrets to clone the CI dependencies
     if: github.repository == 'Xeeynamo/ff7-decomp'
     runs-on: ubuntu-latest
     steps:
@@ -13,8 +16,15 @@ jobs:
     - uses: actions/setup-python@v6
       with:
         python-version: '3.13'
-    - uses: actions/checkout@v5
+    - if: github.event_name != 'pull_request_target'
+      uses: actions/checkout@v5
       with:
+        ref: ${{ github.ref }}
+        submodules: true
+    - if: github.event_name == 'pull_request_target'
+      uses: actions/checkout@v5
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
         submodules: true
     - run: make requirements
     - name: Check if code is formatted
