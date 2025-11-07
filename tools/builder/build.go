@@ -14,7 +14,9 @@ func build(configPath string) error {
 	if err := yaml.Unmarshal(data, &b); err != nil {
 		panic(err)
 	}
-	_ = os.MkdirAll(b.BuildPath, 0755)
+	if err := os.MkdirAll(b.BuildPath, 0755); err != nil {
+		return err
+	}
 	for _, o := range b.Overlays {
 		expectedFingerprint := o.Fingerprint()
 		actualFingerprint, _ := os.ReadFile(fmt.Sprintf("%s/%s.fingerprint", b.BuildPath, o.Name))

@@ -7,10 +7,14 @@
 
 unsigned char map_ascii[0x80];
 const char* map_utf8[] = {
-    "\xB4" "‘",
-    "\xB5" "’",
-    "\xB4" "❛",
-    "\xB5" "❜",
+    "\xB4"
+    "‘",
+    "\xB5"
+    "’",
+    "\xB4"
+    "❛",
+    "\xB5"
+    "❜",
 };
 
 void init() {
@@ -43,7 +47,7 @@ const char* remap_string(FILE* out, int padding, const char* str) {
             unsigned char re = 0;
             for (int i = 0; i < sizeof(map_utf8) / sizeof(void*); i++) {
                 len = strlen(&map_utf8[i][1]);
-                if (strncmp(str-1, &map_utf8[i][1], len) == 0) {
+                if (strncmp(str - 1, &map_utf8[i][1], len) == 0) {
                     re = map_utf8[i][0];
                     break;
                 }
@@ -133,7 +137,7 @@ int preview(const char* file_name, const char* str_offset) {
     while (1) {
         int ch = fgetc(f);
         if (ch == -1) {
-            fprintf(stderr, "EOF\n", ch);
+            fprintf(stderr, "EOF\n");
             break;
         }
         if (ch == 0xFF) {
