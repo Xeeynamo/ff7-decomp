@@ -1,0 +1,130 @@
+version: us
+build_path: build/us
+asm_path: asm/us
+asset_path: assets/us
+src_path: src
+ld_script_path: build/us
+generated_sym_path: build/us
+align: 4
+overlays:
+  - name: batini
+    disk_path: disks/us/BATTLE/BATINI.X.dec
+    sha1: 2771b06f7249d34ed8a4f8c94e6047f70278e17c
+    base_path: battle
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.batini.txt
+      - config/sym_export_battle.us.txt
+    migrate_rodata_to_functions: true
+    vram_start: 0x801B0000
+    segments:
+      - [0, .rodata, batini]
+      - [0x50, c, batini]
+  - name: battle
+    disk_path: disks/us/BATTLE/BATTLE.X.dec
+    sha1: c82690f814b18664c3b2d024f4edeea5743995d9
+    base_path: battle
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.battle.txt
+      - config/sym_battle_import.us.txt
+    migrate_rodata_to_functions: true
+    vram_start: 0x800A0000
+    segments:
+      - [0x0, .rodata, battle]
+      - [0x1158, c, battle]
+      - [0x47A38, data]
+  - name: brom
+    disk_path: disks/us/BATTLE/BROM.X.dec
+    sha1: ebc7a6559f677d1caef8c5db5fd884fd9e0ab156
+    base_path: brom
+    symbol_addrs_path:
+      - config/symbols.brom.us.txt
+      - config/sym_export.us.txt
+    migrate_rodata_to_functions: false
+    vram_start: 0x800A0000
+    segments:
+      - [0x0, c, brom]
+      - [0x6B4, data]
+  - name: dschange
+    disk_path: disks/us/FIELD/DSCHANGE.X
+    sha1: e884441c5ceacdeb94e16a603b73ca53706078e8
+    base_path: dschange
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.dschange.us.txt
+    vram_start: 0x800A0000
+    segments:
+      - [0x0, c, dschange]
+      - [0x1580, data]
+      - [0x15E0, bss]
+  - name: ending
+    disk_path: disks/us/FIELD/ENDING.X
+    sha1: 1b3fbf999913024209b23a1bb8a6874a66fc19ba
+    base_path: ending
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.ending.us.txt
+    vram_start: 0x800A0000
+    segments:
+      - [0x0, rodata]
+      - [0x30, c, ending]
+      - [0x3934, data]
+      - [0x6524, bss]
+  - name: field
+    disk_path: disks/us/FIELD/FIELD.BIN.dec
+    sha1: 9d4dc1688526f48a5e0706228e6a751d01871396
+    base_path: field
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.field.us.txt
+    migrate_rodata_to_functions: true
+    vram_start: 0x800A0000
+    segments:
+      - [0x0, .rodata, field]
+      - [0x1368, c, field]
+      - [0x3A5B8, data]
+  - name: bginmenu
+    disk_path: disks/us/MENU/BGINMENU.MNU
+    sha1: af17d71fa4738e53ec50df5d15d992a355500223
+    base_path: menu
+    symbol_addrs_path:
+    - config/sym_export.us.txt
+    - config/symbols.bginmenu.us.txt
+    vram_start: 0x801D0000
+    segments:
+      - [0x0, c, bginmenu]
+      - [0x7F0, data]
+      - [0x860, bss]
+  - name: cnfgmenu
+    disk_path: disks/us/MENU/CNFGMENU.MNU
+    sha1: 20450f6e53a204f0f3b251a3864f125bc7b27bb6
+    base_path: menu
+    symbol_addrs_path:
+    - config/sym_export.us.txt
+    - config/symbols.cnfgmenu.us.txt
+    migrate_rodata_to_functions: true
+    vram_start: 0x801D0000
+    segments:
+      - [0x0, .rodata, cnfgmenu]
+      - [0x40, c, cnfgmenu]
+      - [0x1AA8, .data, cnfgmenu]
+      - [0x24CC, .bss, cnfgmenu]
+  - name: savemenu
+    disk_path: disks/us/MENU/SAVEMENU.MNU
+    sha1: 430d54dbe01d9a0c670b1d2d2b5c642bdd1b3199
+    base_path: menu
+    symbol_addrs_path:
+    - config/sym_export.us.txt
+    - config/symbols.savemenu.us.txt
+    migrate_rodata_to_functions: true
+    vram_start: 0x801D0000
+    segments:
+      - [0x0, .rodata, savemenu]
+      - [0x3B8, .rodata, title]
+      - [0x408, c, savemenu]
+      - [0x2B58, c, title]
+      - [0x4EC4, data]
+      - [0x12C78, .data, savemenu]
+      - [0x13650, data]
+      - [0x13698, bss]

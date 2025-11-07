@@ -23,10 +23,12 @@ Install the necessary dependencies:
 make requirements
 
 # Debian/Ubuntu
-sudo apt install ninja-build 7zip bchunk binutils-mipsel-linux-gnu gcc-mipsel-linux-gnu
+sudo add-apt-repository ppa:longsleep/golang-backports
+sudo apt update
+sudo apt install golang-go ninja-build 7zip bchunk binutils-mipsel-linux-gnu gcc-mipsel-linux-gnu
 
 # Arch Linux
-sudo pacman -S ninja 7zip bchunk
+sudo pacman -S go ninja 7zip bchunk
 yay mipsel-linux-gnu-binutils mipsel-linux-gnu-gcc
 ```
 
