@@ -11,7 +11,7 @@ all: disks build
 
 .PHONY: build
 build: bin/cc1-psx-26 bin/cc1-psx-272 bin/str disks/us/FIELD/FIELD.BIN.dec
-	@go run ./tools/builder
+	@go run ./tools/builder build
 	@ninja
 	@mkdir -p expected/build
 	@rm -rf expected/build

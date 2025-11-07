@@ -110,7 +110,6 @@ func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 			UndefinedSymsAutoPath:          filepath.Join(b.GeneratedSymPath, fmt.Sprintf("undefined_syms.%s.txt", o.Name)),
 			FindFileBoundaries:             false,
 			UseLegacyIncludeAsm:            false,
-			AsmJtblLabelMacro:              "jlabel",
 			MigrateRodataToFunctions:       o.MigrateRodataToFunctions,
 			DisassembleAll:                 o.Name == "main", // for some reason, `main` doesn't build without
 			GlobalVramStart:                o.VramStart,

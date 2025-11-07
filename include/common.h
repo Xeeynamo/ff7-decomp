@@ -5,6 +5,10 @@
 #define NULL 0
 #endif
 
+#ifdef SKIP_ASM
+#undef USE_INCLUDE_ASM
+#endif
+
 #ifdef USE_INCLUDE_ASM
 __asm__(".include \"macro.inc\"\n");
 #define INCLUDE_ASM(FOLDER, NAME)                                              \
