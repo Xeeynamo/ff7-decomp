@@ -7,6 +7,8 @@ assets/
 bin/
 build/
 disks/
+include/*.inc
+include/include_asm.h
 sym_export.*.txt
 undefined_funcs_auto.*.txt
 undefined_syms_auto.*.txt

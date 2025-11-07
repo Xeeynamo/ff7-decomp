@@ -57,7 +57,11 @@ def filter_functions(
     symbol_list: list[tuple[str, str, str]],
 ) -> list[tuple[str, str, str]]:
     return [
-        symbol for symbol in symbol_list if symbol[1] == "T" and is_function(symbol[2])
+        symbol
+        for symbol in symbol_list
+        if symbol[1] == "T"
+        and is_function(symbol[2])
+        and not symbol[2].endswith(".NON_MATCHING")
     ]
 
 

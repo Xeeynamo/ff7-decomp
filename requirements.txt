@@ -1,6 +1,6 @@
-splat64==0.34.3
-spimdisasm==1.35.0
-rabbitizer
+splat64==0.36.3
+spimdisasm==1.39.0
+rabbitizer==1.14.3
 colorama
 watchdog
 levenshtein
