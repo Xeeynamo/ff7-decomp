@@ -28,6 +28,7 @@ options:
     - ".data"
     - ".bss"
   ld_generate_symbol_per_data_segment: true
+  include_asm_macro_style: maspsx_hack
 sha1: a95e8b16b97071203b953bb81a33980509262f30
 segments:
   - [0x800, header]
