@@ -12,4 +12,5 @@ undefined_funcs_auto.*.txt
 undefined_syms_auto.*.txt
 .ninja_log
 .ninja_lock
+.ninja_deps
 build.ninja

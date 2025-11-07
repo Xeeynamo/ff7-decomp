@@ -312,13 +312,15 @@ with open("build.ninja", "w") as f:
     nw.rule(
         "psx-cc",
         command=(
-            f"mipsel-linux-gnu-cpp {CPP_FLAGS} -lang-c -Iinclude -Iinclude/psxsdk -undef -Wall -fno-builtin $in"
+            f"mipsel-linux-gnu-cpp {CPP_FLAGS} -MMD -MF $out.d -lang-c -Iinclude -Iinclude/psxsdk -undef -Wall -fno-builtin $in"
             " | bin/str"  # convert C-style strings _S("FOO") into FF7-style strings "\x26\x2F\x2F\xFF"
             " | iconv --from-code=UTF-8 --to-code=Shift-JIS"
             " | bin/$cc1 -quiet -mcpu=3000 -g -mgas -gcoff $cc_flags"
             " | python3 tools/maspsx/maspsx.py $as_flags"
             " | mipsel-linux-gnu-as -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 -o $out"
         ),
+        depfile="$out.d",
+        deps="gcc",
         description="psx cc $in",
     )
     nw.rule(
