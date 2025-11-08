@@ -734,8 +734,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", PadSetActAlign);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", PadSetAct);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_800425F8);
-
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DecDCTvlcSize2);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DecDCTvlc2);

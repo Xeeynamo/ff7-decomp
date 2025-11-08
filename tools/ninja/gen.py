@@ -1,3 +1,5 @@
+import os
+import sys
 from dataclasses import dataclass
 import os
 
@@ -10,6 +12,12 @@ LD_FLAGS = ""
 nw: ninja_syntax.Writer = None
 objs: list[str] = []
 work_dir = "build/us"
+if len(sys.argv) > 1:
+    work_dir = sys.argv[1]
+generate_report = os.environ.get("GENERATE_REPORT") == "1"
+if generate_report:
+    # https://decomp.wiki/en/tools/decomp-dev
+    CPP_FLAGS += " -DSKIP_ASM=1"
 check_path = os.path.join(work_dir, "check.sha1")
 
 
@@ -219,6 +227,8 @@ def add_splat_config(file_name: str):
                 add_s(cfg, name)
             elif kind == "c" or kind == ".data":
                 add_c(cfg, name)
+    if generate_report:
+        return
     output_name = f"{build_path(cfg)}/{basename(cfg)}.elf"
     sym_export = "config/sym_export.us.txt"
     if is_main:
@@ -351,11 +361,12 @@ with open("build.ninja", "w") as f:
         command=f"sha1sum -c {check_path}",
         description="check",
     )
-    nw.build(
-        rule="check",
-        outputs=["build/check.dummy"],
-        inputs=get_check_list(check_path),
-    )
+    if not generate_report:
+        nw.build(
+            rule="check",
+            outputs=["build/check.dummy"],
+            inputs=get_check_list(check_path),
+        )
     add_splat_config(os.path.join(work_dir, "main.yaml"))
     add_splat_config(os.path.join(work_dir, "batini.yaml"))
     add_splat_config(os.path.join(work_dir, "battle.yaml"))
