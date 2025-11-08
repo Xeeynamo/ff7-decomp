@@ -51,6 +51,9 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 	var categories []objdiffProgressCategory
 	for _, o := range b.Overlays {
 		srcDir := filepath.Join(b.SrcPath, o.BasePath)
+		categories = append(categories, objdiffProgressCategory{
+			ID: o.Name,
+		})
 		for _, src := range o.Segments {
 			if len(src) < 2 {
 				continue
@@ -73,19 +76,15 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 			if name == "" {
 				panic("bug")
 			}
-			category := fmt.Sprintf("%s/%s", o.Name, name)
-			categories = append(categories, objdiffProgressCategory{
-				ID: category,
-			})
 			srcFile := filepath.Join(srcDir, name+".c")
 			objFile := filepath.Join(b.BuildPath, srcFile+".o")
 			units = append(units, objdiffUnit{
-				Name:       o.Name,
+				Name:       fmt.Sprintf("%s/%s", o.Name, name),
 				BasePath:   objFile,
 				TargetPath: targetPath(objFile),
 				Metadata: objdiffMetadata{
 					SourcePath:         srcFile,
-					ProgressCategories: []string{category},
+					ProgressCategories: []string{o.Name},
 				},
 			})
 		}
