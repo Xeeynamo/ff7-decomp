@@ -35,6 +35,11 @@ typedef enum {
 } YamadaFile;
 
 typedef struct {
+    s32 loc; // disk sector where the file can be found
+    s32 len; // file size in bytes
+} Yamada;
+
+typedef struct {
     s16 unk0;
     s16 unk2; // current page
     s16 unk4;

@@ -36,11 +36,6 @@ typedef enum {
 } KernelID;
 
 typedef struct {
-    s32 loc; // disk sector where the file can be found
-    s32 len; // file size in bytes
-} Yamada;
-
-typedef struct {
     s32 len; // decompressed length
     s32 unk4;
 } GzHeader;

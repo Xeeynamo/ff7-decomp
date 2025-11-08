@@ -88,3 +88,5 @@ extern u8 D_801590CC;    // part of D_801518FC?
 extern u16 D_80163758[]; // part of a struct
 extern Unk800A2F4C D_80163798[0x40];
 extern u8 D_80163C7C;
+
+void func_800D088C(s32 loc, s32 len);

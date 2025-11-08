@@ -1434,7 +1434,10 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800D06B8);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800D0760);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800D088C);
+void func_800D088C(s32 loc, s32 len) {
+    func_80033E34(loc, len, (void*)0x801B0000, 0);
+    func_800B7FB4();
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800D08B8);
 

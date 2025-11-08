@@ -1,6 +1,16 @@
 //! PSYQ=3.3 CC1=2.7.2
 #include "battle_private.h"
 
+extern Yamada D_800EEBB8[]; // MAGIC/*.BIN overlay
+extern s16 D_800EF5B0[];
+extern s16 D_800EF63C[];
+extern s16 D_800EF6A8[];
+extern s16 D_800EF6D8[];
+extern s16 D_800EF6FC[];
+extern s16 D_800EF838[];
+extern s16 D_800EF8D8[];
+extern u8 D_801031F0;
+
 void func_800D1530();
 void func_801B037C(s16, u8);
 
@@ -26,7 +36,71 @@ void func_800D0B4C(u8 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D0C80);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D1110);
+void func_800D1110(u8 arg0) {
+    s32 lba;
+    s32 var_a1;
+    s32 id;
+
+    switch (D_801518FC[arg0].D_80151907) {
+    case 2:
+        if (D_801031F0 == 0) {
+            id = D_800EF63C[D_801518FC[arg0].D_80151906];
+            func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
+        } else {
+            switch (D_801518FC[arg0].D_80151906) {
+            case 29:
+                func_800D088C(D_800EEBB8[77].loc, D_800EEBB8[77].len);
+                break;
+            case 41:
+                func_800D088C(D_800EEBB8[32].loc, D_800EEBB8[32].len);
+                break;
+            case 44:
+                func_800D088C(D_800EEBB8[26].loc, D_800EEBB8[26].len);
+                break;
+            case 32:
+                func_800D088C(D_800EEBB8[255].loc, D_800EEBB8[255].len);
+                break;
+            case 35:
+                func_800D088C(D_800EEBB8[6].loc, D_800EEBB8[6].len);
+                break;
+            default:
+                id = D_800EF63C[D_801518FC[arg0].D_80151906];
+                lba = D_800EEBB8[id].loc;
+                var_a1 = D_800EEBB8[id].len;
+                func_800D088C(lba, var_a1);
+                break;
+            }
+        }
+        break;
+    case 7:
+        func_800D088C(D_800EEBB8[221].loc, D_800EEBB8[221].len);
+        break;
+    case 8:
+        id = D_800EF8D8[D_801518FC[arg0].D_80151906];
+        func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
+        break;
+    case 13:
+        id = D_800EF6A8[D_801518FC[arg0].D_80151906];
+        func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
+        break;
+    case 20:
+        id = D_800EF838[D_801518FC[arg0].D_80151906];
+        func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
+        break;
+    case 4:
+        id = D_800EF5B0[D_801518FC[arg0].D_80151906];
+        func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
+        break;
+    case 32:
+        id = D_800EF6FC[D_801518FC[arg0].D_80151906];
+        func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
+        break;
+    case 3:
+        id = D_800EF6D8[D_801518FC[arg0].D_80151906];
+        func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D1530);
 
