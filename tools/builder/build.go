@@ -37,7 +37,7 @@ func writeSplatConfigs(b BuildConfig) error {
 		expectedFingerprint := o.Fingerprint()
 		actualFingerprint, _ := os.ReadFile(fmt.Sprintf("%s/%s.fingerprint", b.BuildPath, o.Name))
 		if actualFingerprint != nil && bytes.Equal(expectedFingerprint, actualFingerprint) {
-			//continue
+			continue
 		}
 		splatConfig, err := makeSplatConfig(b, o)
 		if err != nil {
