@@ -148,3 +148,14 @@ overlays:
       - [0x12C78, .data, savemenu]
       - [0x13650, data]
       - [0x13698, bss]
+  - name: barrier
+    disk_path: disks/us/MAGIC/BARRIER.BIN
+    sha1: e93c458117a937879f1a6d8c956dfbdacd6286e0
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, c, barrier]
+      - [0xB68, data, barrier]

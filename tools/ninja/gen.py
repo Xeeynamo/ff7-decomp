@@ -21,31 +21,31 @@ if generate_report:
 check_path = os.path.join(work_dir, "check.sha1")
 
 
-def basename(cfg):
+def basename(cfg) -> str:
     return cfg["options"]["basename"]
 
 
-def asm_path(cfg):
+def asm_path(cfg) -> str:
     return cfg["options"]["asm_path"]
 
 
-def build_path(cfg):
+def build_path(cfg) -> str:
     return cfg["options"]["build_path"]
 
 
-def ld_path(cfg):
+def ld_path(cfg) -> str:
     return cfg["options"]["ld_script_path"]
 
 
-def src_path(cfg):
+def src_path(cfg) -> str:
     return cfg["options"]["src_path"]
 
 
-def asset_path(cfg):
+def asset_path(cfg) -> str:
     return cfg["options"]["asset_path"]
 
 
-def platform(cfg):
+def platform(cfg) -> str:
     return cfg["options"]["platform"]
 
 
@@ -115,6 +115,8 @@ def parse_compiler_params(line: str) -> CompilerParams:
 
 
 def get_compiler_params(source_file_name: str) -> CompilerParams:
+    if not os.path.exists(source_file_name):
+        return default_compiler_params()
     with open(source_file_name, "r") as file:
         for i in range(10):  # read the top 10 lines of code
             line = file.readline()
@@ -199,6 +201,7 @@ def add_splat_config(file_name: str):
     is_main = basename(cfg) == "main"
     is_battle = basename(cfg) == "battle"
     is_batini = basename(cfg) == "batini"
+    is_magic = "/magic" in src_path(cfg)
     if platform(cfg) == "psx" and is_main:
         add_s(cfg, "header")
     for segment in cfg["segments"]:
@@ -252,7 +255,7 @@ def add_splat_config(file_name: str):
             inputs=[output_name],
         )
         sym_paths.append("-T config/sym_battle_import.us.txt")
-    if is_batini:
+    if is_batini or is_magic:
         # batini uses symbols from battle
         sym_paths.append("-T config/sym_export_battle.us.txt")
     nw.build(
@@ -367,13 +370,23 @@ with open("build.ninja", "w") as f:
             outputs=["build/check.dummy"],
             inputs=get_check_list(check_path),
         )
-    add_splat_config(os.path.join(work_dir, "main.yaml"))
-    add_splat_config(os.path.join(work_dir, "batini.yaml"))
-    add_splat_config(os.path.join(work_dir, "battle.yaml"))
-    add_splat_config(os.path.join(work_dir, "brom.yaml"))
-    add_splat_config(os.path.join(work_dir, "dschange.yaml"))
-    add_splat_config(os.path.join(work_dir, "ending.yaml"))
-    add_splat_config(os.path.join(work_dir, "field.yaml"))
-    add_splat_config(os.path.join(work_dir, "bginmenu.yaml"))
-    add_splat_config(os.path.join(work_dir, "cnfgmenu.yaml"))
-    add_splat_config(os.path.join(work_dir, "savemenu.yaml"))
+    for ovl in [
+        "main",
+        # BATTLE
+        "batini",
+        "battle",
+        "brom",
+        # MISC
+        "dschange",
+        "ending",
+        # FIELD
+        "field",
+        # MINI
+        # MENU
+        "bginmenu",
+        "cnfgmenu",
+        "savemenu",
+        # MAGIC
+        "barrier",
+    ]:
+        add_splat_config(os.path.join(work_dir, f"{ovl}.yaml"))
