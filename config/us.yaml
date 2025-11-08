@@ -52,7 +52,9 @@ overlays:
     vram_start: 0x800A0000
     segments:
       - [0x0, .rodata, battle]
+      - [0xB88, .rodata, battle2]
       - [0x1158, c, battle]
+      - [0x30A4C, c, battle2]
       - [0x47A38, data]
   - name: brom
     disk_path: disks/us/BATTLE/BROM.X.dec
