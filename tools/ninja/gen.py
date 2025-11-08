@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import os
 
 import ninja_syntax
 import yaml
@@ -8,6 +9,8 @@ LD_FLAGS = ""
 
 nw: ninja_syntax.Writer = None
 objs: list[str] = []
+work_dir = "build/us"
+check_path = os.path.join(work_dir, "check.sha1")
 
 
 def basename(cfg):
@@ -260,7 +263,7 @@ def add_splat_config(file_name: str):
         nw.build(
             rule="sym-export",
             outputs=["config/sym_ovl_export.us.txt"],
-            inputs=get_ovl_elf_list("config/check.sha1"),
+            inputs=get_ovl_elf_list(check_path),
         )
         nw.build(
             rule="psx-ld",
@@ -345,21 +348,21 @@ with open("build.ninja", "w") as f:
     )
     nw.rule(
         "check",
-        command="sha1sum -c config/check.sha1",
+        command=f"sha1sum -c {check_path}",
         description="check",
     )
     nw.build(
         rule="check",
         outputs=["build/check.dummy"],
-        inputs=get_check_list("config/check.sha1"),
+        inputs=get_check_list(check_path),
     )
-    add_splat_config("config/main.us.yaml")
-    add_splat_config("build/us/batini.yaml")
-    add_splat_config("build/us/battle.yaml")
-    add_splat_config("build/us/brom.yaml")
-    add_splat_config("build/us/dschange.yaml")
-    add_splat_config("build/us/ending.yaml")
-    add_splat_config("build/us/field.yaml")
-    add_splat_config("build/us/bginmenu.yaml")
-    add_splat_config("build/us/cnfgmenu.yaml")
-    add_splat_config("build/us/savemenu.yaml")
+    add_splat_config(os.path.join(work_dir, "main.yaml"))
+    add_splat_config(os.path.join(work_dir, "batini.yaml"))
+    add_splat_config(os.path.join(work_dir, "battle.yaml"))
+    add_splat_config(os.path.join(work_dir, "brom.yaml"))
+    add_splat_config(os.path.join(work_dir, "dschange.yaml"))
+    add_splat_config(os.path.join(work_dir, "ending.yaml"))
+    add_splat_config(os.path.join(work_dir, "field.yaml"))
+    add_splat_config(os.path.join(work_dir, "bginmenu.yaml"))
+    add_splat_config(os.path.join(work_dir, "cnfgmenu.yaml"))
+    add_splat_config(os.path.join(work_dir, "savemenu.yaml"))

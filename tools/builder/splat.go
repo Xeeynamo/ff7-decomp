@@ -25,32 +25,33 @@ type SplatOptions struct {
 	UndefinedSymsAutoPath          string   `yaml:"undefined_syms_auto_path"`
 	FindFileBoundaries             bool     `yaml:"find_file_boundaries"`
 	UseLegacyIncludeAsm            bool     `yaml:"use_legacy_include_asm"`
-	AsmJtblLabelMacro              string   `yaml:"asm_jtbl_label_macro"`
+	AsmJtblLabelMacro              string   `yaml:"asm_jtbl_label_macro,omitempty"`
 	MigrateRodataToFunctions       bool     `yaml:"migrate_rodata_to_functions"`
 	DisassembleAll                 bool     `yaml:"disassemble_all"`
 	GlobalVramStart                int64    `yaml:"global_vram_start"`
+	GPValue                        int64    `yaml:"gp_value,omitempty"`
 	SectionOrder                   []string `yaml:"section_order"`
 	LdGenerateSymbolPerDataSegment bool     `yaml:"ld_generate_symbol_per_data_segment"`
 }
 
 type SplatSegment struct {
-	Name        string          `yaml:"name"`
-	Type        string          `yaml:"type"`
-	Start       int             `yaml:"start"`
-	Vram        int64           `yaml:"vram"`
-	BssSize     int64           `yaml:"bss_size"`
-	Align       int             `yaml:"align"`
-	Subalign    int             `yaml:"subalign"`
-	Subsegments [][]interface{} `yaml:"subsegments"`
+	Name        string  `yaml:"name"`
+	Type        string  `yaml:"type"`
+	Start       int     `yaml:"start"`
+	Vram        int64   `yaml:"vram"`
+	BssSize     int64   `yaml:"bss_size,omitempty"`
+	Align       int     `yaml:"align"`
+	Subalign    int     `yaml:"subalign"`
+	Subsegments [][]any `yaml:"subsegments"`
 }
 
 type SplatConfig struct {
-	Options  SplatOptions  `yaml:"options"`
-	Sha1     string        `yaml:"sha1"`
-	Segments []interface{} `yaml:"segments"`
+	Options  SplatOptions `yaml:"options"`
+	Sha1     string       `yaml:"sha1"`
+	Segments []any        `yaml:"segments"`
 }
 
-func MakeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
+func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 	getRootDir := func(path string) string {
 		if path == "" {
 			return "."
@@ -71,6 +72,24 @@ func MakeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 	if err != nil {
 		return SplatConfig{}, err
 	}
+	start := 0
+	var segments []any
+	if o.Name == "main" {
+		start = 0x800
+		header := []any{0x800, "header"}
+		segments = append(segments, header)
+	}
+	segments = append(segments, SplatSegment{
+		Name:        o.Name,
+		Type:        "code",
+		Start:       start,
+		Vram:        o.VramStart,
+		BssSize:     o.BssSize,
+		Align:       b.Align,
+		Subalign:    b.Align,
+		Subsegments: o.Segments,
+	})
+	segments = append(segments, []int64{stat.Size()})
 	return SplatConfig{
 		Sha1: o.Sha1,
 		Options: SplatOptions{
@@ -93,23 +112,12 @@ func MakeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 			UseLegacyIncludeAsm:            false,
 			AsmJtblLabelMacro:              "jlabel",
 			MigrateRodataToFunctions:       o.MigrateRodataToFunctions,
-			DisassembleAll:                 false,
+			DisassembleAll:                 o.Name == "main", // for some reason, `main` doesn't build without
 			GlobalVramStart:                o.VramStart,
+			GPValue:                        o.GPValue,
 			SectionOrder:                   []string{".rodata", ".text", ".data", ".bss"},
 			LdGenerateSymbolPerDataSegment: true,
 		},
-		Segments: []interface{}{
-			SplatSegment{
-				Name:        o.Name,
-				Type:        "code",
-				Start:       0,
-				Vram:        o.VramStart,
-				BssSize:     o.BssSize,
-				Align:       b.Align,
-				Subalign:    b.Align,
-				Subsegments: o.Segments,
-			},
-			[]int64{stat.Size()},
-		},
+		Segments: segments,
 	}, nil
 }

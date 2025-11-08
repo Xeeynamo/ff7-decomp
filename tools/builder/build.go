@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 
 	"github.com/goccy/go-yaml"
 )
@@ -17,13 +20,26 @@ func build(configPath string) error {
 	if err := os.MkdirAll(b.BuildPath, 0755); err != nil {
 		return err
 	}
+	if err := writeSplatConfigs(b); err != nil {
+		return err
+	}
+	if err := writeSha1Check(b); err != nil {
+		return err
+	}
+	if err := generateNinjaBuild(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func writeSplatConfigs(b BuildConfig) error {
 	for _, o := range b.Overlays {
 		expectedFingerprint := o.Fingerprint()
 		actualFingerprint, _ := os.ReadFile(fmt.Sprintf("%s/%s.fingerprint", b.BuildPath, o.Name))
 		if actualFingerprint != nil && bytes.Equal(expectedFingerprint, actualFingerprint) {
-			continue
+			//continue
 		}
-		splatConfig, err := MakeSplatConfig(b, o)
+		splatConfig, err := makeSplatConfig(b, o)
 		if err != nil {
 			return err
 		}
@@ -39,4 +55,22 @@ func build(configPath string) error {
 		}
 	}
 	return nil
+}
+
+func writeSha1Check(b BuildConfig) error {
+	var sb strings.Builder
+	for _, o := range b.Overlays {
+		sb.WriteString(fmt.Sprintf("%s  %s\n", o.Sha1, filepath.Join(b.BuildPath, o.Name+".exe")))
+	}
+	return os.WriteFile(filepath.Join(b.BuildPath, "check.sha1"), []byte(sb.String()), 0644)
+}
+
+func generateNinjaBuild() error {
+	return (&exec.Cmd{
+		Path:   ".venv/bin/python3",
+		Args:   []string{".venv/bin/python3", "tools/ninja/gen.py"},
+		Env:    os.Environ(),
+		Stdout: os.Stdout,
+		Stderr: os.Stderr,
+	}).Run()
 }

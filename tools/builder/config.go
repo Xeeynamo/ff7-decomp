@@ -15,6 +15,7 @@ type Overlay struct {
 	SymbolAddrsPath          []string        `yaml:"symbol_addrs_path"`
 	MigrateRodataToFunctions bool            `yaml:"migrate_rodata_to_functions"`
 	VramStart                int64           `yaml:"vram_start"`
+	GPValue                  int64           `yaml:"gp_value"`
 	BssSize                  int64           `yaml:"bss_size"`
 	Segments                 [][]interface{} `yaml:"segments"`
 }

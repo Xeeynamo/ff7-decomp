@@ -7,6 +7,26 @@ ld_script_path: build/us
 generated_sym_path: build/us
 align: 4
 overlays:
+  - name: main
+    disk_path: disks/us/SCUS_941.63
+    sha1: a95e8b16b97071203b953bb81a33980509262f30
+    base_path: main
+    symbol_addrs_path:
+    - config/symbols.main.us.txt
+    - config/sym_extern.us.txt
+    vram_start: 0x80010000
+    gp_value: 0x80062D44
+    segments:
+      - [0x800, rodata]
+      - [0xC38, rodata]
+      - [0x18B8, c]
+      - [0x19bd0, c, akao]
+      - [0x24370, c, psxsdk]
+      - [0x394E0, data]
+      - [0x39BA8, .data, ovl]
+      - [0x39C50, data]
+      - [0x5354C, .sdata, 18B8]
+      - [0x536C4, bss]
   - name: batini
     disk_path: disks/us/BATTLE/BATINI.X.dec
     sha1: 2771b06f7249d34ed8a4f8c94e6047f70278e17c
