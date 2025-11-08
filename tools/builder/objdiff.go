@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -29,8 +30,8 @@ type objdiffUnit struct {
 }
 
 type objdiffProgressCategory struct {
-	ID   string `yaml:"id"`
-	Name string `yaml:"name"`
+	ID   string `json:"id"`
+	Name string `json:"name,omitempty"`
 }
 
 type objdiffConfig struct {
@@ -47,9 +48,9 @@ type objdiffConfig struct {
 
 func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 	var units []objdiffUnit
+	var categories []objdiffProgressCategory
 	for _, o := range b.Overlays {
 		srcDir := filepath.Join(b.SrcPath, o.BasePath)
-		progressCategories := []string{o.Name}
 		for _, src := range o.Segments {
 			if len(src) < 2 {
 				continue
@@ -72,6 +73,10 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 			if name == "" {
 				panic("bug")
 			}
+			category := fmt.Sprintf("%s/%s", o.Name, name)
+			categories = append(categories, objdiffProgressCategory{
+				ID: category,
+			})
 			srcFile := filepath.Join(srcDir, name+".c")
 			objFile := filepath.Join(b.BuildPath, srcFile+".o")
 			units = append(units, objdiffUnit{
@@ -80,16 +85,10 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 				TargetPath: targetPath(objFile),
 				Metadata: objdiffMetadata{
 					SourcePath:         srcFile,
-					ProgressCategories: progressCategories,
+					ProgressCategories: []string{category},
 				},
 			})
 		}
-	}
-	var categories []objdiffProgressCategory
-	for _, o := range b.Overlays {
-		categories = append(categories, objdiffProgressCategory{
-			ID: o.Name,
-		})
 	}
 	return objdiffConfig{
 		CustomMake:  "ninja",
