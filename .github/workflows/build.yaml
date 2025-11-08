@@ -46,10 +46,10 @@ jobs:
         ls -la disks/
     - run: make build
     - name: Generate progress report
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: go run ./tools/builder report config/us.yaml build/report.json
     - name: Upload progress report
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       uses: actions/upload-artifact@v4
       with:
         name: us_report
