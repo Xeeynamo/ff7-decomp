@@ -152,6 +152,116 @@ overlays:
       - [0x12C78, .data, savemenu]
       - [0x13650, data]
       - [0x13698, bss]
+  - name: aeroga
+    disk_path: disks/us/MAGIC/AEROGA.BIN
+    sha1: 33afd09c02f7804b86f0ca0e16f1ee8c197c1b56
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, aeroga]
+  - name: alex
+    disk_path: disks/us/MAGIC/ALEX.BIN
+    sha1: 879944b192cd0f9eb617ac9fed7ffebcb06f6535
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, alex]
+  - name: almighty
+    disk_path: disks/us/MAGIC/ALMIGHTY.BIN
+    sha1: e9659d8ef9e3096975df9ee044394eb9336f8715
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, almighty]
+  - name: altema
+    disk_path: disks/us/MAGIC/ALTEMA.BIN
+    sha1: 6c124ded078a7c344cf0e25fa313c6f8f5de95a3
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, altema]
+  # - name: angermax
+  #   disk_path: disks/us/MAGIC/ANGERMAX.BIN
+  #   sha1: f1355c63b5204f54d0003b0efd3a1ac083ac3c85
+  #   base_path: magic
+  #   vram_start: 0x801B0000
+  #   symbol_addrs_path:
+  #     - config/sym_export.us.txt
+  #     - config/sym_export_battle.us.txt
+  #   segments:
+  #     - [0, data, angermax]
+  - name: antlion
+    disk_path: disks/us/MAGIC/ANTLION.BIN
+    sha1: dc7a8ba3848156297d1d119d31f9bbb57578abfe
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, antlion]
+  - name: aqua
+    disk_path: disks/us/MAGIC/AQUA.BIN
+    sha1: 943f76e2bc5ee965cd6ae3aa146caa3f5159f9a0
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, aqua]
+  - name: atomic
+    disk_path: disks/us/MAGIC/ATOMIC.BIN
+    sha1: f02ef689f2ca197836efbf018195836d91905fd7
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, atomic]
+  - name: awa
+    disk_path: disks/us/MAGIC/AWA.BIN
+    sha1: d87fa93fa5acdf1f189e99d2ef461a1ce2e1b403
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, awa]
+  - name: ayasii
+    disk_path: disks/us/MAGIC/AYASII.BIN
+    sha1: d8a951159a2293d9a39521f42cc351f3b6dea268
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, ayasii]
+  - name: bacume
+    disk_path: disks/us/MAGIC/BACUME.BIN
+    sha1: 0c6f8c7c8f1a31012d89c49406375c5473c8d910
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, bacume]
   - name: barrier
     disk_path: disks/us/MAGIC/BARRIER.BIN
     sha1: e93c458117a937879f1a6d8c956dfbdacd6286e0
@@ -164,3 +274,2773 @@ overlays:
     segments:
       - [0, c, barrier]
       - [0xB68, data, barrier]
+  - name: beam
+    disk_path: disks/us/MAGIC/BEAM.BIN
+    sha1: 41e8f8086c34de134da8dd21c2b70516384ef3b2
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, beam]
+  - name: beast
+    disk_path: disks/us/MAGIC/BEAST.BIN
+    sha1: 4f55a36895133e5db1d13d573c3b4d7c44ca6282
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, beast]
+  - name: beata
+    disk_path: disks/us/MAGIC/BEATA.BIN
+    sha1: 8c9c56b3ddccd649b03bd189c230e9eb372f395f
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, beata]
+  - name: beat
+    disk_path: disks/us/MAGIC/BEAT.BIN
+    sha1: 7e91579b7c7ad6edf8f79469182048c3db74f48f
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, beat]
+  - name: berserk
+    disk_path: disks/us/MAGIC/BERSERK.BIN
+    sha1: 31f863e25f8245b720ed3470d01cf39dd28632c9
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, berserk]
+  - name: bio
+    disk_path: disks/us/MAGIC/BIO.BIN
+    sha1: dd85dde908e5d8395fadc70b122d8bced484b109
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, bio]
+  - name: bioga1
+    disk_path: disks/us/MAGIC/BIOGA1.BIN
+    sha1: 1e807abafdcceb6906830375bb71b22ad4ce0eeb
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, bioga1]
+  - name: bioga2
+    disk_path: disks/us/MAGIC/BIOGA2.BIN
+    sha1: d5843585310a81a24db173c17ab9f8d2c2acadc8
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, bioga2]
+  - name: biora
+    disk_path: disks/us/MAGIC/BIORA.BIN
+    sha1: 3111ff45f8e372901e74a68f3fdc744e0ee45dc8
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, biora]
+  - name: blaster
+    disk_path: disks/us/MAGIC/BLASTER.BIN
+    sha1: 639fc26e80f5a06821827a6a88a510f11e39ae04
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, blaster]
+  - name: blaver
+    disk_path: disks/us/MAGIC/BLAVER.BIN
+    sha1: f66b889c470406b599629ab07d09f865a611f59e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, blaver]
+  - name: boost
+    disk_path: disks/us/MAGIC/BOOST.BIN
+    sha1: 119e4dccbf935a2636540d309e6592f3f73dc596
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, boost]
+  - name: brand
+    disk_path: disks/us/MAGIC/BRAND.BIN
+    sha1: 88229c0fc1c75b10782ad1fcddf47b92e3127215
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, brand]
+  - name: break
+    disk_path: disks/us/MAGIC/BREAK.BIN
+    sha1: ad256c6a7b55169104d43192f6bc01f705e5f0a2
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, break]
+  - name: brizad
+    disk_path: disks/us/MAGIC/BRIZAD.BIN
+    sha1: d06ef02a1e37a85eb6c0206c9793a44a713bfe82
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, brizad]
+  - name: brizag2
+    disk_path: disks/us/MAGIC/BRIZAG2.BIN
+    sha1: 784455fa2f0696fbf6909bb88a6ef5506f2b422b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, brizag2]
+  - name: brizag
+    disk_path: disks/us/MAGIC/BRIZAG.BIN
+    sha1: ee981122806384cc6e2820264b1681c8264c59ec
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, brizag]
+  - name: brizara
+    disk_path: disks/us/MAGIC/BRIZARA.BIN
+    sha1: bbeb47124e8c8582bab9c3cd2c78ebcd87529d62
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, brizara]
+  - name: bushin2
+    disk_path: disks/us/MAGIC/BUSHIN2.BIN
+    sha1: fea51e88bc2b419f2a75cd8e34324d8a7b887729
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, bushin2]
+  # - name: carel
+  #   disk_path: disks/us/MAGIC/CAREL.BIN
+  #   sha1: f9dde6fbe86c0b49f2065ee4077e67b4b1467490
+  #   base_path: magic
+  #   vram_start: 0x801B0000
+  #   symbol_addrs_path:
+  #     - config/sym_export.us.txt
+  #     - config/sym_export_battle.us.txt
+  #   segments:
+  #     - [0, data, carel]
+  - name: catastro
+    disk_path: disks/us/MAGIC/CATASTRO.BIN
+    sha1: d40ad033c3f8fb9050327f37031a1ac4d5cbd8ce
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, catastro]
+  - name: cbreath
+    disk_path: disks/us/MAGIC/CBREATH.BIN
+    sha1: f083751f9bb87ec931af7197cd04042e003a677f
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, cbreath]
+  - name: chi
+    disk_path: disks/us/MAGIC/CHI.BIN
+    sha1: b5de9815d1ad037a9e8f1738bdb9e476b264028b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, chi]
+  - name: chikasui
+    disk_path: disks/us/MAGIC/CHIKASUI.BIN
+    sha1: c5b4245168b6da7cb0d21ace51988a5888a2a994
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, chikasui]
+  - name: choco0
+    disk_path: disks/us/MAGIC/CHOCO0.BIN
+    sha1: 95578b626039a74f898479045a7ab394cc14c5ff
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, choco0]
+  - name: cho_kyu
+    disk_path: disks/us/MAGIC/CHO_KYU.BIN
+    sha1: 935c051e9442de2b297672f64b86b54fe8f3492b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, cho_kyu]
+  - name: climb
+    disk_path: disks/us/MAGIC/CLIMB.BIN
+    sha1: 914e8132efde0037edd70ec91b9c8442325b6688
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, climb]
+  - name: club1
+    disk_path: disks/us/MAGIC/CLUB1.BIN
+    sha1: 954e605f803585a034bd84f699ecbe71523d84b1
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, club1]
+  - name: club2
+    disk_path: disks/us/MAGIC/CLUB2.BIN
+    sha1: 1fa258efafe392c6563c90586101b2ff99644c09
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, club2]
+  - name: comet
+    disk_path: disks/us/MAGIC/COMET.BIN
+    sha1: 66f577e61c4ae0c8687b5cb1ef7018596f92b166
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, comet]
+  - name: cometeo
+    disk_path: disks/us/MAGIC/COMETEO.BIN
+    sha1: b3ac68c3f3fccec56b4c05a44080dcd95944aed8
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, cometeo]
+  - name: conf
+    disk_path: disks/us/MAGIC/CONF.BIN
+    sha1: 65af739055c1756dfaa738ab039219d5d39cabb7
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, conf]
+  - name: cosmo
+    disk_path: disks/us/MAGIC/COSMO.BIN
+    sha1: a4c4d5509492c071c5e8eda463b6fc54d934c051
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, cosmo]
+  - name: daichi
+    disk_path: disks/us/MAGIC/DAICHI.BIN
+    sha1: 7763c442980aa30de6b4304c04719e89288bf326
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, daichi]
+  - name: daionpa
+    disk_path: disks/us/MAGIC/DAIONPA.BIN
+    sha1: 488a65ffbefca1b7ea5acbe7749d6a9b46ca2fd0
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, daionpa]
+  - name: daisenp
+    disk_path: disks/us/MAGIC/DAISENP.BIN
+    sha1: daab4851fb18507370d70ecee6e6b335e1307f40
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, daisenp]
+  - name: deadsef
+    disk_path: disks/us/MAGIC/DEADSEF.BIN
+    sha1: 71b21470e038b3d31534902fd792e4a5bf68a63d
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, deadsef]
+  - name: death
+    disk_path: disks/us/MAGIC/DEATH.BIN
+    sha1: f41159ed7f28ac49d4b77e9c79bb60beea2c0bf0
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, death]
+  - name: debaria
+    disk_path: disks/us/MAGIC/DEBARIA.BIN
+    sha1: 1d00936496b739fe559f62ad7d6721ce0fb97e97
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, debaria]
+  - name: debucho
+    disk_path: disks/us/MAGIC/DEBUCHO.BIN
+    sha1: 2c93869c761261c5109d03654d09a8242e8ba0e2
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, debucho]
+  - name: dejon
+    disk_path: disks/us/MAGIC/DEJON.BIN
+    sha1: defe5232831b81a016d7d868f79681de9e52db0c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, dejon]
+  - name: dethfo
+    disk_path: disks/us/MAGIC/DETHFO.BIN
+    sha1: bd6720706423ee3deb65bf8a08ca62cc3d14fba3
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, dethfo]
+  - name: dethper
+    disk_path: disks/us/MAGIC/DETHPER.BIN
+    sha1: b31f39f6ba049cb6677241c4a072d90fd4f0af99
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, dethper]
+  - name: dia1
+    disk_path: disks/us/MAGIC/DIA1.BIN
+    sha1: 2c105f2b51d4457987ee38949d004560cf86540f
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, dia1]
+  - name: dia2
+    disk_path: disks/us/MAGIC/DIA2.BIN
+    sha1: 7e28f05627ae73d7cdf45a51e2d8465514217193
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, dia2]
+  - name: dia
+    disk_path: disks/us/MAGIC/DIA.BIN
+    sha1: 9469bdce40bf1096a6fb59d12582b78940973b6b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, dia]
+  - name: dise
+    disk_path: disks/us/MAGIC/DISE.BIN
+    sha1: 3da61d4d3cfdd5331c24664900be12ce7d2e72b9
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, dise]
+  - name: dive
+    disk_path: disks/us/MAGIC/DIVE.BIN
+    sha1: 5a4b2de66ac52410db8352487e2e776a8684d7e9
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, dive]
+  - name: dokueki
+    disk_path: disks/us/MAGIC/DOKUEKI.BIN
+    sha1: 280e6ca6bb4f9622de66a04f4b3fb247c2191073
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, dokueki]
+  - name: dokufuki
+    disk_path: disks/us/MAGIC/DOKUFUKI.BIN
+    sha1: 1f68cf7a822c553589833bb6bad34ee2a66df6a9
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, dokufuki]
+  - name: dragonn
+    disk_path: disks/us/MAGIC/DRAGONN.BIN
+    sha1: a173672ec5e715d8ccee3864d16cb818c75cdd0f
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, dragonn]
+  - name: dynamite
+    disk_path: disks/us/MAGIC/DYNAMITE.BIN
+    sha1: 238526f6aa4dafe195a20b0c2d0f1afa81809c2e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, dynamite]
+  - name: echoes
+    disk_path: disks/us/MAGIC/ECHOES.BIN
+    sha1: cf7b802d0a7807fb8cc32bba1e51fb5c994b064c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, echoes]
+  - name: elecball
+    disk_path: disks/us/MAGIC/ELECBALL.BIN
+    sha1: 4ea9ff2da2be1caa261df52ee019ae989371ba9b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, elecball]
+  - name: elevator
+    disk_path: disks/us/MAGIC/ELEVATOR.BIN
+    sha1: f9f21d01047b6b42249c8b0e6a68694bd3cf2c79
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, elevator]
+  - name: energy
+    disk_path: disks/us/MAGIC/ENERGY.BIN
+    sha1: 592b800497ca0558b794949a4f475a7522d33222
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, energy]
+  - name: erave
+    disk_path: disks/us/MAGIC/ERAVE.BIN
+    sha1: 22dc4c5b23628ce015d9cadc752b5f36ef93b010
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, erave]
+  - name: escape
+    disk_path: disks/us/MAGIC/ESCAPE.BIN
+    sha1: 816a4482bc577d60526a848dae84d1c820464d4c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, escape]
+  - name: esna
+    disk_path: disks/us/MAGIC/ESNA.BIN
+    sha1: 5d3e7ac74c7be149ed8e1915cace298e395e7d1e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, esna]
+  - name: faiga2
+    disk_path: disks/us/MAGIC/FAIGA2.BIN
+    sha1: 3933e17378960c7c31b427e3132c9947a2c0666c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, faiga2]
+  - name: faiga
+    disk_path: disks/us/MAGIC/FAIGA.BIN
+    sha1: 62bef1a4bb2c3e2a1bf727e5bd66788c425b07db
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, faiga]
+  - name: faira
+    disk_path: disks/us/MAGIC/FAIRA.BIN
+    sha1: fcd7a3209d88f529aab3076ea8f7587d6eb3e074
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, faira]
+  - name: fire
+    disk_path: disks/us/MAGIC/FIRE.BIN
+    sha1: f97e855561ac37c55ff049503f6d70f065b61197
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, fire]
+  - name: flame
+    disk_path: disks/us/MAGIC/FLAME.BIN
+    sha1: ad59147c13219da0bb7157adf0b12a43d73c733c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, flame]
+  - name: flea
+    disk_path: disks/us/MAGIC/FLEA.BIN
+    sha1: 45be87a0a124856d0b980afe580da04a1fa85f73
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, flea]
+  - name: freeze
+    disk_path: disks/us/MAGIC/FREEZE.BIN
+    sha1: 739e7567482a160672a64116dab5bc7f399b9bdd
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, freeze]
+  - name: frog
+    disk_path: disks/us/MAGIC/FROG.BIN
+    sha1: 1a9ccf95f093e50a8b3d87fa62679e3493163147
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, frog]
+  - name: fubuki
+    disk_path: disks/us/MAGIC/FUBUKI.BIN
+    sha1: a2e4e6f1f46d755f4d61c2a08224ee4502519b08
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, fubuki]
+  - name: fullcare
+    disk_path: disks/us/MAGIC/FULLCARE.BIN
+    sha1: 2f5496142b4f97e634c192671cab78752512e9bf
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, fullcare]
+  - name: gaisei
+    disk_path: disks/us/MAGIC/GAISEI.BIN
+    sha1: 4d8f76cb5905f8819c6b8e60d9a3dbbce050323c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, gaisei]
+  - name: gaishu
+    disk_path: disks/us/MAGIC/GAISHU.BIN
+    sha1: 564aad771d91ada567bba9bc6ecc32e06ac44f47
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, gaishu]
+  - name: garyu
+    disk_path: disks/us/MAGIC/GARYU.BIN
+    sha1: 324df43ebe8c430b31b2263164e9582fab6baec8
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, garyu]
+  - name: gas
+    disk_path: disks/us/MAGIC/GAS.BIN
+    sha1: 5fe66342aeed0b053440d8c66bc144a49445a016
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, gas]
+  - name: gattai
+    disk_path: disks/us/MAGIC/GATTAI.BIN
+    sha1: 1e3c0b5dd198f0a2c8d93bc575adeaed66a3d057
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, gattai]
+  - name: geki1
+    disk_path: disks/us/MAGIC/GEKI1.BIN
+    sha1: e4000be1927a18a5d473f3d10a4f3b39e93ef738
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, geki1]
+  - name: geki2
+    disk_path: disks/us/MAGIC/GEKI2.BIN
+    sha1: a27356fde74bf4695983ee88ec133a2a8c4fa07a
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, geki2]
+  - name: gesui
+    disk_path: disks/us/MAGIC/GESUI.BIN
+    sha1: 3f92fcc69223eed7b2a60babaccc0dc5bdcd6c5b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, gesui]
+  - name: goblinp
+    disk_path: disks/us/MAGIC/GOBLINP.BIN
+    sha1: d790cf12a108238a3c11d7e3f470489861f3d45b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, goblinp]
+  - name: gospel
+    disk_path: disks/us/MAGIC/GOSPEL.BIN
+    sha1: 252325f7563ff0282f3298bb799cde6940f5312e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, gospel]
+  - name: gravide
+    disk_path: disks/us/MAGIC/GRAVIDE.BIN
+    sha1: f69f606e8c8dd3442a826cec6a8aa0e34ff56169
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, gravide]
+  - name: graviga1
+    disk_path: disks/us/MAGIC/GRAVIGA1.BIN
+    sha1: 0d4a2541e2c811f93111ad701eccf8fa7b96769a
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, graviga1]
+  - name: graviga2
+    disk_path: disks/us/MAGIC/GRAVIGA2.BIN
+    sha1: 9da8339d3ac0a6e0cbcd2a27d70525c56568b6d7
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, graviga2]
+  - name: gravira
+    disk_path: disks/us/MAGIC/GRAVIRA.BIN
+    sha1: 4f4165fddcdbf48e39fb013ac73d2ff61c5e0718
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, gravira]
+  - name: grenade
+    disk_path: disks/us/MAGIC/GRENADE.BIN
+    sha1: d7d3c45034b15ccf61cf78769589bb4574aac7f5
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, grenade]
+  - name: hades
+    disk_path: disks/us/MAGIC/HADES.BIN
+    sha1: be63d1ebaa015694ac497387b57b12e230ed60b6
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hades]
+  - name: hado
+    disk_path: disks/us/MAGIC/HADO.BIN
+    sha1: 52cf81ae7d6e293046ea16fe60c41385eeb55e66
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hado]
+  - name: hadoho
+    disk_path: disks/us/MAGIC/HADOHO.BIN
+    sha1: 850cc7b46911dd9c300f4c0a7928a55cd097d84c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hadoho]
+  - name: hakai
+    disk_path: disks/us/MAGIC/HAKAI.BIN
+    sha1: 90098828bf03bd13ae535a566c10ff522158963b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hakai]
+  - name: hakou
+    disk_path: disks/us/MAGIC/HAKOU.BIN
+    sha1: f299e0009f93bcaefc2acd553a5cff561d07d711
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hakou]
+  - name: hakugek1
+    disk_path: disks/us/MAGIC/HAKUGEK1.BIN
+    sha1: 5cf866b06953286fa308f84b04fc327c50c56669
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hakugek1]
+  - name: hakugek2
+    disk_path: disks/us/MAGIC/HAKUGEK2.BIN
+    sha1: a7385d17eb1439af1cb9b1282abd9e163e563b5f
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hakugek2]
+  - name: hanmmer
+    disk_path: disks/us/MAGIC/HANMMER.BIN
+    sha1: 9c92abf3092573ab8bece366ad0a4decd026fd25
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hanmmer]
+  - name: hari1000
+    disk_path: disks/us/MAGIC/HARI1000.BIN
+    sha1: f2d982793370f64621ffdbe0da26b927449ea6e7
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hari1000]
+  - name: harrier
+    disk_path: disks/us/MAGIC/HARRIER.BIN
+    sha1: a801959b7d9908f3a83e0c9d070491af6b4469c5
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, harrier]
+  - name: hatena
+    disk_path: disks/us/MAGIC/HATENA.BIN
+    sha1: 324d68f47bbf125ce1fff8fcd08c800f47430357
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hatena]
+  - name: h_blow
+    disk_path: disks/us/MAGIC/H_BLOW.BIN
+    sha1: 39a2bcdfcc5e964193d3a9b65136adf08ce67ef6
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, h_blow]
+  - name: heart1
+    disk_path: disks/us/MAGIC/HEART1.BIN
+    sha1: ac511ea852847ecb8e418d93e32f66444634371d
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, heart1]
+  - name: heart2
+    disk_path: disks/us/MAGIC/HEART2.BIN
+    sha1: 8d0ec5f3366b73a15370a5b539e586d82a51d0b8
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, heart2]
+  - name: heatbu
+    disk_path: disks/us/MAGIC/HEATBU.BIN
+    sha1: 795fde8098501b126a71df79a6c3f35661d119c0
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, heatbu]
+  - name: heist
+    disk_path: disks/us/MAGIC/HEIST.BIN
+    sha1: ca13bec1287a04b63b44382ac005fcefb61d6863
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, heist]
+  - name: hikari2
+    disk_path: disks/us/MAGIC/HIKARI2.BIN
+    sha1: 5b5d2cbf47408af9c01cda011172649b3ecf59ca
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hikari2]
+  - name: hikari3
+    disk_path: disks/us/MAGIC/HIKARI3.BIN
+    sha1: 9c541c2e30e2fa5eca482081d46168bf97d7852d
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hikari3]
+  - name: hikari
+    disk_path: disks/us/MAGIC/HIKARI.BIN
+    sha1: 37131d4f138d6ec48dd90aab6e40ad8039873538
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hikari]
+  - name: hiwind
+    disk_path: disks/us/MAGIC/HIWIND.BIN
+    sha1: 64b3ef4663b74bec660c92b336eb24b9f56099e6
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hiwind]
+  - name: hmoon
+    disk_path: disks/us/MAGIC/HMOON.BIN
+    sha1: fcc0d71008f065b8edca9d32c9668d5be90733a9
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hmoon]
+  - name: ho_den
+    disk_path: disks/us/MAGIC/HO_DEN.BIN
+    sha1: 6603b5cdab56797ecc677ff0abc3d2bdc145323a
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, ho_den]
+  - name: hvshot
+    disk_path: disks/us/MAGIC/HVSHOT.BIN
+    sha1: 4394c8ec7de2f3b81721a2aa0c9a2df4781b3251
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hvshot]
+  - name: hyper
+    disk_path: disks/us/MAGIC/HYPER.BIN
+    sha1: 7fce061b2e962d0e1043585c8a7b6a8636be7b25
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, hyper]
+  - name: ifleet
+    disk_path: disks/us/MAGIC/IFLEET.BIN
+    sha1: 21eb45f3857af9ea63932f949916dcf8c773be17
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, ifleet]
+  - name: ito
+    disk_path: disks/us/MAGIC/ITO.BIN
+    sha1: 6b18288383c2b736c8daf86261c2b77623733477
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, ito]
+  - name: iyashi
+    disk_path: disks/us/MAGIC/IYASHI.BIN
+    sha1: 312384ae6860c56ac2253266994d2811df73f669
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, iyashi]
+  - name: jaki
+    disk_path: disks/us/MAGIC/JAKI.BIN
+    sha1: 51f7aa20049eeb1316b24059b9149919c11de2a4
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, jaki]
+  - name: jammer2
+    disk_path: disks/us/MAGIC/JAMMER2.BIN
+    sha1: d3e6a70357f6f10f3906fedee8959d2f99832a3b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, jammer2]
+  - name: jammer
+    disk_path: disks/us/MAGIC/JAMMER.BIN
+    sha1: cc65acc7832a3d3b242def924b4544dbfc4dbdc9
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, jammer]
+  - name: jibaku1
+    disk_path: disks/us/MAGIC/JIBAKU1.BIN
+    sha1: eb1b5e288df837a3e8a656bc8de5138bc94a02bd
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, jibaku1]
+  - name: jibaku2
+    disk_path: disks/us/MAGIC/JIBAKU2.BIN
+    sha1: 60b62514b596f50be516a8225ff9005e36e05aaa
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, jibaku2]
+  - name: jibasiri
+    disk_path: disks/us/MAGIC/JIBASIRI.BIN
+    sha1: 4a6482e560807eef8dd990f8137489b947d28a1f
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, jibasiri]
+  - name: jinrai
+    disk_path: disks/us/MAGIC/JINRAI.BIN
+    sha1: d28d5e991126ca8500f410377a2ef73d93324f67
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, jinrai]
+  - name: joker1
+    disk_path: disks/us/MAGIC/JOKER1.BIN
+    sha1: 60ec4f9bbde6f7a72640279fb2d47e9856c38d35
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, joker1]
+  - name: joker2
+    disk_path: disks/us/MAGIC/JOKER2.BIN
+    sha1: 1cdbf03b1929e721de66314d5630cd5832de96c0
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, joker2]
+  - name: kaen2
+    disk_path: disks/us/MAGIC/KAEN2.BIN
+    sha1: 0bb5bf470e3b04dd658b7c28ff374464a1401ca6
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, kaen2]
+  - name: kaen
+    disk_path: disks/us/MAGIC/KAEN.BIN
+    sha1: 2dc7702de646e5288feeae5f349b58ce88135b5e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, kaen]
+  - name: kaeru
+    disk_path: disks/us/MAGIC/KAERU.BIN
+    sha1: b27805693a8629e6f74ac74bbb9ecd4e40042874
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, kaeru]
+  - name: kafun
+    disk_path: disks/us/MAGIC/KAFUN.BIN
+    sha1: 6334d90f38367bc17c08e8327e58dc13886fb7ec
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, kafun]
+  - name: kakusan
+    disk_path: disks/us/MAGIC/KAKUSAN.BIN
+    sha1: 0198d412740b90dd60abf7b90690e23bc2503c61
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, kakusan]
+  - name: kama2
+    disk_path: disks/us/MAGIC/KAMA2.BIN
+    sha1: 6e5f23d406c3746de89d6f01dee60c8ed581d97e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, kama2]
+  - name: kama
+    disk_path: disks/us/MAGIC/KAMA.BIN
+    sha1: 3c9ea2cfb214ddd81dc0f758f22fc4607866fce2
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, kama]
+  - name: kien
+    disk_path: disks/us/MAGIC/KIEN.BIN
+    sha1: 8ca7bc60b0e973a07bf5bdabd7e43fbe5d224518
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, kien]
+  - name: kinzan
+    disk_path: disks/us/MAGIC/KINZAN.BIN
+    sha1: 4a7ac9ac102d157c5cbd305c50543f7ead8a6017
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, kinzan]
+  - name: knights
+    disk_path: disks/us/MAGIC/KNIGHTS.BIN
+    sha1: 2a01fa98ffe760fe490660277bb66a8b901e7eb2
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, knights]
+  - name: kona
+    disk_path: disks/us/MAGIC/KONA.BIN
+    sha1: 42ce56bcf18aef2cf7cd33f64d7872a9e284bfcb
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, kona]
+  - name: konoha
+    disk_path: disks/us/MAGIC/KONOHA.BIN
+    sha1: 41beb20166f0f2330f2d649c0b980fd302eaed47
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, konoha]
+  - name: korosi
+    disk_path: disks/us/MAGIC/KOROSI.BIN
+    sha1: e6836224890afce4c0af6ae919957672c211dcb8
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, korosi]
+  - name: koudan1
+    disk_path: disks/us/MAGIC/KOUDAN1.BIN
+    sha1: 0375a38a91eb0cc8f9ade2572f95f0cb834c1c18
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, koudan1]
+  - name: koudan2
+    disk_path: disks/us/MAGIC/KOUDAN2.BIN
+    sha1: f370614cbb5bbac14c0987baad3c1e1cad304348
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, koudan2]
+  # - name: kujata
+  #   disk_path: disks/us/MAGIC/KUJATA.BIN
+  #   sha1: 3a25aba401bb471566ae1e94102d50cc15d05a01
+  #   base_path: magic
+  #   vram_start: 0x801B0000
+  #   symbol_addrs_path:
+  #     - config/sym_export.us.txt
+  #     - config/sym_export_battle.us.txt
+  #   segments:
+  #     - [0, data, kujata]
+  - name: kusai
+    disk_path: disks/us/MAGIC/KUSAI.BIN
+    sha1: 170230ed864f65ecd30ba2c726f5c253a92f2031
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, kusai]
+  - name: kyogiri
+    disk_path: disks/us/MAGIC/KYOGIRI.BIN
+    sha1: 1c5f8d68eefa84331c68987c14576567327c2b89
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, kyogiri]
+  - name: lamu
+    disk_path: disks/us/MAGIC/LAMU.BIN
+    sha1: 0d5f5147c21d74fc9c031a3876de68d8534e27b6
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, lamu]
+  - name: lasboss2
+    disk_path: disks/us/MAGIC/LASBOSS2.BIN
+    sha1: a8ab26f7029b01697a8de7e15d3d6d7616ccb2af
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, lasboss2]
+  - name: lasboss
+    disk_path: disks/us/MAGIC/LASBOSS.BIN
+    sha1: af5b5e808c50a413150f7a47a8c5f6933a9e14ab
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, lasboss]
+  - name: laser2
+    disk_path: disks/us/MAGIC/LASER2.BIN
+    sha1: 4c3ce0a5467dd0698ec705f05a5b484c7731d245
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, laser2]
+  - name: laser
+    disk_path: disks/us/MAGIC/LASER.BIN
+    sha1: 5754a13afaf4edc8e3d152ee493da715f252da3c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, laser]
+  - name: lgirl
+    disk_path: disks/us/MAGIC/LGIRL.BIN
+    sha1: ae3c39f2e9e8a4efd962b6db84bd71c4b495e0e5
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, lgirl]
+  - name: lunatic
+    disk_path: disks/us/MAGIC/LUNATIC.BIN
+    sha1: 568aeddc872bd0a853a78618f8b3d4e54f6ab6d8
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, lunatic]
+  - name: lv4jibak
+    disk_path: disks/us/MAGIC/LV4JIBAK.BIN
+    sha1: eb527a7b4abd3550dcaaba946c39ed09f390497d
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, lv4jibak]
+  - name: lv5deth
+    disk_path: disks/us/MAGIC/LV5DETH.BIN
+    sha1: 860f9495082983be362f605ca5da4968adf4c025
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, lv5deth]
+  - name: mabaria
+    disk_path: disks/us/MAGIC/MABARIA.BIN
+    sha1: 9169442d3e1702b7ad4425d95367f52334f84d60
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, mabaria]
+  - name: magend
+    disk_path: disks/us/MAGIC/MAGEND.BIN
+    sha1: 2af3b214c94b309918fb2a8664f7512a9c60d5ca
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, magend]
+  - name: magikal
+    disk_path: disks/us/MAGIC/MAGIKAL.BIN
+    sha1: fa9287a699ef7bc16868916be771331b20a0e441
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, magikal]
+  - name: magma2
+    disk_path: disks/us/MAGIC/MAGMA2.BIN
+    sha1: caa9000ba7e7696838665352a8b38e3d90121a35
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, magma2]
+  - name: magma
+    disk_path: disks/us/MAGIC/MAGMA.BIN
+    sha1: c92a2b7fe2e06d46d19930e4cea50db4259045d4
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, magma]
+  - name: matra
+    disk_path: disks/us/MAGIC/MATRA.BIN
+    sha1: 58bae61ce82bfd2760b83ded0d861c81270dc7d0
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, matra]
+  - name: m_break
+    disk_path: disks/us/MAGIC/M_BREAK.BIN
+    sha1: eaebfb97e1d267941526f2ff12a24dc47d174058
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, m_break]
+  - name: mdance
+    disk_path: disks/us/MAGIC/MDANCE.BIN
+    sha1: 9fba09e182850a394118519a2083eb6c3eedb346
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, mdance]
+  - name: meikyo
+    disk_path: disks/us/MAGIC/MEIKYO.BIN
+    sha1: 8b0d1bb22108f0f667aa1d2ef66d6802147dfe57
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, meikyo]
+  - name: mgbeam
+    disk_path: disks/us/MAGIC/MGBEAM.BIN
+    sha1: c6fbad6db9fda9ed008af8b5fa3213b6c52d8c64
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, mgbeam]
+  - name: minimam
+    disk_path: disks/us/MAGIC/MINIMAM.BIN
+    sha1: f2ec8681e080b3f24c48b34e5f92c37b2c8c1aa9
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, minimam]
+  - name: missile
+    disk_path: disks/us/MAGIC/MISSILE.BIN
+    sha1: 1d0324608e4adcc1029bce8ee90f5908c79b8a74
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, missile]
+  - name: mizu
+    disk_path: disks/us/MAGIC/MIZU.BIN
+    sha1: d7da5b76f03d6de5e27490f7a987449a6e2ac7ca
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, mizu]
+  - name: mizufuki
+    disk_path: disks/us/MAGIC/MIZUFUKI.BIN
+    sha1: 8f9bd8aba75a19ffca7d7c5a7c7b3f7a8b0cda12
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, mizufuki]
+  - name: mod
+    disk_path: disks/us/MAGIC/MOD.BIN
+    sha1: ce5d90c2c5eacf76ac22ff37f2889242b82278b8
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, mod]
+  - name: mrain
+    disk_path: disks/us/MAGIC/MRAIN.BIN
+    sha1: 0386fee11a72ee14d32ecbef63af53172df81ad4
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, mrain]
+  - name: mytyg
+    disk_path: disks/us/MAGIC/MYTYG.BIN
+    sha1: 0dcb830b5fdb5054d6025ff09dab58e53bc78f86
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, mytyg]
+  - name: nadare
+    disk_path: disks/us/MAGIC/NADARE.BIN
+    sha1: 7bb7239f3e3c0e166cb6c37a3dd8410b694780b7
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, nadare]
+  - name: nanntoka
+    disk_path: disks/us/MAGIC/NANNTOKA.BIN
+    sha1: 771ff5b2718dabdc4c8e6457201117fcd7f58949
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, nanntoka]
+  - name: napalm
+    disk_path: disks/us/MAGIC/NAPALM.BIN
+    sha1: 7f3df2f76932a245dc929429e8a45b03fd94eb11
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, napalm]
+  - name: netsu
+    disk_path: disks/us/MAGIC/NETSU.BIN
+    sha1: 63a1350320ae533ebec5f78aba0c36ca1ba8bd7d
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, netsu]
+  - name: night
+    disk_path: disks/us/MAGIC/NIGHT.BIN
+    sha1: fb95437130f2064435d7406a5e69ba5b807c9b60
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, night]
+  - name: nonoshi
+    disk_path: disks/us/MAGIC/NONOSHI.BIN
+    sha1: 2c5ee6bc5a7c7d07e9ff9df39ec18a28f5b9c957
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, nonoshi]
+  - name: northern
+    disk_path: disks/us/MAGIC/NORTHERN.BIN
+    sha1: d5cb6f1220251d2fea1e60d198c8a987608c9697
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, northern]
+  - name: odin1
+    disk_path: disks/us/MAGIC/ODIN1.BIN
+    sha1: 4c689217379ba4b1043f47ce3213359652d0f38e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, odin1]
+  - name: odin2
+    disk_path: disks/us/MAGIC/ODIN2.BIN
+    sha1: ed2f317d6efd45cac02888bbc2cad5f9d7db07a6
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, odin2]
+  - name: oil
+    disk_path: disks/us/MAGIC/OIL.BIN
+    sha1: 21cd7c9a2195fda05df1d385cb290578d7bb861e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, oil]
+  - name: onpa
+    disk_path: disks/us/MAGIC/ONPA.BIN
+    sha1: 7f69f854720aca3f91503da33f119f9eae1a61bd
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, onpa]
+  - name: onsen
+    disk_path: disks/us/MAGIC/ONSEN.BIN
+    sha1: 561db1c442548e8a1c957a2b9d7a4d1bf77f11f8
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, onsen]
+  - name: osen
+    disk_path: disks/us/MAGIC/OSEN.BIN
+    sha1: ddfa5f661c83e8e0ae09de6e2aa358914b542af4
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, osen]
+  - name: otsunami
+    disk_path: disks/us/MAGIC/OTSUNAMI.BIN
+    sha1: ac522b10b7bc63f7dafa4171d6a979aa33052c15
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, otsunami]
+  - name: phoenix
+    disk_path: disks/us/MAGIC/PHOENIX.BIN
+    sha1: 4a08a53991b13c7f42573b8bf6a70db8c4f2ed48
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, phoenix]
+  - name: pink
+    disk_path: disks/us/MAGIC/PINK.BIN
+    sha1: 7caeaeffec0a3423e6e940e9f9cfe9b008168463
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, pink]
+  - name: punch
+    disk_path: disks/us/MAGIC/PUNCH.BIN
+    sha1: 87cabe5876f9d32dd4dee1da21551386ff1d815a
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, punch]
+  - name: q_ketsu
+    disk_path: disks/us/MAGIC/Q_KETSU.BIN
+    sha1: 66cda108823bda268f71222de2e8aedb1f55faa7
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, q_ketsu]
+  - name: q_shu
+    disk_path: disks/us/MAGIC/Q_SHU.BIN
+    sha1: e180f519db423f6eb419203f59abe619f88b5c11
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, q_shu]
+  - name: quasar
+    disk_path: disks/us/MAGIC/QUASAR.BIN
+    sha1: 41331307f12bfde7ea82047ba15f09cb9b91aba9
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, quasar]
+  - name: queig
+    disk_path: disks/us/MAGIC/QUEIG.BIN
+    sha1: 1fc5d470e7075149b13ac8233506c0e7d3f0cf2b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, queig]
+  - name: queik
+    disk_path: disks/us/MAGIC/QUEIK.BIN
+    sha1: 3ea159eccccee88f18ead87f4066b62a2a331e8b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, queik]
+  - name: queir
+    disk_path: disks/us/MAGIC/QUEIR.BIN
+    sha1: 6d3f84af6ffea3062bd325283aacd81921f32865
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, queir]
+  - name: raise
+    disk_path: disks/us/MAGIC/RAISE.BIN
+    sha1: 08160c9cef7e446aa4f176631cee70e35f950d73
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, raise]
+  - name: rakuseki
+    disk_path: disks/us/MAGIC/RAKUSEKI.BIN
+    sha1: 3fa3c0c34358c86011e070ed265cb9ef99c76bd8
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, rakuseki]
+  - name: ranto
+    disk_path: disks/us/MAGIC/RANTO.BIN
+    sha1: d3dc6902b94951829b1b45c414589ea9f39beb0c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, ranto]
+  - name: reazer
+    disk_path: disks/us/MAGIC/REAZER.BIN
+    sha1: 3800398ef3f42a242842b14afe42b22308bd89d4
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, reazer]
+  - name: re_do
+    disk_path: disks/us/MAGIC/RE_DO.BIN
+    sha1: f27b56b6b0666873bb632a35d345ecbf6b15b52f
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, re_do]
+  - name: refrec
+    disk_path: disks/us/MAGIC/REFREC.BIN
+    sha1: f13cbfffcc3222a493c03ac6ba801102c512e5a2
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, refrec]
+  - name: reiki
+    disk_path: disks/us/MAGIC/REIKI.BIN
+    sha1: 5c2f147f9e1ec80947bf75a8a70c38425004ebf3
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, reiki]
+  - name: reito
+    disk_path: disks/us/MAGIC/REITO.BIN
+    sha1: 653345246b81e4d2cca65a783c48f83227a3ad04
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, reito]
+  - name: renbaku
+    disk_path: disks/us/MAGIC/RENBAKU.BIN
+    sha1: 128f36c2727f680625a8a605cddb7969ca6baefc
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, renbaku]
+  - name: resist
+    disk_path: disks/us/MAGIC/RESIST.BIN
+    sha1: af784deaa026da54c2623b558c7db6ea7ee5178b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, resist]
+  - name: riva
+    disk_path: disks/us/MAGIC/RIVA.BIN
+    sha1: bc92a8577b4c4b94f3adf853614e7020a1232787
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, riva]
+  - name: rmissile
+    disk_path: disks/us/MAGIC/RMISSILE.BIN
+    sha1: 4daa7f97f36ea8e59e22a5ac3a2a86f662e38078
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, rmissile]
+  - name: rocket
+    disk_path: disks/us/MAGIC/ROCKET.BIN
+    sha1: 28288ff9a94b897d742494e6712693cbb4a7d224
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, rocket]
+  - name: rollfire
+    disk_path: disks/us/MAGIC/ROLLFIRE.BIN
+    sha1: 506c3962c8b8a6c9ab9cd5f144144f01ecf2883d
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, rollfire]
+  - name: saikyo
+    disk_path: disks/us/MAGIC/SAIKYO.BIN
+    sha1: c09aaa62fa82202b16a91f19dce54556a6a0ea7a
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, saikyo]
+  - name: sailess
+    disk_path: disks/us/MAGIC/SAILESS.BIN
+    sha1: 0d6c1fe797a9ff50924fb81550a9b77e9d15f5b7
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, sailess]
+  - name: satan
+    disk_path: disks/us/MAGIC/SATAN.BIN
+    sha1: 49b530a5dac5919230b08c8a56927b066763e029
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, satan]
+  - name: s_beam
+    disk_path: disks/us/MAGIC/S_BEAM.BIN
+    sha1: eb3eb9c48c23d0dd2cd49b7b6bafdda91ec1876b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, s_beam]
+  - name: scope
+    disk_path: disks/us/MAGIC/SCOPE.BIN
+    sha1: 73f0123bcdda3a083dcc18a6fe6f80176dfce4a1
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, scope]
+  - name: sdust
+    disk_path: disks/us/MAGIC/SDUST.BIN
+    sha1: 2294fc960f90151289e5f82909d4ac6ca1140c33
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, sdust]
+  - name: seald
+    disk_path: disks/us/MAGIC/SEALD.BIN
+    sha1: ab57f3d549e8adb76acb990c528b565cb652592e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, seald]
+  - name: search
+    disk_path: disks/us/MAGIC/SEARCH.BIN
+    sha1: 11aa1c52cdcc152cc1ffe50890b999d9c5810391
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, search]
+  - name: seed
+    disk_path: disks/us/MAGIC/SEED.BIN
+    sha1: bf4347048c70a08c10379f58a873902af21526ca
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, seed]
+  - name: seija
+    disk_path: disks/us/MAGIC/SEIJA.BIN
+    sha1: 2d2f472d6b6f030b2c6308d41c9c3e789cc5e158
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, seija]
+  - name: sekika
+    disk_path: disks/us/MAGIC/SEKIKA.BIN
+    sha1: eab15bc3c576bbf931c30a0c635266525e8bad5d
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, sekika]
+  - name: sennkoku
+    disk_path: disks/us/MAGIC/SENNKOKU.BIN
+    sha1: 122301325eed5dc29a99482f897cc98bc8cf9344
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, sennkoku]
+  - name: sflea
+    disk_path: disks/us/MAGIC/SFLEA.BIN
+    sha1: 79930330fdfb9145e89a5b8e69b6abfda882315b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, sflea]
+  - name: s_guard
+    disk_path: disks/us/MAGIC/S_GUARD.BIN
+    sha1: befe3b96ff84bfe2ccf94b43bd36a42ff0a5f65a
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, s_guard]
+  - name: shaku
+    disk_path: disks/us/MAGIC/SHAKU.BIN
+    sha1: fe2958f8b1b2ac815ba968c1e9979e88daa943c2
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, shaku]
+  - name: shield
+    disk_path: disks/us/MAGIC/SHIELD.BIN
+    sha1: 740e7ad0596b810869ca9a0ca129141496ce1a8e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, shield]
+  - name: shinra
+    disk_path: disks/us/MAGIC/SHINRA.BIN
+    sha1: d0383636030a8569028ab86fcdc1ac498a2c1c8f
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, shinra]
+  - name: shower
+    disk_path: disks/us/MAGIC/SHOWER.BIN
+    sha1: 293e449590ff6c933f2121372c309d6da2b08f5e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, shower]
+  - name: siva
+    disk_path: disks/us/MAGIC/SIVA.BIN
+    sha1: 1bac67363ea6e5f75242bdf9a63c990c24fea557
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, siva]
+  - name: sldfang
+    disk_path: disks/us/MAGIC/SLDFANG.BIN
+    sha1: a65cec197495439843b1ce3bc08daae205ff1808
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, sldfang]
+  - name: slipl
+    disk_path: disks/us/MAGIC/SLIPL.BIN
+    sha1: 9174790a54b0713f6d8ebc2a22b45d2d9de8ae0c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, slipl]
+  - name: slow
+    disk_path: disks/us/MAGIC/SLOW.BIN
+    sha1: 877c38008ec60b7b717a03c3369764fb3ad2078c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, slow]
+  - name: smkball
+    disk_path: disks/us/MAGIC/SMKBALL.BIN
+    sha1: 1888a8fe8e808e76598bdd396a38d3c264238873
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, smkball]
+  - name: smog2
+    disk_path: disks/us/MAGIC/SMOG2.BIN
+    sha1: 8cbc128e2592c55402c7a7530ef9b18291800b05
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, smog2]
+  - name: southern
+    disk_path: disks/us/MAGIC/SOUTHERN.BIN
+    sha1: 598924fdfed35925902238f0a868fb4c73643d56
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, southern]
+  - name: spade1
+    disk_path: disks/us/MAGIC/SPADE1.BIN
+    sha1: 92acef515a0ab3ec16edf6e4773707bd2cf32dd4
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, spade1]
+  - name: spade2
+    disk_path: disks/us/MAGIC/SPADE2.BIN
+    sha1: 84e546ae05187cac428339624ab0644d860c3359
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, spade2]
+  - name: spark
+    disk_path: disks/us/MAGIC/SPARK.BIN
+    sha1: 6a303472b4a9bfcb78cef2c26e1beb302ba45c26
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, spark]
+  - name: sting
+    disk_path: disks/us/MAGIC/STING.BIN
+    sha1: 6829e7e2a54295488d52597fbc48994c1416ec2b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, sting]
+  - name: stop
+    disk_path: disks/us/MAGIC/STOP.BIN
+    sha1: f8ad82dea1f8d4f932e6e34f9ddebef218fd18b1
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, stop]
+  - name: sumi
+    disk_path: disks/us/MAGIC/SUMI.BIN
+    sha1: 73e61e0dbaf516edf4eb4334818a8dda5cbc2045
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, sumi]
+  - name: suna
+    disk_path: disks/us/MAGIC/SUNA.BIN
+    sha1: ff613af747839455d92d0bcc2d445cb2e83ac4c0
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, suna]
+  - name: tail
+    disk_path: disks/us/MAGIC/TAIL.BIN
+    sha1: 7c1f831cd571eaad3b3860423985c5230ba73039
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, tail]
+  - name: tan
+    disk_path: disks/us/MAGIC/TAN.BIN
+    sha1: 4f8da2be3a105355333e33184ef581a441bf541d
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, tan]
+  - name: tbreath
+    disk_path: disks/us/MAGIC/TBREATH.BIN
+    sha1: b5d1c4c5b7f296a6deb4b10982f36b36b381427a
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, tbreath]
+  - name: tears
+    disk_path: disks/us/MAGIC/TEARS.BIN
+    sha1: decdeb398bcfb4e8c09d0600bfba9edb4766fe4b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, tears]
+  - name: threat
+    disk_path: disks/us/MAGIC/THREAT.BIN
+    sha1: 1ceaba779b289a572ad08fe67d36ba90996f1566
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, threat]
+  - name: thunder2
+    disk_path: disks/us/MAGIC/THUNDER2.BIN
+    sha1: 605155eef7a592279f70d82ca4548ec467303d57
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, thunder2]
+  - name: thundera
+    disk_path: disks/us/MAGIC/THUNDERA.BIN
+    sha1: 29c8b0352638357bb635d9320328f738e1dc7476
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, thundera]
+  - name: thunder
+    disk_path: disks/us/MAGIC/THUNDER.BIN
+    sha1: 5767aed5f73876075f01b3958a2e4738fa33b043
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, thunder]
+  - name: thundg1
+    disk_path: disks/us/MAGIC/THUNDG1.BIN
+    sha1: 0b494847afc4c092c7f248a101e31cadf6af12dd
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, thundg1]
+  - name: thundg2
+    disk_path: disks/us/MAGIC/THUNDG2.BIN
+    sha1: 723e60caad8a8c0c3d532b886c652243334c7150
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, thundg2]
+  - name: tifa
+    disk_path: disks/us/MAGIC/TIFA.BIN
+    sha1: ec12856024610e63ee78bbe020e7d650ffa07fed
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, tifa]
+  - name: timedmg
+    disk_path: disks/us/MAGIC/TIMEDMG.BIN
+    sha1: a2702fefed4d4d088ad1711dc6d1f4de3726bb23
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, timedmg]
+  - name: titan
+    disk_path: disks/us/MAGIC/TITAN.BIN
+    sha1: 5b14d04685807e1c35519c6fb323de7c6dec4b3e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, titan]
+  - name: toboe
+    disk_path: disks/us/MAGIC/TOBOE.BIN
+    sha1: 64f40da90313ba7aec87b9e95eeebeceb7212dbb
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, toboe]
+  - name: todo
+    disk_path: disks/us/MAGIC/TODO.BIN
+    sha1: f37720820925fbfdc69a76d7c2f278316e61c1a2
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, todo]
+  - name: tornado
+    disk_path: disks/us/MAGIC/TORNADO.BIN
+    sha1: c9ca61f5c400f2f5be76ca310f449f32cdee8db9
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, tornado]
+  - name: to_seki
+    disk_path: disks/us/MAGIC/TO_SEKI.BIN
+    sha1: 764d9483644945adb7d42fb54e7b605a525b8696
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, to_seki]
+  - name: toybox
+    disk_path: disks/us/MAGIC/TOYBOX.BIN
+    sha1: e40042a118564faf4351bee7b53125c0ad3f4366
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, toybox]
+  - name: trainn
+    disk_path: disks/us/MAGIC/TRAINN.BIN
+    sha1: 884ebfc3171e6593600f47821929ba131d2c7981
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, trainn]
+  - name: triangle
+    disk_path: disks/us/MAGIC/TRIANGLE.BIN
+    sha1: 2bc7eb2d05fe8ce771f5c7fa8b8d43bf790c111b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, triangle]
+  - name: tsol
+    disk_path: disks/us/MAGIC/TSOL.BIN
+    sha1: 84ab058b30c546aec806fca54b23235656c04982
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, tsol]
+  - name: tsurara
+    disk_path: disks/us/MAGIC/TSURARA.BIN
+    sha1: 090d483a00bbecadfa1dcb1ab31953314c457b24
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, tsurara]
+  - name: tupon
+    disk_path: disks/us/MAGIC/TUPON.BIN
+    sha1: 8e6f991f342e4a6294705dd2f4298d64c117feca
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, tupon]
+  - name: utagoe
+    disk_path: disks/us/MAGIC/UTAGOE.BIN
+    sha1: 4638f3816267068144278305fa423b49bd29c00b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, utagoe]
+  - name: vahamut0
+    disk_path: disks/us/MAGIC/VAHAMUT0.BIN
+    sha1: 5f54c0eead0c1c7552a799c98816bdc54c8c77c3
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, vahamut0]
+  - name: vahamut2
+    disk_path: disks/us/MAGIC/VAHAMUT2.BIN
+    sha1: 68b86dc64fb7e8fcc00bfd1b7cef88be295de6db
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, vahamut2]
+  - name: vahamut
+    disk_path: disks/us/MAGIC/VAHAMUT.BIN
+    sha1: 3b6d88501df64dd4376c85c833167d9391e7661b
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, vahamut]
+  - name: veget
+    disk_path: disks/us/MAGIC/VEGET.BIN
+    sha1: 748d8ad5c75a38af7ccf3f6bc32a7c2f027da097
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, veget]
+  - name: wall
+    disk_path: disks/us/MAGIC/WALL.BIN
+    sha1: b04f4f83ab86b035495ce054de69a5fc0dcb68d2
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, wall]
+  - name: wep3
+    disk_path: disks/us/MAGIC/WEP3.BIN
+    sha1: 77d346040775d49e5d1c6b9facc5a4b92ed668e7
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, wep3]
+  - name: wep4
+    disk_path: disks/us/MAGIC/WEP4.BIN
+    sha1: 3912de4cbf3f16dbc5c7dabd44841a1a6e0e5599
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, wep4]
+  - name: whirl
+    disk_path: disks/us/MAGIC/WHIRL.BIN
+    sha1: 9b34335281ec8a5bead8d231ad0654ba9b0c3b61
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, whirl]
+  - name: wlaser
+    disk_path: disks/us/MAGIC/WLASER.BIN
+    sha1: 2c28acc51dc63c65c2a0a9f4046fe2bc4a8ed4eb
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, wlaser]
+  - name: wpba
+    disk_path: disks/us/MAGIC/WPBA.BIN
+    sha1: abf1225d14c9312d18a84c673c5b91d0c4e76a12
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, wpba]
+  - name: wpbi
+    disk_path: disks/us/MAGIC/WPBI.BIN
+    sha1: cfcbcbf02a6fd6b0911ab36e0953ab415d3a5fe6
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, wpbi]
+  - name: wpcu
+    disk_path: disks/us/MAGIC/WPCU.BIN
+    sha1: b748ece29c74de8ce4e9576a076b5601b39cfdc5
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, wpcu]
+  - name: wpea
+    disk_path: disks/us/MAGIC/WPEA.BIN
+    sha1: a590df740dce3d8578753c9036068aef2416a84c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, wpea]
+  - name: wpke
+    disk_path: disks/us/MAGIC/WPKE.BIN
+    sha1: 4dd90525e624475f2d5871b8425cdeeeb469963e
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, wpke]
+  - name: wpsi
+    disk_path: disks/us/MAGIC/WPSI.BIN
+    sha1: 0ac5306782f9440ff33230607844ecde75fe786c
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, wpsi]
+  - name: wpyu
+    disk_path: disks/us/MAGIC/WPYU.BIN
+    sha1: 911e29534f3c648c60803b0b0301dc909b849eff
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, wpyu]
+  - name: w_wind
+    disk_path: disks/us/MAGIC/W_WIND.BIN
+    sha1: 8ee9c2b851ccf83a475992be6cc89154a000cd81
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, w_wind]
+  - name: yami
+    disk_path: disks/us/MAGIC/YAMI.BIN
+    sha1: 71e01b81f8d59a5565e6c0d0e60fdb923de45426
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, yami]
+  - name: yu_waku
+    disk_path: disks/us/MAGIC/YU_WAKU.BIN
+    sha1: 87dab606920573e8f432702feb6bc6ed41055c25
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, yu_waku]
+  - name: zenbaku
+    disk_path: disks/us/MAGIC/ZENBAKU.BIN
+    sha1: f636b9df34919718454aa531000d1a4db3c2034f
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, data, zenbaku]

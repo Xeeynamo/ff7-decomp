@@ -106,7 +106,7 @@ func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 			SrcPath:                        filepath.Join(b.SrcPath, o.BasePath),
 			LdScriptPath:                   filepath.Join(b.LdScriptPath, fmt.Sprintf("%s.ld", o.Name)),
 			SymbolAddrsPath:                o.SymbolAddrsPath,
-			CreateUndefinedFuncsAuto:       true,
+			CreateUndefinedFuncsAuto:       false,
 			UndefinedFuncsAutoPath:         filepath.Join(b.GeneratedSymPath, fmt.Sprintf("undefined_funcs.%s.txt", o.Name)),
 			CreateUndefinedSymsAuto:        true,
 			UndefinedSymsAutoPath:          filepath.Join(b.GeneratedSymPath, fmt.Sprintf("undefined_syms.%s.txt", o.Name)),
