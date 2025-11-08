@@ -29,16 +29,6 @@ func report(configPath string, outputFile string) error {
 	if err := os.MkdirAll(b.BuildPath, 0755); err != nil {
 		return err
 	}
-	if _, err := os.Readlink("expected/report/build"); os.IsNotExist(err) {
-		// instead of copying expected/ in expected/report, just symlink it
-		if err := os.MkdirAll("expected/report", 0755); err != nil {
-			return err
-		}
-		abs, _ := filepath.Abs("expected/build")
-		if err := os.Symlink(abs, "expected/report/build"); err != nil {
-			return err
-		}
-	}
 	if err := writeObjdiffConfig(b); err != nil {
 		return err
 	}

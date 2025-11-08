@@ -77,7 +77,7 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 			units = append(units, objdiffUnit{
 				Name:       o.Name,
 				BasePath:   objFile,
-				TargetPath: filepath.Join("expected", objFile),
+				TargetPath: targetPath(objFile),
 				Metadata: objdiffMetadata{
 					SourcePath:         srcFile,
 					ProgressCategories: progressCategories,
@@ -95,7 +95,7 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 		CustomMake:  "ninja",
 		BaseDir:     b.BuildPath,
 		BuildBase:   true,
-		TargetDir:   filepath.Join("expected", b.BuildPath),
+		TargetDir:   targetPath(b.BuildPath),
 		BuildTarget: false,
 		WatchPatterns: []string{
 			"include/**.h",
@@ -116,4 +116,9 @@ func writeObjdiffConfig(b BuildConfig) error {
 		return err
 	}
 	return os.WriteFile("objdiff.json", data, 0644)
+}
+
+func targetPath(path string) string {
+	path = strings.Replace(path, "report/", "", 1)
+	return filepath.Join("expected", path)
 }
