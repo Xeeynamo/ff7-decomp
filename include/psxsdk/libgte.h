@@ -1,5 +1,6 @@
 #ifndef LIBGTE_H
 #define LIBGTE_H
+#include <types.h>
 
 void InitGeom();
 
