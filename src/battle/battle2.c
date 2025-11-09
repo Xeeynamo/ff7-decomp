@@ -9,10 +9,16 @@ extern s16 D_800EF6D8[];
 extern s16 D_800EF6FC[];
 extern s16 D_800EF838[];
 extern s16 D_800EF8D8[];
-extern u8 D_801031F0;
 
 void func_800D1530();
+
+// MAGIC/ entrypoints
 void func_801B037C(s16, u8);
+void func_801B0000(s16, u8);
+void func_801B0000_2(s16, u8);
+void func_801B000C(s16, u8);
+void func_801B0054(s16, u8);
+void func_801B0084(s16, u8);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D0A4C);
 
@@ -34,7 +40,95 @@ void func_800D0B4C(u8 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D0C80);
+void func_800D0C80(u8 arg0) {
+    D_800F8CF0 = 0;
+    func_800D1530();
+    switch (D_801518FC[arg0].D_80151907) {
+    case 2:
+        if (D_801031F0 == 0) {
+            if (D_801518FC[arg0].D_80151906 == 25) {
+                D_801518FC[0].D_8015190A = 1;
+                D_801518FC[1].D_8015190A = 1;
+                D_801518FC[2].D_8015190A = 1;
+            }
+            D_800EFAF0[D_801518FC[arg0].D_80151906](D_80151774, D_801590CC);
+            return;
+        }
+        switch (D_801518FC[arg0].D_80151906) {
+        case 41:
+            func_801B0000(D_80151774, D_801590CC);
+            break;
+        case 44:
+            func_801B0000_2(D_80151774, D_801590CC);
+            break;
+        case 35:
+            func_801B000C(D_80151774, D_801590CC);
+            break;
+        case 32:
+            func_801B0054(D_80151774, D_801590CC);
+            break;
+        case 29:
+            func_801B0084(D_80151774, D_801590CC);
+            break;
+        default:
+            D_800EFAF0[D_801518FC[arg0].D_80151906](D_80151774, D_801590CC);
+            break;
+        }
+        break;
+    case 13:
+        D_800EFBC8[D_801518FC[arg0].D_80151906](D_80151774, D_801590CC);
+        break;
+    case 20:
+        if (D_801518FC[arg0].D_80151906 == 2) {
+            if (D_801590CC == D_800FA9E8) {
+                D_80163A98 = 0;
+            } else {
+                D_80163A98 = 1;
+            }
+        }
+        *(s32*)0x1F800000 =
+            D_800EFEA0[D_801518FC[arg0].D_80151906](D_80151774, D_801590CC);
+        switch (D_801518FC[arg0].D_80151906) {
+        case 0x2D:
+        case 0x2E:
+        case 0x2F:
+        case 0x30:
+        case 0x38:
+        case 0x39:
+        case 0x3A:
+        case 0x3B:
+        case 0x3C:
+        case 0x3D:
+        case 0x3E:
+        case 0x3F:
+        case 0x40:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x46:
+        case 0x47:
+        case 0x48:
+        case 0x49:
+        case 0x4A:
+        case 0x4B:
+        case 0x4C:
+        case 0x4D:
+        case 0x4F:
+            *(s32*)0x1F800000 = 0;
+            break;
+        }
+        func_800D08B8(arg0, *(s32*)0x1F800000);
+        break;
+    case 32:
+        D_800EFC28[D_801518FC[arg0].D_80151906](D_80151774, D_801590CC);
+        break;
+    case 3:
+        func_800C64AC();
+        break;
+    }
+}
 
 void func_800D1110(u8 arg0) {
     s32 lba;

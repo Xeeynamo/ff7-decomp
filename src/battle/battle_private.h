@@ -31,7 +31,9 @@ typedef struct {
     /* 0x008 */ s16 D_80151904;
     /* 0x00A */ u8 D_80151906;
     /* 0x00B */ u8 D_80151907;
-    /* 0x00C */ s32 D_80151908;
+    /* 0x00C */ s16 D_80151908;
+    /* 0x00E */ s8 D_8015190A;
+    /* 0x00F */ s8 D_8015190B;
     /* 0x010 */ s16 D_8015190C;
     /* 0x012 */ s8 D_8015190E;
     /* 0x013 */ s8 D_8015190F;
@@ -49,6 +51,10 @@ extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
 extern void (*D_800EF9D8[])(s16, u8);
 extern void (*D_800EFFE0[])(s16, u8);
+extern void (*D_800EFAF0[])(s16, u8);
+extern void (*D_800EFBC8[])(s16, u8);
+extern void (*D_800EFC28[])(s16, u8);
+extern s32 (*D_800EFEA0[])(s16, u8);
 extern s32* D_800F01DC;
 extern s8 D_800F19A4;
 extern s32 D_800F311C;
@@ -77,16 +83,18 @@ extern u16 D_800F83D0;
 extern u8 D_800F83E4[];
 extern s8 D_800F8CF0;
 extern u16 D_800F9DA4;
+extern s8 D_800FA9E8;
 extern u8 D_800FAFDC;
 extern s32 D_800FAFEC;
 extern s32 D_800FAFF0;
-extern s8 D_801518DC;
-
+extern u8 D_801031F0;
 extern s16 D_80151774;
-extern Unk801518FC D_801518FC[];
+extern s8 D_801518DC;
+extern Unk801518FC D_801518FC[3];
 extern u8 D_801590CC;    // part of D_801518FC?
 extern u16 D_80163758[]; // part of a struct
 extern Unk800A2F4C D_80163798[0x40];
+extern s8 D_80163A98;
 extern u8 D_80163C7C;
 
 void func_800D088C(s32 loc, s32 len);
