@@ -34,29 +34,6 @@ typedef struct {
 } Unk800A2F4C; // size: 0x12
 
 typedef struct {
-    /* 0x000 */ u8 unk0[0x18];
-    /* 0x018 */ s32 D_801518FC;
-    /* 0x01C */ s32 D_80151900;
-    /* 0x020 */ s16 D_80151904;
-    /* 0x022 */ u8 D_80151906;
-    /* 0x023 */ u8 D_80151907;
-    /* 0x024 */ s8 D_80151908;
-    /* 0x025 */ s8 D_80151909;
-    /* 0x026 */ s8 D_8015190A;
-    /* 0x027 */ s8 D_8015190B;
-    /* 0x028 */ s16 D_8015190C;
-    /* 0x02A */ s8 D_8015190E;
-    /* 0x02B */ s8 D_8015190F;
-    /* 0x02C */ s32 D_80151910;
-    /* 0x030 */ s32 D_80151914;
-    /* 0x034 */ s32 D_80151918;
-    /* 0x038 */ s32 D_8015191C;
-    /* 0x03C */ s32 D_80151920;
-    /* 0x040 */ s32 D_80151924;
-    /* 0x044 */ u8 unk44[0xb58];
-} BattleModel; // size:0xB9C
-
-typedef struct {
     s16 D_801621F0;
     s16 D_801621F2;
     s16 D_801621F4;
@@ -122,7 +99,6 @@ extern u8 D_801590CC;
 extern s16 D_801590D4;
 extern s16 D_80151774;
 extern s8 D_801518DC;
-extern BattleModel D_801518E4[3];
 extern Unk801621F0 D_801621F0[];
 extern s16 D_801621F4[][0x10];
 extern u16 D_80163758[]; // part of a struct
