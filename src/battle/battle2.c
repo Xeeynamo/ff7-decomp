@@ -17,12 +17,34 @@ void func_801B037C(s16, u8);
 void func_801B0000(s16, u8);
 void func_801B0000_2(s16, u8);
 void func_801B000C(s16, u8);
+void func_801B0040(s16, u8);
 void func_801B0054(s16, u8);
 void func_801B0084(s16, u8);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D0A4C);
+s32 func_800BC04C(int (*f)());
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D0AD4);
+static void func_800D0AD4(void);
+void func_800D0A4C(void) {
+    s32 ret;
+    s32 i;
+
+    for (i = 0; i < LEN(D_801518FC); i++) {
+        D_801518FC[i].D_80151909 |= 1;
+    }
+    func_801B0040(D_80151774, D_801590CC);
+    ret = func_800BC04C(func_800D0AD4);
+    *(s32*)0x1F800000 = ret;
+    D_801621F0[ret].D_801621F4 = 2;
+}
+
+static void func_800D0AD4(void) {
+    if (!D_801621F0[D_801590D4].D_801621F4) {
+        D_801621F0[D_801590D4].D_801621F0 = -1;
+        func_800BB978();
+        return;
+    }
+    D_801621F0[D_801590D4].D_801621F4--;
+}
 
 void func_800D0B4C(u8 arg0) {
     D_800F8CF0 = 0;
