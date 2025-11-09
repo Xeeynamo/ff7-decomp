@@ -27,7 +27,7 @@ jobs:
     - if: github.event_name == 'pull_request_target'
       uses: actions/checkout@v5
       with:
-        ref: ${{ github.event.pull_request.head.ref }}
+        ref: ${{ github.event.pull_request.head.sha }}
         submodules: true
     - run: make requirements
     - name: Check if code is formatted
