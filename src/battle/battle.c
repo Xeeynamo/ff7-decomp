@@ -193,9 +193,9 @@ s32 func_800A37F8(s32 arg0) {
 s32 func_800A3828(void) {
     s32 ret = 0;
     if (D_800F39E0 == 3) {
-        D_800F39E4 += D_800F7DA6[0];
+        D_800F39E4 += D_800F5F44.D_800F7DA6;
     }
-    if (D_800F7DA6[2] == 2) {
+    if (D_800F5F44.D_800F7DAA == 2) {
         switch (D_800F3896) {
         case 0:
         case 4:
@@ -405,7 +405,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A64B4);
 void func_800A653C(s32 arg0) {
     s32 index = func_800A44D8(arg0);
     D_800F5BB8[index].unk4 = 0;
-    D_800F7DC2[0] &= ~(1 << index);
+    D_800F5F44.D_800F7DC2 &= ~(1 << index);
 }
 
 void func_800A6590(s32 arg0) { func_800A4D88(arg0); }
@@ -424,7 +424,7 @@ void func_800A6798(s32 arg0, s32 arg1) { func_800A37F8(arg1); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A67B8);
 
-void func_800A6834(s32 arg0) { D_800F7DC4[0] &= ~(1 << arg0); }
+void func_800A6834(s32 arg0) { D_800F5F44.D_800F7DC4 &= ~(1 << arg0); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6858);
 

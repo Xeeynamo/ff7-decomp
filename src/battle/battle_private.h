@@ -107,9 +107,7 @@ extern Unk800F01DC D_800F4BAC[];
 extern u8 D_800F514C[];
 extern s8 D_800F5760;
 extern Unk800AF470 D_800F5BB8[];
-extern u16 D_800F7DC2[1]; // part of a struct
-extern u16 D_800F7DC4[1]; // 100% part of a struct
-extern u16 D_800F83C6;    // part of struct?
+extern u16 D_800F83C6; // part of struct?
 extern u16 D_800F83D0;
 extern u8 D_800F83E4[];
 extern s8 D_800F8CF0;

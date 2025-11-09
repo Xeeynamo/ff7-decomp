@@ -53,11 +53,22 @@ def is_function(name: str) -> bool:
     )
 
 
+def is_data(name: str) -> bool:
+    return (
+        not is_section_header(name)
+        and not is_label(name)
+        and not is_jump_table(name)
+    )
+
+
 def filter_functions(
     symbol_list: list[tuple[str, str, str]],
 ) -> list[tuple[str, str, str]]:
     return [
-        symbol for symbol in symbol_list if symbol[1] == "T" and is_function(symbol[2])
+        symbol
+        for symbol in symbol_list
+        if (symbol[1] == "T" and is_function(symbol[2])) or
+           (symbol[1] == "B" and is_data(symbol[2]))
     ]
 
 

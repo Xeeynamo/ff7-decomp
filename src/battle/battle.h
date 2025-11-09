@@ -97,12 +97,24 @@ typedef struct {
     /* 0x09E8 */ u8 a[0x278];
     /* 0x0C60 */ Unk800F5F44_5 _5;
     /* 0x0E60 */ Unk800F5F44_6 _6;
-    /* 0x1E60 */ u8 b[0x0C];
+    /* 0x1E60 */ u16 D_800F7DA4;
+    /* 0x1E62 */ u16 D_800F7DA6;
+    /* 0x1E64 */ u16 D_800F7DA8;
+    /* 0x1E66 */ u16 D_800F7DAA;
+    /* 0x1E68 */ u16 D_800F7DAC;
+    /* 0x1E6A */ u16 D_800F7DAE;
     /* 0x1E6C */ u16 D_800F7DB0;
     /* 0x1E6E */ u16 D_800F7DB2;
     /* 0x1E70 */ u16 D_800F7DB4;
     /* 0x1E72 */ u16 D_800F7DB6;
-    /* 0x1E74 */ u8 c[0x10];
+    /* 0x1E74 */ u16 D_800F7DB8;
+    /* 0x1E76 */ u16 D_800F7DBA;
+    /* 0x1E78 */ u16 D_800F7DBC;
+    /* 0x1E7A */ u16 D_800F7DBE;
+    /* 0x1E7B */ u16 D_800F7DC0;
+    /* 0x1E7E */ u16 D_800F7DC2;
+    /* 0x1E80 */ u16 D_800F7DC4;
+    /* 0x1E72 */ u16 D_800F7DC6;
     /* 0x1E84 */ u16 D_800F7DC8;
     /* 0x1E84 */ u16 D_800F7DCA;
 } Unk800F5F44; // size:0x1E88
@@ -148,7 +160,6 @@ extern u16 D_800F5BBC[10][0x22];
 extern u8 D_800F5E66[3][0x34];
 extern Unk800F5F44 D_800F5F44;
 extern s8 D_800F6936[0x40][8];
-extern u16 D_800F7DA6[4];
 extern u8 D_800F83A8;
 extern s16 D_800F83AE[10][0x34]; // overlaps with D_800F83E0
 extern s16 D_800F83CC;           // overlaps with D_800F83AE, sceneID

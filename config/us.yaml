@@ -50,12 +50,14 @@ overlays:
       - config/sym_battle_import.us.txt
     migrate_rodata_to_functions: true
     vram_start: 0x800A0000
+    bss_size: 0x70684
     segments:
       - [0x0, .rodata, battle]
       - [0xB88, .rodata, battle2]
       - [0x1158, c, battle]
       - [0x30A4C, c, battle2]
       - [0x47A38, data]
+      - [0x538AC, bss]
   - name: brom
     disk_path: disks/us/BATTLE/BROM.X.dec
     sha1: ebc7a6559f677d1caef8c5db5fd884fd9e0ab156

@@ -19,7 +19,10 @@ func main() {
 		Short: "Builds the game binaries with the support of the original game files",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return build(args[0])
+			if err := build(args[0]); err != nil {
+				panic(err)
+			}
+			return nil
 		},
 	})
 
@@ -28,7 +31,10 @@ func main() {
 		Short: "Generates a progress report",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return report(args[0], args[1])
+			if err := report(args[0], args[1]); err != nil {
+				return err
+			}
+			return nil
 		},
 	})
 

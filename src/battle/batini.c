@@ -56,7 +56,7 @@ void func_801B0490(s32 sceneID) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B0668);
 
 void func_801B085C(s32 arg0) {
-    D_800F7DA6[0] = 0x10000 / ((arg0 * 480 / 256 + 0x78) * 2);
+    D_800F5F44.D_800F7DA6 = 0x10000 / ((arg0 * 480 / 256 + 0x78) * 2);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B08C0);

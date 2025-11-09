@@ -32,6 +32,7 @@ type SplatOptions struct {
 	GPValue                        int64    `yaml:"gp_value,omitempty"`
 	SectionOrder                   []string `yaml:"section_order"`
 	LdGenerateSymbolPerDataSegment bool     `yaml:"ld_generate_symbol_per_data_segment"`
+	LdBssIsNoLoad                  bool     `yaml:"ld_bss_is_noload"`
 }
 
 type SplatSegment struct {
@@ -79,7 +80,7 @@ func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 		header := []any{0x800, "header"}
 		segments = append(segments, header)
 	}
-	segments = append(segments, SplatSegment{
+	seg := SplatSegment{
 		Name:        o.Name,
 		Type:        "code",
 		Start:       start,
@@ -88,7 +89,8 @@ func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 		Align:       b.Align,
 		Subalign:    b.Align,
 		Subsegments: o.Segments,
-	})
+	}
+	segments = append(segments, seg)
 	segments = append(segments, []int64{stat.Size()})
 	return SplatConfig{
 		Sha1: o.Sha1,
@@ -116,6 +118,7 @@ func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 			GPValue:                        o.GPValue,
 			SectionOrder:                   []string{".rodata", ".text", ".data", ".bss"},
 			LdGenerateSymbolPerDataSegment: true,
+			LdBssIsNoLoad:                  o.Name != "main" && o.BssSize > 0,
 		},
 		Segments: segments,
 	}, nil

@@ -6,18 +6,18 @@ import (
 )
 
 type Overlay struct {
-	Name                     string          `yaml:"name"`
-	DiskPath                 string          `yaml:"disk_path"`
-	Compression              string          `yaml:"compression"`
-	Sha1                     string          `yaml:"sha1"`
-	Sha1Decompressed         string          `yaml:"sha1_decompressed"`
-	BasePath                 string          `yaml:"base_path"`
-	SymbolAddrsPath          []string        `yaml:"symbol_addrs_path"`
-	MigrateRodataToFunctions bool            `yaml:"migrate_rodata_to_functions"`
-	VramStart                int64           `yaml:"vram_start"`
-	GPValue                  int64           `yaml:"gp_value"`
-	BssSize                  int64           `yaml:"bss_size"`
-	Segments                 [][]interface{} `yaml:"segments"`
+	Name                     string   `yaml:"name"`
+	DiskPath                 string   `yaml:"disk_path"`
+	Compression              string   `yaml:"compression"`
+	Sha1                     string   `yaml:"sha1"`
+	Sha1Decompressed         string   `yaml:"sha1_decompressed"`
+	BasePath                 string   `yaml:"base_path"`
+	SymbolAddrsPath          []string `yaml:"symbol_addrs_path"`
+	MigrateRodataToFunctions bool     `yaml:"migrate_rodata_to_functions"`
+	VramStart                int64    `yaml:"vram_start"`
+	GPValue                  int64    `yaml:"gp_value"`
+	BssSize                  int64    `yaml:"bss_size"`
+	Segments                 [][]any  `yaml:"segments"`
 }
 
 type BuildConfig struct {
