@@ -348,7 +348,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", ApplyMatrixSV);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", TransMatrix);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003B35C);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", ScaleMatrix);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetRotMatrix);
 

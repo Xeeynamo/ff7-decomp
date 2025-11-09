@@ -68,6 +68,7 @@ MulMatrix2 = 0x8003B16C;
 ApplyMatrix = 0x8003B27C;
 ApplyMatrixSV = 0x8003B2CC;
 TransMatrix = 0x8003B32C;
+ScaleMatrix = 0x8003B35C;
 SetRotMatrix = 0x8003B48C;
 SetLightMatrix = 0x8003B4BC;
 SetColorMatrix = 0x8003B4EC;
