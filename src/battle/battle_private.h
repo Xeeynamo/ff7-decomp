@@ -1,10 +1,18 @@
 // should be imported only by the BATTLE overlay, not BATINI or similar
 #include "battle.h"
 
+enum QueueMethod {
+    QUEUE_LOAD_IMAGE,
+    QUEUE_STORE_IMAGE,
+    QUEUE_MOVE_IMAGE,
+    QUEUE_CLEAR_IMAGE,
+};
+
 typedef struct {
     u8 unk[0x30];
     s32 unk30;
 } Unk800BB67C;
+
 typedef struct {
     s16 unk0;
     s16 unk2;
@@ -55,6 +63,14 @@ typedef struct {
     s16 unk8[12];
 } Unk801621F0; // size:0x20
 
+typedef struct {
+    s32 method; // enum QueueMethod
+    RECT* rect;
+    u_long* ptr;
+    s32 x;
+    s32 y;
+} Unk800F01DC; // size:0x14
+
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
@@ -64,7 +80,7 @@ extern void (*D_800EFAF0[])(s16, u8);
 extern void (*D_800EFBC8[])(s16, u8);
 extern void (*D_800EFC28[])(s16, u8);
 extern s32 (*D_800EFEA0[])(s16, u8);
-extern s32* D_800F01DC;
+extern Unk800F01DC* D_800F01DC;
 extern s8 D_800F19A4;
 extern s32 D_800F311C;
 extern s16 D_800F3122; // part of a struct?
@@ -81,7 +97,7 @@ extern s32 D_800F39EC;
 extern u8 D_800F39F0[][6];
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
-extern s32 D_800F4BAC[];
+extern Unk800F01DC D_800F4BAC[];
 extern u8 D_800F514C[];
 extern s8 D_800F5760;
 extern Unk800AF470 D_800F5BB8[];

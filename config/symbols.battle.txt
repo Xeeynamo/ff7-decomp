@@ -1,3 +1,5 @@
 D_800F5F44 = 0x800F5F44; // size:0x1E88
 D_8016360C = 0x8016360C; // size:0xAC
 D_80163798 = 0x80163798; // size:0x300
+BATTLE_EnqueueLoadImage = 0x800D2538;
+BATTLE_FlushImageQueue = 0x800D25E8;

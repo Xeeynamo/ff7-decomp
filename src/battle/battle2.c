@@ -21,7 +21,7 @@ void func_801B0040(s16, u8);
 void func_801B0054(s16, u8);
 void func_801B0084(s16, u8);
 
-s32 func_800BC04C(int (*f)());
+s32 func_800BC04C(void (*f)());
 
 static void func_800D0AD4(void);
 void func_800D0A4C(void) {
@@ -220,17 +220,57 @@ void func_800D1110(u8 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D1530);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D2538);
+void BATTLE_EnqueueLoadImage(RECT* rect, u_long* ptr) {
+    D_800F01DC->method = QUEUE_LOAD_IMAGE;
+    D_800F01DC->rect = rect;
+    D_800F01DC->ptr = ptr;
+    D_800F01DC++;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D2564);
+void BATTLE_EnqueueStoreImage(RECT* rect, u_long* ptr) {
+    D_800F01DC->method = QUEUE_STORE_IMAGE;
+    D_800F01DC->rect = rect;
+    D_800F01DC->ptr = ptr;
+    D_800F01DC++;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D2590);
+void BATTLE_EnqueueMoveImage(RECT* rect, s32 x, s32 y) {
+    D_800F01DC->method = QUEUE_MOVE_IMAGE;
+    D_800F01DC->rect = rect;
+    D_800F01DC->x = x;
+    D_800F01DC->y = y;
+    D_800F01DC++;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D25C0);
+void BATTLE_EnqueueClearImage(RECT* rect) {
+    D_800F01DC->method = QUEUE_CLEAR_IMAGE;
+    D_800F01DC->rect = rect;
+    D_800F01DC++;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D25E8);
+void BATTLE_FlushImageQueue(void) {
+    Unk800F01DC* item;
 
-void func_800D26F8(void) { D_800F01DC = D_800F4BAC; }
+    for (item = D_800F4BAC; item < D_800F01DC; item++) {
+        switch (item->method) {
+        case QUEUE_LOAD_IMAGE:
+            LoadImage(item->rect, item->ptr);
+            break;
+        case QUEUE_STORE_IMAGE:
+            StoreImage(item->rect, item->ptr);
+            break;
+        case QUEUE_MOVE_IMAGE:
+            MoveImage(item->rect, item->x, item->y);
+            break;
+        case QUEUE_CLEAR_IMAGE:
+            ClearImage(item->rect, 0, 0, 0);
+            break;
+        }
+    }
+    D_800F01DC = D_800F4BAC;
+}
+
+void BATTLE_ResetImageQueue(void) { D_800F01DC = D_800F4BAC; }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D2710);
 
