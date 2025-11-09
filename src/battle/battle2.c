@@ -272,11 +272,59 @@ void BATTLE_FlushImageQueue(void) {
 
 void BATTLE_ResetImageQueue(void) { D_800F01DC = D_800F4BAC; }
 
+#ifndef NON_MATCHINGS
+void func_800D2710(u_long* addr, s32 x, s32 y);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D2710);
+#else
+void func_800D2710(u_long* addr, s32 x, s32 y) {
+    TIM_IMAGE tim;
 
+    OpenTIM(addr);
+    ReadTIM(&tim);
+    if (tim.crect && tim.caddr) {
+        D_800F4B2C[D_800F01E0] = *tim.crect;
+        D_800F4B2C[D_800F01E0].x += x & ~15;
+        D_800F4B2C[D_800F01E0].y =
+            y + D_800F4B2C[D_800F01E0].y; // requires GCC 2.6.3
+        BATTLE_EnqueueLoadImage(&D_800F4B2C[D_800F01E0], tim.caddr);
+        D_800F01E0 = (D_800F01E0 + 1) & 7;
+    }
+}
+#endif
+
+#ifndef NON_MATCHINGS
+void func_800D2828(u_long* addr, s32 xy);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D2828);
+#else
+void func_800D2828(u_long* addr, s32 xy) {
+    TIM_IMAGE tim;
+    s32 temp_a1;
+    s32 temp_a2;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D2980);
+    OpenTIM(addr);
+    ReadTIM(&tim);
+    if (tim.prect && tim.paddr) {
+        D_800F4B6C[D_800F01E4] = *tim.prect;
+        temp_a1 = (tim.prect->y & 0x300) >> 4 | (tim.prect->x & 0x3FF) >> 6;
+        temp_a2 = temp_a1 + xy;
+        D_800F4B6C[D_800F01E4].x =
+            ((temp_a2 & 0x0F) * 0x40 +
+             (D_800F4B6C[D_800F01E4].x - (temp_a1 & 0x0F) * 0x40)) &
+            0x3FF;
+        D_800F4B6C[D_800F01E4].y =
+            ((temp_a2 & 0x30) * 0x10 +
+             (D_800F4B6C[D_800F01E4].y - (temp_a1 & 0x30) * 0x10)) &
+            0x1FF;
+        BATTLE_EnqueueLoadImage(&D_800F4B6C[D_800F01E4], tim.paddr);
+        D_800F01E4 = (D_800F01E4 + 1) & 7;
+    }
+}
+#endif
+
+void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY) {
+    func_800D2710(addr, clutX, clutY);
+    func_800D2828(addr, imgXY);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D29D4);
 

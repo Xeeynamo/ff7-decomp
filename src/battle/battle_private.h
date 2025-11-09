@@ -75,6 +75,7 @@ typedef struct {
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
+extern Yamada D_800E8068[];
 extern void (*D_800EF9D8[])(s16, u8);
 extern void (*D_800EFFE0[])(s16, u8);
 extern void (*D_800EFAF0[])(s16, u8);
@@ -82,6 +83,8 @@ extern void (*D_800EFBC8[])(s16, u8);
 extern void (*D_800EFC28[])(s16, u8);
 extern s32 (*D_800EFEA0[])(s16, u8);
 extern Unk800F01DC* D_800F01DC;
+extern s32 D_800F01E0;
+extern s32 D_800F01E4;
 extern s8 D_800F19A4;
 extern s32 D_800F311C;
 extern s16 D_800F3122; // part of a struct?
@@ -98,6 +101,8 @@ extern s32 D_800F39EC;
 extern u8 D_800F39F0[][6];
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
+extern RECT D_800F4B2C[];
+extern RECT D_800F4B6C[];
 extern Unk800F01DC D_800F4BAC[];
 extern u8 D_800F514C[];
 extern s8 D_800F5760;
@@ -109,6 +114,7 @@ extern u16 D_800F83D0;
 extern u8 D_800F83E4[];
 extern s8 D_800F8CF0;
 extern u16 D_800F9DA4;
+extern s16 D_800FA9C4;
 extern s8 D_800FA9E8;
 extern u8 D_800FAFDC;
 extern s32 D_800FAFEC;
@@ -127,3 +133,4 @@ extern s8 D_80163A98;
 extern u8 D_80163C7C;
 
 void func_800D088C(s32 loc, s32 len);
+void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);

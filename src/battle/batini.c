@@ -193,8 +193,8 @@ static void func_801B23E0(s32 sceneID, void (*cb)(void)) {
         func_800144D8(BATTLE_SCENE) +
             temp_s1 * 4, // Disk sector where to load the file from
         0x800 * 4,       // Size in bytes to copy
-        var_s5,          // Destination
-        0);
+        (u_long*)var_s5, // Destination
+        NULL);
     formationIndex = chunkID - D_80083184[temp_s1];
     func_800145BC(cb); // wait until all data is read, keep executing the vsync
                        // callback until then

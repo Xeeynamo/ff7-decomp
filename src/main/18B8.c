@@ -91,9 +91,9 @@ extern u8 D_800708D4[];
 extern u8 D_800716D0;
 extern s32 D_80071744; // LBA loc for func_80014540
 extern s16 D_80071A5C;
-extern s32 D_80071C24[]; // accessory data?
-extern s32 D_80071E44[]; // armor data?
-extern s32 D_800722C8;   // LBA dst for func_80014540
+extern s32 D_80071C24[];   // accessory data?
+extern s32 D_80071E44[];   // armor data?
+extern u_long* D_800722C8; // LBA dst for func_80014540
 extern u8 D_800722DC[];
 extern u8 D_800730DC[][0x14];
 extern s16 D_80095DD4;
@@ -300,7 +300,7 @@ void func_800111E4(void) {
 }
 
 void func_80011274(void) {
-    func_80033E34(D_80048D1C, D_80048D20, (u32*)0x800E0000, 0);
+    func_80033E34(D_80048D1C, D_80048D20, (u_long*)0x800E0000, NULL);
 
     while (1) {
         if (func_80034B44() == 0) {
@@ -308,7 +308,7 @@ void func_80011274(void) {
         }
     }
 
-    func_80033E34(D_80048D14, D_80048D18, (u32*)0x800A0000, 0);
+    func_80033E34(D_80048D14, D_80048D18, (u_long*)0x800A0000, NULL);
 
     while (1) {
         if (func_80034B44() == 0) {
@@ -347,13 +347,13 @@ void func_80011920(void) {
 }
 
 void func_80011938(void) {
-    func_80033E34(D_80048CFC, D_80048D00, 0x800F0000, 0);
+    func_80033E34(D_80048CFC, D_80048D00, (u_long*)0x800F0000, NULL);
     do {
     } while (func_80034B44());
-    func_80033E34(D_80048D04, D_80048D08, 0x801B0000, 0);
+    func_80033E34(D_80048D04, D_80048D08, (u_long*)0x801B0000, NULL);
     do {
     } while (func_80034B44());
-    func_80033E34(D_80048D0C, D_80048D10, 0x801BC800, 0);
+    func_80033E34(D_80048D0C, D_80048D10, (u_long*)0x801BC800, NULL);
     do {
     } while (func_80034B44());
     func_8002988C(0x800F0000, 0x801BC800);
@@ -413,11 +413,11 @@ void func_80014510(s32 file_no) { func_800144F0(D_80048D84[file_no].loc); }
 
 // used to load WORLD/WORLD.BIN or FIELD/FIELD.BIN
 void func_80014540(void) {
-    func_80033E34(D_80071744, D_80095DD8, D_800722C8, 0);
+    func_80033E34(D_80071744, D_80095DD8, D_800722C8, NULL);
 }
 
-void func_80014578(s32 file_no, void* dst, s32 mode) {
-    func_80033E34(D_80048D84[file_no].loc, D_80048D84[file_no].len, dst, mode);
+void func_80014578(s32 file_no, void* dst, void (*cb)(void)) {
+    func_80033E34(D_80048D84[file_no].loc, D_80048D84[file_no].len, dst, cb);
 }
 
 void func_800145BC(void (*cb)(void)) {
@@ -433,7 +433,7 @@ void func_80014608(void) {}
 // initialize LBA system
 void func_80014610(void) {
     u8 buf[2048];
-    func_80033E34(LBA_INIT_YAMADA, sizeof(buf), &buf, 0);
+    func_80033E34(LBA_INIT_YAMADA, sizeof(buf), (u_long*)&buf, NULL);
     func_800145BC(0);
     func_80014A00(
         (s32*)D_80048D84, (s32*)&buf, sizeof(Yamada) * YAMADA_FILE_NUM);

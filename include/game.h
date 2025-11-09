@@ -287,6 +287,9 @@ extern s32 D_8009A024[8];
 extern SaveWork _work; // 0x8009C6E4
 extern Unk8009D84C D_8009D84C[3];
 
+// PSXSDK funcs
+void func_80033E34(int loc, int len, u_long* addr, void (*cb)(void));
+
 s32 func_80014B70(void);
 s32 func_80014BA8(s32 arg0);
 s32 func_8001521C(s32);

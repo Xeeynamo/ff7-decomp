@@ -965,6 +965,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B3968);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B3A04);
 
+void func_800B3AB8(void);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B3AB8);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B3B84);
@@ -1435,7 +1436,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800D06B8);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800D0760);
 
 void func_800D088C(s32 loc, s32 len) {
-    func_80033E34(loc, len, (void*)0x801B0000, 0);
+    func_80033E34(loc, len, (u_long*)0x801B0000, NULL);
     func_800B7FB4();
 }
 
