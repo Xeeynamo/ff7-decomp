@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 
 #include "common.h"
-#include "psxsdk/libgte.h"
+#include "../battle/battle.h"
 
 typedef struct BarrierData {
     s16 unk0;
@@ -27,6 +27,11 @@ extern BarrierData D_80162978[];
 extern SVECTOR D_801B0C90;
 extern int D_801B0C98[];
 extern short D_801B0CA2;
+
+extern SVECTOR D_801B0CA8;
+extern int D_801B0CB0[];
+extern short D_801B0CBA;
+
 extern int D_801B0CC0;
 extern char D_801B0CC4[];
 
@@ -59,7 +64,7 @@ void func_801B0020(void) {
         scale->vx = scale->vy = scale->vz = (D_801B0CC0 * 0xC00) >> 12;
         var_s3 = data->unk18;
         var_s4 = 0;
-    } else if (temp_a0 >= 8) {
+    } else if (temp_a0 > 7) {
         data->unk0 = -1;
         return;
     } else {
@@ -91,13 +96,151 @@ void func_801B0020(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/magic/nonmatchings/barrier", func_801B0220);
+void func_801B0220(void) {
+    MATRIX* matrix1 = (MATRIX*)0x1F800000;
+    MATRIX* matrix2 = (MATRIX*)0x1F800020;
+    VECTOR* scale1 = (VECTOR*)0x1F800040;
+    VECTOR* scale2 = (VECTOR*)0x1F800050;
+    BarrierData* data = &D_80162978[D_8015169C];
+    int temp_a0 = data->unk2 + data->unk0 - 17;
+    int var_s5;
+    int var_s6;
 
-INCLUDE_ASM("asm/us/magic/nonmatchings/barrier", func_801B04F4);
-void func_801B04F4(void);
+    if (temp_a0 < 0) {
+        if (data->unk2 < 6) {
+            scale1->vx = scale1->vy = scale1->vz =
+                (data->unk2 * (D_801B0CC0 << 9)) >> 12;
+        } else {
+            scale1->vx = scale1->vy = scale1->vz = (D_801B0CC0 * 0xC00) >> 12;
+        }
 
-INCLUDE_ASM("asm/us/magic/nonmatchings/barrier", func_801B092C);
-void func_801B092C(int arg0);
+        scale2->vx = scale2->vy = scale2->vz = (D_801B0CC0 * 0xC00) >> 12;
+
+        var_s5 = data->unk18;
+        var_s6 = 0;
+    } else if (temp_a0 > 7) {
+        data->unk0 = -1;
+        return;
+    } else {
+        var_s5 = data->unk18 | 8;
+        var_s6 = temp_a0 << 9;
+        scale1->vx = scale1->vy = scale1->vz = scale2->vx = scale2->vy =
+            scale2->vz = (((temp_a0 * 0x180) + 0xC00) * D_801B0CC0) >> 12;
+    }
+
+    SetFarColor(0, 0, 0);
+    RotMatrixYXZ(&data->rot, matrix1);
+    *matrix2 = *matrix1;
+    ScaleMatrix(matrix1, scale1);
+    ScaleMatrix(matrix2, scale2);
+    ApplyMatrix(matrix2, &D_801B0CA8, matrix1->t);
+    matrix1->t[0] += data->pos.vx;
+    matrix1->t[1] += data->pos.vy;
+    matrix1->t[2] += data->pos.vz;
+    CompMatrix(&D_800FA63C, matrix1, matrix1);
+    SetRotMatrix(matrix1);
+    SetTransMatrix(matrix1);
+
+    D_801B0CB0[1] = var_s5 | 0x80;
+    D_801B0CBA = var_s6;
+    D_801D0CC4 = func_800D29D4(D_801B0CB0, D_801517C0 + 0x70, 12, D_801D0CC4);
+
+    if (D_80062D98 == 0) {
+        data->unk2++;
+    }
+}
+
+void func_801B04F4(void) {
+    BarrierData* data = &D_80162978[D_8015169C];
+    BarrierData* next;
+
+    if (D_80062D98 != 0) {
+        return;
+    }
+
+    if (data->unk2 == 0) {
+        next = &D_80162978[func_800BBEAC(func_801B0020)];
+        next->unk0 = data->unk2;
+        next->unk18 = 0;
+        next->rot = data->rot;
+        next->pos = data->pos;
+    }
+
+    if (data->unk2 == 2) {
+        next = &D_80162978[func_800BBEAC(func_801B0020)];
+        next->unk0 = data->unk2;
+        next->unk18 = 1;
+        next->rot = data->rot;
+        next->pos = data->pos;
+    }
+
+    if (data->unk2 == 4) {
+        next = &D_80162978[func_800BBEAC(func_801B0020)];
+        next->unk0 = data->unk2;
+        next->unk18 = 3;
+        next->rot = data->rot;
+        next->pos = data->pos;
+    }
+
+    if (data->unk2 == 6) {
+        next = &D_80162978[func_800BBEAC(func_801B0020)];
+        next->unk0 = data->unk2;
+        next->unk18 = 2;
+        next->rot = data->rot;
+        next->pos = data->pos;
+    }
+
+    if (data->unk2 == 1) {
+        next = &D_80162978[func_800BBEAC(func_801B0220)];
+        next->unk0 = data->unk2;
+        next->unk18 = 0;
+        next->rot = data->rot;
+        next->pos = data->pos;
+    }
+
+    if (data->unk2 == 3) {
+        next = &D_80162978[func_800BBEAC(func_801B0220)];
+        next->unk0 = data->unk2;
+        next->unk18 = 1;
+        next->rot = data->rot;
+        next->pos = data->pos;
+    }
+
+    if (data->unk2 == 5) {
+        next = &D_80162978[func_800BBEAC(func_801B0220)];
+        next->unk0 = data->unk2;
+        next->unk18 = 3;
+        next->rot = data->rot;
+        next->pos = data->pos;
+    }
+
+    if (data->unk2 == 7) {
+        next = &D_80162978[func_800BBEAC(func_801B0220)];
+        next->unk0 = data->unk2;
+        next->unk18 = 2;
+        next->rot = data->rot;
+        next->pos = data->pos;
+    }
+
+    if (data->unk2 == 17) {
+        func_800D5774(data->unk4);
+        data->unk0 = -1;
+    }
+
+    data->unk2++;
+}
+
+void func_801B092C(int arg0) {
+    BarrierData* data = &D_80162978[func_800BBEAC(func_801B04F4)];
+
+    func_800D3994(arg0, D_801518E4[arg0].D_8015190F, &data->pos);
+    data->pos.vx -=
+        (rsin(D_801518E4[arg0].unk160.vy) * D_801518E4[arg0].unk12) >> 12;
+    data->pos.vz -=
+        (rcos(D_801518E4[arg0].unk160.vy) * D_801518E4[arg0].unk12) >> 12;
+    data->rot = D_801518E4[arg0].unk160;
+    data->unk4 = arg0;
+}
 
 void func_801B0A90(void) {
     BarrierData* data = &D_80162978[D_8015169C];

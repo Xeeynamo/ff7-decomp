@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <common.h>
+#include <libgte.h>
 #include <libgpu.h>
 
 #ifndef FF7_STR

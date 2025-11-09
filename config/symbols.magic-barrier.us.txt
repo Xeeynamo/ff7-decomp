@@ -1,1 +1,2 @@
 D_801B0C98 = 0x801B0C98; // size:0x8
+D_801B0CB0 = 0x801B0CB0; // size:0x8
