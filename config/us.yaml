@@ -157,6 +157,7 @@ overlays:
     vram_start: 0x801B0000
     symbol_addrs_path:
       - config/sym_export.us.txt
+      - config/symbols.magic-barrier.us.txt
       - config/sym_export_battle.us.txt
     segments:
       - [0, c, barrier]
