@@ -14,6 +14,14 @@ typedef struct BarrierData {
     char pad1[0x6];
 } BarrierData;
 
+typedef struct {
+    s32* unk0;
+    s32 unk4;
+    s16 unk8;
+    s16 unkA;
+    s32 unkC;
+} Unk801B0C98;
+
 extern char D_80062D98;
 
 extern MATRIX D_800FA63C;
@@ -24,35 +32,35 @@ extern short D_80162080;
 
 extern BarrierData D_80162978[];
 
-extern SVECTOR D_801B0C90;
-extern int D_801B0C98[];
-extern short D_801B0CA2;
-
-extern SVECTOR D_801B0CA8;
-extern int D_801B0CB0[];
-extern short D_801B0CBA;
-
-extern int D_801B0CC0;
-extern char D_801B0CC4[];
-
-extern void* D_801D0CC4;
-
-// battle.c
-int func_800BBEAC(void (*func)(void));
-
-// battle2.c
-void* func_800D29D4(int*, int, int, void*);
-void func_800D3994(int, char, void*);
-void func_800D5444(int, int, int, void (*func)(int));
-void func_800D55F4(int, int, int);
-int func_800D574C(int);
+static s32 D_801B0B68[] = { // this seems to be a header+3D model
+    0x00000030, 0xFE0C0000, 0x000001CA, 0x00000000, 0x0000FFD7, 0x0000FE0C,
+    0x000002E5, 0xFFEDFE2F, 0x000002C2, 0xFE2AFFF2, 0x000001C2, 0xFFEDFFF2,
+    0x00000000, 0x00200000, 0x00000000, 0x00000000, 0x00000006, 0x00280008,
+    0x00180010, 0x38FFFFFF, 0x006A6A6A, 0x00C0C0C0, 0x006A6A6A, 0x00200000,
+    0x00280008, 0x38C0C0C0, 0x006A6A6A, 0x00FFFFFF, 0x006A6A6A, 0x00180010,
+    0x00200000, 0x38C0C0C0, 0x006A6A6A, 0x00C0C0C0, 0x006A6A6A, 0x00100008,
+    0x00180028, 0x38FFFFFF, 0x00C0C0C0, 0x006A6A6A, 0x006A6A6A, 0x00080000,
+    0x00280020, 0x38C0C0C0, 0x00FFFFFF, 0x006A6A6A, 0x006A6A6A, 0x00000010,
+    0x00200018, 0x38C0C0C0, 0x00C0C0C0, 0x006A6A6A, 0x006A6A6A};
+static s32 D_801B0C3C[] = { // this seems to be a header+3D model
+    0x00000018, 0xFFEDFE2F, 0x000002C2, 0xFE2AFFF2, 0x000001C2, 0xFFEDFFF2,
+    0x00000000, 0x00200000, 0x00000000, 0x00000002, 0x00000008, 0x00000010,
+    0x303F3F3F, 0x003F3F3F, 0x00D4D4D4, 0x00100008, 0x00000000, 0x303F3F3F,
+    0x00D4D4D4, 0x003F3F3F, 0x00000000};
+static SVECTOR D_801B0C90 = {0, 0, -500};
+static Unk801B0C98 D_801B0C98 = {D_801B0B68, 0, 0, 0, 0x20};
+static SVECTOR D_801B0CA8 = {0, 0, -500};
+static Unk801B0C98 D_801B0CB0 = {D_801B0C3C, 0, 0, 0, 0x20};
+static int D_801B0CC0;
+static char D_801B0CC4[0x20000];
+static void* D_801D0CC4;
 
 // barrier.c forward declarations
-void func_801B0AF0(int arg0, int arg1);
+static void func_801B0AF0(int arg0, int arg1);
 
 void func_801B0000(int arg0, int arg1) { func_801B0AF0(arg0, arg1); }
 
-void func_801B0020(void) {
+static void func_801B0020(void) {
     MATRIX* matrix = (MATRIX*)0x1F800000;
     VECTOR* scale = (VECTOR*)0x1F800020;
     BarrierData* data = &D_80162978[D_8015169C];
@@ -87,16 +95,17 @@ void func_801B0020(void) {
     SetRotMatrix(matrix);
     SetTransMatrix(matrix);
 
-    D_801B0C98[1] = var_s3 | 0x80;
-    D_801B0CA2 = var_s4;
-    D_801D0CC4 = func_800D29D4(D_801B0C98, D_801517C0 + 0x70, 12, D_801D0CC4);
+    D_801B0C98.unk4 = var_s3 | 0x80;
+    D_801B0C98.unkA = var_s4;
+    D_801D0CC4 =
+        func_800D29D4((int*)&D_801B0C98, D_801517C0 + 0x70, 12, D_801D0CC4);
 
     if (D_80062D98 == 0) {
         data->unk2++;
     }
 }
 
-void func_801B0220(void) {
+static void func_801B0220(void) {
     MATRIX* matrix1 = (MATRIX*)0x1F800000;
     MATRIX* matrix2 = (MATRIX*)0x1F800020;
     VECTOR* scale1 = (VECTOR*)0x1F800040;
@@ -141,16 +150,17 @@ void func_801B0220(void) {
     SetRotMatrix(matrix1);
     SetTransMatrix(matrix1);
 
-    D_801B0CB0[1] = var_s5 | 0x80;
-    D_801B0CBA = var_s6;
-    D_801D0CC4 = func_800D29D4(D_801B0CB0, D_801517C0 + 0x70, 12, D_801D0CC4);
+    D_801B0CB0.unk4 = var_s5 | 0x80;
+    D_801B0CB0.unkA = var_s6;
+    D_801D0CC4 =
+        func_800D29D4((int*)&D_801B0CB0, D_801517C0 + 0x70, 12, D_801D0CC4);
 
     if (D_80062D98 == 0) {
         data->unk2++;
     }
 }
 
-void func_801B04F4(void) {
+static void func_801B04F4(void) {
     BarrierData* data = &D_80162978[D_8015169C];
     BarrierData* next;
 
@@ -230,7 +240,7 @@ void func_801B04F4(void) {
     data->unk2++;
 }
 
-void func_801B092C(int arg0) {
+static void func_801B092C(int arg0) {
     BarrierData* data = &D_80162978[func_800BBEAC(func_801B04F4)];
 
     func_800D3994(arg0, D_801518E4[arg0].D_8015190F, &data->pos);
@@ -242,7 +252,7 @@ void func_801B092C(int arg0) {
     data->unk4 = arg0;
 }
 
-void func_801B0A90(void) {
+static void func_801B0A90(void) {
     BarrierData* data = &D_80162978[D_8015169C];
 
     D_801D0CC4 = &D_801B0CC4[data->unk2 * 65536];
@@ -253,7 +263,7 @@ void func_801B0A90(void) {
     }
 }
 
-void func_801B0AF0(int arg0, int arg1) {
+static void func_801B0AF0(int arg0, int arg1) {
     D_801B0CC0 = 0x3000;
     func_800BBEAC(func_801B0A90);
     func_800D5444(arg0, arg1, 4, func_801B092C);

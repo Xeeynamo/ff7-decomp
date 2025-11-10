@@ -157,10 +157,12 @@ overlays:
     sha1: e93c458117a937879f1a6d8c956dfbdacd6286e0
     base_path: magic
     vram_start: 0x801B0000
+    bss_size: 0x20008
     symbol_addrs_path:
       - config/sym_export.us.txt
       - config/symbols.magic-barrier.us.txt
       - config/sym_export_battle.us.txt
     segments:
       - [0, c, barrier]
-      - [0xB68, data, barrier]
+      - [0xB68, .data, barrier]
+      - [0xCC0, .bss, barrier]

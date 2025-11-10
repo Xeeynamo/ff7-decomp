@@ -194,3 +194,13 @@ extern Unk800F83E0 D_800F83E0[3];
 extern Unk8016360C D_8016360C;
 extern u16 D_8016376A;
 extern BattleModel D_801518E4[3];
+
+// battle.c
+int func_800BBEAC(void (*func)(void));
+
+// battle2.c
+void* func_800D29D4(int*, int, int, void*);
+void func_800D3994(int, char, void*);
+void func_800D5444(int, int, int, void (*func)(int));
+void func_800D55F4(int, int, int);
+int func_800D574C(int);
