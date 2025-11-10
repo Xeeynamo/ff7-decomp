@@ -15,7 +15,16 @@ jobs:
     - uses: actions/setup-go@v5
       with:
         go-version: '>=1.25.3'
-    - run: sudo apt-get install -y ninja-build 7zip binutils-mipsel-linux-gnu gcc-mipsel-linux-gnu
+    - run: sudo apt-get install -y ninja-build 7zip
+    # Ubuntu 24.04 uses binutils 2.42, which ships a version of mipsel-linux-gnu-ld that does not match the game.
+    # Ubuntu 24.10 (binutils 2.42.90) and later fixes the issue
+    - run: |
+        echo "deb http://archive.ubuntu.com/ubuntu/ questing main universe multiverse restricted" | sudo tee /etc/apt/sources.list.d/questing.list
+        sudo apt-get update
+        sudo apt-get install -y -t questing binutils-mipsel-linux-gnu gcc-mipsel-linux-gnu
+        sudo rm /etc/apt/sources.list.d/questing.list
+        sudo apt-get clean
+        sudo rm -rf /var/lib/apt/lists/*
     - uses: actions/setup-python@v6
       with:
         python-version: '3.13'
