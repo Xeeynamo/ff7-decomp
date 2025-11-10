@@ -35,15 +35,20 @@ disks/betaus: disks/Final\ Fantasy\ VII\ (USA)\ (Interactive\ Sampler\ CD).iso
 
 .PHONY: clean
 clean:
-	git clean -xfd asm/
-	git clean -xfd build/
-	git clean -xfd config/
+	@git clean -xdf . --exclude=disks/ --exclude=.venv/ --exclude=bin/
+	@git clean -Xfd asm/
+	@git clean -Xfd build/
+	@git clean -Xfd config/
 
 .PHONY: format
 format: bin/clang-format
 	find src/ include/ -type f \( -name '*.c' -o -name '*.h' \) \
 		! -path 'include/psxsdk/*' -print0 | \
 		xargs -0 -P$$(nproc) bin/clang-format -i
+
+.PHONY: report
+report: build
+	@go run ./tools/builder report config/us.yaml build/report.json
 
 .PHONY: requirements
 requirements:
