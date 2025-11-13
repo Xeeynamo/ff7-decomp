@@ -53,9 +53,9 @@ overlays:
     bss_size: 0x70684
     segments:
       - [0x0, .rodata, battle]
-      - [0xB88, .rodata, battle2]
+      - [0x888, .rodata, battle2]
       - [0x1158, c, battle]
-      - [0x30A4C, c, battle2]
+      - [0x27B60, c, battle2]
       - [0x47A38, data]
       - [0x538AC, bss]
   - name: brom

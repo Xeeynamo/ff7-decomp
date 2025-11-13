@@ -35,7 +35,7 @@ disks/betaus: disks/Final\ Fantasy\ VII\ (USA)\ (Interactive\ Sampler\ CD).iso
 
 .PHONY: clean
 clean:
-	@git clean -xdf . --exclude=disks/ --exclude=.venv/ --exclude=bin/
+	@git clean -xdf . --exclude=disks/ --exclude=.venv/ --exclude=.vscode/ --exclude=.idea/ --exclude=bin/
 	@git clean -Xfd asm/
 	@git clean -Xfd build/
 	@git clean -Xfd config/

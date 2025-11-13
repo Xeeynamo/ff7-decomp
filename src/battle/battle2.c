@@ -10,7 +10,9 @@ extern s16 D_800EF6FC[];
 extern s16 D_800EF838[];
 extern s16 D_800EF8D8[];
 
+s32 func_800BC04C(void (*f)());
 void func_800D1530();
+s32 func_800D376C(BattleModelSub* arg0, s32 arg1, s16 nItems, u8* arg3);
 
 // MAGIC/ entrypoints
 void func_801B037C(s16, u8);
@@ -21,7 +23,102 @@ void func_801B0040(s16, u8);
 void func_801B0054(s16, u8);
 void func_801B0084(s16, u8);
 
-s32 func_800BC04C(void (*f)());
+s32 func_800C7B60(s16 arg0, s16 nItems, u8* arg2) {
+    s32* var_a0;
+    s32 var_a1;
+    s32 temp_s0;
+    s32 temp_v0;
+
+    var_a0 = &D_801518E4[arg0].D_80151A58;
+    var_a1 = D_801518E4[arg0].D_80151958;
+    D_801518E4[arg0].D_80151958 = func_800D376C(var_a0, var_a1, nItems, arg2);
+    return D_801518E4[arg0].D_80151958 == 0;
+}
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800C7BE8);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800C7C4C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD400);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD558);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD5E4);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD798);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD82C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD860);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CDD44);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CDDA4);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CDDE8);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CDE78);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CDF6C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CDFC4);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CE058);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CE0C8);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CE21C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CE384);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CE638);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CE75C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CE7E0);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CE970);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CEB48);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CF2F0);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CF3CC);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CF4A8);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CF5BC);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CF8C0);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CFB14);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CFCB0);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CFE60);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D01C0);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D0578);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D061C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D06B8);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D0760);
+
+void func_800D088C(s32 loc, s32 len) {
+    func_80033E34(loc, len, (u_long*)0x801B0000, NULL);
+    func_800B7FB4();
+}
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D08B8);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D0958);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D09D0);
+
+void func_800D0A44(void) {}
 
 static void func_800D0AD4(void);
 void func_800D0A4C(void) {
@@ -342,7 +439,22 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3520);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3548);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D35D8);
+s32 func_800D35D8(u8* arg0, s32* arg1, s32 arg2) {
+    s32 bits;
+    s32 i;
+
+    bits = 0;
+    for (i = 0; i < arg2; i++) {
+        bits <<= 1;
+        if ((arg0[*arg1 / 8] >> (7 - (*arg1 & 7))) & 1) {
+            bits++;
+        }
+        *arg1 = *arg1 + 1;
+    }
+    bits <<= 32 - arg2;
+    bits >>= 32 - arg2;
+    return bits;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3658);
 
