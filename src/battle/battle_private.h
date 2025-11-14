@@ -38,7 +38,17 @@ typedef struct {
     s16 D_801621F2;
     s16 D_801621F4;
     s16 D_801621F6;
-    s16 unk8[12];
+    s16 unk8;
+    s16 unkA;
+    s16 unkC;
+    s16 unkE;
+    s16 unk10;
+    s16 unk12;
+    s32 unk14;
+    s16 unk18;
+    s16 unk1A;
+    s16 unk1C;
+    s16 unk1E;
 } Unk801621F0; // size:0x20
 
 typedef struct {
@@ -59,6 +69,41 @@ typedef struct {
 typedef struct {
     short vx, vy, vz;
 } ShortVectorXYZ;
+
+typedef struct {
+    s32 D_80151200;
+    s32 D_80151204;
+    s32 D_80151208;
+    s16 D_8015120C;
+    s16 D_8015120E;
+    s32 D_80151210;
+    s32 D_80151214;
+    s32 D_80151218;
+    s32 D_8015121C;
+    s32 D_80151220;
+    s32 D_80151224;
+    s32 D_80151228;
+    s32 D_8015122C;
+    s32 D_80151230;
+    s32 D_80151234;
+    s16 D_80151238;
+    s16 D_8015123A;
+    s16 D_8015123C;
+    s16 D_8015123E;
+    s32 D_80151240;
+    s32 D_80151244;
+    s32 D_80151248;
+    s32 D_8015124C;
+    s32 D_80151250;
+    s32 D_80151254;
+    s32 D_80151258;
+    s32 D_8015125C;
+    s32 D_80151260;
+    s32 D_80151264;
+    s32 D_80151268;
+    s32 D_8015126C;
+    s32 D_80151270;
+} Unk80151200;
 
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
@@ -100,6 +145,7 @@ extern u16 D_800F83D0;
 extern u8 D_800F83E4[];
 extern s8 D_800F8CF0;
 extern u16 D_800F9DA4;
+extern u8 D_800FA6D4;
 extern Unk800FA6D8 D_800FA6D8[];
 extern s16 D_800FA9C4;
 extern s8 D_800FA9E8;
@@ -107,17 +153,21 @@ extern u8 D_800FAFDC;
 extern s32 D_800FAFEC;
 extern s32 D_800FAFF0;
 extern u8 D_801031F0;
-extern u8 D_801590CC;
-extern s16 D_801590D4;
+extern Unk80151200 D_80151200[3];
+extern s16 D_801516FC[][4]; // most likely a struct
 extern s16 D_80151774;
 extern s8 D_801518DC;
-extern Unk801621F0 D_801621F0[];
-extern s16 D_801621F4[][0x10];
+extern u8 D_801590CC;
+extern s16 D_801590D4;
+extern s8 D_801590DC;
+extern Unk801621F0 D_801621F0[60];
 extern u16 D_80163758[]; // part of a struct
 extern Unk800A2F4C D_80163798[0x40];
 extern s8 D_80163A98;
+extern s32 D_80163C74;
 extern u8 D_80163C7C;
 extern ShortVectorXYZ D_80163C80[];
+extern u8 D_80166F68;
 
 void func_800D088C(s32 loc, s32 len);
 void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
