@@ -49,6 +49,17 @@ typedef struct {
     s32 y;
 } Unk800F01DC; // size:0x14
 
+typedef struct {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ BattleModelSub unk8;
+    /* 0x3C */ s32 unkC;
+} Unk800FA6D8;
+
+typedef struct {
+    short vx, vy, vz;
+} ShortVectorXYZ;
+
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
@@ -89,6 +100,7 @@ extern u16 D_800F83D0;
 extern u8 D_800F83E4[];
 extern s8 D_800F8CF0;
 extern u16 D_800F9DA4;
+extern Unk800FA6D8 D_800FA6D8[];
 extern s16 D_800FA9C4;
 extern s8 D_800FA9E8;
 extern u8 D_800FAFDC;
@@ -105,6 +117,7 @@ extern u16 D_80163758[]; // part of a struct
 extern Unk800A2F4C D_80163798[0x40];
 extern s8 D_80163A98;
 extern u8 D_80163C7C;
+extern ShortVectorXYZ D_80163C80[];
 
 void func_800D088C(s32 loc, s32 len);
 void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
