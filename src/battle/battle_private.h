@@ -34,6 +34,42 @@ typedef struct {
 } Unk800A2F4C; // size: 0x12
 
 typedef struct {
+    s16 D_801621B0;
+    s16 D_801621B2;
+    s16 D_801621B4;
+    s16 D_801621B6;
+    s16 unk8;
+    s16 unkA;
+    s16 unkC;
+    s16 unkE;
+    s16 unk10;
+    s16 unk12;
+    s32 unk14;
+    s16 unk18;
+    s16 unk1A;
+    s16 unk1C;
+    s16 unk1E;
+} Unk801621B0; // size:0x20
+
+typedef struct {
+    s16 D_80162978;
+    s16 D_8016297A;
+    s16 D_8016297C;
+    s16 D_8016297E;
+    s16 D_80162980;
+    s16 D_80162982;
+    s16 unk8;
+    s16 unkA;
+    s16 unkC;
+    s16 unkE;
+    s16 unk10;
+    s16 unk12;
+    s32 unk14;
+    s16 unk18;
+    s16 unk1A;
+} Unk80162978; // size:0x20
+
+typedef struct {
     s16 D_801621F0;
     s16 D_801621F2;
     s16 D_801621F4;
@@ -50,6 +86,18 @@ typedef struct {
     s16 unk1C;
     s16 unk1E;
 } Unk801621F0; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s8 D_801636B8;
+    /* 0x01 */ s8 D_801636B9;
+    /* 0x02 */ s8 D_801636BA;
+    /* 0x03 */ s8 D_801636BB;
+    /* 0x04 */ u8 D_801636BC;
+    /* 0x05 */ s8 D_801636BD;
+    /* 0x06 */ s16 D_801636BE;
+    /* 0x08 */ s32 D_801636C0;
+    /* 0x0C */ s32 D_801636C4;
+} Unk801636B8; // size:0x10
 
 typedef struct {
     s32 method; // enum QueueMethod
@@ -160,7 +208,10 @@ extern s8 D_801518DC;
 extern u8 D_801590CC;
 extern s16 D_801590D4;
 extern s8 D_801590DC;
+extern Unk801621B0 D_801620B0[10];
 extern Unk801621F0 D_801621F0[60];
+extern Unk80162978 D_80162978[100];
+extern Unk801636B8 D_801636B8[5];
 extern u16 D_80163758[]; // part of a struct
 extern Unk800A2F4C D_80163798[0x40];
 extern s8 D_80163A98;

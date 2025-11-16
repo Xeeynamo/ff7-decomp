@@ -10,7 +10,15 @@ extern s16 D_800EF6FC[];
 extern s16 D_800EF838[];
 extern s16 D_800EF8D8[];
 
+s32 func_800BBF7C(void (*f)(void));
 s32 func_800BC04C(void (*f)());
+void func_800C328C();
+void func_800C3578();
+void func_800C3950();
+void func_800C3CA8();
+void func_800C40F4();
+void func_800C44B4();
+void func_800C4814();
 void func_800D1530();
 s32 func_800D376C(BattleModelSub* arg0, s32 arg1, s16 nItems, u8* arg3);
 void func_800D4D4C(s32 arg0, s32 arg1);
@@ -122,9 +130,97 @@ static void func_800CE058(s16 arg0) {
     D_80151200[arg0].D_8015120C |= 0x20;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CE0C8);
+void func_800CE0C8(s16 arg0, u8 arg1, u8 arg2) {
+    s32 ret;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CE21C);
+    func_800CE058(arg0);
+    switch (arg1) {
+    case 0:
+        ret = func_800BBEAC(func_800C3578);
+        D_80162978[ret].D_80162980 = arg0;
+        D_80162978[ret].D_8016297E = arg2;
+        break;
+    case 8:
+        ret = func_800BBEAC(func_800C4814);
+        D_80162978[ret].D_80162980 = arg0;
+        D_80162978[ret].D_8016297E = arg2;
+        break;
+    case 1:
+    case 10:
+        ret = func_800BBF7C(func_800C3950);
+        D_801620B0[ret].D_801621B2 = arg2;
+        D_801620B0[ret].D_801621B4 = arg0;
+        D_801620B0[ret].D_801621B6 = 0xF8;
+        return;
+    case 2:
+        ret = func_800BBEAC(func_800C3CA8);
+        D_80162978[ret].D_80162980 = arg0;
+        D_80162978[ret].D_8016297E = arg2;
+        break;
+    case 3:
+        ret = func_800BBEAC(func_800C328C);
+        D_80162978[ret].D_80162980 = arg0;
+        D_80162978[ret].D_8016297E = arg2;
+        break;
+    case 17:
+    case 18:
+        ret = func_800BBEAC(func_800C40F4);
+        D_80162978[ret].D_80162980 = arg0;
+        D_80162978[ret].D_8016297E = arg2;
+        break;
+    case 7:
+        ret = func_800BBEAC(func_800C44B4);
+        D_80162978[ret].D_80162980 = arg0;
+        D_80162978[ret].D_8016297E = arg2;
+        break;
+    }
+}
+
+void func_800CE21C(s16 arg0, u8 arg1) {
+    s32 ret;
+
+    func_800CE058(arg0);
+    switch (D_801636B8[arg0].D_801636BC) {
+    case 0:
+        ret = func_800BBEAC(func_800C3578);
+        D_80162978[ret].D_80162980 = arg0;
+        D_80162978[ret].D_8016297E = arg1;
+        break;
+    case 8:
+        ret = func_800BBEAC(func_800C4814);
+        D_80162978[ret].D_80162980 = arg0;
+        D_80162978[ret].D_8016297E = arg1;
+        break;
+    case 1:
+    case 10:
+        ret = func_800BBF7C(func_800C3950);
+        D_801620B0[ret].D_801621B2 = arg1;
+        D_801620B0[ret].D_801621B4 = arg0;
+        D_801620B0[ret].D_801621B6 = 0xF8;
+        break;
+    case 2:
+        ret = func_800BBEAC(func_800C3CA8);
+        D_80162978[ret].D_80162980 = arg0;
+        D_80162978[ret].D_8016297E = arg1;
+        break;
+    case 3:
+        ret = func_800BBEAC(func_800C328C);
+        D_80162978[ret].D_80162980 = arg0;
+        D_80162978[ret].D_8016297E = arg1;
+        break;
+    case 17:
+    case 18:
+        ret = func_800BBEAC(func_800C40F4);
+        D_80162978[ret].D_80162980 = arg0;
+        D_80162978[ret].D_8016297E = arg1;
+        break;
+    case 7:
+        ret = func_800BBEAC(func_800C44B4);
+        D_80162978[ret].D_80162980 = arg0;
+        D_80162978[ret].D_8016297E = arg1;
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CE384);
 
