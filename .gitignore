@@ -17,3 +17,4 @@ undefined_syms_auto.*.txt
 .ninja_deps
 build.ninja
 objdiff.json
+/permute*
