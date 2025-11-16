@@ -78,10 +78,10 @@ typedef struct {
     s16 unkA;
     s16 unkC;
     s16 unkE;
-    s16 unk10;
-    s16 unk12;
+    u8* unk10;
     s32 unk14;
-    s16 unk18;
+    u8 unk18;
+    s8 unk19;
     s16 unk1A;
     s16 unk1C;
     s16 unk1E;
@@ -131,9 +131,12 @@ typedef struct {
     s32 D_80151220;
     s32 D_80151224;
     s32 D_80151228;
-    s32 D_8015122C;
+    s16 D_8015122C;
+    s16 D_8015122E;
     s32 D_80151230;
-    s32 D_80151234;
+    u8 D_80151234;
+    s8 D_80151235;
+    s16 D_80151236;
     s16 D_80151238;
     s16 D_8015123A;
     s16 D_8015123C;
