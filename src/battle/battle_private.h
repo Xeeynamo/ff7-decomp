@@ -34,6 +34,8 @@ typedef struct {
 } Unk800A2F4C; // size: 0x12
 
 typedef struct {
+    s16 D_801621AC;
+    s16 D_801621AE;
     s16 D_801621B0;
     s16 D_801621B2;
     s16 D_801621B4;
@@ -44,29 +46,31 @@ typedef struct {
     s16 unkE;
     s16 unk10;
     s16 unk12;
-    s32 unk14;
+    u8 unk14;
+    s8 unk15;
+    s16 unk16;
     s16 unk18;
     s16 unk1A;
-    s16 unk1C;
-    s16 unk1E;
-} Unk801621B0; // size:0x20
+} Unk801620AC; // size:0x20
 
 typedef struct {
-    s16 D_80162978;
-    s16 D_8016297A;
-    s16 D_8016297C;
-    s16 D_8016297E;
-    s16 D_80162980;
-    s16 D_80162982;
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    s16 unkE;
-    s16 unk10;
-    s16 unk12;
-    s32 unk14;
-    s16 unk18;
-    s16 unk1A;
+    /* 0x00 */ s16 D_80162978;
+    /* 0x02 */ s16 D_8016297A;
+    /* 0x04 */ s16 D_8016297C;
+    /* 0x06 */ s16 D_8016297E;
+    /* 0x08 */ s16 D_80162980;
+    /* 0x0A */ s16 D_80162982;
+    /* 0x0C */ s16 unk8;
+    /* 0x0E */ s16 unkA;
+    /* 0x10 */ s16 unkC;
+    /* 0x12 */ s16 unkE;
+    /* 0x14 */ s16 unk10;
+    /* 0x16 */ s16 unk12;
+    /* 0x18 */ u8 unk14;
+    /* 0x19 */ u8 unk15;
+    /* 0x1A */ s16 unk16;
+    /* 0x1C */ s16 unk18;
+    /* 0x1E */ s16 unk1A;
 } Unk80162978; // size:0x20
 
 typedef struct {
@@ -196,6 +200,7 @@ extern u16 D_800F83D0;
 extern u8 D_800F83E4[];
 extern s8 D_800F8CF0;
 extern u16 D_800F9DA4;
+extern s16 D_800FA69C;
 extern u8 D_800FA6D4;
 extern Unk800FA6D8 D_800FA6D8[];
 extern s16 D_800FA9C4;
@@ -205,15 +210,18 @@ extern s32 D_800FAFEC;
 extern s32 D_800FAFF0;
 extern u8 D_801031F0;
 extern Unk80151200 D_80151200[3];
+extern s16 D_8015169C;
 extern s16 D_801516FC[][4]; // most likely a struct
 extern s16 D_80151774;
 extern s8 D_801518DC;
 extern u8 D_801590CC;
+extern s16 D_801590D0;
 extern s16 D_801590D4;
 extern s8 D_801590DC;
-extern Unk801621B0 D_801620B0[10];
+extern Unk801620AC D_801620AC[10];
 extern Unk801621F0 D_801621F0[60];
 extern Unk80162978 D_80162978[100];
+extern s16 D_80163608;
 extern Unk801636B8 D_801636B8[5];
 extern u16 D_80163758[]; // part of a struct
 extern Unk800A2F4C D_80163798[0x40];
@@ -221,6 +229,7 @@ extern s8 D_80163A98;
 extern s32 D_80163C74;
 extern u8 D_80163C7C;
 extern ShortVectorXYZ D_80163C80[];
+extern s8 D_80166F58;
 extern u8 D_80166F68;
 
 void func_800D088C(s32 loc, s32 len);
