@@ -173,6 +173,7 @@ extern s32 (*D_800EFEA0[])(s16, u8);
 extern Unk800F01DC* D_800F01DC;
 extern s32 D_800F01E0;
 extern s32 D_800F01E4;
+extern s32 D_800F199C;
 extern s8 D_800F19A4;
 extern s32 D_800F311C;
 extern s16 D_800F3122; // part of a struct?
