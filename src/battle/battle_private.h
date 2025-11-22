@@ -42,13 +42,13 @@ typedef struct {
     s16 D_801621B6;
     s16 unk8;
     s16 unkA;
-    s16 unkC;
-    s16 unkE;
+    s32 unkC;
     s16 unk10;
     s16 unk12;
     u8 unk14;
-    s8 unk15;
-    s16 unk16;
+    u8 unk15;
+    u8 unk16;
+    u8 unk17;
     s16 unk18;
     s16 unk1A;
 } Unk801620AC; // size:0x20
@@ -164,6 +164,7 @@ extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
 extern Yamada D_800E8068[];
+extern short D_800EEB28[9][8];
 extern void (*D_800EF9D8[])(s16, u8);
 extern void (*D_800EFFE0[])(s16, u8);
 extern void (*D_800EFAF0[])(s16, u8);

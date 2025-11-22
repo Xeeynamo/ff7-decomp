@@ -459,9 +459,68 @@ void func_800CFB14(void) {
     D_801620AC[D_801590D0].unk14--;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CFCB0);
+void func_800CFCB0(void) {
+    s32 temp_a3;
+    s16 temp_a2;
+    s32 temp_a1;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CFE60);
+    if (D_801620AC[D_801590D0].D_801621B0 == 0) {
+        D_801620AC[D_801590D0].D_801621AC = -1;
+        return;
+    }
+    temp_a2 = D_801620AC[D_801590D0].D_801621B4;
+    temp_a3 = D_801620AC[D_801590D0].D_801621B6;
+    temp_a1 = D_801620AC[D_801590D0].unkC;
+    *((s32*)0x1F80000C) = temp_a2;
+    *((s32*)0x1F800008) = temp_a3;
+    *((s32*)0x1F800010) = temp_a1;
+    D_801518E4[temp_a2].D_80151A4C.vx += D_801620AC[D_801590D0].unk8;
+    D_801518E4[temp_a2].D_80151A4C.vz += D_801620AC[D_801590D0].unkA;
+    D_801518E4[temp_a2].D_80151A4C.vy +=
+        D_800EEB28[temp_a1][D_801620AC[D_801590D0].unk14++];
+    D_801620AC[D_801590D0].D_801621B0--;
+}
+
+void func_800CFE60(void) {
+#define MUL(a, b) (((a) * (b)) >> 12)
+#define IDX1 *(s32*)0x1F80000C
+#define IDX2 *(s32*)0x1F800008
+    IDX1 = D_801620AC[D_801590D0].D_801621B4;
+    IDX2 = D_801620AC[D_801590D0].D_801621B6;
+    switch (D_801620AC[D_801590D0].D_801621AE) {
+    case 0:
+        D_801620AC[D_801590D0].D_801621AE = 1;
+        D_801620AC[D_801590D0].D_801621B0 = D_801620AC[D_801590D0].unk15;
+        break;
+    case 1:
+        if (D_801620AC[D_801590D0].D_801621B0 == 0) {
+            D_801620AC[D_801590D0].D_801621AE = 2;
+            D_801620AC[D_801590D0].D_801621B0 = D_801620AC[D_801590D0].unk16;
+            D_801620AC[D_801590D0].D_801621B2 =
+                MUL(D_801518E4[IDX1].D_80151A4C.vy -
+                        D_801620AC[D_801590D0].unkC,
+                    D_801518E4[IDX2].D_801518EA) /
+                D_801620AC[D_801590D0].unk16;
+            return;
+        }
+        D_801518E4[IDX1].D_80151A4C.vy += D_801620AC[D_801590D0].unk10;
+        D_801620AC[D_801590D0].D_801621B0--;
+        break;
+    case 2:
+        if (D_801620AC[D_801590D0].D_801621B0 == 0) {
+            D_801620AC[D_801590D0].D_801621AC = -1;
+            return;
+        }
+        D_801518E4[IDX1].D_80151A4C.vx += D_801620AC[D_801590D0].unk8;
+        D_801518E4[IDX1].D_80151A4C.vz += D_801620AC[D_801590D0].unkA;
+        D_801518E4[IDX1].D_80151A4C.vy -= D_801620AC[D_801590D0].D_801621B2;
+        D_801620AC[D_801590D0].D_801621B0--;
+        break;
+    }
+#undef IDX2
+#undef IDX1
+#undef MUL
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D01C0);
 
