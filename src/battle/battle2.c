@@ -23,6 +23,7 @@ void func_800C4814();
 void func_800CFB14();
 void func_800D1530();
 s32 func_800D376C(BattleModelSub* arg0, s32 arg1, s16 nItems, u8* arg3);
+void func_800D3AF0();
 static void func_800D4D4C(s32 arg0, s32 arg1);
 
 // MAGIC/ entrypoints
@@ -237,7 +238,7 @@ static void func_800CE384(void) {
     }
     do_work = 1;
     while (do_work) {
-        ptr = D_801621F0[D_801590D4].unk10;
+        ptr = D_801621F0[D_801590D4].unk10.ptr;
         switch (ptr[D_801621F0[D_801590D4].unk18++]) {
         case 0xFD:
             param = ptr[D_801621F0[D_801590D4].unk18++];
@@ -296,7 +297,7 @@ static void func_800CE7E0(void) {
             dst = func_800BC04C(func_800C2928);
             D_801621F0[dst].unk14 = D_80162978[D_8015169C].unkA;
             D_801621F0[dst].unkE = D_80162978[D_8015169C].D_80162982;
-            D_801621F0[dst].unk10 = D_80162978[D_8015169C].D_80162980;
+            D_801621F0[dst].unk10.ptr = D_80162978[D_8015169C].D_80162980;
             dst = func_800BC04C(func_800CE638);
             D_801621F0[dst].unkA = D_80162978[D_8015169C].unk15;
             D_801621F0[dst].unk8 = D_80162978[D_8015169C].D_8016297E;
@@ -322,7 +323,7 @@ void func_800CE970(void) {
             dst = func_800BC04C(func_800C2928);
             D_801621F0[dst].unk14 = D_80162978[D_8015169C].unkA;
             D_801621F0[dst].unkE = D_80162978[D_8015169C].D_80162982;
-            D_801621F0[dst].unk10 = D_80162978[D_8015169C].D_80162980;
+            D_801621F0[dst].unk10.ptr = D_80162978[D_8015169C].D_80162980;
             dst = func_800BC04C(func_800CE638);
             D_801621F0[dst].unkA = D_80162978[D_8015169C].unk15;
             D_801621F0[dst].unk8 = D_80162978[D_8015169C].D_8016297E;
@@ -980,7 +981,7 @@ void func_800D3D88(void) {
         func_800D3994(temp_s0, temp_s2, &temp_s0_2->D_801621F4);
         temp_s0_2->D_801621F6 = 0;
         temp_s0_2->unkE = temp_s1->unkE;
-        *(u16*)&temp_s0_2->unk10 = (u16)temp_s1->unk10;
+        temp_s0_2->unk10.unk.unk0 = temp_s1->unk10.unk.unk0;
     }
     temp_s1->D_801621F2++;
     if (temp_s1->D_801621F2 == 4) {
@@ -988,11 +989,43 @@ void func_800D3D88(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3E8C);
+void func_800D3E8C(s32 arg0) {
+    Unk801621F0* temp_v0;
+
+    temp_v0 = &D_801621F0[func_800BC04C(func_800D3D88)];
+    temp_v0->D_801621F0 = arg0;
+    temp_v0->unkE = *(s16*)& temp_v0->unk10 = D_801518E4[arg0].D_801518EA;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3F0C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3F8C);
+void func_800D3F8C(void) {
+    Unk801621F0* temp_s0;
+    Unk801621F0* temp_s1;
+
+    temp_s1 = &D_801621F0[D_801590D4];
+    if (D_80062D98 == 0) {
+        temp_s1->unkC--;
+        if (temp_s1->unkC == -1) {
+            temp_s0 = &D_801621F0[func_800BC04C(func_800D3AF0)];
+            RotMatrixYXZ(&D_801518E4[temp_s1->unk10.unk.unk2].unk160,
+                         (MATRIX*)0x1F800008);
+            ApplyMatrixSV((MATRIX*)0x1F800008, (SVECTOR*)&temp_s1->D_801621F4,
+                          (SVECTOR*)0x1F800000);
+            temp_s0->D_801621F4 =
+                D_801518E4[temp_s1->unk10.unk.unk2].D_80151A4C.vx +
+                ((SVECTOR*)0x1F800000)->vx;
+            temp_s0->D_801621F6 =
+                D_801518E4[temp_s1->unk10.unk.unk2].D_80151A4C.vy +
+                ((SVECTOR*)0x1F800000)->vy;
+            temp_s0->unk8 = D_801518E4[temp_s1->unk10.unk.unk2].D_80151A4C.vz +
+                            ((SVECTOR*)0x1F800000)->vz;
+            temp_s0->unkE = temp_s1->unkE;
+            temp_s0->unk10.unk.unk0 = temp_s1->unk10.unk.unk0;
+            temp_s1->D_801621F0 = -1;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D415C);
 

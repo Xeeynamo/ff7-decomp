@@ -190,7 +190,7 @@ typedef struct {
     /* 0x027 */ s8 D_8015190B;
     /* 0x028 */ s16 D_8015190C;
     /* 0x02A */ s8 D_8015190E;
-    /* 0x02B */ s8 D_8015190F;
+    /* 0x02B */ u8 D_8015190F;
     /* 0x02C */ s32 D_80151910;
     /* 0x030 */ s32 D_80151914;
     /* 0x034 */ s16 D_80151918;
@@ -239,7 +239,7 @@ int func_800BBEAC(void (*func)(void));
 
 // battle2.c
 void* func_800D29D4(int*, int, int, void*);
-void func_800D3994(int, char, void*);
+void func_800D3994(s32 arg0, s32 arg1, void* arg2);
 void func_800D5444(int, int, int, void (*func)(int));
 void func_800D55F4(int, int, int);
 int func_800D574C(int);

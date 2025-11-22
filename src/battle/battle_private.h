@@ -73,6 +73,15 @@ typedef struct {
 } Unk80162978; // size:0x20
 
 typedef struct {
+    u16 unk0;
+    s16 unk2;
+} Unk80162200;
+typedef union {
+    u8* ptr;
+    Unk80162200 unk;
+} Union80162200;
+
+typedef struct {
     s16 D_801621F0;
     s16 D_801621F2;
     s16 D_801621F4;
@@ -81,7 +90,7 @@ typedef struct {
     s16 unkA;
     s16 unkC;
     s16 unkE;
-    u8* unk10;
+    Union80162200 unk10;
     s32 unk14;
     u8 unk18;
     s8 unk19;

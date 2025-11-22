@@ -22,8 +22,6 @@ typedef struct {
     s32 unkC;
 } Unk801B0C98;
 
-extern char D_80062D98;
-
 extern MATRIX D_800FA63C;
 
 extern short D_8015169C;

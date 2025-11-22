@@ -269,6 +269,7 @@ extern u16 D_80062D7C;      // pressed button?
 extern u16 D_80062D7E;      // pressed button?
 extern u16 D_80062D80;      // tapped button
 extern u16 D_80062D82;      // repeated button
+extern u8 D_80062D98;
 extern s8 D_80062D99;
 extern s32 D_80062DCC;
 extern Gpu D_80062F24;
@@ -290,6 +291,10 @@ extern Unk8009D84C D_8009D84C[3];
 
 // PSXSDK funcs
 void func_80033E34(int loc, int len, u_long* addr, void (*cb)(void));
+SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
+MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
+void StopCallback(void);
+void SystemError(char c, long n);
 
 s32 func_80014B70(void);
 s32 func_80014BA8(s32 arg0);
