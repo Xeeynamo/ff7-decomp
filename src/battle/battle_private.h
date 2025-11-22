@@ -43,8 +43,7 @@ typedef struct {
     s16 unk8;
     s16 unkA;
     s32 unkC;
-    s16 unk10;
-    s16 unk12;
+    s32 unk10;
     u8 unk14;
     u8 unk15;
     u8 unk16;
@@ -235,5 +234,6 @@ extern ShortVectorXYZ D_80163C80[];
 extern s8 D_80166F58;
 extern u8 D_80166F68;
 
+void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 void func_800D088C(s32 loc, s32 len);
 void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
