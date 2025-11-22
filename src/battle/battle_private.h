@@ -76,7 +76,7 @@ typedef struct {
     s16 D_801621F0;
     s16 D_801621F2;
     s16 D_801621F4;
-    s16 D_801621F6;
+    s16 D_801621F6; // player idx? 0, 1 or 2. See func_800D0C80
     s16 unk8;
     s16 unkA;
     s16 unkC;
@@ -215,7 +215,7 @@ extern Unk80151200 D_80151200[3];
 extern s16 D_8015169C;
 extern s16 D_801516FC[][4]; // most likely a struct
 extern s16 D_80151774;
-extern s8 D_801518DC;
+extern u8 D_801518DC;
 extern u8 D_801590CC;
 extern s16 D_801590D0;
 extern s16 D_801590D4;
@@ -236,4 +236,5 @@ extern u8 D_80166F68;
 
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 void func_800D088C(s32 loc, s32 len);
+void func_800D0C80(u8 arg0);
 void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
