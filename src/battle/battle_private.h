@@ -200,6 +200,7 @@ extern u16 D_800F83C6; // part of struct?
 extern u16 D_800F83D0;
 extern u8 D_800F83E4[];
 extern s8 D_800F8CF0;
+extern u8 D_800F99E8;
 extern u16 D_800F9DA4;
 extern s16 D_800FA69C;
 extern u8 D_800FA6D4;

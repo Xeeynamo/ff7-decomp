@@ -20,6 +20,7 @@ void func_800C3CA8();
 void func_800C40F4();
 void func_800C44B4();
 void func_800C4814();
+void func_800CFB14();
 void func_800D1530();
 s32 func_800D376C(BattleModelSub* arg0, s32 arg1, s16 nItems, u8* arg3);
 static void func_800D4D4C(s32 arg0, s32 arg1);
@@ -309,13 +310,8 @@ static void func_800CE7E0(void) {
 
 void func_800CEB48(void);
 void func_800CE970(void) {
-    s16 temp_v0;
-    s32 temp_a0;
-    s32 temp_a0_2;
     s32 dst;
-    s32 temp_v1;
 
-    temp_v1 = D_8015169C << 5;
     if (!D_80162978[D_8015169C].D_8016297C) {
         if (D_80162978[D_8015169C].unkA & 2) {
             D_80163C74 = func_800C4FC8(0xFA, 0xFA, 0xFA);
@@ -421,9 +417,47 @@ void func_800CF5BC(void) {
 #undef MUL
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CF8C0);
+void func_800CF8C0(s16 arg0, s16 arg1, u8 arg2) {
+    u8 dst;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CFB14);
+    dst = func_800BBF7C(func_800CFB14);
+    D_801620AC[dst].D_801621B4 = arg0;
+    D_801620AC[dst].D_801621B0 = arg1;
+    D_801620AC[dst].D_801621B6 = D_800F99E8;
+    D_801620AC[dst].unk14 = arg2;
+    if (D_800F99E8 == arg0) {
+        D_801620AC[dst].unk8 = 0;
+        D_801620AC[dst].unkA = 0;
+        D_801620AC[dst].D_801621B2 = 0;
+        return;
+    }
+    D_801620AC[dst].unk8 =
+        (D_80163C80[arg0].vx - D_801518E4[arg0].D_80151A4C.vx) / arg1;
+    D_801620AC[dst].unkA =
+        (D_80163C80[arg0].vz - D_801518E4[arg0].D_80151A4C.vz) / arg1;
+    D_801620AC[dst].D_801621B2 =
+        (D_80163C80[arg0].vy - D_801518E4[arg0].D_80151A4C.vy) / arg1;
+}
+
+void func_800CFB14(void) {
+    s16 dst;
+
+    dst = D_801620AC[D_801590D0].D_801621B4;
+    *(s32*)0x1F80000C = dst;
+    *(s32*)0x1F800008 = D_801620AC[D_801590D0].D_801621B6;
+    if (D_801620AC[D_801590D0].unk14 == 0) {
+        if (D_801620AC[D_801590D0].D_801621B0 == 0) {
+            D_801620AC[D_801590D0].D_801621AC = -1;
+            return;
+        }
+        D_801518E4[dst].D_80151A4C.vx += D_801620AC[D_801590D0].unk8;
+        D_801518E4[dst].D_80151A4C.vz += D_801620AC[D_801590D0].unkA;
+        D_801518E4[dst].D_80151A4C.vy += D_801620AC[D_801590D0].D_801621B2;
+        D_801620AC[D_801590D0].D_801621B0--;
+        return;
+    }
+    D_801620AC[D_801590D0].unk14--;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CFCB0);
 
