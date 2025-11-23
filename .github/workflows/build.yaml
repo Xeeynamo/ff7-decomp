@@ -12,9 +12,6 @@ jobs:
     if: github.repository == 'Xeeynamo/ff7-decomp'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/setup-go@v5
-      with:
-        go-version: '>=1.25.3'
     - run: sudo apt-get install -y ninja-build 7zip
     # Ubuntu 24.04 uses binutils 2.42, which ships a version of mipsel-linux-gnu-ld that does not match the game.
     # Ubuntu 24.10 (binutils 2.42.90) and later fixes the issue
@@ -38,6 +35,11 @@ jobs:
       with:
         ref: ${{ github.event.pull_request.head.sha }}
         submodules: true
+    - uses: actions/setup-go@v6
+      with:
+        go-version-file: 'go.work'
+        cache: true
+        cache-dependency-path: "**/*.sum"
     - run: make requirements
     - name: Check if code is formatted
       run: |
