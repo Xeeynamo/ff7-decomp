@@ -38,7 +38,7 @@ func report(configPath string, outputFile string) error {
 	if err := writeSha1Check(b); err != nil {
 		return err
 	}
-	if err := generateNinjaBuild(b.BuildPath, "GENERATE_REPORT=1"); err != nil {
+	if err := generateNinjaBuild(b.BuildPath, "FF7_PROGRESS_REPORT=1"); err != nil {
 		return err
 	}
 	if err := execNinja(); err != nil {

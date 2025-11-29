@@ -1,4 +1,6 @@
+import base64
 import os
+import pathlib
 import sys
 from dataclasses import dataclass
 import os
@@ -14,10 +16,19 @@ objs: list[str] = []
 work_dir = "build/us"
 if len(sys.argv) > 1:
     work_dir = sys.argv[1]
-generate_report = os.environ.get("GENERATE_REPORT") == "1"
-if generate_report:
+progress_report = os.environ.get("FF7_PROGRESS_REPORT") == "1"
+dummy_object = bytes()
+if progress_report:
     # https://decomp.wiki/en/tools/decomp-dev
     CPP_FLAGS += " -DSKIP_ASM=1"
+    dummy_object = base64.b64decode(
+        "f0VMRgEBAQAAAAAAAAAAAAEACAABAAAAAAAAAAAAAABYAAAAABAAADQAAAAAACgABgAFAAAuc2hz"
+        "dHJ0YWIALnRleHQALmRhdGEALmJzcwAucGRyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        "AAAAAAAAAAAAAAAAAAALAAAAAQAAAAYAAAAAAAAANAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAEQAA"
+        "AAEAAAADAAAAAAAAADQAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABcAAAAIAAAAAwAAAAAAAAA0AAAA"
+        "AAAAAAAAAAAAAAAAEAAAAAAAAAAcAAAAAQAAAAAAAAAAAAAANAAAAAAAAAAAAAAAAAAAAAQAAAAA"
+        "AAAAAQAAAAMAAAAAAAAAAAAAADQAAAAhAAAAAAAAAAAAAAABAAAAAAAAAA=="
+    )  # minimal stripped object file generated from an empty assembly file
 check_path = os.path.join(work_dir, "check.sha1")
 
 
@@ -133,6 +144,11 @@ def add_s(cfg: any, file_name: str):
     if out_path in objs:
         return
     objs.append(out_path)
+    if progress_report:
+        out = pathlib.Path(out_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(dummy_object)
+        return
     nw.build(
         rule=f"{platform(cfg)}-as",
         outputs=[out_path],
@@ -230,7 +246,7 @@ def add_splat_config(file_name: str):
                 add_s(cfg, name)
             elif kind == "c" or kind == ".data":
                 add_c(cfg, name)
-    if generate_report:
+    if progress_report:
         return
     output_name = f"{build_path(cfg)}/{basename(cfg)}.elf"
     sym_export = "config/sym_export.us.txt"
@@ -364,7 +380,7 @@ with open("build.ninja", "w") as f:
         command=f"sha1sum -c {check_path}",
         description="check",
     )
-    if not generate_report:
+    if not progress_report:
         nw.build(
             rule="check",
             outputs=["build/check.dummy"],

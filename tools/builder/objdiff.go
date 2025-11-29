@@ -51,6 +51,7 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 	var categories []objdiffProgressCategory
 	for _, o := range b.Overlays {
 		srcDir := filepath.Join(b.SrcPath, o.BasePath)
+		asmDir := filepath.Join(b.AsmPath, o.BasePath)
 		categories = append(categories, objdiffProgressCategory{
 			ID: o.Name,
 		})
@@ -58,7 +59,8 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 			if len(src) < 2 {
 				continue
 			}
-			if cat, ok := src[1].(string); !ok || cat != "c" {
+			cat, ok := src[1].(string)
+			if !ok {
 				continue
 			}
 			name := ""
@@ -76,17 +78,36 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 			if name == "" {
 				panic("bug")
 			}
-			srcFile := filepath.Join(srcDir, name+".c")
-			objFile := filepath.Join(b.BuildPath, srcFile+".o")
-			units = append(units, objdiffUnit{
-				Name:       fmt.Sprintf("%s/%s", o.Name, name),
-				BasePath:   objFile,
-				TargetPath: targetPath(objFile),
-				Metadata: objdiffMetadata{
-					SourcePath:         srcFile,
-					ProgressCategories: []string{o.Name},
-				},
-			})
+			switch cat {
+			case "c":
+				srcFile := filepath.Join(srcDir, name+".c")
+				objFile := filepath.Join(b.BuildPath, srcFile+".o")
+				units = append(units, objdiffUnit{
+					Name:       fmt.Sprintf("%s/%s", o.Name, name),
+					BasePath:   objFile,
+					TargetPath: targetPath(objFile),
+					Metadata: objdiffMetadata{
+						SourcePath:         srcFile,
+						ProgressCategories: []string{o.Name},
+					},
+				})
+			case "data":
+				fallthrough
+			case "sbss":
+				fallthrough
+			case "bss":
+				asmFile := filepath.Join(asmDir, "data", fmt.Sprintf("%s.%s.s", name, cat))
+				objFile := filepath.Join(b.BuildPath, asmFile+".o")
+				units = append(units, objdiffUnit{
+					Name:       fmt.Sprintf("%s/%s_%s", o.Name, name, cat),
+					BasePath:   objFile,
+					TargetPath: targetPath(objFile),
+					Metadata: objdiffMetadata{
+						SourcePath:         asmFile,
+						ProgressCategories: []string{o.Name},
+					},
+				})
+			}
 		}
 	}
 	return objdiffConfig{
