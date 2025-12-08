@@ -297,7 +297,7 @@ static void func_800CE7E0(void) {
             dst = func_800BC04C(func_800C2928);
             D_801621F0[dst].unk14 = D_80162978[D_8015169C].unkA;
             D_801621F0[dst].unkE = D_80162978[D_8015169C].D_80162982;
-            D_801621F0[dst].unk10.ptr = D_80162978[D_8015169C].D_80162980;
+            D_801621F0[dst].unk10.ptr = (u8*)D_80162978[D_8015169C].D_80162980;
             dst = func_800BC04C(func_800CE638);
             D_801621F0[dst].unkA = D_80162978[D_8015169C].unk15;
             D_801621F0[dst].unk8 = D_80162978[D_8015169C].D_8016297E;
@@ -323,7 +323,7 @@ void func_800CE970(void) {
             dst = func_800BC04C(func_800C2928);
             D_801621F0[dst].unk14 = D_80162978[D_8015169C].unkA;
             D_801621F0[dst].unkE = D_80162978[D_8015169C].D_80162982;
-            D_801621F0[dst].unk10.ptr = D_80162978[D_8015169C].D_80162980;
+            D_801621F0[dst].unk10.ptr = (u8*)D_80162978[D_8015169C].D_80162980;
             dst = func_800BC04C(func_800CE638);
             D_801621F0[dst].unkA = D_80162978[D_8015169C].unk15;
             D_801621F0[dst].unk8 = D_80162978[D_8015169C].D_8016297E;

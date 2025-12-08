@@ -53,9 +53,11 @@ overlays:
     bss_size: 0x70684
     segments:
       - [0x0, .rodata, battle]
+      - [0x614, .rodata, battle1]
       - [0x888, .rodata, battle2]
       - [0xDD4, .rodata, battle3]
       - [0x1158, c, battle]
+      - [0x18438, c, battle1]
       - [0x27B60, c, battle2]
       - [0x38A04, c, battle3]
       - [0x47A38, data]

@@ -40,6 +40,11 @@ typedef struct {
     s32 len; // file size in bytes
 } Yamada;
 
+typedef enum {
+    LBA_INIT_YAMADA = 614,
+    LBA_ENEMY6_OVER2 = 30694,
+} Lba;
+
 typedef struct {
     s16 unk0;
     s16 unk2; // current page
@@ -282,6 +287,7 @@ extern u8 D_800730DD[][0x14];
 extern s32 D_800756F8[];
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern u8 D_80083184[0x40];
+extern s32 D_80083338;
 extern s16 D_8009A000;
 extern s32 D_8009A004;
 extern s32 D_8009A008;
@@ -307,7 +313,10 @@ void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                    s32 arg11, s32 arg12, u16 arg13);
 void func_800269C0(void* poly);
 s32 func_80026B70(unsigned char* str);
+void func_8002DA7C();
 s32 func_80034B44();
+void func_8003CEBC(void);
+void func_80043938(s32);
 
 // from overlays
 extern s32 D_8019DAA0;

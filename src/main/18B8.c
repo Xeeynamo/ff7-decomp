@@ -2,10 +2,6 @@
 #include <game.h>
 
 typedef enum {
-    LBA_INIT_YAMADA = 614,
-} Lba;
-
-typedef enum {
     KERNEL_COMMAND,
     KERNEL_ATTACK,
     KERNEL_GROWTH,

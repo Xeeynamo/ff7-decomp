@@ -168,9 +168,17 @@ typedef struct {
     s32 D_80151270;
 } Unk80151200;
 
+typedef struct {
+    /* 0x00 */ MATRIX m;
+    /* 0x20 */ SVECTOR sv;
+    /* 0x28 */ VECTOR v;
+} Unk800BB75C; // size:0x38
+
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
+extern VECTOR D_800E7D10;
+extern VECTOR D_800E7D20;
 extern Yamada D_800E8068[];
 extern short D_800EEB28[9][8];
 extern void (*D_800EF9D8[])(s16, u8);
@@ -199,31 +207,42 @@ extern s32 D_800F39EC;
 extern u8 D_800F39F0[][6];
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
+extern s32 D_800F4AF4;
+extern s32 D_800F4AF8;
 extern RECT D_800F4B2C[];
 extern RECT D_800F4B6C[];
 extern Unk800F01DC D_800F4BAC[];
 extern u8 D_800F514C[];
 extern s8 D_800F5760;
 extern Unk800AF470 D_800F5BB8[];
+extern s32 D_800F8368;
+extern s16 D_800F8370;
 extern u16 D_800F83C6; // part of struct?
 extern u16 D_800F83D0;
 extern u8 D_800F83E4[];
 extern s8 D_800F8CF0;
 extern u8 D_800F99E8;
 extern u16 D_800F9DA4;
+extern Unk800BB75C D_800FA63C;
 extern s16 D_800FA69C;
+extern s16 D_800FA6B8;
 extern u8 D_800FA6D4;
 extern Unk800FA6D8 D_800FA6D8[];
+extern MATRIX D_800FA958;
 extern s16 D_800FA9C4;
 extern s8 D_800FA9E8;
 extern u8 D_800FAFDC;
 extern s32 D_800FAFEC;
 extern s32 D_800FAFF0;
+extern s16 D_801031E8;
 extern u8 D_801031F0;
 extern Unk80151200 D_80151200[3];
+extern u16 D_80151694;
 extern s16 D_8015169C;
 extern s16 D_801516FC[][4]; // most likely a struct
 extern s16 D_80151774;
+extern u8 D_801517BC;
+extern s16 D_80158D00;
 extern u8 D_801518DC;
 extern u8 D_801590CC;
 extern s16 D_801590D0;
@@ -232,11 +251,13 @@ extern s8 D_801590DC;
 extern Unk801620AC D_801620AC[10];
 extern Unk801621F0 D_801621F0[60];
 extern Unk80162978 D_80162978[100];
+extern u8 D_801635FC;
 extern s16 D_80163608;
 extern Unk801636B8 D_801636B8[5];
 extern u16 D_80163758[]; // part of a struct
 extern Unk800A2F4C D_80163798[0x40];
 extern s8 D_80163A98;
+extern s16 D_80163B80;
 extern s32 D_80163C74;
 extern u8 D_80163C7C;
 extern ShortVectorXYZ D_80163C80[];
