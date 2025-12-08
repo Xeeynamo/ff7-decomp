@@ -4,6 +4,8 @@ and optionally upload that function to decomp.me.
 Any questions or issues related to running it should be directed to the sotn-decomp discord #tooling channel:
 https://sotn-discord.xee.dev/
 
+Original authors: https://github.com/Xeeynamo/sotn-decomp/commits/49cfac4c85a774fa298/tools/decompile.py
+
 Use `decompile.py --help` for usage and options"""
 
 import argparse
@@ -29,9 +31,7 @@ class SotnFunction(object):
         # These directories/paths should be considered to be specific to the function
         self.root: Path = func_root
         self.asm_dir: Path = func_root.joinpath("asm", args.version)
-        self.src_dir: Path = func_root.joinpath(
-            "src", "saturn" if args.version == "saturn" else ""
-        )
+        self.src_dir: Path = func_root.joinpath("src")
         self.abspath: Path = function_path.resolve()
         self.relpath: Path = function_path.relative_to(func_root)
         self.src_path: Path = self._infer_src_path()
@@ -47,13 +47,12 @@ class SotnFunction(object):
         """Attempts to infer the overlay from the asm file path or returns None if one is not found.
         The '_psp' extension will be included if the version is psp because this value is later used
         for identifying the correct overlay asm path"""
-        nonmatchings_dir = "f_nonmat" if args.version == "saturn" else "nonmatchings"
         if not self._overlay:
             nonmatching_index = next(
                 (
                     i
                     for i, part in enumerate(self.relpath.parts)
-                    if part == nonmatchings_dir
+                    if part == "nonmatchings"
                 ),
                 None,
             )
@@ -78,7 +77,7 @@ class SotnFunction(object):
 
     def decompile(self) -> str:
         """Leverages m2c to decompile the function and stores it so that decompilation only needs to run once"""
-        if self.version != "saturn" and not self.c_code:
+        if not self.c_code:
             self.c_code = self._guess_unknown_type(self._run_m2c())
         return self.c_code
 
@@ -118,10 +117,9 @@ class SotnFunction(object):
         )
 
     def _infer_src_path(self) -> Optional[Path]:
-        inferred_c_name = f"{self.abspath.parent.parent.name if self.version == "saturn" else self.abspath.parent.name}.c"
         inferred_c_files = (
             file
-            for file in self.src_dir.rglob(inferred_c_name)
+            for file in self.src_dir.rglob(f"{self.abspath.parent.name}.c")
             if self.overlay in file.parts or self.overlay in file.name
         )
         return next(
@@ -139,16 +137,12 @@ def get_repo_root(current_dir: Path = Path(__file__).resolve().parent) -> Path:
 
 def get_function_path(asm_dir: Path, args: argparse.Namespace) -> Optional[Path]:
     """Uses the version asm directory and the passed args to find any files matching the function name."""
-    file_name = f"{args.function.replace("func_0", "f") if args.version == "saturn" else args.function}.s"
-    matchings_dir = "f_match" if args.version == "saturn" else "matchings"
-    nonmatchings_dir = "f_nonmat" if args.version == "saturn" else "nonmatchings"
-
-    candidates = tuple(file for file in asm_dir.rglob(file_name))
-    matching = tuple(c for c in candidates if matchings_dir in c.parts)
+    candidates = tuple(file for file in asm_dir.rglob(f"{args.function}.s"))
+    matching = tuple(c for c in candidates if "matchings" in c.parts)
     nonmatching = tuple(
         c
         for c in candidates
-        if nonmatchings_dir in c.parts and (not args.overlay or args.overlay in c.parts)
+        if "nonmatchings" in c.parts and (not args.overlay or args.overlay in c.parts)
     )
 
     if not matching and not nonmatching:
@@ -195,35 +189,20 @@ def inject_decompiled_function(repo_root: Path, sotn_func: SotnFunction) -> None
         new_lines[function_index] = sotn_func.decompile()
         safe_write(sotn_func.src_path, new_lines)
 
-        print(
-            f"{sotn_func.name} was successfully decompiled, but likely will not compile without adjustments."
-        )
-        print(
-            f"When it successfully compiles, the following command can be used to look for the differences:\n\t{sotn_func.asm_differ_command}"
-        )
+        print(f"{sotn_func.name} decompiled in {sotn_func.src_path.relative_to(repo_root)}")
+        exit(0)
     elif [line for line in lines if sotn_func.name in line]:
-        print(
-            f"{sotn_func.name} seems to have already been decompiled in {sotn_func.src_path.relative_to(repo_root)}"
-        )
+        print(f"{sotn_func.name} found in {sotn_func.src_path.relative_to(repo_root)}")
+        exit(1)
     else:
-        print(
-            f"Could not find function {args.function}, are you sure it exists in version {args.version}?"
-        )
+        print(f"{args.function} not found")
+        exit(1)
 
 
 def main(args: argparse.Namespace) -> None:
     """Executes the decompilation workflow and gives console feedback based on the results"""
-    if args.version == "saturn":
-        message = f"Local decompilation of saturn overlays is not currently supported"
-        if args.upload:
-            message += ", the function will only be uploaded to decomp.me"
-        else:
-            message += ", invoke the tool again with the -u/--upload option"
-        print(message)
-
     repo_root = get_repo_root()
     function_path = get_function_path(repo_root.joinpath("asm", args.version), args)
-
     if function_path:
         sotn_func = SotnFunction(repo_root, function_path, args)
         if sotn_func.src_path and sotn_func.decompile():
@@ -231,9 +210,7 @@ def main(args: argparse.Namespace) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Decompile a function locally or upload to decomp.me"
-    )
+    parser = argparse.ArgumentParser(description="Decompile a function")
     parser.add_argument("function", help="The name of the function to decompile")
     parser.add_argument(
         "-v",
@@ -250,14 +227,4 @@ if __name__ == "__main__":
         type=str,
         required=False,
     )
-    parser.add_argument(
-        "-u",
-        "--upload",
-        help="Upload the function to decomp.me after decompilation",
-        action="store_true",
-        required=False,
-    )
-
-    args = parser.parse_args()
-
-    main(args)
+    main(parser.parse_args())

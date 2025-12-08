@@ -51,6 +51,19 @@ func Git(args ...string) error {
 	return nil
 }
 
+func Decompile(args ...string) error {
+	binPath, err := venvPython()
+	if err != nil {
+		return err
+	}
+	return (&exec.Cmd{
+		Path:   binPath,
+		Args:   append([]string{binPath, "tools/decompile.py"}, args...),
+		Stdout: os.Stdout,
+		Stderr: os.Stderr,
+	}).Run()
+}
+
 func GenNinja(args ...string) error {
 	binPath, err := venvPython()
 	if err != nil {
