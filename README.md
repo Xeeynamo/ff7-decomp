@@ -8,7 +8,7 @@ Decompiling a video game is a collaborative effort made possible by passionate p
 * If you’d like to know more about how to contribute, feel free to reach out to me on Discord.
 * New pull requests are always welcome!
 
-## Build
+## Set-up
 
 Clone the repository:
 
@@ -41,11 +41,14 @@ Place the required disk images:
 'disks/Final Fantasy VII (USA) (Interactive Sampler CD).cue' # OPTIONAL!
 ```
 
-Then build the project:
+## Tooling
 
-```shell
-make
-```
+* `make build`: build project
+* `make clean`: remove generated files from build
+* `make format`: format codebase
+* `./mako.sh rank <source_path>`: find remaning functions to decompile sorted from easier to hardest
+* `./mako.sh dec <function_name>`: decompile function
+* `./mako.sh symbols add <path> <name> <offset> [size]`: add or rename symbol
 
 ## Game strings
 
