@@ -24,8 +24,8 @@ func downloadFromGithubIfNotExists(repo, tag, name, destination string) error {
 	if strings.HasSuffix(url, ".gz") {
 		downloadFileName += ".gz"
 	}
-	defer os.Remove(downloadFileName)
 	if err := downloadIfNotExists(url, downloadFileName); err != nil {
+		_ = os.Remove(downloadFileName)
 		return fmt.Errorf("failed to download at %s: %w", url, err)
 	}
 	if strings.HasSuffix(downloadFileName, ".gz") {
