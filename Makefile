@@ -11,11 +11,7 @@ all: disks build
 
 .PHONY: build
 build: bin/cc1-psx-26 bin/cc1-psx-272 bin/str disks/us/FIELD/FIELD.BIN.dec
-	@go run ./tools/builder build config/us.yaml
-	@ninja
-	@mkdir -p expected/build
-	@rm -rf expected/build
-	@cp -r build expected/
+	@./mako.sh build
 
 disks/us/FIELD/FIELD.BIN.dec:
 	@for f in $(OVL_US); do \
@@ -35,20 +31,15 @@ disks/betaus: disks/Final\ Fantasy\ VII\ (USA)\ (Interactive\ Sampler\ CD).iso
 
 .PHONY: clean
 clean:
-	@git clean -xdf . --exclude=disks/ --exclude=.venv/ --exclude=.vscode/ --exclude=.idea/ --exclude=bin/
-	@git clean -Xfd asm/
-	@git clean -Xfd build/
-	@git clean -Xfd config/
+	@./mako.sh clean
 
 .PHONY: format
-format: bin/clang-format
-	find src/ include/ -type f \( -name '*.c' -o -name '*.h' \) \
-		! -path 'include/psxsdk/*' -print0 | \
-		xargs -0 -P$$(nproc) bin/clang-format -i
+format:
+	./mako.sh format
 
 .PHONY: report
 report: build
-	@go run ./tools/builder report config/us.yaml build/report.json
+	@./mako.sh report us build/report.json
 
 .PHONY: requirements
 requirements:

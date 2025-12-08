@@ -1,8 +1,9 @@
-package main
+package builder
 
 import (
 	"crypto/md5"
 	"fmt"
+	"path/filepath"
 )
 
 type Overlay struct {
@@ -35,4 +36,11 @@ type BuildConfig struct {
 func (o Overlay) Fingerprint() []byte {
 	sum := md5.Sum([]byte(fmt.Sprintf("%v", o)))
 	return sum[:]
+}
+
+func ConfigPath(version string) string {
+	if version == "" {
+		version = Version()
+	}
+	return filepath.Join("config", version+".yaml")
 }

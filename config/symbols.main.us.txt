@@ -365,11 +365,7 @@ InitCARD = 0x800489F0;
 StartCARD = 0x80048A5C;
 StopCARD = 0x80048A94;
 StopCARD2 = 0x80048ACC;
-
-// Pad Globals
 g_bPadsInitialized = 0x80062D70;
-D_800696AC         = 0x800696AC;
-
-// Audio Globals
+D_800696AC = 0x800696AC;
 g_ReverbMode = 0x8009A140;
 g_ReverbAttr = 0x8009C564; // type:SpuReverbAttr size:0x14

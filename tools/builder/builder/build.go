@@ -1,4 +1,4 @@
-package main
+package builder
 
 import (
 	"bytes"
@@ -9,10 +9,11 @@ import (
 	"strings"
 
 	"github.com/goccy/go-yaml"
+	"github.com/xeeynamo/ff7-decomp/tools/builder/deps"
 )
 
-func build(configPath string) error {
-	data, _ := os.ReadFile(configPath)
+func Build(version string) error {
+	data, _ := os.ReadFile(ConfigPath(version))
 	var b BuildConfig
 	if err := yaml.Unmarshal(data, &b); err != nil {
 		panic(err)
@@ -29,7 +30,13 @@ func build(configPath string) error {
 	if err := writeSha1Check(b); err != nil {
 		return err
 	}
-	if err := generateNinjaBuild(b.BuildPath); err != nil {
+	if err := deps.GenNinja(b.BuildPath); err != nil {
+		return err
+	}
+	if err := deps.Ninja(); err != nil {
+		return err
+	}
+	if err := generateExpected(); err != nil {
 		return err
 	}
 	return nil
@@ -68,22 +75,16 @@ func writeSha1Check(b BuildConfig) error {
 	return os.WriteFile(filepath.Join(b.BuildPath, "check.sha1"), []byte(sb.String()), 0644)
 }
 
-func generateNinjaBuild(buildPath string, env ...string) error {
-	return (&exec.Cmd{
-		Path:   ".venv/bin/python3",
-		Args:   []string{".venv/bin/python3", "tools/ninja/gen.py", buildPath},
-		Env:    append(os.Environ(), env...),
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-	}).Run()
-}
-
-func execNinja() error {
-	return (&exec.Cmd{
-		Path:   "/usr/bin/ninja",
-		Args:   []string{"ninja"},
-		Env:    os.Environ(),
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-	}).Run()
+func generateExpected() error {
+	if err := os.MkdirAll("expected/build", 0o755); err != nil {
+		return fmt.Errorf("mkdir: %w", err)
+	}
+	if err := os.RemoveAll("expected/build"); err != nil {
+		return fmt.Errorf("remove: %w", err)
+	}
+	cmd := exec.Command("cp", "-r", "build", "expected/")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("%s: %w", strings.Join(cmd.Args, " "), err)
+	}
+	return nil
 }
