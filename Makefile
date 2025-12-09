@@ -35,7 +35,7 @@ clean:
 
 .PHONY: format
 format:
-	./mako.sh format
+	@./mako.sh format
 
 .PHONY: report
 report: build

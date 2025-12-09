@@ -316,6 +316,7 @@ void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                    s32 arg11, s32 arg12, u16 arg13);
 void func_800269C0(void* poly);
 s32 func_80026B70(unsigned char* str);
+void func_80026F44(s32, s32, void*, s32);
 void func_8002DA7C();
 void func_80033E74(s32, s32, s32, void (*)(void));
 s32 func_80034B44();

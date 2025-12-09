@@ -181,7 +181,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBB20);
 static void func_800BBDF8(void) {
     if (D_800F8368 == 0) {
         D_800F4AF4 = D_80163C74;
-        if (D_80163C74 > 0x80184000) {
+        if ((u32)D_80163C74 > (u32)0x80184000) {
             func_8003CEBC();
             func_80043938(1);
             StopCallback();
@@ -189,7 +189,7 @@ static void func_800BBDF8(void) {
         }
     } else {
         D_800F4AF8 = D_80163C74;
-        if (D_80163C74 > 0x801A0000) {
+        if ((u32)D_80163C74 > (u32)0x801A0000) {
             func_8003CEBC();
             func_80043938(1);
             StopCallback();
@@ -353,15 +353,15 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4D10);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4DC8);
 
-void func_800C5040(u8, u8, u8, s32, u8*);
+void* func_800C5040(u8, u8, u8, s32, u8*);
 extern u8* D_801517C0;
 
-void func_800C4FC8(u8 arg0, u8 arg1, u8 arg2) {
-    func_800C5040(arg0, arg1, arg2, 1, D_801517C0 + 0x4084);
+void* func_800C4FC8(u8 arg0, u8 arg1, u8 arg2) {
+    return func_800C5040(arg0, arg1, arg2, 1, D_801517C0 + 0x4084);
 }
 
-void func_800C5004(u8 arg0, u8 arg1, u8 arg2) {
-    func_800C5040(arg0, arg1, arg2, 2, D_801517C0 + 0x40EC);
+void* func_800C5004(u8 arg0, u8 arg1, u8 arg2) {
+    return func_800C5040(arg0, arg1, arg2, 2, D_801517C0 + 0x40EC);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5040);
@@ -392,7 +392,11 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5E94);
 
 s32 func_800C60F4(void) { return _work.battle_msg_speed / 4 + 4; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C610C);
+static void func_800C610C(void) {
+    while (D_801518DC) {
+        func_800B7FB4();
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C614C);
 
@@ -420,7 +424,11 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C7220);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C7340);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C74A4);
+static void func_800C74A4(void) {
+    if (!(D_80153BDD & 2)) {
+        func_800C7C4C(3, D_800F57D0->unk8, D_800F57D0 + 1, D_800F57D0);
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C74E4);
 
