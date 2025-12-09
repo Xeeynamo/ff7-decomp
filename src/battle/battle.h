@@ -120,7 +120,7 @@ typedef struct {
 } Unk800F5F44; // size:0x1E88
 
 typedef struct {
-    u16 D_80163614;
+    u16 D_80163614; // Stage ID, useful to load STAGE/ files
     s16 D_80163616;
     s16 D_80163618;
     s16 D_8016361A;

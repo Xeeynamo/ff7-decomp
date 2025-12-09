@@ -266,7 +266,9 @@ typedef struct {
     s8 unk23;
     u8 unk24[0x28];
     u8 un4C[4][6];
-    u8 un64[0x3DC];
+    u8 un64[0x48];
+    u8 unAC[4];
+    u8 unB0[0x390];
 } Unk8009D84C; // size: 0x440
 
 extern u8 D_80049208[12];   // window colors maybe??
@@ -290,12 +292,15 @@ extern s32 D_800756F8[];
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern u8 D_80083184[0x40];
 extern s32 D_80083338;
+extern s16 D_80095DD4;
 extern s16 D_8009A000;
 extern s32 D_8009A004;
 extern s32 D_8009A008;
 extern s32 D_8009A024[8];
 extern SaveWork _work; // 0x8009C6E4
-extern s16 D_80095DD4;
+extern u8 D_8009CBDC[];
+extern u8 D_8009D8F8[];
+extern u32 D_8009D260;
 extern Unk8009D84C D_8009D84C[3];
 
 // PSXSDK funcs

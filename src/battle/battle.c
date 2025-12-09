@@ -1015,6 +1015,7 @@ static void func_800B37EC(void) {
     D_80095DD4 = 2;
 }
 
+// Load stage files
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B383C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B38E0);

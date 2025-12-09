@@ -37,6 +37,18 @@ clean:
 format:
 	@./mako.sh format
 
+.PHONY: rebuild
+rebuild:
+	@./mako.sh clean
+	@./mako.sh build
+
+.PHONY: submit
+submit:
+	@./mako.sh clean
+	@./mako.sh build
+	@./mako.sh format
+	@git add config/ include/ src/
+
 .PHONY: report
 report: build
 	@./mako.sh report us build/report.json
