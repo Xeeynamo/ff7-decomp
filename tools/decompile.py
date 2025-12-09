@@ -189,7 +189,9 @@ def inject_decompiled_function(repo_root: Path, sotn_func: SotnFunction) -> None
         new_lines[function_index] = sotn_func.decompile()
         safe_write(sotn_func.src_path, new_lines)
 
-        print(f"{sotn_func.name} decompiled in {sotn_func.src_path.relative_to(repo_root)}")
+        print(
+            f"{sotn_func.name} decompiled in {sotn_func.src_path.relative_to(repo_root)}"
+        )
         exit(0)
     elif [line for line in lines if sotn_func.name in line]:
         print(f"{sotn_func.name} found in {sotn_func.src_path.relative_to(repo_root)}")

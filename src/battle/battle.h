@@ -120,7 +120,7 @@ typedef struct {
 } Unk800F5F44; // size:0x1E88
 
 typedef struct {
-    s16 D_80163614;
+    u16 D_80163614;
     s16 D_80163616;
     s16 D_80163618;
     s16 D_8016361A;
@@ -226,9 +226,9 @@ extern u16 D_800F5BBC[10][0x22];
 extern u8 D_800F5E66[3][0x34];
 extern Unk800F5F44 D_800F5F44;
 extern s8 D_800F6936[0x40][8];
-extern u8 D_800F83A8;
-extern s16 D_800F83AE[10][0x34]; // overlaps with D_800F83E0
-extern s16 D_800F83CC;           // overlaps with D_800F83AE, sceneID
+extern s16 D_800F83AE[10][0x34]; // overlaps with D_800F83E0, D_800F83A8
+#define D_800F83A8 (*((u8*)&D_800F83AE[0][0] - 6))
+extern s16 D_800F83CC; // overlaps with D_800F83AE, sceneID
 extern Unk800F83E0 D_800F83E0[3];
 extern Unk8016360C D_8016360C;
 extern u16 D_8016376A;

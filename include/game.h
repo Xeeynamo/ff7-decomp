@@ -42,6 +42,7 @@ typedef struct {
 
 typedef enum {
     LBA_INIT_YAMADA = 614,
+    LBA_ENEMY6_SEFFECT = 30046,
     LBA_ENEMY6_OVER2 = 30694,
 } Lba;
 
@@ -134,7 +135,8 @@ typedef struct {
     /* 0xA9C */ u8 unkA9C[0xE0];
     /* 0xB7C */ s32 gil;
     /* 0xB80 */ s32 time;
-    /* 0xB84 */ u8 D_8009D264[0x38];
+    /* 0xB84 */ u8 D_8009D268[0x20];
+    /* 0xBA4 */ u8 D_8009D288[0x18];
     /* 0xBBC */ u16 D_8009D2A0;
     /* 0xBBE */ u8 D_8009D2A2;
     /* 0xBBF */ u8 D_8009D2A3;
@@ -275,7 +277,7 @@ extern u16 D_80062D7E;      // pressed button?
 extern u16 D_80062D80;      // tapped button
 extern u16 D_80062D82;      // repeated button
 extern u8 D_80062D98;
-extern s8 D_80062D99;
+extern u8 D_80062D99;
 extern s32 D_80062DCC;
 extern Gpu D_80062F24;
 extern u16 D_80062F3C;
@@ -293,6 +295,7 @@ extern s32 D_8009A004;
 extern s32 D_8009A008;
 extern s32 D_8009A024[8];
 extern SaveWork _work; // 0x8009C6E4
+extern s16 D_80095DD4;
 extern Unk8009D84C D_8009D84C[3];
 
 // PSXSDK funcs
@@ -314,6 +317,7 @@ void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
 void func_800269C0(void* poly);
 s32 func_80026B70(unsigned char* str);
 void func_8002DA7C();
+void func_80033E74(s32, s32, s32, void (*)(void));
 s32 func_80034B44();
 void func_8003CEBC(void);
 void func_80043938(s32);

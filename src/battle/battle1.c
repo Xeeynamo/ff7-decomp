@@ -3,6 +3,22 @@
 
 static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3);
 
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B8360);
+
+static void func_800B83C4() {
+    s32 i;
+
+    for (i = 0; i < 3; i++) {
+        if (D_80151200[i].D_8015120C & 1) {
+            func_800BA4C8();
+            func_800BA40C();
+            return;
+        }
+    }
+    func_800BA40C();
+    func_800BA4C8();
+}
+
 void func_800B8438(void) {
     func_800B9568();
     if (D_801635FC) {
