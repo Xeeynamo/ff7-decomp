@@ -9,3 +9,4 @@ pygfxd
 crunch64
 pyyaml
 n64img
+pycparser
