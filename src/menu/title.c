@@ -218,8 +218,7 @@ static s32 func_801D3AB0(s32 arg0) {
 
     if ((g_MenuStartMode < START_MENU_MODE_CHECKING_FILES ||
          g_MenuStartMode == START_MENU_MODE_TITLE) &&
-        D_801E3D54 != 2 &&
-        D_801E3D54 != 0) {
+        D_801E3D54 != 2 && D_801E3D54 != 0) {
         func_801D3668(arg0);
     }
     func_80026B5C(0x80);
