@@ -281,6 +281,7 @@ extern u16 D_80062D82;      // repeated button
 extern u8 D_80062D98;
 extern u8 D_80062D99;
 extern s32 D_80062DCC;
+extern u8 D_80062F1A;
 extern Gpu D_80062F24;
 extern u16 D_80062F3C;
 extern s32 D_80062F58;
@@ -291,6 +292,7 @@ extern u8 D_800730DD[][0x14];
 extern s32 D_800756F8[];
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern u8 D_80083184[0x40];
+extern s16 D_800832A0;
 extern s32 D_80083338;
 extern s16 D_80095DD4;
 extern s16 D_8009A000;
@@ -299,6 +301,8 @@ extern s32 D_8009A008;
 extern s32 D_8009A024[8];
 extern SaveWork _work; // 0x8009C6E4
 extern u8 D_8009CBDC[];
+extern u8 D_8009D684;
+extern u8 D_8009D686;
 extern u8 D_8009D8F8[];
 extern u32 D_8009D260;
 extern Unk8009D84C D_8009D84C[3];

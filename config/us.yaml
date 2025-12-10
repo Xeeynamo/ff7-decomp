@@ -163,11 +163,11 @@ overlays:
     symbol_addrs_path:
       - config/sym_export.us.txt
       - config/symbols.world.txt
-    migrate_rodata_to_functions: false
+    migrate_rodata_to_functions: true
     vram_start: 0x800A0000
     bss_size: 0x1D978
     segments:
-      - [0x0, rodata, world]
+      - [0x0, .rodata, world]
       - [0xB40, c, world]
       - [0x1D124, asm, world_unk]
       - [0x1FBF0, c, world2]
