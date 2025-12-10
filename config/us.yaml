@@ -156,6 +156,22 @@ overlays:
       - [0x12C78, .data, savemenu]
       - [0x13650, data]
       - [0x13698, bss]
+  - name: world
+    disk_path: disks/us/WORLD/WORLD.BIN.dec
+    sha1: a6b26b066e6fb8b5985c928d76faeb6f5f29ce2c
+    base_path: world
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.world.txt
+    migrate_rodata_to_functions: false
+    vram_start: 0x800A0000
+    bss_size: 0x1D978
+    segments:
+      - [0x0, rodata, world]
+      - [0xB40, c, world]
+      - [0x1D124, asm, world_unk]
+      - [0x1FBF0, c, world2]
+      - [0x265EC, data, world]
   - name: barrier
     disk_path: disks/us/MAGIC/BARRIER.BIN
     sha1: e93c458117a937879f1a6d8c956dfbdacd6286e0
