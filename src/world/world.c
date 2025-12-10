@@ -875,20 +875,9 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B7714);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B77A8);
 
-extern s32 D_80116278;
+INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B77F4);
 
-void func_800B77F4(s32 arg0)
-{
-    Savemap.countdown_timer_seconds = arg0;
-    D_80116278 = 1;
-    Savemap.memory_bank_1[95] = 1;
-}
-
-void func_800B7820(void)
-{
-    D_80116278 = 0;
-    Savemap.memory_bank_1[95] = 0;
-}
+INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B7820);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B7838);
 

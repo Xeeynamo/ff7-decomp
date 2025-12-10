@@ -103,7 +103,7 @@ INCLUDE_ASM("asm/us/menu/nonmatchings/bginmenu", func_801D0500);
 void func_801D05C4(s32 arg0) {
     s32 i;
 
-    Savemap.unk1013 = 0;
+    Savemap.memory_bank_5[111] = 0;
     switch (arg0) {
     case 0:
         for (i = 0; i < 21; i++) {
@@ -134,7 +134,7 @@ void func_801D05C4(s32 arg0) {
         }
         break;
     }
-    Savemap.unk1013 = 1;
+    Savemap.memory_bank_5[111] = 1;
 }
 
 void func_801D0704(s32 arg0) {

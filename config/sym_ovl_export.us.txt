@@ -2031,6 +2031,7 @@ func_801D3668 = 0x801d3668;
 func_801D3698 = 0x801d3698;
 func_801D370C = 0x801d370c;
 func_801D4CC0 = 0x801d4cc0;
+g_MenuStartMode = 0x801e2cf8;
 menus = 0x801e379c;
 func_800A0B48 = 0x800a0b48;
 func_800A0BE4 = 0x800a0be4;

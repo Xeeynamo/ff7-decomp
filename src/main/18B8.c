@@ -1412,10 +1412,10 @@ s32 func_8002542C(s32 arg0) {
         if (Savemap.materia[i] == -1) {
             Savemap.materia[i] = arg0;
             if (func_8002603C(arg0 & 0xFF) == 10) {
-                Savemap.unkBEF |= 1;
+                Savemap.memory_bank_1[75] |= 1;
             }
             if ((arg0 & 0xFF) == 44) {
-                Savemap.unkBEF |= 2;
+                Savemap.memory_bank_1[75] |= 2;
             }
             return -1;
         }

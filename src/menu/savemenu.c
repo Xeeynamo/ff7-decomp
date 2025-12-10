@@ -602,7 +602,7 @@ INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D224C);
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D2408);
 
-static const char* D_801E2CB8[] = {
+const char* D_801E2CB8[] = {
     "ＦＦ７／ＳＡＶＥ０１／００：００", "ＦＦ７／ＳＡＶＥ０２／００：００",
     "ＦＦ７／ＳＡＶＥ０３／００：００", "ＦＦ７／ＳＡＶＥ０４／００：００",
     "ＦＦ７／ＳＡＶＥ０５／００：００", "ＦＦ７／ＳＡＶＥ０６／００：００",
