@@ -1,4 +1,5 @@
 //! PSYQ=3.3 CC1=2.7.2
+#include <psxsdk/libapi.h>
 #include "savemenu.h"
 
 extern s32 D_801E2CF4;
@@ -189,7 +190,7 @@ void func_801D370C(s32 x, s32 y, s32 slot_no) {
 
 static void func_801D39C4(void) {
     D_801E3698 = 0;
-    D_801E2CF8 = 7;
+    g_MenuStartMode = START_MENU_MODE_TITLE;
     func_8001DEF0(D_801E368C);
     func_80025D14(D_801D4EDC, 0x380, 0, 0, 0x1E0);
     DrawSync(0);
@@ -201,6 +202,7 @@ static void func_801D39C4(void) {
     func_801D19C4();
 }
 
+// title screen handler
 static s32 func_801D3AB0(s32 arg0) {
     RECT sp38;
     RECT rect;
@@ -214,8 +216,9 @@ static s32 func_801D3AB0(s32 arg0) {
     s32 temp_s2;
     s32 var_s3;
 
-    if ((D_801E2CF8 < 2 || D_801E2CF8 == 7) && D_801E3D54 != 2 &&
-        D_801E3D54 != 0) {
+    if ((g_MenuStartMode < START_MENU_MODE_CHECKING_FILES ||
+         g_MenuStartMode == START_MENU_MODE_TITLE) &&
+        D_801E3D54 != 2 && D_801E3D54 != 0) {
         func_801D3668(arg0);
     }
     func_80026B5C(0x80);
@@ -229,8 +232,8 @@ static s32 func_801D3AB0(s32 arg0) {
         }
     }
     func_8001F6B4();
-    switch (D_801E2CF8) {
-    case 0:
+    switch (g_MenuStartMode) {
+    case START_MENU_MODE_SELECT_SLOT:
         func_8001EB2C(
             D_801E3668.x - 18, D_801E3668.y + 6 + D_801E3D80[0].unkB * 12);
         func_80026F44(10, 11, D_801E2CFC[1], 7);
@@ -245,9 +248,9 @@ static s32 func_801D3AB0(s32 arg0) {
         func_80026A34(0, 1, 0x7F, &rect);
         func_8001E040(&D_801E3668);
         break;
-    case 1:
+    case START_MENU_MODE_SELECT_FILE:
         if (!D_801E8F38[D_801E3D80[0].unkB][0]) {
-            D_801E2CF8 = 0;
+            g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
         } else {
             func_800269D0();
             func_800269C0(D_801E3D58 * 0x5000 + D_801D4EDC);
@@ -288,9 +291,9 @@ static s32 func_801D3AB0(s32 arg0) {
             func_800269E8();
         }
         break;
-    case 2:
-    case 3:
-        if (D_801E2CF8 == 2) {
+    case START_MENU_MODE_CHECKING_FILES:
+    case START_MENU_MODE_CHECKING_WAIT:
+        if (g_MenuStartMode == START_MENU_MODE_CHECKING_FILES) {
             var_s2 = 0x40;
             var_s1 = 0x20;
             var_s0_2 = 0xA0;
@@ -312,7 +315,7 @@ static s32 func_801D3AB0(s32 arg0) {
         func_8001DE0C(&sp38, 112, 0x6D, 0x8C, 0x18);
         func_8001E040(&sp38);
         break;
-    case 4:
+    case START_MENU_MODE_LOADING:
         if (D_801E3D54 != 2) {
             temp_s1 = func_80026B70(D_801E2CFC[6]) + 0x10;
             func_80026F44(190 - temp_s1 / 2, 0x73, D_801E2CFC[6], 7);
@@ -320,7 +323,7 @@ static s32 func_801D3AB0(s32 arg0) {
             func_8001E040(&sp38);
         }
         break;
-    case 6:
+    case START_MENU_MODE_FORMAT_PROMPT:
         if (arg0 & 2) {
             func_8001EB2C(D_801E3668.x - 0x12,
                           D_801E3668.y + 6 + D_801E3D80[0].unkB * 12);
@@ -346,7 +349,7 @@ static s32 func_801D3AB0(s32 arg0) {
             &sp38, 0xB6 - temp_s2 / 2, D_801E3668.h + 0x5D, temp_s2, 0x30);
         func_8001E040(&sp38);
         break;
-    case 7:
+    case START_MENU_MODE_TITLE:
         func_8001EB2C(
             D_801E3668.x - 0x12, D_801E3668.y + 6 + D_801E3DEC[1].unkB * 12);
         func_80026F44(
@@ -385,7 +388,7 @@ static s32 func_801D3AB0(s32 arg0) {
         D_80062F24.ft4++;
         break;
     }
-    if (D_801E2CF8 != 7) {
+    if (g_MenuStartMode != START_MENU_MODE_TITLE) {
         func_80026F44(0x126, 11, D_801E2CFC[0], 7);
         func_8001DE0C(&sp38, 0x116, 5, 0x56, 0x18);
         func_8001E040(&sp38);
@@ -393,8 +396,8 @@ static s32 func_801D3AB0(s32 arg0) {
         func_8001E040(&sp38);
     }
     if (!(func_8001F6B4() & 0xFF) && D_801E3D54 == 1) {
-        switch (D_801E2CF8) {
-        case 0:
+        switch (g_MenuStartMode) {
+        case START_MENU_MODE_SELECT_SLOT:
             if (D_80062D7C & 0x20) {
                 temp_v1_2 = D_801E3D80[0].unkB;
                 if (temp_v1_2 >= 2) {
@@ -406,12 +409,12 @@ static s32 func_801D3AB0(s32 arg0) {
                 if (D_801E8F38[temp_v1_2][0]) {
                     func_801D2B58(1);
                     if (D_801E8F38[D_801E3D80[0].unkB][2]) {
-                        D_801E2CF8 = 6;
+                        g_MenuStartMode = START_MENU_MODE_FORMAT_PROMPT;
                         func_80026448(&D_801E3D80[6], 0, 1, 1, 2, 0, 0, 1, 2, 0,
                                       0, 0, 1, 0);
                     } else {
                         D_801E3F18 = 10;
-                        D_801E2CF8 = 2;
+                        g_MenuStartMode = START_MENU_MODE_CHECKING_FILES;
                         D_801E3F20 = 0;
                         D_801E3F14 = 0;
                         D_80062F3C = 0;
@@ -425,12 +428,12 @@ static s32 func_801D3AB0(s32 arg0) {
                 }
             } else if (D_80062D7C & 0x40) {
                 func_801D2B58(4);
-                D_801E2CF8 = 7;
+                g_MenuStartMode = START_MENU_MODE_TITLE;
             } else {
                 func_800264A8(&D_801E3D80[0]);
             }
             break;
-        case 1:
+        case START_MENU_MODE_SELECT_FILE:
             var_s1 = D_801E3D80[1].unkF;
             func_801D2DA8(&D_801E3D80[1]);
             if (!D_801E3D80[1].unkF && !var_s1) {
@@ -439,18 +442,18 @@ static s32 func_801D3AB0(s32 arg0) {
                          (D_801E3D80[1].unkB + D_801E3D80[1].unk2)) &
                         1) {
                         func_801D2B58(1);
-                        D_801E2CF8 = 4;
+                        g_MenuStartMode = START_MENU_MODE_LOADING;
                         D_801E3F18 = 10;
                     } else {
                         func_801D2B58(3);
                     }
                 } else if ((u16)D_80062D7C & 0x40) {
                     func_801D2B58(4);
-                    D_801E2CF8 = 0;
+                    g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                 }
             }
             break;
-        case 2:
+        case START_MENU_MODE_CHECKING_FILES:
             if (D_801E3F18 == 0) {
                 if (D_801E3F1C) {
                     D_801E3F18 = 0;
@@ -463,13 +466,13 @@ static s32 func_801D3AB0(s32 arg0) {
                     }
                     D_801E3F20++;
                     if (var_s1) {
-                        D_801E2CF8 = 0;
+                        g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                         func_8001F6C0(D_801E33B0[8], 2);
                         func_801D2B58(3);
                     }
                     if (D_801E3F20 == 0xF) {
                         D_801E3F20 = 0xE;
-                        D_801E2CF8 = 3;
+                        g_MenuStartMode = START_MENU_MODE_CHECKING_WAIT;
                         D_801E3F18 = 10;
                         func_801D2B58(2);
                     }
@@ -478,13 +481,13 @@ static s32 func_801D3AB0(s32 arg0) {
                 D_801E3F18--;
             }
             break;
-        case 3:
+        case START_MENU_MODE_CHECKING_WAIT:
             if (D_801E3F18 == 0) {
-                D_801E2CF8 = 1;
+                g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
             }
             D_801E3F18--;
             break;
-        case 4:
+        case START_MENU_MODE_LOADING:
             if (D_801E3F18 != 0) {
                 D_801E3F18--;
                 break;
@@ -499,7 +502,7 @@ static s32 func_801D3AB0(s32 arg0) {
                 if (_work.header.checksum !=
                     (u16)func_801D1950(
                         sizeof(SaveWork) - 4, &_work.header.leader_level)) {
-                    D_801E2CF8 = 1;
+                    g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
                     func_801D2B58(3);
                     func_8001F6C0(D_801E2CFC[31], 0);
                 } else {
@@ -508,13 +511,13 @@ static s32 func_801D3AB0(s32 arg0) {
                     func_801D2D10(_work.config & 3);
                 }
             } else {
-                D_801E2CF8 = 1;
+                g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
                 func_801D2B58(3);
                 func_8001F6C0(D_801E2CFC[11], var_s1);
             }
             D_80062D99 = 0;
             break;
-        case 6:
+        case START_MENU_MODE_FORMAT_PROMPT:
             func_800264A8(&D_801E3DEC[0]);
             if (D_80062D7C & 0x20) {
                 if (D_801E3DEC[0].unkB == 0) {
@@ -523,7 +526,7 @@ static s32 func_801D3AB0(s32 arg0) {
                     } else {
                         temp_v1_2 = format("bu00:");
                     }
-                    D_801E2CF8 = 0;
+                    g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                     if (temp_v1_2 == 1) {
                         D_801E8F38[D_801E3D80[0].unkB][2] = 0;
                         func_8001F6C0(D_801E2CFC[41], 7);
@@ -533,15 +536,15 @@ static s32 func_801D3AB0(s32 arg0) {
                         func_801D2B58(3);
                     }
                 } else {
-                    D_801E2CF8 = 0;
+                    g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                     func_801D2B58(4);
                 }
             } else if (D_80062D7C & 0x40) {
-                D_801E2CF8 = 0;
+                g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                 func_801D2B58(4);
             }
             break;
-        case 7:
+        case START_MENU_MODE_TITLE:
             if (D_80062D7C & 0x20) {
                 switch (D_801E3D80[7].unkB) {
                 case 0:
@@ -554,7 +557,7 @@ static s32 func_801D3AB0(s32 arg0) {
                         func_801D2B58(1);
                         func_80026448(&D_801E3D80[0], 0, 0, 1, 2, 0, 0, 1, 2, 0,
                                       0, 0, 1, 0);
-                        D_801E2CF8 = 0;
+                        g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                     } else {
                         func_801D2B58(3);
                     }

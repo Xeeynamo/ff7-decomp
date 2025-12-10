@@ -1,5 +1,15 @@
 #include <game.h>
 
+typedef enum {
+    START_MENU_MODE_SELECT_SLOT = 0,
+    START_MENU_MODE_SELECT_FILE = 1,
+    START_MENU_MODE_CHECKING_FILES = 2,
+    START_MENU_MODE_CHECKING_WAIT = 3,
+    START_MENU_MODE_LOADING = 4,
+    START_MENU_MODE_FORMAT_PROMPT = 6,
+    START_MENU_MODE_TITLE = 7,
+} StartMenuMode;
+
 typedef struct {
     // this whole thing might be a D_801E379C[6]
     /* 0x00 */ Unk80026448 D_801E379C[2];
@@ -22,7 +32,7 @@ extern s32 D_801DEEF4;
 extern RECT D_801DEEFC;
 extern u8 D_801E2EAC[];
 extern const char* D_801E2CB8[];
-extern u32 D_801E2CF8;
+extern StartMenuMode g_MenuStartMode;
 extern s32 D_801E3440;
 extern s32 D_801E3530;
 extern RECT D_801E3650[3];

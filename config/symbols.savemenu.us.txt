@@ -1,5 +1,6 @@
 func_801D1774 = 0x801D1774;
 func_801D1BAC = 0x801D1BAC;
+g_MenuStartMode = 0x801E2CF8;
 D_801E2E64 = 0x801E2E64;
 menus = 0x801E379C; // size:0x90
 D_801E3D80 = 0x801E3D80; // size:0x24

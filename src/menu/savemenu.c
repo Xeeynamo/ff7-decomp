@@ -632,8 +632,8 @@ static s16 func_801D2A34(s32 save_id) {
     return ret;
 }
 
-s32 D_801E2CF4 = 0xFF; // used by title.c
-u32 D_801E2CF8 = 0;    // used by title.c
+s32 D_801E2CF4 = 0xFF;                                       // used by title.c
+StartMenuMode g_MenuStartMode = START_MENU_MODE_SELECT_SLOT; // used by title.c
 
 unsigned char D_801E2CFC[][0x24] = {
     _S("Load"),
