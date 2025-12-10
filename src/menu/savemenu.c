@@ -602,7 +602,7 @@ INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D224C);
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D2408);
 
-static const char* D_801E2CB8[] = {
+const char* D_801E2CB8[] = {
     "ＦＦ７／ＳＡＶＥ０１／００：００", "ＦＦ７／ＳＡＶＥ０２／００：００",
     "ＦＦ７／ＳＡＶＥ０３／００：００", "ＦＦ７／ＳＡＶＥ０４／００：００",
     "ＦＦ７／ＳＡＶＥ０５／００：００", "ＦＦ７／ＳＡＶＥ０６／００：００",
@@ -627,7 +627,7 @@ static s16 func_801D2A34(s32 save_id) {
     D_801E3D50 = slot;
     ret = func_801D2408(&sp10, D_801E2CB8[slot]);
     if (!(s16)ret) {
-        memcpy(&D_801E3864[slot], &_work.header, sizeof(SaveHeader));
+        memcpy(&D_801E3864[slot], &Savemap.header, sizeof(SaveHeader));
     }
     return ret;
 }

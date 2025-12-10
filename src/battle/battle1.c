@@ -390,7 +390,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5CC0);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5E94);
 
-s32 func_800C60F4(void) { return _work.battle_msg_speed / 4 + 4; }
+s32 func_800C60F4(void) { return Savemap.battle_msg_speed / 4 + 4; }
 
 static void func_800C610C(void) {
     while (D_801518DC) {

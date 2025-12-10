@@ -15,6 +15,7 @@ import sys
 import tempfile
 import m2ctx
 import m2c.m2c.main as m2c
+import fix_structs
 from contextlib import redirect_stdout
 from pathlib import Path
 from typing import Optional
@@ -27,6 +28,7 @@ class SotnFunction(object):
         self.name: str = args.function
         self.version: str = args.version
         self._overlay: str = args.overlay
+        self.fix_structs: bool = args.fix_structs
 
         # These directories/paths should be considered to be specific to the function
         self.root: Path = func_root
@@ -110,11 +112,14 @@ class SotnFunction(object):
                 return f.getvalue()
 
     def _guess_unknown_type(self, decompiled_code: str) -> str:
-        return (
+        code = (
             decompiled_code.replace("? func_", "/*?*/ void func_")
             .replace("extern ? D_", "extern /*?*/s32 D_")
             .replace("extern ?* D_", "extern /*?*/u8* D_")
         )
+        if self.fix_structs:
+            code = fix_structs.fix_symbols(code)
+        return code
 
     def _infer_src_path(self) -> Optional[Path]:
         inferred_c_files = (
@@ -228,5 +233,11 @@ if __name__ == "__main__":
         help="The overlay to use if there are multiple asm files that match the provided function name",
         type=str,
         required=False,
+    )
+    parser.add_argument(
+        "--fix-structs",
+        action="store_true",
+        default=False,
+        help="Replace D_8009XXXX symbols with Savemap.field_name references",
     )
     main(parser.parse_args())

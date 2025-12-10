@@ -766,7 +766,8 @@ void func_800AE078(void) {}
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE080);
 
 void func_800AE234(void) {
-    D_80063014->unk214 = _work.D_8009D2A2 + _work.D_8009D2A3 * 256;
+    D_80063014->unk214 =
+        Savemap.memory_bank_1[26] + Savemap.memory_bank_1[27] * 256;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE25C);
@@ -962,10 +963,10 @@ s32 func_800B2C60(s32 arg0) {
 static void func_800B2CAC(s32 arg0, s32 arg1) {
     switch (arg0) {
     case 0:
-        D_800F83A6 = _work.D_8009D288[arg1];
+        D_800F83A6 = Savemap.memory_bank_1[arg1];
         return;
     case 1:
-        _work.D_8009D288[arg1] = D_800F83A6;
+        Savemap.memory_bank_1[arg1] = D_800F83A6;
         return;
     }
 }

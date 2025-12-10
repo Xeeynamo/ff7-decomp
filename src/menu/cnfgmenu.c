@@ -172,31 +172,31 @@ static void func_801D01C8(void) {
     func_80026F44(40, y + (i - 1) * 18, D_801D1AE8[33], 5);
     for (i = 0; i < 2; i++) {
         func_80026F44(165 + i * 65, y, D_801D1AE8[15 + i],
-                      -((_work.config & 3) == i) & 7);
+                      -((Savemap.config & 3) == i) & 7);
     }
     for (i = 0; i < 2; i++) {
         func_80026F44(165 + i * 65, y + 18, D_801D1E48[i],
-                      -(((_work.config >> 2) & 3) == i) & 7);
+                      -(((Savemap.config >> 2) & 3) == i) & 7);
     }
     for (i = 0; i < 2; i++) {
         func_80026F44(165 + i * 65, y + 0x24, D_801D1EA8[i],
-                      -(((_work.config >> 4) & 3) == i) & 7);
+                      -(((Savemap.config >> 4) & 3) == i) & 7);
     }
     temp_s4 = y + 54;
     func_80026F44(
-        165, temp_s4, D_801D1F08[0], -(((_work.config >> 6) & 3) == 0) & 7);
+        165, temp_s4, D_801D1F08[0], -(((Savemap.config >> 6) & 3) == 0) & 7);
     x = func_80026B70(D_801D1F08[0]);
-    func_80026F44(
-        x + 175, temp_s4, D_801D1F08[1], -(((_work.config >> 6) & 3) == 1) & 7);
+    func_80026F44(x + 175, temp_s4, D_801D1F08[1],
+                  -(((Savemap.config >> 6) & 3) == 1) & 7);
     func_80026F44(x + func_80026B70(D_801D1F08[1]) + 185, temp_s4,
-                  D_801D1F08[2], -(((_work.config >> 6) & 3) == 2) & 7);
+                  D_801D1F08[2], -(((Savemap.config >> 6) & 3) == 2) & 7);
     for (i = 0; i < 2; i++) {
         func_80026F44(165 + i * 65, y + 126, D_801D1F08[3 + i],
-                      -(((_work.config >> 8) & 3) == i) & 7);
+                      -(((Savemap.config >> 8) & 3) == i) & 7);
     }
     for (i = 0; i < 3; i++) {
-        _setting = D_801D248C[((_work.config >> 10) & 7) * 3 + i];
-        setting = &D_801D248C[((_work.config >> 10) & 7) * 3];
+        _setting = D_801D248C[((Savemap.config >> 10) & 7) * 3 + i];
+        setting = &D_801D248C[((Savemap.config >> 10) & 7) * 3];
         func_80026F44(189 + i * 52, y + 0x90, D_801D1F08[12 + setting[i]], 7);
     }
     func_80026F44(149, y + 0x90, D_801D1F08[16], 7);
@@ -205,21 +205,21 @@ static void func_801D01C8(void) {
     rect.y = y + 72;
     rect.w = 8;
     rect.h = 11;
-    rect.x = (_work.battle_speed >> 1) + 184;
+    rect.x = (Savemap.battle_speed >> 1) + 184;
     func_80028030(&rect);
 
     // battle message speed value
     rect.y = y + 0x5A;
     rect.w = 8;
     rect.h = 11;
-    rect.x = (_work.battle_msg_speed >> 1) + 184;
+    rect.x = (Savemap.battle_msg_speed >> 1) + 184;
     func_80028030(&rect);
 
     // field message speed value
     rect.y = y + 108;
     rect.w = 8;
     rect.h = 11;
-    rect.x = (_work.field_msg_speed >> 1) + 184;
+    rect.x = (Savemap.field_msg_speed >> 1) + 184;
     func_80028030(&rect);
 
     // speed values
@@ -238,7 +238,7 @@ static void func_801D01C8(void) {
     }
 
     // magic order ID
-    func_80029114(173, y + 146, ((_work.config >> 0xA) & 7) + 1, 1, 7);
+    func_80029114(173, y + 146, ((Savemap.config >> 0xA) & 7) + 1, 1, 7);
 
     rect.x = 0;
     rect.y = 0;
