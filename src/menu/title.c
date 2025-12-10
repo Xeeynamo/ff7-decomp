@@ -499,16 +499,16 @@ static s32 func_801D3AB0(s32 arg0) {
             }
             var_s1 = (s16)func_801D1F40(var_a0_3);
             if (var_s1 == 0) {
-                if (_work.header.checksum !=
+                if (Savemap.header.checksum !=
                     (u16)func_801D1950(
-                        sizeof(SaveWork) - 4, &_work.header.leader_level)) {
+                        sizeof(SaveWork) - 4, &Savemap.header.leader_level)) {
                     g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
                     func_801D2B58(3);
                     func_8001F6C0(D_801E2CFC[31], 0);
                 } else {
                     func_801D2B58(0xD0);
                     D_801E3D54 = 2;
-                    func_801D2D10(_work.config & 3);
+                    func_801D2D10(Savemap.config & 3);
                 }
             } else {
                 g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
@@ -615,7 +615,7 @@ s32 func_801D4CC0(void) {
     PutDispEnv(&D_801E3EEC[1]);
     PutDrawEnv(&D_801E3E34[1]);
     for (i = 0; i < 3; i++) {
-        if (_work.partyID[i] != 0xFF) {
+        if (Savemap.partyID[i] != 0xFF) {
             func_80020058(i);
             func_8001786C((u8)i);
         }

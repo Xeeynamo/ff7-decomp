@@ -627,7 +627,7 @@ static s16 func_801D2A34(s32 save_id) {
     D_801E3D50 = slot;
     ret = func_801D2408(&sp10, D_801E2CB8[slot]);
     if (!(s16)ret) {
-        memcpy(&D_801E3864[slot], &_work.header, sizeof(SaveHeader));
+        memcpy(&D_801E3864[slot], &Savemap.header, sizeof(SaveHeader));
     }
     return ret;
 }

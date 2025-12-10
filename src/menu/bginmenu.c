@@ -52,8 +52,8 @@ static void func_801D01BC(void) {}
 INCLUDE_ASM("asm/us/menu/nonmatchings/bginmenu", func_801D01C4);
 #else
 // -O1
-extern u8 D_8009C778[]; // _work.party
-extern u8 D_8009C798[]; // _work.party
+extern u8 D_8009C778[]; // Savemap.party
+extern u8 D_8009C798[]; // Savemap.party
 s32 func_801D01C4(s32 arg0) {
     s32 var_a1;
     s32 var_a2;
@@ -103,7 +103,7 @@ INCLUDE_ASM("asm/us/menu/nonmatchings/bginmenu", func_801D0500);
 void func_801D05C4(s32 arg0) {
     s32 i;
 
-    _work.unk1013 = 0;
+    Savemap.unk1013 = 0;
     switch (arg0) {
     case 0:
         for (i = 0; i < 21; i++) {
@@ -134,7 +134,7 @@ void func_801D05C4(s32 arg0) {
         }
         break;
     }
-    _work.unk1013 = 1;
+    Savemap.unk1013 = 1;
 }
 
 void func_801D0704(s32 arg0) {
