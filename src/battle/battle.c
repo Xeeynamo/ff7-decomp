@@ -766,7 +766,8 @@ void func_800AE078(void) {}
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE080);
 
 void func_800AE234(void) {
-    D_80063014->unk214 = Savemap.memory_bank_1[26] + Savemap.memory_bank_1[27] * 256;
+    D_80063014->unk214 =
+        Savemap.memory_bank_1[26] + Savemap.memory_bank_1[27] * 256;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE25C);
