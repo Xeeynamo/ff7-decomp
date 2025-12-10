@@ -1,6 +1,34 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_init);
+s32 CdControlB(s32, s32, s32);
+s32 CdInit(void);
+s32 VSync(s32);
+s32 func_80034350(void);
+void func_80034F3C(void);
+void func_80034F5C(void);
+void func_8003DDA4(s32);
+void ChangeClearPAD(s32);
+void EnterCriticalSection(void);
+void ExitCriticalSection(void);
+void func_80048AAC(s32);
+void func_80048B34(void);
+void func_80048BEC(void);
+
+extern s32 D_80071A60;
+extern s32 D_80071A64;
+
+void DS_init(void) {
+    do {
+
+    } while (CdInit() == 0);
+    D_80071A60 = 0;
+    func_8003DDA4(0);
+    func_80034F3C();
+    CdControlB(0xE, 0x80, 0);
+    VSync(3);
+    D_80071A64 = func_80034350();
+    func_80034F5C();
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033BE0);
 
@@ -1080,7 +1108,14 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _card_write);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _new_card);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", InitCARD);
+void InitCARD(s32 arg0) {
+    ChangeClearPAD(0);
+    EnterCriticalSection();
+    func_80048AAC(arg0);
+    func_80048B34();
+    func_80048BEC();
+    ExitCriticalSection();
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80048A44);
 
