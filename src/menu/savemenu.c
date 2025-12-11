@@ -482,7 +482,7 @@ void func_801D19C4(void) {
         D_8009A024[6] = OpenEvent(HwCARD, EvSpTIMOUT, EvMdNOINTR, NULL);
         D_8009A024[7] = OpenEvent(HwCARD, EvSpNEW, EvMdNOINTR, NULL);
         InitCARD(1);
-        func_80048A44();
+        StartCARD();
         ChangeClearPAD(0);
         _bu_init();
         _card_auto(0);
@@ -614,18 +614,18 @@ const char* D_801E2CB8[] = {
 };
 
 static s16 func_801D2A34(s32 save_id) {
-    char sp10[0x40];
+    char path[0x40];
     s32 ret;
     s32 slot;
 
     if (save_id & 0x10) {
-        func_80042DD8(&sp10, D_801D018C, D_801E2C78[save_id & 15]);
+        sprintf(path, D_801D018C, D_801E2C78[save_id & 15]);
     } else {
-        func_80042DD8(&sp10, D_801D0194, D_801E2C78[save_id & 15]);
+        sprintf(path, D_801D0194, D_801E2C78[save_id & 15]);
     }
     slot = save_id & 15;
     D_801E3D50 = slot;
-    ret = func_801D2408(&sp10, D_801E2CB8[slot]);
+    ret = func_801D2408(path, D_801E2CB8[slot]);
     if (!(s16)ret) {
         memcpy(&D_801E3864[slot], &Savemap.header, sizeof(SaveHeader));
     }

@@ -338,7 +338,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CF78);
 
 void func_8002CF98(void) {}
 
-void func_8002CFA0() { func_80038FEC(0); }
+void func_8002CFA0() { SpuSetTransferCallback(0); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CFC0);
 

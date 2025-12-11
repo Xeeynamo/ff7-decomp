@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "psxsdk/libgpu.h"
 #include <common.h>
 #include <libgte.h>
 #include <libgpu.h>
@@ -69,6 +70,7 @@ typedef union {
     TILE* tile;
     TILE_1* tile1;
     BLK_FILL* blk_fill;
+    LINE_F2* linef2;
 } Gpu;
 
 typedef struct {
@@ -342,8 +344,6 @@ void func_80026F44(s32, s32, void*, s32);
 void func_8002DA7C();
 void func_80033E74(s32, s32, s32, void (*)(void));
 s32 func_80034B44();
-void func_8003CEBC(void);
-void func_80043938(s32);
 
 // from overlays
 extern s32 D_8019DAA0;

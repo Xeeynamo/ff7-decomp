@@ -278,9 +278,9 @@ void func_80015CA0(GzHeader* src, s32* dst);
 u8 func_8001F6B4();
 s32 func_80034B44();
 
-void func_800110B8(void) {}
+void __main(void) {}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800110C0);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", __SN_ENTRY_POINT);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001117C);
 
@@ -326,13 +326,13 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001155C);
 void func_8001171C(void) {
     StopCallback();
     ResetCallback();
-    func_80043938(0);
+    ResetGraph(0);
     func_80036298();
     D_80095DD4 = 0;
     VSyncCallback(&func_8001155C);
-    func_80043BA8(0);
+    SetGraphDebug(0);
     SetDispMask(0);
-    func_80039EDC();
+    InitGeom();
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80011784);
@@ -891,8 +891,8 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001C3CC);
 void SetupGamepad(void) {
     if (g_bPadsInitialized == 0) {
         g_bPadsInitialized = 1;
-        StartPAD2();
-        InitPAD2(&D_800696AC.padABuffer, 4, &D_800696AC.padBBuffer, 4);
+        StartPAD();
+        InitPAD(&D_800696AC.padABuffer, 4, &D_800696AC.padBBuffer, 4);
     }
     D_80062FA0 = 0;
 }
@@ -1015,37 +1015,37 @@ void func_8001D3C0(s16 x, s16 y) {
     D_80062F24.tile1++;
 }
 
-void func_8001D47C(s16 x, s16 w, s16 y, s32 color) {
-    SetBlockFill(D_80062F24.blk_fill);
-    D_80062F24.blk_fill->r0 = color >> 16;
-    D_80062F24.blk_fill->g0 = color >> 8;
-    D_80062F24.blk_fill->b0 = color;
-    D_80062F24.blk_fill->x0 = x;
-    D_80062F24.blk_fill->y0 = y;
-    D_80062F24.blk_fill->w = w;
-    D_80062F24.blk_fill->h = y;
-    AddPrim(D_80062FC4, D_80062F24.blk_fill);
-    D_80062F24.blk_fill++;
+void func_8001D47C(s16 x0, s16 x1, s16 y, s32 color) {
+    SetLineF2(D_80062F24.linef2);
+    D_80062F24.linef2->r0 = color >> 16;
+    D_80062F24.linef2->g0 = color >> 8;
+    D_80062F24.linef2->b0 = color;
+    D_80062F24.linef2->x0 = x0;
+    D_80062F24.linef2->y0 = y;
+    D_80062F24.linef2->x1 = x1;
+    D_80062F24.linef2->y1 = y;
+    AddPrim(D_80062FC4, D_80062F24.linef2);
+    D_80062F24.linef2++;
 }
 
-void func_8001D56C(s16 x, s16 y, s16 w, s16 h, s16 is_yellow) {
+void func_8001D56C(s16 x0, s16 y0, s16 x1, s16 y1, s16 is_yellow) {
     if (is_yellow) {
-        SetBlockFill(D_80062F24.blk_fill);
-        D_80062F24.blk_fill->r0 = 0xFF;
-        D_80062F24.blk_fill->g0 = 0xFF;
-        D_80062F24.blk_fill->b0 = 0;
+        SetLineF2(D_80062F24.linef2);
+        D_80062F24.linef2->r0 = 0xFF;
+        D_80062F24.linef2->g0 = 0xFF;
+        D_80062F24.linef2->b0 = 0;
     } else {
-        SetBlockFill(D_80062F24.blk_fill);
-        D_80062F24.blk_fill->r0 = 0x80;
-        D_80062F24.blk_fill->g0 = 0x80;
-        D_80062F24.blk_fill->b0 = 0x80;
+        SetLineF2(D_80062F24.linef2);
+        D_80062F24.linef2->r0 = 0x80;
+        D_80062F24.linef2->g0 = 0x80;
+        D_80062F24.linef2->b0 = 0x80;
     }
-    D_80062F24.blk_fill->x0 = x;
-    D_80062F24.blk_fill->y0 = y;
-    D_80062F24.blk_fill->w = w;
-    D_80062F24.blk_fill->h = h;
-    AddPrim(D_80062FC4, D_80062F24.blk_fill);
-    D_80062F24.blk_fill++;
+    D_80062F24.linef2->x0 = x0;
+    D_80062F24.linef2->y0 = y0;
+    D_80062F24.linef2->x1 = x1;
+    D_80062F24.linef2->y1 = y1;
+    AddPrim(D_80062FC4, D_80062F24.linef2);
+    D_80062F24.linef2++;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001D6A8);
@@ -1237,7 +1237,7 @@ void func_80021044(DRAWENV* draw_env, DISPENV* disp_env) {
     draw_env[1].g0 = 0;
     draw_env[1].b0 = 0;
     draw_env[0].tpage = draw_env[1].tpage =
-        func_80043CC0() != 1 && func_80043CC0() != 2 ? 0x3F : 0xAF;
+        GetGraphType() != 1 && GetGraphType() != 2 ? 0x3F : 0xAF;
     VSync(0);
     PutDispEnv(disp_env);
     PutDrawEnv(draw_env);

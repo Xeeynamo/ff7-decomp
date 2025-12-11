@@ -182,16 +182,16 @@ static void func_800BBDF8(void) {
     if (D_800F8368 == 0) {
         D_800F4AF4 = D_80163C74;
         if ((u32)D_80163C74 > (u32)0x80184000) {
-            func_8003CEBC();
-            func_80043938(1);
+            PadStop();
+            ResetGraph(1);
             StopCallback();
             SystemError('b', 0);
         }
     } else {
         D_800F4AF8 = D_80163C74;
         if ((u32)D_80163C74 > (u32)0x801A0000) {
-            func_8003CEBC();
-            func_80043938(1);
+            PadStop();
+            ResetGraph(1);
             StopCallback();
             SystemError('b', 1);
         }
