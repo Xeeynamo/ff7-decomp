@@ -276,7 +276,6 @@ s32 func_800150E4(u16*, u16*);
 u16* func_800151F4(s32);
 void func_80015CA0(GzHeader* src, s32* dst);
 u8 func_8001F6B4();
-s32 func_80034B44();
 
 void __main(void) {}
 

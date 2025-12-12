@@ -323,7 +323,6 @@ extern u32 D_8009D260;
 extern Unk8009D84C D_8009D84C[3];
 
 // PSXSDK funcs
-void func_80033E34(int loc, int len, u_long* addr, void (*cb)(void));
 SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
 MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
 void StopCallback(void);
@@ -342,8 +341,15 @@ void func_800269C0(void* poly);
 s32 func_80026B70(unsigned char* str);
 void func_80026F44(s32, s32, void*, s32);
 void func_8002DA7C();
-void func_80033E74(s32, s32, s32, void (*)(void));
-s32 func_80034B44();
+
+int func_80033DAC(int sector_no, void (*cb)());
+int func_80033DE4(int sector_no);
+int func_80033E34(int sector_no, size_t size, u_long* dst, void (*cb)());
+int DS_read(int sector_no, size_t size, u_long* dst, void (*cb)());
+int func_80033EDC(int sector_no, void (*cb)());
+int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)());
+int func_80033FC4(int sector_no, size_t size, u_long* dst, void (*cb)());
+u32 func_80034B44(void);
 
 // from overlays
 extern s32 D_8019DAA0;

@@ -1044,7 +1044,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B3CD0);
 static void func_800B3D38(void) {
     func_800C5E94();
     D_800F839C = D_800EA50C;
-    func_80033E74(LBA_ENEMY6_SEFFECT, 0xA800, 0x801B0000, func_800B3CD0);
+    DS_read(LBA_ENEMY6_SEFFECT, 0xA800, (u_long*)0x801B0000, func_800B3CD0);
     func_800B7FB4();
 }
 

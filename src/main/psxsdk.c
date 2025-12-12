@@ -1,64 +1,106 @@
-#include "common.h"
+//! PSYQ=3.3
+#include <game.h>
+#include <psxsdk/types.h>
+#include <psxsdk/libcd.h>
 
-// NOTE: please do not decompile any of these functions.
-// Please refer to psyz/decomp for decompiled PSX SDK functions:
-// https://github.com/Xeeynamo/psyz/tree/main/decomp
+typedef enum {
+    CDOP_0,
+    CDOP_1,
+    CDOP_3 = 3,
+    CDOP_11 = 11,
+    CDOP_19 = 0x13,
+    CDOP_20 = 0x14,
+} CdOp;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_init);
+extern void (*D_8004A634[21])(void);
+extern int D_800698E8; // sector_no
+extern int D_800698F0;
+extern int D_8006E0F0;
+extern int D_8006E0F4;
+extern CdOp D_80071A60;      // some kind of operation?
+extern int D_80071A64;       //
+extern CdlLOC D_80071A68;    // cd sector
+extern size_t D_80071A6C;    // amount of sectors to read
+extern u_long* D_80071A80;   // read content destination
+extern void (*D_80071A84)(); // callback
+void func_80033B70(void) {
+    while (!CdInit()) {
+    }
+    D_80071A60 = CDOP_0;
+    func_8003DDA4(0);
+    func_80034F3C();
+    CdControlB(CdlSetmode, (u8*)0x80, NULL);
+    VSync(3);
+    D_80071A64 = func_80034350();
+    func_80034F5C();
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033BE0);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_reset_members);
-
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033C20);
 
+void func_80033CB8(int op, int sector, size_t len, u_long* dst, void (*cb)());
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033CB8);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_close);
+int func_80033DAC(int sector_no, void (*cb)()) {
+    func_80033CB8(CDOP_1, sector_no, 0, NULL, cb);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_cw);
+int func_80033DE4(int sector_no) {
+    func_80033CB8(CDOP_0, sector_no, 0, NULL, NULL);
+    do {
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_sync_callback);
+    } while (CdControl(CdlSetloc, (u_char*)&D_80071A68, NULL) == 0);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033DAC);
+int func_80033E34(int sector_no, size_t size, u_long* dst, void (*cb)()) {
+    func_80033CB8(CDOP_3, sector_no, size, dst, cb);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_ready_callback);
+int DS_read(int sector_no, size_t size, u_long* dst, void (*cb)()) {
+    func_80033CB8(CDOP_11, sector_no, size, dst, cb);
+    D_800698E8 = sector_no;
+    func_80034D2C(&D_800698F0, dst);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_start_callback);
+int func_80033EDC(int sector_no, void (*cb)()) {
+    while (func_80033DAC(sector_no, cb)) {
+    }
+    while (func_80034B44()) {
+        VSync(0);
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_system_status);
+int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)()) {
+    while (func_80033E34(sector_no, size, dst, cb)) {
+    }
+    while (func_80034B44()) {
+        VSync(0);
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_lastcom);
+int func_80033FC4(int sector_no, size_t size, u_long* dst, void (*cb)()) {
+    while (DS_read(sector_no, size, dst, cb)) {
+    }
+    while (func_80034B44()) {
+        VSync(0);
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_lastmode);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_lastpos);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_lastseek);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_lastread);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_status);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033E34);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_sync);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_ready);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033E74);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_shell_open);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_cw_system);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033EDC);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033F40);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033FC4);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034048);
+void func_80034048(void) {
+    D_80071A6C = 0;
+    D_80071A80 = NULL;
+    D_80071A84 = NULL;
+    D_80071A60 = CDOP_19;
+    func_80034B44();
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003408C);
 
@@ -100,21 +142,50 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_800348F4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034974);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034A58);
+void func_80034A58(void) {
+    CdControlF(CdlPause, NULL);
+    D_80071A60 = CDOP_20;
+    D_8006E0F4 = 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034A90);
+void func_80034A90(void) {
+    s32 temp_v0;
+    s32* var_a1;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DS_stop);
+    switch (func_8003DE2C(1, 0)) {
+    case 2:
+        func_80034444();
+        return;
+    case 5:
+        D_80071A60 = CDOP_19;
+        return;
+    default:
+        temp_v0 = VSync(-1);
+        var_a1 = &D_8006E0F0;
+        if (*var_a1 != temp_v0) {
+            *var_a1 = temp_v0;
+            D_8006E0F4++;
+            if (D_8006E0F4 == 3600) {
+                D_80071A60 = CDOP_19;
+                func_80034CAC(3);
+            }
+        }
+        return;
+    }
+}
 
-void DS_restart(void) {}
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034B44);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", parcpy);
+u32 func_80034B44(void) {
+    u32* op;
+    if (D_80071A60 >= LEN(D_8004A634)) {
+        while (1) {
+        }
+    }
+    op = &D_80071A60;
+    D_8004A634[*op]();
+    return *op;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034BB0);
-
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", tipDsSystem);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034CAC);
 
@@ -161,6 +232,10 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80036190);
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80036244);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80036298);
+
+// NOTE: please do not decompile any of these functions.
+// Please refer to psyz/decomp for decompiled PSX SDK functions:
+// https://github.com/Xeeynamo/psyz/tree/main/decomp
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _SpuInit);
 
