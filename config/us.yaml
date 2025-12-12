@@ -57,7 +57,7 @@ overlays:
       - [0x888, .rodata, battle2]
       - [0xDD4, .rodata, battle3]
       - [0x1158, c, battle]
-      - [0x18268, c, battle1]
+      - [0x17F6C, c, battle1]
       - [0x27B60, c, battle2]
       - [0x38A04, c, battle3]
       - [0x47A38, data]

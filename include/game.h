@@ -322,12 +322,12 @@ extern u8 D_8009D684;
 extern u8 D_8009D686;
 extern u8 D_8009D8F8[];
 extern u32 D_8009D260;
+extern volatile s32 D_8009D268[];
 extern Unk8009D84C D_8009D84C[3];
 
 // PSXSDK funcs
 SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
 MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
-void StopCallback(void);
 void SystemError(char c, long n);
 
 s32 func_80014B70(void);

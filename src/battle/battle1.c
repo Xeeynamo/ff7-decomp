@@ -1,10 +1,77 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "battle_private.h"
+#include <libetc.h>
+#include <libgpu.h>
 
 static void func_800B85E0();
 static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3);
 static void func_800BB804(void);
 static void func_800BB864(void);
+
+static void func_800B7F6C(void) {
+    volatile s32 padding;
+
+    while (D_80062D99) {
+        func_800B7FB4();
+    }
+    D_80062D98 = 0;
+}
+
+void func_800B7FB4(void) { D_801518DC = func_80034B44(); }
+
+void func_800B7FDC(void) {
+    s32 i;
+
+    func_800B7FB4();
+    ClearOTagR((u_long*)D_801517C0->unk40A4, LEN(D_801517C0->unk40A4));
+    ClearOTag((u_long*)D_801517C0->unk4070, LEN(D_801517C0->unk4070));
+    ClearOTag((u_long*)D_801517C0->unk4078, LEN(D_801517C0->unk4078));
+    ClearOTagR((u_long*)D_801517C0->unk70, LEN(D_801517C0->unk70));
+    ClearOTagR((u_long*)D_801517C0->unk4080, LEN(D_801517C0->unk4080));
+    ClearOTag((u_long*)D_801517C0->unk40E4, LEN(D_801517C0->unk40E4));
+    ClearOTag((u_long*)D_801517C0->unk40EC, LEN(D_801517C0->unk40EC));
+    D_80163C74 = D_800F8368 == 0 ? (DR_MODE*)0x80168000 : (DR_MODE*)0x80184000;
+    func_800B8360(1);
+    func_800C5CC0();
+    func_800B8438();
+    for (i = 0; i < 10; i++) {
+        if (D_801518E4[i].D_8015190A == 0) {
+            D_800F7DE4 = 0;
+            break;
+        }
+        if (D_80162080 == 0) {
+            D_800F7DE4 = 1;
+        } else {
+            D_800F7DE4 = 0;
+        }
+    }
+    func_800A3ED0();
+    func_800B8360(2);
+    func_800DCFD4((u_long*)D_801517C0->unk40E4);
+    if (D_800F9D94 == 0) {
+        ResetGraph(1);
+        D_800F9D94 = 1;
+    }
+    if (D_8016376A & 2) {
+        func_800E16B8(D_801517C0->unk40E4, 0x10, 0x10, D_8009D268[0]);
+    }
+    D_800FA9B8 = VSync(1);
+    BATTLE_FlushImageQueue();
+    func_800B7FB4();
+    D_80158D08 = func_800D8A88();
+    SetGeomScreen(D_80162084);
+    D_801516F4++;
+    func_800B7F6C();
+    func_800B950C();
+    D_801516A0 = D_800F198C;
+}
+
+void func_800B8234(s32 arg0) {
+    if (arg0) {
+        func_800D0C80(D_801590CC);
+        D_801517BC = 0;
+    }
+}
 
 static void func_800B8268(void) {
     s32 i;
@@ -429,15 +496,14 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4D10);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4DC8);
 
-void* func_800C5040(u8, u8, u8, s32, u8*);
-extern u8* D_801517C0;
+void* func_800C5040(u8, u8, u8, s32, u_long*);
 
-void* func_800C4FC8(u8 arg0, u8 arg1, u8 arg2) {
-    return func_800C5040(arg0, arg1, arg2, 1, D_801517C0 + 0x4084);
+void func_800C4FC8(u8 arg0, u8 arg1, u8 arg2) {
+    func_800C5040(arg0, arg1, arg2, 1, (u_long*)&D_801517C0->unk4080[1]);
 }
 
-void* func_800C5004(u8 arg0, u8 arg1, u8 arg2) {
-    return func_800C5040(arg0, arg1, arg2, 2, D_801517C0 + 0x40EC);
+void func_800C5004(u8 arg0, u8 arg1, u8 arg2) {
+    func_800C5040(arg0, arg1, arg2, 2, (u_long*)&D_801517C0->unk40EC);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5040);

@@ -223,6 +223,31 @@ typedef struct {
     /* 0x174 */ BattleModelSub D_80151A58[50];
 } BattleModel; // size:0xB9C
 
+typedef struct {
+    /* 0x0000 */ u_long* unk0[0x1C];
+    /* 0x0070 */ u_long* unk70[0x1000];
+    /* 0x4070 */ u_long* unk4070[2];
+    /* 0x4078 */ u_long* unk4078[2];
+    /* 0x4080 */ u_long* unk4080[9];
+    /* 0x40A4 */ u_long* unk40A4[0x10];
+    /* 0x40E4 */ u_long* unk40E4[2];
+    /* 0x40EC */ u_long* unk40EC[2];
+} Unk801517C0; // size:0x40F4
+
+typedef struct {
+    /* 0x00 */ MATRIX m;
+    /* 0x20 */ SVECTOR sv;
+    /* 0x28 */ VECTOR v;
+} Unk800BB75C; // size:0x38
+
+typedef struct {
+    s32* unk0;
+    s32 unk4;
+    s16 unk8;
+    s16 unkA;
+    s32 unkC;
+} Unk801B0C98;
+
 extern u16 D_800F5BBC[10][0x22];
 extern u8 D_800F5E66[3][0x34];
 extern Unk800F5F44 D_800F5F44;
@@ -232,15 +257,19 @@ extern s16 D_800F83AE[10][0x34]; // overlaps with D_800F83E0, D_800F83A8
 extern s16 D_800F83CC; // overlaps with D_800F83AE, sceneID
 extern Unk800F83E0 D_800F83E0[3];
 extern s8 D_800F90B4[][0x240];
+extern Unk800BB75C D_800FA63C;
+extern Unk801517C0* D_801517C0;
+extern short D_8015169C;
+extern BattleModel D_801518E4[3]; // len might be 10, not 3
+extern short D_80162080;
 extern Unk8016360C D_8016360C;
 extern u16 D_8016376A;
-extern BattleModel D_801518E4[3];
 
 // battle.c
 int func_800BBEAC(void (*func)(void));
 
 // battle2.c
-void* func_800D29D4(int*, int, int, void*);
+void* func_800D29D4(Unk801B0C98*, u_long*, int, void*);
 void func_800D3994(s32 arg0, s32 arg1, void* arg2);
 void func_800D5444(int, int, int, void (*func)(int));
 void func_800D55F4(int, int, int);

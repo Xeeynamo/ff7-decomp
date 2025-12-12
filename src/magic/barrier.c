@@ -14,20 +14,6 @@ typedef struct BarrierData {
     char pad1[0x6];
 } BarrierData;
 
-typedef struct {
-    s32* unk0;
-    s32 unk4;
-    s16 unk8;
-    s16 unkA;
-    s32 unkC;
-} Unk801B0C98;
-
-extern MATRIX D_800FA63C;
-
-extern short D_8015169C;
-extern int D_801517C0;
-extern short D_80162080;
-
 extern BarrierData D_80162978[];
 
 static s32 D_801B0B68[] = { // this seems to be a header+3D model
@@ -89,14 +75,14 @@ static void func_801B0020(void) {
     matrix->t[1] += data->pos.vy;
     matrix->t[2] += data->pos.vz;
 
-    CompMatrix(&D_800FA63C, matrix, matrix);
+    CompMatrix(&D_800FA63C.m, matrix, matrix);
     SetRotMatrix(matrix);
     SetTransMatrix(matrix);
 
     D_801B0C98.unk4 = var_s3 | 0x80;
     D_801B0C98.unkA = var_s4;
     D_801D0CC4 =
-        func_800D29D4((int*)&D_801B0C98, D_801517C0 + 0x70, 12, D_801D0CC4);
+        func_800D29D4(&D_801B0C98, (u_long*)D_801517C0->unk70, 12, D_801D0CC4);
 
     if (D_80062D98 == 0) {
         data->unk2++;
@@ -144,14 +130,14 @@ static void func_801B0220(void) {
     matrix1->t[0] += data->pos.vx;
     matrix1->t[1] += data->pos.vy;
     matrix1->t[2] += data->pos.vz;
-    CompMatrix(&D_800FA63C, matrix1, matrix1);
+    CompMatrix(&D_800FA63C.m, matrix1, matrix1);
     SetRotMatrix(matrix1);
     SetTransMatrix(matrix1);
 
     D_801B0CB0.unk4 = var_s5 | 0x80;
     D_801B0CB0.unkA = var_s6;
     D_801D0CC4 =
-        func_800D29D4((int*)&D_801B0CB0, D_801517C0 + 0x70, 12, D_801D0CC4);
+        func_800D29D4(&D_801B0CB0, (u_long*)D_801517C0->unk70, 12, D_801D0CC4);
 
     if (D_80062D98 == 0) {
         data->unk2++;

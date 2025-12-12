@@ -1134,23 +1134,3 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B798C);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B79F0);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B7DB4);
-
-static void func_800B7F6C(void) {
-    volatile s32 padding;
-
-    while (D_80062D99) {
-        func_800B7FB4();
-    }
-    D_80062D98 = 0;
-}
-
-void func_800B7FB4(void) { D_801518DC = func_80034B44(); }
-
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B7FDC);
-
-void func_800B8234(s32 arg0) {
-    if (arg0) {
-        func_800D0C80(D_801590CC);
-        D_801517BC = 0;
-    }
-}

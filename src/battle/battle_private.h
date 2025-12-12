@@ -169,12 +169,6 @@ typedef struct {
 } Unk80151200; // size:0x74
 
 typedef struct {
-    /* 0x00 */ MATRIX m;
-    /* 0x20 */ SVECTOR sv;
-    /* 0x28 */ VECTOR v;
-} Unk800BB75C; // size:0x38
-
-typedef struct {
     s32 unk0;
     s32 unk4;
     s32 unk8;
@@ -197,6 +191,7 @@ extern s32 (*D_800EFEA0[])(s16, u8);
 extern Unk800F01DC* D_800F01DC;
 extern s32 D_800F01E0;
 extern s32 D_800F01E4;
+extern u16 D_800F198C;
 extern s32 D_800F199C;
 extern u8 D_800F19A4;
 extern s8 D_800F1E4F;
@@ -244,6 +239,7 @@ extern u8 D_800F5764;
 extern u8 D_800F5774;
 extern Unk800F57D0* D_800F57D0;
 extern Unk800AF470 D_800F5BB8[];
+extern s8 D_800F7DE4;
 extern s32 D_800F8368;
 extern s16 D_800F8370;
 extern s32* D_800F839C; // CD offset?
@@ -256,6 +252,7 @@ extern s32 D_800F9144;
 extern s8 D_800F914E;
 extern u8 D_800F99E8;
 extern s32 D_800F99E4;
+extern u8 D_800F9D94;
 extern u8 D_800F9D98;
 extern u8 D_800F9D9C;
 extern u16 D_800F9DA4;
@@ -265,6 +262,7 @@ extern u16 D_800FA6B8;
 extern u8 D_800FA6D4;
 extern Unk800FA6D8 D_800FA6D8[];
 extern MATRIX D_800FA958;
+extern s32 D_800FA9B8;
 extern s16 D_800FA9C4;
 extern s8 D_800FA9E8;
 extern u8 D_800FAFDC;
@@ -277,12 +275,14 @@ extern u8 D_801031F0;
 extern Unk80151200 D_80151200[3];
 extern u16 D_80151694;
 extern s16 D_8015169C;
+extern u16 D_801516A0;
+extern u8 D_801516F4;
 extern u16 D_801516F8;
 extern s16 D_801516FC[][4]; // most likely a struct
 extern s16 D_80151774;
 extern u8 D_801517BC;
-extern u8* D_801517C0;
 extern s16 D_80158D00;
+extern s32 D_80158D08;
 extern u8 D_801518DC;
 extern s32 D_800F9780[];
 extern u8 D_80153BDD;
@@ -293,6 +293,8 @@ extern s16 D_801590D4;
 extern u8 D_801590D8;
 extern s8 D_801590DC;
 extern u8 D_801590E0;
+extern s16 D_80162080;
+extern s16 D_80162084;
 extern s8 D_80162094;
 extern Unk801620AC D_801620AC[10];
 extern Unk801621F0 D_801621F0[60];
@@ -324,6 +326,7 @@ void func_800B5CD4(s32);
 void func_800B5D38(s32);
 void func_800B6B98(s32, s32);
 void func_800B7FB4(void);
+void func_800B8438(void);
 void func_800BA40C();
 void func_800BA4C8();
 void func_800BB9B8(s32);
@@ -334,7 +337,9 @@ void func_800D0C80(u8 arg0);
 void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void func_800D3BF0();
 void func_800D8A78(s8);
+int func_800D8A88(void);
 void func_800D9E0C(s32, s32, s32);
+void func_800DCFD4(u_long*);
 void func_800DDFEC(void);
 void func_800E15D8(void);
 void func_800E5814(void);
