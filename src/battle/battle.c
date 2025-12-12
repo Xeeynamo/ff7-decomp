@@ -1042,8 +1042,16 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B3B84);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B3C50);
 
-void func_800B3CD0(void);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B3CD0);
+static void func_800B3CD0(void) {
+    Yamada* y;
+    u_long* dst;
+
+    dst = (u_long*)0x801B0000;
+    func_800D2980(dst, 0, 0, 0);
+    y = &D_800E8068[D_800FA9C4];
+    DS_read(y->loc, *&D_800E8068[D_800FA9C4].len, dst, func_800B3AB8);
+    func_800B7FB4();
+}
 
 static void func_800B3D38(void) {
     func_800C5E94();
@@ -1146,5 +1154,3 @@ void func_800B8234(s32 arg0) {
         D_801517BC = 0;
     }
 }
-
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B8268);

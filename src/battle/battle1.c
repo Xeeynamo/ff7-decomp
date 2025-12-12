@@ -6,6 +6,28 @@ static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3);
 static void func_800BB804(void);
 static void func_800BB864(void);
 
+static void func_800B8268(void) {
+    s32 i;
+    u8* var_a1;
+    s32 var_t1;
+
+    i = 0;
+    var_t1 = 1;
+    var_a1 = &D_80163784;
+    while (i < 10) {
+        *var_a1 = D_801636B8[i].D_801636B9;
+        if (!(D_80151200[i].D_8015120C & 8) &&
+            D_801518E4[i].D_801518E6 != *var_a1 &&
+            D_801518E4[i].D_8015190A == var_t1) {
+            D_801518E4[i].D_80151922 |= 1;
+            D_801518E4[i].D_801518E6 = *var_a1;
+        }
+        var_a1++;
+        i += 1;
+    }
+    D_80163787 = 0;
+}
+
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B8360);
 
 static void func_800B83C4() {

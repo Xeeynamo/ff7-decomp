@@ -304,6 +304,8 @@ extern Unk801636B8 D_801636B8[5];
 extern u16 D_80163758[]; // part of a struct
 extern u8 D_80163774[];
 extern u16 D_8016376E[];
+extern u8 D_80163784;
+extern s8 D_80163787;
 extern Unk800A2F4C D_80163798[0x40];
 extern s8 D_80163A98;
 extern u16 D_80163B80;
