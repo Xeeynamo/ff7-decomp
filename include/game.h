@@ -304,6 +304,7 @@ extern s32 D_80062F58;
 extern u_long* D_80062FC4;
 extern Unk800A8D04* D_80063014;
 extern DRAWENV D_800706A4[2];
+extern u16 D_800707BE;
 extern u8 D_800730DD[][0x14];
 extern s32 D_800756F8[];
 extern s8 D_80077F64[2][0x3400]; // polygon buffer

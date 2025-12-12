@@ -101,7 +101,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ s8 D_801636B8;
-    /* 0x01 */ s8 D_801636B9;
+    /* 0x01 */ u8 D_801636B9;
     /* 0x02 */ s8 D_801636BA;
     /* 0x03 */ s8 D_801636BB;
     /* 0x04 */ u8 D_801636BC;
@@ -166,7 +166,7 @@ typedef struct {
     s32 D_80151268;
     s32 D_8015126C;
     s32 D_80151270;
-} Unk80151200;
+} Unk80151200; // size:0x74
 
 typedef struct {
     /* 0x00 */ MATRIX m;
@@ -218,6 +218,7 @@ extern unsigned char D_800F384A[];
 extern u8 D_800F38A0;
 extern u8 D_800F38A1;
 extern s16 D_800F38A2;
+extern u8 D_800F7ED4;
 extern u8 D_800F38A7;
 extern u8 D_800F389C;
 extern s16 D_800F389E;
@@ -255,10 +256,12 @@ extern s32 D_800F9144;
 extern s8 D_800F914E;
 extern u8 D_800F99E8;
 extern s32 D_800F99E4;
+extern u8 D_800F9D98;
+extern u8 D_800F9D9C;
 extern u16 D_800F9DA4;
 extern Unk800BB75C D_800FA63C;
 extern s16 D_800FA69C;
-extern s16 D_800FA6B8;
+extern u16 D_800FA6B8;
 extern u8 D_800FA6D4;
 extern Unk800FA6D8 D_800FA6D8[];
 extern MATRIX D_800FA958;
@@ -287,7 +290,9 @@ extern u32 D_80151840;
 extern u8 D_801590CC;
 extern s16 D_801590D0;
 extern s16 D_801590D4;
+extern u8 D_801590D8;
 extern s8 D_801590DC;
+extern u8 D_801590E0;
 extern s8 D_80162094;
 extern Unk801620AC D_801620AC[10];
 extern Unk801621F0 D_801621F0[60];
@@ -301,7 +306,7 @@ extern u8 D_80163774[];
 extern u16 D_8016376E[];
 extern Unk800A2F4C D_80163798[0x40];
 extern s8 D_80163A98;
-extern s16 D_80163B80;
+extern u16 D_80163B80;
 extern DR_MODE* D_80163C74; // TODO might be a generic u_long*, not DR_MODE*
 extern u8 D_80163C7C;
 extern ShortVectorXYZ D_80163C80[];
