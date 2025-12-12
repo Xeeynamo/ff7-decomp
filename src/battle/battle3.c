@@ -28,7 +28,12 @@ static void func_800D8AF0(u16 arg0) {
     func_8002DA7C(arg0);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D8B2C);
+void func_800D8B2C(void) {
+    if (D_80062D99) {
+        func_800D8AF0(0x98);
+    }
+    D_80062D99 = 0;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D8B60);
 
@@ -95,7 +100,70 @@ void func_800DCF94(s16 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DCFD4);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DD690);
+static void func_800E6848(void);
+static void func_800DD690(s32 arg0, s16 arg1) {
+    s32 var_s0;
+    s32 temp_v1;
+
+    func_80026A00();
+    switch (arg1) {
+    case 0:
+        func_800E2098();
+        return;
+    case 1:
+        func_800E2C6C(&D_800F90B4[D_800F38A0]);
+        return;
+    case 5:
+        func_800E3088();
+        return;
+    case 6:
+        func_800E3B64();
+        return;
+    case 4:
+        func_800E3FB4();
+        return;
+    case 7:
+        func_800E3E10();
+        return;
+    case 2:
+        var_s0 = 7;
+        temp_v1 = D_8016360C.unk8.D_80163626;
+        if (temp_v1 < 9) {
+            var_s0 = -(temp_v1 < 3) & 7;
+        }
+        func_80026F44(8, 7, func_80015248(5, 0x12, 8), var_s0);
+        return;
+    case 3:
+        func_80026F44(9, 7, func_80015248(5, 0x13, 8), 7);
+        return;
+    case 24:
+        func_800E33A0();
+        return;
+    case 20:
+        func_800E4180();
+        return;
+    case 21:
+        func_800E4394();
+        return;
+    case 19:
+        func_800E4A64();
+        return;
+    case 26:
+        func_800E4C08();
+        return;
+    case 27:
+        func_800E5530();
+        return;
+    case 28:
+        func_800E5978();
+        return;
+    case 9:
+        func_800E6848();
+        // fallthrough
+    default:
+        return;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DD85C);
 

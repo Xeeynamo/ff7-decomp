@@ -826,7 +826,11 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF1D4);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF264);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF320);
+void func_800AF320(s32 arg0, s32 arg1, s32 arg2) {
+    func_800AEBF0();
+    func_800AEB80(arg0, arg1, arg2);
+    func_800AF0C4(arg0, arg1, arg2);
+}
 
 void func_800AF380(s32 arg0) { func_800A7254(2, arg0, 0x15, 0xF); }
 

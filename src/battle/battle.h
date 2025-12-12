@@ -230,6 +230,7 @@ extern s16 D_800F83AE[10][0x34]; // overlaps with D_800F83E0, D_800F83A8
 #define D_800F83A8 (*((u8*)&D_800F83AE[0][0] - 6))
 extern s16 D_800F83CC; // overlaps with D_800F83AE, sceneID
 extern Unk800F83E0 D_800F83E0[3];
+extern s8 D_800F90B4[][0x240];
 extern Unk8016360C D_8016360C;
 extern u16 D_8016376A;
 extern BattleModel D_801518E4[3];

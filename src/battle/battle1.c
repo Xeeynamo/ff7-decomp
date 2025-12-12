@@ -138,9 +138,18 @@ static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3) {
     func_800BAFF8(&arg0->m, &D_800E7D20);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB804);
-
 static void func_800BB89C(void);
+static void func_800BB804(void) {
+    if (!(D_8016376A & 0x20)) {
+        func_80033E34(
+            LBA_ENEMY6_FAN2, 0x1000, (u_long*)0x801D0000, func_800BB89C);
+        func_800B7FB4();
+        return;
+    }
+    D_80163B80 = 0;
+    D_800FA6B8 = 0;
+}
+
 static void func_800BB864(void) {
     func_80033E34(LBA_ENEMY6_OVER2, 0x800, (u_long*)0x801D0000, func_800BB89C);
     func_800B7FB4();

@@ -45,6 +45,7 @@ typedef enum {
     LBA_INIT_YAMADA = 614,
     LBA_ENEMY6_SEFFECT = 30046,
     LBA_ENEMY6_OVER2 = 30694,
+    LBA_ENEMY6_FAN2 = 30695,
 } Lba;
 
 typedef struct {
@@ -331,6 +332,7 @@ void SystemError(char c, long n);
 s32 func_80014B70(void);
 s32 func_80014BA8(s32 arg0);
 s32 func_8001521C(s32);
+const char* func_80015248(s32 arg0, s32 arg1, s32 arg2);
 void func_800155A4(s32);
 void func_8001726C(s16, u16);
 void func_80021044(DRAWENV* draw_env, DISPENV* disp_env);
@@ -339,7 +341,7 @@ void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                    s32 arg11, s32 arg12, u16 arg13);
 void func_800269C0(void* poly);
 s32 func_80026B70(unsigned char* str);
-void func_80026F44(s32, s32, void*, s32);
+void func_80026F44(s32 x, s32 y, const char*, s32 color); // print FF7 string
 void func_8002DA7C();
 
 int func_80033DAC(int sector_no, void (*cb)());
