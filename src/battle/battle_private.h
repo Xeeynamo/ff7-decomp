@@ -174,6 +174,11 @@ typedef struct {
     s32 unk8;
 } Unk800F57D0;
 
+typedef struct {
+    /* 0x00 */ s32 D_800F83E4;
+    /* 0x04 */ u8 unk4[0x64];
+} Unk800F83E4; // size:0x68
+
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
@@ -246,7 +251,8 @@ extern s32* D_800F839C; // CD offset?
 extern u8 D_800F83A6;
 extern u16 D_800F83C6; // part of struct?
 extern u16 D_800F83D0;
-extern u8 D_800F83E4[];
+extern Unk800F83E4 D_800F83E4[];
+extern s32 D_800F8408;
 extern s8 D_800F8CF0;
 extern s32 D_800F9144;
 extern s8 D_800F914E;

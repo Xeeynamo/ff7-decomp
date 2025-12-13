@@ -879,11 +879,8 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0B94);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0C14);
 
 void func_800B0DF8(void) {
-    s32 temp_v1;
-
     if (D_80063014->unk234 & 2) {
-        temp_v1 = D_80063014->unk208 * 0x68;
-        *(s32*)&D_800F83E4[temp_v1] ^= 0x80;
+        D_800F83E4[D_80063014->unk208].D_800F83E4 ^= 0x80;
     }
 }
 
