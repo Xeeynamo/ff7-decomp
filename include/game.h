@@ -258,6 +258,12 @@ typedef struct {
     s32 unk23C;
     s32 unk240;
     s32 unk244;
+    s32 unk248;
+    s32 unk24C;
+    s32 unk250;
+    s32 unk254;
+    s32 unk258;
+    s32 unk25C;
 } Unk800A8D04; // size: ???
 
 // seems to be related to a party member during battle

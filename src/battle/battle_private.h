@@ -18,8 +18,26 @@ typedef struct {
     s16 unk2;
     s16 unk4;
     s16 unk6;
-    u8 raw[0x3C];
-} Unk800AF470;
+    s32 unk8;
+    s16 unkC;
+    u8 unkE;
+    u8 unkF;
+    s32 unk10;
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    s32 unk20;
+    s32 unk24;
+    s8 unk28;
+    s8 unk29;
+    s16 unk2A;
+    s32 unk2C;
+    s32 unk30;
+    s32 unk34;
+    s32 unk38;
+    s32 unk3C;
+    s32 unk40;
+} Unk800AF470; // 0x44
 
 typedef struct {
     s8 unk0;
