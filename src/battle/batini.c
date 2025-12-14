@@ -177,12 +177,12 @@ static const s8 D_801B0044[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x03, 0x03, 0x03, 0x05, 0x6E, 0x64, 0x62};
 static void func_801B23E0(s32 sceneID, void (*cb)(void)) {
     u8 dummy[0x100];
-    UnkSceneStuff sp110;
+    SceneContainer scene;
     s32 chunkID;
     s32 temp_s1;
     s32 formationIndex;
-    s32 var_s3;
-    s32* var_s2;
+    s32 i;
+    u_long* var_s2;
     s32* var_s5;
     s32* var_s3_2;
 
@@ -198,52 +198,57 @@ static void func_801B23E0(s32 sceneID, void (*cb)(void)) {
     formationIndex = chunkID - D_80083184[temp_s1];
     func_800145BC(cb); // wait until all data is read, keep executing the vsync
                        // callback until then
-    var_s3 = var_s5[formationIndex];
-    var_s3_2 = &var_s5[var_s3];
-    var_s2 = (s32*)sp110.unk0;
+    i = var_s5[formationIndex];
+    var_s3_2 = &var_s5[i];
+    var_s2 = (u_long*)&scene;
     func_80017108( // gzip decompress
         var_s3_2,  // src
         var_s2);   // dst
     formationIndex = sceneID - chunkID * 4;
-    func_80014A00(D_8016360C.unk0, sp110.unk0, sizeof(sp110.unk0));
-    func_80014A00((s32*)&D_8016360C.unk8, &sp110.unk8[formationIndex],
-                  sizeof(Unk8016360C_1));
-    func_80014A00((s32*)&D_8016360C.unk1C, &sp110.unk58[formationIndex],
-                  sizeof(Unk8016360C_2));
-    func_80014A00((s32*)&D_8016360C.unk4C, &sp110.unk118[formationIndex],
-                  sizeof(Unk8016360C_3));
+    func_80014A00(D_8016360C.enemyModelIDs, scene.enemyModelIDs,
+                  sizeof(scene.enemyModelIDs));
+    func_80014A00((s32*)&D_8016360C.setup, &scene.setup[formationIndex],
+                  sizeof(BattleSetup));
+    func_80014A00((s32*)&D_8016360C.camera, &scene.camera[formationIndex],
+                  sizeof(CameraPlacement) * 4);
+    func_80014A00((s32*)&D_8016360C.formation, &scene.formation[formationIndex],
+                  sizeof(FormationEntry) * 6);
+    func_80014A00((s32*)&D_800F5F44.enemy, &scene.enemy, sizeof(scene.enemy));
     func_80014A00(
-        (s32*)&D_800F5F44.enemy, &sp110.sp3A8, sizeof(Unk800F5F44_1) * 3);
-    func_80014A00((s32*)&D_800F5F44._2, &sp110.sp5D0, sizeof(Unk800F5F44_2));
-    func_80014A00((s32*)&D_800F5F44._3, &sp110.sp950, sizeof(Unk800F5F44_3));
-    func_80014A00((s32*)&D_800F5F44._4, &sp110.sp990, sizeof(Unk800F5F44_4));
-    func_80014A00((s32*)&D_800F5F44._5, &sp110.spD90, sizeof(Unk800F5F44_5));
-    func_80014A00((s32*)&D_800F5F44._6, &sp110.spF90, sizeof(Unk800F5F44_6));
-    if (D_8016376A & 4 && D_8016360C.unk8.D_80163624 & 0x10) {
-        if (D_8016360C.unk8.D_80163626 == 0) {
-            D_8016360C.unk8.D_80163626 = 1;
+        (s32*)&D_800F5F44.attacks, &scene.attacks, sizeof(scene.attacks));
+    func_80014A00(
+        (s32*)&D_800F5F44.attackIDs, scene.attackIDs, sizeof(scene.attackIDs));
+    func_80014A00((s32*)&D_800F5F44.attackNames, &scene.attackNames,
+                  sizeof(scene.attackNames));
+    func_80014A00((s32*)&D_800F5F44._5, &scene.unkC80, sizeof(Unk800F5F44_5));
+    func_80014A00(
+        (s32*)&D_800F5F44.script, &scene.script, sizeof(scene.script));
+    if (D_8016376A & 4 && D_8016360C.setup.flags & SETUP_NO_PREEMPTIVE_STRIKE) {
+        if (D_8016360C.setup.type == SETUP_DEFAULT) {
+            D_8016360C.setup.type = SETUP_PREEMPTIVE;
         }
     }
-    D_800F5F44.D_800F7DC8 = (u8)D_801B0044[D_8016360C.unk8.D_80163626];
-    if (D_8016376A & 0x40) {
-        D_8016360C.unk8.D_80163614 = 0x25;
-        D_8016360C.unk8.D_80163624 |= 4;
-        D_8016360C.unk8.D_80163627 = (func_80014B70() & 3) + 0x60;
-        D_8016360C.unk8.D_80163618 = 1;
-        for (var_s3 = 0; var_s3 < 3; var_s3++) {
-            D_800F5F44.enemy[var_s3].unk90[5] *= 2;
-            D_800F5F44.enemy[var_s3].strength =
-                func_801B2770(D_800F5F44.enemy[var_s3].strength);
-            D_800F5F44.enemy[var_s3].magic =
-                func_801B2770(D_800F5F44.enemy[var_s3].magic);
+    D_800F5F44.D_800F7DC8 = (u8)D_801B0044[D_8016360C.setup.type];
+    if (D_8016376A & EVENT_BATTLE_SQUARE) {
+        D_8016360C.setup.stageID = 37;
+        D_8016360C.setup.flags |= SETUP_CANNOT_ESCAPE;
+        D_8016360C.setup.cameraID = (func_80014B70() & 3) + 0x60;
+        D_8016360C.setup.escapeCounter = 1;
+        // enemy strength and magic is 25% higher at battle square
+        for (i = 0; i < 3; i++) {
+            D_800F5F44.enemy[i].unk90[5] *= 2;
+            D_800F5F44.enemy[i].strength =
+                func_801B2770(D_800F5F44.enemy[i].strength);
+            D_800F5F44.enemy[i].magic =
+                func_801B2770(D_800F5F44.enemy[i].magic);
         }
     } else if (D_8016376A & 8) {
-        D_8016360C.unk8.D_80163624 &= ~4;
+        D_8016360C.setup.flags &= ~SETUP_CANNOT_ESCAPE;
     }
-    if (!(D_8016360C.unk8.D_80163624 & 4)) {
+    if (!(D_8016360C.setup.flags & SETUP_CANNOT_ESCAPE)) {
         D_8016376A |= 8;
     }
-    D_800F5F44.D_800F7DB2 = D_8016360C.unk8.D_80163618;
+    D_800F5F44.D_800F7DB2 = D_8016360C.setup.escapeCounter;
     if (D_800F5F44.D_800F7DC8 == 1 || D_800F5F44.D_800F7DC8 == 3) {
         D_800F5F44.D_800F7DB2 = 1;
     }
@@ -261,6 +266,7 @@ s32 func_801B2738(s32 arg0) {
     return i - 1;
 }
 
+// increase param by 25%
 s32 func_801B2770(s32 arg0) {
     arg0 = (arg0 * 125) / 100;
     if (arg0 > 255) {

@@ -1069,7 +1069,7 @@ static void func_800B3DBC(void) {
     func_800B4794();
     func_800B6B98(0, 3);
     func_800B6B98(3, 3);
-    if (D_8016360C.unk8.D_80163614 == 0x39) {
+    if (D_8016360C.setup.stageID == 57) {
         for (i = 0; i < 10; i++) {
             D_801518E4[i].D_80151909 |= 0x10;
         }

@@ -102,66 +102,64 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DCFD4);
 
 static void func_800E6848(void);
 static void func_800DD690(s32 arg0, s16 arg1) {
-    s32 var_s0;
+    s32 setupType;
     s32 temp_v1;
 
     func_80026A00();
     switch (arg1) {
     case 0:
         func_800E2098();
-        return;
+        break;
     case 1:
         func_800E2C6C(&D_800F90B4[D_800F38A0]);
-        return;
+        break;
     case 5:
         func_800E3088();
-        return;
+        break;
     case 6:
         func_800E3B64();
-        return;
+        break;
     case 4:
         func_800E3FB4();
-        return;
+        break;
     case 7:
         func_800E3E10();
-        return;
+        break;
     case 2:
-        var_s0 = 7;
-        temp_v1 = D_8016360C.unk8.D_80163626;
-        if (temp_v1 < 9) {
-            var_s0 = -(temp_v1 < 3) & 7;
+        setupType = SETUP_SIDE_ATTACK_3;
+        temp_v1 = D_8016360C.setup.type;
+        if (temp_v1 < NUM_SETUP) {
+            setupType = -(temp_v1 <= SETUP_BACK_ATTACK) & 7;
         }
-        func_80026F44(8, 7, func_80015248(5, 0x12, 8), var_s0);
-        return;
+        func_80026F44(8, 7, func_80015248(5, 0x12, 8), setupType);
+        break;
     case 3:
         func_80026F44(9, 7, func_80015248(5, 0x13, 8), 7);
-        return;
+        break;
     case 24:
         func_800E33A0();
-        return;
+        break;
     case 20:
         func_800E4180();
-        return;
+        break;
     case 21:
         func_800E4394();
-        return;
+        break;
     case 19:
         func_800E4A64();
-        return;
+        break;
     case 26:
         func_800E4C08();
-        return;
+        break;
     case 27:
         func_800E5530();
-        return;
+        break;
     case 28:
         func_800E5978();
-        return;
+        break;
     case 9:
         func_800E6848();
-        // fallthrough
-    default:
-        return;
+        break;
     }
 }
 

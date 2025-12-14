@@ -1,5 +1,30 @@
 #include <game.h>
 
+// https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleFlags.cs#L4
+typedef enum {
+    SETUP_CANNOT_ESCAPE = 4,
+    SETUP_NO_VICTORY_POSE = 8,
+    SETUP_NO_PREEMPTIVE_STRIKE = 0x10,
+} BattleSetupFlags;
+
+// https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleType.cs#L3
+typedef enum {
+    SETUP_DEFAULT,
+    SETUP_PREEMPTIVE,
+    SETUP_BACK_ATTACK,
+    SETUP_SIDE_ATTACK,
+    SETUP_PINCER,
+    SETUP_PINCER_2,
+    SETUP_SIDE_ATTACK_2,
+    SETUP_SIDE_ATTACK_3,
+    SETUP_FRONT_ROW_ONLY,
+    NUM_SETUP,
+} BattleSetupType;
+
+typedef enum {
+    EVENT_BATTLE_SQUARE = 0x40,
+} BattleEventType;
+
 typedef struct {
     s32 unk0;
     s32 unk4;
@@ -45,17 +70,47 @@ typedef struct {
     /* 0x94 */ u8 unk94[6][0x10];
 } Unk801B2308;
 
+// https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleSetupData.cs
+typedef struct {
+    /* 0x00 0x80163614 */ u16 stageID; // load STAGE/ files
+    /* 0x02 0x80163616 */ s16 nextStageID;
+    /* 0x04 0x80163618 */ s16 escapeCounter;
+    /* 0x06 0x8016361A */ s16 D_8016361A;
+    /* 0x08 0x8016361C */ u16 D_8016361C[4];
+    /* 0x10 0x80163624 */ u16 flags; // BattleSetupFlags
+    /* 0x12 0x80163626 */ u8 type;   // BattleSetupType
+    /* 0x13 0x80163627 */ s8 cameraID;
+} BattleSetup; // size:0x14
+
+// https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/CameraPlacementData.cs
+typedef struct {
+    short x, y, z;
+} CameraPos;
+typedef struct {
+    CameraPos start;
+    CameraPos direction;
+} CameraPlacement; // size:0xC
+
+// https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/EnemyLocation.cs
+typedef struct {
+    /* 0x00 */ u16 enemyID;
+    /* 0x02 */ u16 x, y, z;
+    /* 0x08 */ u16 row;
+    /* 0x0A */ u16 coverFlags;
+    /* 0x0C */ u32 flags;
+} FormationEntry; // size:0x10
+
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/Enemy.cs
 typedef struct {
     /* 0x00 */ u8 name[0x20];
     /* 0x20 */ u8 level;
-    u8 speed;
-    u8 luck;
-    u8 evade;
-    u8 strength;
-    u8 defense;
-    u8 magic;
-    u8 magicDef;
+    /* 0x21 */ u8 speed;
+    /* 0x22 */ u8 luck;
+    /* 0x23 */ u8 evade;
+    /* 0x24 */ u8 strength;
+    /* 0x25 */ u8 defense;
+    /* 0x26 */ u8 magic;
+    /* 0x27 */ u8 magicDef;
     /* 0x28 */ u8 resist[8];
     /* 0x30 */ u8 elemResist[8];
     /* 0x38 */ u8 anim[16];
@@ -73,30 +128,64 @@ typedef struct {
     /* 0x88 */ s32 gil;
     /* 0x8C */ s32 statusImmunities;
     /* 0x90 */ u32 unk90[10];
-} Unk800F5F44_1; // size:0xB8
+} SceneEnemy; // size:0xB8
+
+// https://github.com/petfriendamy/ff7-scarlet/blob/main/src/Shared/DataParser.cs
 typedef struct {
-    u8 unk0[0x380];
-} Unk800F5F44_2; // size:0x380
-typedef struct {
-    u8 unk0[0x40];
-} Unk800F5F44_3; // size:0x40
-typedef struct {
-    u8 unk0[0x400];
-} Unk800F5F44_4; // size:0x400
+    u8 accuracyRate;
+    u8 impactEffectID;
+    u8 impactAnimID;
+    u8 unk3;
+    u16 mpCost;
+    u16 impactSfxID;
+    u16 cameraSingleID;
+    u16 cameraMultiID;
+    u8 targetFlags;
+    u8 attackEffectID;
+    u8 damageCalcID;
+    u8 strength;
+    u8 conditionSubmenu;
+    u8 statusChange;
+    u8 additionalEffects;
+    u8 effectsModifier;
+    u32 statuses;
+    u16 elements;
+    u16 flags;
+} AttackEntry; // size:0x1C
+
 typedef struct {
     u8 unk0[0x200];
 } Unk800F5F44_5; // size:0x200
+
+// an uncompressed chunk from SCENE.BIN
 typedef struct {
-    u8 unk0[0x1000];
-} Unk800F5F44_6; // size:0x1000
+    /* 0x000 */ u16 enemyModelIDs[4];
+    /* 0x008 */ BattleSetup setup[4];
+    /* 0x058 */ CameraPlacement camera[4][4];
+    /* 0x118 */ FormationEntry formation[4][6];
+    /* 0x298 */ SceneEnemy enemy[3];
+    /* 0x4C0 */ AttackEntry attacks[0x20];
+    /* 0x840 */ u16 attackIDs[0x20];
+    /* 0x880 */ char attackNames[0x20][0x20];
+    /* 0xC80 */ Unk800F5F44_5 unkC80;
+    /* 0xE80 */ u8 script[0x1000];
+} SceneContainer; // 0x1E80
+
 typedef struct {
-    /* 0x0000 */ Unk800F5F44_1 enemy[3];
-    /* 0x0228 */ Unk800F5F44_2 _2;
-    /* 0x05A8 */ Unk800F5F44_3 _3;
-    /* 0x05E8 */ Unk800F5F44_4 _4;
-    /* 0x09E8 */ u8 a[0x278];
+    /* 0x00 */ u16 enemyModelIDs[4];
+    /* 0x08 */ BattleSetup setup;
+    /* 0x1C */ CameraPlacement camera[4];
+    /* 0x4C */ FormationEntry formation[6];
+} Unk8016360C; // size:0xAC
+
+typedef struct {
+    /* 0x0000 */ SceneEnemy enemy[3];
+    /* 0x0228 */ AttackEntry attacks[0x20];
+    /* 0x05A8 */ u16 attackIDs[0x20];
+    /* 0x05E8 */ char attackNames[0x20][0x20];
+    /* 0x09E8 */ u8 unk9E8[0x278];
     /* 0x0C60 */ Unk800F5F44_5 _5;
-    /* 0x0E60 */ Unk800F5F44_6 _6;
+    /* 0x0E60 */ u8 script[0x1000];
     /* 0x1E60 */ u16 D_800F7DA4;
     /* 0x1E62 */ u16 D_800F7DA6;
     /* 0x1E64 */ u16 D_800F7DA8;
@@ -119,41 +208,6 @@ typedef struct {
     /* 0x1E84 */ u16 D_800F7DCA;
 } Unk800F5F44; // size:0x1E88
 
-typedef struct {
-    u16 D_80163614; // Stage ID, useful to load STAGE/ files
-    s16 D_80163616;
-    s16 D_80163618;
-    s16 D_8016361A;
-    s32 D_8016361C;
-    s32 D_80163620;
-    u16 D_80163624;
-    u8 D_80163626;
-    s8 D_80163627;
-} Unk8016360C_1; // size:0x14
-typedef struct {
-    u8 unk0[0x30];
-} Unk8016360C_2; // size:0x30
-typedef struct {
-    u8 unk0[0x60];
-} Unk8016360C_3; // size:0x60
-typedef struct {
-    u16 unk0[4];
-    Unk8016360C_1 unk8;
-    Unk8016360C_2 unk1C;
-    Unk8016360C_3 unk4C;
-} Unk8016360C; // size:0xAC
-typedef struct {
-    /* 0x000 */ u16 unk0[4];
-    /* 0x008 */ Unk8016360C_1 unk8[4];
-    /* 0x058 */ Unk8016360C_2 unk58[4];
-    /* 0x118 */ Unk8016360C_3 unk118[4];
-    /* 0x298 */ Unk800F5F44_1 sp3A8[3];
-    /* 0x4C0 */ Unk800F5F44_2 sp5D0;
-    /* 0x840 */ Unk800F5F44_3 sp950;
-    /* 0x880 */ Unk800F5F44_4 sp990;
-    /* 0xC80 */ Unk800F5F44_5 spD90;
-    /* 0xE80 */ Unk800F5F44_6 spF90;
-} UnkSceneStuff; // 0x1E80
 #define BATTLE_SCENE 7
 
 typedef struct {
