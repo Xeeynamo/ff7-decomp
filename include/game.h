@@ -61,8 +61,8 @@ typedef struct {
     s8 unkE;
     s8 unkF;
     s8 unk10;
-    s8 unk11;  // scroll type: 0=no wrap, 1/2:wrap, 3>:infinite
-} Unk80026448; // size: 0x12
+    s8 unk11;   // scroll type: 0=no wrap, 1/2:wrap, 3>:infinite
+} CursorPicker; // size: 0x12
 
 typedef union {
     void* poly;
@@ -293,13 +293,13 @@ typedef struct {
     u8 unB0[0x390];
 } Unk8009D84C; // size: 0x440
 
-extern u8 D_80049208[12];   // window colors maybe??
-extern u8 D_800492F0[][12]; // see Labels enum
-extern u16 D_80062D78;      // pressed button?
-extern u16 D_80062D7C;      // pressed button?
-extern u16 D_80062D7E;      // pressed button?
-extern u16 D_80062D80;      // tapped button
-extern u16 D_80062D82;      // repeated button
+extern u8 D_80049208[12];    // window colors maybe??
+extern u8 D_800492F0[][12];  // see Labels enum
+extern u16 ButtonsDown;      // pressed button?
+extern u16 ButtonsTapped;    // pressed button?
+extern u16 ButtonsRepeating; // pressed button?
+extern u16 D_80062D80;       // tapped button
+extern u16 D_80062D82;       // repeated button
 extern u8 D_80062D98;
 extern u8 D_80062D99;
 extern s32 D_80062DCC;
@@ -342,13 +342,14 @@ s32 func_8001521C(s32);
 const char* func_80015248(s32 arg0, s32 arg1, s32 arg2);
 void func_800155A4(s32);
 void func_8001726C(s16, u16);
-void func_80021044(DRAWENV* draw_env, DISPENV* disp_env);
-void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                   s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10,
-                   s32 arg11, s32 arg12, u16 arg13);
-void func_800269C0(void* poly);
-s32 func_80026B70(unsigned char* str);
-void func_80026F44(s32 x, s32 y, const char*, s32 color); // print FF7 string
+void MenuInitDisplayEnv(DRAWENV* draw_env, DISPENV* disp_env);
+void MenuSetCursorPickerObj(
+    CursorPicker* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
+    s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10, s32 arg11, s32 arg12,
+    u16 arg13);
+void SetPolyBuffer(void* buffer);
+s32 MenuGetTextWidth(unsigned char* str);
+void MenuDrawText(s32 x, s32 y, const char*, s32 color); // print FF7 string
 void func_8002DA7C();
 
 int func_80033DAC(int sector_no, void (*cb)());

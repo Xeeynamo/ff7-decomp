@@ -17,13 +17,15 @@ extern u8 D_801D082C[21];
 extern u8 D_801D0844[16];
 extern u8 D_801D0854[7];
 extern u8 D_801D085C[2];
-extern Unk80026448 D_801D0860[];
+extern CursorPicker D_801D0860[];
 extern s8 D_801D086B;
 
 void func_801D0000(void) {
     volatile s32 padding;
-    func_80026448(&D_801D0860[0], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
-    func_80026448(&D_801D0860[1], 0, 0, 1, 3, 0, 0, 1, 9, 0, 0, 0, 0, 0);
+    MenuSetCursorPickerObj(
+        &D_801D0860[0], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
+    MenuSetCursorPickerObj(
+        &D_801D0860[1], 0, 0, 1, 3, 0, 0, 1, 9, 0, 0, 0, 0, 0);
     D_801D07F0 = 0;
 }
 
@@ -31,18 +33,18 @@ void func_801D00C4(void) {
     volatile s32 padding[4];
     s32 i;
 
-    func_800230C4(D_80062F58);
+    MenuDrawSubmenuTitle(D_80062F58);
     if (D_801D07F0 == 0) {
-        func_8001EB2C(0, D_801D07FE + (D_801D086B << 6) + 0x20);
+        MenuDrawCursor(0, D_801D07FE + (D_801D086B << 6) + 0x20);
     }
-    func_80026F44(0x10, 0xB, D_801D0804, 7);
+    MenuDrawText(0x10, 0xB, D_801D0804, 7);
     for (i = 0; i < 2; i++) {
-        func_8001E040(&D_801D07F4[i]);
+        MenuDrawWindow(&D_801D07F4[i]);
     }
-    func_800264A8(&D_801D0860[D_801D07F0]);
-    if (D_80062D7E & 0x40) {
-        func_8002305C(5, 0);
-        func_8002120C(0);
+    MenuCursorPickerHandler(&D_801D0860[D_801D07F0]);
+    if (ButtonsRepeating & 0x40) {
+        MenuExitSubmenu(5, 0);
+        MenuSetTransition(0);
     }
 }
 
@@ -144,22 +146,22 @@ void func_801D0704(s32 arg0) {
         for (i = 0; i < 21; i++) {
             func_801D0324(D_801D082C[i]);
         }
-        func_8002542C(0x49);
+        PartyAddMateria(0x49);
         break;
     case 1:
         for (i = 0; i < 16; i++) {
             func_801D0324(D_801D0844[i]);
         }
-        func_8002542C(0x5A);
+        PartyAddMateria(0x5A);
         break;
     case 2:
         for (i = 0; i < 7; i++) {
             func_801D0324(D_801D0854[i]);
         }
-        func_8002542C(0x30);
+        PartyAddMateria(0x30);
         break;
     case 3:
-        func_8002542C(0x58);
+        PartyAddMateria(0x58);
         break;
     }
 }
