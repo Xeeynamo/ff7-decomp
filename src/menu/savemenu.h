@@ -12,11 +12,11 @@ typedef enum {
 
 typedef struct {
     // this whole thing might be a D_801E379C[6]
-    /* 0x00 */ Unk80026448 D_801E379C[2];
+    /* 0x00 */ CursorPicker D_801E379C[2];
     /* 0x24 */ u8 unk24[0x40];
     /* 0x64 */ s32 D_801E3800;
     /* 0x68 */ s32 D_801E3804;
-    /* 0x6C */ Unk80026448 D_801E3808[2];
+    /* 0x6C */ CursorPicker D_801E3808[2];
 } Menus; // size: 0x90
 
 extern const char D_801D018C[];
@@ -57,7 +57,7 @@ extern s32 D_801E3D54;
 extern s32 D_801E3D58;     // backbuffer id?
 extern u_long* D_801E3D5C; // otag pointer
 extern u_long* D_801E3D60[2][4];
-extern Unk80026448 D_801E3DFE[2];
+extern CursorPicker D_801E3DFE[2];
 extern DRAWENV D_801E3E34[2];
 extern DISPENV D_801E3EEC[2];
 extern s32 D_801E3F2C[];
@@ -72,7 +72,7 @@ extern u8 D_801E3158;
 extern RECT D_801E3668;
 extern s16 D_801E366A;
 extern s16 D_801E366E;
-extern Unk80026448 D_801E3D80[2];
+extern CursorPicker D_801E3D80[2];
 extern s32 D_801E3F14;
 extern s32 D_801E3F18;
 extern s32 D_801E3F1C;

@@ -37,11 +37,11 @@ typedef struct {
 } GzHeader;
 
 typedef struct {
-    u16 unk0;
-    u16 unk2;
-    u16 unk4;
-    u16 unk6;
-} Unk8001DE0C;
+    u16 x;
+    u16 y;
+    u16 w;
+    u16 h;
+} Window;
 
 typedef struct {
     u8 padABuffer;
@@ -122,10 +122,10 @@ s8 D_80062D71 = 0x00;
 s16 D_80062D72 = 0x0000;
 s16 D_80062D74 = 0x0000;
 s16 D_80062D76 = 0x0000;
-u16 D_80062D78 = 0x0000;
+u16 ButtonsDown = 0x0000;
 s16 D_80062D7A = 0x0000;
-u16 D_80062D7C = 0x0000;
-u16 D_80062D7E = 0x0000;
+u16 ButtonsTapped = 0x0000;
+u16 ButtonsRepeating = 0x0000;
 u16 D_80062D80 = 0x0000;
 u16 D_80062D82 = 0x0000;
 s32 D_80062D84 = 0x00000000;
@@ -157,12 +157,12 @@ s32 D_80062DD0 = 0x00000000;
 s32 D_80062DD4 = 0x00000000;
 s16 D_80062DD8 = 0x0000;
 s8 D_80062DDA = 0x00;
-u8 D_80062DDB = 0x00;
-u8 D_80062DDC = 0x02;
+u8 MenuPopupState = 0x00;
+u8 MenuPopupTextColor = 0x02;
 static s8 _D_80062DDD = 0x00;
 static s8 _D_80062DDE = 0x00;
 static s8 _D_80062DDF = 0x00;
-s32 D_80062DE0 = 0x00000000;
+s32 MenuPopupDelayCounter = 0x00000000;
 u8 D_80062DE4 = 0x00;
 u8 D_80062DE5 = 0x00;
 s16 D_80062DE6 = 0x00B4;
@@ -171,7 +171,7 @@ s16 D_80062DEA = 0x0000;
 s32 D_80062DEC = 0x801D0000;
 s32 D_80062DF0 = 0x00000084;
 s32 D_80062DF4 = 0xFFFFFFFF;
-s32 D_80062DF8 = 0x00000001;
+s32 MenuBusy = 0x00000001;
 s8 D_80062DFC = 0x40;
 static s8 _D_80062DFD = 0x00;
 static s8 _D_80062DFE = 0x00;
@@ -259,7 +259,7 @@ s8 D_80062EB4 = 0x00;
 static s8 _D_80062EB5 = 0x00;
 static s8 _D_80062EB6 = 0x00;
 static s8 _D_80062EB7 = 0x00;
-s32 D_80062EB8 = 0;
+s32 MenuPopupText = 0;
 s8 D_80062EBC = 0;
 static s8 _D_80062EBD = 0;
 static s8 _D_80062EBE = 0;
@@ -275,7 +275,7 @@ u16* func_80014D9C(s32, s32, s32);
 s32 func_800150E4(u16*, u16*);
 u16* func_800151F4(s32);
 void func_80015CA0(GzHeader* src, s32* dst);
-u8 func_8001F6B4();
+u8 MenuGetPopupState();
 
 void __main(void) {}
 
@@ -725,9 +725,9 @@ void func_80017238(u32 arg0, u32* arg1, u8* arg2) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001726C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80017678);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuUnloadPortraits);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001786C);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuLoadPartyPortrait);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80017E68);
 
@@ -903,7 +903,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001C498);
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001C4E8);
 
 void func_8001C58C(void) {
-    if (!func_8001F6B4()) {
+    if (!MenuGetPopupState()) {
         D_80062D71 = 0;
     }
 }
@@ -918,7 +918,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001C8D4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001C980);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001CB48);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuStoreKeypressBitmask);
 
 void func_8001CDA4(void) {
     SetPolyFT4(D_80062F24.ft4);
@@ -974,8 +974,8 @@ void func_8001CF3C(s16 x, s16 y, s16 w, s16 h, u16 tx, u16 ty, u16 tw, u16 th,
     D_80062F24.ft4++;
 }
 
-void func_8001D180(s16 x, s16 y, s16 w, s16 h, u16 tx, u16 ty, u16 tw, u16 th,
-                   s16 clut, s32 tex) {
+void MenuDrawPartyPortrait(s16 x, s16 y, s16 w, s16 h, u16 tx, u16 ty, u16 tw,
+                           u16 th, s16 clut, s32 tex) {
     SetPolyFT4(D_80062F24.ft4);
     SetShadeTex(D_80062F24.ft4, 1);
     if (tex << 0x10) {
@@ -1049,37 +1049,37 @@ void func_8001D56C(s16 x0, s16 y0, s16 x1, s16 y1, s16 is_yellow) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001D6A8);
 
-void func_8001DE0C(Unk8001DE0C* arg0, s16 arg1, s16 arg2, s16 arg3, s32 arg4) {
-    arg0->unk0 = arg1;
-    arg0->unk2 = arg2;
-    arg0->unk4 = arg3;
-    arg0->unk6 = arg4;
+void MenuCreateWindow(Window* window, s16 x, s16 y, s16 w, s32 h) {
+    window->x = x;
+    window->y = y;
+    window->w = w;
+    window->h = h;
 }
 
 // translate window dialog
-void func_8001DE24(Unk8001DE0C* arg0, s32 arg1, s32 arg2) {
-    arg0->unk0 = arg0->unk0 + arg1;
-    arg0->unk2 = arg0->unk2 + arg2;
+void MenuMoveWindow(Window* window, s32 dx, s32 dy) {
+    window->x = window->x + dx;
+    window->y = window->y + dy;
 }
 
 // set window dialog rect
-void func_8001DE40(Unk8001DE0C* arg0, Unk8001DE0C* arg1) {
-    arg0->unk0 = arg1->unk0;
-    arg0->unk2 = arg1->unk2;
-    arg0->unk4 = arg1->unk4;
-    arg0->unk6 = arg1->unk6;
+void MenuCopyWindow(Window* dest, Window* src) {
+    dest->x = src->x;
+    dest->y = src->y;
+    dest->w = src->w;
+    dest->h = src->h;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001DE70);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuStoreWindowColors);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001DEB0);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuRestoreWindowColors);
 
 #ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001DEF0);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuSetWindowColors);
 #else
 // only matches with --aspsx-version=2.21
 // sets the menu color with a quadruplet of RGB values
-void func_8001DEF0(u8* menu_colors) {
+void MenuSetWindowColors(u8* menu_colors) {
     s32 i;
     for (i = 0; i < 12; i++) {
         D_80049208[i] = *menu_colors++;
@@ -1101,10 +1101,10 @@ void func_8001DF24(RECT* rect, u8 arg1, u8 arg2, u8 arg3) {
 }
 
 // prints menu window
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001E040);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuDrawWindow);
 
 // print menu cursor
-void func_8001EB2C(s16 x, s16 y) {
+void MenuDrawCursor(s16 x, s16 y) {
     RECT rect;
 
     setSprt(D_80062F24.sprt);
@@ -1122,7 +1122,7 @@ void func_8001EB2C(s16 x, s16 y) {
     rect.y = 0;
     rect.w = 0xFF;
     rect.h = 0xFF;
-    func_80026A34(0, 1, (u16)GetTPage(0, 2, 0x3C0, 0x100), &rect);
+    MenuSetDrawMode(0, 1, (u16)GetTPage(0, 2, 0x3C0, 0x100), &rect);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001EC70);
@@ -1153,20 +1153,20 @@ void func_8001EF84(s32 x, s32 y, s32 n, s32 len) {
     rect.y = 0;
     rect.w = 255;
     rect.h = 255;
-    func_80026A34(0, 1, (u16)GetTPage(0, 1, 0x3C0, 0x100), &rect);
+    MenuSetDrawMode(0, 1, (u16)GetTPage(0, 1, 0x3C0, 0x100), &rect);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001F1BC);
 
 void func_8001F6AC(void) {}
 
-u8 func_8001F6B4(void) { return D_80062DDB; }
+u8 MenuGetPopupState(void) { return MenuPopupState; }
 
-void func_8001F6C0(s32 arg0, s8 arg1) {
-    D_80062DDB = 1;
-    D_80062DDC = arg1;
-    D_80062DE0 = 0x28;
-    D_80062EB8 = arg0;
+void MenuShowPopupText(s32 text, s8 color) {
+    MenuPopupState = 1;
+    MenuPopupTextColor = color;
+    MenuPopupDelayCounter = 0x28;
+    MenuPopupText = text;
     D_80062DE5 = 1;
 }
 
@@ -1176,11 +1176,11 @@ void func_8001F6E4(s16 arg0, s16 arg1, s16 arg2) {
         D_80062DE6 = arg1;
         D_80062DE8 = arg2;
     } else {
-        D_80062DDB = 0;
+        MenuPopupState = 0;
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001F710);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuUpdatePopup);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001FA28);
 
@@ -1206,13 +1206,13 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001FFD4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8002001C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80020058);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuLoadPartyData);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800206E4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80020B68);
 
-void func_80021044(DRAWENV* draw_env, DISPENV* disp_env) {
+void MenuInitDisplayEnv(DRAWENV* draw_env, DISPENV* disp_env) {
     VSync(0);
     SetDefDrawEnv(draw_env, 0, 0, 0x180, 0x1D8);
     draw_env[0].dfe = 1;
@@ -1247,7 +1247,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800211B8);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800211C4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8002120C);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuSetTransition);
 
 void func_80021258(s32 arg0) { func_80015248(13, arg0, 8); }
 
@@ -1271,17 +1271,17 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80022DE4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80022FE0);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80023050);
+s32 MenuIsBusy(void) { return MenuBusy; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8002305C);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuExitSubmenu);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800230C4);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuDrawSubmenuTitle);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8002368C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80023788);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuGetPlaytimeHours);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8002382C);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuGetPlaytimeMinutes);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80023940);
 
@@ -1405,21 +1405,21 @@ void func_80025360() { func_8001FA28(0x19F); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80025380);
 
-s32 func_8002542C(s32 arg0) {
+s32 PartyAddMateria(s32 materiaId) {
     s32 i;
     for (i = 0; i < MAX_MATERIA_COUNT; i++) {
         if (Savemap.materia[i] == -1) {
-            Savemap.materia[i] = arg0;
-            if (func_8002603C(arg0 & 0xFF) == 10) {
+            Savemap.materia[i] = materiaId;
+            if (MenuGetMateriaColor(materiaId & 0xFF) == 10) {
                 Savemap.memory_bank_1[75] |= 1;
             }
-            if ((arg0 & 0xFF) == 44) {
+            if ((materiaId & 0xFF) == 44) {
                 Savemap.memory_bank_1[75] |= 2;
             }
             return -1;
         }
     }
-    return arg0;
+    return materiaId;
 }
 
 void func_800254D8() { D_80062EBC = 0; }
@@ -1529,7 +1529,7 @@ void func_80025CD4(u_long* image) {
     StoreImage(&rect, image);
 }
 
-void func_80025D14(u_long* addr, s32 px, s32 py, s32 cx, s32 cy) {
+void MenuLoadTexture(u_long* addr, s32 px, s32 py, s32 cx, s32 cy) {
     TIM_IMAGE tim;
     OpenTIM(addr);
     while (ReadTIM(&tim)) {
@@ -1566,7 +1566,7 @@ void func_80025DF8(void) {
         func_80033F40(sector_off[i * 2], length[i * 2], dst, 0);
         cx = 0x340 + (i / 5) * 0x18;
         cy = 0x100 + (i % 5) * 0x30;
-        func_80025D14(dst, cx, cy, 0x180, i);
+        MenuLoadTexture(dst, cx, cy, 0x180, i);
         DrawSync(0);
     }
 }
@@ -1576,10 +1576,10 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80025ED4);
 void func_80026034(void) {}
 
 #ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8002603C);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuGetMateriaColor);
 #else
 // --aspsx-version=2.21
-u8 func_8002603C(u8 arg0) {
+u8 MenuGetMateriaColor(u8 arg0) {
     return D_80049520[D_80049528[D_800730DC[arg0][1] & 0xF]];
 }
 #endif
@@ -1594,9 +1594,10 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800262D8);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80026408);
 
-void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                   s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10,
-                   s32 arg11, s32 arg12, u16 arg13) {
+void MenuSetCursorPickerObj(
+    CursorPicker* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
+    s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10, s32 arg11, s32 arg12,
+    u16 arg13) {
     arg0->unkA = arg1;
     arg0->unkB = arg2;
     arg0->unkC = arg3;
@@ -1612,38 +1613,38 @@ void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
     arg0->unk8 = arg13;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800264A8);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuCursorPickerHandler);
 
-void func_800269C0(void* arg0) { D_80062F24.poly = arg0; }
+void SetPolyBuffer(void* buffer) { D_80062F24.poly = buffer; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800269D0);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuPushDrawState);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800269E8);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuPopDrawState);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80026A00);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuSetOTag);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80026A0C);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80026A20);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80026A34);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuSetDrawMode);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80026A94);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuSetClipRect);
 
-void func_80026B5C(void) {}
+void MenuSetBrightness(void) {}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80026B64);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuSetBrightnessUnused);
 
-// strlen but for FF7 strings
+// MenuGetTextWidth: returns pixel width of FF7 string
 // FF7 string is 0x00: ' ', 0x10: '0', 0x21: 'A', 0xFF: terminator
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80026B70);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuGetTextWidth);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80026C5C);
 
 // print FF7 string
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80026F44);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuDrawText);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8002708C);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuDrawLetter);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80027354);
 
@@ -1651,19 +1652,19 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80027408);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80027990);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80027B84);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuDrawSliderBg);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80028030);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuDrawSlider);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80028484);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800285AC);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuDrawProgressBar);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80028930);
 
-void func_80028CA0(s16, s16, s16, s16, s16, s16, s16, s16);
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80028CA0);
+void MenuDrawBtlImage(s16, s16, s16, s16, s16, s16, s16, s16);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuDrawBtlImage);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80028E00);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuDrawNumber);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80029114);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", MenuDrawNumberPadded);
