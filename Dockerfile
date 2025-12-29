@@ -1,16 +1,18 @@
 # HOW TO USE THIS DOCKERFILE
 #
-# 1. build image and tag it as ff7-build:latest
-# docker build --tag ff7-build:latest .
+# 1. Build image (one time):
+#    docker build --platform=linux/amd64 --tag ff7-build:latest .
 #
-# 2. launch container and mount current directory under /ff7
-# docker run --name ff7-work -it -v $(pwd):/ff7 -v ff7_venv:/ff7/.venv -v ff7_build:/ff7/build ff7-build
+# 2. Run builds using the wrapper script (recommended):
+#    ./tools/docker-build.sh "make build"
+#    ./tools/docker-build.sh "make format"
+#    ./tools/docker-build.sh bash              # interactive shell
 #
-# 3. you are now ready to build and work on FF7
-# make expected
-#
-# 4. from now on, to re-use the same container execute the following:
-# docker start -ai ff7-work
+# 3. Or run interactively and reuse the container:
+#    docker run --name ff7-work -it --platform=linux/amd64 \
+#        -v $(pwd):/ff7 -v ff7_venv:/ff7/.venv -v ff7_build:/ff7/build \
+#        -v go_cache:/gocache ff7-build
+#    # Then reattach with: docker start -ai ff7-work
 
 FROM ubuntu:noble
 
@@ -27,6 +29,10 @@ RUN echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ questing main unive
 
 COPY --from=golang:1.25-bookworm /usr/local/go/ /usr/local/go/
 ENV PATH="${PATH}:/usr/local/go/bin"
+ENV GOMODCACHE=/gocache/mod
+ENV GOCACHE=/gocache/build
+
+RUN mkdir -p /gocache/mod /gocache/build && chmod -R 777 /gocache
 
 USER ubuntu
 WORKDIR /ff7
