@@ -535,7 +535,15 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5170);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5468);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C55B8);
+static void func_800C55B8(void) {
+    if (D_801621F0[D_801590D4].D_801621F4 == 0) {
+        D_801621F0[D_801590D4].D_801621F0 = -1;
+        return;
+    }
+    D_801518E4[D_801621F0[D_801590D4].D_801621F6].D_801518EA +=
+        D_801621F0[D_801590D4].D_801621F2;
+    D_801621F0[D_801590D4].D_801621F4--;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5694);
 
