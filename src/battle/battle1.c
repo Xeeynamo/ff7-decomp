@@ -345,6 +345,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBEAC);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBF7C);
 
+s32 func_800BC04C(void (*cb)(void));
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC04C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC11C);
@@ -434,6 +435,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C169C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C17A0);
 
+static void func_800C5468(u8 arg0);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1908);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1D8C);
@@ -512,7 +514,7 @@ static u_long* func_800C5040(u8 r, u8 g, u8 b, s32 tpage, u_long* ot) {
 
     drMode = D_80163C74;
     SetDrawMode(drMode, 1, 0, (tpage & 3) << 5, NULL);
-    poly = drMode + 24;
+    poly = (POLY_F4*)(drMode + 24);
     SetPolyF4(poly);
     SetSemiTrans(poly, 1);
     poly->r0 = r;
@@ -533,7 +535,34 @@ static u_long* func_800C5040(u8 r, u8 g, u8 b, s32 tpage, u_long* ot) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5170);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5468);
+static void func_800C55B8(void);
+static void func_800C5468(u8 arg0) {
+    s32 var_v0_2;
+    s32 var_v0;
+    u16 temp_a1;
+
+    var_v0 = arg0;
+    if (D_80151200[var_v0].D_80151200 & 0x1000) {
+        temp_a1 = D_80151200[var_v0].D_8015120C;
+        if (!(temp_a1 & 0x80)) {
+            D_80151200[var_v0].D_8015120C |= 0x80;
+            var_v0_2 = func_800BC04C(func_800C55B8);
+            D_801621F0[var_v0_2].D_801621F6 = arg0;
+            D_801621F0[var_v0_2].D_801621F4 = 0x10;
+            D_801621F0[var_v0_2].D_801621F2 = -0x80;
+        }
+    } else {
+        temp_a1 = D_80151200[var_v0].D_8015120C;
+        if (temp_a1 & 0x80) {
+            D_80151200[var_v0].D_8015120C = temp_a1 & (~0x80);
+            var_v0_2 = func_800BC04C(func_800C55B8);
+            var_v0_2 = var_v0_2;
+            D_801621F0[var_v0_2].D_801621F6 = arg0;
+            D_801621F0[var_v0_2].D_801621F4 = 0x10;
+            D_801621F0[var_v0_2].D_801621F2 = 0x80;
+        }
+    }
+}
 
 static void func_800C55B8(void) {
     if (D_801621F0[D_801590D4].D_801621F4 == 0) {
