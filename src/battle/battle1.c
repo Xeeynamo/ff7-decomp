@@ -496,17 +496,40 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4D10);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4DC8);
 
-void* func_800C5040(u8, u8, u8, s32, u_long*);
+static u_long* func_800C5040(u8 r, u8 g, u8 b, s32 tpage, u_long* ot);
 
-void func_800C4FC8(u8 arg0, u8 arg1, u8 arg2) {
-    func_800C5040(arg0, arg1, arg2, 1, (u_long*)&D_801517C0->unk4080[1]);
+u_long* func_800C4FC8(u8 r, u8 g, u8 b) {
+    return func_800C5040(r, g, b, 1, (u_long*)&D_801517C0->unk4080[1]);
 }
 
-void func_800C5004(u8 arg0, u8 arg1, u8 arg2) {
-    func_800C5040(arg0, arg1, arg2, 2, (u_long*)&D_801517C0->unk40EC);
+u_long* func_800C5004(u8 r, u8 g, u8 b) {
+    return func_800C5040(r, g, b, 2, (u_long*)&D_801517C0->unk40EC);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5040);
+static u_long* func_800C5040(u8 r, u8 g, u8 b, s32 tpage, u_long* ot) {
+    DR_MODE* drMode;
+    POLY_F4* poly;
+
+    drMode = D_80163C74;
+    SetDrawMode(drMode, 1, 0, (tpage & 3) << 5, NULL);
+    poly = drMode + 24;
+    SetPolyF4(poly);
+    SetSemiTrans(poly, 1);
+    poly->r0 = r;
+    poly->g0 = g;
+    poly->b0 = b;
+    poly->x0 = 0;
+    poly->y0 = 8;
+    poly->x1 = 320;
+    poly->y1 = 8;
+    poly->x2 = 0;
+    poly->y2 = 166;
+    poly->x3 = 320;
+    poly->y3 = 166;
+    addPrim(ot, poly);
+    addPrim(ot, drMode);
+    return (u_long*)(poly + 1);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5170);
 
