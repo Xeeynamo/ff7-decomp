@@ -13,12 +13,16 @@ import io
 import os
 import sys
 import tempfile
-import m2ctx
-import m2c.m2c.main as m2c
-import fix_structs
 from contextlib import redirect_stdout
 from pathlib import Path
 from typing import Optional
+
+# Add m2c directory to path so m2c_pycparser can be found
+sys.path.insert(0, str(Path(__file__).resolve().parent / "m2c"))
+
+import m2ctx
+import m2c.main as m2c
+import fix_structs
 
 
 class SotnFunction(object):
