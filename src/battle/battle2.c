@@ -52,8 +52,8 @@ static s32 func_800C7B60(s16 arg0, s16 nItems, u8* arg2) {
 }
 
 static void func_800C7BE8(s16 arg0, s16 arg1, u8* arg2) {
-    D_800FA6D8[arg0].unk0 = func_800D376C(
-        &D_800FA6D8[arg0].unk8, D_800FA6D8[arg0].unk0, arg1, arg2);
+    D_800FA6D8[arg0].unk0 =
+        func_800D376C(D_800FA6D8[arg0].unk8, D_800FA6D8[arg0].unk0, arg1, arg2);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800C7C4C);

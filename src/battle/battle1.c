@@ -277,7 +277,36 @@ static void func_800BAFF8(MATRIX* m, VECTOR* v) {
     SetTransMatrix(m);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB030);
+static void func_800BB030(s16 arg0) {
+    s32 i;
+    Unk801B0C98* unk;
+
+    unk = (Unk801B0C98*)0x1F800020;
+    SetFarColor(D_801518E4[arg0].D_8015190C, D_801518E4[arg0].D_8015190D,
+                D_801518E4[arg0].D_8015190E);
+    SetRotMatrix(&D_801518E4[arg0].m);
+    SetTransMatrix(&D_801518E4[arg0].m);
+    for (i = 0; i < D_800FA6D8[arg0].unk3C; i++) {
+        RotMatrixYXZ(
+            &D_800FA6D8[arg0].unk8[i].sv1, &D_800FA6D8[arg0].unk8[i].m);
+    }
+
+    for (i = 0; i < D_800FA6D8[arg0].unk3C; i++) {
+        func_800BAF34(&D_800FA6D8[arg0].unk8[i]);
+        if (!D_800FA6D8[arg0].unk4[i])
+            continue;
+        unk->unk0 = D_800FA6D8[arg0].unk4[i];
+        unk->unk4 = D_800FA6D8[arg0].unk3E[i] | 0x180;
+        unk->unk8 = 0;
+        unk->unkA = D_801518E4[arg0].unk14[0];
+        unk->unkC = 0x20;
+        unk->unkE = D_801518E4[arg0].unk14[1];
+        if (D_801518E4[arg0].D_80151909 & 4) {
+            continue;
+        }
+        D_80163C74 = func_800D29D4(unk, D_801517C0->unk70, 12, D_80163C74);
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB2A8);
 

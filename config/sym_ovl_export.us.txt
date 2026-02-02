@@ -1087,7 +1087,6 @@ func_800BA360 = 0x800ba360;
 func_800BA40C = 0x800ba40c;
 func_800BA598 = 0x800ba598;
 func_800BACEC = 0x800bacec;
-func_800BB030 = 0x800bb030;
 func_800BB2A8 = 0x800bb2a8;
 func_800BB430 = 0x800bb430;
 func_800BB4F8 = 0x800bb4f8;

@@ -139,11 +139,11 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ s32 unk0; // frame counter?
-    /* 0x04 */ s32* unk4;
-    /* 0x08 */ BattleModelSub unk8;
-    /* 0x3C */ s16 unkC;
-    /* 0x3E */ u8 unkE;
-    /* 0x3F */ u8 unkF;
+    /* 0x04 */ s32* unk4[1];
+    /* 0x08 */ BattleModelSub unk8[1];
+    /* 0x3C */ s16 unk3C;
+    /* 0x3E */ u8 unk3E[1];
+    /* 0x3F */ u8 unk3F;
 } Unk800FA6D8;
 
 typedef struct {
