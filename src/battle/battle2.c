@@ -632,7 +632,7 @@ void func_800D0A4C(void) {
     s32 ret;
     s32 i;
 
-    for (i = 0; i < LEN(D_801518E4); i++) {
+    for (i = 0; i < 3; i++) {
         D_801518E4[i].D_80151909 |= 1;
     }
     func_801B0040(D_80151774, D_801590CC);

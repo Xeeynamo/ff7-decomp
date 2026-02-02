@@ -138,10 +138,12 @@ typedef struct {
 } Unk800F01DC; // size:0x14
 
 typedef struct {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
+    /* 0x00 */ s32 unk0; // frame counter?
+    /* 0x04 */ s32* unk4;
     /* 0x08 */ BattleModelSub unk8;
-    /* 0x3C */ s32 unkC;
+    /* 0x3C */ s16 unkC;
+    /* 0x3E */ u8 unkE;
+    /* 0x3F */ u8 unkF;
 } Unk800FA6D8;
 
 typedef struct {
@@ -205,6 +207,7 @@ extern s8 D_800E7A58[];
 extern VECTOR D_800E7D10;
 extern VECTOR D_800E7D20;
 extern Yamada D_800E8068[];
+extern u8 D_800EA19C[][4];
 extern s32 D_800EA50C[];
 extern short D_800EEB28[9][8];
 extern void (*D_800EF9D8[])(s16, u8);
@@ -238,6 +241,7 @@ extern unsigned char D_800F384A[];
 extern u8 D_800F38A0;
 extern u8 D_800F38A1;
 extern s16 D_800F38A2;
+extern u8 D_800F7E04;
 extern u8 D_800F7ED4;
 extern u8 D_800F38A7;
 extern u8 D_800F389C;
@@ -355,7 +359,6 @@ void func_800B6B98(s32, s32);
 void func_800B7FB4(void);
 void func_800B8438(void);
 void func_800BA40C();
-void func_800BA4C8();
 void func_800BB9B8(s32);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 void func_800C5E94(void);

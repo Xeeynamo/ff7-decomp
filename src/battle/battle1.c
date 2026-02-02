@@ -4,6 +4,9 @@
 #include <libgpu.h>
 
 static void func_800B85E0();
+static void func_800BA4C8(void);
+void func_800BA598(s16);
+void func_800BB030(s16);
 static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3);
 static void func_800BB804(void);
 static void func_800BB864(void);
@@ -80,7 +83,7 @@ static void func_800B8268(void) {
 
     i = 0;
     var_t1 = 1;
-    var_a1 = &D_80163784;
+    var_a1 = D_80163784;
     while (i < 10) {
         *var_a1 = D_801636B8[i].D_801636B9;
         if (!(D_80151200[i].D_8015120C & 8) &&
@@ -232,13 +235,41 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BA360);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BA40C);
 
 static void func_800C1908(u8 arg0);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BA4C8);
+
+static void func_800BA4C8(void) {
+    s32 i;
+
+    for (i = 4; i < D_800F7E04 + 4; i++) {
+        if (!(D_801518E4[i].D_80151909 & 0x80)) {
+            continue;
+        }
+        if (D_801518E4[i].D_80151909 & 2) {
+            continue;
+        }
+        func_800C1908(i);
+        func_800BA598(i);
+        if (D_801518E4[i].D_8015190B & 0x80) {
+            func_800BB030(i);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BA598);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BACEC);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BAF34);
+static void func_800BAF34(BattleModelSub* modelSub) {
+    s32 flag;
+
+    *(MATRIX**)0x1F800020 = modelSub->pm;
+    *(MATRIX*)0x1F800024 = **(MATRIX**)0x1F800020;
+    MulMatrix2((MATRIX*)0x1F800024, &modelSub->m);
+    SetRotMatrix((MATRIX*)0x1F800024);
+    SetTransMatrix((MATRIX*)0x1F800024);
+    RotTrans(&modelSub->sv2, (VECTOR*)modelSub->m.t, &flag);
+    SetRotMatrix(&modelSub->m);
+    SetTransMatrix(&modelSub->m);
+}
 
 static void func_800BAFF8(MATRIX* m, VECTOR* v) {
     ScaleMatrix(m, v);
@@ -261,7 +292,7 @@ void func_800BB67C(s32 arg0, Unk800BB67C* arg1) { arg1->unk30 = arg0; }
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB684);
 
 static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3) {
-    SVECTOR sv;
+    int flag;
 
     func_800D85B0(m, arg2, arg3, &D_800E7D10);
     RotMatrixYXZ(&arg0->sv, &arg0->m);
@@ -269,7 +300,7 @@ static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3) {
     MulMatrix2(m, &arg0->m);
     SetRotMatrix(m);
     SetTransMatrix(m);
-    RotTrans(&arg0->v, (SVECTOR*)&arg0->m.t, &sv);
+    RotTrans((SVECTOR*)&arg0->v, (VECTOR*)&arg0->m.t, &flag);
     func_800BAFF8(&arg0->m, &D_800E7D20);
 }
 
@@ -432,11 +463,53 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1394);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C14C0);
 
-s32 func_800C169C(u8);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C169C);
+static s32 func_800C169C(u8 arg0) {
+    D_801518E4[arg0].D_80151909 |= 8;
+    if (D_80151200[arg0].D_80151200 & 0x2000) {
+        return 10;
+    }
+    if (D_80151200[arg0].D_80151200 & 0x4000) {
+        return 5;
+    }
+    if (D_80151200[arg0].D_80151200 & 0x0008) {
+        return 1;
+    }
+    if (D_80151200[arg0].D_80151200 & 0x800000) {
+        return 3;
+    }
+    if (D_80151200[arg0].D_80151200 & 0x01000000) {
+        return 6;
+    }
+    if (D_80151200[arg0].D_80151200 & 0x04000000) {
+        return 8;
+    }
+    if (D_80151200[arg0].D_80151200 & 0x8000) {
+        return 9;
+    }
+    if (D_80151200[arg0].D_80151200 & 0x400000) {
+        return 7;
+    }
+    D_801518E4[arg0].D_80151909 &= ~8;
+    return 0;
+}
 
-void func_800C17A0(u8, s32);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C17A0);
+static void func_800C17A0(s32 arg0, s32 arg1) {
+    switch (D_800EA19C[arg1][0]) {
+    case 0:
+        D_801518E4[arg0].unk14[0] = 0;
+        break;
+    case 1:
+        D_801518E4[arg0].unk14[0] = 0x800;
+        break;
+    case 2:
+        D_801518E4[arg0].unk14[0] = 0xC00;
+        break;
+    }
+    D_801518E4[arg0].D_8015190C = D_800EA19C[arg1][1];
+    D_801518E4[arg0].D_8015190D = D_800EA19C[arg1][2];
+    D_801518E4[arg0].D_8015190E = D_800EA19C[arg1][3];
+    D_801518E4[arg0].D_80151908 = 0;
+}
 
 static void func_800C5468(u8 arg0);
 void func_800C5170(u8);

@@ -211,17 +211,10 @@ typedef struct {
 #define BATTLE_SCENE 7
 
 typedef struct {
-    s8 unk0[0x20];
-    u16 unk20;
-    u16 unk22;
-    u16 unk24;
-    u16 unk26;
-    u16 unk28;
-    u16 unk2A;
-    u16 unk2C;
-    u16 unk2E;
-    u16 unk30;
-    u16 unk32;
+    MATRIX m;
+    SVECTOR sv1;
+    SVECTOR sv2;
+    MATRIX* pm;
 } BattleModelSub; // size:0x34
 
 typedef struct {
@@ -240,11 +233,12 @@ typedef struct {
     /* 0x022 */ u8 D_80151906;
     /* 0x023 */ u8 D_80151907;
     /* 0x024 */ u8 D_80151908;
-    /* 0x025 */ s8 D_80151909;
+    /* 0x025 */ u8 D_80151909;
     /* 0x026 */ u8 D_8015190A;
-    /* 0x027 */ s8 D_8015190B;
-    /* 0x028 */ s16 D_8015190C;
-    /* 0x02A */ s8 D_8015190E;
+    /* 0x027 */ u8 D_8015190B;
+    /* 0x028 */ u8 D_8015190C;
+    /* 0x029 */ u8 D_8015190D;
+    /* 0x02A */ u8 D_8015190E;
     /* 0x02B */ u8 D_8015190F;
     /* 0x02C */ s32 D_80151910;
     /* 0x030 */ s32 D_80151914;
@@ -271,7 +265,8 @@ typedef struct {
     /* 0x06C */ s32 D_80151950;
     /* 0x070 */ s32 D_80151954;
     /* 0x074 */ s32 D_80151958;
-    /* 0x078 */ u8 unk5C[0xE8];
+    /* 0x078 */ u8 unk5C[0xC8];
+    /* 0x140 */ MATRIX m;
     /* 0x160 */ SVECTOR unk160;
     /* 0x168 */ SVECTOR D_80151A4C;
     /* 0x170 */ s32 D_80151A54;
@@ -300,7 +295,8 @@ typedef struct {
     s32 unk4;
     s16 unk8;
     s16 unkA;
-    s32 unkC;
+    s16 unkC;
+    s16 unkE;
 } Unk801B0C98;
 
 extern u16 D_800F5BBC[10][0x22];
@@ -315,7 +311,7 @@ extern s8 D_800F90B4[][0x240];
 extern Unk800BB75C D_800FA63C;
 extern Unk801517C0* D_801517C0;
 extern short D_8015169C;
-extern BattleModel D_801518E4[3]; // len might be 10, not 3
+extern BattleModel D_801518E4[7]; // len might be 10, not 7
 extern short D_80162080;
 extern Unk8016360C D_8016360C;
 extern u16 D_8016376A;
