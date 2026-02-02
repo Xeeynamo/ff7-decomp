@@ -317,7 +317,7 @@ extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern u8 D_80083184[0x40];
 extern s16 D_800832A0;
 extern s32 D_80083338;
-extern s16 D_80095DD4;
+extern volatile u16 D_80095DD4;
 extern s16 D_8009A000;
 extern s32 D_8009A004;
 extern s32 D_8009A008;

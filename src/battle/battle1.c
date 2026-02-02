@@ -3,6 +3,11 @@
 #include <libetc.h>
 #include <libgpu.h>
 
+static void func_800B37EC(void);
+static void func_800B3D38(void);
+static void func_800B3D88(void);
+static void func_800B3DBC(void);
+static void func_800B7FDC(void);
 static void func_800B85E0();
 static void func_800BA4C8(void);
 void func_800BA598(s16);
@@ -10,6 +15,207 @@ void func_800BB030(s16);
 static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3);
 static void func_800BB804(void);
 static void func_800BB864(void);
+int func_800C4D10();
+
+void func_800B30E4(void) {
+    s32 i;
+
+    D_801517C0 = &D_800FAFF4;
+    D_801031E4 = 0;
+    D_800F8368 = 0;
+    D_80162084 = 0x200;
+    func_800B383C();
+    func_800B430C();
+    VSync(0);
+    SetDispMask(0);
+    D_800F9F34 = 0;
+    *(s8*)&D_800FA63C.u.sub.unk34 = 0;
+    D_800FA6A0 = 0;
+    func_800B37A0();
+    func_800B3E2C();
+    func_800BB684();
+    func_800BC04C(func_800C4D10);
+    func_800B7FDC();
+    func_800B7FDC();
+    do {
+    } while (D_80095DD4);
+    func_800B37EC();
+    SetDispMask(1);
+    while (1) {
+        switch (D_80163C7C) {
+        case 0:
+            D_801635FC = 0x3D;
+            func_800B38E0();
+            func_800B7FDC();
+            D_80163C7C = 1;
+            break;
+        case 1:
+            func_800B7FDC();
+            if (D_800F7DF4 == (u8)D_80166F64 && D_801518DC == 0) {
+                func_800B3D38();
+                func_800B5138();
+                D_80163C7C = 6;
+            }
+            break;
+        case 6:
+            func_800B7FDC();
+            func_800B3D88();
+            for (i = 4; i < D_800F7E04[0] + 4; i++) {
+                D_801518E4[i].D_80151922 |= 4;
+            }
+            D_80163C7C = 2;
+            break;
+        case 2:
+            func_800B7FDC();
+            if ((u8)D_80166F64 == 3 && D_801518DC == 0) {
+                func_800B3DBC();
+                D_80163C7C = 3;
+                D_801518E4[0].D_80151922 |= 4;
+                D_801518E4[1].D_80151922 |= 4;
+                D_801518E4[2].D_80151922 |= 4;
+            }
+            break;
+        case 3:
+            func_800B7FDC();
+            if (D_801635FC == 0) {
+                D_80163C7C = 4;
+                func_800C61C0();
+            }
+            break;
+        default:
+            return;
+        }
+    }
+}
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B33A4);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B36B4);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B37A0);
+
+static void func_800B37EC(void) {
+    D_80162094 = 4;
+    func_800D8A78(4);
+    func_800E15D8();
+    func_800D9E0C(-1, -1, 0);
+    D_80095DD4 = 2;
+}
+
+// Load stage files
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B383C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B38E0);
+
+static void func_800B3934(void) {
+    func_800B5D38(2);
+    func_800B5CD4(2);
+    D_80166F64 = 3;
+}
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3968);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3A04);
+
+void func_800B3AB8(void);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3AB8);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3B84);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3C50);
+
+static void func_800B3CD0(void) {
+    Yamada* y;
+    u_long* dst;
+
+    dst = (u_long*)0x801B0000;
+    func_800D2980(dst, 0, 0, 0);
+    y = &D_800E8068[D_800FA9C4];
+    DS_read(y->loc, *&D_800E8068[D_800FA9C4].len, dst, func_800B3AB8);
+    func_800B7FB4();
+}
+
+static void func_800B3D38(void) {
+    func_800C5E94();
+    D_800F839C = D_800EA50C;
+    DS_read(LBA_ENEMY6_SEFFECT, 0xA800, (u_long*)0x801B0000, func_800B3CD0);
+    func_800B7FB4();
+}
+
+static void func_800B3D88(void) {
+    func_800B588C();
+    func_800B6B98(4, 10);
+    func_800B36B4();
+}
+
+static void func_800B3DBC(void) {
+    s32 i;
+
+    func_800B4794();
+    func_800B6B98(0, 3);
+    func_800B6B98(3, 3);
+    if (D_8016360C.setup.stageID == 57) {
+        for (i = 0; i < 10; i++) {
+            D_801518E4[i].D_80151909 |= 0x10;
+        }
+    }
+}
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3E2C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3FAC);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3FFC);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B430C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B45F0);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B46B4);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B4794);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B4E30);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5138);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B54B8);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B588C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5AAC);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5C1C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5CD4);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5D38);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5E64);
+
+void func_800B60E0(s16);
+void func_800B5FC4(s16 arg0) { func_800B60E0(arg0); }
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5FE8);
+
+void func_800B60E0(s16);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B60E0);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B64CC);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B677C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6B98);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6D6C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B7764);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B798C);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B79F0);
+
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B7DB4);
 
 static void func_800B7F6C(void) {
     volatile s32 padding;
@@ -22,7 +228,7 @@ static void func_800B7F6C(void) {
 
 void func_800B7FB4(void) { D_801518DC = func_80034B44(); }
 
-void func_800B7FDC(void) {
+static void func_800B7FDC(void) {
     s32 i;
 
     func_800B7FB4();
@@ -252,7 +458,7 @@ static void func_800BA40C(void) {
 static void func_800BA4C8(void) {
     s32 i;
 
-    for (i = 4; i < D_800F7E04 + 4; i++) {
+    for (i = 4; i < D_800F7E04[0] + 4; i++) {
         if (!(D_801518E4[i].D_80151909 & 0x80)) {
             continue;
         }
@@ -338,11 +544,11 @@ static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3) {
 
     func_800D85B0(m, arg2, arg3, &D_800E7D10);
     RotMatrixYXZ(&arg0->sv, &arg0->m);
-    TransMatrix(&arg0->m, &arg0->v);
+    TransMatrix(&arg0->m, &arg0->u.v);
     MulMatrix2(m, &arg0->m);
     SetRotMatrix(m);
     SetTransMatrix(m);
-    RotTrans((SVECTOR*)&arg0->v, (VECTOR*)&arg0->m.t, &flag);
+    RotTrans(&arg0->u.sub.sv2, (VECTOR*)&arg0->m.t, &flag);
     func_800BAFF8(&arg0->m, &D_800E7D20);
 }
 

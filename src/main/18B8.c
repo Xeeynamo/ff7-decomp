@@ -92,7 +92,6 @@ extern s32 D_80071E44[];   // armor data?
 extern u_long* D_800722C8; // LBA dst for func_80014540
 extern u8 D_800722DC[];
 extern u8 D_800730DC[][0x14];
-extern s16 D_80095DD4;
 extern s32 D_80095DD8; // LBA len for func_80014540
 extern s16 D_800965E8;
 extern u16 D_8009C560;

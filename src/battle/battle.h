@@ -287,7 +287,17 @@ typedef struct {
 typedef struct {
     /* 0x00 */ MATRIX m;
     /* 0x20 */ SVECTOR sv;
-    /* 0x28 */ VECTOR v;
+    union {
+        /* 0x28 */ VECTOR v;
+        struct {
+            /* 0x28 */ SVECTOR sv2;
+            /* 0x30 */ s32 unk30;
+            /* 0x34 */ s8 unk34;
+            /* 0x35 */ s8 unk35;
+            /* 0x36 */ s16 unk36;
+        } sub;
+    } u;
+
 } Unk800BB75C; // size:0x38
 
 typedef struct {
