@@ -232,9 +232,22 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BA2BC);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BA360);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BA40C);
+static void func_800BA40C(void) {
+    s32 i;
+    u8 param;
 
-static void func_800C1908(u8 arg0);
+    for (i = 0; i < 3; i++) {
+        if (!(D_801518E4[i].D_80151909 & 2)) {
+            param = i;
+            func_800C1908(param);
+            func_800BA598(i);
+            if (D_801518E4[i].D_8015190B & 0x80) {
+                func_800BB2A8(param);
+                func_800BB030(i);
+            }
+        }
+    }
+}
 
 static void func_800BA4C8(void) {
     s32 i;
