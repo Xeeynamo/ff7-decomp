@@ -11,11 +11,12 @@ static void func_800B7FDC(void);
 static void func_800B85E0();
 static void func_800BA4C8(void);
 void func_800BA598(s16);
-void func_800BB030(s16);
+static void func_800BB030(s16);
 static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3);
 static void func_800BB804(void);
 static void func_800BB864(void);
-int func_800C4D10();
+static void func_800C4D10(void);
+DR_MODE* func_800C4DC8(s16 x, s16 y, s16 w, s16 h, s32*);
 
 void func_800B30E4(void) {
     s32 i;
@@ -877,9 +878,37 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4814);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C494C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4B60);
+static void func_800C4B60(s16 arg0) {
+    if (D_801621F0[arg0].D_801621F4 == 0) {
+        D_801621F0[arg0].D_801621F0 = -1;
+        return;
+    }
+    D_80163C74 = func_800C4DC8(0, D_801621F0[arg0].unkA, 320, 47, &D_800EA25C);
+    D_80163C74 =
+        func_800C4DC8(0, D_801621F0[arg0].unkA + 47, 320, 32, &D_800EA258);
+    D_80163C74 = func_800C4DC8(0, D_801621F0[arg0].unk8, 320, 32, &D_800EA260);
+    D_80163C74 =
+        func_800C4DC8(0, D_801621F0[arg0].unk8 + 32, 320, 47, &D_800EA25C);
+    D_801621F0[arg0].unk8 += 4;
+    D_801621F0[arg0].unkA -= 4;
+    D_801621F0[arg0].D_801621F4--;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4D10);
+static void func_800C4D10(void) {
+    int arg0;
+
+    arg0 = D_801590D4;
+    switch (D_801621F0[arg0].D_801621F2) {
+    case 0:
+        D_801621F0[arg0].D_801621F4 = 21;
+        D_801621F0[arg0].unk8 = 87;
+        D_801621F0[arg0].unkA = 8;
+        D_801621F0[arg0].D_801621F2++;
+    case 1:
+        func_800C4B60(arg0);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4DC8);
 
