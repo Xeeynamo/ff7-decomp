@@ -1012,7 +1012,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C7220);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C7340);
 
 static void func_800C74A4(void) {
-    if (!(D_80153BDD & 2)) {
+    if (!(D_801518E4[3].D_80151909 & 2)) {
         func_800C7C4C(3, D_800F57D0->unk8, D_800F57D0 + 1, D_800F57D0);
     }
 }
