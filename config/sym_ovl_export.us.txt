@@ -867,7 +867,6 @@ func_800A8E54 = 0x800a8e54;
 func_800A8E84 = 0x800a8e84;
 func_800A9DA0 = 0x800a9da0;
 func_800AA1C8 = 0x800aa1c8;
-func_800AA4FC = 0x800aa4fc;
 func_800AA574 = 0x800aa574;
 func_800AA688 = 0x800aa688;
 func_800AA6E8 = 0x800aa6e8;

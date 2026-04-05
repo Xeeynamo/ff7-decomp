@@ -675,7 +675,18 @@ static void func_800AA468(void) {
     D_80063014->unk214 *= temp_s0 + 1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA4FC);
+static void func_800AA4FC(void) {
+    s32 var_s0;
+
+    var_s0 = 1;
+    if (func_800B10B4(D_80063014->unk0) != 0) {
+        var_s0 = 2;
+    }
+    if (D_80063014->unkC8 & 0x200000) {
+        var_s0 *= 4;
+    }
+    D_80063014->unk214 *= var_s0;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA574);
 
