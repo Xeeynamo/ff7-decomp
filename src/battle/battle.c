@@ -612,7 +612,50 @@ const s16 D_800A02C0[] = {
     0x30, 0x10, 0x20, 0x10, 0x10, 0x14, 0x01, 0x01, 0x01, 0x01, 0x01, 0x18};
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8E84);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A9C24);
+void func_800A9C24(void) {
+    s32 temp_s0;
+    s32 var_a0;
+    s32 var_s0;
+    s32 i;
+
+    i = 0;
+    var_a0 = 0;
+    while (i < 7) {
+        if (D_80163774[0] == D_800E7BA4[var_a0 + 0] &&
+            D_80163774[1] == D_800E7BA4[var_a0 + 1] &&
+            D_80163774[2] == D_800E7BA4[(var_s0 = var_a0) + 2]) {
+            break;
+        }
+        i++;
+        var_a0 += 3;
+    }
+    if (i) {
+        D_80063014->unk2C = i + 0x68;
+    } else {
+        var_s0 = 4;
+        for (i = 0; i < 4; i++) {
+            var_s0 += func_80014BA8(10) & 0xFF;
+            func_80014B54();
+        }
+        var_s0 += D_80063014->unk4 / 21;
+        var_s0 /= 2;
+        var_s0 -= 4;
+        if (var_s0 < 0) {
+            var_s0 = 0;
+        }
+        if (var_s0 > 0xF) {
+            var_s0 = 0xF;
+        }
+        D_80063014->unk2C = var_s0 + 0x38;
+        D_80063014->unk28 = 3;
+    }
+    D_80063014->unk50 = 0xFF;
+    D_80063014->unk98 = D_80063014->unk2C;
+    temp_s0 = D_80063014->unk20;
+    func_800A8E34();
+    D_80063014->unk20 = temp_s0;
+    D_80063014->unk38 = 0;
+}
 
 const u8 D_800A0398[] = {0x64, 0x14, 0x14, 0x14, 0xEC, 0xCE, 0xCE, 0x00};
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A9DA0);

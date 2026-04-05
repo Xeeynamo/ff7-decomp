@@ -204,6 +204,7 @@ typedef struct {
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
+extern u8 D_800E7BA4[3];
 extern VECTOR D_800E7D10;
 extern VECTOR D_800E7D20;
 extern Yamada D_800E8068[];
