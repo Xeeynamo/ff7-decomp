@@ -116,7 +116,7 @@ func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 			DisassembleAll:                 o.Name == "main", // for some reason, `main` doesn't build without
 			GlobalVramStart:                o.VramStart,
 			GPValue:                        o.GPValue,
-			SectionOrder:                   []string{".rodata", ".text", ".data", ".bss"},
+			SectionOrder:                   []string{".rodata", ".text", ".data", ".sdata", ".bss"},
 			LdGenerateSymbolPerDataSegment: true,
 			LdBssIsNoLoad:                  o.Name != "main" && o.BssSize > 0,
 		},
