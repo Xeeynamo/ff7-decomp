@@ -293,6 +293,23 @@ typedef struct {
     u8 unB0[0x390];
 } Unk8009D84C; // size: 0x440
 
+typedef struct {
+    /* 00 */ u16 unk0;
+    /* 02 */ u16 unk2;
+    /* 04 */ u16 unk4[6];
+    /* 10 */ u8 unk10;
+    /* 11 */ u8 unk11;
+    /* 12 */ u16 unk12;
+} Unk800730CC;
+
+typedef struct {
+    u8 unk0;
+    u8 unk1;
+    u8 unk2;
+    u8 unk3;
+    u32 unk4;
+} Unk80062F7C;
+
 extern u8 D_80049208[12];   // window colors maybe??
 extern u8 D_800492F0[][12]; // see Labels enum
 extern u16 D_80062D78;      // pressed button?
@@ -311,6 +328,7 @@ extern u_long* D_80062FC4;
 extern Unk800A8D04* D_80063014;
 extern DRAWENV D_800706A4[2];
 extern u16 D_800707BE;
+extern Unk800730CC D_800730CC[];
 extern u8 D_800730DD[][0x14];
 extern s32 D_800756F8[];
 extern s8 D_80077F64[2][0x3400]; // polygon buffer

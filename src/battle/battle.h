@@ -309,8 +309,37 @@ typedef struct {
     s16 unkE;
 } Unk801B0C98;
 
+typedef struct {
+    /* 0x00 */ SavePartyMember* partyMember;
+    /* 0x04 */ u16 unk4;
+    /* 0x06 */ u8 unk6;
+    /* 0x07 */ u8 unk7;
+    /* 0x08 */ u16 limitBar;
+    /* 0x0A */ u16 limitBarUI;
+    /* 0x0C */ u16 curMP;
+    /* 0x0E */ u16 curHP;
+    /* 0x10 */ u16 maxMP;
+    /* 0x12 */ u16 maxHP;
+    /* 0x14 */ u16 capMP;
+    /* 0x16 */ u16 capHP;
+    /* 0x18 */ u16 unk18;
+    /* 0x1A */ u16 unk1A;
+    /* 0x1C */ u16 unk1C;
+    /* 0x1E */ u16 unk1E;
+    /* 0x20 */ u16 unk20;
+    /* 0x22 */ u16 unk22;
+    /* 0x24 */ u16 unk24;
+    /* 0x26 */ u16 unk26;
+    /* 0x28 */ u16 unk28;
+    /* 0x2A */ u16 unk2A;
+    /* 0x2C */ u16 unk2C;
+    /* 0x2E */ u16 unk2E;
+    /* 0x30 */ u16 unk30;
+    /* 0x32 */ u16 unk32;
+} Unk800F5E60; // size:0x34
+
 extern u16 D_800F5BBC[10][0x22];
-extern u8 D_800F5E66[3][0x34];
+extern Unk800F5E60 D_800F5E60[3];
 extern Unk800F5F44 D_800F5F44;
 extern s8 D_800F6936[0x40][8];
 extern s16 D_800F83AE[10][0x34]; // overlaps with D_800F83E0, D_800F83A8

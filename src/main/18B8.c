@@ -95,7 +95,7 @@ extern u8 D_800730DC[][0x14];
 extern s32 D_80095DD8; // LBA len for func_80014540
 extern s16 D_800965E8;
 extern u16 D_8009C560;
-extern u8 D_8009C738[];
+extern SavePartyMember D_8009C738[8];
 extern s16 D_8009A000;
 extern u16 D_8009ABF6;
 extern u16 D_8009AC32;
@@ -494,7 +494,7 @@ void func_80014934(void) {
     func_800148A0();
     func_80014578(INIT_KERNEL, (void*)0x801B0000, 0);
     func_800145BC(0);
-    func_80015C3C(0x801B0000, &D_8009C738, KERNEL_INIT);
+    func_80015C3C(0x801B0000, D_8009C738, KERNEL_INIT);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80014980);
@@ -848,7 +848,51 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001A9CC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001AB1C);
 
+#ifndef NON_MATCHINGS
+// matching with GCC 2.6.3
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001AC9C);
+#else
+extern Unk80062F7C* D_80062F7C = NULL; // %gp
+extern s32 D_80062F10 = 0;             // %gp
+extern s32 D_80062FBC = 0;             // %gp
+extern u8 D_80063020 = 0;              // %gp
+s32 func_8001AC9C(u8 arg0, s32 arg1) {
+    s32 i;
+    s32 found;
+    u16 temp_a2;
+    Unk80062F7C* new_var;
+
+    found = 1;
+    for (i = 3; i >= 0; i--) {
+        temp_a2 = D_800730CC[arg0].unk4[i];
+        if (temp_a2 == 0xFFFF || arg1 < temp_a2 * 100) {
+            continue;
+        }
+        found = i + 2;
+        break;
+    }
+    D_80062FBC = 1;
+    for (i = 0; i < 4; i++) {
+        temp_a2 = D_800730CC[arg0].unk4[i];
+        if (temp_a2 != 0xFFFF) {
+            D_80062FBC++;
+        }
+    }
+    if (D_80063020) {
+        temp_a2 = D_800730CC[arg0].unk4[found - 1];
+        if (temp_a2 == 0xFFFF || found == D_80062FBC) {
+            D_80062F10 = 0;
+        } else {
+            D_80062F10 = temp_a2 * 100 - arg1;
+        }
+        new_var = D_80062F7C;
+        new_var->unk0 = found;
+        new_var->unk1 = *(u8*)&D_80062FBC;
+        new_var->unk4 = D_80062F10;
+    }
+    return found;
+}
+#endif
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001AE08);
 
@@ -1431,7 +1475,8 @@ void func_80025648(void) {}
 
 void func_80025650(void) {}
 
-s32 func_80025658() { return D_8009C738[1]; }
+// get party leader (Cloud) level
+s32 func_80025658() { return D_8009C738[0].level; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80025668);
 

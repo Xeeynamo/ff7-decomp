@@ -26,7 +26,7 @@ void func_801B0490(s32 sceneID) {
         }
     }
     for (i = 0; i < 3; i++) {
-        D_800F5E66[i][0] = 0;
+        D_800F5E60[i].unk6 = 0;
     }
     if (D_8016376C) {
         func_801B0F08();
@@ -91,7 +91,7 @@ s32 func_801B14E8(u32 arg0) {
 
     temp_v1 = arg0;
     ret = 0;
-    if (temp_v1 != 0xFF && ((D_800730DD[temp_v1][0] & 0xF) == 7)) {
+    if (temp_v1 != 0xFF && (D_800730CC[temp_v1].unk11 & 0xF) == 7) {
         ret = (arg0 >> 8) | 0x80000000;
     }
     return ret;
