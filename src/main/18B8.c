@@ -274,6 +274,7 @@ u16* func_80014D9C(s32, s32, s32);
 s32 func_800150E4(u16*, u16*);
 u16* func_800151F4(s32);
 void func_80015CA0(GzHeader* src, s32* dst);
+s32 func_8001AC9C(u8, s32);
 u8 func_8001F6B4();
 
 void __main(void) {}
@@ -834,7 +835,29 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001A4A8);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001A518);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001A5B4);
+void func_8001A780(u8, s32);
+void func_8001A874(u8, s32);
+void func_8001A5B4(u8 arg0, u8 arg1, s32 arg2) {
+    u8 temp_s1;
+    u8 temp_a0;
+
+    temp_s1 = arg1;
+    temp_a0 = func_8001AC9C(temp_s1, arg2);
+    switch (arg0) {
+    case 0:
+        func_8001A684(temp_s1, arg2);
+        break;
+    case 2:
+        func_8001A780(temp_s1, arg2);
+        break;
+    case 4:
+        func_8001A874(temp_s1, arg2);
+        break;
+    case 3:
+        func_80019D74(temp_a0, temp_s1);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001A684);
 
@@ -850,6 +873,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001AB1C);
 
 #ifndef NON_MATCHINGS
 // matching with GCC 2.6.3
+s32 func_8001AC9C(u8, s32);
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001AC9C);
 #else
 extern Unk80062F7C* D_80062F7C = NULL; // %gp
