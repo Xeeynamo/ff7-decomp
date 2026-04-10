@@ -310,6 +310,23 @@ typedef struct {
     u32 unk4;
 } Unk80062F7C;
 
+typedef struct {
+    /* 0x00 */ u16 unk0;
+    /* 0x02 */ u16 unk2;
+    /* 0x04 */ u16 unk4;
+    /* 0x06 */ u16 unk6;
+    /* 0x08 */ u16 unk8;
+    /* 0x0A */ u16 unkA;
+    /* 0x0C */ u16 unkC;
+    /* 0x0E */ u16 unkE;
+    /* 0x10 */ u16 unk10;
+    /* 0x12 */ u16 unk12;
+    /* 0x14 */ u8 unk14;
+    /* 0x15 */ u8 unk15;
+    /* 0x16 */ u8 unk16;
+    /* 0x17 */ u8 unk17;
+} Unk8007E7AC; // size:0x18
+
 extern u8 D_80049208[12];   // window colors maybe??
 extern u8 D_800492F0[][12]; // see Labels enum
 extern u16 D_80062D78;      // pressed button?
@@ -329,27 +346,33 @@ extern u_long* D_80062FC4;
 extern Unk800A8D04* D_80063014;
 extern DRAWENV D_800706A4[2];
 extern u16 D_800707BE;
+extern s16 D_80071A5C;
+extern MATRIX* D_80071E40;
 extern u8 D_80071E34;
 extern Unk800730CC D_800730CC[];
 extern u8 D_800730DD[][0x14];
 extern s32 D_800756F8[];
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
+extern Unk8007E7AC D_8007E7AC[];
 extern u8 D_80083184[0x40];
 extern s16 D_800832A0;
 extern s32 D_80083338;
 extern volatile u16 D_80095DD4;
-extern s16 D_8009A000;
-extern s32 D_8009A004;
-extern s32 D_8009A008;
+extern s16 D_800965E8;
+extern s16 D_8009A000[1];
+extern s32 D_8009A004[1];
+extern s32 D_8009A008[1];
 extern s32 D_8009A024[8];
 extern SaveWork Savemap; // 0x8009C6E4
 extern u8 D_8009CBDC[];
 extern u16 D_8009D288;
 extern u8 D_8009D2E7;
+extern u8 D_8009D391[1]; // part of a struct?
 extern u8 D_8009D40D;
 extern u8 D_8009D684;
 extern u8 D_8009D685;
 extern u8 D_8009D686;
+extern u8 D_8009D820;
 extern u8 D_8009D8F8[];
 extern u32 D_8009D260;
 extern volatile s32 D_8009D268[];

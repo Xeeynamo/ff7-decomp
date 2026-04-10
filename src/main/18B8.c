@@ -176,7 +176,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", __SN_ENTRY_POINT);
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001117C);
 
 void func_800111E4(void) {
-    D_8009A000 = 0xF4;
+    D_8009A000[0] = 0xF4;
     func_8002DA7C();
     if (!(D_8009D5E9 & 0x30)) {
         func_8001117C(0x2B);

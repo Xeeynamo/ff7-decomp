@@ -573,20 +573,20 @@ static void func_800BB864(void) {
 static void func_800BB89C(void) {
     D_80163B80 = 0;
     D_800FA6B8 = 0;
-    D_8009A000 = !(!(D_8016376A & 0x10) && !D_80083338) ? 0x10 : 0x14;
-    D_8009A004 = 0x801D0000;
+    D_8009A000[0] = !(!(D_8016376A & 0x10) && !D_80083338) ? 0x10 : 0x14;
+    D_8009A004[0] = 0x801D0000;
     func_8002DA7C();
 }
 
 void func_800BB90C(void) {
-    D_8009A000 = 0xA0;
-    D_8009A004 = 0x7F;
+    D_8009A000[0] = 0xA0;
+    D_8009A004[0] = 0x7F;
     func_8002DA7C();
 }
 
 static void func_800BB944(void) {
     func_800BB90C();
-    D_8009A000 = 0xF1;
+    D_8009A000[0] = 0xF1;
     func_8002DA7C();
 }
 

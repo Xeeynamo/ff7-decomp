@@ -6,9 +6,9 @@ extern s32 D_801E2CF4;
 extern Unk80026448 D_801E3DEC[2];
 
 static void func_801D2B58(u16 arg0) {
-    D_8009A000 = 0x30;
-    D_8009A004 = arg0;
-    D_8009A008 = arg0;
+    D_8009A000[0] = 0x30;
+    D_8009A004[0] = arg0;
+    D_8009A008[0] = arg0;
     func_8002DA7C();
 }
 
@@ -43,19 +43,19 @@ static s32 func_801D2B98(s32 arg0) {
 static void func_801D2D10(s32 arg0) {
     switch (arg0) {
     case 0:
-        D_8009A000 = 0x81;
-        D_8009A004 = 0x81;
-        D_8009A008 = 0x81;
+        D_8009A000[0] = 0x81;
+        D_8009A004[0] = 0x81;
+        D_8009A008[0] = 0x81;
         break;
     case 1:
-        D_8009A000 = 0x80;
-        D_8009A004 = 0x80;
-        D_8009A008 = 0x80;
+        D_8009A000[0] = 0x80;
+        D_8009A004[0] = 0x80;
+        D_8009A008[0] = 0x80;
         break;
     case 2:
-        D_8009A000 = 0x82;
-        D_8009A004 = 0x82;
-        D_8009A008 = 0x82;
+        D_8009A000[0] = 0x82;
+        D_8009A004[0] = 0x82;
+        D_8009A008[0] = 0x82;
         break;
     }
     func_8002DA7C();

@@ -95,7 +95,6 @@ extern s32 D_80095DD8; // LBA len for func_80014540
 extern s16 D_800965E8;
 extern u16 D_8009C560;
 extern SavePartyMember D_8009C738[8];
-extern s16 D_8009A000;
 extern u16 D_8009ABF6;
 extern u16 D_8009AC32;
 extern u8 D_8009D5E9;

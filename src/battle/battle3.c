@@ -22,9 +22,9 @@ void func_800D8A78(s8 arg0) { D_800F19A4 = arg0; }
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D8A88);
 
 static void func_800D8AF0(u16 arg0) {
-    D_8009A000 = arg0;
-    D_8009A004 = arg0;
-    D_8009A008 = arg0;
+    D_8009A000[0] = arg0;
+    D_8009A004[0] = arg0;
+    D_8009A008[0] = arg0;
     func_8002DA7C(arg0);
 }
 
