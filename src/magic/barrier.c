@@ -81,8 +81,7 @@ static void func_801B0020(void) {
 
     D_801B0C98.unk4 = var_s3 | 0x80;
     D_801B0C98.unkA = var_s4;
-    D_801D0CC4 =
-        func_800D29D4(&D_801B0C98, (u_long*)D_801517C0->unk70, 12, D_801D0CC4);
+    D_801D0CC4 = func_800D29D4(&D_801B0C98, D_801517C0->unk70, 12, D_801D0CC4);
 
     if (D_80062D98 == 0) {
         data->unk2++;
@@ -136,8 +135,7 @@ static void func_801B0220(void) {
 
     D_801B0CB0.unk4 = var_s5 | 0x80;
     D_801B0CB0.unkA = var_s6;
-    D_801D0CC4 =
-        func_800D29D4(&D_801B0CB0, (u_long*)D_801517C0->unk70, 12, D_801D0CC4);
+    D_801D0CC4 = func_800D29D4(&D_801B0CB0, D_801517C0->unk70, 12, D_801D0CC4);
 
     if (D_80062D98 == 0) {
         data->unk2++;

@@ -195,13 +195,10 @@ s32* func_80025758(s32 arg0) { return &D_80071E44[arg0 * 9]; }
 s32* func_80025774(s32 arg0) { return &D_80071C24[arg0 * 4]; }
 
 Unk8009D84C* func_80025788(s32 arg0) {
-    Unk8009D84C* partyMember;
-
-    partyMember = (Unk8009D84C*)0xFF;
     if (Savemap.partyID[arg0] != 0xFF) {
         return &D_8009D84C[arg0];
     }
-    return 0xFF;
+    // BUG undefined return
 }
 
 void func_800257C4(void) {}
@@ -322,7 +319,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80025ED4);
 
 void func_80026034(void) {}
 
-u8 func_8002603C(u8 arg0) {
+s32 func_8002603C(u8 arg0) {
     return D_80049520[D_80049528[D_800730DC[arg0][1] & 0xF]];
 }
 
