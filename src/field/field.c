@@ -1,12 +1,20 @@
+//! PSYQ=3.3 CC1=2.6.3
 #include <game.h>
 
 const u32 D_800A0000[] = {0, 0x01D801E0};
+extern s8 D_800E0628;
+extern s8 D_800E0630;
 extern u16 D_800E1024;
 extern s16 D_800E41B8;
 extern s16 D_800E41C0;
 extern s16 D_800E41BC;
 extern s16 D_800E41C4;
 extern u16 D_800E4210;
+extern char D_800E4254[];
+extern char D_800E4288[];
+
+static void func_800D4848(const char* errmsg);
+static void func_800DA368(char* arg0, char* arg1);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A1368);
 
@@ -42,7 +50,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A4094);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A4134);
 
-s32 func_800A41CC(SVECTOR* arg0, long* arg1) {
+static s32 func_800A41CC(SVECTOR* arg0, long* arg1) {
     long sp10;
     long sp14;
     s32 ret;
@@ -92,7 +100,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8858);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8968);
 
-void func_800A8DF4(s32* arg0, s16* arg1, s16* arg2) {
+static void func_800A8DF4(s32* arg0, s16* arg1, s16* arg2) {
     arg0[0] = arg1[0] - arg2[0];
     arg0[1] = arg1[1] - arg2[1];
     arg0[2] = arg1[2] - arg2[2];
@@ -110,7 +118,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A9EEC);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA180);
 
-void func_800AA32C(Unk8007E7AC* arg0) {
+static void func_800AA32C(Unk8007E7AC* arg0) {
     s32 i;
 
     for (i = 0; i < 32; i++) {
@@ -235,7 +243,36 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B9B0C);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BA534);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BA65C);
+static void func_800D7F9C(void);
+void func_800BA65C(s32 arg0) {
+    if (D_8007EBE0) {
+        func_800D4BFC();
+        func_800BC338();
+        func_800D7D6C();
+        func_800D7F9C();
+        D_80095DCC = 0;
+        D_8009FE8C = 0;
+        D_8007EBE0 = 0;
+        if (D_8009C6DC[1] < 5) {
+            SystemError('K', 11);
+        }
+        if (D_8009C6DC[0] < 2) {
+            SystemError('K', 10);
+        }
+        if (D_8009C6DC[0] > 2 || D_8009C6DC[1] > 5) {
+            SystemError('K', 12);
+        }
+    }
+    if (D_80099FFC != 4) {
+        if (D_80099FFC != 5 || D_80070788 != 0) {
+            func_800BB3A8();
+        }
+    }
+    if (D_80071E2C) {
+        func_8001F1BC(&D_80083274, 4, arg0, D_8009C6E0->unk0[0] ^ 1);
+    }
+    func_800BC438(arg0);
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BA7C4);
 
@@ -270,7 +307,17 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BF908);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0248);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0B54);
+s32 func_800C0B54(void) {
+    if (D_8009D820 & 3) {
+        func_800DA444(D_8009A058, D_800E4288);
+        func_800DA368(D_800E4288, "???");
+        func_800BEAD4(D_800E4288, 8);
+        func_800DA214(3, 0x7F, 0, 0);
+    } else {
+        func_800D4848("Bad Event code!");
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0BE8);
 
@@ -326,7 +373,16 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2970);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2BFC);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2CA8);
+void func_800C2CA8(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("keyon", 3);
+    }
+    if (!((&D_8009C6DC[D_800831FC[D_800722C4]])[2] & 2)) {
+        func_800C2E00(D_8009C6E0->unk70);
+    } else {
+        func_800C2E00(D_8009C6E0->unk80);
+    }
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2D54);
 
@@ -655,7 +711,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CDA24);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CDB0C);
 
-void func_800CDC14(s16* arg0) {
+static void func_800CDC14(s16* arg0) {
     arg0[0] = 0;
     arg0[1] = 0;
     arg0[2] = 0;
@@ -699,7 +755,7 @@ void func_800CF66C(void*, void*);
 void func_800CF6C0(void*, void*);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CF4CC);
 
-void func_800CF5A0(void) {
+static void func_800CF5A0(void) {
     s32 sp10[2];
     s32 sp18[2];
 
@@ -709,7 +765,7 @@ void func_800CF5A0(void) {
     D_80071E34 = 1;
 }
 
-void func_800CF60C(void) {
+static void func_800CF60C(void) {
     s32 sp10[2];
     s32 sp18[2];
 
@@ -846,11 +902,17 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D44E8);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4780);
 
-void func_800D4838(void) {}
+static void func_800D4838(void) {}
 
-void func_800D4840(void) {}
+static void func_800D4840(void) {}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4848);
+static void func_800D4848(const char* errmsg) {
+    func_800D828C(0, 100, 100, 150, 12);
+    func_800DA214(0, 0x7F, 0, 0);
+    func_800D9F00(0, errmsg);
+    D_80095DCC = 1;
+    D_80099FFC = 4;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D48C0);
 
@@ -872,7 +934,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4EB4);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D5228);
 
-void func_800D5750(void) {
+static void func_800D5750(void) {
     func_800C46A4();
     D_8009A000[0] = 0x30;
     D_8009A004[0] = 1;
@@ -908,7 +970,39 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7C98);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7D6C);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7F9C);
+static void func_800DA334(char* dst, char* src);
+static void func_800D7F9C(void) {
+    func_800D828C(5, 0x6C, 0, 0x6C, 0x52);
+    func_800DA334(D_800E4254, "Authr:");
+    func_800DA368(D_800E4254, (s8*)(D_8009C6DC + 0x10));
+    func_800D9F00(5, &D_800E4254);
+    func_800DA334(D_800E4254, "Event:");
+    func_800DA368(D_800E4254, (s8*)(D_8009C6DC + 0x18));
+    func_800D9F00(5, D_800E4254);
+    func_800D9F00(5, "  Go");
+    func_800D9F00(5, "  Stop");
+    func_800D9F00(5, "  Step");
+    func_800DA124(5, 5, "  Actor OFF");
+    func_800DA124(5, 6, "  Info  OFF");
+    func_800DA2CC(5);
+    func_800D828C(4, 0x6C, 0x52, 0x6C, 0x52);
+    func_800D9F00(4, &D_800E0628);
+    func_800DA2CC(4);
+    func_800D828C(3, 0x6C, 0xA4, 0x6C, 0x5C);
+    func_800D9F00(3, &D_800E0630);
+    func_800DA2CC(3);
+    func_800D828C(1, 0, 0, 0x6C, 0xCA);
+    func_800D9F00(1, &D_800E0628);
+    func_800DA2CC(1);
+    D_80099FFC = 3;
+    D_8007EBCC = 4;
+    D_8007EBDC = 8;
+    D_80071E24 = 0;
+    D_8009D820 = 0;
+    D_80070788 = 0;
+    D_80071C08 = 5;
+    func_800DA1D4(5, 4);
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D8194);
 
@@ -924,7 +1018,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D8498);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D84CC);
 
-void func_800D85C0(void) {
+static void func_800D85C0(void) {
     D_800E41B8 = 0;
     D_800E41C0 = 0;
     D_800E41BC = 0;
@@ -954,29 +1048,41 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA28C);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA2CC);
 
-void func_800DA310(void) { D_800E4210 = (D_800E4210 + 1) & 3; }
+static void func_800DA310(void) { D_800E4210 = (D_800E4210 + 1) & 3; }
 
-void func_800DA334(u8* dst, u8* src) {
+static void func_800DA334(char* dst, char* src) {
     if (*src) {
         do {
             *dst++ = *src++;
-        } while (*src);
+        } while (*src != '\0');
     }
-    *dst = 0;
+    *dst = '\0';
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA368);
+static void func_800DA368(char* arg0, char* arg1) {
+    if (*arg0 != '\0') {
+        while (*++arg0 != '\0') {
+        }
+    }
+    if (*arg1 != '\0') {
+        do {
+            *arg0++ = *arg1++;
+        } while (*arg1 != '\0');
+    }
+    *arg0 = '\0';
+}
 
-s32 func_800DA3C4(u8* arg0) {
+static s32 func_800DA3C4(char* arg0) {
     s32 len = 0;
-    while (*arg0 != 0) {
+
+    while (*arg0 != '\0') {
         arg0++;
         len++;
     }
     return len;
 }
 
-void func_800DA3F0(u8* dst, u8* src, s32 len) {
+static void func_800DA3F0(char* dst, char* src, s32 len) {
     s32 i;
     for (i = len - 1; i != -1; i--) {
         *dst = *src;

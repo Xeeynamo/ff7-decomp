@@ -327,6 +327,27 @@ typedef struct {
     /* 0x17 */ u8 unk17;
 } Unk8007E7AC; // size:0x18
 
+typedef struct {
+    u8 unk0[0x28];
+    u16 unk28; // n_actor ?
+    u16 unk2A;
+    u16 unk2C; // main actor anim ?
+    u16 unk2E;
+    u8 unk30[0x38];
+    s16 unk68; // input related
+    s16 unk6A; // input related
+    s16 unk6C; // input related
+    s16 unk6E; // input related
+    u16 unk70; // input related
+    u16 unk72; // input related
+    u16 unk74; // input related
+    u16 unk76; // input related
+    s32 unk78;
+    s32 unk7C;
+    u16 unk80;
+    u16 unk82;
+} Unk8009C6E0; // size:???
+
 extern u8 D_80049208[12];   // window colors maybe??
 extern u8 D_800492F0[][12]; // see Labels enum
 extern u16 D_80062D78;      // pressed button?
@@ -345,25 +366,40 @@ extern s32 D_80062F58;
 extern u_long* D_80062FC4;
 extern Unk800A8D04* D_80063014;
 extern DRAWENV D_800706A4[2];
+extern u8 D_80070788;
 extern u16 D_800707BE;
 extern s16 D_80071A5C;
+extern s8 D_80071C08;
+extern s8 D_80071E24; // extern
+extern u8 D_80071E2C;
 extern MATRIX* D_80071E40;
 extern u8 D_80071E34;
+extern u8 D_800722C4;
 extern Unk800730CC D_800730CC[];
 extern u8 D_800730DD[][0x14];
 extern s32 D_800756F8[];
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern Unk8007E7AC D_8007E7AC[];
+extern s8 D_8007EBCC;
+extern s8 D_8007EBDC;
+extern u8 D_8007EBE0; // field debug mode
 extern u8 D_80083184[0x40];
+extern u16 D_800831FC[];
+extern s32 D_80083274;
 extern s16 D_800832A0;
 extern s32 D_80083338;
+extern s8 D_80095DCC;
 extern volatile u16 D_80095DD4;
 extern s16 D_800965E8;
+extern u8 D_80099FFC;
 extern s16 D_8009A000[1];
 extern s32 D_8009A004[1];
 extern s32 D_8009A008[1];
 extern s32 D_8009A024[8];
-extern SaveWork Savemap; // 0x8009C6E4
+extern u8 D_8009A058;
+extern u8* D_8009C6DC;
+extern Unk8009C6E0* D_8009C6E0; // points to 0x8009abf4
+extern SaveWork Savemap;        // 0x8009C6E4
 extern u8 D_8009CBDC[];
 extern u16 D_8009D288;
 extern u8 D_8009D2E7;
@@ -372,11 +408,12 @@ extern u8 D_8009D40D;
 extern u8 D_8009D684;
 extern u8 D_8009D685;
 extern u8 D_8009D686;
-extern u8 D_8009D820;
+extern u8 D_8009D820; // field debug related
 extern u8 D_8009D8F8[];
 extern u32 D_8009D260;
 extern volatile s32 D_8009D268[];
 extern Unk8009D84C D_8009D84C[3];
+extern s8 D_8009FE8C;
 
 // PSXSDK funcs
 SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
