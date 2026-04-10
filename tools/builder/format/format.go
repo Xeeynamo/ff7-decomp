@@ -44,6 +44,10 @@ func clangFormat() error {
 		if info.IsDir() {
 			return nil
 		}
+		ext := strings.ToLower(filepath.Ext(path))
+		if ext != ".c" && ext != ".h" {
+			return nil
+		}
 		paths = append(paths, path)
 		return nil
 	})
