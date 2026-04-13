@@ -1019,7 +1019,12 @@ static s32 func_800B716C(void) { return D_80115A68; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B717C);
 
-s32 func_800B7200(void) { return (u32)(D_8009D288 - 0x3E8) < 0xC8U; }
+s32 func_800B7200(void) {
+    if (D_8009D288[0] >= 0x3E8 && D_8009D288[0] < 0x4B0) {
+        return 1;
+    }
+    return 0;
+}
 
 static u8 func_800B7218(void) { return D_8009D686; }
 

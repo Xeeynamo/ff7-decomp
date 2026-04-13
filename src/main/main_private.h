@@ -30,6 +30,22 @@ typedef enum {
     KERNEL_NAME_SUMMON,
 } KernelID;
 
+typedef enum {
+    SUBSYSTEM_FIELD = 1,
+    SUBSYSTEM_BATTLE = 2,
+    SUBSYSTEM_WORLD = 3, // also used for snowfield
+    SUBSYSTEM_UNK = 4,   // similar to battle?
+    SUBSYSTEM_MENU = 5,
+    SUBSYSTEM_BIKE = 6,
+    SUBSYSTEM_RACE = 7,
+    SUBSYSTEM_SNOWBOARD = 8,
+    SUBSYSTEM_FORTCONDOR = 9,
+    SUBSYSTEM_SUBMARIME = 10,
+    SUBSYSTEM_SHOOTING = 11,
+    SUBSYSTEM_CHANGE_DISK,
+    SUBSYSTEM_SNOWBOARD_GOLDSAURCER = 14,
+} Subsystem;
+
 typedef struct {
     s32 len; // decompressed length
     s32 unk4;
@@ -93,7 +109,7 @@ extern u8 D_800722DC[];
 extern u8 D_800730DC[][0x14];
 extern s32 D_80095DD8; // LBA len for func_80014540
 extern s16 D_800965E8;
-extern u16 D_8009C560;
+extern u16 D_8009C560; // refer to Subsystem enum
 extern SavePartyMember D_8009C738[8];
 extern u16 D_8009ABF6;
 extern u16 D_8009AC32;

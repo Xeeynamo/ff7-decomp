@@ -1,7 +1,20 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include <game.h>
 
+struct GpuBuf {
+    /* 0x00000 */ u_long ot[0x400];
+    /* 0x01000 */ u8 unk1000[0x1689C];
+    /* 0x3FFC used by DrawOTag */
+    /* 0x418C used by DrawOTag */
+    /* 0x4190 used by DrawOTag */
+    /* 0x1748C */ u_long ot1748C[1];
+    /* 0x17490 */ u8 unk17490[0xC];
+    /* 0x1749C */ u8 unk1749C[0x400];
+}; // size:0x1789C
+
 const u32 D_800A0000[] = {0, 0x01D801E0};
+extern char D_800E0208[16]; // '0' to 'F' for hex digits
+extern char D_800A0270[4];
 extern s8 D_800E0628;
 extern s8 D_800E0630;
 extern u16 D_800E1024;
@@ -10,11 +23,23 @@ extern s16 D_800E41C0;
 extern s16 D_800E41BC;
 extern s16 D_800E41C4;
 extern u16 D_800E4210;
-extern char D_800E4254[];
-extern char D_800E4288[];
+extern char D_800E4254[]; // debug text
+extern char D_800E4288[]; // debug value transformed into text
+extern struct GpuBuf D_800E4DF0[2];
+extern u8 D_80114498[];
 
+void func_800A364C(struct GpuBuf* buf);
+void func_800AA180(Unk80074EA4* arg0, Unk8007E7AC* arg1);
+void func_800AAB24(struct GpuBuf* buf);
+s32 func_800A9CE8(Unk8007E7AC*, u_long*, u_long*);
+static void func_800D4840(const char* str);
 static void func_800D4848(const char* errmsg);
+void func_800D9F00(s32 val, const char* msg_out);
+static void func_800DA334(char* dst, const char* src);
 static void func_800DA368(char* arg0, char* arg1);
+static void func_800DA424(s32 val, char* msg_out);
+static void func_800DA444(s32 val, char* msg_out);
+static void func_800DA480(s32 val, char* msg_out);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A1368);
 
@@ -297,9 +322,133 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BC9FC);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BEAD4);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BECA4);
+static void func_800BECA4(const char* str, s32 val, s32 kind) {
+    if (!(D_80071E24 & 4) || D_80114498[D_800722C4]) {
+        func_800DA334(D_800E4254, str);
+        switch (kind) {
+        case 1:
+            func_800DA424(val, D_800E4288); // to single hex digit
+            break;
+        case 2:
+            func_800DA444(val, D_800E4288); // to double hex digit
+            break;
+        case 4:
+            func_800DA480(val, D_800E4288); // to four hex digits
+            break;
+        default:
+            func_800DA334(D_800E4288, D_800A0270);
+            break;
+        }
+        func_800DA368(D_800E4254, D_800E4288);
+        if (D_8009D820 & 1) {
+            func_800D9F00(2, D_800E4254);
+        }
+        if (D_8009D820 & 2) {
+            func_800D4840(D_800E4254);
+        }
+    }
+}
 
+#ifndef NON_MATCHINGS
+// OK; depends on func_800BF908 matching
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BEE10);
+#else
+s32 func_800BEE10(s16 arg0, s16 arg1) {
+    s32 indx;
+    s32 glov;
+    s32 var_v1;
+
+    switch (arg0) {
+    case 1:
+        var_v1 = (&D_8009C6DC[D_800831FC[D_800722C4]])[1] >> 4;
+        break;
+    case 2:
+        var_v1 = (&D_8009C6DC[D_800831FC[D_800722C4]])[1] & 0xF;
+        break;
+    case 3:
+        var_v1 = (&D_8009C6DC[D_800831FC[D_800722C4]])[2] >> 4;
+        break;
+    case 4:
+        var_v1 = (&D_8009C6DC[D_800831FC[D_800722C4]])[2] & 0xF;
+        break;
+    case 5:
+        var_v1 = (&D_8009C6DC[D_800831FC[D_800722C4]])[3] >> 4;
+        break;
+    case 6:
+        var_v1 = (&D_8009C6DC[D_800831FC[D_800722C4]])[3] & 0xF;
+        break;
+    }
+    switch ((u8)var_v1) {
+    case 0:
+        glov = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G cons=", glov, 2);
+        }
+        break;
+    case 1:
+    case 2:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        glov = ((u8*)D_8009D288)[indx];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 2);
+        }
+        break;
+    case 3:
+    case 4:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x100;
+        glov = ((u8*)D_8009D288)[indx];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 2);
+        }
+        break;
+    case 11:
+    case 12:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x200;
+        glov = ((u8*)D_8009D288)[indx];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 2);
+        }
+        break;
+    case 13:
+    case 14:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x300;
+        glov = ((u8*)D_8009D288)[indx];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 2);
+        }
+        break;
+    case 7:
+    case 15:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x400;
+        glov = ((u8*)D_8009D288)[indx];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 2);
+        }
+        break;
+    case 5:
+    case 6:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        glov = ((u8*)D_80075E24)[indx];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G mapv=", glov, 2);
+        }
+        break;
+    default:
+        if (D_8009D820 & 3) {
+            func_800BECA4("G data err=", (u8)var_v1, 2);
+        }
+        func_800D4848("Bad Event arg!");
+        return 0;
+    }
+    return glov;
+}
+#endif
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BF3AC);
 
@@ -904,7 +1053,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4780);
 
 static void func_800D4838(void) {}
 
-static void func_800D4840(void) {}
+static void func_800D4840(const char* str) {
+    // used to print debug messages -- dummied out on release
+}
 
 static void func_800D4848(const char* errmsg) {
     func_800D828C(0, 100, 100, 150, 12);
@@ -970,12 +1121,11 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7C98);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7D6C);
 
-static void func_800DA334(char* dst, char* src);
 static void func_800D7F9C(void) {
     func_800D828C(5, 0x6C, 0, 0x6C, 0x52);
     func_800DA334(D_800E4254, "Authr:");
     func_800DA368(D_800E4254, (s8*)(D_8009C6DC + 0x10));
-    func_800D9F00(5, &D_800E4254);
+    func_800D9F00(5, D_800E4254);
     func_800DA334(D_800E4254, "Event:");
     func_800DA368(D_800E4254, (s8*)(D_8009C6DC + 0x18));
     func_800D9F00(5, D_800E4254);
@@ -1050,7 +1200,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA2CC);
 
 static void func_800DA310(void) { D_800E4210 = (D_800E4210 + 1) & 3; }
 
-static void func_800DA334(char* dst, char* src) {
+static void func_800DA334(char* dst, const char* src) {
     if (*src) {
         do {
             *dst++ = *src++;
@@ -1091,10 +1241,23 @@ static void func_800DA3F0(char* dst, char* src, s32 len) {
     }
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA424);
+static void func_800DA424(s32 val, char* msg_out) {
+    msg_out[1] = '\0';
+    msg_out[0] = D_800E0208[val & 0xF];
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA444);
+static void func_800DA444(s32 val, char* msg_out) {
+    msg_out[2] = '\0';
+    msg_out[0] = D_800E0208[(val & 0xF0) >> 4];
+    msg_out[1] = D_800E0208[val & 0xF];
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA480);
+static void func_800DA480(s32 val, char* msg_out) {
+    msg_out[4] = '\0';
+    msg_out[0] = D_800E0208[(val & 0xF000) >> 0xC];
+    msg_out[1] = D_800E0208[(val & 0xF00) >> 8];
+    msg_out[2] = D_800E0208[(val & 0xF0) >> 4];
+    msg_out[3] = D_800E0208[val & 0xF];
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA4FC);

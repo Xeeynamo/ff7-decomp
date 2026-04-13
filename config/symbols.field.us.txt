@@ -72,3 +72,4 @@ D_800A103C = 0x800A103C; // type:asciz force_migration:True
 D_800A104C = 0x800A104C; // type:asciz force_migration:True
 D_800A10DC = 0x800A10DC; // type:asciz force_migration:True
 D_800A10EC = 0x800A10EC; // type:asciz force_migration:True
+D_800E4DF0 = 0x800E4DF0; // size:0x2F138

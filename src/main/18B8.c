@@ -228,7 +228,33 @@ void func_8001171C(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80011784);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80011860);
+void func_800A16CC();  // field loop
+void func_800CF60C();  // field load
+extern s32 D_80048D24; // field.X sector
+extern u32 D_80048D28; // field.X size
+
+void func_80011860(void) {
+    if (D_800965EC != 5 && D_800965EC != 13) {
+        if (D_800965EC != 2) {
+            func_80033E34(D_80048D24, D_80048D28, (u_long*)0x80180000, NULL);
+            while (1) {
+                if (func_80034B44() == 0) {
+                    break;
+                }
+            }
+            func_80015CA0((GzHeader*)0x80180000, (s32*)0x800A0000);
+        } else {
+            while (1) {
+                if (func_80034B44() == 0) {
+                    break;
+                }
+            }
+            func_80015CA0((GzHeader*)0x801C0000, (s32*)0x800A0000);
+        }
+    }
+    func_800CF60C();
+    func_800A16CC();
+}
 
 void func_80011920(void) {
     D_800965E8 = 0;

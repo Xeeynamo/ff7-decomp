@@ -328,6 +328,17 @@ typedef struct {
 } Unk8007E7AC; // size:0x18
 
 typedef struct {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s8 unk1C[0x68];
+} Unk80074EA4; // size:0x84
+
+typedef struct {
     u8 unk0[0x28];
     u16 unk28; // n_actor ?
     u16 unk2A;
@@ -370,16 +381,21 @@ extern u8 D_80070788;
 extern u16 D_800707BE;
 extern s16 D_80071A5C;
 extern s8 D_80071C08;
-extern s8 D_80071E24; // extern
+extern u8 D_80071E24;
 extern u8 D_80071E2C;
 extern MATRIX* D_80071E40;
 extern u8 D_80071E34;
 extern u8 D_800722C4;
 extern Unk800730CC D_800730CC[];
 extern u8 D_800730DD[][0x14];
+extern Unk80074EA4 D_80074EA4[2];
 extern s32 D_800756F8[];
+extern int D_80075DEC; // buffer index, either 0 or 1
+extern u8 D_80075E24[];
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern Unk8007E7AC D_8007E7AC[];
+extern DRAWENV D_8007EAAC[2];
+extern DISPENV D_8007EB68[2];
 extern s8 D_8007EBCC;
 extern s8 D_8007EBDC;
 extern u8 D_8007EBE0; // field debug mode
@@ -390,7 +406,9 @@ extern s16 D_800832A0;
 extern s32 D_80083338;
 extern s8 D_80095DCC;
 extern volatile u16 D_80095DD4;
+extern s16 D_800965E0;
 extern s16 D_800965E8;
+extern volatile s16 D_800965EC;
 extern u8 D_80099FFC;
 extern s16 D_8009A000[1];
 extern s32 D_8009A004[1];
@@ -401,7 +419,7 @@ extern u8* D_8009C6DC;
 extern Unk8009C6E0* D_8009C6E0; // points to 0x8009abf4
 extern SaveWork Savemap;        // 0x8009C6E4
 extern u8 D_8009CBDC[];
-extern u16 D_8009D288;
+extern s16 D_8009D288[];
 extern u8 D_8009D2E7;
 extern u8 D_8009D391[1]; // part of a struct?
 extern u8 D_8009D40D;
