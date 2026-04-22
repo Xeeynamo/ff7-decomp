@@ -1,0 +1,1646 @@
+calvin@Begemot:~/GitHub/ff7-decomp-armstrca/automation$ python3 agent.py --run --target 100 --batch 10 --module battle --llm --llm-threshold 25
+[2026-03-01 22:20:24] [INFO] ============================================================
+[2026-03-01 22:20:24] [INFO] STARTING DECOMPILATION AGENT
+[2026-03-01 22:20:24] [INFO] ============================================================
+[2026-03-01 22:20:24] [INFO] Batch size: 10
+[2026-03-01 22:20:24] [INFO] Verify interval: 20
+[2026-03-01 22:20:24] [INFO] Module filter: battle
+[2026-03-01 22:20:24] [INFO] Target count: 100
+[2026-03-01 22:20:24] [INFO] Initial state: 59/2362 verified
+[2026-03-01 22:20:24] [INFO] Processing batch of 10 functions
+[2026-03-01 22:20:24] [INFO] [1/10] Decompiling func_800A3208 (19 lines)
+
+============================================================
+Attempting to decompile: func_800A3208
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 19
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:26] [INFO] [2/10] Decompiling func_800A3240 (19 lines)
+
+============================================================
+Attempting to decompile: func_800A3240
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 19
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:26] [INFO] [3/10] Decompiling func_800A55BC (19 lines)
+
+============================================================
+Attempting to decompile: func_800A55BC
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 19
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:27] [INFO] [4/10] Decompiling func_800A8CC8 (19 lines)
+
+============================================================
+Attempting to decompile: func_800A8CC8
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 19
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:28] [INFO] [5/10] Decompiling func_800B10B4 (19 lines)
+
+============================================================
+Attempting to decompile: func_800B10B4
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 19
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:29] [INFO] [6/10] Decompiling func_800BB4F8 (20 lines)
+
+============================================================
+Attempting to decompile: func_800BB4F8
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 20
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:29] [INFO] [7/10] Decompiling func_800BB978 (20 lines)
+
+============================================================
+Attempting to decompile: func_800BB978
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 20
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:30] [INFO] [8/10] Decompiling func_800A4E00 (21 lines)
+
+============================================================
+Attempting to decompile: func_800A4E00
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 21
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:30] [INFO] [9/10] Decompiling func_800AE25C (21 lines)
+
+============================================================
+Attempting to decompile: func_800AE25C
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 21
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:31] [INFO] [10/10] Decompiling func_800B1A5C (21 lines)
+
+============================================================
+Attempting to decompile: func_800B1A5C
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 21
+Current status: todo
+✅ Decompilation successful!
+
+============================================================
+AGENT PROGRESS - 22:20:32
+============================================================
+Processed: 10 functions
+Verified:  59/2362 (2.9%)
+Failed:    1
+Todo:      2292
+Batches:   1
+Builds:    0
+LLM analyzed: 0
+Rate:      1.41 functions/second
+Elapsed:   0:00:07
+============================================================
+
+[2026-03-01 22:20:34] [INFO] Processing batch of 10 functions
+[2026-03-01 22:20:34] [INFO] [1/10] Decompiling func_800BB9B8 (21 lines)
+
+============================================================
+Attempting to decompile: func_800BB9B8
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 21
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:34] [INFO] [2/10] Decompiling func_800BB9FC (21 lines)
+
+============================================================
+Attempting to decompile: func_800BB9FC
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 21
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:35] [INFO] [3/10] Decompiling func_800BBA40 (21 lines)
+
+============================================================
+Attempting to decompile: func_800BBA40
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 21
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:36] [INFO] [4/10] Decompiling func_800C03B8 (21 lines)
+
+============================================================
+Attempting to decompile: func_800C03B8
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 21
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:36] [INFO] [5/10] Decompiling func_800A8D18 (22 lines)
+
+============================================================
+Attempting to decompile: func_800A8D18
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 22
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:37] [INFO] [6/10] Decompiling func_800AF834 (22 lines)
+
+============================================================
+Attempting to decompile: func_800AF834
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 22
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:37] [INFO] [7/10] Decompiling func_800B1368 (22 lines)
+
+============================================================
+Attempting to decompile: func_800B1368
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 22
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:38] [INFO] [8/10] Decompiling func_800D4FA8 (22 lines)
+
+============================================================
+Attempting to decompile: func_800D4FA8
+============================================================
+Module: battle
+File: src/battle/battle2.c
+ASM lines: 22
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:39] [INFO] [9/10] Decompiling func_800A3488 (23 lines)
+
+============================================================
+Attempting to decompile: func_800A3488
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 23
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:39] [INFO] [10/10] Decompiling func_800A4F14 (23 lines)
+
+============================================================
+Attempting to decompile: func_800A4F14
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 23
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:40] [INFO] Running verification...
+
+============================================================
+VERIFYING DECOMPILED FUNCTIONS
+============================================================
+
+Found 20 decompiled function(s) to verify
+
+[1/20] Checking func_800A3208...
+  ✅ Matches
+[2/20] Checking func_800A3240...
+  ✅ Matches
+[3/20] Checking func_800A3488...
+  ✅ Matches
+[4/20] Checking func_800A4E00...
+  ✅ Matches
+[5/20] Checking func_800A4F14...
+  ✅ Matches
+[6/20] Checking func_800A55BC...
+  ✅ Matches
+[7/20] Checking func_800A8CC8...
+  ✅ Matches
+[8/20] Checking func_800A8D18...
+  ✅ Matches
+[9/20] Checking func_800AE25C...
+  ✅ Matches
+[10/20] Checking func_800AF834...
+  ✅ Matches
+[11/20] Checking func_800B10B4...
+  ✅ Matches
+[12/20] Checking func_800B1368...
+  ✅ Matches
+[13/20] Checking func_800B1A5C...
+  ✅ Matches
+[14/20] Checking func_800BB4F8...
+  ✅ Matches
+[15/20] Checking func_800BB978...
+  ✅ Matches
+[16/20] Checking func_800BB9B8...
+  ✅ Matches
+[17/20] Checking func_800BB9FC...
+  ✅ Matches
+[18/20] Checking func_800BBA40...
+  ✅ Matches
+[19/20] Checking func_800C03B8...
+  ✅ Matches
+[20/20] Checking func_800D4FA8...
+  ✅ Matches
+
+============================================================
+VERIFICATION COMPLETE
+============================================================
+✅ Verified:    20
+❌ Not matching: 0
+============================================================
+
+[2026-03-01 22:20:40] [INFO] Verified 20 functions
+
+============================================================
+AGENT PROGRESS - 22:20:40
+============================================================
+Processed: 20 functions
+Verified:  79/2362 (3.3%)
+Failed:    1
+Todo:      2282
+Batches:   2
+Builds:    0
+LLM analyzed: 0
+Rate:      1.29 functions/second
+Elapsed:   0:00:15
+============================================================
+
+[2026-03-01 22:20:42] [INFO] Processing batch of 10 functions
+[2026-03-01 22:20:42] [INFO] [1/10] Decompiling func_800AD8DC (23 lines)
+
+============================================================
+Attempting to decompile: func_800AD8DC
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 23
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:43] [INFO] [2/10] Decompiling func_800B37A0 (23 lines)
+
+============================================================
+Attempting to decompile: func_800B37A0
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 23
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:43] [INFO] [3/10] Decompiling func_800B888C (23 lines)
+
+============================================================
+Attempting to decompile: func_800B888C
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 23
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:44] [INFO] [4/10] Decompiling func_800A6CC0 (24 lines)
+
+============================================================
+Attempting to decompile: func_800A6CC0
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 24
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:44] [INFO] [5/10] Decompiling func_800A6D3C (24 lines)
+
+============================================================
+Attempting to decompile: func_800A6D3C
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 24
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:45] [INFO] [6/10] Decompiling func_800AD890 (24 lines)
+
+============================================================
+Attempting to decompile: func_800AD890
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 24
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:45] [INFO] [7/10] Decompiling func_800B1218 (24 lines)
+
+============================================================
+Attempting to decompile: func_800B1218
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 24
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:46] [INFO] [8/10] Decompiling func_800D55A4 (24 lines)
+
+============================================================
+Attempting to decompile: func_800D55A4
+============================================================
+Module: battle
+File: src/battle/battle2.c
+ASM lines: 24
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:47] [INFO] [9/10] Decompiling func_800D5774 (24 lines)
+
+============================================================
+Attempting to decompile: func_800D5774
+============================================================
+Module: battle
+File: src/battle/battle2.c
+ASM lines: 24
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:20:47] [INFO] [10/10] Decompiling func_800A5FB0 (25 lines)
+[2026-03-01 22:20:47] [INFO]   ⚙️  Analyzing with LLM (25 lines)...
+[2026-03-01 22:21:02] [INFO]   📊 Complexity: medium, Summary: ** The function appears to check if certain conditions are met related to memory...
+
+============================================================
+Attempting to decompile: func_800A5FB0
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 25
+Current status: todo
+✅ Decompilation successful!
+
+============================================================
+AGENT PROGRESS - 22:21:03
+============================================================
+Processed: 30 functions
+Verified:  79/2362 (3.8%)
+Failed:    1
+Todo:      2272
+Batches:   3
+Builds:    0
+LLM analyzed: 1
+Rate:      0.79 functions/second
+Elapsed:   0:00:38
+============================================================
+
+[2026-03-01 22:21:05] [INFO] Processing batch of 10 functions
+[2026-03-01 22:21:05] [INFO] [1/10] Decompiling func_800A6A70 (25 lines)
+[2026-03-01 22:21:05] [INFO]   ⚙️  Analyzing with LLM (25 lines)...
+[2026-03-01 22:21:12] [INFO]   📊 Complexity: easy, Summary: ** The function `func_800A6A70` appears to be modifying a byte at a specific mem...
+
+============================================================
+Attempting to decompile: func_800A6A70
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 25
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:21:12] [INFO] [2/10] Decompiling func_800B2F70 (25 lines)
+[2026-03-01 22:21:12] [INFO]   ⚙️  Analyzing with LLM (25 lines)...
+[2026-03-01 22:21:19] [WARN]   ⚠️  LLM analysis failed: 'NoneType' object is not subscriptable
+
+============================================================
+Attempting to decompile: func_800B2F70
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 25
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:21:19] [INFO] [3/10] Decompiling func_800B38E0 (25 lines)
+[2026-03-01 22:21:19] [INFO]   ⚙️  Analyzing with LLM (25 lines)...
+[2026-03-01 22:21:28] [INFO]   📊 Complexity: medium, Summary: This function appears to be a subroutine that reads data from a memory location ...
+
+============================================================
+Attempting to decompile: func_800B38E0
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 25
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:21:28] [INFO] [4/10] Decompiling func_800A6AC4 (26 lines)
+[2026-03-01 22:21:28] [INFO]   ⚙️  Analyzing with LLM (26 lines)...
+[2026-03-01 22:21:39] [INFO]   📊 Complexity: medium, Summary: ** This function appears to be manipulating specific data stored in memory locat...
+
+============================================================
+Attempting to decompile: func_800A6AC4
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 26
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:21:40] [INFO] [5/10] Decompiling func_800A6C04 (26 lines)
+[2026-03-01 22:21:40] [INFO]   ⚙️  Analyzing with LLM (26 lines)...
+[2026-03-01 22:21:49] [INFO]   📊 Complexity: medium, Summary: This function appears to perform some data manipulation, likely related to loadi...
+
+============================================================
+Attempting to decompile: func_800A6C04
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 26
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:21:50] [INFO] [6/10] Decompiling func_800ADE84 (26 lines)
+[2026-03-01 22:21:50] [INFO]   ⚙️  Analyzing with LLM (26 lines)...
+[2026-03-01 22:21:56] [INFO]   📊 Complexity: medium, Summary: ** This function performs a calculation involving subtraction, multiplication, a...
+
+============================================================
+Attempting to decompile: func_800ADE84
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 26
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:21:57] [INFO] [7/10] Decompiling func_800B0EB4 (26 lines)
+[2026-03-01 22:21:57] [INFO]   ⚙️  Analyzing with LLM (26 lines)...
+[2026-03-01 22:22:04] [INFO]   📊 Complexity: medium, Summary: ** This function appears to calculate an index based on the input parameter, fet...
+
+============================================================
+Attempting to decompile: func_800B0EB4
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 26
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:22:05] [INFO] [8/10] Decompiling func_800A4480 (27 lines)
+[2026-03-01 22:22:05] [INFO]   ⚙️  Analyzing with LLM (27 lines)...
+[2026-03-01 22:22:17] [INFO]   📊 Complexity: medium, Summary: ** The function `func_800A4480` appears to be iterating over a range of values, ...
+
+============================================================
+Attempting to decompile: func_800A4480
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 27
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:22:18] [INFO] [9/10] Decompiling func_800A5660 (27 lines)
+[2026-03-01 22:22:18] [INFO]   ⚙️  Analyzing with LLM (27 lines)...
+[2026-03-01 22:22:26] [INFO]   📊 Complexity: medium, Summary: ** The function `func_800A5660` iterates through a memory range, checking for sp...
+
+============================================================
+Attempting to decompile: func_800A5660
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 27
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:22:27] [INFO] [10/10] Decompiling func_800ADFF4 (27 lines)
+[2026-03-01 22:22:27] [INFO]   ⚙️  Analyzing with LLM (27 lines)...
+[2026-03-01 22:22:38] [INFO]   📊 Complexity: medium, Summary: ** This function appears to calculate some values based on the contents of memor...
+
+============================================================
+Attempting to decompile: func_800ADFF4
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 27
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:22:39] [INFO] Running verification...
+
+============================================================
+VERIFYING DECOMPILED FUNCTIONS
+============================================================
+
+Found 20 decompiled function(s) to verify
+
+[1/20] Checking func_800A4480...
+  ✅ Matches
+[2/20] Checking func_800A5660...
+  ✅ Matches
+[3/20] Checking func_800A5FB0...
+  ✅ Matches
+[4/20] Checking func_800A6A70...
+  ✅ Matches
+[5/20] Checking func_800A6AC4...
+  ✅ Matches
+[6/20] Checking func_800A6C04...
+  ✅ Matches
+[7/20] Checking func_800A6CC0...
+  ✅ Matches
+[8/20] Checking func_800A6D3C...
+  ✅ Matches
+[9/20] Checking func_800AD890...
+  ✅ Matches
+[10/20] Checking func_800AD8DC...
+  ✅ Matches
+[11/20] Checking func_800ADE84...
+  ✅ Matches
+[12/20] Checking func_800ADFF4...
+  ✅ Matches
+[13/20] Checking func_800B0EB4...
+  ✅ Matches
+[14/20] Checking func_800B1218...
+  ✅ Matches
+[15/20] Checking func_800B2F70...
+  ✅ Matches
+[16/20] Checking func_800B37A0...
+  ✅ Matches
+[17/20] Checking func_800B38E0...
+  ✅ Matches
+[18/20] Checking func_800B888C...
+  ✅ Matches
+[19/20] Checking func_800D55A4...
+  ✅ Matches
+[20/20] Checking func_800D5774...
+  ✅ Matches
+
+============================================================
+VERIFICATION COMPLETE
+============================================================
+✅ Verified:    20
+❌ Not matching: 0
+============================================================
+
+[2026-03-01 22:22:39] [INFO] Verified 20 functions
+
+============================================================
+AGENT PROGRESS - 22:22:39
+============================================================
+Processed: 40 functions
+Verified:  99/2362 (4.2%)
+Failed:    1
+Todo:      2262
+Batches:   4
+Builds:    0
+LLM analyzed: 11
+Rate:      0.30 functions/second
+Elapsed:   0:02:14
+============================================================
+
+[2026-03-01 22:22:41] [INFO] Processing batch of 10 functions
+[2026-03-01 22:22:41] [INFO] [1/10] Decompiling func_800B0E5C (27 lines)
+[2026-03-01 22:22:41] [INFO]   ⚙️  Analyzing with LLM (27 lines)...
+[2026-03-01 22:22:49] [INFO]   📊 Complexity: medium, Summary: ** The function checks if the input value is negative. If it is, it calculates a...
+
+============================================================
+Attempting to decompile: func_800B0E5C
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 27
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:22:49] [INFO] [2/10] Decompiling func_800B3FAC (27 lines)
+[2026-03-01 22:22:49] [INFO]   ⚙️  Analyzing with LLM (27 lines)...
+[2026-03-01 22:22:58] [INFO]   📊 Complexity: medium, Summary: ** The function appears to be searching for a specific value in a memory buffer,...
+
+============================================================
+Attempting to decompile: func_800B3FAC
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 27
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:22:59] [INFO] [3/10] Decompiling func_800BC2F0 (27 lines)
+[2026-03-01 22:22:59] [INFO]   ⚙️  Analyzing with LLM (27 lines)...
+[2026-03-01 22:23:08] [INFO]   📊 Complexity: medium, Summary: ** The function `func_800BC2F0` appears to be initializing memory blocks at spec...
+
+============================================================
+Attempting to decompile: func_800BC2F0
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 27
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:23:09] [INFO] [4/10] Decompiling func_800D3474 (27 lines)
+[2026-03-01 22:23:09] [INFO]   ⚙️  Analyzing with LLM (27 lines)...
+[2026-03-01 22:23:22] [INFO]   📊 Complexity: medium, Summary: ** This function appears to be manipulating registers related to coprocessor 2 (...
+
+============================================================
+Attempting to decompile: func_800D3474
+============================================================
+Module: battle
+File: src/battle/battle2.c
+ASM lines: 27
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:23:23] [INFO] [5/10] Decompiling func_800A311C (28 lines)
+[2026-03-01 22:23:23] [INFO]   ⚙️  Analyzing with LLM (28 lines)...
+[2026-03-01 22:23:34] [WARN]   ⚠️  LLM analysis failed: 'NoneType' object is not subscriptable
+
+============================================================
+Attempting to decompile: func_800A311C
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 28
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:23:35] [INFO] [6/10] Decompiling func_800A555C (28 lines)
+[2026-03-01 22:23:35] [INFO]   ⚙️  Analyzing with LLM (28 lines)...
+[2026-03-01 22:23:54] [INFO]   📊 Complexity: medium, Summary: ** This function appears to modify a memory block by performing several operatio...
+
+============================================================
+Attempting to decompile: func_800A555C
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 28
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:23:54] [INFO] [7/10] Decompiling func_800B950C (28 lines)
+[2026-03-01 22:23:54] [INFO]   ⚙️  Analyzing with LLM (28 lines)...
+[2026-03-01 22:24:07] [INFO]   📊 Complexity: medium, Summary: ** The function appears to be a loop that reads two 16-bit unsigned integers fro...
+
+============================================================
+Attempting to decompile: func_800B950C
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 28
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:24:08] [INFO] [8/10] Decompiling func_800E68B4 (28 lines)
+[2026-03-01 22:24:08] [INFO]   ⚙️  Analyzing with LLM (28 lines)...
+[2026-03-01 22:24:21] [WARN]   ⚠️  LLM analysis failed: 'NoneType' object is not subscriptable
+
+============================================================
+Attempting to decompile: func_800E68B4
+============================================================
+Module: battle
+File: src/battle/battle3.c
+ASM lines: 28
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:24:22] [INFO] [9/10] Decompiling func_800A283C (29 lines)
+[2026-03-01 22:24:22] [INFO]   ⚙️  Analyzing with LLM (29 lines)...
+[2026-03-01 22:24:33] [INFO]   📊 Complexity: medium, Summary: ** The function `func_800A283C` appears to increment a counter stored in memory ...
+
+============================================================
+Attempting to decompile: func_800A283C
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 29
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:24:34] [INFO] [10/10] Decompiling func_800A6C5C (29 lines)
+[2026-03-01 22:24:34] [INFO]   ⚙️  Analyzing with LLM (29 lines)...
+[2026-03-01 22:24:41] [INFO]   📊 Complexity: medium, Summary: The function appears to be processing some data by calling another function and ...
+
+============================================================
+Attempting to decompile: func_800A6C5C
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 29
+Current status: todo
+✅ Decompilation successful!
+
+============================================================
+AGENT PROGRESS - 22:24:42
+============================================================
+Processed: 50 functions
+Verified:  99/2362 (4.6%)
+Failed:    1
+Todo:      2252
+Batches:   5
+Builds:    0
+LLM analyzed: 21
+Rate:      0.19 functions/second
+Elapsed:   0:04:17
+============================================================
+
+[2026-03-01 22:24:44] [INFO] Processing batch of 10 functions
+[2026-03-01 22:24:44] [INFO] [1/10] Decompiling func_800A6E0C (29 lines)
+[2026-03-01 22:24:44] [INFO]   ⚙️  Analyzing with LLM (29 lines)...
+[2026-03-01 22:24:52] [INFO]   📊 Complexity: medium, Summary: This function appears to set up memory addresses based on the input parameter, p...
+
+============================================================
+Attempting to decompile: func_800A6E0C
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 29
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:24:53] [INFO] [2/10] Decompiling func_800A73F8 (29 lines)
+[2026-03-01 22:24:53] [INFO]   ⚙️  Analyzing with LLM (29 lines)...
+[2026-03-01 22:25:07] [INFO]   📊 Complexity: medium, Summary: ** This function appears to be handling a data structure, possibly for managing ...
+
+============================================================
+Attempting to decompile: func_800A73F8
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 29
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:25:08] [INFO] [3/10] Decompiling func_800AD420 (29 lines)
+[2026-03-01 22:25:08] [INFO]   ⚙️  Analyzing with LLM (29 lines)...
+[2026-03-01 22:25:23] [WARN]   ⚠️  LLM analysis failed: 'NoneType' object is not subscriptable
+
+============================================================
+Attempting to decompile: func_800AD420
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 29
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:25:24] [INFO] [4/10] Decompiling func_800AE318 (29 lines)
+[2026-03-01 22:25:24] [INFO]   ⚙️  Analyzing with LLM (29 lines)...
+[2026-03-01 22:25:35] [INFO]   📊 Complexity: medium, Summary: ** The function `func_800AE318` appears to be part of a larger system that proce...
+
+============================================================
+Attempting to decompile: func_800AE318
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 29
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:25:35] [INFO] [5/10] Decompiling func_800AEB20 (29 lines)
+[2026-03-01 22:25:35] [INFO]   ⚙️  Analyzing with LLM (29 lines)...
+[2026-03-01 22:25:46] [INFO]   📊 Complexity: medium, Summary: ** This function appears to be handling memory access and manipulation based on ...
+
+============================================================
+Attempting to decompile: func_800AEB20
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 29
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:25:47] [INFO] [6/10] Decompiling func_800B5CD4 (29 lines)
+[2026-03-01 22:25:47] [INFO]   ⚙️  Analyzing with LLM (29 lines)...
+[2026-03-01 22:25:56] [INFO]   📊 Complexity: medium, Summary: This function appears to be performing a series of calculations and memory acces...
+
+============================================================
+Attempting to decompile: func_800B5CD4
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 29
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:25:57] [INFO] [7/10] Decompiling func_800B8360 (29 lines)
+[2026-03-01 22:25:57] [INFO]   ⚙️  Analyzing with LLM (29 lines)...
+[2026-03-01 22:26:10] [INFO]   📊 Complexity: medium, Summary: ** The function `func_800B8360` appears to initialize graphics drawing parameter...
+
+============================================================
+Attempting to decompile: func_800B8360
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 29
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:26:11] [INFO] [8/10] Decompiling func_800D34C8 (29 lines)
+[2026-03-01 22:26:11] [INFO]   ⚙️  Analyzing with LLM (29 lines)...
+[2026-03-01 22:26:27] [WARN]   ⚠️  LLM analysis failed: 'NoneType' object is not subscriptable
+
+============================================================
+Attempting to decompile: func_800D34C8
+============================================================
+Module: battle
+File: src/battle/battle2.c
+ASM lines: 29
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:26:28] [INFO] [9/10] Decompiling func_800A4CC8 (30 lines)
+[2026-03-01 22:26:28] [INFO]   ⚙️  Analyzing with LLM (30 lines)...
+[2026-03-01 22:26:39] [WARN]   ⚠️  LLM analysis failed: 'NoneType' object is not subscriptable
+
+============================================================
+Attempting to decompile: func_800A4CC8
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 30
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:26:40] [INFO] [10/10] Decompiling func_800A71F4 (30 lines)
+[2026-03-01 22:26:40] [INFO]   ⚙️  Analyzing with LLM (30 lines)...
+[2026-03-01 22:26:54] [INFO]   📊 Complexity: medium, Summary: ** The function appears to perform a specific operation involving memory manipul...
+
+============================================================
+Attempting to decompile: func_800A71F4
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 30
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:26:55] [INFO] Running verification...
+
+============================================================
+VERIFYING DECOMPILED FUNCTIONS
+============================================================
+
+Found 20 decompiled function(s) to verify
+
+[1/20] Checking func_800A283C...
+  ✅ Matches
+[2/20] Checking func_800A311C...
+  ✅ Matches
+[3/20] Checking func_800A4CC8...
+  ✅ Matches
+[4/20] Checking func_800A555C...
+  ✅ Matches
+[5/20] Checking func_800A6C5C...
+  ✅ Matches
+[6/20] Checking func_800A6E0C...
+  ✅ Matches
+[7/20] Checking func_800A71F4...
+  ✅ Matches
+[8/20] Checking func_800A73F8...
+  ✅ Matches
+[9/20] Checking func_800AD420...
+  ✅ Matches
+[10/20] Checking func_800AE318...
+  ✅ Matches
+[11/20] Checking func_800AEB20...
+  ✅ Matches
+[12/20] Checking func_800B0E5C...
+  ✅ Matches
+[13/20] Checking func_800B3FAC...
+  ✅ Matches
+[14/20] Checking func_800B5CD4...
+  ✅ Matches
+[15/20] Checking func_800B8360...
+  ✅ Matches
+[16/20] Checking func_800B950C...
+  ✅ Matches
+[17/20] Checking func_800BC2F0...
+  ✅ Matches
+[18/20] Checking func_800D3474...
+  ✅ Matches
+[19/20] Checking func_800D34C8...
+  ✅ Matches
+[20/20] Checking func_800E68B4...
+  ✅ Matches
+
+============================================================
+VERIFICATION COMPLETE
+============================================================
+✅ Verified:    20
+❌ Not matching: 0
+============================================================
+
+[2026-03-01 22:26:55] [INFO] Verified 20 functions
+
+============================================================
+AGENT PROGRESS - 22:26:55
+============================================================
+Processed: 60 functions
+Verified:  119/2362 (5.0%)
+Failed:    1
+Todo:      2242
+Batches:   6
+Builds:    0
+LLM analyzed: 31
+Rate:      0.15 functions/second
+Elapsed:   0:06:30
+============================================================
+
+[2026-03-01 22:26:57] [INFO] Processing batch of 10 functions
+[2026-03-01 22:26:57] [INFO] [1/10] Decompiling func_800AA688 (30 lines)
+[2026-03-01 22:26:57] [INFO]   ⚙️  Analyzing with LLM (30 lines)...
+[2026-03-01 22:27:08] [INFO]   📊 Complexity: medium, Summary: ** The function `func_800AA688` iterates over a series of values, checking each ...
+
+============================================================
+Attempting to decompile: func_800AA688
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 30
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:27:09] [INFO] [2/10] Decompiling func_800B798C (30 lines)
+[2026-03-01 22:27:09] [INFO]   ⚙️  Analyzing with LLM (30 lines)...
+[2026-03-01 22:27:17] [INFO]   📊 Complexity: easy, Summary: The function iterates up to 74 times, writing values to specific memory addresse...
+
+============================================================
+Attempting to decompile: func_800B798C
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 30
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:27:18] [INFO] [3/10] Decompiling func_800D3418 (30 lines)
+[2026-03-01 22:27:18] [INFO]   ⚙️  Analyzing with LLM (30 lines)...
+[2026-03-01 22:27:33] [INFO]   📊 Complexity: easy, Summary: ** This function appears to manipulate certain control registers in the MIPS R30...
+
+============================================================
+Attempting to decompile: func_800D3418
+============================================================
+Module: battle
+File: src/battle/battle2.c
+ASM lines: 30
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:27:34] [INFO] [4/10] Decompiling func_800D51D4 (30 lines)
+[2026-03-01 22:27:34] [INFO]   ⚙️  Analyzing with LLM (30 lines)...
+[2026-03-01 22:27:46] [INFO]   📊 Complexity: medium, Summary: ** This function reads an integer from a memory address stored in `$a1`, negates...
+
+============================================================
+Attempting to decompile: func_800D51D4
+============================================================
+Module: battle
+File: src/battle/battle2.c
+ASM lines: 30
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:27:47] [INFO] [5/10] Decompiling func_800D58D0 (30 lines)
+[2026-03-01 22:27:47] [INFO]   ⚙️  Analyzing with LLM (30 lines)...
+[2026-03-01 22:28:03] [INFO]   📊 Complexity: medium, Summary: ** This function appears to call another function (`func_800BBEAC`), performs so...
+
+============================================================
+Attempting to decompile: func_800D58D0
+============================================================
+Module: battle
+File: src/battle/battle2.c
+ASM lines: 30
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:28:03] [INFO] [6/10] Decompiling func_800A70C4 (31 lines)
+[2026-03-01 22:28:03] [INFO]   ⚙️  Analyzing with LLM (31 lines)...
+[2026-03-01 22:28:13] [INFO]   📊 Complexity: medium, Summary: ** The function appears to be loading a configuration value from memory, perform...
+
+============================================================
+Attempting to decompile: func_800A70C4
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 31
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:28:13] [INFO] [7/10] Decompiling func_800A853C (31 lines)
+[2026-03-01 22:28:13] [INFO]   ⚙️  Analyzing with LLM (31 lines)...
+[2026-03-01 22:28:23] [INFO]   📊 Complexity: medium, Summary: ** The function appears to be a loop that iterates 10 times, performs some bitwi...
+
+============================================================
+Attempting to decompile: func_800A853C
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 31
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:28:24] [INFO] [8/10] Decompiling func_800B1304 (31 lines)
+[2026-03-01 22:28:24] [INFO]   ⚙️  Analyzing with LLM (31 lines)...
+[2026-03-01 22:28:36] [INFO]   📊 Complexity: medium, Summary: ** The function appears to be searching for a specific value in a memory region,...
+
+============================================================
+Attempting to decompile: func_800B1304
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 31
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:28:36] [INFO] [9/10] Decompiling func_800C20E8 (31 lines)
+[2026-03-01 22:28:36] [INFO]   ⚙️  Analyzing with LLM (31 lines)...
+[2026-03-01 22:28:44] [INFO]   📊 Complexity: medium, Summary: ** The function appears to perform some kind of computation involving multiplica...
+
+============================================================
+Attempting to decompile: func_800C20E8
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 31
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:28:45] [INFO] [10/10] Decompiling func_800D76B8 (31 lines)
+[2026-03-01 22:28:45] [INFO]   ⚙️  Analyzing with LLM (31 lines)...
+[2026-03-01 22:28:59] [INFO]   📊 Complexity: medium, Summary: ** The function appears to perform some operations on a data structure located a...
+
+============================================================
+Attempting to decompile: func_800D76B8
+============================================================
+Module: battle
+File: src/battle/battle2.c
+ASM lines: 31
+Current status: todo
+✅ Decompilation successful!
+
+============================================================
+AGENT PROGRESS - 22:29:00
+============================================================
+Processed: 70 functions
+Verified:  119/2362 (5.5%)
+Failed:    1
+Todo:      2232
+Batches:   7
+Builds:    0
+LLM analyzed: 41
+Rate:      0.14 functions/second
+Elapsed:   0:08:35
+============================================================
+
+[2026-03-01 22:29:02] [INFO] Processing batch of 10 functions
+[2026-03-01 22:29:02] [INFO] [1/10] Decompiling func_800D8A88 (31 lines)
+[2026-03-01 22:29:02] [INFO]   ⚙️  Analyzing with LLM (31 lines)...
+[2026-03-01 22:29:15] [INFO]   📊 Complexity: medium, Summary: ** This function appears to synchronize a drawing process with vertical synchron...
+
+============================================================
+Attempting to decompile: func_800D8A88
+============================================================
+Module: battle
+File: src/battle/battle3.c
+ASM lines: 31
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:29:16] [INFO] [2/10] Decompiling func_800A65B0 (32 lines)
+[2026-03-01 22:29:16] [INFO]   ⚙️  Analyzing with LLM (32 lines)...
+[2026-03-01 22:29:25] [WARN]   ⚠️  LLM analysis failed: 'NoneType' object is not subscriptable
+
+============================================================
+Attempting to decompile: func_800A65B0
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 32
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:29:26] [INFO] [3/10] Decompiling func_800A8DCC (32 lines)
+[2026-03-01 22:29:26] [INFO]   ⚙️  Analyzing with LLM (32 lines)...
+[2026-03-01 22:29:39] [INFO]   📊 Complexity: medium, Summary: ** This function appears to update memory addresses based on the input parameter...
+
+============================================================
+Attempting to decompile: func_800A8DCC
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 32
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:29:39] [INFO] [4/10] Decompiling func_800B11B4 (32 lines)
+[2026-03-01 22:29:39] [INFO]   ⚙️  Analyzing with LLM (32 lines)...
+[2026-03-01 22:29:51] [INFO]   📊 Complexity: medium, Summary: ** This function appears to be searching for a specific value in an array, possi...
+
+============================================================
+Attempting to decompile: func_800B11B4
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 32
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:29:52] [INFO] [5/10] Decompiling func_800A34CC (33 lines)
+[2026-03-01 22:29:52] [INFO]   ⚙️  Analyzing with LLM (33 lines)...
+[2026-03-01 22:30:01] [INFO]   📊 Complexity: medium, Summary: ** The function appears to be a loop that processes data at memory locations poi...
+
+============================================================
+Attempting to decompile: func_800A34CC
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 33
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:30:02] [INFO] [6/10] Decompiling func_800A44D8 (33 lines)
+[2026-03-01 22:30:02] [INFO]   ⚙️  Analyzing with LLM (33 lines)...
+[2026-03-01 22:30:13] [INFO]   📊 Complexity: medium, Summary: ** The function appears to check if a given input is within a specific range and...
+
+============================================================
+Attempting to decompile: func_800A44D8
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 33
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:30:14] [INFO] [7/10] Decompiling func_800A6B1C (33 lines)
+[2026-03-01 22:30:14] [INFO]   ⚙️  Analyzing with LLM (33 lines)...
+[2026-03-01 22:30:29] [INFO]   📊 Complexity: easy, Summary: ** The function `func_800A6B1C` appears to be a bit manipulation routine that pr...
+
+============================================================
+Attempting to decompile: func_800A6B1C
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 33
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:30:30] [INFO] [8/10] Decompiling func_800A85FC (33 lines)
+[2026-03-01 22:30:30] [INFO]   ⚙️  Analyzing with LLM (33 lines)...
+[2026-03-01 22:30:40] [INFO]   📊 Complexity: medium, Summary: ** This function appears to check a condition, perform some calculations, and ca...
+
+============================================================
+Attempting to decompile: func_800A85FC
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 33
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:30:41] [INFO] [9/10] Decompiling func_800ADDE8 (33 lines)
+[2026-03-01 22:30:41] [INFO]   ⚙️  Analyzing with LLM (33 lines)...
+[2026-03-01 22:30:58] [INFO]   📊 Complexity: medium, Summary: ** The function appears to perform calculations and manipulate data structures, ...
+
+============================================================
+Attempting to decompile: func_800ADDE8
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 33
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:30:58] [INFO] [10/10] Decompiling func_800AEB80 (33 lines)
+[2026-03-01 22:30:58] [INFO]   ⚙️  Analyzing with LLM (33 lines)...
+[2026-03-01 22:31:19] [INFO]   📊 Complexity: medium, Summary: ** The function appears to be managing memory allocation and performing some bit...
+
+============================================================
+Attempting to decompile: func_800AEB80
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 33
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:31:19] [INFO] Running verification...
+
+============================================================
+VERIFYING DECOMPILED FUNCTIONS
+============================================================
+
+Found 20 decompiled function(s) to verify
+
+[1/20] Checking func_800A34CC...
+  ✅ Matches
+[2/20] Checking func_800A44D8...
+  ✅ Matches
+[3/20] Checking func_800A65B0...
+  ✅ Matches
+[4/20] Checking func_800A6B1C...
+  ✅ Matches
+[5/20] Checking func_800A70C4...
+  ✅ Matches
+[6/20] Checking func_800A853C...
+  ✅ Matches
+[7/20] Checking func_800A85FC...
+  ✅ Matches
+[8/20] Checking func_800A8DCC...
+  ✅ Matches
+[9/20] Checking func_800AA688...
+  ✅ Matches
+[10/20] Checking func_800ADDE8...
+  ✅ Matches
+[11/20] Checking func_800AEB80...
+  ✅ Matches
+[12/20] Checking func_800B11B4...
+  ✅ Matches
+[13/20] Checking func_800B1304...
+  ✅ Matches
+[14/20] Checking func_800B798C...
+  ✅ Matches
+[15/20] Checking func_800C20E8...
+  ✅ Matches
+[16/20] Checking func_800D3418...
+  ✅ Matches
+[17/20] Checking func_800D51D4...
+  ✅ Matches
+[18/20] Checking func_800D58D0...
+  ✅ Matches
+[19/20] Checking func_800D76B8...
+  ✅ Matches
+[20/20] Checking func_800D8A88...
+  ✅ Matches
+
+============================================================
+VERIFICATION COMPLETE
+============================================================
+✅ Verified:    20
+❌ Not matching: 0
+============================================================
+
+[2026-03-01 22:31:20] [INFO] Verified 20 functions
+
+============================================================
+AGENT PROGRESS - 22:31:20
+============================================================
+Processed: 80 functions
+Verified:  139/2362 (5.9%)
+Failed:    1
+Todo:      2222
+Batches:   8
+Builds:    0
+LLM analyzed: 51
+Rate:      0.12 functions/second
+Elapsed:   0:10:55
+============================================================
+
+[2026-03-01 22:31:22] [INFO] Processing batch of 10 functions
+[2026-03-01 22:31:22] [INFO] [1/10] Decompiling func_800D5230 (33 lines)
+[2026-03-01 22:31:22] [INFO]   ⚙️  Analyzing with LLM (33 lines)...
+[2026-03-01 22:31:41] [INFO]   📊 Complexity: medium, Summary: ** This function appears to perform a series of calculations and memory operatio...
+
+============================================================
+Attempting to decompile: func_800D5230
+============================================================
+Module: battle
+File: src/battle/battle2.c
+ASM lines: 33
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:31:41] [INFO] [2/10] Decompiling func_800E58CC (33 lines)
+[2026-03-01 22:31:41] [INFO]   ⚙️  Analyzing with LLM (33 lines)...
+[2026-03-01 22:31:56] [INFO]   📊 Complexity: medium, Summary: ** The function appears to be a loop that iterates up to 3 times, performing cal...
+
+============================================================
+Attempting to decompile: func_800E58CC
+============================================================
+Module: battle
+File: src/battle/battle3.c
+ASM lines: 33
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:31:57] [INFO] [3/10] Decompiling func_800A55F4 (34 lines)
+[2026-03-01 22:31:57] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:32:06] [INFO]   📊 Complexity: medium, Summary: ** This function appears to search through a table of 16-bit values, looking for...
+
+============================================================
+Attempting to decompile: func_800A55F4
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:32:07] [INFO] [4/10] Decompiling func_800A6D88 (34 lines)
+[2026-03-01 22:32:07] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:32:20] [INFO]   📊 Complexity: medium, Summary: ** This function calculates an offset based on the input argument, reads a value...
+
+============================================================
+Attempting to decompile: func_800A6D88
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:32:21] [INFO] [5/10] Decompiling func_800A7254 (34 lines)
+[2026-03-01 22:32:21] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:32:34] [INFO]   📊 Complexity: medium, Summary: ** This function appears to be involved in modifying a data structure based on s...
+
+============================================================
+Attempting to decompile: func_800A7254
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:32:35] [INFO] [6/10] Decompiling func_800AD088 (34 lines)
+[2026-03-01 22:32:35] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:32:46] [INFO]   📊 Complexity: medium, Summary: ** This function appears to check a condition based on memory values and calls a...
+
+============================================================
+Attempting to decompile: func_800AD088
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:32:46] [INFO] [7/10] Decompiling func_800AD480 (34 lines)
+[2026-03-01 22:32:46] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:32:58] [INFO]   📊 Complexity: medium, Summary: ** This function appears to be a loop that processes data based on certain condi...
+
+============================================================
+Attempting to decompile: func_800AD480
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:32:59] [INFO] [8/10] Decompiling func_800AE2A0 (34 lines)
+[2026-03-01 22:32:59] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:33:13] [INFO]   📊 Complexity: medium, Summary: ** This function performs a series of arithmetic and logical operations on its i...
+
+============================================================
+Attempting to decompile: func_800AE2A0
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:33:13] [INFO] [9/10] Decompiling func_800B13B0 (34 lines)
+[2026-03-01 22:33:13] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:33:27] [INFO]   📊 Complexity: medium, Summary: ** The function `func_800B13B0` appears to be a conditional write function that ...
+
+============================================================
+Attempting to decompile: func_800B13B0
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:33:28] [INFO] [10/10] Decompiling func_800B88CC (34 lines)
+[2026-03-01 22:33:28] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:33:44] [INFO]   📊 Complexity: medium, Summary: ** This function appears to be performing a series of operations on the input pa...
+
+============================================================
+Attempting to decompile: func_800B88CC
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+
+============================================================
+AGENT PROGRESS - 22:33:45
+============================================================
+Processed: 90 functions
+Verified:  139/2362 (6.3%)
+Failed:    1
+Todo:      2212
+Batches:   9
+Builds:    0
+LLM analyzed: 61
+Rate:      0.11 functions/second
+Elapsed:   0:13:20
+============================================================
+
+[2026-03-01 22:33:47] [INFO] Processing batch of 10 functions
+[2026-03-01 22:33:47] [INFO] [1/10] Decompiling func_800BA24C (34 lines)
+[2026-03-01 22:33:47] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:34:02] [INFO]   📊 Complexity: easy, Summary: ** This function appears to be managing some form of status flags and updating m...
+
+============================================================
+Attempting to decompile: func_800BA24C
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:34:03] [INFO] [2/10] Decompiling func_800BFA98 (34 lines)
+[2026-03-01 22:34:03] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:34:19] [INFO]   📊 Complexity: medium, Summary: ** This function appears to be processing input values stored in specific memory...
+
+============================================================
+Attempting to decompile: func_800BFA98
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:34:20] [INFO] [3/10] Decompiling func_800BFB10 (34 lines)
+[2026-03-01 22:34:20] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:34:37] [INFO]   📊 Complexity: medium, Summary: ** This function appears to be manipulating memory addresses and performing bitw...
+
+============================================================
+Attempting to decompile: func_800BFB10
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:34:38] [INFO] [4/10] Decompiling func_800C614C (34 lines)
+[2026-03-01 22:34:38] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:34:54] [INFO]   📊 Complexity: medium, Summary: ** This function appears to process a TIM file, which is typically used for stor...
+
+============================================================
+Attempting to decompile: func_800C614C
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:34:54] [INFO] [5/10] Decompiling func_800D09D0 (34 lines)
+[2026-03-01 22:34:54] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:35:11] [INFO]   📊 Complexity: medium, Summary: ** The function appears to perform a series of memory operations based on an inp...
+
+============================================================
+Attempting to decompile: func_800D09D0
+============================================================
+Module: battle
+File: src/battle/battle2.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:35:12] [INFO] [6/10] Decompiling func_800D5444 (34 lines)
+[2026-03-01 22:35:12] [INFO]   ⚙️  Analyzing with LLM (34 lines)...
+[2026-03-01 22:35:29] [WARN]   ⚠️  LLM analysis failed: 'NoneType' object is not subscriptable
+
+============================================================
+Attempting to decompile: func_800D5444
+============================================================
+Module: battle
+File: src/battle/battle2.c
+ASM lines: 34
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:35:30] [INFO] [7/10] Decompiling func_800A66A4 (35 lines)
+[2026-03-01 22:35:30] [INFO]   ⚙️  Analyzing with LLM (35 lines)...
+[2026-03-01 22:35:52] [INFO]   📊 Complexity: medium, Summary: ** This function appears to perform some form of data manipulation or processing...
+
+============================================================
+Attempting to decompile: func_800A66A4
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 35
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:35:53] [INFO] [8/10] Decompiling func_800ACE14 (35 lines)
+[2026-03-01 22:35:53] [INFO]   ⚙️  Analyzing with LLM (35 lines)...
+[2026-03-01 22:36:03] [INFO]   📊 Complexity: medium, Summary: ** This function appears to be responsible for checking a condition based on the...
+
+============================================================
+Attempting to decompile: func_800ACE14
+============================================================
+Module: battle
+File: src/battle/battle.c
+ASM lines: 35
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:36:04] [INFO] [9/10] Decompiling func_800C0410 (35 lines)
+[2026-03-01 22:36:04] [INFO]   ⚙️  Analyzing with LLM (35 lines)...
+[2026-03-01 22:36:18] [INFO]   📊 Complexity: medium, Summary: ** This function performs a series of calculations and conditional checks using ...
+
+============================================================
+Attempting to decompile: func_800C0410
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 35
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:36:19] [INFO] [10/10] Decompiling func_800C0900 (35 lines)
+[2026-03-01 22:36:19] [INFO]   ⚙️  Analyzing with LLM (35 lines)...
+[2026-03-01 22:36:33] [INFO]   📊 Complexity: medium, Summary: ** The function `func_800C0900` appears to perform a series of operations involv...
+
+============================================================
+Attempting to decompile: func_800C0900
+============================================================
+Module: battle
+File: src/battle/battle1.c
+ASM lines: 35
+Current status: todo
+✅ Decompilation successful!
+[2026-03-01 22:36:33] [INFO] Running verification...
+
+============================================================
+VERIFYING DECOMPILED FUNCTIONS
+============================================================
+
+Found 20 decompiled function(s) to verify
+
+[1/20] Checking func_800A55F4...
+  ✅ Matches
+[2/20] Checking func_800A66A4...
+  ✅ Matches
+[3/20] Checking func_800A6D88...
+  ✅ Matches
+[4/20] Checking func_800A7254...
+  ✅ Matches
+[5/20] Checking func_800ACE14...
+  ✅ Matches
+[6/20] Checking func_800AD088...
+  ✅ Matches
+[7/20] Checking func_800AD480...
+  ✅ Matches
+[8/20] Checking func_800AE2A0...
+  ✅ Matches
+[9/20] Checking func_800B13B0...
+  ✅ Matches
+[10/20] Checking func_800B88CC...
+  ✅ Matches
+[11/20] Checking func_800BA24C...
+  ✅ Matches
+[12/20] Checking func_800BFA98...
+  ✅ Matches
+[13/20] Checking func_800BFB10...
+  ✅ Matches
+[14/20] Checking func_800C0410...
+  ✅ Matches
+[15/20] Checking func_800C0900...
+  ✅ Matches
+[16/20] Checking func_800C614C...
+  ✅ Matches
+[17/20] Checking func_800D09D0...
+  ✅ Matches
+[18/20] Checking func_800D5230...
+  ✅ Matches
+[19/20] Checking func_800D5444...
+  ✅ Matches
+[20/20] Checking func_800E58CC...
+  ✅ Matches
+
+============================================================
+VERIFICATION COMPLETE
+============================================================
+✅ Verified:    20
+❌ Not matching: 0
+============================================================
+
+[2026-03-01 22:36:34] [INFO] Verified 20 functions
+[2026-03-01 22:36:34] [INFO] Running full build check...
+
+============================================================
+RUNNING BUILD
+============================================================
+
+❌ Build failed!
+
+Errors: 72
+
+Compile Errors:
+  src/main/psxsdk.c
+src/main/psxsdk.c:
+    Line 555: parse error before `:'
+
+Undefined References (71):
+  - SetMem
+  - StartPAD
+  - InitPAD
+  - GetGraphType
+  - GetGraphType
+  - OpenTIM
+  - OpenEvent
+  - EnableEvent
+  - UnDeliverEvent
+  - DisableEvent
+  ... and 61 more
+
+============================================================
+
+[2026-03-01 22:36:35] [WARN] Build failed, check output for errors
+
+============================================================
+AGENT PROGRESS - 22:36:35
+============================================================
+Processed: 100 functions
+Verified:  159/2362 (6.7%)
+Failed:    1
+Todo:      2202
+Batches:   10
+Builds:    1
+LLM analyzed: 71
+Rate:      0.10 functions/second
+Elapsed:   0:16:10
+============================================================
+
+[2026-03-01 22:36:35] [INFO] Target count reached (100)
+[2026-03-01 22:36:35] [INFO] Target count reached (100)
+
+============================================================
+AGENT EXECUTION COMPLETE
+============================================================
+Total time: 0:16:10
+Functions processed: 100
+Functions verified: 100
+Functions failed: 0
+Batches completed: 10
+Builds run: 1
+LLM analyzed: 71
+Average rate: 0.10 functions/second
+
+Final Progress: 159/2362 (6.7%)
+============================================================
+
+Summary saved to agent_summary.json

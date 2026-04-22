@@ -1,0 +1,35 @@
+calvin@Begemot:~/GitHub/ff7-decomp-armstrca$ make rebuild
+[11/83] psx cc src/main/18B8.c
+src/main/18B8.c: In function `func_800159B0':
+src/main/18B8.c:1528: warning: comparison is always 1 due to limited range of data type
+[64/83] psx cc src/field/field.c
+src/field/field.c: In function `func_800C5CE8':
+src/field/field.c:2512: warning: comparison is always 1 due to limited range of data type
+src/field/field.c: In function `func_800C5E80':
+src/field/field.c:2558: warning: comparison is always 1 due to limited range of data type
+[83/83] check
+FAILED: build/check.dummy 
+sha1sum -c build/us/check.sha1
+build/us/main.exe: FAILED
+build/us/batini.exe: FAILED
+build/us/battle.exe: FAILED
+build/us/brom.exe: FAILED
+build/us/dschange.exe: FAILED
+build/us/ending.exe: FAILED
+build/us/field.exe: FAILED
+build/us/bginmenu.exe: FAILED
+build/us/cnfgmenu.exe: FAILED
+build/us/savemenu.exe: FAILED
+build/us/world.exe: FAILED
+build/us/barrier.exe: FAILED
+sha1sum: WARNING: 12 computed checksums did NOT match
+ninja: build stopped: subcommand failed.
+Usage:
+   build [version] [flags]
+
+Flags:
+  -h, --help   help for build
+
+exit status 1
+exit status 1
+make: *** [Makefile:43: rebuild] Error 1

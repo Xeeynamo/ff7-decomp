@@ -1,0 +1,6 @@
+# Chunk 1: Discovery & Database
+# No external dependencies needed! Uses Python stdlib only.
+
+# Future chunks will add:
+# requests>=2.31.0  # For API calls (Chunk 5)
+# rich>=13.0.0      # For pretty CLI output (Chunk 6)

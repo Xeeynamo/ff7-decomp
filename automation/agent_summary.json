@@ -1,0 +1,11 @@
+{
+  "completed_at": "2026-04-22T17:15:44.887510",
+  "duration_seconds": 131,
+  "functions_processed": 8,
+  "functions_verified": 8,
+  "functions_failed": 110,
+  "functions_analyzed_by_llm": 0,
+  "final_progress_percent": 2.029664324746292,
+  "llm_enabled": false,
+  "errors": []
+}

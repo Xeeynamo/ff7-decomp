@@ -1,0 +1,3579 @@
+{
+  "src/main/psxsdk.c": {
+    "exists": true,
+    "ok": false,
+    "errors": [
+      {
+        "line": 187,
+        "message": "parse error before `?'"
+      },
+      {
+        "line": 190,
+        "message": "parse error before `?'"
+      },
+      {
+        "line": 191,
+        "message": "parse error before `?'"
+      },
+      {
+        "line": 331,
+        "message": "invalid type argument of `unary *'"
+      }
+    ],
+    "severe_errors": [],
+    "functions": [
+      "CdLastPos",
+      "ChangeClearPAD",
+      "ChangeClearRCnt",
+      "ChangeClearSIO",
+      "CheckCallback",
+      "CloseEvent",
+      "DecDCTBufSize",
+      "DeliverEvent",
+      "DisableEvent",
+      "EnableEvent",
+      "FlushCache",
+      "GPU_cw",
+      "GetGraphDebug",
+      "GetVideoMode",
+      "HookEntryInt",
+      "InitCARD2",
+      "InitHeap",
+      "InitPAD",
+      "OpenEvent",
+      "OpenTIM",
+      "PAD_dr",
+      "PAD_init",
+      "ResetEntryInt",
+      "ReturnFromException",
+      "SetDQA",
+      "SetDQB",
+      "SetData32",
+      "SetIR0",
+      "SetMem",
+      "SetSp",
+      "SetVertex0",
+      "SetVertex1",
+      "SetVertex2",
+      "StartCARD2",
+      "StartPAD",
+      "StopPAD",
+      "SystemError",
+      "TestEvent",
+      "UnDeliverEvent",
+      "WaitEvent",
+      "_96_remove",
+      "_bu_init",
+      "func_80033C20",
+      "func_8003408C",
+      "func_80034410",
+      "func_80034430",
+      "func_80034444",
+      "func_8003447C",
+      "func_800345BC",
+      "func_800347B4",
+      "func_800347F8",
+      "func_80034BB0",
+      "func_80034D18",
+      "func_80034D5C",
+      "func_80034DB0",
+      "func_80035D64",
+      "func_80036038",
+      "func_80036190",
+      "func_800425F8"
+    ],
+    "recommendation": "recommend_fix"
+  },
+  "src/main/18B8.c": {
+    "exists": true,
+    "ok": false,
+    "errors": [
+      {
+        "line": 825,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 825,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 649,
+        "message": "warning: previous implicit declaration of `func_80014C80'"
+      },
+      {
+        "line": 825,
+        "message": "warning: `func_80014C80' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 946,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 946,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 641,
+        "message": "warning: previous implicit declaration of `func_80015B44'"
+      },
+      {
+        "line": 946,
+        "message": "warning: `func_80015B44' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 979,
+        "message": "invalid type argument of `->'"
+      },
+      {
+        "line": 979,
+        "message": "invalid type argument of `->'"
+      },
+      {
+        "line": 983,
+        "message": "invalid type argument of `->'"
+      },
+      {
+        "line": 983,
+        "message": "invalid type argument of `->'"
+      },
+      {
+        "line": 1550,
+        "message": "invalid type argument of `unary *'"
+      },
+      {
+        "line": 1556,
+        "message": "invalid type argument of `unary *'"
+      },
+      {
+        "line": 1752,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 1758,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 1771,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 1776,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 1776,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 1776,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 2033,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 2033,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 1547,
+        "message": "warning: previous implicit declaration of `func_8001F6C0'"
+      },
+      {
+        "line": 2033,
+        "message": "warning: `func_8001F6C0' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 2041,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 2041,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 1546,
+        "message": "warning: previous implicit declaration of `func_8001F6E4'"
+      },
+      {
+        "line": 2041,
+        "message": "warning: `func_8001F6E4' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 2309,
+        "message": "incompatible types in assignment"
+      },
+      {
+        "line": 2586,
+        "message": "warning: assignment from incompatible pointer type"
+      },
+      {
+        "line": 2612,
+        "message": "warning: passing arg 1 of `func_80025CD4' from incompatible pointer type"
+      },
+      {
+        "line": 2701,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 2701,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 2024,
+        "message": "warning: previous implicit declaration of `func_80026A34'"
+      },
+      {
+        "line": 2701,
+        "message": "warning: `func_80026A34' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 2799,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2799,
+        "message": "request for member `unk3' in something not a structure or union"
+      },
+      {
+        "line": 2800,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2800,
+        "message": "request for member `unk7' in something not a structure or union"
+      },
+      {
+        "line": 2802,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2802,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 2803,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2803,
+        "message": "request for member `unkA' in something not a structure or union"
+      },
+      {
+        "line": 2804,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2804,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 2805,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2805,
+        "message": "request for member `unkD' in something not a structure or union"
+      },
+      {
+        "line": 2806,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2806,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 2816,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2816,
+        "message": "request for member `unk3' in something not a structure or union"
+      },
+      {
+        "line": 2817,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2817,
+        "message": "request for member `unk7' in something not a structure or union"
+      },
+      {
+        "line": 2819,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2819,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 2820,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2820,
+        "message": "request for member `unkA' in something not a structure or union"
+      },
+      {
+        "line": 2821,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2821,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 2822,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2822,
+        "message": "request for member `unkD' in something not a structure or union"
+      },
+      {
+        "line": 2823,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2823,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 2840,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2840,
+        "message": "request for member `unk3' in something not a structure or union"
+      },
+      {
+        "line": 2841,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2841,
+        "message": "request for member `unk7' in something not a structure or union"
+      },
+      {
+        "line": 2843,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2843,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 2844,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2844,
+        "message": "request for member `unkA' in something not a structure or union"
+      },
+      {
+        "line": 2845,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2845,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 2846,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2846,
+        "message": "request for member `unkD' in something not a structure or union"
+      },
+      {
+        "line": 2847,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2847,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 2864,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2864,
+        "message": "request for member `unk3' in something not a structure or union"
+      },
+      {
+        "line": 2865,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2865,
+        "message": "request for member `unk7' in something not a structure or union"
+      },
+      {
+        "line": 2866,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2866,
+        "message": "request for member `unk18' in something not a structure or union"
+      },
+      {
+        "line": 2867,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2867,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 2868,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2868,
+        "message": "request for member `unkA' in something not a structure or union"
+      },
+      {
+        "line": 2870,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2870,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 2871,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2871,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 2872,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2872,
+        "message": "request for member `unk10' in something not a structure or union"
+      },
+      {
+        "line": 2874,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2874,
+        "message": "request for member `unk12' in something not a structure or union"
+      },
+      {
+        "line": 2875,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2875,
+        "message": "request for member `unk14' in something not a structure or union"
+      },
+      {
+        "line": 2876,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2876,
+        "message": "request for member `unk16' in something not a structure or union"
+      },
+      {
+        "line": 2877,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2877,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 2878,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2878,
+        "message": "request for member `unk5' in something not a structure or union"
+      },
+      {
+        "line": 2879,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2879,
+        "message": "request for member `unk6' in something not a structure or union"
+      },
+      {
+        "line": 2883,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2883,
+        "message": "request for member `unk3' in something not a structure or union"
+      },
+      {
+        "line": 2884,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2884,
+        "message": "request for member `unk7' in something not a structure or union"
+      },
+      {
+        "line": 2885,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2885,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 2886,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2886,
+        "message": "request for member `unkA' in something not a structure or union"
+      },
+      {
+        "line": 2887,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2887,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 2888,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2888,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 2889,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2889,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 2890,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2890,
+        "message": "request for member `unk5' in something not a structure or union"
+      },
+      {
+        "line": 2891,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2891,
+        "message": "request for member `unk6' in something not a structure or union"
+      },
+      {
+        "line": 2913,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2913,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 2914,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2914,
+        "message": "request for member `unkA' in something not a structure or union"
+      },
+      {
+        "line": 2916,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2916,
+        "message": "request for member `unk10' in something not a structure or union"
+      },
+      {
+        "line": 2917,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2917,
+        "message": "request for member `unk12' in something not a structure or union"
+      },
+      {
+        "line": 2918,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2918,
+        "message": "request for member `unk18' in something not a structure or union"
+      },
+      {
+        "line": 2920,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2920,
+        "message": "request for member `unk1A' in something not a structure or union"
+      },
+      {
+        "line": 2921,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2921,
+        "message": "request for member `unk20' in something not a structure or union"
+      },
+      {
+        "line": 2922,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2922,
+        "message": "request for member `unk22' in something not a structure or union"
+      },
+      {
+        "line": 2923,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2923,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 2924,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2924,
+        "message": "request for member `unk5' in something not a structure or union"
+      },
+      {
+        "line": 2925,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2925,
+        "message": "request for member `unk6' in something not a structure or union"
+      },
+      {
+        "line": 2926,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2926,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 2927,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2927,
+        "message": "request for member `unkD' in something not a structure or union"
+      },
+      {
+        "line": 2928,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2928,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 2929,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2929,
+        "message": "request for member `unk14' in something not a structure or union"
+      },
+      {
+        "line": 2930,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2930,
+        "message": "request for member `unk15' in something not a structure or union"
+      },
+      {
+        "line": 2931,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2931,
+        "message": "request for member `unk16' in something not a structure or union"
+      },
+      {
+        "line": 2932,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2932,
+        "message": "request for member `unk1C' in something not a structure or union"
+      },
+      {
+        "line": 2933,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2933,
+        "message": "request for member `unk1D' in something not a structure or union"
+      },
+      {
+        "line": 2934,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2934,
+        "message": "request for member `unk1E' in something not a structure or union"
+      },
+      {
+        "line": 2941,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2941,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 2942,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2942,
+        "message": "request for member `unkA' in something not a structure or union"
+      },
+      {
+        "line": 2943,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2943,
+        "message": "request for member `unk10' in something not a structure or union"
+      },
+      {
+        "line": 2944,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2944,
+        "message": "request for member `unk12' in something not a structure or union"
+      },
+      {
+        "line": 2945,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2945,
+        "message": "request for member `unk18' in something not a structure or union"
+      },
+      {
+        "line": 2946,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2946,
+        "message": "request for member `unk1A' in something not a structure or union"
+      },
+      {
+        "line": 2947,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2947,
+        "message": "request for member `unk20' in something not a structure or union"
+      },
+      {
+        "line": 2948,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2948,
+        "message": "request for member `unk22' in something not a structure or union"
+      },
+      {
+        "line": 2949,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2949,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 2950,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2950,
+        "message": "request for member `unk5' in something not a structure or union"
+      },
+      {
+        "line": 2951,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2951,
+        "message": "request for member `unk6' in something not a structure or union"
+      },
+      {
+        "line": 2952,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2952,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 2953,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2953,
+        "message": "request for member `unkD' in something not a structure or union"
+      },
+      {
+        "line": 2954,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2954,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 2955,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2955,
+        "message": "request for member `unk14' in something not a structure or union"
+      },
+      {
+        "line": 2956,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2956,
+        "message": "request for member `unk15' in something not a structure or union"
+      },
+      {
+        "line": 2957,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2957,
+        "message": "request for member `unk16' in something not a structure or union"
+      },
+      {
+        "line": 2958,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2958,
+        "message": "request for member `unk1C' in something not a structure or union"
+      },
+      {
+        "line": 2959,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2959,
+        "message": "request for member `unk1D' in something not a structure or union"
+      },
+      {
+        "line": 2960,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 2960,
+        "message": "request for member `unk1E' in something not a structure or union"
+      },
+      {
+        "line": 3018,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3018,
+        "message": "request for member `unk3' in something not a structure or union"
+      },
+      {
+        "line": 3019,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3019,
+        "message": "request for member `unk7' in something not a structure or union"
+      },
+      {
+        "line": 3023,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3023,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 3024,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3024,
+        "message": "request for member `unkA' in something not a structure or union"
+      },
+      {
+        "line": 3025,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3025,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 3026,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3026,
+        "message": "request for member `unkD' in something not a structure or union"
+      },
+      {
+        "line": 3027,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3027,
+        "message": "request for member `unk10' in something not a structure or union"
+      },
+      {
+        "line": 3028,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3028,
+        "message": "request for member `unk12' in something not a structure or union"
+      },
+      {
+        "line": 3029,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3029,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 3037,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3037,
+        "message": "request for member `unk3' in something not a structure or union"
+      },
+      {
+        "line": 3038,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3038,
+        "message": "request for member `unk7' in something not a structure or union"
+      },
+      {
+        "line": 3040,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3040,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 3041,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3041,
+        "message": "request for member `unkA' in something not a structure or union"
+      },
+      {
+        "line": 3042,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3042,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 3043,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3043,
+        "message": "request for member `unkD' in something not a structure or union"
+      },
+      {
+        "line": 3044,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3044,
+        "message": "request for member `unk10' in something not a structure or union"
+      },
+      {
+        "line": 3045,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3045,
+        "message": "request for member `unk12' in something not a structure or union"
+      },
+      {
+        "line": 3046,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 3046,
+        "message": "request for member `unkE' in something not a structure or union"
+      }
+    ],
+    "severe_errors": [],
+    "functions": [
+      "__SN_ENTRY_POINT",
+      "func_8001117C",
+      "func_8001155C",
+      "func_80011784",
+      "func_80011AEC",
+      "func_80011BB4",
+      "func_80012840",
+      "func_800128B8",
+      "func_80012DB0",
+      "func_800131B8",
+      "func_800134F4",
+      "func_80013564",
+      "func_800135C0",
+      "func_800138EC",
+      "func_800148A0",
+      "func_80014980",
+      "func_80014A84",
+      "func_80014B08",
+      "func_80014BE4",
+      "func_80014C44",
+      "func_80014C80",
+      "func_80014E0C",
+      "func_80014E74",
+      "func_800150E4",
+      "func_800155A4",
+      "func_80015668",
+      "func_80015AFC",
+      "func_80015B44",
+      "func_80015B50",
+      "func_80015B88",
+      "func_80015BC0",
+      "func_80015C3C",
+      "func_80015D14",
+      "func_80015D64",
+      "func_80016340",
+      "func_800166C0",
+      "func_80016808",
+      "func_800169B8",
+      "func_80016F90",
+      "func_8001708C",
+      "func_80017678",
+      "func_80018028",
+      "func_800184C0",
+      "func_800185A8",
+      "func_80018AB0",
+      "func_80018B14",
+      "func_80018C94",
+      "func_80018D4C",
+      "func_80018E18",
+      "func_80018E90",
+      "func_80018ECC",
+      "func_80019338",
+      "func_8001937C",
+      "func_800193F4",
+      "func_8001964C",
+      "func_80019690",
+      "func_800197B8",
+      "func_80019E4C",
+      "func_8001A280",
+      "func_8001A384",
+      "func_8001A684",
+      "func_8001A980",
+      "func_8001A9CC",
+      "func_8001AB1C",
+      "func_8001AE08",
+      "func_8001AEE4",
+      "func_8001B704",
+      "func_8001BA54",
+      "func_8001BB30",
+      "func_8001C3CC",
+      "func_8001C484",
+      "func_8001C498",
+      "func_8001C4E8",
+      "func_8001C5BC",
+      "func_8001C788",
+      "func_8001C808",
+      "func_8001C8D4",
+      "func_8001C980",
+      "func_8001CB48",
+      "func_8001D6A8",
+      "func_8001DE70",
+      "func_8001DEF0",
+      "func_8001EC70",
+      "func_8001FA28",
+      "func_8001FA68",
+      "func_8001FAAC",
+      "func_8001FCDC",
+      "func_8001FF8C",
+      "func_8001FFD4",
+      "func_80020B68",
+      "func_800211B8",
+      "func_80022B5C",
+      "func_80023050",
+      "func_8002305C",
+      "func_800230C4",
+      "func_8002368C",
+      "func_80023788",
+      "func_8002382C",
+      "func_80023940",
+      "func_80023AC4",
+      "func_80024A04",
+      "func_80025040",
+      "func_80025174",
+      "func_80025288",
+      "func_80025310",
+      "func_80025380",
+      "func_800254E4",
+      "func_80025788",
+      "func_80025B10",
+      "func_80025B48",
+      "func_80025ED4",
+      "func_8002603C",
+      "func_80026408",
+      "func_800269D0",
+      "func_800269E8",
+      "func_80026A00",
+      "func_80026A0C",
+      "func_80026A20",
+      "func_80026A34",
+      "func_80026B64",
+      "func_80026B70",
+      "func_80026C5C",
+      "func_80026F44",
+      "func_8002708C",
+      "func_80027354",
+      "func_80027990",
+      "func_800285AC",
+      "func_80028930",
+      "func_80028CA0",
+      "func_80028E00",
+      "func_80029114",
+      "main"
+    ],
+    "recommendation": "recommend_revert"
+  },
+  "src/main/akao.c": {
+    "exists": true,
+    "ok": false,
+    "errors": [
+      {
+        "line": 276,
+        "message": "warning: overflow in implicit constant conversion"
+      }
+    ],
+    "severe_errors": [],
+    "functions": [
+      "func_800293D0",
+      "func_800294A4",
+      "func_8002988C",
+      "func_80029998",
+      "func_80029B78",
+      "func_8002A6C4",
+      "func_8002A798",
+      "func_8002A7E8",
+      "func_8002A958",
+      "func_8002B1A8",
+      "func_8002BCCC",
+      "func_8002BD04",
+      "func_8002BFCC",
+      "func_8002C004",
+      "func_8002CA84",
+      "func_8002FDA0",
+      "func_800318BC",
+      "func_80032B30",
+      "func_80032C20",
+      "func_80032CE8",
+      "func_80033A90"
+    ],
+    "recommendation": "recommend_fix"
+  },
+  "src/brom/brom.c": {
+    "exists": true,
+    "ok": true,
+    "errors": [],
+    "severe_errors": [],
+    "functions": [
+      "func_800A0000",
+      "func_800A0514"
+    ],
+    "recommendation": "no_action"
+  },
+  "src/ending/ending.c": {
+    "exists": true,
+    "ok": false,
+    "errors": [
+      {
+        "line": 78,
+        "message": "`D_800A6528' undeclared (first use this function)"
+      },
+      {
+        "line": 78,
+        "message": "(Each undeclared identifier is reported only once"
+      },
+      {
+        "line": 78,
+        "message": "for each function it appears in.)"
+      },
+      {
+        "line": 95,
+        "message": "`D_800A6528' used prior to declaration"
+      },
+      {
+        "line": 129,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 130,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 133,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 151,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 151,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 187,
+        "message": "`D_800AF3CC' undeclared (first use this function)"
+      },
+      {
+        "line": 188,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 188,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 190,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 190,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 191,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 191,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 193,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 193,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 194,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 194,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 197,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 197,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 199,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 199,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 200,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 200,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 202,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 202,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 203,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 203,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 208,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 208,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 91,
+        "message": "warning: previous implicit declaration of `func_800A32D8'"
+      },
+      {
+        "line": 208,
+        "message": "warning: `func_800A32D8' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 212,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 212,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 213,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 213,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 214,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 214,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 220,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 220,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 225,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 225,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 230,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 230,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 233,
+        "message": "`D_800AF3CC' used prior to declaration"
+      },
+      {
+        "line": 236,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 236,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 91,
+        "message": "warning: previous implicit declaration of `func_800A3314'"
+      },
+      {
+        "line": 236,
+        "message": "warning: `func_800A3314' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 241,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 241,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 244,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 244,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 245,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 245,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 246,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 246,
+        "message": "request for member `unk4' in something not a structure or union"
+      }
+    ],
+    "severe_errors": [],
+    "functions": [
+      "func_800A04C4",
+      "func_800A0E68",
+      "func_800A0F90",
+      "func_800A1F48",
+      "func_800A1FA4",
+      "func_800A20D4",
+      "func_800A21CC",
+      "func_800A2248",
+      "func_800A2274",
+      "func_800A22A4",
+      "func_800A22E4",
+      "func_800A2380",
+      "func_800A23F8",
+      "func_800A2420",
+      "func_800A2504",
+      "func_800A2E80",
+      "func_800A3210",
+      "func_800A32D8",
+      "func_800A3314",
+      "func_800A358C"
+    ],
+    "recommendation": "recommend_revert"
+  },
+  "src/world/world.c": {
+    "exists": true,
+    "ok": false,
+    "errors": [
+      {
+        "line": 145,
+        "message": "`saved_reg_s0' undeclared (first use this function)"
+      },
+      {
+        "line": 145,
+        "message": "(Each undeclared identifier is reported only once"
+      },
+      {
+        "line": 145,
+        "message": "for each function it appears in.)"
+      },
+      {
+        "line": 481,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 481,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 482,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 482,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 483,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 483,
+        "message": "request for member `unk1' in something not a structure or union"
+      },
+      {
+        "line": 484,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 484,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 485,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 485,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 485,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 485,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 485,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 485,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 485,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 485,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 486,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 486,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 486,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 486,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 486,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 486,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 486,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 486,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 487,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 487,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 487,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 487,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 487,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 487,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 487,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 487,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 503,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 503,
+        "message": "request for member `unk5E' in something not a structure or union"
+      },
+      {
+        "line": 504,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 504,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 539,
+        "message": "`D_8010AD40' undeclared (first use this function)"
+      },
+      {
+        "line": 547,
+        "message": "`D_8010AD40' undeclared (first use this function)"
+      },
+      {
+        "line": 569,
+        "message": "`D_8010AD40' undeclared (first use this function)"
+      },
+      {
+        "line": 600,
+        "message": "`D_8010AD40' undeclared (first use this function)"
+      },
+      {
+        "line": 626,
+        "message": "`D_8010AD40' undeclared (first use this function)"
+      },
+      {
+        "line": 660,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 660,
+        "message": "request for member `unk3C' in something not a structure or union"
+      },
+      {
+        "line": 665,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 665,
+        "message": "request for member `unk3C' in something not a structure or union"
+      },
+      {
+        "line": 686,
+        "message": "`D_8011650C' undeclared (first use this function)"
+      },
+      {
+        "line": 687,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 687,
+        "message": "request for member `unk3C' in something not a structure or union"
+      },
+      {
+        "line": 689,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 689,
+        "message": "request for member `unk3C' in something not a structure or union"
+      },
+      {
+        "line": 691,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 691,
+        "message": "request for member `unk3C' in something not a structure or union"
+      },
+      {
+        "line": 699,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 699,
+        "message": "request for member `unk3C' in something not a structure or union"
+      },
+      {
+        "line": 708,
+        "message": "`D_8011650C' used prior to declaration"
+      },
+      {
+        "line": 716,
+        "message": "structure has no member named `unk51'"
+      },
+      {
+        "line": 717,
+        "message": "structure has no member named `unk3E'"
+      },
+      {
+        "line": 719,
+        "message": "structure has no member named `unk3E'"
+      },
+      {
+        "line": 721,
+        "message": "structure has no member named `unk51'"
+      },
+      {
+        "line": 722,
+        "message": "structure has no member named `unk3E'"
+      },
+      {
+        "line": 724,
+        "message": "structure has no member named `unk3E'"
+      },
+      {
+        "line": 726,
+        "message": "structure has no member named `unk3E'"
+      },
+      {
+        "line": 744,
+        "message": "`D_8010AD40' undeclared (first use this function)"
+      },
+      {
+        "line": 756,
+        "message": "`D_8010AD40' used prior to declaration"
+      },
+      {
+        "line": 775,
+        "message": "warning: comparison of distinct pointer types lacks a cast"
+      },
+      {
+        "line": 776,
+        "message": "structure has no member named `unk51'"
+      },
+      {
+        "line": 881,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 881,
+        "message": "void value not ignored as it ought to be"
+      },
+      {
+        "line": 967,
+        "message": "conflicting types for `Unk8010AD40'"
+      },
+      {
+        "line": 65,
+        "message": "previous declaration of `Unk8010AD40'"
+      },
+      {
+        "line": 975,
+        "message": "structure has no member named `unk51'"
+      },
+      {
+        "line": 977,
+        "message": "structure has no member named `unk51'"
+      },
+      {
+        "line": 979,
+        "message": "structure has no member named `unk51'"
+      },
+      {
+        "line": 1017,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 1018,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1018,
+        "message": "request for member `unk46' in something not a structure or union"
+      },
+      {
+        "line": 1019,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1019,
+        "message": "request for member `unk46' in something not a structure or union"
+      },
+      {
+        "line": 1021,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 1021,
+        "message": "invalid type argument of `unary *'"
+      },
+      {
+        "line": 1046,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1046,
+        "message": "request for member `unk46' in something not a structure or union"
+      },
+      {
+        "line": 1047,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1047,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 1305,
+        "message": "`D_8010CA74' undeclared (first use this function)"
+      },
+      {
+        "line": 1308,
+        "message": "`D_8010CA8C' undeclared (first use this function)"
+      },
+      {
+        "line": 1312,
+        "message": "`D_8010CAF4' undeclared (first use this function)"
+      },
+      {
+        "line": 1316,
+        "message": "`D_8010CA74' used prior to declaration"
+      },
+      {
+        "line": 1329,
+        "message": "warning: comparison between pointer and integer"
+      },
+      {
+        "line": 1345,
+        "message": "invalid type argument of `unary *'"
+      },
+      {
+        "line": 1346,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1346,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 1347,
+        "message": "warning: assignment makes pointer from integer without a cast"
+      },
+      {
+        "line": 1348,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1348,
+        "message": "request for member `unk14' in something not a structure or union"
+      },
+      {
+        "line": 1353,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1353,
+        "message": "request for member `unk14' in something not a structure or union"
+      },
+      {
+        "line": 1353,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1353,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 1385,
+        "message": "`D_8010CA8C' used prior to declaration"
+      },
+      {
+        "line": 1397,
+        "message": "`D_8010CAF4' used prior to declaration"
+      },
+      {
+        "line": 1486,
+        "message": "warning: assignment makes pointer from integer without a cast"
+      },
+      {
+        "line": 1488,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1488,
+        "message": "request for member `unk' in something not a structure or union"
+      },
+      {
+        "line": 1488,
+        "message": "nondigits in number and not hexadecimal"
+      },
+      {
+        "line": 1489,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1489,
+        "message": "request for member `unk' in something not a structure or union"
+      },
+      {
+        "line": 1490,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1490,
+        "message": "request for member `unk' in something not a structure or union"
+      },
+      {
+        "line": 1491,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1491,
+        "message": "request for member `unk' in something not a structure or union"
+      },
+      {
+        "line": 1492,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1492,
+        "message": "request for member `unk' in something not a structure or union"
+      },
+      {
+        "line": 1493,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1493,
+        "message": "request for member `unk' in something not a structure or union"
+      },
+      {
+        "line": 1493,
+        "message": "`F' undeclared (first use this function)"
+      },
+      {
+        "line": 1501,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1501,
+        "message": "request for member `unk' in something not a structure or union"
+      },
+      {
+        "line": 1502,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1502,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 1503,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1503,
+        "message": "request for member `unk' in something not a structure or union"
+      },
+      {
+        "line": 1504,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1504,
+        "message": "request for member `unk' in something not a structure or union"
+      },
+      {
+        "line": 1505,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1505,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 1506,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1506,
+        "message": "request for member `unk' in something not a structure or union"
+      },
+      {
+        "line": 1507,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1507,
+        "message": "request for member `unk' in something not a structure or union"
+      },
+      {
+        "line": 1508,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1508,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 1508,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1508,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 1509,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1509,
+        "message": "request for member `unk7' in something not a structure or union"
+      },
+      {
+        "line": 1510,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1510,
+        "message": "request for member `unk' in something not a structure or union"
+      },
+      {
+        "line": 1512,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1512,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 1512,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1512,
+        "message": "request for member `unk6' in something not a structure or union"
+      },
+      {
+        "line": 1513,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1513,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 1514,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1514,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 1857,
+        "message": "invalid type argument of `->'"
+      },
+      {
+        "line": 1857,
+        "message": "invalid type argument of `->'"
+      },
+      {
+        "line": 1870,
+        "message": "warning: assignment makes pointer from integer without a cast"
+      },
+      {
+        "line": 1922,
+        "message": "invalid type argument of `->'"
+      },
+      {
+        "line": 1922,
+        "message": "invalid type argument of `->'"
+      },
+      {
+        "line": 1930,
+        "message": "invalid type argument of `unary *'"
+      },
+      {
+        "line": 1936,
+        "message": "invalid type argument of `unary *'"
+      },
+      {
+        "line": 1948,
+        "message": "`D_801163E8' undeclared (first use this function)"
+      },
+      {
+        "line": 1951,
+        "message": "invalid type argument of `unary *'"
+      },
+      {
+        "line": 1961,
+        "message": "`D_801163E8' used prior to declaration"
+      }
+    ],
+    "severe_errors": [],
+    "functions": [
+      "func_800A0B48",
+      "func_800A0BE4",
+      "func_800A0C54",
+      "func_800A0D2C",
+      "func_800A12AC",
+      "func_800A1370",
+      "func_800A141C",
+      "func_800A16E0",
+      "func_800A19FC",
+      "func_800A1D38",
+      "func_800A1D54",
+      "func_800A1DF0",
+      "func_800A1FAC",
+      "func_800A2040",
+      "func_800A2088",
+      "func_800A2108",
+      "func_800A21B4",
+      "func_800A31C0",
+      "func_800A31F8",
+      "func_800A3304",
+      "func_800A38C8",
+      "func_800A3908",
+      "func_800A3964",
+      "func_800A3C74",
+      "func_800A3DFC",
+      "func_800A3E4C",
+      "func_800A3E9C",
+      "func_800A3EC8",
+      "func_800A4008",
+      "func_800A4080",
+      "func_800A40B8",
+      "func_800A40F0",
+      "func_800A4138",
+      "func_800A41E8",
+      "func_800A4268",
+      "func_800A44B4",
+      "func_800A44C4",
+      "func_800A460C",
+      "func_800A4DDC",
+      "func_800A4F08",
+      "func_800A4F78",
+      "func_800A5208",
+      "func_800A52A4",
+      "func_800A5348",
+      "func_800A53A8",
+      "func_800A54F0",
+      "func_800A57C8",
+      "func_800A5924",
+      "func_800A5970",
+      "func_800A59A0",
+      "func_800A5A20",
+      "func_800A5A94",
+      "func_800A5AD8",
+      "func_800A5B88",
+      "func_800A5C08",
+      "func_800A5D00",
+      "func_800A5E28",
+      "func_800A5FB4",
+      "func_800A60D8",
+      "func_800A63FC",
+      "func_800A64AC",
+      "func_800A67A8",
+      "func_800A6884",
+      "func_800A692C",
+      "func_800A6994",
+      "func_800A6B8C",
+      "func_800A6C00",
+      "func_800A6C3C",
+      "func_800A71E8",
+      "func_800A7EA4",
+      "func_800A7F18",
+      "func_800A7F38",
+      "func_800A806C",
+      "func_800A82F0",
+      "func_800A8300",
+      "func_800A86C4",
+      "func_800A886C",
+      "func_800A8888",
+      "func_800A8898",
+      "func_800A891C",
+      "func_800A8A1C",
+      "func_800A8A88",
+      "func_800A8ABC",
+      "func_800A8AF4",
+      "func_800A8C70",
+      "func_800A8CA4",
+      "func_800A8CE4",
+      "func_800A8D58",
+      "func_800A8F48",
+      "func_800A8F74",
+      "func_800A8FA0",
+      "func_800A8FCC",
+      "func_800A9018",
+      "func_800A9064",
+      "func_800A90EC",
+      "func_800A9110",
+      "func_800A9134",
+      "func_800A9154",
+      "func_800A9174",
+      "func_800A9194",
+      "func_800A91A4",
+      "func_800A91E0",
+      "func_800A921C",
+      "func_800A9240",
+      "func_800A929C",
+      "func_800A92F8",
+      "func_800A9480",
+      "func_800A94A8",
+      "func_800A94D0",
+      "func_800A94F4",
+      "func_800A9520",
+      "func_800A9678",
+      "func_800A96A4",
+      "func_800A96D0",
+      "func_800A97A8",
+      "func_800A97E4",
+      "func_800A9820",
+      "func_800A984C",
+      "func_800A98A4",
+      "func_800A98E4",
+      "func_800A9910",
+      "func_800A993C",
+      "func_800A9988",
+      "func_800A99BC",
+      "func_800A9A44",
+      "func_800A9A70",
+      "func_800A9AA4",
+      "func_800A9AD0",
+      "func_800A9B04",
+      "func_800A9C64",
+      "func_800A9D5C",
+      "func_800A9D88",
+      "func_800A9E14",
+      "func_800AA04C",
+      "func_800AA098",
+      "func_800AA0E0",
+      "func_800AA128",
+      "func_800AA170",
+      "func_800AA1B8",
+      "func_800AA238",
+      "func_800AA2B8",
+      "func_800AA580",
+      "func_800AA640",
+      "func_800AA684",
+      "func_800AA6A4",
+      "func_800AA7DC",
+      "func_800AA8D8",
+      "func_800AA8F8",
+      "func_800AAA00",
+      "func_800AAB18",
+      "func_800AB36C",
+      "func_800AB398",
+      "func_800AB48C",
+      "func_800AB4F4",
+      "func_800AB570",
+      "func_800AB5E4",
+      "func_800AB6E4",
+      "func_800AB8EC",
+      "func_800AB92C",
+      "func_800AB988",
+      "func_800ABA18",
+      "func_800ABA78",
+      "func_800ABB24",
+      "func_800ABE58",
+      "func_800ABFC0",
+      "func_800AC3C0",
+      "func_800AC484",
+      "func_800AC700",
+      "func_800AD63C",
+      "func_800AD788",
+      "func_800AD804",
+      "func_800AD928",
+      "func_800ADA08",
+      "func_800ADA64",
+      "func_800ADB30",
+      "func_800ADC3C",
+      "func_800ADC70",
+      "func_800ADD4C",
+      "func_800ADE30",
+      "func_800ADFC0",
+      "func_800AE024",
+      "func_800AE0BC",
+      "func_800AE180",
+      "func_800AE47C",
+      "func_800AE4B8",
+      "func_800AE5B8",
+      "func_800AE5F0",
+      "func_800AE628",
+      "func_800AE638",
+      "func_800AE8AC",
+      "func_800AEA48",
+      "func_800AF0A0",
+      "func_800AF0B0",
+      "func_800AF1A8",
+      "func_800AF1E8",
+      "func_800AF24C",
+      "func_800AF2A4",
+      "func_800AF324",
+      "func_800AF364",
+      "func_800AF3A4",
+      "func_800AF96C",
+      "func_800AF9A0",
+      "func_800AFCC8",
+      "func_800AFFBC",
+      "func_800B0098",
+      "func_800B017C",
+      "func_800B01C4",
+      "func_800B0200",
+      "func_800B0240",
+      "func_800B0250",
+      "func_800B0334",
+      "func_800B04AC",
+      "func_800B0670",
+      "func_800B075C",
+      "func_800B0794",
+      "func_800B0810",
+      "func_800B0BF4",
+      "func_800B0D98",
+      "func_800B0E84",
+      "func_800B104C",
+      "func_800B10AC",
+      "func_800B11C4",
+      "func_800B1650",
+      "func_800B1C80",
+      "func_800B21E4",
+      "func_800B2304",
+      "func_800B2638",
+      "func_800B28CC",
+      "func_800B29CC",
+      "func_800B2E90",
+      "func_800B2FA4",
+      "func_800B2FD0",
+      "func_800B3018",
+      "func_800B3044",
+      "func_800B307C",
+      "func_800B3300",
+      "func_800B3350",
+      "func_800B338C",
+      "func_800B3418",
+      "func_800B37E0",
+      "func_800B3828",
+      "func_800B392C",
+      "func_800B39B4",
+      "func_800B3C40",
+      "func_800B40B4",
+      "func_800B4244",
+      "func_800B45DC",
+      "func_800B5314",
+      "func_800B579C",
+      "func_800B57C0",
+      "func_800B57DC",
+      "func_800B58F8",
+      "func_800B59F4",
+      "func_800B5DD8",
+      "func_800B5E28",
+      "func_800B624C",
+      "func_800B6348",
+      "func_800B64A0",
+      "func_800B64D8",
+      "func_800B650C",
+      "func_800B6570",
+      "func_800B65A4",
+      "func_800B667C",
+      "func_800B6724",
+      "func_800B69A4",
+      "func_800B6A4C",
+      "func_800B6B28",
+      "func_800B6C84",
+      "func_800B6D10",
+      "func_800B6DCC",
+      "func_800B6E08",
+      "func_800B6E78",
+      "func_800B6EFC",
+      "func_800B7104",
+      "func_800B7134",
+      "func_800B717C",
+      "func_800B7200",
+      "func_800B7228",
+      "func_800B7480",
+      "func_800B7620",
+      "func_800B76A8",
+      "func_800B7714",
+      "func_800B77A8",
+      "func_800B77F4",
+      "func_800B7820",
+      "func_800B7838",
+      "func_800B785C",
+      "func_800B786C",
+      "func_800B79B8",
+      "func_800B7A40",
+      "func_800B7AC0",
+      "func_800B7B1C",
+      "func_800B7B3C",
+      "func_800B7B54",
+      "func_800B7B78",
+      "func_800B7BA0",
+      "func_800B7BC0",
+      "func_800B7BD8",
+      "func_800B7C1C",
+      "func_800B7C7C",
+      "func_800B832C",
+      "func_800B8488",
+      "func_800B84D8",
+      "func_800B851C",
+      "func_800B858C",
+      "func_800B86C4",
+      "func_800B86E8",
+      "func_800B8720",
+      "func_800B8760",
+      "func_800B87D8",
+      "func_800B89C4",
+      "func_800B8A5C",
+      "func_800B8A98",
+      "func_800B8CBC",
+      "func_800B8D20",
+      "func_800B8D4C",
+      "func_800B90C0",
+      "func_800B95E8",
+      "func_800B962C",
+      "func_800B98F0",
+      "func_800BA938",
+      "func_800BAA00",
+      "func_800BB350",
+      "func_800BB450",
+      "func_800BB568",
+      "func_800BB650",
+      "func_800BB7DC",
+      "func_800BB8B0",
+      "func_800BB8E8",
+      "func_800BB9A0",
+      "func_800BB9D0",
+      "func_800BBA0C",
+      "func_800BBA44",
+      "func_800BBBB0",
+      "func_800BBC4C",
+      "func_800BBD20",
+      "func_800BC1CC",
+      "func_800BC420",
+      "func_800BC9E8",
+      "func_800BCA38",
+      "func_800BCA48",
+      "func_800BCA78",
+      "func_800BCB2C",
+      "func_800BCBE8",
+      "func_800BCECC"
+    ],
+    "recommendation": "recommend_revert"
+  },
+  "src/battle/battle.c": {
+    "exists": true,
+    "ok": false,
+    "errors": [
+      {
+        "line": 161,
+        "message": "warning: assignment from incompatible pointer type"
+      },
+      {
+        "line": 168,
+        "message": "warning: large integer implicitly truncated to unsigned type"
+      },
+      {
+        "line": 171,
+        "message": "warning: assignment from incompatible pointer type"
+      },
+      {
+        "line": 387,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 414,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 639,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 659,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 659,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 469,
+        "message": "warning: previous implicit declaration of `func_800A3E98'"
+      },
+      {
+        "line": 659,
+        "message": "warning: `func_800A3E98' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 724,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 724,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 187,
+        "message": "warning: previous implicit declaration of `func_800A4CA8'"
+      },
+      {
+        "line": 724,
+        "message": "warning: `func_800A4CA8' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 936,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 936,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 274,
+        "message": "warning: previous implicit declaration of `func_800A7254'"
+      },
+      {
+        "line": 936,
+        "message": "warning: `func_800A7254' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 941,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 941,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 323,
+        "message": "warning: previous implicit declaration of `func_800B0FFC'"
+      },
+      {
+        "line": 941,
+        "message": "warning: `func_800B0FFC' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 1126,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 1126,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 244,
+        "message": "warning: previous implicit declaration of `func_800A8E54'"
+      },
+      {
+        "line": 1126,
+        "message": "warning: `func_800A8E54' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 1432,
+        "message": "invalid operands to binary &"
+      },
+      {
+        "line": 1459,
+        "message": "conflicting types for `D_800F49F8'"
+      },
+      {
+        "line": 1463,
+        "message": "subscripted value is neither array nor pointer"
+      },
+      {
+        "line": 1518,
+        "message": "parse error before `value'"
+      },
+      {
+        "line": 1521,
+        "message": "parse error before `compare_value'"
+      },
+      {
+        "line": 1523,
+        "message": "`value' undeclared (first use this function)"
+      },
+      {
+        "line": 1523,
+        "message": "(Each undeclared identifier is reported only once"
+      },
+      {
+        "line": 1523,
+        "message": "for each function it appears in.)"
+      },
+      {
+        "line": 1523,
+        "message": "`compare_value' undeclared (first use this function)"
+      },
+      {
+        "line": 1582,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1582,
+        "message": "request for member `unk28' in something not a structure or union"
+      },
+      {
+        "line": 1583,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1583,
+        "message": "request for member `unk28' in something not a structure or union"
+      },
+      {
+        "line": 1588,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1588,
+        "message": "request for member `unk28' in something not a structure or union"
+      },
+      {
+        "line": 1594,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1594,
+        "message": "request for member `unk2C' in something not a structure or union"
+      },
+      {
+        "line": 1598,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1598,
+        "message": "request for member `unk2C' in something not a structure or union"
+      },
+      {
+        "line": 1602,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1602,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 1603,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1603,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 1604,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1604,
+        "message": "request for member `unk7C' in something not a structure or union"
+      }
+    ],
+    "severe_errors": [],
+    "functions": [
+      "func_800A2894",
+      "func_800A4350",
+      "func_800A4860",
+      "func_800A4954",
+      "func_800A5EB0",
+      "func_800A7560",
+      "func_800A8424",
+      "func_800ADD2C",
+      "func_800AF874",
+      "func_800B10B4",
+      "func_800B16D0",
+      "func_800B2A2C",
+      "func_800B2EBC"
+    ],
+    "recommendation": "recommend_revert"
+  },
+  "src/field/field.c": {
+    "exists": true,
+    "ok": false,
+    "errors": [
+      {
+        "line": 162,
+        "message": "default label not within a switch statement"
+      },
+      {
+        "line": 220,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 220,
+        "message": "request for member `unk15' in something not a structure or union"
+      },
+      {
+        "line": 317,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 318,
+        "message": "request for member `unk3' in something not a structure or union"
+      },
+      {
+        "line": 375,
+        "message": "warning: assignment makes pointer from integer without a cast"
+      },
+      {
+        "line": 376,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 376,
+        "message": "request for member `unk1C' in something not a structure or union"
+      },
+      {
+        "line": 378,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 378,
+        "message": "request for member `unk7' in something not a structure or union"
+      },
+      {
+        "line": 379,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 379,
+        "message": "request for member `unk2F' in something not a structure or union"
+      },
+      {
+        "line": 381,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 381,
+        "message": "request for member `unk3' in something not a structure or union"
+      },
+      {
+        "line": 382,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 382,
+        "message": "request for member `unk2B' in something not a structure or union"
+      },
+      {
+        "line": 383,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 383,
+        "message": "request for member `unk2E' in something not a structure or union"
+      },
+      {
+        "line": 384,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 384,
+        "message": "request for member `unk6' in something not a structure or union"
+      },
+      {
+        "line": 385,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 385,
+        "message": "request for member `unk2D' in something not a structure or union"
+      },
+      {
+        "line": 386,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 386,
+        "message": "request for member `unk5' in something not a structure or union"
+      },
+      {
+        "line": 387,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 387,
+        "message": "request for member `unk2C' in something not a structure or union"
+      },
+      {
+        "line": 388,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 388,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 389,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 389,
+        "message": "request for member `unk36' in something not a structure or union"
+      },
+      {
+        "line": 390,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 390,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 391,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 391,
+        "message": "request for member `unk3E' in something not a structure or union"
+      },
+      {
+        "line": 392,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 392,
+        "message": "request for member `unk16' in something not a structure or union"
+      },
+      {
+        "line": 393,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 393,
+        "message": "request for member `unk50' in something not a structure or union"
+      },
+      {
+        "line": 394,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 394,
+        "message": "request for member `unk52' in something not a structure or union"
+      },
+      {
+        "line": 395,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 395,
+        "message": "request for member `unk54' in something not a structure or union"
+      },
+      {
+        "line": 396,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 396,
+        "message": "request for member `unk7' in something not a structure or union"
+      },
+      {
+        "line": 396,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 396,
+        "message": "request for member `unk7' in something not a structure or union"
+      },
+      {
+        "line": 397,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 397,
+        "message": "request for member `unk2F' in something not a structure or union"
+      },
+      {
+        "line": 397,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 397,
+        "message": "request for member `unk2F' in something not a structure or union"
+      },
+      {
+        "line": 400,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 400,
+        "message": "request for member `unk5A' in something not a structure or union"
+      },
+      {
+        "line": 401,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 401,
+        "message": "request for member `unk58' in something not a structure or union"
+      },
+      {
+        "line": 564,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 892,
+        "message": "warning: comparison between pointer and integer"
+      },
+      {
+        "line": 910,
+        "message": "warning: comparison between pointer and integer"
+      },
+      {
+        "line": 936,
+        "message": "`Savemap' undeclared (first use this function)"
+      },
+      {
+        "line": 936,
+        "message": "(Each undeclared identifier is reported only once"
+      },
+      {
+        "line": 936,
+        "message": "for each function it appears in.)"
+      },
+      {
+        "line": 947,
+        "message": "`Savemap' undeclared (first use this function)"
+      },
+      {
+        "line": 953,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 953,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 948,
+        "message": "warning: previous implicit declaration of `func_800CF66C'"
+      },
+      {
+        "line": 953,
+        "message": "warning: `func_800CF66C' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 961,
+        "message": "warning: assignment makes integer from pointer without a cast"
+      },
+      {
+        "line": 963,
+        "message": "invalid type argument of `unary *'"
+      },
+      {
+        "line": 975,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 975,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 949,
+        "message": "warning: previous implicit declaration of `func_800CF6C0'"
+      },
+      {
+        "line": 975,
+        "message": "warning: `func_800CF6C0' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 983,
+        "message": "warning: assignment makes integer from pointer without a cast"
+      },
+      {
+        "line": 986,
+        "message": "invalid type argument of `unary *'"
+      }
+    ],
+    "severe_errors": [],
+    "functions": [
+      "func_800A2F78",
+      "func_800A4094",
+      "func_800A4134",
+      "func_800A4430",
+      "func_800A65A4",
+      "func_800AA32C",
+      "func_800AB2B4",
+      "func_800ABF0C",
+      "func_800AFDE4",
+      "func_800B69C0",
+      "func_800BC338",
+      "func_800BEAD4",
+      "func_800C0DE0",
+      "func_800C32CC",
+      "func_800C43C4",
+      "func_800C46A4",
+      "func_800C4AE8",
+      "func_800C4C9C",
+      "func_800C4CE8",
+      "func_800C5740",
+      "func_800CB450",
+      "func_800CB660",
+      "func_800CC284",
+      "func_800CC404",
+      "func_800CC70C",
+      "func_800CC944",
+      "func_800CCA68",
+      "func_800CD0C4",
+      "func_800CD16C",
+      "func_800CD214",
+      "func_800CD6B0",
+      "func_800CEB94",
+      "func_800CF4CC",
+      "func_800CF5A0",
+      "func_800CF60C",
+      "func_800CF66C",
+      "func_800CF6C0",
+      "func_800CF874",
+      "func_800CFC1C",
+      "func_800D298C",
+      "func_800D3E64",
+      "func_800D4160",
+      "func_800D4378",
+      "func_800D4420",
+      "func_800D85C0",
+      "func_800DA124",
+      "func_800DA2CC",
+      "func_800DA310",
+      "func_800DA334",
+      "func_800DA368",
+      "func_800DA3C4",
+      "func_800DA3F0",
+      "func_800DA480"
+    ],
+    "recommendation": "recommend_revert"
+  },
+  "src/battle/battle1.c": {
+    "exists": true,
+    "ok": false,
+    "errors": [
+      {
+        "line": 207,
+        "message": "`D_800F8384' undeclared (first use this function)"
+      },
+      {
+        "line": 207,
+        "message": "(Each undeclared identifier is reported only once"
+      },
+      {
+        "line": 207,
+        "message": "for each function it appears in.)"
+      },
+      {
+        "line": 209,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 209,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 210,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 210,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 212,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 212,
+        "message": "request for member `unk2' in something not a structure or union"
+      },
+      {
+        "line": 213,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 213,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 214,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 214,
+        "message": "request for member `unk6' in something not a structure or union"
+      },
+      {
+        "line": 215,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 215,
+        "message": "request for member `unk8' in something not a structure or union"
+      },
+      {
+        "line": 216,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 216,
+        "message": "request for member `unkA' in something not a structure or union"
+      },
+      {
+        "line": 217,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 217,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 218,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 218,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 220,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 220,
+        "message": "request for member `unkE' in something not a structure or union"
+      },
+      {
+        "line": 221,
+        "message": "warning: assignment from incompatible pointer type"
+      },
+      {
+        "line": 223,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 223,
+        "message": "request for member `unk10' in something not a structure or union"
+      },
+      {
+        "line": 225,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 225,
+        "message": "request for member `unk64' in something not a structure or union"
+      },
+      {
+        "line": 227,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 227,
+        "message": "request for member `unk44' in something not a structure or union"
+      },
+      {
+        "line": 240,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 240,
+        "message": "request for member `unk4C' in something not a structure or union"
+      },
+      {
+        "line": 242,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 242,
+        "message": "request for member `unk58' in something not a structure or union"
+      },
+      {
+        "line": 252,
+        "message": "`D_80163F34' undeclared (first use this function)"
+      },
+      {
+        "line": 257,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 257,
+        "message": "request for member `unk12' in something not a structure or union"
+      },
+      {
+        "line": 611,
+        "message": "warning: passing arg 2 of `func_800D29D4' from incompatible pointer type"
+      },
+      {
+        "line": 623,
+        "message": "warning: type mismatch with previous external decl"
+      },
+      {
+        "line": 623,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 251,
+        "message": "warning: previous implicit declaration of `func_800BB67C'"
+      },
+      {
+        "line": 623,
+        "message": "warning: `func_800BB67C' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 1132,
+        "message": "conflicting types for `D_800F9DA8'"
+      },
+      {
+        "line": 1140,
+        "message": "subscripted value is neither array nor pointer"
+      },
+      {
+        "line": 1216,
+        "message": "warning: type mismatch with previous implicit declaration"
+      },
+      {
+        "line": 1208,
+        "message": "warning: previous implicit declaration of `func_800C74A4'"
+      },
+      {
+        "line": 1216,
+        "message": "warning: `func_800C74A4' was previously implicitly declared to return `int'"
+      },
+      {
+        "line": 1216,
+        "message": "warning: `func_800C74A4' was declared implicitly `extern' and later `static'"
+      }
+    ],
+    "severe_errors": [],
+    "functions": [
+      "func_800B4E30",
+      "func_800B5AAC",
+      "func_800B7DB4",
+      "func_800B8944",
+      "func_800B8E48",
+      "func_800BBF7C",
+      "func_800BFB88",
+      "func_800C3068",
+      "func_800C3CA8",
+      "func_800C3DE4",
+      "func_800C428C",
+      "func_800C4814",
+      "func_800C5694",
+      "func_800C7220",
+      "func_800C7340"
+    ],
+    "recommendation": "recommend_revert"
+  },
+  "src/world/world2.c": {
+    "exists": true,
+    "ok": true,
+    "errors": [],
+    "severe_errors": [],
+    "functions": [
+      "func_800BFCAC",
+      "func_800C02F4",
+      "func_800C1490",
+      "func_800C1D58",
+      "func_800C1FD8",
+      "func_800C2130",
+      "func_800C31F0",
+      "func_800C3948",
+      "func_800C6104"
+    ],
+    "recommendation": "no_action"
+  },
+  "src/battle/battle2.c": {
+    "exists": true,
+    "ok": false,
+    "errors": [
+      {
+        "line": 68,
+        "message": "warning: passing arg 3 of `func_800C7B60' makes pointer from integer without a cast"
+      },
+      {
+        "line": 79,
+        "message": "warning: passing arg 3 of `func_800C7BE8' makes pointer from integer without a cast"
+      },
+      {
+        "line": 178,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 178,
+        "message": "request for member `unk0' in something not a structure or union"
+      },
+      {
+        "line": 179,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 179,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 190,
+        "message": "invalid operands to binary -"
+      },
+      {
+        "line": 423,
+        "message": "warning: assignment makes pointer from integer without a cast"
+      },
+      {
+        "line": 1336,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1336,
+        "message": "request for member `unkC' in something not a structure or union"
+      },
+      {
+        "line": 1336,
+        "message": "warning: dereferencing `void *' pointer"
+      },
+      {
+        "line": 1336,
+        "message": "request for member `unk4' in something not a structure or union"
+      },
+      {
+        "line": 1351,
+        "message": "structure has no member named `unk4'"
+      },
+      {
+        "line": 1352,
+        "message": "structure has no member named `unk4'"
+      },
+      {
+        "line": 1401,
+        "message": "warning: cast from pointer to integer of different size"
+      },
+      {
+        "line": 1408,
+        "message": "warning: cast from pointer to integer of different size"
+      },
+      {
+        "line": 1435,
+        "message": "parse error before `value1'"
+      },
+      {
+        "line": 1439,
+        "message": "parse error before `value2'"
+      },
+      {
+        "line": 1441,
+        "message": "`value1' undeclared (first use this function)"
+      },
+      {
+        "line": 1441,
+        "message": "(Each undeclared identifier is reported only once"
+      },
+      {
+        "line": 1441,
+        "message": "for each function it appears in.)"
+      },
+      {
+        "line": 1441,
+        "message": "`value2' undeclared (first use this function)"
+      },
+      {
+        "line": 1491,
+        "message": "warning: passing arg 2 of `func_800D54EC' from incompatible pointer type"
+      },
+      {
+        "line": 1501,
+        "message": "warning: passing arg 1 of `func_800BBEAC' makes pointer from integer without a cast"
+      },
+      {
+        "line": 1614,
+        "message": "`func_800D7888' undeclared (first use this function)"
+      }
+    ],
+    "severe_errors": [],
+    "functions": [
+      "func_800C7C4C",
+      "func_800CD860",
+      "func_800CEB48",
+      "func_800D0958",
+      "func_800D09D0",
+      "func_800D1530",
+      "func_800D29D4",
+      "func_800D32B4",
+      "func_800D3354",
+      "func_800D3418",
+      "func_800D3474",
+      "func_800D3548",
+      "func_800D3A6C",
+      "func_800D3BF0",
+      "func_800D41FC",
+      "func_800D4284",
+      "func_800D44E8",
+      "func_800D491C",
+      "func_800D4FA8",
+      "func_800D4FF0",
+      "func_800D51D4",
+      "func_800D5230",
+      "func_800D55A4",
+      "func_800D5774",
+      "func_800D57C0",
+      "func_800D5B6C",
+      "func_800D61AC",
+      "func_800D6260",
+      "func_800D6394",
+      "func_800D6998",
+      "func_800D6ACC",
+      "func_800D6D8C",
+      "func_800D70C0",
+      "func_800D72B4",
+      "func_800D7368",
+      "func_800D7724",
+      "func_800D7888",
+      "func_800D7B1C",
+      "func_800D7BA4",
+      "func_800D7C2C",
+      "func_800D8304",
+      "func_800D83A4",
+      "func_800D8468",
+      "func_800D84F8",
+      "func_800D87EC"
+    ],
+    "recommendation": "recommend_revert"
+  },
+  "src/battle/battle3.c": {
+    "exists": true,
+    "ok": false,
+    "errors": [
+      {
+        "line": 212,
+        "message": "`D_80158CFC' undeclared (first use this function)"
+      },
+      {
+        "line": 212,
+        "message": "(Each undeclared identifier is reported only once"
+      },
+      {
+        "line": 212,
+        "message": "for each function it appears in.)"
+      },
+      {
+        "line": 237,
+        "message": "`D_800F38A6' undeclared (first use this function)"
+      },
+      {
+        "line": 251,
+        "message": "`D_80151698' undeclared (first use this function)"
+      },
+      {
+        "line": 267,
+        "message": "`D_800F38A6' used prior to declaration"
+      },
+      {
+        "line": 273,
+        "message": "`D_80151698' used prior to declaration"
+      },
+      {
+        "line": 967,
+        "message": "warning: assignment from incompatible pointer type"
+      },
+      {
+        "line": 969,
+        "message": "warning: assignment from incompatible pointer type"
+      },
+      {
+        "line": 1121,
+        "message": "`D_80158CFC' used prior to declaration"
+      },
+      {
+        "line": 1233,
+        "message": "`saved_reg_s0' undeclared (first use this function)"
+      },
+      {
+        "line": 1442,
+        "message": "request for member `unk148' in something not a structure or union"
+      },
+      {
+        "line": 1466,
+        "message": "request for member `unk148' in something not a structure or union"
+      }
+    ],
+    "severe_errors": [],
+    "functions": [
+      "func_800D8A88",
+      "func_800DCFD4",
+      "func_800DDCE8",
+      "func_800DDFEC",
+      "func_800DEC10",
+      "func_800E0E34",
+      "func_800E1C40",
+      "func_800E2098",
+      "func_800E6018",
+      "func_800E68B4",
+      "func_800E6B94",
+      "func_800E7170"
+    ],
+    "recommendation": "recommend_revert"
+  },
+  "src/menu/bginmenu.c": {
+    "exists": true,
+    "ok": false,
+    "errors": [
+      {
+        "line": 140,
+        "message": "warning: assignment from incompatible pointer type"
+      },
+      {
+        "line": 141,
+        "message": "warning: assignment from incompatible pointer type"
+      },
+      {
+        "line": 143,
+        "message": "aggregate value used where an integer was expected"
+      },
+      {
+        "line": 147,
+        "message": "incompatible types in assignment"
+      },
+      {
+        "line": 340,
+        "message": "warning: assignment from incompatible pointer type"
+      }
+    ],
+    "severe_errors": [],
+    "functions": [
+      "func_801D01C4",
+      "func_801D027C",
+      "func_801D0324",
+      "func_801D0408",
+      "func_801D0500"
+    ],
+    "recommendation": "recommend_fix"
+  },
+  "src/menu/savemenu.c": {
+    "exists": true,
+    "ok": true,
+    "errors": [],
+    "severe_errors": [],
+    "functions": [
+      "func_801D1F40"
+    ],
+    "recommendation": "no_action"
+  }
+}
