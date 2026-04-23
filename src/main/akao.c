@@ -137,6 +137,8 @@ void func_8002BA08(Unk8002B7E0* arg0);
 void func_8002B8B4(Unk8002B7E0* arg0);
 void func_8002B668(Unk8002B7E0* arg0);
 
+extern u16 D_80062FC8;
+
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800293D0);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800293F4);
@@ -246,8 +248,6 @@ void func_8002B2F8(Unk8002B7E0* arg0) {
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002B3B4);
-
-extern u16 D_80062FC8;
 
 void func_8002B5A8(Unk8002B7E0* arg0) {
     if (D_8009A14E) {

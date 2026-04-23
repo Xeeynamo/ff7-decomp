@@ -1,11 +1,11 @@
 {
-  "completed_at": "2026-04-22T17:15:44.887510",
-  "duration_seconds": 131,
+  "completed_at": "2026-04-23T13:24:49.878853",
+  "duration_seconds": 25,
   "functions_processed": 8,
-  "functions_verified": 8,
-  "functions_failed": 110,
+  "functions_verified": 0,
+  "functions_failed": 0,
   "functions_analyzed_by_llm": 0,
-  "final_progress_percent": 2.029664324746292,
+  "final_progress_percent": 0.0,
   "llm_enabled": false,
   "errors": []
 }

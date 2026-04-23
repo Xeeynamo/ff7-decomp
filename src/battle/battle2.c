@@ -39,6 +39,11 @@ void func_801B0040(s16, u8);
 void func_801B0054(s16, u8);
 void func_801B0084(s16, u8);
 
+extern u8 D_800F10EC[];
+extern u8 D_800F11E8[];
+extern u8 D_800F1304[];
+extern s32 D_800F14D4;
+
 static s32 func_800C7B60(s16 arg0, s16 nItems, u8* arg2) {
     BattleModelSub* var_a0;
     s32 var_a1;
@@ -1155,14 +1160,10 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D6394);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D650C);
 
-extern u8 D_800F10EC[];
-extern u8 D_800F11E8[];
-extern u8 D_800F1304[];
 u8* const D_800A0DC8[] = {D_800F10EC, D_800F11E8, D_800F1304};
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D6734);
 
 void func_800D6734(s32, s32);
-extern s32 D_800F14D4;
 
 static void func_800D67BC(s32 arg0) {
     D_800F14D4 = 0x88;

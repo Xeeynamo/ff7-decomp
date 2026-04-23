@@ -829,15 +829,23 @@ class DecompilationAgent:
                     for fname in func_names:
                         entry = self.db.get_function(fname)
                         if entry and entry.get('status') == 'decompiled':
+                            # Revert C body to INCLUDE_ASM so SHA1 stays passing
+                            reverted = self._revert_function_to_include_asm(full_path, fname)
                             self.db.update_function_status(
                                 fname,
                                 'decompiled_needs_refine',
                                 notes=f"Post-parallel compile check failed: {errors_summary}",
                             )
-                            self._log(
-                                f"    {fname} → decompiled_needs_refine (compile errors)",
-                                "WARN",
-                            )
+                            if reverted:
+                                self._log(
+                                    f"    {fname} → decompiled_needs_refine ↩️ reverted (compile errors)",
+                                    "WARN",
+                                )
+                            else:
+                                self._log(
+                                    f"    {fname} → decompiled_needs_refine (compile errors; revert failed)",
+                                    "WARN",
+                                )
                             success_count -= 1
                             needs_refine_count += 1
 
@@ -1663,6 +1671,36 @@ class DecompilationAgent:
             self._log(f"Startup audit: flagged {flagged} function(s) as decompiled_needs_refine", "WARN")
         else:
             self._log("Startup audit: all decompiled functions compile cleanly", "INFO")
+
+        # Second pass: reset verified/decompiled_needs_refine functions that still
+        # have INCLUDE_ASM in their C file back to 'todo'.  This happens when the
+        # DB is reused after a branch reset (the C files were wiped but the DB
+        # retained the old status).
+        import re as _re
+        reset_count = 0
+        stale_statuses = ('verified', 'decompiled_needs_refine', 'decompiled')
+        stale_funcs = []
+        for status in stale_statuses:
+            stale_funcs.extend(self.db.get_functions_by_status(status, limit=None,
+                                                                module=self.config.module_filter) or [])
+        for func in stale_funcs:
+            c_file_rel = func.get('c_file_path')
+            func_name = func['name']
+            if not c_file_rel:
+                continue
+            c_file = project_root / c_file_rel
+            if not c_file.exists():
+                continue
+            content = c_file.read_text(errors='replace')
+            pat = rf'INCLUDE_ASM\s*\(\s*"[^"]*"\s*,\s*{_re.escape(func_name)}\s*\)'
+            if _re.search(pat, content):
+                self.db.update_function_status(func_name, 'todo',
+                                               notes='Reset: C file reverted to INCLUDE_ASM')
+                reset_count += 1
+                if self.config.verbose:
+                    self._log(f"  Reset {func_name} ({func['status']} → todo): C file has INCLUDE_ASM", "WARN")
+        if reset_count:
+            self._log(f"Startup audit: reset {reset_count} stale function(s) to 'todo'", "WARN")
 
     def _ensure_asm_splits(self):
         """

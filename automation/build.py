@@ -330,25 +330,49 @@ class BuildVerifier:
                 self.db.update_function_status(
                     func_name,
                     'verified',
-                    notes="Verified - no longer uses INCLUDE_ASM"
+                    notes="Verified - binary match 100%"
                 )
                 verified_count += 1
             else:
                 print(f"  ❌ Not matching: {error}")
-                # Mark as needs refinement (decompiled but doesn't match)
                 if "still uses INCLUDE_ASM" in error:
+                    # C body was never written — just fix the DB status
                     self.db.update_function_status(
                         func_name,
                         'decompiled_needs_refine',
-                        notes=f"Decompiled but verification failed: {error}"
+                        notes=f"Verification failed: {error}"
                     )
+                    failed_count += 1
                 else:
-                    self.db.update_function_status(
-                        func_name,
-                        'decompiled',
-                        notes=f"Decompiled but needs verification: {error}"
-                    )
-                failed_count += 1
+                    # C body is in the file but doesn't match binary — revert it
+                    # to INCLUDE_ASM so SHA1 stays passing.
+                    c_file = PROJECT_ROOT / func['c_file_path']
+                    asm_dir = None
+                    if func.get('asm_file_path'):
+                        from revert_nonmatching import get_include_asm_dir
+                        asm_dir = get_include_asm_dir(func['asm_file_path'])
+                    reverted = False
+                    if asm_dir and c_file.exists():
+                        from revert_nonmatching import replace_func_with_stub
+                        content = c_file.read_text()
+                        new_content, reverted = replace_func_with_stub(content, func_name, asm_dir)
+                        if reverted:
+                            c_file.write_text(new_content)
+                    if reverted:
+                        print(f"  ↩️  Reverted to INCLUDE_ASM (binary mismatch: {error})")
+                        self.db.update_function_status(
+                            func_name,
+                            'decompiled_needs_refine',
+                            notes=f"Reverted: binary mismatch — {error}"
+                        )
+                    else:
+                        print(f"  ⚠️  Could not revert {func_name} — manual check needed")
+                        self.db.update_function_status(
+                            func_name,
+                            'decompiled_needs_refine',
+                            notes=f"Binary mismatch (revert failed): {error}"
+                        )
+                    failed_count += 1
         
         print(f"\n{'='*60}")
         print(f"VERIFICATION COMPLETE")
@@ -390,7 +414,7 @@ class BuildVerifier:
                 for warning in parsed['warnings'][:5]:  # Show first 5
                     print(f"  ⚠️  {warning}")
             
-            # Now verify functions
+            # Now verify functions — revert any that don't reach 100% binary match
             print("\n" + "="*60)
             self.verify_decompiled_functions()
             
@@ -413,6 +437,25 @@ class BuildVerifier:
                     print(f"  - {func}")
                 if len(parsed['link_errors']) > 10:
                     print(f"  ... and {len(parsed['link_errors']) - 10} more")
+
+            # SHA1 mismatch: revert non-matching decompiled functions then rebuild
+            # to restore the passing state.  Compile/link errors are a different
+            # failure mode and do not need this treatment.
+            if not parsed['compile_errors'] and not parsed['link_errors']:
+                print("\n🔍 SHA1 mismatch detected — checking for non-matching decompiled functions...")
+                verify_results = self.verify_decompiled_functions()
+                if verify_results['failed'] > 0:
+                    print(f"↩️  Reverted {verify_results['failed']} non-matching function(s). Rebuilding...")
+                    self._objdiff_report_cache = None
+                    success2, _, _, _ = self.run_build()
+                    self._objdiff_report_cache = None
+                    if success2:
+                        print("✅ Rebuild after revert succeeded — SHA1 passing again.")
+                        success = True
+                    else:
+                        print("❌ Rebuild still failing after revert — manual intervention needed.")
+                else:
+                    print("⚠️  No decompiled functions to revert — build failure has another cause.")
         
         print(f"\n{'='*60}\n")
         return success

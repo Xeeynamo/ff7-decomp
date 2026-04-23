@@ -20,6 +20,9 @@ extern u8 D_801D085C[2];
 extern Unk80026448 D_801D0860[];
 extern s8 D_801D086B;
 
+extern u8 D_8009C778[]; // Savemap.party
+extern u8 D_8009C798[]; // Savemap.party
+
 void func_801D0000(void) {
     volatile s32 padding;
     func_80026448(&D_801D0860[0], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
@@ -52,8 +55,6 @@ static void func_801D01BC(void) {}
 INCLUDE_ASM("asm/us/menu/nonmatchings/bginmenu", func_801D01C4);
 #else
 // -O1
-extern u8 D_8009C778[]; // Savemap.party
-extern u8 D_8009C798[]; // Savemap.party
 s32 func_801D01C4(s32 arg0) {
     s32 var_a1;
     s32 var_a2;

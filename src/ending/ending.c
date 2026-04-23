@@ -1,5 +1,7 @@
 #include "common.h"
 
+s32 func_80034410();                                // extern
+
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A0030);
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A04C4);

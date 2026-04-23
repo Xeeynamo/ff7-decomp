@@ -1,28 +1,286 @@
 calvin@Begemot:~/GitHub/ff7-decomp-armstrca$ make rebuild
-[11/83] psx cc src/main/18B8.c
+[10/85] psx cc src/main/1255C.c
+src/main/1255C.c:66: parse error before `?'
+src/main/1255C.c:71: parse error before `?'
+src/main/1255C.c: In function `func_80022FE0':
+src/main/1255C.c:86: warning: passing arg 1 of `PutDispEnv' from incompatible pointer type
+src/main/1255C.c: In function `func_80025040':
+src/main/1255C.c:269: incompatible types in assignment
+src/main/1255C.c: In function `func_80025514':
+src/main/1255C.c:457: request for member `unk473' in something not a structure or union
+src/main/1255C.c:457: request for member `unk473' in something not a structure or union
+src/main/1255C.c:460: request for member `unk473' in something not a structure or union
+src/main/1255C.c:460: request for member `unk473' in something not a structure or union
+src/main/1255C.c: In function `func_80025668':
+src/main/1255C.c:510: subscripted value is neither array nor pointer
+src/main/1255C.c:513: invalid operands to binary *
+src/main/1255C.c: In function `func_800256DC':
+src/main/1255C.c:523: subscripted value is neither array nor pointer
+src/main/1255C.c:526: invalid operands to binary *
+src/main/1255C.c: In function `func_80025800':
+src/main/1255C.c:557: subscripted value is neither array nor pointer
+src/main/1255C.c:569: incompatible types in assignment
+src/main/1255C.c: In function `func_800258BC':
+src/main/1255C.c:580: subscripted value is neither array nor pointer
+src/main/1255C.c:589: incompatible types in assignment
+src/main/1255C.c: In function `func_80025988':
+src/main/1255C.c:601: subscripted value is neither array nor pointer
+src/main/1255C.c:613: incompatible types in assignment
+src/main/1255C.c: In function `func_80025A44':
+src/main/1255C.c:624: subscripted value is neither array nor pointer
+src/main/1255C.c:633: incompatible types in assignment
+src/main/1255C.c: At top level:
+src/main/1255C.c:764: warning: type mismatch with previous external decl
+src/main/1255C.c:415: warning: previous external decl of `func_8002603C'
+src/main/1255C.c:764: warning: type mismatch with previous implicit declaration
+src/main/1255C.c:456: warning: previous implicit declaration of `func_8002603C'
+src/main/1255C.c: In function `func_800260DC':
+src/main/1255C.c:797: warning: passing arg 1 of `func_80025C14' from incompatible pointer type
+src/main/1255C.c:802: subscripted value is neither array nor pointer
+src/main/1255C.c:807: warning: passing arg 3 of `func_80033F40' from incompatible pointer type
+src/main/1255C.c:808: warning: passing arg 1 of `func_80025D14' from incompatible pointer type
+src/main/1255C.c:818: warning: passing arg 2 of `StoreImage' from incompatible pointer type
+src/main/1255C.c:820: warning: passing arg 1 of `func_80025C54' from incompatible pointer type
+src/main/1255C.c: In function `func_800262D8':
+src/main/1255C.c:843: warning: assignment makes pointer from integer without a cast
+src/main/1255C.c:847: invalid operands to binary +
+src/main/1255C.c:853: invalid operands to binary &
+src/main/1255C.c: In function `func_80026A00':
+src/main/1255C.c:907: warning: assignment from incompatible pointer type
+src/main/1255C.c: In function `func_80026A0C':
+src/main/1255C.c:912: warning: assignment from incompatible pointer type
+src/main/1255C.c: In function `func_80026A20':
+src/main/1255C.c:917: warning: assignment from incompatible pointer type
+src/main/1255C.c: In function `func_80028CA0':
+src/main/1255C.c:969: warning: dereferencing `void *' pointer
+src/main/1255C.c:969: request for member `unk3' in something not a structure or union
+src/main/1255C.c:970: warning: dereferencing `void *' pointer
+src/main/1255C.c:970: request for member `unk7' in something not a structure or union
+src/main/1255C.c:975: warning: dereferencing `void *' pointer
+src/main/1255C.c:975: request for member `unk8' in something not a structure or union
+src/main/1255C.c:976: warning: dereferencing `void *' pointer
+src/main/1255C.c:976: request for member `unkA' in something not a structure or union
+src/main/1255C.c:977: warning: dereferencing `void *' pointer
+src/main/1255C.c:977: request for member `unkC' in something not a structure or union
+src/main/1255C.c:978: warning: dereferencing `void *' pointer
+src/main/1255C.c:978: request for member `unkD' in something not a structure or union
+src/main/1255C.c:979: warning: dereferencing `void *' pointer
+src/main/1255C.c:979: request for member `unk10' in something not a structure or union
+src/main/1255C.c:980: warning: dereferencing `void *' pointer
+src/main/1255C.c:980: request for member `unk12' in something not a structure or union
+src/main/1255C.c:981: warning: dereferencing `void *' pointer
+src/main/1255C.c:981: request for member `unkE' in something not a structure or union
+src/main/1255C.c: In function `func_80028E00':
+src/main/1255C.c:1027: warning: dereferencing `void *' pointer
+src/main/1255C.c:1027: request for member `unk3' in something not a structure or union
+src/main/1255C.c:1028: warning: dereferencing `void *' pointer
+src/main/1255C.c:1028: request for member `unk7' in something not a structure or union
+src/main/1255C.c:1031: warning: dereferencing `void *' pointer
+src/main/1255C.c:1031: request for member `unk8' in something not a structure or union
+src/main/1255C.c:1032: warning: dereferencing `void *' pointer
+src/main/1255C.c:1032: request for member `unkA' in something not a structure or union
+src/main/1255C.c:1033: warning: dereferencing `void *' pointer
+src/main/1255C.c:1033: request for member `unkC' in something not a structure or union
+src/main/1255C.c:1034: warning: dereferencing `void *' pointer
+src/main/1255C.c:1034: request for member `unkD' in something not a structure or union
+src/main/1255C.c:1035: warning: dereferencing `void *' pointer
+src/main/1255C.c:1035: request for member `unk10' in something not a structure or union
+src/main/1255C.c:1036: warning: dereferencing `void *' pointer
+src/main/1255C.c:1036: request for member `unk12' in something not a structure or union
+src/main/1255C.c:1037: warning: dereferencing `void *' pointer
+src/main/1255C.c:1037: request for member `unkE' in something not a structure or union
+src/main/1255C.c:1050: warning: dereferencing `void *' pointer
+src/main/1255C.c:1050: request for member `unk3' in something not a structure or union
+src/main/1255C.c:1051: warning: dereferencing `void *' pointer
+src/main/1255C.c:1051: request for member `unk7' in something not a structure or union
+src/main/1255C.c:1053: warning: dereferencing `void *' pointer
+src/main/1255C.c:1053: request for member `unk8' in something not a structure or union
+src/main/1255C.c:1054: warning: dereferencing `void *' pointer
+src/main/1255C.c:1054: request for member `unkA' in something not a structure or union
+src/main/1255C.c:1055: warning: dereferencing `void *' pointer
+src/main/1255C.c:1055: request for member `unkC' in something not a structure or union
+src/main/1255C.c:1056: warning: dereferencing `void *' pointer
+src/main/1255C.c:1056: request for member `unkD' in something not a structure or union
+src/main/1255C.c:1057: warning: dereferencing `void *' pointer
+src/main/1255C.c:1057: request for member `unk10' in something not a structure or union
+src/main/1255C.c:1058: warning: dereferencing `void *' pointer
+src/main/1255C.c:1058: request for member `unk12' in something not a structure or union
+src/main/1255C.c:1059: warning: dereferencing `void *' pointer
+src/main/1255C.c:1059: request for member `unkE' in something not a structure or union
+[11/85] psx cc src/main/akao.c
+src/main/akao.c:161: parse error before `?'
+src/main/akao.c: In function `func_8002B1F8':
+src/main/akao.c:370: warning: passing arg 1 of `func_80029B78' makes pointer from integer without a cast
+src/main/akao.c: In function `func_8002B2F8':
+src/main/akao.c:389: warning: passing arg 1 of `func_80029B78' makes pointer from integer without a cast
+src/main/akao.c: In function `func_80033A90':
+src/main/akao.c:1133: `Savemap' undeclared (first use this function)
+src/main/akao.c:1133: (Each undeclared identifier is reported only once
+src/main/akao.c:1133: for each function it appears in.)
+[12/85] psx cc src/main/psxsdk.c
+src/main/psxsdk.c:31: parse error before `?'
+src/main/psxsdk.c:207: warning: type mismatch with previous external decl
+src/main/psxsdk.c:73: warning: previous external decl of `func_80034D2C'
+src/main/psxsdk.c:207: warning: type mismatch with previous implicit declaration
+src/main/psxsdk.c:73: warning: previous implicit declaration of `func_80034D2C'
+src/main/psxsdk.c:207: warning: `func_80034D2C' was previously implicitly declared to return `int'
+src/main/psxsdk.c: In function `func_80034D2C':
+src/main/psxsdk.c:211: `jtbl_80034D14' undeclared (first use this function)
+src/main/psxsdk.c:211: (Each undeclared identifier is reported only once
+src/main/psxsdk.c:211: for each function it appears in.)
+[13/85] psx cc src/main/18B8.c
+src/main/18B8.c:174: warning: `D_80062FFC' initialized and declared `extern'
+src/main/18B8.c:175: warning: `D_80063020' initialized and declared `extern'
+src/main/18B8.c:176: warning: `D_80062F7C' initialized and declared `extern'
+src/main/18B8.c:177: warning: `D_80062F10' initialized and declared `extern'
+src/main/18B8.c:178: warning: `D_80062FBC' initialized and declared `extern'
+src/main/18B8.c:179: warning: `D_80063020' initialized and declared `extern'
+src/main/18B8.c:179: redefinition of `D_80063020'
+src/main/18B8.c:175: `D_80063020' previously defined here
+src/main/18B8.c: In function `func_80014B70':
+src/main/18B8.c:686: warning: assignment from incompatible pointer type
+src/main/18B8.c: At top level:
+src/main/18B8.c:743: warning: type mismatch with previous external decl
+src/main/18B8.c:570: warning: previous external decl of `func_80014C80'
+src/main/18B8.c:743: warning: type mismatch with previous implicit declaration
+src/main/18B8.c:570: warning: previous implicit declaration of `func_80014C80'
+src/main/18B8.c:743: warning: `func_80014C80' was previously implicitly declared to return `int'
+src/main/18B8.c: In function `func_80015668':
+src/main/18B8.c:832: parse error before `?'
+src/main/18B8.c:857: warning: assignment from incompatible pointer type
+src/main/18B8.c:861: `var_t8' undeclared (first use this function)
+src/main/18B8.c:861: (Each undeclared identifier is reported only once
+src/main/18B8.c:861: for each function it appears in.)
+src/main/18B8.c:863: subscripted value is neither array nor pointer
+src/main/18B8.c:872: invalid operands to binary +
+src/main/18B8.c:908: incompatible types in assignment
+src/main/18B8.c:909: incompatible types in assignment
+src/main/18B8.c:910: incompatible types in assignment
+src/main/18B8.c:911: incompatible types in assignment
 src/main/18B8.c: In function `func_800159B0':
-src/main/18B8.c:1528: warning: comparison is always 1 due to limited range of data type
-[64/83] psx cc src/field/field.c
-src/field/field.c: In function `func_800C5CE8':
-src/field/field.c:2512: warning: comparison is always 1 due to limited range of data type
-src/field/field.c: In function `func_800C5E80':
-src/field/field.c:2558: warning: comparison is always 1 due to limited range of data type
-[83/83] check
-FAILED: build/check.dummy 
-sha1sum -c build/us/check.sha1
-build/us/main.exe: FAILED
-build/us/batini.exe: FAILED
-build/us/battle.exe: FAILED
-build/us/brom.exe: FAILED
-build/us/dschange.exe: FAILED
-build/us/ending.exe: FAILED
-build/us/field.exe: FAILED
-build/us/bginmenu.exe: FAILED
-build/us/cnfgmenu.exe: FAILED
-build/us/savemenu.exe: FAILED
-build/us/world.exe: FAILED
-build/us/barrier.exe: FAILED
-sha1sum: WARNING: 12 computed checksums did NOT match
+src/main/18B8.c:995: warning: comparison is always 1 due to limited range of data type
+src/main/18B8.c: At top level:
+src/main/18B8.c:1022: warning: type mismatch with previous external decl
+src/main/18B8.c:562: warning: previous external decl of `func_80015B44'
+src/main/18B8.c:1022: warning: type mismatch with previous implicit declaration
+src/main/18B8.c:562: warning: previous implicit declaration of `func_80015B44'
+src/main/18B8.c:1022: warning: `func_80015B44' was previously implicitly declared to return `int'
+src/main/18B8.c: In function `func_80015B50':
+src/main/18B8.c:1031: invalid type argument of `->'
+src/main/18B8.c:1031: invalid type argument of `->'
+src/main/18B8.c:1032: invalid type argument of `->'
+src/main/18B8.c:1032: invalid type argument of `->'
+src/main/18B8.c: In function `func_80015B88':
+src/main/18B8.c:1042: invalid type argument of `->'
+src/main/18B8.c:1042: invalid type argument of `->'
+src/main/18B8.c:1043: invalid type argument of `->'
+src/main/18B8.c:1043: invalid type argument of `->'
+src/main/18B8.c: In function `func_800166C0':
+src/main/18B8.c:1126: warning: assignment makes pointer from integer without a cast
+src/main/18B8.c:1137: warning: assignment makes pointer from integer without a cast
+src/main/18B8.c:1152: warning: assignment makes pointer from integer without a cast
+src/main/18B8.c:1160: warning: assignment makes pointer from integer without a cast
+src/main/18B8.c: In function `func_80018220':
+src/main/18B8.c:1214: invalid type argument of `->'
+src/main/18B8.c:1214: invalid type argument of `->'
+src/main/18B8.c:1219: invalid type argument of `->'
+src/main/18B8.c:1219: invalid type argument of `->'
+src/main/18B8.c:1222: invalid type argument of `->'
+src/main/18B8.c:1222: invalid type argument of `->'
+src/main/18B8.c:1225: invalid type argument of `->'
+src/main/18B8.c:1225: invalid type argument of `->'
+src/main/18B8.c: In function `func_800182FC':
+src/main/18B8.c:1239: invalid type argument of `->'
+src/main/18B8.c:1239: invalid type argument of `->'
+src/main/18B8.c:1242: invalid type argument of `->'
+src/main/18B8.c:1242: invalid type argument of `->'
+src/main/18B8.c: In function `func_80019338':
+src/main/18B8.c:1350: warning: assignment from incompatible pointer type
+src/main/18B8.c: In function `func_80019DA0':
+src/main/18B8.c:1462: invalid type argument of `->'
+src/main/18B8.c:1463: invalid type argument of `->'
+src/main/18B8.c:1466: invalid type argument of `->'
+src/main/18B8.c: In function `func_80019E84':
+src/main/18B8.c:1490: warning: assignment from incompatible pointer type
+src/main/18B8.c:1503: warning: assignment from incompatible pointer type
+src/main/18B8.c:1509: structure has no member named `unk1B'
+src/main/18B8.c:1510: structure has no member named `unk1A'
+src/main/18B8.c:1518: structure has no member named `unk1B'
+src/main/18B8.c: In function `func_8001AE08':
+src/main/18B8.c:1746: request for member `unk0' in something not a structure or union
+src/main/18B8.c:1747: request for member `unk0' in something not a structure or union
+src/main/18B8.c:1752: request for member `unk2' in something not a structure or union
+src/main/18B8.c:1753: request for member `unk2' in something not a structure or union
+src/main/18B8.c:1758: invalid type argument of `->'
+src/main/18B8.c:1758: invalid type argument of `->'
+src/main/18B8.c:1758: request for member `unk0' in something not a structure or union
+src/main/18B8.c:1759: invalid type argument of `->'
+src/main/18B8.c:1759: invalid type argument of `->'
+src/main/18B8.c:1759: request for member `unk2' in something not a structure or union
+src/main/18B8.c:1760: invalid type argument of `->'
+src/main/18B8.c:1760: invalid type argument of `->'
+src/main/18B8.c:1761: invalid type argument of `->'
+src/main/18B8.c:1761: invalid type argument of `->'
+src/main/18B8.c:1762: invalid type argument of `->'
+src/main/18B8.c:1762: invalid type argument of `->'
+src/main/18B8.c: In function `func_8001BC18':
+src/main/18B8.c:1859: invalid type argument of `->'
+src/main/18B8.c:1860: invalid type argument of `->'
+src/main/18B8.c:1861: invalid type argument of `->'
+src/main/18B8.c:1862: invalid type argument of `->'
+src/main/18B8.c: At top level:
+src/main/18B8.c:1868: warning: type mismatch with previous external decl
+src/main/18B8.c:1620: warning: previous external decl of `func_8001BCE8'
+src/main/18B8.c:1868: warning: type mismatch with previous implicit declaration
+src/main/18B8.c:1620: warning: previous implicit declaration of `func_8001BCE8'
+src/main/18B8.c:1868: warning: `func_8001BCE8' was previously implicitly declared to return `int'
+src/main/18B8.c: In function `func_8001BD50':
+src/main/18B8.c:1896: invalid type argument of `->'
+src/main/18B8.c:1897: invalid type argument of `->'
+src/main/18B8.c:1898: invalid type argument of `->'
+src/main/18B8.c: In function `func_8001C980':
+src/main/18B8.c:1963: request for member `unk0' in something not a structure or union
+src/main/18B8.c:1965: request for member `unk0' in something not a structure or union
+src/main/18B8.c:1971: request for member `unk2' in something not a structure or union
+src/main/18B8.c:1986: request for member `unk2' in something not a structure or union
+src/main/18B8.c:1988: request for member `unk0' in something not a structure or union
+src/main/18B8.c:1988: request for member `unk0' in something not a structure or union
+src/main/18B8.c:1988: request for member `unk2' in something not a structure or union
+src/main/18B8.c:1988: request for member `unk0' in something not a structure or union
+src/main/18B8.c:1989: request for member `unk0' in something not a structure or union
+src/main/18B8.c:1989: request for member `unk2' in something not a structure or union
+src/main/18B8.c:1994: request for member `unk2' in something not a structure or union
+src/main/18B8.c:1994: request for member `unk0' in something not a structure or union
+src/main/18B8.c:2007: request for member `unk2' in something not a structure or union
+src/main/18B8.c:2009: request for member `unk2' in something not a structure or union
+src/main/18B8.c:2009: request for member `unk2' in something not a structure or union
+src/main/18B8.c:2009: request for member `unk0' in something not a structure or union
+src/main/18B8.c:2011: request for member `unk2' in something not a structure or union
+src/main/18B8.c:2011: request for member `unk0' in something not a structure or union
+src/main/18B8.c:2012: request for member `unk2' in something not a structure or union
+src/main/18B8.c:2012: request for member `unk2' in something not a structure or union
+src/main/18B8.c:2012: request for member `unk0' in something not a structure or union
+src/main/18B8.c: In function `func_8001FBAC':
+src/main/18B8.c:2335: subscripted value is neither array nor pointer
+src/main/18B8.c:2341: invalid operands to binary *
+src/main/18B8.c:2348: invalid operands to binary *
+src/main/18B8.c: In function `func_800211C4':
+src/main/18B8.c:2458: request for member `unk4' in something not a structure or union
+src/main/18B8.c:2458: warning: passing arg 3 of `func_80033E34' from incompatible pointer type
+[14/85] psx ld build/us/main.ld
+FAILED: build/us/main.elf 
+mipsel-linux-gnu-ld -nostdlib --no-check-sections  -Map build/us/main.map -T build/us/main.ld -T build/us/undefined_syms.main.txt -T config/sym_extern.us.txt -T config/sym_ovl_export.us.txt -o build/us/main.elf build/us/asm/us/main/header.s.o build/us/asm/us/main/data/800.rodata.s.o build/us/asm/us/main/data/AB4.rodata.s.o build/us/asm/us/main/data/B94.rodata.s.o build/us/src/main/18B8.c.o build/us/src/main/1255C.c.o build/us/src/main/akao.c.o build/us/src/main/psxsdk.c.o build/us/asm/us/main/data/394E0.data.s.o build/us/src/main/ovl.c.o build/us/asm/us/main/data/39C50.data.s.o build/us/asm/us/main/data/536C4.bss.s.o
+mipsel-linux-gnu-ld: build/us/asm/us/main/data/536C4.bss.s.o: in function `D_80062F10':
+(.bss+0x4c): multiple definition of `D_80062F10'; build/us/src/main/18B8.c.o:src/main/18B8.c:(.sdata+0x178): first defined here
+mipsel-linux-gnu-ld: build/us/asm/us/main/data/536C4.bss.s.o: in function `D_80062F7C':
+(.bss+0xb8): multiple definition of `D_80062F7C'; build/us/src/main/18B8.c.o:src/main/18B8.c:(.sdata+0x174): first defined here
+mipsel-linux-gnu-ld: build/us/asm/us/main/data/536C4.bss.s.o: in function `D_80062FBC':
+(.bss+0xf8): multiple definition of `D_80062FBC'; build/us/src/main/18B8.c.o:src/main/18B8.c:(.sdata+0x17c): first defined here
+mipsel-linux-gnu-ld: build/us/asm/us/main/data/536C4.bss.s.o: in function `D_80062FFC':
+(.bss+0x138): multiple definition of `D_80062FFC'; build/us/src/main/18B8.c.o:src/main/18B8.c:(.sdata+0x170): first defined here
+mipsel-linux-gnu-ld: build/us/asm/us/main/data/536C4.bss.s.o: in function `D_80063020':
+(.bss+0x15c): multiple definition of `D_80063020'; build/us/src/main/18B8.c.o:src/main/18B8.c:(.sdata+0x171): first defined here
+mipsel-linux-gnu-ld: warning: build/us/main.elf has a LOAD segment with RWX permissions
 ninja: build stopped: subcommand failed.
 Usage:
    build [version] [flags]
@@ -33,3 +291,73 @@ Flags:
 exit status 1
 exit status 1
 make: *** [Makefile:43: rebuild] Error 1
+calvin@Begemot:~/GitHub/ff7-decomp-armstrca$ make build
+wget -O bin/cc1-psx-26.gz https://github.com/Xeeynamo/ff7-decomp/releases/download/init/cc1-psx-26.gz
+--2026-04-22 19:17:22--  https://github.com/Xeeynamo/ff7-decomp/releases/download/init/cc1-psx-26.gz
+Resolving github.com (github.com)... 140.82.114.4
+Connecting to github.com (github.com)|140.82.114.4|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://release-assets.githubusercontent.com/github-production-release-asset/1060063534/420d0295-4a7d-4681-9a25-e9da0b499bf4?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-04-23T01%3A15%3A23Z&rscd=attachment%3B+filename%3Dcc1-psx-26.gz&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-04-23T00%3A14%3A51Z&ske=2026-04-23T01%3A15%3A23Z&sks=b&skv=2018-11-09&sig=yA303xYATCN%2FH4GHiv3E6NaE%2FsMVdCbaSwdXCAZr5Lw%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc3NjkwMzc0MiwibmJmIjoxNzc2OTAzNDQyLCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.MttehX27NcgF2DYQp9bkQQTb7BhqXaDj5Wc082EQlXI&response-content-disposition=attachment%3B%20filename%3Dcc1-psx-26.gz&response-content-type=application%2Foctet-stream [following]
+--2026-04-22 19:17:22--  https://release-assets.githubusercontent.com/github-production-release-asset/1060063534/420d0295-4a7d-4681-9a25-e9da0b499bf4?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-04-23T01%3A15%3A23Z&rscd=attachment%3B+filename%3Dcc1-psx-26.gz&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-04-23T00%3A14%3A51Z&ske=2026-04-23T01%3A15%3A23Z&sks=b&skv=2018-11-09&sig=yA303xYATCN%2FH4GHiv3E6NaE%2FsMVdCbaSwdXCAZr5Lw%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc3NjkwMzc0MiwibmJmIjoxNzc2OTAzNDQyLCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.MttehX27NcgF2DYQp9bkQQTb7BhqXaDj5Wc082EQlXI&response-content-disposition=attachment%3B%20filename%3Dcc1-psx-26.gz&response-content-type=application%2Foctet-stream
+Resolving release-assets.githubusercontent.com (release-assets.githubusercontent.com)... 185.199.108.133, 185.199.111.133, 185.199.109.133, ...
+Connecting to release-assets.githubusercontent.com (release-assets.githubusercontent.com)|185.199.108.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 1016568 (993K) [application/octet-stream]
+Saving to: ‘bin/cc1-psx-26.gz’
+
+bin/cc1-psx-26.gz            100%[=============================================>] 992.74K  --.-KB/s    in 0.02s   
+
+2026-04-22 19:17:22 (39.2 MB/s) - ‘bin/cc1-psx-26.gz’ saved [1016568/1016568]
+
+sha256sum --check bin/cc1-psx-26.gz.sha256
+bin/cc1-psx-26.gz: OK
+gzip -kcd bin/cc1-psx-26.gz > bin/cc1-psx-26
+touch bin/cc1-psx-26
+chmod +x bin/cc1-psx-26
+wget -O bin/cc1-psx-272.gz https://github.com/Xeeynamo/ff7-decomp/releases/download/init/cc1-psx-272.gz
+--2026-04-22 19:17:22--  https://github.com/Xeeynamo/ff7-decomp/releases/download/init/cc1-psx-272.gz
+Resolving github.com (github.com)... 140.82.114.4
+Connecting to github.com (github.com)|140.82.114.4|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://release-assets.githubusercontent.com/github-production-release-asset/1060063534/00f81ce4-4bc8-4bd0-ae45-19242fe2d056?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-04-23T01%3A13%3A34Z&rscd=attachment%3B+filename%3Dcc1-psx-272.gz&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-04-23T00%3A12%3A42Z&ske=2026-04-23T01%3A13%3A34Z&sks=b&skv=2018-11-09&sig=1K4g0syjf6V6%2BSKLeLCW%2F%2BJ7tBuGAkb9%2BsmJZ1dSnso%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc3NjkwMzc0MiwibmJmIjoxNzc2OTAzNDQyLCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.MttehX27NcgF2DYQp9bkQQTb7BhqXaDj5Wc082EQlXI&response-content-disposition=attachment%3B%20filename%3Dcc1-psx-272.gz&response-content-type=application%2Foctet-stream [following]
+--2026-04-22 19:17:22--  https://release-assets.githubusercontent.com/github-production-release-asset/1060063534/00f81ce4-4bc8-4bd0-ae45-19242fe2d056?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-04-23T01%3A13%3A34Z&rscd=attachment%3B+filename%3Dcc1-psx-272.gz&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-04-23T00%3A12%3A42Z&ske=2026-04-23T01%3A13%3A34Z&sks=b&skv=2018-11-09&sig=1K4g0syjf6V6%2BSKLeLCW%2F%2BJ7tBuGAkb9%2BsmJZ1dSnso%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc3NjkwMzc0MiwibmJmIjoxNzc2OTAzNDQyLCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.MttehX27NcgF2DYQp9bkQQTb7BhqXaDj5Wc082EQlXI&response-content-disposition=attachment%3B%20filename%3Dcc1-psx-272.gz&response-content-type=application%2Foctet-stream
+Resolving release-assets.githubusercontent.com (release-assets.githubusercontent.com)... 185.199.108.133, 185.199.111.133, 185.199.109.133, ...
+Connecting to release-assets.githubusercontent.com (release-assets.githubusercontent.com)|185.199.108.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 1039565 (1015K) [application/octet-stream]
+Saving to: ‘bin/cc1-psx-272.gz’
+
+bin/cc1-psx-272.gz           100%[=============================================>]   1015K  --.-KB/s    in 0.02s   
+
+2026-04-22 19:17:22 (42.1 MB/s) - ‘bin/cc1-psx-272.gz’ saved [1039565/1039565]
+
+sha256sum --check bin/cc1-psx-272.gz.sha256
+bin/cc1-psx-272.gz: OK
+gzip -kcd bin/cc1-psx-272.gz > bin/cc1-psx-272
+touch bin/cc1-psx-272
+chmod +x bin/cc1-psx-272
+[1/72] psx ld build/us/main.ld
+FAILED: build/us/main.elf 
+mipsel-linux-gnu-ld -nostdlib --no-check-sections  -Map build/us/main.map -T build/us/main.ld -T build/us/undefined_syms.main.txt -T config/sym_extern.us.txt -T config/sym_ovl_export.us.txt -o build/us/main.elf build/us/asm/us/main/header.s.o build/us/asm/us/main/data/800.rodata.s.o build/us/asm/us/main/data/AB4.rodata.s.o build/us/asm/us/main/data/B94.rodata.s.o build/us/src/main/18B8.c.o build/us/src/main/1255C.c.o build/us/src/main/akao.c.o build/us/src/main/psxsdk.c.o build/us/asm/us/main/data/394E0.data.s.o build/us/src/main/ovl.c.o build/us/asm/us/main/data/39C50.data.s.o build/us/asm/us/main/data/536C4.bss.s.o
+mipsel-linux-gnu-ld: build/us/asm/us/main/data/536C4.bss.s.o: in function `D_80062F10':
+(.bss+0x4c): multiple definition of `D_80062F10'; build/us/src/main/18B8.c.o:src/main/18B8.c:(.sdata+0x178): first defined here
+mipsel-linux-gnu-ld: build/us/asm/us/main/data/536C4.bss.s.o: in function `D_80062F7C':
+(.bss+0xb8): multiple definition of `D_80062F7C'; build/us/src/main/18B8.c.o:src/main/18B8.c:(.sdata+0x174): first defined here
+mipsel-linux-gnu-ld: build/us/asm/us/main/data/536C4.bss.s.o: in function `D_80062FBC':
+(.bss+0xf8): multiple definition of `D_80062FBC'; build/us/src/main/18B8.c.o:src/main/18B8.c:(.sdata+0x17c): first defined here
+mipsel-linux-gnu-ld: build/us/asm/us/main/data/536C4.bss.s.o: in function `D_80062FFC':
+(.bss+0x138): multiple definition of `D_80062FFC'; build/us/src/main/18B8.c.o:src/main/18B8.c:(.sdata+0x170): first defined here
+mipsel-linux-gnu-ld: build/us/asm/us/main/data/536C4.bss.s.o: in function `D_80063020':
+(.bss+0x15c): multiple definition of `D_80063020'; build/us/src/main/18B8.c.o:src/main/18B8.c:(.sdata+0x171): first defined here
+mipsel-linux-gnu-ld: warning: build/us/main.elf has a LOAD segment with RWX permissions
+ninja: build stopped: subcommand failed.
+Usage:
+   build [version] [flags]
+
+Flags:
+  -h, --help   help for build
+
+exit status 1
+exit status 1
+make: *** [Makefile:14: build] Error 1
+rm bin/cc1-psx-26.gz bin/cc1-psx-272.gz

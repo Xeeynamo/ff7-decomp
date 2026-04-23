@@ -169,6 +169,9 @@ void func_8001B834(s32);
 void func_8001BD50(u8, u8, u8);
 u8 func_8001F6B4();
 
+extern s32 D_80048D24; // field.X sector
+extern u32 D_80048D28; // field.X size
+
 void __main(void) {}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", __SN_ENTRY_POINT);
@@ -230,8 +233,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80011784);
 
 void func_800A16CC();  // field loop
 void func_800CF60C();  // field load
-extern s32 D_80048D24; // field.X sector
-extern u32 D_80048D28; // field.X size
 
 void func_80011860(void) {
     if (D_800965EC != 5 && D_800965EC != 13) {

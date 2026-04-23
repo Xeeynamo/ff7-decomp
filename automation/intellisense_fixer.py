@@ -218,6 +218,14 @@ _EXTERN_FWD_PAT = re.compile(r'//\s*extern\s*$')      # TYPE FUNC(...);  // exte
 def _is_extern_decl(line: str) -> bool:
     """Return True if the line is a top-level extern declaration (either style)."""
     stripped = line.strip()
+    # Skip declarations with m2c '?' unknown types — PSY-Q can't compile them
+    if '?' in stripped:
+        return False
+    # Skip extern declarations with initializers (e.g. m2c %gp annotations like
+    # `extern s32 D_80062F10 = 0; // %gp`). These define symbols, which will
+    # conflict with ASM BSS/sdata objects that already own those symbols.
+    if _EXTERN_KW_PAT.match(stripped) and '=' in stripped:
+        return False
     if _EXTERN_KW_PAT.match(stripped):
         return True
     # Forward-decl comment style: must also look like a prototype (has parens)

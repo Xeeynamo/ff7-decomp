@@ -1,1199 +1,487 @@
-[2026-04-22 17:15:48] [INFO] Dependency analysis enabled - building call graph...
-[2026-04-22 17:15:49] [INFO]   Analyzed 3520 functions across all modules
-[2026-04-22 17:15:49] [INFO]   1986 leaf functions (56.4%)
-[2026-04-22 17:15:49] [INFO]   Most depended on: func_800BEAD4 (237 dependents)
-[2026-04-22 17:15:49] [INFO] ============================================================
-[2026-04-22 17:15:49] [INFO] STARTING DECOMPILATION AGENT
-[2026-04-22 17:15:49] [INFO] ============================================================
-[2026-04-22 17:15:49] [INFO] Batch size: 3
-[2026-04-22 17:15:49] [INFO] Verify interval: 20
-[2026-04-22 17:15:49] [INFO] Checking ASM splits...
-[2026-04-22 17:15:49] [INFO]   ASM splits up to date
-[2026-04-22 17:15:49] [INFO] Refreshed decomp_decls.h + per-module decls: 366 declarations
-[2026-04-22 17:15:49] [WARN]   Reverted func_800293F4 in akao.c (? in extern block)
-[2026-04-22 17:15:49] [WARN]   Reverted func_800A22E4 in ending.c (? in extern block)
-[2026-04-22 17:15:49] [WARN]   Reverted func_800AEB80 in battle.c (? type marker)
-[2026-04-22 17:15:49] [WARN]   Reverted func_800A23BC in battle.c (? in extern block)
-[2026-04-22 17:15:49] [WARN]   Reverted func_800D61AC in battle2.c (? type marker)
-[2026-04-22 17:15:49] [WARN]   Reverted func_800CD558 in battle2.c (? in extern block)
-[2026-04-22 17:15:49] [WARN] Reverted 6 function(s) with '?' type markers to INCLUDE_ASM
-[2026-04-22 17:15:49] [INFO] Running initial compilation audit of decompiled functions...
-[2026-04-22 17:15:50] [INFO] Startup audit: all decompiled functions compile cleanly
-[2026-04-22 17:15:50] [INFO] sym_export alias check: all overlay jal targets accounted for
-[2026-04-22 17:15:50] [INFO] Reset retry counters for 797 failed/blocked function(s)
-[2026-04-22 17:15:50] [INFO] Initial state: 25/1281 verified
-[2026-04-22 17:15:51] [INFO] Processing batch of 3 functions
-[2026-04-22 17:15:51] [INFO] [1/3] Decompiling func_801D027C (48 lines)
+[2026-04-23 13:24:24] [INFO] Dependency analysis enabled - building call graph...
+[2026-04-23 13:24:24] [INFO]   Analyzed 1403 functions across all modules
+[2026-04-23 13:24:24] [INFO]   876 leaf functions (62.4%)
+[2026-04-23 13:24:24] [INFO]   Most depended on: func_80034B44 (33 dependents)
+[2026-04-23 13:24:24] [INFO] ============================================================
+[2026-04-23 13:24:24] [INFO] STARTING DECOMPILATION AGENT
+[2026-04-23 13:24:24] [INFO] ============================================================
+[2026-04-23 13:24:24] [INFO] Batch size: 8
+[2026-04-23 13:24:24] [INFO] Verify interval: 1
+[2026-04-23 13:24:24] [INFO] Target count: 8
+[2026-04-23 13:24:24] [INFO] Checking ASM splits...
+[2026-04-23 13:24:24] [INFO]   Re-running splat for battle (nonmatchings/ missing or empty)...
+[2026-04-23 13:24:27] [INFO]     battle: generated 520 nonmatching .s files
+[2026-04-23 13:24:27] [INFO]   Re-running splat for brom (nonmatchings/ missing or empty)...
+[2026-04-23 13:24:27] [INFO]     brom: generated 7 nonmatching .s files
+[2026-04-23 13:24:27] [INFO]   Re-running splat for ending (nonmatchings/ missing or empty)...
+[2026-04-23 13:24:27] [INFO]     ending: generated 62 nonmatching .s files
+[2026-04-23 13:24:27] [INFO]   Re-running splat for field (nonmatchings/ missing or empty)...
+[2026-04-23 13:24:30] [INFO]     field: generated 406 nonmatching .s files
+[2026-04-23 13:24:30] [INFO]   Re-running splat for world (nonmatchings/ missing or empty)...
+[2026-04-23 13:24:32] [INFO]     world: generated 354 nonmatching .s files
+[2026-04-23 13:24:32] [INFO] Refreshed decomp_decls.h + per-module decls: 399 declarations
+[2026-04-23 13:24:32] [INFO]   src/main/akao.c: hoisted 1 extern declaration(s) to file header
+[2026-04-23 13:24:32] [INFO]   src/main/18B8.c: hoisted 2 extern declaration(s) to file header
+[2026-04-23 13:24:32] [INFO]   src/battle/battle2.c: hoisted 4 extern declaration(s) to file header
+[2026-04-23 13:24:32] [INFO]   src/menu/bginmenu.c: hoisted 2 extern declaration(s) to file header
+[2026-04-23 13:24:32] [INFO] Hoisted 9 extern declaration(s) across 4 file(s) to file headers
+[2026-04-23 13:24:32] [INFO] Running initial compilation audit of decompiled functions...
+[2026-04-23 13:24:32] [INFO]   No decompiled/verified functions to audit
+[2026-04-23 13:24:32] [INFO] Reset retry counters for 1725 failed/blocked function(s)
+[2026-04-23 13:24:32] [INFO] Initial state: 0/1791 verified
+[2026-04-23 13:24:32] [INFO] 
+📚 Struct learning database: 16 known types
+[2026-04-23 13:24:32] [INFO]   Strict ordering: 51 ready, 3 waiting on unresolved callees
+[2026-04-23 13:24:33] [INFO] Processing 8 functions from 3 files with 8 parallel workers (file-level locking enabled)
+  [func_800A0514] Acquiring lock for src/brom/brom.c...
+  [func_800A1EE4] Acquiring lock for src/ending/ending.c...
+  [func_800A23F8] Acquiring lock for src/ending/ending.c...
+  [func_800A20D4] Acquiring lock for src/ending/ending.c...
+  [func_800A1FA4] Acquiring lock for src/ending/ending.c...
+  [func_800A7090] Acquiring lock for src/battle/battle.c...
+  [func_800A0514] Lock acquired for src/brom/brom.c
+  [func_800A1EE4] Lock acquired for src/ending/ending.c
 
 ============================================================
-Attempting to decompile: func_801D027C
-============================================================
-Module: menu
-Current status: todo
-⚠️  Decompilation produced invalid output: PSY-Q compilation failed: aggregate value used where an integer was expected; incompatible types in assignment
-🔄 Reverting bginmenu.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:15:52] [INFO] [2/3] Decompiling func_800AC6B4 (41 lines)
-
-============================================================
-Attempting to decompile: func_800AC6B4
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:15:53] [INFO] [3/3] Decompiling func_800D3548 (43 lines)
-
-============================================================
-Attempting to decompile: func_800D3548
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: Function 'func_800D3548' not found as a definition after decompilation (LLM may have renamed it)
-🔄 Reverting battle2.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:15:54
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   647
-Failed:    153
-Todo:      451
-Batches:   1
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:04
-============================================================
-
-[2026-04-22 17:15:54] [INFO] Processing batch of 3 functions
-[2026-04-22 17:15:54] [INFO] [1/3] Decompiling func_800AA468 (42 lines)
-
-============================================================
-Attempting to decompile: func_800AA468
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:15:55] [INFO] [2/3] Decompiling func_80018ECC (68 lines)
-
-============================================================
-Attempting to decompile: func_80018ECC
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:15:56] [INFO] [3/3] Decompiling func_800AFFBC (65 lines)
-
-============================================================
-Attempting to decompile: func_800AFFBC
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:15:57
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   650
-Failed:    153
-Todo:      448
-Batches:   2
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:07
-============================================================
-
-[2026-04-22 17:15:57] [INFO] Processing batch of 3 functions
-[2026-04-22 17:15:57] [INFO] [1/3] Decompiling func_800A5AD8 (53 lines)
-
-============================================================
-Attempting to decompile: func_800A5AD8
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:15:58] [INFO] [2/3] Decompiling func_800AB788 (47 lines)
-
-============================================================
-Attempting to decompile: func_800AB788
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:15:59] [INFO] [3/3] Decompiling func_800A0000 (55 lines)
-
-============================================================
-Attempting to decompile: func_800A0000
+Attempting to decompile: func_800A0514
 ============================================================
 Module: brom
 Current status: todo
-⚠️  Decompilation produced invalid output: Function 'func_800A0000' not found as a definition after decompilation (LLM may have renamed it)
-🔄 Reverting brom.c to INCLUDE_ASM (keeping file clean)
 
 ============================================================
-AGENT PROGRESS - 17:15:59
+Attempting to decompile: func_800A1EE4
 ============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   653
-Failed:    153
-Todo:      445
-Batches:   3
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:10
-============================================================
-
-[2026-04-22 17:16:00] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:00] [INFO] [1/3] Decompiling func_800D4284 (62 lines)
+Module: ending
+Current status: todo
+  [func_800A7090] Lock acquired for src/battle/battle.c
+  [func_800B10B4] Acquiring lock for src/battle/battle.c...
+  [func_800A4F14] Acquiring lock for src/battle/battle.c...
+Running: /home/calvin/GitHub/ff7-decomp-armstrca/mako.sh dec func_800A0514 --fix-structs
+Running: /home/calvin/GitHub/ff7-decomp-armstrca/mako.sh dec func_800A1EE4 --fix-structs
 
 ============================================================
-Attempting to decompile: func_800D4284
+Attempting to decompile: func_800A7090
 ============================================================
 Module: battle
 Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle2.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:01] [INFO] [2/3] Decompiling func_800BA938 (57 lines)
+Running: /home/calvin/GitHub/ff7-decomp-armstrca/mako.sh dec func_800A7090 --fix-structs
 
-============================================================
-Attempting to decompile: func_800BA938
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:02] [INFO] [3/3] Decompiling func_800B69A4 (47 lines)
+--- STDOUT ---
+func_800A0514 decompiled in src/brom/brom.c
 
-============================================================
-Attempting to decompile: func_800B69A4
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
 
-============================================================
-AGENT PROGRESS - 17:16:03
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   656
-Failed:    153
-Todo:      442
-Batches:   4
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:13
-============================================================
+--- STDERR ---
 
-[2026-04-22 17:16:03] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:03] [INFO] [1/3] Decompiling func_800C0254 (54 lines)
 
-============================================================
-Attempting to decompile: func_800C0254
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle1.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:04] [INFO] [2/3] Decompiling func_800ADF38 (41 lines)
+--- STDOUT ---
+func_800A1EE4 decompiled in src/ending/ending.c
 
-============================================================
-Attempting to decompile: func_800ADF38
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:05] [INFO] [3/3] Decompiling func_800A4138 (50 lines)
 
-============================================================
-Attempting to decompile: func_800A4138
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
+--- STDERR ---
 
-============================================================
-AGENT PROGRESS - 17:16:06
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   659
-Failed:    153
-Todo:      439
-Batches:   5
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:16
-============================================================
-
-[2026-04-22 17:16:07] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:07] [INFO] [1/3] Decompiling func_800BFCAC (430 lines)
-
-============================================================
-Attempting to decompile: func_800BFCAC
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: Function 'func_800BFCAC' not found as a definition after decompilation (LLM may have renamed it)
-🔄 Reverting world2.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:07] [INFO] [2/3] Decompiling func_80035430 (45 lines)
-
-============================================================
-Attempting to decompile: func_80035430
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting psxsdk.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:08] [INFO] [3/3] Decompiling func_80028E00 (211 lines)
-
-============================================================
-Attempting to decompile: func_80028E00
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:09
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   662
-Failed:    153
-Todo:      436
-Batches:   6
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:19
-============================================================
-
-[2026-04-22 17:16:09] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:09] [INFO] [1/3] Decompiling func_80025174 (81 lines)
-
-============================================================
-Attempting to decompile: func_80025174
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:10] [INFO] [2/3] Decompiling func_8002D410 (41 lines)
-
-============================================================
-Attempting to decompile: func_8002D410
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting akao.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:11] [INFO] [3/3] Decompiling func_8002D4A0 (41 lines)
-
-============================================================
-Attempting to decompile: func_8002D4A0
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting akao.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:11
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   665
-Failed:    153
-Todo:      433
-Batches:   7
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:22
-============================================================
-
-[2026-04-22 17:16:12] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:12] [INFO] [1/3] Decompiling func_800A7F38 (79 lines)
-
-============================================================
-Attempting to decompile: func_800A7F38
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:13] [INFO] [2/3] Decompiling func_8002BB20 (44 lines)
-
-============================================================
-Attempting to decompile: func_8002BB20
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting akao.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:13] [INFO] [3/3] Decompiling func_800AC3C0 (57 lines)
-
-============================================================
-Attempting to decompile: func_800AC3C0
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:14
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   668
-Failed:    153
-Todo:      430
-Batches:   8
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:24
-============================================================
-
-[2026-04-22 17:16:14] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:14] [INFO] [1/3] Decompiling func_800AE4B8 (69 lines)
-
-============================================================
-Attempting to decompile: func_800AE4B8
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:18] [INFO] [2/3] Decompiling func_80036190 (53 lines)
-
-============================================================
-Attempting to decompile: func_80036190
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting psxsdk.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:19] [INFO] [3/3] Decompiling func_800A76CC (52 lines)
-
-============================================================
-Attempting to decompile: func_800A76CC
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:19
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   671
-Failed:    153
-Todo:      427
-Batches:   9
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:30
-============================================================
-
-[2026-04-22 17:16:20] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:20] [INFO] [1/3] Decompiling func_80017678 (137 lines)
-
-============================================================
-Attempting to decompile: func_80017678
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:21] [INFO] [2/3] Decompiling func_800C02F4 (354 lines)
-
-============================================================
-Attempting to decompile: func_800C02F4
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: Function 'func_800C02F4' not found as a definition after decompilation (LLM may have renamed it)
-🔄 Reverting world2.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:21] [INFO] [3/3] Decompiling func_80036038 (57 lines)
-
-============================================================
-Attempting to decompile: func_80036038
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting psxsdk.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:22
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   674
-Failed:    153
-Todo:      424
-Batches:   10
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:33
-============================================================
-
-[2026-04-22 17:16:23] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:23] [INFO] [1/3] Decompiling func_800A4860 (70 lines)
-
-============================================================
-Attempting to decompile: func_800A4860
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:24] [INFO] [2/3] Decompiling func_800B10AC (80 lines)
-
-============================================================
-Attempting to decompile: func_800B10AC
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:24] [INFO] [3/3] Decompiling func_800BC338 (69 lines)
-
-============================================================
-Attempting to decompile: func_800BC338
-============================================================
-Module: field
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting field.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:25
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   677
-Failed:    153
-Todo:      421
-Batches:   11
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:36
-============================================================
-
-[2026-04-22 17:16:25] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:25] [INFO] [1/3] Decompiling func_800D751C (110 lines)
-
-============================================================
-Attempting to decompile: func_800D751C
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle2.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:26] [INFO] [2/3] Decompiling func_800BB7DC (61 lines)
-
-============================================================
-Attempting to decompile: func_800BB7DC
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:27] [INFO] [3/3] Decompiling func_800A5FB4 (89 lines)
-
-============================================================
-Attempting to decompile: func_800A5FB4
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: Function 'func_800A5FB4' not found as a definition after decompilation (LLM may have renamed it)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:27
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   680
-Failed:    153
-Todo:      418
-Batches:   12
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:38
-============================================================
-
-[2026-04-22 17:16:28] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:28] [INFO] [1/3] Decompiling func_8002A7E8 (102 lines)
-
-============================================================
-Attempting to decompile: func_8002A7E8
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting akao.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:28] [INFO] [2/3] Decompiling func_800B69C0 (80 lines)
-
-============================================================
-Attempting to decompile: func_800B69C0
-============================================================
-Module: field
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting field.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:29] [INFO] [3/3] Decompiling func_800A4954 (85 lines)
-
-============================================================
-Attempting to decompile: func_800A4954
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:30
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   683
-Failed:    153
-Todo:      415
-Batches:   13
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:40
-============================================================
-
-[2026-04-22 17:16:30] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:30] [INFO] [1/3] Decompiling func_800AAA00 (82 lines)
-
-============================================================
-Attempting to decompile: func_800AAA00
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:31] [INFO] [2/3] Decompiling func_800112E8 (111 lines)
-
-============================================================
-Attempting to decompile: func_800112E8
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:32] [INFO] [3/3] Decompiling func_800BAA00 (96 lines)
-
-============================================================
-Attempting to decompile: func_800BAA00
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:32
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   686
-Failed:    153
-Todo:      412
-Batches:   14
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:43
-============================================================
-
-[2026-04-22 17:16:33] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:33] [INFO] [1/3] Decompiling func_800D44E8 (81 lines)
-
-============================================================
-Attempting to decompile: func_800D44E8
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: Function 'func_800D44E8' not found as a definition after decompilation (LLM may have renamed it)
-🔄 Reverting battle2.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:34] [INFO] [2/3] Decompiling func_800AE954 (131 lines)
-
-============================================================
-Attempting to decompile: func_800AE954
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:34] [INFO] [3/3] Decompiling func_800C4814 (85 lines)
-
-============================================================
-Attempting to decompile: func_800C4814
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle1.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:35
-============================================================
-Processed: 0 functions
-Verified:  25/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   689
-Failed:    153
-Todo:      409
-Batches:   15
-Builds:    0
-Rate:      0.00 functions/second
-Elapsed:   0:00:46
-============================================================
-
-[2026-04-22 17:16:36] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:36] [INFO] [1/3] Decompiling func_800C3CA8 (86 lines)
-
-============================================================
-Attempting to decompile: func_800C3CA8
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle1.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:37] [INFO] [2/3] Decompiling func_800B6B28 (96 lines)
-
-============================================================
-Attempting to decompile: func_800B6B28
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:37] [INFO] [3/3] Decompiling func_801D1C2C (87 lines)
-
-============================================================
-Attempting to decompile: func_801D1C2C
-============================================================
-Module: menu
-Current status: todo
 ✅ Decompilation successful!
-[2026-04-22 17:16:38] [INFO] Running verification...
+✅ Decompilation successful!
+  [func_800A0514] Lock released for src/brom/brom.c
+  [func_800A1EE4] Lock released for src/ending/ending.c
+  [func_800A23F8] Lock acquired for src/ending/ending.c
+
+============================================================
+Attempting to decompile: func_800A23F8
+============================================================
+Module: ending
+Current status: todo
+Running: /home/calvin/GitHub/ff7-decomp-armstrca/mako.sh dec func_800A23F8 --fix-structs
+
+--- STDOUT ---
+func_800A23F8 decompiled in src/ending/ending.c
+
+
+--- STDERR ---
+
+  🔧 intellisense_fixer: hoisted 1 extern declaration(s) to file header
+✅ Decompilation successful!
+
+--- STDOUT ---
+func_800A7090 decompiled in src/battle/battle.c
+
+
+--- STDERR ---
+  [func_800A23F8] Lock released for src/ending/ending.c
+
+  [func_800A20D4] Lock acquired for src/ending/ending.c
+
+============================================================
+Attempting to decompile: func_800A20D4
+============================================================
+Module: ending
+Current status: todo
+Running: /home/calvin/GitHub/ff7-decomp-armstrca/mako.sh dec func_800A20D4 --fix-structs
+✅ Decompilation successful!
+  [func_800A7090] Lock released for src/battle/battle.c
+  [func_800B10B4] Lock acquired for src/battle/battle.c
+
+============================================================
+Attempting to decompile: func_800B10B4
+============================================================
+Module: battle
+Current status: todo
+Running: /home/calvin/GitHub/ff7-decomp-armstrca/mako.sh dec func_800B10B4 --fix-structs
+
+--- STDOUT ---
+func_800A20D4 decompiled in src/ending/ending.c
+
+
+--- STDERR ---
+
+✅ Decompilation successful!
+  [func_800A1FA4] Lock acquired for src/ending/ending.c
+  [func_800A20D4] Lock released for src/ending/ending.c
+
+============================================================
+Attempting to decompile: func_800A1FA4
+============================================================
+Module: ending
+Current status: todo
+Running: /home/calvin/GitHub/ff7-decomp-armstrca/mako.sh dec func_800A1FA4 --fix-structs
+
+--- STDOUT ---
+func_800A1FA4 decompiled in src/ending/ending.c
+
+
+--- STDERR ---
+
+✅ Decompilation successful!
+  [func_800A1FA4] Lock released for src/ending/ending.c
+
+--- STDOUT ---
+func_800B10B4 decompiled in src/battle/battle.c
+
+
+--- STDERR ---
+
+✅ Decompilation successful!
+  [func_800B10B4] Lock released for src/battle/battle.c
+  [func_800A4F14] Lock acquired for src/battle/battle.c
+
+============================================================
+Attempting to decompile: func_800A4F14
+============================================================
+Module: battle
+Current status: todo
+Running: /home/calvin/GitHub/ff7-decomp-armstrca/mako.sh dec func_800A4F14 --fix-structs
+
+--- STDOUT ---
+func_800A4F14 decompiled in src/battle/battle.c
+
+
+--- STDERR ---
+
+✅ Decompilation successful!
+  [func_800A4F14] Lock released for src/battle/battle.c
+[2026-04-23 13:24:37] [INFO] [1/8] ✅ func_800A1EE4 (6 lines)
+[2026-04-23 13:24:37] [INFO] [2/8] ✅ func_800A0514 (12 lines)
+[2026-04-23 13:24:37] [INFO] [3/8] ✅ func_800A1FA4 (13 lines)
+[2026-04-23 13:24:37] [INFO] [4/8] ✅ func_800A20D4 (13 lines)
+[2026-04-23 13:24:37] [INFO] [5/8] ✅ func_800A23F8 (14 lines)
+[2026-04-23 13:24:37] [INFO] [6/8] ✅ func_800A7090 (17 lines)
+[2026-04-23 13:24:37] [INFO] [7/8] ✅ func_800B10B4 (19 lines)
+[2026-04-23 13:24:37] [INFO] [8/8] ✅ func_800A4F14 (23 lines)
+[2026-04-23 13:24:37] [INFO] Post-parallel PSY-Q compile check...
+[2026-04-23 13:24:37] [INFO] Running verification...
 
 ============================================================
 VERIFYING DECOMPILED FUNCTIONS
 ============================================================
 
-Found 1 decompiled function(s) to verify
+Found 8 decompiled function(s) to verify
 
-[1/1] Checking func_801D1C2C...
-  ✅ Matches
+[1/8] Checking func_800A0514...
+  ❌ Not matching: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2)
+  ↩️  Reverted to INCLUDE_ASM (binary mismatch: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2))
+[2/8] Checking func_800A1EE4...
+  ❌ Not matching: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2)
+  ↩️  Reverted to INCLUDE_ASM (binary mismatch: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2))
+[3/8] Checking func_800A1FA4...
+  ❌ Not matching: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2)
+  ↩️  Reverted to INCLUDE_ASM (binary mismatch: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2))
+[4/8] Checking func_800A20D4...
+  ❌ Not matching: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2)
+  ↩️  Reverted to INCLUDE_ASM (binary mismatch: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2))
+[5/8] Checking func_800A23F8...
+  ❌ Not matching: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2)
+  ↩️  Reverted to INCLUDE_ASM (binary mismatch: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2))
+[6/8] Checking func_800A4F14...
+  ❌ Not matching: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2)
+  ↩️  Reverted to INCLUDE_ASM (binary mismatch: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2))
+[7/8] Checking func_800A7090...
+  ❌ Not matching: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/brom/data/6B4.data.s.o
+
+Caused by:
+    No such file or directory (os error 2)
+  ↩️  Reverted to INCLUDE_ASM (binary mismatch: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/brom/data/6B4.data.s.o
+
+Caused by:
+    No such file or directory (os error 2))
+[8/8] Checking func_800B10B4...
+  ❌ Not matching: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2)
+  ↩️  Reverted to INCLUDE_ASM (binary mismatch: objdiff-cli failed: [32m INFO[0m Loading project .
+[32m INFO[0m Generating report for 37 units (using 8 threads)
+Failed: Failed to open ./build/us/asm/us/dschange/data/15E0.bss.s.o
+
+Caused by:
+    No such file or directory (os error 2))
 
 ============================================================
 VERIFICATION COMPLETE
 ============================================================
-✅ Verified:    1
-❌ Not matching: 0
+✅ Verified:    0
+❌ Not matching: 8
 ============================================================
 
-[2026-04-22 17:16:39] [INFO] Verified 1 functions
-[2026-04-22 17:16:39] [INFO] Refreshed decomp_decls.h + per-module decls: 360 declarations
+[2026-04-23 13:24:37] [INFO] Verified 0 functions
+[2026-04-23 13:24:37] [INFO] Refreshed decomp_decls.h + per-module decls: 399 declarations
+[2026-04-23 13:24:37] [INFO] Running full build check...
 
 ============================================================
-AGENT PROGRESS - 17:16:39
+RUNNING BUILD
 ============================================================
-Processed: 1 functions
-Verified:  26/1281 (2.0%)
+
+Running: /home/calvin/GitHub/ff7-decomp-armstrca/mako.sh build
+--- BUILD OUTPUT ---
+[1/74] psx cc src/main/akao.c
+[2/74] psx cc src/main/18B8.c
+[3/74] psx ld build/us/main.ld
+mipsel-linux-gnu-ld: warning: build/us/main.elf has a LOAD segment with RWX permissions
+[4/74] sym export build/us/main.elf
+[5/74] splat build/us/cnfgmenu.yaml
+[6/74] splat build/us/brom.yaml
+[7/74] splat build/us/dschange.yaml
+[8/74] psx as asm/us/brom/data/6B4.data.s
+[9/74] psx as asm/us/dschange/data/1580.data.s
+[10/74] psx as asm/us/dschange/data/15E0.bss.s
+[11/74] splat build/us/bginmenu.yaml
+[12/74] psx cc src/brom/brom.c
+[13/74] psx cc src/dschange/dschange.c
+[14/74] psx as asm/us/menu/data/7F0.data.s
+[15/74] psx ld build/us/dschange.ld
+mipsel-linux-gnu-ld: warning: build/us/dschange.elf has a LOAD segment with RWX permissions
+[16/74] psx ld build/us/brom.ld
+mipsel-linux-gnu-ld: warning: build/us/brom.elf has a LOAD segment with RWX permissions
+[17/74] psx cc src/menu/cnfgmenu.c
+[18/74] psx as asm/us/menu/data/860.bss.s
+[19/74] psx exe build/us/dschange.elf
+[20/74] psx exe build/us/brom.elf
+[21/74] psx ld build/us/cnfgmenu.ld
+mipsel-linux-gnu-ld: warning: build/us/cnfgmenu.elf has a LOAD segment with RWX permissions
+[22/74] psx exe build/us/cnfgmenu.elf
+[23/74] psx cc src/menu/bginmenu.c
+[24/74] psx ld build/us/bginmenu.ld
+mipsel-linux-gnu-ld: warning: build/us/bginmenu.elf has a LOAD segment with RWX permissions
+[25/74] psx exe build/us/bginmenu.elf
+[26/74] splat build/us/ending.yaml
+[27/74] psx as asm/us/ending/data/0.rodata.s
+[28/74] psx as asm/us/ending/data/3934.data.s
+[29/74] psx as asm/us/ending/data/6524.bss.s
+[30/74] psx cc src/ending/ending.c
+[31/74] psx ld build/us/ending.ld
+mipsel-linux-gnu-ld: warning: build/us/ending.elf has a LOAD segment with RWX permissions
+[32/74] psx exe build/us/ending.elf
+[33/74] splat build/us/savemenu.yaml
+[34/74] psx as asm/us/menu/data/13650.data.s
+[35/74] psx as asm/us/menu/data/13698.bss.s
+[36/74] psx as asm/us/menu/data/4EC4.data.s
+[37/74] psx cc src/menu/savemenu.c
+[38/74] psx cc src/menu/title.c
+[39/74] psx ld build/us/savemenu.ld
+mipsel-linux-gnu-ld: warning: build/us/savemenu.elf has a LOAD segment with RWX permissions
+[40/74] psx exe build/us/savemenu.elf
+[41/74] splat build/us/world.yaml
+[42/74] psx as asm/us/world/world_unk.s
+[43/74] psx as asm/us/world/data/world.data.s
+[44/74] psx cc src/world/world2.c
+[45/74] psx cc src/world/world.c
+[46/74] psx ld build/us/world.ld
+mipsel-linux-gnu-ld: warning: build/us/world.elf has a LOAD segment with RWX permissions
+[47/74] psx exe build/us/world.elf
+[48/74] splat build/us/field.yaml
+[49/74] psx as asm/us/field/data/3A5B8.data.s
+[50/74] psx cc src/field/field.c
+[51/74] psx ld build/us/field.ld
+mipsel-linux-gnu-ld: warning: build/us/field.elf has a LOAD segment with RWX permissions
+[52/74] psx exe build/us/field.elf
+[53/74] splat build/us/battle.yaml
+[54/74] psx as asm/us/battle/data/538AC.bss.s
+[55/74] psx as asm/us/battle/data/47A38.data.s
+[56/74] psx cc src/battle/battle3.c
+[57/74] psx cc src/battle/battle1.c
+[58/74] psx cc src/battle/battle.c
+[59/74] psx cc src/battle/battle2.c
+[60/74] psx ld build/us/battle.ld
+mipsel-linux-gnu-ld: warning: build/us/battle.elf has a LOAD segment with RWX permissions
+[61/74] psx exe build/us/battle.elf
+[62/74] sym export build/us/battle.elf
+[63/74] splat build/us/barrier.yaml
+[64/74] splat build/us/batini.yaml
+[65/74] psx cc src/magic/barrier.c
+[66/74] psx ld build/us/barrier.ld
+mipsel-linux-gnu-ld: warning: build/us/barrier.elf has a LOAD segment with RWX permissions
+[67/74] psx exe build/us/barrier.elf
+[68/74] psx cc src/battle/batini.c
+[69/74] psx ld build/us/batini.ld
+mipsel-linux-gnu-ld: warning: build/us/batini.elf has a LOAD segment with RWX permissions
+[70/74] psx exe build/us/batini.elf
+[71/74] sym export build/us/batini.elf build/us/battle.elf build/us/brom.elf build/us/dschange.elf build/us/ending.elf build/us/field.elf build/us/bginmenu.elf build/us/cnfgmenu.elf build/us/savemenu.elf build/us/world.elf build/us/barrier.elf
+[72/74] psx ld build/us/main.ld
+mipsel-linux-gnu-ld: warning: build/us/main_final.elf has a LOAD segment with RWX permissions
+[73/74] psx exe build/us/main_final.elf
+[74/74] check
+build/us/main.exe: OK
+build/us/batini.exe: OK
+build/us/battle.exe: OK
+build/us/brom.exe: OK
+build/us/dschange.exe: OK
+build/us/ending.exe: OK
+build/us/field.exe: OK
+build/us/bginmenu.exe: OK
+build/us/cnfgmenu.exe: OK
+build/us/savemenu.exe: OK
+build/us/world.exe: OK
+build/us/barrier.exe: OK
+
+✅ Build succeeded!
+
+Warnings: 0
+
+============================================================
+
+============================================================
+VERIFYING DECOMPILED FUNCTIONS
+============================================================
+
+No functions to verify (none marked as decompiled)
+
+============================================================
+
+[2026-04-23 13:24:46] [INFO] Build successful!
+✓ Rank scores updated for 1791 functions (2262 from mako.sh rank)
+[2026-04-23 13:24:49] [INFO] Rank scores refreshed (1791 functions updated)
+
+============================================================
+AGENT PROGRESS - 13:24:49
+============================================================
+Processed: 8 functions
+Verified:  0/1791 (0.0%)
 Decompiled: 0
-Needs Refine: 5
-Blocked:   691
-Failed:    153
-Todo:      406
-Batches:   16
-Builds:    0
-Rate:      0.02 functions/second
-Elapsed:   0:00:49
+Needs Refine: 16
+Blocked:   1560
+Failed:    165
+Todo:      50
+Batches:   1
+Builds:    1
+Rate:      0.32 functions/second
+Elapsed:   0:00:25
 ============================================================
 
-[2026-04-22 17:16:39] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:39] [INFO] [1/3] Decompiling func_800B0334 (100 lines)
+[2026-04-23 13:24:49] [INFO] Target count reached (8)
+[2026-04-23 13:24:49] [INFO] Target count reached (8)
+[2026-04-23 13:24:49] [INFO] Running final verification...
+[2026-04-23 13:24:49] [INFO] Running verification...
 
 ============================================================
-Attempting to decompile: func_800B0334
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:40] [INFO] [2/3] Decompiling func_800AEF68 (95 lines)
-
-============================================================
-Attempting to decompile: func_800AEF68
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:40] [INFO] [3/3] Decompiling func_800ABE58 (103 lines)
-
-============================================================
-Attempting to decompile: func_800ABE58
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:41
-============================================================
-Processed: 1 functions
-Verified:  26/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   694
-Failed:    153
-Todo:      403
-Batches:   17
-Builds:    0
-Rate:      0.02 functions/second
-Elapsed:   0:00:52
+VERIFYING DECOMPILED FUNCTIONS
 ============================================================
 
-[2026-04-22 17:16:42] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:42] [INFO] [1/3] Decompiling func_8001CB48 (168 lines)
+No functions to verify (none marked as decompiled)
+[2026-04-23 13:24:49] [INFO] Verified 0 functions
+[2026-04-23 13:24:49] [INFO] Refreshed decomp_decls.h + per-module decls: 399 declarations
 
 ============================================================
-Attempting to decompile: func_8001CB48
+AGENT EXECUTION COMPLETE
 ============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:42] [INFO] [2/3] Decompiling func_800B062C (100 lines)
+Total time: 0:00:25
+Functions processed: 8
+Functions verified: 0
+Functions failed: 0
+Batches completed: 1
+Builds run: 1
+Average rate: 0.32 functions/second
 
-============================================================
-Attempting to decompile: func_800B062C
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:43] [INFO] [3/3] Decompiling func_800A8A6C (150 lines)
+Final Progress: 0/1791 (0.0%)
 
-============================================================
-Attempting to decompile: func_800A8A6C
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:44
-============================================================
-Processed: 1 functions
-Verified:  26/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 5
-Blocked:   697
-Failed:    153
-Todo:      400
-Batches:   18
-Builds:    0
-Rate:      0.02 functions/second
-Elapsed:   0:00:55
+📚 Struct Learning:
+  Total patterns learned: 16
+  High confidence (≥70%): 16
+  Medium confidence (30-70%): 0
+  Low confidence (<30%): 0
 ============================================================
 
-[2026-04-22 17:16:44] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:44] [INFO] [1/3] Decompiling func_800AB6E4 (145 lines)
-
-============================================================
-Attempting to decompile: func_800AB6E4
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:45] [INFO] [2/3] Decompiling func_8001C5BC (139 lines)
-
-============================================================
-Attempting to decompile: func_8001C5BC
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:46] [INFO] [3/3] Decompiling func_800DDCE8 (111 lines)
-
-============================================================
-Attempting to decompile: func_800DDCE8
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: Contains unknown parameter type '?'
-📋 Soft error — keeping decompiled code, marking as needs_refine
-
-============================================================
-AGENT PROGRESS - 17:16:47
-============================================================
-Processed: 1 functions
-Verified:  26/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 6
-Blocked:   699
-Failed:    153
-Todo:      397
-Batches:   19
-Builds:    0
-Rate:      0.02 functions/second
-Elapsed:   0:00:57
-============================================================
-
-[2026-04-22 17:16:47] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:47] [INFO] [1/3] Decompiling func_80027990 (129 lines)
-
-============================================================
-Attempting to decompile: func_80027990
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:48] [INFO] [2/3] Decompiling func_800AE8AC (113 lines)
-
-============================================================
-Attempting to decompile: func_800AE8AC
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:48] [INFO] [3/3] Decompiling func_800A358C (139 lines)
-
-============================================================
-Attempting to decompile: func_800A358C
-============================================================
-Module: ending
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting ending.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:49
-============================================================
-Processed: 1 functions
-Verified:  26/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 6
-Blocked:   702
-Failed:    153
-Todo:      394
-Batches:   20
-Builds:    0
-Rate:      0.02 functions/second
-Elapsed:   0:01:00
-============================================================
-
-[2026-04-22 17:16:49] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:49] [INFO] [1/3] Decompiling func_8002708C (187 lines)
-
-============================================================
-Attempting to decompile: func_8002708C
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:53] [INFO] [2/3] Decompiling func_800A86C4 (124 lines)
-
-============================================================
-Attempting to decompile: func_800A86C4
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:54] [INFO] [3/3] Decompiling func_800A2504 (150 lines)
-
-============================================================
-Attempting to decompile: func_800A2504
-============================================================
-Module: ending
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting ending.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:54
-============================================================
-Processed: 1 functions
-Verified:  26/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 6
-Blocked:   705
-Failed:    153
-Todo:      391
-Batches:   21
-Builds:    0
-Rate:      0.02 functions/second
-Elapsed:   0:01:05
-============================================================
-
-[2026-04-22 17:16:55] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:55] [INFO] [1/3] Decompiling func_800B04AC (127 lines)
-
-============================================================
-Attempting to decompile: func_800B04AC
-============================================================
-Module: world
-Current status: todo
-[2026-04-22 17:16:55] [ERROR] Error processing func_800B04AC: [Errno 32] Broken pipe
-[2026-04-22 17:16:55] [INFO] [2/3] Decompiling func_800AE080 (125 lines)
-
-============================================================
-Attempting to decompile: func_800AE080
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:56] [INFO] [3/3] Decompiling func_800AB480 (139 lines)
-
-============================================================
-Attempting to decompile: func_800AB480
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:16:57
-============================================================
-Processed: 1 functions
-Verified:  26/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 6
-Blocked:   707
-Failed:    153
-Todo:      388
-Batches:   22
-Builds:    0
-Rate:      0.01 functions/second
-Elapsed:   0:01:08
-============================================================
-
-[2026-04-22 17:16:58] [INFO] Processing batch of 3 functions
-[2026-04-22 17:16:58] [INFO] [1/3] Decompiling func_800AD0FC (152 lines)
-
-============================================================
-Attempting to decompile: func_800AD0FC
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:58] [INFO] [2/3] Decompiling func_800C7924 (154 lines)
-
-============================================================
-Attempting to decompile: func_800C7924
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle1.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:16:59] [INFO] [3/3] Decompiling func_800B98F0 (155 lines)
-
-============================================================
-Attempting to decompile: func_800B98F0
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:17:00
-============================================================
-Processed: 1 functions
-Verified:  26/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 6
-Blocked:   710
-Failed:    153
-Todo:      385
-Batches:   23
-Builds:    0
-Rate:      0.01 functions/second
-Elapsed:   0:01:11
-============================================================
-
-[2026-04-22 17:17:00] [INFO] Processing batch of 3 functions
-[2026-04-22 17:17:00] [INFO] [1/3] Decompiling func_80029114 (184 lines)
-
-============================================================
-Attempting to decompile: func_80029114
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:17:02] [INFO] [2/3] Decompiling func_800B87D8 (144 lines)
-
-============================================================
-Attempting to decompile: func_800B87D8
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:17:03] [INFO] [3/3] Decompiling func_800BFB88 (139 lines)
-
-============================================================
-Attempting to decompile: func_800BFB88
-============================================================
-Module: battle
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting battle1.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:17:03
-============================================================
-Processed: 1 functions
-Verified:  26/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 6
-Blocked:   713
-Failed:    153
-Todo:      382
-Batches:   24
-Builds:    0
-Rate:      0.01 functions/second
-Elapsed:   0:01:14
-============================================================
-
-[2026-04-22 17:17:04] [INFO] Processing batch of 3 functions
-[2026-04-22 17:17:04] [INFO] [1/3] Decompiling func_80026C5C (198 lines)
-
-============================================================
-Attempting to decompile: func_80026C5C
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:17:05] [INFO] [2/3] Decompiling func_800B39B4 (170 lines)
-
-============================================================
-Attempting to decompile: func_800B39B4
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:17:05] [INFO] [3/3] Decompiling func_80028930 (224 lines)
-
-============================================================
-Attempting to decompile: func_80028930
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-
-============================================================
-AGENT PROGRESS - 17:17:06
-============================================================
-Processed: 1 functions
-Verified:  26/1281 (2.0%)
-Decompiled: 0
-Needs Refine: 6
-Blocked:   716
-Failed:    153
-Todo:      379
-Batches:   25
-Builds:    0
-Rate:      0.01 functions/second
-Elapsed:   0:01:17
-============================================================
-
-[2026-04-22 17:17:06] [INFO] Processing batch of 3 functions
-[2026-04-22 17:17:06] [INFO] [1/3] Decompiling func_800285AC (229 lines)
-
-============================================================
-Attempting to decompile: func_800285AC
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:17:07] [INFO] [2/3] Decompiling func_800A4268 (149 lines)
-
-============================================================
-Attempting to decompile: func_800A4268
-============================================================
-Module: world
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting world.c to INCLUDE_ASM (keeping file clean)
-[2026-04-22 17:17:08] [INFO] [3/3] Decompiling func_80014E74 (180 lines)
-
-============================================================
-Attempting to decompile: func_80014E74
-============================================================
-Module: main
-Current status: todo
-⚠️  Decompilation produced invalid output: m2c added 1 decompilation failure comment(s) (dependency issues)
-🔄 Reverting 18B8.c to INCLUDE_ASM (keeping file clean)
-
-
-❌ Fatal error: [Errno 32] Broken pipe
-Exception ignored in: <__main__._TeeOutput object at 0x7e29f695ea50>Exception ignored in sys.unraisablehook: <built-in function unraisablehook>
+Summary saved to agent_summary.json

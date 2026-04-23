@@ -266,6 +266,8 @@ def generate_module_decls(project_root: Optional[Path] = None, verbose: bool = F
             f"/* Per-module declarations for '{module_name}' — only valid in {module_name} m2c context */",
             f"/* struct types referenced here are defined by the module's own preprocessed headers */",
             "",
+            f'#include "common.h"',
+            ""
         ]
         # Always emit #include "<module>_private.h" if the file exists — it defines
         # the struct types referenced by the declarations below, and must not be
