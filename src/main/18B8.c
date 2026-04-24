@@ -169,6 +169,14 @@ void func_8001B834(s32);
 void func_8001BD50(u8, u8, u8);
 u8 func_8001F6B4();
 
+extern s32 D_80048D24; // field.X sector
+extern u32 D_80048D28; // field.X size
+
+extern s8 D_8007EAC2;
+extern s8 D_8007EAC4;
+extern s8 D_8007EB1E;
+extern s8 D_8007EB20;
+
 void __main(void) {}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", __SN_ENTRY_POINT);
@@ -226,12 +234,21 @@ void func_8001171C(void) {
     InitGeom();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80011784);
+void func_80011784(void) {
+    SetDefDispEnv(D_8007EB68, 0, 0xE8, 0x140, 0xF0);
+    SetDefDispEnv(&D_8007EB68[1], 0, 0, 0x140, 0xF0);
+    SetDefDrawEnv(D_8007EAAC, 0, 8, 0x140, 0xE0);
+    SetDefDrawEnv(&D_8007EAAC[1], 0, 0xF0, 0x140, 0xE0);
+    D_8007EAC2 = 1;
+    D_8007EB1E = 1;
+    D_8007EAC4 = 0;
+    D_8007EB20 = 0;
+    PutDispEnv(D_8007EB68);
+    PutDrawEnv(D_8007EAAC);
+}
 
-void func_800A16CC();  // field loop
-void func_800CF60C();  // field load
-extern s32 D_80048D24; // field.X sector
-extern u32 D_80048D28; // field.X size
+void func_800A16CC(); // field loop
+void func_800CF60C(); // field load
 
 void func_80011860(void) {
     if (D_800965EC != 5 && D_800965EC != 13) {
@@ -482,7 +499,17 @@ void func_80014C70() {
     D_80062E20 = 0;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80014C80);
+u8* func_80014C80(s32 arg0) {
+    s32 temp_v0;
+    s32 temp_v1;
+
+    temp_v0 = D_80062E1C;
+    D_80062E1C = temp_v0 + 1;
+    temp_v1 = D_80062E20;
+    D_80069490[temp_v0] = (u16)temp_v1;
+    D_80062E20 = temp_v1 + arg0;
+    return &D_80063690[temp_v1];
+}
 
 s32 func_80014CBC(s32 arg0, s32 arg1) {
     s32 var_a2;
@@ -562,7 +589,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800159B0);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80015AFC);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80015B44);
+void func_80015B44(s32 arg0) { D_80062E30 = arg0; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80015B50);
 
@@ -931,7 +958,10 @@ void SetupGamepad(void) {
     D_80062FA0 = 0;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001C484);
+void func_8001C484(s32 arg0) {
+    D_80062E9C = arg0;
+    D_80062E94 = 0x14;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001C498);
 
@@ -1217,11 +1247,35 @@ void func_8001F6E4(s16 arg0, s16 arg1, s16 arg2) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001F710);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001FA28);
+void func_8001FA28(s32 arg0) {
+    s32 temp_a0;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001FA68);
+    temp_a0 = arg0 & 0xFFFF;
+    *D_8009A000 = 0x30;
+    *D_8009A004 = temp_a0;
+    *D_8009A008 = temp_a0;
+    func_8002DA7C(temp_a0);
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001FAAC);
+void func_8001FA68(s32 arg0) {
+    s32 temp_a0;
+
+    *D_8009A000 = 0x28;
+    temp_a0 = arg0 & 0xFFFF;
+    *D_8009A004 = 0x40;
+    *D_8009A008 = temp_a0;
+    func_8002DA7C(temp_a0);
+}
+
+void func_8001FAAC(s32 arg0) {
+    s32 temp_a0;
+
+    *D_8009A000 = 0x29;
+    temp_a0 = arg0 & 0xFFFF;
+    *D_8009A004 = 0x40;
+    *D_8009A008 = temp_a0;
+    func_8002DA7C(temp_a0);
+}
 
 void func_8001FAF0(void) {}
 
@@ -1278,11 +1332,23 @@ void func_80021044(DRAWENV* draw_env, DISPENV* disp_env) {
     SetDispMask(1);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800211B8);
+void func_800211B8(s32 arg0) { D_80062DEC = arg0; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800211C4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8002120C);
+void func_800211C4(); // extern
+
+void func_8002120C(s32 arg0) {
+    s32 temp_v0;
+
+    temp_v0 = D_80062DD4;
+    D_80062DD4 = arg0;
+    D_80062DD0 = temp_v0;
+    if ((arg0 != 0) &&
+        (((u32)(temp_v0 - 3) >= 2U) || ((u32)(arg0 - 3) >= 2U))) {
+        func_800211C4();
+    }
+}
 
 void func_80021258(s32 arg0) { func_80015248(13, arg0, 8); }
 
