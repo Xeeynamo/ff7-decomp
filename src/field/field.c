@@ -41,6 +41,11 @@ static void func_800DA424(s32 val, char* msg_out);
 static void func_800DA444(s32 val, char* msg_out);
 static void func_800DA480(s32 val, char* msg_out);
 
+extern MATRIX* D_80083270;
+extern MATRIX** D_80083578;
+extern u8 D_8009AC2D;
+extern u16 D_80114488;
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A1368);
 
 void func_800A1498(void) {
@@ -168,7 +173,16 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AAB24);
 
 void func_800AB2AC(void) {}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AB2B4);
+void func_800AB2B4(void) {
+    MATRIX* var_v0;
+
+    if ((D_80114488 == 0) || (D_8009AC2D == 1)) {
+        var_v0 = *D_80083578;
+    } else {
+        var_v0 = D_80083270;
+    }
+    D_80071E40 = var_v0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AB310);
 
@@ -468,7 +482,13 @@ s32 func_800C0B54(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0BE8);
+s32 func_800C0BE8(void) {
+    u16* temp_v0;
+
+    temp_v0 = &D_800831FC[D_800722C4];
+    *temp_v0 += 1;
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0C18);
 

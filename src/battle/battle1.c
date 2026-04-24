@@ -18,6 +18,19 @@ static void func_800BB864(void);
 static void func_800C4D10(void);
 DR_MODE* func_800C4DC8(s16 x, s16 y, s16 w, s16 h, s32*);
 
+extern s8 D_800F8374;
+extern s8 D_800F837C;
+extern s8 D_800F8380;
+extern s32 D_800F9F30;
+extern s8 D_801031E0;
+extern s8 D_801517C4;
+extern s8 D_801620A0;
+extern s8 D_801620A4;
+extern s8 D_80162974;
+extern s8 D_80163B38;
+
+s16 SquareRoot0(s32, s16); // extern
+
 void func_800B30E4(void) {
     s32 i;
 
@@ -161,6 +174,9 @@ static void func_800B3DBC(void) {
         }
     }
 }
+
+void func_800BC1E0(u8); // extern
+void func_800C5BEC();   // extern
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3E2C);
 
@@ -590,13 +606,34 @@ static void func_800BB944(void) {
     func_8002DA7C();
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB978);
+void func_800BB978(void) {
+    *D_8009A000 = 0xC1;
+    *D_8009A004 = 0x12C;
+    *D_8009A008 = 0;
+    func_8002DA7C();
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB9B8);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB9FC);
+void func_800BB9FC(s32 arg0) {
+    s32 temp_a0;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBA40);
+    *D_8009A000 = 0x2B;
+    temp_a0 = arg0 & 0xFFFF;
+    *D_8009A004 = 0x40;
+    *D_8009A008 = temp_a0;
+    func_8002DA7C(temp_a0);
+}
+
+void func_800BBA40(s32 arg0) {
+    s32 temp_a0;
+
+    *D_8009A000 = 0x20;
+    temp_a0 = arg0 & 0xFFFF;
+    *D_8009A004 = 0x40;
+    *D_8009A008 = temp_a0;
+    func_8002DA7C(temp_a0);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBA84);
 
@@ -686,7 +723,12 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0254);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0314);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C03B8);
+s16 func_800C03B8(s16 arg0, s16 arg1) {
+    s32 temp_a0;
+
+    temp_a0 = arg0 - arg1;
+    return SquareRoot0(temp_a0 * temp_a0, arg1);
+}
 
 s32 func_800C03FC(s32 arg0, s32 arg1) { return arg0 < 0 ? -arg1 : arg1; }
 
@@ -997,6 +1039,8 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5864);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C59B8);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5ADC);
+
+extern s32 D_800F9DA8;
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5BEC);
 

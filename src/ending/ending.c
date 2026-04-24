@@ -1,5 +1,11 @@
 #include "common.h"
 
+s32 func_80034410(); // extern
+
+extern s32 D_800A6528;
+
+extern s32 D_800AF410;
+
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A0030);
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A04C4);
@@ -32,9 +38,9 @@ INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A19A4);
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1E20);
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1ED4);
+void func_800A1ED4(s32 arg0) { D_800A6528 = arg0; }
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1EE4);
+s32 func_800A1EE4(void) { return 0; }
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1EEC);
 
@@ -62,7 +68,10 @@ INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A2274);
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A22A4);
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A22D4);
+s32 func_800A22D4(void) {
+    D_800AF410 = 0;
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A22E4);
 
