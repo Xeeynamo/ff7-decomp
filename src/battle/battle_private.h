@@ -1,0 +1,387 @@
+// should be imported only by the BATTLE overlay, not BATINI or similar
+#include "battle.h"
+
+enum QueueMethod {
+    QUEUE_LOAD_IMAGE,
+    QUEUE_STORE_IMAGE,
+    QUEUE_MOVE_IMAGE,
+    QUEUE_CLEAR_IMAGE,
+};
+
+typedef struct {
+    u8 unk[0x30];
+    s32 unk30;
+} Unk800BB67C;
+
+typedef struct {
+    s16 unk0;
+    s16 unk2;
+    s16 unk4;
+    s16 unk6;
+    s32 unk8;
+    s16 unkC;
+    u8 unkE;
+    u8 unkF;
+    s32 unk10;
+    s32 unk14;
+    s32 unk18;
+    s32 unk1C;
+    s32 unk20;
+    s32 unk24;
+    s8 unk28;
+    s8 unk29;
+    s16 unk2A;
+    s32 unk2C;
+    s32 unk30;
+    s32 unk34;
+    s32 unk38;
+    s32 unk3C;
+    s32 unk40;
+} Unk800AF470; // 0x44
+
+typedef struct {
+    s8 unk0;
+    s8 unk1;
+    s8 unk2;
+    s8 unk3;
+    s8 unk4;
+    s8 unk5;
+    s16 unk6;
+    s16 unk8;
+    s16 unkA;
+} Unk800A2F4C; // size: 0x12
+
+typedef struct {
+    s16 D_801621AC;
+    s16 D_801621AE;
+    s16 D_801621B0;
+    s16 D_801621B2;
+    s16 D_801621B4;
+    s16 D_801621B6;
+    s16 unk8;
+    s16 unkA;
+    s32 unkC;
+    s32 unk10;
+    u8 unk14;
+    u8 unk15;
+    u8 unk16;
+    u8 unk17;
+    s16 unk18;
+    s16 unk1A;
+} Unk801620AC; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 D_80162978;
+    /* 0x02 */ s16 D_8016297A;
+    /* 0x04 */ s16 D_8016297C;
+    /* 0x06 */ s16 D_8016297E;
+    /* 0x08 */ s16 D_80162980;
+    /* 0x0A */ s16 D_80162982;
+    /* 0x0C */ s16 unk8;
+    /* 0x0E */ s16 unkA;
+    /* 0x10 */ s16 unkC;
+    /* 0x12 */ s16 unkE;
+    /* 0x14 */ s16 unk10;
+    /* 0x16 */ s16 unk12;
+    /* 0x18 */ u8 unk14;
+    /* 0x19 */ u8 unk15;
+    /* 0x1A */ s16 unk16;
+    /* 0x1C */ s16 unk18;
+    /* 0x1E */ s16 unk1A;
+} Unk80162978; // size:0x20
+
+typedef struct {
+    u16 unk0;
+    s16 unk2;
+} Unk80162200;
+typedef union {
+    u8* ptr;
+    Unk80162200 unk;
+} Union80162200;
+
+typedef struct {
+    s16 D_801621F0;
+    s16 D_801621F2;
+    s16 D_801621F4;
+    s16 D_801621F6; // player idx? 0, 1 or 2. See func_800D0C80
+    s16 unk8;
+    s16 unkA;
+    s16 unkC;
+    s16 unkE;
+    Union80162200 unk10;
+    s32 unk14;
+    u8 unk18;
+    s8 unk19;
+    s16 unk1A;
+    s16 unk1C;
+    s16 unk1E;
+} Unk801621F0; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s8 D_801636B8;
+    /* 0x01 */ u8 D_801636B9;
+    /* 0x02 */ s8 D_801636BA;
+    /* 0x03 */ s8 D_801636BB;
+    /* 0x04 */ u8 D_801636BC;
+    /* 0x05 */ s8 D_801636BD;
+    /* 0x06 */ s16 D_801636BE;
+    /* 0x08 */ s32 D_801636C0;
+    /* 0x0C */ s32 D_801636C4;
+} Unk801636B8; // size:0x10
+
+typedef struct {
+    s32 method; // enum QueueMethod
+    RECT* rect;
+    u_long* ptr;
+    s32 x;
+    s32 y;
+} Unk800F01DC; // size:0x14
+
+typedef struct {
+    /* 0x00 */ s32 unk0; // frame counter?
+    /* 0x04 */ s32* unk4[1];
+    /* 0x08 */ BattleModelSub unk8[1];
+    /* 0x3C */ s16 unk3C;
+    /* 0x3E */ u8 unk3E[1];
+    /* 0x3F */ u8 unk3F;
+} Unk800FA6D8;
+
+typedef struct {
+    short vx, vy, vz;
+} ShortVectorXYZ;
+
+typedef struct {
+    /* 0x00 */ s32 D_80151200;
+    /* 0x04 */ s32 D_80151204;
+    /* 0x08 */ s32 D_80151208;
+    /* 0x0C */ s16 D_8015120C;
+    /* 0x0E */ s16 D_8015120E;
+    /* 0x10 */ s32 D_80151210;
+    /* 0x14 */ s32 D_80151214;
+    /* 0x18 */ s32 D_80151218;
+    /* 0x1C */ s32 D_8015121C;
+    /* 0x20 */ s32 D_80151220;
+    /* 0x24 */ s32 D_80151224;
+    /* 0x28 */ s32 D_80151228;
+    /* 0x2C */ s16 D_8015122C;
+    /* 0x2E */ s16 D_8015122E;
+    /* 0x30 */ u16 D_80151230;
+    /* 0x32 */ u8 D_80151232;
+    /* 0x33 */ u8 D_80151233;
+    /* 0x34 */ u8 D_80151234;
+    /* 0x35 */ u8 D_80151235;
+    /* 0x36 */ s16 D_80151236;
+    /* 0x38 */ s16 D_80151238;
+    /* 0x3A */ s16 D_8015123A;
+    /* 0x3C */ s16 D_8015123C;
+    /* 0x3E */ s16 D_8015123E;
+    /* 0x40 */ s32 D_80151240;
+    /* 0x44 */ s32 D_80151244;
+    /* 0x48 */ s32 D_80151248;
+    /* 0x4C */ s32 D_8015124C;
+    /* 0x50 */ s32 D_80151250;
+    /* 0x54 */ s32 D_80151254;
+    /* 0x58 */ s32 D_80151258;
+    /* 0x5C */ s32 D_8015125C;
+    /* 0x60 */ s32 D_80151260;
+    /* 0x64 */ s32 D_80151264;
+    /* 0x68 */ s32 D_80151268;
+    /* 0x6C */ s32 D_8015126C;
+    /* 0x70 */ s32 D_80151270;
+} Unk80151200; // size:0x74
+
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+} Unk800F57D0;
+
+typedef struct {
+    /* 0x00 */ s32 D_800F83E4;
+    /* 0x04 */ u8 unk4[0x64];
+} Unk800F83E4; // size:0x68
+
+extern s32 D_800E7A38;
+extern u8 D_800E7A48[0x10];
+extern s8 D_800E7A58[];
+extern u8 D_800E7BA4[3];
+extern VECTOR D_800E7D10;
+extern VECTOR D_800E7D20;
+extern Yamada D_800E8068[];
+extern u8 D_800EA19C[][4];
+extern s32 D_800EA258;
+extern s32 D_800EA25C;
+extern s32 D_800EA260;
+extern s32 D_800EA50C[];
+extern short D_800EEB28[9][8];
+extern void (*D_800EF9D8[])(s16, u8);
+extern void (*D_800EFFE0[])(s16, u8);
+extern void (*D_800EFAF0[])(s16, u8);
+extern void (*D_800EFBC8[])(s16, u8);
+extern void (*D_800EFC28[])(s16, u8);
+extern s32 (*D_800EFEA0[])(s16, u8);
+extern Unk800F01DC* D_800F01DC;
+extern s32 D_800F01E0;
+extern s32 D_800F01E4;
+extern u16 D_800F198C;
+extern s32 D_800F199C;
+extern u8 D_800F19A4;
+extern s8 D_800F1E4F;
+extern s16 D_800F1E50;
+extern s32 D_800F311C;
+extern s16 D_800F3122; // part of a struct?
+extern s32 D_800F3138;
+extern s32 D_800F313C;
+extern s32 D_800F3140;
+extern u8 D_800F3184[];
+extern u8 D_800F332C[3][0x10];
+extern s16 D_800F338C[];
+extern u8 D_800F33A0[3];
+extern u8 D_800F33AA;
+extern s8 D_800F3468;
+extern u8 D_800F381C[];
+extern u8 D_800F3828[];
+extern unsigned char D_800F384A[];
+extern u8 D_800F38A0;
+extern u8 D_800F38A1;
+extern s16 D_800F38A2;
+extern u8 D_800F7E04[]; // part of a struct
+extern u8 D_800F7ED4;
+extern u8 D_800F38A7;
+extern u8 D_800F389C;
+extern s16 D_800F389E;
+extern s16 D_800F3896;
+extern s32 D_800F3944;
+extern s32 D_800F3948;
+extern s32 D_800F3950;
+extern s32 D_800F3954;
+extern s32 D_800F39E0;
+extern s32 D_800F39E4;
+extern s32 D_800F39EC;
+extern u8 D_800F39F0[][6];
+extern s8 D_800F3A80[];
+extern u16 D_800F4280[];
+extern DR_MODE* D_800F4AF4;
+extern DR_MODE* D_800F4AF8;
+extern RECT D_800F4B2C[];
+extern RECT D_800F4B6C[];
+extern Unk800F01DC D_800F4BAC[];
+extern u8 D_800F514C[];
+extern s8 D_800F5760;
+extern u8 D_800F5764;
+extern u8 D_800F5774;
+extern Unk800F57D0* D_800F57D0;
+extern Unk800AF470 D_800F5BB8[];
+extern s8 D_800F7DE4;
+extern u8 D_800F7DF4;
+extern s32 D_800F8368;
+extern s16 D_800F8370;
+extern s32* D_800F839C; // CD offset?
+extern u8 D_800F83A6;
+extern u16 D_800F83C6; // part of struct?
+extern u16 D_800F83D0;
+extern Unk800F83E4 D_800F83E4[];
+extern s32 D_800F8408;
+extern s8 D_800F8CF0;
+extern s32 D_800F9144;
+extern s8 D_800F914E;
+extern s32 D_800F9F28[]; // size is either 4 or 5
+extern s8 D_800F9F34;
+extern u8 D_800F99E8;
+extern s32 D_800F99E4;
+extern u8 D_800F9D94;
+extern u8 D_800F9D98;
+extern u8 D_800F9D9C;
+extern u16 D_800F9DA4;
+extern Unk800BB75C D_800FA63C;
+extern s16 D_800FA69C;
+extern s8 D_800FA6A0;
+extern u16 D_800FA6B8;
+extern u8 D_800FA6D4;
+extern Unk800FA6D8 D_800FA6D8[];
+extern MATRIX D_800FA958;
+extern s32 D_800FA9B8;
+extern s16 D_800FA9C4;
+extern s8 D_800FA9E8;
+extern u8 D_800FAFDC;
+extern s16 D_800FAFD4;
+extern s32 D_800FAFEC;
+extern s32 D_800FAFF0;
+extern Unk801517C0 D_800FAFF4;
+extern s32 D_801031E4;
+extern s16 D_801031E8;
+extern u8 D_801031F0;
+extern Unk80151200 D_80151200[3];
+extern u16 D_80151694;
+extern s16 D_8015169C;
+extern u16 D_801516A0;
+extern u8 D_801516F4;
+extern u16 D_801516F8;
+extern s16 D_801516FC[][4]; // most likely a struct
+extern s16 D_80151774;
+extern u8 D_801517BC;
+extern s16 D_80158D00;
+extern s32 D_80158D08;
+extern u8 D_801518DC;
+extern s32 D_800F9780[];
+extern u8 D_80153BDD;
+extern u32 D_80151840;
+extern u8 D_801590CC;
+extern s16 D_801590D0;
+extern s16 D_801590D4;
+extern u8 D_801590D8;
+extern s8 D_801590DC;
+extern u8 D_801590E0;
+extern s16 D_80162080;
+extern s16 D_80162084;
+extern s8 D_80162094;
+extern Unk801620AC D_801620AC[10];
+extern Unk801621F0 D_801621F0[60];
+extern Unk80162978 D_80162978[100];
+extern u8 D_801635FC;
+extern u8 D_80163604;
+extern s16 D_80163608;
+extern Unk801636B8 D_801636B8[5];
+extern u16 D_80163758[]; // part of a struct
+extern u8 D_80163774[];
+extern u16 D_8016376E[];
+extern u8 D_80163784[3];
+extern s8 D_80163787; // suspicious, very likely part of a struct
+extern Unk800A2F4C D_80163798[0x40];
+extern s8 D_80163A98;
+extern u16 D_80163B80;
+extern DR_MODE* D_80163C74; // TODO might be a generic u_long*, not DR_MODE*
+extern u8 D_80163C7C;
+extern ShortVectorXYZ D_80163C80[];
+extern s8 D_80166F58;
+extern s8 D_80166F64;
+extern u8 D_80166F68;
+
+void func_800A4350(u8, u8, s16, u16);
+void func_800A8E84(s32);
+s32 func_800B3030(s32);
+void func_800B4794(void);
+void func_800B5CD4(s32);
+void func_800B5D38(s32);
+void func_800B6B98(s32, s32);
+void func_800B7FB4(void);
+void func_800B8438(void);
+static void func_800BA40C();
+static void func_800BB030(s16 arg0);
+void func_800BB2A8(u8);
+void func_800BB9B8(s32);
+void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
+static void func_800C1908(u8 arg0);
+void func_800C5E94(void);
+void func_800D088C(s32 loc, s32 len);
+void func_800D0C80(u8 arg0);
+void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
+void func_800D3BF0();
+void func_800D8A78(s8);
+int func_800D8A88(void);
+void func_800D9E0C(s32, s32, s32);
+void func_800DCFD4(u_long*);
+void func_800DDFEC(void);
+void func_800E15D8(void);
+void func_800E5814(void);
+void func_800E6B94(void);

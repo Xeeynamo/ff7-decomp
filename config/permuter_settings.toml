@@ -1,0 +1,7 @@
+build_system = "ninja"
+compiler_type = "gcc"
+
+[preserve_macros]
+"g[DS]P.*" = "void"
+"gDma.*" = "void"
+"_SHIFTL" = "unsigned int"

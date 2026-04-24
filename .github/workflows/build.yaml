@@ -1,0 +1,67 @@
+name: build
+on:
+  push:
+  pull_request_target:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    # Building and testing cannot work if the repository owner is not Xeeynamo
+    # due to the missing secrets to clone the CI dependencies
+    if: github.repository == 'Xeeynamo/ff7-decomp'
+    runs-on: ubuntu-latest
+    steps:
+    - run: sudo apt-get install -y ninja-build 7zip
+    # Ubuntu 24.04 uses binutils 2.42, which ships a version of mipsel-linux-gnu-ld that does not match the game.
+    # Ubuntu 24.10 (binutils 2.42.90) and later fixes the issue
+    - run: |
+        echo "deb http://archive.ubuntu.com/ubuntu/ questing main universe multiverse restricted" | sudo tee /etc/apt/sources.list.d/questing.list
+        sudo apt-get update
+        sudo apt-get install -y -t questing binutils-mipsel-linux-gnu gcc-mipsel-linux-gnu
+        sudo rm /etc/apt/sources.list.d/questing.list
+        sudo apt-get clean
+        sudo rm -rf /var/lib/apt/lists/*
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+    - if: github.event_name != 'pull_request_target'
+      uses: actions/checkout@v5
+      with:
+        ref: ${{ github.ref }}
+        submodules: true
+    - if: github.event_name == 'pull_request_target'
+      uses: actions/checkout@v5
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        submodules: true
+    - uses: actions/setup-go@v6
+      with:
+        go-version-file: 'go.work'
+        cache: true
+        cache-dependency-path: "**/*.sum"
+    - run: make requirements
+    - name: Check if code is formatted
+      run: |
+        make format
+        git diff --exit-code
+    - uses: actions/checkout@v5
+      with:
+        repository: xeeynamo/ff7-decomp-dependencies
+        token: ${{ secrets.FF7_DECOMP_DEPENDENCIES_TOKEN }}
+        path: tmp
+    - run: |
+        cat tmp/x* > tmp/ff7.7z
+        7z x -sdel tmp/ff7.7z -odisks/
+        rm tmp/*
+        ls -la disks/
+    - run: make build
+    - name: Generate progress report
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: make report
+    - name: Upload progress report
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: actions/upload-artifact@v4
+      with:
+        name: us_report
+        path: build/report.json

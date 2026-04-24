@@ -1,0 +1,12 @@
+splat64==0.34.3
+spimdisasm==1.35.0
+rabbitizer
+colorama
+watchdog
+levenshtein
+cxxfilt
+pygfxd
+crunch64
+pyyaml
+n64img
+pycparser
