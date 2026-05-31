@@ -1,4 +1,6 @@
 __pycache__/
+.envrc
+.direnv/
 .idea/
 .venv/
 .vscode/

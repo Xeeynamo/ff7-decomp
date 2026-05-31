@@ -31,6 +31,9 @@ sudo apt install golang-go ninja-build 7zip bchunk binutils-mipsel-linux-gnu gcc
 # Arch Linux
 sudo pacman -S go ninja 7zip bchunk
 yay mipsel-linux-gnu-binutils mipsel-linux-gnu-gcc
+
+# Nix/NixOS (make requirements is not needed)
+nix develop
 ```
 
 
