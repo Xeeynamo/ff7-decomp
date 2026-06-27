@@ -402,6 +402,7 @@ with open("build.ninja", "w") as f:
         "bginmenu",
         "cnfgmenu",
         "savemenu",
+        "itemmenu",
         # WORLD
         "world",
         # MAGIC

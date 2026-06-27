@@ -1,0 +1,8 @@
+EvictWeakestStolenMateria = 0x801D2974;
+GetLowestStealPriority = 0x801D29C4;
+OfferMateriaToSteal = 0x801D2A18;
+RemoveMateriaFromPlayer = 0x801D2C00;
+FinalizeMateriaSteal = 0x801D2CDC;
+StealAllMateria = 0x801D2D74;
+g_MateriaPriority = 0x801D3834; // size:0x5C
+g_MateriaStealLoot = 0x801D3F60; // size:0xC0

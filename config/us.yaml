@@ -161,6 +161,20 @@ overlays:
       - [0x12C78, .data, savemenu]
       - [0x13650, data]
       - [0x13698, bss]
+  - name: itemmenu
+    disk_path: disks/us/MENU/ITEMMENU.MNU
+    sha1: baf50a4ab2d364d0a712b9f74ee69029db0b3b5c
+    base_path: menu
+    symbol_addrs_path:
+    - config/sym_export.us.txt
+    - config/symbols.itemmenu.us.txt
+    migrate_rodata_to_functions: true
+    vram_start: 0x801D0000
+    segments:
+      - [0x0, .rodata, itemmenu]
+      - [0x1E8, c, itemmenu]
+      - [0x3834, data, itemmenu]
+      - [0x4020, bss]
   - name: world
     disk_path: disks/us/WORLD/WORLD.BIN.dec
     sha1: a6b26b066e6fb8b5985c928d76faeb6f5f29ce2c
