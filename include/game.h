@@ -369,6 +369,7 @@ extern u16 D_80062D82;      // repeated button
 extern u8 D_80062D98;
 extern u8 D_80062D99;
 extern s32 D_80062DCC;
+extern u8 D_80062F19; // Enemy Lure/Away Modifier
 extern u8 D_80062F1A;
 extern u8 D_80062F1B;
 extern Gpu D_80062F24;
@@ -383,6 +384,7 @@ extern s16 D_80071A5C;
 extern s8 D_80071C08;
 extern u8 D_80071E24;
 extern u8 D_80071E2C;
+extern u8 D_80071E30;
 extern MATRIX* D_80071E40;
 extern u8 D_80071E34;
 extern u8 D_800722C4;
@@ -401,6 +403,7 @@ extern s8 D_8007EBDC;
 extern u8 D_8007EBE0; // field debug mode
 extern u8 D_80083184[0x40];
 extern u16 D_800831FC[];
+extern u8 D_8008326C;
 extern s32 D_80083274;
 extern s16 D_800832A0;
 extern s32 D_80083338;
@@ -415,17 +418,21 @@ extern s32 D_8009A004[1];
 extern s32 D_8009A008[1];
 extern s32 D_8009A024[8];
 extern u8 D_8009A058;
+extern Unk8009C6E0 D_8009ABF4;
+extern u8 D_8009AC2F;
 extern u8* D_8009C6DC;
 extern Unk8009C6E0* D_8009C6E0; // points to 0x8009abf4
 extern SaveWork Savemap;        // 0x8009C6E4
 extern u8 D_8009CBDC[];
 extern s16 D_8009D288[];
 extern u8 D_8009D2E7;
+extern u8 D_8009D302;
 extern u8 D_8009D391[1]; // part of a struct?
 extern u8 D_8009D40D;
 extern u8 D_8009D684;
 extern u8 D_8009D685;
 extern u8 D_8009D686;
+extern u8 D_8009D60E;
 extern u8 D_8009D820; // field debug related
 extern u8 D_8009D8F8[];
 extern u32 D_8009D260;
@@ -445,6 +452,7 @@ const char* func_80015248(s32 arg0, s32 arg1, s32 arg2);
 void func_800155A4(s32);
 void func_8001726C(s16, u16);
 void func_80021044(DRAWENV* draw_env, DISPENV* disp_env);
+void func_800262D8();
 void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                    s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10,
                    s32 arg11, s32 arg12, u16 arg13);
