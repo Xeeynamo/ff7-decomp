@@ -2049,7 +2049,6 @@ func_800A9D5C = 0x800a9d5c;
 func_800A9D88 = 0x800a9d88;
 func_800A9DB4 = 0x800a9db4;
 func_800A9E14 = 0x800a9e14;
-func_800AA04C = 0x800aa04c;
 func_800AA098 = 0x800aa098;
 func_800AA0E0 = 0x800aa0e0;
 func_800AA128 = 0x800aa128;
