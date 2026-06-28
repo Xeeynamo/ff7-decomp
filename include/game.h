@@ -340,11 +340,44 @@ typedef struct {
 
 typedef struct {
     u8 unk0[0x28];
-    u16 unk28; // n_actor ?
-    u16 unk2A;
-    u16 unk2C; // main actor anim ?
-    u16 unk2E;
-    u8 unk30[0x38];
+    u16 unk28; // number of models
+    u16 unk2A; // pc model id
+    u16 unk2C; // idle animation id
+    u16 unk2E; // walk animation id
+    u16 unk30; // run animation id
+    u8 unk32;  // character lock
+    u8 unk33;  // suspend walk animation
+    u8 unk34;  // menus disabled
+    u8 unk35;
+    u8 unk36;  // map jump disabled
+    u8 unk37;  // SCRLO set
+    u8 unk38;  // MPDSP set
+    u8 unk39;  // movie cam disabled
+    u8 unk3A;  // background movie enabled
+    u8 unk3B;  // battles disabled
+    u8 unk3C;  // encounter table id
+    u8 unk3D;  // battle mode related
+    u16 unk3E; // battle mode related
+    u16 unk40;
+    u8 unk42;
+    u8 unk43;
+    u32 unk44; // next battle music id
+    u32 unk48; // next field music id
+    u16 unk4C; // active fade type
+    s16 unk4E; // fade adjust
+    s16 unk50; // fade speed
+    s16 unk52; // fade red
+    s16 unk54; // fade green
+    s16 unk56; // fade blue
+    u16 unk58; // nFade red start
+    u16 unk5A; // nFade green start
+    u16 unk5C; // nFade blue start
+    s16 unk5E; // nFade red target
+    s16 unk60; // nFade green target
+    s16 unk62; // nFade blue target
+    u16 unk64; // previous field id
+    u8 unk66;
+    u8 unk67;
     s16 unk68; // input related
     s16 unk6A; // input related
     s16 unk6C; // input related
@@ -378,6 +411,7 @@ extern s32 D_80062F58;
 extern u_long* D_80062FC4;
 extern Unk800A8D04* D_80063014;
 extern DRAWENV D_800706A4[2];
+extern u8 D_800716D4; // music lock
 extern u8 D_80070788;
 extern u16 D_800707BE;
 extern s16 D_80071A5C;
@@ -387,7 +421,7 @@ extern u8 D_80071E2C;
 extern u8 D_80071E30;
 extern MATRIX* D_80071E40;
 extern u8 D_80071E34;
-extern u8 D_800722C4;
+extern u8 D_800722C4; // entity owning the currently executing script
 extern Unk800730CC D_800730CC[];
 extern u8 D_800730DD[][0x14];
 extern Unk80074EA4 D_80074EA4[2];
@@ -402,7 +436,7 @@ extern s8 D_8007EBCC;
 extern s8 D_8007EBDC;
 extern u8 D_8007EBE0; // field debug mode
 extern u8 D_80083184[0x40];
-extern u16 D_800831FC[];
+extern u16 D_800831FC[48]; // program counters for active entity scripts
 extern u8 D_8008326C;
 extern s32 D_80083274;
 extern s16 D_800832A0;
@@ -414,8 +448,9 @@ extern s16 D_800965E8;
 extern volatile s16 D_800965EC;
 extern u8 D_80099FFC;
 extern s16 D_8009A000[1];
-extern s32 D_8009A004[1];
+extern u32 D_8009A004[1];
 extern s32 D_8009A008[1];
+extern s32 D_8009A00C;
 extern s32 D_8009A024[8];
 extern u8 D_8009A058;
 extern Unk8009C6E0 D_8009ABF4;
