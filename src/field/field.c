@@ -468,7 +468,11 @@ s32 func_800C0B54(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0BE8);
+// Nop in field scripts
+s32 func_800C0BE8(void) {
+    D_800831FC[D_800722C4]++;
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0C18);
 
@@ -522,14 +526,14 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2970);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2BFC);
 
-void func_800C2CA8(void) {
+s32 func_800C2CA8(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("keyon", 3);
     }
-    if (!((&D_8009C6DC[D_800831FC[D_800722C4]])[2] & 2)) {
-        func_800C2E00(D_8009C6E0->unk70);
+    if ((&D_8009C6DC[D_800831FC[D_800722C4]])[2] & 2) {
+        return func_800C2E00(D_8009C6E0->unk80);
     } else {
-        func_800C2E00(D_8009C6E0->unk80);
+        return func_800C2E00(D_8009C6E0->unk70);
     }
 }
 
@@ -581,42 +585,105 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C4804);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C493C);
 
-void func_800C49EC(void) {
+s32 func_800C49EC(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("music", 1);
     }
     func_800C46A4();
     D_8009A000[0] = 0x10;
-    func_800C4BCC();
+    return func_800C4BCC();
 }
 
-void func_800C4A40(void) {
+s32 func_800C4A40(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("musvt", 1);
     }
     func_800C46A4();
     D_8009A000[0] = 0x14;
-    func_800C4BCC();
+    return func_800C4BCC();
 }
 
-void func_800C4A94(void) {
+s32 func_800C4A94(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("musvm", 1);
     }
     func_800C46A4();
     D_8009A000[0] = 0x15;
-    func_800C4BCC();
+    return func_800C4BCC();
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C4AE8);
+s32 func_800C4AE8(void) {
+    u32 result;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C4BCC);
+    if (D_8009D820 & 3) {
+        func_800BEAD4("cmusc", 5);
+    }
+    func_800C46A4();
+    *D_8009A000 = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 3);
+    *D_8009A008 = (s16)func_800BF908(3, 4);
+    D_8009A00C = (s16)func_800BF908(4, 6);
+    result = func_800C4BCC();
+    D_800831FC[D_800722C4] += 6;
+    return result;
+}
+
+s32 func_800C4BCC(void) {
+    // Indexes into AKAO block of field file which contains the list of music
+    // tracks available for current field.
+    u8 akaoId;
+
+    if (D_800716D4 == 0) {
+        akaoId = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        if (D_8009D820 & 3) {
+            func_800BECA4("music=", akaoId, 2);
+        }
+        *D_8009A004 = &D_8009C6DC[func_800C4C9C(akaoId)];
+        D_8009C6E0->unk48 = *D_8009A004;
+        func_8002DA7C(D_8009C6E0);
+    }
+    D_800831FC[D_800722C4] += 2;
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C4C9C);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C4CE8);
+s32 func_800C4CE8(void) {
+    u8 akaoId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C4DE8);
+    if (D_8009D820 & 3) {
+        func_800BEAD4("bmusc", 1);
+    }
+    if (D_800716D4 == 0) {
+        akaoId = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        if (D_8009D820 & 3) {
+            func_800BECA4("bmusic=", akaoId, 2);
+        }
+        D_8009C6E0->unk44 = &D_8009C6DC[func_800C4C9C(akaoId)];
+    } else {
+        D_8009C6E0->unk44 = 0;
+    }
+    D_800831FC[D_800722C4] += 2;
+    return 0;
+}
+
+s32 func_800C4DE8(void) {
+    u8 akaoId;
+
+    if (D_8009D820 & 3) {
+        func_800BEAD4("fmusc", 1);
+    }
+    if (D_800716D4 == 0) {
+        akaoId = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        if (D_8009D820 & 3) {
+            func_800BECA4("bmusic=", akaoId, 2);
+        }
+        D_8009C6E0->unk48 = &D_8009C6DC[func_800C4C9C(akaoId)];
+    } else {
+        D_8009C6E0->unk48 = 0;
+    }
+    D_800831FC[D_800722C4] += 2;
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C4EE8);
 
