@@ -129,9 +129,9 @@ typedef struct {
     u16 hp_max;
     u16 mp_max;
     u32 exp;
-    u8 materia_weapon[8];
-    u8 materia_armor[8];
-    u8 unk50[0x34];
+    /* 0x40 */ s32 materia_weapon[8];
+    /* 0x60 */ s32 materia_armor[8];
+    /* 0x80 */ u8 unk80[4];
 } SavePartyMember; // size:0x84
 typedef struct {
     SaveHeader header;
