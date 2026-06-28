@@ -90,6 +90,7 @@ extern s32 D_80048DD4[];
 extern PortraitEntry D_80048FE8[15];
 extern u8 D_80049208[12]; // menu color RGB-quadruplet
 extern s32 D_80049224[8];
+extern s32 D_80049500[8]; // party slot -> character id (endgame level snapshot)
 extern u8 D_80049520[];
 extern u8 D_80049528[];
 extern u8 D_80063690[];
@@ -111,8 +112,10 @@ extern s32 D_80095DD8; // LBA len for func_80014540
 extern s16 D_800965E8;
 extern u16 D_8009C560; // refer to Subsystem enum
 extern SavePartyMember D_8009C738[8];
+extern u8 D_8009D44C[8]; // party-level snapshot for endgame battle AI
 extern u16 D_8009ABF6;
 extern u16 D_8009AC32;
 extern u8 D_8009D5E9;
+extern u16 D_8009D78A;           // party-present bitmask
 extern void (*D_800A00CC)(void); // battle/brom entrypoint
 extern void (*D_800A1158)(void); // battle/battle entrypoint
