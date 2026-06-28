@@ -128,10 +128,10 @@ void func_80025008(void) {
 // these are 99 to scale Safer-Sephiroth's HP.
 void SnapshotPartyLevels(void) {
     s32 i;
-    for (i = 0; i < 8; i++) {
-        s32 id = D_80049500[i];
-        if ((D_8009D78A >> id) & 1) {
-            D_8009D44C[i] = D_8009C738[id].level;
+    u16* present;
+    for (i = 0, present = &D_8009D78A; i < 8; i++) {
+        if ((*present >> D_80049500[i]) & 1) {
+            D_8009D44C[i] = D_8009C738[D_80049500[i]].level;
         }
     }
 }
