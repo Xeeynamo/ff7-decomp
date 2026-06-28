@@ -123,7 +123,18 @@ void func_80025008(void) {
     func_801D3228();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80025040);
+// MENU event 0x18: snapshot each present party member's level into
+// D_8009D44C[]. The endgame battle AI (Jenova-SYNTHESIS) counts how many of
+// these are 99 to scale Safer-Sephiroth's HP.
+void SnapshotPartyLevels(void) {
+    s32 i;
+    for (i = 0; i < 8; i++) {
+        s32 id = D_80049500[i];
+        if ((D_8009D78A >> id) & 1) {
+            D_8009D44C[i] = D_8009C738[id].level;
+        }
+    }
+}
 
 void func_800250B4(void) {
     func_800211C4(0xC);
