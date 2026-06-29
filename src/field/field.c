@@ -632,7 +632,7 @@ s32 func_800C4BCC(void) {
     // tracks available for current field.
     u8 akaoId;
 
-    if (D_800716D4 == 0) {
+    if (g_FieldMusicLock == 0) {
         akaoId = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
         if (D_8009D820 & 3) {
             func_800BECA4("music=", akaoId, 2);
@@ -653,7 +653,7 @@ s32 func_800C4CE8(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("bmusc", 1);
     }
-    if (D_800716D4 == 0) {
+    if (g_FieldMusicLock == 0) {
         akaoId = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
         if (D_8009D820 & 3) {
             func_800BECA4("bmusic=", akaoId, 2);
@@ -672,7 +672,7 @@ s32 func_800C4DE8(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("fmusc", 1);
     }
-    if (D_800716D4 == 0) {
+    if (g_FieldMusicLock == 0) {
         akaoId = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
         if (D_8009D820 & 3) {
             func_800BECA4("bmusic=", akaoId, 2);
@@ -687,7 +687,33 @@ s32 func_800C4DE8(void) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C4EE8);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C506C);
+/* func_800BEAD4 returns void; the callers above already match with the implicit
+   int declaration, but SetMusicLock only matches with the void prototype in
+   scope (it frees v0 for reuse instead of treating it as a return value). */
+extern void func_800BEAD4(const char*, int);
+
+/*
+ * Field-script opcode MULCK (0xF5): set the music lock from the opcode operand.
+ *
+ * While g_FieldMusicLock is nonzero the MUSIC/FMUSC opcodes skip handing the
+ * song to the sound engine, so field music stops responding until a later
+ * MULCK 0 (or a reset) clears it again.
+ *
+ * The operand is read straight out of the running script:
+ *   D_8009C6DC          - the current map's script bytecode
+ *   D_800831FC[entity]  - that entity's program counter (byte offset into it)
+ *   D_800722C4          - the entity whose script is currently executing
+ * so D_8009C6DC[pc + 1] is the 1-byte operand. The program counter is then
+ * stepped past the 2-byte instruction (opcode + operand).
+ */
+s32 SetMusicLock(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("mulck", 1);
+    }
+    g_FieldMusicLock = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+    D_800831FC[D_800722C4] += 2;
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C50EC);
 
