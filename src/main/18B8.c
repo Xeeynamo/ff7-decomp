@@ -1,6 +1,12 @@
 //! G=8
 #include "main_private.h"
 
+void func_80015B44(s32 arg0);
+s32 func_80014C80(s32 arg0);
+s32 func_80015B50(void);
+s32 func_80015B88(void);
+extern u8 D_80083084[];
+
 s32 D_80062D4C = 0x00000000;
 s32 D_80062D50 = 0x000000FF;
 s32 D_80062D54 = 0x00000000;
@@ -455,7 +461,15 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80014B08);
 
 void func_80014B54(void) { D_80062E18 = (D_80062E18 + 1) & 7; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80014B70);
+s32 func_80014B70(void) {
+    u8* state;
+    u8 index;
+
+    state = (u8*)&D_80062E10 + D_80062E18;
+    index = *state;
+    *state = index + 1;
+    return D_80083084[index];
+}
 
 s32 func_80014BA8(s32 arg0) {
     return (u8)(((func_80014B70() & 0xFF) * arg0) >> 8);
@@ -482,7 +496,16 @@ void func_80014C70() {
     D_80062E20 = 0;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80014C80);
+s32 func_80014C80(s32 arg0) {
+    s32 text_index;
+    s32 text_offset;
+
+    text_index = D_80062E1C++;
+    text_offset = D_80062E20;
+    D_80069490[text_index] = text_offset;
+    D_80062E20 = text_offset + arg0;
+    return (s32)(D_80063690 + text_offset);
+}
 
 s32 func_80014CBC(s32 arg0, s32 arg1) {
     s32 var_a2;
@@ -562,11 +585,35 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800159B0);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80015AFC);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80015B44);
+void func_80015B44(s32 arg0) { D_80062E30 = arg0; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80015B50);
+s32 func_80015B50(void) {
+    u8* entry;
+    s32 entry_len;
+    s32 entry_type;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80015B88);
+    entry = (u8*)D_80062E30;
+    entry_len = entry[0] | (entry[1] << 8);
+    entry_type = 0xFFFF;
+    if (entry_len != 0) {
+        entry_type = entry[4] | (entry[5] << 8);
+    }
+    return entry_type;
+}
+
+s32 func_80015B88(void) {
+    u8* entry;
+    s32 entry_len;
+    s32 entry_id;
+
+    entry = (u8*)D_80062E30;
+    entry_len = entry[0] | (entry[1] << 8);
+    entry_id = 0;
+    if (entry_len != 0) {
+        entry_id = entry[2] | (entry[3] << 8);
+    }
+    return entry_id;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_80015BC0);
 
@@ -1278,7 +1325,7 @@ void func_80021044(DRAWENV* draw_env, DISPENV* disp_env) {
     SetDispMask(1);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800211B8);
+void func_800211B8(s32 arg0) { D_80062DEC = arg0; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800211C4);
 
