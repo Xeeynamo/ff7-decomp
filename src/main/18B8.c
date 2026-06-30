@@ -2,7 +2,7 @@
 #include "main_private.h"
 
 void func_80015B44(s32 arg0);
-s32 func_80014C80(s32 arg0);
+u8* func_80014C80(s32 arg0);
 s32 func_80015B50(void);
 s32 func_80015B88(void);
 extern u8 D_80083084[];
@@ -496,7 +496,7 @@ void func_80014C70() {
     D_80062E20 = 0;
 }
 
-s32 func_80014C80(s32 arg0) {
+u8* func_80014C80(s32 arg0) {
     s32 text_index;
     s32 text_offset;
 
@@ -504,7 +504,7 @@ s32 func_80014C80(s32 arg0) {
     text_offset = D_80062E20;
     D_80069490[text_index] = text_offset;
     D_80062E20 = text_offset + arg0;
-    return (s32)(D_80063690 + text_offset);
+    return D_80063690 + text_offset;
 }
 
 s32 func_80014CBC(s32 arg0, s32 arg1) {
