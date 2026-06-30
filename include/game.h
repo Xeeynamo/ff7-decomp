@@ -411,7 +411,8 @@ extern s32 D_80062F58;
 extern u_long* D_80062FC4;
 extern Unk800A8D04* D_80063014;
 extern DRAWENV D_800706A4[2];
-extern u8 D_800716D4; // music lock
+extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
+                            // (set by the MULCK opcode)
 extern u8 D_80070788;
 extern u16 D_800707BE;
 extern s16 D_80071A5C;
