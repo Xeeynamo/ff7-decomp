@@ -978,7 +978,10 @@ void SetupGamepad(void) {
     D_80062FA0 = 0;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001C484);
+void func_8001C484(s32 arg0) {
+    D_80062E9C = arg0;
+    D_80062E94 = 0x14;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001C498);
 
@@ -1264,11 +1267,29 @@ void func_8001F6E4(s16 arg0, s16 arg1, s16 arg2) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001F710);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001FA28);
+void func_8001FA28(s32 arg0) {
+    arg0 &= 0xFFFF;
+    D_8009A000[0] = 0x30;
+    D_8009A004[0] = arg0;
+    D_8009A008[0] = arg0;
+    func_8002DA7C();
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001FA68);
+void func_8001FA68(s32 arg0) {
+    D_8009A000[0] = 0x28;
+    arg0 &= 0xFFFF;
+    D_8009A004[0] = 0x40;
+    D_8009A008[0] = arg0;
+    func_8002DA7C();
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001FAAC);
+void func_8001FAAC(s32 arg0) {
+    D_8009A000[0] = 0x29;
+    arg0 &= 0xFFFF;
+    D_8009A004[0] = 0x40;
+    D_8009A008[0] = arg0;
+    func_8002DA7C();
+}
 
 void func_8001FAF0(void) {}
 
@@ -1329,7 +1350,16 @@ void func_800211B8(s32 arg0) { D_80062DEC = arg0; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_800211C4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8002120C);
+void func_8002120C(s32 arg0) {
+    s32 prev;
+
+    prev = D_80062DD4;
+    D_80062DD4 = arg0;
+    D_80062DD0 = prev;
+    if (arg0 != 0 && ((u32)(prev - 3) >= 2 || (u32)(arg0 - 3) >= 2)) {
+        func_800211C4(arg0);
+    }
+}
 
 void func_80021258(s32 arg0) { func_80015248(13, arg0, 8); }
 
