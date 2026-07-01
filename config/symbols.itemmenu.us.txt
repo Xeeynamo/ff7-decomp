@@ -1,3 +1,15 @@
+SwapS32 = 0x801D03B4;
+SwapU16 = 0x801D0618;
+Sign = 0x801D062C;
+CompareItemsByType = 0x801D0650;
+CompareItemsByMost = 0x801D069C;
+CompareItemsByLeast = 0x801D0704;
+CompareItemsByName = 0x801D076C;
+CompareItemsByField = 0x801D081C;
+CompareItemsByBattle = 0x801D08E4;
+CompareItemsByThrow = 0x801D09AC;
+SwapItemSlots = 0x801D0A74;
+ArrangeItems = 0x801D0AAC;
 EvictWeakestStolenMateria = 0x801D2974;
 GetLowestStealPriority = 0x801D29C4;
 OfferMateriaToSteal = 0x801D2A18;
