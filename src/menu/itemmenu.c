@@ -11,8 +11,7 @@ extern u16 D_801D35B4[]; // per-item-id sort order for the "Name" arrange option
 
 s32 func_8001FAF8(
     s32); // returns an item's usage flags (0x2 battle, 0x4 field, 0x8 throw)
-// The sort engine (quicksort) is not yet decompiled.
-s32 func_801D03C8(s32, s32, s32 (*)(s16, s16, s32*), void (*)(s16, s16, s32*));
+s32 Quicksort(s32, s32, s32 (*)(s32, s32, s32*), void (*)(s32, s32, s32*));
 
 s32 func_80015AFC(s32, s32);
 void func_80028CA0(s16, s16, s32, s32, s32, s32, s32, s32);
@@ -83,7 +82,118 @@ void SwapS32(s32* arg0, s32* arg1) {
     *arg1 = b;
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D03C8);
+// Iterative Hoare quicksort over item-slot indices [0, count), driving the
+// cmp/swap callbacks. Explicit 64-deep bounds stack (lo half / hi half of one
+// 128-word array), recursing into the smaller partition first (SwapS32 swaps
+// the bounds pairs). Returns 1 on completion, 0 on bounds-stack overflow.
+// NOTE: the do{}while(0) wrapper, the va1 register copy of j, the duplicated
+// cont computation and the tmp* temporaries are all required for the
+// byte-perfect match (they reproduce the original register allocation).
+s32 Quicksort(s32 base, s32 count, s32 (*cmp)(s32, s32, s32*),
+              void (*swap)(s32, s32, s32*)) {
+    s32 stack[128];
+    s32 tmp4;
+    s32 tmp5;
+    s32 j;
+    s32 lo;
+    s32 i;
+    int tmp;
+    s32 tmp3;
+    s32* p;
+    s32 depth;
+    s32 cont;
+    int tmp2;
+    s32 va1;
+
+    if (((u32)count) >= 2U) {
+        goto body;
+    }
+    return 1;
+ret0:
+    return 0;
+
+    do {
+    body:
+        depth = 0;
+        p = stack;
+        stack[0] = 0;
+        stack[64] = count - 1;
+    loop_4:
+        lo = p[0];
+        tmp = (i = lo + 1);
+        j = p[64];
+        count = j;
+        if (((u32)i) < ((u32)j)) {
+        loop_5:
+            if (cmp(i, lo, &base) <= 0) {
+                i += 1;
+                if (((u32)i) < ((u32)j)) {
+                    goto loop_5;
+                }
+            }
+            va1 = j;
+            if (((u32)va1) >= ((u32)i)) {
+            loop_8:
+                if (cmp(lo, va1, &base) <= 0) {
+                    j -= 1;
+                    va1 = j;
+                    if (((u32)va1) >= ((u32)i)) {
+                        goto loop_8;
+                    }
+                }
+            }
+            if (((u32)i) < ((u32)j)) {
+                s32 oi = i;
+                s32 oj = j;
+                i += 1;
+                tmp3 = oi;
+                j -= 1;
+                swap(tmp3, oj, &base);
+                if (((u32)i) < ((u32)j)) {
+                    goto loop_5;
+                }
+            }
+        }
+        if (cmp(lo, j, &base) > 0) {
+            swap(lo, j, &base);
+        }
+        if (((u32)lo) < ((u32)j)) {
+            j -= 1;
+            if (((u32)lo) < ((u32)j)) {
+                if ((((u32)i) < (va1 = (u32)count)) &&
+                    (((u32)(j - lo)) < ((u32)(count - i)))) {
+                    SwapS32(&j, &count);
+                    SwapS32(&lo, &i);
+                }
+                tmp5 = j;
+                if (((u32)lo) < ((u32)tmp5)) {
+                    p[0] = lo;
+                    p[64] = tmp5;
+                    p += 1;
+                    depth += 1;
+                }
+            }
+        }
+        cont = ((u32)depth) < 0x40U;
+        tmp4 = count;
+        if (((u32)i) < tmp4) {
+            p[0] = i;
+            p[64] = tmp4;
+            p += 1;
+            depth += 1;
+        }
+        cont = ((u32)depth) < 0x40U;
+        depth -= 1;
+    } while (0);
+    if (cont != 0) {
+        p -= 1;
+        if (depth == (-1)) {
+            return 1;
+        }
+        goto loop_4;
+    }
+    goto ret0;
+}
 
 // Swap the two 16-bit values pointed to by arg0 and arg1.
 void SwapU16(u16* arg0, u16* arg1) {
@@ -243,32 +353,25 @@ void ArrangeItems(s32 mode) {
     case 0:
         break;
     case 1:
-        func_801D03C8(
-            (s32)D_8009CBE0, 0x140, CompareItemsByField, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByField, SwapItemSlots);
         break;
     case 2:
-        func_801D03C8(
-            (s32)D_8009CBE0, 0x140, CompareItemsByBattle, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByBattle, SwapItemSlots);
         break;
     case 3:
-        func_801D03C8(
-            (s32)D_8009CBE0, 0x140, CompareItemsByThrow, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByThrow, SwapItemSlots);
         break;
     case 4:
-        func_801D03C8(
-            (s32)D_8009CBE0, 0x140, CompareItemsByType, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByType, SwapItemSlots);
         break;
     case 5:
-        func_801D03C8(
-            (s32)D_8009CBE0, 0x140, CompareItemsByName, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByName, SwapItemSlots);
         break;
     case 6:
-        func_801D03C8(
-            (s32)D_8009CBE0, 0x140, CompareItemsByMost, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByMost, SwapItemSlots);
         break;
     case 7:
-        func_801D03C8(
-            (s32)D_8009CBE0, 0x140, CompareItemsByLeast, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByLeast, SwapItemSlots);
         break;
     }
 }

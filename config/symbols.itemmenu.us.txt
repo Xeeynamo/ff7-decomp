@@ -21,3 +21,4 @@ ReturnStolenMateria = 0x801D2E84;
 func_801D3260 = 0x801D3260; // type:func
 g_MateriaPriority = 0x801D3834; // size:0x5C
 g_MateriaStealLoot = 0x801D3F60; // size:0xC0
+Quicksort = 0x801D03C8;
