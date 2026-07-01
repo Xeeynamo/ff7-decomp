@@ -3,6 +3,8 @@
 
 extern u8 g_MateriaPriority[];
 extern s32 g_MateriaStealLoot[];
+extern u8 D_800738BC[][44];
+extern u8 D_80071E4D[][36];
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D01E8);
 
@@ -52,7 +54,7 @@ INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0E80);
 
 void func_801D296C(void) {}
 
-void EvictWeakestStolenMateria(s32 newMateria, s32 priority) {
+static void EvictWeakestStolenMateria(s32 newMateria, s32 priority) {
     s32 i;
     s32* loot;
 
@@ -68,7 +70,7 @@ void EvictWeakestStolenMateria(s32 newMateria, s32 priority) {
     } while (i < 0x30);
 }
 
-s32 GetLowestStealPriority(void) {
+static s32 GetLowestStealPriority(void) {
     s32 i;
     s32 lowest;
     u8* loot;
@@ -88,7 +90,7 @@ s32 GetLowestStealPriority(void) {
     return lowest;
 }
 
-void OfferMateriaToSteal(s32* materiaPtr) {
+static void OfferMateriaToSteal(s32* materiaPtr) {
     s32 i;
     s32 lowest;
 
@@ -111,9 +113,39 @@ void OfferMateriaToSteal(s32* materiaPtr) {
     EvictWeakestStolenMateria(*materiaPtr, lowest);
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D2ABC);
+// Re-equip a returned materia into the first free, unlocked weapon then armor
+// slot of any visible party member. Returns 0 if placed, 1 if no slot was free.
+static s32 ReequipReturnedMateria(s32 materia) {
+    s32 c;
 
-void RemoveMateriaFromPlayer(s32 materia) {
+    for (c = 8; c != -1; c--) {
+        if ((Savemap.phs_visibility_mask >> c) & 1) {
+            {
+                s32 j;
+                for (j = 0; j < 8; j++) {
+                    if (Savemap.party[c].materia_weapon[j] == -1 &&
+                        D_800738BC[Savemap.party[c].weapon][j]) {
+                        Savemap.party[c].materia_weapon[j] = materia;
+                        return 0;
+                    }
+                }
+            }
+            {
+                s32 j;
+                for (j = 0; j < 8; j++) {
+                    if (Savemap.party[c].materia_armor[j] == -1 &&
+                        D_80071E4D[Savemap.party[c].armor][j]) {
+                        Savemap.party[c].materia_armor[j] = materia;
+                        return 0;
+                    }
+                }
+            }
+        }
+    }
+    return 1;
+}
+
+static void RemoveMateriaFromPlayer(s32 materia) {
     s32 c;
     s32 s;
 
@@ -141,7 +173,7 @@ void RemoveMateriaFromPlayer(s32 materia) {
     }
 }
 
-void FinalizeMateriaSteal(void) {
+static void FinalizeMateriaSteal(void) {
     s32 i;
     s32 materia;
 
@@ -182,7 +214,20 @@ void StealAllMateria(void) {
     FinalizeMateriaSteal();
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D2E84);
+// Give back every materia that was stolen: try to re-equip each one, and if no
+// equip slot is free, return it to the materia inventory instead.
+void ReturnStolenMateria(void) {
+    s32 i;
+
+    for (i = 0; i < 0x30; i++) {
+        if (Savemap.yuffie_stolen_materia[i] != -1) {
+            if (ReequipReturnedMateria(Savemap.yuffie_stolen_materia[i]) != 0) {
+                // no free equip slot - add it to the materia inventory
+                func_8002542C(Savemap.yuffie_stolen_materia[i]);
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D2F00);
 
