@@ -48,6 +48,90 @@ typedef enum {
     LBA_ENEMY6_FAN2 = 30695,
 } Lba;
 
+typedef enum {
+    FIELDOP_NONE,
+    FIELDOP_FIELD_CHANGE,
+    FIELDOP_ENTERING_BATTLE,
+    FIELDOP_LOAD_MOVIE,
+    FIELDOP_PLAY_MOVIE,
+    FIELDOP_PLAY_ENDING_FMV,
+    FIELDOP_CHAR_NAME_ENTRY,
+    FIELDOP_PARTY_SELECT,
+    FIELDOP_SHOP,
+    FIELDOP_PARTY_MENU,
+    FIELDOP_BEAT_GAME,
+    FIELDOP_UNKB,
+    FIELDOP_LOAD_MINIGAME,
+    FIELDOP_CD_CHANGE,
+    FIELDOP_SAVE_SCREEN,
+    FIELDOP_YUFFIE_STEALS_MATERIA,
+    FIELDOP_YUFFIE_RETURNS_MATERIA,
+    FIELDOP_REMOVE_CHARS_MATERIA_ACCESSORY,
+    FIELDOP_UNK12,
+    FIELDOP_UNK13,
+    FIELDOP_UNK14,
+    FIELDOP_UNK15,
+    FIELDOP_MASTER_MATERIA_CHECK,
+    FIELDOP_ADD_MASTER_MATERIA,
+    FIELDOP_JENOVA_SYNTH_COPY_LEVELS,
+    FIELDOP_UNK19,
+    FIELDOP_GAME_OVER,
+} FieldOpcode;
+
+typedef enum {
+    SCRL_OFF,
+    // Scroll to center camera on given entity's 3D model.
+    // Immediately sets camera to target coordinates.
+    SCRL_TO_ENTITY_INSTANT,
+    // Constant movement speed determined by number of steps.
+    SCRL_TO_ENTITY_LINEAR,
+    // Uses a precalculated sine table for a smoother start and stop.
+    SCRL_TO_ENTITY_SMOOTH,
+    // Scroll to center camera on given coordinates.
+    SCRL_TO_COORDS_INSTANT,
+    SCRL_TO_COORDS_LINEAR,
+    SCRL_TO_COORDS_SMOOTH,
+} ScrollMode;
+
+typedef enum {
+    SCRLST_INIT,
+    SCRLST_ACTIVE,
+    SCRLST_DONE,
+} ScrollState;
+
+// https://wiki.ffrtt.ru/index.php/FF7/Field/Script/Opcodes/6B_FADE
+typedef enum {
+    FFT_INSTANT,
+    FFT_INV4_TO_FIELD_SUB,
+    FFT_FIELD_TO_INV4_SUB,
+    // Fade to black when changing field map.
+    FFT_SYS_FADE_TO_BLACK_FIELD_CHANGE,
+    FFT_INSTANT_BLACK,
+    FFT_STANDARD_TO_FIELD_ADD,
+    FFT_FIELD_TO_STANDARD_ADD,
+    FFT_INSTANT_INV1_SUB_HOLD_FIELD,
+    FFT_INSTANT_INV1_SUB_HOLD_COLOR,
+    FFT_INSTANT_STANDARD_ADD_HOLD_FIELD,
+    FFT_INSTANT_STANDARD_ADD_HOLD_COLOR,
+    FFT_FIELD_TO_STANDARD_ADD_HOLD_COLOR,
+    FFT_FIELD_TO_STANDARD_SUB_HOLD_COLOR,
+    // Fade to black when opening menu.
+    FFT_SYS_FADE_TO_BLACK_MENU,
+} FieldFadeType;
+
+typedef enum {
+    OMODE_INSTANT,
+    OMODE_LINEAR,
+    OMODE_SMOOTH,
+    OMODE_DONE,
+} OffsetMode;
+
+typedef enum {
+    MOVCMD_IDLE,
+    MOVCMD_ACTIVE,
+    MOVCMD_DONE,
+} MovieCommandState;
+
 typedef struct {
     s16 unk0;
     s16 unk2; // current page
@@ -339,58 +423,132 @@ typedef struct {
 } Unk80074EA4; // size:0x84
 
 typedef struct {
-    u8 unk0[0x28];
-    u16 unk28; // number of models
-    u16 unk2A; // pc model id
-    u16 unk2C; // idle animation id
-    u16 unk2E; // walk animation id
-    u16 unk30; // run animation id
-    u8 unk32;  // character lock
-    u8 unk33;  // suspend walk animation
-    u8 unk34;  // menus disabled
+    u8 enabled;
+    u8 segmentActive;
+    u8 rngId;
+    s8 currentOffset;
+    s16 amplitude;
+    s16 start;
+    s16 target;
+    s16 numStepsPerSegment;
+    s16 currentStep;
+} FieldShakeData; // size:0xE
+
+typedef struct {
+    u8 unk0;
+    // enum FieldOpcode.
+    u8 opcode;
+    // Used by some opcodes to carry extra info, ie. shop id
+    // for shop menu, char id for name entry screen.
+    s16 opcodeParam;
+    // Stores player position when exiting field or jumping between field maps.
+    s16 pcPosX;
+    s16 pcPosY;
+    s16 pcPosZ;
+    // Used by field script opcodes SCR2D, SCRLC, and SCRLA to set target
+    // coordinates when scrolling camera.
+    s16 cameraScrollTargetX;
+    s16 cameraScrollTargetY;
+    s16 cameraScrollTargetZ; // Unused.
+    // Scale of current field map. Affects 3D model sizes, movement speed, and
+    // collision and interaction radius.
+    s16 currentFieldScale;
+    // viewOffset* are set by VWOFT opcode which applies viewOffset to
+    // player's Z axis when camera is not scrolling.
+    u8 viewOffsetNumSteps;
+    u8 viewOffsetCurrentStep;
+    u8 viewOffsetMode; // enum OffsetMode.
+    u8 unk15;
+    u16 viewOffset;
+    s16 viewOffsetStart;
+    s16 viewOffsetTarget;
+    u8 unk1C;
+    u8 cameraScrollMode; // enum ScrollMode.
+    u8 cameraScrollTargetId;
+    u8 cameraScrollState; // enum ScrollState.
+    u16 cameraScrollNumSteps;
+    // Following two variables are set when exiting from field to mini games,
+    // world map, or another field map.
+    u16 pcWalkMeshId;      // Walk mesh triangle id player is inside of.
+    u16 pcDirection;       // Direction player is facing.
+    u16 movieCommandState; // enum MovieCommandState.
+    u16 modelCount;
+    s16 pcModelId;
+    u16 idleAnimId;
+    u16 walkAnimId;
+    u16 runAnimId;
+    u8 characterLock;
+    u8 suspendWalkAndAnim;
+    u8 menuDisabled; // Set by MENU2.
     u8 unk35;
-    u8 unk36;  // map jump disabled
-    u8 unk37;  // SCRLO set
-    u8 unk38;  // MPDSP set
-    u8 unk39;  // movie cam disabled
-    u8 unk3A;  // background movie enabled
-    u8 unk3B;  // battles disabled
-    u8 unk3C;  // encounter table id
-    u8 unk3D;  // battle mode related
-    u16 unk3E; // battle mode related
+    u8 mapJumpDisabled; // Set by MPJPO. Disables gateways to other maps.
+    u8 scrlo;           // Set by SCRLO. Unused(?)
+    // Set by MPDSP in field map junbin5. Also set to 1 if
+    // fadeType == FFT_INSTANT_BLACK.
+    u8 mpdsp;
+    // Set by MVCAM. Static field map camera is used instead of dynamic movie
+    // camera.
+    u8 moviecamDisabled;
+    // Set by BGMOVIE. Enables movie camera if moviecamDisabled is not set.
+    // Increases movement speed.
+    u8 backgroundMovieEnabled;
+    // Set by BTLON to disable or enable random encounters.
+    u8 battlesDisabled;
+    // Set by BTLTB.
+    // Each field map has two sets of encounters BTLTB can switch between.
+    u8 encounterTableId;
+    // Set by BTLMD and BTMD2.
+    u8 battleMode1;
+    u16 battleMode2;
     u16 unk40;
     u8 unk42;
     u8 unk43;
-    u32 unk44; // next battle music id
-    u32 unk48; // next field music id
-    u16 unk4C; // active fade type
-    s16 unk4E; // fade adjust
-    s16 unk50; // fade speed
-    s16 unk52; // fade red
-    s16 unk54; // fade green
-    s16 unk56; // fade blue
-    u16 unk58; // nFade red start
-    u16 unk5A; // nFade green start
-    u16 unk5C; // nFade blue start
-    s16 unk5E; // nFade red target
-    s16 unk60; // nFade green target
-    s16 unk62; // nFade blue target
-    u16 unk64; // previous field id
+    u32 nextBattleMusic;
+    u32 nextFieldMusic;
+    // Set by FADE or NFADE to start fades.
+    u16 fadeType; // enum FieldFadeType.
+    s16 fadeAdjust;
+    s16 fadeSpeed;
+    s16 fadeRed;
+    s16 fadeGreen;
+    s16 fadeBlue;
+    u16 nFadeRedStart;
+    u16 nFadeGreenStart;
+    u16 nFadeBlueStart;
+    s16 nFadeRedTarget;
+    s16 nFadeGreenTarget;
+    s16 nFadeBlueTarget;
+    u16 prevFieldId;
     u8 unk66;
     u8 unk67;
-    s16 unk68; // input related
-    s16 unk6A; // input related
-    s16 unk6C; // input related
-    s16 unk6E; // input related
-    u16 unk70; // input related
-    u16 unk72; // input related
-    u16 unk74; // input related
-    u16 unk76; // input related
-    s32 unk78;
-    s32 unk7C;
-    u16 unk80;
-    u16 unk82;
-} Unk8009C6E0; // size:???
+    // Uses PADx macros in libetc.h
+    u32 activeKeys;      // Currently active keys.
+    u32 oldActiveKeys;   // activeKeys from last frame.
+    u32 newActiveKeys;   // Was inactive last frame.
+    u32 newInactiveKeys; // Was active last frame.
+    u32 activeKeys2;
+    u32 oldActiveKeys2;
+    u32 newActiveKeys2;
+    u32 newInactiveKeys2;
+    s16 currentMovieFrame;
+    // Set by SHAKE to enable a randomized camera shake effect.
+    FieldShakeData shakeX;
+    FieldShakeData shakeY;
+    // Set by BGSCR. Affects parallax effect on camera movements.
+    u16 layer2_bgScrollXSpeed;
+    u16 layer2_bgScrollYSpeed;
+    u16 layer3_bgScrollXSpeed;
+    u16 layer3_bgScrollYSpeed;
+    // Can be overridden by BGPDH.
+    u16 layer3_depth; // Default: 1.
+    u16 layer2_depth; // Default: 4095.
+    // Bit fields that define which walk mesh triangles
+    // the player can't travel between. IDLCK can override the accesses.
+    u8 blockedAccesses[64];
+    // Bit fields. Set by BGON, BGOFF, BGCLR, BGROL, and BGROL2.
+    u8 backgroundLayerVisibility[64];
+    u16 pad;  // Necessary with 4 byte alignment?
+} FieldState; // size:0x134
 
 extern u8 D_80049208[12];   // window colors maybe??
 extern u8 D_800492F0[][12]; // see Labels enum
@@ -454,11 +612,11 @@ extern s32 D_8009A008[1];
 extern s32 D_8009A00C;
 extern s32 D_8009A024[8];
 extern u8 D_8009A058;
-extern Unk8009C6E0 D_8009ABF4;
+extern FieldState D_8009ABF4;
 extern u8 D_8009AC2F;
 extern u8* D_8009C6DC;
-extern Unk8009C6E0* D_8009C6E0; // points to 0x8009abf4
-extern SaveWork Savemap;        // 0x8009C6E4
+extern FieldState* D_8009C6E0; // points to 0x8009abf4
+extern SaveWork Savemap;       // 0x8009C6E4
 extern u8 D_8009CBDC[];
 extern s16 D_8009D288[];
 extern u8 D_8009D2E7;
