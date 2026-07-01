@@ -306,7 +306,7 @@ void func_800BA65C(s32 arg0) {
         }
     }
     if (D_80071E2C) {
-        func_8001F1BC(&D_80083274, 4, arg0, D_8009C6E0->unk0[0] ^ 1);
+        func_8001F1BC(&D_80083274, 4, arg0, D_8009C6E0->unk0 ^ 1);
     }
     func_800BC438(arg0);
 }
@@ -1011,9 +1011,9 @@ s32 func_800C2CA8(void) {
         func_800BEAD4("keyon", 3);
     }
     if (GET_PARAM_U8(2) & 2) {
-        return func_800C2E00(D_8009C6E0->unk80);
+        return func_800C2E00(D_8009C6E0->newActiveKeys2);
     } else {
-        return func_800C2E00(D_8009C6E0->unk70);
+        return func_800C2E00(D_8009C6E0->newActiveKeys);
     }
 }
 
@@ -1158,10 +1158,10 @@ s32 func_800C4CE8(void) {
         if (D_8009D820 & 3) {
             func_800BECA4("bmusic=", akaoId, 2);
         }
-        D_8009C6E0->unk44 =
+        D_8009C6E0->nextBattleMusic =
             (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
     } else {
-        D_8009C6E0->unk44 = 0;
+        D_8009C6E0->nextBattleMusic = 0;
     }
     PC_INC(2);
     return 0;
@@ -1178,10 +1178,10 @@ s32 func_800C4DE8(void) {
         if (D_8009D820 & 3) {
             func_800BECA4("bmusic=", akaoId, 2);
         }
-        D_8009C6E0->unk48 =
+        D_8009C6E0->nextFieldMusic =
             (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
     } else {
-        D_8009C6E0->unk48 = 0;
+        D_8009C6E0->nextFieldMusic = 0;
     }
     PC_INC(2);
     return 0;
