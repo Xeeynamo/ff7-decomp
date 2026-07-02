@@ -452,7 +452,150 @@ s32 func_800BEE10(s16 arg0, s16 arg1) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BF3AC);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BF908);
+s32 func_800BF908(s16 arg0, s16 arg1) {
+    u8 bankId;
+    s32 indx;
+    s16 glov;
+
+    switch (arg0) {
+    case 1:
+        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[1] >> 4;
+        break;
+    case 2:
+        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[1] & 0xF;
+        break;
+    case 3:
+        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[2] >> 4;
+        break;
+    case 4:
+        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[2] & 0xF;
+        break;
+    case 5:
+        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[3] >> 4;
+        break;
+    case 6:
+        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[3] & 0xF;
+        break;
+    }
+
+    switch (bankId) {
+    case 0:
+        glov = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        glov |= (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1 + 1] << 8;
+        if (D_8009D820 & 3) {
+            func_800BECA4("G cons=", glov, 4);
+        }
+        return glov;
+    case 1:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        glov = Savemap.memory_bank_1[indx];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 4);
+        }
+        return glov;
+    case 2:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        glov = Savemap.memory_bank_1[indx];
+        glov |= Savemap.memory_bank_1[indx + 1] << 8;
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 4);
+        }
+        return glov;
+    case 3:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x100;
+        glov = Savemap.memory_bank_1[indx];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 4);
+        }
+        return glov;
+    case 4:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x100;
+        glov = Savemap.memory_bank_1[indx];
+        glov |= Savemap.memory_bank_1[indx + 1] << 8;
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 4);
+        }
+        return glov;
+    case 11:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x200;
+        glov = Savemap.memory_bank_1[indx];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 4);
+        }
+        return glov;
+    case 12:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x200;
+        glov = Savemap.memory_bank_1[indx];
+        glov |= Savemap.memory_bank_1[indx + 1] << 8;
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 4);
+        }
+        return glov;
+    case 13:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x300;
+        glov = Savemap.memory_bank_1[indx];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 4);
+        }
+        return glov;
+    case 14:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x300;
+        glov = Savemap.memory_bank_1[indx];
+        glov |= Savemap.memory_bank_1[indx + 1] << 8;
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 4);
+        }
+        return glov;
+    case 15:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x400;
+        glov = Savemap.memory_bank_1[indx];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 4);
+        }
+        return glov;
+    case 7:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x400;
+        glov = Savemap.memory_bank_1[indx];
+        glov |= Savemap.memory_bank_1[indx + 1] << 8;
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G glov=", glov, 4);
+        }
+        return glov;
+    case 5:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        glov = D_80075E24[indx];
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G mapv=", glov, 4);
+        }
+        return glov;
+    case 6:
+        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        glov = D_80075E24[indx];
+        glov |= D_80075E24[indx + 1] << 8;
+        if (D_8009D820 & 3) {
+            func_800BECA4("G indx=", indx, 4);
+            func_800BECA4("G mapv=", glov, 4);
+        }
+        return glov;
+    default:
+        if (D_8009D820 & 3) {
+            func_800BECA4("G data err=", bankId, 2);
+        }
+        func_800D4848("Bad Event arg!");
+        return 0;
+    }
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0248);
 
