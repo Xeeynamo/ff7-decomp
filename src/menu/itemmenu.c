@@ -5,50 +5,433 @@ extern u8 g_MateriaPriority[];
 extern s32 g_MateriaStealLoot[];
 extern u8 D_800738BC[][44];
 extern u8 D_80071E4D[][36];
+extern u16
+    D_8009CBE0[]; // item inventory (320 slots; each u16 = (count << 9) | id)
+extern u16 D_801D35B4[]; // per-item-id sort order for the "Name" arrange option
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D01E8);
+s32 func_8001FAF8(
+    s32); // returns an item's usage flags (0x2 battle, 0x4 field, 0x8 throw)
+static s32 Quicksort(
+    s32, s32, s32 (*)(s32, s32, s32*), void (*)(s32, s32, s32*));
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0228);
+s32 func_80015AFC(s32, s32);
+void func_80028CA0(s16, s16, s32, s32, s32, s32, s32, s32);
+extern u16 D_80062F50;
+extern u8 D_8009D5E8;
+extern u16 D_8009C75A[]; // character record fields, stride 0x84
+extern s16 D_8009D85C[]; // record fields, stride 0x440
+extern s16 D_8009D85E[];
+extern s16 D_8009D860[];
+extern s16 D_8009D862[];
+extern u8 D_801D3E60[];
+
+// Likely plays a menu sound effect: loads a sound command (0x30) and the sound
+// id (arg0) into the sound-request globals, then dispatches via func_8002DA7C.
+void func_801D01E8(u16 arg0) {
+    D_8009A000[0] = 0x30;
+    D_8009A004[0] = arg0;
+    D_8009A008[0] = arg0;
+    func_8002DA7C();
+}
+
+// Draws the type icon for an item at (arg0, arg1): maps the item id (arg2) to
+// one of several icon cells, then blits a 16x16 sprite via func_80028CA0.
+void func_801D0228(s16 arg0, s16 arg1, s32 arg2) {
+    s32 icon;
+    if (arg2 < 0x80) {
+        icon = 0;
+    } else if (arg2 < 0x100) {
+        arg2 -= 0x80;
+        if (arg2 < 0x10) {
+            icon = 1;
+        } else if (arg2 < 0x20) {
+            icon = 3;
+        } else if (arg2 < 0x30) {
+            icon = 2;
+        } else if (arg2 < 0x3E) {
+            icon = 5;
+        } else if (arg2 < 0x49) {
+            icon = 4;
+        } else if (arg2 < 0x57) {
+            icon = 9;
+        } else if (arg2 < 0x65) {
+            icon = 6;
+        } else if (arg2 < 0x72) {
+            icon = 7;
+        } else {
+            icon = 8;
+        }
+    } else if (arg2 < 0x120) {
+        icon = 0xA;
+    } else {
+        icon = 0xB;
+    }
+    {
+        s32 ix = ((icon & 1) << 4) | 0x60;
+        s32 iy = (((u32)icon >> 1) << 4) + 0x70;
+        func_80028CA0(arg0, arg1, ix, iy, 0x10, 0x10, 1, 0);
+    }
+}
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D031C);
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D03B4);
+// Swap the two 32-bit values pointed to by arg0 and arg1.
+static void SwapS32(s32* arg0, s32* arg1) {
+    s32 a = *arg1;
+    s32 b = *arg0;
+    *arg0 = a;
+    *arg1 = b;
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D03C8);
+// Iterative Hoare quicksort over item-slot indices [0, count), driving the
+// cmp/swap callbacks. Explicit 64-deep bounds stack (lo half / hi half of one
+// 128-word array), recursing into the smaller partition first (SwapS32 swaps
+// the bounds pairs). Returns 1 on completion, 0 on bounds-stack overflow.
+// NOTE: the do{}while(0) wrapper, the va1 register copy of j, the duplicated
+// cont computation and the tmp* temporaries are all required for the
+// byte-perfect match (they reproduce the original register allocation).
+static s32 Quicksort(s32 base, s32 count, s32 (*cmp)(s32, s32, s32*),
+                     void (*swap)(s32, s32, s32*)) {
+    s32 stack[128];
+    s32 tmp4;
+    s32 tmp5;
+    s32 j;
+    s32 lo;
+    s32 i;
+    int tmp;
+    s32 tmp3;
+    s32* p;
+    s32 depth;
+    s32 cont;
+    int tmp2;
+    s32 va1;
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0618);
+    if (((u32)count) >= 2U) {
+        goto body;
+    }
+    return 1;
+ret0:
+    return 0;
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D062C);
+    do {
+    body:
+        depth = 0;
+        p = stack;
+        stack[0] = 0;
+        stack[64] = count - 1;
+    loop_4:
+        lo = p[0];
+        tmp = (i = lo + 1);
+        j = p[64];
+        count = j;
+        if (((u32)i) < ((u32)j)) {
+        loop_5:
+            if (cmp(i, lo, &base) <= 0) {
+                i += 1;
+                if (((u32)i) < ((u32)j)) {
+                    goto loop_5;
+                }
+            }
+            va1 = j;
+            if (((u32)va1) >= ((u32)i)) {
+            loop_8:
+                if (cmp(lo, va1, &base) <= 0) {
+                    j -= 1;
+                    va1 = j;
+                    if (((u32)va1) >= ((u32)i)) {
+                        goto loop_8;
+                    }
+                }
+            }
+            if (((u32)i) < ((u32)j)) {
+                s32 oi = i;
+                s32 oj = j;
+                i += 1;
+                tmp3 = oi;
+                j -= 1;
+                swap(tmp3, oj, &base);
+                if (((u32)i) < ((u32)j)) {
+                    goto loop_5;
+                }
+            }
+        }
+        if (cmp(lo, j, &base) > 0) {
+            swap(lo, j, &base);
+        }
+        if (((u32)lo) < ((u32)j)) {
+            j -= 1;
+            if (((u32)lo) < ((u32)j)) {
+                if ((((u32)i) < (va1 = (u32)count)) &&
+                    (((u32)(j - lo)) < ((u32)(count - i)))) {
+                    SwapS32(&j, &count);
+                    SwapS32(&lo, &i);
+                }
+                tmp5 = j;
+                if (((u32)lo) < ((u32)tmp5)) {
+                    p[0] = lo;
+                    p[64] = tmp5;
+                    p += 1;
+                    depth += 1;
+                }
+            }
+        }
+        cont = ((u32)depth) < 0x40U;
+        tmp4 = count;
+        if (((u32)i) < tmp4) {
+            p[0] = i;
+            p[64] = tmp4;
+            p += 1;
+            depth += 1;
+        }
+        cont = ((u32)depth) < 0x40U;
+        depth -= 1;
+    } while (0);
+    if (cont != 0) {
+        p -= 1;
+        if (depth == (-1)) {
+            return 1;
+        }
+        goto loop_4;
+    }
+    goto ret0;
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0650);
+// Swap the two 16-bit values pointed to by arg0 and arg1.
+static void SwapU16(u16* arg0, u16* arg1) {
+    u16 a = *arg1;
+    u16 b = *arg0;
+    *arg0 = a;
+    *arg1 = b;
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D069C);
+// Returns the sign of arg0: -1, 0, or 1.
+static s32 Sign(s32 arg0) {
+    if (arg0 != 0) {
+        if (arg0 < 0) {
+            return -1;
+        }
+        return 1;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0704);
+// Sort comparator for the "Type" arrange option: orders inventory slots arg0
+// and arg1 by item id (low 9 bits; the item id space is grouped by type).
+static s32 CompareItemsByType(s16 arg0, s16 arg1, s32* arg2) {
+    u16 a = *(u16*)(*arg2 + arg0 * 2);
+    u16 b = *(u16*)(*arg2 + arg1 * 2);
+    return Sign((a & 0x1FF) - (b & 0x1FF));
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D076C);
+// Sort comparator for the "Most" arrange option: orders inventory slots by
+// quantity (high 7 bits) descending, sending empty slots (0xFFFF) first.
+static s32 CompareItemsByMost(s16 arg0, s16 arg1, s32* arg2) {
+    s32 ka;
+    s32 kb;
+    u16 b;
+    u16 a = *(u16*)(*arg2 + arg0 * 2);
+    if (a == 0xFFFF) {
+        ka = 0;
+    } else {
+        ka = a >> 9;
+    }
+    b = *(u16*)(*arg2 + arg1 * 2);
+    kb = b >> 9;
+    if (b == 0xFFFF) {
+        kb = 0;
+    }
+    return Sign(kb - ka);
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D081C);
+// Sort comparator for the "Least" arrange option: orders inventory slots by
+// quantity (high 7 bits) ascending, sending empty slots (0xFFFF) to the end.
+static s32 CompareItemsByLeast(s16 arg0, s16 arg1, s32* arg2) {
+    u16 a = *(u16*)(*arg2 + arg0 * 2);
+    s32 ka = (a == 0xFFFF) ? 0x4E20 : (a >> 9);
+    u16 b = *(u16*)(*arg2 + arg1 * 2);
+    s32 kb = (b == 0xFFFF) ? 0x4E20 : (b >> 9);
+    return Sign(ka - kb);
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D08E4);
+// Sort comparator for the "Name" arrange option: orders inventory slots by a
+// per-item sort-order table, sending empty slots (0xFFFF) to the end.
+static s32 CompareItemsByName(s16 arg0, s16 arg1, s32* arg2) {
+    u16 a = *(u16*)(*arg2 + arg0 * 2);
+    s16 ka;
+    u16 b;
+    s16 kb;
+    if (a == 0xFFFF) {
+        ka = 0x4E20;
+    } else {
+        ka = D_801D35B4[a & 0x1FF];
+    }
+    b = *(u16*)(*arg2 + arg1 * 2);
+    if (b == 0xFFFF) {
+        kb = 0x4E20;
+    } else {
+        kb = D_801D35B4[b & 0x1FF];
+    }
+    return Sign(ka - kb);
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D09AC);
+// Sort comparator for the "Field" arrange option: groups items usable in the
+// field (usage flag 0x4) ahead of others; empty slots (0xFFFF) sort first.
+static s32 CompareItemsByField(s16 arg0, s16 arg1, s32* arg2) {
+    u16 a = *(u16*)(*arg2 + arg0 * 2);
+    s32 ka;
+    u16 b;
+    s32 kb;
+    if (a == 0xFFFF) {
+        ka = 0;
+    } else {
+        ka = (func_8001FAF8(a & 0x1FF) & 4) ? 1 : 2;
+    }
+    b = *(u16*)(*arg2 + arg1 * 2);
+    if (b == 0xFFFF) {
+        kb = 0;
+    } else {
+        kb = (func_8001FAF8(b & 0x1FF) & 4) ? 1 : 2;
+    }
+    return Sign(kb - ka);
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0A74);
+// Sort comparator for the "Battle" arrange option: groups items usable in
+// battle (usage flag 0x2) ahead of others; empty slots (0xFFFF) sort first.
+static s32 CompareItemsByBattle(s16 arg0, s16 arg1, s32* arg2) {
+    u16 a = *(u16*)(*arg2 + arg0 * 2);
+    s32 ka;
+    u16 b;
+    s32 kb;
+    if (a == 0xFFFF) {
+        ka = 0;
+    } else {
+        ka = (func_8001FAF8(a & 0x1FF) & 2) ? 1 : 2;
+    }
+    b = *(u16*)(*arg2 + arg1 * 2);
+    if (b == 0xFFFF) {
+        kb = 0;
+    } else {
+        kb = (func_8001FAF8(b & 0x1FF) & 2) ? 1 : 2;
+    }
+    return Sign(kb - ka);
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0AAC);
+// Sort comparator for the "Throw" arrange option: groups throwable items
+// (usage flag 0x8) ahead of others; empty slots (0xFFFF) sort first.
+static s32 CompareItemsByThrow(s16 arg0, s16 arg1, s32* arg2) {
+    u16 a = *(u16*)(*arg2 + arg0 * 2);
+    s32 ka;
+    u16 b;
+    s32 kb;
+    if (a == 0xFFFF) {
+        ka = 0;
+    } else {
+        ka = (func_8001FAF8(a & 0x1FF) & 8) ? 1 : 2;
+    }
+    b = *(u16*)(*arg2 + arg1 * 2);
+    if (b == 0xFFFF) {
+        kb = 0;
+    } else {
+        kb = (func_8001FAF8(b & 0x1FF) & 8) ? 1 : 2;
+    }
+    return Sign(kb - ka);
+}
+
+// Swap two item inventory slots (indices arg0 and arg1 in the u16 array at
+// *arg2). Used by the item menu's "Customize" manual swap and as the swap
+// callback for the inventory sort.
+static void SwapItemSlots(s16 arg0, s16 arg1, s32* arg2) {
+    SwapU16((u16*)(*arg2 + arg0 * 2), (u16*)(*arg2 + arg1 * 2));
+}
+
+// Re-sorts the item inventory in place for the menu's "Arrange" command.
+// Picks one of the seven comparison orders by `mode` (1=Field, 2=Battle,
+// 3=Throw, 4=Type, 5=Name, 6=Most, 7=Least) and runs the sort over the 320
+// inventory slots with SwapItemSlots. mode 0 (Customize) and out-of-range
+// values do nothing.
+static void ArrangeItems(s32 mode) {
+    switch (mode) {
+    case 0:
+        break;
+    case 1:
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByField, SwapItemSlots);
+        break;
+    case 2:
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByBattle, SwapItemSlots);
+        break;
+    case 3:
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByThrow, SwapItemSlots);
+        break;
+    case 4:
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByType, SwapItemSlots);
+        break;
+    case 5:
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByName, SwapItemSlots);
+        break;
+    case 6:
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByMost, SwapItemSlots);
+        break;
+    case 7:
+        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByLeast, SwapItemSlots);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0BA0);
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0CAC);
+// True if the two adjacent record fields for entry arg0 are equal.
+s32 func_801D0CAC(s32 arg0) {
+    return D_8009D85E[arg0 * 0x220] == D_8009D85C[arg0 * 0x220];
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0CE8);
+// True if the two adjacent record fields for entry arg0 are equal.
+s32 func_801D0CE8(s32 arg0) {
+    return D_8009D862[arg0 * 0x220] == D_8009D860[arg0 * 0x220];
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0D24);
+// Builds a 10-bit mask of which of character arg0's slots are occupied (slot
+// value != 0x7F), clears bit 9, and returns whether it matches the stored
+// value.
+s32 func_801D0D24(s32 arg0) {
+    s32 mask;
+    s32 i;
+    for (i = 0, mask = 0; i < 10; i++) {
+        if (func_80015AFC(arg0, i) != 0x7F) {
+            mask |= 1 << i;
+        }
+    }
+    mask &= ~0x200;
+    return (D_8009C75A[arg0 * 0x42] ^ mask) == 0;
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0DCC);
+// Returns an item's usage flags (func_8001FAF8), with two context-dependent
+// overrides: item 0x46 (the Tent) becomes field-usable while a location flag
+// permits resting, and item 0x62 (the Save Crystal) while its one-time-use
+// save flag is still clear.
+s32 func_801D0DCC(s32 arg0) {
+    s32 flags = func_8001FAF8(arg0);
+    if (arg0 != 0x46) {
+        if (arg0 == 0x62) {
+            if (!(D_8009D5E8 & 2)) {
+                flags |= 4;
+            }
+        }
+    } else {
+        if (D_80062F50 & 0x200) {
+            flags |= 4;
+        }
+    }
+    return flags;
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0E4C);
+// Copies 0x50 bytes from arg0 into the D_801D3E60 buffer.
+void func_801D0E4C(u8* arg0) {
+    s32 i;
+    for (i = 0; i < 0x50; i++) {
+        D_801D3E60[i] = *arg0;
+        arg0++;
+    }
+}
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0E80);
 
