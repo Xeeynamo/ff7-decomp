@@ -11,7 +11,8 @@ extern u16 D_801D35B4[]; // per-item-id sort order for the "Name" arrange option
 
 s32 func_8001FAF8(
     s32); // returns an item's usage flags (0x2 battle, 0x4 field, 0x8 throw)
-s32 Quicksort(s32, s32, s32 (*)(s32, s32, s32*), void (*)(s32, s32, s32*));
+static s32 Quicksort(
+    s32, s32, s32 (*)(s32, s32, s32*), void (*)(s32, s32, s32*));
 
 s32 func_80015AFC(s32, s32);
 void func_80028CA0(s16, s16, s32, s32, s32, s32, s32, s32);
@@ -75,7 +76,7 @@ void func_801D0228(s16 arg0, s16 arg1, s32 arg2) {
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D031C);
 
 // Swap the two 32-bit values pointed to by arg0 and arg1.
-void SwapS32(s32* arg0, s32* arg1) {
+static void SwapS32(s32* arg0, s32* arg1) {
     s32 a = *arg1;
     s32 b = *arg0;
     *arg0 = a;
@@ -89,8 +90,8 @@ void SwapS32(s32* arg0, s32* arg1) {
 // NOTE: the do{}while(0) wrapper, the va1 register copy of j, the duplicated
 // cont computation and the tmp* temporaries are all required for the
 // byte-perfect match (they reproduce the original register allocation).
-s32 Quicksort(s32 base, s32 count, s32 (*cmp)(s32, s32, s32*),
-              void (*swap)(s32, s32, s32*)) {
+static s32 Quicksort(s32 base, s32 count, s32 (*cmp)(s32, s32, s32*),
+                     void (*swap)(s32, s32, s32*)) {
     s32 stack[128];
     s32 tmp4;
     s32 tmp5;
@@ -196,7 +197,7 @@ ret0:
 }
 
 // Swap the two 16-bit values pointed to by arg0 and arg1.
-void SwapU16(u16* arg0, u16* arg1) {
+static void SwapU16(u16* arg0, u16* arg1) {
     u16 a = *arg1;
     u16 b = *arg0;
     *arg0 = a;
@@ -204,7 +205,7 @@ void SwapU16(u16* arg0, u16* arg1) {
 }
 
 // Returns the sign of arg0: -1, 0, or 1.
-s32 Sign(s32 arg0) {
+static s32 Sign(s32 arg0) {
     if (arg0 != 0) {
         if (arg0 < 0) {
             return -1;
@@ -216,7 +217,7 @@ s32 Sign(s32 arg0) {
 
 // Sort comparator for the "Type" arrange option: orders inventory slots arg0
 // and arg1 by item id (low 9 bits; the item id space is grouped by type).
-s32 CompareItemsByType(s16 arg0, s16 arg1, s32* arg2) {
+static s32 CompareItemsByType(s16 arg0, s16 arg1, s32* arg2) {
     u16 a = *(u16*)(*arg2 + arg0 * 2);
     u16 b = *(u16*)(*arg2 + arg1 * 2);
     return Sign((a & 0x1FF) - (b & 0x1FF));
@@ -224,7 +225,7 @@ s32 CompareItemsByType(s16 arg0, s16 arg1, s32* arg2) {
 
 // Sort comparator for the "Most" arrange option: orders inventory slots by
 // quantity (high 7 bits) descending, sending empty slots (0xFFFF) first.
-s32 CompareItemsByMost(s16 arg0, s16 arg1, s32* arg2) {
+static s32 CompareItemsByMost(s16 arg0, s16 arg1, s32* arg2) {
     s32 ka;
     s32 kb;
     u16 b;
@@ -244,7 +245,7 @@ s32 CompareItemsByMost(s16 arg0, s16 arg1, s32* arg2) {
 
 // Sort comparator for the "Least" arrange option: orders inventory slots by
 // quantity (high 7 bits) ascending, sending empty slots (0xFFFF) to the end.
-s32 CompareItemsByLeast(s16 arg0, s16 arg1, s32* arg2) {
+static s32 CompareItemsByLeast(s16 arg0, s16 arg1, s32* arg2) {
     u16 a = *(u16*)(*arg2 + arg0 * 2);
     s32 ka = (a == 0xFFFF) ? 0x4E20 : (a >> 9);
     u16 b = *(u16*)(*arg2 + arg1 * 2);
@@ -254,7 +255,7 @@ s32 CompareItemsByLeast(s16 arg0, s16 arg1, s32* arg2) {
 
 // Sort comparator for the "Name" arrange option: orders inventory slots by a
 // per-item sort-order table, sending empty slots (0xFFFF) to the end.
-s32 CompareItemsByName(s16 arg0, s16 arg1, s32* arg2) {
+static s32 CompareItemsByName(s16 arg0, s16 arg1, s32* arg2) {
     u16 a = *(u16*)(*arg2 + arg0 * 2);
     s16 ka;
     u16 b;
@@ -275,7 +276,7 @@ s32 CompareItemsByName(s16 arg0, s16 arg1, s32* arg2) {
 
 // Sort comparator for the "Field" arrange option: groups items usable in the
 // field (usage flag 0x4) ahead of others; empty slots (0xFFFF) sort first.
-s32 CompareItemsByField(s16 arg0, s16 arg1, s32* arg2) {
+static s32 CompareItemsByField(s16 arg0, s16 arg1, s32* arg2) {
     u16 a = *(u16*)(*arg2 + arg0 * 2);
     s32 ka;
     u16 b;
@@ -296,7 +297,7 @@ s32 CompareItemsByField(s16 arg0, s16 arg1, s32* arg2) {
 
 // Sort comparator for the "Battle" arrange option: groups items usable in
 // battle (usage flag 0x2) ahead of others; empty slots (0xFFFF) sort first.
-s32 CompareItemsByBattle(s16 arg0, s16 arg1, s32* arg2) {
+static s32 CompareItemsByBattle(s16 arg0, s16 arg1, s32* arg2) {
     u16 a = *(u16*)(*arg2 + arg0 * 2);
     s32 ka;
     u16 b;
@@ -317,7 +318,7 @@ s32 CompareItemsByBattle(s16 arg0, s16 arg1, s32* arg2) {
 
 // Sort comparator for the "Throw" arrange option: groups throwable items
 // (usage flag 0x8) ahead of others; empty slots (0xFFFF) sort first.
-s32 CompareItemsByThrow(s16 arg0, s16 arg1, s32* arg2) {
+static s32 CompareItemsByThrow(s16 arg0, s16 arg1, s32* arg2) {
     u16 a = *(u16*)(*arg2 + arg0 * 2);
     s32 ka;
     u16 b;
@@ -339,7 +340,7 @@ s32 CompareItemsByThrow(s16 arg0, s16 arg1, s32* arg2) {
 // Swap two item inventory slots (indices arg0 and arg1 in the u16 array at
 // *arg2). Used by the item menu's "Customize" manual swap and as the swap
 // callback for the inventory sort.
-void SwapItemSlots(s16 arg0, s16 arg1, s32* arg2) {
+static void SwapItemSlots(s16 arg0, s16 arg1, s32* arg2) {
     SwapU16((u16*)(*arg2 + arg0 * 2), (u16*)(*arg2 + arg1 * 2));
 }
 
@@ -348,7 +349,7 @@ void SwapItemSlots(s16 arg0, s16 arg1, s32* arg2) {
 // 3=Throw, 4=Type, 5=Name, 6=Most, 7=Least) and runs the sort over the 320
 // inventory slots with SwapItemSlots. mode 0 (Customize) and out-of-range
 // values do nothing.
-void ArrangeItems(s32 mode) {
+static void ArrangeItems(s32 mode) {
     switch (mode) {
     case 0:
         break;
