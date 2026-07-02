@@ -615,13 +615,11 @@ void ReturnStolenMateria(void) {
 // Unequip a party member: move their 16 equipped materia into the materia
 // inventory and their accessory into the item inventory.
 void UnequipCharacterMateria(s32 charIdx) {
-    s32 t;
     u8 v;
     {
         s32 i = 0;
         s32 empty = -1;
-        s32* p =
-            (s32*)((u8*)Savemap.party[0].materia_weapon + (charIdx * 0x84));
+        s32* p = Savemap.party[charIdx].materia_weapon;
         do {
             if (*p != empty) {
                 func_8002542C(*p);
@@ -634,7 +632,7 @@ void UnequipCharacterMateria(s32 charIdx) {
     {
         s32 i = 0;
         s32 empty = -1;
-        s32* p = (s32*)((u8*)Savemap.party[0].materia_armor + (charIdx * 0x84));
+        s32* p = Savemap.party[charIdx].materia_armor;
         do {
             if (*p != empty) {
                 func_8002542C(*p);
@@ -644,11 +642,10 @@ void UnequipCharacterMateria(s32 charIdx) {
             p += 1;
         } while (i < 8);
     }
-    t = charIdx * 0x84;
-    v = (&Savemap.party[0].accessory)[t];
+    v = Savemap.party[charIdx].accessory;
     if (v != 0xFF) {
         func_80025380((v + 0x120) | 0x200);
-        (&Savemap.party[0].accessory)[t] = 0xFF;
+        Savemap.party[charIdx].accessory = 0xFF;
     }
 }
 
@@ -669,15 +666,13 @@ void BackupCharacterMateria(s32 charIdx) {
     {
         s32 empty;
         s32* st;
-        s32 t;
         u8* b;
         i = 0;
         empty = -1;
         st = Savemap.materia;
-        t = charIdx * 0x84;
-        base[4] = (&Savemap.party[0].weapon)[t];
+        base[4] = Savemap.party[charIdx].weapon;
         b = base;
-        base[5] = (&Savemap.party[0].armor)[t];
+        base[5] = Savemap.party[charIdx].armor;
         do {
             s32 m = *st;
             i += 1;
@@ -697,7 +692,7 @@ void BackupCharacterMateria(s32 charIdx) {
         u8* abase;
         i = 0;
         empty = -1;
-        t = charIdx * 0x84;
+        t = charIdx * sizeof(SavePartyMember);
         wbase = (u8*)Savemap.party[0].materia_weapon;
         abase = wbase + 0x20;
         ap = (s32*)(abase + t);
@@ -718,7 +713,7 @@ void BackupCharacterMateria(s32 charIdx) {
             b += 2;
         } while (i < 8);
     }
-    (&Savemap.party[0].weapon)[charIdx * 0x84] = 0;
+    Savemap.party[charIdx].weapon = 0;
 }
 
 // Restore everything saved by BackupCharacterMateria: party lineup, the
@@ -737,14 +732,12 @@ void RestoreCharacterMateria(s32 charIdx) {
     }
     {
         s32* st;
-        s32 t;
         u8* b;
         i = 0;
         st = Savemap.materia;
-        t = charIdx * 0x84;
-        (&Savemap.party[0].weapon)[t] = base[4];
+        Savemap.party[charIdx].weapon = base[4];
         b = base;
-        (&Savemap.party[0].armor)[t] = base[5];
+        Savemap.party[charIdx].armor = base[5];
         do {
             s32 m = *(s32*)(b + 0x48);
             b += 4;
@@ -761,7 +754,7 @@ void RestoreCharacterMateria(s32 charIdx) {
         u8* wbase;
         u8* abase;
         i = 0;
-        t = charIdx * 0x84;
+        t = charIdx * sizeof(SavePartyMember);
         wbase = (u8*)Savemap.party[0].materia_weapon;
         abase = wbase + 0x20;
         ap = (s32*)(abase + t);
