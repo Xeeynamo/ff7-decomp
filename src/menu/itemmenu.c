@@ -24,7 +24,6 @@ extern s16 D_8009D85E[];
 extern s16 D_8009D860[];
 extern s16 D_8009D862[];
 extern u8 D_801D3E60[];
-extern u8 D_801D3890[];
 
 // Likely plays a menu sound effect: loads a sound command (0x30) and the sound
 // id (arg0) into the sound-request globals, then dispatches via func_8002DA7C.
@@ -783,8 +782,6 @@ void RestoreCharacterMateria(s32 charIdx) {
     }
 }
 
-void func_801D3228(void) {
-    func_80025D14(D_801D3890, 0x3F0, 0x120, 0x110, 0x1E0);
-}
+INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3228);
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3260);
