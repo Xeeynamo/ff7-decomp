@@ -65,7 +65,7 @@ typedef enum {
 
 typedef enum {
     FIELDOP_NONE,
-    FIELDOP_FIELD_CHANGE,
+    FIELDOP_FIELD_MAP_CHANGE,
     FIELDOP_ENTERING_BATTLE,
     FIELDOP_LOAD_MOVIE,
     FIELDOP_PLAY_MOVIE,
@@ -192,7 +192,7 @@ typedef struct {
 
 // partially inspired by Q-Gears 'VI. The Save game format'
 typedef struct {
-    u8 unk0;
+    u8 char_id;
     u8 level;
     u8 strength;
     u8 vitality;
@@ -212,9 +212,10 @@ typedef struct {
     u8 weapon;
     u8 armor;
     u8 accessory;
-    u8 unk1F;
-    u8 unk20;
-    u8 unk21;
+    u8 status_flags; // Status effects that remain after battle. 0x10 = Sadness,
+                     // 0x20 = Fury.
+    u8 order;        // 0xFF = front row, 0xFE = back row
+    u8 level_progress_bar; // ui related
     u16 limit_learn;
     u16 kill_count;
     u16 limit_lv1_count;
@@ -230,7 +231,7 @@ typedef struct {
     u32 exp;
     /* 0x40 */ s32 materia_weapon[8];
     /* 0x60 */ s32 materia_armor[8];
-    /* 0x80 */ u8 unk80[4];
+    /* 0x80 */ u32 exp_to_next_level;
 } SavePartyMember; // size:0x84
 typedef struct {
     SaveHeader header;
@@ -654,8 +655,8 @@ extern u8 D_800730DD[][0x14];
 extern Unk80074EA4 D_80074EA4[2];
 extern u8 D_800756E8[]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
-extern int D_80075DEC; // buffer index, either 0 or 1
-extern u8 D_80075E24[];
+extern int D_80075DEC;           // buffer index, either 0 or 1
+extern u8 D_80075E24[256];       // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern Unk8007E7AC D_8007E7AC[];
 extern DRAWENV D_8007EAAC[2];
