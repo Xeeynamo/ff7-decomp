@@ -612,11 +612,168 @@ void ReturnStolenMateria(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D2F00);
+// Unequip a party member: move their 16 equipped materia into the materia
+// inventory and their accessory into the item inventory.
+void UnequipCharacterMateria(s32 charIdx) {
+    u8 v;
+    {
+        s32 i = 0;
+        s32 empty = -1;
+        s32* p = Savemap.party[charIdx].materia_weapon;
+        do {
+            if (*p != empty) {
+                func_8002542C(*p);
+                *p = empty;
+            }
+            i += 1;
+            p += 1;
+        } while (i < 8);
+    }
+    {
+        s32 i = 0;
+        s32 empty = -1;
+        s32* p = Savemap.party[charIdx].materia_armor;
+        do {
+            if (*p != empty) {
+                func_8002542C(*p);
+                *p = empty;
+            }
+            i += 1;
+            p += 1;
+        } while (i < 8);
+    }
+    v = Savemap.party[charIdx].accessory;
+    if (v != 0xFF) {
+        func_80025380((v + 0x120) | 0x200);
+        Savemap.party[charIdx].accessory = 0xFF;
+    }
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3018);
+// Save the current party lineup, a party member's weapon/armor ids, the first
+// three materia inventory slots and the member's 16 equipped materia into the
+// stolen-materia buffer (reused as scratch space), clearing each source slot.
+void BackupCharacterMateria(s32 charIdx) {
+    s32 i = 0;
+    u8* base = (u8*)Savemap.yuffie_stolen_materia;
+    {
+        u8* b = base;
+        do {
+            *b = Savemap.partyID[i];
+            i += 1;
+            b += 1;
+        } while (i < 3);
+    }
+    {
+        s32 empty;
+        s32* st;
+        u8* b;
+        i = 0;
+        empty = -1;
+        st = Savemap.materia;
+        base[4] = Savemap.party[charIdx].weapon;
+        b = base;
+        base[5] = Savemap.party[charIdx].armor;
+        do {
+            s32 m = *st;
+            i += 1;
+            *(s32*)(b + 0x48) = m;
+            *st = empty;
+            st += 1;
+            b += 4;
+        } while (i < 3);
+    }
+    {
+        s32 empty;
+        s32 t;
+        s32* ap;
+        s32* wp;
+        u8* b;
+        u8* wbase;
+        u8* abase;
+        i = 0;
+        empty = -1;
+        t = charIdx * sizeof(SavePartyMember);
+        wbase = (u8*)Savemap.party[0].materia_weapon;
+        abase = wbase + 0x20;
+        ap = (s32*)(abase + t);
+        wp = (s32*)(wbase + t);
+        b = base;
+        do {
+            s32 m;
+            m = *wp;
+            i += 1;
+            *(s32*)(b + 8) = m;
+            *wp = empty;
+            wp += 1;
+            m = *ap;
+            *(s32*)(b + 0x28) = m;
+            *ap = empty;
+            ap += 1;
+            b += 2;
+            b += 2;
+        } while (i < 8);
+    }
+    Savemap.party[charIdx].weapon = 0;
+}
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3138);
+// Restore everything saved by BackupCharacterMateria: party lineup, the
+// member's weapon/armor ids, the first three materia inventory slots and
+// their 16 equipped materia.
+void RestoreCharacterMateria(s32 charIdx) {
+    s32 i = 0;
+    u8* base = (u8*)Savemap.yuffie_stolen_materia;
+    {
+        u8* b = base;
+        do {
+            Savemap.partyID[i] = *b;
+            i += 1;
+            b += 1;
+        } while (i < 3);
+    }
+    {
+        s32* st;
+        u8* b;
+        i = 0;
+        st = Savemap.materia;
+        Savemap.party[charIdx].weapon = base[4];
+        b = base;
+        Savemap.party[charIdx].armor = base[5];
+        do {
+            s32 m = *(s32*)(b + 0x48);
+            b += 4;
+            i += 1;
+            *st = m;
+            st += 1;
+        } while (i < 3);
+    }
+    {
+        s32 t;
+        s32* ap;
+        s32* wp;
+        u8* b;
+        u8* wbase;
+        u8* abase;
+        i = 0;
+        t = charIdx * sizeof(SavePartyMember);
+        wbase = (u8*)Savemap.party[0].materia_weapon;
+        abase = wbase + 0x20;
+        ap = (s32*)(abase + t);
+        wp = (s32*)(wbase + t);
+        b = base;
+        do {
+            s32 m;
+            m = *(s32*)(b + 8);
+            i += 1;
+            *wp = m;
+            wp += 1;
+            m = *(s32*)(b + 0x28);
+            *ap = m;
+            ap += 1;
+            b += 2;
+            b += 2;
+        } while (i < 8);
+    }
+}
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3228);
 
