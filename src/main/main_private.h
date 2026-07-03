@@ -90,6 +90,8 @@ extern s32 D_80048DD4[];
 extern PortraitEntry D_80048FE8[15];
 extern u8 D_80049208[12]; // menu color RGB-quadruplet
 extern s32 D_80049224[8];
+extern s32 D_80049474;    // play-clock divisor: 36000 (seconds per 10 hours)
+extern s32 D_80049478;    // play-clock divisor: 3600 (seconds per hour)
 extern s32 D_80049500[8]; // party slot -> character id (endgame level snapshot)
 extern u8 D_80049520[];
 extern u8 D_80049528[];
@@ -97,6 +99,8 @@ extern u8 D_80063690[];
 extern Unk800696AC D_800696AC;
 extern u32 D_80062FA0; // Some sort of pad state
 extern u16 D_80069490[];
+extern DRAWENV D_80070700; // active draw environment (double-buffered)
+extern DISPENV D_8007075C; // active display environment (double-buffered)
 extern u16 D_800707BC;
 extern u16 D_800707BE;
 extern u8 D_800708D4[];
