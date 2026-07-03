@@ -385,3 +385,52 @@ void func_800DDFEC(void);
 void func_800E15D8(void);
 void func_800E5814(void);
 void func_800E6B94(void);
+
+/* one battle-usable item in the in-battle item list (built from the inventory
+   at battle start; counts are committed back when the battle ends) */
+typedef struct {
+    /* 0x0 */ u16 id;
+    /* 0x2 */ u8 count;
+    /* 0x3 */ u8 targetFlags;
+    /* 0x4 */ u16 unk4;
+} BattleItemEntry; /* size: 0x6 */
+
+/* battle menu widget block (one per widget id, 0x240 apart) -- partial */
+typedef struct {
+    /* 0x0 */ u8 unk0[2];
+    /* 0x2 */ s16 scroll;
+    /* 0x4 */ u8 unk4[7];
+    /* 0xB */ s8 cursorRow;
+    /* 0xC */ u8 unkC[0x234];
+} BattleMenuWidget; /* size: 0x240 */
+
+void func_800A4E40(void);
+void func_800DE2B4(void);
+void func_800E08C4(s32);
+void func_800E0BE0(s32);
+void func_800E68B4(void);
+void func_800E7170(void);
+extern void (*D_800F300C[])();
+extern s16 D_800F310E;
+extern s16 D_800F3120;
+extern u16 D_800F314E;
+extern u16 D_800F3894;
+extern u8 D_800F389D;
+extern u8 D_800F38A4;
+extern u8 D_800F38A6;
+extern u8 D_800F38A9;
+extern u8 D_800F514D;
+extern u8 D_800F515F;
+extern u8 D_800F5161;
+extern u8 D_800F5166;
+extern u8 D_800F5167;
+extern u8 D_800F5168;
+extern u16 D_800F562C;
+extern u8 D_800F5630;
+extern u16 D_800F5634;
+extern u8 D_800F5638;
+extern u8 D_800F563C;
+extern BattleMenuWidget D_800F90C6[];
+extern u8 D_80151698;
+extern u8 D_80166F75;
+extern BattleItemEntry D_801671B8[];

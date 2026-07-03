@@ -376,7 +376,173 @@ static void func_800E0DF4(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E0E34);
+// Per-frame update for the in-battle command/item/magic menus: refreshes the 32
+// menu widgets (open/update/close via the handler table), then routes pad
+// input.
+//
+// For the item list (menu state 0xA) this is where item counts change. Pressing
+// OK decrements the count of the entry under the cursor in the battle item list
+// (D_801671B8, one 6-byte entry per battle-usable item); on the first W-Item
+// selection it also saves the chosen entry (id/index/target) into
+// D_800F314E/D_800F562C/... before advancing to the second selection.
+//
+// Pressing Cancel during the second W-Item selection refunds one unit, but to
+// the entry at the SAVED index (D_800F562C), not the one that was decremented,
+// and without checking that a refund is still owed. Repeating select/cancel
+// therefore adds one to the first item's count each time (clamped at 99), and
+// restores its slot id if it had reached zero: the W-Item duplication glitch.
+void func_800E0E34(void) {
+    BattleItemEntry* list;
+    BattleMenuWidget* menu;
+    void (*handler)(void);
+    s16 i;
+    if ((D_800F514D != 0) && (D_8009CBDC[D_800F38A0] == 0xFF)) {
+        for (i = 1; i < 0x20; i++) {
+            if (D_800F514C[i] != 0) {
+                func_800D9F5C(i);
+            }
+        }
+    }
+    menu = &D_800F90C6[D_800F38A0];
+    list = D_801671B8;
+    if (D_80062D78 & 0x80) {
+        D_800F99E4 = 1;
+    } else {
+        D_800F99E4 = 0;
+    }
+    if ((D_800F99E4 == 0) && ((D_800F514D == 2) || (D_800F515F == 2))) {
+        if ((D_800F5166 != 2) && (D_800F5167 != 2)) {
+            if (D_80062D7C & 0x10) {
+                func_800BB9B8(1);
+                func_800A4E40();
+                D_800F99E4 = 1;
+                D_800F3896 = -1;
+                for (i = 1; i < 0x20; i++) {
+                    if (D_800F514C[i] != 0) {
+                        func_800D9F5C(i);
+                    }
+                }
+            }
+        }
+    }
+    {
+        for (i = 0; i < 0x20; i++) {
+            switch (D_800F514C[i]) {
+            case 1:
+                func_800E08C4(i);
+                break;
+
+            case 2:
+                if (i == 0x1C) {
+                    D_800F300C[i]();
+                } else if (D_800F5168 == 0) {
+                    handler = D_800F300C[i];
+                    handler();
+                }
+                break;
+
+            case 3:
+                func_800E0BE0(i);
+                break;
+
+            case 0:
+
+            case 4:
+                break;
+            }
+        }
+    }
+    if (D_800F3896 == 0) {
+        func_800E68B4();
+        func_800E7170();
+        D_800F310E = 0;
+        if (!((((s32)D_801516F8) >> D_800F38A9) & 1)) {
+            D_800F310E = 1;
+        }
+        if ((D_80166F75 != 0) &&
+            (((D_800F389D == 0xA) || (D_800F389D == 3)) || (D_800F389D == 5))) {
+            D_800F3120 = 1;
+            D_80166F75 = 0;
+            D_800F99E4 = 1;
+            D_800F3896 = (s16)D_800F3894;
+            if (D_800F5161 != 0) {
+                func_800D9F5C(0x15);
+            }
+            return;
+        }
+        if (D_800F99E4 == 0) {
+            if ((D_80062D7E & 0x20) != 0) { // pressed Confirm/OK
+                if ((D_800FAFDC != 0) || (D_800F310E != 0)) {
+                    func_800BB9B8(3);
+                    D_800F99E4 = 1;
+                    return;
+                }
+                if (D_800F38A4) {
+                    if (D_800F38A4 == 2) {
+                        if (D_800F389D == 0xA) {
+                            list[menu->cursorRow + menu->scroll].count -= 1;
+                            if (list[menu->cursorRow + menu->scroll].count ==
+                                0) {
+                                list[menu->cursorRow + menu->scroll].id =
+                                    0xFFFF;
+                            }
+                        }
+                        func_800DE2B4();
+                        return;
+                    }
+                    if (D_800F389D == 0xA) {
+                        list[menu->cursorRow + menu->scroll].count -= 1;
+                        if (list[menu->cursorRow + menu->scroll].count == 0) {
+                            list[menu->cursorRow + menu->scroll].id = 0xFFFF;
+                        }
+                    }
+                    D_800F3120 = 1;
+                    D_800F99E4 = 1;
+                    D_800F38A4 += 1;
+                    // remember the first item (id, slot, target); the second
+                    // pick and the cancel refund read these back
+                    D_800F314E = D_800F389E;
+                    D_800F562C = D_800FAFD4;
+                    D_800F5630 = D_800F38A6;
+                    D_800F5634 = D_801516F8;
+                    D_800F5638 = D_800F38A7;
+                    D_800F563C = D_80151698;
+                    D_800F3896 = (s16)D_800F3894;
+                    if (D_800F5161 != 0) {
+                        func_800D9F5C(0x15);
+                    }
+                    return;
+                }
+                if (((D_800F389D == 3) || (D_800F389D == 0xA)) ||
+                    (D_800F389D == 5)) {
+                    list[menu->cursorRow + menu->scroll].count -= 1;
+                    if (list[menu->cursorRow + menu->scroll].count == 0) {
+                        list[menu->cursorRow + menu->scroll].id = 0xFFFF;
+                    }
+                }
+                func_800DDFEC();
+            } else if (D_80062D7E & 0x40) { // pressed Cancel/Back
+                if ((D_800F38A4 == 2) &&
+                    (D_800F389D == 0xA)) { // in the item menu?
+                    if (list[D_800F562C].count == 0) {
+                        list[D_800F562C].id = D_800F314E;
+                    }
+                    list[D_800F562C].count += 1;
+                    if (list[D_800F562C].count >= 0x64) { // max stack is 99
+                        list[D_800F562C].count = 0x63;
+                    }
+                }
+                func_800BB9B8(4);
+                D_800F3120 = 1;
+                D_800F99E4 = 1;
+                D_800F3896 = (s16)D_800F3894;
+                if (D_800F5161 != 0) {
+                    func_800D9F5C(0x15);
+                }
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E15D8);
 
