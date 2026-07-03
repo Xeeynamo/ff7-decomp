@@ -1267,25 +1267,22 @@ void func_8001F6E4(s16 arg0, s16 arg1, s16 arg2) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001F710);
 
-void func_8001FA28(s32 arg0) {
-    arg0 &= 0xFFFF;
+void func_8001FA28(u16 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
     func_8002DA7C();
 }
 
-void func_8001FA68(s32 arg0) {
+void func_8001FA68(u16 arg0) {
     D_8009A000[0] = 0x28;
-    arg0 &= 0xFFFF;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = arg0;
     func_8002DA7C();
 }
 
-void func_8001FAAC(s32 arg0) {
+void func_8001FAAC(u16 arg0) {
     D_8009A000[0] = 0x29;
-    arg0 &= 0xFFFF;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = arg0;
     func_8002DA7C();
@@ -1356,7 +1353,7 @@ void func_8002120C(s32 arg0) {
     prev = D_80062DD4;
     D_80062DD4 = arg0;
     D_80062DD0 = prev;
-    if (arg0 != 0 && ((u32)(prev - 3) >= 2 || (u32)(arg0 - 3) >= 2)) {
+    if (arg0 != 0 && (prev < 3 || prev > 4 || arg0 < 3 || arg0 > 4)) {
         func_800211C4(arg0);
     }
 }
