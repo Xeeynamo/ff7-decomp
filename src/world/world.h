@@ -33,7 +33,7 @@ typedef struct WorldChunkHeader {
     /* 0x12 */ s16 z;
     /* 0x14 */ s16 numTris;
     /* 0x16 */ s16 numVerts;
-} WorldChunkHeader;
+} WorldChunkHeader; // size: 0x18
 
 typedef struct {
     /* 0x00 */ s16 scriptIdx;
@@ -47,14 +47,14 @@ typedef struct WorldActor {
     /* 0x08 */ struct WorldActor* riding;
     /* 0x0C */ VECTOR pos;
     /* 0x1C */ VECTOR altPos;
-    /* 0x2C */ WorldScriptFrame scriptStack[3];
+    /* 0x2C */ WorldScriptFrame scriptStack[3]; // may be [4]?
     /* 0x38 */ s32 unk38;
     /* 0x3C */ u16 unk3C;
     /* 0x3E */ u16 unk3E;
-    /* 0x40 */ u16 direction;
+    /* 0x40 */ s16 direction;
     /* 0x42 */ s16 unk42;
     /* 0x44 */ s16 yOffset;
-    /* 0x46 */ s16 unk46;
+    /* 0x46 */ s16 scriptIdx;
     /* 0x48 */ s16 unk48;
     /* 0x4A */ s16 walkmesh;
     /* 0x4C */ s16 facing;
@@ -99,13 +99,26 @@ typedef struct {
 typedef struct {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ u16 unk2;
-} Unk800D05EC; // size: 4
+} WorldScriptBSTEntry; // size: 4
 
+typedef struct {
+    /* 0x000 */ WorldScriptBSTEntry bst[0x100];
+    /* 0x400 */ u16 scr[0x3600];
+} WorldScriptData;
+
+typedef struct {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ u16 unk4;
+    /* 0x6 */ s16 unk6;
+} Unk8010AD70;
+
+void func_800A0B48();
 void func_800A19FC(
     WorldChunkHeader*, SVECTOR*, WorldStoredTriangle*, s16*, s32, s16*, s32);
 void func_800A31C0(s16);
 void func_800A368C(s32);
 void func_800A6884(VECTOR*, SVECTOR*, s16*, s16*);
+void func_800A692C(VECTOR*);
 void func_800A6994(VECTOR*, s32);
 void func_800A8ABC(WorldActor*);
 void func_800A8B30(WorldActor*);
@@ -123,6 +136,7 @@ s32 func_800A98E4(void);
 s32 func_800A99BC();
 s32 func_800A9A44(void);
 s32 func_800A9B04(s16, u8);
+void func_800A9C64(WorldActor*, VECTOR*);
 s32 func_800AA304(WorldActor*, WorldActor*);
 s32 func_800AA580(WorldActor*);
 void func_800AAB18(WorldActor*);
@@ -130,6 +144,11 @@ void func_800AB398(WorldActor*);
 void func_800AB48C(WorldActor*);
 void func_800AB8EC(s32);
 void func_800ABA18(s32);
+void func_800ABFC0(u16);
+void func_800AC3C0(u16);
+s32 func_800AC484(u16);
+s32 func_800AC700(u16);
+void func_800AD63C(WorldActor*);
 void func_800AD970(WorldActor*);
 void func_800ADD4C(s16);
 s16 func_800AE180(s32, s32, s32);
@@ -140,33 +159,40 @@ void func_800B5C7C(WorldActor*);
 void func_800B63F0(s32);
 void func_800B65E0(s32);
 void func_800B6B28(s16);
+void func_800B6E08();
 s32 func_800B7200();
 void func_800B7714(s32);
 void func_800B77A8(s32);
+s32 func_800B79B8();
 static void func_800B7C44(void);
 s32 func_800B7C7C();
 void func_800B7838();
+s16 func_800B86C4();
 void func_800B8760();
 void func_800BB9A0(u8);
 static void func_800BBA5C(void);
 s32 func_800BBBB0(void);
 static void func_800BBD0C(void);
 
+extern u32* D_800BD130;
 extern s32 D_800BD144;
 extern s32 D_800BE1E8[1]; // TODO: size unknown
+extern s32 D_800C65EC;
 extern s32 D_800C6628;
 extern s32 D_800C6638;
 extern u8 D_800C6770[1]; // TODO: size unknown
 extern s16 D_800C68EE;
 extern s16 D_800C6902;
 extern s16 D_800C6916;
+extern s8 D_800C752D;
+extern u32* D_800C7530;
 extern s32 D_800D05E8;
-extern Unk800D05EC D_800D05EC[0x400];
+extern WorldScriptData D_800D05EC;
 extern s32 D_800E5608;
 extern s32 D_800E560C;
 extern s32 D_800E5618;
 extern s32 D_800E5628;
-extern s32 D_800E5630;
+extern s32 D_800E5630; // WM earthquake
 extern s32 D_800E5634;
 extern s32 D_800E5648;
 extern s32 D_800E5654;
@@ -177,6 +203,7 @@ extern s32 D_800E5814;
 extern s32 D_800E5820;
 extern s32 D_800E5828;
 extern s32 D_800E55EC;
+extern s32 D_800E55F0;
 extern s32 D_800E55F4;
 extern s32 D_800E55FC;
 extern s32 D_800E5600;
@@ -200,19 +227,29 @@ extern s32 D_800E5824;
 extern s32 D_80109D58;
 extern s32 D_80109D54;
 extern s32 D_80109D6C;
-extern WorldActor D_80109D74[1]; // World map actor heap, TODO: size unknown
+extern WorldActor D_80109D74[0x10]; // World map actor heap, TODO: Confirm size
 extern WorldActor* D_8010AD34;
 extern WorldActor* D_8010AD38;
 extern WorldActor* D_8010AD3C;
 extern WorldActor* D_8010AD40;
+extern WorldActor* D_8010ADE4; // World current script context object?
+extern s32 D_8010ADE8;
 extern s16 D_8010AD44;
 extern s16 D_8010AD48;
 extern s16 D_8010AD4C;
 extern u16 D_8010AD54; // possibly a svec?
 extern u16 D_8010AD58;
 extern s32 D_8010AD5C;
-extern Unk800D05EC* D_8010AD68;
+extern WorldScriptData* D_8010AD68;
+extern u16* D_8010AD6C;
+extern Unk8010AD70 D_8010AD70[1]; // todo: size
+extern Unk8010AD70* D_8010AD90;
+extern u8* D_8010AD94[4];
 extern s32 D_8010ADEC;
+extern s32 D_8010AE24;
+extern s32 D_8010AE28;
+extern s32 D_8010AE2C;
+extern s32 D_8010AE30;
 extern s32 D_8010AE54;
 extern s32 D_8010AE58;     // WM RNG index
 extern u8 D_8010AE5C[521]; // WM RNG Buffer
@@ -248,11 +285,13 @@ extern s16 D_8010CB10;
 extern u32 D_8010CB14;
 extern s32 D_8010CB18;
 extern s32 D_8010CB1C;
-extern s32 D_80115A68;
 extern s32 D_801159DC;
 extern s32 D_801159E0;
+extern s32 D_80115A50;
 extern s32 D_80115A58;
 extern s32 D_80115A60;
+extern s32 D_80115A64;
+extern s32 D_80115A68;
 extern s32 D_8011626C;
 extern s32 D_80116270;
 extern s32 D_80116278;

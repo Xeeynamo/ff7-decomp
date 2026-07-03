@@ -66,11 +66,13 @@ class CompilerParams:
     cc_opt: str
     cc_gp: str
     as_flags: str
+    g_opt: str
+    gcoff_opt: str
 
 
 def default_compiler_params() -> CompilerParams:
     return CompilerParams(
-        "cc1-psx-272", "-O2", "-G0", "--expand-div --aspsx-version=2.34"
+        "cc1-psx-272", "-O2", "-G0", "--expand-div --aspsx-version=2.34", "-g", "-gcoff"
     )
 
 
@@ -120,6 +122,20 @@ def parse_compiler_params(line: str) -> CompilerParams:
                 c.cc_opt = f"-O{n}"
             except ValueError:
                 raise Exception(f"{key} value {value} is not a valid integer")
+        elif key == "g":
+            if value == "true":
+                c.g_opt = "-g"
+            elif value == "false":
+                c.g_opt = ""
+            else:
+                raise Exception(f"{key} value {value} is not a valid boolean")
+        elif key == "gcoff":
+            if value == "true":
+                c.gcoff_opt = "-gcoff"
+            elif value == "false":
+                c.gcoff_opt = ""
+            else:
+                raise Exception(f"{key} value {value} is not a valid boolean")
         else:
             raise Exception(f"{key} is not recognized")
     return c
@@ -176,7 +192,7 @@ def add_c(cfg: any, file_name: str):
         variables={
             "cc1": compiler_flags.cc1,
             "as_flags": compiler_flags.as_flags,
-            "cc_flags": f"{compiler_flags.cc_opt} {compiler_flags.cc_gp}",
+            "cc_flags": f"{compiler_flags.cc_opt} {compiler_flags.cc_gp} {compiler_flags.g_opt} {compiler_flags.gcoff_opt}",
         },
     )
     nw.build(
@@ -347,7 +363,7 @@ with open("build.ninja", "w") as f:
             f"mipsel-linux-gnu-cpp {CPP_FLAGS} -MMD -MF $out.d -lang-c -Iinclude -Iinclude/psxsdk -undef -Wall -fno-builtin $in"
             " | bin/str"  # convert C-style strings _S("FOO") into FF7-style strings "\x26\x2F\x2F\xFF"
             " | iconv --from-code=UTF-8 --to-code=Shift-JIS"
-            " | bin/$cc1 -quiet -mcpu=3000 -g -mgas -gcoff $cc_flags"
+            " | bin/$cc1 -quiet -mcpu=3000 -mgas $cc_flags"
             " | python3 tools/maspsx/maspsx.py $as_flags"
             " | mipsel-linux-gnu-as -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 -o $out"
         ),
