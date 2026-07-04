@@ -30,7 +30,20 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_800230C4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_8002368C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80023788);
+// Extract the hours field (0-99) of the HH:MM play-time clock from a seconds
+// counter, capped at 99:59:59 (0x57E3F seconds). Returned as a plain decimal
+// (tens*10 + units) so the 2-digit number drawer renders it. func_8002382C
+// formats the matching minutes field.
+s32 func_80023788(s32 arg0) {
+    s32 var_a0;
+
+    var_a0 = arg0;
+    if (var_a0 > 0x57E3F) { // clamp to 99:59:59, in seconds
+        var_a0 = 0x57E3F;
+    }
+    // tens-of-hours (sec / 36000) * 10 + units-of-hours ((sec % 36000) / 3600)
+    return ((var_a0 / D_80049474) * 0xA) + ((var_a0 % D_80049474) / D_80049478);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_8002382C);
 
@@ -40,7 +53,13 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80023AC4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80023AD4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80024A04);
+// Push the current display and draw environments to the GPU: the per-frame
+// double-buffer flip (activate the finished buffer for scanout, point drawing
+// at the other one).
+static void func_80024A04(void) {
+    PutDispEnv(&D_8007075C);
+    PutDrawEnv(&D_80070700);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80024A3C);
 
