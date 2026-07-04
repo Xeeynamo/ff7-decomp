@@ -17,6 +17,8 @@ extern char D_800E0208[16]; // '0' to 'F' for hex digits
 extern char D_800A0270[4];
 extern s8 D_800E0628;
 extern s8 D_800E0630;
+extern u8 D_800E08C0[];
+extern s16 D_800DF120[][2];
 extern u16 D_800E1024;
 extern s16 D_800E41B8;
 extern s16 D_800E41C0;
@@ -115,9 +117,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A82A0);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8304);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8600);
+s16 func_800A8600(u8 arg0) { return D_800DF120[arg0][0]; }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8620);
+s16 func_800A8620(u8 arg0) { return D_800DF120[arg0][1]; }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8640);
 
@@ -577,7 +579,16 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C43C4);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C45AC);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C46A4);
+void func_800C46A4(void) {
+    s32 i;
+    s16* p;
+
+    D_8009A000[0] = 0;
+    for (i = 5, p = &D_8009A000[10]; i >= 0; i--) {
+        *(s32*)(p + 2) = 0;
+        p -= 2;
+    }
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C46D0);
 
@@ -715,21 +726,79 @@ s32 SetMusicLock(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C50EC);
+s32 func_800C50EC(void) {
+    s32 entityId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5194);
+    if (D_8009D820 & 3) {
+        func_800BEAD4("bgmovie", 1);
+    }
+    D_8009C6E0->backgroundMovieEnabled =
+        *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+    entityId = D_800722C4;
+    D_800831FC[entityId] = D_800831FC[entityId] + 2;
+    return 0;
+}
+
+s32 func_800C5194(void) {
+    s32 entityId;
+
+    if (D_8009D820 & 3) {
+        func_800BEAD4("scrlo", 1);
+    }
+    D_8009C6E0->scrloSet = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+    entityId = D_800722C4;
+    D_800831FC[entityId] = D_800831FC[entityId] + 2;
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C523C);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C532C);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5414);
+s32 func_800C5414(void) {
+    s32 entityId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C54BC);
+    if (D_8009D820 & 3) {
+        func_800BEAD4("btlon", 1);
+    }
+    D_8009C6E0->battlesDisabled = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+    entityId = D_800722C4;
+    D_800831FC[entityId] = D_800831FC[entityId] + 2;
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5564);
+s32 func_800C54BC(void) {
+    s32 entityId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C560C);
+    if (D_8009D820 & 3) {
+        func_800BEAD4("mpdsp", 1);
+    }
+    D_8009C6E0->mpdspSet = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+    entityId = D_800722C4;
+    D_800831FC[entityId] = D_800831FC[entityId] + 2;
+    return 0;
+}
+
+s32 func_800C5564(void) {
+    s32 entityId;
+
+    if (D_8009D820 & 3) {
+        func_800BEAD4("mvcam", 1);
+    }
+    D_8009C6E0->movieCamDisabled = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+    entityId = D_800722C4;
+    D_800831FC[entityId] = D_800831FC[entityId] + 2;
+    return 0;
+}
+
+s32 func_800C560C(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("gmovr", 0);
+    }
+    D_8009C6E0->unk0[1] = 26;
+    D_8009C6E0->movieState = 0;
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5668);
 
@@ -1172,7 +1241,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4C68);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4E24);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4E88);
+void func_800D4E88(s16 arg0, s16 arg1) { D_8008327E[arg0 * 24] = arg1; }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4EB4);
 
@@ -1257,7 +1326,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D83A8);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D8420);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D8498);
+s32 func_800D8498(s16 arg0) { return D_800E08C0[arg0 * 378] == 0; }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D84CC);
 

@@ -339,7 +339,8 @@ typedef struct {
 } Unk80074EA4; // size:0x84
 
 typedef struct {
-    u8 unk0[0x28];
+    u8 unk0[0x26];
+    s16 movieState;
     u16 unk28; // number of models
     u16 unk2A; // pc model id
     u16 unk2C; // idle animation id
@@ -349,12 +350,12 @@ typedef struct {
     u8 unk33;  // suspend walk animation
     u8 unk34;  // menus disabled
     u8 unk35;
-    u8 unk36;  // map jump disabled
-    u8 unk37;  // SCRLO set
-    u8 unk38;  // MPDSP set
-    u8 unk39;  // movie cam disabled
-    u8 unk3A;  // background movie enabled
-    u8 unk3B;  // battles disabled
+    u8 unk36; // map jump disabled
+    u8 scrloSet;
+    u8 mpdspSet;
+    u8 movieCamDisabled;
+    u8 backgroundMovieEnabled;
+    u8 battlesDisabled;
     u8 unk3C;  // encounter table id
     u8 unk3D;  // battle mode related
     u16 unk3E; // battle mode related
@@ -440,6 +441,7 @@ extern u8 D_80083184[0x40];
 extern u16 D_800831FC[48]; // program counters for active entity scripts
 extern u8 D_8008326C;
 extern s32 D_80083274;
+extern s16 D_8008327E[];
 extern s16 D_800832A0;
 extern s32 D_80083338;
 extern s8 D_80095DCC;
