@@ -92,8 +92,13 @@ typedef struct {
     /* 0x20 */ s32 unk20;
 } Unk8002B7E0; // size:0x24
 
+typedef struct {
+    u8 unk[0x210];
+} Unk80099788;
+
 extern void (*D_80049548[])(Unk8002B7E0*);
 extern u8 D_800499A8[]; // opcode lenghts
+extern s32 D_80062F00;
 extern s16 D_80062F40;
 extern s16 D_80062F48;
 extern s32 D_80062F8C;
@@ -108,11 +113,10 @@ extern u16 D_8008337E;
 extern s32 D_80083394;
 extern u16 D_800833DE;
 extern s32 D_80096608;
-extern s32 D_80099788;
-extern s32 D_80099998;
+extern s32 D_80097768;
+extern s32 D_80097870;
+extern Unk80099788 D_80099788[];
 extern u16 D_8009A14E;
-extern u8 D_80099BA8[];
-extern s32 D_80099DB8;
 extern s32 D_8009A104;
 
 extern u32 g_ReverbMode;
@@ -141,9 +145,15 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800293D0);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800293F4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029424);
+static void func_80029424(s32 arg0, s32 arg1) {
+    func_800293F4();
+    func_80038F04(arg0, arg1);
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029464);
+static void func_80029464(s32 arg0, s32 arg1) {
+    func_800293F4();
+    SpuRead(arg0, arg1);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800294A4);
 
@@ -159,7 +169,23 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029998);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800299C8);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029A50);
+// Key off the voices in D_80062F00 and clear the SPU transfer/IRQ callbacks.
+static void func_80029A50(void) {
+    SpuSetTransferCallback(0);
+    SpuSetIRQ(0);
+    SpuSetIRQCallback(0);
+    SpuSetKey(0, D_80062F00);
+    if (D_80062F00 & 0x10000) {
+        D_80097768 = 0x1FF93;
+    }
+    if (D_80062F00 & 0x20000) {
+        D_80097870 = 0x1FF93;
+    }
+    D_80062F00 = 0;
+    func_80030038();
+    func_80030148();
+    func_8002FF4C();
+}
 
 void SetReverbMode(s32 in_ReverbMode) {
     func_80029A50();
@@ -365,73 +391,109 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BCCC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BD04);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BDCC);
+// Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
+void func_8002BDCC(void* arg0) {
+    func_8002BCCC(arg0, &D_80099788[3]);
+    func_8002BCCC(arg0, &D_80099788[2]);
+    func_8002BCCC(arg0, &D_80099788[1]);
+    func_8002BCCC(arg0, &D_80099788[0]);
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BE2C);
+// Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
+void func_8002BE2C(void* arg0) {
+    func_8002BD04(arg0, &D_80099788[3]);
+    func_8002BD04(arg0, &D_80099788[2]);
+    func_8002BD04(arg0, &D_80099788[1]);
+    func_8002BD04(arg0, &D_80099788[0]);
+}
 
-void func_8002BE8C(s32 arg0) { func_8002BCCC(arg0, D_80099BA8); }
+void func_8002BE8C(s32 arg0) { func_8002BCCC(arg0, &D_80099788[2]); }
 
-void func_8002BEB4(s32 arg0) { func_8002BD04(arg0, D_80099BA8); }
+void func_8002BEB4(s32 arg0) { func_8002BD04(arg0, &D_80099788[2]); }
 
-void func_8002BEDC(s32 arg0) { func_8002BCCC(arg0, &D_80099998); }
+void func_8002BEDC(s32 arg0) { func_8002BCCC(arg0, &D_80099788[1]); }
 
-void func_8002BF04(s32 arg0) { func_8002BD04(arg0, &D_80099998); }
+void func_8002BF04(s32 arg0) { func_8002BD04(arg0, &D_80099788[1]); }
 
-void func_8002BF2C(s32 arg0) { func_8002BCCC(arg0, &D_80099788); }
+void func_8002BF2C(s32 arg0) { func_8002BCCC(arg0, &D_80099788[0]); }
 
-void func_8002BF54(s32 arg0) { func_8002BD04(arg0, &D_80099788); }
+void func_8002BF54(s32 arg0) { func_8002BD04(arg0, &D_80099788[0]); }
 
-void func_8002BF7C(s32 arg0) { func_8002BCCC(arg0, &D_80099DB8); }
+void func_8002BF7C(s32 arg0) { func_8002BCCC(arg0, &D_80099788[3]); }
 
-void func_8002BFA4(s32 arg0) { func_8002BD04(arg0, &D_80099DB8); }
+void func_8002BFA4(s32 arg0) { func_8002BD04(arg0, &D_80099788[3]); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BFCC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C004);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C0CC);
+// Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
+void func_8002C0CC(void* arg0) {
+    func_8002BFCC(arg0, &D_80099788[3]);
+    func_8002BFCC(arg0, &D_80099788[2]);
+    func_8002BFCC(arg0, &D_80099788[1]);
+    func_8002BFCC(arg0, &D_80099788[0]);
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C12C);
+// Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
+void func_8002C12C(void* arg0) {
+    func_8002C004(arg0, &D_80099788[3]);
+    func_8002C004(arg0, &D_80099788[2]);
+    func_8002C004(arg0, &D_80099788[1]);
+    func_8002C004(arg0, &D_80099788[0]);
+}
 
-void func_8002C18C(s32 arg0) { func_8002BFCC(arg0, D_80099BA8); }
+void func_8002C18C(s32 arg0) { func_8002BFCC(arg0, &D_80099788[2]); }
 
-void func_8002C1B4(s32 arg0) { func_8002C004(arg0, D_80099BA8); }
+void func_8002C1B4(s32 arg0) { func_8002C004(arg0, &D_80099788[2]); }
 
-void func_8002C1DC(s32 arg0) { func_8002BFCC(arg0, &D_80099998); }
+void func_8002C1DC(s32 arg0) { func_8002BFCC(arg0, &D_80099788[1]); }
 
-void func_8002C204(s32 arg0) { func_8002C004(arg0, &D_80099998); }
+void func_8002C204(s32 arg0) { func_8002C004(arg0, &D_80099788[1]); }
 
-void func_8002C22C(s32 arg0) { func_8002BFCC(arg0, &D_80099788); }
+void func_8002C22C(s32 arg0) { func_8002BFCC(arg0, &D_80099788[0]); }
 
-void func_8002C254(s32 arg0) { func_8002C004(arg0, &D_80099788); }
+void func_8002C254(s32 arg0) { func_8002C004(arg0, &D_80099788[0]); }
 
-void func_8002C27C(s32 arg0) { func_8002BFCC(arg0, &D_80099DB8); }
+void func_8002C27C(s32 arg0) { func_8002BFCC(arg0, &D_80099788[3]); }
 
-void func_8002C2A4(s32 arg0) { func_8002C004(arg0, &D_80099DB8); }
+void func_8002C2A4(s32 arg0) { func_8002C004(arg0, &D_80099788[3]); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C2CC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C300);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C3A8);
+// Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
+void func_8002C3A8(void* arg0) {
+    func_8002C2CC(arg0, &D_80099788[3]);
+    func_8002C2CC(arg0, &D_80099788[2]);
+    func_8002C2CC(arg0, &D_80099788[1]);
+    func_8002C2CC(arg0, &D_80099788[0]);
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C408);
+// Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
+void func_8002C408(void* arg0) {
+    func_8002C300(arg0, &D_80099788[3]);
+    func_8002C300(arg0, &D_80099788[2]);
+    func_8002C300(arg0, &D_80099788[1]);
+    func_8002C300(arg0, &D_80099788[0]);
+}
 
-void func_8002C468(s32 arg0) { func_8002C2CC(arg0, D_80099BA8); }
+void func_8002C468(s32 arg0) { func_8002C2CC(arg0, &D_80099788[2]); }
 
-void func_8002C490(s32 arg0) { func_8002C300(arg0, D_80099BA8); }
+void func_8002C490(s32 arg0) { func_8002C300(arg0, &D_80099788[2]); }
 
-void func_8002C4B8(s32 arg0) { func_8002C2CC(arg0, &D_80099998); }
+void func_8002C4B8(s32 arg0) { func_8002C2CC(arg0, &D_80099788[1]); }
 
-void func_8002C4E0(s32 arg0) { func_8002C300(arg0, &D_80099998); }
+void func_8002C4E0(s32 arg0) { func_8002C300(arg0, &D_80099788[1]); }
 
-void func_8002C508(s32 arg0) { func_8002C2CC(arg0, &D_80099788); }
+void func_8002C508(s32 arg0) { func_8002C2CC(arg0, &D_80099788[0]); }
 
-void func_8002C530(s32 arg0) { func_8002C300(arg0, &D_80099788); }
+void func_8002C530(s32 arg0) { func_8002C300(arg0, &D_80099788[0]); }
 
-void func_8002C558(s32 arg0) { func_8002C2CC(arg0, &D_80099DB8); }
+void func_8002C558(s32 arg0) { func_8002C2CC(arg0, &D_80099788[3]); }
 
-void func_8002C580(s32 arg0) { func_8002C300(arg0, &D_80099DB8); }
+void func_8002C580(s32 arg0) { func_8002C300(arg0, &D_80099788[3]); }
 
 void func_8002C5A8(Unk8002C5A8* arg0) {
     s32 n = arg0->unk4;
@@ -495,7 +557,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CEC0);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CF1C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CF78);
+static void func_8002CF78(void) { func_80029A50(); }
 
 void func_8002CF98(Unk8002B7E0* arg0) {}
 
