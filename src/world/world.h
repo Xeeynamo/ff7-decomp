@@ -84,10 +84,13 @@ typedef struct {
 } WorldZolomSegment; // size: 0x8
 
 typedef struct {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC;
+    /* 0x00 */ u8 unk00[0x13];
+    /* 0x13 */ u8 unk13;
+    /* 0x14 */ u8 unk14[0x10];
+} Unk8010B178; // size: 0x24
+
+typedef struct {
+    /* 0x00 */ VECTOR unk0;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s32 unk14;
     /* 0x18 */ s32 unk18;
@@ -230,9 +233,11 @@ extern s32 D_80109D6C;
 extern WorldActor D_80109D74[0x10]; // World map actor heap, TODO: Confirm size
 extern WorldActor* D_8010AD34;
 extern WorldActor* D_8010AD38;
-extern WorldActor* D_8010AD3C;
-extern WorldActor* D_8010AD40;
+extern WorldActor* D_8010AD3C; // Active Actor
+extern WorldActor* D_8010AD40; // Player Actor
 extern WorldActor* D_8010ADE4; // World current script context object?
+// 8010ADF4 appears to maybe only be read from in an unused world script opcode
+extern s32 D_8010ADF4;
 extern s32 D_8010ADE8;
 extern s16 D_8010AD44;
 extern s16 D_8010AD48;
@@ -256,6 +261,7 @@ extern u8 D_8010AE5C[521]; // WM RNG Buffer
 extern u8 D_8010B068[1];   // TODO: size unknown
 extern s32 D_8010B080;
 extern s32 D_8010B174;
+extern Unk8010B178 D_8010B178[1]; // TODO: determine size
 extern Unk8010B3B8* D_8010B3B8;
 extern s32 D_8010B47C;
 extern WorldZolomSegment D_8010C2AC[0x30];
