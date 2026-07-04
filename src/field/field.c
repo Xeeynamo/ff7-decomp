@@ -736,7 +736,6 @@ s32 func_800C50EC(void) {
         *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
     entityId = D_800722C4;
     D_800831FC[entityId] = D_800831FC[entityId] + 2;
-    __asm__ volatile("");
     return 0;
 }
 
@@ -749,7 +748,6 @@ s32 func_800C5194(void) {
     D_8009C6E0->scrloSet = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
     entityId = D_800722C4;
     D_800831FC[entityId] = D_800831FC[entityId] + 2;
-    __asm__ volatile("");
     return 0;
 }
 
@@ -766,7 +764,6 @@ s32 func_800C5414(void) {
     D_8009C6E0->battlesDisabled = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
     entityId = D_800722C4;
     D_800831FC[entityId] = D_800831FC[entityId] + 2;
-    __asm__ volatile("");
     return 0;
 }
 
@@ -779,7 +776,6 @@ s32 func_800C54BC(void) {
     D_8009C6E0->mpdspSet = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
     entityId = D_800722C4;
     D_800831FC[entityId] = D_800831FC[entityId] + 2;
-    __asm__ volatile("");
     return 0;
 }
 
@@ -792,7 +788,6 @@ s32 func_800C5564(void) {
     D_8009C6E0->movieCamDisabled = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
     entityId = D_800722C4;
     D_800831FC[entityId] = D_800831FC[entityId] + 2;
-    __asm__ volatile("");
     return 0;
 }
 
@@ -802,7 +797,6 @@ s32 func_800C560C(void) {
     }
     D_8009C6E0->unk0[1] = 26;
     D_8009C6E0->movieState = 0;
-    __asm__ volatile("");
     return 1;
 }
 
