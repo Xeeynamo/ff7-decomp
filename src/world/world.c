@@ -1191,8 +1191,7 @@ s32 func_800ABB24(void) {
     }
 
     if ((D_8010AD90->unk4 & 3) < 3) {
-        // hmm
-        switch (D_8010AD90->unk4 & ~3) { // switch 1; irregular
+        switch (D_8010AD90->unk4 & ~3) {
         case 0x110:
             var_s0 = D_8010AD90->unk0;
             break;
@@ -1201,10 +1200,10 @@ s32 func_800ABB24(void) {
                          (D_8010AD90->unk0 & 7) &
                      1;
             break;
-        case 0x118: // switch 1
+        case 0x118:
             var_s0 = D_8010AD94[D_8010AD90->unk4 & 3][D_8010AD90->unk0];
             break;
-        case 0x11C: // switch 1
+        case 0x11C:
             temp_s0 = &D_8010AD94[D_8010AD90->unk4 & 3][D_8010AD90->unk0];
             if ((s32)temp_s0 & 1) {
                 func_800A0B40(0x3F);
@@ -1212,87 +1211,315 @@ s32 func_800ABB24(void) {
             var_s0 = *(s16*)temp_s0;
         }
     } else {
-        switch (D_8010AD90->unk0) { // switch 2
-        case 0:                     // switch 2
+        switch (D_8010AD90->unk0) {
+        case 0: // Active actor X-chunk
             var_s0 = D_8010AD3C->pos.vx >> 0xD;
             break;
-        case 1: // switch 2
+        case 1: // Active actor Y-chunk
             var_s0 = D_8010AD3C->pos.vz >> 0xD;
             break;
-        case 2: // switch 2
+        case 2: // Active actor X coord within chunk
             var_s0 = D_8010AD3C->pos.vx & 0x1FFF;
             break;
-        case 3: // switch 2
+        case 3: // Active actor Y coord within chunk
             var_s0 = D_8010AD3C->pos.vz & 0x1FFF;
             break;
-        case 4: // switch 2
+        case 4: // Active actor direction (0-255)
             var_s0 = (D_8010AD3C->direction >> 4) & 0xFF;
             break;
-        case 5: // switch 2
+        case 5: // Scenario parameter when entering WM from a field (see opcode
+                // 0x318)
             var_s0 = func_800B785C();
             break;
-        case 6: // switch 2
+        case 6: // Field ID of "wm" field that jumped to the WM
             var_s0 = func_800B786C();
             break;
-        case 7: // switch 2
+        case 7: // Map options (eg. minimap & camera settings)
             var_s0 = func_800A4080();
             break;
-        case 8: // switch 2
+        case 8: // Model ID of the player actor
             var_s0 = func_800A9174();
             break;
-        case 15: // switch 2
+        case 15: // Active Actor Model ID
             var_s0 = D_8010AD3C->actorType;
             break;
-        case 9: // switch 2
+        case 9: // Current wild chocobo rating
             var_s0 = func_800B7B2C();
             break;
-        case 10: // switch 2
+        case 10: // Player is currently riding a chocobo?
             var_s0 = func_800B7B3C();
             break;
-        case 11: // switch 2
+        case 11: // Battle result - whether player escaped last battle (1: place
+                 // party on the stables side, 0: place party on the cave side)
             var_s0 = func_800B0800();
             break;
-        case 12: // switch 2
+        case 12: // Prompt window result
             var_s0 = func_800B86C4();
             break;
-        case 13: // switch 2
+        case 13: // Script index of current mesh triangle of active actor
             var_s0 = ((D_8010AD3C->walkmesh) >> 5) & 7;
             break;
-        case 14: // switch 2
+        case 14: // Player party member model ID (0=Cloud, 1=Tifa, 2=Cid)
             var_s0 = func_800B79B8();
             break;
-        case 16: // switch 2
+        case 16: // Random byte
             var_s0 = func_800ADFC0();
             break;
-        case 17: // switch 2
+        case 17:
             var_s0 = D_8010AE24;
             break;
-        case 18: // switch 2
+        case 18:
             var_s0 = D_8010AE28;
             break;
-        case 19: // switch 2
+        case 19:
             var_s0 = D_8010AE2C;
             break;
-        case 20: // switch 2
+        case 20:
             var_s0 = D_8010AE30;
         }
     }
     return var_s0;
 }
 
-// executed during script opcode 0xE0
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800ABE58);
+// executed during script opcode 0xE0 (write bank)
+void func_800ABE58(s32 arg0) {
+    Unk8010AD70* temp_v1;
+    s32 temp_a0;
+    s32 var_v0;
+    u8* temp_s0;
 
-// script opcode 0x0XX
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800ABFC0);
+    if (&D_8010AD70[0] >= D_8010AD90--) {
+        func_800A0B40(0x3E);
+    }
 
-// script opcode 0x1XX
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AC3C0);
+    temp_s0 = D_8010AD94[D_8010AD90->unk4 & 3];
+    switch (D_8010AD90->unk4 & ~3) {
+    case 0x114:
+        temp_s0 = &temp_s0[D_8010AD90->unk0 >> 3];
+        temp_a0 = 1 << (D_8010AD90->unk0 & 7);
+        *temp_s0 &= ~temp_a0;
+        var_v0 = *temp_s0;
+        if (arg0 != 0) {
+            var_v0 |= temp_a0;
+        }
+        *temp_s0 = var_v0;
+        break;
+    case 0x118:
+        temp_s0[D_8010AD90->unk0] = (u8)arg0;
+        break;
+    case 0x11C:
+        temp_s0 = &temp_s0[D_8010AD90->unk0];
+        if ((s32)temp_s0 & 1) {
+            func_800A0B40(0x3F);
+        }
+        *(u16*)temp_s0 = arg0;
+        break;
+    default:
+        func_800A0B40(0x40);
+        break;
+    }
+    D_8010AD90->unk0 = arg0;
+    D_8010AD90->unk4 = 0x110;
+    D_8010AD90++;
+}
 
-// script opcode 0x2XX
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AC484);
+/*
+ * script opcodes are documented at
+ * http://wiki.ffrtt.ru/index.php/FF7/WorldMap_Module/Script/Opcodes
+ */
 
-// script opcode 0x3XX
+// script opcode 0x0XX, arithmetic and writing to memory
+void func_800ABFC0(u16 arg0) {
+    VECTOR sp10;
+    Unk8010AD70* temp_s0_17;
+    WorldActor* temp_s0_16;
+    s32 temp_s0;
+    s32 temp_v0;
+    s32 var_v0;
+
+    switch (arg0) {
+    case 0x15: // pop A push -A
+        D_8010AD90->unk0 = -func_800ABB24();
+        break;
+    case 0x17: // pop A, push ~A
+        D_8010AD90->unk0 = func_800ABB24() == 0;
+        break;
+    case 0x30: // pop A, B, push B * A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = func_800ABB24() * temp_s0;
+        break;
+    case 0x40: // pop A, B, push B + A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = func_800ABB24() + temp_s0;
+        break;
+    case 0x41: // pop A, B, push B - A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = func_800ABB24() - temp_s0;
+        break;
+    case 0x60: // pop A, B, push B < A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = func_800ABB24() < temp_s0;
+        break;
+    case 0x61: // pop A, B, push B > A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = temp_s0 < func_800ABB24();
+        break;
+    case 0x62: // pop A, B, push B <= A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = temp_s0 >= func_800ABB24();
+        break;
+    case 0x63: // pop A, B, push B >= A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = func_800ABB24() >= temp_s0;
+        break;
+    case 0x70: // pop A, B, push B == A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = func_800ABB24() == temp_s0;
+        break;
+    case 0x71: // pop A, B, push B != A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = func_800ABB24() != temp_s0;
+        break;
+    case 0x50: // pop A, B, push B << A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = func_800ABB24() << temp_s0;
+        break;
+    case 0x51: // pop A, B, push B >> A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = func_800ABB24() >> temp_s0;
+        break;
+    case 0x80: // pop A, B, push B & A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = func_800ABB24() & temp_s0;
+        break;
+    case 0xA0: // pop A, B, push B | A
+        temp_s0 = func_800ABB24();
+        D_8010AD90->unk0 = func_800ABB24() | temp_s0;
+        break;
+    case 0xB0: // pop A, B, push B && A
+        temp_s0 = func_800ABB24();
+        var_v0 = func_800ABB24();
+        D_8010AD90->unk0 = var_v0 && temp_s0;
+        break;
+    case 0xC0: // pop A, B, push B || A
+        temp_s0 = func_800ABB24();
+        var_v0 = func_800ABB24();
+        D_8010AD90->unk0 = var_v0 || temp_s0;
+        break;
+    case 0xE0: // pop A, write bank
+        func_800ABE58(func_800ABB24());
+        break;
+    case 0x18: // "push distance from active entity to point"
+        func_800AF1A8(func_800ABB24(), -1);
+        func_800AA098(&sp10);
+        D_8010AD90->unk0 = func_800AF96C(&sp10) >> 5;
+        break;
+    case 0x19: // "push distance from active entity to entity by model id"
+        temp_s0_16 = D_8010AD3C;
+        D_8010AD90->unk0 = 0;
+        if (func_800A993C(func_800ABB24()) != 0) {
+            D_8010AD90->unk0 =
+                func_800AE024(&D_8010AD3C->pos, &temp_s0_16->pos) >> 4;
+        }
+        D_8010AD3C = temp_s0_16;
+        break;
+    case 0x1A: // unused and undocumented
+        temp_v0 = func_800ABB24();
+        temp_s0_17 = D_8010AD90;
+        sp10 = D_8010AD3C->pos;
+        sp10.vy = 0;
+        if ((u32)temp_v0 < 3U) {
+            // not going to bother with the struct at 8010ADF4 yet, as it may be
+            // unused
+            temp_s0_17->unk0 =
+                func_800AE024(
+                    &sp10, (VECTOR*)((temp_v0 * 0x4) + &D_8010ADF4)) >>
+                4;
+        } else {
+            temp_s0_17->unk0 = 0;
+        }
+        break;
+    case 0x1B: // "push direction from active entity to point"
+        func_800AF1A8(func_800ABB24(), -1);
+        func_800AA098(&sp10);
+        D_8010AD90->unk0 = (s32)(func_800AF9A0(&sp10) << 0x10) >> 0x14;
+        break;
+    }
+    (D_8010AD90)->unk4 = 0x110;
+    D_8010AD90++;
+}
+
+// script opcode 0x1XX, push value to stack
+void func_800AC3C0(u16 arg0) {
+    if (arg0 == 0x100) { // reset stack. unused?
+        D_8010AD90 = D_8010AD70;
+        return;
+    }
+    if (D_8010AD90 == NULL || D_8010ADE4 == NULL) {
+        func_800A0B40(0x3D);
+    }
+    D_8010AD90->unk4 = arg0;
+    (D_8010AD90++)->unk0 = (s32)(D_8010AD6C[D_8010ADE4->scriptIdx++]);
+}
+
+// script opcode 0x2XX, flow control
+s32 func_800AC484(u16 arg0) {
+    WorldActor* var_s0;
+    WorldScriptFrame* temp_v0_4;
+    s32 var_v0;
+    s16 temp_s0;
+
+    var_v0 = 0;
+    switch (arg0) {
+    case 0x200: // jump
+        temp_s0 = D_8010AD6C[D_8010ADE4->scriptIdx++];
+        D_8010ADE4->scriptIdx = temp_s0;
+        break;
+    case 0x201: // pop A, jump if ~A
+        temp_s0 = D_8010AD6C[D_8010ADE4->scriptIdx++];
+        if (func_800ABB24() == 0) {
+            D_8010ADE4->scriptIdx = temp_s0;
+        }
+        break;
+    case 0x203: // return
+        if (D_8010ADE4->scriptCallDepth != 0) {
+            temp_v0_4 = &D_8010ADE4->scriptStack[--D_8010ADE4->scriptCallDepth];
+            D_8010ADE4->scriptIdx = (s16)(u16)temp_v0_4->scriptIdx;
+            D_8010ADE4->waitFrames = temp_v0_4->waitFrames;
+            D_8010ADE4->scriptPriority = temp_v0_4->scriptPriority;
+            break;
+        }
+        D_8010ADE4->scriptIdx = D_8010ADE4->scriptPriority = 0;
+        if (D_8010ADEC != 0) {
+            if (D_8010ADE4 == D_80109D74) {
+                for (var_s0 = D_8010AD38; var_s0 != NULL;
+                     var_s0 = var_s0->next) {
+                    func_800AB988((s32)var_s0->actorType, 1);
+                }
+            }
+        } else {
+            if (D_8010ADE4 == D_80109D74) {
+                func_800ABA18(2);
+            } else {
+                func_800AB988((s32)D_8010ADE4->actorType, 2);
+            }
+        }
+        var_v0 = 1;
+        break;
+    default: // run function number (opcode - 0x204)
+        D_8010ADE4->scriptCallModel = func_800ABB24();
+        if (D_8010ADE4->scriptCallModel < 0x40U) {
+            func_800AB988((s32)D_8010ADE4->scriptCallModel, arg0 - 0x204);
+        } else {
+            D_8010ADE4->scriptCallModel = D_8010AD3C->actorType;
+            func_800AB92C(arg0 - 0x204);
+        }
+        var_v0 = 1;
+    }
+    return var_v0;
+}
+
+// script opcode 0x3XX, system ops / misc
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AC700);
 
 void func_800AD63C(WorldActor* arg0) {
@@ -1486,7 +1713,17 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF0B0);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF110);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF1A8);
+void func_800AF1A8(u32 arg0, s32 arg1) {
+    Unk8010B178* temp_v1;
+
+    if (arg0 < 0x10U) {
+        temp_v1 = &D_8010B178[arg0];
+        D_8010B3B8 = (Unk8010B3B8*)temp_v1;
+        if (arg1 != -1U) {
+            temp_v1->unk13 = arg1;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF1E8);
 
@@ -1510,11 +1747,13 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF364);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF3A4);
 
-s32 func_800AF96C(s32 arg0) {
+s32 func_800AF96C(VECTOR* arg0) {
     return D_8010B3B8 ? func_800AE024(arg0, D_8010B3B8) : 0;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF9A0);
+s16 func_800AF9A0(VECTOR* arg0) {
+    return D_8010B3B8 == NULL ? 0 : func_800AE47C(arg0, (VECTOR*)D_8010B3B8);
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF9DC);
 
@@ -1891,23 +2130,16 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B787C);
 extern u8 D_8009D392;
 extern u8 D_8009D393;
 
+// Player party member model ID (0=Cloud, 1=Tifa, 2=Cid)
 s32 func_800B79B8(void) {
-    if ((*D_8009D391 != 0) && (D_8009D392 != 0)) {
-        if (D_8009D393 != 0) {
-            if ((*D_8009D391 != 2) && (D_8009D392 != 2) && (D_8009D393 != 2)) {
-                if ((*D_8009D391 == 8) || (D_8009D392 == 8) ||
-                    (D_8009D393 == 8)) {
-                    return 2;
-                }
-                // Duplicate return node #12. Try simplifying control flow for
-                // better match
-                return 0;
+    if ((*D_8009D391 != 0) && (D_8009D392 != 0) && (D_8009D393 != 0)) {
+        if ((*D_8009D391 != 2) && (D_8009D392 != 2) && (D_8009D393 != 2)) {
+            if ((*D_8009D391 == 8) || (D_8009D392 == 8) || (D_8009D393 == 8)) {
+                return 2;
             }
-            return 1;
+            return 0;
         }
-        // Duplicate return node #12. Try simplifying control flow for better
-        // match
-        return 0;
+        return 1;
     }
     return 0;
 }
@@ -2031,7 +2263,9 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B858C);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B85D4);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B86C4);
+extern s16 D_80116290;
+
+s16 func_800B86C4(void) { return D_800832A0 == 0 ? D_80116290 : -1; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B86E8);
 
