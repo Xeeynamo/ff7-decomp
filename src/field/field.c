@@ -1264,15 +1264,170 @@ s32 AssignCharacterModel(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5898);
+/*
+ * Field-script opcode DFANM: set a model's default (looping) animation.
+ *
+ * Stores the animation id and playback speed (per-model base speed divided
+ * by the speed operand) for the model attached to the executing entity.
+ * A model holding the last frame of a script animation (state 3) is
+ * released so the new default animation starts playing.
+ */
+s32 SetDefaultAnimation(void) {
+    s32 entityId;
+    u8 modelIdx;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5A2C);
+    if (D_8009D820 & 3) {
+        func_800BEAD4("dfanm", 2);
+    }
+    if (D_8007EB98[D_800722C4] != 0xFF) {
+        D_8008325C[D_8007EB98[D_800722C4]] =
+            *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        entityId = D_800722C4;
+        D_80082248[D_8007EB98[entityId]] =
+            D_8009D828[D_8007EB98[entityId]] /
+            *(&D_8009C6DC[D_800831FC[entityId]] + 2);
+        modelIdx = D_8007EB98[entityId];
+        if (D_800756E8[modelIdx] == 3) {
+            D_800756E8[modelIdx] = 0;
+        }
+    }
+    D_800831FC[D_800722C4] += 3;
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5B38);
+/*
+ * Field-script opcode CCANM: set one of the player animation ids
+ * (0: idle, 1: walk, 2: run) used while the player controls a model.
+ */
+s32 SetControlCharacterAnimation(void) {
+    s32 entityId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5CE8);
+    if (D_8009D820 & 3) {
+        func_800BEAD4("ccanm", 3);
+    }
+    switch (*(&D_8009C6DC[D_800831FC[D_800722C4]] + 3)) {
+    case 0:
+        D_8009C6E0->unk2C = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        break;
+    case 1:
+        D_8009C6E0->unk2E = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        break;
+    case 2:
+        D_8009C6E0->unk30 = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        break;
+    }
+    entityId = D_800722C4;
+    D_800831FC[entityId] += 4;
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5E80);
+/*
+ * Starts the animation requested by the current ANIME-style opcode on the
+ * model attached to the executing entity: animation id from the first
+ * operand, playback speed from the per-model base speed divided by the
+ * second operand, frame counter rewound and the last frame looked up in
+ * the animation header of the model's file.
+ */
+void StartModelAnimation(void) {
+    s32 entityId;
+    u8 modelIdx;
+    u8* anims;
+    Unk8004A62CSub* file;
+
+    D_8009C544[D_8007EB98[D_800722C4]].unk5E =
+        *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+    entityId = D_800722C4;
+    D_8009C544[D_8007EB98[entityId]].unk60 =
+        D_8009D828[D_8007EB98[entityId]] /
+        *(&D_8009C6DC[D_800831FC[entityId]] + 2);
+    D_8009C544[D_8007EB98[entityId]].unk62 = 0;
+    modelIdx = D_8007EB98[entityId];
+    file = &D_8004A62C->unk4[D_8008357C[modelIdx].unk4];
+    anims = file->unk1C + file->unk1A;
+    D_8009C544[modelIdx].unk64 =
+        *(u16*)&anims[D_80074EA4[modelIdx].unk5E * 16] - 1;
+}
+
+/*
+ * Field-script opcode ANIME1/ANIME2: play an animation on the entity's
+ * model. D_8009A058 distinguishes which opcode invoked the handler: the
+ * asynchronous variant (0xAE, ANIME2) marks the model as playing (state 5)
+ * and lets the script continue, while ANIME1 blocks (state 2) until the
+ * animation system reports completion (state 4), then resets the model to
+ * its default animation.
+ */
+#ifndef NON_MATCHINGS
+// Close but not matching: the register allocator picks $v1/$a0 instead of
+// $v0/$v1 for the state-2 branch (7 bytes of register fields differ).
+INCLUDE_ASM("asm/us/field/nonmatchings/field", PlayAnimation);
+#else
+s32 PlayAnimation(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("anime", 2);
+    }
+    if (D_8007EB98[D_800722C4] != 0xFF) {
+        switch (D_800756E8[D_8007EB98[D_800722C4]]) {
+        case 0:
+        case 1:
+        case 3:
+            StartModelAnimation();
+            if (D_8009A058 == 0xAE) {
+                D_800756E8[D_8007EB98[D_800722C4]] = 5;
+                D_800831FC[D_800722C4] += 3;
+                return 0;
+            }
+            D_800756E8[D_8007EB98[D_800722C4]] = 2;
+            return 1;
+        case 4:
+            D_800756E8[D_8007EB98[D_800722C4]] = 0;
+            D_800831FC[D_800722C4] += 3;
+            return 0;
+        default:
+            return 1;
+        }
+    }
+    D_800831FC[D_800722C4] += 3;
+    return 0;
+}
+#endif
+
+/*
+ * Field-script opcode ANIM!1/ANIM!2: like ANIME1/ANIME2 but the model
+ * keeps holding the last frame once the animation completes (state 3)
+ * instead of returning to its default animation. 0xAE becomes 0xAF and
+ * state 5 becomes 6 to tell the two opcode pairs apart.
+ */
+#ifndef NON_MATCHINGS
+// Same register-allocation mismatch as PlayAnimation above.
+INCLUDE_ASM("asm/us/field/nonmatchings/field", PlayAnimationHold);
+#else
+s32 PlayAnimationHold(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("anim!", 2);
+    }
+    if (D_8007EB98[D_800722C4] != 0xFF) {
+        switch (D_800756E8[D_8007EB98[D_800722C4]]) {
+        case 0:
+        case 1:
+        case 3:
+            StartModelAnimation();
+            if (D_8009A058 == 0xAF) {
+                D_800756E8[D_8007EB98[D_800722C4]] = 6;
+                break;
+            }
+            D_800756E8[D_8007EB98[D_800722C4]] = 2;
+            return 1;
+        case 4:
+            D_800756E8[D_8007EB98[D_800722C4]] = 3;
+            break;
+        default:
+            return 1;
+        }
+    }
+    D_800831FC[D_800722C4] += 3;
+    return 0;
+}
+#endif
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5FF4);
 
