@@ -751,9 +751,59 @@ s32 func_800C5194(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C523C);
+/*
+ * Field-script opcode DSKCG: request a disc change.
+ *
+ * Runs as a small state machine on the field main-loop step (unk0[1]):
+ * on first execution it stores the requested disc number and switches the
+ * field loop into the disc-change step (13), then keeps returning 1
+ * (opcode not finished) until the loop reports the swap is done
+ * (movieState == 2). Only then does the script advance past the opcode.
+ */
+s32 RequestDiskChange(void) {
+    s32 entityId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C532C);
+    if (D_8009D820 & 3) {
+        func_800BEAD4("dskcg", 1);
+    }
+    switch (D_8009C6E0->unk0[1]) {
+    case 0:
+        D_8009C6E0->unk0[1] = 13;
+        D_8009D588 = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        return 1;
+    case 13:
+        if (D_8009C6E0->movieState == 2) {
+            D_8009C6E0->unk0[1] = 0;
+            entityId = D_800722C4;
+            D_800831FC[entityId] += 2;
+            return 0;
+        }
+        return 1;
+    default:
+        return 1;
+    }
+}
+
+/*
+ * Field-script opcode UC: lock or unlock player control.
+ *
+ * A nonzero operand freezes the player character; on unlock the
+ * per-model flag of the player's model is cleared as well.
+ */
+s32 SetCharacterLock(void) {
+    s32 entityId;
+
+    if (D_8009D820 & 3) {
+        func_800BEAD4("uc", 1);
+    }
+    D_80081DC4 = D_8009C6E0->unk32 = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+    if (D_80081DC4 == 0) {
+        D_800756E8[(s16)D_8009C6E0->unk2A] = 0;
+    }
+    entityId = D_800722C4;
+    D_800831FC[entityId] += 2;
+    return 0;
+}
 
 s32 func_800C5414(void) {
     s32 entityId;
@@ -800,9 +850,50 @@ s32 func_800C560C(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5668);
+/*
+ * Field-script opcode CC: hand player control to another entity.
+ *
+ * The operand is a script entity id; if that entity has a field model
+ * assigned (D_8007EB98 entry != 0xFF) it becomes the new player model.
+ */
+s32 SetControlCharacter(void) {
+    s32 entityId;
+    u8 charId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5740);
+    if (D_8009D820 & 3) {
+        func_800BEAD4("cc", 1);
+    }
+    charId = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+    if (D_8007EB98[charId] != 0xFF) {
+        D_8009C6E0->unk2A = D_8007EB98[charId];
+    }
+    entityId = D_800722C4;
+    D_800831FC[entityId] += 2;
+    return 0;
+}
+
+/*
+ * Field-script opcode CHAR: attach a field model to the current entity.
+ *
+ * Allocates the next model slot (D_8009C6C4) for the executing entity,
+ * records the mapping in D_8007EB98 and initializes the model with the
+ * model id from the opcode operand and the owning entity id.
+ */
+s32 AssignCharacterModel(void) {
+    s32 entityId;
+
+    if (D_8009D820 & 3) {
+        func_800BEAD4("char", 1);
+    }
+    D_8007EB98[D_800722C4] = D_8009C6C4++;
+    D_8009C544[D_8007EB98[D_800722C4]].unk66 =
+        *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+    D_8009C544[D_8007EB98[D_800722C4]].unk5C = 1;
+    D_8009C544[D_8007EB98[D_800722C4]].unk57 = D_800722C4;
+    entityId = D_800722C4;
+    D_800831FC[entityId] += 2;
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5898);
 
