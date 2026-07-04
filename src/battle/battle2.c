@@ -1114,7 +1114,23 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D55A4);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D55F4);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D56A8);
+// Project a point through the current view matrix and convert its clamped
+// on-screen X (0..319) into a 0..127 stereo pan value.
+static s32 func_800D56A8(s32 arg0) {
+    s16 sp10[2];
+    s32 sp18;
+    s32 sp1C;
+
+    SetRotMatrix(&D_800FA63C.m);
+    SetTransMatrix(&D_800FA63C.m);
+    RotTransPers(arg0, sp10, &sp18, &sp1C);
+    if (sp10[0] < 0) {
+        sp10[0] = 0;
+    } else if (sp10[0] >= 0x140) {
+        sp10[0] = 0x13F;
+    }
+    return (sp10[0] * 128) / 320;
+}
 
 s32 func_800D574C(s32 arg0) {
     s32 sp10;
@@ -1141,7 +1157,13 @@ static void func_800D5A68(s16 arg0, s16 arg1) {
     temp_v0->D_8016297C = arg0;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5AC0);
+// Divide each byte lane of a packed color independently by a divisor,
+// yielding a per-channel step (e.g. a color-fade increment).
+static s32 func_800D5AC0(s32 arg0, s32 arg1) {
+    return (((arg0 & 0xFF0000) / arg1) & 0xFF0000) |
+           (((arg0 & 0xFF00) / arg1) & 0xFF00) |
+           (((arg0 & 0xFF) / arg1) & 0xFF);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5B6C);
 
