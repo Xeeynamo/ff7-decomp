@@ -335,7 +335,13 @@ typedef struct {
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s32 unk14;
     /* 0x18 */ s32 unk18;
-    /* 0x1C */ s8 unk1C[0x68];
+    /* 0x1C */ s8 unk1C[0x3B];
+    /* 0x57 */ u8 unk57; // script entity that owns this model
+    /* 0x58 */ s8 unk58[4];
+    /* 0x5C */ u8 unk5C;
+    /* 0x5D */ s8 unk5D[9];
+    /* 0x66 */ u16 unk66; // model id
+    /* 0x68 */ s8 unk68[0x1C];
 } Unk80074EA4; // size:0x84
 
 typedef struct {
@@ -427,6 +433,7 @@ extern u8 D_800722C4; // entity owning the currently executing script
 extern Unk800730CC D_800730CC[];
 extern u8 D_800730DD[][0x14];
 extern Unk80074EA4 D_80074EA4[2];
+extern u8 D_800756E8[]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
 extern int D_80075DEC; // buffer index, either 0 or 1
 extern u8 D_80075E24[];
@@ -434,9 +441,11 @@ extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern Unk8007E7AC D_8007E7AC[];
 extern DRAWENV D_8007EAAC[2];
 extern DISPENV D_8007EB68[2];
+extern u8 D_8007EB98[]; // script entity id -> field model index (0xFF: none)
 extern s8 D_8007EBCC;
 extern s8 D_8007EBDC;
 extern u8 D_8007EBE0; // field debug mode
+extern u8 D_80081DC4; // mirror of the UC opcode's control-lock flag
 extern u8 D_80083184[0x40];
 extern u16 D_800831FC[48]; // program counters for active entity scripts
 extern u8 D_8008326C;
@@ -458,6 +467,8 @@ extern s32 D_8009A024[8];
 extern u8 D_8009A058;
 extern Unk8009C6E0 D_8009ABF4;
 extern u8 D_8009AC2F;
+extern Unk80074EA4* D_8009C544; // loaded field models
+extern u8 D_8009C6C4;           // number of allocated field models
 extern u8* D_8009C6DC;
 extern Unk8009C6E0* D_8009C6E0; // points to 0x8009abf4
 extern SaveWork Savemap;        // 0x8009C6E4
@@ -467,6 +478,7 @@ extern u8 D_8009D2E7;
 extern u8 D_8009D302;
 extern u8 D_8009D391[1]; // part of a struct?
 extern u8 D_8009D40D;
+extern u8 D_8009D588; // disc number requested by the DSKCG opcode
 extern u8 D_8009D684;
 extern u8 D_8009D685;
 extern u8 D_8009D686;
