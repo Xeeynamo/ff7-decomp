@@ -577,7 +577,13 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8CC8);
 
 void func_800A8D04(void) { D_80063014->unk48 = 2; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8D18);
+// seed this combatant's unk50 (a flag word later read by the damage formula
+// in func_800AD804 -- bit 0x80 there appears to exempt a hit from the
+// reduced per-target damage otherwise applied when an action strikes
+// multiple targets) with a per-slot default, but only if nothing has set
+// unk50 explicitly yet this turn (see func_800A8D60's sentinel check)
+void func_800A8D60(s32 arg0);
+void func_800A8D18(void) { func_800A8D60(D_800F5EFC[D_80063014->unk0 * 0x18]); }
 
 void func_800A8D60(s32 arg0) {
     if (D_80063014->unk50 == 0xFF) {
