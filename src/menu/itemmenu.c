@@ -15,6 +15,7 @@ static s32 Quicksort(
     s32, s32, s32 (*)(s32, s32, s32*), void (*)(s32, s32, s32*));
 
 s32 func_80015AFC(s32, s32);
+void func_80025D14(u_long*, s32, s32, s32, s32);
 void func_80028CA0(s16, s16, s32, s32, s32, s32, s32, s32);
 extern u16 D_80062F50;
 extern u8 D_8009D5E8;
@@ -23,6 +24,7 @@ extern s16 D_8009D85C[]; // record fields, stride 0x440
 extern s16 D_8009D85E[];
 extern s16 D_8009D860[];
 extern s16 D_8009D862[];
+extern u8 D_801D3890[];
 extern u8 D_801D3E60[];
 
 // Likely plays a menu sound effect: loads a sound command (0x30) and the sound
@@ -775,6 +777,13 @@ void RestoreCharacterMateria(s32 charIdx) {
     }
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3228);
+// Uploads the coin-pattern texture at D_801D3890 (64x32, 4bpp, seamlessly
+// tileable) into VRAM: pixel data to (0x3F0, 0x120), CLUT to (0x110, 0x1E0).
+// Runs once at boot/menu init (main -> func_80026258 -> func_80025008); the
+// texture stays resident so the battle UI can scroll it as the animated
+// backdrop behind the coin-throw amount prompt.
+void func_801D3228(void) {
+    func_80025D14(&D_801D3890, 0x3F0, 0x120, 0x110, 0x1E0);
+}
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3260);
