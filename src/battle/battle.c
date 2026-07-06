@@ -46,7 +46,27 @@ void func_800A23BC(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A23E0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A283C);
+void func_800A283C(void) {
+    s32 next;
+    s32* out;
+    u32 i;
+    u32 delim;
+
+    i = 0;
+    next = 0;
+    delim = 0x1F;
+    out = D_800F38AC;
+    /* i is initialised separately and delim kept in a temp: both are
+     * load-bearing for codegen */
+    for (; i < 0x6D; i++) {
+        if (i == next) {
+            *out++ = i;
+        }
+        if (D_800A0098[i] == delim) {
+            next = i + 1;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2894);
 
@@ -146,9 +166,19 @@ void func_800A31A0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     unk->unkA = -1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3208);
+static void func_800A3208(s8 arg0, s8 arg1) {
+    if (D_800F3944 != 0) {
+        Unk800A2F4C* ptr = &D_80163798[D_800F3944 - 1];
+        ptr->unk3 = arg0;
+        ptr->unk2 = arg1;
+    }
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3240);
+static void func_800A3240(void) {
+    if (D_800F3944 != 0) {
+        D_80163798[D_800F3944 - 1].unk8 = -1;
+    }
+}
 
 void func_800A3278(void) {
     D_800F3944 = 0;
