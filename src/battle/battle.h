@@ -292,7 +292,7 @@ typedef struct {
         struct {
             /* 0x28 */ SVECTOR sv2;
             /* 0x30 */ s32 unk30;
-            /* 0x34 */ s8 unk34;
+            /* 0x34 */ u8 unk34;
             /* 0x35 */ s8 unk35;
             /* 0x36 */ s16 unk36;
         } sub;

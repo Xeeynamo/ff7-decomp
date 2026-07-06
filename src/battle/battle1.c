@@ -3,11 +3,13 @@
 #include <libetc.h>
 #include <libgpu.h>
 
+static void func_800B37A0(void);
 static void func_800B37EC(void);
 static void func_800B3D38(void);
 static void func_800B3D88(void);
 static void func_800B3DBC(void);
 static void func_800B7FDC(void);
+static void func_800B8360(s32);
 static void func_800B85E0();
 static void func_800BA4C8(void);
 void func_800BA598(s16);
@@ -17,6 +19,8 @@ static void func_800BB804(void);
 static void func_800BB864(void);
 static void func_800C4D10(void);
 DR_MODE* func_800C4DC8(s16 x, s16 y, s16 w, s16 h, s32*);
+static void func_800C627C(void);
+void func_800C62F4(s32);
 
 void func_800B30E4(void) {
     s32 i;
@@ -93,7 +97,11 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B33A4);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B36B4);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B37A0);
+// one-shot setup call centered on the 320x240 screen
+static void func_800B37A0(void) {
+    func_800D91DC(0x140, 0xF0, D_80162084, D_800FA6A0, D_800FA63C.u.sub.unk34,
+                  D_800F9F34);
+}
 
 static void func_800B37EC(void) {
     D_80162094 = 4;
@@ -305,7 +313,11 @@ static void func_800B8268(void) {
     D_80163787 = 0;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B8360);
+// build a draw-mode prim (texture page selected by arg0) and add it to the OT
+static void func_800B8360(s32 arg0) {
+    SetDrawMode(D_80163C74, 1, 1, (arg0 & 3) << 5, 0);
+    AddPrim(D_801517C0->unk4078, D_80163C74++);
+}
 
 static void func_800B83C4() {
     s32 i;
@@ -590,13 +602,37 @@ static void func_800BB944(void) {
     func_8002DA7C();
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB978);
+// queue sound command 0xC1
+void func_800BB978(void) {
+    D_8009A000[0] = 0xC1;
+    D_8009A004[0] = 0x12C;
+    D_8009A008[0] = 0;
+    func_8002DA7C();
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB9B8);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB9FC);
+// queue sound command 0x2B
+void func_800BB9FC(s32 arg0) {
+    s32 param;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBA40);
+    D_8009A000[0] = 0x2B;
+    param = arg0 & 0xFFFF;
+    D_8009A004[0] = 0x40;
+    D_8009A008[0] = param;
+    func_8002DA7C(param);
+}
+
+// queue sound command 0x20
+static void func_800BBA40(s32 arg0) {
+    s32 param;
+
+    D_8009A000[0] = 0x20;
+    param = arg0 & 0xFFFF;
+    D_8009A004[0] = 0x40;
+    D_8009A008[0] = param;
+    func_8002DA7C(param);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBA84);
 
@@ -686,7 +722,13 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0254);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0314);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C03B8);
+// magnitude of (arg0 - arg1) via GTE sqrt
+static s16 func_800C03B8(s16 arg0, s16 arg1) {
+    s32 delta;
+
+    delta = arg0 - arg1;
+    return SquareRoot0(delta * delta);
+}
 
 s32 func_800C03FC(s32 arg0, s32 arg1) { return arg0 < 0 ? -arg1 : arg1; }
 
@@ -706,7 +748,15 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0DD8);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1104);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1304);
+// cosine-eased interpolation between arg0 and arg1
+static s32 func_800C1304(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    s32 val;
+    s32 delta;
+
+    delta = arg1 - arg0;
+    val = (rcos((s16)(((arg3 << 0xB) / arg2) + 0x800)) + 0x1000) * delta;
+    return arg0 + val / 0x2000;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1394);
 
@@ -998,7 +1048,16 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C59B8);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5ADC);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5BEC);
+// reset each slot's first field to -1 (empty)
+static void func_800C5BEC(void) {
+    s32 fill;
+    s32 i;
+
+    fill = -1;
+    for (i = 0x17A; i >= 0; i -= 6) {
+        *(s16*)&D_800F9DA8[i] = fill;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5C18);
 
@@ -1018,7 +1077,19 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C614C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C61C0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C627C);
+// load an image into VRAM
+static void func_800C627C(void) {
+    s32 i;
+
+    for (i = 0; i < 0xA; i++) {
+        func_800C62F4(i & 0xFF);
+    }
+    D_800F4B24.x = 0;
+    D_800F4B24.y = 0x1E0;
+    D_800F4B24.w = 0x10;
+    D_800F4B24.h = 0x1E;
+    BATTLE_EnqueueLoadImage(&D_800F4B24, D_80158D0C);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C62F4);
 
