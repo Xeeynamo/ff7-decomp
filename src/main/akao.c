@@ -93,8 +93,25 @@ typedef struct {
 } Unk8002B7E0; // size:0x24
 
 typedef struct {
-    u8 unk[0x210];
-} Unk80099788;
+    u8 pad0[0x3C];
+    s32 unk3C;
+    u8 pad1[0x1A];
+    s16 unk5A;
+    u8 pad2[0x2];
+    s16 unk5E;
+    s16 unk60;
+    s16 unk62;
+    u8 pad3[0x62];
+    s16 unkC6;
+    u8 pad4[0x18];
+    s32 unkE0;
+    u8 pad5[0x24];
+} Unk80099788Half; // size 0x108
+
+typedef struct {
+    Unk80099788Half half0;
+    Unk80099788Half half1;
+} Unk80099788; // size 0x210
 
 extern void (*D_80049548[])(Unk8002B7E0*);
 extern u8 D_800499A8[]; // opcode lenghts
@@ -387,7 +404,29 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BBEC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BC58);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BCCC);
+// The voice record at arg1 is two identical-layout 0x108-byte halves. Write the
+// note's transposed pitch (arg0+4) into a field in each half, clear another
+// field in each half, and set flag bits 0x3 in each half's control word
+// (+0xE0).
+static void func_8002BCCC(void* arg0, void* arg1) {
+    u16 val0;
+    s32 v1;
+    s32 v0_e0;
+    Unk80099788* voice = (Unk80099788*)arg1;
+    // The do{}while(0) affects register allocation and is required for the
+    // match.
+    do {
+        val0 = *((u16*)((u8*)arg0 + 0x4));
+        v1 = voice->half1.unkE0;
+        voice->half1.unk5E = 0;
+        voice->half0.unk5E = 0;
+        voice->half1.unkC6 = (s16)((val0 & 0x7F) << 8);
+    } while (0);
+    voice->half0.unkC6 = (s16)((val0 & 0x7F) << 8);
+    v0_e0 = voice->half0.unkE0;
+    voice->half1.unkE0 = v1 | 3;
+    voice->half0.unkE0 = v0_e0 | 3;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BD04);
 
@@ -407,23 +446,38 @@ void func_8002BE2C(void* arg0) {
     func_8002BD04(arg0, &D_80099788[0]);
 }
 
-void func_8002BE8C(s32 arg0) { func_8002BCCC(arg0, &D_80099788[2]); }
+void func_8002BE8C(void* arg0) { func_8002BCCC(arg0, &D_80099788[2]); }
 
 void func_8002BEB4(s32 arg0) { func_8002BD04(arg0, &D_80099788[2]); }
 
-void func_8002BEDC(s32 arg0) { func_8002BCCC(arg0, &D_80099788[1]); }
+void func_8002BEDC(void* arg0) { func_8002BCCC(arg0, &D_80099788[1]); }
 
 void func_8002BF04(s32 arg0) { func_8002BD04(arg0, &D_80099788[1]); }
 
-void func_8002BF2C(s32 arg0) { func_8002BCCC(arg0, &D_80099788[0]); }
+void func_8002BF2C(void* arg0) { func_8002BCCC(arg0, &D_80099788[0]); }
 
 void func_8002BF54(s32 arg0) { func_8002BD04(arg0, &D_80099788[0]); }
 
-void func_8002BF7C(s32 arg0) { func_8002BCCC(arg0, &D_80099788[3]); }
+void func_8002BF7C(void* arg0) { func_8002BCCC(arg0, &D_80099788[3]); }
 
 void func_8002BFA4(s32 arg0) { func_8002BD04(arg0, &D_80099788[3]); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BFCC);
+// Same shape as func_8002BCCC (two 0x108-byte halves, shared +0xE0 control
+// word), at a different pitch/clear field within each half.
+static void func_8002BFCC(void* arg0, void* arg1) {
+    s16 temp_v0;
+    s32 v1;
+    Unk80099788* voice = (Unk80099788*)arg1;
+
+    temp_v0 = (*(u16*)((u8*)arg0 + 0x4) & 0x7F) << 8;
+    v1 = voice->half1.unkE0;
+    voice->half1.unk62 = 0;
+    voice->half0.unk62 = 0;
+    voice->half1.unk60 = temp_v0;
+    voice->half0.unk60 = temp_v0;
+    voice->half0.unkE0 = voice->half0.unkE0 | 3;
+    voice->half1.unkE0 = (v1 | 3);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C004);
 
@@ -443,23 +497,40 @@ void func_8002C12C(void* arg0) {
     func_8002C004(arg0, &D_80099788[0]);
 }
 
-void func_8002C18C(s32 arg0) { func_8002BFCC(arg0, &D_80099788[2]); }
+void func_8002C18C(void* arg0) { func_8002BFCC(arg0, &D_80099788[2]); }
 
 void func_8002C1B4(s32 arg0) { func_8002C004(arg0, &D_80099788[2]); }
 
-void func_8002C1DC(s32 arg0) { func_8002BFCC(arg0, &D_80099788[1]); }
+void func_8002C1DC(void* arg0) { func_8002BFCC(arg0, &D_80099788[1]); }
 
 void func_8002C204(s32 arg0) { func_8002C004(arg0, &D_80099788[1]); }
 
-void func_8002C22C(s32 arg0) { func_8002BFCC(arg0, &D_80099788[0]); }
+void func_8002C22C(void* arg0) { func_8002BFCC(arg0, &D_80099788[0]); }
 
 void func_8002C254(s32 arg0) { func_8002C004(arg0, &D_80099788[0]); }
 
-void func_8002C27C(s32 arg0) { func_8002BFCC(arg0, &D_80099788[3]); }
+void func_8002C27C(void* arg0) { func_8002BFCC(arg0, &D_80099788[3]); }
 
 void func_8002C2A4(s32 arg0) { func_8002C004(arg0, &D_80099788[3]); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C2CC);
+// Same shape as func_8002BCCC/func_8002BFCC (two 0x108-byte halves, shared
+// +0xE0 control word), at a third pitch/clear field, setting flag bit 0x10
+// instead of 0x3.
+static void func_8002C2CC(void* arg0, void* arg1) {
+    s32 temp_v0;
+    s32 temp_v1;
+    s8* arg0_bytes = (s8*)arg0;
+    Unk80099788* voice = (Unk80099788*)arg1;
+
+    temp_v0 = arg0_bytes[4] << 8;
+    temp_v1 = voice->half1.unkE0;
+    voice->half1.unk5A = 0;
+    voice->half0.unk5A = 0;
+    voice->half1.unk3C = temp_v0;
+    voice->half0.unk3C = temp_v0;
+    voice->half0.unkE0 = voice->half0.unkE0 | 0x10;
+    voice->half1.unkE0 = temp_v1 | 0x10;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C300);
 
@@ -479,19 +550,19 @@ void func_8002C408(void* arg0) {
     func_8002C300(arg0, &D_80099788[0]);
 }
 
-void func_8002C468(s32 arg0) { func_8002C2CC(arg0, &D_80099788[2]); }
+void func_8002C468(void* arg0) { func_8002C2CC(arg0, &D_80099788[2]); }
 
 void func_8002C490(s32 arg0) { func_8002C300(arg0, &D_80099788[2]); }
 
-void func_8002C4B8(s32 arg0) { func_8002C2CC(arg0, &D_80099788[1]); }
+void func_8002C4B8(void* arg0) { func_8002C2CC(arg0, &D_80099788[1]); }
 
 void func_8002C4E0(s32 arg0) { func_8002C300(arg0, &D_80099788[1]); }
 
-void func_8002C508(s32 arg0) { func_8002C2CC(arg0, &D_80099788[0]); }
+void func_8002C508(void* arg0) { func_8002C2CC(arg0, &D_80099788[0]); }
 
 void func_8002C530(s32 arg0) { func_8002C300(arg0, &D_80099788[0]); }
 
-void func_8002C558(s32 arg0) { func_8002C2CC(arg0, &D_80099788[3]); }
+void func_8002C558(void* arg0) { func_8002C2CC(arg0, &D_80099788[3]); }
 
 void func_8002C580(s32 arg0) { func_8002C300(arg0, &D_80099788[3]); }
 
