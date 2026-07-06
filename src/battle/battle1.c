@@ -315,12 +315,8 @@ static void func_800B8268(void) {
 
 // build a draw-mode prim (texture page selected by arg0) and add it to the OT
 static void func_800B8360(s32 arg0) {
-    DR_MODE* mode;
-
     SetDrawMode(D_80163C74, 1, 1, (arg0 & 3) << 5, 0);
-    mode = D_80163C74;
-    D_80163C74 = mode + 1;
-    AddPrim(D_801517C0->unk4078, mode);
+    AddPrim(D_801517C0->unk4078, D_80163C74++);
 }
 
 static void func_800B83C4() {
@@ -759,10 +755,7 @@ static s32 func_800C1304(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
     delta = arg1 - arg0;
     val = (rcos((s16)(((arg3 << 0xB) / arg2) + 0x800)) + 0x1000) * delta;
-    if (val < 0) {
-        val += 0x1FFF;
-    }
-    return arg0 + (val >> 0xD);
+    return arg0 + val / 0x2000;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1394);
@@ -1061,11 +1054,9 @@ static void func_800C5BEC(void) {
     s32 i;
 
     fill = -1;
-    i = 0x17A;
-    do {
+    for (i = 0x17A; i >= 0; i -= 6) {
         *(s16*)&D_800F9DA8[i] = fill;
-        i -= 6;
-    } while (i >= 0);
+    }
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5C18);
@@ -1090,11 +1081,9 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C61C0);
 static void func_800C627C(void) {
     s32 i;
 
-    i = 0;
-    do {
+    for (i = 0; i < 0xA; i++) {
         func_800C62F4(i & 0xFF);
-        i += 1;
-    } while (i < 0xA);
+    }
     D_800F4B24.x = 0;
     D_800F4B24.y = 0x1E0;
     D_800F4B24.w = 0x10;
