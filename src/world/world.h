@@ -3,6 +3,8 @@
 
 #include <game.h>
 
+#define ABS(x) ((x <= 0) ? -(x) : (x))
+
 typedef struct {
     /* 0x00 */ u8 vert[3];
     /* 0x03 */ u8 walkabilityAndScript; // packed of 5 bits for walkabilty and 3
@@ -159,6 +161,7 @@ void func_800B0D98(WorldChunkHeader*);
 void func_800B1C80(WorldChunkHeader*);
 void func_800B5274();
 void func_800B5C7C(WorldActor*);
+void func_800B624C(u16, s32);
 void func_800B63F0(s32);
 void func_800B65E0(s32);
 void func_800B6B28(s16);
@@ -179,7 +182,8 @@ static void func_800BBD0C(void);
 
 extern u32* D_800BD130;
 extern s32 D_800BD144;
-extern s32 D_800BE1E8[1]; // TODO: size unknown
+extern u16 D_800BD9E8[16][4][16]; // world map encounter data, size: 0x800
+extern s32 D_800BE1E8[1];         // TODO: size unknown
 extern s32 D_800C65EC;
 extern s32 D_800C6628;
 extern s32 D_800C6638;
@@ -187,48 +191,53 @@ extern u8 D_800C6770[1]; // TODO: size unknown
 extern s16 D_800C68EE;
 extern s16 D_800C6902;
 extern s16 D_800C6916;
+extern u8 D_800C72B4[16][4]; // size: 0x40
+extern u8 D_800C72F4[16];    // yuffie spawn chances per area, size: 0x10
 extern s8 D_800C752D;
 extern u32* D_800C7530;
 extern s32 D_800D05E8;
 extern WorldScriptData D_800D05EC;
-extern s32 D_800E5608;
-extern s32 D_800E560C;
-extern s32 D_800E5618;
-extern s32 D_800E5628;
-extern s32 D_800E5630; // WM earthquake
-extern s32 D_800E5634;
-extern s32 D_800E5648;
-extern s32 D_800E5654;
-extern s32 D_800E5678;
-extern MATRIX D_800E5698;
-extern MATRIX D_800E56B8;
-extern s32 D_800E5814;
-extern s32 D_800E5820;
-extern s32 D_800E5828;
 extern s32 D_800E55EC;
 extern s32 D_800E55F0;
 extern s32 D_800E55F4;
 extern s32 D_800E55FC;
 extern s32 D_800E5600;
 extern s32 D_800E5604;
+extern s32 D_800E5608;
+extern s32 D_800E560C;
+extern s32 D_800E5618;
 extern s32 D_800E561C;
 extern s32 D_800E5620;
 extern s32 D_800E5624;
+extern s32 D_800E5628;
+extern s32 D_800E5630; // WM earthquake
+extern s32 D_800E5634;
 extern s32 D_800E5638;
 extern s32 D_800E563C;
 extern s32 D_800E5644;
+extern s32 D_800E5648;
 extern s32 D_800E564C;
 extern s32 D_800E5650;
+extern s32 D_800E5654;
 extern s32 D_800E5658;
 extern s32 D_800E5668;
 extern s32 D_800E566C;
 extern s32 D_800E5670;
 extern s32 D_800E5674;
+extern s32 D_800E5678;
+extern MATRIX D_800E5698;
+extern MATRIX D_800E56B8;
 extern s16 D_800E56D8;
 extern s32 D_800E56F4;
+extern s32 D_800E56F8;
+extern s32 D_800E5814;
+extern s32 D_800E5820;
 extern s32 D_800E5824;
-extern s32 D_80109D58;
+extern s32 D_800E5828;
+extern s32 D_800E5A34;
+extern VECTOR D_80109D44;
 extern s32 D_80109D54;
+extern s32 D_80109D58;
 extern s32 D_80109D6C;
 extern WorldActor D_80109D74[0x10]; // World map actor heap, TODO: Confirm size
 extern WorldActor* D_8010AD34;
