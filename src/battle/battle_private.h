@@ -49,7 +49,7 @@ typedef struct {
     s16 unk6;
     s16 unk8;
     s16 unkA;
-} Unk800A2F4C; // size: 0x12
+} Unk800A2F4C; // size: 0xC (confirmed by D_80163A98 - D_80163798 == 0x40 * 0xC)
 
 typedef struct {
     s16 D_801621AC;
@@ -242,6 +242,7 @@ extern s8 D_800F3468;
 extern u8 D_800F381C[];
 extern u8 D_800F3828[];
 extern unsigned char D_800F384A[];
+extern s32 D_800F38AC[];
 extern u8 D_800F38A0;
 extern u8 D_800F38A1;
 extern s16 D_800F38A2;
@@ -352,6 +353,7 @@ extern u8 D_80163774[];
 extern u16 D_8016376E[];
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct
+extern u8 D_8016378C[];
 extern Unk800A2F4C D_80163798[0x40];
 extern s8 D_80163A98;
 extern u16 D_80163B80;
