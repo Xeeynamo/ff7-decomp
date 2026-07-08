@@ -26,7 +26,7 @@ static void func_800D8AF0(u16 arg0) {
     D_8009A000[0] = arg0;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
-    func_8002DA7C(arg0);
+    func_8002DA7C();
 }
 
 void func_800D8B2C(void) {

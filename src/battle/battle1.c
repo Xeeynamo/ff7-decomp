@@ -620,7 +620,7 @@ void func_800BB9FC(s32 arg0) {
     param = arg0 & 0xFFFF;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = param;
-    func_8002DA7C(param);
+    func_8002DA7C();
 }
 
 // queue sound command 0x20
@@ -631,7 +631,7 @@ static void func_800BBA40(s32 arg0) {
     param = arg0 & 0xFFFF;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = param;
-    func_8002DA7C(param);
+    func_8002DA7C();
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBA84);
