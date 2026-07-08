@@ -1019,7 +1019,7 @@ s32 func_800C4BCC(void) {
         }
         *D_8009A004 = &D_8009C6DC[func_800C4C9C(akaoId)];
         D_8009C6E0->unk48 = *D_8009A004;
-        func_8002DA7C(D_8009C6E0);
+        func_8002DA7C();
     }
     D_800831FC[D_800722C4] += 2;
     return 0;

@@ -113,7 +113,7 @@ static void func_801D0040(u16 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
-    func_8002DA7C(arg0);
+    func_8002DA7C();
 }
 
 static void func_801D0080(s32 arg0) {
