@@ -279,11 +279,14 @@ extern u8 D_800F7DF4;
 extern s32 D_800F8368;
 extern s16 D_800F8370;
 extern s32* D_800F839C; // CD offset?
+extern u8 D_800F83A4[]; // shared battle-script variable bank (func_800B13B0)
 extern u8 D_800F83A6;
 extern u16 D_800F83C6; // part of struct?
 extern u16 D_800F83D0;
 extern Unk800F83E4 D_800F83E4[];
 extern s32 D_800F8408;
+extern u8 D_800F87F0[]; // per-combatant battle-script variable bank, 0x80 B
+                        // each (func_800B13B0)
 extern s8 D_800F8CF0;
 extern s32 D_800F9144;
 extern s8 D_800F914E;
@@ -401,7 +404,8 @@ typedef struct {
     /* 0x0 */ u16 id;
     /* 0x2 */ u8 count;
     /* 0x3 */ u8 targetFlags;
-    /* 0x4 */ u16 unk4;
+    /* 0x4 */ u8 unk4;
+    /* 0x5 */ u8 unk5;
 } BattleItemEntry; /* size: 0x6 */
 
 /* battle menu widget block (one per widget id, 0x240 apart) -- partial */
