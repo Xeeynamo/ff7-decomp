@@ -216,11 +216,26 @@ void func_80025650(void) {}
 // get party leader (Cloud) level
 s32 func_80025658() { return D_8009C738[0].level; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80025668);
+// Party slot -> equipped character -> that character's equipped armor's
+// materia-slot configuration (slot count / linked-pair layout / growth rate;
+// see ArmorRecord in main_private.h). Returns sentinel (void*)0xFF for an
+// empty party slot.
+void* GetPartySlotArmorMateriaSlots(s32 arg0) {
+    u8 temp_v1;
+    void* var_v0;
+
+    temp_v1 = D_8009CBDC[arg0];
+    var_v0 = (void*)0xFF;
+    if (temp_v1 != 0xFF) {
+        u32 idx = D_800491D0[temp_v1];
+        var_v0 = g_ArmorTable[D_8009C755[idx * 0x84]].materiaSlot;
+    }
+    return var_v0;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_800256DC);
 
-s32* func_80025758(s32 arg0) { return &D_80071E44[arg0 * 9]; }
+s32* func_80025758(s32 arg0) { return (s32*)&g_ArmorTable[arg0]; }
 
 s32* func_80025774(s32 arg0) { return &D_80071C24[arg0 * 4]; }
 
@@ -233,7 +248,12 @@ Unk8009D84C* func_80025788(s32 arg0) {
 
 void func_800257C4(void) {}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_800257CC);
+// Character id -> that character's 0x84-byte record (see D_8009C748). Not
+// armor-specific, despite being a sibling of GetPartySlotArmorMateriaSlots
+// above.
+void* GetCharacterRecord(s32 arg0) {
+    return (void*)(D_800491D0[arg0] * 0x84 + (u32)D_8009C748);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80025800);
 

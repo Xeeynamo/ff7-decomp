@@ -74,6 +74,41 @@ typedef struct {
     s32 length;
 } PortraitEntry;
 
+// Kernel armor record, one per armor id (g_ArmorTable). Field meanings were
+// verified by dumping the live table and matching each field against
+// published stats for all 32 armors.
+typedef struct {
+    u8 unk0;            // 0 on every armor except Wizard Bracelet (0xFF)
+    u8 elementalEffect; // "damage type": 0xFF=none, 0=absorb, 1=nullify,
+                        // 2=halve
+    u8 defense;
+    u8 magicDefense;
+    u8 defensePercent;
+    u8 magicDefensePercent;
+    u8 statusDefense; // index of the status bit this armor guards against;
+                      // 0xFF (none) on every armor (a mostly-accessory field)
+    u8 unk7;
+    u8 unk8;           // 0 on every armor except Four Slots (0xFF)
+    u8 materiaSlot[8]; // one byte per possible slot; 0=none, else slot present
+                       // (5=single/6,7=linked-pair when materiaGrowth!=None;
+                       //  1=single/2,3=linked-pair when materiaGrowth==None)
+    u8 materiaGrowth;  // 0=None, 1=Normal, 2=Double
+    u8 equipMask[2];   // equippable-by-character bitmask (bit0=Cloud,1=Barret,
+                     // 2=Tifa,3=Aeris,4=RedXIII,5=Yuffie,6=CaitSith,7=Vincent,
+                     // 8=Cid,9=Young Cloud). 0x01FF=all; Minerva=0x002C
+                     // (women), Escort Guard=0x03D3 (men + Young Cloud).
+    u8 elementalMask
+        [2];     // bit0=Fire,1=Ice,2=Lightning,3=Earth,4=Poison,5=Gravity,
+                 // 6=Water,7=Wind,8=Holy,10=Cut,11=Hit,12=Punch,13=Shoot
+    u8 unk16[2]; // unknown, always 0x00FF
+    u8 statBonusId[4];     // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
+                           // 4=Dex,5=Lck; unused slot when paired value==0
+    u8 statBonusValue[4];  // bonus amount; 0 = slot unused
+    u8 restrictionMask[2]; // usage flags (sellability / battle-use / menu-use);
+                           // 0xFFFE on armor
+    u8 unk22[2];           // unknown, always 0xFFFF
+} ArmorRecord;
+
 extern s32 D_80010100[];
 extern s32 D_80048CFC;
 extern s32 D_80048D00;
@@ -88,6 +123,7 @@ extern s32 D_80048D20;
 extern Yamada D_80048D84[];
 extern s32 D_80048DD4[];
 extern PortraitEntry D_80048FE8[15];
+extern u32 D_800491D0[];
 extern u8 D_80049208[12]; // menu color RGB-quadruplet
 extern s32 D_80049224[8];
 extern s32 D_80049474;    // play-clock divisor: 36000 (seconds per 10 hours)
@@ -107,15 +143,19 @@ extern u8 D_800708D4[];
 extern u8 D_800716D0;
 extern s32 D_80071744; // LBA loc for func_80014540
 extern s16 D_80071A5C;
-extern s32 D_80071C24[];   // accessory data?
-extern s32 D_80071E44[];   // armor data?
-extern u_long* D_800722C8; // LBA dst for func_80014540
+extern s32 D_80071C24[];           // accessory data?
+extern ArmorRecord g_ArmorTable[]; // armor kernel table, indexed by armor id
+extern u_long* D_800722C8;         // LBA dst for func_80014540
 extern u8 D_800722DC[];
 extern u8 D_800730DC[][0x14];
 extern s32 D_80095DD8; // LBA len for func_80014540
 extern s16 D_800965E8;
 extern u16 D_8009C560; // refer to Subsystem enum
 extern SavePartyMember D_8009C738[8];
+extern u8 D_8009C748[];  // character record, 0x84-byte stride; +0xD = equipped
+                         // armor id
+extern u8 D_8009C755[];  // D_8009C748 + 0xD (equipped armor id field),
+                         // decompiler-split alias
 extern u8 D_8009D44C[8]; // party-level snapshot for endgame battle AI
 extern u16 D_8009ABF6;
 extern u16 D_8009AC32;
