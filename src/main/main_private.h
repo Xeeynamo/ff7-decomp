@@ -79,12 +79,15 @@ typedef struct {
 // published stats for all 32 armors.
 typedef struct {
     u8 unk0;            // 0 on every armor except Wizard Bracelet (0xFF)
-    u8 elementalEffect; // 0xFF=none, 0=absorb, 1=nullify, 2=halve
+    u8 elementalEffect; // "damage type": 0xFF=none, 0=absorb, 1=nullify,
+                        // 2=halve
     u8 defense;
     u8 magicDefense;
     u8 defensePercent;
     u8 magicDefensePercent;
-    u8 unk6[2];
+    u8 statusDefense; // index of the status bit this armor guards against;
+                      // 0xFF (none) on every armor (a mostly-accessory field)
+    u8 unk7;
     u8 unk8;           // 0 on every armor except Four Slots (0xFF)
     u8 materiaSlot[8]; // one byte per possible slot; 0=none, else slot present
                        // (5=single/6,7=linked-pair when materiaGrowth!=None;
@@ -95,13 +98,15 @@ typedef struct {
                      // 8=Cid,9=Young Cloud). 0x01FF=all; Minerva=0x002C
                      // (women), Escort Guard=0x03D3 (men + Young Cloud).
     u8 elementalMask
-        [2]; // bit0=Fire,1=Ice,2=Lightning,3=Earth,4=Poison,5=Gravity,
-             // 6=Water,7=Wind,8=Holy,10=Cut,11=Hit,12=Punch,13=Shoot
-    u8 unk16[2];
-    u8 statBonusId[4];    // 0=Str,2=Mag,4=Dex,5=Lck observed; unused slot when
-                          // paired value==0
-    u8 statBonusValue[4]; // bonus amount; 0 = slot unused
-    u8 unk20[4];
+        [2];     // bit0=Fire,1=Ice,2=Lightning,3=Earth,4=Poison,5=Gravity,
+                 // 6=Water,7=Wind,8=Holy,10=Cut,11=Hit,12=Punch,13=Shoot
+    u8 unk16[2]; // unknown, always 0x00FF
+    u8 statBonusId[4];     // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
+                           // 4=Dex,5=Lck; unused slot when paired value==0
+    u8 statBonusValue[4];  // bonus amount; 0 = slot unused
+    u8 restrictionMask[2]; // usage flags (sellability / battle-use / menu-use);
+                           // 0xFFFE on armor
+    u8 unk22[2];           // unknown, always 0xFFFF
 } ArmorRecord;
 
 extern s32 D_80010100[];
