@@ -1116,27 +1116,27 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D55F4);
 
 // Project a point through the current view matrix and convert its clamped
 // on-screen X (0..319) into a 0..127 stereo pan value.
-static s32 func_800D56A8(s32 arg0) {
-    s16 sp10[2];
-    s32 sp18;
-    s32 sp1C;
+static s32 func_800D56A8(SVECTOR* sv) {
+    s16 sxy[2];
+    s32 p;
+    s32 flag;
 
     SetRotMatrix(&D_800FA63C.m);
     SetTransMatrix(&D_800FA63C.m);
-    RotTransPers(arg0, sp10, &sp18, &sp1C);
-    if (sp10[0] < 0) {
-        sp10[0] = 0;
-    } else if (sp10[0] >= 0x140) {
-        sp10[0] = 0x13F;
+    RotTransPers(sv, (long*)sxy, (long*)&p, (long*)&flag);
+    if (sxy[0] < 0) {
+        sxy[0] = 0;
+    } else if (sxy[0] >= 0x140) {
+        sxy[0] = 0x13F;
     }
-    return (sp10[0] * 128) / 320;
+    return (sxy[0] * 128) / 320;
 }
 
 s32 func_800D574C(s32 arg0) {
-    s32 sp10;
+    SVECTOR sv;
 
-    func_800D54EC(arg0, &sp10);
-    return func_800D56A8(&sp10);
+    func_800D54EC(arg0, &sv);
+    return func_800D56A8(&sv);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5774);

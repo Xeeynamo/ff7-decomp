@@ -11,8 +11,9 @@ extern u16 D_801D35B4[]; // per-item-id sort order for the "Name" arrange option
 
 s32 func_8001FAF8(
     s32); // returns an item's usage flags (0x2 battle, 0x4 field, 0x8 throw)
-static s32 Quicksort(
-    s32, s32, s32 (*)(s32, s32, s32*), void (*)(s32, s32, s32*));
+typedef s32 (*SortCmp)(s32, s32, s32*);
+typedef void (*SortSwap)(s32, s32, s32*);
+static s32 Quicksort(s32, s32, SortCmp, SortSwap);
 
 s32 func_80015AFC(s32, s32);
 void func_80025D14(u_long*, s32, s32, s32, s32);
@@ -119,8 +120,7 @@ static void SwapS32(s32* arg0, s32* arg1) {
 // NOTE: the do{}while(0) wrapper, the va1 register copy of j, the duplicated
 // cont computation and the tmp* temporaries are all required for the
 // byte-perfect match (they reproduce the original register allocation).
-static s32 Quicksort(s32 base, s32 count, s32 (*cmp)(s32, s32, s32*),
-                     void (*swap)(s32, s32, s32*)) {
+static s32 Quicksort(s32 base, s32 count, SortCmp cmp, SortSwap swap) {
     s32 stack[128];
     s32 tmp4;
     s32 tmp5;
@@ -383,25 +383,32 @@ static void ArrangeItems(s32 mode) {
     case 0:
         break;
     case 1:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByField, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByField,
+                  (SortSwap)SwapItemSlots);
         break;
     case 2:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByBattle, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByBattle,
+                  (SortSwap)SwapItemSlots);
         break;
     case 3:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByThrow, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByThrow,
+                  (SortSwap)SwapItemSlots);
         break;
     case 4:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByType, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByType,
+                  (SortSwap)SwapItemSlots);
         break;
     case 5:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByName, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByName,
+                  (SortSwap)SwapItemSlots);
         break;
     case 6:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByMost, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByMost,
+                  (SortSwap)SwapItemSlots);
         break;
     case 7:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByLeast, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByLeast,
+                  (SortSwap)SwapItemSlots);
         break;
     }
 }
@@ -826,7 +833,7 @@ void RestoreCharacterMateria(s32 charIdx) {
 // texture stays resident so the battle UI can scroll it as the animated
 // backdrop behind the coin-throw amount prompt.
 void func_801D3228(void) {
-    func_80025D14(&D_801D3890, 0x3F0, 0x120, 0x110, 0x1E0);
+    func_80025D14((u_long*)D_801D3890, 0x3F0, 0x120, 0x110, 0x1E0);
 }
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3260);

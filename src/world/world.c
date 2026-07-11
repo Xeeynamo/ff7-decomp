@@ -1,6 +1,14 @@
 //! PSYQ=3.3 CC1=2.6.3 g=false gcoff=false
 #include "world.h"
 
+void func_800AA0E0(VECTOR* arg0);
+s32 func_800ADFC0(void);
+static s32 func_800B0800(void);
+static s32 func_800B7B2C(void);
+s32 func_800B7B3C(void);
+void func_800BC9E8(s16 arg0);
+s16 func_800BCA38(void);
+
 const char D_800A0000[] = "NEW  ";
 static const char D_800A0008[] = "OLD  ";
 static const char D_800A0010[] = "JUMP ";
@@ -39,7 +47,7 @@ void func_800A1370(void) {
     }
     D_800C752D = 0xC;
     D_800C7530 = D_800BD130;
-    ClearOTagR(D_800BD130, 0x1000);
+    ClearOTagR((OT_TYPE*)D_800BD130, 0x1000);
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A141C);
@@ -466,7 +474,7 @@ void func_800A8ABC(WorldActor* arg0) {
 
     arg0->unk5E = -1;
 
-    for (var_v1 = &arg0->collide; var_v1 < arg0 + 1; var_v1++)
+    for (var_v1 = &arg0->collide; var_v1 < (WorldActor**)(arg0 + 1); var_v1++)
         *var_v1 = NULL;
 }
 
@@ -1154,7 +1162,7 @@ void func_800ABA18(s32 arg0) {
     s32 var_a1;
     s32 var_a0;
 
-    D_8010AD3C = &D_80109D74;
+    D_8010AD3C = D_80109D74;
     if (arg0 == 1)
         D_8010ADEC = arg0;
     var_a1 = arg0 - 2;
@@ -1396,10 +1404,10 @@ void func_800ADEA8(s32 arg0) {
         arr[var_a2] = var_a3;
     }
     arr[0x10] = (arr[0x10] << 0x17) ^ (arr[0] >> 9) ^ arr[0xF];
-    for (var_a2 = 0x11; var_a2 < 0x209; var_a2++)
+    for (var_a2 = 0x11; var_a2 <= 0x208; var_a2++)
         arr[var_a2] = (arr[var_a2 - 0x11] << 0x17) ^
                       (arr[var_a2 - 0x10] >> 0x9) ^ (arr[var_a2 - 0x1]);
-    for (var_a2 = 0; var_a2 < 0x209; var_a2++)
+    for (var_a2 = 0; var_a2 <= 0x208; var_a2++)
         D_8010AE5C[var_a2] = arr[var_a2];
     func_800ADE30();
     func_800ADE30();
@@ -1408,12 +1416,9 @@ void func_800ADEA8(s32 arg0) {
 }
 
 // World Map RNG rand(), returns u8
-u8 func_800ADFC0(void) {
-    s32 temp_v0;
-
-    temp_v0 = D_8010AE58 + 1;
-    D_8010AE58 = temp_v0;
-    if (temp_v0 >= 0x209) {
+s32 func_800ADFC0(void) {
+    D_8010AE58++;
+    if (D_8010AE58 > 0x208) {
         func_800ADE30();
         D_8010AE58 = 0;
     }
@@ -1437,7 +1442,7 @@ s32 func_800AE024(VECTOR* arg0, VECTOR* arg1) {
     if (var_a2 <= 0)
         var_a2 = temp_v0 - temp_v1;
 
-    if (var_a2 > 0x23FFF)
+    if (var_a2 >= 0x24000)
         var_a2 = 0x48000 - var_a2;
 
     temp_v1_2 = arg0->vy;
@@ -1452,7 +1457,7 @@ s32 func_800AE024(VECTOR* arg0, VECTOR* arg1) {
     if (var_v1 <= 0)
         var_v1 = temp_a1 - temp_a0;
 
-    if (var_v1 > 0x1BFFF)
+    if (var_v1 >= 0x1C000)
         var_v1 = 0x38000 - var_v1;
 
     return var_a2 + var_a3 + var_v1;
@@ -1510,8 +1515,8 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF364);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF3A4);
 
-s32 func_800AF96C(s32 arg0) {
-    return D_8010B3B8 ? func_800AE024(arg0, D_8010B3B8) : 0;
+s32 func_800AF96C(VECTOR* v) {
+    return D_8010B3B8 ? func_800AE024(v, &D_8010B3B8->unk0) : 0;
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF9A0);
@@ -1545,21 +1550,21 @@ void func_800B0670(void) {
 
     func_800AA0E0(&sp10);
     if (sp10.vz <= 0x23A97)
-        for (var_a0 = &D_8010C2AC; var_a0 < &D_8010C2AC[0x30]; var_a0++) {
+        for (var_a0 = D_8010C2AC; var_a0 < &D_8010C2AC[0x30]; var_a0++) {
             var_a0->x = 0x2008;
             var_a0->z = 0x6338;
             var_a0->z2 = 0;
             var_a0->x2 = 0;
         }
     else
-        for (var_a0 = &D_8010C2AC; var_a0 < &D_8010C2AC[0x30]; var_a0++) {
+        for (var_a0 = D_8010C2AC; var_a0 < &D_8010C2AC[0x30]; var_a0++) {
             var_a0->x = 0x1D4C;
             var_a0->z = 0x11F8;
             var_a0->z2 = 0;
             var_a0->x2 = 0;
         }
     D_8010C7F0 = 0x400;
-    D_8010C42C = &D_8010C2AC;
+    D_8010C42C = D_8010C2AC;
 }
 
 void func_800B075C(void) {
@@ -1918,9 +1923,9 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B7AC0);
 
 void func_800B7B1C(u8 arg0) { D_8009D684 = arg0; }
 
-static u8 func_800B7B2C(void) { return D_8009D684; }
+static s32 func_800B7B2C(void) { return D_8009D684; }
 
-u16 func_800B7B3C(void) { return (D_800707BE >> 3) & 1; }
+s32 func_800B7B3C(void) { return (D_800707BE >> 3) & 1; }
 
 // Enemy Lure/Away Modifier
 s32 func_800B7B54(void) {
