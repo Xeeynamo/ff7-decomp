@@ -450,6 +450,7 @@ _ExitCard = 0x80048C7C;
 D_80049500 = 0x80049500;
 g_bPadsInitialized = 0x80062D70;
 D_800696AC = 0x800696AC;
+g_AccessoryTable = 0x80071C24;
 g_ArmorTable = 0x80071E44;
 g_WeaponTable = 0x800738A0;
 g_ReverbMode = 0x8009A140;

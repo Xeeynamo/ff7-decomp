@@ -151,6 +151,26 @@ typedef struct {
                            // initial weapons add sell+throw -> 0xFFFF)
 } WeaponRecord;
 
+// Kernel accessory record, one per accessory id (g_AccessoryTable), 0x10 bytes.
+// Field meanings verified by dumping the live table and matching each field
+// against published stats for all 32 accessories (same method as ArmorRecord).
+typedef struct {
+    u8 statBonusId[2];    // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
+                          // 4=Dex,5=Lck; 0xFF = unused
+    u8 statBonusValue[2]; // bonus amount, paired with statBonusId
+    u8 elementalStrength; // 0=absorb, 1=nullify, 2=halve; 0xFF = none
+    u8 specialEffect;     // 0xFF none; 0=Haste, 1=Berserk, 2=Curse, 3=Reflect,
+                          // 4=raise steal rate, 5=raise manipulate rate,
+                          // 6=Barrier/MBarrier
+    u8 elementMask[2];   // elements the elementalStrength applies to (u16 mask,
+                         // same element bits as ArmorRecord.elementalMask)
+    u8 statusProtect[4]; // status-immunity bitmask (u32); e.g. Ribbon sets most
+    u8 equipMask[2];     // equippable-by-character bitmask (see ArmorRecord);
+                         // 0x01FF (all nine) on every accessory
+    u8 restrictionMask[2]; // a set bit forbids: 0x01 sell, 0x02 use in battle,
+                           // 0x04 use in menu (0xFFFE on every accessory)
+} AccessoryRecord;
+
 extern s32 D_80010100[];
 extern s32 D_80048CFC;
 extern s32 D_80048D00;
@@ -185,7 +205,7 @@ extern u8 D_800708D4[];
 extern u8 D_800716D0;
 extern s32 D_80071744; // LBA loc for func_80014540
 extern s16 D_80071A5C;
-extern s32 D_80071C24[];           // accessory data?
+extern AccessoryRecord g_AccessoryTable[]; // accessory kernel table, by acc. id
 extern ArmorRecord g_ArmorTable[]; // armor kernel table, indexed by armor id
 extern u_long* D_800722C8;         // LBA dst for func_80014540
 extern u8 D_800722DC[];
