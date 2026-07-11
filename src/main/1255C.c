@@ -233,7 +233,25 @@ void* GetPartySlotArmorMateriaSlots(s32 arg0) {
     return var_v0;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_800256DC);
+// Weapon counterpart of GetPartySlotArmorMateriaSlots: party slot -> equipped
+// character -> that character's equipped weapon's materia-slot configuration
+// (see WeaponRecord in main_private.h). Returns sentinel (void*)0xFF for an
+// empty party slot.
+void* GetPartySlotWeaponMateriaSlots(s32 arg0) {
+    u8 temp_v1;
+    void* var_v0;
+
+    temp_v1 = D_8009CBDC[arg0];
+    var_v0 = (void*)0xFF;
+    if (temp_v1 != 0xFF) {
+        u32 idx = D_800491D0[temp_v1];
+        // SMELL: raw 0x84 char-record stride math; wants a CharacterRecord
+        // struct (equippedWeapon at +0xC) ->
+        // g_CharacterRecords[idx].equippedWeapon
+        var_v0 = g_WeaponTable[D_8009C754[idx * 0x84]].materiaSlot;
+    }
+    return var_v0;
+}
 
 s32* func_80025758(s32 arg0) { return (s32*)&g_ArmorTable[arg0]; }
 
