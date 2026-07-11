@@ -255,7 +255,7 @@ void* GetPartySlotWeaponMateriaSlots(s32 arg0) {
 
 s32* func_80025758(s32 arg0) { return (s32*)&g_ArmorTable[arg0]; }
 
-s32* func_80025774(s32 arg0) { return &D_80071C24[arg0 * 4]; }
+s32* func_80025774(s32 arg0) { return (s32*)&g_AccessoryTable[arg0]; }
 
 Unk8009D84C* func_80025788(s32 arg0) {
     if (Savemap.partyID[arg0] != 0xFF) {
