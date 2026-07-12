@@ -34,7 +34,7 @@ INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1E20);
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1ED4);
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1EE4);
+s32 func_800A1EE4(void) { return 0; }
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1EEC);
 
@@ -74,7 +74,15 @@ INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A23F8);
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A2420);
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A2458);
+void func_800A2458(void) {
+    StopCallback();
+    ResetCallback();
+    ResetGraph(0);
+    PadInit(0);
+    InitGeom();
+    func_80036298();
+    func_80033B70();
+}
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A24A8);
 
