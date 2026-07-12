@@ -34,9 +34,7 @@ INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1E20);
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1ED4);
 
-s32 func_800A1EE4(void) {
-    return 0;
-}
+s32 func_800A1EE4(void) { return 0; }
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1EEC);
 
