@@ -103,7 +103,30 @@ void func_801D0228(s16 arg0, s16 arg1, s32 arg2) {
     }
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D031C);
+extern u8 D_801D3D90[]; // Key Items menu list: obtained key-item IDs in
+                        // ascending order, 0xFF-padded to 64 entries.
+
+// Builds the Key Items menu list: scans the 64-bit "key items obtained" bitmask
+// in the savemap (Savemap + 0xBE4, i.e. memory_bank_1[0x40]) and appends the ID
+// of each owned key item to D_801D3D90 in ascending order, then pads the
+// remaining entries with 0xFF.
+static void func_801D031C(void) {
+    s32 count;
+    u8* dst;
+    s32 id;
+
+    for (id = 0, count = 0, dst = D_801D3D90; id < 0x40; id++) {
+        if ((Savemap.memory_bank_1[0x40 + id / 8] >> (id & 7)) & 1) {
+            *dst = id;
+            dst += 1;
+            count += 1;
+        }
+    }
+    while (count < 0x40) {
+        D_801D3D90[count] = -1;
+        count += 1;
+    }
+}
 
 // Swap the two 32-bit values pointed to by arg0 and arg1.
 static void SwapS32(s32* arg0, s32* arg1) {
@@ -412,8 +435,6 @@ static void ArrangeItems(s32 mode) {
         break;
     }
 }
-
-void func_801D031C(void);
 
 // exported, see 800493A8
 // Configures 3 widgets (D_801D3DDC[0..2], see Unk80026448 and the comment on

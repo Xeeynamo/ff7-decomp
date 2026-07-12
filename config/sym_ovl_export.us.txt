@@ -1876,7 +1876,6 @@ menus = 0x801e379c;
 BackupCharacterMateria = 0x801d3018;
 func_801D01E8 = 0x801d01e8;
 func_801D0228 = 0x801d0228;
-func_801D031C = 0x801d031c;
 func_801D0BA0 = 0x801d0ba0;
 func_801D0CAC = 0x801d0cac;
 func_801D0CE8 = 0x801d0ce8;
