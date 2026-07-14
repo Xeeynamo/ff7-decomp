@@ -1074,7 +1074,12 @@ void func_800B1060(s32 arg0) { func_800A31A0(10, 2, 1, arg0); }
 
 void func_800B108C(s32 arg0) { func_800A31A0(arg0, 5, 0, 0); }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B10B4);
+// true when the combatant's HP is at or below a quarter of max -- the "Near
+// Death" threshold used by weapon-specific damage formulas (e.g. Powersoul's
+// HP-based multiplier).
+static s32 func_800B10B4(s32 arg0) {
+    return D_800F83E0[arg0].curHP <= D_800F83E0[arg0].maxHP / 4;
+}
 
 void func_800B10F0(s32, s32, s32, s32, s32, s32, s32);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B10F0);
