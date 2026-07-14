@@ -113,11 +113,21 @@ typedef struct {
     Unk80099788Half half1;
 } Unk80099788; // size 0x210
 
+typedef struct {
+    u8* unk0;
+    u8 pad04[0x52];
+    u16 unk56;
+    u8 pad58[0xB0];
+} Unk80096608; // size 0x108
+
 extern void (*D_80049548[])(Unk8002B7E0*);
 extern u8 D_800499A8[]; // opcode lenghts
+extern u8 D_80049C40[];
 extern s32 D_80062F00;
 extern s16 D_80062F40;
 extern s16 D_80062F48;
+extern s32 D_80062F74;
+extern s32 D_80062F84;
 extern s32 D_80062F8C;
 extern s32 D_80062FE4;
 extern s32 D_80062FE8;
@@ -129,12 +139,19 @@ extern s32 D_80083334;
 extern u16 D_8008337E;
 extern s32 D_80083394;
 extern u16 D_800833DE;
-extern s32 D_80096608;
+extern s32 D_80083580[];
+extern Unk80096608 D_80096608[];
 extern s32 D_80097768;
 extern s32 D_80097870;
 extern Unk80099788 D_80099788[];
 extern u16 D_8009A14E;
 extern s32 D_8009A104;
+extern s32 D_8009A108;
+extern s32 D_8009A10C;
+extern s32 D_8009A110;
+extern s32 D_8009A114;
+extern s32 D_8009A128;
+extern s32 D_8009A12C;
 
 extern u32 g_ReverbMode;
 extern SpuReverbAttr g_ReverbAttr;
@@ -217,13 +234,61 @@ void SetReverbMode(s32 in_ReverbMode) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029B78);
+// Word-copies (arg1 >> 2) words from arg0 into staging buffer D_80083580.
+static void func_80029B78(s32* arg0, u32 arg1) {
+    s32* dst;
+    u32 nwords;
+
+    nwords = arg1 >> 2;
+    dst = D_80083580;
+    while (nwords != 0) {
+        nwords -= 1;
+        *dst = *arg0;
+        arg0 += 1;
+        dst += 1;
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029BAC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029C48);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029E98);
+// Merges newly-requested bits (D_8009A128/D_8009A12C) into the pending mask
+// D_8009A108, then for each set bit points the matching D_80096608 slot at the
+// default D_80049C40 sample and marks it (unk56 = 0x204), clearing the request
+// bits as it goes.
+static void func_80029E98(void) {
+    s32 mask;
+    s32 bit;
+    Unk80096608* slot;
+    s32 req0;
+    s32 req1;
+
+    if (D_8009A108 != 0) {
+        slot = D_80096608;
+        bit = 1;
+        req0 = D_8009A128;
+        req1 = D_8009A12C;
+        D_8009A12C = 0;
+        D_8009A128 = 0;
+        D_8009A110 = 0;
+        D_8009A10C = 0;
+        req0 |= req1;
+        mask = D_8009A108;
+        mask |= req0;
+        D_8009A108 = mask;
+        D_8009A114 |= mask;
+        do {
+            if (mask & bit) {
+                mask ^= bit;
+                slot->unk56 = 0x204;
+                slot->unk0 = D_80049C40;
+            }
+            bit *= 2;
+            slot += 1;
+        } while (mask != 0);
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029F44);
 
@@ -236,8 +301,33 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A43C);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A510);
 
-void func_8002A6C4(s32* arg0, s32* arg1, u16 arg2);
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A6C4);
+// Resolves a 10-bit note index into a pair of table entries: looks up
+// D_80062F74[index] and D_80062F74[index+1] (u16), adding D_80062F84 unless the
+// entry is the 0xFFFF "unused" sentinel (in which case the result is 0).
+static void func_8002A6C4(s32* arg0, s32* arg1, u16 arg2) {
+    u16 idx;
+    s32 val0;
+    s32 val1;
+    u16 raw0;
+    u16 raw1;
+
+    idx = (arg2 & 0x3FF) * 2;
+    raw0 = *(u16*)((idx * 2) + D_80062F74);
+    if (raw0 != 0xFFFF) {
+        val0 = raw0 + D_80062F84;
+    } else {
+        val0 = 0;
+    }
+    *arg0 = val0;
+    idx = idx + 1;
+    raw1 = *(u16*)((idx * 2) + D_80062F74);
+    if (raw1 != 0xFFFF) {
+        val1 = raw1 + D_80062F84;
+    } else {
+        val1 = 0;
+    }
+    *arg1 = val1;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A748);
 
