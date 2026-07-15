@@ -373,11 +373,11 @@ u8 func_800BBF74(s16 entityId, s16 priority, s16 scriptId) {
 
         offset = *((u8*)(scriptOffset + entityDataSize + extrasHeaderSize +
                          (s32)g_FieldScripts) +
-                   32);
+                   sizeof(FieldScriptHeader));
         offset |=
             *((u8*)(scriptOffset + (entityDataSize + (s32)g_FieldScripts) +
                     extrasHeaderSize) +
-              33)
+              sizeof(FieldScriptHeader) + 1)
             << 8;
 
         // Empty event scripts consist of just a RET (0x00) opcode.
