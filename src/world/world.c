@@ -1657,9 +1657,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800ADA64);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800ADB30);
 
-void func_800ADC3C(VECTOR* arg0) {
-    D_8010AE34 = *arg0;
-}
+void func_800ADC3C(VECTOR* arg0) { D_8010AE34 = *arg0; }
 
 void func_800ADC70(void) { D_8010AE54 = 0; }
 
@@ -2436,7 +2434,15 @@ void func_800BB9A0(u8 arg0) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BB9D0);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BBA0C);
+u8 func_800BBA0C(void) {
+    u8 var_a0;
+
+    var_a0 = 0;
+    if (&D_801163E0 < D_801163E8)
+        var_a0 = D_801163E8[-1];
+
+    return var_a0;
+}
 
 static void func_800BBA34(s8 arg0) { D_801163E0 = arg0; }
 
