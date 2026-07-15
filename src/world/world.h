@@ -3,6 +3,8 @@
 
 #include <game.h>
 
+#define ABS(x) ((x <= 0) ? -(x) : (x))
+
 typedef struct {
     /* 0x00 */ u8 vert[3];
     /* 0x03 */ u8 walkabilityAndScript; // packed of 5 bits for walkabilty and 3
@@ -84,6 +86,12 @@ typedef struct {
 } WorldZolomSegment; // size: 0x8
 
 typedef struct {
+    /* 0x00 */ u8 unk00[0x13];
+    /* 0x13 */ u8 unk13;
+    /* 0x14 */ u8 unk14[0x10];
+} Unk8010B178; // size: 0x24
+
+typedef struct {
     /* 0x00 */ VECTOR unk0;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s32 unk14;
@@ -153,6 +161,7 @@ void func_800B0D98(WorldChunkHeader*);
 void func_800B1C80(WorldChunkHeader*);
 void func_800B5274();
 void func_800B5C7C(WorldActor*);
+void func_800B624C(u16, s32);
 void func_800B63F0(s32);
 void func_800B65E0(s32);
 void func_800B6B28(s16);
@@ -173,7 +182,8 @@ static void func_800BBD0C(void);
 
 extern u32* D_800BD130;
 extern s32 D_800BD144;
-extern s32 D_800BE1E8[1]; // TODO: size unknown
+extern u16 D_800BD9E8[16][4][16]; // world map encounter data, size: 0x800
+extern s32 D_800BE1E8[1];         // TODO: size unknown
 extern s32 D_800C65EC;
 extern s32 D_800C6628;
 extern s32 D_800C6638;
@@ -181,55 +191,62 @@ extern u8 D_800C6770[1]; // TODO: size unknown
 extern s16 D_800C68EE;
 extern s16 D_800C6902;
 extern s16 D_800C6916;
+extern u8 D_800C72B4[16][4]; // size: 0x40
+extern u8 D_800C72F4[16];    // yuffie spawn chances per area, size: 0x10
 extern s8 D_800C752D;
 extern u32* D_800C7530;
 extern s32 D_800D05E8;
 extern WorldScriptData D_800D05EC;
-extern s32 D_800E5608;
-extern s32 D_800E560C;
-extern s32 D_800E5618;
-extern s32 D_800E5628;
-extern s32 D_800E5630; // WM earthquake
-extern s32 D_800E5634;
-extern s32 D_800E5648;
-extern s32 D_800E5654;
-extern s32 D_800E5678;
-extern MATRIX D_800E5698;
-extern MATRIX D_800E56B8;
-extern s32 D_800E5814;
-extern s32 D_800E5820;
-extern s32 D_800E5828;
 extern s32 D_800E55EC;
 extern s32 D_800E55F0;
 extern s32 D_800E55F4;
 extern s32 D_800E55FC;
 extern s32 D_800E5600;
 extern s32 D_800E5604;
+extern s32 D_800E5608;
+extern s32 D_800E560C;
+extern s32 D_800E5618;
 extern s32 D_800E561C;
 extern s32 D_800E5620;
 extern s32 D_800E5624;
+extern s32 D_800E5628;
+extern s32 D_800E5630; // WM earthquake
+extern s32 D_800E5634;
 extern s32 D_800E5638;
 extern s32 D_800E563C;
 extern s32 D_800E5644;
+extern s32 D_800E5648;
 extern s32 D_800E564C;
 extern s32 D_800E5650;
+extern s32 D_800E5654;
 extern s32 D_800E5658;
 extern s32 D_800E5668;
 extern s32 D_800E566C;
 extern s32 D_800E5670;
 extern s32 D_800E5674;
+extern s32 D_800E5678;
+extern MATRIX D_800E5698;
+extern MATRIX D_800E56B8;
 extern s16 D_800E56D8;
 extern s32 D_800E56F4;
+extern s32 D_800E56F8;
+extern s32 D_800E5814;
+extern s32 D_800E5820;
 extern s32 D_800E5824;
-extern s32 D_80109D58;
+extern s32 D_800E5828;
+extern s32 D_800E5A34;
+extern VECTOR D_80109D44;
 extern s32 D_80109D54;
+extern s32 D_80109D58;
 extern s32 D_80109D6C;
 extern WorldActor D_80109D74[0x10]; // World map actor heap, TODO: Confirm size
 extern WorldActor* D_8010AD34;
 extern WorldActor* D_8010AD38;
-extern WorldActor* D_8010AD3C;
-extern WorldActor* D_8010AD40;
+extern WorldActor* D_8010AD3C; // Active Actor
+extern WorldActor* D_8010AD40; // Player Actor
 extern WorldActor* D_8010ADE4; // World current script context object?
+// 8010ADF4 appears to maybe only be read from in an unused world script opcode
+extern s32 D_8010ADF4;
 extern s32 D_8010ADE8;
 extern s16 D_8010AD44;
 extern s16 D_8010AD48;
@@ -253,6 +270,7 @@ extern u8 D_8010AE5C[521]; // WM RNG Buffer
 extern u8 D_8010B068[1];   // TODO: size unknown
 extern s32 D_8010B080;
 extern s32 D_8010B174;
+extern Unk8010B178 D_8010B178[1]; // TODO: determine size
 extern Unk8010B3B8* D_8010B3B8;
 extern s32 D_8010B47C;
 extern WorldZolomSegment D_8010C2AC[0x30];
