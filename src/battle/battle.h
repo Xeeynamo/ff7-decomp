@@ -26,14 +26,22 @@ typedef enum {
 } BattleEventType;
 
 typedef struct {
-    s32 unk0;
-    s32 unk4;
+    // condition/status bitmask; standard FF7 status bits confirmed in use here:
+    // 0x1 Death, 0x80 Silence, 0x800 Frog, 0x1000 Small, 0x200000 Death
+    // Sentence, 0x400000 Manipulate, 0x800000 Berserk. NOTE: the standard
+    // table's bit 0x2 (Near Death) does not appear to be set here -- this
+    // engine computes Near Death live from curHP/maxHP instead (see
+    // func_800B10B4), not via this flag.
+    s32 status;
+    s32 unk4; // battle-state flags (e.g. bit 0x40 = back row, bit 0x20 =
+              // defending)
     s32 unk8;
     s8 unkC;
     u8 unkD;
     s8 unkE;
     s8 unkF;
-    s8 unk10;
+    s8 unk10; // cached "Near Death" display flag; see func_800B10B4 for the
+              // live check
     s8 unk11;
     s16 unk12;
     s8 unk14;
@@ -46,9 +54,8 @@ typedef struct {
     s32 unk24;
     s16 unk28;
     s16 unk2A;
-    s16 unk2C;
-    s16 unk2E;
-    s32 unk30;
+    u32 curHP;
+    u32 maxHP;
     u32 unk34[4];
     u32 unk44[9];
 } Unk800F83E0; // size:0x68
