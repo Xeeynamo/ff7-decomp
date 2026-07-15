@@ -500,7 +500,7 @@ extern u8* D_8009C6DC;
 extern Unk8009C6E0* D_8009C6E0; // points to 0x8009abf4
 extern SaveWork Savemap;        // 0x8009C6E4
 extern u8 D_8009CBDC[];
-extern s16 D_8009D288[];
+extern u16 D_8009D288[];
 extern u8 D_8009D2E7;
 extern u8 D_8009D302;
 extern u8 D_8009D391[1]; // part of a struct?

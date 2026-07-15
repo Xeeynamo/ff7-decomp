@@ -445,8 +445,8 @@ void func_800A6994(VECTOR* arg0, s32 arg1) {
             } else if (arg0->vz - D_80109D44.vz < -0x1C000) {
                 D_80109D44.vz -= 0x38000;
             }
-            D_80109D44.vx = (s32)((D_80109D44.vx * 3) + arg0->vx) >> 2;
-            D_80109D44.vz = (s32)((D_80109D44.vz * 3) + arg0->vz) >> 2;
+            D_80109D44.vx = ((D_80109D44.vx * 3) + arg0->vx) >> 2;
+            D_80109D44.vz = ((D_80109D44.vz * 3) + arg0->vz) >> 2;
             func_800A692C(&D_80109D44);
             D_800E56F8 =
                 ABS(arg0->vx - D_80109D44.vx) + ABS(arg0->vz - D_80109D44.vz) >=
@@ -565,7 +565,7 @@ void func_800A8C70(WorldActor* arg0) {
 
 s32 func_800A8CA4(void) {
     WorldActor* var_v1;
-    for (var_v1 = D_8010AD38; var_v1 != NULL && var_v1->actorType < 0x20U;
+    for (var_v1 = D_8010AD38; var_v1 != NULL && var_v1->actorType < 0x20;
          var_v1 = var_v1->next)
         ;
     return var_v1 != NULL;
@@ -1036,7 +1036,7 @@ void func_800AA6D0(WorldChunkHeader* arg0) {
             func_800A6884(&var_s0->pos, &sp20, &sp28, &sp2A);
             if ((sp28 == arg0->x) && (sp2A == arg0->z)) {
                 func_800A19FC(arg0, &sp20, var_s0->storedTris, &var_s0->unk42,
-                              0, &var_s0->walkmesh, (s32)var_s0->actorType);
+                              0, &var_s0->walkmesh, var_s0->actorType);
                 if (!(var_s0->flags1 & 0x80)) {
                     var_s0->pos.vy =
                         var_s0->unk42 +
@@ -1088,16 +1088,24 @@ void func_800AB36C(SVECTOR* arg0) {
 }
 
 void func_800AB398(WorldActor* arg0) {
-    u8 temp_v1;
-
-    if ((arg0 != NULL) && (D_8010AD40 != NULL) && (arg0->flags1 & 2) &&
-        (((((func_800A921C(7, arg0->actorType) != 0) &&
-            ((u32)((u8)arg0->animId - 2) >= 4U)) ||
-           (func_800A92F8((s32)arg0->actorType) != 0)) &&
-          ((arg0 != D_8010AD40) || (D_8010AD5C == 0)) &&
-          ((0x311B6F05 >> ((u16)arg0->walkmesh & 0x1F)) & 1)) ||
-         (temp_v1 = arg0->actorType, (temp_v1 == 3)) || (temp_v1 == 0xB)))
+    if (!arg0) {
+        return;
+    }
+    if (!D_8010AD40) {
+        return;
+    }
+    if (!(arg0->flags1 & 2)) {
+        return;
+    }
+    if ((func_800A921C(7, arg0->actorType) != 0 &&
+             (arg0->animId < 2 || arg0->animId > 5) ||
+         func_800A92F8(arg0->actorType) != 0) &&
+        (arg0 != D_8010AD40 || D_8010AD5C == 0) &&
+        ((0x311B6F05 >> (arg0->walkmesh & 0x1F)) & 1)) {
         func_800B5C7C(arg0);
+    } else if (arg0->actorType == 3 || arg0->actorType == 0xB) {
+        func_800B5C7C(arg0);
+    }
 }
 
 void func_800AB48C(WorldActor* arg0) {
@@ -1139,7 +1147,7 @@ void func_800AB6E4(s32 arg0, s32 arg1) {
         (D_8010AD3C->scriptPriority < arg1 ||
          (D_8010AD3C->scriptPriority == arg1 && arg1 == 3) ||
          D_8010AD3C->scriptIdx == 0)) {
-        if (D_8010AD3C->scriptCallDepth >= 4U)
+        if (D_8010AD3C->scriptCallDepth >= 4)
             func_800A0B40(0x41);
         if (D_8010AD3C->scriptIdx != 0) {
             temp_a1 = &D_8010AD3C->scriptStack[D_8010AD3C->scriptCallDepth++];
@@ -1501,7 +1509,7 @@ void func_800ABFC0(u16 arg0) {
         temp_s0_17 = D_8010AD90;
         sp10 = D_8010AD3C->pos;
         sp10.vy = 0;
-        if ((u32)temp_v0 < 3U) {
+        if (temp_v0 >= 0 && temp_v0 < 3) {
             // not going to bother with the struct at 8010ADF4 yet, as it may be
             // unused
             temp_s0_17->unk0 =
@@ -1515,7 +1523,7 @@ void func_800ABFC0(u16 arg0) {
     case 0x1B: // "push direction from active entity to point"
         func_800AF1A8(func_800ABB24(), -1);
         func_800AA098(&sp10);
-        D_8010AD90->unk0 = (s32)(func_800AF9A0(&sp10) << 0x10) >> 0x14;
+        D_8010AD90->unk0 = (func_800AF9A0(&sp10) << 0x10) >> 0x14;
         break;
     }
     (D_8010AD90)->unk4 = 0x110;
@@ -1532,7 +1540,7 @@ void func_800AC3C0(u16 arg0) {
         func_800A0B40(0x3D);
     }
     D_8010AD90->unk4 = arg0;
-    (D_8010AD90++)->unk0 = (s32)(D_8010AD6C[D_8010ADE4->scriptIdx++]);
+    (D_8010AD90++)->unk0 = (D_8010AD6C[D_8010ADE4->scriptIdx++]);
 }
 
 // script opcode 0x2XX, flow control
@@ -1557,7 +1565,7 @@ s32 func_800AC484(u16 arg0) {
     case 0x203: // return
         if (D_8010ADE4->scriptCallDepth != 0) {
             temp_v0_4 = &D_8010ADE4->scriptStack[--D_8010ADE4->scriptCallDepth];
-            D_8010ADE4->scriptIdx = (s16)(u16)temp_v0_4->scriptIdx;
+            D_8010ADE4->scriptIdx = temp_v0_4->scriptIdx;
             D_8010ADE4->waitFrames = temp_v0_4->waitFrames;
             D_8010ADE4->scriptPriority = temp_v0_4->scriptPriority;
             break;
@@ -1567,22 +1575,22 @@ s32 func_800AC484(u16 arg0) {
             if (D_8010ADE4 == D_80109D74) {
                 for (var_s0 = D_8010AD38; var_s0 != NULL;
                      var_s0 = var_s0->next) {
-                    func_800AB988((s32)var_s0->actorType, 1);
+                    func_800AB988(var_s0->actorType, 1);
                 }
             }
         } else {
             if (D_8010ADE4 == D_80109D74) {
                 func_800ABA18(2);
             } else {
-                func_800AB988((s32)D_8010ADE4->actorType, 2);
+                func_800AB988(D_8010ADE4->actorType, 2);
             }
         }
         var_v0 = 1;
         break;
     default: // run function number (opcode - 0x204)
         D_8010ADE4->scriptCallModel = func_800ABB24();
-        if (D_8010ADE4->scriptCallModel < 0x40U) {
-            func_800AB988((s32)D_8010ADE4->scriptCallModel, arg0 - 0x204);
+        if (D_8010ADE4->scriptCallModel < 0x40) {
+            func_800AB988(D_8010ADE4->scriptCallModel, arg0 - 0x204);
         } else {
             D_8010ADE4->scriptCallModel = D_8010AD3C->actorType;
             func_800AB92C(arg0 - 0x204);
@@ -1606,11 +1614,11 @@ void func_800AD63C(WorldActor* arg0) {
         var_s0 = 0;
         do {
             temp_a0 = D_8010AD6C[D_8010ADE4->scriptIdx++];
-            if (temp_a0 < 0x100U) {
+            if (temp_a0 < 0x100) {
                 func_800ABFC0(temp_a0);
-            } else if (temp_a0 < 0x200U) {
+            } else if (temp_a0 < 0x200) {
                 func_800AC3C0(temp_a0);
-            } else if (temp_a0 < 0x300U) {
+            } else if (temp_a0 < 0x300) {
                 var_s0 = func_800AC484(temp_a0);
             } else {
                 var_s0 = func_800AC700(temp_a0);
@@ -1786,10 +1794,10 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF110);
 void func_800AF1A8(u32 arg0, s32 arg1) {
     Unk8010B178* temp_v1;
 
-    if (arg0 < 0x10U) {
+    if (arg0 < 0x10) {
         temp_v1 = &D_8010B178[arg0];
         D_8010B3B8 = (Unk8010B3B8*)temp_v1;
-        if (arg1 != -1U) {
+        if (arg1 != -1) {
             temp_v1->unk13 = arg1;
         }
     }
@@ -2116,7 +2124,7 @@ void func_800B6E78(void) {
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B6EFC);
 
 void func_800B7104(s16 arg0) {
-    D_80115A58 = (s32)arg0;
+    D_80115A58 = arg0;
     func_800B6B28(arg0);
 }
 
@@ -2135,14 +2143,14 @@ s32 func_800B717C(void) {
     s32 var_v0;
 
     var_v0 = 0;
-    if ((u16)*D_8009D288 >= 0x3E8U) {
-        if ((u16)*D_8009D288 < 0x62CU) {
+    if (*D_8009D288 >= 1000) {
+        if (*D_8009D288 < 1580) {
             temp_a0 = D_8009D302 & 1;
-            if ((u16)*D_8009D288 >= 0x654U)
+            if (*D_8009D288 >= 1620)
                 return (temp_a0 | 2) + 1;
             return temp_a0 + 1;
         }
-        temp_v1 = ((u16)*D_8009D288 < 0x654U) ^ 1;
+        temp_v1 = (*D_8009D288 < 1620) ^ 1;
         if (D_8009D60E & 0x10)
             return (temp_v1 | 2) + 5;
         return temp_v1 + 5;
@@ -2151,7 +2159,7 @@ s32 func_800B717C(void) {
 }
 
 s32 func_800B7200(void) {
-    return D_8009D288[0] >= 0x3E8 && D_8009D288[0] < 0x4B0;
+    return D_8009D288[0] >= 1000 && D_8009D288[0] < 1200;
 }
 
 static u8 func_800B7218(void) { return D_8009D686; }
@@ -2226,10 +2234,10 @@ s32 func_800B7B3C(void) { return (D_800707BE >> 3) & 1; }
 
 // Enemy Lure/Away Modifier
 s32 func_800B7B54(void) {
-    s32 var_v1;
+    u32 var_v1;
 
     var_v1 = D_80062F19;
-    if (var_v1 >= 0x11U)
+    if (var_v1 > 0x10)
         var_v1 *= 2;
     return var_v1;
 }
@@ -2502,7 +2510,7 @@ void func_800BBC4C(void) {
             else
                 func_800A2108(0, 2);
             D_801163D4 = 1;
-            if ((u32)(temp_s0 - 3) < 2U)
+            if (temp_s0 == 3 || temp_s0 == 4)
                 func_800AB8EC(1);
         }
         if (func_800A9A44() == 0x1B)
@@ -2523,7 +2531,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BC1CC);
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BC420);
 
 void func_800BC9E8(s16 arg0) {
-    D_801164F8 = (s32)arg0;
+    D_801164F8 = arg0;
     if (func_800A9174() != 3)
         D_801164FC = D_801164F8;
 }
