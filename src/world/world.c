@@ -2017,11 +2017,11 @@ void func_800B832C(void) {
 }
 
 // type?
-void func_800B8488(u16* arg0) {
+void func_800B8488(FieldScriptHeader* fieldScripts) {
     D_8008326C = 0xFF;
-    D_800722C4 = 0xFF;
-    D_8009C6DC = arg0;
-    arg0[2] = 8;
+    g_CurrentEntity = 0xFF;
+    g_FieldScripts = fieldScripts;
+    fieldScripts->stringOffset = 8;
     func_800B8760();
     D_8009C6E0 = &D_8009ABF4;
 }

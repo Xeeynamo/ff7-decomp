@@ -1,6 +1,14 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include <game.h>
 
+#define GET_PARAM_U8(offset)                                                   \
+    (*(u8*)((s32)g_FieldScripts + g_FieldScriptPC[g_CurrentEntity] + (offset)))
+#define GET_PARAM_S16(value, offset)                                           \
+    value = GET_PARAM_U8(offset);                                              \
+    value |= (GET_PARAM_U8((offset) + 1) << 8)
+#define PC_INC(x) (g_FieldScriptPC[g_CurrentEntity] += (x))
+#define PC_DEC(x) (g_FieldScriptPC[g_CurrentEntity] -= (x))
+
 struct GpuBuf {
     /* 0x00000 */ u_long ot[0x400];
     /* 0x01000 */ u8 unk1000[0x1689C];
@@ -34,6 +42,7 @@ void func_800A364C(struct GpuBuf* buf);
 void func_800AA180(Unk80074EA4* arg0, Unk8007E7AC* arg1);
 void func_800AAB24(struct GpuBuf* buf);
 s32 func_800A9CE8(Unk8007E7AC*, u_long*, u_long*);
+static u32 GetAkaoBlockOffset(s16 akaoId);
 static void func_800D4840(const char* str);
 static void func_800D4848(const char* errmsg);
 void func_800D9F00(s32 val, const char* msg_out);
@@ -280,13 +289,14 @@ void func_800BA65C(s32 arg0) {
         D_80095DCC = 0;
         D_8009FE8C = 0;
         D_8007EBE0 = 0;
-        if (D_8009C6DC[1] < 5) {
+        if (g_FieldScripts->eventVersion < 5) {
             SystemError('K', 11);
         }
-        if (D_8009C6DC[0] < 2) {
+        if (g_FieldScripts->eventDataVersion < 2) {
             SystemError('K', 10);
         }
-        if (D_8009C6DC[0] > 2 || D_8009C6DC[1] > 5) {
+        if (g_FieldScripts->eventDataVersion > 2 ||
+            g_FieldScripts->eventVersion > 5) {
             SystemError('K', 12);
         }
     }
@@ -312,7 +322,106 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BB3A8);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BBBCC);
 
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BBF74);
+#else
+u8 func_800BBF74(s16 entityId, s16 priority, s16 scriptId) {
+    u16 offset;
+    s32 scriptOffset;
+    s32 entityDataSize;
+    s32 extrasHeaderSize;
+
+    if (D_8009D820 & 3) {
+        switch (scriptId) {
+        case 1: // Pressed OK.
+            func_800DA334(D_800E4288, "Talk=");
+            break;
+        case 2: // Pushed / within entity's collision radius.
+            func_800DA334(D_800E4288, "Push=");
+            break;
+        case 3: // Across line.
+            func_800DA334(D_800E4288, "Acrs=");
+            break;
+        case 4: // Touching line.
+            func_800DA334(D_800E4288, "Toch=");
+            break;
+        case 5: // Started touching line.
+            func_800DA334(D_800E4288, "TochON =");
+            break;
+        case 6: // Ended touching line.
+            func_800DA334(D_800E4288, "TochOFF=");
+            break;
+        }
+        // Prints entity name.
+        func_800DA368(D_800E4288, (char*)g_FieldScripts +
+                                      sizeof(FieldScriptHeader) + entityId * 8);
+        func_800BECA4(D_800E4288, 0, 0);
+    }
+
+    // Only request script if active script has lower priority.
+    if (g_FieldScriptPriority[entityId] > priority) {
+
+        // Entity is busy waiting for another script to return.
+        if (g_FieldScriptSyncState[entityId][priority] != SYNC_NONE) {
+            return g_FieldScriptSyncState[entityId][priority];
+        }
+
+        scriptOffset = scriptId * 2;
+        extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
+        entityDataSize = entityId * 64;
+        entityDataSize += g_FieldScripts->numEntities * 8;
+
+        offset = *((u8*)(scriptOffset + entityDataSize + extrasHeaderSize +
+                         (s32)g_FieldScripts) +
+                   32);
+        offset |=
+            *((u8*)(scriptOffset + (entityDataSize + (s32)g_FieldScripts) +
+                    extrasHeaderSize) +
+              33)
+            << 8;
+
+        // Empty event scripts consist of just a RET (0x00) opcode.
+        if (((u8*)g_FieldScripts)[offset] != 0) {
+
+            // Save position of current active script of lower priority and
+            // replace with new script.
+            SavedScriptIds[entityId][priority] = scriptId;
+            g_SavedFieldScriptPC[entityId][g_FieldScriptPriority[entityId]] =
+                g_FieldScriptPC[entityId];
+            g_FieldScriptPC[entityId] = offset;
+            g_FieldScriptPriority[entityId] = priority;
+
+            // Clear running animation if entity has a model.
+            if (D_8007EB98[entityId] != 0xFF) {
+                if (D_8009C544[D_8007EB98[entityId]].scriptedMoveMode ==
+                    SMODE_WALK) {
+                    D_8009C544[D_8007EB98[entityId]].activeAnimId = 0;
+                    D_8009C544[D_8007EB98[entityId]].animCurrentFrame = 0;
+                    D_8009C544[D_8007EB98[entityId]].animLastFrame = 0;
+                }
+                D_8009C544[D_8007EB98[entityId]].scriptedMoveMode = SMODE_NONE;
+            }
+
+            // Reset wait counter.
+            D_800716DC[entityId] = 0;
+
+            if (D_8009D820 & 3) {
+                func_800BECA4("=recieved", 0, 0);
+            }
+        } else {
+            if (D_8009D820 & 3) {
+                func_800BECA4("=ret", 0, 0);
+            }
+        }
+        return 1;
+    }
+
+    if (D_8009D820 & 3) {
+        func_800BECA4("=ignored", 0, 0);
+    }
+    return 0;
+}
+#endif
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BC338);
 
@@ -325,7 +434,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BC9FC);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BEAD4);
 
 static void func_800BECA4(const char* str, s32 val, s32 kind) {
-    if (!(D_80071E24 & 4) || D_80114498[D_800722C4]) {
+    if (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity]) {
         func_800DA334(D_800E4254, str);
         switch (kind) {
         case 1:
@@ -361,34 +470,35 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
 
     switch (arg0) {
     case 1:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[1] >> 4;
+        bankId = GET_PARAM_U8(1) >> 4;
         break;
     case 2:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[1] & 0xF;
+        bankId = GET_PARAM_U8(1) & 0xF;
         break;
     case 3:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[2] >> 4;
+        bankId = GET_PARAM_U8(2) >> 4;
         break;
     case 4:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[2] & 0xF;
+        bankId = GET_PARAM_U8(2) & 0xF;
         break;
     case 5:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[3] >> 4;
+        bankId = GET_PARAM_U8(3) >> 4;
         break;
     case 6:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[3] & 0xF;
+        bankId = GET_PARAM_U8(3) & 0xF;
         break;
     }
+
     switch (bankId) {
     case 0:
-        value = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        value = GET_PARAM_U8(arg1);
         if (D_8009D820 & 3) {
             func_800BECA4("G cons=", value, 2);
         }
         return value;
     case 1:
     case 2:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        indx = GET_PARAM_U8(arg1);
         value = Savemap.memory_bank_1[indx];
         if (D_8009D820 & 3) {
             func_800BECA4("G indx=", indx, 4);
@@ -397,7 +507,7 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
         return value;
     case 3:
     case 4:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x100;
+        indx = GET_PARAM_U8(arg1) | 0x100;
         value = Savemap.memory_bank_1[indx];
         if (D_8009D820 & 3) {
             func_800BECA4("G indx=", indx, 4);
@@ -406,7 +516,7 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
         return value;
     case 11:
     case 12:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x200;
+        indx = GET_PARAM_U8(arg1) | 0x200;
         value = Savemap.memory_bank_1[indx];
         if (D_8009D820 & 3) {
             func_800BECA4("G indx=", indx, 4);
@@ -415,7 +525,7 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
         return value;
     case 13:
     case 14:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x300;
+        indx = GET_PARAM_U8(arg1) | 0x300;
         value = Savemap.memory_bank_1[indx];
         if (D_8009D820 & 3) {
             func_800BECA4("G indx=", indx, 4);
@@ -424,7 +534,7 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
         return value;
     case 15:
     case 7:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x400;
+        indx = GET_PARAM_U8(arg1) | 0x400;
         value = Savemap.memory_bank_1[indx];
         if (D_8009D820 & 3) {
             func_800BECA4("G indx=", indx, 4);
@@ -433,7 +543,7 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
         return value;
     case 5:
     case 6:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        indx = GET_PARAM_U8(arg1);
         value = D_80075E24[indx];
         if (D_8009D820 & 3) {
             func_800BECA4("G indx=", indx, 4);
@@ -458,29 +568,29 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
 
     switch (arg0) {
     case 1:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[1] >> 4;
+        bankId = GET_PARAM_U8(1) >> 4;
         break;
     case 2:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[1] & 0xF;
+        bankId = GET_PARAM_U8(1) & 0xF;
         break;
     case 3:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[2] >> 4;
+        bankId = GET_PARAM_U8(2) >> 4;
         break;
     case 4:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[2] & 0xF;
+        bankId = GET_PARAM_U8(2) & 0xF;
         break;
     case 5:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[3] >> 4;
+        bankId = GET_PARAM_U8(3) >> 4;
         break;
     case 6:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[3] & 0xF;
+        bankId = GET_PARAM_U8(3) & 0xF;
         break;
     }
 
     switch (bankId) {
     case 1:
     case 2:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        indx = GET_PARAM_U8(arg1);
         Savemap.memory_bank_1[indx] = value;
         if (D_8009D820 & 3) {
             func_800BECA4("S indx=", indx, 4);
@@ -489,7 +599,7 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
         return;
     case 3:
     case 4:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x100;
+        indx = GET_PARAM_U8(arg1) | 0x100;
         Savemap.memory_bank_1[indx] = value;
         if (D_8009D820 & 3) {
             func_800BECA4("S indx=", indx, 4);
@@ -498,7 +608,7 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
         return;
     case 11:
     case 12:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x200;
+        indx = GET_PARAM_U8(arg1) | 0x200;
         Savemap.memory_bank_1[indx] = value;
         if (D_8009D820 & 3) {
             func_800BECA4("S indx=", indx, 4);
@@ -507,7 +617,7 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
         return;
     case 13:
     case 14:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x300;
+        indx = GET_PARAM_U8(arg1) | 0x300;
         Savemap.memory_bank_1[indx] = value;
         if (D_8009D820 & 3) {
             func_800BECA4("S indx=", indx, 4);
@@ -516,7 +626,7 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
         return;
     case 15:
     case 7:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x400;
+        indx = GET_PARAM_U8(arg1) | 0x400;
         Savemap.memory_bank_1[indx] = value;
         if (D_8009D820 & 3) {
             func_800BECA4("S indx=", indx, 4);
@@ -525,7 +635,7 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
         return;
     case 5:
     case 6:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        indx = GET_PARAM_U8(arg1);
         D_80075E24[indx] = value;
         if (D_8009D820 & 3) {
             func_800BECA4("S indx=", indx, 4);
@@ -550,35 +660,34 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
 
     switch (arg0) {
     case 1:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[1] >> 4;
+        bankId = GET_PARAM_U8(1) >> 4;
         break;
     case 2:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[1] & 0xF;
+        bankId = GET_PARAM_U8(1) & 0xF;
         break;
     case 3:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[2] >> 4;
+        bankId = GET_PARAM_U8(2) >> 4;
         break;
     case 4:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[2] & 0xF;
+        bankId = GET_PARAM_U8(2) & 0xF;
         break;
     case 5:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[3] >> 4;
+        bankId = GET_PARAM_U8(3) >> 4;
         break;
     case 6:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[3] & 0xF;
+        bankId = GET_PARAM_U8(3) & 0xF;
         break;
     }
 
     switch (bankId) {
     case 0:
-        value = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
-        value |= (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1 + 1] << 8;
+        GET_PARAM_S16(value, arg1);
         if (D_8009D820 & 3) {
             func_800BECA4("G cons=", value, 4);
         }
         return value;
     case 1:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        indx = GET_PARAM_U8(arg1);
         value = Savemap.memory_bank_1[indx];
         if (D_8009D820 & 3) {
             func_800BECA4("G indx=", indx, 4);
@@ -586,7 +695,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         }
         return value;
     case 2:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        indx = GET_PARAM_U8(arg1);
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
         if (D_8009D820 & 3) {
@@ -595,7 +704,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         }
         return value;
     case 3:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x100;
+        indx = GET_PARAM_U8(arg1) | 0x100;
         value = Savemap.memory_bank_1[indx];
         if (D_8009D820 & 3) {
             func_800BECA4("G indx=", indx, 4);
@@ -603,7 +712,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         }
         return value;
     case 4:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x100;
+        indx = GET_PARAM_U8(arg1) | 0x100;
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
         if (D_8009D820 & 3) {
@@ -612,7 +721,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         }
         return value;
     case 11:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x200;
+        indx = GET_PARAM_U8(arg1) | 0x200;
         value = Savemap.memory_bank_1[indx];
         if (D_8009D820 & 3) {
             func_800BECA4("G indx=", indx, 4);
@@ -620,7 +729,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         }
         return value;
     case 12:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x200;
+        indx = GET_PARAM_U8(arg1) | 0x200;
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
         if (D_8009D820 & 3) {
@@ -629,7 +738,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         }
         return value;
     case 13:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x300;
+        indx = GET_PARAM_U8(arg1) | 0x300;
         value = Savemap.memory_bank_1[indx];
         if (D_8009D820 & 3) {
             func_800BECA4("G indx=", indx, 4);
@@ -637,7 +746,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         }
         return value;
     case 14:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x300;
+        indx = GET_PARAM_U8(arg1) | 0x300;
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
         if (D_8009D820 & 3) {
@@ -646,7 +755,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         }
         return value;
     case 15:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x400;
+        indx = GET_PARAM_U8(arg1) | 0x400;
         value = Savemap.memory_bank_1[indx];
         if (D_8009D820 & 3) {
             func_800BECA4("G indx=", indx, 4);
@@ -654,7 +763,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         }
         return value;
     case 7:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x400;
+        indx = GET_PARAM_U8(arg1) | 0x400;
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
         if (D_8009D820 & 3) {
@@ -663,7 +772,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         }
         return value;
     case 5:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        indx = GET_PARAM_U8(arg1);
         value = D_80075E24[indx];
         if (D_8009D820 & 3) {
             func_800BECA4("G indx=", indx, 4);
@@ -671,7 +780,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         }
         return value;
     case 6:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        indx = GET_PARAM_U8(arg1);
         value = D_80075E24[indx];
         value |= D_80075E24[indx + 1] << 8;
         if (D_8009D820 & 3) {
@@ -697,28 +806,28 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
 
     switch (arg0) {
     case 1:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[1] >> 4;
+        bankId = GET_PARAM_U8(1) >> 4;
         break;
     case 2:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[1] & 0xF;
+        bankId = GET_PARAM_U8(1) & 0xF;
         break;
     case 3:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[2] >> 4;
+        bankId = GET_PARAM_U8(2) >> 4;
         break;
     case 4:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[2] & 0xF;
+        bankId = GET_PARAM_U8(2) & 0xF;
         break;
     case 5:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[3] >> 4;
+        bankId = GET_PARAM_U8(3) >> 4;
         break;
     case 6:
-        bankId = (&D_8009C6DC[D_800831FC[D_800722C4]])[3] & 0xF;
+        bankId = GET_PARAM_U8(3) & 0xF;
         break;
     }
 
     switch (bankId) {
     case 1:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        indx = GET_PARAM_U8(arg1);
         Savemap.memory_bank_1[indx] = (u8)value;
         if (D_8009D820 & 3) {
             func_800BECA4("S indx=", indx, 4);
@@ -726,7 +835,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         }
         return;
     case 2:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        indx = GET_PARAM_U8(arg1);
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
         if (D_8009D820 & 3) {
@@ -735,7 +844,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         }
         return;
     case 3:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x100;
+        indx = GET_PARAM_U8(arg1) | 0x100;
         Savemap.memory_bank_1[indx] = (u8)value;
         if (D_8009D820 & 3) {
             func_800BECA4("S indx=", indx, 4);
@@ -743,7 +852,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         }
         return;
     case 4:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x100;
+        indx = GET_PARAM_U8(arg1) | 0x100;
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
         if (D_8009D820 & 3) {
@@ -752,7 +861,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         }
         return;
     case 11:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x200;
+        indx = GET_PARAM_U8(arg1) | 0x200;
         Savemap.memory_bank_1[indx] = (u8)value;
         if (D_8009D820 & 3) {
             func_800BECA4("S indx=", indx, 4);
@@ -760,7 +869,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         }
         return;
     case 12:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x200;
+        indx = GET_PARAM_U8(arg1) | 0x200;
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
         if (D_8009D820 & 3) {
@@ -769,7 +878,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         }
         return;
     case 13:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x300;
+        indx = GET_PARAM_U8(arg1) | 0x300;
         Savemap.memory_bank_1[indx] = (u8)value;
         if (D_8009D820 & 3) {
             func_800BECA4("S indx=", indx, 4);
@@ -777,7 +886,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         }
         return;
     case 14:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x300;
+        indx = GET_PARAM_U8(arg1) | 0x300;
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
         if (D_8009D820 & 3) {
@@ -786,7 +895,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         }
         return;
     case 15:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x400;
+        indx = GET_PARAM_U8(arg1) | 0x400;
         Savemap.memory_bank_1[indx] = (u8)value;
         if (D_8009D820 & 3) {
             func_800BECA4("S indx=", indx, 4);
@@ -794,7 +903,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         }
         return;
     case 7:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1] | 0x400;
+        indx = GET_PARAM_U8(arg1) | 0x400;
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
         if (D_8009D820 & 3) {
@@ -803,7 +912,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         }
         return;
     case 5:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        indx = GET_PARAM_U8(arg1);
         D_80075E24[indx] = (u8)value;
         if (D_8009D820 & 3) {
             func_800BECA4("S indx=", indx, 4);
@@ -811,7 +920,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         }
         return;
     case 6:
-        indx = (&D_8009C6DC[D_800831FC[D_800722C4]])[arg1];
+        indx = GET_PARAM_U8(arg1);
         D_80075E24[indx] = (u8)value;
         D_80075E24[indx + 1] = value >> 8;
         if (D_8009D820 & 3) {
@@ -841,7 +950,7 @@ s32 func_800C0B54(void) {
 
 // Nop in field scripts
 s32 func_800C0BE8(void) {
-    D_800831FC[D_800722C4]++;
+    PC_INC(1);
     return 1;
 }
 
@@ -901,7 +1010,7 @@ s32 func_800C2CA8(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("keyon", 3);
     }
-    if ((&D_8009C6DC[D_800831FC[D_800722C4]])[2] & 2) {
+    if (GET_PARAM_U8(2) & 2) {
         return func_800C2E00(D_8009C6E0->unk80);
     } else {
         return func_800C2E00(D_8009C6E0->unk70);
@@ -999,11 +1108,11 @@ s32 func_800C4AE8(void) {
         func_800BEAD4("cmusc", 5);
     }
     func_800C46A4();
-    *D_8009A000 = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 3);
+    *D_8009A000 = GET_PARAM_U8(3);
     *D_8009A008 = (s16)func_800BF908(3, 4);
     D_8009A00C = (s16)func_800BF908(4, 6);
     result = func_800C4BCC();
-    D_800831FC[D_800722C4] += 6;
+    PC_INC(6);
     return result;
 }
 
@@ -1013,19 +1122,30 @@ s32 func_800C4BCC(void) {
     u8 akaoId;
 
     if (g_FieldMusicLock == 0) {
-        akaoId = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        akaoId = GET_PARAM_U8(1);
         if (D_8009D820 & 3) {
             func_800BECA4("music=", akaoId, 2);
         }
-        *D_8009A004 = &D_8009C6DC[func_800C4C9C(akaoId)];
+        *D_8009A004 = (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
         D_8009C6E0->unk48 = *D_8009A004;
         func_8002DA7C();
     }
-    D_800831FC[D_800722C4] += 2;
+    PC_INC(2);
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C4C9C);
+static u32 GetAkaoBlockOffset(s16 akaoId) {
+    s32 akaoData;
+    u32 akaoOffset;
+
+    akaoData =
+        akaoId * 4 + g_FieldScripts->numEntities * 8 + (s32)g_FieldScripts;
+    akaoOffset = ((u8*)akaoData)[sizeof(FieldScriptHeader)];
+    akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 1] << 8;
+    akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 2] << 16;
+    akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 3] << 24;
+    return akaoOffset;
+}
 
 s32 func_800C4CE8(void) {
     u8 akaoId;
@@ -1034,15 +1154,16 @@ s32 func_800C4CE8(void) {
         func_800BEAD4("bmusc", 1);
     }
     if (g_FieldMusicLock == 0) {
-        akaoId = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        akaoId = GET_PARAM_U8(1);
         if (D_8009D820 & 3) {
             func_800BECA4("bmusic=", akaoId, 2);
         }
-        D_8009C6E0->unk44 = &D_8009C6DC[func_800C4C9C(akaoId)];
+        D_8009C6E0->unk44 =
+            (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
     } else {
         D_8009C6E0->unk44 = 0;
     }
-    D_800831FC[D_800722C4] += 2;
+    PC_INC(2);
     return 0;
 }
 
@@ -1053,15 +1174,16 @@ s32 func_800C4DE8(void) {
         func_800BEAD4("fmusc", 1);
     }
     if (g_FieldMusicLock == 0) {
-        akaoId = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        akaoId = GET_PARAM_U8(1);
         if (D_8009D820 & 3) {
             func_800BECA4("bmusic=", akaoId, 2);
         }
-        D_8009C6E0->unk48 = &D_8009C6DC[func_800C4C9C(akaoId)];
+        D_8009C6E0->unk48 =
+            (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
     } else {
         D_8009C6E0->unk48 = 0;
     }
-    D_800831FC[D_800722C4] += 2;
+    PC_INC(2);
     return 0;
 }
 
@@ -1080,43 +1202,36 @@ extern void func_800BEAD4(const char*, int);
  * MULCK 0 (or a reset) clears it again.
  *
  * The operand is read straight out of the running script:
- *   D_8009C6DC          - the current map's script bytecode
- *   D_800831FC[entity]  - that entity's program counter (byte offset into it)
- *   D_800722C4          - the entity whose script is currently executing
- * so D_8009C6DC[pc + 1] is the 1-byte operand. The program counter is then
+ *   g_FieldScripts          - the current map's script bytecode
+ *   g_FieldScriptPC[entity]  - that entity's program counter (byte offset into
+ * it) g_CurrentEntity          - the entity whose script is currently executing
+ * so g_FieldScripts[pc + 1] is the 1-byte operand. The program counter is then
  * stepped past the 2-byte instruction (opcode + operand).
  */
 s32 SetMusicLock(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("mulck", 1);
     }
-    g_FieldMusicLock = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
-    D_800831FC[D_800722C4] += 2;
+    g_FieldMusicLock = GET_PARAM_U8(1);
+    PC_INC(2);
     return 0;
 }
 
 s32 func_800C50EC(void) {
-    s32 entityId;
-
     if (D_8009D820 & 3) {
         func_800BEAD4("bgmovie", 1);
     }
-    D_8009C6E0->backgroundMovieEnabled =
-        *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
-    entityId = D_800722C4;
-    D_800831FC[entityId] = D_800831FC[entityId] + 2;
+    D_8009C6E0->backgroundMovieEnabled = GET_PARAM_U8(1);
+    PC_INC(2);
     return 0;
 }
 
 s32 func_800C5194(void) {
-    s32 entityId;
-
     if (D_8009D820 & 3) {
         func_800BEAD4("scrlo", 1);
     }
-    D_8009C6E0->scrloSet = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
-    entityId = D_800722C4;
-    D_800831FC[entityId] = D_800831FC[entityId] + 2;
+    D_8009C6E0->scrloSet = GET_PARAM_U8(1);
+    PC_INC(2);
     return 0;
 }
 
@@ -1130,21 +1245,18 @@ s32 func_800C5194(void) {
  * (movieState == 2). Only then does the script advance past the opcode.
  */
 s32 RequestDiskChange(void) {
-    s32 entityId;
-
     if (D_8009D820 & 3) {
         func_800BEAD4("dskcg", 1);
     }
     switch (D_8009C6E0->unk0[1]) {
     case 0:
         D_8009C6E0->unk0[1] = 13;
-        D_8009D588 = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        D_8009D588 = GET_PARAM_U8(1);
         return 1;
     case 13:
         if (D_8009C6E0->movieState == 2) {
             D_8009C6E0->unk0[1] = 0;
-            entityId = D_800722C4;
-            D_800831FC[entityId] += 2;
+            PC_INC(2);
             return 0;
         }
         return 1;
@@ -1160,53 +1272,41 @@ s32 RequestDiskChange(void) {
  * per-model flag of the player's model is cleared as well.
  */
 s32 SetCharacterLock(void) {
-    s32 entityId;
-
     if (D_8009D820 & 3) {
         func_800BEAD4("uc", 1);
     }
-    D_80081DC4 = D_8009C6E0->unk32 = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+    D_80081DC4 = D_8009C6E0->characterLock = GET_PARAM_U8(1);
     if (D_80081DC4 == 0) {
         D_800756E8[(s16)D_8009C6E0->unk2A] = 0;
     }
-    entityId = D_800722C4;
-    D_800831FC[entityId] += 2;
+    PC_INC(2);
     return 0;
 }
 
 s32 func_800C5414(void) {
-    s32 entityId;
-
     if (D_8009D820 & 3) {
         func_800BEAD4("btlon", 1);
     }
-    D_8009C6E0->battlesDisabled = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
-    entityId = D_800722C4;
-    D_800831FC[entityId] = D_800831FC[entityId] + 2;
+    D_8009C6E0->battlesDisabled = GET_PARAM_U8(1);
+    PC_INC(2);
     return 0;
 }
 
 s32 func_800C54BC(void) {
-    s32 entityId;
-
     if (D_8009D820 & 3) {
         func_800BEAD4("mpdsp", 1);
     }
-    D_8009C6E0->mpdspSet = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
-    entityId = D_800722C4;
-    D_800831FC[entityId] = D_800831FC[entityId] + 2;
+    D_8009C6E0->mpdspSet = GET_PARAM_U8(1);
+    PC_INC(2);
     return 0;
 }
 
 s32 func_800C5564(void) {
-    s32 entityId;
-
     if (D_8009D820 & 3) {
         func_800BEAD4("mvcam", 1);
     }
-    D_8009C6E0->movieCamDisabled = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
-    entityId = D_800722C4;
-    D_800831FC[entityId] = D_800831FC[entityId] + 2;
+    D_8009C6E0->movieCamDisabled = GET_PARAM_U8(1);
+    PC_INC(2);
     return 0;
 }
 
@@ -1226,18 +1326,16 @@ s32 func_800C560C(void) {
  * assigned (D_8007EB98 entry != 0xFF) it becomes the new player model.
  */
 s32 SetControlCharacter(void) {
-    s32 entityId;
     u8 charId;
 
     if (D_8009D820 & 3) {
         func_800BEAD4("cc", 1);
     }
-    charId = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+    charId = GET_PARAM_U8(1);
     if (D_8007EB98[charId] != 0xFF) {
         D_8009C6E0->unk2A = D_8007EB98[charId];
     }
-    entityId = D_800722C4;
-    D_800831FC[entityId] += 2;
+    PC_INC(2);
     return 0;
 }
 
@@ -1249,18 +1347,14 @@ s32 SetControlCharacter(void) {
  * model id from the opcode operand and the owning entity id.
  */
 s32 AssignCharacterModel(void) {
-    s32 entityId;
-
     if (D_8009D820 & 3) {
         func_800BEAD4("char", 1);
     }
-    D_8007EB98[D_800722C4] = D_8009C6C4++;
-    D_8009C544[D_8007EB98[D_800722C4]].unk66 =
-        *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
-    D_8009C544[D_8007EB98[D_800722C4]].unk5C = 1;
-    D_8009C544[D_8007EB98[D_800722C4]].unk57 = D_800722C4;
-    entityId = D_800722C4;
-    D_800831FC[entityId] += 2;
+    D_8007EB98[g_CurrentEntity] = D_8009C6C4++;
+    D_8009C544[D_8007EB98[g_CurrentEntity]].unk66 = GET_PARAM_U8(1);
+    D_8009C544[D_8007EB98[g_CurrentEntity]].unk5C = 1;
+    D_8009C544[D_8007EB98[g_CurrentEntity]].entityId = g_CurrentEntity;
+    PC_INC(2);
     return 0;
 }
 
@@ -1273,25 +1367,21 @@ s32 AssignCharacterModel(void) {
  * released so the new default animation starts playing.
  */
 s32 SetDefaultAnimation(void) {
-    s32 entityId;
     u8 modelIdx;
 
     if (D_8009D820 & 3) {
         func_800BEAD4("dfanm", 2);
     }
-    if (D_8007EB98[D_800722C4] != 0xFF) {
-        D_8008325C[D_8007EB98[D_800722C4]] =
-            *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
-        entityId = D_800722C4;
-        D_80082248[D_8007EB98[entityId]] =
-            D_8009D828[D_8007EB98[entityId]] /
-            *(&D_8009C6DC[D_800831FC[entityId]] + 2);
-        modelIdx = D_8007EB98[entityId];
+    if (D_8007EB98[g_CurrentEntity] != 0xFF) {
+        D_8008325C[D_8007EB98[g_CurrentEntity]] = GET_PARAM_U8(1);
+        D_80082248[D_8007EB98[g_CurrentEntity]] =
+            D_8009D828[D_8007EB98[g_CurrentEntity]] / GET_PARAM_U8(2);
+        modelIdx = D_8007EB98[g_CurrentEntity];
         if (D_800756E8[modelIdx] == 3) {
             D_800756E8[modelIdx] = 0;
         }
     }
-    D_800831FC[D_800722C4] += 3;
+    PC_INC(3);
     return 1;
 }
 
@@ -1300,24 +1390,21 @@ s32 SetDefaultAnimation(void) {
  * (0: idle, 1: walk, 2: run) used while the player controls a model.
  */
 s32 SetControlCharacterAnimation(void) {
-    s32 entityId;
-
     if (D_8009D820 & 3) {
         func_800BEAD4("ccanm", 3);
     }
-    switch (*(&D_8009C6DC[D_800831FC[D_800722C4]] + 3)) {
+    switch (GET_PARAM_U8(3)) {
     case 0:
-        D_8009C6E0->unk2C = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        D_8009C6E0->unk2C = GET_PARAM_U8(1);
         break;
     case 1:
-        D_8009C6E0->unk2E = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        D_8009C6E0->unk2E = GET_PARAM_U8(1);
         break;
     case 2:
-        D_8009C6E0->unk30 = *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
+        D_8009C6E0->unk30 = GET_PARAM_U8(1);
         break;
     }
-    entityId = D_800722C4;
-    D_800831FC[entityId] += 4;
+    PC_INC(4);
     return 0;
 }
 
@@ -1329,23 +1416,19 @@ s32 SetControlCharacterAnimation(void) {
  * the animation header of the model's file.
  */
 void StartModelAnimation(void) {
-    s32 entityId;
     u8 modelIdx;
     u8* anims;
     Unk8004A62CSub* file;
 
-    D_8009C544[D_8007EB98[D_800722C4]].unk5E =
-        *(&D_8009C6DC[D_800831FC[D_800722C4]] + 1);
-    entityId = D_800722C4;
-    D_8009C544[D_8007EB98[entityId]].unk60 =
-        D_8009D828[D_8007EB98[entityId]] /
-        *(&D_8009C6DC[D_800831FC[entityId]] + 2);
-    D_8009C544[D_8007EB98[entityId]].unk62 = 0;
-    modelIdx = D_8007EB98[entityId];
+    D_8009C544[D_8007EB98[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(1);
+    D_8009C544[D_8007EB98[g_CurrentEntity]].animSpeed =
+        D_8009D828[D_8007EB98[g_CurrentEntity]] / GET_PARAM_U8(2);
+    D_8009C544[D_8007EB98[g_CurrentEntity]].animCurrentFrame = 0;
+    modelIdx = D_8007EB98[g_CurrentEntity];
     file = &D_8004A62C->unk4[D_8008357C[modelIdx].unk4];
     anims = file->unk1C + file->unk1A;
-    D_8009C544[modelIdx].unk64 =
-        *(u16*)&anims[D_80074EA4[modelIdx].unk5E * 16] - 1;
+    D_8009C544[modelIdx].animLastFrame =
+        *(u16*)&anims[D_80074EA4[modelIdx].activeAnimId * 16] - 1;
 }
 
 /*
@@ -1365,28 +1448,28 @@ s32 PlayAnimation(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("anime", 2);
     }
-    if (D_8007EB98[D_800722C4] != 0xFF) {
-        switch (D_800756E8[D_8007EB98[D_800722C4]]) {
+    if (D_8007EB98[g_CurrentEntity] != 0xFF) {
+        switch (D_800756E8[D_8007EB98[g_CurrentEntity]]) {
         case 0:
         case 1:
         case 3:
             StartModelAnimation();
             if (D_8009A058 == 0xAE) {
-                D_800756E8[D_8007EB98[D_800722C4]] = 5;
-                D_800831FC[D_800722C4] += 3;
+                D_800756E8[D_8007EB98[g_CurrentEntity]] = 5;
+                PC_INC(3);
                 return 0;
             }
-            D_800756E8[D_8007EB98[D_800722C4]] = 2;
+            D_800756E8[D_8007EB98[g_CurrentEntity]] = 2;
             return 1;
         case 4:
-            D_800756E8[D_8007EB98[D_800722C4]] = 0;
-            D_800831FC[D_800722C4] += 3;
+            D_800756E8[D_8007EB98[g_CurrentEntity]] = 0;
+            PC_INC(3);
             return 0;
         default:
             return 1;
         }
     }
-    D_800831FC[D_800722C4] += 3;
+    PC_INC(3);
     return 0;
 }
 #endif
@@ -1405,26 +1488,26 @@ s32 PlayAnimationHold(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("anim!", 2);
     }
-    if (D_8007EB98[D_800722C4] != 0xFF) {
-        switch (D_800756E8[D_8007EB98[D_800722C4]]) {
+    if (D_8007EB98[g_CurrentEntity] != 0xFF) {
+        switch (D_800756E8[D_8007EB98[g_CurrentEntity]]) {
         case 0:
         case 1:
         case 3:
             StartModelAnimation();
             if (D_8009A058 == 0xAF) {
-                D_800756E8[D_8007EB98[D_800722C4]] = 6;
+                D_800756E8[D_8007EB98[g_CurrentEntity]] = 6;
                 break;
             }
-            D_800756E8[D_8007EB98[D_800722C4]] = 2;
+            D_800756E8[D_8007EB98[g_CurrentEntity]] = 2;
             return 1;
         case 4:
-            D_800756E8[D_8007EB98[D_800722C4]] = 3;
+            D_800756E8[D_8007EB98[g_CurrentEntity]] = 3;
             break;
         default:
             return 1;
         }
     }
-    D_800831FC[D_800722C4] += 3;
+    PC_INC(3);
     return 0;
 }
 #endif
@@ -1901,10 +1984,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7D6C);
 static void func_800D7F9C(void) {
     func_800D828C(5, 0x6C, 0, 0x6C, 0x52);
     func_800DA334(D_800E4254, "Authr:");
-    func_800DA368(D_800E4254, (s8*)(D_8009C6DC + 0x10));
+    func_800DA368(D_800E4254, g_FieldScripts->author);
     func_800D9F00(5, D_800E4254);
     func_800DA334(D_800E4254, "Event:");
-    func_800DA368(D_800E4254, (s8*)(D_8009C6DC + 0x18));
+    func_800DA368(D_800E4254, g_FieldScripts->name);
     func_800D9F00(5, D_800E4254);
     func_800D9F00(5, "  Go");
     func_800D9F00(5, "  Stop");
