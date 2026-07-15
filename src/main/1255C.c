@@ -30,7 +30,20 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_800230C4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_8002368C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80023788);
+// Extract the hours field (0-99) of the HH:MM play-time clock from a seconds
+// counter, capped at 99:59:59 (0x57E3F seconds). Returned as a plain decimal
+// (tens*10 + units) so the 2-digit number drawer renders it. func_8002382C
+// formats the matching minutes field.
+s32 func_80023788(s32 arg0) {
+    s32 var_a0;
+
+    var_a0 = arg0;
+    if (var_a0 > 0x57E3F) { // clamp to 99:59:59, in seconds
+        var_a0 = 0x57E3F;
+    }
+    // tens-of-hours (sec / 36000) * 10 + units-of-hours ((sec % 36000) / 3600)
+    return ((var_a0 / D_80049474) * 0xA) + ((var_a0 % D_80049474) / D_80049478);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_8002382C);
 
@@ -40,7 +53,13 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80023AC4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80023AD4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80024A04);
+// Push the current display and draw environments to the GPU: the per-frame
+// double-buffer flip (activate the finished buffer for scanout, point drawing
+// at the other one).
+static void func_80024A04(void) {
+    PutDispEnv(&D_8007075C);
+    PutDrawEnv(&D_80070700);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80024A3C);
 
@@ -197,13 +216,46 @@ void func_80025650(void) {}
 // get party leader (Cloud) level
 s32 func_80025658() { return D_8009C738[0].level; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80025668);
+// Party slot -> equipped character -> that character's equipped armor's
+// materia-slot configuration (slot count / linked-pair layout / growth rate;
+// see ArmorRecord in main_private.h). Returns sentinel (void*)0xFF for an
+// empty party slot.
+void* GetPartySlotArmorMateriaSlots(s32 arg0) {
+    u8 temp_v1;
+    void* var_v0;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_800256DC);
+    temp_v1 = D_8009CBDC[arg0];
+    var_v0 = (void*)0xFF;
+    if (temp_v1 != 0xFF) {
+        u32 idx = D_800491D0[temp_v1];
+        var_v0 = g_ArmorTable[D_8009C755[idx * 0x84]].materiaSlot;
+    }
+    return var_v0;
+}
 
-s32* func_80025758(s32 arg0) { return &D_80071E44[arg0 * 9]; }
+// Weapon counterpart of GetPartySlotArmorMateriaSlots: party slot -> equipped
+// character -> that character's equipped weapon's materia-slot configuration
+// (see WeaponRecord in main_private.h). Returns sentinel (void*)0xFF for an
+// empty party slot.
+void* GetPartySlotWeaponMateriaSlots(s32 arg0) {
+    u8 temp_v1;
+    void* var_v0;
 
-s32* func_80025774(s32 arg0) { return &D_80071C24[arg0 * 4]; }
+    temp_v1 = D_8009CBDC[arg0];
+    var_v0 = (void*)0xFF;
+    if (temp_v1 != 0xFF) {
+        u32 idx = D_800491D0[temp_v1];
+        // SMELL: raw 0x84 char-record stride math; wants a CharacterRecord
+        // struct (equippedWeapon at +0xC) ->
+        // g_CharacterRecords[idx].equippedWeapon
+        var_v0 = g_WeaponTable[D_8009C754[idx * 0x84]].materiaSlot;
+    }
+    return var_v0;
+}
+
+s32* func_80025758(s32 arg0) { return (s32*)&g_ArmorTable[arg0]; }
+
+s32* func_80025774(s32 arg0) { return (s32*)&g_AccessoryTable[arg0]; }
 
 Unk8009D84C* func_80025788(s32 arg0) {
     if (Savemap.partyID[arg0] != 0xFF) {
@@ -214,7 +266,12 @@ Unk8009D84C* func_80025788(s32 arg0) {
 
 void func_800257C4(void) {}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_800257CC);
+// Character id -> that character's 0x84-byte record (see D_8009C748). Not
+// armor-specific, despite being a sibling of GetPartySlotArmorMateriaSlots
+// above.
+void* GetCharacterRecord(s32 arg0) {
+    return (void*)(D_800491D0[arg0] * 0x84 + (u32)D_8009C748);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80025800);
 
@@ -342,7 +399,20 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80026258);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_800262D8);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80026408);
+// Likely plays a sound effect: writes a sound command (0x30) and the masked
+// 16-bit sound id (arg0, duplicated into both parameter words) into the
+// sound-request globals, then dispatches via func_8002DA7C.
+// NOTE: func_8002DA7C's own body computes a value in $v0 before
+// returning, so its game.h prototype has been corrected to `int`. Its other
+// callers across the codebase still discard the result via a bare statement;
+// propagating this same int-return pattern to those sibling wrappers may be a
+// good change.
+static int func_80026408(u16 arg0) {
+    D_8009A000[0] = 0x30;
+    D_8009A004[0] = arg0;
+    D_8009A008[0] = arg0;
+    return func_8002DA7C();
+}
 
 void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                    s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10,

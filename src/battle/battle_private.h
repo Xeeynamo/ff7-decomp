@@ -49,7 +49,7 @@ typedef struct {
     s16 unk6;
     s16 unk8;
     s16 unkA;
-} Unk800A2F4C; // size: 0x12
+} Unk800A2F4C; // size: 0xC (confirmed by D_80163A98 - D_80163798 == 0x40 * 0xC)
 
 typedef struct {
     s16 D_801621AC;
@@ -242,6 +242,7 @@ extern s8 D_800F3468;
 extern u8 D_800F381C[];
 extern u8 D_800F3828[];
 extern unsigned char D_800F384A[];
+extern s32 D_800F38AC[];
 extern u8 D_800F38A0;
 extern u8 D_800F38A1;
 extern s16 D_800F38A2;
@@ -263,6 +264,7 @@ extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
 extern DR_MODE* D_800F4AF4;
 extern DR_MODE* D_800F4AF8;
+extern RECT D_800F4B24;
 extern RECT D_800F4B2C[];
 extern RECT D_800F4B6C[];
 extern Unk800F01DC D_800F4BAC[];
@@ -277,25 +279,29 @@ extern u8 D_800F7DF4;
 extern s32 D_800F8368;
 extern s16 D_800F8370;
 extern s32* D_800F839C; // CD offset?
+extern u8 D_800F83A4[]; // shared battle-script variable bank (func_800B13B0)
 extern u8 D_800F83A6;
 extern u16 D_800F83C6; // part of struct?
 extern u16 D_800F83D0;
 extern Unk800F83E4 D_800F83E4[];
 extern s32 D_800F8408;
+extern u8 D_800F87F0[]; // per-combatant battle-script variable bank, 0x80 B
+                        // each (func_800B13B0)
 extern s8 D_800F8CF0;
 extern s32 D_800F9144;
 extern s8 D_800F914E;
 extern s32 D_800F9F28[]; // size is either 4 or 5
-extern s8 D_800F9F34;
+extern u8 D_800F9F34;
 extern u8 D_800F99E8;
 extern s32 D_800F99E4;
 extern u8 D_800F9D94;
 extern u8 D_800F9D98;
 extern u8 D_800F9D9C;
 extern u16 D_800F9DA4;
+extern u8 D_800F9DA8[];
 extern Unk800BB75C D_800FA63C;
 extern s16 D_800FA69C;
-extern s8 D_800FA6A0;
+extern u8 D_800FA6A0;
 extern u16 D_800FA6B8;
 extern u8 D_800FA6D4;
 extern Unk800FA6D8 D_800FA6D8[];
@@ -322,6 +328,7 @@ extern s16 D_80151774;
 extern u8 D_801517BC;
 extern s16 D_80158D00;
 extern s32 D_80158D08;
+extern u_long D_80158D0C[];
 extern u8 D_801518DC;
 extern s32 D_800F9780[];
 extern u8 D_80153BDD;
@@ -343,10 +350,13 @@ extern u8 D_80163604;
 extern s16 D_80163608;
 extern Unk801636B8 D_801636B8[5];
 extern u16 D_80163758[]; // part of a struct
+extern u16 D_8016375C;
+extern u16 D_8016375E;
 extern u8 D_80163774[];
 extern u16 D_8016376E[];
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct
+extern u8 D_8016378C[];
 extern Unk800A2F4C D_80163798[0x40];
 extern s8 D_80163A98;
 extern u16 D_80163B80;
@@ -379,12 +389,14 @@ void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void func_800D3BF0();
 void func_800D8A78(s8);
 int func_800D8A88(void);
+void func_800D91DC(s32, s32, s16, u8, s32, s32);
 void func_800D9E0C(s32, s32, s32);
 void func_800DCFD4(u_long*);
 void func_800DDFEC(void);
 void func_800E15D8(void);
 void func_800E5814(void);
 void func_800E6B94(void);
+void BATTLE_EnqueueLoadImage(RECT* rect, u_long* ptr);
 
 /* one battle-usable item in the in-battle item list (built from the inventory
    at battle start; counts are committed back when the battle ends) */
@@ -392,7 +404,8 @@ typedef struct {
     /* 0x0 */ u16 id;
     /* 0x2 */ u8 count;
     /* 0x3 */ u8 targetFlags;
-    /* 0x4 */ u16 unk4;
+    /* 0x4 */ u8 unk4;
+    /* 0x5 */ u8 unk5;
 } BattleItemEntry; /* size: 0x6 */
 
 /* battle menu widget block (one per widget id, 0x240 apart) -- partial */
@@ -408,7 +421,6 @@ void func_800A4E40(void);
 void func_800DE2B4(void);
 void func_800E08C4(s32);
 void func_800E0BE0(s32);
-void func_800E68B4(void);
 void func_800E7170(void);
 extern void (*D_800F300C[])();
 extern s16 D_800F310E;
@@ -417,6 +429,7 @@ extern u16 D_800F314E;
 extern u16 D_800F3894;
 extern u8 D_800F389D;
 extern u8 D_800F38A4;
+extern u8 D_800F38A5;
 extern u8 D_800F38A6;
 extern u8 D_800F38A9;
 extern u8 D_800F514D;
@@ -425,11 +438,14 @@ extern u8 D_800F5161;
 extern u8 D_800F5166;
 extern u8 D_800F5167;
 extern u8 D_800F5168;
+extern u8 D_800F5628;
 extern u16 D_800F562C;
 extern u8 D_800F5630;
 extern u16 D_800F5634;
 extern u8 D_800F5638;
 extern u8 D_800F563C;
+extern u8 D_800F5EFC[]; // per-slot formation-setup config, 0x18 B stride; byte
+                        // 0 -> func_800A8D18
 extern BattleMenuWidget D_800F90C6[];
 extern u8 D_80151698;
 extern u8 D_80166F75;

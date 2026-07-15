@@ -4,6 +4,7 @@
 static void func_800E5358(void);
 static void func_800E4B88(void);
 static s32 func_800E4BCC(void);
+static void func_800E68B4(void);
 
 void func_800D8A04(void) {}
 
@@ -25,7 +26,7 @@ static void func_800D8AF0(u16 arg0) {
     D_8009A000[0] = arg0;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
-    func_8002DA7C(arg0);
+    func_8002DA7C();
 }
 
 void func_800D8B2C(void) {
@@ -163,11 +164,31 @@ static void func_800DD690(s32 arg0, s16 arg1) {
     }
 }
 
+void func_800DD85C(s32, s16);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DD85C);
 
+void func_800DDAD8(s32, s16);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DDAD8);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DDC34);
+/*
+ * Draw step for one active on-screen entity. The caller (func_800DDE90) walks
+ * the per-entity active-flag array (D_800F514C) and packs the flagged entities
+ * into sequential slots; D_800F5628 is that slot counter and arg1 is the
+ * entity's index. Runs the three sub-handlers on the current record's
+ * sub-fields at offsets 0, 8 and 0x10, then advances to the next slot. Called
+ * once per active entity per frame.
+ */
+static void func_800DDC34(s32 arg0, s16 arg1) {
+    s32 off2;
+    s32 off3;
+
+    func_800DD85C(arg0 + (D_800F5628 * 0x14), arg1);
+    off2 = (D_800F5628 * 0x14) + 8;
+    func_800DDAD8(arg0 + off2, arg1);
+    off3 = (D_800F5628 * 0x14) + 0x10;
+    func_800DD690(arg0 + off3, arg1);
+    D_800F5628++;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DDCE8);
 
@@ -764,7 +785,16 @@ static void func_800E6848(void) {
     func_80026F44(func_800E6820() + 0x4C, 0x1C, &D_800F3828[0x44], 7);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E68B4);
+static void func_800E68B4(void) {
+    switch (D_800F38A5) {
+    case 0:
+        D_801516F8 = D_8016375C;
+        break;
+    case 1:
+        D_801516F8 = D_8016375E;
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E6904);
 

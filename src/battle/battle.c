@@ -46,7 +46,27 @@ void func_800A23BC(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A23E0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A283C);
+void func_800A283C(void) {
+    s32 next;
+    s32* out;
+    u32 i;
+    u32 delim;
+
+    i = 0;
+    next = 0;
+    delim = 0x1F;
+    out = D_800F38AC;
+    /* i is initialised separately and delim kept in a temp: both are
+     * load-bearing for codegen */
+    for (; i < 0x6D; i++) {
+        if (i == next) {
+            *out++ = i;
+        }
+        if (D_800A0098[i] == delim) {
+            next = i + 1;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2894);
 
@@ -146,9 +166,19 @@ void func_800A31A0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     unk->unkA = -1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3208);
+static void func_800A3208(s8 arg0, s8 arg1) {
+    if (D_800F3944 != 0) {
+        Unk800A2F4C* ptr = &D_80163798[D_800F3944 - 1];
+        ptr->unk3 = arg0;
+        ptr->unk2 = arg1;
+    }
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3240);
+static void func_800A3240(void) {
+    if (D_800F3944 != 0) {
+        D_80163798[D_800F3944 - 1].unk8 = -1;
+    }
+}
 
 void func_800A3278(void) {
     D_800F3944 = 0;
@@ -333,7 +363,18 @@ void func_800A4D88(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4E00);
+s16 func_800A4E00(void) {
+    s32 arg;
+    s32 result;
+
+    result = -1;
+    arg = D_800E7A48[0] & 0xFF;
+    if (arg != 0xFF) {
+        arg = -1;
+        result = func_800A4CC8(D_800E7A48[0], arg);
+    }
+    return result;
+}
 
 void func_800A4E40(void) {
     u8 temp_s0;
@@ -450,7 +491,18 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6AC4);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6B1C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6B88);
+void func_800A6B88(s32 arg0, s32 arg1) {
+    s32 i;
+
+    for (i = 0; i < 0x140; i++) {
+        if (D_801671B8[i].id == arg1) {
+            if (!(D_801671B8[i].unk4 & 9)) {
+                func_800A64B4(i);
+            }
+            return;
+        }
+    }
+}
 
 void func_800A6BFC(void) {}
 
@@ -577,7 +629,13 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8CC8);
 
 void func_800A8D04(void) { D_80063014->unk48 = 2; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8D18);
+// seed this combatant's unk50 (a flag word later read by the damage formula
+// in func_800AD804 -- bit 0x80 there appears to exempt a hit from the
+// reduced per-target damage otherwise applied when an action strikes
+// multiple targets) with a per-slot default, but only if nothing has set
+// unk50 explicitly yet this turn (see func_800A8D60's sentinel check)
+void func_800A8D60(s32 arg0);
+void func_800A8D18(void) { func_800A8D60(D_800F5EFC[D_80063014->unk0 * 0x18]); }
 
 void func_800A8D60(s32 arg0) {
     if (D_80063014->unk50 == 0xFF) {
@@ -806,7 +864,20 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD804);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD890);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD8DC);
+// scale arg0 by a fixed-point random variance factor (~93.77%..100%), then
+// clamp the result to a minimum of 1
+static s32 func_800AD8DC(s32 arg0) {
+    s32 temp_s0;
+    s32 var_v0;
+
+    var_v0 = arg0;
+    temp_s0 = ((s32)(var_v0 * (func_80014B70() + 0xF01))) >> 0xC;
+    var_v0 = temp_s0;
+    if (temp_s0 == 0) {
+        var_v0 = 1;
+    }
+    return var_v0;
+}
 
 void func_800AD924(void) { D_80063014->unk218 |= 2; }
 
@@ -888,7 +959,7 @@ const s8 D_800A04BC[] = {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AEB20);
 
 // this data belong to functions located above:
-const s8 D_800A04D0[] = {0x0A, 0x19, 0x15, 0x0D, 0x10, 0x11, 0x03, 0x02,
+const u8 D_800A04D0[] = {0x0A, 0x19, 0x15, 0x0D, 0x10, 0x11, 0x03, 0x02,
                          0x0F, 0x1B, 0x14, 0x18, 0xFF, 0xFF, 0xFF, 0xFF};
 int func_800B0378();
 int func_800B062C();
@@ -940,7 +1011,18 @@ void func_800AF63C(s32 arg0) { func_800B108C(arg0); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF65C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF834);
+static s32 func_800AF834(s32 arg0) {
+    s32 result;
+    s32 i;
+
+    result = -1;
+    for (i = 0; i < LEN(D_800A04D0); i++) {
+        if (D_800A04D0[i] == arg0) {
+            result = i;
+        }
+    }
+    return result;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF874);
 
@@ -997,19 +1079,65 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B10B4);
 void func_800B10F0(s32, s32, s32, s32, s32, s32, s32);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B10F0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B11B4);
+// find arg0 in D_800F5F44.attackIDs[]; returns its index, or 0x20 (and signals
+// func_800155A4) if it is not present
+static s32 func_800B11B4(s32 arg0) {
+    s32 i;
+    u16* p;
+
+    for (i = 0, p = D_800F5F44.attackIDs; i < LEN(D_800F5F44.attackIDs); i++) {
+        if (*p == arg0) {
+            break;
+        }
+        p++;
+    }
+    if (i == LEN(D_800F5F44.attackIDs)) {
+        func_800155A4(0x20);
+    }
+    return i;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1218);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1268);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B12DC);
+// nonzero if D_800F5F44.D_800F7DC8 is < 3
+static u32 func_800B12DC(void) {
+    u32 result = 0;
+    s32 cmp = (s32)D_800F5F44.D_800F7DC8;
+
+    if (cmp < 3) {
+        result = (u32)~D_800F5F44.D_800F7DC8 >> 0x1F;
+    }
+    return result;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1304);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1368);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B13B0);
+// Resolve a packed variable reference for the battle-script VM (func_800B1D48):
+// map combatant arg0 + descriptor arg1 to a backing pointer (*arg2) and return
+// a bit offset into it. arg1 < 0x2000 selects the per-combatant variable bank
+// D_800F87F0[arg0] (0x80 bytes each); arg1 < 0x4000 selects the shared,
+// battle-wide bank D_800F83A4; otherwise the per-combatant stat record
+// D_800F83E0[arg0] (0x68 bytes each). func_800B153C / func_800B141C then read
+// or write at that bit offset.
+static s32 func_800B13B0(s32 arg0, s32 arg1, void** arg2) {
+    s32 var_a1;
+
+    var_a1 = arg1;
+    if (var_a1 < 0x2000) {
+        *arg2 = &D_800F87F0[arg0 * 0x80];
+    } else if (var_a1 < 0x4000) {
+        *arg2 = D_800F83A4;
+        var_a1 -= 0x2000;
+    } else {
+        *arg2 = &D_800F83E0[arg0];
+        var_a1 -= 0x4000;
+    }
+    return var_a1;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B141C);
 
@@ -1074,7 +1202,10 @@ u8 func_800B2F30(void) { return func_80014B70(); }
 
 u16 func_800B2F50(void) { return func_80014BE4(); }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B2F70);
+// scale a 16-bit value into the range 1..100
+static s32 func_800B2F70(void) {
+    return (((func_800B2F50() & 0xFFFF) * 0x63) / 0xFFFF) + 1;
+}
 
 static s32 func_800B2FC4(s32 arg0) {
     return (arg0 * (func_800B2F30() + 0xF01)) >> 12;

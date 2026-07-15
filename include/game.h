@@ -335,11 +335,41 @@ typedef struct {
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s32 unk14;
     /* 0x18 */ s32 unk18;
-    /* 0x1C */ s8 unk1C[0x68];
+    /* 0x1C */ s8 unk1C[0x3B];
+    /* 0x57 */ u8 unk57; // script entity that owns this model
+    /* 0x58 */ s8 unk58[4];
+    /* 0x5C */ u8 unk5C;
+    /* 0x5D */ s8 unk5D;
+    /* 0x5E */ u8 unk5E; // current animation id
+    /* 0x5F */ s8 unk5F;
+    /* 0x60 */ s16 unk60; // animation playback speed
+    /* 0x62 */ s16 unk62; // animation frame counter
+    /* 0x64 */ s16 unk64; // last animation frame
+    /* 0x66 */ u16 unk66; // model id
+    /* 0x68 */ s8 unk68[0x1C];
 } Unk80074EA4; // size:0x84
 
 typedef struct {
-    u8 unk0[0x28];
+    /* 0x00 */ u8 unk0[4];
+    /* 0x04 */ u8 unk4; // model file index
+    /* 0x05 */ u8 unk5[3];
+} Unk8008357C; // size:0x8
+
+typedef struct {
+    /* 0x00 */ u8 unk0[0x1A];
+    /* 0x1A */ u16 unk1A; // offset from unk1C to the animation headers
+    /* 0x1C */ u8* unk1C;
+    /* 0x20 */ u8 unk20[4];
+} Unk8004A62CSub; // size:0x24
+
+typedef struct {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ Unk8004A62CSub* unk4; // per-model-file records
+} Unk8004A62C;
+
+typedef struct {
+    u8 unk0[0x26];
+    s16 movieState;
     u16 unk28; // number of models
     u16 unk2A; // pc model id
     u16 unk2C; // idle animation id
@@ -349,12 +379,12 @@ typedef struct {
     u8 unk33;  // suspend walk animation
     u8 unk34;  // menus disabled
     u8 unk35;
-    u8 unk36;  // map jump disabled
-    u8 unk37;  // SCRLO set
-    u8 unk38;  // MPDSP set
-    u8 unk39;  // movie cam disabled
-    u8 unk3A;  // background movie enabled
-    u8 unk3B;  // battles disabled
+    u8 unk36; // map jump disabled
+    u8 scrloSet;
+    u8 mpdspSet;
+    u8 movieCamDisabled;
+    u8 backgroundMovieEnabled;
+    u8 battlesDisabled;
     u8 unk3C;  // encounter table id
     u8 unk3D;  // battle mode related
     u16 unk3E; // battle mode related
@@ -394,11 +424,12 @@ typedef struct {
 
 extern u8 D_80049208[12];   // window colors maybe??
 extern u8 D_800492F0[][12]; // see Labels enum
-extern u16 D_80062D78;      // pressed button?
-extern u16 D_80062D7C;      // pressed button?
-extern u16 D_80062D7E;      // pressed button?
-extern u16 D_80062D80;      // tapped button
-extern u16 D_80062D82;      // repeated button
+extern Unk8004A62C* D_8004A62C;
+extern u16 D_80062D78; // pressed button?
+extern u16 D_80062D7C; // pressed button?
+extern u16 D_80062D7E; // pressed button?
+extern u16 D_80062D80; // tapped button
+extern u16 D_80062D82; // repeated button
 extern u8 D_80062D98;
 extern u8 D_80062D99;
 extern s32 D_80062DCC;
@@ -426,6 +457,7 @@ extern u8 D_800722C4; // entity owning the currently executing script
 extern Unk800730CC D_800730CC[];
 extern u8 D_800730DD[][0x14];
 extern Unk80074EA4 D_80074EA4[2];
+extern u8 D_800756E8[]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
 extern int D_80075DEC; // buffer index, either 0 or 1
 extern u8 D_80075E24[];
@@ -433,15 +465,21 @@ extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern Unk8007E7AC D_8007E7AC[];
 extern DRAWENV D_8007EAAC[2];
 extern DISPENV D_8007EB68[2];
+extern u8 D_8007EB98[]; // script entity id -> field model index (0xFF: none)
 extern s8 D_8007EBCC;
 extern s8 D_8007EBDC;
-extern u8 D_8007EBE0; // field debug mode
+extern u8 D_8007EBE0;    // field debug mode
+extern u8 D_80081DC4;    // mirror of the UC opcode's control-lock flag
+extern s16 D_80082248[]; // per-model current animation playback speed
 extern u8 D_80083184[0x40];
 extern u16 D_800831FC[48]; // program counters for active entity scripts
+extern u8 D_8008325C[];    // per-model default animation id (DFANM)
 extern u8 D_8008326C;
 extern s32 D_80083274;
+extern s16 D_8008327E[];
 extern s16 D_800832A0;
 extern s32 D_80083338;
+extern Unk8008357C* D_8008357C;
 extern s8 D_80095DCC;
 extern volatile u16 D_80095DD4;
 extern s16 D_800965E0;
@@ -453,9 +491,11 @@ extern u32 D_8009A004[1];
 extern s32 D_8009A008[1];
 extern s32 D_8009A00C;
 extern s32 D_8009A024[8];
-extern u8 D_8009A058;
+extern u8 D_8009A058; // currently executing field-script opcode
 extern Unk8009C6E0 D_8009ABF4;
 extern u8 D_8009AC2F;
+extern Unk80074EA4* D_8009C544; // loaded field models
+extern u8 D_8009C6C4;           // number of allocated field models
 extern u8* D_8009C6DC;
 extern Unk8009C6E0* D_8009C6E0; // points to 0x8009abf4
 extern SaveWork Savemap;        // 0x8009C6E4
@@ -465,11 +505,13 @@ extern u8 D_8009D2E7;
 extern u8 D_8009D302;
 extern u8 D_8009D391[1]; // part of a struct?
 extern u8 D_8009D40D;
+extern u8 D_8009D588; // disc number requested by the DSKCG opcode
 extern u8 D_8009D684;
 extern u8 D_8009D685;
 extern u8 D_8009D686;
 extern u8 D_8009D60E;
-extern u8 D_8009D820; // field debug related
+extern u8 D_8009D820;    // field debug related
+extern s16 D_8009D828[]; // per-model base animation speed
 extern u8 D_8009D8F8[];
 extern u32 D_8009D260;
 extern volatile s32 D_8009D268[];
@@ -496,7 +538,7 @@ void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
 void func_800269C0(void* poly);
 s32 func_80026B70(unsigned char* str);
 void func_80026F44(s32 x, s32 y, const char*, s32 color); // print FF7 string
-void func_8002DA7C();
+int func_8002DA7C(void);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);

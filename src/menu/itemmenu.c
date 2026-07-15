@@ -11,10 +11,12 @@ extern u16 D_801D35B4[]; // per-item-id sort order for the "Name" arrange option
 
 s32 func_8001FAF8(
     s32); // returns an item's usage flags (0x2 battle, 0x4 field, 0x8 throw)
-static s32 Quicksort(
-    s32, s32, s32 (*)(s32, s32, s32*), void (*)(s32, s32, s32*));
+typedef s32 (*SortCmp)(s32, s32, s32*);
+typedef void (*SortSwap)(s32, s32, s32*);
+static s32 Quicksort(s32, s32, SortCmp, SortSwap);
 
 s32 func_80015AFC(s32, s32);
+void func_80025D14(u_long*, s32, s32, s32, s32);
 void func_80028CA0(s16, s16, s32, s32, s32, s32, s32, s32);
 extern u16 D_80062F50;
 extern u8 D_8009D5E8;
@@ -23,6 +25,34 @@ extern s16 D_8009D85C[]; // record fields, stride 0x440
 extern s16 D_8009D85E[];
 extern s16 D_8009D860[];
 extern s16 D_8009D862[];
+extern u8 D_801D3890[];
+// [0]: single-slot, non-scrolling widget (total=1, 1/page) - purpose not yet
+//      identified.
+// [1]: the Use tab's item list - total=0x140 (320) matches the item
+//      inventory D_8009CBE0 exactly, 10/page.
+// [2]: the Use/Arrange/Key-Items tab selector itself - total=3, wraps.
+extern Unk80026448 D_801D3DDC[];
+
+// Item-menu screen/sub-state selector. Confirmed via live RAM trace (PCSX-Redux
+// write-watch, PSX retail build) while stepping through the menu:
+//   0 = Use/Arrange/Key-Items tab selector
+//   1 = Use (item list)
+//   2 = item selected within Use (target/confirm step)
+//   3 = Key Items
+//   4 = Arrange
+// Written by func_801D131C (initial tab pick: 1/3/4) and func_801D1A6C
+// (cancel back to selector: 0; cancel out of item-select: back to 1) -
+// NOT func_801D0E80, which is a separate on-enter routine unrelated to this
+// state (see D_800493A8 in src/main/ovl.c, where func_801D0E80 is reached
+// from 8 different screen-entry slots).
+typedef enum {
+    ITEMMENU_SCREEN_SELECTOR = 0,
+    ITEMMENU_SCREEN_USE = 1,
+    ITEMMENU_SCREEN_ITEM_SELECTED = 2,
+    ITEMMENU_SCREEN_KEY_ITEMS = 3,
+    ITEMMENU_SCREEN_ARRANGE = 4,
+} ItemMenuScreen;
+extern s32 D_801D3E48;
 extern u8 D_801D3E60[];
 
 // Likely plays a menu sound effect: loads a sound command (0x30) and the sound
@@ -73,7 +103,30 @@ void func_801D0228(s16 arg0, s16 arg1, s32 arg2) {
     }
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D031C);
+extern u8 D_801D3D90[]; // Key Items menu list: obtained key-item IDs in
+                        // ascending order, 0xFF-padded to 64 entries.
+
+// Builds the Key Items menu list: scans the 64-bit "key items obtained" bitmask
+// in the savemap (Savemap + 0xBE4, i.e. memory_bank_1[0x40]) and appends the ID
+// of each owned key item to D_801D3D90 in ascending order, then pads the
+// remaining entries with 0xFF.
+static void func_801D031C(void) {
+    s32 count;
+    u8* dst;
+    s32 id;
+
+    for (id = 0, count = 0, dst = D_801D3D90; id < 0x40; id++) {
+        if ((Savemap.memory_bank_1[0x40 + id / 8] >> (id & 7)) & 1) {
+            *dst = id;
+            dst += 1;
+            count += 1;
+        }
+    }
+    while (count < 0x40) {
+        D_801D3D90[count] = -1;
+        count += 1;
+    }
+}
 
 // Swap the two 32-bit values pointed to by arg0 and arg1.
 static void SwapS32(s32* arg0, s32* arg1) {
@@ -90,8 +143,7 @@ static void SwapS32(s32* arg0, s32* arg1) {
 // NOTE: the do{}while(0) wrapper, the va1 register copy of j, the duplicated
 // cont computation and the tmp* temporaries are all required for the
 // byte-perfect match (they reproduce the original register allocation).
-static s32 Quicksort(s32 base, s32 count, s32 (*cmp)(s32, s32, s32*),
-                     void (*swap)(s32, s32, s32*)) {
+static s32 Quicksort(s32 base, s32 count, SortCmp cmp, SortSwap swap) {
     s32 stack[128];
     s32 tmp4;
     s32 tmp5;
@@ -354,30 +406,51 @@ static void ArrangeItems(s32 mode) {
     case 0:
         break;
     case 1:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByField, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByField,
+                  (SortSwap)SwapItemSlots);
         break;
     case 2:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByBattle, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByBattle,
+                  (SortSwap)SwapItemSlots);
         break;
     case 3:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByThrow, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByThrow,
+                  (SortSwap)SwapItemSlots);
         break;
     case 4:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByType, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByType,
+                  (SortSwap)SwapItemSlots);
         break;
     case 5:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByName, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByName,
+                  (SortSwap)SwapItemSlots);
         break;
     case 6:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByMost, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByMost,
+                  (SortSwap)SwapItemSlots);
         break;
     case 7:
-        Quicksort((s32)D_8009CBE0, 0x140, CompareItemsByLeast, SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByLeast,
+                  (SortSwap)SwapItemSlots);
         break;
     }
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0BA0);
+// exported, see 800493A8
+// Configures 3 widgets (D_801D3DDC[0..2], see Unk80026448 and the comment on
+// its extern decl for what each backs) and defaults the item-menu to the Use
+// tab, then continues in func_801D031C. That default is later overwritten by
+// func_801D131C if the player picks Arrange or Key Items instead, or by
+// func_801D1A6C if they back out to the tab selector (see ItemMenuScreen).
+// Reached from src/main/ovl.c's D_800493A8 per-screen entry table for
+// several item-menu pages, called out of func_800230C4 in src/main/1255C.c.
+void func_801D0BA0(void) {
+    D_801D3E48 = ITEMMENU_SCREEN_USE;
+    func_80026448(&D_801D3DDC[0], 0, 0, 3, 1, 0, 0, 3, 1, 0, 0, 1, 0, 0);
+    func_80026448(&D_801D3DDC[1], 0, 0, 1, 0xA, 0, 0, 1, 0x140, 0, 0, 0, 0, 0);
+    func_80026448(&D_801D3DDC[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
+    func_801D031C();
+}
 
 // True if the two adjacent record fields for entry arg0 are equal.
 s32 func_801D0CAC(s32 arg0) {
@@ -775,6 +848,13 @@ void RestoreCharacterMateria(s32 charIdx) {
     }
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3228);
+// Uploads the coin-pattern texture at D_801D3890 (64x32, 4bpp, seamlessly
+// tileable) into VRAM: pixel data to (0x3F0, 0x120), CLUT to (0x110, 0x1E0).
+// Runs once at boot/menu init (main -> func_80026258 -> func_80025008); the
+// texture stays resident so the battle UI can scroll it as the animated
+// backdrop behind the coin-throw amount prompt.
+void func_801D3228(void) {
+    func_80025D14((u_long*)D_801D3890, 0x3F0, 0x120, 0x110, 0x1E0);
+}
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3260);
