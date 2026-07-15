@@ -48,6 +48,21 @@ typedef enum {
     LBA_ENEMY6_FAN2 = 30695,
 } Lba;
 
+typedef enum {
+    SYNC_NONE = 0x0,
+    SYNC_WAITING = 0x1,
+    SYNC_DONE = 0x2,
+} ScriptSyncState;
+
+// Script controlled movement modes.
+typedef enum {
+    SMODE_NONE = 0x0,
+    SMODE_WALK = 0x1,
+    SMODE_JUMP = 0x3,
+    SMODE_LADDER_V = 0x4,
+    SMODE_LADDER_H = 0x5,
+} ScriptedMoveMode;
+
 typedef struct {
     s16 unk0;
     s16 unk2; // current page
@@ -336,15 +351,18 @@ typedef struct {
     /* 0x14 */ s32 unk14;
     /* 0x18 */ s32 unk18;
     /* 0x1C */ s8 unk1C[0x3B];
-    /* 0x57 */ u8 unk57; // script entity that owns this model
-    /* 0x58 */ s8 unk58[4];
+    /* 0x57 */ u8 entityId; // script entity that owns this model
+    /* 0x58 */ u8 queuePushScript;
+    /* 0x59 */ u8 unk59;
+    /* 0x5A */ u8 queueTalkScript;
+    /* 0x5B */ u8 unk5B;
     /* 0x5C */ u8 unk5C;
-    /* 0x5D */ s8 unk5D;
-    /* 0x5E */ u8 unk5E; // current animation id
+    /* 0x5D */ u8 scriptedMoveMode; // enum ScriptedMoveMode
+    /* 0x5E */ u8 activeAnimId;
     /* 0x5F */ s8 unk5F;
-    /* 0x60 */ s16 unk60; // animation playback speed
-    /* 0x62 */ s16 unk62; // animation frame counter
-    /* 0x64 */ s16 unk64; // last animation frame
+    /* 0x60 */ s16 animSpeed;
+    /* 0x62 */ s16 animCurrentFrame;
+    /* 0x64 */ s16 animLastFrame;
     /* 0x66 */ u16 unk66; // model id
     /* 0x68 */ s8 unk68[0x1C];
 } Unk80074EA4; // size:0x84
@@ -375,9 +393,9 @@ typedef struct {
     u16 unk2C; // idle animation id
     u16 unk2E; // walk animation id
     u16 unk30; // run animation id
-    u8 unk32;  // character lock
-    u8 unk33;  // suspend walk animation
-    u8 unk34;  // menus disabled
+    u8 characterLock;
+    u8 unk33; // suspend walk animation
+    u8 unk34; // menus disabled
     u8 unk35;
     u8 unk36; // map jump disabled
     u8 scrloSet;
@@ -422,6 +440,24 @@ typedef struct {
     u16 unk82;
 } Unk8009C6E0; // size:???
 
+typedef struct {
+    u8 eventDataVersion;
+    u8 eventVersion;
+    u8 numEntities;
+    u8 numModels;
+    u16 stringOffset; // Offset to strings
+    u16 numExtras;    // Akao and tutorials
+    u16 scale;
+    u16 pad[3];
+    char author[8];
+    char name[8];
+    /*
+    char entityNames[numEntities][8];
+    u32 extras[numExtras]; // Offsets to akao/tutorial blocks
+    u16 entityScripts[numEntities][32]; // Offsets to entity scripts
+    */
+} FieldScriptHeader; // size:Varies
+
 extern u8 D_80049208[12];   // window colors maybe??
 extern u8 D_800492F0[][12]; // see Labels enum
 extern Unk8004A62C* D_8004A62C;
@@ -446,6 +482,8 @@ extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
                             // (set by the MULCK opcode)
 extern u8 D_80070788;
 extern u16 D_800707BE;
+extern s16 D_800716DC[48];
+extern u16 g_SavedFieldScriptPC[48][8]; // Program counters of paused scripts
 extern s16 D_80071A5C;
 extern s8 D_80071C08;
 extern u8 D_80071E24;
@@ -453,7 +491,7 @@ extern u8 D_80071E2C;
 extern u8 D_80071E30;
 extern MATRIX* D_80071E40;
 extern u8 D_80071E34;
-extern u8 D_800722C4; // entity owning the currently executing script
+extern u8 g_CurrentEntity; // entity owning the currently executing script
 extern Unk800730CC D_800730CC[];
 extern u8 D_800730DD[][0x14];
 extern Unk80074EA4 D_80074EA4[2];
@@ -472,13 +510,15 @@ extern u8 D_8007EBE0;    // field debug mode
 extern u8 D_80081DC4;    // mirror of the UC opcode's control-lock flag
 extern s16 D_80082248[]; // per-model current animation playback speed
 extern u8 D_80083184[0x40];
-extern u16 D_800831FC[48]; // program counters for active entity scripts
-extern u8 D_8008325C[];    // per-model default animation id (DFANM)
+extern u16 g_FieldScriptPC[48]; // program counters for active entity scripts
+extern u8 D_8008325C[];         // per-model default animation id (DFANM)
 extern u8 D_8008326C;
 extern s32 D_80083274;
 extern s16 D_8008327E[];
 extern s16 D_800832A0;
 extern s32 D_80083338;
+extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
+                                         // priority level
 extern Unk8008357C* D_8008357C;
 extern s8 D_80095DCC;
 extern volatile u16 D_80095DD4;
@@ -491,12 +531,13 @@ extern u32 D_8009A004[1];
 extern s32 D_8009A008[1];
 extern s32 D_8009A00C;
 extern s32 D_8009A024[8];
-extern u8 D_8009A058; // currently executing field-script opcode
+extern u8 D_8009A058;                // currently executing field-script opcode
+extern u8 g_FieldScriptPriority[48]; // active scripts execution priority
 extern Unk8009C6E0 D_8009ABF4;
 extern u8 D_8009AC2F;
 extern Unk80074EA4* D_8009C544; // loaded field models
 extern u8 D_8009C6C4;           // number of allocated field models
-extern u8* D_8009C6DC;
+extern FieldScriptHeader* g_FieldScripts;
 extern Unk8009C6E0* D_8009C6E0; // points to 0x8009abf4
 extern SaveWork Savemap;        // 0x8009C6E4
 extern u8 D_8009CBDC[];
@@ -550,6 +591,7 @@ int func_80033FC4(int sector_no, size_t size, u_long* dst, void (*cb)());
 u32 func_80034B44(void);
 
 // from overlays
+extern u8 SavedScriptIds[48][8]; // script ids of latest queued scripts
 extern s32 D_8019DAA0;
 extern u_long* D_8019D5E8; // otag array
 
