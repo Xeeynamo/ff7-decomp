@@ -1657,7 +1657,9 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800ADA64);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800ADB30);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800ADC3C);
+void func_800ADC3C(VECTOR* arg0) {
+    D_8010AE34 = *arg0;
+}
 
 void func_800ADC70(void) { D_8010AE54 = 0; }
 
