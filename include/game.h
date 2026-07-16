@@ -506,8 +506,8 @@ extern u8 D_800730DD[][0x14];
 extern Unk80074EA4 D_80074EA4[2];
 extern u8 D_800756E8[]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
-extern int D_80075DEC; // buffer index, either 0 or 1
-extern u8 D_80075E24[256]; // Field map local memory bank
+extern int D_80075DEC;           // buffer index, either 0 or 1
+extern u8 D_80075E24[256];       // Field map local memory bank
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern FieldLine g_FieldLines[32];
 extern DRAWENV D_8007EAAC[2];

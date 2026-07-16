@@ -987,26 +987,26 @@ s32 func_800C1214(void) {
     bank = GET_PARAM_U8(1) >> 4;
     offset = GET_PARAM_U8(3) + func_800BF908(2, 3);
     switch (bank) {
-        case 15:
-            offset += 256;
-        case 13:
-            offset += 256;
-        case 11:
-            offset += 256;
-        case 3:
-            offset += 256;
-        case 1:
-            if (offset >= 1280) {
-                offset = 1279;
-            }
-            value = Savemap.memory_bank_1[offset];
-            break;
-        case 5:
-            if (offset >= 256) {
-                offset = 255;
-            }
-            value = D_80075E24[offset];
-            break;
+    case 15:
+        offset += 256;
+    case 13:
+        offset += 256;
+    case 11:
+        offset += 256;
+    case 3:
+        offset += 256;
+    case 1:
+        if (offset >= 1280) {
+            offset = 1279;
+        }
+        value = Savemap.memory_bank_1[offset];
+        break;
+    case 5:
+        if (offset >= 256) {
+            offset = 255;
+        }
+        value = D_80075E24[offset];
+        break;
     }
 
     func_800BF3AC(4, 5, value);
@@ -1034,48 +1034,48 @@ s32 func_800C13B0(void) {
     end = GET_PARAM_U8(4) + func_800BF908(3, 7);
     value = func_800BEE10(4, 9);
     switch (bank) {
-        case 15:
-            start += 256;
-            end += 256;
-        case 13:
-            start += 256;
-            end += 256;
-        case 11:
-            start += 256;
-            end += 256;
-        case 3:
-            start += 256;
-            end += 256;
-        case 1:
-            if (start >= 1280) {
-                start = 1279;
+    case 15:
+        start += 256;
+        end += 256;
+    case 13:
+        start += 256;
+        end += 256;
+    case 11:
+        start += 256;
+        end += 256;
+    case 3:
+        start += 256;
+        end += 256;
+    case 1:
+        if (start >= 1280) {
+            start = 1279;
+        }
+        if (end >= 1280) {
+            end = 1279;
+        }
+        for (i = start; i <= end; i++) {
+            if (Savemap.memory_bank_1[i] == value) {
+                func_800C0248(6, 10, i);
+                PC_INC(11);
+                return 0;
             }
-            if (end >= 1280) {
-                end = 1279;
+        }
+        break;
+    case 5:
+        if (start >= 256) {
+            start = 255;
+        }
+        if (end >= 256) {
+            end = 255;
+        }
+        for (i = start; i <= end; i++) {
+            if (D_80075E24[i] == value) {
+                func_800C0248(6, 10, i);
+                PC_INC(11);
+                return 0;
             }
-            for(i = start; i <= end; i++) {
-                if(Savemap.memory_bank_1[i] == value) {
-                    func_800C0248(6, 10, i);
-                    PC_INC(11);
-                    return 0;
-                }
-            }
-            break;
-        case 5:
-            if (start >= 256) {
-                start = 255;
-            }
-            if (end >= 256) {
-                end = 255;
-            }
-            for(i = start; i <= end; i++) {
-                if(D_80075E24[i] == value) {
-                    func_800C0248(6, 10, i);
-                    PC_INC(11);
-                    return 0;
-                }
-            }
-            break;
+        }
+        break;
     }
     func_800C0248(6, 10, -1);
     PC_INC(11);
