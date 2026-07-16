@@ -2432,7 +2432,13 @@ void func_800BB9A0(u8 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BB9D0);
+u8 func_800BB9D0(void) {
+    if (&D_801163E0 >= D_801163E8)
+        return 0;
+
+    D_801163E8 = D_801163E8 - 1;
+    return D_801163E8[0];
+}
 
 u8 func_800BBA0C(void) {
     u8 var_a0;
