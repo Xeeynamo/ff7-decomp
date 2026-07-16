@@ -39,9 +39,13 @@ extern struct GpuBuf D_800E4DF0[2];
 extern u8 D_80114498[];
 
 void func_800A364C(struct GpuBuf* buf);
-void func_800AA180(Unk80074EA4* arg0, Unk8007E7AC* arg1);
+void func_800AA180(Unk80074EA4* arg0, FieldLine* arg1);
 void func_800AAB24(struct GpuBuf* buf);
-s32 func_800A9CE8(Unk8007E7AC*, u_long*, u_long*);
+s32 func_800A9CE8(FieldLine*, u_long*, u_long*);
+u8 func_800BEE10(s16 arg0, s16 arg1);
+void func_800BF3AC(s16 arg0, s16 arg1, u8 value);
+s16 func_800BF908(s16 arg0, s16 arg1);
+void func_800C0248(s16 arg0, s16 arg1, s16 value);
 static u32 GetAkaoBlockOffset(s16 akaoId);
 static void func_800D4840(const char* str);
 static void func_800D4848(const char* errmsg);
@@ -154,12 +158,12 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A9EEC);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA180);
 
-static void func_800AA32C(Unk8007E7AC* arg0) {
+static void func_800AA32C(FieldLine* lines) {
     s32 i;
 
     for (i = 0; i < 32; i++) {
-        arg0->unk15 = 0;
-        arg0++;
+        lines->isOnLine = 0;
+        lines++;
     }
 }
 
@@ -393,13 +397,14 @@ u8 func_800BBF74(s16 entityId, s16 priority, s16 scriptId) {
 
             // Clear running animation if entity has a model.
             if (D_8007EB98[entityId] != 0xFF) {
-                if (D_8009C544[D_8007EB98[entityId]].scriptedMoveMode ==
+                if (g_FieldModels[D_8007EB98[entityId]].scriptedMoveMode ==
                     SMODE_WALK) {
-                    D_8009C544[D_8007EB98[entityId]].activeAnimId = 0;
-                    D_8009C544[D_8007EB98[entityId]].animCurrentFrame = 0;
-                    D_8009C544[D_8007EB98[entityId]].animLastFrame = 0;
+                    g_FieldModels[D_8007EB98[entityId]].activeAnimId = 0;
+                    g_FieldModels[D_8007EB98[entityId]].animCurrentFrame = 0;
+                    g_FieldModels[D_8007EB98[entityId]].animLastFrame = 0;
                 }
-                D_8009C544[D_8007EB98[entityId]].scriptedMoveMode = SMODE_NONE;
+                g_FieldModels[D_8007EB98[entityId]].scriptedMoveMode =
+                    SMODE_NONE;
             }
 
             // Reset wait counter.
@@ -968,17 +973,175 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0FD8);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C107C);
 
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C1214);
+#else
+s32 func_800C1214(void) {
+    s16 offset;
+    u8 bank;
+    u8 value;
 
+    if (D_8009D820 & 3) {
+        func_800BEAD4("getx", 6);
+    }
+    bank = GET_PARAM_U8(1) >> 4;
+    offset = GET_PARAM_U8(3) + func_800BF908(2, 3);
+    switch (bank) {
+        case 15:
+            offset += 256;
+        case 13:
+            offset += 256;
+        case 11:
+            offset += 256;
+        case 3:
+            offset += 256;
+        case 1:
+            if (offset >= 1280) {
+                offset = 1279;
+            }
+            value = Savemap.memory_bank_1[offset];
+            break;
+        case 5:
+            if (offset >= 256) {
+                offset = 255;
+            }
+            value = D_80075E24[offset];
+            break;
+    }
+
+    func_800BF3AC(4, 5, value);
+    PC_INC(7);
+    return 0;
+}
+#endif
+
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C13B0);
+#else
+s32 func_800C13B0(void) {
+    s16 end;
+    s16 start;
+    s16 where;
+    u8 bank;
+    u8 value;
+    s16 i;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C1674);
+    if (D_8009D820 & 3) {
+        func_800BEAD4("srchx", 8);
+    }
+    bank = GET_PARAM_U8(1) >> 4;
+    start = GET_PARAM_U8(4) + func_800BF908(2, 5);
+    end = GET_PARAM_U8(4) + func_800BF908(3, 7);
+    value = func_800BEE10(4, 9);
+    switch (bank) {
+        case 15:
+            start += 256;
+            end += 256;
+        case 13:
+            start += 256;
+            end += 256;
+        case 11:
+            start += 256;
+            end += 256;
+        case 3:
+            start += 256;
+            end += 256;
+        case 1:
+            if (start >= 1280) {
+                start = 1279;
+            }
+            if (end >= 1280) {
+                end = 1279;
+            }
+            for(i = start; i <= end; i++) {
+                if(Savemap.memory_bank_1[i] == value) {
+                    func_800C0248(6, 10, i);
+                    PC_INC(11);
+                    return 0;
+                }
+            }
+            break;
+        case 5:
+            if (start >= 256) {
+                start = 255;
+            }
+            if (end >= 256) {
+                end = 255;
+            }
+            for(i = start; i <= end; i++) {
+                if(D_80075E24[i] == value) {
+                    func_800C0248(6, 10, i);
+                    PC_INC(11);
+                    return 0;
+                }
+            }
+            break;
+    }
+    func_800C0248(6, 10, -1);
+    PC_INC(11);
+    return 0;
+}
+#endif
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C1714);
+s32 func_800C1674(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("biton", 3);
+    }
+    func_800BF3AC(1, 2, func_800BEE10(1, 2) | (1 << func_800BEE10(2, 3)));
+    PC_INC(4);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C17B8);
+s32 func_800C1714(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("bitof", 3);
+    }
+    func_800BF3AC(1, 2, func_800BEE10(1, 2) & ~(1 << func_800BEE10(2, 3)));
+    PC_INC(4);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C1858);
+s32 func_800C17B8(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("bitxr", 3);
+    }
+    func_800BF3AC(1, 2, func_800BEE10(1, 2) ^ (1 << func_800BEE10(2, 3)));
+    PC_INC(4);
+    return 0;
+}
+
+s32 func_800C1858(void) {
+    s16 value;
+
+    if (D_8009D820 & 3) {
+        func_800BEAD4("line", 8);
+    }
+
+    if (g_FieldLineCount >= 32) {
+        func_800D4848("many lineobj!");
+        PC_INC(13);
+        return 0;
+    }
+
+    g_EntityToLine[g_CurrentEntity] = g_FieldLineCount;
+    GET_PARAM_S16(value, 1);
+    g_FieldLines[g_FieldLineCount].pos.x1 = value;
+    GET_PARAM_S16(value, 3);
+    g_FieldLines[g_FieldLineCount].pos.y1 = value;
+    GET_PARAM_S16(value, 5);
+    g_FieldLines[g_FieldLineCount].pos.z1 = value;
+    GET_PARAM_S16(value, 7);
+    g_FieldLines[g_FieldLineCount].pos.x2 = value;
+    GET_PARAM_S16(value, 9);
+    g_FieldLines[g_FieldLineCount].pos.y2 = value;
+    GET_PARAM_S16(value, 11);
+    g_FieldLines[g_FieldLineCount].pos.z2 = value;
+    g_FieldLines[g_FieldLineCount].isActive = 1;
+    g_FieldLines[g_FieldLineCount].entityId = g_CurrentEntity;
+    g_FieldLineCount++;
+    PC_INC(13);
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C1AB4);
 
@@ -1342,7 +1505,7 @@ s32 SetControlCharacter(void) {
 /*
  * Field-script opcode CHAR: attach a field model to the current entity.
  *
- * Allocates the next model slot (D_8009C6C4) for the executing entity,
+ * Allocates the next model slot (g_FieldModelCount) for the executing entity,
  * records the mapping in D_8007EB98 and initializes the model with the
  * model id from the opcode operand and the owning entity id.
  */
@@ -1350,10 +1513,10 @@ s32 AssignCharacterModel(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("char", 1);
     }
-    D_8007EB98[g_CurrentEntity] = D_8009C6C4++;
-    D_8009C544[D_8007EB98[g_CurrentEntity]].unk66 = GET_PARAM_U8(1);
-    D_8009C544[D_8007EB98[g_CurrentEntity]].unk5C = 1;
-    D_8009C544[D_8007EB98[g_CurrentEntity]].entityId = g_CurrentEntity;
+    D_8007EB98[g_CurrentEntity] = g_FieldModelCount++;
+    g_FieldModels[D_8007EB98[g_CurrentEntity]].unk66 = GET_PARAM_U8(1);
+    g_FieldModels[D_8007EB98[g_CurrentEntity]].unk5C = 1;
+    g_FieldModels[D_8007EB98[g_CurrentEntity]].entityId = g_CurrentEntity;
     PC_INC(2);
     return 0;
 }
@@ -1420,14 +1583,14 @@ void StartModelAnimation(void) {
     u8* anims;
     Unk8004A62CSub* file;
 
-    D_8009C544[D_8007EB98[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(1);
-    D_8009C544[D_8007EB98[g_CurrentEntity]].animSpeed =
+    g_FieldModels[D_8007EB98[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(1);
+    g_FieldModels[D_8007EB98[g_CurrentEntity]].animSpeed =
         D_8009D828[D_8007EB98[g_CurrentEntity]] / GET_PARAM_U8(2);
-    D_8009C544[D_8007EB98[g_CurrentEntity]].animCurrentFrame = 0;
+    g_FieldModels[D_8007EB98[g_CurrentEntity]].animCurrentFrame = 0;
     modelIdx = D_8007EB98[g_CurrentEntity];
     file = &D_8004A62C->unk4[D_8008357C[modelIdx].unk4];
     anims = file->unk1C + file->unk1A;
-    D_8009C544[modelIdx].animLastFrame =
+    g_FieldModels[modelIdx].animLastFrame =
         *(u16*)&anims[D_80074EA4[modelIdx].activeAnimId * 16] - 1;
 }
 

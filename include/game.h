@@ -64,6 +64,15 @@ typedef enum {
 } ScriptedMoveMode;
 
 typedef struct {
+    s16 x1;
+    s16 y1;
+    s16 z1;
+    s16 x2;
+    s16 y2;
+    s16 z2;
+} LinePos;
+
+typedef struct {
     s16 unk0;
     s16 unk2; // current page
     s16 unk4;
@@ -326,21 +335,20 @@ typedef struct {
 } Unk80062F7C;
 
 typedef struct {
-    /* 0x00 */ u16 unk0;
-    /* 0x02 */ u16 unk2;
-    /* 0x04 */ u16 unk4;
-    /* 0x06 */ u16 unk6;
-    /* 0x08 */ u16 unk8;
-    /* 0x0A */ u16 unkA;
-    /* 0x0C */ u16 unkC;
-    /* 0x0E */ u16 unkE;
-    /* 0x10 */ u16 unk10;
-    /* 0x12 */ u16 unk12;
-    /* 0x14 */ u8 unk14;
-    /* 0x15 */ u8 unk15;
-    /* 0x16 */ u8 unk16;
+    /* 0x00 */ LinePos pos;
+    /* 0x0C */ u8 isActive;
+    /* 0x0D */ u8 entityId;
+    /* 0x0E */ u8 touch;
+    /* 0x0F */ u8 across;
+    /* 0x10 */ u8 requestPushScript;
+    /* 0x11 */ u8 requestTalkScript;
+    /* 0x12 */ u8 touchOn;
+    /* 0x13 */ u8 touchOff;
+    /* 0x14 */ u8 proximityAngle;
+    /* 0x15 */ u8 isOnLine;
+    /* 0x16 */ u8 slipDisabled;
     /* 0x17 */ u8 unk17;
-} Unk8007E7AC; // size:0x18
+} FieldLine; // size:0x18
 
 typedef struct {
     /* 0x00 */ s32 unk0;
@@ -352,9 +360,9 @@ typedef struct {
     /* 0x18 */ s32 unk18;
     /* 0x1C */ s8 unk1C[0x3B];
     /* 0x57 */ u8 entityId; // script entity that owns this model
-    /* 0x58 */ u8 queuePushScript;
+    /* 0x58 */ u8 requestPushScript;
     /* 0x59 */ u8 unk59;
-    /* 0x5A */ u8 queueTalkScript;
+    /* 0x5A */ u8 requestTalkScript;
     /* 0x5B */ u8 unk5B;
     /* 0x5C */ u8 unk5C;
     /* 0x5D */ u8 scriptedMoveMode; // enum ScriptedMoveMode
@@ -481,6 +489,7 @@ extern DRAWENV D_800706A4[2];
 extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
                             // (set by the MULCK opcode)
 extern u8 D_80070788;
+extern u8 g_EntityToLine[48];
 extern u16 D_800707BE;
 extern s16 D_800716DC[48];
 extern u16 g_SavedFieldScriptPC[48][8]; // Program counters of paused scripts
@@ -498,9 +507,9 @@ extern Unk80074EA4 D_80074EA4[2];
 extern u8 D_800756E8[]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
 extern int D_80075DEC; // buffer index, either 0 or 1
-extern u8 D_80075E24[];
+extern u8 D_80075E24[256]; // Field map local memory bank
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
-extern Unk8007E7AC D_8007E7AC[];
+extern FieldLine g_FieldLines[32];
 extern DRAWENV D_8007EAAC[2];
 extern DISPENV D_8007EB68[2];
 extern u8 D_8007EB98[]; // script entity id -> field model index (0xFF: none)
@@ -520,6 +529,7 @@ extern s32 D_80083338;
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level
 extern Unk8008357C* D_8008357C;
+extern s16 g_FieldLineCount;
 extern s8 D_80095DCC;
 extern volatile u16 D_80095DD4;
 extern s16 D_800965E0;
@@ -535,8 +545,8 @@ extern u8 D_8009A058;                // currently executing field-script opcode
 extern u8 g_FieldScriptPriority[48]; // active scripts execution priority
 extern Unk8009C6E0 D_8009ABF4;
 extern u8 D_8009AC2F;
-extern Unk80074EA4* D_8009C544; // loaded field models
-extern u8 D_8009C6C4;           // number of allocated field models
+extern Unk80074EA4* g_FieldModels; // loaded field models
+extern u8 g_FieldModelCount;       // number of allocated field models
 extern FieldScriptHeader* g_FieldScripts;
 extern Unk8009C6E0* D_8009C6E0; // points to 0x8009abf4
 extern SaveWork Savemap;        // 0x8009C6E4
