@@ -161,7 +161,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA180);
 static void func_800AA32C(FieldLine* lines) {
     s32 i;
 
-    for (i = 0; i < 32; i++) {
+    for (i = 0; i < LEN(g_FieldLines); i++) {
         lines->isOnLine = 0;
         lines++;
     }
