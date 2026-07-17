@@ -114,11 +114,20 @@ INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A3210);
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A32D8);
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A32F0);
+void func_800A32F0(u8* arg0)
+{
+    arg0[0xE] = 8;
+}
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A32FC);
+void func_800A32FC(u8* arg0)
+{
+    arg0[0xE] = 4;
+}
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A3308);
+void func_800A3308(u8* arg0)
+{
+    arg0[0xE] = 0x10;
+}
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A3314);
 

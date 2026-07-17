@@ -63,7 +63,18 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B08C0);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B0F08);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B1120);
+extern void func_800A6000(s32, s32, s32);
+
+void func_801B1120(void)
+{
+    s32 i;
+
+    for (i = 0; i < 3; i++) {
+        if (((s8)D_80163624.unk94[i][0] != -1) && !(D_800F83E0[i].status & 1)) {
+            func_800A6000(i, 0, 0);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B11BC);
 
@@ -83,6 +94,7 @@ void func_801B137C(s32 arg0) {
     }
 }
 
+s32 func_80015AFC(s32, s32);                        // extern
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B13DC);
 
 s32 func_801B14E8(u32 arg0) {

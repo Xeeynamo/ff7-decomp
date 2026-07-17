@@ -60,8 +60,23 @@ def apply(config, args):
             overlay = estimate_overlay_from_func_name(func_name)
         if overlay is None:
             overlay = "main"
-    config["baseimg"] = "disks/us/SCUS_941.63"
-    config["myimg"] = f"build/us/{overlay}.bin"
+    baseimg_map = {
+        "main": "disks/us/SCUS_941.63",
+        "batini": "disks/us/BATTLE/BATINI.X.dec",
+        "battle": "disks/us/BATTLE/BATTLE.X.dec",
+        "brom": "disks/us/BATTLE/BROM.X.dec",
+        "dschange": "disks/us/FIELD/DSCHANGE.X",
+        "ending": "disks/us/FIELD/ENDING.X",
+        "field": "disks/us/FIELD/FIELD.BIN.dec",
+        "bginmenu": "disks/us/MENU/BGINMENU.MNU",
+        "cnfgmenu": "disks/us/MENU/CNFGMENU.MNU",
+        "savemenu": "disks/us/MENU/SAVEMENU.MNU",
+        "itemmenu": "disks/us/MENU/ITEMMENU.MNU",
+        "world": "disks/us/WORLD/WORLD.BIN.dec",
+        "barrier": "disks/us/MAGIC/BARRIER.BIN",
+    }
+    config["baseimg"] = baseimg_map.get(overlay, "disks/us/SCUS_941.63")
+    config["myimg"] = f"build/us/{overlay}.elf"
     config["mapfile"] = f"build/us/{overlay}.map"
     config["source_directories"] = [f"src/{overlay}"]
     config["build_dir"] = "build/"
