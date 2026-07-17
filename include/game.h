@@ -519,7 +519,7 @@ typedef struct {
     // world map, or another field map.
     u16 pcWalkMeshId;      // Walk mesh triangle id player is inside of.
     u16 pcDirection;       // Direction player is facing.
-    u16 movieCommandState; // enum MovieCommandState.
+    s16 movieCommandState; // enum MovieCommandState.
     u16 modelCount;
     s16 pcModelId;
     u16 idleAnimId;
@@ -530,13 +530,13 @@ typedef struct {
     u8 menuDisabled; // Set by MENU2.
     u8 unk35;
     u8 mapJumpDisabled; // Set by MPJPO. Disables gateways to other maps.
-    u8 scrlo;           // Set by SCRLO. Unused(?)
+    u8 scrloSet;        // Set by SCRLO. Unused(?)
     // Set by MPDSP in field map junbin5. Also set to 1 if
     // fadeType == FFT_INSTANT_BLACK.
-    u8 mpdsp;
+    u8 mpdspSet;
     // Set by MVCAM. Static field map camera is used instead of dynamic movie
     // camera.
-    u8 moviecamDisabled;
+    u8 movieCamDisabled;
     // Set by BGMOVIE. Enables movie camera if moviecamDisabled is not set.
     // Increases movement speed.
     u8 backgroundMovieEnabled;
@@ -697,7 +697,7 @@ extern Unk80074EA4* D_8009C544; // loaded field models
 extern u8 D_8009C6C4;           // number of allocated field models
 extern FieldScriptHeader* g_FieldScripts;
 extern FieldState* D_8009C6E0; // points to 0x8009abf4
-extern SaveWork Savemap;        // 0x8009C6E4
+extern SaveWork Savemap;       // 0x8009C6E4
 extern u8 D_8009CBDC[];
 extern u16 D_8009D288[];
 extern u8 D_8009D2E7;
