@@ -264,6 +264,7 @@ extern s32 D_8010AE24;
 extern s32 D_8010AE28;
 extern s32 D_8010AE2C;
 extern s32 D_8010AE30;
+extern VECTOR D_8010AE34;
 extern s32 D_8010AE54;
 extern s32 D_8010AE58;     // WM RNG index
 extern u8 D_8010AE5C[521]; // WM RNG Buffer
