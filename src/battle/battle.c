@@ -290,7 +290,7 @@ s32 func_800A44D8(s32 arg0) {
     if (!((D_800F5F44.D_800F7DCA >> arg0) & 1)) {
         goto end;
     }
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < LEN(D_800F5E60); i++) {
         if (D_800F5E60[i].unk6 == arg0) {
             arg0 = i;
             goto end;
