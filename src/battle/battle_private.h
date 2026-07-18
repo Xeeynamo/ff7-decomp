@@ -344,7 +344,8 @@ extern s8 D_800F5760;
 extern u8 D_800F5764;
 extern u8 D_800F5774;
 extern Unk800F57D0* D_800F57D0;
-extern Unk800AF470 D_800F5BB8[];
+extern Unk800AF470
+    D_800F5BB8[]; // per-party-slot turn/effect state (flags, countdown timers)
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
 extern s32 D_800F8368;

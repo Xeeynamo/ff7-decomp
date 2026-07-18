@@ -320,8 +320,27 @@ void func_800A4350(s16 actorId, s16 cmdIndex, s16 attackIndex, u16 targetMask) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4480);
 
-s32 func_800A44D8(s32 arg0);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A44D8);
+// Manipulate redirect: if arg0 (an enemy id) is currently manipulated
+// (D_800F7DCA bit), return the party slot whose D_800F5E60[].unk6 is
+// tracking it in place of arg0; otherwise arg0 passes through unchanged.
+s32 func_800A44D8(s32 arg0) {
+    s32 i;
+
+    if (arg0 < 4) {
+        goto end;
+    }
+    if (!((D_800F5F44.D_800F7DCA >> arg0) & 1)) {
+        goto end;
+    }
+    for (i = 0; i < LEN(D_800F5E60); i++) {
+        if (D_800F5E60[i].unk6 == arg0) {
+            arg0 = i;
+            goto end;
+        }
+    }
+end:
+    return arg0;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4540);
 
