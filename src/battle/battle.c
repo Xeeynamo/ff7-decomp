@@ -17,6 +17,10 @@ const u8 D_800A0004[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x2E, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00};
+// opcode-byte program for func_800A1798's dispatch loop: a 0x1F-delimited
+// stream of per-command opcode sequences, sliced by D_800F38AC[cmdIndex]
+// (see func_800A283C) into per-command runs; each byte indexes D_800E7B28
+// (function-pointer table) for func_800A1798 to jalr through in order
 const u8 D_800A0098[] = {
     0x1F, 0x0E, 0x09, 0x1F, 0x00, 0x0C, 0x09, 0x1F, 0x01, 0x0C, 0x09, 0x1F,
     0x02, 0x0D, 0x09, 0x1F, 0x1E, 0x09, 0x1F, 0x0A, 0x16, 0x09, 0x1F, 0x1D,
@@ -34,6 +38,13 @@ const s32 D_800A010C[] = {2, 22, 3, 23, 4};
 // entrypoint
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A1158);
 
+// per-command opcode dispatcher: reads cmdIndex from the turn context
+// (D_80063014->unkC), looks up its opcode-sequence start via
+// D_800F38AC[cmdIndex] into D_800A0098, then for each byte until the 0x1F
+// delimiter, jalr's through D_800E7B28[opcode]. After each call, checks
+// D_80062F14 -- if it goes >= 0 the whole sequence aborts immediately
+// (handler requested a suspend, e.g. to wait on an animation), otherwise
+// continues to the next opcode byte
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A1798);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A22C0);
@@ -274,7 +285,38 @@ void func_800A3E98(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3ED0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4350);
+void func_800A4350(s16 actorId, s16 cmdIndex, s16 attackIndex, u16 targetMask) {
+    QueuedAction* entry;
+
+    if (D_800F39D8 == ((D_800F39DC + 1) & 0xF)) {
+        return;
+    }
+
+    entry = &D_800F3958[D_800F39DC];
+    entry->priority = (cmdIndex == CMD_LIMIT) ? 5 : 6;
+    entry->actorId = actorId;
+    entry->cmdIndex = cmdIndex;
+    entry->attackIndex = attackIndex;
+    entry->targetMask = targetMask;
+
+    // The three inventory-consuming commands all get this extra call --
+    // compiles to retail's exact branch shape only as a switch (GCC's
+    // binary-search lowering for these 3 sparse case values: pivot on
+    // CMD_THROW, then a cmdIndex<9 range split between CMD_ITEM and
+    // CMD_W_ITEM), not as a flat "||" chain.
+    switch (cmdIndex) {
+    case CMD_THROW:
+    case CMD_ITEM:
+    case CMD_W_ITEM:
+        func_800A5660(actorId, attackIndex);
+        break;
+    }
+
+    func_800A4D88(func_800A44D8(actorId));
+    D_800F5F44.D_800F7DAC &= ~(1 << actorId);
+    D_800F5F44.D_800F7DC2 |= 1 << actorId;
+    D_800F39DC = (D_800F39DC + 1) & 0xF;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4480);
 
@@ -327,6 +369,17 @@ s32 func_800A4A80(void) {
 
 void func_800A4ACC(s16 arg0, u16 arg1) { func_8001726C(arg0, arg1); }
 
+// opcode 0x14 handler (D_800E7B28[0x14]): spins on func_800B6D6C() until
+// status bit D_800F9DA4 & 2 clears. Not itself a damage dealer -- injecting
+// cmdIndex 0x23 (single-opcode sequence: just this one) produced ~3.1%
+// max-HP damage, but func_800B6D6C (still nonmatching, battle1 overlay) is
+// just a generic drainer for the D_80163798 event queue (HP-counter ticks,
+// status-icon show/hide, sound cues -- see its own comment in battle1.c),
+// gated one-per-frame on D_800F7DE4 which func_800B7FDC sets. So this
+// opcode is "wait for already-queued visual/counter effects to finish",
+// not the source of the damage -- whatever queues an HP-tick entry into
+// D_80163798 before this opcode runs is the real damage source, still
+// untraced
 void func_800B6D6C();
 void func_800A4AF4(void) {
     while (D_800F9DA4 & 2) {
@@ -879,6 +932,14 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD5E8);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD73C);
 
+// multi-target damage-reduction formula, s32 func_800AD804(s32 damage, s32
+// fullDamage): if fullDamage is false, it still gets forced true when
+// unkB8 < 2 (single target) or unk50 & 0x80 is set (the exemption bit
+// documented on unk50's seed at func_800A8D18/func_800A8D60 above); then
+// if unkAC != 0 (hit-sequence position, see func_800A8E54) returns
+// damage>>1, else returns damage unchanged when fullDamage else damage/3
+// (magic-number signed divide) -- this is the classic "multi-target hits
+// deal reduced per-target damage" mechanic
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD804);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD890);

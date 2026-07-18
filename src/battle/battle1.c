@@ -216,6 +216,28 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B677C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6B98);
 
+// drains D_80163798 (12-byte entries, -1-terminated, index D_801590E0), one
+// entry per call, dispatched by a type byte (0-5, jtbl_800A05FC) via m2c
+// structural read (not yet decompiled):
+//   0 callback-driven step (func_800BC04C(&func_800C494C)), immediate
+//   1 gated on D_800F7DE4: walks a linked status list (D_800FA9D0/1/2),
+//     looks like "hide next status icon" (sets D_800FA6D4/D_80161EEC/
+//     D_800F99E8 icon slots, or 0xF when the list is exhausted)
+//   2 func_800C5C18(4 entry fields), immediate -- shape matches a sound cue
+//   3 gated on D_800F7DE4: same linked-list shape as case 1, opposite flag
+//     direction -- looks like "show next status icon"
+//   4 gated on D_800F7DE4: HP-counter tick-animation init -- writes to PS1
+//     scratchpad (0x1F800004/8), computes abs(diff)/entryField, stores
+//     start/target/increment into a D_80162978 slot (allocated via
+//     func_800BBEAC)
+//   5 immediate: sets a per-actor "step complete" flag, conditionally
+//     copies animation-state fields
+// D_800F7DE4 (the gate for cases 1/3/4) is set once per frame by
+// func_800B7FDC below, once all actor slots are ready -- so this function
+// is a generic "process the next queued visual/counter effect, one per
+// frame" drainer, not itself the source of any particular command's
+// damage/effect. See func_800A4AF4's comment in battle.c: opcode 0x14 just
+// spins this to drain whatever's already queued
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6D6C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B7764);
@@ -237,6 +259,12 @@ static void func_800B7F6C(void) {
 
 void func_800B7FB4(void) { D_801518DC = func_80034B44(); }
 
+// per-frame tick: pumps the GPU ordering-table draw lists, runs render/vsync,
+// drains the action-queue ring buffer (func_800A3ED0 -- see the queue-push
+// writeup), and sets D_800F7DE4 = 1 exactly once per frame once every actor
+// slot is ready and D_80162080 (a per-frame counter) reaches 0. func_800B6D6C
+// gates several of its event-queue steps on this flag, effectively waiting
+// for "the next frame is ready" before consuming a queued effect
 static void func_800B7FDC(void) {
     s32 i;
 
