@@ -100,7 +100,7 @@ typedef struct {
 
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/EnemyLocation.cs
 typedef struct {
-    /* 0x00 */ u16 enemyID;
+    /* 0x00 */ s16 enemyID;
     /* 0x02 */ u16 x, y, z;
     /* 0x08 */ u16 row;
     /* 0x0A */ u16 coverFlags;
