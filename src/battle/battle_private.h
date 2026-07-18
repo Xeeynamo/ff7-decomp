@@ -190,6 +190,68 @@ typedef struct {
     /* 0x70 */ s32 D_80151270;
 } Unk80151200; // size:0x74
 
+// Confirmed live via PCSX-Redux (exec breakpoint on func_800A4350, one command
+// at a time, plus direct cmdIndex injection for the remaining gaps). "All"-
+// linked materia (Steal-All, Sense-All, etc) reuse their base command's
+// cmdIndex -- targetMask changes, not cmdIndex. 0x0E-0x10 and past 0x1B are
+// unused/no-op (injected directly, no visible effect and not reachable via
+// any known menu path). 0x11 forces a melee attack ignoring weapon range
+// (injected on Barret with a long-range weapon -- he closed to melee instead
+// of shooting), not reachable via any menu path either -- possibly an
+// internal command for a status-forced attack (Berserk?), unconfirmed.
+typedef enum {
+    CMD_ATTACK = 0x01,
+    CMD_MAGIC = 0x02,
+    CMD_SUMMON = 0x03,
+    CMD_ITEM = 0x04,
+    CMD_STEAL = 0x05,
+    CMD_SENSE = 0x06,
+    CMD_COIN = 0x07,
+    CMD_THROW = 0x08,
+    CMD_MORPH = 0x09,
+    CMD_DEATHBLOW = 0x0A,
+    CMD_MANIPULATE = 0x0B,
+    CMD_MIME = 0x0C,
+    CMD_ENEMY_SKILL = 0x0D,
+    CMD_MELEE_ATTACK = 0x11, // ignores weapon range; not player-menu-reachable?
+    CMD_CHANGE = 0x12,
+    CMD_DEFEND = 0x13,
+    CMD_LIMIT = 0x14, // priority-5 special case in func_800A4350
+    CMD_W_MAGIC = 0x15,
+    CMD_W_SUMMON = 0x16,
+    CMD_W_ITEM = 0x17,
+    CMD_SLASH_ALL = 0x18, // materia-granted Attack-command replacement
+    CMD_2X_CUT = 0x19,    // materia-granted Attack-command replacement
+    CMD_FLASH = 0x1A,     // materia-granted Attack-command replacement
+    CMD_4X_CUT = 0x1B,    // materia-granted Attack-command replacement
+    CMD_NONE = 0xFF,      // enemy attack / not a player-menu command
+} BattleCommand;
+
+// Queued-action entry, matches
+// https://wiki.ffrtt.ru/index.php/FF7/Battle/Battle_Mechanics action-queue
+// layout exactly (priority/queue-pos/actorId/cmdIndex/attackIndex/targetMask).
+// D_800F3958 is a 16-entry ring buffer of these (D_800F39D8 read idx,
+// D_800F39DC write idx); the wiki describes up to 64 queued actions, so this
+// may be a smaller staging ring rather than the full logical queue --
+// unconfirmed. Drain chain: func_800A3ED0 drains this ring into a 64-slot
+// priority table (func_800A3D4C), which func_800A23E0 drains in priority
+// order into func_800A1798, which runs the command as a byte-coded sequence
+// of opcodes (D_800F38AC/D_800A0098/D_800E7B28), not a single switch on
+// cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
+typedef struct {
+    /* 0x0 */ u8
+        priority; // 0=limits/counters, 6=player spells (see func_800A4350)
+    /* 0x1 */ u8
+        queuePos; // position within priority band; not set by func_800A4350
+    /* 0x2 */ u8 actorId;
+    /* 0x3 */ s8 cmdIndex; // BattleCommand, stored raw (not the enum type --
+                           // keeps this struct's confirmed 0x8-byte layout)
+    /* 0x4 */ s16 attackIndex; // command-dependent: spell id for CMD_MAGIC,
+                               // damage dealt for CMD_COIN, skill id for
+                               // CMD_ENEMY_SKILL, etc -- not a uniform lookup
+    /* 0x6 */ u16 targetMask;
+} QueuedAction; // size:0x8
+
 typedef struct {
     s32 unk0;
     s32 unk4;
@@ -201,10 +263,17 @@ typedef struct {
     /* 0x04 */ u8 unk4[0x64];
 } Unk800F83E4; // size:0x68
 
+extern u8 D_800708C8[]; // kernel-region table, 0x1C-byte rows, indexed by
+                        // attack/effect id
+extern u8 D_800708D0[]; // kernel-region table, 0x1C-byte rows, indexed by
+                        // attack/effect id
+extern u8 D_8009D954[]; // per-actor sub-table, 0x440 stride, 8-byte rows keyed
+                        // by effect id
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
 extern u8 D_800E7BA4[3];
+extern u8 D_800E8050[];
 extern VECTOR D_800E7D10;
 extern VECTOR D_800E7D20;
 extern Yamada D_800E8068[];
@@ -256,12 +325,18 @@ extern s32 D_800F3944;
 extern s32 D_800F3948;
 extern s32 D_800F3950;
 extern s32 D_800F3954;
+extern QueuedAction D_800F3958[16];
+extern s32 D_800F39D8; // read index into D_800F3958
+extern s32 D_800F39DC; // write index into D_800F3958
 extern s32 D_800F39E0;
 extern s32 D_800F39E4;
 extern s32 D_800F39EC;
 extern u8 D_800F39F0[][6];
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
+extern s16 D_800F4AD0;
+extern s32 D_800F4AD4;
+extern s32 D_800F4AD8;
 extern DR_MODE* D_800F4AF4;
 extern DR_MODE* D_800F4AF8;
 extern RECT D_800F4B24;
@@ -273,9 +348,11 @@ extern s8 D_800F5760;
 extern u8 D_800F5764;
 extern u8 D_800F5774;
 extern Unk800F57D0* D_800F57D0;
-extern Unk800AF470 D_800F5BB8[];
+extern Unk800AF470
+    D_800F5BB8[]; // per-party-slot turn/effect state (flags, countdown timers)
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
+extern s32 D_800F7DF8[];
 extern s32 D_800F8368;
 extern s16 D_800F8370;
 extern s32* D_800F839C; // CD offset?
@@ -367,15 +444,18 @@ extern s8 D_80166F58;
 extern s8 D_80166F64;
 extern u8 D_80166F68;
 
-void func_800A4350(u8, u8, s16, u16);
+void func_800A4350(s16, s16, s16, u16);
 void func_800A8E84(s32);
 s32 func_800B3030(s32);
+void func_800B3A04(void);
 void func_800B4794(void);
 void func_800B5CD4(s32);
 void func_800B5D38(s32);
 void func_800B6B98(s32, s32);
 void func_800B7FB4(void);
+s16 func_800B888C(s32);
 void func_800B8438(void);
+void func_800B8A34(s16, s32);
 static void func_800BA40C();
 static void func_800BB030(s16 arg0);
 void func_800BB2A8(u8);
@@ -383,6 +463,7 @@ void func_800BB9B8(s32);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 static void func_800C1908(u8 arg0);
 void func_800C5E94(void);
+void func_8002DF88(s16*);
 void func_800D088C(s32 loc, s32 len);
 void func_800D0C80(u8 arg0);
 void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
@@ -422,6 +503,7 @@ void func_800DE2B4(void);
 void func_800E08C4(s32);
 void func_800E0BE0(s32);
 void func_800E7170(void);
+extern void func_800CE970(void);
 extern void (*D_800F300C[])();
 extern s16 D_800F310E;
 extern s16 D_800F3120;

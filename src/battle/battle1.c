@@ -5,12 +5,15 @@
 
 static void func_800B37A0(void);
 static void func_800B37EC(void);
+static void func_800B38E0(void);
 static void func_800B3D38(void);
 static void func_800B3D88(void);
 static void func_800B3DBC(void);
+static s32 func_800B3FAC(s32 arg0);
 static void func_800B7FDC(void);
 static void func_800B8360(s32);
 static void func_800B85E0();
+static void func_800B88CC(s32 arg0);
 static void func_800BA4C8(void);
 void func_800BA598(s16);
 static void func_800BB030(s16);
@@ -21,6 +24,7 @@ static void func_800C4D10(void);
 DR_MODE* func_800C4DC8(s16 x, s16 y, s16 w, s16 h, s32*);
 static void func_800C627C(void);
 void func_800C62F4(s32);
+void func_800BC81C(s16 arg0, s16 arg1);
 
 void func_800B30E4(void) {
     s32 i;
@@ -114,7 +118,16 @@ static void func_800B37EC(void) {
 // Load stage files
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B383C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B38E0);
+// load stage entry i (D_800F7DF8[0]) into VRAM staging via DS_read;
+// D_800E8050[i] holds a {loc,len} disk-sector pair, same shape as the Yamada
+// record at D_800E8068
+static void func_800B38E0(void) {
+    s32 i = D_800F7DF8[0];
+
+    DS_read(((u32*)D_800E8050)[i * 2], ((u32*)D_800E8050)[i * 2 + 1],
+            0x801B0000, &func_800B3A04);
+    func_800B7FB4();
+}
 
 static void func_800B3934(void) {
     func_800B5D38(2);
@@ -172,7 +185,22 @@ static void func_800B3DBC(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3E2C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3FAC);
+// search the formation's 6 enemy slots for one whose enemyID matches arg0;
+// if found, bump a counter and return 0, else return -1
+static s32 func_800B3FAC(s32 arg0) {
+    s32 i;
+    u8* p = &D_800F7DF4;
+
+    for (i = 0; i < (s32)sizeof(D_8016360C.formation);
+         i += sizeof(FormationEntry)) {
+        if (((FormationEntry*)((u8*)D_8016360C.formation + i))->enemyID ==
+            arg0) {
+            *p += 1;
+            return 0;
+        }
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3FFC);
 
@@ -216,6 +244,28 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B677C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6B98);
 
+// drains D_80163798 (12-byte entries, -1-terminated, index D_801590E0), one
+// entry per call, dispatched by a type byte (0-5, jtbl_800A05FC) via m2c
+// structural read (not yet decompiled):
+//   0 callback-driven step (func_800BC04C(&func_800C494C)), immediate
+//   1 gated on D_800F7DE4: walks a linked status list (D_800FA9D0/1/2),
+//     looks like "hide next status icon" (sets D_800FA6D4/D_80161EEC/
+//     D_800F99E8 icon slots, or 0xF when the list is exhausted)
+//   2 func_800C5C18(4 entry fields), immediate -- shape matches a sound cue
+//   3 gated on D_800F7DE4: same linked-list shape as case 1, opposite flag
+//     direction -- looks like "show next status icon"
+//   4 gated on D_800F7DE4: HP-counter tick-animation init -- writes to PS1
+//     scratchpad (0x1F800004/8), computes abs(diff)/entryField, stores
+//     start/target/increment into a D_80162978 slot (allocated via
+//     func_800BBEAC)
+//   5 immediate: sets a per-actor "step complete" flag, conditionally
+//     copies animation-state fields
+// D_800F7DE4 (the gate for cases 1/3/4) is set once per frame by
+// func_800B7FDC below, once all actor slots are ready -- so this function
+// is a generic "process the next queued visual/counter effect, one per
+// frame" drainer, not itself the source of any particular command's
+// damage/effect. See func_800A4AF4's comment in battle.c: opcode 0x14 just
+// spins this to drain whatever's already queued
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6D6C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B7764);
@@ -237,6 +287,12 @@ static void func_800B7F6C(void) {
 
 void func_800B7FB4(void) { D_801518DC = func_80034B44(); }
 
+// per-frame tick: pumps the GPU ordering-table draw lists, runs render/vsync,
+// drains the action-queue ring buffer (func_800A3ED0 -- see the queue-push
+// writeup), and sets D_800F7DE4 = 1 exactly once per frame once every actor
+// slot is ready and D_80162080 (a per-frame counter) reaches 0. func_800B6D6C
+// gates several of its event-queue steps on this flag, effectively waiting
+// for "the next frame is ready" before consuming a queued effect
 static void func_800B7FDC(void) {
     s32 i;
 
@@ -421,7 +477,15 @@ static void func_800B85E0() {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B888C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B88CC);
+// initialize D_80162978 slot v (registered via func_800BBEAC) from arg0 and
+// dispatch
+static void func_800B88CC(s32 arg0) {
+    s32 v = func_800BBEAC(&func_800CE970);
+
+    D_80162978[v].D_8016297C = 0;
+    D_80162978[v].D_80162980 = arg0;
+    func_800B8A34(func_800B888C(arg0), v);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B8944);
 
@@ -610,7 +674,17 @@ void func_800BB978(void) {
     func_8002DA7C();
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB9B8);
+// queue sound command 0x30, dispatched directly via func_8002DF88 (akao.c)
+// rather than the D_8009A000 global queue used by the sibling functions below
+void func_800BB9B8(s32 arg0) {
+    s16* ptr;
+
+    ptr = &D_800F4AD0;
+    *ptr = 0x30;
+    D_800F4AD4 = arg0 & 0xFFFF;
+    D_800F4AD8 = arg0 & 0xFFFF;
+    func_8002DF88(ptr);
+}
 
 // queue sound command 0x2B
 void func_800BB9FC(s32 arg0) {
