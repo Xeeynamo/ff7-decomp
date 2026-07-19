@@ -674,8 +674,8 @@ extern DISPENV D_8007EB68[2];
 extern u8 g_EntityToModel[48]; // entity id -> model id (0xFF: none)
 extern s8 D_8007EBCC;
 extern s8 D_8007EBDC;
-extern u8 D_8007EBE0;    // field debug mode
-extern u8 g_CharacterLock;    // mirror of the UC opcode's control-lock flag
+extern u8 D_8007EBE0;      // field debug mode
+extern u8 g_CharacterLock; // mirror of the UC opcode's control-lock flag
 extern u8 g_EntitySplitJoinState[48]; // states for SPLIT and JOIN opcodes
 extern s16 D_80082248[]; // per-model current animation playback speed
 extern u8 D_80083184[0x40];
@@ -710,7 +710,7 @@ extern Unk80074EA4* g_FieldModels; // loaded field models
 extern u8 g_FieldModelCount;       // number of allocated field models
 extern FieldScriptHeader* g_FieldScripts;
 extern FieldState* g_FieldState; // points to 0x8009abf4
-extern SaveWork Savemap;       // 0x8009C6E4
+extern SaveWork Savemap;         // 0x8009C6E4
 extern u8 D_8009CBDC[];
 extern u16 D_8009D288[];
 extern u8 D_8009D2E7;
