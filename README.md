@@ -32,13 +32,26 @@ sudo pacman -S go ninja 7zip bchunk
 yay mipsel-linux-gnu-binutils mipsel-linux-gnu-gcc
 ```
 
-Place the required disk images:
+After installation, create the python virtual environment
+```
+make reqirements
+```
+
+Create a /disks directory and place the required disk images within:
 
 ```shell
+mkdir disks
+# Copy the following files into /disks
 'disks/Final Fantasy VII (USA) (Disc 1).bin'
 'disks/Final Fantasy VII (USA) (Disc 1).cue'
 'disks/Final Fantasy VII (USA) (Interactive Sampler CD).bin' # OPTIONAL!
 'disks/Final Fantasy VII (USA) (Interactive Sampler CD).cue' # OPTIONAL!
+```
+
+after this extract the data files:
+
+```shell
+make disks
 ```
 
 ## Tooling
@@ -46,6 +59,7 @@ Place the required disk images:
 * `make build`: build project
 * `make clean`: remove generated files from build
 * `make format`: format codebase
+* `make disks` : extract the individual data files from the .bin disk image 
 * `./mako.sh rank <source_path>`: find remaning functions to decompile sorted from easier to hardest
 * `./mako.sh dec <function_name>`: decompile function
 * `./mako.sh symbols add <path> <name> <offset> [size]`: add or rename symbol
