@@ -649,9 +649,10 @@ extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
 extern u8 D_80070788;
 extern u8 g_EntityToLine[48];
 extern u16 D_800707BE;
-extern s16 D_800716DC[48];
+extern u16 g_FieldWaitCounter[48];      // Used by WAIT opcode to pause script
 extern u16 g_SavedFieldScriptPC[48][8]; // Program counters of paused scripts
 extern s16 D_80071A5C;
+extern u8 g_FieldScriptSyncWaitEntity[48][8];
 extern s8 D_80071C08;
 extern u8 D_80071E24;
 extern u8 D_80071E2C;
@@ -670,11 +671,12 @@ extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern FieldLine g_FieldLines[32];
 extern DRAWENV D_8007EAAC[2];
 extern DISPENV D_8007EB68[2];
-extern u8 D_8007EB98[]; // script entity id -> field model index (0xFF: none)
+extern u8 g_EntityToModel[48]; // entity id -> model id (0xFF: none)
 extern s8 D_8007EBCC;
 extern s8 D_8007EBDC;
 extern u8 D_8007EBE0;    // field debug mode
-extern u8 D_80081DC4;    // mirror of the UC opcode's control-lock flag
+extern u8 g_CharacterLock;    // mirror of the UC opcode's control-lock flag
+extern u8 g_EntitySplitJoinState[48]; // states for SPLIT and JOIN opcodes
 extern s16 D_80082248[]; // per-model current animation playback speed
 extern u8 D_80083184[0x40];
 extern u16 g_FieldScriptPC[48]; // program counters for active entity scripts
@@ -703,10 +705,11 @@ extern u8 D_8009A058;                // currently executing field-script opcode
 extern u8 g_FieldScriptPriority[48]; // active scripts execution priority
 extern FieldState D_8009ABF4;
 extern u8 D_8009AC2F;
+extern u8 g_CharIdToEntity[9];
 extern Unk80074EA4* g_FieldModels; // loaded field models
 extern u8 g_FieldModelCount;       // number of allocated field models
 extern FieldScriptHeader* g_FieldScripts;
-extern FieldState* D_8009C6E0; // points to 0x8009abf4
+extern FieldState* g_FieldState; // points to 0x8009abf4
 extern SaveWork Savemap;       // 0x8009C6E4
 extern u8 D_8009CBDC[];
 extern u16 D_8009D288[];
@@ -719,7 +722,8 @@ extern u8 D_8009D684;
 extern u8 D_8009D685;
 extern u8 D_8009D686;
 extern u8 D_8009D60E;
-extern u8 D_8009D820;    // field debug related
+extern u8 D_8009D820; // field debug related
+extern u8 D_8009D824;
 extern s16 D_8009D828[]; // per-model base animation speed
 extern u8 D_8009D8F8[];
 extern u32 D_8009D260;

@@ -2328,7 +2328,7 @@ void func_800B8488(FieldScriptHeader* fieldScripts) {
     g_FieldScripts = fieldScripts;
     fieldScripts->stringOffset = 8;
     func_800B8760();
-    D_8009C6E0 = &D_8009ABF4;
+    g_FieldState = &D_8009ABF4;
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B84D8);
