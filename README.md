@@ -10,7 +10,7 @@ Decompiling a video game is a collaborative effort made possible by passionate p
 
 ## Set-up
 
-Clone the repository - Make sure you are using the **--recursive** option to get the needed submodules or you will get linker errors when you attempt to build.
+Clone the repository, then run `git submodule update --init --recursive`
 
 ```shell
 git clone git@github.com:Xeeynamo/ff7-decomp.git --recursive &&\
