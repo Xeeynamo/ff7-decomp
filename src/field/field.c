@@ -9,6 +9,23 @@
 #define PC_INC(x) (g_FieldScriptPC[g_CurrentEntity] += (x))
 #define PC_DEC(x) (g_FieldScriptPC[g_CurrentEntity] -= (x))
 
+#define GET_PRIORITY(x) (((x) >> 5) & 0x7)
+#define GET_SCRIPTID(x) ((x) & 0x1F)
+
+typedef enum {
+    IF_EQ,
+    IF_NOT_EQ,
+    IF_GT,
+    IF_LT,
+    IF_GTE,
+    IF_LTE,
+    IF_AND,
+    IF_XOR,
+    IF_OR,
+    IF_BIT,
+    IF_NOT_BIT
+} IfOps;
+
 struct GpuBuf {
     /* 0x00000 */ u_long ot[0x400];
     /* 0x01000 */ u8 unk1000[0x1689C];
@@ -42,11 +59,17 @@ void func_800A364C(struct GpuBuf* buf);
 void func_800AA180(Unk80074EA4* arg0, FieldLine* arg1);
 void func_800AAB24(struct GpuBuf* buf);
 s32 func_800A9CE8(FieldLine*, u_long*, u_long*);
+void func_800BEAD4(char* arg0, s32 arg1);
 u8 func_800BEE10(s16 arg0, s16 arg1);
 void func_800BF3AC(s16 arg0, s16 arg1, u8 value);
 s16 func_800BF908(s16 arg0, s16 arg1);
 void func_800C0248(s16 arg0, s16 arg1, s16 value);
+u32 func_800C2000(void);
+u32 func_800C24A8(void);
+u32 func_800C2970(void);
+static s32 KeyCheck(u16 keys);
 static u32 GetAkaoBlockOffset(s16 akaoId);
+s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId);
 static void func_800D4840(const char* str);
 static void func_800D4848(const char* errmsg);
 void func_800D9F00(s32 val, const char* msg_out);
@@ -310,7 +333,7 @@ void func_800BA65C(s32 arg0) {
         }
     }
     if (D_80071E2C) {
-        func_8001F1BC(&D_80083274, 4, arg0, D_8009C6E0->unk0 ^ 1);
+        func_8001F1BC(&D_80083274, 4, arg0, g_FieldState->unk0 ^ 1);
     }
     func_800BC438(arg0);
 }
@@ -396,19 +419,20 @@ u8 func_800BBF74(s16 entityId, s16 priority, s16 scriptId) {
             g_FieldScriptPriority[entityId] = priority;
 
             // Clear running animation if entity has a model.
-            if (D_8007EB98[entityId] != 0xFF) {
-                if (g_FieldModels[D_8007EB98[entityId]].scriptedMoveMode ==
+            if (g_EntityToModel[entityId] != 0xFF) {
+                if (g_FieldModels[g_EntityToModel[entityId]].scriptedMoveMode ==
                     SMODE_WALK) {
-                    g_FieldModels[D_8007EB98[entityId]].activeAnimId = 0;
-                    g_FieldModels[D_8007EB98[entityId]].animCurrentFrame = 0;
-                    g_FieldModels[D_8007EB98[entityId]].animLastFrame = 0;
+                    g_FieldModels[g_EntityToModel[entityId]].activeAnimId = 0;
+                    g_FieldModels[g_EntityToModel[entityId]].animCurrentFrame =
+                        0;
+                    g_FieldModels[g_EntityToModel[entityId]].animLastFrame = 0;
                 }
-                g_FieldModels[D_8007EB98[entityId]].scriptedMoveMode =
+                g_FieldModels[g_EntityToModel[entityId]].scriptedMoveMode =
                     SMODE_NONE;
             }
 
             // Reset wait counter.
-            D_800716DC[entityId] = 0;
+            g_FieldWaitCounter[entityId] = 0;
 
             if (D_8009D820 & 3) {
                 func_800BECA4("=recieved", 0, 0);
@@ -953,25 +977,150 @@ s32 func_800C0B54(void) {
     return 1;
 }
 
-// Nop in field scripts
+/*
+ * Field-script opcode HALT: Halts execution until next frame.
+ */
 s32 func_800C0BE8(void) {
     PC_INC(1);
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0C18);
+/*
+ * Field-script opcode WAIT: Waits given number of frames before resuming.
+ *
+ * g_FieldWaitCounter[g_CurrentEntity] == 0 by default. The opcode then
+ * sets it to how many frames to wait before returning 1, which halts
+ * execution of the script until next frame.
+ *
+ * If parameter == 0, the opcode behaves the same way as HALT.
+ *
+ * The opcode is then called once per frame, decrementing the counter until it
+ * reaches 1, at which point it's set to 0 and 0 is returned, which
+ * tells the script parser to continue executing next opcode.
+ */
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0DE0);
+s32 func_800C0C18(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("wait", 2);
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0E5C);
+    if (g_FieldWaitCounter[g_CurrentEntity] == 0) {
+        GET_PARAM_S16(g_FieldWaitCounter[g_CurrentEntity], 1);
+        if (D_8009D820 & 3) {
+            func_800BECA4("wait_st=", g_FieldWaitCounter[g_CurrentEntity], 4);
+        }
+        if (g_FieldWaitCounter[g_CurrentEntity] == 0) {
+            PC_INC(3);
+            return 1;
+        }
+        return 1;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0EDC);
+    if (g_FieldWaitCounter[g_CurrentEntity] == 1) {
+        if (D_8009D820 & 3) {
+            func_800BECA4("wait_end=", 1, 4);
+        }
+        g_FieldWaitCounter[g_CurrentEntity] = 0;
+        PC_INC(3);
+        return 0;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0F58);
+    if (D_8009D820 & 3) {
+        func_800BECA4("wait=", g_FieldWaitCounter[g_CurrentEntity], 4);
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0FD8);
+    g_FieldWaitCounter[g_CurrentEntity]--;
+    return 1;
+}
 
+s32 func_800C0DE0(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("set", 3);
+    }
+    func_800BF3AC(1, 2, func_800BEE10(2, 3));
+    PC_INC(4);
+    return 0;
+}
+
+s32 func_800C0E5C(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("set2", 4);
+    }
+    func_800C0248(1, 2, func_800BF908(2, 3));
+    PC_INC(5);
+    return 0;
+}
+
+s32 func_800C0EDC(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("lbyte", 3);
+    }
+    func_800BF3AC(1, 2, func_800BEE10(2, 3));
+    PC_INC(4);
+    return 0;
+}
+
+s32 func_800C0F58(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("hbyte", 4);
+    }
+    func_800BF3AC(1, 2, (u8)(func_800BF908(2, 3) >> 8));
+    PC_INC(5);
+    return 0;
+}
+
+s32 func_800C0FD8(void) {
+    s16 lhs;
+
+    if (D_8009D820 & 3) {
+        func_800BEAD4("2byte", 5);
+    }
+    lhs = func_800BEE10(2, 4);
+    func_800C0248(1, 3, lhs | (func_800BEE10(4, 5) << 8));
+    PC_INC(6);
+    return 0;
+}
+
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C107C);
+#else
+s32 func_800C107C(void) {
+    s16 offset;
+    u8 bank;
+    u8 value;
+
+    if (D_8009D820 & 3) {
+        func_800BEAD4("setx", 6);
+    }
+    bank = GET_PARAM_U8(1) >> 4;
+    offset = GET_PARAM_U8(3) + func_800BF908(2, 3);
+    value = func_800BEE10(4, 5);
+    switch (bank) {
+    case 15:
+        offset += 256;
+    case 13:
+        offset += 256;
+    case 11:
+        offset += 256;
+    case 3:
+        offset += 256;
+    case 1:
+        if (offset >= 1280) {
+            offset = 1279;
+        }
+        Savemap.memory_bank_1[offset] = value;
+        break;
+    case 5:
+        if (offset >= 256) {
+            offset = 255;
+        }
+        D_80075E24[offset] = value;
+        break;
+    }
+    PC_INC(7);
+    return 0;
+}
+#endif
 
 #ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C1214);
@@ -1143,60 +1292,711 @@ s32 func_800C1858(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C1AB4);
+s32 func_800C1AB4(void) {
+    u8 lineId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C1BF4);
+    if (D_8009D820 & 3) {
+        func_800BEAD4("sline", 8);
+    }
+    lineId = g_EntityToLine[g_CurrentEntity];
+    g_FieldLines[lineId].pos.x1 = func_800BF908(1, 4);
+    g_FieldLines[lineId].pos.y1 = func_800BF908(2, 6);
+    g_FieldLines[lineId].pos.z1 = func_800BF908(3, 8);
+    g_FieldLines[lineId].pos.x2 = func_800BF908(4, 10);
+    g_FieldLines[lineId].pos.y2 = func_800BF908(5, 12);
+    g_FieldLines[lineId].pos.z2 = func_800BF908(6, 14);
+    PC_INC(16);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C1D24);
+s32 func_800C1BF4(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("linon", 1);
+    }
+    g_FieldLines[g_EntityToLine[g_CurrentEntity]].isActive = GET_PARAM_U8(1);
+    if (GET_PARAM_U8(1) == 0) {
+        g_FieldLines[g_EntityToLine[g_CurrentEntity]].touch = 0;
+    }
+    PC_INC(2);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C1DE4);
+/*
+ * Field-script opcode SLIP: Enables or disables slipping along a line
+ *
+ * Slipping allows the player to slide along a wall when running
+ * against it instead of stopping. The wall must previously have a
+ * line defined alongside it with opcode LINE.
+ */
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C1EEC);
+s32 func_800C1D24(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("slip", 1);
+    }
+    g_FieldLines[g_EntityToLine[g_CurrentEntity]].slipDisabled =
+        GET_PARAM_U8(1);
+    PC_INC(2);
+    return 0;
+}
 
+/*
+ * Field-script opcode IF: If, 1 byte, unsigned
+ *
+ * Compares two u8 using a given logical operator.
+ * Jumps given number of bytes ahead if the comparison is false.
+ */
+
+s32 func_800C1DE4(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("if", 5);
+    }
+    if (func_800C2000()) {
+        if (D_8009D820 & 3) {
+            func_800BECA4("if=true", 0, 0);
+        }
+        // If comparison is true, continue executing next opcode.
+        PC_INC(6);
+    } else {
+        if (D_8009D820 & 3) {
+            func_800BECA4("if=false", 0, 0);
+        }
+        // If comparison is false, jump number of bytes give in last parameter
+        // from last parameter.
+        PC_INC(GET_PARAM_U8(5) + 5);
+    }
+    return 0;
+}
+
+/*
+ * Field-script opcode LIF: Long If, 1 byte, unsigned
+ *
+ * Compares two u8 using a given logical operator.
+ * Identical to IF except that the jump parameter is s16, allowing for longer
+ * jumps.
+ */
+
+s32 func_800C1EEC(void) {
+    s16 param;
+
+    if (D_8009D820 & 3) {
+        func_800BEAD4("lif", 6);
+    }
+    if (func_800C2000()) {
+        if (D_8009D820 & 3) {
+            func_800BECA4("lif=true", 0, 0);
+        }
+        PC_INC(7);
+    } else {
+        if (D_8009D820 & 3) {
+            func_800BECA4("lif=false", 0, 0);
+        }
+        GET_PARAM_S16(param, 5);
+        PC_INC(param + 5);
+    }
+    return 0;
+}
+
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2000);
+#else
+u32 func_800C2000(void) {
+    u8 ope;
+    u8 result;
 
+    ope = GET_PARAM_U8(4);
+    switch (ope) {
+    case IF_EQ:
+        result = func_800BEE10(1, 2) == func_800BEE10(2, 3);
+        break;
+    case IF_NOT_EQ:
+        result = func_800BEE10(1, 2) != func_800BEE10(2, 3);
+        break;
+    case IF_GT:
+        result = func_800BEE10(1, 2) > func_800BEE10(2, 3);
+        break;
+    case IF_LT:
+        result = func_800BEE10(1, 2) < func_800BEE10(2, 3);
+        break;
+    case IF_GTE:
+        result = func_800BEE10(1, 2) >= func_800BEE10(2, 3);
+        break;
+    case IF_LTE:
+        result = func_800BEE10(1, 2) <= func_800BEE10(2, 3);
+        break;
+    case IF_AND:
+        result = func_800BEE10(1, 2) & func_800BEE10(2, 3);
+        break;
+    case IF_XOR:
+        result = func_800BEE10(1, 2) ^ func_800BEE10(2, 3);
+        break;
+    case IF_OR:
+        result = func_800BEE10(1, 2) | func_800BEE10(2, 3);
+        break;
+    case IF_BIT:
+        result = func_800BEE10(1, 2) & (1 << func_800BEE10(2, 3));
+        break;
+    case IF_NOT_BIT:
+        result = func_800BEE10(1, 2) & (1 << func_800BEE10(2, 3));
+        result = result < 1;
+        break;
+    default:
+        if (D_8009D820 & 3) {
+            func_800BECA4("ope err=", ope, 2);
+        }
+        break;
+    }
+    return result;
+}
+#endif
+
+/*
+ * Field-script opcode IF2: If, 2 bytes, signed
+ *
+ * Compares two s16 using a given logical operator.
+ */
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C228C);
+#else
+s32 func_800C228C(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("if2", 7);
+    }
+    if (func_800C24A8() != 0) {
+        if (D_8009D820 & 3) {
+            func_800BECA4("if2=true", 0, 0);
+        }
+        PC_INC(8);
+    } else {
+        if (D_8009D820 & 3) {
+            func_800BECA4("if2=false", 0, 0);
+        }
+        PC_INC(GET_PARAM_U8(7) + 7);
+    }
+    return 0;
+}
+#endif
 
+/*
+ * Field-script opcode LIF2: Long if, 2 bytes, signed
+ *
+ * Compares two s16 using a given logical operator.
+ */
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2394);
+#else
+s32 func_800C2394(void) {
+    s16 param;
 
+    if (D_8009D820 & 3) {
+        func_800BEAD4("lif2", 8);
+    }
+    if (func_800C24A8() != 0) {
+        if (D_8009D820 & 3) {
+            func_800BECA4("lif2=true", 0, 0);
+        }
+        PC_INC(9);
+    } else {
+        if (D_8009D820 & 3) {
+            func_800BECA4("lif2=false", 0, 0);
+        }
+        GET_PARAM_S16(param, 7);
+        PC_INC(param + 7);
+    }
+    return 0;
+}
+#endif
+
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C24A8);
+#else
+u32 func_800C24A8(void) {
+    u8 ope;
+    u8 result;
 
+    ope = GET_PARAM_U8(6);
+    switch (ope) {
+    case IF_EQ:
+        result = func_800BF908(1, 2) == func_800BF908(2, 4);
+        break;
+    case IF_NOT_EQ:
+        result = func_800BF908(1, 2) != func_800BF908(2, 4);
+        break;
+    case IF_GT:
+        result = func_800BF908(1, 2) > func_800BF908(2, 4);
+        break;
+    case IF_LT:
+        result = func_800BF908(1, 2) < func_800BF908(2, 4);
+        break;
+    case IF_GTE:
+        result = func_800BF908(1, 2) >= func_800BF908(2, 4);
+        break;
+    case IF_LTE:
+        result = func_800BF908(1, 2) <= func_800BF908(2, 4);
+        break;
+    case IF_AND:
+        result = func_800BF908(1, 2) & func_800BF908(2, 4);
+        break;
+    case IF_XOR:
+        result = func_800BF908(1, 2) ^ func_800BF908(2, 4);
+        break;
+    case IF_OR:
+        result = func_800BF908(1, 2) | func_800BF908(2, 4);
+        break;
+    case IF_BIT:
+        result = func_800BF908(1, 2) & (1 << func_800BF908(2, 4));
+        break;
+    case IF_NOT_BIT:
+        result = func_800BF908(1, 2) & (1 << func_800BF908(2, 4));
+        result = result < 1;
+        break;
+    default:
+        if (D_8009D820 & 3) {
+            func_800BECA4("ope err=", ope, 2);
+        }
+        break;
+    }
+    return result;
+}
+#endif
+
+/*
+ * Field-script opcode IF2: If, 2 bytes, unsigned
+ *
+ * Compares two u16 using a given logical operator.
+ */
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2754);
+#else
+s32 func_800C2754(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("if2", 7);
+    }
+    if (func_800C2970()) {
+        if (D_8009D820 & 3) {
+            func_800BECA4("if2=false", 0, 0);
+        }
+        PC_INC(8);
+    } else {
+        if (D_8009D820 & 3) {
+            func_800BECA4("if2=true", 0, 0);
+        }
+        PC_INC(GET_PARAM_U8(7) + 7);
+    }
+    return 0;
+}
+#endif
 
+/*
+ * Field-script opcode LIF2: Long if, 2 bytes, unsigned
+ *
+ * Compares two u16 using a given logical operator.
+ */
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C285C);
+#else
+s32 func_800C285C(void) {
+    s16 param;
 
+    if (D_8009D820 & 3) {
+        func_800BEAD4("lif2", 8);
+    }
+    if (func_800C2970() != 0) {
+        if (D_8009D820 & 3) {
+            func_800BECA4("lif2=false", 0, 0);
+        }
+        PC_INC(9);
+    } else {
+        if (D_8009D820 & 3) {
+            func_800BECA4("lif2=true", 0, 0);
+        }
+        GET_PARAM_S16(param, 7);
+        PC_INC(param + 7);
+    }
+    return 0;
+}
+#endif
+
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2970);
+#else
+u32 func_800C2970(void) {
+    u8 ope;
+    u8 result;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2BFC);
+    ope = GET_PARAM_U8(6);
+    switch (ope) {
+    case IF_EQ:
+        result = (u16)func_800BF908(1, 2) == (u16)func_800BF908(2, 4);
+        break;
+    case IF_NOT_EQ:
+        result = (u16)func_800BF908(1, 2) != (u16)func_800BF908(2, 4);
+        break;
+    case IF_GT:
+        result = (u16)func_800BF908(1, 2) > (u16)func_800BF908(2, 4);
+        break;
+    case IF_LT:
+        result = (u16)func_800BF908(1, 2) < (u16)func_800BF908(2, 4);
+        break;
+    case IF_GTE:
+        result = (u16)func_800BF908(1, 2) >= (u16)func_800BF908(2, 4);
+        break;
+    case IF_LTE:
+        result = (u16)func_800BF908(1, 2) <= (u16)func_800BF908(2, 4);
+        break;
+    case IF_AND:
+        result = func_800BF908(1, 2) & func_800BF908(2, 4);
+        break;
+    case IF_XOR:
+        result = func_800BF908(1, 2) ^ func_800BF908(2, 4);
+        break;
+    case IF_OR:
+        result = func_800BF908(1, 2) | func_800BF908(2, 4);
+        break;
+    case IF_BIT:
+        result = func_800BF908(1, 2) & (1 << func_800BF908(2, 4));
+        break;
+    case IF_NOT_BIT:
+        result = func_800BF908(1, 2) & (1 << func_800BF908(2, 4));
+        result = result < 1;
+        break;
+    default:
+        if (D_8009D820 & 3) {
+            func_800BECA4("ope err=", ope, 2);
+        }
+        break;
+    }
+    return result;
+}
+#endif
+
+/*
+ * Field-script opcode KEY!: Key check
+ *
+ * Jumps ahead given number of bytes if given key(s) are not active.
+ * All key opcodes only check the lower half word which contains the keys
+ * for controller 1.
+ */
+
+s32 func_800C2BFC(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("key!", 3);
+    }
+    if (GET_PARAM_U8(2) & 2) {
+        return KeyCheck((u16)g_FieldState->activeKeys2);
+    } else {
+        return KeyCheck((u16)g_FieldState->activeKeys);
+    }
+}
+
+/*
+ * Field-script opcode KEYON: Key On
+ *
+ * Checks keys that player pressed this frame.
+ */
 
 s32 func_800C2CA8(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("keyon", 3);
     }
     if (GET_PARAM_U8(2) & 2) {
-        return func_800C2E00((u16)D_8009C6E0->newActiveKeys2);
+        return KeyCheck((u16)g_FieldState->newActiveKeys2);
     } else {
-        return func_800C2E00((u16)D_8009C6E0->newActiveKeys);
+        return KeyCheck((u16)g_FieldState->newActiveKeys);
     }
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2D54);
+/*
+ * Field-script opcode KEYOF: Key Off
+ *
+ * Checks keys that player released this frame.
+ */
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2E00);
+s32 func_800C2D54(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("keyof", 3);
+    }
+    if (GET_PARAM_U8(2) & 2) {
+        return KeyCheck((u16)g_FieldState->newInactiveKeys2);
+    } else {
+        return KeyCheck((u16)g_FieldState->newInactiveKeys);
+    }
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2F7C);
+static s32 KeyCheck(u16 keys) {
+    u16 param;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2FFC);
+    GET_PARAM_S16(param, 1);
+    if (D_8009D820 & 3) {
+        func_800BECA4("key now=", keys, 4);
+        func_800BECA4("key chk=", param, 4);
+    }
+    if (keys & param) {
+        if (D_8009D820 & 3) {
+            func_800BECA4("key=true", 0, 0);
+        }
+        PC_INC(4);
+    } else {
+        if (D_8009D820 & 3) {
+            func_800BECA4("key=false", 0, 0);
+        }
+        PC_INC(GET_PARAM_U8(3) + 3);
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C307C);
+s32 func_800C2F7C(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("req", 2);
+    }
+    return func_800C33B4(1, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
+                         GET_SCRIPTID(GET_PARAM_U8(2)));
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C30FC);
+s32 func_800C2FFC(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("reqsw", 2);
+    }
+    return func_800C33B4(2, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
+                         GET_SCRIPTID(GET_PARAM_U8(2)));
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C31E4);
+s32 func_800C307C(void) {
+    if (D_8009D820 & 3) {
+        func_800BEAD4("reqew", 2);
+    }
+    return func_800C33B4(3, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
+                         GET_SCRIPTID(GET_PARAM_U8(2)));
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C32CC);
+s32 func_800C30FC(void) {
+    u8 charId;
+    u8 entityId;
 
+    if (D_8009D820 & 3) {
+        func_800BEAD4("preq", 2);
+    }
+    charId = Savemap.memory_bank_2[GET_PARAM_U8(1) + 9];
+    if (charId == 0xFF) {
+        entityId = 0xFF;
+    } else {
+        entityId = g_CharIdToEntity[charId];
+    }
+    return func_800C33B4(1, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
+                         GET_SCRIPTID(GET_PARAM_U8(2)));
+}
+
+s32 func_800C31E4(void) {
+    u8 charId;
+    u8 entityId;
+
+    if (D_8009D820 & 3) {
+        func_800BEAD4("prqsw", 2);
+    }
+    charId = Savemap.memory_bank_2[GET_PARAM_U8(1) + 9];
+    if (charId == 0xFF) {
+        entityId = 0xFF;
+    } else {
+        entityId = g_CharIdToEntity[charId];
+    }
+    return func_800C33B4(2, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
+                         GET_SCRIPTID(GET_PARAM_U8(2)));
+}
+
+s32 func_800C32CC(void) {
+    u8 charId;
+    u8 entityId;
+
+    if (D_8009D820 & 3) {
+        func_800BEAD4("prqew", 2);
+    }
+    charId = Savemap.memory_bank_2[GET_PARAM_U8(1) + 9];
+    if (charId == 0xFF) {
+        entityId = 0xFF;
+    } else {
+        entityId = g_CharIdToEntity[charId];
+    }
+    return func_800C33B4(3, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
+                         GET_SCRIPTID(GET_PARAM_U8(2)));
+}
+
+// Depends on decomp of func_800bc9fc due to shared string.
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C33B4);
+#else
+s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
+    s32 scriptOffset;
+    s32 entityDataSize;
+    s32 extrasHeaderSize;
+
+    if (target == 0xFF) {
+        if (D_8009D820 & 3) {
+            func_800BECA4("rqew=no one", 0, 0);
+        }
+        PC_INC(3);
+        return 0;
+    }
+
+    if (D_8009D820 & 3) {
+        func_800DA334(D_800E4288, "rq=");
+        func_800DA368(D_800E4288, (char*)((s32)g_FieldScripts) +
+                                      sizeof(FieldScriptHeader) + (target * 8));
+        func_800DA368(D_800E4288, "/");
+        func_800BECA4(D_800E4288, scriptId, 2);
+    }
+
+    if (type > 0) {
+        if (type >= 3) {
+            if (type == 3 && g_FieldScriptSyncWaitEntity[target][priority] ==
+                                 g_CurrentEntity) {
+                switch (g_FieldScriptSyncState[target][priority]) {
+                case SYNC_WAITING:
+                    if (D_8009D820 & 3) {
+                        func_800BECA4("rqew=wait", 0, 0);
+                    }
+                    return 1;
+                case SYNC_DONE:
+                    if (D_8009D820 & 3) {
+                        func_800BECA4("rqew=end", 0, 0);
+                    }
+                    g_FieldScriptSyncState[target][priority] = SYNC_NONE;
+                    g_FieldScriptSyncWaitEntity[target][priority] = 0xFF;
+                    PC_INC(3);
+                    return 0;
+                }
+            }
+        }
+    }
+
+    if (g_FieldScriptPriority[target] == priority) {
+        switch (type) {
+        case 1:
+            PC_INC(3);
+            if (D_8009D820 & 3) {
+                func_800BECA4("rq=skip", 0, 0);
+            }
+            return 0;
+        case 2:
+        case 3:
+            if (D_8009D820 & 3) {
+                func_800BECA4("rqw=busy", 0, 0);
+            }
+        }
+        return 1;
+    } else if (g_FieldScriptPriority[target] < priority) {
+        if (g_SavedFieldScriptPC[target][priority] != 0) {
+            switch (type) {
+            case 1:
+                PC_INC(3);
+                if (D_8009D820 & 3) {
+                    func_800BECA4("rq=skip", 0, 0);
+                }
+                return 0;
+            case 2:
+            case 3:
+                if (D_8009D820 & 3) {
+                    func_800BECA4("rqw=busy", 0, 0);
+                }
+            }
+            return 1;
+        }
+        scriptOffset = scriptId * 2;
+        entityDataSize = target * 64;
+        extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
+
+        g_SavedFieldScriptPC[target][priority] =
+            *((u8*)(scriptOffset +
+                    (entityDataSize + (g_FieldScripts->numEntities << 3)) +
+                    extrasHeaderSize + (s32)g_FieldScripts) +
+              sizeof(FieldScriptHeader));
+        g_SavedFieldScriptPC[target][priority] |=
+            *((u8*)(scriptOffset +
+                    ((entityDataSize + (g_FieldScripts->numEntities << 3)) +
+                     (s32)g_FieldScripts) +
+                    extrasHeaderSize) +
+              sizeof(FieldScriptHeader) + 1)
+            << 8;
+
+        if (D_8009D820 & 3) {
+            func_800BECA4("rq=send", 0, 0);
+        }
+
+        if (type <= 0) {
+            return 1;
+        }
+
+        if (type >= 3) {
+            if (type != 3) {
+                return 1;
+            }
+        } else {
+            PC_INC(3);
+            return 0;
+        }
+
+        g_FieldScriptSyncWaitEntity[target][priority] = g_CurrentEntity;
+        g_FieldScriptSyncState[target][priority] = SYNC_WAITING;
+        return 1;
+    } else if (g_FieldScriptSyncState[target][priority] == SYNC_NONE) {
+        s32 scriptOffset;
+        s32 entityDataSize;
+        s32 extrasHeaderSize;
+
+        SavedScriptIds[target][priority] = scriptId;
+        g_SavedFieldScriptPC[target][g_FieldScriptPriority[target]] =
+            g_FieldScriptPC[target];
+
+        scriptOffset = scriptId * 2;
+        entityDataSize = target * 64;
+        extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
+
+        g_FieldScriptPC[target] =
+            *((u8*)(scriptOffset +
+                    (entityDataSize + (g_FieldScripts->numEntities << 3)) +
+                    extrasHeaderSize + (s32)g_FieldScripts) +
+              sizeof(FieldScriptHeader));
+        g_FieldScriptPC[target] |=
+            *((u8*)(scriptOffset +
+                    ((entityDataSize + (g_FieldScripts->numEntities << 3)) +
+                     (s32)g_FieldScripts) +
+                    extrasHeaderSize) +
+              sizeof(FieldScriptHeader) + 1)
+            << 8;
+
+        g_FieldScriptPriority[target] = priority;
+
+        if (g_EntityToModel[target] != 0xFF) {
+            g_FieldModels[g_EntityToModel[target]].scriptedMoveMode =
+                SMODE_NONE;
+        }
+        g_FieldWaitCounter[target] = 0;
+
+        if (D_8009D820 & 3) {
+            func_800BECA4("rq=send", 0, 0);
+        }
+
+        if (type <= 0) {
+            return 1;
+        }
+
+        if (type >= 3) {
+            if (type != 3) {
+                return 1;
+            }
+        } else {
+            PC_INC(3);
+            return 0;
+        }
+
+        g_FieldScriptSyncWaitEntity[target][priority] = g_CurrentEntity;
+        g_FieldScriptSyncState[target][priority] = SYNC_WAITING;
+        return 1;
+    }
+    if (D_8009D820 & 3) {
+        func_800BECA4("rqw=busy*", 0, 0);
+    }
+    return 1;
+}
+#endif
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C3A20);
 
@@ -1290,7 +2090,7 @@ s32 func_800C4BCC(void) {
             func_800BECA4("music=", akaoId, 2);
         }
         *D_8009A004 = (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
-        D_8009C6E0->nextFieldMusic = *D_8009A004;
+        g_FieldState->nextFieldMusic = *D_8009A004;
         func_8002DA7C();
     }
     PC_INC(2);
@@ -1321,10 +2121,10 @@ s32 func_800C4CE8(void) {
         if (D_8009D820 & 3) {
             func_800BECA4("bmusic=", akaoId, 2);
         }
-        D_8009C6E0->nextBattleMusic =
+        g_FieldState->nextBattleMusic =
             (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
     } else {
-        D_8009C6E0->nextBattleMusic = 0;
+        g_FieldState->nextBattleMusic = 0;
     }
     PC_INC(2);
     return 0;
@@ -1341,21 +2141,16 @@ s32 func_800C4DE8(void) {
         if (D_8009D820 & 3) {
             func_800BECA4("bmusic=", akaoId, 2);
         }
-        D_8009C6E0->nextFieldMusic =
+        g_FieldState->nextFieldMusic =
             (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
     } else {
-        D_8009C6E0->nextFieldMusic = 0;
+        g_FieldState->nextFieldMusic = 0;
     }
     PC_INC(2);
     return 0;
 }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C4EE8);
-
-/* func_800BEAD4 returns void; the callers above already match with the implicit
-   int declaration, but SetMusicLock only matches with the void prototype in
-   scope (it frees v0 for reuse instead of treating it as a return value). */
-extern void func_800BEAD4(const char*, int);
 
 /*
  * Field-script opcode MULCK (0xF5): set the music lock from the opcode operand.
@@ -1384,7 +2179,7 @@ s32 func_800C50EC(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("bgmovie", 1);
     }
-    D_8009C6E0->backgroundMovieEnabled = GET_PARAM_U8(1);
+    g_FieldState->backgroundMovieEnabled = GET_PARAM_U8(1);
     PC_INC(2);
     return 0;
 }
@@ -1393,7 +2188,7 @@ s32 func_800C5194(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("scrlo", 1);
     }
-    D_8009C6E0->scrloSet = GET_PARAM_U8(1);
+    g_FieldState->scrloSet = GET_PARAM_U8(1);
     PC_INC(2);
     return 0;
 }
@@ -1411,14 +2206,14 @@ s32 RequestDiskChange(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("dskcg", 1);
     }
-    switch (D_8009C6E0->opcode) {
+    switch (g_FieldState->opcode) {
     case FIELDOP_NONE:
-        D_8009C6E0->opcode = FIELDOP_CD_CHANGE;
+        g_FieldState->opcode = FIELDOP_CD_CHANGE;
         D_8009D588 = GET_PARAM_U8(1);
         return 1;
     case FIELDOP_CD_CHANGE:
-        if (D_8009C6E0->movieCommandState == MOVCMD_DONE) {
-            D_8009C6E0->opcode = FIELDOP_NONE;
+        if (g_FieldState->movieCommandState == MOVCMD_DONE) {
+            g_FieldState->opcode = FIELDOP_NONE;
             PC_INC(2);
             return 0;
         }
@@ -1438,9 +2233,9 @@ s32 SetCharacterLock(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("uc", 1);
     }
-    D_80081DC4 = D_8009C6E0->characterLock = GET_PARAM_U8(1);
-    if (D_80081DC4 == 0) {
-        D_800756E8[D_8009C6E0->pcModelId] = 0;
+    g_CharacterLock = g_FieldState->characterLock = GET_PARAM_U8(1);
+    if (g_CharacterLock == 0) {
+        D_800756E8[g_FieldState->pcModelId] = 0;
     }
     PC_INC(2);
     return 0;
@@ -1450,7 +2245,7 @@ s32 func_800C5414(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("btlon", 1);
     }
-    D_8009C6E0->battlesDisabled = GET_PARAM_U8(1);
+    g_FieldState->battlesDisabled = GET_PARAM_U8(1);
     PC_INC(2);
     return 0;
 }
@@ -1459,7 +2254,7 @@ s32 func_800C54BC(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("mpdsp", 1);
     }
-    D_8009C6E0->mpdspSet = GET_PARAM_U8(1);
+    g_FieldState->mpdspSet = GET_PARAM_U8(1);
     PC_INC(2);
     return 0;
 }
@@ -1468,7 +2263,7 @@ s32 func_800C5564(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("mvcam", 1);
     }
-    D_8009C6E0->movieCamDisabled = GET_PARAM_U8(1);
+    g_FieldState->movieCamDisabled = GET_PARAM_U8(1);
     PC_INC(2);
     return 0;
 }
@@ -1477,8 +2272,8 @@ s32 func_800C560C(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("gmovr", 0);
     }
-    D_8009C6E0->opcode = FIELDOP_GAME_OVER;
-    D_8009C6E0->movieCommandState = MOVCMD_IDLE;
+    g_FieldState->opcode = FIELDOP_GAME_OVER;
+    g_FieldState->movieCommandState = MOVCMD_IDLE;
     return 1;
 }
 
@@ -1486,7 +2281,7 @@ s32 func_800C560C(void) {
  * Field-script opcode CC: hand player control to another entity.
  *
  * The operand is a script entity id; if that entity has a field model
- * assigned (D_8007EB98 entry != 0xFF) it becomes the new player model.
+ * assigned (g_EntityToModel entry != 0xFF) it becomes the new player model.
  */
 s32 SetControlCharacter(void) {
     u8 charId;
@@ -1495,8 +2290,8 @@ s32 SetControlCharacter(void) {
         func_800BEAD4("cc", 1);
     }
     charId = GET_PARAM_U8(1);
-    if (D_8007EB98[charId] != 0xFF) {
-        D_8009C6E0->pcModelId = D_8007EB98[charId];
+    if (g_EntityToModel[charId] != 0xFF) {
+        g_FieldState->pcModelId = g_EntityToModel[charId];
     }
     PC_INC(2);
     return 0;
@@ -1506,17 +2301,17 @@ s32 SetControlCharacter(void) {
  * Field-script opcode CHAR: attach a field model to the current entity.
  *
  * Allocates the next model slot (g_FieldModelCount) for the executing entity,
- * records the mapping in D_8007EB98 and initializes the model with the
+ * records the mapping in g_EntityToModel and initializes the model with the
  * model id from the opcode operand and the owning entity id.
  */
 s32 AssignCharacterModel(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("char", 1);
     }
-    D_8007EB98[g_CurrentEntity] = g_FieldModelCount++;
-    g_FieldModels[D_8007EB98[g_CurrentEntity]].unk66 = GET_PARAM_U8(1);
-    g_FieldModels[D_8007EB98[g_CurrentEntity]].unk5C = 1;
-    g_FieldModels[D_8007EB98[g_CurrentEntity]].entityId = g_CurrentEntity;
+    g_EntityToModel[g_CurrentEntity] = g_FieldModelCount++;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].unk66 = GET_PARAM_U8(1);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].unk5C = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].entityId = g_CurrentEntity;
     PC_INC(2);
     return 0;
 }
@@ -1535,11 +2330,11 @@ s32 SetDefaultAnimation(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("dfanm", 2);
     }
-    if (D_8007EB98[g_CurrentEntity] != 0xFF) {
-        D_8008325C[D_8007EB98[g_CurrentEntity]] = GET_PARAM_U8(1);
-        D_80082248[D_8007EB98[g_CurrentEntity]] =
-            D_8009D828[D_8007EB98[g_CurrentEntity]] / GET_PARAM_U8(2);
-        modelIdx = D_8007EB98[g_CurrentEntity];
+    if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
+        D_8008325C[g_EntityToModel[g_CurrentEntity]] = GET_PARAM_U8(1);
+        D_80082248[g_EntityToModel[g_CurrentEntity]] =
+            D_8009D828[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(2);
+        modelIdx = g_EntityToModel[g_CurrentEntity];
         if (D_800756E8[modelIdx] == 3) {
             D_800756E8[modelIdx] = 0;
         }
@@ -1558,13 +2353,13 @@ s32 SetControlCharacterAnimation(void) {
     }
     switch (GET_PARAM_U8(3)) {
     case 0:
-        D_8009C6E0->idleAnimId = GET_PARAM_U8(1);
+        g_FieldState->idleAnimId = GET_PARAM_U8(1);
         break;
     case 1:
-        D_8009C6E0->walkAnimId = GET_PARAM_U8(1);
+        g_FieldState->walkAnimId = GET_PARAM_U8(1);
         break;
     case 2:
-        D_8009C6E0->runAnimId = GET_PARAM_U8(1);
+        g_FieldState->runAnimId = GET_PARAM_U8(1);
         break;
     }
     PC_INC(4);
@@ -1583,11 +2378,12 @@ void StartModelAnimation(void) {
     u8* anims;
     Unk8004A62CSub* file;
 
-    g_FieldModels[D_8007EB98[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(1);
-    g_FieldModels[D_8007EB98[g_CurrentEntity]].animSpeed =
-        D_8009D828[D_8007EB98[g_CurrentEntity]] / GET_PARAM_U8(2);
-    g_FieldModels[D_8007EB98[g_CurrentEntity]].animCurrentFrame = 0;
-    modelIdx = D_8007EB98[g_CurrentEntity];
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId =
+        GET_PARAM_U8(1);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].animSpeed =
+        D_8009D828[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(2);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
+    modelIdx = g_EntityToModel[g_CurrentEntity];
     file = &D_8004A62C->unk4[D_8008357C[modelIdx].unk4];
     anims = file->unk1C + file->unk1A;
     g_FieldModels[modelIdx].animLastFrame =
@@ -1602,40 +2398,35 @@ void StartModelAnimation(void) {
  * animation system reports completion (state 4), then resets the model to
  * its default animation.
  */
-#ifndef NON_MATCHINGS
-// Close but not matching: the register allocator picks $v1/$a0 instead of
-// $v0/$v1 for the state-2 branch (7 bytes of register fields differ).
-INCLUDE_ASM("asm/us/field/nonmatchings/field", PlayAnimation);
-#else
 s32 PlayAnimation(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("anime", 2);
     }
-    if (D_8007EB98[g_CurrentEntity] != 0xFF) {
-        switch (D_800756E8[D_8007EB98[g_CurrentEntity]]) {
-        case 0:
-        case 1:
-        case 3:
-            StartModelAnimation();
-            if (D_8009A058 == 0xAE) {
-                D_800756E8[D_8007EB98[g_CurrentEntity]] = 5;
-                PC_INC(3);
-                return 0;
-            }
-            D_800756E8[D_8007EB98[g_CurrentEntity]] = 2;
-            return 1;
-        case 4:
-            D_800756E8[D_8007EB98[g_CurrentEntity]] = 0;
+
+    if (g_EntityToModel[g_CurrentEntity] == 0xFF) {
+        PC_INC(3);
+        return 0;
+    }
+
+    switch (D_800756E8[g_EntityToModel[g_CurrentEntity]]) {
+    case 0:
+    case 1:
+    case 3:
+        StartModelAnimation();
+        if (D_8009A058 == 0xAE) {
+            D_800756E8[g_EntityToModel[g_CurrentEntity]] = 5;
             PC_INC(3);
             return 0;
-        default:
-            return 1;
         }
+        D_800756E8[g_EntityToModel[g_CurrentEntity]] = 2;
+        break;
+    case 4:
+        D_800756E8[g_EntityToModel[g_CurrentEntity]] = 0;
+        PC_INC(3);
+        return 0;
     }
-    PC_INC(3);
-    return 0;
+    return 1;
 }
-#endif
 
 /*
  * Field-script opcode ANIM!1/ANIM!2: like ANIME1/ANIME2 but the model
@@ -1643,37 +2434,35 @@ s32 PlayAnimation(void) {
  * instead of returning to its default animation. 0xAE becomes 0xAF and
  * state 5 becomes 6 to tell the two opcode pairs apart.
  */
-#ifndef NON_MATCHINGS
-// Same register-allocation mismatch as PlayAnimation above.
-INCLUDE_ASM("asm/us/field/nonmatchings/field", PlayAnimationHold);
-#else
 s32 PlayAnimationHold(void) {
     if (D_8009D820 & 3) {
         func_800BEAD4("anim!", 2);
     }
-    if (D_8007EB98[g_CurrentEntity] != 0xFF) {
-        switch (D_800756E8[D_8007EB98[g_CurrentEntity]]) {
-        case 0:
-        case 1:
-        case 3:
-            StartModelAnimation();
-            if (D_8009A058 == 0xAF) {
-                D_800756E8[D_8007EB98[g_CurrentEntity]] = 6;
-                break;
-            }
-            D_800756E8[D_8007EB98[g_CurrentEntity]] = 2;
-            return 1;
-        case 4:
-            D_800756E8[D_8007EB98[g_CurrentEntity]] = 3;
-            break;
-        default:
-            return 1;
-        }
+
+    if (g_EntityToModel[g_CurrentEntity] == 0xFF) {
+        PC_INC(3);
+        return 0;
     }
-    PC_INC(3);
-    return 0;
+
+    switch (D_800756E8[g_EntityToModel[g_CurrentEntity]]) {
+    case 0:
+    case 1:
+    case 3:
+        StartModelAnimation();
+        if (D_8009A058 == 0xAF) {
+            D_800756E8[g_EntityToModel[g_CurrentEntity]] = 6;
+            PC_INC(3);
+            return 0;
+        }
+        D_800756E8[g_EntityToModel[g_CurrentEntity]] = 2;
+        break;
+    case 4:
+        D_800756E8[g_EntityToModel[g_CurrentEntity]] = 3;
+        PC_INC(3);
+        return 0;
+    }
+    return 1;
 }
-#endif
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5FF4);
 
