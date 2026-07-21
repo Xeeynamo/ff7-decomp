@@ -69,7 +69,8 @@ typedef struct WorldActor {
     /* 0x55 */ u8 horizontalSpeed;
     /* 0x56 */ u8 waitFrames;
     /* 0x57 */ u8 scriptPriority;
-    /* 0x58 */ s32 unk58;
+    /* 0x58 */ u8 unk58;
+    /* 0x59 */ s8 unk59[3];
     /* 0x5C */ s8 verticalSpeed;
     /* 0x5D */ s8 animId;
     /* 0x5E */ s8 unk5E;
@@ -240,6 +241,7 @@ extern s32 D_80109D54;
 extern s32 D_80109D58;
 extern s32 D_80109D6C;
 extern WorldActor D_80109D74[0x10]; // World map actor heap, TODO: Confirm size
+extern WorldActor D_80109E54;
 extern WorldActor* D_8010AD34;
 extern WorldActor* D_8010AD38;
 extern WorldActor* D_8010AD3C; // Active Actor

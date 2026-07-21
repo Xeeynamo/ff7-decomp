@@ -4,10 +4,12 @@
 void func_800AA0E0(VECTOR* arg0);
 s32 func_800ADFC0(void);
 static s32 func_800B0800(void);
+static s32 func_800B716C(void);
 static s32 func_800B7B2C(void);
 s32 func_800B7B3C(void);
 void func_800BC9E8(s16 arg0);
 s16 func_800BCA38(void);
+void func_800BCA48(void);
 
 const char D_800A0000[] = "NEW  ";
 static const char D_800A0008[] = "OLD  ";
@@ -761,7 +763,56 @@ static const s32 D_800A01E0[] = {0, 0};
 static const s32 D_800A01E8[] = {0, 0, 0, 0};
 
 // TODO: this -> 800b624c, 800b58f8, 800ada64
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A9334);
+/*?*/ void func_800ADA64(WorldActor*); // extern
+/*?*/ void func_800B58F8(u8*, RECT*);  // extern
+
+void func_800A9334(s32 arg0) {
+    RECT rect;
+
+    if (D_8010AD3C != NULL) {
+        D_8010AD3C->actorType = (u8)arg0;
+        switch (arg0) {
+        case 5:
+        case 13:
+        case 28:
+            break;
+        case 3:
+            if (func_800B716C() == 0)
+                D_8010AD3C->riding = &D_80109E54;
+
+            rect.x = 0x18;
+            rect.y = 0x48;
+            rect.w = 0xE;
+            rect.h = 0x1F;
+            break;
+        case 10:
+            rect.x = 0x90;
+            rect.w = 0xF;
+            rect.h = 0xF;
+            rect.y = 0;
+            D_8010AD3C->unk58 = 0x80;
+            break;
+        case 11:
+            rect.y = 0x38;
+            rect.w = 0x17;
+            rect.h = 0x2F;
+            rect.x = 0;
+            D_8010AD3C->unk58 = 0x20;
+            break;
+        case 4:
+            func_800B624C(4, 0);
+            /* fallthrough */
+        default:
+            rect.x = 0x18;
+            rect.y = 0x38;
+            rect.w = 0xF;
+            rect.h = 0xF;
+            D_8010AD3C->unk58 = 0x20;
+        }
+        func_800B58F8(D_8010AD3C->unk90, &rect);
+        func_800ADA64(D_8010AD3C);
+    }
+}
 
 void func_800A9480(u16 arg0) {
     if (D_8010AD3C != NULL) {
@@ -2533,8 +2584,6 @@ void func_800BBC4C(void) {
 }
 
 static void func_800BBD0C(void) { D_801163D4 = 1; }
-
-/*?*/ void func_800A9334(s32); // extern
 
 void func_800BBD20(s32 arg0) {
     VECTOR sp10;
