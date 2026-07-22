@@ -1569,7 +1569,6 @@ func_800C2970 = 0x800c2970;
 func_800C2BFC = 0x800c2bfc;
 func_800C2CA8 = 0x800c2ca8;
 func_800C2D54 = 0x800c2d54;
-func_800C2E00 = 0x800c2e00;
 func_800C2F7C = 0x800c2f7c;
 func_800C2FFC = 0x800c2ffc;
 func_800C307C = 0x800c307c;
