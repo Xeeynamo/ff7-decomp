@@ -460,8 +460,7 @@ void func_800A4E40(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4E80);
 
-void func_800A4F14(s32 arg0)
-{
+void func_800A4F14(s32 arg0) {
     s32 temp_v0;
 
     temp_v0 = arg0 * 0x44;
@@ -484,8 +483,7 @@ typedef struct {
 
 extern Unk800F3A40 D_800F3A40[];
 
-void func_800A55BC(void)
-{
+void func_800A55BC(void) {
     s32 i;
 
     for (i = 0; i < 16; i++) {
@@ -602,11 +600,10 @@ void func_800A6BFC(void) {}
 
 extern s32 func_800151F4(s32);
 
-void func_800A6C04(s32 arg0)
-{
+void func_800A6C04(s32 arg0) {
     s16 sp10;
 
-    sp10 = (s16) D_801636B8[arg0].D_801636B8;
+    sp10 = (s16)D_801636B8[arg0].D_801636B8;
     D_800F5F44.D_800F7DBE = func_800A5EB0(func_800151F4(0x26), &sp10) + 0x100;
     D_800F5F44.D_800F7DC0 = 0xF;
 }
@@ -615,16 +612,14 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6C5C);
 
 extern const u8 D_800A04D0[];
 
-void func_800A6CC0(s32 arg0, s32 arg1)
-{
+void func_800A6CC0(s32 arg0, s32 arg1) {
     u32 mask = ~(1 << D_800A04D0[arg1]);
     D_800F83E0[arg0].status &= mask;
 }
 
 void func_800A6D10(s32 arg0) { func_800A3E98(arg0, 3, 2, 54, 0); }
 
-void func_800A6D3C(s32 arg0)
-{
+void func_800A6D3C(s32 arg0) {
     s32 temp_v1;
 
     temp_v1 = D_800F83E0[arg0].status;
@@ -654,10 +649,7 @@ void func_800A7034(s32 arg0, s16 arg1) {
 
 void func_800A7060(s32 arg0, s32 arg1) { func_800A7254(0, arg0, 12, arg1); }
 
-void func_800A7090(s32 arg0)
-{
-    D_800F5BB8[arg0].unk29 |= 0x40;
-}
+void func_800A7090(s32 arg0) { D_800F5BB8[arg0].unk29 |= 0x40; }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A70C4);
 
@@ -743,16 +735,14 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A866C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8A6C);
 
-void func_800A8C94(void)
-{
+void func_800A8C94(void) {
     D_80063014->unk8C = 0xFF;
     D_80063014->unk40 = 0xB0;
     D_80063014->unk80 |= 1;
-    D_80063014->unk3C = (s32) D_80063014->unk3C >> 1;
+    D_80063014->unk3C = (s32)D_80063014->unk3C >> 1;
 }
 
-void func_800A8CC8(void)
-{
+void func_800A8CC8(void) {
     D_80063014->unk6C &= ~0x2000;
     D_80063014->unk3C /= 3;
 }
@@ -1049,8 +1039,7 @@ void func_800ADF04(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADF38);
 
-void func_800ADFC0(void)
-{
+void func_800ADFC0(void) {
     D_80063014->unk214 = *(u16*)(&D_800F5BB8[D_80063014->unk0].unk3C);
 }
 
@@ -1075,8 +1064,7 @@ void func_800AE234(void) {
         Savemap.memory_bank_1[26] + Savemap.memory_bank_1[27] * 256;
 }
 
-void func_800AE25C(void)
-{
+void func_800AE25C(void) {
     D_80063014->unk214 = D_800F83E0[D_80063014->unk208].curHP - 1;
 }
 
@@ -1176,10 +1164,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF9C8);
 extern s32 D_800F499C;
 extern s32 D_800F49F8[][10];
 
-s32 func_800AFE98(s32 arg0)
-{
-    return D_800F49F8[D_800F499C][arg0] >> 0xC;
-}
+s32 func_800AFE98(s32 arg0) { return D_800F49F8[D_800F499C][arg0] >> 0xC; }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AFECC);
 

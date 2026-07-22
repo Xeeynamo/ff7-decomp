@@ -65,8 +65,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B0F08);
 
 extern void func_800A6000(s32, s32, s32);
 
-void func_801B1120(void)
-{
+void func_801B1120(void) {
     s32 i;
 
     for (i = 0; i < 3; i++) {
@@ -94,7 +93,7 @@ void func_801B137C(s32 arg0) {
     }
 }
 
-s32 func_80015AFC(s32, s32);                        // extern
+s32 func_80015AFC(s32, s32); // extern
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B13DC);
 
 s32 func_801B14E8(u32 arg0) {
