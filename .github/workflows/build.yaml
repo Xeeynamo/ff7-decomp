@@ -26,13 +26,14 @@ jobs:
       with:
         python-version: '3.13'
     - if: github.event_name != 'pull_request_target'
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
       with:
         ref: ${{ github.ref }}
         submodules: true
     - if: github.event_name == 'pull_request_target'
-      uses: actions/checkout@v5
+      uses: actions/checkout@v7
       with:
+        allow-unsafe-pr-checkout: true
         ref: ${{ github.event.pull_request.head.sha }}
         submodules: true
     - uses: actions/setup-go@v6
@@ -45,9 +46,10 @@ jobs:
       run: |
         make format
         git diff --exit-code
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
       with:
         repository: xeeynamo/ff7-decomp-dependencies
+        allow-unsafe-pr-checkout: true
         token: ${{ secrets.FF7_DECOMP_DEPENDENCIES_TOKEN }}
         path: tmp
     - run: |
