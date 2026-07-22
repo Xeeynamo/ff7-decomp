@@ -1033,7 +1033,7 @@ s32 OpcodeFuncWait(void) {
     return 1;
 }
 
-s32 func_800C0DE0(void) {
+s32 OpcodeFuncSet(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("set", 3);
     }
@@ -1042,7 +1042,7 @@ s32 func_800C0DE0(void) {
     return 0;
 }
 
-s32 func_800C0E5C(void) {
+s32 OpcodeFuncSet2(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("set2", 4);
     }
@@ -1051,7 +1051,7 @@ s32 func_800C0E5C(void) {
     return 0;
 }
 
-s32 func_800C0EDC(void) {
+s32 OpcodeFuncLbyte(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("lbyte", 3);
     }
@@ -1060,7 +1060,7 @@ s32 func_800C0EDC(void) {
     return 0;
 }
 
-s32 func_800C0F58(void) {
+s32 OpcodeFuncHbyte(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("hbyte", 4);
     }
@@ -1069,7 +1069,7 @@ s32 func_800C0F58(void) {
     return 0;
 }
 
-s32 func_800C0FD8(void) {
+s32 OpcodeFunc2byte(void) {
     s16 lhs;
 
     if (D_8009D820 & 3) {
@@ -1082,9 +1082,9 @@ s32 func_800C0FD8(void) {
 }
 
 #ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C107C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSetx);
 #else
-s32 func_800C107C(void) {
+s32 OpcodeFuncSetx(void) {
     s16 offset;
     u8 bank;
     u8 value;
@@ -1123,9 +1123,9 @@ s32 func_800C107C(void) {
 #endif
 
 #ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C1214);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGetx);
 #else
-s32 func_800C1214(void) {
+s32 OpcodeFuncGetx(void) {
     s16 offset;
     u8 bank;
     u8 value;
@@ -1165,9 +1165,9 @@ s32 func_800C1214(void) {
 #endif
 
 #ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C13B0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSrchx);
 #else
-s32 func_800C13B0(void) {
+s32 OpcodeFuncSrchx(void) {
     s16 end;
     s16 start;
     s16 where;
@@ -1232,7 +1232,7 @@ s32 func_800C13B0(void) {
 }
 #endif
 
-s32 func_800C1674(void) {
+s32 OpcodeFuncBiton(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("biton", 3);
     }
@@ -1241,7 +1241,7 @@ s32 func_800C1674(void) {
     return 0;
 }
 
-s32 func_800C1714(void) {
+s32 OpcodeFuncBitof(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("bitof", 3);
     }
@@ -1250,7 +1250,7 @@ s32 func_800C1714(void) {
     return 0;
 }
 
-s32 func_800C17B8(void) {
+s32 OpcodeFuncBitxr(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("bitxr", 3);
     }
@@ -1259,7 +1259,7 @@ s32 func_800C17B8(void) {
     return 0;
 }
 
-s32 func_800C1858(void) {
+s32 OpcodeFuncLine(void) {
     s16 value;
 
     if (D_8009D820 & 3) {
@@ -1292,7 +1292,7 @@ s32 func_800C1858(void) {
     return 0;
 }
 
-s32 func_800C1AB4(void) {
+s32 OpcodeFuncSline(void) {
     u8 lineId;
 
     if (D_8009D820 & 3) {
@@ -1309,7 +1309,7 @@ s32 func_800C1AB4(void) {
     return 0;
 }
 
-s32 func_800C1BF4(void) {
+s32 OpcodeFuncLinon(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("linon", 1);
     }
@@ -2012,9 +2012,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLskip);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMjump);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C42B0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPmjmp);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C4350);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPmjmp2);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMgame);
 
@@ -2031,13 +2031,13 @@ void func_800C46A4(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C46D0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAkao);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C4804);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAkao2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C493C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSe);
 
-s32 func_800C49EC(void) {
+s32 OpcodeFuncMusic(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("music", 1);
     }
@@ -2046,7 +2046,7 @@ s32 func_800C49EC(void) {
     return func_800C4BCC();
 }
 
-s32 func_800C4A40(void) {
+s32 OpcodeFuncMusvt(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("musvt", 1);
     }
@@ -2055,7 +2055,7 @@ s32 func_800C4A40(void) {
     return func_800C4BCC();
 }
 
-s32 func_800C4A94(void) {
+s32 OpcodeFuncMusvm(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("musvm", 1);
     }
@@ -2064,7 +2064,7 @@ s32 func_800C4A94(void) {
     return func_800C4BCC();
 }
 
-s32 func_800C4AE8(void) {
+s32 OpcodeFuncCmusc(void) {
     u32 result;
 
     if (D_8009D820 & 3) {
@@ -2110,7 +2110,7 @@ static u32 GetAkaoBlockOffset(s16 akaoId) {
     return akaoOffset;
 }
 
-s32 func_800C4CE8(void) {
+s32 OpcodeFuncBmusc(void) {
     u8 akaoId;
 
     if (D_8009D820 & 3) {
@@ -2130,7 +2130,7 @@ s32 func_800C4CE8(void) {
     return 0;
 }
 
-s32 func_800C4DE8(void) {
+s32 OpcodeFuncFmusc(void) {
     u8 akaoId;
 
     if (D_8009D820 & 3) {
@@ -2259,7 +2259,7 @@ s32 OpcodeFuncMpdsp(void) {
     return 0;
 }
 
-s32 func_800C5564(void) {
+s32 OpcodeFuncMvcam(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("mvcam", 1);
     }
@@ -2268,7 +2268,7 @@ s32 func_800C5564(void) {
     return 0;
 }
 
-s32 func_800C560C(void) {
+s32 OpcodeFuncGmovr(void) {
     if (D_8009D820 & 3) {
         DebugPrintOpcode("gmovr", 0);
     }
@@ -2464,89 +2464,89 @@ s32 OpcodeFuncAnimEx(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C5FF4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCanim);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C63CC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCanmEx);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C6748);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAnimw);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C684C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAnimb);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C6924);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMove);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C6D64);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncFmove);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C6FD8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCmove);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C728C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncFcfix);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C7354);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncJump);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C75F0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLader);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPmova);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C7CE8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMova);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C7D5C);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C814C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDira);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPdira);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C826C);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C8514);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTura);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPtura);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C8634);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C8B98);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncOfstd);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C8F64);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncOfstw);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C9080);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTurnw);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C91D8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTurn);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C955C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTurnr);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C9A20);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDir);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C9B88);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSlidr);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C9C84);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSldr2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C9D80);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTalkr);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C9E7C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTlkr2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C9F78);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMsped);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CA074);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAsped);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CA158);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGtdir);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CA254);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPgtdr);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CA394);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGetai);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CA490);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGetaxy);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CA5D4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAxyzi);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CA77C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPxyzi);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CA95C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncVisi);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CAA24);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTlkon);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CAAEC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncXyzi);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CAC98);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncXyz);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CADFC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncXyi);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMes);
 
@@ -2570,83 +2570,83 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWclse);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWmode);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CB7C0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAnd);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CB858);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAnd2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CB8F4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncOr);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CB98C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncOr2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CBA28);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncXor);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CBAC0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncXor2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CBB5C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPlus);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CBBF4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPlusEx);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CBCA4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPlus2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CBD40);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPls2Ex);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CBDFC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMinus);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CBE94);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMinsEx);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CBF40);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMins2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CBFDC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMns2Ex);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC098);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMul);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC134);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMul2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC1D4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDiv);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC284);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDiv2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC358);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRemai);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC404);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRema2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC4D8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncInc);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC558);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncIncEx);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC5EC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncInc2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC670);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncInc2Ex);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC70C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDec);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC78C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDecEx);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC824);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDec2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC8A8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDec2Ex);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC944);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRandm);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CC9EC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRdmsd);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CCA68);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgon);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CCB10);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgoff);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CCBBC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgclr);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CCC3C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgrol);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CCCC8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgrol2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CCD54);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPmvie);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CCE94);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMovie);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CCFE8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMvief);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CD0C4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMpjpo);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncScr2d);
 
@@ -2664,13 +2664,13 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncScr2dl);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncScrlw);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CD834);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncStpal);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CD91C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncStpls);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CDA24);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLdpal);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CDB0C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLdpls);
 
 static void func_800CDC14(s16* arg0) {
     arg0[0] = 0;
@@ -2679,31 +2679,31 @@ static void func_800CDC14(s16* arg0) {
     arg0[3] = 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CDC28);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCppal);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CDD40);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCppal2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CDE8C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRtpal);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CE054);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRtpal2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CE214);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAdpal);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CE480);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAdpal2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CE6F4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMppal2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CE904);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMppal);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CEB20);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CEB94);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPc);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CEE44);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPrtyp);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CF028);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPrtym);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CF140);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPrtye);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSptye);
 
@@ -2739,17 +2739,17 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CF66C);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CF6C0);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CF718);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPrtyq);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CF874);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMembq);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CF9B8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMmbPlusMinus);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CFAF0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMmblk);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CFB84);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMmbuk);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CFC1C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSolid);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncVwoft);
 
@@ -2807,15 +2807,15 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMenu);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMenu2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D2F3C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGetpc);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMpara);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMpra2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D3264);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSin);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D3330);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCos);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D33FC);
 
@@ -2839,9 +2839,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGoldMinus);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncChgld);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D3D40);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncChmph);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D3DCC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncChmst);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSttim);
 
