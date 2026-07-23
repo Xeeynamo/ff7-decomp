@@ -722,7 +722,7 @@ extern u8 D_8009D684;
 extern u8 D_8009D685;
 extern u8 D_8009D686;
 extern u8 D_8009D60E;
-extern u8 D_8009D820; // field debug related
+extern u8 DebugLevel; // field debug related
 extern u8 D_8009D824;
 extern s16 D_8009D828[]; // per-model base animation speed
 extern u8 D_8009D8F8[];
