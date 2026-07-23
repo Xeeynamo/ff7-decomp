@@ -6,12 +6,12 @@ import (
 )
 
 func Add(path string, symbol string, offset uint32, size int) error {
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0644)
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	line := fmt.Sprintf("%s = %08X;", symbol, offset)
+	line := fmt.Sprintf("%s = 0x%08X;", symbol, offset)
 	if size > 0 {
 		line += fmt.Sprintf("// size:0x%X", size)
 	}

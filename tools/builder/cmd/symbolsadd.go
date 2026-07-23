@@ -31,9 +31,12 @@ var symbolsAddCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		size, err := utils.ParseDigit(args[3])
-		if err != nil {
-			return err
+		var size int64
+		if len(args) > 3 {
+			size, err = utils.ParseDigit(args[3])
+			if err != nil {
+				return err
+			}
 		}
 		if err := symbols.Add(args[0], args[1], uint32(offset), int(size)); err != nil {
 			return fmt.Errorf("failed adding symbol: %w", err)
