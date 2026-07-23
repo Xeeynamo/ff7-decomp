@@ -50,12 +50,11 @@ extern s16 g_FieldDebugRLines;
 extern s16 g_FieldDebugRRect;
 extern s16 g_FieldDebugRDm;
 extern u16 g_FieldDebugTransp;
-extern char DebugText[];  // debug text
+extern char DebugText[];          // debug text
 extern char DebugMessageBuffer[]; // debug value transformed into text
 extern struct GpuBuf D_800E4DF0[2];
 extern u8 D_80114498[];
 extern u8 actorIdCur;
-
 
 void func_800A364C(struct GpuBuf* buf);
 void func_800AA180(Unk80074EA4* arg0, FieldLine* arg1);
@@ -308,7 +307,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B9B0C);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BA534);
 
-static void InitFieldDebugPages(void); 
+static void InitFieldDebugPages(void);
 void func_800BA65C(s32 arg0) {
     if (D_8007EBE0) {
         func_800D4BFC();
@@ -470,13 +469,16 @@ static void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind) {
         FieldDebugStringCopy(DebugText, str);
         switch (kind) {
         case 1:
-            FieldDebugStringU8hex(val, DebugMessageBuffer); // to single hex digit
+            FieldDebugStringU8hex(
+                val, DebugMessageBuffer); // to single hex digit
             break;
         case 2:
-            FieldDebugStringU16hex(val, DebugMessageBuffer); // to double hex digit
+            FieldDebugStringU16hex(
+                val, DebugMessageBuffer); // to double hex digit
             break;
         case 4:
-            FieldDebugStringU32hex(val, DebugMessageBuffer); // to four hex digits
+            FieldDebugStringU32hex(
+                val, DebugMessageBuffer); // to four hex digits
             break;
         default:
             FieldDebugStringCopy(DebugMessageBuffer, D_800A0270);
@@ -968,7 +970,6 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
 }
 #endif
 
-
 // called for opcodes 0c 0d 1a 1b 1c 1d 1e 1f 44 46 4c 4e be
 s32 OpcodeFuncBad(void) {
     if (DebugLevel & 3) {
@@ -982,13 +983,9 @@ s32 OpcodeFuncBad(void) {
     return 1;
 }
 
-
-
 ////////////////////////////////////////
 // End of of event.c
 ////////////////////////////////////////
-
-
 
 /*
  * Field-script opcode NOP: Halts execution until next frame.
@@ -1020,7 +1017,8 @@ s32 OpcodeFuncWait(void) {
     if (g_FieldWaitCounter[g_CurrentEntity] == 0) {
         GET_PARAM_S16(g_FieldWaitCounter[g_CurrentEntity], 1);
         if (DebugLevel & 3) {
-            FieldDebugAddParseValueToPage2("wait_st=", g_FieldWaitCounter[g_CurrentEntity], 4);
+            FieldDebugAddParseValueToPage2(
+                "wait_st=", g_FieldWaitCounter[g_CurrentEntity], 4);
         }
         if (g_FieldWaitCounter[g_CurrentEntity] == 0) {
             PC_INC(3);
@@ -1039,7 +1037,8 @@ s32 OpcodeFuncWait(void) {
     }
 
     if (DebugLevel & 3) {
-        FieldDebugAddParseValueToPage2("wait=", g_FieldWaitCounter[g_CurrentEntity], 4);
+        FieldDebugAddParseValueToPage2(
+            "wait=", g_FieldWaitCounter[g_CurrentEntity], 4);
     }
 
     g_FieldWaitCounter[g_CurrentEntity]--;
@@ -1249,7 +1248,9 @@ s32 OpcodeFuncBiton(void) {
     if (DebugLevel & 3) {
         DebugPrintOpcode("biton", 3);
     }
-    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) | (1 << FieldEventReadMemoryU8(2, 3)));
+    FieldEventWriteMemoryU8(
+        1, 2,
+        FieldEventReadMemoryU8(1, 2) | (1 << FieldEventReadMemoryU8(2, 3)));
     PC_INC(4);
     return 0;
 }
@@ -1258,7 +1259,9 @@ s32 OpcodeFuncBitof(void) {
     if (DebugLevel & 3) {
         DebugPrintOpcode("bitof", 3);
     }
-    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) & ~(1 << FieldEventReadMemoryU8(2, 3)));
+    FieldEventWriteMemoryU8(
+        1, 2,
+        FieldEventReadMemoryU8(1, 2) & ~(1 << FieldEventReadMemoryU8(2, 3)));
     PC_INC(4);
     return 0;
 }
@@ -1267,7 +1270,9 @@ s32 OpcodeFuncBitxr(void) {
     if (DebugLevel & 3) {
         DebugPrintOpcode("bitxr", 3);
     }
-    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) ^ (1 << FieldEventReadMemoryU8(2, 3)));
+    FieldEventWriteMemoryU8(
+        1, 2,
+        FieldEventReadMemoryU8(1, 2) ^ (1 << FieldEventReadMemoryU8(2, 3)));
     PC_INC(4);
     return 0;
 }
@@ -1446,10 +1451,12 @@ u32 func_800C2000(void) {
         result = FieldEventReadMemoryU8(1, 2) | FieldEventReadMemoryU8(2, 3);
         break;
     case IF_BIT:
-        result = FieldEventReadMemoryU8(1, 2) & (1 << FieldEventReadMemoryU8(2, 3));
+        result =
+            FieldEventReadMemoryU8(1, 2) & (1 << FieldEventReadMemoryU8(2, 3));
         break;
     case IF_NOT_BIT:
-        result = FieldEventReadMemoryU8(1, 2) & (1 << FieldEventReadMemoryU8(2, 3));
+        result =
+            FieldEventReadMemoryU8(1, 2) & (1 << FieldEventReadMemoryU8(2, 3));
         result = result < 1;
         break;
     default:
@@ -1556,10 +1563,12 @@ u32 func_800C24A8(void) {
         result = FieldEventReadMemoryS16(1, 2) | FieldEventReadMemoryS16(2, 4);
         break;
     case IF_BIT:
-        result = FieldEventReadMemoryS16(1, 2) & (1 << FieldEventReadMemoryS16(2, 4));
+        result = FieldEventReadMemoryS16(1, 2) &
+                 (1 << FieldEventReadMemoryS16(2, 4));
         break;
     case IF_NOT_BIT:
-        result = FieldEventReadMemoryS16(1, 2) & (1 << FieldEventReadMemoryS16(2, 4));
+        result = FieldEventReadMemoryS16(1, 2) &
+                 (1 << FieldEventReadMemoryS16(2, 4));
         result = result < 1;
         break;
     default:
@@ -1639,22 +1648,28 @@ u32 func_800C2970(void) {
     ope = GET_PARAM_U8(6);
     switch (ope) {
     case IF_EQ:
-        result = (u16)FieldEventReadMemoryS16(1, 2) == (u16)FieldEventReadMemoryS16(2, 4);
+        result = (u16)FieldEventReadMemoryS16(1, 2) ==
+                 (u16)FieldEventReadMemoryS16(2, 4);
         break;
     case IF_NOT_EQ:
-        result = (u16)FieldEventReadMemoryS16(1, 2) != (u16)FieldEventReadMemoryS16(2, 4);
+        result = (u16)FieldEventReadMemoryS16(1, 2) !=
+                 (u16)FieldEventReadMemoryS16(2, 4);
         break;
     case IF_GT:
-        result = (u16)FieldEventReadMemoryS16(1, 2) > (u16)FieldEventReadMemoryS16(2, 4);
+        result = (u16)FieldEventReadMemoryS16(1, 2) >
+                 (u16)FieldEventReadMemoryS16(2, 4);
         break;
     case IF_LT:
-        result = (u16)FieldEventReadMemoryS16(1, 2) < (u16)FieldEventReadMemoryS16(2, 4);
+        result = (u16)FieldEventReadMemoryS16(1, 2) <
+                 (u16)FieldEventReadMemoryS16(2, 4);
         break;
     case IF_GTE:
-        result = (u16)FieldEventReadMemoryS16(1, 2) >= (u16)FieldEventReadMemoryS16(2, 4);
+        result = (u16)FieldEventReadMemoryS16(1, 2) >=
+                 (u16)FieldEventReadMemoryS16(2, 4);
         break;
     case IF_LTE:
-        result = (u16)FieldEventReadMemoryS16(1, 2) <= (u16)FieldEventReadMemoryS16(2, 4);
+        result = (u16)FieldEventReadMemoryS16(1, 2) <=
+                 (u16)FieldEventReadMemoryS16(2, 4);
         break;
     case IF_AND:
         result = FieldEventReadMemoryS16(1, 2) & FieldEventReadMemoryS16(2, 4);
@@ -1666,10 +1681,12 @@ u32 func_800C2970(void) {
         result = FieldEventReadMemoryS16(1, 2) | FieldEventReadMemoryS16(2, 4);
         break;
     case IF_BIT:
-        result = FieldEventReadMemoryS16(1, 2) & (1 << FieldEventReadMemoryS16(2, 4));
+        result = FieldEventReadMemoryS16(1, 2) &
+                 (1 << FieldEventReadMemoryS16(2, 4));
         break;
     case IF_NOT_BIT:
-        result = FieldEventReadMemoryS16(1, 2) & (1 << FieldEventReadMemoryS16(2, 4));
+        result = FieldEventReadMemoryS16(1, 2) &
+                 (1 << FieldEventReadMemoryS16(2, 4));
         result = result < 1;
         break;
     default:
@@ -1853,7 +1870,7 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
         FieldDebugStringCopy(DebugMessageBuffer, "rq=");
         FieldDebugStringConcat(
             DebugMessageBuffer, (char*)((s32)g_FieldScripts) +
-                            sizeof(FieldScriptHeader) + (target * 8));
+                                    sizeof(FieldScriptHeader) + (target * 8));
         FieldDebugStringConcat(DebugMessageBuffer, "/");
         FieldDebugAddParseValueToPage2(DebugMessageBuffer, scriptId, 2);
     }
@@ -2632,28 +2649,23 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncInc2);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncInc2Ex);
 
-
 /*
  * Field-script opcode DEC: Decrement (8-bit)
  *
  * Decrements the 8-bit value found at bank B, address A.
  * If the value is 0x00, it will roll over to 0xFF.
- * If you specify a 16-bit bank, only the lower byte will 
+ * If you specify a 16-bit bank, only the lower byte will
  * be decremented, and if the lower byte is 0x00, the higher
  * byte will be unaffected whilst the lower byte will return to 0xFF.
  */
-s32 OpcodeFuncDec(void)
-{
+s32 OpcodeFuncDec(void) {
     if (DebugLevel & 3) {
         DebugPrintOpcode("dec", 2);
     }
-    FieldEventWriteMemoryU8(2,2,
-        (FieldEventReadMemoryU8(2, 2) - 1) & 0xFF
-    );
-	PC_INC(3);
+    FieldEventWriteMemoryU8(2, 2, (FieldEventReadMemoryU8(2, 2) - 1) & 0xFF);
+    PC_INC(3);
     return 0;
 }
-
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDecEx);
 
