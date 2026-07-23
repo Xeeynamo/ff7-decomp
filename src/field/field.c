@@ -38,7 +38,7 @@ struct GpuBuf {
 }; // size:0x1789C
 
 const u32 D_800A0000[] = {0, 0x01D801E0};
-extern char D_800E0208[16]; // '0' to 'F' for hex digits
+extern char HexDigits[16]; // '0' to 'F' for hex digits
 extern char D_800A0270[4];
 extern s8 D_800E0628;
 extern s8 D_800E0630;
@@ -56,14 +56,14 @@ extern struct GpuBuf D_800E4DF0[2];
 extern u8 D_80114498[];
 
 void func_800A364C(struct GpuBuf* buf);
-void func_800AA180(Unk80074EA4* arg0, FieldLine* arg1);
+void func_800AA180(Unk80074EA4* str, FieldLine* arg1);
 void func_800AAB24(struct GpuBuf* buf);
 s32 func_800A9CE8(FieldLine*, u_long*, u_long*);
-void DebugPrintOpcode(char* arg0, s32 arg1);
-u8 func_800BEE10(s16 arg0, s16 arg1);
-void func_800BF3AC(s16 arg0, s16 arg1, u8 value);
-s16 func_800BF908(s16 arg0, s16 arg1);
-void func_800C0248(s16 arg0, s16 arg1, s16 value);
+void DebugPrintOpcode(char* str, s32 arg1);
+u8 func_800BEE10(s16 str, s16 arg1);
+void func_800BF3AC(s16 str, s16 arg1, u8 value);
+s16 func_800BF908(s16 str, s16 arg1);
+void func_800C0248(s16 str, s16 arg1, s16 value);
 u32 func_800C2000(void);
 u32 func_800C24A8(void);
 u32 func_800C2970(void);
@@ -73,11 +73,11 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId);
 static void func_800D4840(const char* str);
 static void func_800D4848(const char* errmsg);
 void func_800D9F00(s32 val, const char* msg_out);
-static void func_800DA334(char* dst, const char* src);
-static void func_800DA368(char* arg0, char* arg1);
-static void func_800DA424(s32 val, char* msg_out);
-static void func_800DA444(s32 val, char* msg_out);
-static void func_800DA480(s32 val, char* msg_out);
+static void CopyString(char* dst, const char* src);
+static void AppendString(char* dest, char* src);
+static void DigitToHex(s32 val, char* msg_out);
+static void U8ToHex(s32 val, char* msg_out);
+static void U16ToHex(s32 val, char* msg_out);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A1368);
 
@@ -113,7 +113,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A4094);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A4134);
 
-static s32 func_800A41CC(SVECTOR* arg0, long* arg1) {
+static s32 func_800A41CC(SVECTOR* str, long* arg1) {
     long sp10;
     long sp14;
     s32 ret;
@@ -122,7 +122,7 @@ static s32 func_800A41CC(SVECTOR* arg0, long* arg1) {
     SetRotMatrix(D_80071E40);
     SetTransMatrix(D_80071E40);
     SetGeomOffset(0, 0);
-    ret = RotTransPers(arg0, arg1, &sp10, &sp14);
+    ret = RotTransPers(str, arg1, &sp10, &sp14);
     PopMatrix();
     return ret;
 }
@@ -153,9 +153,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A82A0);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8304);
 
-s16 func_800A8600(u8 arg0) { return D_800DF120[arg0][0]; }
+s16 func_800A8600(u8 str) { return D_800DF120[str][0]; }
 
-s16 func_800A8620(u8 arg0) { return D_800DF120[arg0][1]; }
+s16 func_800A8620(u8 str) { return D_800DF120[str][1]; }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8640);
 
@@ -163,10 +163,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8858);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8968);
 
-static void func_800A8DF4(s32* arg0, s16* arg1, s16* arg2) {
-    arg0[0] = arg1[0] - arg2[0];
-    arg0[1] = arg1[1] - arg2[1];
-    arg0[2] = arg1[2] - arg2[2];
+static void func_800A8DF4(s32* str, s16* arg1, s16* arg2) {
+    str[0] = arg1[0] - arg2[0];
+    str[1] = arg1[1] - arg2[1];
+    str[2] = arg1[2] - arg2[2];
 }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8E34);
@@ -306,13 +306,13 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B9B0C);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BA534);
 
-static void func_800D7F9C(void);
-void func_800BA65C(s32 arg0) {
+static void field_debug_page_inits(void);
+void func_800BA65C(s32 str) {
     if (D_8007EBE0) {
         func_800D4BFC();
         func_800BC338();
         func_800D7D6C();
-        func_800D7F9C();
+        field_debug_page_inits();
         D_80095DCC = 0;
         D_8009FE8C = 0;
         D_8007EBE0 = 0;
@@ -333,9 +333,9 @@ void func_800BA65C(s32 arg0) {
         }
     }
     if (D_80071E2C) {
-        func_8001F1BC(&D_80083274, 4, arg0, g_FieldState->unk0 ^ 1);
+        func_8001F1BC(&D_80083274, 4, str, g_FieldState->unk0 ^ 1);
     }
-    func_800BC438(arg0);
+    func_800BC438(str);
 }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BA7C4);
@@ -358,30 +358,30 @@ u8 func_800BBF74(s16 entityId, s16 priority, s16 scriptId) {
     s32 entityDataSize;
     s32 extrasHeaderSize;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         switch (scriptId) {
         case 1: // Pressed OK.
-            func_800DA334(D_800E4288, "Talk=");
+            CopyString(D_800E4288, "Talk=");
             break;
         case 2: // Pushed / within entity's collision radius.
-            func_800DA334(D_800E4288, "Push=");
+            CopyString(D_800E4288, "Push=");
             break;
         case 3: // Across line.
-            func_800DA334(D_800E4288, "Acrs=");
+            CopyString(D_800E4288, "Acrs=");
             break;
         case 4: // Touching line.
-            func_800DA334(D_800E4288, "Toch=");
+            CopyString(D_800E4288, "Toch=");
             break;
         case 5: // Started touching line.
-            func_800DA334(D_800E4288, "TochON =");
+            CopyString(D_800E4288, "TochON =");
             break;
         case 6: // Ended touching line.
-            func_800DA334(D_800E4288, "TochOFF=");
+            CopyString(D_800E4288, "TochOFF=");
             break;
         }
         // Prints entity name.
-        func_800DA368(D_800E4288, (char*)g_FieldScripts +
-                                      sizeof(FieldScriptHeader) + entityId * 8);
+        AppendString(D_800E4288, (char*)g_FieldScripts +
+                                     sizeof(FieldScriptHeader) + entityId * 8);
         func_800BECA4(D_800E4288, 0, 0);
     }
 
@@ -434,18 +434,18 @@ u8 func_800BBF74(s16 entityId, s16 priority, s16 scriptId) {
             // Reset wait counter.
             g_FieldWaitCounter[entityId] = 0;
 
-            if (D_8009D820 & 3) {
+            if (DebugLevel & 3) {
                 func_800BECA4("=recieved", 0, 0);
             }
         } else {
-            if (D_8009D820 & 3) {
+            if (DebugLevel & 3) {
                 func_800BECA4("=ret", 0, 0);
             }
         }
         return 1;
     }
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         func_800BECA4("=ignored", 0, 0);
     }
     return 0;
@@ -464,26 +464,26 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", DebugPrintOpcode);
 
 static void func_800BECA4(const char* str, s32 val, s32 kind) {
     if (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity]) {
-        func_800DA334(D_800E4254, str);
+        CopyString(D_800E4254, str);
         switch (kind) {
         case 1:
-            func_800DA424(val, D_800E4288); // to single hex digit
+            DigitToHex(val, D_800E4288); // to single hex digit
             break;
         case 2:
-            func_800DA444(val, D_800E4288); // to double hex digit
+            U8ToHex(val, D_800E4288); // to double hex digit
             break;
         case 4:
-            func_800DA480(val, D_800E4288); // to four hex digits
+            U16ToHex(val, D_800E4288); // to four hex digits
             break;
         default:
-            func_800DA334(D_800E4288, D_800A0270);
+            CopyString(D_800E4288, D_800A0270);
             break;
         }
-        func_800DA368(D_800E4254, D_800E4288);
-        if (D_8009D820 & 1) {
+        AppendString(D_800E4254, D_800E4288);
+        if (DebugLevel & 1) {
             func_800D9F00(2, D_800E4254);
         }
-        if (D_8009D820 & 2) {
+        if (DebugLevel & 2) {
             func_800D4840(D_800E4254);
         }
     }
@@ -492,12 +492,12 @@ static void func_800BECA4(const char* str, s32 val, s32 kind) {
 #ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BEE10);
 #else
-static u8 func_800BEE10(s16 arg0, s16 arg1) {
+static u8 func_800BEE10(s16 str, s16 arg1) {
     s32 indx;
     u8 value;
     u8 bankId;
 
-    switch (arg0) {
+    switch (str) {
     case 1:
         bankId = GET_PARAM_U8(1) >> 4;
         break;
@@ -521,7 +521,7 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
     switch (bankId) {
     case 0:
         value = GET_PARAM_U8(arg1);
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G cons=", value, 2);
         }
         return value;
@@ -529,7 +529,7 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
     case 2:
         indx = GET_PARAM_U8(arg1);
         value = Savemap.memory_bank_1[indx];
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 2);
         }
@@ -538,7 +538,7 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
     case 4:
         indx = GET_PARAM_U8(arg1) | 0x100;
         value = Savemap.memory_bank_1[indx];
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 2);
         }
@@ -547,7 +547,7 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
     case 12:
         indx = GET_PARAM_U8(arg1) | 0x200;
         value = Savemap.memory_bank_1[indx];
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 2);
         }
@@ -556,7 +556,7 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
     case 14:
         indx = GET_PARAM_U8(arg1) | 0x300;
         value = Savemap.memory_bank_1[indx];
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 2);
         }
@@ -565,7 +565,7 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
     case 7:
         indx = GET_PARAM_U8(arg1) | 0x400;
         value = Savemap.memory_bank_1[indx];
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 2);
         }
@@ -574,13 +574,13 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
     case 6:
         indx = GET_PARAM_U8(arg1);
         value = D_80075E24[indx];
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G mapv=", value, 2);
         }
         return value;
     }
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         func_800BECA4("G data err=", bankId, 2);
     }
     func_800D4848("Bad Event arg!");
@@ -591,11 +591,11 @@ static u8 func_800BEE10(s16 arg0, s16 arg1) {
 #ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BF3AC);
 #else
-static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
+static void func_800BF3AC(s16 str, s16 arg1, u8 value) {
     u8 bankId;
     s32 indx;
 
-    switch (arg0) {
+    switch (str) {
     case 1:
         bankId = GET_PARAM_U8(1) >> 4;
         break;
@@ -621,7 +621,7 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
     case 2:
         indx = GET_PARAM_U8(arg1);
         Savemap.memory_bank_1[indx] = value;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 2);
         }
@@ -630,7 +630,7 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
     case 4:
         indx = GET_PARAM_U8(arg1) | 0x100;
         Savemap.memory_bank_1[indx] = value;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 2);
         }
@@ -639,7 +639,7 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
     case 12:
         indx = GET_PARAM_U8(arg1) | 0x200;
         Savemap.memory_bank_1[indx] = value;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 2);
         }
@@ -648,7 +648,7 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
     case 14:
         indx = GET_PARAM_U8(arg1) | 0x300;
         Savemap.memory_bank_1[indx] = value;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 2);
         }
@@ -657,7 +657,7 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
     case 7:
         indx = GET_PARAM_U8(arg1) | 0x400;
         Savemap.memory_bank_1[indx] = value;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 2);
         }
@@ -666,13 +666,13 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
     case 6:
         indx = GET_PARAM_U8(arg1);
         D_80075E24[indx] = value;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S mapv=", value, 2);
         }
         return;
     }
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         func_800BECA4("S data err=", bankId, 2);
     }
     func_800D4848("Bad Event arg!");
@@ -682,12 +682,12 @@ static void func_800BF3AC(s16 arg0, s16 arg1, u8 value) {
 #ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BF908);
 #else
-static s16 func_800BF908(s16 arg0, s16 arg1) {
+static s16 func_800BF908(s16 str, s16 arg1) {
     u8 bankId;
     s32 indx;
     s16 value;
 
-    switch (arg0) {
+    switch (str) {
     case 1:
         bankId = GET_PARAM_U8(1) >> 4;
         break;
@@ -711,14 +711,14 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
     switch (bankId) {
     case 0:
         GET_PARAM_S16(value, arg1);
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G cons=", value, 4);
         }
         return value;
     case 1:
         indx = GET_PARAM_U8(arg1);
         value = Savemap.memory_bank_1[indx];
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 4);
         }
@@ -727,7 +727,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         indx = GET_PARAM_U8(arg1);
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 4);
         }
@@ -735,7 +735,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
     case 3:
         indx = GET_PARAM_U8(arg1) | 0x100;
         value = Savemap.memory_bank_1[indx];
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 4);
         }
@@ -744,7 +744,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         indx = GET_PARAM_U8(arg1) | 0x100;
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 4);
         }
@@ -752,7 +752,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
     case 11:
         indx = GET_PARAM_U8(arg1) | 0x200;
         value = Savemap.memory_bank_1[indx];
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 4);
         }
@@ -761,7 +761,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         indx = GET_PARAM_U8(arg1) | 0x200;
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 4);
         }
@@ -769,7 +769,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
     case 13:
         indx = GET_PARAM_U8(arg1) | 0x300;
         value = Savemap.memory_bank_1[indx];
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 4);
         }
@@ -778,7 +778,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         indx = GET_PARAM_U8(arg1) | 0x300;
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 4);
         }
@@ -786,7 +786,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
     case 15:
         indx = GET_PARAM_U8(arg1) | 0x400;
         value = Savemap.memory_bank_1[indx];
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 4);
         }
@@ -795,7 +795,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         indx = GET_PARAM_U8(arg1) | 0x400;
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G glov=", value, 4);
         }
@@ -803,7 +803,7 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
     case 5:
         indx = GET_PARAM_U8(arg1);
         value = D_80075E24[indx];
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G mapv=", value, 4);
         }
@@ -812,13 +812,13 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
         indx = GET_PARAM_U8(arg1);
         value = D_80075E24[indx];
         value |= D_80075E24[indx + 1] << 8;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("G indx=", indx, 4);
             func_800BECA4("G mapv=", value, 4);
         }
         return value;
     }
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         func_800BECA4("G data err=", bankId, 2);
     }
     func_800D4848("Bad Event arg!");
@@ -829,11 +829,11 @@ static s16 func_800BF908(s16 arg0, s16 arg1) {
 #ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C0248);
 #else
-static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
+static void func_800C0248(s16 str, s16 arg1, s16 value) {
     u8 bankId;
     s32 indx;
 
-    switch (arg0) {
+    switch (str) {
     case 1:
         bankId = GET_PARAM_U8(1) >> 4;
         break;
@@ -858,7 +858,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
     case 1:
         indx = GET_PARAM_U8(arg1);
         Savemap.memory_bank_1[indx] = (u8)value;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 2);
         }
@@ -867,7 +867,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         indx = GET_PARAM_U8(arg1);
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 4);
         }
@@ -875,7 +875,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
     case 3:
         indx = GET_PARAM_U8(arg1) | 0x100;
         Savemap.memory_bank_1[indx] = (u8)value;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 2);
         }
@@ -884,7 +884,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         indx = GET_PARAM_U8(arg1) | 0x100;
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 4);
         }
@@ -892,7 +892,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
     case 11:
         indx = GET_PARAM_U8(arg1) | 0x200;
         Savemap.memory_bank_1[indx] = (u8)value;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 2);
         }
@@ -901,7 +901,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         indx = GET_PARAM_U8(arg1) | 0x200;
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 4);
         }
@@ -909,7 +909,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
     case 13:
         indx = GET_PARAM_U8(arg1) | 0x300;
         Savemap.memory_bank_1[indx] = (u8)value;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 2);
         }
@@ -918,7 +918,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         indx = GET_PARAM_U8(arg1) | 0x300;
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 4);
         }
@@ -926,7 +926,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
     case 15:
         indx = GET_PARAM_U8(arg1) | 0x400;
         Savemap.memory_bank_1[indx] = (u8)value;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 2);
         }
@@ -935,7 +935,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         indx = GET_PARAM_U8(arg1) | 0x400;
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S glov=", value, 4);
         }
@@ -943,7 +943,7 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
     case 5:
         indx = GET_PARAM_U8(arg1);
         D_80075E24[indx] = (u8)value;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S mapv=", value, 2);
         }
@@ -952,13 +952,13 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
         indx = GET_PARAM_U8(arg1);
         D_80075E24[indx] = (u8)value;
         D_80075E24[indx + 1] = value >> 8;
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("S indx=", indx, 4);
             func_800BECA4("S mapv=", value, 4);
         }
         return;
     }
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         func_800BECA4("S data err=", bankId, 2);
     }
     func_800D4848("Bad Event arg!");
@@ -966,9 +966,9 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
 #endif
 
 s32 OpcodeFuncBad(void) {
-    if (D_8009D820 & 3) {
-        func_800DA444(D_8009A058, D_800E4288);
-        func_800DA368(D_800E4288, "???");
+    if (DebugLevel & 3) {
+        U8ToHex(D_8009A058, D_800E4288);
+        AppendString(D_800E4288, "???");
         DebugPrintOpcode(D_800E4288, 8);
         func_800DA214(3, 0x7F, 0, 0);
     } else {
@@ -1000,13 +1000,13 @@ s32 OpcodeFuncNop(void) {
  */
 
 s32 OpcodeFuncWait(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("wait", 2);
     }
 
     if (g_FieldWaitCounter[g_CurrentEntity] == 0) {
         GET_PARAM_S16(g_FieldWaitCounter[g_CurrentEntity], 1);
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("wait_st=", g_FieldWaitCounter[g_CurrentEntity], 4);
         }
         if (g_FieldWaitCounter[g_CurrentEntity] == 0) {
@@ -1017,7 +1017,7 @@ s32 OpcodeFuncWait(void) {
     }
 
     if (g_FieldWaitCounter[g_CurrentEntity] == 1) {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("wait_end=", 1, 4);
         }
         g_FieldWaitCounter[g_CurrentEntity] = 0;
@@ -1025,7 +1025,7 @@ s32 OpcodeFuncWait(void) {
         return 0;
     }
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         func_800BECA4("wait=", g_FieldWaitCounter[g_CurrentEntity], 4);
     }
 
@@ -1034,7 +1034,7 @@ s32 OpcodeFuncWait(void) {
 }
 
 s32 OpcodeFuncSet(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("set", 3);
     }
     func_800BF3AC(1, 2, func_800BEE10(2, 3));
@@ -1043,7 +1043,7 @@ s32 OpcodeFuncSet(void) {
 }
 
 s32 OpcodeFuncSet2(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("set2", 4);
     }
     func_800C0248(1, 2, func_800BF908(2, 3));
@@ -1052,7 +1052,7 @@ s32 OpcodeFuncSet2(void) {
 }
 
 s32 OpcodeFuncLbyte(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("lbyte", 3);
     }
     func_800BF3AC(1, 2, func_800BEE10(2, 3));
@@ -1061,7 +1061,7 @@ s32 OpcodeFuncLbyte(void) {
 }
 
 s32 OpcodeFuncHbyte(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("hbyte", 4);
     }
     func_800BF3AC(1, 2, (u8)(func_800BF908(2, 3) >> 8));
@@ -1072,7 +1072,7 @@ s32 OpcodeFuncHbyte(void) {
 s32 OpcodeFunc2byte(void) {
     s16 lhs;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("2byte", 5);
     }
     lhs = func_800BEE10(2, 4);
@@ -1089,7 +1089,7 @@ s32 OpcodeFuncSetx(void) {
     u8 bank;
     u8 value;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("setx", 6);
     }
     bank = GET_PARAM_U8(1) >> 4;
@@ -1130,7 +1130,7 @@ s32 OpcodeFuncGetx(void) {
     u8 bank;
     u8 value;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("getx", 6);
     }
     bank = GET_PARAM_U8(1) >> 4;
@@ -1175,7 +1175,7 @@ s32 OpcodeFuncSrchx(void) {
     u8 value;
     s16 i;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("srchx", 8);
     }
     bank = GET_PARAM_U8(1) >> 4;
@@ -1233,7 +1233,7 @@ s32 OpcodeFuncSrchx(void) {
 #endif
 
 s32 OpcodeFuncBiton(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("biton", 3);
     }
     func_800BF3AC(1, 2, func_800BEE10(1, 2) | (1 << func_800BEE10(2, 3)));
@@ -1242,7 +1242,7 @@ s32 OpcodeFuncBiton(void) {
 }
 
 s32 OpcodeFuncBitof(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("bitof", 3);
     }
     func_800BF3AC(1, 2, func_800BEE10(1, 2) & ~(1 << func_800BEE10(2, 3)));
@@ -1251,7 +1251,7 @@ s32 OpcodeFuncBitof(void) {
 }
 
 s32 OpcodeFuncBitxr(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("bitxr", 3);
     }
     func_800BF3AC(1, 2, func_800BEE10(1, 2) ^ (1 << func_800BEE10(2, 3)));
@@ -1262,7 +1262,7 @@ s32 OpcodeFuncBitxr(void) {
 s32 OpcodeFuncLine(void) {
     s16 value;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("line", 8);
     }
 
@@ -1295,7 +1295,7 @@ s32 OpcodeFuncLine(void) {
 s32 OpcodeFuncSline(void) {
     u8 lineId;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("sline", 8);
     }
     lineId = g_EntityToLine[g_CurrentEntity];
@@ -1310,7 +1310,7 @@ s32 OpcodeFuncSline(void) {
 }
 
 s32 OpcodeFuncLinon(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("linon", 1);
     }
     g_FieldLines[g_EntityToLine[g_CurrentEntity]].isActive = GET_PARAM_U8(1);
@@ -1330,7 +1330,7 @@ s32 OpcodeFuncLinon(void) {
  */
 
 s32 OpcodeFuncSlip(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("slip", 1);
     }
     g_FieldLines[g_EntityToLine[g_CurrentEntity]].slipDisabled =
@@ -1347,17 +1347,17 @@ s32 OpcodeFuncSlip(void) {
  */
 
 s32 OpcodeFuncIf(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("if", 5);
     }
     if (func_800C2000()) {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("if=true", 0, 0);
         }
         // If comparison is true, continue executing next opcode.
         PC_INC(6);
     } else {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("if=false", 0, 0);
         }
         // If comparison is false, jump number of bytes give in last parameter
@@ -1378,16 +1378,16 @@ s32 OpcodeFuncIf(void) {
 s32 OpcodeFuncLif(void) {
     s16 param;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("lif", 6);
     }
     if (func_800C2000()) {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("lif=true", 0, 0);
         }
         PC_INC(7);
     } else {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("lif=false", 0, 0);
         }
         GET_PARAM_S16(param, 5);
@@ -1440,7 +1440,7 @@ u32 func_800C2000(void) {
         result = result < 1;
         break;
     default:
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("ope err=", ope, 2);
         }
         break;
@@ -1458,16 +1458,16 @@ u32 func_800C2000(void) {
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncIf2);
 #else
 s32 OpcodeFuncIf2(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("if2", 7);
     }
     if (func_800C24A8() != 0) {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("if2=true", 0, 0);
         }
         PC_INC(8);
     } else {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("if2=false", 0, 0);
         }
         PC_INC(GET_PARAM_U8(7) + 7);
@@ -1487,16 +1487,16 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLif2);
 s32 OpcodeFuncLif2(void) {
     s16 param;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("lif2", 8);
     }
     if (func_800C24A8() != 0) {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("lif2=true", 0, 0);
         }
         PC_INC(9);
     } else {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("lif2=false", 0, 0);
         }
         GET_PARAM_S16(param, 7);
@@ -1550,7 +1550,7 @@ u32 func_800C24A8(void) {
         result = result < 1;
         break;
     default:
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("ope err=", ope, 2);
         }
         break;
@@ -1568,16 +1568,16 @@ u32 func_800C24A8(void) {
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncIf2u);
 #else
 s32 OpcodeFuncIf2u(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("if2", 7);
     }
     if (func_800C2970()) {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("if2=false", 0, 0);
         }
         PC_INC(8);
     } else {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("if2=true", 0, 0);
         }
         PC_INC(GET_PARAM_U8(7) + 7);
@@ -1597,16 +1597,16 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLif2u);
 s32 OpcodeFuncLif2u(void) {
     s16 param;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("lif2", 8);
     }
     if (func_800C2970() != 0) {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("lif2=false", 0, 0);
         }
         PC_INC(9);
     } else {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("lif2=true", 0, 0);
         }
         GET_PARAM_S16(param, 7);
@@ -1660,7 +1660,7 @@ u32 func_800C2970(void) {
         result = result < 1;
         break;
     default:
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("ope err=", ope, 2);
         }
         break;
@@ -1678,7 +1678,7 @@ u32 func_800C2970(void) {
  */
 
 s32 OpcodeFuncKeyEx(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("key!", 3);
     }
     if (GET_PARAM_U8(2) & 2) {
@@ -1695,7 +1695,7 @@ s32 OpcodeFuncKeyEx(void) {
  */
 
 s32 OpcodeFuncKeyon(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("keyon", 3);
     }
     if (GET_PARAM_U8(2) & 2) {
@@ -1712,7 +1712,7 @@ s32 OpcodeFuncKeyon(void) {
  */
 
 s32 OpcodeFuncKeyof(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("keyof", 3);
     }
     if (GET_PARAM_U8(2) & 2) {
@@ -1726,17 +1726,17 @@ static s32 KeyCheck(u16 keys) {
     u16 param;
 
     GET_PARAM_S16(param, 1);
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         func_800BECA4("key now=", keys, 4);
         func_800BECA4("key chk=", param, 4);
     }
     if (keys & param) {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("key=true", 0, 0);
         }
         PC_INC(4);
     } else {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("key=false", 0, 0);
         }
         PC_INC(GET_PARAM_U8(3) + 3);
@@ -1745,7 +1745,7 @@ static s32 KeyCheck(u16 keys) {
 }
 
 s32 OpcodeFuncReq(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("req", 2);
     }
     return func_800C33B4(1, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
@@ -1753,7 +1753,7 @@ s32 OpcodeFuncReq(void) {
 }
 
 s32 OpcodeFuncReqsw(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("reqsw", 2);
     }
     return func_800C33B4(2, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
@@ -1761,7 +1761,7 @@ s32 OpcodeFuncReqsw(void) {
 }
 
 s32 OpcodeFuncReqew(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("reqew", 2);
     }
     return func_800C33B4(3, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
@@ -1772,7 +1772,7 @@ s32 OpcodeFuncPreq(void) {
     u8 charId;
     u8 entityId;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("preq", 2);
     }
     charId = Savemap.memory_bank_2[GET_PARAM_U8(1) + 9];
@@ -1789,7 +1789,7 @@ s32 OpcodeFuncPrqsw(void) {
     u8 charId;
     u8 entityId;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("prqsw", 2);
     }
     charId = Savemap.memory_bank_2[GET_PARAM_U8(1) + 9];
@@ -1806,7 +1806,7 @@ s32 OpcodeFuncPrqew(void) {
     u8 charId;
     u8 entityId;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("prqew", 2);
     }
     charId = Savemap.memory_bank_2[GET_PARAM_U8(1) + 9];
@@ -1829,18 +1829,18 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
     s32 extrasHeaderSize;
 
     if (target == 0xFF) {
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("rqew=no one", 0, 0);
         }
         PC_INC(3);
         return 0;
     }
 
-    if (D_8009D820 & 3) {
-        func_800DA334(D_800E4288, "rq=");
-        func_800DA368(D_800E4288, (char*)((s32)g_FieldScripts) +
-                                      sizeof(FieldScriptHeader) + (target * 8));
-        func_800DA368(D_800E4288, "/");
+    if (DebugLevel & 3) {
+        CopyString(D_800E4288, "rq=");
+        AppendString(D_800E4288, (char*)((s32)g_FieldScripts) +
+                                     sizeof(FieldScriptHeader) + (target * 8));
+        AppendString(D_800E4288, "/");
         func_800BECA4(D_800E4288, scriptId, 2);
     }
 
@@ -1850,12 +1850,12 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
                                  g_CurrentEntity) {
                 switch (g_FieldScriptSyncState[target][priority]) {
                 case SYNC_WAITING:
-                    if (D_8009D820 & 3) {
+                    if (DebugLevel & 3) {
                         func_800BECA4("rqew=wait", 0, 0);
                     }
                     return 1;
                 case SYNC_DONE:
-                    if (D_8009D820 & 3) {
+                    if (DebugLevel & 3) {
                         func_800BECA4("rqew=end", 0, 0);
                     }
                     g_FieldScriptSyncState[target][priority] = SYNC_NONE;
@@ -1871,13 +1871,13 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
         switch (type) {
         case 1:
             PC_INC(3);
-            if (D_8009D820 & 3) {
+            if (DebugLevel & 3) {
                 func_800BECA4("rq=skip", 0, 0);
             }
             return 0;
         case 2:
         case 3:
-            if (D_8009D820 & 3) {
+            if (DebugLevel & 3) {
                 func_800BECA4("rqw=busy", 0, 0);
             }
         }
@@ -1887,13 +1887,13 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
             switch (type) {
             case 1:
                 PC_INC(3);
-                if (D_8009D820 & 3) {
+                if (DebugLevel & 3) {
                     func_800BECA4("rq=skip", 0, 0);
                 }
                 return 0;
             case 2:
             case 3:
-                if (D_8009D820 & 3) {
+                if (DebugLevel & 3) {
                     func_800BECA4("rqw=busy", 0, 0);
                 }
             }
@@ -1916,7 +1916,7 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
               sizeof(FieldScriptHeader) + 1)
             << 8;
 
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("rq=send", 0, 0);
         }
 
@@ -1970,7 +1970,7 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
         }
         g_FieldWaitCounter[target] = 0;
 
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("rq=send", 0, 0);
         }
 
@@ -1991,7 +1991,7 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
         g_FieldScriptSyncState[target][priority] = SYNC_WAITING;
         return 1;
     }
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         func_800BECA4("rqw=busy*", 0, 0);
     }
     return 1;
@@ -2038,7 +2038,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAkao2);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSe);
 
 s32 OpcodeFuncMusic(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("music", 1);
     }
     func_800C46A4();
@@ -2047,7 +2047,7 @@ s32 OpcodeFuncMusic(void) {
 }
 
 s32 OpcodeFuncMusvt(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("musvt", 1);
     }
     func_800C46A4();
@@ -2056,7 +2056,7 @@ s32 OpcodeFuncMusvt(void) {
 }
 
 s32 OpcodeFuncMusvm(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("musvm", 1);
     }
     func_800C46A4();
@@ -2067,7 +2067,7 @@ s32 OpcodeFuncMusvm(void) {
 s32 OpcodeFuncCmusc(void) {
     u32 result;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("cmusc", 5);
     }
     func_800C46A4();
@@ -2086,7 +2086,7 @@ s32 func_800C4BCC(void) {
 
     if (g_FieldMusicLock == 0) {
         akaoId = GET_PARAM_U8(1);
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("music=", akaoId, 2);
         }
         *D_8009A004 = (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
@@ -2113,12 +2113,12 @@ static u32 GetAkaoBlockOffset(s16 akaoId) {
 s32 OpcodeFuncBmusc(void) {
     u8 akaoId;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("bmusc", 1);
     }
     if (g_FieldMusicLock == 0) {
         akaoId = GET_PARAM_U8(1);
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("bmusic=", akaoId, 2);
         }
         g_FieldState->nextBattleMusic =
@@ -2133,12 +2133,12 @@ s32 OpcodeFuncBmusc(void) {
 s32 OpcodeFuncFmusc(void) {
     u8 akaoId;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("fmusc", 1);
     }
     if (g_FieldMusicLock == 0) {
         akaoId = GET_PARAM_U8(1);
-        if (D_8009D820 & 3) {
+        if (DebugLevel & 3) {
             func_800BECA4("bmusic=", akaoId, 2);
         }
         g_FieldState->nextFieldMusic =
@@ -2167,7 +2167,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTutor);
  * stepped past the 2-byte instruction (opcode + operand).
  */
 s32 OpcodeFuncMulck(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("mulck", 1);
     }
     g_FieldMusicLock = GET_PARAM_U8(1);
@@ -2176,7 +2176,7 @@ s32 OpcodeFuncMulck(void) {
 }
 
 s32 OpcodeFuncBgmovie(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("bgmovie", 1);
     }
     g_FieldState->backgroundMovieEnabled = GET_PARAM_U8(1);
@@ -2185,7 +2185,7 @@ s32 OpcodeFuncBgmovie(void) {
 }
 
 s32 OpcodeFuncScrlo(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("scrlo", 1);
     }
     g_FieldState->scrloSet = GET_PARAM_U8(1);
@@ -2203,7 +2203,7 @@ s32 OpcodeFuncScrlo(void) {
  * (movieCommandState == 2). Only then does the script advance past the opcode.
  */
 s32 OpcodeFuncDskcg(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("dskcg", 1);
     }
     switch (g_FieldState->opcode) {
@@ -2230,7 +2230,7 @@ s32 OpcodeFuncDskcg(void) {
  * per-model flag of the player's model is cleared as well.
  */
 s32 OpcodeFuncUc(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("uc", 1);
     }
     g_CharacterLock = g_FieldState->characterLock = GET_PARAM_U8(1);
@@ -2242,7 +2242,7 @@ s32 OpcodeFuncUc(void) {
 }
 
 s32 OpcodeFuncBtlon(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("btlon", 1);
     }
     g_FieldState->battlesDisabled = GET_PARAM_U8(1);
@@ -2251,7 +2251,7 @@ s32 OpcodeFuncBtlon(void) {
 }
 
 s32 OpcodeFuncMpdsp(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("mpdsp", 1);
     }
     g_FieldState->mpdspSet = GET_PARAM_U8(1);
@@ -2260,7 +2260,7 @@ s32 OpcodeFuncMpdsp(void) {
 }
 
 s32 OpcodeFuncMvcam(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("mvcam", 1);
     }
     g_FieldState->movieCamDisabled = GET_PARAM_U8(1);
@@ -2269,7 +2269,7 @@ s32 OpcodeFuncMvcam(void) {
 }
 
 s32 OpcodeFuncGmovr(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("gmovr", 0);
     }
     g_FieldState->opcode = FIELDOP_GAME_OVER;
@@ -2286,7 +2286,7 @@ s32 OpcodeFuncGmovr(void) {
 s32 OpcodeFuncCc(void) {
     u8 charId;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("cc", 1);
     }
     charId = GET_PARAM_U8(1);
@@ -2305,7 +2305,7 @@ s32 OpcodeFuncCc(void) {
  * model id from the opcode operand and the owning entity id.
  */
 s32 OpcodeFuncChar(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("char", 1);
     }
     g_EntityToModel[g_CurrentEntity] = g_FieldModelCount++;
@@ -2327,7 +2327,7 @@ s32 OpcodeFuncChar(void) {
 s32 OpcodeFuncDfanm(void) {
     u8 modelIdx;
 
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("dfanm", 2);
     }
     if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
@@ -2348,7 +2348,7 @@ s32 OpcodeFuncDfanm(void) {
  * (0: idle, 1: walk, 2: run) used while the player controls a model.
  */
 s32 OpcodeFuncCcanm(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("ccanm", 3);
     }
     switch (GET_PARAM_U8(3)) {
@@ -2399,7 +2399,7 @@ void StartModelAnimation(void) {
  * its default animation.
  */
 s32 OpcodeFuncAnime(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("anime", 2);
     }
 
@@ -2435,7 +2435,7 @@ s32 OpcodeFuncAnime(void) {
  * state 5 becomes 6 to tell the two opcode pairs apart.
  */
 s32 OpcodeFuncAnimEx(void) {
-    if (D_8009D820 & 3) {
+    if (DebugLevel & 3) {
         DebugPrintOpcode("anim!", 2);
     }
 
@@ -2672,11 +2672,11 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLdpal);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLdpls);
 
-static void func_800CDC14(s16* arg0) {
-    arg0[0] = 0;
-    arg0[1] = 0;
-    arg0[2] = 0;
-    arg0[3] = 0;
+static void func_800CDC14(s16* str) {
+    str[0] = 0;
+    str[1] = 0;
+    str[2] = 0;
+    str[3] = 0;
 }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCppal);
@@ -2891,7 +2891,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4C68);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4E24);
 
-void func_800D4E88(s16 arg0, s16 arg1) { D_8008327E[arg0 * 24] = arg1; }
+void func_800D4E88(s16 str, s16 arg1) { D_8008327E[str * 24] = arg1; }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4EB4);
 
@@ -2933,13 +2933,13 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7C98);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7D6C);
 
-static void func_800D7F9C(void) {
+static void field_debug_page_inits(void) {
     func_800D828C(5, 0x6C, 0, 0x6C, 0x52);
-    func_800DA334(D_800E4254, "Authr:");
-    func_800DA368(D_800E4254, g_FieldScripts->author);
+    CopyString(D_800E4254, "Authr:");
+    AppendString(D_800E4254, g_FieldScripts->author);
     func_800D9F00(5, D_800E4254);
-    func_800DA334(D_800E4254, "Event:");
-    func_800DA368(D_800E4254, g_FieldScripts->name);
+    CopyString(D_800E4254, "Event:");
+    AppendString(D_800E4254, g_FieldScripts->name);
     func_800D9F00(5, D_800E4254);
     func_800D9F00(5, "  Go");
     func_800D9F00(5, "  Stop");
@@ -2960,7 +2960,7 @@ static void func_800D7F9C(void) {
     D_8007EBCC = 4;
     D_8007EBDC = 8;
     D_80071E24 = 0;
-    D_8009D820 = 0;
+    DebugLevel = 0; // Debug level 0-3
     D_80070788 = 0;
     D_80071C08 = 5;
     func_800DA1D4(5, 4);
@@ -2976,7 +2976,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D83A8);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D8420);
 
-s32 func_800D8498(s16 arg0) { return D_800E08C0[arg0 * 378] == 0; }
+s32 func_800D8498(s16 str) { return D_800E08C0[str * 378] == 0; }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D84CC);
 
@@ -3010,9 +3010,12 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA28C);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA2CC);
 
+// 4 state cycle counter (Mod 4)
+// 0 -> 1 -> 2 -> 3 -> 0 -> 1 -> ...
 static void func_800DA310(void) { D_800E4210 = (D_800E4210 + 1) & 3; }
 
-static void func_800DA334(char* dst, const char* src) {
+// Little strncpy-like helper funtion
+static void CopyString(char* dst, const char* src) {
     if (*src) {
         do {
             *dst++ = *src++;
@@ -3021,30 +3024,33 @@ static void func_800DA334(char* dst, const char* src) {
     *dst = '\0';
 }
 
-static void func_800DA368(char* arg0, char* arg1) {
-    if (*arg0 != '\0') {
-        while (*++arg0 != '\0') {
+// Little strcat-like helper funtion (this returns void)
+static void AppendString(char* dest, char* src) {
+    if (*dest != '\0') {
+        while (*++dest != '\0') {
         }
     }
-    if (*arg1 != '\0') {
+    if (*src != '\0') {
         do {
-            *arg0++ = *arg1++;
-        } while (*arg1 != '\0');
+            *dest++ = *src++;
+        } while (*src != '\0');
     }
-    *arg0 = '\0';
+    *dest = '\0';
 }
 
-static s32 func_800DA3C4(char* arg0) {
+// Little strlen-like helper funtion
+static s32 StringLength(char* str) {
     s32 len = 0;
 
-    while (*arg0 != '\0') {
-        arg0++;
+    while (*str != '\0') {
+        str++;
         len++;
     }
     return len;
 }
 
-static void func_800DA3F0(char* dst, char* src, s32 len) {
+// Little memcopy-like helper funtion
+static void CopyBytes(char* dst, char* src, s32 len) {
     s32 i;
     for (i = len - 1; i != -1; i--) {
         *dst = *src;
@@ -3053,23 +3059,23 @@ static void func_800DA3F0(char* dst, char* src, s32 len) {
     }
 }
 
-static void func_800DA424(s32 val, char* msg_out) {
+static void DigitToHex(s32 val, char* msg_out) {
     msg_out[1] = '\0';
-    msg_out[0] = D_800E0208[val & 0xF];
+    msg_out[0] = HexDigits[val & 0xF];
 }
 
-static void func_800DA444(s32 val, char* msg_out) {
+static void U8ToHex(s32 val, char* msg_out) {
     msg_out[2] = '\0';
-    msg_out[0] = D_800E0208[(val & 0xF0) >> 4];
-    msg_out[1] = D_800E0208[val & 0xF];
+    msg_out[0] = HexDigits[(val & 0xF0) >> 4];
+    msg_out[1] = HexDigits[val & 0xF];
 }
 
-static void func_800DA480(s32 val, char* msg_out) {
+static void U16ToHex(s32 val, char* msg_out) {
     msg_out[4] = '\0';
-    msg_out[0] = D_800E0208[(val & 0xF000) >> 0xC];
-    msg_out[1] = D_800E0208[(val & 0xF00) >> 8];
-    msg_out[2] = D_800E0208[(val & 0xF0) >> 4];
-    msg_out[3] = D_800E0208[val & 0xF];
+    msg_out[0] = HexDigits[(val & 0xF000) >> 0xC];
+    msg_out[1] = HexDigits[(val & 0xF00) >> 8];
+    msg_out[2] = HexDigits[(val & 0xF0) >> 4];
+    msg_out[3] = HexDigits[val & 0xF];
 }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA4FC);
