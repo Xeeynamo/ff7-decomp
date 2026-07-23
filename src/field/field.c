@@ -38,19 +38,19 @@ struct GpuBuf {
 }; // size:0x1789C
 
 const u32 D_800A0000[] = {0, 0x01D801E0};
-extern char D_800E0208[16]; // '0' to 'F' for hex digits
+extern char g_FieldDebugDigits[16]; // '0' to 'F' for hex digits
 extern char D_800A0270[4];
 extern s8 D_800E0628;
 extern s8 D_800E0630;
 extern u8 D_800E08C0[];
 extern s16 D_800DF120[][2];
-extern u16 D_800E1024;
-extern s16 D_800E41B8;
-extern s16 D_800E41C0;
-extern s16 D_800E41BC;
-extern s16 D_800E41C4;
-extern u16 D_800E4210;
-extern char D_800E4254[]; // debug text
+extern u16 g_FieldDebugRb;
+extern s16 g_FieldDebugRChars;
+extern s16 g_FieldDebugRLines;
+extern s16 g_FieldDebugRRect;
+extern s16 g_FieldDebugRDm;
+extern u16 g_FieldDebugTransp;
+extern char DebugText[];  // debug text
 extern char D_800E4288[]; // debug value transformed into text
 extern struct GpuBuf D_800E4DF0[2];
 extern u8 D_80114498[];
@@ -72,12 +72,12 @@ static u32 GetAkaoBlockOffset(s16 akaoId);
 s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId);
 static void func_800D4840(const char* str);
 static void func_800D4848(const char* errmsg);
-void func_800D9F00(s32 val, const char* msg_out);
-static void func_800DA334(char* dst, const char* src);
-static void func_800DA368(char* arg0, char* arg1);
-static void func_800DA424(s32 val, char* msg_out);
-static void func_800DA444(s32 val, char* msg_out);
-static void func_800DA480(s32 val, char* msg_out);
+void AddStrNextDebugRow(s32 val, const char* msg_out);
+static void FieldDebugStringCopy(char* dst, const char* src);
+static void FieldDebugStringConcat(char* arg0, char* arg1);
+static void FieldDebugStringU8hex(s32 val, char* msg_out);
+static void FieldDebugStringU16hex(s32 val, char* msg_out);
+static void FieldDebugStringU32hex(s32 val, char* msg_out);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A1368);
 
@@ -306,13 +306,13 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B9B0C);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BA534);
 
-static void func_800D7F9C(void);
+static void InitFieldDebugPages(void);
 void func_800BA65C(s32 arg0) {
     if (D_8007EBE0) {
         func_800D4BFC();
         func_800BC338();
-        func_800D7D6C();
-        func_800D7F9C();
+        FieldDebugInitBuffers();
+        InitFieldDebugPages();
         D_80095DCC = 0;
         D_8009FE8C = 0;
         D_8007EBE0 = 0;
@@ -361,27 +361,28 @@ u8 func_800BBF74(s16 entityId, s16 priority, s16 scriptId) {
     if (D_8009D820 & 3) {
         switch (scriptId) {
         case 1: // Pressed OK.
-            func_800DA334(D_800E4288, "Talk=");
+            FieldDebugStringCopy(D_800E4288, "Talk=");
             break;
         case 2: // Pushed / within entity's collision radius.
-            func_800DA334(D_800E4288, "Push=");
+            FieldDebugStringCopy(D_800E4288, "Push=");
             break;
         case 3: // Across line.
-            func_800DA334(D_800E4288, "Acrs=");
+            FieldDebugStringCopy(D_800E4288, "Acrs=");
             break;
         case 4: // Touching line.
-            func_800DA334(D_800E4288, "Toch=");
+            FieldDebugStringCopy(D_800E4288, "Toch=");
             break;
         case 5: // Started touching line.
-            func_800DA334(D_800E4288, "TochON =");
+            FieldDebugStringCopy(D_800E4288, "TochON =");
             break;
         case 6: // Ended touching line.
-            func_800DA334(D_800E4288, "TochOFF=");
+            FieldDebugStringCopy(D_800E4288, "TochOFF=");
             break;
         }
         // Prints entity name.
-        func_800DA368(D_800E4288, (char*)g_FieldScripts +
-                                      sizeof(FieldScriptHeader) + entityId * 8);
+        FieldDebugStringConcat(
+            D_800E4288,
+            (char*)g_FieldScripts + sizeof(FieldScriptHeader) + entityId * 8);
         func_800BECA4(D_800E4288, 0, 0);
     }
 
@@ -464,27 +465,27 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", DebugPrintOpcode);
 
 static void func_800BECA4(const char* str, s32 val, s32 kind) {
     if (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity]) {
-        func_800DA334(D_800E4254, str);
+        FieldDebugStringCopy(DebugText, str);
         switch (kind) {
         case 1:
-            func_800DA424(val, D_800E4288); // to single hex digit
+            FieldDebugStringU8hex(val, D_800E4288); // to single hex digit
             break;
         case 2:
-            func_800DA444(val, D_800E4288); // to double hex digit
+            FieldDebugStringU16hex(val, D_800E4288); // to double hex digit
             break;
         case 4:
-            func_800DA480(val, D_800E4288); // to four hex digits
+            FieldDebugStringU32hex(val, D_800E4288); // to four hex digits
             break;
         default:
-            func_800DA334(D_800E4288, D_800A0270);
+            FieldDebugStringCopy(D_800E4288, D_800A0270);
             break;
         }
-        func_800DA368(D_800E4254, D_800E4288);
+        FieldDebugStringConcat(DebugText, D_800E4288);
         if (D_8009D820 & 1) {
-            func_800D9F00(2, D_800E4254);
+            AddStrNextDebugRow(2, DebugText);
         }
         if (D_8009D820 & 2) {
-            func_800D4840(D_800E4254);
+            func_800D4840(DebugText);
         }
     }
 }
@@ -967,10 +968,10 @@ static void func_800C0248(s16 arg0, s16 arg1, s16 value) {
 
 s32 OpcodeFuncBad(void) {
     if (D_8009D820 & 3) {
-        func_800DA444(D_8009A058, D_800E4288);
-        func_800DA368(D_800E4288, "???");
+        FieldDebugStringU16hex(D_8009A058, D_800E4288);
+        FieldDebugStringConcat(D_800E4288, "???");
         DebugPrintOpcode(D_800E4288, 8);
-        func_800DA214(3, 0x7F, 0, 0);
+        FieldDebugPageSetColor(3, 0x7F, 0, 0);
     } else {
         func_800D4848("Bad Event code!");
     }
@@ -1837,10 +1838,11 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
     }
 
     if (D_8009D820 & 3) {
-        func_800DA334(D_800E4288, "rq=");
-        func_800DA368(D_800E4288, (char*)((s32)g_FieldScripts) +
-                                      sizeof(FieldScriptHeader) + (target * 8));
-        func_800DA368(D_800E4288, "/");
+        FieldDebugStringCopy(D_800E4288, "rq=");
+        FieldDebugStringConcat(
+            D_800E4288, (char*)((s32)g_FieldScripts) +
+                            sizeof(FieldScriptHeader) + (target * 8));
+        FieldDebugStringConcat(D_800E4288, "/");
         func_800BECA4(D_800E4288, scriptId, 2);
     }
 
@@ -2753,6 +2755,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSolid);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncVwoft);
 
+////////////////////////////////////////
+// Begin of event_code_actions.c
+////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncJoin);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSplit);
@@ -2870,9 +2876,9 @@ static void func_800D4840(const char* str) {
 }
 
 static void func_800D4848(const char* errmsg) {
-    func_800D828C(0, 100, 100, 150, 12);
-    func_800DA214(0, 0x7F, 0, 0);
-    func_800D9F00(0, errmsg);
+    FieldDebugPageInit(0, 100, 100, 150, 12);
+    FieldDebugPageSetColor(0, 0x7F, 0, 0);
+    AddStrNextDebugRow(0, errmsg);
     D_80095DCC = 1;
     D_80099FFC = 4;
 }
@@ -2931,88 +2937,94 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7A58);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7C98);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7D6C);
+////////////////////////////////////////
+// Begin of debug.c
+////////////////////////////////////////
 
-static void func_800D7F9C(void) {
-    func_800D828C(5, 0x6C, 0, 0x6C, 0x52);
-    func_800DA334(D_800E4254, "Authr:");
-    func_800DA368(D_800E4254, g_FieldScripts->author);
-    func_800D9F00(5, D_800E4254);
-    func_800DA334(D_800E4254, "Event:");
-    func_800DA368(D_800E4254, g_FieldScripts->name);
-    func_800D9F00(5, D_800E4254);
-    func_800D9F00(5, "  Go");
-    func_800D9F00(5, "  Stop");
-    func_800D9F00(5, "  Step");
-    func_800DA124(5, 5, "  Actor OFF");
-    func_800DA124(5, 6, "  Info  OFF");
-    func_800DA2CC(5);
-    func_800D828C(4, 0x6C, 0x52, 0x6C, 0x52);
-    func_800D9F00(4, &D_800E0628);
-    func_800DA2CC(4);
-    func_800D828C(3, 0x6C, 0xA4, 0x6C, 0x5C);
-    func_800D9F00(3, &D_800E0630);
-    func_800DA2CC(3);
-    func_800D828C(1, 0, 0, 0x6C, 0xCA);
-    func_800D9F00(1, &D_800E0628);
-    func_800DA2CC(1);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugInitBuffers);
+
+static void InitFieldDebugPages(void) {
+    FieldDebugPageInit(5, 0x6C, 0, 0x6C, 0x52);
+    FieldDebugStringCopy(DebugText, "Authr:");
+    FieldDebugStringConcat(DebugText, g_FieldScripts->author);
+    AddStrNextDebugRow(5, DebugText);
+    FieldDebugStringCopy(DebugText, "Event:");
+    FieldDebugStringConcat(DebugText, g_FieldScripts->name);
+    AddStrNextDebugRow(5, DebugText);
+    AddStrNextDebugRow(5, "  Go");
+    AddStrNextDebugRow(5, "  Stop");
+    AddStrNextDebugRow(5, "  Step");
+    SetStrToDebugRow(5, 5, "  Actor OFF");
+    SetStrToDebugRow(5, 6, "  Info  OFF");
+    FieldDebugPageHide(5);
+    FieldDebugPageInit(4, 0x6C, 0x52, 0x6C, 0x52);
+    AddStrNextDebugRow(4, &D_800E0628);
+    FieldDebugPageHide(4);
+    FieldDebugPageInit(3, 0x6C, 0xA4, 0x6C, 0x5C);
+    AddStrNextDebugRow(3, &D_800E0630);
+    FieldDebugPageHide(3);
+    FieldDebugPageInit(1, 0, 0, 0x6C, 0xCA);
+    AddStrNextDebugRow(1, &D_800E0628);
+    FieldDebugPageHide(1);
     D_80099FFC = 3;
     D_8007EBCC = 4;
     D_8007EBDC = 8;
     D_80071E24 = 0;
     D_8009D820 = 0;
     D_80070788 = 0;
-    D_80071C08 = 5;
-    func_800DA1D4(5, 4);
+    g_FieldDebugCurPage = 5;
+    FieldDebugPageSetHeadRow(5, 4);
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D8194);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugPagesResetPosSize);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D828C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugPageInit);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D8334);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugPageSetPosSize);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D83A8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugPageAddPos);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D8420);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugPageAddSize);
 
-s32 func_800D8498(s16 arg0) { return D_800E08C0[arg0 * 378] == 0; }
+bool FieldDebugPageIsRender(s16 arg0) { return D_800E08C0[arg0 * 378] == 0; }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D84CC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugPageResetStrings);
 
-static void func_800D85C0(void) {
-    D_800E41B8 = 0;
-    D_800E41C0 = 0;
-    D_800E41BC = 0;
-    D_800E41C4 = 0;
-    D_800E1024 ^= 1;
+static void FieldDebugRenderClear(void) {
+    g_FieldDebugRChars = 0;
+    g_FieldDebugRLines = 0;
+    g_FieldDebugRRect = 0;
+    g_FieldDebugRDm = 0;
+    g_FieldDebugRb ^= 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D85FC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugRender);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D8710);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugRenderPage);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D9C04);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugRenderString);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D9F00);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", AddStrNextDebugRow);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D9FFC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", AddColorStrNextDebugRow);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA124);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", SetStrToDebugRow);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA194);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", SetDebugStrRowColor);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA1D4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugPageSetHeadRow);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA214);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugPageSetColor);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA28C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugPageNotInit);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA2CC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugPageHide);
 
-static void func_800DA310(void) { D_800E4210 = (D_800E4210 + 1) & 3; }
+static void FieldDebugTranspSwitch(void) {
+    g_FieldDebugTransp = (g_FieldDebugTransp + 1) & 3;
+}
 
-static void func_800DA334(char* dst, const char* src) {
+static void FieldDebugStringCopy(char* dst, const char* src) {
     if (*src) {
         do {
             *dst++ = *src++;
@@ -3021,30 +3033,30 @@ static void func_800DA334(char* dst, const char* src) {
     *dst = '\0';
 }
 
-static void func_800DA368(char* arg0, char* arg1) {
-    if (*arg0 != '\0') {
-        while (*++arg0 != '\0') {
+static void FieldDebugStringConcat(char* dest, char* src) {
+    if (*dest != '\0') {
+        while (*++dest != '\0') {
         }
     }
-    if (*arg1 != '\0') {
+    if (*src != '\0') {
         do {
-            *arg0++ = *arg1++;
-        } while (*arg1 != '\0');
+            *dest++ = *src++;
+        } while (*src != '\0');
     }
-    *arg0 = '\0';
+    *dest = '\0';
 }
 
-static s32 func_800DA3C4(char* arg0) {
+static s32 FieldDebugStringSize(char* src) {
     s32 len = 0;
 
-    while (*arg0 != '\0') {
-        arg0++;
+    while (*src != '\0') {
+        src++;
         len++;
     }
     return len;
 }
 
-static void func_800DA3F0(char* dst, char* src, s32 len) {
+static void FieldDebugStringPartCopy(char* dst, char* src, s32 len) {
     s32 i;
     for (i = len - 1; i != -1; i--) {
         *dst = *src;
@@ -3053,23 +3065,27 @@ static void func_800DA3F0(char* dst, char* src, s32 len) {
     }
 }
 
-static void func_800DA424(s32 val, char* msg_out) {
+static void FieldDebugStringU8hex(s32 val, char* msg_out) {
     msg_out[1] = '\0';
-    msg_out[0] = D_800E0208[val & 0xF];
+    msg_out[0] = g_FieldDebugDigits[val & 0xF];
 }
 
-static void func_800DA444(s32 val, char* msg_out) {
+static void FieldDebugStringU16hex(s32 val, char* msg_out) {
     msg_out[2] = '\0';
-    msg_out[0] = D_800E0208[(val & 0xF0) >> 4];
-    msg_out[1] = D_800E0208[val & 0xF];
+    msg_out[0] = g_FieldDebugDigits[(val & 0xF0) >> 4];
+    msg_out[1] = g_FieldDebugDigits[val & 0xF];
 }
 
-static void func_800DA480(s32 val, char* msg_out) {
+static void FieldDebugStringU32hex(s32 val, char* msg_out) {
     msg_out[4] = '\0';
-    msg_out[0] = D_800E0208[(val & 0xF000) >> 0xC];
-    msg_out[1] = D_800E0208[(val & 0xF00) >> 8];
-    msg_out[2] = D_800E0208[(val & 0xF0) >> 4];
-    msg_out[3] = D_800E0208[val & 0xF];
+    msg_out[0] = g_FieldDebugDigits[(val & 0xF000) >> 0xC];
+    msg_out[1] = g_FieldDebugDigits[(val & 0xF00) >> 8];
+    msg_out[2] = g_FieldDebugDigits[(val & 0xF0) >> 4];
+    msg_out[3] = g_FieldDebugDigits[val & 0xF];
 }
+
+////////////////////////////////////////
+// End of debug.c
+////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA4FC);
