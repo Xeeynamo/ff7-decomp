@@ -1077,7 +1077,18 @@ static void func_800D4D6C(s32 arg0, s32 arg1, s32 arg2) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4D90);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4FA8);
+extern s32 D_800F10D8;
+extern s32 D_800F4CEC[16];
+extern s16 D_800F4D2C[16][10];
+
+static s16* func_800D4FA8(s32 arg0) {
+    s32 idx = D_800F10D8;
+    s32 next = (idx + 1) & 0xF;
+
+    D_800F4CEC[idx] = arg0;
+    D_800F10D8 = next;
+    return D_800F4D2C[idx];
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4FF0);
 

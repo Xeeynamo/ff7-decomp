@@ -475,7 +475,17 @@ static void func_800B85E0() {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B888C);
+extern u8 D_801517F0[0x4E];
+
+s16 func_800B888C(s32 arg0) {
+    s32 i;
+
+    for (i = 0; i < LEN(D_801517F0); i++) {
+        if (arg0 == D_801517F0[i]) {
+            return i;
+        }
+    }
+}
 
 // initialize D_80162978 slot v (registered via func_800BBEAC) from arg0 and
 // dispatch
