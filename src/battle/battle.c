@@ -970,11 +970,23 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADC70);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADD2C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADDE8);
+s32 func_800AD804(s32, s32);
+s32 func_800AD73C(s32);
+
+void func_800ADDE8(void) {
+    s32 base = D_80063014->unk4C + D_80063014->unk4;
+    s32 term1 = base * 3;
+    s32 term2 = D_80063014->unk48 * 0xB;
+    s32 damage = (term2 + term1) * 2;
+    D_80063014->unk214 = func_800AD8DC(func_800AD73C(func_800AD804(damage, 0)));
+}
 
 void func_800ADE5C(void) { D_80063014->unk214 = D_80063014->unk48 * 20; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADE84);
+void func_800ADE84(void) {
+    s32 value = D_80063014->unk48 * (0x200 - D_80063014->unk210);
+    D_80063014->unk214 = func_800AD8DC(value / 32);
+}
 
 void func_800ADED8(void) {
     if (D_80063014->unk230 & 0x40) {
@@ -989,11 +1001,21 @@ void func_800ADF04(void) {
     func_800AD944();
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADF38);
+void func_800ADF38(void) {
+    s32 divisor = func_80014A58(D_80063014->unk18);
+    s32 result = 0;
+    if (divisor != 0) {
+        result = (D_80063014->unk48 + (divisor - 1)) / divisor;
+    }
+    D_80063014->unk214 = result;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADFC0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADFF4);
+void func_800ADFF4(void) {
+    s32 index = D_80063014->unk0;
+    D_80063014->unk214 = D_800F83E0[index].maxHP - D_800F5BB8[index].unk3C;
+}
 
 void func_800AE050(void) {}
 

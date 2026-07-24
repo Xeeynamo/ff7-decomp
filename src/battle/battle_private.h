@@ -35,7 +35,8 @@ typedef struct {
     s32 unk30;
     s32 unk34;
     s32 unk38;
-    s32 unk3C;
+    u16 unk3C;
+    u16 unk3E;
     s32 unk40;
 } Unk800AF470; // 0x44
 
