@@ -2637,8 +2637,8 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWmode);
  * result.
  * - const UByte Oper: The second operand of the bitwise AND.
  * @details
- * Performs a bitwise AND operation between “Dest” and “Oper” and stores the
- * result back into “Dest”. If the Source Bank is 0 then the "Oper" is the
+ * Performs a bitwise AND operation between "Dest" and "Oper" and stores the
+ * result back into "Dest". If the Source Bank is 0 then the "Oper" is the
  * operand to AND with. If the Source Bank is an 8 bit bank, then the "Oper" is
  * the address in that bank where the operand is.
  */
@@ -2699,10 +2699,10 @@ s32 OpcodeFuncAnd2(void) {
  * result.
  * - const UByte Oper: The second operand of the bitwise OR.
  * @details
- * Performs a bitwise OR operation between “Dest” and “Oper” and stores the
- * result back into “Dest”. If the Source Bank is 0 then the "Oper" is the
+ * Performs a bitwise OR operation between "Dest" and "Oper" and stores the
+ * result back into "Dest". If the Source Bank is 0 then the "Oper" is the
  * operand to OR with. If the Source Bank
- * is an 8 bit bank, then the â€œOperâ€ is the address in that bank where
+ * is an 8 bit bank, then the "Oper" is the address in that bank where
  * the operand is.
  */
 s32 OpcodeFuncOr(void) {
@@ -2762,8 +2762,8 @@ s32 OpcodeFuncOr2(void) {
  * result.
  * - const UByte Oper: The second operand of the bitwise XOR.
  * @details
- * Performs a bitwise XOR operation between “Dest” and “Oper” and stores the
- * result back into “Dest”. If the Source Bank is 0 then the Operis the operand
+ * Performs a bitwise XOR operation between "Dest" and "Oper" and stores the
+ * result back into "Dest". If the Source Bank is 0 then the Operis the operand
  * to XOR with. If the Source Bank is an 8 bit bank, then the "Oper" is the
  * address in that bank where the operand is.
  */
@@ -2855,7 +2855,7 @@ s32 OpcodeFuncPlus(void) {
  * - const UByte Dest: The destination variable, to which the operand is added.
  * - const UByte Oper: The operand, added to the destination.
  * @details
- * Adds two numbers together and stores the result back into “Dest”. The result
+ * Adds two numbers together and stores the result back into "Dest". The result
  * of the addition is capped at 255. If the Source Bank is 0 then the "Oper" is
  * added to the destination value. If the Source Bank is an 8 bit bank, then the
  * "Oper" is the address in that bank where the operand is.
@@ -2895,7 +2895,7 @@ s32 OpcodeFuncPlusEx(void) {
  * @details
  * Adds two numbers together and stores the result back into  "Dest" . The
  * result of the addition wraps around into the 16-bit range. If the Source Bank
- * is 0 then the â€œOperâ€ is added to the destination value. If the
+ * is 0 then the "Oper" is added to the destination value. If the
  * Source Bank is an 16 bit bank, then the "Oper" is the address in that bank
  * where the operand is.
  */
@@ -2923,7 +2923,7 @@ s32 OpcodeFuncPlus2(void) {
  * - const UByte Dest: The destination variable, to which the operand is added.
  * - const SWord Oper: The operand, added to the destination
  * @details
- * Adds two numbers together and stores the result back into “Dest” The result
+ * Adds two numbers together and stores the result back into "Dest" The result
  * of the addition is capped at 32767. The result is not capped at the negative
  * end, however (-32768), so adding two large negative numbers together will
  * still produce wrap-around. If the Source Bank is 0 then the "Oper" is added
@@ -2993,7 +2993,7 @@ s32 OpcodeFuncMinus(void) {
  * subtracted.
  * - const UByte Oper: The operand to be subtracted from the destination.
  * @details
- * Subtracts “Oper” from “Dest” and stores the result back into “Dest”. The
+ * Subtracts "Oper" from "Dest" and stores the result back into "Dest". The
  * result of the subtraction is capped at 0. If the Source Bank is 0 then the
  * "Oper" is subtracted from the destination value. If the Source Bank is an 8
  * bit bank, then the "Oper" is the address in that bank where the operand is.
@@ -3061,13 +3061,13 @@ s32 OpcodeFuncMins2(void) {
  * subtracted.
  * - const SWord Oper: The operand to be subtracted from the destination.
  * @details
- * Subtracts “Oper” from “Dest” and stores the result back into “Dest”. The
+ * Subtracts "Oper" from "Dest" and stores the result back into "Dest". The
  * result of the subtraction is capped at -32768. The result is not capped at
  * the positive end (32767), so subtracting a large negative number from a large
  * positive number will still produce wrap-around. If the Source Bank is 0 then
- * the â€œOperâ€ is subtracted from the destination value. If the
+ * the "Oper" is subtracted from the destination value. If the
  * Source
- * Bank is an 16 bit bank, then the â€œOperâ€ is the address in that bank
+ * Bank is an 16 bit bank, then the "Oper" is the address in that bank
  * where the operand is.
  */
 s32 OpcodeFuncMns2Ex(void) {
@@ -3194,7 +3194,7 @@ s32 OpcodeFuncDiv(void) {
  * quotient.
  * - const UByte Den: The denominator of the division.
  * @details
- * Divides â€œDestâ€ by "Den" and stores the result back into "Dest". The
+ * Divides "Dest" by "Den" and stores the result back into "Dest". The
  * result of the division is rounded towards zero to the nearest integer. If the
  * Source Bank is 0 then the "Den" is the denominator. If the Source Bank is an
  * 8 bit bank, then the "Den" is the address in that bank where the denominator
@@ -3359,7 +3359,7 @@ s32 OpcodeFuncInc2(void) {
  * - const UByte Dest: The destination address in the bank where the variable is
  * incremented.
  * @details
- * Increments the value in â€œDestâ€ by 1. The result is capped at
+ * Increments the value in "Dest" by 1. The result is capped at
  * 32767.
  */
 s32 OpcodeFuncInc2Ex(void) {
@@ -3412,7 +3412,7 @@ s32 OpcodeFuncDec(void) {
  * - const UByte Dest: The destination address in the bank where the variable is
  * deccremented.
  * @details
- * Decreases the value in â€œDestâ€ by 1. The result is capped at 0.
+ * Decreases the value in "Dest" by 1. The result is capped at 0.
  */
 s32 OpcodeFuncDecEx(void) {
     s16 result;
