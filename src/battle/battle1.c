@@ -788,9 +788,35 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BE86C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BEA38);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BFA98);
+extern u8 D_8015184C[];
+extern u8 D_801518AC[];
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BFB10);
+// Read the next u16 from arg0's byte stream via this category's read cursor.
+s16 func_800BFA98(u8* arg0, s32 arg1) {
+    s32 off = (arg1 & 0xFF) * 14;
+    u16 pos = *(u16*)(D_8015184C + off);
+    u32 lo;
+    u8 hi;
+
+    *(u16*)(D_8015184C + off) = pos + 1;
+    lo = arg0[pos];
+    *(u16*)(D_8015184C + off) = pos + 2;
+    hi = arg0[(u16)(pos + 1)];
+    return (hi << 8) + lo;
+}
+
+s16 func_800BFB10(u8* arg0, s32 arg1) {
+    s32 off = (arg1 & 0xFF) * 14;
+    u16 pos = *(u16*)(D_801518AC + off);
+    u32 lo;
+    u8 hi;
+
+    *(u16*)(D_801518AC + off) = pos + 1;
+    lo = arg0[pos];
+    *(u16*)(D_801518AC + off) = pos + 2;
+    hi = arg0[(u16)(pos + 1)];
+    return (hi << 8) + lo;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BFB88);
 
@@ -800,9 +826,38 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BFF88);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0088);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C018C);
+void func_800D54EC(s16, s16*);
+void func_800C0DD8(s16, s32, s32);
+s32 func_800C0314(s32, s32);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0254);
+// Sample sp[3], then accumulate it into the scratchpad totals at 0x1F800000.
+void func_800C018C(s16 arg0, s16 arg1, s32 arg2, s32 arg3) {
+    s16 sp[3];
+
+    if (arg0 == 0xF) {
+        func_800D54EC(D_80151774, sp);
+    } else {
+        func_800D3994(arg0, arg1, sp);
+        func_800C0DD8(arg0, arg2 & 0xFF, arg3 & 0xFF);
+    }
+    *(s32*)0x1F800000 += sp[0];
+    *(s32*)0x1F800004 += sp[1];
+    *(s32*)0x1F800008 += sp[2];
+}
+
+void func_800C0254(s16 arg0, s16 arg1) {
+    s16 sp[3];
+
+    if (arg0 == 0xF) {
+        func_800D54EC(D_80151774, sp);
+    } else {
+        func_800D3994(arg0, arg1, sp);
+        *(s32*)0x1F800004 = func_800C0314(*(s32*)0x1F800004, (u8)arg0);
+    }
+    *(s32*)0x1F800000 += sp[0];
+    *(s32*)0x1F800004 += sp[1];
+    *(s32*)0x1F800008 += sp[2];
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0314);
 
