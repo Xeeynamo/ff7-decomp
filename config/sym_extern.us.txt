@@ -3,6 +3,7 @@ g_FieldScriptSyncWaitEntity = 0x80071A88;
 g_FieldMusicLock = 0x800716D4;
 g_FieldWaitCounter = 0x800716DC;
 g_SavedFieldScriptPC = 0x80071748;
+g_PartyUpdatedByFieldScript = 0x80071E34;
 g_CurrentEntity = 0x800722C4;
 D_800730CC = 0x800730CC;
 g_FieldLines = 0x8007E7AC;
