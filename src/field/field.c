@@ -55,6 +55,9 @@ extern char g_DebugMessageBuffer[]; // debug value transformed into text
 extern struct GpuBuf D_800E4DF0[2];
 extern u8 D_80114498[];
 extern u8 g_actorIdCur;
+extern u8 g_RandomTableStep;
+extern u8 g_RandomTableIndex;
+extern u8 g_RandomTable[256];
 
 void func_800A364C(struct GpuBuf* buf);
 void func_800AA180(Unk80074EA4* arg0, FieldLine* arg1);
@@ -2635,9 +2638,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWmode);
  * - const UByte Oper: The second operand of the bitwise AND.
  * @details
  * Performs a bitwise AND operation between “Dest” and “Oper” and stores the
- * result back into “Dest”. If the Source Bank is 0 then the Oper is the operand
- * to AND with. If the Source Bank is an 8 bit bank, then the Oper is the
- * address in that bank where the operand is.
+ * result back into “Dest”. If the Source Bank is 0 then the "Oper" is the
+ * operand to AND with. If the Source Bank is an 8 bit bank, then the "Oper" is
+ * the address in that bank where the operand is.
  */
 s32 OpcodeFuncAnd(void) {
 
@@ -2659,17 +2662,17 @@ s32 OpcodeFuncAnd(void) {
  * | 0x90 | D/S | Dest | Oper |
  *
  * - const Bit[4] D: Destination bank
- * - const Bit[4] S: Source bank, or zero if Oper is specified as a literal
+ * - const Bit[4] S: Source bank, or zero if "Oper" is specified as a literal
  * value.
  * - const UByte Dest: Address containing an operand of the bitwise AND, and
  * that which receives the result.
  * - const UShort Oper: 16-bit operand of the bitwise AND, or address of the
  * second operand, if S is non-zero.
  * @details
- * Performs a bitwise AND operation between Dest and Oper and stores the result
- * back into Dest. If the Source Bank is 0 then the Oper is the operand to AND
- * with. If the Source Bank is a 16-bit bank, then the Oper is the address in
- * that bank where the operand is.
+ * Performs a bitwise AND operation between  "Dest"  and "Oper" and stores the
+ * result back into  "Dest" . If the Source Bank is 0 then the "Oper" is the
+ * operand to AND with. If the Source Bank is a 16-bit bank, then the "Oper" is
+ * the address in that bank where the operand is.
  */
 s32 OpcodeFuncAnd2(void) {
 
@@ -2697,10 +2700,10 @@ s32 OpcodeFuncAnd2(void) {
  * - const UByte Oper: The second operand of the bitwise OR.
  * @details
  * Performs a bitwise OR operation between “Dest” and “Oper” and stores the
- * result back into “Dest”. If the Source Bank is 0 then the Oper is the operand
- * to OR with. If the Source Bank
- * is an 8 bit bank, then the â€œOperâ€ is the address in that bank where the
- * operand is.
+ * result back into “Dest”. If the Source Bank is 0 then the "Oper" is the
+ * operand to OR with. If the Source Bank
+ * is an 8 bit bank, then the â€œOperâ€ is the address in that bank where
+ * the operand is.
  */
 s32 OpcodeFuncOr(void) {
 
@@ -2722,17 +2725,17 @@ s32 OpcodeFuncOr(void) {
  * | 0x92 | D/S | Dest | Oper |
  *
  * - const Bit[4] D: Destination bank
- * - const Bit[4] S: Source bank, or zero if Oper is specified as a literal
+ * - const Bit[4] S: Source bank, or zero if "Oper" is specified as a literal
  * value.
  * - const UByte Dest: Address containing an operand of the bitwise OR, and that
  * which receives the result.
  * - const UShort Oper: 16-bit operand of the bitwise OR, or address of the
  * second operand, if S is non-zero
  * @details
- * Performs a bitwise OR operation between Dest and Oper and stores the result
- * back into Dest. If the Source Bank is 0 then Oper is the operand to OR with.
- * If the Source Bank is a 16-bit bank, then the Oper is the address in that
- * bank where the operand is.
+ * Performs a bitwise OR operation between  "Dest"  and "Oper" and stores the
+ * result back into  "Dest" . If the Source Bank is 0 then "Oper" is the operand
+ * to OR with. If the Source Bank is a 16-bit bank, then the "Oper" is the
+ * address in that bank where the operand is.
  */
 s32 OpcodeFuncOr2(void) {
 
@@ -2761,7 +2764,7 @@ s32 OpcodeFuncOr2(void) {
  * @details
  * Performs a bitwise XOR operation between “Dest” and “Oper” and stores the
  * result back into “Dest”. If the Source Bank is 0 then the Operis the operand
- * to XOR with. If the Source Bank is an 8 bit bank, then the Oper is the
+ * to XOR with. If the Source Bank is an 8 bit bank, then the "Oper" is the
  * address in that bank where the operand is.
  */
 s32 OpcodeFuncXor(void) {
@@ -2777,21 +2780,24 @@ s32 OpcodeFuncXor(void) {
 }
 
 /**
- * @brief Opcode 0x85 - **PLUS** - Addition (8-bit)
+ * @brief Opcode 0x94 - **XOR2** - Bitwise XOR (16-bit)
  *
  * Memory layout:
  *
- * | 0x85 | D/S | Dest | Oper |
+ * | 0x94 | D/S | Dest | Oper |
  *
  * - const Bit[4] D: Destination bank
- * - const Bit[4] S: Source bank
- * - const UByte Dest: The destination variable, to which the operand is added.
- * - const UByte Oper: The operand, added to the destination.
+ * - const Bit[4] S: Source bank, or zero if "Oper" is specified as a literal
+ * value.
+ * - const UByte Dest: Address containing an operand of the bitwise XOR, and
+ * that which receives the result.
+ * - const UShort Oper: 16-bit operand of the bitwise XOR, or address of the
+ * second operand, if S is non-zero.
  * @details
- * Adds two numbers together and stores the result back into Dest. The result of
- * the addition wraps around into the range of 0-255. If the Source Bank is 0
- * then the Oper is added to the destination value. If the Source Bank is an 8
- * bit bank, then the Oper is the address in that bank where the operand is.
+ * Performs a bitwise XOR operation between  "Dest"  and "Oper" and stores the
+ * result back into  "Dest" . If the Source Bank is 0 then the "Oper" is the
+ * operand to XOR with. If the Source Bank is a 16-bit bank, then the "Oper" is
+ * the address in that bank where the operand is.
  */
 s32 OpcodeFuncXor2(void) {
 
@@ -2806,24 +2812,22 @@ s32 OpcodeFuncXor2(void) {
 }
 
 /**
- * @brief Opcode 0x94 - **XOR2** - Bitwise XOR (16-bit)
+ * @brief Opcode 0x85 - **PLUS** - Addition (8-bit)
  *
  * Memory layout:
  *
- * | 0x94 | D/S | Dest | Oper |
+ * | 0x85 | D/S | Dest | Oper |
  *
  * - const Bit[4] D: Destination bank
- * - const Bit[4] S: Source bank, or zero if Oper is specified as a literal
- * value.
- * - const UByte Dest: Address containing an operand of the bitwise XOR, and
- * that which receives the result.
- * - const UShort Oper: 16-bit operand of the bitwise XOR, or address of the
- * second operand, if S is non-zero.
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is added.
+ * - const UByte Oper: The operand, added to the destination.
  * @details
- * Performs a bitwise XOR operation between Dest and Oper and stores the result
- * back into Dest. If the Source Bank is 0 then the Oper is the operand to XOR
- * with. If the Source Bank is a 16-bit bank, then the Oper is the address in
- * that bank where the operand is.
+ * Adds two numbers together and stores the result back into  "Dest" . The
+ * result of the addition wraps around into the range of 0-255. If the Source
+ * Bank is 0 then the "Oper" is added to the destination value. If the Source
+ * Bank is an 8 bit bank, then the "Oper" is the address in that bank where the
+ * operand is.
  */
 s32 OpcodeFuncPlus(void) {
     u16* temp_a0;
@@ -2839,26 +2843,22 @@ s32 OpcodeFuncPlus(void) {
     return 0;
 }
 
-
 /**
- * @brief Opcode 0x94 - **XOR2** - Bitwise XOR (16-bit)
+ * @brief Opcode 0x76 - **PLUS!** - Saturated Addition (8-bit)
  *
  * Memory layout:
  *
- * | 0x94 | D/S | Dest | Oper |
+ * | 0x76 | D/S | Dest | Oper |
  *
  * - const Bit[4] D: Destination bank
- * - const Bit[4] S: Source bank, or zero if Oper is specified as a literal
- * value.
- * - const UByte Dest: Address containing an operand of the bitwise XOR, and
- * that which receives the result.
- * - const UShort Oper: 16-bit operand of the bitwise XOR, or address of the
- * second operand, if S is non-zero.
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is added.
+ * - const UByte Oper: The operand, added to the destination.
  * @details
- * Performs a bitwise XOR operation between Dest and Oper and stores the result
- * back into Dest. If the Source Bank is 0 then the Oper is the operand to XOR
- * with. If the Source Bank is a 16-bit bank, then the Oper is the address in
- * that bank where the operand is.
+ * Adds two numbers together and stores the result back into “Dest”. The result
+ * of the addition is capped at 255. If the Source Bank is 0 then the "Oper" is
+ * added to the destination value. If the Source Bank is an 8 bit bank, then the
+ * "Oper" is the address in that bank where the operand is.
  */
 s32 OpcodeFuncPlusEx(void) {
     u8 a;
@@ -2870,51 +2870,512 @@ s32 OpcodeFuncPlusEx(void) {
     }
 
     a = FieldEventReadMemoryU8(1, 2);
-    b = FieldEventReadMemoryU8(2, 3); 
+    b = FieldEventReadMemoryU8(2, 3);
     sum = a + b;
     if (sum > 255) {
         sum = 255;
     }
-    
+
     FieldEventWriteMemoryU8(1, 2, sum);
     PC_INC(4);
     return 0;
 }
 
+/**
+ * @brief Opcode 0x86 - **PLUS2** - Addition (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x86 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is added.
+ * - const SWord Oper: The operand, added to the destination.
+ * @details
+ * Adds two numbers together and stores the result back into  "Dest" . The
+ * result of the addition wraps around into the 16-bit range. If the Source Bank
+ * is 0 then the â€œOperâ€ is added to the destination value. If the
+ * Source Bank is an 16 bit bank, then the "Oper" is the address in that bank
+ * where the operand is.
+ */
+s32 OpcodeFuncPlus2(void) {
 
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("plus2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) + FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
 
+/**
+ * @brief Opcode 0x77 - **PLS2!** - Saturated Addition (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x77 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is added.
+ * - const SWord Oper: The operand, added to the destination
+ * @details
+ * Adds two numbers together and stores the result back into “Dest” The result
+ * of the addition is capped at 32767. The result is not capped at the negative
+ * end, however (-32768), so adding two large negative numbers together will
+ * still produce wrap-around. If the Source Bank is 0 then the "Oper" is added
+ * to the destination value. If the Source Bank is an 16 bit bank, then the
+ * "Oper" is the address in that bank where the operand is.
+ */
+s32 OpcodeFuncPls2Ex(void) {
+    s16 a;
+    s16 b;
+    s32 sum;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPlus2);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("pls2!", 3);
+    }
+    a = FieldEventReadMemoryS16(1, 2);
+    b = FieldEventReadMemoryS16(2, 3);
+    sum = a + b;
+    if (sum > 0x7FFF) {
+        sum = 0x7FFF;
+    }
+    FieldEventWriteMemoryS16(1, 2, sum);
+    PC_INC(5);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPls2Ex);
+/**
+ * @brief Opcode 0x87 - **MINUS** - Subtraction (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x87 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is
+ * subtracted.
+ * - const UByte Oper: The operand to be subtracted from the destination.
+ * @details
+ * Subtracts two numbers and stores the result back into  "Dest" . The result of
+ * the subtraction wraps around into the range of 0-255. If the Source Bank is 0
+ * then the "Oper" is subtracted from the destination value. If the Source Bank
+ * is an 8 bit bank, then the "Oper" is the address in that bank where the
+ * operand is.
+ */
+s32 OpcodeFuncMinus(void) {
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMinus);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("minus", 3);
+    }
+    FieldEventWriteMemoryU8(
+        1, 2,
+        (FieldEventReadMemoryU8(1, 2) - FieldEventReadMemoryU8(2, 3)) & 0xFF);
+    PC_INC(4);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMinsEx);
+/**
+ * @brief Opcode 0x78 - **MINS!** - Saturated Subtraction (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x78 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is
+ * subtracted.
+ * - const UByte Oper: The operand to be subtracted from the destination.
+ * @details
+ * Subtracts “Oper” from “Dest” and stores the result back into “Dest”. The
+ * result of the subtraction is capped at 0. If the Source Bank is 0 then the
+ * "Oper" is subtracted from the destination value. If the Source Bank is an 8
+ * bit bank, then the "Oper" is the address in that bank where the operand is.
+ */
+s32 OpcodeFuncMinsEx(void) {
+    u8 a;
+    u8 b;
+    s16 differ;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMins2);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mins!", 3);
+    }
+    a = FieldEventReadMemoryU8(1, 2);
+    b = FieldEventReadMemoryU8(2, 3);
+    differ = a - b;
+    if (differ < 0) {
+        differ = 0;
+    }
+    FieldEventWriteMemoryU8(1, 2, differ & 0xFF);
+    PC_INC(4);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMns2Ex);
+/**
+ * @brief Opcode 0x88 - **MINS2** - Subtraction (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x98 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is
+ * subtracted.
+ * - const SWord Oper: The operand to be subtracted from the destination.
+ * @details
+ * Subtracts two numbers and stores the result back into "Dest". The result of
+ * the subtraction wraps around into the 16-bit range. If the Source Bank is 0
+ * then the "Oper" is subtracted from the destination value. If the Source Bank
+ * is an 16 bit bank, then the "Oper" is the address in that bank where the
+ * operand is.
+ */
+s32 OpcodeFuncMins2(void) {
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMul);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mins2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) - FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMul2);
+/**
+ * @brief Opcode 0x79 - **MNS2!** - Saturated Subtraction (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x79 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is
+ * subtracted.
+ * - const SWord Oper: The operand to be subtracted from the destination.
+ * @details
+ * Subtracts “Oper” from “Dest” and stores the result back into “Dest”. The
+ * result of the subtraction is capped at -32768. The result is not capped at
+ * the positive end (32767), so subtracting a large negative number from a large
+ * positive number will still produce wrap-around. If the Source Bank is 0 then
+ * the â€œOperâ€ is subtracted from the destination value. If the
+ * Source
+ * Bank is an 16 bit bank, then the â€œOperâ€ is the address in that bank
+ * where the operand is.
+ */
+s32 OpcodeFuncMns2Ex(void) {
+    s16 a;
+    s16 b;
+    s32 differ;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDiv);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mns2!", 3);
+    }
+    a = FieldEventReadMemoryS16(1, 2);
+    b = FieldEventReadMemoryS16(2, 3);
+    differ = a - b;
+    if (differ <= 0x7FFF) {
+        differ = 0x8000;
+    }
+    FieldEventWriteMemoryS16(1, 2, differ);
+    PC_INC(5);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDiv2);
+/**
+ * @brief Opcode 0x89 - **MUL** - Multiplication (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x89 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is
+ * multiplied.
+ * - const UByte Oper: The operand, which is multiplied with the destination.
+ * @details
+ * Multiplies two numbers together and stores the result back into "Dest". The
+ * result of the Multiplication is capped at 255. If the Source Bank is 0 then
+ * the the value "Oper" is multiplied with the destination value. If the Source
+ * Bank is an 8 bit bank, then the "Oper" is the address in that bank where the
+ * operand is.
+ */
+s32 OpcodeFuncMul(void) {
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRemai);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mul", 3);
+    }
+    FieldEventWriteMemoryU8(
+        1, 2,
+        (FieldEventReadMemoryU8(1, 2) * FieldEventReadMemoryU8(2, 3)) & 0xFF);
+    PC_INC(4);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRema2);
+/**
+ * @brief Opcode 0x8A - **MUL2** - Multiplication (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x8A | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is
+ * multiplied.
+ * - const SWord Oper: The operand, which is multiplied with the destination.
+ * @details
+ * Multiplies two numbers together and stores the result back into "Dest". The
+ * result of the Multiplication is capped at 32767. If the Source Bank is 0 then
+ * the the value "Oper" is multiplied with the destination value. If the Source
+ * Bank is an 8 bit bank, then the "Oper" is the address in that bank where the
+ * operand is.
+ */
+s32 OpcodeFuncMul2(void) {
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncInc);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mul2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) * FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncIncEx);
+/**
+ * @brief Opcode 0x8B - **DIV** - Division (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x8B | D/S | Dest | Den |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: Contains the nominator of the division and receives the
+ * quotient.
+ * - const UByte Den: The denominator of the division.
+ * @details
+ * Divides "Dest" by "Den" and stores the result back into "Dest". The result of
+ * the division is rounded towards zero to the nearest integer. If the Source
+ * Bank is 0 then the "Den" is the denominator. If the Source Bank is an 8 bit
+ * bank, then the "Den" is the address in that bank where the denominator is.
+ */
+s32 OpcodeFuncDiv(void) {
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncInc2);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("div", 3);
+    }
+    FieldEventWriteMemoryU8(1, 2,
+                            (u8)((u32)(FieldEventReadMemoryU8(1, 2) & 0xFF) /
+                                 (u32)(FieldEventReadMemoryU8(2, 3) & 0xFF)));
+    PC_INC(4);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncInc2Ex);
+/**
+ * @brief Opcode 0x8C - **DIV2** - Division (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x8C | D/S | Dest | Den |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: Contains the nominator of the division and receives the
+ * quotient.
+ * - const UByte Den: The denominator of the division.
+ * @details
+ * Divides â€œDestâ€ by "Den" and stores the result back into "Dest". The
+ * result of the division is rounded towards zero to the nearest integer. If the
+ * Source Bank is 0 then the "Den" is the denominator. If the Source Bank is an
+ * 8 bit bank, then the "Den" is the address in that bank where the denominator
+ * is.
+ */
+s32 OpcodeFuncDiv2(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("div2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) / FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x8D - **REMAI** - Modulus (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x8D | D/S | Dest | Den |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: Contains the nominator of the division and receives the
+ * remainder.
+ * - const UByte Den: The denominator of the division.
+ * @details
+ * Divides "Dest" by "Den" and stores the remainder back into "Dest". If the
+ * Source Bank is 0 then the "Den" is the denominator. If the Source Bank is an
+ * 8 bit bank, then the "Den" is the address in that bank where the denominator
+ * is.
+ */
+s32 OpcodeFuncRemai(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("remai", 3);
+    }
+    FieldEventWriteMemoryU8(1, 2,
+                            (u8)((u32)(FieldEventReadMemoryU8(1, 2) & 0xFF) %
+                                 (u32)(FieldEventReadMemoryU8(2, 3) & 0xFF)));
+    PC_INC(4);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x8E - **REMA2** - Modulus (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x8E | D/S | Dest | Den
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: Contains the nominator of the division and receives the
+ * remainder.
+ * - const SWord Den: The denominator of the division.
+ * @details
+ * Divides "Dest" by "Den" and stores the remainder back into "Dest". If the
+ * Source Bank is 0 then the "Den" is the denominator. If the Source Bank is an
+ * 16 bit bank, then the "Den" is the address in that bank where the denominator
+ * is.
+ */
+s32 OpcodeFuncRema2(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("rema2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) % FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x95 - **INC** - Increment (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x95 | B | A |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte A: Address.
+ * @details
+ * Increments the 8-bit value found at bank B, address A. If the value is 0xFF,
+ * it will roll over to 0x00. If you specify a 16-bit bank, only the lower byte
+ * will be incremented, and if the lower byte is 0xFF, the higher byte will be
+ * unaffected whilst the lower byte will return to 0x00.
+ */
+s32 OpcodeFuncInc(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("inc", 2);
+    }
+    FieldEventWriteMemoryU8(2, 2, (FieldEventReadMemoryU8(2, 2) + 1) & 0xFF);
+    PC_INC(3);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x7A - **INC!** - Saturated Increment (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x7A | 0/D | Dest |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const UByte Dest: The destination address in the bank where the variable is
+ * incremented.
+ * @details
+ * Increments the value in "Dest" by 1. The result is capped at 255.
+ */
+s32 OpcodeFuncIncEx(void) {
+    s16 result;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("inc!", 2);
+    }
+    result = (FieldEventReadMemoryU8(2, 2) & 0xFF) + 1;
+    if (result >= 0x100) {
+        result = 0xFF;
+    }
+    FieldEventWriteMemoryU8(2, 2, result & 0xFF);
+    PC_INC(3);
+    return 0;
+}
+
+/**
+ * @brief Opcode  0x96 - **INC2** - Increment (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x96 | B | A |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte A: Address.
+ * @details
+ * Increments the 16-bit value found at bank B, address A. If the value is
+ * 0xFFFF, it will roll over to 0x0000.
+ */
+s32 OpcodeFuncInc2(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("inc2", 3);
+    }
+    FieldEventWriteMemoryS16(2, 2, (s16)(FieldEventReadMemoryS16(2, 2) + 1));
+    PC_INC(3);
+    return 0;
+}
+
+/**
+ * @brief Opcode  0x7B - **INC2!** - Saturated Increment (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x7B | 0/D | Dest |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte Dest: The destination address in the bank where the variable is
+ * incremented.
+ * @details
+ * Increments the value in â€œDestâ€ by 1. The result is capped at
+ * 32767.
+ */
+s32 OpcodeFuncInc2Ex(void) {
+    s32 result;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("inc2!", 3);
+    }
+    result = FieldEventReadMemoryS16(2, 2) + 1;
+    if (result > 0x7FFF) {
+        result = 0x7FFF;
+    }
+    FieldEventWriteMemoryS16(2, 2, result);
+    PC_INC(3);
+    return 0;
+}
 
 /**
  * @brief Opcode 0x97 - **DEC** - Decrement (8-bit)
@@ -2940,15 +3401,133 @@ s32 OpcodeFuncDec(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDecEx);
+/**
+ * @brief Opcode 0x7C - **DEC!** - Saturated Decrement (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x7C | 0/D | Dest |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte Dest: The destination address in the bank where the variable is
+ * deccremented.
+ * @details
+ * Decreases the value in â€œDestâ€ by 1. The result is capped at 0.
+ */
+s32 OpcodeFuncDecEx(void) {
+    s16 result;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDec2);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("dec!", 2);
+    }
+    result = (FieldEventReadMemoryU8(2, 2) & 0xFF) - 1;
+    if (result < 0) {
+        result = 0;
+    }
+    FieldEventWriteMemoryU8(2, 2, result & 0xFF);
+    PC_INC(3);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDec2Ex);
+/**
+ * @brief Opcode 0x98 - **DEC2** - Decrement (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x98 | B | A |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte A: Address.
+ * @details
+ * Decrements the 16-bit value found at bank B, address A. If the value is
+ * 0x0000, it will roll over to 0xFFFF.
+ */
+s32 OpcodeFuncDec2(void) {
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRandm);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("dec2", 3);
+    }
+    FieldEventWriteMemoryS16(2, 2, (s16)(FieldEventReadMemoryS16(2, 2) - 1));
+    PC_INC(3);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRdmsd);
+/**
+ * @brief Opcode 0x7D - **DEC2!** - Saturated Decrement (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x7D | 0/D | Dest |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const UByte Dest: The destination address in the bank where the variable is
+ * Decremented.
+ * @details
+ * Decreases the value in "Dest" by 1. The result is capped at -32768.
+ */
+s32 OpcodeFuncDec2Ex(void) {
+    s32 result;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("dec2!", 3);
+    }
+    result = FieldEventReadMemoryS16(2, 2) - 1;
+    if (result <= 0x7FFF) {
+        result = 0x8000;
+    }
+    FieldEventWriteMemoryS16(2, 2, result);
+    PC_INC(3);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x99 - **RANDM** - Random
+ *
+ * Memory layout:
+ *
+ * | 0x99 | B | A |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte A: Destination address.
+ * @details
+ * Places a random 8-bit value into the destination bank and address specified.
+ * If you specify a 16-bit bank, only the lower byte is randomised.
+ */
+s32 OpcodeFuncRandm(void) {
+    u16* temp_v1;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("randm", 2);
+    }
+    g_RandomTableIndex += g_RandomTableStep;
+    FieldEventWriteMemoryU8(2, 2, g_RandomTable[g_RandomTableIndex]);
+    PC_INC(3);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x7F - **RDMSD** - Seed Random Generator
+ *
+ * Memory layout:
+ *
+ * | 0x7F | B | S |
+ *
+ * - const UByte B: Bank in which the seed value is stored, or zero if S is
+ * specified as a literal value.
+ * - const UByte A: Destination address.
+ * @details
+ * Seeds the random number generator used by RANDOM. The lower four bits of the
+ * arguments are used as the seed value by altering the offset used to take a
+ * value from the table of pseudo-random numbers.
+ */
+s32 OpcodeFuncRdmsd(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("rdmsd", 2);
+    }
+    g_RandomTableStep = (FieldEventReadMemoryU8(2, 2) << 4) + 1;
+    PC_INC(3);
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgon);
 

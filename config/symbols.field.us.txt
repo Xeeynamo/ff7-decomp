@@ -1,4 +1,6 @@
+g_RandomTableStep = 0x8004A630;
 g_FieldDebugCurPage = 0x80071C08;
+g_RandomTableIndex = 0x80095DC8;
 g_DebugLevel = 0x8009D820;
 D_800A0238 = 0x800A0238; // force_migration:True
 D_800A023C = 0x800A023C; // force_migration:True
@@ -353,6 +355,7 @@ FieldDebugStringU8hex = 0x800DA424;
 FieldDebugStringU16hex = 0x800DA444;
 FieldDebugStringU32hex = 0x800DA480;
 g_FieldDebugDigits = 0x800E0208;
+g_RandomTable = 0x800E0638;
 g_FieldDebugRb = 0x800E1024;
 g_FieldDebugRChars = 0x800E41B8;
 g_FieldDebugRRect = 0x800E41BC;

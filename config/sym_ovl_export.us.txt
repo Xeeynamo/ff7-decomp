@@ -1833,6 +1833,7 @@ func_800D7A58 = 0x800d7a58;
 func_800D7C98 = 0x800d7c98;
 func_800DA4FC = 0x800da4fc;
 g_FieldDebugDigits = 0x800e0208;
+g_RandomTable = 0x800e0638;
 func_801D0000 = 0x801d0000;
 func_801D00C4 = 0x801d00c4;
 func_801D01C4 = 0x801d01c4;
