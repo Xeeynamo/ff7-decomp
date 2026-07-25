@@ -150,10 +150,10 @@ static s32 func_800A369C(void) { return D_800E5658; }
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A36AC);
 
 void func_800A38C8(void) {
-    if (D_80071E34 == 1) {
+    if (g_PartyUpdatedByFieldScript == 1) {
         func_800260DC();
         func_80026090();
-        D_80071E34 = 0;
+        g_PartyUpdatedByFieldScript = 0;
     }
 }
 

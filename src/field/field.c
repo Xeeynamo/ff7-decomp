@@ -94,6 +94,9 @@ u32 If2CheckUnsigned(void);
 static s32 KeyCheck(u16 keys);
 static u32 GetAkaoBlockOffset(s16 akaoId);
 s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId);
+static void func_800CF5A0(s32 unk);
+static void PartyRemove(u8* party, u8* toRemove);
+static void PartyAdd(u8* party, u8* toAdd);
 static void DebugPrintToFieldWindow(const char* str);
 static void FieldEventDebugError(const char* errmsg);
 void AddStrNextDebugRow(s32 val, const char* msg_out);
@@ -2332,11 +2335,36 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSkip);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLskip);
 
-//////////////////////////////////////////////////
-// Start of field_opcode_Module.c
-/////////////////////////////////////////////////
-
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMjump);
+#else
+s32 OpcodeFuncMjump(void) {
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("mjump", 8);
+    }
+
+    switch (g_FieldState->eventCmd) {
+    case EVTCMD_NONE:
+        g_FieldState->eventCmd = EVTCMD_FIELD_MAP_CHANGE;
+        g_FieldState->movieCommandState = MOVCMD_IDLE;
+        GET_PARAM_S16(g_FieldState->eventCmdParam, 1);
+        GET_PARAM_S16(g_FieldState->pcPosX, 3);
+        GET_PARAM_S16(g_FieldState->pcPosY, 5);
+        GET_PARAM_S16(g_FieldState->pcWalkMeshId, 7);
+        g_FieldState->pcDirection = GET_PARAM_U8(9);
+        return 1;
+    case EVTCMD_FIELD_MAP_CHANGE:
+        if (g_FieldState->movieCommandState == MOVCMD_DONE) {
+            PC_INC(10);
+            g_FieldState->eventCmd = EVTCMD_NONE;
+            return 0;
+        }
+    }
+    if (DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("evt cmd=", g_FieldState->eventCmd, 2);
+    }
+    return 1;
+}
+#endif
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPmjmp);
 
@@ -2541,14 +2569,14 @@ s32 OpcodeFuncDskcg(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("dskcg", 1);
     }
-    switch (g_FieldState->opcode) {
-    case FIELDOP_NONE:
-        g_FieldState->opcode = FIELDOP_CD_CHANGE;
+    switch (g_FieldState->eventCmd) {
+    case EVTCMD_NONE:
+        g_FieldState->eventCmd = EVTCMD_CD_CHANGE;
         D_8009D588 = GET_PARAM_U8(1);
         return 1;
-    case FIELDOP_CD_CHANGE:
+    case EVTCMD_CD_CHANGE:
         if (g_FieldState->movieCommandState == MOVCMD_DONE) {
-            g_FieldState->opcode = FIELDOP_NONE;
+            g_FieldState->eventCmd = EVTCMD_NONE;
             PC_INC(2);
             return 0;
         }
@@ -2607,7 +2635,7 @@ s32 OpcodeFuncGmovr(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("gmovr", 0);
     }
-    g_FieldState->opcode = FIELDOP_GAME_OVER;
+    g_FieldState->eventCmd = EVTCMD_GAME_OVER;
     g_FieldState->movieCommandState = MOVCMD_IDLE;
     return 1;
 }
@@ -3922,12 +3950,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMppal2);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMppal);
 
-/////////////////////////////////////////////////
-// Begin of field_opcode_party.c
-////////////////////////////////////////////////
-
-INCLUDE_ASM(
-    "asm/us/field/nonmatchings/field", FieldEventPartySet1stPartyCharAsPc);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CEB20);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPc);
 
@@ -3941,35 +3964,121 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSptye);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGptye);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventPartySetFromArray);
+void func_800CF368(u8* newParty) {
+    s32 i, j;
 
-void FieldEventPartyCompare(void*, void*, void*, void*);
-void FieldEventPartyCharsRemove(void*, void*);
-void FieldEventPartyCharsAdd(void*, void*);
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventPartyCompare);
+    for (i = 0; i < 3; i++) {
+        if (newParty[i] != 0xFF) {
+            for (j = 0; j < 3; j++) {
+                if (newParty[i] == Savemap.memory_bank_2[9 + j]) {
+                    Savemap.memory_bank_2[9 + j] = 0xFF;
+                }
+            }
+        }
+    }
 
-static void FieldEventPartyCopyToBattleParty(void) {
-    s32 sp10[2];
-    s32 sp18[2];
+    for (i = 0; i < 3; i++) {
+        if (Savemap.memory_bank_2[9 + i] != 0xFF) {
+            for (j = 0; j < 3; j++) {
+                if (newParty[j] == 0xFF) {
+                    newParty[j] = Savemap.memory_bank_2[9 + i];
+                    j = 3;
+                }
+            }
+        }
+    }
 
-    FieldEventPartyCompare(D_8009CBDC, D_8009CBDC + 0x7B5, sp10, sp18);
-    FieldEventPartyCharsRemove(D_8009CBDC, sp18);
-    FieldEventPartyCharsAdd(D_8009CBDC, sp10);
-    D_80071E34 = 1;
+    for (i = 0; i < 3; i++) {
+        if (newParty[i] == 0xFE) {
+            newParty[i] = 0xFF;
+        }
+        Savemap.memory_bank_2[9 + i] = newParty[i];
+        if (newParty[i] != 0xFF) {
+            Savemap.phs_visibility_mask |= 1 << *(volatile u8*)&newParty[i];
+        }
+    }
+
+    func_800CF5A0(1);
+    func_800CEB20();
 }
 
-static void FieldEventCopyBattlePartyToParty(void) {
-    s32 sp10[2];
-    s32 sp18[2];
+static void PartyCompare(
+    u8* party1, u8* party2, u8* party2Only, u8* party1Only) {
+    s32 i, j, k;
 
-    FieldEventPartyCompare(D_8009D391, D_8009D391 - 0x7B5, sp10, sp18);
-    FieldEventPartyCharsRemove(D_8009D391, sp18);
-    FieldEventPartyCharsAdd(D_8009D391, sp10);
+    for (i = 0; i < 3; i++) {
+        party2Only[i] = 0xFF;
+        party1Only[i] = 0xFF;
+    }
+
+    k = 0;
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            if (party2[i] == party1[j]) {
+                goto foundInParty1;
+            }
+        }
+        party2Only[k++] = party2[i];
+    foundInParty1:;
+    }
+
+    k = 0;
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            if (party1[i] == party2[j]) {
+                goto foundInParty2;
+            }
+        }
+        party1Only[k++] = party1[i];
+    foundInParty2:;
+    }
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventPartyCharsRemove);
+static void func_800CF5A0(s32 unk) {
+    u8 notInSave[3];
+    u8 notInBank2[3];
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventPartyCharsAdd);
+    PartyCompare(
+        Savemap.partyID, &Savemap.memory_bank_2[9], notInSave, notInBank2);
+    PartyRemove(Savemap.partyID, notInBank2);
+    PartyAdd(Savemap.partyID, notInSave);
+    g_PartyUpdatedByFieldScript = 1;
+}
+
+static void func_800CF60C(void) {
+    u8 notInBank2[3];
+    u8 notInSave[3];
+
+    PartyCompare(
+        &Savemap.memory_bank_2[9], Savemap.partyID, notInBank2, notInSave);
+    PartyRemove(&Savemap.memory_bank_2[9], notInSave);
+    PartyAdd(&Savemap.memory_bank_2[9], notInBank2);
+}
+
+static void PartyRemove(u8* party, u8* toRemove) {
+    s32 i, j;
+
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            if (toRemove[i] == party[j]) {
+                party[j] = 0xFF;
+            }
+        }
+    }
+}
+
+static void PartyAdd(u8* party, u8* toAdd) {
+    s32 i, j;
+
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            if (party[j] == 0xFF) {
+                party[j] = toAdd[i];
+                break;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPrtyq);
 
@@ -4083,9 +4192,59 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCmtra);
 // Begin of field_opcode_menu.c
 /////////////////////////////////////////////////
 
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMenu);
+#else
+s32 OpcodeFuncMenu(void) {
+    if (DebugLevel & 3) {
+        func_800BEAD4("menu", 3);
+    }
+    if (DebugLevel & 3) {
+        func_800BECA4("evt cmd=", g_FieldState->eventCmd, 2);
+    }
 
+    if(g_FieldState->eventCmd == EVTCMD_NONE) {
+        g_FieldState->eventCmd = GET_PARAM_U8(2);
+        g_FieldState->eventCmdParam = FieldEventReadMemoryU8(2, 3);
+        g_FieldState->movieCommandState = MOVCMD_IDLE;
+        D_8007EBE0 = 1;
+        if(g_FieldState->eventCmd == EVTCMD_PARTY_MENU && g_FieldState->eventCmdParam == 0) {
+            PC_INC(4);
+        }
+        return 1;
+    }
+
+    if(g_FieldState->eventCmd == GET_PARAM_U8(2)) {
+        if (DebugLevel & 3) {
+            FieldDebugAddParseValueToPage2("evt result=", g_FieldState->movieCommandState, 1);
+        }
+        if(g_FieldState->movieCommandState == MOVCMD_DONE) {
+            PC_INC(4);
+            g_FieldState->eventCmd = EVTCMD_NONE;
+            g_FieldState->movieCommandState = MOVCMD_IDLE;
+            func_800CF60C();
+            return 0;
+        }
+    } else if(GET_PARAM_U8(2) == EVTCMD_UNK14 && g_FieldState->eventCmd == EVTCMD_PLAY_MOVIE) {
+        g_FieldState->eventCmd = GET_PARAM_U8(2);
+        g_FieldState->movieCommandState = MOVCMD_IDLE;
+    }
+    return 1;
+}
+#endif
+
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMenu2);
+#else
+s32 OpcodeFuncMenu2(void) {
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("menu", 1);
+    }
+    g_FieldState->menuDisabled = GET_PARAM_U8(1);
+    PC_INC(2);
+    return 0;
+}
+#endif
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGetpc);
 
