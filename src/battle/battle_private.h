@@ -16,7 +16,7 @@ typedef struct {
 typedef struct {
     s16 unk0;
     s16 unk2;
-    s16 unk4;
+    u16 unk4; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
     s16 unk6;
     s32 unk8;
     s16 unkC;
