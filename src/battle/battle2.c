@@ -1077,23 +1077,74 @@ static void func_800D4D6C(s32 arg0, s32 arg1, s32 arg2) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4D90);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4FA8);
+extern s32 D_800F10D8;
+extern s32 D_800F4CEC[16];
+extern s16 D_800F4D2C[16][10];
+
+static s16* func_800D4FA8(s32 arg0) {
+    s32 idx = D_800F10D8;
+    s32 next = (idx + 1) & 0xF;
+
+    D_800F4CEC[idx] = arg0;
+    D_800F10D8 = next;
+    return D_800F4D2C[idx];
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4FF0);
 
+void func_800D508C();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D508C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5138);
+extern Unk80162978* D_800F10E0;
+
+// Reset the fixed-point ramp: zero the accumulator (0x04) and seed the
+// countdown (0x0C) so it lasts arg0 ticks.
+void func_800D5138(s32 arg0) {
+    if (D_800F10E0 == NULL) {
+        D_800F10E0 = &D_80162978[func_800BBEAC(func_800D508C)];
+    }
+    *(s32*)&D_800F10E0->D_8016297C = 0;
+    *(s32*)&D_800F10E0->unk8 = 0x10000 / arg0;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D51D4);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5230);
+extern s32 D_800F10E4;
+extern s16 D_800F5B74;
+
+// Step the ramp once: accumulate (0x04 += 0x08), publish the high word, and
+// free the slot when the countdown (0x0C) reaches 0.
+void func_800D5230(void) {
+    Unk80162978* slot = &D_80162978[D_8015169C];
+    s32 v0;
+    s32 v1;
+
+    if (D_80062D98 == 0) {
+        v0 = *(s32*)&slot->D_8016297C + *(s32*)&slot->D_80162980;
+        *(s32*)&slot->D_8016297C = v0;
+        D_800F5B74 = v0 >> 0x10;
+        v1 = *(s32*)&slot->unk8 - 1;
+        *(s32*)&slot->unk8 = v1;
+        if (v1 == 0) {
+            D_800F10E4 = 0;
+            slot->D_80162978 = -1;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D52A0);
 
+void func_800D5350();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5350);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5444);
+void func_800D5444(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    Unk80162978* temp_v0 = &D_80162978[func_800BBEAC(func_800D5350)];
+    temp_v0->D_80162978 = 0;
+    temp_v0->D_8016297C = arg0;
+    temp_v0->D_8016297E = arg1;
+    temp_v0->D_80162980 = arg2;
+    *(s32*)&temp_v0->unk8 = arg3;
+}
 
 s32 func_800D54BC(s32 arg0) {
     s32 count;
@@ -1141,9 +1192,16 @@ s32 func_800D574C(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5774);
 
+void func_800D57C0();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D57C0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D58D0);
+void func_800D58D0(s16 arg0, s16 arg1, s16 arg2) {
+    Unk80162978* temp_v0 = &D_80162978[func_800BBEAC(func_800D57C0)];
+    temp_v0->D_80162978 = 0;
+    temp_v0->D_80162980 = arg0;
+    temp_v0->D_8016297E = arg2;
+    temp_v0->D_8016297C = arg1;
+}
 
 void func_800D5938();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5938);
