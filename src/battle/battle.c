@@ -398,7 +398,7 @@ void func_800A4B9C(void) {}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4BA4);
 
-u8 func_800A4CA8(s32 arg0) { return D_800F39F0[arg0][0]; }
+s32 func_800A4CA8(s32 arg0) { return D_800F39F0[arg0][0]; }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4CC8);
 
@@ -551,11 +551,27 @@ void func_800A653C(s32 arg0) {
 
 void func_800A6590(s32 arg0) { func_800A4D88(arg0); }
 
+void func_800A65B0(s32, s32);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A65B0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A661C);
+void func_800A661C(s32 arg0) {
+    func_800A4D88(arg0);
+    if ((D_800F5F44.D_800F7DAC >> arg0) & 1) {
+        if (D_800F5BB8[arg0].unk4 == 0xFFFF) {
+            func_800A4D2C(arg0);
+            return;
+        }
+        D_800F5F44.D_800F7DAC &= ~(1 << arg0);
+    }
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A66A4);
+void func_800A66A4(s32 arg0, s32 arg1) {
+    func_800A653C(arg0);
+    func_800A65B0(arg0, arg1);
+    func_800A4D88(arg0);
+    D_800F5F44.D_800F7DAC &= ~(1 << arg0);
+    D_800F5F44.D_800F7DC4 &= ~(1 << arg0);
+}
 
 void func_800A6720(s32 arg0, s16 arg1) { func_800A5660(10, arg1); }
 
@@ -567,7 +583,13 @@ void func_800A6748(s32 arg0) {
 
 void func_800A6798(s32 arg0, s32 arg1) { func_800A37F8(arg1); }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A67B8);
+void func_800A67B8(s32 arg0) {
+    func_800A4D88(arg0);
+    D_800F5F44.D_800F7DC4 |= 1 << arg0;
+    if ((D_800F5F44.D_800F7DAC >> arg0) & 1) {
+        func_800A4350(arg0, func_800A4CA8(arg0), 0, 0);
+    }
+}
 
 void func_800A6834(s32 arg0) { D_800F5F44.D_800F7DC4 &= ~(1 << arg0); }
 
@@ -579,7 +601,12 @@ void func_800A6A3C(s32 arg0, s32 arg1) { D_800F5BB8[arg0].unkE |= arg1; }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6A70);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6AC4);
+void func_800A6AC4(void) {
+    D_800F5F44.D_800F7DC4 &= 0xFC0F;
+    D_800F5F44.D_800F7DCA &= 0xFC0F;
+    D_800F5F44.D_800F7DAC &= 0xFC0F;
+    D_800F5F44.D_800F7DC2 &= 0xFC0F;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6B1C);
 
