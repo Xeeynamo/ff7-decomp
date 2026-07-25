@@ -991,15 +991,17 @@ s32 OpcodeFuncBad(void) {
 ////////////////////////////////////////
 
 /**
- @brief Opcode 0x5F - **NOP** - No Operation
+ @brief Opcode 0x5F - **WAIT1* - Wait 1 frame
 
  Memory layout:
 
  | 0x5F |
  @details
  Waits one frame and returns 1
+ @note
+ This does not emit a debug message.
  */
-s32 OpcodeFuncNop(void) {
+s32 OpcodeFuncWait1(void) {
     PC_INC(1);
     return 1;
 }
@@ -2621,7 +2623,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWclse);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWmode);
 
 ////////////////////////////////////////
-// Begin of math.c
+// Begin of event_math.c
 ////////////////////////////////////////
 
 /**
@@ -3571,7 +3573,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLdpal);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLdpls);
 
-static void func_800CDC14(s16* arg0) {
+static void FieldEventRectClear(s16* arg0) {
     arg0[0] = 0;
     arg0[1] = 0;
     arg0[2] = 0;
@@ -3653,7 +3655,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSolid);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncVwoft);
 
 ////////////////////////////////////////
-// Begin of event_code_actions.c
+// Begin of event_actions.c
 ////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncJoin);
@@ -3716,9 +3718,87 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMpara);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMpra2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSin);
+/**
+ * @brief Opcode 0xD4 - **SIN** - sine
+ *
+ * Memory layout:
+ *
+ * | 0xD4 | B1 / B2 | B3 / B4 | D | M | A | S |
+ *
+ * - const Bit[4] B1: Destination bank.
+ * - const Bit[4] B2: Bank to retrieve M, or zero if M is specified as a literal
+ * value.
+ * - const Bit[4] B3: Bank to retrieve A, or zero if A is specified as a literal
+ * value.
+ * - const Bit[4] B4: Bank to retrieve S, or zero if S is specified as a literal
+ * value.
+ * - const UByte D: Destination address.
+ * - const UByte M: Multiplicand, or address to retrieve value if B2 is
+ * non-zero.
+ * - const UByte A: Addition, or address to retrieve value if B3 is non-zero.
+ * - const UByte S: Variable for sin angle, or source address to retrieve value
+ * if B4 is non-zero.
+ * @details
+ * Creates a variable from the another variable, with SIN, a multiplicand and an
+ * addition factor
+ */
+s32 OpcodeFuncSin(void) {
+    s32 result;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCos);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("sin", 8);
+    }
+
+    result = rsin(FieldEventReadMemoryS16(1, 3));
+    result *= FieldEventReadMemoryS16(2, 5);
+    result += FieldEventReadMemoryS16(3, 7);
+
+    FieldEventWriteMemoryS16(4, 9, (s16)(result >> 12));
+
+    PC_INC(10);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0xD4 - **COS** - cosine
+ *
+ * Memory layout:
+ *
+ * | 0xD5 | B1 / B2 | B3 / B4 | D | M | A | S |
+ *
+ * - const Bit[4] B1: Destination bank.
+ * - const Bit[4] B2: Bank to retrieve M, or zero if M is specified as a literal
+ * value.
+ * - const Bit[4] B3: Bank to retrieve A, or zero if A is specified as a literal
+ * value.
+ * - const Bit[4] B4: Bank to retrieve S, or zero if S is specified as a literal
+ * value.
+ * - const UByte D: Destination address.
+ * - const UByte M: Multiplicand, or address to retrieve value if B2 is
+ * non-zero.
+ * - const UByte A: Addition, or address to retrieve value if B3 is non-zero.
+ * - const UByte S: Variable for sin angle, or source address to retrieve value
+ * if B4 is non-zero.
+ * @details
+ * Creates a variable from the another variable, with COS, a multiplicand and an
+ * addition factor
+ */
+s32 OpcodeFuncCos(void) {
+    s32 result;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("cos", 8);
+    }
+
+    result = rcos(FieldEventReadMemoryS16(1, 3));
+    result *= FieldEventReadMemoryS16(2, 5);
+    result += FieldEventReadMemoryS16(3, 7);
+
+    FieldEventWriteMemoryS16(4, 9, (s16)(result >> 12));
+
+    PC_INC(10);
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D33FC);
 
@@ -3736,11 +3816,101 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncHpPlus);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncHpMinus);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGoldPlus);
+/**
+ * @brief Opcode 0x39 - **GOLDU** - Gold Up
+ *
+ * Memory layout:
+ *
+ * | 0x39 | 0 | A |
+ *
+ * Increase by a constant amount:
+ * - const UByte 0: Zero.
+ * - const ULong A: Amount to increase.
+ *
+ * Increase by an amount found in memory:
+ * - const Bit[4] B: Source bank.
+ * - const UByte A: Source address.
+ * - const UByte[3] 0: Three zero bytes.
+ * @details
+ * Increases the amount of gil by a constant amount, or by an amount found in
+ * the source bank B and address A. The total gil is capped above by 0xFFFFFFFF;
+ * attempts to increment further will fail.
+ */
+s32 OpcodeFuncGoldPlus(void) {
+    u32 gold;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGoldMinus);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("gold+", 5);
+    }
+    gold = (u16)FieldEventReadMemoryS16(1, 2);
+    gold |= (u16)FieldEventReadMemoryS16(2, 4) << 16;
+    SystemMenuAddPartyGold(gold);
+    PC_INC(6);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncChgld);
+/**
+ * @brief Opcode 0x3A - **GOLDD** - Gold Down
+ *
+ * Memory layout:
+ *
+ * | 0x3A | 0 | A |
+ *
+ * Decrease by a constant amount:
+ * - const UByte 0: Zero.
+ * - const ULong A: Amount to decrease
+ *
+ * Decrease by an amount found in memory:
+ * - const Bit[4] B: Source bank.
+ * - const UByte A: Source address.
+ * - const UByte[3] 0: Three zero bytes.
+ * @details
+ * Decreases the amount of gil by a constant amount, or by an amount found in
+ * the source bank B and address A. The total gil is capped below by 0; attempts
+ * to decrement further will fail.
+ */
+s32 OpcodeFuncGoldMinus(void) {
+    u32 gold;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("gold-", 5);
+    }
+    gold = (u16)FieldEventReadMemoryS16(1, 2);
+    gold |= (u16)FieldEventReadMemoryS16(2, 4) << 16;
+    SystemMenuRemovePartyGold(gold);
+    PC_INC(6);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x3B - **CHGLD** - Change Gold
+ *
+ * Memory layout:
+ *
+ * | 0x3B | B1 / B2 | A1 | A2 |
+ *
+ * - const Bit[4] B1: Destination bank 1.
+ * - const Bit[4] B2: Destination bank 2.
+ * - const UByte A1: Destination address 1.
+ * - const UByte A2: Destination address 2.
+ * @details
+ * Copies the amount of gil the party has into the destination addresses.
+ * As the gil amount is a four-byte value, the arguments require two destination
+ * addresses to place two two-byte values into. Address 1 takes the lower two
+ * bytes of the gil amount, while address 2 takes the higher two bytes.
+ */
+s32 OpcodeFuncChgld(void) {
+    u32 partyGold;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("chgld", 3);
+    }
+    partyGold = SystemMenuGetPartyGold();
+    FieldEventWriteMemoryS16(1, 2, (u16)partyGold);
+    FieldEventWriteMemoryS16(2, 3, (u16)(partyGold >> 16));
+    PC_INC(4);
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncChmph);
 
@@ -3765,6 +3935,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBlink);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncKawai);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncKawiw);
+
+////////////////////////////////////////
+// Begin of debug.c
+////////////////////////////////////////
 
 static void func_800D4838(void) {}
 
@@ -3833,10 +4007,6 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7970);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7A58);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7C98);
-
-////////////////////////////////////////
-// Begin of debug.c
-////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugInitBuffers);
 
@@ -3981,8 +4151,8 @@ static void FieldDebugStringU32hex(s32 val, char* msg_out) {
     msg_out[3] = g_FieldDebugDigits[val & 0xF];
 }
 
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugIntToString);
+
 ////////////////////////////////////////
 // End of debug.c
 ////////////////////////////////////////
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA4FC);
