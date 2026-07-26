@@ -480,7 +480,12 @@ void func_800A6994(VECTOR* arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A6B8C);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A6BCC);
+void func_800A6BCC(SVECTOR* arg0)
+{
+    if (arg0 != NULL) {
+        func_800A6884(&D_80109D44, arg0, NULL, NULL);
+    }
+}
 
 void func_800A6C00(s32 arg0) {
     if (func_800A1DB0() != 2)
@@ -2067,9 +2072,25 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B5274);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B5314);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B579C);
+extern u32 D_8010D9B8;
+extern u8 D_8010D9BA;
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B57C0);
+// Initializes a block at a given index with provided values.
+void func_800B579C(s32 arg0, s8 arg1, s8 arg2, s8 arg3)
+{
+    u8* temp_a0 = (u8*)&D_8010D9B8 + (arg0 * 4);
+    
+    temp_a0[0] = arg1;
+    temp_a0[1] = arg2;
+    temp_a0[2] = arg3;
+    temp_a0[3] = 0;
+}
+
+// Clears the third byte of a block element.
+void func_800B57C0(s32 arg0)
+{
+    *(&D_8010D9BA + (arg0 * 4)) = 0;
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B57DC);
 
@@ -2396,7 +2417,14 @@ extern s16 D_80116290;
 
 s16 func_800B86C4(void) { return D_800832A0 == 0 ? D_80116290 : -1; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B86E8);
+void func_800B8B00(s32, s16, s16, s16, s32);
+
+void func_800B86E8(s16* arg0)
+{
+    if (arg0 != NULL) {
+        func_800B8B00(0, arg0[0], arg0[1], arg0[2], (s32) arg0[3]);
+    }
+}
 
 void func_800B8A5C(s32, s16, s16);                       // extern
 
