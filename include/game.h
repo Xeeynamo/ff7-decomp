@@ -653,7 +653,7 @@ extern u16 g_FieldWaitCounter[48];      // Used by WAIT opcode to pause script
 extern u16 g_SavedFieldScriptPC[48][8]; // Program counters of paused scripts
 extern s16 D_80071A5C;
 extern u8 g_FieldScriptSyncWaitEntity[48][8];
-extern s8 D_80071C08;
+extern s8 g_FieldDebugCurPage;
 extern u8 D_80071E24;
 extern u8 D_80071E2C;
 extern u8 D_80071E30;
@@ -722,7 +722,7 @@ extern u8 D_8009D684;
 extern u8 D_8009D685;
 extern u8 D_8009D686;
 extern u8 D_8009D60E;
-extern u8 D_8009D820; // field debug related
+extern u8 DebugLevel; // field debug related
 extern u8 D_8009D824;
 extern s16 D_8009D828[]; // per-model base animation speed
 extern u8 D_8009D8F8[];
