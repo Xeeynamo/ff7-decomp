@@ -446,17 +446,17 @@ typedef struct {
     /* 0x1C */ s8 unk1C[0x3B];
     /* 0x57 */ u8 entityId; // script entity that owns this model
     /* 0x58 */ u8 requestPushScript;
-    /* 0x59 */ u8 unk59;
+    /* 0x59 */ u8 collisionDisabled;
     /* 0x5A */ u8 requestTalkScript;
-    /* 0x5B */ u8 unk5B;
-    /* 0x5C */ u8 unk5C;
+    /* 0x5B */ u8 talkScriptDisabled;
+    /* 0x5C */ u8 visible;
     /* 0x5D */ u8 scriptedMoveMode; // enum ScriptedMoveMode
     /* 0x5E */ u8 activeAnimId;
     /* 0x5F */ s8 unk5F;
     /* 0x60 */ s16 animSpeed;
     /* 0x62 */ s16 animCurrentFrame;
     /* 0x64 */ s16 animLastFrame;
-    /* 0x66 */ u16 unk66; // model id
+    /* 0x66 */ u16 charId; // Set if model is of a party memmber
     /* 0x68 */ s8 unk68[0x1C];
 } Unk80074EA4; // size:0x84
 
