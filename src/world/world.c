@@ -54,9 +54,9 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A141C);
 
 static void func_800A16D0(s32 arg0) { D_800E5630 = arg0; }
 
-// Returns a pointer offset by 0x2710 (10000 bytes) if D_800E55F4 is non-zero, else NULL.
-void* func_800A16E0(void)
-{
+// Returns a pointer offset by 0x2710 (10000 bytes) if D_800E55F4 is non-zero,
+// else NULL.
+void* func_800A16E0(void) {
     return (D_800E55F4 != 0) ? ((u8*)D_800BD130 + 0x2710) : NULL;
 }
 
@@ -363,9 +363,9 @@ void func_800A5924(void) {
 
 extern void** D_800E5768;
 
-// Traverses a linked list starting from D_800E5768 and returns the number of nodes.
-s16 func_800A5970(void)
-{
+// Traverses a linked list starting from D_800E5768 and returns the number of
+// nodes.
+s16 func_800A5970(void) {
     void** var_v1;
     s16 var_v0;
 
@@ -391,8 +391,7 @@ typedef struct WorldStruct800A5A94 {
 
 // Checks if the given arg0 value exists in the unk4 field of the linked list
 // starting at D_800E5768. Returns 1 if found, 0 otherwise.
-s32 func_800A5A94(s16 arg0)
-{
+s32 func_800A5A94(s16 arg0) {
     WorldStruct800A5A94* var_v1;
 
     var_v1 = (WorldStruct800A5A94*)D_800E5768;
@@ -498,15 +497,13 @@ void func_800A6994(VECTOR* arg0, s32 arg1) {
 }
 
 // Copies the global D_80109D44 vector into the provided argument.
-void func_800A6B8C(VECTOR* arg0)
-{
+void func_800A6B8C(VECTOR* arg0) {
     if (arg0 != NULL) {
         *arg0 = D_80109D44;
     }
 }
 
-void func_800A6BCC(SVECTOR* arg0)
-{
+void func_800A6BCC(SVECTOR* arg0) {
     if (arg0 != NULL) {
         func_800A6884(&D_80109D44, arg0, NULL, NULL);
     }
@@ -1865,8 +1862,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF1E8);
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF24C);
 
 // Updates three byte fields (0x10, 0x11, 0x12) in the global struct D_8010B3B8.
-void func_800AF2A4(s8 arg0, s8 arg1, s8 arg2)
-{
+void func_800AF2A4(s8 arg0, s8 arg1, s8 arg2) {
     if (D_8010B3B8 != NULL) {
         ((s8*)D_8010B3B8)[0x10] = arg0;
         ((s8*)D_8010B3B8)[0x11] = arg1;
@@ -1885,8 +1881,7 @@ static void func_800AF304(s32 arg0) {
 }
 
 // Updates three byte fields (0x14, 0x15, 0x16) in the global struct D_8010B3B8.
-void func_800AF324(s8 arg0, s8 arg1, s8 arg2)
-{
+void func_800AF324(s8 arg0, s8 arg1, s8 arg2) {
     if (D_8010B3B8 != NULL) {
         ((s8*)D_8010B3B8)[0x14] = arg0;
         ((s8*)D_8010B3B8)[0x15] = arg1;
@@ -1895,8 +1890,7 @@ void func_800AF324(s8 arg0, s8 arg1, s8 arg2)
 }
 
 // Updates three byte fields (0x18, 0x19, 0x1A) in the global struct D_8010B3B8.
-void func_800AF364(s8 arg0, s8 arg1, s8 arg2)
-{
+void func_800AF364(s8 arg0, s8 arg1, s8 arg2) {
     if (D_8010B3B8 != NULL) {
         ((s8*)D_8010B3B8)[0x18] = arg0;
         ((s8*)D_8010B3B8)[0x19] = arg1;
@@ -1926,9 +1920,9 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B017C);
 
 extern s32 D_8010B488;
 
-// Updates an entry in D_8010B47C array based on whether the corresponding entry in D_8010B488 is greater than zero.
-void func_800B01C4(s32 arg0)
-{
+// Updates an entry in D_8010B47C array based on whether the corresponding entry
+// in D_8010B488 is greater than zero.
+void func_800B01C4(s32 arg0) {
     (&D_8010B47C)[arg0] = -((&D_8010B488)[arg0] > 0) & ~0xF;
 }
 
@@ -2131,10 +2125,9 @@ extern u32 D_8010D9B8;
 extern u8 D_8010D9BA;
 
 // Initializes a block at a given index with provided values.
-void func_800B579C(s32 arg0, s8 arg1, s8 arg2, s8 arg3)
-{
+void func_800B579C(s32 arg0, s8 arg1, s8 arg2, s8 arg3) {
     u8* temp_a0 = (u8*)&D_8010D9B8 + (arg0 * 4);
-    
+
     temp_a0[0] = arg1;
     temp_a0[1] = arg2;
     temp_a0[2] = arg3;
@@ -2142,10 +2135,7 @@ void func_800B579C(s32 arg0, s8 arg1, s8 arg2, s8 arg3)
 }
 
 // Clears the third byte of a block element.
-void func_800B57C0(s32 arg0)
-{
-    *(&D_8010D9BA + (arg0 * 4)) = 0;
-}
+void func_800B57C0(s32 arg0) { *(&D_8010D9BA + (arg0 * 4)) = 0; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B57DC);
 
@@ -2171,9 +2161,9 @@ void func_800B64A0(void) { func_800B63F0(D_801159E0); }
 
 static s32 func_800B64C8(void) { return D_801159E0; }
 
-// Updates the global game state array variables with the given parameter and triggers func_8002DA7C.
-void func_800B64D8(u32 arg0)
-{
+// Updates the global game state array variables with the given parameter and
+// triggers func_8002DA7C.
+void func_800B64D8(u32 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
     func_8002DA7C();
@@ -2187,10 +2177,9 @@ void func_800B6570(u32 arg0) {
     func_8002DA7C();
 }
 
-// Initializes the global unknown struct by setting its values to 0xBD and storing the arguments.
-// Then calls func_8002DA7C.
-void func_800B65A4(u32 arg0, s32 arg1)
-{
+// Initializes the global unknown struct by setting its values to 0xBD and
+// storing the arguments. Then calls func_8002DA7C.
+void func_800B65A4(u32 arg0, s32 arg1) {
     *D_8009A000 = 0xBD;
     *D_8009A004 = arg0;
     *D_8009A008 = arg1;
@@ -2312,8 +2301,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B7714);
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B77A8);
 
 // Updates the Savemap countdown timer and related state flags.
-void func_800B77F4(s32 arg0)
-{
+void func_800B77F4(s32 arg0) {
     D_8009D268[0] = arg0;
     D_80116278 = 1;
     D_8009D2E7 = 1;
@@ -2326,9 +2314,9 @@ void func_800B7820(void) {
 
 extern s32 D_80116274;
 
-// Resets specific state variables (D_8011626C, D_80116270, D_80116274) to their default values.
-void func_800B7838(void)
-{
+// Resets specific state variables (D_8011626C, D_80116270, D_80116274) to their
+// default values.
+void func_800B7838(void) {
     D_8011626C = 2;
     D_80116270 = 0;
     D_80116274 = 0;
@@ -2482,20 +2470,16 @@ s16 func_800B86C4(void) { return D_800832A0 == 0 ? D_80116290 : -1; }
 
 void func_800B8B00(s32, s16, s16, s16, s32);
 
-void func_800B86E8(s16* arg0)
-{
+void func_800B86E8(s16* arg0) {
     if (arg0 != NULL) {
-        func_800B8B00(0, arg0[0], arg0[1], arg0[2], (s32) arg0[3]);
+        func_800B8B00(0, arg0[0], arg0[1], arg0[2], (s32)arg0[3]);
     }
 }
 
-void func_800B8A5C(s32, s16, s16);                       // extern
+void func_800B8A5C(s32, s16, s16); // extern
 
 // Wrapper function that passes the arguments forward to func_800B8A5C.
-void func_800B8720(s16 arg0, s16 arg1)
-{
-    func_800B8A5C(0, arg0, arg1);
-}
+void func_800B8720(s16 arg0, s16 arg1) { func_800B8A5C(0, arg0, arg1); }
 
 static void func_800B8750(void) {}
 
@@ -2510,9 +2494,9 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B89C4);
 extern u8 D_8008328D;
 extern u8 D_800832A2;
 
-// Updates the global byte arrays D_8008328D and D_800832A2 at an index computed from arg0.
-void func_800B8A5C(s32 arg0, s16 arg1, s16 arg2)
-{
+// Updates the global byte arrays D_8008328D and D_800832A2 at an index computed
+// from arg0.
+void func_800B8A5C(s32 arg0, s16 arg1, s16 arg2) {
     s32 temp_v0;
 
     temp_v0 = (s16)arg0 * 0x30;
