@@ -59,7 +59,7 @@ extern u8 g_RandomTableStep;
 extern u8 g_RandomTableIndex;
 extern u8 g_RandomTable[256];
 
-void func_800A364C(struct GpuBuf* buf);
+void AddBackgroundToRender(struct GpuBuf* buf);
 void func_800AA180(Unk80074EA4* arg0, FieldLine* arg1);
 void func_800AAB24(struct GpuBuf* buf);
 s32 func_800A9CE8(FieldLine*, u_long*, u_long*);
@@ -97,7 +97,6 @@ void StopMapLoadInAdvance(void) {
 // Begin of field_main.c
 ////////////////////////////////////////
 
-
 INCLUDE_ASM("asm/us/field/nonmatchings/field", MapLoadInAdvance);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldMain);
@@ -108,47 +107,61 @@ const u32 D_800A0034[] = {0x01D00000, 0x000801E0};
 const u32 D_800A003C[] = {0x00000000, 0x00080140};
 const u32 D_800A0044[] = {0x00E80000, 0x00080140};
 const u32 D_800A004C[] = {0x01D00000, 0x00080140};
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A2314);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldMainLoop);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldLoadMimToVram);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A2F78);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldButtonsUpdate);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A3020);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBackgroundInitPackets);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A364C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", AddBackgroundToRender);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A4094);
+s32 FieldCalcLinearStep(s32 start, s32 target, s32 duration, s32 step) {
+    s32 delta = target - start;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A4134);
+    if ((u32)(delta + 0x7FFFF) <= 0xFFFFE) {
+        start += (delta * step) / duration;
+    } else {
+        start += (delta / duration) * step;
+    }
 
-static s32 func_800A41CC(SVECTOR* arg0, long* arg1) {
-    long sp10;
-    long sp14;
+    return start;
+}
+
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldCalcEaseInOut);
+
+static s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, long* screenPos) {
+    long flag;
+    long depth;
     s32 ret;
 
     PushMatrix();
     SetRotMatrix(D_80071E40);
     SetTransMatrix(D_80071E40);
     SetGeomOffset(0, 0);
-    ret = RotTransPers(arg0, arg1, &sp10, &sp14);
+    ret = RotTransPers(worldPos, screenPos, &flag, &depth);
     PopMatrix();
     return ret;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A424C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGShakeUpdate);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A4430);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGScrollInit);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A45D4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldCalcPointOnLine);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A47F8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGClampPos);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A48B8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGGetEntityScreenPos);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A496C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGScrollUpdate);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A4BEC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGUpdateDrawenv);
+
+////////////////////////////////////////
+// Begin of field_entity.c
+////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A5FB4);
 
@@ -213,8 +226,8 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA930);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AAB24);
 
-//Possable Debug routine. Ran at beginning of every main field loop. (FPS?)
-void func_800AB2AC(void) {} 
+// Possable Debug routine. Ran at beginning of every main field loop. (FPS?)
+void func_800AB2AC(void) {}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AB2B4);
 
@@ -1802,7 +1815,7 @@ s32 OpcodeFuncReq(void) {
         DebugPrintOpcode("req", 2);
     }
     return FieldEventRequest(1, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
-                         GET_SCRIPTID(GET_PARAM_U8(2)));
+                             GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
 s32 OpcodeFuncReqsw(void) {
@@ -1810,7 +1823,7 @@ s32 OpcodeFuncReqsw(void) {
         DebugPrintOpcode("reqsw", 2);
     }
     return FieldEventRequest(2, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
-                         GET_SCRIPTID(GET_PARAM_U8(2)));
+                             GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
 s32 OpcodeFuncReqew(void) {
@@ -1818,7 +1831,7 @@ s32 OpcodeFuncReqew(void) {
         DebugPrintOpcode("reqew", 2);
     }
     return FieldEventRequest(3, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
-                         GET_SCRIPTID(GET_PARAM_U8(2)));
+                             GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
 s32 OpcodeFuncPreq(void) {
@@ -1835,7 +1848,7 @@ s32 OpcodeFuncPreq(void) {
         entityId = g_CharIdToEntity[charId];
     }
     return FieldEventRequest(1, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
-                         GET_SCRIPTID(GET_PARAM_U8(2)));
+                             GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
 s32 OpcodeFuncPrqsw(void) {
@@ -1852,7 +1865,7 @@ s32 OpcodeFuncPrqsw(void) {
         entityId = g_CharIdToEntity[charId];
     }
     return FieldEventRequest(2, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
-                         GET_SCRIPTID(GET_PARAM_U8(2)));
+                             GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
 s32 OpcodeFuncPrqew(void) {
@@ -1869,7 +1882,7 @@ s32 OpcodeFuncPrqew(void) {
         entityId = g_CharIdToEntity[charId];
     }
     return FieldEventRequest(3, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
-                         GET_SCRIPTID(GET_PARAM_U8(2)));
+                             GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
 // Depends on decomp of DebugUpdateActor due to shared string.
