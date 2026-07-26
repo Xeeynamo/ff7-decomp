@@ -54,6 +54,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A141C);
 
 static void func_800A16D0(s32 arg0) { D_800E5630 = arg0; }
 
+// Returns a pointer offset by 0x2710 (10000 bytes) if D_800E55F4 is non-zero, else NULL.
 void* func_800A16E0(void)
 {
     return (D_800E55F4 != 0) ? ((u8*)D_800BD130 + 0x2710) : NULL;
@@ -362,6 +363,7 @@ void func_800A5924(void) {
 
 extern void** D_800E5768;
 
+// Traverses a linked list starting from D_800E5768 and returns the number of nodes.
 s16 func_800A5970(void)
 {
     void** var_v1;
@@ -2093,6 +2095,7 @@ void func_800B64A0(void) { func_800B63F0(D_801159E0); }
 
 static s32 func_800B64C8(void) { return D_801159E0; }
 
+// Updates the global game state array variables with the given parameter and triggers func_8002DA7C.
 void func_800B64D8(u32 arg0)
 {
     D_8009A000[0] = 0x30;
@@ -2224,6 +2227,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B7714);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B77A8);
 
+// Updates the Savemap countdown timer and related state flags.
 void func_800B77F4(s32 arg0)
 {
     D_8009D268[0] = arg0;
@@ -2238,6 +2242,7 @@ void func_800B7820(void) {
 
 extern s32 D_80116274;
 
+// Resets specific state variables (D_8011626C, D_80116270, D_80116274) to their default values.
 void func_800B7838(void)
 {
     D_8011626C = 2;
@@ -2395,6 +2400,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B86E8);
 
 void func_800B8A5C(s32, s16, s16);                       // extern
 
+// Wrapper function that passes the arguments forward to func_800B8A5C.
 void func_800B8720(s16 arg0, s16 arg1)
 {
     func_800B8A5C(0, arg0, arg1);
