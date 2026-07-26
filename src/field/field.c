@@ -50,11 +50,14 @@ extern s16 g_FieldDebugRLines;
 extern s16 g_FieldDebugRRect;
 extern s16 g_FieldDebugRDm;
 extern u16 g_FieldDebugTransp;
-extern char DebugText[];          // debug text
-extern char DebugMessageBuffer[]; // debug value transformed into text
+extern char g_DebugText[];          // debug text
+extern char g_DebugMessageBuffer[]; // debug value transformed into text
 extern struct GpuBuf D_800E4DF0[2];
 extern u8 D_80114498[];
-extern u8 actorIdCur;
+extern u8 g_actorIdCur;
+extern u8 g_RandomTableStep;
+extern u8 g_RandomTableIndex;
+extern u8 g_RandomTable[256];
 
 void func_800A364C(struct GpuBuf* buf);
 void func_800AA180(Unk80074EA4* arg0, FieldLine* arg1);
@@ -359,32 +362,32 @@ u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId) {
     s32 entityDataSize;
     s32 extrasHeaderSize;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         switch (scriptId) {
         case 1: // Pressed OK.
-            FieldDebugStringCopy(DebugMessageBuffer, "Talk=");
+            FieldDebugStringCopy(g_DebugMessageBuffer, "Talk=");
             break;
         case 2: // Pushed / within entity's collision radius.
-            FieldDebugStringCopy(DebugMessageBuffer, "Push=");
+            FieldDebugStringCopy(g_DebugMessageBuffer, "Push=");
             break;
         case 3: // Across line.
-            FieldDebugStringCopy(DebugMessageBuffer, "Acrs=");
+            FieldDebugStringCopy(g_DebugMessageBuffer, "Acrs=");
             break;
         case 4: // Touching line.
-            FieldDebugStringCopy(DebugMessageBuffer, "Toch=");
+            FieldDebugStringCopy(g_DebugMessageBuffer, "Toch=");
             break;
         case 5: // Started touching line.
-            FieldDebugStringCopy(DebugMessageBuffer, "TochON =");
+            FieldDebugStringCopy(g_DebugMessageBuffer, "TochON =");
             break;
         case 6: // Ended touching line.
-            FieldDebugStringCopy(DebugMessageBuffer, "TochOFF=");
+            FieldDebugStringCopy(g_DebugMessageBuffer, "TochOFF=");
             break;
         }
         // Prints entity name.
         FieldDebugStringConcat(
-            DebugMessageBuffer,
+            g_DebugMessageBuffer,
             (char*)g_FieldScripts + sizeof(FieldScriptHeader) + entityId * 8);
-        FieldDebugAddParseValueToPage2(DebugMessageBuffer, 0, 0);
+        FieldDebugAddParseValueToPage2(g_DebugMessageBuffer, 0, 0);
     }
 
     // Only request script if active script has lower priority.
@@ -436,18 +439,18 @@ u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId) {
             // Reset wait counter.
             g_FieldWaitCounter[entityId] = 0;
 
-            if (DebugLevel & 3) {
+            if (g_DebugLevel & 3) {
                 FieldDebugAddParseValueToPage2("=recieved", 0, 0);
             }
         } else {
-            if (DebugLevel & 3) {
+            if (g_DebugLevel & 3) {
                 FieldDebugAddParseValueToPage2("=ret", 0, 0);
             }
         }
         return 1;
     }
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("=ignored", 0, 0);
     }
     return 0;
@@ -466,30 +469,30 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", DebugPrintOpcode);
 
 static void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind) {
     if (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity]) {
-        FieldDebugStringCopy(DebugText, str);
+        FieldDebugStringCopy(g_DebugText, str);
         switch (kind) {
         case 1:
             FieldDebugStringU8hex(
-                val, DebugMessageBuffer); // to single hex digit
+                val, g_DebugMessageBuffer); // to single hex digit
             break;
         case 2:
             FieldDebugStringU16hex(
-                val, DebugMessageBuffer); // to double hex digit
+                val, g_DebugMessageBuffer); // to double hex digit
             break;
         case 4:
             FieldDebugStringU32hex(
-                val, DebugMessageBuffer); // to four hex digits
+                val, g_DebugMessageBuffer); // to four hex digits
             break;
         default:
-            FieldDebugStringCopy(DebugMessageBuffer, D_800A0270);
+            FieldDebugStringCopy(g_DebugMessageBuffer, D_800A0270);
             break;
         }
-        FieldDebugStringConcat(DebugText, DebugMessageBuffer);
-        if (DebugLevel & 1) {
-            AddStrNextDebugRow(2, DebugText);
+        FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
+        if (g_DebugLevel & 1) {
+            AddStrNextDebugRow(2, g_DebugText);
         }
-        if (DebugLevel & 2) {
-            func_800D4840(DebugText);
+        if (g_DebugLevel & 2) {
+            func_800D4840(g_DebugText);
         }
     }
 }
@@ -526,7 +529,7 @@ static u8 FieldEventReadMemoryU8(s16 mb_half, s16 offset) {
     switch (bankId) {
     case 0:
         value = GET_PARAM_U8(offset);
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G cons=", value, 2);
         }
         return value;
@@ -534,7 +537,7 @@ static u8 FieldEventReadMemoryU8(s16 mb_half, s16 offset) {
     case 2:
         indx = GET_PARAM_U8(offset);
         value = Savemap.memory_bank_1[indx];
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 2);
         }
@@ -543,7 +546,7 @@ static u8 FieldEventReadMemoryU8(s16 mb_half, s16 offset) {
     case 4:
         indx = GET_PARAM_U8(offset) | 0x100;
         value = Savemap.memory_bank_1[indx];
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 2);
         }
@@ -552,7 +555,7 @@ static u8 FieldEventReadMemoryU8(s16 mb_half, s16 offset) {
     case 12:
         indx = GET_PARAM_U8(offset) | 0x200;
         value = Savemap.memory_bank_1[indx];
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 2);
         }
@@ -561,7 +564,7 @@ static u8 FieldEventReadMemoryU8(s16 mb_half, s16 offset) {
     case 14:
         indx = GET_PARAM_U8(offset) | 0x300;
         value = Savemap.memory_bank_1[indx];
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 2);
         }
@@ -570,7 +573,7 @@ static u8 FieldEventReadMemoryU8(s16 mb_half, s16 offset) {
     case 7:
         indx = GET_PARAM_U8(offset) | 0x400;
         value = Savemap.memory_bank_1[indx];
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 2);
         }
@@ -579,13 +582,13 @@ static u8 FieldEventReadMemoryU8(s16 mb_half, s16 offset) {
     case 6:
         indx = GET_PARAM_U8(offset);
         value = D_80075E24[indx];
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G mapv=", value, 2);
         }
         return value;
     }
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("G data err=", bankId, 2);
     }
     FieldEventDebugError("Bad Event arg!");
@@ -626,7 +629,7 @@ static void FieldEventWriteMemoryU8(s16 arg0, s16 arg1, u8 value) {
     case 2:
         indx = GET_PARAM_U8(arg1);
         Savemap.memory_bank_1[indx] = value;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 2);
         }
@@ -635,7 +638,7 @@ static void FieldEventWriteMemoryU8(s16 arg0, s16 arg1, u8 value) {
     case 4:
         indx = GET_PARAM_U8(arg1) | 0x100;
         Savemap.memory_bank_1[indx] = value;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 2);
         }
@@ -644,7 +647,7 @@ static void FieldEventWriteMemoryU8(s16 arg0, s16 arg1, u8 value) {
     case 12:
         indx = GET_PARAM_U8(arg1) | 0x200;
         Savemap.memory_bank_1[indx] = value;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 2);
         }
@@ -653,7 +656,7 @@ static void FieldEventWriteMemoryU8(s16 arg0, s16 arg1, u8 value) {
     case 14:
         indx = GET_PARAM_U8(arg1) | 0x300;
         Savemap.memory_bank_1[indx] = value;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 2);
         }
@@ -662,7 +665,7 @@ static void FieldEventWriteMemoryU8(s16 arg0, s16 arg1, u8 value) {
     case 7:
         indx = GET_PARAM_U8(arg1) | 0x400;
         Savemap.memory_bank_1[indx] = value;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 2);
         }
@@ -671,13 +674,13 @@ static void FieldEventWriteMemoryU8(s16 arg0, s16 arg1, u8 value) {
     case 6:
         indx = GET_PARAM_U8(arg1);
         D_80075E24[indx] = value;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S mapv=", value, 2);
         }
         return;
     }
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("S data err=", bankId, 2);
     }
     FieldEventDebugError("Bad Event arg!");
@@ -716,14 +719,14 @@ static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
     switch (bankId) {
     case 0:
         GET_PARAM_S16(value, offset);
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G cons=", value, 4);
         }
         return value;
     case 1:
         indx = GET_PARAM_U8(offset);
         value = Savemap.memory_bank_1[indx];
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 4);
         }
@@ -732,7 +735,7 @@ static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
         indx = GET_PARAM_U8(offset);
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 4);
         }
@@ -740,7 +743,7 @@ static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
     case 3:
         indx = GET_PARAM_U8(offset) | 0x100;
         value = Savemap.memory_bank_1[indx];
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 4);
         }
@@ -749,7 +752,7 @@ static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
         indx = GET_PARAM_U8(offset) | 0x100;
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 4);
         }
@@ -757,7 +760,7 @@ static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
     case 11:
         indx = GET_PARAM_U8(offset) | 0x200;
         value = Savemap.memory_bank_1[indx];
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 4);
         }
@@ -766,7 +769,7 @@ static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
         indx = GET_PARAM_U8(offset) | 0x200;
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 4);
         }
@@ -774,7 +777,7 @@ static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
     case 13:
         indx = GET_PARAM_U8(offset) | 0x300;
         value = Savemap.memory_bank_1[indx];
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 4);
         }
@@ -783,7 +786,7 @@ static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
         indx = GET_PARAM_U8(offset) | 0x300;
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 4);
         }
@@ -791,7 +794,7 @@ static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
     case 15:
         indx = GET_PARAM_U8(offset) | 0x400;
         value = Savemap.memory_bank_1[indx];
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 4);
         }
@@ -800,7 +803,7 @@ static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
         indx = GET_PARAM_U8(offset) | 0x400;
         value = Savemap.memory_bank_1[indx];
         value |= Savemap.memory_bank_1[indx + 1] << 8;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G glov=", value, 4);
         }
@@ -808,7 +811,7 @@ static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
     case 5:
         indx = GET_PARAM_U8(offset);
         value = D_80075E24[indx];
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G mapv=", value, 4);
         }
@@ -817,13 +820,13 @@ static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
         indx = GET_PARAM_U8(offset);
         value = D_80075E24[indx];
         value |= D_80075E24[indx + 1] << 8;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("G indx=", indx, 4);
             FieldDebugAddParseValueToPage2("G mapv=", value, 4);
         }
         return value;
     }
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("G data err=", bankId, 2);
     }
     FieldEventDebugError("Bad Event arg!");
@@ -863,7 +866,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
     case 1:
         indx = GET_PARAM_U8(arg1);
         Savemap.memory_bank_1[indx] = (u8)value;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 2);
         }
@@ -872,7 +875,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
         indx = GET_PARAM_U8(arg1);
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 4);
         }
@@ -880,7 +883,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
     case 3:
         indx = GET_PARAM_U8(arg1) | 0x100;
         Savemap.memory_bank_1[indx] = (u8)value;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 2);
         }
@@ -889,7 +892,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
         indx = GET_PARAM_U8(arg1) | 0x100;
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 4);
         }
@@ -897,7 +900,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
     case 11:
         indx = GET_PARAM_U8(arg1) | 0x200;
         Savemap.memory_bank_1[indx] = (u8)value;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 2);
         }
@@ -906,7 +909,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
         indx = GET_PARAM_U8(arg1) | 0x200;
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 4);
         }
@@ -914,7 +917,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
     case 13:
         indx = GET_PARAM_U8(arg1) | 0x300;
         Savemap.memory_bank_1[indx] = (u8)value;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 2);
         }
@@ -923,7 +926,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
         indx = GET_PARAM_U8(arg1) | 0x300;
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 4);
         }
@@ -931,7 +934,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
     case 15:
         indx = GET_PARAM_U8(arg1) | 0x400;
         Savemap.memory_bank_1[indx] = (u8)value;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 2);
         }
@@ -940,7 +943,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
         indx = GET_PARAM_U8(arg1) | 0x400;
         Savemap.memory_bank_1[indx] = (u8)value;
         Savemap.memory_bank_1[indx + 1] = value >> 8;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S glov=", value, 4);
         }
@@ -948,7 +951,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
     case 5:
         indx = GET_PARAM_U8(arg1);
         D_80075E24[indx] = (u8)value;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S mapv=", value, 2);
         }
@@ -957,13 +960,13 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
         indx = GET_PARAM_U8(arg1);
         D_80075E24[indx] = (u8)value;
         D_80075E24[indx + 1] = value >> 8;
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("S indx=", indx, 4);
             FieldDebugAddParseValueToPage2("S mapv=", value, 4);
         }
         return;
     }
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("S data err=", bankId, 2);
     }
     FieldEventDebugError("Bad Event arg!");
@@ -972,10 +975,10 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
 
 // called for opcodes 0c 0d 1a 1b 1c 1d 1e 1f 44 46 4c 4e be
 s32 OpcodeFuncBad(void) {
-    if (DebugLevel & 3) {
-        FieldDebugStringU16hex(D_8009A058, DebugMessageBuffer);
-        FieldDebugStringConcat(DebugMessageBuffer, "???");
-        DebugPrintOpcode(DebugMessageBuffer, 8);
+    if (g_DebugLevel & 3) {
+        FieldDebugStringU16hex(D_8009A058, g_DebugMessageBuffer);
+        FieldDebugStringConcat(g_DebugMessageBuffer, "???");
+        DebugPrintOpcode(g_DebugMessageBuffer, 8);
         FieldDebugPageSetColor(3, 0x7F, 0, 0);
     } else {
         FieldEventDebugError("Bad Event code!");
@@ -987,22 +990,36 @@ s32 OpcodeFuncBad(void) {
 // End of of event.c
 ////////////////////////////////////////
 
-/*
- * Field-script opcode NOP: Halts execution until next frame.
+/**
+ @brief Opcode 0x5F - **WAIT1* - Wait 1 frame
+
+ Memory layout:
+
+ | 0x5F |
+ @details
+ Waits one frame and returns 1
+ @note
+ This does not emit a debug message.
  */
-s32 OpcodeFuncNop(void) {
+s32 OpcodeFuncWait1(void) {
     PC_INC(1);
     return 1;
 }
 
-/*
- * Field-script opcode WAIT: Waits given number of frames before resuming.
+/**
+ * @brief Opcode 0x24 - **WAIT** - Wait
  *
+ * Memory layout:
+ *
+ * | 0x24 | A |
+ *
+ * - const UShort A: Amount (number of frames) to wait.
+ * @details
  * g_FieldWaitCounter[g_CurrentEntity] == 0 by default. The opcode then
  * sets it to how many frames to wait before returning 1, which halts
  * execution of the script until next frame.
  *
- * If parameter == 0, the opcode behaves the same way as HALT.
+ * If parameter == 0, the opcode behaves the same way as NOP.
  *
  * The opcode is then called once per frame, decrementing the counter until it
  * reaches 1, at which point it's set to 0 and 0 is returned, which
@@ -1010,13 +1027,13 @@ s32 OpcodeFuncNop(void) {
  */
 
 s32 OpcodeFuncWait(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("wait", 2);
     }
 
     if (g_FieldWaitCounter[g_CurrentEntity] == 0) {
         GET_PARAM_S16(g_FieldWaitCounter[g_CurrentEntity], 1);
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2(
                 "wait_st=", g_FieldWaitCounter[g_CurrentEntity], 4);
         }
@@ -1028,7 +1045,7 @@ s32 OpcodeFuncWait(void) {
     }
 
     if (g_FieldWaitCounter[g_CurrentEntity] == 1) {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("wait_end=", 1, 4);
         }
         g_FieldWaitCounter[g_CurrentEntity] = 0;
@@ -1036,7 +1053,7 @@ s32 OpcodeFuncWait(void) {
         return 0;
     }
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2(
             "wait=", g_FieldWaitCounter[g_CurrentEntity], 4);
     }
@@ -1046,7 +1063,7 @@ s32 OpcodeFuncWait(void) {
 }
 
 s32 OpcodeFuncSet(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("set", 3);
     }
     FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(2, 3));
@@ -1055,7 +1072,7 @@ s32 OpcodeFuncSet(void) {
 }
 
 s32 OpcodeFuncSet2(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("set2", 4);
     }
     FieldEventWriteMemoryS16(1, 2, FieldEventReadMemoryS16(2, 3));
@@ -1064,7 +1081,7 @@ s32 OpcodeFuncSet2(void) {
 }
 
 s32 OpcodeFuncLbyte(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("lbyte", 3);
     }
     FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(2, 3));
@@ -1073,7 +1090,7 @@ s32 OpcodeFuncLbyte(void) {
 }
 
 s32 OpcodeFuncHbyte(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("hbyte", 4);
     }
     FieldEventWriteMemoryU8(1, 2, (u8)(FieldEventReadMemoryS16(2, 3) >> 8));
@@ -1084,7 +1101,7 @@ s32 OpcodeFuncHbyte(void) {
 s32 OpcodeFunc2byte(void) {
     s16 lhs;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("2byte", 5);
     }
     lhs = FieldEventReadMemoryU8(2, 4);
@@ -1101,7 +1118,7 @@ s32 OpcodeFuncSetx(void) {
     u8 bank;
     u8 value;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("setx", 6);
     }
     bank = GET_PARAM_U8(1) >> 4;
@@ -1142,7 +1159,7 @@ s32 OpcodeFuncGetx(void) {
     u8 bank;
     u8 value;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("getx", 6);
     }
     bank = GET_PARAM_U8(1) >> 4;
@@ -1187,7 +1204,7 @@ s32 OpcodeFuncSrchx(void) {
     u8 value;
     s16 i;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("srchx", 8);
     }
     bank = GET_PARAM_U8(1) >> 4;
@@ -1245,7 +1262,7 @@ s32 OpcodeFuncSrchx(void) {
 #endif
 
 s32 OpcodeFuncBiton(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("biton", 3);
     }
     FieldEventWriteMemoryU8(
@@ -1256,7 +1273,7 @@ s32 OpcodeFuncBiton(void) {
 }
 
 s32 OpcodeFuncBitof(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("bitof", 3);
     }
     FieldEventWriteMemoryU8(
@@ -1267,7 +1284,7 @@ s32 OpcodeFuncBitof(void) {
 }
 
 s32 OpcodeFuncBitxr(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("bitxr", 3);
     }
     FieldEventWriteMemoryU8(
@@ -1280,7 +1297,7 @@ s32 OpcodeFuncBitxr(void) {
 s32 OpcodeFuncLine(void) {
     s16 value;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("line", 8);
     }
 
@@ -1313,7 +1330,7 @@ s32 OpcodeFuncLine(void) {
 s32 OpcodeFuncSline(void) {
     u8 lineId;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("sline", 8);
     }
     lineId = g_EntityToLine[g_CurrentEntity];
@@ -1328,7 +1345,7 @@ s32 OpcodeFuncSline(void) {
 }
 
 s32 OpcodeFuncLinon(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("linon", 1);
     }
     g_FieldLines[g_EntityToLine[g_CurrentEntity]].isActive = GET_PARAM_U8(1);
@@ -1348,7 +1365,7 @@ s32 OpcodeFuncLinon(void) {
  */
 
 s32 OpcodeFuncSlip(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("slip", 1);
     }
     g_FieldLines[g_EntityToLine[g_CurrentEntity]].slipDisabled =
@@ -1365,17 +1382,17 @@ s32 OpcodeFuncSlip(void) {
  */
 
 s32 OpcodeFuncIf(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("if", 5);
     }
     if (func_800C2000()) {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("if=true", 0, 0);
         }
         // If comparison is true, continue executing next opcode.
         PC_INC(6);
     } else {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("if=false", 0, 0);
         }
         // If comparison is false, jump number of bytes give in last parameter
@@ -1396,16 +1413,16 @@ s32 OpcodeFuncIf(void) {
 s32 OpcodeFuncLif(void) {
     s16 param;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("lif", 6);
     }
     if (func_800C2000()) {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("lif=true", 0, 0);
         }
         PC_INC(7);
     } else {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("lif=false", 0, 0);
         }
         GET_PARAM_S16(param, 5);
@@ -1460,7 +1477,7 @@ u32 func_800C2000(void) {
         result = result < 1;
         break;
     default:
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("ope err=", ope, 2);
         }
         break;
@@ -1478,16 +1495,16 @@ u32 func_800C2000(void) {
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncIf2);
 #else
 s32 OpcodeFuncIf2(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("if2", 7);
     }
     if (func_800C24A8() != 0) {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("if2=true", 0, 0);
         }
         PC_INC(8);
     } else {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("if2=false", 0, 0);
         }
         PC_INC(GET_PARAM_U8(7) + 7);
@@ -1507,16 +1524,16 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLif2);
 s32 OpcodeFuncLif2(void) {
     s16 param;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("lif2", 8);
     }
     if (func_800C24A8() != 0) {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("lif2=true", 0, 0);
         }
         PC_INC(9);
     } else {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("lif2=false", 0, 0);
         }
         GET_PARAM_S16(param, 7);
@@ -1572,7 +1589,7 @@ u32 func_800C24A8(void) {
         result = result < 1;
         break;
     default:
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("ope err=", ope, 2);
         }
         break;
@@ -1590,16 +1607,16 @@ u32 func_800C24A8(void) {
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncIf2u);
 #else
 s32 OpcodeFuncIf2u(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("if2", 7);
     }
     if (func_800C2970()) {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("if2=false", 0, 0);
         }
         PC_INC(8);
     } else {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("if2=true", 0, 0);
         }
         PC_INC(GET_PARAM_U8(7) + 7);
@@ -1619,16 +1636,16 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLif2u);
 s32 OpcodeFuncLif2u(void) {
     s16 param;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("lif2", 8);
     }
     if (func_800C2970() != 0) {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("lif2=false", 0, 0);
         }
         PC_INC(9);
     } else {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("lif2=true", 0, 0);
         }
         GET_PARAM_S16(param, 7);
@@ -1690,7 +1707,7 @@ u32 func_800C2970(void) {
         result = result < 1;
         break;
     default:
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("ope err=", ope, 2);
         }
         break;
@@ -1708,7 +1725,7 @@ u32 func_800C2970(void) {
  */
 
 s32 OpcodeFuncKeyEx(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("key!", 3);
     }
     if (GET_PARAM_U8(2) & 2) {
@@ -1725,7 +1742,7 @@ s32 OpcodeFuncKeyEx(void) {
  */
 
 s32 OpcodeFuncKeyon(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("keyon", 3);
     }
     if (GET_PARAM_U8(2) & 2) {
@@ -1742,7 +1759,7 @@ s32 OpcodeFuncKeyon(void) {
  */
 
 s32 OpcodeFuncKeyof(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("keyof", 3);
     }
     if (GET_PARAM_U8(2) & 2) {
@@ -1756,17 +1773,17 @@ static s32 KeyCheck(u16 keys) {
     u16 param;
 
     GET_PARAM_S16(param, 1);
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("key now=", keys, 4);
         FieldDebugAddParseValueToPage2("key chk=", param, 4);
     }
     if (keys & param) {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("key=true", 0, 0);
         }
         PC_INC(4);
     } else {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("key=false", 0, 0);
         }
         PC_INC(GET_PARAM_U8(3) + 3);
@@ -1775,7 +1792,7 @@ static s32 KeyCheck(u16 keys) {
 }
 
 s32 OpcodeFuncReq(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("req", 2);
     }
     return func_800C33B4(1, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
@@ -1783,7 +1800,7 @@ s32 OpcodeFuncReq(void) {
 }
 
 s32 OpcodeFuncReqsw(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("reqsw", 2);
     }
     return func_800C33B4(2, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
@@ -1791,7 +1808,7 @@ s32 OpcodeFuncReqsw(void) {
 }
 
 s32 OpcodeFuncReqew(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("reqew", 2);
     }
     return func_800C33B4(3, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
@@ -1802,7 +1819,7 @@ s32 OpcodeFuncPreq(void) {
     u8 charId;
     u8 entityId;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("preq", 2);
     }
     charId = Savemap.memory_bank_2[GET_PARAM_U8(1) + 9];
@@ -1819,7 +1836,7 @@ s32 OpcodeFuncPrqsw(void) {
     u8 charId;
     u8 entityId;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("prqsw", 2);
     }
     charId = Savemap.memory_bank_2[GET_PARAM_U8(1) + 9];
@@ -1836,7 +1853,7 @@ s32 OpcodeFuncPrqew(void) {
     u8 charId;
     u8 entityId;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("prqew", 2);
     }
     charId = Savemap.memory_bank_2[GET_PARAM_U8(1) + 9];
@@ -1859,20 +1876,20 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
     s32 extrasHeaderSize;
 
     if (target == 0xFF) {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("rqew=no one", 0, 0);
         }
         PC_INC(3);
         return 0;
     }
 
-    if (DebugLevel & 3) {
-        FieldDebugStringCopy(DebugMessageBuffer, "rq=");
+    if (g_DebugLevel & 3) {
+        FieldDebugStringCopy(g_DebugMessageBuffer, "rq=");
         FieldDebugStringConcat(
-            DebugMessageBuffer, (char*)((s32)g_FieldScripts) +
-                                    sizeof(FieldScriptHeader) + (target * 8));
-        FieldDebugStringConcat(DebugMessageBuffer, "/");
-        FieldDebugAddParseValueToPage2(DebugMessageBuffer, scriptId, 2);
+            g_DebugMessageBuffer, (char*)((s32)g_FieldScripts) +
+                                      sizeof(FieldScriptHeader) + (target * 8));
+        FieldDebugStringConcat(g_DebugMessageBuffer, "/");
+        FieldDebugAddParseValueToPage2(g_DebugMessageBuffer, scriptId, 2);
     }
 
     if (type > 0) {
@@ -1881,12 +1898,12 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
                                  g_CurrentEntity) {
                 switch (g_FieldScriptSyncState[target][priority]) {
                 case SYNC_WAITING:
-                    if (DebugLevel & 3) {
+                    if (g_DebugLevel & 3) {
                         FieldDebugAddParseValueToPage2("rqew=wait", 0, 0);
                     }
                     return 1;
                 case SYNC_DONE:
-                    if (DebugLevel & 3) {
+                    if (g_DebugLevel & 3) {
                         FieldDebugAddParseValueToPage2("rqew=end", 0, 0);
                     }
                     g_FieldScriptSyncState[target][priority] = SYNC_NONE;
@@ -1902,13 +1919,13 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
         switch (type) {
         case 1:
             PC_INC(3);
-            if (DebugLevel & 3) {
+            if (g_DebugLevel & 3) {
                 FieldDebugAddParseValueToPage2("rq=skip", 0, 0);
             }
             return 0;
         case 2:
         case 3:
-            if (DebugLevel & 3) {
+            if (g_DebugLevel & 3) {
                 FieldDebugAddParseValueToPage2("rqw=busy", 0, 0);
             }
         }
@@ -1918,13 +1935,13 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
             switch (type) {
             case 1:
                 PC_INC(3);
-                if (DebugLevel & 3) {
+                if (g_DebugLevel & 3) {
                     FieldDebugAddParseValueToPage2("rq=skip", 0, 0);
                 }
                 return 0;
             case 2:
             case 3:
-                if (DebugLevel & 3) {
+                if (g_DebugLevel & 3) {
                     FieldDebugAddParseValueToPage2("rqw=busy", 0, 0);
                 }
             }
@@ -1947,7 +1964,7 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
               sizeof(FieldScriptHeader) + 1)
             << 8;
 
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("rq=send", 0, 0);
         }
 
@@ -2001,7 +2018,7 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
         }
         g_FieldWaitCounter[target] = 0;
 
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("rq=send", 0, 0);
         }
 
@@ -2022,7 +2039,7 @@ s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
         g_FieldScriptSyncState[target][priority] = SYNC_WAITING;
         return 1;
     }
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("rqw=busy*", 0, 0);
     }
     return 1;
@@ -2051,7 +2068,11 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMgame);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBatle);
 
-void func_800C46A4(void) {
+////////////////////////////////////////
+// Start of sound.c
+////////////////////////////////////////
+
+void FieldEventClearAkaoStruct(void) {
     s32 i;
     s16* p;
 
@@ -2069,55 +2090,55 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAkao2);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSe);
 
 s32 OpcodeFuncMusic(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("music", 1);
     }
-    func_800C46A4();
+    FieldEventClearAkaoStruct();
     D_8009A000[0] = 0x10;
-    return func_800C4BCC();
+    return SetAndApplyAkao();
 }
 
 s32 OpcodeFuncMusvt(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("musvt", 1);
     }
-    func_800C46A4();
+    FieldEventClearAkaoStruct();
     D_8009A000[0] = 0x14;
-    return func_800C4BCC();
+    return SetAndApplyAkao();
 }
 
 s32 OpcodeFuncMusvm(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("musvm", 1);
     }
-    func_800C46A4();
+    FieldEventClearAkaoStruct();
     D_8009A000[0] = 0x15;
-    return func_800C4BCC();
+    return SetAndApplyAkao();
 }
 
 s32 OpcodeFuncCmusc(void) {
     u32 result;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("cmusc", 5);
     }
-    func_800C46A4();
+    FieldEventClearAkaoStruct();
     *D_8009A000 = GET_PARAM_U8(3);
     *D_8009A008 = (s16)FieldEventReadMemoryS16(3, 4);
     D_8009A00C = (s16)FieldEventReadMemoryS16(4, 6);
-    result = func_800C4BCC();
+    result = SetAndApplyAkao();
     PC_INC(6);
     return result;
 }
 
-s32 func_800C4BCC(void) {
+s32 SetAndApplyAkao(void) {
     // Indexes into AKAO block of field file which contains the list of music
     // tracks available for current field.
     u8 akaoId;
 
     if (g_FieldMusicLock == 0) {
         akaoId = GET_PARAM_U8(1);
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("music=", akaoId, 2);
         }
         *D_8009A004 = (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
@@ -2144,12 +2165,12 @@ static u32 GetAkaoBlockOffset(s16 akaoId) {
 s32 OpcodeFuncBmusc(void) {
     u8 akaoId;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("bmusc", 1);
     }
     if (g_FieldMusicLock == 0) {
         akaoId = GET_PARAM_U8(1);
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("bmusic=", akaoId, 2);
         }
         g_FieldState->nextBattleMusic =
@@ -2164,12 +2185,12 @@ s32 OpcodeFuncBmusc(void) {
 s32 OpcodeFuncFmusc(void) {
     u8 akaoId;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("fmusc", 1);
     }
     if (g_FieldMusicLock == 0) {
         akaoId = GET_PARAM_U8(1);
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("bmusic=", akaoId, 2);
         }
         g_FieldState->nextFieldMusic =
@@ -2198,7 +2219,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTutor);
  * stepped past the 2-byte instruction (opcode + operand).
  */
 s32 OpcodeFuncMulck(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("mulck", 1);
     }
     g_FieldMusicLock = GET_PARAM_U8(1);
@@ -2207,7 +2228,7 @@ s32 OpcodeFuncMulck(void) {
 }
 
 s32 OpcodeFuncBgmovie(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("bgmovie", 1);
     }
     g_FieldState->backgroundMovieEnabled = GET_PARAM_U8(1);
@@ -2216,7 +2237,7 @@ s32 OpcodeFuncBgmovie(void) {
 }
 
 s32 OpcodeFuncScrlo(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("scrlo", 1);
     }
     g_FieldState->scrloSet = GET_PARAM_U8(1);
@@ -2234,7 +2255,7 @@ s32 OpcodeFuncScrlo(void) {
  * (movieCommandState == 2). Only then does the script advance past the opcode.
  */
 s32 OpcodeFuncDskcg(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("dskcg", 1);
     }
     switch (g_FieldState->opcode) {
@@ -2261,7 +2282,7 @@ s32 OpcodeFuncDskcg(void) {
  * per-model flag of the player's model is cleared as well.
  */
 s32 OpcodeFuncUc(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("uc", 1);
     }
     g_CharacterLock = g_FieldState->characterLock = GET_PARAM_U8(1);
@@ -2273,7 +2294,7 @@ s32 OpcodeFuncUc(void) {
 }
 
 s32 OpcodeFuncBtlon(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("btlon", 1);
     }
     g_FieldState->battlesDisabled = GET_PARAM_U8(1);
@@ -2282,7 +2303,7 @@ s32 OpcodeFuncBtlon(void) {
 }
 
 s32 OpcodeFuncMpdsp(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("mpdsp", 1);
     }
     g_FieldState->mpdspSet = GET_PARAM_U8(1);
@@ -2291,7 +2312,7 @@ s32 OpcodeFuncMpdsp(void) {
 }
 
 s32 OpcodeFuncMvcam(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("mvcam", 1);
     }
     g_FieldState->movieCamDisabled = GET_PARAM_U8(1);
@@ -2300,7 +2321,7 @@ s32 OpcodeFuncMvcam(void) {
 }
 
 s32 OpcodeFuncGmovr(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("gmovr", 0);
     }
     g_FieldState->opcode = FIELDOP_GAME_OVER;
@@ -2317,7 +2338,7 @@ s32 OpcodeFuncGmovr(void) {
 s32 OpcodeFuncCc(void) {
     u8 charId;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("cc", 1);
     }
     charId = GET_PARAM_U8(1);
@@ -2336,7 +2357,7 @@ s32 OpcodeFuncCc(void) {
  * model id from the opcode operand and the owning entity id.
  */
 s32 OpcodeFuncChar(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("char", 1);
     }
     g_EntityToModel[g_CurrentEntity] = g_FieldModelCount++;
@@ -2358,7 +2379,7 @@ s32 OpcodeFuncChar(void) {
 s32 OpcodeFuncDfanm(void) {
     u8 modelIdx;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("dfanm", 2);
     }
     if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
@@ -2379,7 +2400,7 @@ s32 OpcodeFuncDfanm(void) {
  * (0: idle, 1: walk, 2: run) used while the player controls a model.
  */
 s32 OpcodeFuncCcanm(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("ccanm", 3);
     }
     switch (GET_PARAM_U8(3)) {
@@ -2430,7 +2451,7 @@ void StartModelAnimation(void) {
  * its default animation.
  */
 s32 OpcodeFuncAnime(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("anime", 2);
     }
 
@@ -2466,7 +2487,7 @@ s32 OpcodeFuncAnime(void) {
  * state 5 becomes 6 to tell the two opcode pairs apart.
  */
 s32 OpcodeFuncAnimEx(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("anim!", 2);
     }
 
@@ -2601,65 +2622,780 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWclse);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWmode);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAnd);
+////////////////////////////////////////
+// Begin of event_math.c
+////////////////////////////////////////
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAnd2);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncOr);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncOr2);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncXor);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncXor2);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPlus);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPlusEx);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPlus2);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPls2Ex);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMinus);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMinsEx);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMins2);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMns2Ex);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMul);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMul2);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDiv);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDiv2);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRemai);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRema2);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncInc);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncIncEx);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncInc2);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncInc2Ex);
-
-/*
- * Field-script opcode DEC: Decrement (8-bit)
+/**
+ * @brief Opcode 0x8F - **AND** - Bitwise AND (8-bit)
  *
- * Decrements the 8-bit value found at bank B, address A.
- * If the value is 0x00, it will roll over to 0xFF.
- * If you specify a 16-bit bank, only the lower byte will
- * be decremented, and if the lower byte is 0x00, the higher
+ * Memory layout:
+ *
+ * | 0x8F | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: Contains an operand of the bitwise AND and receives the
+ * result.
+ * - const UByte Oper: The second operand of the bitwise AND.
+ * @details
+ * Performs a bitwise AND operation between "Dest" and "Oper" and stores the
+ * result back into "Dest". If the Source Bank is 0 then the "Oper" is the
+ * operand to AND with. If the Source Bank is an 8 bit bank, then the "Oper" is
+ * the address in that bank where the operand is.
+ */
+s32 OpcodeFuncAnd(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("and", 3);
+    }
+    FieldEventWriteMemoryU8(
+        1, 2,
+        FieldEventReadMemoryU8(1, 2) & FieldEventReadMemoryU8(2, 3) & 0xFF);
+    PC_INC(4);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x90 - **AND2** - Bitwise AND (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x90 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank, or zero if "Oper" is specified as a literal
+ * value.
+ * - const UByte Dest: Address containing an operand of the bitwise AND, and
+ * that which receives the result.
+ * - const UShort Oper: 16-bit operand of the bitwise AND, or address of the
+ * second operand, if S is non-zero.
+ * @details
+ * Performs a bitwise AND operation between  "Dest"  and "Oper" and stores the
+ * result back into  "Dest" . If the Source Bank is 0 then the "Oper" is the
+ * operand to AND with. If the Source Bank is a 16-bit bank, then the "Oper" is
+ * the address in that bank where the operand is.
+ */
+s32 OpcodeFuncAnd2(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("and2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) & FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x91 - **OR** - Bitwise OR (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x91 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: S: Source bank
+ * - const UByte Dest: Contains an operand of the bitwise OR and receives the
+ * result.
+ * - const UByte Oper: The second operand of the bitwise OR.
+ * @details
+ * Performs a bitwise OR operation between "Dest" and "Oper" and stores the
+ * result back into "Dest". If the Source Bank is 0 then the "Oper" is the
+ * operand to OR with. If the Source Bank
+ * is an 8 bit bank, then the "Oper" is the address in that bank where
+ * the operand is.
+ */
+s32 OpcodeFuncOr(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("or", 3);
+    }
+    FieldEventWriteMemoryU8(
+        1, 2,
+        (FieldEventReadMemoryU8(1, 2) | FieldEventReadMemoryU8(2, 3)) & 0xFF);
+    PC_INC(4);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x92 - **OR2** - Bitwise OR (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x92 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank, or zero if "Oper" is specified as a literal
+ * value.
+ * - const UByte Dest: Address containing an operand of the bitwise OR, and that
+ * which receives the result.
+ * - const UShort Oper: 16-bit operand of the bitwise OR, or address of the
+ * second operand, if S is non-zero
+ * @details
+ * Performs a bitwise OR operation between  "Dest"  and "Oper" and stores the
+ * result back into  "Dest" . If the Source Bank is 0 then "Oper" is the operand
+ * to OR with. If the Source Bank is a 16-bit bank, then the "Oper" is the
+ * address in that bank where the operand is.
+ */
+s32 OpcodeFuncOr2(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("or2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) | FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x93 - **XOR** - Bitwise XOR (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x93 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: Contains an operand of the bitwise XOR and receives the
+ * result.
+ * - const UByte Oper: The second operand of the bitwise XOR.
+ * @details
+ * Performs a bitwise XOR operation between "Dest" and "Oper" and stores the
+ * result back into "Dest". If the Source Bank is 0 then the Operis the operand
+ * to XOR with. If the Source Bank is an 8 bit bank, then the "Oper" is the
+ * address in that bank where the operand is.
+ */
+s32 OpcodeFuncXor(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("xor", 3);
+    }
+    FieldEventWriteMemoryU8(
+        1, 2,
+        (FieldEventReadMemoryU8(1, 2) ^ FieldEventReadMemoryU8(2, 3)) & 0xFF);
+    PC_INC(4);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x94 - **XOR2** - Bitwise XOR (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x94 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank, or zero if "Oper" is specified as a literal
+ * value.
+ * - const UByte Dest: Address containing an operand of the bitwise XOR, and
+ * that which receives the result.
+ * - const UShort Oper: 16-bit operand of the bitwise XOR, or address of the
+ * second operand, if S is non-zero.
+ * @details
+ * Performs a bitwise XOR operation between  "Dest"  and "Oper" and stores the
+ * result back into  "Dest" . If the Source Bank is 0 then the "Oper" is the
+ * operand to XOR with. If the Source Bank is a 16-bit bank, then the "Oper" is
+ * the address in that bank where the operand is.
+ */
+s32 OpcodeFuncXor2(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("xor2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) ^ FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x85 - **PLUS** - Addition (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x85 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is added.
+ * - const UByte Oper: The operand, added to the destination.
+ * @details
+ * Adds two numbers together and stores the result back into  "Dest" . The
+ * result of the addition wraps around into the range of 0-255. If the Source
+ * Bank is 0 then the "Oper" is added to the destination value. If the Source
+ * Bank is an 8 bit bank, then the "Oper" is the address in that bank where the
+ * operand is.
+ */
+s32 OpcodeFuncPlus(void) {
+    u16* temp_a0;
+    u8 temp_s0;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("plus", 3);
+    }
+    FieldEventWriteMemoryU8(
+        1, 2,
+        (FieldEventReadMemoryU8(1, 2) + FieldEventReadMemoryU8(2, 3)) & 0xFF);
+    PC_INC(4);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x76 - **PLUS!** - Saturated Addition (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x76 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is added.
+ * - const UByte Oper: The operand, added to the destination.
+ * @details
+ * Adds two numbers together and stores the result back into "Dest". The result
+ * of the addition is capped at 255. If the Source Bank is 0 then the "Oper" is
+ * added to the destination value. If the Source Bank is an 8 bit bank, then the
+ * "Oper" is the address in that bank where the operand is.
+ */
+s32 OpcodeFuncPlusEx(void) {
+    u8 a;
+    u8 b;
+    s16 sum;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("plus!", 3);
+    }
+
+    a = FieldEventReadMemoryU8(1, 2);
+    b = FieldEventReadMemoryU8(2, 3);
+    sum = a + b;
+    if (sum > 255) {
+        sum = 255;
+    }
+
+    FieldEventWriteMemoryU8(1, 2, sum);
+    PC_INC(4);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x86 - **PLUS2** - Addition (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x86 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is added.
+ * - const SWord Oper: The operand, added to the destination.
+ * @details
+ * Adds two numbers together and stores the result back into  "Dest" . The
+ * result of the addition wraps around into the 16-bit range. If the Source Bank
+ * is 0 then the "Oper" is added to the destination value. If the
+ * Source Bank is an 16 bit bank, then the "Oper" is the address in that bank
+ * where the operand is.
+ */
+s32 OpcodeFuncPlus2(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("plus2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) + FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x77 - **PLS2!** - Saturated Addition (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x77 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is added.
+ * - const SWord Oper: The operand, added to the destination
+ * @details
+ * Adds two numbers together and stores the result back into "Dest" The result
+ * of the addition is capped at 32767. The result is not capped at the negative
+ * end, however (-32768), so adding two large negative numbers together will
+ * still produce wrap-around. If the Source Bank is 0 then the "Oper" is added
+ * to the destination value. If the Source Bank is an 16 bit bank, then the
+ * "Oper" is the address in that bank where the operand is.
+ */
+s32 OpcodeFuncPls2Ex(void) {
+    s16 a;
+    s16 b;
+    s32 sum;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("pls2!", 3);
+    }
+    a = FieldEventReadMemoryS16(1, 2);
+    b = FieldEventReadMemoryS16(2, 3);
+    sum = a + b;
+    if (sum > 0x7FFF) {
+        sum = 0x7FFF;
+    }
+    FieldEventWriteMemoryS16(1, 2, sum);
+    PC_INC(5);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x87 - **MINUS** - Subtraction (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x87 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is
+ * subtracted.
+ * - const UByte Oper: The operand to be subtracted from the destination.
+ * @details
+ * Subtracts two numbers and stores the result back into  "Dest" . The result of
+ * the subtraction wraps around into the range of 0-255. If the Source Bank is 0
+ * then the "Oper" is subtracted from the destination value. If the Source Bank
+ * is an 8 bit bank, then the "Oper" is the address in that bank where the
+ * operand is.
+ */
+s32 OpcodeFuncMinus(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("minus", 3);
+    }
+    FieldEventWriteMemoryU8(
+        1, 2,
+        (FieldEventReadMemoryU8(1, 2) - FieldEventReadMemoryU8(2, 3)) & 0xFF);
+    PC_INC(4);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x78 - **MINS!** - Saturated Subtraction (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x78 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is
+ * subtracted.
+ * - const UByte Oper: The operand to be subtracted from the destination.
+ * @details
+ * Subtracts "Oper" from "Dest" and stores the result back into "Dest". The
+ * result of the subtraction is capped at 0. If the Source Bank is 0 then the
+ * "Oper" is subtracted from the destination value. If the Source Bank is an 8
+ * bit bank, then the "Oper" is the address in that bank where the operand is.
+ */
+s32 OpcodeFuncMinsEx(void) {
+    u8 a;
+    u8 b;
+    s16 differ;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mins!", 3);
+    }
+    a = FieldEventReadMemoryU8(1, 2);
+    b = FieldEventReadMemoryU8(2, 3);
+    differ = a - b;
+    if (differ < 0) {
+        differ = 0;
+    }
+    FieldEventWriteMemoryU8(1, 2, differ & 0xFF);
+    PC_INC(4);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x88 - **MINS2** - Subtraction (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x98 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is
+ * subtracted.
+ * - const SWord Oper: The operand to be subtracted from the destination.
+ * @details
+ * Subtracts two numbers and stores the result back into "Dest". The result of
+ * the subtraction wraps around into the 16-bit range. If the Source Bank is 0
+ * then the "Oper" is subtracted from the destination value. If the Source Bank
+ * is an 16 bit bank, then the "Oper" is the address in that bank where the
+ * operand is.
+ */
+s32 OpcodeFuncMins2(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mins2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) - FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x79 - **MNS2!** - Saturated Subtraction (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x79 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is
+ * subtracted.
+ * - const SWord Oper: The operand to be subtracted from the destination.
+ * @details
+ * Subtracts "Oper" from "Dest" and stores the result back into "Dest". The
+ * result of the subtraction is capped at -32768. The result is not capped at
+ * the positive end (32767), so subtracting a large negative number from a large
+ * positive number will still produce wrap-around. If the Source Bank is 0 then
+ * the "Oper" is subtracted from the destination value. If the
+ * Source
+ * Bank is an 16 bit bank, then the "Oper" is the address in that bank
+ * where the operand is.
+ */
+s32 OpcodeFuncMns2Ex(void) {
+    s16 a;
+    s16 b;
+    s32 differ;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mns2!", 3);
+    }
+    a = FieldEventReadMemoryS16(1, 2);
+    b = FieldEventReadMemoryS16(2, 3);
+    differ = a - b;
+    if (differ <= 0x7FFF) {
+        differ = 0x8000;
+    }
+    FieldEventWriteMemoryS16(1, 2, differ);
+    PC_INC(5);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x89 - **MUL** - Multiplication (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x89 | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is
+ * multiplied.
+ * - const UByte Oper: The operand, which is multiplied with the destination.
+ * @details
+ * Multiplies two numbers together and stores the result back into "Dest". The
+ * result of the Multiplication is capped at 255. If the Source Bank is 0 then
+ * the the value "Oper" is multiplied with the destination value. If the Source
+ * Bank is an 8 bit bank, then the "Oper" is the address in that bank where the
+ * operand is.
+ */
+s32 OpcodeFuncMul(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mul", 3);
+    }
+    FieldEventWriteMemoryU8(
+        1, 2,
+        (FieldEventReadMemoryU8(1, 2) * FieldEventReadMemoryU8(2, 3)) & 0xFF);
+    PC_INC(4);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x8A - **MUL2** - Multiplication (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x8A | D/S | Dest | Oper |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: The destination variable, to which the operand is
+ * multiplied.
+ * - const SWord Oper: The operand, which is multiplied with the destination.
+ * @details
+ * Multiplies two numbers together and stores the result back into "Dest". The
+ * result of the Multiplication is capped at 32767. If the Source Bank is 0 then
+ * the the value "Oper" is multiplied with the destination value. If the Source
+ * Bank is an 8 bit bank, then the "Oper" is the address in that bank where the
+ * operand is.
+ */
+s32 OpcodeFuncMul2(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mul2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) * FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x8B - **DIV** - Division (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x8B | D/S | Dest | Den |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: Contains the nominator of the division and receives the
+ * quotient.
+ * - const UByte Den: The denominator of the division.
+ * @details
+ * Divides "Dest" by "Den" and stores the result back into "Dest". The result of
+ * the division is rounded towards zero to the nearest integer. If the Source
+ * Bank is 0 then the "Den" is the denominator. If the Source Bank is an 8 bit
+ * bank, then the "Den" is the address in that bank where the denominator is.
+ */
+s32 OpcodeFuncDiv(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("div", 3);
+    }
+    FieldEventWriteMemoryU8(1, 2,
+                            (u8)((u32)(FieldEventReadMemoryU8(1, 2) & 0xFF) /
+                                 (u32)(FieldEventReadMemoryU8(2, 3) & 0xFF)));
+    PC_INC(4);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x8C - **DIV2** - Division (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x8C | D/S | Dest | Den |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: Contains the nominator of the division and receives the
+ * quotient.
+ * - const UByte Den: The denominator of the division.
+ * @details
+ * Divides "Dest" by "Den" and stores the result back into "Dest". The
+ * result of the division is rounded towards zero to the nearest integer. If the
+ * Source Bank is 0 then the "Den" is the denominator. If the Source Bank is an
+ * 8 bit bank, then the "Den" is the address in that bank where the denominator
+ * is.
+ */
+s32 OpcodeFuncDiv2(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("div2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) / FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x8D - **REMAI** - Modulus (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x8D | D/S | Dest | Den |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: Contains the nominator of the division and receives the
+ * remainder.
+ * - const UByte Den: The denominator of the division.
+ * @details
+ * Divides "Dest" by "Den" and stores the remainder back into "Dest". If the
+ * Source Bank is 0 then the "Den" is the denominator. If the Source Bank is an
+ * 8 bit bank, then the "Den" is the address in that bank where the denominator
+ * is.
+ */
+s32 OpcodeFuncRemai(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("remai", 3);
+    }
+    FieldEventWriteMemoryU8(1, 2,
+                            (u8)((u32)(FieldEventReadMemoryU8(1, 2) & 0xFF) %
+                                 (u32)(FieldEventReadMemoryU8(2, 3) & 0xFF)));
+    PC_INC(4);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x8E - **REMA2** - Modulus (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x8E | D/S | Dest | Den
+ *
+ * - const Bit[4] D: Destination bank
+ * - const Bit[4] S: Source bank
+ * - const UByte Dest: Contains the nominator of the division and receives the
+ * remainder.
+ * - const SWord Den: The denominator of the division.
+ * @details
+ * Divides "Dest" by "Den" and stores the remainder back into "Dest". If the
+ * Source Bank is 0 then the "Den" is the denominator. If the Source Bank is an
+ * 16 bit bank, then the "Den" is the address in that bank where the denominator
+ * is.
+ */
+s32 OpcodeFuncRema2(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("rema2", 3);
+    }
+    FieldEventWriteMemoryS16(
+        1, 2,
+        (s16)(FieldEventReadMemoryS16(1, 2) % FieldEventReadMemoryS16(2, 3)));
+    PC_INC(5);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x95 - **INC** - Increment (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x95 | B | A |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte A: Address.
+ * @details
+ * Increments the 8-bit value found at bank B, address A. If the value is 0xFF,
+ * it will roll over to 0x00. If you specify a 16-bit bank, only the lower byte
+ * will be incremented, and if the lower byte is 0xFF, the higher byte will be
+ * unaffected whilst the lower byte will return to 0x00.
+ */
+s32 OpcodeFuncInc(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("inc", 2);
+    }
+    FieldEventWriteMemoryU8(2, 2, (FieldEventReadMemoryU8(2, 2) + 1) & 0xFF);
+    PC_INC(3);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x7A - **INC!** - Saturated Increment (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x7A | 0/D | Dest |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const UByte Dest: The destination address in the bank where the variable is
+ * incremented.
+ * @details
+ * Increments the value in "Dest" by 1. The result is capped at 255.
+ */
+s32 OpcodeFuncIncEx(void) {
+    s16 result;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("inc!", 2);
+    }
+    result = (FieldEventReadMemoryU8(2, 2) & 0xFF) + 1;
+    if (result >= 0x100) {
+        result = 0xFF;
+    }
+    FieldEventWriteMemoryU8(2, 2, result & 0xFF);
+    PC_INC(3);
+    return 0;
+}
+
+/**
+ * @brief Opcode  0x96 - **INC2** - Increment (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x96 | B | A |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte A: Address.
+ * @details
+ * Increments the 16-bit value found at bank B, address A. If the value is
+ * 0xFFFF, it will roll over to 0x0000.
+ */
+s32 OpcodeFuncInc2(void) {
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("inc2", 3);
+    }
+    FieldEventWriteMemoryS16(2, 2, (s16)(FieldEventReadMemoryS16(2, 2) + 1));
+    PC_INC(3);
+    return 0;
+}
+
+/**
+ * @brief Opcode  0x7B - **INC2!** - Saturated Increment (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x7B | 0/D | Dest |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte Dest: The destination address in the bank where the variable is
+ * incremented.
+ * @details
+ * Increments the value in "Dest" by 1. The result is capped at
+ * 32767.
+ */
+s32 OpcodeFuncInc2Ex(void) {
+    s32 result;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("inc2!", 3);
+    }
+    result = FieldEventReadMemoryS16(2, 2) + 1;
+    if (result > 0x7FFF) {
+        result = 0x7FFF;
+    }
+    FieldEventWriteMemoryS16(2, 2, result);
+    PC_INC(3);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x97 - **DEC** - Decrement (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x97 | B | A |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte A: Address.
+ * @details
+ * Decrements the 8-bit value found at bank B, address A. If the value is
+ * 0x00, it will roll over to 0xFF. If you specify a 16-bit bank, only the
+ * lower byte will be decremented, and if the lower byte is 0x00, the higher
  * byte will be unaffected whilst the lower byte will return to 0xFF.
  */
 s32 OpcodeFuncDec(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("dec", 2);
     }
     FieldEventWriteMemoryU8(2, 2, (FieldEventReadMemoryU8(2, 2) - 1) & 0xFF);
@@ -2667,15 +3403,133 @@ s32 OpcodeFuncDec(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDecEx);
+/**
+ * @brief Opcode 0x7C - **DEC!** - Saturated Decrement (8-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x7C | 0/D | Dest |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte Dest: The destination address in the bank where the variable is
+ * deccremented.
+ * @details
+ * Decreases the value in "Dest" by 1. The result is capped at 0.
+ */
+s32 OpcodeFuncDecEx(void) {
+    s16 result;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDec2);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("dec!", 2);
+    }
+    result = (FieldEventReadMemoryU8(2, 2) & 0xFF) - 1;
+    if (result < 0) {
+        result = 0;
+    }
+    FieldEventWriteMemoryU8(2, 2, result & 0xFF);
+    PC_INC(3);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDec2Ex);
+/**
+ * @brief Opcode 0x98 - **DEC2** - Decrement (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x98 | B | A |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte A: Address.
+ * @details
+ * Decrements the 16-bit value found at bank B, address A. If the value is
+ * 0x0000, it will roll over to 0xFFFF.
+ */
+s32 OpcodeFuncDec2(void) {
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRandm);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("dec2", 3);
+    }
+    FieldEventWriteMemoryS16(2, 2, (s16)(FieldEventReadMemoryS16(2, 2) - 1));
+    PC_INC(3);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRdmsd);
+/**
+ * @brief Opcode 0x7D - **DEC2!** - Saturated Decrement (16-bit)
+ *
+ * Memory layout:
+ *
+ * | 0x7D | 0/D | Dest |
+ *
+ * - const Bit[4] D: Destination bank
+ * - const UByte Dest: The destination address in the bank where the variable is
+ * Decremented.
+ * @details
+ * Decreases the value in "Dest" by 1. The result is capped at -32768.
+ */
+s32 OpcodeFuncDec2Ex(void) {
+    s32 result;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("dec2!", 3);
+    }
+    result = FieldEventReadMemoryS16(2, 2) - 1;
+    if (result <= 0x7FFF) {
+        result = 0x8000;
+    }
+    FieldEventWriteMemoryS16(2, 2, result);
+    PC_INC(3);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x99 - **RANDM** - Random
+ *
+ * Memory layout:
+ *
+ * | 0x99 | B | A |
+ *
+ * - const UByte B: Destination bank.
+ * - const UByte A: Destination address.
+ * @details
+ * Places a random 8-bit value into the destination bank and address specified.
+ * If you specify a 16-bit bank, only the lower byte is randomised.
+ */
+s32 OpcodeFuncRandm(void) {
+    u16* temp_v1;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("randm", 2);
+    }
+    g_RandomTableIndex += g_RandomTableStep;
+    FieldEventWriteMemoryU8(2, 2, g_RandomTable[g_RandomTableIndex]);
+    PC_INC(3);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x7F - **RDMSD** - Seed Random Generator
+ *
+ * Memory layout:
+ *
+ * | 0x7F | B | S |
+ *
+ * - const UByte B: Bank in which the seed value is stored, or zero if S is
+ * specified as a literal value.
+ * - const UByte A: Destination address.
+ * @details
+ * Seeds the random number generator used by RANDOM. The lower four bits of the
+ * arguments are used as the seed value by altering the offset used to take a
+ * value from the table of pseudo-random numbers.
+ */
+s32 OpcodeFuncRdmsd(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("rdmsd", 2);
+    }
+    g_RandomTableStep = (FieldEventReadMemoryU8(2, 2) << 4) + 1;
+    PC_INC(3);
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgon);
 
@@ -2719,7 +3573,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLdpal);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLdpls);
 
-static void func_800CDC14(s16* arg0) {
+static void FieldEventRectClear(s16* arg0) {
     arg0[0] = 0;
     arg0[1] = 0;
     arg0[2] = 0;
@@ -2801,7 +3655,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSolid);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncVwoft);
 
 ////////////////////////////////////////
-// Begin of event_code_actions.c
+// Begin of event_actions.c
 ////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncJoin);
@@ -2864,9 +3718,87 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMpara);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMpra2);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSin);
+/**
+ * @brief Opcode 0xD4 - **SIN** - sine
+ *
+ * Memory layout:
+ *
+ * | 0xD4 | B1 / B2 | B3 / B4 | D | M | A | S |
+ *
+ * - const Bit[4] B1: Destination bank.
+ * - const Bit[4] B2: Bank to retrieve M, or zero if M is specified as a literal
+ * value.
+ * - const Bit[4] B3: Bank to retrieve A, or zero if A is specified as a literal
+ * value.
+ * - const Bit[4] B4: Bank to retrieve S, or zero if S is specified as a literal
+ * value.
+ * - const UByte D: Destination address.
+ * - const UByte M: Multiplicand, or address to retrieve value if B2 is
+ * non-zero.
+ * - const UByte A: Addition, or address to retrieve value if B3 is non-zero.
+ * - const UByte S: Variable for sin angle, or source address to retrieve value
+ * if B4 is non-zero.
+ * @details
+ * Creates a variable from the another variable, with SIN, a multiplicand and an
+ * addition factor
+ */
+s32 OpcodeFuncSin(void) {
+    s32 result;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCos);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("sin", 8);
+    }
+
+    result = rsin(FieldEventReadMemoryS16(1, 3));
+    result *= FieldEventReadMemoryS16(2, 5);
+    result += FieldEventReadMemoryS16(3, 7);
+
+    FieldEventWriteMemoryS16(4, 9, (s16)(result >> 12));
+
+    PC_INC(10);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0xD4 - **COS** - cosine
+ *
+ * Memory layout:
+ *
+ * | 0xD5 | B1 / B2 | B3 / B4 | D | M | A | S |
+ *
+ * - const Bit[4] B1: Destination bank.
+ * - const Bit[4] B2: Bank to retrieve M, or zero if M is specified as a literal
+ * value.
+ * - const Bit[4] B3: Bank to retrieve A, or zero if A is specified as a literal
+ * value.
+ * - const Bit[4] B4: Bank to retrieve S, or zero if S is specified as a literal
+ * value.
+ * - const UByte D: Destination address.
+ * - const UByte M: Multiplicand, or address to retrieve value if B2 is
+ * non-zero.
+ * - const UByte A: Addition, or address to retrieve value if B3 is non-zero.
+ * - const UByte S: Variable for sin angle, or source address to retrieve value
+ * if B4 is non-zero.
+ * @details
+ * Creates a variable from the another variable, with COS, a multiplicand and an
+ * addition factor
+ */
+s32 OpcodeFuncCos(void) {
+    s32 result;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("cos", 8);
+    }
+
+    result = rcos(FieldEventReadMemoryS16(1, 3));
+    result *= FieldEventReadMemoryS16(2, 5);
+    result += FieldEventReadMemoryS16(3, 7);
+
+    FieldEventWriteMemoryS16(4, 9, (s16)(result >> 12));
+
+    PC_INC(10);
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D33FC);
 
@@ -2884,11 +3816,101 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncHpPlus);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncHpMinus);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGoldPlus);
+/**
+ * @brief Opcode 0x39 - **GOLDU** - Gold Up
+ *
+ * Memory layout:
+ *
+ * | 0x39 | 0 | A |
+ *
+ * Increase by a constant amount:
+ * - const UByte 0: Zero.
+ * - const ULong A: Amount to increase.
+ *
+ * Increase by an amount found in memory:
+ * - const Bit[4] B: Source bank.
+ * - const UByte A: Source address.
+ * - const UByte[3] 0: Three zero bytes.
+ * @details
+ * Increases the amount of gil by a constant amount, or by an amount found in
+ * the source bank B and address A. The total gil is capped above by 0xFFFFFFFF;
+ * attempts to increment further will fail.
+ */
+s32 OpcodeFuncGoldPlus(void) {
+    u32 gold;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGoldMinus);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("gold+", 5);
+    }
+    gold = (u16)FieldEventReadMemoryS16(1, 2);
+    gold |= (u16)FieldEventReadMemoryS16(2, 4) << 16;
+    SystemMenuAddPartyGold(gold);
+    PC_INC(6);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncChgld);
+/**
+ * @brief Opcode 0x3A - **GOLDD** - Gold Down
+ *
+ * Memory layout:
+ *
+ * | 0x3A | 0 | A |
+ *
+ * Decrease by a constant amount:
+ * - const UByte 0: Zero.
+ * - const ULong A: Amount to decrease
+ *
+ * Decrease by an amount found in memory:
+ * - const Bit[4] B: Source bank.
+ * - const UByte A: Source address.
+ * - const UByte[3] 0: Three zero bytes.
+ * @details
+ * Decreases the amount of gil by a constant amount, or by an amount found in
+ * the source bank B and address A. The total gil is capped below by 0; attempts
+ * to decrement further will fail.
+ */
+s32 OpcodeFuncGoldMinus(void) {
+    u32 gold;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("gold-", 5);
+    }
+    gold = (u16)FieldEventReadMemoryS16(1, 2);
+    gold |= (u16)FieldEventReadMemoryS16(2, 4) << 16;
+    SystemMenuRemovePartyGold(gold);
+    PC_INC(6);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x3B - **CHGLD** - Change Gold
+ *
+ * Memory layout:
+ *
+ * | 0x3B | B1 / B2 | A1 | A2 |
+ *
+ * - const Bit[4] B1: Destination bank 1.
+ * - const Bit[4] B2: Destination bank 2.
+ * - const UByte A1: Destination address 1.
+ * - const UByte A2: Destination address 2.
+ * @details
+ * Copies the amount of gil the party has into the destination addresses.
+ * As the gil amount is a four-byte value, the arguments require two destination
+ * addresses to place two two-byte values into. Address 1 takes the lower two
+ * bytes of the gil amount, while address 2 takes the higher two bytes.
+ */
+s32 OpcodeFuncChgld(void) {
+    u32 partyGold;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("chgld", 3);
+    }
+    partyGold = SystemMenuGetPartyGold();
+    FieldEventWriteMemoryS16(1, 2, (u16)partyGold);
+    FieldEventWriteMemoryS16(2, 3, (u16)(partyGold >> 16));
+    PC_INC(4);
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncChmph);
 
@@ -2913,6 +3935,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBlink);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncKawai);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncKawiw);
+
+////////////////////////////////////////
+// Begin of debug.c
+////////////////////////////////////////
 
 static void func_800D4838(void) {}
 
@@ -2949,7 +3975,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4EB4);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D5228);
 
 static void func_800D5750(void) {
-    func_800C46A4();
+    FieldEventClearAkaoStruct();
     D_8009A000[0] = 0x30;
     D_8009A004[0] = 1;
     D_8009A008[0] = 0x40;
@@ -2982,20 +4008,16 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7A58);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7C98);
 
-////////////////////////////////////////
-// Begin of debug.c
-////////////////////////////////////////
-
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugInitBuffers);
 
 static void InitFieldDebugPages(void) {
     FieldDebugPageInit(5, 0x6C, 0, 0x6C, 0x52);
-    FieldDebugStringCopy(DebugText, "Authr:");
-    FieldDebugStringConcat(DebugText, g_FieldScripts->author);
-    AddStrNextDebugRow(5, DebugText);
-    FieldDebugStringCopy(DebugText, "Event:");
-    FieldDebugStringConcat(DebugText, g_FieldScripts->name);
-    AddStrNextDebugRow(5, DebugText);
+    FieldDebugStringCopy(g_DebugText, "Authr:");
+    FieldDebugStringConcat(g_DebugText, g_FieldScripts->author);
+    AddStrNextDebugRow(5, g_DebugText);
+    FieldDebugStringCopy(g_DebugText, "Event:");
+    FieldDebugStringConcat(g_DebugText, g_FieldScripts->name);
+    AddStrNextDebugRow(5, g_DebugText);
     AddStrNextDebugRow(5, "  Go");
     AddStrNextDebugRow(5, "  Stop");
     AddStrNextDebugRow(5, "  Step");
@@ -3015,7 +4037,7 @@ static void InitFieldDebugPages(void) {
     D_8007EBCC = 4;
     D_8007EBDC = 8;
     D_80071E24 = 0;
-    DebugLevel = 0;
+    g_DebugLevel = 0;
     D_80070788 = 0;
     g_FieldDebugCurPage = 5;
     FieldDebugPageSetHeadRow(5, 4);
@@ -3129,8 +4151,8 @@ static void FieldDebugStringU32hex(s32 val, char* msg_out) {
     msg_out[3] = g_FieldDebugDigits[val & 0xF];
 }
 
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugIntToString);
+
 ////////////////////////////////////////
 // End of debug.c
 ////////////////////////////////////////
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800DA4FC);

@@ -275,17 +275,17 @@ void* GetCharacterRecord(s32 arg0) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80025800);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_800258BC);
+INCLUDE_ASM("asm/us/main/nonmatchings/1255C", SystemMenuAddHpByPartyId);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80025988);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80025A44);
+INCLUDE_ASM("asm/us/main/nonmatchings/1255C", SystemMenuAddMpByPartyId);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80025B10);
+INCLUDE_ASM("asm/us/main/nonmatchings/1255C", SystemMenuRemovePartyGold);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80025B48);
+INCLUDE_ASM("asm/us/main/nonmatchings/1255C", SystemMenuAddPartyGold);
 
-s32 SYS_gil(void) { return Savemap.gil; }
+s32 SystemMenuGetPartyGold(void) { return Savemap.gil; }
 
 void func_80025B8C(u_long* image) {
     RECT rect;
