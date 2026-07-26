@@ -384,7 +384,26 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A59A0);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5A20);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5A94);
+typedef struct WorldStruct800A5A94 {
+    struct WorldStruct800A5A94* unk0;
+    s16 unk4;
+} WorldStruct800A5A94;
+
+// Checks if the given arg0 value exists in the unk4 field of the linked list
+// starting at D_800E5768. Returns 1 if found, 0 otherwise.
+s32 func_800A5A94(s16 arg0)
+{
+    WorldStruct800A5A94* var_v1;
+
+    var_v1 = (WorldStruct800A5A94*)D_800E5768;
+    while (var_v1 != NULL) {
+        if (var_v1->unk4 == arg0) {
+            break;
+        }
+        var_v1 = var_v1->unk0;
+    }
+    return var_v1 != NULL;
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5AD8);
 
@@ -478,7 +497,13 @@ void func_800A6994(VECTOR* arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A6B8C);
+// Copies the global D_80109D44 vector into the provided argument.
+void func_800A6B8C(VECTOR* arg0)
+{
+    if (arg0 != NULL) {
+        *arg0 = D_80109D44;
+    }
+}
 
 void func_800A6BCC(SVECTOR* arg0)
 {
@@ -1839,7 +1864,15 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF1E8);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF24C);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF2A4);
+// Updates three byte fields (0x10, 0x11, 0x12) in the global struct D_8010B3B8.
+void func_800AF2A4(s8 arg0, s8 arg1, s8 arg2)
+{
+    if (D_8010B3B8 != NULL) {
+        ((s8*)D_8010B3B8)[0x10] = arg0;
+        ((s8*)D_8010B3B8)[0x11] = arg1;
+        ((s8*)D_8010B3B8)[0x12] = arg2;
+    }
+}
 
 static void func_800AF2E4(s32 arg0) {
     if (D_8010B3B8)
@@ -1851,9 +1884,25 @@ static void func_800AF304(s32 arg0) {
         D_8010B3B8->unk20 = arg0;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF324);
+// Updates three byte fields (0x14, 0x15, 0x16) in the global struct D_8010B3B8.
+void func_800AF324(s8 arg0, s8 arg1, s8 arg2)
+{
+    if (D_8010B3B8 != NULL) {
+        ((s8*)D_8010B3B8)[0x14] = arg0;
+        ((s8*)D_8010B3B8)[0x15] = arg1;
+        ((s8*)D_8010B3B8)[0x16] = arg2;
+    }
+}
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF364);
+// Updates three byte fields (0x18, 0x19, 0x1A) in the global struct D_8010B3B8.
+void func_800AF364(s8 arg0, s8 arg1, s8 arg2)
+{
+    if (D_8010B3B8 != NULL) {
+        ((s8*)D_8010B3B8)[0x18] = arg0;
+        ((s8*)D_8010B3B8)[0x19] = arg1;
+        ((s8*)D_8010B3B8)[0x1A] = arg2;
+    }
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF3A4);
 
@@ -1875,7 +1924,13 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B0098);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B017C);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B01C4);
+extern s32 D_8010B488;
+
+// Updates an entry in D_8010B47C array based on whether the corresponding entry in D_8010B488 is greater than zero.
+void func_800B01C4(s32 arg0)
+{
+    (&D_8010B47C)[arg0] = -((&D_8010B488)[arg0] > 0) & ~0xF;
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B0200);
 
@@ -2132,7 +2187,15 @@ void func_800B6570(u32 arg0) {
     func_8002DA7C();
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B65A4);
+// Initializes the global unknown struct by setting its values to 0xBD and storing the arguments.
+// Then calls func_8002DA7C.
+void func_800B65A4(u32 arg0, s32 arg1)
+{
+    *D_8009A000 = 0xBD;
+    *D_8009A004 = arg0;
+    *D_8009A008 = arg1;
+    func_8002DA7C();
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B65E0);
 
@@ -2444,7 +2507,18 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B87D8);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B89C4);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B8A5C);
+extern u8 D_8008328D;
+extern u8 D_800832A2;
+
+// Updates the global byte arrays D_8008328D and D_800832A2 at an index computed from arg0.
+void func_800B8A5C(s32 arg0, s16 arg1, s16 arg2)
+{
+    s32 temp_v0;
+
+    temp_v0 = (s16)arg0 * 0x30;
+    (&D_8008328D)[temp_v0] = (s8)arg1;
+    *(s16*)(&D_800832A2 + temp_v0) = arg2;
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B8A98);
 
