@@ -2069,7 +2069,7 @@ s32 OpcodeFuncRet(void) {
     u16 scriptPc;
     u32 entity;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("ret", 0);
     }
     if (g_FieldScriptPriority[g_CurrentEntity] >= 7) {
@@ -2117,7 +2117,7 @@ s32 OpcodeFuncRet(void) {
 
     g_SavedFieldScriptPC[g_CurrentEntity]
                         [g_FieldScriptPriority[g_CurrentEntity]] = 0;
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2(
             "ret=", g_FieldScriptPriority[g_CurrentEntity], 2);
     }
@@ -2129,7 +2129,7 @@ s32 OpcodeFuncRetto(void) {
     u8 priority;
     s32 extrasHeaderSize;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("retto", 1);
     }
 
@@ -2167,7 +2167,7 @@ s32 OpcodeFuncRetto(void) {
         << 8;
 
     g_FieldScriptPriority[g_CurrentEntity] = priority;
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2(
             "ret=", g_FieldScriptPriority[g_CurrentEntity], 2);
     }
@@ -2175,7 +2175,7 @@ s32 OpcodeFuncRetto(void) {
 }
 
 s32 OpcodeFuncBack(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("back", 1);
     }
     PC_DEC(GET_PARAM_U8(1));
@@ -2185,7 +2185,7 @@ s32 OpcodeFuncBack(void) {
 s32 OpcodeFuncLback(void) {
     u16 param;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("lback", 2);
     }
     GET_PARAM_S16(param, 1);
@@ -2194,7 +2194,7 @@ s32 OpcodeFuncLback(void) {
 }
 
 s32 OpcodeFuncSkip(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("skip", 1);
     }
     PC_INC(GET_PARAM_U8(1) + 1);
@@ -2204,7 +2204,7 @@ s32 OpcodeFuncSkip(void) {
 s32 OpcodeFuncLskip(void) {
     u16 param;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("lskip", 2);
     }
     GET_PARAM_S16(param, 1);
@@ -2216,7 +2216,7 @@ s32 OpcodeFuncLskip(void) {
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMjump);
 #else
 s32 OpcodeFuncMjump(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("mjump", 8);
     }
 
@@ -2237,7 +2237,7 @@ s32 OpcodeFuncMjump(void) {
             return 0;
         }
     }
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("evt cmd=", g_FieldState->eventCmd, 2);
     }
     return 1;
@@ -3793,7 +3793,7 @@ s32 OpcodeFuncPc(void) {
     u8 charId;
     s32 i;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("pc", 1);
     }
 
@@ -3831,7 +3831,7 @@ s32 OpcodeFuncPrtyp(void) {
     s32 i;
     u8 charId;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("prtyp", 1);
     }
 
@@ -3849,7 +3849,7 @@ s32 OpcodeFuncPrtyp(void) {
         if (Savemap.memory_bank_2[9 + i] == 0xFF) {
             ADD_PARTY_MEMBER(i, charId);
 
-            if (DebugLevel & 3) {
+            if (g_DebugLevel & 3) {
                 FieldDebugAddParseValueToPage2(
                     "p+ ef=", g_CharIdToEntity[charId], 2);
             }
@@ -3861,7 +3861,7 @@ s32 OpcodeFuncPrtyp(void) {
     }
 
     ADD_PARTY_MEMBER(2, charId);
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("p+ lf=", g_CharIdToEntity[charId], 2);
     }
     PC_INC(2);
@@ -3874,7 +3874,7 @@ s32 OpcodeFuncPrtym(void) {
     s32 i;
     u8 charId;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("prtym", 1);
     }
 
@@ -3900,7 +3900,7 @@ s32 OpcodeFuncPrtye(void) {
     u8 newParty[3];
     s32 i;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("prtye", 3);
     }
 
@@ -3917,7 +3917,7 @@ s32 OpcodeFuncSptye(void) {
     u8 newParty[3];
     s32 i;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("sptye", 5);
     }
 
@@ -3933,7 +3933,7 @@ s32 OpcodeFuncSptye(void) {
 s32 OpcodeFuncGptye(void) {
     s32 i;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("gptye", 5);
     }
 
@@ -4076,7 +4076,7 @@ s32 OpcodeFuncPrtyq(void) {
     s32 i;
     u8 charId;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("prtyq", 2);
     }
 
@@ -4084,7 +4084,7 @@ s32 OpcodeFuncPrtyq(void) {
 
     for (i = 0; i < 3; i++) {
         if (Savemap.memory_bank_2[9 + i] == charId) {
-            if (DebugLevel & 3) {
+            if (g_DebugLevel & 3) {
                 FieldDebugAddParseValueToPage2("prty=TRUE", 0, 0);
             }
             PC_INC(3);
@@ -4092,7 +4092,7 @@ s32 OpcodeFuncPrtyq(void) {
         }
     }
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("prty=FALSE", 0, 0);
     }
     PC_INC(GET_PARAM_U8(2) + 2);
@@ -4100,19 +4100,19 @@ s32 OpcodeFuncPrtyq(void) {
 }
 
 s32 OpcodeFuncMembq(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("membq", 2);
     }
 
     if ((1 << GET_PARAM_U8(1)) & Savemap.phs_visibility_mask) {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("memb=TRUE", 0, 0);
         }
         PC_INC(3);
         return 0;
     }
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("memb=FALSE", 0, 0);
     }
     PC_INC(GET_PARAM_U8(2) + 2);
@@ -4123,7 +4123,7 @@ s32 OpcodeFuncMmbPlusMinus(void) {
     s16 i;
     s16 charId;
 
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("mmb+-", 3);
     }
 
@@ -4145,7 +4145,7 @@ s32 OpcodeFuncMmbPlusMinus(void) {
 }
 
 s32 OpcodeFuncMmblk(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("mmblk", 3);
     }
 
@@ -4155,7 +4155,7 @@ s32 OpcodeFuncMmblk(void) {
 }
 
 s32 OpcodeFuncMmbuk(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("mmbuk", 3);
     }
 
@@ -4165,7 +4165,7 @@ s32 OpcodeFuncMmbuk(void) {
 }
 
 s32 OpcodeFuncSolid(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("solid", 1);
     }
 
@@ -4237,10 +4237,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCmtra);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMenu);
 #else
 s32 OpcodeFuncMenu(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         func_800BEAD4("menu", 3);
     }
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         func_800BECA4("evt cmd=", g_FieldState->eventCmd, 2);
     }
 
@@ -4257,7 +4257,7 @@ s32 OpcodeFuncMenu(void) {
     }
 
     if (g_FieldState->eventCmd == GET_PARAM_U8(2)) {
-        if (DebugLevel & 3) {
+        if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2(
                 "evt result=", g_FieldState->movieCommandState, 1);
         }
@@ -4281,7 +4281,7 @@ s32 OpcodeFuncMenu(void) {
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMenu2);
 #else
 s32 OpcodeFuncMenu2(void) {
-    if (DebugLevel & 3) {
+    if (g_DebugLevel & 3) {
         DebugPrintOpcode("menu", 1);
     }
     g_FieldState->menuDisabled = GET_PARAM_U8(1);
