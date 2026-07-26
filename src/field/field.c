@@ -12,6 +12,18 @@
 #define GET_PRIORITY(x) (((x) >> 5) & 0x7)
 #define GET_SCRIPTID(x) ((x) & 0x1F)
 
+#define ADD_PARTY_MEMBER(slot, charId)                                         \
+    Savemap.memory_bank_2[9 + slot] = charId;                                  \
+    if (charId != 0xFF) {                                                      \
+        u16 mask;                                                              \
+        u16 bit;                                                               \
+        bit = charId;                                                          \
+        mask = Savemap.phs_visibility_mask;                                    \
+        bit = 1 << bit;                                                        \
+        mask |= bit;                                                           \
+        Savemap.phs_visibility_mask = mask;                                    \
+    }
+
 typedef enum {
     IF_EQ,
     IF_NOT_EQ,
@@ -94,7 +106,8 @@ u32 If2CheckUnsigned(void);
 static s32 KeyCheck(u16 keys);
 static u32 GetAkaoBlockOffset(s16 akaoId);
 s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId);
-static void func_800CF5A0(s32 unk);
+static void PartyReplace(u8* newParty);
+static void PartyFromBank2ToSave(s32 unused);
 static void PartyRemove(u8* party, u8* toRemove);
 static void PartyAdd(u8* party, u8* toAdd);
 static void DebugPrintToFieldWindow(const char* str);
@@ -2323,18 +2336,157 @@ s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
 }
 #endif
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRet);
+s32 OpcodeFuncRet(void) {
+    u16* fieldScriptPC;
+    u16(*savedPC)[8];
+    u16* savedRow;
+    u16 scriptPc;
+    u32 entity;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncRetto);
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("ret", 0);
+    }
+    if (g_FieldScriptPriority[g_CurrentEntity] >= 7) {
+        return 1;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBack);
+    if (g_FieldScriptSyncState[g_CurrentEntity]
+                              [g_FieldScriptPriority[g_CurrentEntity]] ==
+        SYNC_WAITING) {
+        g_FieldScriptSyncState[g_CurrentEntity]
+                              [g_FieldScriptPriority[g_CurrentEntity]] =
+                                  SYNC_DONE;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLback);
+    g_FieldScriptPriority[g_CurrentEntity]++;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSkip);
+    entity = g_CurrentEntity;
+    savedPC = g_SavedFieldScriptPC;
+    fieldScriptPC = g_FieldScriptPC;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLskip);
+    savedRow = savedPC[entity];
+    scriptPc =
+        *(u16*)((g_FieldScriptPriority[entity] * sizeof(u16)) + (s32)savedRow);
+    fieldScriptPC[entity] = scriptPc;
 
+    while (scriptPc == 0 && g_FieldScriptPriority[entity] < 7) {
+        u16* activePcSlot;
+        u16* loopSavedRow;
+        u16 nextPc;
+
+        g_FieldScriptPriority[g_CurrentEntity]++;
+        entity = g_CurrentEntity;
+
+        activePcSlot =
+            (u16*)((entity * sizeof(*fieldScriptPC)) + (s32)fieldScriptPC);
+
+        loopSavedRow = (u16*)((entity * sizeof(*savedPC)) + (s32)savedPC);
+
+        nextPc = *(u16*)((g_FieldScriptPriority[entity] * sizeof(u16)) +
+                         (s32)loopSavedRow);
+
+        *activePcSlot = nextPc;
+        scriptPc = nextPc;
+    }
+
+    g_SavedFieldScriptPC[g_CurrentEntity]
+                        [g_FieldScriptPriority[g_CurrentEntity]] = 0;
+    if (DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2(
+            "ret=", g_FieldScriptPriority[g_CurrentEntity], 2);
+    }
+    return 0;
+}
+
+s32 OpcodeFuncRetto(void) {
+    s16 scriptId;
+    u8 priority;
+    s32 extrasHeaderSize;
+
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("retto", 1);
+    }
+
+    priority = GET_PRIORITY(GET_PARAM_U8(1));
+    scriptId = GET_SCRIPTID(GET_PARAM_U8(1));
+
+    while (g_FieldScriptPriority[g_CurrentEntity] < (priority - 1) &&
+           g_FieldScriptPriority[g_CurrentEntity] < 7) {
+        if (g_FieldScriptSyncState[g_CurrentEntity]
+                                  [g_FieldScriptPriority[g_CurrentEntity]] ==
+            SYNC_WAITING) {
+            g_FieldScriptSyncState[g_CurrentEntity]
+                                  [g_FieldScriptPriority[g_CurrentEntity]] =
+                                      SYNC_DONE;
+        }
+        g_FieldScriptPriority[g_CurrentEntity]++;
+        g_SavedFieldScriptPC[g_CurrentEntity]
+                            [g_FieldScriptPriority[g_CurrentEntity]] = 0;
+    }
+    SavedScriptIds[g_CurrentEntity][priority] = scriptId;
+    scriptId *= 2;
+    extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
+
+    g_FieldScriptPC[g_CurrentEntity] =
+        *((u8*)(scriptId +
+                ((g_FieldScripts->numEntities * 8) + (g_CurrentEntity * 64)) +
+                extrasHeaderSize + (s32)g_FieldScripts) +
+          sizeof(FieldScriptHeader));
+    g_FieldScriptPC[g_CurrentEntity] |=
+        *((u8*)(scriptId +
+                (((g_FieldScripts->numEntities * 8) + (g_CurrentEntity * 64)) +
+                 (s32)g_FieldScripts) +
+                extrasHeaderSize) +
+          sizeof(FieldScriptHeader) + 1)
+        << 8;
+
+    g_FieldScriptPriority[g_CurrentEntity] = priority;
+    if (DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2(
+            "ret=", g_FieldScriptPriority[g_CurrentEntity], 2);
+    }
+    return 0;
+}
+
+s32 OpcodeFuncBack(void) {
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("back", 1);
+    }
+    PC_DEC(GET_PARAM_U8(1));
+    return 1;
+}
+
+s32 OpcodeFuncLback(void) {
+    u16 param;
+
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("lback", 2);
+    }
+    GET_PARAM_S16(param, 1);
+    PC_DEC(param);
+    return 1;
+}
+
+s32 OpcodeFuncSkip(void) {
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("skip", 1);
+    }
+    PC_INC(GET_PARAM_U8(1) + 1);
+    return 0;
+}
+
+s32 OpcodeFuncLskip(void) {
+    u16 param;
+
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("lskip", 2);
+    }
+    GET_PARAM_S16(param, 1);
+    PC_INC(param + 1);
+    return 0;
+}
+
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMjump);
 #else
 s32 OpcodeFuncMjump(void) {
@@ -2676,10 +2828,9 @@ s32 OpcodeFuncChar(void) {
         DebugPrintOpcode("char", 1);
     }
     g_EntityToModel[g_CurrentEntity] = g_FieldModelCount++;
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].CharModelId =
-        GET_PARAM_U8(1);
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].Visible = 1;
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActorId = g_CurrentEntity;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].charId = GET_PARAM_U8(1);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].visible = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].entityId = g_CurrentEntity;
     PC_INC(2);
     return 0;
 }
@@ -3950,23 +4101,177 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMppal2);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMppal);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CEB20);
+static void SetPcModel(void) {
+    if (Savemap.memory_bank_2[9] != 0xFF &&
+        g_CharIdToEntity[Savemap.memory_bank_2[9]] != 0xFF &&
+        g_EntityToModel[g_CharIdToEntity[Savemap.memory_bank_2[9]]] != 0xFF) {
+        g_FieldState->pcModelId =
+            g_EntityToModel[g_CharIdToEntity[Savemap.memory_bank_2[9]]];
+    }
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPc);
+s32 OpcodeFuncPc(void) {
+    u8 charId;
+    s32 i;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPrtyp);
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("pc", 1);
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPrtym);
+    charId = GET_PARAM_U8(1);
+    g_CharIdToEntity[charId] = g_CurrentEntity;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPrtye);
+    for (i = 0; i < 3; i++) {
+        if (Savemap.memory_bank_2[9 + i] == charId) {
+            if (i != 0) {
+                g_FieldModels[g_EntityToModel[g_CurrentEntity]].visible = 0;
+                g_FieldModels[g_EntityToModel[g_CurrentEntity]]
+                    .collisionDisabled = 1;
+                g_FieldModels[g_EntityToModel[g_CurrentEntity]]
+                    .talkScriptDisabled = 1;
+            } else {
+                g_FieldState->pcModelId = g_EntityToModel[g_CurrentEntity];
+            }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSptye);
+            PC_INC(2);
+            return 0;
+        }
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGptye);
+    g_CharIdToEntity[charId] = g_CurrentEntity;
 
-void func_800CF368(u8* newParty) {
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].visible = 0;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].collisionDisabled = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].talkScriptDisabled = 1;
+
+    PC_INC(2);
+    return 0;
+}
+
+s32 OpcodeFuncPrtyp(void) {
+    s32 i;
+    u8 charId;
+
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("prtyp", 1);
+    }
+
+    charId = GET_PARAM_U8(1);
+    for (i = 0; i < 3; i++) {
+        if (Savemap.memory_bank_2[9 + i] == charId) {
+            PC_INC(2);
+            SetPcModel();
+            PartyFromBank2ToSave(0);
+            return 0;
+        }
+    }
+
+    for (i = 0; i < 3; i++) {
+        if (Savemap.memory_bank_2[9 + i] == 0xFF) {
+            ADD_PARTY_MEMBER(i, charId);
+
+            if (DebugLevel & 3) {
+                FieldDebugAddParseValueToPage2(
+                    "p+ ef=", g_CharIdToEntity[charId], 2);
+            }
+            PC_INC(2);
+            SetPcModel();
+            PartyFromBank2ToSave(1);
+            return 0;
+        }
+    }
+
+    ADD_PARTY_MEMBER(2, charId);
+    if (DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("p+ lf=", g_CharIdToEntity[charId], 2);
+    }
+    PC_INC(2);
+    SetPcModel();
+    PartyFromBank2ToSave(1);
+    return 0;
+}
+
+s32 OpcodeFuncPrtym(void) {
+    s32 i;
+    u8 charId;
+
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("prtym", 1);
+    }
+
+    charId = GET_PARAM_U8(1);
+
+    for (i = 0; i < 3; i++) {
+        if (Savemap.memory_bank_2[9 + i] == charId) {
+            Savemap.memory_bank_2[9 + i] = 0xFF;
+            PartyFromBank2ToSave(1);
+            SetPcModel();
+            PC_INC(2);
+            return 0;
+        }
+    }
+
+    PartyFromBank2ToSave(1);
+    SetPcModel();
+    PC_INC(2);
+    return 0;
+}
+
+s32 OpcodeFuncPrtye(void) {
+    u8 newParty[3];
+    s32 i;
+
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("prtye", 3);
+    }
+
+    for (i = 0; i < 3; i++) {
+        newParty[i] = (&GET_PARAM_U8(1))[i];
+    }
+
+    PartyReplace(newParty);
+    PC_INC(4);
+    return 0;
+}
+
+s32 OpcodeFuncSptye(void) {
+    u8 newParty[3];
+    s32 i;
+
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("sptye", 5);
+    }
+
+    for (i = 0; i < 3; i++) {
+        newParty[i] = FieldEventReadMemoryU8(1 + i, 3 + i);
+    }
+
+    PartyReplace(newParty);
+    PC_INC(6);
+    return 0;
+}
+
+s32 OpcodeFuncGptye(void) {
+    s32 i;
+
+    if (DebugLevel & 3) {
+        DebugPrintOpcode("gptye", 5);
+    }
+
+    for (i = 0; i < 3; i++) {
+        FieldEventWriteMemoryU8(1 + i, 3 + i, Savemap.memory_bank_2[9 + i]);
+    }
+    PC_INC(6);
+    return 0;
+}
+
+// Partial replace of bank 2 party with newParty.
+// Any free slots in newParty are taken up by members of bank 2 party.
+// The result is then transferred to main party in save.
+static void PartyReplace(u8* newParty) {
     s32 i, j;
 
+    // Remove requested members from old party.
     for (i = 0; i < 3; i++) {
         if (newParty[i] != 0xFF) {
             for (j = 0; j < 3; j++) {
@@ -3977,6 +4282,7 @@ void func_800CF368(u8* newParty) {
         }
     }
 
+    // Add remaining members of old party to empty slots in new party.
     for (i = 0; i < 3; i++) {
         if (Savemap.memory_bank_2[9 + i] != 0xFF) {
             for (j = 0; j < 3; j++) {
@@ -3988,20 +4294,21 @@ void func_800CF368(u8* newParty) {
         }
     }
 
+    // Overwrite old party with new party.
     for (i = 0; i < 3; i++) {
+        // Convert forced empty slots to regular empty slots.
         if (newParty[i] == 0xFE) {
             newParty[i] = 0xFF;
         }
-        Savemap.memory_bank_2[9 + i] = newParty[i];
-        if (newParty[i] != 0xFF) {
-            Savemap.phs_visibility_mask |= 1 << *(volatile u8*)&newParty[i];
-        }
+
+        ADD_PARTY_MEMBER(i, newParty[i]);
     }
 
-    func_800CF5A0(1);
-    func_800CEB20();
+    PartyFromBank2ToSave(1);
+    SetPcModel();
 }
 
+// Compares two sets of parties and returns which members don't exist in both.
 static void PartyCompare(
     u8* party1, u8* party2, u8* party2Only, u8* party1Only) {
     s32 i, j, k;
@@ -4034,7 +4341,9 @@ static void PartyCompare(
     }
 }
 
-static void func_800CF5A0(s32 unk) {
+// Transfers party from bank 2 to save while preserving order in save of
+// characters existing in both parties.
+static void PartyFromBank2ToSave(s32 unused) {
     u8 notInSave[3];
     u8 notInBank2[3];
 
@@ -4045,7 +4354,9 @@ static void func_800CF5A0(s32 unk) {
     g_PartyUpdatedByFieldScript = 1;
 }
 
-static void func_800CF60C(void) {
+// Transfers party from save to bank 2 while preserving order in bank 2 of
+// characters existing in both parties.
+static void PartyFromSaveToBank2(void) {
     u8 notInBank2[3];
     u8 notInSave[3];
 
@@ -4067,6 +4378,8 @@ static void PartyRemove(u8* party, u8* toRemove) {
     }
 }
 
+// Adds characters from toAdd to the first free slots in party.
+// Does not use force freed slots.
 static void PartyAdd(u8* party, u8* toAdd) {
     s32 i, j;
 
@@ -4080,25 +4393,110 @@ static void PartyAdd(u8* party, u8* toAdd) {
     }
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPrtyq);
+s32 OpcodeFuncPrtyq(void) {
+    s32 i;
+    u8 charId;
 
-/////////////////////////////////////////////////
-// Begin of field_opcode_member.c
-////////////////////////////////////////////////
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("prtyq", 2);
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMembq);
+    charId = GET_PARAM_U8(1);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMmbPlusMinus);
+    for (i = 0; i < 3; i++) {
+        if (Savemap.memory_bank_2[9 + i] == charId) {
+            if (g_DebugLevel & 3) {
+                FieldDebugAddParseValueToPage2("prty=TRUE", 0, 0);
+            }
+            PC_INC(3);
+            return 0;
+        }
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMmblk);
+    if (g_DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("prty=FALSE", 0, 0);
+    }
+    PC_INC(GET_PARAM_U8(2) + 2);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMmbuk);
+s32 OpcodeFuncMembq(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("membq", 2);
+    }
 
-/////////////////////////////////////////////////
-// Begin of field_opcode_collision.c
-////////////////////////////////////////////////
+    if ((1 << GET_PARAM_U8(1)) & Savemap.phs_visibility_mask) {
+        if (g_DebugLevel & 3) {
+            FieldDebugAddParseValueToPage2("memb=TRUE", 0, 0);
+        }
+        PC_INC(3);
+        return 0;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSolid);
+    if (g_DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("memb=FALSE", 0, 0);
+    }
+    PC_INC(GET_PARAM_U8(2) + 2);
+    return 0;
+}
+
+s32 OpcodeFuncMmbPlusMinus(void) {
+    s16 i;
+    s16 charId;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mmb+-", 3);
+    }
+
+    charId = GET_PARAM_U8(2);
+
+    if (GET_PARAM_U8(1)) {
+        Savemap.phs_visibility_mask |= 1 << charId;
+    } else {
+        Savemap.phs_visibility_mask &= ~(1 << charId);
+        for (i = 0; i < 3; i++) {
+            if (Savemap.memory_bank_2[9 + i] == charId) {
+                Savemap.memory_bank_2[9 + i] = 0xFF;
+            }
+        }
+    }
+
+    PC_INC(3);
+    return 0;
+}
+
+s32 OpcodeFuncMmblk(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mmblk", 3);
+    }
+
+    Savemap.phs_locking_mask |= 1 << GET_PARAM_U8(1);
+    PC_INC(2);
+    return 0;
+}
+
+s32 OpcodeFuncMmbuk(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mmbuk", 3);
+    }
+
+    Savemap.phs_locking_mask &= ~(1 << GET_PARAM_U8(1));
+    PC_INC(2);
+    return 0;
+}
+
+s32 OpcodeFuncSolid(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("solid", 1);
+    }
+
+    if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].SolidOff =
+            GET_PARAM_U8(1);
+    }
+    PC_INC(2);
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncVwoft);
 
@@ -4203,29 +4601,32 @@ s32 OpcodeFuncMenu(void) {
         func_800BECA4("evt cmd=", g_FieldState->eventCmd, 2);
     }
 
-    if(g_FieldState->eventCmd == EVTCMD_NONE) {
+    if (g_FieldState->eventCmd == EVTCMD_NONE) {
         g_FieldState->eventCmd = GET_PARAM_U8(2);
         g_FieldState->eventCmdParam = FieldEventReadMemoryU8(2, 3);
         g_FieldState->movieCommandState = MOVCMD_IDLE;
         D_8007EBE0 = 1;
-        if(g_FieldState->eventCmd == EVTCMD_PARTY_MENU && g_FieldState->eventCmdParam == 0) {
+        if (g_FieldState->eventCmd == EVTCMD_PARTY_MENU &&
+            g_FieldState->eventCmdParam == 0) {
             PC_INC(4);
         }
         return 1;
     }
 
-    if(g_FieldState->eventCmd == GET_PARAM_U8(2)) {
+    if (g_FieldState->eventCmd == GET_PARAM_U8(2)) {
         if (DebugLevel & 3) {
-            FieldDebugAddParseValueToPage2("evt result=", g_FieldState->movieCommandState, 1);
+            FieldDebugAddParseValueToPage2(
+                "evt result=", g_FieldState->movieCommandState, 1);
         }
-        if(g_FieldState->movieCommandState == MOVCMD_DONE) {
+        if (g_FieldState->movieCommandState == MOVCMD_DONE) {
             PC_INC(4);
             g_FieldState->eventCmd = EVTCMD_NONE;
             g_FieldState->movieCommandState = MOVCMD_IDLE;
-            func_800CF60C();
+            PartyFromSaveToBank2();
             return 0;
         }
-    } else if(GET_PARAM_U8(2) == EVTCMD_UNK14 && g_FieldState->eventCmd == EVTCMD_PLAY_MOVIE) {
+    } else if (GET_PARAM_U8(2) == EVTCMD_UNK14 &&
+               g_FieldState->eventCmd == EVTCMD_PLAY_MOVIE) {
         g_FieldState->eventCmd = GET_PARAM_U8(2);
         g_FieldState->movieCommandState = MOVCMD_IDLE;
     }

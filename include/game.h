@@ -481,19 +481,19 @@ typedef struct {
     u16 OffsetSteps;       // 0x52
     u16 OffsetStep;        // 0x54
     u8 OfsType;            // 0x56
-    u8 ActorId;            // 0x57 - script entity model
+    u8 entityId;            // 0x57 - entity model is attached to
     u8 requestTouchScript; // 0x58
     u8 SolidOff;           // 0x59
     u8 requestTalkScript;  // 0x5A
     u8 TalkOff;            // 0x5B
-    u8 Visible;            // 0x5C
+    u8 visible;            // 0x5C
     u8 scriptedMoveMode;   // 0x5D - enum ScriptedMoveMode
     u8 activeAnimId;       // 0x5E
     s8 unk5F;              // 0x5F
     s16 animSpeed;         // 0x60
     s16 animCurrentFrame;  // 0x62
     s16 animLastFrame;     // 0x64
-    u16 CharModelId;       // 0x66 - model id
+    u16 charId;       // 0x66 - model id
     s16 ActionArg;         // 0x68
     s16 ActionState;       // 0x6A
     u16 SolidRange;        // 0x6C
