@@ -30,6 +30,7 @@ long RotTransPers(SVECTOR*, long*, long*, long*);
 void SetGeomScreen(long h);
 void SetRotMatrix(MATRIX* m);
 MATRIX* TransMatrix(MATRIX* m, VECTOR* v);
+MATRIX* TransposeMatrix(MATRIX* m0, MATRIX* m1);
 void SetTransMatrix(MATRIX* m);
 long RotTransPers4(
     SVECTOR* v0, SVECTOR* v1, SVECTOR* v2,
