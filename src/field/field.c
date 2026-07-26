@@ -68,12 +68,12 @@ u8 FieldEventReadMemoryU8(s16 arg0, s16 arg1);
 void FieldEventWriteMemoryU8(s16 arg0, s16 arg1, u8 value);
 s16 FieldEventReadMemoryS16(s16 arg0, s16 arg1);
 void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value);
-u32 func_800C2000(void);
-u32 func_800C24A8(void);
-u32 func_800C2970(void);
+u32 IfCheck(void);
+u32 If2CheckSigned(void);
+u32 If2CheckUnsigned(void);
 static s32 KeyCheck(u16 keys);
 static u32 GetAkaoBlockOffset(s16 akaoId);
-s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId);
+s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId);
 static void func_800D4840(const char* str);
 static void FieldEventDebugError(const char* errmsg);
 void AddStrNextDebugRow(s32 val, const char* msg_out);
@@ -83,9 +83,9 @@ static void FieldDebugStringU8hex(s32 val, char* msg_out);
 static void FieldDebugStringU16hex(s32 val, char* msg_out);
 static void FieldDebugStringU32hex(s32 val, char* msg_out);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A1368);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldLoadMimDatFiles);
 
-void func_800A1498(void) {
+void StopMapLoadInAdvance(void) {
     if (D_800965E8 == 1) {
         func_8003408C();
     }
@@ -93,9 +93,14 @@ void func_800A1498(void) {
     D_800965E8 = 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A14D8);
+////////////////////////////////////////
+// Begin of field_main.c
+////////////////////////////////////////
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A16CC);
+
+INCLUDE_ASM("asm/us/field/nonmatchings/field", MapLoadInAdvance);
+
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldMain);
 
 const u32 D_800A0024[] = {0x00000000, 0x000801E0};
 const u32 D_800A002C[] = {0x00E80000, 0x000801E0};
@@ -105,7 +110,7 @@ const u32 D_800A0044[] = {0x00E80000, 0x00080140};
 const u32 D_800A004C[] = {0x01D00000, 0x00080140};
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A2314);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A2D5C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldLoadMimToVram);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A2F78);
 
@@ -185,7 +190,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A9EEC);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA180);
 
-static void func_800AA32C(FieldLine* lines) {
+static void FieldEntityLineClear(FieldLine* lines) {
     s32 i;
 
     for (i = 0; i < LEN(g_FieldLines); i++) {
@@ -201,14 +206,15 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA514);
 const u32 D_800A00BC[] = {0x00360000, 0x012A007A};
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA5E4);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA870);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityBgTriggerInit);
 
 const u32 D_800A00DC[] = {0x00000000};
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA930);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AAB24);
 
-void func_800AB2AC(void) {}
+//Possable Debug routine. Ran at beginning of every main field loop. (FPS?)
+void func_800AB2AC(void) {} 
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AB2B4);
 
@@ -226,7 +232,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800ABA34);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800ABA70);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800ABF0C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldArrowsInit);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800ABFE8);
 
@@ -308,7 +314,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B8CF0);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B9B0C);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BA534);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventInit);
 
 static void InitFieldDebugPages(void);
 void func_800BA65C(s32 arg0) {
@@ -333,7 +339,7 @@ void func_800BA65C(s32 arg0) {
     }
     if (D_80099FFC != 4) {
         if (D_80099FFC != 5 || D_80070788 != 0) {
-            func_800BB3A8();
+            FieldEventOpcodeCycle();
         }
     }
     if (D_80071E2C) {
@@ -342,16 +348,16 @@ void func_800BA65C(s32 arg0) {
     func_800BC438(arg0);
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BA7C4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldInitDefaultValues);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BAF54);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventRunInit);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BB1B4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEnablePartyModels);
 
 const u32 D_800A013C[] = {0x00000000, 0x00000000};
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BB3A8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventOpcodeCycle);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BBBCC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldUpdateAnimationState);
 
 #ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventRequestRun);
@@ -463,7 +469,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BC438);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BC4D4);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BC9FC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", DebugUpdateActor);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", DebugPrintOpcode);
 
@@ -1385,7 +1391,7 @@ s32 OpcodeFuncIf(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("if", 5);
     }
-    if (func_800C2000()) {
+    if (IfCheck()) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("if=true", 0, 0);
         }
@@ -1416,7 +1422,7 @@ s32 OpcodeFuncLif(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("lif", 6);
     }
-    if (func_800C2000()) {
+    if (IfCheck()) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("lif=true", 0, 0);
         }
@@ -1432,9 +1438,9 @@ s32 OpcodeFuncLif(void) {
 }
 
 #ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2000);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", IfCheck);
 #else
-u32 func_800C2000(void) {
+u32 IfCheck(void) {
     u8 ope;
     u8 result;
 
@@ -1498,7 +1504,7 @@ s32 OpcodeFuncIf2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("if2", 7);
     }
-    if (func_800C24A8() != 0) {
+    if (If2CheckSigned() != 0) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("if2=true", 0, 0);
         }
@@ -1527,7 +1533,7 @@ s32 OpcodeFuncLif2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("lif2", 8);
     }
-    if (func_800C24A8() != 0) {
+    if (If2CheckSigned() != 0) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("lif2=true", 0, 0);
         }
@@ -1544,9 +1550,9 @@ s32 OpcodeFuncLif2(void) {
 #endif
 
 #ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C24A8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", If2CheckSigned);
 #else
-u32 func_800C24A8(void) {
+u32 If2CheckSigned(void) {
     u8 ope;
     u8 result;
 
@@ -1610,7 +1616,7 @@ s32 OpcodeFuncIf2u(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("if2", 7);
     }
-    if (func_800C2970()) {
+    if (If2CheckUnsigned()) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("if2=false", 0, 0);
         }
@@ -1639,7 +1645,7 @@ s32 OpcodeFuncLif2u(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("lif2", 8);
     }
-    if (func_800C2970() != 0) {
+    if (If2CheckUnsigned() != 0) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("lif2=false", 0, 0);
         }
@@ -1656,9 +1662,9 @@ s32 OpcodeFuncLif2u(void) {
 #endif
 
 #ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C2970);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", If2CheckUnsigned);
 #else
-u32 func_800C2970(void) {
+u32 If2CheckUnsigned(void) {
     u8 ope;
     u8 result;
 
@@ -1795,7 +1801,7 @@ s32 OpcodeFuncReq(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("req", 2);
     }
-    return func_800C33B4(1, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
+    return FieldEventRequest(1, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
                          GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
@@ -1803,7 +1809,7 @@ s32 OpcodeFuncReqsw(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("reqsw", 2);
     }
-    return func_800C33B4(2, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
+    return FieldEventRequest(2, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
                          GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
@@ -1811,7 +1817,7 @@ s32 OpcodeFuncReqew(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("reqew", 2);
     }
-    return func_800C33B4(3, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
+    return FieldEventRequest(3, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
                          GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
@@ -1828,7 +1834,7 @@ s32 OpcodeFuncPreq(void) {
     } else {
         entityId = g_CharIdToEntity[charId];
     }
-    return func_800C33B4(1, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
+    return FieldEventRequest(1, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
                          GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
@@ -1845,7 +1851,7 @@ s32 OpcodeFuncPrqsw(void) {
     } else {
         entityId = g_CharIdToEntity[charId];
     }
-    return func_800C33B4(2, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
+    return FieldEventRequest(2, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
                          GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
@@ -1862,15 +1868,15 @@ s32 OpcodeFuncPrqew(void) {
     } else {
         entityId = g_CharIdToEntity[charId];
     }
-    return func_800C33B4(3, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
+    return FieldEventRequest(3, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
                          GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
-// Depends on decomp of func_800bc9fc due to shared string.
+// Depends on decomp of DebugUpdateActor due to shared string.
 #ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C33B4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventRequest);
 #else
-s32 func_800C33B4(s16 type, u8 target, u8 priority, u8 scriptId) {
+s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
     s32 scriptOffset;
     s32 entityDataSize;
     s32 extrasHeaderSize;
