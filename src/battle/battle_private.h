@@ -264,10 +264,12 @@ typedef struct {
     /* 0x04 */ u8 unk4[0x64];
 } Unk800F83E4; // size:0x68
 
-extern u8 D_800708C8[]; // kernel-region table, 0x1C-byte rows, indexed by
-                        // attack/effect id
-extern u8 D_800708D0[]; // kernel-region table, 0x1C-byte rows, indexed by
-                        // attack/effect id
+extern u8 D_800708C8[];  // kernel-region table, 0x1C-byte rows, indexed by
+                         // attack/effect id
+extern u8 D_800708D0[];  // kernel-region table, 0x1C-byte rows, indexed by
+                         // attack/effect id
+extern s16 D_8009D85C[]; // record fields, stride 0x440
+extern s16 D_8009D85E[];
 extern u8 D_8009D954[]; // per-actor sub-table, 0x440 stride, 8-byte rows keyed
                         // by effect id
 extern s32 D_800E7A38;
@@ -348,7 +350,9 @@ extern u8 D_800F514C[];
 extern s8 D_800F5760;
 extern u8 D_800F5764;
 extern u8 D_800F5774;
+extern s32 D_800F57CC;
 extern Unk800F57D0* D_800F57D0;
+extern u8 D_800F57D4;
 extern Unk800AF470
     D_800F5BB8[]; // per-party-slot turn/effect state (flags, countdown timers)
 extern s8 D_800F7DE4;
@@ -366,6 +370,7 @@ extern s32 D_800F8408;
 extern u8 D_800F87F0[]; // per-combatant battle-script variable bank, 0x80 B
                         // each (func_800B13B0)
 extern s8 D_800F8CF0;
+extern Unk80026448 D_800F9132;
 extern s32 D_800F9144;
 extern s8 D_800F914E;
 extern s32 D_800F9F28[]; // size is either 4 or 5
@@ -492,11 +497,20 @@ typedef struct {
 
 /* battle menu widget block (one per widget id, 0x240 apart) -- partial */
 typedef struct {
-    /* 0x0 */ u8 unk0[2];
+    /* 0x0 */ u16 unk0;
     /* 0x2 */ s16 scroll;
-    /* 0x4 */ u8 unk4[7];
+    /* 0x4 */ u8 unk4[2];
+    /* 0x6 */ u16 unk6;
+    /* 0x8 */ u16 unk8;
+    /* 0xA */ u8 unkA;
     /* 0xB */ s8 cursorRow;
-    /* 0xC */ u8 unkC[0x234];
+    /* 0xC */ u8 unkC;
+    /* 0xD */ u8 unkD;
+    /* 0xE */ u8 unkE;
+    /* 0xF */ u8 unkF;
+    /* 0x10 */ u8 unk10;
+    /* 0x11 */ u8 unk11;
+    /* 0x12 */ u8 unk12[0x22E];
 } BattleMenuWidget; /* size: 0x240 */
 
 void func_800A4E40(void);
@@ -531,5 +545,6 @@ extern u8 D_800F5EFC[]; // per-slot formation-setup config, 0x18 B stride; byte
                         // 0 -> func_800A8D18
 extern BattleMenuWidget D_800F90C6[];
 extern u8 D_80151698;
+extern u8 D_80166F74;
 extern u8 D_80166F75;
 extern BattleItemEntry D_801671B8[];

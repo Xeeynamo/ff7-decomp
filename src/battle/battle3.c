@@ -5,6 +5,7 @@ static void func_800E5358(void);
 static void func_800E4B88(void);
 static s32 func_800E4BCC(void);
 static void func_800E68B4(void);
+void func_800E58CC(void);
 
 void func_800D8A04(void) {}
 
@@ -239,7 +240,27 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DEC10);
 
 void func_800DF244(void) {}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DF24C);
+void func_800DF24C(void) {
+    BattleMenuWidget* widget = &D_800F90C6[D_800F38A0];
+    u8 v;
+
+    if (D_800F57CC == 0) {
+        widget->unkA = 0;
+        widget->cursorRow = 0;
+        widget->unk0 = 0;
+        widget->scroll = 0;
+    }
+    widget->unkC = 1;
+    widget->unkD = 3;
+    *(u16*)widget->unk4 = 1;
+    v = D_80166F74;
+    widget->unk10 = 2;
+    widget->unk11 = 0;
+    widget->unkE = 0;
+    widget->unkF = 0;
+    widget->unk8 = 0;
+    widget->unk6 = v << 1;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DF2CC);
 
@@ -363,7 +384,18 @@ void func_800E03F0(void) {
 
 void func_800E0528(void) {}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E0530);
+void func_800E0530(void) {
+    s32 i;
+
+    func_80026448(&D_800F9132, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
+    for (i = 1; i < 0x1C; i++) {
+        if (D_800F514C[i] != 0) {
+            func_800D9F5C(i);
+        }
+    }
+    D_800F57D4 = 5;
+    func_800E58CC();
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E05E4);
 
@@ -608,7 +640,18 @@ static void func_800E1938(s16 arg0, s16 arg1, s32 arg2) {
     func_80028CA0(arg0, arg1, x, y, 0x10, 0x10, 1, 0);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E1A2C);
+s32 func_800E1A2C(void) {
+    s32 i;
+    s32 off;
+
+    for (i = 0, off = 0; i < 3; i++, off += 0x440) {
+        if (D_8009CBDC[i] == 0) {
+            s16 val1 = *(s16*)((u8*)D_8009D85C + off);
+            s16 val2 = *(s16*)((u8*)D_8009D85E + off);
+            return (val1 * 0xFFFF) / val2;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E1AC0);
 

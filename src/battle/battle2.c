@@ -963,7 +963,18 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D376C);
 void func_800D3994(s32 arg0, s32 arg1, void* arg2);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3994);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3A6C);
+// Take the low 16 bits of each of arg0's translation components relative to the
+// camera D_800FA63C, then rotate that offset by the camera's transposed
+// orientation into arg1.
+void func_800D3A6C(MATRIX* arg0, SVECTOR* arg1) {
+    MATRIX sp10;
+
+    arg1->vx = (s16)(*(u16*)&arg0->t[0] - *(u16*)&D_800FA63C.m.t[0]);
+    arg1->vy = (s16)(*(u16*)&arg0->t[1] - *(u16*)&D_800FA63C.m.t[1]);
+    arg1->vz = (s16)(*(u16*)&arg0->t[2] - *(u16*)&D_800FA63C.m.t[2]);
+    TransposeMatrix(&D_800FA63C.m, &sp10);
+    ApplyMatrixSV(&sp10, arg1, arg1);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3AF0);
 
@@ -1062,10 +1073,15 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D491C);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4A64);
 
 static void func_800D4D6C(s32 arg0, s32 arg1, s32 arg2);
+void func_800D4C08(void* arg0, s32 arg1, s32 arg2, s32 arg3);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4C08);
 
-void func_800D4CBC(s32, s32, s32);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4CBC);
+void func_800D4CBC(s32 arg0, s32 arg1, s32 arg2) {
+    s32 sp10;
+
+    func_800D3994(arg0, D_801518E4[arg0].D_8015190F, &sp10);
+    func_800D4C08(&sp10, arg1, arg2, -D_801518E4[arg0].unk12);
+}
 
 static void func_800D4D4C(s32 arg0, s32 arg1) {
     func_800D4CBC(arg0, arg1, 0x1000);
@@ -1107,6 +1123,7 @@ void func_800D5138(s32 arg0) {
     *(s32*)&D_800F10E0->unk8 = 0x10000 / arg0;
 }
 
+void func_800D51D4(s32 arg0);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D51D4);
 
 extern s32 D_800F10E4;
@@ -1275,8 +1292,21 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D70C0);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D7178);
 
-void func_800D72B4();
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D72B4);
+void func_800D72B4(void) {
+    Unk801621F0* elem = &D_801621F0[D_801590D4];
+
+    if (D_80062D98 == 0) {
+        // Advance this slot's per-tick state machine (field 0x2).
+        if (elem->D_801621F2 == 0) {
+            func_800D5138(1);
+        }
+        if (elem->D_801621F2 == 2) {
+            func_800D51D4(1);
+            elem->D_801621F0 = -1;
+        }
+        elem->D_801621F2++;
+    }
+}
 
 static void func_800D7340(void) { func_800BBEAC(func_800D72B4); }
 
@@ -1304,7 +1334,35 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D8304);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D83A4);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D8468);
+typedef struct {
+    /* 0x00 */ u16 unk0;
+    /* 0x02 */ u16 unk2;
+    /* 0x04 */ u16 unk4;
+    /* 0x06 */ u16 unk6;
+    /* 0x08 */ u16 unk8;
+    /* 0x0A */ u16 unkA;
+    /* 0x0C */ u16 unkC;
+    /* 0x0E */ u16 unkE;
+    /* 0x10 */ u16 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+} UnkStruct800D8468; // size:0x20
+
+void func_800D8468(UnkStruct800D8468* dst, UnkStruct800D8468* src) {
+    dst->unk0 = src->unk0;
+    dst->unk6 = src->unk6;
+    dst->unkC = src->unkC;
+    dst->unk2 = src->unk2;
+    dst->unk8 = src->unk8;
+    dst->unkE = src->unkE;
+    dst->unk4 = src->unk4;
+    dst->unkA = src->unkA;
+    dst->unk10 = src->unk10;
+    dst->unk14 = src->unk14;
+    dst->unk18 = src->unk18;
+    dst->unk1C = src->unk1C;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D84F8);
 
