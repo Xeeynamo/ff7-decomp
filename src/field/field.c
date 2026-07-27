@@ -60,9 +60,9 @@ extern u8 g_RandomTableIndex;
 extern u8 g_RandomTable[256];
 
 void AddBackgroundToRender(struct GpuBuf* buf);
-void func_800AA180(Unk80074EA4* arg0, FieldLine* arg1);
-void func_800AAB24(struct GpuBuf* buf);
-s32 func_800A9CE8(FieldLine*, u_long*, u_long*);
+void FieldEntityLineInteract(Unk80074EA4* arg0, FieldLine* arg1);
+void HandleKawaiDataInModel(struct GpuBuf* buf);
+s32 FieldEntitySqrDistToLine(FieldLine*, u_long*, u_long*);
 void DebugPrintOpcode(char* arg0, s32 arg1);
 u8 FieldEventReadMemoryU8(s16 arg0, s16 arg1);
 void FieldEventWriteMemoryU8(s16 arg0, s16 arg1, u8 value);
@@ -94,7 +94,7 @@ void StopMapLoadInAdvance(void) {
 }
 
 ////////////////////////////////////////
-// Begin of field_main.c
+// Begin of field_background.c
 ////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", MapLoadInAdvance);
@@ -163,45 +163,45 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGUpdateDrawenv);
 // Begin of field_entity.c
 ////////////////////////////////////////
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A5FB4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityInitPos);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A635C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityAddRotate);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A6418);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityAnimationUpdate);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A65A4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityMovementUpdate);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A82A0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityGatewayMapLoad);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8304);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityCheckTalk);
 
-s16 func_800A8600(u8 arg0) { return D_800DF120[arg0][0]; }
+s16 FieldEntityGetDirVectorX(u8 arg0) { return D_800DF120[arg0][0]; }
 
-s16 func_800A8620(u8 arg0) { return D_800DF120[arg0][1]; }
+s16 FieldEntityGetDirVectorY(u8 arg0) { return D_800DF120[arg0][1]; }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8640);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityDirByVec);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8858);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityAutoMove);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8968);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityWalkmechCross);
 
-static void func_800A8DF4(s32* arg0, s16* arg1, s16* arg2) {
+static void FieldEntityVectorSub(s32* arg0, s16* arg1, s16* arg2) {
     arg0[0] = arg1[0] - arg2[0];
     arg0[1] = arg1[1] - arg2[1];
     arg0[2] = arg1[2] - arg2[2];
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8E34);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityCalculateZ);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A8F88);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityMove);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A9B64);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityCollisionCheck);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A9CE8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntitySqrDistToLine);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800A9EEC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityLineCheck);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA180);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityLineInteract);
 
 static void FieldEntityLineClear(FieldLine* lines) {
     s32 i;
@@ -212,120 +212,151 @@ static void FieldEntityLineClear(FieldLine* lines) {
     }
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA348);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityGatewayCheck);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA514);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityBgTriggerActivate);
 
 const u32 D_800A00BC[] = {0x00360000, 0x012A007A};
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA5E4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityTriggerCheck);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityBgTriggerInit);
 
-const u32 D_800A00DC[] = {0x00000000};
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AA930);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AAB24);
+////////////////////////////////////////
+// Begin of field_camera.c
+////////////////////////////////////////
+
+
+const u32 D_800A00DC[] = {0x00000000};
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelLoadAndInit);
+
+INCLUDE_ASM("asm/us/field/nonmatchings/field", HandleKawaiDataInModel);
 
 // Possable Debug routine. Ran at beginning of every main field loop. (FPS?)
-void func_800AB2AC(void) {}
+void DebugRunEveryLoop(void) {}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AB2B4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldCameraAssign);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AB310);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldUpdateMovieStream);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AB4AC);
+////////////////////////////////////////
+// Begin of field_rain.c
+////////////////////////////////////////
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AB5E8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldRainInit);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AB728);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldRainAddToRender);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AB9C8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldRainUpdate);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800ABA34);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800ABA70);
+////////////////////////////////////////
+// Begin of field_battle.c
+////////////////////////////////////////
+
+
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldGetRandomU8FromList);
+
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldGetNextRandomU8);
+
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBattleCheck);
+
+
+////////////////////////////////////////
+// Begin of field_arrowa.c
+////////////////////////////////////////
+
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldArrowsInit);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800ABFE8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldArrowsAddToRender);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AC35C);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800ACBA0);
+////////////////////////////////////////
+// Begin of field_model.c
+////////////////////////////////////////
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800ACC5C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", LoadLocalFieldModelAndInitAll);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AD7B8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelCreatePktsAndScale);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AD858);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelCreatePktsForPart);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800ADAA4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelLoadBsxTexToVram);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800ADC90);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelBsxTdbModify);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800ADD70);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelStructInit);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AE23C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelLoadGlobalModels);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AE4DC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelLoadBcx);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AEE24);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelPrepareRender);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AF6EC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelAddToRender);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AF96C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelAnimCalcMtrxs);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AFAC4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelScaleModel);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AFDE4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelScalePartVrtxs);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800AFE1C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelScaleAnimTranslat);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B0618);
+////////////////////////////////////////
+// Begin of kawai_char_model.c
+////////////////////////////////////////
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B0A48);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiClearData);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B0EDC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiExecute);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B0FB0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetCustomLightToModelPkts);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B1C7C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetVertexColorFromLighting);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B1E40);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetColorToModelPkts);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B2598);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetColorToPartPkts);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B2A00);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiLoadEyesMouthTexToVram);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B2DD4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiLightingApplyToModel);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B2F40);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiLightingApplyToPolyColor);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B480C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetModelTransparency);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B4B04);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetColorToPktsBelowLvl);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B4EAC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetColorToPartPktsBelowLvl);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B5260);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiFadeModelColor);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B5504);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetCustomLighting);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B62C4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiColorFadeBelowLvl);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B69C0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetLightingToModelPkts);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B6AE4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetLightingToPartPkts);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B6B4C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetSplashToPktsBelowLvl);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B79B8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiInitSplashPkts);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B86D8);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetPartAttribute);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B8CF0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiApplyBoneTransform);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800B9B0C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelRenderClippedPart);
+
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiDirectionalColorGradient);
+
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiGradientColor);
+
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiAnimatedPointLight);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventInit);
 
