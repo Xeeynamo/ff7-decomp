@@ -93,9 +93,9 @@ void StopMapLoadInAdvance(void) {
     D_800965E8 = 0;
 }
 
-////////////////////////////////////////
+/////////////////////////////////////////////////
 // Begin of field_background.c
-////////////////////////////////////////
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", MapLoadInAdvance);
 
@@ -159,9 +159,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGScrollUpdate);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGUpdateDrawenv);
 
-////////////////////////////////////////
+/////////////////////////////////////////////////
 // Begin of field_entity.c
-////////////////////////////////////////
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityInitPos);
 
@@ -221,11 +221,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityTriggerCheck);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityBgTriggerInit);
 
-
-////////////////////////////////////////
+/////////////////////////////////////////////////
 // Begin of field_camera.c
-////////////////////////////////////////
-
+/////////////////////////////////////////////////
 
 const u32 D_800A00DC[] = {0x00000000};
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelLoadAndInit);
@@ -239,9 +237,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldCameraAssign);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldUpdateMovieStream);
 
-////////////////////////////////////////
+/////////////////////////////////////////////////
 // Begin of field_rain.c
-////////////////////////////////////////
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldRainInit);
 
@@ -249,11 +247,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldRainAddToRender);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldRainUpdate);
 
-
-////////////////////////////////////////
+/////////////////////////////////////////////////
 // Begin of field_battle.c
-////////////////////////////////////////
-
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldGetRandomU8FromList);
 
@@ -261,20 +257,17 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldGetNextRandomU8);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBattleCheck);
 
-
-////////////////////////////////////////
+/////////////////////////////////////////////////
 // Begin of field_arrowa.c
-////////////////////////////////////////
-
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldArrowsInit);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldArrowsAddToRender);
 
-
-////////////////////////////////////////
+/////////////////////////////////////////////////
 // Begin of field_model.c
-////////////////////////////////////////
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", LoadLocalFieldModelAndInitAll);
 
@@ -304,9 +297,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelScalePartVrtxs);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelScaleAnimTranslat);
 
-////////////////////////////////////////
-// Begin of kawai_char_model.c
-////////////////////////////////////////
+/////////////////////////////////////////////////
+// Begin of field_kawai_char_model.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiClearData);
 
@@ -350,7 +343,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetPartAttribute);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiApplyBoneTransform);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelRenderClippedPart);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiRenderClippedPart);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiDirectionalColorGradient);
 
@@ -358,13 +351,17 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiGradientColor);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiAnimatedPointLight);
 
+/////////////////////////////////////////////////
+// Begin of field_event.c
+/////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventInit);
 
 static void InitFieldDebugPages(void);
-void func_800BA65C(s32 arg0) {
+void FieldEventUpdate(s32 arg0) {
     if (D_8007EBE0) {
         func_800D4BFC();
-        func_800BC338();
+        ResetFieldRenderState();
         FieldDebugInitBuffers();
         InitFieldDebugPages();
         D_80095DCC = 0;
@@ -389,7 +386,7 @@ void func_800BA65C(s32 arg0) {
     if (D_80071E2C) {
         func_8001F1BC(&D_80083274, 4, arg0, g_FieldState->unk0 ^ 1);
     }
-    func_800BC438(arg0);
+    UpdateFieldExitArrows(arg0);
 }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldInitDefaultValues);
@@ -507,11 +504,15 @@ u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId) {
 }
 #endif
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BC338);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", ResetFieldRenderState);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BC438);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", UpdateFieldExitArrows);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800BC4D4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", DrawFieldExitArrow);
+
+/////////////////////////////////////////////////
+// Begin of field_event_debug.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", DebugUpdateActor);
 
@@ -546,6 +547,10 @@ static void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind) {
         }
     }
 }
+
+/////////////////////////////////////////////////
+// Begin of field_event_memory_bank.c
+/////////////////////////////////////////////////
 
 #ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventReadMemoryU8);
@@ -1023,7 +1028,13 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
 }
 #endif
 
-// called for opcodes 0c 0d 1a 1b 1c 1d 1e 1f 44 46 4c 4e be
+//////////////////////////////////////////////////
+// Start of field_opcode_system.c
+/////////////////////////////////////////////////
+
+// This is called when there the script tries to execute an invalid opcode
+// called for opcodes:
+// 0C 0D 1A 1B 1C 1D 1E 1F 44 46 4C 4E BE
 s32 OpcodeFuncBad(void) {
     if (g_DebugLevel & 3) {
         FieldDebugStringU16hex(D_8009A058, g_DebugMessageBuffer);
@@ -1035,10 +1046,6 @@ s32 OpcodeFuncBad(void) {
     }
     return 1;
 }
-
-////////////////////////////////////////
-// End of of event.c
-////////////////////////////////////////
 
 /**
  @brief Opcode 0x5F - **WAIT1* - Wait 1 frame
@@ -1111,6 +1118,10 @@ s32 OpcodeFuncWait(void) {
     g_FieldWaitCounter[g_CurrentEntity]--;
     return 1;
 }
+
+//////////////////////////////////////////////////
+// Start of field_opcode_vars.c
+/////////////////////////////////////////////////
 
 s32 OpcodeFuncSet(void) {
     if (g_DebugLevel & 3) {
@@ -1344,6 +1355,10 @@ s32 OpcodeFuncBitxr(void) {
     return 0;
 }
 
+//////////////////////////////////////////////////
+// Start of field_opcode_line.c
+/////////////////////////////////////////////////
+
 s32 OpcodeFuncLine(void) {
     s16 value;
 
@@ -1423,6 +1438,10 @@ s32 OpcodeFuncSlip(void) {
     PC_INC(2);
     return 0;
 }
+
+//////////////////////////////////////////////////
+// Start of field_opcode_if.c
+/////////////////////////////////////////////////
 
 /*
  * Field-script opcode IF: If, 1 byte, unsigned
@@ -1766,6 +1785,10 @@ u32 If2CheckUnsigned(void) {
 }
 #endif
 
+//////////////////////////////////////////////////
+// Start of field_opcode_controller.c
+/////////////////////////////////////////////////
+
 /*
  * Field-script opcode KEY!: Key check
  *
@@ -1840,6 +1863,10 @@ static s32 KeyCheck(u16 keys) {
     }
     return 0;
 }
+
+//////////////////////////////////////////////////
+// Start of field_opcode_request.c
+/////////////////////////////////////////////////
 
 s32 OpcodeFuncReq(void) {
     if (g_DebugLevel & 3) {
@@ -2108,6 +2135,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSkip);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLskip);
 
+//////////////////////////////////////////////////
+// Start of field_opcode_Module.c
+/////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMjump);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPmjmp);
@@ -2118,9 +2149,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMgame);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBatle);
 
-////////////////////////////////////////
-// Start of sound.c
-////////////////////////////////////////
+/////////////////////////////////////////////////
+// Start of field_opcode_akao_sound.c
+/////////////////////////////////////////////////
 
 void FieldEventClearAkaoStruct(void) {
     s32 i;
@@ -2252,7 +2283,12 @@ s32 OpcodeFuncFmusc(void) {
     return 0;
 }
 
+// In Akao because it uses the AKAO block area
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTutor);
+
+/////////////////////////////////////////////////
+// Start of field_opcode_movie_overlay.c
+/////////////////////////////////////////////////
 
 /*
  * Field-script opcode MULCK (0xF5): set the music lock from the opcode operand.
@@ -2379,6 +2415,10 @@ s32 OpcodeFuncGmovr(void) {
     return 1;
 }
 
+/////////////////////////////////////////////////
+// Start of field_opcode_char_control.c
+/////////////////////////////////////////////////
+
 /*
  * Field-script opcode CC: hand player control to another entity.
  *
@@ -2417,6 +2457,10 @@ s32 OpcodeFuncChar(void) {
     PC_INC(2);
     return 0;
 }
+
+/////////////////////////////////////////////////
+// Start of field_opcode_model_animate.c
+/////////////////////////////////////////////////
 
 /*
  * Field-script opcode DFANM: set a model's default (looping) animation.
@@ -2574,6 +2618,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAnimw);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAnimb);
 
+/////////////////////////////////////////////////
+// Start of field_opcode_model_move.c
+/////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMove);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncFmove);
@@ -2596,13 +2644,13 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDira);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPdira);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C826C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventSetDirByActorId);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTura);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPtura);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C8634);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityTurnToEntity);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncOfstd);
 
@@ -2623,6 +2671,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSldr2);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTalkr);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncTlkr2);
+
+/////////////////////////////////////////////////
+// Start of field_opcode_model_state.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMsped);
 
@@ -2650,11 +2702,19 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncXyz);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncXyi);
 
+/////////////////////////////////////////////////
+// Start of field_opcode_message.c
+/////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMes);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMpnam);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncAsk);
+
+/////////////////////////////////////////////////
+// Start of field_opcode_window.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWclsEx);
 
@@ -2672,9 +2732,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWclse);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWmode);
 
-////////////////////////////////////////
-// Begin of event_math.c
-////////////////////////////////////////
+/////////////////////////////////////////////////
+// Begin of field_opcode_math.c
+/////////////////////////////////////////////////
 
 /**
  * @brief Opcode 0x8F - **AND** - Bitwise AND (8-bit)
@@ -3581,6 +3641,10 @@ s32 OpcodeFuncRdmsd(void) {
     return 0;
 }
 
+/////////////////////////////////////////////////
+// Begin of field_opcode_background.c
+/////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgon);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgoff);
@@ -3591,6 +3655,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgrol);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgrol2);
 
+/////////////////////////////////////////////////
+// Begin of field_opcode_movie.c
+////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPmvie);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMovie);
@@ -3598,6 +3666,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMovie);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMvief);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMpjpo);
+
+/////////////////////////////////////////////////
+// Begin of field_opcode_scroll.c
+////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncScr2d);
 
@@ -3614,6 +3686,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncScr2dc);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncScr2dl);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncScrlw);
+
+/////////////////////////////////////////////////
+// Begin of field_opcode_palette.c
+////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncStpal);
 
@@ -3646,7 +3722,12 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMppal2);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMppal);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CEB20);
+/////////////////////////////////////////////////
+// Begin of field_opcode_party.c
+////////////////////////////////////////////////
+
+INCLUDE_ASM(
+    "asm/us/field/nonmatchings/field", FieldEventPartySet1stPartyCharAsPc);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPc);
 
@@ -3660,37 +3741,41 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSptye);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGptye);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CF368);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventPartySetFromArray);
 
-void func_800CF4CC(void*, void*, void*, void*);
-void func_800CF66C(void*, void*);
-void func_800CF6C0(void*, void*);
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CF4CC);
+void FieldEventPartyCompare(void*, void*, void*, void*);
+void FieldEventPartyCharsRemove(void*, void*);
+void FieldEventPartyCharsAdd(void*, void*);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventPartyCompare);
 
-static void func_800CF5A0(void) {
+static void FieldEventPartyCopyToBattleParty(void) {
     s32 sp10[2];
     s32 sp18[2];
 
-    func_800CF4CC(D_8009CBDC, D_8009CBDC + 0x7B5, sp10, sp18);
-    func_800CF66C(D_8009CBDC, sp18);
-    func_800CF6C0(D_8009CBDC, sp10);
+    FieldEventPartyCompare(D_8009CBDC, D_8009CBDC + 0x7B5, sp10, sp18);
+    FieldEventPartyCharsRemove(D_8009CBDC, sp18);
+    FieldEventPartyCharsAdd(D_8009CBDC, sp10);
     D_80071E34 = 1;
 }
 
-static void func_800CF60C(void) {
+static void FieldEventCopyBattlePartyToParty(void) {
     s32 sp10[2];
     s32 sp18[2];
 
-    func_800CF4CC(D_8009D391, D_8009D391 - 0x7B5, sp10, sp18);
-    func_800CF66C(D_8009D391, sp18);
-    func_800CF6C0(D_8009D391, sp10);
+    FieldEventPartyCompare(D_8009D391, D_8009D391 - 0x7B5, sp10, sp18);
+    FieldEventPartyCharsRemove(D_8009D391, sp18);
+    FieldEventPartyCharsAdd(D_8009D391, sp10);
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CF66C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventPartyCharsRemove);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800CF6C0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventPartyCharsAdd);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPrtyq);
+
+/////////////////////////////////////////////////
+// Begin of field_opcode_member.c
+////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMembq);
 
@@ -3700,29 +3785,37 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMmblk);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMmbuk);
 
+/////////////////////////////////////////////////
+// Begin of field_opcode_collision.c
+////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSolid);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncVwoft);
 
-////////////////////////////////////////
-// Begin of event_actions.c
-////////////////////////////////////////
+/////////////////////////////////////////////////
+// Begin of field_opcode_party_manage.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncJoin);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSplit);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D0518);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventJoinSet);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D0938);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventSplitSet);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D0B4C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventSplitJoinSetMove);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D1200);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventSplitJoinEndMove);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D1350);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventSplitJoinSetTurn);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D152C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventSplitJoinEndTurn);
+
+/////////////////////////////////////////////////
+// Begin of field_opcode_fade.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncFade);
 
@@ -3730,15 +3823,31 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncNfade);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncFadew);
 
+/////////////////////////////////////////////////
+// Begin of field_opcode_intersect.c
+/////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncIdlck);
+
+/////////////////////////////////////////////////
+// Begin of field_opcode_window_color.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGwcol);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSwcol);
 
+/////////////////////////////////////////////////
+// Begin of field_opcode_field_effect.c
+/////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncLstmp);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncShake);
+
+/////////////////////////////////////////////////
+// Begin of field_opcode_items.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncStitm);
 
@@ -3746,17 +3855,33 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDlitm);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCkitm);
 
+/////////////////////////////////////////////////
+// Begin of field_opcode_special.c
+/////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSpcal);
+
+/////////////////////////////////////////////////
+// Begin of field_opcode_layer.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgscr);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBgdph);
+
+/////////////////////////////////////////////////
+// Begin of field_opcode_materia.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSmtra);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDmtra);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncCmtra);
+
+/////////////////////////////////////////////////
+// Begin of field_opcode_menu.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMenu);
 
@@ -3767,6 +3892,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncGetpc);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMpara);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMpra2);
+
+/////////////////////////////////////////////////
+// Begin of field_opcode_angle.c
+/////////////////////////////////////////////////
 
 /**
  * @brief Opcode 0xD4 - **SIN** - sine
@@ -3850,9 +3979,13 @@ s32 OpcodeFuncCos(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D33FC);
+/////////////////////////////////////////////////
+// Begin of field_opcode_party_stats.c
+/////////////////////////////////////////////////
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D348C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", SystemRefreshParty);
+
+INCLUDE_ASM("asm/us/field/nonmatchings/field", SystemResoreParty);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMhmmx);
 
@@ -3966,11 +4099,19 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncChmph);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncChmst);
 
+/////////////////////////////////////////////////
+// Begin of field_opcode_window_timer.c
+/////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSttim);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWspcl);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWnumb);
+
+/////////////////////////////////////////////////
+// Begin of field_opcode_battle.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBtlmd);
 
@@ -3980,15 +4121,19 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBtrlt);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBtltb);
 
+/////////////////////////////////////////////////
+// Begin of field_opcode_kawai_char.c
+/////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncBlink);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncKawai);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncKawiw);
 
-////////////////////////////////////////
-// Begin of debug.c
-////////////////////////////////////////
+/////////////////////////////////////////////////
+// Begin of field_debug.c
+/////////////////////////////////////////////////
 
 static void func_800D4838(void) {}
 
@@ -4004,27 +4149,30 @@ static void FieldEventDebugError(const char* errmsg) {
     D_80099FFC = 4;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D48C0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldWindowResetAll);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D493C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldWindowReset);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4B28);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldWindowSetStateToClose);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4BC0);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogSetWindowStyleCbc);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4BFC);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4C68);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogSetSize);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4E24);
+INCLUDE_ASM(
+    "asm/us/field/nonmatchings/field", FieldDialogAddXYToWindowPosition);
 
-void func_800D4E88(s16 arg0, s16 arg1) { D_8008327E[arg0 * 24] = arg1; }
+void FieldDialogSetWindowHeight(s16 arg0, s16 arg1) {
+    D_8008327E[arg0 * 24] = arg1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4EB4);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogMessageUpdateStates);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D5228);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogAskUpdateStates);
 
-static void func_800D5750(void) {
+static void PlayWindowPointerClickSound(void) {
     FieldEventClearAkaoStruct();
     D_8009A000[0] = 0x30;
     D_8009A004[0] = 1;
@@ -4032,31 +4180,31 @@ static void func_800D5750(void) {
     func_8002DA7C();
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D579C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogWindowInit);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D5A60);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogWindowGrowth);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D5C9C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogCopyTextFromField);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D6D44);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", DialogScrollText);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D6E0C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", DialogScrollTextDuringOk);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D6F6C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogWindowInitNext);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D707C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogWindowDiscrease);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D726C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogGetVariableFromBank);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D775C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", ConvertDigitToString);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D785C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", ConvertNumToStrWithSpace);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7970);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", ConvertHexToString);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7A58);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", CopyDialogToMapName);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D7C98);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", SystemMessageSetCharName);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugInitBuffers);
 
@@ -4202,7 +4350,3 @@ static void FieldDebugStringU32hex(s32 val, char* msg_out) {
 }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugIntToString);
-
-////////////////////////////////////////
-// End of debug.c
-////////////////////////////////////////
