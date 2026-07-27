@@ -371,11 +371,9 @@ s16 func_800A5970(void) {
 
     var_v1 = D_800E5768;
     var_v0 = 0;
-    if (var_v1 != 0) {
-        do {
-            var_v1 = (void**)*var_v1;
-            var_v0 += 1;
-        } while (var_v1 != 0);
+    while (var_v1) {
+        var_v1 = (void**)*var_v1;
+        var_v0 += 1;
     }
     return var_v0;
 }

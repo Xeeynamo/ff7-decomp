@@ -44,11 +44,9 @@ extern void func_800A01A0(void);
 extern void func_80014540(void);
 
 void func_800A00CC(void) {
-    register s32 one asm("s0");
+    s32 one;
 
-    if (D_80095DD4 != 0) {
-        do {
-        } while (D_80095DD4 != 0);
+    while (D_80095DD4 != 0) {
     }
 
     one = 1;
