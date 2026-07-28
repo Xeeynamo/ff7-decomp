@@ -74,7 +74,7 @@ u32 If2CheckUnsigned(void);
 static s32 KeyCheck(u16 keys);
 static u32 GetAkaoBlockOffset(s16 akaoId);
 s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId);
-static void func_800D4840(const char* str);
+static void DebugPrintToFieldWindow(const char* str);
 static void FieldEventDebugError(const char* errmsg);
 void AddStrNextDebugRow(s32 val, const char* msg_out);
 static void FieldDebugStringCopy(char* dst, const char* src);
@@ -360,7 +360,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventInit);
 static void InitFieldDebugPages(void);
 void FieldEventUpdate(s32 arg0) {
     if (D_8007EBE0) {
-        func_800D4BFC();
+        FieldBattleResetState();
         ResetFieldRenderState();
         FieldDebugInitBuffers();
         InitFieldDebugPages();
@@ -543,7 +543,7 @@ static void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind) {
             AddStrNextDebugRow(2, g_DebugText);
         }
         if (g_DebugLevel & 2) {
-            func_800D4840(g_DebugText);
+            DebugPrintToFieldWindow(g_DebugText);
         }
     }
 }
@@ -2638,7 +2638,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncPmova);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncMova);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800C7D5C);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldMoveToEntityUpdate);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncDira);
 
@@ -4132,12 +4132,12 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncKawai);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncKawiw);
 
 /////////////////////////////////////////////////
-// Begin of field_debug.c
+// Begin of field_dialog.c
 /////////////////////////////////////////////////
 
-static void func_800D4838(void) {}
+static void DebugDummyFunc(void) {}
 
-static void func_800D4840(const char* str) {
+static void DebugPrintToFieldWindow(const char* str) {
     // used to print debug messages -- dummied out on release
 }
 
@@ -4157,7 +4157,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldWindowSetStateToClose);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogSetWindowStyleCbc);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", func_800D4BFC);
+INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBattleResetState);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogSetSize);
 
@@ -4205,6 +4205,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", ConvertHexToString);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", CopyDialogToMapName);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", SystemMessageSetCharName);
+
+/////////////////////////////////////////////////
+// Begin of field_debug.c
+/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDebugInitBuffers);
 
