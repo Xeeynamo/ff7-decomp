@@ -318,9 +318,12 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ SavePartyMember* partyMember;
-    /* 0x04 */ u16 unk4;
+    /* 0x04 */ u8 limitCount; // inferred: bumped when a Limit Break executes
+    /* 0x05 */ u8 unk5;
     /* 0x06 */ u8 unk6;
-    /* 0x07 */ u8 unk7;
+    /* 0x07 */ u8 killCount; // enemy kills this battle; reconciled into
+                             // SavePartyMember.kill_count after battle
+                             // (BATRES.X, undecompiled)
     /* 0x08 */ u16 limitBar;
     /* 0x0A */ u16 limitBarUI;
     /* 0x0C */ u16 curMP;

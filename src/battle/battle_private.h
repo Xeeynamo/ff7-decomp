@@ -264,18 +264,21 @@ typedef struct {
     /* 0x04 */ u8 unk4[0x64];
 } Unk800F83E4; // size:0x68
 
-extern u8 D_800708C8[];  // kernel-region table, 0x1C-byte rows, indexed by
-                         // attack/effect id
-extern u8 D_800708D0[];  // kernel-region table, 0x1C-byte rows, indexed by
-                         // attack/effect id
-extern s16 D_8009D85C[]; // record fields, stride 0x440
+extern u8 D_800708C8[];       // kernel-region table, 0x1C-byte rows, indexed by
+                              // attack/effect id
+extern u8 D_800708D0[][0x1C]; // kernel-region table, indexed by
+                              // attack/effect id
+extern s16 D_8009D85C[];      // record fields, stride 0x440
 extern s16 D_8009D85E[];
 extern u8 D_8009D954[]; // per-actor sub-table, 0x440 stride, 8-byte rows keyed
                         // by effect id
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
-extern u8 D_800E7BA4[3];
+// Cait Sith's "Slots" limit: 7 three-symbol combos (one row per combo)
+// checked in order against the 3 landed reel symbols (D_80163774) -- see
+// BATTLE_ResolveCaitSithSlotsResult in battle.c
+extern u8 D_800E7BA4[7][3];
 extern u8 D_800E8050[];
 extern VECTOR D_800E7D10;
 extern VECTOR D_800E7D20;
@@ -435,7 +438,9 @@ extern Unk801636B8 D_801636B8[5];
 extern u16 D_80163758[]; // part of a struct
 extern u16 D_8016375C;
 extern u16 D_8016375E;
-extern u8 D_80163774[];
+// Cait Sith's 3 landed Slots reel symbols (see func_800E5358, and
+// BATTLE_ResolveCaitSithSlotsResult in battle.c)
+extern u8 D_80163774[3];
 extern u16 D_8016376E[];
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct
