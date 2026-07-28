@@ -86,11 +86,11 @@ static void FieldDebugStringU32hex(s32 val, char* msg_out);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldLoadMimDatFiles);
 
 void StopMapLoadInAdvance(void) {
-    if (D_800965E8 == 1) {
+    if (g_isFieldLoading == 1) {
         func_8003408C();
     }
     D_80071A5C = 0;
-    D_800965E8 = 0;
+    g_isFieldLoading = 0;
 }
 
 /////////////////////////////////////////////////

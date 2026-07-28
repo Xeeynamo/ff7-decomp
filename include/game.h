@@ -697,7 +697,7 @@ extern s16 g_FieldLineCount;
 extern s8 D_80095DCC;
 extern volatile u16 D_80095DD4;
 extern s16 D_800965E0;
-extern s16 D_800965E8;
+extern s16 g_isFieldLoading;
 extern volatile s16 D_800965EC;
 extern u8 D_80099FFC;
 extern s16 D_8009A000[1];

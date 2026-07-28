@@ -263,7 +263,7 @@ void func_80011860(void) {
 }
 
 void func_80011920(void) {
-    D_800965E8 = 0;
+    g_isFieldLoading = 0;
     D_80071A5C = 0;
 }
 

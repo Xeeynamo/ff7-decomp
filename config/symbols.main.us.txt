@@ -490,6 +490,7 @@ D_800696AC = 0x800696AC;
 g_AccessoryTable = 0x80071C24;
 g_ArmorTable = 0x80071E44;
 g_WeaponTable = 0x800738A0;
+g_isFieldLoading = 0x800965E8;
 g_ReverbMode = 0x8009A140;
 g_ReverbAttr = 0x8009C564; // type:SpuReverbAttr size:0x14
 D_8009D44C = 0x8009D44C;

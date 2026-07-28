@@ -1,6 +1,7 @@
 g_RandomTableStep = 0x8004A630;
 g_FieldDebugCurPage = 0x80071C08;
 g_RandomTableIndex = 0x80095DC8;
+g_isFieldLoading = 0x800965E8;
 g_DebugLevel = 0x8009D820;
 D_800A0238 = 0x800A0238; // force_migration:True
 D_800A023C = 0x800A023C; // force_migration:True
