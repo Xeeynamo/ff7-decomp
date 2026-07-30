@@ -1,5 +1,6 @@
 g_RandomTableStep = 0x8004A630;
 g_FieldDebugCurPage = 0x80071C08;
+g_FieldEntity = 0x80074EA4; // size:0x84
 g_RandomTableIndex = 0x80095DC8;
 g_isFieldLoading = 0x800965E8;
 D_8009C6E0 = 0x8009C6E0;
@@ -523,5 +524,5 @@ g_DebugText = 0x800E4254;
 g_DebugMessageBuffer = 0x800E4288;
 g_FieldRain = 0x800E42D8; // size:0x600
 g_RainForce = 0x800E48D8;
-FieldRenderData = 0x800E4DF0; // size:0x2F138
+g_FieldRenderData = 0x800E4DF0; // size:0x2F138
 SavedScriptIds = 0x801142D4; // size:0x180

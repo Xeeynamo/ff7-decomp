@@ -26,14 +26,7 @@ typedef enum {
     IF_NOT_BIT
 } IfOps;
 
-
-
-//extern FieldEntity g_FieldEntities[];             // 0x80074ea4
-
-
-
-
-struct FieldRenderData {
+struct g_FieldRenderData {
     u32 OtScene[0x1000];  // 0x00000: Main scene ordering table
     SPRT_16 Arrows[0x18]; // 0x04000: Field arrow sprite packets
     DR_MODE ArrowsDm;     // 0x04180: Arrow sprite draw mode
@@ -61,7 +54,7 @@ struct FieldRenderData {
     DR_MODE RainDm;     // 0x17490: Rain draw mode
     LINE_F2 Rain[0x40]; // 0x1749c: Rain line primitives
 };
-extern struct FieldRenderData FieldRenderData[2]; //double buffered
+extern struct g_FieldRenderData g_FieldRenderData[2]; // double buffered
 
 const u32 D_800A0000[] = {0, 0x01D801E0};
 extern char g_FieldDebugDigits[16]; // '0' to 'F' for hex digits
@@ -86,9 +79,9 @@ extern u8 g_RandomTableIndex;
 extern u8 g_RandomTable[256];
 extern s16 D_800E42EE[][12];
 
-void AddBackgroundToRender(struct FieldRenderData* buf);
-void FieldEntityLineInteract(Unk80074EA4* arg0, FieldLine* arg1);
-void HandleKawaiDataInModel(struct FieldRenderData* buf);
+void AddBackgroundToRender(struct g_FieldRenderData* buf);
+void FieldEntityLineInteract(FieldEntity* arg0, FieldLine* arg1);
+void HandleKawaiDataInModel(struct g_FieldRenderData* buf);
 s32 FieldEntitySqrDistToLine(FieldLine*, u_long*, u_long*);
 void DebugPrintOpcode(char* arg0, s32 arg1);
 u8 FieldEventReadMemoryU8(s16 arg0, s16 arg1);
@@ -281,7 +274,7 @@ extern struct FieldRain g_FieldRain[64];
 extern u8 g_RainForce;
 extern s16 D_800E42EE[][12];
 
-void FieldRainInit(struct FieldRenderData* renderData) {
+void FieldRainInit(struct g_FieldRenderData* renderData) {
     LINE_F2* line;
     s32 i;
     s32 adjustedIndex;
@@ -2544,9 +2537,10 @@ s32 OpcodeFuncChar(void) {
         DebugPrintOpcode("char", 1);
     }
     g_EntityToModel[g_CurrentEntity] = g_FieldModelCount++;
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].unk66 = GET_PARAM_U8(1);
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].unk5C = 1;
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].entityId = g_CurrentEntity;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].CharModelId =
+        GET_PARAM_U8(1);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].Visible = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActorId = g_CurrentEntity;
     PC_INC(2);
     return 0;
 }
@@ -2626,7 +2620,7 @@ void StartModelAnimation(void) {
     file = &D_8004A62C->unk4[D_8008357C[modelIdx].unk4];
     anims = file->unk1C + file->unk1A;
     g_FieldModels[modelIdx].animLastFrame =
-        *(u16*)&anims[D_80074EA4[modelIdx].activeAnimId * 16] - 1;
+        *(u16*)&anims[g_FieldEntity[modelIdx].activeAnimId * 16] - 1;
 }
 
 /*
