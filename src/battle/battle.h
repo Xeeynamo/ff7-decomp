@@ -212,7 +212,11 @@ typedef struct {
     /* 0x0228 */ AttackEntry attacks[0x20];
     /* 0x05A8 */ u16 attackIDs[0x20];
     /* 0x05E8 */ char attackNames[0x20][0x20];
-    /* 0x09E8 */ u8 unk9E8[0x278];
+    /* 0x09E8 */ u8 unk9E8[0x26E];
+    /* 0x0C56 */ u8 D_800F6B9A;
+    /* 0x0C57 */ u8 unkC57[6];
+    /* 0x0C5D */ u8 D_800F6BA1;
+    /* 0x0C5E */ u8 unkC5E[2];
     /* 0x0C60 */ Unk800F5F44_5 _5;
     /* 0x0E60 */ u8 script[0x1000];
     /* 0x1E60 */ u16 D_800F7DA4;

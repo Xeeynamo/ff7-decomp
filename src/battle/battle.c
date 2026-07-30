@@ -155,16 +155,33 @@ Unk800A2F4C* func_800A2F4C(void) {
     return unk;
 }
 
-s8* func_800A2FD0();
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2FD0);
+static Unk800FA9D0* func_800A2FD0(void) {
+    Unk800FA9D0* ptr = &D_800FA9D0[D_800F3948];
+    ptr->unk3 = -1;
+    if (D_800F3948 < LEN(D_800FA9D0)) {
+        D_800F3948++;
+    } else {
+        func_800155A4(40);
+    }
+    return ptr;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A304C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A311C);
+static Unk800F9F3C* func_800A311C(Unk800FA9D0* arg0) {
+    Unk800F9F3C* ptr = &D_800F9F3C[D_800F394C];
+
+    arg0->unk3 = D_800F394C;
+    ptr->unk0 = arg0->unk0;
+    ptr->unk6 = -1;
+    ptr->unk8 = -1;
+    D_800F394C = (D_800F394C + 1) & 0x7F;
+    return ptr;
+}
 
 void func_800A317C(void) {
-    s8* ret = func_800A2FD0();
-    *ret = -1;
+    Unk800FA9D0* ret = func_800A2FD0();
+    ret->unk0 = -1;
 }
 
 void func_800A31A0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
@@ -203,7 +220,26 @@ void func_800A329C(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A32C0);
+void func_800A7254(s32, s32, s32, s32);
+s32 func_800A37F8(s32);
+
+static void func_800A32C0(s32 arg0) {
+    s32 var_a3;
+
+    if (D_800F5F44.D_800F7DAA != 0) {
+        if (arg0 != 0) {
+            if (D_800F5F44.D_800F7DBA == 6) {
+                var_a3 = 1;
+                if (D_800F5F44.D_800F6B9A != D_800F5F44.D_800F6BA1) {
+                    var_a3 = 3;
+                }
+                func_800A7254(0, 0, 7, var_a3);
+            }
+        } else if (func_800A37F8(-1) != 0) {
+            func_800A7254(0, 0, 7, 0);
+        }
+    }
+}
 
 void func_800A3354();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3354);
@@ -216,7 +252,19 @@ void func_800A345C(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3488);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A34CC);
+static void func_800A34CC(s32 arg0, s32 arg1, s8 arg2, s32 arg3) {
+    s32 i = 0;
+
+    for (; i < LEN(D_800FA9D0); i++) {
+        Unk800FA9D0* p = &D_800FA9D0[i];
+        if (p->unk0 != arg0 || p->unk2 != arg1) {
+            continue;
+        }
+        if (arg3 != 1 || (p->unk4 & 4)) {
+            p->unk2 = arg2;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3534);
 
