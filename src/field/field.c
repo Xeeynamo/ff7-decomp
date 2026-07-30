@@ -331,7 +331,77 @@ void FieldRainAddToRender(
     *ot = (*ot & 0xFF000000) | ((u32)rainDm & 0xFFFFFF);
 }
 
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldRainUpdate);
+#else
+
+extern u8 g_RainControl;
+extern s16 g_PlayerModelId;
+
+extern FieldEntity g_FieldEntities[];
+extern u8 g_RandomTable[];
+extern struct FieldRain g_FieldRain[];
+
+void FieldRainUpdate(void) {
+    s32 i;
+    s32 limit;
+    s32 player;
+    s32 max = 255;
+    s32 vz;
+
+    if ((g_RainControl & 0x80) == 0) {
+        if (g_RainForce != 0) {
+            g_RainForce--;
+        }
+    } else {
+        if (g_RainForce != max) {
+            g_RainForce++;
+        }
+    }
+
+    limit = g_RainForce / 4;
+    player = g_PlayerModelId;
+
+    for (i = 0; i < 0x40; i++) {
+        if (g_FieldRain[i].wait == 0) {
+            if (i < limit) {
+
+                u8 seed3;
+
+                g_FieldRain[i].render = 1;
+                g_FieldRain[i].rndSeed++;
+                g_FieldRain[i].wait = 7;
+
+                g_FieldRain[i].p2.vx =
+                    (g_FieldEntities[player].PosX >> 12) +
+                    g_RandomTable[g_FieldRain[i].rndSeed & 0xFF] * 12 - 0x600;
+
+                seed3 = g_FieldRain[i].rndSeed * 3;
+                g_FieldRain[i].p2.vy = (g_FieldEntities[player].PosY >> 12) +
+                                       g_RandomTable[seed3] * 12 - 0x600;
+
+                g_FieldRain[i].p1.vx = g_FieldRain[i].p2.vx;
+                g_FieldRain[i].p1.vy = g_FieldRain[i].p2.vy;
+
+                g_FieldRain[i].z = (g_FieldEntities[player].PosZ >> 12) - 0x300;
+            } else {
+                g_FieldRain[i].wait = 1;
+                g_FieldRain[i].render = 0;
+            }
+        }
+
+        g_FieldRain[i].p2.vz =
+            g_FieldRain[i].z + (g_FieldRain[i].wait & 0x7) * 0x80;
+
+        vz = (g_FieldRain[i].wait & 0x7) * 0x80;
+        vz += 0x100;
+
+        g_FieldRain[i].p1.vz = g_FieldRain[i].z + vz;
+
+        g_FieldRain[i].wait--;
+    }
+}
+#endif
 
 /////////////////////////////////////////////////
 // Begin of field_battle.c

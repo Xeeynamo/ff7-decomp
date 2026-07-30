@@ -441,45 +441,45 @@ typedef struct {
 
 typedef struct {
 
-    u16 KawaiOp1;        // 0x00
-    u16 KawaiOp0;        // 0x02
-    u32 KawaiDataOffset; // 0x04
-    u8 BlinkOn;          // 0x08
-    u8 KawaiA; // 0x09
-    u8 KawaiB; // 0x0A
-    u8 KawaiC; // 0x0B
-    s32 PosX;       // 0x0C
-    s32 PosY;       // 0x10
-    s32 PosZ;       // 0x14
-    s32 MoveStartX; // 0x18
-    s32 MoveStartY; // 0x1C
-    s32 MoveStartZ; // 0x20
-    s8 Unk24[8]; // 0x24-0x2B
-    s16 MoveB;   // 0x2C
-	u8 Unk2E[2]; // 0x2E-0x2F
-    s16 MoveSteps; // 0x30
-    s16 MoveStep;  // 0x32
-    u8 Unk34;      // 0x34
-    u8 MoveDirAdd; // 0x35
-    u8 MoveDir;    // 0x36
-    u8 DirLock;    // 0x37
-    u8 Dir; // 0x38
-    u8 TurnSteps; // 0x39
-    u8 TurnStep;  // 0x3A
-    u8 TurnType;  // 0x3B
-    s16 TurnStart; // 0x3C
-    s16 TurnEnd;   // 0x3E
-    s16 OffsetX;      // 0x40
-    s16 OffsetStartX; // 0x42
-    s16 OffsetEndX;   // 0x44
-    s16 OffsetY;      // 0x46
-    s16 OffsetStartY; // 0x48
-    s16 OffsetEndY;   // 0x4A
-    s16 OffsetZ;      // 0x4C
-    s16 OffsetStartZ; // 0x4E
-    s16 OffsetEndZ;   // 0x50
-    u16 OffsetSteps; // 0x52
-    u16 OffsetStep;  // 0x54
+    u16 KawaiOp1;          // 0x00
+    u16 KawaiOp0;          // 0x02
+    u32 KawaiDataOffset;   // 0x04
+    u8 BlinkOn;            // 0x08
+    u8 KawaiA;             // 0x09
+    u8 KawaiB;             // 0x0A
+    u8 KawaiC;             // 0x0B
+    s32 PosX;              // 0x0C
+    s32 PosY;              // 0x10
+    s32 PosZ;              // 0x14
+    s32 MoveStartX;        // 0x18
+    s32 MoveStartY;        // 0x1C
+    s32 MoveStartZ;        // 0x20
+    s8 Unk24[8];           // 0x24-0x2B
+    s16 MoveB;             // 0x2C
+    u8 Unk2E[2];           // 0x2E-0x2F
+    s16 MoveSteps;         // 0x30
+    s16 MoveStep;          // 0x32
+    u8 Unk34;              // 0x34
+    u8 MoveDirAdd;         // 0x35
+    u8 MoveDir;            // 0x36
+    u8 DirLock;            // 0x37
+    u8 Dir;                // 0x38
+    u8 TurnSteps;          // 0x39
+    u8 TurnStep;           // 0x3A
+    u8 TurnType;           // 0x3B
+    s16 TurnStart;         // 0x3C
+    s16 TurnEnd;           // 0x3E
+    s16 OffsetX;           // 0x40
+    s16 OffsetStartX;      // 0x42
+    s16 OffsetEndX;        // 0x44
+    s16 OffsetY;           // 0x46
+    s16 OffsetStartY;      // 0x48
+    s16 OffsetEndY;        // 0x4A
+    s16 OffsetZ;           // 0x4C
+    s16 OffsetStartZ;      // 0x4E
+    s16 OffsetEndZ;        // 0x50
+    u16 OffsetSteps;       // 0x52
+    u16 OffsetStep;        // 0x54
     u8 OfsType;            // 0x56
     u8 ActorId;            // 0x57 - script entity model
     u8 requestTouchScript; // 0x58
@@ -496,16 +496,16 @@ typedef struct {
     u16 CharModelId;       // 0x66 - model id
     s16 ActionArg;         // 0x68
     s16 ActionState;       // 0x6A
-    u16 SolidRange; // 0x6C
-    u16 TalkRange;  // 0x6E
-    u16 MoveSpeed; // 0x70
-    s16 PosI;     // 0x72
-    s16 MoveEndI; // 0x74
+    u16 SolidRange;        // 0x6C
+    u16 TalkRange;         // 0x6E
+    u16 MoveSpeed;         // 0x70
+    s16 PosI;              // 0x72
+    s16 MoveEndI;          // 0x74
     u16 Pad76;
     s32 MoveEndX; // 0x78
     s32 MoveEndY; // 0x7C
     s32 MoveEndZ; // 0x80
-} FieldEntity; // size:0x84
+} FieldEntity;    // size:0x84
 
 typedef struct {
     /* 0x00 */ u8 unk0[4];
@@ -739,7 +739,7 @@ extern Unk8008357C* D_8008357C;
 extern s16 g_FieldLineCount;
 extern s8 D_80095DCC;
 extern volatile u16 D_80095DD4;
-extern s16 D_800965E0;
+extern s16 g_PlayerModelId;
 extern s16 g_isFieldLoading;
 extern volatile s16 D_800965EC;
 extern u8 D_80099FFC;
