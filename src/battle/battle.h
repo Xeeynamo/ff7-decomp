@@ -289,7 +289,7 @@ typedef struct {
     /* 0x40A4 */ u_long* unk40A4[0x10];
     /* 0x40E4 */ u_long* unk40E4[2];
     /* 0x40EC */ u_long* unk40EC[2];
-} Unk801517C0; // size:0x40F4
+} DB; // size:0x40F4
 
 typedef struct {
     /* 0x00 */ MATRIX m;
@@ -358,7 +358,7 @@ extern s16 D_800F83CC; // overlaps with D_800F83AE, sceneID
 extern Unk800F83E0 D_800F83E0[3];
 extern s8 D_800F90B4[][0x240];
 extern Unk800BB75C D_800FA63C;
-extern Unk801517C0* D_801517C0;
+extern DB* g_cDb;
 extern short D_8015169C;
 extern BattleModel D_801518E4[7]; // len might be 10, not 7
 extern short D_80162080;

@@ -26,9 +26,9 @@ int func_800D8A88(void) {
 
     DrawSync(0);
     ret = VSync(D_800F19A4);
-    // flip to the other of the two Unk801517C0 buffers
-    D_801517C0 = (D_801517C0 == &D_800FAFF4) ? &D_800FAFF4 + 1 : &D_800FAFF4;
-    D_800F8368 ^= 1;
+    // flip to the other of the two DB buffers
+    g_cDb = (g_cDb == &g_db) ? &g_db + 1 : &g_db;
+    g_dbIndex ^= 1;
     return ret;
 }
 
