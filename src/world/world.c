@@ -1,9 +1,12 @@
 //! PSYQ=3.3 CC1=2.6.3 g=false gcoff=false
 #include "world.h"
 
+void func_800A9480(s16 arg0);
 void func_800AA0E0(VECTOR* arg0);
+void func_800ADA64(WorldActor*);
 s32 func_800ADFC0(void);
 static s32 func_800B0800(void);
+void func_800B58F8(u8*, RECT*);
 static s32 func_800B716C(void);
 static s32 func_800B7B2C(void);
 s32 func_800B7B3C(void);
@@ -763,9 +766,6 @@ static const s32 D_800A01E0[] = {0, 0};
 static const s32 D_800A01E8[] = {0, 0, 0, 0};
 
 // TODO: this -> 800b624c, 800b58f8, 800ada64
-/*?*/ void func_800ADA64(WorldActor*); // extern
-/*?*/ void func_800B58F8(u8*, RECT*);  // extern
-
 void func_800A9334(s32 arg0) {
     RECT rect;
 
@@ -814,7 +814,7 @@ void func_800A9334(s32 arg0) {
     }
 }
 
-void func_800A9480(u16 arg0) {
+void func_800A9480(s16 arg0) {
     if (D_8010AD3C != NULL) {
         D_8010AD3C->direction = arg0;
         D_8010AD3C->facing = (s16)arg0;
@@ -2603,11 +2603,11 @@ void func_800BBD20(s32 arg0) {
 
     if ((func_800A369C() == 0) && (func_800A1DE0() != 3)) {
         temp_s4 = func_8001C8D4();
-        if ((D_801163D4 == 0) && (arg0 == 1))
+        if ((D_801163D4 == 0) && (arg0 == 1)) {
             func_800BBA5C();
-        else if (func_800A21A4() != 0) {
+        } else if (func_800A21A4() != 0) {
             var_v0 = func_800A9240() == 0 ? temp_s4 & 0x40 : temp_s4 & 0xF040;
-            if ((var_v0 == 0) && (D_801163DC - 1 < 0xEU) &&
+            if ((var_v0 == 0) && D_801163DC > 0 && D_801163DC < 15 &&
                 ((func_800A91A4(0x2000) == 0) || (func_800A9A44() == 0x12)))
                 func_800BBC4C();
             else
