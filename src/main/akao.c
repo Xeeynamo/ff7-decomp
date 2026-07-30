@@ -6,6 +6,9 @@
 typedef struct {
     s32 unk0;
     s8 unk4;
+    s8 pad5[3];
+    s32 unk8;
+    s8 unkC;
 } Unk8002C5A8;
 
 typedef struct {
@@ -19,7 +22,11 @@ typedef struct {
     s32 unk30;
     s32 unk34;
     s32 unk38;
-    s8 unk3C[0x24];
+    s8 unk3C[0x8];
+    s32 unk44;
+    s8 unk48[0x14];
+    s16 unk5C;
+    s8 unk5E[0x2];
     s16 unk60;
     s16 unk62;
     s16 unk64;
@@ -27,7 +34,10 @@ typedef struct {
     u32 unk68;
     s16 unk6C;
     s16 unk6E;
-    u8 unk70[0x20];
+    u8 unk70[0xE];
+    s16 unk7E;
+    s16 unk80;
+    u8 unk82[0xE];
     s16 unk90;
     s16 unk92;
     s16 unk94;
@@ -44,7 +54,9 @@ typedef struct {
     s16 unkAA;
     s16 unkAC;
     s16 unkAE;
-    u8 unkB0[0x10];
+    u8 unkB0[0x8];
+    s16 unkB8;
+    u8 unkBA[0x6];
     u8 unkC0[0x2];
     u16 unkC2;
     u16 unkC4;
@@ -52,7 +64,8 @@ typedef struct {
     u16 unkCA;
     s16 unkCC;
     s16 unkCE;
-    s32 unkD0;
+    s16 unkD0;
+    s16 unkD2;
     s16 unkD4;
     s16 unkD6;
     s16 unkD8;
@@ -124,13 +137,32 @@ extern void (*D_80049548[])(Unk8002B7E0*);
 extern u8 D_800499A8[]; // opcode lenghts
 extern u8 D_80049C40[];
 extern s32 D_80062F00;
-extern s16 D_80062F40;
-extern s16 D_80062F48;
+// Music-driver slide state: each MulMusic value is a fixed-point scalar for
+// pitch/volume/tempo (current value in the upper 16 bits, lower 16 bits are
+// fractional precision the driver accumulates every tick for a smooth
+// ramp); *SlideStep is the per-tick delta added to it, *SlideSteps is the
+// remaining tick count. Names/meaning confirmed one-off against the
+// independent qgears reverse-engineering project (not part of this repo):
+// https://github.com/q-gears/q-gears, src/main/SCUS_941_akao.cpp.
+extern s32 g_AkaoPitchMulMusicSlideStep;
+extern s32 g_AkaoVolMulMusicSlideStep;
+extern s32 g_AkaoTempoMulMusicSlideStep;
+extern s16 g_AkaoPitchMulMusicSlideSteps;
+extern s16 g_AkaoVolMulMusicSlideSteps;
+extern s16 g_AkaoTempoMulMusicSlideSteps;
+extern s32 g_AkaoVolMulMusic;
+extern u16 D_80062F70;
 extern s32 D_80062F74;
 extern s32 D_80062F84;
 extern s32 D_80062F8C;
-extern s32 D_80062FE4;
-extern s32 D_80062FE8;
+extern s32 g_AkaoCdVolSlideStep;
+extern u16 D_80062FB8;
+extern u16 g_AkaoCdVolSlideSteps;
+extern s32 g_AkaoCdVol;
+extern s32 D_80062FD8;
+extern s32 g_AkaoPitchMulMusic;
+extern s32 g_AkaoTempoMulMusic;
+extern s32 D_80062FF8;
 extern s32 D_80063010; // sound message queue count
 extern s32 D_8007EC10;
 extern s32 D_800804D0;
@@ -141,17 +173,24 @@ extern s32 D_80083394;
 extern u16 D_800833DE;
 extern s32 D_80083580[];
 extern Unk80096608 D_80096608[];
+extern Unk80096608 D_800966E8[];
 extern s32 D_80097768;
 extern s32 D_80097870;
+extern Unk80096608 D_80099868[];
 extern Unk80099788 D_80099788[];
+extern s32 D_80099FCC[];
+extern s32 D_80099FDC;
+extern s32 D_80099FF0;
 extern u16 D_8009A14E;
 extern s32 D_8009A104;
 extern s32 D_8009A108;
 extern s32 D_8009A10C;
 extern s32 D_8009A110;
 extern s32 D_8009A114;
+extern s32 D_8009A118;
 extern s32 D_8009A128;
 extern s32 D_8009A12C;
+extern s32 D_8009A13C;
 
 extern u32 g_ReverbMode;
 extern SpuReverbAttr g_ReverbAttr;
@@ -249,7 +288,36 @@ static void func_80029B78(s32* arg0, u32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029BAC);
+void func_80031820(AKAO_TRACK*, s32);
+
+static void SoundChannelInit(AKAO_TRACK* arg0, u8* arg1) {
+    arg0->addr = arg1;
+    arg0->unk2C = 0x78;
+    func_80031820(arg0, 5);
+    arg0->unk66 = 2;
+    arg0->unkCE = 0;
+    arg0->unkCC = 0;
+    arg0->unk6C = 0;
+    arg0->unk34 = 0;
+    arg0->unkD2 = 0;
+    arg0->unkC4 = 0;
+    arg0->unkC2 = 0;
+    arg0->unk64 = 0;
+    arg0->unk44 = 0x32000000;
+    arg0->unk5C = 0;
+    arg0->unk38 = 0;
+    arg0->unkB8 = 0;
+    arg0->unk6E = 0;
+    arg0->unkDA = 0;
+    arg0->unk9E = 0;
+    arg0->unk90 = 0;
+    arg0->unk7E = 0;
+    arg0->unkA0 = 0;
+    arg0->unk92 = 0;
+    arg0->unk80 = 0;
+    arg0->unkA6 = 0;
+    arg0->unkA4 = 0;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029C48);
 
@@ -482,17 +550,114 @@ void func_8002BA08(Unk8002B7E0* arg0) {
     func_8002A094(arg0->unk4, 0x36, sp10, sp14);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BA5C);
+void AkaoC0VolumeSet(Unk8002B7E0* arg0) {
+    g_AkaoVolMulMusicSlideSteps = 0;
+    g_AkaoVolMulMusic = (arg0->unk4 & 0x7F) << 0x10;
+    func_8002A748();
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BA98);
+typedef struct {
+    u32 unk0;
+    s32 unk4;
+    s32 unk8;
+} Unk8002BA98;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BB20);
+// Starts a volume slide from the current g_AkaoVolMulMusic toward a target
+// derived from arg0, over arg0's tick count.
+void AkaoC1VolumeSlideFromCurrent(Unk8002BA98* arg0) {
+    s32 temp_v0;
+    s32 var_a1;
+
+    temp_v0 = arg0->unk4;
+    var_a1 = 1;
+    if (temp_v0 != 0) {
+        var_a1 = temp_v0;
+    }
+    g_AkaoVolMulMusicSlideSteps = var_a1;
+    g_AkaoVolMulMusicSlideStep =
+        (((arg0->unk8 & 0x7F) << 0x10) - g_AkaoVolMulMusic) / var_a1;
+    func_8002A748();
+}
+
+typedef struct {
+    u32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+} Unk8002BB20;
+
+// Starts a volume slide between two explicit targets from arg0 (rather than
+// from the current g_AkaoVolMulMusic), over arg0's tick count.
+void AkaoC2VolumeSlideBetweenTargets(Unk8002BB20* arg0) {
+    s32 temp_v1;
+    s32 var_a1;
+    s32 temp_v0;
+
+    temp_v0 = arg0->unk4;
+    var_a1 = 1;
+    if (temp_v0 != 0) {
+        var_a1 = temp_v0;
+    }
+    temp_v0 = (arg0->unkC & 0x7F) << 0x10;
+    temp_v1 = (arg0->unk8 & 0x7F) << 0x10;
+    g_AkaoVolMulMusicSlideSteps = var_a1;
+    g_AkaoVolMulMusic = temp_v1;
+    g_AkaoVolMulMusicSlideStep = (temp_v0 - temp_v1) / var_a1;
+    func_8002A748();
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BBB4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BBEC);
+typedef struct {
+    u32 unk0;
+    s32 unk4;
+    u16 unk8;
+} Unk8002BBEC;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BC58);
+// Starts a CD-audio volume slide from the current g_AkaoCdVol toward a
+// target derived from arg0, over arg0's tick count.
+void AkaoC9CdVolumeSlideFromCurrent(Unk8002BBEC* arg0) {
+    s32 temp_v0;
+    s32 var_a1;
+
+    temp_v0 = arg0->unk4;
+    var_a1 = 1;
+    if (temp_v0 != 0) {
+        var_a1 = temp_v0;
+    }
+    g_AkaoCdVolSlideSteps = var_a1;
+    g_AkaoCdVolSlideStep = ((arg0->unk8 << 0x10) - g_AkaoCdVol) / var_a1;
+}
+
+typedef struct {
+    u32 unk0;
+    s32 unk4;
+    u16 unk8;
+    u16 unkA;
+    u16 unkC;
+    u16 unkE;
+} Unk8002BC58;
+
+// Starts a CD-audio volume slide between two explicit targets from arg0
+// (rather than from the current g_AkaoCdVol), over arg0's tick count.
+void AkaoCACdVolumeSlideBetweenTargets(Unk8002BC58* arg0) {
+    s32 temp_v0;
+    s32 temp_v1;
+    s32 var_a1;
+    s32 temp_v0_shifted;
+    s32 temp_v1_shifted;
+
+    temp_v0 = arg0->unk4;
+    var_a1 = 1;
+    if (temp_v0 != 0) {
+        var_a1 = temp_v0;
+    }
+    temp_v0_shifted = arg0->unkC << 0x10;
+    temp_v1_shifted = arg0->unk8 << 0x10;
+    g_AkaoCdVolSlideSteps = var_a1;
+    g_AkaoCdVol = temp_v1_shifted;
+    g_AkaoCdVolSlideStep = (temp_v0_shifted - temp_v1_shifted) / var_a1;
+}
 
 // The voice record at arg1 is two identical-layout 0x108-byte halves. Write the
 // note's transposed pitch (arg0+4) into a field in each half, clear another
@@ -658,23 +823,100 @@ void func_8002C580(s32 arg0) { func_8002C300(arg0, &D_80099788[3]); }
 
 void func_8002C5A8(Unk8002C5A8* arg0) {
     s32 n = arg0->unk4;
-    D_80062F48 = 0;
-    D_80062FE8 = n << 0x10;
+    g_AkaoTempoMulMusicSlideSteps = 0;
+    g_AkaoTempoMulMusic = n << 0x10;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C5C8);
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s8 unk8;
+} Unk8002C5C8;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C634);
+// Starts a tempo slide toward a target derived from arg0, over arg0's tick
+// count.
+void AkaoD1TempoSlideFromCurrent(Unk8002C5C8* arg0) {
+    s32 temp_v0;
+    s32 var_a1;
+
+    temp_v0 = arg0->unk4;
+    var_a1 = 1;
+    if (temp_v0 != 0) {
+        var_a1 = temp_v0;
+    }
+    g_AkaoTempoMulMusicSlideStep =
+        ((arg0->unk8 << 0x10) - g_AkaoTempoMulMusic) / var_a1;
+    g_AkaoTempoMulMusicSlideSteps = var_a1;
+}
+
+// Starts a tempo slide between two explicit targets from arg0, over arg0's
+// tick count.
+void AkaoD2TempoSlideBetweenTargets(Unk8002C5A8* arg0) {
+    long new_var;
+    s32 temp_a2;
+    s32 temp_v1;
+    s32 var_a1;
+
+    temp_v1 = arg0->unk8;
+    temp_a2 = arg0->unk4 << 0x10;
+    g_AkaoTempoMulMusic = temp_a2;
+    var_a1 = 1;
+    if (temp_v1 != 0) {
+        var_a1 = temp_v1;
+    }
+    new_var = (arg0->unkC << 0x10) - temp_a2;
+    g_AkaoTempoMulMusicSlideSteps = var_a1;
+    g_AkaoTempoMulMusicSlideStep = new_var / var_a1;
+}
 
 void func_8002C6A8(Unk8002C5A8* arg0) {
     s32 n = arg0->unk4;
-    D_80062F40 = 0;
-    D_80062FE4 = n << 0x10;
+    g_AkaoPitchMulMusicSlideSteps = 0;
+    g_AkaoPitchMulMusic = n << 0x10;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C6C8);
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s8 unk8;
+} Unk8002C6C8;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C734);
+// Starts a pitch slide from the current g_AkaoPitchMulMusic toward a
+// target derived from arg0, over arg0's tick count.
+void AkaoD5PitchSlideFromCurrent(Unk8002C6C8* arg0) {
+    s32 temp_v0;
+    s32 var_a1;
+    s32 temp_v1;
+
+    temp_v0 = arg0->unk4;
+    var_a1 = 1;
+    if (temp_v0 != 0) {
+        var_a1 = temp_v0;
+    }
+    temp_v1 = ((arg0->unk8 << 0x10) - g_AkaoPitchMulMusic) / var_a1;
+    g_AkaoPitchMulMusicSlideSteps = var_a1;
+    g_AkaoPitchMulMusicSlideStep = temp_v1;
+}
+
+// Starts a pitch slide between two explicit targets from arg0, over arg0's
+// tick count.
+void AkaoD6PitchSlideBetweenTargets(Unk8002C5A8* arg0) {
+    s32 new_var;
+    s32 temp_a2;
+    s32 temp_v1;
+    s32 var_a1;
+
+    temp_v1 = arg0->unk8;
+    temp_a2 = arg0->unk4 << 0x10;
+    g_AkaoPitchMulMusic = temp_a2;
+    var_a1 = 1;
+    if (temp_v1 != 0) {
+        var_a1 = temp_v1;
+    }
+    new_var = (arg0->unkC << 0x10) - temp_a2;
+    g_AkaoPitchMulMusicSlideSteps = var_a1;
+    g_AkaoPitchMulMusicSlideStep = new_var / var_a1;
+}
 
 void func_8002C7A8(void) { func_80029F44(); }
 
@@ -688,7 +930,11 @@ void func_8002C7E8(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C81C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C850);
+static void Akao81SetMonoMode(void) {
+    D_8009A104 = 2;
+    func_8002A748();
+    func_8002A798();
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C884);
 
@@ -702,9 +948,38 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CA84);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CB78);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CC18);
+typedef struct {
+    u32 unk0;
+    u16 unk4;
+} Unk8002CC18;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CC44);
+static void AkaoE0SetReverbPan(Unk8002CC18* arg0) {
+    D_80062F70 = arg0->unk4 & 0x7F;
+    D_8009A13C |= 0x80;
+}
+
+typedef struct {
+    u32 unk0;
+    u8 unk4;
+} Unk8002CC44;
+
+static void AkaoE4SetReverbMul(Unk8002CC44* arg0) {
+    u8 temp_v0;
+    s32 var_v0;
+    s32 mask;
+
+    temp_v0 = arg0->unk4;
+    D_80062FB8 = (s16)temp_v0;
+    mask = ~0x10;
+    if (temp_v0 != 0) {
+        var_v0 = D_80062FF8 | 0x10;
+    } else {
+        var_v0 = D_80062FF8 & mask;
+    }
+    D_80062FF8 = var_v0;
+    func_80030038();
+    D_8009A13C |= 0x80;
+}
 
 void func_8002CCBC(void) { D_8008337E = 0; }
 
@@ -714,9 +989,29 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CCDC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CDD0);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CEC0);
+static void AkaoF8StreamReverbMaskClear(void) {
+    s32* addr;
+    s32 temp_a0;
+    s32 temp_v1;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CF1C);
+    func_8002CFC0();
+    addr = D_80099FCC;
+    temp_a0 = D_80099FF0;
+    temp_v1 = ~D_80062F00;
+    *addr &= temp_v1;
+    D_80099FF0 = temp_v1 & temp_a0;
+    func_80030038(temp_a0, addr);
+}
+
+static void AkaoF9StreamReverbMaskRestore(void) {
+    s32 temp_a0;
+
+    func_8002CFC0();
+    temp_a0 = D_80099FCC[0];
+    D_80099FCC[0] = ~D_80062F00 & temp_a0;
+    D_80099FF0 |= D_80062F00;
+    func_80030038(temp_a0, D_80099FCC, D_80062F00);
+}
 
 static void func_8002CF78(void) { func_80029A50(); }
 
