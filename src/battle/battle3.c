@@ -83,18 +83,18 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DBC18);
 
 static void func_800DBEA4(s32 arg0, s16 arg1) { func_800DBC18(arg0, arg1); }
 
-// ot: this frame's ordering table (address), selected by func_800D8D78 via
-// the D_800F1994 double-buffer index -- forwarded through to func_800DBEA4
-// and func_800DB818's libgpu OT insert, not otherwise used here
-void func_800DBEC8(s32 ot) {
+// ot: this frame's ordering table, selected by func_800D8D78 via the
+// D_800F1994 double-buffer index -- forwarded through to func_800DBEA4 and
+// func_800DB818's libgpu OT insert, not otherwise used here
+void func_800DBEC8(OT_TYPE* ot) {
     if (D_800F3896 == 0) {
-        func_800DBEA4(ot, D_800F38A9);
+        func_800DBEA4((s32)ot, D_800F38A9);
         return;
     }
 
     if ((D_800F3120 != 0) && (D_800FAFEC >= 0 && D_800FAFEC < 0x128) &&
         (D_800FAFF0 > 0xF && D_800FAFF0 < 0xA6)) {
-        func_800DB818(ot, D_800FAFEC, D_800FAFF0);
+        func_800DB818((s32)ot, D_800FAFEC, D_800FAFF0);
     }
 }
 
