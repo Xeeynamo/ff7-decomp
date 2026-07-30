@@ -105,8 +105,8 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2BF4);
 
 void func_800B10F0(s32, s32, s32, s32, s32, s32, s32);
 void func_800A2CC4(s32 arg0) {
-    func_800B10F0(D_80063014->unk0, arg0, D_80063014->unk28, D_80063014->unk24,
-                  D_80063014->unk98, 0, 0);
+    func_800B10F0(D_80063014->actorId, arg0, D_80063014->unk28,
+                  D_80063014->unk24, D_80063014->unk98, 0, 0);
 }
 
 const u8 D_800A01A8[] = {0x05, 0x06, 0x07, 0x12, 0x0F, 0x00, 0x03, 0xA6};
@@ -678,7 +678,10 @@ void func_800A7060(s32 arg0, s32 arg1) { func_800A7254(0, arg0, 12, arg1); }
 
 void func_800A7090(s32 arg0) { D_800F5BB8[arg0].unk29 |= 0x40; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A70C4);
+void func_800A70C4(s32 arg0, s32 arg1) {
+    func_800B10F0(
+        arg0, 0x34, 2, D_800708D0[arg1][1], 0, 9, D_800F83E0[arg0].status);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A7130);
 
@@ -692,23 +695,80 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A7254);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A72C8);
 
-void func_800A73C0(void) { D_80063014->unk2C = D_80063014->unk10; }
+void BATTLE_ResolveMagicActionIndex(void) {
+    D_80063014->absoluteActionIndex = D_80063014->relativeActionIndex;
+}
 
-void func_800A73D8(void) { D_80063014->unk2C = D_80063014->unk10 + 56; }
+void BATTLE_ResolveSummonActionIndex(void) {
+    D_80063014->absoluteActionIndex = D_80063014->relativeActionIndex + 56;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A73F8);
+void func_800A55F4(s16, s16);
+void func_800A73F8(void) {
+    D_80063014->absoluteActionIndex = D_80063014->relativeActionIndex;
+    D_80063014->unk24 = D_80063014->relativeActionIndex;
+    func_800A55F4(D_80063014->actorId, (s16)D_80063014->absoluteActionIndex);
+    if (!(D_80063014->allowedTargetsMask & 0xF)) {
+        D_80063014->unk20 = 0x21;
+    } else {
+        D_80063014->unk20 = 0x20;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A7458);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A7560);
 
-void func_800A76AC(void) { D_80063014->unk2C = D_80063014->unk10 + 72; }
+void BATTLE_ResolveEnemySkillActionIndex(void) {
+    D_80063014->absoluteActionIndex = D_80063014->relativeActionIndex + 72;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A76CC);
+static u32 func_800B12DC(void);
+void func_800A76CC(void) {
+    s32 val;
+
+    D_80063014->unk20 = -1;
+    if (func_800B12DC() != 0) {
+        val = 4;
+        if (D_800F83E0[D_80063014->actorId].unk4 & 0x40) {
+            val = 3;
+        }
+        D_80063014->unk20 = val;
+        D_800F83E0[D_80063014->actorId].unk4 ^= 0x40;
+    }
+}
 
 void func_800A7784(void) {}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A778C);
+// actorId here is the live party slot (0-2, indexes D_800F5E60's 3-element
+// gauge table below) -- NOT the per-character Limit-name block index. Each
+// of the 9 playable characters has a uniform 7-slot block in the shared
+// name table (relativeActionIndex 0x00=Cloud, 0x07=Barret, 0x0E=Aerith,
+// 0x15=Tifa, 0x1C=Cid, 0x23=Red XIII, 0x2A=Cait Sith+Vincent shared,
+// 0x31=Yuffie); which block applies for the current actor is resolved
+// elsewhere, not yet found in decompiled code.
+void BATTLE_ResolveLimitActionIndex(void) {
+    s32 actorId;
+    s32 relativeActionIndex;
+
+    actorId = D_80063014->actorId;
+    if (actorId >= 4) {
+        func_800155A4(0x25, actorId);
+        return;
+    }
+    relativeActionIndex = D_80063014->relativeActionIndex;
+    D_80063014->absoluteActionIndex = relativeActionIndex;
+    if (relativeActionIndex < 0x60) {
+        s32 off = actorId * 0x34;
+        D_80063014->absoluteActionIndex = relativeActionIndex + 0x80;
+        *(u16*)((u8*)D_800F5E60 + off + 8) =
+            0; // ideally D_800F5E60[actorId].limitBar = 0;
+        D_800F5E60[actorId].limitCount++;
+        if (!(D_800F83D0 & 8)) {
+            func_800A7254(2, actorId, 0x11, 0);
+        }
+    }
+}
 
 const s16 D_800A0290[] = {0, 56, 72, 96, 256};
 const s32 D_800A029C[] = {
@@ -722,14 +782,14 @@ void func_800A7940(void) {
 }
 
 void func_800B1060(s32);
-void func_800A795C(void) { func_800B1060(D_80063014->unk10); }
+void func_800A795C(void) { func_800B1060(D_80063014->relativeActionIndex); }
 
 void func_800AF9C8();
 void func_800A7988(void) { func_800AF9C8(); }
 
 void func_800A79A8(void) {
     D_80063014->unk50 = 0;
-    D_80063014->unk18 = 1 << D_80063014->unk0;
+    D_80063014->allowedTargetsMask = 1 << D_80063014->actorId;
 }
 
 void func_800A79CC();
@@ -751,7 +811,7 @@ void func_800A85B4(void) {
     D_80063014->unk44 = 0x10;
     D_80063014->unk48 = 1;
     D_80063014->unk50 = 0;
-    if (!((D_80163758[1] >> D_80063014->unk0) & 1)) {
+    if (!((D_80163758[1] >> D_80063014->actorId) & 1)) {
         D_80063014->unk20 = -1;
     }
 }
@@ -782,7 +842,9 @@ void func_800A8D04(void) { D_80063014->unk48 = 2; }
 // multiple targets) with a per-slot default, but only if nothing has set
 // unk50 explicitly yet this turn (see func_800A8D60's sentinel check)
 void func_800A8D60(s32 arg0);
-void func_800A8D18(void) { func_800A8D60(D_800F5EFC[D_80063014->unk0 * 0x18]); }
+void func_800A8D18(void) {
+    func_800A8D60(D_800F5EFC[D_80063014->actorId * 0x18]);
+}
 
 void func_800A8D60(s32 arg0) {
     if (D_80063014->unk50 == 0xFF) {
@@ -817,48 +879,54 @@ const s16 D_800A02C0[] = {
     0x30, 0x10, 0x20, 0x10, 0x10, 0x14, 0x01, 0x01, 0x01, 0x01, 0x01, 0x18};
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8E84);
 
-static void func_800A9C24(void) {
-    s32 temp_s0;
-    s32 var_a0;
-    s32 var_s0;
-    s32 i;
+// Cait Sith's "Slots" limit: check the 3 landed reel symbols against each of
+// D_800E7BA4's 7 known combos in order. comboIndex==0 (Bar/Bar/Bar) means
+// "cast a random Summon"; comboIndex 1-6 select one of the other 6 named
+// results (Game Over, Death Joker, Toy Soldier, Lucky Girl, Moogle Dance,
+// Transform -- kernel.bin section 18, absolute 105-110); falling off the end
+// unmatched (comboIndex==7) lands on the generic "Toy Box" fallback (111).
+static void BATTLE_ResolveCaitSithSlotsResult(void) {
+    s32 savedUnk20;
+    s32 rollSum;
+    s32 comboIndex;
 
-    i = 0;
-    var_a0 = 0;
-    while (i < 7) {
-        if (D_80163774[0] == D_800E7BA4[var_a0 + 0] &&
-            D_80163774[1] == D_800E7BA4[var_a0 + 1] &&
-            D_80163774[2] == D_800E7BA4[(var_s0 = var_a0) + 2]) {
+    comboIndex = 0;
+    while (comboIndex < 7) {
+        if (D_80163774[0] == D_800E7BA4[comboIndex][0] &&
+            D_80163774[1] == D_800E7BA4[comboIndex][1] &&
+            D_80163774[2] == D_800E7BA4[comboIndex][2]) {
             break;
         }
-        i++;
-        var_a0 += 3;
+        comboIndex++;
     }
-    if (i) {
-        D_80063014->unk2C = i + 0x68;
+    if (comboIndex) {
+        D_80063014->absoluteActionIndex = comboIndex + 0x68;
     } else {
-        var_s0 = 4;
-        for (i = 0; i < 4; i++) {
-            var_s0 += func_80014BA8(10) & 0xFF;
+        // Random Summon ID: sum of four Rnd(1..10) rolls, + Level/21, /2, -4,
+        // clamped [0,15], then the Summon category base (D_800A0290[1] ==
+        // 0x38 == 56).
+        rollSum = 4;
+        for (comboIndex = 0; comboIndex < 4; comboIndex++) {
+            rollSum += func_80014BA8(10) & 0xFF;
             func_80014B54();
         }
-        var_s0 += D_80063014->unk4 / 21;
-        var_s0 /= 2;
-        var_s0 -= 4;
-        if (var_s0 < 0) {
-            var_s0 = 0;
+        rollSum += D_80063014->characterLevel / 21;
+        rollSum /= 2;
+        rollSum -= 4;
+        if (rollSum < 0) {
+            rollSum = 0;
         }
-        if (var_s0 > 0xF) {
-            var_s0 = 0xF;
+        if (rollSum > 0xF) {
+            rollSum = 0xF;
         }
-        D_80063014->unk2C = var_s0 + 0x38;
+        D_80063014->absoluteActionIndex = rollSum + 0x38;
         D_80063014->unk28 = 3;
     }
     D_80063014->unk50 = 0xFF;
-    D_80063014->unk98 = D_80063014->unk2C;
-    temp_s0 = D_80063014->unk20;
+    D_80063014->unk98 = D_80063014->absoluteActionIndex;
+    savedUnk20 = D_80063014->unk20;
     func_800A8E34();
-    D_80063014->unk20 = temp_s0;
+    D_80063014->unk20 = savedUnk20;
     D_80063014->unk38 = 0;
 }
 
@@ -872,7 +940,7 @@ static void func_800AA468(void) {
     s32 var_s1;
 
     var_s1 = D_80063014->unkC8;
-    if (func_800B10B4(D_80063014->unk0)) {
+    if (func_800B10B4(D_80063014->actorId)) {
         var_s1 |= 2;
     }
     temp_s0 = func_80014A58(var_s1 & 0x0400029A);
@@ -884,7 +952,7 @@ static void func_800AA4FC(void) {
     s32 var_s0;
 
     var_s0 = 1;
-    if (func_800B10B4(D_80063014->unk0) != 0) {
+    if (func_800B10B4(D_80063014->actorId) != 0) {
         var_s0 = 2;
     }
     if (D_80063014->unkC8 & 0x200000) {
@@ -1049,7 +1117,7 @@ s32 func_800AD804(s32, s32);
 s32 func_800AD73C(s32);
 
 void func_800ADDE8(void) {
-    s32 base = D_80063014->unk4C + D_80063014->unk4;
+    s32 base = D_80063014->unk4C + D_80063014->characterLevel;
     s32 term1 = base * 3;
     s32 term2 = D_80063014->unk48 * 0xB;
     s32 damage = (term2 + term1) * 2;
@@ -1077,7 +1145,7 @@ void func_800ADF04(void) {
 }
 
 void func_800ADF38(void) {
-    s32 divisor = func_80014A58(D_80063014->unk18);
+    s32 divisor = func_80014A58(D_80063014->allowedTargetsMask);
     s32 result = 0;
     if (divisor != 0) {
         result = (D_80063014->unk48 + (divisor - 1)) / divisor;
@@ -1086,11 +1154,11 @@ void func_800ADF38(void) {
 }
 
 void func_800ADFC0(void) {
-    D_80063014->unk214 = *(u16*)(&D_800F5BB8[D_80063014->unk0].unk3C);
+    D_80063014->unk214 = *(u16*)(&D_800F5BB8[D_80063014->actorId].unk3C);
 }
 
 void func_800ADFF4(void) {
-    s32 index = D_80063014->unk0;
+    s32 index = D_80063014->actorId;
     D_80063014->unk214 = D_800F83E0[index].maxHP - D_800F5BB8[index].unk3C;
 }
 

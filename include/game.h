@@ -285,18 +285,22 @@ typedef struct {
 } SaveWork; // size: 0x10F4
 
 typedef struct {
-    s32 unk0;
-    s32 unk4;
+    s32 actorId;
+    s32 characterLevel;
     s32 unk8;
     s32 unkC;
-    s32 unk10;
+    s32 relativeActionIndex; // index within its own category (spell #, summon
+                             // #, etc) -- see D_800A0290 in battle.c
     s32 unk14;
-    s32 unk18;
+    s32 allowedTargetsMask;
     s32 unk1C;
-    s32 unk20;
+    s32 unk20; // pending message/animation id, -1 = none
     s32 unk24;
     s32 unk28;
-    s32 unk2C;
+    s32 absoluteActionIndex; // relativeActionIndex remapped into the single
+                             // shared spell/summon/enemy-skill/limit name
+                             // table (kernel.bin section 18) via
+                             // D_800A0290's per-category base offset
     s32 unk30;
     u8 unk34[4]; // character spacing array
     s32 unk38;
@@ -740,7 +744,7 @@ s32 func_80014B70(void);
 s32 func_80014BA8(s32 arg0);
 s32 func_8001521C(s32);
 const char* func_80015248(s32 arg0, s32 arg1, s32 arg2);
-void func_800155A4(s32);
+void func_800155A4(s32, ...);
 void func_8001726C(s16, u16);
 s32 func_8001C8D4();
 void func_80021044(DRAWENV* draw_env, DISPENV* disp_env);
