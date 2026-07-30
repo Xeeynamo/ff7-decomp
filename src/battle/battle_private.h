@@ -361,6 +361,15 @@ extern Unk800AF470
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
 extern s32 D_800F7DF8[];
+typedef struct {
+    /* 0x00 */ s16 D_800F7ED8;
+    /* 0x02 */ s16 D_800F7EDA;
+    /* 0x04 */ u8 unk4[0x24];
+} Unk800F7ED8; // size:0x28
+
+extern Unk800F7ED8 D_800F7ED8[];
+extern s16 D_800F8182[];
+extern s16 D_800F8360;
 extern s32 D_800F8368;
 extern s16 D_800F8370;
 extern s32* D_800F839C; // CD offset?
@@ -373,6 +382,7 @@ extern s32 D_800F8408;
 extern u8 D_800F87F0[]; // per-combatant battle-script variable bank, 0x80 B
                         // each (func_800B13B0)
 extern s8 D_800F8CF0;
+extern u32 D_800F8CF4[][0x18];
 extern Unk80026448 D_800F9132;
 extern s32 D_800F9144;
 extern s8 D_800F914E;
@@ -392,7 +402,9 @@ extern u16 D_800FA6B8;
 extern u8 D_800FA6D4;
 extern Unk800FA6D8 D_800FA6D8[];
 extern MATRIX D_800FA958;
+extern s32 D_800FA978[];
 extern s32 D_800FA9B8;
+extern u16 D_800FA9BC;
 extern s16 D_800FA9C4;
 extern s8 D_800FA9E8;
 extern u8 D_800FAFDC;
@@ -447,10 +459,19 @@ extern s8 D_80163787; // suspicious, very likely part of a struct
 extern u8 D_8016378C[];
 extern Unk800A2F4C D_80163798[0x40];
 extern s8 D_80163A98;
+extern s16 D_80163B44[];
 extern u16 D_80163B80;
 extern DR_MODE* D_80163C74; // TODO might be a generic u_long*, not DR_MODE*
 extern u8 D_80163C7C;
 extern ShortVectorXYZ D_80163C80[];
+typedef struct {
+    /* 0x00 */ u8 D_80163CC0;
+    /* 0x01 */ u8 unk1;
+    /* 0x02 */ u16 D_80163CC2;
+    /* 0x04 */ u32 D_80163CC4;
+} Unk80163CC0; // size:0x08
+
+extern Unk80163CC0 D_80163CC0[];
 extern s8 D_80166F58;
 extern s8 D_80166F64;
 extern u8 D_80166F68;
@@ -472,6 +493,10 @@ static void func_800BB030(s16 arg0);
 void func_800BB2A8(u8);
 void func_800BB9B8(s32);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
+static void func_800C0480(s16);
+static void func_800C0630(s16);
+static void func_800C0970(s16);
+static void func_800C0B20(s16);
 static void func_800C1908(u8 arg0);
 void func_800C5E94(void);
 void func_8002DF88(s16*);

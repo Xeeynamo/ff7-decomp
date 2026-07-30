@@ -10,18 +10,26 @@ static void func_800B3D38(void);
 static void func_800B3D88(void);
 static void func_800B3DBC(void);
 static s32 func_800B3FAC(s32 arg0);
+static void func_800B798C(void);
 static void func_800B7FDC(void);
 static void func_800B8360(s32);
 static void func_800B85E0();
 static void func_800B88CC(s32 arg0);
+static void func_800B8E48(s32 arg0);
+static void func_800BA24C(void);
 static void func_800BA4C8(void);
 void func_800BA598(s16);
 static void func_800BB030(s16);
 static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3);
 static void func_800BB804(void);
 static void func_800BB864(void);
+static void func_800BC2F0(void);
+static void func_800C0410(void);
+static void func_800C0900(void);
+static void func_800C20E8(s16 arg0, s16* arg1);
 static void func_800C4D10(void);
 DR_MODE* func_800C4DC8(s16 x, s16 y, s16 w, s16 h, s32*);
+static void func_800C614C(u_long* arg0, s32 arg1);
 static void func_800C627C(void);
 void func_800C62F4(s32);
 void func_800BC81C(s16 arg0, s16 arg1);
@@ -270,7 +278,18 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6D6C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B7764);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B798C);
+extern u8 D_801517F0[0x4E];
+
+static void func_800B798C(void) {
+    s32 i;
+
+    for (i = 0; i < 0x4E; i += 1) {
+        D_801517F0[i] = 0xFF;
+        D_80163CC0[i].D_80163CC0 = 0;
+        D_80163CC0[i].D_80163CC2 = 0;
+        D_80163CC0[i].D_80163CC4 = 0;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B79F0);
 
@@ -503,7 +522,14 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B8A34);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B8B48);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B8E48);
+static void func_800B8E48(s32 arg0) {
+    s32 temp_a0;
+
+    temp_a0 = arg0 & 0xFF;
+    D_801518E4[temp_a0].D_8015190A = 1;
+    D_801518E4[temp_a0].D_80151909 &= 0x7F;
+    D_80151200[temp_a0].D_8015120C &= 0xFFDF;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B8EE4);
 
@@ -519,7 +545,21 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B9568);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BA11C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BA24C);
+// advances two wrapping counters (mod 4, mod 32) and accumulates an offset
+// each time one wraps to 0; func_800BA2BC (still undecompiled) reads/writes
+// the same D_80163B44/D_800F8182 pair with an analogous mod-32 decrement, so
+// this is one tick of a periodic effect shared with that function
+static void func_800BA24C(void) {
+    D_800F8182[0] = 0;
+    if (D_80163B44[0] == 0) {
+        D_800F8182[0] = -0x28;
+    }
+    if (D_80163B44[1] == 0) {
+        D_800F8182[0] -= 0x50;
+    }
+    D_80163B44[0] = (D_80163B44[0] - 1) & 3;
+    D_80163B44[1] = (D_80163B44[1] - 1) & 0x1F;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BA2BC);
 
@@ -753,7 +793,16 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC11C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC1E0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC2F0);
+static void func_800BC2F0(void) {
+    s32 i;
+
+    D_800FA9BC = 0;
+    for (i = 0; i < 0x10; i++) {
+        D_800FA978[i] = 0;
+        D_800F7ED8[i].D_800F7ED8 = 0;
+        D_800F7ED8[i].D_800F7EDA = 0;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC348);
 
@@ -871,13 +920,33 @@ static s16 func_800C03B8(s16 arg0, s16 arg1) {
 
 s32 func_800C03FC(s32 arg0, s32 arg1) { return arg0 < 0 ? -arg1 : arg1; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0410);
+static void func_800C0410(void) {
+    switch (D_800F7ED8[D_800F8360].D_800F7EDA) {
+    case 0:
+        func_800C0480(D_800F8360);
+        func_800C0630(D_800F8360);
+        return;
+    case 1:
+        func_800C0630(D_800F8360);
+        return;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0480);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0630);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0900);
+static void func_800C0900(void) {
+    switch (D_800F7ED8[D_800F8360].D_800F7EDA) {
+    case 0:
+        func_800C0970(D_800F8360);
+        func_800C0B20(D_800F8360);
+        return;
+    case 1:
+        func_800C0B20(D_800F8360);
+        return;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0970);
 
@@ -1017,7 +1086,19 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1D8C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2000);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C20E8);
+static void func_800C20E8(s16 arg0, s16* arg1) {
+    s16 var_a0;
+    s32 temp_a0;
+    s32 var_a2;
+
+    var_a0 = arg0;
+    var_a2 = 0;
+    for (; var_a2 < 4; var_a2++) {
+        temp_a0 = 3 - var_a2;
+        arg1[temp_a0] = var_a0 % 10;
+        var_a0 /= 0xA;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2150);
 
@@ -1212,7 +1293,19 @@ static void func_800C610C(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C614C);
+static void func_800C614C(u_long* pTim, s32 palIndex) {
+    TIM_IMAGE tim;
+    u32* dst;
+    s32 i;
+
+    palIndex &= 0xFF;
+    dst = D_800F8CF4[palIndex];
+    OpenTIM(pTim);
+    ReadTIM(&tim);
+    for (i = 0; i < 0x18; i++) {
+        *dst++ = *tim.caddr++;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C61C0);
 
