@@ -10,9 +10,9 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B0050);
 
 static void func_801B23E0(s32 sceneID, void (*cb)(void));
 void func_801B0490(s32 sceneID) {
+    Unk800F83E0* c;
     s32 i;
     s32 var_s1;
-    s8* temp;
 
     var_s1 = 4;
     if (D_8016376C) {
@@ -33,15 +33,15 @@ void func_801B0490(s32 sceneID) {
     }
     func_801B23E0(sceneID, func_800A3354);
     func_801B1E0C();
-    D_800F83AE[0][0] = 0;
+    D_800F83AC.presentMask = 0;
     for (i = 0; i < 10; i++) {
         func_800AE954(i);
-        temp = (s8*)&D_800F83AE[i][0x19];
-        if (temp[8] != -1) {
-            D_800F83AE[0][0] |= 1 << i;
+        c = &D_800F83AC.combatant[i];
+        if (c->unk8 != -1) {
+            D_800F83AC.presentMask |= 1 << i;
         }
     }
-    D_800F83CC = sceneID;
+    D_800F83AC.sceneID = sceneID;
     D_800F83A8 = D_80163624.unk2;
     func_801B19AC();
     func_800A4540();
@@ -69,7 +69,8 @@ void func_801B1120(void) {
     s32 i;
 
     for (i = 0; i < 3; i++) {
-        if (((s8)D_80163624.unk94[i][0] != -1) && !(D_800F83E0[i].status & 1)) {
+        if (((s8)D_80163624.unk94[i][0] != -1) &&
+            !(D_800F83AC.combatant[i].status & 1)) {
             func_800A6000(i, 0, 0);
         }
     }
@@ -178,9 +179,10 @@ void func_801B2308(void) {
         }
     };
     for (i = 0; i < 6; i++) {
-        D_80163624.unk34[i].unkC = D_800F83E0[4 + i].unk4;
-        D_80163624.unk94[4 + i][1] = D_800F83E0[4 + i].unk10;
-        D_800F83E0[4 + i].unk44[0] = D_800F83E0[4 + i].status;
+        D_80163624.unk34[i].unkC = D_800F83AC.combatant[4 + i].unk4;
+        D_80163624.unk94[4 + i][1] = D_800F83AC.combatant[4 + i].unk10;
+        D_800F83AC.combatant[4 + i].unk44[0] =
+            D_800F83AC.combatant[4 + i].status;
     }
 }
 

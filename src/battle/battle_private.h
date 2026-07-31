@@ -375,8 +375,6 @@ extern s16 D_800F8370;
 extern s32* D_800F839C; // CD offset?
 extern u8 D_800F83A4[]; // shared battle-script variable bank (func_800B13B0)
 extern u8 D_800F83A6;
-extern u16 D_800F83C6; // part of struct?
-extern u16 D_800F83D0;
 extern Unk800F83E4 D_800F83E4[];
 extern s32 D_800F8408;
 extern u8 D_800F87F0[]; // per-combatant battle-script variable bank, 0x80 B

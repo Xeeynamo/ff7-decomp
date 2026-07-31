@@ -32,33 +32,54 @@ typedef struct {
     // table's bit 0x2 (Near Death) does not appear to be set here -- this
     // engine computes Near Death live from curHP/maxHP instead (see
     // func_800B10B4), not via this flag.
-    s32 status;
-    s32 unk4; // battle-state flags (e.g. bit 0x40 = back row, bit 0x20 =
-              // defending)
-    s32 unk8;
-    s8 unkC;
-    u8 unkD;
-    s8 unkE;
-    s8 unkF;
-    s8 unk10; // cached "Near Death" display flag; see func_800B10B4 for the
-              // live check
-    s8 unk11;
-    s16 unk12;
-    s8 unk14;
-    s8 unk15;
-    s16 unk16;
-    s32 unk18;
-    s32 unk1C;
-    s16 unk20;
-    s16 unk22;
-    s32 unk24;
-    s16 unk28;
-    s16 unk2A;
-    u32 curHP;
-    u32 maxHP;
-    u32 unk34[4];
-    u32 unk44[9];
+    /* 0x00 */ s32 status;
+    /* 0x04 */ s32 unk4; // battle-state flags (e.g. bit 0x40 = back row, bit
+                         // 0x20 = defending)
+    /* 0x08 */ s8 unk8;
+    /* 0x09 */ s8 unk9;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s8 unkC;
+    /* 0x0D */ u8 unkD;
+    /* 0x0E */ s8 unkE;
+    /* 0x0F */ s8 unkF;
+    /* 0x10 */ s8 unk10; // cached "Near Death" display flag; see func_800B10B4
+                         // for the live check
+    /* 0x11 */ s8 unk11;
+    /* 0x12 */ s8 unk12;
+    /* 0x13 */ s8 unk13;
+    /* 0x14 */ s8 unk14;
+    /* 0x15 */ s8 unk15;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ s16 unk20;
+    /* 0x22 */ s16 unk22;
+    /* 0x24 */ s32 unk24;
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ s16 unk2A;
+    /* 0x2C */ u32 curHP;
+    /* 0x30 */ u32 maxHP;
+    /* 0x34 */ u32 unk34[4];
+    /* 0x44 */ u32 unk44[9];
 } Unk800F83E0; // size:0x68
+
+typedef struct {
+    /* 0x000 */ u16 unk0;
+    /* 0x002 */ u16 presentMask; // D_800F83AE: bit per combatant present
+    /* 0x004 */ u8 unk4[0x14];   // D_800F83B0..D_800F83C0
+    /* 0x018 */ u16 unk18;       // D_800F83C4
+    /* 0x01A */ u16 unk1A;       // D_800F83C6
+    /* 0x01C */ u16 unk1C;       // D_800F83C8
+    /* 0x01E */ u16 unk1E;       // D_800F83CA
+    /* 0x020 */ s16 sceneID;     // D_800F83CC
+    /* 0x022 */ u16 unk22;       // D_800F83CE
+    /* 0x024 */ u16 setupFlags;  // D_800F83D0: BattleSetupFlags
+    /* 0x026 */ u16 unk26;       // D_800F83D2
+    /* 0x028 */ u16 unk28;       // D_800F83D4
+    /* 0x02A */ u8 unk2A[0xA];   // D_800F83D8..D_800F83DC
+    /* 0x034 */ Unk800F83E0 combatant[10];
+} BattleState; // size:0x444
+
 typedef struct {
     s16 unk0;
     s16 unk2;
@@ -68,6 +89,7 @@ typedef struct {
     s16 unkA;
     s32 unkC;
 } UnkStruct; // size:0x10
+
 typedef struct {
     s16 unk0;
     u8 unk2;
@@ -352,10 +374,8 @@ extern u16 D_800F5BBC[10][0x22];
 extern Unk800F5E60 D_800F5E60[3];
 extern Unk800F5F44 D_800F5F44;
 extern s8 D_800F6936[0x40][8];
-extern s16 D_800F83AE[10][0x34]; // overlaps with D_800F83E0, D_800F83A8
-#define D_800F83A8 (*((u8*)&D_800F83AE[0][0] - 6))
-extern s16 D_800F83CC; // overlaps with D_800F83AE, sceneID
-extern Unk800F83E0 D_800F83E0[3];
+extern u8 D_800F83A8;
+extern BattleState D_800F83AC;
 extern s8 D_800F90B4[][0x240];
 extern Unk800BB75C D_800FA63C;
 extern DB* g_cDb;

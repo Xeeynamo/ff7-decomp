@@ -114,7 +114,7 @@ u8 func_800A2D0C(void) {
     s32 temp_v1;
 
     if (D_80063014->unk208 >= 3) {
-        return D_800F83E0[D_80063014->unk208].unk11;
+        return D_800F83AC.combatant[D_80063014->unk208].unk11;
     }
     return D_800A01A8[D_80063014->unkCC];
 }
@@ -252,7 +252,7 @@ s32 func_800A3828(void) {
         }
     }
     ret |= func_800A4A80();
-    ret |= (D_800F83D0 & 3) ? 1 : 0;
+    ret |= (D_800F83AC.setupFlags & 3) ? 1 : 0;
     if (D_800F39E4 > 0x4000) {
         ret = 1;
     }
@@ -405,7 +405,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4CC8);
 void func_800A4D2C(s32 arg0) {
     u32 i;
 
-    if (D_800F83C6) {
+    if (D_800F83AC.unk1A) {
         return;
     }
     for (i = 0; i < LEN(D_800E7A48); i++) {
@@ -641,7 +641,7 @@ extern const u8 D_800A04D0[];
 
 void func_800A6CC0(s32 arg0, s32 arg1) {
     u32 mask = ~(1 << D_800A04D0[arg1]);
-    D_800F83E0[arg0].status &= mask;
+    D_800F83AC.combatant[arg0].status &= mask;
 }
 
 void func_800A6D10(s32 arg0) { func_800A3E98(arg0, 3, 2, 54, 0); }
@@ -649,9 +649,9 @@ void func_800A6D10(s32 arg0) { func_800A3E98(arg0, 3, 2, 54, 0); }
 void func_800A6D3C(s32 arg0) {
     s32 temp_v1;
 
-    temp_v1 = D_800F83E0[arg0].status;
+    temp_v1 = D_800F83AC.combatant[arg0].status;
     if (temp_v1 & 0x2000) {
-        D_800F83E0[arg0].status = (temp_v1 & ~0x2000) | 0x4000;
+        D_800F83AC.combatant[arg0].status = (temp_v1 & ~0x2000) | 0x4000;
     }
 }
 
@@ -679,8 +679,8 @@ void func_800A7060(s32 arg0, s32 arg1) { func_800A7254(0, arg0, 12, arg1); }
 void func_800A7090(s32 arg0) { D_800F5BB8[arg0].unk29 |= 0x40; }
 
 void func_800A70C4(s32 arg0, s32 arg1) {
-    func_800B10F0(
-        arg0, 0x34, 2, D_800708D0[arg1][1], 0, 9, D_800F83E0[arg0].status);
+    func_800B10F0(arg0, 0x34, 2, D_800708D0[arg1][1], 0, 9,
+                  D_800F83AC.combatant[arg0].status);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A7130);
@@ -730,11 +730,11 @@ void func_800A76CC(void) {
     D_80063014->unk20 = -1;
     if (func_800B12DC() != 0) {
         val = 4;
-        if (D_800F83E0[D_80063014->actorId].unk4 & 0x40) {
+        if (D_800F83AC.combatant[D_80063014->actorId].unk4 & 0x40) {
             val = 3;
         }
         D_80063014->unk20 = val;
-        D_800F83E0[D_80063014->actorId].unk4 ^= 0x40;
+        D_800F83AC.combatant[D_80063014->actorId].unk4 ^= 0x40;
     }
 }
 
@@ -764,7 +764,7 @@ void BATTLE_ResolveLimitActionIndex(void) {
         *(u16*)((u8*)D_800F5E60 + off + 8) =
             0; // ideally D_800F5E60[actorId].limitBar = 0;
         D_800F5E60[actorId].limitCount++;
-        if (!(D_800F83D0 & 8)) {
+        if (!(D_800F83AC.setupFlags & 8)) {
             func_800A7254(2, actorId, 0x11, 0);
         }
     }
@@ -1159,7 +1159,8 @@ void func_800ADFC0(void) {
 
 void func_800ADFF4(void) {
     s32 index = D_80063014->actorId;
-    D_80063014->unk214 = D_800F83E0[index].maxHP - D_800F5BB8[index].unk3C;
+    D_80063014->unk214 =
+        D_800F83AC.combatant[index].maxHP - D_800F5BB8[index].unk3C;
 }
 
 void func_800AE050(void) {}
@@ -1182,7 +1183,7 @@ void func_800AE234(void) {
 }
 
 void func_800AE25C(void) {
-    D_80063014->unk214 = D_800F83E0[D_80063014->unk208].curHP - 1;
+    D_80063014->unk214 = D_800F83AC.combatant[D_80063014->unk208].curHP - 1;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE2A0);
@@ -1199,7 +1200,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE764);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE82C);
 
-void func_800AE954();
+void func_800AE954(int index);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE954);
 
 const s8 D_800A04BC[] = {
@@ -1224,7 +1225,7 @@ int (* const D_800A04E0[])() = {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AEB80);
 
-void func_800AEBF0(void) { func_800AE954(); }
+void func_800AEBF0(int index) { func_800AE954(index); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AEC10);
 
@@ -1307,7 +1308,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0C14);
 
 void func_800B0DF8(void) {
     if (D_80063014->unk234 & 2) {
-        D_800F83E0[D_80063014->unk208].unk4 ^= 0x80;
+        D_800F83AC.combatant[D_80063014->unk208].unk4 ^= 0x80;
     }
 }
 
@@ -1330,7 +1331,8 @@ void func_800B108C(s32 arg0) { func_800A31A0(arg0, 5, 0, 0); }
 // Death" threshold used by weapon-specific damage formulas (e.g. Powersoul's
 // HP-based multiplier).
 static s32 func_800B10B4(s32 arg0) {
-    return D_800F83E0[arg0].curHP <= D_800F83E0[arg0].maxHP / 4;
+    return D_800F83AC.combatant[arg0].curHP <=
+           D_800F83AC.combatant[arg0].maxHP / 4;
 }
 
 void func_800B10F0(s32, s32, s32, s32, s32, s32, s32);
@@ -1378,8 +1380,8 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1368);
 // a bit offset into it. arg1 < 0x2000 selects the per-combatant variable bank
 // D_800F87F0[arg0] (0x80 bytes each); arg1 < 0x4000 selects the shared,
 // battle-wide bank D_800F83A4; otherwise the per-combatant stat record
-// D_800F83E0[arg0] (0x68 bytes each). func_800B153C / func_800B141C then read
-// or write at that bit offset.
+// D_800F83AC.combatant[arg0] (0x68 bytes each). func_800B153C / func_800B141C
+// then read or write at that bit offset.
 static s32 func_800B13B0(s32 arg0, s32 arg1, void** arg2) {
     s32 var_a1;
 
@@ -1390,7 +1392,7 @@ static s32 func_800B13B0(s32 arg0, s32 arg1, void** arg2) {
         *arg2 = D_800F83A4;
         var_a1 -= 0x2000;
     } else {
-        *arg2 = &D_800F83E0[arg0];
+        *arg2 = &D_800F83AC.combatant[arg0];
         var_a1 -= 0x4000;
     }
     return var_a1;
