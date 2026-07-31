@@ -628,6 +628,12 @@ typedef struct {
     */
 } FieldScriptHeader; // size:Varies
 
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    u32 unk8;
+} Unk80075D00;
+
 extern u8 D_80049208[12];   // window colors maybe??
 extern u8 D_800492F0[][12]; // see Labels enum
 extern Unk8004A62C* D_8004A62C;
@@ -669,6 +675,7 @@ extern u8 D_800730DD[][0x14];
 extern Unk80074EA4 D_80074EA4[2];
 extern u8 D_800756E8[]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
+extern Unk80075D00* D_80075D00;
 extern int D_80075DEC;           // buffer index, either 0 or 1
 extern u8 D_80075E24[256];       // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
