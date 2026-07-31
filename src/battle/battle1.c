@@ -37,9 +37,9 @@ void func_800BC81C(s16 arg0, s16 arg1);
 void func_800B30E4(void) {
     s32 i;
 
-    D_801517C0 = &D_800FAFF4;
+    g_cDb = &g_db;
     D_801031E4 = 0;
-    D_800F8368 = 0;
+    g_dbIndex = 0;
     D_80162084 = 0x200;
     func_800B383C();
     func_800B430C();
@@ -316,14 +316,14 @@ static void func_800B7FDC(void) {
     s32 i;
 
     func_800B7FB4();
-    ClearOTagR((u_long*)D_801517C0->unk40A4, LEN(D_801517C0->unk40A4));
-    ClearOTag((u_long*)D_801517C0->unk4070, LEN(D_801517C0->unk4070));
-    ClearOTag((u_long*)D_801517C0->unk4078, LEN(D_801517C0->unk4078));
-    ClearOTagR((u_long*)D_801517C0->unk70, LEN(D_801517C0->unk70));
-    ClearOTagR((u_long*)D_801517C0->unk4080, LEN(D_801517C0->unk4080));
-    ClearOTag((u_long*)D_801517C0->unk40E4, LEN(D_801517C0->unk40E4));
-    ClearOTag((u_long*)D_801517C0->unk40EC, LEN(D_801517C0->unk40EC));
-    D_80163C74 = D_800F8368 == 0 ? (DR_MODE*)0x80168000 : (DR_MODE*)0x80184000;
+    ClearOTagR((u_long*)g_cDb->unk40A4, LEN(g_cDb->unk40A4));
+    ClearOTag((u_long*)g_cDb->unk4070, LEN(g_cDb->unk4070));
+    ClearOTag((u_long*)g_cDb->unk4078, LEN(g_cDb->unk4078));
+    ClearOTagR((u_long*)g_cDb->unk70, LEN(g_cDb->unk70));
+    ClearOTagR((u_long*)g_cDb->unk4080, LEN(g_cDb->unk4080));
+    ClearOTag((u_long*)g_cDb->unk40E4, LEN(g_cDb->unk40E4));
+    ClearOTag((u_long*)g_cDb->unk40EC, LEN(g_cDb->unk40EC));
+    D_80163C74 = g_dbIndex == 0 ? (DR_MODE*)0x80168000 : (DR_MODE*)0x80184000;
     func_800B8360(1);
     func_800C5CC0();
     func_800B8438();
@@ -340,13 +340,13 @@ static void func_800B7FDC(void) {
     }
     func_800A3ED0();
     func_800B8360(2);
-    func_800DCFD4((u_long*)D_801517C0->unk40E4);
+    func_800DCFD4((u_long*)g_cDb->unk40E4);
     if (D_800F9D94 == 0) {
         ResetGraph(1);
         D_800F9D94 = 1;
     }
     if (D_8016376A & 2) {
-        func_800E16B8(D_801517C0->unk40E4, 0x10, 0x10, D_8009D268[0]);
+        func_800E16B8(g_cDb->unk40E4, 0x10, 0x10, D_8009D268[0]);
     }
     D_800FA9B8 = VSync(1);
     BATTLE_FlushImageQueue();
@@ -391,7 +391,7 @@ static void func_800B8268(void) {
 // build a draw-mode prim (texture page selected by arg0) and add it to the OT
 static void func_800B8360(s32 arg0) {
     SetDrawMode(D_80163C74, 1, 1, (arg0 & 3) << 5, 0);
-    AddPrim(D_801517C0->unk4078, D_80163C74++);
+    AddPrim(g_cDb->unk4078, D_80163C74++);
 }
 
 static void func_800B83C4() {
@@ -650,7 +650,7 @@ static void func_800BB030(s16 arg0) {
         if (D_801518E4[arg0].D_80151909 & 4) {
             continue;
         }
-        D_80163C74 = func_800D29D4(unk, D_801517C0->unk70, 12, D_80163C74);
+        D_80163C74 = func_800D29D4(unk, g_cDb->unk70, 12, D_80163C74);
     }
 }
 
@@ -763,7 +763,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBA84);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBB20);
 
 static void func_800BBDF8(void) {
-    if (D_800F8368 == 0) {
+    if (g_dbIndex == 0) {
         D_800F4AF4 = D_80163C74;
         if ((u32)D_80163C74 > (u32)0x80184000) {
             PadStop();
@@ -1185,11 +1185,11 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4DC8);
 static u_long* func_800C5040(u8 r, u8 g, u8 b, s32 tpage, u_long* ot);
 
 u_long* func_800C4FC8(u8 r, u8 g, u8 b) {
-    return func_800C5040(r, g, b, 1, (u_long*)&D_801517C0->unk4080[1]);
+    return func_800C5040(r, g, b, 1, (u_long*)&g_cDb->unk4080[1]);
 }
 
 u_long* func_800C5004(u8 r, u8 g, u8 b) {
-    return func_800C5040(r, g, b, 2, (u_long*)&D_801517C0->unk40EC);
+    return func_800C5040(r, g, b, 2, (u_long*)&g_cDb->unk40EC);
 }
 
 static u_long* func_800C5040(u8 r, u8 g, u8 b, s32 tpage, u_long* ot) {

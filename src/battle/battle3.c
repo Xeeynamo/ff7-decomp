@@ -21,7 +21,16 @@ void func_800D8A70(void) {}
 
 void func_800D8A78(s8 arg0) { D_800F19A4 = arg0; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D8A88);
+int func_800D8A88(void) {
+    int ret;
+
+    DrawSync(0);
+    ret = VSync(D_800F19A4);
+    // flip to the other of the two DB buffers
+    g_cDb = (g_cDb == &g_db) ? &g_db + 1 : &g_db;
+    g_dbIndex ^= 1;
+    return ret;
+}
 
 static void func_800D8AF0(u16 arg0) {
     D_8009A000[0] = arg0;
@@ -65,15 +74,31 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D9FA4);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DA380);
 
+void func_800DB818(OT_TYPE*, u32, s32);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DB818);
 
 const s32 D_800A0E48[] = {0, 0, 0};
-void func_800DBC18(s32, s16);
+void func_800DBC18(OT_TYPE*, s16);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DBC18);
 
-static void func_800DBEA4(s32 arg0, s16 arg1) { func_800DBC18(arg0, arg1); }
+static void func_800DBEA4(OT_TYPE* arg0, s16 arg1) {
+    func_800DBC18(arg0, arg1);
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DBEC8);
+// ot: this frame's ordering table, selected by func_800D8D78 via the
+// D_800F1994 double-buffer index -- forwarded through to func_800DBEA4 and
+// func_800DB818's libgpu OT insert, not otherwise used here
+void func_800DBEC8(OT_TYPE* ot) {
+    if (D_800F3896 == 0) {
+        func_800DBEA4(ot, D_800F38A9);
+        return;
+    }
+
+    if ((D_800F3120 != 0) && (D_800FAFEC >= 0 && D_800FAFEC < 0x128) &&
+        (D_800FAFF0 > 0xF && D_800FAFF0 < 0xA6)) {
+        func_800DB818(ot, D_800FAFEC, D_800FAFF0);
+    }
+}
 
 static void func_800DBF54(void) { func_800269C0(D_80077F64); }
 

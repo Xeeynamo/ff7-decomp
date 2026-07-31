@@ -370,7 +370,7 @@ typedef struct {
 extern Unk800F7ED8 D_800F7ED8[];
 extern s16 D_800F8182[];
 extern s16 D_800F8360;
-extern s32 D_800F8368;
+extern s32 g_dbIndex;
 extern s16 D_800F8370;
 extern s32* D_800F839C; // CD offset?
 extern u8 D_800F83A4[]; // shared battle-script variable bank (func_800B13B0)
@@ -411,7 +411,7 @@ extern u8 D_800FAFDC;
 extern s16 D_800FAFD4;
 extern s32 D_800FAFEC;
 extern s32 D_800FAFF0;
-extern Unk801517C0 D_800FAFF4;
+extern DB g_db;
 extern s32 D_801031E4;
 extern s16 D_801031E8;
 extern u8 D_801031F0;
