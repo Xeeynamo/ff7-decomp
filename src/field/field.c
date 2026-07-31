@@ -26,13 +26,13 @@ typedef enum {
     IF_NOT_BIT
 } IfOps;
 
-struct g_FieldRenderData {
-    u32 OtScene[0x1000];  // 0x00000: Main scene ordering table
+typedef struct FieldRenderData {
+    OT_TYPE ot[0x1000];   // 0x00000: Main scene ordering table
     SPRT_16 Arrows[0x18]; // 0x04000: Field arrow sprite packets
     DR_MODE ArrowsDm;     // 0x04180: Arrow sprite draw mode
 
-    u32 OtFadeDrenv;  // 0x0418c: Fade draw environment OT entry
-    u32 OtSceneDrenv; // 0x04190: Scene draw environment OT entry
+    OT_TYPE OtFadeDrenv;  // 0x0418c: Fade draw environment OT entry
+    OT_TYPE OtSceneDrenv; // 0x04190: Scene draw environment OT entry
 
     DR_ENV FadeDrenv;  // 0x04194: Screen fade draw environment
     DR_ENV SceneDrenv; // 0x041d4: Main scene draw environment
@@ -50,11 +50,11 @@ struct g_FieldRenderData {
     u16 BgAnim[0xbc4];   // 0x10d54: Background animation data
     DR_MODE BgDm[0x6a4]; // 0x124dc: Background draw mode packets
 
-    u32 OtUi;           // 0x1748c: UI ordering table
+    OT_TYPE OtUi;       // 0x1748c: UI ordering table
     DR_MODE RainDm;     // 0x17490: Rain draw mode
     LINE_F2 Rain[0x40]; // 0x1749c: Rain line primitives
 };
-extern struct g_FieldRenderData g_FieldRenderData[2]; // double buffered
+extern struct FieldRenderData g_FieldRenderData[2]; // double buffered
 
 const u32 D_800A0000[] = {0, 0x01D801E0};
 extern char g_FieldDebugDigits[16]; // '0' to 'F' for hex digits
@@ -77,11 +77,11 @@ extern u8 g_actorIdCur;
 extern u8 g_RandomTableStep;
 extern u8 g_RandomTableIndex;
 extern u8 g_RandomTable[256];
-extern s16 D_800E42EE[][12];
+extern s16 D_800E42EE[0x40][12];
 
-void AddBackgroundToRender(struct g_FieldRenderData* buf);
+void AddBackgroundToRender(struct FieldRenderData* buf);
 void FieldEntityLineInteract(FieldEntity* arg0, FieldLine* arg1);
-void HandleKawaiDataInModel(struct g_FieldRenderData* buf);
+void HandleKawaiDataInModel(struct FieldRenderData* buf);
 s32 FieldEntitySqrDistToLine(FieldLine*, u_long*, u_long*);
 void DebugPrintOpcode(char* arg0, s32 arg1);
 u8 FieldEventReadMemoryU8(s16 arg0, s16 arg1);
@@ -274,23 +274,17 @@ extern struct FieldRain g_FieldRain[64];
 extern u8 g_RainForce;
 extern s16 D_800E42EE[][12];
 
-void FieldRainInit(struct g_FieldRenderData* renderData) {
+void FieldRainInit(struct FieldRenderData* renderData) {
     LINE_F2* line;
     s32 i;
     s32 adjustedIndex;
 
-    for (i = 0; i < 0x40; i++) {
+    for (i = 0; i < LEN(g_FieldRain); i++) {
         g_FieldRain[i].render = 0;
-        g_FieldRain[i].rndSeed = i << 2;
-
-        adjustedIndex = i;
-        if (i < 0) {
-            adjustedIndex = i + 7;
-        }
+        g_FieldRain[i].rndSeed = i * 4;
+        g_FieldRain[i].wait = i % 8;
 
         line = &renderData->Rain[i];
-
-        g_FieldRain[i].wait = i - ((adjustedIndex >> 3) * 8);
 
         SetLineF2(line);
         SetSemiTrans(line, 1);
@@ -314,9 +308,9 @@ void FieldRainAddToRender(
     SetRotMatrix(matrix);
     SetTransMatrix(matrix);
 
-    for (i = 0, j = 0; i < 64; i++) {
+    for (i = 0, j = 0; i < LEN(g_FieldRain); i++) {
         // 12 * sizeof(s16) = 24 bytes (0x18), the exact size of FieldRain
-        if (D_800E42EE[j++][0] == 1) {
+        if (D_800E42EE[i][0] == 1) {
             RotTransPers(&g_FieldRain[i].p1, &rain->x0, &p, &flag);
             RotTransPers(&g_FieldRain[i].p2, &rain->x1, &p, &flag);
             AddPrim(ot, rain);
