@@ -79,5 +79,6 @@ if __name__ == "__main__":
     functions = []
     for elf_file_path in sys.argv[1:]:
         symbols = get_symbols_from_file(elf_file_path)
+        symbols.sort(key=lambda s: (int(s[0], 16), s[2]))
         functions += filter_functions(symbols)
     sys.stdout.writelines([f"{s[2]} = 0x{s[0]};\n" for s in functions])
