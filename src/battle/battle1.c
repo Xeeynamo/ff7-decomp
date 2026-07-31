@@ -283,7 +283,7 @@ extern u8 D_801517F0[0x4E];
 static void func_800B798C(void) {
     s32 i;
 
-    for (i = 0; i < 0x4E; i += 1) {
+    for (i = 0; i < LEN(D_801517F0); i += 1) {
         D_801517F0[i] = 0xFF;
         D_80163CC0[i].D_80163CC0 = 0;
         D_80163CC0[i].D_80163CC2 = 0;
@@ -1087,16 +1087,11 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1D8C);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2000);
 
 static void func_800C20E8(s16 arg0, s16* arg1) {
-    s16 var_a0;
-    s32 temp_a0;
-    s32 var_a2;
+    s32 i;
 
-    var_a0 = arg0;
-    var_a2 = 0;
-    for (; var_a2 < 4; var_a2++) {
-        temp_a0 = 3 - var_a2;
-        arg1[temp_a0] = var_a0 % 10;
-        var_a0 /= 0xA;
+    for (i = 0; i < 4; i++) {
+        arg1[3 - i] = arg0 % 10;
+        arg0 /= 0xA;
     }
 }
 
