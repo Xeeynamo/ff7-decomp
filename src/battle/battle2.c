@@ -102,8 +102,8 @@ static void func_800CDDE8(void) {
 }
 
 static void func_800CDE78(void) {
-    if (D_801516FC[D_801590CC][0] <
-        D_801516FC[D_801621F0[D_801590D4].unk8][0]) {
+    if (g_modelScreenPos[D_801590CC].prevX <
+        g_modelScreenPos[D_801621F0[D_801590D4].unk8].prevX) {
         D_801621F0[D_801590D4].unk14 |= 0x100;
     }
     func_800D4D4C(D_801621F0[D_801590D4].unk8, D_801621F0[D_801590D4].unk14);

@@ -279,7 +279,7 @@ extern s8 D_800E7A58[];
 // checked in order against the 3 landed reel symbols (D_80163774) -- see
 // BATTLE_ResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
-extern u8 D_800E8050[];
+extern Yamada D_800E8050[];
 extern VECTOR D_800E7D10;
 extern VECTOR D_800E7D20;
 extern Yamada D_800E8068[];
@@ -360,7 +360,7 @@ extern Unk800AF470
     D_800F5BB8[]; // per-party-slot turn/effect state (flags, countdown timers)
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
-extern s32 D_800F7DF8[];
+extern s32 D_800F7DF8[3];
 typedef struct {
     /* 0x00 */ s16 D_800F7ED8;
     /* 0x02 */ s16 D_800F7EDA;
@@ -372,6 +372,7 @@ extern s16 D_800F8182[];
 extern s16 D_800F8360;
 extern s32 g_dbIndex;
 extern s16 D_800F8370;
+extern u8* D_800F8390[3];
 extern s32* D_800F839C; // CD offset?
 extern u8 D_800F83A4[]; // shared battle-script variable bank (func_800B13B0)
 extern u8 D_800F83A6;
@@ -413,13 +414,29 @@ extern DB g_db;
 extern s32 D_801031E4;
 extern s16 D_801031E8;
 extern u8 D_801031F0;
+extern u8 D_80130200[];
 extern Unk80151200 D_80151200[3];
 extern u16 D_80151694;
 extern s16 D_8015169C;
 extern u16 D_801516A0;
 extern u8 D_801516F4;
 extern u16 D_801516F8;
-extern s16 D_801516FC[][4]; // most likely a struct
+// per-on-screen-model position cache (10 slots). func_800B91CC writes a
+// fresh (x, y) into the staging pair each update; func_800B950C promotes it
+// into the committed (prevX, prevY) pair. Two decoupled consumers then read
+// the COMMITTED pair on their own schedule: func_800BBA84/func_800C2FD4
+// derive a positional-audio parameter from prevX (feeds a sound-queue call
+// via func_8002DA7C), and func_800DBC18 folds prevY (low bit masked) into
+// limit-gauge draw positioning. func_800C2864 reads the staging pair
+// directly (with small centering offsets) for an on-screen draw call.
+typedef struct {
+    /* 0x0 */ s16 prevX;
+    /* 0x2 */ s16 prevY;
+    /* 0x4 */ u16 x;
+    /* 0x6 */ s16 y;
+} ModelScreenPos; // size:0x8
+
+extern ModelScreenPos g_modelScreenPos[10];
 extern s16 D_80151774;
 extern u8 D_801517BC;
 extern s16 D_80158D00;
@@ -433,7 +450,7 @@ extern u8 D_801590CC;
 extern s16 D_801590D0;
 extern s16 D_801590D4;
 extern u8 D_801590D8;
-extern s8 D_801590DC;
+extern u8 D_801590DC;
 extern u8 D_801590E0;
 extern s16 D_80162080;
 extern s16 D_80162084;
@@ -477,9 +494,8 @@ extern u8 D_80166F68;
 void func_800A4350(s16, s16, s16, u16);
 void func_800A8E84(s32);
 s32 func_800B3030(s32);
-void func_800B3A04(void);
 void func_800B4794(void);
-void func_800B5CD4(s32);
+s32 func_800B5CD4(s32);
 void func_800B5D38(s32);
 void func_800B6B98(s32, s32);
 void func_800B7FB4(void);
