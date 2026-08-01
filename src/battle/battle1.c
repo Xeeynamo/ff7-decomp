@@ -32,7 +32,9 @@ DR_MODE* func_800C4DC8(s16 x, s16 y, s16 w, s16 h, s32*);
 static void func_800C614C(u_long* arg0, s32 arg1);
 static void func_800C627C(void);
 void func_800C62F4(s32);
-void func_800BC81C(s16 arg0, s16 arg1);
+static void func_800BC81C(s16 arg0, s16 arg1);
+static void func_800B3A04(void);
+static void func_800B950C(void);
 
 void func_800B30E4(void) {
     s32 i;
@@ -126,14 +128,12 @@ static void func_800B37EC(void) {
 // Load stage files
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B383C);
 
-// load stage entry i (D_800F7DF8[0]) into VRAM staging via DS_read;
-// D_800E8050[i] holds a {loc,len} disk-sector pair, same shape as the Yamada
-// record at D_800E8068
+// load stage entry i (D_800F7DF8[0]) into VRAM staging via DS_read
 static void func_800B38E0(void) {
     s32 i = D_800F7DF8[0];
 
-    DS_read(((u32*)D_800E8050)[i * 2], ((u32*)D_800E8050)[i * 2 + 1],
-            0x801B0000, &func_800B3A04);
+    DS_read(
+        *&D_800E8050[i].loc, *&D_800E8050[i].len, 0x801B0000, &func_800B3A04);
     func_800B7FB4();
 }
 
@@ -143,9 +143,45 @@ static void func_800B3934(void) {
     D_80166F64 = 3;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3968);
+// third link of the stage-load chain (func_800B38E0 -> func_800B3A04 ->
+// here -> func_800B3934): unpack the part just read into the staging buffer,
+// record where the next part lands (D_800F8390[n+1] = D_800F8390[n] + size),
+// advance the D_80166F64 phase counter func_800B30E4 waits on, and queue the
+// next part's read only while entries remain (D_800F7DF4 is the entry count)
+static void func_800B3968(void) {
+    s32 size;
+    s32 i;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3A04);
+    func_800B5D38(1);
+    size = func_800B5CD4(1);
+    D_80166F64 = 2;
+    D_800F8390[2] = size + D_800F8390[1];
+    if (D_800F7DF4 >= 3U) {
+        i = D_800F7DF8[2];
+        DS_read(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000,
+                func_800B3934);
+        func_800B7FB4();
+    }
+}
+
+// second link of the chain: unpack part 0 out of the staging buffer, then
+// queue part 1's read
+static void func_800B3A04(void) {
+    s32 size;
+    s32 i;
+
+    D_800F8390[0] = D_80130200;
+    func_800B5D38(0);
+    size = func_800B5CD4(0);
+    D_80166F64 = 1;
+    D_800F8390[1] = size + D_800F8390[0];
+    if (D_800F7DF4 >= 2U) {
+        i = D_800F7DF8[1];
+        DS_read(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000,
+                func_800B3968);
+        func_800B7FB4();
+    }
+}
 
 void func_800B3AB8(void);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3AB8);
@@ -539,7 +575,15 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B905C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B91CC);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B950C);
+// promote each model's staged (x, y) into its committed (prevX, prevY)
+static void func_800B950C(void) {
+    s32 i;
+
+    for (i = 0; i < LEN(g_modelScreenPos); i++) {
+        g_modelScreenPos[i].prevX = g_modelScreenPos[i].x;
+        g_modelScreenPos[i].prevY = g_modelScreenPos[i].y;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B9568);
 
@@ -821,7 +865,22 @@ static void func_800BC72C(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC754);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC81C);
+void func_800BC630(void);
+void func_800BCB1C(u8, s16, s16);
+void func_800BEA38(u8, s16, s16);
+// run both per-slot handlers for each of the three party slots, then the
+// shared tail step; skipped entirely while D_801590DC is set
+static void func_800BC81C(s16 arg0, s16 arg1) {
+    s32 i;
+
+    if (D_801590DC == 0) {
+        for (i = 0; i < 3; i++) {
+            func_800BEA38(i, arg1, arg0);
+            func_800BCB1C(i, arg1, arg0);
+        }
+        func_800BC630();
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC8B0);
 
