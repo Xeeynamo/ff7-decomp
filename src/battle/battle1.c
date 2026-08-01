@@ -183,8 +183,31 @@ static void func_800B3A04(void) {
     }
 }
 
-void func_800B3AB8(void);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3AB8);
+static void func_800B3AB8(void);
+void func_800B5C1C(s16);
+void func_800B5E64(s16);
+void func_800B3B84(void);
+static void func_800B3AB8(void) {
+    s16* s0;
+    u8** dst;
+    s16 v1;
+    s16 cmp;
+
+    s0 = &D_800FA9C6;
+    v1 = *s0;
+    dst = &D_800F8384[v1];
+    *dst = D_80103200 + v1 * 0xF000;
+    func_800B5E64(*s0);
+    func_800B5C1C(*s0);
+    cmp = D_800FA9C8;
+    if (cmp != 0xC8) {
+        DS_read(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len,
+                (u_long*)0x801B0000, func_800B3B84);
+        func_800B7FB4();
+        return;
+    }
+    D_80166F64 = 3;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3B84);
 
@@ -227,7 +250,46 @@ static void func_800B3DBC(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3E2C);
+void func_800BC1E0(u8);
+static void func_800C5BEC(void);
+static void func_800B3E2C(void) {
+    s32 i;
+    u8 var_a0;
+
+    D_80163C7C = 0;
+    D_800F9D94 = 0;
+    D_80162974 = 0;
+    D_800F7DE4 = 1;
+    D_800F837C = 0;
+    D_801031E0 = 1;
+    D_801590E0 = 0;
+    D_801620A0 = 0;
+    D_80163B38 = 0;
+    D_801590CC = 0;
+    D_800FA6D4 = 0;
+    D_801517C4 = 0;
+    D_801620A4 = 0;
+    D_800FAFDC = 0;
+    D_800F7ED4 = 0;
+    D_800F9D9C = 0;
+    D_800F9D98 = 0;
+    D_801590D8 = 0;
+    D_80166F58 = 0;
+    D_801516A0 = 0;
+    D_800F8380 = 0;
+    for (i = 0; i < LEN(D_801518E4); i++) {
+        D_801518E4[i].D_8015190A = 1;
+    }
+    for (i = 2; i >= 0; i--) {
+        D_800F9F28[i] = 0;
+    }
+    var_a0 = D_801590CC;
+    D_801518E4[var_a0].D_80151906 = 0;
+    D_800F8374 = 0xE;
+    D_80163798[D_801590E0].unk8 = -2;
+    func_800BC1E0(var_a0);
+    func_800C5BEC();
+}
 
 // search the formation's 6 enemy slots for one whose enemyID matches arg0;
 // if found, bump a counter and return 0, else return -1
