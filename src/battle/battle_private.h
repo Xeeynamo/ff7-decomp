@@ -329,6 +329,7 @@ extern s16 D_800F389E;
 extern s16 D_800F3896;
 extern s32 D_800F3944;
 extern s32 D_800F3948;
+extern s32 D_800F394C;
 extern s32 D_800F3950;
 extern s32 D_800F3954;
 extern QueuedAction D_800F3958[16];
@@ -386,6 +387,17 @@ extern s32 D_800F9144;
 extern s8 D_800F914E;
 extern s32 D_800F9F28[]; // size is either 4 or 5
 extern u8 D_800F9F34;
+typedef struct {
+    /* 0x0 */ s16 unk0;
+    /* 0x2 */ s16 unk2;
+    /* 0x4 */ s16 unk4;
+    /* 0x6 */ u16 unk6;
+    /* 0x8 */ u16 unk8;
+    /* 0xA */ s16 unkA;
+    /* 0xC */ s16 unkC;
+} Unk800F9F3C; // size:0xE
+
+extern Unk800F9F3C D_800F9F3C[];
 extern u8 D_800F99E8;
 extern s32 D_800F99E4;
 extern u8 D_800F9D94;
@@ -404,6 +416,25 @@ extern s32 D_800FA978[];
 extern s32 D_800FA9B8;
 extern u16 D_800FA9BC;
 extern s16 D_800FA9C4;
+// queued-action-ish record, allocated by func_800A2FD0 (unk3 set to -1,
+// marking it unassigned) and searched by func_800A34CC. Traced through
+// func_800ABA68's callers (func_800AB830/func_800ABB0C, still undecompiled):
+// unk0 is very likely an actorId (0-2) -- its source value independently
+// indexes D_800F83E0 with the same 0x68 stride confirmed elsewhere, in both
+// callers. unk1 is a second actor-related value (not always equal to unk0).
+// unk3 becomes a real D_800F9F3C slot index (0-0x7F) once func_800A311C
+// activates the record. unk4's bit 0x4 is checked by func_800A34CC.
+typedef struct {
+    /* 0x0 */ s8 unk0;
+    /* 0x1 */ s8 unk1;
+    /* 0x2 */ s8 unk2;
+    /* 0x3 */ s8 unk3;
+    /* 0x4 */ u16 unk4;
+    /* 0x6 */ u8 unk6[2];
+    /* 0x8 */ u32 unk8;
+} Unk800FA9D0; // size:0xC
+
+extern Unk800FA9D0 D_800FA9D0[0x80];
 extern s8 D_800FA9E8;
 extern u8 D_800FAFDC;
 extern s16 D_800FAFD4;
