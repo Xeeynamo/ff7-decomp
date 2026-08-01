@@ -137,6 +137,7 @@ extern void (*D_80049548[])(Unk8002B7E0*);
 extern u8 D_800499A8[]; // opcode lenghts
 extern u8 D_80049C40[];
 extern s32 D_80062F00;
+extern u16 D_80062F1E;
 // Music-driver slide state: each MulMusic value is a fixed-point scalar for
 // pitch/volume/tempo (current value in the upper 16 bits, lower 16 bits are
 // fractional precision the driver accumulates every tick for a smooth
@@ -155,15 +156,34 @@ extern u16 D_80062F70;
 extern s32 D_80062F74;
 extern s32 D_80062F84;
 extern s32 D_80062F8C;
+extern s32 D_80062FAC;
+extern s32 D_80062FB0;
 extern s32 g_AkaoCdVolSlideStep;
 extern u16 D_80062FB8;
 extern u16 g_AkaoCdVolSlideSteps;
 extern s32 g_AkaoCdVol;
+extern u16 D_80062FD6;
 extern s32 D_80062FD8;
 extern s32 g_AkaoPitchMulMusic;
 extern s32 g_AkaoTempoMulMusic;
 extern s32 D_80062FF8;
+extern s32 D_80063004;
 extern s32 D_80063010; // sound message queue count
+extern u8 D_8007EBE4[];
+extern s32 D_8007EBE8;
+extern s32 D_8007EBEC;
+extern s32 D_8007EBF0;
+extern s32 D_8007EBF4;
+extern s32 D_8007EBF8;
+extern s32 D_8007EBFC;
+extern u16 D_8007EC00;
+extern u16 D_8007EC02;
+extern u16 D_8007EC04;
+extern u16 D_8007EC06;
+extern u16 D_8007EC08;
+extern u16 D_8007EC0A;
+extern s16 D_8007EC0C;
+extern s16 D_8007EC0E;
 extern s32 D_8007EC10;
 extern s32 D_800804D0;
 extern Unk8002B7E0 D_80081DC8[]; // sound messages queue
@@ -179,6 +199,7 @@ extern s32 D_80097870;
 extern Unk80096608 D_80099868[];
 extern Unk80099788 D_80099788[];
 extern s32 D_80099FCC[];
+extern s32 D_80099FD8;
 extern s32 D_80099FDC;
 extern s32 D_80099FF0;
 extern u16 D_8009A14E;
@@ -194,6 +215,8 @@ extern s32 D_8009A13C;
 
 extern u32 g_ReverbMode;
 extern SpuReverbAttr g_ReverbAttr;
+
+extern SpuCommonAttr D_8009C578;
 
 #define READ_S8(addr) ((s8)(*(addr)++))
 #define READ_S16(addr) ((s16)(*(addr)++ | (*(addr)++ << 8)))
@@ -1021,13 +1044,62 @@ void func_8002CFA0() { SpuSetTransferCallback(0); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CFC0);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D1E4);
+void func_8002E23C(s32, void*);
+
+// Configures the voice-attribute block for a mono CD-stream voice (ADSR
+// envelope, pan, reverb-echo work area) and applies it via func_8002E23C.
+static void AkaoStreamVoiceAttrMono(void) {
+    D_8007EBE8 = 0x1FF93;
+    D_8007EC02 = 0;
+    D_8007EBEC = 0x77000;
+    D_8007EBF0 = 0x77000;
+    D_8007EC04 = 0xF;
+    D_8007EC06 = 0xF;
+    D_8007EC08 = 0x7F;
+    D_8007EC0A = 6;
+    D_8007EBF4 = 1;
+    D_8007EBF8 = 3;
+    D_8007EBFC = 3;
+    D_8007EC0C = (D_80062FB0 ^ 0x7F) * D_80062FAC >> 7;
+    D_8007EC00 = D_80062F1E;
+    D_8007EC0E = D_80062FAC * D_80062FB0 >> 7;
+    func_8002E23C(0x10, &D_8007EBE4);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D2D4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D410);
+void func_8002D530(void);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D4A0);
+// CD-stream DMA transfer-complete callback (mono case). Keys on the stream
+// voice(s) in D_80062F00; when D_80063004 (bytes remaining) is nonzero, first
+// re-arms the SPU transfer IRQ with func_8002D530 to continue streaming.
+static void AkaoStreamTransferCallbackMono(void) {
+    SpuSetTransferCallback(0);
+    if (D_80063004 != 0) {
+        SpuSetIRQ(0);
+        SpuSetIRQAddr(0x78000);
+        SpuSetIRQCallback(&func_8002D530);
+        SpuSetIRQ(1);
+    }
+    SpuSetKey(1, D_80062F00);
+    D_80099FD8 &= ~D_80062F00;
+}
+
+void func_8002D7A0(void);
+
+// CD-stream DMA transfer-complete callback (split/stereo case). Twin of
+// AkaoStreamTransferCallbackMono above, using a different IRQ callback.
+static void AkaoStreamTransferCallbackSplit(void) {
+    SpuSetTransferCallback(0);
+    if (D_80063004 != 0) {
+        SpuSetIRQ(0);
+        SpuSetIRQAddr(0x78000);
+        SpuSetIRQCallback(&func_8002D7A0);
+        SpuSetIRQ(1);
+    }
+    SpuSetKey(1, D_80062F00);
+    D_80099FD8 &= ~D_80062F00;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D530);
 
@@ -1059,7 +1131,17 @@ void func_8002E1A8(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002E23C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002E428);
+// Applies the current CD volume (g_AkaoCdVol) to the SPU's CD-input channel.
+// Confirmed against qgears' independent reverse-engineering (system_psyq_spu_
+// set_common_attr call, mask = SPU_COMMON_CDVOLL|CDVOLR|CDREV): D_8009C578's
+// first field is a field-select mask, not a voice bitmask.
+static void AkaoUpdateCdVolume(void) {
+    D_8009C578.mask = 0x1C0;
+    D_8009C578.unk14 = 0;
+    D_8009C578.unk12 = D_80062FD6;
+    D_8009C578.unk10 = D_80062FD6;
+    SpuSetCommonAttr(&D_8009C578);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002E478);
 
