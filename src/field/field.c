@@ -26,16 +26,35 @@ typedef enum {
     IF_NOT_BIT
 } IfOps;
 
-struct GpuBuf {
-    /* 0x00000 */ u_long ot[0x400];
-    /* 0x01000 */ u8 unk1000[0x1689C];
-    /* 0x3FFC used by DrawOTag */
-    /* 0x418C used by DrawOTag */
-    /* 0x4190 used by DrawOTag */
-    /* 0x1748C */ u_long ot1748C[1];
-    /* 0x17490 */ u8 unk17490[0xC];
-    /* 0x1749C */ u8 unk1749C[0x400];
-}; // size:0x1789C
+typedef struct FieldRenderData {
+    OT_TYPE ot[0x1000];   // 0x00000: Main scene ordering table
+    SPRT_16 Arrows[0x18]; // 0x04000: Field arrow sprite packets
+    DR_MODE ArrowsDm;     // 0x04180: Arrow sprite draw mode
+
+    OT_TYPE OtFadeDrenv;  // 0x0418c: Fade draw environment OT entry
+    OT_TYPE OtSceneDrenv; // 0x04190: Scene draw environment OT entry
+
+    DR_ENV FadeDrenv;  // 0x04194: Screen fade draw environment
+    DR_ENV SceneDrenv; // 0x041d4: Main scene draw environment
+
+    DR_ENV BgDrenv3S; // 0x04214: Background layer 3 start env
+    DR_ENV BgDrenv4S; // 0x04254: Background layer 4 start env
+    DR_ENV BgDrenv3E; // 0x04294: Background layer 3 end env
+    DR_ENV BgDrenv4E; // 0x042d4: Background layer 4 end env
+
+    u8 unk4314[0x600]; // 0x04314: Unknown render data
+
+    SPRT_16 Bg1[0x9c4]; // 0x04914: Background layer 1/2 sprites
+    SPRT Bg2[0x200];    // 0x0e554: Background layer 3/4 sprites
+
+    u16 BgAnim[0xbc4];   // 0x10d54: Background animation data
+    DR_MODE BgDm[0x6a4]; // 0x124dc: Background draw mode packets
+
+    OT_TYPE OtUi;       // 0x1748c: UI ordering table
+    DR_MODE RainDm;     // 0x17490: Rain draw mode
+    LINE_F2 Rain[0x40]; // 0x1749c: Rain line primitives
+};
+extern struct FieldRenderData g_FieldRenderData[2]; // double buffered
 
 const u32 D_800A0000[] = {0, 0x01D801E0};
 extern char g_FieldDebugDigits[16]; // '0' to 'F' for hex digits
@@ -52,16 +71,17 @@ extern s16 g_FieldDebugRDm;
 extern u16 g_FieldDebugTransp;
 extern char g_DebugText[];          // debug text
 extern char g_DebugMessageBuffer[]; // debug value transformed into text
-extern struct GpuBuf D_800E4DF0[2];
+
 extern u8 D_80114498[];
 extern u8 g_actorIdCur;
 extern u8 g_RandomTableStep;
 extern u8 g_RandomTableIndex;
 extern u8 g_RandomTable[256];
+extern s16 D_800E42EE[0x40][12];
 
-void AddBackgroundToRender(struct GpuBuf* buf);
-void FieldEntityLineInteract(Unk80074EA4* arg0, FieldLine* arg1);
-void HandleKawaiDataInModel(struct GpuBuf* buf);
+void AddBackgroundToRender(struct FieldRenderData* buf);
+void FieldEntityLineInteract(FieldEntity* arg0, FieldLine* arg1);
+void HandleKawaiDataInModel(struct FieldRenderData* buf);
 s32 FieldEntitySqrDistToLine(FieldLine*, u_long*, u_long*);
 void DebugPrintOpcode(char* arg0, s32 arg1);
 u8 FieldEventReadMemoryU8(s16 arg0, s16 arg1);
@@ -83,19 +103,19 @@ static void FieldDebugStringU8hex(s32 val, char* msg_out);
 static void FieldDebugStringU16hex(s32 val, char* msg_out);
 static void FieldDebugStringU32hex(s32 val, char* msg_out);
 
+/////////////////////////////////////////////////
+// Begin of field_main.c
+/////////////////////////////////////////////////
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldLoadMimDatFiles);
 
 void StopMapLoadInAdvance(void) {
-    if (D_800965E8 == 1) {
-        func_8003408C();
+    if (g_isFieldLoading == 1) {
+        SystemCdromAbortLoading();
     }
-    D_80071A5C = 0;
-    D_800965E8 = 0;
+    D_80071A5C = 0; // needs to be called g_preloadedFieldMapId;
+    g_isFieldLoading = 0;
 }
-
-/////////////////////////////////////////////////
-// Begin of field_background.c
-/////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", MapLoadInAdvance);
 
@@ -241,11 +261,141 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldUpdateMovieStream);
 // Begin of field_rain.c
 /////////////////////////////////////////////////
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldRainInit);
+struct FieldRain {
+    /* 0x00 */ SVECTOR p1;
+    /* 0x08 */ SVECTOR p2;
+    /* 0x10 */ s16 wait;
+    /* 0x12 */ s16 rndSeed;
+    /* 0x14 */ s16 z;
+    /* 0x16 */ s16 render;
+};
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldRainAddToRender);
+extern struct FieldRain g_FieldRain[64];
+extern u8 g_RainForce;
+extern s16 D_800E42EE[][12];
 
+void FieldRainInit(struct FieldRenderData* renderData) {
+    LINE_F2* line;
+    s32 i;
+    s32 adjustedIndex;
+
+    for (i = 0; i < LEN(g_FieldRain); i++) {
+        g_FieldRain[i].render = 0;
+        g_FieldRain[i].rndSeed = i * 4;
+        g_FieldRain[i].wait = i % 8;
+
+        line = &renderData->Rain[i];
+
+        SetLineF2(line);
+        SetSemiTrans(line, 1);
+
+        renderData->Rain[i].r0 = 0x10;
+        renderData->Rain[i].g0 = 0x10;
+        renderData->Rain[i].b0 = 0x10;
+    }
+
+    SetDrawMode(&renderData->RainDm, 0, 0, GetTPage(0, 1, 0, 0) & 0xffff, NULL);
+}
+
+void FieldRainAddToRender(
+    u32* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm) {
+    long p;
+    long flag;
+    s32 i;
+    s32 j;
+
+    PushMatrix();
+    SetRotMatrix(matrix);
+    SetTransMatrix(matrix);
+
+    for (i = 0, j = 0; i < LEN(g_FieldRain); i++) {
+        // 12 * sizeof(s16) = 24 bytes (0x18), the exact size of FieldRain
+        if (D_800E42EE[i][0] == 1) {
+            RotTransPers(&g_FieldRain[i].p1, &rain->x0, &p, &flag);
+            RotTransPers(&g_FieldRain[i].p2, &rain->x1, &p, &flag);
+            AddPrim(ot, rain);
+        }
+        rain++;
+    }
+
+    PopMatrix();
+
+    *(u32*)rainDm = (*(u32*)rainDm & 0xFF000000) | (*ot & 0xFFFFFF);
+
+    *ot = (*ot & 0xFF000000) | ((u32)rainDm & 0xFFFFFF);
+}
+
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldRainUpdate);
+#else
+
+extern u8 g_RainControl;
+extern s16 g_PlayerModelId;
+
+extern FieldEntity g_FieldEntities[];
+extern u8 g_RandomTable[];
+extern struct FieldRain g_FieldRain[];
+
+void FieldRainUpdate(void) {
+    s32 i;
+    s32 limit;
+    s32 player;
+    s32 max = 255;
+    s32 vz;
+
+    if ((g_RainControl & 0x80) == 0) {
+        if (g_RainForce != 0) {
+            g_RainForce--;
+        }
+    } else {
+        if (g_RainForce != max) {
+            g_RainForce++;
+        }
+    }
+
+    limit = g_RainForce / 4;
+    player = g_PlayerModelId;
+
+    for (i = 0; i < 0x40; i++) {
+        if (g_FieldRain[i].wait == 0) {
+            if (i < limit) {
+
+                u8 seed3;
+
+                g_FieldRain[i].render = 1;
+                g_FieldRain[i].rndSeed++;
+                g_FieldRain[i].wait = 7;
+
+                g_FieldRain[i].p2.vx =
+                    (g_FieldEntities[player].PosX >> 12) +
+                    g_RandomTable[g_FieldRain[i].rndSeed & 0xFF] * 12 - 0x600;
+
+                seed3 = g_FieldRain[i].rndSeed * 3;
+                g_FieldRain[i].p2.vy = (g_FieldEntities[player].PosY >> 12) +
+                                       g_RandomTable[seed3] * 12 - 0x600;
+
+                g_FieldRain[i].p1.vx = g_FieldRain[i].p2.vx;
+                g_FieldRain[i].p1.vy = g_FieldRain[i].p2.vy;
+
+                g_FieldRain[i].z = (g_FieldEntities[player].PosZ >> 12) - 0x300;
+            } else {
+                g_FieldRain[i].wait = 1;
+                g_FieldRain[i].render = 0;
+            }
+        }
+
+        g_FieldRain[i].p2.vz =
+            g_FieldRain[i].z + (g_FieldRain[i].wait & 0x7) * 0x80;
+
+        vz = (g_FieldRain[i].wait & 0x7) * 0x80;
+        vz += 0x100;
+
+        g_FieldRain[i].p1.vz = g_FieldRain[i].z + vz;
+
+        g_FieldRain[i].wait--;
+    }
+}
+#endif
 
 /////////////////////////////////////////////////
 // Begin of field_battle.c
@@ -258,7 +408,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldGetNextRandomU8);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBattleCheck);
 
 /////////////////////////////////////////////////
-// Begin of field_arrowa.c
+// Begin of field_arrow.c
 /////////////////////////////////////////////////
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldArrowsInit);
@@ -2451,9 +2601,10 @@ s32 OpcodeFuncChar(void) {
         DebugPrintOpcode("char", 1);
     }
     g_EntityToModel[g_CurrentEntity] = g_FieldModelCount++;
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].unk66 = GET_PARAM_U8(1);
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].unk5C = 1;
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].entityId = g_CurrentEntity;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].CharModelId =
+        GET_PARAM_U8(1);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].Visible = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActorId = g_CurrentEntity;
     PC_INC(2);
     return 0;
 }
@@ -2533,7 +2684,7 @@ void StartModelAnimation(void) {
     file = &D_8004A62C->unk4[D_8008357C[modelIdx].unk4];
     anims = file->unk1C + file->unk1A;
     g_FieldModels[modelIdx].animLastFrame =
-        *(u16*)&anims[D_80074EA4[modelIdx].activeAnimId * 16] - 1;
+        *(u16*)&anims[g_FieldEntity[modelIdx].activeAnimId * 16] - 1;
 }
 
 /*

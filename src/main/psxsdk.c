@@ -102,7 +102,7 @@ void func_80034048(void) {
     func_80034B44();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003408C);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SystemCdromAbortLoading);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034104);
 

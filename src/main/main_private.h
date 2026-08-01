@@ -212,7 +212,7 @@ extern u8 D_800722DC[];
 extern u8 D_800730DC[][0x14];
 extern WeaponRecord g_WeaponTable[]; // weapon kernel table, by weapon id
 extern s32 D_80095DD8;               // LBA len for func_80014540
-extern s16 D_800965E8;
+extern s16 g_isFieldLoading;
 extern u16 D_8009C560; // refer to Subsystem enum
 extern SavePartyMember D_8009C738[8];
 extern u8 D_8009C748[];  // character record, 0x84-byte stride; +0xC = equipped

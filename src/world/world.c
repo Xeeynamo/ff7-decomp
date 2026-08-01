@@ -2180,7 +2180,7 @@ void func_800B7104(s16 arg0) {
 }
 
 void func_800B7134(void) {
-    func_8003408C();
+    SystemCdromAbortLoading();
     D_80115A60 = 0;
 }
 
