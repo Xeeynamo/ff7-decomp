@@ -373,6 +373,10 @@ extern s16 D_800F8182[];
 extern s16 D_800F8360;
 extern s32 g_dbIndex;
 extern s16 D_800F8370;
+extern u8 D_800F8374;
+extern u8 D_800F837C;
+extern u8 D_800F8380;
+extern u8* D_800F8384[3];
 extern u8* D_800F8390[3];
 extern s32* D_800F839C; // CD offset?
 extern u8 D_800F83A4[]; // shared battle-script variable bank (func_800B13B0)
@@ -417,6 +421,8 @@ extern s32 D_800FA978[];
 extern s32 D_800FA9B8;
 extern u16 D_800FA9BC;
 extern s16 D_800FA9C4;
+extern s16 D_800FA9C6;
+extern s16 D_800FA9C8;
 // queued-action-ish record, allocated by func_800A2FD0 (unk3 set to -1,
 // marking it unassigned) and searched by func_800A34CC. Traced through
 // func_800ABA68's callers (func_800AB830/func_800ABB0C, still undecompiled):
@@ -442,9 +448,11 @@ extern s16 D_800FAFD4;
 extern s32 D_800FAFEC;
 extern s32 D_800FAFF0;
 extern DB g_db;
+extern u8 D_801031E0;
 extern s32 D_801031E4;
 extern s16 D_801031E8;
 extern u8 D_801031F0;
+extern u8 D_80103200[];
 extern u8 D_80130200[];
 extern Unk80151200 D_80151200[3];
 extern u16 D_80151694;
@@ -470,6 +478,7 @@ typedef struct {
 extern ModelScreenPos g_modelScreenPos[10];
 extern s16 D_80151774;
 extern u8 D_801517BC;
+extern u8 D_801517C4;
 extern s16 D_80158D00;
 extern s32 D_80158D08;
 extern u_long D_80158D0C[];
@@ -486,8 +495,11 @@ extern u8 D_801590E0;
 extern s16 D_80162080;
 extern s16 D_80162084;
 extern s8 D_80162094;
+extern u8 D_801620A0;
+extern u8 D_801620A4;
 extern Unk801620AC D_801620AC[10];
 extern Unk801621F0 D_801621F0[60];
+extern u8 D_80162974;
 extern Unk80162978 D_80162978[100];
 extern u8 D_801635FC;
 extern u8 D_80163604;
@@ -505,6 +517,7 @@ extern s8 D_80163787; // suspicious, very likely part of a struct
 extern u8 D_8016378C[];
 extern Unk800A2F4C D_80163798[0x40];
 extern s8 D_80163A98;
+extern u8 D_80163B38;
 extern s16 D_80163B44[];
 extern u16 D_80163B80;
 extern DR_MODE* D_80163C74; // TODO might be a generic u_long*, not DR_MODE*

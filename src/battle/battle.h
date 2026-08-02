@@ -384,7 +384,7 @@ extern s8 D_800F90B4[][0x240];
 extern Unk800BB75C D_800FA63C;
 extern DB* g_cDb;
 extern short D_8015169C;
-extern BattleModel D_801518E4[7]; // len might be 10, not 7
+extern BattleModel D_801518E4[10];
 extern short D_80162080;
 extern Unk8016360C D_8016360C;
 extern u16 D_8016376A;
