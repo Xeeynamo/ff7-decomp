@@ -183,7 +183,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001117C);
 
 void func_800111E4(void) {
     D_8009A000[0] = 0xF4;
-    func_8002DA7C();
+    SystemAkaoExecute();
     if (!(D_8009D5E9 & 0x30)) {
         func_8001117C(0x2B);
     }
@@ -1241,7 +1241,7 @@ void func_8001EF84(s32 x, s32 y, s32 n, s32 len) {
     func_80026A34(0, 1, (u16)GetTPage(0, 1, 0x3C0, 0x100), &rect);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/18B8", func_8001F1BC);
+INCLUDE_ASM("asm/us/main/nonmatchings/18B8", SystemMenuDrawDialog);
 
 void func_8001F6AC(void) {}
 
@@ -1271,21 +1271,21 @@ void func_8001FA28(u16 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 void func_8001FA68(u16 arg0) {
     D_8009A000[0] = 0x28;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = arg0;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 void func_8001FAAC(u16 arg0) {
     D_8009A000[0] = 0x29;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = arg0;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 void func_8001FAF0(void) {}

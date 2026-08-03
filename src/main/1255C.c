@@ -401,8 +401,8 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_800262D8);
 
 // Likely plays a sound effect: writes a sound command (0x30) and the masked
 // 16-bit sound id (arg0, duplicated into both parameter words) into the
-// sound-request globals, then dispatches via func_8002DA7C.
-// NOTE: func_8002DA7C's own body computes a value in $v0 before
+// sound-request globals, then dispatches via SystemAkaoExecute.
+// NOTE: SystemAkaoExecute's own body computes a value in $v0 before
 // returning, so its game.h prototype has been corrected to `int`. Its other
 // callers across the codebase still discard the result via a bare statement;
 // propagating this same int-return pattern to those sibling wrappers may be a
@@ -411,7 +411,7 @@ static int func_80026408(u16 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
-    return func_8002DA7C();
+    return SystemAkaoExecute();
 }
 
 void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,

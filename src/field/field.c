@@ -534,7 +534,7 @@ void FieldEventUpdate(s32 arg0) {
         }
     }
     if (D_80071E2C) {
-        func_8001F1BC(&D_80083274, 4, arg0, g_FieldState->renderBuffer ^ 1);
+        SystemMenuDrawDialog(&D_80083274, 4, arg0, g_FieldState->renderBuffer ^ 1);
     }
     UpdateFieldExitArrows(arg0);
 }
@@ -2374,7 +2374,7 @@ s32 SetAndApplyAkao(void) {
         }
         *D_8009A004 = (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
         g_FieldState->nextFieldMusic = *D_8009A004;
-        func_8002DA7C();
+        SystemAkaoExecute();
     }
     PC_INC(2);
     return 0;
@@ -4328,7 +4328,7 @@ static void PlayWindowPointerClickSound(void) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = 1;
     D_8009A008[0] = 0x40;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogWindowInit);

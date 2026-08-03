@@ -805,7 +805,7 @@ void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
 void func_800269C0(void* poly);
 s32 func_80026B70(unsigned char* str);
 void func_80026F44(s32 x, s32 y, const char*, s32 color); // print FF7 string
-int func_8002DA7C(void);
+int SystemAkaoExecute(void);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);

@@ -113,7 +113,7 @@ static void func_801D0040(u16 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 static void func_801D0080(s32 arg0) {
@@ -134,7 +134,7 @@ static void func_801D0080(s32 arg0) {
         D_8009A008[0] = 0x82;
         break;
     }
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 static u8 func_801D0118(u16 arg0) {
