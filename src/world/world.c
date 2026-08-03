@@ -2165,7 +2165,7 @@ void func_800B6E78(void) {
     s32 temp_v0;
 
     if (D_80115A60 != 0)
-        func_80034B44();
+        SystemCdromReadChain();
     if (D_80115A50 != 0 && func_800A8CA4() == 0)
         func_800B6E08();
     if (D_80115A64 != 0 && --D_80115A64 == 0)

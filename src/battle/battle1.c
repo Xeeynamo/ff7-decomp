@@ -402,7 +402,7 @@ static void func_800B7F6C(void) {
     D_80062D98 = 0;
 }
 
-void func_800B7FB4(void) { D_801518DC = func_80034B44(); }
+void func_800B7FB4(void) { D_801518DC = SystemCdromReadChain(); }
 
 // per-frame tick: pumps the GPU ordering-table draw lists, runs render/vsync,
 // drains the action-queue ring buffer (func_800A3ED0 -- see the queue-push

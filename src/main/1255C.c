@@ -66,7 +66,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80024A3C);
 void func_80024D88(s32 arg0) {
     func_800211C4(0xD);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     VSync(30);
     func_801D131C(arg0);
 }
@@ -74,14 +74,14 @@ void func_80024D88(s32 arg0) {
 void func_80024DD4(s32 arg0) {
     func_800211C4(0xE);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D1A6C(arg0);
 }
 
 void func_80024E18(s32 arg0) {
     func_800211C4(0xF);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D4118(arg0);
 }
 
@@ -89,56 +89,56 @@ void func_80024E18(s32 arg0) {
 void func_80024E5C(void) {
     func_800211C4(0x10); // load title screen?
     do {                 // wait until it's loaded?
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D4CC0(); // jump into title screen loop?
 }
 
 void func_80024E94(void) {
     func_800211C4(0xA);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D1774();
 }
 
 void func_80024ECC(void) {
     func_800211C4(1);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D2D74();
 }
 
 void func_80024F04(void) {
     func_800211C4(1);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D2E84();
 }
 
 void func_80024F3C(s32 arg0) {
     func_800211C4(1);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D2F00(arg0);
 }
 
 void func_80024F80(s32 arg0) {
     func_800211C4(1);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D3138(arg0);
 }
 
 void func_80024FC4(s32 arg0) {
     func_800211C4(1);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D3018(arg0);
 }
 
 void func_80025008(void) {
     func_800211C4(1);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D3228();
 }
 
@@ -158,21 +158,21 @@ void SnapshotPartyLevels(void) {
 void func_800250B4(void) {
     func_800211C4(0xC);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D027C();
 }
 
 void func_800250EC(s32 arg0) {
     func_800211C4(0xC);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D05C4(arg0);
 }
 
 void func_80025130(s32 arg0) {
     func_800211C4(0xC);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D0704(arg0);
 }
 

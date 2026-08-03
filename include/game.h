@@ -814,7 +814,7 @@ int DS_read(int sector_no, size_t size, u_long* dst, void (*cb)());
 int func_80033EDC(int sector_no, void (*cb)());
 int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)());
 int func_80033FC4(int sector_no, size_t size, u_long* dst, void (*cb)());
-u32 func_80034B44(void);
+u32 SystemCdromReadChain(void);
 
 // from overlays
 extern u8 SavedScriptIds[48][8]; // script ids of latest queued scripts

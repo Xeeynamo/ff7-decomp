@@ -198,7 +198,7 @@ void func_80011274(void) {
     func_80033E34(D_80048D1C, D_80048D20, (u_long*)0x800E0000, NULL);
 
     while (1) {
-        if (func_80034B44() == 0) {
+        if (SystemCdromReadChain() == 0) {
             break;
         }
     }
@@ -206,7 +206,7 @@ void func_80011274(void) {
     func_80033E34(D_80048D14, D_80048D18, (u_long*)0x800A0000, NULL);
 
     while (1) {
-        if (func_80034B44() == 0) {
+        if (SystemCdromReadChain() == 0) {
             break;
         }
     }
@@ -244,14 +244,14 @@ void func_80011860(void) {
         if (D_800965EC != 2) {
             func_80033E34(D_80048D24, D_80048D28, (u_long*)0x80180000, NULL);
             while (1) {
-                if (func_80034B44() == 0) {
+                if (SystemCdromReadChain() == 0) {
                     break;
                 }
             }
             func_80015CA0((GzHeader*)0x80180000, (s32*)0x800A0000);
         } else {
             while (1) {
-                if (func_80034B44() == 0) {
+                if (SystemCdromReadChain() == 0) {
                     break;
                 }
             }
@@ -270,13 +270,13 @@ void func_80011920(void) {
 void func_80011938(void) {
     func_80033E34(D_80048CFC, D_80048D00, (u_long*)0x800F0000, NULL);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_80033E34(D_80048D04, D_80048D08, (u_long*)0x801B0000, NULL);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_80033E34(D_80048D0C, D_80048D10, (u_long*)0x801BC800, NULL);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_8002988C(0x800F0000, 0x801BC800);
     func_80029998(0x801B0000);
 }
@@ -342,7 +342,7 @@ void func_80014578(s32 file_no, void* dst, void (*cb)(void)) {
 }
 
 void func_800145BC(void (*cb)(void)) {
-    while (func_80034B44()) {
+    while (SystemCdromReadChain()) {
         if (cb) {
             cb();
         }

@@ -70,7 +70,7 @@ int DS_read(int sector_no, size_t size, u_long* dst, void (*cb)()) {
 int func_80033EDC(int sector_no, void (*cb)()) {
     while (func_80033DAC(sector_no, cb)) {
     }
-    while (func_80034B44()) {
+    while (SystemCdromReadChain()) {
         VSync(0);
     }
     return 0;
@@ -79,7 +79,7 @@ int func_80033EDC(int sector_no, void (*cb)()) {
 int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)()) {
     while (func_80033E34(sector_no, size, dst, cb)) {
     }
-    while (func_80034B44()) {
+    while (SystemCdromReadChain()) {
         VSync(0);
     }
     return 0;
@@ -88,7 +88,7 @@ int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)()) {
 int func_80033FC4(int sector_no, size_t size, u_long* dst, void (*cb)()) {
     while (DS_read(sector_no, size, dst, cb)) {
     }
-    while (func_80034B44()) {
+    while (SystemCdromReadChain()) {
         VSync(0);
     }
     return 0;
@@ -99,7 +99,7 @@ void func_80034048(void) {
     D_80071A80 = NULL;
     D_80071A84 = NULL;
     D_80071A60 = CDOP_19;
-    func_80034B44();
+    SystemCdromReadChain();
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SystemCdromAbortLoading);
@@ -174,7 +174,7 @@ void func_80034A90(void) {
     }
 }
 
-u32 func_80034B44(void) {
+u32 SystemCdromReadChain(void) {
     u32* op;
     if (D_80071A60 >= LEN(D_8004A634)) {
         while (1) {
@@ -185,7 +185,7 @@ u32 func_80034B44(void) {
     return *op;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034BB0);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SystemLzsDecompress);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034CAC);
 
