@@ -272,7 +272,7 @@ struct FieldRain {
 
 extern struct FieldRain g_FieldRain[64];
 extern u8 g_RainForce;
-extern s16 D_800E42EE[][12];
+extern s16 D_800E42EE[0x40][12];
 
 void FieldRainInit(struct FieldRenderData* renderData) {
     LINE_F2* line;
