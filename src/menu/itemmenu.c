@@ -56,7 +56,8 @@ extern s32 D_801D3E48;
 extern u8 D_801D3E60[];
 
 // Likely plays a menu sound effect: loads a sound command (0x30) and the sound
-// id (arg0) into the sound-request globals, then dispatches via SystemAkaoExecute.
+// id (arg0) into the sound-request globals, then dispatches via
+// SystemAkaoExecute.
 void func_801D01E8(u16 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;

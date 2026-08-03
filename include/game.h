@@ -508,22 +508,46 @@ typedef struct {
 } FieldEntity;    // size:0x84
 
 typedef struct {
-    /* 0x00 */ u8 unk0[4];
-    /* 0x04 */ u8 unk4; // model file index
-    /* 0x05 */ u8 unk5[3];
-} Unk8008357C; // size:0x8
+    /* 0x00 */ u8 faceId;          // texture face/palette id
+    /* 0x01 */ u8 boneCount;       // number of bones
+    /* 0x02 */ u8 partCount;       // number of model parts
+    /* 0x03 */ u8 animationCount;  // number of animations
+    /* 0x04 */ u8 modelEntryIndex; // index into FieldModelData->modelEntries
+    /* 0x05 */ u8 npcFlag;         // NPC/model type flag?
+    /* 0x06 */ u8 unk6;
+    /* 0x07 */ u8 globalModelId; // BCX/global model lookup id
+} FieldModelLoaderData;          // size:0x8
 
 typedef struct {
-    /* 0x00 */ u8 unk0[0x1A];
-    /* 0x1A */ u16 unk1A; // offset from unk1C to the animation headers
-    /* 0x1C */ u8* unk1C;
-    /* 0x20 */ u8 unk20[4];
-} Unk8004A62CSub; // size:0x24
+    /* 0x00 */ u8 flags;     // initialized to 1, later cleared
+    /* 0x01 */ u8 kawaiType; // KAWAI second byte
+    /* 0x02 */ u8 boneCount;
+    /* 0x03 */ u8 partCount;
+    /* 0x04 */ u8 animationCount;
+    /* 0x05 */ s8 rotationX;
+    /* 0x06 */ s8 rotationY;
+    /* 0x07 */ s8 rotationZ;
+
+    /* 0x08 */ s32 translationX;
+    /* 0x0C */ s32 translationY;
+    /* 0x10 */ s32 translationZ;
+
+    /* 0x14 */ u8 globalModelId;
+    /* 0x15 */ u8 textureFaceId;
+
+    /* 0x16 */ u16 scale;
+    /* 0x18 */ u16 partsOffset;
+    /* 0x1A */ u16 animationOffset;
+    /* 0x1C */ u8* modelData;
+    /* 0x20 */ u8* partMatrices; // part matrix data
+} FieldModelEntry;               // size:0x24
 
 typedef struct {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ Unk8004A62CSub* unk4; // per-model-file records
-} Unk8004A62C;
+    /* 0x00 */ u8 modelCount;
+    /* 0x01 */ u8 unk1;                       // (initialized to 0)
+    /* 0x02 */ u16 unk2;                      // (initialized to 0)
+    /* 0x04 */ FieldModelEntry* modelEntries; // per-model-file records
+} FieldModelData;
 
 typedef struct {
     u8 enabled;
@@ -679,7 +703,7 @@ typedef struct {
 
 extern u8 D_80049208[12];   // window colors maybe??
 extern u8 D_800492F0[][12]; // see Labels enum
-extern Unk8004A62C* D_8004A62C;
+extern FieldModelData* g_FieldModelData;
 extern u16 D_80062D78; // pressed button?
 extern u16 D_80062D7C; // pressed button?
 extern u16 D_80062D7E; // pressed button?
@@ -742,7 +766,7 @@ extern s16 D_800832A0;
 extern s32 D_80083338;
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level
-extern Unk8008357C* D_8008357C;
+extern FieldModelLoaderData* g_FieldModelLoaderData;
 extern s16 g_FieldLineCount;
 extern s8 D_80095DCC;
 extern volatile u16 D_80095DD4;
