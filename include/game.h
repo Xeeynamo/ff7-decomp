@@ -538,7 +538,7 @@ typedef struct {
 } FieldShakeData; // size:0xE
 
 typedef struct {
-    u8 unk0;
+    u8 renderBuffer;
     // enum FieldOpcode.
     u8 opcode;
     // Used by some opcodes to carry extra info, ie. shop id

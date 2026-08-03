@@ -534,7 +534,7 @@ void FieldEventUpdate(s32 arg0) {
         }
     }
     if (D_80071E2C) {
-        func_8001F1BC(&D_80083274, 4, arg0, g_FieldState->unk0 ^ 1);
+        func_8001F1BC(&D_80083274, 4, arg0, g_FieldState->renderBuffer ^ 1);
     }
     UpdateFieldExitArrows(arg0);
 }
