@@ -402,7 +402,7 @@ static void func_800B7F6C(void) {
     D_80062D98 = 0;
 }
 
-void func_800B7FB4(void) { D_801518DC = func_80034B44(); }
+void func_800B7FB4(void) { D_801518DC = SystemCdromReadChain(); }
 
 // per-frame tick: pumps the GPU ordering-table draw lists, runs render/vsync,
 // drains the action-queue ring buffer (func_800A3ED0 -- see the queue-push
@@ -807,19 +807,19 @@ static void func_800BB89C(void) {
     D_800FA6B8 = 0;
     D_8009A000[0] = !(!(D_8016376A & 0x10) && !D_80083338) ? 0x10 : 0x14;
     D_8009A004[0] = 0x801D0000;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 void func_800BB90C(void) {
     D_8009A000[0] = 0xA0;
     D_8009A004[0] = 0x7F;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 static void func_800BB944(void) {
     func_800BB90C();
     D_8009A000[0] = 0xF1;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 // queue sound command 0xC1
@@ -827,7 +827,7 @@ void func_800BB978(void) {
     D_8009A000[0] = 0xC1;
     D_8009A004[0] = 0x12C;
     D_8009A008[0] = 0;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 // queue sound command 0x30, dispatched directly via func_8002DF88 (akao.c)
@@ -850,7 +850,7 @@ void func_800BB9FC(s32 arg0) {
     param = arg0 & 0xFFFF;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = param;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 // queue sound command 0x20
@@ -861,7 +861,7 @@ static void func_800BBA40(s32 arg0) {
     param = arg0 & 0xFFFF;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = param;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBA84);

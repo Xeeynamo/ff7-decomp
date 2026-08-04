@@ -465,7 +465,7 @@ extern u16 D_801516F8;
 // into the committed (prevX, prevY) pair. Two decoupled consumers then read
 // the COMMITTED pair on their own schedule: func_800BBA84/func_800C2FD4
 // derive a positional-audio parameter from prevX (feeds a sound-queue call
-// via func_8002DA7C), and func_800DBC18 folds prevY (low bit masked) into
+// via SystemAkaoExecute), and func_800DBC18 folds prevY (low bit masked) into
 // limit-gauge draw positioning. func_800C2864 reads the staging pair
 // directly (with small centering offsets) for an on-screen draw call.
 typedef struct {

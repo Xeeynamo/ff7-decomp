@@ -1115,7 +1115,7 @@ void func_8002DA30(Unk8002B7E0** out_msg) {
     D_80063010++;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002DA7C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", SystemAkaoExecute);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002DF88);
 

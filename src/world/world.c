@@ -2165,7 +2165,7 @@ void func_800B6E78(void) {
     s32 temp_v0;
 
     if (D_80115A60 != 0)
-        func_80034B44();
+        SystemCdromReadChain();
     if (D_80115A50 != 0 && func_800A8CA4() == 0)
         func_800B6E08();
     if (D_80115A64 != 0 && --D_80115A64 == 0)
@@ -2431,7 +2431,7 @@ void func_800B95E8(void) {
     *D_8009A000 = 0x30;
     *D_8009A004 = 1;
     *D_8009A008 = 0x40;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 static const char D_800A09AC[] = "No mes data!";

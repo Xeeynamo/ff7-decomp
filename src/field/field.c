@@ -107,7 +107,53 @@ static void FieldDebugStringU32hex(s32 val, char* msg_out);
 // Begin of field_main.c
 /////////////////////////////////////////////////
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldLoadMimDatFiles);
+// INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldLoadMimDatFiles);
+
+typedef struct {
+    u32 datSector; // +0x00
+    u32 datSize;   // +0x04
+    u32 mimSector; // +0x08
+    u32 mimSize;   // +0x0C
+    u32 bsxSector; // +0x10
+    u32 bsxSize;   // +0x14
+} FieldFileInfo;
+
+extern FieldFileInfo g_FieldFileInfo[];
+extern void SystemLzsDecompress(void* dst, void* src);
+extern s32* g_FieldModelsP;
+extern s32 g_FieldTriggers;
+extern s32 g_FieldEncounters;
+extern s32 D_8007E770;
+extern s16 g_CurrentFieldIndex;
+extern s32* g_FieldTriggersP;
+extern s32* g_FieldEncountersP;
+extern u32 g_FieldLzsInfo[];
+
+void FieldLoadMimDatFiles(void) {
+    s32 temp;
+
+    if (g_isFieldLoading == 0) {
+        DS_read(g_FieldLzsInfo[g_CurrentFieldIndex * 6],
+                g_FieldLzsInfo[g_CurrentFieldIndex * 6 + 1], (u32*)0x80128000,
+                NULL);
+        while (SystemCdromReadChain() != 0) {
+        }
+    } else {
+        while (SystemCdromReadChain() != 0) {
+        }
+        SystemLzsDecompress((void*)0x801B0000, (void*)0x80128000);
+    }
+    DS_read(((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6],
+            ((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6 + 1],
+            (u32*)0x80114FE4, NULL);
+    while (SystemCdromReadChain() != 0) {
+    }
+    g_FieldTriggers = *g_FieldTriggersP;
+    g_FieldEncounters = *g_FieldEncountersP;
+    temp = *g_FieldModelsP;
+    D_8007E770 = temp;
+    g_FieldModelLoaderData = temp + 4;
+}
 
 void StopMapLoadInAdvance(void) {
     if (g_isFieldLoading == 1) {
@@ -272,7 +318,7 @@ struct FieldRain {
 
 extern struct FieldRain g_FieldRain[64];
 extern u8 g_RainForce;
-extern s16 D_800E42EE[][12];
+extern s16 D_800E42EE[0x40][12];
 
 void FieldRainInit(struct FieldRenderData* renderData) {
     LINE_F2* line;
@@ -534,7 +580,8 @@ void FieldEventUpdate(s32 arg0) {
         }
     }
     if (D_80071E2C) {
-        func_8001F1BC(&D_80083274, 4, arg0, g_FieldState->unk0 ^ 1);
+        SystemMenuDrawDialog(
+            &D_80083274, 4, arg0, g_FieldState->renderBuffer ^ 1);
     }
     UpdateFieldExitArrows(arg0);
 }
@@ -2374,7 +2421,7 @@ s32 SetAndApplyAkao(void) {
         }
         *D_8009A004 = (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
         g_FieldState->nextFieldMusic = *D_8009A004;
-        func_8002DA7C();
+        SystemAkaoExecute();
     }
     PC_INC(2);
     return 0;
@@ -2673,7 +2720,7 @@ s32 OpcodeFuncCcanm(void) {
 void StartModelAnimation(void) {
     u8 modelIdx;
     u8* anims;
-    Unk8004A62CSub* file;
+    FieldModelEntry* model;
 
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId =
         GET_PARAM_U8(1);
@@ -2681,8 +2728,10 @@ void StartModelAnimation(void) {
         D_8009D828[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(2);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
     modelIdx = g_EntityToModel[g_CurrentEntity];
-    file = &D_8004A62C->unk4[D_8008357C[modelIdx].unk4];
-    anims = file->unk1C + file->unk1A;
+    model =
+        &g_FieldModelData
+             ->modelEntries[g_FieldModelLoaderData[modelIdx].modelEntryIndex];
+    anims = model->modelData + model->animationOffset;
     g_FieldModels[modelIdx].animLastFrame =
         *(u16*)&anims[g_FieldEntity[modelIdx].activeAnimId * 16] - 1;
 }
@@ -4328,7 +4377,7 @@ static void PlayWindowPointerClickSound(void) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = 1;
     D_8009A008[0] = 0x40;
-    func_8002DA7C();
+    SystemAkaoExecute();
 }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldDialogWindowInit);

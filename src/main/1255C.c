@@ -66,7 +66,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80024A3C);
 void func_80024D88(s32 arg0) {
     func_800211C4(0xD);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     VSync(30);
     func_801D131C(arg0);
 }
@@ -74,14 +74,14 @@ void func_80024D88(s32 arg0) {
 void func_80024DD4(s32 arg0) {
     func_800211C4(0xE);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D1A6C(arg0);
 }
 
 void func_80024E18(s32 arg0) {
     func_800211C4(0xF);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D4118(arg0);
 }
 
@@ -89,56 +89,56 @@ void func_80024E18(s32 arg0) {
 void func_80024E5C(void) {
     func_800211C4(0x10); // load title screen?
     do {                 // wait until it's loaded?
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D4CC0(); // jump into title screen loop?
 }
 
 void func_80024E94(void) {
     func_800211C4(0xA);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D1774();
 }
 
 void func_80024ECC(void) {
     func_800211C4(1);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D2D74();
 }
 
 void func_80024F04(void) {
     func_800211C4(1);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D2E84();
 }
 
 void func_80024F3C(s32 arg0) {
     func_800211C4(1);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D2F00(arg0);
 }
 
 void func_80024F80(s32 arg0) {
     func_800211C4(1);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D3138(arg0);
 }
 
 void func_80024FC4(s32 arg0) {
     func_800211C4(1);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D3018(arg0);
 }
 
 void func_80025008(void) {
     func_800211C4(1);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D3228();
 }
 
@@ -158,21 +158,21 @@ void SnapshotPartyLevels(void) {
 void func_800250B4(void) {
     func_800211C4(0xC);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D027C();
 }
 
 void func_800250EC(s32 arg0) {
     func_800211C4(0xC);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D05C4(arg0);
 }
 
 void func_80025130(s32 arg0) {
     func_800211C4(0xC);
     do {
-    } while (func_80034B44());
+    } while (SystemCdromReadChain());
     func_801D0704(arg0);
 }
 
@@ -401,8 +401,8 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_800262D8);
 
 // Likely plays a sound effect: writes a sound command (0x30) and the masked
 // 16-bit sound id (arg0, duplicated into both parameter words) into the
-// sound-request globals, then dispatches via func_8002DA7C.
-// NOTE: func_8002DA7C's own body computes a value in $v0 before
+// sound-request globals, then dispatches via SystemAkaoExecute.
+// NOTE: SystemAkaoExecute's own body computes a value in $v0 before
 // returning, so its game.h prototype has been corrected to `int`. Its other
 // callers across the codebase still discard the result via a bare statement;
 // propagating this same int-return pattern to those sibling wrappers may be a
@@ -411,7 +411,7 @@ static int func_80026408(u16 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
-    return func_8002DA7C();
+    return SystemAkaoExecute();
 }
 
 void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
