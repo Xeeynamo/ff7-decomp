@@ -11,67 +11,84 @@ typedef struct {
     s8 unkC;
 } Unk8002C5A8;
 
+// Field names cross-checked against the independent qgears reverse-engineering
+// project's AkaoChannel struct (same source as the g_Akao*SlideStep/Steps
+// naming above): https://github.com/Akari1982/q-gears_reverse,
+// ffvii/DISC/SCUS_941_akao.h. Spans neither this repo nor qgears resolves
+// (LFO delay/rate sub-fields, the 0xA8-0xB8 gap) are left as unkNN.
 typedef struct {
     u8* addr;
     u8* loop_addr[4];
     u8* drum_addr;
-    u8 pad1[0xC];
+    u32 vibrato_wave;
+    u32 tremolo_wave;
+    u32 pan_lfo_wave;
     u32 overlay_voice;
-    s32 unk28;
-    s32 unk2C;
-    s32 unk30;
-    s32 unk34;
-    s32 unk38;
-    s8 unk3C[0x8];
-    s32 unk44;
-    s8 unk48[0x14];
-    s16 unk5C;
-    s8 unk5E[0x2];
-    s16 unk60;
-    s16 unk62;
-    s16 unk64;
-    u16 unk66;
-    u32 unk68;
-    s16 unk6C;
-    s16 unk6E;
+    s32 alt_voice_id;
+    s32 vol_master;
+    s32 pitch_base;
+    s32 pitch_slide;
+    s32 update_flags;
+    u32 pitch_mul_sound;
+    s32 pitch_mul_sound_slide_step;
+    s32 volume;
+    s32 vol_slide_step;
+    s32 pitch_slide_step;
+    u32 unk50; // unresolved by qgears either (marked as 4 unknown bytes there
+               // too)
+    u16 type;
+    u8 length_1;
+    u8 length_2;
+    u16 instr_id;
+    u16 pitch_mul_sound_slide_steps;
+    s16 vol_slide_steps;
+    s16 vol_balance_slide_steps;
+    s16 vol_pan;
+    s16 vol_pan_slide_steps;
+    s16 pitch_slide_steps_cur;
+    u16 octave;
+    u16 pitch_slide_steps;
+    u16 key_stored;
+    s16 portamento_steps;
+    s16 sfx_mask;
     u8 unk70[0xE];
-    s16 unk7E;
-    s16 unk80;
+    s16 vibrato_depth;
+    s16 vibrato_depth_slide_steps;
     u8 unk82[0xE];
-    s16 unk90;
-    s16 unk92;
-    s16 unk94;
+    s16 tremolo_depth;
+    s16 tremolo_depth_slide_steps;
+    s16 tremolo_depth_slide_step;
     s16 unk96;
-    s16 unk98;
-    s16 unk9A;
-    s16 unk9C;
-    s16 unk9E;
-    s16 unkA0;
-    s16 unkA2;
-    s16 unkA4;
-    s16 unkA6;
+    s16 pan_lfo_rate;
+    s16 pan_lfo_rate_cur;
+    s16 pan_lfo_type;
+    s16 pan_lfo_depth;
+    s16 pan_lfo_depth_slide_steps;
+    s16 pan_lfo_depth_slide_step;
+    s16 noise_switch_delay;
+    s16 pitch_lfo_switch_delay;
     s16 unkA8;
     s16 unkAA;
     s16 unkAC;
     s16 unkAE;
     u8 unkB0[0x8];
-    s16 unkB8;
-    u8 unkBA[0x6];
-    u8 unkC0[0x2];
-    u16 unkC2;
-    u16 unkC4;
-    u8 unkC6[0x4];
-    u16 unkCA;
-    s16 unkCC;
-    s16 unkCE;
-    s16 unkD0;
-    s16 unkD2;
-    s16 unkD4;
-    s16 unkD6;
-    s16 unkD8;
-    s16 unkDA;
+    s16 loop_id;
+    u16 loop_times[0x4];
+    u16 length_stored;
+    u16 length_fixed;
+    s16 vol_balance;
+    s16 vol_balance_slide_step;
+    s16 vol_pan_slide_step;
+    s16 transpose;
+    s16 fine_tuning;
+    s16 key;
+    s16 key_add;
+    s16 transpose_stored;
+    s16 vibrato_pitch;
+    s16 tremolo_vol;
+    s16 pan_lfo_vol;
     s32 unkDC;
-    s32 unkE0;
+    s32 attr_mask;
 } AKAO_TRACK;
 
 typedef struct {
@@ -315,31 +332,31 @@ void func_80031820(AKAO_TRACK*, s32);
 
 static void SoundChannelInit(AKAO_TRACK* arg0, u8* arg1) {
     arg0->addr = arg1;
-    arg0->unk2C = 0x78;
+    arg0->vol_master = 0x78;
     func_80031820(arg0, 5);
-    arg0->unk66 = 2;
-    arg0->unkCE = 0;
-    arg0->unkCC = 0;
-    arg0->unk6C = 0;
-    arg0->unk34 = 0;
-    arg0->unkD2 = 0;
-    arg0->unkC4 = 0;
-    arg0->unkC2 = 0;
-    arg0->unk64 = 0;
-    arg0->unk44 = 0x32000000;
-    arg0->unk5C = 0;
-    arg0->unk38 = 0;
-    arg0->unkB8 = 0;
-    arg0->unk6E = 0;
-    arg0->unkDA = 0;
-    arg0->unk9E = 0;
-    arg0->unk90 = 0;
-    arg0->unk7E = 0;
-    arg0->unkA0 = 0;
-    arg0->unk92 = 0;
-    arg0->unk80 = 0;
-    arg0->unkA6 = 0;
-    arg0->unkA4 = 0;
+    arg0->octave = 2;
+    arg0->fine_tuning = 0;
+    arg0->transpose = 0;
+    arg0->portamento_steps = 0;
+    arg0->pitch_slide = 0;
+    arg0->key_add = 0;
+    arg0->length_fixed = 0;
+    arg0->length_stored = 0;
+    arg0->pitch_slide_steps_cur = 0;
+    arg0->volume = 0x32000000;
+    arg0->vol_slide_steps = 0;
+    arg0->update_flags = 0;
+    arg0->loop_id = 0;
+    arg0->sfx_mask = 0;
+    arg0->pan_lfo_vol = 0;
+    arg0->pan_lfo_depth = 0;
+    arg0->tremolo_depth = 0;
+    arg0->vibrato_depth = 0;
+    arg0->pan_lfo_depth_slide_steps = 0;
+    arg0->tremolo_depth_slide_steps = 0;
+    arg0->vibrato_depth_slide_steps = 0;
+    arg0->pitch_lfo_switch_delay = 0;
+    arg0->noise_switch_delay = 0;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029C48);
@@ -1197,16 +1214,40 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031AB0);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031AFC);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031BA0);
+void func_80031BA0(u8** cursor, AKAO_TRACK* track) {
+    u8* p = *cursor;
+    u8 v0;
+    u8 v1;
+    u32 combined;
+
+    /* cc1-psx writes the cursor back after each byte, not once at the end --
+       tested; a single trailing writeback regresses the gate. */
+    *cursor = p + 1;
+    v0 = p[0];
+    *cursor = p + 2;
+    v1 = p[1];
+    combined = (u32)v0 << 0x10;
+    combined |= (u32)v1 << 0x18;
+    *(u16*)&track->unk50 =
+        0; // only the first half of this 4-byte unknown field
+    track->update_flags |= 0x80;
+    track->pitch_mul_sound_slide_step = combined;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031BE4);
 
 void func_80031C88(AKAO_TRACK* track) {
-    track->unk2C = *track->addr++;
-    track->unkE0 |= 3;
+    track->vol_master = *track->addr++;
+    track->attr_mask |= 3;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031CB0);
+void func_80031CB0(AKAO_TRACK* track) {
+    s32 val = (s8)*track->addr++;
+
+    track->vol_slide_steps = 0;
+    track->attr_mask |= 3;
+    track->volume = val << 0x17;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031CE0);
 
@@ -1214,38 +1255,47 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031D6C);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031E98);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031EEC);
+void func_80031EEC(AKAO_TRACK* track) {
+    u8 val = *track->addr++;
+
+    track->vol_balance_slide_steps = 0;
+    track->vol_balance = val << 8;
+    if (track->update_flags & 0x100) {
+        track->attr_mask |= 3;
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031F30);
 
 void func_80031FC0(AKAO_TRACK* track) {
-    track->unk60 = *track->addr++ << 8;
-    track->unk62 = 0;
-    track->unkE0 |= 3;
+    track->vol_pan = *track->addr++ << 8;
+    track->vol_pan_slide_steps = 0;
+    track->attr_mask |= 3;
 }
 
 void func_80031FF0(AKAO_TRACK* track) {
     u8 ch;
     u16 var_a0;
 
-    track->unk62 = *track->addr++;
-    if (track->unk62 == 0) {
-        track->unk62 = 0x100;
+    track->vol_pan_slide_steps = *track->addr++;
+    if (track->vol_pan_slide_steps == 0) {
+        track->vol_pan_slide_steps = 0x100;
     }
     ch = *track->addr++;
-    track->unk60 &= 0xFF00;
-    var_a0 = track->unk60;
-    track->unkCA = ((ch << 8) - var_a0) / (u16)track->unk62;
+    track->vol_pan &= 0xFF00;
+    var_a0 = track->vol_pan;
+    track->vol_pan_slide_step =
+        ((ch << 8) - var_a0) / (u16)track->vol_pan_slide_steps;
 }
 
-void func_80032078(AKAO_TRACK* track) { track->unk66 = *track->addr++; }
+void func_80032078(AKAO_TRACK* track) { track->octave = *track->addr++; }
 
 void func_80032094(AKAO_TRACK* track) {
-    track->unk66 = (track->unk66 + 1) & 0xF;
+    track->octave = (track->octave + 1) & 0xF;
 }
 
 void func_800320AC(AKAO_TRACK* track) {
-    track->unk66 = (track->unk66 + 0xFFFF) & 0xF;
+    track->octave = (track->octave + 0xFFFF) & 0xF;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800320C4);
@@ -1254,22 +1304,34 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032274);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800323CC);
 
-void func_800324D8(AKAO_TRACK* track) { track->unkCC = (s8)*track->addr++; }
+void func_800324D8(AKAO_TRACK* track) { track->transpose = (s8)*track->addr++; }
 
 void func_80032500(AKAO_TRACK* track) {
-    track->unkCC = (s8)*track->addr++ + track->unkCC;
+    track->transpose = (s8)*track->addr++ + track->transpose;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003252C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003257C);
+void func_8003257C(AKAO_TRACK* track) {
+    u8 val = *track->addr++;
 
-void func_800325B8(AKAO_TRACK* track) { track->unk6C = 0; }
+    track->portamento_steps = (s16)val;
+    if (val == 0) {
+        track->portamento_steps = 0x100;
+    }
+    track->transpose_stored = 0;
+    track->key_stored = 0;
+    track->sfx_mask = 1;
+}
 
-void func_800325C0(AKAO_TRACK* track) { track->unkCE = (s8)*track->addr++; }
+void func_800325B8(AKAO_TRACK* track) { track->portamento_steps = 0; }
+
+void func_800325C0(AKAO_TRACK* track) {
+    track->fine_tuning = (s8)*track->addr++;
+}
 
 void func_800325E8(AKAO_TRACK* track) {
-    track->unkCE = (s8)*track->addr++ + track->unkCE;
+    track->fine_tuning = (s8)*track->addr++ + track->fine_tuning;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032614);
@@ -1279,33 +1341,37 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032718);
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032770);
 
 void func_800327E0(AKAO_TRACK* track) {
-    track->unkD6 = 0;
-    track->unk38 &= ~1;
-    track->unkE0 |= 0x10;
+    track->vibrato_pitch = 0;
+    track->update_flags &= ~1;
+    track->attr_mask |= 0x10;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032804);
 
-void func_800328D4(AKAO_TRACK* track) { track->unk90 = *track->addr++ << 8; }
+void func_800328D4(AKAO_TRACK* track) {
+    track->tremolo_depth = *track->addr++ << 8;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800328F8);
 
 void func_80032968(AKAO_TRACK* track) {
-    track->unkD8 = 0;
-    track->unk38 &= ~2;
-    track->unkE0 |= 3;
+    track->tremolo_vol = 0;
+    track->update_flags &= ~2;
+    track->attr_mask |= 3;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003298C);
 
-void func_80032A04(AKAO_TRACK* track) { track->unk9E = *track->addr++ << 7; }
+void func_80032A04(AKAO_TRACK* track) {
+    track->pan_lfo_depth = *track->addr++ << 7;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032A28);
 
 void func_80032A98(AKAO_TRACK* track) {
-    track->unkDA = 0;
-    track->unk38 &= ~4;
-    track->unkE0 |= 3;
+    track->pan_lfo_vol = 0;
+    track->update_flags &= ~4;
+    track->attr_mask |= 3;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032ABC);
@@ -1320,11 +1386,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032C8C);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032CE8);
 
-void func_80032D44(AKAO_TRACK* track) { track->unk6E = 1; }
+void func_80032D44(AKAO_TRACK* track) { track->sfx_mask = 1; }
 
 void func_80032D50(void) {}
 
-void func_80032D58(AKAO_TRACK* track) { track->unk6E = 4; }
+void func_80032D58(AKAO_TRACK* track) { track->sfx_mask = 4; }
 
 void func_80032D64(void) {}
 
@@ -1360,28 +1426,36 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003337C);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033420);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003345C);
+void func_8003345C(AKAO_TRACK* track) {
+    u16 val = *track->addr++;
+
+    track->length_fixed = 0;
+    /* sets length_1 and length_2 to the same byte in one halfword store;
+       writing them as two separate field assignments regresses the gate. */
+    *(s16*)&track->length_1 = (val << 8) | val;
+    track->length_stored = val;
+}
 
 void func_80033488(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
     short delta = READ_S8(track->addr);
     if (delta != 0) {
-        delta += track->unkC2;
+        delta += track->length_stored;
         if (delta < 1) {
             delta = 1;
         } else if (delta > 255) {
             delta = 255;
         }
     }
-    track->unkC4 = delta;
+    track->length_fixed = delta;
 }
 
 void func_800334EC(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
     track->drum_addr = track->addr + READ_S16(track->addr);
-    track->unk38 |= 0x8;
+    track->update_flags |= 0x8;
 }
 
 void func_80033534(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
-    track->unk38 &= ~0x8;
+    track->update_flags &= ~0x8;
 }
 
 void func_80033548(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
@@ -1408,9 +1482,9 @@ void func_800335D8(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
 void func_80033628(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
     int delay = *track->addr++;
     if (delay == 0) {
-        track->unkA4 = 257;
+        track->noise_switch_delay = 257;
     } else {
-        track->unkA4 = delay + 1;
+        track->noise_switch_delay = delay + 1;
     }
     func_80032ABC(track, config, mask);
 }
@@ -1422,15 +1496,15 @@ void func_8003366C(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
     } else {
         var_v0++;
     }
-    track->unkA4 = var_v0;
+    track->noise_switch_delay = var_v0;
 }
 
 void func_80033698(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
     int delay = *track->addr++;
     if (delay == 0) {
-        track->unkA6 = 257;
+        track->pitch_lfo_switch_delay = 257;
     } else {
-        track->unkA6 = delay + 1;
+        track->pitch_lfo_switch_delay = delay + 1;
     }
     func_80032BB4(track, config, mask);
 }
@@ -1442,31 +1516,31 @@ void func_800336DC(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
     } else {
         var_v0++;
     }
-    track->unkA6 = var_v0;
+    track->pitch_lfo_switch_delay = var_v0;
 }
 
 void func_80033708(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
-    track->unk38 &= ~0x37;
+    track->update_flags &= ~0x37;
     func_80032B30(track, config, mask);
     func_80032C20(track, config, mask);
     func_80032CE8(track, config, mask);
-    track->unk6E &= ~0x5;
+    track->sfx_mask &= ~0x5;
 }
 
 void func_80033788(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
-    track->unk38 |= 0x10;
+    track->update_flags |= 0x10;
 }
 
 void func_8003379C(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
-    track->unk38 &= ~0x10;
+    track->update_flags &= ~0x10;
 }
 
 void func_800337B0(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
-    track->unk38 |= 0x20;
+    track->update_flags |= 0x20;
 }
 
 void func_800337C4(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
-    track->unk38 &= ~0x20;
+    track->update_flags &= ~0x20;
 }
 
 void func_800337D8(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
