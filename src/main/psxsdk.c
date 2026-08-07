@@ -55,7 +55,8 @@ int func_80033DE4(int sector_no) {
     return 0;
 }
 
-int func_80033E34(int sector_no, size_t size, u_long* dst, void (*cb)()) {
+int SystemLoadFileBySector(
+    int sector_no, size_t size, u_long* dst, void (*cb)()) {
     func_80033CB8(CDOP_3, sector_no, size, dst, cb);
     return 0;
 }
@@ -77,7 +78,7 @@ int func_80033EDC(int sector_no, void (*cb)()) {
 }
 
 int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)()) {
-    while (func_80033E34(sector_no, size, dst, cb)) {
+    while (SystemLoadFileBySector(sector_no, size, dst, cb)) {
     }
     while (SystemCdromReadChain()) {
         VSync(0);

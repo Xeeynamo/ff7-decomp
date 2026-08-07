@@ -202,7 +202,7 @@ static void func_801B23E0(s32 sceneID, void (*cb)(void)) {
     var_s5 = (s32*)0x801C0000;
     chunkID = sceneID / 4;
     temp_s1 = func_801B2738(chunkID); // sector modified based on the Chunk ID
-    func_80033E34(                    // load file from disk
+    SystemLoadFileBySector(           // load file from disk
         func_800144D8(BATTLE_SCENE) +
             temp_s1 * 4, // Disk sector where to load the file from
         0x800 * 4,       // Size in bytes to copy

@@ -195,7 +195,7 @@ void func_800111E4(void) {
 }
 
 void func_80011274(void) {
-    func_80033E34(D_80048D1C, D_80048D20, (u_long*)0x800E0000, NULL);
+    SystemLoadFileBySector(D_80048D1C, D_80048D20, (u_long*)0x800E0000, NULL);
 
     while (1) {
         if (SystemCdromReadChain() == 0) {
@@ -203,7 +203,7 @@ void func_80011274(void) {
         }
     }
 
-    func_80033E34(D_80048D14, D_80048D18, (u_long*)0x800A0000, NULL);
+    SystemLoadFileBySector(D_80048D14, D_80048D18, (u_long*)0x800A0000, NULL);
 
     while (1) {
         if (SystemCdromReadChain() == 0) {
@@ -242,7 +242,8 @@ extern u32 D_80048D28; // field.X size
 void func_80011860(void) {
     if (D_800965EC != 5 && D_800965EC != 13) {
         if (D_800965EC != 2) {
-            func_80033E34(D_80048D24, D_80048D28, (u_long*)0x80180000, NULL);
+            SystemLoadFileBySector(
+                D_80048D24, D_80048D28, (u_long*)0x80180000, NULL);
             while (1) {
                 if (SystemCdromReadChain() == 0) {
                     break;
@@ -268,13 +269,13 @@ void func_80011920(void) {
 }
 
 void func_80011938(void) {
-    func_80033E34(D_80048CFC, D_80048D00, (u_long*)0x800F0000, NULL);
+    SystemLoadFileBySector(D_80048CFC, D_80048D00, (u_long*)0x800F0000, NULL);
     do {
     } while (SystemCdromReadChain());
-    func_80033E34(D_80048D04, D_80048D08, (u_long*)0x801B0000, NULL);
+    SystemLoadFileBySector(D_80048D04, D_80048D08, (u_long*)0x801B0000, NULL);
     do {
     } while (SystemCdromReadChain());
-    func_80033E34(D_80048D0C, D_80048D10, (u_long*)0x801BC800, NULL);
+    SystemLoadFileBySector(D_80048D0C, D_80048D10, (u_long*)0x801BC800, NULL);
     do {
     } while (SystemCdromReadChain());
     func_8002988C(0x800F0000, 0x801BC800);
@@ -334,11 +335,12 @@ void func_80014510(s32 file_no) { func_800144F0(D_80048D84[file_no].loc); }
 
 // used to load WORLD/WORLD.BIN or FIELD/FIELD.BIN
 void func_80014540(void) {
-    func_80033E34(D_80071744, D_80095DD8, D_800722C8, NULL);
+    SystemLoadFileBySector(D_80071744, D_80095DD8, D_800722C8, NULL);
 }
 
 void func_80014578(s32 file_no, void* dst, void (*cb)(void)) {
-    func_80033E34(D_80048D84[file_no].loc, D_80048D84[file_no].len, dst, cb);
+    SystemLoadFileBySector(
+        D_80048D84[file_no].loc, D_80048D84[file_no].len, dst, cb);
 }
 
 void func_800145BC(void (*cb)(void)) {
@@ -354,7 +356,7 @@ void func_80014608(void) {}
 // initialize LBA system
 void func_80014610(void) {
     u8 buf[2048];
-    func_80033E34(LBA_INIT_YAMADA, sizeof(buf), (u_long*)&buf, NULL);
+    SystemLoadFileBySector(LBA_INIT_YAMADA, sizeof(buf), (u_long*)&buf, NULL);
     func_800145BC(0);
     func_80014A00(
         (s32*)D_80048D84, (s32*)&buf, sizeof(Yamada) * YAMADA_FILE_NUM);
