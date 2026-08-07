@@ -4125,10 +4125,8 @@ s32 OpcodeFuncPc(void) {
         if (Savemap.memory_bank_2[9 + i] == charId) {
             if (i != 0) {
                 g_FieldModels[g_EntityToModel[g_CurrentEntity]].visible = 0;
-                g_FieldModels[g_EntityToModel[g_CurrentEntity]]
-                    .collisionDisabled = 1;
-                g_FieldModels[g_EntityToModel[g_CurrentEntity]]
-                    .talkScriptDisabled = 1;
+                g_FieldModels[g_EntityToModel[g_CurrentEntity]].SolidOff = 1;
+                g_FieldModels[g_EntityToModel[g_CurrentEntity]].TalkOff = 1;
             } else {
                 g_FieldState->pcModelId = g_EntityToModel[g_CurrentEntity];
             }
@@ -4141,8 +4139,8 @@ s32 OpcodeFuncPc(void) {
     g_CharIdToEntity[charId] = g_CurrentEntity;
 
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].visible = 0;
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].collisionDisabled = 1;
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].talkScriptDisabled = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].SolidOff = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].TalkOff = 1;
 
     PC_INC(2);
     return 0;
