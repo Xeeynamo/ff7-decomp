@@ -64,34 +64,34 @@ typedef enum {
 } ScriptedMoveMode;
 
 typedef enum {
-    FIELDOP_NONE,
-    FIELDOP_FIELD_MAP_CHANGE,
-    FIELDOP_ENTERING_BATTLE,
-    FIELDOP_LOAD_MOVIE,
-    FIELDOP_PLAY_MOVIE,
-    FIELDOP_PLAY_ENDING_FMV,
-    FIELDOP_CHAR_NAME_ENTRY,
-    FIELDOP_PARTY_SELECT,
-    FIELDOP_SHOP,
-    FIELDOP_PARTY_MENU,
-    FIELDOP_BEAT_GAME,
-    FIELDOP_UNKB,
-    FIELDOP_LOAD_MINIGAME,
-    FIELDOP_CD_CHANGE,
-    FIELDOP_SAVE_SCREEN,
-    FIELDOP_YUFFIE_STEALS_MATERIA,
-    FIELDOP_YUFFIE_RETURNS_MATERIA,
-    FIELDOP_REMOVE_CHARS_MATERIA_ACCESSORY,
-    FIELDOP_UNK12,
-    FIELDOP_UNK13,
-    FIELDOP_UNK14,
-    FIELDOP_UNK15,
-    FIELDOP_MASTER_MATERIA_CHECK,
-    FIELDOP_ADD_MASTER_MATERIA,
-    FIELDOP_JENOVA_SYNTH_COPY_LEVELS,
-    FIELDOP_UNK19,
-    FIELDOP_GAME_OVER,
-} FieldOpcode;
+    FIELDCMD_NONE,
+    FIELDCMD_FIELD_MAP_CHANGE,
+    FIELDCMD_ENTERING_BATTLE,
+    FIELDCMD_LOAD_MOVIE,
+    FIELDCMD_PLAY_MOVIE,
+    FIELDCMD_PLAY_ENDING_FMV,
+    FIELDCMD_CHAR_NAME_ENTRY,
+    FIELDCMD_PARTY_SELECT,
+    FIELDCMD_SHOP,
+    FIELDCMD_PARTY_MENU,
+    FIELDCMD_BEAT_GAME,
+    FIELDCMD_UNKB,
+    FIELDCMD_LOAD_MINIGAME,
+    FIELDCMD_CD_CHANGE,
+    FIELDCMD_SAVE_SCREEN,
+    FIELDCMD_YUFFIE_STEALS_MATERIA,
+    FIELDCMD_YUFFIE_RETURNS_MATERIA,
+    FIELDCMD_REMOVE_CHARS_MATERIA_ACCESSORY,
+    FIELDCMD_UNK12,
+    FIELDCMD_UNK13,
+    FIELDCMD_UNK14,
+    FIELDCMD_UNK15,
+    FIELDCMD_MASTER_MATERIA_CHECK,
+    FIELDCMD_ADD_MASTER_MATERIA,
+    FIELDCMD_JENOVA_SYNTH_COPY_LEVELS,
+    FIELDCMD_UNK19,
+    FIELDCMD_GAME_OVER,
+} FieldCommand;
 
 typedef enum {
     SCRL_OFF,
@@ -423,21 +423,28 @@ typedef struct {
     u32 unk4;
 } Unk80062F7C;
 
+
+
 typedef struct {
     /* 0x00 */ LinePos pos;
+
     /* 0x0C */ u8 isActive;
     /* 0x0D */ u8 entityId;
     /* 0x0E */ u8 touch;
     /* 0x0F */ u8 across;
+
     /* 0x10 */ u8 requestPushScript;
     /* 0x11 */ u8 requestTalkScript;
-    /* 0x12 */ u8 touchOn;
-    /* 0x13 */ u8 touchOff;
+
+    /* 0x12 */ u16 nextFieldId;
+
     /* 0x14 */ u8 proximityAngle;
     /* 0x15 */ u8 isOnLine;
     /* 0x16 */ u8 slipDisabled;
     /* 0x17 */ u8 unk17;
+
 } FieldLine; // size:0x18
+
 
 typedef struct {
 
@@ -563,11 +570,11 @@ typedef struct {
 
 typedef struct {
     u8 renderBuffer;
-    // enum FieldOpcode.
-    u8 opcode;
+    // enum FIELDCMDcode.
+    u8 command;
     // Used by some opcodes to carry extra info, ie. shop id
     // for shop menu, char id for name entry screen.
-    s16 opcodeParam;
+    s16 commandParam;
     // Stores player position when exiting field or jumping between field maps.
     s16 pcPosX;
     s16 pcPosY;
@@ -597,7 +604,8 @@ typedef struct {
     // Following two variables are set when exiting from field to mini games,
     // world map, or another field map.
     u16 pcWalkMeshId;      // Walk mesh triangle id player is inside of.
-    u16 pcDirection;       // Direction player is facing.
+    u8 pcDirection;       // Direction player is facing.
+	u8 unk25;
     s16 movieCommandState; // enum MovieCommandState.
     u16 modelCount;
     s16 pcModelId;
@@ -833,7 +841,7 @@ int SystemAkaoExecute(void);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);
-int func_80033E34(int sector_no, size_t size, u_long* dst, void (*cb)());
+int SystemLoadFileBySector(int sector_no, size_t size, u_long* dst, void (*cb)());
 int DS_read(int sector_no, size_t size, u_long* dst, void (*cb)());
 int func_80033EDC(int sector_no, void (*cb)());
 int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)());

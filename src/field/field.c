@@ -107,7 +107,7 @@ static void FieldDebugStringU32hex(s32 val, char* msg_out);
 // Begin of field_main.c
 /////////////////////////////////////////////////
 
-// INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldLoadMimDatFiles);
+
 
 typedef struct {
     u32 datSector; // +0x00
@@ -155,7 +155,7 @@ void FieldLoadMimDatFiles(void) {
     g_FieldModelLoaderData = temp + 4;
 }
 
-void StopMapLoadInAdvance(void) {
+void StopFieldMapPreload(void) {
     if (g_isFieldLoading == 1) {
         SystemCdromAbortLoading();
     }
@@ -163,7 +163,100 @@ void StopMapLoadInAdvance(void) {
     g_isFieldLoading = 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", MapLoadInAdvance);
+
+extern FieldFileInfo g_FieldFileTable[];
+extern u16 g_FieldMoviePlayed;
+extern u16 g_FieldPreloadMapId;
+extern s32 g_WmPreSector;
+extern u32 g_WmPreSize;
+
+#ifndef NON_MATCHINGS
+INCLUDE_ASM("asm/us/field/nonmatchings/field", PreloadNextFieldMap);
+#else
+
+// External Declarations
+extern u8 D_8009ABF5;
+extern u8 D_8009AC26;
+extern s16 D_80071A5C;
+
+// D_8009ABF5 = g_FieldState -> command 
+
+
+void PreloadNextFieldMap(FieldEntity* Player, FieldLine * gateway) {
+    s16* ptr_a3;
+    s32* scratchpad;
+    s32 min_dist;
+    s32 counter;
+    s16* ptr_a1;
+    s32 term_val;
+    s32 diff_x, diff_y, dist;
+    s16 map_id;
+    FieldFileInfo* table;
+    s32 sector;
+    u32 size;
+
+    ptr_a3 = gateway;
+    min_dist = 0x7FFFFFFF;
+
+    scratchpad = 0x1F800000;
+    scratchpad[0] = Player->PosX >> 12;
+    scratchpad[1] = Player->PosY >> 12;
+    scratchpad[2] = Player->PosZ >> 12;
+
+    if (D_8009AC26 == 0) {
+        counter = 0;
+        term_val = 0x7FFF;
+        ptr_a1 =(gateway + 0x12);
+
+        do {
+            map_id = ptr_a1[0];
+            if (map_id != term_val) {
+                diff_x = ptr_a3[0] - scratchpad[0];
+                diff_y = ptr_a1[-8] - scratchpad[1];
+                dist = (diff_x * diff_x) + (diff_y * diff_y);
+
+                if (dist < min_dist) {
+                    min_dist = dist;
+                    g_FieldPreloadMapId = map_id;
+                }
+            }
+
+            counter++;
+            ptr_a1 = (ptr_a1 + 0x18);
+            ptr_a3 = (ptr_a3 + 0x18);
+        } while (counter < 12);
+    }
+
+    if (D_8009ABF5 == 3 || (g_FieldMoviePlayed == 1) || D_8009ABF5 == 2) {
+        StopFieldMapPreload();
+        return;
+    }
+
+    if (D_80071A5C == g_FieldPreloadMapId) {
+        return;
+    }
+
+    table = g_FieldFileTable;
+    if (0x4DFFF < table[g_FieldPreloadMapId].datSize) {
+        return;
+    }
+
+    StopFieldMapPreload();
+    D_80071A5C = g_FieldPreloadMapId;
+
+    if (D_80071A5C >= 0x41) {
+        sector = table[D_80071A5C].datSector;
+        size = table[D_80071A5C].datSize;
+    } else {
+        sector = g_WmPreSector;
+        size = g_WmPreSize;
+    }
+
+    SystemLoadFileBySector(sector, size, 0x801B0000, NULL);
+    g_isFieldLoading = 1;
+}
+
+#endif
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldMain);
 
@@ -2541,14 +2634,14 @@ s32 OpcodeFuncDskcg(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("dskcg", 1);
     }
-    switch (g_FieldState->opcode) {
-    case FIELDOP_NONE:
-        g_FieldState->opcode = FIELDOP_CD_CHANGE;
+    switch (g_FieldState->command) {
+    case FIELDCMD_NONE:
+        g_FieldState->command = FIELDCMD_CD_CHANGE;
         D_8009D588 = GET_PARAM_U8(1);
         return 1;
-    case FIELDOP_CD_CHANGE:
+    case FIELDCMD_CD_CHANGE:
         if (g_FieldState->movieCommandState == MOVCMD_DONE) {
-            g_FieldState->opcode = FIELDOP_NONE;
+            g_FieldState->command = FIELDCMD_NONE;
             PC_INC(2);
             return 0;
         }
@@ -2607,7 +2700,7 @@ s32 OpcodeFuncGmovr(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("gmovr", 0);
     }
-    g_FieldState->opcode = FIELDOP_GAME_OVER;
+    g_FieldState->command = FIELDCMD_GAME_OVER;
     g_FieldState->movieCommandState = MOVCMD_IDLE;
     return 1;
 }
