@@ -423,8 +423,6 @@ typedef struct {
     u32 unk4;
 } Unk80062F7C;
 
-
-
 typedef struct {
     /* 0x00 */ LinePos pos;
 
@@ -444,7 +442,6 @@ typedef struct {
     /* 0x17 */ u8 unk17;
 
 } FieldLine; // size:0x18
-
 
 typedef struct {
 
@@ -603,9 +600,9 @@ typedef struct {
     u16 cameraScrollNumSteps;
     // Following two variables are set when exiting from field to mini games,
     // world map, or another field map.
-    u16 pcWalkMeshId;      // Walk mesh triangle id player is inside of.
-    u8 pcDirection;       // Direction player is facing.
-	u8 unk25;
+    u16 pcWalkMeshId; // Walk mesh triangle id player is inside of.
+    u8 pcDirection;   // Direction player is facing.
+    u8 unk25;
     s16 movieCommandState; // enum MovieCommandState.
     u16 modelCount;
     s16 pcModelId;
@@ -841,7 +838,8 @@ int SystemAkaoExecute(void);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);
-int SystemLoadFileBySector(int sector_no, size_t size, u_long* dst, void (*cb)());
+int SystemLoadFileBySector(
+    int sector_no, size_t size, u_long* dst, void (*cb)());
 int DS_read(int sector_no, size_t size, u_long* dst, void (*cb)());
 int func_80033EDC(int sector_no, void (*cb)());
 int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)());

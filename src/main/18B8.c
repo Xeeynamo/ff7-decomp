@@ -242,7 +242,8 @@ extern u32 D_80048D28; // field.X size
 void func_80011860(void) {
     if (D_800965EC != 5 && D_800965EC != 13) {
         if (D_800965EC != 2) {
-            SystemLoadFileBySector(D_80048D24, D_80048D28, (u_long*)0x80180000, NULL);
+            SystemLoadFileBySector(
+                D_80048D24, D_80048D28, (u_long*)0x80180000, NULL);
             while (1) {
                 if (SystemCdromReadChain() == 0) {
                     break;
@@ -338,7 +339,8 @@ void func_80014540(void) {
 }
 
 void func_80014578(s32 file_no, void* dst, void (*cb)(void)) {
-    SystemLoadFileBySector(D_80048D84[file_no].loc, D_80048D84[file_no].len, dst, cb);
+    SystemLoadFileBySector(
+        D_80048D84[file_no].loc, D_80048D84[file_no].len, dst, cb);
 }
 
 void func_800145BC(void (*cb)(void)) {

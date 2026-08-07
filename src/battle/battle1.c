@@ -798,7 +798,8 @@ static void func_800BB804(void) {
 }
 
 static void func_800BB864(void) {
-    SystemLoadFileBySector(LBA_ENEMY6_OVER2, 0x800, (u_long*)0x801D0000, func_800BB89C);
+    SystemLoadFileBySector(
+        LBA_ENEMY6_OVER2, 0x800, (u_long*)0x801D0000, func_800BB89C);
     func_800B7FB4();
 }
 

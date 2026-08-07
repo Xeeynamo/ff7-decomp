@@ -107,8 +107,6 @@ static void FieldDebugStringU32hex(s32 val, char* msg_out);
 // Begin of field_main.c
 /////////////////////////////////////////////////
 
-
-
 typedef struct {
     u32 datSector; // +0x00
     u32 datSize;   // +0x04
@@ -163,7 +161,6 @@ void StopFieldMapPreload(void) {
     g_isFieldLoading = 0;
 }
 
-
 extern FieldFileInfo g_FieldFileTable[];
 extern u16 g_FieldMoviePlayed;
 extern u16 g_FieldPreloadMapId;
@@ -179,10 +176,9 @@ extern u8 D_8009ABF5;
 extern u8 D_8009AC26;
 extern s16 D_80071A5C;
 
-// D_8009ABF5 = g_FieldState -> command 
+// D_8009ABF5 = g_FieldState -> command
 
-
-void PreloadNextFieldMap(FieldEntity* Player, FieldLine * gateway) {
+void PreloadNextFieldMap(FieldEntity* Player, FieldLine* gateway) {
     s16* ptr_a3;
     s32* scratchpad;
     s32 min_dist;
@@ -206,7 +202,7 @@ void PreloadNextFieldMap(FieldEntity* Player, FieldLine * gateway) {
     if (D_8009AC26 == 0) {
         counter = 0;
         term_val = 0x7FFF;
-        ptr_a1 =(gateway + 0x12);
+        ptr_a1 = (gateway + 0x12);
 
         do {
             map_id = ptr_a1[0];
