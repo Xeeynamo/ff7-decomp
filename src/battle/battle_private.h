@@ -23,12 +23,12 @@ typedef struct {
     u8 unkE;
     u8 unkF;
     s32 unk10;
-    s32 unk14;
+    u8 unk14[4];
     s32 unk18;
     s32 unk1C;
     s32 unk20;
     s32 unk24;
-    s8 unk28;
+    u8 unk28;
     s8 unk29;
     s16 unk2A;
     s32 unk2C;
@@ -341,6 +341,17 @@ extern s32 D_800F39EC;
 extern u8 D_800F39F0[][6];
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
+typedef struct {
+    u8 unk0;
+    s8 unk1;
+    s16 unk2;
+} Unk800F4308;
+extern Unk800F4308 D_800F4308[][128];
+extern s32 D_800F4914[];
+extern s32 D_800F4920;
+extern u16 D_800F4938[];
+extern s8 D_800F494C[];
+extern u16 D_800F4958;
 extern s16 D_800F4AD0;
 extern s32 D_800F4AD4;
 extern s32 D_800F4AD8;
@@ -357,8 +368,8 @@ extern u8 D_800F5774;
 extern s32 D_800F57CC;
 extern Unk800F57D0* D_800F57D0;
 extern u8 D_800F57D4;
-extern Unk800AF470
-    D_800F5BB8[]; // per-party-slot turn/effect state (flags, countdown timers)
+extern Unk800AF470 D_800F5BB8[10]; // per-party-slot turn/effect state (flags,
+                                   // countdown timers)
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
 extern s32 D_800F7DF8[3];
@@ -537,6 +548,22 @@ extern u8 D_80166F68;
 
 void func_800A4350(s16, s16, s16, u16);
 void func_800A8E84(s32);
+void func_800AA950(Unk800FA9D0*);
+void func_800AB308(void);
+void func_800AB480(void);
+void func_800AB788(void);
+void func_800ABA68(Unk800FA9D0*, s16, u16, s16, s16);
+void func_800AC6B4(s32);
+void func_800AC73C(s32);
+void func_800ACA24(void);
+s32 func_800ACD88(s32);
+s32 func_800ACE14(s32);
+void func_800AD088(Unk800FA9D0*);
+void func_800AD0FC(void);
+void func_800AD324(s32, s32, s32, s32);
+void func_800AD420(void);
+void func_800AD4EC(void);
+void func_800AE82C(void);
 s32 func_800B3030(s32);
 void func_800B4794(void);
 s32 func_800B5CD4(s32);

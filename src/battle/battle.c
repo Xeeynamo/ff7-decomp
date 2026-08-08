@@ -110,7 +110,7 @@ void func_800A2CC4(s32 arg0) {
 }
 
 const u8 D_800A01A8[] = {0x05, 0x06, 0x07, 0x12, 0x0F, 0x00, 0x03, 0xA6};
-u8 func_800A2D0C(void) {
+s32 func_800A2D0C(void) {
     s32 temp_v1;
 
     if (D_80063014->unk208 >= 3) {
@@ -309,16 +309,27 @@ s32 func_800A3828(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A38FC);
 
-typedef struct {
-    s8 unk0;
-    s8 unk1;
-    s8 unk2;
-    s8 unk3;
-    s16 unk4;
-    s16 unk6;
-} Unk800A3D4C; // size:8
-void func_800A3D4C(Unk800A3D4C*);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3D4C);
+void func_800A3D4C(Unk800A3D4C* arg0) {
+    s32 category;
+    s32 i;
+
+    category = arg0->unk0;
+    for (i = 0; i < LEN(D_800F5F44.messageQueue); i++) {
+        if (D_800F5F44.messageQueue[i].unk0 == 0xFF) {
+            arg0->unk1 = D_800F5F44.unkC57[category];
+            D_800F5F44.messageQueue[i] = *arg0;
+            D_800F5F44.unkC57[category] += 1;
+            D_800F5F44.D_800F7DDE = category;
+            if (arg0->unk0 >= 2) {
+                D_800F83AC.combatant[arg0->unk2].unk4 &= ~0x20;
+                if ((arg0->unk3 & 0x3F) == 0x13) {
+                    D_800F83AC.combatant[arg0->unk2].unk4 |= 0x20;
+                }
+            }
+            return;
+        }
+    }
+}
 
 void func_800A3E98(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     Unk800A3D4C sp;
@@ -366,7 +377,14 @@ void func_800A4350(s16 actorId, s16 cmdIndex, s16 attackIndex, u16 targetMask) {
     D_800F39DC = (D_800F39DC + 1) & 0xF;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4480);
+void func_800A4480(void) {
+    s32 i;
+
+    for (i = 0; i < LEN(D_800F5BB8); i++) {
+        D_800F5BB8[i].unk3C = D_800F83AC.combatant[i].curHP;
+        D_800F5BB8[i].unk3E = D_800F83AC.combatant[i].unk28;
+    }
+}
 
 // Manipulate redirect: if arg0 (an enemy id) is currently manipulated
 // (D_800F7DCA bit), return the party slot whose D_800F5E60[].unk6 is
@@ -448,7 +466,17 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4BA4);
 
 s32 func_800A4CA8(s32 arg0) { return D_800F39F0[arg0][0]; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4CC8);
+s32 func_800A4CC8(s32 arg0) {
+    s32 temp_v1;
+
+    if (arg0 < 3) {
+        temp_v1 = D_800F5E60[arg0].unk6;
+        if ((temp_v1 >= 4) && ((D_800F5F44.D_800F7DCA >> temp_v1) & 1)) {
+            arg0 = temp_v1;
+        }
+    }
+    return arg0;
+}
 
 void func_800A4D2C(s32 arg0) {
     u32 i;
@@ -529,7 +557,7 @@ typedef struct {
     s16 b;
 } Unk800F3A40;
 
-extern Unk800F3A40 D_800F3A40[];
+extern Unk800F3A40 D_800F3A40[16];
 
 void func_800A55BC(void) {
     s32 i;
@@ -540,11 +568,29 @@ void func_800A55BC(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A55F4);
+void func_800A55F4(s16 arg0, s16 arg1) {
+    s32 i;
 
-void func_800A5660(s32, s16);
-;
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A5660);
+    for (i = 0; i < LEN(D_800F3A40); i++) {
+        if (D_800F3A40[i].a == arg0 && D_800F3A40[i].b == arg1) {
+            D_800F3A40[i].a = -1;
+            D_800F3A40[i].b = -1;
+            return;
+        }
+    }
+}
+
+void func_800A5660(s16 arg0, s16 arg1) {
+    s32 i;
+
+    for (i = 0; i < LEN(D_800F3A40); i++) {
+        if (D_800F3A40[i].b == -1) {
+            D_800F3A40[i].a = arg0;
+            D_800F3A40[i].b = arg1;
+            return;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A56B0);
 
@@ -579,17 +625,66 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A5EB0);
 
 s8* func_800A5F90(s32 arg0) { return &D_800F3A80[D_800F4280[arg0]]; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A5FB0);
+s32 func_800A5FB0(u16* arg0, s32 arg1, s32 arg2) {
+    s32 var_v1 = 0;
+    u16* temp_a0;
+
+    if (arg1 != -1) {
+        arg1 = arg0[arg1];
+        if (arg1 != 0xFFFF) {
+            temp_a0 = arg0 + (arg1 >> 1);
+            arg1 = temp_a0[arg2];
+            if (arg1 != 0xFFFF) {
+                var_v1 = (s32)temp_a0 + arg1;
+            }
+        }
+    }
+    return var_v1;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6000);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A61D4);
+void func_800B1D48(s32, s32, s32);
+void func_800B2A2C(s32, s32);
+
+void func_800A61D4(void) {
+    s32 temp_v0;
+    s32 var_s0;
+
+    func_800B2A2C(-1, 0);
+    for (var_s0 = 0; var_s0 < 8; var_s0 += 1) {
+        if ((D_800F5F44.D_800F7DBC >> var_s0) & 1) {
+            D_800F5F44.D_800F7DBC &= ~(1 << var_s0);
+            temp_v0 = func_800A5FB0(
+                D_800F5F44._5.unk0, D_800F83AC.sceneID & 3, var_s0);
+            if (temp_v0 != 0) {
+                func_800B1D48(3, temp_v0, -1);
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6278);
 
 void func_800A64A0(s32 arg0, s8 arg1) { D_800E7A58[arg0] = arg1; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A64B4);
+u16 func_800A64B4(s32 arg0) {
+    u16 var_a0;
+    u8* countPtr;
+
+    var_a0 = 0xFFFF;
+    if (D_801671B8[arg0].count != 0) {
+        D_801671B8[arg0].count -= 1;
+        countPtr = &D_801671B8[arg0].count;
+        var_a0 = D_801671B8[arg0].id;
+        if (*countPtr == 0) {
+            D_801671B8[arg0].id = 0xFFFF;
+            D_801671B8[arg0].unk4 = 0xA;
+        }
+        D_80166F75 = 0xFF;
+    }
+    return var_a0;
+}
 
 void func_800A653C(s32 arg0) {
     s32 index = func_800A44D8(arg0);
@@ -685,14 +780,14 @@ void func_800A6C04(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6C5C);
 
-extern const u8 D_800A04D0[];
+extern const u8 g_StatusBitTable[];
 
-void func_800A6CC0(s32 arg0, s32 arg1) {
-    u32 mask = ~(1 << D_800A04D0[arg1]);
+void BATTLE_ClearStatusBit(s32 arg0, s32 arg1) {
+    u32 mask = ~(1 << g_StatusBitTable[arg1]);
     D_800F83AC.combatant[arg0].status &= mask;
 }
 
-void func_800A6D10(s32 arg0) { func_800A3E98(arg0, 3, 2, 54, 0); }
+void BATTLE_ExpireDeathSentence(s32 arg0) { func_800A3E98(arg0, 3, 2, 54, 0); }
 
 void func_800A6D3C(s32 arg0) {
     s32 temp_v1;
@@ -703,13 +798,24 @@ void func_800A6D3C(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6D88);
+void BATTLE_TickPoison(s32 arg0) {
+    if (D_800F83AC.combatant[arg0].status & 8) {
+        D_800F5BB8[arg0].unk14[2] = 0xA;
+        func_800A3E98(arg0, 3, 0x23, 0, 0);
+    }
+}
 
 void func_800A6DFC(void) {}
 
 void func_800A6E04(void) {}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6E0C);
+void func_800A6E0C(s32 arg0) {
+    if (arg0 < 3) {
+        D_800F5E60[arg0].limitBarUI = 0;
+        D_800F5E60[arg0].limitBar = 0;
+        func_800A7254(0, arg0, 1, 0);
+    }
+}
 
 void func_800A7254(s32, s32, s32, s32);
 void func_800A6E6C(s32 arg0, s32 arg1) { func_800A7254(0, arg0, 13, arg1); }
@@ -739,7 +845,23 @@ s32 func_800A71E8(s32 arg0) { return (arg0 + 1) & 0x7F; }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A71F4);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A7254);
+void func_800A7254(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    s32* base;
+    s32* temp_s0;
+    s32 temp_t0;
+    Unk800F4308* temp_a0;
+
+    base = D_800F4914;
+    temp_s0 = base + arg0;
+    temp_t0 = *temp_s0;
+    temp_a0 = &D_800F4308[arg0][temp_t0];
+    if (temp_a0->unk0 == 0xFF) {
+        temp_a0->unk2 = arg3;
+        temp_a0->unk1 = arg2;
+        temp_a0->unk0 = arg1;
+        *temp_s0 = func_800A71E8(temp_t0);
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A72C8);
 
@@ -851,7 +973,17 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8424);
 
 void func_800A8528(void) { D_80063014->unkB4 = 4; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A853C);
+void func_800A6000(s32, s32, s32);
+
+void func_800A853C(void) {
+    s32 var_s0;
+
+    for (var_s0 = 0; var_s0 < 0xA; var_s0 += 1) {
+        if ((D_80063014->allowedTargetsMask >> var_s0) & 1) {
+            func_800A6000(var_s0, D_80063014->relativeActionIndex, 0);
+        }
+    }
+}
 
 void func_800A85A0(void) { D_80063014->unkB4 = 2; }
 
@@ -1011,7 +1143,18 @@ static void func_800AA4FC(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA574);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA688);
+void func_800AA688(void) {
+    s32 var_a0;
+    s32 var_a1;
+
+    var_a1 = 1;
+    for (var_a0 = 0; var_a0 < 3; var_a0++) {
+        if (D_800F83AC.combatant[var_a0].status & 1) {
+            var_a1 += 1;
+        }
+    }
+    D_80063014->unk214 *= var_a1;
+}
 
 s32 func_800AA6E8(s32 arg0, s32 arg1) {
     arg0 = arg0 < 4 ? 1 : 0;
@@ -1047,14 +1190,319 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AB788);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AB830);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AB9C4);
+void func_800AB830(s32, s32);
+
+void func_800AB9C4(s32 arg0, s32 arg1) {
+    Unk800A2F4C* temp_v0;
+
+    if (!(D_800F83AC.combatant[arg0].status & 1)) {
+        temp_v0 = func_800A2F4C();
+        temp_v0->unk1 = 1;
+        temp_v0->unk5 = 0x2E;
+        temp_v0->unk0 = arg0;
+        temp_v0->unk3 = 0;
+        temp_v0->unk2 = 0;
+        temp_v0->unk8 = -1;
+        temp_v0->unk6 = 0;
+        temp_v0->unk4 = 0;
+        func_800AB830(arg0, arg1);
+        func_800A317C();
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ABA68);
 
-const s32 D_800A03A0[] = {0x200, 0x100, 0x010, 0x020};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ABB0C);
+// mutually exclusive status pairs -- row 0 Slow/Haste, row 1 Sadness/Fury.
+// func_800ABB0C queues the partner for removal when one is applied; for
+// row 1 an already-held partner cancels the incoming status instead
+const s32 D_800A03A0[2][2] = {{0x200, 0x100}, {0x010, 0x020}};
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AC6B4);
+void func_800ABB0C(s32 arg0, s32 arg1) {
+    Unk800FA9D0* act;
+    s32 cap;
+    s32 capMP;
+    s32 oldStatus;
+    s32 newStatus;
+    s32 mask;
+    s32 flags;
+    s32 bounceTarget;
+    s32 i;
+    s32 j;
+    s32 isReflected;
+    Unk800AF470* entry;
+
+    // grab a free action-result slot, tag it attacker/target, clear the
+    // "just processed" marker on the target
+    act = func_800A2FD0();
+    act->unk0 = arg1;
+    act->unk1 = arg0;
+    act->unk4 = 0;
+    D_800F83AC.combatant[arg1].unk17 = 0xFF;
+    func_800AA950(act);
+    func_800AC73C(act->unk0);
+    if (act->unk0 != arg1) {
+        // target got redirected (e.g. covered by another actor) -- flag it
+        func_800A3240();
+        D_80063014->unk218 |= 0x20;
+    }
+
+    // reload the (possibly redirected) target id, then run the damage/effect
+    // calculation pipeline for this hit
+    arg1 = D_80063014->unk208;
+    func_800AE82C();
+    func_800AB308();
+    if (D_80063014->unk44 & 0x200) {
+        D_80063014->unk220 |= 1;
+    }
+    if (!(D_80063014->unk6C & 1)) {
+        D_80063014->unk220 |= 4;
+    }
+    if (D_800F83AC.combatant[arg1].unk4 & 0x4000) {
+        // target already marked -- treat as an automatic miss/no-effect
+        D_80063014->unk218 |= 1;
+    }
+    if (!(D_80063014->unk218 & 1)) {
+        func_800AD4EC();
+    }
+    func_800A8E84(3);
+    if (D_80063014->unk48 == 0) {
+        D_80063014->unk218 |= 2;
+    }
+    if (func_800ACD88(arg1) != 0) {
+        D_80063014->unk230 = 0x20;
+    }
+
+    // Reflect check: bounce the effect back instead of applying it here
+    isReflected = 0;
+    func_800AB480();
+    if (!(D_80063014->unk6C & 0x200) && !((D_800F4958 >> arg1) & 1)) {
+        isReflected = (D_80063014->unk228 >> 18) & 1;
+    }
+    if (!(D_80063014->unk6C & 0x100) && !isReflected &&
+        !(D_80063014->unk228 & 1) && !(D_80063014->unk230 & 0xC1)) {
+        D_80063014->unk218 |= 1;
+    }
+
+    if (!(D_80063014->unk218 & 1)) {
+        // hit actually lands on the target
+        D_80063014->unkE0++;
+        act->unk4 |= 1;
+        func_800A8E84(4);
+        if (D_80063014->actorId != arg1) {
+            D_80063014->unk78 |= 1 << arg1;
+        }
+        if ((D_80063014->unk218 & 4) && (D_80063014->unkB0 < 9)) {
+            func_800A2974();
+        }
+        if (isReflected) {
+            // pick who the effect bounces to (self, or a cycled ally) and
+            // flag the reflect on the caster's status entry
+            if (func_800AA6E8(arg0, arg1) != 0) {
+                bounceTarget = arg0;
+            } else {
+                if (D_800F494C[arg1] == -1) {
+                    D_800F494C[arg1] = func_80014A38(func_800AA700(arg1));
+                }
+                bounceTarget = D_800F494C[arg1];
+            }
+            D_800F4920 |= 2;
+            D_800F4938[arg1] |= 1 << bounceTarget;
+            func_800ACA24();
+            entry = D_80063014->unk200;
+            if (entry->unk34 & 0x40000) {
+                D_800F4958 |= 1 << arg1;
+            } else if (entry->unk28 != 0) {
+                entry->unk28--;
+            } else {
+                D_80063014->unk23C |= 0x40000;
+            }
+            D_80063014->unk218 |= 2;
+            act->unk4 |= 2;
+            if (arg1 < 3) {
+                D_80063014->unk224 = 0xA;
+            }
+        }
+        if (D_80063014->unk218 & 0x4000) {
+            act->unk4 |= 0x10;
+        }
+        if (D_80063014->unk218 & 0x8000) {
+            act->unk4 |= 0x20;
+        }
+    } else {
+        // hit missed/had no effect -- wipe any accumulated status/damage
+        func_800ACA24();
+    }
+
+    // clamp the computed damage to this target's HP or MP cap
+    if (arg1 < 3) {
+        cap = D_800F5E60[arg1].capHP;
+        capMP = D_800F5E60[arg1].capMP;
+    } else {
+        cap = 9999;
+        capMP = 999;
+    }
+    if (D_80063014->unk220 & 4) {
+        cap = capMP;
+    }
+    if (cap < D_80063014->unk214) {
+        D_80063014->unk214 = cap;
+    }
+    if (func_800ACE14(arg1) != 0) {
+        D_80063014->unk214 = 0;
+    }
+    if (D_80063014->unk214 != 0) {
+        // All Lucky 7s: force the damage display to the "7777" value
+        cap = D_800F5BB8[D_80063014->actorId].unk3C;
+        if (cap == 0x1E61) {
+            D_80063014->unk214 = cap;
+        }
+    }
+
+    // pick which damage-number/message params to show for this hit
+    flags = D_80063014->unk218;
+    if (!(flags & 3)) {
+        if (!(D_80063014->unk220 & 1) && (D_80063014->actorId != arg1)) {
+            D_80063014->unkA8 |= 1 << arg1;
+        }
+        if (D_80063014->unk250 == -1) {
+            D_80063014->unk250 = D_80063014->unk214;
+        }
+        D_80063014->unk24C = D_80063014->unk68;
+        if (D_80063014->unk220 & 2) {
+            D_80063014->unk248 = D_80063014->unk58;
+        } else {
+            D_80063014->unk248 = D_80063014->unk54;
+        }
+        if ((D_80063014->unk220 & 1) || (D_80063014->unk250 == 0)) {
+            D_80063014->unk224 = 0x33;
+        } else {
+            func_800AC6B4(0);
+        }
+    } else if (flags & 1) {
+        D_80063014->unk248 = D_80063014->unk5C;
+    } else {
+        D_80063014->unk248 = D_80063014->unk54;
+        if (D_80063014->unk230 & 1) {
+            func_800AC6B4(0);
+        }
+    }
+
+    if (!(D_80063014->unk218 & 1)) {
+        // apply the pending status changes, honoring immunities (mask) and
+        // the mutually-exclusive status pairs (Slow/Haste, Sadness/Fury)
+        mask = ~D_80063014->unk22C;
+        oldStatus = D_80063014->unk228;
+        newStatus = oldStatus;
+        for (i = 0; i < 2; i++) {
+            for (j = 0; j < 2; j++) {
+                if (D_80063014->unk238 & D_800A03A0[i][j]) {
+                    if ((i == 1) && (newStatus & D_800A03A0[1][j ^ 1])) {
+                        // e.g. casting Fury on an already-Sad target just
+                        // cancels the Sadness instead of stacking
+                        D_80063014->unk238 &= ~D_800A03A0[1][j];
+                    }
+                    // queue the paired status for removal
+                    D_80063014->unk23C |= D_800A03A0[i][j ^ 1];
+                }
+            }
+        }
+        if (D_80063014->unk250 == -2) {
+            mask |= 1;
+        }
+        // apply / remove / toggle against the immunity mask
+        newStatus |= D_80063014->unk238 & mask;
+        newStatus &= ~(D_80063014->unk23C & mask);
+        newStatus ^= D_80063014->unk240 & mask;
+        D_80063014->unk228 = newStatus;
+        D_800F83AC.combatant[arg1].status = newStatus;
+        if (oldStatus != newStatus) {
+            if (newStatus & D_80063014->unk244) {
+                if (D_80063014->actorId != arg1) {
+                    D_80063014->unkA8 |= 1 << arg1;
+                }
+            }
+            if ((oldStatus ^ newStatus) & 1) {
+                // Death bit flipped -- pick the death/revive message
+                func_800AC6B4(oldStatus & 1);
+            } else {
+                act->unk4 |= 8;
+            }
+        } else {
+            D_80063014->unk218 |= 0x800000;
+        }
+    } else {
+        D_80063014->unk218 |= 0x800000;
+    }
+
+    func_800AD0FC();
+    if ((D_80063014->unk218 & 0x40001) == 0x40001) {
+        D_80063014->unk218 &= ~2;
+    }
+    if (!(D_80063014->unk218 & 2)) {
+        // queue the hit's damage/message display
+        func_800ABA68(act, D_80063014->unk250, D_80063014->unk220,
+                      D_80063014->unk248, D_80063014->unk24C);
+    } else if (D_80063014->unk218 & 0x800000) {
+        func_800AD088(act);
+    }
+    if (!(D_80063014->unk6C & 0x10)) {
+        func_800AD420();
+    }
+    if (D_80063014->unk90 & 0x80) {
+        // HP-absorb / MP-absorb bonus effects
+        func_800AD324(
+            D_80063014->unkF4, D_80063014->unk208, D_80063014->unk214 / 100, 1);
+    }
+    if (D_80063014->unk90 & 0x40) {
+        func_800AD324(
+            D_80063014->unkF4, D_80063014->unk208, D_80063014->unk214 / 10, 2);
+    }
+    if ((arg1 < 3) && (D_80063014->actorId >= 4)) {
+        // enemy attack triggered a scripted counter/follow-up
+        if ((*(s32*)(D_80063014->unk204 + 0x24) != 0) &&
+            (D_80063014->unk28 == 0xD)) {
+            func_800AB788();
+        }
+    }
+
+    // finalize the action-result descriptor for whatever consumes it next
+    act->unk8 = D_800F83AC.combatant[arg1].status;
+    act->unk2 = D_80063014->unk224;
+    if (D_80063014->unk218 & 0x20) {
+        act->unk2 = 9;
+    }
+    if (D_800F83AC.combatant[arg1].status & 1) {
+        // target just died -- mark it and re-queue a death message if the
+        // current message slot isn't already showing one
+        act->unk4 = (act->unk4 | 4) & ~8;
+        D_80063014->unk7C |= 1 << arg1;
+        if (D_80063014->unk28 == 0x1A) {
+            if (D_801636B8[arg1].D_801636BC < 0x11) {
+                D_801636B8[arg1].D_801636BC = 8;
+            }
+            func_800ABA68(act, -2, 0, D_80063014->unk248, D_80063014->unk68);
+        }
+    }
+}
+
+void func_800AC6B4(s32 arg0) {
+    s32 temp_a0;
+
+    if (arg0 != 0) {
+        if (D_80063014->unk208 >= 4) {
+            D_80063014->unk224 = 0x39;
+        }
+    } else {
+        temp_a0 = D_80063014->unk228;
+        if (temp_a0 & 0x400) {
+            D_80063014->unk224 = 0x30;
+        } else if (temp_a0 & 0x800) {
+            D_80063014->unk224 = 5;
+        } else {
+            D_80063014->unk224 = func_800A2D0C();
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AC73C);
 
@@ -1257,8 +1705,8 @@ const s8 D_800A04BC[] = {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AEB20);
 
 // this data belong to functions located above:
-const u8 D_800A04D0[] = {0x0A, 0x19, 0x15, 0x0D, 0x10, 0x11, 0x03, 0x02,
-                         0x0F, 0x1B, 0x14, 0x18, 0xFF, 0xFF, 0xFF, 0xFF};
+const u8 g_StatusBitTable[] = {0x0A, 0x19, 0x15, 0x0D, 0x10, 0x11, 0x03, 0x02,
+                               0x0F, 0x1B, 0x14, 0x18, 0xFF, 0xFF, 0xFF, 0xFF};
 int func_800B0378();
 int func_800B062C();
 int func_800B079C();
@@ -1314,8 +1762,8 @@ static s32 func_800AF834(s32 arg0) {
     s32 i;
 
     result = -1;
-    for (i = 0; i < LEN(D_800A04D0); i++) {
-        if (D_800A04D0[i] == arg0) {
+    for (i = 0; i < LEN(g_StatusBitTable); i++) {
+        if (g_StatusBitTable[i] == arg0) {
             result = i;
         }
     }
