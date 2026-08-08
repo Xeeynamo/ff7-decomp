@@ -592,7 +592,28 @@ void func_800A5660(s16 arg0, s16 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A56B0);
+// finds the free-list slot (D_800F3A40, see func_800A55BC/55F4/5660) whose
+// `.b` matches arg0, and moves it into the D_800F3A20 ring buffer (write
+// index D_800F3A1C, wraps at 16) before clearing the slot.
+void func_800A56B0(s16 arg0) {
+    s32 i;
+    s16 entry;
+    s32 nextIdx;
+    s16* dst;
+
+    for (i = 0; i < LEN(D_800F3A40); i++) {
+        entry = D_800F3A40[i].b;
+        if ((entry != -1) && (D_800F3A40[i].a == arg0)) {
+            nextIdx = D_800F3A1C + 1;
+            dst = &D_800F3A20[D_800F3A1C];
+            D_800F3A1C = nextIdx;
+            *dst = entry;
+            D_800F3A1C = nextIdx & 0xF;
+            D_800F3A40[i].a = -1;
+            D_800F3A40[i].b = -1;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A5750);
 
@@ -694,8 +715,16 @@ void func_800A653C(s32 arg0) {
 
 void func_800A6590(s32 arg0) { func_800A4D88(arg0); }
 
-void func_800A65B0(s32, s32);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A65B0);
+void func_800A65B0(s32 arg0, s32 arg1) {
+    u16* p;
+
+    if (arg0 < 3) {
+        func_800A4F14(arg0);
+        D_8009D866[arg0].unk0 = 0;
+        p = &D_80163762;
+        *p &= ~(1 << arg0);
+    }
+}
 
 void func_800A661C(s32 arg0) {
     func_800A4D88(arg0);
@@ -742,7 +771,12 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A68FC);
 
 void func_800A6A3C(s32 arg0, s32 arg1) { D_800F5BB8[arg0].unkE |= arg1; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6A70);
+void func_800A555C();
+
+void func_800A6A70(s32 arg0) {
+    func_800A555C();
+    D_800F5BB8[arg0].unkE |= 9;
+}
 
 void func_800A6AC4(void) {
     D_800F5F44.D_800F7DC4 &= 0xFC0F;
