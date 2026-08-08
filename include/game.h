@@ -353,8 +353,8 @@ typedef struct {
     s32 unkF8;
     s32 unkFC;
     s32 unk100[0x40];
-    s32 unk200;
-    s32 unk204;
+    void* unk200;
+    void* unk204;
     s32 unk208;
     s32 unk20C;
     s32 unk210;
@@ -363,7 +363,7 @@ typedef struct {
     s32 unk21C;
     s32 unk220;
     s32 unk224;
-    s32 unk228;
+    u32 unk228;
     s32 unk22C;
     s32 unk230;
     s32 unk234;

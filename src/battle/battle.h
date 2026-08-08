@@ -44,12 +44,13 @@ typedef struct {
     /* 0x0F */ s8 unkF;
     /* 0x10 */ s8 unk10; // cached "Near Death" display flag; see func_800B10B4
                          // for the live check
-    /* 0x11 */ s8 unk11;
+    /* 0x11 */ u8 unk11;
     /* 0x12 */ s8 unk12;
     /* 0x13 */ s8 unk13;
     /* 0x14 */ s8 unk14;
     /* 0x15 */ s8 unk15;
-    /* 0x16 */ s16 unk16;
+    /* 0x16 */ s8 unk16;
+    /* 0x17 */ u8 unk17;
     /* 0x18 */ s32 unk18;
     /* 0x1C */ s32 unk1C;
     /* 0x20 */ s16 unk20;
@@ -183,7 +184,7 @@ typedef struct {
 } AttackEntry; // size:0x1C
 
 typedef struct {
-    u8 unk0[0x200];
+    u16 unk0[0x100];
 } Unk800F5F44_5; // size:0x200
 
 // an uncompressed chunk from SCENE.BIN
@@ -208,11 +209,22 @@ typedef struct {
 } Unk8016360C; // size:0xAC
 
 typedef struct {
+    u8 unk0;
+    s8 unk1;
+    s8 unk2;
+    u8 unk3;
+    s16 unk4;
+    s16 unk6;
+} Unk800A3D4C; // size:8
+
+typedef struct {
     /* 0x0000 */ SceneEnemy enemy[3];
     /* 0x0228 */ AttackEntry attacks[0x20];
     /* 0x05A8 */ u16 attackIDs[0x20];
     /* 0x05E8 */ char attackNames[0x20][0x20];
-    /* 0x09E8 */ u8 unk9E8[0x26E];
+    /* 0x09E8 */ u8 unk9E8[8];
+    /* 0x09F0 */ Unk800A3D4C messageQueue[64];
+    /* 0x0BF0 */ u8 unkBF0[0x66];
     /* 0x0C56 */ u8 D_800F6B9A;
     /* 0x0C57 */ u8 unkC57[6];
     /* 0x0C5D */ u8 D_800F6BA1;
@@ -239,7 +251,9 @@ typedef struct {
     /* 0x1E72 */ u16 D_800F7DC6;
     /* 0x1E84 */ u16 D_800F7DC8;
     /* 0x1E84 */ u16 D_800F7DCA;
-} Unk800F5F44; // size:0x1E88
+    /* 0x1E88 */ u8 unk1E88[0x12];
+    /* 0x1E9A */ s16 D_800F7DDE;
+} Unk800F5F44; // size:0x1E9C
 
 #define BATTLE_SCENE 7
 
