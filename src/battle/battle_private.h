@@ -14,6 +14,11 @@ typedef struct {
 } Unk800BB67C;
 
 typedef struct {
+    u16 unk0;
+    u8 pad[0x43E];
+} Unk8009D866; // 0x440
+
+typedef struct {
     s16 unk0;
     s16 unk2;
     u16 unk4; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
@@ -270,6 +275,7 @@ extern u8 D_800708D0[][0x1C]; // kernel-region table, indexed by
                               // attack/effect id
 extern s16 D_8009D85C[];      // record fields, stride 0x440
 extern s16 D_8009D85E[];
+extern Unk8009D866 D_8009D866[];
 extern u8 D_8009D954[]; // per-actor sub-table, 0x440 stride, 8-byte rows keyed
                         // by effect id
 extern s32 D_800E7A38;
@@ -339,6 +345,8 @@ extern s32 D_800F39E0;
 extern s32 D_800F39E4;
 extern s32 D_800F39EC;
 extern u8 D_800F39F0[][6];
+extern s32 D_800F3A1C;     // write index into D_800F3A20
+extern s16 D_800F3A20[16]; // ring buffer, see func_800A56B0
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
 typedef struct {
@@ -519,6 +527,7 @@ extern Unk801636B8 D_801636B8[5];
 extern u16 D_80163758[]; // part of a struct
 extern u16 D_8016375C;
 extern u16 D_8016375E;
+extern u16 D_80163762;
 // Cait Sith's 3 landed Slots reel symbols (see func_800E5358, and
 // BATTLE_ResolveCaitSithSlotsResult in battle.c)
 extern u8 D_80163774[3];
