@@ -429,14 +429,15 @@ typedef struct {
     /* 0x0D */ u8 entityId;
     /* 0x0E */ u8 touch;
     /* 0x0F */ u8 across;
+
     /* 0x10 */ u8 requestPushScript;
     /* 0x11 */ u8 requestTalkScript;
-    /* 0x12 */ u8 touchOn;
-    /* 0x13 */ u8 touchOff;
+    /* 0x12 */ u16 nextFieldId;
     /* 0x14 */ u8 proximityAngle;
     /* 0x15 */ u8 isOnLine;
     /* 0x16 */ u8 slipDisabled;
     /* 0x17 */ u8 unk17;
+
 } FieldLine; // size:0x18
 
 typedef struct {
@@ -527,14 +528,11 @@ typedef struct {
     /* 0x05 */ s8 rotationX;
     /* 0x06 */ s8 rotationY;
     /* 0x07 */ s8 rotationZ;
-
     /* 0x08 */ s32 translationX;
     /* 0x0C */ s32 translationY;
     /* 0x10 */ s32 translationZ;
-
     /* 0x14 */ u8 globalModelId;
     /* 0x15 */ u8 textureFaceId;
-
     /* 0x16 */ u16 scale;
     /* 0x18 */ u16 partsOffset;
     /* 0x1A */ u16 animationOffset;
@@ -596,8 +594,9 @@ typedef struct {
     u16 cameraScrollNumSteps;
     // Following two variables are set when exiting from field to mini games,
     // world map, or another field map.
-    u16 pcWalkMeshId;      // Walk mesh triangle id player is inside of.
-    u16 pcDirection;       // Direction player is facing.
+    u16 pcWalkMeshId; // Walk mesh triangle id player is inside of.
+    u8 pcDirection;   // Direction player is facing.
+    u8 unk25;
     s16 movieCommandState; // enum MovieCommandState.
     u16 modelCount;
     s16 pcModelId;
@@ -833,7 +832,8 @@ int SystemAkaoExecute(void);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);
-int func_80033E34(int sector_no, size_t size, u_long* dst, void (*cb)());
+int SystemLoadFileBySector(
+    int sector_no, size_t size, u_long* dst, void (*cb)());
 int DS_read(int sector_no, size_t size, u_long* dst, void (*cb)());
 int func_80033EDC(int sector_no, void (*cb)());
 int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)());
