@@ -425,7 +425,6 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ LinePos pos;
-
     /* 0x0C */ u8 isActive;
     /* 0x0D */ u8 entityId;
     /* 0x0E */ u8 touch;
@@ -433,9 +432,7 @@ typedef struct {
 
     /* 0x10 */ u8 requestPushScript;
     /* 0x11 */ u8 requestTalkScript;
-
     /* 0x12 */ u16 nextFieldId;
-
     /* 0x14 */ u8 proximityAngle;
     /* 0x15 */ u8 isOnLine;
     /* 0x16 */ u8 slipDisabled;
@@ -531,14 +528,11 @@ typedef struct {
     /* 0x05 */ s8 rotationX;
     /* 0x06 */ s8 rotationY;
     /* 0x07 */ s8 rotationZ;
-
     /* 0x08 */ s32 translationX;
     /* 0x0C */ s32 translationY;
     /* 0x10 */ s32 translationZ;
-
     /* 0x14 */ u8 globalModelId;
     /* 0x15 */ u8 textureFaceId;
-
     /* 0x16 */ u16 scale;
     /* 0x18 */ u16 partsOffset;
     /* 0x1A */ u16 animationOffset;
