@@ -64,34 +64,34 @@ typedef enum {
 } ScriptedMoveMode;
 
 typedef enum {
-    FIELDCMD_NONE,
-    FIELDCMD_FIELD_MAP_CHANGE,
-    FIELDCMD_ENTERING_BATTLE,
-    FIELDCMD_LOAD_MOVIE,
-    FIELDCMD_PLAY_MOVIE,
-    FIELDCMD_PLAY_ENDING_FMV,
-    FIELDCMD_CHAR_NAME_ENTRY,
-    FIELDCMD_PARTY_SELECT,
-    FIELDCMD_SHOP,
-    FIELDCMD_PARTY_MENU,
-    FIELDCMD_BEAT_GAME,
-    FIELDCMD_UNKB,
-    FIELDCMD_LOAD_MINIGAME,
-    FIELDCMD_CD_CHANGE,
-    FIELDCMD_SAVE_SCREEN,
-    FIELDCMD_YUFFIE_STEALS_MATERIA,
-    FIELDCMD_YUFFIE_RETURNS_MATERIA,
-    FIELDCMD_REMOVE_CHARS_MATERIA_ACCESSORY,
-    FIELDCMD_UNK12,
-    FIELDCMD_UNK13,
-    FIELDCMD_UNK14,
-    FIELDCMD_UNK15,
-    FIELDCMD_MASTER_MATERIA_CHECK,
-    FIELDCMD_ADD_MASTER_MATERIA,
-    FIELDCMD_JENOVA_SYNTH_COPY_LEVELS,
-    FIELDCMD_UNK19,
-    FIELDCMD_GAME_OVER,
-} FieldCommand;
+    EVTCMD_NONE,
+    EVTCMD_FIELD_MAP_CHANGE,
+    EVTCMD_ENTERING_BATTLE,
+    EVTCMD_LOAD_MOVIE,
+    EVTCMD_PLAY_MOVIE,
+    EVTCMD_PLAY_ENDING_FMV,
+    EVTCMD_CHAR_NAME_ENTRY,
+    EVTCMD_PARTY_SELECT,
+    EVTCMD_SHOP,
+    EVTCMD_PARTY_MENU,
+    EVTCMD_BEAT_GAME,
+    EVTCMD_UNKB,
+    EVTCMD_LOAD_MINIGAME,
+    EVTCMD_CD_CHANGE,
+    EVTCMD_SAVE_SCREEN,
+    EVTCMD_YUFFIE_STEALS_MATERIA,
+    EVTCMD_YUFFIE_RETURNS_MATERIA,
+    EVTCMD_REMOVE_CHARS_MATERIA_ACCESSORY,
+    EVTCMD_UNK12,
+    EVTCMD_UNK13,
+    EVTCMD_UNK14,
+    EVTCMD_UNK15,
+    EVTCMD_MASTER_MATERIA_CHECK,
+    EVTCMD_ADD_MASTER_MATERIA,
+    EVTCMD_JENOVA_SYNTH_COPY_LEVELS,
+    EVTCMD_UNK19,
+    EVTCMD_GAME_OVER,
+} FieldEventCmd;
 
 typedef enum {
     SCRL_OFF,
@@ -353,8 +353,8 @@ typedef struct {
     s32 unkF8;
     s32 unkFC;
     s32 unk100[0x40];
-    s32 unk200;
-    s32 unk204;
+    void* unk200;
+    void* unk204;
     s32 unk208;
     s32 unk20C;
     s32 unk210;
@@ -363,7 +363,7 @@ typedef struct {
     s32 unk21C;
     s32 unk220;
     s32 unk224;
-    s32 unk228;
+    u32 unk228;
     s32 unk22C;
     s32 unk230;
     s32 unk234;
@@ -485,19 +485,19 @@ typedef struct {
     u16 OffsetSteps;       // 0x52
     u16 OffsetStep;        // 0x54
     u8 OfsType;            // 0x56
-    u8 ActorId;            // 0x57 - script entity model
+    u8 entityId;           // 0x57 - entity model is attached to
     u8 requestTouchScript; // 0x58
     u8 SolidOff;           // 0x59
     u8 requestTalkScript;  // 0x5A
     u8 TalkOff;            // 0x5B
-    u8 Visible;            // 0x5C
+    u8 visible;            // 0x5C
     u8 scriptedMoveMode;   // 0x5D - enum ScriptedMoveMode
     u8 activeAnimId;       // 0x5E
     s8 unk5F;              // 0x5F
     s16 animSpeed;         // 0x60
     s16 animCurrentFrame;  // 0x62
     s16 animLastFrame;     // 0x64
-    u16 CharModelId;       // 0x66 - model id
+    u16 charId;            // 0x66 - model id
     s16 ActionArg;         // 0x68
     s16 ActionState;       // 0x6A
     u16 SolidRange;        // 0x6C
@@ -567,11 +567,11 @@ typedef struct {
 
 typedef struct {
     u8 renderBuffer;
-    // enum FIELDCMDcode.
-    u8 command;
-    // Used by some opcodes to carry extra info, ie. shop id
+    // enum FieldEventCmd.
+    u8 eventCmd;
+    // Used by some event commands to carry extra info, ie. shop id
     // for shop menu, char id for name entry screen.
-    s16 commandParam;
+    s16 eventCmdParam;
     // Stores player position when exiting field or jumping between field maps.
     s16 pcPosX;
     s16 pcPosY;
@@ -740,7 +740,7 @@ extern u8 D_80071E24;
 extern u8 D_80071E2C;
 extern u8 D_80071E30;
 extern MATRIX* D_80071E40;
-extern u8 D_80071E34;
+extern u8 g_PartyUpdatedByFieldScript;
 extern u8 g_CurrentEntity; // entity owning the currently executing script
 extern Unk800730CC D_800730CC[];
 extern u8 D_800730DD[][0x14];

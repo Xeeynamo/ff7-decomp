@@ -1,3 +1,7 @@
+g_StatusBitTable = 0x800A04D0; // size:0x10
+BATTLE_ClearStatusBit = 0x800A6CC0;
+BATTLE_ExpireDeathSentence = 0x800A6D10;
+BATTLE_TickPoison = 0x800A6D88;
 BATTLE_ResolveMagicActionIndex = 0x800A73C0;
 BATTLE_ResolveSummonActionIndex = 0x800A73D8;
 BATTLE_ResolveEnemySkillActionIndex = 0x800A76AC;
@@ -5,6 +9,7 @@ BATTLE_ResolveLimitActionIndex = 0x800A778C;
 BATTLE_ResolveCaitSithSlotsResult = 0x800A9C24;
 BATTLE_EnqueueLoadImage = 0x800D2538;
 BATTLE_FlushImageQueue = 0x800D25E8;
+g_StatusExpireTable = 0x800E7AB4; // size:0x30
 D_800E7BA4 = 0x800E7BA4; // size:0x15
 D_800F5BB8 = 0x800F5BB8; // size:0xCC
 D_800F5E60 = 0x800F5E60; // size:0x9C

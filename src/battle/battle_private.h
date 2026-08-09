@@ -14,6 +14,11 @@ typedef struct {
 } Unk800BB67C;
 
 typedef struct {
+    u16 unk0;
+    u8 pad[0x43E];
+} Unk8009D866; // 0x440
+
+typedef struct {
     s16 unk0;
     s16 unk2;
     u16 unk4; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
@@ -23,12 +28,12 @@ typedef struct {
     u8 unkE;
     u8 unkF;
     s32 unk10;
-    s32 unk14;
+    u8 unk14[4];
     s32 unk18;
     s32 unk1C;
     s32 unk20;
     s32 unk24;
-    s8 unk28;
+    u8 unk28;
     s8 unk29;
     s16 unk2A;
     s32 unk2C;
@@ -270,6 +275,7 @@ extern u8 D_800708D0[][0x1C]; // kernel-region table, indexed by
                               // attack/effect id
 extern s16 D_8009D85C[];      // record fields, stride 0x440
 extern s16 D_8009D85E[];
+extern Unk8009D866 D_8009D866[];
 extern u8 D_8009D954[]; // per-actor sub-table, 0x440 stride, 8-byte rows keyed
                         // by effect id
 extern s32 D_800E7A38;
@@ -339,8 +345,21 @@ extern s32 D_800F39E0;
 extern s32 D_800F39E4;
 extern s32 D_800F39EC;
 extern u8 D_800F39F0[][6];
+extern s32 D_800F3A1C;     // write index into D_800F3A20
+extern s16 D_800F3A20[16]; // ring buffer, see func_800A56B0
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
+typedef struct {
+    u8 unk0;
+    s8 unk1;
+    s16 unk2;
+} Unk800F4308;
+extern Unk800F4308 D_800F4308[][128];
+extern s32 D_800F4914[];
+extern s32 D_800F4920;
+extern u16 D_800F4938[];
+extern s8 D_800F494C[];
+extern u16 D_800F4958;
 extern s16 D_800F4AD0;
 extern s32 D_800F4AD4;
 extern s32 D_800F4AD8;
@@ -357,8 +376,8 @@ extern u8 D_800F5774;
 extern s32 D_800F57CC;
 extern Unk800F57D0* D_800F57D0;
 extern u8 D_800F57D4;
-extern Unk800AF470
-    D_800F5BB8[]; // per-party-slot turn/effect state (flags, countdown timers)
+extern Unk800AF470 D_800F5BB8[10]; // per-party-slot turn/effect state (flags,
+                                   // countdown timers)
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
 extern s32 D_800F7DF8[3];
@@ -508,6 +527,7 @@ extern Unk801636B8 D_801636B8[5];
 extern u16 D_80163758[]; // part of a struct
 extern u16 D_8016375C;
 extern u16 D_8016375E;
+extern u16 D_80163762;
 // Cait Sith's 3 landed Slots reel symbols (see func_800E5358, and
 // BATTLE_ResolveCaitSithSlotsResult in battle.c)
 extern u8 D_80163774[3];
@@ -537,6 +557,22 @@ extern u8 D_80166F68;
 
 void func_800A4350(s16, s16, s16, u16);
 void func_800A8E84(s32);
+void func_800AA950(Unk800FA9D0*);
+void func_800AB308(void);
+void func_800AB480(void);
+void func_800AB788(void);
+void func_800ABA68(Unk800FA9D0*, s16, u16, s16, s16);
+void func_800AC6B4(s32);
+void func_800AC73C(s32);
+void func_800ACA24(void);
+s32 func_800ACD88(s32);
+s32 func_800ACE14(s32);
+void func_800AD088(Unk800FA9D0*);
+void func_800AD0FC(void);
+void func_800AD324(s32, s32, s32, s32);
+void func_800AD420(void);
+void func_800AD4EC(void);
+void func_800AE82C(void);
 s32 func_800B3030(s32);
 void func_800B4794(void);
 s32 func_800B5CD4(s32);
