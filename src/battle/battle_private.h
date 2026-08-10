@@ -637,6 +637,31 @@ typedef struct {
     /* 0x12 */ u8 unk12[0x22E];
 } BattleMenuWidget; /* size: 0x240 */
 
+/* State of the battle-script VM interpreted by func_800B1D48. Operands are
+   fetched from the script buffer D_800F4AC0 at `pc` and evaluated on `stack`,
+   which grows downwards: a push predecrements `sp` before storing, a pop reads
+   at `sp` then postincrements it. Instructions address two operand slots by
+   index, hence the [2] arrays. */
+typedef struct {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 pc;
+    /* 0x08 */ s32 sp;
+    /* 0x0C */ s32 opcode;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18[2];
+    /* 0x20 */ s32 unk20[2];
+    /* 0x28 */ u16 unk28[2];
+    /* 0x2C */ s32 var[2][10];
+    /* variable length: indexed by `sp`, extent unconfirmed */
+    /* 0x7C */ u8 stack[1];
+} BattleScriptVm;
+
+extern u8* D_800F4AC0;
+extern BattleScriptVm* D_800F4AC4;
+
+s32 func_800B18A8(s32);
+
 void func_800A4E40(void);
 void func_800DE2B4(void);
 void func_800E08C4(s32);

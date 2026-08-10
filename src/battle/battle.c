@@ -1932,15 +1932,59 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B141C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B153C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1624);
+// Push `value` onto the operand stack as `size` bytes, most significant byte
+// first. Sizes above 3 (or negative) push nothing; the cases deliberately fall
+// through so that each one pushes one fewer byte than the last.
+void func_800B1624(s32 size, u32 value) {
+    switch (size) {
+    case 3:
+        D_800F4AC4->stack[--D_800F4AC4->sp] = value;
+        value >>= 8;
+    case 2:
+        D_800F4AC4->stack[--D_800F4AC4->sp] = value;
+        value >>= 8;
+    case 1:
+    case 0:
+        D_800F4AC4->stack[--D_800F4AC4->sp] = value;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B16D0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B17F0);
+// Pop a `size`-byte big-endian value off the operand stack. The inverse of
+// func_800B1624, and likewise falls through so each case consumes one byte.
+s32 func_800B17F0(s32 size) {
+    s32 value = 0;
+    u8 byte;
+
+    switch (size) {
+    case 3:
+        value = D_800F4AC4->stack[D_800F4AC4->sp++];
+    case 2:
+        byte = D_800F4AC4->stack[D_800F4AC4->sp++];
+        value <<= 8;
+        value |= byte;
+    case 1:
+    case 0:
+        byte = D_800F4AC4->stack[D_800F4AC4->sp++];
+        value <<= 8;
+        value |= byte;
+    }
+    return value;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B18A8);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1A5C);
+// Evaluate the operand at the script cursor without consuming it: run the
+// normal operand fetch, then rewind the stack pointer to where it started so
+// the operand bytes it popped stay available to the next read.
+s32 func_800B1A5C(s32 arg0) {
+    s32 sp = D_800F4AC4->sp;
+    s32 result = func_800B18A8(arg0);
+
+    D_800F4AC4->sp = sp;
+    return result;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1AA0);
 
