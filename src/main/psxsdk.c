@@ -270,7 +270,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _spu_FsetDelayR);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _spu_FwaitFs);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _SpuDataCallback);
+void _SpuDataCallback(void (*func)()) { DMACallback(4, func); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuInitMalloc);
 
@@ -280,7 +280,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuMallocWithStartAddr);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _spu_gcSPU);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetNoiseVoice);
+void _SpuSetAnyVoice(long on_off, u32 voice_bit, long a, long b);
+
+void SpuSetNoiseVoice(long on_off, u32 voice_bit) {
+    _SpuSetAnyVoice(on_off, voice_bit, 0xCA, 0xCB);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _SpuSetAnyVoice);
 
@@ -302,7 +306,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuGetReverbModeParam);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetReverbDepth);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetReverbVoice);
+void SpuSetReverbVoice(long on_off, u32 voice_bit) {
+    _SpuSetAnyVoice(on_off, voice_bit, 0xCC, 0xCD);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuClearReverbWorkArea);
 
@@ -312,7 +318,12 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetIRQAddr);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetIRQCallback);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _SpuCallback);
+void* InterruptCallback(int irq, void (*func)());
+int strncmp(const char* s1, const char* s2, int n);
+void _addque2(long a, long b, long c, long d);
+long CD_getsector(void* madr, long size);
+
+void _SpuCallback(void (*func)()) { InterruptCallback(9, func); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetKey);
 
@@ -326,7 +337,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetTransferMode);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetTransferCallback);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetPitchLFOVoice);
+void SpuSetPitchLFOVoice(long on_off, u32 voice_bit) {
+    _SpuSetAnyVoice(on_off, voice_bit, 0xC8, 0xC9);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetCommonAttr);
 
@@ -350,7 +363,14 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetVoiceSRAttr);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetVoiceRRAttr);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", rsin);
+long sin_1(long a);
+
+long rsin(long a) {
+    if (a < 0) {
+        return -sin_1(-a & 0xFFF);
+    }
+    return sin_1(a & 0xFFF);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", sin_1);
 
@@ -646,13 +666,19 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", def_cbready);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", def_cbread);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003DCD8);
+extern u8 D_80051638;
+extern u8 D_80051644;
+extern u8 D_80051648;
+extern u8 D_80051649;
+extern u16 D_800504AE;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003DCE8);
+u8 func_8003DCD8(void) { return D_80051638; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003DCF8);
+u8 func_8003DCE8(void) { return D_80051648; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdLastPos);
+u8 func_8003DCF8(void) { return D_80051649; }
+
+u8* CdLastPos(void) { return &D_80051644; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdReset);
 
@@ -680,9 +706,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdControlB);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdMix);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdGetSector);
+long CdGetSector(void* madr, long size) {
+    return CD_getsector(madr, size) == 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003E28C);
+void func_8003E28C(void (*func)()) { DMACallback(3, func); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003E2B0);
 
@@ -718,7 +746,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", callback);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdSearchFile);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _cmp);
+long _cmp(const char* a, const char* b) { return strncmp(a, b, 12) == 0; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CD_newmedia);
 
@@ -732,7 +760,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CD_memcpy);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdRead2);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", StCdInterrupt2);
+void func_80040CA8(void);
+
+void StCdInterrupt2(void) { func_80040CA8(); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdDiskReady);
 
@@ -792,9 +822,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DecDCTinSync);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DecDCToutSync);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DecDCTinCallback);
+void DecDCTinCallback(void (*func)()) { DMACallback(0, func); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DecDCToutCallback);
+void DecDCToutCallback(void (*func)()) { DMACallback(1, func); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", MDEC_reset);
 
@@ -942,7 +972,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetGraphDebug);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetGraphQueue);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", GetGraphType);
+extern u8 D_80062C00;
+
+s32 GetGraphType(void) { return D_80062C00; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", GetGraphDebug);
 
@@ -1024,7 +1056,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _cwc);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _param);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _addque);
+void _addque(long a, long b, long c) { _addque2(a, b, 0, c); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _addque2);
 
