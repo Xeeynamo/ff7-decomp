@@ -9,6 +9,7 @@ typedef enum {
     CDOP_3 = 3,
     CDOP_7 = 7,
     CDOP_11 = 11,
+    CDOP_16 = 0x10,
     CDOP_19 = 0x13,
     CDOP_20 = 0x14,
 } CdOp;
@@ -129,7 +130,7 @@ void func_80034420(void) {}
 
 void func_80034428(void) {}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034430);
+void func_80034430(void) { D_80071A60 = CDOP_16; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034444);
 
@@ -201,6 +202,8 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SystemLzsDecompress);
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034CAC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", ChangeClearSIO);
+
+extern u8 D_80070590[];
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034D18);
 
@@ -1064,7 +1067,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _drs);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _ctl);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _getctl);
+u8 _getctl(s32 idx) { return D_80070590[idx]; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _cwb);
 
@@ -1094,7 +1097,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", GPU_cw);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", GetTPage);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", GetClut);
+u_short GetClut(int x, int y) { return getClut(x, y); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DumpTPage);
 
