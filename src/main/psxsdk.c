@@ -1112,9 +1112,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CatPrim);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", TermPrim);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetSemiTrans);
+void SetSemiTrans(void* p, int abe) { setSemiTrans(p, abe); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetShadeTex);
+void SetShadeTex(void* p, int tge) { setShadeTex(p, tge); }
 
 void SetPolyF3(POLY_F3* p) { setPolyF3(p); }
 
@@ -1150,13 +1150,21 @@ void SetLineF2(LINE_F2* p) { setLineF2(p); }
 
 void SetLineG2(LINE_G2* p) { setLineG2(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetLineF3);
+void SetLineF3(LINE_F3* p) { setLineF3(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetLineG3);
+void SetLineG3(LINE_G3* p) {
+    setlen(p, 7);
+    setcode(p, 0x58);
+    p->pad = 0x55555555;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetLineF4);
+void SetLineF4(LINE_F4* p) { setLineF4(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetLineG4);
+void SetLineG4(LINE_G4* p) {
+    setlen(p, 9);
+    setcode(p, 0x5C);
+    p->pad = 0x55555555;
+}
 
 void SetBlockFill(void* p) {
     setlen(p, 3);
