@@ -19,11 +19,21 @@ extern int D_800698E8; // sector_no
 extern int D_800698F0;
 extern int D_8006E0F0;
 extern int D_8006E0F4;
-extern CdOp D_80071A60;      // some kind of operation?
-extern int D_80071A64;       //
-extern CdlLOC D_80071A68;    // cd sector
-extern size_t D_80071A6C;    // amount of sectors to read
-extern u_long* D_80071A80;   // read content destination
+extern CdOp D_80071A60;   // some kind of operation?
+extern int D_80071A64;    //
+extern CdlLOC D_80071A68; // cd sector
+extern size_t D_80071A6C; // amount of sectors to read
+extern u_long* D_80071A80;
+
+extern s32 D_80051628;
+extern s32 D_8005162C;
+extern s32 D_80051634;
+extern u16* D_8005153C;
+extern s32* D_80062CD4;
+
+s32 func_8003DDA4(s32);
+s32 func_8003DE6C(s32);
+s32 func_8003DE84(s32);      // read content destination
 extern void (*D_80071A84)(); // callback
 void func_80033B70(void) {
     while (!CdInit()) {
@@ -637,7 +647,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", RestartCallback);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CheckCallback);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", GetIntrMask);
+u16 GetIntrMask(void) { return *D_8005153C; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetIntrMask);
 
@@ -697,7 +707,12 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdReset);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003DD84);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003DDA4);
+s32 func_8003DDA4(s32 arg0) {
+    s32 prev = D_80051634;
+
+    D_80051634 = arg0;
+    return prev;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003DDBC);
 
@@ -707,9 +722,19 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003DE2C);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003DE4C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003DE6C);
+s32 func_8003DE6C(s32 arg0) {
+    s32 prev = D_80051628;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003DE84);
+    D_80051628 = arg0;
+    return prev;
+}
+
+s32 func_8003DE84(s32 arg0) {
+    s32 prev = D_8005162C;
+
+    D_8005162C = arg0;
+    return prev;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdControl);
 
@@ -1055,7 +1080,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", get_tw);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", get_dx);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _status);
+s32 _status(void) { return *D_80062CD4; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _otc);
 
@@ -1113,7 +1138,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", AddPrims);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CatPrim);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", TermPrim);
+void TermPrim(void* p) { termPrim(p); }
 
 void SetSemiTrans(void* p, int abe) { setSemiTrans(p, abe); }
 
