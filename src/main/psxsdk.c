@@ -113,7 +113,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034350);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_800343F0);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034410);
+extern u32* D_80070690;
+extern u8 D_80062C02;
+extern s32 D_800518D0;
+
+s32 func_80034410(void) { return D_80071A60; }
 
 void func_80034420(void) {}
 
@@ -740,7 +744,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CD_datasync);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CD_getsector);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003FA9C);
+void func_8003FA9C(s32 arg0) { D_800518D0 = arg0; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", callback);
 
@@ -976,7 +980,7 @@ extern u8 D_80062C00;
 
 s32 GetGraphType(void) { return D_80062C00; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", GetGraphDebug);
+u8 GetGraphDebug(void) { return D_80062C02; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DrawSyncCallback);
 
@@ -1152,7 +1156,10 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DumpDrawEnv);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DumpDispEnv);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", OpenTIM);
+s32 OpenTIM(u32* addr) {
+    D_80070690 = addr;
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", ReadTIM);
 
