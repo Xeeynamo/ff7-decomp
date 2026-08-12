@@ -670,11 +670,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", StSetRing);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdInit);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", def_cbsync);
+void def_cbsync(void) { DeliverEvent(0xF0000003, 0x20); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", def_cbready);
+void def_cbready(void) { DeliverEvent(0xF0000003, 0x40); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", def_cbread);
+void def_cbread(void) { DeliverEvent(0xF0000003, 0x40); }
 
 extern u8 D_80051638;
 extern u8 D_80051644;
@@ -1116,7 +1116,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetSemiTrans);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetShadeTex);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetPolyF3);
+void SetPolyF3(POLY_F3* p) { setPolyF3(p); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetPolyFT3);
 
@@ -1158,7 +1158,10 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetLineF4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetLineG4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetBlockFill);
+void SetBlockFill(void* p) {
+    setlen(p, 3);
+    setcode(p, 2);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetDrawMove);
 
