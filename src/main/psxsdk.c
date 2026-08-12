@@ -1118,37 +1118,37 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetShadeTex);
 
 void SetPolyF3(POLY_F3* p) { setPolyF3(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetPolyFT3);
+void SetPolyFT3(POLY_FT3* p) { setPolyFT3(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetPolyG3);
+void SetPolyG3(POLY_G3* p) { setPolyG3(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetPolyGT3);
+void SetPolyGT3(POLY_GT3* p) { setPolyGT3(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetPolyF4);
+void SetPolyF4(POLY_F4* p) { setPolyF4(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetPolyFT4);
+void SetPolyFT4(POLY_FT4* p) { setPolyFT4(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetPolyG4);
+void SetPolyG4(POLY_G4* p) { setPolyG4(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetPolyGT4);
+void SetPolyGT4(POLY_GT4* p) { setPolyGT4(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetSprt8);
+void SetSprt8(SPRT_8* p) { setSprt8(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetSprt16);
+void SetSprt16(SPRT_16* p) { setSprt16(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetSprt);
+void SetSprt(SPRT* p) { setSprt(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetTile1);
+void SetTile1(TILE_1* p) { setTile1(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetTile8);
+void SetTile8(TILE_8* p) { setTile8(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetTile16);
+void SetTile16(TILE_16* p) { setTile16(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetTile);
+void SetTile(TILE* p) { setTile(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetLineF2);
+void SetLineF2(LINE_F2* p) { setLineF2(p); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetLineG2);
+void SetLineG2(LINE_G2* p) { setLineG2(p); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetLineF3);
 
