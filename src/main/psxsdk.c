@@ -7,6 +7,7 @@ typedef enum {
     CDOP_0,
     CDOP_1,
     CDOP_3 = 3,
+    CDOP_7 = 7,
     CDOP_11 = 11,
     CDOP_19 = 0x13,
     CDOP_20 = 0x14,
@@ -105,7 +106,12 @@ void func_80034048(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SystemCdromAbortLoading);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034104);
+void func_80034104(void) {
+    CdControlB(CdlSetmode, NULL, NULL);
+    VSync(3);
+    CdControlB(CdlStop, NULL, NULL);
+    D_80071A60 = CDOP_7;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034150);
 
@@ -966,7 +972,13 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetDefDispEnv);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SetVideoMode);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", GetVideoMode);
+extern s32 D_80062BB4;
+extern s32 D_800833F4;
+extern s32 D_8006E11C;
+void ResetCallback(void);
+void PAD_init(long mode, s32* buf);
+
+s32 GetVideoMode(void) { return D_80062BB4; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", ResetGraph);
 
