@@ -76,6 +76,7 @@ typedef struct {
     s16 unk1A;
 } Unk801620AC; // size:0x20
 
+
 typedef struct {
     /* 0x00 */ s16 D_80162978;
     /* 0x02 */ s16 D_8016297A;
@@ -94,7 +95,7 @@ typedef struct {
     /* 0x1A */ s16 unk16;
     /* 0x1C */ s16 unk18;
     /* 0x1E */ s16 unk1A;
-} Unk80162978; // size:0x20
+} BattleEffectInstance; // size:0x20
 
 typedef struct {
     u16 unk0;
@@ -519,7 +520,7 @@ extern u8 D_801620A4;
 extern Unk801620AC D_801620AC[10];
 extern Unk801621F0 D_801621F0[60];
 extern u8 D_80162974;
-extern Unk80162978 D_80162978[100];
+extern BattleEffectInstance D_80162978[100];
 extern u8 D_801635FC;
 extern u8 D_80163604;
 extern s16 D_80163608;

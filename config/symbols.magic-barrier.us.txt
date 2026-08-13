@@ -1,2 +1,19 @@
-D_801B0C98 = 0x801B0C98; // size:0x8
-D_801B0CB0 = 0x801B0CB0; // size:0x8
+
+
+//model data
+bari_a1 = 0x801B0B68;
+bari_a2 = 0x801B0C3C;
+BorderPivotOffset = 0x801B0C90;
+ShieldPivotOffset = 0x801B0CA8;
+BorderRenderDesc = 0x801B0C98;
+ShieldRenderDesc = 0x801B0CB0;
+BarrierBaseScale = 0x801B0CC0;
+BarrierPrimBuffer = 0x801B0CC4;
+BarrierBufferPtr = 0x801D0CC4;
+ExecuteMagic = 0x801B0000;
+BarrierMainSetup = 0x801B0AF0;
+BarrierAttachToTarget = 0x801B092C;
+BarrierSequenceManage = 0x801B04F4;
+BarrierRenderBorder = 0x801B0020;
+BarrierRenderShield = 0x801B0220;
+BarrierDoubleBufferFlip = 0x801B0A90; 
