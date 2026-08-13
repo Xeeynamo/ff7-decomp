@@ -1776,7 +1776,7 @@ void func_800AE080(void) {
     s32 repeat;
     s32 maxRepeat;
 
-    numDice = D_80063014->characterLevel / 10;
+    numDice = g_CurrentAction->characterLevel / 10;
     if (numDice < 2) {
         numDice = 2;
     }
@@ -1815,12 +1815,12 @@ void func_800AE080(void) {
     }
 
     diceSum *= 100 * maxRepeat;
-    D_80063014->unk214 = diceSum;
+    g_CurrentAction->unk214 = diceSum;
 }
 
 // Chocobuckle attack damage formula.
 void func_800AE234(void) {
-    D_80063014->unk214 =
+    g_CurrentAction->unk214 =
         Savemap.memory_bank_1[26] +
         Savemap.memory_bank_1[27] * 256; // Number of escapes from battles.
 }
@@ -1834,7 +1834,7 @@ void func_800AE25C(void) {
 // Tonberry's Time Damage attack damage formula.
 void func_800AE2A0(void) {
     s32 minutes = Savemap.time / 60;
-    D_80063014->unk214 = (minutes / 60) * 100 + minutes % 60;
+    g_CurrentAction->unk214 = (minutes / 60) * 100 + minutes % 60;
 }
 
 // target-side damage/effect scaling from the target's save-file kill count
