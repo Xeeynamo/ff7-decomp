@@ -1,4 +1,4 @@
-ExecuteMagic = 0x801B0000;
+MAGIC_Barrier = 0x801B0000;
 BarrierRenderBorder = 0x801B0020;
 BarrierRenderShield = 0x801B0220;
 BarrierSequenceManage = 0x801B04F4;

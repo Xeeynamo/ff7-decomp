@@ -83,33 +83,33 @@ void ExecuteMagic(int arg0, int arg1) { BarrierMainSetup(arg0, arg1); }
 static void BarrierRenderBorder(void) {
     MATRIX* matrix = (MATRIX*)0x1F800000;
     VECTOR* scale = (VECTOR*)0x1F800020;
-    BarrierData* Barrier = &g_BattleEffectInstances[D_8015169C];
-    int temp_a0 = (Barrier->AnimationFrame + Barrier->StartFrame) - 17;
+    BarrierData* barrier = &g_BattleEffectInstances[D_8015169C];
+    int temp_a0 = (barrier->AnimationFrame + barrier->StartFrame) - 17;
     int var_s4;
     int var_s3;
 
     if (temp_a0 < 0) {
         scale->vx = scale->vy = scale->vz = (BarrierBaseScale * 0xC00) >> 12;
-        var_s3 = Barrier->FaceIndex;
+        var_s3 = barrier->FaceIndex;
         var_s4 = 0;
     } else if (temp_a0 > 7) {
-        Barrier->StartFrame = -1;
+        barrier->StartFrame = -1;
         return;
     } else {
-        var_s3 = Barrier->FaceIndex | 8;
+        var_s3 = barrier->FaceIndex | 8;
         var_s4 = temp_a0 << 9;
         scale->vx = scale->vy = scale->vz =
             (((temp_a0 * 0x180) + 0xC00) * BarrierBaseScale) >> 12;
     }
 
     SetFarColor(0, 0, 0);
-    RotMatrixYXZ(&Barrier->Rot, matrix);
+    RotMatrixYXZ(&barrier->Rot, matrix);
     ScaleMatrix(matrix, scale);
     ApplyMatrix(matrix, &BorderPivotOffset, matrix->t);
 
-    matrix->t[0] += Barrier->Pos.vx;
-    matrix->t[1] += Barrier->Pos.vy;
-    matrix->t[2] += Barrier->Pos.vz;
+    matrix->t[0] += barrier->Pos.vx;
+    matrix->t[1] += barrier->Pos.vy;
+    matrix->t[2] += barrier->Pos.vz;
 
     CompMatrix(&D_800FA63C.m, matrix, matrix);
     SetRotMatrix(matrix);
@@ -121,7 +121,7 @@ static void BarrierRenderBorder(void) {
         func_800D29D4(&D_801B0C98, g_cDb->unk70, 12, BarrierBufferPtr);
 
     if (D_80062D98 == 0) {
-        Barrier->AnimationFrame++;
+        barrier->AnimationFrame++;
     }
 }
 
@@ -130,15 +130,15 @@ static void BarrierRenderShield(void) {
     MATRIX* matrix2 = (MATRIX*)0x1F800020;
     VECTOR* scale1 = (VECTOR*)0x1F800040;
     VECTOR* scale2 = (VECTOR*)0x1F800050;
-    BarrierData* Barrier = &g_BattleEffectInstances[D_8015169C];
-    int temp_a0 = Barrier->AnimationFrame + Barrier->StartFrame - 17;
+    BarrierData* barrier = &g_BattleEffectInstances[D_8015169C];
+    int temp_a0 = barrier->AnimationFrame + barrier->StartFrame - 17;
     int var_s5;
     int var_s6;
 
     if (temp_a0 < 0) {
-        if (Barrier->AnimationFrame < 6) {
+        if (barrier->AnimationFrame < 6) {
             scale1->vx = scale1->vy = scale1->vz =
-                (Barrier->AnimationFrame * (BarrierBaseScale << 9)) >> 12;
+                (barrier->AnimationFrame * (BarrierBaseScale << 9)) >> 12;
         } else {
             scale1->vx = scale1->vy = scale1->vz =
                 (BarrierBaseScale * 0xC00) >> 12;
@@ -146,27 +146,27 @@ static void BarrierRenderShield(void) {
 
         scale2->vx = scale2->vy = scale2->vz = (BarrierBaseScale * 0xC00) >> 12;
 
-        var_s5 = Barrier->FaceIndex;
+        var_s5 = barrier->FaceIndex;
         var_s6 = 0;
     } else if (temp_a0 > 7) {
-        Barrier->StartFrame = -1;
+        barrier->StartFrame = -1;
         return;
     } else {
-        var_s5 = Barrier->FaceIndex | 8;
+        var_s5 = barrier->FaceIndex | 8;
         var_s6 = temp_a0 << 9;
         scale1->vx = scale1->vy = scale1->vz = scale2->vx = scale2->vy =
             scale2->vz = (((temp_a0 * 0x180) + 0xC00) * BarrierBaseScale) >> 12;
     }
 
     SetFarColor(0, 0, 0);
-    RotMatrixYXZ(&Barrier->Rot, matrix1);
+    RotMatrixYXZ(&barrier->Rot, matrix1);
     *matrix2 = *matrix1;
     ScaleMatrix(matrix1, scale1);
     ScaleMatrix(matrix2, scale2);
     ApplyMatrix(matrix2, &ShieldPivotOffset, matrix1->t);
-    matrix1->t[0] += Barrier->Pos.vx;
-    matrix1->t[1] += Barrier->Pos.vy;
-    matrix1->t[2] += Barrier->Pos.vz;
+    matrix1->t[0] += barrier->Pos.vx;
+    matrix1->t[1] += barrier->Pos.vy;
+    matrix1->t[2] += barrier->Pos.vz;
     CompMatrix(&D_800FA63C.m, matrix1, matrix1);
     SetRotMatrix(matrix1);
     SetTransMatrix(matrix1);
@@ -177,12 +177,12 @@ static void BarrierRenderShield(void) {
         func_800D29D4(&ShieldRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
 
     if (D_80062D98 == 0) {
-        Barrier->AnimationFrame++;
+        barrier->AnimationFrame++;
     }
 }
 
 static void BarrierSequenceManage(void) {
-    BarrierData* Barrier =
+    BarrierData* barrier =
         &g_BattleEffectInstances[D_8015169C]; // model instance
     BarrierData* next;
 
@@ -190,99 +190,99 @@ static void BarrierSequenceManage(void) {
         return;
     }
 
-    if (Barrier->AnimationFrame == 0) {
+    if (barrier->AnimationFrame == 0) {
         next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderBorder)];
-        next->StartFrame = Barrier->AnimationFrame;
+        next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 0;
-        next->Rot = Barrier->Rot;
-        next->Pos = Barrier->Pos;
+        next->Rot = barrier->Rot;
+        next->Pos = barrier->Pos;
     }
 
-    if (Barrier->AnimationFrame == 2) {
+    if (barrier->AnimationFrame == 2) {
         next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderBorder)];
-        next->StartFrame = Barrier->AnimationFrame;
+        next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 1;
-        next->Rot = Barrier->Rot;
-        next->Pos = Barrier->Pos;
+        next->Rot = barrier->Rot;
+        next->Pos = barrier->Pos;
     }
 
-    if (Barrier->AnimationFrame == 4) {
+    if (barrier->AnimationFrame == 4) {
         next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderBorder)];
-        next->StartFrame = Barrier->AnimationFrame;
+        next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 3;
-        next->Rot = Barrier->Rot;
-        next->Pos = Barrier->Pos;
+        next->Rot = barrier->Rot;
+        next->Pos = barrier->Pos;
     }
 
-    if (Barrier->AnimationFrame == 6) {
+    if (barrier->AnimationFrame == 6) {
         next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderBorder)];
-        next->StartFrame = Barrier->AnimationFrame;
+        next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 2;
-        next->Rot = Barrier->Rot;
-        next->Pos = Barrier->Pos;
+        next->Rot = barrier->Rot;
+        next->Pos = barrier->Pos;
     }
 
-    if (Barrier->AnimationFrame == 1) {
+    if (barrier->AnimationFrame == 1) {
         next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderShield)];
-        next->StartFrame = Barrier->AnimationFrame;
+        next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 0;
-        next->Rot = Barrier->Rot;
-        next->Pos = Barrier->Pos;
+        next->Rot = barrier->Rot;
+        next->Pos = barrier->Pos;
     }
 
-    if (Barrier->AnimationFrame == 3) {
+    if (barrier->AnimationFrame == 3) {
         next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderShield)];
-        next->StartFrame = Barrier->AnimationFrame;
+        next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 1;
-        next->Rot = Barrier->Rot;
-        next->Pos = Barrier->Pos;
+        next->Rot = barrier->Rot;
+        next->Pos = barrier->Pos;
     }
 
-    if (Barrier->AnimationFrame == 5) {
+    if (barrier->AnimationFrame == 5) {
         next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderShield)];
-        next->StartFrame = Barrier->AnimationFrame;
+        next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 3;
-        next->Rot = Barrier->Rot;
-        next->Pos = Barrier->Pos;
+        next->Rot = barrier->Rot;
+        next->Pos = barrier->Pos;
     }
 
-    if (Barrier->AnimationFrame == 7) {
+    if (barrier->AnimationFrame == 7) {
         next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderShield)];
-        next->StartFrame = Barrier->AnimationFrame;
+        next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 2;
-        next->Rot = Barrier->Rot;
-        next->Pos = Barrier->Pos;
+        next->Rot = barrier->Rot;
+        next->Pos = barrier->Pos;
     }
 
-    if (Barrier->AnimationFrame == 17) {
-        func_800D5774(Barrier->unk4);
-        Barrier->StartFrame = -1;
+    if (barrier->AnimationFrame == 17) {
+        func_800D5774(barrier->unk4);
+        barrier->StartFrame = -1;
     }
 
-    Barrier->AnimationFrame++;
+    barrier->AnimationFrame++;
 }
 
 static void BarrierAttachToTarget(int arg0) {
-    BarrierData* Barrier =
+    BarrierData* barrier =
         &g_BattleEffectInstances[func_800BBEAC(BarrierSequenceManage)];
 
-    func_800D3994(arg0, D_801518E4[arg0].D_8015190F, &Barrier->Pos);
-    Barrier->Pos.vx -=
+    func_800D3994(arg0, D_801518E4[arg0].D_8015190F, &barrier->Pos);
+    barrier->Pos.vx -=
         (rsin(D_801518E4[arg0].unk160.vy) * D_801518E4[arg0].unk12) >> 12;
-    Barrier->Pos.vz -=
+    barrier->Pos.vz -=
         (rcos(D_801518E4[arg0].unk160.vy) * D_801518E4[arg0].unk12) >> 12;
-    Barrier->Rot = D_801518E4[arg0].unk160;
-    Barrier->unk4 = arg0;
+    barrier->Rot = D_801518E4[arg0].unk160;
+    barrier->unk4 = arg0;
 }
 
 static void BarrierDoubleBufferFlip(void) {
-    BarrierData* Barrier = &g_BattleEffectInstances[D_8015169C];
+    BarrierData* barrier = &g_BattleEffectInstances[D_8015169C];
 
-    BarrierBufferPtr = &BarrierPrimBuffer[Barrier->AnimationFrame * 65536];
-    Barrier->AnimationFrame ^= 1;
+    BarrierBufferPtr = &BarrierPrimBuffer[barrier->AnimationFrame * 65536];
+    barrier->AnimationFrame ^= 1;
 
     if (D_80162080 < 2) {
-        Barrier->StartFrame = -1;
+        barrier->StartFrame = -1;
     }
 }
 
