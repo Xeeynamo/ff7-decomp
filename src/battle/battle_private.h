@@ -376,8 +376,8 @@ extern u8 D_800F5774;
 extern s32 D_800F57CC;
 extern Unk800F57D0* D_800F57D0;
 extern u8 D_800F57D4;
-extern Unk800AF470 D_800F5BB8[10]; // per-party-slot turn/effect state (flags,
-                                   // countdown timers)
+extern Unk800AF470 g_CombatantTurnState[10]; // per-party-slot turn/effect state
+                                             // (flags, countdown timers)
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
 extern s32 D_800F7DF8[3];
@@ -566,11 +566,11 @@ void func_800AC6B4(s32);
 void func_800AC73C(s32);
 void func_800ACA24(void);
 s32 func_800ACD88(s32);
-s32 func_800ACE14(s32);
-void func_800AD088(Unk800FA9D0*);
+s32 BATTLE_IsDamageNullified(s32);
+void BATTLE_QueueUnassignedResultDisplay(Unk800FA9D0*);
 void func_800AD0FC(void);
 void func_800AD324(s32, s32, s32, s32);
-void func_800AD420(void);
+void BATTLE_ApplyDefaultAbsorbEffect(void);
 void func_800AD4EC(void);
 void func_800AE82C(void);
 s32 func_800B3030(s32);
