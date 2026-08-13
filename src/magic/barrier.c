@@ -3,7 +3,7 @@
 #include "common.h"
 #include "../battle/battle.h"
 
-
+// This is placeholder for now so I can access the SVECTORs correctly
 typedef struct BarrierData {
     s16 StartFrame;
     s16 AnimationFrame;
@@ -15,64 +15,58 @@ typedef struct BarrierData {
     char pad1[0x6];
 } BarrierData;
 
-
 extern BarrierData g_BattleEffectInstances[];
 
-static s32 bari_a1[] = { // Embedded Model
-	//6 verts, 12 polys,1 group
-    0x00000030, // Vertex data size: 6 verts × 8 bytes
-	0xFE0C0000, 0x000001CA, // (-500, 0, 458, 0)
-	0x00000000,	0x0000FFD7, // (0, 0, -41, 0)
-	0x0000FE0C, 0x000002E5, // (-500, 0, 741, 0)
-	0xFFEDFE2F, 0x000002C2, // (-19, -465, 706, 0)
-	0xFE2AFFF2, 0x000001C2, // (-470, -14, 450, 0)
-	0xFFEDFFF2, 0x00000000, // (-19, -14, 0, 0)
-	0x00200000,	0x00000000, 0x00000000,
-	0x00000006, //Number of primitives 
+static s32 bari_a1[] = {    // Embedded Model
+                            // 6 verts, 12 polys,1 group
+    0x00000030,             // Vertex data size: 6 verts × 8 bytes
+    0xFE0C0000, 0x000001CA, // (-500, 0, 458, 0)
+    0x00000000, 0x0000FFD7, // (0, 0, -41, 0)
+    0x0000FE0C, 0x000002E5, // (-500, 0, 741, 0)
+    0xFFEDFE2F, 0x000002C2, // (-19, -465, 706, 0)
+    0xFE2AFFF2, 0x000001C2, // (-470, -14, 450, 0)
+    0xFFEDFFF2, 0x00000000, // (-19, -14, 0, 0)
+    0x00200000, 0x00000000, 0x00000000,
+    0x00000006, // Number of primitives
 
-	//Vertex Index pairs offset into the vertex table
-	//(0x00, 0x08, 0x10, 0x18, 0x20, 0x28).
-	0x00280008,  // vertex 0, vertex 5
-	0x00180010,  // vertex 2, vertex 3
-	// GPU primitive command 0x38, (POLY_G4 - Gouraud Quad)
-	// Then vertex color data
-	0x38FFFFFF, 0x006A6A6A, 0x00C0C0C0, 0x006A6A6A, 
-	
-	//repeat for other vertexes
-	0x00200000, 0x00280008,
-	0x38C0C0C0, 0x006A6A6A, 0x00FFFFFF, 0x006A6A6A,
-	0x00180010, 0x00200000,
-	0x38C0C0C0, 0x006A6A6A, 0x00C0C0C0, 0x006A6A6A,
-	0x00100008, 0x00180028, 
-	0x38FFFFFF, 0x00C0C0C0, 0x006A6A6A, 0x006A6A6A,
-	0x00080000, 0x00280020,
-	0x38C0C0C0, 0x00FFFFFF, 0x006A6A6A, 0x006A6A6A,
-	0x00000010, 0x00200018, 
-	0x38C0C0C0, 0x00C0C0C0, 0x006A6A6A, 0x006A6A6A};
+    // Vertex Index pairs offset into the vertex table
+    //(0x00, 0x08, 0x10, 0x18, 0x20, 0x28).
+    0x00280008, // vertex 0, vertex 5
+    0x00180010, // vertex 2, vertex 3
+    // GPU primitive command 0x38, (POLY_G4 - Gouraud Quad)
+    // Then vertex color data
+    0x38FFFFFF, 0x006A6A6A, 0x00C0C0C0, 0x006A6A6A,
 
-	static s32 bari_a2[] = { // Embedded Model
-	//3 verts 2 ploys 1 group
-    0x00000018, // Vertex data size: 3 × 8 bytes
-	0xFFEDFE2F, 0x000002C2, // vertex 0 (-19, -465, 706)
-	0xFE2AFFF2, 0x000001C2,	// vertex 1 (-470, -14, 450)
-	0xFFEDFFF2, 0x00000000,	// vertex 2 (-19, -14, 0)
-	0x00200000,	0x00000000, 
-	0x00000002, // Number of primitives
+    // repeat for other vertexes
+    0x00200000, 0x00280008, 0x38C0C0C0, 0x006A6A6A, 0x00FFFFFF, 0x006A6A6A,
+    0x00180010, 0x00200000, 0x38C0C0C0, 0x006A6A6A, 0x00C0C0C0, 0x006A6A6A,
+    0x00100008, 0x00180028, 0x38FFFFFF, 0x00C0C0C0, 0x006A6A6A, 0x006A6A6A,
+    0x00080000, 0x00280020, 0x38C0C0C0, 0x00FFFFFF, 0x006A6A6A, 0x006A6A6A,
+    0x00000010, 0x00200018, 0x38C0C0C0, 0x00C0C0C0, 0x006A6A6A, 0x006A6A6A};
 
-	//Vertex Index pairs offset into the vertex table
-	0x00000008, 0x00000010,	
-	// GPU Primitive Command 0x30 (POLY_G3 - Gouraud Triangle):
+static s32 bari_a2[] = {    // Embedded Model
+                            // 3 verts 2 ploys 1 group
+    0x00000018,             // Vertex data size: 3 × 8 bytes
+    0xFFEDFE2F, 0x000002C2, // vertex 0 (-19, -465, 706)
+    0xFE2AFFF2, 0x000001C2, // vertex 1 (-470, -14, 450)
+    0xFFEDFFF2, 0x00000000, // vertex 2 (-19, -14, 0)
+    0x00200000, 0x00000000,
+    0x00000002, // Number of primitives
+
+    // Vertex Index pairs offset into the vertex table
+    0x00000008, 0x00000010,
+    // GPU Primitive Command 0x30 (POLY_G3 - Gouraud Triangle):
     0x303F3F3F, // Primitive/color: command 0x30, RGB 3F3F3F
-	0x003F3F3F, // Triangle 0: vertex 1 color, RGB 3F3F3F
-	0x00D4D4D4, // Triangle 0: vertex 2 color, RGB D4D4D4
+    0x003F3F3F, // Triangle 0: vertex 1 color, RGB 3F3F3F
+    0x00D4D4D4, // Triangle 0: vertex 2 color, RGB D4D4D4
 
-	//repeat
-	0x00100008, 0x00000000,
-	// GPU primitive command 0x30, Gouraud-shaded, opaque, 3-vertex poly
-	0x303F3F3F, // Primitive/color: command 0x30, RGB 3F3F3F
+    // repeat
+    0x00100008, 0x00000000,
+    // GPU primitive command 0x30, Gouraud-shaded, opaque, 3-vertex poly
+    0x303F3F3F, // Primitive/color: command 0x30, RGB 3F3F3F
     0x00D4D4D4, // Triangle 1: vertex 1 color, RGB D4D4D4
-	0x003F3F3F, // Triangle 1: vertex 2 color, RGB 3F3F3F
-	0x00000000};
+    0x003F3F3F, // Triangle 1: vertex 2 color, RGB 3F3F3F
+    0x00000000};
 static SVECTOR BorderPivotOffset = {0, 0, -500};
 static Unk801B0C98 D_801B0C98 = {bari_a1, 0, 0, 0, 0x20};
 static SVECTOR ShieldPivotOffset = {0, 0, -500};
@@ -123,7 +117,8 @@ static void BarrierRenderBorder(void) {
 
     D_801B0C98.unk4 = var_s3 | 0x80;
     D_801B0C98.unkA = var_s4;
-    BarrierBufferPtr = func_800D29D4(&D_801B0C98, g_cDb->unk70, 12, BarrierBufferPtr);
+    BarrierBufferPtr =
+        func_800D29D4(&D_801B0C98, g_cDb->unk70, 12, BarrierBufferPtr);
 
     if (D_80062D98 == 0) {
         Barrier->AnimationFrame++;
@@ -145,7 +140,8 @@ static void BarrierRenderShield(void) {
             scale1->vx = scale1->vy = scale1->vz =
                 (Barrier->AnimationFrame * (BarrierBaseScale << 9)) >> 12;
         } else {
-            scale1->vx = scale1->vy = scale1->vz = (BarrierBaseScale * 0xC00) >> 12;
+            scale1->vx = scale1->vy = scale1->vz =
+                (BarrierBaseScale * 0xC00) >> 12;
         }
 
         scale2->vx = scale2->vy = scale2->vz = (BarrierBaseScale * 0xC00) >> 12;
@@ -177,7 +173,8 @@ static void BarrierRenderShield(void) {
 
     ShieldRenderDesc.unk4 = var_s5 | 0x80;
     ShieldRenderDesc.unkA = var_s6;
-    BarrierBufferPtr = func_800D29D4(&ShieldRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
+    BarrierBufferPtr =
+        func_800D29D4(&ShieldRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
 
     if (D_80062D98 == 0) {
         Barrier->AnimationFrame++;
@@ -185,7 +182,8 @@ static void BarrierRenderShield(void) {
 }
 
 static void BarrierSequenceManage(void) {
-    BarrierData* Barrier = &g_BattleEffectInstances[D_8015169C]; //model instance
+    BarrierData* Barrier =
+        &g_BattleEffectInstances[D_8015169C]; // model instance
     BarrierData* next;
 
     if (D_80062D98 != 0) {
@@ -265,7 +263,8 @@ static void BarrierSequenceManage(void) {
 }
 
 static void BarrierAttachToTarget(int arg0) {
-    BarrierData* Barrier = &g_BattleEffectInstances[func_800BBEAC(BarrierSequenceManage)];
+    BarrierData* Barrier =
+        &g_BattleEffectInstances[func_800BBEAC(BarrierSequenceManage)];
 
     func_800D3994(arg0, D_801518E4[arg0].D_8015190F, &Barrier->Pos);
     Barrier->Pos.vx -=

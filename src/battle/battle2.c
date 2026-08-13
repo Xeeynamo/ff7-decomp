@@ -287,7 +287,8 @@ static void func_800CE638(void) {
 static void func_800CE75C(void) {
     if ((D_800FA69C >> g_BattleEffectInstances[D_8015169C].D_80162980) & 1) {
         func_800D67E8(g_BattleEffectInstances[D_8015169C].D_80162980);
-    } else if ((D_80163608 >> g_BattleEffectInstances[D_8015169C].D_80162980) & 1) {
+    } else if (
+        (D_80163608 >> g_BattleEffectInstances[D_8015169C].D_80162980) & 1) {
         func_800D67BC(g_BattleEffectInstances[D_8015169C].D_80162980);
     }
 }
@@ -300,7 +301,8 @@ static void func_800CE7E0(void) {
             func_800CE75C();
             dst = func_800BC04C(func_800C2928);
             D_801621F0[dst].unk14 = g_BattleEffectInstances[D_8015169C].unkA;
-            D_801621F0[dst].unkE = g_BattleEffectInstances[D_8015169C].D_80162982;
+            D_801621F0[dst].unkE =
+                g_BattleEffectInstances[D_8015169C].D_80162982;
             D_801621F0[dst].unk10.ptr =
                 (u8*)(u32)g_BattleEffectInstances[D_8015169C].D_80162980;
             dst = func_800BC04C(func_800CE638);
@@ -327,7 +329,8 @@ void func_800CE970(void) {
             func_800CE75C();
             dst = func_800BC04C(func_800C2928);
             D_801621F0[dst].unk14 = g_BattleEffectInstances[D_8015169C].unkA;
-            D_801621F0[dst].unkE = g_BattleEffectInstances[D_8015169C].D_80162982;
+            D_801621F0[dst].unkE =
+                g_BattleEffectInstances[D_8015169C].D_80162982;
             D_801621F0[dst].unk10.ptr =
                 (u8*)(u32)g_BattleEffectInstances[D_8015169C].D_80162980;
             dst = func_800BC04C(func_800CE638);
@@ -1155,7 +1158,8 @@ void func_800D5350();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5350);
 
 void func_800D5444(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    BattleEffectInstance* temp_v0 = &g_BattleEffectInstances[func_800BBEAC(func_800D5350)];
+    BattleEffectInstance* temp_v0 =
+        &g_BattleEffectInstances[func_800BBEAC(func_800D5350)];
     temp_v0->StartFrame = 0;
     temp_v0->TargetActorIndex = arg0;
     temp_v0->unk6 = arg1;
@@ -1213,7 +1217,8 @@ void func_800D57C0();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D57C0);
 
 void func_800D58D0(s16 arg0, s16 arg1, s16 arg2) {
-    BattleEffectInstance* temp_v0 = &g_BattleEffectInstances[func_800BBEAC(func_800D57C0)];
+    BattleEffectInstance* temp_v0 =
+        &g_BattleEffectInstances[func_800BBEAC(func_800D57C0)];
     temp_v0->StartFrame = 0;
     temp_v0->D_80162980 = arg0;
     temp_v0->unk6 = arg2;

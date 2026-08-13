@@ -604,8 +604,8 @@ s16 func_800B888C(s32 arg0) {
     }
 }
 
-// initialize g_BattleEffectInstances slot v (registered via func_800BBEAC) from arg0 and
-// dispatch
+// initialize g_BattleEffectInstances slot v (registered via func_800BBEAC) from
+// arg0 and dispatch
 static void func_800B88CC(s32 arg0) {
     s32 v = func_800BBEAC(&func_800CE970);
 
