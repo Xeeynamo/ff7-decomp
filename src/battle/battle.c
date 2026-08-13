@@ -2108,8 +2108,6 @@ s32 func_800B1A5C(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1AA0);
 
-// Comparison opcodes 0x40-0x45: compare the slot-0 operand against the slot-1
-// operand and return 1 when the relation holds. All six are unsigned.
 s32 func_800B1B64(s32 lhs, s32 rhs) {
     u32 a = D_800F4AC4->var[0][lhs];
     u32 b = D_800F4AC4->var[1][rhs];
