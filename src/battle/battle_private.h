@@ -304,7 +304,7 @@ extern s32 (*D_800EFEA0[])(s16, u8);
 extern Unk800F01DC* D_800F01DC;
 extern s32 D_800F01E0;
 extern s32 D_800F01E4;
-extern u16 D_800F198C;
+extern u16 D_800F198C; // btlmenu_limitReadyMask
 extern s32 D_800F199C;
 extern u8 D_800F19A4;
 extern s8 D_800F1E4F;
@@ -315,6 +315,9 @@ extern s32 D_800F3138;
 extern s32 D_800F313C;
 extern s32 D_800F3140;
 extern u8 D_800F3184[];
+extern s16 g_AtbBarPulseColor;
+extern s16 g_AtbBarPulseValue;
+extern s16 g_ActiveCharsHPMPInited;
 extern u8 D_800F332C[3][0x10];
 extern s16 D_800F338C[];
 extern u8 D_800F33A0[3];
@@ -332,7 +335,7 @@ extern u8 D_800F7ED4;
 extern u8 D_800F38A7;
 extern u8 D_800F389C;
 extern s16 D_800F389E;
-extern s16 D_800F3896;
+extern s16 D_800F3896; // btlmenu_activeWindowId
 extern s32 D_800F3944;
 extern s32 D_800F3948;
 extern s32 D_800F394C;
@@ -373,7 +376,7 @@ extern u8 D_800F514C[];
 extern s8 D_800F5760;
 extern u8 D_800F5764;
 extern u8 D_800F5774;
-extern s32 D_800F57CC;
+extern s32 D_800F57CC; // btlmenu_cursorMemory
 extern Unk800F57D0* D_800F57D0;
 extern u8 D_800F57D4;
 extern Unk800AF470 g_CombatantTurnState[10]; // per-party-slot turn/effect state
@@ -442,6 +445,14 @@ extern u16 D_800FA9BC;
 extern s16 D_800FA9C4;
 extern s16 D_800FA9C6;
 extern s16 D_800FA9C8;
+extern u8 D_801031F4[12];
+extern u8 D_80151688[12];
+extern s32 D_801516A4[10];
+extern s32 D_801516CC[10];
+extern s32 D_8015174C[10];
+extern s32 D_8015178C[10];
+extern s32 D_801517C8[10];
+extern s32 D_8015187C[10];
 // queued-action-ish record, allocated by func_800A2FD0 (unk3 set to -1,
 // marking it unassigned) and searched by func_800A34CC. Traced through
 // func_800ABA68's callers (func_800AB830/func_800ABB0C, still undecompiled):
@@ -494,6 +505,8 @@ typedef struct {
     /* 0x6 */ s16 y;
 } ModelScreenPos; // size:0x8
 
+extern s16 D_800F3110;
+extern u8 D_800F3150; // btlmenu_prevLimitReadyMask
 extern ModelScreenPos g_modelScreenPos[10];
 extern s16 D_80151774;
 extern u8 D_801517BC;
@@ -520,17 +533,19 @@ extern Unk801620AC D_801620AC[10];
 extern Unk801621F0 D_801621F0[60];
 extern u8 D_80162974;
 extern Unk80162978 D_80162978[100];
+extern u8 D_801635F8;
 extern u8 D_801635FC;
+extern u8 D_80163600;
 extern u8 D_80163604;
 extern s16 D_80163608;
 extern Unk801636B8 D_801636B8[5];
 extern u16 D_80163758[]; // part of a struct
 extern u16 D_8016375C;
 extern u16 D_8016375E;
-extern u16 D_80163762;
+extern u16 D_80163762; // part of a struct
 // Cait Sith's 3 landed Slots reel symbols (see func_800E5358, and
 // BATTLE_ResolveCaitSithSlotsResult in battle.c)
-extern u8 D_80163774[3];
+extern u8 D_80163774[4];
 extern u16 D_8016376E[];
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct

@@ -519,7 +519,7 @@ s16 func_800A4E00(void) {
     arg = D_800E7A48[0] & 0xFF;
     if (arg != 0xFF) {
         arg = -1;
-        result = func_800A4CC8(D_800E7A48[0], arg);
+        result = func_800A4CC8(D_800E7A48[0]);
     }
     return result;
 }
@@ -1713,6 +1713,7 @@ void func_800ADE5C(void) {
     g_CurrentAction->unk214 = g_CurrentAction->unk48 * 20;
 }
 
+// Item attack damage formula.
 void func_800ADE84(void) {
     s32 value = g_CurrentAction->unk48 * (0x200 - g_CurrentAction->unk210);
     g_CurrentAction->unk214 = func_800AD8DC(value / 32);
@@ -1740,6 +1741,7 @@ void func_800ADF38(void) {
     g_CurrentAction->unk214 = result;
 }
 
+// White Wind "damage" formula. Restores HP equal to caster's HP to all allies.
 void func_800ADFC0(void) {
     g_CurrentAction->unk214 =
         *(u16*)(&g_CombatantTurnState[g_CurrentAction->actorId].unk3C);
@@ -1763,19 +1765,77 @@ void func_800AE070(void) {}
 
 void func_800AE078(void) {}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE080);
+// Cait Sith's Dice attack damage formula.
+void func_800AE080(void) {
+    s32 i;
+    s32 j;
+    s32 numDice;
+    s32 dieValue;
+    s32 dieValues[8];
+    s32 diceSum;
+    s32 repeat;
+    s32 maxRepeat;
 
-void func_800AE234(void) {
-    g_CurrentAction->unk214 =
-        Savemap.memory_bank_1[26] + Savemap.memory_bank_1[27] * 256;
+    numDice = g_CurrentAction->characterLevel / 10;
+    if (numDice < 2) {
+        numDice = 2;
+    }
+    if (numDice > 6) {
+        numDice = 6;
+    }
+
+    for (i = 0; i < 4; i++) {
+        D_80163774[i] = 0xFF;
+    }
+
+    diceSum = 0;
+    for (i = 0; i < numDice; i++) {
+        dieValue = func_80014BA8(6);
+        dieValues[i] = dieValue;
+        diceSum += dieValue + 1;
+        if (i & 1) {
+            D_80163774[i / 2] = dieValue << 4 | D_80163774[i / 2] & 0xF;
+        } else {
+            D_80163774[i / 2] = dieValue | 0xF0;
+        }
+        func_80014B54();
+    }
+
+    maxRepeat = 0;
+    for (i = 0; i < 6; i++) {
+        repeat = 0;
+        for (j = 0; j < numDice; j++) {
+            if (dieValues[j] == i) {
+                repeat++;
+            }
+        }
+        if (maxRepeat < repeat) {
+            maxRepeat = repeat;
+        }
+    }
+
+    diceSum *= 100 * maxRepeat;
+    g_CurrentAction->unk214 = diceSum;
 }
 
+// Chocobuckle attack damage formula.
+void func_800AE234(void) {
+    g_CurrentAction->unk214 =
+        Savemap.memory_bank_1[26] +
+        Savemap.memory_bank_1[27] * 256; // Number of escapes from battles.
+}
+
+// Sephiroth's Heartless Angel attack damage formula.
 void func_800AE25C(void) {
     g_CurrentAction->unk214 =
         g_BattleState.combatant[g_CurrentAction->unk208].curHP - 1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE2A0);
+// Tonberry's Time Damage attack damage formula.
+void func_800AE2A0(void) {
+    s32 minutes = Savemap.time / 60;
+    g_CurrentAction->unk214 = (minutes / 60) * 100 + minutes % 60;
+}
 
 // target-side damage/effect scaling from the target's save-file kill count
 // (party members only -- targetIdx >= 3 is an enemy, contributes 0)

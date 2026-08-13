@@ -1,6 +1,8 @@
 //! PSYQ=3.3 CC1=2.7.2
 #include "battle_private.h"
+#include "game.h"
 
+static void func_800E1C40(void);
 static void func_800E5358(void);
 static void func_800E4B88(void);
 static s32 func_800E4BCC(void);
@@ -622,7 +624,31 @@ void func_800E0E34(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E15D8);
+typedef struct {
+    /* 0x156 */ u16 limitReadyMask;
+} BattleSceneData; // size:0x178
+
+void func_800E15D8(void) {
+    BattleSceneData* battleSceneData;
+
+    _D_80062DFD = 1;
+    D_80163604 = 0;
+    D_801635F8 = 0;
+    D_80163600 = Savemap.time & 0x7F;
+    func_800E1C40();
+    battleSceneData = (BattleSceneData*)&D_80163762;
+    D_800F3150 = battleSceneData->limitReadyMask;
+    D_800F3110 = 1;
+    D_800F3896 = -1;
+    func_800E0DF4();
+    if (D_800F3110 != 0) {
+        D_800F3110 = 0;
+    }
+    D_80062D98 = 0;
+    D_80062D99 = 0;
+    D_800F198C = battleSceneData->limitReadyMask;
+    D_800F57CC = (Savemap.config >> 4) & 3;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E16B8);
 
@@ -680,7 +706,82 @@ s32 func_800E1A2C(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E1AC0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E1C40);
+void func_800E1C40(void) {
+    Unk8009D84C* activeCharacters = D_8009D84C;
+    s16 i;
+    s32 hp;
+    s32 mp;
+
+    // Used for representation of active battle characters' HP and MP in battle
+    // menu.
+    if (!g_ActiveCharsHPMPInited) {
+        for (i = 0; i < 3; i++) {
+            D_801516A4[i] = activeCharacters[i].hp << 8;
+            D_801516CC[i] = activeCharacters[i].mp << 8;
+        }
+        g_ActiveCharsHPMPInited = 1;
+    }
+
+    // Makes the ATB bar pulse orange after it's filled.
+    g_AtbBarPulseColor += g_AtbBarPulseValue;
+    if (g_AtbBarPulseColor > 176) {
+        g_AtbBarPulseValue = -g_AtbBarPulseValue;
+    }
+    if (g_AtbBarPulseColor < 0) {
+        g_AtbBarPulseColor = 0;
+        g_AtbBarPulseValue = -g_AtbBarPulseValue;
+    }
+
+    for (i = 0; i < 3; i++) {
+        if (Savemap.party[i].char_id != 0xFF) {
+            hp = activeCharacters[i].hp << 8;
+            if (D_801516A4[i] > hp) {
+                D_801516A4[i] -= (activeCharacters[i].unk12 << 8) / 240;
+                if (D_801516A4[i] < hp) {
+                    D_801516A4[i] = activeCharacters[i].hp << 8;
+                }
+                D_8015174C[i] = hp;
+                D_801517C8[i] = D_801516A4[i];
+                D_801031F4[i] = 2;
+            } else if (D_801516A4[i] < hp) {
+                D_801516A4[i] += (activeCharacters[i].unk12 << 8) / 240;
+                if (D_801516A4[i] > hp) {
+                    D_801516A4[i] = activeCharacters[i].hp << 8;
+                }
+                D_8015174C[i] = D_801516A4[i];
+                D_801517C8[i] = hp;
+                D_801031F4[i] = 1;
+            } else {
+                D_8015174C[i] = hp;
+                D_801517C8[i] = hp;
+                D_801031F4[i] = 0;
+            }
+
+            mp = activeCharacters[i].mp << 8;
+            if (D_801516CC[i] > mp) {
+                D_801516CC[i] -= (activeCharacters[i].unk16 << 8) / 240;
+                if (D_801516CC[i] < mp) {
+                    D_801516CC[i] = activeCharacters[i].mp << 8;
+                }
+                D_8015178C[i] = mp;
+                D_8015187C[i] = D_801516CC[i];
+                D_80151688[i] = 2;
+            } else if (D_801516CC[i] < mp) {
+                D_801516CC[i] += (activeCharacters[i].unk16 << 8) / 240;
+                if (D_801516CC[i] > mp) {
+                    D_801516CC[i] = activeCharacters[i].mp << 8;
+                }
+                D_8015178C[i] = D_801516CC[i];
+                D_8015187C[i] = mp;
+                D_80151688[i] = 1;
+            } else {
+                D_8015187C[i] = mp;
+                D_8015178C[i] = mp;
+                D_80151688[i] = 0;
+            }
+        }
+    }
+}
 
 void func_800E2054(s32 arg0, s32 arg1) {
     func_80027354(0xB0, arg0, &D_800F3184[arg1 * 10], 3);

@@ -1,3 +1,4 @@
+_D_80062DFD = 0x80062DFD;
 g_EntityToLine = 0x8007078C;
 g_FieldScriptSyncWaitEntity = 0x80071A88;
 g_FieldMusicLock = 0x800716D4;
@@ -18,6 +19,7 @@ D_8009A000 = 0x8009A000;
 D_8009A004 = 0x8009A004;
 D_8009A008 = 0x8009A008;
 g_FieldScriptPriority = 0x8009A1C4;
+D_8009ABF4 = 0x8009ABF4;
 g_CharIdToEntity = 0x8009AD30;
 g_FieldModels = 0x8009C544;
 g_FieldModelCount = 0x8009C6C4;
