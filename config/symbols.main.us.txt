@@ -492,6 +492,7 @@ g_AkaoCdVolSlideSteps = 0x80062FCC;
 g_AkaoCdVol = 0x80062FD4;
 g_AkaoPitchMulMusic = 0x80062FE4;
 g_AkaoTempoMulMusic = 0x80062FE8;
+g_CurrentAction = 0x80063014;
 D_800696AC = 0x800696AC;
 g_AccessoryTable = 0x80071C24;
 g_ArmorTable = 0x80071E44;

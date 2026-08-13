@@ -718,7 +718,7 @@ extern Gpu D_80062F24;
 extern u16 D_80062F3C;
 extern s32 D_80062F58;
 extern u_long* D_80062FC4;
-extern Unk800A8D04* D_80063014;
+extern Unk800A8D04* g_CurrentAction;
 extern DRAWENV D_800706A4[2];
 extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
                             // (set by the MULCK opcode)
