@@ -2017,7 +2017,19 @@ static void BATTLE_InvalidateQueuedMessages(s32 arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1368);
+// Fetch the next 16-bit little-endian immediate from the script stream and
+// advance the cursor past it. The extra temporaries are load-bearing: they are
+// what make the register allocation line up with the original.
+s32 func_800B1368(void) {
+    s32 lo = D_800F4AC0[D_800F4AC4->pc++];
+    unsigned int result;
+    unsigned int hi;
+
+    hi = D_800F4AC0[D_800F4AC4->pc++] << 8;
+    lo = lo | hi;
+    result = lo;
+    return result;
+}
 
 // Resolve a packed variable reference for the battle-script VM (func_800B1D48):
 // map combatant arg0 + descriptor arg1 to a backing pointer (*arg2) and return
@@ -2102,7 +2114,47 @@ s32 func_800B1A5C(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1AA0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1B64);
+// Comparison opcodes 0x40-0x45: compare the slot-0 operand against the slot-1
+// operand and return 1 when the relation holds. All six are unsigned.
+s32 func_800B1B64(s32 lhs, s32 rhs) {
+    u32 a = D_800F4AC4->var[0][lhs];
+    u32 b = D_800F4AC4->var[1][rhs];
+    s32 result = 0;
+
+    switch (D_800F4AC4->opcode) {
+    case 0x40:
+        if (a == b) {
+            result = 1;
+        }
+        break;
+    case 0x41:
+        if (a != b) {
+            result = 1;
+        }
+        break;
+    case 0x42:
+        if (a >= b) {
+            result = 1;
+        }
+        break;
+    case 0x43:
+        if (a <= b) {
+            result = 1;
+        }
+        break;
+    case 0x44:
+        if (a > b) {
+            result = 1;
+        }
+        break;
+    case 0x45:
+        if (a < b) {
+            result = 1;
+        }
+        break;
+    }
+    return result;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1C1C);
 
