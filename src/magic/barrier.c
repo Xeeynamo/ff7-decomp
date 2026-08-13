@@ -16,7 +16,7 @@ typedef struct BarrierData {
 } BarrierData;
 
 
-extern BarrierData D_80162978[];
+extern BarrierData g_BattleEffectInstances[];
 
 static s32 bari_a1[] = { // Embedded Model
 	//6 verts, 12 polys,1 group
@@ -89,7 +89,7 @@ void ExecuteMagic(int arg0, int arg1) { BarrierMainSetup(arg0, arg1); }
 static void BarrierRenderBorder(void) {
     MATRIX* matrix = (MATRIX*)0x1F800000;
     VECTOR* scale = (VECTOR*)0x1F800020;
-    BarrierData* Barrier = &D_80162978[D_8015169C];
+    BarrierData* Barrier = &g_BattleEffectInstances[D_8015169C];
     int temp_a0 = (Barrier->AnimationFrame + Barrier->StartFrame) - 17;
     int var_s4;
     int var_s3;
@@ -135,7 +135,7 @@ static void BarrierRenderShield(void) {
     MATRIX* matrix2 = (MATRIX*)0x1F800020;
     VECTOR* scale1 = (VECTOR*)0x1F800040;
     VECTOR* scale2 = (VECTOR*)0x1F800050;
-    BarrierData* Barrier = &D_80162978[D_8015169C];
+    BarrierData* Barrier = &g_BattleEffectInstances[D_8015169C];
     int temp_a0 = Barrier->AnimationFrame + Barrier->StartFrame - 17;
     int var_s5;
     int var_s6;
@@ -185,7 +185,7 @@ static void BarrierRenderShield(void) {
 }
 
 static void BarrierSequenceManage(void) {
-    BarrierData* Barrier = &D_80162978[D_8015169C]; //model instance
+    BarrierData* Barrier = &g_BattleEffectInstances[D_8015169C]; //model instance
     BarrierData* next;
 
     if (D_80062D98 != 0) {
@@ -193,7 +193,7 @@ static void BarrierSequenceManage(void) {
     }
 
     if (Barrier->AnimationFrame == 0) {
-        next = &D_80162978[func_800BBEAC(BarrierRenderBorder)];
+        next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderBorder)];
         next->StartFrame = Barrier->AnimationFrame;
         next->FaceIndex = 0;
         next->Rot = Barrier->Rot;
@@ -201,7 +201,7 @@ static void BarrierSequenceManage(void) {
     }
 
     if (Barrier->AnimationFrame == 2) {
-        next = &D_80162978[func_800BBEAC(BarrierRenderBorder)];
+        next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderBorder)];
         next->StartFrame = Barrier->AnimationFrame;
         next->FaceIndex = 1;
         next->Rot = Barrier->Rot;
@@ -209,7 +209,7 @@ static void BarrierSequenceManage(void) {
     }
 
     if (Barrier->AnimationFrame == 4) {
-        next = &D_80162978[func_800BBEAC(BarrierRenderBorder)];
+        next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderBorder)];
         next->StartFrame = Barrier->AnimationFrame;
         next->FaceIndex = 3;
         next->Rot = Barrier->Rot;
@@ -217,7 +217,7 @@ static void BarrierSequenceManage(void) {
     }
 
     if (Barrier->AnimationFrame == 6) {
-        next = &D_80162978[func_800BBEAC(BarrierRenderBorder)];
+        next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderBorder)];
         next->StartFrame = Barrier->AnimationFrame;
         next->FaceIndex = 2;
         next->Rot = Barrier->Rot;
@@ -225,7 +225,7 @@ static void BarrierSequenceManage(void) {
     }
 
     if (Barrier->AnimationFrame == 1) {
-        next = &D_80162978[func_800BBEAC(BarrierRenderShield)];
+        next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderShield)];
         next->StartFrame = Barrier->AnimationFrame;
         next->FaceIndex = 0;
         next->Rot = Barrier->Rot;
@@ -233,7 +233,7 @@ static void BarrierSequenceManage(void) {
     }
 
     if (Barrier->AnimationFrame == 3) {
-        next = &D_80162978[func_800BBEAC(BarrierRenderShield)];
+        next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderShield)];
         next->StartFrame = Barrier->AnimationFrame;
         next->FaceIndex = 1;
         next->Rot = Barrier->Rot;
@@ -241,7 +241,7 @@ static void BarrierSequenceManage(void) {
     }
 
     if (Barrier->AnimationFrame == 5) {
-        next = &D_80162978[func_800BBEAC(BarrierRenderShield)];
+        next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderShield)];
         next->StartFrame = Barrier->AnimationFrame;
         next->FaceIndex = 3;
         next->Rot = Barrier->Rot;
@@ -249,7 +249,7 @@ static void BarrierSequenceManage(void) {
     }
 
     if (Barrier->AnimationFrame == 7) {
-        next = &D_80162978[func_800BBEAC(BarrierRenderShield)];
+        next = &g_BattleEffectInstances[func_800BBEAC(BarrierRenderShield)];
         next->StartFrame = Barrier->AnimationFrame;
         next->FaceIndex = 2;
         next->Rot = Barrier->Rot;
@@ -265,7 +265,7 @@ static void BarrierSequenceManage(void) {
 }
 
 static void BarrierAttachToTarget(int arg0) {
-    BarrierData* Barrier = &D_80162978[func_800BBEAC(BarrierSequenceManage)];
+    BarrierData* Barrier = &g_BattleEffectInstances[func_800BBEAC(BarrierSequenceManage)];
 
     func_800D3994(arg0, D_801518E4[arg0].D_8015190F, &Barrier->Pos);
     Barrier->Pos.vx -=
@@ -277,7 +277,7 @@ static void BarrierAttachToTarget(int arg0) {
 }
 
 static void BarrierDoubleBufferFlip(void) {
-    BarrierData* Barrier = &D_80162978[D_8015169C];
+    BarrierData* Barrier = &g_BattleEffectInstances[D_8015169C];
 
     BarrierBufferPtr = &BarrierPrimBuffer[Barrier->AnimationFrame * 65536];
     Barrier->AnimationFrame ^= 1;
