@@ -85,10 +85,10 @@ typedef struct {
     /* 0x08 */ s16 D_80162980; // Pos.vx
     /* 0x0A */ s16 D_80162982; // Pos.vy
     /* 0x0C */ s16 unk8;       // Pos.vz (Which unk8 do I change?)
-    // SVECTOR Rot
-    /* 0x0E */ s16 unkA; // Rot.vx
-    /* 0x10 */ s16 unkC; // Rot.vx
-    /* 0x12 */ s16 unkE; // Rot.vx
+                               // SVECTOR Rot
+    /* 0x0E */ s16 unkA;       // Rot.vx
+    /* 0x10 */ s16 unkC;       // Rot.vx
+    /* 0x12 */ s16 unkE;       // Rot.vx
     /* 0x14 */ s16 unk10;
     /* 0x16 */ s16 unk12;
     /* 0x18 */ u8 unk14;
