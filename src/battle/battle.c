@@ -2021,14 +2021,11 @@ static void BATTLE_InvalidateQueuedMessages(s32 arg0, s32 arg1) {
 // advance the cursor past it. The extra temporaries are load-bearing: they are
 // what make the register allocation line up with the original.
 s32 func_800B1368(void) {
-    s32 lo = D_800F4AC0[D_800F4AC4->pc++];
-    unsigned int result;
-    unsigned int hi;
+    s32 value;
 
-    hi = D_800F4AC0[D_800F4AC4->pc++] << 8;
-    lo = lo | hi;
-    result = lo;
-    return result;
+    value = D_800F4AC0[D_800F4AC4->pc++];
+    value |= D_800F4AC0[D_800F4AC4->pc++] << 8;
+    return value;
 }
 
 // Resolve a packed variable reference for the battle-script VM (func_800B1D48):
