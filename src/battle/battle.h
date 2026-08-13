@@ -25,13 +25,52 @@ typedef enum {
     EVENT_BATTLE_SQUARE = 0x40,
 } BattleEventType;
 
+// full standard FF7 status bitmask (wiki.ffrtt.ru/FF7/Battle/Status_Effects)
+// for Unk800F83E0.status. NOTE: the standard table's bit 0x2 (Near Death)
+// does not appear to be set here -- this engine computes Near Death live
+// from curHP/maxHP instead (see func_800B10B4), not via this flag. Bits
+// actually confirmed live in decompiled code so far: Death, Confu, Silence,
+// Frog, Small, Petrify, D.Sentence, Manipulate, Berserk, Peerless -- the
+// rest are the documented table entries, not yet independently confirmed
+// in this engine's own code.
+typedef enum {
+    STATUS_DEATH = 0x1,
+    STATUS_NEAR_DEATH = 0x2,
+    STATUS_SLEEP = 0x4,
+    STATUS_POISON = 0x8,
+    STATUS_SADNESS = 0x10,
+    STATUS_FURY = 0x20,
+    STATUS_CONFU = 0x40,
+    STATUS_SILENCE = 0x80,
+    STATUS_HASTE = 0x100,
+    STATUS_SLOW = 0x200,
+    STATUS_STOP = 0x400,
+    STATUS_FROG = 0x800,
+    STATUS_SMALL = 0x1000,
+    STATUS_SLOW_NUMB = 0x2000,
+    STATUS_PETRIFY = 0x4000,
+    STATUS_REGEN = 0x8000,
+    STATUS_BARRIER = 0x10000,
+    STATUS_M_BARRIER = 0x20000,
+    STATUS_REFLECT = 0x40000,
+    STATUS_DUAL = 0x80000,
+    STATUS_SHIELD = 0x100000,
+    STATUS_D_SENTENCE = 0x200000,
+    STATUS_MANIPULATE = 0x400000,
+    STATUS_BERSERK = 0x800000,
+    STATUS_PEERLESS = 0x1000000,
+    STATUS_PARALYSIS = 0x2000000,
+    STATUS_DARKNESS = 0x4000000,
+    STATUS_DUAL_DRAIN = 0x8000000,
+    STATUS_DEATH_FORCE = 0x10000000,
+    STATUS_RESIST = 0x20000000,
+    STATUS_LUCKY_GIRL = 0x40000000,
+    STATUS_IMPRISONED = 0x80000000,
+} BattleStatusFlags;
+
 typedef struct {
-    // condition/status bitmask; standard FF7 status bits confirmed in use here:
-    // 0x1 Death, 0x80 Silence, 0x800 Frog, 0x1000 Small, 0x200000 Death
-    // Sentence, 0x400000 Manipulate, 0x800000 Berserk. NOTE: the standard
-    // table's bit 0x2 (Near Death) does not appear to be set here -- this
-    // engine computes Near Death live from curHP/maxHP instead (see
-    // func_800B10B4), not via this flag.
+    // condition/status bitmask; see BattleStatusFlags above for the bits
+    // confirmed live here
     /* 0x00 */ s32 status;
     /* 0x04 */ s32 unk4; // battle-state flags (e.g. bit 0x40 = back row, bit
                          // 0x20 = defending)
@@ -393,7 +432,7 @@ extern Unk800F5E60 D_800F5E60[3];
 extern Unk800F5F44 D_800F5F44;
 extern s8 D_800F6936[0x40][8];
 extern u8 D_800F83A8;
-extern BattleState D_800F83AC;
+extern BattleState g_BattleState;
 extern s8 D_800F90B4[][0x240];
 extern Unk800BB75C D_800FA63C;
 extern DB* g_cDb;
