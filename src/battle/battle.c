@@ -2017,9 +2017,6 @@ static void BATTLE_InvalidateQueuedMessages(s32 arg0, s32 arg1) {
     }
 }
 
-// Fetch the next 16-bit little-endian immediate from the script stream and
-// advance the cursor past it. The extra temporaries are load-bearing: they are
-// what make the register allocation line up with the original.
 static s32 func_800B1368(void) {
     s32 value;
 
