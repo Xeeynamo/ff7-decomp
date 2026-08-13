@@ -251,10 +251,10 @@ typedef struct {
     /* 0xA9C */ s32 yuffie_stolen_materia[48];
     /* 0xB5C */ u8 unk_b5c[32];
     /* 0xB7C */ s32 gil;
-    /* 0xB80 */ s32 time;
-    /* 0xB84 */ s32 countdown_timer_seconds;
-    /* 0xB88 */ s32 game_timer_fraction;
-    /* 0xB8C */ s32 countdown_timer_fraction;
+    /* 0xB80 */ volatile u32 time;
+    /* 0xB84 */ volatile u32 countdown_timer_seconds;
+    /* 0xB88 */ u32 game_timer_fraction;
+    /* 0xB8C */ u32 countdown_timer_fraction;
     /* 0xB90 */ s32 worldmap_exit_action;
     /* 0xB94 */ u16 current_module;
     /* 0xB96 */ u16 current_location_id;
@@ -389,9 +389,9 @@ typedef struct {
     s16 unkA;
     s16 unkC;
     s16 unkE;
-    s16 unk10;
+    s16 hp;
     s16 unk12;
-    s16 unk14;
+    s16 mp;
     s16 unk16;
     s32 unk18;
     s32 unk1C;
@@ -432,7 +432,8 @@ typedef struct {
 
     /* 0x10 */ u8 requestPushScript;
     /* 0x11 */ u8 requestTalkScript;
-    /* 0x12 */ u16 nextFieldId;
+    /* 0x12 */ u8 requestTouchOnScript;
+    /* 0x13 */ u8 requestTouchOffScript;
     /* 0x14 */ u8 proximityAngle;
     /* 0x15 */ u8 isOnLine;
     /* 0x16 */ u8 slipDisabled;
@@ -442,66 +443,66 @@ typedef struct {
 
 typedef struct {
 
-    u16 KawaiOp1;          // 0x00
-    u16 KawaiOp0;          // 0x02
-    u32 KawaiDataOffset;   // 0x04
-    u8 BlinkOn;            // 0x08
-    u8 KawaiA;             // 0x09
-    u8 KawaiB;             // 0x0A
-    u8 KawaiC;             // 0x0B
-    s32 PosX;              // 0x0C
-    s32 PosY;              // 0x10
-    s32 PosZ;              // 0x14
-    s32 MoveStartX;        // 0x18
-    s32 MoveStartY;        // 0x1C
-    s32 MoveStartZ;        // 0x20
-    s8 Unk24[8];           // 0x24-0x2B
-    s16 MoveB;             // 0x2C
-    u8 Unk2E[2];           // 0x2E-0x2F
-    s16 MoveSteps;         // 0x30
-    s16 MoveStep;          // 0x32
-    u8 Unk34;              // 0x34
-    u8 MoveDirAdd;         // 0x35
-    u8 MoveDir;            // 0x36
-    u8 DirLock;            // 0x37
-    u8 Dir;                // 0x38
-    u8 TurnSteps;          // 0x39
-    u8 TurnStep;           // 0x3A
-    u8 TurnType;           // 0x3B
-    s16 TurnStart;         // 0x3C
-    s16 TurnEnd;           // 0x3E
-    s16 OffsetX;           // 0x40
-    s16 OffsetStartX;      // 0x42
-    s16 OffsetEndX;        // 0x44
-    s16 OffsetY;           // 0x46
-    s16 OffsetStartY;      // 0x48
-    s16 OffsetEndY;        // 0x4A
-    s16 OffsetZ;           // 0x4C
-    s16 OffsetStartZ;      // 0x4E
-    s16 OffsetEndZ;        // 0x50
-    u16 OffsetSteps;       // 0x52
-    u16 OffsetStep;        // 0x54
-    u8 OfsType;            // 0x56
-    u8 entityId;           // 0x57 - entity model is attached to
-    u8 requestTouchScript; // 0x58
-    u8 SolidOff;           // 0x59
-    u8 requestTalkScript;  // 0x5A
-    u8 TalkOff;            // 0x5B
-    u8 visible;            // 0x5C
-    u8 scriptedMoveMode;   // 0x5D - enum ScriptedMoveMode
-    u8 activeAnimId;       // 0x5E
-    s8 unk5F;              // 0x5F
-    s16 animSpeed;         // 0x60
-    s16 animCurrentFrame;  // 0x62
-    s16 animLastFrame;     // 0x64
-    u16 charId;            // 0x66 - model id
-    s16 ActionArg;         // 0x68
-    s16 ActionState;       // 0x6A
-    u16 SolidRange;        // 0x6C
-    u16 TalkRange;         // 0x6E
-    u16 MoveSpeed;         // 0x70
-    s16 PosI;              // 0x72
-    s16 MoveEndI;          // 0x74
+    u16 KawaiOp1;         // 0x00
+    u16 KawaiOp0;         // 0x02
+    u32 KawaiDataOffset;  // 0x04
+    u8 BlinkOn;           // 0x08
+    u8 KawaiA;            // 0x09
+    u8 KawaiB;            // 0x0A
+    u8 KawaiC;            // 0x0B
+    s32 PosX;             // 0x0C
+    s32 PosY;             // 0x10
+    s32 PosZ;             // 0x14
+    s32 MoveStartX;       // 0x18
+    s32 MoveStartY;       // 0x1C
+    s32 MoveStartZ;       // 0x20
+    s8 Unk24[8];          // 0x24-0x2B
+    s16 MoveB;            // 0x2C
+    u8 Unk2E[2];          // 0x2E-0x2F
+    s16 MoveSteps;        // 0x30
+    s16 MoveStep;         // 0x32
+    u8 Unk34;             // 0x34
+    u8 MoveDirAdd;        // 0x35
+    u8 MoveDir;           // 0x36
+    u8 DirLock;           // 0x37
+    u8 Dir;               // 0x38
+    u8 TurnSteps;         // 0x39
+    u8 TurnStep;          // 0x3A
+    u8 TurnType;          // 0x3B
+    s16 TurnStart;        // 0x3C
+    s16 TurnEnd;          // 0x3E
+    s16 OffsetX;          // 0x40
+    s16 OffsetStartX;     // 0x42
+    s16 OffsetEndX;       // 0x44
+    s16 OffsetY;          // 0x46
+    s16 OffsetStartY;     // 0x48
+    s16 OffsetEndY;       // 0x4A
+    s16 OffsetZ;          // 0x4C
+    s16 OffsetStartZ;     // 0x4E
+    s16 OffsetEndZ;       // 0x50
+    u16 OffsetSteps;      // 0x52
+    u16 OffsetStep;       // 0x54
+    u8 OfsType;           // 0x56
+    u8 entityId;          // 0x57 - entity model is attached to
+    u8 requestPushScript; // 0x58
+    u8 SolidOff;          // 0x59
+    u8 requestTalkScript; // 0x5A
+    u8 TalkOff;           // 0x5B
+    u8 visible;           // 0x5C
+    u8 scriptedMoveMode;  // 0x5D - enum ScriptedMoveMode
+    u8 activeAnimId;      // 0x5E
+    s8 unk5F;             // 0x5F
+    s16 animSpeed;        // 0x60
+    s16 animCurrentFrame; // 0x62
+    s16 animLastFrame;    // 0x64
+    u16 charId;           // 0x66 - model id
+    s16 ActionArg;        // 0x68
+    s16 ActionState;      // 0x6A
+    u16 SolidRange;       // 0x6C
+    u16 TalkRange;        // 0x6E
+    u16 MoveSpeed;        // 0x70
+    s16 PosI;             // 0x72
+    s16 MoveEndI;         // 0x74
     u16 Pad76;
     s32 MoveEndX; // 0x78
     s32 MoveEndY; // 0x7C
@@ -708,9 +709,10 @@ extern u16 D_80062D7C; // pressed button?
 extern u16 D_80062D7E; // pressed button?
 extern u16 D_80062D80; // tapped button
 extern u16 D_80062D82; // repeated button
-extern u8 D_80062D98;
-extern u8 D_80062D99;
+extern u8 D_80062D98;  // battle_clearRenderList
+extern u8 D_80062D99;  // battle_isPaused
 extern s32 D_80062DCC;
+extern s8 _D_80062DFD;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
 extern u8 D_80062F1A;
 extern u8 D_80062F1B;
@@ -778,7 +780,8 @@ extern u32 D_8009A004[1];
 extern s32 D_8009A008[1];
 extern s32 D_8009A00C;
 extern s32 D_8009A024[8];
-extern u8 D_8009A058;                // currently executing field-script opcode
+extern u8 g_FieldCurrentOpcode;
+extern s32 D_8009A064;
 extern u8 g_FieldScriptPriority[48]; // active scripts execution priority
 extern FieldState D_8009ABF4;
 extern u8 D_8009AC2F;
@@ -813,6 +816,7 @@ SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
 MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
 void SystemError(char c, long n);
 
+void func_80014B54(void);
 s32 func_80014B70(void);
 s32 func_80014BA8(s32 arg0);
 s32 func_8001521C(s32);
