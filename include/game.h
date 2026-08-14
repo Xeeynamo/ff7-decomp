@@ -149,7 +149,7 @@ typedef enum {
 
 typedef enum {
     WSTYLE_NORMAL,
-    WSTYLE_BCKGRND_BORDER_OFF,
+    WSTYLE_BACKGROUND_BORDER_OFF,
     WSTYLE_TRANS_BACKGROUND,
 } WindowStyle;
 
@@ -165,12 +165,12 @@ typedef enum {
     WSTATE_TXT,
     WSTATE_PAUSE_TXT,
     WSTATE_WAIT_ROW,
-    WSTATE_UNK1,
+    WSTATE_UNK5,
     WSTATE_TXT_DONE,
     WSTATE_CLOSING,
     WSTATE_SCROLL_ROW,
     WSTATE_INIT_NEXT,
-    WSTATE_UNK2,
+    WSTATE_UNKA,
     WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK,
     WSTATE_SCROLL_TXT_WHILE_OK,
     WSTATE_PAUSE_TXT_UNTIL_OK,
@@ -747,9 +747,9 @@ typedef struct WindowData {
     u8 style; // enum WindowStyle
     u8 pointerEnabled;
     u8 numDisplayType; // enum WindowNumDispType
-    u8 field_1C;
+    u8 unk1C;
     s8 numDisplayLength;
-    s16 field_1E;
+    s16 unk1E;
     s32 numDisplayValue;
     s16 pointerX;
     s16 pointerY;

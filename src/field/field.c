@@ -5509,7 +5509,7 @@ s32 FieldDialogMessageUpdateStates(u8 window, u8 message) {
     case WSTATE_INIT_NEXT:
         FieldDialogWindowInitNext(window);
         break;
-    case WSTATE_UNK1:
+    case WSTATE_UNK5:
     case WSTATE_CLOSING:
         if (FieldDialogWindowDecrease(window)) {
             return 1;
@@ -5624,7 +5624,7 @@ s32 FieldDialogAskUpdateStates(
     case WSTATE_INIT_NEXT:
         FieldDialogWindowInitNext(window);
         break;
-    case WSTATE_UNK1:
+    case WSTATE_UNK5:
     case WSTATE_CLOSING:
         if (FieldDialogWindowDecrease(window)) {
             g_WindowData[window].pointerEnabled = 0;

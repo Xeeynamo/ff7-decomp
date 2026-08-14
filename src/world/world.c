@@ -2606,7 +2606,7 @@ s32 func_800B8D4C(u8 window, u8 message) {
     case WSTATE_INIT_NEXT:
         func_800BAB60(window);
         break;
-    case WSTATE_UNK1:
+    case WSTATE_UNK5:
     case WSTATE_CLOSING:
         if (func_800BAC70(window)) {
             return 1;
@@ -2707,7 +2707,7 @@ s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
     case WSTATE_INIT_NEXT:
         func_800BAB60(window);
         break;
-    case WSTATE_UNK1:
+    case WSTATE_UNK5:
     case WSTATE_CLOSING:
         if (func_800BAC70(window)) {
             g_WindowData[window].pointerEnabled = 0;
