@@ -1111,7 +1111,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4FF0);
 void func_800D508C();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D508C);
 
-extern Unk80162978* D_800F10E0;
+extern BattleEffectInstances* D_800F10E0;
 
 // Reset the fixed-point ramp: zero the accumulator (0x04) and seed the
 // countdown (0x0C) so it lasts arg0 ticks.
@@ -1132,7 +1132,7 @@ extern s16 D_800F5B74;
 // Step the ramp once: accumulate (0x04 += 0x08), publish the high word, and
 // free the slot when the countdown (0x0C) reaches 0.
 void func_800D5230(void) {
-    Unk80162978* slot = &D_80162978[D_8015169C];
+    BattleEffectInstances* slot = &D_80162978[D_8015169C];
     s32 v0;
     s32 v1;
 
@@ -1155,7 +1155,7 @@ void func_800D5350();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5350);
 
 void func_800D5444(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    Unk80162978* temp_v0 = &D_80162978[func_800BBEAC(func_800D5350)];
+    BattleEffectInstances* temp_v0 = &D_80162978[func_800BBEAC(func_800D5350)];
     temp_v0->D_80162978 = 0;
     temp_v0->D_8016297C = arg0;
     temp_v0->D_8016297E = arg1;
@@ -1213,7 +1213,7 @@ void func_800D57C0();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D57C0);
 
 void func_800D58D0(s16 arg0, s16 arg1, s16 arg2) {
-    Unk80162978* temp_v0 = &D_80162978[func_800BBEAC(func_800D57C0)];
+    BattleEffectInstances* temp_v0 = &D_80162978[func_800BBEAC(func_800D57C0)];
     temp_v0->D_80162978 = 0;
     temp_v0->D_80162980 = arg0;
     temp_v0->D_8016297E = arg2;
@@ -1224,7 +1224,7 @@ void func_800D5938();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5938);
 
 static void func_800D5A68(s16 arg0, s16 arg1) {
-    Unk80162978* temp_v0;
+    BattleEffectInstances* temp_v0;
 
     temp_v0 = &D_80162978[func_800BBEAC(func_800D5938)];
     temp_v0->D_80162978 = 0;
