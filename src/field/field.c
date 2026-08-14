@@ -5353,7 +5353,7 @@ void FieldWindowReset(s16 window) {
     g_WindowData[window].state = WSTATE_INIT;
     g_WindowData[window].style = WSTYLE_NORMAL;
     g_WindowData[window].numDisplayType = WNDT_OFF;
-    g_WindowData[window].field_1C = 0;
+    g_WindowData[window].unk1C = 0;
     g_WindowData[window].numDisplayLength = 6;
     g_WindowData[window].numDisplayX = 0;
     g_WindowData[window].numDisplayY = 0;
