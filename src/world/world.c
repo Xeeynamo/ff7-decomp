@@ -11,6 +11,19 @@ void func_800B58F8(u8*, RECT*);
 static s32 func_800B716C(void);
 static s32 func_800B7B2C(void);
 s32 func_800B7B3C(void);
+void func_800B87D8(s16 window);
+void func_800B95E8(void);
+s32 func_800B962C(s16 window, s16 stringId);
+void func_800B98F0(s16 window);
+void func_800B9B2C(s16 window);
+void func_800BA938(s16 window);
+void func_800BAA00(s16 window);
+void func_800BAB60(s16 window);
+s32 func_800BAC70(s16 window);
+u16 func_800BAE60(s16 window);
+void func_800BB350(u16 value, u8* dst);
+void func_800BB450(u16 value, u8* dst);
+void func_800BB568(u16 value, u8* dst);
 void func_800BC9E8(s16 arg0);
 s16 func_800BCA38(void);
 void func_800BCA48(void);
@@ -2406,21 +2419,6 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B8720);
 static void func_800B8750(const char* str, s32 val, s32 kind) {}
 
 static void func_800B8758(const char* errmsg) {}
-
-void func_800B87D8(s16 window);
-
-s32 func_800B962C(s16 window, s16 stringId);
-void func_800B98F0(s16 window);
-void func_800B9B2C(s16 window);
-void func_800BA938(s16 window);
-void func_800BAA00(s16 window);
-void func_800BAB60(s16 window);
-s32 func_800BAC70(s16 window);
-void func_800B95E8(void);
-u16 func_800BAE60(s16 window);
-void func_800BB350(u16 value, u8* dst);
-void func_800BB450(u16 value, u8* dst);
-void func_800BB568(u16 value, u8* dst);
 
 void func_800B8760(void) {
     s32 i;
