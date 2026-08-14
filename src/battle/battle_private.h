@@ -358,7 +358,10 @@ typedef struct {
     s16 unk2;
 } Unk800F4308;
 extern Unk800F4308 D_800F4308[][128];
+extern u8 D_800E7BCC[];
+extern s32 D_800F4908[];
 extern s32 D_800F4914[];
+extern s32 D_800F495C[];
 extern s32 D_800F4920;
 extern u16 D_800F4938[];
 extern s8 D_800F494C[];
