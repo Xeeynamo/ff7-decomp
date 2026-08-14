@@ -185,7 +185,11 @@ extern s32 D_80048D20;
 extern Yamada D_80048D84[];
 extern s32 D_80048DD4[];
 extern PortraitEntry D_80048FE8[15];
-extern u32 D_800491D0[];
+// Map between battle character IDs and index into character record array.
+// Battle characters have IDs 0-10. 9 and 10 are young Cloud and Sephiroth from
+// flashback sequence and they use same character records as Cait Sith and
+// Vincent.
+extern s32 g_BattleCharIdToCharId[11];
 extern u8 D_80049208[12]; // menu color RGB-quadruplet
 extern s32 D_80049224[8];
 extern s32 D_80049474;    // play-clock divisor: 36000 (seconds per 10 hours)
@@ -200,7 +204,6 @@ extern u16 D_80069490[];
 extern DRAWENV D_80070700; // active draw environment (double-buffered)
 extern DISPENV D_8007075C; // active display environment (double-buffered)
 extern u16 D_800707BC;
-extern u16 D_800707BE;
 extern u8 D_800708D4[];
 extern u8 D_800716D0;
 extern s32 D_80071744; // LBA loc for func_80014540
@@ -215,12 +218,8 @@ extern s32 D_80095DD8;               // LBA len for func_80014540
 extern s16 g_isFieldLoading;
 extern u16 D_8009C560; // refer to Subsystem enum
 extern SavePartyMember D_8009C738[8];
-extern u8 D_8009C748[];  // character record, 0x84-byte stride; +0xC = equipped
-                         // weapon id, +0xD = equipped armor id
-extern u8 D_8009C754[];  // D_8009C748 + 0xC (equipped weapon id field),
-                         // decompiler-split alias
-extern u8 D_8009C755[];  // D_8009C748 + 0xD (equipped armor id field),
-                         // decompiler-split alias
+extern u8 D_8009C754[];  // Savemap.party[0].weapon, with a 0x84-byte stride
+extern u8 D_8009C755[];  // Savemap.party[0].armor, with a 0x84-byte stride
 extern u8 D_8009D44C[8]; // party-level snapshot for endgame battle AI
 extern u16 D_8009ABF6;
 extern u16 D_8009AC32;

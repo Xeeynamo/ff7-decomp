@@ -227,7 +227,7 @@ void* GetPartySlotArmorMateriaSlots(s32 arg0) {
     temp_v1 = D_8009CBDC[arg0];
     var_v0 = (void*)0xFF;
     if (temp_v1 != 0xFF) {
-        u32 idx = D_800491D0[temp_v1];
+        u32 idx = g_BattleCharIdToCharId[temp_v1];
         var_v0 = g_ArmorTable[D_8009C755[idx * 0x84]].materiaSlot;
     }
     return var_v0;
@@ -244,7 +244,7 @@ void* GetPartySlotWeaponMateriaSlots(s32 arg0) {
     temp_v1 = D_8009CBDC[arg0];
     var_v0 = (void*)0xFF;
     if (temp_v1 != 0xFF) {
-        u32 idx = D_800491D0[temp_v1];
+        u32 idx = g_BattleCharIdToCharId[temp_v1];
         // SMELL: raw 0x84 char-record stride math; wants a CharacterRecord
         // struct (equippedWeapon at +0xC) ->
         // g_CharacterRecords[idx].equippedWeapon
@@ -266,11 +266,8 @@ Unk8009D84C* func_80025788(s32 arg0) {
 
 void func_800257C4(void) {}
 
-// Character id -> that character's 0x84-byte record (see D_8009C748). Not
-// armor-specific, despite being a sibling of GetPartySlotArmorMateriaSlots
-// above.
-void* GetCharacterRecord(s32 arg0) {
-    return (void*)(D_800491D0[arg0] * 0x84 + (u32)D_8009C748);
+u8* GetCharacterName(s32 battleCharId) {
+    return Savemap.party[g_BattleCharIdToCharId[battleCharId]].name;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1255C", func_80025800);

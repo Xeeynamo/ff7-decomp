@@ -147,6 +147,36 @@ typedef enum {
     MOVCMD_DONE,
 } MovieCommandState;
 
+typedef enum {
+    WSTYLE_NORMAL,
+    WSTYLE_BCKGRND_BORDER_OFF,
+    WSTYLE_TRANS_BACKGROUND,
+} WindowStyle;
+
+typedef enum {
+    WNDT_OFF,
+    WNDT_CLOCK,
+    WNDT_NUMERICAL,
+} WindowNumDispType;
+
+typedef enum {
+    WSTATE_INIT,
+    WSTATE_SHOW,
+    WSTATE_TXT,
+    WSTATE_PAUSE_TXT,
+    WSTATE_WAIT_ROW,
+    WSTATE_UNK1,
+    WSTATE_TXT_DONE,
+    WSTATE_CLOSING,
+    WSTATE_SCROLL_ROW,
+    WSTATE_INIT_NEXT,
+    WSTATE_UNK2,
+    WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK,
+    WSTATE_SCROLL_TXT_WHILE_OK,
+    WSTATE_PAUSE_TXT_UNTIL_OK,
+    WSTATE_WAIT_NEXT_WINDOW,
+} WindowState;
+
 typedef struct {
     s16 x1;
     s16 y1;
@@ -443,9 +473,9 @@ typedef struct {
 
 typedef struct {
 
-    u16 KawaiOp1;         // 0x00
+    s16 KawaiOp1;         // 0x00
     u16 KawaiOp0;         // 0x02
-    u32 KawaiDataOffset;  // 0x04
+    u8* KawaiDataOffset;  // 0x04
     u8 BlinkOn;           // 0x08
     u8 KawaiA;            // 0x09
     u8 KawaiB;            // 0x0A
@@ -701,6 +731,34 @@ typedef struct {
     u32 unk8;
 } Unk80075D00;
 
+typedef struct WindowData {
+    u8* text;
+    s16 x;
+    s16 y;
+    s16 width;
+    s16 height;
+    s16 currentWidth;
+    s16 currentHeight;
+    s16 textScrolling;
+    s16 stringLength;
+    s16 stringByteLength;
+    s16 currentRow;
+    u8 isFull;
+    u8 style; // enum WindowStyle
+    u8 pointerEnabled;
+    u8 numDisplayType; // enum WindowNumDispType
+    u8 field_1C;
+    s8 numDisplayLength;
+    s16 field_1E;
+    s32 numDisplayValue;
+    s16 pointerX;
+    s16 pointerY;
+    s16 numDisplayX;
+    s16 numDisplayY;
+    s16 state; // enum WindowState
+    u16 preventClose;
+} WindowData; // size:0x30
+
 extern u8 D_80049208[12];   // window colors maybe??
 extern u8 D_800492F0[][12]; // see Labels enum
 extern FieldModelData* g_FieldModelData;
@@ -726,14 +784,14 @@ extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
                             // (set by the MULCK opcode)
 extern u8 D_80070788;
 extern u8 g_EntityToLine[48];
-extern u16 D_800707BE;
+extern u16 g_BattleMode;
 extern u16 g_FieldWaitCounter[48];      // Used by WAIT opcode to pause script
 extern u16 g_SavedFieldScriptPC[48][8]; // Program counters of paused scripts
 extern s16 D_80071A5C;
 extern u8 g_FieldScriptSyncWaitEntity[48][8];
 extern s8 g_FieldDebugCurPage;
 extern u8 D_80071E24;
-extern u8 D_80071E2C;
+extern u8 g_WindowCount;
 extern u8 D_80071E30;
 extern MATRIX* D_80071E40;
 extern u8 g_PartyUpdatedByFieldScript;
@@ -745,8 +803,9 @@ extern u8 D_800756E8[]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
 extern Unk80075D00* D_80075D00;
 extern int D_80075DEC;           // buffer index, either 0 or 1
-extern u8 D_80075E24[256];       // map-local memory bank for field scripts
+extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
+extern u8* g_FieldText;
 extern FieldLine g_FieldLines[32];
 extern DRAWENV D_8007EAAC[2];
 extern DISPENV D_8007EB68[2];
@@ -760,10 +819,9 @@ extern s16 D_80082248[]; // per-model current animation playback speed
 extern u8 D_80083184[0x40];
 extern u16 g_FieldScriptPC[48]; // program counters for active entity scripts
 extern u8 D_8008325C[];         // per-model default animation id (DFANM)
+extern u8 g_WindowToEntity[4];
+extern WindowData g_WindowData[4];
 extern u8 D_8008326C;
-extern s32 D_80083274;
-extern s16 D_8008327E[];
-extern s16 D_800832A0;
 extern s32 D_80083338;
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level
@@ -810,6 +868,7 @@ extern u32 D_8009D260;
 extern volatile s32 D_8009D268[];
 extern Unk8009D84C D_8009D84C[3];
 extern s8 D_8009FE8C;
+extern u8 D_800C7304[16];
 
 // PSXSDK funcs
 SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
@@ -825,6 +884,7 @@ void func_800155A4(s32, ...);
 void func_8001726C(s16, u16);
 s32 func_8001C8D4();
 void func_80021044(DRAWENV* draw_env, DISPENV* disp_env);
+u8* GetCharacterName(s32 battleCharId);
 void func_800262D8();
 void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                    s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10,
