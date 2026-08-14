@@ -77,16 +77,18 @@ typedef struct {
 } Unk801620AC; // size:0x20
 
 typedef struct {
-    /* 0x00 */ s16 D_80162978;
-    /* 0x02 */ s16 D_8016297A;
-    /* 0x04 */ s16 D_8016297C;
-    /* 0x06 */ s16 D_8016297E;
-    /* 0x08 */ s16 D_80162980;
-    /* 0x0A */ s16 D_80162982;
-    /* 0x0C */ s16 unk8;
-    /* 0x0E */ s16 unkA;
-    /* 0x10 */ s16 unkC;
-    /* 0x12 */ s16 unkE;
+    /* 0x00 */ s16 StartFrame;
+    /* 0x02 */ s16 AnimationFrame;
+    /* 0x04 */ s16 TargetActorIndex;
+    /* 0x06 */ s16 unk6;
+    // SVECTOR Pos
+    /* 0x08 */ s16 D_80162980; // Pos.vx
+    /* 0x0A */ s16 D_80162982; // Pos.vy
+    /* 0x0C */ s16 unk8;       // Pos.vz (Which unk8 do I change?)
+                               // SVECTOR Rot
+    /* 0x0E */ s16 unkA;       // Rot.vx
+    /* 0x10 */ s16 unkC;       // Rot.vx
+    /* 0x12 */ s16 unkE;       // Rot.vx
     /* 0x14 */ s16 unk10;
     /* 0x16 */ s16 unk12;
     /* 0x18 */ u8 unk14;
@@ -532,7 +534,7 @@ extern u8 D_801620A4;
 extern Unk801620AC D_801620AC[10];
 extern Unk801621F0 D_801621F0[60];
 extern u8 D_80162974;
-extern BattleEffectInstances D_80162978[100];
+extern BattleEffectInstances g_BattleEffectInstances[100];
 extern u8 D_801635F8;
 extern u8 D_801635FC;
 extern u8 D_80163600;

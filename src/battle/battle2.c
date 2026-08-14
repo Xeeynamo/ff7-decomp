@@ -140,13 +140,13 @@ static void func_800CE0C8(s16 arg0, u8 arg1, u8 arg2) {
     switch (arg1) {
     case 0:
         ret = func_800BBEAC(func_800C3578);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg2;
+        g_BattleEffectInstances[ret].D_80162980 = arg0;
+        g_BattleEffectInstances[ret].unk6 = arg2;
         break;
     case 8:
         ret = func_800BBEAC(func_800C4814);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg2;
+        g_BattleEffectInstances[ret].D_80162980 = arg0;
+        g_BattleEffectInstances[ret].unk6 = arg2;
         break;
     case 1:
     case 10:
@@ -157,24 +157,24 @@ static void func_800CE0C8(s16 arg0, u8 arg1, u8 arg2) {
         return;
     case 2:
         ret = func_800BBEAC(func_800C3CA8);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg2;
+        g_BattleEffectInstances[ret].D_80162980 = arg0;
+        g_BattleEffectInstances[ret].unk6 = arg2;
         break;
     case 3:
         ret = func_800BBEAC(func_800C328C);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg2;
+        g_BattleEffectInstances[ret].D_80162980 = arg0;
+        g_BattleEffectInstances[ret].unk6 = arg2;
         break;
     case 17:
     case 18:
         ret = func_800BBEAC(func_800C40F4);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg2;
+        g_BattleEffectInstances[ret].D_80162980 = arg0;
+        g_BattleEffectInstances[ret].unk6 = arg2;
         break;
     case 7:
         ret = func_800BBEAC(func_800C44B4);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg2;
+        g_BattleEffectInstances[ret].D_80162980 = arg0;
+        g_BattleEffectInstances[ret].unk6 = arg2;
         break;
     }
 }
@@ -186,13 +186,13 @@ static void func_800CE21C(s16 arg0, u8 arg1) {
     switch (D_801636B8[arg0].D_801636BC) {
     case 0:
         ret = func_800BBEAC(func_800C3578);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg1;
+        g_BattleEffectInstances[ret].D_80162980 = arg0;
+        g_BattleEffectInstances[ret].unk6 = arg1;
         break;
     case 8:
         ret = func_800BBEAC(func_800C4814);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg1;
+        g_BattleEffectInstances[ret].D_80162980 = arg0;
+        g_BattleEffectInstances[ret].unk6 = arg1;
         break;
     case 1:
     case 10:
@@ -203,24 +203,24 @@ static void func_800CE21C(s16 arg0, u8 arg1) {
         break;
     case 2:
         ret = func_800BBEAC(func_800C3CA8);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg1;
+        g_BattleEffectInstances[ret].D_80162980 = arg0;
+        g_BattleEffectInstances[ret].unk6 = arg1;
         break;
     case 3:
         ret = func_800BBEAC(func_800C328C);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg1;
+        g_BattleEffectInstances[ret].D_80162980 = arg0;
+        g_BattleEffectInstances[ret].unk6 = arg1;
         break;
     case 17:
     case 18:
         ret = func_800BBEAC(func_800C40F4);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg1;
+        g_BattleEffectInstances[ret].D_80162980 = arg0;
+        g_BattleEffectInstances[ret].unk6 = arg1;
         break;
     case 7:
         ret = func_800BBEAC(func_800C44B4);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg1;
+        g_BattleEffectInstances[ret].D_80162980 = arg0;
+        g_BattleEffectInstances[ret].unk6 = arg1;
         break;
     }
 }
@@ -285,32 +285,34 @@ static void func_800CE638(void) {
 }
 
 static void func_800CE75C(void) {
-    if ((D_800FA69C >> D_80162978[D_8015169C].D_80162980) & 1) {
-        func_800D67E8(D_80162978[D_8015169C].D_80162980);
-    } else if ((D_80163608 >> D_80162978[D_8015169C].D_80162980) & 1) {
-        func_800D67BC(D_80162978[D_8015169C].D_80162980);
+    if ((D_800FA69C >> g_BattleEffectInstances[D_8015169C].D_80162980) & 1) {
+        func_800D67E8(g_BattleEffectInstances[D_8015169C].D_80162980);
+    } else if (
+        (D_80163608 >> g_BattleEffectInstances[D_8015169C].D_80162980) & 1) {
+        func_800D67BC(g_BattleEffectInstances[D_8015169C].D_80162980);
     }
 }
 
 static void func_800CE7E0(void) {
     s32 dst;
 
-    if (!D_80162978[D_8015169C].D_8016297C) {
-        if (D_80162978[D_8015169C].D_8016297E != -1) {
+    if (!g_BattleEffectInstances[D_8015169C].TargetActorIndex) {
+        if (g_BattleEffectInstances[D_8015169C].unk6 != -1) {
             func_800CE75C();
             dst = func_800BC04C(func_800C2928);
-            D_801621F0[dst].unk14 = D_80162978[D_8015169C].unkA;
-            D_801621F0[dst].unkE = D_80162978[D_8015169C].D_80162982;
+            D_801621F0[dst].unk14 = g_BattleEffectInstances[D_8015169C].unkA;
+            D_801621F0[dst].unkE =
+                g_BattleEffectInstances[D_8015169C].D_80162982;
             D_801621F0[dst].unk10.ptr =
-                (u8*)(u32)D_80162978[D_8015169C].D_80162980;
+                (u8*)(u32)g_BattleEffectInstances[D_8015169C].D_80162980;
             dst = func_800BC04C(func_800CE638);
-            D_801621F0[dst].unkA = D_80162978[D_8015169C].unk15;
-            D_801621F0[dst].unk8 = D_80162978[D_8015169C].D_8016297E;
+            D_801621F0[dst].unkA = g_BattleEffectInstances[D_8015169C].unk15;
+            D_801621F0[dst].unk8 = g_BattleEffectInstances[D_8015169C].unk6;
         }
-        D_80162978[D_8015169C].D_80162978 = -1;
+        g_BattleEffectInstances[D_8015169C].StartFrame = -1;
         return;
     } else {
-        D_80162978[D_8015169C].D_8016297C--;
+        g_BattleEffectInstances[D_8015169C].TargetActorIndex--;
     }
 }
 
@@ -318,26 +320,27 @@ void func_800CEB48(void);
 void func_800CE970(void) {
     s32 dst;
 
-    if (!D_80162978[D_8015169C].D_8016297C) {
-        if (D_80162978[D_8015169C].unkA & 2) {
+    if (!g_BattleEffectInstances[D_8015169C].TargetActorIndex) {
+        if (g_BattleEffectInstances[D_8015169C].unkA & 2) {
             D_80163C74 = (DR_MODE*)func_800C4FC8(0xFA, 0xFA, 0xFA);
         }
-        if (D_80162978[D_8015169C].D_8016297E != -1 &&
-            D_80162978[D_8015169C].unk14 != 1) {
+        if (g_BattleEffectInstances[D_8015169C].unk6 != -1 &&
+            g_BattleEffectInstances[D_8015169C].unk14 != 1) {
             func_800CE75C();
             dst = func_800BC04C(func_800C2928);
-            D_801621F0[dst].unk14 = D_80162978[D_8015169C].unkA;
-            D_801621F0[dst].unkE = D_80162978[D_8015169C].D_80162982;
+            D_801621F0[dst].unk14 = g_BattleEffectInstances[D_8015169C].unkA;
+            D_801621F0[dst].unkE =
+                g_BattleEffectInstances[D_8015169C].D_80162982;
             D_801621F0[dst].unk10.ptr =
-                (u8*)(u32)D_80162978[D_8015169C].D_80162980;
+                (u8*)(u32)g_BattleEffectInstances[D_8015169C].D_80162980;
             dst = func_800BC04C(func_800CE638);
-            D_801621F0[dst].unkA = D_80162978[D_8015169C].unk15;
-            D_801621F0[dst].unk8 = D_80162978[D_8015169C].D_8016297E;
+            D_801621F0[dst].unkA = g_BattleEffectInstances[D_8015169C].unk15;
+            D_801621F0[dst].unk8 = g_BattleEffectInstances[D_8015169C].unk6;
         }
         func_800CEB48();
         return;
     } else {
-        D_80162978[D_8015169C].D_8016297C--;
+        g_BattleEffectInstances[D_8015169C].TargetActorIndex--;
     }
 }
 
@@ -603,17 +606,17 @@ void func_800D06B8(void) {
 }
 
 void func_800D0760(void) {
-    if (D_80162978[D_8015169C].D_8016297E == 0) {
-        if (D_80162978[D_8015169C].D_8016297C == 0) {
-            D_80162978[D_8015169C].D_80162978 = -1;
+    if (g_BattleEffectInstances[D_8015169C].unk6 == 0) {
+        if (g_BattleEffectInstances[D_8015169C].TargetActorIndex == 0) {
+            g_BattleEffectInstances[D_8015169C].StartFrame = -1;
             return;
         }
         func_800DCF60(D_801518E4[D_801590CC].D_80151907,
                       D_80151200[D_801590CC].D_8015123E);
-        D_80162978[D_8015169C].D_8016297C--;
+        g_BattleEffectInstances[D_8015169C].TargetActorIndex--;
         return;
     }
-    D_80162978[D_8015169C].D_8016297E--;
+    g_BattleEffectInstances[D_8015169C].unk6--;
 }
 
 void func_800D088C(s32 loc, s32 len) {
@@ -1117,9 +1120,9 @@ extern BattleEffectInstances* D_800F10E0;
 // countdown (0x0C) so it lasts arg0 ticks.
 void func_800D5138(s32 arg0) {
     if (D_800F10E0 == NULL) {
-        D_800F10E0 = &D_80162978[func_800BBEAC(func_800D508C)];
+        D_800F10E0 = &g_BattleEffectInstances[func_800BBEAC(func_800D508C)];
     }
-    *(s32*)&D_800F10E0->D_8016297C = 0;
+    *(s32*)&D_800F10E0->TargetActorIndex = 0;
     *(s32*)&D_800F10E0->unk8 = 0x10000 / arg0;
 }
 
@@ -1132,19 +1135,19 @@ extern s16 D_800F5B74;
 // Step the ramp once: accumulate (0x04 += 0x08), publish the high word, and
 // free the slot when the countdown (0x0C) reaches 0.
 void func_800D5230(void) {
-    BattleEffectInstances* slot = &D_80162978[D_8015169C];
+    BattleEffectInstances* slot = &g_BattleEffectInstances[D_8015169C];
     s32 v0;
     s32 v1;
 
     if (D_80062D98 == 0) {
-        v0 = *(s32*)&slot->D_8016297C + *(s32*)&slot->D_80162980;
-        *(s32*)&slot->D_8016297C = v0;
+        v0 = *(s32*)&slot->TargetActorIndex + *(s32*)&slot->D_80162980;
+        *(s32*)&slot->TargetActorIndex = v0;
         D_800F5B74 = v0 >> 0x10;
         v1 = *(s32*)&slot->unk8 - 1;
         *(s32*)&slot->unk8 = v1;
         if (v1 == 0) {
             D_800F10E4 = 0;
-            slot->D_80162978 = -1;
+            slot->StartFrame = -1;
         }
     }
 }
@@ -1155,10 +1158,11 @@ void func_800D5350();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5350);
 
 void func_800D5444(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    BattleEffectInstances* temp_v0 = &D_80162978[func_800BBEAC(func_800D5350)];
-    temp_v0->D_80162978 = 0;
-    temp_v0->D_8016297C = arg0;
-    temp_v0->D_8016297E = arg1;
+    BattleEffectInstances* temp_v0 =
+        &g_BattleEffectInstances[func_800BBEAC(func_800D5350)];
+    temp_v0->StartFrame = 0;
+    temp_v0->TargetActorIndex = arg0;
+    temp_v0->unk6 = arg1;
     temp_v0->D_80162980 = arg2;
     *(s32*)&temp_v0->unk8 = arg3;
 }
@@ -1213,11 +1217,12 @@ void func_800D57C0();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D57C0);
 
 void func_800D58D0(s16 arg0, s16 arg1, s16 arg2) {
-    BattleEffectInstances* temp_v0 = &D_80162978[func_800BBEAC(func_800D57C0)];
-    temp_v0->D_80162978 = 0;
+    BattleEffectInstances* temp_v0 =
+        &g_BattleEffectInstances[func_800BBEAC(func_800D57C0)];
+    temp_v0->StartFrame = 0;
     temp_v0->D_80162980 = arg0;
-    temp_v0->D_8016297E = arg2;
-    temp_v0->D_8016297C = arg1;
+    temp_v0->unk6 = arg2;
+    temp_v0->TargetActorIndex = arg1;
 }
 
 void func_800D5938();
@@ -1226,10 +1231,10 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5938);
 static void func_800D5A68(s16 arg0, s16 arg1) {
     BattleEffectInstances* temp_v0;
 
-    temp_v0 = &D_80162978[func_800BBEAC(func_800D5938)];
-    temp_v0->D_80162978 = 0;
-    temp_v0->D_8016297E = arg1;
-    temp_v0->D_8016297C = arg0;
+    temp_v0 = &g_BattleEffectInstances[func_800BBEAC(func_800D5938)];
+    temp_v0->StartFrame = 0;
+    temp_v0->unk6 = arg1;
+    temp_v0->TargetActorIndex = arg0;
 }
 
 // Divide each byte lane of a packed color independently by a divisor,

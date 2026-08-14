@@ -362,7 +362,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6B98);
 //     direction -- looks like "show next status icon"
 //   4 gated on D_800F7DE4: HP-counter tick-animation init -- writes to PS1
 //     scratchpad (0x1F800004/8), computes abs(diff)/entryField, stores
-//     start/target/increment into a D_80162978 slot (allocated via
+//     start/target/increment into a g_BattleEffectInstances slot (allocated via
 //     func_800BBEAC)
 //   5 immediate: sets a per-actor "step complete" flag, conditionally
 //     copies animation-state fields
@@ -604,13 +604,13 @@ s16 func_800B888C(s32 arg0) {
     }
 }
 
-// initialize D_80162978 slot v (registered via func_800BBEAC) from arg0 and
-// dispatch
+// initialize g_BattleEffectInstances slot v (registered via func_800BBEAC) from
+// arg0 and dispatch
 static void func_800B88CC(s32 arg0) {
     s32 v = func_800BBEAC(&func_800CE970);
 
-    D_80162978[v].D_8016297C = 0;
-    D_80162978[v].D_80162980 = arg0;
+    g_BattleEffectInstances[v].TargetActorIndex = 0;
+    g_BattleEffectInstances[v].D_80162980 = arg0;
     func_800B8A34(func_800B888C(arg0), v);
 }
 
