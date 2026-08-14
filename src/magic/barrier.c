@@ -78,7 +78,7 @@ static void* BarrierBufferPtr;
 // barrier.c forward declarations
 static void BarrierMainSetup(int arg0, int arg1);
 
-void ExecuteMagic(int arg0, int arg1) { BarrierMainSetup(arg0, arg1); }
+void MAGIC_Barrier(int arg0, int arg1) { BarrierMainSetup(arg0, arg1); }
 
 static void BarrierRenderBorder(void) {
     MATRIX* matrix = (MATRIX*)0x1F800000;
