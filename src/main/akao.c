@@ -1,6 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 
 #include "common.h"
+#include "game.h"
 #include "psxsdk/libspu.h"
 
 typedef struct {
@@ -186,6 +187,7 @@ extern s32 g_AkaoTempoMulMusic;
 extern s32 D_80062FF8;
 extern s32 D_80063004;
 extern s32 D_80063010; // sound message queue count
+extern u8 D_800716CC;
 extern u8 D_8007EBE4[];
 extern s32 D_8007EBE8;
 extern s32 D_8007EBEC;
@@ -1563,4 +1565,33 @@ void func_80033A70(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
     func_80033894(track, config, mask);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033A90);
+void func_80033A90(void) {
+    s32 i;
+    u8* bank;
+
+    for (i = 1279, bank = &Savemap.memory_bank_5[255]; i >= 0; i--, bank--) {
+        *bank = 0;
+    }
+
+    for (i = 0; i < 3; i++) {
+        Savemap.partyID[i] = 0xFF;
+        Savemap.memory_bank_2[i + 9] = 0xFF;
+    }
+
+    Savemap.phs_visibility_mask = 1; // Only Cloud is visible.
+    g_FieldMusicLock = 0;
+    D_800716CC = 0;
+    D_80071E30 = 0;
+    Savemap.partyID[0] = 0;
+    Savemap.memory_bank_2[9] = 0;
+    Savemap.memory_bank_4[0x68] = 0xFF; // Start of location name.
+    Savemap.memory_bank_1[0x1C] = 0xFF; // Menu visibility, 2 bytes.
+    Savemap.memory_bank_1[0x1D] = 0xFF;
+    Savemap.time = 0;
+    Savemap.countdown_timer_seconds = 0;
+    D_8009ABF4.nFadeRedStart = 0;
+    D_8009ABF4.nFadeGreenStart = 0;
+    D_8009ABF4.nFadeBlueStart = 0;
+    D_8009ABF4.movieCamDisabled = 0;
+    g_PartyUpdatedByFieldScript = 0;
+}

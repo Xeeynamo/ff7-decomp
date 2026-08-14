@@ -71,9 +71,11 @@ extern struct FieldRenderData g_FieldRenderData[2]; // double buffered
 const u32 D_800A0000[] = {0, 0x01D801E0};
 extern char g_FieldDebugDigits[16]; // '0' to 'F' for hex digits
 extern char D_800A0270[4];
+extern s32 (*g_FieldOpcodes[256])(void);
 extern s8 D_800E0628;
 extern s8 D_800E0630;
 extern u8 D_800E08C0[];
+extern u8 g_EntityForSplitJoin;
 extern s16 D_800DF120[][2];
 extern u16 g_FieldDebugRb;
 extern s16 g_FieldDebugRChars;
@@ -92,9 +94,13 @@ extern u8 g_RandomTable[256];
 extern s16 D_800E42EE[0x40][12];
 
 void AddBackgroundToRender(struct FieldRenderData* buf);
+s32 FieldEntitySqrDistToLine(FieldLine*, u_long*, u_long*);
 void FieldEntityLineInteract(FieldEntity* arg0, FieldLine* arg1);
 void HandleKawaiDataInModel(struct FieldRenderData* buf);
-s32 FieldEntitySqrDistToLine(FieldLine*, u_long*, u_long*);
+void FieldEventOpcodeCycle(void);
+void FieldUpdateAnimationState(void);
+u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId);
+void DebugUpdateActor(s32 arg0, u8 actorId);
 void DebugPrintOpcode(char* arg0, s32 arg1);
 u8 FieldEventReadMemoryU8(s16 arg0, s16 arg1);
 void FieldEventWriteMemoryU8(s16 arg0, s16 arg1, u8 value);
@@ -104,8 +110,8 @@ u32 IfCheck(void);
 u32 If2CheckSigned(void);
 u32 If2CheckUnsigned(void);
 static s32 KeyCheck(u16 keys);
-static u32 GetAkaoBlockOffset(s16 akaoId);
 s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId);
+static u32 GetAkaoBlockOffset(s16 akaoId);
 static void PartyReplace(u8* newParty);
 static void PartyFromBank2ToSave(s32 unused);
 static void PartyRemove(u8* party, u8* toRemove);
@@ -113,6 +119,7 @@ static void PartyAdd(u8* party, u8* toAdd);
 static void DebugPrintToFieldWindow(const char* str);
 static void FieldEventDebugError(const char* errmsg);
 void AddStrNextDebugRow(s32 val, const char* msg_out);
+void SetStrToDebugRow(s32 page, s16 row, const char* str);
 static void FieldDebugStringCopy(char* dst, const char* src);
 static void FieldDebugStringConcat(char* arg0, char* arg1);
 static void FieldDebugStringU8hex(s32 val, char* msg_out);
@@ -697,8 +704,146 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventRunInit);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEnablePartyModels);
 
-const u32 D_800A013C[] = {0x00000000, 0x00000000};
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEventOpcodeCycle);
+// Inline as empty string when more is decompiled. Checksum fails now.
+const char D_800A013C[8] = {0};
+
+void FieldEventOpcodeCycle(void) {
+    s32 i, j, count;
+    u16 hours, seconds;
+    s32 talkDone = 0;
+
+    // Update display values for play time and countdown.
+    hours = Savemap.time / 3600;
+    if (hours > 255) {
+        hours = 255;
+    }
+    Savemap.memory_bank_1[16] = hours;
+    hours = Savemap.time % 3600;
+    Savemap.memory_bank_1[17] = hours / 60;
+    seconds = hours % 60;
+    if (Savemap.memory_bank_1[18] != seconds) {
+        Savemap.memory_bank_1[18] = seconds;
+        Savemap.memory_bank_1[19] = 0;
+    } else {
+        Savemap.memory_bank_1[19]++;
+    }
+
+    hours = Savemap.countdown_timer_seconds / 3600;
+    if (hours > 255) {
+        hours = 255;
+    }
+    Savemap.memory_bank_1[20] = hours;
+    hours = Savemap.countdown_timer_seconds % 3600;
+    Savemap.memory_bank_1[21] = hours / 60;
+    seconds = hours % 60;
+    if (Savemap.memory_bank_1[22] != seconds) {
+        Savemap.memory_bank_1[22] = seconds;
+        Savemap.memory_bank_1[23] = 30;
+    } else if (Savemap.memory_bank_1[23]) {
+        Savemap.memory_bank_1[23]--;
+    }
+
+    count = g_FieldScripts->numModels;
+    for (i = 0; i < count; i++) {
+        if (g_FieldModels[i].requestTalkScript) {
+            if (!g_FieldState->characterLock && !talkDone) {
+                FieldEventRequestRun(g_FieldModels[i].entityId, 1, 1);
+                talkDone = 1;
+            }
+            g_FieldModels[i].requestTalkScript = 0;
+        }
+        if (g_FieldModels[i].requestPushScript) {
+            FieldEventRequestRun(g_FieldModels[i].entityId, 1, 2);
+            g_FieldModels[i].requestPushScript = 0;
+        }
+    }
+    for (i = 0; i < g_FieldLineCount; i++) {
+        if (g_FieldLines[i].requestTalkScript) {
+            if (!g_FieldState->characterLock) {
+                FieldEventRequestRun(g_FieldLines[i].entityId, 1, 1);
+            }
+            g_FieldLines[i].requestTalkScript = 0;
+        }
+        if (g_FieldLines[i].requestPushScript) {
+            FieldEventRequestRun(g_FieldLines[i].entityId, 1, 2);
+            g_FieldLines[i].requestPushScript = 0;
+        }
+        if (g_FieldLines[i].across) {
+            FieldEventRequestRun(g_FieldLines[i].entityId, 1, 3);
+            g_FieldLines[i].across = 0;
+        }
+        if (g_FieldLines[i].requestTouchOnScript) {
+            FieldEventRequestRun(g_FieldLines[i].entityId, 1, 5);
+            g_FieldLines[i].requestTouchOnScript = 0;
+        }
+        if (g_FieldLines[i].requestTouchOffScript) {
+            FieldEventRequestRun(g_FieldLines[i].entityId, 1, 6);
+            g_FieldLines[i].requestTouchOffScript = 0;
+        }
+        if (g_FieldLines[i].touch) {
+            FieldEventRequestRun(g_FieldLines[i].entityId, 1, 4);
+        }
+    }
+
+    // Loop through all entities in field map and execute up to 8 opcodes of
+    // each entity's active script.
+    count = g_FieldScripts->numEntities;
+    do {
+        if (g_CurrentEntity >= g_FieldScripts->numEntities) {
+            g_CurrentEntity = 0;
+        }
+        if (D_80071E24 & 3) {
+            DebugUpdateActor(4, g_CurrentEntity);
+        }
+
+        // Skip entities involved in a split or join animation
+        // (g_EntitySplitJoinState[entity] != 0) except the entity they're
+        // splitting from or joining to (g_EntityForSplitJoin).
+        if (g_EntitySplitJoinState[g_CurrentEntity] == 0 ||
+            g_EntityForSplitJoin == g_CurrentEntity) {
+            for (j = 8; j != 0; j--) {
+                if (D_80099FFC == 5 && g_DebugLevel & 1 &&
+                    (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity])) {
+                    for (i = 1; i < 9; i++) {
+                        SetStrToDebugRow(3, i, D_800A013C);
+                    }
+                }
+                g_FieldCurrentOpcode =
+                    ((u8*)g_FieldScripts)[g_FieldScriptPC[g_CurrentEntity]];
+
+                // Script can yield early if opcode returns 1.
+                if (g_FieldOpcodes[g_FieldCurrentOpcode]()) {
+                    if (D_80099FFC == 5 && g_DebugLevel & 1 &&
+                        (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity])) {
+                        g_CurrentEntity++;
+                        goto done;
+                    }
+                    break;
+                }
+                if (D_80099FFC == 5 && g_DebugLevel & 1 &&
+                    (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity])) {
+                    if (++D_8009A064 >= 8) {
+                        D_8009A064 = 0;
+                        g_CurrentEntity++;
+                    }
+                    goto done;
+                }
+            }
+        }
+        g_CurrentEntity++;
+        count--;
+        if (D_80099FFC == 5 && D_80071E24 & 1 &&
+            (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity])) {
+            break;
+        }
+    } while (count != 0);
+
+done:
+    if (D_80099FFC == 5) {
+        D_80070788 = 0;
+    }
+    FieldUpdateAnimationState();
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldUpdateAnimationState);
 
@@ -1339,7 +1484,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
 // 0C 0D 1A 1B 1C 1D 1E 1F 44 46 4C 4E BE
 s32 OpcodeFuncBad(void) {
     if (g_DebugLevel & 3) {
-        FieldDebugStringU16hex(D_8009A058, g_DebugMessageBuffer);
+        FieldDebugStringU16hex(g_FieldCurrentOpcode, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugMessageBuffer, "???");
         DebugPrintOpcode(g_DebugMessageBuffer, 8);
         FieldDebugPageSetColor(3, 0x7F, 0, 0);
@@ -3006,8 +3151,8 @@ void StartModelAnimation(void) {
 
 /*
  * Field-script opcode ANIME1/ANIME2: play an animation on the entity's
- * model. D_8009A058 distinguishes which opcode invoked the handler: the
- * asynchronous variant (0xAE, ANIME2) marks the model as playing (state 5)
+ * model. g_FieldCurrentOpcode distinguishes which opcode invoked the handler:
+ * the asynchronous variant (0xAE, ANIME2) marks the model as playing (state 5)
  * and lets the script continue, while ANIME1 blocks (state 2) until the
  * animation system reports completion (state 4), then resets the model to
  * its default animation.
@@ -3027,7 +3172,7 @@ s32 OpcodeFuncAnime(void) {
     case 1:
     case 3:
         StartModelAnimation();
-        if (D_8009A058 == 0xAE) {
+        if (g_FieldCurrentOpcode == 0xAE) {
             D_800756E8[g_EntityToModel[g_CurrentEntity]] = 5;
             PC_INC(3);
             return 0;
@@ -3063,7 +3208,7 @@ s32 OpcodeFuncAnimEx(void) {
     case 1:
     case 3:
         StartModelAnimation();
-        if (D_8009A058 == 0xAF) {
+        if (g_FieldCurrentOpcode == 0xAF) {
             D_800756E8[g_EntityToModel[g_CurrentEntity]] = 6;
             PC_INC(3);
             return 0;
@@ -4950,7 +5095,21 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncChmst);
 // Begin of field_opcode_window_timer.c
 /////////////////////////////////////////////////
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncSttim);
+s32 OpcodeFuncSttim(void) {
+    s32 time;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("sttim", 5);
+    }
+
+    time = FieldEventReadMemoryU8(1, 3) * 60 * 60;
+    time += FieldEventReadMemoryU8(2, 4) * 60;
+    time += FieldEventReadMemoryU8(4, 5);
+    Savemap.countdown_timer_seconds = time;
+
+    PC_INC(6);
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", OpcodeFuncWspcl);
 
