@@ -1722,6 +1722,7 @@ void func_800AD480(void) {
             }
         }
     }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD4EC);
 
@@ -2133,7 +2134,7 @@ void func_800B089C(void) {
     s32 temp_v1;
 
     temp_v1 = g_CurrentAction->unk3C;
-    if ((temp_v1 != 0) && (((s32)g_CurrentAction->unk254 % temp_v1) != 0)) {
+    if ((temp_v1 != 0) && ((g_CurrentAction->unk254 % temp_v1) != 0)) {
         g_CurrentAction->unk218 |= 1;
     }
 }
@@ -2229,7 +2230,7 @@ void func_800B1268(s32 arg0, s32 arg1, s32 arg2) {
 
     i = 0;
     p = (s8*)&g_CombatantTurnState[arg0].unk20;
-    do {
+    for (; i < 8; i++, p++) {
         if ((arg2 >> i) & 1) {
             s32 value = *p + arg1;
 
@@ -2241,9 +2242,7 @@ void func_800B1268(s32 arg0, s32 arg1, s32 arg2) {
             }
             *p = value;
         }
-        i++;
-        p++;
-    } while (i < 8);
+    }
 }
 
 // nonzero if D_800F5F44.D_800F7DC8 is < 3
@@ -2368,12 +2367,11 @@ s32 func_800B1C1C(s32 arg0) {
     result = 0;
     i = 0;
     mask = D_800F4AC4->unk28[arg0];
-    do {
+    for (; i < LEN(D_800F4AC4->var[arg0]); i++) {
         if (((mask >> i) & 1) && (D_800F4AC4->var[arg0][i] != 0)) {
             result |= 1 << i;
         }
-        i++;
-    } while (i < 0xA);
+    }
 
     return (result & 0xFFFF) != 0;
 }
