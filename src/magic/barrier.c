@@ -63,10 +63,10 @@ static s32 bari_a2[] = {    // Embedded Model
     // repeat
     0x00100008, 0x00000000,
     // GPU primitive command 0x30, Gouraud-shaded, opaque, 3-vertex poly
-    0x303F3F3F, // Primitive/color: command 0x30, RGB 3F3F3F
-    0x00D4D4D4, // Triangle 1: vertex 1 color, RGB D4D4D4
-    0x003F3F3F, // Triangle 1: vertex 2 color, RGB 3F3F3F
-    0x00000000};
+    0x303F3F3F,  // Primitive/color: command 0x30, RGB 3F3F3F
+    0x00D4D4D4,  // Triangle 1: vertex 1 color, RGB D4D4D4
+    0x003F3F3F}; // Triangle 1: vertex 2 color, RGB 3F3F3F
+static int emptyPoly = 0x00000000;
 static SVECTOR BorderPivotOffset = {0, 0, -500};
 static Unk801B0C98 D_801B0C98 = {bari_a1, 0, 0, 0, 0x20};
 static SVECTOR ShieldPivotOffset = {0, 0, -500};
