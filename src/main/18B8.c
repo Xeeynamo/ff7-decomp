@@ -188,8 +188,8 @@ void func_800111E4(void) {
         func_8001117C(0x2B);
     }
     D_800707BC = D_8009ABF6;
-    D_800707BE = D_8009AC32;
-    D_800707BE = D_800716D0 | D_800707BE;
+    g_BattleMode = D_8009AC32;
+    g_BattleMode = D_800716D0 | g_BattleMode;
     func_800146A4();
     D_800716D0 = 0;
 }

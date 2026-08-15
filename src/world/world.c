@@ -1,5 +1,6 @@
 //! PSYQ=3.3 CC1=2.6.3 g=false gcoff=false
 #include "world.h"
+#include <libetc.h>
 
 void func_800A9480(s16 arg0);
 void func_800AA0E0(VECTOR* arg0);
@@ -10,6 +11,19 @@ void func_800B58F8(u8*, RECT*);
 static s32 func_800B716C(void);
 static s32 func_800B7B2C(void);
 s32 func_800B7B3C(void);
+void func_800B87D8(s16 window);
+void func_800B95E8(void);
+s32 func_800B962C(s16 window, s16 stringId);
+void func_800B98F0(s16 window);
+void func_800B9B2C(s16 window);
+void func_800BA938(s16 window);
+void func_800BAA00(s16 window);
+void func_800BAB60(s16 window);
+s32 func_800BAC70(s16 window);
+u16 func_800BAE60(s16 window);
+void func_800BB350(u16 value, u8* dst);
+void func_800BB450(u16 value, u8* dst);
+void func_800BB568(u16 value, u8* dst);
 void func_800BC9E8(s16 arg0);
 s16 func_800BCA38(void);
 void func_800BCA48(void);
@@ -2281,7 +2295,7 @@ void func_800B7B1C(u8 arg0) { D_8009D684 = arg0; }
 
 static s32 func_800B7B2C(void) { return D_8009D684; }
 
-s32 func_800B7B3C(void) { return (D_800707BE >> 3) & 1; }
+s32 func_800B7B3C(void) { return (g_BattleMode >> 3) & 1; }
 
 // Enemy Lure/Away Modifier
 s32 func_800B7B54(void) {
@@ -2386,7 +2400,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B84D8);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B851C);
 
-static s32 func_800B857C(void) { return D_800832A0 != 0; }
+static s32 func_800B857C(void) { return g_WindowData[0].state != WSTATE_INIT; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B858C);
 
@@ -2394,38 +2408,317 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B85D4);
 
 extern s16 D_80116290;
 
-s16 func_800B86C4(void) { return D_800832A0 == 0 ? D_80116290 : -1; }
+s16 func_800B86C4(void) {
+    return g_WindowData[0].state == WSTATE_INIT ? D_80116290 : -1;
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B86E8);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B8720);
 
-static void func_800B8750(void) {}
+static void func_800B8750(const char* str, s32 val, s32 kind) {}
 
-static void func_800B8758(void) {}
+static void func_800B8758(const char* errmsg) {}
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B8760);
+void func_800B8760(void) {
+    s32 i;
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B87D8);
+    g_WindowCount = 0;
+    for (i = 0; i < 1; i++) {
+        func_800B87D8(i);
+    }
+    if (g_FieldScripts->stringOffset != 0) {
+        D_80116298 = (u8*)g_FieldScripts + g_FieldScripts->stringOffset;
+    } else {
+        D_80116298 = NULL;
+    }
+}
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B89C4);
+void func_800B87D8(s16 window) {
+    s32 i;
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B8A5C);
+    if (window == 1) {
+        g_WindowData[window].y = 8;
+    } else {
+        g_WindowData[window].y = 149;
+    }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B8A98);
+    g_WindowData[window].x = 8;
+    g_WindowData[window].width = 304;
+    g_WindowData[window].height = 73;
+    g_WindowData[window].currentWidth = 1;
+    g_WindowData[window].currentHeight = 1;
+    g_WindowData[window].state = WSTATE_INIT;
+    g_WindowData[window].style = WSTYLE_NORMAL;
+    g_WindowData[window].numDisplayType = WNDT_OFF;
+    g_WindowData[window].unk1C = 0;
+    g_WindowData[window].numDisplayLength = 6;
+    g_WindowData[window].numDisplayX = 0;
+    g_WindowData[window].numDisplayY = 0;
+    g_WindowData[window].preventClose = 0;
+    g_WindowToEntity[window] = 0xFF;
 
-static const char D_800A090C[] = "win limit x=";
-static const char D_800A091C[] = "win limit y=";
+    for (i = 0; i < 4; i++) {
+        D_801163B4[window][i] = 0;
+        D_801163B8[window][i] = 0;
+    }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B8B00);
+    D_801163D0[window] = 0;
+    if (g_DebugLevel & 3) {
+        func_800B8750("mes reset=", window, 1);
+    }
+}
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B8CBC);
+s32 func_800B89C4(s16 window) {
+    switch (g_WindowData[window].state) {
+    case WSTATE_SHOW:
+        return 0;
+    case WSTATE_TXT:
+    case WSTATE_WAIT_ROW:
+    case WSTATE_TXT_DONE:
+    case WSTATE_SCROLL_ROW:
+    case WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK:
+    case WSTATE_PAUSE_TXT_UNTIL_OK:
+        g_WindowData[window].state = WSTATE_CLOSING;
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B8D20);
+void func_800B8A5C(s16 window, s8 style, s16 preventClose) {
+    g_WindowData[window].style = style;
+    g_WindowData[window].preventClose = preventClose;
+}
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B8D4C);
+void func_800B8A98(void) {
+    s32 i;
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B90C0);
+    for (i = 0; i < 1; i++) {
+        g_WindowData[i].state = WSTATE_INIT;
+        g_WindowData[i].stringLength = 0;
+        g_WindowToEntity[i] = 0xFF;
+        D_801163D0[i] = 0;
+    }
+    g_WindowCount = 0;
+}
+
+void func_800B8B00(s16 window, s16 x, s16 y, s16 width, s16 height) {
+    if (x < 8) {
+        if (g_DebugLevel & 3) {
+            func_800B8750("win limit x=", x, 2);
+        }
+        x = 8;
+    }
+    if (x + width > 312) {
+        if (g_DebugLevel & 3) {
+            func_800B8750("win limit x=", x + width, 3);
+        }
+        x = 312 - width;
+    }
+    if (y < 8) {
+        if (g_DebugLevel & 3) {
+            func_800B8750("win limit y=", y, 2);
+        }
+        y = 8;
+    }
+    if (y + height > 224) {
+        if (g_DebugLevel & 3) {
+            func_800B8750("win limit y=", y + height, 3);
+        }
+        y = 224 - height;
+    }
+
+    g_WindowData[window].x = x;
+    g_WindowData[window].y = y;
+    g_WindowData[window].width = width;
+    g_WindowData[window].height = height;
+}
+
+void func_800B8CBC(s16 window, s16 dx, s16 dy) {
+    g_WindowData[window].x += dx;
+    g_WindowData[window].y += dy;
+}
+
+void func_800B8D20(s16 window, s16 height) {
+    g_WindowData[window].height = height;
+}
+
+s32 func_800B8D4C(u8 window, u8 message) {
+    switch (g_WindowData[window].state) {
+    case WSTATE_INIT:
+        if (func_800B962C(window, message)) {
+            return 1;
+        }
+        break;
+    case WSTATE_SHOW:
+        func_800B98F0(window);
+        break;
+    case WSTATE_TXT:
+        func_800B9B2C(window);
+        break;
+    case WSTATE_SCROLL_ROW:
+        func_800BA938(window);
+        break;
+    case WSTATE_SCROLL_TXT_WHILE_OK:
+        func_800BAA00(window);
+        break;
+    case WSTATE_PAUSE_TXT_UNTIL_OK:
+        if (g_FieldState->newActiveKeys2 & PADRright) {
+            g_WindowData[window].state = WSTATE_TXT;
+        }
+        break;
+    case WSTATE_PAUSE_TXT:
+        if (D_801163D0[window] == 0) {
+            g_WindowData[window].state = WSTATE_TXT;
+        } else {
+            D_801163D0[window]--;
+        }
+        break;
+    case WSTATE_WAIT_ROW:
+        if (g_FieldState->newActiveKeys2 & PADRright) {
+            if (g_WindowData[window].currentRow ==
+                (g_WindowData[window].height - 9) / 16 - 1 +
+                    D_801162A4[window]) {
+                g_WindowData[window].state = WSTATE_SCROLL_ROW;
+                g_WindowData[window].textScrolling -= 2;
+                D_801162A4[window]++;
+            }
+        }
+        break;
+    case WSTATE_TXT_DONE:
+        if (!(g_WindowData[window].preventClose & 1) &&
+            (g_FieldState->newActiveKeys2 & PADRright)) {
+            g_WindowData[window].state = WSTATE_CLOSING;
+            func_800BAC70(window);
+        }
+        break;
+    case WSTATE_WAIT_NEXT_WINDOW:
+        if (g_FieldState->newActiveKeys2 & PADRright) {
+            func_800BAB60(window);
+        }
+        break;
+    case WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK:
+        if (g_FieldState->newActiveKeys2 & PADRright) {
+            g_WindowData[window].state = WSTATE_SCROLL_TXT_WHILE_OK;
+            D_801162A8[window] = g_WindowData[window].currentRow * 16 + 17;
+            g_WindowData[window].textScrolling -= 2;
+        }
+        break;
+    case WSTATE_INIT_NEXT:
+        func_800BAB60(window);
+        break;
+    case WSTATE_UNK5:
+    case WSTATE_CLOSING:
+        if (func_800BAC70(window)) {
+            return 1;
+        }
+        break;
+    }
+
+    return 0;
+}
+
+s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
+    switch (g_WindowData[window].state) {
+    case WSTATE_INIT:
+        if (func_800B962C(window, message)) {
+            return 1;
+        }
+        break;
+    case WSTATE_SHOW:
+        func_800B98F0(window);
+        break;
+    case WSTATE_TXT:
+        func_800B9B2C(window);
+        break;
+    case WSTATE_SCROLL_ROW:
+        func_800BA938(window);
+        break;
+    case WSTATE_SCROLL_TXT_WHILE_OK:
+        func_800BAA00(window);
+        break;
+    case WSTATE_PAUSE_TXT_UNTIL_OK:
+        if (g_FieldState->newActiveKeys2 & PADRright) {
+            g_WindowData[window].state = WSTATE_TXT;
+        }
+        break;
+    case WSTATE_PAUSE_TXT:
+        if (D_801163D0[window] == 0) {
+            g_WindowData[window].state = WSTATE_TXT;
+        } else {
+            D_801163D0[window]--;
+        }
+        break;
+    case WSTATE_WAIT_ROW:
+        if (g_FieldState->newActiveKeys2 & PADRright) {
+            if (g_WindowData[window].currentRow ==
+                (g_WindowData[window].height - 9) / 16 - 1 +
+                    D_801162A4[window]) {
+                g_WindowData[window].state = WSTATE_SCROLL_ROW;
+                g_WindowData[window].textScrolling -= 2;
+                D_801162A4[window]++;
+            }
+        }
+        break;
+    case WSTATE_TXT_DONE:
+        if (!(g_WindowData[window].preventClose & 1)) {
+            g_WindowData[window].pointerEnabled = 1;
+
+            if (g_FieldState->newActiveKeys & PADLup) {
+                if (first < *selectedLine) {
+                    func_800B95E8();
+                }
+                (*selectedLine)--;
+            }
+            if (g_FieldState->newActiveKeys & PADLdown) {
+                if (*selectedLine < last) {
+                    func_800B95E8();
+                }
+                (*selectedLine)++;
+            }
+            if (*selectedLine < first) {
+                *selectedLine = first;
+            }
+            if (last < *selectedLine) {
+                *selectedLine = last;
+            }
+
+            g_WindowData[window].pointerX = 5;
+            g_WindowData[window].pointerY = *selectedLine * 16 + 6;
+
+            if (g_FieldState->newActiveKeys2 & PADRright) {
+                func_800B95E8();
+                g_WindowData[window].state = WSTATE_CLOSING;
+                func_800BAC70(window);
+            }
+        }
+        break;
+    case WSTATE_WAIT_NEXT_WINDOW:
+        if (g_FieldState->newActiveKeys2 & PADRright) {
+            func_800BAB60(window);
+        }
+        break;
+    case WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK:
+        if (g_FieldState->newActiveKeys2 & PADRright) {
+            g_WindowData[window].state = WSTATE_SCROLL_TXT_WHILE_OK;
+            D_801162A8[window] = g_WindowData[window].currentRow * 16 + 17;
+            g_WindowData[window].textScrolling -= 2;
+        }
+        break;
+    case WSTATE_INIT_NEXT:
+        func_800BAB60(window);
+        break;
+    case WSTATE_UNK5:
+    case WSTATE_CLOSING:
+        if (func_800BAC70(window)) {
+            g_WindowData[window].pointerEnabled = 0;
+            return 1;
+        }
+        g_WindowData[window].pointerEnabled ^= 1;
+        break;
+    }
+
+    return 0;
+}
 
 void func_800B95E8(void) {
     *D_8009A000 = 0x30;
@@ -2434,34 +2727,737 @@ void func_800B95E8(void) {
     SystemAkaoExecute();
 }
 
-static const char D_800A09AC[] = "No mes data!";
-static const char D_800A09BC[] = "mes busy=";
+s32 func_800B962C(s16 window, s16 stringId) {
+    if (D_80116298 == NULL) {
+        func_800B8758("No mes data!");
+        return 1;
+    }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B962C);
+    if (g_WindowToEntity[window] != 0xFF) {
+        if (g_DebugLevel & 3) {
+            func_800B8750("mes busy=", window, 1);
+        }
+        return 0;
+    }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B98F0);
+    g_WindowToEntity[window] = g_CurrentEntity;
+    g_WindowData[window].currentWidth = g_WindowData[window].width / 4;
+    g_WindowData[window].currentHeight = g_WindowData[window].height / 4;
+    if (g_WindowData[window].currentHeight < 8) {
+        g_WindowData[window].currentHeight = 8;
+    }
+    if (g_WindowData[window].currentWidth < 8) {
+        g_WindowData[window].currentWidth = 8;
+    }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B9B2C);
+    g_WindowData[window].text = D_801162B4[window];
+    g_WindowData[window].textScrolling = 0;
+    g_WindowData[window].stringLength = 0;
+    g_WindowData[window].stringByteLength = 0;
+    g_WindowData[window].currentRow = 0;
+    g_WindowData[window].pointerEnabled = 0;
+    D_801162B4[window][0] = 0xFF;
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BA938);
+    D_801162B0[window] = D_80116298;
+    D_801162B0[window] += D_80116298[stringId * 2 + 2];
+    D_801162B0[window] += D_80116298[stringId * 2 + 3] << 8;
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BAA00);
+    g_WindowCount++;
+    D_8011629C[window] = 1;
+    D_801162A0[window] = 0;
+    D_801162A4[window] = 0;
+    D_801162AC[window] = 0;
+    D_801163C0[window] = 0;
+    D_801163C4[window] = -1;
+    g_WindowData[window].state = WSTATE_SHOW;
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BAB60);
+void func_800B98F0(s16 window) {
+    if (g_WindowToEntity[window] != g_CurrentEntity) {
+        if (g_DebugLevel & 3) {
+            func_800B8750("mes busy=", window, 1);
+        }
+        return;
+    }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BAC70);
+    g_WindowData[window].currentWidth += g_WindowData[window].width / 4;
+    if (g_WindowData[window].currentWidth < 8) {
+        g_WindowData[window].currentWidth = 8;
+    }
+    if (g_WindowData[window].width < g_WindowData[window].currentWidth) {
+        g_WindowData[window].currentWidth = g_WindowData[window].width;
+    }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BAE60);
+    g_WindowData[window].currentHeight += g_WindowData[window].height / 4;
+    if (g_WindowData[window].currentHeight < 8) {
+        g_WindowData[window].currentHeight = 8;
+    }
+    if (g_WindowData[window].height < g_WindowData[window].currentHeight) {
+        g_WindowData[window].currentHeight = g_WindowData[window].height;
+    }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BB350);
+    if (g_WindowData[window].currentWidth == g_WindowData[window].width &&
+        g_WindowData[window].currentHeight == g_WindowData[window].height) {
+        g_WindowData[window].state = WSTATE_TXT;
+    }
+}
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BB450);
+void func_800B9B2C(s16 window) {
+    u8 opcode;
+    u16 len;
+    s16 i;
+    s16 baseCredit;
+    s16 characterCost;
+    u8* name;
+    u16 value;
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BB568);
+    if (g_WindowToEntity[window] != g_CurrentEntity) {
+        if (g_DebugLevel & 3) {
+            func_800B8750("mes busy=", window, 1);
+        }
+        return;
+    }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BB650);
+    /*
+     * To render text gradually, the game implements a text-writing credit
+     * system. The > comparison in the while-loop means it can emit one
+     * fewer character on the first update.
+     * D_8011629C can add 0-8 characters per update and increase scrolling
+     * speed. It's ramped up or down based on the state of OK.
+     * field_msg_speed  baseCredit  characterCost   chars/update
+     * 0                6           1               6
+     * 1-32             5           1               5
+     * 33-64            4           1               4
+     * 65-96            3           1               3
+     * 97-159           2           1               2
+     * 160-191          2           2               1
+     * 192-223          2           3               2/3
+     * 224-255          2           4               1/2
+     */
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BB7DC);
+    if (g_WindowData[window].preventClose & 2) {
+        baseCredit = 256;
+        characterCost = 1;
+    } else {
+        SaveWork* save;
+
+        if (g_FieldState->activeKeys2 & PADRright) {
+            D_8011629C[window]++;
+            if (D_8011629C[window] > 128) {
+                D_8011629C[window] = 128;
+            }
+        } else {
+            D_8011629C[window]--;
+            if (D_8011629C[window] < 2) {
+                D_8011629C[window] = 1;
+            }
+        }
+
+        save = &Savemap;
+        if (save->field_msg_speed < 128) {
+            baseCredit = ((128 - save->field_msg_speed) >> 5) + 2;
+            characterCost = 1;
+        } else {
+            baseCredit = 2;
+            characterCost = ((save->field_msg_speed - 128) >> 5) + 1;
+        }
+    }
+
+    D_801162A0[window] +=
+        characterCost * (D_8011629C[window] >> 4) + baseCredit;
+
+    while (D_801162A0[window] > characterCost) {
+        switch (*D_801162B0[window]) {
+        // End of string.
+        case 0xFF:
+            g_WindowData[window].state = WSTATE_TXT_DONE;
+            D_801162A0[window] = 0;
+            goto end;
+
+        // Next row.
+        case 0xE7:
+            if (g_WindowData[window].currentRow ==
+                (g_WindowData[window].height - 9) / 16 - 1 +
+                    D_801162A4[window]) {
+                g_WindowData[window].state = WSTATE_WAIT_ROW;
+                D_8011629C[window] = 1;
+                D_801162A0[window] = 0;
+                goto end;
+            }
+            D_801162B4[window][g_WindowData[window].stringByteLength] =
+                *D_801162B0[window];
+            D_801162B0[window]++;
+            g_WindowData[window].stringByteLength++;
+            g_WindowData[window].currentRow++;
+            continue;
+
+        // Wait for next window.
+        case 0xE8:
+        case 0xE9:
+            D_801162B0[window]++;
+            g_WindowData[window].state = WSTATE_WAIT_NEXT_WINDOW;
+            D_8011629C[window] = 1;
+            D_801162A0[window] = 0;
+            goto end;
+
+        // Write player-chosen character name from savemap.
+        case 0xEA: // Cloud
+        case 0xEB: // Barret
+        case 0xEC: // Tifa
+        case 0xED: // Aerith
+        case 0xEE: // Red XIII
+        case 0xEF: // Yuffie
+        case 0xF0: // Cait Sith
+        case 0xF1: // Vincent
+        case 0xF2: // Cid
+            value = *D_801162B0[window] - 0xEA;
+            name = GetCharacterName(value);
+            if (name[D_801162AC[window]] == 0xFF || D_801162AC[window] >= 9) {
+                D_801162B0[window]++;
+                D_801162AC[window] = 0;
+            } else {
+                D_801162B4[window][g_WindowData[window].stringByteLength] =
+                    name[D_801162AC[window]];
+                g_WindowData[window].stringByteLength++;
+                D_801162AC[window]++;
+                g_WindowData[window].stringLength++;
+                D_801162A0[window] -= characterCost;
+            }
+            continue;
+
+        // Write name of party member.
+        case 0xF3:
+        case 0xF4:
+        case 0xF5:
+            value = Savemap.memory_bank_1[22 + *D_801162B0[window]];
+            if (value == 0xFF) {
+                if (D_801162AC[window] >= 9) {
+                    D_801162B0[window]++;
+                    D_801162AC[window] = 0;
+                } else {
+                    D_801162B4[window][g_WindowData[window].stringByteLength] =
+                        0xD2;
+                    g_WindowData[window].stringByteLength++;
+                    D_801162AC[window]++;
+                    g_WindowData[window].stringLength++;
+                    D_801162A0[window] -= characterCost;
+                }
+            } else {
+                name = GetCharacterName(value);
+                if (name[D_801162AC[window]] == 0xFF ||
+                    D_801162AC[window] >= 9) {
+                    D_801162B0[window]++;
+                    D_801162AC[window] = 0;
+                } else {
+                    D_801162B4[window][g_WindowData[window].stringByteLength] =
+                        name[D_801162AC[window]];
+                    g_WindowData[window].stringByteLength++;
+                    D_801162AC[window]++;
+                    g_WindowData[window].stringLength++;
+                    D_801162A0[window] -= characterCost;
+                }
+            }
+            continue;
+
+        // Opcode prefix.
+        case 0xFE:
+            D_801162B4[window][g_WindowData[window].stringByteLength] =
+                *D_801162B0[window];
+            D_801162B0[window]++;
+            g_WindowData[window].stringByteLength++;
+            switch (*D_801162B0[window]) {
+            // Pause writing text until the player presses OK.
+            case 0xDC:
+                g_WindowData[window].stringByteLength--;
+                D_801162B0[window]++;
+                g_WindowData[window].state = WSTATE_PAUSE_TXT_UNTIL_OK;
+                D_8011629C[window] = 1;
+                D_801162A0[window] = 0;
+                goto end;
+
+            // Pause writing and wait for OK before scrolling the text.
+            case 0xE0:
+                g_WindowData[window].stringByteLength--;
+                D_801162B0[window]++;
+                g_WindowData[window].state = WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK;
+                D_8011629C[window] = 1;
+                D_801162A0[window] = 0;
+                goto end;
+
+            // Copy an integer from a memory bank.
+            case 0xDE:
+            case 0xDF:
+            case 0xE1:
+                g_WindowData[window].stringByteLength--;
+                D_801162B0[window]--;
+                if (D_801163C4[window] == -1) {
+                    // First iteration. Fetch and convert the value.
+                    value = func_800BAE60(window);
+                    if (g_DebugLevel & 3) {
+                        func_800B8750("mpara=", value, 4);
+                    }
+                    opcode = D_801162B0[window][1];
+                    switch (opcode) {
+                    // Integer to decimal string.
+                    case 0xDE:
+                        func_800BB350(value, D_801163C8[window]);
+                        break;
+                    // Integer to decimal string with space fill.
+                    case 0xE1:
+                        func_800BB450(value, D_801163C8[window]);
+                        break;
+                        // Integer to hexadecimal string.
+                    case 0xDF:
+                        func_800BB568(value, D_801163C8[window]);
+                        break;
+                    }
+                    D_801163C4[window]++;
+                } else if (D_801163C8[window][D_801163C4[window]] == 0xFF ||
+                           D_801163C4[window] >= 8) {
+                    // Last converted character has been copied.
+                    D_801162B0[window] += 2;
+                    D_801163C4[window] = -1;
+                    D_801163C0[window]++;
+                } else {
+                    // Copy the next character of the converted integer.
+                    D_801162B4[window][g_WindowData[window].stringByteLength] =
+                        D_801163C8[window][D_801163C4[window]];
+                    g_WindowData[window].stringByteLength++;
+                    D_801163C4[window]++;
+                    g_WindowData[window].stringLength++;
+                    D_801162A0[window] -= characterCost;
+                }
+                continue;
+
+            // Copy a string from a memory bank.
+            case 0xE2:
+                g_WindowData[window].stringByteLength--;
+                D_801162B0[window]--;
+                if (D_801163C4[window] == -1) {
+                    value = D_801162B0[window][2];
+                    value |= D_801162B0[window][3] << 8;
+                    len = D_801162B0[window][4];
+                    len |= D_801162B0[window][5] << 8;
+                    if (g_DebugLevel & 3) {
+                        func_800B8750("gstr=", value, 4);
+                        if (g_DebugLevel & 3) {
+                            func_800B8750("glen=", len, 4);
+                        }
+                    }
+                    for (i = 0; i < len; i++) {
+                        D_801163C8[window][i] =
+                            Savemap.memory_bank_1[value + i];
+                    }
+                    D_801163C8[window][i] = 0xFF;
+                    D_801163C4[window]++;
+                } else if (D_801163C8[window][D_801163C4[window]] == 0xFF) {
+                    D_801162B0[window] += 6;
+                    D_801163C4[window] = -1;
+                } else {
+                    D_801162B4[window][g_WindowData[window].stringByteLength] =
+                        D_801163C8[window][D_801163C4[window]];
+                    g_WindowData[window].stringByteLength++;
+                    D_801163C4[window]++;
+                    g_WindowData[window].stringLength++;
+                    D_801162A0[window] -= characterCost;
+                }
+                continue;
+
+            // Font colors.
+            case 0xD2: // Gray
+            case 0xD3: // Blue
+            case 0xD4: // Red
+            case 0xD5: // Purple
+            case 0xD6: // Green
+            case 0xD7: // Cyan
+            case 0xD8: // Yellow
+            case 0xD9: // White
+            // Special global colors.
+            case 0xDA: // Flash colors
+            case 0xDB: // Rainbow colors, changes color for each character
+            // Toggle left padding of characters.
+            case 0xE9:
+                D_801162B4[window][g_WindowData[window].stringByteLength] =
+                    *D_801162B0[window];
+                D_801162B0[window]++;
+                g_WindowData[window].stringByteLength++;
+                continue;
+
+            // Wait until the window wait time reaches 0 before resuming.
+            case 0xDD:
+                g_WindowData[window].state = WSTATE_PAUSE_TXT;
+                D_801162B0[window]++;
+                g_WindowData[window].stringByteLength++;
+                D_801163D0[window] = *D_801162B0[window];
+                D_801162B0[window]++;
+                g_WindowData[window].stringByteLength++;
+                D_801163D0[window] |= *D_801162B0[window] << 8;
+                D_801162B0[window]++;
+                g_WindowData[window].stringByteLength++;
+                goto end;
+
+            default:
+                D_801162B4[window][g_WindowData[window].stringByteLength] =
+                    *D_801162B0[window];
+                D_801162B0[window]++;
+                g_WindowData[window].stringByteLength++;
+                g_WindowData[window].stringLength++;
+                D_801162A0[window] -= characterCost;
+                continue;
+            }
+
+        // Two-byte characters used in the Japanese extended font(?)
+        case 0xFA:
+        case 0xFB:
+        case 0xFC:
+        case 0xFD:
+            D_801162B4[window][g_WindowData[window].stringByteLength] =
+                *D_801162B0[window];
+            D_801162B0[window]++;
+            g_WindowData[window].stringByteLength++;
+
+        // Fall through to copy the second byte of the character.
+        // Also used to copy all other characters directly.
+        default:
+            D_801162B4[window][g_WindowData[window].stringByteLength] =
+                *D_801162B0[window];
+            D_801162B0[window]++;
+            g_WindowData[window].stringByteLength++;
+            g_WindowData[window].stringLength++;
+            D_801162A0[window] -= characterCost;
+            continue;
+        }
+    }
+
+end:
+    D_801162B4[window][g_WindowData[window].stringByteLength] = 0xFF;
+}
+
+void func_800BA938(s16 window) {
+    if (g_WindowToEntity[window] != g_CurrentEntity) {
+        if (g_DebugLevel & 3) {
+            func_800B8750("mes busy=", window, 1);
+        }
+        return;
+    }
+
+    if (g_WindowData[window].textScrolling & 0xF) {
+        g_WindowData[window].textScrolling -= 2;
+    } else {
+        g_WindowData[window].state = WSTATE_TXT;
+    }
+}
+
+void func_800BAA00(s16 window) {
+    if (g_WindowToEntity[window] != g_CurrentEntity) {
+        if (g_DebugLevel & 3) {
+            func_800B8750("mes busy=", window, 1);
+        }
+        return;
+    }
+
+    if (g_WindowData[window].textScrolling + D_801162A8[window] > 0) {
+        g_WindowData[window].textScrolling -= D_8011629C[window] >> 2;
+        if (g_FieldState->activeKeys2 & PADRright) {
+            D_8011629C[window]++;
+            if (D_8011629C[window] > 128) {
+                D_8011629C[window] = 128;
+            }
+        } else {
+            D_8011629C[window]--;
+            if (D_8011629C[window] < 2) {
+                D_8011629C[window] = 1;
+            }
+        }
+    } else {
+        g_WindowData[window].state = WSTATE_INIT_NEXT;
+    }
+}
+
+void func_800BAB60(s16 window) {
+    if (g_WindowToEntity[window] != g_CurrentEntity) {
+        if (g_DebugLevel & 3) {
+            func_800B8750("mes busy=", window, 1);
+        }
+        return;
+    }
+
+    g_WindowData[window].state = WSTATE_TXT;
+    g_WindowData[window].stringByteLength = 0;
+    g_WindowData[window].stringLength = 0;
+    g_WindowData[window].textScrolling = 0;
+    g_WindowData[window].currentRow = 0;
+    D_801162B4[window][0] = 0xFF;
+    D_801162A4[window] = 0;
+    D_8011629C[window] = 1;
+}
+
+s32 func_800BAC70(s16 window) {
+    if (g_WindowToEntity[window] != g_CurrentEntity) {
+        if (g_DebugLevel & 3) {
+            func_800B8750("mes busy=", window, 1);
+        }
+        return 1;
+    }
+
+    if (g_WindowData[window].currentWidth >= 8) {
+        g_WindowData[window].currentWidth -= g_WindowData[window].width / 4;
+    } else {
+        g_WindowData[window].currentWidth = 8;
+    }
+
+    if (g_WindowData[window].currentHeight >= 8) {
+        g_WindowData[window].currentHeight -= g_WindowData[window].height / 4;
+    } else {
+        g_WindowData[window].currentHeight = 8;
+    }
+
+    if (g_WindowData[window].currentWidth < 9 &&
+        g_WindowData[window].currentHeight < 9) {
+        g_WindowData[window].stringLength = 0;
+        g_WindowData[window].state = WSTATE_INIT;
+        g_WindowToEntity[window] = 0xFF;
+        g_WindowCount--;
+        return 1;
+    }
+    return 0;
+}
+
+u16 func_800BAE60(s16 window) {
+    u16 value;
+    u16 offset;
+
+    switch (D_801163B4[window][D_801163C0[window]]) {
+    case 0:
+        value = D_801163B8[window][D_801163C0[window]];
+        break;
+    case 1:
+        offset = D_801163B8[window][D_801163C0[window]];
+        value = Savemap.memory_bank_1[offset];
+        break;
+    case 2:
+        offset = D_801163B8[window][D_801163C0[window]];
+        value = Savemap.memory_bank_1[offset];
+        value |= Savemap.memory_bank_1[offset + 1] << 8;
+        break;
+    case 3:
+        offset = D_801163B8[window][D_801163C0[window]] + 0x100;
+        value = Savemap.memory_bank_1[offset];
+        break;
+    case 4:
+        offset = D_801163B8[window][D_801163C0[window]] + 0x100;
+        value = Savemap.memory_bank_1[offset];
+        value |= Savemap.memory_bank_1[offset + 1] << 8;
+        break;
+    case 11:
+        offset = D_801163B8[window][D_801163C0[window]] + 0x200;
+        value = Savemap.memory_bank_1[offset];
+        break;
+    case 12:
+        offset = D_801163B8[window][D_801163C0[window]] + 0x200;
+        value = Savemap.memory_bank_1[offset];
+        value |= Savemap.memory_bank_1[offset + 1] << 8;
+        break;
+    case 13:
+        offset = D_801163B8[window][D_801163C0[window]] + 0x300;
+        value = Savemap.memory_bank_1[offset];
+        break;
+    case 15:
+        offset = D_801163B8[window][D_801163C0[window]] + 0x400;
+        value = Savemap.memory_bank_1[offset];
+        break;
+    case 14:
+        offset = D_801163B8[window][D_801163C0[window]] + 0x300;
+        value = Savemap.memory_bank_1[offset];
+        value |= Savemap.memory_bank_1[offset + 1] << 8;
+        break;
+    case 7:
+        offset = D_801163B8[window][D_801163C0[window]] + 0x400;
+        value = Savemap.memory_bank_1[offset];
+        value |= Savemap.memory_bank_1[offset + 1] << 8;
+        break;
+    case 5:
+        offset = D_801163B8[window][D_801163C0[window]];
+        value = g_FieldMapVars[offset];
+        break;
+    case 6:
+        offset = D_801163B8[window][D_801163C0[window]];
+        value = g_FieldMapVars[offset];
+        value |= g_FieldMapVars[offset + 1] << 8;
+        break;
+    default:
+        value = 0;
+        break;
+    }
+
+    return value;
+}
+
+void func_800BB350(u16 value, u8* dst) {
+    u32 foundDigit;
+    s16 i;
+    s16 divisor;
+    s16 digit;
+
+    foundDigit = 0;
+    divisor = 10000;
+    i = 0;
+    while (divisor > 1) {
+        digit = value / divisor;
+        if (foundDigit || digit) {
+            foundDigit = 1;
+            dst[i] = D_800C7304[digit];
+            i++;
+        }
+        value -= digit * divisor;
+        divisor /= 10;
+    }
+    dst[i] = D_800C7304[value];
+    dst[i + 1] = 0xFF;
+}
+
+void func_800BB450(u16 value, u8* dst) {
+    s32 foundDigit;
+    s16 i;
+    s16 divisor;
+    s16 digit;
+
+    foundDigit = 0;
+    divisor = 10000;
+    i = 0;
+    while (divisor > 1) {
+        digit = value / divisor;
+        if (foundDigit || digit) {
+            foundDigit = 1;
+            dst[i] = D_800C7304[digit];
+            i++;
+        } else {
+            dst[i] = 0x3F;
+            i++;
+        }
+        value -= digit * divisor;
+        divisor /= 10;
+    }
+    dst[i] = D_800C7304[value];
+    dst[i + 1] = 0xFF;
+}
+
+void func_800BB568(u16 value, u8* dst) {
+    u32 foundDigit;
+    s16 i;
+    s16 divisor;
+    s16 digit;
+
+    foundDigit = 0;
+    divisor = 0x1000;
+    i = 0;
+    while (divisor > 1) {
+        digit = value / divisor;
+        if (foundDigit || digit) {
+            foundDigit = 1;
+            dst[i] = D_800C7304[digit];
+            i++;
+        }
+        value -= digit * divisor;
+        divisor /= 16;
+    }
+    dst[i] = D_800C7304[value];
+    dst[i + 1] = 0xFF;
+}
+
+s32 func_800BB650(s16 stringId) {
+    s16 i;
+    s16 j;
+    u8* str;
+    u8* charName;
+    u8 value;
+
+    if (D_80116298 == NULL) {
+        func_800B8758("No mes data!");
+        return 0;
+    }
+
+    str = D_80116298;
+    j = 0;
+    i = 0;
+    str += D_80116298[stringId * 2 + 2];
+    str += D_80116298[stringId * 2 + 3] << 8;
+
+    do {
+        switch (*str) {
+        case 0xFF:
+            goto end;
+
+        case 0xEA:
+        case 0xEB:
+        case 0xEC:
+        case 0xED:
+        case 0xEE:
+        case 0xEF:
+        case 0xF0:
+        case 0xF1:
+        case 0xF2:
+            charName = GetCharacterName((s16)(*str - 0xEA)) + j;
+            if (*charName == 0xFF || j >= 9) {
+                str++;
+                j = 0;
+            } else {
+                j++;
+                Savemap.memory_bank_4[104 + i] = *charName;
+                i++;
+            }
+            break;
+
+        case 0xFA:
+        case 0xFB:
+        case 0xFC:
+        case 0xFD:
+        case 0xFE:
+            value = *str;
+            str++;
+            Savemap.memory_bank_4[104 + i] = value;
+            i++;
+
+        default:
+            value = *str;
+            str++;
+            Savemap.memory_bank_4[104 + i] = value;
+            i++;
+            break;
+        }
+    } while (i < 23);
+
+end:
+    Savemap.memory_bank_4[104 + i] = 0xFF;
+    return 1;
+}
+
+void func_800BB7DC(s16 battleCharId, s16 stringId) {
+    u8* newName;
+    s16 len;
+    u8* charName;
+
+    if (D_80116298 == NULL) {
+        func_800B8758("No mes data!");
+        return;
+    }
+
+    newName = D_80116298;
+    newName += D_80116298[stringId * 2 + 2];
+    newName += D_80116298[stringId * 2 + 3] << 8;
+    len = 0;
+    charName = GetCharacterName(battleCharId);
+
+    while (*newName != 0xFF) {
+        *charName++ = *newName++;
+        len++;
+    }
+
+    if (len < 9) {
+        *charName = 0xFF;
+    }
+}
 
 void func_800BB8B0(void) {
     D_801163D4 = 0;
