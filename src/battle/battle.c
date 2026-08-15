@@ -1711,7 +1711,7 @@ void func_800AD480(void) {
     count = 0;
     i = 0;
     next = 0;
-    do {
+    for (; i < 0x1E; i++) {
         if (count < 0x10) {
             if (i == next) {
                 D_800F495C[count] = i;
@@ -1721,9 +1721,7 @@ void func_800AD480(void) {
                 next = i + 1;
             }
         }
-        i++;
-    } while (i < 0x1E);
-}
+    }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD4EC);
 
