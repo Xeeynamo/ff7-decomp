@@ -15,7 +15,7 @@ typedef struct BarrierData {
     char pad1[0x6];
 } BarrierData;
 
-//Battle effect instances. 
+// Battle effect instances.
 extern BarrierData D_80162978[];
 static s32 bari_a1[] = {    // Embedded Model
                             // 6 verts, 12 polys,1 group
@@ -182,8 +182,7 @@ static void BarrierRenderShield(void) {
 }
 
 static void BarrierSequenceManage(void) {
-    BarrierData* barrier =
-        &D_80162978[D_8015169C]; // model instance
+    BarrierData* barrier = &D_80162978[D_8015169C]; // model instance
     BarrierData* next;
 
     if (D_80062D98 != 0) {
@@ -263,8 +262,7 @@ static void BarrierSequenceManage(void) {
 }
 
 static void BarrierAttachToTarget(int arg0) {
-    BarrierData* barrier =
-        &D_80162978[func_800BBEAC(BarrierSequenceManage)];
+    BarrierData* barrier = &D_80162978[func_800BBEAC(BarrierSequenceManage)];
 
     func_800D3994(arg0, D_801518E4[arg0].D_8015190F, &barrier->Pos);
     barrier->Pos.vx -=
