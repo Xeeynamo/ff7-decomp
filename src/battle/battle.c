@@ -250,7 +250,16 @@ void func_800A345C(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3488);
+void func_800A3488(s32 arg0) {
+    s32 i;
+
+    for (i = 0; i < LEN(D_800FA9D0); i++) {
+        Unk800FA9D0* p = &D_800FA9D0[i];
+        if (p->unk0 == arg0) {
+            p->unk4 &= ~4;
+        }
+    }
+}
 
 static void func_800A34CC(s32 arg0, s32 arg1, s8 arg2, s32 arg3) {
     s32 i = 0;
@@ -550,7 +559,20 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A50E0);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A5250);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A555C);
+void func_800A555C(s32 arg0, s32 arg1) {
+    u8* row;
+    u16 value;
+
+    row = &D_8009D954[arg0 * 0x440];
+    row += arg1 * 8;
+
+    row[6] = 2;
+    row[5] = D_800708D0[arg1][0];
+    value = *(u16*)&D_800708C8[arg1 * 0x1C];
+    arg1 -= 0x48;
+    row[0] = arg1;
+    row[1] = value;
+}
 
 typedef struct {
     s16 a;
@@ -765,7 +787,19 @@ void func_800A67B8(s32 arg0) {
 
 void func_800A6834(s32 arg0) { D_800F5F44.D_800F7DC4 &= ~(1 << arg0); }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6858);
+void func_800A6858(s32 arg0, s32 arg1) {
+    if (arg1 != 0) {
+        func_800A66A4();
+        D_800F5F44.D_800F7DCA |= 1 << arg0;
+        return;
+    }
+
+    D_800F5F44.D_800F7DCA &= ~(1 << arg0);
+    if ((D_800F5F44.D_800F7DAC >> arg0) & 1) {
+        func_800A4D88(arg0);
+        func_800A4350(arg0, -1, 0, 0);
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A68FC);
 
@@ -814,7 +848,10 @@ void func_800A6C04(s32 arg0) {
     D_800F5F44.D_800F7DC0 = 0xF;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6C5C);
+void func_800A6C5C(s32 arg0, s32 arg1) {
+    func_800A7254(2, arg0, 0x14, arg1);
+    *(u16*)((u8*)&g_BattleState.combatant[arg0].unk44 + 0xE) = arg1;
+}
 
 extern const u8 g_StatusBitTable[];
 
@@ -879,7 +916,18 @@ void func_800A71E0(void) {}
 
 s32 func_800A71E8(s32 arg0) { return (arg0 + 1) & 0x7F; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A71F4);
+void func_800A71F4(void) {
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < 3; i++) {
+        for (j = 0x7F; j >= 0; j--) {
+            D_800F4308[i][j].unk0 = 0xFF;
+        }
+        D_800F4908[i] = 0;
+        D_800F4914[i] = 0;
+    }
+}
 
 void func_800A7254(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32* base;
@@ -1562,11 +1610,25 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACA4C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACB98);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACD88);
+s32 func_800ACD88(s32 arg0) {
+    s32 result;
+    s32 flags;
+
+    result = 0;
+    if (g_CurrentAction->unk6C & 4) {
+        flags = g_BattleState.combatant[arg0].unk4 & 0x200;
+        result = flags != 0;
+    } else if (g_BattleState.combatant[arg0].unk4 & 0x100) {
+        result = 1;
+    }
+
+    return result;
+}
 
 s32 BATTLE_IsDamageNullified(s32 arg0) {
-    return func_800ACD88() != 0 || (g_BattleState.combatant[arg0].status &
-                                    (STATUS_PEERLESS | STATUS_PETRIFY)) != 0;
+    return func_800ACD88(arg0) != 0 ||
+           (g_BattleState.combatant[arg0].status &
+            (STATUS_PEERLESS | STATUS_PETRIFY)) != 0;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACE88);
@@ -1641,7 +1703,26 @@ void BATTLE_ApplyDefaultAbsorbEffect(void) {
                   g_CurrentAction->unk214, result);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD480);
+void func_800AD480(void) {
+    s32 count;
+    s32 next;
+    u32 i;
+
+    count = 0;
+    i = 0;
+    next = 0;
+    for (; i < 0x1E; i++) {
+        if (count < 0x10) {
+            if (i == next) {
+                D_800F495C[count] = i;
+                count++;
+            }
+            if (D_800E7BCC[i] == 8) {
+                next = i + 1;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD4EC);
 
@@ -1649,7 +1730,24 @@ const s8 D_800A04B0[] = {
     0x0A, 0x0B, 0x0C, 0x0D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x7F, 0x03, 0x34};
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD5E8);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD73C);
+s32 func_800AD73C(s32 arg0) {
+    if (g_CurrentAction->unk6C & 4) {
+        if (g_CurrentAction->unk228 & 0x20000) {
+            g_CurrentAction->unk218 |= 0x8000;
+        }
+    } else if (g_CurrentAction->unk228 & 0x10000) {
+        g_CurrentAction->unk218 |= 0x4000;
+    }
+
+    if (g_CurrentAction->unk218 & 0xC000) {
+        arg0 = arg0 / 2;
+    }
+    if (g_CurrentAction->unkE8 != 0) {
+        arg0 += (arg0 * g_CurrentAction->unkE8) / 100;
+    }
+
+    return arg0;
+}
 
 // multi-target damage-reduction formula, s32 func_800AD804(s32 damage, s32
 // fullDamage): if fullDamage is false, it still gets forced true when
@@ -1659,7 +1757,21 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD73C);
 // damage>>1, else returns damage unchanged when fullDamage else damage/3
 // (magic-number signed divide) -- this is the classic "multi-target hits
 // deal reduced per-target damage" mechanic
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD804);
+s32 func_800AD804(s32 arg0, s32 arg1) {
+    if (arg1 == 0) {
+        if ((g_CurrentAction->unkB8 < 2) || (g_CurrentAction->unk50 & 0x80)) {
+            arg1 = 1;
+        }
+    }
+
+    if (g_CurrentAction->unkAC != 0) {
+        arg0 >>= 1;
+    } else if (arg1 == 0) {
+        arg0 = (arg0 * 2) / 3;
+    }
+
+    return arg0;
+}
 
 // reduces arg0 by ~30% when Sadness (status bit 0x10, see D_800A03A0) is set
 // on the current action's status mask; same reduction as
@@ -1691,7 +1803,21 @@ void func_800AD924(void) { g_CurrentAction->unk218 |= 2; }
 void func_800AD944();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD944);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADBBC);
+void func_800ADBBC(void) {
+    s32 temp_s0;
+    s32 var_v1;
+    s32 base;
+
+    base = (g_CurrentAction->unk4C + g_CurrentAction->characterLevel) * 6;
+
+    var_v1 = base * (0x200 - g_CurrentAction->unk210) * g_CurrentAction->unk48;
+    temp_s0 = (g_CurrentAction->unk50 & 0xC) == 4;
+    if (var_v1 < 0) {
+        var_v1 += 0x1FFF;
+    }
+    g_CurrentAction->unk214 = func_800AD8DC(func_800AD73C(
+        func_800AD804(BATTLE_ApplySadnessReduction(var_v1 >> 0xD), temp_s0)));
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADC70);
 
@@ -1862,10 +1988,21 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE82C);
 void func_800AE954(int index);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE954);
 
-const s8 D_800A04BC[] = {
+const u8 D_800A04BC[] = {
     0x1E, 0x14, 0x3C, 0x1E, 0x7F, 0x7F, 0x0A, 0x64, 0x7F, 0x7F,
     0x40, 0x40, 0x00, 0x00, 0x00, 0x00, 0x8B, 0x0D, 0x00, 0x00};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AEB20);
+static s32 func_800AF834(s32 arg0);
+
+void func_800AEB20(s32 arg0, s32 arg1) {
+    s32 index;
+    u8* p;
+
+    index = func_800AF834(arg1);
+    if (index >= 0) {
+        p = (u8*)&g_CombatantTurnState[arg0].unk10;
+        p[index] = D_800A04BC[index];
+    }
+}
 
 // this data belong to functions located above:
 const u8 g_StatusBitTable[] = {0x0A, 0x19, 0x15, 0x0D, 0x10, 0x11, 0x03, 0x02,
@@ -1882,7 +2019,21 @@ int (* const D_800A04E0[])() = {
 };
 // ___end
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AEB80);
+void func_800B108C(s32 arg0);
+
+void func_800AEB80(s32 arg0, s32 arg1, s32 arg2) {
+    s32 index;
+    u8* p;
+
+    index = func_800AF834(arg1);
+    if (index >= 0) {
+        p = (u8*)&g_CombatantTurnState[arg0].unk10;
+        p[index] = 0;
+        if ((0xD8B >> index) & 1) {
+            func_800B108C(arg0);
+        }
+    }
+}
 
 void func_800AEBF0(int index) { func_800AE954(index); }
 
@@ -1979,7 +2130,14 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B062C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B079C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B089C);
+void func_800B089C(void) {
+    s32 temp_v1;
+
+    temp_v1 = g_CurrentAction->unk3C;
+    if ((temp_v1 != 0) && ((g_CurrentAction->unk254 % temp_v1) != 0)) {
+        g_CurrentAction->unk218 |= 1;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0910);
 
@@ -2004,7 +2162,19 @@ static s32 BATTLE_ApplyConditionalReduction(s32 arg0) {
     return arg0;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0EB4);
+s32 func_800B0EB4(s32 arg0) {
+    s32 status = g_BattleState.combatant[arg0].status;
+    s32 count = arg0 < 4;
+
+    if (status & 0x40) {
+        count++;
+    }
+    if (status & 0x400000) {
+        count++;
+    }
+
+    return count & 1;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0F04);
 
@@ -2046,9 +2216,34 @@ static s32 func_800B11B4(s32 arg0) {
     return i;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1218);
+s32 func_800B1218(s32 arg0, s32 arg1, s32 arg2) {
+    s8* p;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1268);
+    p = (s8*)&g_CombatantTurnState[arg0].unk20;
+
+    return arg1 + ((arg1 * p[arg2]) / 100);
+}
+
+void func_800B1268(s32 arg0, s32 arg1, s32 arg2) {
+    s32 i;
+    s8* p;
+
+    i = 0;
+    p = (s8*)&g_CombatantTurnState[arg0].unk20;
+    for (; i < 8; i++, p++) {
+        if ((arg2 >> i) & 1) {
+            s32 value = *p + arg1;
+
+            if (value > 100) {
+                value = 100;
+            }
+            if (value < -100) {
+                value = -100;
+            }
+            *p = value;
+        }
+    }
+}
 
 // nonzero if D_800F5F44.D_800F7DC8 is < 3
 static u32 func_800B12DC(void) {
@@ -2164,7 +2359,22 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1AA0);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1B64);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1C1C);
+s32 func_800B1C1C(s32 arg0) {
+    s32 result;
+    s32 i;
+    u16 mask;
+
+    result = 0;
+    i = 0;
+    mask = D_800F4AC4->unk28[arg0];
+    for (; i < LEN(D_800F4AC4->var[arg0]); i++) {
+        if (((mask >> i) & 1) && (D_800F4AC4->var[arg0][i] != 0)) {
+            result |= 1 << i;
+        }
+    }
+
+    return (result & 0xFFFF) != 0;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B1C94);
 
