@@ -363,7 +363,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6B98);
 //   4 gated on D_800F7DE4: HP-counter tick-animation init -- writes to PS1
 //     scratchpad (0x1F800004/8), computes abs(diff)/entryField, stores
 //     start/target/increment into a D_80162978 slot (allocated via
-//     func_800BBEAC)
+//     BattleEffectRegister)
 //   5 immediate: sets a per-actor "step complete" flag, conditionally
 //     copies animation-state fields
 // D_800F7DE4 (the gate for cases 1/3/4) is set once per frame by
@@ -604,10 +604,10 @@ s16 func_800B888C(s32 arg0) {
     }
 }
 
-// initialize D_80162978 slot v (registered via func_800BBEAC) from arg0 and
+// initialize D_80162978 slot v (registered via BattleEffectRegister) from arg0 and
 // dispatch
 static void func_800B88CC(s32 arg0) {
-    s32 v = func_800BBEAC(&func_800CE970);
+    s32 v = BattleEffectRegister(&func_800CE970);
 
     D_80162978[v].D_8016297C = 0;
     D_80162978[v].D_80162980 = arg0;
@@ -889,7 +889,7 @@ static void func_800BBDF8(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBEAC);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEffectRegister);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBF7C);
 
@@ -997,7 +997,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BFF88);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0088);
 
-void func_800D54EC(s16, s16*);
+void BattleEntityGetCenter(s16, s16*);
 void func_800C0DD8(s16, s32, s32);
 s32 func_800C0314(s32, s32);
 
@@ -1006,9 +1006,9 @@ void func_800C018C(s16 arg0, s16 arg1, s32 arg2, s32 arg3) {
     s16 sp[3];
 
     if (arg0 == 0xF) {
-        func_800D54EC(D_80151774, sp);
+        BattleEntityGetCenter(D_80151774, sp);
     } else {
-        func_800D3994(arg0, arg1, sp);
+        BattleGetPartPosition(arg0, arg1, sp);
         func_800C0DD8(arg0, arg2 & 0xFF, arg3 & 0xFF);
     }
     *(s32*)0x1F800000 += sp[0];
@@ -1020,9 +1020,9 @@ void func_800C0254(s16 arg0, s16 arg1) {
     s16 sp[3];
 
     if (arg0 == 0xF) {
-        func_800D54EC(D_80151774, sp);
+        BattleEntityGetCenter(D_80151774, sp);
     } else {
-        func_800D3994(arg0, arg1, sp);
+        BattleGetPartPosition(arg0, arg1, sp);
         *(s32*)0x1F800004 = func_800C0314(*(s32*)0x1F800004, (u8)arg0);
     }
     *(s32*)0x1F800000 += sp[0];
@@ -1444,7 +1444,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C62F4);
 
 void func_800C679C(void);
 
-void func_800C64AC(void) { func_800BBEAC(func_800C679C); }
+void func_800C64AC(void) { BattleEffectRegister(func_800C679C); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C64D4);
 
