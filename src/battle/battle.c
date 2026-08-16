@@ -256,7 +256,7 @@ void func_800A3488(s32 arg0) {
     for (i = 0; i < LEN(D_800FA9D0); i++) {
         Unk800FA9D0* p = &D_800FA9D0[i];
         if (p->unk0 == arg0) {
-            p->unk4 &= 0xFFFB; /* clear bit 0x4 */
+            p->unk4 &= ~4;
         }
     }
 }
