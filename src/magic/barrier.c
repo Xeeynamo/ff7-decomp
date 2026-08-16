@@ -287,6 +287,6 @@ static void BarrierDoubleBufferFlip(void) {
 static void BarrierMainSetup(int arg0, int arg1) {
     BarrierBaseScale = 0x3000;
     func_800BBEAC(BarrierDoubleBufferFlip);
-    func_800D5444(arg0, arg1, 4, BarrierAttachToTarget);
+    MagicAnimationRegister(arg0, arg1, 4, BarrierAttachToTarget);
     func_800D55F4(32, func_800D574C(arg0), 94);
 }

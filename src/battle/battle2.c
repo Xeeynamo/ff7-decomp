@@ -1115,7 +1115,7 @@ extern Unk80162978* D_800F10E0;
 
 // Reset the fixed-point ramp: zero the accumulator (0x04) and seed the
 // countdown (0x0C) so it lasts arg0 ticks.
-void func_800D5138(s32 arg0) {
+void BattleFixedPointRampInit(s32 arg0) {
     if (D_800F10E0 == NULL) {
         D_800F10E0 = &D_80162978[func_800BBEAC(func_800D508C)];
     }
@@ -1131,7 +1131,7 @@ extern s16 D_800F5B74;
 
 // Step the ramp once: accumulate (0x04 += 0x08), publish the high word, and
 // free the slot when the countdown (0x0C) reaches 0.
-void func_800D5230(void) {
+void BattleFixedPointRampUpdate(void) {
     Unk80162978* slot = &D_80162978[D_8015169C];
     s32 v0;
     s32 v1;
@@ -1151,16 +1151,16 @@ void func_800D5230(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D52A0);
 
-void func_800D5350();
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5350);
+void BattleAnimationUpdate();
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleAnimationUpdate);
 
-void func_800D5444(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    Unk80162978* temp_v0 = &D_80162978[func_800BBEAC(func_800D5350)];
+void MagicAnimationRegister(s32 arg0, s32 arg1, s32 arg2, void (*func)(int)){
+    Unk80162978* temp_v0 = &D_80162978[func_800BBEAC(BattleAnimationUpdate)];
     temp_v0->D_80162978 = 0;
     temp_v0->D_8016297C = arg0;
     temp_v0->D_8016297E = arg1;
     temp_v0->D_80162980 = arg2;
-    *(s32*)&temp_v0->unk8 = arg3;
+    *(s32*)&temp_v0->unk8 = (s32)func;
 }
 
 s32 func_800D54BC(s32 arg0) {
@@ -1298,7 +1298,7 @@ void func_800D72B4(void) {
     if (D_80062D98 == 0) {
         // Advance this slot's per-tick state machine (field 0x2).
         if (elem->D_801621F2 == 0) {
-            func_800D5138(1);
+            BattleFixedPointRampInit(1);
         }
         if (elem->D_801621F2 == 2) {
             func_800D51D4(1);
