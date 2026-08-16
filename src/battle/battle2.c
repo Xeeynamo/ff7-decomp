@@ -1156,8 +1156,9 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D52A0);
 void BattleAnimationUpdate();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleAnimationUpdate);
 
-void MagicAnimationRegister(s32 arg0, s32 arg1, s32 arg2, void (*func)(int)){
-    Unk80162978* temp_v0 = &D_80162978[BattleEffectRegister(BattleAnimationUpdate)];
+void MagicAnimationRegister(s32 arg0, s32 arg1, s32 arg2, void (*func)(int)) {
+    Unk80162978* temp_v0 =
+        &D_80162978[BattleEffectRegister(BattleAnimationUpdate)];
     temp_v0->D_80162978 = 0;
     temp_v0->D_8016297C = arg0;
     temp_v0->D_8016297E = arg1;

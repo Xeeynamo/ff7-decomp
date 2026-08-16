@@ -604,8 +604,8 @@ s16 func_800B888C(s32 arg0) {
     }
 }
 
-// initialize D_80162978 slot v (registered via BattleEffectRegister) from arg0 and
-// dispatch
+// initialize D_80162978 slot v (registered via BattleEffectRegister) from arg0
+// and dispatch
 static void func_800B88CC(s32 arg0) {
     s32 v = BattleEffectRegister(&func_800CE970);
 
