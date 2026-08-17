@@ -1046,7 +1046,14 @@ void func_800D3F8C(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D415C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D41FC);
+static void func_800D41FC(MATRIX* arg0, MATRIX* arg1, MATRIX* arg2) {
+    arg2->t[0] = arg1->t[0] - arg0->t[0];
+    arg2->t[1] = arg1->t[1] - arg0->t[1];
+    arg2->t[2] = arg1->t[2] - arg0->t[2];
+    TransposeMatrix(arg0, arg2);
+    ApplyMatrixLV(arg2, arg2->t, arg2->t);
+    MulMatrix(arg2, arg1);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4284);
 
@@ -1178,9 +1185,48 @@ s32 func_800D54BC(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D54EC);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D55A4);
+s32 func_800D55A4(s32 arg0) {
+    return (D_801518E4[arg0].unk12 * 0x10) * D_801518E4[arg0].D_801518EA >> 0xC;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D55F4);
+void SystemAkaoExecute(void*, s32, s32, void**);
+
+// Generic AKAO sound-command dispatcher: the first vararg's low 16 bits are
+// the command id, which selects how many trailing u32 params get copied into
+// the D_8009A004 queue before calling SystemAkaoExecute.
+void func_800D55F4(void* arg0, ...) {
+    void** args = &arg0;
+    u32* dst = arg0;
+    u32* src;
+    s32 cmd = *(u16*)args;
+    s32 count;
+    s32 nExtra;
+
+    D_8009A000[0] = cmd;
+    switch (cmd & 0xFFFF) {
+    case 0x21:
+        nExtra = 3;
+        break;
+    case 0x22:
+        nExtra = 4;
+        break;
+    case 0x23:
+        nExtra = 5;
+        break;
+    default:
+        nExtra = 2;
+        break;
+    }
+    count = 1;
+    if (count <= nExtra) {
+        dst = D_8009A004;
+        src = (u32*)args + 1;
+        for (; count <= nExtra; count++) {
+            *dst++ = *src++;
+        }
+    }
+    SystemAkaoExecute(dst, count, nExtra, args);
+}
 
 // Project a point through the current view matrix and convert its clamped
 // on-screen X (0..319) into a 0..127 stereo pan value.
@@ -1207,7 +1253,20 @@ s32 func_800D574C(s32 arg0) {
     return func_800D56A8(&sv);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5774);
+// Queue a popup carrying bit index arg0, using push type 6 if that bit is
+// set in the D_800F836C flag word, else type 4.
+void func_800D5774(u32 arg0) {
+    s32 cond;
+    s16* ptr;
+
+    cond = (D_800F836C >> arg0) & 1;
+    if (cond) {
+        ptr = func_800D4FA8(6);
+    } else {
+        ptr = func_800D4FA8(4);
+    }
+    *ptr = arg0;
+}
 
 void func_800D57C0();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D57C0);
@@ -1248,7 +1307,30 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D61AC);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D6260);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D6394);
+extern Unk801B0C98 D_800F14D0;
+
+// Draw a model 4 times through func_800D29D4 (same request-struct pattern as
+// barrier.c's D_801B0C98/D_801B0CB0), toggling the 0x1/0x2 flag bits between
+// passes.
+void func_800D6394(s32* arg0, s16 arg1) {
+    D_800F14D0.unk0 = arg0;
+    D_800F14D0.unkA = arg1;
+    SetFarColor(0, 0, 0);
+    PushMatrix();
+    D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
+    PopMatrix();
+    PushMatrix();
+    D_800F14D0.unk4 |= 1;
+    D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
+    PopMatrix();
+    PushMatrix();
+    D_800F14D0.unk4 |= 2;
+    D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
+    PopMatrix();
+    D_800F14D0.unk4 &= ~1;
+    D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
+    D_800F14D0.unk4 &= ~2;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D650C);
 
