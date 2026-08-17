@@ -821,7 +821,7 @@ extern u16 g_FieldScriptPC[48]; // program counters for active entity scripts
 extern u8 D_8008325C[];         // per-model default animation id (DFANM)
 extern u8 g_WindowToEntity[4];
 extern WindowData g_WindowData[4];
-extern u8 D_8008326C;
+extern u8 D_8008326C[4];
 extern s32 D_80083338;
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level
