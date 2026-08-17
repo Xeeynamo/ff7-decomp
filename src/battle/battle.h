@@ -72,7 +72,7 @@ typedef struct {
     // condition/status bitmask; see BattleStatusFlags above for the bits
     // confirmed live here
     /* 0x00 */ s32 status;
-    /* 0x04 */ s32 unk4; // battle-state flags (e.g. bit 0x40 = back row, bit
+    /* 0x04 */ u32 unk4; // battle-state flags (e.g. bit 0x40 = back row, bit
                          // 0x20 = defending)
     /* 0x08 */ s8 unk8;
     /* 0x09 */ s8 unk9;
@@ -106,12 +106,15 @@ typedef struct {
 typedef struct {
     /* 0x000 */ u16 unk0;
     /* 0x002 */ u16 presentMask; // D_800F83AE: bit per combatant present
-    /* 0x004 */ u8 unk4[0x14];   // D_800F83B0..D_800F83C0
+    /* 0x004 */ u8 unk4[0xC];    // D_800F83B0..D_800F83BC
+    /* 0x010 */ u16 unk10;       // D_800F83BC
+    /* 0x012 */ u16 unk12;       // D_800F83BE
+    /* 0x014 */ u8 unk14[4];     // D_800F83C0
     /* 0x018 */ u16 unk18;       // D_800F83C4
     /* 0x01A */ u16 unk1A;       // D_800F83C6
     /* 0x01C */ u16 unk1C;       // D_800F83C8
     /* 0x01E */ u16 unk1E;       // D_800F83CA
-    /* 0x020 */ s16 sceneID;     // D_800F83CC
+    /* 0x020 */ u16 sceneID;     // D_800F83CC
     /* 0x022 */ u16 unk22;       // D_800F83CE
     /* 0x024 */ u16 setupFlags;  // D_800F83D0: BattleSetupFlags
     /* 0x026 */ u16 unk26;       // D_800F83D2
@@ -396,6 +399,47 @@ typedef struct {
 } Unk801B0C98;
 
 typedef struct {
+    s16 unk0;
+    s16 unk2;
+    u16 unk4; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
+    s16 unk6;
+    s32 unk8;
+    u8 unkC;
+    u8 unkD; // effect id of the equipped accessory (0xFF = none)
+    u8 unkE;
+    u8 unkF;
+    u8 unk10;
+    u8 unk11;
+    u8 unk12;
+    u8 unk13;
+    u8 unk14[4];
+    s32 unk18;
+    s32 unk1C;
+    s32 unk20;
+    s32 unk24;
+    u8 unk28;
+    s8 unk29;
+    s16 unk2A;
+    s32 unk2C;
+    s32 unk30;
+    s32 unk34;
+    s32 unk38;
+    u16 unk3C;
+    u16 unk3E;
+    s32 unk40;
+} Unk800AF470; // 0x44
+
+/* one battle-usable item in the in-battle item list (built from the inventory
+   by BATINI; counts are committed back when the battle ends) */
+typedef struct {
+    /* 0x0 */ u16 id;
+    /* 0x2 */ u8 count;
+    /* 0x3 */ u8 targetFlags;
+    /* 0x4 */ u8 unk4;
+    /* 0x5 */ u8 unk5;
+} BattleItemEntry; /* size: 0x6 */
+
+typedef struct {
     /* 0x00 */ SavePartyMember* partyMember;
     /* 0x04 */ u8 limitCount; // inferred: bumped when a Limit Break executes
     /* 0x05 */ u8 unk5;
@@ -415,8 +459,7 @@ typedef struct {
     /* 0x1A */ u16 unk1A;
     /* 0x1C */ u16 unk1C;
     /* 0x1E */ u16 unk1E;
-    /* 0x20 */ u16 unk20;
-    /* 0x22 */ u16 unk22;
+    /* 0x20 */ u32 unk20; // status mask granted by the equipped accessory
     /* 0x24 */ u16 unk24;
     /* 0x26 */ u16 unk26;
     /* 0x28 */ u16 unk28;
