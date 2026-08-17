@@ -29,25 +29,6 @@ extern EndingNode D_800AF3D8;
 
 extern s32 D_800A6390;
 extern s32 D_800A6394;
-extern u8 D_800A652E[];
-extern u8 D_800A6532[];
-extern u8 D_800A6540[];
-extern u8 D_800A6541[];
-extern u8 D_800A6542[];
-extern u8 D_800A6544[];
-extern u8 D_800A6545[];
-extern u8 D_800A6546[];
-extern u8 D_800A6534[];
-extern u8 D_800A6538[];
-extern u8 D_800A653C[];
-extern u8 D_800A653D[];
-extern u8 D_800A653E[];
-extern u8 D_800A6588[];
-extern u8 D_800A6594[];
-extern u8 D_800A6598[];
-extern u8 D_800A659C[];
-extern u8 D_800A658A[];
-extern u8 D_800A658C[];
 extern EndingNode D_800A762C;
 extern s32 D_800AF408;
 extern u_long D_800A64E4[];
@@ -217,9 +198,26 @@ void func_800A0030(void) {
         b -= 2;
     } while (r > 0);
 
-    i = 0;
+    for (i = 0; i < 0x12C; i++) {
+        buf = buf == 0;
+        func_800A273C(0);
+        ode = GetODE() ^ 1;
+        src = (u8*)((ode * 0x500) + 0x80100000);
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = 0x280;
+        rect.h = 1;
+        rect.y = ode;
 
-    do {
+        while (rect.y < 0x1E0) {
+            LoadImage(&rect, (u_long*)src);
+            DrawSync(0);
+            rect.y += 2;
+            src += 0xA00;
+        }
+    }
+
+    while (r < 0xFE) {
         buf = buf == 0;
         func_800A273C(0);
         ode = GetODE() ^ 1;
@@ -237,50 +235,27 @@ void func_800A0030(void) {
             src += 0xA00;
         }
 
-        i++;
-    } while (i < 0x12C);
-
-    if (r < 0xFE) {
-        do {
-            buf = buf == 0;
-            func_800A273C(0);
-            ode = GetODE() ^ 1;
-            src = (u8*)((ode * 0x500) + 0x80100000);
-            rect.x = 0;
-            rect.y = 0;
-            rect.w = 0x280;
-            rect.h = 1;
-            rect.y = ode;
-
-            while (rect.y < 0x1E0) {
-                LoadImage(&rect, (u_long*)src);
-                DrawSync(0);
-                rect.y += 2;
-                src += 0xA00;
-            }
-
-            ClearOTagR(((u_long*)((buf * 4) + (s32)D_800A64E4)), 1);
-            SetTile((TILE*)((buf * 0x10) + (s32)D_800A6504));
-            SetSemiTrans(((TILE*)((buf * 0x10) + (s32)D_800A6504)), 1);
-            ((TILE*)((buf * 0x10) + (s32)D_800A6504))->x0 = 0x1E;
-            ((TILE*)((buf * 0x10) + (s32)D_800A6504))->y0 = 0xC8;
-            ((TILE*)((buf * 0x10) + (s32)D_800A6504))->w = 0x244;
-            ((TILE*)((buf * 0x10) + (s32)D_800A6504))->h = 0x4A;
-            ((TILE*)((buf * 0x10) + (s32)D_800A6504))->r0 = r;
-            ((TILE*)((buf * 0x10) + (s32)D_800A6504))->g0 = g;
-            ((TILE*)((buf * 0x10) + (s32)D_800A6504))->b0 = b;
-            AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)),
-                    ((TILE*)((buf * 0x10) + (s32)D_800A6504)));
-            tp = GetTPage(2, 2, 0, 0);
-            SetDrawMode(((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)), 1, 1,
-                        tp & 0xFFFF, NULL);
-            AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)),
-                    ((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)));
-            DrawOTag((u_long*)((buf * 4) + (s32)D_800A64E4));
-            r += 2;
-            g += 2;
-            b += 2;
-        } while (r < 0xFE);
+        ClearOTagR(((u_long*)((buf * 4) + (s32)D_800A64E4)), 1);
+        SetTile((TILE*)((buf * 0x10) + (s32)D_800A6504));
+        SetSemiTrans(((TILE*)((buf * 0x10) + (s32)D_800A6504)), 1);
+        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->x0 = 0x1E;
+        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->y0 = 0xC8;
+        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->w = 0x244;
+        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->h = 0x4A;
+        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->r0 = r;
+        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->g0 = g;
+        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->b0 = b;
+        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)),
+                ((TILE*)((buf * 0x10) + (s32)D_800A6504)));
+        tp = GetTPage(2, 2, 0, 0);
+        SetDrawMode(((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)), 1, 1,
+                    tp & 0xFFFF, NULL);
+        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)),
+                ((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)));
+        DrawOTag((u_long*)((buf * 4) + (s32)D_800A64E4));
+        r += 2;
+        g += 2;
+        b += 2;
     }
 
     SetDispMask(0);
@@ -308,23 +283,20 @@ void func_800A09DC(void) {
 }
 
 s32 func_800A0AB8(void) {
-    s32 i = 0;
-    s32 off = 0;
+    s32 i;
 
-    do {
-        *(u16*)((u8*)D_800A652C + off) = 0;
-        *(u16*)&D_800A6532[off] = 0;
-        *(u16*)&D_800A6534[off] = 0;
-        *(s32*)&D_800A6538[off] = 0;
-        *(u16*)&D_800A6588[off] = 0;
-        *(u16*)&D_800A658A[off] = 0;
-        *(u16*)&D_800A658C[off] = 0;
-        D_800A653C[off] = 0;
-        D_800A653D[off] = 0;
-        D_800A653E[off] = 0;
-        off += 0x88;
-        i++;
-    } while (i < 0x20);
+    for (i = 0; i < 0x20; i++) {
+        D_800A652C[i].flags = 0;
+        D_800A652C[i].delay = 0;
+        D_800A652C[i].frame = 0;
+        D_800A652C[i].anim = NULL;
+        D_800A652C[i].unk5C = 0;
+        D_800A652C[i].unk5E = 0;
+        D_800A652C[i].unk60 = 0;
+        D_800A652C[i].r = 0;
+        D_800A652C[i].g = 0;
+        D_800A652C[i].b = 0;
+    }
 
     func_800A3178(&D_800A762C, 4, 0x80, func_800A09DC);
 
@@ -334,18 +306,17 @@ s32 func_800A0AB8(void) {
 s32 func_800A0BA8(void) {
     s32 id = *D_800A6528++;
     s32 arg = *D_800A6528++;
-    s32 off = id * 136;
 
-    *(u16*)((u8*)D_800A652C + off) = 7;
-    *(u16*)&D_800A6532[off] = 0;
-    *(u16*)&D_800A6534[off] = 0;
-    *(void**)&D_800A6538[off] = func_80034D18((void*)0x800D0000, arg);
-    *(u16*)&D_800A6588[off] = 0;
-    *(u16*)&D_800A658A[off] = 0;
-    *(u16*)&D_800A658C[off] = 0;
-    D_800A653C[off] = 0;
-    D_800A653D[off] = 0;
-    D_800A653E[off] = 0;
+    D_800A652C[id].flags = 7;
+    D_800A652C[id].delay = 0;
+    D_800A652C[id].frame = 0;
+    D_800A652C[id].anim = func_80034D18((void*)0x800D0000, arg);
+    D_800A652C[id].unk5C = 0;
+    D_800A652C[id].unk5E = 0;
+    D_800A652C[id].unk60 = 0;
+    D_800A652C[id].r = 0;
+    D_800A652C[id].g = 0;
+    D_800A652C[id].b = 0;
 
     return 1;
 }
@@ -355,18 +326,18 @@ s32 func_800A0CAC(void) {
     s32 steps = *D_800A6528++;
     s32 target = *D_800A6528++;
     s32 off = id * 136;
-    s32 dr = (target - D_800A653C[off]) / steps;
-    s32 dg = (target - D_800A653D[off]) / steps;
-    s32 db = (target - D_800A653E[off]) / steps;
+    s32 dr = (target - D_800A652C[id].r) / steps;
+    s32 dg = (target - D_800A652C[id].g) / steps;
+    s32 db = (target - D_800A652C[id].b) / steps;
 
-    *(u16*)&D_800A652E[off] = steps;
-    D_800A6544[off] = target;
-    D_800A6545[off] = target;
-    D_800A6546[off] = target;
-    *(u16*)((u8*)D_800A652C + off) |= 8;
-    D_800A6540[off] = dr;
-    D_800A6541[off] = dg;
-    D_800A6542[off] = db;
+    D_800A652C[id].timer = steps;
+    D_800A652C[id].r0 = target;
+    D_800A652C[id].g0 = target;
+    D_800A652C[id].b0 = target;
+    D_800A652C[id].flags |= 8;
+    D_800A652C[id].dr = dr;
+    D_800A652C[id].dg = dg;
+    D_800A652C[id].db = db;
     D_800A6394 = 1;
 
     return 1;
@@ -396,26 +367,23 @@ void func_800A0E68(void) {
 }
 
 s32 func_800A0F90(void) {
-    s32 i = 0;
-    s32 off = 0;
+    s32 i;
     s32 w;
     s32 h;
     s32 k;
 
-    do {
-        *(u16*)((u8*)D_800A652C + off) = 0;
-        *(u16*)&D_800A6532[off] = 0;
-        *(u16*)&D_800A6534[off] = 0;
-        *(s32*)&D_800A6538[off] = 0;
-        *(u16*)&D_800A6588[off] = 0;
-        *(u16*)&D_800A658A[off] = 0;
-        *(u16*)&D_800A658C[off] = 0;
-        D_800A653C[off] = 0;
-        D_800A653D[off] = 0;
-        D_800A653E[off] = 0;
-        off += 0x88;
-        i++;
-    } while (i < 0x20);
+    for (i = 0; i < 0x20; i++) {
+        D_800A652C[i].flags = 0;
+        D_800A652C[i].delay = 0;
+        D_800A652C[i].frame = 0;
+        D_800A652C[i].anim = NULL;
+        D_800A652C[i].unk5C = 0;
+        D_800A652C[i].unk5E = 0;
+        D_800A652C[i].unk60 = 0;
+        D_800A652C[i].r = 0;
+        D_800A652C[i].g = 0;
+        D_800A652C[i].b = 0;
+    }
 
     func_800A3178(&D_800A762C, 4, 0x80, func_800A0E68);
 
@@ -449,24 +417,22 @@ s32 func_800A11B4(void) {
     s32 c = 0x80;
     s32 arg = *D_800A6528++;
     s32 v = *D_800A6528++;
-    u8* p = (u8*)D_800A652C;
-    s32 off = 0;
 
-    for (; i < 0x20; i++, p += 0x88, off += 0x88) {
-        if (*(u16*)p & 1) {
+    for (; i < 0x20; i++) {
+        if (D_800A652C[i].flags & 1) {
             continue;
         }
 
-        *(u16*)p = 1;
-        *(u16*)&D_800A6532[off] = 0;
-        *(u16*)&D_800A6534[off] = v;
-        *(void**)&D_800A6538[off] = func_80034D18((void*)0x800D0000, arg);
-        *(u16*)&D_800A6588[off] = 0x18;
-        *(u16*)&D_800A658A[off] = 0xC8;
-        *(u16*)&D_800A658C[off] = 0;
-        D_800A653C[off] = c;
-        D_800A653D[off] = c;
-        D_800A653E[off] = c;
+        D_800A652C[i].flags = 1;
+        D_800A652C[i].delay = 0;
+        D_800A652C[i].frame = v;
+        D_800A652C[i].anim = func_80034D18((void*)0x800D0000, arg);
+        D_800A652C[i].unk5C = 0x18;
+        D_800A652C[i].unk5E = 0xC8;
+        D_800A652C[i].unk60 = 0;
+        D_800A652C[i].r = c;
+        D_800A652C[i].g = c;
+        D_800A652C[i].b = c;
 
         return 1;
     }
@@ -490,26 +456,23 @@ void func_800A12F0(void) {
 }
 
 s32 func_800A139C(void) {
-    s32 i = 0;
-    s32 off = 0;
+    s32 i;
 
-    do {
-        *(u16*)((u8*)D_800A652C + off) = 0;
-        *(u16*)&D_800A6532[off] = 0;
-        *(u16*)&D_800A6534[off] = 0;
-        *(s32*)&D_800A6538[off] = 0;
-        *(u16*)&D_800A6588[off] = 0;
-        *(u16*)&D_800A658A[off] = 0;
-        *(u16*)&D_800A658C[off] = 0;
-        *(s32*)&D_800A6594[off] = 0;
-        *(s32*)&D_800A6598[off] = 0;
-        *(s32*)&D_800A659C[off] = 0;
-        D_800A653C[off] = 0;
-        D_800A653D[off] = 0;
-        D_800A653E[off] = 0;
-        off += 0x88;
-        i++;
-    } while (i < 0x20);
+    for (i = 0; i < 0x20; i++) {
+        D_800A652C[i].flags = 0;
+        D_800A652C[i].delay = 0;
+        D_800A652C[i].frame = 0;
+        D_800A652C[i].anim = NULL;
+        D_800A652C[i].unk5C = 0;
+        D_800A652C[i].unk5E = 0;
+        D_800A652C[i].unk60 = 0;
+        D_800A652C[i].unk68 = 0;
+        D_800A652C[i].unk6C = 0;
+        D_800A652C[i].unk70 = 0;
+        D_800A652C[i].r = 0;
+        D_800A652C[i].g = 0;
+        D_800A652C[i].b = 0;
+    }
 
     func_800A3178(&D_800A762C, 4, 0x80, func_800A12F0);
 
