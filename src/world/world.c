@@ -2341,26 +2341,18 @@ void func_800B6DCC(void) {
 
 void func_800B6E08(void) {
     s32 i;
-    u8* p;
-    s32 fill;
 
     if (D_80115A50 != 0) {
         D_80115A50 = 0;
         D_80115A64 = 3;
-        i = 0x2A;
-        p = &D_80115A3E;
-        do {
-            *p = 0;
-            i--;
-            p--;
-        } while (i >= 0);
 
-        i = 0x20;
-        fill = -1;
-        do {
-            D_801159E8[i] = fill;
-            i++;
-        } while (i < 0x2B);
+        for (i = 0; i < 0x2B; i++) {
+            D_80115A14[i] = 0;
+        }
+
+        for (i = 0x20; i < 0x2B; i++) {
+            D_801159E8[i] = -1;
+        }
     }
 }
 
