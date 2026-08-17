@@ -513,7 +513,7 @@ extern u8 D_801635FC;
 extern u8 D_80163600;
 extern u8 D_80163604;
 extern s16 D_80163608;
-extern Unk801636B8 D_801636B8[5];
+extern Unk801636B8 D_801636B8[10];
 extern u16 D_80163758[]; // part of a struct
 extern u16 D_8016375C;
 extern u16 D_8016375E;
@@ -550,7 +550,7 @@ void func_800A8E84(s32);
 void func_800AA950(Unk800FA9D0*);
 void func_800AB308(void);
 void func_800AB480(void);
-void func_800AB788(void);
+void BATTLE_LearnEnemySkill(void);
 void func_800ABA68(Unk800FA9D0*, s16, u16, s16, s16);
 void func_800AC6B4(s32);
 void func_800AC73C(s32);
@@ -676,3 +676,18 @@ extern u8 D_80151698;
 extern u8 D_80166F74;
 extern u8 D_80166F75;
 extern BattleItemEntry D_801671B8[];
+
+extern u8 D_800708C8[]; // kernel-region table, 0x1C-byte rows, indexed by
+                        // attack/effect id
+extern WeaponRecord g_WeaponTable[]; // weapon kernel table, by weapon id
+extern AttackData D_800722CC[];      // shared magic/summon/skill table, by
+                                     // absoluteActionIndex
+extern u8 D_800708D0[][0x1C];        // kernel-region table, indexed by
+                                     // attack/effect id
+extern s16 D_8009D85C[];             // record fields, stride 0x440
+extern u8 D_800F5F01[];         // per-party-slot accuracy bonus, 0x18 B stride
+extern volatile s32 D_800F39EC; // polled by the battle-result wait loop
+extern s32 D_800F4300;          // write cursor into the shared script buffer
+extern s32 D_800F4304;          // slot cursor, wraps at 0x40
+extern void (*D_800E7BFC[])(void); // per-action epilogue hook, may be NULL
+extern u16 D_800F7DE2;             // All Lucky 7s trigger count

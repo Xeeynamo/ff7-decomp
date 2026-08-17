@@ -462,11 +462,25 @@ typedef struct {
 } BattleCommandData; // size: 0x8
 
 typedef struct {
-    u8 unk0[4];
-    u8 mpCost;
-    u8 unk5[7];
-    u8 targetFlags;
-    u8 unkD[15];
+    /* 0x00 */ u8 accuracyRate;
+    /* 0x01 */ u8 impactEffectID;
+    /* 0x02 */ u8 impactAnimID;
+    /* 0x03 */ u8 unk3;
+    /* 0x04 */ u16 mpCost;
+    /* 0x06 */ u16 impactSfxID;
+    /* 0x08 */ u16 cameraSingleID;
+    /* 0x0A */ u16 cameraMultiID;
+    /* 0x0C */ u8 targetFlags;
+    /* 0x0D */ u8 attackEffectID;
+    /* 0x0E */ u8 damageCalcID;
+    /* 0x0F */ u8 strength;
+    /* 0x10 */ u8 conditionSubmenu;
+    /* 0x11 */ u8 statusChange;
+    /* 0x12 */ u8 additionalEffects;
+    /* 0x13 */ u8 effectsModifier;
+    /* 0x14 */ u32 statuses;
+    /* 0x18 */ u16 elements;
+    /* 0x1A */ u16 flags;
 } AttackData; // size: 0x1C
 
 // Kernel weapon record, one per weapon id (g_WeaponTable), 0x2C-byte stride.

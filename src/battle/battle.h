@@ -75,8 +75,9 @@ typedef struct {
     /* 0x04 */ u32 unk4; // battle-state flags (e.g. bit 0x40 = back row, bit
                          // 0x20 = defending)
     /* 0x08 */ s8 unk8;
-    /* 0x09 */ s8 unk9;
-    /* 0x0A */ s16 unkA;
+    /* 0x09 */ u8 unk9;
+    /* 0x0A */ s8 unkA;
+    /* 0x0B */ s8 unkB;
     /* 0x0C */ s8 unkC;
     /* 0x0D */ u8 unkD;
     /* 0x0E */ s8 unkE;
@@ -87,7 +88,7 @@ typedef struct {
     /* 0x12 */ s8 unk12;
     /* 0x13 */ s8 unk13;
     /* 0x14 */ s8 unk14;
-    /* 0x15 */ s8 unk15;
+    /* 0x15 */ u8 unk15;
     /* 0x16 */ s8 unk16;
     /* 0x17 */ u8 unk17;
     /* 0x18 */ s32 unk18;
@@ -100,13 +101,20 @@ typedef struct {
     /* 0x2C */ u32 curHP;
     /* 0x30 */ u32 maxHP;
     /* 0x34 */ u32 unk34[4];
-    /* 0x44 */ u32 unk44[9];
+    /* 0x44 */ u32 unk44[2];
+    /* 0x4C */ u8 unk4C;
+    /* 0x4D */ u8 unk4D;
+    /* 0x4E */ u8 unk4E;
+    /* 0x4F */ u8 unk4F;
+    /* 0x50 */ u32 unk50[6];
 } Unk800F83E0; // size:0x68
 
 typedef struct {
     /* 0x000 */ u16 unk0;
     /* 0x002 */ u16 presentMask; // D_800F83AE: bit per combatant present
-    /* 0x004 */ u8 unk4[0xC];    // D_800F83B0..D_800F83BC
+    /* 0x004 */ u8 unk4[2];      // D_800F83B0
+    /* 0x006 */ u16 unk6;        // D_800F83B2
+    /* 0x008 */ u8 unk8[8];      // D_800F83B4..D_800F83BC
     /* 0x010 */ u16 unk10;       // D_800F83BC
     /* 0x012 */ u16 unk12;       // D_800F83BE
     /* 0x014 */ u8 unk14[4];     // D_800F83C0
@@ -203,27 +211,6 @@ typedef struct {
 } SceneEnemy; // size:0xB8
 
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/Shared/DataParser.cs
-typedef struct {
-    u8 accuracyRate;
-    u8 impactEffectID;
-    u8 impactAnimID;
-    u8 unk3;
-    u16 mpCost;
-    u16 impactSfxID;
-    u16 cameraSingleID;
-    u16 cameraMultiID;
-    u8 targetFlags;
-    u8 attackEffectID;
-    u8 damageCalcID;
-    u8 strength;
-    u8 conditionSubmenu;
-    u8 statusChange;
-    u8 additionalEffects;
-    u8 effectsModifier;
-    u32 statuses;
-    u16 elements;
-    u16 flags;
-} AttackEntry; // size:0x1C
 
 typedef struct {
     u16 unk0[0x100];
@@ -236,7 +223,7 @@ typedef struct {
     /* 0x058 */ CameraPlacement camera[4][4];
     /* 0x118 */ FormationEntry formation[4][6];
     /* 0x298 */ SceneEnemy enemy[3];
-    /* 0x4C0 */ AttackEntry attacks[0x20];
+    /* 0x4C0 */ AttackData attacks[0x20];
     /* 0x840 */ u16 attackIDs[0x20];
     /* 0x880 */ char attackNames[0x20][0x20];
     /* 0xC80 */ Unk800F5F44_5 unkC80;
@@ -261,12 +248,13 @@ typedef struct {
 
 typedef struct {
     /* 0x0000 */ SceneEnemy enemy[3];
-    /* 0x0228 */ AttackEntry attacks[0x20];
+    /* 0x0228 */ AttackData attacks[0x20];
     /* 0x05A8 */ u16 attackIDs[0x20];
     /* 0x05E8 */ char attackNames[0x20][0x20];
     /* 0x09E8 */ u8 unk9E8[8];
     /* 0x09F0 */ Unk800A3D4C messageQueue[64];
-    /* 0x0BF0 */ u8 unkBF0[0x66];
+    /* 0x0BF0 */ Unk800A3D4C unkBF0[12];
+    /* 0x0C50 */ u8 unkC50[6];
     /* 0x0C56 */ u8 D_800F6B9A;
     /* 0x0C57 */ u8 unkC57[6];
     /* 0x0C5D */ u8 D_800F6BA1;
@@ -418,8 +406,9 @@ typedef struct {
     s32 unk20;
     s32 unk24;
     u8 unk28;
-    s8 unk29;
-    s16 unk2A;
+    u8 unk29;
+    u8 unk2A;
+    u8 unk2B;
     s32 unk2C;
     s32 unk30;
     s32 unk34;
