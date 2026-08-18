@@ -3,6 +3,8 @@
 #include <types.h>
 
 void InitGeom();
+void PushMatrix(void);
+void PopMatrix(void);
 
 typedef struct {
     short m[3][3]; // 3 x 3 matrix coefficient value
@@ -56,7 +58,9 @@ void NormalColorCol(SVECTOR* v0, // Pointer to normal vector (input)
 MATRIX* RotMatrixY(long r,   // Rotation angle(input)
                    MATRIX* m // Pointer to rotation matrix (input/output)
 );
+MATRIX* MulMatrix(MATRIX* m0, MATRIX* m1);
 MATRIX* MulMatrix2(MATRIX* m0, MATRIX* m1);
+long ApplyMatrixLV(MATRIX* m, VECTOR* v0, VECTOR* v1);
 void RotTrans(SVECTOR* v0, VECTOR* v1, int* flag);
 void SetBackColor(long rbk, long gbk, long bbk);
 void SetColorMatrix(MATRIX* m);
