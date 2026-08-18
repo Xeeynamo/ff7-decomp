@@ -289,5 +289,5 @@ static void BarrierMainSetup(int arg0, int arg1) {
     BarrierBaseScale = 0x3000;
     BattleEffectRegister(BarrierDoubleBufferFlip);
     MagicAnimationRegister(arg0, arg1, 4, BarrierAttachToTarget);
-    BattleCommandSend(32, BattleEntityGetStereoPan(arg0), 94);
+    func_800D55F4(32, BattleEntityGetStereoPan(arg0), 94);
 }

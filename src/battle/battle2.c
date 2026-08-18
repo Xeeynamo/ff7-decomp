@@ -1264,9 +1264,9 @@ void func_800D5774(u32 arg0) {
 
     cond = (D_800F836C >> arg0) & 1;
     if (cond) {
-        ptr = func_800D4FA8(6);
+        ptr = BattleEventQueuePush(6);
     } else {
-        ptr = func_800D4FA8(4);
+        ptr = BattleEventQueuePush(4);
     }
     *ptr = arg0;
 }
