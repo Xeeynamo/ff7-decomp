@@ -1197,7 +1197,7 @@ void SystemAkaoExecute(void*, s32, s32, void**);
 // Generic AKAO sound-command dispatcher: the first vararg's low 16 bits are
 // the command id, which selects how many trailing u32 params get copied into
 // the D_8009A004 queue before calling SystemAkaoExecute.
-void func_800D55F4(void* arg0, ...) {
+void BattleCommandSend(void* arg0, ...) {
     void** args = &arg0;
     u32* dst = arg0;
     u32* src;
