@@ -409,6 +409,14 @@ typedef struct {
     s32 unk25C;
 } Unk800A8D04; // size: ???
 
+// one equipped-materia slot of a party member (Unk8009D84C.unk108)
+typedef struct {
+    u8 unk0; // attack id, biased by the slot's bank; 0xFF = empty
+    u8 unk1;
+    u8 unk2;
+    u8 unk3[5];
+} Unk8009D954; // size: 0x8
+
 // seems to be related to a party member during battle
 typedef struct {
     s32 unk0;
@@ -429,11 +437,21 @@ typedef struct {
     s8 unk21;
     s8 unk22;
     s8 unk23;
-    u8 unk24[0x28];
-    u8 un4C[4][6];
-    u8 un64[0x48];
+    u8 unk24[0x18];
+    u16 unk3C;
+    u8 unk3E[6];
+    s32 unk44;
+    s32 unk48;
+    u8 un4C[16][6];
     u8 unAC[4];
-    u8 unB0[0x390];
+    u8 unB0[0x58];
+    Unk8009D954 unk108[0x60];
+    u8 un408;
+    u8 un409[7];
+    u8 un410;
+    u8 un411[7];
+    u16 un418;
+    u8 un41A[0x26];
 } Unk8009D84C; // size: 0x440
 
 typedef struct {
@@ -821,7 +839,7 @@ extern u16 g_FieldScriptPC[48]; // program counters for active entity scripts
 extern u8 D_8008325C[];         // per-model default animation id (DFANM)
 extern u8 g_WindowToEntity[4];
 extern WindowData g_WindowData[4];
-extern u8 D_8008326C;
+extern u8 D_8008326C[4];
 extern s32 D_80083338;
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level

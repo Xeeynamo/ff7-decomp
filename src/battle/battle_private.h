@@ -19,33 +19,6 @@ typedef struct {
 } Unk8009D866; // 0x440
 
 typedef struct {
-    s16 unk0;
-    s16 unk2;
-    u16 unk4; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
-    s16 unk6;
-    s32 unk8;
-    s16 unkC;
-    u8 unkE;
-    u8 unkF;
-    s32 unk10;
-    u8 unk14[4];
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-    u8 unk28;
-    s8 unk29;
-    s16 unk2A;
-    s32 unk2C;
-    s32 unk30;
-    s32 unk34;
-    s32 unk38;
-    u16 unk3C;
-    u16 unk3E;
-    s32 unk40;
-} Unk800AF470; // 0x44
-
-typedef struct {
     s8 unk0;
     s8 unk1;
     s8 unk2;
@@ -627,16 +600,6 @@ void func_800E15D8(void);
 void func_800E5814(void);
 void func_800E6B94(void);
 void BATTLE_EnqueueLoadImage(RECT* rect, u_long* ptr);
-
-/* one battle-usable item in the in-battle item list (built from the inventory
-   at battle start; counts are committed back when the battle ends) */
-typedef struct {
-    /* 0x0 */ u16 id;
-    /* 0x2 */ u8 count;
-    /* 0x3 */ u8 targetFlags;
-    /* 0x4 */ u8 unk4;
-    /* 0x5 */ u8 unk5;
-} BattleItemEntry; /* size: 0x6 */
 
 /* battle menu widget block (one per widget id, 0x240 apart) -- partial */
 typedef struct {
