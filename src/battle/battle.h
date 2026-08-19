@@ -443,11 +443,11 @@ extern Unk8016360C D_8016360C;
 extern u16 D_8016376A;
 
 // battle.c
-int func_800BBEAC(void (*func)(void));
+int BattleEffectRegister(void (*func)(void));
 
 // battle2.c
 void* func_800D29D4(Unk801B0C98*, u_long**, int, void*);
 void func_800D3994(s32 arg0, s32 arg1, void* arg2);
 void func_800D5444(int, int, int, void (*func)(int));
-void func_800D55F4(void* arg0, ...);
+void BattleCommandSend(void* arg0, ...);
 int func_800D574C(int);

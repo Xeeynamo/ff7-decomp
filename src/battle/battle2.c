@@ -139,12 +139,12 @@ static void func_800CE0C8(s16 arg0, u8 arg1, u8 arg2) {
     func_800CE058(arg0);
     switch (arg1) {
     case 0:
-        ret = func_800BBEAC(func_800C3578);
+        ret = BattleEffectRegister(func_800C3578);
         D_80162978[ret].D_80162980 = arg0;
         D_80162978[ret].D_8016297E = arg2;
         break;
     case 8:
-        ret = func_800BBEAC(func_800C4814);
+        ret = BattleEffectRegister(func_800C4814);
         D_80162978[ret].D_80162980 = arg0;
         D_80162978[ret].D_8016297E = arg2;
         break;
@@ -156,23 +156,23 @@ static void func_800CE0C8(s16 arg0, u8 arg1, u8 arg2) {
         D_801620AC[ret].D_801621B6 = 0xF8;
         return;
     case 2:
-        ret = func_800BBEAC(func_800C3CA8);
+        ret = BattleEffectRegister(func_800C3CA8);
         D_80162978[ret].D_80162980 = arg0;
         D_80162978[ret].D_8016297E = arg2;
         break;
     case 3:
-        ret = func_800BBEAC(func_800C328C);
+        ret = BattleEffectRegister(func_800C328C);
         D_80162978[ret].D_80162980 = arg0;
         D_80162978[ret].D_8016297E = arg2;
         break;
     case 17:
     case 18:
-        ret = func_800BBEAC(func_800C40F4);
+        ret = BattleEffectRegister(func_800C40F4);
         D_80162978[ret].D_80162980 = arg0;
         D_80162978[ret].D_8016297E = arg2;
         break;
     case 7:
-        ret = func_800BBEAC(func_800C44B4);
+        ret = BattleEffectRegister(func_800C44B4);
         D_80162978[ret].D_80162980 = arg0;
         D_80162978[ret].D_8016297E = arg2;
         break;
@@ -185,12 +185,12 @@ static void func_800CE21C(s16 arg0, u8 arg1) {
     func_800CE058(arg0);
     switch (D_801636B8[arg0].D_801636BC) {
     case 0:
-        ret = func_800BBEAC(func_800C3578);
+        ret = BattleEffectRegister(func_800C3578);
         D_80162978[ret].D_80162980 = arg0;
         D_80162978[ret].D_8016297E = arg1;
         break;
     case 8:
-        ret = func_800BBEAC(func_800C4814);
+        ret = BattleEffectRegister(func_800C4814);
         D_80162978[ret].D_80162980 = arg0;
         D_80162978[ret].D_8016297E = arg1;
         break;
@@ -202,23 +202,23 @@ static void func_800CE21C(s16 arg0, u8 arg1) {
         D_801620AC[ret].D_801621B6 = 0xF8;
         break;
     case 2:
-        ret = func_800BBEAC(func_800C3CA8);
+        ret = BattleEffectRegister(func_800C3CA8);
         D_80162978[ret].D_80162980 = arg0;
         D_80162978[ret].D_8016297E = arg1;
         break;
     case 3:
-        ret = func_800BBEAC(func_800C328C);
+        ret = BattleEffectRegister(func_800C328C);
         D_80162978[ret].D_80162980 = arg0;
         D_80162978[ret].D_8016297E = arg1;
         break;
     case 17:
     case 18:
-        ret = func_800BBEAC(func_800C40F4);
+        ret = BattleEffectRegister(func_800C40F4);
         D_80162978[ret].D_80162980 = arg0;
         D_80162978[ret].D_8016297E = arg1;
         break;
     case 7:
-        ret = func_800BBEAC(func_800C44B4);
+        ret = BattleEffectRegister(func_800C44B4);
         D_80162978[ret].D_80162980 = arg0;
         D_80162978[ret].D_8016297E = arg1;
         break;
@@ -960,8 +960,8 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3658);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D376C);
 
-void func_800D3994(s32 arg0, s32 arg1, void* arg2);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3994);
+void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleGetPartPosition);
 
 // Take the low 16 bits of each of arg0's translation components relative to the
 // camera D_800FA63C, then rotate that offset by the camera's transposed
@@ -995,7 +995,7 @@ void func_800D3D88(void) {
     temp_s0--; // !FAKE
     if (temp_s2 != 0xFF) {
         temp_s0_2 = &D_801621F0[func_800BC04C(func_800D3BF0)];
-        func_800D3994(temp_s0, temp_s2, &temp_s0_2->D_801621F4);
+        BattleGetPartPosition(temp_s0, temp_s2, &temp_s0_2->D_801621F4);
         temp_s0_2->D_801621F6 = 0;
         temp_s0_2->unkE = temp_s1->unkE;
         temp_s0_2->unk10.unk.unk0 = temp_s1->unk10.unk.unk0;
@@ -1086,7 +1086,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4C08);
 void func_800D4CBC(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp10;
 
-    func_800D3994(arg0, D_801518E4[arg0].D_8015190F, &sp10);
+    BattleGetPartPosition(arg0, D_801518E4[arg0].D_8015190F, &sp10);
     func_800D4C08(&sp10, arg1, arg2, -D_801518E4[arg0].unk12);
 }
 
@@ -1104,7 +1104,9 @@ extern s32 D_800F10D8;
 extern s32 D_800F4CEC[16];
 extern s16 D_800F4D2C[16][10];
 
-static s16* func_800D4FA8(s32 arg0) {
+// Enqueue a value into the 16-entry circular battle queue and return
+// the associated data slot for the newly queued entry.
+static s16* BattleEventQueuePush(s32 arg0) {
     s32 idx = D_800F10D8;
     s32 next = (idx + 1) & 0xF;
 
@@ -1122,9 +1124,9 @@ extern Unk80162978* D_800F10E0;
 
 // Reset the fixed-point ramp: zero the accumulator (0x04) and seed the
 // countdown (0x0C) so it lasts arg0 ticks.
-void func_800D5138(s32 arg0) {
+void BattleFixedPointRampInit(s32 arg0) {
     if (D_800F10E0 == NULL) {
-        D_800F10E0 = &D_80162978[func_800BBEAC(func_800D508C)];
+        D_800F10E0 = &D_80162978[BattleEffectRegister(func_800D508C)];
     }
     *(s32*)&D_800F10E0->D_8016297C = 0;
     *(s32*)&D_800F10E0->unk8 = 0x10000 / arg0;
@@ -1138,7 +1140,7 @@ extern s16 D_800F5B74;
 
 // Step the ramp once: accumulate (0x04 += 0x08), publish the high word, and
 // free the slot when the countdown (0x0C) reaches 0.
-void func_800D5230(void) {
+void BattleFixedPointRampUpdate(void) {
     Unk80162978* slot = &D_80162978[D_8015169C];
     s32 v0;
     s32 v1;
@@ -1158,16 +1160,17 @@ void func_800D5230(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D52A0);
 
-void func_800D5350();
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5350);
+void BattleAnimationUpdate();
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleAnimationUpdate);
 
-void func_800D5444(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    Unk80162978* temp_v0 = &D_80162978[func_800BBEAC(func_800D5350)];
+void MagicAnimationRegister(s32 arg0, s32 arg1, s32 arg2, void (*func)(int)) {
+    Unk80162978* temp_v0 =
+        &D_80162978[BattleEffectRegister(BattleAnimationUpdate)];
     temp_v0->D_80162978 = 0;
     temp_v0->D_8016297C = arg0;
     temp_v0->D_8016297E = arg1;
     temp_v0->D_80162980 = arg2;
-    *(s32*)&temp_v0->unk8 = arg3;
+    *(s32*)&temp_v0->unk8 = (s32)func;
 }
 
 s32 func_800D54BC(s32 arg0) {
@@ -1183,7 +1186,7 @@ s32 func_800D54BC(s32 arg0) {
     return count;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D54EC);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleEntityGetCenter);
 
 s32 func_800D55A4(s32 arg0) {
     return (D_801518E4[arg0].unk12 * 0x10) * D_801518E4[arg0].D_801518EA >> 0xC;
@@ -1194,7 +1197,7 @@ void SystemAkaoExecute(void*, s32, s32, void**);
 // Generic AKAO sound-command dispatcher: the first vararg's low 16 bits are
 // the command id, which selects how many trailing u32 params get copied into
 // the D_8009A004 queue before calling SystemAkaoExecute.
-void func_800D55F4(void* arg0, ...) {
+void BattleCommandSend(void* arg0, ...) {
     void** args = &arg0;
     u32* dst = arg0;
     u32* src;
@@ -1230,7 +1233,7 @@ void func_800D55F4(void* arg0, ...) {
 
 // Project a point through the current view matrix and convert its clamped
 // on-screen X (0..319) into a 0..127 stereo pan value.
-static s32 func_800D56A8(SVECTOR* sv) {
+static s32 BattlePositionToStereoPan(SVECTOR* sv) {
     s16 sxy[2];
     s32 p;
     s32 flag;
@@ -1246,11 +1249,11 @@ static s32 func_800D56A8(SVECTOR* sv) {
     return (sxy[0] * 128) / 320;
 }
 
-s32 func_800D574C(s32 arg0) {
+s32 BattleEntityGetStereoPan(s32 arg0) {
     SVECTOR sv;
 
-    func_800D54EC(arg0, &sv);
-    return func_800D56A8(&sv);
+    BattleEntityGetCenter(arg0, &sv);
+    return BattlePositionToStereoPan(&sv);
 }
 
 // Queue a popup carrying bit index arg0, using push type 6 if that bit is
@@ -1261,9 +1264,9 @@ void func_800D5774(u32 arg0) {
 
     cond = (D_800F836C >> arg0) & 1;
     if (cond) {
-        ptr = func_800D4FA8(6);
+        ptr = BattleEventQueuePush(6);
     } else {
-        ptr = func_800D4FA8(4);
+        ptr = BattleEventQueuePush(4);
     }
     *ptr = arg0;
 }
@@ -1272,7 +1275,7 @@ void func_800D57C0();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D57C0);
 
 void func_800D58D0(s16 arg0, s16 arg1, s16 arg2) {
-    Unk80162978* temp_v0 = &D_80162978[func_800BBEAC(func_800D57C0)];
+    Unk80162978* temp_v0 = &D_80162978[BattleEffectRegister(func_800D57C0)];
     temp_v0->D_80162978 = 0;
     temp_v0->D_80162980 = arg0;
     temp_v0->D_8016297E = arg2;
@@ -1285,7 +1288,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5938);
 static void func_800D5A68(s16 arg0, s16 arg1) {
     Unk80162978* temp_v0;
 
-    temp_v0 = &D_80162978[func_800BBEAC(func_800D5938)];
+    temp_v0 = &D_80162978[BattleEffectRegister(func_800D5938)];
     temp_v0->D_80162978 = 0;
     temp_v0->D_8016297E = arg1;
     temp_v0->D_8016297C = arg0;
@@ -1380,7 +1383,7 @@ void func_800D72B4(void) {
     if (D_80062D98 == 0) {
         // Advance this slot's per-tick state machine (field 0x2).
         if (elem->D_801621F2 == 0) {
-            func_800D5138(1);
+            BattleFixedPointRampInit(1);
         }
         if (elem->D_801621F2 == 2) {
             func_800D51D4(1);
@@ -1390,7 +1393,7 @@ void func_800D72B4(void) {
     }
 }
 
-static void func_800D7340(void) { func_800BBEAC(func_800D72B4); }
+static void func_800D7340(void) { BattleEffectRegister(func_800D72B4); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D7368);
 
