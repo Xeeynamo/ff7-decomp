@@ -1233,7 +1233,7 @@ void BattleCommandSend(void* arg0, ...) {
 
 // Project a point through the current view matrix and convert its clamped
 // on-screen X (0..319) into a 0..127 stereo pan value.
-static s32 BattlePositionToStereoPan(SVECTOR* sv) {
+s32 BattlePositionToStereoPan(SVECTOR* sv) {
     s16 sxy[2];
     s32 p;
     s32 flag;
