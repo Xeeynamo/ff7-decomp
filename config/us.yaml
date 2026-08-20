@@ -215,4 +215,5 @@ overlays:
       - config/symbols.magic-lv5deth.us.txt
       - config/sym_export_battle.us.txt
     segments:
-      - [0, data, lv5deth]
+      - [0, c, lv5deth]
+      - [0x5e0, data, lv5deth]
