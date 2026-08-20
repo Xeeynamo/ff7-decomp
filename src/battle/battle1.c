@@ -817,7 +817,8 @@ void func_800BB90C(void) {
     SystemAkaoExecute();
 }
 
-static void func_800BB944(void) {
+// queue the 0xF1 sound command after the 0xA0 pair; called from batres
+void func_800BB944(void) {
     func_800BB90C();
     D_8009A000[0] = 0xF1;
     SystemAkaoExecute();
