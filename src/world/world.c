@@ -2599,7 +2599,7 @@ void func_800B832C(void) {
 
 // type?
 void func_800B8488(FieldScriptHeader* fieldScripts) {
-    D_8008326C = 0xFF;
+    D_8008326C[0] = 0xFF;
     g_CurrentEntity = 0xFF;
     g_FieldScripts = fieldScripts;
     fieldScripts->stringOffset = 8;
