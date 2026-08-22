@@ -193,8 +193,8 @@ extern s32 D_80062FF8;
 extern s32 D_80063004;
 extern s32 D_80063010; // sound message queue count
 extern u8 D_800716CC;
-extern u8 D_8007EBE4[];
-extern s32 D_8007EBE8;
+extern u8 g_AkaoVoiceAttr[];
+extern s32 g_AkaoVoiceAttrMask;
 extern s32 D_8007EBEC;
 extern s32 D_8007EBF0;
 extern s32 D_8007EBF4;
@@ -222,21 +222,22 @@ extern s32 D_80097768;
 extern s32 D_80097870;
 extern Unk80096608 D_80099868[];
 extern Unk80099788 D_80099788[];
+extern u16 D_80099E0C;
 extern s32 D_80099FCC[];
 extern s32 D_80099FD8;
-extern s32 D_80099FDC;
+extern s32 g_AkaoSoundActiveMaskStored;
 extern s32 g_AkaoNoiseMask;
 extern s32 g_AkaoReverbMask;
 extern s32 g_AkaoPitchLfoMask;
 extern u16 D_8009A14E;
 extern s32 D_8009A104;
-extern s32 D_8009A108;
+extern s32 g_AkaoMusicActiveMask;
 extern s32 D_8009A10C;
 extern s32 D_8009A110;
 extern s32 D_8009A114;
-extern s32 D_8009A118;
-extern s32 D_8009A128;
-extern s32 D_8009A12C;
+extern s32 g_AkaoMusicActiveMaskStored;
+extern s32 g_AkaoMusicOverMask;
+extern s32 g_AkaoMusicAltMask;
 extern s32 D_8009A13C;
 
 extern u32 g_ReverbMode;
@@ -370,10 +371,10 @@ static void SoundChannelInit(AKAO_TRACK* arg0, u8* arg1) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029C48);
 
-// Merges newly-requested bits (D_8009A128/D_8009A12C) into the pending mask
-// D_8009A108, then for each set bit points the matching D_80096608 slot at the
-// default D_80049C40 sample and marks it (unk56 = 0x204), clearing the request
-// bits as it goes.
+// Merges newly-requested bits (g_AkaoMusicOverMask/g_AkaoMusicAltMask) into the
+// pending mask g_AkaoMusicActiveMask, then for each set bit points the matching
+// D_80096608 slot at the default D_80049C40 sample and marks it (unk56 =
+// 0x204), clearing the request bits as it goes.
 static void func_80029E98(void) {
     s32 mask;
     s32 bit;
@@ -381,19 +382,19 @@ static void func_80029E98(void) {
     s32 req0;
     s32 req1;
 
-    if (D_8009A108 != 0) {
+    if (g_AkaoMusicActiveMask != 0) {
         slot = D_80096608;
         bit = 1;
-        req0 = D_8009A128;
-        req1 = D_8009A12C;
-        D_8009A12C = 0;
-        D_8009A128 = 0;
+        req0 = g_AkaoMusicOverMask;
+        req1 = g_AkaoMusicAltMask;
+        g_AkaoMusicAltMask = 0;
+        g_AkaoMusicOverMask = 0;
         D_8009A110 = 0;
         D_8009A10C = 0;
         req0 |= req1;
-        mask = D_8009A108;
+        mask = g_AkaoMusicActiveMask;
         mask |= req0;
-        D_8009A108 = mask;
+        g_AkaoMusicActiveMask = mask;
         D_8009A114 |= mask;
         do {
             if (mask & bit) {
@@ -989,13 +990,146 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C884);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C8C4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C8DC);
+void func_8002E23C(s32, void*);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C9E4);
+// Moves newly-requested channels_1 voices into the active mask, resetting
+// each one's SPU attributes.
+void Akao9BApplyPendingMusicUpdates(void) {
+    s32 savedMask;
+    s32 bit;
+    s32 pendingBits;
+    s32 voiceIdx;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CA84);
+    if (g_AkaoMusicActiveMask != 0) {
+        pendingBits =
+            (g_AkaoMusicActiveMask | g_AkaoMusicOverMask | g_AkaoMusicAltMask) &
+            ~(D_80099FCC[0] | D_80062F00);
+        if (pendingBits != 0) {
+            bit = 1;
+            voiceIdx = 0;
+            D_8007EC0E = 0;
+            D_8007EC0C = 0;
+            D_8007EC08 = 0x7F;
+            for (; pendingBits != 0; bit *= 2, voiceIdx += 1) {
+                if (pendingBits & bit) {
+                    g_AkaoVoiceAttrMask =
+                        SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE |
+                        SPU_VOICE_ADSR_SR;
+                    func_8002E23C(voiceIdx & 0xFFFF, &g_AkaoVoiceAttr);
+                    pendingBits ^= bit;
+                }
+            }
+        }
+        savedMask = g_AkaoMusicActiveMask;
+        g_AkaoMusicActiveMask = 0;
+        g_AkaoMusicActiveMaskStored = savedMask;
+    }
+    D_80062FF8 |= 1;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CB78);
+void func_8002FF4C();
+void func_80030038();
+void func_80030148();
+
+// Restore counterpart: moves the stored channels_1 mask back to active,
+// resetting SPU attributes along the way.
+void Akao9AFlushPendingMusicUpdates(void) {
+    u8* voiceAttr;
+    s32 savedMask;
+    unsigned int stillPending;
+    s32 bit;
+    s32 pendingBits;
+
+    pendingBits = g_AkaoMusicActiveMaskStored;
+    if (pendingBits != 0) {
+        bit = 1;
+        voiceAttr = (u8*)D_800966E8;
+        do {
+            if (pendingBits & bit) {
+                pendingBits ^= bit;
+                *(s32*)voiceAttr |= SPU_VOICE_VOLL | SPU_VOICE_VOLR |
+                                    SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
+            }
+            bit *= 2;
+            voiceAttr += sizeof(Unk80096608);
+        } while (stillPending = pendingBits != 0);
+        savedMask = g_AkaoMusicActiveMaskStored;
+        g_AkaoMusicActiveMaskStored = 0;
+        g_AkaoMusicActiveMask = savedMask;
+        func_8002FF4C(bit, pendingBits);
+        func_80030038();
+        func_80030148();
+    }
+    D_80062FF8 &= ~1;
+}
+
+// channels_3 counterpart to Akao9BApplyPendingMusicUpdates; also masks off
+// the top two voices in mono mode.
+void Akao9DApplyPendingSoundUpdates(void) {
+    s32 savedMask;
+    short cleared;
+    s32 newMask;
+    s32 bit;
+    s32 voiceIdx;
+
+    newMask = D_80099FCC[0];
+    savedMask = newMask;
+    if (newMask != 0) {
+        bit = 0x10000;
+        if (D_80099E0C == 2) {
+            newMask &= ~((1 << 22) | (1 << 23));
+        }
+        g_AkaoSoundActiveMaskStored = newMask;
+        D_80099FCC[cleared = 0] = newMask ^ savedMask;
+        D_8007EC0E = cleared;
+        D_8007EC0C = cleared;
+        D_8007EC08 = 0x7F;
+        voiceIdx = 0x10;
+        if (newMask != cleared) {
+            for (; newMask != 0; bit *= 2, voiceIdx += 1) {
+                if (newMask & bit) {
+                    g_AkaoVoiceAttrMask =
+                        SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE |
+                        SPU_VOICE_ADSR_SR;
+                    func_8002E23C(voiceIdx & 0xFFFF, &g_AkaoVoiceAttr);
+                    newMask ^= bit;
+                }
+            }
+        }
+    }
+    D_80062FF8 |= 2;
+}
+
+void func_8002FF4C();
+void func_80030038();
+void func_80030148();
+
+// channels_3 counterpart to Akao9AFlushPendingMusicUpdates.
+void Akao9CFlushPendingSoundUpdates(void) {
+    u8* voiceAttr;
+    s32 savedMask;
+    s32 bit;
+    s32 pendingBits;
+
+    pendingBits = g_AkaoSoundActiveMaskStored;
+    if (pendingBits != 0) {
+        for (bit = 0x10000, voiceAttr = (u8*)D_80099868; pendingBits != 0;
+             bit *= 2, voiceAttr += 0x108) {
+            if (pendingBits & bit) {
+                pendingBits ^= bit;
+                *(s32*)voiceAttr |= SPU_VOICE_VOLL | SPU_VOICE_VOLR |
+                                    SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
+            }
+        }
+        savedMask = g_AkaoSoundActiveMaskStored;
+        g_AkaoSoundActiveMaskStored = 0;
+        D_80099FCC[0] = savedMask;
+        func_8002FF4C(bit);
+        func_80030038();
+        func_80030148();
+    }
+    D_80062FF8 &= ~2;
+}
 
 typedef struct {
     u32 unk0;
@@ -1075,7 +1209,7 @@ void func_8002E23C(s32, void*);
 // Configures the voice-attribute block for a mono CD-stream voice (ADSR
 // envelope, pan, reverb-echo work area) and applies it via func_8002E23C.
 static void AkaoStreamVoiceAttrMono(void) {
-    D_8007EBE8 = 0x1FF93;
+    g_AkaoVoiceAttrMask = 0x1FF93;
     D_8007EC02 = 0;
     D_8007EBEC = 0x77000;
     D_8007EBF0 = 0x77000;
@@ -1089,7 +1223,7 @@ static void AkaoStreamVoiceAttrMono(void) {
     D_8007EC0C = (D_80062FB0 ^ 0x7F) * D_80062FAC >> 7;
     D_8007EC00 = D_80062F1E;
     D_8007EC0E = D_80062FAC * D_80062FB0 >> 7;
-    func_8002E23C(0x10, &D_8007EBE4);
+    func_8002E23C(0x10, &g_AkaoVoiceAttr);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D2D4);
