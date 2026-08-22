@@ -1,9 +1,7 @@
 #include "common.h"
 
 
-//#ifndef NON_MATCHINGS
-//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0000);
-//#else
+
 extern s16 D_80162080;
 extern s32 D_801C0E50;
 extern s32 D_801CCE50;
@@ -28,9 +26,14 @@ void func_801B0000(void)
     }
 }
 
-//#endif
 
-INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0054);
+
+void func_801B0508();                             
+
+void func_801B0054(void)
+{
+    func_801B0508();
+}
 
 INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0074);
 
