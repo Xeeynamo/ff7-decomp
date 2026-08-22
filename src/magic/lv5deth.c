@@ -1,6 +1,34 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0000);
+
+//#ifndef NON_MATCHINGS
+//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0000);
+//#else
+extern s16 D_80162080;
+extern s32 D_801C0E50;
+extern s32 D_801CCE50;
+extern s32* D_801D8E50;
+extern s32* D_801D8E54;
+extern s32 g_dbIndex;
+
+void func_801B0000(void)
+{
+    s32* var_v1;
+
+    var_v1 = &D_801CCE50;
+
+    if (g_dbIndex == 0) {
+        var_v1 = &D_801C0E50;
+    }
+
+    D_801D8E50 = var_v1;
+
+    if (D_80162080 < 2) {
+        *D_801D8E54 = -1;
+    }
+}
+
+//#endif
 
 INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0054);
 
