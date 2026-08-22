@@ -12,6 +12,7 @@ typedef struct Lv5DeathData {
 /* Battle effect instance array. */
 extern Lv5DeathData D_80162978[];
 
+
 /* State used by the LV5 Death effect. */
 extern s16 D_80162080;
 extern s32 D_801C0E50;
@@ -24,6 +25,8 @@ extern s32 g_dbIndex;
 extern s32 BattleEffectRegister(void (*func)(void));
 extern void MagicAnimationRegister(s32, s32, s32, void (*func)(void));
 extern void func_800D2980(void *, s32, s32, s32);
+extern s32 *func_800D29D4(s32, s32, s32, s32 *);
+extern void func_800D4368(void *, s16, s32);
 
 /* LV5 Death functions. */
 extern void func_801B0000(void);
@@ -33,6 +36,12 @@ void func_801B0508(s32 arg0, s32 arg1);
 
 extern s32 D_801B05E0;
 extern s32 D_801D8E58;
+extern s32 *D_801D8E50;
+extern u8 D_80062D98;
+extern s16 D_8015169C;
+extern s32 D_801C0868;
+extern s32 g_cDb;
+
 
 
 void func_801B0000(void)
@@ -58,30 +67,17 @@ void func_801B0054(void)
     func_801B0508();
 }
 
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0074);
-#else
 
-extern s32 *D_801D8E50;
-
-extern u8 D_80062D98;
-extern s16 D_8015169C;
-extern s32 D_801C0868;
-extern s32 g_cDb;
-
-extern s32 *func_800D29D4(s32, s32, s32, s32 *);
-extern void func_800D4368(void *, s16, s32);
 
 void func_801B0074(void)
 {
-    char pad[0x30];
+    char pad[0x34];
 
     Lv5DeathData *temp_s0;
     s32 temp_a2;
-    s16 temp_v1;
-    s16 var_s2;
+    s32 temp_v1;
     s32 *var_s1;
-
+    
     temp_s0 = &D_80162978[D_8015169C];
 
     temp_a2 = temp_s0->unkC << 16;
@@ -102,22 +98,13 @@ void func_801B0074(void)
     ((s16 *)var_s1)[7] = 0;
 
 
-temp_v1 = temp_s0->unk2;
-
-if (temp_s0->unk2 < 8) {
-    ((s16 *)var_s1)[5] =
-        0x1000 - (temp_s0->unk2 << 8);
-    goto block_4;
-}
-
-if (temp_s0->unk2 < 0x25) {
-    goto block_4;
-}
-
-((s16 *)var_s1)[5] =
-    (temp_s0->unk2 << 8) - 0x1D00;
-
-block_4:
+    temp_v1 = temp_s0->unk2;
+    if (temp_v1 < 8) {
+        temp_v1 <<= 8;
+        ((s16 *)var_s1)[5] = 0x1000 - temp_v1;
+    } else if (temp_v1 >= 0x25) {
+        ((s16 *)var_s1)[5] = (temp_v1 << 8) - 0x1D00;
+    }
     SetFarColor(0, 0, 0);
 
     D_801D8E50 = func_800D29D4(
@@ -136,8 +123,6 @@ block_4:
     }
 }
 
-
-#endif
 
 INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B01BC);
 
