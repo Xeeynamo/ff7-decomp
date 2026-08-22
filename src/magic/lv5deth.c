@@ -1,7 +1,10 @@
 #include "common.h"
 
 typedef struct Lv5DeathData {
-    char pad0[0x0E];
+    s16 unk0;
+    s16 unk2;
+    char unk4[8];
+    u16 unkC;
     s16 unkE;
     char pad10[0x10];
 } Lv5DeathData;
@@ -55,8 +58,85 @@ void func_801B0054(void)
     func_801B0508();
 }
 
+
 INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0074);
 
+/*
+extern s32 *D_801D8E50;
+
+extern u8 D_80062D98;
+extern s16 D_8015169C;
+extern s32 D_801C0868;
+extern s32 g_cDb;
+
+extern s32 *func_800D29D4(s32, s32, s32, s32 *);
+extern void func_800D4368(void *, s16, s32);
+
+void func_801B0074(void)
+{
+    char pad[0x30];
+
+    Lv5DeathData *temp_s0;
+    s32 temp_a2;
+    s16 temp_v1;
+    s16 var_s2;
+    s32 *var_s1;
+
+    temp_s0 = &D_80162978[D_8015169C];
+
+    temp_a2 = temp_s0->unkC << 16;
+
+    func_800D4368(
+        &temp_s0->unk4,
+        temp_a2 >> 16,
+        -(temp_a2 >> 19)
+    );
+
+    var_s1 = (s32 *)0x1F800000;
+
+    var_s1[0] = (s32)&D_801C0868;
+    var_s1[1] = 0x88;
+    ((s16 *)var_s1)[4] = 0;
+    ((s16 *)var_s1)[5] = 0x800;
+    ((s16 *)var_s1)[6] = 0;
+    ((s16 *)var_s1)[7] = 0;
+
+
+temp_v1 = temp_s0->unk2;
+
+if (temp_s0->unk2 < 8) {
+    ((s16 *)var_s1)[5] =
+        0x1000 - (temp_s0->unk2 << 8);
+    goto block_4;
+}
+
+if (temp_s0->unk2 < 0x25) {
+    goto block_4;
+}
+
+((s16 *)var_s1)[5] =
+    (temp_s0->unk2 << 8) - 0x1D00;
+
+block_4:
+    SetFarColor(0, 0, 0);
+
+    D_801D8E50 = func_800D29D4(
+        (s32)var_s1,
+        g_cDb + 0x70,
+        0xC,
+        D_801D8E50
+    );
+
+    if (temp_s0->unk2 >= 0x2D) {
+        temp_s0->unk0 = -1;
+    }
+
+    if (D_80062D98 == 0) {
+        temp_s0->unk2++;
+    }
+}
+
+*/
 INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B01BC);
 
 INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0310);
