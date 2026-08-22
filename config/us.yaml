@@ -205,3 +205,15 @@ overlays:
       - [0, c, barrier]
       - [0xB68, .data, barrier]
       - [0xCC0, .bss, barrier]
+  - name: lv5deth
+    disk_path: disks/us/MAGIC/LV5DETH.BIN
+    sha1: 860f9495082983be362f605ca5da4968adf4c025
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.magic-lv5deth.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, c, lv5deth]
+      - [0x5e0, data, lv5deth]
