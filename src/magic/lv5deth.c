@@ -58,10 +58,10 @@ void func_801B0054(void)
     func_801B0508();
 }
 
-
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0074);
+#else
 
-/*
 extern s32 *D_801D8E50;
 
 extern u8 D_80062D98;
@@ -136,7 +136,9 @@ block_4:
     }
 }
 
-*/
+
+#endif
+
 INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B01BC);
 
 INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0310);
