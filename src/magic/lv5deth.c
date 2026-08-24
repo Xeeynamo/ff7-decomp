@@ -14,33 +14,34 @@ typedef struct Lv5DeathData {
 extern Lv5DeathData D_80162978[];
 
 /* State used by the LV5 Death effect. */
+extern u8 D_80062D98;
+extern s8 g_BattleFarColorRed;
+extern s8 g_BattleFarColorGreen;
+extern s8 g_BattleFarColorBlue;
+extern s16 D_800F5B74; //3d model color related
+extern s16 D_8015169C;
+extern u8 D_8015190F[];
 extern s16 D_80162080;
+extern s32 lv5deth_tim;
+extern s32 D_801C0868;
+extern s8 D_801C0E48;
+extern volatile s8 D_801C0E49;
+extern volatile s8 D_801C0E4A;
+extern s16 D_801C0E4C;
 extern s32 D_801C0E50;
 extern s32 D_801CCE50;
 extern s32* D_801D8E50;
 extern s32* D_801D8E54;
 extern s32 g_dbIndex;
-extern s32 D_801B05E0;
 extern s32 D_801D8E58;
-extern u8 D_80062D98;
-extern s32 D_801C0868;
-extern s8 D_800F5B70;
-extern s8 D_800F5B71;
-extern s8 D_800F5B72;
-extern s16 D_800F5B74;
-extern s16 D_8015169C;
-extern s8 D_801C0E48;
-extern volatile s8 D_801C0E49;
-extern volatile s8 D_801C0E4A;
-extern s16 D_801C0E4C;
 extern s32 g_cDb;
-extern u8 D_8015190F[];
+
 
 /* Battle / magic engine functions. */
 extern void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
 extern s32 BattleEffectRegister(void (*func)(void));
 extern void MagicAnimationRegister(s32, s32, s32, void (*func)(void));
-extern void func_800D2980(void*, s32, s32, s32);
+extern void QueueTimLoad(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 extern s32* func_800D29D4(s32, s32, s32, s32*);
 extern void func_800D4368(SVECTOR* pos, s16 arg1, s32 arg2);
 extern s32 func_800D4D90(s8*, s32, s32, s32);
@@ -175,9 +176,9 @@ void func_801B0310(void) {
     temp_v0 = temp_a0->unk2;
 
     if (temp_v0 < 8) {
-        D_800F5B72 = 0;
-        D_800F5B71 = 0;
-        D_800F5B70 = 0;
+        g_BattleFarColorBlue = 0;
+        g_BattleFarColorGreen = 0;
+        g_BattleFarColorRed = 0;
 
         __asm__ volatile("" : : : "memory");
 
@@ -243,7 +244,7 @@ void func_801B0508(s32 arg0, s32 arg1) {
 
     D_801D8E54 = &D_80162978[BattleEffectRegister(func_801B0000)];
 
-    func_800D2980(&D_801B05E0, 0, 0, 0);
+    QueueTimLoad(&lv5deth_tim, 0, 0, 0);
 
     var_v0 = &D_80162978[BattleEffectRegister(func_801B0310)];
 

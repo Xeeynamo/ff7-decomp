@@ -218,7 +218,7 @@ static void func_800B3CD0(void) {
     u_long* dst;
 
     dst = (u_long*)0x801B0000;
-    func_800D2980(dst, 0, 0, 0);
+    QueueTimLoad(dst, 0, 0, 0);
     y = &D_800E8068[D_800FA9C4];
     DS_read(y->loc, *&D_800E8068[D_800FA9C4].len, dst, func_800B3AB8);
     func_800B7FB4();

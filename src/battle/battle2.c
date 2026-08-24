@@ -878,49 +878,49 @@ void BATTLE_FlushImageQueue(void) {
 
 void BATTLE_ResetImageQueue(void) { D_800F01DC = D_800F4BAC; }
 
-void func_800D2710(u_long* addr, s16 x, s16 y) {
+void QueueTimClutLoad(u_long* addr, s16 x, s16 y) {
     TIM_IMAGE tim;
 
     OpenTIM(addr);
     ReadTIM(&tim);
     if (tim.crect && tim.caddr) {
-        D_800F4B2C[D_800F01E0] = *tim.crect;
-        D_800F4B2C[D_800F01E0].x += x & ~15;
-        D_800F4B2C[D_800F01E0].y =
-            y + D_800F4B2C[D_800F01E0].y; // requires GCC 2.6.3
-        BATTLE_EnqueueLoadImage(&D_800F4B2C[D_800F01E0], tim.caddr);
-        D_800F01E0 = (D_800F01E0 + 1) & 7;
+        TimClutLoadQueue[TimClutLoadQueueIndex] = *tim.crect;
+        TimClutLoadQueue[TimClutLoadQueueIndex].x += x & ~15;
+        TimClutLoadQueue[TimClutLoadQueueIndex].y =
+            y + TimClutLoadQueue[TimClutLoadQueueIndex].y; // requires GCC 2.6.3
+        BATTLE_EnqueueLoadImage(&TimClutLoadQueue[TimClutLoadQueueIndex], tim.caddr);
+        TimClutLoadQueueIndex = (TimClutLoadQueueIndex + 1) & 7;
     }
 }
 
-void func_800D2828(u_long* addr, s32 xy) {
+void QueueTimTextureLoad(u_long* addr, s32 xy) {
     TIM_IMAGE tim;
-    s32 temp_a1;
-    s32 temp_a3;
-    s32 temp_a2;
+    s32 timPage;
+    s32 timPageOffset;
+    s32 adjustedTimPage;
 
     OpenTIM(addr);
     ReadTIM(&tim);
     if (tim.prect && tim.paddr) {
-        D_800F4B6C[D_800F01E4] = *tim.prect;
-        temp_a1 = (tim.prect->y & 0x300) >> 4 | (tim.prect->x & 0x3FF) >> 6;
-        temp_a2 = temp_a1 + xy;
-        temp_a3 = (temp_a1 & 0x0F) * 0x40;
-        D_800F4B6C[D_800F01E4].x =
-            ((temp_a2 & 0x0F) * 0x40 + (D_800F4B6C[D_800F01E4].x - temp_a3)) &
+        TimImageLoadQueue[TimImageLoadQueueIndex] = *tim.prect;
+        timPage = (tim.prect->y & 0x300) >> 4 | (tim.prect->x & 0x3FF) >> 6;
+        adjustedTimPage = timPage + xy;
+        timPageOffset = (timPage & 0x0F) * 0x40;
+        TimImageLoadQueue[TimImageLoadQueueIndex].x =
+            ((adjustedTimPage & 0x0F) * 0x40 + (TimImageLoadQueue[TimImageLoadQueueIndex].x - timPageOffset)) &
             0x3FF;
-        temp_a3 = (temp_a1 & 0x30) * 0x10;
-        D_800F4B6C[D_800F01E4].y =
-            ((temp_a2 & 0x30) * 0x10 + (D_800F4B6C[D_800F01E4].y - temp_a3)) &
+        timPageOffset = (timPage & 0x30) * 0x10;
+        TimImageLoadQueue[TimImageLoadQueueIndex].y =
+            ((adjustedTimPage & 0x30) * 0x10 + (TimImageLoadQueue[TimImageLoadQueueIndex].y - timPageOffset)) &
             0x1FF;
-        BATTLE_EnqueueLoadImage(&D_800F4B6C[D_800F01E4], tim.paddr);
-        D_800F01E4 = (D_800F01E4 + 1) & 7;
+        BATTLE_EnqueueLoadImage(&TimImageLoadQueue[TimImageLoadQueueIndex], tim.paddr);
+        TimImageLoadQueueIndex = (TimImageLoadQueueIndex + 1) & 7;
     }
 }
 
-void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY) {
-    func_800D2710(addr, clutX, clutY);
-    func_800D2828(addr, imgXY);
+void QueueTimLoad(u_long* addr, s16 imgXY, s16 clutX, s16 clutY) {
+    QueueTimClutLoad(addr, clutX, clutY);
+    QueueTimTextureLoad(addr, imgXY);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D29D4);
