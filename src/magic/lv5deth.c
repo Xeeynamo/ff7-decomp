@@ -61,10 +61,6 @@ void func_801B0508(s32 arg0, s32 arg1);
 
 
 
-//#ifndef NON_MATCHINGS
-//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0000);
-//#else
-
 void func_801B0000(void)
 {
     s32 *var_v1;
@@ -82,22 +78,16 @@ void func_801B0000(void)
     }
 }
 
-//#endif
 
 
-//#ifndef NON_MATCHINGS
-//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0054);
-//#else
 
 void func_801B0054(void)
 {
     ((void (*)(void))func_801B0508)();
 }
-//#endif
 
-//#ifndef NON_MATCHINGS
-//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0074);
-//#else
+
+
 void func_801B0074(void)
 {
     char pad[0x34];
@@ -152,14 +142,7 @@ void func_801B0074(void)
     }
 }
 
-//#endif
 
-
-
-
-//#ifndef NON_MATCHINGS
-//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B01BC);
-//#else
 void func_801B01BC(void) {
     s16 temp_v1;
     u8 var_v1;
@@ -219,11 +202,7 @@ func_800D4368(
     }
 }
 
-//#endif
 
-//#ifndef NON_MATCHINGS
-//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0310);
-//#else
 
 
 void func_801B0310(void) {
@@ -266,7 +245,6 @@ void func_801B0310(void) {
     }
 }
 
-//#endif
 
 #ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0414);
@@ -309,9 +287,6 @@ void func_801B0414(s32 arg0)
 }
 #endif
 
-//#ifndef NON_MATCHINGS
-//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0508);
-//#else
 
 void func_801B0508(s32 arg0, s32 arg1)
 {
@@ -340,4 +315,3 @@ void func_801B0508(s32 arg0, s32 arg1)
 
     D_801D8E58 = var_a0;
 }
-//#endif
