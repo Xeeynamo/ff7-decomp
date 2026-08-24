@@ -489,7 +489,7 @@ extern u16 D_8016376A;
 int BattleEffectRegister(void (*func)(void));
 
 // battle2.c
-void* func_800D29D4(Unk801B0C98*, u_long**, int, void*);
+void* BattleBuildEffectPrimitives(Unk801B0C98*, u_long**, int, void*);
 void func_800D3994(s32 arg0, s32 arg1, void* arg2);
 void func_800D5444(int, int, int, void (*func)(int));
 void BattleCommandSend(void* arg0, ...);

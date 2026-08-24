@@ -63,3 +63,8 @@ TimClutLoadQueue = 0x800F4B2C;
 TimClutLoadQueueIndex = 0x800F01E0;
 TimImageLoadQueue = 0x800F4B6C;
 TimImageLoadQueueIndex = 0x800F01E4;
+
+BattleBuildEffectPrimitives = 0x800D29D4;
+BattleSetEffectTransform = 0x800D4368;
+
+//BattleBuildSpritePrimitives = 0x800D4D90;

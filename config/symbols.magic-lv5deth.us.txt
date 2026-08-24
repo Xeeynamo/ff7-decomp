@@ -1,4 +1,10 @@
 lv5deth_tim = 0x801B05E0;
-Lv5DeathRenderEarly = 0x801B0074;
-Lv5DeathRender = 0x801B01BC;
-Lv5DeathCreateEffect = 0x801B0414;
+lv5deth_spt = 0x801C0700;
+light_1_rdx =  0x801C0868;
+Lv5DeathDrawGlow = 0x801B0074;
+Lv5DeathDrawSkull = 0x801B01BC;
+Lv5DeathCreateTargetEffect = 0x801B0414;
+g_Lv5DeathPrimBuffer1 = 0x801CCE50;
+g_Lv5DeathPrimBuffer0 = 0x801C0E50;
+g_Lv5DeathPrimPtr = 0x801D8E50;
+g_Lv5DeathAnimFrame = 0x801C0E4C;
