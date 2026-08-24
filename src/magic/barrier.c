@@ -117,8 +117,8 @@ static void BarrierRenderBorder(void) {
 
     BorderRenderDesc.unk4 = var_s3 | 0x80;
     BorderRenderDesc.unkA = var_s4;
-    BarrierBufferPtr =
-        BattleBuildEffectPrimitives(&BorderRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
+    BarrierBufferPtr = BattleBuildEffectPrimitives(
+        &BorderRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
 
     if (g_BattleEffectPaused == 0) {
         barrier->AnimationFrame++;
@@ -173,8 +173,8 @@ static void BarrierRenderShield(void) {
 
     ShieldRenderDesc.unk4 = var_s5 | 0x80;
     ShieldRenderDesc.unkA = var_s6;
-    BarrierBufferPtr =
-        BattleBuildEffectPrimitives(&ShieldRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
+    BarrierBufferPtr = BattleBuildEffectPrimitives(
+        &ShieldRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
 
     if (g_BattleEffectPaused == 0) {
         barrier->AnimationFrame++;

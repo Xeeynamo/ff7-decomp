@@ -495,6 +495,7 @@ g_BattleCharIdToCharId = 0x800491D0;
 D_80049500 = 0x80049500;
 g_AkaoWaveTableKey = 0x8004A5CC;
 g_bPadsInitialized = 0x80062D70;
+g_BattleEffectPaused = 0x80062D98;
 g_AkaoPitchMulMusicSlideStep = 0x80062F28;
 g_AkaoVolMulMusicSlideStep = 0x80062F2C;
 g_AkaoTempoMulMusicSlideStep = 0x80062F30;
@@ -526,5 +527,3 @@ g_AkaoMusicAltMask = 0x8009A12C;
 g_ReverbMode = 0x8009A140;
 g_ReverbAttr = 0x8009C564; // type:SpuReverbAttr size:0x14
 D_8009D44C = 0x8009D44C;
-
-g_BattleEffectPaused = 0x80062D98;

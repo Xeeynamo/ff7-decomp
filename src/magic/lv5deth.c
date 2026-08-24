@@ -18,12 +18,12 @@ extern u8 g_BattleEffectPaused;
 extern s8 g_BattleFarColorRed;
 extern s8 g_BattleFarColorGreen;
 extern s8 g_BattleFarColorBlue;
-extern s16 g_BattleModelFade; //3d model color related
+extern s16 g_BattleModelFade; // 3d model color related
 extern s16 D_8015169C;
 extern u8 D_8015190F[];
 extern s16 D_80162080;
-extern s32 lv5deth_tim; //tim for animation
-extern s32 light_1_rdx; //glow effect
+extern s32 lv5deth_tim; // tim for animation
+extern s32 light_1_rdx; // glow effect
 extern s8 g_Lv5DeathSpriteRed;
 extern volatile s8 g_Lv5DeathSpriteGreen;
 extern volatile s8 g_Lv5DeathSpriteBlue;
@@ -33,19 +33,16 @@ extern s32 g_Lv5DeathPrimBuffer1;
 extern s32* g_Lv5DeathPrimPtr;
 extern s32* g_Lv5DeathInitEffect;
 extern s32 g_dbIndex;
-extern s32 g_numberOfTargets;
+extern s32 g_Lv5DeathNumberOfTargets;
 extern s32 g_cDb;
-
 
 /* Battle / magic engine functions. */
 extern void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
 extern s32 BattleEffectRegister(void (*func)(void));
 extern void MagicAnimationRegister(s32, s32, s32, void (*func)(void));
 extern void QueueTimLoad(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
-extern s32* BattleBuildEffectPrimitives(void* effect,
-    s32* orderingTable,
-    s32 depthShift,
-    s32* primitiveBuffer*);
+extern s32* BattleBuildEffectPrimitives(
+    void* effect, s32* orderingTable, s32 depthShift, s32* primitiveBuffer*);
 extern void BattleSetEffectTransform(SVECTOR* pos, s16 arg1, s32 arg2);
 extern s32 BattleBuildSpritePrimitives(s8*, s32, s32, s32);
 extern void BattleQueueTargetEvent(s16);
@@ -108,7 +105,8 @@ void Lv5DeathDrawGlow(void) {
     }
     SetFarColor(0, 0, 0);
 
-    g_Lv5DeathPrimPtr = BattleBuildEffectPrimitives((s32)effectData, g_cDb + 0x70, 0xC, g_Lv5DeathPrimPtr);
+    g_Lv5DeathPrimPtr = BattleBuildEffectPrimitives(
+        (s32)effectData, g_cDb + 0x70, 0xC, g_Lv5DeathPrimPtr);
 
     if (effect->AnimationFrame >= 0x2D) {
         effect->StartFrame = -1;
@@ -151,13 +149,15 @@ void Lv5DeathDrawSkull(void) {
 
     rotation = effect->Rotation;
 
-    BattleSetEffectTransform(&effect->Pos, (s16)rotation, -((s32)(rotation << 16) >> 18));
+    BattleSetEffectTransform(
+        &effect->Pos, (s16)rotation, -((s32)(rotation << 16) >> 18));
 
-    g_Lv5DeathPrimPtr = BattleBuildSpritePrimitives(spriteColor - 4, g_cDb + 0x70, 0xC, g_Lv5DeathPrimPtr);
+    g_Lv5DeathPrimPtr = BattleBuildSpritePrimitives(
+        spriteColor - 4, g_cDb + 0x70, 0xC, g_Lv5DeathPrimPtr);
 
     if (effect->AnimationFrame >= 0x2D) {
         effect->StartFrame = -1;
-        g_numberOfTargets -= 1;
+        g_Lv5DeathNumberOfTargets -= 1;
     }
 
     if (g_BattleEffectPaused == 0) {
@@ -187,12 +187,13 @@ void Lv5DeathUpdateFade(void) {
 
         fadeStartFrame = effect->AnimationFrame;
         fadeValue = fadeStartFrame * 0x140;
-    } else if (g_numberOfTargets <= 0) {
+    } else if (g_Lv5DeathNumberOfTargets <= 0) {
         if (effect->TargetIndex == 0) {
             effect->TargetIndex = animationFrame;
         }
 
-        fadeValue = 0xA00 - ((effect->AnimationFrame - effect->TargetIndex) * 0x140);
+        fadeValue =
+            0xA00 - ((effect->AnimationFrame - effect->TargetIndex) * 0x140);
     } else {
         fadeValue = 0xA00;
     }
@@ -225,7 +226,8 @@ void Lv5DeathCreateTargetEffect(s32 arg0) {
 
     targetPosition = (s8*)&skullEffect->Pos;
 
-    BattleGetPartPosition(targetIndex, D_8015190F[targetIndex * 0xB9C], targetPosition);
+    BattleGetPartPosition(
+        targetIndex, D_8015190F[targetIndex * 0xB9C], targetPosition);
 
     skullEffect->Rotation = 0x1CCC;
     skullEffect->TargetIndex = targetIndex;
@@ -245,7 +247,8 @@ void Lv5DeathSetup(s32 arg0, s32 arg1) {
     s32 targetBit;
     Lv5DeathData* effect;
 
-    g_Lv5DeathInitEffect = &D_80162978[BattleEffectRegister(MAGIC_Lv5DeathInit)];
+    g_Lv5DeathInitEffect =
+        &D_80162978[BattleEffectRegister(MAGIC_Lv5DeathInit)];
 
     QueueTimLoad(&lv5deth_tim, 0, 0, 0);
 
@@ -264,5 +267,5 @@ void Lv5DeathSetup(s32 arg0, s32 arg1) {
         }
     } while (targetBit < 0xA);
 
-    g_numberOfTargets = targetCount;
+    g_Lv5DeathNumberOfTargets = targetCount;
 }

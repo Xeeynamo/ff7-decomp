@@ -756,7 +756,8 @@ static void func_800BB030(s16 arg0) {
         if (D_801518E4[arg0].D_80151909 & 4) {
             continue;
         }
-        D_80163C74 = BattleBuildEffectPrimitives(unk, g_cDb->unk70, 12, D_80163C74);
+        D_80163C74 =
+            BattleBuildEffectPrimitives(unk, g_cDb->unk70, 12, D_80163C74);
     }
 }
 

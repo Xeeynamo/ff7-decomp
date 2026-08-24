@@ -2295,4 +2295,4 @@ g_Lv5DeathPrimBuffer0 = 0x801c0e50;
 g_Lv5DeathPrimBuffer1 = 0x801cce50;
 g_Lv5DeathPrimPtr = 0x801d8e50;
 g_Lv5DeathInitEffect = 0x801d8e54;
-g_numberOfTargets = 0x801d8e58;
+g_Lv5DeathNumberOfTargets = 0x801d8e58;

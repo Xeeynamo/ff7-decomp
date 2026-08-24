@@ -888,7 +888,8 @@ void QueueTimClutLoad(u_long* addr, s16 x, s16 y) {
         TimClutLoadQueue[TimClutLoadQueueIndex].x += x & ~15;
         TimClutLoadQueue[TimClutLoadQueueIndex].y =
             y + TimClutLoadQueue[TimClutLoadQueueIndex].y; // requires GCC 2.6.3
-        BATTLE_EnqueueLoadImage(&TimClutLoadQueue[TimClutLoadQueueIndex], tim.caddr);
+        BATTLE_EnqueueLoadImage(
+            &TimClutLoadQueue[TimClutLoadQueueIndex], tim.caddr);
         TimClutLoadQueueIndex = (TimClutLoadQueueIndex + 1) & 7;
     }
 }
@@ -907,13 +908,16 @@ void QueueTimTextureLoad(u_long* addr, s32 xy) {
         adjustedTimPage = timPage + xy;
         timPageOffset = (timPage & 0x0F) * 0x40;
         TimImageLoadQueue[TimImageLoadQueueIndex].x =
-            ((adjustedTimPage & 0x0F) * 0x40 + (TimImageLoadQueue[TimImageLoadQueueIndex].x - timPageOffset)) &
+            ((adjustedTimPage & 0x0F) * 0x40 +
+             (TimImageLoadQueue[TimImageLoadQueueIndex].x - timPageOffset)) &
             0x3FF;
         timPageOffset = (timPage & 0x30) * 0x10;
         TimImageLoadQueue[TimImageLoadQueueIndex].y =
-            ((adjustedTimPage & 0x30) * 0x10 + (TimImageLoadQueue[TimImageLoadQueueIndex].y - timPageOffset)) &
+            ((adjustedTimPage & 0x30) * 0x10 +
+             (TimImageLoadQueue[TimImageLoadQueueIndex].y - timPageOffset)) &
             0x1FF;
-        BATTLE_EnqueueLoadImage(&TimImageLoadQueue[TimImageLoadQueueIndex], tim.paddr);
+        BATTLE_EnqueueLoadImage(
+            &TimImageLoadQueue[TimImageLoadQueueIndex], tim.paddr);
         TimImageLoadQueueIndex = (TimImageLoadQueueIndex + 1) & 7;
     }
 }
@@ -1312,26 +1316,30 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D6260);
 
 extern Unk801B0C98 D_800F14D0;
 
-// Draw a model 4 times through BattleBuildEffectPrimitives (same request-struct pattern as
-// barrier.c's D_801B0C98/D_801B0CB0), toggling the 0x1/0x2 flag bits between
-// passes.
+// Draw a model 4 times through BattleBuildEffectPrimitives (same request-struct
+// pattern as barrier.c's D_801B0C98/D_801B0CB0), toggling the 0x1/0x2 flag bits
+// between passes.
 void func_800D6394(s32* arg0, s16 arg1) {
     D_800F14D0.unk0 = arg0;
     D_800F14D0.unkA = arg1;
     SetFarColor(0, 0, 0);
     PushMatrix();
-    D_80163C74 = BattleBuildEffectPrimitives(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
+    D_80163C74 =
+        BattleBuildEffectPrimitives(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
     PopMatrix();
     PushMatrix();
     D_800F14D0.unk4 |= 1;
-    D_80163C74 = BattleBuildEffectPrimitives(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
+    D_80163C74 =
+        BattleBuildEffectPrimitives(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
     PopMatrix();
     PushMatrix();
     D_800F14D0.unk4 |= 2;
-    D_80163C74 = BattleBuildEffectPrimitives(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
+    D_80163C74 =
+        BattleBuildEffectPrimitives(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
     PopMatrix();
     D_800F14D0.unk4 &= ~1;
-    D_80163C74 = BattleBuildEffectPrimitives(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
+    D_80163C74 =
+        BattleBuildEffectPrimitives(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
     D_800F14D0.unk4 &= ~2;
 }
 

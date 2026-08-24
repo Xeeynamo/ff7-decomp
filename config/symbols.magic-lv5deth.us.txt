@@ -1,17 +1,15 @@
-lv5deth_tim = 0x801B05E0;
-lv5deth_spt = 0x801C0700;
-light_1_rdx =  0x801C0868;
 Lv5DeathDrawGlow = 0x801B0074;
 Lv5DeathDrawSkull = 0x801B01BC;
 Lv5DeathCreateTargetEffect = 0x801B0414;
-g_Lv5DeathPrimBuffer1 = 0x801CCE50;
-g_Lv5DeathPrimBuffer0 = 0x801C0E50;
-g_Lv5DeathPrimPtr = 0x801D8E50;
-g_Lv5DeathAnimFrame = 0x801C0E4C;
-
+lv5deth_tim = 0x801B05E0;
+lv5deth_spt = 0x801C0700;
+light_1_rdx = 0x801C0868;
 g_Lv5DeathSpriteRed = 0x801C0E48;
-g_Lv5DeathSpriteGreen = 0x801C0E49;  
-g_Lv5DeathSpriteBlue = 0x801C0E4A;  
-
-g_numberOfTargets = 0x801D8E58;
+g_Lv5DeathSpriteGreen = 0x801C0E49;
+g_Lv5DeathSpriteBlue = 0x801C0E4A;
+g_Lv5DeathAnimFrame = 0x801C0E4C;
+g_Lv5DeathPrimBuffer0 = 0x801C0E50;
+g_Lv5DeathPrimBuffer1 = 0x801CCE50;
+g_Lv5DeathPrimPtr = 0x801D8E50;
 g_Lv5DeathInitEffect = 0x801D8E54;
+g_Lv5DeathNumberOfTargets = 0x801D8E58;

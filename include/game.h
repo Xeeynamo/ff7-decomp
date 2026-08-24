@@ -780,13 +780,13 @@ typedef struct WindowData {
 extern u8 D_80049208[12];   // window colors maybe??
 extern u8 D_800492F0[][12]; // see Labels enum
 extern FieldModelData* g_FieldModelData;
-extern u16 D_80062D78; // pressed button?
-extern u16 D_80062D7C; // pressed button?
-extern u16 D_80062D7E; // pressed button?
-extern u16 D_80062D80; // tapped button
-extern u16 D_80062D82; // repeated button
-extern u8 g_BattleEffectPaused;  // battle_clearRenderList
-extern u8 D_80062D99;  // battle_isPaused
+extern u16 D_80062D78;          // pressed button?
+extern u16 D_80062D7C;          // pressed button?
+extern u16 D_80062D7E;          // pressed button?
+extern u16 D_80062D80;          // tapped button
+extern u16 D_80062D82;          // repeated button
+extern u8 g_BattleEffectPaused; // battle_clearRenderList
+extern u8 D_80062D99;           // battle_isPaused
 extern s32 D_80062DCC;
 extern s8 _D_80062DFD;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
