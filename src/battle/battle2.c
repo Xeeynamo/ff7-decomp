@@ -1021,7 +1021,7 @@ void func_800D3F8C(void) {
     Unk801621F0* temp_s1;
 
     temp_s1 = &D_801621F0[D_801590D4];
-    if (D_80062D98 == 0) {
+    if (g_BattleEffectPaused == 0) {
         temp_s1->unkC--;
         if (temp_s1->unkC == -1) {
             temp_s0 = &D_801621F0[func_800BC04C(func_800D3AF0)];
@@ -1098,7 +1098,7 @@ static void func_800D4D6C(s32 arg0, s32 arg1, s32 arg2) {
     func_800D4C08(arg0, arg1, 0x1000, arg2);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4D90);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleBuildSpritePrimitives);
 
 extern s32 D_800F10D8;
 extern s32 D_800F4CEC[16];
@@ -1136,7 +1136,7 @@ void func_800D51D4(s32 arg0);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D51D4);
 
 extern s32 D_800F10E4;
-extern s16 D_800F5B74;
+extern s16 g_BattleModelFade;
 
 // Step the ramp once: accumulate (0x04 += 0x08), publish the high word, and
 // free the slot when the countdown (0x0C) reaches 0.
@@ -1145,10 +1145,10 @@ void BattleFixedPointRampUpdate(void) {
     s32 v0;
     s32 v1;
 
-    if (D_80062D98 == 0) {
+    if (g_BattleEffectPaused == 0) {
         v0 = *(s32*)&slot->D_8016297C + *(s32*)&slot->D_80162980;
         *(s32*)&slot->D_8016297C = v0;
-        D_800F5B74 = v0 >> 0x10;
+        g_BattleModelFade = v0 >> 0x10;
         v1 = *(s32*)&slot->unk8 - 1;
         *(s32*)&slot->unk8 = v1;
         if (v1 == 0) {
@@ -1257,12 +1257,12 @@ s32 BattleEntityGetStereoPan(s32 arg0) {
 }
 
 // Queue a popup carrying bit index arg0, using push type 6 if that bit is
-// set in the D_800F836C flag word, else type 4.
-void func_800D5774(u32 arg0) {
+// set in the g_BattleReflectMask flag word, else type 4.
+void BattleQueueTargetEvent(u32 arg0) {
     s32 cond;
     s16* ptr;
 
-    cond = (D_800F836C >> arg0) & 1;
+    cond = (g_BattleReflectMask >> arg0) & 1;
     if (cond) {
         ptr = BattleEventQueuePush(6);
     } else {
@@ -1380,7 +1380,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D7178);
 void func_800D72B4(void) {
     Unk801621F0* elem = &D_801621F0[D_801590D4];
 
-    if (D_80062D98 == 0) {
+    if (g_BattleEffectPaused == 0) {
         // Advance this slot's per-tick state machine (field 0x2).
         if (elem->D_801621F2 == 0) {
             BattleFixedPointRampInit(1);

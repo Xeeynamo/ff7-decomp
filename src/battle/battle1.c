@@ -399,7 +399,7 @@ static void func_800B7F6C(void) {
     while (D_80062D99) {
         func_800B7FB4();
     }
-    D_80062D98 = 0;
+    g_BattleEffectPaused = 0;
 }
 
 void func_800B7FB4(void) { D_801518DC = SystemCdromReadChain(); }

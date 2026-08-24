@@ -67,4 +67,9 @@ TimImageLoadQueueIndex = 0x800F01E4;
 BattleBuildEffectPrimitives = 0x800D29D4;
 BattleSetEffectTransform = 0x800D4368;
 
-//BattleBuildSpritePrimitives = 0x800D4D90;
+BattleBuildSpritePrimitives = 0x800D4D90;
+BattleQueueTargetEvent = 0x800D5774;
+
+g_BattleReflectMask = 0x800F836C;
+
+g_BattleModelFade = 0x800F5B74;

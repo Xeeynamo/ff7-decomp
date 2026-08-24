@@ -526,3 +526,5 @@ g_AkaoMusicAltMask = 0x8009A12C;
 g_ReverbMode = 0x8009A140;
 g_ReverbAttr = 0x8009C564; // type:SpuReverbAttr size:0x14
 D_8009D44C = 0x8009D44C;
+
+g_BattleEffectPaused = 0x80062D98;

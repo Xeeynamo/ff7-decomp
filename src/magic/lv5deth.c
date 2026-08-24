@@ -2,7 +2,7 @@
 #include "../battle/battle.h"
 
 typedef struct Lv5DeathData {
-    s16 unk0;
+    s16 StartFrame;
     s16 AnimationFrame;
     SVECTOR Pos;
     u16 Rotation;
@@ -14,26 +14,26 @@ typedef struct Lv5DeathData {
 extern Lv5DeathData D_80162978[];
 
 /* State used by the LV5 Death effect. */
-extern u8 D_80062D98;
+extern u8 g_BattleEffectPaused;
 extern s8 g_BattleFarColorRed;
 extern s8 g_BattleFarColorGreen;
 extern s8 g_BattleFarColorBlue;
-extern s16 D_800F5B74; //3d model color related
+extern s16 g_BattleModelFade; //3d model color related
 extern s16 D_8015169C;
 extern u8 D_8015190F[];
 extern s16 D_80162080;
 extern s32 lv5deth_tim; //tim for animation
 extern s32 light_1_rdx; //glow effect
-extern s8 D_801C0E48;
-extern volatile s8 D_801C0E49;
-extern volatile s8 D_801C0E4A;
+extern s8 g_Lv5DeathSpriteRed;
+extern volatile s8 g_Lv5DeathSpriteGreen;
+extern volatile s8 g_Lv5DeathSpriteBlue;
 extern s16 g_Lv5DeathAnimFrame;
 extern s32 g_Lv5DeathPrimBuffer0;
 extern s32 g_Lv5DeathPrimBuffer1;
 extern s32* g_Lv5DeathPrimPtr;
-extern s32* D_801D8E54;
+extern s32* g_Lv5DeathInitEffect;
 extern s32 g_dbIndex;
-extern s32 D_801D8E58;
+extern s32 g_numberOfTargets;
 extern s32 g_cDb;
 
 
@@ -47,8 +47,8 @@ extern s32* BattleBuildEffectPrimitives(void* effect,
     s32 depthShift,
     s32* primitiveBuffer*);
 extern void BattleSetEffectTransform(SVECTOR* pos, s16 arg1, s32 arg2);
-extern s32 func_800D4D90(s8*, s32, s32, s32);
-extern void func_800D5774(s16);
+extern s32 BattleBuildSpritePrimitives(s8*, s32, s32, s32);
+extern void BattleQueueTargetEvent(s16);
 
 /* LV5 Death functions. */
 void MAGIC_Lv5DeathInit(void);
@@ -70,7 +70,7 @@ void MAGIC_Lv5DeathInit(void) {
     g_Lv5DeathPrimPtr = primPtr;
 
     if (D_80162080 < 2) {
-        *D_801D8E54 = -1;
+        *g_Lv5DeathInitEffect = -1;
     }
 }
 
@@ -111,101 +111,101 @@ void Lv5DeathDrawGlow(void) {
     g_Lv5DeathPrimPtr = BattleBuildEffectPrimitives((s32)effectData, g_cDb + 0x70, 0xC, g_Lv5DeathPrimPtr);
 
     if (effect->AnimationFrame >= 0x2D) {
-        effect->unk0 = -1;
+        effect->StartFrame = -1;
     }
 
-    if (D_80062D98 == 0) {
+    if (g_BattleEffectPaused == 0) {
         effect->AnimationFrame++;
     }
 }
 
 void Lv5DeathDrawSkull(void) {
-    s16 temp_v1;
-    u8 var_v1;
-    s32 temp_a2;
-    s8* temp_s0;
-    s16* temp_AnimationFrame;
-    Lv5DeathData* temp_s1;
+    s16 animationFrame;
+    u8 opacity;
+    s32 rotation;
+    s8* spriteColor;
+    s16* animationFramePtr;
+    Lv5DeathData* effect;
 
-    temp_s1 = &D_80162978[D_8015169C];
+    effect = &D_80162978[D_8015169C];
 
-    temp_AnimationFrame = &temp_s1->AnimationFrame;
+    animationFramePtr = &effect->AnimationFrame;
 
-    g_Lv5DeathAnimFrame = *temp_AnimationFrame & 7;
+    g_Lv5DeathAnimFrame = *animationFramePtr & 7;
 
-    temp_v1 = *temp_AnimationFrame;
+    animationFrame = *animationFramePtr;
 
-    if (temp_v1 < 8) {
-        var_v1 = temp_v1 * 0x10;
-    } else if (temp_v1 >= 0x25) {
-        var_v1 = -0x80 - ((temp_v1 - 0x25) * 0x10);
+    if (animationFrame < 8) {
+        opacity = animationFrame * 0x10;
+    } else if (animationFrame >= 0x25) {
+        opacity = -0x80 - ((animationFrame - 0x25) * 0x10);
     } else {
-        var_v1 = 0x80;
+        opacity = 0x80;
     }
 
-    temp_s0 = &D_801C0E48;
+    spriteColor = &g_Lv5DeathSpriteRed;
 
-    D_801C0E4A = var_v1;
-    D_801C0E49 = var_v1;
-    *(volatile s8*)temp_s0 = var_v1;
+    g_Lv5DeathSpriteBlue = opacity;
+    g_Lv5DeathSpriteGreen = opacity;
+    *(volatile s8*)spriteColor = opacity;
 
-    temp_a2 = temp_s1->Rotation;
+    rotation = effect->Rotation;
 
-    BattleSetEffectTransform(&temp_s1->Pos, (s16)temp_a2, -((s32)(temp_a2 << 16) >> 18));
+    BattleSetEffectTransform(&effect->Pos, (s16)rotation, -((s32)(rotation << 16) >> 18));
 
-    g_Lv5DeathPrimPtr = func_800D4D90(temp_s0 - 4, g_cDb + 0x70, 0xC, g_Lv5DeathPrimPtr);
+    g_Lv5DeathPrimPtr = BattleBuildSpritePrimitives(spriteColor - 4, g_cDb + 0x70, 0xC, g_Lv5DeathPrimPtr);
 
-    if (temp_s1->AnimationFrame >= 0x2D) {
-        temp_s1->unk0 = -1;
-        D_801D8E58 -= 1;
+    if (effect->AnimationFrame >= 0x2D) {
+        effect->StartFrame = -1;
+        g_numberOfTargets -= 1;
     }
 
-    if (D_80062D98 == 0) {
-        if (temp_s1->AnimationFrame == 0x23) {
-            func_800D5774(temp_s1->TargetIndex);
+    if (g_BattleEffectPaused == 0) {
+        if (effect->AnimationFrame == 0x23) {
+            BattleQueueTargetEvent(effect->TargetIndex);
         }
 
-        temp_s1->AnimationFrame++;
+        effect->AnimationFrame++;
     }
 }
 
 void Lv5DeathUpdateFade(void) {
-    s16 temp_v0;
-    s16 var_v1;
-    s16 temp_v1;
-    Lv5DeathData* temp_a0;
+    s16 animationFrame;
+    s16 fadeValue;
+    s16 fadeStartFrame;
+    Lv5DeathData* effect;
 
-    temp_a0 = &D_80162978[D_8015169C];
-    temp_v0 = temp_a0->AnimationFrame;
+    effect = &D_80162978[D_8015169C];
+    animationFrame = effect->AnimationFrame;
 
-    if (temp_v0 < 8) {
+    if (animationFrame < 8) {
         g_BattleFarColorBlue = 0;
         g_BattleFarColorGreen = 0;
         g_BattleFarColorRed = 0;
 
         __asm__ volatile("" : : : "memory");
 
-        temp_v1 = temp_a0->AnimationFrame;
-        var_v1 = temp_v1 * 0x140;
-    } else if (D_801D8E58 <= 0) {
-        if (temp_a0->TargetIndex == 0) {
-            temp_a0->TargetIndex = temp_v0;
+        fadeStartFrame = effect->AnimationFrame;
+        fadeValue = fadeStartFrame * 0x140;
+    } else if (g_numberOfTargets <= 0) {
+        if (effect->TargetIndex == 0) {
+            effect->TargetIndex = animationFrame;
         }
 
-        var_v1 = 0xA00 - ((temp_a0->AnimationFrame - temp_a0->TargetIndex) * 0x140);
+        fadeValue = 0xA00 - ((effect->AnimationFrame - effect->TargetIndex) * 0x140);
     } else {
-        var_v1 = 0xA00;
+        fadeValue = 0xA00;
     }
 
-    if (temp_a0->AnimationFrame >= 0x35) {
-        var_v1 = 0;
-        temp_a0->unk0 = -1;
+    if (effect->AnimationFrame >= 0x35) {
+        fadeValue = 0;
+        effect->StartFrame = -1;
     }
 
-    D_800F5B74 = var_v1;
+    g_BattleModelFade = fadeValue;
 
-    if (D_80062D98 == 0) {
-        temp_a0->AnimationFrame = (s16)((u16)temp_a0->AnimationFrame + 1);
+    if (g_BattleEffectPaused == 0) {
+        effect->AnimationFrame = (s16)((u16)effect->AnimationFrame + 1);
     }
 }
 
@@ -214,55 +214,55 @@ INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", Lv5DeathCreateTargetEffect);
 #else
 
 void Lv5DeathCreateTargetEffect(s32 arg0) {
-    Lv5DeathData* temp_s0;
-    Lv5DeathData* temp_v0;
-    s32 temp_s1;
-    s8* temp_s3;
+    Lv5DeathData* skullEffect;
+    Lv5DeathData* glowEffect;
+    s32 targetIndex;
+    s8* targetPosition;
 
-    temp_s1 = arg0;
+    targetIndex = arg0;
 
-    temp_s0 = &D_80162978[BattleEffectRegister(Lv5DeathDrawSkull)];
+    skullEffect = &D_80162978[BattleEffectRegister(Lv5DeathDrawSkull)];
 
-    temp_s3 = (s8*)&temp_s0->Pos;
+    targetPosition = (s8*)&skullEffect->Pos;
 
-    BattleGetPartPosition(temp_s1, D_8015190F[temp_s1 * 0xB9C], temp_s3);
+    BattleGetPartPosition(targetIndex, D_8015190F[targetIndex * 0xB9C], targetPosition);
 
-    temp_s0->Rotation = 0x1CCC;
-    temp_s0->TargetIndex = temp_s1;
+    skullEffect->Rotation = 0x1CCC;
+    skullEffect->TargetIndex = targetIndex;
 
-    temp_v0 = &D_80162978[BattleEffectRegister(Lv5DeathDrawGlow)];
+    glowEffect = &D_80162978[BattleEffectRegister(Lv5DeathDrawGlow)];
 
-    temp_v0->Pos = temp_s0->Pos;
+    glowEffect->Pos = skullEffect->Pos;
 
-    temp_v0->Rotation = 0x13DC;
+    glowEffect->Rotation = 0x13DC;
 
-    BattleCommandSend(0x20, BattlePositionToStereoPan(temp_s3), 0xAA);
+    BattleCommandSend(0x20, BattlePositionToStereoPan(targetPosition), 0xAA);
 }
 #endif
 
 void Lv5DeathSetup(s32 arg0, s32 arg1) {
-    s32 var_a0;
-    s32 var_v1;
-    Lv5DeathData* var_v0;
+    s32 targetCount;
+    s32 targetBit;
+    Lv5DeathData* effect;
 
-    D_801D8E54 = &D_80162978[BattleEffectRegister(MAGIC_Lv5DeathInit)];
+    g_Lv5DeathInitEffect = &D_80162978[BattleEffectRegister(MAGIC_Lv5DeathInit)];
 
     QueueTimLoad(&lv5deth_tim, 0, 0, 0);
 
-    var_v0 = &D_80162978[BattleEffectRegister(Lv5DeathUpdateFade)];
+    effect = &D_80162978[BattleEffectRegister(Lv5DeathUpdateFade)];
 
-    var_v0->TargetIndex = 0;
+    effect->TargetIndex = 0;
 
     MagicAnimationRegister(arg0, arg1, 2, Lv5DeathCreateTargetEffect);
 
-    var_v1 = 0;
-    var_a0 = 0;
+    targetBit = 0;
+    targetCount = 0;
 
     do {
-        if ((arg0 >> var_v1++) & 1) {
-            var_a0++;
+        if ((arg0 >> targetBit++) & 1) {
+            targetCount++;
         }
-    } while (var_v1 < 0xA);
+    } while (targetBit < 0xA);
 
-    D_801D8E58 = var_a0;
+    g_numberOfTargets = targetCount;
 }

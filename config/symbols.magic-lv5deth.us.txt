@@ -8,3 +8,10 @@ g_Lv5DeathPrimBuffer1 = 0x801CCE50;
 g_Lv5DeathPrimBuffer0 = 0x801C0E50;
 g_Lv5DeathPrimPtr = 0x801D8E50;
 g_Lv5DeathAnimFrame = 0x801C0E4C;
+
+g_Lv5DeathSpriteRed = 0x801C0E48;
+g_Lv5DeathSpriteGreen = 0x801C0E49;  
+g_Lv5DeathSpriteBlue = 0x801C0E4A;  
+
+g_numberOfTargets = 0x801D8E58;
+g_Lv5DeathInitEffect = 0x801D8E54;

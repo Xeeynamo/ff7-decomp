@@ -120,7 +120,7 @@ static void BarrierRenderBorder(void) {
     BarrierBufferPtr =
         BattleBuildEffectPrimitives(&BorderRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
 
-    if (D_80062D98 == 0) {
+    if (g_BattleEffectPaused == 0) {
         barrier->AnimationFrame++;
     }
 }
@@ -176,7 +176,7 @@ static void BarrierRenderShield(void) {
     BarrierBufferPtr =
         BattleBuildEffectPrimitives(&ShieldRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
 
-    if (D_80062D98 == 0) {
+    if (g_BattleEffectPaused == 0) {
         barrier->AnimationFrame++;
     }
 }
@@ -185,7 +185,7 @@ static void BarrierAnimationUpdate(void) {
     BarrierData* barrier = &D_80162978[D_8015169C]; // model instance
     BarrierData* next;
 
-    if (D_80062D98 != 0) {
+    if (g_BattleEffectPaused != 0) {
         return;
     }
 
@@ -254,7 +254,7 @@ static void BarrierAnimationUpdate(void) {
     }
 
     if (barrier->AnimationFrame == 17) {
-        func_800D5774(barrier->TargetIndex);
+        BattleQueueTargetEvent(barrier->TargetIndex);
         barrier->StartFrame = -1;
     }
 

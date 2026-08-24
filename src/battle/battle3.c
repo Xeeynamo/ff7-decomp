@@ -644,7 +644,7 @@ void func_800E15D8(void) {
     if (D_800F3110 != 0) {
         D_800F3110 = 0;
     }
-    D_80062D98 = 0;
+    g_BattleEffectPaused = 0;
     D_80062D99 = 0;
     D_800F198C = battleSceneData->limitReadyMask;
     D_800F57CC = (Savemap.config >> 4) & 3;

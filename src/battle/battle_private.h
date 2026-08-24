@@ -370,7 +370,7 @@ extern Unk800F7ED8 D_800F7ED8[];
 extern s16 D_800F8182[];
 extern s16 D_800F8360;
 extern s32 g_dbIndex;
-extern s16 D_800F836C;
+extern s16 g_BattleReflectMask;
 extern s16 D_800F8370;
 extern u8 D_800F8374;
 extern u8 D_800F837C;
