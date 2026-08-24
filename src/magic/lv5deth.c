@@ -21,37 +21,49 @@ extern s32 D_801CCE50;
 extern s32 *D_801D8E50;
 extern s32 *D_801D8E54;
 extern s32 g_dbIndex;
+extern s32 D_801B05E0;
+extern s32 D_801D8E58;
+extern u8 D_80062D98;
+extern s32 D_801C0868;
+extern s8 D_800F5B70;
+extern s8 D_800F5B71;
+extern s8 D_800F5B72;
+extern s16 D_800F5B74;
+extern s16 D_8015169C;
+extern s8 D_801C0E48;
+extern volatile s8 D_801C0E49;
+extern volatile s8 D_801C0E4A;
+extern s16 D_801C0E4C;
+extern s32 g_cDb;
+extern u8 D_8015190F[];
+
+
 
 /* Battle / magic engine functions. */
+extern void BattleGetPartPosition(s32 arg0, s32 arg1, void *arg2);
 extern s32 BattleEffectRegister(void (*func)(void));
 extern void MagicAnimationRegister(s32, s32, s32, void (*func)(void));
 extern void func_800D2980(void *, s32, s32, s32);
 extern s32 *func_800D29D4(s32, s32, s32, s32 *);
-extern void func_800D4368(void *, s16, s32);
+extern void func_800D4368(SVECTOR *pos, s16 arg1, s32 arg2);
 extern s32 func_800D4D90(s8*, s32, s32, s32);
 extern void func_800D5774(s16);
 
+
+
 /* LV5 Death functions. */
-extern void func_801B0000(void);
-extern void func_801B0074(void);
-extern void func_801B0310(void);
-extern void func_801B0414(s32 arg0);
-
-void func_801B01BC();
-
-
-
-extern func_801B0508(s32 arg0, s32 arg1);
-
-extern s32 D_801B05E0;
-extern s32 D_801D8E58;
-extern s32 *D_801D8E50;
-extern u8 D_80062D98;
-extern s16 D_8015169C;
-extern s32 D_801C0868;
-extern s32 g_cDb;
+void func_801B0000(void);
+void func_801B0074(void);
+void func_801B01BC(void);
+void func_801B0310(void);
+void func_801B0414(s32 arg0);
+void func_801B0508(s32 arg0, s32 arg1);
 
 
+
+//#ifndef NON_MATCHINGS
+//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0000);
+//#else
 
 void func_801B0000(void)
 {
@@ -70,14 +82,22 @@ void func_801B0000(void)
     }
 }
 
+//#endif
+
+
+//#ifndef NON_MATCHINGS
+//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0054);
+//#else
 
 void func_801B0054(void)
 {
-    func_801B0508();
+    ((void (*)(void))func_801B0508)();
 }
+//#endif
 
-
-
+//#ifndef NON_MATCHINGS
+//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0074);
+//#else
 void func_801B0074(void)
 {
     char pad[0x34];
@@ -132,27 +152,14 @@ void func_801B0074(void)
     }
 }
 
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B01BC);
-#else
+//#endif
 
-extern s16 D_8015169C;
 
-extern u8 D_80062D98;
 
-extern s8 D_801C0E48;
-extern volatile s8 D_801C0E49;
-extern volatile s8 D_801C0E4A;
-extern s16 D_801C0E4C;
 
-extern s32 D_801D8E50;
-extern s32 D_801D8E58;
-extern s32 g_cDb;
-
-extern void func_800D4368(void*, s16, s32);
-extern s32 func_800D4D90(s8*, s32, s32, s32);
-extern void func_800D5774(s16);
-
+//#ifndef NON_MATCHINGS
+//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B01BC);
+//#else
 void func_801B01BC(void) {
     s16 temp_v1;
     u8 var_v1;
@@ -183,13 +190,13 @@ void func_801B01BC(void) {
     D_801C0E49 = var_v1;
     *(volatile s8*)temp_s0 = var_v1;
 
-    temp_a2 = temp_s1->unkC;
+  temp_a2 = temp_s1->unkC;
 
-    func_800D4368(
-        temp_s1->unk4,
-        (s16)temp_a2,
-        -((s32)(temp_a2 << 16) >> 18)
-    );
+func_800D4368(
+    &temp_s1->unk4,
+    (s16)temp_a2,
+    -((s32)(temp_a2 << 16) >> 18)
+);
 
     D_801D8E50 = func_800D4D90(
         temp_s0 - 4,
@@ -212,30 +219,72 @@ void func_801B01BC(void) {
     }
 }
 
-#endif
+//#endif
 
-INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0310);
+//#ifndef NON_MATCHINGS
+//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0310);
+//#else
+
+
+void func_801B0310(void) {
+    s16 temp_v0;
+    s16 var_v1;
+    s16 temp_v1;
+    Lv5DeathData *temp_a0;
+
+    temp_a0 = &D_80162978[D_8015169C];
+    temp_v0 = temp_a0->unk2;
+
+    if (temp_v0 < 8) {
+        D_800F5B72 = 0;
+        D_800F5B71 = 0;
+        D_800F5B70 = 0;
+
+        __asm__ volatile ("" : : : "memory");
+
+        temp_v1 = temp_a0->unk2;
+        var_v1 = temp_v1 * 0x140;
+    } else if (D_801D8E58 <= 0) {
+        if (temp_a0->unkE == 0) {
+            temp_a0->unkE = temp_v0;
+        }
+
+        var_v1 = 0xA00 - ((temp_a0->unk2 - temp_a0->unkE) * 0x140);
+    } else {
+        var_v1 = 0xA00;
+    }
+
+    if (temp_a0->unk2 >= 0x35) {
+        var_v1 = 0;
+        temp_a0->unk0 = -1;
+    }
+
+    D_800F5B74 = var_v1;
+
+    if (D_80062D98 == 0) {
+        temp_a0->unk2 = (s16)((u16)temp_a0->unk2 + 1);
+    }
+}
+
+//#endif
 
 #ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0414);
 #else
 
 
-
-extern u8 D_8015190F[];
-
 void func_801B0414(s32 arg0)
 {
-    Lv5DeathData* temp_s0;
-    Lv5DeathData* temp_v0;
+    Lv5DeathData *temp_s0;
+    Lv5DeathData *temp_v0;
     s32 temp_s1;
-    s8* temp_s3;
+    s8 *temp_s3;
 
     temp_s1 = arg0;
 
     temp_s0 = &D_80162978[BattleEffectRegister(func_801B01BC)];
 
-    temp_s3 = (s8*)&temp_s0->unk4;
+    temp_s3 = (s8 *)&temp_s0->unk4;
 
     BattleGetPartPosition(
         temp_s1,
@@ -260,6 +309,9 @@ void func_801B0414(s32 arg0)
 }
 #endif
 
+//#ifndef NON_MATCHINGS
+//INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0508);
+//#else
 
 void func_801B0508(s32 arg0, s32 arg1)
 {
@@ -288,3 +340,4 @@ void func_801B0508(s32 arg0, s32 arg1)
 
     D_801D8E58 = var_a0;
 }
+//#endif
