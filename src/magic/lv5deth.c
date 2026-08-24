@@ -48,14 +48,14 @@ extern s32 func_800D4D90(s8*, s32, s32, s32);
 extern void func_800D5774(s16);
 
 /* LV5 Death functions. */
-void func_801B0000(void);
-void func_801B0074(void);
-void func_801B01BC(void);
-void func_801B0310(void);
-void func_801B0414(s32 arg0);
-void func_801B0508(s32 arg0, s32 arg1);
+void MAGIC_Lv5DeathInit(void);
+void Lv5DeathRenderEarly(void);
+void Lv5DeathRender(void);
+void Lv5DeathUpdateFade(void);
+void Lv5DeathCreateEffect(s32 arg0);
+void Lv5DeathSetup(s32 arg0, s32 arg1);
 
-void func_801B0000(void) {
+void MAGIC_Lv5DeathInit(void) {
     s32* var_v1;
 
     var_v1 = &D_801CCE50;
@@ -71,9 +71,9 @@ void func_801B0000(void) {
     }
 }
 
-void func_801B0054(void) { ((void (*)(void))func_801B0508)(); }
+void Lv5DeathStart(void) { ((void (*)(void))Lv5DeathSetup)(); }
 
-void func_801B0074(void) {
+void Lv5DeathRenderEarly(void) {
     char pad[0x34];
 
     Lv5DeathData* temp_s0;
@@ -116,7 +116,7 @@ void func_801B0074(void) {
     }
 }
 
-void func_801B01BC(void) {
+void Lv5DeathRender(void) {
     s16 temp_v1;
     u8 var_v1;
     s32 temp_a2;
@@ -166,7 +166,7 @@ void func_801B01BC(void) {
     }
 }
 
-void func_801B0310(void) {
+void Lv5DeathUpdateFade(void) {
     s16 temp_v0;
     s16 var_v1;
     s16 temp_v1;
@@ -207,10 +207,10 @@ void func_801B0310(void) {
 }
 
 #ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", func_801B0414);
+INCLUDE_ASM("asm/us/magic/nonmatchings/lv5deth", Lv5DeathCreateEffect);
 #else
 
-void func_801B0414(s32 arg0) {
+void Lv5DeathCreateEffect(s32 arg0) {
     Lv5DeathData* temp_s0;
     Lv5DeathData* temp_v0;
     s32 temp_s1;
@@ -218,7 +218,7 @@ void func_801B0414(s32 arg0) {
 
     temp_s1 = arg0;
 
-    temp_s0 = &D_80162978[BattleEffectRegister(func_801B01BC)];
+    temp_s0 = &D_80162978[BattleEffectRegister(Lv5DeathRender)];
 
     temp_s3 = (s8*)&temp_s0->unk4;
 
@@ -227,7 +227,7 @@ void func_801B0414(s32 arg0) {
     temp_s0->unkC = 0x1CCC;
     temp_s0->unkE = temp_s1;
 
-    temp_v0 = &D_80162978[BattleEffectRegister(func_801B0074)];
+    temp_v0 = &D_80162978[BattleEffectRegister(Lv5DeathRenderEarly)];
 
     temp_v0->unk4 = temp_s0->unk4;
 
@@ -237,20 +237,20 @@ void func_801B0414(s32 arg0) {
 }
 #endif
 
-void func_801B0508(s32 arg0, s32 arg1) {
+void Lv5DeathSetup(s32 arg0, s32 arg1) {
     s32 var_a0;
     s32 var_v1;
     Lv5DeathData* var_v0;
 
-    D_801D8E54 = &D_80162978[BattleEffectRegister(func_801B0000)];
+    D_801D8E54 = &D_80162978[BattleEffectRegister(MAGIC_Lv5DeathInit)];
 
     QueueTimLoad(&lv5deth_tim, 0, 0, 0);
 
-    var_v0 = &D_80162978[BattleEffectRegister(func_801B0310)];
+    var_v0 = &D_80162978[BattleEffectRegister(Lv5DeathUpdateFade)];
 
     var_v0->unkE = 0;
 
-    MagicAnimationRegister(arg0, arg1, 2, func_801B0414);
+    MagicAnimationRegister(arg0, arg1, 2, Lv5DeathCreateEffect);
 
     var_v1 = 0;
     var_a0 = 0;

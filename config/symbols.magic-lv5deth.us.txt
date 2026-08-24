@@ -1,1 +1,4 @@
 lv5deth_tim = 0x801B05E0;
+Lv5DeathRenderEarly = 0x801B0074;
+Lv5DeathRender = 0x801B01BC;
+Lv5DeathCreateEffect = 0x801B0414;
