@@ -430,9 +430,9 @@ typedef struct {
     u8 quadEnabled;
     u8 allAttacksLeft;
     u8 targetFlags;
-    u8 unk6;
+    u8 menuflags;
     u8 costModifier;
-} ActiveCharacterMagicData; // size: 0x8
+} MagicRecord; // size: 0x8
 
 typedef struct {
     u8 value;
@@ -469,13 +469,47 @@ typedef struct {
     u8 unkD[15];
 } AttackData; // size: 0x1C
 
+// Kernel weapon record, one per weapon id (g_WeaponTable), 0x2C-byte stride.
+// Combat fields verified by dumping the live table and matching each field
+// against published weapon stats (same method as ArmorRecord); the remaining
+// fields follow the standard kernel weapon-data layout.
 typedef struct {
-    u8 unk0[6];
-    u8 materiaGrowth;
-    u8 unk7[21];
-    u8 materiaSlots[8];
-    u8 unk24[8];
-} ActiveCharacterWeaponData; // size: 0x2C
+    u8 targetFlags;     // 0x23 = melee, 0x03 = long-range (hits back row)
+    u8 attackEffectId;  // always 0xFF (unused by weapons)
+    u8 damageFormula;   // 0x11 = physical; 0xA0-0xA8 select a special formula
+                        // (HP/MP/AP/Limit/kills/status/dead-allies), shared by
+                        // formula across weapons
+    u8 unk3;            // always 0xFF (unused)
+    u8 attack;          // attack power
+    u8 statusAttack;    // index of the status this attack inflicts; 0xFF (none)
+                        // on every weapon (cf. ArmorRecord.statusDefense)
+    u8 materiaGrowth;   // 0=None, 1=Normal, 2=Double, 3=Triple
+    u8 criticalPercent; // bonus critical-hit %
+    u8 attackPercent;   // hit rate
+    u8 weaponModel;     // lo nibble = model index, hi nibble = animation mod
+    u8 alignmentA;      // always 0xFF (alignment padding)
+    u8 soundIdMask;     // mask to reach the high (0x100+) sound-effect ids
+    u8 cameraMovementId[2]; // attack camera; always 0xFFFF
+    u8 equipMask[2];      // equippable-by-character bitmask (see ArmorRecord);
+                          // Cloud weapons add bit9 (Young Cloud) = 0x0201
+    u16 attackElement;  // 0x0400=Cut,0x0800=Hit,0x1000=Punch,0x2000=Shoot
+    u8 unk12[2];          // unknown, always 0xFFFF
+    u8 statBonusId[4];    // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
+                          // 4=Dex,5=Lck; 0xFF = unused (the Mag column is id 2)
+    u8 statBonusValue[4]; // bonus amount, paired with statBonusId; 0xFF unused
+    u8 materiaSlot[8];    // one byte per slot; same encoding as ArmorRecord
+                          // (5=single/6,7=linked-pair when materiaGrowth!=None;
+                          //  1=single/2,3=linked-pair when materiaGrowth==None)
+    u8 hitSound;      // sound-effect id for a normal hit (constant per weapon
+                      // class)
+    u8 criticalSound; // sound-effect id for a critical hit
+    u8 missSound;    // sound-effect id for a miss (0x2F on firearms, else 0x05)
+    u8 impactEffect; // impact-effect id (varies per weapon)
+    u8 specialAttackFlags[2]; // always 0xFFFF
+    u8 restrictionMask[2]; // a set bit forbids: 0x01 sell, 0x02 use in battle,
+                           // 0x04 use in menu, 0x08 throw (0xFFF6 base; the
+                           // initial weapons add sell+throw -> 0xFFFF)
+} WeaponRecord;
 
 typedef struct {
     u16 levelUpApLimits[4];
@@ -534,8 +568,8 @@ typedef struct {
     u32 immuneStatuses;
     ActiveCharCommandMenu commandMenu[16];
     u8 unkAC[92];
-    ActiveCharacterMagicData enabledMagic[96];
-    ActiveCharacterWeaponData weaponData;
+    MagicRecord enabledMagic[96];
+    WeaponRecord weapon;
     s16 unk434;
     u8 unk436;
     u8 encounterDownRate;
@@ -939,7 +973,7 @@ extern u16 g_FieldScriptPC[48]; // program counters for active entity scripts
 extern u8 D_8008325C[];         // per-model default animation id (DFANM)
 extern u8 g_WindowToEntity[4];
 extern WindowData g_WindowData[4];
-extern u8 D_8008326C;
+extern u8 D_8008326C[4];
 extern s32 D_80083338;
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level
@@ -1016,7 +1050,7 @@ void func_80026448(
 void func_800269C0(void* poly);
 s32 func_80026B70(unsigned char* str);
 void func_80026F44(s32 x, s32 y, const char*, s32 color); // print FF7 string
-int SystemAkaoExecute(void);
+int SystemAkaoExecute();
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);
