@@ -171,17 +171,22 @@ typedef struct {
                            // 0x04 use in menu (0xFFFE on every accessory)
 } AccessoryRecord;
 
+extern u16 g_Pad1ButtonsPrev;
+extern u16 g_Pad2Buttons;
+extern u16 g_Pad2ButtonsPrev;
+extern u16 g_Pad2ButtonsPressed;
+extern u16 g_Pad2ButtonsRepeat;
+extern u16 g_Pad1FastButtons;
+extern u16 g_Pad1FastButtonsPrev;
+extern u16 g_Pad1FastButtonsPressed;
+extern u16 g_Pad1FastButtonsRepeat;
+extern u16 g_Pad2FastButtons;
+extern u16 g_Pad2FastButtonsPrev;
+extern u16 g_Pad2FastButtonsPressed;
+extern u16 g_Pad2FastButtonsRepeat;
+
 extern s32 D_80010100[];
-extern s32 D_80048CFC;
-extern s32 D_80048D00;
-extern s32 D_80048D04;
-extern s32 D_80048D08;
-extern s32 D_80048D0C;
-extern s32 D_80048D10;
-extern s32 D_80048D14;
-extern s32 D_80048D18;
-extern s32 D_80048D1C;
-extern s32 D_80048D20;
+extern Yamada D_80048CFC[];
 extern Yamada D_80048D84[];
 extern s32 D_80048DD4[];
 extern PortraitEntry D_80048FE8[15];
@@ -192,17 +197,64 @@ extern PortraitEntry D_80048FE8[15];
 extern s32 g_BattleCharIdToCharId[11];
 extern u8 D_80049208[12]; // menu color RGB-quadruplet
 extern s32 D_80049224[8];
-extern s32 D_80049474;    // play-clock divisor: 36000 (seconds per 10 hours)
-extern s32 D_80049478;    // play-clock divisor: 3600 (seconds per hour)
+extern s32 D_80049474[]; // play-clock divisors: 36000 (seconds per 10 hours), 3600 (seconds per hour)
 extern s32 D_80049500[8]; // party slot -> character id (endgame level snapshot)
 extern u8 D_80049520[];
 extern u8 D_80049528[];
+extern u8 D_80062E54[8];
+extern u8 D_80062E5C; // Pre-emptive materia is at maximum level.
+extern ActiveCharacterData* D_80062E60; // Current active character.
+extern u16 g_ElementIdToBitmask[16];
+extern u32 D_80062E64;
+extern u32 D_80062E68;
+extern s16 D_80062E6C[4];
+extern u32 D_80062E74;
+extern u32 D_80062E78;
+extern s32 D_80062E7C;
+extern s32 D_80062E80;
+extern s32 D_80062E84;
+extern u32 D_80062E88;
+extern u32 D_80062E8C;
+extern u32 D_80062E90;
+extern s32 g_RewardMenuHasEarnedItems;
+extern u_long* g_CurrentMenuOrderingTable;
+extern s32 g_PartyMenuListState;
+extern s32 g_PartyMenuPreviousMenuId;
+extern s32 g_PartyMenuListTransitionFactor;
+extern s32 g_PartyMenuSelectedMenuId;
+extern u32 D_8006966C[16];
+extern u32 D_8006968C[8];
+extern s16 g_RewardMenuState;
+extern u8 D_80062DDA;
+extern u8 D_80062F98;
+extern s8 D_80062FFC;
+extern s16 D_80062FF4;
+extern u8 D_80062FEC;
+extern u16 D_80062F34[3];
+extern Unk80062F7C* D_80062F7C;
 extern u8 D_80063690[];
 extern Unk800696AC D_800696AC;
-extern u32 D_80062FA0; // Some sort of pad state
+extern TILE D_800696FC[5];
+extern u_long g_MenuOrderingTables[2][20];
+extern MenuTable g_RewardMenuTable;
+extern s32 g_TutorialActive;
+extern u32 D_80062FA4[2];
 extern u16 D_80069490[];
-extern DRAWENV D_80070700; // active draw environment (double-buffered)
-extern DISPENV D_8007075C; // active display environment (double-buffered)
+extern u8 D_800694B4[16];
+extern u8 D_800694C4[16];
+extern u8 D_800694D4[16];
+extern s16 D_800694E4[12];
+extern u16 D_800694F4[];
+extern u16 D_800694F6;
+extern u8 D_800694FA;
+extern s16 D_800694FC[6];
+extern s16 D_800694FE;
+extern s16 D_80069500;
+extern s16 D_80069502;
+extern s16 D_80069504;
+extern s16 D_80069506;
+extern DRAWENV D_80070700;    // active draw environment (double-buffered)
+extern DISPENV D_8007075C[2]; // active display environments (double-buffered)
 extern u16 D_800707BC;
 extern u8 D_800708D4[];
 extern u8 D_800716D0;
@@ -212,18 +264,17 @@ extern AccessoryRecord g_AccessoryTable[]; // accessory kernel table, by acc. id
 extern ArmorRecord g_ArmorTable[]; // armor kernel table, indexed by armor id
 extern u_long* D_800722C8;         // LBA dst for func_80014540
 extern u8 D_800722DC[];
-extern u8 D_800730DC[][0x14];
 extern WeaponRecord g_WeaponTable[]; // weapon kernel table, by weapon id
 extern s32 D_80095DD8;               // LBA len for func_80014540
 extern s16 g_isFieldLoading;
-extern u16 D_8009C560; // refer to Subsystem enum
+extern volatile s16 D_8009C560; // refer to Subsystem enum
 extern SavePartyMember D_8009C738[8];
-extern u8 D_8009C754[];  // Savemap.party[0].weapon, with a 0x84-byte stride
-extern u8 D_8009C755[];  // Savemap.party[0].armor, with a 0x84-byte stride
-extern u8 D_8009D44C[8]; // party-level snapshot for endgame battle AI
-extern u16 D_8009ABF6;
+extern u8 D_8009C754[]; // Savemap.party[0].weapon, with a 0x84-byte stride
+extern u8 D_8009C755[]; // Savemap.party[0].armor, with a 0x84-byte stride
+extern s16 D_8009ABF6;
 extern u16 D_8009AC32;
+extern u8 D_8009D44C[8]; // party-level snapshot for endgame battle AI
 extern u8 D_8009D5E9;
-extern u16 D_8009D78A;           // party-present bitmask
-extern void (*D_800A00CC)(void); // battle/brom entrypoint
-extern void (*D_800A1158)(void); // battle/battle entrypoint
+extern u16 D_8009D78A; // party-present bitmask
+void D_800A00CC(void); // battle/brom entrypoint
+void D_800A1158(void); // battle/battle entrypoint

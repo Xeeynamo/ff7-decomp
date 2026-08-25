@@ -386,7 +386,7 @@ extern u8 D_800F87F0[]; // per-combatant battle-script variable bank, 0x80 B
                         // each (func_800B13B0)
 extern s8 D_800F8CF0;
 extern u32 D_800F8CF4[][0x18];
-extern Unk80026448 D_800F9132;
+extern MenuTable D_800F9132;
 extern s32 D_800F9144;
 extern s8 D_800F914E;
 extern s32 D_800F9F28[]; // size is either 4 or 5

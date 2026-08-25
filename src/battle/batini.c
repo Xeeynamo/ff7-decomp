@@ -1,4 +1,5 @@
 #include "battle.h"
+#include "unzip.h"
 
 extern Unk801B2308 D_80163624;
 extern u16 D_8016376C;
@@ -297,17 +298,17 @@ void func_801B11BC(s32 arg0) {
 
 void func_801B137C(s32 arg0) {
     s32 i;
-    Unk8009D84C* unk;
+    ActiveCharacterData* data;
 
-    unk = &D_8009D84C[arg0];
-    unk->unk21 = 1;
+    data = &D_8009D84C[arg0];
+    data->unk21 = 1;
     for (i = 1; i < 4; i++) {
-        unk->un4C[i][0] = 0xFF;
-        unk->un4C[i][1] = 0;
-        unk->un4C[i][2] = 0;
-        unk->un4C[i][3] = 3;
-        unk->un4C[i][4] = 0;
-        unk->un4C[i][5] = 0;
+        data->commandMenu[i].id = 0xFF;
+        data->commandMenu[i].initialCursorAction = 0;
+        data->commandMenu[i].targetFlags = 0;
+        data->commandMenu[i].unk4 = 3;
+        data->commandMenu[i].allCount = 0;
+        data->commandMenu[i].materiaEffectFlags = 0;
     }
 }
 
@@ -469,7 +470,7 @@ s32 func_801B1734(s32 slot) {
     return ret;
 }
 
-void func_801B18F8(Unk8009D84C* arg0, Unk800F5E60* arg1, Unk800F83E0* arg2) {
+void func_801B18F8(Unk8009D84C* arg0, Unk801B18F8* arg1, Unk800F83E0* arg2) {
     arg2->unk14 = arg0->unk6;
     arg2->unk15 = arg0->unk7;
     arg2->maxHP = arg0->unk12;
@@ -483,9 +484,10 @@ void func_801B18F8(Unk8009D84C* arg0, Unk800F5E60* arg1, Unk800F83E0* arg2) {
     }
     arg1->maxHP = arg2->maxHP;
     arg1->maxMP = arg2->unk2A;
-    if (arg0->unk23 & 8) {
-        arg1->capHP = 999;
-        arg1->capMP = 9999;
+    // 8 = HP_MP_SWAP
+    if (arg0->characterFlags & 8) {
+        arg1->unk16 = 999;
+        arg1->unk14 = 9999;
     } else {
         arg1->capHP = 9999;
         arg1->capMP = 999;
@@ -704,9 +706,9 @@ static void func_801B23E0(s32 sceneID, void (*cb)(void)) {
     i = var_s5[formationIndex];
     var_s3_2 = &var_s5[i];
     var_s2 = (u_long*)&scene;
-    func_80017108( // gzip decompress
-        var_s3_2,  // src
-        var_s2);   // dst
+    Unzip(        // gzip decompress
+        var_s3_2, // src
+        var_s2);  // dst
     formationIndex = sceneID - chunkID * 4;
     func_80014A00(D_8016360C.enemyModelIDs, scene.enemyModelIDs,
                   sizeof(scene.enemyModelIDs));

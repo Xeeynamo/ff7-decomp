@@ -3,7 +3,6 @@ import os
 import pathlib
 import sys
 from dataclasses import dataclass
-import os
 
 import ninja_syntax
 import yaml
@@ -114,8 +113,14 @@ def parse_compiler_params(line: str) -> CompilerParams:
             try:
                 n = int(value)
                 c.cc_gp = f"-G{n}"
+                c.as_flags += f" -G{n}"
             except ValueError:
                 raise Exception(f"{key} value {value} is not a valid integer")
+        elif key == "COMM":
+            if value == "true":
+                c.as_flags += " --use-comm-section"
+            elif value != "false":
+                raise Exception(f"{key} value {value} is not a valid boolean")
         elif key == "O":
             try:
                 n = int(value)

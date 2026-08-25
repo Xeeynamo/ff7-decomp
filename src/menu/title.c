@@ -1,9 +1,10 @@
 //! PSYQ=3.3 CC1=2.7.2
 #include <psxsdk/libapi.h>
 #include "savemenu.h"
+#include <psxsdk/libetc.h>
 
 extern s32 D_801E2CF4;
-extern Unk80026448 D_801E3DEC[2];
+extern MenuTable D_801E3DEC[2];
 
 static void func_801D2B58(u16 arg0) {
     D_8009A000[0] = 0x30;
@@ -235,7 +236,7 @@ static s32 func_801D3AB0(s32 arg0) {
     switch (g_MenuStartMode) {
     case START_MENU_MODE_SELECT_SLOT:
         func_8001EB2C(
-            D_801E3668.x - 18, D_801E3668.y + 6 + D_801E3D80[0].unkB * 12);
+            D_801E3668.x - 18, D_801E3668.y + 6 + D_801E3D80[0].row * 12);
         func_80026F44(10, 11, D_801E2CFC[1], 7);
         func_80026F44(D_801E3668.x + 12, D_801E3668.y + 5, D_801E2CFC[3],
                       -(D_801E8F38[0][0] != 0) & 7);
@@ -249,27 +250,30 @@ static s32 func_801D3AB0(s32 arg0) {
         func_8001E040(&D_801E3668);
         break;
     case START_MENU_MODE_SELECT_FILE:
-        if (!D_801E8F38[D_801E3D80[0].unkB][0]) {
+        if (!D_801E8F38[D_801E3D80[0].row][0]) {
             g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
         } else {
             func_800269D0();
             func_800269C0(D_801E3D58 * 0x5000 + D_801D4EDC);
-            func_8001EB2C(8, (D_801E3D80[1].unkB * 64) | 0x38);
-            var_s3 = !D_801E3D80[1].unk8 ? 3 : 4;
+            func_8001EB2C(8, (D_801E3D80[1].row * 64) | 0x38);
+            var_s3 = !D_801E3D80[1].scrolling ? 3 : 4;
             for (var_s0 = 0; var_s0 < var_s3; var_s0++) {
-                if ((D_80062F3C >> (var_s0 + D_801E3D80[1].unk2)) & 1) {
+                if ((D_80062F3C >> (var_s0 + D_801E3D80[1].rowOffset)) & 1) {
                     func_8001DE70();
                     func_801D370C(
-                        0, var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8,
-                        var_s0 + D_801E3D80[1].unk2);
+                        0,
+                        var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8,
+                        var_s0 + D_801E3D80[1].rowOffset);
                     func_8001DEB0();
                 } else {
                     func_80026F44(
-                        0x32, var_s0 * 64 + 55 + D_801E3D80[1].unkF * 8,
+                        0x32,
+                        var_s0 * 64 + 55 + D_801E3D80[1].unkF * 8,
                         D_801E2CFC[8], 6);
                     func_8001DE40(&sp38, &D_801E3660);
                     func_8001DE24(
-                        &sp38, 0, var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8);
+                        &sp38, 0,
+                        var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8);
                     func_8001E040(&sp38);
                 }
             }
@@ -283,7 +287,7 @@ static s32 func_801D3AB0(s32 arg0) {
             func_80026F44(0xCE, 11, D_801E2CFC[9], 6);
             func_80026F44(
                 func_80026B70(D_801E2CFC[9]) + 0xD0, 11,
-                ((13 + D_801E3D80[1].unkB + D_801E3D80[1].unk2) * 36) +
+                ((13 + D_801E3D80[1].row + D_801E3D80[1].rowOffset) * 36) +
                     (D_801E2CFC[0]),
                 7);
             func_8001DE0C(&sp38, 200, 5, 0x4E, 0x18);
@@ -325,8 +329,8 @@ static s32 func_801D3AB0(s32 arg0) {
         break;
     case START_MENU_MODE_FORMAT_PROMPT:
         if (arg0 & 2) {
-            func_8001EB2C(D_801E3668.x - 0x12,
-                          D_801E3668.y + 6 + D_801E3D80[0].unkB * 12);
+            func_8001EB2C(
+                D_801E3668.x - 0x12, D_801E3668.y + 6 + D_801E3D80[0].row * 12);
         }
         func_80026F44(D_801E3668.x + 12, D_801E3668.y + 5, D_801E2CFC[3],
                       -(D_801E8F38[0][0] != 0) & 7);
@@ -344,14 +348,14 @@ static s32 func_801D3AB0(s32 arg0) {
         func_80026F44(228 - temp_s2 / 2, D_801E3668.h + 112, D_801E2CFC[34], 7);
         func_80026F44(228 - temp_s2 / 2, D_801E3668.h + 124, D_801E2CFC[35], 7);
         func_8001EB2C(
-            200 - temp_s2 / 2, 0x73 + D_801E3DEC[0].unkB * 12 + D_801E3668.h);
+            200 - temp_s2 / 2, 0x73 + D_801E3DEC[0].row * 12 + D_801E3668.h);
         func_8001DE0C(
             &sp38, 0xB6 - temp_s2 / 2, D_801E3668.h + 0x5D, temp_s2, 0x30);
         func_8001E040(&sp38);
         break;
     case START_MENU_MODE_TITLE:
         func_8001EB2C(
-            D_801E3668.x - 0x12, D_801E3668.y + 6 + D_801E3DEC[1].unkB * 12);
+            D_801E3668.x - 0x12, D_801E3668.y + 6 + D_801E3DEC[1].row * 12);
         func_80026F44(
             D_801E3668.x + 8, D_801E3668.y + 6, D_801E2CFC[32], 7); // new game
         func_80026F44(
@@ -398,8 +402,8 @@ static s32 func_801D3AB0(s32 arg0) {
     if (!(func_8001F6B4() & 0xFF) && D_801E3D54 == 1) {
         switch (g_MenuStartMode) {
         case START_MENU_MODE_SELECT_SLOT:
-            if (D_80062D7C & 0x20) {
-                temp_v1_2 = D_801E3D80[0].unkB;
+            if (g_Pad1ButtonsPressed & PADRright) {
+                temp_v1_2 = D_801E3D80[0].row;
                 if (temp_v1_2 >= 2) {
                     break;
                 }
@@ -408,7 +412,7 @@ static s32 func_801D3AB0(s32 arg0) {
                 }
                 if (D_801E8F38[temp_v1_2][0]) {
                     func_801D2B58(1);
-                    if (D_801E8F38[D_801E3D80[0].unkB][2]) {
+                    if (D_801E8F38[D_801E3D80[0].row][2]) {
                         g_MenuStartMode = START_MENU_MODE_FORMAT_PROMPT;
                         func_80026448(&D_801E3D80[6], 0, 1, 1, 2, 0, 0, 1, 2, 0,
                                       0, 0, 1, 0);
@@ -426,7 +430,7 @@ static s32 func_801D3AB0(s32 arg0) {
                     func_801D2B58(3);
                     func_8001F6C0(D_801E33B0, 7);
                 }
-            } else if (D_80062D7C & 0x40) {
+            } else if (g_Pad1ButtonsPressed & PADRdown) {
                 func_801D2B58(4);
                 g_MenuStartMode = START_MENU_MODE_TITLE;
             } else {
@@ -437,9 +441,9 @@ static s32 func_801D3AB0(s32 arg0) {
             var_s1 = D_801E3D80[1].unkF;
             func_801D2DA8(&D_801E3D80[1]);
             if (!D_801E3D80[1].unkF && !var_s1) {
-                if ((u16)D_80062D7C & 0x20) {
+                if (g_Pad1ButtonsPressed & PADRright) {
                     if (((s32)D_80062F3C >>
-                         (D_801E3D80[1].unkB + D_801E3D80[1].unk2)) &
+                         (D_801E3D80[1].row + D_801E3D80[1].rowOffset)) &
                         1) {
                         func_801D2B58(1);
                         g_MenuStartMode = START_MENU_MODE_LOADING;
@@ -447,7 +451,7 @@ static s32 func_801D3AB0(s32 arg0) {
                     } else {
                         func_801D2B58(3);
                     }
-                } else if ((u16)D_80062D7C & 0x40) {
+                } else if (g_Pad1ButtonsPressed & PADRdown) {
                     func_801D2B58(4);
                     g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                 }
@@ -458,11 +462,11 @@ static s32 func_801D3AB0(s32 arg0) {
                 if (D_801E3F1C) {
                     D_801E3F18 = 0;
                     D_801E3F1C = 0;
-                    D_80062F3C = func_801D1C2C(D_801E3D80[0].unkB);
+                    D_80062F3C = func_801D1C2C(D_801E3D80[0].row);
                 } else {
                     var_s1 = 0;
                     if ((D_80062F3C >> D_801E3F20) & 1) {
-                        var_s1 = func_801D3698(D_801E3D80[0].unkB, D_801E3F20);
+                        var_s1 = func_801D3698(D_801E3D80[0].row, D_801E3F20);
                     }
                     D_801E3F20++;
                     if (var_s1) {
@@ -493,8 +497,8 @@ static s32 func_801D3AB0(s32 arg0) {
                 break;
             }
             D_80062D99 = 1;
-            var_a0_3 = D_801E3D80[1].unkB + D_801E3D80[1].unk2;
-            if (D_801E3D80[0].unkB) {
+            var_a0_3 = D_801E3D80[1].row + D_801E3D80[1].rowOffset;
+            if (D_801E3D80[0].row) {
                 var_a0_3 |= 0x10;
             }
             var_s1 = (s16)func_801D1F40(var_a0_3);
@@ -519,16 +523,16 @@ static s32 func_801D3AB0(s32 arg0) {
             break;
         case START_MENU_MODE_FORMAT_PROMPT:
             func_800264A8(&D_801E3DEC[0]);
-            if (D_80062D7C & 0x20) {
-                if (D_801E3DEC[0].unkB == 0) {
-                    if (D_801E3D80[0].unkB) {
+            if (g_Pad1ButtonsPressed & PADRright) {
+                if (D_801E3DEC[0].row == 0) {
+                    if (D_801E3D80[0].row) {
                         temp_v1_2 = format("bu10:");
                     } else {
                         temp_v1_2 = format("bu00:");
                     }
                     g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                     if (temp_v1_2 == 1) {
-                        D_801E8F38[D_801E3D80[0].unkB][2] = 0;
+                        D_801E8F38[D_801E3D80[0].row][2] = 0;
                         func_8001F6C0(D_801E2CFC[41], 7);
                         func_801D2B58(0xD0);
                     } else {
@@ -539,14 +543,14 @@ static s32 func_801D3AB0(s32 arg0) {
                     g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                     func_801D2B58(4);
                 }
-            } else if (D_80062D7C & 0x40) {
+            } else if (g_Pad1ButtonsPressed & PADRdown) {
                 g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                 func_801D2B58(4);
             }
             break;
         case START_MENU_MODE_TITLE:
-            if (D_80062D7C & 0x20) {
-                switch (D_801E3D80[7].unkB) {
+            if (g_Pad1ButtonsPressed & PADRright) {
+                switch (D_801E3D80[7].row) {
                 case 0:
                     func_801D2B58(0xD0);
                     D_801E3698 = 1;

@@ -188,19 +188,33 @@ typedef struct {
 
 typedef struct {
     s16 unk0;
-    s16 unk2; // current page
+    s16 rowOffset; // Top visible row on the page of a scrollable table.
     s16 unk4;
-    s16 unk6; // total item count
-    s16 unk8;
-    s8 unkA;
-    s8 unkB; // selected element
-    s8 unkC;
-    s8 unkD; // elements per page
-    s8 unkE;
-    s8 unkF;
-    s8 unk10;
-    s8 unk11;  // scroll type: 0=no wrap, 1/2:wrap, 3>:infinite
-} Unk80026448; // size: 0x12
+    s16 numTotalRows; // Total rows in table.
+    s16 scrolling;
+    s8 column; // Selected column.
+    s8 row; // Selected row.
+    s8 numColumns;
+    s8 numRowsPerPage; // Visible rows per page of table.
+    s8 unkE; // Scrolling offset?
+    s8 unkF; // Horizontal wrap behaviour?
+    s8 unk10; // Vertical wrap behaviour?
+    s8 unk11; // scroll type: 0=no wrap, 1/2:wrap, 3>:infinite
+} MenuTable; // size: 0x12
+
+typedef struct {
+    s16 id;
+    s16 quantity;
+    s16 enabled;
+} BattleItemReward; // size: 0x6
+
+typedef struct {
+    s32 xpNextLevel;
+    s32 xp;
+    u8 levelProgressBar;
+    u8 level;
+    s16 newLimitBreaks;
+} CharacterLevelData; // size: 0xC
 
 typedef union {
     void* poly;
@@ -268,8 +282,8 @@ typedef struct {
     u16 hp_max;
     u16 mp_max;
     u32 exp;
-    /* 0x40 */ s32 materia_weapon[8];
-    /* 0x60 */ s32 materia_armor[8];
+    /* 0x40 */ u32 materia_weapon[8];
+    /* 0x60 */ u32 materia_armor[8];
     /* 0x80 */ u32 exp_to_next_level;
 } SavePartyMember; // size:0x84
 typedef struct {
@@ -283,8 +297,8 @@ typedef struct {
     /* 0xB7C */ s32 gil;
     /* 0xB80 */ volatile u32 time;
     /* 0xB84 */ volatile u32 countdown_timer_seconds;
-    /* 0xB88 */ u32 game_timer_fraction;
-    /* 0xB8C */ u32 countdown_timer_fraction;
+    /* 0xB88 */ volatile u32 game_timer_fraction;
+    /* 0xB8C */ volatile u32 countdown_timer_fraction;
     /* 0xB90 */ s32 worldmap_exit_action;
     /* 0xB94 */ u16 current_module;
     /* 0xB96 */ u16 current_location_id;
@@ -409,50 +423,129 @@ typedef struct {
     s32 unk25C;
 } Unk800A8D04; // size: ???
 
-// one equipped-materia slot of a party member (Unk8009D84C.unk108)
 typedef struct {
-    u8 unk0; // attack id, biased by the slot's bank; 0xFF = empty
-    u8 unk1;
-    u8 unk2;
-    u8 unk3[5];
-} Unk8009D954; // size: 0x8
+    u8 id;
+    u8 mpCost;
+    u8 quadraAttacksLeft;
+    u8 quadEnabled;
+    u8 allAttacksLeft;
+    u8 targetFlags;
+    u8 unk6;
+    u8 costModifier;
+} ActiveCharacterMagicData; // size: 0x8
 
-// seems to be related to a party member during battle
 typedef struct {
-    s32 unk0;
-    s16 unk4;
-    s8 unk6;
-    s8 unk7;
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    s16 unkE;
+    u8 value;
+    u8 selected;
+} Unk80062F7CMateriaAttribute;
+
+typedef struct {
+    u8 id;
+    u8 quadCount;
+    u8 quadEnabled;
+    u8 allCount;
+    u8 costModifier;
+} CurrentCharMagicCommand; // size: 0x5
+
+typedef struct {
+    u8 id;
+    u8 allCount;
+    u8 materiaEffectFlags;
+} CurrentCharBattleMenuCommand; // size: 0x3
+
+typedef struct {
+    u8 initialCursorAction;
+    u8 targetFlags;
+    u16 unknown;
+    u16 cameraMovementSingleTarget;
+    u16 cameraMovementMultipleTargets;
+} BattleCommandData; // size: 0x8
+
+typedef struct {
+    u8 unk0[4];
+    u8 mpCost;
+    u8 unk5[7];
+    u8 targetFlags;
+    u8 unkD[15];
+} AttackData; // size: 0x1C
+
+typedef struct {
+    u8 unk0[6];
+    u8 materiaGrowth;
+    u8 unk7[21];
+    u8 materiaSlots[8];
+    u8 unk24[8];
+} ActiveCharacterWeaponData; // size: 0x2C
+
+typedef struct {
+    u16 levelUpApLimits[4];
+    u8 equipEffect;
+    u8 statusEffects[3];
+    u8 elementIndex;
+    u8 materiaType;
+    u8 materiaAttributes[6];
+} MateriaData; // size: 0x14
+
+typedef struct {
+    u8 counterType;
+    u8 battleCommand;
+    u8 materiaAttribute;
+} ActiveCharEnabledCounter; // size: 0x3
+
+typedef struct {
+    u8 id;
+    u8 initialCursorAction;
+    u8 targetFlags;
+    u8 unk4;
+    u8 allCount;
+    u8 materiaEffectFlags;
+} ActiveCharCommandMenu; // size: 0x6
+
+// Runtime data for a battle participant.
+typedef struct {
+    u8 id;
+    u8 coverChance;
+    u8 strength;
+    u8 vitality;
+    u8 magic;
+    u8 spirit;
+    u8 dexterity;
+    u8 luck;
+    u16 physAttack;
+    u16 physDefence;
+    u16 magAttack;
+    u16 magDefence;
     s16 hp;
-    s16 unk12;
+    s16 baseHp;
     s16 mp;
-    s16 unk16;
+    s16 baseMp;
     s32 unk18;
     s32 unk1C;
     s8 unk20;
     s8 unk21;
     s8 unk22;
-    s8 unk23;
-    u8 unk24[0x18];
-    u16 unk3C;
-    u8 unk3E[6];
-    s32 unk44;
-    s32 unk48;
-    u8 un4C[16][6];
-    u8 unAC[4];
-    u8 unB0[0x58];
-    Unk8009D954 unk108[0x60];
-    u8 un408;
-    u8 un409[7];
-    u8 un410;
-    u8 un411[7];
-    u16 un418;
-    u8 un41A[0x26];
-} Unk8009D84C; // size: 0x440
+    u8 characterFlags;
+    ActiveCharEnabledCounter enabledCounters[8];
+    u16 physicalAttackElements;
+    u16 halvedElements;
+    u16 nullifiedElements;
+    u16 absorbedElements;
+    u32 physicalAttackStatuses;
+    u32 immuneStatuses;
+    ActiveCharCommandMenu commandMenu[16];
+    u8 unkAC[92];
+    ActiveCharacterMagicData enabledMagic[96];
+    ActiveCharacterWeaponData weaponData;
+    s16 unk434;
+    u8 unk436;
+    u8 encounterDownRate;
+    s16 unk438;
+    s16 unk43A;
+    u8 gilBonus;
+    u8 encounterRate;
+    u8 chocoboChance;
+    u8 preemptiveChance;
+} ActiveCharacterData; // size: 0x440
 
 typedef struct {
     /* 00 */ u16 unk0;
@@ -469,6 +562,9 @@ typedef struct {
     u8 unk2;
     u8 unk3;
     u32 unk4;
+    u16 unk8;
+    u16 unkA[8];
+    Unk80062F7CMateriaAttribute materiaAttributes[5];
 } Unk80062F7C;
 
 typedef struct {
@@ -490,7 +586,6 @@ typedef struct {
 } FieldLine; // size:0x18
 
 typedef struct {
-
     s16 KawaiOp1;         // 0x00
     u16 KawaiOp0;         // 0x02
     u8* KawaiDataOffset;  // 0x04
@@ -777,16 +872,15 @@ typedef struct WindowData {
     u16 preventClose;
 } WindowData; // size:0x30
 
+extern u16 g_Pad1Buttons;
+extern u16 g_Pad1ButtonsPressed;
+extern u16 g_Pad1ButtonsRepeat;
+
 extern u8 D_80049208[12];   // window colors maybe??
 extern u8 D_800492F0[][12]; // see Labels enum
 extern FieldModelData* g_FieldModelData;
-extern u16 D_80062D78; // pressed button?
-extern u16 D_80062D7C; // pressed button?
-extern u16 D_80062D7E; // pressed button?
-extern u16 D_80062D80; // tapped button
-extern u16 D_80062D82; // repeated button
-extern u8 D_80062D98;  // battle_clearRenderList
-extern u8 D_80062D99;  // battle_isPaused
+extern u8 D_80062D98; // battle_clearRenderList
+extern u8 D_80062D99; // battle_isPaused
 extern s32 D_80062DCC;
 extern s8 _D_80062DFD;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
@@ -794,7 +888,7 @@ extern u8 D_80062F1A;
 extern u8 D_80062F1B;
 extern Gpu D_80062F24;
 extern u16 D_80062F3C;
-extern s32 D_80062F58;
+extern s32 g_MenuRenderBufferIndex;
 extern u_long* D_80062FC4;
 extern Unk800A8D04* g_CurrentAction;
 extern DRAWENV D_800706A4[2];
@@ -815,7 +909,12 @@ extern MATRIX* D_80071E40;
 extern u8 g_PartyUpdatedByFieldScript;
 extern u8 g_CurrentEntity; // entity owning the currently executing script
 extern Unk800730CC D_800730CC[];
-extern u8 D_800730DD[][0x14];
+extern MateriaData g_MateriaData[100];
+extern CurrentCharBattleMenuCommand D_80069508[16];
+extern CurrentCharMagicCommand D_80069554[56];
+extern u8* D_800707C0;
+extern BattleCommandData D_800707C4[32];
+extern AttackData D_800708C4[];
 extern FieldEntity g_FieldEntity[];
 extern u8 D_800756E8[]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
@@ -835,6 +934,7 @@ extern u8 g_CharacterLock; // mirror of the UC opcode's control-lock flag
 extern u8 g_EntitySplitJoinState[48]; // states for SPLIT and JOIN opcodes
 extern s16 D_80082248[]; // per-model current animation playback speed
 extern u8 D_80083184[0x40];
+extern u8 D_800831C4[];         // Magic Order table from kernel.bin section 3.
 extern u16 g_FieldScriptPC[48]; // program counters for active entity scripts
 extern u8 D_8008325C[];         // per-model default animation id (DFANM)
 extern u8 g_WindowToEntity[4];
@@ -858,6 +958,7 @@ extern s32 D_8009A00C;
 extern s32 D_8009A024[8];
 extern u8 g_FieldCurrentOpcode;
 extern s32 D_8009A064;
+extern MenuTable g_PartyMenuTables[3];
 extern u8 g_FieldScriptPriority[48]; // active scripts execution priority
 extern FieldState D_8009ABF4;
 extern u8 D_8009AC2F;
@@ -879,12 +980,14 @@ extern u8 D_8009D685;
 extern u8 D_8009D686;
 extern u8 D_8009D60E;
 extern u8 g_DebugLevel; // field debug related
+extern CharacterLevelData g_CharacterLevelData[3];
 extern u8 D_8009D824;
 extern s16 D_8009D828[]; // per-model base animation speed
+extern BattleItemReward g_BattleItemsEarned[4];
 extern u8 D_8009D8F8[];
 extern u32 D_8009D260;
 extern volatile s32 D_8009D268[];
-extern Unk8009D84C D_8009D84C[3];
+extern ActiveCharacterData D_8009D84C[9];
 extern s8 D_8009FE8C;
 extern u8 D_800C7304[16];
 
@@ -894,19 +997,22 @@ MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
 void SystemError(char c, long n);
 
 void func_80014B54(void);
-s32 func_80014B70(void);
-s32 func_80014BA8(s32 arg0);
 s32 func_8001521C(s32);
 const char* func_80015248(s32 arg0, s32 arg1, s32 arg2);
 void func_800155A4(s32, ...);
 void func_8001726C(s16, u16);
-s32 func_8001C8D4();
+u32 func_8001C808(void);
+u32 func_8001C8D4(void);
 void func_80021044(DRAWENV* draw_env, DISPENV* disp_env);
+s32 func_80023050(void);
+void func_8002305C(s32 state, s32 menuId);
 u8* GetCharacterName(s32 battleCharId);
 void func_800262D8();
-void func_80026448(Unk80026448* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                   s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 arg10,
-                   s32 arg11, s32 arg12, u16 arg13);
+void func_80026448(
+    MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage,
+    s32 unk0, s32 rowOffset, s32 unk4, s32 numTotalRows, s32 unkE,
+    s32 unkF, s32 unk10, s32 unk11,
+    u16 scrolling);
 void func_800269C0(void* poly);
 s32 func_80026B70(unsigned char* str);
 void func_80026F44(s32 x, s32 y, const char*, s32 color); // print FF7 string
@@ -924,7 +1030,7 @@ u32 SystemCdromReadChain(void);
 
 // from overlays
 extern u8 SavedScriptIds[48][8]; // script ids of latest queued scripts
+extern u_long* D_8019D5E8;
 extern s32 D_8019DAA0;
-extern u_long* D_8019D5E8; // otag array
 
 #endif

@@ -104,7 +104,7 @@ static u16 D_801D24BC = 0;
 static u8 D_801D24C0[] = {4, 0, 0, 0, 5, 0, 0, 0, 6, 0, 0, 0};
 
 // from now on this is the BSS section; this can be moved up if necessary
-static Unk80026448 D_801D24CC[4];
+static MenuTable D_801D24CC[4];
 static s32 unused[5];
 static s32 D_801D2528;
 static u8 D_801D252C[LEN(D_80049208)];

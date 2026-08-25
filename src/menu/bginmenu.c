@@ -1,5 +1,6 @@
 //! PSYQ=3.3 CC1=2.7.2
 #include <game.h>
+#include <psxsdk/libetc.h>
 
 typedef struct {
     u8 unk0;
@@ -17,7 +18,7 @@ extern u8 D_801D082C[21];
 extern u8 D_801D0844[16];
 extern u8 D_801D0854[7];
 extern u8 D_801D085C[2];
-extern Unk80026448 D_801D0860[];
+extern MenuTable D_801D0860[];
 extern s8 D_801D086B;
 extern u8 D_8009D78A[];
 extern s32 D_8009CE60[];
@@ -37,7 +38,7 @@ void func_801D00C4(void) {
     volatile s32 padding[4];
     s32 i;
 
-    func_800230C4(D_80062F58);
+    func_800230C4(g_MenuRenderBufferIndex);
     if (D_801D07F0 == 0) {
         func_8001EB2C(0, D_801D07FE + (D_801D086B << 6) + 0x20);
     }
@@ -46,7 +47,7 @@ void func_801D00C4(void) {
         func_8001E040(&D_801D07F4[i]);
     }
     func_800264A8(&D_801D0860[D_801D07F0]);
-    if (D_80062D7E & 0x40) {
+    if (g_Pad1ButtonsRepeat & PADRdown) {
         func_8002305C(5, 0);
         func_8002120C(0);
     }
