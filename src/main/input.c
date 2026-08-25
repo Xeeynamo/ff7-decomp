@@ -21,7 +21,8 @@ static u8* s_Tutorial;
 
 u8 func_8001F6B4(void);
 void func_8001F6C0(u8* text, s8 palette); // PC: menu_setNotificationMessage
-void func_8001F6E4(s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
+void func_8001F6E4(
+    s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
 
 void SetupGamepad(void) {
     if (!s_PadsInitialized) {
@@ -47,8 +48,6 @@ u16 func_8001C498(void) {
     }
     return input;
 }
-
-
 
 static u8* func_8001C4E8(u8* txt) {
     s32 i, c;
@@ -170,8 +169,7 @@ static u16 func_8001C788(void) {
 
     if (s_TutorialDelay != 0) {
         s_TutorialDelay -= 1;
-    } else if ((func_80023050() == 0 ||
-                func_80023050() == 1) &&
+    } else if ((func_80023050() == 0 || func_80023050() == 1) &&
                SystemCdromReadChain() == 0) {
         input = func_8001C5BC();
     }

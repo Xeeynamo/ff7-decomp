@@ -261,19 +261,16 @@ static s32 func_801D3AB0(s32 arg0) {
                 if ((D_80062F3C >> (var_s0 + D_801E3D80[1].rowOffset)) & 1) {
                     func_8001DE70();
                     func_801D370C(
-                        0,
-                        var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8,
+                        0, var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8,
                         var_s0 + D_801E3D80[1].rowOffset);
                     func_8001DEB0();
                 } else {
                     func_80026F44(
-                        0x32,
-                        var_s0 * 64 + 55 + D_801E3D80[1].unkF * 8,
+                        0x32, var_s0 * 64 + 55 + D_801E3D80[1].unkF * 8,
                         D_801E2CFC[8], 6);
                     func_8001DE40(&sp38, &D_801E3660);
                     func_8001DE24(
-                        &sp38, 0,
-                        var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8);
+                        &sp38, 0, var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8);
                     func_8001E040(&sp38);
                 }
             }

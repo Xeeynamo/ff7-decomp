@@ -140,20 +140,18 @@ int func_801D06B0(s32 arg0) {
                 if ((D_80062F3C >> (var_s0 + menus.D_801E379C[1].rowOffset)) &
                     1) {
                     func_8001DE70();
-                    func_801D370C(0,
-                                  var_s0 * 64 + 29 +
-                                      menus.D_801E379C[1].unkF * 8,
-                                  var_s0 + menus.D_801E379C[1].rowOffset);
+                    func_801D370C(
+                        0, var_s0 * 64 + 29 + menus.D_801E379C[1].unkF * 8,
+                        var_s0 + menus.D_801E379C[1].rowOffset);
                     func_8001DEB0();
                 } else {
-                    func_80026F44(0x32,
-                                  var_s0 * 64 + 55 +
-                                      menus.D_801E379C[1].unkF * 8,
-                                  D_801E2CFC[8], 6);
+                    func_80026F44(
+                        0x32, var_s0 * 64 + 55 + menus.D_801E379C[1].unkF * 8,
+                        D_801E2CFC[8], 6);
                     func_8001DE40(&sp38, &D_801DEEF4);
-                    func_8001DE24(&sp38, 0,
-                                  var_s0 * 64 + 29 +
-                                      menus.D_801E379C[1].unkF * 8);
+                    func_8001DE24(
+                        &sp38, 0,
+                        var_s0 * 64 + 29 + menus.D_801E379C[1].unkF * 8);
                     func_8001E040(&sp38);
                 }
             }
@@ -169,12 +167,12 @@ int func_801D06B0(s32 arg0) {
             }
             func_80026F44(10, 11, D_801E2CFC[2], 7);
             func_80026F44(206, 11, D_801E2CFC[9], 6);
-            func_80026F44(
-                func_80026B70(D_801E2CFC[9]) + 208, 11,
-                ((13 + menus.D_801E379C[1].row + menus.D_801E379C[1].rowOffset) *
-                 36) +
-                    D_801E2CFC[0],
-                7);
+            func_80026F44(func_80026B70(D_801E2CFC[9]) + 208, 11,
+                          ((13 + menus.D_801E379C[1].row +
+                            menus.D_801E379C[1].rowOffset) *
+                           36) +
+                              D_801E2CFC[0],
+                          7);
             func_8001DE0C(&sp38, 200, 5, 78, 24);
             func_8001E040(&sp38);
             func_800269E8();

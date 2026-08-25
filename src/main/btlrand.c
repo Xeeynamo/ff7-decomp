@@ -16,13 +16,9 @@ void func_80014B54(void) {
     D_80062E18 &= 7;
 }
 
-u8 func_80014B70(void) {
-    return D_80083084[D_80062E10[D_80062E18]++];
-}
+u8 func_80014B70(void) { return D_80083084[D_80062E10[D_80062E18]++]; }
 
-u8 func_80014BA8(s32 arg0) {
-    return (func_80014B70() * arg0) >> 8;
-}
+u8 func_80014BA8(s32 arg0) { return (func_80014B70() * arg0) >> 8; }
 
 u16 func_80014BE4(void) {
     u8 lo;

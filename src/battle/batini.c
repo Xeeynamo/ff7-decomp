@@ -188,7 +188,8 @@ void func_801B0F08(void) {
                     t->unk3E = c->unk28;
                     func_801B18F8(rec, party, c);
                     t->unk34 = rec->immuneStatuses;
-                    setup->unkE = rec->weapon.attackElement | rec->physicalAttackElements;
+                    setup->unkE =
+                        rec->weapon.attackElement | rec->physicalAttackElements;
                     setup->unk14 = rec->physicalAttackStatuses;
                     setup->unk3 = rec->weapon.attackPercent;
                     setup->unk0 = rec->weapon.targetFlags;
@@ -470,7 +471,8 @@ s32 func_801B1734(s32 slot) {
     return ret;
 }
 
-void func_801B18F8(ActiveCharacterData* arg0, Unk800F5E60* arg1, Unk800F83E0* arg2) {
+void func_801B18F8(
+    ActiveCharacterData* arg0, Unk800F5E60* arg1, Unk800F83E0* arg2) {
     arg2->unk14 = arg0->dexterity;
     arg2->unk15 = arg0->luck;
     arg2->maxHP = arg0->baseHp;

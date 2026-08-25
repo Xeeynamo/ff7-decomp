@@ -39,7 +39,6 @@ s32 D_80062DC8 = 0x00000000;
 s32 D_80062F9C;
 s32 D_80062FF0;
 
-
 void func_8001155C(void);
 void func_80014A00(s32* dst, s32* src, s32 len);
 u16* func_80014D9C(s32, s32, s32);
@@ -53,7 +52,6 @@ u8 func_8001F6B4();
 void func_8001F6E4(
     s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
 void func_80026A34(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
-
 
 void func_8001CDA4(void) {
     SetPolyFT4(D_80062F24.ft4);
@@ -271,8 +269,7 @@ s16 func_8001D6A8(s16 x, s16 y, s16 w, u8* txt) {
                     rect.y = 0;
                     rect.w = 256;
                     rect.h = 256;
-                    func_80026A34(
-                        0, 1, GetTPage(0, 1, 0x380, 0x100), &rect);
+                    func_80026A34(0, 1, GetTPage(0, 1, 0x380, 0x100), &rect);
 
                     setSprt(D_80062F24.sprt);
                     SetShadeTex(D_80062F24.sprt, 1);
@@ -309,8 +306,7 @@ s16 func_8001D6A8(s16 x, s16 y, s16 w, u8* txt) {
                     rect.w = 256;
                     rect.h = 256;
                     D_80062DBC--;
-                    func_80026A34(
-                        0, 1, GetTPage(0, 1, 0x3C0, 0x100), &rect);
+                    func_80026A34(0, 1, GetTPage(0, 1, 0x3C0, 0x100), &rect);
                     D_80062FF0++;
                     x += 16;
                     continue;
@@ -325,14 +321,12 @@ s16 func_8001D6A8(s16 x, s16 y, s16 w, u8* txt) {
                     textColor = D_80062DB4 + 0x1F0;
                 } else {
                     textColor =
-                        (((D_80062DBA >> 2) - colorCycleCount) & 7) |
-                        0x1F0;
+                        (((D_80062DBA >> 2) - colorCycleCount) & 7) | 0x1F0;
                 }
             } else {
                 if (D_80062DB8) {
                     textColor =
-                        (((D_80062DBA >> 2) - colorCycleCount) & 7) |
-                        0x1F0;
+                        (((D_80062DBA >> 2) - colorCycleCount) & 7) | 0x1F0;
                 } else if (((D_80062DBA >> 2) & 1) != 0) {
                     textColor = D_80062DB4 + 0x1F0;
                 } else {

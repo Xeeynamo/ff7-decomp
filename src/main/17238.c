@@ -26,7 +26,7 @@ s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
     return func_8001AC9C(*arg2, *arg1);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", func_8001726C);   
+INCLUDE_ASM("asm/us/main/nonmatchings/17238", func_8001726C);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", func_80017678);
 

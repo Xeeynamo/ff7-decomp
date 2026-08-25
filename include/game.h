@@ -193,14 +193,14 @@ typedef struct {
     s16 numTotalRows; // Total rows in table.
     s16 scrolling;
     s8 column; // Selected column.
-    s8 row; // Selected row.
+    s8 row;    // Selected row.
     s8 numColumns;
     s8 numRowsPerPage; // Visible rows per page of table.
-    s8 unkE; // Scrolling offset?
-    s8 unkF; // Horizontal wrap behaviour?
-    s8 unk10; // Vertical wrap behaviour?
-    s8 unk11; // scroll type: 0=no wrap, 1/2:wrap, 3>:infinite
-} MenuTable; // size: 0x12
+    s8 unkE;           // Scrolling offset?
+    s8 unkF;           // Horizontal wrap behaviour?
+    s8 unk10;          // Vertical wrap behaviour?
+    s8 unk11;          // scroll type: 0=no wrap, 1/2:wrap, 3>:infinite
+} MenuTable;           // size: 0x12
 
 typedef struct {
     s16 id;
@@ -492,7 +492,7 @@ typedef struct {
     u8 cameraMovementId[2]; // attack camera; always 0xFFFF
     u8 equipMask[2];      // equippable-by-character bitmask (see ArmorRecord);
                           // Cloud weapons add bit9 (Young Cloud) = 0x0201
-    u16 attackElement;  // 0x0400=Cut,0x0800=Hit,0x1000=Punch,0x2000=Shoot
+    u16 attackElement;    // 0x0400=Cut,0x0800=Hit,0x1000=Punch,0x2000=Shoot
     u8 unk12[2];          // unknown, always 0xFFFF
     u8 statBonusId[4];    // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
                           // 4=Dex,5=Lck; 0xFF = unused (the Mag column is id 2)
@@ -1044,9 +1044,8 @@ u8* GetCharacterName(s32 battleCharId);
 void func_800262D8();
 void func_80026448(
     MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage,
-    s32 unk0, s32 rowOffset, s32 unk4, s32 numTotalRows, s32 unkE,
-    s32 unkF, s32 unk10, s32 unk11,
-    u16 scrolling);
+    s32 unk0, s32 rowOffset, s32 unk4, s32 numTotalRows, s32 unkE, s32 unkF,
+    s32 unk10, s32 unk11, u16 scrolling);
 void func_800269C0(void* poly);
 s32 func_80026B70(unsigned char* str);
 void func_80026F44(s32 x, s32 y, const char*, s32 color); // print FF7 string
