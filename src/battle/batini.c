@@ -724,7 +724,7 @@ static void func_801B23E0(s32 sceneID, void (*cb)(void)) {
         D_8016360C.setup.escapeCounter = 1;
         // enemy strength and magic is 25% higher at battle square
         for (i = 0; i < 3; i++) {
-            D_800F5F44.enemy[i].unk90[5] *= 2;
+            D_800F5F44.enemy[i].unk94[4] *= 2;
             D_800F5F44.enemy[i].strength = func_801B2770(D_800F5F44.enemy[i].strength);
             D_800F5F44.enemy[i].magic = func_801B2770(D_800F5F44.enemy[i].magic);
         }

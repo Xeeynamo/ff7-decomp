@@ -205,9 +205,9 @@ typedef struct {
     /* 0x82 */ u8 backAttackMul;
     /* 0x83 */ u8 unk83;
     /* 0x84 */ s32 exp;
-    /* 0x88 */ s32 gil;
-    /* 0x8C */ s32 statusImmunities;
-    /* 0x90 */ u32 unk90[10];
+    /* 0x88 */ u8 itemRate[4]; /* drop/steal rate, high 2 bits select the kind */
+    /* 0x8C */ u16 itemId[4];  /* item awarded for the matching slot */
+    /* 0x94 */ u32 unk94[9];
 } SceneEnemy; // size:0xB8
 
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/Shared/DataParser.cs

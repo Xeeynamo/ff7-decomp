@@ -1884,7 +1884,47 @@ void func_800ACA24(void) {
     g_CurrentAction->unk214 = 0;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACA4C);
+void func_800ACA4C(s32 arg0) {
+    u16 args[2];
+    s32 sound;
+    s32 id;
+    u8 effect;
+
+    sound = 3;
+    switch (g_CurrentAction->unk28) {
+    case 2:
+        sound = 0x38;
+        break;
+    case 3:
+        sound = 0x36;
+        break;
+    case 13:
+        sound = 0x37;
+        break;
+    case 20:
+        sound = 0x35;
+        break;
+    }
+    id = g_CurrentAction->actorId;
+    if (id < 3) {
+        func_800A2CC4(sound);
+        if (arg0 != -1) {
+            func_800B1060(arg0);
+            func_800A2CC4(0x3B);
+        }
+        if (sound == 3) {
+            func_800A2CC4(4);
+        }
+    } else if (arg0 != -1) {
+        args[0] = id;
+        args[1] = 0xFFFF;
+        effect = g_CombatantTurnState[g_CurrentAction->actorId].unkF;
+        if (effect != 0xFF) {
+            args[1] = effect;
+        }
+        func_800B0FFC(g_CurrentAction->actorId, arg0, 1, (s16*)args);
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACB98);
 
@@ -2568,7 +2608,32 @@ s32 func_800B0EB4(s32 arg0) {
     return count & 1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0F04);
+u16 func_800B0F04(SceneEnemy* e, s32 kind, s32 always, s32 rate) {
+    SceneEnemy* p;
+    u16 item;
+    s32 chance;
+    s32 i;
+    s32 v;
+
+    p = e;
+    item = 0xFFFF;
+    for (i = 0; i < 4; i++) {
+        v = p->itemRate[i];
+        if ((v & ~0x3F) == kind) {
+            chance = v & 0x3F;
+            if (always != 0) {
+                chance = 0x100;
+            } else {
+                chance = (chance * rate) / 256;
+            }
+            if (chance >= (SysGetRandomByteFromTable() & 0x3F)) {
+                item = p->itemId[i];
+                break;
+            }
+        }
+    }
+    return item;
+}
 
 void func_800B0FFC(s32 arg0, s32 arg1, s32 arg2, s16* arg3) {
     func_800A31A0(arg0, 2, arg2, BATTLE_ExpandScriptToBuffer(SysGetPtrToUncompKernBattleTxtWithId(arg1), arg3) + 0x100);
