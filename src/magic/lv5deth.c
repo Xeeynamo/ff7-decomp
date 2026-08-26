@@ -4,16 +4,15 @@
 #include "../battle/battle.h"
 
 extern s32 g_dbIndex;
-extern u8 D_800F5B70;
-extern u8 D_800F5B71;
-extern u8 D_800F5B72;
+// Battle far colour; func_800B9568 feeds r/g/b straight to SetFarColor.
+extern CVECTOR D_800F5B70;
 extern s16 D_800F5B74;
 extern u8 D_80062D98; // set while the battle is paused
 
 // One slot of the shared battle effect array, as Lv5 Death uses it.
 typedef struct Lv5DeathEffect {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
+    /* 0x00 */ s16 StartFrame;
+    /* 0x02 */ s16 AnimationFrame;
     /* 0x04 */ SVECTOR pos;
     /* 0x0C */ u16 unkC;
     /* 0x0E */ s16 unkE;
@@ -44,8 +43,7 @@ extern s32 D_801C0868[]; // model data
 // Static render descriptor for the func_800D4D90 pass.
 typedef struct {
     /* 0x0 */ s32* unk0;
-    /* 0x4 */ u8 unk4[3];
-    /* 0x7 */ u8 unk7;
+    /* 0x4 */ CVECTOR color;
     /* 0x8 */ s16 unk8;
     /* 0xA */ s16 unkA;
 } Lv5DeathDesc; // size:0xC
@@ -63,90 +61,80 @@ void func_801B0000(void) {
 
 void func_801B0508(s32 targetMask, s32 arg1);
 
-void func_801B0054(s32 targetMask, s32 arg1) {
+void MAGIC_Lv5Death(s32 targetMask, s32 arg1) {
     func_801B0508(targetMask, arg1);
 }
 
 void func_801B0074(void) {
+    // Unused, but required for the match; it gives the function its 0x58 frame.
+    char pad[0x34];
     Lv5DeathEffect* effect;
-    Unk801B0C98* desc;
+    s32 rot;
     s32 val;
-    // The unused array is required for the match; it gives the 0x58 frame.
-    u8 unused[0x38];
+    Unk801B0C98* desc;
 
     effect = &D_80162978[D_8015169C];
-    func_800D4368(&effect->pos, (s16)effect->unkC, -((s16)effect->unkC >> 3));
+    rot = effect->unkC << 16;
+    func_800D4368(&effect->pos, rot >> 16, -(rot >> 19));
 
     // Render descriptor built in scratchpad RAM.
     desc = (Unk801B0C98*)0x1F800000;
     desc->unk0 = D_801C0868;
-    *(s32*)0x1F800004 = 0x88;
-    *(s16*)0x1F800008 = 0;
-    *(s16*)0x1F80000A = 0x800;
-    *(s16*)0x1F80000C = 0;
-    // The do{}while(0) stops the effect->unk2 load below being scheduled
-    // above these stores and is required for the match.
-    do {
-        *(s16*)0x1F80000E = 0;
-    } while (0);
+    desc->unk4 = 0x88;
+    desc->unk8 = 0;
+    desc->unkA = 0x800;
+    desc->unkC = 0;
+    desc->unkE = 0;
 
-    if (effect->unk2 < 8) {
-        val = 0x1000 - (effect->unk2 << 8);
-    } else if (effect->unk2 >= 0x25) {
-        val = (effect->unk2 << 8) - 0x1D00;
-    } else {
-        goto skip;
+    val = effect->AnimationFrame;
+    if (val < 8) {
+        val <<= 8;
+        desc->unkA = 0x1000 - val;
+    } else if (val >= 37) {
+        desc->unkA = (val << 8) - 0x1D00;
     }
-    *(s16*)0x1F80000A = val;
-skip:;
 
     SetFarColor(0, 0, 0);
     D_801D8E50 = func_800D29D4(desc, g_cDb->unk70, 12, D_801D8E50);
 
-    if (effect->unk2 >= 0x2D) {
-        effect->unk0 = -1;
+    if (effect->AnimationFrame >= 45) {
+        effect->StartFrame = -1;
     }
     if (D_80062D98 == 0) {
-        effect->unk2++;
+        effect->AnimationFrame++;
     }
 }
 
 void func_801B01BC(void) {
     Lv5DeathEffect* effect;
-    s32 v;
-    long long idx;
+    s32 frame;
+    u8 color;
 
     effect = &D_80162978[D_8015169C];
-    D_801C0E44.unk8 = effect->unk2 & 7;
+    D_801C0E44.unk8 = effect->AnimationFrame & 7;
 
-    v = effect->unk2;
-    if (v < 8) {
-        v = v << 4;
-    } else if (v >= 0x25) {
-        v = -0x80 - ((v - 0x25) << 4);
+    frame = effect->AnimationFrame;
+    if (frame < 8) {
+        color = frame * 16;
+    } else if (frame >= 37) {
+        color = -128 - ((frame - 37) * 16);
     } else {
-        v = 0x80;
+        color = 128;
     }
-    // NOTE: the 64-bit idx is required for the match. It defeats constant
-    // folding, so the array base ends up in a register and unk4[0] is reached
-    // through it; an int idx or a literal 2LL both fold and do not match.
-    idx = 2;
-    D_801C0E44.unk4[idx] = v;
-    D_801C0E44.unk4[1] = v;
-    D_801C0E44.unk4[0] = v;
+    D_801C0E44.color.r = D_801C0E44.color.g = D_801C0E44.color.b = color;
 
     func_800D4368(&effect->pos, (s16)effect->unkC, -((s16)effect->unkC >> 2));
     D_801D8E50 = func_800D4D90(&D_801C0E44, g_cDb->unk70, 12, D_801D8E50);
 
-    if (effect->unk2 >= 0x2D) {
-        effect->unk0 = -1;
+    if (effect->AnimationFrame >= 45) {
+        effect->StartFrame = -1;
         D_801D8E58--;
     }
     if (D_80062D98 == 0) {
-        if (effect->unk2 == 0x23) {
+        if (effect->AnimationFrame == 35) {
             func_800D5774(effect->unkE);
         }
-        effect->unk2++;
+        effect->AnimationFrame++;
     }
 }
 
@@ -155,32 +143,26 @@ void func_801B0310(void) {
     s32 val;
 
     effect = &D_80162978[D_8015169C];
-    if (effect->unk2 < 8) {
-        D_800F5B72 = 0;
-        D_800F5B71 = 0;
-        // The do{}while(0) stops the effect->unk2 reload below being
-        // scheduled above these stores and is required for the match.
-        do {
-            D_800F5B70 = 0;
-        } while (0);
-        val = effect->unk2 * 320;
+    if (effect->AnimationFrame < 8) {
+        D_800F5B70.r = D_800F5B70.g = D_800F5B70.b = 0;
+        val = effect->AnimationFrame * 320;
     } else if (D_801D8E58 <= 0) {
         if (effect->unkE == 0) {
-            effect->unkE = effect->unk2;
+            effect->unkE = effect->AnimationFrame;
         }
-        val = 0xA00 - (effect->unk2 - effect->unkE) * 320;
+        val = 2560 - (effect->AnimationFrame - effect->unkE) * 320;
     } else {
-        val = 0xA00;
+        val = 2560;
     }
 
-    if (effect->unk2 >= 0x35) {
+    if (effect->AnimationFrame >= 53) {
         val = 0;
-        effect->unk0 = -1;
+        effect->StartFrame = -1;
     }
 
     D_800F5B74 = val;
     if (D_80062D98 == 0) {
-        effect->unk2++;
+        effect->AnimationFrame++;
     }
 }
 
