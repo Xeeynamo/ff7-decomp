@@ -1,4 +1,5 @@
 #include "battle.h"
+#include "unzip.h"
 
 extern Unk801B2308 D_80163624;
 extern u16 D_8016376C;
@@ -160,7 +161,7 @@ s32 func_801B1734(s32 slot);
 // applies the equipped accessory, the command list and the row/limit setup.
 void func_801B0F08(void) {
     Unk800F5E60* party;
-    Unk8009D84C* rec;
+    ActiveCharacterData* rec;
     Unk800F83E0* c;
     Unk800AF470* t;
     Unk800F5EFC* setup;
@@ -186,13 +187,14 @@ void func_801B0F08(void) {
                     t->unk3C = c->curHP;
                     t->unk3E = c->unk28;
                     func_801B18F8(rec, party, c);
-                    t->unk34 = rec->unk48;
-                    setup->unkE = rec->un418 | rec->unk3C;
-                    setup->unk14 = rec->unk44;
-                    setup->unk3 = rec->un410;
-                    setup->unk0 = rec->un408;
+                    t->unk34 = rec->immuneStatuses;
+                    setup->unkE =
+                        rec->weapon.attackElement | rec->physicalAttackElements;
+                    setup->unk14 = rec->physicalAttackStatuses;
+                    setup->unk3 = rec->weapon.attackPercent;
+                    setup->unk0 = rec->weapon.targetFlags;
                     t->unk29 &= 0xFD;
-                    if (rec->unk23 & 4) {
+                    if (rec->characterFlags & 4) {
                         setup->unk0 &= 0xDF;
                     }
                     if (!(setup->unk0 & 0x20)) {
@@ -236,7 +238,7 @@ extern u8 D_800F5BE1[][0x44]; // same records as D_800F5BBC
 // the "usable" byte of every equipped materia whose attack is not flagged
 // battle-usable.
 void func_801B11BC(s32 arg0) {
-    Unk8009D84C* e;
+    ActiveCharacterData* e;
     s32 cmd;
     s32 flags;
     s32 id;
@@ -246,7 +248,7 @@ void func_801B11BC(s32 arg0) {
     e->unk21 = 1;
     for (i = 0; i < 16; i++) {
         flags = 0xFF;
-        cmd = e->un4C[i][0];
+        cmd = e->commandMenu[i].id;
         if (cmd != 0xFF) {
             flags = D_800707C5[cmd][0];
             if (flags == 0xFF) {
@@ -254,32 +256,32 @@ void func_801B11BC(s32 arg0) {
             }
             if (cmd < 0x1C) {
                 if (cmd >= 0x18) {
-                    e->un4C[i][4] = 0xFF;
+                    e->commandMenu[i].allCount = 0xFF;
                 }
             }
-            if (e->un4C[i][1] == 7) {
+            if (e->commandMenu[i].initialCursorAction == 7) {
                 if (D_800F5BE1[arg0][0] & 2) {
-                    e->un4C[i][1] = 0;
+                    e->commandMenu[i].initialCursorAction = 0;
                 }
-                if (e->un4C[i][4] != 0) {
-                    if (e->un4C[i][0] != 0x19) {
+                if (e->commandMenu[i].allCount != 0) {
+                    if (e->commandMenu[i].id != 0x19) {
                         flags |= 0xC;
                     }
                 }
-                cmd = e->un4C[i][0];
+                cmd = e->commandMenu[i].id;
                 if (cmd == 5 || cmd == 0x11) {
                     flags |= 0x10;
-                    if (e->un4C[i][4] != 0) {
-                        e->un4C[i][1] = 0;
+                    if (e->commandMenu[i].allCount != 0) {
+                        e->commandMenu[i].initialCursorAction = 0;
                     }
                 }
             }
             e->unk21 = i / 4 + 1;
         }
-        e->un4C[i][2] = flags;
+        e->commandMenu[i].targetFlags = flags;
     }
     for (i = 0; i < 0x60; i++) {
-        id = e->unk108[i].unk0;
+        id = e->enabledMagic[i].id;
         if (id != 0xFF) {
             if (i >= 0x48) {
                 id += 0x48;
@@ -288,7 +290,7 @@ void func_801B11BC(s32 arg0) {
             }
             if (i < 0x38) {
                 if (!(D_800708D0[id][0] & 8)) {
-                    e->unk108[i].unk2 = 0;
+                    e->enabledMagic[i].quadraAttacksLeft = 0;
                 }
             }
         }
@@ -297,17 +299,17 @@ void func_801B11BC(s32 arg0) {
 
 void func_801B137C(s32 arg0) {
     s32 i;
-    Unk8009D84C* unk;
+    ActiveCharacterData* data;
 
-    unk = &D_8009D84C[arg0];
-    unk->unk21 = 1;
+    data = &D_8009D84C[arg0];
+    data->unk21 = 1;
     for (i = 1; i < 4; i++) {
-        unk->un4C[i][0] = 0xFF;
-        unk->un4C[i][1] = 0;
-        unk->un4C[i][2] = 0;
-        unk->un4C[i][3] = 3;
-        unk->un4C[i][4] = 0;
-        unk->un4C[i][5] = 0;
+        data->commandMenu[i].id = 0xFF;
+        data->commandMenu[i].initialCursorAction = 0;
+        data->commandMenu[i].targetFlags = 0;
+        data->commandMenu[i].unk4 = 3;
+        data->commandMenu[i].allCount = 0;
+        data->commandMenu[i].materiaEffectFlags = 0;
     }
 }
 
@@ -469,21 +471,23 @@ s32 func_801B1734(s32 slot) {
     return ret;
 }
 
-void func_801B18F8(Unk8009D84C* arg0, Unk800F5E60* arg1, Unk800F83E0* arg2) {
-    arg2->unk14 = arg0->unk6;
-    arg2->unk15 = arg0->unk7;
-    arg2->maxHP = arg0->unk12;
-    arg2->unk2A = arg0->unk16;
-    arg2->unkD = arg0->unk8;
-    arg2->unkE = arg0->unkC;
-    arg2->unk20 = arg0->unkA;
-    arg2->unk22 = arg0->unkE;
+void func_801B18F8(
+    ActiveCharacterData* arg0, Unk800F5E60* arg1, Unk800F83E0* arg2) {
+    arg2->unk14 = arg0->dexterity;
+    arg2->unk15 = arg0->luck;
+    arg2->maxHP = arg0->baseHp;
+    arg2->unk2A = arg0->baseMp;
+    arg2->unkD = arg0->physAttack;
+    arg2->unkE = arg0->magAttack;
+    arg2->unk20 = arg0->physDefence;
+    arg2->unk22 = arg0->magDefence;
     if (arg2->unkD == 0) {
         arg2->unkD = 1;
     }
     arg1->maxHP = arg2->maxHP;
     arg1->maxMP = arg2->unk2A;
-    if (arg0->unk23 & 8) {
+    // 8 = HP_MP_SWAP
+    if (arg0->characterFlags & 8) {
         arg1->capHP = 999;
         arg1->capMP = 9999;
     } else {
@@ -704,9 +708,9 @@ static void func_801B23E0(s32 sceneID, void (*cb)(void)) {
     i = var_s5[formationIndex];
     var_s3_2 = &var_s5[i];
     var_s2 = (u_long*)&scene;
-    func_80017108( // gzip decompress
-        var_s3_2,  // src
-        var_s2);   // dst
+    Unzip(        // gzip decompress
+        var_s3_2, // src
+        var_s2);  // dst
     formationIndex = sceneID - chunkID * 4;
     func_80014A00(D_8016360C.enemyModelIDs, scene.enemyModelIDs,
                   sizeof(scene.enemyModelIDs));

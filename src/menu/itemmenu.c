@@ -31,7 +31,7 @@ extern u8 D_801D3890[];
 // [1]: the Use tab's item list - total=0x140 (320) matches the item
 //      inventory D_8009CBE0 exactly, 10/page.
 // [2]: the Use/Arrange/Key-Items tab selector itself - total=3, wraps.
-extern Unk80026448 D_801D3DDC[];
+extern MenuTable D_801D3DDC[];
 
 // Item-menu screen/sub-state selector. Confirmed via live RAM trace (PCSX-Redux
 // write-watch, PSX retail build) while stepping through the menu:
@@ -438,13 +438,13 @@ static void ArrangeItems(s32 mode) {
 }
 
 // exported, see 800493A8
-// Configures 3 widgets (D_801D3DDC[0..2], see Unk80026448 and the comment on
+// Configures 3 widgets (D_801D3DDC[0..2], see MenuTable and the comment on
 // its extern decl for what each backs) and defaults the item-menu to the Use
 // tab, then continues in func_801D031C. That default is later overwritten by
 // func_801D131C if the player picks Arrange or Key Items instead, or by
 // func_801D1A6C if they back out to the tab selector (see ItemMenuScreen).
 // Reached from src/main/ovl.c's D_800493A8 per-screen entry table for
-// several item-menu pages, called out of func_800230C4 in src/main/1255C.c.
+// several item-menu pages, called out of func_800230C4 in src/main/21D5C.c.
 void func_801D0BA0(void) {
     D_801D3E48 = ITEMMENU_SCREEN_USE;
     func_80026448(&D_801D3DDC[0], 0, 0, 3, 1, 0, 0, 3, 1, 0, 0, 1, 0, 0);

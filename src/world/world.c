@@ -1778,7 +1778,7 @@ void func_800AD63C(WorldActor* arg0) {
     func_800A9678(arg0->direction);
     if (arg0->collide != NULL && D_8010ADEC == 0 && func_800A21A4() != 0)
         func_800AB988(
-            arg0->collide->actorType, (func_8001C8D4() & 0x20) ? 4 : 3);
+            arg0->collide->actorType, (func_8001C8D4() & PADRright) ? 4 : 3);
 }
 
 void func_800AD788(void) {
@@ -3830,7 +3830,10 @@ void func_800BBD20(s32 arg0) {
         if ((D_801163D4 == 0) && (arg0 == 1)) {
             func_800BBA5C();
         } else if (func_800A21A4() != 0) {
-            var_v0 = func_800A9240() == 0 ? temp_s4 & 0x40 : temp_s4 & 0xF040;
+            var_v0 = func_800A9240() == 0
+                         ? temp_s4 & PADRdown
+                         : temp_s4 & (PADLup | PADLdown | PADLleft | PADLright |
+                                      PADRdown);
             if ((var_v0 == 0) && D_801163DC > 0 && D_801163DC < 15 &&
                 ((func_800A91A4(0x2000) == 0) || (func_800A9A44() == 0x12)))
                 func_800BBC4C();
@@ -3923,7 +3926,7 @@ void func_800BBD20(s32 arg0) {
                 }
             }
         }
-        if ((temp_s4 & 0x40) != 0) {
+        if ((temp_s4 & PADRdown) != 0) {
             D_801163DC += 1;
             return;
         }

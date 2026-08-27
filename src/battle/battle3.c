@@ -1,6 +1,7 @@
 //! PSYQ=3.3 CC1=2.7.2
 #include "battle_private.h"
 #include "game.h"
+#include <psxsdk/libetc.h>
 
 static void func_800E1C40(void);
 static void func_800E5358(void);
@@ -311,15 +312,15 @@ void func_800DF900(void) {
     u16* tapped;
 
     if (D_800F3896 == 3 && D_800F99E4 == 0) {
-        tapped = &D_80062D7E;
-        if (*tapped & 0x20) {
+        tapped = &g_Pad1ButtonsRepeat;
+        if (*tapped & PADRright) {
             func_800BB9B8(1);
             D_800F99E4 = 1;
             D_800F3896 = -1;
             func_800A4350(D_800F38A0, D_800F389C, D_800F389E, D_801516F8);
             func_800D9F5C(3);
             func_800D9F5C(1);
-        } else if (D_80062D7E & 0x8040) {
+        } else if (g_Pad1ButtonsRepeat & (PADLleft | PADRdown)) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
             D_800F3896 = 1;
@@ -354,9 +355,9 @@ void func_800E0274(void) { func_800E53C8(); }
 void func_800E0294(void) {
     u8* temp_s0;
 
-    temp_s0 = &D_8009D84C[D_800F38A1].unAC[0];
+    temp_s0 = &D_8009D84C[D_800F38A1].unkAC[0];
     if (D_800F3896 == 0x1B && D_800F99E4 == 0) {
-        if (D_80062D7E & 0x20) {
+        if (g_Pad1ButtonsRepeat & PADRright) {
             if (func_800E54EC() == 2) {
                 D_800F99E4 = 1;
                 func_800BB9B8(1);
@@ -369,7 +370,7 @@ void func_800E0294(void) {
                 func_800D9F5C(0x1B);
                 func_800D9F5C(1);
             }
-        } else if ((D_80062D7E & 0x40) && (func_800E54EC() == 0)) {
+        } else if ((g_Pad1ButtonsRepeat & PADRdown) && (func_800E54EC() == 0)) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
             D_800F3896 = 1;
@@ -387,7 +388,7 @@ void func_800E03F0(void) {
 
     temp_s0 = &D_8009D8F8[D_800F38A1 * 0x440];
     if ((D_800F3896 == 0x1A) && (D_800F99E4 == 0)) {
-        if (D_80062D7E & 0x20) {
+        if (g_Pad1ButtonsRepeat & PADRright) {
             D_800F99E4 = 1;
             if (func_800E4BCC() == 2) {
                 func_800BB9B8(1);
@@ -400,7 +401,7 @@ void func_800E03F0(void) {
                 func_800D9F5C(0x1A);
                 func_800D9F5C(1);
             }
-        } else if ((D_80062D7E & 0x40) && (func_800E4BCC() == 0)) {
+        } else if ((g_Pad1ButtonsRepeat & PADRdown) && (func_800E4BCC() == 0)) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
             D_800F3896 = 1;
@@ -433,7 +434,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E0794);
 void func_800E084C(void) {
     if (D_800F3896 == 9) {
         func_800264A8(&D_800F9144);
-        if (D_80062D7C & 0x20) {
+        if (g_Pad1ButtonsPressed & PADRright) {
             if (D_800F914E == 0) {
                 func_800A4844(1);
             } else {
@@ -485,14 +486,14 @@ void func_800E0E34(void) {
     }
     menu = &D_800F90C6[D_800F38A0];
     list = D_801671B8;
-    if (D_80062D78 & 0x80) {
+    if (g_Pad1Buttons & PADRleft) {
         D_800F99E4 = 1;
     } else {
         D_800F99E4 = 0;
     }
     if ((D_800F99E4 == 0) && ((D_800F514D == 2) || (D_800F515F == 2))) {
         if ((D_800F5166 != 2) && (D_800F5167 != 2)) {
-            if (D_80062D7C & 0x10) {
+            if (g_Pad1ButtonsPressed & PADRup) {
                 func_800BB9B8(1);
                 func_800A4E40();
                 D_800F99E4 = 1;
@@ -551,7 +552,7 @@ void func_800E0E34(void) {
             return;
         }
         if (D_800F99E4 == 0) {
-            if ((D_80062D7E & 0x20) != 0) { // pressed Confirm/OK
+            if ((g_Pad1ButtonsRepeat & PADRright) != 0) { // pressed Confirm/OK
                 if ((D_800FAFDC != 0) || (D_800F310E != 0)) {
                     func_800BB9B8(3);
                     D_800F99E4 = 1;
@@ -601,7 +602,7 @@ void func_800E0E34(void) {
                     }
                 }
                 func_800DDFEC();
-            } else if (D_80062D7E & 0x40) { // pressed Cancel/Back
+            } else if (g_Pad1ButtonsRepeat & PADRdown) { // pressed Cancel/Back
                 if ((D_800F38A4 == 2) &&
                     (D_800F389D == 0xA)) { // in the item menu?
                     if (list[D_800F562C].count == 0) {
@@ -707,7 +708,7 @@ s32 func_800E1A2C(void) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E1AC0);
 
 void func_800E1C40(void) {
-    Unk8009D84C* activeCharacters = D_8009D84C;
+    ActiveCharacterData* activeCharacters = D_8009D84C;
     s16 i;
     s32 hp;
     s32 mp;
@@ -736,7 +737,7 @@ void func_800E1C40(void) {
         if (Savemap.party[i].char_id != 0xFF) {
             hp = activeCharacters[i].hp << 8;
             if (D_801516A4[i] > hp) {
-                D_801516A4[i] -= (activeCharacters[i].unk12 << 8) / 240;
+                D_801516A4[i] -= (activeCharacters[i].baseHp << 8) / 240;
                 if (D_801516A4[i] < hp) {
                     D_801516A4[i] = activeCharacters[i].hp << 8;
                 }
@@ -744,7 +745,7 @@ void func_800E1C40(void) {
                 D_801517C8[i] = D_801516A4[i];
                 D_801031F4[i] = 2;
             } else if (D_801516A4[i] < hp) {
-                D_801516A4[i] += (activeCharacters[i].unk12 << 8) / 240;
+                D_801516A4[i] += (activeCharacters[i].baseHp << 8) / 240;
                 if (D_801516A4[i] > hp) {
                     D_801516A4[i] = activeCharacters[i].hp << 8;
                 }
@@ -759,7 +760,7 @@ void func_800E1C40(void) {
 
             mp = activeCharacters[i].mp << 8;
             if (D_801516CC[i] > mp) {
-                D_801516CC[i] -= (activeCharacters[i].unk16 << 8) / 240;
+                D_801516CC[i] -= (activeCharacters[i].baseMp << 8) / 240;
                 if (D_801516CC[i] < mp) {
                     D_801516CC[i] = activeCharacters[i].mp << 8;
                 }
@@ -767,7 +768,7 @@ void func_800E1C40(void) {
                 D_8015187C[i] = D_801516CC[i];
                 D_80151688[i] = 2;
             } else if (D_801516CC[i] < mp) {
-                D_801516CC[i] += (activeCharacters[i].unk16 << 8) / 240;
+                D_801516CC[i] += (activeCharacters[i].baseMp << 8) / 240;
                 if (D_801516CC[i] > mp) {
                     D_801516CC[i] = activeCharacters[i].mp << 8;
                 }
