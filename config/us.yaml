@@ -245,6 +245,20 @@ overlays:
       - [0, c, barrier]
       - [0xB68, .data, barrier]
       - [0xCC0, .bss, barrier]
+  - name: brizad
+    disk_path: disks/us/MAGIC/BRIZAD.BIN
+    sha1: d06ef02a1e37a85eb6c0206c9793a44a713bfe82
+    base_path: magic
+    vram_start: 0x801B0000
+    bss_size: 0x20004
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.magic-brizad.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, c, brizad]
+      - [0x3f0, data, brizad]
+      - [0x1014, .bss, brizad]
   - name: lv5deth
     disk_path: disks/us/MAGIC/LV5DETH.BIN
     sha1: 860f9495082983be362f605ca5da4968adf4c025
