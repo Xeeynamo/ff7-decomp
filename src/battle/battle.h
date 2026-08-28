@@ -489,8 +489,22 @@ extern u16 D_8016376A;
 int BattleEffectRegister(void (*func)(void));
 
 // battle2.c
+void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void* func_800D29D4(Unk801B0C98*, u_long**, int, void*);
-void func_800D3994(s32 arg0, s32 arg1, void* arg2);
+// Build the model matrix for a battle effect: `scale` goes on the matrix
+// diagonal, `pos` is transformed into view space to become the translation,
+// and `depthBias` nudges it along that view vector (negative pulls it toward
+// the camera). Leaves the result installed as the rot/trans matrix.
+void func_800D4368(SVECTOR* pos, s32 scale, s32 depthBias);
+// Same descriptor layout as func_800D29D4 (offsets 0/4/8/A), different
+// renderer; callers that colour the model type offset 4 as a CVECTOR.
+void* func_800D4D90(void* desc, u_long** ot, int otLen, void* prim);
 void func_800D5444(int, int, int, void (*func)(int));
-void BattleCommandSend(void* arg0, ...);
+void BattleCommandSend(s32 cmdId, ...);
 int func_800D574C(int);
+void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
+void MagicAnimationRegister(
+    s32 targetMask, s32 arg1, s32 frameStep, void (*func)(int));
+s32 BattlePositionToStereoPan(SVECTOR* sv);
+s32 BattleEntityGetStereoPan(s32 arg0);
+void func_800D5774(u32 targetIndex);

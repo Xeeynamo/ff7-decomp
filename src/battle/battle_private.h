@@ -588,7 +588,6 @@ void func_800C5E94(void);
 void func_8002DF88(s16*);
 void func_800D088C(s32 loc, s32 len);
 void func_800D0C80(u8 arg0);
-void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void func_800D3BF0();
 void func_800D8A78(s8);
 int func_800D8A88(void);
