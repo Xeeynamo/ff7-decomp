@@ -1,1 +1,9 @@
-D_801C0E44 = 0x801C0E44; // size:0xC
+Lv5DeathTexture = 0x801B05E0;
+Lv5DeathSpriteModel = 0x801C0700;
+Lv5DeathRingModel = 0x801C0868;
+Lv5DeathSpriteDesc = 0x801C0E44; // size:0xC
+Lv5DeathPrimBuffer0 = 0x801C0E50;
+Lv5DeathPrimBuffer1 = 0x801CCE50;
+Lv5DeathBufferPtr = 0x801D8E50;
+Lv5DeathFlipEffect = 0x801D8E54;
+Lv5DeathTargetsRemaining = 0x801D8E58;
