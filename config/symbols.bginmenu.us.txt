@@ -1,0 +1,7 @@
+CountEquippedMateria = 0x801D01C4;
+BankRead16 = 0x801D0258;
+BankWrite16 = 0x801D026C;
+ScalePartyHp = 0x801D027C;
+RemoveMasteredMateria = 0x801D0324;
+PartyHasMasteredMateria = 0x801D0408;
+PartyHasMateria = 0x801D0500;

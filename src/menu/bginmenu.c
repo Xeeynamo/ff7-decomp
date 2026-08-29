@@ -59,8 +59,11 @@ static void func_801D01BC(void) {}
 extern u8 D_8009C778[]; // Savemap.party
 extern u8 D_8009C798[]; // Savemap.party
 
-// Counts active party members for section arg0 in Savemap.
-s32 func_801D01C4(s32 arg0) {
+// Never called by this overlay -- present in the original and kept so the
+// layout matches, like BrizadAttachToTargetUnused in brizad.c.
+// Counts the materia equipped by party member arg0: the 8 weapon slots at
+// party[arg0].materia_weapon plus the 8 armor slots, an empty slot being -1.
+static s32 CountEquippedMateria(s32 arg0) {
     s32 i;
     s32 count;
     s32 minus_one;
@@ -90,28 +93,113 @@ s32 func_801D01C4(s32 arg0) {
 }
 
 // Reads a 16-bit little-endian value from Unk801D026C structure.
-static s32 func_801D0258(Unk801D026C* arg0) {
+static s32 BankRead16(Unk801D026C* arg0) {
     return arg0->unk0 | (arg0->unk1 << 8);
 }
 
 // Writes a 16-bit little-endian value into Unk801D026C structure.
-static void func_801D026C(Unk801D026C* arg0, u16 arg1) {
+static void BankWrite16(Unk801D026C* arg0, u16 arg1) {
     arg0->unk0 = arg1;
     arg0->unk1 = arg1 >> 8;
 }
 
-// Recalculates display stats and ratios for party members.
-INCLUDE_ASM("asm/us/menu/nonmatchings/bginmenu", func_801D027C);
+// Scales each party member's current HP by a per-member ratio out of 65535
+// held in memory_bank_2[116..125], never dropping below 1. The bank values are
+// byte-packed, hence the BankRead16 unaligned 16-bit read.
+void ScalePartyHp(void) {
+    s32 i;
+    s32 scaled;
 
-// Removes specified item, materia, or character ID from party/inventory.
-INCLUDE_ASM("asm/us/menu/nonmatchings/bginmenu", func_801D0324);
+    for (i = 0; i < 5; i++) {
+        scaled =
+            Savemap.party[i].hp_cur *
+            BankRead16((Unk801D026C*)&Savemap.memory_bank_2[116] + i) / 65535;
+        if (scaled <= 0) {
+            scaled = 1;
+        }
+        Savemap.party[i].hp_cur = scaled;
+    }
+}
 
-// Checks if a 32-bit ID (item, materia, or character) exists in party or
-// inventory.
-INCLUDE_ASM("asm/us/menu/nonmatchings/bginmenu", func_801D0408);
+// Removes materia `materiaId` from the party's slots and inventory -- the
+// removal counterpart of PartyHasMasteredMateria/PartyHasMateria. Callers pass
+// the same three materia lists those two are checked against.
+static void RemoveMasteredMateria(s32 materiaId) {
+    s32 i, j;
 
-// Checks if a character ID (byte) exists in active party list or inventory.
-s32 func_801D0500(s32 arg0) {
+    materiaId |= 0xFFFFFF00;
+
+    for (i = 0; i < MAX_PARTY_COUNT; i++) {
+        if ((Savemap.phs_visibility_mask >> i) & 1) {
+            for (j = 0; j < 8; j++) {
+                if (Savemap.party[i].materia_weapon[j] == materiaId) {
+                    Savemap.party[i].materia_weapon[j] = -1;
+                    return;
+                }
+            }
+            for (j = 0; j < 8; j++) {
+                if (Savemap.party[i].materia_armor[j] == materiaId) {
+                    Savemap.party[i].materia_armor[j] = -1;
+                    return;
+                }
+            }
+        }
+    }
+
+    for (j = 0; j < MAX_MATERIA_COUNT; j++) {
+        if (Savemap.materia[j] == materiaId) {
+            Savemap.materia[j] = -1;
+            return;
+        }
+    }
+}
+
+// Returns 1 if the party owns a mastered copy of materia `materiaId`, searching
+// every visible character's weapon and armor slots plus the whole materia
+// inventory. Materia is stored as `id | (ap << 8)`, so an AP of 0xFFFFFF is
+// the mastered marker.
+static s32 PartyHasMasteredMateria(s32 materiaId) {
+    s32 i, j;
+    // Pinned to $v0: the loaded word is live across both tests, and gcc
+    // otherwise parks it in $v1 and mirrors the whole inner loop's register
+    // use.
+    register u32 materia asm("$2");
+
+    for (i = 0; i < MAX_PARTY_COUNT; i++) {
+        if ((Savemap.phs_visibility_mask >> i) & 1) {
+            for (j = 0; j < 8; j++) {
+                materia = Savemap.party[i].materia_weapon[j];
+                if ((materia >> 8) == 0xFFFFFF &&
+                    (materia & 0xFF) == materiaId) {
+                    return 1;
+                }
+            }
+            for (j = 0; j < 8; j++) {
+                materia = Savemap.party[i].materia_armor[j];
+                if ((materia >> 8) == 0xFFFFFF &&
+                    (materia & 0xFF) == materiaId) {
+                    return 1;
+                }
+            }
+        }
+    }
+
+    for (j = 0; j < MAX_MATERIA_COUNT; j++) {
+        materia = Savemap.materia[j];
+        if ((materia >> 8) == 0xFFFFFF && (materia & 0xFF) == materiaId) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+// Returns 1 if the party owns materia `materiaId` at all, mastered or not --
+// the same search as PartyHasMasteredMateria above, minus the mastered-AP test.
+// Walks every visible character's weapon and armor slots, then the materia
+// inventory. (Despite the raw u8* pointers, base - 0x1012 and base - 0xFF2
+// are party[0].materia_weapon and party[0].materia_armor.)
+static s32 PartyHasMateria(s32 materiaId) {
     s32 i, j;
     s32 flags;
     u8* base;
@@ -129,12 +217,12 @@ s32 func_801D0500(s32 arg0) {
     for (; i < 9; i++) {
         if ((flags >> i) & 1) {
             for (j = 0; j < 8; j++) {
-                if (party0[j * 4] == arg0) {
+                if (party0[j * 4] == materiaId) {
                     return 1;
                 }
             }
             for (j = 0; j < 8; j++) {
-                if (party1[j * 4] == arg0) {
+                if (party1[j * 4] == materiaId) {
                     return 1;
                 }
             }
@@ -145,7 +233,7 @@ s32 func_801D0500(s32 arg0) {
 
     inventory = (u8*)D_8009CE60;
     for (j = 0; j < 200; j++) {
-        if (inventory[j * 4] == arg0) {
+        if (inventory[j * 4] == materiaId) {
             return 1;
         }
     }
@@ -162,28 +250,28 @@ void func_801D05C4(s32 arg0) {
     switch (arg0) {
     case 0:
         for (i = 0; i < 21; i++) {
-            if (!func_801D0408(D_801D082C[i])) {
+            if (!PartyHasMasteredMateria(D_801D082C[i])) {
                 return;
             }
         }
         break;
     case 1:
         for (i = 0; i < 16; i++) {
-            if (!func_801D0408(D_801D0844[i])) {
+            if (!PartyHasMasteredMateria(D_801D0844[i])) {
                 return;
             }
         }
         break;
     case 2:
         for (i = 0; i < 7; i++) {
-            if (!func_801D0408(D_801D0854[i])) {
+            if (!PartyHasMasteredMateria(D_801D0854[i])) {
                 return;
             }
         }
         break;
     case 3:
         for (i = 0; i < 2; i++) {
-            if (!func_801D0500(D_801D085C[i])) {
+            if (!PartyHasMateria(D_801D085C[i])) {
                 return;
             }
         }
@@ -198,19 +286,19 @@ void func_801D0704(s32 arg0) {
     switch (arg0) {
     case 0:
         for (i = 0; i < 21; i++) {
-            func_801D0324(D_801D082C[i]);
+            RemoveMasteredMateria(D_801D082C[i]);
         }
         func_8002542C(0x49);
         break;
     case 1:
         for (i = 0; i < 16; i++) {
-            func_801D0324(D_801D0844[i]);
+            RemoveMasteredMateria(D_801D0844[i]);
         }
         func_8002542C(0x5A);
         break;
     case 2:
         for (i = 0; i < 7; i++) {
-            func_801D0324(D_801D0854[i]);
+            RemoveMasteredMateria(D_801D0854[i]);
         }
         func_8002542C(0x30);
         break;

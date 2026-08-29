@@ -327,7 +327,7 @@ void func_800250B4(void) {
     func_800211C4(0xC);
     do {
     } while (SystemCdromReadChain());
-    func_801D027C();
+    ScalePartyHp();
 }
 
 void func_800250EC(s32 arg0) {
