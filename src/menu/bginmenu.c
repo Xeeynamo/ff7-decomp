@@ -160,24 +160,22 @@ static void RemoveMasteredMateria(s32 materiaId) {
 // the mastered marker.
 static s32 PartyHasMasteredMateria(s32 materiaId) {
     s32 i, j;
-    // Pinned to $v0: the loaded word is live across both tests, and gcc
-    // otherwise parks it in $v1 and mirrors the whole inner loop's register
-    // use.
-    register u32 materia asm("$2");
+    u32 materia;
+    u32 ap;
 
     for (i = 0; i < MAX_PARTY_COUNT; i++) {
         if ((Savemap.phs_visibility_mask >> i) & 1) {
             for (j = 0; j < 8; j++) {
                 materia = Savemap.party[i].materia_weapon[j];
-                if ((materia >> 8) == 0xFFFFFF &&
-                    (materia & 0xFF) == materiaId) {
+                ap = materia >> 8;
+                if (ap == 0xFFFFFF && (materia & 0xFF) == materiaId) {
                     return 1;
                 }
             }
             for (j = 0; j < 8; j++) {
                 materia = Savemap.party[i].materia_armor[j];
-                if ((materia >> 8) == 0xFFFFFF &&
-                    (materia & 0xFF) == materiaId) {
+                ap = materia >> 8;
+                if (ap == 0xFFFFFF && (materia & 0xFF) == materiaId) {
                     return 1;
                 }
             }
@@ -186,7 +184,8 @@ static s32 PartyHasMasteredMateria(s32 materiaId) {
 
     for (j = 0; j < MAX_MATERIA_COUNT; j++) {
         materia = Savemap.materia[j];
-        if ((materia >> 8) == 0xFFFFFF && (materia & 0xFF) == materiaId) {
+        ap = materia >> 8;
+        if (ap == 0xFFFFFF && (materia & 0xFF) == materiaId) {
             return 1;
         }
     }
@@ -210,7 +209,6 @@ static s32 PartyHasMateria(s32 materiaId) {
     i = 0;
     base = D_8009D78A;
     flags = *(u16*)base;
-    asm("" : "=r"(flags) : "0"(flags));
     party1 = base - 0xFF2;
     party0 = base - 0x1012;
 
