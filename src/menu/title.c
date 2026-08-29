@@ -459,7 +459,7 @@ static s32 func_801D3AB0(s32 arg0) {
                 if (D_801E3F1C) {
                     D_801E3F18 = 0;
                     D_801E3F1C = 0;
-                    D_80062F3C = func_801D1C2C(D_801E3D80[0].row);
+                    D_80062F3C = GetSaveSlotMask(D_801E3D80[0].row);
                 } else {
                     var_s1 = 0;
                     if ((D_80062F3C >> D_801E3F20) & 1) {

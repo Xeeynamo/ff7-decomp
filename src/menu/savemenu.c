@@ -307,7 +307,7 @@ int func_801D06B0(s32 arg0) {
             if (D_801E36A8) {
                 D_801E36A4 = 0;
                 D_801E36A8 = 0;
-                D_80062F3C = func_801D1C2C(menus.D_801E379C[0].row);
+                D_80062F3C = GetSaveSlotMask(menus.D_801E379C[0].row);
             } else {
                 var_s0 = 0;
                 if ((D_80062F3C >> D_801E36AC) & 1) {
@@ -516,48 +516,56 @@ static s32 func_801D1BE0(u8* arg0, u8* arg1) {
     }
 }
 
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D1C2C);
-#else
-u16 func_801D1C2C(s32 arg0) {
-    DIRENTRY sp10;
-    const char* memcard;
-    s32 i;
-    DIRENTRY* entry;
-    u16 var_s3;
+// "bu10:" is memory card slot 2, "bu00:" slot 1; the wildcard lists every
+// file on the card.
+static const char SaveSearchCard2[] = "bu10:*"; // D_801D017C
+static const char SaveSearchCard1[] = "bu00:*"; // D_801D0184
 
-    var_s3 = 0;
+// Returns a bitmask of which of the 15 FF7 save slots exist on the memory card
+// in `cardSlot`, bit N set when BASCUS-94163FF7-S(N+1) is present. Retries the
+// directory open up to 100 times, and gives up with an empty mask.
+u16 GetSaveSlotMask(s32 cardSlot) {
+    struct DIRENTRY dirEntry;
+    const char* pattern;
+    s32 i;
+    struct DIRENTRY* entry;
+    u16 slotMask;
+
+    slotMask = 0;
     i = 0;
     while (1) {
-        memcard = &D_801D0184;
-        if (arg0) {
-            memcard = &D_801D017C;
+        pattern = SaveSearchCard1;
+        if (cardSlot) {
+            pattern = SaveSearchCard2;
         }
-        entry = firstfile2(memcard, &sp10);
+        entry = firstfile((char*)pattern, &dirEntry);
         if (entry) {
             break;
         }
         i++;
         if (i >= 100) {
-            var_s3 = 0;
-            goto end;
+            slotMask = 0;
+            goto fail;
         }
     }
     while (entry) {
         for (i = 0; i < 15; i++) {
-            if (func_801D1BE0(entry->name, D_801E2C78[i]) != 0) {
-                var_s3 |= 1 << i;
+            if (func_801D1BE0(entry->name, (u8*)D_801E2C78[i]) != 0) {
+                slotMask |= 1 << i;
             }
         }
         entry = nextfile(entry);
     }
-end:
-    return var_s3;
+    return slotMask;
+fail:
+    // Keeps this return a separate block; gcc otherwise cross-jumps it into
+    // the one above and the target's duplicated mask disappears.
+    asm("");
+    return slotMask;
 }
-#endif
 
-const char D_801D018C[] = "bu10:%s";
-const char D_801D0194[] = "bu00:%s";
+static const char D_801D018C[] = "bu10:%s";
+static const char D_801D0194[] = "bu00:%s";
 
 SaveHeader* func_801D1D1C(s32 arg0) { return &D_801E3864[arg0]; }
 
@@ -603,7 +611,7 @@ INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D224C);
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D2408);
 
-const char* D_801E2CB8[] = {
+static const char* D_801E2CB8[] = {
     "ＦＦ７／ＳＡＶＥ０１／００：００", "ＦＦ７／ＳＡＶＥ０２／００：００",
     "ＦＦ７／ＳＡＶＥ０３／００：００", "ＦＦ７／ＳＡＶＥ０４／００：００",
     "ＦＦ７／ＳＡＶＥ０５／００：００", "ＦＦ７／ＳＡＶＥ０６／００：００",
