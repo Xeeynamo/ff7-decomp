@@ -20,9 +20,7 @@ SAVEMAP_FIELDS = [
     # SaveHeader (embedded)
     (0x000, 4, "header.checksum", 0),
     (0x004, 1, "header.leader_level", 0),
-    (0x005, 1, "header.leader_portrait", 0),
-    (0x006, 1, "header.portrait2", 0),
-    (0x007, 1, "header.portrait3", 0),
+    (0x005, 3, "header.leader_portrait", 1),
     (0x008, 16, "header.leader_name", 1),
     (0x018, 2, "header.leader_hp", 0),
     (0x01A, 2, "header.leader_hp_max", 0),
@@ -31,7 +29,7 @@ SAVEMAP_FIELDS = [
     (0x020, 4, "header.gil", 0),
     (0x024, 4, "header.time", 0),
     (0x028, 32, "header.place_name", 1),
-    (0x048, 12, "header.menu_color", 4),
+    (0x048, 12, "header.menu_color", 1),
     # SavePartyMember party[9] - 0x84 bytes each
     (0x054, 0x4A4, "party", 0x84),
     # Rest of SaveWork

@@ -427,7 +427,7 @@ s32* func_80025774(s32 arg0) { return (s32*)&g_AccessoryTable[arg0]; }
 
 ActiveCharacterData* func_80025788(s32 partyId) {
     if (Savemap.partyID[partyId] != 0xFF) {
-        return &D_8009D84C[partyId];
+        return &g_ActiveCharacters[partyId];
     }
     return (ActiveCharacterData*)0xFF;
 }

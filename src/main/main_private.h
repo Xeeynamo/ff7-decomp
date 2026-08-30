@@ -153,7 +153,6 @@ extern PortraitEntry D_80048FE8[15];
 // flashback sequence and they use same character records as Cait Sith and
 // Vincent.
 extern s32 g_BattleCharIdToCharId[11];
-extern u8 D_80049208[12]; // menu color RGB-quadruplet
 extern s32 D_80049224[8];
 extern s32 D_80049474[];  // play-clock divisors: 36000 (seconds per 10 hours),
                           // 3600 (seconds per hour)

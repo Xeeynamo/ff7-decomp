@@ -607,7 +607,34 @@ void func_801D21F0(u8* arg0, u8* arg1) {
     }
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D224C);
+static void UpdateSaveHeader(void) {
+    s32 i;
+    u8 id;
+
+    for (i = 0; i < 3; i++) {
+        Savemap.header.leader_portrait[i] = Savemap.partyID[i];
+    }
+    func_801D21E0(0x10);
+    for (i = 0; i < 3; i++) {
+        id = Savemap.partyID[i];
+        if (id != 0xFF) {
+            func_801D21F0(Savemap.header.leader_name, Savemap.party[id].name);
+            Savemap.header.leader_level = Savemap.party[id].level;
+            Savemap.header.leader_hp = g_ActiveCharacters[i].hp;
+            Savemap.header.leader_hp_max = g_ActiveCharacters[i].baseHp;
+            Savemap.header.leader_mp = g_ActiveCharacters[i].mp;
+            Savemap.header.leader_mp_max = g_ActiveCharacters[i].baseMp;
+            break;
+        }
+    }
+    for (i = 0; i < 12; i++) {
+        Savemap.header.menu_color[i] = g_MenuColors[i];
+    }
+    Savemap.header.gil = Savemap.gil;
+    Savemap.header.time = Savemap.time;
+    func_801D21E0(0x18);
+    func_801D21F0(Savemap.header.place_name, &Savemap.memory_bank_4[104]);
+}
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D2408);
 

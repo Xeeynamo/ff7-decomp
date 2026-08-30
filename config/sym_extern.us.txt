@@ -33,6 +33,7 @@ D_8009A004 = 0x8009A004;
 D_8009A008 = 0x8009A008;
 D_8009A00C = 0x8009A00C;
 g_PartyMenuTables = 0x8009A0C8;
+g_ActiveCharacters = 0x8009D84C;
 g_CharacterLevelData = 0x8009D7E4;
 g_BattleItemsEarned = 0x8009D808;
 g_FieldScriptPriority = 0x8009A1C4;

@@ -355,7 +355,7 @@ void func_800E0274(void) { func_800E53C8(); }
 void func_800E0294(void) {
     u8* temp_s0;
 
-    temp_s0 = &D_8009D84C[D_800F38A1].unkAC[0];
+    temp_s0 = &g_ActiveCharacters[D_800F38A1].unkAC[0];
     if (D_800F3896 == 0x1B && D_800F99E4 == 0) {
         if (g_Pad1ButtonsRepeat & PADRright) {
             if (func_800E54EC() == 2) {
@@ -708,7 +708,7 @@ s32 func_800E1A2C(void) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E1AC0);
 
 void func_800E1C40(void) {
-    ActiveCharacterData* activeCharacters = D_8009D84C;
+    ActiveCharacterData* activeCharacters = g_ActiveCharacters;
     s16 i;
     s32 hp;
     s32 mp;
