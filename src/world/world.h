@@ -315,6 +315,7 @@ extern s32 D_8010CB18;
 extern s32 D_8010CB1C;
 extern s32 D_801159DC;
 extern s32 D_801159E0;
+extern u16 D_80116508;
 extern s32 D_800C74DC;
 extern s32 D_800C74E0;
 extern u_long* D_80115A40;

@@ -139,7 +139,20 @@ static s32 WmGetWmId(void) { return D_800E5634; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A1DF0);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmSetTranslationVectorInScreenSpace);
+void func_800A1FAC(SVECTOR* arg0) {
+    MATRIX m;
+    SVECTOR v;
+    VECTOR out;
+    int flag;
+
+    v = *arg0;
+    v.vy = -D_80116508;
+    SetRotMatrix(&D_800E5698);
+    SetTransMatrix(&D_800E56B8);
+    RotTrans(&v, &out, &flag);
+    TransMatrix(&m, &out);
+    SetTransMatrix(&m);
+}
 
 void func_800A2040(void) {
     SetRotMatrix(&D_800E5698);
@@ -984,7 +997,26 @@ void func_800A9678(s16 arg0) { func_800A9520(D_8010AD3C, arg0); }
 
 void func_800A96A4(s16 arg0) { func_800A9520(D_8010AD40, arg0); }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A96D0);
+void func_800A96D0(s16 arg0) {
+    WorldActor* actor;
+    u32 blend;
+
+    if (D_8010AD3C != NULL) {
+        actor = D_8010AD3C;
+        if (D_8011650C == 1) {
+            if (actor->flags1 & 1) {
+                blend = (u32)(((s16)actor->unk3E * 15) + arg0) >> 4;
+            } else {
+                blend = (u32)(((s16)actor->unk3E * 3) + arg0) >> 2;
+            }
+        } else if (actor->flags1 & 1) {
+            blend = (u32)(((s16)actor->unk3E * 7) + arg0) >> 3;
+        } else {
+            blend = (u32)((s16)actor->unk3E + arg0) >> 1;
+        }
+        actor->unk3E = blend;
+    }
+}
 
 s16 func_800A97A8(void) { return D_8010AD3C == NULL ? 0 : D_8010AD3C->unk3C + D_8010AD3C->unk3E; }
 
@@ -1821,7 +1853,41 @@ void func_800ADA08(void) {
             func_800AD970(var_s0);
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmRestoreEntityPosAndDirFromSavemap);
+void func_800ADA64(WorldActor* arg0) {
+    s32* p;
+    s32* end;
+    s32 t;
+    s16 f;
+    s32 type;
+
+    p = (s32*)D_8010AD50;
+    end = (s32*)(D_8010AD50 + 0x30);
+    if (p < end) {
+        type = arg0->actorType;
+        while (p < end) {
+            if (((*p >> 19) & 0x1F) == type) {
+                break;
+            }
+            p += 2;
+        }
+        if (p < (s32*)(D_8010AD50 + 0x30) && arg0 != NULL) {
+            t = p[0] & 0x7FFFF;
+            arg0->altPos.vx = t;
+            arg0->pos.vx = t;
+            t = p[1] >> 18;
+            arg0->altPos.vy = t;
+            arg0->pos.vy = t;
+            t = p[1] & 0x3FFFF;
+            arg0->altPos.vz = t;
+            arg0->pos.vz = t;
+            f = (p[0] >> 20) & 0xFF0;
+            arg0->unk3E = 0;
+            arg0->direction = f;
+            arg0->unk3C = f;
+            arg0->facing = f;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800ADB30);
 
