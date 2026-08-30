@@ -1,0 +1,16 @@
+CommitBattleResults = 0x801B09C0;
+GiveMateriaAp = 0x801B0C74;
+GiveSharedExp = 0x801B0D14;
+ResetBattleResults = 0x801B0E20;
+LoadResultsRow = 0x801B1008;
+StoreResultsRow = 0x801B108C;
+InitResultsRow = 0x801B118C;
+GiveExp = 0x801B1204;
+CalcTotalExp = 0x801B1320;
+RollGrowthRank = 0x801B13F4;
+CalcStatGrowth = 0x801B1448;
+CalcHpGrowth = 0x801B14AC;
+CalcMpGrowth = 0x801B1500;
+GrowStat = 0x801B1564;
+GrowMaxHp = 0x801B15E4;
+GrowMaxMp = 0x801B16D8;

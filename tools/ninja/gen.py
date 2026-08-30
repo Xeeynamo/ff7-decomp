@@ -238,6 +238,7 @@ def add_splat_config(file_name: str):
     is_main = basename(cfg) == "main"
     is_battle = basename(cfg) == "battle"
     is_batini = basename(cfg) == "batini"
+    is_batres = basename(cfg) == "batres"
     is_magic = "/magic" in src_path(cfg)
     if platform(cfg) == "psx" and is_main:
         add_s(cfg, "header")
@@ -292,8 +293,8 @@ def add_splat_config(file_name: str):
             inputs=[output_name],
         )
         sym_paths.append("-T config/sym_battle_import.us.txt")
-    if is_batini or is_magic:
-        # batini uses symbols from battle
+    if is_batini or is_batres or is_magic:
+        # batini, batres and the magic overlays use symbols from battle
         sym_paths.append("-T config/sym_export_battle.us.txt")
     nw.build(
         rule="psx-ld",
@@ -411,6 +412,7 @@ with open("build.ninja", "w") as f:
         "main",
         # BATTLE
         "batini",
+        "batres",
         "battle",
         "brom",
         # MISC

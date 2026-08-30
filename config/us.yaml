@@ -85,6 +85,19 @@ overlays:
     segments:
       - [0, .rodata, batini]
       - [0x50, c, batini]
+  - name: batres
+    disk_path: disks/us/BATTLE/BATRES.X.dec
+    sha1: e7ae9182df1c8ee457bae5bf7d7dc63c61a8c3d8
+    base_path: battle
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.batres.txt
+      - config/sym_export_battle.us.txt
+    migrate_rodata_to_functions: true
+    vram_start: 0x801B0000
+    bss_size: 0x4
+    segments:
+      - [0, c, batres]
   - name: battle
     disk_path: disks/us/BATTLE/BATTLE.X.dec
     sha1: c82690f814b18664c3b2d024f4edeea5743995d9
