@@ -517,7 +517,39 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A63FC);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A64AC);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A67A8);
+WorldChunkHeader* func_800A67A8(void) {
+    WorldChunkHeader* chunk;
+    WorldChunkHeader* prev;
+    WorldChunkHeader* head;
+
+    chunk = NULL;
+    if (D_80109D38 != NULL) {
+        chunk = D_80109D38;
+        D_80109D38 = chunk->next;
+    } else if (D_80109D3C != NULL) {
+        chunk = D_80109D3C;
+        prev = NULL;
+        if (chunk->next != NULL) {
+            do {
+                prev = chunk;
+                chunk = chunk->next;
+            } while (chunk->next != NULL);
+        }
+        if (prev != NULL) {
+            prev->next = NULL;
+        } else {
+            D_80109D3C = NULL;
+        }
+        func_800A9064(chunk->x, chunk->z);
+    }
+    if (chunk != NULL) {
+        head = D_80109D40;
+        D_80109D40 = chunk;
+        chunk->numVerts = 0;
+        chunk->next = head;
+    }
+    return chunk;
+}
 
 void WmExtractLoopCoordsTopBottomParts(VECTOR* arg0, SVECTOR* arg1, s16* arg2, s16* arg3) {
     if (arg2 != NULL) {
@@ -1198,15 +1230,39 @@ static void func_800AA2E4(s8 arg0) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AA304);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AA580);
+WorldActor* func_800AA580(WorldActor* arg0) {
+    WorldActor* hit;
+    s32 rc;
+
+    rc = 0;
+    hit = NULL;
+    if (D_8010AD3C != NULL) {
+        if (D_8010AD3C->actorType != 0xD || func_800A1DE0() != 0) {
+            hit = D_8010AD38;
+            if (hit != NULL) {
+                do {
+                    rc = func_800AA304(D_8010AD3C, hit);
+                    if (rc != 0) {
+                        break;
+                    }
+                    hit = hit->next;
+                } while (hit != NULL);
+                if (hit != NULL) {
+                    D_8010AD3C->collide = hit;
+                }
+            }
+        }
+    }
+    return rc < 2 ? hit : NULL;
+}
 
 s32 func_800AA640(void) {
-    s32 temp_v0;
+    WorldActor* temp_v0;
 
     temp_v0 = func_800AA580(D_8010AD3C);
-    if (temp_v0 != 0)
+    if (temp_v0 != NULL)
         func_800AA1B8();
-    return temp_v0;
+    return (s32)temp_v0;
 }
 
 WorldActor* func_800AA684(void) { return D_8010AD3C != NULL ? D_8010AD3C->collide : NULL; }
@@ -1263,7 +1319,42 @@ void func_800AA8D8(s16 arg0, s16 arg1, s16 arg2) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AA8F8);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmGetBuggyMoveAnimationId);
+s32 func_800AAA00(u8* arg0) {
+    s32 prev;
+    s32 event;
+
+    prev = D_80109D70;
+    event = func_800A9A44();
+    switch (D_80109D70) {
+    case 1:
+        if (event == 0xB) {
+            D_80109D70 = 2;
+        }
+        break;
+    case 2:
+        if (*arg0 >= 6) {
+            D_80109D70 = 3;
+        }
+        break;
+    case 3:
+        if (event != 4 && event != 0xB) {
+            D_80109D70 = 4;
+        }
+        break;
+    case 4:
+        if (*arg0 >= 6) {
+            D_80109D70 = 1;
+        }
+        break;
+    default:
+        D_80109D70 = 1;
+        break;
+    }
+    if (D_80109D70 != prev) {
+        *arg0 = 0;
+    }
+    return D_80109D70;
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AAB18);
 
@@ -1813,7 +1904,32 @@ void WmScriptRunAll(void) {
         WmScriptRunOne(D_8010ADE4 = D_8010AD3C = var_s0);
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AD804);
+void func_800AD804(void) {
+    s32 kind;
+
+    if (D_8010ADEC != 0 || (D_8010AD40->flags1 & 8)) {
+        return;
+    }
+    if (func_800A91A4(0x2000) != 0) {
+        if ((D_8010AD40->pos.vy - D_8010AD40->unk42) >= 0x1F4) {
+            return;
+        }
+    } else if (D_8010AD40->flags1 & 0x80) {
+        return;
+    }
+    kind = func_800A9AD0();
+    if (kind >= 3) {
+        if (D_8010ADF0 != kind) {
+            D_8010ADF0 = kind;
+            func_800ABA78(kind - 3, 0);
+        }
+        if (kind == 7 && func_800A91A4(0x2000) == 0) {
+            func_800AA238();
+        }
+    } else {
+        D_8010ADF0 = 0;
+    }
+}
 
 s32 func_800AD928(void) {
     WorldActor* a;
@@ -1895,7 +2011,23 @@ void func_800ADC3C(VECTOR* arg0) { D_8010AE34 = *arg0; }
 
 void func_800ADC70(void) { D_8010AE54 = 0; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmAddMutexPriority);
+s32 func_800ADC80(s16 arg0) {
+    if ((D_8010AE54 >> arg0) & 1) {
+        if (!((-1 << (arg0 + 1)) & D_8010AE54)) {
+            return 1;
+        }
+    }
+    if (D_8010AE54 < (1 << arg0)) {
+        if (D_8010AE54 == 1) {
+            func_800A7F38();
+        } else if (D_8010AE54 & 4) {
+            func_800B7134();
+        }
+        D_8010AE54 |= 1 << arg0;
+        return 1;
+    }
+    return 0;
+}
 
 void WmRemoveMutexPriority(s16 arg0) {
     u32 var_v1;
@@ -2222,7 +2354,42 @@ void func_800B104C(void) {
     D_8010CAF4 = 0;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B10AC);
+void func_800B10AC(WorldChunkHeader* arg0) {
+    WorldChunkHeader** slot;
+    WorldTriangle* t;
+    u8* p;
+
+    if (arg0 == NULL) {
+        return;
+    }
+    slot = D_8010CA24;
+    if (slot < D_8010CA74) {
+        while (slot < D_8010CA74) {
+            if (*slot == arg0) {
+                break;
+            }
+            slot++;
+        }
+        if (slot < D_8010CA74) {
+            return;
+        }
+    }
+    if (D_8010CA74 >= &D_8010CA24[20]) {
+        func_800A0B40(0x47);
+    }
+    slot = D_8010CA74;
+    D_8010CA74 = slot + 1;
+    *slot = arg0;
+    t = arg0->tris;
+    if (t < arg0->tris + arg0->numTris) {
+        p = (u8*)t + 0xB;
+        do {
+            *p &= 0xBF;
+            t++;
+            p += 0xC;
+        } while (t < arg0->tris + arg0->numTris);
+    }
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B11C4);
 
@@ -2415,7 +2582,29 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B6348);
 
 static void func_800B63E0(s32 arg0) { D_801159DC = arg0; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B63F0);
+void func_800B63F0(s32 arg0) {
+    s16* cmd;
+    s32 prev;
+
+    if (D_801159DC != 0) {
+        cmd = D_8009A000;
+        if (arg0 != 1) {
+            s16 mode = 0x10;
+            if (D_801159E0 == 1) {
+                mode = 0x14;
+            }
+            *cmd = mode;
+        } else {
+            *cmd = 0x18;
+        }
+        D_8009A004[0] = D_801159BC[arg0];
+        D_8009A008[0] = 4;
+        SystemAkaoExecute();
+    }
+    prev = D_801159E0;
+    D_801159E0 = arg0;
+    D_80116510 = prev;
+}
 
 void func_800B64A0(void) { func_800B63F0(D_801159E0); }
 
