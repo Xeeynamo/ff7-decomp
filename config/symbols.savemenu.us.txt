@@ -1,5 +1,7 @@
 func_801D1774 = 0x801D1774;
 func_801D1BAC = 0x801D1BAC;
+LoadSaveHeader = 0x801D1D40;
+LoadSaveFile = 0x801D1F40;
 UpdateSaveHeader = 0x801D224C;
 WriteSaveFile = 0x801D2408;
 g_ShiftJisTable = 0x801DEF08;
@@ -11,4 +13,5 @@ g_SaveSlot = 0x801E3D50;
 D_801E3D80 = 0x801E3D80; // size:0x24
 g_SaveFileHeader = 0x801E6D38;
 g_SaveFile = 0x801E6F38;
+g_SaveFileData = 0x801E7138;
 g_SaveWriteRemaining = 0x801E8F40;

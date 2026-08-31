@@ -90,6 +90,7 @@ extern u8 g_SaveIcons[];
 extern MemcardFileHeader g_SaveFileHeader;
 // the 8 KiB block written to the card
 extern MemcardSaveFile g_SaveFile;
+extern u8 g_SaveFileData[];
 // bytes still to write
 extern s32 g_SaveWriteRemaining;
 extern u8 D_801E8F38[2][3];

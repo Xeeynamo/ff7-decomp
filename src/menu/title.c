@@ -131,7 +131,7 @@ s32 func_801D3698(s32 arg0, s32 arg1) {
         if (arg0) {
             var_a0 |= 0x10;
         }
-        if (func_801D1D40(var_a0) == 0) {
+        if (LoadSaveHeader(var_a0) == 0) {
             ret = 0;
             break;
         }
@@ -498,7 +498,7 @@ static s32 func_801D3AB0(s32 arg0) {
             if (D_801E3D80[0].row) {
                 var_a0_3 |= 0x10;
             }
-            var_s1 = (s16)func_801D1F40(var_a0_3);
+            var_s1 = (s16)LoadSaveFile(var_a0_3);
             if (var_s1 == 0) {
                 if (Savemap.header.checksum !=
                     (u16)func_801D1950(

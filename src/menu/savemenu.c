@@ -569,9 +569,105 @@ static const char D_801D0194[] = "bu00:%s";
 
 SaveHeader* func_801D1D1C(s32 arg0) { return &D_801E3864[arg0]; }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D1D40);
+s32 LoadSaveHeader(s32 save_id) {
+    // Declared but never used, like the one GetSaveSlotMask passes to
+    // firstfile(); it still occupies its stack slot.
+    struct DIRENTRY dirEntry;
+    char path[0x20];
+    s32 fd;
+    s32 readCount;
+    s32 readRetry;
+    u8* headerSrc;
+    u8* headerDst;
+    SaveHeader* headers;
+    s32 slot;
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D1F40);
+    // Only the header page is needed to build the slot preview.
+    g_SaveWriteRemaining = 0x280;
+    if (save_id & 0x10) {
+        sprintf(path, D_801D018C, D_801E2C78[save_id & 15]);
+    } else {
+        sprintf(path, D_801D0194, D_801E2C78[save_id & 15]);
+    }
+    fd = open(path, 1);
+    if (fd == -1) {
+        return 1;
+    }
+    readRetry = 0x1E;
+    do {
+        readCount = read(fd, &g_SaveFile, g_SaveWriteRemaining);
+        if (readCount == g_SaveWriteRemaining) {
+            goto read_ok;
+        }
+        readRetry--;
+        if (readCount != -1) {
+            g_SaveWriteRemaining -= readCount;
+        }
+    } while (readRetry != 0);
+    close(fd);
+    return 2;
+read_ok:
+    close(fd);
+    slot = save_id & 15;
+    headers = D_801E3864;
+    headerDst = (u8*)&headers[slot];
+    headerSrc = g_SaveFileData;
+    memcpy(headerDst, headerSrc, sizeof(SaveHeader));
+    return 0;
+}
+
+s32 LoadSaveFile(s32 save_id) {
+    // Declared but never used, like the one GetSaveSlotMask passes to
+    // firstfile(); it still occupies its stack slot.
+    struct DIRENTRY dirEntry;
+    char path[0x20];
+    s32 fd;
+    s32 readCount;
+    s32 readRetry;
+    s32 i;
+    u8* saveSrc;
+    u8* saveDst;
+
+    // readCount doubles as a scratch copy of save_id here; the overlay
+    // stops matching if either reuse below is given its own variable.
+    readCount = save_id;
+    g_SaveWriteRemaining = sizeof(MemcardSaveFile);
+    if (readCount & 0x10) {
+        fd = readCount;
+        sprintf(path, D_801D018C, D_801E2C78[fd & 15]);
+    } else {
+        sprintf(path, D_801D0194, D_801E2C78[readCount & 15]);
+    }
+    fd = open(path, 1);
+    if (fd == -1) {
+        return 1;
+    }
+    readRetry = 0x1E;
+    do {
+        readCount = read(fd, &g_SaveFile, g_SaveWriteRemaining);
+        if (readCount == g_SaveWriteRemaining) {
+            goto read_ok;
+        }
+        // Counts up from 0x1E, so a persistent error spins until it
+        // wraps rather than giving up after 30 tries. LoadSaveHeader
+        // decrements here; this looks like a bug in the original.
+        readRetry++;
+        if (readCount != -1) {
+            g_SaveWriteRemaining -= readCount;
+        }
+    } while (readRetry != 0);
+    close(fd);
+    return 2;
+read_ok:
+    close(fd);
+    saveDst = (u8*)&Savemap;
+    saveSrc = g_SaveFileData;
+    memcpy(saveDst, saveSrc, sizeof(SaveWork));
+    for (i = 0; i < 12; i++) {
+        g_MenuColors[i] = Savemap.header.menu_color[i];
+    }
+    return 0;
+}
 
 static s32 func_801D2150(s8 arg0) {
     if (arg0 > -0x68 && arg0 < -0x60 || arg0 > -32 && arg0 < -3) {
@@ -580,7 +676,7 @@ static s32 func_801D2150(s8 arg0) {
     return 0;
 }
 
-s32 func_801D2184(s8 arg0) {
+static s32 func_801D2184(s8 arg0) {
     if (arg0 > -0x80 && arg0 < -0x60 || arg0 > -33 && arg0 < -3) {
         return 1;
     }
@@ -596,7 +692,7 @@ static void func_801D21B8(u8* arg0, u8* arg1) {
 
 static void func_801D21E0(s32 arg0) { D_801E2CB4 = arg0; }
 
-void func_801D21F0(u8* arg0, u8* arg1) {
+static void func_801D21F0(u8* arg0, u8* arg1) {
     s32 i;
     for (i = 0; i < D_801E2CB4; i++) {
         *arg0++ = *arg1;
