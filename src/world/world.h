@@ -42,6 +42,11 @@ typedef struct {
     /* 0x8 */ s8 unk8;
 } WorldTriangleRef; // size: 0xC
 
+typedef struct WorldChunkNode {
+    /* 0x0 */ struct WorldChunkNode* next;
+    /* 0x4 */ WorldChunkHeader* chunk;
+} WorldChunkNode; // size: 0x8
+
 typedef struct {
     /* 0x00 */ s16 scriptIdx;
     /* 0x02 */ u8 waitFrames;
@@ -85,8 +90,8 @@ typedef struct WorldActor {
 } WorldActor; // size: 0xE0
 
 typedef struct {
-    /* 0x00 */ s16 x;
-    /* 0x02 */ s16 z;
+    /* 0x00 */ u16 x;
+    /* 0x02 */ u16 z;
     /* 0x04 */ s16 x2;
     /* 0x06 */ s16 z2;
 } WorldZolomSegment; // size: 0x8
@@ -135,7 +140,7 @@ typedef struct {
 void WmSetRenderBuffers();
 void func_800A0B48();
 s32 GetGraphType(void);
-void func_800A19FC(WorldChunkHeader*, SVECTOR*, WorldStoredTriangle*, s16*, s32, s16*, s32);
+s32 func_800A19FC(WorldChunkHeader*, SVECTOR*, WorldStoredTriangle*, s16*, s32, s16*, s32);
 void func_800A31C0(s16);
 void func_800A368C(s32);
 void WmExtractLoopCoordsTopBottomParts(VECTOR*, SVECTOR*, s16*, s16*);
@@ -179,6 +184,7 @@ s32 func_800B0240(void);
 void func_800B0D98(WorldChunkHeader*);
 void func_800B271C(s32);
 void func_800B29CC(void);
+s32 func_800B90C0(u8, u8, u8, u8, s16*);
 void func_800B1C80(WorldChunkHeader*);
 void func_800B5274();
 void func_800B5C7C(WorldActor*);
@@ -308,8 +314,10 @@ extern s32 D_8010B47C;
 extern WorldZolomSegment D_8010C2AC[0x30];
 extern WorldZolomSegment* D_8010C42C;
 extern s16 D_8010C7F0;
+extern s32 D_8010C800;
 extern s32 D_8010C804;
 extern s32 D_8010C808;
+extern WorldStoredTriangle D_8010C80C[];
 extern WorldTriangleRef D_8010C83C;
 extern WorldTriangleRef* D_8010CA1C;
 extern s32 D_8010CA20;
@@ -359,12 +367,12 @@ extern u8 D_800C68FC[];
 extern u8 D_800C6910[];
 extern WorldChunkHeader D_80109A38[0x20];
 extern WorldChunkHeader* D_80109D38;
-extern s32 D_80109D3C;
+extern WorldChunkHeader* D_80109D3C;
 extern WorldChunkHeader* D_80109D40;
 void func_800A5AD8(WorldChunkHeader*);
-extern WorldListNode D_800E582C[0x40];
-extern s32 D_800E5A2C;
-extern WorldListNode* D_800E5A30;
+extern WorldChunkNode D_800E582C[0x40];
+extern WorldChunkNode* D_800E5A2C;
+extern WorldChunkNode* D_800E5A30;
 
 extern WorldListNode D_800E5718[];
 extern WorldListNode* D_800E5760;
@@ -436,6 +444,7 @@ extern u16 D_8009D2A6;
 extern s32 D_80116274;
 extern s16 D_80116288;
 extern s16 D_8011628C;
+extern s16 D_80116290;
 extern s32 D_8011626C;
 extern s32 D_80116270;
 extern s32 D_80116278;

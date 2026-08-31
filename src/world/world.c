@@ -559,7 +559,47 @@ void func_800A53A8(s16 arg0, s16 arg1) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", WmStartLoadingMapFileBlock);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A57C8);
+void func_800A57C8(void) {
+    WorldListNode* node;
+    WorldListNode* prev;
+    WorldListNode* head;
+    s32 tick;
+
+    if (D_800E5814 >= D_8011650C * 5) {
+        SystemCdromReadChain();
+    }
+    if (D_800E5814 < D_8011650C * 5 && D_800E5820 >= 0) {
+        node = D_800E5768;
+        prev = NULL;
+        if (node != NULL) {
+            while (node != NULL) {
+                if (node == &D_800E5718[D_800E5820]) {
+                    break;
+                }
+                prev = node;
+                node = node->next;
+            }
+        }
+        if (node == NULL) {
+            func_800A0B40(0xB);
+        }
+        if (prev != NULL) {
+            prev->next = node->next;
+        } else {
+            D_800E5768 = node->next;
+        }
+        head = D_800E5764;
+        D_800E5764 = node;
+        node->next = head;
+        func_800A5B88(node);
+        D_800E5820 = -1;
+    }
+    tick = 0;
+    if (D_800E5814 != 0) {
+        tick = D_800E5814 < D_8011650C * 5;
+    }
+    D_800E5814 -= tick;
+}
 
 void WmMapLoadFinishedCallback(void) {
     if (D_800E5820 >= 0) {
@@ -596,9 +636,47 @@ void func_800A59A0(void) {
     D_800E5A34 = 0;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmGetElementWithBlockIdAndSetItFirst);
+WorldListNode* func_800A5A20(s16 arg0) {
+    WorldListNode* node;
+    WorldListNode* prev;
+    WorldListNode* head;
+    WorldListNode* next;
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5A94);
+    node = D_800E5764;
+    prev = NULL;
+    if (node != NULL) {
+        while (node != NULL) {
+            if (node->unk4 == arg0) {
+                break;
+            }
+            prev = node;
+            node = node->next;
+        }
+        if (node != NULL && prev != NULL) {
+            next = node->next;
+            head = D_800E5764;
+            D_800E5764 = node;
+            prev->next = next;
+            node->next = head;
+        }
+    }
+    return node;
+}
+
+s32 func_800A5A94(s16 arg0) {
+    WorldListNode* node;
+
+    node = D_800E5768;
+    if (node != NULL) {
+        while (node != NULL) {
+            if (node->unk4 == arg0) {
+                break;
+            }
+            node = node->next;
+        }
+    }
+    return node != NULL;
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5AD8);
 
@@ -622,7 +700,67 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5D00);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5E28);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5FB4);
+s32 func_800A5FB4(void) {
+    WorldChunkHeader* chunk;
+    WorldChunkHeader* prev;
+    WorldChunkNode* node;
+    WorldChunkNode* nodePrev;
+    WorldChunkHeader* freeChunk;
+    WorldChunkNode* freeNode;
+    s32 live;
+    u16 age;
+
+    live = 0;
+    chunk = D_80109D40;
+    prev = NULL;
+    if (chunk != NULL) {
+        do {
+            age = chunk->numVerts;
+            chunk->numVerts = age + 1;
+            if ((s16)age >= 0x96) {
+                if (prev != NULL) {
+                    prev->next = chunk->next;
+                } else {
+                    D_80109D40 = chunk->next;
+                }
+                node = D_800E5A2C;
+                freeChunk = D_80109D38;
+                nodePrev = NULL;
+                D_80109D38 = chunk;
+                chunk->next = freeChunk;
+                if (node != NULL) {
+                    while (node != NULL) {
+                        if (node->chunk == chunk) {
+                            break;
+                        }
+                        nodePrev = node;
+                        node = node->next;
+                    }
+                    if (node != NULL) {
+                        if (nodePrev != NULL) {
+                            nodePrev->next = node->next;
+                        } else {
+                            D_800E5A2C = node->next;
+                        }
+                        freeNode = D_800E5A30;
+                        D_800E5A30 = node;
+                        node->next = freeNode;
+                    }
+                }
+                if (prev != NULL) {
+                    chunk = prev->next;
+                } else {
+                    chunk = D_80109D40;
+                }
+            } else {
+                prev = chunk;
+                chunk = chunk->next;
+                live++;
+            }
+        } while (chunk != NULL);
+    }
+    return live;
+}
 
 void func_800A60D8(void) {
     s16 i;
@@ -836,7 +974,20 @@ static void func_800A82DC(void) { D_80109D54 = 1; }
 
 s32 func_800A82F0(void) { return D_80109D58; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A8300);
+s32 func_800A8300(s16 arg0, s16 arg1) {
+    WorldChunkHeader* chunk;
+
+    chunk = D_80109D3C;
+    if (chunk != NULL) {
+        while (chunk != NULL) {
+            if (chunk->x == arg0 && chunk->z == arg1) {
+                break;
+            }
+            chunk = chunk->next;
+        }
+    }
+    return chunk != NULL;
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A835C);
 
@@ -2548,7 +2699,27 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B0810);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B0BF4);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B0D98);
+void func_800B0D98(WorldChunkHeader* arg0) {
+    VECTOR pos;
+    SVECTOR dir;
+    s16 chunkX;
+    s16 chunkZ;
+    s32 hit;
+
+    if (func_800B0794() != 0) {
+        pos.vx = D_8010C42C->x + 0x34000;
+        pos.vz = D_8010C42C->z + 0x20000;
+        func_800A6884(&pos, &dir, &chunkX, &chunkZ);
+        if (chunkX == arg0->x && chunkZ == arg0->z) {
+            hit = func_800A19FC(
+                arg0, &dir, D_8010C80C, &D_8010C42C->z2, 0, NULL, 0x64);
+            D_8010C800 = hit;
+            if (hit == 0) {
+                D_8010C42C->z2 = 0;
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B0E84);
 
@@ -3298,7 +3469,13 @@ void WmDialogSetMessageToShowForId0(u8 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmDialogSetAskToShowForId0);
+void func_800B851C(s32 arg0, s16 arg1, s16 arg2) {
+    if (g_WindowData[0].state == WSTATE_INIT) {
+        D_80116288 = arg1;
+        D_8011628C = arg2;
+        func_800B90C0(0, arg0, D_80116288, D_8011628C, &D_80116290);
+    }
+}
 
 static s32 WmDialogIsWindowWithId0Showing(void) { return g_WindowData[0].state != WSTATE_INIT; }
 
