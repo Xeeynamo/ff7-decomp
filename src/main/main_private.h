@@ -59,17 +59,6 @@ typedef struct {
 } Unk8001DE0C;
 
 typedef struct {
-    u8 padABuffer;
-    u8 unk1;
-    u8 unk2;
-    u8 unk3[31];
-    u8 padBBuffer;
-    u8 unk23;
-    u8 unk24;
-    u8 unk25[31];
-} Unk800696AC;
-
-typedef struct {
     s32 sector_off;
     s32 length;
 } PortraitEntry;
@@ -129,19 +118,19 @@ typedef struct {
                            // 0x04 use in menu (0xFFFE on every accessory)
 } AccessoryRecord;
 
-extern u16 g_Pad1ButtonsPrev;
-extern u16 g_Pad2Buttons;
-extern u16 g_Pad2ButtonsPrev;
-extern u16 g_Pad2ButtonsPressed;
-extern u16 g_Pad2ButtonsRepeat;
-extern u16 g_Pad1FastButtons;
-extern u16 g_Pad1FastButtonsPrev;
-extern u16 g_Pad1FastButtonsPressed;
-extern u16 g_Pad1FastButtonsRepeat;
-extern u16 g_Pad2FastButtons;
-extern u16 g_Pad2FastButtonsPrev;
-extern u16 g_Pad2FastButtonsPressed;
-extern u16 g_Pad2FastButtonsRepeat;
+extern u16 g_Pad1KeysPrev;
+extern u16 g_Pad2Keys;
+extern u16 g_Pad2KeysPrev;
+extern u16 g_Pad2KeysPressed;
+extern u16 g_Pad2KeysRepeat;
+extern u16 g_Pad1BattleKeys;
+extern u16 g_Pad1BattleKeysPrev;
+extern u16 g_Pad1BattleKeysPressed;
+extern u16 g_Pad1BattleKeysRepeat;
+extern u16 g_Pad2BattleKeys;
+extern u16 g_Pad2BattleKeysPrev;
+extern u16 g_Pad2BattleKeysPressed;
+extern u16 g_Pad2BattleKeysRepeat;
 
 extern s32 D_80010100[];
 extern Yamada D_80048CFC[];
@@ -152,7 +141,6 @@ extern PortraitEntry D_80048FE8[15];
 // Battle characters have IDs 0-10. 9 and 10 are young Cloud and Sephiroth from
 // flashback sequence and they use same character records as Cait Sith and
 // Vincent.
-extern s32 g_BattleCharIdToCharId[11];
 extern u8 D_80049208[12]; // menu color RGB-quadruplet
 extern s32 D_80049224[8];
 extern s32 D_80049474[];  // play-clock divisors: 36000 (seconds per 10 hours),
@@ -192,7 +180,6 @@ extern u8 D_80062FEC;
 extern u16 D_80062F34[3];
 extern Unk80062F7C* D_80062F7C;
 extern u8 D_80063690[];
-extern Unk800696AC D_800696AC;
 extern TILE D_800696FC[5];
 extern u_long g_MenuOrderingTables[2][20];
 extern MenuTable g_RewardMenuTable;

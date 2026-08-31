@@ -97,7 +97,7 @@ s32 func_80034D5C(void);
 s32 func_800484A8(void);
 MATRIX* ScaleMatrix(MATRIX*, VECTOR*);
 void VectorNormal(VECTOR*, VECTOR*);
-u32 func_8001C808(void);
+u32 InputReadPadsRaw(void);
 void func_80041D28(u32, void*, s32);
 s32 func_80041E30(s32, s32);
 void SystemLzsDecompress(void*, void*);
@@ -730,7 +730,7 @@ s32 func_800A273C(s32 arg0) {
     D_8007EBD8 = &D_800AF398[D_800AF408];
     D_8007EBD0 = &D_800AF2E0[D_800AF408];
 
-    pad0 = func_8001C808();
+    pad0 = InputReadPadsRaw();
     old0 = D_800AF3C0;
     old1 = D_800AF3C4;
     pad1 = pad0 >> 16;

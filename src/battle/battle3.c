@@ -312,7 +312,7 @@ void func_800DF900(void) {
     u16* tapped;
 
     if (D_800F3896 == 3 && D_800F99E4 == 0) {
-        tapped = &g_Pad1ButtonsRepeat;
+        tapped = &g_Pad1KeysRepeat;
         if (*tapped & PADRright) {
             func_800BB9B8(1);
             D_800F99E4 = 1;
@@ -320,7 +320,7 @@ void func_800DF900(void) {
             func_800A4350(D_800F38A0, D_800F389C, D_800F389E, D_801516F8);
             func_800D9F5C(3);
             func_800D9F5C(1);
-        } else if (g_Pad1ButtonsRepeat & (PADLleft | PADRdown)) {
+        } else if (g_Pad1KeysRepeat & (PADLleft | PADRdown)) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
             D_800F3896 = 1;
@@ -357,7 +357,7 @@ void func_800E0294(void) {
 
     temp_s0 = &D_8009D84C[D_800F38A1].unkAC[0];
     if (D_800F3896 == 0x1B && D_800F99E4 == 0) {
-        if (g_Pad1ButtonsRepeat & PADRright) {
+        if (g_Pad1KeysRepeat & PADRright) {
             if (func_800E54EC() == 2) {
                 D_800F99E4 = 1;
                 func_800BB9B8(1);
@@ -370,7 +370,7 @@ void func_800E0294(void) {
                 func_800D9F5C(0x1B);
                 func_800D9F5C(1);
             }
-        } else if ((g_Pad1ButtonsRepeat & PADRdown) && (func_800E54EC() == 0)) {
+        } else if ((g_Pad1KeysRepeat & PADRdown) && (func_800E54EC() == 0)) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
             D_800F3896 = 1;
@@ -388,7 +388,7 @@ void func_800E03F0(void) {
 
     temp_s0 = &D_8009D8F8[D_800F38A1 * 0x440];
     if ((D_800F3896 == 0x1A) && (D_800F99E4 == 0)) {
-        if (g_Pad1ButtonsRepeat & PADRright) {
+        if (g_Pad1KeysRepeat & PADRright) {
             D_800F99E4 = 1;
             if (func_800E4BCC() == 2) {
                 func_800BB9B8(1);
@@ -401,7 +401,7 @@ void func_800E03F0(void) {
                 func_800D9F5C(0x1A);
                 func_800D9F5C(1);
             }
-        } else if ((g_Pad1ButtonsRepeat & PADRdown) && (func_800E4BCC() == 0)) {
+        } else if ((g_Pad1KeysRepeat & PADRdown) && (func_800E4BCC() == 0)) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
             D_800F3896 = 1;
@@ -434,7 +434,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E0794);
 void func_800E084C(void) {
     if (D_800F3896 == 9) {
         func_800264A8(&D_800F9144);
-        if (g_Pad1ButtonsPressed & PADRright) {
+        if (g_Pad1KeysPressed & PADRright) {
             if (D_800F914E == 0) {
                 func_800A4844(1);
             } else {
@@ -486,14 +486,14 @@ void func_800E0E34(void) {
     }
     menu = &D_800F90C6[D_800F38A0];
     list = D_801671B8;
-    if (g_Pad1Buttons & PADRleft) {
+    if (g_Pad1Keys & PADRleft) {
         D_800F99E4 = 1;
     } else {
         D_800F99E4 = 0;
     }
     if ((D_800F99E4 == 0) && ((D_800F514D == 2) || (D_800F515F == 2))) {
         if ((D_800F5166 != 2) && (D_800F5167 != 2)) {
-            if (g_Pad1ButtonsPressed & PADRup) {
+            if (g_Pad1KeysPressed & PADRup) {
                 func_800BB9B8(1);
                 func_800A4E40();
                 D_800F99E4 = 1;
@@ -552,7 +552,7 @@ void func_800E0E34(void) {
             return;
         }
         if (D_800F99E4 == 0) {
-            if ((g_Pad1ButtonsRepeat & PADRright) != 0) { // pressed Confirm/OK
+            if ((g_Pad1KeysRepeat & PADRright) != 0) { // pressed Confirm/OK
                 if ((D_800FAFDC != 0) || (D_800F310E != 0)) {
                     func_800BB9B8(3);
                     D_800F99E4 = 1;
@@ -602,7 +602,7 @@ void func_800E0E34(void) {
                     }
                 }
                 func_800DDFEC();
-            } else if (g_Pad1ButtonsRepeat & PADRdown) { // pressed Cancel/Back
+            } else if (g_Pad1KeysRepeat & PADRdown) { // pressed Cancel/Back
                 if ((D_800F38A4 == 2) &&
                     (D_800F389D == 0xA)) { // in the item menu?
                     if (list[D_800F562C].count == 0) {
