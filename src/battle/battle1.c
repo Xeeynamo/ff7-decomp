@@ -396,7 +396,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B7DB4);
 static void func_800B7F6C(void) {
     volatile s32 padding;
 
-    while (D_80062D99) {
+    while (g_SavemapBusy) {
         func_800B7FB4();
     }
     D_80062D98 = 0;

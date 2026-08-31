@@ -43,10 +43,10 @@ static void func_800D8AF0(u16 arg0) {
 }
 
 void func_800D8B2C(void) {
-    if (D_80062D99) {
+    if (g_SavemapBusy) {
         func_800D8AF0(0x98);
     }
-    D_80062D99 = 0;
+    g_SavemapBusy = 0;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D8B60);
@@ -646,7 +646,7 @@ void func_800E15D8(void) {
         D_800F3110 = 0;
     }
     D_80062D98 = 0;
-    D_80062D99 = 0;
+    g_SavemapBusy = 0;
     D_800F198C = battleSceneData->limitReadyMask;
     D_800F57CC = (Savemap.config >> 4) & 3;
 }

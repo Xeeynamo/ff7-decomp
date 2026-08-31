@@ -913,7 +913,9 @@ extern u8 g_MenuColors[12]; // 4 corners x RGB
 extern u8 D_800492F0[][12]; // see Labels enum
 extern FieldModelData* g_FieldModelData;
 extern u8 D_80062D98; // battle_clearRenderList
-extern u8 D_80062D99; // battle_isPaused
+// Set while a memory-card transfer is in flight and the savemap must not be
+// touched; battle code spin-waits on it.
+extern volatile u8 g_SavemapBusy;
 extern s32 D_80062DCC;
 extern s8 _D_80062DFD;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier

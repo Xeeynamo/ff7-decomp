@@ -636,7 +636,114 @@ static void UpdateSaveHeader(void) {
     func_801D21F0(Savemap.header.place_name, &Savemap.memory_bank_4[104]);
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D2408);
+static s32 WriteSaveFile(s8* path, u8* title) {
+    u8 hour;
+    u8 minute;
+    u8 digit;
+    s32 existingFd;
+    s32 createdFd;
+    s32 fd;
+    s32 written;
+    s32 writeComplete;
+    s32 deleteRetry;
+    s32 createRetry;
+    s32 openRetry;
+    s32 writeRetry;
+    s32 i;
+    u8* reserved;
+    u8* savemapSrc;
+    u8* headerDst;
+    u8* iconClut;
+    // Never read, but the target reserves its 0x200 bytes on the stack.
+    MemcardFileHeader unused;
+
+    UpdateSaveHeader();
+    g_SaveWriteRemaining = sizeof(MemcardSaveFile);
+    g_SaveFileHeader.magic[0] = 'S';
+    g_SaveFileHeader.magic[1] = 'C';
+    g_SaveFileHeader.iconFlag = 0x11;
+    g_SaveFileHeader.blockCount = 1;
+    func_801D21B8(g_SaveFileHeader.title, title);
+    i = sizeof(g_SaveFileHeader.reserved) - 1;
+    reserved = &g_SaveFileHeader.reserved[i];
+    for (; i >= 0; i--) {
+        *reserved-- = 0;
+    }
+    hour = func_80023788(Savemap.header.time);
+    digit = ((hour / 10) * 2) + 0x20;
+    g_SaveFileHeader.title[0x16] = g_ShiftJisTable[digit];
+    g_SaveFileHeader.title[0x17] = g_ShiftJisTable[digit + 1];
+    digit = ((hour % 10) * 2) + 0x20;
+    g_SaveFileHeader.title[0x18] = g_ShiftJisTable[digit];
+    g_SaveFileHeader.title[0x19] = g_ShiftJisTable[digit + 1];
+    minute = func_8002382C(Savemap.header.time);
+    digit = ((minute / 10) * 2) + 0x20;
+    g_SaveFileHeader.title[0x1C] = g_ShiftJisTable[digit];
+    g_SaveFileHeader.title[0x1D] = g_ShiftJisTable[digit + 1];
+    digit = ((minute % 10) * 2) + 0x20;
+    g_SaveFileHeader.title[0x1E] = g_ShiftJisTable[digit];
+    g_SaveFileHeader.title[0x1F] = g_ShiftJisTable[digit + 1];
+    iconClut = &g_SaveIcons[g_SaveSlot * SAVE_ICON_SIZE];
+    memcpy(g_SaveFileHeader.iconPalette, iconClut,
+           sizeof(g_SaveFileHeader.iconPalette));
+    memcpy(g_SaveFileHeader.iconFrame[0],
+           &g_SaveIcons[(g_SaveSlot * SAVE_ICON_SIZE) + 0x2C],
+           sizeof(g_SaveFileHeader.iconFrame[0]));
+    headerDst = (u8*)&g_SaveFile.header;
+    memcpy(headerDst, (u8*)&g_SaveFileHeader, sizeof(MemcardFileHeader));
+    g_SavemapBusy = 1;
+    Savemap.header.checksum =
+        func_801D1950(0x10F0, (u8*)&Savemap.header.leader_level);
+    savemapSrc = (u8*)&Savemap;
+    memcpy((u8*)&g_SaveFile.save, savemapSrc, sizeof(SaveWork));
+    g_SavemapBusy = 0;
+
+    for (deleteRetry = 0; deleteRetry < 0xA; deleteRetry++) {
+        // The store into fd is dead; the overlay stops matching without it.
+        existingFd = fd = open(path, 1);
+        if (existingFd != -1) {
+            delete (path);
+            close(existingFd);
+            break;
+        }
+    }
+    for (createRetry = 0x1E; createRetry != 0; createRetry--) {
+        createdFd = open(path, (g_SaveFileHeader.blockCount << 0x10) | 0x200);
+        if (createdFd != -1) {
+            goto created;
+        }
+    }
+    return 1;
+created:
+    close(createdFd);
+    for (openRetry = 0x1E; openRetry != 0; openRetry--) {
+        fd = open(path, 2);
+        if (fd != -1) {
+            goto opened;
+        }
+    }
+    return 2;
+opened:
+    writeRetry = 0x1E;
+    do {
+        // Same: this copy is redundant but the overlay needs it.
+        createdFd = fd;
+        written = write(createdFd, &g_SaveFile, g_SaveWriteRemaining);
+        writeComplete = written == g_SaveWriteRemaining;
+        if (writeComplete) {
+            goto written_ok;
+        }
+        writeRetry--;
+        if (written != -1) {
+            g_SaveWriteRemaining -= written;
+        }
+    } while (writeRetry != 0);
+    close(createdFd);
+    return 3;
+written_ok:
+    close(createdFd);
+    return 0;
+}
 
 static const char* D_801E2CB8[] = {
     "ＦＦ７／ＳＡＶＥ０１／００：００", "ＦＦ７／ＳＡＶＥ０２／００：００",
@@ -660,8 +767,8 @@ static s16 func_801D2A34(s32 save_id) {
         sprintf(path, D_801D0194, D_801E2C78[save_id & 15]);
     }
     slot = save_id & 15;
-    D_801E3D50 = slot;
-    ret = func_801D2408(path, D_801E2CB8[slot]);
+    g_SaveSlot = slot;
+    ret = WriteSaveFile(path, D_801E2CB8[slot]);
     if (!(s16)ret) {
         memcpy(&D_801E3864[slot], &Savemap.header, sizeof(SaveHeader));
     }

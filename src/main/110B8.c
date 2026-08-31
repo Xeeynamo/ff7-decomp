@@ -9,7 +9,6 @@ u16 func_80015B88(void);
 extern u8 D_80083084[];
 
 extern u8 D_80062D98;
-extern u8 D_80062D99;
 extern s32 D_80062D9C;
 extern s32 D_80062DA0;
 extern s32 D_80062DA4;

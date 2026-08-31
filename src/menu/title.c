@@ -493,7 +493,7 @@ static s32 func_801D3AB0(s32 arg0) {
                 D_801E3F18--;
                 break;
             }
-            D_80062D99 = 1;
+            g_SavemapBusy = 1;
             var_a0_3 = D_801E3D80[1].row + D_801E3D80[1].rowOffset;
             if (D_801E3D80[0].row) {
                 var_a0_3 |= 0x10;
@@ -516,7 +516,7 @@ static s32 func_801D3AB0(s32 arg0) {
                 func_801D2B58(3);
                 func_8001F6C0(D_801E2CFC[11], var_s1);
             }
-            D_80062D99 = 0;
+            g_SavemapBusy = 0;
             break;
         case START_MENU_MODE_FORMAT_PROMPT:
             func_800264A8(&D_801E3DEC[0]);
