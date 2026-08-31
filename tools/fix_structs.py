@@ -20,7 +20,7 @@ SAVEMAP_FIELDS = [
     # SaveHeader (embedded)
     (0x000, 4, "header.checksum", 0),
     (0x004, 1, "header.leader_level", 0),
-    (0x005, 3, "header.leader_portrait", 1),
+    (0x005, 3, "header.party_portraits", 1),
     (0x008, 16, "header.leader_name", 1),
     (0x018, 2, "header.leader_hp", 0),
     (0x01A, 2, "header.leader_hp_max", 0),

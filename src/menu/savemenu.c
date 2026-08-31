@@ -526,41 +526,34 @@ static const char SaveSearchCard1[] = "bu00:*"; // D_801D0184
 // directory open up to 100 times, and gives up with an empty mask.
 u16 GetSaveSlotMask(s32 cardSlot) {
     struct DIRENTRY dirEntry;
-    const char* pattern;
     s32 i;
     struct DIRENTRY* entry;
     u16 slotMask;
 
     slotMask = 0;
-    i = 0;
-    while (1) {
-        pattern = SaveSearchCard1;
+    for (i = 0; i < 100; i++) {
         if (cardSlot) {
-            pattern = SaveSearchCard2;
+            entry = firstfile((char*)SaveSearchCard2, &dirEntry);
+        } else {
+            entry = firstfile((char*)SaveSearchCard1, &dirEntry);
         }
-        entry = firstfile((char*)pattern, &dirEntry);
         if (entry) {
             break;
         }
-        i++;
-        if (i >= 100) {
-            slotMask = 0;
-            goto fail;
-        }
     }
-    while (entry) {
-        for (i = 0; i < 15; i++) {
-            if (func_801D1BE0(entry->name, (u8*)D_801E2C78[i]) != 0) {
-                slotMask |= 1 << i;
+
+    if (entry) {
+        while (entry) {
+            for (i = 0; i < 15; i++) {
+                if (func_801D1BE0(entry->name, (u8*)D_801E2C78[i]) != 0) {
+                    slotMask |= 1 << i;
+                }
             }
+            entry = nextfile(entry);
         }
-        entry = nextfile(entry);
+    } else {
+        slotMask = 0;
     }
-    return slotMask;
-fail:
-    // Keeps this return a separate block; gcc otherwise cross-jumps it into
-    // the one above and the target's duplicated mask disappears.
-    asm("");
     return slotMask;
 }
 
@@ -708,7 +701,7 @@ static void UpdateSaveHeader(void) {
     u8 id;
 
     for (i = 0; i < 3; i++) {
-        Savemap.header.leader_portrait[i] = Savemap.partyID[i];
+        Savemap.header.party_portraits[i] = Savemap.partyID[i];
     }
     func_801D21E0(0x10);
     for (i = 0; i < 3; i++) {
@@ -864,7 +857,7 @@ static s16 func_801D2A34(s32 save_id) {
     }
     slot = save_id & 15;
     g_SaveSlot = slot;
-    ret = WriteSaveFile(path, D_801E2CB8[slot]);
+    ret = WriteSaveFile(path, (u8*)D_801E2CB8[slot]);
     if (!(s16)ret) {
         memcpy(&D_801E3864[slot], &Savemap.header, sizeof(SaveHeader));
     }

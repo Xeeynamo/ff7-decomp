@@ -229,7 +229,7 @@ typedef union {
 typedef struct {
     u32 checksum;
     u8 leader_level;
-    u8 leader_portrait[3];
+    u8 party_portraits[3]; // lead, 2nd and 3rd character ids, 0xFF = empty
     s8 leader_name[0x10];
     u16 leader_hp;
     u16 leader_hp_max;
@@ -285,6 +285,7 @@ typedef struct {
     /* 0x80 */ u32 exp_to_next_level;
 } SavePartyMember; // size:0x84
 
+// https://ff7-mods.github.io/ff7-flat-wiki/FF7/Savemap
 typedef struct {
     SaveHeader header;
     /* 0x54 */ SavePartyMember party[MAX_PARTY_COUNT];
