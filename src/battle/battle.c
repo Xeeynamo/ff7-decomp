@@ -93,7 +93,7 @@ void BATTLE_CheckAllLucky7s(void) {
     u16* count;
 
     i = 0;
-    count = &D_800F7DE2;
+    count = D_800F7DE2;
     do {
         if (g_BattleState.combatant[i].curHP == 7777 &&
             !(g_CombatantTurnState[i].unk29 & 0x80)) {
@@ -207,7 +207,7 @@ void BATTLE_DropSupersededQueuedActions(void) {
         if (actor != -1 && (D_800FA9D0[i].unk4 & 4)) {
             prev = slot[actor];
             if (prev != -1) {
-                D_800FA9D0[prev].unk4 &= 0xFFFB;
+                D_800FA9D0[prev].unk4 &= ~4;
             }
             slot[actor] = i;
         }
@@ -304,7 +304,7 @@ void BATTLE_RunFrame(void) {
         if (a == -1) {
             break;
         }
-        if ((u32)(a - 4) < 6) {
+        if (a > 3 && a < 10) {
             D_801636B8[a].D_801636B9 = g_BattleState.combatant[a].unk10;
         }
     }
@@ -510,10 +510,8 @@ s32 BATTLE_RunToResultScreen(void) {
     }
     D_800F3896 = 0x1C;
     func_800D9E0C(-1, -1, 0x1C);
-    if (D_800F39EC == 0) {
-        do {
-            BATTLE_RunFrame();
-        } while (D_800F39EC == 0);
+    while (D_800F39EC == 0) {
+        BATTLE_RunFrame();
     }
     if (D_800F39EC & 2) {
         func_800E60F8();
@@ -773,16 +771,14 @@ s32 BATTLE_PickRandomThrowItem(void) {
 
     ret = 0xFFFF;
     n = 0;
-    i = 0;
-    do {
+    for (i = 0; i < 320; i++) {
         id = D_801671B8[i].id;
         flags = D_801671B8[i].unk4;
         if (id != 0xFFFF && !(flags & 9)) {
             list[n] = id;
             n++;
         }
-        i++;
-    } while (i < 320);
+    }
     if (n != 0) {
         pick = list[func_80014BA8(n)];
         if ((u32)(pick - 0x80) < 0x80) {
@@ -989,9 +985,7 @@ void func_800A6B1C(void) {
     u32 scratch;
     u16 pending;
 
-    i = 0;
-
-    do {
+    for (i = 0; i < 3; i++) {
         if (!((D_800F5F44.D_800F7DC4 >> i) & 1)) {
             scratch = D_800F5F44.D_800F7DC2;
             pending = scratch;
@@ -1001,9 +995,7 @@ void func_800A6B1C(void) {
                 D_800F5F44.D_800F7DAC |= 1 << i;
             }
         }
-
-        i++;
-    } while (i < 3);
+    }
 }
 
 void func_800A6B88(s32 arg0, s32 arg1) {

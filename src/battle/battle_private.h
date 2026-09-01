@@ -355,6 +355,7 @@ extern Unk800F57D0* D_800F57D0;
 extern u8 D_800F57D4;
 extern Unk800AF470 g_CombatantTurnState[10]; // per-party-slot turn/effect state
                                              // (flags, countdown timers)
+extern u16 D_800F7DE2[];                     // All Lucky 7s trigger count
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
 extern s32 D_800F7DF8[3];
@@ -690,4 +691,3 @@ extern volatile s32 D_800F39EC; // polled by the battle-result wait loop
 extern s32 D_800F4300;          // write cursor into the shared script buffer
 extern s32 D_800F4304;          // slot cursor, wraps at 0x40
 extern void (*D_800E7BFC[])(void); // per-action epilogue hook, may be NULL
-extern u16 D_800F7DE2;             // All Lucky 7s trigger count
