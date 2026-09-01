@@ -678,7 +678,7 @@ typedef struct {
     u16 SolidRange;       // 0x6C
     u16 TalkRange;        // 0x6E
     u16 MoveSpeed;        // 0x70
-    s16 PosI;             // 0x72
+    u16 PosI;             // 0x72
     s16 MoveEndI;         // 0x74
     u16 Pad76;
     s32 MoveEndX; // 0x78
@@ -772,9 +772,8 @@ typedef struct {
     u16 cameraScrollNumSteps;
     // Following two variables are set when exiting from field to mini games,
     // world map, or another field map.
-    u16 pcWalkMeshId; // Walk mesh triangle id player is inside of.
-    u8 pcDirection;   // Direction player is facing.
-    u8 unk25;
+    u16 pcWalkMeshId;      // Walk mesh triangle id player is inside of.
+    s16 pcDirection;       // Direction player is facing.
     s16 movieCommandState; // enum MovieCommandState.
     u16 modelCount;
     s16 pcModelId;
@@ -826,14 +825,15 @@ typedef struct {
     u8 unk66;
     u8 unk67;
     // Uses PADx macros in libetc.h
-    u32 activeKeys;      // Currently active keys.
-    u32 oldActiveKeys;   // activeKeys from last frame.
-    u32 newActiveKeys;   // Was inactive last frame.
-    u32 newInactiveKeys; // Was active last frame.
-    u32 activeKeys2;
-    u32 oldActiveKeys2;
-    u32 newActiveKeys2;
-    u32 newInactiveKeys2;
+    // Raw states ignore custom key mapping set by player.
+    u32 activeKeysRaw;     // Currently active keys.
+    u32 activeKeysPrevRaw; // activeKeysRaw from last frame.
+    u32 pressedKeysRaw;    // Was inactive last frame.
+    u32 releasedKeysRaw;   // Was active last frame.
+    u32 activeKeys;
+    u32 activeKeysPrev;
+    u32 pressedKeys;
+    u32 releasedKeys;
     s16 currentMovieFrame;
     // Set by SHAKE to enable a randomized camera shake effect.
     FieldShakeData shakeX;
@@ -906,10 +906,11 @@ typedef struct WindowData {
     u16 preventClose;
 } WindowData; // size:0x30
 
-extern u16 g_Pad1Buttons;
-extern u16 g_Pad1ButtonsPressed;
-extern u16 g_Pad1ButtonsRepeat;
+extern u16 g_Pad1Keys;
+extern u16 g_Pad1KeysPressed;
+extern u16 g_Pad1KeysRepeat;
 
+extern s32 g_BattleCharIdToCharId[11];
 extern u8 D_80049208[12];   // window colors maybe??
 extern u8 D_800492F0[][12]; // see Labels enum
 extern FieldModelData* g_FieldModelData;
@@ -994,14 +995,14 @@ extern u8 g_FieldCurrentOpcode;
 extern s32 D_8009A064;
 extern MenuTable g_PartyMenuTables[3];
 extern u8 g_FieldScriptPriority[48]; // active scripts execution priority
-extern FieldState D_8009ABF4;
+extern FieldState g_FieldState;
 extern u8 D_8009AC2F;
 extern u8 g_CharIdToEntity[9];
 extern FieldEntity* g_FieldModels; // loaded field models
 extern u8 g_FieldModelCount;       // number of allocated field models
 extern FieldScriptHeader* g_FieldScripts;
-extern FieldState* g_FieldState; // points to 0x8009abf4
-extern SaveWork Savemap;         // 0x8009C6E4
+extern FieldState* g_pFieldState; // points to g_FieldState
+extern SaveWork Savemap;          // 0x8009C6E4
 extern u8 D_8009CBDC[];
 extern u16 D_8009D288[];
 extern u8 D_8009D2E7;
@@ -1022,7 +1023,7 @@ extern u8 D_8009D8F8[];
 extern u32 D_8009D260;
 extern volatile s32 D_8009D268[];
 extern ActiveCharacterData D_8009D84C[9];
-extern s8 D_8009FE8C;
+extern u8 D_8009FE8C;
 extern u8 D_800C7304[16];
 
 // PSXSDK funcs
@@ -1035,8 +1036,8 @@ s32 func_8001521C(s32);
 const char* func_80015248(s32 arg0, s32 arg1, s32 arg2);
 void func_800155A4(s32, ...);
 void func_8001726C(s16, u16);
-u32 func_8001C808(void);
-u32 func_8001C8D4(void);
+u32 InputReadPadsRaw(void);
+u32 InputReadPads(void);
 void func_80021044(DRAWENV* draw_env, DISPENV* disp_env);
 s32 func_80023050(void);
 void func_8002305C(s32 state, s32 menuId);

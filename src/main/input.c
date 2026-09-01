@@ -13,43 +13,65 @@ static u8 s_PadsInitialized = 0;
 static u8 s_TutorialMessageVisible = 0;
 static s16 s_TutorialMessageX = 0;
 static s16 s_TutorialMessageY = 0;
-static s16 D_80062D76 = 0;
+static s16 D_80062D76 = 0; // Unused
 
 static u32 s_TutorialDelay;
-static s32 D_80062E98;
+static s32 D_80062E98; // Unused
 static u8* s_Tutorial;
 
-u8 func_8001F6B4(void);
-void func_8001F6C0(u8* text, s8 palette); // PC: menu_setNotificationMessage
-void func_8001F6E4(
-    s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
+/*
+Receive buffer data format for 16 button pad:
+Offset: Contents:
+0       Received result, 0x00: Success, 0xFF: Failure
+1       Upper 4 bits: 4 (terminal type)
+        Lower 4 bits: Number of received bytes/2 (always 1 for 16 button pad)
+2,3     Key status bits, 1: Release, 0: Push
 
-void SetupGamepad(void) {
+Max possible number of received bytes is 32 (when offset 1, lower 4 bits = 0)
+so Psy-Q recommends allocating 34 bytes.
+
+Macros inspired by CTRLLER.H from SDK samples.
+*/
+#define GOOD_DATA(x) ((x)[0] != 0xff)
+#define GOOD_FORMAT(x) ((x)[1] == 0x41)
+#define GET_KEYS(x) (~((x)[3] | ((x)[2] << 8)))
+
+static u8 s_PadBuffers[2][34];
+
+u8 func_8001F6B4(void);
+// PC: menu_setNotificationMessage
+void func_8001F6C0(u8* text, s8 palette);
+// PC: menu_setNotificationWindowPosition
+void func_8001F6E4(s16 enabled, s16 x, s16 y);
+
+void InputInit(void) {
     if (!s_PadsInitialized) {
         s_PadsInitialized = 1;
         StartPAD();
-        InitPAD(&D_800696AC.padABuffer, 4, &D_800696AC.padBBuffer, 4);
+        InitPAD(s_PadBuffers[0], 4, s_PadBuffers[1], 4);
     }
     g_TutorialActive = 0;
 }
 
-void func_8001C484(u8* tutorial) {
+void TutorialInit(u8* tutorial) {
     s_Tutorial = tutorial;
     s_TutorialDelay = 20;
 }
 
-u16 func_8001C498(void) {
+// Returns key states as read directly from pad 1.
+// Tutorial override and player-configured remapping are ignored.
+u16 InputReadPad1Raw(void) {
     u16 input;
 
-    if (D_800696AC.padABuffer != 0xFF && D_800696AC.unk1 == 0x41) {
-        input = ~(D_800696AC.unk3[0] | (D_800696AC.unk2 << 8));
+    if (GOOD_DATA(s_PadBuffers[0]) && GOOD_FORMAT(s_PadBuffers[0])) {
+        input = GET_KEYS(s_PadBuffers[0]);
     } else {
         input = 0;
     }
     return input;
 }
 
-static u8* func_8001C4E8(u8* txt) {
+static u8* TutorialShowMessage(u8* txt) {
     s32 i, c;
 
     s_TutorialMessageVisible = 1;
@@ -75,17 +97,17 @@ static u8* func_8001C4E8(u8* txt) {
     return txt;
 }
 
-static void func_8001C58C(void) {
+static void TutorialUpdateMessageState(void) {
     if (!func_8001F6B4()) {
         s_TutorialMessageVisible = 0;
     }
 }
 
-static u16 func_8001C5BC(void) {
-    u16 button = 0;
+static u16 TutorialDoNextEvent(void) {
+    u16 key = 0;
 
     if (s_TutorialMessageVisible) {
-        func_8001C58C();
+        TutorialUpdateMessageState();
     } else {
         switch (*s_Tutorial++) {
         case 0:
@@ -94,55 +116,55 @@ static u16 func_8001C5BC(void) {
             s_Tutorial++;
             break;
         case 2:
-            button = PADLup;
+            key = PADLup;
             s_TutorialDelay = 20;
             break;
         case 3:
-            button = PADLdown;
+            key = PADLdown;
             s_TutorialDelay = 20;
             break;
         case 4:
-            button = PADLleft;
+            key = PADLleft;
             s_TutorialDelay = 20;
             break;
         case 5:
-            button = PADLright;
+            key = PADLright;
             s_TutorialDelay = 20;
             break;
         case 8:
-            button = PADRleft;
+            key = PADRleft;
             s_TutorialDelay = 20;
             break;
         case 9:
-            button = PADRright;
+            key = PADRright;
             s_TutorialDelay = 20;
             break;
         case 6:
-            button = PADRup;
+            key = PADRup;
             s_TutorialDelay = 20;
             break;
         case 7:
-            button = PADRdown;
+            key = PADRdown;
             s_TutorialDelay = 20;
             break;
         case 10:
-            button = PADR1;
+            key = PADR1;
             s_TutorialDelay = 20;
             break;
         case 11:
-            button = PADR2;
+            key = PADR2;
             s_TutorialDelay = 20;
             break;
         case 12:
-            button = PADL1;
+            key = PADL1;
             s_TutorialDelay = 20;
             break;
         case 13:
-            button = PADL2;
+            key = PADL2;
             s_TutorialDelay = 20;
             break;
         case 16:
-            s_Tutorial = func_8001C4E8(s_Tutorial);
+            s_Tutorial = TutorialShowMessage(s_Tutorial);
             s_TutorialDelay = 80;
             break;
         case 18:
@@ -161,36 +183,38 @@ static u16 func_8001C5BC(void) {
             break;
         }
     }
-    return button;
+    return key;
 }
 
-static u16 func_8001C788(void) {
+static u16 TutorialFrameUpdate(void) {
     u16 input = 0;
 
     if (s_TutorialDelay != 0) {
         s_TutorialDelay -= 1;
     } else if ((func_80023050() == 0 || func_80023050() == 1) &&
                SystemCdromReadChain() == 0) {
-        input = func_8001C5BC();
+        input = TutorialDoNextEvent();
     }
     return input;
 }
 
-u32 func_8001C808(void) {
+// Returns key states directly from both pads.
+// If tutorial is active, its synthetic key state replaces pad 1.
+u32 InputReadPadsRaw(void) {
     u16 inputA, inputB;
 
     if (!g_TutorialActive) {
-        if (D_800696AC.padABuffer != 0xFF && D_800696AC.unk1 == 0x41) {
-            inputA = ~(D_800696AC.unk3[0] | (D_800696AC.unk2 << 8));
+        if (GOOD_DATA(s_PadBuffers[0]) && GOOD_FORMAT(s_PadBuffers[0])) {
+            inputA = GET_KEYS(s_PadBuffers[0]);
         } else {
             inputA = 0;
         }
     } else {
-        inputA = func_8001C788();
+        inputA = TutorialFrameUpdate();
     }
 
-    if (D_800696AC.padBBuffer != 0xFF && D_800696AC.unk23 == 0x41) {
-        inputB = ~(D_800696AC.unk25[0] | (D_800696AC.unk24 << 8));
+    if (GOOD_DATA(s_PadBuffers[1]) && GOOD_FORMAT(s_PadBuffers[1])) {
+        inputB = GET_KEYS(s_PadBuffers[1]);
     } else {
         inputB = 0;
     }
@@ -198,11 +222,13 @@ u32 func_8001C808(void) {
     return inputA | (inputB << 16);
 }
 
-u32 func_8001C8D4(void) {
+// Same as InputReadPadsRaw, but player configured remapping is applied to
+// pad 1.
+u32 InputReadPads(void) {
     u32 inputs, inputA, inputB;
     s32 i;
 
-    inputs = func_8001C808();
+    inputs = InputReadPadsRaw();
     inputB = inputs & 0xFFFF0000;
     if (((Savemap.config >> 2) & 3) && !g_TutorialActive) {
         inputA = 0;
@@ -217,22 +243,33 @@ u32 func_8001C8D4(void) {
     return inputA | inputB;
 }
 
-void func_8001C980(void) {
-    g_Pad2FastButtons = g_Pad2Buttons;
-    g_Pad1FastButtons = g_Pad1Buttons;
+// Called by battle to update key states at 15 fps.
+// Uses states previously read from pads by InputUpdateKeyStates.
+void InputUpdateBattleKeyStates(void) {
+    g_Pad2BattleKeys = g_Pad2Keys;
+    g_Pad1BattleKeys = g_Pad1Keys;
 
-    g_Pad1FastButtonsPressed = g_Pad1FastButtons ^ g_Pad1FastButtonsPrev;
-    g_Pad1FastButtonsPressed &= g_Pad1FastButtons;
-    if (g_Pad1FastButtons != g_Pad1FastButtonsPrev) {
+    g_Pad1BattleKeysPressed = g_Pad1BattleKeys ^ g_Pad1BattleKeysPrev;
+    g_Pad1BattleKeysPressed &= g_Pad1BattleKeys;
+
+    /*
+    State machine for repeating keys.
+    First repeat is triggered 10 frames (~667 ms) after key press,
+    then every 2 frames (~133 ms) after that.
+    g_Pad1BattleKeysRepeat is not cleared per call so if a release
+    immediately follows a repeat, that repeat state can survive through the
+    next call to this function.
+    */
+    if (g_Pad1BattleKeys != g_Pad1BattleKeysPrev) {
         s_PadFastRepeatState.enabled[0] = 0;
         s_PadFastRepeatState.counter[0] = 0;
     } else if (s_PadFastRepeatState.enabled[0]) {
         if (s_PadFastRepeatState.counter[0] == 1) {
-            g_Pad1FastButtonsRepeat = g_Pad1FastButtons;
+            g_Pad1BattleKeysRepeat = g_Pad1BattleKeys;
             s_PadFastRepeatState.counter[0] = 0;
         } else {
             s_PadFastRepeatState.counter[0]++;
-            g_Pad1FastButtonsRepeat = 0;
+            g_Pad1BattleKeysRepeat = 0;
         }
     } else {
         if (s_PadFastRepeatState.counter[0] == 7) {
@@ -241,21 +278,21 @@ void func_8001C980(void) {
         } else {
             s_PadFastRepeatState.counter[0]++;
         }
-        g_Pad1FastButtonsRepeat = 0;
+        g_Pad1BattleKeysRepeat = 0;
     }
 
-    g_Pad2FastButtonsPressed = g_Pad2FastButtons ^ g_Pad2FastButtonsPrev;
-    g_Pad2FastButtonsPressed &= g_Pad2FastButtons;
-    if (g_Pad2FastButtons != g_Pad2FastButtonsPrev) {
+    g_Pad2BattleKeysPressed = g_Pad2BattleKeys ^ g_Pad2BattleKeysPrev;
+    g_Pad2BattleKeysPressed &= g_Pad2BattleKeys;
+    if (g_Pad2BattleKeys != g_Pad2BattleKeysPrev) {
         s_PadFastRepeatState.enabled[1] = 0;
         s_PadFastRepeatState.counter[1] = 0;
     } else if (s_PadFastRepeatState.enabled[1]) {
         if (s_PadFastRepeatState.counter[1] == 1) {
-            g_Pad2FastButtonsRepeat = g_Pad2FastButtons;
+            g_Pad2BattleKeysRepeat = g_Pad2BattleKeys;
             s_PadFastRepeatState.counter[1] = 0;
         } else {
             s_PadFastRepeatState.counter[1]++;
-            g_Pad2FastButtonsRepeat = 0;
+            g_Pad2BattleKeysRepeat = 0;
         }
     } else {
         if (s_PadFastRepeatState.counter[1] == 7) {
@@ -264,47 +301,58 @@ void func_8001C980(void) {
         } else {
             s_PadFastRepeatState.counter[1]++;
         }
-        g_Pad2FastButtonsRepeat = 0;
+        g_Pad2BattleKeysRepeat = 0;
     }
-    g_Pad1FastButtonsRepeat |= g_Pad1FastButtonsPressed;
-    g_Pad2FastButtonsRepeat |= g_Pad2FastButtonsPressed;
-    g_Pad1FastButtonsPrev = g_Pad1FastButtons;
-    g_Pad2FastButtonsPrev = g_Pad2FastButtons;
+    g_Pad1BattleKeysRepeat |= g_Pad1BattleKeysPressed;
+    g_Pad2BattleKeysRepeat |= g_Pad2BattleKeysPressed;
+    g_Pad1BattleKeysPrev = g_Pad1BattleKeys;
+    g_Pad2BattleKeysPrev = g_Pad2BattleKeys;
 }
 
-void func_8001CB48(void) {
+// The main key state update function. Called normally at each v-sync.
+// Reads key states from pads, applies remapping (if tutorial is inactive),
+// and updates state globals.
+void InputUpdateKeyStates(void) {
     s32 i;
     u32 inputs;
 
-    inputs = func_8001C808();
-    g_Pad2Buttons = inputs >> 16;
+    inputs = InputReadPadsRaw();
+    g_Pad2Keys = inputs >> 16;
     if (((Savemap.config >> 2) & 3) && !g_TutorialActive) {
-        g_Pad1Buttons = 0;
+        g_Pad1Keys = 0;
         i = 0;
         do {
             if (inputs & (1 << i)) {
-                g_Pad1Buttons |= 1 << Savemap.button_config[i];
+                g_Pad1Keys |= 1 << Savemap.button_config[i];
             }
             i++;
         } while (i < 16);
     } else {
-        g_Pad1Buttons = inputs;
+        g_Pad1Keys = inputs;
     }
 
-    g_Pad1ButtonsRepeat = 0;
-    g_Pad1ButtonsPressed = g_Pad1Buttons ^ g_Pad1ButtonsPrev;
-    g_Pad1ButtonsPressed &= g_Pad1Buttons;
-    if (g_Pad1Buttons != g_Pad1ButtonsPrev) {
+    g_Pad1KeysRepeat = 0;
+    g_Pad1KeysPressed = g_Pad1Keys ^ g_Pad1KeysPrev;
+    g_Pad1KeysPressed &= g_Pad1Keys;
+
+    // State machine for repeating keys.
+    // First repeat is triggered 20 frames (~330 ms) after key press,
+    // then every 4 frames (~67 ms) after that.
+    // State machine works on the entire key state so pressing or releasing
+    // any key will reset repeat state for all keys.
+    if (g_Pad1Keys != g_Pad1KeysPrev) {
         s_PadRepeatState.counter[0] = 0;
         s_PadRepeatState.enabled[0] = 0;
     } else if (s_PadRepeatState.enabled[0]) {
+
         if (s_PadRepeatState.counter[0] == 3) {
-            g_Pad1ButtonsRepeat = g_Pad1Buttons;
+            g_Pad1KeysRepeat = g_Pad1Keys;
             s_PadRepeatState.counter[0] = 0;
         } else {
             s_PadRepeatState.counter[0]++;
         }
     } else {
+
         if (s_PadRepeatState.counter[0] == 15) {
             s_PadRepeatState.enabled[0] = 1;
             s_PadRepeatState.counter[0] = 0;
@@ -313,18 +361,18 @@ void func_8001CB48(void) {
         }
     }
 
-    g_Pad2ButtonsPressed = g_Pad2Buttons ^ g_Pad2ButtonsPrev;
-    g_Pad2ButtonsPressed &= g_Pad2Buttons;
-    if (g_Pad2Buttons != g_Pad2ButtonsPrev) {
+    g_Pad2KeysPressed = g_Pad2Keys ^ g_Pad2KeysPrev;
+    g_Pad2KeysPressed &= g_Pad2Keys;
+    if (g_Pad2Keys != g_Pad2KeysPrev) {
         s_PadRepeatState.enabled[1] = 0;
         s_PadRepeatState.counter[1] = 0;
     } else if (s_PadRepeatState.enabled[1]) {
         if (s_PadRepeatState.counter[1] == 3) {
-            g_Pad2ButtonsRepeat = g_Pad2Buttons;
+            g_Pad2KeysRepeat = g_Pad2Keys;
             s_PadRepeatState.counter[1] = 0;
         } else {
             s_PadRepeatState.counter[1]++;
-            g_Pad2ButtonsRepeat = 0;
+            g_Pad2KeysRepeat = 0;
         }
     } else {
         if (s_PadRepeatState.counter[1] == 15) {
@@ -333,11 +381,13 @@ void func_8001CB48(void) {
         } else {
             s_PadRepeatState.counter[1]++;
         }
-        g_Pad2ButtonsRepeat = 0;
+        g_Pad2KeysRepeat = 0;
     }
 
-    g_Pad1ButtonsRepeat |= g_Pad1ButtonsPressed;
-    g_Pad2ButtonsRepeat |= g_Pad2ButtonsPressed;
-    g_Pad1ButtonsPrev = g_Pad1Buttons;
-    g_Pad2ButtonsPrev = g_Pad2Buttons;
+    // Pressed keys are added to repeat globals so they can be used
+    // to detect both new key presses and repeats.
+    g_Pad1KeysRepeat |= g_Pad1KeysPressed;
+    g_Pad2KeysRepeat |= g_Pad2KeysPressed;
+    g_Pad1KeysPrev = g_Pad1Keys;
+    g_Pad2KeysPrev = g_Pad2Keys;
 }

@@ -1831,9 +1831,9 @@ void func_80033A90(void) {
     Savemap.memory_bank_1[0x1D] = 0xFF;
     Savemap.time = 0;
     Savemap.countdown_timer_seconds = 0;
-    D_8009ABF4.nFadeRedStart = 0;
-    D_8009ABF4.nFadeGreenStart = 0;
-    D_8009ABF4.nFadeBlueStart = 0;
-    D_8009ABF4.movieCamDisabled = 0;
+    g_FieldState.nFadeRedStart = 0;
+    g_FieldState.nFadeGreenStart = 0;
+    g_FieldState.nFadeBlueStart = 0;
+    g_FieldState.movieCamDisabled = 0;
     g_PartyUpdatedByFieldScript = 0;
 }

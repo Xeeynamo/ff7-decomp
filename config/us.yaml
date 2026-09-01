@@ -72,6 +72,8 @@ overlays:
       - [0x53694, .sbss, input]
       - [0x536A0, .sbss, 1F6B4]
       - [0x536D0, bss]
+      - [0x59EAC, .bss, input]
+      - [0x59EF0, bss]
   - name: batini
     disk_path: disks/us/BATTLE/BATINI.X.dec
     sha1: 2771b06f7249d34ed8a4f8c94e6047f70278e17c
@@ -168,7 +170,13 @@ overlays:
     vram_start: 0x800A0000
     segments:
       - [0x0, .rodata, field]
+      - [0x13C, .rodata, field_event]
+      - [0x1D4, .rodata, field_opcodes]
+      - [0xFF8, .rodata, field2]
       - [0x1368, c, field]
+      - [0x1A534, c, field_event]
+      - [0x1C9FC, c, field_opcodes]
+      - [0x34838, c, field2]
       - [0x3A5B8, data]
   - name: bginmenu
     disk_path: disks/us/MENU/BGINMENU.MNU

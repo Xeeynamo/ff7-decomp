@@ -47,7 +47,7 @@ void func_801D00C4(void) {
         func_8001E040(&D_801D07F4[i]);
     }
     func_800264A8(&D_801D0860[D_801D07F0]);
-    if (g_Pad1ButtonsRepeat & PADRdown) {
+    if (g_Pad1KeysRepeat & PADRdown) {
         func_8002305C(5, 0);
         func_8002120C(0);
     }

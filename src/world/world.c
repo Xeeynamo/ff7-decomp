@@ -1778,7 +1778,7 @@ void func_800AD63C(WorldActor* arg0) {
     func_800A9678(arg0->direction);
     if (arg0->collide != NULL && D_8010ADEC == 0 && func_800A21A4() != 0)
         func_800AB988(
-            arg0->collide->actorType, (func_8001C8D4() & PADRright) ? 4 : 3);
+            arg0->collide->actorType, (InputReadPads() & PADRright) ? 4 : 3);
 }
 
 void func_800AD788(void) {
@@ -2604,7 +2604,7 @@ void func_800B8488(FieldScriptHeader* fieldScripts) {
     g_FieldScripts = fieldScripts;
     fieldScripts->stringOffset = 8;
     func_800B8760();
-    g_FieldState = &D_8009ABF4;
+    g_pFieldState = &g_FieldState;
 }
 
 void func_800B84D8(u8 arg0) {
@@ -2790,7 +2790,7 @@ s32 func_800B8D4C(u8 window, u8 message) {
         func_800BAA00(window);
         break;
     case WSTATE_PAUSE_TXT_UNTIL_OK:
-        if (g_FieldState->newActiveKeys2 & PADRright) {
+        if (g_pFieldState->pressedKeys & PADRright) {
             g_WindowData[window].state = WSTATE_TXT;
         }
         break;
@@ -2802,7 +2802,7 @@ s32 func_800B8D4C(u8 window, u8 message) {
         }
         break;
     case WSTATE_WAIT_ROW:
-        if (g_FieldState->newActiveKeys2 & PADRright) {
+        if (g_pFieldState->pressedKeys & PADRright) {
             if (g_WindowData[window].currentRow ==
                 (g_WindowData[window].height - 9) / 16 - 1 +
                     D_801162A4[window]) {
@@ -2814,18 +2814,18 @@ s32 func_800B8D4C(u8 window, u8 message) {
         break;
     case WSTATE_TXT_DONE:
         if (!(g_WindowData[window].preventClose & 1) &&
-            (g_FieldState->newActiveKeys2 & PADRright)) {
+            (g_pFieldState->pressedKeys & PADRright)) {
             g_WindowData[window].state = WSTATE_CLOSING;
             func_800BAC70(window);
         }
         break;
     case WSTATE_WAIT_NEXT_WINDOW:
-        if (g_FieldState->newActiveKeys2 & PADRright) {
+        if (g_pFieldState->pressedKeys & PADRright) {
             func_800BAB60(window);
         }
         break;
     case WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK:
-        if (g_FieldState->newActiveKeys2 & PADRright) {
+        if (g_pFieldState->pressedKeys & PADRright) {
             g_WindowData[window].state = WSTATE_SCROLL_TXT_WHILE_OK;
             D_801162A8[window] = g_WindowData[window].currentRow * 16 + 17;
             g_WindowData[window].textScrolling -= 2;
@@ -2865,7 +2865,7 @@ s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
         func_800BAA00(window);
         break;
     case WSTATE_PAUSE_TXT_UNTIL_OK:
-        if (g_FieldState->newActiveKeys2 & PADRright) {
+        if (g_pFieldState->pressedKeys & PADRright) {
             g_WindowData[window].state = WSTATE_TXT;
         }
         break;
@@ -2877,7 +2877,7 @@ s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
         }
         break;
     case WSTATE_WAIT_ROW:
-        if (g_FieldState->newActiveKeys2 & PADRright) {
+        if (g_pFieldState->pressedKeys & PADRright) {
             if (g_WindowData[window].currentRow ==
                 (g_WindowData[window].height - 9) / 16 - 1 +
                     D_801162A4[window]) {
@@ -2891,13 +2891,13 @@ s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
         if (!(g_WindowData[window].preventClose & 1)) {
             g_WindowData[window].pointerEnabled = 1;
 
-            if (g_FieldState->newActiveKeys & PADLup) {
+            if (g_pFieldState->pressedKeysRaw & PADLup) {
                 if (first < *selectedLine) {
                     func_800B95E8();
                 }
                 (*selectedLine)--;
             }
-            if (g_FieldState->newActiveKeys & PADLdown) {
+            if (g_pFieldState->pressedKeysRaw & PADLdown) {
                 if (*selectedLine < last) {
                     func_800B95E8();
                 }
@@ -2913,7 +2913,7 @@ s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
             g_WindowData[window].pointerX = 5;
             g_WindowData[window].pointerY = *selectedLine * 16 + 6;
 
-            if (g_FieldState->newActiveKeys2 & PADRright) {
+            if (g_pFieldState->pressedKeys & PADRright) {
                 func_800B95E8();
                 g_WindowData[window].state = WSTATE_CLOSING;
                 func_800BAC70(window);
@@ -2921,12 +2921,12 @@ s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
         }
         break;
     case WSTATE_WAIT_NEXT_WINDOW:
-        if (g_FieldState->newActiveKeys2 & PADRright) {
+        if (g_pFieldState->pressedKeys & PADRright) {
             func_800BAB60(window);
         }
         break;
     case WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK:
-        if (g_FieldState->newActiveKeys2 & PADRright) {
+        if (g_pFieldState->pressedKeys & PADRright) {
             g_WindowData[window].state = WSTATE_SCROLL_TXT_WHILE_OK;
             D_801162A8[window] = g_WindowData[window].currentRow * 16 + 17;
             g_WindowData[window].textScrolling -= 2;
@@ -3070,7 +3070,7 @@ void func_800B9B2C(s16 window) {
     } else {
         SaveWork* save;
 
-        if (g_FieldState->activeKeys2 & PADRright) {
+        if (g_pFieldState->activeKeys & PADRright) {
             D_8011629C[window]++;
             if (D_8011629C[window] > 128) {
                 D_8011629C[window] = 128;
@@ -3387,7 +3387,7 @@ void func_800BAA00(s16 window) {
 
     if (g_WindowData[window].textScrolling + D_801162A8[window] > 0) {
         g_WindowData[window].textScrolling -= D_8011629C[window] >> 2;
-        if (g_FieldState->activeKeys2 & PADRright) {
+        if (g_pFieldState->activeKeys & PADRright) {
             D_8011629C[window]++;
             if (D_8011629C[window] > 128) {
                 D_8011629C[window] = 128;
@@ -3826,7 +3826,7 @@ void func_800BBD20(s32 arg0) {
     }
 
     if ((func_800A369C() == 0) && (func_800A1DE0() != 3)) {
-        temp_s4 = func_8001C8D4();
+        temp_s4 = InputReadPads();
         if ((D_801163D4 == 0) && (arg0 == 1)) {
             func_800BBA5C();
         } else if (func_800A21A4() != 0) {
