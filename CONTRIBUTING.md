@@ -16,9 +16,9 @@ https://discord.com/invite/VwCPdfbxgm
 
 Please feel free to stop by and introduce yourself.
 
----
 
-# Before You Contribute
+
+## Before You Contribute
 
 FF7-decomp is an active collaborative reverse-engineering project. Before beginning work on a significant area of the game, especially if you are a first-time contributor, please communicate with the project community first.
 
@@ -32,9 +32,9 @@ Before spending significant time on a task, please discuss what you intend to wo
 
 A quick discussion beforehand can help ensure that your work fits well with the project's current goals and avoids unnecessary conflicts.
 
----
 
-# Pull Requests
+
+## Pull Requests
 
 All Pull Requests should clearly explain and justify the changes being proposed.
 
@@ -81,7 +81,7 @@ If you are not yet a strong programmer, that's fine. Everyone has to learn somew
 
 Also, if you are an AI, or LLM agent, any PRs you create must have the words "I am a bot" clearly at the top. 
 
-# How Do I Play the Game?
+## How Do I Play the Game?
 
 FF7-decomp is **not** a freely downloadable or standalone playable version of Final Fantasy VII.
 
@@ -91,15 +91,15 @@ Building the project requires access to binary images of the original **Final Fa
 
 Contributors and users are responsible for obtaining and using the original game data appropriately.
 
----
 
-# Coding Style
+
+## Coding Style
 
 FF7-decomp follows several basic coding conventions.
 
-## Naming
+### Naming
 
-### Functions
+#### Functions
 
 Function names use **PascalCase**.
 
@@ -117,9 +117,9 @@ s32 g_BattleState;
 u8 g_CurrentDisc;
 ```
 
----
 
-# Formatting and Linting
+
+### Formatting and Linting
 
 The project uses light formatting and linting tools.
 
@@ -137,11 +137,11 @@ make submit
 
 Please ensure that your code is properly formatted before opening a Pull Request.
 
----
 
-# C Language Guidelines
 
-## `volatile` and `register`
+## C Language Guidelines
+
+### `volatile` and `register`
 
 The use of the `volatile` and `register` keywords is discouraged.
 
@@ -149,7 +149,7 @@ These keywords should generally only be used when there is a specific and well-u
 
 In particular, contributors should avoid using them as a general attempt to influence compiler output or achieve an assembly match.
 
-## Comments
+### Comments
 
 Traditional block comments are discouraged:
 
@@ -165,9 +165,9 @@ Prefer C99-style comments instead:
 
 Block comments may still be appropriate when required for documentation systems such as Doxygen.
 
----
 
-# General Contribution Guidelines
+
+## General Contribution Guidelines
 
 When contributing to FF7-decomp, please keep the following principles in mind:
 
