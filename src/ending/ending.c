@@ -634,7 +634,7 @@ s32 func_800A2380(void) {
 s32 func_800A23F8(void) { return func_80034410() == 8; }
 
 s32 func_800A2420(void) {
-    if (D_80075D00->unk8 >= *D_800A6528++) {
+    if (D_80075D00->currentFrame >= *D_800A6528++) {
         return 1;
     }
     return 0;

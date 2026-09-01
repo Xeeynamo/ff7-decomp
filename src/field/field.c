@@ -1,73 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include <game.h>
 #include <libetc.h>
-
-typedef struct FieldRenderData {
-    OT_TYPE ot[0x1000];   // 0x00000: Main scene ordering table
-    SPRT_16 Arrows[0x18]; // 0x04000: Field arrow sprite packets
-    DR_MODE ArrowsDm;     // 0x04180: Arrow sprite draw mode
-
-    OT_TYPE OtFadeDrenv;  // 0x0418c: Fade draw environment OT entry
-    OT_TYPE OtSceneDrenv; // 0x04190: Scene draw environment OT entry
-
-    DR_ENV FadeDrenv;  // 0x04194: Screen fade draw environment
-    DR_ENV SceneDrenv; // 0x041d4: Main scene draw environment
-
-    DR_ENV BgDrenv3S; // 0x04214: Background layer 3 start env
-    DR_ENV BgDrenv4S; // 0x04254: Background layer 4 start env
-    DR_ENV BgDrenv3E; // 0x04294: Background layer 3 end env
-    DR_ENV BgDrenv4E; // 0x042d4: Background layer 4 end env
-
-    u8 unk4314[0x600]; // 0x04314: Unknown render data
-
-    SPRT_16 Bg1[0x9c4]; // 0x04914: Background layer 1/2 sprites
-    SPRT Bg2[0x200];    // 0x0e554: Background layer 3/4 sprites
-
-    u16 BgAnim[0xbc4];   // 0x10d54: Background animation data
-    DR_MODE BgDm[0x6a4]; // 0x124dc: Background draw mode packets
-
-    OT_TYPE OtUi;       // 0x1748c: UI ordering table
-    DR_MODE RainDm;     // 0x17490: Rain draw mode
-    LINE_F2 Rain[0x40]; // 0x1749c: Rain line primitives
-};
-
-extern struct FieldRenderData g_FieldRenderData[2]; // double buffered
-
-const u32 D_800A0000[] = {0, 0x01D801E0};
-extern s32 (*g_FieldOpcodes[256])(void);
-extern u8 g_EntityForSplitJoin;
-extern s16 D_800DF120[][2];
-extern char g_DebugMessageBuffer[]; // debug value transformed into text
-
-extern u8 D_80114498[];
-extern u32 g_FieldKeyState;
-
-void AddBackgroundToRender(struct FieldRenderData* buf);
-s32 FieldEntitySqrDistToLine(FieldLine*, u_long*, u_long*);
-void FieldEntityLineInteract(FieldEntity* arg0, FieldLine* arg1);
-void HandleKawaiDataInModel(struct FieldRenderData* buf);
-void FieldEventOpcodeCycle(void);
-void FieldUpdateAnimationState(void);
-u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId);
-void DebugUpdateActor(s32 arg0, u8 actorId);
-void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
-void FieldWindowResetTextAll(void);
-void SetStrToDebugRow(s32 page, s16 row, const char* str);
-void FieldDebugStringCopy(char* dst, const char* src);
-void FieldDebugStringConcat(char* arg0, char* arg1);
-
-/////////////////////////////////////////////////
-// Begin of field_main.c
-/////////////////////////////////////////////////
-
-typedef struct {
-    u32 datSector; // +0x00
-    u32 datSize;   // +0x04
-    u32 mimSector; // +0x08
-    u32 mimSize;   // +0x0C
-    u32 bsxSector; // +0x10
-    u32 bsxSize;   // +0x14
-} FieldFileInfo;
+#include "field_private.h"
 
 extern FieldFileInfo g_FieldFileInfo[];
 extern void SystemLzsDecompress(void* dst, void* src);
@@ -114,79 +48,51 @@ void StopFieldMapPreload(void) {
     g_isFieldLoading = 0;
 }
 
-extern FieldFileInfo g_FieldFileTable[];
-extern u16 g_FieldMoviePlayed;
 extern u16 g_FieldPreloadMapId;
 extern s32 g_WmPreSector;
 extern u32 g_WmPreSize;
 
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field", PreloadNextFieldMap);
-#else
-
-// External Declarations
-extern u8 D_8009ABF5;
-extern u8 D_8009AC26;
-extern s16 D_80071A5C;
-
 // D_8009ABF5 = g_pFieldState -> command
 
-void PreloadNextFieldMap(FieldEntity* Player, FieldLine* gateway) {
-    s16* ptr_a3;
+void PreloadNextFieldMap(FieldEntity* Player, u16* gateway) {
     s32* scratchpad;
-    s32 min_dist;
-    s32 counter;
-    s16* ptr_a1;
-    s32 term_val;
-    s32 diff_x, diff_y, dist;
-    s16 map_id;
-    FieldFileInfo* table;
+    s32 minDist;
+    s32 i;
+    s32 diffX, diffY, dist;
     s32 sector;
     u32 size;
 
-    ptr_a3 = gateway;
-    min_dist = 0x7FFFFFFF;
+    minDist = 0x7FFFFFFF;
 
-    scratchpad = 0x1F800000;
+    scratchpad = (s32*)0x1F800000;
     scratchpad[0] = Player->PosX >> 12;
     scratchpad[1] = Player->PosY >> 12;
     scratchpad[2] = Player->PosZ >> 12;
 
-    if (D_8009AC26 == 0) {
-        counter = 0;
-        term_val = 0x7FFF;
-        ptr_a1 = (gateway + 0x12);
-
-        do {
-            map_id = ptr_a1[0];
-            if (map_id != term_val) {
-                diff_x = ptr_a3[0] - scratchpad[0];
-                diff_y = ptr_a1[-8] - scratchpad[1];
-                dist = (diff_x * diff_x) + (diff_y * diff_y);
-
-                if (dist < min_dist) {
-                    min_dist = dist;
-                    g_FieldPreloadMapId = map_id;
+    if (g_FieldAnimLock == 0) {
+        for (i = 0; i < 12; i++, gateway += 12) {
+            if (gateway[9] != 0x7FFF) {
+                diffX = ((s16*)gateway)[0] - scratchpad[0];
+                diffY = ((s16*)gateway)[1] - scratchpad[1];
+                dist = diffX * diffX + diffY * diffY;
+                if (dist < minDist) {
+                    minDist = dist;
+                    g_FieldPreloadMapId = gateway[9];
                 }
             }
-
-            counter++;
-            ptr_a1 = (ptr_a1 + 0x18);
-            ptr_a3 = (ptr_a3 + 0x18);
-        } while (counter < 12);
+        }
     }
 
-    if (D_8009ABF5 == 3 || (g_FieldMoviePlayed == 1) || D_8009ABF5 == 2) {
+    if (D_8009ABF5 == 3 || (s16)g_FieldMoviePlayed == 1 || D_8009ABF5 == 2) {
         StopFieldMapPreload();
         return;
     }
 
-    if (D_80071A5C == g_FieldPreloadMapId) {
+    if (D_80071A5C == (s16)g_FieldPreloadMapId) {
         return;
     }
 
-    table = g_FieldFileTable;
-    if (0x4DFFF < table[g_FieldPreloadMapId].datSize) {
+    if (0x4DFFF < g_FieldFileTable[(s16)g_FieldPreloadMapId * 6]) {
         return;
     }
 
@@ -194,30 +100,536 @@ void PreloadNextFieldMap(FieldEntity* Player, FieldLine* gateway) {
     D_80071A5C = g_FieldPreloadMapId;
 
     if (D_80071A5C >= 0x41) {
-        sector = table[D_80071A5C].datSector;
-        size = table[D_80071A5C].datSize;
+        SystemLoadFileBySector(
+            g_FieldFileTable[D_80071A5C * 6 - 1],
+            g_FieldFileTable[D_80071A5C * 6], 0x801B0000, NULL);
     } else {
-        sector = g_WmPreSector;
-        size = g_WmPreSize;
+        SystemLoadFileBySector(g_WmPreSector, g_WmPreSize, 0x801B0000, NULL);
     }
-
-    SystemLoadFileBySector(sector, size, 0x801B0000, NULL);
     g_isFieldLoading = 1;
 }
 
-#endif
+void FieldMain(void) {
+    RECT clip = {0, 0, 480, 472};
+    s8* fill;
+    s32 fillVal;
+    s32 i;
+    s16 fieldId;
+    s32 preloadId;
+    s16 exitId;
+    u8 exitKind;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldMain);
+    ClearOTagR(&g_FieldRenderData[0].OtFadeDrenv, 1);
+    ClearOTagR(&g_FieldRenderData[1].OtFadeDrenv, 1);
+    SetDrawEnv(&g_FieldRenderData[0].FadeDrenv, &g_FieldDrawEnv[0]);
+    SetDrawEnv(&g_FieldRenderData[1].FadeDrenv, &g_FieldDrawEnv[1]);
+    addPrim(&g_FieldRenderData[0].OtFadeDrenv, &g_FieldRenderData[0].FadeDrenv);
+    addPrim(&g_FieldRenderData[1].OtFadeDrenv, &g_FieldRenderData[1].FadeDrenv);
+    SetDefDrawEnv(&g_FieldDrawEnvBg[0], 0, 8, 0x140, 0xE0);
+    SetDefDrawEnv(&g_FieldDrawEnvBg[1], 0, 0xF0, 0x140, 0xE0);
+    SetDefDrawEnv(&D_80114154[0], 0, 8, 0x140, 0xE0);
+    SetDefDrawEnv(&D_80114154[1], 0, 0xF0, 0x140, 0xE0);
+    SetDefDrawEnv(&D_8011420C[0], 0, 8, 0x140, 0xE0);
+    SetDefDrawEnv(&D_8011420C[1], 0, 0xF0, 0x140, 0xE0);
+    g_FieldDrawEnvBg[0].dtd = 1;
+    g_FieldDrawEnvBg[1].dtd = 1;
+    D_80114154[0].dtd = 1;
+    D_80114154[1].dtd = 1;
+    D_8011420C[0].dtd = 1;
+    D_8011420C[1].dtd = 1;
+    g_FieldDrawEnvBg[0].isbg = 0;
+    g_FieldDrawEnvBg[1].isbg = 0;
+    D_80114154[0].isbg = 0;
+    D_80114154[1].isbg = 0;
+    D_8011420C[0].isbg = 0;
+    D_8011420C[1].isbg = 0;
+    ClearOTagR(&g_FieldRenderData[0].OtSceneDrenv, 1);
+    ClearOTagR(&g_FieldRenderData[1].OtSceneDrenv, 1);
+    SetDrawEnv(&g_FieldRenderData[0].SceneDrenv, &g_FieldDrawEnvBg[0]);
+    SetDrawEnv(&g_FieldRenderData[1].SceneDrenv, &g_FieldDrawEnvBg[1]);
+    addPrim(
+        &g_FieldRenderData[0].OtSceneDrenv, &g_FieldRenderData[0].SceneDrenv);
+    addPrim(
+        &g_FieldRenderData[1].OtSceneDrenv, &g_FieldRenderData[1].SceneDrenv);
+    SetDefDrawEnv(&D_80113FE4[0], 0, 8, 0x140, 0xE0);
+    SetDefDrawEnv(&D_80113FE4[1], 0, 0xF0, 0x140, 0xE0);
+    D_80113FE4[0].isbg = 0;
+    D_80113FE4[1].isbg = 0;
+    D_80113FE4[0].dtd = 1;
+    D_80113FE4[1].dtd = 1;
+    SetDefDrawEnv(&D_8011409C[0], 0, 8, 0x140, 0xE0);
+    SetDefDrawEnv(&D_8011409C[1], 0, 0xF0, 0x140, 0xE0);
+    D_8011409C[0].isbg = 0;
+    D_8011409C[1].isbg = 0;
+    D_8011409C[0].dtd = 1;
+    D_8011409C[1].dtd = 1;
+    func_800128B8();
+    *(volatile u16*)&g_FieldStateData.fadeType = 0;
+    if (D_800965EC != 1 && D_800965EC != 2 && D_800965EC != 3 &&
+        D_800965EC != 5 && D_800965EC != 0xD) {
+        ClearImage(&clip, 0, 0, 0);
+    }
 
-const u32 D_800A0024[] = {0x00000000, 0x000801E0};
-const u32 D_800A002C[] = {0x00E80000, 0x000801E0};
-const u32 D_800A0034[] = {0x01D00000, 0x000801E0};
-const u32 D_800A003C[] = {0x00000000, 0x00080140};
-const u32 D_800A0044[] = {0x00E80000, 0x00080140};
-const u32 D_800A004C[] = {0x01D00000, 0x00080140};
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldMainLoop);
+    for (;;) {
+        DebugRunEveryLoop();
+        D_80071A5C = 0;
+        g_FieldPreloadMapId = 0;
+        if ((D_800965EC == 1 || D_800965EC == 3) &&
+            g_FieldStateData.fadeType == 0) {
+            func_800129D0();
+            g_FieldStateData.fadeType = 3;
+            D_80071A58 = 3;
+            g_FieldStateData.fadeAdjust = 0;
+            D_8007E768 = 0;
+            D_80095DD4 = 1;
+        }
+        if (D_800965EC != 5 && D_800965EC != 0xD) {
+            D_8007EB64 = (s32*)0x80114FE4;
+            D_8009A044 = (FieldWalkmesh**)0x80114FE8;
+            D_8009D848 = (FieldBgData**)0x80114FEC;
+            D_80083578 = (MATRIX**)0x80114FF0;
+            g_FieldTriggersP = (s32*)0x80114FF4;
+            g_FieldEncountersP = (s32*)0x80114FF8;
+            g_FieldModelsP = (s32*)0x80114FFC;
+            FieldLoadMimDatFiles();
+        }
+        if (D_800965EC == 2) {
+            D_8007EBE0 = 1;
+            if (D_8007EBC8 == 1) {
+                D_8007EBC8 = 0;
+                D_8009C6D8 = 0;
+                D_8007173C = 0;
+                *((volatile u8*)&g_FieldStateData.fadeType - 0x4B) = 0;
+            }
+        }
+        while (D_80095DD4 != 0) {
+        }
+        while (DrawSync(1) != 0) {
+        }
+        if (D_800965EC != 0xD) {
+            *(volatile u16*)&g_FieldStateData.fadeType = 1;
+            *(volatile s16*)&g_FieldStateData.fadeSpeed = 0x10;
+            *(volatile s16*)&g_FieldStateData.fadeAdjust = 0x100;
+            *(volatile s16*)&g_FieldStateData.fadeRed = 0;
+            *(volatile s16*)&g_FieldStateData.fadeGreen = 0;
+            *(volatile s16*)&g_FieldStateData.fadeBlue = 0;
+        }
+        if (D_800965EC == 0 || D_800965EC == 1 || D_800965EC == 3 ||
+            D_800965EC == 6 || D_800965EC == 8 || D_800965EC == 7 ||
+            D_800965EC == 9 || D_800965EC == 0xB || D_800965EC == 0xA) {
+            g_FieldStateData.layer2_bgScrollXSpeed = 0;
+            g_FieldStateData.layer2_bgScrollYSpeed = 0;
+            g_FieldStateData.layer3_bgScrollXSpeed = 0;
+            g_FieldStateData.layer3_bgScrollYSpeed = 0;
+            g_FieldStateData.layer3_depth = 1;
+            g_FieldStateData.layer2_depth = 0xFFF;
+            D_8009A100 = 0;
+            D_80071E38 = 0;
+            D_80071E3C = 0;
+            g_FieldBGCameraHeightBias =
+                ((FieldTriggerHeader*)g_FieldTriggers)->camHeightBias;
+            FieldEventInit(&g_FieldStateData, g_FieldEntity, *D_8007EB64);
+            g_FieldEntity[D_8009AC1E].Dir = D_8009AC18;
+            fillVal = -1;
+            if ((g_RainControl & 0x80) == 0) {
+                g_RainForce = 0;
+            } else {
+                g_RainForce = 0xFF;
+            }
+            /* Emits nothing. It is here to stop reorg copying `i = 0xF` into
+             * the delay slot of the jump that reaches this join -- see the
+             * `stop_search_p` paragraph in the note above. Whatever the
+             * original wrote here is not recoverable; only that it reached
+             * RTL as an ASM_INPUT is. */
+            __asm__("");
+            i = 0xF;
+            fill = &D_8009A057;
+            do {
+                *fill-- = fillVal;
+            } while (--i >= 0);
+            FieldEntityBgTriggerInit((void*)(g_FieldTriggers + 0x158));
+        } else {
+            D_8009AC1A[0] = 2;
+        }
+        FieldEnablePartyModels();
+        FieldEntityLineClear(&D_8007E7AC);
+        D_800716D0 = 0;
+        FieldArrowsInit(
+            g_FieldRenderData[0].Arrows, &g_FieldRenderData[0].ArrowsDm);
+        FieldArrowsInit(
+            g_FieldRenderData[1].Arrows, &g_FieldRenderData[1].ArrowsDm);
+        if (D_800965EC != 5 && D_800965EC != 0xD) {
+            FieldLoadMimToVram(0, (u8*)0x80128000);
+        }
+        if (D_800965EC == 2) {
+            D_8009A000[0] = 0xF5;
+            SystemAkaoExecute();
+            D_8009A000[0] = 0x18;
+            D_8009A008[0] = 4;
+            D_8009A004[0] = D_8009AC3C[0];
+            SystemAkaoExecute();
+        }
+        FieldMainLoop();
+        while (DrawSync(1) != 0) {
+        }
+        VSync(1);
+        g_FieldDispEnv[0].isrgb24 = 0;
+        g_FieldDispEnv[1].isrgb24 = 0;
+        PutDispEnv(&g_FieldDispEnv[(s16)D_80075DEC]);
+        PutDrawEnv(&g_FieldDrawEnv[(s16)D_80075DEC]);
+        D_800965EC = 1;
+        if (*((volatile u8*)&g_FieldStateData.fadeType - 0x4B) == 0xA ||
+            *((volatile u8*)&g_FieldStateData.fadeType - 0x4B) == 0x1A ||
+            *((volatile u8*)&g_FieldStateData.fadeType - 0x4B) == 5) {
+            break;
+        }
+        if (*((volatile u8*)&g_FieldStateData.fadeType - 0x4B) == 1) {
+            preloadId = D_80071A5C;
+            ((volatile FieldU16Slot*)(((volatile u8*)&g_FieldStateData
+                                           .fadeType -
+                                       0x4B) +
+                                      0x63))
+                ->v = (u16)g_CurrentFieldIndex;
+            fieldId =
+                *(volatile u16*)(((volatile u8*)&g_FieldStateData.fadeType -
+                                  0x4B) +
+                                 1);
+            g_CurrentFieldIndex = fieldId;
+            if (fieldId != preloadId) {
+                StopFieldMapPreload();
+            }
+            if ((u32)((u16)g_CurrentFieldIndex - 1) < 0x40) {
+                g_FieldNextModule = 3;
+                func_800129D0();
+                *(volatile u16*)(((volatile u8*)&g_FieldStateData.fadeType -
+                                  0x4B) +
+                                 0x4B) = 3;
+                D_80071A58 = 3;
+                *(volatile u16*)(((volatile u8*)&g_FieldStateData.fadeType -
+                                  0x4B) +
+                                 0x4D) = 0;
+                D_8007E768 = 0;
+                D_80095DD4 = 1;
+                break;
+            }
+        }
+        if (*((volatile u8*)&g_FieldStateData.fadeType - 0x4B) == 0xC) {
+            *(volatile u16*)(((volatile u8*)&g_FieldStateData.fadeType - 0x4B) +
+                             0x63) = (u16)g_CurrentFieldIndex;
+            exitId =
+                *(volatile u16*)(((volatile u8*)&g_FieldStateData.fadeType -
+                                  0x4B) +
+                                 1);
+            exitKind = ((volatile u8*)&g_FieldStateData.fadeType - 0x4B)[0xF1];
+            g_CurrentFieldIndex = exitId;
+            switch (exitKind) {
+            case 0:
+                g_FieldNextModule = 6;
+                break;
+            case 1:
+                g_FieldNextModule = 7;
+                break;
+            case 2:
+                g_FieldNextModule = 8;
+                break;
+            case 3:
+                g_FieldNextModule = 9;
+                break;
+            case 4:
+                g_FieldNextModule = 0xA;
+                break;
+            case 5:
+                g_FieldNextModule = 0xB;
+                break;
+            case 6:
+                g_FieldNextModule = 0xE;
+                break;
+            }
+            break;
+        }
+        if (*((volatile u8*)&g_FieldStateData.fadeType - 0x4B) == 2 ||
+            *((volatile u8*)&g_FieldStateData.fadeType - 0x4B) == 0xD) {
+            break;
+        }
+        if (g_FieldNextModule == 5) {
+            func_800129D0();
+            *(volatile u16*)(((volatile u8*)&g_FieldStateData.fadeType - 0x4B) +
+                             0x4B) = 0xD;
+            D_80071A58 = 0xD;
+            *(volatile u16*)(((volatile u8*)&g_FieldStateData.fadeType - 0x4B) +
+                             0x4D) = 0;
+            D_8007E768 = 0;
+            D_80095DD4 = 1;
+            break;
+        }
+        if (g_FieldNextModule == 0xD) {
+            break;
+        }
+        if (g_FieldNextModule == 0x10) {
+            break;
+        }
+    }
+    VSync(0);
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldLoadMimToVram);
+s32 FieldMainLoop(void) {
+    RECT clip24Top = {0, 0, 480, 8};
+    RECT clip24Mid = {0, 232, 480, 8};
+    RECT clip24Bot = {0, 464, 480, 8};
+    RECT clip16Top = {0, 0, 320, 8};
+    RECT clip16Mid = {0, 232, 320, 8};
+    RECT clip16Bot = {0, 464, 320, 8};
+    struct FieldRenderData* buf;
+    s16* tris;
+    s16 first;
+
+    g_FieldScreenCenterX = 160;
+    g_FieldScreenCenterY = 120;
+    if (D_800965EC != 5 && D_800965EC != 0xD) {
+        FieldModelLoadAndInit();
+    }
+    tris = (*D_8009A044)->tris;
+    D_800E4274 = tris;
+    D_80114458 = (s16*)((*D_8009A044)->triCount * 24 + (s32)tris);
+    if (D_800965EC != 5 && D_800965EC != 2 && D_800965EC != 0xD) {
+        FieldEntityInitPos();
+    }
+    FieldBackgroundInitPackets(
+        g_FieldRenderData[0].Bg1, g_FieldRenderData[0].Bg2,
+        (u8*)g_FieldRenderData[0].BgAnim, g_FieldRenderData[0].BgDm);
+    first = 1;
+    FieldBackgroundInitPackets(
+        g_FieldRenderData[1].Bg1, g_FieldRenderData[1].Bg2,
+        (u8*)g_FieldRenderData[1].BgAnim, g_FieldRenderData[1].BgDm);
+    FieldRainInit(&g_FieldRenderData[0]);
+    FieldRainInit(&g_FieldRenderData[1]);
+    g_FieldMovieStreamActive = 0;
+    g_FieldMovieStreamDone = 0;
+    g_FieldMoviePlayed = 0;
+    g_FieldLineCheckResult = 0;
+    g_isFieldLoading = 0;
+
+    for (;;) {
+        if (first == 0) {
+            D_80075DEC++;
+        }
+        D_80075DEC = D_80075DEC & 1;
+        g_FieldStateData.renderBuffer = D_80075DEC;
+        buf = &g_FieldRenderData[(s16)D_80075DEC];
+        ClearOTagR(buf->ot, 0x1000);
+        ClearOTagR(&buf->OtUi, 1);
+        FieldCameraAssign();
+        g_FieldKeyState = FieldButtonsUpdate(&D_80071E38, &D_80071E3C);
+        g_FieldStateData.currentMovieFrame = g_MovieStream->currentFrame;
+        FieldEventUpdate((s32)&buf->OtUi);
+        g_PlayerModelId = g_FieldStateData.pcModelId;
+        FieldBGScrollInit();
+        FieldBGScrollUpdate();
+        FieldBGShakeUpdate(&g_FieldStateData.shakeX);
+        FieldBGShakeUpdate(&g_FieldStateData.shakeY);
+        FieldBGUpdateDrawenv(buf);
+        PreloadNextFieldMap(&g_FieldEntity[g_PlayerModelId],
+                            (FieldLine*)(g_FieldTriggers + 0x38));
+        if ((g_FieldStateData.activeKeysRaw & 0x90F) == 0x90F) {
+            g_FieldStateData.eventCmd = 0xA;
+            func_80035658();
+            StopFieldMapPreload();
+            return;
+        }
+        if (g_FieldStateData.eventCmd == 1) {
+            return;
+        }
+        if (g_FieldStateData.eventCmd == 0xC) {
+            StopFieldMapPreload();
+            return;
+        }
+        if (g_FieldStateData.eventCmd == 0xD) {
+            StopFieldMapPreload();
+            g_FieldNextModule = 0xC;
+            return;
+        }
+        if (g_FieldStateData.eventCmd == 0x19) {
+            g_FieldNextModule = 0x10;
+            StopFieldMapPreload();
+            return;
+        }
+        if (g_FieldStateData.eventCmd == 0xF ||
+            g_FieldStateData.eventCmd == 0x10 ||
+            g_FieldStateData.eventCmd == 0x11 ||
+            g_FieldStateData.eventCmd == 0x15 ||
+            g_FieldStateData.eventCmd == 0x16 ||
+            g_FieldStateData.eventCmd == 0x17 ||
+            g_FieldStateData.eventCmd == 0x18) {
+            g_FieldNextModule = 0xD;
+            StopFieldMapPreload();
+            return;
+        }
+        if (g_FieldStateData.eventCmd == 6 || g_FieldStateData.eventCmd == 7 ||
+            g_FieldStateData.eventCmd == 9 ||
+            g_FieldStateData.eventCmd == 0xE ||
+            g_FieldStateData.eventCmd == 8 ||
+            g_FieldStateData.eventCmd == 0x12 ||
+            g_FieldStateData.eventCmd == 0x13) {
+            g_FieldNextModule = 5;
+            StopFieldMapPreload();
+            return;
+        }
+        if ((g_FieldKeyState & 0x10) && g_FieldStateData.menuDisabled == 0 &&
+            g_FieldMoviePlayed == 0 && g_FieldMovieStreamActive == 0) {
+            g_FieldNextModule = 5;
+            g_FieldStateData.eventCmd = 9;
+            g_FieldStateData.eventCmdParam = 0;
+            StopFieldMapPreload();
+            return;
+        }
+        if (g_FieldStateData.eventCmd == 5 ||
+            g_FieldStateData.eventCmd == 0x1A) {
+            StopFieldMapPreload();
+            return;
+        }
+        if (g_FieldStateData.eventCmd == 2) {
+            g_FieldStateData.pcPosX =
+                g_FieldEntity[g_PlayerModelId].PosX / 4096;
+            g_FieldStateData.pcPosY =
+                g_FieldEntity[g_PlayerModelId].PosY / 4096;
+            g_FieldNextModule = 2;
+            g_FieldStateData.pcWalkMeshId = g_FieldEntity[g_PlayerModelId].PosI;
+            StopFieldMapPreload();
+            return;
+        }
+        FieldEntityMovementUpdate(g_FieldKeyState);
+        FieldEntityLineInteract(&g_FieldEntity[g_PlayerModelId], &D_8007E7AC);
+        FieldEntityCheckTalk();
+        if (g_FieldMovieStreamActive == 0 || g_FieldMovieDrawBg == 1) {
+            AddBackgroundToRender(buf);
+        }
+        HandleKawaiDataInModel(buf);
+        FieldRainUpdate();
+        FieldRainAddToRender(buf->ot, buf->Rain, D_80071E40, &buf->RainDm);
+        FieldArrowsAddToRender(buf, D_80071E40, g_FieldTriggers + 0x38);
+        func_800138EC();
+        g_FieldVSyncBeforeDraw = VSync(1);
+        while (DrawSync(1) != 0) {
+        }
+        g_FieldVSyncAfterDraw = VSync(1);
+        if (g_FieldMovieStreamActive != 0 && g_FieldMovieVSyncMode != 1) {
+            VSync(3);
+        } else {
+            VSync(2);
+        }
+        if (first != 0) {
+            first--;
+            if (first == 0) {
+                SetDispMask(1);
+            }
+        }
+        ResetGraph(1);
+        if (g_FieldMovieStreamActive == 0) {
+            if (g_FieldMovieStreamDone == 0) {
+                g_FieldDispEnv[(s16)D_80075DEC].isrgb24 = 0;
+            } else {
+                g_FieldMovieStreamDone = 0;
+            }
+        }
+        PutDispEnv(&g_FieldDispEnv[(s16)D_80075DEC]);
+        PutDrawEnv(&g_FieldDrawEnv[(s16)D_80075DEC]);
+        if (g_FieldMovieStreamActive == 0) {
+            ClearImage(&g_FieldDrawEnv[(s16)D_80075DEC].clip, 0, 0, 0);
+        } else if (g_FieldDispEnv[(s16)D_80075DEC].isrgb24 == 0) {
+            ClearImage(&clip16Top, 0, 0, 0);
+            ClearImage(&clip16Mid, 0, 0, 0);
+            ClearImage(&clip16Bot, 0, 0, 0);
+        } else {
+            ClearImage(&clip24Top, 0, 0, 0);
+            ClearImage(&clip24Mid, 0, 0, 0);
+            ClearImage(&clip24Bot, 0, 0, 0);
+        }
+        g_FieldCurDispEnv = &g_FieldDispEnv[(s16)D_80075DEC];
+        g_FieldCurDrawEnv = &g_FieldDrawEnvBg[(s16)D_80075DEC];
+        FieldUpdateMovieStream();
+        if (g_FieldStateData.mpdspSet == 0) {
+            DrawOTag(&buf->OtSceneDrenv);
+            DrawOTag(&buf->ot[0xFFF]);
+            DrawOTag(&buf->OtFadeDrenv);
+            if (D_8009AC40[0] != 0) {
+                DrawOTag(&g_FieldOTHead[(s16)D_80075DEC]);
+            }
+        }
+        DrawOTag(&buf->OtUi);
+    }
+}
+
+/* Parse a MIM (field background map image) header and upload its palette and
+ * two texture pages to VRAM. `mim` points at the loaded file; three
+ * variable-length records follow one another, each opening with a 32-bit byte
+ * length, and each seeds a slice of the state block at g_FieldMimPalData. The
+ * palette goes up with LoadImage, the two pages with LoadTPage, with a DrawSync
+ * between every step. */
+void FieldLoadMimToVram(s32 arg0, u8* mim) {
+    RECT rect;
+    u8 unusedLocals[0x28];
+    u32 next;
+    u16 unk0A;
+
+    *(u32*)&g_FieldMimPalSize[0] = *(u32*)mim;
+    next = (*(u32*)&g_FieldMimPalSize[0] >> 2) * 4 - 0xC;
+    *(u16*)&g_FieldMimPalX[0] = *(u16*)(mim + 4);
+    *(u16*)&g_FieldMimPalY[0] = *(u16*)(mim + 6);
+    *(u16*)&g_FieldMimPalW[0] = *(u16*)(mim + 8);
+    unk0A = *(u16*)(mim + 0xA);
+    mim += 0xC;
+    *(u8**)&g_FieldMimPalData[0] = mim;
+    *(u16*)&g_FieldMimPalH[0] = unk0A;
+    mim += next;
+
+    /* First texture page block. */
+    *(u32*)&g_FieldMimTex0Size[0] = *(u32*)mim;
+    next = (*(u32*)&g_FieldMimTex0Size[0] >> 2) * 4 - 0xC;
+    mim += 4;
+    *(u16*)&g_FieldMimTex0X[0] = *(u16*)mim;
+    *(u16*)&g_FieldMimTex0Y[0] = *(u16*)(mim + 2);
+    mim += 4;
+    *(u16*)&g_FieldMimTex0Rect[0] = *(u16*)mim * 2;
+    *(u16*)((u8*)g_FieldMimTex0Rect + 2) = *(u16*)(mim + 2);
+    mim += 4;
+    *(u8**)&g_FieldMimTex0Data[0] = mim;
+    mim += next;
+
+    /* Second texture page block. */
+    *(u32*)&g_FieldMimTex1Size[0] = *(u32*)mim;
+    mim += 4;
+    *(u16*)&g_FieldMimTex1X[0] = *(u16*)mim;
+    *(u16*)&g_FieldMimTex1Y[0] = *(u16*)(mim + 2);
+    mim += 4;
+    *(u16*)&g_FieldMimTex1Rect[0] = *(u16*)mim * 2;
+    *(u16*)((u8*)g_FieldMimTex1Rect + 2) = *(u16*)(mim + 2);
+    mim += 4;
+    *(u8**)&g_FieldMimTex1Data[0] = mim;
+
+    rect.x = 0;
+    rect.y = 0x1E0;
+    rect.w = 0x100;
+    rect.h = 0x10;
+    DrawSync(0);
+    LoadImage(&rect, *(u_long**)((u8*)g_FieldMimPalSize - 4));
+    DrawSync(0);
+    *(u16*)&g_FieldMimTex0Tpage[0] = LoadTPage(
+        *(u_long**)((u8*)g_FieldMimPalData + 0x14), 1, 0,
+        *(s16*)((u8*)g_FieldMimPalData + 0x1C),
+        *(s16*)((u8*)g_FieldMimPalData + 0x1E),
+        *(u16*)((u8*)g_FieldMimPalData + 0x20),
+        *(u16*)((u8*)g_FieldMimPalData + 0x22));
+    if (*(u32*)((u8*)g_FieldMimPalData + 0x48) != 0) {
+        DrawSync(0);
+        *(u16*)&g_FieldMimTex1Tpage[0] = LoadTPage(
+            *(u_long**)((u8*)g_FieldMimPalData + 0x44), 1, 0,
+            *(s16*)((u8*)g_FieldMimPalData + 0x4C),
+            *(s16*)((u8*)g_FieldMimPalData + 0x4E),
+            *(u16*)((u8*)g_FieldMimPalData + 0x50),
+            *(u16*)((u8*)g_FieldMimPalData + 0x52));
+    }
+    DrawSync(0);
+}
 
 u32 FieldButtonsUpdate(void) {
     g_FieldKeyState = InputReadPadsRaw();
@@ -239,8 +651,214 @@ u32 FieldButtonsUpdate(void) {
     return g_FieldKeyState;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBackgroundInitPackets);
+/* Build the sprite packets for the field background's four layers. Layers 1
+ * and 2 are 16x16 sprites, layers 3 and 4 are 32x32; each layer walks the run
+ * list from where the previous one stopped, emitting one packet per tile and a
+ * DR_MODE whenever a run asks for a different texture page. `pairs` collects
+ * the two per-sprite parameter bytes the animation code later edits in
+ * place. */
+void FieldBackgroundInitPackets(
+    SPRT_16* sprt16, SPRT* sprt, u8* pairs, DR_MODE* modes) {
+    FieldBgData* data1;
+    FieldBgData* data2;
+    FieldBgData* data3;
+    FieldBgTile1* tile1;
+    FieldBgTile2* tile2;
+    u16* tpages;
+    s16* run;
+    s16 count;
+    u8 white;
+    u16 spriteCount;
+    u16 sprite34Count;
 
+    spriteCount = 0;
+    sprite34Count = 0;
+    D_8011448C = 0;
+    D_801144D0 = 0;
+    data1 = *D_8009D848;
+    run = data1->runs;
+    tile1 = (FieldBgTile1*)((u8*)data1 + data1->layer1Offset);
+    tpages = (u16*)((u8*)data1 + data1->tpageOffset);
+
+    for (;;) {
+        if (run[0] == 0x7FFF) {
+            run++;
+            goto layer2;
+        }
+        if (run[0] == 0x7FFE) {
+            SetDrawMode(modes, 0, 1, tpages[0], NULL);
+            tpages++;
+            D_8011448C++;
+            modes++;
+        } else {
+            count = run[2];
+            if (count != 0) {
+                do {
+                    SetSprt16(sprt16);
+                    SetShadeTex(sprt16, 1);
+                    SetSemiTrans(sprt16, 0);
+                    sprt16->r0 = 0x80;
+                    sprt16->g0 = 0x80;
+                    sprt16->b0 = 0x80;
+                    sprt16->x0 = tile1->x;
+                    sprt16->y0 = tile1->y;
+                    sprt16->u0 = tile1->u;
+                    sprt16->v0 = tile1->v;
+                    sprt16->clut = tile1->clut;
+                    tile1++;
+                    sprt16++;
+                    pairs += 2;
+                    count--;
+                    spriteCount++;
+                } while (count != 0);
+            }
+        }
+        run += 3;
+    }
+
+layer2:
+    D_8011448C = spriteCount - D_8011448C;
+    data2 = *D_8009D848;
+    tile2 = (FieldBgTile2*)((u8*)data2 + data2->layer2Offset);
+
+    for (;;) {
+        if (run[0] == 0x7FFF) {
+            run++;
+            goto layer3;
+        }
+        count = run[2];
+        if (count != 0) {
+            do {
+                SetDrawMode(modes, 0, 1, tile2->tpage, NULL);
+                modes++;
+                D_801144D0++;
+                SetSprt16(sprt16);
+                SetShadeTex(sprt16, 1);
+                if ((tile2->flags & 0x80) == 0) {
+                    SetSemiTrans(sprt16, 0);
+                } else {
+                    SetSemiTrans(sprt16, 1);
+                }
+                sprt16->r0 = tile2->rg;
+                sprt16->g0 = tile2->rg >> 8;
+                sprt16->b0 = 0x80;
+                sprt16->x0 = tile2->x;
+                sprt16->y0 = tile2->y;
+                sprt16->u0 = tile2->u;
+                sprt16->v0 = tile2->v;
+                sprt16->clut = tile2->clut;
+                pairs[0] = tile2->flags;
+                pairs[1] = tile2->param;
+                tile2++;
+                sprt16++;
+                pairs += 2;
+                count--;
+                spriteCount++;
+            } while (count != 0);
+        }
+        run += 3;
+    }
+
+layer3:
+    white = 0x80;
+    D_801144C8 = spriteCount;
+    data3 = *D_8009D848;
+    D_8007EBD4 = (FieldBgTile3*)((u8*)data3 + data3->layer34Offset);
+
+    for (;;) {
+        if (run[0] == 0x7FFF) {
+            run++;
+            goto layer4;
+        }
+        if (run[0] == 0x7FFE) {
+            SetDrawMode(modes, 0, 1, tpages[0], NULL);
+            tpages++;
+            modes++;
+        } else {
+            run[1] = sprite34Count;
+            count = run[2];
+            if (count != 0) {
+                do {
+                    SetSprt(sprt);
+                    SetShadeTex(sprt, 1);
+                    if ((D_8007EBD4->flags & 0x80) == 0) {
+                        SetSemiTrans(sprt, 0);
+                    } else {
+                        SetSemiTrans(sprt, 1);
+                    }
+                    sprt->r0 = white;
+                    sprt->g0 = white;
+                    sprt->b0 = white;
+                    sprt->x0 = D_8007EBD4->x;
+                    sprt->y0 = D_8007EBD4->y;
+                    sprt->u0 = D_8007EBD4->u;
+                    sprt->v0 = D_8007EBD4->v;
+                    sprt->w = 0x20;
+                    sprt->h = 0x20;
+                    sprt->clut = D_8007EBD4->clut;
+                    pairs[0] = D_8007EBD4->flags;
+                    pairs[1] = D_8007EBD4->param;
+                    D_8007EBD4++;
+                    sprt++;
+                    pairs += 2;
+                    count--;
+                    sprite34Count++;
+                } while (count != 0);
+            }
+        }
+        run += 3;
+    }
+
+layer4:
+    white = 0x80;
+    for (;;) {
+        if (run[0] == 0x7FFF) {
+            return;
+        }
+        if (run[0] == 0x7FFE) {
+            SetDrawMode(modes, 0, 1, tpages[0], NULL);
+            tpages++;
+            modes++;
+        } else {
+            run[1] = sprite34Count;
+            count = run[2];
+            if (count != 0) {
+                do {
+                    SetSprt(sprt);
+                    SetShadeTex(sprt, 1);
+                    if ((D_8007EBD4->flags & 0x80) == 0) {
+                        SetSemiTrans(sprt, 0);
+                    } else {
+                        SetSemiTrans(sprt, 1);
+                    }
+                    sprt->r0 = white;
+                    sprt->g0 = white;
+                    sprt->b0 = white;
+                    sprt->x0 = D_8007EBD4->x;
+                    sprt->y0 = D_8007EBD4->y;
+                    sprt->u0 = D_8007EBD4->u;
+                    sprt->v0 = D_8007EBD4->v;
+                    sprt->w = 0x20;
+                    sprt->h = 0x20;
+                    sprt->clut = D_8007EBD4->clut;
+                    pairs[0] = D_8007EBD4->flags;
+                    pairs[1] = D_8007EBD4->param;
+                    D_8007EBD4++;
+                    sprt++;
+                    pairs += 2;
+                    count--;
+                    sprite34Count++;
+                } while (count != 0);
+                do {
+                } while (0);
+            }
+        }
+        run += 3;
+    }
+}
+
+/* Link this frame's visible background tiles into the field's ordering
+ * table. */
 INCLUDE_ASM("asm/us/field/nonmatchings/field", AddBackgroundToRender);
 
 s32 FieldCalcLinearStep(s32 start, s32 target, s32 duration, s32 step) {
@@ -255,9 +873,17 @@ s32 FieldCalcLinearStep(s32 start, s32 target, s32 duration, s32 step) {
     return start;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldCalcEaseInOut);
+s32 FieldCalcEaseInOut(s32 from, s32 to, s32 total, s32 step) {
+    s32 angle;
+    s32 diff;
 
-static s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, long* screenPos) {
+    angle = ((step << 12) / total) / 32 - 0x80;
+    diff = to - from;
+    return from +
+           ((FieldEntityGetDirVectorY(angle & 0xFF) + 0x1000) * diff) / 0x2000;
+}
+
+s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, long* screenPos) {
     long flag;
     long depth;
     s32 ret;
@@ -271,338 +897,77 @@ static s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, long* screenPos) {
     return ret;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGShakeUpdate);
+/* Advance one axis of the SHAKE camera effect. The shake runs as a chain of
+ * segments: each one eases the background offset from where the previous
+ * segment left off to a fresh random target, negated relative to the last so
+ * the image swings either side of centre. Clearing `enabled` does not stop it
+ * dead -- it eases one final segment back to zero first.
+ *
+ * Every instruction matches except the four that increment currentStep: gcc
+ * coalesces `step + 1` into a3 (the argument register) where the original
+ * keeps it in v0, which lets the original schedule the store into the call's
+ * delay slot. */
+void FieldBGShakeUpdate(FieldShakeData* shake) {
+    s16 step;
+    s16 target;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGScrollInit);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldCalcPointOnLine);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGClampPos);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGGetEntityScreenPos);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGScrollUpdate);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBGUpdateDrawenv);
-
-/////////////////////////////////////////////////
-// Begin of field_entity.c
-/////////////////////////////////////////////////
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityInitPos);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityAddRotate);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityAnimationUpdate);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityMovementUpdate);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityGatewayMapLoad);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityCheckTalk);
-
-s16 FieldEntityGetDirVectorX(u8 arg0) { return D_800DF120[arg0][0]; }
-
-s16 FieldEntityGetDirVectorY(u8 arg0) { return D_800DF120[arg0][1]; }
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityDirByVec);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityAutoMove);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityWalkmechCross);
-
-static void FieldEntityVectorSub(s32* arg0, s16* arg1, s16* arg2) {
-    arg0[0] = arg1[0] - arg2[0];
-    arg0[1] = arg1[1] - arg2[1];
-    arg0[2] = arg1[2] - arg2[2];
-}
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityCalculateZ);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityMove);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityCollisionCheck);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntitySqrDistToLine);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityLineCheck);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityLineInteract);
-
-static void FieldEntityLineClear(FieldLine* lines) {
-    s32 i;
-
-    for (i = 0; i < LEN(g_FieldLines); i++) {
-        lines->isOnLine = 0;
-        lines++;
-    }
-}
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityGatewayCheck);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityBgTriggerActivate);
-
-const u32 D_800A00BC[] = {0x00360000, 0x012A007A};
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityTriggerCheck);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityBgTriggerInit);
-
-/////////////////////////////////////////////////
-// Begin of field_camera.c
-/////////////////////////////////////////////////
-
-const u32 D_800A00DC[] = {0x00000000};
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelLoadAndInit);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", HandleKawaiDataInModel);
-
-// Possable Debug routine. Ran at beginning of every main field loop. (FPS?)
-void DebugRunEveryLoop(void) {}
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldCameraAssign);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldUpdateMovieStream);
-
-/////////////////////////////////////////////////
-// Begin of field_rain.c
-/////////////////////////////////////////////////
-
-struct FieldRain {
-    /* 0x00 */ SVECTOR p1;
-    /* 0x08 */ SVECTOR p2;
-    /* 0x10 */ s16 wait;
-    /* 0x12 */ s16 rndSeed;
-    /* 0x14 */ s16 z;
-    /* 0x16 */ s16 render;
-};
-
-extern struct FieldRain g_FieldRain[64];
-extern u8 g_RainForce;
-extern s16 D_800E42EE[0x40][12];
-
-void FieldRainInit(struct FieldRenderData* renderData) {
-    LINE_F2* line;
-    s32 i;
-    s32 adjustedIndex;
-
-    for (i = 0; i < LEN(g_FieldRain); i++) {
-        g_FieldRain[i].render = 0;
-        g_FieldRain[i].rndSeed = i * 4;
-        g_FieldRain[i].wait = i % 8;
-
-        line = &renderData->Rain[i];
-
-        SetLineF2(line);
-        SetSemiTrans(line, 1);
-
-        renderData->Rain[i].r0 = 0x10;
-        renderData->Rain[i].g0 = 0x10;
-        renderData->Rain[i].b0 = 0x10;
-    }
-
-    SetDrawMode(&renderData->RainDm, 0, 0, GetTPage(0, 1, 0, 0) & 0xffff, NULL);
-}
-
-void FieldRainAddToRender(
-    u32* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm) {
-    long p;
-    long flag;
-    s32 i;
-    s32 j;
-
-    PushMatrix();
-    SetRotMatrix(matrix);
-    SetTransMatrix(matrix);
-
-    for (i = 0, j = 0; i < LEN(g_FieldRain); i++) {
-        // 12 * sizeof(s16) = 24 bytes (0x18), the exact size of FieldRain
-        if (D_800E42EE[i][0] == 1) {
-            RotTransPers(&g_FieldRain[i].p1, &rain->x0, &p, &flag);
-            RotTransPers(&g_FieldRain[i].p2, &rain->x1, &p, &flag);
-            AddPrim(ot, rain);
+    if (shake->enabled == 1) {
+        if (shake->segmentActive == 0) {
+            shake->currentStep = 0;
+            shake->start = 0;
+            shake->target =
+                (s16)(g_RandomTable[shake->rngId] * shake->amplitude) / 256;
+            shake->segmentActive = 1;
+            shake->rngId++;
+            return;
         }
-        rain++;
-    }
-
-    PopMatrix();
-
-    *(u32*)rainDm = (*(u32*)rainDm & 0xFF000000) | (*ot & 0xFFFFFF);
-
-    *ot = (*ot & 0xFF000000) | ((u32)rainDm & 0xFFFFFF);
-}
-
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldRainUpdate);
-#else
-
-extern u8 g_RainControl;
-extern s16 g_PlayerModelId;
-
-extern FieldEntity g_FieldEntities[];
-extern u8 g_RandomTable[];
-extern struct FieldRain g_FieldRain[];
-
-void FieldRainUpdate(void) {
-    s32 i;
-    s32 limit;
-    s32 player;
-    s32 max = 255;
-    s32 vz;
-
-    if ((g_RainControl & 0x80) == 0) {
-        if (g_RainForce != 0) {
-            g_RainForce--;
+        step = shake->currentStep;
+        if (shake->numStepsPerSegment < step) {
+            target = shake->target;
+            shake->currentStep = 0;
+            shake->start = target;
+            if (target < 0) {
+                shake->target =
+                    (s16)(g_RandomTable[shake->rngId] * shake->amplitude) / 256;
+            } else {
+                shake->target =
+                    -(s16)(g_RandomTable[shake->rngId] * shake->amplitude) /
+                    256;
+            }
+            shake->rngId++;
+            return;
+        }
+    } else if (shake->segmentActive == 1) {
+        step = shake->currentStep;
+        if (shake->numStepsPerSegment < step) {
+            shake->currentStep = 0;
+            shake->start = shake->target;
+            shake->target = 0;
+            shake->segmentActive = 0;
+            shake->rngId++;
+            return;
         }
     } else {
-        if (g_RainForce != max) {
-            g_RainForce++;
+        step = shake->currentStep;
+        if (shake->numStepsPerSegment == step) {
+            shake->currentOffset = 0;
+            return;
         }
     }
-
-    limit = g_RainForce / 4;
-    player = g_PlayerModelId;
-
-    for (i = 0; i < 0x40; i++) {
-        if (g_FieldRain[i].wait == 0) {
-            if (i < limit) {
-
-                u8 seed3;
-
-                g_FieldRain[i].render = 1;
-                g_FieldRain[i].rndSeed++;
-                g_FieldRain[i].wait = 7;
-
-                g_FieldRain[i].p2.vx =
-                    (g_FieldEntities[player].PosX >> 12) +
-                    g_RandomTable[g_FieldRain[i].rndSeed & 0xFF] * 12 - 0x600;
-
-                seed3 = g_FieldRain[i].rndSeed * 3;
-                g_FieldRain[i].p2.vy = (g_FieldEntities[player].PosY >> 12) +
-                                       g_RandomTable[seed3] * 12 - 0x600;
-
-                g_FieldRain[i].p1.vx = g_FieldRain[i].p2.vx;
-                g_FieldRain[i].p1.vy = g_FieldRain[i].p2.vy;
-
-                g_FieldRain[i].z = (g_FieldEntities[player].PosZ >> 12) - 0x300;
-            } else {
-                g_FieldRain[i].wait = 1;
-                g_FieldRain[i].render = 0;
-            }
-        }
-
-        g_FieldRain[i].p2.vz =
-            g_FieldRain[i].z + (g_FieldRain[i].wait & 0x7) * 0x80;
-
-        vz = (g_FieldRain[i].wait & 0x7) * 0x80;
-        vz += 0x100;
-
-        g_FieldRain[i].p1.vz = g_FieldRain[i].z + vz;
-
-        g_FieldRain[i].wait--;
+    /* The two arms are deliberately identical. gcc cross-jumps them back into
+     * one block, but only after it has allocated `step + 1` to its own
+     * register instead of coalescing it into a3 -- which is what lets the
+     * store of currentStep be scheduled into the call's delay slot, as the
+     * original does. Written once, the tail is four instructions off. */
+    if (step != 0) {
+        step = step + 1;
+        shake->currentStep = step;
+        shake->currentOffset = FieldCalcEaseInOut(
+            shake->start, shake->target, shake->numStepsPerSegment, step);
+    } else {
+        step = step + 1;
+        shake->currentStep = step;
+        shake->currentOffset = FieldCalcEaseInOut(
+            shake->start, shake->target, shake->numStepsPerSegment, step);
     }
 }
-#endif
-
-/////////////////////////////////////////////////
-// Begin of field_battle.c
-/////////////////////////////////////////////////
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldGetRandomU8FromList);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldGetNextRandomU8);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBattleCheck);
-
-/////////////////////////////////////////////////
-// Begin of field_arrow.c
-/////////////////////////////////////////////////
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldArrowsInit);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldArrowsAddToRender);
-
-/////////////////////////////////////////////////
-// Begin of field_model.c
-/////////////////////////////////////////////////
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", LoadLocalFieldModelAndInitAll);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelCreatePktsAndScale);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelCreatePktsForPart);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelLoadBsxTexToVram);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelBsxTdbModify);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelStructInit);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelLoadGlobalModels);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelLoadBcx);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelPrepareRender);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelAddToRender);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelAnimCalcMtrxs);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelScaleModel);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelScalePartVrtxs);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelScaleAnimTranslat);
-
-/////////////////////////////////////////////////
-// Begin of field_kawai_char_model.c
-/////////////////////////////////////////////////
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiClearData);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiExecute);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetCustomLightToModelPkts);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetVertexColorFromLighting);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetColorToModelPkts);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetColorToPartPkts);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiLoadEyesMouthTexToVram);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiLightingApplyToModel);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiLightingApplyToPolyColor);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetModelTransparency);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetColorToPktsBelowLvl);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetColorToPartPktsBelowLvl);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiFadeModelColor);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetCustomLighting);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiColorFadeBelowLvl);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetLightingToModelPkts);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetLightingToPartPkts);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetSplashToPktsBelowLvl);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiInitSplashPkts);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiSetPartAttribute);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiApplyBoneTransform);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiRenderClippedPart);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiDirectionalColorGradient);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiGradientColor);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field", KawaiAnimatedPointLight);

@@ -169,14 +169,23 @@ overlays:
     migrate_rodata_to_functions: true
     vram_start: 0x800A0000
     segments:
+      # field.c is cut at 0x54 and 0xE0 on jump-table alignment rather than on
+      # module boundaries. `.align 3` ahead of a table is honoured against the
+      # unit's .rodata base, and the retail tables here sit at 0x08, 0x54,
+      # 0xA4, 0xC4, 0xE0 and 0x104 with no padding, so each has to land in a
+      # unit whose base is congruent to it mod 8. Do not merge these back.
       - [0x0, .rodata, field]
+      - [0x54, .rodata, field2]
+      - [0xE0, .rodata, field3]
       - [0x13C, .rodata, field_event]
       - [0x1D4, .rodata, field_opcodes]
-      - [0xFF8, .rodata, field2]
+      - [0xFF8, .rodata, field4]
       - [0x1368, c, field]
+      - [0x4430, c, field2]
+      - [0xDD70, c, field3]
       - [0x1A534, c, field_event]
       - [0x1C9FC, c, field_opcodes]
-      - [0x34838, c, field2]
+      - [0x34838, c, field4]
       - [0x3A5B8, data]
   - name: bginmenu
     disk_path: disks/us/MENU/BGINMENU.MNU

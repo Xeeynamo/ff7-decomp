@@ -539,7 +539,6 @@ g_AkaoSoundActiveMaskStored = 0x80099FDC;
 g_AkaoNoiseMask = 0x80099FEC;
 g_AkaoReverbMask = 0x80099FF0;
 g_AkaoPitchLfoMask = 0x80099FF4;
-g_AkaoMusicActiveMask = 0x8009A108;
 g_AkaoMusicActiveMaskStored = 0x8009A118;
 g_AkaoMusicOverMask = 0x8009A128;
 g_AkaoMusicAltMask = 0x8009A12C;

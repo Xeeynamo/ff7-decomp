@@ -634,8 +634,7 @@ typedef struct {
     s32 MoveStartY;       // 0x1C
     s32 MoveStartZ;       // 0x20
     s8 Unk24[8];          // 0x24-0x2B
-    s16 MoveB;            // 0x2C
-    u8 Unk2E[2];          // 0x2E-0x2F
+    s32 MoveB;            // 0x2C-0x2F
     s16 MoveSteps;        // 0x30
     s16 MoveStep;         // 0x32
     u8 Unk34;             // 0x34
@@ -693,13 +692,13 @@ typedef struct {
     /* 0x03 */ u8 animationCount;  // number of animations
     /* 0x04 */ u8 modelEntryIndex; // index into FieldModelData->modelEntries
     /* 0x05 */ u8 npcFlag;         // NPC/model type flag?
-    /* 0x06 */ u8 unk6;
-    /* 0x07 */ u8 globalModelId; // BCX/global model lookup id
+    /* 0x06 */ u8 globalLoaded;
+    /* 0x07 */ s8 globalModelId; // BCX/global model lookup id
 } FieldModelLoaderData;          // size:0x8
 
 typedef struct {
     /* 0x00 */ u8 flags;     // initialized to 1, later cleared
-    /* 0x01 */ u8 kawaiType; // KAWAI second byte
+    /* 0x01 */ s8 kawaiType; // KAWAI second byte (read with lb)
     /* 0x02 */ u8 boneCount;
     /* 0x03 */ u8 partCount;
     /* 0x04 */ u8 animationCount;
@@ -723,6 +722,7 @@ typedef struct {
     /* 0x01 */ u8 unk1;                       // (initialized to 0)
     /* 0x02 */ u16 unk2;                      // (initialized to 0)
     /* 0x04 */ FieldModelEntry* modelEntries; // per-model-file records
+    /* 0x08 */ s32 unk8;                      // (initialized to 0)
 } FieldModelData;
 
 typedef struct {
@@ -775,7 +775,7 @@ typedef struct {
     u16 pcWalkMeshId;      // Walk mesh triangle id player is inside of.
     s16 pcDirection;       // Direction player is facing.
     s16 movieCommandState; // enum MovieCommandState.
-    u16 modelCount;
+    s16 modelCount;
     s16 pcModelId;
     u16 idleAnimId;
     u16 walkAnimId;
@@ -875,7 +875,7 @@ typedef struct {
 typedef struct {
     s32 unk0;
     s32 unk4;
-    u32 unk8;
+    u32 currentFrame;
 } Unk80075D00;
 
 typedef struct WindowData {
@@ -911,16 +911,22 @@ extern u16 g_Pad1KeysPressed;
 extern u16 g_Pad1KeysRepeat;
 
 extern s32 g_BattleCharIdToCharId[11];
-extern u8 D_80049208[12];   // window colors maybe??
+extern u8 D_80049208[12]; // window colors maybe??
+// Same object as D_80049208, under the name the field code uses. main and
+// cnfgmenu still reach it as D_80049208, whose definition comes from their own
+// splat undefined-syms; field's comes from config/sym_extern.us.txt.
+extern u8 g_FieldWindowColors[12];
 extern u8 D_800492F0[][12]; // see Labels enum
 extern FieldModelData* g_FieldModelData;
 extern u8 D_80062D98; // battle_clearRenderList
 extern u8 D_80062D99; // battle_isPaused
 extern s32 D_80062DCC;
 extern s8 _D_80062DFD;
-extern u8 D_80062F19; // Enemy Lure/Away Modifier
+extern u8 D_80062F19;              // Enemy Lure/Away Modifier
+extern u8 g_EncounterRateModifier; // same object as D_80062F19
 extern u8 D_80062F1A;
 extern u8 D_80062F1B;
+extern u8 g_PreemptiveRate; // same object as D_80062F1B
 extern Gpu D_80062F24;
 extern u16 D_80062F3C;
 extern s32 g_MenuRenderBufferIndex;
@@ -929,7 +935,7 @@ extern Unk800A8D04* g_CurrentAction;
 extern DRAWENV D_800706A4[2];
 extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
                             // (set by the MULCK opcode)
-extern u8 D_80070788;
+extern u8 g_FieldDebugStepRequest;
 extern u8 g_EntityToLine[48];
 extern u16 g_BattleMode;
 extern u16 g_FieldWaitCounter[48];      // Used by WAIT opcode to pause script
@@ -937,9 +943,10 @@ extern u16 g_SavedFieldScriptPC[48][8]; // Program counters of paused scripts
 extern s16 D_80071A5C;
 extern u8 g_FieldScriptSyncWaitEntity[48][8];
 extern s8 g_FieldDebugCurPage;
-extern u8 D_80071E24;
+extern u8 g_FieldScriptDebugFlags;
 extern u8 g_WindowCount;
 extern u8 D_80071E30;
+extern u8 g_FieldBattleLock; // same object as D_80071E30, the BTLCK flag
 extern MATRIX* D_80071E40;
 extern u8 g_PartyUpdatedByFieldScript;
 extern u8 g_CurrentEntity; // entity owning the currently executing script
@@ -951,12 +958,13 @@ extern u8* D_800707C0;
 extern BattleCommandData D_800707C4[32];
 extern AttackData D_800708C4[];
 extern FieldEntity g_FieldEntity[];
-extern u8 D_800756E8[]; // per-model flags, indexed by field model id
+extern u8 g_FieldModelAnimMode[]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
 extern Unk80075D00* D_80075D00;
-extern int D_80075DEC;           // buffer index, either 0 or 1
-extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
-extern s8 D_80077F64[2][0x3400]; // polygon buffer
+extern Unk80075D00* g_MovieStream; // same object as D_80075D00
+extern volatile u16 D_80075DEC;    // buffer index, either 0 or 1
+extern u8 g_FieldMapVars[256];     // map-local memory bank for field scripts
+extern s8 D_80077F64[2][0x3400];   // polygon buffer
 extern u8* g_FieldText;
 extern FieldLine g_FieldLines[32];
 extern DRAWENV D_8007EAAC[2];
@@ -971,7 +979,7 @@ extern s16 D_80082248[]; // per-model current animation playback speed
 extern u8 D_80083184[0x40];
 extern u8 D_800831C4[];         // Magic Order table from kernel.bin section 3.
 extern u16 g_FieldScriptPC[48]; // program counters for active entity scripts
-extern u8 D_8008325C[];         // per-model default animation id (DFANM)
+extern u8 g_FieldModelIdleAnimId[]; // per-model default animation id (DFANM)
 extern u8 g_WindowToEntity[4];
 extern WindowData g_WindowData[4];
 extern u8 D_8008326C[4];
@@ -980,19 +988,19 @@ extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level
 extern FieldModelLoaderData* g_FieldModelLoaderData;
 extern s16 g_FieldLineCount;
-extern s8 D_80095DCC;
+extern s8 g_FieldScriptHalted;
 extern volatile u16 D_80095DD4;
 extern s16 g_PlayerModelId;
 extern s16 g_isFieldLoading;
 extern volatile s16 D_800965EC;
-extern u8 D_80099FFC;
+extern u8 g_FieldScriptRunState;
 extern s16 D_8009A000[1];
 extern u32 D_8009A004[1];
 extern s32 D_8009A008[1];
-extern s32 D_8009A00C;
+extern s32 g_FieldAkaoArg3;
 extern s32 D_8009A024[8];
 extern u8 g_FieldCurrentOpcode;
-extern s32 D_8009A064;
+extern s32 g_FieldDebugStepCounter;
 extern MenuTable g_PartyMenuTables[3];
 extern u8 g_FieldScriptPriority[48]; // active scripts execution priority
 extern FieldState g_FieldState;
@@ -1009,14 +1017,14 @@ extern u8 D_8009D2E7;
 extern u8 D_8009D302;
 extern u8 D_8009D391[1]; // part of a struct?
 extern u8 D_8009D40D;
-extern u8 D_8009D588; // disc number requested by the DSKCG opcode
+extern u8 g_FieldDiscChangeRequest; // disc number requested by the DSKCG opcode
 extern u8 D_8009D684;
 extern u8 D_8009D685;
 extern u8 D_8009D686;
 extern u8 D_8009D60E;
 extern u8 g_DebugLevel; // field debug related
 extern CharacterLevelData g_CharacterLevelData[3];
-extern u8 D_8009D824;
+extern u8 g_FieldDebugPagesDirty;
 extern s16 D_8009D828[]; // per-model base animation speed
 extern BattleItemReward g_BattleItemsEarned[4];
 extern u8 D_8009D8F8[];

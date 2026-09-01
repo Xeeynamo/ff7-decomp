@@ -22,6 +22,10 @@ typedef struct {
 } SVECTOR;            // size = 0x8
 
 typedef struct {
+    short vx, vy; // Screen coordinates
+} DVECTOR;        // size = 0x4
+
+typedef struct {
     u_char r, g, b; // Color palette
     u_char cd;      // GPU code
 } CVECTOR;
@@ -159,6 +163,10 @@ extern long ratan2(long y, long x);
         : "memory")
 #define gte_stsxy(r0)                                                          \
     __asm__ volatile("swc2	$14, 0( %0 )" : : "r"(r0) : "memory")
+
+#define gte_ldrgb(r0) __asm__ volatile("lwc2	$6, 0( %0 )" : : "r"(r0))
+#define gte_nccs() __asm__ volatile("nop;" "nop;" ".word 0x4B08041B")
+#define gte_strgb(r0) __asm__ volatile("swc2	$22, 0( %0 )" : : "r"(r0) : "memory")
 
 #define gte_SetGeomScreen(r0) __asm__ volatile("ctc2	%0, $26" : : "r"(r0))
 
