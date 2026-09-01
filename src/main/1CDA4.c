@@ -1,22 +1,22 @@
 //! PSYQ=3.3 CC1=2.7.2 G=8 COMM=true
 #include "main_private.h"
 
-u16 g_Pad1Buttons = 0;
-u16 g_Pad1ButtonsPrev = 0;
-u16 g_Pad1ButtonsPressed = 0;
-u16 g_Pad1ButtonsRepeat = 0;
-u16 g_Pad2Buttons = 0;
-u16 g_Pad2ButtonsPrev = 0;
-u16 g_Pad2ButtonsPressed = 0;
-u16 g_Pad2ButtonsRepeat = 0;
-u16 g_Pad1FastButtons = 0;
-u16 g_Pad1FastButtonsPrev = 0;
-u16 g_Pad1FastButtonsPressed = 0;
-u16 g_Pad1FastButtonsRepeat = 0;
-u16 g_Pad2FastButtons = 0;
-u16 g_Pad2FastButtonsPrev = 0;
-u16 g_Pad2FastButtonsPressed = 0;
-u16 g_Pad2FastButtonsRepeat = 0;
+u16 g_Pad1Keys = 0;
+u16 g_Pad1KeysPrev = 0;
+u16 g_Pad1KeysPressed = 0;
+u16 g_Pad1KeysRepeat = 0;
+u16 g_Pad2Keys = 0;
+u16 g_Pad2KeysPrev = 0;
+u16 g_Pad2KeysPressed = 0;
+u16 g_Pad2KeysRepeat = 0;
+u16 g_Pad1BattleKeys = 0;
+u16 g_Pad1BattleKeysPrev = 0;
+u16 g_Pad1BattleKeysPressed = 0;
+u16 g_Pad1BattleKeysRepeat = 0;
+u16 g_Pad2BattleKeys = 0;
+u16 g_Pad2BattleKeysPrev = 0;
+u16 g_Pad2BattleKeysPressed = 0;
+u16 g_Pad2BattleKeysRepeat = 0;
 u8 D_80062D98 = 0x00;
 volatile u8 g_SavemapBusy = 0x00;
 static s16 D_80062D9A = 0x0000;

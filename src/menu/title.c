@@ -399,7 +399,7 @@ static s32 func_801D3AB0(s32 arg0) {
     if (!(func_8001F6B4() & 0xFF) && D_801E3D54 == 1) {
         switch (g_MenuStartMode) {
         case START_MENU_MODE_SELECT_SLOT:
-            if (g_Pad1ButtonsPressed & PADRright) {
+            if (g_Pad1KeysPressed & PADRright) {
                 temp_v1_2 = D_801E3D80[0].row;
                 if (temp_v1_2 >= 2) {
                     break;
@@ -427,7 +427,7 @@ static s32 func_801D3AB0(s32 arg0) {
                     func_801D2B58(3);
                     func_8001F6C0(D_801E33B0, 7);
                 }
-            } else if (g_Pad1ButtonsPressed & PADRdown) {
+            } else if (g_Pad1KeysPressed & PADRdown) {
                 func_801D2B58(4);
                 g_MenuStartMode = START_MENU_MODE_TITLE;
             } else {
@@ -438,7 +438,7 @@ static s32 func_801D3AB0(s32 arg0) {
             var_s1 = D_801E3D80[1].unkF;
             func_801D2DA8(&D_801E3D80[1]);
             if (!D_801E3D80[1].unkF && !var_s1) {
-                if (g_Pad1ButtonsPressed & PADRright) {
+                if (g_Pad1KeysPressed & PADRright) {
                     if (((s32)D_80062F3C >>
                          (D_801E3D80[1].row + D_801E3D80[1].rowOffset)) &
                         1) {
@@ -448,7 +448,7 @@ static s32 func_801D3AB0(s32 arg0) {
                     } else {
                         func_801D2B58(3);
                     }
-                } else if (g_Pad1ButtonsPressed & PADRdown) {
+                } else if (g_Pad1KeysPressed & PADRdown) {
                     func_801D2B58(4);
                     g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                 }
@@ -520,7 +520,7 @@ static s32 func_801D3AB0(s32 arg0) {
             break;
         case START_MENU_MODE_FORMAT_PROMPT:
             func_800264A8(&D_801E3DEC[0]);
-            if (g_Pad1ButtonsPressed & PADRright) {
+            if (g_Pad1KeysPressed & PADRright) {
                 if (D_801E3DEC[0].row == 0) {
                     if (D_801E3D80[0].row) {
                         temp_v1_2 = format("bu10:");
@@ -540,13 +540,13 @@ static s32 func_801D3AB0(s32 arg0) {
                     g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                     func_801D2B58(4);
                 }
-            } else if (g_Pad1ButtonsPressed & PADRdown) {
+            } else if (g_Pad1KeysPressed & PADRdown) {
                 g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                 func_801D2B58(4);
             }
             break;
         case START_MENU_MODE_TITLE:
-            if (g_Pad1ButtonsPressed & PADRright) {
+            if (g_Pad1KeysPressed & PADRright) {
                 switch (D_801E3D80[7].row) {
                 case 0:
                     func_801D2B58(0xD0);
@@ -594,7 +594,7 @@ s32 func_801D4CC0(void) {
     func_801D39C4();
     D_801E3D58 = 0;
     for (i = 0;; i++) {
-        func_8001CB48();
+        InputUpdateKeyStates();
         func_800269C0(D_80077F64[D_801E3D58]);
         D_801E3D5C = (u_long*)D_801E3D60[D_801E3D58];
         ClearOTag(D_801E3D5C, 1);

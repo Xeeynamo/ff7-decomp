@@ -69,8 +69,8 @@ void func_800111E4(void) {
     if (!(Savemap.memory_bank_4[97] & 0x30)) {
         func_8001117C(0x2B);
     }
-    D_800707BC = D_8009ABF4.eventCmdParam;
-    g_BattleMode = D_8009ABF4.battleMode2;
+    D_800707BC = g_FieldState.eventCmdParam;
+    g_BattleMode = g_FieldState.battleMode2;
     g_BattleMode = D_800716D0 | g_BattleMode;
     func_800146A4();
     D_800716D0 = 0;

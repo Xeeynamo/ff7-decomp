@@ -251,7 +251,7 @@ int func_801D06B0(s32 arg0) {
     }
     switch (D_801E3850) {
     case 0:
-        if (g_Pad1ButtonsPressed & PADRright) {
+        if (g_Pad1KeysPressed & PADRright) {
             if (D_801E8F38[menus.D_801E379C[0].row][0]) {
                 func_801D0408(1);
                 if (D_801E8F38[menus.D_801E379C[0].row][2]) {
@@ -275,11 +275,11 @@ int func_801D06B0(s32 arg0) {
         } else {
             func_800264A8(&menus.D_801E379C[0]);
             if (D_801E36B8 != 0) {
-                if (g_Pad1ButtonsPressed & PADRdown) {
+                if (g_Pad1KeysPressed & PADRdown) {
                     func_801D0408(4);
                     D_801E36B0 = 2;
                 }
-            } else if (g_Pad1ButtonsPressed & PADRdown) {
+            } else if (g_Pad1KeysPressed & PADRdown) {
                 func_801D0408(4);
                 func_801D0670();
                 func_8002305C(5, 0);
@@ -291,12 +291,12 @@ int func_801D06B0(s32 arg0) {
         var_s0 = menus.D_801E379C[1].unkF;
         func_801D2DA8(&menus.D_801E379C[1]);
         if ((menus.D_801E379C[1].unkF == 0) && (var_s0 == 0)) {
-            if (g_Pad1ButtonsPressed & PADRright) {
+            if (g_Pad1KeysPressed & PADRright) {
                 D_801E3850 = 7;
                 func_80026448(&menus.D_801E3808[1], 0, 0, 1, 2, 0, 0, 1, 2, 0,
                               0, 0, 1, 0);
                 func_801D0408(1);
-            } else if (g_Pad1ButtonsPressed & PADRdown) {
+            } else if (g_Pad1KeysPressed & PADRdown) {
                 func_801D0408(4);
                 D_801E3850 = 0;
             }
@@ -357,7 +357,7 @@ int func_801D06B0(s32 arg0) {
         break;
     case 6:
         func_800264A8(&menus.D_801E3808[0]);
-        if (g_Pad1ButtonsPressed & PADRright) {
+        if (g_Pad1KeysPressed & PADRright) {
             if (menus.D_801E3808[0].row) {
                 D_801E3850 = 0;
                 func_801D0408(4);
@@ -377,13 +377,13 @@ int func_801D06B0(s32 arg0) {
                     func_801D0408(3);
                 }
             }
-        } else if (g_Pad1ButtonsPressed & PADRdown) {
+        } else if (g_Pad1KeysPressed & PADRdown) {
             D_801E3850 = 0;
             func_801D0408(4);
         }
         break;
     case 7:
-        if (g_Pad1ButtonsPressed & PADRright) {
+        if (g_Pad1KeysPressed & PADRright) {
             temp_s0_2 = menus.D_801E3808[1].row;
             switch (menus.D_801E3808[1].row) {
             case 0:
@@ -396,7 +396,7 @@ int func_801D06B0(s32 arg0) {
                 D_801E3850 = temp_s0_2;
                 break;
             }
-        } else if (g_Pad1ButtonsPressed & PADRdown) {
+        } else if (g_Pad1KeysPressed & PADRdown) {
             D_801E3850 = 1;
             func_801D0408(4);
         } else {
@@ -425,7 +425,7 @@ s32 func_801D1774(void) {
     func_801D05C0(1);
     D_801E36B4 = 0;
     while (1) {
-        func_8001CB48();
+        InputUpdateKeyStates();
         func_800269C0(D_80077F64[D_801E36B4]);
         D_801E3854 = (u_long*)D_801E3858[D_801E36B4];
         ClearOTag(D_801E3854, 1);
