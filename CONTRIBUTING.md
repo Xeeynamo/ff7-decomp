@@ -52,9 +52,8 @@ However, We blame don't the LLM for making sub-par code. A tool is only as good 
 But before you submit that PR that was coded by your friendly neighborhood robot, ask yourself a few questions.
 
 
-- How does it help us?
-
-What story does this tell about how things actually function under the hood? Can you tell us what you discovered about the original author's intent? Can you explain what the code actually does?
+- Submitted decompiled code must byte match and follow the original developer's intention. Raw code that closely resembles machine-generated artifact has no place to exist in this project.
+- Naming symbols such as function names, variables and structs is not required as part of decompiling code. Renaming a symbol must be a high-confidence change, also confirmed with a debugger. Wrong symbol names are harmful code debt.
 
 - How does it help others?
 
