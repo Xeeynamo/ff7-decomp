@@ -55,9 +55,7 @@ But before you submit that PR that was coded by your friendly neighborhood robot
 - Submitted decompiled code must byte match and follow the original developer's intention. Raw code that closely resembles machine-generated artifact has no place to exist in this project.
 - Naming symbols such as function names, variables and structs is not required as part of decompiling code. Renaming a symbol must be a high-confidence change, also confirmed with a debugger. Wrong symbol names are harmful code debt.
 
-- How does it help others?
-
-There is an underlying mission to this project. The source code for Final Fantasy VII has been lost to time, and we have become stewards working to help bring it back. The reconstructed code can benefit other developers, gamers, speedrunners, researchers, and potentially even Square Enix themselves. We are looking for contributions that reflect and support this mission.
+- The reconstructed source code you will submit aims to save what has been lost to time. What you will bring back will be helpful to developers, modders, speedrunners, researchers and to the Square Enix team themselves. We are looking for contributions that reflect this mission.
 
 - You do not need to know assembly or MIPS to start with the project. We strongly recommend to get in touch before proposing your first changes. If you are not a programmer, supporting the project with documentation through debugging and code analysis is also accepted.
 
