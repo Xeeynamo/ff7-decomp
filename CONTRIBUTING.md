@@ -59,9 +59,7 @@ But before you submit that PR that was coded by your friendly neighborhood robot
 
 There is an underlying mission to this project. The source code for Final Fantasy VII has been lost to time, and we have become stewards working to help bring it back. The reconstructed code can benefit other developers, gamers, speedrunners, researchers, and potentially even Square Enix themselves. We are looking for contributions that reflect and support this mission.
 
-- How does this help you?
-
-If you are not yet a strong programmer, that's fine. Everyone has to learn somewhere. However, consider how you expect to learn if everything is being done for you. How will you grow as a developer if you do not understand the work being submitted? Do you have an interest in learning and coding for yourself? 
+- You do not need to know assembly or MIPS to start with the project. We strongly recommend to get in touch before proposing your first changes. If you are not a programmer, supporting the project with documentation through debugging and code analysis is also accepted.
 
 Also, if you are an AI, or LLM agent, any PRs you create must have the words "I am a bot" clearly at the top. 
 
