@@ -45,13 +45,13 @@ s32 SysGetMateriaActivatedStars(u8, s32);
 s32 SysAddCommandToTemp(s32);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 u8 func_8001F6B4();
-void func_8001F6E4(
+void SysMenuSetPosAddWindow(
     s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
-void func_80026A34(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
+void SysMenuSetDrawMode(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
 
 u8 func_8001F6B4(void) { return D_80062DDB; }
 
-void func_8001F6C0(u8* arg0, s8 arg1) {
+void SysMenuRequestAddWindow(u8* arg0, s8 arg1) {
     D_80062DDB = 1;
     D_80062DDC = arg1;
     D_80062DE0 = 0x28;
@@ -59,7 +59,7 @@ void func_8001F6C0(u8* arg0, s8 arg1) {
     D_80062DE5 = 1;
 }
 
-void func_8001F6E4(s16 arg0, s16 arg1, s16 arg2) {
+void SysMenuSetPosAddWindow(s16 arg0, s16 arg1, s16 arg2) {
     D_80062DE4 = arg0;
     if (arg0) {
         D_80062DE6 = arg1;
@@ -69,9 +69,9 @@ void func_8001F6E4(s16 arg0, s16 arg1, s16 arg2) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_8001F710);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawAddWindow);
 
-void func_8001FA28(u16 arg0) {
+void SysMenuSound(u16 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
@@ -94,29 +94,29 @@ void func_8001FAAC(u16 arg0) {
 
 void func_8001FAF0(void) {}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_8001FAF8);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuGetInventoryRestrictionMask);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_8001FBAC);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysGetPlayerBaseAttackDefense);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_8001FCDC);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddStats);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_8001FE6C);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddElementalDefense);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_8001FF50);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddAttackType);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_8001FF8C);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddStatusAttackBit);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_8001FFD4);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddStatusProtectBit);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_8002001C);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddStatusProtect);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80020058);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysInitPlayerStatFromEquip);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_800206E4);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpBySaveCharId);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80020B68);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpByPartyId);
 
-void func_80021044(DRAWENV* draw_env, DISPENV* disp_env) {
+void SysMenuCreateDrawenvDispenv(DRAWENV* draw_env, DISPENV* disp_env) {
     VSync(0);
     SetDefDrawEnv(draw_env, 0, 0, 0x180, 0x1D8);
     draw_env[0].dfe = 1;
@@ -151,7 +151,7 @@ void func_800211B8(s32 arg0) { D_80062DEC = arg0; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_800211C4);
 
-void func_8002120C(s32 arg0) {
+void SysMenuLoadMenuFileById(s32 arg0) {
     s32 prev;
 
     prev = D_80062DD4;
@@ -178,25 +178,25 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80021E70);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80021F58);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80022B5C);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawBattleResult);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80022DE4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80022FE0);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80023050);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuGetMenuListState);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_8002305C);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuSetMenuListAnimation);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_800230C4);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawMenuList);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_8002368C);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuInitInput);
 
 // Extract the hours field (0-99) of the HH:MM play-time clock from a seconds
 // counter, capped at 99:59:59 (0x57E3F seconds). Returned as a plain decimal
-// (tens*10 + units) so the 2-digit number drawer renders it. func_8002382C
+// (tens*10 + units) so the 2-digit number drawer renders it. SysGetMinutesFromSeconds
 // formats the matching minutes field.
-s32 func_80023788(s32 arg0) {
+s32 SysGetHoursFromSeconds(s32 arg0) {
     s32 var_a0;
 
     var_a0 = arg0;
@@ -208,13 +208,13 @@ s32 func_80023788(s32 arg0) {
            ((var_a0 % D_80049474[0]) / D_80049474[1]);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_8002382C);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysGetMinutesFromSeconds);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80023940);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysGetSecondsFromSeconds);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80023AC4);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuClose);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80023AD4);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawMainMenu);
 
 // Push the current display and draw environments to the GPU: the per-frame
 // double-buffer flip (activate the finished buffer for scanout, point drawing
@@ -224,7 +224,7 @@ static void func_80024A04(void) {
     PutDrawEnv(&D_80070700);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80024A3C);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuShow);
 
 void func_80024D88(s32 arg0) {
     func_800211C4(0xD);
@@ -346,20 +346,20 @@ void func_80025130(s32 arg0) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025174);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025288);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuRemoveItem);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025310);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuSearchItem);
 
-void func_80025360() { func_8001FA28(0x19F); }
+void func_80025360() { SysMenuSound(0x19F); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025380);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuAddItem);
 
-s32 func_8002542C(s32 arg0) {
+s32 SysMenuAddMateria(s32 arg0) {
     s32 i;
     for (i = 0; i < MAX_MATERIA_COUNT; i++) {
         if (Savemap.materia[i] == -1) {
             Savemap.materia[i] = arg0;
-            if (func_8002603C(arg0 & 0xFF) == 10) {
+            if (SysMenuGetMateriaColorByType(arg0 & 0xFF) == 10) {
                 Savemap.memory_bank_1[75] |= 1;
             }
             if ((arg0 & 0xFF) == 44) {
@@ -377,7 +377,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_800254E4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025514);
 
-void func_80025648(void) {}
+void SysMenuRemoveMateria(void) {}
 
 void func_80025650(void) {}
 
@@ -421,11 +421,11 @@ void* GetPartySlotWeaponMateriaSlots(s32 arg0) {
     return var_v0;
 }
 
-ArmorRecord* func_80025758(s32 armorId) { return &g_ArmorTable[armorId]; }
+ArmorRecord* SysGetArmorAddressById(s32 armorId) { return &g_ArmorTable[armorId]; }
 
-s32* func_80025774(s32 arg0) { return (s32*)&g_AccessoryTable[arg0]; }
+s32* SysGetAccessoryAddressById(s32 arg0) { return (s32*)&g_AccessoryTable[arg0]; }
 
-ActiveCharacterData* func_80025788(s32 partyId) {
+ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId) {
     if (Savemap.partyID[partyId] != 0xFF) {
         return &g_ActiveCharacters[partyId];
     }
@@ -438,11 +438,11 @@ u8* GetCharacterName(s32 battleCharId) {
     return Savemap.party[g_BattleCharIdToCharId[battleCharId]].name;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025800);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuRemoveHpByPartyId);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SystemMenuAddHpByPartyId);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025988);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuRemoveMpByPartyId);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SystemMenuAddMpByPartyId);
 
@@ -488,7 +488,7 @@ void func_80025C54(u_long* image) {
     LoadImage(&rect, image);
 }
 
-void func_80025C94(u_long* image) {
+void SysMenuLoadCharacterClutFromRam(u_long* image) {
     RECT rect;
     rect.x = 0x100;
     rect.y = 0x1ED;
@@ -497,7 +497,7 @@ void func_80025C94(u_long* image) {
     LoadImage(&rect, image);
 }
 
-void func_80025CD4(u_long* image) {
+void SysMenuStoreCharacterClutToRam(u_long* image) {
     RECT rect;
     rect.x = 0x100;
     rect.y = 0x1ED;
@@ -506,7 +506,7 @@ void func_80025CD4(u_long* image) {
     StoreImage(&rect, image);
 }
 
-void func_80025D14(u_long* addr, s32 px, s32 py, s32 cx, s32 cy) {
+void SysMenuLoadImg(u_long* addr, s32 px, s32 py, s32 cx, s32 cy) {
     TIM_IMAGE tim;
     OpenTIM(addr);
     while (ReadTIM(&tim)) {
@@ -526,7 +526,7 @@ void func_80025D14(u_long* addr, s32 px, s32 py, s32 cx, s32 cy) {
 }
 
 // this function seems to be responsible of loading the characters' portrait
-void func_80025DF8(void) {
+void SysMenuLoadAvatars(void) {
     u8 dummy[8];
     u8 buf[0x1000];
     u_long* dst;
@@ -543,7 +543,7 @@ void func_80025DF8(void) {
         func_80033F40(sector_off[i * 2], length[i * 2], dst, 0);
         cx = 0x340 + (i / 5) * 0x18;
         cy = 0x100 + (i % 5) * 0x30;
-        func_80025D14(dst, cx, cy, 0x180, i);
+        SysMenuLoadImg(dst, cx, cy, 0x180, i);
         DrawSync(0);
     }
 }
@@ -552,7 +552,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025ED4);
 
 void func_80026034(void) {}
 
-s32 func_8002603C(u8 arg0) {
+s32 SysMenuGetMateriaColorByType(u8 arg0) {
     return D_80049520[D_80049528[g_MateriaData[arg0].materiaType & 0xF]];
 }
 

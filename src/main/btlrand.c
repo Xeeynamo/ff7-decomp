@@ -16,9 +16,13 @@ void SysIncSeedForRandom(void) {
     D_80062E18 &= 7;
 }
 
-u8 SysGetRandomByteFromTable(void) { return D_80083084[D_80062E10[D_80062E18]++]; }
+u8 SysGetRandomByteFromTable(void) {
+    return D_80083084[D_80062E10[D_80062E18]++];
+}
 
-u8 SysGetRandomByteRange(s32 arg0) { return (SysGetRandomByteFromTable() * arg0) >> 8; }
+u8 SysGetRandomByteRange(s32 arg0) {
+    return (SysGetRandomByteFromTable() * arg0) >> 8;
+}
 
 u16 SysRandomTwoBytes(void) {
     u8 lo;

@@ -844,7 +844,8 @@ void func_800A6C04(s32 arg0) {
     s16 sp10;
 
     sp10 = (s16)D_801636B8[arg0].D_801636B8;
-    D_800F5F44.D_800F7DBE = func_800A5EB0(SysGetPtrToKernBattleTxtWithId(0x26), &sp10) + 0x100;
+    D_800F5F44.D_800F7DBE =
+        func_800A5EB0(SysGetPtrToKernBattleTxtWithId(0x26), &sp10) + 0x100;
     D_800F5F44.D_800F7DC0 = 0xF;
 }
 
@@ -2180,7 +2181,9 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0F04);
 
 void func_800B0FFC(s32 arg0, s32 arg1, s32 arg2, s16* arg3) {
     func_800A31A0(
-        arg0, 2, arg2, func_800A5EB0(SysGetPtrToUncompKernBattleTxtWithId(arg1), arg3) + 0x100);
+        arg0, 2, arg2,
+        func_800A5EB0(SysGetPtrToUncompKernBattleTxtWithId(arg1), arg3) +
+            0x100);
 }
 
 void func_800B1060(s32 arg0) { func_800A31A0(10, 2, 1, arg0); }

@@ -150,7 +150,7 @@ static u8 func_801D0118(u16 arg0) {
 static void func_801D014C(s16 x, s16 y, s32 value) {
     u8 uv = D_801D1AAC[value * 2 + 0];
     u8 page = D_801D1AAC[value * 2 + 1];
-    func_80028CA0(
+    SysMenuDrawTexturedRect(
         x, y, (uv & 3) * 16 + 96, (uv >> 2) * 16 + 64, 16, 16, page, 0);
 }
 
@@ -165,67 +165,67 @@ static void func_801D01C8(void) {
     u8* setting;
 
     y = D_801D24A0[1].y + 33;
-    func_80026F44(40, D_801D24A0[1].y + 14, D_801D1AE8[0], 5);
+    SysMenuDrawString(40, D_801D24A0[1].y + 14, D_801D1AE8[0], 5);
     for (i = 1; i < 9; i++) {
-        func_80026F44(40, y + (i - 1) * 18, D_801D1AE8[i], 5);
+        SysMenuDrawString(40, y + (i - 1) * 18, D_801D1AE8[i], 5);
     }
-    func_80026F44(40, y + (i - 1) * 18, D_801D1AE8[33], 5);
+    SysMenuDrawString(40, y + (i - 1) * 18, D_801D1AE8[33], 5);
     for (i = 0; i < 2; i++) {
-        func_80026F44(165 + i * 65, y, D_801D1AE8[15 + i],
+        SysMenuDrawString(165 + i * 65, y, D_801D1AE8[15 + i],
                       -((Savemap.config & 3) == i) & 7);
     }
     for (i = 0; i < 2; i++) {
-        func_80026F44(165 + i * 65, y + 18, D_801D1E48[i],
+        SysMenuDrawString(165 + i * 65, y + 18, D_801D1E48[i],
                       -(((Savemap.config >> 2) & 3) == i) & 7);
     }
     for (i = 0; i < 2; i++) {
-        func_80026F44(165 + i * 65, y + 0x24, D_801D1EA8[i],
+        SysMenuDrawString(165 + i * 65, y + 0x24, D_801D1EA8[i],
                       -(((Savemap.config >> 4) & 3) == i) & 7);
     }
     temp_s4 = y + 54;
-    func_80026F44(
+    SysMenuDrawString(
         165, temp_s4, D_801D1F08[0], -(((Savemap.config >> 6) & 3) == 0) & 7);
-    x = func_80026B70(D_801D1F08[0]);
-    func_80026F44(x + 175, temp_s4, D_801D1F08[1],
+    x = SysGetSingleStringWidth(D_801D1F08[0]);
+    SysMenuDrawString(x + 175, temp_s4, D_801D1F08[1],
                   -(((Savemap.config >> 6) & 3) == 1) & 7);
-    func_80026F44(x + func_80026B70(D_801D1F08[1]) + 185, temp_s4,
+    SysMenuDrawString(x + SysGetSingleStringWidth(D_801D1F08[1]) + 185, temp_s4,
                   D_801D1F08[2], -(((Savemap.config >> 6) & 3) == 2) & 7);
     for (i = 0; i < 2; i++) {
-        func_80026F44(165 + i * 65, y + 126, D_801D1F08[3 + i],
+        SysMenuDrawString(165 + i * 65, y + 126, D_801D1F08[3 + i],
                       -(((Savemap.config >> 8) & 3) == i) & 7);
     }
     for (i = 0; i < 3; i++) {
         _setting = D_801D248C[((Savemap.config >> 10) & 7) * 3 + i];
         setting = &D_801D248C[((Savemap.config >> 10) & 7) * 3];
-        func_80026F44(189 + i * 52, y + 0x90, D_801D1F08[12 + setting[i]], 7);
+        SysMenuDrawString(189 + i * 52, y + 0x90, D_801D1F08[12 + setting[i]], 7);
     }
-    func_80026F44(149, y + 0x90, D_801D1F08[16], 7);
+    SysMenuDrawString(149, y + 0x90, D_801D1F08[16], 7);
 
     // battle speed value
     rect.y = y + 72;
     rect.w = 8;
     rect.h = 11;
     rect.x = (Savemap.battle_speed >> 1) + 184;
-    func_80028030(&rect);
+    SysMenuDrawScrollbarSlider(&rect);
 
     // battle message speed value
     rect.y = y + 0x5A;
     rect.w = 8;
     rect.h = 11;
     rect.x = (Savemap.battle_msg_speed >> 1) + 184;
-    func_80028030(&rect);
+    SysMenuDrawScrollbarSlider(&rect);
 
     // field message speed value
     rect.y = y + 108;
     rect.w = 8;
     rect.h = 11;
     rect.x = (Savemap.field_msg_speed >> 1) + 184;
-    func_80028030(&rect);
+    SysMenuDrawScrollbarSlider(&rect);
 
     // speed values
     for (i = 0; i < 3; i++) {
-        func_80026F44(157, y + 72 + i * 18 + 2, D_801D1F08[7], 7);
-        func_80026F44(324, y + 72 + i * 18 + 2, D_801D1F08[6], 7);
+        SysMenuDrawString(157, y + 72 + i * 18 + 2, D_801D1F08[7], 7);
+        SysMenuDrawString(324, y + 72 + i * 18 + 2, D_801D1F08[6], 7);
     }
 
     // speed bars
@@ -234,27 +234,27 @@ static void func_801D01C8(void) {
         rect.y = y + 72 + i * 18;
         rect.w = 136;
         rect.h = 11;
-        func_80027B84(&rect);
+        SysMenuDrawScrollbarTrack(&rect);
     }
 
     // magic order ID
-    func_80029114(173, y + 146, ((Savemap.config >> 0xA) & 7) + 1, 1, 7);
+    SysMenuDrawDigitsWithLeadingZeroes(173, y + 146, ((Savemap.config >> 0xA) & 7) + 1, 1, 7);
 
     rect.x = 0;
     rect.y = 0;
     rect.w = 0x100;
     rect.h = 0x100;
-    func_80026A34(0, 1, 0x1F, &rect);
+    SysMenuSetDrawMode(0, 1, 0x1F, &rect);
 }
 
 // exported, see 800493C8
 void func_801D069C(void) {
     volatile s32 dummy;
     s32 i;
-    func_80026448(&D_801D24CC[0], 0, 0, 1, 10, 0, 0, 1, 10, 0, 0, 0, 1, 0);
-    func_80026448(&D_801D24CC[1], 0, 0, 2, 2, 0, 0, 2, 2, 0, 0, 1, 1, 0);
-    func_80026448(&D_801D24CC[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
-    func_80026448(&D_801D24CC[3], 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0);
+    SysMenuSetCursorMovement(&D_801D24CC[0], 0, 0, 1, 10, 0, 0, 1, 10, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(&D_801D24CC[1], 0, 0, 2, 2, 0, 0, 2, 2, 0, 0, 1, 1, 0);
+    SysMenuSetCursorMovement(&D_801D24CC[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(&D_801D24CC[3], 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0);
     D_801D1AA8 = 0;
     for (i = 0; i < LEN(g_MenuColors); i++) {
         D_801D252C[i] = g_MenuColors[i];

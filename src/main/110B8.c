@@ -55,7 +55,7 @@ s32 SysGetMateriaActivatedStars(u8, s32);
 void SysAddCommandToTemp(s32);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 u8 func_8001F6B4();
-void func_8001F6E4(s16, s16, s16);
+void SysMenuSetPosAddWindow(s16, s16, s16);
 
 void __main(void) {}
 

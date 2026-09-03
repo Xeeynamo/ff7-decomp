@@ -60,7 +60,7 @@ extern u8* D_800E48E0;
 
 void SysCalculateTotalLureGilPreemptiveValue(void);
 void SysInitPlayerStatFromMateria(s32);
-void func_80020058(s32);
+void SysInitPlayerStatFromEquip(s32);
 void SystemMenuAddHpByPartyId(s32 partyId, u16 hp);
 void SystemMenuAddMpByPartyId(s32 partyId, u16 mp);
 
@@ -4409,7 +4409,7 @@ void SystemRefreshParty(void) {
 
     for (i = 0; i < 3; i++) {
         if (Savemap.partyID[i] != 0xFF) {
-            func_80020058(i);
+            SysInitPlayerStatFromEquip(i);
             SysInitPlayerStatFromMateria(i);
         }
     }

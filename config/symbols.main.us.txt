@@ -1,9 +1,137 @@
 __main = 0x800110B8;
 __SN_ENTRY_POINT = 0x800110C0;
+SysBgFadeRender = 0x8001146C;
+SysBgRender = 0x8001155C;
+SysInitBase = 0x8001171C;
+SysInitDispenvDrawenv = 0x80011784;
+SysFieldRun = 0x80011860;
+SysInitAkaoEngine = 0x80011938;
+SysInitFieldFromSavemap = 0x80011AEC;
+SysInitNewGame = 0x80011BB4;
 main = 0x80011C1C;
-//SystemFadeInitPoly = 0x800128B8;
-//SystemFadeCopyScreen = 0x800129D0;
-
+SysFadeSetDrawMode = 0x80012840;
+SysFadeInitPoly = 0x800128B8;
+SysFadeCopyScreen = 0x800129D0;
+SysFadeSetPolyMonochrome = 0x80012A8C;
+SysFadeSetPolyRgbGradual = 0x80012DB0;
+SysFadeSetPolyRgbDirect = 0x800131B8;
+SysFadeStepsDec = 0x800134F4;
+SysFadeStepsInc = 0x80013564;
+SysFadeColorInterpolate = 0x800135C0;
+SysFadeSetPolyRgbInterpolate = 0x80013624;
+SysFadeBgUpdate = 0x80013800;
+SysFadeUpdate = 0x800138EC;
+SysBattleSwirlUpdate = 0x80013C9C;
+SysBattleSwirlRender = 0x800140A4;
+SysBattleSwirlInit = 0x800140F4;
+SysLoadUncompressImg = 0x80014980;
+SysLoadDrawSync = 0x800149E0;
+SysGetLsbNumber = 0x80014A38;
+SysCountActiveBits = 0x80014A58;
+SysSelectRandomBit = 0x80014A84;
+SysAddSubWithMaxMinBound = 0x80014B08;
+SysIncSeedForRandom = 0x80014B54;
+SysGetRandomByteFromTable = 0x80014B70;
+SysGetRandomByteRange = 0x80014BA8;
+SysRandomTwoBytes = 0x80014BE4;
+SysGetPointerToTextInKernWithBlockAndTextId = 0x80014D9C;
+SysDecompKernStringWithF9 = 0x800150E4;
+SysGetPtrToKernBattleTxtWithId = 0x800151F4;
+SysGetPtrToUncompKernBattleTxtWithId = 0x8001521C;
+SysKernGetString = 0x80015248;
+SysGetLimitCmdId = 0x80015AFC;
+SysGzipSetDataBlock = 0x80015B44;
+SysGzipGetType = 0x80015B50;
+SysGzipGetSize = 0x80015B88;
+SysGzipPackDecompressNextBlock = 0x80015BC0;
+SysGzipPackDecompressById = 0x80015C3C;
+SysGzipBinDecompress = 0x80015CA0;
+SysGzipAllocWorkspace = 0x80015D14;
+SysGzipBuildHuffman = 0x80015D64;
+SysGzipFreeHuffman = 0x80016320;
+SysGzipLinkHuffman = 0x80016340;
+SysGzipDeflateUncompressed = 0x800166C0;
+SysGzipDeflateFixedHuffman = 0x80016808;
+SysGzipDeflateDynamicHuffman = 0x800169B8;
+SysGzipDeflateBlockParse = 0x80016F90;
+SysGzipDeflateParse = 0x8001708C;
+SysGzipDecompress = 0x80017108;
+SysCalculateTotalLureGilPreemptiveValue = 0x80017678;
+SysInitPlayerStatFromMateria = 0x8001786C;
+SysAddPairMateriaWithSlotCheck = 0x80017E68;
+SysAddPairMateriaUnordered = 0x80017F38;
+SysAddPairMateriaOrdered = 0x80018028;
+SysAddPairWithElemental = 0x80018220;
+SysAddPairWithAddedEffect = 0x800182FC;
+SysAddPairWithCounter = 0x80018390;
+SysAddPairWithMagicCounter = 0x8001840C;
+SysAddPairWithSneakFinalAttack = 0x800184C0;
+SysAddPairMasterMateriaWithCounter = 0x800185A8;
+SysAddPairCommandWithCounter = 0x80018630;
+SysAddPairMagicWithMagicCounter = 0x80018834;
+SysAddPairSummonWithMagicCounter = 0x80018934;
+SysAddPairSummonWithMpTurbo = 0x80018A04;
+SysAddPairMasterSummonWithMpTurbo = 0x80018AB0;
+SysAddPairMasterMagicWithMpTurbo = 0x80018B14;
+SysAddPairMagicWithMpTurbo = 0x80018BB8;
+SysAddPairWithMpTurbo = 0x80018C94;
+SysAddPairFlagToCommandMagicSummon = 0x80018D4C;
+SysAddPairFlagToSummon = 0x80018E18;
+SysAddPairFlagToAllSummons = 0x80018E90;
+SysAddPairFlagToActiveCommand = 0x80018ECC;
+SysAddPairFlagToAllActiveCommands = 0x80018FC0;
+SysAddPairFlagToAllMagics = 0x80019064;
+SysAddPairFlagToMagic = 0x800190E8;
+SysAddPairWithQuadraMagic = 0x800191A0;
+SysAddPairMagicWithQuadraMagic = 0x80019254;
+SysAddPairMasterMagicWithQuadraMagic = 0x80019338;
+SysAddPairSummonWithQuadraMagic = 0x8001937C;
+SysAddPairMasterSummonWithQuadraMagic = 0x800193F4;
+SysAddPairWithAll = 0x80019440;
+SysAddPairMasterMagicWithAll = 0x800194BC;
+SysAddPairMagicWithAll = 0x80019544;
+SysSearchExistedCommand = 0x80019608;
+SysSearchExistedMagic = 0x8001964C;
+SysParseMegaallMateria = 0x80019690;
+SysParseMateriaEquip = 0x800197B8;
+SysAddMateriaEquipStatBonus = 0x80019978;
+SysAddMateriaX2 = 0x80019D1C;
+SysAddMateria30 = 0x80019D74;
+SysAddMateriaCounterAttack = 0x80019DA0;
+SysAddMateriaLongRange = 0x80019E4C;
+SysAddMateria12 = 0x80019E84;
+SysAddMateriaX3 = 0x80019F90;
+SysAddMateriaX5 = 0x8001A174;
+SysAddMateria35 = 0x8001A1C8;
+SysAddMateria25 = 0x8001A280;
+SysAddMateriaX4 = 0x8001A384;
+SysAddMateriaX7 = 0x8001A3B8;
+SysAddMateriaX8 = 0x8001A440;
+SysAddMateriaXa = 0x8001A4A8;
+SysAddMateriaXc = 0x8001A518;
+SysAddMateriaX0 = 0x8001A5B4;
+SysAddMateria00 = 0x8001A684;
+SysAddMateria20 = 0x8001A780;
+SysAddMateria40 = 0x8001A874;
+SysAddMateriaX1 = 0x8001A980;
+SysAddMateria21 = 0x8001A9CC;
+SysAddMateria41 = 0x8001AB1C;
+SysGetMateriaActivatedStars = 0x8001AC9C;
+SysCopyBoostedStatToUnitStructure = 0x8001AEE4;
+SysAddMateriaXb = 0x8001B4A0;
+SysCopySummonToUnitStructure = 0x8001B570;
+SysAddMateriaX9 = 0x8001B5E4;
+SysAddMateriaX6 = 0x8001B704;
+SysAddCommandToTemp = 0x8001B834;
+SysRemoveStealIfMug = 0x8001B8A8;
+SysCopyAndSortCommand = 0x8001B944;
+SysGetCommandOrder = 0x8001BA54;
+SysCopyCommandToUnitStructure = 0x8001BB30;
+SysCopyTempMagicToUnitStructure = 0x8001BC18;
+SysAddMagicToTemp = 0x8001BCE8;
+SysAddMagicSummonSkillToUnitStructure = 0x8001BD50;
+SysInitPlayerTempStat = 0x8001BDB0;
+SysSortMagicInUnitStructure = 0x8001C0EC;
 InputInit = 0x8001C434;
 TutorialInit = 0x8001C484;
 InputReadPad1Raw = 0x8001C498;
@@ -548,163 +676,161 @@ g_ReverbMode = 0x8009A140;
 g_ReverbAttr = 0x8009C564; // type:SpuReverbAttr size:0x14
 D_8009D44C = 0x8009D44C;
 
-SysBgFadeRender = 0x8001146C;
-SysBgRender = 0x8001155C;
-SysInitBase = 0x8001171C;
-SysInitDispenvDrawenv = 0x80011784;
-SysFieldRun = 0x80011860;
-
-SysInitAkaoEngine = 0x80011938;
-
-SysInitFieldFromSavemap = 0x80011AEC;
-SysInitNewGame = 0x80011BB4;
 
 
+SysMenuTutorialSetTextToShow = 0x8001C4E8;
 
-SysFadeSetDrawMode = 0x80012840;
-SysFadeInitPoly = 0x800128B8;
-SysFadeCopyScreen = 0x800129D0;
-SysFadeSetPolyMonochrome = 0x80012A8C;
-SysFadeSetPolyRgbGradual = 0x80012DB0;
-SysFadeSetPolyRgbDirect = 0x800131B8;
-SysFadeStepsDec = 0x800134F4;
-SysFadeStepsInc = 0x80013564;
-SysFadeColorInterpolate = 0x800135C0;
-SysFadeSetPolyRgbInterpolate = 0x80013624;
-SysFadeBgUpdate = 0x80013800;
-SysFadeUpdate = 0x800138EC;
-SysBattleSwirlUpdate = 0x80013C9C;
-SysBattleSwirlRender = 0x800140A4;
-SysBattleSwirlInit = 0x800140F4;
-
-
-SysLoadUncompressImg = 0x80014980;
-SysLoadDrawSync = 0x800149E0;
-
-
-
-SysGetLsbNumber = 0x80014A38;
-SysCountActiveBits = 0x80014A58;
-SysSelectRandomBit = 0x80014A84;
-SysAddSubWithMaxMinBound = 0x80014B08;
-SysIncSeedForRandom = 0x80014B54;
-SysGetRandomByteFromTable = 0x80014B70;
-SysGetRandomByteRange = 0x80014BA8;
-SysRandomTwoBytes = 0x80014BE4;
+SysMenuTutorialUpdateScript = 0x8001C5BC;
+SysMenuTutorialUpdateGetButtons = 0x8001C788;
 
 
 
 
 
-
-
-SysGetPointerToTextInKernWithBlockAndTextId = 0x80014D9C;
-
-
-
-SysDecompKernStringWithF9 = 0x800150E4;
-SysGetPtrToKernBattleTxtWithId = 0x800151F4;
-SysGetPtrToUncompKernBattleTxtWithId = 0x8001521C;
-SysKernGetString = 0x80015248;
-
-
-SysGetLimitCmdId = 0x80015AFC;
-
-
-SysGzipSetDataBlock = 0x80015B44;
-SysGzipGetType = 0x80015B50;
-SysGzipGetSize = 0x80015B88;
-SysGzipPackDecompressNextBlock = 0x80015BC0;
-SysGzipPackDecompressById = 0x80015C3C;
-SysGzipBinDecompress = 0x80015CA0;
-SysGzipAllocWorkspace = 0x80015D14;
-SysGzipBuildHuffman = 0x80015D64;
-SysGzipFreeHuffman = 0x80016320;
-SysGzipLinkHuffman = 0x80016340;
-SysGzipDeflateUncompressed = 0x800166C0;
-SysGzipDeflateFixedHuffman = 0x80016808;
-SysGzipDeflateDynamicHuffman = 0x800169B8;
-SysGzipDeflateBlockParse = 0x80016F90;
-SysGzipDeflateParse = 0x8001708C;
-SysGzipDecompress = 0x80017108;
+SysMenuDrawAvatar = 0x8001CF3C;
+SysMenuDrawAvatar2 = 0x8001D180;
 
 
 
+SysMenuDrawDialogString = 0x8001D6A8;
+SysMenuSetWindowRect = 0x8001DE0C;
+SysMenuMoveWindowRect = 0x8001DE24;
+SysMenuCopyWindowRect = 0x8001DE40;
+SysMenuStoreWindowColor = 0x8001DE70;
+SysMenuRestoreWindowColor = 0x8001DEB0;
+SysMenuSetWindowColor = 0x8001DEF0;
+SysMenuDrawColoredRect = 0x8001DF24;
+SysMenuDrawWindow = 0x8001E040;
+SysMenuDrawCursor = 0x8001EB2C;
+SysMenuDrawDialogTimer = 0x8001EC70;
+SysMenuDrawDialogDigits = 0x8001EF84;
 
-SysCalculateTotalLureGilPreemptiveValue = 0x80017678;
-SysInitPlayerStatFromMateria = 0x8001786C;
-SysAddPairMateriaWithSlotCheck = 0x80017E68;
-SysAddPairMateriaUnordered = 0x80017F38;
-SysAddPairMateriaOrdered = 0x80018028;
-SysAddPairWithElemental = 0x80018220;
-SysAddPairWithAddedEffect = 0x800182FC;
-SysAddPairWithCounter = 0x80018390;
-SysAddPairWithMagicCounter = 0x8001840C;
-SysAddPairWithSneakFinalAttack = 0x800184C0;
-SysAddPairMasterMateriaWithCounter = 0x800185A8;
-SysAddPairCommandWithCounter = 0x80018630;
-SysAddPairMagicWithMagicCounter = 0x80018834;
-SysAddPairSummonWithMagicCounter = 0x80018934;
-SysAddPairSummonWithMpTurbo = 0x80018A04;
-SysAddPairMasterSummonWithMpTurbo = 0x80018AB0;
-SysAddPairMasterMagicWithMpTurbo = 0x80018B14;
-SysAddPairMagicWithMpTurbo = 0x80018BB8;
-SysAddPairWithMpTurbo = 0x80018C94;
-SysAddPairFlagToCommandMagicSummon = 0x80018D4C;
-SysAddPairFlagToSummon = 0x80018E18;
-SysAddPairFlagToAllSummons = 0x80018E90;
-SysAddPairFlagToActiveCommand = 0x80018ECC;
-SysAddPairFlagToAllActiveCommands = 0x80018FC0;
-SysAddPairFlagToAllMagics = 0x80019064;
-SysAddPairFlagToMagic = 0x800190E8;
-SysAddPairWithQuadraMagic = 0x800191A0;
-SysAddPairMagicWithQuadraMagic = 0x80019254;
-SysAddPairMasterMagicWithQuadraMagic = 0x80019338;
-SysAddPairSummonWithQuadraMagic = 0x8001937C;
-SysAddPairMasterSummonWithQuadraMagic = 0x800193F4;
-SysAddPairWithAll = 0x80019440;
-SysAddPairMasterMagicWithAll = 0x800194BC;
-SysAddPairMagicWithAll = 0x80019544;
-SysSearchExistedCommand = 0x80019608;
-SysSearchExistedMagic = 0x8001964C;
-SysParseMegaallMateria = 0x80019690;
-SysParseMateriaEquip = 0x800197B8;
-SysAddMateriaEquipStatBonus = 0x80019978;
-SysAddMateriaX2 = 0x80019D1C;
-SysAddMateria30 = 0x80019D74;
-SysAddMateriaCounterAttack = 0x80019DA0;
-SysAddMateriaLongRange = 0x80019E4C;
-SysAddMateria12 = 0x80019E84;
-SysAddMateriaX3 = 0x80019F90;
-SysAddMateriaX5 = 0x8001A174;
-SysAddMateria35 = 0x8001A1C8;
-SysAddMateria25 = 0x8001A280;
-SysAddMateriaX4 = 0x8001A384;
-SysAddMateriaX7 = 0x8001A3B8;
-SysAddMateriaX8 = 0x8001A440;
-SysAddMateriaXa = 0x8001A4A8;
-SysAddMateriaXc = 0x8001A518;
-SysAddMateriaX0 = 0x8001A5B4;
-SysAddMateria00 = 0x8001A684;
-SysAddMateria20 = 0x8001A780;
-SysAddMateria40 = 0x8001A874;
-SysAddMateriaX1 = 0x8001A980;
-SysAddMateria21 = 0x8001A9CC;
-SysAddMateria41 = 0x8001AB1C;
-SysGetMateriaActivatedStars = 0x8001AC9C;
 
-SysCopyBoostedStatToUnitStructure = 0x8001AEE4;
-SysAddMateriaXb = 0x8001B4A0;
-SysCopySummonToUnitStructure = 0x8001B570;
-SysAddMateriaX9 = 0x8001B5E4;
-SysAddMateriaX6 = 0x8001B704;
-SysAddCommandToTemp = 0x8001B834;
-SysRemoveStealIfMug = 0x8001B8A8;
-SysCopyAndSortCommand = 0x8001B944;
-SysGetCommandOrder = 0x8001BA54;
-SysCopyCommandToUnitStructure = 0x8001BB30;
-SysCopyTempMagicToUnitStructure = 0x8001BC18;
-SysAddMagicToTemp = 0x8001BCE8;
-SysAddMagicSummonSkillToUnitStructure = 0x8001BD50;
-SysInitPlayerTempStat = 0x8001BDB0;
-SysSortMagicInUnitStructure = 0x8001C0EC;
+
+SysMenuRequestAddWindow = 0x8001F6C0;
+SysMenuSetPosAddWindow = 0x8001F6E4;
+SysMenuDrawAddWindow = 0x8001F710;
+SysMenuSound = 0x8001FA28;
+
+
+
+SysMenuGetInventoryRestrictionMask = 0x8001FAF8;
+SysGetPlayerBaseAttackDefense = 0x8001FBAC;
+SysAddStats = 0x8001FCDC;
+SysAddElementalDefense = 0x8001FE6C;
+SysAddAttackType = 0x8001FF50;
+SysAddStatusAttackBit = 0x8001FF8C;
+SysAddStatusProtectBit = 0x8001FFD4;
+SysAddStatusProtect = 0x8002001C;
+SysInitPlayerStatFromEquip = 0x80020058;
+SysMenuDrawCharNameLvHpMpBySaveCharId = 0x800206E4;
+SysMenuDrawCharNameLvHpMpByPartyId = 0x80020B68;
+SysMenuCreateDrawenvDispenv = 0x80021044;
+
+
+SysMenuLoadMenuFileById = 0x8002120C;
+
+
+
+
+
+
+
+
+SysMenuDrawBattleResult = 0x80022B5C;
+
+
+SysMenuGetMenuListState = 0x80023050;
+SysMenuSetMenuListAnimation = 0x8002305C;
+SysMenuDrawMenuList = 0x800230C4;
+SysMenuInitInput = 0x8002368C;
+SysGetHoursFromSeconds = 0x80023788;
+SysGetMinutesFromSeconds = 0x8002382C;
+SysGetSecondsFromSeconds = 0x80023940;
+SysMenuClose = 0x80023AC4;
+SysMenuDrawMainMenu = 0x80023AD4;
+
+SysMenuShow = 0x80024A3C;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SysMenuRemoveItem = 0x80025288;
+SysMenuSearchItem = 0x80025310;
+
+SysMenuAddItem = 0x80025380;
+SysMenuAddMateria = 0x8002542C;
+
+
+
+SysMenuRemoveMateria = 0x80025648;
+
+
+
+
+SysGetArmorAddressById = 0x80025758;
+SysGetAccessoryAddressById = 0x80025774;
+SysGetPartyPlayerStructureAddressByPartyId = 0x80025788;
+
+SysMenuRemoveHpByPartyId = 0x80025800;
+
+SysMenuRemoveMpByPartyId = 0x80025988;
+
+
+
+
+
+
+
+
+SysMenuLoadCharacterClutFromRam = 0x80025C94;
+SysMenuStoreCharacterClutToRam = 0x80025CD4;
+SysMenuLoadImg = 0x80025D14;
+SysMenuLoadAvatars = 0x80025DF8;
+
+
+SysMenuGetMateriaColorByType = 0x8002603C;
+
+
+
+
+
+SysMenuSetCursorMovement = 0x80026448;
+SysMenuHandleButtons = 0x800264A8;
+SysMenuSetPoly = 0x800269C0;
+
+
+SysMenuSetOtag = 0x80026A00;
+
+
+SysMenuSetDrawMode = 0x80026A34;
+SysMenuSetDrawenv = 0x80026A94;
+
+
+SysGetSingleStringWidth = 0x80026B70;
+SysMenuDrawSingleLetter = 0x80026C5C;
+SysMenuDrawString = 0x80026F44;
+SysMenuDrawSingleFontLetter = 0x8002708C;
+SysMenuDraw8widthFont = 0x80027354;
+SysMenuDrawHpMpBar = 0x80027408;
+
+SysMenuDrawScrollbarTrack = 0x80027B84;
+SysMenuDrawScrollbarSlider = 0x80028030;
+SysMenuDrawScrollbar = 0x80028484;
+SysMenuDrawProgressBar = 0x800285AC;
+
+SysMenuDrawTexturedRect = 0x80028CA0;
+SysMenuDrawDigitsWithoutLeadingZeroes = 0x80028E00;
+SysMenuDrawDigitsWithLeadingZeroes = 0x80029114;
