@@ -1197,9 +1197,9 @@ void SystemAkaoExecute(void*, s32, s32, void**);
 // Generic AKAO sound-command dispatcher: the first vararg's low 16 bits are
 // the command id, which selects how many trailing u32 params get copied into
 // the D_8009A004 queue before calling SystemAkaoExecute.
-void BattleCommandSend(void* arg0, ...) {
-    void** args = &arg0;
-    u32* dst = arg0;
+void BattleCommandSend(s32 cmdId, ...) {
+    void** args = (void**)&cmdId;
+    u32* dst = (u32*)cmdId;
     u32* src;
     s32 cmd = *(u16*)args;
     s32 count;

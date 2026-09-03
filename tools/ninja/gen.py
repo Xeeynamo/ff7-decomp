@@ -431,5 +431,6 @@ with open("build.ninja", "w") as f:
         # MAGIC
         "barrier",
         "lv5deth",
+        "brizad",
     ]:
         add_splat_config(os.path.join(work_dir, f"{ovl}.yaml"))

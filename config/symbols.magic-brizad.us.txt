@@ -1,0 +1,9 @@
+BrizadRenderIce = 0x801B0000;
+BrizadSpawnIce = 0x801B018C;
+BrizadAttachToTargetUnused = 0x801B028C;
+BrizadAttachToTarget = 0x801B02D4;
+BrizadDoubleBufferFlip = 0x801B031C;
+MAGIC_Brizad = 0x801B037C;
+BrizadRenderDesc = 0x801B1004; // size:0x10
+BrizadPrimBuffer = 0x801B1014;
+BrizadBufferPtr = 0x801D1014;
