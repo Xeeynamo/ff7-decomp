@@ -39,11 +39,11 @@ s32 D_80062DC8 = 0x00000000;
 s32 D_80062F9C;
 s32 D_80062FF0;
 
-void func_8001155C(void);
+void SysBgRender(void);
 void func_80014A00(s32* dst, s32* src, s32 len);
-u16* func_80014D9C(s32, s32, s32);
-s32 func_800150E4(u16*, u16*);
-u16* func_800151F4(s32);
+u16* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
+s32 SysDecompKernStringWithF9(u16*, u16*);
+u16* SysGetPtrToKernBattleTxtWithId(s32);
 void func_80015CA0(GzHeader* src, s32* dst);
 s32 func_8001AC9C(u8, s32);
 s32 func_8001B834(s32);

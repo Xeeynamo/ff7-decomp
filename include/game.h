@@ -1037,9 +1037,9 @@ SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
 MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
 void SystemError(char c, long n);
 
-void func_80014B54(void);
-s32 func_8001521C(s32);
-const char* func_80015248(s32 arg0, s32 arg1, s32 arg2);
+void SysIncSeedForRandom(void);
+s32 SysGetPtrToUncompKernBattleTxtWithId(s32);
+const char* SysKernGetString(s32 arg0, s32 arg1, s32 arg2);
 void func_800155A4(s32, ...);
 void func_8001726C(s16, u16);
 u32 InputReadPadsRaw(void);

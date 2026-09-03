@@ -313,7 +313,7 @@ s32 CalcTotalExp(BatresRow* r, s32 level) {
 s32 RollGrowthRank(s32 arg0) {
     s32 v;
 
-    v = arg0 + (func_80014B70() & 7) + 1;
+    v = arg0 + (SysGetRandomByteFromTable() & 7) + 1;
     if (v < 0) {
         v = 0;
     } else if ((u32)v >= 12) {

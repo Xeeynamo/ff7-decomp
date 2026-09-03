@@ -547,3 +547,62 @@ g_AkaoMusicAltMask = 0x8009A12C;
 g_ReverbMode = 0x8009A140;
 g_ReverbAttr = 0x8009C564; // type:SpuReverbAttr size:0x14
 D_8009D44C = 0x8009D44C;
+
+SysBgFadeRender = 0x8001146C;
+SysBgRender = 0x8001155C;
+SysInitBase = 0x8001171C;
+SysInitDispenvDrawenv = 0x80011784;
+SysFieldRun = 0x80011860;
+
+SysInitAkaoEngine = 0x80011938;
+
+SysInitFieldFromSavemap = 0x80011AEC;
+SysInitNewGame = 0x80011BB4;
+
+
+
+SysFadeSetDrawMode = 0x80012840;
+SysFadeInitPoly = 0x800128B8;
+SysFadeCopyScreen = 0x800129D0;
+SysFadeSetPolyMonochrome = 0x80012A8C;
+SysFadeSetPolyRgbGradual = 0x80012DB0;
+SysFadeSetPolyRgbDirect = 0x800131B8;
+SysFadeStepsDec = 0x800134F4;
+SysFadeStepsInc = 0x80013564;
+SysFadeColorInterpolate = 0x800135C0;
+SysFadeSetPolyRgbInterpolate = 0x80013624;
+SysFadeBgUpdate = 0x80013800;
+SysFadeUpdate = 0x800138EC;
+SysBattleSwirlUpdate = 0x80013C9C;
+SysBattleSwirlRender = 0x800140A4;
+SysBattleSwirlInit = 0x800140F4;
+
+
+SysLoadUncompressImg = 0x80014980;
+SysLoadDrawSync = 0x800149E0;
+
+
+
+SysGetLsbNumber = 0x80014A38;
+SysCountActiveBits = 0x80014A58;
+SysSelectRandomBit = 0x80014A84;
+SysAddSubWithMaxMinBound = 0x80014B08;
+SysIncSeedForRandom = 0x80014B54;
+SysGetRandomByteFromTable = 0x80014B70;
+SysGetRandomByteRange = 0x80014BA8;
+SysRandomTwoBytes = 0x80014BE4;
+
+
+
+
+
+
+
+SysGetPointerToTextInKernWithBlockAndTextId = 0x80014D9C;
+
+
+
+SysDecompKernStringWithF9 = 0x800150E4;
+SysGetPtrToKernBattleTxtWithId = 0x800151F4;
+SysGetPtrToUncompKernBattleTxtWithId = 0x8001521C;
+SysKernGetString = 0x80015248;

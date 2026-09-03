@@ -61,7 +61,7 @@ void func_800146A4(void) {
             func_80014658(BATTLE_BROM, D_800A00CC);
             break;
         case 2:
-            func_800140F4();
+            SysBattleSwirlInit();
             func_80014658(BATTLE_BATTLE, D_800A1158);
             break;
         default:

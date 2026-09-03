@@ -161,10 +161,10 @@ static void func_800DD690(s32 arg0, s16 arg1) {
         if (temp_v1 < NUM_SETUP) {
             setupType = -(temp_v1 <= SETUP_BACK_ATTACK) & 7;
         }
-        func_80026F44(8, 7, func_80015248(5, 0x12, 8), setupType);
+        func_80026F44(8, 7, SysKernGetString(5, 0x12, 8), setupType);
         break;
     case 3:
-        func_80026F44(9, 7, func_80015248(5, 0x13, 8), 7);
+        func_80026F44(9, 7, SysKernGetString(5, 0x13, 8), 7);
         break;
     case 24:
         func_800E33A0();

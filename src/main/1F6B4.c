@@ -35,11 +35,11 @@ u32 D_80062EC4;
 u32 D_80062EC8;
 s32 D_80062ECC;
 
-void func_8001155C(void);
+void SysBgRender(void);
 void func_80014A00(s32* dst, s32* src, s32 len);
-u16* func_80014D9C(s32, s32, s32);
-s32 func_800150E4(u16*, u16*);
-u16* func_800151F4(s32);
+u16* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
+s32 SysDecompKernStringWithF9(u16*, u16*);
+u16* SysGetPtrToKernBattleTxtWithId(s32);
 void func_80015CA0(GzHeader* src, s32* dst);
 s32 func_8001AC9C(u8, s32);
 s32 func_8001B834(s32);
@@ -162,9 +162,9 @@ void func_8002120C(s32 arg0) {
     }
 }
 
-const char* func_80021258(s32 arg0) { return func_80015248(13, arg0, 8); }
+const char* func_80021258(s32 arg0) { return SysKernGetString(13, arg0, 8); }
 
-void func_80021280(s32 arg0) { func_80015248(4, arg0, 8); }
+void func_80021280(s32 arg0) { SysKernGetString(4, arg0, 8); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_800212A8);
 

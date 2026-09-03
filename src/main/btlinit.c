@@ -16,9 +16,9 @@ void func_80014934(void) {
     func_80015C3C(0x801B0000, D_8009C738, KERNEL_INIT);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", func_80014980);
+INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", SysLoadUncompressImg);
 
-void func_800149E0(void) { DrawSync(0); }
+void SysLoadDrawSync(void) { DrawSync(0); }
 
 void func_80014A00(s32* dst, s32* src, s32 len) {
     int i;
@@ -27,7 +27,7 @@ void func_80014A00(s32* dst, s32* src, s32 len) {
     }
 }
 
-s32 func_80014A38(u32 arg0) {
+s32 SysGetLsbNumber(u32 arg0) {
     s32 i;
     for (i = 0;; i++) {
         arg0 >>= 1;
@@ -37,7 +37,7 @@ s32 func_80014A38(u32 arg0) {
     }
 }
 
-s32 func_80014A58(u32 arg0) {
+s32 SysCountActiveBits(u32 arg0) {
     s32 i;
     i = 0;
     while (arg0) {
@@ -49,6 +49,6 @@ s32 func_80014A58(u32 arg0) {
     return i;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", func_80014A84);
+INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", SysSelectRandomBit);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", func_80014B08);
+INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", SysAddSubWithMaxMinBound);
