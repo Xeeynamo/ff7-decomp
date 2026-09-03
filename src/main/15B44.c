@@ -13,9 +13,9 @@ typedef struct {
 
 static u8* s_Bin;
 
-void func_80015B44(u8* arg0) { s_Bin = arg0; }
+void SysGzipSetDataBlock(u8* arg0) { s_Bin = arg0; }
 
-u16 func_80015B50(void) {
+u16 SysGzipGetType(void) {
     u16 zippedSize;
     u16 type;
 
@@ -27,7 +27,7 @@ u16 func_80015B50(void) {
     return type;
 }
 
-u16 func_80015B88(void) {
+u16 SysGzipGetSize(void) {
     u16 zippedSize;
     u16 size;
 
@@ -39,7 +39,7 @@ u16 func_80015B88(void) {
     return size;
 }
 
-s32 func_80015BC0(u8* dst) {
+s32 SysGzipPackDecompressNextBlock(u8* dst) {
     u16 zippedSize;
     s32 size;
 
@@ -55,7 +55,7 @@ s32 func_80015BC0(u8* dst) {
 
 // Load kernel section by type.
 // https://wiki.ffrtt.ru/index.php/FF7/Kernel/Low_level_libraries#BIN-GZIP_Type_Archives
-s32 func_80015C3C(u8* src, void* dst, s32 type) {
+s32 SysGzipPackDecompressById(u8* src, void* dst, s32 type) {
     u16 zippedSize;
     s32 size;
 
@@ -70,7 +70,7 @@ s32 func_80015C3C(u8* src, void* dst, s32 type) {
     return size;
 }
 
-void func_80015CA0(GzHeader* src, s32* dst) {
+void SysGzipBinDecompress(GzHeader* src, s32* dst) {
     s32 i;
     s32* var_s1;
     u32 len;

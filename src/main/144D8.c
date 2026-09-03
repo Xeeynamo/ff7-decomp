@@ -3,11 +3,11 @@
 
 void func_80014A00(s32* dst, s32* src, s32 len);
 u8* func_80014C80(s32 arg0);
-void func_80015CA0(GzHeader* src, s32* dst);
-void func_80015B44(u8* arg0);
-u16 func_80015B50(void);
-u16 func_80015B88(void);
-u32 func_80015BC0(u8* dst);
+void SysGzipBinDecompress(GzHeader* src, s32* dst);
+void SysGzipSetDataBlock(u8* arg0);
+u16 SysGzipGetType(void);
+u16 SysGzipGetSize(void);
+u32 SysGzipPackDecompressNextBlock(u8* dst);
 
 // obtain file sector from a YamadaFile
 s32 func_800144D8(s32 file_no) { return D_80048D84[file_no].loc; }
@@ -48,7 +48,7 @@ void func_80014610(void) {
 void func_80014658(s32 file_no, void (*cb)(void)) {
     func_80014578(file_no, (void*)0x801B0000, 0);
     func_800145BC(0);
-    func_80015CA0((GzHeader*)0x801B0000, (s32*)0x800A0000);
+    SysGzipBinDecompress((GzHeader*)0x801B0000, (s32*)0x800A0000);
     cb();
 }
 
@@ -75,17 +75,17 @@ void func_80014750(void) {
     s32 temp_a0;
     s32 temp_s0;
 
-    func_80015B44(0x801B0000);
+    SysGzipSetDataBlock(0x801B0000);
     while (1) {
-        temp_s0 = func_80015B50() & 0xFFFF;
+        temp_s0 = SysGzipGetType() & 0xFFFF;
         if (temp_s0 == 0xFFFF) {
             break;
         }
-        temp_a0 = func_80015B88() & 0xFFFF;
+        temp_a0 = SysGzipGetSize() & 0xFFFF;
         if (temp_s0 == 9) {
-            func_80015BC0(func_80014C80(temp_a0));
+            SysGzipPackDecompressNextBlock(func_80014C80(temp_a0));
         } else if (D_80048DD4[temp_s0]) {
-            func_80015BC0(D_80048DD4[temp_s0]);
+            SysGzipPackDecompressNextBlock(D_80048DD4[temp_s0]);
         }
     }
 }

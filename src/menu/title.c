@@ -618,9 +618,9 @@ s32 func_801D4CC0(void) {
     for (i = 0; i < 3; i++) {
         if (Savemap.partyID[i] != 0xFF) {
             func_80020058(i);
-            func_8001786C((u8)i);
+            SysInitPlayerStatFromMateria((u8)i);
         }
     }
-    func_80017678();
+    SysCalculateTotalLureGilPreemptiveValue();
     return ret;
 }

@@ -2,10 +2,10 @@
 #include "main_private.h"
 #include "unzip.h"
 
-void func_80015B44(u8* arg0);
+void SysGzipSetDataBlock(u8* arg0);
 u8* func_80014C80(s32 arg0);
-u16 func_80015B50(void);
-u16 func_80015B88(void);
+u16 SysGzipGetType(void);
+u16 SysGzipGetSize(void);
 extern u8 D_80083084[];
 
 extern u8 D_80062D98;
@@ -50,10 +50,10 @@ void func_80014A00(s32* dst, s32* src, s32 len);
 u16* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
 s32 SysDecompKernStringWithF9(u16*, u16*);
 u16* SysGetPtrToKernBattleTxtWithId(s32);
-void func_80015CA0(GzHeader* src, s32* dst);
-s32 func_8001AC9C(u8, s32);
-void func_8001B834(s32);
-void func_8001BD50(u8, u8, u8);
+void SysGzipBinDecompress(GzHeader* src, s32* dst);
+s32 SysGetMateriaActivatedStars(u8, s32);
+void SysAddCommandToTemp(s32);
+void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 u8 func_8001F6B4();
 void func_8001F6E4(s16, s16, s16);
 
@@ -131,14 +131,14 @@ void SysFieldRun(void) {
                     break;
                 }
             }
-            func_80015CA0((GzHeader*)0x80180000, (s32*)0x800A0000);
+            SysGzipBinDecompress((GzHeader*)0x80180000, (s32*)0x800A0000);
         } else {
             while (1) {
                 if (SystemCdromReadChain() == 0) {
                     break;
                 }
             }
-            func_80015CA0((GzHeader*)0x801C0000, (s32*)0x800A0000);
+            SysGzipBinDecompress((GzHeader*)0x801C0000, (s32*)0x800A0000);
         }
     }
     func_800CF60C();

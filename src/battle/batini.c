@@ -313,7 +313,7 @@ void func_801B137C(s32 arg0) {
     }
 }
 
-s32 func_80015AFC(s32, s32); // extern
+s32 SysGetLimitCmdId(s32, s32); // extern
 
 typedef struct {
     /* 00 */ u8 materiaID[3];
@@ -339,7 +339,7 @@ void func_801B13DC(s32 arg0, s32 arg1, Unk801B13DC* arg2) {
     for (i = 0; i < 3; i++) {
         if (arg2->materiaID[i] != 0xFF) {
             for (j = 0; j < 12; j++) {
-                if (func_80015AFC(arg0, j) == arg2->materiaID[i]) {
+                if (SysGetLimitCmdId(arg0, j) == arg2->materiaID[i]) {
                     break;
                 }
             }

@@ -104,4 +104,4 @@ INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80015668);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_800159B0);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80015AFC);
+INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysGetLimitCmdId);

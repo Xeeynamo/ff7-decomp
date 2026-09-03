@@ -15,7 +15,7 @@ typedef s32 (*SortCmp)(s32, s32, s32*);
 typedef void (*SortSwap)(s32, s32, s32*);
 static s32 Quicksort(s32, s32, SortCmp, SortSwap);
 
-s32 func_80015AFC(s32, s32);
+s32 SysGetLimitCmdId(s32, s32);
 void func_80025D14(u_long*, s32, s32, s32, s32);
 void func_80028CA0(s16, s16, s32, s32, s32, s32, s32, s32);
 extern u16 D_80062F50;
@@ -470,7 +470,7 @@ s32 func_801D0D24(s32 arg0) {
     s32 mask;
     s32 i;
     for (i = 0, mask = 0; i < 10; i++) {
-        if (func_80015AFC(arg0, i) != 0x7F) {
+        if (SysGetLimitCmdId(arg0, i) != 0x7F) {
             mask |= 1 << i;
         }
     }

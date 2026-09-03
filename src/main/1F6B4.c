@@ -40,10 +40,10 @@ void func_80014A00(s32* dst, s32* src, s32 len);
 u16* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
 s32 SysDecompKernStringWithF9(u16*, u16*);
 u16* SysGetPtrToKernBattleTxtWithId(s32);
-void func_80015CA0(GzHeader* src, s32* dst);
-s32 func_8001AC9C(u8, s32);
-s32 func_8001B834(s32);
-void func_8001BD50(u8, u8, u8);
+void SysGzipBinDecompress(GzHeader* src, s32* dst);
+s32 SysGetMateriaActivatedStars(u8, s32);
+s32 SysAddCommandToTemp(s32);
+void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 u8 func_8001F6B4();
 void func_8001F6E4(
     s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition

@@ -3,7 +3,7 @@
 
 void func_80014578(s32 file_no, void* dst, void (*cb)(void));
 void func_800145BC(void (*cb)(void));
-s32 func_80015C3C(u8* src, void* dst, s32 type);
+s32 SysGzipPackDecompressById(u8* src, void* dst, s32 type);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", func_800148A0);
 
@@ -13,7 +13,7 @@ void func_80014934(void) {
     func_800148A0();
     func_80014578(INIT_KERNEL, (void*)0x801B0000, 0);
     func_800145BC(0);
-    func_80015C3C(0x801B0000, D_8009C738, KERNEL_INIT);
+    SysGzipPackDecompressById(0x801B0000, D_8009C738, KERNEL_INIT);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", SysLoadUncompressImg);
