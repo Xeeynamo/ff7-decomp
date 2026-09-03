@@ -41,6 +41,12 @@ void MODULENAME_FunctionAccessibleOutsideTheOverlay(void) {
 }
 ```
 
+## Prohibited C keywords
+
+* `register` use is strictly prohibited. It is just an assembly artifact, not true C code.
+* `volatile` is generally discouraged, unless it's used on tight `while` loops
+
+
 ## Style patterns
 
 The following rules must be followed, unless:
@@ -82,23 +88,27 @@ if (ptr) {
 
 ```c
 // when you see return in a switch, they're most likely not real
-switch (value) {
-case 0:
-    return;
-case 1:
-    return;
-case 2:
-    return;
+void Func(void) {
+    switch (value) {
+    case 0:
+        return;
+    case 1:
+        return;
+    case 2:
+        return;
+    }
 }
 
 // you should use break instead
-switch (value) {
-case 0:
-    break;
-case 1:
-    break;
-case 2:
-    break;
+void Func(void) {
+    switch (value) {
+    case 0:
+        break;
+    case 1:
+        break;
+    case 2:
+        break;
+    }
 }
 ```
 
@@ -112,7 +122,6 @@ void Func(void) {
 // you must remove it
 void Func(void) {
     ...
-    return;
 }
 ```
 
@@ -175,8 +184,3 @@ void func_80123456(s32 arg0) {
     }
 }
 ```
-
-## Prohibited C keywords
-
-* `register` use is strictly prohibited. It is just an assembly artifact, not true C code.
-* `volatile` is generally discouraged, unless it's used on tight `while` loops
