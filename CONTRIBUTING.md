@@ -31,10 +31,7 @@ All Pull Requests should clearly explain and justify the changes being proposed.
 
 When opening a Pull Request, please ensure that:
 
-* ‼️ Your changes are clearly described.
-* ‼️ The purpose of the changes is explained.
 * Your approach can be justified.
-* ‼️ Your commit messages accurately describe the changes.
 * You understand and can explain the code you are submitting.
 * You are prepared to take responsibility for the submitted changes.
 
