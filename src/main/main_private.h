@@ -137,11 +137,6 @@ extern Yamada D_80048CFC[];
 extern Yamada D_80048D84[];
 extern s32 D_80048DD4[];
 extern PortraitEntry D_80048FE8[15];
-// Map between battle character IDs and index into character record array.
-// Battle characters have IDs 0-10. 9 and 10 are young Cloud and Sephiroth from
-// flashback sequence and they use same character records as Cait Sith and
-// Vincent.
-extern u8 D_80049208[12]; // menu color RGB-quadruplet
 extern s32 D_80049224[8];
 extern s32 D_80049474[];  // play-clock divisors: 36000 (seconds per 10 hours),
                           // 3600 (seconds per hour)

@@ -500,6 +500,7 @@ _patch_card2 = 0x80048BEC;
 _ExitCard = 0x80048C7C;
 g_ElementIdToBitmask = 0x800491B0;
 g_BattleCharIdToCharId = 0x800491D0;
+g_MenuColors = 0x80049208;
 D_80049500 = 0x80049500;
 g_AkaoWaveTableKey = 0x8004A5CC;
 D_80062D78 = 0x80062D78;

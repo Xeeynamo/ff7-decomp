@@ -173,7 +173,7 @@ void func_801B0F08(void) {
     for (i = 0; i < 3; i++) {
         t = &g_CombatantTurnState.turn[i];
         party = &g_CombatantTurnState.party[i];
-        rec = &D_8009D84C[i];
+        rec = &g_ActiveCharacters[i];
         c = &g_BattleState.combatant[i];
         setup = &g_CombatantTurnState.setup[i];
         id = D_8009CBDC[i];
@@ -244,7 +244,7 @@ void func_801B11BC(s32 arg0) {
     s32 id;
     s32 i;
 
-    e = &D_8009D84C[arg0];
+    e = &g_ActiveCharacters[arg0];
     e->unk21 = 1;
     for (i = 0; i < 16; i++) {
         flags = 0xFF;
@@ -301,7 +301,7 @@ void func_801B137C(s32 arg0) {
     s32 i;
     ActiveCharacterData* data;
 
-    data = &D_8009D84C[arg0];
+    data = &g_ActiveCharacters[arg0];
     data->unk21 = 1;
     for (i = 1; i < 4; i++) {
         data->commandMenu[i].id = 0xFF;

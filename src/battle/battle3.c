@@ -43,10 +43,10 @@ static void func_800D8AF0(u16 arg0) {
 }
 
 void func_800D8B2C(void) {
-    if (D_80062D99) {
+    if (g_SavemapBusy) {
         func_800D8AF0(0x98);
     }
-    D_80062D99 = 0;
+    g_SavemapBusy = 0;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D8B60);
@@ -355,7 +355,7 @@ void func_800E0274(void) { func_800E53C8(); }
 void func_800E0294(void) {
     u8* temp_s0;
 
-    temp_s0 = &D_8009D84C[D_800F38A1].unkAC[0];
+    temp_s0 = &g_ActiveCharacters[D_800F38A1].unkAC[0];
     if (D_800F3896 == 0x1B && D_800F99E4 == 0) {
         if (g_Pad1KeysRepeat & PADRright) {
             if (func_800E54EC() == 2) {
@@ -646,7 +646,7 @@ void func_800E15D8(void) {
         D_800F3110 = 0;
     }
     D_80062D98 = 0;
-    D_80062D99 = 0;
+    g_SavemapBusy = 0;
     D_800F198C = battleSceneData->limitReadyMask;
     D_800F57CC = (Savemap.config >> 4) & 3;
 }
@@ -708,7 +708,7 @@ s32 func_800E1A2C(void) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E1AC0);
 
 void func_800E1C40(void) {
-    ActiveCharacterData* activeCharacters = D_8009D84C;
+    ActiveCharacterData* activeCharacters = g_ActiveCharacters;
     s16 i;
     s32 hp;
     s32 mp;

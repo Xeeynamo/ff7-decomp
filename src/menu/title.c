@@ -131,7 +131,7 @@ s32 func_801D3698(s32 arg0, s32 arg1) {
         if (arg0) {
             var_a0 |= 0x10;
         }
-        if (func_801D1D40(var_a0) == 0) {
+        if (LoadSaveHeader(var_a0) == 0) {
             ret = 0;
             break;
         }
@@ -459,7 +459,7 @@ static s32 func_801D3AB0(s32 arg0) {
                 if (D_801E3F1C) {
                     D_801E3F18 = 0;
                     D_801E3F1C = 0;
-                    D_80062F3C = func_801D1C2C(D_801E3D80[0].row);
+                    D_80062F3C = GetSaveSlotMask(D_801E3D80[0].row);
                 } else {
                     var_s1 = 0;
                     if ((D_80062F3C >> D_801E3F20) & 1) {
@@ -493,12 +493,12 @@ static s32 func_801D3AB0(s32 arg0) {
                 D_801E3F18--;
                 break;
             }
-            D_80062D99 = 1;
+            g_SavemapBusy = 1;
             var_a0_3 = D_801E3D80[1].row + D_801E3D80[1].rowOffset;
             if (D_801E3D80[0].row) {
                 var_a0_3 |= 0x10;
             }
-            var_s1 = (s16)func_801D1F40(var_a0_3);
+            var_s1 = (s16)LoadSaveFile(var_a0_3);
             if (var_s1 == 0) {
                 if (Savemap.header.checksum !=
                     (u16)func_801D1950(
@@ -516,7 +516,7 @@ static s32 func_801D3AB0(s32 arg0) {
                 func_801D2B58(3);
                 func_8001F6C0(D_801E2CFC[11], var_s1);
             }
-            D_80062D99 = 0;
+            g_SavemapBusy = 0;
             break;
         case START_MENU_MODE_FORMAT_PROMPT:
             func_800264A8(&D_801E3DEC[0]);

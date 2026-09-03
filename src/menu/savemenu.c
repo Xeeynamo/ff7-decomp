@@ -307,7 +307,7 @@ int func_801D06B0(s32 arg0) {
             if (D_801E36A8) {
                 D_801E36A4 = 0;
                 D_801E36A8 = 0;
-                D_80062F3C = func_801D1C2C(menus.D_801E379C[0].row);
+                D_80062F3C = GetSaveSlotMask(menus.D_801E379C[0].row);
             } else {
                 var_s0 = 0;
                 if ((D_80062F3C >> D_801E36AC) & 1) {
@@ -516,54 +516,151 @@ static s32 func_801D1BE0(u8* arg0, u8* arg1) {
     }
 }
 
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D1C2C);
-#else
-u16 func_801D1C2C(s32 arg0) {
-    DIRENTRY sp10;
-    const char* memcard;
-    s32 i;
-    DIRENTRY* entry;
-    u16 var_s3;
+// "bu10:" is memory card slot 2, "bu00:" slot 1; the wildcard lists every
+// file on the card.
+static const char SaveSearchCard2[] = "bu10:*"; // D_801D017C
+static const char SaveSearchCard1[] = "bu00:*"; // D_801D0184
 
-    var_s3 = 0;
-    i = 0;
-    while (1) {
-        memcard = &D_801D0184;
-        if (arg0) {
-            memcard = &D_801D017C;
+// Returns a bitmask of which of the 15 FF7 save slots exist on the memory card
+// in `cardSlot`, bit N set when BASCUS-94163FF7-S(N+1) is present. Retries the
+// directory open up to 100 times, and gives up with an empty mask.
+u16 GetSaveSlotMask(s32 cardSlot) {
+    struct DIRENTRY dirEntry;
+    s32 i;
+    struct DIRENTRY* entry;
+    u16 slotMask;
+
+    slotMask = 0;
+    for (i = 0; i < 100; i++) {
+        if (cardSlot) {
+            entry = firstfile((char*)SaveSearchCard2, &dirEntry);
+        } else {
+            entry = firstfile((char*)SaveSearchCard1, &dirEntry);
         }
-        entry = firstfile2(memcard, &sp10);
         if (entry) {
             break;
         }
-        i++;
-        if (i >= 100) {
-            var_s3 = 0;
-            goto end;
-        }
     }
-    while (entry) {
-        for (i = 0; i < 15; i++) {
-            if (func_801D1BE0(entry->name, D_801E2C78[i]) != 0) {
-                var_s3 |= 1 << i;
-            }
-        }
-        entry = nextfile(entry);
-    }
-end:
-    return var_s3;
-}
-#endif
 
-const char D_801D018C[] = "bu10:%s";
-const char D_801D0194[] = "bu00:%s";
+    if (entry) {
+        while (entry) {
+            for (i = 0; i < 15; i++) {
+                if (func_801D1BE0(entry->name, (u8*)D_801E2C78[i]) != 0) {
+                    slotMask |= 1 << i;
+                }
+            }
+            entry = nextfile(entry);
+        }
+    } else {
+        slotMask = 0;
+    }
+    return slotMask;
+}
+
+static const char D_801D018C[] = "bu10:%s";
+static const char D_801D0194[] = "bu00:%s";
 
 SaveHeader* func_801D1D1C(s32 arg0) { return &D_801E3864[arg0]; }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D1D40);
+s32 LoadSaveHeader(s32 save_id) {
+    // Declared but never used, like the one GetSaveSlotMask passes to
+    // firstfile(); it still occupies its stack slot.
+    struct DIRENTRY dirEntry;
+    char path[0x20];
+    s32 fd;
+    s32 readCount;
+    s32 readRetry;
+    u8* headerSrc;
+    u8* headerDst;
+    SaveHeader* headers;
+    s32 slot;
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D1F40);
+    // Only the header page is needed to build the slot preview.
+    g_SaveWriteRemaining = 0x280;
+    if (save_id & 0x10) {
+        sprintf(path, D_801D018C, D_801E2C78[save_id & 15]);
+    } else {
+        sprintf(path, D_801D0194, D_801E2C78[save_id & 15]);
+    }
+    fd = open(path, 1);
+    if (fd == -1) {
+        return 1;
+    }
+    readRetry = 0x1E;
+    do {
+        readCount = read(fd, &g_SaveFile, g_SaveWriteRemaining);
+        if (readCount == g_SaveWriteRemaining) {
+            goto read_ok;
+        }
+        readRetry--;
+        if (readCount != -1) {
+            g_SaveWriteRemaining -= readCount;
+        }
+    } while (readRetry != 0);
+    close(fd);
+    return 2;
+read_ok:
+    close(fd);
+    slot = save_id & 15;
+    headers = D_801E3864;
+    headerDst = (u8*)&headers[slot];
+    headerSrc = g_SaveFileData;
+    memcpy(headerDst, headerSrc, sizeof(SaveHeader));
+    return 0;
+}
+
+s32 LoadSaveFile(s32 save_id) {
+    // Declared but never used, like the one GetSaveSlotMask passes to
+    // firstfile(); it still occupies its stack slot.
+    struct DIRENTRY dirEntry;
+    char path[0x20];
+    s32 fd;
+    s32 readCount;
+    s32 readRetry;
+    s32 i;
+    u8* saveSrc;
+    u8* saveDst;
+
+    // readCount doubles as a scratch copy of save_id here; the overlay
+    // stops matching if either reuse below is given its own variable.
+    readCount = save_id;
+    g_SaveWriteRemaining = sizeof(MemcardSaveFile);
+    if (readCount & 0x10) {
+        fd = readCount;
+        sprintf(path, D_801D018C, D_801E2C78[fd & 15]);
+    } else {
+        sprintf(path, D_801D0194, D_801E2C78[readCount & 15]);
+    }
+    fd = open(path, 1);
+    if (fd == -1) {
+        return 1;
+    }
+    readRetry = 0x1E;
+    do {
+        readCount = read(fd, &g_SaveFile, g_SaveWriteRemaining);
+        if (readCount == g_SaveWriteRemaining) {
+            goto read_ok;
+        }
+        // Counts up from 0x1E, so a persistent error spins until it
+        // wraps rather than giving up after 30 tries. LoadSaveHeader
+        // decrements here; this looks like a bug in the original.
+        readRetry++;
+        if (readCount != -1) {
+            g_SaveWriteRemaining -= readCount;
+        }
+    } while (readRetry != 0);
+    close(fd);
+    return 2;
+read_ok:
+    close(fd);
+    saveDst = (u8*)&Savemap;
+    saveSrc = g_SaveFileData;
+    memcpy(saveDst, saveSrc, sizeof(SaveWork));
+    for (i = 0; i < 12; i++) {
+        g_MenuColors[i] = Savemap.header.menu_color[i];
+    }
+    return 0;
+}
 
 static s32 func_801D2150(s8 arg0) {
     if (arg0 > -0x68 && arg0 < -0x60 || arg0 > -32 && arg0 < -3) {
@@ -572,7 +669,7 @@ static s32 func_801D2150(s8 arg0) {
     return 0;
 }
 
-s32 func_801D2184(s8 arg0) {
+static s32 func_801D2184(s8 arg0) {
     if (arg0 > -0x80 && arg0 < -0x60 || arg0 > -33 && arg0 < -3) {
         return 1;
     }
@@ -588,7 +685,7 @@ static void func_801D21B8(u8* arg0, u8* arg1) {
 
 static void func_801D21E0(s32 arg0) { D_801E2CB4 = arg0; }
 
-void func_801D21F0(u8* arg0, u8* arg1) {
+static void func_801D21F0(u8* arg0, u8* arg1) {
     s32 i;
     for (i = 0; i < D_801E2CB4; i++) {
         *arg0++ = *arg1;
@@ -599,11 +696,145 @@ void func_801D21F0(u8* arg0, u8* arg1) {
     }
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D224C);
+static void UpdateSaveHeader(void) {
+    s32 i;
+    u8 id;
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/savemenu", func_801D2408);
+    for (i = 0; i < 3; i++) {
+        Savemap.header.party_portraits[i] = Savemap.partyID[i];
+    }
+    func_801D21E0(0x10);
+    for (i = 0; i < 3; i++) {
+        id = Savemap.partyID[i];
+        if (id != 0xFF) {
+            func_801D21F0(Savemap.header.leader_name, Savemap.party[id].name);
+            Savemap.header.leader_level = Savemap.party[id].level;
+            Savemap.header.leader_hp = g_ActiveCharacters[i].hp;
+            Savemap.header.leader_hp_max = g_ActiveCharacters[i].baseHp;
+            Savemap.header.leader_mp = g_ActiveCharacters[i].mp;
+            Savemap.header.leader_mp_max = g_ActiveCharacters[i].baseMp;
+            break;
+        }
+    }
+    for (i = 0; i < 12; i++) {
+        Savemap.header.menu_color[i] = g_MenuColors[i];
+    }
+    Savemap.header.gil = Savemap.gil;
+    Savemap.header.time = Savemap.time;
+    func_801D21E0(0x18);
+    func_801D21F0(Savemap.header.place_name, &Savemap.memory_bank_4[104]);
+}
 
-const char* D_801E2CB8[] = {
+static s32 WriteSaveFile(s8* path, u8* title) {
+    u8 hour;
+    u8 minute;
+    u8 digit;
+    s32 existingFd;
+    s32 createdFd;
+    s32 fd;
+    s32 written;
+    s32 writeComplete;
+    s32 deleteRetry;
+    s32 createRetry;
+    s32 openRetry;
+    s32 writeRetry;
+    s32 i;
+    u8* reserved;
+    u8* savemapSrc;
+    u8* headerDst;
+    u8* iconClut;
+    // Never read, but the target reserves its 0x200 bytes on the stack.
+    MemcardFileHeader unused;
+
+    UpdateSaveHeader();
+    g_SaveWriteRemaining = sizeof(MemcardSaveFile);
+    g_SaveFileHeader.magic[0] = 'S';
+    g_SaveFileHeader.magic[1] = 'C';
+    g_SaveFileHeader.iconFlag = 0x11;
+    g_SaveFileHeader.blockCount = 1;
+    func_801D21B8(g_SaveFileHeader.title, title);
+    i = sizeof(g_SaveFileHeader.reserved) - 1;
+    reserved = &g_SaveFileHeader.reserved[i];
+    for (; i >= 0; i--) {
+        *reserved-- = 0;
+    }
+    hour = func_80023788(Savemap.header.time);
+    digit = ((hour / 10) * 2) + 0x20;
+    g_SaveFileHeader.title[0x16] = g_ShiftJisTable[digit];
+    g_SaveFileHeader.title[0x17] = g_ShiftJisTable[digit + 1];
+    digit = ((hour % 10) * 2) + 0x20;
+    g_SaveFileHeader.title[0x18] = g_ShiftJisTable[digit];
+    g_SaveFileHeader.title[0x19] = g_ShiftJisTable[digit + 1];
+    minute = func_8002382C(Savemap.header.time);
+    digit = ((minute / 10) * 2) + 0x20;
+    g_SaveFileHeader.title[0x1C] = g_ShiftJisTable[digit];
+    g_SaveFileHeader.title[0x1D] = g_ShiftJisTable[digit + 1];
+    digit = ((minute % 10) * 2) + 0x20;
+    g_SaveFileHeader.title[0x1E] = g_ShiftJisTable[digit];
+    g_SaveFileHeader.title[0x1F] = g_ShiftJisTable[digit + 1];
+    iconClut = &g_SaveIcons[g_SaveSlot * SAVE_ICON_SIZE];
+    memcpy(g_SaveFileHeader.iconPalette, iconClut,
+           sizeof(g_SaveFileHeader.iconPalette));
+    memcpy(g_SaveFileHeader.iconFrame[0],
+           &g_SaveIcons[(g_SaveSlot * SAVE_ICON_SIZE) + 0x2C],
+           sizeof(g_SaveFileHeader.iconFrame[0]));
+    headerDst = (u8*)&g_SaveFile.header;
+    memcpy(headerDst, (u8*)&g_SaveFileHeader, sizeof(MemcardFileHeader));
+    g_SavemapBusy = 1;
+    Savemap.header.checksum =
+        func_801D1950(0x10F0, (u8*)&Savemap.header.leader_level);
+    savemapSrc = (u8*)&Savemap;
+    memcpy((u8*)&g_SaveFile.save, savemapSrc, sizeof(SaveWork));
+    g_SavemapBusy = 0;
+
+    for (deleteRetry = 0; deleteRetry < 0xA; deleteRetry++) {
+        // The store into fd is dead; the overlay stops matching without it.
+        existingFd = fd = open(path, 1);
+        if (existingFd != -1) {
+            delete (path);
+            close(existingFd);
+            break;
+        }
+    }
+    for (createRetry = 0x1E; createRetry != 0; createRetry--) {
+        createdFd = open(path, (g_SaveFileHeader.blockCount << 0x10) | 0x200);
+        if (createdFd != -1) {
+            goto created;
+        }
+    }
+    return 1;
+created:
+    close(createdFd);
+    for (openRetry = 0x1E; openRetry != 0; openRetry--) {
+        fd = open(path, 2);
+        if (fd != -1) {
+            goto opened;
+        }
+    }
+    return 2;
+opened:
+    writeRetry = 0x1E;
+    do {
+        // Same: this copy is redundant but the overlay needs it.
+        createdFd = fd;
+        written = write(createdFd, &g_SaveFile, g_SaveWriteRemaining);
+        writeComplete = written == g_SaveWriteRemaining;
+        if (writeComplete) {
+            goto written_ok;
+        }
+        writeRetry--;
+        if (written != -1) {
+            g_SaveWriteRemaining -= written;
+        }
+    } while (writeRetry != 0);
+    close(createdFd);
+    return 3;
+written_ok:
+    close(createdFd);
+    return 0;
+}
+
+static const char* D_801E2CB8[] = {
     "ＦＦ７／ＳＡＶＥ０１／００：００", "ＦＦ７／ＳＡＶＥ０２／００：００",
     "ＦＦ７／ＳＡＶＥ０３／００：００", "ＦＦ７／ＳＡＶＥ０４／００：００",
     "ＦＦ７／ＳＡＶＥ０５／００：００", "ＦＦ７／ＳＡＶＥ０６／００：００",
@@ -625,8 +856,8 @@ static s16 func_801D2A34(s32 save_id) {
         sprintf(path, D_801D0194, D_801E2C78[save_id & 15]);
     }
     slot = save_id & 15;
-    D_801E3D50 = slot;
-    ret = func_801D2408(path, D_801E2CB8[slot]);
+    g_SaveSlot = slot;
+    ret = WriteSaveFile(path, (u8*)D_801E2CB8[slot]);
     if (!(s16)ret) {
         memcpy(&D_801E3864[slot], &Savemap.header, sizeof(SaveHeader));
     }

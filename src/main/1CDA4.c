@@ -18,7 +18,7 @@ u16 g_Pad2BattleKeysPrev = 0;
 u16 g_Pad2BattleKeysPressed = 0;
 u16 g_Pad2BattleKeysRepeat = 0;
 u8 D_80062D98 = 0x00;
-u8 D_80062D99 = 0x00;
+volatile u8 g_SavemapBusy = 0x00;
 static s16 D_80062D9A = 0x0000;
 s32 D_80062D9C = 0x00000000;
 s32 D_80062DA0 = 0x00140000;
@@ -413,7 +413,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1CDA4", func_8001DEB0);
 void func_8001DEF0(u8* menu_colors) {
     s32 i;
     for (i = 0; i < 12; i++) {
-        D_80049208[i] = *menu_colors++;
+        g_MenuColors[i] = *menu_colors++;
     }
 }
 

@@ -229,9 +229,7 @@ typedef union {
 typedef struct {
     u32 checksum;
     u8 leader_level;
-    u8 leader_portrait;
-    u8 portrait2;
-    u8 portrait3;
+    u8 party_portraits[3]; // lead, 2nd and 3rd character ids, 0xFF = empty
     s8 leader_name[0x10];
     u16 leader_hp;
     u16 leader_hp_max;
@@ -240,8 +238,8 @@ typedef struct {
     s32 gil;
     s32 time;
     s8 place_name[0x20];
-    s32 menu_color[3];
-} SaveHeader; // size: 0x54
+    u8 menu_color[12]; // 4 corners x RGB
+} SaveHeader;          // size: 0x54
 
 // partially inspired by Q-Gears 'VI. The Save game format'
 typedef struct {
@@ -286,6 +284,8 @@ typedef struct {
     /* 0x60 */ u32 materia_armor[8];
     /* 0x80 */ u32 exp_to_next_level;
 } SavePartyMember; // size:0x84
+
+// https://ff7-mods.github.io/ff7-flat-wiki/FF7/Savemap
 typedef struct {
     SaveHeader header;
     /* 0x54 */ SavePartyMember party[MAX_PARTY_COUNT];
@@ -910,12 +910,18 @@ extern u16 g_Pad1Keys;
 extern u16 g_Pad1KeysPressed;
 extern u16 g_Pad1KeysRepeat;
 
+// Map between battle character IDs and index into character record array.
+// Battle characters have IDs 0-10. 9 and 10 are young Cloud and Sephiroth from
+// flashback sequence and they use same character records as Cait Sith and
+// Vincent.
 extern s32 g_BattleCharIdToCharId[11];
-extern u8 D_80049208[12];   // window colors maybe??
+extern u8 g_MenuColors[12]; // 4 corners x RGB
 extern u8 D_800492F0[][12]; // see Labels enum
 extern FieldModelData* g_FieldModelData;
 extern u8 D_80062D98; // battle_clearRenderList
-extern u8 D_80062D99; // battle_isPaused
+// Set while a memory-card transfer is in flight and the savemap must not be
+// touched; battle code spin-waits on it.
+extern volatile u8 g_SavemapBusy;
 extern s32 D_80062DCC;
 extern s8 _D_80062DFD;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
@@ -1022,7 +1028,7 @@ extern BattleItemReward g_BattleItemsEarned[4];
 extern u8 D_8009D8F8[];
 extern u32 D_8009D260;
 extern volatile s32 D_8009D268[];
-extern ActiveCharacterData D_8009D84C[9];
+extern ActiveCharacterData g_ActiveCharacters[9];
 extern u8 D_8009FE8C;
 extern u8 D_800C7304[16];
 

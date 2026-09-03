@@ -107,7 +107,7 @@ static u8 D_801D24C0[] = {4, 0, 0, 0, 5, 0, 0, 0, 6, 0, 0, 0};
 static MenuTable D_801D24CC[4];
 static s32 unused[5];
 static s32 D_801D2528;
-static u8 D_801D252C[LEN(D_80049208)];
+static u8 D_801D252C[LEN(g_MenuColors)];
 
 static void func_801D0040(u16 arg0) {
     D_8009A000[0] = 0x30;
@@ -256,8 +256,8 @@ void func_801D069C(void) {
     func_80026448(&D_801D24CC[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
     func_80026448(&D_801D24CC[3], 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0);
     D_801D1AA8 = 0;
-    for (i = 0; i < LEN(D_80049208); i++) {
-        D_801D252C[i] = D_80049208[i];
+    for (i = 0; i < LEN(g_MenuColors); i++) {
+        D_801D252C[i] = g_MenuColors[i];
     }
 }
 
