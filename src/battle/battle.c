@@ -90,20 +90,16 @@ void func_800A283C(void) {
 
 void BATTLE_CheckAllLucky7s(void) {
     s32 i;
-    u16* count;
 
-    i = 0;
-    count = D_800F7DE2;
-    do {
+    for (i = 0; i < 3; i++) {
         if (g_BattleState.combatant[i].curHP == 7777 &&
             !(g_CombatantTurnState[i].unk29 & 0x80)) {
-            if ((*count)++ < 64) {
+            if ((*D_800F7DE2)++ < 64) {
                 g_CombatantTurnState[i].unk29 |= 0x80;
                 func_800A3E98(i, 1, 1, 0, 0);
             }
         }
-        i++;
-    } while (i < 3);
+    }
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2974);
@@ -199,7 +195,7 @@ void BATTLE_DropSupersededQueuedActions(void) {
     s32 none;
 
     none = -1;
-    for (i = 9; i >= 0; i--) {
+    for (i = 0; i < 10; i++) {
         slot[i] = none;
     }
     for (i = 0; i < D_800F3948; i++) {
@@ -781,7 +777,7 @@ s32 BATTLE_PickRandomThrowItem(void) {
     }
     if (n != 0) {
         pick = list[func_80014BA8(n)];
-        if ((u32)(pick - 0x80) < 0x80) {
+        if (pick >= 0x80 && pick < 0x100) {
             func_800A7254(0, 0, 0x10, pick);
             ret = pick;
         }
@@ -815,7 +811,7 @@ s32 BATTLE_ExpandScriptToBuffer(u8* src, u16* patch) {
     s32 i;
 
     len = func_800A5E0C(buf, src, patch);
-    if (D_800F4300 + len >= 0x801) {
+    if (D_800F4300 + len > 0x800) {
         D_800F4300 = 0;
     }
     slot = D_800F4304++;
@@ -2258,15 +2254,14 @@ void BATTLE_CalcMateriaSlotScore(void) {
         i = 0;
         none = -1;
         pm = D_800F5E60[slot].partyMember;
-        do {
+        for (; i < 8; i++) {
             if (pm->materia_weapon[i] != none) {
                 count++;
             }
             if (pm->materia_armor[i] != none) {
                 count++;
             }
-            i++;
-        } while (i < 8);
+        }
     }
     g_CurrentAction->unk214 = count * 1111;
 }

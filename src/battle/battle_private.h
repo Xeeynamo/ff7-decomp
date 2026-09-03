@@ -256,6 +256,7 @@ extern s8 D_800E7A58[];
 // checked in order against the 3 landed reel symbols (D_80163774) -- see
 // BATTLE_ResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
+extern void (*D_800E7BFC[])(void); // per-action epilogue hook
 extern Yamada D_800E8050[];
 extern VECTOR D_800E7D10;
 extern VECTOR D_800E7D20;
@@ -301,6 +302,9 @@ extern s32 D_800F38AC[];
 extern u8 D_800F38A0;
 extern u8 D_800F38A1;
 extern s16 D_800F38A2;
+extern s32 D_800F4300;  // write cursor into the shared script buffer
+extern s32 D_800F4304;  // slot cursor, wraps at 0x40
+extern u8 D_800F5F01[]; // per-slot accuracy bonus, 0x18 B stride
 extern u8 D_800F7E04[]; // part of a struct
 extern u8 D_800F7ED4;
 extern u8 D_800F38A7;
@@ -317,7 +321,7 @@ extern s32 D_800F39D8; // read index into D_800F3958
 extern s32 D_800F39DC; // write index into D_800F3958
 extern s32 D_800F39E0;
 extern s32 D_800F39E4;
-extern s32 D_800F39EC;
+extern volatile s32 D_800F39EC; // polled by a tight wait loop
 extern u8 D_800F39F0[][6];
 extern s32 D_800F3A1C;     // write index into D_800F3A20
 extern s16 D_800F3A20[16]; // ring buffer, see func_800A56B0
@@ -677,17 +681,3 @@ extern u8 D_80151698;
 extern u8 D_80166F74;
 extern u8 D_80166F75;
 extern BattleItemEntry D_801671B8[];
-
-extern u8 D_800708C8[]; // kernel-region table, 0x1C-byte rows, indexed by
-                        // attack/effect id
-extern WeaponRecord g_WeaponTable[]; // weapon kernel table, by weapon id
-extern AttackData D_800722CC[];      // shared magic/summon/skill table, by
-                                     // absoluteActionIndex
-extern u8 D_800708D0[][0x1C];        // kernel-region table, indexed by
-                                     // attack/effect id
-extern s16 D_8009D85C[];             // record fields, stride 0x440
-extern u8 D_800F5F01[];         // per-party-slot accuracy bonus, 0x18 B stride
-extern volatile s32 D_800F39EC; // polled by the battle-result wait loop
-extern s32 D_800F4300;          // write cursor into the shared script buffer
-extern s32 D_800F4304;          // slot cursor, wraps at 0x40
-extern void (*D_800E7BFC[])(void); // per-action epilogue hook, may be NULL

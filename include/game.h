@@ -970,6 +970,10 @@ extern CurrentCharMagicCommand D_80069554[56];
 extern u8* D_800707C0;
 extern BattleCommandData D_800707C4[32];
 extern AttackData D_800708C4[];
+extern u8 D_800708C8[];              // kernel-region table, 0x1C-byte rows
+extern u8 D_800708D0[][0x1C];        // kernel-region table, by attack/effect id
+extern AttackData D_800722CC[];      // magic/summon/skill table
+extern WeaponRecord g_WeaponTable[]; // 0x800738A0, by weapon id
 extern FieldEntity g_FieldEntity[];
 extern u8 D_800756E8[]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
@@ -1038,6 +1042,7 @@ extern u8 g_DebugLevel; // field debug related
 extern CharacterLevelData g_CharacterLevelData[3];
 extern u8 D_8009D824;
 extern s16 D_8009D828[]; // per-model base animation speed
+extern s16 D_8009D85C[]; // record fields, stride 0x440
 extern BattleItemReward g_BattleItemsEarned[4];
 extern u8 D_8009D8F8[];
 extern u32 D_8009D260;
