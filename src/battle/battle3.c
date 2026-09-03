@@ -415,7 +415,8 @@ void func_800E0528(void) {}
 void func_800E0530(void) {
     s32 i;
 
-    SysMenuSetCursorMovement(&D_800F9132, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
+    SysMenuSetCursorMovement(
+        &D_800F9132, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
     for (i = 1; i < 0x1C; i++) {
         if (D_800F514C[i] != 0) {
             func_800D9F5C(i);

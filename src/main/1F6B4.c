@@ -94,7 +94,8 @@ void func_8001FAAC(u16 arg0) {
 
 void func_8001FAF0(void) {}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuGetInventoryRestrictionMask);
+INCLUDE_ASM(
+    "asm/us/main/nonmatchings/1F6B4", SysMenuGetInventoryRestrictionMask);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysGetPlayerBaseAttackDefense);
 
@@ -112,9 +113,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddStatusProtect);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysInitPlayerStatFromEquip);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpBySaveCharId);
+INCLUDE_ASM(
+    "asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpBySaveCharId);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpByPartyId);
+INCLUDE_ASM(
+    "asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpByPartyId);
 
 void SysMenuCreateDrawenvDispenv(DRAWENV* draw_env, DISPENV* disp_env) {
     VSync(0);
@@ -194,8 +197,8 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuInitInput);
 
 // Extract the hours field (0-99) of the HH:MM play-time clock from a seconds
 // counter, capped at 99:59:59 (0x57E3F seconds). Returned as a plain decimal
-// (tens*10 + units) so the 2-digit number drawer renders it. SysGetMinutesFromSeconds
-// formats the matching minutes field.
+// (tens*10 + units) so the 2-digit number drawer renders it.
+// SysGetMinutesFromSeconds formats the matching minutes field.
 s32 SysGetHoursFromSeconds(s32 arg0) {
     s32 var_a0;
 
@@ -421,9 +424,13 @@ void* GetPartySlotWeaponMateriaSlots(s32 arg0) {
     return var_v0;
 }
 
-ArmorRecord* SysGetArmorAddressById(s32 armorId) { return &g_ArmorTable[armorId]; }
+ArmorRecord* SysGetArmorAddressById(s32 armorId) {
+    return &g_ArmorTable[armorId];
+}
 
-s32* SysGetAccessoryAddressById(s32 arg0) { return (s32*)&g_AccessoryTable[arg0]; }
+s32* SysGetAccessoryAddressById(s32 arg0) {
+    return (s32*)&g_AccessoryTable[arg0];
+}
 
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId) {
     if (Savemap.partyID[partyId] != 0xFF) {

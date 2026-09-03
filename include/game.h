@@ -1055,7 +1055,8 @@ void SysMenuSetCursorMovement(
     s32 unk10, s32 unk11, u16 scrolling);
 void SysMenuSetPoly(void* poly);
 s32 SysGetSingleStringWidth(unsigned char* str);
-void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
+void SysMenuDrawString(
+    s32 x, s32 y, const char*, s32 color); // print FF7 string
 int SystemAkaoExecute();
 
 int func_80033DAC(int sector_no, void (*cb)());

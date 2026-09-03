@@ -66,7 +66,8 @@ void func_801D01E8(u16 arg0) {
 }
 
 // Draws the type icon for an item at (arg0, arg1): maps the item id (arg2) to
-// one of several icon cells, then blits a 16x16 sprite via SysMenuDrawTexturedRect.
+// one of several icon cells, then blits a 16x16 sprite via
+// SysMenuDrawTexturedRect.
 void func_801D0228(s16 arg0, s16 arg1, s32 arg2) {
     s32 icon;
     if (arg2 < 0x80) {
@@ -444,12 +445,16 @@ static void ArrangeItems(s32 mode) {
 // func_801D131C if the player picks Arrange or Key Items instead, or by
 // func_801D1A6C if they back out to the tab selector (see ItemMenuScreen).
 // Reached from src/main/ovl.c's D_800493A8 per-screen entry table for
-// several item-menu pages, called out of SysMenuDrawMenuList in src/main/21D5C.c.
+// several item-menu pages, called out of SysMenuDrawMenuList in
+// src/main/21D5C.c.
 void func_801D0BA0(void) {
     D_801D3E48 = ITEMMENU_SCREEN_USE;
-    SysMenuSetCursorMovement(&D_801D3DDC[0], 0, 0, 3, 1, 0, 0, 3, 1, 0, 0, 1, 0, 0);
-    SysMenuSetCursorMovement(&D_801D3DDC[1], 0, 0, 1, 0xA, 0, 0, 1, 0x140, 0, 0, 0, 0, 0);
-    SysMenuSetCursorMovement(&D_801D3DDC[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(
+        &D_801D3DDC[0], 0, 0, 3, 1, 0, 0, 3, 1, 0, 0, 1, 0, 0);
+    SysMenuSetCursorMovement(
+        &D_801D3DDC[1], 0, 0, 1, 0xA, 0, 0, 1, 0x140, 0, 0, 0, 0, 0);
+    SysMenuSetCursorMovement(
+        &D_801D3DDC[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
     func_801D031C();
 }
 
@@ -478,10 +483,10 @@ s32 func_801D0D24(s32 arg0) {
     return (D_8009C75A[arg0 * 0x42] ^ mask) == 0;
 }
 
-// Returns an item's usage flags (SysMenuGetInventoryRestrictionMask), with two context-dependent
-// overrides: item 0x46 (the Tent) becomes field-usable while a location flag
-// permits resting, and item 0x62 (the Save Crystal) while its one-time-use
-// save flag is still clear.
+// Returns an item's usage flags (SysMenuGetInventoryRestrictionMask), with two
+// context-dependent overrides: item 0x46 (the Tent) becomes field-usable while
+// a location flag permits resting, and item 0x62 (the Save Crystal) while its
+// one-time-use save flag is still clear.
 s32 func_801D0DCC(s32 arg0) {
     s32 flags = SysMenuGetInventoryRestrictionMask(arg0);
     if (arg0 != 0x46) {

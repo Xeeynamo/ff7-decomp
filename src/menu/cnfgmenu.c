@@ -172,32 +172,33 @@ static void func_801D01C8(void) {
     SysMenuDrawString(40, y + (i - 1) * 18, D_801D1AE8[33], 5);
     for (i = 0; i < 2; i++) {
         SysMenuDrawString(165 + i * 65, y, D_801D1AE8[15 + i],
-                      -((Savemap.config & 3) == i) & 7);
+                          -((Savemap.config & 3) == i) & 7);
     }
     for (i = 0; i < 2; i++) {
         SysMenuDrawString(165 + i * 65, y + 18, D_801D1E48[i],
-                      -(((Savemap.config >> 2) & 3) == i) & 7);
+                          -(((Savemap.config >> 2) & 3) == i) & 7);
     }
     for (i = 0; i < 2; i++) {
         SysMenuDrawString(165 + i * 65, y + 0x24, D_801D1EA8[i],
-                      -(((Savemap.config >> 4) & 3) == i) & 7);
+                          -(((Savemap.config >> 4) & 3) == i) & 7);
     }
     temp_s4 = y + 54;
     SysMenuDrawString(
         165, temp_s4, D_801D1F08[0], -(((Savemap.config >> 6) & 3) == 0) & 7);
     x = SysGetSingleStringWidth(D_801D1F08[0]);
     SysMenuDrawString(x + 175, temp_s4, D_801D1F08[1],
-                  -(((Savemap.config >> 6) & 3) == 1) & 7);
+                      -(((Savemap.config >> 6) & 3) == 1) & 7);
     SysMenuDrawString(x + SysGetSingleStringWidth(D_801D1F08[1]) + 185, temp_s4,
-                  D_801D1F08[2], -(((Savemap.config >> 6) & 3) == 2) & 7);
+                      D_801D1F08[2], -(((Savemap.config >> 6) & 3) == 2) & 7);
     for (i = 0; i < 2; i++) {
         SysMenuDrawString(165 + i * 65, y + 126, D_801D1F08[3 + i],
-                      -(((Savemap.config >> 8) & 3) == i) & 7);
+                          -(((Savemap.config >> 8) & 3) == i) & 7);
     }
     for (i = 0; i < 3; i++) {
         _setting = D_801D248C[((Savemap.config >> 10) & 7) * 3 + i];
         setting = &D_801D248C[((Savemap.config >> 10) & 7) * 3];
-        SysMenuDrawString(189 + i * 52, y + 0x90, D_801D1F08[12 + setting[i]], 7);
+        SysMenuDrawString(
+            189 + i * 52, y + 0x90, D_801D1F08[12 + setting[i]], 7);
     }
     SysMenuDrawString(149, y + 0x90, D_801D1F08[16], 7);
 
@@ -238,7 +239,8 @@ static void func_801D01C8(void) {
     }
 
     // magic order ID
-    SysMenuDrawDigitsWithLeadingZeroes(173, y + 146, ((Savemap.config >> 0xA) & 7) + 1, 1, 7);
+    SysMenuDrawDigitsWithLeadingZeroes(
+        173, y + 146, ((Savemap.config >> 0xA) & 7) + 1, 1, 7);
 
     rect.x = 0;
     rect.y = 0;
@@ -251,10 +253,14 @@ static void func_801D01C8(void) {
 void func_801D069C(void) {
     volatile s32 dummy;
     s32 i;
-    SysMenuSetCursorMovement(&D_801D24CC[0], 0, 0, 1, 10, 0, 0, 1, 10, 0, 0, 0, 1, 0);
-    SysMenuSetCursorMovement(&D_801D24CC[1], 0, 0, 2, 2, 0, 0, 2, 2, 0, 0, 1, 1, 0);
-    SysMenuSetCursorMovement(&D_801D24CC[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
-    SysMenuSetCursorMovement(&D_801D24CC[3], 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0);
+    SysMenuSetCursorMovement(
+        &D_801D24CC[0], 0, 0, 1, 10, 0, 0, 1, 10, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(
+        &D_801D24CC[1], 0, 0, 2, 2, 0, 0, 2, 2, 0, 0, 1, 1, 0);
+    SysMenuSetCursorMovement(
+        &D_801D24CC[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(
+        &D_801D24CC[3], 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0);
     D_801D1AA8 = 0;
     for (i = 0; i < LEN(g_MenuColors); i++) {
         D_801D252C[i] = g_MenuColors[i];

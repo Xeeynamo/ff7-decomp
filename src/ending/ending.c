@@ -540,7 +540,8 @@ s32 func_800A2014(void) {
     s32 id = *D_800A6528++;
 
     if (D_800A6390 != 0) {
-        SysCdromSetLzsExtract(SysCdromGetPackPointer((void*)0x800D0000, id), (void*)0x80120000);
+        SysCdromSetLzsExtract(
+            SysCdromGetPackPointer((void*)0x800D0000, id), (void*)0x80120000);
     }
 
     if (func_80034D5C() != 0) {
@@ -616,7 +617,8 @@ s32 func_800A22E4(void) {
 
 s32 func_800A2328(void) {
     D_8009A000[0] = 0x10;
-    D_8009A004[0] = (u32)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
+    D_8009A004[0] =
+        (u32)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
     SystemAkaoExecute();
 
     return 1;

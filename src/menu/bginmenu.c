@@ -27,8 +27,10 @@ extern s32 D_8009CE60[];
 // (bginmenu).
 void func_801D0000(void) {
     volatile s32 padding;
-    SysMenuSetCursorMovement(&D_801D0860[0], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
-    SysMenuSetCursorMovement(&D_801D0860[1], 0, 0, 1, 3, 0, 0, 1, 9, 0, 0, 0, 0, 0);
+    SysMenuSetCursorMovement(
+        &D_801D0860[0], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(
+        &D_801D0860[1], 0, 0, 1, 3, 0, 0, 1, 9, 0, 0, 0, 0, 0);
     D_801D07F0 = 0;
 }
 

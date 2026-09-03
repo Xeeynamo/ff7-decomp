@@ -45,7 +45,8 @@ void func_801D05C0(u8 arg0) {
     D_801E3860 = 0xF0;
     D_801E36B8 = arg0;
     D_801E3850 = 0;
-    SysMenuSetCursorMovement(menus.D_801E379C, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(
+        menus.D_801E379C, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
     func_80025B8C(&D_801E8F44);
     func_80025C14(&D_801E4538);
     SysMenuLoadAvatars();
@@ -96,12 +97,12 @@ int func_801D06B0(s32 arg0) {
     switch (D_801E3850) {
     case 0:
         SysMenuDrawCursor(D_801D4EC8.x - 18,
-                      D_801D4EC8.y + 6 + (menus.D_801E379C[0].row * 12));
+                          D_801D4EC8.y + 6 + (menus.D_801E379C[0].row * 12));
         SysMenuDrawString(0xA, 0xB, D_801E2CFC[1], 7);
         SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 5, D_801E2CFC[3],
-                      -(D_801E8F38[0][0] != 0) & 7);
+                          -(D_801E8F38[0][0] != 0) & 7);
         SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 17, D_801E2CFC[4],
-                      -(D_801E8F3B != 0) & 7);
+                          -(D_801E8F3B != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
@@ -111,15 +112,18 @@ int func_801D06B0(s32 arg0) {
         break;
     case 7:
         SysMenuDrawCursor(D_801D4ED0.x + 0x16,
-                      0x15 + D_801D4ED0.y + menus.D_801E3808[1].row * 0xC);
+                          0x15 + D_801D4ED0.y + menus.D_801E3808[1].row * 0xC);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
         rect.h = 0x100;
         SysMenuSetDrawMode(0, 1, 0x7F, &rect);
-        SysMenuDrawString(D_801D4ED0.x + 0xA, D_801D4ED0.y + 6, D_801E2CFC[33], 7);
-        SysMenuDrawString(D_801D4ED0.x + 48, D_801D4ED0.y + 19, D_801E2CFC[34], 7);
-        SysMenuDrawString(D_801D4ED0.x + 48, D_801D4ED0.y + 31, D_801E2CFC[35], 7);
+        SysMenuDrawString(
+            D_801D4ED0.x + 0xA, D_801D4ED0.y + 6, D_801E2CFC[33], 7);
+        SysMenuDrawString(
+            D_801D4ED0.x + 48, D_801D4ED0.y + 19, D_801E2CFC[34], 7);
+        SysMenuDrawString(
+            D_801D4ED0.x + 48, D_801D4ED0.y + 31, D_801E2CFC[35], 7);
         SysMenuDrawWindow(&D_801D4ED0);
         /* fallthrough */
     case 1:
@@ -167,12 +171,13 @@ int func_801D06B0(s32 arg0) {
             }
             SysMenuDrawString(10, 11, D_801E2CFC[2], 7);
             SysMenuDrawString(206, 11, D_801E2CFC[9], 6);
-            SysMenuDrawString(SysGetSingleStringWidth(D_801E2CFC[9]) + 208, 11,
-                          ((13 + menus.D_801E379C[1].row +
-                            menus.D_801E379C[1].rowOffset) *
-                           36) +
-                              D_801E2CFC[0],
-                          7);
+            SysMenuDrawString(
+                SysGetSingleStringWidth(D_801E2CFC[9]) + 208, 11,
+                ((13 + menus.D_801E379C[1].row +
+                  menus.D_801E379C[1].rowOffset) *
+                 36) +
+                    D_801E2CFC[0],
+                7);
             SysMenuSetWindowRect(&sp38, 200, 5, 78, 24);
             SysMenuDrawWindow(&sp38);
             func_800269E8();
@@ -211,12 +216,12 @@ int func_801D06B0(s32 arg0) {
     case 6:
         if (arg0 & 2) {
             SysMenuDrawCursor(D_801D4EC8.x - 18,
-                          D_801D4EC8.y + 6 + menus.D_801E379C[0].row * 0xC);
+                              D_801D4EC8.y + 6 + menus.D_801E379C[0].row * 0xC);
         }
         SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 5, D_801E2CFC[3],
-                      -(D_801E8F38[0][0] != 0) & 7);
+                          -(D_801E8F38[0][0] != 0) & 7);
         SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 0x11, D_801E2CFC[4],
-                      -(D_801E8F38[1][0] != 0) & 7);
+                          -(D_801E8F38[1][0] != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
@@ -225,11 +230,14 @@ int func_801D06B0(s32 arg0) {
         SysMenuDrawWindow(&D_801D4EC8);
         SysMenuDrawString(10, 11, D_801E3260[4], 7);
         temp_s2 = SysGetSingleStringWidth(D_801E3260[5]) + 0x10;
-        SysMenuDrawString(190 - temp_s2 / 2, D_801D4EC8.h + 99, D_801E3260[5], 7);
-        SysMenuDrawString(228 - temp_s2 / 2, D_801D4EC8.h + 112, D_801E2CFC[34], 7);
-        SysMenuDrawString(228 - temp_s2 / 2, D_801D4EC8.h + 124, D_801E2CFC[35], 7);
+        SysMenuDrawString(
+            190 - temp_s2 / 2, D_801D4EC8.h + 99, D_801E3260[5], 7);
+        SysMenuDrawString(
+            228 - temp_s2 / 2, D_801D4EC8.h + 112, D_801E2CFC[34], 7);
+        SysMenuDrawString(
+            228 - temp_s2 / 2, D_801D4EC8.h + 124, D_801E2CFC[35], 7);
         SysMenuDrawCursor(200 - temp_s2 / 2,
-                      115 + (menus.D_801E3808[0].row * 12) + D_801D4EC8.h);
+                          115 + (menus.D_801E3808[0].row * 12) + D_801D4EC8.h);
         SysMenuSetWindowRect(
             &sp38, 182 - temp_s2 / 2, D_801D4EC8.h + 93, temp_s2, 0x30);
         SysMenuDrawWindow(&sp38);
@@ -256,8 +264,8 @@ int func_801D06B0(s32 arg0) {
                 func_801D0408(1);
                 if (D_801E8F38[menus.D_801E379C[0].row][2]) {
                     D_801E3850 = 6;
-                    SysMenuSetCursorMovement(&menus.D_801E3808[0], 0, 1, 1, 2, 0, 0, 1, 2,
-                                  0, 0, 0, 1, 0);
+                    SysMenuSetCursorMovement(&menus.D_801E3808[0], 0, 1, 1, 2,
+                                             0, 0, 1, 2, 0, 0, 0, 1, 0);
                 } else {
                     D_801E3850 = 2;
                     D_801E36AC = 0;
@@ -265,12 +273,13 @@ int func_801D06B0(s32 arg0) {
                     D_80062F3C = 0;
                     D_801E36A8 = 1;
                     D_801E36A4 = 0x3C;
-                    SysMenuSetCursorMovement(&menus.D_801E379C[1], 0, 0, 1, 3, 0, 0, 1, 15,
-                                  0, 0, 0, 0, 0);
+                    SysMenuSetCursorMovement(&menus.D_801E379C[1], 0, 0, 1, 3,
+                                             0, 0, 1, 15, 0, 0, 0, 0, 0);
                 }
             } else {
                 func_801D0408(3);
-                SysMenuRequestAddWindow(!D_801E3860 ? D_801E33B0[0] : D_801E3260[6], 7);
+                SysMenuRequestAddWindow(
+                    !D_801E3860 ? D_801E33B0[0] : D_801E3260[6], 7);
             }
         } else {
             SysMenuHandleButtons(&menus.D_801E379C[0]);
@@ -293,8 +302,8 @@ int func_801D06B0(s32 arg0) {
         if ((menus.D_801E379C[1].unkF == 0) && (var_s0 == 0)) {
             if (g_Pad1KeysPressed & PADRright) {
                 D_801E3850 = 7;
-                SysMenuSetCursorMovement(&menus.D_801E3808[1], 0, 0, 1, 2, 0, 0, 1, 2, 0,
-                              0, 0, 1, 0);
+                SysMenuSetCursorMovement(&menus.D_801E3808[1], 0, 0, 1, 2, 0, 0,
+                                         1, 2, 0, 0, 0, 1, 0);
                 func_801D0408(1);
             } else if (g_Pad1KeysPressed & PADRdown) {
                 func_801D0408(4);

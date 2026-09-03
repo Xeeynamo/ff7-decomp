@@ -135,21 +135,100 @@ SysSortMagicInUnitStructure = 0x8001C0EC;
 InputInit = 0x8001C434;
 TutorialInit = 0x8001C484;
 InputReadPad1Raw = 0x8001C498;
+SysMenuTutorialSetTextToShow = 0x8001C4E8;
+SysMenuTutorialUpdateScript = 0x8001C5BC;
+SysMenuTutorialUpdateGetButtons = 0x8001C788;
 InputReadPadsRaw = 0x8001C808;
 InputReadPads = 0x8001C8D4;
 InputUpdateBattleKeyStates = 0x8001C980;
 InputUpdateKeyStates = 0x8001CB48;
+SysMenuDrawAvatar = 0x8001CF3C;
+SysMenuDrawAvatar2 = 0x8001D180;
+SysMenuDrawDialogString = 0x8001D6A8;
+SysMenuSetWindowRect = 0x8001DE0C;
+SysMenuMoveWindowRect = 0x8001DE24;
+SysMenuCopyWindowRect = 0x8001DE40;
+SysMenuStoreWindowColor = 0x8001DE70;
+SysMenuRestoreWindowColor = 0x8001DEB0;
+SysMenuSetWindowColor = 0x8001DEF0;
+SysMenuDrawColoredRect = 0x8001DF24;
+SysMenuDrawWindow = 0x8001E040;
+SysMenuDrawCursor = 0x8001EB2C;
+SysMenuDrawDialogTimer = 0x8001EC70;
+SysMenuDrawDialogDigits = 0x8001EF84;
 SystemMenuDrawDialog = 0x8001F1BC;
+SysMenuRequestAddWindow = 0x8001F6C0;
+SysMenuSetPosAddWindow = 0x8001F6E4;
+SysMenuDrawAddWindow = 0x8001F710;
+SysMenuSound = 0x8001FA28;
+SysMenuGetInventoryRestrictionMask = 0x8001FAF8;
+SysGetPlayerBaseAttackDefense = 0x8001FBAC;
+SysAddStats = 0x8001FCDC;
+SysAddElementalDefense = 0x8001FE6C;
+SysAddAttackType = 0x8001FF50;
+SysAddStatusAttackBit = 0x8001FF8C;
+SysAddStatusProtectBit = 0x8001FFD4;
+SysAddStatusProtect = 0x8002001C;
+SysInitPlayerStatFromEquip = 0x80020058;
+SysMenuDrawCharNameLvHpMpBySaveCharId = 0x800206E4;
+SysMenuDrawCharNameLvHpMpByPartyId = 0x80020B68;
+SysMenuCreateDrawenvDispenv = 0x80021044;
+SysMenuLoadMenuFileById = 0x8002120C;
+SysMenuDrawBattleResult = 0x80022B5C;
+SysMenuGetMenuListState = 0x80023050;
+SysMenuSetMenuListAnimation = 0x8002305C;
+SysMenuDrawMenuList = 0x800230C4;
+SysMenuInitInput = 0x8002368C;
+SysGetHoursFromSeconds = 0x80023788;
+SysGetMinutesFromSeconds = 0x8002382C;
+SysGetSecondsFromSeconds = 0x80023940;
+SysMenuClose = 0x80023AC4;
+SysMenuDrawMainMenu = 0x80023AD4;
+SysMenuShow = 0x80024A3C;
 SnapshotPartyLevels = 0x80025040;
+SysMenuRemoveItem = 0x80025288;
+SysMenuSearchItem = 0x80025310;
+SysMenuAddItem = 0x80025380;
+SysMenuAddMateria = 0x8002542C;
+SysMenuRemoveMateria = 0x80025648;
 GetPartySlotArmorMateriaSlots = 0x80025668;
 GetPartySlotWeaponMateriaSlots = 0x800256DC;
+SysGetArmorAddressById = 0x80025758;
+SysGetAccessoryAddressById = 0x80025774;
+SysGetPartyPlayerStructureAddressByPartyId = 0x80025788;
 GetCharacterName = 0x800257CC;
+SysMenuRemoveHpByPartyId = 0x80025800;
 SystemMenuAddHpByPartyId = 0x800258BC;
+SysMenuRemoveMpByPartyId = 0x80025988;
 SystemMenuAddMpByPartyId = 0x80025A44;
 SystemMenuRemovePartyGold = 0x80025B10;
 SystemMenuAddPartyGold = 0x80025B48;
 SystemMenuGetPartyGold = 0x80025B7C;
+SysMenuLoadCharacterClutFromRam = 0x80025C94;
+SysMenuStoreCharacterClutToRam = 0x80025CD4;
+SysMenuLoadImg = 0x80025D14;
+SysMenuLoadAvatars = 0x80025DF8;
+SysMenuGetMateriaColorByType = 0x8002603C;
+SysMenuSetCursorMovement = 0x80026448;
+SysMenuHandleButtons = 0x800264A8;
+SysMenuSetPoly = 0x800269C0;
+SysMenuSetOtag = 0x80026A00;
 func_80026A0C = 0x80026A0C;
+SysMenuSetDrawMode = 0x80026A34;
+SysMenuSetDrawenv = 0x80026A94;
+SysGetSingleStringWidth = 0x80026B70;
+SysMenuDrawSingleLetter = 0x80026C5C;
+SysMenuDrawString = 0x80026F44;
+SysMenuDrawSingleFontLetter = 0x8002708C;
+SysMenuDraw8widthFont = 0x80027354;
+SysMenuDrawHpMpBar = 0x80027408;
+SysMenuDrawScrollbarTrack = 0x80027B84;
+SysMenuDrawScrollbarSlider = 0x80028030;
+SysMenuDrawScrollbar = 0x80028484;
+SysMenuDrawProgressBar = 0x800285AC;
+SysMenuDrawTexturedRect = 0x80028CA0;
+SysMenuDrawDigitsWithoutLeadingZeroes = 0x80028E00;
+SysMenuDrawDigitsWithLeadingZeroes = 0x80029114;
 SetReverbMode = 0x80029AF0;
 SoundChannelInit = 0x80029BAC;
 AkaoC0VolumeSet = 0x8002BA5C;
@@ -184,12 +263,23 @@ AkaoC6PitchLfoOn = 0x80032BB4;
 AkaoC7PitchLfoOff = 0x80032C20;
 AkaoC2ReverbOn = 0x80032C8C;
 AkaoC3ReverbOff = 0x80032CE8;
+SysSavemapReset = 0x80033A90;
+SysCdromInit = 0x80033B70;
+SysCdromSetChainParam = 0x80033CB8;
 SystemLoadFileBySector = 0x80033E34;
 DS_read = 0x80033E74;
+SysCdromLoadFile = 0x80033F40;
+SysCdromLoadLzs = 0x80033FC4;
 SystemCdromAbortLoading = 0x8003408C;
 SystemCdromReadChain = 0x80034B44;
 SystemLzsDecompress = 0x80034BB0;
 ChangeClearSIO = 0x80034CE8;
+SysCdromGetPackPointer = 0x80034D18;
+SysCdromSetLzsExtract = 0x80034D2C;
+SysCdromLzsExtract = 0x80034E00;
+SysMovieLoadMovieSettings = 0x80034F5C;
+SysMoviePlay = 0x80034FC8;
+SysMovieAbortPlay = 0x80035658;
 _SpuInit = 0x800362B8;
 SpuStart = 0x800363B0;
 _spu_init = 0x8003642C;
@@ -675,215 +765,3 @@ g_AkaoMusicAltMask = 0x8009A12C;
 g_ReverbMode = 0x8009A140;
 g_ReverbAttr = 0x8009C564; // type:SpuReverbAttr size:0x14
 D_8009D44C = 0x8009D44C;
-
-
-
-SysMenuTutorialSetTextToShow = 0x8001C4E8;
-
-SysMenuTutorialUpdateScript = 0x8001C5BC;
-SysMenuTutorialUpdateGetButtons = 0x8001C788;
-
-
-
-
-
-SysMenuDrawAvatar = 0x8001CF3C;
-SysMenuDrawAvatar2 = 0x8001D180;
-
-
-
-SysMenuDrawDialogString = 0x8001D6A8;
-SysMenuSetWindowRect = 0x8001DE0C;
-SysMenuMoveWindowRect = 0x8001DE24;
-SysMenuCopyWindowRect = 0x8001DE40;
-SysMenuStoreWindowColor = 0x8001DE70;
-SysMenuRestoreWindowColor = 0x8001DEB0;
-SysMenuSetWindowColor = 0x8001DEF0;
-SysMenuDrawColoredRect = 0x8001DF24;
-SysMenuDrawWindow = 0x8001E040;
-SysMenuDrawCursor = 0x8001EB2C;
-SysMenuDrawDialogTimer = 0x8001EC70;
-SysMenuDrawDialogDigits = 0x8001EF84;
-
-
-
-SysMenuRequestAddWindow = 0x8001F6C0;
-SysMenuSetPosAddWindow = 0x8001F6E4;
-SysMenuDrawAddWindow = 0x8001F710;
-SysMenuSound = 0x8001FA28;
-
-
-
-SysMenuGetInventoryRestrictionMask = 0x8001FAF8;
-SysGetPlayerBaseAttackDefense = 0x8001FBAC;
-SysAddStats = 0x8001FCDC;
-SysAddElementalDefense = 0x8001FE6C;
-SysAddAttackType = 0x8001FF50;
-SysAddStatusAttackBit = 0x8001FF8C;
-SysAddStatusProtectBit = 0x8001FFD4;
-SysAddStatusProtect = 0x8002001C;
-SysInitPlayerStatFromEquip = 0x80020058;
-SysMenuDrawCharNameLvHpMpBySaveCharId = 0x800206E4;
-SysMenuDrawCharNameLvHpMpByPartyId = 0x80020B68;
-SysMenuCreateDrawenvDispenv = 0x80021044;
-
-
-SysMenuLoadMenuFileById = 0x8002120C;
-
-
-
-
-
-
-
-
-SysMenuDrawBattleResult = 0x80022B5C;
-
-
-SysMenuGetMenuListState = 0x80023050;
-SysMenuSetMenuListAnimation = 0x8002305C;
-SysMenuDrawMenuList = 0x800230C4;
-SysMenuInitInput = 0x8002368C;
-SysGetHoursFromSeconds = 0x80023788;
-SysGetMinutesFromSeconds = 0x8002382C;
-SysGetSecondsFromSeconds = 0x80023940;
-SysMenuClose = 0x80023AC4;
-SysMenuDrawMainMenu = 0x80023AD4;
-
-SysMenuShow = 0x80024A3C;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-SysMenuRemoveItem = 0x80025288;
-SysMenuSearchItem = 0x80025310;
-
-SysMenuAddItem = 0x80025380;
-SysMenuAddMateria = 0x8002542C;
-
-
-
-SysMenuRemoveMateria = 0x80025648;
-
-
-
-
-SysGetArmorAddressById = 0x80025758;
-SysGetAccessoryAddressById = 0x80025774;
-SysGetPartyPlayerStructureAddressByPartyId = 0x80025788;
-
-SysMenuRemoveHpByPartyId = 0x80025800;
-
-SysMenuRemoveMpByPartyId = 0x80025988;
-
-
-
-
-
-
-
-
-SysMenuLoadCharacterClutFromRam = 0x80025C94;
-SysMenuStoreCharacterClutToRam = 0x80025CD4;
-SysMenuLoadImg = 0x80025D14;
-SysMenuLoadAvatars = 0x80025DF8;
-
-
-SysMenuGetMateriaColorByType = 0x8002603C;
-
-
-
-
-
-SysMenuSetCursorMovement = 0x80026448;
-SysMenuHandleButtons = 0x800264A8;
-SysMenuSetPoly = 0x800269C0;
-
-
-SysMenuSetOtag = 0x80026A00;
-
-
-SysMenuSetDrawMode = 0x80026A34;
-SysMenuSetDrawenv = 0x80026A94;
-
-
-SysGetSingleStringWidth = 0x80026B70;
-SysMenuDrawSingleLetter = 0x80026C5C;
-SysMenuDrawString = 0x80026F44;
-SysMenuDrawSingleFontLetter = 0x8002708C;
-SysMenuDraw8widthFont = 0x80027354;
-SysMenuDrawHpMpBar = 0x80027408;
-
-SysMenuDrawScrollbarTrack = 0x80027B84;
-SysMenuDrawScrollbarSlider = 0x80028030;
-SysMenuDrawScrollbar = 0x80028484;
-SysMenuDrawProgressBar = 0x800285AC;
-
-SysMenuDrawTexturedRect = 0x80028CA0;
-SysMenuDrawDigitsWithoutLeadingZeroes = 0x80028E00;
-SysMenuDrawDigitsWithLeadingZeroes = 0x80029114;
-
-
-SysSavemapReset = 0x80033A90;
-
-
-SysCdromInit = 0x80033B70;
-
-
-SysCdromSetChainParam = 0x80033CB8;
-
-
-
-
-
-SysCdromLoadFile = 0x80033F40;
-SysCdromLoadLzs = 0x80033FC4;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-SysCdromGetPackPointer = 0x80034D18;
-SysCdromSetLzsExtract = 0x80034D2C;
-
-
-SysCdromLzsExtract = 0x80034E00;
-
-SysMovieLoadMovieSettings = 0x80034F5C;
-SysMoviePlay = 0x80034FC8;
-
-
-SysMovieAbortPlay = 0x80035658;

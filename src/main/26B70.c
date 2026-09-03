@@ -44,6 +44,8 @@ INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80028930);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawTexturedRect);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawDigitsWithoutLeadingZeroes);
+INCLUDE_ASM(
+    "asm/us/main/nonmatchings/26B70", SysMenuDrawDigitsWithoutLeadingZeroes);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawDigitsWithLeadingZeroes);
+INCLUDE_ASM(
+    "asm/us/main/nonmatchings/26B70", SysMenuDrawDigitsWithLeadingZeroes);
