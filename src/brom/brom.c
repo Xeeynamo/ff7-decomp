@@ -34,8 +34,7 @@ void func_800A0534(BromStruct* arg0) {
         limit = total_pixels;
         do {
             u16 color = arg0->colors[i];
-            arg0->colors[i] =
-                func_800A0514(((color >> 8) | (color << 8)) & 0xFFFF);
+            arg0->colors[i] = func_800A0514(((color >> 8) | (color << 8)) & 0xFFFF);
             i++;
         } while (i < limit);
     }

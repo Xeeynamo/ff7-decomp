@@ -11,22 +11,22 @@
 #define WSIZE 32768 /* window size--must be a power of two, and */
                     /*  at least 32K for zip's deflate method */
 
-#define NEXTBYTE()                                                             \
+#define NEXTBYTE()                                                                                                     \
     (inbuf[inptr++]) // FF7's implementation stores the entire file in memory so
                      // logic for filling inbuf from file is removed.
 
-#define NEEDBITS(n)                                                            \
-    {                                                                          \
-        while (k < (n)) {                                                      \
-            b |= ((u32)NEXTBYTE()) << k;                                       \
-            k += 8;                                                            \
-        }                                                                      \
+#define NEEDBITS(n)                                                                                                    \
+    {                                                                                                                  \
+        while (k < (n)) {                                                                                              \
+            b |= ((u32)NEXTBYTE()) << k;                                                                               \
+            k += 8;                                                                                                    \
+        }                                                                                                              \
     }
 
-#define DUMPBITS(n)                                                            \
-    {                                                                          \
-        b >>= (n);                                                             \
-        k -= (n);                                                              \
+#define DUMPBITS(n)                                                                                                    \
+    {                                                                                                                  \
+        b >>= (n);                                                                                                     \
+        k -= (n);                                                                                                      \
     }
 
 typedef struct huft huft;
@@ -51,27 +51,21 @@ static u32 hufts; // Track memory usage.
 
 /* Tables for deflate from PKZIP's appnote.txt. */
 /* Order of the bit length code lengths */
-static u32 border[] = {
-    16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+static u32 border[] = {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 /* Copy lengths for literal codes 257..285 */
-static u16 cplens[] = {
-    3,  4,  5,  6,  7,  8,  9,  10,  11,  13,  15,  17,  19,  23, 27, 31,
-    35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0,  0};
+static u16 cplens[] = {3,  4,  5,  6,  7,  8,  9,  10,  11,  13,  15,  17,  19,  23, 27, 31,
+                       35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0,  0};
 /* Extra bits for literal codes 257..285 */
 static u16 cplext[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2,  2, 2,
-    3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 99, 99}; /* 99==invalid */
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 99, 99}; /* 99==invalid */
 /* Copy offsets for distance codes 0..29 */
-static u16 cpdist[] = {
-    1,    2,    3,    4,    5,    7,    9,    13,    17,    25,
-    33,   49,   65,   97,   129,  193,  257,  385,   513,   769,
-    1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577};
+static u16 cpdist[] = {1,   2,   3,   4,   5,   7,    9,    13,   17,   25,   33,   49,   65,    97,    129,
+                       193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577};
 /* Extra bits for distance codes */
-static u16 cpdext[] = {0, 0, 0, 0, 1, 1, 2, 2,  3,  3,  4,  4,  5,  5,  6,
-                       6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13};
-static u16 mask_bits[] = {
-    0x0000, 0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,
-    0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff};
+static u16 cpdext[] = {
+    0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13};
+static u16 mask_bits[] = {0x0000, 0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,
+                          0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff};
 static u32 inflateMemAlloced = 0;
 static s32 lbits = 9; /* bits in base literal/length lookup table */
 static s32 dbits = 6; /* bits in base distance lookup table */
@@ -201,8 +195,7 @@ static s32 huft_build(u32* b, u32 n, u32 s, u16* d, u16* e, huft** t, s32* m) {
                 w += l; /* previous table always l bits */
 
                 /* compute minimum size table less than or equal to l bits */
-                z = (z = g - w) > (u32)l ? l
-                                         : z; /* upper limit on table size */
+                z = (z = g - w) > (u32)l ? l : z;     /* upper limit on table size */
                 if ((f = 1 << (j = k - w)) > a + 1) { /* try a k-w bit table */
                     /* too few codes for k-w bit table */
                     f -= a + 1; /* deduct codes from patterns left */
@@ -218,8 +211,7 @@ static s32 huft_build(u32* b, u32 n, u32 s, u16* d, u16* e, huft** t, s32* m) {
                 /* allocate and link in new table */
                 // FF7 uses own malloc replacement here as hufts are stored on
                 // the stack.
-                if ((q = (huft*)inflate_malloc((z + 1) * sizeof(huft))) ==
-                    NULL) {
+                if ((q = (huft*)inflate_malloc((z + 1) * sizeof(huft))) == NULL) {
                     if (h != 0)
                         huft_free(u[0]);
                     return 3; /* not enough memory */
@@ -246,8 +238,8 @@ static s32 huft_build(u32* b, u32 n, u32 s, u16* d, u16* e, huft** t, s32* m) {
                 r.e = 99; /* out of values--invalid code */
             else if (*p < s) {
                 r.e = (u8)(*p < 256 ? 16 : 15); /* 256 is end-of-block code */
-                r.v.n = (u16)(*p); /* simple code is just the value */
-                p++;               /* one compiler does not like *p++ */
+                r.v.n = (u16)(*p);              /* simple code is just the value */
+                p++;                            /* one compiler does not like *p++ */
             } else {
                 r.e = (u8)e[*p - s]; /* non-simple--look up in lists */
                 r.v.n = d[*p++ - s];

@@ -49,8 +49,7 @@ s32 SysGetMateriaActivatedStars(u8, s32);
 s32 SysAddCommandToTemp(s32);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 u8 func_8001F6B4();
-void SysMenuSetPosAddWindow(
-    s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
+void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
 
 void func_8001CDA4(void) {
@@ -78,8 +77,7 @@ void func_8001CDA4(void) {
     D_80062F24.ft4++;
 }
 
-void SysMenuDrawAvatar(s16 x, s16 y, s16 w, s16 h, u16 tx, u16 ty, u16 tw,
-                       u16 th, s16 clut, s32 tex) {
+void SysMenuDrawAvatar(s16 x, s16 y, s16 w, s16 h, u16 tx, u16 ty, u16 tw, u16 th, s16 clut, s32 tex) {
     SetPolyFT4(D_80062F24.ft4);
     SetShadeTex(D_80062F24.ft4, 1);
     if (tex << 0x10) {
@@ -107,8 +105,7 @@ void SysMenuDrawAvatar(s16 x, s16 y, s16 w, s16 h, u16 tx, u16 ty, u16 tw,
     D_80062F24.ft4++;
 }
 
-void SysMenuDrawAvatar2(s16 x, s16 y, s16 w, s16 h, u16 tx, u16 ty, u16 tw,
-                        u16 th, s16 clut, s32 tex) {
+void SysMenuDrawAvatar2(s16 x, s16 y, s16 w, s16 h, u16 tx, u16 ty, u16 tw, u16 th, s16 clut, s32 tex) {
     SetPolyFT4(D_80062F24.ft4);
     SetShadeTex(D_80062F24.ft4, 1);
     if (tex << 0x10) {
@@ -269,8 +266,7 @@ s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
                     rect.y = 0;
                     rect.w = 256;
                     rect.h = 256;
-                    SysMenuSetDrawMode(
-                        0, 1, GetTPage(0, 1, 0x380, 0x100), &rect);
+                    SysMenuSetDrawMode(0, 1, GetTPage(0, 1, 0x380, 0x100), &rect);
 
                     setSprt(D_80062F24.sprt);
                     SetShadeTex(D_80062F24.sprt, 1);
@@ -307,8 +303,7 @@ s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
                     rect.w = 256;
                     rect.h = 256;
                     D_80062DBC--;
-                    SysMenuSetDrawMode(
-                        0, 1, GetTPage(0, 1, 0x3C0, 0x100), &rect);
+                    SysMenuSetDrawMode(0, 1, GetTPage(0, 1, 0x3C0, 0x100), &rect);
                     D_80062FF0++;
                     x += 16;
                     continue;
@@ -322,13 +317,11 @@ s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
                 if (D_80062DB8 == 0) {
                     textColor = D_80062DB4 + 0x1F0;
                 } else {
-                    textColor =
-                        (((D_80062DBA >> 2) - colorCycleCount) & 7) | 0x1F0;
+                    textColor = (((D_80062DBA >> 2) - colorCycleCount) & 7) | 0x1F0;
                 }
             } else {
                 if (D_80062DB8) {
-                    textColor =
-                        (((D_80062DBA >> 2) - colorCycleCount) & 7) | 0x1F0;
+                    textColor = (((D_80062DBA >> 2) - colorCycleCount) & 7) | 0x1F0;
                 } else if (((D_80062DBA >> 2) & 1) != 0) {
                     textColor = D_80062DB4 + 0x1F0;
                 } else {
@@ -343,9 +336,7 @@ s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
             next = *txt;
             tu = 12 * (next % 21);
             tv += 12 * (next / 21);
-            if (x + ((D_800707C0[next + windowBinOffset] >> 5) +
-                     (D_800707C0[next + windowBinOffset] & 0x1F)) >
-                w) {
+            if (x + ((D_800707C0[next + windowBinOffset] >> 5) + (D_800707C0[next + windowBinOffset] & 0x1F)) > w) {
                 x = 8;
                 y += 16;
                 D_80062F9C++;
@@ -364,8 +355,7 @@ s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
             D_80062F24.sprt->v0 = tv;
             D_80062F24.sprt->w = 12;
             D_80062F24.sprt->h = 12;
-            D_80062F24.sprt->clut =
-                GetClut((width << 16 >> 16) | 0x100, textColor);
+            D_80062F24.sprt->clut = GetClut((width << 16 >> 16) | 0x100, textColor);
             AddPrim(D_80062FC4, D_80062F24.sprt++);
 
             if (D_80062DC4 == 0)
@@ -386,8 +376,7 @@ s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
     return y;
 }
 
-void SysMenuSetWindowRect(
-    Unk8001DE0C* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void SysMenuSetWindowRect(Unk8001DE0C* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     arg0->unk0 = arg1;
     arg0->unk2 = arg2;
     arg0->unk4 = arg3;

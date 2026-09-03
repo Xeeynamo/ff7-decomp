@@ -5,12 +5,10 @@ extern u8 g_MateriaPriority[];
 extern s32 g_MateriaStealLoot[];
 extern u8 D_800738BC[][44];
 extern u8 D_80071E4D[][36];
-extern u16
-    D_8009CBE0[]; // item inventory (320 slots; each u16 = (count << 9) | id)
+extern u16 D_8009CBE0[]; // item inventory (320 slots; each u16 = (count << 9) | id)
 extern u16 D_801D35B4[]; // per-item-id sort order for the "Name" arrange option
 
-s32 SysMenuGetInventoryRestrictionMask(
-    s32); // returns an item's usage flags (0x2 battle, 0x4 field, 0x8 throw)
+s32 SysMenuGetInventoryRestrictionMask(s32); // returns an item's usage flags (0x2 battle, 0x4 field, 0x8 throw)
 typedef s32 (*SortCmp)(s32, s32, s32*);
 typedef void (*SortSwap)(s32, s32, s32*);
 static s32 Quicksort(s32, s32, SortCmp, SortSwap);
@@ -215,8 +213,7 @@ ret0:
         if (((u32)lo) < ((u32)j)) {
             j -= 1;
             if (((u32)lo) < ((u32)j)) {
-                if ((((u32)i) < (va1 = (u32)count)) &&
-                    (((u32)(j - lo)) < ((u32)(count - i)))) {
+                if ((((u32)i) < (va1 = (u32)count)) && (((u32)(j - lo)) < ((u32)(count - i)))) {
                     SwapS32(&j, &count);
                     SwapS32(&lo, &i);
                 }
@@ -408,32 +405,25 @@ static void ArrangeItems(s32 mode) {
     case 0:
         break;
     case 1:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByField,
-                  (SortSwap)SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByField, (SortSwap)SwapItemSlots);
         break;
     case 2:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByBattle,
-                  (SortSwap)SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByBattle, (SortSwap)SwapItemSlots);
         break;
     case 3:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByThrow,
-                  (SortSwap)SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByThrow, (SortSwap)SwapItemSlots);
         break;
     case 4:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByType,
-                  (SortSwap)SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByType, (SortSwap)SwapItemSlots);
         break;
     case 5:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByName,
-                  (SortSwap)SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByName, (SortSwap)SwapItemSlots);
         break;
     case 6:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByMost,
-                  (SortSwap)SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByMost, (SortSwap)SwapItemSlots);
         break;
     case 7:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByLeast,
-                  (SortSwap)SwapItemSlots);
+        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByLeast, (SortSwap)SwapItemSlots);
         break;
     }
 }
@@ -449,24 +439,17 @@ static void ArrangeItems(s32 mode) {
 // src/main/21D5C.c.
 void func_801D0BA0(void) {
     D_801D3E48 = ITEMMENU_SCREEN_USE;
-    SysMenuSetCursorMovement(
-        &D_801D3DDC[0], 0, 0, 3, 1, 0, 0, 3, 1, 0, 0, 1, 0, 0);
-    SysMenuSetCursorMovement(
-        &D_801D3DDC[1], 0, 0, 1, 0xA, 0, 0, 1, 0x140, 0, 0, 0, 0, 0);
-    SysMenuSetCursorMovement(
-        &D_801D3DDC[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(&D_801D3DDC[0], 0, 0, 3, 1, 0, 0, 3, 1, 0, 0, 1, 0, 0);
+    SysMenuSetCursorMovement(&D_801D3DDC[1], 0, 0, 1, 0xA, 0, 0, 1, 0x140, 0, 0, 0, 0, 0);
+    SysMenuSetCursorMovement(&D_801D3DDC[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
     func_801D031C();
 }
 
 // True if the two adjacent record fields for entry arg0 are equal.
-s32 func_801D0CAC(s32 arg0) {
-    return D_8009D85E[arg0 * 0x220] == D_8009D85C[arg0 * 0x220];
-}
+s32 func_801D0CAC(s32 arg0) { return D_8009D85E[arg0 * 0x220] == D_8009D85C[arg0 * 0x220]; }
 
 // True if the two adjacent record fields for entry arg0 are equal.
-s32 func_801D0CE8(s32 arg0) {
-    return D_8009D862[arg0 * 0x220] == D_8009D860[arg0 * 0x220];
-}
+s32 func_801D0CE8(s32 arg0) { return D_8009D862[arg0 * 0x220] == D_8009D860[arg0 * 0x220]; }
 
 // Builds a 10-bit mask of which of character arg0's slots are occupied (slot
 // value != 0x7F), clears bit 9, and returns whether it matches the stored
@@ -585,8 +568,7 @@ static s32 ReequipReturnedMateria(s32 materia) {
             {
                 s32 j;
                 for (j = 0; j < 8; j++) {
-                    if (Savemap.party[c].materia_weapon[j] == -1 &&
-                        D_800738BC[Savemap.party[c].weapon][j]) {
+                    if (Savemap.party[c].materia_weapon[j] == -1 && D_800738BC[Savemap.party[c].weapon][j]) {
                         Savemap.party[c].materia_weapon[j] = materia;
                         return 0;
                     }
@@ -595,8 +577,7 @@ static s32 ReequipReturnedMateria(s32 materia) {
             {
                 s32 j;
                 for (j = 0; j < 8; j++) {
-                    if (Savemap.party[c].materia_armor[j] == -1 &&
-                        D_80071E4D[Savemap.party[c].armor][j]) {
+                    if (Savemap.party[c].materia_armor[j] == -1 && D_80071E4D[Savemap.party[c].armor][j]) {
                         Savemap.party[c].materia_armor[j] = materia;
                         return 0;
                     }
@@ -859,8 +840,6 @@ void RestoreCharacterMateria(s32 charIdx) {
 // Runs once at boot/menu init (main -> func_80026258 -> func_80025008); the
 // texture stays resident so the battle UI can scroll it as the animated
 // backdrop behind the coin-throw amount prompt.
-void func_801D3228(void) {
-    SysMenuLoadImg((u_long*)D_801D3890, 0x3F0, 0x120, 0x110, 0x1E0);
-}
+void func_801D3228(void) { SysMenuLoadImg((u_long*)D_801D3890, 0x3F0, 0x120, 0x110, 0x1E0); }
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3260);

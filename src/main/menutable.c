@@ -18,9 +18,8 @@ static int func_80026408(u16 arg0) {
 }
 
 void SysMenuSetCursorMovement(
-    MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage,
-    s32 unk0, s32 rowOffset, s32 unk4, s32 numTotalRows, s32 unkE, s32 unkF,
-    s32 unk10, s32 unk11, u16 scrolling) {
+    MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage, s32 unk0, s32 rowOffset, s32 unk4,
+    s32 numTotalRows, s32 unkE, s32 unkF, s32 unk10, s32 unk11, u16 scrolling) {
     table->column = column;
     table->row = row;
     table->numColumns = numColumns;

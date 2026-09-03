@@ -15,10 +15,9 @@ typedef struct {
     /* 0x07 */ u8 v1;
     /* 0x08 */ u8 u2;
     /* 0x09 */ u8 v2;
-    /* 0x0A */ u16
-        textureAndLocationAndFlags; // packed 9 bits texture, 5 bits world area,
-                                    // and some bits for some flags?
-} WorldTriangle;                    // size: 0xC
+    /* 0x0A */ u16 textureAndLocationAndFlags; // packed 9 bits texture, 5 bits world area,
+                                               // and some bits for some flags?
+} WorldTriangle;                               // size: 0xC
 
 typedef struct {
     /* 0x00 */ WorldTriangle* tri;
@@ -128,8 +127,7 @@ typedef struct {
 } Unk8010AD70;
 
 void func_800A0B48();
-void func_800A19FC(
-    WorldChunkHeader*, SVECTOR*, WorldStoredTriangle*, s16*, s32, s16*, s32);
+void func_800A19FC(WorldChunkHeader*, SVECTOR*, WorldStoredTriangle*, s16*, s32, s16*, s32);
 void func_800A31C0(s16);
 void func_800A368C(s32);
 void func_800A6884(VECTOR*, SVECTOR*, s16*, s16*);

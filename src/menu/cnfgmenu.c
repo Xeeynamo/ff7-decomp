@@ -3,13 +3,11 @@
 
 static s32 D_801D1AA8 = -1;
 static u8 D_801D1AAC[] = {
-    0x07, 0x07, 0x05, 0x07, 0x06, 0x07, 0x04, 0x07, 0x03, 0x0A, 0x00, 0x0A,
-    0x01, 0x0A, 0x02, 0x0A, 0x08, 0x07, 0x00, 0x00, 0x00, 0x00, 0x09, 0x07,
-    0x01, 0x00, 0x02, 0x00, 0x04, 0x00, 0x08, 0x00, 0x10, 0x00, 0x20, 0x00,
-    0x40, 0x00, 0x80, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
+    0x07, 0x07, 0x05, 0x07, 0x06, 0x07, 0x04, 0x07, 0x03, 0x0A, 0x00, 0x0A, 0x01, 0x0A, 0x02, 0x0A,
+    0x08, 0x07, 0x00, 0x00, 0x00, 0x00, 0x09, 0x07, 0x01, 0x00, 0x02, 0x00, 0x04, 0x00, 0x08, 0x00,
+    0x10, 0x00, 0x20, 0x00, 0x40, 0x00, 0x80, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
 static u8 D_801D1ADB = 8;
-static u8 D_801D1ADC[] = {
-    0x05, 0x06, 0x04, 0x07, 0x02, 0x03, 0x00, 0x01, 0x08, 0x0B, 0x00, 0x00};
+static u8 D_801D1ADC[] = {0x05, 0x06, 0x04, 0x07, 0x02, 0x03, 0x00, 0x01, 0x08, 0x0B, 0x00, 0x00};
 static unsigned char D_801D1AE8[][0x30] = {
     _S("Window color"),   // 0
     _S("Sound"),          // 1
@@ -69,10 +67,9 @@ static unsigned char D_801D2238[][0x30] = {
     _S("Help"),   // 8
 };
 static unsigned char D_801D23E8[][0x30] = {
-    {0x30, 0x52, 0x45, 0x53, 0x53, 0x00, 0xB2, 0x33, 0x34, 0x21, 0x32, 0x34,
-     0xB3, 0x00, 0x54, 0x4F, 0x00, 0x43, 0x55, 0x53, 0x54, 0x4F, 0x4D, 0x49,
-     0x5A, 0x45, 0x0E, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+    {0x30, 0x52, 0x45, 0x53, 0x53, 0x00, 0xB2, 0x33, 0x34, 0x21, 0x32, 0x34, 0xB3, 0x00, 0x54, 0x4F,
+     0x00, 0x43, 0x55, 0x53, 0x54, 0x4F, 0x4D, 0x49, 0x5A, 0x45, 0x0E, 0xFF, 0x00, 0x00, 0x00, 0x00,
+     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 };
 static unsigned char D_801D2418[][0x30] = {
     _S("Press Directional button Left or Right to end."),
@@ -150,8 +147,7 @@ static u8 func_801D0118(u16 arg0) {
 static void func_801D014C(s16 x, s16 y, s32 value) {
     u8 uv = D_801D1AAC[value * 2 + 0];
     u8 page = D_801D1AAC[value * 2 + 1];
-    SysMenuDrawTexturedRect(
-        x, y, (uv & 3) * 16 + 96, (uv >> 2) * 16 + 64, 16, 16, page, 0);
+    SysMenuDrawTexturedRect(x, y, (uv & 3) * 16 + 96, (uv >> 2) * 16 + 64, 16, 16, page, 0);
 }
 
 static void func_801D01C8(void) {
@@ -171,34 +167,27 @@ static void func_801D01C8(void) {
     }
     SysMenuDrawString(40, y + (i - 1) * 18, D_801D1AE8[33], 5);
     for (i = 0; i < 2; i++) {
-        SysMenuDrawString(165 + i * 65, y, D_801D1AE8[15 + i],
-                          -((Savemap.config & 3) == i) & 7);
+        SysMenuDrawString(165 + i * 65, y, D_801D1AE8[15 + i], -((Savemap.config & 3) == i) & 7);
     }
     for (i = 0; i < 2; i++) {
-        SysMenuDrawString(165 + i * 65, y + 18, D_801D1E48[i],
-                          -(((Savemap.config >> 2) & 3) == i) & 7);
+        SysMenuDrawString(165 + i * 65, y + 18, D_801D1E48[i], -(((Savemap.config >> 2) & 3) == i) & 7);
     }
     for (i = 0; i < 2; i++) {
-        SysMenuDrawString(165 + i * 65, y + 0x24, D_801D1EA8[i],
-                          -(((Savemap.config >> 4) & 3) == i) & 7);
+        SysMenuDrawString(165 + i * 65, y + 0x24, D_801D1EA8[i], -(((Savemap.config >> 4) & 3) == i) & 7);
     }
     temp_s4 = y + 54;
-    SysMenuDrawString(
-        165, temp_s4, D_801D1F08[0], -(((Savemap.config >> 6) & 3) == 0) & 7);
+    SysMenuDrawString(165, temp_s4, D_801D1F08[0], -(((Savemap.config >> 6) & 3) == 0) & 7);
     x = SysGetSingleStringWidth(D_801D1F08[0]);
-    SysMenuDrawString(x + 175, temp_s4, D_801D1F08[1],
-                      -(((Savemap.config >> 6) & 3) == 1) & 7);
-    SysMenuDrawString(x + SysGetSingleStringWidth(D_801D1F08[1]) + 185, temp_s4,
-                      D_801D1F08[2], -(((Savemap.config >> 6) & 3) == 2) & 7);
+    SysMenuDrawString(x + 175, temp_s4, D_801D1F08[1], -(((Savemap.config >> 6) & 3) == 1) & 7);
+    SysMenuDrawString(x + SysGetSingleStringWidth(D_801D1F08[1]) + 185, temp_s4, D_801D1F08[2],
+                      -(((Savemap.config >> 6) & 3) == 2) & 7);
     for (i = 0; i < 2; i++) {
-        SysMenuDrawString(165 + i * 65, y + 126, D_801D1F08[3 + i],
-                          -(((Savemap.config >> 8) & 3) == i) & 7);
+        SysMenuDrawString(165 + i * 65, y + 126, D_801D1F08[3 + i], -(((Savemap.config >> 8) & 3) == i) & 7);
     }
     for (i = 0; i < 3; i++) {
         _setting = D_801D248C[((Savemap.config >> 10) & 7) * 3 + i];
         setting = &D_801D248C[((Savemap.config >> 10) & 7) * 3];
-        SysMenuDrawString(
-            189 + i * 52, y + 0x90, D_801D1F08[12 + setting[i]], 7);
+        SysMenuDrawString(189 + i * 52, y + 0x90, D_801D1F08[12 + setting[i]], 7);
     }
     SysMenuDrawString(149, y + 0x90, D_801D1F08[16], 7);
 
@@ -239,8 +228,7 @@ static void func_801D01C8(void) {
     }
 
     // magic order ID
-    SysMenuDrawDigitsWithLeadingZeroes(
-        173, y + 146, ((Savemap.config >> 0xA) & 7) + 1, 1, 7);
+    SysMenuDrawDigitsWithLeadingZeroes(173, y + 146, ((Savemap.config >> 0xA) & 7) + 1, 1, 7);
 
     rect.x = 0;
     rect.y = 0;
@@ -253,14 +241,10 @@ static void func_801D01C8(void) {
 void func_801D069C(void) {
     volatile s32 dummy;
     s32 i;
-    SysMenuSetCursorMovement(
-        &D_801D24CC[0], 0, 0, 1, 10, 0, 0, 1, 10, 0, 0, 0, 1, 0);
-    SysMenuSetCursorMovement(
-        &D_801D24CC[1], 0, 0, 2, 2, 0, 0, 2, 2, 0, 0, 1, 1, 0);
-    SysMenuSetCursorMovement(
-        &D_801D24CC[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
-    SysMenuSetCursorMovement(
-        &D_801D24CC[3], 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0);
+    SysMenuSetCursorMovement(&D_801D24CC[0], 0, 0, 1, 10, 0, 0, 1, 10, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(&D_801D24CC[1], 0, 0, 2, 2, 0, 0, 2, 2, 0, 0, 1, 1, 0);
+    SysMenuSetCursorMovement(&D_801D24CC[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(&D_801D24CC[3], 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0);
     D_801D1AA8 = 0;
     for (i = 0; i < LEN(g_MenuColors); i++) {
         D_801D252C[i] = g_MenuColors[i];

@@ -39,8 +39,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033BE0);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033C20);
 
-void SysCdromSetChainParam(
-    int op, int sector, size_t len, u_long* dst, void (*cb)());
+void SysCdromSetChainParam(int op, int sector, size_t len, u_long* dst, void (*cb)());
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SysCdromSetChainParam);
 
 int func_80033DAC(int sector_no, void (*cb)()) {
@@ -56,8 +55,7 @@ int func_80033DE4(int sector_no) {
     return 0;
 }
 
-int SystemLoadFileBySector(
-    int sector_no, size_t size, u_long* dst, void (*cb)()) {
+int SystemLoadFileBySector(int sector_no, size_t size, u_long* dst, void (*cb)()) {
     SysCdromSetChainParam(CDOP_3, sector_no, size, dst, cb);
     return 0;
 }

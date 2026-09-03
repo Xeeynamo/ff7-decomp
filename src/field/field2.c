@@ -187,9 +187,7 @@ void FieldDialogMove(s16 window, s16 dx, s16 dy) {
     g_WindowData[window].y += dy;
 }
 
-void FieldDialogSetWindowHeight(s16 window, s16 height) {
-    g_WindowData[window].height = height;
-}
+void FieldDialogSetWindowHeight(s16 window, s16 height) { g_WindowData[window].height = height; }
 
 s32 FieldDialogMessageUpdateStates(u8 window, u8 message) {
     switch (g_WindowData[window].state) {
@@ -225,8 +223,7 @@ s32 FieldDialogMessageUpdateStates(u8 window, u8 message) {
     case WSTATE_WAIT_ROW:
         if (g_pFieldState->pressedKeys & PADRright) {
             if (g_WindowData[window].currentRow ==
-                (g_WindowData[window].height - 9) / 16 - 1 +
-                    g_WindowExtraRows[window]) {
+                (g_WindowData[window].height - 9) / 16 - 1 + g_WindowExtraRows[window]) {
                 g_WindowData[window].state = WSTATE_SCROLL_ROW;
                 g_WindowData[window].textScrolling -= 2;
                 g_WindowExtraRows[window]++;
@@ -234,8 +231,7 @@ s32 FieldDialogMessageUpdateStates(u8 window, u8 message) {
         }
         break;
     case WSTATE_TXT_DONE:
-        if (!(g_WindowData[window].preventClose & 1) &&
-            (g_pFieldState->pressedKeys & PADRright)) {
+        if (!(g_WindowData[window].preventClose & 1) && (g_pFieldState->pressedKeys & PADRright)) {
             g_WindowData[window].state = WSTATE_CLOSING;
             FieldDialogWindowDecrease(window);
         }
@@ -248,8 +244,7 @@ s32 FieldDialogMessageUpdateStates(u8 window, u8 message) {
     case WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK:
         if (g_pFieldState->pressedKeys & PADRright) {
             g_WindowData[window].state = WSTATE_SCROLL_TXT_WHILE_OK;
-            g_WindowTotalRowsHeight[window] =
-                g_WindowData[window].currentRow * 16 + 17;
+            g_WindowTotalRowsHeight[window] = g_WindowData[window].currentRow * 16 + 17;
             g_WindowData[window].textScrolling -= 2;
         }
         break;
@@ -267,8 +262,7 @@ s32 FieldDialogMessageUpdateStates(u8 window, u8 message) {
     return 0;
 }
 
-s32 FieldDialogAskUpdateStates(
-    u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
+s32 FieldDialogAskUpdateStates(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
     switch (g_WindowData[window].state) {
 
     // Clears window, sets width/height to 1/4 of what was previously set
@@ -311,8 +305,7 @@ s32 FieldDialogAskUpdateStates(
     case WSTATE_WAIT_ROW:
         if (g_pFieldState->pressedKeys & PADRright) {
             if (g_WindowData[window].currentRow ==
-                (g_WindowData[window].height - 9) / 16 - 1 +
-                    g_WindowExtraRows[window]) {
+                (g_WindowData[window].height - 9) / 16 - 1 + g_WindowExtraRows[window]) {
                 g_WindowData[window].state = WSTATE_SCROLL_ROW;
                 g_WindowData[window].textScrolling -= 2;
                 g_WindowExtraRows[window]++;
@@ -363,8 +356,7 @@ s32 FieldDialogAskUpdateStates(
     case WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK:
         if (g_pFieldState->pressedKeys & PADRright) {
             g_WindowData[window].state = WSTATE_SCROLL_TXT_WHILE_OK;
-            g_WindowTotalRowsHeight[window] =
-                g_WindowData[window].currentRow * 16 + 17;
+            g_WindowTotalRowsHeight[window] = g_WindowData[window].currentRow * 16 + 17;
             g_WindowData[window].textScrolling -= 2;
         }
         break;
@@ -531,8 +523,7 @@ void FieldDialogCopyTextFromField(s16 window) {
         }
     }
 
-    g_WindowTextBudget[window] +=
-        characterCost * (g_WindowFastForwardLevel[window] >> 4) + baseCredit;
+    g_WindowTextBudget[window] += characterCost * (g_WindowFastForwardLevel[window] >> 4) + baseCredit;
 
     while (g_WindowTextBudget[window] > characterCost) {
         switch (*g_WindowStringPtr[window]) {
@@ -547,15 +538,13 @@ void FieldDialogCopyTextFromField(s16 window) {
         // If we have, set state to WSTATE_WAIT_ROW.
         case 0xE7:
             if (g_WindowData[window].currentRow ==
-                (g_WindowData[window].height - 9) / 16 - 1 +
-                    g_WindowExtraRows[window]) {
+                (g_WindowData[window].height - 9) / 16 - 1 + g_WindowExtraRows[window]) {
                 g_WindowData[window].state = WSTATE_WAIT_ROW;
                 g_WindowFastForwardLevel[window] = 1;
                 g_WindowTextBudget[window] = 0;
                 goto end;
             }
-            g_WindowString[window][g_WindowData[window].stringByteLength] =
-                *g_WindowStringPtr[window];
+            g_WindowString[window][g_WindowData[window].stringByteLength] = *g_WindowStringPtr[window];
             g_WindowStringPtr[window]++;
             g_WindowData[window].stringByteLength++;
             g_WindowData[window].currentRow++;
@@ -574,8 +563,7 @@ void FieldDialogCopyTextFromField(s16 window) {
         case 0xE1:
             g_WindowStringPtr[window]++;
             for (i = 0; i < 4; i++) {
-                g_WindowString[window][g_WindowData[window].stringByteLength] =
-                    0;
+                g_WindowString[window][g_WindowData[window].stringByteLength] = 0;
                 g_WindowData[window].stringByteLength++;
                 g_WindowData[window].stringLength++;
             }
@@ -585,8 +573,7 @@ void FieldDialogCopyTextFromField(s16 window) {
         case 0xE0:
             g_WindowStringPtr[window]++;
             for (i = 0; i < 10; i++) {
-                g_WindowString[window][g_WindowData[window].stringByteLength] =
-                    0;
+                g_WindowString[window][g_WindowData[window].stringByteLength] = 0;
                 g_WindowData[window].stringByteLength++;
                 g_WindowData[window].stringLength++;
             }
@@ -615,8 +602,7 @@ void FieldDialogCopyTextFromField(s16 window) {
         // Write '…"'
         case 0xE4:
             g_WindowStringPtr[window]++;
-            g_WindowString[window][g_WindowData[window].stringByteLength] =
-                0xA9;
+            g_WindowString[window][g_WindowData[window].stringByteLength] = 0xA9;
             g_WindowData[window].stringByteLength++;
             g_WindowString[window][g_WindowData[window].stringByteLength] = 2;
             g_WindowData[window].stringByteLength++;
@@ -635,13 +621,11 @@ void FieldDialogCopyTextFromField(s16 window) {
         case 0xF2: // Cid
             value = *g_WindowStringPtr[window] - 0xEA;
             name = GetCharacterName(value);
-            if (name[g_WindowNameCopyCount[window]] == 0xFF ||
-                g_WindowNameCopyCount[window] >= 9) {
+            if (name[g_WindowNameCopyCount[window]] == 0xFF || g_WindowNameCopyCount[window] >= 9) {
                 g_WindowStringPtr[window]++;
                 g_WindowNameCopyCount[window] = 0;
             } else {
-                g_WindowString[window][g_WindowData[window].stringByteLength] =
-                    name[g_WindowNameCopyCount[window]];
+                g_WindowString[window][g_WindowData[window].stringByteLength] = name[g_WindowNameCopyCount[window]];
                 g_WindowData[window].stringByteLength++;
                 g_WindowNameCopyCount[window]++;
                 g_WindowData[window].stringLength++;
@@ -660,9 +644,7 @@ void FieldDialogCopyTextFromField(s16 window) {
                     g_WindowStringPtr[window]++;
                     g_WindowNameCopyCount[window] = 0;
                 } else {
-                    g_WindowString[window]
-                                  [g_WindowData[window].stringByteLength] =
-                                      0xA9;
+                    g_WindowString[window][g_WindowData[window].stringByteLength] = 0xA9;
                     g_WindowData[window].stringByteLength++;
                     g_WindowNameCopyCount[window]++;
                     g_WindowData[window].stringLength++;
@@ -671,14 +653,11 @@ void FieldDialogCopyTextFromField(s16 window) {
             } else {
                 // Party member exists. Get player-chosen name from savemap.
                 name = GetCharacterName(value);
-                if (name[g_WindowNameCopyCount[window]] == 0xFF ||
-                    g_WindowNameCopyCount[window] >= 9) {
+                if (name[g_WindowNameCopyCount[window]] == 0xFF || g_WindowNameCopyCount[window] >= 9) {
                     g_WindowStringPtr[window]++;
                     g_WindowNameCopyCount[window] = 0;
                 } else {
-                    g_WindowString[window]
-                                  [g_WindowData[window].stringByteLength] =
-                                      name[g_WindowNameCopyCount[window]];
+                    g_WindowString[window][g_WindowData[window].stringByteLength] = name[g_WindowNameCopyCount[window]];
                     g_WindowData[window].stringByteLength++;
                     g_WindowNameCopyCount[window]++;
                     g_WindowData[window].stringLength++;
@@ -689,8 +668,7 @@ void FieldDialogCopyTextFromField(s16 window) {
 
         // Opcode prefix.
         case 0xFE:
-            g_WindowString[window][g_WindowData[window].stringByteLength] =
-                *g_WindowStringPtr[window];
+            g_WindowString[window][g_WindowData[window].stringByteLength] = *g_WindowStringPtr[window];
             g_WindowStringPtr[window]++;
             g_WindowData[window].stringByteLength++;
             switch (*g_WindowStringPtr[window]) {
@@ -741,16 +719,14 @@ void FieldDialogCopyTextFromField(s16 window) {
                     }
                     g_WindowBufferPos[window]++;
                 } else if (
-                    g_WindowBuffer[window][g_WindowBufferPos[window]] == 0xFF ||
-                    g_WindowBufferPos[window] >= 16) {
+                    g_WindowBuffer[window][g_WindowBufferPos[window]] == 0xFF || g_WindowBufferPos[window] >= 16) {
                     // Last converted character has been copied.
                     g_WindowStringPtr[window] += 2;
                     g_WindowBufferPos[window] = -1;
                     g_WindowReplaceParam[window]++;
                 } else {
                     // Copy the next character of the converted integer.
-                    g_WindowString[window][g_WindowData[window]
-                                               .stringByteLength] =
+                    g_WindowString[window][g_WindowData[window].stringByteLength] =
                         g_WindowBuffer[window][g_WindowBufferPos[window]];
                     g_WindowData[window].stringByteLength++;
                     g_WindowBufferPos[window]++;
@@ -775,18 +751,15 @@ void FieldDialogCopyTextFromField(s16 window) {
                         }
                     }
                     for (i = 0; i < len; i++) {
-                        g_WindowBuffer[window][i] =
-                            Savemap.memory_bank_1[value + i];
+                        g_WindowBuffer[window][i] = Savemap.memory_bank_1[value + i];
                     }
                     g_WindowBuffer[window][i] = 0xFF;
                     g_WindowBufferPos[window]++;
-                } else if (
-                    g_WindowBuffer[window][g_WindowBufferPos[window]] == 0xFF) {
+                } else if (g_WindowBuffer[window][g_WindowBufferPos[window]] == 0xFF) {
                     g_WindowStringPtr[window] += 6;
                     g_WindowBufferPos[window] = -1;
                 } else {
-                    g_WindowString[window][g_WindowData[window]
-                                               .stringByteLength] =
+                    g_WindowString[window][g_WindowData[window].stringByteLength] =
                         g_WindowBuffer[window][g_WindowBufferPos[window]];
                     g_WindowData[window].stringByteLength++;
                     g_WindowBufferPos[window]++;
@@ -809,8 +782,7 @@ void FieldDialogCopyTextFromField(s16 window) {
             case 0xDB: // Rainbow colors, changes color for each character
             // Toggle left padding of characters.
             case 0xE9:
-                g_WindowString[window][g_WindowData[window].stringByteLength] =
-                    *g_WindowStringPtr[window];
+                g_WindowString[window][g_WindowData[window].stringByteLength] = *g_WindowStringPtr[window];
                 g_WindowStringPtr[window]++;
                 g_WindowData[window].stringByteLength++;
                 continue;
@@ -829,8 +801,7 @@ void FieldDialogCopyTextFromField(s16 window) {
                 goto end;
 
             default:
-                g_WindowString[window][g_WindowData[window].stringByteLength] =
-                    *g_WindowStringPtr[window];
+                g_WindowString[window][g_WindowData[window].stringByteLength] = *g_WindowStringPtr[window];
                 g_WindowStringPtr[window]++;
                 g_WindowData[window].stringByteLength++;
                 g_WindowData[window].stringLength++;
@@ -843,16 +814,14 @@ void FieldDialogCopyTextFromField(s16 window) {
         case 0xFB:
         case 0xFC:
         case 0xFD:
-            g_WindowString[window][g_WindowData[window].stringByteLength] =
-                *g_WindowStringPtr[window];
+            g_WindowString[window][g_WindowData[window].stringByteLength] = *g_WindowStringPtr[window];
             g_WindowStringPtr[window]++;
             g_WindowData[window].stringByteLength++;
 
         // Fall through to copy the second byte of the character.
         // Also used to copy all other characters directly.
         default:
-            g_WindowString[window][g_WindowData[window].stringByteLength] =
-                *g_WindowStringPtr[window];
+            g_WindowString[window][g_WindowData[window].stringByteLength] = *g_WindowStringPtr[window];
             g_WindowStringPtr[window]++;
             g_WindowData[window].stringByteLength++;
             g_WindowData[window].stringLength++;
@@ -888,10 +857,8 @@ void DialogScrollTextDuringOk(s16 window) {
         return;
     }
 
-    if (g_WindowData[window].textScrolling + g_WindowTotalRowsHeight[window] >
-        0) {
-        g_WindowData[window].textScrolling -=
-            g_WindowFastForwardLevel[window] >> 2;
+    if (g_WindowData[window].textScrolling + g_WindowTotalRowsHeight[window] > 0) {
+        g_WindowData[window].textScrolling -= g_WindowFastForwardLevel[window] >> 2;
         if (g_pFieldState->activeKeys & PADRright) {
             g_WindowFastForwardLevel[window]++;
             if (g_WindowFastForwardLevel[window] > 128) {
@@ -946,8 +913,7 @@ s32 FieldDialogWindowDecrease(s16 window) {
         g_WindowData[window].currentHeight = 8;
     }
 
-    if (g_WindowData[window].currentWidth < 9 &&
-        g_WindowData[window].currentHeight < 9) {
+    if (g_WindowData[window].currentWidth < 9 && g_WindowData[window].currentHeight < 9) {
         g_WindowData[window].stringLength = 0;
         g_WindowData[window].state = WSTATE_INIT;
         g_WindowToEntity[window] = 0xFF;
@@ -975,46 +941,38 @@ u16 FieldDialogGetVariableFromBank(s16 window) {
         value |= Savemap.memory_bank_1[offset + 1] << 8;
         break;
     case 3:
-        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] +
-                 0x100;
+        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] + 0x100;
         value = Savemap.memory_bank_1[offset];
         break;
     case 4:
-        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] +
-                 0x100;
+        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] + 0x100;
         value = Savemap.memory_bank_1[offset];
         value |= Savemap.memory_bank_1[offset + 1] << 8;
         break;
     case 11:
-        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] +
-                 0x200;
+        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] + 0x200;
         value = Savemap.memory_bank_1[offset];
         break;
     case 12:
-        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] +
-                 0x200;
+        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] + 0x200;
         value = Savemap.memory_bank_1[offset];
         value |= Savemap.memory_bank_1[offset + 1] << 8;
         break;
     case 13:
-        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] +
-                 0x300;
+        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] + 0x300;
         value = Savemap.memory_bank_1[offset];
         break;
     case 15:
-        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] +
-                 0x400;
+        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] + 0x400;
         value = Savemap.memory_bank_1[offset];
         break;
     case 14:
-        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] +
-                 0x300;
+        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] + 0x300;
         value = Savemap.memory_bank_1[offset];
         value |= Savemap.memory_bank_1[offset + 1] << 8;
         break;
     case 7:
-        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] +
-                 0x400;
+        offset = g_WindowReplaceBankAddr[window][g_WindowReplaceParam[window]] + 0x400;
         value = Savemap.memory_bank_1[offset];
         value |= Savemap.memory_bank_1[offset + 1] << 8;
         break;
@@ -1316,9 +1274,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageNotInit);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageHide);
 
-static void FieldDebugTranspSwitch(void) {
-    g_FieldDebugTransp = (g_FieldDebugTransp + 1) & 3;
-}
+static void FieldDebugTranspSwitch(void) { g_FieldDebugTransp = (g_FieldDebugTransp + 1) & 3; }
 
 void FieldDebugStringCopy(char* dst, const char* src) {
     if (*src) {

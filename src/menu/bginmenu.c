@@ -27,10 +27,8 @@ extern s32 D_8009CE60[];
 // (bginmenu).
 void func_801D0000(void) {
     volatile s32 padding;
-    SysMenuSetCursorMovement(
-        &D_801D0860[0], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
-    SysMenuSetCursorMovement(
-        &D_801D0860[1], 0, 0, 1, 3, 0, 0, 1, 9, 0, 0, 0, 0, 0);
+    SysMenuSetCursorMovement(&D_801D0860[0], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(&D_801D0860[1], 0, 0, 1, 3, 0, 0, 1, 9, 0, 0, 0, 0, 0);
     D_801D07F0 = 0;
 }
 
@@ -95,9 +93,7 @@ static s32 CountEquippedMateria(s32 arg0) {
 }
 
 // Reads a 16-bit little-endian value from Unk801D026C structure.
-static s32 BankRead16(Unk801D026C* arg0) {
-    return arg0->unk0 | (arg0->unk1 << 8);
-}
+static s32 BankRead16(Unk801D026C* arg0) { return arg0->unk0 | (arg0->unk1 << 8); }
 
 // Writes a 16-bit little-endian value into Unk801D026C structure.
 static void BankWrite16(Unk801D026C* arg0, u16 arg1) {
@@ -113,9 +109,7 @@ void ScalePartyHp(void) {
     s32 scaled;
 
     for (i = 0; i < 5; i++) {
-        scaled =
-            Savemap.party[i].hp_cur *
-            BankRead16((Unk801D026C*)&Savemap.memory_bank_2[116] + i) / 65535;
+        scaled = Savemap.party[i].hp_cur * BankRead16((Unk801D026C*)&Savemap.memory_bank_2[116] + i) / 65535;
         if (scaled <= 0) {
             scaled = 1;
         }

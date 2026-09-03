@@ -82,8 +82,7 @@ static void BrizadRenderIce(void) {
     SetTransMatrix(&matrix);
     SetFarColor(0, 0, 0);
     BrizadRenderDesc.unkA = spin;
-    BrizadBufferPtr =
-        func_800D29D4(&BrizadRenderDesc, g_cDb->unk70, 12, BrizadBufferPtr);
+    BrizadBufferPtr = func_800D29D4(&BrizadRenderDesc, g_cDb->unk70, 12, BrizadBufferPtr);
     if (D_80062D98 == 0) {
         nextFrame = (u16)effect->AnimationFrame + 1;
         effect->AnimationFrame = nextFrame;
@@ -100,9 +99,7 @@ static void BrizadSpawnIce(void) {
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == 0) {
             next = &D_80162978[BattleEffectRegister(BrizadRenderIce)];
-            BattleGetPartPosition(
-                effect->TargetIndex, D_801518E4[effect->TargetIndex].D_8015190F,
-                &next->Pos);
+            BattleGetPartPosition(effect->TargetIndex, D_801518E4[effect->TargetIndex].D_8015190F, &next->Pos);
             next->Rot.vz = 0;
             next->Rot.vy = 0;
             next->Rot.vx = 0;
@@ -124,9 +121,7 @@ static void BrizadAttachToTargetUnused(s32 target) {
 
 // Registered as the MagicAnimationRegister per-target callback by MAGIC_Brizad.
 // Spawns a BrizadSpawnIce slot and tells it which target it belongs to.
-static void BrizadAttachToTarget(s32 target) {
-    D_80162978[BattleEffectRegister(BrizadSpawnIce)].TargetIndex = target;
-}
+static void BrizadAttachToTarget(s32 target) { D_80162978[BattleEffectRegister(BrizadSpawnIce)].TargetIndex = target; }
 
 // Points the write pointer at this frame's page, then toggles to the other one.
 // This slot uses AnimationFrame as a 0/1 page index, not as a frame counter.
@@ -134,8 +129,7 @@ static void BrizadAttachToTarget(s32 target) {
 static void BrizadDoubleBufferFlip(void) {
     BrizadData* flip = &D_80162978[D_8015169C];
 
-    BrizadBufferPtr =
-        flip->AnimationFrame * BRIZAD_PAGE_SIZE + BrizadPrimBuffer;
+    BrizadBufferPtr = flip->AnimationFrame * BRIZAD_PAGE_SIZE + BrizadPrimBuffer;
     flip->AnimationFrame = (u16)flip->AnimationFrame ^ 1;
     if (D_80162080 < 2) {
         flip->StartFrame = -1;

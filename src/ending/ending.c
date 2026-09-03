@@ -185,13 +185,10 @@ void func_800A0030(void) {
         ((TILE*)((buf * 0x10) + (s32)D_800A6504))->r0 = r;
         ((TILE*)((buf * 0x10) + (s32)D_800A6504))->g0 = g;
         ((TILE*)((buf * 0x10) + (s32)D_800A6504))->b0 = b;
-        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)),
-                ((TILE*)((buf * 0x10) + (s32)D_800A6504)));
+        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)), ((TILE*)((buf * 0x10) + (s32)D_800A6504)));
         tp = GetTPage(2, 2, 0, 0);
-        SetDrawMode(((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)), 1, 1,
-                    tp & 0xFFFF, NULL);
-        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)),
-                ((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)));
+        SetDrawMode(((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)), 1, 1, tp & 0xFFFF, NULL);
+        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)), ((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)));
         DrawOTag((u_long*)((buf * 4) + (s32)D_800A64E4));
         r -= 2;
         g -= 2;
@@ -245,13 +242,10 @@ void func_800A0030(void) {
         ((TILE*)((buf * 0x10) + (s32)D_800A6504))->r0 = r;
         ((TILE*)((buf * 0x10) + (s32)D_800A6504))->g0 = g;
         ((TILE*)((buf * 0x10) + (s32)D_800A6504))->b0 = b;
-        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)),
-                ((TILE*)((buf * 0x10) + (s32)D_800A6504)));
+        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)), ((TILE*)((buf * 0x10) + (s32)D_800A6504)));
         tp = GetTPage(2, 2, 0, 0);
-        SetDrawMode(((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)), 1, 1,
-                    tp & 0xFFFF, NULL);
-        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)),
-                ((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)));
+        SetDrawMode(((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)), 1, 1, tp & 0xFFFF, NULL);
+        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)), ((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)));
         DrawOTag((u_long*)((buf * 4) + (s32)D_800A64E4));
         r += 2;
         g += 2;
@@ -528,8 +522,7 @@ s32 func_800A1FC8(void) {
     s16 sp10;
     s16 sp12;
 
-    func_800A2888(
-        SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++), &sp10, &sp12);
+    func_800A2888(SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++), &sp10, &sp12);
 
     return 1;
 }
@@ -540,8 +533,7 @@ s32 func_800A2014(void) {
     s32 id = *D_800A6528++;
 
     if (D_800A6390 != 0) {
-        SysCdromSetLzsExtract(
-            SysCdromGetPackPointer((void*)0x800D0000, id), (void*)0x80120000);
+        SysCdromSetLzsExtract(SysCdromGetPackPointer((void*)0x800D0000, id), (void*)0x80120000);
     }
 
     if (func_80034D5C() != 0) {
@@ -564,8 +556,8 @@ s32 func_800A20D4(void) { return func_80034410() == 0; }
 s32 func_800A20F8(void) {
     u8 unused[8]; /* retail reserves it, nothing reads it */
 
-    func_800A2504(*D_800A6528++, *D_800A6528++, *D_800A6528++,
-                  *(u8*)D_800A6528++, *(u8*)D_800A6528++, *(u8*)D_800A6528++);
+    func_800A2504(
+        *D_800A6528++, *D_800A6528++, *D_800A6528++, *(u8*)D_800A6528++, *(u8*)D_800A6528++, *(u8*)D_800A6528++);
     func_800A273C(0);
 
     return 1;
@@ -617,8 +609,7 @@ s32 func_800A22E4(void) {
 
 s32 func_800A2328(void) {
     D_8009A000[0] = 0x10;
-    D_8009A004[0] =
-        (u32)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
+    D_8009A004[0] = (u32)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
     SystemAkaoExecute();
 
     return 1;
@@ -917,8 +908,7 @@ void func_800A3368(EndingSprite* spr) {
         return;
     }
 
-    if (func_800A379C((EndingObj*)spr->unk1C, &spr->unk78, &d, spr->unk4) !=
-        0) {
+    if (func_800A379C((EndingObj*)spr->unk1C, &spr->unk78, &d, spr->unk4) != 0) {
         spr->flags ^= 0x10;
     }
 

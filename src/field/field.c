@@ -84,8 +84,7 @@ void FieldLoadMimDatFiles(void) {
     s32 temp;
 
     if (g_isFieldLoading == 0) {
-        DS_read(g_FieldLzsInfo[g_CurrentFieldIndex * 6],
-                g_FieldLzsInfo[g_CurrentFieldIndex * 6 + 1], (u32*)0x80128000,
+        DS_read(g_FieldLzsInfo[g_CurrentFieldIndex * 6], g_FieldLzsInfo[g_CurrentFieldIndex * 6 + 1], (u32*)0x80128000,
                 NULL);
         while (SystemCdromReadChain() != 0) {
         }
@@ -94,8 +93,7 @@ void FieldLoadMimDatFiles(void) {
         }
         SystemLzsDecompress((void*)0x801B0000, (void*)0x80128000);
     }
-    DS_read(((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6],
-            ((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6 + 1],
+    DS_read(((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6], ((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6 + 1],
             (u32*)0x80114FE4, NULL);
     while (SystemCdromReadChain() != 0) {
     }
@@ -223,18 +221,14 @@ u32 FieldButtonsUpdate(void) {
     g_FieldKeyState = InputReadPadsRaw();
     g_FieldState.activeKeysPrevRaw = g_FieldState.activeKeysRaw;
     g_FieldState.activeKeysRaw = g_FieldKeyState;
-    g_FieldState.pressedKeysRaw =
-        (g_FieldKeyState ^ g_FieldState.activeKeysPrevRaw) & g_FieldKeyState;
-    g_FieldState.releasedKeysRaw =
-        (g_FieldKeyState ^ g_FieldState.activeKeysPrevRaw) & ~g_FieldKeyState;
+    g_FieldState.pressedKeysRaw = (g_FieldKeyState ^ g_FieldState.activeKeysPrevRaw) & g_FieldKeyState;
+    g_FieldState.releasedKeysRaw = (g_FieldKeyState ^ g_FieldState.activeKeysPrevRaw) & ~g_FieldKeyState;
 
     g_FieldKeyState = InputReadPads();
     g_FieldState.activeKeysPrev = g_FieldState.activeKeys;
     g_FieldState.activeKeys = g_FieldKeyState;
-    g_FieldState.pressedKeys =
-        (g_FieldKeyState ^ g_FieldState.activeKeysPrev) & g_FieldKeyState;
-    g_FieldState.releasedKeys =
-        (g_FieldKeyState ^ g_FieldState.activeKeysPrev) & ~g_FieldKeyState;
+    g_FieldState.pressedKeys = (g_FieldKeyState ^ g_FieldState.activeKeysPrev) & g_FieldKeyState;
+    g_FieldState.releasedKeys = (g_FieldKeyState ^ g_FieldState.activeKeysPrev) & ~g_FieldKeyState;
 
     return g_FieldKeyState;
 }
@@ -403,8 +397,7 @@ void FieldRainInit(struct FieldRenderData* renderData) {
     SetDrawMode(&renderData->RainDm, 0, 0, GetTPage(0, 1, 0, 0) & 0xffff, NULL);
 }
 
-void FieldRainAddToRender(
-    u32* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm) {
+void FieldRainAddToRender(u32* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm) {
     long p;
     long flag;
     s32 i;
@@ -473,12 +466,10 @@ void FieldRainUpdate(void) {
                 g_FieldRain[i].wait = 7;
 
                 g_FieldRain[i].p2.vx =
-                    (g_FieldEntities[player].PosX >> 12) +
-                    g_RandomTable[g_FieldRain[i].rndSeed & 0xFF] * 12 - 0x600;
+                    (g_FieldEntities[player].PosX >> 12) + g_RandomTable[g_FieldRain[i].rndSeed & 0xFF] * 12 - 0x600;
 
                 seed3 = g_FieldRain[i].rndSeed * 3;
-                g_FieldRain[i].p2.vy = (g_FieldEntities[player].PosY >> 12) +
-                                       g_RandomTable[seed3] * 12 - 0x600;
+                g_FieldRain[i].p2.vy = (g_FieldEntities[player].PosY >> 12) + g_RandomTable[seed3] * 12 - 0x600;
 
                 g_FieldRain[i].p1.vx = g_FieldRain[i].p2.vx;
                 g_FieldRain[i].p1.vy = g_FieldRain[i].p2.vy;
@@ -490,8 +481,7 @@ void FieldRainUpdate(void) {
             }
         }
 
-        g_FieldRain[i].p2.vz =
-            g_FieldRain[i].z + (g_FieldRain[i].wait & 0x7) * 0x80;
+        g_FieldRain[i].p2.vz = g_FieldRain[i].z + (g_FieldRain[i].wait & 0x7) * 0x80;
 
         vz = (g_FieldRain[i].wait & 0x7) * 0x80;
         vz += 0x100;

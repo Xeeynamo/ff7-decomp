@@ -42,8 +42,7 @@ extern s32 D_8009D7E0;
 extern u8 D_8009D7ED[][12];
 extern s16 D_8009D7EE[][6]; // same 12-byte record as D_8009D7ED
 extern SavePartyMember D_8009C738[];
-extern u8
-    D_8009D58A[]; // gil, stored unaligned, so it is copied a byte at a time
+extern u8 D_8009D58A[]; // gil, stored unaligned, so it is copied a byte at a time
 extern Unk800F5E60 D_800F5E60[3];
 extern u16 D_800F7DD2;
 extern u8 D_80163790[]; // the char_id occupying each of the three party slots
@@ -223,8 +222,7 @@ void StoreResultsRow(BatresRow* p, SavePartyMember* c) {
     c->exp_to_next_level = p->expLevelEnd - p->exp;
     c->level_progress_bar = 0;
     if (p->expLevelEnd != p->expLevelStart) {
-        c->level_progress_bar = (p->exp - p->expLevelStart) * 61 /
-                                (p->expLevelEnd - p->expLevelStart);
+        c->level_progress_bar = (p->exp - p->expLevelStart) * 61 / (p->expLevelEnd - p->expLevelStart);
     }
     if (p->level >= 99) {
         c->exp_to_next_level = 0;
@@ -323,26 +321,21 @@ s32 RollGrowthRank(s32 arg0) {
 }
 
 s32 CalcStatGrowth(BatresRow* p, s32 level, s32 gauge) {
-    return D_80082484[p->curve[gauge]][p->tier].mul * level / 100 +
-           D_80082484[p->curve[gauge]][p->tier].add;
+    return D_80082484[p->curve[gauge]][p->tier].mul * level / 100 + D_80082484[p->curve[gauge]][p->tier].add;
 }
 
 s32 CalcHpGrowth(BatresRow* p, s32 level) {
-    return D_80082484[p->curve[6]][p->tier].mul * level +
-           D_80082484[p->curve[6]][p->tier].add * 40;
+    return D_80082484[p->curve[6]][p->tier].mul * level + D_80082484[p->curve[6]][p->tier].add * 40;
 }
 
 s32 CalcMpGrowth(BatresRow* p, s32 level) {
-    return D_80082484[p->curve[7]][p->tier].mul * level / 10 +
-           D_80082484[p->curve[7]][p->tier].add * 2;
+    return D_80082484[p->curve[7]][p->tier].mul * level / 10 + D_80082484[p->curve[7]][p->tier].add * 2;
 }
 
 void GrowStat(BatresRow* p, s32 gauge) {
     s32 v;
 
-    v = p->stat[gauge] +
-        D_80082460[0][RollGrowthRank(
-            CalcStatGrowth(p, p->level + 1, gauge) - p->stat[gauge])];
+    v = p->stat[gauge] + D_80082460[0][RollGrowthRank(CalcStatGrowth(p, p->level + 1, gauge) - p->stat[gauge])];
     if (v >= 101) {
         v = 100;
     }
@@ -356,9 +349,7 @@ void GrowMaxHp(BatresRow* p) {
 
     cur = CalcHpGrowth(p, p->level);
     next = CalcHpGrowth(p, p->level + 1);
-    v = p->stat[6] +
-        (next - cur) *
-            D_80082460[1][RollGrowthRank(cur * 100 / p->stat[6] - 100)] / 100;
+    v = p->stat[6] + (next - cur) * D_80082460[1][RollGrowthRank(cur * 100 / p->stat[6] - 100)] / 100;
     if (v >= 10000) {
         v = 9999;
     }
@@ -372,9 +363,7 @@ void GrowMaxMp(BatresRow* p) {
 
     cur = CalcMpGrowth(p, p->level);
     next = CalcMpGrowth(p, p->level + 1);
-    v = p->stat[7] +
-        (next - cur) *
-            D_80082460[2][RollGrowthRank(cur * 100 / p->stat[7] - 100)] / 100;
+    v = p->stat[7] + (next - cur) * D_80082460[2][RollGrowthRank(cur * 100 / p->stat[7] - 100)] / 100;
     if (v >= 1000) {
         v = 999;
     }

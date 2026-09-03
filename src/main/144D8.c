@@ -17,13 +17,10 @@ void func_800144F0(s32 file_no) { func_80033DAC(file_no, 0); }
 void func_80014510(s32 file_no) { func_800144F0(D_80048D84[file_no].loc); }
 
 // used to load WORLD/WORLD.BIN or FIELD/FIELD.BIN
-void func_80014540(void) {
-    SystemLoadFileBySector(D_80071744, D_80095DD8, D_800722C8, NULL);
-}
+void func_80014540(void) { SystemLoadFileBySector(D_80071744, D_80095DD8, D_800722C8, NULL); }
 
 void func_80014578(s32 file_no, void* dst, void (*cb)(void)) {
-    SystemLoadFileBySector(
-        D_80048D84[file_no].loc, D_80048D84[file_no].len, dst, cb);
+    SystemLoadFileBySector(D_80048D84[file_no].loc, D_80048D84[file_no].len, dst, cb);
 }
 
 void func_800145BC(void (*cb)(void)) {
@@ -41,8 +38,7 @@ void func_80014610(void) {
     u8 buf[2048];
     SystemLoadFileBySector(LBA_INIT_YAMADA, sizeof(buf), (u_long*)&buf, NULL);
     func_800145BC(0);
-    func_80014A00(
-        (s32*)D_80048D84, (s32*)&buf, sizeof(Yamada) * YAMADA_FILE_NUM);
+    func_80014A00((s32*)D_80048D84, (s32*)&buf, sizeof(Yamada) * YAMADA_FILE_NUM);
 }
 
 void func_80014658(s32 file_no, void (*cb)(void)) {

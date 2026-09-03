@@ -36,8 +36,7 @@ void FieldEventUpdate(s32 arg0) {
         if (g_FieldScripts->eventDataVersion < 2) {
             SystemError('K', 10);
         }
-        if (g_FieldScripts->eventDataVersion > 2 ||
-            g_FieldScripts->eventVersion > 5) {
+        if (g_FieldScripts->eventDataVersion > 2 || g_FieldScripts->eventVersion > 5) {
             SystemError('K', 12);
         }
     }
@@ -47,8 +46,7 @@ void FieldEventUpdate(s32 arg0) {
         }
     }
     if (g_WindowCount) {
-        SystemMenuDrawDialog(
-            g_WindowData, 4, arg0, g_pFieldState->renderBuffer ^ 1);
+        SystemMenuDrawDialog(g_WindowData, 4, arg0, g_pFieldState->renderBuffer ^ 1);
     }
     UpdateFieldExitArrows(arg0);
 }
@@ -151,29 +149,24 @@ void FieldEventOpcodeCycle(void) {
         // Skip entities involved in a split or join animation
         // (g_EntitySplitJoinState[entity] != 0) except the entity they're
         // splitting from or joining to (g_EntityForSplitJoin).
-        if (g_EntitySplitJoinState[g_CurrentEntity] == 0 ||
-            g_EntityForSplitJoin == g_CurrentEntity) {
+        if (g_EntitySplitJoinState[g_CurrentEntity] == 0 || g_EntityForSplitJoin == g_CurrentEntity) {
             for (j = 8; j != 0; j--) {
-                if (D_80099FFC == 5 && g_DebugLevel & 1 &&
-                    (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity])) {
+                if (D_80099FFC == 5 && g_DebugLevel & 1 && (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity])) {
                     for (i = 1; i < 9; i++) {
                         SetStrToDebugRow(3, i, "");
                     }
                 }
-                g_FieldCurrentOpcode =
-                    ((u8*)g_FieldScripts)[g_FieldScriptPC[g_CurrentEntity]];
+                g_FieldCurrentOpcode = ((u8*)g_FieldScripts)[g_FieldScriptPC[g_CurrentEntity]];
 
                 // Script can yield early if opcode returns 1.
                 if (g_FieldOpcodes[g_FieldCurrentOpcode]()) {
-                    if (D_80099FFC == 5 && g_DebugLevel & 1 &&
-                        (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity])) {
+                    if (D_80099FFC == 5 && g_DebugLevel & 1 && (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity])) {
                         g_CurrentEntity++;
                         goto done;
                     }
                     break;
                 }
-                if (D_80099FFC == 5 && g_DebugLevel & 1 &&
-                    (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity])) {
+                if (D_80099FFC == 5 && g_DebugLevel & 1 && (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity])) {
                     if (++D_8009A064 >= 8) {
                         D_8009A064 = 0;
                         g_CurrentEntity++;
@@ -184,8 +177,7 @@ void FieldEventOpcodeCycle(void) {
         }
         g_CurrentEntity++;
         count--;
-        if (D_80099FFC == 5 && D_80071E24 & 1 &&
-            (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity])) {
+        if (D_80099FFC == 5 && D_80071E24 & 1 && (!(D_80071E24 & 4) || D_80114498[g_CurrentEntity])) {
             break;
         }
     } while (count != 0);
@@ -205,38 +197,25 @@ void FieldUpdateAnimationState(void) {
 
     for (i = 0; i < g_FieldScripts->numEntities; i++) {
         if (g_EntityToModel[i] != 0xFF &&
-            (g_pFieldState->pcModelId != g_EntityToModel[i] ||
-             g_pFieldState->characterLock)) {
+            (g_pFieldState->pcModelId != g_EntityToModel[i] || g_pFieldState->characterLock)) {
             switch (D_800756E8[g_EntityToModel[i]]) {
             case 0:
-                if (g_FieldModels[g_EntityToModel[i]].activeAnimId !=
-                    D_8008325C[g_EntityToModel[i]]) {
-                    g_FieldModels[g_EntityToModel[i]].activeAnimId =
-                        D_8008325C[g_EntityToModel[i]];
-                    g_FieldModels[g_EntityToModel[i]].animSpeed =
-                        D_80082248[g_EntityToModel[i]];
+                if (g_FieldModels[g_EntityToModel[i]].activeAnimId != D_8008325C[g_EntityToModel[i]]) {
+                    g_FieldModels[g_EntityToModel[i]].activeAnimId = D_8008325C[g_EntityToModel[i]];
+                    g_FieldModels[g_EntityToModel[i]].animSpeed = D_80082248[g_EntityToModel[i]];
                     g_FieldModels[g_EntityToModel[i]].animCurrentFrame = 0;
-                    modelEntryId = g_FieldModelLoaderData[g_EntityToModel[i]]
-                                       .modelEntryIndex;
+                    modelEntryId = g_FieldModelLoaderData[g_EntityToModel[i]].modelEntryIndex;
                     model = &g_FieldModelData->modelEntries[modelEntryId];
                     anims = model->modelData + model->animationOffset;
                     g_FieldModels[g_EntityToModel[i]].animLastFrame =
-                        *(u16*)&anims[g_FieldEntity[g_EntityToModel[i]]
-                                          .activeAnimId *
-                                      16] -
-                        1;
+                        *(u16*)&anims[g_FieldEntity[g_EntityToModel[i]].activeAnimId * 16] - 1;
                 } else {
-                    modelEntryId = g_FieldModelLoaderData[g_EntityToModel[i]]
-                                       .modelEntryIndex;
+                    modelEntryId = g_FieldModelLoaderData[g_EntityToModel[i]].modelEntryIndex;
                     model = &g_FieldModelData->modelEntries[modelEntryId];
                     anims = model->modelData + model->animationOffset;
                     g_FieldModels[g_EntityToModel[i]].animLastFrame =
-                        *(u16*)&anims[g_FieldEntity[g_EntityToModel[i]]
-                                          .activeAnimId *
-                                      16] -
-                        1;
-                    if ((g_FieldModels[g_EntityToModel[i]].animCurrentFrame >>
-                         4) >=
+                        *(u16*)&anims[g_FieldEntity[g_EntityToModel[i]].activeAnimId * 16] - 1;
+                    if ((g_FieldModels[g_EntityToModel[i]].animCurrentFrame >> 4) >=
                         g_FieldModels[g_EntityToModel[i]].animLastFrame) {
                         g_FieldModels[g_EntityToModel[i]].animCurrentFrame = 0;
                     }
@@ -306,9 +285,7 @@ u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId) {
             break;
         }
         // Prints entity name.
-        FieldDebugStringConcat(
-            g_DebugMessageBuffer,
-            (char*)g_FieldScripts + sizeof(FieldScriptHeader) + entityId * 8);
+        FieldDebugStringConcat(g_DebugMessageBuffer, (char*)g_FieldScripts + sizeof(FieldScriptHeader) + entityId * 8);
         FieldDebugAddParseValueToPage2(g_DebugMessageBuffer, 0, 0);
     }
 
@@ -325,8 +302,7 @@ u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId) {
         entityDataSize = entityId * 64;
         entityDataSize += g_FieldScripts->numEntities * 8;
 
-        GET_FIELD_SCRIPT_PC(
-            offset, scriptOffset, entityDataSize, extrasHeaderSize);
+        GET_FIELD_SCRIPT_PC(offset, scriptOffset, entityDataSize, extrasHeaderSize);
 
         // Empty event scripts consist of just a RET (0x00) opcode.
         if (((u8*)g_FieldScripts)[offset] != 0) {
@@ -334,22 +310,18 @@ u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId) {
             // Save position of current active script of lower priority and
             // replace with new script.
             SavedScriptIds[entityId][priority] = scriptId;
-            g_SavedFieldScriptPC[entityId][g_FieldScriptPriority[entityId]] =
-                g_FieldScriptPC[entityId];
+            g_SavedFieldScriptPC[entityId][g_FieldScriptPriority[entityId]] = g_FieldScriptPC[entityId];
             g_FieldScriptPC[entityId] = offset;
             g_FieldScriptPriority[entityId] = priority;
 
             // Clear running animation if entity has a model.
             if (g_EntityToModel[entityId] != 0xFF) {
-                if (g_FieldModels[g_EntityToModel[entityId]].scriptedMoveMode ==
-                    SMODE_WALK) {
+                if (g_FieldModels[g_EntityToModel[entityId]].scriptedMoveMode == SMODE_WALK) {
                     g_FieldModels[g_EntityToModel[entityId]].activeAnimId = 0;
-                    g_FieldModels[g_EntityToModel[entityId]].animCurrentFrame =
-                        0;
+                    g_FieldModels[g_EntityToModel[entityId]].animCurrentFrame = 0;
                     g_FieldModels[g_EntityToModel[entityId]].animLastFrame = 0;
                 }
-                g_FieldModels[g_EntityToModel[entityId]].scriptedMoveMode =
-                    SMODE_NONE;
+                g_FieldModels[g_EntityToModel[entityId]].scriptedMoveMode = SMODE_NONE;
             }
 
             g_FieldWaitCounter[entityId] = 0;

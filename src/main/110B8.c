@@ -77,8 +77,7 @@ void func_800111E4(void) {
 }
 
 void func_80011274(void) {
-    SystemLoadFileBySector(
-        D_80048CFC[4].loc, D_80048CFC[4].len, (u_long*)0x800E0000, NULL);
+    SystemLoadFileBySector(D_80048CFC[4].loc, D_80048CFC[4].len, (u_long*)0x800E0000, NULL);
 
     while (1) {
         if (SystemCdromReadChain() == 0) {
@@ -86,8 +85,7 @@ void func_80011274(void) {
         }
     }
 
-    SystemLoadFileBySector(
-        D_80048CFC[3].loc, D_80048CFC[3].len, (u_long*)0x800A0000, NULL);
+    SystemLoadFileBySector(D_80048CFC[3].loc, D_80048CFC[3].len, (u_long*)0x800A0000, NULL);
 
     while (1) {
         if (SystemCdromReadChain() == 0) {
@@ -124,8 +122,7 @@ void func_800CF60C(); // field load
 void SysFieldRun(void) {
     if (D_800965EC != 5 && D_800965EC != 13) {
         if (D_800965EC != 2) {
-            SystemLoadFileBySector(D_80048CFC[5].loc, D_80048CFC[5].len,
-                                   (u_long*)0x80180000, NULL);
+            SystemLoadFileBySector(D_80048CFC[5].loc, D_80048CFC[5].len, (u_long*)0x80180000, NULL);
             while (1) {
                 if (SystemCdromReadChain() == 0) {
                     break;
@@ -151,16 +148,13 @@ void func_80011920(void) {
 }
 
 void SysInitAkaoEngine(void) {
-    SystemLoadFileBySector(
-        D_80048CFC[0].loc, D_80048CFC[0].len, (u_long*)0x800F0000, NULL);
+    SystemLoadFileBySector(D_80048CFC[0].loc, D_80048CFC[0].len, (u_long*)0x800F0000, NULL);
     do {
     } while (SystemCdromReadChain());
-    SystemLoadFileBySector(
-        D_80048CFC[1].loc, D_80048CFC[1].len, (u_long*)0x801B0000, NULL);
+    SystemLoadFileBySector(D_80048CFC[1].loc, D_80048CFC[1].len, (u_long*)0x801B0000, NULL);
     do {
     } while (SystemCdromReadChain());
-    SystemLoadFileBySector(
-        D_80048CFC[2].loc, D_80048CFC[2].len, (u_long*)0x801BC800, NULL);
+    SystemLoadFileBySector(D_80048CFC[2].loc, D_80048CFC[2].len, (u_long*)0x801BC800, NULL);
     do {
     } while (SystemCdromReadChain());
     func_8002988C(0x800F0000, 0x801BC800);

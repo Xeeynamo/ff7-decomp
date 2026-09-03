@@ -45,8 +45,7 @@ void func_801D05C0(u8 arg0) {
     D_801E3860 = 0xF0;
     D_801E36B8 = arg0;
     D_801E3850 = 0;
-    SysMenuSetCursorMovement(
-        menus.D_801E379C, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(menus.D_801E379C, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
     func_80025B8C(&D_801E8F44);
     func_80025C14(&D_801E4538);
     SysMenuLoadAvatars();
@@ -96,13 +95,10 @@ int func_801D06B0(s32 arg0) {
     func_80026B5C(0x80);
     switch (D_801E3850) {
     case 0:
-        SysMenuDrawCursor(D_801D4EC8.x - 18,
-                          D_801D4EC8.y + 6 + (menus.D_801E379C[0].row * 12));
+        SysMenuDrawCursor(D_801D4EC8.x - 18, D_801D4EC8.y + 6 + (menus.D_801E379C[0].row * 12));
         SysMenuDrawString(0xA, 0xB, D_801E2CFC[1], 7);
-        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 5, D_801E2CFC[3],
-                          -(D_801E8F38[0][0] != 0) & 7);
-        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 17, D_801E2CFC[4],
-                          -(D_801E8F3B != 0) & 7);
+        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 5, D_801E2CFC[3], -(D_801E8F38[0][0] != 0) & 7);
+        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 17, D_801E2CFC[4], -(D_801E8F3B != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
@@ -111,19 +107,15 @@ int func_801D06B0(s32 arg0) {
         SysMenuDrawWindow(&D_801D4EC8);
         break;
     case 7:
-        SysMenuDrawCursor(D_801D4ED0.x + 0x16,
-                          0x15 + D_801D4ED0.y + menus.D_801E3808[1].row * 0xC);
+        SysMenuDrawCursor(D_801D4ED0.x + 0x16, 0x15 + D_801D4ED0.y + menus.D_801E3808[1].row * 0xC);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
         rect.h = 0x100;
         SysMenuSetDrawMode(0, 1, 0x7F, &rect);
-        SysMenuDrawString(
-            D_801D4ED0.x + 0xA, D_801D4ED0.y + 6, D_801E2CFC[33], 7);
-        SysMenuDrawString(
-            D_801D4ED0.x + 48, D_801D4ED0.y + 19, D_801E2CFC[34], 7);
-        SysMenuDrawString(
-            D_801D4ED0.x + 48, D_801D4ED0.y + 31, D_801E2CFC[35], 7);
+        SysMenuDrawString(D_801D4ED0.x + 0xA, D_801D4ED0.y + 6, D_801E2CFC[33], 7);
+        SysMenuDrawString(D_801D4ED0.x + 48, D_801D4ED0.y + 19, D_801E2CFC[34], 7);
+        SysMenuDrawString(D_801D4ED0.x + 48, D_801D4ED0.y + 31, D_801E2CFC[35], 7);
         SysMenuDrawWindow(&D_801D4ED0);
         /* fallthrough */
     case 1:
@@ -141,21 +133,15 @@ int func_801D06B0(s32 arg0) {
             }
             var_s3 = !menus.D_801E379C[1].scrolling ? 3 : 4;
             for (var_s0 = 0; var_s0 < var_s3; var_s0++) {
-                if ((D_80062F3C >> (var_s0 + menus.D_801E379C[1].rowOffset)) &
-                    1) {
+                if ((D_80062F3C >> (var_s0 + menus.D_801E379C[1].rowOffset)) & 1) {
                     SysMenuStoreWindowColor();
                     func_801D370C(
-                        0, var_s0 * 64 + 29 + menus.D_801E379C[1].unkF * 8,
-                        var_s0 + menus.D_801E379C[1].rowOffset);
+                        0, var_s0 * 64 + 29 + menus.D_801E379C[1].unkF * 8, var_s0 + menus.D_801E379C[1].rowOffset);
                     SysMenuRestoreWindowColor();
                 } else {
-                    SysMenuDrawString(
-                        0x32, var_s0 * 64 + 55 + menus.D_801E379C[1].unkF * 8,
-                        D_801E2CFC[8], 6);
+                    SysMenuDrawString(0x32, var_s0 * 64 + 55 + menus.D_801E379C[1].unkF * 8, D_801E2CFC[8], 6);
                     SysMenuCopyWindowRect(&sp38, &D_801DEEF4);
-                    SysMenuMoveWindowRect(
-                        &sp38, 0,
-                        var_s0 * 64 + 29 + menus.D_801E379C[1].unkF * 8);
+                    SysMenuMoveWindowRect(&sp38, 0, var_s0 * 64 + 29 + menus.D_801E379C[1].unkF * 8);
                     SysMenuDrawWindow(&sp38);
                 }
             }
@@ -171,13 +157,8 @@ int func_801D06B0(s32 arg0) {
             }
             SysMenuDrawString(10, 11, D_801E2CFC[2], 7);
             SysMenuDrawString(206, 11, D_801E2CFC[9], 6);
-            SysMenuDrawString(
-                SysGetSingleStringWidth(D_801E2CFC[9]) + 208, 11,
-                ((13 + menus.D_801E379C[1].row +
-                  menus.D_801E379C[1].rowOffset) *
-                 36) +
-                    D_801E2CFC[0],
-                7);
+            SysMenuDrawString(SysGetSingleStringWidth(D_801E2CFC[9]) + 208, 11,
+                              ((13 + menus.D_801E379C[1].row + menus.D_801E379C[1].rowOffset) * 36) + D_801E2CFC[0], 7);
             SysMenuSetWindowRect(&sp38, 200, 5, 78, 24);
             SysMenuDrawWindow(&sp38);
             func_800269E8();
@@ -196,8 +177,7 @@ int func_801D06B0(s32 arg0) {
         }
         SysMenuDrawString(10, 11, D_801E2CFC[12], 7);
         if (D_801E36A8 == 0) {
-            SysMenuDrawProgressBar(
-                122, 117, (D_801E36AC + 1) * 8, 8, var_s2, var_s1, var_s0);
+            SysMenuDrawProgressBar(122, 117, (D_801E36AC + 1) * 8, 8, var_s2, var_s1, var_s0);
             rect.x = 0;
             rect.y = 0;
             rect.w = 0xFF;
@@ -215,13 +195,10 @@ int func_801D06B0(s32 arg0) {
         break;
     case 6:
         if (arg0 & 2) {
-            SysMenuDrawCursor(D_801D4EC8.x - 18,
-                              D_801D4EC8.y + 6 + menus.D_801E379C[0].row * 0xC);
+            SysMenuDrawCursor(D_801D4EC8.x - 18, D_801D4EC8.y + 6 + menus.D_801E379C[0].row * 0xC);
         }
-        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 5, D_801E2CFC[3],
-                          -(D_801E8F38[0][0] != 0) & 7);
-        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 0x11, D_801E2CFC[4],
-                          -(D_801E8F38[1][0] != 0) & 7);
+        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 5, D_801E2CFC[3], -(D_801E8F38[0][0] != 0) & 7);
+        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 0x11, D_801E2CFC[4], -(D_801E8F38[1][0] != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
@@ -230,16 +207,11 @@ int func_801D06B0(s32 arg0) {
         SysMenuDrawWindow(&D_801D4EC8);
         SysMenuDrawString(10, 11, D_801E3260[4], 7);
         temp_s2 = SysGetSingleStringWidth(D_801E3260[5]) + 0x10;
-        SysMenuDrawString(
-            190 - temp_s2 / 2, D_801D4EC8.h + 99, D_801E3260[5], 7);
-        SysMenuDrawString(
-            228 - temp_s2 / 2, D_801D4EC8.h + 112, D_801E2CFC[34], 7);
-        SysMenuDrawString(
-            228 - temp_s2 / 2, D_801D4EC8.h + 124, D_801E2CFC[35], 7);
-        SysMenuDrawCursor(200 - temp_s2 / 2,
-                          115 + (menus.D_801E3808[0].row * 12) + D_801D4EC8.h);
-        SysMenuSetWindowRect(
-            &sp38, 182 - temp_s2 / 2, D_801D4EC8.h + 93, temp_s2, 0x30);
+        SysMenuDrawString(190 - temp_s2 / 2, D_801D4EC8.h + 99, D_801E3260[5], 7);
+        SysMenuDrawString(228 - temp_s2 / 2, D_801D4EC8.h + 112, D_801E2CFC[34], 7);
+        SysMenuDrawString(228 - temp_s2 / 2, D_801D4EC8.h + 124, D_801E2CFC[35], 7);
+        SysMenuDrawCursor(200 - temp_s2 / 2, 115 + (menus.D_801E3808[0].row * 12) + D_801D4EC8.h);
+        SysMenuSetWindowRect(&sp38, 182 - temp_s2 / 2, D_801D4EC8.h + 93, temp_s2, 0x30);
         SysMenuDrawWindow(&sp38);
         break;
     }
@@ -250,8 +222,7 @@ int func_801D06B0(s32 arg0) {
     }
     SysMenuSetWindowRect(&sp38, 0, 5, 364, 24);
     SysMenuDrawWindow(&sp38);
-    if (!(D_801E36B8 == 0 && !SysMenuGetMenuListState()) &&
-        (D_801E36B8 == 0 || D_801E36B0 != 1)) {
+    if (!(D_801E36B8 == 0 && !SysMenuGetMenuListState()) && (D_801E36B8 == 0 || D_801E36B0 != 1)) {
         return;
     }
     if (func_8001F6B4() & 0xFF) {
@@ -264,8 +235,7 @@ int func_801D06B0(s32 arg0) {
                 func_801D0408(1);
                 if (D_801E8F38[menus.D_801E379C[0].row][2]) {
                     D_801E3850 = 6;
-                    SysMenuSetCursorMovement(&menus.D_801E3808[0], 0, 1, 1, 2,
-                                             0, 0, 1, 2, 0, 0, 0, 1, 0);
+                    SysMenuSetCursorMovement(&menus.D_801E3808[0], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
                 } else {
                     D_801E3850 = 2;
                     D_801E36AC = 0;
@@ -273,13 +243,11 @@ int func_801D06B0(s32 arg0) {
                     D_80062F3C = 0;
                     D_801E36A8 = 1;
                     D_801E36A4 = 0x3C;
-                    SysMenuSetCursorMovement(&menus.D_801E379C[1], 0, 0, 1, 3,
-                                             0, 0, 1, 15, 0, 0, 0, 0, 0);
+                    SysMenuSetCursorMovement(&menus.D_801E379C[1], 0, 0, 1, 3, 0, 0, 1, 15, 0, 0, 0, 0, 0);
                 }
             } else {
                 func_801D0408(3);
-                SysMenuRequestAddWindow(
-                    !D_801E3860 ? D_801E33B0[0] : D_801E3260[6], 7);
+                SysMenuRequestAddWindow(!D_801E3860 ? D_801E33B0[0] : D_801E3260[6], 7);
             }
         } else {
             SysMenuHandleButtons(&menus.D_801E379C[0]);
@@ -302,8 +270,7 @@ int func_801D06B0(s32 arg0) {
         if ((menus.D_801E379C[1].unkF == 0) && (var_s0 == 0)) {
             if (g_Pad1KeysPressed & PADRright) {
                 D_801E3850 = 7;
-                SysMenuSetCursorMovement(&menus.D_801E3808[1], 0, 0, 1, 2, 0, 0,
-                                         1, 2, 0, 0, 0, 1, 0);
+                SysMenuSetCursorMovement(&menus.D_801E3808[1], 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
                 func_801D0408(1);
             } else if (g_Pad1KeysPressed & PADRdown) {
                 func_801D0408(4);
@@ -357,8 +324,7 @@ int func_801D06B0(s32 arg0) {
         if (!func_801D2A34(var_v0_6)) {
             func_801D0408(0xD0);
             SysMenuRequestAddWindow(D_801E2CFC[28], 7);
-            D_80062F3C |=
-                1 << (menus.D_801E379C[1].row + menus.D_801E379C[1].rowOffset);
+            D_80062F3C |= 1 << (menus.D_801E379C[1].row + menus.D_801E379C[1].rowOffset);
         } else {
             func_801D0408(3);
             SysMenuRequestAddWindow(D_801E33B0[3], 7);
@@ -416,11 +382,9 @@ int func_801D06B0(s32 arg0) {
 }
 
 static const char* D_801E2C78[] = {
-    "BASCUS-94163FF7-S01", "BASCUS-94163FF7-S02", "BASCUS-94163FF7-S03",
-    "BASCUS-94163FF7-S04", "BASCUS-94163FF7-S05", "BASCUS-94163FF7-S06",
-    "BASCUS-94163FF7-S07", "BASCUS-94163FF7-S08", "BASCUS-94163FF7-S09",
-    "BASCUS-94163FF7-S10", "BASCUS-94163FF7-S11", "BASCUS-94163FF7-S12",
-    "BASCUS-94163FF7-S13", "BASCUS-94163FF7-S14", "BASCUS-94163FF7-S15",
+    "BASCUS-94163FF7-S01", "BASCUS-94163FF7-S02", "BASCUS-94163FF7-S03", "BASCUS-94163FF7-S04", "BASCUS-94163FF7-S05",
+    "BASCUS-94163FF7-S06", "BASCUS-94163FF7-S07", "BASCUS-94163FF7-S08", "BASCUS-94163FF7-S09", "BASCUS-94163FF7-S10",
+    "BASCUS-94163FF7-S11", "BASCUS-94163FF7-S12", "BASCUS-94163FF7-S13", "BASCUS-94163FF7-S14", "BASCUS-94163FF7-S15",
 };
 static s32 D_801E2CB4 = 0;
 
@@ -782,16 +746,13 @@ static s32 WriteSaveFile(s8* path, u8* title) {
     g_SaveFileHeader.title[0x1E] = g_ShiftJisTable[digit];
     g_SaveFileHeader.title[0x1F] = g_ShiftJisTable[digit + 1];
     iconClut = &g_SaveIcons[g_SaveSlot * SAVE_ICON_SIZE];
-    memcpy(g_SaveFileHeader.iconPalette, iconClut,
-           sizeof(g_SaveFileHeader.iconPalette));
-    memcpy(g_SaveFileHeader.iconFrame[0],
-           &g_SaveIcons[(g_SaveSlot * SAVE_ICON_SIZE) + 0x2C],
+    memcpy(g_SaveFileHeader.iconPalette, iconClut, sizeof(g_SaveFileHeader.iconPalette));
+    memcpy(g_SaveFileHeader.iconFrame[0], &g_SaveIcons[(g_SaveSlot * SAVE_ICON_SIZE) + 0x2C],
            sizeof(g_SaveFileHeader.iconFrame[0]));
     headerDst = (u8*)&g_SaveFile.header;
     memcpy(headerDst, (u8*)&g_SaveFileHeader, sizeof(MemcardFileHeader));
     g_SavemapBusy = 1;
-    Savemap.header.checksum =
-        func_801D1950(0x10F0, (u8*)&Savemap.header.leader_level);
+    Savemap.header.checksum = func_801D1950(0x10F0, (u8*)&Savemap.header.leader_level);
     savemapSrc = (u8*)&Savemap;
     memcpy((u8*)&g_SaveFile.save, savemapSrc, sizeof(SaveWork));
     g_SavemapBusy = 0;
@@ -844,14 +805,11 @@ written_ok:
 }
 
 static const char* D_801E2CB8[] = {
-    "ＦＦ７／ＳＡＶＥ０１／００：００", "ＦＦ７／ＳＡＶＥ０２／００：００",
-    "ＦＦ７／ＳＡＶＥ０３／００：００", "ＦＦ７／ＳＡＶＥ０４／００：００",
-    "ＦＦ７／ＳＡＶＥ０５／００：００", "ＦＦ７／ＳＡＶＥ０６／００：００",
-    "ＦＦ７／ＳＡＶＥ０７／００：００", "ＦＦ７／ＳＡＶＥ０８／００：００",
-    "ＦＦ７／ＳＡＶＥ０９／００：００", "ＦＦ７／ＳＡＶＥ１０／１１：１１",
-    "ＦＦ７／ＳＡＶＥ１１／１１：１１", "ＦＦ７／ＳＡＶＥ１２／１１：１１",
-    "ＦＦ７／ＳＡＶＥ１３／１１：１１", "ＦＦ７／ＳＡＶＥ１４／１１：１１",
-    "ＦＦ７／ＳＡＶＥ１５／１１：１１",
+    "ＦＦ７／ＳＡＶＥ０１／００：００", "ＦＦ７／ＳＡＶＥ０２／００：００", "ＦＦ７／ＳＡＶＥ０３／００：００",
+    "ＦＦ７／ＳＡＶＥ０４／００：００", "ＦＦ７／ＳＡＶＥ０５／００：００", "ＦＦ７／ＳＡＶＥ０６／００：００",
+    "ＦＦ７／ＳＡＶＥ０７／００：００", "ＦＦ７／ＳＡＶＥ０８／００：００", "ＦＦ７／ＳＡＶＥ０９／００：００",
+    "ＦＦ７／ＳＡＶＥ１０／１１：１１", "ＦＦ７／ＳＡＶＥ１１／１１：１１", "ＦＦ７／ＳＡＶＥ１２／１１：１１",
+    "ＦＦ７／ＳＡＶＥ１３／１１：１１", "ＦＦ７／ＳＡＶＥ１４／１１：１１", "ＦＦ７／ＳＡＶＥ１５／１１：１１",
 };
 
 static s16 func_801D2A34(s32 save_id) {

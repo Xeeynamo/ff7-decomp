@@ -191,9 +191,7 @@ static u16 TutorialFrameUpdate(void) {
 
     if (s_TutorialDelay != 0) {
         s_TutorialDelay -= 1;
-    } else if (
-        (SysMenuGetMenuListState() == 0 || SysMenuGetMenuListState() == 1) &&
-        SystemCdromReadChain() == 0) {
+    } else if ((SysMenuGetMenuListState() == 0 || SysMenuGetMenuListState() == 1) && SystemCdromReadChain() == 0) {
         input = TutorialDoNextEvent();
     }
     return input;

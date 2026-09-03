@@ -38,11 +38,10 @@ static s32 bari_a1[] = {    // Embedded Model
     0x38FFFFFF, 0x006A6A6A, 0x00C0C0C0, 0x006A6A6A,
 
     // repeat for other vertexes
-    0x00200000, 0x00280008, 0x38C0C0C0, 0x006A6A6A, 0x00FFFFFF, 0x006A6A6A,
-    0x00180010, 0x00200000, 0x38C0C0C0, 0x006A6A6A, 0x00C0C0C0, 0x006A6A6A,
-    0x00100008, 0x00180028, 0x38FFFFFF, 0x00C0C0C0, 0x006A6A6A, 0x006A6A6A,
-    0x00080000, 0x00280020, 0x38C0C0C0, 0x00FFFFFF, 0x006A6A6A, 0x006A6A6A,
-    0x00000010, 0x00200018, 0x38C0C0C0, 0x00C0C0C0, 0x006A6A6A, 0x006A6A6A};
+    0x00200000, 0x00280008, 0x38C0C0C0, 0x006A6A6A, 0x00FFFFFF, 0x006A6A6A, 0x00180010, 0x00200000, 0x38C0C0C0,
+    0x006A6A6A, 0x00C0C0C0, 0x006A6A6A, 0x00100008, 0x00180028, 0x38FFFFFF, 0x00C0C0C0, 0x006A6A6A, 0x006A6A6A,
+    0x00080000, 0x00280020, 0x38C0C0C0, 0x00FFFFFF, 0x006A6A6A, 0x006A6A6A, 0x00000010, 0x00200018, 0x38C0C0C0,
+    0x00C0C0C0, 0x006A6A6A, 0x006A6A6A};
 
 static s32 bari_a2[] = {    // Embedded Model
                             // 3 verts 2 ploys 1 group
@@ -98,8 +97,7 @@ static void BarrierRenderBorder(void) {
     } else {
         var_s3 = barrier->FaceIndex | 8;
         var_s4 = temp_a0 << 9;
-        scale->vx = scale->vy = scale->vz =
-            (((temp_a0 * 0x180) + 0xC00) * BarrierBaseScale) >> 12;
+        scale->vx = scale->vy = scale->vz = (((temp_a0 * 0x180) + 0xC00) * BarrierBaseScale) >> 12;
     }
 
     SetFarColor(0, 0, 0);
@@ -117,8 +115,7 @@ static void BarrierRenderBorder(void) {
 
     BorderRenderDesc.unk4 = var_s3 | 0x80;
     BorderRenderDesc.unkA = var_s4;
-    BarrierBufferPtr =
-        func_800D29D4(&BorderRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
+    BarrierBufferPtr = func_800D29D4(&BorderRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
 
     if (D_80062D98 == 0) {
         barrier->AnimationFrame++;
@@ -137,11 +134,9 @@ static void BarrierRenderShield(void) {
 
     if (temp_a0 < 0) {
         if (barrier->AnimationFrame < 6) {
-            scale1->vx = scale1->vy = scale1->vz =
-                (barrier->AnimationFrame * (BarrierBaseScale << 9)) >> 12;
+            scale1->vx = scale1->vy = scale1->vz = (barrier->AnimationFrame * (BarrierBaseScale << 9)) >> 12;
         } else {
-            scale1->vx = scale1->vy = scale1->vz =
-                (BarrierBaseScale * 0xC00) >> 12;
+            scale1->vx = scale1->vy = scale1->vz = (BarrierBaseScale * 0xC00) >> 12;
         }
 
         scale2->vx = scale2->vy = scale2->vz = (BarrierBaseScale * 0xC00) >> 12;
@@ -154,8 +149,8 @@ static void BarrierRenderShield(void) {
     } else {
         var_s5 = barrier->FaceIndex | 8;
         var_s6 = temp_a0 << 9;
-        scale1->vx = scale1->vy = scale1->vz = scale2->vx = scale2->vy =
-            scale2->vz = (((temp_a0 * 0x180) + 0xC00) * BarrierBaseScale) >> 12;
+        scale1->vx = scale1->vy = scale1->vz = scale2->vx = scale2->vy = scale2->vz =
+            (((temp_a0 * 0x180) + 0xC00) * BarrierBaseScale) >> 12;
     }
 
     SetFarColor(0, 0, 0);
@@ -173,8 +168,7 @@ static void BarrierRenderShield(void) {
 
     ShieldRenderDesc.unk4 = var_s5 | 0x80;
     ShieldRenderDesc.unkA = var_s6;
-    BarrierBufferPtr =
-        func_800D29D4(&ShieldRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
+    BarrierBufferPtr = func_800D29D4(&ShieldRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
 
     if (D_80062D98 == 0) {
         barrier->AnimationFrame++;
@@ -262,14 +256,11 @@ static void BarrierAnimationUpdate(void) {
 }
 
 static void BarrierAttachToTarget(int target) {
-    BarrierData* barrier =
-        &D_80162978[BattleEffectRegister(BarrierAnimationUpdate)];
+    BarrierData* barrier = &D_80162978[BattleEffectRegister(BarrierAnimationUpdate)];
 
     BattleGetPartPosition(target, D_801518E4[target].D_8015190F, &barrier->Pos);
-    barrier->Pos.vx -=
-        (rsin(D_801518E4[target].unk160.vy) * D_801518E4[target].unk12) >> 12;
-    barrier->Pos.vz -=
-        (rcos(D_801518E4[target].unk160.vy) * D_801518E4[target].unk12) >> 12;
+    barrier->Pos.vx -= (rsin(D_801518E4[target].unk160.vy) * D_801518E4[target].unk12) >> 12;
+    barrier->Pos.vz -= (rcos(D_801518E4[target].unk160.vy) * D_801518E4[target].unk12) >> 12;
     barrier->Rot = D_801518E4[target].unk160;
     barrier->TargetIndex = target;
 }

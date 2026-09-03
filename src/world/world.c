@@ -278,9 +278,7 @@ void func_800A4008(void) {
     }
 }
 
-s32 func_800A4080(void) {
-    return (D_800E5648 & 3) | ((func_800BCA38() * 4) & 0xC);
-}
+s32 func_800A4080(void) { return (D_800E5648 & 3) | ((func_800BCA38() * 4) & 0xC); }
 
 void func_800A40B8(s32 arg0) {
     func_800A2088(arg0 & 3);
@@ -523,9 +521,7 @@ void func_800A6994(VECTOR* arg0, s32 arg1) {
             D_80109D44.vx = ((D_80109D44.vx * 3) + arg0->vx) >> 2;
             D_80109D44.vz = ((D_80109D44.vz * 3) + arg0->vz) >> 2;
             func_800A692C(&D_80109D44);
-            D_800E56F8 =
-                ABS(arg0->vx - D_80109D44.vx) + ABS(arg0->vz - D_80109D44.vz) >=
-                0xB;
+            D_800E56F8 = ABS(arg0->vx - D_80109D44.vx) + ABS(arg0->vz - D_80109D44.vz) >= 0xB;
             return;
         }
         D_80109D44 = *arg0;
@@ -669,8 +665,7 @@ void func_800A8C70(WorldActor* arg0) {
 
 s32 func_800A8CA4(void) {
     WorldActor* var_v1;
-    for (var_v1 = D_8010AD38; var_v1 != NULL && var_v1->actorType < 0x20;
-         var_v1 = var_v1->next)
+    for (var_v1 = D_8010AD38; var_v1 != NULL && var_v1->actorType < 0x20; var_v1 = var_v1->next)
         ;
     return var_v1 != NULL;
 }
@@ -679,8 +674,7 @@ void func_800A8CE4(void) {
     WorldActor* temp_s0;
 
     temp_s0 = D_8010AD40;
-    if ((temp_s0 != NULL) && (D_8010AD3C != NULL) &&
-        (D_8010AD3C->riding == NULL)) {
+    if ((temp_s0 != NULL) && (D_8010AD3C != NULL) && (D_8010AD3C->riding == NULL)) {
         func_800A8B30(temp_s0);
         D_8010AD3C->riding = temp_s0;
         D_8010AD40 = D_8010AD3C;
@@ -737,9 +731,7 @@ void func_800A8E50(void) {
     }
 }
 
-s32 func_800A8F48(void) {
-    return D_8010AD3C == NULL ? 0 : D_8010AD3C->riding != NULL;
-}
+s32 func_800A8F48(void) { return D_8010AD3C == NULL ? 0 : D_8010AD3C->riding != NULL; }
 
 void func_800A8F74(void) {
     if (D_8010AD40)
@@ -795,35 +787,23 @@ void func_800A9110(void) {
         D_8010AD40 = D_8010AD3C;
 }
 
-WorldStoredTriangle* func_800A9134(void) {
-    return D_8010AD40 != NULL ? D_8010AD40->storedTris : NULL;
-}
+WorldStoredTriangle* func_800A9134(void) { return D_8010AD40 != NULL ? D_8010AD40->storedTris : NULL; }
 
-s32 func_800A9154(void) {
-    return D_8010AD3C != NULL ? D_8010AD3C->actorType : NULL;
-}
+s32 func_800A9154(void) { return D_8010AD3C != NULL ? D_8010AD3C->actorType : NULL; }
 
-s32 func_800A9174(void) {
-    return D_8010AD40 != NULL ? D_8010AD40->actorType : NULL;
-}
+s32 func_800A9174(void) { return D_8010AD40 != NULL ? D_8010AD40->actorType : NULL; }
 
 WorldActor* func_800A9194(void) { return D_8010AD3C; }
 
 s32 func_800A91A4(s32 arg0) {
-    return D_8010AD40 != NULL && D_8010AD40->actorType < 0x20U
-               ? (arg0 >> D_8010AD40->actorType) & 1
-               : 0;
+    return D_8010AD40 != NULL && D_8010AD40->actorType < 0x20U ? (arg0 >> D_8010AD40->actorType) & 1 : 0;
 }
 
 s32 func_800A91E0(s32 arg0) {
-    return D_8010AD3C != NULL && D_8010AD3C->actorType < 0x20U
-               ? (arg0 >> D_8010AD3C->actorType) & 1
-               : 0;
+    return D_8010AD3C != NULL && D_8010AD3C->actorType < 0x20U ? (arg0 >> D_8010AD3C->actorType) & 1 : 0;
 }
 
-s32 func_800A921C(s32 arg0, u8 arg1) {
-    return arg1 >= 0x20 ? 0 : (arg0 >> arg1) & 1;
-}
+s32 func_800A921C(s32 arg0, u8 arg1) { return arg1 >= 0x20 ? 0 : (arg0 >> arg1) & 1; }
 
 s32 func_800A9240(void) {
     s32 out;
@@ -832,8 +812,7 @@ s32 func_800A9240(void) {
     if (D_8010AD40 != NULL) {
         actorType = D_8010AD40->actorType;
         out = 0;
-        if (actorType == 4 || actorType == 0x13 ||
-            D_8010AD40->actorType - 0x29 < 2U)
+        if (actorType == 4 || actorType == 0x13 || D_8010AD40->actorType - 0x29 < 2U)
             out = 1;
     } else
         out = 0;
@@ -847,18 +826,14 @@ s32 func_800A929C(void) {
     if (D_8010AD3C != NULL) {
         actorType = D_8010AD3C->actorType;
         out = 0;
-        if (actorType == 4 || actorType == 0x13 ||
-            D_8010AD3C->actorType - 0x29 < 2U)
+        if (actorType == 4 || actorType == 0x13 || D_8010AD3C->actorType - 0x29 < 2U)
             out = 1;
     } else
         out = 0;
     return out;
 }
 
-s32 func_800A92F8(s32 arg0) {
-    return (arg0 & 0xFF) == 4 || (arg0 & 0xFF) == 0x13 ||
-           ((arg0 - 0x29) & 0xFF) < 2U;
-}
+s32 func_800A92F8(s32 arg0) { return (arg0 & 0xFF) == 4 || (arg0 & 0xFF) == 0x13 || ((arg0 - 0x29) & 0xFF) < 2U; }
 
 static const s32 D_800A01D8[] = {0, 0xF000};
 static const s32 D_800A01E0[] = {0, 0};
@@ -953,26 +928,18 @@ void func_800A96A4(s16 arg0) { func_800A9520(D_8010AD40, arg0); }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A96D0);
 
-s16 func_800A97A8(void) {
-    return D_8010AD3C == NULL ? 0 : D_8010AD3C->unk3C + D_8010AD3C->unk3E;
-}
+s16 func_800A97A8(void) { return D_8010AD3C == NULL ? 0 : D_8010AD3C->unk3C + D_8010AD3C->unk3E; }
 
-s16 func_800A97E4(void) {
-    return D_8010AD40 == NULL ? 0 : D_8010AD40->unk3C + D_8010AD40->unk3E;
-}
+s16 func_800A97E4(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->unk3C + D_8010AD40->unk3E; }
 
 void func_800A9820(s32 arg0) {
     if (D_8010AD3C != NULL)
         D_8010AD3C->pos.vy += arg0;
 }
 
-s32 func_800A984C(void) {
-    return D_8010AD3C == NULL ? 0 : D_8010AD3C->flags1 & 1;
-}
+s32 func_800A984C(void) { return D_8010AD3C == NULL ? 0 : D_8010AD3C->flags1 & 1; }
 
-s32 func_800A9878(void) {
-    return D_8010AD40 == NULL ? 0 : D_8010AD40->flags1 & 1;
-}
+s32 func_800A9878(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->flags1 & 1; }
 
 void func_800A98A4(s32 arg0) {
     u8 var_v0;
@@ -989,17 +956,14 @@ void func_800A98A4(s32 arg0) {
     }
 }
 
-s32 func_800A98E4(void) {
-    return D_8010AD40 == NULL ? 0 : D_8010AD40->flags1 >> 7;
-}
+s32 func_800A98E4(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->flags1 >> 7; }
 
 s16 func_800A9910(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->unk42; }
 
 s32 func_800A993C(s32 arg0) {
     WorldActor* var_v1;
 
-    for (var_v1 = D_8010AD38; var_v1 != NULL && var_v1->actorType != arg0;
-         var_v1 = var_v1->next)
+    for (var_v1 = D_8010AD38; var_v1 != NULL && var_v1->actorType != arg0; var_v1 = var_v1->next)
         ;
     if (var_v1 != NULL)
         D_8010AD3C = var_v1;
@@ -1012,8 +976,7 @@ void func_800A9988(void) {
 }
 
 s32 func_800A99BC(void) {
-    return D_8010AD40 != NULL && D_8010AD3C != NULL &&
-           D_8010AD40 != D_8010AD3C && !(D_8010AD3C->flags1 & 0x10);
+    return D_8010AD40 != NULL && D_8010AD3C != NULL && D_8010AD40 != D_8010AD3C && !(D_8010AD3C->flags1 & 0x10);
 }
 
 void func_800A9A04(s8 arg0) {
@@ -1026,21 +989,13 @@ void func_800A9A24(s16 arg0) {
         D_8010AD40->walkmesh = arg0;
 }
 
-s32 func_800A9A44(void) {
-    return D_8010AD40 == NULL ? 0 : D_8010AD40->walkmesh & 0x1F;
-}
+s32 func_800A9A44(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->walkmesh & 0x1F; }
 
-s32 func_800A9A70(void) {
-    return D_8010AD40 == NULL ? 0 : (D_8010AD40->walkmesh >> 9) & 0x1F;
-}
+s32 func_800A9A70(void) { return D_8010AD40 == NULL ? 0 : (D_8010AD40->walkmesh >> 9) & 0x1F; }
 
-u32 func_800A9AA4(void) {
-    return D_8010AD40 == NULL ? 0 : (u16)D_8010AD40->walkmesh >> 0xF;
-}
+u32 func_800A9AA4(void) { return D_8010AD40 == NULL ? 0 : (u16)D_8010AD40->walkmesh >> 0xF; }
 
-s32 func_800A9AD0(void) {
-    return D_8010AD40 == NULL ? 0 : (D_8010AD40->walkmesh >> 5) & 7;
-}
+s32 func_800A9AD0(void) { return D_8010AD40 == NULL ? 0 : (D_8010AD40->walkmesh >> 5) & 7; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A9B04);
 
@@ -1058,9 +1013,7 @@ void func_800A9C64(WorldActor* arg0, VECTOR* arg1) {
         }
         arg0->unk42 = arg1->vy;
         arg0->flags1 =
-            arg0->pos.vx != arg0->altPos.vx || arg0->pos.vz != arg0->altPos.vz
-                ? arg0->flags1 | 1
-                : arg0->flags1 & 0xFE;
+            arg0->pos.vx != arg0->altPos.vx || arg0->pos.vz != arg0->altPos.vz ? arg0->flags1 | 1 : arg0->flags1 & 0xFE;
     }
 }
 
@@ -1166,9 +1119,7 @@ s32 func_800AA640(void) {
     return temp_v0;
 }
 
-WorldActor* func_800AA684(void) {
-    return D_8010AD3C != NULL ? D_8010AD3C->collide : NULL;
-}
+WorldActor* func_800AA684(void) { return D_8010AD3C != NULL ? D_8010AD3C->collide : NULL; }
 
 void func_800AA6A4(void) {
     if (D_8010AD40 != NULL)
@@ -1185,12 +1136,9 @@ void func_800AA6D0(WorldChunkHeader* arg0) {
         if (var_s0 != D_8010AD40) {
             func_800A6884(&var_s0->pos, &sp20, &sp28, &sp2A);
             if ((sp28 == arg0->x) && (sp2A == arg0->z)) {
-                func_800A19FC(arg0, &sp20, var_s0->storedTris, &var_s0->unk42,
-                              0, &var_s0->walkmesh, var_s0->actorType);
+                func_800A19FC(arg0, &sp20, var_s0->storedTris, &var_s0->unk42, 0, &var_s0->walkmesh, var_s0->actorType);
                 if (!(var_s0->flags1 & 0x80)) {
-                    var_s0->pos.vy =
-                        var_s0->unk42 +
-                        func_800A9B04(var_s0->walkmesh, var_s0->actorType);
+                    var_s0->pos.vy = var_s0->unk42 + func_800A9B04(var_s0->walkmesh, var_s0->actorType);
                 }
                 var_s0->flags1 |= 2;
             }
@@ -1247,11 +1195,9 @@ void func_800AB398(WorldActor* arg0) {
     if (!(arg0->flags1 & 2)) {
         return;
     }
-    if ((func_800A921C(7, arg0->actorType) != 0 &&
-             (arg0->animId < 2 || arg0->animId > 5) ||
+    if ((func_800A921C(7, arg0->actorType) != 0 && (arg0->animId < 2 || arg0->animId > 5) ||
          func_800A92F8(arg0->actorType) != 0) &&
-        (arg0 != D_8010AD40 || D_8010AD5C == 0) &&
-        ((0x311B6F05 >> (arg0->walkmesh & 0x1F)) & 1)) {
+        (arg0 != D_8010AD40 || D_8010AD5C == 0) && ((0x311B6F05 >> (arg0->walkmesh & 0x1F)) & 1)) {
         func_800B5C7C(arg0);
     } else if (arg0->actorType == 3 || arg0->actorType == 0xB) {
         func_800B5C7C(arg0);
@@ -1259,8 +1205,7 @@ void func_800AB398(WorldActor* arg0) {
 }
 
 void func_800AB48C(WorldActor* arg0) {
-    if ((arg0->collide != NULL) &&
-        ((arg0->flags1 & 1) || (arg0->collide->flags1 & 1)))
+    if ((arg0->collide != NULL) && ((arg0->flags1 & 1) || (arg0->collide->flags1 & 1)))
         arg0->collide = NULL;
     arg0->altPos = arg0->pos;
 }
@@ -1293,10 +1238,8 @@ void func_800AB6E4(s32 arg0, s32 arg1) {
     s32 var_v1;
 
     var_s2 = 0;
-    if (D_8010AD3C != NULL &&
-        (D_8010AD3C->scriptPriority < arg1 ||
-         (D_8010AD3C->scriptPriority == arg1 && arg1 == 3) ||
-         D_8010AD3C->scriptIdx == 0)) {
+    if (D_8010AD3C != NULL && (D_8010AD3C->scriptPriority < arg1 || (D_8010AD3C->scriptPriority == arg1 && arg1 == 3) ||
+                               D_8010AD3C->scriptIdx == 0)) {
         if (D_8010AD3C->scriptCallDepth >= 4)
             func_800A0B40(0x41);
         if (D_8010AD3C->scriptIdx != 0) {
@@ -1307,8 +1250,7 @@ void func_800AB6E4(s32 arg0, s32 arg1) {
             temp_a1->scriptPriority = D_8010AD3C->scriptPriority;
         }
 
-        for (var_v1 = 0x40, var_a0 = &D_8010AD68->bst[0x80]; var_v1 != 0;
-             var_v1 >>= 1) {
+        for (var_v1 = 0x40, var_a0 = &D_8010AD68->bst[0x80]; var_v1 != 0; var_v1 >>= 1) {
             if (var_a0->unk0 == arg0)
                 break;
             else if (var_a0->unk0 < arg0)
@@ -1427,9 +1369,7 @@ s32 func_800ABB24(void) {
             var_s0 = D_8010AD90->unk0;
             break;
         case 0x114:
-            var_s0 = D_8010AD94[D_8010AD90->unk4 & 3][D_8010AD90->unk0 >> 3] >>
-                         (D_8010AD90->unk0 & 7) &
-                     1;
+            var_s0 = D_8010AD94[D_8010AD90->unk4 & 3][D_8010AD90->unk0 >> 3] >> (D_8010AD90->unk0 & 7) & 1;
             break;
         case 0x118:
             var_s0 = D_8010AD94[D_8010AD90->unk4 & 3][D_8010AD90->unk0];
@@ -1649,8 +1589,7 @@ void func_800ABFC0(u16 arg0) {
         temp_s0_16 = D_8010AD3C;
         D_8010AD90->unk0 = 0;
         if (func_800A993C(func_800ABB24()) != 0) {
-            D_8010AD90->unk0 =
-                func_800AE024(&D_8010AD3C->pos, &temp_s0_16->pos) >> 4;
+            D_8010AD90->unk0 = func_800AE024(&D_8010AD3C->pos, &temp_s0_16->pos) >> 4;
         }
         D_8010AD3C = temp_s0_16;
         break;
@@ -1662,10 +1601,7 @@ void func_800ABFC0(u16 arg0) {
         if (temp_v0 >= 0 && temp_v0 < 3) {
             // not going to bother with the struct at 8010ADF4 yet, as it may be
             // unused
-            temp_s0_17->unk0 =
-                func_800AE024(
-                    &sp10, (VECTOR*)((temp_v0 * 0x4) + &D_8010ADF4)) >>
-                4;
+            temp_s0_17->unk0 = func_800AE024(&sp10, (VECTOR*)((temp_v0 * 0x4) + &D_8010ADF4)) >> 4;
         } else {
             temp_s0_17->unk0 = 0;
         }
@@ -1723,8 +1659,7 @@ s32 func_800AC484(u16 arg0) {
         D_8010ADE4->scriptIdx = D_8010ADE4->scriptPriority = 0;
         if (D_8010ADEC != 0) {
             if (D_8010ADE4 == D_80109D74) {
-                for (var_s0 = D_8010AD38; var_s0 != NULL;
-                     var_s0 = var_s0->next) {
+                for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next) {
                     func_800AB988(var_s0->actorType, 1);
                 }
             }
@@ -1777,8 +1712,7 @@ void func_800AD63C(WorldActor* arg0) {
     }
     func_800A9678(arg0->direction);
     if (arg0->collide != NULL && D_8010ADEC == 0 && func_800A21A4() != 0)
-        func_800AB988(
-            arg0->collide->actorType, (InputReadPads() & PADRright) ? 4 : 3);
+        func_800AB988(arg0->collide->actorType, (InputReadPads() & PADRright) ? 4 : 3);
 }
 
 void func_800AD788(void) {
@@ -1821,8 +1755,7 @@ void func_800ADD4C(s16 arg0) {
 
     D_8010AE54 = ~(1 << arg0) & D_8010AE54;
     if (arg0 != 0) {
-        for (var_v1 = 1 << (arg0 - 1); var_v1 && !(var_v1 & D_8010AE54);
-             var_v1 >>= 1)
+        for (var_v1 = 1 << (arg0 - 1); var_v1 && !(var_v1 & D_8010AE54); var_v1 >>= 1)
             ;
         if (var_v1 == 1)
             func_800A8048();
@@ -1855,8 +1788,7 @@ void func_800ADEA8(s32 arg0) {
     }
     arr[0x10] = (arr[0x10] << 0x17) ^ (arr[0] >> 9) ^ arr[0xF];
     for (var_a2 = 0x11; var_a2 <= 0x208; var_a2++)
-        arr[var_a2] = (arr[var_a2 - 0x11] << 0x17) ^
-                      (arr[var_a2 - 0x10] >> 0x9) ^ (arr[var_a2 - 0x1]);
+        arr[var_a2] = (arr[var_a2 - 0x11] << 0x17) ^ (arr[var_a2 - 0x10] >> 0x9) ^ (arr[var_a2 - 0x1]);
     for (var_a2 = 0; var_a2 <= 0x208; var_a2++)
         D_8010AE5C[var_a2] = arr[var_a2];
     func_800ADE30();
@@ -2022,13 +1954,9 @@ void func_800AF364(u8 arg0, u8 arg1, u8 arg2) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF3A4);
 
-s32 func_800AF96C(VECTOR* v) {
-    return D_8010B3B8 ? func_800AE024(v, &D_8010B3B8->unk0) : 0;
-}
+s32 func_800AF96C(VECTOR* v) { return D_8010B3B8 ? func_800AE024(v, &D_8010B3B8->unk0) : 0; }
 
-s16 func_800AF9A0(VECTOR* arg0) {
-    return D_8010B3B8 == NULL ? 0 : func_800AE47C(arg0, (VECTOR*)D_8010B3B8);
-}
+s16 func_800AF9A0(VECTOR* arg0) { return D_8010B3B8 == NULL ? 0 : func_800AE47C(arg0, (VECTOR*)D_8010B3B8); }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF9DC);
 
@@ -2038,13 +1966,9 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AFFBC);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B0098);
 
-void func_800B017C(s32 arg0) {
-    (&D_8010B47C)[arg0] = (D_8010B488[arg0] < D_8010B494[arg0]) << 4;
-}
+void func_800B017C(s32 arg0) { (&D_8010B47C)[arg0] = (D_8010B488[arg0] < D_8010B494[arg0]) << 4; }
 
-void func_800B01C4(s32 arg0) {
-    (&D_8010B47C)[arg0] = (D_8010B488[arg0] > 0) ? -0x10 : 0;
-}
+void func_800B01C4(s32 arg0) { (&D_8010B47C)[arg0] = (D_8010B488[arg0] > 0) ? -0x10 : 0; }
 
 void func_800B0200(s32 arg0) {
     func_800B017C(arg0);
@@ -2093,8 +2017,7 @@ void func_800B075C(void) {
 s32 func_800B0794(void) {
     VECTOR sp10;
     func_800AA0E0(&sp10);
-    return D_8010C804 != 0 && (sp10.vx - 0x30000) < 0x10000U &&
-           (sp10.vz - 0x1C000) < 0x10000U;
+    return D_8010C804 != 0 && (sp10.vx - 0x30000) < 0x10000U && (sp10.vz - 0x1C000) < 0x10000U;
 }
 
 static s32 func_800B0800(void) { return D_8010C808; }
@@ -2181,9 +2104,7 @@ static void func_800B2F94(s32 arg0) { D_8010CAF0 = arg0; }
 
 s32 func_800B2FA4(void) { return D_8010CA8C != 2 ? -(D_8010CA8C == 3) : 1; }
 
-s32 func_800B2FD0(void) {
-    return D_8010CACC != 0 || D_8010CAD0 != 0 || D_8010CAD4 != 0;
-}
+s32 func_800B2FD0(void) { return D_8010CACC != 0 || D_8010CAD0 != 0 || D_8010CAD4 != 0; }
 
 void func_800B3018(void) {
     D_8010CAF4 = 1;
@@ -2213,10 +2134,7 @@ void func_800B3300(u32 arg0) {
     D_8010CB18 = 0;
 }
 
-s32 func_800B3350(void) {
-    return D_800C68EE | (D_800C6902 << 8) | (D_800C6916 << 0x10) |
-           (D_8010CB14 << 0x18);
-}
+s32 func_800B3350(void) { return D_800C68EE | (D_800C6902 << 8) | (D_800C6916 << 0x10) | (D_8010CB14 << 0x18); }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B338C);
 
@@ -2404,9 +2322,7 @@ s32 func_800B717C(void) {
     return var_v0;
 }
 
-s32 func_800B7200(void) {
-    return D_8009D288[0] >= 1000 && D_8009D288[0] < 1200;
-}
+s32 func_800B7200(void) { return D_8009D288[0] >= 1000 && D_8009D288[0] < 1200; }
 
 static u8 func_800B7218(void) { return D_8009D686; }
 
@@ -2571,14 +2487,12 @@ void func_800B832C(void) {
     s32 temp_v0_2;
 
     temp_a0 = func_800A1DE0();
-    if ((D_8009AC2F == 0) && (temp_a0 != 2) && (func_800B2FD0() == 0) &&
-        (func_800A21A4() != 0)) {
+    if ((D_8009AC2F == 0) && (temp_a0 != 2) && (func_800B2FD0() == 0) && (func_800A21A4() != 0)) {
         temp_s0 = func_800A9AD0();
         func_800AA0E0(&sp10);
         func_800AA170(&sp20);
         if ((func_800A91A4(0x47) != 0) && (D_80116280 != 0)) {
-            if ((temp_s0 == 0) &&
-                ((sp10.vx != sp20.vx) || (sp10.vz != sp20.vz))) {
+            if ((temp_s0 == 0) && ((sp10.vx != sp20.vx) || (sp10.vz != sp20.vz))) {
                 if ((D_8011627C == 8) || (D_8011627C == 0x10))
                     func_800262D8();
                 temp_v0 = D_8011627C < 0x10;
@@ -2620,8 +2534,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B851C);
 static s32 func_800B857C(void) { return g_WindowData[0].state != WSTATE_INIT; }
 
 s32 func_800B858C(void) {
-    if ((g_WindowData[0].state != WSTATE_INIT) &&
-        (g_WindowData[0].state != WSTATE_CLOSING)) {
+    if ((g_WindowData[0].state != WSTATE_INIT) && (g_WindowData[0].state != WSTATE_CLOSING)) {
         func_800B89C4(0);
     }
 
@@ -2632,9 +2545,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B85D4);
 
 extern s16 D_80116290;
 
-s16 func_800B86C4(void) {
-    return g_WindowData[0].state == WSTATE_INIT ? D_80116290 : -1;
-}
+s16 func_800B86C4(void) { return g_WindowData[0].state == WSTATE_INIT ? D_80116290 : -1; }
 
 void func_800B86E8(SVECTOR* arg0) {
     if (arg0 != NULL) {
@@ -2766,9 +2677,7 @@ void func_800B8CBC(s16 window, s16 dx, s16 dy) {
     g_WindowData[window].y += dy;
 }
 
-void func_800B8D20(s16 window, s16 height) {
-    g_WindowData[window].height = height;
-}
+void func_800B8D20(s16 window, s16 height) { g_WindowData[window].height = height; }
 
 s32 func_800B8D4C(u8 window, u8 message) {
     switch (g_WindowData[window].state) {
@@ -2803,9 +2712,7 @@ s32 func_800B8D4C(u8 window, u8 message) {
         break;
     case WSTATE_WAIT_ROW:
         if (g_pFieldState->pressedKeys & PADRright) {
-            if (g_WindowData[window].currentRow ==
-                (g_WindowData[window].height - 9) / 16 - 1 +
-                    D_801162A4[window]) {
+            if (g_WindowData[window].currentRow == (g_WindowData[window].height - 9) / 16 - 1 + D_801162A4[window]) {
                 g_WindowData[window].state = WSTATE_SCROLL_ROW;
                 g_WindowData[window].textScrolling -= 2;
                 D_801162A4[window]++;
@@ -2813,8 +2720,7 @@ s32 func_800B8D4C(u8 window, u8 message) {
         }
         break;
     case WSTATE_TXT_DONE:
-        if (!(g_WindowData[window].preventClose & 1) &&
-            (g_pFieldState->pressedKeys & PADRright)) {
+        if (!(g_WindowData[window].preventClose & 1) && (g_pFieldState->pressedKeys & PADRright)) {
             g_WindowData[window].state = WSTATE_CLOSING;
             func_800BAC70(window);
         }
@@ -2878,9 +2784,7 @@ s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
         break;
     case WSTATE_WAIT_ROW:
         if (g_pFieldState->pressedKeys & PADRright) {
-            if (g_WindowData[window].currentRow ==
-                (g_WindowData[window].height - 9) / 16 - 1 +
-                    D_801162A4[window]) {
+            if (g_WindowData[window].currentRow == (g_WindowData[window].height - 9) / 16 - 1 + D_801162A4[window]) {
                 g_WindowData[window].state = WSTATE_SCROLL_ROW;
                 g_WindowData[window].textScrolling -= 2;
                 D_801162A4[window]++;
@@ -3092,8 +2996,7 @@ void func_800B9B2C(s16 window) {
         }
     }
 
-    D_801162A0[window] +=
-        characterCost * (D_8011629C[window] >> 4) + baseCredit;
+    D_801162A0[window] += characterCost * (D_8011629C[window] >> 4) + baseCredit;
 
     while (D_801162A0[window] > characterCost) {
         switch (*D_801162B0[window]) {
@@ -3105,16 +3008,13 @@ void func_800B9B2C(s16 window) {
 
         // Next row.
         case 0xE7:
-            if (g_WindowData[window].currentRow ==
-                (g_WindowData[window].height - 9) / 16 - 1 +
-                    D_801162A4[window]) {
+            if (g_WindowData[window].currentRow == (g_WindowData[window].height - 9) / 16 - 1 + D_801162A4[window]) {
                 g_WindowData[window].state = WSTATE_WAIT_ROW;
                 D_8011629C[window] = 1;
                 D_801162A0[window] = 0;
                 goto end;
             }
-            D_801162B4[window][g_WindowData[window].stringByteLength] =
-                *D_801162B0[window];
+            D_801162B4[window][g_WindowData[window].stringByteLength] = *D_801162B0[window];
             D_801162B0[window]++;
             g_WindowData[window].stringByteLength++;
             g_WindowData[window].currentRow++;
@@ -3145,8 +3045,7 @@ void func_800B9B2C(s16 window) {
                 D_801162B0[window]++;
                 D_801162AC[window] = 0;
             } else {
-                D_801162B4[window][g_WindowData[window].stringByteLength] =
-                    name[D_801162AC[window]];
+                D_801162B4[window][g_WindowData[window].stringByteLength] = name[D_801162AC[window]];
                 g_WindowData[window].stringByteLength++;
                 D_801162AC[window]++;
                 g_WindowData[window].stringLength++;
@@ -3164,8 +3063,7 @@ void func_800B9B2C(s16 window) {
                     D_801162B0[window]++;
                     D_801162AC[window] = 0;
                 } else {
-                    D_801162B4[window][g_WindowData[window].stringByteLength] =
-                        0xD2;
+                    D_801162B4[window][g_WindowData[window].stringByteLength] = 0xD2;
                     g_WindowData[window].stringByteLength++;
                     D_801162AC[window]++;
                     g_WindowData[window].stringLength++;
@@ -3173,13 +3071,11 @@ void func_800B9B2C(s16 window) {
                 }
             } else {
                 name = GetCharacterName(value);
-                if (name[D_801162AC[window]] == 0xFF ||
-                    D_801162AC[window] >= 9) {
+                if (name[D_801162AC[window]] == 0xFF || D_801162AC[window] >= 9) {
                     D_801162B0[window]++;
                     D_801162AC[window] = 0;
                 } else {
-                    D_801162B4[window][g_WindowData[window].stringByteLength] =
-                        name[D_801162AC[window]];
+                    D_801162B4[window][g_WindowData[window].stringByteLength] = name[D_801162AC[window]];
                     g_WindowData[window].stringByteLength++;
                     D_801162AC[window]++;
                     g_WindowData[window].stringLength++;
@@ -3190,8 +3086,7 @@ void func_800B9B2C(s16 window) {
 
         // Opcode prefix.
         case 0xFE:
-            D_801162B4[window][g_WindowData[window].stringByteLength] =
-                *D_801162B0[window];
+            D_801162B4[window][g_WindowData[window].stringByteLength] = *D_801162B0[window];
             D_801162B0[window]++;
             g_WindowData[window].stringByteLength++;
             switch (*D_801162B0[window]) {
@@ -3241,16 +3136,14 @@ void func_800B9B2C(s16 window) {
                         break;
                     }
                     D_801163C4[window]++;
-                } else if (D_801163C8[window][D_801163C4[window]] == 0xFF ||
-                           D_801163C4[window] >= 8) {
+                } else if (D_801163C8[window][D_801163C4[window]] == 0xFF || D_801163C4[window] >= 8) {
                     // Last converted character has been copied.
                     D_801162B0[window] += 2;
                     D_801163C4[window] = -1;
                     D_801163C0[window]++;
                 } else {
                     // Copy the next character of the converted integer.
-                    D_801162B4[window][g_WindowData[window].stringByteLength] =
-                        D_801163C8[window][D_801163C4[window]];
+                    D_801162B4[window][g_WindowData[window].stringByteLength] = D_801163C8[window][D_801163C4[window]];
                     g_WindowData[window].stringByteLength++;
                     D_801163C4[window]++;
                     g_WindowData[window].stringLength++;
@@ -3274,8 +3167,7 @@ void func_800B9B2C(s16 window) {
                         }
                     }
                     for (i = 0; i < len; i++) {
-                        D_801163C8[window][i] =
-                            Savemap.memory_bank_1[value + i];
+                        D_801163C8[window][i] = Savemap.memory_bank_1[value + i];
                     }
                     D_801163C8[window][i] = 0xFF;
                     D_801163C4[window]++;
@@ -3283,8 +3175,7 @@ void func_800B9B2C(s16 window) {
                     D_801162B0[window] += 6;
                     D_801163C4[window] = -1;
                 } else {
-                    D_801162B4[window][g_WindowData[window].stringByteLength] =
-                        D_801163C8[window][D_801163C4[window]];
+                    D_801162B4[window][g_WindowData[window].stringByteLength] = D_801163C8[window][D_801163C4[window]];
                     g_WindowData[window].stringByteLength++;
                     D_801163C4[window]++;
                     g_WindowData[window].stringLength++;
@@ -3306,8 +3197,7 @@ void func_800B9B2C(s16 window) {
             case 0xDB: // Rainbow colors, changes color for each character
             // Toggle left padding of characters.
             case 0xE9:
-                D_801162B4[window][g_WindowData[window].stringByteLength] =
-                    *D_801162B0[window];
+                D_801162B4[window][g_WindowData[window].stringByteLength] = *D_801162B0[window];
                 D_801162B0[window]++;
                 g_WindowData[window].stringByteLength++;
                 continue;
@@ -3326,8 +3216,7 @@ void func_800B9B2C(s16 window) {
                 goto end;
 
             default:
-                D_801162B4[window][g_WindowData[window].stringByteLength] =
-                    *D_801162B0[window];
+                D_801162B4[window][g_WindowData[window].stringByteLength] = *D_801162B0[window];
                 D_801162B0[window]++;
                 g_WindowData[window].stringByteLength++;
                 g_WindowData[window].stringLength++;
@@ -3340,16 +3229,14 @@ void func_800B9B2C(s16 window) {
         case 0xFB:
         case 0xFC:
         case 0xFD:
-            D_801162B4[window][g_WindowData[window].stringByteLength] =
-                *D_801162B0[window];
+            D_801162B4[window][g_WindowData[window].stringByteLength] = *D_801162B0[window];
             D_801162B0[window]++;
             g_WindowData[window].stringByteLength++;
 
         // Fall through to copy the second byte of the character.
         // Also used to copy all other characters directly.
         default:
-            D_801162B4[window][g_WindowData[window].stringByteLength] =
-                *D_801162B0[window];
+            D_801162B4[window][g_WindowData[window].stringByteLength] = *D_801162B0[window];
             D_801162B0[window]++;
             g_WindowData[window].stringByteLength++;
             g_WindowData[window].stringLength++;
@@ -3441,8 +3328,7 @@ s32 func_800BAC70(s16 window) {
         g_WindowData[window].currentHeight = 8;
     }
 
-    if (g_WindowData[window].currentWidth < 9 &&
-        g_WindowData[window].currentHeight < 9) {
+    if (g_WindowData[window].currentWidth < 9 && g_WindowData[window].currentHeight < 9) {
         g_WindowData[window].stringLength = 0;
         g_WindowData[window].state = WSTATE_INIT;
         g_WindowToEntity[window] = 0xFF;
@@ -3830,10 +3716,8 @@ void func_800BBD20(s32 arg0) {
         if ((D_801163D4 == 0) && (arg0 == 1)) {
             func_800BBA5C();
         } else if (func_800A21A4() != 0) {
-            var_v0 = func_800A9240() == 0
-                         ? temp_s4 & PADRdown
-                         : temp_s4 & (PADLup | PADLdown | PADLleft | PADLright |
-                                      PADRdown);
+            var_v0 = func_800A9240() == 0 ? temp_s4 & PADRdown
+                                          : temp_s4 & (PADLup | PADLdown | PADLleft | PADLright | PADRdown);
             if ((var_v0 == 0) && D_801163DC > 0 && D_801163DC < 15 &&
                 ((func_800A91A4(0x2000) == 0) || (func_800A9A44() == 0x12)))
                 func_800BBC4C();
@@ -3920,8 +3804,7 @@ void func_800BBD20(s32 arg0) {
                     if ((func_800A9174() == 3) || (func_800A9174() == 4))
                         func_800AB8EC(0);
 
-                    if ((temp_s2 != 0) ||
-                        ((func_800A9174() == 5) && (func_800A98E4() != 0)))
+                    if ((temp_s2 != 0) || ((func_800A9174() == 5) && (func_800A98E4() != 0)))
                         func_800A368C(1);
                 }
             }

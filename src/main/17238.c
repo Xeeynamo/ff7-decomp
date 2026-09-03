@@ -28,8 +28,7 @@ s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", func_8001726C);
 
-INCLUDE_ASM(
-    "asm/us/main/nonmatchings/17238", SysCalculateTotalLureGilPreemptiveValue);
+INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysCalculateTotalLureGilPreemptiveValue);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysInitPlayerStatFromMateria);
 
@@ -49,8 +48,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithMagicCounter);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithSneakFinalAttack);
 
-INCLUDE_ASM(
-    "asm/us/main/nonmatchings/17238", SysAddPairMasterMateriaWithCounter);
+INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMasterMateriaWithCounter);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairCommandWithCounter);
 
@@ -60,8 +58,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairSummonWithMagicCounter);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairSummonWithMpTurbo);
 
-INCLUDE_ASM(
-    "asm/us/main/nonmatchings/17238", SysAddPairMasterSummonWithMpTurbo);
+INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMasterSummonWithMpTurbo);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMasterMagicWithMpTurbo);
 
@@ -69,8 +66,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMagicWithMpTurbo);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithMpTurbo);
 
-INCLUDE_ASM(
-    "asm/us/main/nonmatchings/17238", SysAddPairFlagToCommandMagicSummon);
+INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToCommandMagicSummon);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToSummon);
 
@@ -78,8 +74,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToAllSummons);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToActiveCommand);
 
-INCLUDE_ASM(
-    "asm/us/main/nonmatchings/17238", SysAddPairFlagToAllActiveCommands);
+INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToAllActiveCommands);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToAllMagics);
 
@@ -89,13 +84,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithQuadraMagic);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMagicWithQuadraMagic);
 
-INCLUDE_ASM(
-    "asm/us/main/nonmatchings/17238", SysAddPairMasterMagicWithQuadraMagic);
+INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMasterMagicWithQuadraMagic);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairSummonWithQuadraMagic);
 
-INCLUDE_ASM(
-    "asm/us/main/nonmatchings/17238", SysAddPairMasterSummonWithQuadraMagic);
+INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMasterSummonWithQuadraMagic);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithAll);
 
@@ -273,8 +266,7 @@ s32 SysGetMateriaActivatedStars(u8 arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", func_8001AE08);
 
-INCLUDE_ASM(
-    "asm/us/main/nonmatchings/17238", SysCopyBoostedStatToUnitStructure);
+INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysCopyBoostedStatToUnitStructure);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaXb);
 
@@ -298,7 +290,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysCopyTempMagicToUnitStructure);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMagicToTemp);
 
-INCLUDE_ASM(
-    "asm/us/main/nonmatchings/17238", SysAddMagicSummonSkillToUnitStructure);
+INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMagicSummonSkillToUnitStructure);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysInitPlayerTempStat);

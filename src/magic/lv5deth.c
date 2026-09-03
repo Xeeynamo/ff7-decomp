@@ -33,8 +33,7 @@ extern char Lv5DeathPrimBuffer1[];
 extern void* Lv5DeathBufferPtr;
 extern Lv5DeathEffect* Lv5DeathFlipEffect; // slot running Lv5DeathBufferFlip
 extern s32 Lv5DeathTargetsRemaining;
-extern u_long
-    Lv5DeathTexture[]; // 8bpp TIM + 256-colour CLUT, uploaded on setup
+extern u_long Lv5DeathTexture[]; // 8bpp TIM + 256-colour CLUT, uploaded on setup
 
 // Flat 16-point ring of radius 976 lying in the XY plane at z = -21.
 extern s32 Lv5DeathRingModel[];
@@ -52,8 +51,7 @@ typedef struct {
 extern Lv5DeathDesc Lv5DeathSpriteDesc;
 
 static void Lv5DeathBufferFlip(void) {
-    Lv5DeathBufferPtr =
-        g_dbIndex == 0 ? Lv5DeathPrimBuffer0 : Lv5DeathPrimBuffer1;
+    Lv5DeathBufferPtr = g_dbIndex == 0 ? Lv5DeathPrimBuffer0 : Lv5DeathPrimBuffer1;
     if (D_80162080 < 2) {
         *(s32*)Lv5DeathFlipEffect = -1;
     }
@@ -63,9 +61,7 @@ static void Lv5DeathMainSetup(s32 targetMask, s32 arg1);
 
 // Overlay entry point, at 0x801B0054; func_800D0C80 dispatches magic id 32
 // here. Trampolines to Lv5DeathMainSetup, which sits at the end of the file.
-void MAGIC_Lv5Death(s32 targetMask, s32 arg1) {
-    Lv5DeathMainSetup(targetMask, arg1);
-}
+void MAGIC_Lv5Death(s32 targetMask, s32 arg1) { Lv5DeathMainSetup(targetMask, arg1); }
 
 // The ring spins 0 -> 180 degrees while it fades in, holds, then completes the
 // turn on the way out. Scales from 1.0 down to 0.5 over the same window.
@@ -99,8 +95,7 @@ static void Lv5DeathRenderRing(void) {
     }
 
     SetFarColor(0, 0, 0);
-    Lv5DeathBufferPtr =
-        func_800D29D4(desc, g_cDb->unk70, 12, Lv5DeathBufferPtr);
+    Lv5DeathBufferPtr = func_800D29D4(desc, g_cDb->unk70, 12, Lv5DeathBufferPtr);
 
     if (effect->AnimationFrame >= 45) {
         effect->StartFrame = -1;
@@ -129,12 +124,10 @@ static void Lv5DeathRenderTargetSprite(void) {
     } else {
         color = 128;
     }
-    Lv5DeathSpriteDesc.color.r = Lv5DeathSpriteDesc.color.g =
-        Lv5DeathSpriteDesc.color.b = color;
+    Lv5DeathSpriteDesc.color.r = Lv5DeathSpriteDesc.color.g = Lv5DeathSpriteDesc.color.b = color;
 
     func_800D4368(&effect->Pos, (s16)effect->Scale, -((s16)effect->Scale >> 2));
-    Lv5DeathBufferPtr =
-        func_800D4D90(&Lv5DeathSpriteDesc, g_cDb->unk70, 12, Lv5DeathBufferPtr);
+    Lv5DeathBufferPtr = func_800D4D90(&Lv5DeathSpriteDesc, g_cDb->unk70, 12, Lv5DeathBufferPtr);
 
     if (effect->AnimationFrame >= 45) {
         effect->StartFrame = -1;
@@ -163,8 +156,7 @@ static void Lv5DeathScreenFade(void) {
         if (effect->u.FadeOutStartFrame == 0) {
             effect->u.FadeOutStartFrame = effect->AnimationFrame;
         }
-        val =
-            2560 - (effect->AnimationFrame - effect->u.FadeOutStartFrame) * 320;
+        val = 2560 - (effect->AnimationFrame - effect->u.FadeOutStartFrame) * 320;
     } else {
         val = 2560;
     }

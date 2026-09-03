@@ -85,7 +85,7 @@ BreakAfterAttributes: Leave
 BreakArrays:     true
 BreakBeforeInlineASMColon: OnlyMultiline
 BreakStringLiterals: true
-ColumnLimit:     80
+ColumnLimit:     120
 CommentPragmas:  '^ IWYU pragma:'
 QualifierAlignment: Left
 CompactNamespaces: false

@@ -3,10 +3,9 @@
 #include <libetc.h>
 #include "field_private.h"
 
-#define GET_PARAM_U8(offset)                                                   \
-    (*(u8*)((s32)g_FieldScripts + g_FieldScriptPC[g_CurrentEntity] + (offset)))
-#define GET_PARAM_S16(value, offset)                                           \
-    value = GET_PARAM_U8(offset);                                              \
+#define GET_PARAM_U8(offset) (*(u8*)((s32)g_FieldScripts + g_FieldScriptPC[g_CurrentEntity] + (offset)))
+#define GET_PARAM_S16(value, offset)                                                                                   \
+    value = GET_PARAM_U8(offset);                                                                                      \
     value |= (GET_PARAM_U8((offset) + 1) << 8)
 
 #define PC_INC(x) (g_FieldScriptPC[g_CurrentEntity] += (x))
@@ -15,31 +14,19 @@
 #define GET_PRIORITY(x) (((x) >> 5) & 0x7)
 #define GET_SCRIPTID(x) ((x) & 0x1F)
 
-#define ADD_PARTY_MEMBER(slot, charId)                                         \
-    Savemap.memory_bank_2[9 + slot] = charId;                                  \
-    if (charId != 0xFF) {                                                      \
-        u16 mask;                                                              \
-        u16 bit;                                                               \
-        bit = charId;                                                          \
-        mask = Savemap.phs_visibility_mask;                                    \
-        bit = 1 << bit;                                                        \
-        mask |= bit;                                                           \
-        Savemap.phs_visibility_mask = mask;                                    \
+#define ADD_PARTY_MEMBER(slot, charId)                                                                                 \
+    Savemap.memory_bank_2[9 + slot] = charId;                                                                          \
+    if (charId != 0xFF) {                                                                                              \
+        u16 mask;                                                                                                      \
+        u16 bit;                                                                                                       \
+        bit = charId;                                                                                                  \
+        mask = Savemap.phs_visibility_mask;                                                                            \
+        bit = 1 << bit;                                                                                                \
+        mask |= bit;                                                                                                   \
+        Savemap.phs_visibility_mask = mask;                                                                            \
     }
 
-typedef enum {
-    IF_EQ,
-    IF_NOT_EQ,
-    IF_GT,
-    IF_LT,
-    IF_GTE,
-    IF_LTE,
-    IF_AND,
-    IF_XOR,
-    IF_OR,
-    IF_BIT,
-    IF_NOT_BIT
-} IfOps;
+typedef enum { IF_EQ, IF_NOT_EQ, IF_GT, IF_LT, IF_GTE, IF_LTE, IF_AND, IF_XOR, IF_OR, IF_BIT, IF_NOT_BIT } IfOps;
 
 extern s32 (*g_FieldOpcodes[256])(void);
 extern u8 g_EntityForSplitJoin;
@@ -107,8 +94,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
         FieldDebugStringCopy(g_DebugText, "ctrl:");
     }
 
-    FieldDebugStringConcat(
-        g_DebugText, (char*)g_FieldScripts + 32 + (entityId * 8));
+    FieldDebugStringConcat(g_DebugText, (char*)g_FieldScripts + 32 + (entityId * 8));
     if (D_8009FE8C | (D_80071E24 & 1)) {
         SetStrToDebugRow(arg0, 0, g_DebugText);
     }
@@ -116,8 +102,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
         DebugPrintToFieldWindow(g_DebugText);
     }
     FieldDebugStringCopy(g_DebugText, "RqLv=");
-    FieldDebugStringU8hex(
-        g_FieldScriptPriority[entityId], g_DebugMessageBuffer);
+    FieldDebugStringU8hex(g_FieldScriptPriority[entityId], g_DebugMessageBuffer);
     FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
     FieldDebugStringConcat(g_DebugText, " Tg=");
 
@@ -132,9 +117,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
         FieldDebugStringConcat(g_DebugText, "psh");
         break;
     default:
-        FieldDebugStringU16hex(
-            SavedScriptIds[entityId][g_FieldScriptPriority[entityId]],
-            g_DebugMessageBuffer);
+        FieldDebugStringU16hex(SavedScriptIds[entityId][g_FieldScriptPriority[entityId]], g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         break;
     }
@@ -154,8 +137,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             }
         } else {
             FieldDebugStringCopy(g_DebugText, "line=");
-            FieldDebugStringU16hex(
-                g_EntityToLine[entityId], g_DebugMessageBuffer);
+            FieldDebugStringU16hex(g_EntityToLine[entityId], g_DebugMessageBuffer);
             FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
             if (g_FieldLines[g_EntityToLine[entityId]].isActive) {
                 FieldDebugStringConcat(g_DebugText, " on");
@@ -171,8 +153,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
         FieldDebugStringU16hex(g_EntityToModel[entityId], g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " dir=");
-        FieldDebugStringU16hex(
-            g_FieldModels[g_EntityToModel[entityId]].Dir, g_DebugMessageBuffer);
+        FieldDebugStringU16hex(g_FieldModels[g_EntityToModel[entityId]].Dir, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetDebugStrRowColor(arg0, 2, 2);
@@ -187,14 +168,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
 
     if (g_EntityToModel[entityId] != 0xFF) {
         FieldDebugStringCopy(g_DebugText, "X=");
-        FieldDebugStringU32hex(
-            g_FieldModels[g_EntityToModel[entityId]].PosX >> 12,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].PosX >> 12, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " Y=");
-        FieldDebugStringU32hex(
-            g_FieldModels[g_EntityToModel[entityId]].PosY >> 12,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].PosY >> 12, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 3, g_DebugText);
@@ -204,13 +181,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "Z=");
-        FieldDebugStringU32hex(
-            g_FieldModels[g_EntityToModel[entityId]].PosZ >> 12,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].PosZ >> 12, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " I=");
-        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].PosI,
-                               g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].PosI, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 4, g_DebugText);
@@ -218,22 +192,15 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
         if (D_80071E24 & 2) {
             DebugPrintToFieldWindow(g_DebugText);
         }
-        FieldDebugStringU8hex(
-            D_800756E8[g_EntityToModel[entityId]], g_DebugText);
+        FieldDebugStringU8hex(D_800756E8[g_EntityToModel[entityId]], g_DebugText);
         FieldDebugStringConcat(g_DebugText, "am");
-        FieldDebugStringU16hex(
-            g_FieldModels[g_EntityToModel[entityId]].activeAnimId,
-            g_DebugMessageBuffer);
+        FieldDebugStringU16hex(g_FieldModels[g_EntityToModel[entityId]].activeAnimId, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, ".");
-        FieldDebugStringU32hex(
-            g_FieldModels[g_EntityToModel[entityId]].animCurrentFrame,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].animCurrentFrame, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, ".");
-        FieldDebugStringU16hex(
-            g_FieldModels[g_EntityToModel[entityId]].animLastFrame,
-            g_DebugMessageBuffer);
+        FieldDebugStringU16hex(g_FieldModels[g_EntityToModel[entityId]].animLastFrame, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 5, g_DebugText);
@@ -258,14 +225,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             FieldDebugStringConcat(g_DebugText, "S");
         }
         FieldDebugStringConcat(g_DebugText, ":TR");
-        FieldDebugStringU16hex(
-            g_FieldModels[g_EntityToModel[entityId]].TalkRange,
-            g_DebugMessageBuffer);
+        FieldDebugStringU16hex(g_FieldModels[g_EntityToModel[entityId]].TalkRange, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, ".SR");
-        FieldDebugStringU16hex(
-            g_FieldModels[g_EntityToModel[entityId]].SolidRange,
-            g_DebugMessageBuffer);
+        FieldDebugStringU16hex(g_FieldModels[g_EntityToModel[entityId]].SolidRange, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 6, g_DebugText);
@@ -274,14 +237,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "MS");
-        FieldDebugStringU32hex(
-            g_FieldModels[g_EntityToModel[entityId]].MoveSpeed,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].MoveSpeed, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " AS");
-        FieldDebugStringU32hex(
-            g_FieldModels[g_EntityToModel[entityId]].animSpeed,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].animSpeed, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 7, g_DebugText);
@@ -292,12 +251,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
         }
     } else if (g_EntityToLine[entityId] != g_EntityToModel[entityId]) {
         FieldDebugStringCopy(g_DebugText, "AX");
-        FieldDebugStringU32hex(g_FieldLines[g_EntityToLine[entityId]].pos.x1,
-                               g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldLines[g_EntityToLine[entityId]].pos.x1, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " AY");
-        FieldDebugStringU32hex(g_FieldLines[g_EntityToLine[entityId]].pos.y1,
-                               g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldLines[g_EntityToLine[entityId]].pos.y1, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 3, g_DebugText);
@@ -306,8 +263,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "AZ");
-        FieldDebugStringU32hex(g_FieldLines[g_EntityToLine[entityId]].pos.z1,
-                               g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldLines[g_EntityToLine[entityId]].pos.z1, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 4, g_DebugText);
@@ -316,12 +272,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "BX");
-        FieldDebugStringU32hex(g_FieldLines[g_EntityToLine[entityId]].pos.x2,
-                               g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldLines[g_EntityToLine[entityId]].pos.x2, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " BY");
-        FieldDebugStringU32hex(g_FieldLines[g_EntityToLine[entityId]].pos.y2,
-                               g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldLines[g_EntityToLine[entityId]].pos.y2, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 5, g_DebugText);
@@ -330,8 +284,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "BZ");
-        FieldDebugStringU32hex(g_FieldLines[g_EntityToLine[entityId]].pos.z2,
-                               g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldLines[g_EntityToLine[entityId]].pos.z2, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 6, g_DebugText);
@@ -362,9 +315,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "B-R    X=");
-        FieldDebugStringU32hex(
-            D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][0].vx,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][0].vx, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 9, g_DebugText);
@@ -374,14 +325,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "Y=");
-        FieldDebugStringU32hex(
-            D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][0].vy,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][0].vy, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " Z=");
-        FieldDebugStringU32hex(
-            D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][0].vz,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][0].vz, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 10, g_DebugText);
@@ -390,9 +337,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "R-G    X=");
-        FieldDebugStringU32hex(
-            D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][1].vx,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][1].vx, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 11, g_DebugText);
@@ -402,14 +347,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "Y=");
-        FieldDebugStringU32hex(
-            D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][1].vy,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][1].vy, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " Z=");
-        FieldDebugStringU32hex(
-            D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][1].vz,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][1].vz, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 12, g_DebugText);
@@ -418,9 +359,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "G-B    X=");
-        FieldDebugStringU32hex(
-            D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][2].vx,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][2].vx, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 13, g_DebugText);
@@ -430,14 +369,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "Y=");
-        FieldDebugStringU32hex(
-            D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][2].vy,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][2].vy, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " Z=");
-        FieldDebugStringU32hex(
-            D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][2].vz,
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][2].vz, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 14, g_DebugText);
@@ -446,8 +381,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "Offset X=");
-        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].OffsetX,
-                               g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].OffsetX, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 15, g_DebugText);
@@ -457,12 +391,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "Y=");
-        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].OffsetY,
-                               g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].OffsetY, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " Z=");
-        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].OffsetZ,
-                               g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_FieldModels[g_EntityToModel[entityId]].OffsetZ, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 16, g_DebugText);
@@ -471,9 +403,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "SF");
-        FieldDebugStringU32hex(
-            Savemap.memory_bank_1[0] | (Savemap.memory_bank_1[1] << 8),
-            g_DebugMessageBuffer);
+        FieldDebugStringU32hex(Savemap.memory_bank_1[0] | (Savemap.memory_bank_1[1] << 8), g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (g_pFieldState->characterLock) {
             if (g_CharacterLock) {
@@ -636,8 +566,7 @@ void DebugPrintOpcode(const char* name, s32 arg1) {
                 FieldDebugStringU8hex(temp_s0, g_DebugMessageBuffer);
                 FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
                 FieldDebugStringConcat(g_DebugText, "=");
-                FieldDebugStringU16hex(
-                    GET_PARAM_U8(temp_s0), g_DebugMessageBuffer);
+                FieldDebugStringU16hex(GET_PARAM_U8(temp_s0), g_DebugMessageBuffer);
                 FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
                 if (g_DebugLevel & 1) {
                     SetStrToDebugRow(3, (s16)temp_s0, g_DebugText);
@@ -656,16 +585,13 @@ void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind) {
         FieldDebugStringCopy(g_DebugText, str);
         switch (kind) {
         case 1:
-            FieldDebugStringU8hex(
-                val, g_DebugMessageBuffer); // to single hex digit
+            FieldDebugStringU8hex(val, g_DebugMessageBuffer); // to single hex digit
             break;
         case 2:
-            FieldDebugStringU16hex(
-                val, g_DebugMessageBuffer); // to double hex digit
+            FieldDebugStringU16hex(val, g_DebugMessageBuffer); // to double hex digit
             break;
         case 4:
-            FieldDebugStringU32hex(
-                val, g_DebugMessageBuffer); // to four hex digits
+            FieldDebugStringU32hex(val, g_DebugMessageBuffer); // to four hex digits
             break;
         default:
             FieldDebugStringCopy(g_DebugMessageBuffer, "");
@@ -1200,8 +1126,7 @@ s32 OpcodeFuncWait(void) {
     if (g_FieldWaitCounter[g_CurrentEntity] == 0) {
         GET_PARAM_S16(g_FieldWaitCounter[g_CurrentEntity], 1);
         if (g_DebugLevel & 3) {
-            FieldDebugAddParseValueToPage2(
-                "wait_st=", g_FieldWaitCounter[g_CurrentEntity], 4);
+            FieldDebugAddParseValueToPage2("wait_st=", g_FieldWaitCounter[g_CurrentEntity], 4);
         }
         if (g_FieldWaitCounter[g_CurrentEntity] == 0) {
             PC_INC(3);
@@ -1220,8 +1145,7 @@ s32 OpcodeFuncWait(void) {
     }
 
     if (g_DebugLevel & 3) {
-        FieldDebugAddParseValueToPage2(
-            "wait=", g_FieldWaitCounter[g_CurrentEntity], 4);
+        FieldDebugAddParseValueToPage2("wait=", g_FieldWaitCounter[g_CurrentEntity], 4);
     }
 
     g_FieldWaitCounter[g_CurrentEntity]--;
@@ -1419,9 +1343,7 @@ s32 OpcodeFuncBiton(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("biton", 3);
     }
-    FieldEventWriteMemoryU8(
-        1, 2,
-        FieldEventReadMemoryU8(1, 2) | (1 << FieldEventReadMemoryU8(2, 3)));
+    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) | (1 << FieldEventReadMemoryU8(2, 3)));
     PC_INC(4);
     return 0;
 }
@@ -1430,9 +1352,7 @@ s32 OpcodeFuncBitof(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("bitof", 3);
     }
-    FieldEventWriteMemoryU8(
-        1, 2,
-        FieldEventReadMemoryU8(1, 2) & ~(1 << FieldEventReadMemoryU8(2, 3)));
+    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) & ~(1 << FieldEventReadMemoryU8(2, 3)));
     PC_INC(4);
     return 0;
 }
@@ -1441,9 +1361,7 @@ s32 OpcodeFuncBitxr(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("bitxr", 3);
     }
-    FieldEventWriteMemoryU8(
-        1, 2,
-        FieldEventReadMemoryU8(1, 2) ^ (1 << FieldEventReadMemoryU8(2, 3)));
+    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) ^ (1 << FieldEventReadMemoryU8(2, 3)));
     PC_INC(4);
     return 0;
 }
@@ -1522,8 +1440,7 @@ s32 OpcodeFuncSlip(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("slip", 1);
     }
-    g_FieldLines[g_EntityToLine[g_CurrentEntity]].slipDisabled =
-        GET_PARAM_U8(1);
+    g_FieldLines[g_EntityToLine[g_CurrentEntity]].slipDisabled = GET_PARAM_U8(1);
     PC_INC(2);
     return 0;
 }
@@ -1619,12 +1536,10 @@ u32 IfCheck(void) {
         result = FieldEventReadMemoryU8(1, 2) | FieldEventReadMemoryU8(2, 3);
         break;
     case IF_BIT:
-        result =
-            FieldEventReadMemoryU8(1, 2) & (1 << FieldEventReadMemoryU8(2, 3));
+        result = FieldEventReadMemoryU8(1, 2) & (1 << FieldEventReadMemoryU8(2, 3));
         break;
     case IF_NOT_BIT:
-        result =
-            FieldEventReadMemoryU8(1, 2) & (1 << FieldEventReadMemoryU8(2, 3));
+        result = FieldEventReadMemoryU8(1, 2) & (1 << FieldEventReadMemoryU8(2, 3));
         result = result < 1;
         break;
     default:
@@ -1719,12 +1634,10 @@ u32 If2CheckSigned(void) {
         result = FieldEventReadMemoryS16(1, 2) | FieldEventReadMemoryS16(2, 4);
         break;
     case IF_BIT:
-        result = FieldEventReadMemoryS16(1, 2) &
-                 (1 << FieldEventReadMemoryS16(2, 4));
+        result = FieldEventReadMemoryS16(1, 2) & (1 << FieldEventReadMemoryS16(2, 4));
         break;
     case IF_NOT_BIT:
-        result = FieldEventReadMemoryS16(1, 2) &
-                 (1 << FieldEventReadMemoryS16(2, 4));
+        result = FieldEventReadMemoryS16(1, 2) & (1 << FieldEventReadMemoryS16(2, 4));
         result = result < 1;
         break;
     default:
@@ -1792,28 +1705,22 @@ u32 If2CheckUnsigned(void) {
     ope = GET_PARAM_U8(6);
     switch (ope) {
     case IF_EQ:
-        result = (u16)FieldEventReadMemoryS16(1, 2) ==
-                 (u16)FieldEventReadMemoryS16(2, 4);
+        result = (u16)FieldEventReadMemoryS16(1, 2) == (u16)FieldEventReadMemoryS16(2, 4);
         break;
     case IF_NOT_EQ:
-        result = (u16)FieldEventReadMemoryS16(1, 2) !=
-                 (u16)FieldEventReadMemoryS16(2, 4);
+        result = (u16)FieldEventReadMemoryS16(1, 2) != (u16)FieldEventReadMemoryS16(2, 4);
         break;
     case IF_GT:
-        result = (u16)FieldEventReadMemoryS16(1, 2) >
-                 (u16)FieldEventReadMemoryS16(2, 4);
+        result = (u16)FieldEventReadMemoryS16(1, 2) > (u16)FieldEventReadMemoryS16(2, 4);
         break;
     case IF_LT:
-        result = (u16)FieldEventReadMemoryS16(1, 2) <
-                 (u16)FieldEventReadMemoryS16(2, 4);
+        result = (u16)FieldEventReadMemoryS16(1, 2) < (u16)FieldEventReadMemoryS16(2, 4);
         break;
     case IF_GTE:
-        result = (u16)FieldEventReadMemoryS16(1, 2) >=
-                 (u16)FieldEventReadMemoryS16(2, 4);
+        result = (u16)FieldEventReadMemoryS16(1, 2) >= (u16)FieldEventReadMemoryS16(2, 4);
         break;
     case IF_LTE:
-        result = (u16)FieldEventReadMemoryS16(1, 2) <=
-                 (u16)FieldEventReadMemoryS16(2, 4);
+        result = (u16)FieldEventReadMemoryS16(1, 2) <= (u16)FieldEventReadMemoryS16(2, 4);
         break;
     case IF_AND:
         result = FieldEventReadMemoryS16(1, 2) & FieldEventReadMemoryS16(2, 4);
@@ -1825,12 +1732,10 @@ u32 If2CheckUnsigned(void) {
         result = FieldEventReadMemoryS16(1, 2) | FieldEventReadMemoryS16(2, 4);
         break;
     case IF_BIT:
-        result = FieldEventReadMemoryS16(1, 2) &
-                 (1 << FieldEventReadMemoryS16(2, 4));
+        result = FieldEventReadMemoryS16(1, 2) & (1 << FieldEventReadMemoryS16(2, 4));
         break;
     case IF_NOT_BIT:
-        result = FieldEventReadMemoryS16(1, 2) &
-                 (1 << FieldEventReadMemoryS16(2, 4));
+        result = FieldEventReadMemoryS16(1, 2) & (1 << FieldEventReadMemoryS16(2, 4));
         result = result < 1;
         break;
     default:
@@ -1921,24 +1826,21 @@ s32 OpcodeFuncReq(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("req", 2);
     }
-    return FieldEventRequest(1, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
-                             GET_SCRIPTID(GET_PARAM_U8(2)));
+    return FieldEventRequest(1, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)), GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
 s32 OpcodeFuncReqsw(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("reqsw", 2);
     }
-    return FieldEventRequest(2, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
-                             GET_SCRIPTID(GET_PARAM_U8(2)));
+    return FieldEventRequest(2, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)), GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
 s32 OpcodeFuncReqew(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("reqew", 2);
     }
-    return FieldEventRequest(3, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)),
-                             GET_SCRIPTID(GET_PARAM_U8(2)));
+    return FieldEventRequest(3, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)), GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
 s32 OpcodeFuncPreq(void) {
@@ -1954,8 +1856,7 @@ s32 OpcodeFuncPreq(void) {
     } else {
         entityId = g_CharIdToEntity[charId];
     }
-    return FieldEventRequest(1, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
-                             GET_SCRIPTID(GET_PARAM_U8(2)));
+    return FieldEventRequest(1, entityId, GET_PRIORITY(GET_PARAM_U8(2)), GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
 s32 OpcodeFuncPrqsw(void) {
@@ -1971,8 +1872,7 @@ s32 OpcodeFuncPrqsw(void) {
     } else {
         entityId = g_CharIdToEntity[charId];
     }
-    return FieldEventRequest(2, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
-                             GET_SCRIPTID(GET_PARAM_U8(2)));
+    return FieldEventRequest(2, entityId, GET_PRIORITY(GET_PARAM_U8(2)), GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
 s32 OpcodeFuncPrqew(void) {
@@ -1988,8 +1888,7 @@ s32 OpcodeFuncPrqew(void) {
     } else {
         entityId = g_CharIdToEntity[charId];
     }
-    return FieldEventRequest(3, entityId, GET_PRIORITY(GET_PARAM_U8(2)),
-                             GET_SCRIPTID(GET_PARAM_U8(2)));
+    return FieldEventRequest(3, entityId, GET_PRIORITY(GET_PARAM_U8(2)), GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
 s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
@@ -2007,9 +1906,7 @@ s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
 
     if (g_DebugLevel & 3) {
         FieldDebugStringCopy(g_DebugMessageBuffer, "rq=");
-        FieldDebugStringConcat(
-            g_DebugMessageBuffer,
-            (char*)g_FieldScripts + sizeof(FieldScriptHeader) + target * 8);
+        FieldDebugStringConcat(g_DebugMessageBuffer, (char*)g_FieldScripts + sizeof(FieldScriptHeader) + target * 8);
         FieldDebugStringConcat(g_DebugMessageBuffer, "/");
         FieldDebugAddParseValueToPage2(g_DebugMessageBuffer, scriptId, 2);
     }
@@ -2075,10 +1972,8 @@ s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
         entityDataSize = target * 64;
         extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
 
-        GET_FIELD_SCRIPT_PC(
-            g_SavedFieldScriptPC[target][priority], scriptOffset,
-            entityDataSize + (g_FieldScripts->numEntities << 3),
-            extrasHeaderSize);
+        GET_FIELD_SCRIPT_PC(g_SavedFieldScriptPC[target][priority], scriptOffset,
+                            entityDataSize + (g_FieldScripts->numEntities << 3), extrasHeaderSize);
 
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("rq=send", 0, 0);
@@ -2101,22 +1996,19 @@ s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
         s32 extrasHeaderSize;
 
         SavedScriptIds[target][priority] = scriptId;
-        g_SavedFieldScriptPC[target][g_FieldScriptPriority[target]] =
-            g_FieldScriptPC[target];
+        g_SavedFieldScriptPC[target][g_FieldScriptPriority[target]] = g_FieldScriptPC[target];
 
         scriptOffset = scriptId * 2;
         entityDataSize = target * 64;
         extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
 
-        GET_FIELD_SCRIPT_PC(g_FieldScriptPC[target], scriptOffset,
-                            entityDataSize + (g_FieldScripts->numEntities << 3),
+        GET_FIELD_SCRIPT_PC(g_FieldScriptPC[target], scriptOffset, entityDataSize + (g_FieldScripts->numEntities << 3),
                             extrasHeaderSize);
 
         g_FieldScriptPriority[target] = priority;
 
         if (g_EntityToModel[target] != 255) {
-            g_FieldModels[g_EntityToModel[target]].scriptedMoveMode =
-                SMODE_NONE;
+            g_FieldModels[g_EntityToModel[target]].scriptedMoveMode = SMODE_NONE;
         }
         g_FieldWaitCounter[target] = 0;
 
@@ -2156,12 +2048,8 @@ s32 OpcodeFuncRet(void) {
         return 1;
     }
 
-    if (g_FieldScriptSyncState[g_CurrentEntity]
-                              [g_FieldScriptPriority[g_CurrentEntity]] ==
-        SYNC_WAITING) {
-        g_FieldScriptSyncState[g_CurrentEntity]
-                              [g_FieldScriptPriority[g_CurrentEntity]] =
-                                  SYNC_DONE;
+    if (g_FieldScriptSyncState[g_CurrentEntity][g_FieldScriptPriority[g_CurrentEntity]] == SYNC_WAITING) {
+        g_FieldScriptSyncState[g_CurrentEntity][g_FieldScriptPriority[g_CurrentEntity]] = SYNC_DONE;
     }
 
     g_FieldScriptPriority[g_CurrentEntity]++;
@@ -2182,8 +2070,7 @@ s32 OpcodeFuncRet(void) {
         g_FieldScriptPriority[g_CurrentEntity]++;
         entity = g_CurrentEntity;
 
-        activePcSlot =
-            (u16*)((entity * sizeof(*fieldScriptPC)) + (s32)fieldScriptPC);
+        activePcSlot = (u16*)((entity * sizeof(*fieldScriptPC)) + (s32)fieldScriptPC);
         loopSavedRow = (u16*)((entity * sizeof(*savedPC)) + (s32)savedPC);
         nextPc = loopSavedRow[g_FieldScriptPriority[entity]];
 
@@ -2191,11 +2078,9 @@ s32 OpcodeFuncRet(void) {
         scriptPc = nextPc;
     }
 
-    g_SavedFieldScriptPC[g_CurrentEntity]
-                        [g_FieldScriptPriority[g_CurrentEntity]] = 0;
+    g_SavedFieldScriptPC[g_CurrentEntity][g_FieldScriptPriority[g_CurrentEntity]] = 0;
     if (g_DebugLevel & 3) {
-        FieldDebugAddParseValueToPage2(
-            "ret=", g_FieldScriptPriority[g_CurrentEntity], 2);
+        FieldDebugAddParseValueToPage2("ret=", g_FieldScriptPriority[g_CurrentEntity], 2);
     }
     return 0;
 }
@@ -2212,32 +2097,23 @@ s32 OpcodeFuncRetto(void) {
     priority = GET_PRIORITY(GET_PARAM_U8(1));
     scriptId = GET_SCRIPTID(GET_PARAM_U8(1));
 
-    while (g_FieldScriptPriority[g_CurrentEntity] < (priority - 1) &&
-           g_FieldScriptPriority[g_CurrentEntity] < 7) {
-        if (g_FieldScriptSyncState[g_CurrentEntity]
-                                  [g_FieldScriptPriority[g_CurrentEntity]] ==
-            SYNC_WAITING) {
-            g_FieldScriptSyncState[g_CurrentEntity]
-                                  [g_FieldScriptPriority[g_CurrentEntity]] =
-                                      SYNC_DONE;
+    while (g_FieldScriptPriority[g_CurrentEntity] < (priority - 1) && g_FieldScriptPriority[g_CurrentEntity] < 7) {
+        if (g_FieldScriptSyncState[g_CurrentEntity][g_FieldScriptPriority[g_CurrentEntity]] == SYNC_WAITING) {
+            g_FieldScriptSyncState[g_CurrentEntity][g_FieldScriptPriority[g_CurrentEntity]] = SYNC_DONE;
         }
         g_FieldScriptPriority[g_CurrentEntity]++;
-        g_SavedFieldScriptPC[g_CurrentEntity]
-                            [g_FieldScriptPriority[g_CurrentEntity]] = 0;
+        g_SavedFieldScriptPC[g_CurrentEntity][g_FieldScriptPriority[g_CurrentEntity]] = 0;
     }
     SavedScriptIds[g_CurrentEntity][priority] = scriptId;
     scriptId *= 2;
     extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
 
-    GET_FIELD_SCRIPT_PC(
-        g_FieldScriptPC[g_CurrentEntity], scriptId,
-        (g_FieldScripts->numEntities * 8) + (g_CurrentEntity * 64),
-        extrasHeaderSize);
+    GET_FIELD_SCRIPT_PC(g_FieldScriptPC[g_CurrentEntity], scriptId,
+                        (g_FieldScripts->numEntities * 8) + (g_CurrentEntity * 64), extrasHeaderSize);
 
     g_FieldScriptPriority[g_CurrentEntity] = priority;
     if (g_DebugLevel & 3) {
-        FieldDebugAddParseValueToPage2(
-            "ret=", g_FieldScriptPriority[g_CurrentEntity], 2);
+        FieldDebugAddParseValueToPage2("ret=", g_FieldScriptPriority[g_CurrentEntity], 2);
     }
     return 0;
 }
@@ -2397,8 +2273,7 @@ static u32 GetAkaoBlockOffset(s16 akaoId) {
     s32 akaoData;
     u32 akaoOffset;
 
-    akaoData =
-        akaoId * 4 + g_FieldScripts->numEntities * 8 + (s32)g_FieldScripts;
+    akaoData = akaoId * 4 + g_FieldScripts->numEntities * 8 + (s32)g_FieldScripts;
     akaoOffset = ((u8*)akaoData)[sizeof(FieldScriptHeader)];
     akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 1] << 8;
     akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 2] << 16;
@@ -2417,8 +2292,7 @@ s32 OpcodeFuncBmusc(void) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("bmusic=", akaoId, 2);
         }
-        g_pFieldState->nextBattleMusic =
-            (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
+        g_pFieldState->nextBattleMusic = (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
     } else {
         g_pFieldState->nextBattleMusic = 0;
     }
@@ -2437,8 +2311,7 @@ s32 OpcodeFuncFmusc(void) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("bmusic=", akaoId, 2);
         }
-        g_pFieldState->nextFieldMusic =
-            (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
+        g_pFieldState->nextFieldMusic = (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
     } else {
         g_pFieldState->nextFieldMusic = 0;
     }
@@ -2455,8 +2328,7 @@ s32 OpcodeFuncTutor(void) {
 
     if (g_pFieldState->eventCmd == EVTCMD_NONE) {
         g_pFieldState->eventCmd = EVTCMD_PARTY_MENU;
-        g_pFieldState->eventCmdParam =
-            1; // Tells party menu module to start tutorial.
+        g_pFieldState->eventCmdParam = 1; // Tells party menu module to start tutorial.
         g_pFieldState->movieCommandState = MOVCMD_IDLE;
         D_8007EBE0 = 1;
         tutorialId = GET_PARAM_U8(1);
@@ -2469,8 +2341,7 @@ s32 OpcodeFuncTutor(void) {
 
     if (g_pFieldState->eventCmd == EVTCMD_PARTY_MENU) {
         if (g_DebugLevel & 3) {
-            FieldDebugAddParseValueToPage2(
-                "evt result=", g_pFieldState->movieCommandState, 2);
+            FieldDebugAddParseValueToPage2("evt result=", g_pFieldState->movieCommandState, 2);
         }
         if (g_pFieldState->movieCommandState == MOVCMD_DONE) {
             g_pFieldState->eventCmd = EVTCMD_NONE;
@@ -2662,8 +2533,7 @@ s32 OpcodeFuncDfanm(void) {
     }
     if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
         D_8008325C[g_EntityToModel[g_CurrentEntity]] = GET_PARAM_U8(1);
-        D_80082248[g_EntityToModel[g_CurrentEntity]] =
-            D_8009D828[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(2);
+        D_80082248[g_EntityToModel[g_CurrentEntity]] = D_8009D828[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(2);
         modelIdx = g_EntityToModel[g_CurrentEntity];
         if (D_800756E8[modelIdx] == 3) {
             D_800756E8[modelIdx] = 0;
@@ -2708,18 +2578,14 @@ void StartModelAnimation(void) {
     u8* anims;
     FieldModelEntry* model;
 
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId =
-        GET_PARAM_U8(1);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(1);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animSpeed =
         D_8009D828[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(2);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
     modelIdx = g_EntityToModel[g_CurrentEntity];
-    model =
-        &g_FieldModelData
-             ->modelEntries[g_FieldModelLoaderData[modelIdx].modelEntryIndex];
+    model = &g_FieldModelData->modelEntries[g_FieldModelLoaderData[modelIdx].modelEntryIndex];
     anims = model->modelData + model->animationOffset;
-    g_FieldModels[modelIdx].animLastFrame =
-        *(u16*)&anims[g_FieldEntity[modelIdx].activeAnimId * 16] - 1;
+    g_FieldModels[modelIdx].animLastFrame = *(u16*)&anims[g_FieldEntity[modelIdx].activeAnimId * 16] - 1;
 }
 
 /*
@@ -2826,8 +2692,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncDira);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncPdira);
 
-INCLUDE_ASM(
-    "asm/us/field/nonmatchings/field_opcodes", FieldEventSetDirByActorId);
+INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventSetDirByActorId);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncTura);
 
@@ -2925,8 +2790,7 @@ s32 OpcodeFuncAnd(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("and", 3);
     }
-    FieldEventWriteMemoryU8(
-        1, 2, FieldEventReadMemoryU8(1, 2) & FieldEventReadMemoryU8(2, 3));
+    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) & FieldEventReadMemoryU8(2, 3));
     PC_INC(4);
     return 0;
 }
@@ -2955,8 +2819,7 @@ s32 OpcodeFuncAnd2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("and2", 3);
     }
-    FieldEventWriteMemoryS16(
-        1, 2, FieldEventReadMemoryS16(1, 2) & FieldEventReadMemoryS16(2, 3));
+    FieldEventWriteMemoryS16(1, 2, FieldEventReadMemoryS16(1, 2) & FieldEventReadMemoryS16(2, 3));
     PC_INC(5);
     return 0;
 }
@@ -2984,8 +2847,7 @@ s32 OpcodeFuncOr(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("or", 3);
     }
-    FieldEventWriteMemoryU8(
-        1, 2, FieldEventReadMemoryU8(1, 2) | FieldEventReadMemoryU8(2, 3));
+    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) | FieldEventReadMemoryU8(2, 3));
     PC_INC(4);
     return 0;
 }
@@ -3014,8 +2876,7 @@ s32 OpcodeFuncOr2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("or2", 3);
     }
-    FieldEventWriteMemoryS16(
-        1, 2, FieldEventReadMemoryS16(1, 2) | FieldEventReadMemoryS16(2, 3));
+    FieldEventWriteMemoryS16(1, 2, FieldEventReadMemoryS16(1, 2) | FieldEventReadMemoryS16(2, 3));
     PC_INC(5);
     return 0;
 }
@@ -3042,8 +2903,7 @@ s32 OpcodeFuncXor(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("xor", 3);
     }
-    FieldEventWriteMemoryU8(
-        1, 2, FieldEventReadMemoryU8(1, 2) ^ FieldEventReadMemoryU8(2, 3));
+    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) ^ FieldEventReadMemoryU8(2, 3));
     PC_INC(4);
     return 0;
 }
@@ -3072,8 +2932,7 @@ s32 OpcodeFuncXor2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("xor2", 3);
     }
-    FieldEventWriteMemoryS16(
-        1, 2, FieldEventReadMemoryS16(1, 2) ^ FieldEventReadMemoryS16(2, 3));
+    FieldEventWriteMemoryS16(1, 2, FieldEventReadMemoryS16(1, 2) ^ FieldEventReadMemoryS16(2, 3));
     PC_INC(5);
     return 0;
 }
@@ -3100,8 +2959,7 @@ s32 OpcodeFuncPlus(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("plus", 3);
     }
-    FieldEventWriteMemoryU8(
-        1, 2, FieldEventReadMemoryU8(1, 2) + FieldEventReadMemoryU8(2, 3));
+    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) + FieldEventReadMemoryU8(2, 3));
     PC_INC(4);
     return 0;
 }
@@ -3160,8 +3018,7 @@ s32 OpcodeFuncPlus2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("plus2", 3);
     }
-    FieldEventWriteMemoryS16(
-        1, 2, FieldEventReadMemoryS16(1, 2) + FieldEventReadMemoryS16(2, 3));
+    FieldEventWriteMemoryS16(1, 2, FieldEventReadMemoryS16(1, 2) + FieldEventReadMemoryS16(2, 3));
     PC_INC(5);
     return 0;
 }
@@ -3223,8 +3080,7 @@ s32 OpcodeFuncMinus(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("minus", 3);
     }
-    FieldEventWriteMemoryU8(
-        1, 2, FieldEventReadMemoryU8(1, 2) - FieldEventReadMemoryU8(2, 3));
+    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) - FieldEventReadMemoryU8(2, 3));
     PC_INC(4);
     return 0;
 }
@@ -3285,8 +3141,7 @@ s32 OpcodeFuncMins2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mins2", 3);
     }
-    FieldEventWriteMemoryS16(
-        1, 2, FieldEventReadMemoryS16(1, 2) - FieldEventReadMemoryS16(2, 3));
+    FieldEventWriteMemoryS16(1, 2, FieldEventReadMemoryS16(1, 2) - FieldEventReadMemoryS16(2, 3));
     PC_INC(5);
     return 0;
 }
@@ -3351,8 +3206,7 @@ s32 OpcodeFuncMul(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mul", 3);
     }
-    FieldEventWriteMemoryU8(
-        1, 2, FieldEventReadMemoryU8(1, 2) * FieldEventReadMemoryU8(2, 3));
+    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) * FieldEventReadMemoryU8(2, 3));
     PC_INC(4);
     return 0;
 }
@@ -3380,8 +3234,7 @@ s32 OpcodeFuncMul2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mul2", 3);
     }
-    FieldEventWriteMemoryS16(
-        1, 2, FieldEventReadMemoryS16(1, 2) * FieldEventReadMemoryS16(2, 3));
+    FieldEventWriteMemoryS16(1, 2, FieldEventReadMemoryS16(1, 2) * FieldEventReadMemoryS16(2, 3));
     PC_INC(5);
     return 0;
 }
@@ -3408,8 +3261,7 @@ s32 OpcodeFuncDiv(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("div", 3);
     }
-    FieldEventWriteMemoryU8(
-        1, 2, FieldEventReadMemoryU8(1, 2) / FieldEventReadMemoryU8(2, 3));
+    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) / FieldEventReadMemoryU8(2, 3));
     PC_INC(4);
     return 0;
 }
@@ -3437,8 +3289,7 @@ s32 OpcodeFuncDiv2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("div2", 3);
     }
-    FieldEventWriteMemoryS16(
-        1, 2, FieldEventReadMemoryS16(1, 2) / FieldEventReadMemoryS16(2, 3));
+    FieldEventWriteMemoryS16(1, 2, FieldEventReadMemoryS16(1, 2) / FieldEventReadMemoryS16(2, 3));
     PC_INC(5);
     return 0;
 }
@@ -3465,8 +3316,7 @@ s32 OpcodeFuncRemai(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("remai", 3);
     }
-    FieldEventWriteMemoryU8(
-        1, 2, FieldEventReadMemoryU8(1, 2) % FieldEventReadMemoryU8(2, 3));
+    FieldEventWriteMemoryU8(1, 2, FieldEventReadMemoryU8(1, 2) % FieldEventReadMemoryU8(2, 3));
     PC_INC(4);
     return 0;
 }
@@ -3493,8 +3343,7 @@ s32 OpcodeFuncRema2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("rema2", 3);
     }
-    FieldEventWriteMemoryS16(
-        1, 2, FieldEventReadMemoryS16(1, 2) % FieldEventReadMemoryS16(2, 3));
+    FieldEventWriteMemoryS16(1, 2, FieldEventReadMemoryS16(1, 2) % FieldEventReadMemoryS16(2, 3));
     PC_INC(5);
     return 0;
 }
@@ -3817,11 +3666,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMppal2);
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMppal);
 
 static void SetPcModel(void) {
-    if (Savemap.memory_bank_2[9] != 0xFF &&
-        g_CharIdToEntity[Savemap.memory_bank_2[9]] != 0xFF &&
+    if (Savemap.memory_bank_2[9] != 0xFF && g_CharIdToEntity[Savemap.memory_bank_2[9]] != 0xFF &&
         g_EntityToModel[g_CharIdToEntity[Savemap.memory_bank_2[9]]] != 0xFF) {
-        g_pFieldState->pcModelId =
-            g_EntityToModel[g_CharIdToEntity[Savemap.memory_bank_2[9]]];
+        g_pFieldState->pcModelId = g_EntityToModel[g_CharIdToEntity[Savemap.memory_bank_2[9]]];
     }
 }
 
@@ -3884,8 +3731,7 @@ s32 OpcodeFuncPrtyp(void) {
             ADD_PARTY_MEMBER(i, charId);
 
             if (g_DebugLevel & 3) {
-                FieldDebugAddParseValueToPage2(
-                    "p+ ef=", g_CharIdToEntity[charId], 2);
+                FieldDebugAddParseValueToPage2("p+ ef=", g_CharIdToEntity[charId], 2);
             }
             PC_INC(2);
             SetPcModel();
@@ -4022,8 +3868,7 @@ static void PartyReplace(u8* newParty) {
 }
 
 // Compares two sets of parties and returns which members don't exist in both.
-static void PartyCompare(
-    u8* party1, u8* party2, u8* party2Only, u8* party1Only) {
+static void PartyCompare(u8* party1, u8* party2, u8* party2Only, u8* party1Only) {
     s32 i, j, k;
 
     for (i = 0; i < 3; i++) {
@@ -4060,8 +3905,7 @@ static void PartyFromBank2ToSave(s32 unused) {
     u8 notInSave[3];
     u8 notInBank2[3];
 
-    PartyCompare(
-        Savemap.partyID, &Savemap.memory_bank_2[9], notInSave, notInBank2);
+    PartyCompare(Savemap.partyID, &Savemap.memory_bank_2[9], notInSave, notInBank2);
     PartyRemove(Savemap.partyID, notInBank2);
     PartyAdd(Savemap.partyID, notInSave);
     g_PartyUpdatedByFieldScript = 1;
@@ -4073,8 +3917,7 @@ static void PartyFromSaveToBank2(void) {
     u8 notInBank2[3];
     u8 notInSave[3];
 
-    PartyCompare(
-        &Savemap.memory_bank_2[9], Savemap.partyID, notInBank2, notInSave);
+    PartyCompare(&Savemap.memory_bank_2[9], Savemap.partyID, notInBank2, notInSave);
     PartyRemove(&Savemap.memory_bank_2[9], notInSave);
     PartyAdd(&Savemap.memory_bank_2[9], notInBank2);
 }
@@ -4204,8 +4047,7 @@ s32 OpcodeFuncSolid(void) {
     }
 
     if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
-        g_FieldModels[g_EntityToModel[g_CurrentEntity]].SolidOff =
-            GET_PARAM_U8(1);
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].SolidOff = GET_PARAM_U8(1);
     }
     PC_INC(2);
     return 0;
@@ -4221,17 +4063,13 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventJoinSet);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventSplitSet);
 
-INCLUDE_ASM(
-    "asm/us/field/nonmatchings/field_opcodes", FieldEventSplitJoinSetMove);
+INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventSplitJoinSetMove);
 
-INCLUDE_ASM(
-    "asm/us/field/nonmatchings/field_opcodes", FieldEventSplitJoinEndMove);
+INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventSplitJoinEndMove);
 
-INCLUDE_ASM(
-    "asm/us/field/nonmatchings/field_opcodes", FieldEventSplitJoinSetTurn);
+INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventSplitJoinSetTurn);
 
-INCLUDE_ASM(
-    "asm/us/field/nonmatchings/field_opcodes", FieldEventSplitJoinEndTurn);
+INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventSplitJoinEndTurn);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncFade);
 
@@ -4280,8 +4118,7 @@ s32 OpcodeFuncMenu(void) {
         g_pFieldState->eventCmdParam = FieldEventReadMemoryU8(2, 3);
         g_pFieldState->movieCommandState = MOVCMD_IDLE;
         D_8007EBE0 = 1;
-        if (g_pFieldState->eventCmd == EVTCMD_PARTY_MENU &&
-            g_pFieldState->eventCmdParam == 0) {
+        if (g_pFieldState->eventCmd == EVTCMD_PARTY_MENU && g_pFieldState->eventCmdParam == 0) {
             PC_INC(4);
         }
         return 1;
@@ -4289,8 +4126,7 @@ s32 OpcodeFuncMenu(void) {
 
     if (g_pFieldState->eventCmd == GET_PARAM_U8(2)) {
         if (g_DebugLevel & 3) {
-            FieldDebugAddParseValueToPage2(
-                "evt result=", g_pFieldState->movieCommandState, 1);
+            FieldDebugAddParseValueToPage2("evt result=", g_pFieldState->movieCommandState, 1);
         }
         if (g_pFieldState->movieCommandState == MOVCMD_DONE) {
             PC_INC(4);
@@ -4299,8 +4135,7 @@ s32 OpcodeFuncMenu(void) {
             PartyFromSaveToBank2();
             return 0;
         }
-    } else if (GET_PARAM_U8(2) == EVTCMD_UNK14 &&
-               g_pFieldState->eventCmd == EVTCMD_PLAY_MOVIE) {
+    } else if (GET_PARAM_U8(2) == EVTCMD_UNK14 && g_pFieldState->eventCmd == EVTCMD_PLAY_MOVIE) {
         g_pFieldState->eventCmd = GET_PARAM_U8(2);
         g_pFieldState->movieCommandState = MOVCMD_IDLE;
     }
@@ -4423,10 +4258,8 @@ void SystemRestoreParty(void) {
     for (i = 0; i < 3; i++) {
         SystemMenuAddHpByPartyId(i, 10000);
         SystemMenuAddMpByPartyId(i, 10000);
-        if (Savemap.partyID[i] != 0xFF &&
-            g_BattleCharIdToCharId[Savemap.partyID[i]] <= 8) {
-            Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[i]]]
-                .status_flags = 0;
+        if (Savemap.partyID[i] != 0xFF && g_BattleCharIdToCharId[Savemap.partyID[i]] <= 8) {
+            Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[i]]].status_flags = 0;
         }
     }
 }
@@ -4672,19 +4505,15 @@ s32 OpcodeFuncKawai(void) {
     modelId = g_EntityToModel[g_CurrentEntity];
     if (modelId != 0xFF) {
         kawaiType = GET_PARAM_U8(2);
-        g_FieldModelData
-            ->modelEntries[g_FieldModelLoaderData[modelId].modelEntryIndex]
-            .kawaiType = kawaiType;
+        g_FieldModelData->modelEntries[g_FieldModelLoaderData[modelId].modelEntryIndex].kawaiType = kawaiType;
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].KawaiOp1 = 1;
         type = kawaiType;
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].KawaiOp0 = 0;
-        g_FieldModels[g_EntityToModel[g_CurrentEntity]].KawaiDataOffset =
-            &GET_PARAM_U8(3);
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].KawaiDataOffset = &GET_PARAM_U8(3);
     }
 
     if (type == 0) {
-        params =
-            g_FieldModels[g_EntityToModel[g_CurrentEntity]].KawaiDataOffset;
+        params = g_FieldModels[g_EntityToModel[g_CurrentEntity]].KawaiDataOffset;
         if (params[0] == 1 && params[1] == params[0] && params[2] == 0) {
             g_FieldModels[g_EntityToModel[g_CurrentEntity]].BlinkOn = 0;
             g_FieldModels[g_EntityToModel[g_CurrentEntity]].KawaiA = 0;

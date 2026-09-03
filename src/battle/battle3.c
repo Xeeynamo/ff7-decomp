@@ -84,9 +84,7 @@ const s32 D_800A0E48[] = {0, 0, 0};
 void func_800DBC18(OT_TYPE*, s16);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DBC18);
 
-static void func_800DBEA4(OT_TYPE* arg0, s16 arg1) {
-    func_800DBC18(arg0, arg1);
-}
+static void func_800DBEA4(OT_TYPE* arg0, s16 arg1) { func_800DBC18(arg0, arg1); }
 
 // ot: this frame's ordering table, selected by func_800D8D78 via the
 // D_800F1994 double-buffer index -- forwarded through to func_800DBEA4 and
@@ -97,8 +95,7 @@ void func_800DBEC8(OT_TYPE* ot) {
         return;
     }
 
-    if ((D_800F3120 != 0) && (D_800FAFEC >= 0 && D_800FAFEC < 0x128) &&
-        (D_800FAFF0 > 0xF && D_800FAFF0 < 0xA6)) {
+    if ((D_800F3120 != 0) && (D_800FAFEC >= 0 && D_800FAFEC < 0x128) && (D_800FAFF0 > 0xF && D_800FAFF0 < 0xA6)) {
         func_800DB818(ot, D_800FAFEC, D_800FAFF0);
     }
 }
@@ -415,8 +412,7 @@ void func_800E0528(void) {}
 void func_800E0530(void) {
     s32 i;
 
-    SysMenuSetCursorMovement(
-        &D_800F9132, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
+    SysMenuSetCursorMovement(&D_800F9132, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
     for (i = 1; i < 0x1C; i++) {
         if (D_800F514C[i] != 0) {
             func_800D9F5C(i);
@@ -541,8 +537,7 @@ void func_800E0E34(void) {
         if (!((((s32)D_801516F8) >> D_800F38A9) & 1)) {
             D_800F310E = 1;
         }
-        if ((D_80166F75 != 0) &&
-            (((D_800F389D == 0xA) || (D_800F389D == 3)) || (D_800F389D == 5))) {
+        if ((D_80166F75 != 0) && (((D_800F389D == 0xA) || (D_800F389D == 3)) || (D_800F389D == 5))) {
             D_800F3120 = 1;
             D_80166F75 = 0;
             D_800F99E4 = 1;
@@ -563,10 +558,8 @@ void func_800E0E34(void) {
                     if (D_800F38A4 == 2) {
                         if (D_800F389D == 0xA) {
                             list[menu->cursorRow + menu->scroll].count -= 1;
-                            if (list[menu->cursorRow + menu->scroll].count ==
-                                0) {
-                                list[menu->cursorRow + menu->scroll].id =
-                                    0xFFFF;
+                            if (list[menu->cursorRow + menu->scroll].count == 0) {
+                                list[menu->cursorRow + menu->scroll].id = 0xFFFF;
                             }
                         }
                         func_800DE2B4();
@@ -595,17 +588,15 @@ void func_800E0E34(void) {
                     }
                     return;
                 }
-                if (((D_800F389D == 3) || (D_800F389D == 0xA)) ||
-                    (D_800F389D == 5)) {
+                if (((D_800F389D == 3) || (D_800F389D == 0xA)) || (D_800F389D == 5)) {
                     list[menu->cursorRow + menu->scroll].count -= 1;
                     if (list[menu->cursorRow + menu->scroll].count == 0) {
                         list[menu->cursorRow + menu->scroll].id = 0xFFFF;
                     }
                 }
                 func_800DDFEC();
-            } else if (g_Pad1KeysRepeat & PADRdown) { // pressed Cancel/Back
-                if ((D_800F38A4 == 2) &&
-                    (D_800F389D == 0xA)) { // in the item menu?
+            } else if (g_Pad1KeysRepeat & PADRdown) {           // pressed Cancel/Back
+                if ((D_800F38A4 == 2) && (D_800F389D == 0xA)) { // in the item menu?
                     if (list[D_800F562C].count == 0) {
                         list[D_800F562C].id = D_800F314E;
                     }
@@ -785,9 +776,7 @@ void func_800E1C40(void) {
     }
 }
 
-void func_800E2054(s32 arg0, s32 arg1) {
-    SysMenuDraw8widthFont(0xB0, arg0, &D_800F3184[arg1 * 10], 3);
-}
+void func_800E2054(s32 arg0, s32 arg1) { SysMenuDraw8widthFont(0xB0, arg0, &D_800F3184[arg1 * 10], 3); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E2098);
 

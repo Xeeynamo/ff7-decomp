@@ -218,13 +218,11 @@ typedef enum {
 // of opcodes (D_800F38AC/D_800A0098/D_800E7B28), not a single switch on
 // cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
 typedef struct {
-    /* 0x0 */ u8
-        priority; // 0=limits/counters, 6=player spells (see func_800A4350)
-    /* 0x1 */ u8
-        queuePos; // position within priority band; not set by func_800A4350
+    /* 0x0 */ u8 priority; // 0=limits/counters, 6=player spells (see func_800A4350)
+    /* 0x1 */ u8 queuePos; // position within priority band; not set by func_800A4350
     /* 0x2 */ u8 actorId;
-    /* 0x3 */ s8 cmdIndex; // BattleCommand, stored raw (not the enum type --
-                           // keeps this struct's confirmed 0x8-byte layout)
+    /* 0x3 */ s8 cmdIndex;     // BattleCommand, stored raw (not the enum type --
+                               // keeps this struct's confirmed 0x8-byte layout)
     /* 0x4 */ s16 attackIndex; // command-dependent: spell id for CMD_MAGIC,
                                // damage dealt for CMD_COIN, skill id for
                                // CMD_ENEMY_SKILL, etc -- not a uniform lookup

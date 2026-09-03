@@ -45,8 +45,7 @@ s32 SysGetMateriaActivatedStars(u8, s32);
 s32 SysAddCommandToTemp(s32);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 u8 func_8001F6B4();
-void SysMenuSetPosAddWindow(
-    s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
+void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
 
 u8 func_8001F6B4(void) { return D_80062DDB; }
@@ -94,8 +93,7 @@ void func_8001FAAC(u16 arg0) {
 
 void func_8001FAF0(void) {}
 
-INCLUDE_ASM(
-    "asm/us/main/nonmatchings/1F6B4", SysMenuGetInventoryRestrictionMask);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuGetInventoryRestrictionMask);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysGetPlayerBaseAttackDefense);
 
@@ -113,11 +111,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddStatusProtect);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysInitPlayerStatFromEquip);
 
-INCLUDE_ASM(
-    "asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpBySaveCharId);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpBySaveCharId);
 
-INCLUDE_ASM(
-    "asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpByPartyId);
+INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpByPartyId);
 
 void SysMenuCreateDrawenvDispenv(DRAWENV* draw_env, DISPENV* disp_env) {
     VSync(0);
@@ -142,8 +138,7 @@ void SysMenuCreateDrawenvDispenv(DRAWENV* draw_env, DISPENV* disp_env) {
     draw_env[1].r0 = 0;
     draw_env[1].g0 = 0;
     draw_env[1].b0 = 0;
-    draw_env[0].tpage = draw_env[1].tpage =
-        GetGraphType() != 1 && GetGraphType() != 2 ? 0x3F : 0xAF;
+    draw_env[0].tpage = draw_env[1].tpage = GetGraphType() != 1 && GetGraphType() != 2 ? 0x3F : 0xAF;
     VSync(0);
     PutDispEnv(disp_env);
     PutDrawEnv(draw_env);
@@ -207,8 +202,7 @@ s32 SysGetHoursFromSeconds(s32 arg0) {
         var_a0 = 0x57E3F;
     }
     // tens-of-hours (sec / 36000) * 10 + units-of-hours ((sec % 36000) / 3600)
-    return ((var_a0 / D_80049474[0]) * 0xA) +
-           ((var_a0 % D_80049474[0]) / D_80049474[1]);
+    return ((var_a0 / D_80049474[0]) * 0xA) + ((var_a0 % D_80049474[0]) / D_80049474[1]);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysGetMinutesFromSeconds);
@@ -424,13 +418,9 @@ void* GetPartySlotWeaponMateriaSlots(s32 arg0) {
     return var_v0;
 }
 
-ArmorRecord* SysGetArmorAddressById(s32 armorId) {
-    return &g_ArmorTable[armorId];
-}
+ArmorRecord* SysGetArmorAddressById(s32 armorId) { return &g_ArmorTable[armorId]; }
 
-s32* SysGetAccessoryAddressById(s32 arg0) {
-    return (s32*)&g_AccessoryTable[arg0];
-}
+s32* SysGetAccessoryAddressById(s32 arg0) { return (s32*)&g_AccessoryTable[arg0]; }
 
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId) {
     if (Savemap.partyID[partyId] != 0xFF) {
@@ -441,9 +431,7 @@ ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId) {
 
 void func_800257C4(void) {}
 
-u8* GetCharacterName(s32 battleCharId) {
-    return Savemap.party[g_BattleCharIdToCharId[battleCharId]].name;
-}
+u8* GetCharacterName(s32 battleCharId) { return Savemap.party[g_BattleCharIdToCharId[battleCharId]].name; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuRemoveHpByPartyId);
 
@@ -559,9 +547,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025ED4);
 
 void func_80026034(void) {}
 
-s32 SysMenuGetMateriaColorByType(u8 arg0) {
-    return D_80049520[D_80049528[g_MateriaData[arg0].materiaType & 0xF]];
-}
+s32 SysMenuGetMateriaColorByType(u8 arg0) { return D_80049520[D_80049528[g_MateriaData[arg0].materiaType & 0xF]]; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80026090);
 

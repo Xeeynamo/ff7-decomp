@@ -153,9 +153,8 @@ void func_801D370C(s32 x, s32 y, s32 slot_no) {
     SysMenuDrawString(192, y + 46, save->place_name, 7);
     for (i = 0; i < 3; i++) {
         if (data[i + 5] != 0xFF) {
-            SysMenuDrawAvatar2(
-                22 + i * 52, y + 6, 48, 48, (data[i + 5] >= 5) ? 48 : 0,
-                (data[i + 5] % 5) * 48, 48, 48, data[i + 5], 0);
+            SysMenuDrawAvatar2(22 + i * 52, y + 6, 48, 48, (data[i + 5] >= 5) ? 48 : 0, (data[i + 5] % 5) * 48, 48, 48,
+                               data[i + 5], 0);
         }
     }
 
@@ -164,15 +163,10 @@ void func_801D370C(s32 x, s32 y, s32 slot_no) {
     rect.w = 0xFF;
     rect.h = 0xFF;
     SysMenuSetDrawMode(0, 1, 127, &rect);
-    SysMenuDrawDigitsWithoutLeadingZeroes(
-        SysGetSingleStringWidth(D_801E3684) + 194, y + 28, save->leader_level,
-        2, 7);
-    SysMenuDrawSingleFontLetter(
-        338, y + 12, 213, 7); // prints the ':' symbol maybe?
-    SysMenuDrawDigitsWithLeadingZeroes(
-        324, y + 11, SysGetHoursFromSeconds(save->time), 2, 7);
-    SysMenuDrawDigitsWithLeadingZeroes(
-        345, y + 11, SysGetMinutesFromSeconds(save->time), 2, 7);
+    SysMenuDrawDigitsWithoutLeadingZeroes(SysGetSingleStringWidth(D_801E3684) + 194, y + 28, save->leader_level, 2, 7);
+    SysMenuDrawSingleFontLetter(338, y + 12, 213, 7); // prints the ':' symbol maybe?
+    SysMenuDrawDigitsWithLeadingZeroes(324, y + 11, SysGetHoursFromSeconds(save->time), 2, 7);
+    SysMenuDrawDigitsWithLeadingZeroes(345, y + 11, SysGetMinutesFromSeconds(save->time), 2, 7);
     SysMenuDrawDigitsWithoutLeadingZeroes(309, y + 25, save->gil, 7, 7);
 
     rect.x = 0;
@@ -221,8 +215,7 @@ static s32 func_801D3AB0(s32 arg0) {
     s32 temp_s2;
     s32 var_s3;
 
-    if ((g_MenuStartMode < START_MENU_MODE_CHECKING_FILES ||
-         g_MenuStartMode == START_MENU_MODE_TITLE) &&
+    if ((g_MenuStartMode < START_MENU_MODE_CHECKING_FILES || g_MenuStartMode == START_MENU_MODE_TITLE) &&
         D_801E3D54 != 2 && D_801E3D54 != 0) {
         func_801D3668(arg0);
     }
@@ -239,13 +232,10 @@ static s32 func_801D3AB0(s32 arg0) {
     func_8001F6B4();
     switch (g_MenuStartMode) {
     case START_MENU_MODE_SELECT_SLOT:
-        SysMenuDrawCursor(
-            D_801E3668.x - 18, D_801E3668.y + 6 + D_801E3D80[0].row * 12);
+        SysMenuDrawCursor(D_801E3668.x - 18, D_801E3668.y + 6 + D_801E3D80[0].row * 12);
         SysMenuDrawString(10, 11, D_801E2CFC[1], 7);
-        SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 5, D_801E2CFC[3],
-                          -(D_801E8F38[0][0] != 0) & 7);
-        SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 0x11, D_801E2CFC[4],
-                          -(D_801E8F3B != 0) & 7);
+        SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 5, D_801E2CFC[3], -(D_801E8F38[0][0] != 0) & 7);
+        SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 0x11, D_801E2CFC[4], -(D_801E8F3B != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
@@ -264,17 +254,12 @@ static s32 func_801D3AB0(s32 arg0) {
             for (var_s0 = 0; var_s0 < var_s3; var_s0++) {
                 if ((D_80062F3C >> (var_s0 + D_801E3D80[1].rowOffset)) & 1) {
                     SysMenuStoreWindowColor();
-                    func_801D370C(
-                        0, var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8,
-                        var_s0 + D_801E3D80[1].rowOffset);
+                    func_801D370C(0, var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8, var_s0 + D_801E3D80[1].rowOffset);
                     SysMenuRestoreWindowColor();
                 } else {
-                    SysMenuDrawString(
-                        0x32, var_s0 * 64 + 55 + D_801E3D80[1].unkF * 8,
-                        D_801E2CFC[8], 6);
+                    SysMenuDrawString(0x32, var_s0 * 64 + 55 + D_801E3D80[1].unkF * 8, D_801E2CFC[8], 6);
                     SysMenuCopyWindowRect(&sp38, &D_801E3660);
-                    SysMenuMoveWindowRect(
-                        &sp38, 0, var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8);
+                    SysMenuMoveWindowRect(&sp38, 0, var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8);
                     SysMenuDrawWindow(&sp38);
                 }
             }
@@ -286,11 +271,8 @@ static s32 func_801D3AB0(s32 arg0) {
             SysMenuSetDrawenv(&D_801E3E34[D_801E3D58], &rect);
             SysMenuDrawString(10, 11, D_801E2CFC[2], 7);
             SysMenuDrawString(0xCE, 11, D_801E2CFC[9], 6);
-            SysMenuDrawString(
-                SysGetSingleStringWidth(D_801E2CFC[9]) + 0xD0, 11,
-                ((13 + D_801E3D80[1].row + D_801E3D80[1].rowOffset) * 36) +
-                    (D_801E2CFC[0]),
-                7);
+            SysMenuDrawString(SysGetSingleStringWidth(D_801E2CFC[9]) + 0xD0, 11,
+                              ((13 + D_801E3D80[1].row + D_801E3D80[1].rowOffset) * 36) + (D_801E2CFC[0]), 7);
             SysMenuSetWindowRect(&sp38, 200, 5, 0x4E, 0x18);
             SysMenuDrawWindow(&sp38);
             func_800269E8();
@@ -309,8 +291,7 @@ static s32 func_801D3AB0(s32 arg0) {
         }
         SysMenuDrawString(10, 11, D_801E2CFC[12], 7);
         if (D_801E3F1C == 0) {
-            SysMenuDrawProgressBar(
-                122, 117, (D_801E3F20 + 1) * 8, 8, var_s2, var_s1, var_s0_2);
+            SysMenuDrawProgressBar(122, 117, (D_801E3F20 + 1) * 8, 8, var_s2, var_s1, var_s0_2);
             rect.x = 0;
             rect.y = 0;
             rect.w = 0xFF;
@@ -330,13 +311,10 @@ static s32 func_801D3AB0(s32 arg0) {
         break;
     case START_MENU_MODE_FORMAT_PROMPT:
         if (arg0 & 2) {
-            SysMenuDrawCursor(
-                D_801E3668.x - 0x12, D_801E3668.y + 6 + D_801E3D80[0].row * 12);
+            SysMenuDrawCursor(D_801E3668.x - 0x12, D_801E3668.y + 6 + D_801E3D80[0].row * 12);
         }
-        SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 5, D_801E2CFC[3],
-                          -(D_801E8F38[0][0] != 0) & 7);
-        SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 0x11, D_801E2CFC[4],
-                          -(D_801E8F3B != 0) & 7);
+        SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 5, D_801E2CFC[3], -(D_801E8F38[0][0] != 0) & 7);
+        SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 0x11, D_801E2CFC[4], -(D_801E8F3B != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
@@ -345,26 +323,18 @@ static s32 func_801D3AB0(s32 arg0) {
         SysMenuDrawWindow(&D_801E3668.x);
         SysMenuDrawString(10, 11, D_801E3260[4], 7);
         temp_s2 = SysGetSingleStringWidth(D_801E3260[5]) + 0x10;
-        SysMenuDrawString(
-            190 - temp_s2 / 2, D_801E3668.h + 99, D_801E3260[5], 7);
-        SysMenuDrawString(
-            228 - temp_s2 / 2, D_801E3668.h + 112, D_801E2CFC[34], 7);
-        SysMenuDrawString(
-            228 - temp_s2 / 2, D_801E3668.h + 124, D_801E2CFC[35], 7);
-        SysMenuDrawCursor(
-            200 - temp_s2 / 2, 0x73 + D_801E3DEC[0].row * 12 + D_801E3668.h);
-        SysMenuSetWindowRect(
-            &sp38, 0xB6 - temp_s2 / 2, D_801E3668.h + 0x5D, temp_s2, 0x30);
+        SysMenuDrawString(190 - temp_s2 / 2, D_801E3668.h + 99, D_801E3260[5], 7);
+        SysMenuDrawString(228 - temp_s2 / 2, D_801E3668.h + 112, D_801E2CFC[34], 7);
+        SysMenuDrawString(228 - temp_s2 / 2, D_801E3668.h + 124, D_801E2CFC[35], 7);
+        SysMenuDrawCursor(200 - temp_s2 / 2, 0x73 + D_801E3DEC[0].row * 12 + D_801E3668.h);
+        SysMenuSetWindowRect(&sp38, 0xB6 - temp_s2 / 2, D_801E3668.h + 0x5D, temp_s2, 0x30);
         SysMenuDrawWindow(&sp38);
         break;
     case START_MENU_MODE_TITLE:
-        SysMenuDrawCursor(
-            D_801E3668.x - 0x12, D_801E3668.y + 6 + D_801E3DEC[1].row * 12);
-        SysMenuDrawString(
-            D_801E3668.x + 8, D_801E3668.y + 6, D_801E2CFC[32], 7); // new game
-        SysMenuDrawString(
-            D_801E3668.x + 8, D_801E3668.y + 18, D_801E2CFC[10],
-            D_801E8F38[0][0] || D_801E8F38[1][0] ? 7 : 0); // continue?
+        SysMenuDrawCursor(D_801E3668.x - 0x12, D_801E3668.y + 6 + D_801E3DEC[1].row * 12);
+        SysMenuDrawString(D_801E3668.x + 8, D_801E3668.y + 6, D_801E2CFC[32], 7); // new game
+        SysMenuDrawString(D_801E3668.x + 8, D_801E3668.y + 18, D_801E2CFC[10],
+                          D_801E8F38[0][0] || D_801E8F38[1][0] ? 7 : 0); // continue?
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
@@ -418,8 +388,7 @@ static s32 func_801D3AB0(s32 arg0) {
                     func_801D2B58(1);
                     if (D_801E8F38[D_801E3D80[0].row][2]) {
                         g_MenuStartMode = START_MENU_MODE_FORMAT_PROMPT;
-                        SysMenuSetCursorMovement(&D_801E3D80[6], 0, 1, 1, 2, 0,
-                                                 0, 1, 2, 0, 0, 0, 1, 0);
+                        SysMenuSetCursorMovement(&D_801E3D80[6], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
                     } else {
                         D_801E3F18 = 10;
                         g_MenuStartMode = START_MENU_MODE_CHECKING_FILES;
@@ -427,8 +396,7 @@ static s32 func_801D3AB0(s32 arg0) {
                         D_801E3F14 = 0;
                         D_80062F3C = 0;
                         D_801E3F1C = 1;
-                        SysMenuSetCursorMovement(&D_801E3D80[1], 0, 0, 1, 3, 0,
-                                                 0, 1, 15, 0, 0, 0, 0, 0);
+                        SysMenuSetCursorMovement(&D_801E3D80[1], 0, 0, 1, 3, 0, 0, 1, 15, 0, 0, 0, 0, 0);
                     }
                 } else {
                     func_801D2B58(3);
@@ -446,9 +414,7 @@ static s32 func_801D3AB0(s32 arg0) {
             func_801D2DA8(&D_801E3D80[1]);
             if (!D_801E3D80[1].unkF && !var_s1) {
                 if (g_Pad1KeysPressed & PADRright) {
-                    if (((s32)D_80062F3C >>
-                         (D_801E3D80[1].row + D_801E3D80[1].rowOffset)) &
-                        1) {
+                    if (((s32)D_80062F3C >> (D_801E3D80[1].row + D_801E3D80[1].rowOffset)) & 1) {
                         func_801D2B58(1);
                         g_MenuStartMode = START_MENU_MODE_LOADING;
                         D_801E3F18 = 10;
@@ -507,9 +473,7 @@ static s32 func_801D3AB0(s32 arg0) {
             }
             var_s1 = (s16)LoadSaveFile(var_a0_3);
             if (var_s1 == 0) {
-                if (Savemap.header.checksum !=
-                    (u16)func_801D1950(
-                        sizeof(SaveWork) - 4, &Savemap.header.leader_level)) {
+                if (Savemap.header.checksum != (u16)func_801D1950(sizeof(SaveWork) - 4, &Savemap.header.leader_level)) {
                     g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
                     func_801D2B58(3);
                     SysMenuRequestAddWindow(D_801E2CFC[31], 0);
@@ -563,8 +527,7 @@ static s32 func_801D3AB0(s32 arg0) {
                 case 1:
                     if (D_801E8F38[0][0] || D_801E8F3B) {
                         func_801D2B58(1);
-                        SysMenuSetCursorMovement(&D_801E3D80[0], 0, 0, 1, 2, 0,
-                                                 0, 1, 2, 0, 0, 0, 1, 0);
+                        SysMenuSetCursorMovement(&D_801E3D80[0], 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
                         g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                     } else {
                         func_801D2B58(3);

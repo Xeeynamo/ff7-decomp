@@ -113,8 +113,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B36B4);
 
 // one-shot setup call centered on the 320x240 screen
 static void func_800B37A0(void) {
-    func_800D91DC(0x140, 0xF0, D_80162084, D_800FA6A0, D_800FA63C.u.sub.unk34,
-                  D_800F9F34);
+    func_800D91DC(0x140, 0xF0, D_80162084, D_800FA6A0, D_800FA63C.u.sub.unk34, D_800F9F34);
 }
 
 static void func_800B37EC(void) {
@@ -132,8 +131,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B383C);
 static void func_800B38E0(void) {
     s32 i = D_800F7DF8[0];
 
-    DS_read(
-        *&D_800E8050[i].loc, *&D_800E8050[i].len, 0x801B0000, &func_800B3A04);
+    DS_read(*&D_800E8050[i].loc, *&D_800E8050[i].len, 0x801B0000, &func_800B3A04);
     func_800B7FB4();
 }
 
@@ -158,8 +156,7 @@ static void func_800B3968(void) {
     D_800F8390[2] = size + D_800F8390[1];
     if (D_800F7DF4 >= 3U) {
         i = D_800F7DF8[2];
-        DS_read(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000,
-                func_800B3934);
+        DS_read(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, func_800B3934);
         func_800B7FB4();
     }
 }
@@ -177,8 +174,7 @@ static void func_800B3A04(void) {
     D_800F8390[1] = size + D_800F8390[0];
     if (D_800F7DF4 >= 2U) {
         i = D_800F7DF8[1];
-        DS_read(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000,
-                func_800B3968);
+        DS_read(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, func_800B3968);
         func_800B7FB4();
     }
 }
@@ -201,8 +197,7 @@ static void func_800B3AB8(void) {
     func_800B5C1C(*s0);
     cmp = D_800FA9C8;
     if (cmp != 0xC8) {
-        DS_read(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len,
-                (u_long*)0x801B0000, func_800B3B84);
+        DS_read(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len, (u_long*)0x801B0000, func_800B3B84);
         func_800B7FB4();
         return;
     }
@@ -297,10 +292,8 @@ static s32 func_800B3FAC(s32 arg0) {
     s32 i;
     u8* p = &D_800F7DF4;
 
-    for (i = 0; i < (s32)sizeof(D_8016360C.formation);
-         i += sizeof(FormationEntry)) {
-        if (((FormationEntry*)((u8*)D_8016360C.formation + i))->enemyID ==
-            arg0) {
+    for (i = 0; i < (s32)sizeof(D_8016360C.formation); i += sizeof(FormationEntry)) {
+        if (((FormationEntry*)((u8*)D_8016360C.formation + i))->enemyID == arg0) {
             *p += 1;
             return 0;
         }
@@ -474,8 +467,7 @@ static void func_800B8268(void) {
     var_a1 = D_80163784;
     while (i < 10) {
         *var_a1 = D_801636B8[i].D_801636B9;
-        if (!(D_80151200[i].D_8015120C & 8) &&
-            D_801518E4[i].D_801518E6 != *var_a1 &&
+        if (!(D_80151200[i].D_8015120C & 8) && D_801518E4[i].D_801518E6 != *var_a1 &&
             D_801518E4[i].D_8015190A == var_t1) {
             D_801518E4[i].D_80151922 |= 1;
             D_801518E4[i].D_801518E6 = *var_a1;
@@ -734,13 +726,11 @@ static void func_800BB030(s16 arg0) {
     Unk801B0C98* unk;
 
     unk = (Unk801B0C98*)0x1F800020;
-    SetFarColor(D_801518E4[arg0].D_8015190C, D_801518E4[arg0].D_8015190D,
-                D_801518E4[arg0].D_8015190E);
+    SetFarColor(D_801518E4[arg0].D_8015190C, D_801518E4[arg0].D_8015190D, D_801518E4[arg0].D_8015190E);
     SetRotMatrix(&D_801518E4[arg0].m);
     SetTransMatrix(&D_801518E4[arg0].m);
     for (i = 0; i < D_800FA6D8[arg0].unk3C; i++) {
-        RotMatrixYXZ(
-            &D_800FA6D8[arg0].unk8[i].sv1, &D_800FA6D8[arg0].unk8[i].m);
+        RotMatrixYXZ(&D_800FA6D8[arg0].unk8[i].sv1, &D_800FA6D8[arg0].unk8[i].m);
     }
 
     for (i = 0; i < D_800FA6D8[arg0].unk3C; i++) {
@@ -788,8 +778,7 @@ static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3) {
 static void func_800BB89C(void);
 static void func_800BB804(void) {
     if (!(D_8016376A & 0x20)) {
-        SystemLoadFileBySector(
-            LBA_ENEMY6_FAN2, 0x1000, (u_long*)0x801D0000, func_800BB89C);
+        SystemLoadFileBySector(LBA_ENEMY6_FAN2, 0x1000, (u_long*)0x801D0000, func_800BB89C);
         func_800B7FB4();
         return;
     }
@@ -798,8 +787,7 @@ static void func_800BB804(void) {
 }
 
 static void func_800BB864(void) {
-    SystemLoadFileBySector(
-        LBA_ENEMY6_OVER2, 0x800, (u_long*)0x801D0000, func_800BB89C);
+    SystemLoadFileBySector(LBA_ENEMY6_OVER2, 0x800, (u_long*)0x801D0000, func_800BB89C);
     func_800B7FB4();
 }
 
@@ -1184,8 +1172,7 @@ static void func_800C1908(u8 arg0) {
             }
         }
         var_a0 = arg0;
-        if (D_80151200[var_a0].D_80151200 & 0x400000 &&
-            D_801518E4[var_a0].D_801518E6 == D_80163784[var_a0]) {
+        if (D_80151200[var_a0].D_80151200 & 0x400000 && D_801518E4[var_a0].D_801518E6 == D_80163784[var_a0]) {
             if (D_801518E4[var_a0].D_801518FC == 0) {
                 D_801518E4[var_a0].unk160.vy = 0x800;
             } else {
@@ -1272,11 +1259,9 @@ static void func_800C4B60(s16 arg0) {
         return;
     }
     D_80163C74 = func_800C4DC8(0, D_801621F0[arg0].unkA, 320, 47, &D_800EA25C);
-    D_80163C74 =
-        func_800C4DC8(0, D_801621F0[arg0].unkA + 47, 320, 32, &D_800EA258);
+    D_80163C74 = func_800C4DC8(0, D_801621F0[arg0].unkA + 47, 320, 32, &D_800EA258);
     D_80163C74 = func_800C4DC8(0, D_801621F0[arg0].unk8, 320, 32, &D_800EA260);
-    D_80163C74 =
-        func_800C4DC8(0, D_801621F0[arg0].unk8 + 32, 320, 47, &D_800EA25C);
+    D_80163C74 = func_800C4DC8(0, D_801621F0[arg0].unk8 + 32, 320, 47, &D_800EA25C);
     D_801621F0[arg0].unk8 += 4;
     D_801621F0[arg0].unkA -= 4;
     D_801621F0[arg0].D_801621F4--;
@@ -1302,13 +1287,9 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4DC8);
 
 static u_long* func_800C5040(u8 r, u8 g, u8 b, s32 tpage, u_long* ot);
 
-u_long* func_800C4FC8(u8 r, u8 g, u8 b) {
-    return func_800C5040(r, g, b, 1, (u_long*)&g_cDb->unk4080[1]);
-}
+u_long* func_800C4FC8(u8 r, u8 g, u8 b) { return func_800C5040(r, g, b, 1, (u_long*)&g_cDb->unk4080[1]); }
 
-u_long* func_800C5004(u8 r, u8 g, u8 b) {
-    return func_800C5040(r, g, b, 2, (u_long*)&g_cDb->unk40EC);
-}
+u_long* func_800C5004(u8 r, u8 g, u8 b) { return func_800C5040(r, g, b, 2, (u_long*)&g_cDb->unk40EC); }
 
 static u_long* func_800C5040(u8 r, u8 g, u8 b, s32 tpage, u_long* ot) {
     DR_MODE* drMode;
@@ -1371,8 +1352,7 @@ static void func_800C55B8(void) {
         D_801621F0[D_801590D4].D_801621F0 = -1;
         return;
     }
-    D_801518E4[D_801621F0[D_801590D4].D_801621F6].D_801518EA +=
-        D_801621F0[D_801590D4].D_801621F2;
+    D_801518E4[D_801621F0[D_801590D4].D_801621F6].D_801518EA += D_801621F0[D_801590D4].D_801621F2;
     D_801621F0[D_801590D4].D_801621F4--;
 }
 

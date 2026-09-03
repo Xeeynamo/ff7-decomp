@@ -503,8 +503,7 @@ void func_800D5444(int, int, int, void (*func)(int));
 void BattleCommandSend(s32 cmdId, ...);
 int func_800D574C(int);
 void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
-void MagicAnimationRegister(
-    s32 targetMask, s32 arg1, s32 frameStep, void (*func)(int));
+void MagicAnimationRegister(s32 targetMask, s32 arg1, s32 frameStep, void (*func)(int));
 s32 BattlePositionToStereoPan(SVECTOR* sv);
 s32 BattleEntityGetStereoPan(s32 arg0);
 void func_800D5774(u32 targetIndex);

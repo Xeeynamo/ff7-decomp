@@ -77,19 +77,18 @@ typedef struct {
     u8 statusDefense; // index of the status bit this armor guards against;
                       // 0xFF (none) on every armor (a mostly-accessory field)
     u8 unk7;
-    u8 unk8;           // 0 on every armor except Four Slots (0xFF)
-    u8 materiaSlot[8]; // one byte per possible slot; 0=none, else slot present
-                       // (5=single/6,7=linked-pair when materiaGrowth!=None;
-                       //  1=single/2,3=linked-pair when materiaGrowth==None)
-    u8 materiaGrowth;  // 0=None, 1=Normal, 2=Double
-    u8 equipMask[2];   // equippable-by-character bitmask (bit0=Cloud,1=Barret,
-                     // 2=Tifa,3=Aeris,4=RedXIII,5=Yuffie,6=CaitSith,7=Vincent,
-                     // 8=Cid,9=Young Cloud). 0x01FF=all; Minerva=0x002C
-                     // (women), Escort Guard=0x03D3 (men + Young Cloud).
-    u8 elementalMask
-        [2];     // bit0=Fire,1=Ice,2=Lightning,3=Earth,4=Poison,5=Gravity,
-                 // 6=Water,7=Wind,8=Holy,10=Cut,11=Hit,12=Punch,13=Shoot
-    u8 unk16[2]; // unknown, always 0x00FF
+    u8 unk8;               // 0 on every armor except Four Slots (0xFF)
+    u8 materiaSlot[8];     // one byte per possible slot; 0=none, else slot present
+                           // (5=single/6,7=linked-pair when materiaGrowth!=None;
+                           //  1=single/2,3=linked-pair when materiaGrowth==None)
+    u8 materiaGrowth;      // 0=None, 1=Normal, 2=Double
+    u8 equipMask[2];       // equippable-by-character bitmask (bit0=Cloud,1=Barret,
+                           // 2=Tifa,3=Aeris,4=RedXIII,5=Yuffie,6=CaitSith,7=Vincent,
+                           // 8=Cid,9=Young Cloud). 0x01FF=all; Minerva=0x002C
+                           // (women), Escort Guard=0x03D3 (men + Young Cloud).
+    u8 elementalMask[2];   // bit0=Fire,1=Ice,2=Lightning,3=Earth,4=Poison,5=Gravity,
+                           // 6=Water,7=Wind,8=Holy,10=Cut,11=Hit,12=Punch,13=Shoot
+    u8 unk16[2];           // unknown, always 0x00FF
     u8 statBonusId[4];     // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
                            // 4=Dex,5=Lck; unused slot when paired value==0
     u8 statBonusValue[4];  // bonus amount; 0 = slot unused
@@ -102,18 +101,18 @@ typedef struct {
 // Field meanings verified by dumping the live table and matching each field
 // against published stats for all 32 accessories (same method as ArmorRecord).
 typedef struct {
-    u8 statBonusId[2];    // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
-                          // 4=Dex,5=Lck; 0xFF = unused
-    u8 statBonusValue[2]; // bonus amount, paired with statBonusId
-    u8 elementalStrength; // 0=absorb, 1=nullify, 2=halve; 0xFF = none
-    u8 specialEffect;     // 0xFF none; 0=Haste, 1=Berserk, 2=Curse, 3=Reflect,
-                          // 4=raise steal rate, 5=raise manipulate rate,
-                          // 6=Barrier/MBarrier
-    u8 elementMask[2];   // elements the elementalStrength applies to (u16 mask,
-                         // same element bits as ArmorRecord.elementalMask)
-    u8 statusProtect[4]; // status-immunity bitmask (u32); e.g. Ribbon sets most
-    u8 equipMask[2];     // equippable-by-character bitmask (see ArmorRecord);
-                         // 0x01FF (all nine) on every accessory
+    u8 statBonusId[2];     // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
+                           // 4=Dex,5=Lck; 0xFF = unused
+    u8 statBonusValue[2];  // bonus amount, paired with statBonusId
+    u8 elementalStrength;  // 0=absorb, 1=nullify, 2=halve; 0xFF = none
+    u8 specialEffect;      // 0xFF none; 0=Haste, 1=Berserk, 2=Curse, 3=Reflect,
+                           // 4=raise steal rate, 5=raise manipulate rate,
+                           // 6=Barrier/MBarrier
+    u8 elementMask[2];     // elements the elementalStrength applies to (u16 mask,
+                           // same element bits as ArmorRecord.elementalMask)
+    u8 statusProtect[4];   // status-immunity bitmask (u32); e.g. Ribbon sets most
+    u8 equipMask[2];       // equippable-by-character bitmask (see ArmorRecord);
+                           // 0x01FF (all nine) on every accessory
     u8 restrictionMask[2]; // a set bit forbids: 0x01 sell, 0x02 use in battle,
                            // 0x04 use in menu (0xFFFE on every accessory)
 } AccessoryRecord;
@@ -144,7 +143,7 @@ extern s32 D_80049500[8]; // party slot -> character id (endgame level snapshot)
 extern u8 D_80049520[];
 extern u8 D_80049528[];
 extern u8 D_80062E54[8];
-extern u8 D_80062E5C; // Pre-emptive materia is at maximum level.
+extern u8 D_80062E5C;                   // Pre-emptive materia is at maximum level.
 extern ActiveCharacterData* D_80062E60; // Current active character.
 extern u16 g_ElementIdToBitmask[16];
 extern u32 D_80062E64;
@@ -202,8 +201,8 @@ extern u8 D_800716D0;
 extern s32 D_80071744; // LBA loc for func_80014540
 extern s16 D_80071A5C;
 extern AccessoryRecord g_AccessoryTable[]; // accessory kernel table, by acc. id
-extern ArmorRecord g_ArmorTable[]; // armor kernel table, indexed by armor id
-extern u_long* D_800722C8;         // LBA dst for func_80014540
+extern ArmorRecord g_ArmorTable[];         // armor kernel table, indexed by armor id
+extern u_long* D_800722C8;                 // LBA dst for func_80014540
 extern u8 D_800722DC[];
 extern WeaponRecord g_WeaponTable[]; // weapon kernel table, by weapon id
 extern s32 D_80095DD8;               // LBA len for func_80014540
