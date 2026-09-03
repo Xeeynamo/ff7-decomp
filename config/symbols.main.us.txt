@@ -834,3 +834,56 @@ SysMenuDrawProgressBar = 0x800285AC;
 SysMenuDrawTexturedRect = 0x80028CA0;
 SysMenuDrawDigitsWithoutLeadingZeroes = 0x80028E00;
 SysMenuDrawDigitsWithLeadingZeroes = 0x80029114;
+
+
+SysSavemapReset = 0x80033A90;
+
+
+SysCdromInit = 0x80033B70;
+
+
+SysCdromSetChainParam = 0x80033CB8;
+
+
+
+
+
+SysCdromLoadFile = 0x80033F40;
+SysCdromLoadLzs = 0x80033FC4;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SysCdromGetPackPointer = 0x80034D18;
+SysCdromSetLzsExtract = 0x80034D2C;
+
+
+SysCdromLzsExtract = 0x80034E00;
+
+SysMovieLoadMovieSettings = 0x80034F5C;
+SysMoviePlay = 0x80034FC8;
+
+
+SysMovieAbortPlay = 0x80035658;

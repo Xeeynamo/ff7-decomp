@@ -1064,8 +1064,8 @@ int SystemLoadFileBySector(
     int sector_no, size_t size, u_long* dst, void (*cb)());
 int DS_read(int sector_no, size_t size, u_long* dst, void (*cb)());
 int func_80033EDC(int sector_no, void (*cb)());
-int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)());
-int func_80033FC4(int sector_no, size_t size, u_long* dst, void (*cb)());
+int SysCdromLoadFile(int sector_no, size_t size, u_long* dst, void (*cb)());
+int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)());
 u32 SystemCdromReadChain(void);
 
 // from overlays

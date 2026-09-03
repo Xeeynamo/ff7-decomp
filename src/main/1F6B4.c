@@ -540,7 +540,7 @@ void SysMenuLoadAvatars(void) {
     sector_off = &D_80048FE8->sector_off;
     length = &D_80048FE8->length;
     for (; i < 9; i++) {
-        func_80033F40(sector_off[i * 2], length[i * 2], dst, 0);
+        SysCdromLoadFile(sector_off[i * 2], length[i * 2], dst, 0);
         cx = 0x340 + (i / 5) * 0x18;
         cy = 0x100 + (i % 5) * 0x30;
         SysMenuLoadImg(dst, cx, cy, 0x180, i);
