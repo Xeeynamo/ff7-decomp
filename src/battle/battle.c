@@ -650,11 +650,11 @@ const u8 D_800A0240[] = {
 const u8 D_800A0278[] = {
     0x05, 0x06, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x00, 0x5C, 0x5A,
     0x0A, 0x80, 0x88, 0x5A, 0x0A, 0x80, 0xA8, 0x5A, 0x0A, 0x80};
-u8 func_800A5A5C(void) { return D_800A0278[func_80014BA8(7)]; }
+u8 func_800A5A5C(void) { return D_800A0278[SysGetRandomByteRange(7)]; }
 
-s32 func_800A5A88(void) { return func_80014BA8(54); }
+s32 func_800A5A88(void) { return SysGetRandomByteRange(54); }
 
-s32 func_800A5AA8(void) { return func_80014BA8(16) + 56; }
+s32 func_800A5AA8(void) { return SysGetRandomByteRange(16) + 56; }
 
 const u8 D_800A028C[] = {0x02, 0xFF, 0x01, 0x86};
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A5AC8);
@@ -838,13 +838,14 @@ void func_800A6B88(s32 arg0, s32 arg1) {
 
 void func_800A6BFC(void) {}
 
-extern s32 func_800151F4(s32);
+extern s32 SysGetPtrToKernBattleTxtWithId(s32);
 
 void func_800A6C04(s32 arg0) {
     s16 sp10;
 
     sp10 = (s16)D_801636B8[arg0].D_801636B8;
-    D_800F5F44.D_800F7DBE = func_800A5EB0(func_800151F4(0x26), &sp10) + 0x100;
+    D_800F5F44.D_800F7DBE =
+        func_800A5EB0(SysGetPtrToKernBattleTxtWithId(0x26), &sp10) + 0x100;
     D_800F5F44.D_800F7DC0 = 0xF;
 }
 
@@ -1176,8 +1177,8 @@ static void BATTLE_ResolveCaitSithSlotsResult(void) {
         // 0x38 == 56).
         rollSum = 4;
         for (comboIndex = 0; comboIndex < 4; comboIndex++) {
-            rollSum += func_80014BA8(10) & 0xFF;
-            func_80014B54();
+            rollSum += SysGetRandomByteRange(10) & 0xFF;
+            SysIncSeedForRandom();
         }
         rollSum += g_CurrentAction->characterLevel / 21;
         rollSum /= 2;
@@ -1212,8 +1213,8 @@ static void func_800AA468(void) {
     if (func_800B10B4(g_CurrentAction->actorId)) {
         var_s1 |= 2;
     }
-    temp_s0 = func_80014A58(var_s1 & 0x0400029A);
-    temp_s0 += func_80014A58(var_s1 & 0x202000) * 2;
+    temp_s0 = SysCountActiveBits(var_s1 & 0x0400029A);
+    temp_s0 += SysCountActiveBits(var_s1 & 0x202000) * 2;
     g_CurrentAction->unk214 *= temp_s0 + 1;
 }
 
@@ -1390,7 +1391,7 @@ void func_800ABB0C(s32 arg0, s32 arg1) {
                 bounceTarget = arg0;
             } else {
                 if (D_800F494C[arg1] == -1) {
-                    D_800F494C[arg1] = func_80014A38(func_800AA700(arg1));
+                    D_800F494C[arg1] = SysGetLsbNumber(func_800AA700(arg1));
                 }
                 bounceTarget = D_800F494C[arg1];
             }
@@ -1790,7 +1791,7 @@ static s32 func_800AD8DC(s32 arg0) {
     s32 var_v0;
 
     var_v0 = arg0;
-    temp_s0 = ((s32)(var_v0 * (func_80014B70() + 0xF01))) >> 0xC;
+    temp_s0 = ((s32)(var_v0 * (SysGetRandomByteFromTable() + 0xF01))) >> 0xC;
     var_v0 = temp_s0;
     if (temp_s0 == 0) {
         var_v0 = 1;
@@ -1859,7 +1860,7 @@ void func_800ADF04(void) {
 }
 
 void func_800ADF38(void) {
-    s32 divisor = func_80014A58(g_CurrentAction->allowedTargetsMask);
+    s32 divisor = SysCountActiveBits(g_CurrentAction->allowedTargetsMask);
     s32 result = 0;
     if (divisor != 0) {
         result = (g_CurrentAction->unk48 + (divisor - 1)) / divisor;
@@ -1916,7 +1917,7 @@ void func_800AE080(void) {
 
     diceSum = 0;
     for (i = 0; i < numDice; i++) {
-        dieValue = func_80014BA8(6);
+        dieValue = SysGetRandomByteRange(6);
         dieValues[i] = dieValue;
         diceSum += dieValue + 1;
         if (i & 1) {
@@ -1924,7 +1925,7 @@ void func_800AE080(void) {
         } else {
             D_80163774[i / 2] = dieValue | 0xF0;
         }
-        func_80014B54();
+        SysIncSeedForRandom();
     }
 
     maxRepeat = 0;
@@ -2180,7 +2181,9 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0F04);
 
 void func_800B0FFC(s32 arg0, s32 arg1, s32 arg2, s16* arg3) {
     func_800A31A0(
-        arg0, 2, arg2, func_800A5EB0(func_8001521C(arg1), arg3) + 0x100);
+        arg0, 2, arg2,
+        func_800A5EB0(SysGetPtrToUncompKernBattleTxtWithId(arg1), arg3) +
+            0x100);
 }
 
 void func_800B1060(s32 arg0) { func_800A31A0(10, 2, 1, arg0); }
@@ -2415,9 +2418,9 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B2CFC);
 u16* func_800B2EBC();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B2EBC);
 
-u8 func_800B2F30(void) { return func_80014B70(); }
+u8 func_800B2F30(void) { return SysGetRandomByteFromTable(); }
 
-u16 func_800B2F50(void) { return func_80014BE4(); }
+u16 func_800B2F50(void) { return SysRandomTwoBytes(); }
 
 // scale a 16-bit value into the range 1..100
 static s32 func_800B2F70(void) {

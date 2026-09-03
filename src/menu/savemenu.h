@@ -114,8 +114,8 @@ extern unsigned char D_801E2CFC[][0x24];
 extern unsigned char D_801E3260[][0x30];
 extern unsigned char D_801E33B0[][0x30];
 
-s32 func_80023788(s32 seconds);
-s32 func_8002382C(s32 seconds);
+s32 SysGetHoursFromSeconds(s32 seconds);
+s32 SysGetMinutesFromSeconds(s32 seconds);
 void func_801D19C4(void);
 void func_801D1BA4(void);
 u16 GetSaveSlotMask(s32 cardSlot);

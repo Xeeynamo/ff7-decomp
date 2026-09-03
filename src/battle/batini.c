@@ -49,7 +49,7 @@ void func_801B0490(s32 sceneID) {
     func_801B2308();
     func_800A4540();
     for (i = 4; i < 10; i++) {
-        D_800F5BBC[i][0] = ((u8)func_80014BA8(0x40) + 0x80) << 8;
+        D_800F5BBC[i][0] = ((u8)SysGetRandomByteRange(0x40) + 0x80) << 8;
         func_800B108C(i);
     }
 }
@@ -313,7 +313,7 @@ void func_801B137C(s32 arg0) {
     }
 }
 
-s32 func_80015AFC(s32, s32); // extern
+s32 SysGetLimitCmdId(s32, s32); // extern
 
 typedef struct {
     /* 00 */ u8 materiaID[3];
@@ -339,7 +339,7 @@ void func_801B13DC(s32 arg0, s32 arg1, Unk801B13DC* arg2) {
     for (i = 0; i < 3; i++) {
         if (arg2->materiaID[i] != 0xFF) {
             for (j = 0; j < 12; j++) {
-                if (func_80015AFC(arg0, j) == arg2->materiaID[i]) {
+                if (SysGetLimitCmdId(arg0, j) == arg2->materiaID[i]) {
                     break;
                 }
             }
@@ -739,7 +739,7 @@ static void func_801B23E0(s32 sceneID, void (*cb)(void)) {
     if (D_8016376A & EVENT_BATTLE_SQUARE) {
         D_8016360C.setup.stageID = 37;
         D_8016360C.setup.flags |= SETUP_CANNOT_ESCAPE;
-        D_8016360C.setup.cameraID = (func_80014B70() & 3) + 0x60;
+        D_8016360C.setup.cameraID = (SysGetRandomByteFromTable() & 3) + 0x60;
         D_8016360C.setup.escapeCounter = 1;
         // enemy strength and magic is 25% higher at battle square
         for (i = 0; i < 3; i++) {

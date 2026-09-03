@@ -1807,7 +1807,7 @@ void func_80033A70(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
     func_80033894(track, config, mask);
 }
 
-void func_80033A90(void) {
+void SysSavemapReset(void) {
     s32 i;
     u8* bank;
 

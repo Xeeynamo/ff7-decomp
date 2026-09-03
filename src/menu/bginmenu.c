@@ -27,8 +27,10 @@ extern s32 D_8009CE60[];
 // (bginmenu).
 void func_801D0000(void) {
     volatile s32 padding;
-    func_80026448(&D_801D0860[0], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
-    func_80026448(&D_801D0860[1], 0, 0, 1, 3, 0, 0, 1, 9, 0, 0, 0, 0, 0);
+    SysMenuSetCursorMovement(
+        &D_801D0860[0], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(
+        &D_801D0860[1], 0, 0, 1, 3, 0, 0, 1, 9, 0, 0, 0, 0, 0);
     D_801D07F0 = 0;
 }
 
@@ -38,18 +40,18 @@ void func_801D00C4(void) {
     volatile s32 padding[4];
     s32 i;
 
-    func_800230C4(g_MenuRenderBufferIndex);
+    SysMenuDrawMenuList(g_MenuRenderBufferIndex);
     if (D_801D07F0 == 0) {
-        func_8001EB2C(0, D_801D07FE + (D_801D086B << 6) + 0x20);
+        SysMenuDrawCursor(0, D_801D07FE + (D_801D086B << 6) + 0x20);
     }
-    func_80026F44(0x10, 0xB, D_801D0804, 7);
+    SysMenuDrawString(0x10, 0xB, D_801D0804, 7);
     for (i = 0; i < 2; i++) {
-        func_8001E040(&D_801D07F4[i]);
+        SysMenuDrawWindow(&D_801D07F4[i]);
     }
-    func_800264A8(&D_801D0860[D_801D07F0]);
+    SysMenuHandleButtons(&D_801D0860[D_801D07F0]);
     if (g_Pad1KeysRepeat & PADRdown) {
-        func_8002305C(5, 0);
-        func_8002120C(0);
+        SysMenuSetMenuListAnimation(5, 0);
+        SysMenuLoadMenuFileById(0);
     }
 }
 
@@ -286,22 +288,22 @@ void func_801D0704(s32 arg0) {
         for (i = 0; i < 21; i++) {
             RemoveMasteredMateria(D_801D082C[i]);
         }
-        func_8002542C(0x49);
+        SysMenuAddMateria(0x49);
         break;
     case 1:
         for (i = 0; i < 16; i++) {
             RemoveMasteredMateria(D_801D0844[i]);
         }
-        func_8002542C(0x5A);
+        SysMenuAddMateria(0x5A);
         break;
     case 2:
         for (i = 0; i < 7; i++) {
             RemoveMasteredMateria(D_801D0854[i]);
         }
-        func_8002542C(0x30);
+        SysMenuAddMateria(0x30);
         break;
     case 3:
-        func_8002542C(0x58);
+        SysMenuAddMateria(0x58);
         break;
     }
 }

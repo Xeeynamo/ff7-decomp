@@ -40,9 +40,9 @@ static u8 s_PadBuffers[2][34];
 
 u8 func_8001F6B4(void);
 // PC: menu_setNotificationMessage
-void func_8001F6C0(u8* text, s8 palette);
+void SysMenuRequestAddWindow(u8* text, s8 palette);
 // PC: menu_setNotificationWindowPosition
-void func_8001F6E4(s16 enabled, s16 x, s16 y);
+void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y);
 
 void InputInit(void) {
     if (!s_PadsInitialized) {
@@ -75,8 +75,8 @@ static u8* TutorialShowMessage(u8* txt) {
     s32 i, c;
 
     s_TutorialMessageVisible = 1;
-    func_8001F6E4(1, s_TutorialMessageX, s_TutorialMessageY);
-    func_8001F6C0(txt, 7);
+    SysMenuSetPosAddWindow(1, s_TutorialMessageX, s_TutorialMessageY);
+    SysMenuRequestAddWindow(txt, 7);
 
     for (i = 0; i < 256; i++) {
         c = *txt;
@@ -177,7 +177,7 @@ static u16 TutorialDoNextEvent(void) {
             s_TutorialDelay = 60;
             break;
         case 17:
-            func_8001F6E4(0, 0, 0);
+            SysMenuSetPosAddWindow(0, 0, 0);
             g_TutorialActive = 0;
             s_TutorialDelay = 0;
             break;
@@ -191,8 +191,9 @@ static u16 TutorialFrameUpdate(void) {
 
     if (s_TutorialDelay != 0) {
         s_TutorialDelay -= 1;
-    } else if ((func_80023050() == 0 || func_80023050() == 1) &&
-               SystemCdromReadChain() == 0) {
+    } else if (
+        (SysMenuGetMenuListState() == 0 || SysMenuGetMenuListState() == 1) &&
+        SystemCdromReadChain() == 0) {
         input = TutorialDoNextEvent();
     }
     return input;

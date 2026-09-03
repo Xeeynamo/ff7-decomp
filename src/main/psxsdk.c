@@ -23,7 +23,7 @@ extern CdlLOC D_80071A68;    // cd sector
 extern size_t D_80071A6C;    // amount of sectors to read
 extern u_long* D_80071A80;   // read content destination
 extern void (*D_80071A84)(); // callback
-void func_80033B70(void) {
+void SysCdromInit(void) {
     while (!CdInit()) {
     }
     D_80071A60 = CDOP_0;
@@ -32,23 +32,24 @@ void func_80033B70(void) {
     CdControlB(CdlSetmode, (u8*)0x80, NULL);
     VSync(3);
     D_80071A64 = func_80034350();
-    func_80034F5C();
+    SysMovieLoadMovieSettings();
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033BE0);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033C20);
 
-void func_80033CB8(int op, int sector, size_t len, u_long* dst, void (*cb)());
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80033CB8);
+void SysCdromSetChainParam(
+    int op, int sector, size_t len, u_long* dst, void (*cb)());
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SysCdromSetChainParam);
 
 int func_80033DAC(int sector_no, void (*cb)()) {
-    func_80033CB8(CDOP_1, sector_no, 0, NULL, cb);
+    SysCdromSetChainParam(CDOP_1, sector_no, 0, NULL, cb);
     return 0;
 }
 
 int func_80033DE4(int sector_no) {
-    func_80033CB8(CDOP_0, sector_no, 0, NULL, NULL);
+    SysCdromSetChainParam(CDOP_0, sector_no, 0, NULL, NULL);
     do {
 
     } while (CdControl(CdlSetloc, (u_char*)&D_80071A68, NULL) == 0);
@@ -57,14 +58,14 @@ int func_80033DE4(int sector_no) {
 
 int SystemLoadFileBySector(
     int sector_no, size_t size, u_long* dst, void (*cb)()) {
-    func_80033CB8(CDOP_3, sector_no, size, dst, cb);
+    SysCdromSetChainParam(CDOP_3, sector_no, size, dst, cb);
     return 0;
 }
 
 int DS_read(int sector_no, size_t size, u_long* dst, void (*cb)()) {
-    func_80033CB8(CDOP_11, sector_no, size, dst, cb);
+    SysCdromSetChainParam(CDOP_11, sector_no, size, dst, cb);
     D_800698E8 = sector_no;
-    func_80034D2C(&D_800698F0, dst);
+    SysCdromSetLzsExtract(&D_800698F0, dst);
     return 0;
 }
 
@@ -77,7 +78,7 @@ int func_80033EDC(int sector_no, void (*cb)()) {
     return 0;
 }
 
-int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)()) {
+int SysCdromLoadFile(int sector_no, size_t size, u_long* dst, void (*cb)()) {
     while (SystemLoadFileBySector(sector_no, size, dst, cb)) {
     }
     while (SystemCdromReadChain()) {
@@ -86,7 +87,7 @@ int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)()) {
     return 0;
 }
 
-int func_80033FC4(int sector_no, size_t size, u_long* dst, void (*cb)()) {
+int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)()) {
     while (DS_read(sector_no, size, dst, cb)) {
     }
     while (SystemCdromReadChain()) {
@@ -192,27 +193,27 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034CAC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", ChangeClearSIO);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034D18);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SysCdromGetPackPointer);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034D2C);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SysCdromSetLzsExtract);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034D5C);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034DB0);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034E00);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SysCdromLzsExtract);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034F3C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034F5C);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SysMovieLoadMovieSettings);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034FC8);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SysMoviePlay);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80035430);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_800354CC);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80035658);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SysMovieAbortPlay);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80035744);
 

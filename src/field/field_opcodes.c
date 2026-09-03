@@ -58,9 +58,9 @@ extern s8 D_800E0630;
 extern SVECTOR (*D_800E4274)[3];
 extern u8* D_800E48E0;
 
-void func_80017678(void);
-void func_8001786C(s32);
-void func_80020058(s32);
+void SysCalculateTotalLureGilPreemptiveValue(void);
+void SysInitPlayerStatFromMateria(s32);
+void SysInitPlayerStatFromEquip(s32);
 void SystemMenuAddHpByPartyId(s32 partyId, u16 hp);
 void SystemMenuAddMpByPartyId(s32 partyId, u16 mp);
 
@@ -4409,11 +4409,11 @@ void SystemRefreshParty(void) {
 
     for (i = 0; i < 3; i++) {
         if (Savemap.partyID[i] != 0xFF) {
-            func_80020058(i);
-            func_8001786C(i);
+            SysInitPlayerStatFromEquip(i);
+            SysInitPlayerStatFromMateria(i);
         }
     }
-    func_80017678();
+    SysCalculateTotalLureGilPreemptiveValue();
 }
 
 void SystemRestoreParty(void) {

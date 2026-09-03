@@ -17,33 +17,35 @@ INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80026B64);
 
 // strlen but for FF7 strings
 // FF7 string is 0x00: ' ', 0x10: '0', 0x21: 'A', 0xFF: terminator
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80026B70);
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysGetSingleStringWidth);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80026C5C);
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawSingleLetter);
 
 // print FF7 string
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80026F44);
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawString);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_8002708C);
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawSingleFontLetter);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80027354);
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDraw8widthFont);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80027408);
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawHpMpBar);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80027990);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80027B84);
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawScrollbarTrack);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80028030);
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawScrollbarSlider);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80028484);
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawScrollbar);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_800285AC);
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawProgressBar);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80028930);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80028CA0);
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawTexturedRect);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80028E00);
+INCLUDE_ASM(
+    "asm/us/main/nonmatchings/26B70", SysMenuDrawDigitsWithoutLeadingZeroes);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80029114);
+INCLUDE_ASM(
+    "asm/us/main/nonmatchings/26B70", SysMenuDrawDigitsWithLeadingZeroes);

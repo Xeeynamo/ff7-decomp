@@ -103,7 +103,7 @@ void func_800DBEC8(OT_TYPE* ot) {
     }
 }
 
-static void func_800DBF54(void) { func_800269C0(D_80077F64); }
+static void func_800DBF54(void) { SysMenuSetPoly(D_80077F64); }
 
 static void func_800DBF7C(void) { D_800F3122 = 0; }
 
@@ -135,7 +135,7 @@ static void func_800DD690(s32 arg0, s16 arg1) {
     s32 setupType;
     s32 temp_v1;
 
-    func_80026A00();
+    SysMenuSetOtag();
     switch (arg1) {
     case 0:
         func_800E2098();
@@ -161,10 +161,10 @@ static void func_800DD690(s32 arg0, s16 arg1) {
         if (temp_v1 < NUM_SETUP) {
             setupType = -(temp_v1 <= SETUP_BACK_ATTACK) & 7;
         }
-        func_80026F44(8, 7, func_80015248(5, 0x12, 8), setupType);
+        SysMenuDrawString(8, 7, SysKernGetString(5, 0x12, 8), setupType);
         break;
     case 3:
-        func_80026F44(9, 7, func_80015248(5, 0x13, 8), 7);
+        SysMenuDrawString(9, 7, SysKernGetString(5, 0x13, 8), 7);
         break;
     case 24:
         func_800E33A0();
@@ -415,7 +415,8 @@ void func_800E0528(void) {}
 void func_800E0530(void) {
     s32 i;
 
-    func_80026448(&D_800F9132, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
+    SysMenuSetCursorMovement(
+        &D_800F9132, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
     for (i = 1; i < 0x1C; i++) {
         if (D_800F514C[i] != 0) {
             func_800D9F5C(i);
@@ -433,7 +434,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E0794);
 
 void func_800E084C(void) {
     if (D_800F3896 == 9) {
-        func_800264A8(&D_800F9144);
+        SysMenuHandleButtons(&D_800F9144);
         if (g_Pad1KeysPressed & PADRright) {
             if (D_800F914E == 0) {
                 func_800A4844(1);
@@ -689,7 +690,7 @@ static void func_800E1938(s16 arg0, s16 arg1, s32 arg2) {
     }
     x = ((var_a3 & 1) << 4) | 0x60;
     y = ((var_a3 >> 1) << 4) + 0x70;
-    func_80028CA0(arg0, arg1, x, y, 0x10, 0x10, 1, 0);
+    SysMenuDrawTexturedRect(arg0, arg1, x, y, 0x10, 0x10, 1, 0);
 }
 
 s32 func_800E1A2C(void) {
@@ -785,7 +786,7 @@ void func_800E1C40(void) {
 }
 
 void func_800E2054(s32 arg0, s32 arg1) {
-    func_80027354(0xB0, arg0, &D_800F3184[arg1 * 10], 3);
+    SysMenuDraw8widthFont(0xB0, arg0, &D_800F3184[arg1 * 10], 3);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E2098);
@@ -947,12 +948,12 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E6018);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E60F8);
 
-s32 func_800E6820(void) { return func_80026B70(D_800F384A); }
+s32 func_800E6820(void) { return SysGetSingleStringWidth(D_800F384A); }
 
 static void func_800E6848(void) {
-    func_80026F44(0x10, 8, &D_800F3828[0], 7);
-    func_80026F44(0x2C, 0x1C, &D_800F3828[0x22], 7);
-    func_80026F44(func_800E6820() + 0x4C, 0x1C, &D_800F3828[0x44], 7);
+    SysMenuDrawString(0x10, 8, &D_800F3828[0], 7);
+    SysMenuDrawString(0x2C, 0x1C, &D_800F3828[0x22], 7);
+    SysMenuDrawString(func_800E6820() + 0x4C, 0x1C, &D_800F3828[0x44], 7);
 }
 
 static void func_800E68B4(void) {

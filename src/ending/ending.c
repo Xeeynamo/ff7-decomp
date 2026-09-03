@@ -89,10 +89,10 @@ extern EndingSprite D_800A652C[];
 extern s32 D_800A63B0;
 
 s32 func_80034410(void);
-void func_80034FC8(void*, s16);
-void* func_80034D18(void*, s32);
+void SysMoviePlay(void*, s16);
+void* SysCdromGetPackPointer(void*, s32);
 void func_800A2888(void*, s16*, s16*);
-void func_80034D2C(void*, void*);
+void SysCdromSetLzsExtract(void*, void*);
 s32 func_80034D5C(void);
 s32 func_800484A8(void);
 MATRIX* ScaleMatrix(MATRIX*, VECTOR*);
@@ -310,7 +310,7 @@ s32 func_800A0BA8(void) {
     D_800A652C[id].flags = 7;
     D_800A652C[id].delay = 0;
     D_800A652C[id].frame = 0;
-    D_800A652C[id].anim = func_80034D18((void*)0x800D0000, arg);
+    D_800A652C[id].anim = SysCdromGetPackPointer((void*)0x800D0000, arg);
     D_800A652C[id].unk5C = 0;
     D_800A652C[id].unk5E = 0;
     D_800A652C[id].unk60 = 0;
@@ -426,7 +426,7 @@ s32 func_800A11B4(void) {
         D_800A652C[i].flags = 1;
         D_800A652C[i].delay = 0;
         D_800A652C[i].frame = v;
-        D_800A652C[i].anim = func_80034D18((void*)0x800D0000, arg);
+        D_800A652C[i].anim = SysCdromGetPackPointer((void*)0x800D0000, arg);
         D_800A652C[i].unk5C = 0x18;
         D_800A652C[i].unk5E = 0xC8;
         D_800A652C[i].unk60 = 0;
@@ -529,7 +529,7 @@ s32 func_800A1FC8(void) {
     s16 sp12;
 
     func_800A2888(
-        func_80034D18((void*)0x800D0000, *D_800A6528++), &sp10, &sp12);
+        SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++), &sp10, &sp12);
 
     return 1;
 }
@@ -540,7 +540,8 @@ s32 func_800A2014(void) {
     s32 id = *D_800A6528++;
 
     if (D_800A6390 != 0) {
-        func_80034D2C(func_80034D18((void*)0x800D0000, id), (void*)0x80120000);
+        SysCdromSetLzsExtract(
+            SysCdromGetPackPointer((void*)0x800D0000, id), (void*)0x80120000);
     }
 
     if (func_80034D5C() != 0) {
@@ -554,7 +555,7 @@ s32 func_800A2014(void) {
 
 s32 func_800A208C(void) {
     D_800A6524 = (void*)0x801A0000;
-    func_80034FC8((void*)0x801A0000, *D_800A6528++);
+    SysMoviePlay((void*)0x801A0000, *D_800A6528++);
     return 1;
 }
 
@@ -616,7 +617,8 @@ s32 func_800A22E4(void) {
 
 s32 func_800A2328(void) {
     D_8009A000[0] = 0x10;
-    D_8009A004[0] = (u32)func_80034D18((void*)0x800D0000, *D_800A6528++);
+    D_8009A004[0] =
+        (u32)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
     SystemAkaoExecute();
 
     return 1;
@@ -647,7 +649,7 @@ void func_800A2458(void) {
     PadInit(0);
     InitGeom();
     func_80036298();
-    func_80033B70();
+    SysCdromInit();
 }
 
 void func_800A24A8(void) {

@@ -49,7 +49,7 @@ extern u16 D_800F7DD2;
 extern u8 D_80163790[]; // the char_id occupying each of the three party slots
 extern SavePartyMember D_80167938;
 
-s32 func_80015AFC(s32 charId, s32 limitIndex);
+s32 SysGetLimitCmdId(s32 charId, s32 limitIndex);
 void func_801B0EF8(SavePartyMember* c, s32 exp, s32 slot);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batres", func_801B0000);
@@ -96,7 +96,7 @@ void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
                 if (g_BattleState.setupFlags & 0x10) {
                     if (c->char_id == 0) {
                         for (k = 0; k < 12; k++) {
-                            if (func_80015AFC(id, k) != 0x7F) {
+                            if (SysGetLimitCmdId(id, k) != 0x7F) {
                                 c->limit_learn |= 1 << k;
                             }
                         }
@@ -313,7 +313,7 @@ s32 CalcTotalExp(BatresRow* r, s32 level) {
 s32 RollGrowthRank(s32 arg0) {
     s32 v;
 
-    v = arg0 + (func_80014B70() & 7) + 1;
+    v = arg0 + (SysGetRandomByteFromTable() & 7) + 1;
     if (v < 0) {
         v = 0;
     } else if ((u32)v >= 12) {

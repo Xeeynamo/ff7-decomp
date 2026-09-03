@@ -11,23 +11,27 @@ static s32 D_80062E18;
 
 extern u8 D_80083084[256];
 
-void func_80014B54(void) {
+void SysIncSeedForRandom(void) {
     D_80062E18++;
     D_80062E18 &= 7;
 }
 
-u8 func_80014B70(void) { return D_80083084[D_80062E10[D_80062E18]++]; }
+u8 SysGetRandomByteFromTable(void) {
+    return D_80083084[D_80062E10[D_80062E18]++];
+}
 
-u8 func_80014BA8(s32 arg0) { return (func_80014B70() * arg0) >> 8; }
+u8 SysGetRandomByteRange(s32 arg0) {
+    return (SysGetRandomByteFromTable() * arg0) >> 8;
+}
 
-u16 func_80014BE4(void) {
+u16 SysRandomTwoBytes(void) {
     u8 lo;
 
-    lo = func_80014B70();
+    lo = SysGetRandomByteFromTable();
     if (D_80062D4C++ & 7) {
-        func_80014B54();
+        SysIncSeedForRandom();
     }
-    return (func_80014B70() << 8) | lo;
+    return (SysGetRandomByteFromTable() << 8) | lo;
 }
 
 void func_80014C44(s32 arg0) {

@@ -2,10 +2,10 @@
 #include "main_private.h"
 #include "unzip.h"
 
-void func_80015B44(u8* arg0);
+void SysGzipSetDataBlock(u8* arg0);
 u8* func_80014C80(s32 arg0);
-u16 func_80015B50(void);
-u16 func_80015B88(void);
+u16 SysGzipGetType(void);
+u16 SysGzipGetSize(void);
 extern u8 D_80083084[];
 
 extern u8 D_80062D98;
@@ -45,17 +45,17 @@ extern s32 D_80062E04;
 extern s16 D_80062E08;
 extern s16 D_80062E0A;
 extern s32 D_80062E0C;
-void func_8001155C(void);
+void SysBgRender(void);
 void func_80014A00(s32* dst, s32* src, s32 len);
-u16* func_80014D9C(s32, s32, s32);
-s32 func_800150E4(u16*, u16*);
-u16* func_800151F4(s32);
-void func_80015CA0(GzHeader* src, s32* dst);
-s32 func_8001AC9C(u8, s32);
-void func_8001B834(s32);
-void func_8001BD50(u8, u8, u8);
+u16* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
+s32 SysDecompKernStringWithF9(u16*, u16*);
+u16* SysGetPtrToKernBattleTxtWithId(s32);
+void SysGzipBinDecompress(GzHeader* src, s32* dst);
+s32 SysGetMateriaActivatedStars(u8, s32);
+void SysAddCommandToTemp(s32);
+void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 u8 func_8001F6B4();
-void func_8001F6E4(s16, s16, s16);
+void SysMenuSetPosAddWindow(s16, s16, s16);
 
 void __main(void) {}
 
@@ -100,28 +100,28 @@ void func_80011274(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800112E8);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_8001146C);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBgFadeRender);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_8001155C);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBgRender);
 
-void func_8001171C(void) {
+void SysInitBase(void) {
     StopCallback();
     ResetCallback();
     ResetGraph(0);
     func_80036298();
     D_80095DD4 = 0;
-    VSyncCallback(&func_8001155C);
+    VSyncCallback(&SysBgRender);
     SetGraphDebug(0);
     SetDispMask(0);
     InitGeom();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_80011784);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitDispenvDrawenv);
 
 void func_800A16CC(); // field loop
 void func_800CF60C(); // field load
 
-void func_80011860(void) {
+void SysFieldRun(void) {
     if (D_800965EC != 5 && D_800965EC != 13) {
         if (D_800965EC != 2) {
             SystemLoadFileBySector(D_80048CFC[5].loc, D_80048CFC[5].len,
@@ -131,14 +131,14 @@ void func_80011860(void) {
                     break;
                 }
             }
-            func_80015CA0((GzHeader*)0x80180000, (s32*)0x800A0000);
+            SysGzipBinDecompress((GzHeader*)0x80180000, (s32*)0x800A0000);
         } else {
             while (1) {
                 if (SystemCdromReadChain() == 0) {
                     break;
                 }
             }
-            func_80015CA0((GzHeader*)0x801C0000, (s32*)0x800A0000);
+            SysGzipBinDecompress((GzHeader*)0x801C0000, (s32*)0x800A0000);
         }
     }
     func_800CF60C();
@@ -150,7 +150,7 @@ void func_80011920(void) {
     D_80071A5C = 0;
 }
 
-void func_80011938(void) {
+void SysInitAkaoEngine(void) {
     SystemLoadFileBySector(
         D_80048CFC[0].loc, D_80048CFC[0].len, (u_long*)0x800F0000, NULL);
     do {
@@ -169,9 +169,9 @@ void func_80011938(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800119E4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_80011AEC);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitFieldFromSavemap);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_80011BB4);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitNewGame);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", main);
 
@@ -183,29 +183,29 @@ INCLUDE_ASM("asm/us/main/nonmatchings/110B8", jtbl_80010068);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", jtbl_800100A0);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_80012840);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeSetDrawMode);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800128B8);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeInitPoly);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800129D0);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeCopyScreen);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_80012A8C);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeSetPolyMonochrome);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_80012DB0);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeSetPolyRgbGradual);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800131B8);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeSetPolyRgbDirect);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800134F4);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeStepsDec);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_80013564);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeStepsInc);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800135C0);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeColorInterpolate);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_80013624);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeSetPolyRgbInterpolate);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_80013800);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeBgUpdate);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800138EC);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeUpdate);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", D_80010100);
 
@@ -217,14 +217,14 @@ const u8 D_80010124[20] = {
     1, 1, 1, 1, 2, 0, 0xFF, 0xFF, 0xFF, 0xFF, 3, 4, 5, 6, 7, 0, 0, 0, 0, 0,
 };
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_80013C9C);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBattleSwirlUpdate);
 
-void func_800140A4(void) {
+void SysBattleSwirlRender(void) {
     D_8019DAA0++;
     if (!(D_8019DAA0 & 1)) {
         DrawOTag(D_8019D5E8);
-        func_80013C9C();
+        SysBattleSwirlUpdate();
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800140F4);
+INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBattleSwirlInit);

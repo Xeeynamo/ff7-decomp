@@ -1037,25 +1037,26 @@ SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
 MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
 void SystemError(char c, long n);
 
-void func_80014B54(void);
-s32 func_8001521C(s32);
-const char* func_80015248(s32 arg0, s32 arg1, s32 arg2);
+void SysIncSeedForRandom(void);
+s32 SysGetPtrToUncompKernBattleTxtWithId(s32);
+const char* SysKernGetString(s32 arg0, s32 arg1, s32 arg2);
 void func_800155A4(s32, ...);
 void func_8001726C(s16, u16);
 u32 InputReadPadsRaw(void);
 u32 InputReadPads(void);
-void func_80021044(DRAWENV* draw_env, DISPENV* disp_env);
-s32 func_80023050(void);
-void func_8002305C(s32 state, s32 menuId);
+void SysMenuCreateDrawenvDispenv(DRAWENV* draw_env, DISPENV* disp_env);
+s32 SysMenuGetMenuListState(void);
+void SysMenuSetMenuListAnimation(s32 state, s32 menuId);
 u8* GetCharacterName(s32 battleCharId);
 void func_800262D8();
-void func_80026448(
+void SysMenuSetCursorMovement(
     MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage,
     s32 unk0, s32 rowOffset, s32 unk4, s32 numTotalRows, s32 unkE, s32 unkF,
     s32 unk10, s32 unk11, u16 scrolling);
-void func_800269C0(void* poly);
-s32 func_80026B70(unsigned char* str);
-void func_80026F44(s32 x, s32 y, const char*, s32 color); // print FF7 string
+void SysMenuSetPoly(void* poly);
+s32 SysGetSingleStringWidth(unsigned char* str);
+void SysMenuDrawString(
+    s32 x, s32 y, const char*, s32 color); // print FF7 string
 int SystemAkaoExecute();
 
 int func_80033DAC(int sector_no, void (*cb)());
@@ -1064,8 +1065,8 @@ int SystemLoadFileBySector(
     int sector_no, size_t size, u_long* dst, void (*cb)());
 int DS_read(int sector_no, size_t size, u_long* dst, void (*cb)());
 int func_80033EDC(int sector_no, void (*cb)());
-int func_80033F40(int sector_no, size_t size, u_long* dst, void (*cb)());
-int func_80033FC4(int sector_no, size_t size, u_long* dst, void (*cb)());
+int SysCdromLoadFile(int sector_no, size_t size, u_long* dst, void (*cb)());
+int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)());
 u32 SystemCdromReadChain(void);
 
 // from overlays

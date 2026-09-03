@@ -17,7 +17,7 @@ static int func_80026408(u16 arg0) {
     return SystemAkaoExecute();
 }
 
-void func_80026448(
+void SysMenuSetCursorMovement(
     MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage,
     s32 unk0, s32 rowOffset, s32 unk4, s32 numTotalRows, s32 unkE, s32 unkF,
     s32 unk10, s32 unk11, u16 scrolling) {
@@ -36,4 +36,4 @@ void func_80026448(
     table->scrolling = scrolling;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/menutable", func_800264A8);
+INCLUDE_ASM("asm/us/main/nonmatchings/menutable", SysMenuHandleButtons);
