@@ -255,7 +255,7 @@ overlays:
   - name: chocobo
     disk_path: disks/us/MINI/CHOCOBO.BIN.dec
     sha1: d5ada4f6281dcaec86005dd4429a1f18240f752a
-    base_path: chocobo
+    base_path: mini/chocobo
     symbol_addrs_path:
       - config/sym_export.us.txt
       - config/symbols.chocobo.us.txt
