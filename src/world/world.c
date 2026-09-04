@@ -7,25 +7,25 @@ void WmGetPosFromPcEntity(VECTOR* arg0);
 void WmRestoreEntityPosAndDirFromSavemap(WorldActor*);
 s32 func_800ADFC0(void);
 static s32 func_800B0800(void);
-void func_800B58F8(u8*, RECT*);
+void WmCreateShadowPacket(u8*, RECT*);
 static s32 func_800B716C(void);
 static s32 func_800B7B2C(void);
 s32 func_800B7B3C(void);
-void func_800B87D8(s16 window);
-void func_800B95E8(void);
-s32 func_800B962C(s16 window, s16 stringId);
-void func_800B98F0(s16 window);
-void func_800B9B2C(s16 window);
-void func_800BA938(s16 window);
-void func_800BAA00(s16 window);
-void func_800BAB60(s16 window);
-s32 func_800BAC70(s16 window);
+void WmDialogReset(s16 window);
+void WmDialogPlaySound(void);
+s32 WmDialogInitWindow(s16 window, s16 stringId);
+void WmDialogInscreaseWindow(s16 window);
+void WmDialogStringOutput(s16 window);
+void WmDialogTextScrollByRow(s16 window);
+void WmDialogTextScrollDuringOk(s16 window);
+void WmDialogStartText(s16 window);
+s32 WmDialogDiscreaseWindow(s16 window);
 u16 func_800BAE60(s16 window);
-void func_800BB350(u16 value, u8* dst);
-void func_800BB450(u16 value, u8* dst);
-void func_800BB568(u16 value, u8* dst);
-void func_800BC9E8(s16 arg0);
-s16 func_800BCA38(void);
+void WmDialogAddDigitWithoutLeadingSpace(u16 value, u8* dst);
+void WmDialogAddDigitWithLeadingSpace(u16 value, u8* dst);
+void WmDialogAddHexDigitWithoutLeadingSpace(u16 value, u8* dst);
+void WmSetCamMode(s16 arg0);
+s16 WmGetCamMode(void);
 void func_800BCA48(void);
 
 const char D_800A0000[] = "NEW  ";
@@ -213,21 +213,21 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A3C74);
 void WmSubmarineFloatToPlanet(void) {
     D_800E566C = 5;
     D_800E5644 = 0x14;
-    func_800B7714(0);
+    WmSetFieldToLoad(0);
     func_800A2108(0, 0);
-    func_800B0098(0x10, 1);
+    WmSetFadeOut(0x10, 1);
 }
 
 void WmSubmarineSubmergeUnderwater(void) {
     D_800E566C = 4;
     D_800E5644 = -0x14;
-    func_800B7714(0);
+    WmSetFieldToLoad(0);
     func_800A2108(0, 0);
-    func_800B0098(0x10, 1);
+    WmSetFadeOut(0x10, 1);
 }
 
 void func_800A3E9C(s32 arg0) {
-    func_800B7714(arg0);
+    WmSetFieldToLoad(arg0);
     D_800E566C = 8;
 }
 
@@ -241,7 +241,7 @@ void func_800A3EC8(s32 arg0) {
     if (D_800E566C == 1) {
         D_800E566C = 3;
         func_800A2108(0, 0);
-        func_800B7714(arg0);
+        WmSetFieldToLoad(arg0);
     }
 }
 
@@ -278,11 +278,11 @@ void WmResetGame(void) {
     }
 }
 
-s32 func_800A4080(void) { return (D_800E5648 & 3) | ((func_800BCA38() * 4) & 0xC); }
+s32 func_800A4080(void) { return (D_800E5648 & 3) | ((WmGetCamMode() * 4) & 0xC); }
 
 void func_800A40B8(s32 arg0) {
     WmSetCamView(arg0 & 3);
-    func_800BC9E8((arg0 >> 2) & 3);
+    WmSetCamMode((arg0 >> 2) & 3);
 }
 
 s32 func_800A40F0(s16 arg0) {
@@ -302,11 +302,11 @@ void func_800A41E8(s32 arg0) {
     switch (arg0) {
     case 1:
         func_800A2108(0, 4);
-        func_800B0098(4, 1);
+        WmSetFadeOut(4, 1);
         break;
     case 4:
         func_800A2108(1, 4);
-        func_800AFFBC(0x10, 1);
+        WmSetFadeIn(0x10, 1);
         arg0 = 0;
         break;
     }
@@ -412,7 +412,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A57C8);
 void WmMapLoadFinishedCallback(void) {
     if (D_800E5820 >= 0) {
         D_800E5814 = (D_8011650C * 5) - 1;
-        func_800ADD4C(0);
+        WmRemoveMutexPriority(0);
     }
 }
 
@@ -883,7 +883,7 @@ void WmInitActiveEntityStruct(s32 arg0) {
             rect.h = 0xF;
             D_8010AD3C->unk58 = 0x20;
         }
-        func_800B58F8(D_8010AD3C->unk90, &rect);
+        WmCreateShadowPacket(D_8010AD3C->unk90, &rect);
         WmRestoreEntityPosAndDirFromSavemap(D_8010AD3C);
     }
 }
@@ -1425,13 +1425,13 @@ s32 WmScriptPopStack(void) {
             var_s0 = func_800B0800();
             break;
         case 12: // Prompt window result
-            var_s0 = func_800B86C4();
+            var_s0 = WmDialogGetAskResult();
             break;
         case 13: // Script index of current mesh triangle of active actor
             var_s0 = ((D_8010AD3C->walkmesh) >> 5) & 7;
             break;
         case 14: // Player party member model ID (0=Cloud, 1=Tifa, 2=Cid)
-            var_s0 = func_800B79B8();
+            var_s0 = WmGetPcCharModelIdFromParty();
             break;
         case 16: // Random byte
             var_s0 = func_800ADFC0();
@@ -1583,13 +1583,13 @@ void WmScriptOpcode000Handle(u16 arg0) {
     case 0x18: // "push distance from active entity to point"
         func_800AF1A8(WmScriptPopStack(), -1);
         WmGetPosFromActiveEntity(&sp10);
-        D_8010AD90->unk0 = func_800AF96C(&sp10) >> 5;
+        D_8010AD90->unk0 = WmGetDistanceToActivePoint(&sp10) >> 5;
         break;
     case 0x19: // "push distance from active entity to entity by model id"
         temp_s0_16 = D_8010AD3C;
         D_8010AD90->unk0 = 0;
         if (WmSetActiveEntityWithModelId(WmScriptPopStack()) != 0) {
-            D_8010AD90->unk0 = func_800AE024(&D_8010AD3C->pos, &temp_s0_16->pos) >> 4;
+            D_8010AD90->unk0 = WmGetDistanceBetweenPoints(&D_8010AD3C->pos, &temp_s0_16->pos) >> 4;
         }
         D_8010AD3C = temp_s0_16;
         break;
@@ -1601,7 +1601,7 @@ void WmScriptOpcode000Handle(u16 arg0) {
         if (temp_v0 >= 0 && temp_v0 < 3) {
             // not going to bother with the struct at 8010ADF4 yet, as it may be
             // unused
-            temp_s0_17->unk0 = func_800AE024(&sp10, (VECTOR*)((temp_v0 * 0x4) + &D_8010ADF4)) >> 4;
+            temp_s0_17->unk0 = WmGetDistanceBetweenPoints(&sp10, (VECTOR*)((temp_v0 * 0x4) + &D_8010ADF4)) >> 4;
         } else {
             temp_s0_17->unk0 = 0;
         }
@@ -1745,9 +1745,9 @@ void func_800ADC3C(VECTOR* arg0) { D_8010AE34 = *arg0; }
 
 void func_800ADC70(void) { D_8010AE54 = 0; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800ADC80);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmAddMutexPriority);
 
-void func_800ADD4C(s16 arg0) {
+void WmRemoveMutexPriority(s16 arg0) {
     u32 var_v1;
 
     if (((-1 << (arg0 + 1)) & D_8010AE54) || !((D_8010AE54 >> arg0) & 1))
@@ -1763,7 +1763,7 @@ void func_800ADD4C(s16 arg0) {
 }
 
 // Shuffle World Map RNG Buffer
-void func_800ADE30(void) {
+void WmRandomTwiddle(void) {
     s32 i;
     for (i = 0; i < 0x20; i++)
         D_8010AE5C[i] ^= D_8010AE5C[0x1E9 + i];
@@ -1772,7 +1772,7 @@ void func_800ADE30(void) {
 }
 
 // seed RNG
-void func_800ADEA8(s32 arg0) {
+void WmRandomInit(s32 arg0) {
     s32 var_a1;
     s32 var_a2;
     u32 var_a3;
@@ -1791,9 +1791,9 @@ void func_800ADEA8(s32 arg0) {
         arr[var_a2] = (arr[var_a2 - 0x11] << 0x17) ^ (arr[var_a2 - 0x10] >> 0x9) ^ (arr[var_a2 - 0x1]);
     for (var_a2 = 0; var_a2 <= 0x208; var_a2++)
         D_8010AE5C[var_a2] = arr[var_a2];
-    func_800ADE30();
-    func_800ADE30();
-    func_800ADE30();
+    WmRandomTwiddle();
+    WmRandomTwiddle();
+    WmRandomTwiddle();
     D_8010AE58 = 0x208;
 }
 
@@ -1801,13 +1801,13 @@ void func_800ADEA8(s32 arg0) {
 s32 func_800ADFC0(void) {
     D_8010AE58++;
     if (D_8010AE58 > 0x208) {
-        func_800ADE30();
+        WmRandomTwiddle();
         D_8010AE58 = 0;
     }
     return D_8010AE5C[D_8010AE58];
 }
 
-s32 func_800AE024(VECTOR* arg0, VECTOR* arg1) {
+s32 WmGetDistanceBetweenPoints(VECTOR* arg0, VECTOR* arg1) {
     s32 temp_a0;
     s32 temp_a1;
     s32 temp_v0;
@@ -1845,23 +1845,23 @@ s32 func_800AE024(VECTOR* arg0, VECTOR* arg1) {
     return var_a2 + var_a3 + var_v1;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AE0BC);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmRotateVectorByYAngle);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AE180);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmGetRotFromVector);
 
-s16 func_800AE47C(VECTOR* arg0, VECTOR* arg1) {
-    return func_800AE180(arg1->vx - arg0->vx, arg1->vz - arg0->vz, arg1->vx);
+s16 WmGetRotFromEntityToEntity(VECTOR* arg0, VECTOR* arg1) {
+    return WmGetRotFromVector(arg1->vx - arg0->vx, arg1->vz - arg0->vz, arg1->vx);
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AE4B8);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmCreateSkyboxOverlayRenderBuffers);
 
-void* func_800AE5B8(void) { return (WmGetCurrRenderBufferId() * 0x24) + &D_800C6770; }
+void* WmGetSkyboxOverlayCurrRenderBuffer(void) { return (WmGetCurrRenderBufferId() * 0x24) + &D_800C6770; }
 
-void* func_800AE5F0(void) { return (WmGetCurrRenderBufferId() * 0xC) + D_8010B068; }
+void* WmGetSkyboxOverlayCurrTextureSettingBuffer(void) { return (WmGetCurrRenderBufferId() * 0xC) + D_8010B068; }
 
 s32 func_800AE628(void) { return D_8010B080; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AE638);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmUpdateSkyboxOverlayVertexes);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AE8AC);
 
@@ -1870,7 +1870,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AEA48);
 void func_800AF0A0(s32 arg0) { D_8010B174 = arg0; }
 
 void func_800AF0B0(void) {
-    void func_800AF110(void);
+    void WmSetGteColourSettings(void);
     s32 i;
     s32 offset;
 
@@ -1883,10 +1883,10 @@ void func_800AF0B0(void) {
     }
 
     D_8010B3B8 = NULL;
-    func_800AF110();
+    WmSetGteColourSettings();
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF110);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmSetGteColourSettings);
 
 void func_800AF1A8(u32 arg0, s32 arg1) {
     Unk8010B178* temp_v1;
@@ -1900,7 +1900,7 @@ void func_800AF1A8(u32 arg0, s32 arg1) {
     }
 }
 
-void func_800AF1E8(u32 arg0, u32 arg1) {
+void WmSetActivePointMeshCoords(u32 arg0, u32 arg1) {
     if ((D_8010B3B8 != NULL) && (arg0 < 0x24) && (arg1 < 0x1C)) {
         D_8010B3B8->unk0.vx &= 0x1FFF;
         D_8010B3B8->unk0.vz &= 0x1FFF;
@@ -1909,7 +1909,7 @@ void func_800AF1E8(u32 arg0, u32 arg1) {
     }
 }
 
-void func_800AF24C(s32 arg0, s32 arg1) {
+void WmSetActivePointCoordsInMesh(s32 arg0, s32 arg1) {
     if (D_8010B3B8 != NULL) {
         D_8010B3B8->unk0.vx &= -0x2000;
         D_8010B3B8->unk0.vz &= -0x2000;
@@ -1918,7 +1918,7 @@ void func_800AF24C(s32 arg0, s32 arg1) {
     }
 }
 
-void func_800AF2A4(u8 arg0, u8 arg1, u8 arg2) {
+void WmSetActivePointColour(u8 arg0, u8 arg1, u8 arg2) {
     if (D_8010B3B8 != NULL) {
         D_8010B3B8->unk10 = arg0;
         D_8010B3B8->unk11 = arg1;
@@ -1936,7 +1936,7 @@ static void func_800AF304(s32 arg0) {
         D_8010B3B8->unk20 = arg0;
 }
 
-void func_800AF324(u8 arg0, u8 arg1, u8 arg2) {
+void WmSetActivePointSkyColour(u8 arg0, u8 arg1, u8 arg2) {
     if (D_8010B3B8 != NULL) {
         D_8010B3B8->unk14 = arg0;
         D_8010B3B8->unk15 = arg1;
@@ -1952,30 +1952,32 @@ void func_800AF364(u8 arg0, u8 arg1, u8 arg2) {
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF3A4);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmUpdateLightingFromPoints);
 
-s32 func_800AF96C(VECTOR* v) { return D_8010B3B8 ? func_800AE024(v, &D_8010B3B8->unk0) : 0; }
+s32 WmGetDistanceToActivePoint(VECTOR* v) { return D_8010B3B8 ? WmGetDistanceBetweenPoints(v, &D_8010B3B8->unk0) : 0; }
 
-s16 func_800AF9A0(VECTOR* arg0) { return D_8010B3B8 == NULL ? 0 : func_800AE47C(arg0, (VECTOR*)D_8010B3B8); }
+s16 func_800AF9A0(VECTOR* arg0) {
+    return D_8010B3B8 == NULL ? 0 : WmGetRotFromEntityToEntity(arg0, (VECTOR*)D_8010B3B8);
+}
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AF9DC);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmFadeInit);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AFCC8);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmFadeRender);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AFFBC);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmSetFadeIn);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B0098);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmSetFadeOut);
 
-void func_800B017C(s32 arg0) { (&D_8010B47C)[arg0] = (D_8010B488[arg0] < D_8010B494[arg0]) << 4; }
+void WmFadeInSnow(s32 arg0) { (&D_8010B47C)[arg0] = (D_8010B488[arg0] < D_8010B494[arg0]) << 4; }
 
-void func_800B01C4(s32 arg0) { (&D_8010B47C)[arg0] = (D_8010B488[arg0] > 0) ? -0x10 : 0; }
+void WmFadeOutSnow(s32 arg0) { (&D_8010B47C)[arg0] = (D_8010B488[arg0] > 0) ? -0x10 : 0; }
 
-void func_800B0200(s32 arg0) {
-    func_800B017C(arg0);
+void WmFadeStartSnow(s32 arg0) {
+    WmFadeInSnow(arg0);
     D_8010B4A0[arg0] = 0x64;
 }
 
-s32 func_800B0240(void) { return !D_8010B47C; }
+s32 WmFadeIsStopped(void) { return !D_8010B47C; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B0250);
 
@@ -2112,7 +2114,7 @@ void func_800B3018(void) {
         D_8010CA8C = 0;
 }
 
-void func_800B3044(s16 arg0) {
+void WmSnowReset(s16 arg0) {
     D_8010CAFC = arg0;
     D_8010CB10 = 0;
     D_8010CB0C = 0;
@@ -2121,7 +2123,7 @@ void func_800B3044(s16 arg0) {
     D_8010CB00 = 0;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B307C);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmSnowUpdate);
 
 static s16 func_800B32F0(void) { return D_8010CAFC; }
 
@@ -2182,15 +2184,15 @@ void func_800B57C0(s32 arg0) { D_8010D9BA[arg0 * 4] = 0; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B57DC);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B58F8);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmCreateShadowPacket);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B59F4);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B5C7C);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B5DD8);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmSetCalculateAllPartsLighting);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B5E28);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmUpdateModelByAnimationFrame);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B624C);
 
@@ -2212,7 +2214,7 @@ void func_800B64D8(u32 arg0) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B650C);
 
-void func_800B6570(u32 arg0) {
+void WmSetMusicVolume(u32 arg0) {
     D_8009A000[0] = 0xC0;
     D_8009A004[0] = arg0;
     SystemAkaoExecute();
@@ -2227,19 +2229,19 @@ void func_800B65A4(u32 arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B65E0);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B667C);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmInitModelVariablesAndArray);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B6724);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmCalculateBonesAndLighting);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B69A4);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmLoadPcCharModelFile);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B6A4C);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmLoadPcCharModelIntoMemory);
 
-void func_800B6AEC(void) {
+void WmPcCharModelLoadFileCallback(void) {
     if (D_80115A60 != 0) {
         D_80115A60 = 0;
-        func_800ADD4C(2);
-        func_800B6A4C();
+        WmRemoveMutexPriority(2);
+        WmLoadPcCharModelIntoMemory();
     }
 }
 
@@ -2249,10 +2251,10 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B6C84);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B6D10);
 
-void func_800B6DCC(void) {
+void WmPackModelLoadFileCallback(void) {
     if (D_80115A60 != 0) {
         D_80115A60 = 0;
-        func_800ADD4C(2);
+        WmRemoveMutexPriority(2);
         func_800B6D10();
     }
 }
@@ -2285,14 +2287,14 @@ void func_800B6E78(void) {
         func_800A8048();
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B6EFC);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmGetModelDataByModelId);
 
 void func_800B7104(s16 arg0) {
     D_80115A58 = arg0;
     func_800B6B28(arg0);
 }
 
-void func_800B7134(void) {
+void WmAbortModelLoading(void) {
     SystemCdromAbortLoading();
     D_80115A60 = 0;
 }
@@ -2348,7 +2350,7 @@ void func_800B76A8(void) {
     }
 }
 
-void func_800B7714(s32 arg0) {
+void WmSetFieldToLoad(s32 arg0) {
     u8* p;
     s32 index;
 
@@ -2365,10 +2367,10 @@ void func_800B7714(s32 arg0) {
 }
 
 void func_800B77A8(s32 arg0) {
-    void func_800B7714(s32);
+    void WmSetFieldToLoad(s32);
 
     if (arg0 & 0x40000000) {
-        func_800B7714(0x2100);
+        WmSetFieldToLoad(0x2100);
     }
     D_8011626C = 1;
     D_80116274 = arg0;
@@ -2401,7 +2403,7 @@ extern u8 D_8009D392;
 extern u8 D_8009D393;
 
 // Player party member model ID (0=Cloud, 1=Tifa, 2=Cid)
-s32 func_800B79B8(void) {
+s32 WmGetPcCharModelIdFromParty(void) {
     if ((*D_8009D391 != 0) && (D_8009D392 != 0) && (D_8009D393 != 0)) {
         if ((*D_8009D391 != 2) && (D_8009D392 != 2) && (D_8009D393 != 2)) {
             if ((*D_8009D391 == 8) || (D_8009D392 == 8) || (D_8009D393 == 8)) {
@@ -2512,59 +2514,59 @@ void func_800B832C(void) {
 }
 
 // type?
-void func_800B8488(FieldScriptHeader* fieldScripts) {
+void WmDialogsInit(FieldScriptHeader* fieldScripts) {
     D_8008326C[0] = 0xFF;
     g_CurrentEntity = 0xFF;
     g_FieldScripts = fieldScripts;
     fieldScripts->stringOffset = 8;
-    func_800B8760();
+    WmDialog0ResetAndPointerInit();
     g_pFieldState = &g_FieldState;
 }
 
-void func_800B84D8(u8 arg0) {
+void WmDialogSetMessageToShowForId0(u8 arg0) {
     if (g_WindowData[0].state == WSTATE_INIT) {
         D_8011628C = 0;
         D_80116288 = 0;
-        func_800B8D4C(0, arg0);
+        WmDialogSetMessageToShow(0, arg0);
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B851C);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmDialogSetAskToShowForId0);
 
-static s32 func_800B857C(void) { return g_WindowData[0].state != WSTATE_INIT; }
+static s32 WmDialogIsWindowWithId0Showing(void) { return g_WindowData[0].state != WSTATE_INIT; }
 
-s32 func_800B858C(void) {
+s32 WmDialogSetWindowWithId0ToClose(void) {
     if ((g_WindowData[0].state != WSTATE_INIT) && (g_WindowData[0].state != WSTATE_CLOSING)) {
-        func_800B89C4(0);
+        WmDialogSetWindowToCloseIfPossible(0);
     }
 
     return g_WindowData[0].state != WSTATE_INIT;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B85D4);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmDialogUpdate);
 
 extern s16 D_80116290;
 
-s16 func_800B86C4(void) { return g_WindowData[0].state == WSTATE_INIT ? D_80116290 : -1; }
+s16 WmDialogGetAskResult(void) { return g_WindowData[0].state == WSTATE_INIT ? D_80116290 : -1; }
 
-void func_800B86E8(SVECTOR* arg0) {
+void WmDialogSetPosAndSizeForId0(SVECTOR* arg0) {
     if (arg0 != NULL) {
-        func_800B8B00(0, arg0->vx, arg0->vy, arg0->vz, arg0->pad);
+        WmDialogSetPosAndSize(0, arg0->vx, arg0->vy, arg0->vz, arg0->pad);
     }
 }
 
-void func_800B8720(s16 arg0, s16 arg1) { func_800B8A5C(0, arg0, arg1); }
+void WmDialogSetModeAndPermanencyForId0(s16 arg0, s16 arg1) { WmDialogSetModeAndPermanency(0, arg0, arg1); }
 
-static void func_800B8750(const char* str, s32 val, s32 kind) {}
+static void WmDialogPrintParam(const char* str, s32 val, s32 kind) {}
 
-static void func_800B8758(const char* errmsg) {}
+static void WmDialogPrintNoParam(const char* errmsg) {}
 
-void func_800B8760(void) {
+void WmDialog0ResetAndPointerInit(void) {
     s32 i;
 
     g_WindowCount = 0;
     for (i = 0; i < 1; i++) {
-        func_800B87D8(i);
+        WmDialogReset(i);
     }
     if (g_FieldScripts->stringOffset != 0) {
         D_80116298 = (u8*)g_FieldScripts + g_FieldScripts->stringOffset;
@@ -2573,7 +2575,7 @@ void func_800B8760(void) {
     }
 }
 
-void func_800B87D8(s16 window) {
+void WmDialogReset(s16 window) {
     s32 i;
 
     if (window == 1) {
@@ -2604,11 +2606,11 @@ void func_800B87D8(s16 window) {
 
     D_801163D0[window] = 0;
     if (g_DebugLevel & 3) {
-        func_800B8750("mes reset=", window, 1);
+        WmDialogPrintParam("mes reset=", window, 1);
     }
 }
 
-s32 func_800B89C4(s16 window) {
+s32 WmDialogSetWindowToCloseIfPossible(s16 window) {
     switch (g_WindowData[window].state) {
     case WSTATE_SHOW:
         return 0;
@@ -2623,12 +2625,12 @@ s32 func_800B89C4(s16 window) {
     return 1;
 }
 
-void func_800B8A5C(s16 window, s8 style, s16 preventClose) {
+void WmDialogSetModeAndPermanency(s16 window, s8 style, s16 preventClose) {
     g_WindowData[window].style = style;
     g_WindowData[window].preventClose = preventClose;
 }
 
-void func_800B8A98(void) {
+void WmDialogsReset(void) {
     s32 i;
 
     for (i = 0; i < 1; i++) {
@@ -2640,28 +2642,28 @@ void func_800B8A98(void) {
     g_WindowCount = 0;
 }
 
-void func_800B8B00(s16 window, s16 x, s16 y, s16 width, s16 height) {
+void WmDialogSetPosAndSize(s16 window, s16 x, s16 y, s16 width, s16 height) {
     if (x < 8) {
         if (g_DebugLevel & 3) {
-            func_800B8750("win limit x=", x, 2);
+            WmDialogPrintParam("win limit x=", x, 2);
         }
         x = 8;
     }
     if (x + width > 312) {
         if (g_DebugLevel & 3) {
-            func_800B8750("win limit x=", x + width, 3);
+            WmDialogPrintParam("win limit x=", x + width, 3);
         }
         x = 312 - width;
     }
     if (y < 8) {
         if (g_DebugLevel & 3) {
-            func_800B8750("win limit y=", y, 2);
+            WmDialogPrintParam("win limit y=", y, 2);
         }
         y = 8;
     }
     if (y + height > 224) {
         if (g_DebugLevel & 3) {
-            func_800B8750("win limit y=", y + height, 3);
+            WmDialogPrintParam("win limit y=", y + height, 3);
         }
         y = 224 - height;
     }
@@ -2672,31 +2674,31 @@ void func_800B8B00(s16 window, s16 x, s16 y, s16 width, s16 height) {
     g_WindowData[window].height = height;
 }
 
-void func_800B8CBC(s16 window, s16 dx, s16 dy) {
+void WmDialogAddPos(s16 window, s16 dx, s16 dy) {
     g_WindowData[window].x += dx;
     g_WindowData[window].y += dy;
 }
 
-void func_800B8D20(s16 window, s16 height) { g_WindowData[window].height = height; }
+void WmDialogSetHeight(s16 window, s16 height) { g_WindowData[window].height = height; }
 
-s32 func_800B8D4C(u8 window, u8 message) {
+s32 WmDialogSetMessageToShow(u8 window, u8 message) {
     switch (g_WindowData[window].state) {
     case WSTATE_INIT:
-        if (func_800B962C(window, message)) {
+        if (WmDialogInitWindow(window, message)) {
             return 1;
         }
         break;
     case WSTATE_SHOW:
-        func_800B98F0(window);
+        WmDialogInscreaseWindow(window);
         break;
     case WSTATE_TXT:
-        func_800B9B2C(window);
+        WmDialogStringOutput(window);
         break;
     case WSTATE_SCROLL_ROW:
-        func_800BA938(window);
+        WmDialogTextScrollByRow(window);
         break;
     case WSTATE_SCROLL_TXT_WHILE_OK:
-        func_800BAA00(window);
+        WmDialogTextScrollDuringOk(window);
         break;
     case WSTATE_PAUSE_TXT_UNTIL_OK:
         if (g_pFieldState->pressedKeys & PADRright) {
@@ -2722,12 +2724,12 @@ s32 func_800B8D4C(u8 window, u8 message) {
     case WSTATE_TXT_DONE:
         if (!(g_WindowData[window].preventClose & 1) && (g_pFieldState->pressedKeys & PADRright)) {
             g_WindowData[window].state = WSTATE_CLOSING;
-            func_800BAC70(window);
+            WmDialogDiscreaseWindow(window);
         }
         break;
     case WSTATE_WAIT_NEXT_WINDOW:
         if (g_pFieldState->pressedKeys & PADRright) {
-            func_800BAB60(window);
+            WmDialogStartText(window);
         }
         break;
     case WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK:
@@ -2738,11 +2740,11 @@ s32 func_800B8D4C(u8 window, u8 message) {
         }
         break;
     case WSTATE_INIT_NEXT:
-        func_800BAB60(window);
+        WmDialogStartText(window);
         break;
     case WSTATE_UNK5:
     case WSTATE_CLOSING:
-        if (func_800BAC70(window)) {
+        if (WmDialogDiscreaseWindow(window)) {
             return 1;
         }
         break;
@@ -2751,24 +2753,24 @@ s32 func_800B8D4C(u8 window, u8 message) {
     return 0;
 }
 
-s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
+s32 WmDialogSetAskToShow(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
     switch (g_WindowData[window].state) {
     case WSTATE_INIT:
-        if (func_800B962C(window, message)) {
+        if (WmDialogInitWindow(window, message)) {
             return 1;
         }
         break;
     case WSTATE_SHOW:
-        func_800B98F0(window);
+        WmDialogInscreaseWindow(window);
         break;
     case WSTATE_TXT:
-        func_800B9B2C(window);
+        WmDialogStringOutput(window);
         break;
     case WSTATE_SCROLL_ROW:
-        func_800BA938(window);
+        WmDialogTextScrollByRow(window);
         break;
     case WSTATE_SCROLL_TXT_WHILE_OK:
-        func_800BAA00(window);
+        WmDialogTextScrollDuringOk(window);
         break;
     case WSTATE_PAUSE_TXT_UNTIL_OK:
         if (g_pFieldState->pressedKeys & PADRright) {
@@ -2797,13 +2799,13 @@ s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
 
             if (g_pFieldState->pressedKeysRaw & PADLup) {
                 if (first < *selectedLine) {
-                    func_800B95E8();
+                    WmDialogPlaySound();
                 }
                 (*selectedLine)--;
             }
             if (g_pFieldState->pressedKeysRaw & PADLdown) {
                 if (*selectedLine < last) {
-                    func_800B95E8();
+                    WmDialogPlaySound();
                 }
                 (*selectedLine)++;
             }
@@ -2818,15 +2820,15 @@ s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
             g_WindowData[window].pointerY = *selectedLine * 16 + 6;
 
             if (g_pFieldState->pressedKeys & PADRright) {
-                func_800B95E8();
+                WmDialogPlaySound();
                 g_WindowData[window].state = WSTATE_CLOSING;
-                func_800BAC70(window);
+                WmDialogDiscreaseWindow(window);
             }
         }
         break;
     case WSTATE_WAIT_NEXT_WINDOW:
         if (g_pFieldState->pressedKeys & PADRright) {
-            func_800BAB60(window);
+            WmDialogStartText(window);
         }
         break;
     case WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK:
@@ -2837,11 +2839,11 @@ s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
         }
         break;
     case WSTATE_INIT_NEXT:
-        func_800BAB60(window);
+        WmDialogStartText(window);
         break;
     case WSTATE_UNK5:
     case WSTATE_CLOSING:
-        if (func_800BAC70(window)) {
+        if (WmDialogDiscreaseWindow(window)) {
             g_WindowData[window].pointerEnabled = 0;
             return 1;
         }
@@ -2852,22 +2854,22 @@ s32 func_800B90C0(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
     return 0;
 }
 
-void func_800B95E8(void) {
+void WmDialogPlaySound(void) {
     *D_8009A000 = 0x30;
     *D_8009A004 = 1;
     *D_8009A008 = 0x40;
     SystemAkaoExecute();
 }
 
-s32 func_800B962C(s16 window, s16 stringId) {
+s32 WmDialogInitWindow(s16 window, s16 stringId) {
     if (D_80116298 == NULL) {
-        func_800B8758("No mes data!");
+        WmDialogPrintNoParam("No mes data!");
         return 1;
     }
 
     if (g_WindowToEntity[window] != 0xFF) {
         if (g_DebugLevel & 3) {
-            func_800B8750("mes busy=", window, 1);
+            WmDialogPrintParam("mes busy=", window, 1);
         }
         return 0;
     }
@@ -2905,10 +2907,10 @@ s32 func_800B962C(s16 window, s16 stringId) {
     return 0;
 }
 
-void func_800B98F0(s16 window) {
+void WmDialogInscreaseWindow(s16 window) {
     if (g_WindowToEntity[window] != g_CurrentEntity) {
         if (g_DebugLevel & 3) {
-            func_800B8750("mes busy=", window, 1);
+            WmDialogPrintParam("mes busy=", window, 1);
         }
         return;
     }
@@ -2935,7 +2937,7 @@ void func_800B98F0(s16 window) {
     }
 }
 
-void func_800B9B2C(s16 window) {
+void WmDialogStringOutput(s16 window) {
     u8 opcode;
     u16 len;
     s16 i;
@@ -2946,7 +2948,7 @@ void func_800B9B2C(s16 window) {
 
     if (g_WindowToEntity[window] != g_CurrentEntity) {
         if (g_DebugLevel & 3) {
-            func_800B8750("mes busy=", window, 1);
+            WmDialogPrintParam("mes busy=", window, 1);
         }
         return;
     }
@@ -3118,21 +3120,21 @@ void func_800B9B2C(s16 window) {
                     // First iteration. Fetch and convert the value.
                     value = func_800BAE60(window);
                     if (g_DebugLevel & 3) {
-                        func_800B8750("mpara=", value, 4);
+                        WmDialogPrintParam("mpara=", value, 4);
                     }
                     opcode = D_801162B0[window][1];
                     switch (opcode) {
                     // Integer to decimal string.
                     case 0xDE:
-                        func_800BB350(value, D_801163C8[window]);
+                        WmDialogAddDigitWithoutLeadingSpace(value, D_801163C8[window]);
                         break;
                     // Integer to decimal string with space fill.
                     case 0xE1:
-                        func_800BB450(value, D_801163C8[window]);
+                        WmDialogAddDigitWithLeadingSpace(value, D_801163C8[window]);
                         break;
                         // Integer to hexadecimal string.
                     case 0xDF:
-                        func_800BB568(value, D_801163C8[window]);
+                        WmDialogAddHexDigitWithoutLeadingSpace(value, D_801163C8[window]);
                         break;
                     }
                     D_801163C4[window]++;
@@ -3161,9 +3163,9 @@ void func_800B9B2C(s16 window) {
                     len = D_801162B0[window][4];
                     len |= D_801162B0[window][5] << 8;
                     if (g_DebugLevel & 3) {
-                        func_800B8750("gstr=", value, 4);
+                        WmDialogPrintParam("gstr=", value, 4);
                         if (g_DebugLevel & 3) {
-                            func_800B8750("glen=", len, 4);
+                            WmDialogPrintParam("glen=", len, 4);
                         }
                     }
                     for (i = 0; i < len; i++) {
@@ -3249,10 +3251,10 @@ end:
     D_801162B4[window][g_WindowData[window].stringByteLength] = 0xFF;
 }
 
-void func_800BA938(s16 window) {
+void WmDialogTextScrollByRow(s16 window) {
     if (g_WindowToEntity[window] != g_CurrentEntity) {
         if (g_DebugLevel & 3) {
-            func_800B8750("mes busy=", window, 1);
+            WmDialogPrintParam("mes busy=", window, 1);
         }
         return;
     }
@@ -3264,10 +3266,10 @@ void func_800BA938(s16 window) {
     }
 }
 
-void func_800BAA00(s16 window) {
+void WmDialogTextScrollDuringOk(s16 window) {
     if (g_WindowToEntity[window] != g_CurrentEntity) {
         if (g_DebugLevel & 3) {
-            func_800B8750("mes busy=", window, 1);
+            WmDialogPrintParam("mes busy=", window, 1);
         }
         return;
     }
@@ -3290,10 +3292,10 @@ void func_800BAA00(s16 window) {
     }
 }
 
-void func_800BAB60(s16 window) {
+void WmDialogStartText(s16 window) {
     if (g_WindowToEntity[window] != g_CurrentEntity) {
         if (g_DebugLevel & 3) {
-            func_800B8750("mes busy=", window, 1);
+            WmDialogPrintParam("mes busy=", window, 1);
         }
         return;
     }
@@ -3308,10 +3310,10 @@ void func_800BAB60(s16 window) {
     D_8011629C[window] = 1;
 }
 
-s32 func_800BAC70(s16 window) {
+s32 WmDialogDiscreaseWindow(s16 window) {
     if (g_WindowToEntity[window] != g_CurrentEntity) {
         if (g_DebugLevel & 3) {
-            func_800B8750("mes busy=", window, 1);
+            WmDialogPrintParam("mes busy=", window, 1);
         }
         return 1;
     }
@@ -3408,7 +3410,7 @@ u16 func_800BAE60(s16 window) {
     return value;
 }
 
-void func_800BB350(u16 value, u8* dst) {
+void WmDialogAddDigitWithoutLeadingSpace(u16 value, u8* dst) {
     u32 foundDigit;
     s16 i;
     s16 divisor;
@@ -3431,7 +3433,7 @@ void func_800BB350(u16 value, u8* dst) {
     dst[i + 1] = 0xFF;
 }
 
-void func_800BB450(u16 value, u8* dst) {
+void WmDialogAddDigitWithLeadingSpace(u16 value, u8* dst) {
     s32 foundDigit;
     s16 i;
     s16 divisor;
@@ -3457,7 +3459,7 @@ void func_800BB450(u16 value, u8* dst) {
     dst[i + 1] = 0xFF;
 }
 
-void func_800BB568(u16 value, u8* dst) {
+void WmDialogAddHexDigitWithoutLeadingSpace(u16 value, u8* dst) {
     u32 foundDigit;
     s16 i;
     s16 divisor;
@@ -3488,7 +3490,7 @@ s32 func_800BB650(s16 stringId) {
     u8 value;
 
     if (D_80116298 == NULL) {
-        func_800B8758("No mes data!");
+        WmDialogPrintNoParam("No mes data!");
         return 0;
     }
 
@@ -3547,13 +3549,13 @@ end:
     return 1;
 }
 
-void func_800BB7DC(s16 battleCharId, s16 stringId) {
+void WmDialogCopyStringIntoCharName(s16 battleCharId, s16 stringId) {
     u8* newName;
     s16 len;
     u8* charName;
 
     if (D_80116298 == NULL) {
-        func_800B8758("No mes data!");
+        WmDialogPrintNoParam("No mes data!");
         return;
     }
 
@@ -3581,9 +3583,9 @@ void func_800BB8B0(void) {
     D_801163DC = 0;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BB8E8);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmMovePcEntityByDistance);
 
-void func_800BB9A0(u8 arg0) {
+void WmScriptPushToStoreStack(u8 arg0) {
     s8* temp_v1;
 
     temp_v1 = D_801163E8;
@@ -3593,7 +3595,7 @@ void func_800BB9A0(u8 arg0) {
     }
 }
 
-u8 func_800BB9D0(void) {
+u8 WmScriptPopFromStoreStack(void) {
     if (&D_801163E0 >= D_801163E8)
         return 0;
 
@@ -3601,7 +3603,7 @@ u8 func_800BB9D0(void) {
     return D_801163E8[0];
 }
 
-u8 func_800BBA0C(void) {
+u8 WmScriptGetTopFromStoreStack(void) {
     u8 var_a0;
 
     var_a0 = 0;
@@ -3611,9 +3613,9 @@ u8 func_800BBA0C(void) {
     return var_a0;
 }
 
-static void func_800BBA34(s8 arg0) { D_801163E0 = arg0; }
+static void WmScriptSetFirstToStoreStack(s8 arg0) { D_801163E0 = arg0; }
 
-s32 func_800BBA44(void) { return &D_801163E0 < D_801163E8; }
+s32 WmScriptIsDataInStoreStack(void) { return &D_801163E0 < D_801163E8; }
 
 static void func_800BBA5C(void) {
     VECTOR sp10;
@@ -3628,7 +3630,7 @@ static void func_800BBA5C(void) {
     if (func_800A99BC()) {
         WmGetPosFromActiveEntity(&sp10);
         func_800A6994(&sp10, WmGetModelIdFromActiveEntity() == 3 ? -1 : 1);
-        func_800BB9A0(WmGetModelIdFromPcEntity());
+        WmScriptPushToStoreStack(WmGetModelIdFromPcEntity());
         if (func_800A929C()) {
             WmLinkPcToActiveEntity();
             func_800B63F0(2);
@@ -3753,9 +3755,9 @@ void func_800BBD20(s32 arg0) {
                             WmScriptDisableForPcEntity(1);
 
                         if (func_800A929C() != 0) {
-                            temp_v0 = func_800AE47C(&sp20, &sp10) - 0x400;
+                            temp_v0 = WmGetRotFromEntityToEntity(&sp20, &sp10) - 0x400;
                             WmSetActiveEntityDirectionAndRot(temp_v0);
-                            func_800BB9D0();
+                            WmScriptPopFromStoreStack();
                             func_800A8E50();
                             if (temp_s1 < 0x29)
                                 WmSetActiveEntityAsPcEntity();
@@ -3767,15 +3769,15 @@ void func_800BBD20(s32 arg0) {
                             if (temp_s1 == 4)
                                 func_800A82DC();
                             else if (temp_s1 >= 0x29) {
-                                WmSetActiveEntityWithModelId(func_800B79B8());
+                                WmSetActiveEntityWithModelId(WmGetPcCharModelIdFromParty());
                                 WmSetActiveEntityAsPcEntity();
                             }
                             func_800ADC3C(&sp10);
                         } else {
                             WmInsertInEntityStructList();
-                            temp_s0 = func_800BB9D0() & 0xFF;
+                            temp_s0 = WmScriptPopFromStoreStack() & 0xFF;
                             if (func_800A92F8(temp_s0) != 0) {
-                                WmInitActiveEntityStruct(func_800BBA0C() & 0xFF);
+                                WmInitActiveEntityStruct(WmScriptGetTopFromStoreStack() & 0xFF);
                                 WmSetActiveEntityAsPcEntity();
                                 WmInsertInEntityStructList();
                                 WmInitActiveEntityStruct(temp_s0);
@@ -3804,7 +3806,8 @@ void func_800BBD20(s32 arg0) {
                     if ((WmGetModelIdFromPcEntity() == 3) || (WmGetModelIdFromPcEntity() == 4))
                         WmScriptDisableForPcEntity(0);
 
-                    if ((temp_s2 != 0) || ((WmGetModelIdFromPcEntity() == 5) && (WmIsPcEntityPosNeedRecalculation() != 0)))
+                    if ((temp_s2 != 0) ||
+                        ((WmGetModelIdFromPcEntity() == 5) && (WmIsPcEntityPosNeedRecalculation() != 0)))
                         func_800A368C(1);
                 }
             }
@@ -3821,17 +3824,17 @@ static s32 func_800BC1AC(void) { return D_801163D4; }
 
 static void func_800BC1BC(s32 arg0) { D_801163EC = arg0; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BC1CC);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmUiMapCreate);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BC420);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmUiMapUpdate);
 
-void func_800BC9E8(s16 arg0) {
+void WmSetCamMode(s16 arg0) {
     D_801164F8 = arg0;
     if (WmGetModelIdFromPcEntity() != 3)
         D_801164FC = D_801164F8;
 }
 
-s16 func_800BCA38(void) { return D_801164F8; }
+s16 WmGetCamMode(void) { return D_801164F8; }
 
 void func_800BCA48(void) {
     if (D_801164F8 == 1)
