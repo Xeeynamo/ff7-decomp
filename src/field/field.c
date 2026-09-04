@@ -38,8 +38,6 @@ extern s32 (*g_FieldOpcodes[256])(void);
 extern u8 g_EntityForSplitJoin;
 extern s16 D_800DF120[][2];
 extern char g_DebugMessageBuffer[]; // debug value transformed into text
-
-extern u8 D_80114498[];
 extern u32 g_FieldKeyState;
 
 void AddBackgroundToRender(struct FieldRenderData* buf);

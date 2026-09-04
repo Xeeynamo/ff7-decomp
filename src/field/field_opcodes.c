@@ -34,14 +34,14 @@ extern u8 D_80114498[];
 extern u8 g_RandomTableStep;
 extern u8 g_RandomTableIndex;
 extern u8 g_RandomTable[256];
+extern char D_800E0628[];
+extern char D_800E0630[];
 extern char g_DebugText[];
 extern char g_DebugMessageBuffer[];
-extern char D_800E0628[];
 extern s8 D_800716C8;
 extern s16 D_80071E38;
 extern s16 D_80071E3C;
 extern u32 D_80075E10;
-extern s8 D_800E0630;
 extern SVECTOR (*D_800E4274)[3];
 extern u8* D_800E48E0;
 
@@ -94,7 +94,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
         FieldDebugStringCopy(g_DebugText, "ctrl:");
     }
 
-    FieldDebugStringConcat(g_DebugText, (char*)g_FieldScripts + 32 + (entityId * 8));
+    FieldDebugStringConcat(g_DebugText, GET_ENTITY_NAME(entityId));
     if (D_8009FE8C | (D_80071E24 & 1)) {
         SetStrToDebugRow(arg0, 0, g_DebugText);
     }
@@ -192,7 +192,8 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
         if (D_80071E24 & 2) {
             DebugPrintToFieldWindow(g_DebugText);
         }
-        FieldDebugStringU8hex(D_800756E8[g_EntityToModel[entityId]], g_DebugText);
+        FieldDebugStringU8hex(
+            g_FieldModelAnimStatus[g_EntityToModel[entityId]], g_DebugText);
         FieldDebugStringConcat(g_DebugText, "am");
         FieldDebugStringU16hex(g_FieldModels[g_EntityToModel[entityId]].activeAnimId, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
@@ -550,7 +551,7 @@ void DebugPrintOpcode(const char* name, s32 arg1) {
 
     var_s1 = arg1;
     if (!(D_80071E24 & 4) || (D_80114498[g_CurrentEntity] != 0)) {
-        FieldDebugStringCopy(g_DebugText, &D_800E0630);
+        FieldDebugStringCopy(g_DebugText, D_800E0630);
         FieldDebugStringConcat(g_DebugText, name);
         if (g_DebugLevel & 1) {
             SetStrToDebugRow(3, 0, g_DebugText);
@@ -1906,7 +1907,7 @@ s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
 
     if (g_DebugLevel & 3) {
         FieldDebugStringCopy(g_DebugMessageBuffer, "rq=");
-        FieldDebugStringConcat(g_DebugMessageBuffer, (char*)g_FieldScripts + sizeof(FieldScriptHeader) + target * 8);
+        FieldDebugStringConcat(g_DebugMessageBuffer, GET_ENTITY_NAME(target));
         FieldDebugStringConcat(g_DebugMessageBuffer, "/");
         FieldDebugAddParseValueToPage2(g_DebugMessageBuffer, scriptId, 2);
     }
@@ -1972,8 +1973,10 @@ s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
         entityDataSize = target * 64;
         extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
 
-        GET_FIELD_SCRIPT_PC(g_SavedFieldScriptPC[target][priority], scriptOffset,
-                            entityDataSize + (g_FieldScripts->numEntities << 3), extrasHeaderSize);
+        GET_FIELD_SCRIPT_OFFSET(
+            g_SavedFieldScriptPC[target][priority], scriptOffset,
+            entityDataSize + (g_FieldScripts->numEntities << 3),
+            extrasHeaderSize);
 
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("rq=send", 0, 0);
@@ -2002,8 +2005,10 @@ s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
         entityDataSize = target * 64;
         extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
 
-        GET_FIELD_SCRIPT_PC(g_FieldScriptPC[target], scriptOffset, entityDataSize + (g_FieldScripts->numEntities << 3),
-                            extrasHeaderSize);
+        GET_FIELD_SCRIPT_OFFSET(
+            g_FieldScriptPC[target], scriptOffset,
+            entityDataSize + (g_FieldScripts->numEntities << 3),
+            extrasHeaderSize);
 
         g_FieldScriptPriority[target] = priority;
 
@@ -2108,8 +2113,10 @@ s32 OpcodeFuncRetto(void) {
     scriptId *= 2;
     extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
 
-    GET_FIELD_SCRIPT_PC(g_FieldScriptPC[g_CurrentEntity], scriptId,
-                        (g_FieldScripts->numEntities * 8) + (g_CurrentEntity * 64), extrasHeaderSize);
+    GET_FIELD_SCRIPT_OFFSET(
+        g_FieldScriptPC[g_CurrentEntity], scriptId,
+        (g_FieldScripts->numEntities * 8) + (g_CurrentEntity * 64),
+        extrasHeaderSize);
 
     g_FieldScriptPriority[g_CurrentEntity] = priority;
     if (g_DebugLevel & 3) {
@@ -2436,7 +2443,8 @@ s32 OpcodeFuncUc(void) {
     }
     g_CharacterLock = g_pFieldState->characterLock = GET_PARAM_U8(1);
     if (g_CharacterLock == 0) {
-        D_800756E8[g_pFieldState->pcModelId] = 0;
+        g_FieldModelAnimStatus[g_pFieldState->pcModelId] =
+            ANIMSTATUS_DEFAULT_LOOP;
     }
     PC_INC(2);
     return 0;
@@ -2532,11 +2540,13 @@ s32 OpcodeFuncDfanm(void) {
         DebugPrintOpcode("dfanm", 2);
     }
     if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
-        D_8008325C[g_EntityToModel[g_CurrentEntity]] = GET_PARAM_U8(1);
-        D_80082248[g_EntityToModel[g_CurrentEntity]] = D_8009D828[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(2);
+        g_FieldModelAnimId[g_EntityToModel[g_CurrentEntity]] = GET_PARAM_U8(1);
+        g_FieldModelEffAnimSpeed[g_EntityToModel[g_CurrentEntity]] =
+            g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] /
+            GET_PARAM_U8(2);
         modelIdx = g_EntityToModel[g_CurrentEntity];
-        if (D_800756E8[modelIdx] == 3) {
-            D_800756E8[modelIdx] = 0;
+        if (g_FieldModelAnimStatus[modelIdx] == ANIMSTATUS_HOLD_FRAME) {
+            g_FieldModelAnimStatus[modelIdx] = ANIMSTATUS_DEFAULT_LOOP;
         }
     }
     PC_INC(3);
@@ -2580,7 +2590,8 @@ void StartModelAnimation(void) {
 
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(1);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animSpeed =
-        D_8009D828[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(2);
+        g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] /
+        GET_PARAM_U8(2);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
     modelIdx = g_EntityToModel[g_CurrentEntity];
     model = &g_FieldModelData->modelEntries[g_FieldModelLoaderData[modelIdx].modelEntryIndex];
@@ -2606,20 +2617,20 @@ s32 OpcodeFuncAnime(void) {
         return 0;
     }
 
-    switch (D_800756E8[g_EntityToModel[g_CurrentEntity]]) {
-    case 0:
-    case 1:
-    case 3:
+    switch (g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]]) {
+    case ANIMSTATUS_DEFAULT_LOOP:
+    case ANIMSTATUS_SCRIPTED_LOOP:
+    case ANIMSTATUS_HOLD_FRAME:
         StartModelAnimation();
         if (g_FieldCurrentOpcode == 0xAE) {
-            D_800756E8[g_EntityToModel[g_CurrentEntity]] = 5;
+            g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = 5;
             PC_INC(3);
             return 0;
         }
-        D_800756E8[g_EntityToModel[g_CurrentEntity]] = 2;
+        g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = 2;
         break;
-    case 4:
-        D_800756E8[g_EntityToModel[g_CurrentEntity]] = 0;
+    case ANIMSTATUS_PLAY_ONCE_SYNC_DONE:
+        g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = 0;
         PC_INC(3);
         return 0;
     }
@@ -2642,20 +2653,20 @@ s32 OpcodeFuncAnimEx(void) {
         return 0;
     }
 
-    switch (D_800756E8[g_EntityToModel[g_CurrentEntity]]) {
-    case 0:
-    case 1:
-    case 3:
+    switch (g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]]) {
+    case ANIMSTATUS_DEFAULT_LOOP:
+    case ANIMSTATUS_SCRIPTED_LOOP:
+    case ANIMSTATUS_HOLD_FRAME:
         StartModelAnimation();
         if (g_FieldCurrentOpcode == 0xAF) {
-            D_800756E8[g_EntityToModel[g_CurrentEntity]] = 6;
+            g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = 6;
             PC_INC(3);
             return 0;
         }
-        D_800756E8[g_EntityToModel[g_CurrentEntity]] = 2;
+        g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = 2;
         break;
-    case 4:
-        D_800756E8[g_EntityToModel[g_CurrentEntity]] = 3;
+    case ANIMSTATUS_PLAY_ONCE_SYNC_DONE:
+        g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = 3;
         PC_INC(3);
         return 0;
     }
