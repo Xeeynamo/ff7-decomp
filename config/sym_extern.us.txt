@@ -26,6 +26,7 @@ g_EntitySplitJoinState = 0x80081D90;
 g_CharacterLock = 0x80081DC4;
 g_FieldModelEffAnimSpeed = 0x80082248;
 g_FieldScriptPC = 0x800831FC;
+
 g_FieldModelAnimId = 0x8008325C;
 g_WindowToEntity = 0x8008326C;
 g_WindowData = 0x80083274;
@@ -50,6 +51,7 @@ g_CharacterLevelData = 0x8009D7E4;
 g_BattleItemsEarned = 0x8009D808;
 g_DebugLevel = 0x8009D820;
 g_FieldModelBaseAnimSpeed = 0x8009D828;
+g_ActiveCharacters = 0x8009D84C;
 func_800A0000 = 0x800A0000;
 func_800A0030 = 0x800A0030;
 func_800A00BC = 0x800A00BC;
