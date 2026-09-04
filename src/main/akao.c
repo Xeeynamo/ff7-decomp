@@ -160,6 +160,7 @@ extern u8 D_800499A8[]; // opcode lenghts
 extern u8 D_80049C40[];
 extern s32 g_AkaoWaveTableKey[];
 extern s32 D_80062F00;
+extern s32 D_80062F08;
 extern u16 D_80062F1E;
 // Music-driver slide state: each MulMusic value is a fixed-point scalar for
 // pitch/volume/tempo (current value in the upper 16 bits, lower 16 bits are
@@ -187,10 +188,12 @@ extern u16 g_AkaoCdVolSlideSteps;
 extern s32 g_AkaoCdVol;
 extern u16 D_80062FD6;
 extern s32 D_80062FD8;
+extern s32 D_80062FE0;
 extern s32 g_AkaoPitchMulMusic;
 extern s32 g_AkaoTempoMulMusic;
 extern s32 D_80062FF8;
-extern s32 D_80063004;
+extern s32 D_80063000;
+extern u32 D_80063004;
 extern s32 D_80063010; // sound message queue count
 extern u8 D_800716CC;
 extern u8 g_AkaoVoiceAttr[];
@@ -1218,24 +1221,24 @@ static void AkaoStreamVoiceAttrMono(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D2D4);
 
-void func_8002D530(void);
+static void AkaoStreamIrqCallbackMono0(void);
 
 // CD-stream DMA transfer-complete callback (mono case). Keys on the stream
 // voice(s) in D_80062F00; when D_80063004 (bytes remaining) is nonzero, first
-// re-arms the SPU transfer IRQ with func_8002D530 to continue streaming.
+// re-arms the SPU transfer IRQ with AkaoStreamIrqCallbackMono0 to continue streaming.
 static void AkaoStreamTransferCallbackMono(void) {
     SpuSetTransferCallback(0);
     if (D_80063004 != 0) {
         SpuSetIRQ(0);
         SpuSetIRQAddr(0x78000);
-        SpuSetIRQCallback(&func_8002D530);
+        SpuSetIRQCallback(AkaoStreamIrqCallbackMono0);
         SpuSetIRQ(1);
     }
     SpuSetKey(1, D_80062F00);
     D_80099FD8 &= ~D_80062F00;
 }
 
-void func_8002D7A0(void);
+static void AkaoStreamIrqCallbackSplit0(void);
 
 // CD-stream DMA transfer-complete callback (split/stereo case). Twin of
 // AkaoStreamTransferCallbackMono above, using a different IRQ callback.
@@ -1244,20 +1247,128 @@ static void AkaoStreamTransferCallbackSplit(void) {
     if (D_80063004 != 0) {
         SpuSetIRQ(0);
         SpuSetIRQAddr(0x78000);
-        SpuSetIRQCallback(&func_8002D7A0);
+        SpuSetIRQCallback(AkaoStreamIrqCallbackSplit0);
         SpuSetIRQ(1);
     }
     SpuSetKey(1, D_80062F00);
     D_80099FD8 &= ~D_80062F00;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D530);
+static void AkaoStreamIrqCallbackMono1(void);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D668);
+static void AkaoStreamIrqCallbackMono0(void) {
+    if (D_80063004 == 0) {
+        return;
+    }
+    SpuSetTransferStartAddr(0x77000);
+    func_80038F04(D_80062FE0, 0x1000);
+    SpuSetIRQ(0);
+    if (D_80063004 > 0x1000) {
+        SpuSetIRQAddr(0x77000);
+        SpuSetIRQCallback(AkaoStreamIrqCallbackMono1);
+        SpuSetIRQ(1);
+        D_80063004 -= 0x1000;
+        D_80062FE0 += 0x1000;
+        return;
+    }
+    if (D_80063000 != 0) {
+        SpuSetIRQAddr(0x77000);
+        SpuSetIRQCallback(AkaoStreamIrqCallbackMono1);
+        SpuSetIRQ(1);
+        D_80062FE0 = D_80063000;
+        D_80063004 = D_80062F08;
+        return;
+    }
+    D_80063004 = 0;
+    SpuSetIRQAddr(0x77000);
+    SpuSetIRQCallback(func_80029A50);
+    SpuSetIRQ(1);
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D7A0);
+static void AkaoStreamIrqCallbackMono1(void) {
+    if (D_80063004 == 0) {
+        return;
+    }
+    SpuSetTransferStartAddr(0x78000);
+    func_80038F04(D_80062FE0, 0x1000);
+    SpuSetIRQ(0);
+    if (D_80063004 > 0x1000) {
+        SpuSetIRQAddr(0x78000);
+        SpuSetIRQCallback(AkaoStreamIrqCallbackMono0);
+        SpuSetIRQ(1);
+        D_80063004 -= 0x1000;
+        D_80062FE0 += 0x1000;
+        return;
+    }
+    if (D_80063000 != 0) {
+        SpuSetIRQAddr(0x78000);
+        SpuSetIRQCallback(AkaoStreamIrqCallbackMono0);
+        SpuSetIRQ(1);
+        D_80062FE0 = D_80063000;
+        D_80063004 = D_80062F08;
+        return;
+    }
+    D_80063004 = 0;
+    SpuSetIRQAddr(0x78000);
+    SpuSetIRQCallback(func_80029A50);
+    SpuSetIRQ(1);
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D8E8);
+static void AkaoStreamIrqCallbackSplit1(void);
+
+static void AkaoStreamIrqCallbackSplit0(void) {
+    if (D_80063004 == 0) {
+        return;
+    }
+    SpuSetTransferStartAddr(0x77000);
+    func_80038F04(D_80062FE0, 0x1000);
+    SpuSetIRQ(0);
+    SpuSetVoiceLoopStartAddr(0x10, 0x77000);
+    SpuSetVoiceLoopStartAddr(0x11, 0x77800);
+    if (D_80063004 > 0x1000) {
+        SpuSetIRQAddr(0x77000);
+        SpuSetIRQCallback(AkaoStreamIrqCallbackSplit1);
+        D_80063004 -= 0x1000;
+        D_80062FE0 += 0x1000;
+    } else if (D_80063000 != 0) {
+        SpuSetIRQAddr(0x77000);
+        SpuSetIRQCallback(AkaoStreamIrqCallbackSplit1);
+        D_80062FE0 = D_80063000;
+        D_80063004 = D_80062F08;
+    } else {
+        D_80063004 = 0;
+        SpuSetIRQAddr(0x77000);
+        SpuSetIRQCallback(func_80029A50);
+    }
+    SpuSetIRQ(1);
+}
+
+static void AkaoStreamIrqCallbackSplit1(void) {
+    if (D_80063004 == 0) {
+        return;
+    }
+    SpuSetTransferStartAddr(0x78000);
+    func_80038F04(D_80062FE0, 0x1000);
+    SpuSetIRQ(0);
+    SpuSetVoiceLoopStartAddr(0x10, 0x78000);
+    SpuSetVoiceLoopStartAddr(0x11, 0x78800);
+    if (D_80063004 > 0x1000) {
+        SpuSetIRQAddr(0x78000);
+        SpuSetIRQCallback(AkaoStreamIrqCallbackSplit0);
+        D_80063004 -= 0x1000;
+        D_80062FE0 += 0x1000;
+    } else if (D_80063000 != 0) {
+        SpuSetIRQAddr(0x78000);
+        SpuSetIRQCallback(AkaoStreamIrqCallbackSplit0);
+        D_80062FE0 = D_80063000;
+        D_80063004 = D_80062F08;
+    } else {
+        D_80063004 = 0;
+        SpuSetIRQAddr(0x78000);
+        SpuSetIRQCallback(func_80029A50);
+    }
+    SpuSetIRQ(1);
+}
 
 void func_8002DA30(Unk8002B7E0** out_msg) {
     *out_msg = D_80081DC8;
