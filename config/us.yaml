@@ -264,7 +264,7 @@ overlays:
     segments:
       - [0x0, rodata, chocobo]
       - [0x2d0, c, chocobo]
-      - [0x11250, data, chocobo2]
+      - [0x11250, data, chocobo]
   - name: barrier
     disk_path: disks/us/MAGIC/BARRIER.BIN
     sha1: e93c458117a937879f1a6d8c956dfbdacd6286e0
