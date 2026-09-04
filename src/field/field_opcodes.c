@@ -192,8 +192,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
         if (D_80071E24 & 2) {
             DebugPrintToFieldWindow(g_DebugText);
         }
-        FieldDebugStringU8hex(
-            g_FieldModelAnimStatus[g_EntityToModel[entityId]], g_DebugText);
+        FieldDebugStringU8hex(g_FieldModelAnimStatus[g_EntityToModel[entityId]], g_DebugText);
         FieldDebugStringConcat(g_DebugText, "am");
         FieldDebugStringU16hex(g_FieldModels[g_EntityToModel[entityId]].activeAnimId, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
@@ -1973,10 +1972,8 @@ s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
         entityDataSize = target * 64;
         extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
 
-        GET_FIELD_SCRIPT_OFFSET(
-            g_SavedFieldScriptPC[target][priority], scriptOffset,
-            entityDataSize + (g_FieldScripts->numEntities << 3),
-            extrasHeaderSize);
+        GET_FIELD_SCRIPT_OFFSET(g_SavedFieldScriptPC[target][priority], scriptOffset,
+                                entityDataSize + (g_FieldScripts->numEntities << 3), extrasHeaderSize);
 
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("rq=send", 0, 0);
@@ -2005,10 +2002,8 @@ s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
         entityDataSize = target * 64;
         extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
 
-        GET_FIELD_SCRIPT_OFFSET(
-            g_FieldScriptPC[target], scriptOffset,
-            entityDataSize + (g_FieldScripts->numEntities << 3),
-            extrasHeaderSize);
+        GET_FIELD_SCRIPT_OFFSET(g_FieldScriptPC[target], scriptOffset,
+                                entityDataSize + (g_FieldScripts->numEntities << 3), extrasHeaderSize);
 
         g_FieldScriptPriority[target] = priority;
 
@@ -2113,10 +2108,8 @@ s32 OpcodeFuncRetto(void) {
     scriptId *= 2;
     extrasHeaderSize = (s16)(g_FieldScripts->numExtras * 4);
 
-    GET_FIELD_SCRIPT_OFFSET(
-        g_FieldScriptPC[g_CurrentEntity], scriptId,
-        (g_FieldScripts->numEntities * 8) + (g_CurrentEntity * 64),
-        extrasHeaderSize);
+    GET_FIELD_SCRIPT_OFFSET(g_FieldScriptPC[g_CurrentEntity], scriptId,
+                            (g_FieldScripts->numEntities * 8) + (g_CurrentEntity * 64), extrasHeaderSize);
 
     g_FieldScriptPriority[g_CurrentEntity] = priority;
     if (g_DebugLevel & 3) {
@@ -2443,8 +2436,7 @@ s32 OpcodeFuncUc(void) {
     }
     g_CharacterLock = g_pFieldState->characterLock = GET_PARAM_U8(1);
     if (g_CharacterLock == 0) {
-        g_FieldModelAnimStatus[g_pFieldState->pcModelId] =
-            ANIMSTATUS_DEFAULT_LOOP;
+        g_FieldModelAnimStatus[g_pFieldState->pcModelId] = ANIMSTATUS_DEFAULT_LOOP;
     }
     PC_INC(2);
     return 0;
@@ -2542,8 +2534,7 @@ s32 OpcodeFuncDfanm(void) {
     if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
         g_FieldModelAnimId[g_EntityToModel[g_CurrentEntity]] = GET_PARAM_U8(1);
         g_FieldModelEffAnimSpeed[g_EntityToModel[g_CurrentEntity]] =
-            g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] /
-            GET_PARAM_U8(2);
+            g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(2);
         modelIdx = g_EntityToModel[g_CurrentEntity];
         if (g_FieldModelAnimStatus[modelIdx] == ANIMSTATUS_HOLD_FRAME) {
             g_FieldModelAnimStatus[modelIdx] = ANIMSTATUS_DEFAULT_LOOP;
@@ -2590,8 +2581,7 @@ void StartModelAnimation(void) {
 
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(1);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animSpeed =
-        g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] /
-        GET_PARAM_U8(2);
+        g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(2);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
     modelIdx = g_EntityToModel[g_CurrentEntity];
     model = &g_FieldModelData->modelEntries[g_FieldModelLoaderData[modelIdx].modelEntryIndex];

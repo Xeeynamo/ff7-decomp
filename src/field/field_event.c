@@ -35,8 +35,7 @@ void ResetPositionCursorPrimitives(void);
 void UpdatePositionCursor(OT_TYPE* ot);
 void DrawPositionCursor(OT_TYPE* ot);
 
-void FieldEventInit(FieldState* fieldState, FieldEntity* fieldModels,
-                    FieldScriptHeader* fieldScripts) {
+void FieldEventInit(FieldState* fieldState, FieldEntity* fieldModels, FieldScriptHeader* fieldScripts) {
     g_pFieldState = fieldState;
     g_FieldModels = fieldModels;
     g_FieldScripts = fieldScripts;
@@ -91,8 +90,7 @@ void FieldEventUpdate(OT_TYPE* ot) {
         }
     }
     if (g_WindowCount) {
-        SystemMenuDrawDialog(
-            g_WindowData, 4, ot, g_pFieldState->renderBuffer ^ 1);
+        SystemMenuDrawDialog(g_WindowData, 4, ot, g_pFieldState->renderBuffer ^ 1);
     }
     UpdatePositionCursor(ot);
 }
@@ -197,8 +195,7 @@ void FieldInitDefaultValues(void) {
         g_FieldModels[i].animCurrentFrame = 0;
         g_FieldModels[i].animLastFrame = 0;
         g_FieldModels[i].visible = 0;
-        g_FieldModels[i].MoveSpeed =
-            1024 * g_pFieldState->currentFieldScale / 512;
+        g_FieldModels[i].MoveSpeed = 1024 * g_pFieldState->currentFieldScale / 512;
         g_FieldModels[i].scriptedMoveMode = SMODE_NONE;
         g_FieldModels[i].ActionArg = 0;
         g_FieldModels[i].ActionState = 0;
@@ -207,10 +204,8 @@ void FieldInitDefaultValues(void) {
         g_FieldModels[i].SolidOff = 0;
         g_FieldModels[i].TalkOff = 0;
         g_FieldModels[i].DirLock = 0;
-        g_FieldModels[i].SolidRange =
-            30 * g_pFieldState->currentFieldScale / 512;
-        g_FieldModels[i].TalkRange =
-            80 * g_pFieldState->currentFieldScale / 512;
+        g_FieldModels[i].SolidRange = 30 * g_pFieldState->currentFieldScale / 512;
+        g_FieldModels[i].TalkRange = 80 * g_pFieldState->currentFieldScale / 512;
         g_FieldModelAnimId[i] = 0;
         g_FieldModelAnimStatus[i] = ANIMSTATUS_DEFAULT_LOOP;
         g_FieldModelBaseAnimSpeed[i] = 16;
@@ -262,14 +257,12 @@ void FieldInitDefaultValues(void) {
 
 void FieldEventRunInit(void) {
     g_FieldModelCount = 0;
-    for (g_CurrentEntity = 0; g_CurrentEntity < g_FieldScripts->numEntities;
-         g_CurrentEntity++) {
+    for (g_CurrentEntity = 0; g_CurrentEntity < g_FieldScripts->numEntities; g_CurrentEntity++) {
         s16 extrasHeaderSize;
 
         if (D_80071E24 & 3) {
             FieldDebugStringCopy(g_DebugText, D_800E0628);
-            FieldDebugStringConcat(
-                g_DebugText, GET_ENTITY_NAME(g_CurrentEntity));
+            FieldDebugStringConcat(g_DebugText, GET_ENTITY_NAME(g_CurrentEntity));
             if (D_80071E24 & 1) {
                 SetStrToDebugRow(4, 0, g_DebugText);
             }
@@ -279,15 +272,11 @@ void FieldEventRunInit(void) {
         }
 
         extrasHeaderSize = g_FieldScripts->numExtras * 4;
-        GET_FIELD_SCRIPT_OFFSET(
-            g_FieldScriptPC[g_CurrentEntity], 0,
-            8 * g_FieldScripts->numEntities + 64 * g_CurrentEntity,
-            extrasHeaderSize);
+        GET_FIELD_SCRIPT_OFFSET(g_FieldScriptPC[g_CurrentEntity], 0,
+                                8 * g_FieldScripts->numEntities + 64 * g_CurrentEntity, extrasHeaderSize);
 
         // Keep executing the init script until we reach 0x00 = RET opcode.
-        while ((g_FieldCurrentOpcode =
-                    ((u8*)g_FieldScripts)[g_FieldScriptPC[g_CurrentEntity]]) !=
-               0) {
+        while ((g_FieldCurrentOpcode = ((u8*)g_FieldScripts)[g_FieldScriptPC[g_CurrentEntity]]) != 0) {
             g_FieldOpcodes[g_FieldCurrentOpcode]();
         }
         g_FieldScriptPC[g_CurrentEntity]++; // Advance PC to the start of the
@@ -438,16 +427,12 @@ void FieldUpdateAnimationState(void) {
 
     for (i = 0; i < g_FieldScripts->numEntities; i++) {
         if (g_EntityToModel[i] != 0xFF &&
-            (g_pFieldState->pcModelId != g_EntityToModel[i] ||
-             g_pFieldState->characterLock)) {
+            (g_pFieldState->pcModelId != g_EntityToModel[i] || g_pFieldState->characterLock)) {
             switch (g_FieldModelAnimStatus[g_EntityToModel[i]]) {
             case ANIMSTATUS_DEFAULT_LOOP:
-                if (g_FieldModels[g_EntityToModel[i]].activeAnimId !=
-                    g_FieldModelAnimId[g_EntityToModel[i]]) {
-                    g_FieldModels[g_EntityToModel[i]].activeAnimId =
-                        g_FieldModelAnimId[g_EntityToModel[i]];
-                    g_FieldModels[g_EntityToModel[i]].animSpeed =
-                        g_FieldModelEffAnimSpeed[g_EntityToModel[i]];
+                if (g_FieldModels[g_EntityToModel[i]].activeAnimId != g_FieldModelAnimId[g_EntityToModel[i]]) {
+                    g_FieldModels[g_EntityToModel[i]].activeAnimId = g_FieldModelAnimId[g_EntityToModel[i]];
+                    g_FieldModels[g_EntityToModel[i]].animSpeed = g_FieldModelEffAnimSpeed[g_EntityToModel[i]];
                     g_FieldModels[g_EntityToModel[i]].animCurrentFrame = 0;
                     modelEntryId = g_FieldModelLoaderData[g_EntityToModel[i]].modelEntryIndex;
                     model = &g_FieldModelData->modelEntries[modelEntryId];
@@ -475,8 +460,7 @@ void FieldUpdateAnimationState(void) {
             case ANIMSTATUS_PLAY_ONCE_SYNC:
                 if ((g_FieldModels[g_EntityToModel[i]].animCurrentFrame >> 4) >=
                     g_FieldModels[g_EntityToModel[i]].animLastFrame) {
-                    g_FieldModelAnimStatus[g_EntityToModel[i]] =
-                        ANIMSTATUS_PLAY_ONCE_SYNC_DONE;
+                    g_FieldModelAnimStatus[g_EntityToModel[i]] = ANIMSTATUS_PLAY_ONCE_SYNC_DONE;
                     g_FieldModels[g_EntityToModel[i]].animCurrentFrame =
                         g_FieldModels[g_EntityToModel[i]].animLastFrame << 4;
                 }
@@ -489,15 +473,13 @@ void FieldUpdateAnimationState(void) {
             case ANIMSTATUS_PLAY_ONCE_THEN_RESET:
                 if ((g_FieldModels[g_EntityToModel[i]].animCurrentFrame >> 4) >=
                     g_FieldModels[g_EntityToModel[i]].animLastFrame) {
-                    g_FieldModelAnimStatus[g_EntityToModel[i]] =
-                        ANIMSTATUS_DEFAULT_LOOP;
+                    g_FieldModelAnimStatus[g_EntityToModel[i]] = ANIMSTATUS_DEFAULT_LOOP;
                 }
                 break;
             case ANIMSTATUS_PLAY_ONCE_THEN_HOLD:
                 if ((g_FieldModels[g_EntityToModel[i]].animCurrentFrame >> 4) >=
                     g_FieldModels[g_EntityToModel[i]].animLastFrame) {
-                    g_FieldModelAnimStatus[g_EntityToModel[i]] =
-                        ANIMSTATUS_HOLD_FRAME;
+                    g_FieldModelAnimStatus[g_EntityToModel[i]] = ANIMSTATUS_HOLD_FRAME;
                 }
                 break;
             }
@@ -550,8 +532,7 @@ u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId) {
         entityDataSize = entityId * 64;
         entityDataSize += g_FieldScripts->numEntities * 8;
 
-        GET_FIELD_SCRIPT_OFFSET(
-            offset, scriptOffset, entityDataSize, extrasHeaderSize);
+        GET_FIELD_SCRIPT_OFFSET(offset, scriptOffset, entityDataSize, extrasHeaderSize);
 
         // Empty event scripts consist of just a RET (0x00) opcode.
         if (((u8*)g_FieldScripts)[offset] != 0) {
@@ -621,8 +602,7 @@ void UpdatePositionCursor(OT_TYPE* ot) {
     if (g_pFieldState->pressedKeys & PADselect) {
         Savemap.memory_bank_4[30] ^= 1;
     }
-    if (((Savemap.memory_bank_4[30] == 1) && (!g_pFieldState->characterLock)) ||
-        Savemap.memory_bank_4[30] & 2) {
+    if (((Savemap.memory_bank_4[30] == 1) && (!g_pFieldState->characterLock)) || Savemap.memory_bank_4[30] & 2) {
         DrawPositionCursor(ot);
     }
 }
@@ -630,8 +610,7 @@ void UpdatePositionCursor(OT_TYPE* ot) {
 void DrawPositionCursor(OT_TYPE* ot) {
     s16 x, y;
 
-    if (!g_PosCursorDisabled &&
-        ((g_PosCursorX != 32767) || (g_PosCursorY != 32767))) {
+    if (!g_PosCursorDisabled && ((g_PosCursorX != 32767) || (g_PosCursorY != 32767))) {
         if (g_PosCursorX > 320) {
             x = 320;
         } else {

@@ -989,8 +989,7 @@ extern u8 D_800708D0[][0x1C];        // kernel-region table, by attack/effect id
 extern AttackData D_800722CC[];      // magic/summon/skill table
 extern WeaponRecord g_WeaponTable[]; // 0x800738A0, by weapon id
 extern FieldEntity g_FieldEntity[];
-extern u8
-    g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
+extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
 extern Unk80075D00* D_80075D00;
 extern int D_80075DEC;           // buffer index, either 0 or 1
@@ -1003,14 +1002,13 @@ extern DISPENV D_8007EB68[2];
 extern u8 g_EntityToModel[48]; // entity id -> model id (0xFF: none)
 extern s8 D_8007EBCC;
 extern s8 D_8007EBDC;
-extern u8 D_8007EBE0;                 // field debug mode
-extern u8 g_CharacterLock;            // mirror of the UC opcode's control-lock flag
-extern u8 g_EntitySplitJoinState[48]; // states for SPLIT and JOIN opcodes
-extern s16
-    g_FieldModelEffAnimSpeed[16]; // per-model current animation playback speed
+extern u8 D_8007EBE0;                    // field debug mode
+extern u8 g_CharacterLock;               // mirror of the UC opcode's control-lock flag
+extern u8 g_EntitySplitJoinState[48];    // states for SPLIT and JOIN opcodes
+extern s16 g_FieldModelEffAnimSpeed[16]; // per-model current animation playback speed
 extern u8 D_80083184[0x40];
-extern u8 D_800831C4[];         // Magic Order table from kernel.bin section 3.
-extern u16 g_FieldScriptPC[48]; // program counters for active entity scripts
+extern u8 D_800831C4[];           // Magic Order table from kernel.bin section 3.
+extern u16 g_FieldScriptPC[48];   // program counters for active entity scripts
 extern u8 g_FieldModelAnimId[16]; // per-model default animation id (DFANM)
 extern u8 g_WindowToEntity[4];
 extern WindowData g_WindowData[4];
