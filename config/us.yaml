@@ -252,6 +252,19 @@ overlays:
       - [0x1D124, asm, world_unk]
       - [0x1FBF0, c, world2]
       - [0x265EC, data, world]
+  - name: chocobo
+    disk_path: disks/us/MINI/CHOCOBO.BIN.dec
+    sha1: d5ada4f6281dcaec86005dd4429a1f18240f752a
+    base_path: chocobo
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.chocobo.us.txt
+    migrate_rodata_to_functions: false
+    vram_start: 0x800A0000
+    segments:
+      - [0x0, rodata, chocobo]
+      - [0x2d0, c, chocobo]
+      - [0x11250, data, chocobo2]
   - name: barrier
     disk_path: disks/us/MAGIC/BARRIER.BIN
     sha1: e93c458117a937879f1a6d8c956dfbdacd6286e0
