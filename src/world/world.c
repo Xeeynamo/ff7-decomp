@@ -513,48 +513,48 @@ void StartNearestRegionLoad(s16 arg0, s16 arg1) {
     s32 col;
     s16 idx;
 
-    if (D_800E5814 == 0 && D_800E5810 != NULL) {
-        if (TryAcquireLoadSlot(0) != 0) {
-            bestPrev = NULL;
-            best = NULL;
-            bestDist = 0x7FFF;
-            node = D_800E5810;
-            prev = NULL;
-            if (node != NULL) {
-                do {
-                    idx = node->unk4;
-                    row = idx / 4;
-                    col = idx - row * 4;
-                    dx = col - arg0;
-                    if (dx <= 0) {
-                        dx = arg0 - col;
-                    }
-                    if (dx >= 0x13) {
-                        dx = 0x24 - dx;
-                    }
-                    dz = row - arg1;
-                    if (dz <= 0) {
-                        dz = arg1 - row;
-                    }
-                    if (dz >= 0xF) {
-                        dz = 0x1C - dz;
-                    }
-                    dist = dx + dz;
-                    if (dist < bestDist) {
-                        bestDist = dist;
-                        best = node;
-                        bestPrev = prev;
-                    }
-                    prev = node;
-                    node = node->next;
-                } while (node != NULL);
-            }
-            if (best == NULL) {
-                func_800A0B40(0x22);
-            }
-            FreeListNode(best, bestPrev);
-        }
+    if (D_800E5814 != 0 || D_800E5810 == NULL) {
+        return;
     }
+    if (TryAcquireLoadSlot(0) == 0) {
+        return;
+    }
+    bestPrev = NULL;
+    best = NULL;
+    bestDist = 0x7FFF;
+    node = D_800E5810;
+    prev = NULL;
+    while (node != NULL) {
+        idx = node->unk4;
+        row = idx / 4;
+        col = idx - row * 4;
+        dx = col - arg0;
+        if (dx <= 0) {
+            dx = arg0 - col;
+        }
+        if (dx >= 0x13) {
+            dx = 0x24 - dx;
+        }
+        dz = row - arg1;
+        if (dz <= 0) {
+            dz = arg1 - row;
+        }
+        if (dz >= 0xF) {
+            dz = 0x1C - dz;
+        }
+        dist = dx + dz;
+        if (dist < bestDist) {
+            bestDist = dist;
+            best = node;
+            bestPrev = prev;
+        }
+        prev = node;
+        node = node->next;
+    }
+    if (best == NULL) {
+        func_800A0B40(0x22);
+    }
+    FreeListNode(best, bestPrev);
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", WmStartLoadingMapFileBlock);
@@ -684,13 +684,11 @@ void RegisterChunksForNode(WorldListNode* arg0) {
     WorldChunkHeader* c;
 
     c = D_80109D40;
-    if (c != NULL) {
-        do {
-            if ((((c->z >> 2) * 9) + (c->x >> 2)) == arg0->unk4) {
-                func_800A5AD8(c);
-            }
-            c = c->next;
-        } while (c != NULL);
+    while (c != NULL) {
+        if ((((c->z >> 2) * 9) + (c->x >> 2)) == arg0->unk4) {
+            func_800A5AD8(c);
+        }
+        c = c->next;
     }
 }
 
@@ -713,51 +711,49 @@ s32 ExpireChunks(void) {
     live = 0;
     chunk = D_80109D40;
     prev = NULL;
-    if (chunk != NULL) {
-        do {
-            age = chunk->numVerts;
-            chunk->numVerts = age + 1;
-            if ((s16)age >= 0x96) {
-                if (prev != NULL) {
-                    prev->next = chunk->next;
-                } else {
-                    D_80109D40 = chunk->next;
-                }
-                node = D_800E5A2C;
-                freeChunk = D_80109D38;
-                nodePrev = NULL;
-                D_80109D38 = chunk;
-                chunk->next = freeChunk;
-                if (node != NULL) {
-                    while (node != NULL) {
-                        if (node->chunk == chunk) {
-                            break;
-                        }
-                        nodePrev = node;
-                        node = node->next;
-                    }
-                    if (node != NULL) {
-                        if (nodePrev != NULL) {
-                            nodePrev->next = node->next;
-                        } else {
-                            D_800E5A2C = node->next;
-                        }
-                        freeNode = D_800E5A30;
-                        D_800E5A30 = node;
-                        node->next = freeNode;
-                    }
-                }
-                if (prev != NULL) {
-                    chunk = prev->next;
-                } else {
-                    chunk = D_80109D40;
-                }
+    while (chunk != NULL) {
+        age = chunk->numVerts;
+        chunk->numVerts = age + 1;
+        if ((s16)age >= 0x96) {
+            if (prev != NULL) {
+                prev->next = chunk->next;
             } else {
-                prev = chunk;
-                chunk = chunk->next;
-                live++;
+                D_80109D40 = chunk->next;
             }
-        } while (chunk != NULL);
+            node = D_800E5A2C;
+            freeChunk = D_80109D38;
+            nodePrev = NULL;
+            D_80109D38 = chunk;
+            chunk->next = freeChunk;
+            if (node != NULL) {
+                while (node != NULL) {
+                    if (node->chunk == chunk) {
+                        break;
+                    }
+                    nodePrev = node;
+                    node = node->next;
+                }
+                if (node != NULL) {
+                    if (nodePrev != NULL) {
+                        nodePrev->next = node->next;
+                    } else {
+                        D_800E5A2C = node->next;
+                    }
+                    freeNode = D_800E5A30;
+                    D_800E5A30 = node;
+                    node->next = freeNode;
+                }
+            }
+            if (prev != NULL) {
+                chunk = prev->next;
+            } else {
+                chunk = D_80109D40;
+            }
+        } else {
+            prev = chunk;
+            chunk = chunk->next;
+            live++;
+        }
     }
     return live;
 }
@@ -978,13 +974,11 @@ s32 IsChunkLoaded(s16 arg0, s16 arg1) {
     WorldChunkHeader* chunk;
 
     chunk = D_80109D3C;
-    if (chunk != NULL) {
-        while (chunk != NULL) {
-            if (chunk->x == arg0 && chunk->z == arg1) {
-                break;
-            }
-            chunk = chunk->next;
+    while (chunk != NULL) {
+        if (chunk->x == arg0 && chunk->z == arg1) {
+            break;
         }
+        chunk = chunk->next;
     }
     return chunk != NULL;
 }
@@ -1344,21 +1338,22 @@ void BlendActorFacing(s16 arg0) {
     WorldActor* actor;
     u32 blend;
 
-    if (D_8010AD3C != NULL) {
-        actor = D_8010AD3C;
-        if (D_8011650C == 1) {
-            if (actor->flags1 & 1) {
-                blend = (u32)(((s16)actor->unk3E * 15) + arg0) >> 4;
-            } else {
-                blend = (u32)(((s16)actor->unk3E * 3) + arg0) >> 2;
-            }
-        } else if (actor->flags1 & 1) {
-            blend = (u32)(((s16)actor->unk3E * 7) + arg0) >> 3;
-        } else {
-            blend = (u32)((s16)actor->unk3E + arg0) >> 1;
-        }
-        actor->unk3E = blend;
+    if (D_8010AD3C == NULL) {
+        return;
     }
+    actor = D_8010AD3C;
+    if (D_8011650C == 1) {
+        if (actor->flags1 & 1) {
+            blend = (u32)(((s16)actor->unk3E * 15) + arg0) >> 4;
+        } else {
+            blend = (u32)(((s16)actor->unk3E * 3) + arg0) >> 2;
+        }
+    } else if (actor->flags1 & 1) {
+        blend = (u32)(((s16)actor->unk3E * 7) + arg0) >> 3;
+    } else {
+        blend = (u32)((s16)actor->unk3E + arg0) >> 1;
+    }
+    actor->unk3E = blend;
 }
 
 s16 func_800A97A8(void) { return D_8010AD3C == NULL ? 0 : D_8010AD3C->unk3C + D_8010AD3C->unk3E; }
@@ -1550,17 +1545,15 @@ WorldActor* FindCollidingActor(WorldActor* arg0) {
     if (D_8010AD3C != NULL) {
         if (D_8010AD3C->actorType != 0xD || func_800A1DE0() != 0) {
             hit = D_8010AD38;
-            if (hit != NULL) {
-                do {
-                    rc = func_800AA304(D_8010AD3C, hit);
-                    if (rc != 0) {
-                        break;
-                    }
-                    hit = hit->next;
-                } while (hit != NULL);
-                if (hit != NULL) {
-                    D_8010AD3C->collide = hit;
+            while (hit != NULL) {
+                rc = func_800AA304(D_8010AD3C, hit);
+                if (rc != 0) {
+                    break;
                 }
+                hit = hit->next;
+            }
+            if (hit != NULL) {
+                D_8010AD3C->collide = hit;
             }
         }
     }
@@ -2248,11 +2241,9 @@ s32 IsAnyScriptRunning(void) {
 
     flag = D_80109DBA != 0;
     a = D_8010AD38;
-    if (a != NULL && flag == 0) {
-        do {
-            flag |= a->scriptIdx != 0;
-            a = a->next;
-        } while (a != NULL && flag == 0);
+    while (a != NULL && flag == 0) {
+        flag |= a->scriptIdx != 0;
+        a = a->next;
     }
     return flag;
 }
@@ -2589,8 +2580,7 @@ void ScrollLayerBack(s32 arg0, s32 arg1) {
 
     if (D_8010B488[0] > 0) {
         D_8010B47C = -arg0;
-        i = 0;
-        do {
+        for (i = 0; i < 2; i++) {
             if (GetGraphType() == 1 || GetGraphType() == 2) {
                 tpage = 0xA6;
                 if (arg1 == 1) {
@@ -2602,10 +2592,8 @@ void ScrollLayerBack(s32 arg0, s32 arg1) {
                     tpage = 0x56;
                 }
             }
-            SetDrawMode(
-                (DR_MODE*)((i * 0x24) + (s32)D_8010B434), 0, 1, tpage, NULL);
-            i++;
-        } while (i < 2);
+            SetDrawMode(&D_8010B434[i].mode, 0, 1, tpage, NULL);
+        }
     } else {
         D_8010B47C = 0;
     }
@@ -2617,8 +2605,7 @@ void ScrollLayerForward(s32 arg0, s32 arg1) {
 
     if (D_8010B488[0] < D_8010B494[0]) {
         D_8010B47C = arg0;
-        i = 0;
-        do {
+        for (i = 0; i < 2; i++) {
             if (GetGraphType() == 1 || GetGraphType() == 2) {
                 tpage = 0xA6;
                 if (arg1 == 1) {
@@ -2630,10 +2617,8 @@ void ScrollLayerForward(s32 arg0, s32 arg1) {
                     tpage = 0x56;
                 }
             }
-            SetDrawMode(
-                (DR_MODE*)((i * 0x24) + (s32)D_8010B434), 0, 1, tpage, NULL);
-            i++;
-        } while (i < 2);
+            SetDrawMode(&D_8010B434[i].mode, 0, 1, tpage, NULL);
+        }
     } else {
         D_8010B47C = 0;
     }
@@ -2706,17 +2691,18 @@ void UpdateZolomGroundHeight(WorldChunkHeader* arg0) {
     s16 chunkZ;
     s32 hit;
 
-    if (func_800B0794() != 0) {
-        pos.vx = D_8010C42C->x + 0x34000;
-        pos.vz = D_8010C42C->z + 0x20000;
-        func_800A6884(&pos, &dir, &chunkX, &chunkZ);
-        if (chunkX == arg0->x && chunkZ == arg0->z) {
-            hit = func_800A19FC(
-                arg0, &dir, D_8010C80C, &D_8010C42C->z2, 0, NULL, 0x64);
-            D_8010C800 = hit;
-            if (hit == 0) {
-                D_8010C42C->z2 = 0;
-            }
+    if (func_800B0794() == 0) {
+        return;
+    }
+    pos.vx = D_8010C42C->x + 0x34000;
+    pos.vz = D_8010C42C->z + 0x20000;
+    func_800A6884(&pos, &dir, &chunkX, &chunkZ);
+    if (chunkX == arg0->x && chunkZ == arg0->z) {
+        hit = func_800A19FC(
+            arg0, &dir, D_8010C80C, &D_8010C42C->z2, 0, NULL, 0x64);
+        D_8010C800 = hit;
+        if (hit == 0) {
+            D_8010C42C->z2 = 0;
         }
     }
 }
@@ -2740,22 +2726,19 @@ void func_800B104C(void) {
 void RegisterChunk(WorldChunkHeader* arg0) {
     WorldChunkHeader** slot;
     WorldTriangle* t;
-    u8* p;
 
     if (arg0 == NULL) {
         return;
     }
     slot = D_8010CA24;
+    while (slot < D_8010CA74) {
+        if (*slot == arg0) {
+            break;
+        }
+        slot++;
+    }
     if (slot < D_8010CA74) {
-        while (slot < D_8010CA74) {
-            if (*slot == arg0) {
-                break;
-            }
-            slot++;
-        }
-        if (slot < D_8010CA74) {
-            return;
-        }
+        return;
     }
     if (D_8010CA74 >= &D_8010CA24[20]) {
         func_800A0B40(0x47);
@@ -2763,14 +2746,8 @@ void RegisterChunk(WorldChunkHeader* arg0) {
     slot = D_8010CA74;
     D_8010CA74 = slot + 1;
     *slot = arg0;
-    t = arg0->tris;
-    if (t < arg0->tris + arg0->numTris) {
-        p = (u8*)t + 0xB;
-        do {
-            *p &= 0xBF;
-            t++;
-            p += 0xC;
-        } while (t < arg0->tris + arg0->numTris);
+    for (t = arg0->tris; t < arg0->tris + arg0->numTris; t++) {
+        *((u8*)&t->textureAndLocationAndFlags + 1) &= ~0x40;
     }
 }
 
@@ -2797,13 +2774,13 @@ void SetCurrentTriangle(WorldChunkHeader* arg0, WorldTriangle* arg1) {
         D_8010CA74 = D_8010CA24;
         RegisterChunk(arg0);
         if (arg1 != NULL) {
-            *((u8*)arg1 + 0xB) |= 0x40;
+            *((u8*)&arg1->textureAndLocationAndFlags + 1) |= 0x40;
         }
         D_800BD144 = 0;
         D_8010CA8C = 1;
         func_800AA0E0(&pos);
         inside = 0;
-        if ((u32)(pos.vx - 0x36000) <= 0x9FFF) {
+        if (pos.vx >= 0x36000 && pos.vx <= 0x3FFFF) {
             zoff = pos.vz - 0x1C000;
             inside = (u32)zoff <= 0x9FFF;
         }
@@ -2820,20 +2797,21 @@ void GetTriangleCenter(WorldTriangleRef* arg0, VECTOR* arg1) {
     WorldChunkHeader* chunk;
     SVECTOR* verts;
 
-    if (arg1 != NULL) {
-        tri = arg0->tri;
-        chunk = arg0->chunk;
-        verts = chunk->verts;
-        arg1->vx = ((verts[tri->vert[0]].vx + verts[tri->vert[1]].vx +
-                     verts[tri->vert[2]].vx) /
-                    3) +
-                   (chunk->x << 13);
-        arg1->vy = 0;
-        arg1->vz = ((verts[tri->vert[0]].vz + verts[tri->vert[1]].vz +
-                     verts[tri->vert[2]].vz) /
-                    3) +
-                   (arg0->chunk->z << 13);
+    if (arg1 == NULL) {
+        return;
     }
+    tri = arg0->tri;
+    chunk = arg0->chunk;
+    verts = chunk->verts;
+    arg1->vx = ((verts[tri->vert[0]].vx + verts[tri->vert[1]].vx +
+                 verts[tri->vert[2]].vx) /
+                3) +
+               (chunk->x << 13);
+    arg1->vy = 0;
+    arg1->vz = ((verts[tri->vert[0]].vz + verts[tri->vert[1]].vz +
+                 verts[tri->vert[2]].vz) /
+                3) +
+               (arg0->chunk->z << 13);
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B271C);
@@ -3101,12 +3079,10 @@ void ToggleAmbientSound(s32 arg0) {
 void InitStreamState(void) {
     s32 i;
 
-    i = 0;
-    do {
+    for (i = 0; i < 0x2B; i++) {
         D_801159E8[i] = -1;
         D_80115A14[i] = 0;
-        i++;
-    } while (i < 0x2B);
+    }
     D_80115A40 = NULL;
     D_80115A44 = 0;
     D_80115A50 = 0;
@@ -3138,15 +3114,16 @@ void WmPcCharModelLoadFileCallback(void) {
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B6B28);
 
 void StartStreamRead(void) {
-    if (D_80115A60 == 0) {
-        AbortRegionLoad();
-        D_80115A40 = (u_long*)func_800A86C4(2);
-        if (TryAcquireLoadSlot(2) != 0) {
-            D_80115A60 = 1;
-            D_80115A50 = 0;
-            DS_read(D_800C74DC, D_800C74E0, D_80115A40, func_800B6DCC);
-            SystemCdromReadChain();
-        }
+    if (D_80115A60 != 0) {
+        return;
+    }
+    AbortRegionLoad();
+    D_80115A40 = (u_long*)func_800A86C4(2);
+    if (TryAcquireLoadSlot(2) != 0) {
+        D_80115A60 = 1;
+        D_80115A50 = 0;
+        DS_read(D_800C74DC, D_800C74E0, D_80115A40, func_800B6DCC);
+        SystemCdromReadChain();
     }
 }
 
