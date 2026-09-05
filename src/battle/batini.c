@@ -3,7 +3,7 @@
 
 extern Unk801B2308 D_80163624;
 extern u16 D_8016376C;
-void func_800A3354(void); // battle callback for batini, move to battle.h
+void BATTLE_RunFrame(void); // battle callback for batini, move to battle.h
 void func_801B2308(void);
 
 // entrypoint
@@ -32,7 +32,7 @@ void func_801B0490(s32 sceneID) {
     if (D_8016376C) {
         func_801B0F08();
     }
-    func_801B23E0(sceneID, func_800A3354);
+    func_801B23E0(sceneID, BATTLE_RunFrame);
     func_801B1E0C();
     g_BattleState.presentMask = 0;
     for (i = 0; i < 10; i++) {

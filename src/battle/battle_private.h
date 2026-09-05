@@ -256,6 +256,7 @@ extern s8 D_800E7A58[];
 // checked in order against the 3 landed reel symbols (D_80163774) -- see
 // BATTLE_ResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
+extern void (*D_800E7BFC[])(void); // per-action epilogue hook
 extern Yamada D_800E8050[];
 extern VECTOR D_800E7D10;
 extern VECTOR D_800E7D20;
@@ -301,6 +302,9 @@ extern s32 D_800F38AC[];
 extern u8 D_800F38A0;
 extern u8 D_800F38A1;
 extern s16 D_800F38A2;
+extern s32 D_800F4300;  // write cursor into the shared script buffer
+extern s32 D_800F4304;  // slot cursor, wraps at 0x40
+extern u8 D_800F5F01[]; // per-slot accuracy bonus, 0x18 B stride
 extern u8 D_800F7E04[]; // part of a struct
 extern u8 D_800F7ED4;
 extern u8 D_800F38A7;
@@ -317,7 +321,7 @@ extern s32 D_800F39D8; // read index into D_800F3958
 extern s32 D_800F39DC; // write index into D_800F3958
 extern s32 D_800F39E0;
 extern s32 D_800F39E4;
-extern s32 D_800F39EC;
+extern volatile s32 D_800F39EC; // polled by a tight wait loop
 extern u8 D_800F39F0[][6];
 extern s32 D_800F3A1C;     // write index into D_800F3A20
 extern s16 D_800F3A20[16]; // ring buffer, see func_800A56B0
@@ -355,6 +359,7 @@ extern Unk800F57D0* D_800F57D0;
 extern u8 D_800F57D4;
 extern Unk800AF470 g_CombatantTurnState[10]; // per-party-slot turn/effect state
                                              // (flags, countdown timers)
+extern u16 D_800F7DE2[];                     // All Lucky 7s trigger count
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
 extern s32 D_800F7DF8[3];
@@ -513,7 +518,7 @@ extern u8 D_801635FC;
 extern u8 D_80163600;
 extern u8 D_80163604;
 extern s16 D_80163608;
-extern Unk801636B8 D_801636B8[5];
+extern Unk801636B8 D_801636B8[10];
 extern u16 D_80163758[]; // part of a struct
 extern u16 D_8016375C;
 extern u16 D_8016375E;
@@ -550,7 +555,7 @@ void func_800A8E84(s32);
 void func_800AA950(Unk800FA9D0*);
 void func_800AB308(void);
 void func_800AB480(void);
-void func_800AB788(void);
+void BATTLE_LearnEnemySkill(void);
 void func_800ABA68(Unk800FA9D0*, s16, u16, s16, s16);
 void func_800AC6B4(s32);
 void func_800AC73C(s32);
