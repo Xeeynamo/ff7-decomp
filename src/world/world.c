@@ -2257,8 +2257,7 @@ void SaveActorState(WorldActor* actor) {
     slot = D_800C6748[type];
     if (slot < 6) {
         out = (s32*)((slot * 8) + D_8010AD50);
-        out[0] = (actor->altPos.vx & 0x7FFFF) | ((type << 19) & 0xF80000) |
-                 ((actor->direction << 20) & 0xFF000000);
+        out[0] = (actor->altPos.vx & 0x7FFFF) | ((type << 19) & 0xF80000) | ((actor->direction << 20) & 0xFF000000);
         out[1] = (actor->altPos.vz & 0x3FFFF) | (actor->altPos.vy << 18);
     }
 }
@@ -2698,8 +2697,7 @@ void UpdateZolomGroundHeight(WorldChunkHeader* arg0) {
     pos.vz = D_8010C42C->z + 0x20000;
     func_800A6884(&pos, &dir, &chunkX, &chunkZ);
     if (chunkX == arg0->x && chunkZ == arg0->z) {
-        hit = func_800A19FC(
-            arg0, &dir, D_8010C80C, &D_8010C42C->z2, 0, NULL, 0x64);
+        hit = func_800A19FC(arg0, &dir, D_8010C80C, &D_8010C42C->z2, 0, NULL, 0x64);
         D_8010C800 = hit;
         if (hit == 0) {
             D_8010C42C->z2 = 0;
@@ -2803,15 +2801,10 @@ void GetTriangleCenter(WorldTriangleRef* arg0, VECTOR* arg1) {
     tri = arg0->tri;
     chunk = arg0->chunk;
     verts = chunk->verts;
-    arg1->vx = ((verts[tri->vert[0]].vx + verts[tri->vert[1]].vx +
-                 verts[tri->vert[2]].vx) /
-                3) +
-               (chunk->x << 13);
+    arg1->vx = ((verts[tri->vert[0]].vx + verts[tri->vert[1]].vx + verts[tri->vert[2]].vx) / 3) + (chunk->x << 13);
     arg1->vy = 0;
-    arg1->vz = ((verts[tri->vert[0]].vz + verts[tri->vert[1]].vz +
-                 verts[tri->vert[2]].vz) /
-                3) +
-               (arg0->chunk->z << 13);
+    arg1->vz =
+        ((verts[tri->vert[0]].vz + verts[tri->vert[1]].vz + verts[tri->vert[2]].vz) / 3) + (arg0->chunk->z << 13);
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B271C);
@@ -2865,8 +2858,7 @@ void UpdateWorldMode(void) {
             D_8010CAF4 = 0;
         }
     }
-    if (D_8010CAF0 == 3 && (D_8010CA8C == 2 || D_8010CA8C == 3) &&
-        D_8010CACC == 0 && D_8010CAD0 == 0) {
+    if (D_8010CAF0 == 3 && (D_8010CA8C == 2 || D_8010CA8C == 3) && D_8010CACC == 0 && D_8010CAD0 == 0) {
         func_800B271C(3);
     }
     func_800B29CC();
