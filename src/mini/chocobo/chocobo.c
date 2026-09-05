@@ -1,4 +1,4 @@
-//! PSYQ=4.0 CC1=2.6.3
+//! PSYQ=4.0 CC1=2.7.2
 
 #include "common.h"
 #include "game.h"
@@ -14,12 +14,37 @@ extern u32 D_80079F64;
 extern u32 D_8007AF64;
 extern u32 D_8007BF64;
 extern u32 D_8007C764;
-
+extern s32 D_800B7598;
+extern s32 D_800F507C;
+extern s32* D_800F5084;
 
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A02D0);
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1260);
+
+
+
+void func_800A1260(void) {
+    s32 temp_s0;
+    s32 temp_s1;
+    s32 temp_s2;
+
+    temp_s0 = *D_800F5084;
+temp_s2 = (D_800B7598 + temp_s0 ) % temp_s0;
+temp_s1 = (D_800F507C + temp_s0 ) % temp_s0;
+
+    PushMatrix();
+
+    if (temp_s1 < temp_s2) {
+        func_800A1354(0, temp_s1);
+        func_800A1354(temp_s2, temp_s0);
+    } else {
+        func_800A1354(temp_s2, temp_s1);
+    }
+
+    PopMatrix();
+}
+
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1354);
 
@@ -32,7 +57,6 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A17F0);
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A18BC);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1F40);
-
 
 
 
