@@ -1,41 +1,41 @@
 #include "world.h"
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800BFBF0);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmLoadModelPacketAndScale);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800BFCAC);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmCreatePacketForModelPart);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C02F4);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C0808);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmLoadTexturesToVram);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C08A8);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmUpdateModelPacket2);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C0B48);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmUpdatePacketForModelPartWithoutMatrixes);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C1490);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmCalculateBoneMatrixes);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C1D58);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmScaleModelAll);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C1FD8);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmScaleModelVertexes);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C2130);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmScaleModelAnimations);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C2450);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmApplyModelLightingToPacket);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C2524);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmApplyPolyLightingToPacket);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C31F0);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmCalculateModelLighting);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C3948);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmCalculatePartLighting);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C3DB0);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmUpdatePartTransparency);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C4148);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmUpdateModelPacket);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C4FB4);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmUpdatePacketForModelPartWithMatrixes);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C5CD4);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmUpdateModelLighting);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C6104);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmUpdatePartLighting);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", func_800C6598);
+INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmGetModelTotalRenderPacketSize);
