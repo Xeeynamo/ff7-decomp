@@ -46,8 +46,7 @@ void BATTLE_SetFocusedActor(s32 arg0) {
             return;
         }
         for (i = 0; i < 64; i++) {
-            if (D_800F5F44.messageQueue[i].unk0 == 6 &&
-                D_800F5F44.messageQueue[i].unk2 == D_800E7A38) {
+            if (D_800F5F44.messageQueue[i].unk0 == 6 && D_800F5F44.messageQueue[i].unk2 == D_800E7A38) {
                 break;
             }
         }
@@ -92,8 +91,7 @@ void BATTLE_CheckAllLucky7s(void) {
     s32 i;
 
     for (i = 0; i < 3; i++) {
-        if (g_BattleState.combatant[i].curHP == 7777 &&
-            !(g_CombatantTurnState[i].unk29 & 0x80)) {
+        if (g_BattleState.combatant[i].curHP == 7777 && !(g_CombatantTurnState[i].unk29 & 0x80)) {
             if ((*D_800F7DE2)++ < 64) {
                 g_CombatantTurnState[i].unk29 |= 0x80;
                 func_800A3E98(i, 1, 1, 0, 0);
@@ -776,7 +774,7 @@ s32 BATTLE_PickRandomThrowItem(void) {
         }
     }
     if (n != 0) {
-        pick = list[func_80014BA8(n)];
+        pick = list[SysGetRandomByteRange(n)];
         if (pick >= 0x80 && pick < 0x100) {
             func_800A7254(0, 0, 0x10, pick);
             ret = pick;
@@ -1144,20 +1142,17 @@ void BATTLE_SetupThrowAction(void) {
     s32 weapon;
 
     if (g_CurrentAction->relativeActionIndex == 0xFFFF) {
-        g_CurrentAction->relativeActionIndex =
-            BATTLE_PickRandomThrowItem() & 0xFFFF;
+        g_CurrentAction->relativeActionIndex = BATTLE_PickRandomThrowItem() & 0xFFFF;
     }
     id = g_CurrentAction->relativeActionIndex;
     if (id != 0xFFFF) {
         g_CurrentAction->absoluteActionIndex = id;
         g_CurrentAction->unk98 = g_CurrentAction->relativeActionIndex;
         g_CurrentAction->unk24 = g_CurrentAction->relativeActionIndex - 0x80;
-        func_800A55F4(
-            g_CurrentAction->actorId, g_CurrentAction->absoluteActionIndex);
+        func_800A55F4(g_CurrentAction->actorId, g_CurrentAction->absoluteActionIndex);
         g_CurrentAction->unk48 = 0x10;
         weapon = g_CurrentAction->unk24;
-        g_CurrentAction->unkD8 = g_WeaponTable[weapon].attack +
-                                 D_8009D84C[g_CurrentAction->actorId].strength;
+        g_CurrentAction->unkD8 = g_WeaponTable[weapon].attack + g_ActiveCharacters[g_CurrentAction->actorId].strength;
         g_CurrentAction->unk68 = g_WeaponTable[weapon].impactEffect;
     } else {
         g_CurrentAction->unk20 = -1;
@@ -1533,7 +1528,7 @@ void BATTLE_DropDyingEnemiesFromTargets(void) {
             }
         }
         if (mask != g_CurrentAction->allowedTargetsMask) {
-            if (D_8009D84C[g_CurrentAction->actorId].characterFlags & 4) {
+            if (g_ActiveCharacters[g_CurrentAction->actorId].characterFlags & 4) {
                 g_CurrentAction->unk90 |= 0x20000;
             } else {
                 g_CurrentAction->allowedTargetsMask = mask;
@@ -2514,8 +2509,7 @@ void BATTLE_RollPhysicalHit(void) {
     if (!(g_CurrentAction->unk218 & 1)) {
         acc = 0xFF;
         if (!(g_CurrentAction->unkC8 & 0x40000000)) {
-            v = (g_CurrentAction->characterLevel +
-                 g_BattleState.combatant[attacker].unk15) -
+            v = (g_CurrentAction->characterLevel + g_BattleState.combatant[attacker].unk15) -
                 g_BattleState.combatant[target].unk9;
             acc = v / 4;
             if (attacker < 3) {
@@ -2591,8 +2585,7 @@ static s32 func_800B10B4(s32 arg0) {
     return g_BattleState.combatant[arg0].curHP <= g_BattleState.combatant[arg0].maxHP / 4;
 }
 
-void BATTLE_QueueEffect(
-    s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
+void BATTLE_QueueEffect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
     Unk800A2F4C* unk;
     Unk800FA9D0* act;
 
