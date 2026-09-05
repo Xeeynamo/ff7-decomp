@@ -37,6 +37,17 @@ typedef struct WorldChunkHeader {
 } WorldChunkHeader; // size: 0x18
 
 typedef struct {
+    /* 0x0 */ WorldChunkHeader* chunk;
+    /* 0x4 */ WorldTriangle* tri;
+    /* 0x8 */ s8 unk8;
+} WorldTriangleRef; // size: 0xC
+
+typedef struct WorldChunkNode {
+    /* 0x0 */ struct WorldChunkNode* next;
+    /* 0x4 */ WorldChunkHeader* chunk;
+} WorldChunkNode; // size: 0x8
+
+typedef struct {
     /* 0x00 */ s16 scriptIdx;
     /* 0x02 */ u8 waitFrames;
     /* 0x03 */ u8 scriptPriority;
@@ -79,8 +90,8 @@ typedef struct WorldActor {
 } WorldActor; // size: 0xE0
 
 typedef struct {
-    /* 0x00 */ s16 x;
-    /* 0x02 */ s16 z;
+    /* 0x00 */ u16 x;
+    /* 0x02 */ u16 z;
     /* 0x04 */ s16 x2;
     /* 0x06 */ s16 z2;
 } WorldZolomSegment; // size: 0x8
@@ -127,11 +138,13 @@ typedef struct {
 } Unk8010AD70;
 
 void WmSetRenderBuffers();
-void func_800A19FC(WorldChunkHeader*, SVECTOR*, WorldStoredTriangle*, s16*, s32, s16*, s32);
+s32 GetGraphType(void);
+s32 func_800A19FC(WorldChunkHeader*, SVECTOR*, WorldStoredTriangle*, s16*, s32, s16*, s32);
 void func_800A31C0(s16);
 void func_800A368C(s32);
 void WmExtractLoopCoordsTopBottomParts(VECTOR*, SVECTOR*, s16*, s16*);
 void WmLoopCoordsAroundWorld(VECTOR*);
+void func_800A5AD8(WorldChunkHeader*);
 void func_800A6994(VECTOR*, s32);
 void WmCleanEntityStruct(WorldActor*);
 void WmUnlinkEntityFromAll(WorldActor*);
@@ -151,7 +164,7 @@ s32 WmGetPcEntityTerrainId(void);
 s32 func_800A9B04(s16, u8);
 void func_800A9C64(WorldActor*, VECTOR*);
 s32 func_800AA304(WorldActor*, WorldActor*);
-s32 func_800AA580(WorldActor*);
+WorldActor* FindCollidingActor(WorldActor*);
 void func_800AAB18(WorldActor*);
 void func_800AB398(WorldActor*);
 void func_800AB48C(WorldActor*);
@@ -165,19 +178,27 @@ void WmScriptRunOne(WorldActor*);
 void func_800AD970(WorldActor*);
 void WmRemoveMutexPriority(s16);
 s16 WmGetRotFromVector(s32, s32, s32);
-void func_800B0D98(WorldChunkHeader*);
+void SaveActorState(WorldActor*);
+s32 WmFadeIsStopped(void);
+void UpdateZolomGroundHeight(WorldChunkHeader*);
+void func_800B271C(s32);
+void func_800B29CC(void);
+void WmPcCharModelLoadFileCallback(void);
+void WmPackModelLoadFileCallback(void);
+s32 WmDialogSetAskToShow(u8, u8, u8, u8, s16*);
 void func_800B1C80(WorldChunkHeader*);
-void func_800B5274();
+void ResetEffectState();
 void func_800B5C7C(WorldActor*);
 void func_800B624C(u16, s32);
-void func_800B63F0(s32);
-void func_800B65E0(s32);
+void PlayMusicTrack(s32);
+void ToggleAmbientSound(s32);
 void func_800B6B28(s16);
 void func_800B6E08();
 s32 func_800B7200();
 void WmSetFieldToLoad(s32);
 void func_800B77A8(s32);
 s32 WmGetPcCharModelIdFromParty();
+void WmScriptSetFirstToStoreStack(s32);
 static void func_800B7C44(void);
 s32 func_800B7C7C();
 void func_800B7838();
@@ -222,12 +243,14 @@ extern s32 D_800E5630; // WM earthquake
 extern s32 D_800E5634;
 extern s32 D_800E5638;
 extern s32 D_800E563C;
+extern s32 D_800E5614;
 extern s32 D_800E5644;
 extern s32 D_800E5648;
 extern s32 D_800E564C;
 extern s32 D_800E5650;
 extern s32 D_800E5654;
 extern s32 D_800E5658;
+extern s32 D_800E5660;
 extern s32 D_800E5668;
 extern s32 D_800E566C;
 extern s32 D_800E5670;
@@ -236,6 +259,7 @@ extern s32 D_800E5678;
 extern MATRIX D_800E5698;
 extern MATRIX D_800E56B8;
 extern s16 D_800E56D8;
+extern DR_MODE D_800E56DC[];
 extern s32 D_800E56F4;
 extern s32 D_800E56F8;
 extern s32 D_800E5814;
@@ -247,9 +271,11 @@ extern VECTOR D_80109D44;
 extern s32 D_80109D54;
 extern s32 D_80109D58;
 extern s32 D_80109D6C;
+extern s32 D_80109D70;
 extern WorldActor D_80109D74[0x10]; // World map actor heap, TODO: Confirm size
 extern WorldActor D_80109E54;
 extern WorldActor* D_8010AD34;
+extern s16 D_80109DBA;
 extern WorldActor* D_8010AD38;
 extern WorldActor* D_8010AD3C; // Active Actor
 extern WorldActor* D_8010AD40; // Player Actor
@@ -269,6 +295,7 @@ extern Unk8010AD70 D_8010AD70[1]; // todo: size
 extern Unk8010AD70* D_8010AD90;
 extern u8* D_8010AD94[4];
 extern s32 D_8010ADEC;
+extern s16 D_8010ADF0;
 extern s32 D_8010AE24;
 extern s32 D_8010AE28;
 extern s32 D_8010AE2C;
@@ -282,17 +309,28 @@ extern s32 D_8010B080;
 extern s32 D_8010B174;
 extern Unk8010B178 D_8010B178[1]; // TODO: determine size
 extern Unk8010B3B8* D_8010B3B8;
+typedef struct {
+    /* 0x00 */ DR_MODE mode;
+    /* 0x0C */ u8 unk0C[0x18];
+} Unk8010B434; // size:0x24
+
+extern Unk8010B434 D_8010B434[2];
 extern s32 D_8010B47C;
 extern WorldZolomSegment D_8010C2AC[0x30];
 extern WorldZolomSegment* D_8010C42C;
 extern s16 D_8010C7F0;
+extern s32 D_8010C800;
 extern s32 D_8010C804;
 extern s32 D_8010C808;
-extern s32 D_8010CA1C;
+extern WorldStoredTriangle D_8010C80C[];
+extern WorldTriangleRef D_8010C83C;
+extern WorldTriangleRef* D_8010CA1C;
 extern s32 D_8010CA20;
-extern s32 D_8010CA74;
+extern WorldChunkHeader* D_8010CA24[20];
+extern WorldChunkHeader** D_8010CA74;
 extern s32 D_8010CA78;
 extern s32 D_8010CA8C;
+extern s32 D_8010CAF8;
 extern s32 D_8010CAC0;
 extern s32 D_8010CAC4;
 extern s32 D_8010CAC8;
@@ -310,8 +348,14 @@ extern s16 D_8010CB10;
 extern u32 D_8010CB14;
 extern s32 D_8010CB18;
 extern s32 D_8010CB1C;
+extern s32 D_801159BC[];
 extern s32 D_801159DC;
 extern s32 D_801159E0;
+extern u16 D_80116508;
+extern s32 D_80116510;
+extern s32 D_800C74DC;
+extern s32 D_800C74E0;
+extern u_long* D_80115A40;
 extern s32 D_80115A50;
 extern s32 D_80115A58;
 extern s32 D_80115A60;
@@ -322,6 +366,20 @@ typedef struct WorldListNode {
     /* 0x4 */ s16 unk4;
 } WorldListNode;
 
+extern u8 D_800C68E8[];
+extern u8 D_800C68FC[];
+extern u8 D_800C6910[];
+extern WorldChunkHeader D_80109A38[0x20];
+extern WorldChunkHeader* D_80109D38;
+extern WorldChunkHeader* D_80109D3C;
+extern WorldChunkHeader* D_80109D40;
+extern WorldChunkNode D_800E582C[0x40];
+extern WorldChunkNode* D_800E5A2C;
+extern WorldChunkNode* D_800E5A30;
+
+extern WorldListNode D_800E5718[];
+extern WorldListNode* D_800E5760;
+extern WorldListNode* D_800E5764;
 extern WorldListNode* D_800E5768;
 extern s16 D_800BE5F0[];
 extern s32 D_8010B488[];
@@ -337,14 +395,16 @@ extern u8 D_800C752C;
 extern u8* D_80109D60;
 extern u8* D_80109D5C;
 extern u8 D_800BF5F0[];
+extern SPRT D_800C6648[];
+extern s32 D_800C84F0;
 extern s16 D_8009ABF6;
 extern s16 D_8009ABF8;
 extern s16 D_8009ABFA;
 extern s16 D_8009AC16;
 extern s16 D_8009AC18;
 extern u8* D_8009C6DC;
-extern s32 D_800E5810;
-extern void* D_800E580C;
+extern WorldListNode* D_800E5810;
+extern WorldListNode* D_800E580C;
 extern u16 D_80083278[];
 extern u16 D_8008327A[];
 extern s16 D_80083286[];
@@ -356,6 +416,33 @@ extern s16 D_800832A2[];
 extern s32 D_80109D64;
 extern s32 D_80109D68;
 extern u8 D_8010D9B8[];
+extern u16 D_8009D2A6;
+extern u8 D_800C6748[];
+extern MATRIX D_800C6808;
+extern MATRIX D_800C6828;
+extern MATRIX D_800C6848;
+extern u8 D_800C6940;
+extern u8 D_800C6A10[];
+extern s32 D_800C74C4[][2];
+extern u8* D_800C80BC;
+extern s32 D_8010AD50;
+extern s32 D_8010CB20;
+extern u8 D_8010CB24[];
+extern s32 D_8010D930;
+extern u8* D_8010D9A4;
+extern s32 D_8010D9A8;
+extern s32 D_8010D9AC;
+extern s32 D_8010D9B0;
+extern s32 D_8010D9B4;
+extern s32 D_80115A44;
+extern s32 D_80115A48;
+extern s32 D_80115A4C;
+extern s32 D_80115A54;
+extern s32 D_80115A5C;
+extern u8 D_80115A6C[];
+extern s16 D_80116290;
+extern u32 D_8014A608;
+extern s32 D_8014A610;
 extern u8 D_8010D9BA[];
 extern s32 D_80116274;
 extern s16 D_80116288;
