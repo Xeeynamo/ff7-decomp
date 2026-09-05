@@ -60,7 +60,7 @@ int SystemLoadFileBySector(int sector_no, size_t size, u_long* dst, void (*cb)()
     return 0;
 }
 
-int DS_read(int sector_no, size_t size, u_long* dst, void (*cb)()) {
+int SysCdromStartLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)()) {
     SysCdromSetChainParam(CDOP_11, sector_no, size, dst, cb);
     D_800698E8 = sector_no;
     SysCdromSetLzsExtract(&D_800698F0, dst);
@@ -86,7 +86,7 @@ int SysCdromLoadFile(int sector_no, size_t size, u_long* dst, void (*cb)()) {
 }
 
 int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)()) {
-    while (DS_read(sector_no, size, dst, cb)) {
+    while (SysCdromStartLoadLzs(sector_no, size, dst, cb)) {
     }
     while (SystemCdromReadChain()) {
         VSync(0);

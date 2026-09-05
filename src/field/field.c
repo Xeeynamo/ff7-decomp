@@ -84,8 +84,8 @@ void FieldLoadMimDatFiles(void) {
     s32 temp;
 
     if (g_isFieldLoading == 0) {
-        DS_read(g_FieldLzsInfo[g_CurrentFieldIndex * 6], g_FieldLzsInfo[g_CurrentFieldIndex * 6 + 1], (u32*)0x80128000,
-                NULL);
+        SysCdromStartLoadLzs(g_FieldLzsInfo[g_CurrentFieldIndex * 6], g_FieldLzsInfo[g_CurrentFieldIndex * 6 + 1],
+                             (u32*)0x80128000, NULL);
         while (SystemCdromReadChain() != 0) {
         }
     } else {
@@ -93,8 +93,8 @@ void FieldLoadMimDatFiles(void) {
         }
         SystemLzsDecompress((void*)0x801B0000, (void*)0x80128000);
     }
-    DS_read(((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6], ((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6 + 1],
-            (u32*)0x80114FE4, NULL);
+    SysCdromStartLoadLzs(((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6],
+                         ((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6 + 1], (u32*)0x80114FE4, NULL);
     while (SystemCdromReadChain() != 0) {
     }
     g_FieldTriggers = *g_FieldTriggersP;
