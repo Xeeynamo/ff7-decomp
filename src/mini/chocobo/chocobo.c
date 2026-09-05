@@ -3,6 +3,20 @@
 #include "common.h"
 #include "game.h"
 
+typedef struct {
+    u32 unk0;
+    u32 unk4;
+} UnkRectData;
+
+extern UnkRectData D_800A0020;
+extern UnkRectData D_800A0028;
+extern u32 D_80079F64;
+extern u32 D_8007AF64;
+extern u32 D_8007BF64;
+extern u32 D_8007C764;
+
+
+
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A02D0);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1260);
@@ -21,13 +35,7 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1F40);
 
 
 
-typedef struct {
-    u32 unk0;
-    u32 unk4;
-} UnkRectData;
 
-extern UnkRectData D_800A0020;
-extern UnkRectData D_800A0028;
 
 
 void func_800A272C(s32 arg0, s32 arg1) {
@@ -131,10 +139,7 @@ skip_load:
 
 
 
-extern u32 D_80079F64;
-extern u32 D_8007AF64;
-extern u32 D_8007BF64;
-extern u32 D_8007C764;
+
 
 void func_800A28D8(void) {
     SysCdromStartLoadLzs(0x4C9, 0x1000U, &D_80079F64, NULL);
