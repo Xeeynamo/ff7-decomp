@@ -127,11 +127,11 @@ static void func_800B37EC(void) {
 // Load stage files
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B383C);
 
-// load stage entry i (D_800F7DF8[0]) into VRAM staging via DS_read
+// load stage entry i (D_800F7DF8[0]) into VRAM staging via SysCdromStartLoadLzs
 static void func_800B38E0(void) {
     s32 i = D_800F7DF8[0];
 
-    DS_read(*&D_800E8050[i].loc, *&D_800E8050[i].len, 0x801B0000, &func_800B3A04);
+    SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, 0x801B0000, &func_800B3A04);
     func_800B7FB4();
 }
 
@@ -156,7 +156,7 @@ static void func_800B3968(void) {
     D_800F8390[2] = size + D_800F8390[1];
     if (D_800F7DF4 >= 3U) {
         i = D_800F7DF8[2];
-        DS_read(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, func_800B3934);
+        SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, func_800B3934);
         func_800B7FB4();
     }
 }
@@ -174,7 +174,7 @@ static void func_800B3A04(void) {
     D_800F8390[1] = size + D_800F8390[0];
     if (D_800F7DF4 >= 2U) {
         i = D_800F7DF8[1];
-        DS_read(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, func_800B3968);
+        SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, func_800B3968);
         func_800B7FB4();
     }
 }
@@ -197,7 +197,7 @@ static void func_800B3AB8(void) {
     func_800B5C1C(*s0);
     cmp = D_800FA9C8;
     if (cmp != 0xC8) {
-        DS_read(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len, (u_long*)0x801B0000, func_800B3B84);
+        SysCdromStartLoadLzs(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len, (u_long*)0x801B0000, func_800B3B84);
         func_800B7FB4();
         return;
     }
@@ -215,14 +215,14 @@ static void func_800B3CD0(void) {
     dst = (u_long*)0x801B0000;
     func_800D2980(dst, 0, 0, 0);
     y = &D_800E8068[D_800FA9C4];
-    DS_read(y->loc, *&D_800E8068[D_800FA9C4].len, dst, func_800B3AB8);
+    SysCdromStartLoadLzs(y->loc, *&D_800E8068[D_800FA9C4].len, dst, func_800B3AB8);
     func_800B7FB4();
 }
 
 static void func_800B3D38(void) {
     func_800C5E94();
     D_800F839C = D_800EA50C;
-    DS_read(LBA_ENEMY6_SEFFECT, 0xA800, (u_long*)0x801B0000, func_800B3CD0);
+    SysCdromStartLoadLzs(LBA_ENEMY6_SEFFECT, 0xA800, (u_long*)0x801B0000, func_800B3CD0);
     func_800B7FB4();
 }
 
