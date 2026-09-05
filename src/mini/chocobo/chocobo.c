@@ -1,3 +1,5 @@
+//! PSYQ=4.0 CC1=2.6.3
+
 #include "common.h"
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A02D0);
@@ -18,7 +20,34 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1F40);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A272C);
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A28D8);
+//INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A28D8);
+
+
+extern u32 D_80079F64;
+extern u32 D_8007AF64;
+extern u32 D_8007BF64;
+extern u32 D_8007C764;
+
+void func_800A28D8(void) {
+    SysCdromStartLoadLzs(0x4C9, 0x1000U, &D_80079F64, NULL);
+    do {
+
+    } while (SystemCdromReadChain() != 0);
+    SysCdromStartLoadLzs(0x4CA, 0x1000U, &D_8007AF64, NULL);
+    do {
+
+    } while (SystemCdromReadChain() != 0);
+    SysCdromStartLoadLzs(0x4C8, 0x800U, &D_8007BF64, NULL);
+    do {
+
+    } while (SystemCdromReadChain() != 0);
+    SysCdromStartLoadLzs(0x4C7, 0x800U, &D_8007C764, NULL);
+    do {
+
+    } while (SystemCdromReadChain() != 0);
+}
+
+
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A2984);
 
