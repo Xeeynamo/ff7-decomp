@@ -1,6 +1,7 @@
 //! PSYQ=4.0 CC1=2.6.3
 
 #include "common.h"
+#include "game.h"
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A02D0);
 
@@ -18,9 +19,116 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A18BC);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1F40);
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A272C);
 
-//INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A28D8);
+
+typedef struct {
+    u32 unk0;
+    u32 unk4;
+} UnkRectData;
+
+extern UnkRectData D_800A0020;
+extern UnkRectData D_800A0028;
+
+
+void func_800A272C(s32 arg0, s32 arg1) {
+    RECT sp10;
+    RECT sp18;
+    s32 var_a0;
+    u32 var_a1;
+
+    sp10 = *(RECT*)&D_800A0020;
+    sp18 = *(RECT*)&D_800A0028;
+
+    var_a0 = 0x32C;
+    if (arg0 != 0) {
+        var_a0 = 0x3C1;
+    }
+
+    SysCdromStartLoadLzs(
+        var_a0,
+        0x20000,
+        (u32*)0x80110000,
+        0
+    );
+
+    while (SystemCdromReadChain() != 0) {
+    }
+
+    LoadImage(&sp10, (u32*)0x80110000);
+    DrawSync(0);
+
+    if (arg0 != 0) {
+        var_a0 = 0x3F1;
+        var_a1 = 0x1E000;
+    } else {
+        var_a0 = 0x3CE;
+        var_a1 = 0x1E800;
+    }
+
+    SysCdromStartLoadLzs(
+        var_a0,
+        var_a1,
+        (u32*)0x80190000,
+        0
+    );
+
+    while (SystemCdromReadChain() != 0) {
+    }
+
+    switch (arg1) {
+    case 0:
+        var_a0 = 0x459;
+        break;
+
+    case 1:
+        var_a0 = 0x433;
+        break;
+
+    case 2:
+        var_a0 = 0x417;
+        break;
+
+    case 3:
+        var_a0 = 0x49C;
+        break;
+
+    default:
+        goto skip_load;
+    }
+
+    SysCdromStartLoadLzs(
+        var_a0,
+        0x30000,
+        (u32*)0x80110000,
+        0
+    );
+
+skip_load:
+    while (SystemCdromReadChain() != 0) {
+    }
+
+    LoadImage(&sp18, (u32*)0x80110000);
+    DrawSync(0);
+
+    if (arg0 != 0) {
+        var_a0 = 0x33E;
+        var_a1 = 0x6A000;
+    } else {
+        var_a0 = 0x293;
+        var_a1 = 0x7D000;
+    }
+
+    SysCdromStartLoadLzs(
+        var_a0,
+        var_a1,
+        (u32*)0x80110000,
+        0
+    );
+
+    while (SystemCdromReadChain() != 0) {
+    }
+}
+
 
 
 extern u32 D_80079F64;
