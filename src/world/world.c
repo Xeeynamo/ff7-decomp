@@ -2,9 +2,9 @@
 #include "world.h"
 #include <libetc.h>
 
-void func_800A9480(s16 arg0);
-void func_800AA0E0(VECTOR* arg0);
-void RestoreActorState(WorldActor*);
+void WmSetActiveEntityDirectionAndRot(s16 arg0);
+void WmGetPosFromPcEntity(VECTOR* arg0);
+void WmRestoreEntityPosAndDirFromSavemap(WorldActor*);
 s32 func_800ADFC0(void);
 static s32 func_800B0800(void);
 void WmCreateShadowPacket(u8*, RECT*);
@@ -139,7 +139,7 @@ static s32 WmGetWmId(void) { return D_800E5634; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A1DF0);
 
-void SetPointTransform(SVECTOR* arg0) {
+void WmSetTranslationVectorInScreenSpace(SVECTOR* arg0) {
     MATRIX m;
     SVECTOR v;
     VECTOR out;
@@ -254,7 +254,7 @@ void WmSubmarineFloatToPlanet(void) {
     D_800E5644 = 0x14;
     WmSetFieldToLoad(0);
     func_800A2108(0, 0);
-    ScrollLayerForward(0x10, 1);
+    WmSetFadeOut(0x10, 1);
 }
 
 void WmSubmarineSubmergeUnderwater(void) {
@@ -262,7 +262,7 @@ void WmSubmarineSubmergeUnderwater(void) {
     D_800E5644 = -0x14;
     WmSetFieldToLoad(0);
     func_800A2108(0, 0);
-    ScrollLayerForward(0x10, 1);
+    WmSetFadeOut(0x10, 1);
 }
 
 void func_800A3E9C(s32 arg0) {
@@ -341,11 +341,11 @@ void func_800A41E8(s32 arg0) {
     switch (arg0) {
     case 1:
         func_800A2108(0, 4);
-        ScrollLayerForward(4, 1);
+        WmSetFadeOut(4, 1);
         break;
     case 4:
         func_800A2108(1, 4);
-        ScrollLayerBack(0x10, 1);
+        WmSetFadeIn(0x10, 1);
         arg0 = 0;
         break;
     }
@@ -356,10 +356,10 @@ void UpdateFadeOverlay(void) {
     s32 slot;
     s32 vsync;
 
-    slot = func_800A0BD4();
+    slot = WmGetCurrRenderBufferId();
     switch (D_800E56F4) {
     case 1:
-        if (func_800B0240() != 0) {
+        if (WmFadeIsStopped() != 0) {
             D_800E56F4 = 2;
         }
         break;
@@ -500,7 +500,7 @@ void FreeListNode(WorldListNode* arg0, WorldListNode* arg1) {
     arg0->next = tmp;
 }
 
-void StartNearestRegionLoad(s16 arg0, s16 arg1) {
+void WmLoadClosestMapFileBlock(s16 arg0, s16 arg1) {
     WorldListNode* node;
     WorldListNode* prev;
     WorldListNode* best;
@@ -516,7 +516,7 @@ void StartNearestRegionLoad(s16 arg0, s16 arg1) {
     if (D_800E5814 != 0 || D_800E5810 == NULL) {
         return;
     }
-    if (TryAcquireLoadSlot(0) == 0) {
+    if (WmAddMutexPriority(0) == 0) {
         return;
     }
     bestPrev = NULL;
@@ -636,7 +636,7 @@ void InitChunkNodePool(void) {
     D_800E5A34 = 0;
 }
 
-WorldListNode* FindResidentRegion(s16 arg0) {
+WorldListNode* WmGetElementWithBlockIdAndSetItFirst(s16 arg0) {
     WorldListNode* node;
     WorldListNode* prev;
     WorldListNode* head;
@@ -892,7 +892,7 @@ void func_800A6BCC(SVECTOR* arg0) {
 
 void func_800A6C00(s32 arg0) {
     if (func_800A1DB0() != 2)
-        SetPointTransform(arg0);
+        WmSetTranslationVectorInScreenSpace(arg0);
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A6C3C);
@@ -908,7 +908,7 @@ static void func_800A7E8C(s32 arg0) { D_80109D6C = arg0; }
 static void func_800A7E9C(void) {}
 
 void InitWorldState(void) {
-    func_800A4DDC();
+    WmInitLoadMapFileStruct();
     InitChunkNodePool();
     InitChunkPool();
     D_80109D54 = 0;
@@ -921,9 +921,9 @@ void InitWorldState(void) {
     D_80109D6C = 0;
 }
 
-void func_800A7F18(void) { AbortRegionLoad(); }
+void WmAbortMapLoadingWrapper(void) { WmAbortMapLoading(); }
 
-void AbortRegionLoad(void) {
+void WmAbortMapLoading(void) {
     WorldListNode* node;
     WorldListNode* prev;
     WorldListNode* head;
@@ -1291,8 +1291,8 @@ void WmInitActiveEntityStruct(s32 arg0) {
             rect.h = 0xF;
             D_8010AD3C->unk58 = 0x20;
         }
-        func_800B58F8(D_8010AD3C->unk90, &rect);
-        RestoreActorState(D_8010AD3C);
+        WmCreateShadowPacket(D_8010AD3C->unk90, &rect);
+        WmRestoreEntityPosAndDirFromSavemap(D_8010AD3C);
     }
 }
 
@@ -1543,7 +1543,7 @@ WorldActor* FindCollidingActor(WorldActor* arg0) {
     rc = 0;
     hit = NULL;
     if (D_8010AD3C != NULL) {
-        if (D_8010AD3C->actorType != 0xD || func_800A1DE0() != 0) {
+        if (D_8010AD3C->actorType != 0xD || WmGetWmId() != 0) {
             hit = D_8010AD38;
             while (hit != NULL) {
                 rc = func_800AA304(D_8010AD3C, hit);
@@ -1623,12 +1623,12 @@ void func_800AA8D8(s16 arg0, s16 arg1, s16 arg2) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AA8F8);
 
-s32 UpdateEventState(u8* arg0) {
+s32 WmGetBuggyMoveAnimationId(u8* arg0) {
     s32 prev;
     s32 event;
 
     prev = D_80109D70;
-    event = func_800A9A44();
+    event = WmGetPcEntityTerrainId();
     switch (D_80109D70) {
     case 1:
         if (event == 0xB) {
@@ -2214,7 +2214,7 @@ void UpdateSurfaceEffect(void) {
     if (D_8010ADEC != 0 || (D_8010AD40->flags1 & 8)) {
         return;
     }
-    if (func_800A91A4(0x2000) != 0) {
+    if (WmIsPcEntityModelInMask(0x2000) != 0) {
         if ((D_8010AD40->pos.vy - D_8010AD40->unk42) >= 0x1F4) {
             return;
         }
@@ -2227,7 +2227,7 @@ void UpdateSurfaceEffect(void) {
             D_8010ADF0 = kind;
             func_800ABA78(kind - 3, 0);
         }
-        if (kind == 7 && func_800A91A4(0x2000) == 0) {
+        if (kind == 7 && WmIsPcEntityModelInMask(0x2000) == 0) {
             func_800AA238();
         }
     } else {
@@ -2235,7 +2235,7 @@ void UpdateSurfaceEffect(void) {
     }
 }
 
-s32 IsAnyScriptRunning(void) {
+s32 WmScriptIsAnyScriptRuns(void) {
     WorldActor* a;
     s32 flag;
 
@@ -2270,7 +2270,7 @@ void func_800ADA08(void) {
             SaveActorState(var_s0);
 }
 
-void RestoreActorState(WorldActor* arg0) {
+void WmRestoreEntityPosAndDirFromSavemap(WorldActor* arg0) {
     s32* p;
     s32* end;
     s32 t;
@@ -2312,7 +2312,7 @@ void func_800ADC3C(VECTOR* arg0) { D_8010AE34 = *arg0; }
 
 void func_800ADC70(void) { D_8010AE54 = 0; }
 
-s32 TryAcquireLoadSlot(s16 arg0) {
+s32 WmAddMutexPriority(s16 arg0) {
     if ((D_8010AE54 >> arg0) & 1) {
         if (!((-1 << (arg0 + 1)) & D_8010AE54)) {
             return 1;
@@ -2320,9 +2320,9 @@ s32 TryAcquireLoadSlot(s16 arg0) {
     }
     if (D_8010AE54 < (1 << arg0)) {
         if (D_8010AE54 == 1) {
-            AbortRegionLoad();
+            WmAbortMapLoading();
         } else if (D_8010AE54 & 4) {
-            func_800B7134();
+            WmAbortModelLoading();
         }
         D_8010AE54 |= 1 << arg0;
         return 1;
@@ -2453,7 +2453,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AEA48);
 void func_800AF0A0(s32 arg0) { D_8010B174 = arg0; }
 
 void func_800AF0B0(void) {
-    void SetupLighting(void);
+    void WmSetGteColourSettings(void);
     s32 i;
     s32 offset;
 
@@ -2466,10 +2466,10 @@ void func_800AF0B0(void) {
     }
 
     D_8010B3B8 = NULL;
-    SetupLighting();
+    WmSetGteColourSettings();
 }
 
-void SetupLighting(void) {
+void WmSetGteColourSettings(void) {
     MATRIX* m;
     s32 mode;
     s32 r;
@@ -2477,13 +2477,13 @@ void SetupLighting(void) {
     s32 b;
 
     mode = 2;
-    if (func_800A1DE0() == mode) {
+    if (WmGetWmId() == mode) {
         m = &D_800C6828;
     } else {
         m = &D_800C6808;
     }
     SetLightMatrix(m);
-    if (func_800A1DE0() == mode) {
+    if (WmGetWmId() == mode) {
         r = 0x20;
         g = 0x20;
         b = 0x30;
@@ -2573,7 +2573,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", WmFadeInit);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", WmFadeRender);
 
-void ScrollLayerBack(s32 arg0, s32 arg1) {
+void WmSetFadeIn(s32 arg0, s32 arg1) {
     s32 i;
     s32 tpage;
 
@@ -2598,7 +2598,7 @@ void ScrollLayerBack(s32 arg0, s32 arg1) {
     }
 }
 
-void ScrollLayerForward(s32 arg0, s32 arg1) {
+void WmSetFadeOut(s32 arg0, s32 arg1) {
     s32 i;
     s32 tpage;
 
@@ -2695,7 +2695,7 @@ void UpdateZolomGroundHeight(WorldChunkHeader* arg0) {
     }
     pos.vx = D_8010C42C->x + 0x34000;
     pos.vz = D_8010C42C->z + 0x20000;
-    func_800A6884(&pos, &dir, &chunkX, &chunkZ);
+    WmExtractLoopCoordsTopBottomParts(&pos, &dir, &chunkX, &chunkZ);
     if (chunkX == arg0->x && chunkZ == arg0->z) {
         hit = func_800A19FC(arg0, &dir, D_8010C80C, &D_8010C42C->z2, 0, NULL, 0x64);
         D_8010C800 = hit;
@@ -2776,7 +2776,7 @@ void SetCurrentTriangle(WorldChunkHeader* arg0, WorldTriangle* arg1) {
         }
         D_800BD144 = 0;
         D_8010CA8C = 1;
-        func_800AA0E0(&pos);
+        WmGetPosFromPcEntity(&pos);
         inside = 0;
         if (pos.vx >= 0x36000 && pos.vx <= 0x3FFFF) {
             zoff = pos.vz - 0x1C000;
@@ -2960,7 +2960,7 @@ void ResetEffectState(void) {
     *(s16*)0x1F800012 = 0x32;
     *(s16*)0x1F800014 = 0;
     *(s16*)0x1F800020 = 0;
-    func_800AA0E0(0x1F800000);
+    WmGetPosFromPcEntity(0x1F800000);
     *(s16*)0x1F80001C = 0;
     *(s16*)0x1F80001A = 0;
     *(s16*)0x1F800018 = 0;
@@ -3068,7 +3068,7 @@ void ToggleAmbientSound(s32 arg0) {
     SystemAkaoExecute();
 }
 
-void InitStreamState(void) {
+void WmInitModelVariablesAndArray(void) {
     s32 i;
 
     for (i = 0; i < 0x2B; i++) {
@@ -3109,12 +3109,12 @@ void StartStreamRead(void) {
     if (D_80115A60 != 0) {
         return;
     }
-    AbortRegionLoad();
+    WmAbortMapLoading();
     D_80115A40 = (u_long*)func_800A86C4(2);
-    if (TryAcquireLoadSlot(2) != 0) {
+    if (WmAddMutexPriority(2) != 0) {
         D_80115A60 = 1;
         D_80115A50 = 0;
-        DS_read(D_800C74DC, D_800C74E0, D_80115A40, func_800B6DCC);
+        SysCdromStartLoadLzs(D_800C74DC, D_800C74E0, D_80115A40, WmPackModelLoadFileCallback);
         SystemCdromReadChain();
     }
 }
@@ -3438,11 +3438,11 @@ void WmDialogSetMessageToShowForId0(u8 arg0) {
     }
 }
 
-void OpenWorldWindow(s32 arg0, s16 arg1, s16 arg2) {
+void WmDialogSetAskToShowForId0(s32 arg0, s16 arg1, s16 arg2) {
     if (g_WindowData[0].state == WSTATE_INIT) {
         D_80116288 = arg1;
         D_8011628C = arg2;
-        func_800B90C0(0, arg0, D_80116288, D_8011628C, &D_80116290);
+        WmDialogSetAskToShow(0, arg0, D_80116288, D_8011628C, &D_80116290);
     }
 }
 
@@ -4545,7 +4545,7 @@ static void func_800BBA5C(void) {
         func_800A6994(&sp10, WmGetModelIdFromActiveEntity() == 3 ? -1 : 1);
         WmScriptPushToStoreStack(WmGetModelIdFromPcEntity());
         if (func_800A929C()) {
-            func_800A8CE4();
+            WmLinkPcToActiveEntity();
             PlayMusicTrack(2);
             return;
         }
@@ -4676,7 +4676,7 @@ void func_800BBD20(s32 arg0) {
                                 WmSetActiveEntityAsPcEntity();
 
                             func_800AA2E4(2);
-                            func_800A9480(temp_v0);
+                            WmSetActiveEntityDirectionAndRot(temp_v0);
                             PlayMusicTrack(1);
                             func_800A2108(0, 6);
                             if (temp_s1 == 4)
