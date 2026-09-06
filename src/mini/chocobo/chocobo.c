@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "game.h"
+#include "libgte.h"
 
 typedef struct {
     u32 unk0;
@@ -18,11 +19,7 @@ extern s32 D_800B7598;
 extern s32 D_800F507C;
 extern s32* D_800F5084;
 
-
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A02D0);
-
-
-
 
 void func_800A1260(void) {
     s32 temp_s0;
@@ -30,8 +27,8 @@ void func_800A1260(void) {
     s32 temp_s2;
 
     temp_s0 = *D_800F5084;
-temp_s2 = (D_800B7598 + temp_s0 ) % temp_s0;
-temp_s1 = (D_800F507C + temp_s0 ) % temp_s0;
+    temp_s2 = (D_800B7598 + temp_s0) % temp_s0;
+    temp_s1 = (D_800F507C + temp_s0) % temp_s0;
 
     PushMatrix();
 
@@ -45,8 +42,145 @@ temp_s1 = (D_800F507C + temp_s0 ) % temp_s0;
     PopMatrix();
 }
 
-
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1354);
+#else
+
+typedef struct ChocoboEntry {
+    char pad0[0x11];
+    u8 unk11;
+    char pad12[0x6];
+} ChocoboEntry;
+
+typedef struct ChocoboData {
+    s16 unk0;  /* 0x00 */
+    s16 unk2;  /* 0x02 */
+    s16 unk4;  /* 0x04 */
+    u16 unk6;  /* 0x06 */
+    u16 unk8;  /* 0x08 */
+    s16 unkA;  /* 0x0A */
+    u8 unkC;   /* 0x0C */
+    u8 unkD;   /* 0x0D */
+    u8 unkE;   /* 0x0E */
+    u8 unkF;   /* 0x0F */
+} ChocoboData; /* size: 0x10 */
+
+typedef struct ChocoboRenderData {
+    u8 unk0[5];
+    u8 unk5;
+    u8 unk6;
+    u8 unk7;
+    s32 unk8;
+    s32 unkC;
+    s32 unk10;
+    u8 pad14[6];
+    u16 unk1A;
+    u8* unk1C;
+} ChocoboRenderData; /* size: 0x24 */
+
+typedef struct ChocoboContext {
+    char pad0[4];
+    u8* unk4;
+} ChocoboContext;
+
+typedef struct ChocoboObjectTable {
+    char pad0[0x40];
+    u8* unk40;
+} ChocoboObjectTable;
+
+extern ChocoboContext* D_800B1254;
+extern ChocoboEntry* D_800B7500;
+extern u8 D_800B7544[];
+extern s32 D_800F5078;
+extern ChocoboObjectTable* D_800F5084;
+extern ChocoboRenderData* D_800F50A0[];
+
+extern void PushMatrix(void);
+extern void PopMatrix(void);
+extern void func_800AF11C(ChocoboRenderData*, void*, s32, s16);
+
+void func_800A1354(s32 arg0, s32 arg1) {
+    ChocoboContext** ctx_ptr;
+    s32 temp_s1;
+    s32 temp_s2;
+    s32 temp_s3;
+    s32 temp_s4;
+    s32 sp10;
+    ChocoboData* temp_s0;
+    ChocoboRenderData* temp_a0;
+    u8* temp_v1;
+    s32 temp_v1_2;
+
+    temp_s2 = arg0;
+
+    if (temp_s2 < arg1) {
+        ctx_ptr = &D_800B1254;
+        temp_s4 = temp_s2 * 0x18;
+
+        do {
+            temp_v1 = (u8*)D_800B7500 + temp_s4;
+
+            if (temp_v1[0x11] != 0) {
+                temp_s0 = (ChocoboData*)(D_800F5084->unk40 + ((temp_v1[0x11] * 0x10) - 0x10));
+
+                temp_v1_2 = temp_s0->unkF;
+
+                gte_ldv0(temp_s0);
+                gte_rtps();
+
+                temp_s1 = temp_v1_2 * 0x24;
+
+                temp_a0 = (ChocoboRenderData*)((*ctx_ptr)->unk4 + temp_s1);
+
+                temp_s3 = (s32)temp_a0->unk1C + temp_a0->unk1A;
+
+                gte_stflg(&sp10);
+
+                if (sp10 >= 0) {
+                    temp_a0->unk8 = temp_s0->unk0;
+                    temp_a0->unkC = temp_s0->unk2;
+                    temp_a0->unk10 = temp_s0->unk4;
+
+                    temp_a0->unk5 = temp_s0->unkC;
+                    temp_a0->unk6 = temp_s0->unkD;
+                    temp_a0->unk7 = temp_s0->unkE;
+
+                    PushMatrix();
+
+                    *(s32*)0x1F800000 = 3;
+
+                    func_800AF11C((ChocoboRenderData*)((*ctx_ptr)->unk4 + temp_s1), &D_800B7544, 0, temp_s0->unkA);
+
+                    temp_v1_2 = D_800F5078;
+                    D_800F5078 = temp_v1_2 + 1;
+
+                    D_800F50A0[temp_v1_2] = (ChocoboRenderData*)((*ctx_ptr)->unk4 + temp_s1);
+
+                    PopMatrix();
+
+                    temp_s0->unkA = temp_s0->unkA + temp_s0->unk8;
+
+                    if (temp_s0->unkA >= *(u16*)temp_s3) {
+                        if (temp_s0->unk6 & 2) {
+                            temp_s0->unkA = 0;
+                        } else {
+                            temp_s0->unkA = *(u16*)temp_s3 - 1;
+                        }
+                    }
+
+                    if (temp_s0->unkA < 0) {
+                        temp_s0->unkA = 0;
+                    }
+                }
+            }
+
+            temp_s2++;
+            temp_s4 += 0x18;
+
+        } while (temp_s2 < arg1);
+    }
+}
+#endif
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A157C);
 
@@ -57,10 +191,6 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A17F0);
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A18BC);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1F40);
-
-
-
-
 
 void func_800A272C(s32 arg0, s32 arg1) {
     RECT sp10;
@@ -76,12 +206,7 @@ void func_800A272C(s32 arg0, s32 arg1) {
         var_a0 = 0x3C1;
     }
 
-    SysCdromStartLoadLzs(
-        var_a0,
-        0x20000,
-        (u32*)0x80110000,
-        0
-    );
+    SysCdromStartLoadLzs(var_a0, 0x20000, (u32*)0x80110000, 0);
 
     while (SystemCdromReadChain() != 0) {
     }
@@ -97,12 +222,7 @@ void func_800A272C(s32 arg0, s32 arg1) {
         var_a1 = 0x1E800;
     }
 
-    SysCdromStartLoadLzs(
-        var_a0,
-        var_a1,
-        (u32*)0x80190000,
-        0
-    );
+    SysCdromStartLoadLzs(var_a0, var_a1, (u32*)0x80190000, 0);
 
     while (SystemCdromReadChain() != 0) {
     }
@@ -128,12 +248,7 @@ void func_800A272C(s32 arg0, s32 arg1) {
         goto skip_load;
     }
 
-    SysCdromStartLoadLzs(
-        var_a0,
-        0x30000,
-        (u32*)0x80110000,
-        0
-    );
+    SysCdromStartLoadLzs(var_a0, 0x30000, (u32*)0x80110000, 0);
 
 skip_load:
     while (SystemCdromReadChain() != 0) {
@@ -150,20 +265,11 @@ skip_load:
         var_a1 = 0x7D000;
     }
 
-    SysCdromStartLoadLzs(
-        var_a0,
-        var_a1,
-        (u32*)0x80110000,
-        0
-    );
+    SysCdromStartLoadLzs(var_a0, var_a1, (u32*)0x80110000, 0);
 
     while (SystemCdromReadChain() != 0) {
     }
 }
-
-
-
-
 
 void func_800A28D8(void) {
     SysCdromStartLoadLzs(0x4C9, 0x1000U, &D_80079F64, NULL);
@@ -183,8 +289,6 @@ void func_800A28D8(void) {
 
     } while (SystemCdromReadChain() != 0);
 }
-
-
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A2984);
 
