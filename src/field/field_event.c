@@ -142,7 +142,6 @@ void FieldInitDefaultValues(void) {
     for (i = 0; i < 256; i++) {
         g_FieldMapVars[i] = 0;
     }
-
     for (i = 0; i < 8; i++) {
         for (j = 0; j < g_FieldScripts->numEntities; j++) {
             g_SavedFieldScriptPC[j][i] = 0;
@@ -151,7 +150,6 @@ void FieldInitDefaultValues(void) {
             SavedScriptIds[j][i] = 0;
         }
     }
-
     for (i = 0; i < g_FieldScripts->numEntities; i++) {
         g_FieldScriptPriority[i] = 7;
         g_EntityToModel[i] = 0xFF;
@@ -160,7 +158,6 @@ void FieldInitDefaultValues(void) {
         g_EntityToLine[i] = 0xFF;
         D_80114498[i] = 0;
     }
-
     for (i = 0; i < g_FieldScripts->numModels; i++) {
         g_FieldModels[i].charId = 0;
         g_FieldModels[i].PosX = 0;
@@ -216,7 +213,6 @@ void FieldInitDefaultValues(void) {
         g_FieldModels[i].BlinkOn = 0;
         g_FieldModels[i].KawaiA = 0;
     }
-
     for (i = 0; i < 64; i++) {
         g_pFieldState->backgroundLayerVisibility[i] = 0;
     }
@@ -228,7 +224,6 @@ void FieldInitDefaultValues(void) {
             g_FieldPaletteBuffer[i][j] = 0;
         }
     }
-
     for (i = 0; i < 32; i++) {
         g_FieldLines[i].requestTalkScript = 0;
         g_FieldLines[i].requestPushScript = 0;
@@ -628,8 +623,7 @@ void DrawPositionCursor(OT_TYPE* ot) {
             y = 0;
         }
         g_PosCursorPrimId ^= 1;
-        // Rotate cursor about the Y axis when player is on right edge of
-        // screen.
+        // Rotate cursor about the Y axis when player is on right edge of screen.
         if (x > 290) {
             g_PosCursorPrims[g_PosCursorPrimId].u0 = 143;
             g_PosCursorPrims[g_PosCursorPrimId].u1 = 127;
@@ -649,8 +643,7 @@ void DrawPositionCursor(OT_TYPE* ot) {
             g_PosCursorPrims[g_PosCursorPrimId].x2 = x;
             g_PosCursorPrims[g_PosCursorPrimId].x3 = x + 16;
         }
-        // Rotate cursor about the X axis when player is at the top of the
-        // screen.
+        // Rotate cursor about the X axis when player is at the top of the screen.
         if (y <= 16) {
             g_PosCursorPrims[g_PosCursorPrimId].v0 = 111;
             g_PosCursorPrims[g_PosCursorPrimId].v1 = 111;
