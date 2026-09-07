@@ -75,7 +75,7 @@ void func_800A272C(s32 arg0, s32 arg1) {
     LoadImage(&sp10, (u32*)0x80110000);
     DrawSync(0);
 
-   if (arg0 != 0) {
+    if (arg0 != 0) {
         SysCdromStartLoadLzs(0x3F1, 0x1E000, (u32*)0x80190000, 0);
     } else {
         SysCdromStartLoadLzs(0x3CE, 0x1E800, (u32*)0x80190000, 0);
@@ -110,11 +110,10 @@ void func_800A272C(s32 arg0, s32 arg1) {
     DrawSync(0);
 
     if (arg0 != 0) {
-		SysCdromStartLoadLzs(0x33E, 0x6A000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x33E, 0x6A000, (u32*)0x80110000, 0);
     } else {
-		SysCdromStartLoadLzs(0x293, 0x7D000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x293, 0x7D000, (u32*)0x80110000, 0);
     }
-
 
     while (SystemCdromReadChain() != 0) {
     }
