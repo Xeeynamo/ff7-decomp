@@ -7,7 +7,7 @@ void BATTLE_RunFrame(void); // battle callback for batini, move to battle.h
 void func_801B2308(void);
 
 // entrypoint
-INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B0050);
+INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitMain);
 
 static void func_801B23E0(s32 sceneID, void (*cb)(void));
 void func_801B0490(s32 sceneID) {
