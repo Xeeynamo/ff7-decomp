@@ -2,40 +2,40 @@
 #include "main_private.h"
 
 // Functions used by the battle module for formulas requiring random nummbers.
-// D_80083084 is the random number table from KERNEL.BIN section 3 and belongs
+// g_KernelRandomTable is the random number table from KERNEL.BIN section 3 and belongs
 // to a larger struct.
 
-static u32 D_80062D4C = 0;
-static u8 D_80062E10[8];
-static s32 D_80062E18;
+static u32 g_KernelRandomCallCount = 0;
+static u8 g_KernelRandomTablePos[8];
+static s32 g_KernelRandomTableIndex;
 
-extern u8 D_80083084[256];
+extern u8 g_KernelRandomTable[256];
 
 void SysIncSeedForRandom(void) {
-    D_80062E18++;
-    D_80062E18 &= 7;
+    g_KernelRandomTableIndex++;
+    g_KernelRandomTableIndex &= 7;
 }
 
-u8 SysGetRandomByteFromTable(void) { return D_80083084[D_80062E10[D_80062E18]++]; }
+u8 SysGetRandomByteFromTable(void) { return g_KernelRandomTable[g_KernelRandomTablePos[g_KernelRandomTableIndex]++]; }
 
-u8 SysGetRandomByteRange(s32 arg0) { return (SysGetRandomByteFromTable() * arg0) >> 8; }
+u8 SysGetRandomByteRange(s32 upperBound) { return (SysGetRandomByteFromTable() * upperBound) >> 8; }
 
 u16 SysRandomTwoBytes(void) {
     u8 lo;
 
     lo = SysGetRandomByteFromTable();
-    if (D_80062D4C++ & 7) {
+    if (g_KernelRandomCallCount++ & 7) {
         SysIncSeedForRandom();
     }
     return (SysGetRandomByteFromTable() << 8) | lo;
 }
 
-void func_80014C44(s32 arg0) {
+void SysInitRndTablePos(s32 seed) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        D_80062E10[i] = arg0;
-        arg0 >>= 1;
+        g_KernelRandomTablePos[i] = seed;
+        seed >>= 1;
     }
-    D_80062E18 = 0;
+    g_KernelRandomTableIndex = 0;
 }
