@@ -2446,7 +2446,7 @@ void WmCreateSkyboxOverlayRenderBuffers(void) {
     a = &D_800C6768;
     b = &D_800C676C;
     do {
-        p = (POLY_G4*)((i * 0x24) + (s32)D_800C6770);
+        p = &D_800C6770[i];
         p->r0 = p->r1 = a->r;
         p->g0 = p->g1 = a->g;
         p->b0 = p->b1 = a->b;
@@ -2461,7 +2461,7 @@ void WmCreateSkyboxOverlayRenderBuffers(void) {
     D_8010B080 = 0;
 }
 
-void* WmGetSkyboxOverlayCurrRenderBuffer(void) { return (WmGetCurrRenderBufferId() * 0x24) + &D_800C6770; }
+void* WmGetSkyboxOverlayCurrRenderBuffer(void) { return &D_800C6770[WmGetCurrRenderBufferId()]; }
 
 void* WmGetSkyboxOverlayCurrTextureSettingBuffer(void) { return (WmGetCurrRenderBufferId() * 0xC) + D_8010B068; }
 
