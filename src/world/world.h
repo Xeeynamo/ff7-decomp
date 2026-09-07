@@ -216,6 +216,8 @@ extern s32 D_800BE1E8[1];         // TODO: size unknown
 extern s32 D_800C65EC;
 extern s32 D_800C6628;
 extern s32 D_800C6638;
+extern CVECTOR D_800C6768;
+extern CVECTOR D_800C676C;
 extern u8 D_800C6770[1]; // TODO: size unknown
 extern s16 D_800C68EE;
 extern s16 D_800C6902;

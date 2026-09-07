@@ -335,7 +335,23 @@ s32 func_800A40F0(s16 arg0) {
     return (s32)D_800BE5F0 + D_800BE5F0[arg0 + 1];
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A4138);
+void InitSpritePrims(void) {
+    s32 i;
+    s32 tpage;
+
+    D_800E56F4 = 0;
+    i = 0;
+    do {
+        setSprt(&D_800C6648[i]);
+        if (GetGraphType() == 1 || GetGraphType() == 2) {
+            tpage = 0x29;
+        } else {
+            tpage = 0x19;
+        }
+        SetDrawMode((DR_MODE*)((i * 0xC) + (s32)D_800E56DC), 0, 0, tpage, NULL);
+        i++;
+    } while (i < 2);
+}
 
 void func_800A41E8(s32 arg0) {
     switch (arg0) {
@@ -2436,7 +2452,30 @@ s16 WmGetRotFromEntityToEntity(VECTOR* arg0, VECTOR* arg1) {
     return WmGetRotFromVector(arg1->vx - arg0->vx, arg1->vz - arg0->vz, arg1->vx);
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmCreateSkyboxOverlayRenderBuffers);
+void WmCreateSkyboxOverlayRenderBuffers(void) {
+    CVECTOR* a;
+    CVECTOR* b;
+    POLY_G4* p;
+    s32 i;
+
+    i = 0;
+    a = &D_800C6768;
+    b = &D_800C676C;
+    do {
+        p = (POLY_G4*)((i * 0x24) + (s32)D_800C6770);
+        p->r0 = p->r1 = a->r;
+        p->g0 = p->g1 = a->g;
+        p->b0 = p->b1 = a->b;
+        p->r2 = p->r3 = b->r;
+        p->g2 = p->g3 = b->g;
+        p->b2 = p->b3 = b->b;
+        setlen(p, 8);
+        setcode(p, 0x38);
+        SetDrawMode((DR_MODE*)((i * 0xC) + (s32)D_8010B068), 0, 1, 0, NULL);
+        i++;
+    } while (i < 2);
+    D_8010B080 = 0;
+}
 
 void* WmGetSkyboxOverlayCurrRenderBuffer(void) { return (WmGetCurrRenderBufferId() * 0x24) + &D_800C6770; }
 
@@ -2985,7 +3024,34 @@ void func_800B57C0(s32 arg0) { D_8010D9BA[arg0 * 4] = 0; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B57DC);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmCreateShadowPacket);
+void WmCreateShadowPacket(u8* prims, RECT* rect) {
+    POLY_FT4* p;
+    s32 i;
+    s32 tpage;
+
+    if (prims != NULL && rect != NULL) {
+        i = 0;
+        p = (POLY_FT4*)prims;
+        do {
+            setlen(p, 9);
+            setcode(p, 0x2E);
+            p->r0 = p->g0 = p->b0 = 0x20;
+            p->clut = 0x7CC4;
+            if (GetGraphType() == 1 || GetGraphType() == 2) {
+                tpage = 0x129;
+            } else {
+                tpage = 0x59;
+            }
+            p->tpage = tpage;
+            p->u0 = p->u2 = rect->x;
+            p->v0 = p->v1 = rect->y;
+            p->u1 = p->u3 = rect->x + rect->w;
+            p->v2 = p->v3 = rect->y + rect->h;
+            p++;
+            i++;
+        } while (i < 2);
+    }
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B59F4);
 
