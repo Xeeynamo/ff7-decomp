@@ -1059,7 +1059,7 @@ extern u8 g_DebugLevel; // field debug related
 extern CharacterLevelData g_CharacterLevelData[3];
 extern u8 D_8009D824;
 extern s16 g_FieldModelBaseAnimSpeed[16]; // per-model base animation speed
-extern s16 D_8009D85C[]; // record fields, stride 0x440
+extern s16 D_8009D85C[];                  // record fields, stride 0x440
 extern BattleItemReward g_BattleItemsEarned[4];
 extern u8 D_8009D8F8[];
 extern u32 D_8009D260;
