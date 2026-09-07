@@ -340,8 +340,7 @@ void InitSpritePrims(void) {
     s32 tpage;
 
     D_800E56F4 = 0;
-    i = 0;
-    do {
+    for (i = 0; i < 2; i++) {
         setSprt(&D_800C6648[i]);
         if (GetGraphType() == 1 || GetGraphType() == 2) {
             tpage = 0x29;
@@ -349,8 +348,7 @@ void InitSpritePrims(void) {
             tpage = 0x19;
         }
         SetDrawMode((DR_MODE*)((i * 0xC) + (s32)D_800E56DC), 0, 0, tpage, NULL);
-        i++;
-    } while (i < 2);
+    }
 }
 
 void func_800A41E8(s32 arg0) {
@@ -384,7 +382,7 @@ void UpdateFadeOverlay(void) {
         D_800C6648[slot].v0 = ((vsync >> 2) & 0x10) - 128;
         addPrim(D_800BD130, &D_800C6648[slot]);
         addPrim(D_800BD130, &D_800E56DC[slot]);
-        if ((u32)((vsync - D_800C84F0) - 4) < 2) {
+        if ((vsync - D_800C84F0) >= 4 && (vsync - D_800C84F0) <= 5) {
             D_800E56F4 = 3;
         }
         D_800C84F0 = vsync;
@@ -480,11 +478,9 @@ WorldListNode* AllocRegionNode(void) {
         node = D_800E5764;
         if (node != NULL) {
             prev = NULL;
-            if (node->next != NULL) {
-                do {
-                    prev = node;
-                    node = node->next;
-                } while (node->next != NULL);
+            while (node->next != NULL) {
+                prev = node;
+                node = node->next;
             }
             if (prev != NULL) {
                 prev->next = NULL;
@@ -587,14 +583,12 @@ void UpdateRegionLoad(void) {
     if (D_800E5814 < D_8011650C * 5 && D_800E5820 >= 0) {
         node = D_800E5768;
         prev = NULL;
-        if (node != NULL) {
-            while (node != NULL) {
-                if (node == &D_800E5718[D_800E5820]) {
-                    break;
-                }
-                prev = node;
-                node = node->next;
+        while (node != NULL) {
+            if (node == &D_800E5718[D_800E5820]) {
+                break;
             }
+            prev = node;
+            node = node->next;
         }
         if (node == NULL) {
             func_800A0B40(0xB);
@@ -660,21 +654,19 @@ WorldListNode* WmGetElementWithBlockIdAndSetItFirst(s16 arg0) {
 
     node = D_800E5764;
     prev = NULL;
-    if (node != NULL) {
-        while (node != NULL) {
-            if (node->unk4 == arg0) {
-                break;
-            }
-            prev = node;
-            node = node->next;
+    while (node != NULL) {
+        if (node->unk4 == arg0) {
+            break;
         }
-        if (node != NULL && prev != NULL) {
-            next = node->next;
-            head = D_800E5764;
-            D_800E5764 = node;
-            prev->next = next;
-            node->next = head;
-        }
+        prev = node;
+        node = node->next;
+    }
+    if (node != NULL && prev != NULL) {
+        next = node->next;
+        head = D_800E5764;
+        D_800E5764 = node;
+        prev->next = next;
+        node->next = head;
     }
     return node;
 }
@@ -683,13 +675,11 @@ s32 IsRegionLoading(s16 arg0) {
     WorldListNode* node;
 
     node = D_800E5768;
-    if (node != NULL) {
-        while (node != NULL) {
-            if (node->unk4 == arg0) {
-                break;
-            }
-            node = node->next;
+    while (node != NULL) {
+        if (node->unk4 == arg0) {
+            break;
         }
+        node = node->next;
     }
     return node != NULL;
 }
@@ -741,24 +731,22 @@ s32 ExpireChunks(void) {
             nodePrev = NULL;
             D_80109D38 = chunk;
             chunk->next = freeChunk;
+            while (node != NULL) {
+                if (node->chunk == chunk) {
+                    break;
+                }
+                nodePrev = node;
+                node = node->next;
+            }
             if (node != NULL) {
-                while (node != NULL) {
-                    if (node->chunk == chunk) {
-                        break;
-                    }
-                    nodePrev = node;
-                    node = node->next;
+                if (nodePrev != NULL) {
+                    nodePrev->next = node->next;
+                } else {
+                    D_800E5A2C = node->next;
                 }
-                if (node != NULL) {
-                    if (nodePrev != NULL) {
-                        nodePrev->next = node->next;
-                    } else {
-                        D_800E5A2C = node->next;
-                    }
-                    freeNode = D_800E5A30;
-                    D_800E5A30 = node;
-                    node->next = freeNode;
-                }
+                freeNode = D_800E5A30;
+                D_800E5A30 = node;
+                node->next = freeNode;
             }
             if (prev != NULL) {
                 chunk = prev->next;
@@ -804,11 +792,9 @@ WorldChunkHeader* AllocChunk(void) {
     } else if (D_80109D3C != NULL) {
         chunk = D_80109D3C;
         prev = NULL;
-        if (chunk->next != NULL) {
-            do {
-                prev = chunk;
-                chunk = chunk->next;
-            } while (chunk->next != NULL);
+        while (chunk->next != NULL) {
+            prev = chunk;
+            chunk = chunk->next;
         }
         if (prev != NULL) {
             prev->next = NULL;
@@ -950,14 +936,12 @@ void WmAbortMapLoading(void) {
             prev = NULL;
             SystemCdromAbortLoading();
             node = D_800E5768;
-            if (node != NULL) {
-                while (node != NULL) {
-                    if (node == &D_800E5718[D_800E5820]) {
-                        break;
-                    }
-                    prev = node;
-                    node = node->next;
+            while (node != NULL) {
+                if (node == &D_800E5718[D_800E5820]) {
+                    break;
                 }
+                prev = node;
+                node = node->next;
             }
             if (node == NULL) {
                 func_800A0B40(0xD);
@@ -1582,7 +1566,7 @@ s32 func_800AA640(void) {
     temp_v0 = FindCollidingActor(D_8010AD3C);
     if (temp_v0 != NULL)
         func_800AA1B8();
-    return (s32)temp_v0;
+    return temp_v0;
 }
 
 WorldActor* func_800AA684(void) { return D_8010AD3C != NULL ? D_8010AD3C->collide : NULL; }
