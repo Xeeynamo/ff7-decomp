@@ -6,7 +6,7 @@ void SysGzipSetDataBlock(u8* arg0);
 u8* func_80014C80(s32 arg0);
 u16 SysGzipGetType(void);
 u16 SysGzipGetSize(void);
-extern u8 g_KernelRandomTable[];
+extern u8 g_KernRndTable[];
 
 extern u8 D_80062D98;
 extern s32 D_80062D9C;
