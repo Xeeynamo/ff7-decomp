@@ -9,6 +9,19 @@ extern CVECTOR D_800F5B70;
 extern s16 D_800F5B74;
 extern u8 D_80062D98; // set while the battle is paused
 
+// Ring and sprite, spawned together per target: fade in over FADE_IN_FRAMES,
+// hold, fade out from FADE_OUT_START_FRAME, retire at TARGET_LIFETIME.
+#define TARGET_LIFETIME 45
+#define FADE_IN_FRAMES 8
+#define FADE_OUT_START_FRAME 37
+#define RESULT_POPUP_FRAME 35
+
+// Screen fade: the far-colour depth ramps by FAR_DEPTH_PER_FRAME to
+// FAR_DEPTH_MAX, holds while targets animate, then eases back down.
+#define FAR_DEPTH_PER_FRAME 320
+#define FAR_DEPTH_MAX 2560
+#define SCREEN_FADE_LIFETIME 53
+
 // One slot of the shared battle effect array, as Lv5 Death lays it out. Only
 // StartFrame/AnimationFrame are common to every magic overlay; the remaining
 // 0x1C bytes are payload each effect defines for itself -- compare BarrierData
@@ -17,7 +30,8 @@ typedef struct Lv5DeathEffect {
     /* 0x00 */ s16 StartFrame;
     /* 0x02 */ s16 AnimationFrame;
     /* 0x04 */ SVECTOR Pos;
-    /* 0x0C */ u16 Scale; // matrix diagonal handed to func_800D4368
+    /* 0x0C */ u16 Scale; // set once at spawn; func_800D4368 puts it on
+                          // all three diagonal entries of its matrix
     /* 0x0E */ union {
         s16 TargetIndex;       // ring / sprite / attach effects
         s16 FadeOutStartFrame; // screen-fade effect only
@@ -38,17 +52,8 @@ extern u_long Lv5DeathTexture[]; // 8bpp TIM + 256-colour CLUT, uploaded on setu
 // Flat 16-point ring of radius 976 lying in the XY plane at z = -21.
 extern s32 Lv5DeathRingModel[];
 
-// Render descriptor for the func_800D4D90 pass. Same layout func_800D29D4
-// reads, but this renderer only touches offsets 0x0..0xB, so the instance in
-// ROM is truncated to 0xC bytes.
-typedef struct {
-    /* 0x0 */ s32* model;
-    /* 0x4 */ CVECTOR color; // .cd holds the GPU primitive code (0x2E)
-    /* 0x8 */ s16 TextureFrame;
-    /* 0xA */ s16 unkA;
-} Lv5DeathDesc; // size:0xC
-
-extern Lv5DeathDesc Lv5DeathSpriteDesc;
+// .color.cd holds the GPU primitive code (0x2E).
+extern SpriteRenderDesc Lv5DeathSpriteDesc;
 
 static void Lv5DeathBufferFlip(void) {
     Lv5DeathBufferPtr = g_dbIndex == 0 ? Lv5DeathPrimBuffer0 : Lv5DeathPrimBuffer1;
@@ -63,41 +68,44 @@ static void Lv5DeathMainSetup(s32 targetMask, s32 arg1);
 // here. Trampolines to Lv5DeathMainSetup, which sits at the end of the file.
 void MAGIC_Lv5Death(s32 targetMask, s32 arg1) { Lv5DeathMainSetup(targetMask, arg1); }
 
-// The ring spins 0 -> 180 degrees while it fades in, holds, then completes the
-// turn on the way out. Scales from 1.0 down to 0.5 over the same window.
+// One fixed-size ring held at the target for 46 frames. The depth cue carries
+// the animation: 0x1000 down to 0x800 over frames 0..8, held to 36, back to
+// 0x1000 by 45, fading the ring up to half intensity and out again.
 static void Lv5DeathRenderRing(void) {
     // Unused, but required for the match; it gives the function its 0x58 frame.
     char pad[0x34];
     Lv5DeathEffect* effect;
-    s32 rot;
-    s32 val;
-    Unk801B0C98* desc;
+    s32 scale;
+    s32 frame;
+    ModelRenderDesc* desc;
 
     effect = &D_80162978[D_8015169C];
-    rot = effect->Scale << 16;
-    func_800D4368(&effect->Pos, rot >> 16, -(rot >> 19));
+    // The shift pair sign-extends Scale; the bias pulls the ring an eighth
+    // of its size toward the camera, clear of the target.
+    scale = effect->Scale << 16;
+    func_800D4368(&effect->Pos, scale >> 16, -(scale >> 19));
 
     // Render descriptor built in scratchpad RAM.
-    desc = (Unk801B0C98*)0x1F800000;
-    desc->unk0 = Lv5DeathRingModel;
-    desc->unk4 = 0x88;
-    desc->unk8 = 0;
-    desc->unkA = 0x800;
-    desc->unkC = 0;
-    desc->unkE = 0;
+    desc = (ModelRenderDesc*)0x1F800000;
+    desc->model = Lv5DeathRingModel;
+    desc->flags = MODEL_DEPTH_CUE | MODEL_SEMI_TRANS;
+    desc->uvOffset = 0;
+    desc->color = 0x800;
+    desc->tpage = 0;
+    desc->clut = 0;
 
-    val = effect->AnimationFrame;
-    if (val < 8) {
-        val <<= 8;
-        desc->unkA = 0x1000 - val;
-    } else if (val >= 37) {
-        desc->unkA = (val << 8) - 0x1D00;
+    frame = effect->AnimationFrame;
+    if (frame < FADE_IN_FRAMES) {
+        frame <<= 8;
+        desc->color = 0x1000 - frame;
+    } else if (frame >= FADE_OUT_START_FRAME) {
+        desc->color = (frame << 8) - 0x1D00;
     }
 
     SetFarColor(0, 0, 0);
     Lv5DeathBufferPtr = func_800D29D4(desc, g_cDb->unk70, 12, Lv5DeathBufferPtr);
 
-    if (effect->AnimationFrame >= 45) {
+    if (effect->AnimationFrame >= TARGET_LIFETIME) {
         effect->StartFrame = -1;
     }
     if (D_80062D98 == 0) {
@@ -111,30 +119,30 @@ static void Lv5DeathRenderRing(void) {
 static void Lv5DeathRenderTargetSprite(void) {
     Lv5DeathEffect* effect;
     s32 frame;
-    u8 color;
+    u8 intensity;
 
     effect = &D_80162978[D_8015169C];
-    Lv5DeathSpriteDesc.TextureFrame = effect->AnimationFrame & 7;
+    Lv5DeathSpriteDesc.frameIndex = effect->AnimationFrame & 7;
 
     frame = effect->AnimationFrame;
-    if (frame < 8) {
-        color = frame * 16;
-    } else if (frame >= 37) {
-        color = -128 - ((frame - 37) * 16);
+    if (frame < FADE_IN_FRAMES) {
+        intensity = frame * 16;
+    } else if (frame >= FADE_OUT_START_FRAME) {
+        intensity = -128 - ((frame - FADE_OUT_START_FRAME) * 16);
     } else {
-        color = 128;
+        intensity = 128;
     }
-    Lv5DeathSpriteDesc.color.r = Lv5DeathSpriteDesc.color.g = Lv5DeathSpriteDesc.color.b = color;
+    Lv5DeathSpriteDesc.color.r = Lv5DeathSpriteDesc.color.g = Lv5DeathSpriteDesc.color.b = intensity;
 
     func_800D4368(&effect->Pos, (s16)effect->Scale, -((s16)effect->Scale >> 2));
     Lv5DeathBufferPtr = func_800D4D90(&Lv5DeathSpriteDesc, g_cDb->unk70, 12, Lv5DeathBufferPtr);
 
-    if (effect->AnimationFrame >= 45) {
+    if (effect->AnimationFrame >= TARGET_LIFETIME) {
         effect->StartFrame = -1;
         Lv5DeathTargetsRemaining--;
     }
     if (D_80062D98 == 0) {
-        if (effect->AnimationFrame == 35) {
+        if (effect->AnimationFrame == RESULT_POPUP_FRAME) {
             func_800D5774(effect->u.TargetIndex);
         }
         effect->AnimationFrame++;
@@ -146,27 +154,30 @@ static void Lv5DeathRenderTargetSprite(void) {
 // easing back down once the last one retires.
 static void Lv5DeathScreenFade(void) {
     Lv5DeathEffect* effect;
-    s32 val;
+    s32 farDepth;
 
     effect = &D_80162978[D_8015169C];
-    if (effect->AnimationFrame < 8) {
+    if (effect->AnimationFrame < FADE_IN_FRAMES) {
         D_800F5B70.r = D_800F5B70.g = D_800F5B70.b = 0;
-        val = effect->AnimationFrame * 320;
+        farDepth = effect->AnimationFrame * FAR_DEPTH_PER_FRAME;
     } else if (Lv5DeathTargetsRemaining <= 0) {
         if (effect->u.FadeOutStartFrame == 0) {
             effect->u.FadeOutStartFrame = effect->AnimationFrame;
         }
-        val = 2560 - (effect->AnimationFrame - effect->u.FadeOutStartFrame) * 320;
+        farDepth = FAR_DEPTH_MAX - (effect->AnimationFrame - effect->u.FadeOutStartFrame) * FAR_DEPTH_PER_FRAME;
     } else {
-        val = 2560;
+        farDepth = FAR_DEPTH_MAX;
     }
 
-    if (effect->AnimationFrame >= 53) {
-        val = 0;
+    // Frame 53 closes the slot on 0 wherever the ease-out has reached: it
+    // starts where the last target retired, so one target drops from 640
+    // and three, retiring on 46/48/50, drop from 1920.
+    if (effect->AnimationFrame >= SCREEN_FADE_LIFETIME) {
+        farDepth = 0;
         effect->StartFrame = -1;
     }
 
-    D_800F5B74 = val;
+    D_800F5B74 = farDepth;
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
     }
@@ -198,6 +209,7 @@ static void Lv5DeathMainSetup(s32 targetMask, s32 arg1) {
     func_800D2980(Lv5DeathTexture, 0, 0, 0);
     effect = &D_80162978[BattleEffectRegister(Lv5DeathScreenFade)];
     effect->u.FadeOutStartFrame = 0;
+    // frameStep 2: with three targets the pairs spawn on frames 1, 3 and 5.
     MagicAnimationRegister(targetMask, arg1, 2, Lv5DeathAttachToTarget);
 
     i = 0;

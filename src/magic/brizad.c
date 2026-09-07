@@ -2,18 +2,19 @@
 
 #include "common.h"
 #include "../battle/battle.h"
+#include "magic_private.h"
 
 // Ice (ブリザド / Blizzard), tier 1. Structurally a sibling of barrier.c:
 // a 3D model effect built through func_800D29D4 with the PSYQ matrix helpers,
 // double-buffered into a 0x20000 primitive page per frame.
-
-// The primitive buffer holds two pages; the flip slot alternates between them
-// so the GPU can read last frame's primitives while this frame builds.
-#define BRIZAD_PAGE_SIZE 0x10000
+//
+// The model lives in this overlay's data segment at 0x801B03F0: 84 vertices
+// and 120 Gouraud triangles, no textures, forming a twelve-spike burst whose
+// tips point at the vertices of an icosahedron.
 
 // .bss -- laid out so BrizadBufferPtr lands immediately after the buffer, at
 // 0x801B1014 + 0x20000. Matches the BarrierPrimBuffer/BarrierBufferPtr pair.
-static char BrizadPrimBuffer[2 * BRIZAD_PAGE_SIZE];
+static char BrizadPrimBuffer[2 * MAGIC_PAGE_SIZE];
 static void* BrizadBufferPtr; // current write pointer into the above
 
 typedef struct {
@@ -29,27 +30,24 @@ typedef struct {
     /* 0x1E */ s16 unk1E;
 } BrizadData; // size:0x20
 
-// PSX fixed point: 1.0 == 1 << FIXED_SHIFT. Angles: FIXED_ONE == a full turn.
-#define FIXED_SHIFT 12
-#define FIXED_ONE (1 << FIXED_SHIFT)
-
-// The block renders on frames 0..14, retiring after the last one, so both rates
-// are per (BRIZAD_LIFETIME - 1) frames: over its life it grows from nothing to
-// 3x the target's size and spins through exactly one revolution.
+// Frames 0..14; the model grows and fades out. func_800D29D4 loads the fade
+// as the GTE's depth-cue factor, driving the vertex colour toward
+// SetFarColor, black here. Every primitive is emitted semi-transparent and
+// the GPU blends additively, so black adds nothing and the model fades to
+// invisible rather than to a dark shape. Both rates are per (BRIZAD_LIFETIME
+// - 1) frames and the divisions truncate exactly; the compiler emits them as
+// shift-add chains. By the last frame growth reaches 0x2FF6 (2.998x), fade
+// 0xFF8.
 #define BRIZAD_LIFETIME 15
 #define GROWTH_PER_FRAME (3 * FIXED_ONE / (BRIZAD_LIFETIME - 1)) // 0x36D
-#define SPIN_PER_FRAME (FIXED_ONE / (BRIZAD_LIFETIME - 1))       // 0x124
+#define FADE_PER_FRAME (FIXED_ONE / (BRIZAD_LIFETIME - 1))       // 0x124
 
-// ScaleMatrix writes into MATRIX.m, which is s16; a scale of 0x7FFF against an
-// identity entry of FIXED_ONE lands exactly on the ceiling, so clamp there.
+// ScaleMatrix writes into MATRIX.m, which is s16, so the scale clamps here.
 #define SCALE_MAX 0x7FFF
 
-extern Unk801B0C98 BrizadRenderDesc;
+extern ModelRenderDesc BrizadRenderDesc;
 extern BrizadData D_80162978[];
 extern s16 D_80151774;
-
-// Returns a scale derived from the target's model size.
-s32 func_800D55A4(s32 target);
 
 // Render pass; registered by BrizadSpawnIce, so it takes no arguments.
 static void BrizadRenderIce(void) {
@@ -58,7 +56,7 @@ static void BrizadRenderIce(void) {
     BrizadData* effect = &D_80162978[D_8015169C];
     s16 nextFrame;
     s16 frame;
-    s16 spin;
+    s16 fade;
     s32 growth = (effect->Scale * GROWTH_PER_FRAME);
     s32 scale = (s32)(effect->AnimationFrame * growth) >> FIXED_SHIFT;
 
@@ -68,9 +66,9 @@ static void BrizadRenderIce(void) {
     scaleVec.vx = scaleVec.vy = scaleVec.vz = scale;
     frame = effect->AnimationFrame;
     if (frame < 0) {
-        spin = 0;
+        fade = 0;
     } else {
-        spin = frame * SPIN_PER_FRAME;
+        fade = frame * FADE_PER_FRAME;
     }
     RotMatrixYXZ(&effect->Rot, &matrix);
     ScaleMatrix(&matrix, &scaleVec);
@@ -81,7 +79,7 @@ static void BrizadRenderIce(void) {
     SetRotMatrix(&matrix);
     SetTransMatrix(&matrix);
     SetFarColor(0, 0, 0);
-    BrizadRenderDesc.unkA = spin;
+    BrizadRenderDesc.color = fade;
     BrizadBufferPtr = func_800D29D4(&BrizadRenderDesc, g_cDb->unk70, 12, BrizadBufferPtr);
     if (D_80062D98 == 0) {
         nextFrame = (u16)effect->AnimationFrame + 1;
@@ -129,7 +127,7 @@ static void BrizadAttachToTarget(s32 target) { D_80162978[BattleEffectRegister(B
 static void BrizadDoubleBufferFlip(void) {
     BrizadData* flip = &D_80162978[D_8015169C];
 
-    BrizadBufferPtr = flip->AnimationFrame * BRIZAD_PAGE_SIZE + BrizadPrimBuffer;
+    BrizadBufferPtr = &BrizadPrimBuffer[flip->AnimationFrame * MAGIC_PAGE_SIZE];
     flip->AnimationFrame = (u16)flip->AnimationFrame ^ 1;
     if (D_80162080 < 2) {
         flip->StartFrame = -1;

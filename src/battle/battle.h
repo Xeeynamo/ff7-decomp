@@ -377,14 +377,43 @@ typedef struct {
 
 } Unk800BB75C; // size:0x38
 
+// Flag word at offset 4, as func_800D29D4 tests it. Each mirror bit negates
+// one rotation column, reversing polygon winding, so the cull test XORs their
+// parity back out. Readings agree with Akari's q-gears_reverse
+// (ffvii/DISC/BATTLE/BATTLE.X_model.cpp, "funcd29d4").
+enum ModelRenderFlags {
+    MODEL_MIRROR_X = 0x1,           // negates R11/R21/R31
+    MODEL_MIRROR_Y = 0x2,           // negates R12/R22/R32
+    MODEL_MIRROR_Z = 0x4,           // negates R13/R23/R33
+    MODEL_SEMI_TRANS = 0x8,         // sets bit 1 of the GPU command byte
+    MODEL_NO_DEPTH_CUE = 0x10,      // skips dpcs/dpct under MODEL_DEPTH_CUE
+    MODEL_NO_CULL = 0x20,           // skips nclip; both faces emitted
+    MODEL_PRIM_TPAGE = 0x40,        // tpage from primitive byte 7, not tpage
+    MODEL_DEPTH_CUE = 0x80,         // offset 0xA feeds GTE IR0; see below
+    MODEL_PRIM_PACKET_BITS = 0x100, // primitive byte 7 << 18 ORed into colour
+};
+
+// Model descriptor read by func_800D29D4. Field readings agree with Akari's
+// q-gears_reverse (ffvii/DISC/BATTLE/BATTLE.X_model.cpp, "funcd29d4").
 typedef struct {
-    s32* unk0;
-    s32 unk4;
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    s16 unkE;
-} Unk801B0C98;
+    /* 0x0 */ s32* model;
+    /* 0x4 */ s32 flags;    // ModelRenderFlags
+    /* 0x8 */ u16 uvOffset; // added to every UV halfword; all callers pass 0
+    /* 0xA */ s16 color;    // grey level ORed into the colour word; under
+                            // MODEL_DEPTH_CUE it feeds GTE IR0 instead, so
+                            // 0x1000 blends the model fully into SetFarColor
+    /* 0xC */ s16 tpage;    // packet +0x16; Akari: "blending option"
+    /* 0xE */ s16 clut;     // packet clut halfword
+} ModelRenderDesc;          // size:0x10
+
+// Textured-quad descriptor read by func_800D4D90; ROM instances are packed
+// 0xC apart. Akari: BATTLE.X_units_functions.cpp, "funcd4d90".
+typedef struct {
+    /* 0x0 */ s32* frames;    // per-frame quad blocks, count in each header
+    /* 0x4 */ CVECTOR color;  // packet colour word; cd is 0x2C or 0x2E (POLY_FT4)
+    /* 0x8 */ u16 frameIndex; // blocks skipped; bit 15 enables clutBias
+    /* 0xA */ s16 clutBias;   // added to each quad's clut halfword
+} SpriteRenderDesc;           // size:0xC
 
 typedef struct {
     s16 unk0;
@@ -479,19 +508,18 @@ int BattleEffectRegister(void (*func)(void));
 
 // battle2.c
 void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
-void* func_800D29D4(Unk801B0C98*, u_long**, int, void*);
+void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);
 // Build the model matrix for a battle effect: `scale` goes on the matrix
 // diagonal, `pos` is transformed into view space to become the translation,
 // and `depthBias` nudges it along that view vector (negative pulls it toward
 // the camera). Leaves the result installed as the rot/trans matrix.
-void func_800D4368(SVECTOR* pos, s32 scale, s32 depthBias);
-// Same descriptor layout as func_800D29D4 (offsets 0/4/8/A), different
-// renderer; callers that colour the model type offset 4 as a CVECTOR.
-void* func_800D4D90(void* desc, u_long** ot, int otLen, void* prim);
-void func_800D5444(int, int, int, void (*func)(int));
+MATRIX* func_800D4368(SVECTOR* pos, s32 scale, s32 depthBias);
+void* func_800D4D90(SpriteRenderDesc* desc, u_long** ot, int otLen, void* prim);
+// Returns a scale derived from the target's model size.
+s32 func_800D55A4(s32 target);
 void BattleCommandSend(s32 cmdId, ...);
-int func_800D574C(int);
 void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
+// Runs `func` once per set bit in targetMask, frameStep frames apart.
 void MagicAnimationRegister(s32 targetMask, s32 arg1, s32 frameStep, void (*func)(int));
 s32 BattlePositionToStereoPan(SVECTOR* sv);
 s32 BattleEntityGetStereoPan(s32 arg0);
