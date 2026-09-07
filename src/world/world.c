@@ -7,7 +7,7 @@ void WmGetPosFromPcEntity(VECTOR* arg0);
 void WmRestoreEntityPosAndDirFromSavemap(WorldActor*);
 s32 func_800ADFC0(void);
 static s32 func_800B0800(void);
-void WmCreateShadowPacket(u8*, RECT*);
+void WmCreateShadowPacket(POLY_FT4*, RECT*);
 static s32 func_800B716C(void);
 static s32 func_800B7B2C(void);
 s32 func_800B7B3C(void);
@@ -2279,30 +2279,31 @@ void WmRestoreEntityPosAndDirFromSavemap(WorldActor* arg0) {
 
     p = (s32*)D_8010AD50;
     end = (s32*)(D_8010AD50 + 0x30);
-    if (p < end) {
-        type = arg0->actorType;
-        while (p < end) {
-            if (((*p >> 19) & 0x1F) == type) {
-                break;
-            }
-            p += 2;
+    if (p >= end) {
+        return;
+    }
+    type = arg0->actorType;
+    while (p < end) {
+        if (((*p >> 19) & 0x1F) == type) {
+            break;
         }
-        if (p < (s32*)(D_8010AD50 + 0x30) && arg0 != NULL) {
-            t = p[0] & 0x7FFFF;
-            arg0->altPos.vx = t;
-            arg0->pos.vx = t;
-            t = p[1] >> 18;
-            arg0->altPos.vy = t;
-            arg0->pos.vy = t;
-            t = p[1] & 0x3FFFF;
-            arg0->altPos.vz = t;
-            arg0->pos.vz = t;
-            f = (p[0] >> 20) & 0xFF0;
-            arg0->unk3E = 0;
-            arg0->direction = f;
-            arg0->unk3C = f;
-            arg0->facing = f;
-        }
+        p += 2;
+    }
+    if (p < (s32*)(D_8010AD50 + 0x30) && arg0 != NULL) {
+        t = p[0] & 0x7FFFF;
+        arg0->altPos.vx = t;
+        arg0->pos.vx = t;
+        t = p[1] >> 18;
+        arg0->altPos.vy = t;
+        arg0->pos.vy = t;
+        t = p[1] & 0x3FFFF;
+        arg0->altPos.vz = t;
+        arg0->pos.vz = t;
+        f = (p[0] >> 20) & 0xFF0;
+        arg0->unk3E = 0;
+        arg0->direction = f;
+        arg0->unk3C = f;
+        arg0->facing = f;
     }
 }
 
@@ -2495,9 +2496,6 @@ void func_800AF0B0(void) {
 void WmSetGteColourSettings(void) {
     MATRIX* m;
     s32 mode;
-    s32 r;
-    s32 g;
-    s32 b;
 
     mode = 2;
     if (WmGetWmId() == mode) {
@@ -2507,15 +2505,10 @@ void WmSetGteColourSettings(void) {
     }
     SetLightMatrix(m);
     if (WmGetWmId() == mode) {
-        r = 0x20;
-        g = 0x20;
-        b = 0x30;
+        SetBackColor(0x20, 0x20, 0x30);
     } else {
-        r = 0x40;
-        g = 0x40;
-        b = 0x40;
+        SetBackColor(0x40, 0x40, 0x40);
     }
-    SetBackColor(r, g, b);
     SetColorMatrix(&D_800C6848);
     SetFarColor(0, 0, 0);
 }
@@ -2785,28 +2778,29 @@ void SetCurrentTriangle(WorldChunkHeader* arg0, WorldTriangle* arg1) {
     s32 inside;
     s32 zoff;
 
-    if (D_8010CA8C == 0 || D_8010CA8C == 2 || D_8010CA8C == 3) {
-        D_8010CA1C = &D_8010C83C;
-        D_8010C83C.chunk = arg0;
-        D_8010C83C.tri = arg1;
-        D_8010C83C.unk8 = 0;
-        D_8010CA20 = 0;
-        D_8010CA78 = 0;
-        D_8010CA74 = D_8010CA24;
-        RegisterChunk(arg0);
-        if (arg1 != NULL) {
-            *((u8*)&arg1->textureAndLocationAndFlags + 1) |= 0x40;
-        }
-        D_800BD144 = 0;
-        D_8010CA8C = 1;
-        WmGetPosFromPcEntity(&pos);
-        inside = 0;
-        if (pos.vx >= 0x36000 && pos.vx <= 0x3FFFF) {
-            zoff = pos.vz - 0x1C000;
-            inside = (u32)zoff <= 0x9FFF;
-        }
-        D_8010CAF8 = inside;
+    if (D_8010CA8C != 0 && D_8010CA8C != 2 && D_8010CA8C != 3) {
+        return;
     }
+    D_8010CA1C = &D_8010C83C;
+    D_8010C83C.chunk = arg0;
+    D_8010C83C.tri = arg1;
+    D_8010C83C.unk8 = 0;
+    D_8010CA20 = 0;
+    D_8010CA78 = 0;
+    D_8010CA74 = D_8010CA24;
+    RegisterChunk(arg0);
+    if (arg1 != NULL) {
+        *((u8*)&arg1->textureAndLocationAndFlags + 1) |= 0x40;
+    }
+    D_800BD144 = 0;
+    D_8010CA8C = 1;
+    WmGetPosFromPcEntity(&pos);
+    inside = 0;
+    if (pos.vx >= 0x36000 && pos.vx <= 0x3FFFF) {
+        zoff = pos.vz - 0x1C000;
+        inside = (u32)zoff <= 0x9FFF;
+    }
+    D_8010CAF8 = inside;
 }
 
 static void func_800B22E4(void) { func_800B190C(); }
@@ -3008,30 +3002,28 @@ void func_800B57C0(s32 arg0) { D_8010D9BA[arg0 * 4] = 0; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B57DC);
 
-void WmCreateShadowPacket(u8* prims, RECT* rect) {
-    POLY_FT4* p;
+void WmCreateShadowPacket(POLY_FT4* prims, RECT* rect) {
     s32 i;
     s32 tpage;
 
     if (prims != NULL && rect != NULL) {
         i = 0;
-        p = (POLY_FT4*)prims;
         do {
-            setlen(p, 9);
-            setcode(p, 0x2E);
-            p->r0 = p->g0 = p->b0 = 0x20;
-            p->clut = 0x7CC4;
+            setlen(prims, 9);
+            setcode(prims, 0x2E);
+            prims->r0 = prims->g0 = prims->b0 = 0x20;
+            prims->clut = 0x7CC4;
             if (GetGraphType() == 1 || GetGraphType() == 2) {
                 tpage = 0x129;
             } else {
                 tpage = 0x59;
             }
-            p->tpage = tpage;
-            p->u0 = p->u2 = rect->x;
-            p->v0 = p->v1 = rect->y;
-            p->u1 = p->u3 = rect->x + rect->w;
-            p->v2 = p->v3 = rect->y + rect->h;
-            p++;
+            prims->tpage = tpage;
+            prims->u0 = prims->u2 = rect->x;
+            prims->v0 = prims->v1 = rect->y;
+            prims->u1 = prims->u3 = rect->x + rect->w;
+            prims->v2 = prims->v3 = rect->y + rect->h;
+            prims++;
             i++;
         } while (i < 2);
     }
@@ -3106,16 +3098,15 @@ void ToggleAmbientSound(s32 arg0) {
         D_8010CB20 = arg0;
         D_8009A004[0] = 0x40;
         D_8009A008[0] = arg0;
+        SystemAkaoExecute();
     } else if (arg0 == -D_8010CB20) {
         D_8010CB20 = 0;
         D_8009A000[0] = 0xF1;
         SystemAkaoExecute();
         D_8009A000[0] = 0xBC;
         D_8009A004[0] = 0;
-    } else {
-        return;
+        SystemAkaoExecute();
     }
-    SystemAkaoExecute();
 }
 
 void WmInitModelVariablesAndArray(void) {
