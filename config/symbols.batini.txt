@@ -1,2 +1,8 @@
 g_BattleState = 0x800F83AC; // size:0x444
 BattleInitMain = 0x801B0050;
+BattleInitSetup = 0x801B0490;
+BattleInitPartyFromSavemap = 0x801B0F08;
+BattleInitFormation = 0x801B19AC;
+BattleInitEnemyUnits = 0x801B1E0C;
+BattleInitEnemyAI = 0x801B2308;
+BattleInitLoadSceneData = 0x801B23E0;

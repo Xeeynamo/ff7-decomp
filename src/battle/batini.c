@@ -4,13 +4,13 @@
 extern Unk801B2308 D_80163624;
 extern u16 D_8016376C;
 void BATTLE_RunFrame(void); // battle callback for batini, move to battle.h
-void func_801B2308(void);
+void BattleInitEnemyAI(void);
 
 // entrypoint
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitMain);
 
-static void func_801B23E0(s32 sceneID, void (*cb)(void));
-void func_801B0490(s32 sceneID) {
+static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void));
+void BattleInitSetup(s32 sceneID) {
     Unk800F83E0* c;
     s32 i;
     s32 var_s1;
@@ -18,8 +18,8 @@ void func_801B0490(s32 sceneID) {
     var_s1 = 4;
     if (D_8016376C) {
         var_s1 = 0;
-        func_800A7254(0, 0, 15, 0);
-        func_800A7254(0, 0, 14, 0);
+        BattleQueueEvent(0, 0, 15, 0);
+        BattleQueueEvent(0, 0, 14, 0);
     }
     for (i = 0; i < 0x40; i++) {
         if (D_800F6936[i][0] >= var_s1) {
@@ -30,13 +30,13 @@ void func_801B0490(s32 sceneID) {
         D_800F5E60[i].unk6 = 0;
     }
     if (D_8016376C) {
-        func_801B0F08();
+        BattleInitPartyFromSavemap();
     }
-    func_801B23E0(sceneID, BATTLE_RunFrame);
-    func_801B1E0C();
+    BattleInitLoadSceneData(sceneID, BATTLE_RunFrame);
+    BattleInitEnemyUnits();
     g_BattleState.presentMask = 0;
     for (i = 0; i < 10; i++) {
-        func_800AE954(i);
+        BattleRecalcUnitSpeed(i);
         c = &g_BattleState.combatant[i];
         if (c->unk8 != -1) {
             g_BattleState.presentMask |= 1 << i;
@@ -44,13 +44,13 @@ void func_801B0490(s32 sceneID) {
     }
     g_BattleState.sceneID = sceneID;
     D_800F83A8 = D_80163624.unk2;
-    func_801B19AC();
-    func_800A4540();
-    func_801B2308();
-    func_800A4540();
+    BattleInitFormation();
+    BattleUpdateUnitMasks();
+    BattleInitEnemyAI();
+    BattleUpdateUnitMasks();
     for (i = 4; i < 10; i++) {
         D_800F5BBC[i][0] = ((u8)SysGetRandomByteRange(0x40) + 0x80) << 8;
-        func_800B108C(i);
+        BattleInitUnitAction(i);
     }
 }
 
@@ -157,7 +157,7 @@ s32 func_801B1734(s32 slot);
 // Seeds the three live party slots from the save data: finds each slot's
 // party member record, copies HP/MP and the derived battle stats across, then
 // applies the equipped accessory, the command list and the row/limit setup.
-void func_801B0F08(void) {
+void BattleInitPartyFromSavemap(void) {
     Unk800F5E60* party;
     ActiveCharacterData* rec;
     Unk800F83E0* c;
@@ -201,7 +201,7 @@ void func_801B0F08(void) {
                     func_801B11BC(i);
                     func_800A4BA4(i);
                     if (func_801B1734(i) == 0) {
-                        func_800B108C(i);
+                        BattleInitUnitAction(i);
                     }
                     break;
                 }
@@ -430,7 +430,7 @@ const s32 D_801B001C[] = {0x0000, 0x1000, 0x0008, 0x0800};
 const s32 D_801B002C[] = {0x0000, 0x000A, 0x0027, 0x000A};
 extern u8 D_800F9DA0; // pending battle-start status flags, one bit per entry
                       // of D_801B001C / D_801B002C (bit 4 = full-heal)
-void func_800A7254(s32, s32, s32, s32);
+void BattleQueueEvent(s32, s32, s32, s32);
 
 // Applies the pending battle-start effects in D_800F9DA0 to party member
 // `slot`: bit 4 restores half its max HP, bits 0-3 inflict the matching status
@@ -452,12 +452,12 @@ s32 func_801B1734(s32 slot) {
         if (g_BattleState.combatant[slot].curHP > g_BattleState.combatant[slot].maxHP) {
             g_BattleState.combatant[slot].curHP = g_BattleState.combatant[slot].maxHP;
         }
-        func_800A7254(2, slot, 0x17, 0);
+        BattleQueueEvent(2, slot, 0x17, 0);
     }
     for (i = 0; i < 4; i++) {
         if ((D_800F9DA0 >> i) & 1) {
             g_BattleState.combatant[slot].status |= D_801B001C[i] & ~mask;
-            func_800A7254(2, slot, 0x17, D_801B002C[i]);
+            BattleQueueEvent(2, slot, 0x17, D_801B002C[i]);
             ret = 1;
         }
     }
@@ -499,7 +499,7 @@ void func_800B1060(s32);
 // start "turned around" (bit 0x80 of unk4) -- back attacks, side attacks and
 // pincers each split the party differently. Finally the front/back row bit is
 // re-derived for the three party slots.
-void func_801B19AC(void) {
+void BattleInitFormation(void) {
     u16 row[3];
     s32 enemyMask;
     s32 partyMask;
@@ -654,9 +654,9 @@ void func_801B1CB0(void) {
     D_80166F74 = rows;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B1E0C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitEnemyUnits);
 
-void func_801B2308(void) {
+void BattleInitEnemyAI(void) {
     s32 i;
 
     for (i = 0; i < 6; i++) {
@@ -672,7 +672,7 @@ void func_801B2308(void) {
 }
 
 static const s8 D_801B0044[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x03, 0x03, 0x03, 0x05, 0x6E, 0x64, 0x62};
-static void func_801B23E0(s32 sceneID, void (*cb)(void)) {
+static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     u8 dummy[0x100];
     SceneContainer scene;
     s32 chunkID;
