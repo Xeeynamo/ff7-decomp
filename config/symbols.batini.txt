@@ -8,3 +8,4 @@ BattleInitEnemyAI = 0x801B2308;
 BattleInitLoadSceneData = 0x801B23E0;
 BattleInitATBTimers = 0x801B0668;
 
+BattleInitSetSpeed = 0x801B085C;

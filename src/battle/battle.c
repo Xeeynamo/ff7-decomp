@@ -356,7 +356,7 @@ s32 func_800A37F8(s32 arg0) {
 s32 func_800A3828(void) {
     s32 ret = 0;
     if (D_800F39E0 == 3) {
-        D_800F39E4 += D_800F5F44.D_800F7DA6;
+        D_800F39E4 += D_800F5F44.battleSpeed;
     }
     if (D_800F5F44.D_800F7DAA == 2) {
         switch (D_800F3896) {

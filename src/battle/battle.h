@@ -262,7 +262,7 @@ typedef struct {
     /* 0x0C60 */ Unk800F5F44_5 _5;
     /* 0x0E60 */ u8 script[0x1000];
     /* 0x1E60 */ u16 D_800F7DA4;
-    /* 0x1E62 */ u16 D_800F7DA6;
+    /* 0x1E62 */ u16 battleSpeed;
     /* 0x1E64 */ u16 D_800F7DA8;
     /* 0x1E66 */ u16 D_800F7DAA;
     /* 0x1E68 */ u16 D_800F7DAC;

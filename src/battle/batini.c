@@ -86,13 +86,13 @@ void BattleInitATBTimers(void) {
     for (i = 0; i < 10; i++) {
         if ((presentMask >> i) & 1) {
             switch (D_800F5F44.battleType) {
-            case 0:
-            case 5:
+            case SETUP_DEFAULT:
+            case SETUP_PINCER_2:
                 t = timer[i] + 0xE000;
                 timer[i] = t - max;
                 break;
-            case 2:
-            case 4:
+            case SETUP_BACK_ATTACK:
+            case SETUP_PINCER:
                 if (i < 4) {
                     timer[i] = 0;
                 } else {
@@ -123,7 +123,7 @@ void BattleInitATBTimers(void) {
     }
 }
 
-void func_801B085C(s32 arg0) { D_800F5F44.D_800F7DA6 = 0x10000 / ((arg0 * 480 / 256 + 0x78) * 2); }
+void BattleInitSetSpeed(s32 speed) { D_800F5F44.battleSpeed = 0x10000 / ((speed * 480 / 256 + 0x78) * 2); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B08C0);
 

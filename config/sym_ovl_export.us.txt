@@ -1,7 +1,7 @@
 BattleInitMain = 0x801b0050;
 BattleInitSetup = 0x801b0490;
 BattleInitATBTimers = 0x801b0668;
-func_801B085C = 0x801b085c;
+BattleInitSetSpeed = 0x801b085c;
 func_801B08C0 = 0x801b08c0;
 BattleInitPartyFromSavemap = 0x801b0f08;
 func_801B1120 = 0x801b1120;
