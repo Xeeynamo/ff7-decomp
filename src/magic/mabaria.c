@@ -109,7 +109,7 @@ static void MabariaAnimationUpdate(void) {
     effect->AnimationFrame++;
 }
 
-static void MabariaAttachToTarget(s32 target) {
+static void MabariaAttachToTarget(s32 target, s32 arg1) {
     MabariaData* effect;
 
     effect = &D_80162978[BattleEffectRegister(MabariaAnimationUpdate)];

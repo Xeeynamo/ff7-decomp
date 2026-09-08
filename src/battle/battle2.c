@@ -1127,16 +1127,52 @@ static void BattleFixedPointRampUpdate(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D52A0);
 
-void BattleAnimationUpdate();
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleAnimationUpdate);
+// Fan one magic animation out over its target mask. Each activation scans to
+// the next target in the mask, fires the callback, and retires the slot once
+// the mask is exhausted; FrameStep decides how often that happens.
+void BattleAnimationUpdate(void) {
+    MagicAnimationData* slot = (MagicAnimationData*)&D_80162978[D_8015169C];
+    s16 target;
 
-void MagicAnimationRegister(s32 arg0, s32 arg1, s32 arg2, void (*func)(int)) {
-    Unk80162978* temp_v0 = &D_80162978[BattleEffectRegister(BattleAnimationUpdate)];
-    temp_v0->D_80162978 = 0;
-    temp_v0->D_8016297C = arg0;
-    temp_v0->D_8016297E = arg1;
-    temp_v0->D_80162980 = arg2;
-    *(s32*)&temp_v0->unkC = (s32)func;
+    if (D_80062D98 != 0) { // global pause
+        return;
+    }
+    if (slot->FrameCounter == 0) {
+        do {
+            target = slot->TargetCursor;
+            while (((slot->TargetMask >> target) & 1) == 0) {
+                target = target + 1;
+                slot->TargetCursor = target;
+            }
+            slot->Callback(slot->TargetCursor, slot->CallbackArg);
+            // These two fields are read back with lhu here and lh everywhere
+            // else, so the u16 casts have to stay.
+            slot->TargetCursor = (u16)slot->TargetCursor + 1;
+            // No bit left at or above the cursor, so every target is done.
+            if (slot->TargetMask < (1 << slot->TargetCursor)) {
+                slot->TargetCursor = -1;
+                return;
+            }
+        } while (slot->FrameStep == 0); // 0 fans out to every target at once
+    }
+    slot->FrameCounter = (u16)slot->FrameCounter + 1;
+    if (slot->FrameCounter >= slot->FrameStep) {
+        slot->FrameCounter = 0;
+    }
+}
+
+// TODO: signature is a best guess. Certain: two args are passed, the target
+// index and arg1 (offset 0x06). Guessed: the types -- s16 and s32
+// compile identically, no overlay yet reads arg1, and editing this
+// leaves every object byte-identical, so the build cannot check it.
+
+void MagicAnimationRegister(s32 arg0, s32 arg1, s32 arg2, void (*func)(s32, s32)) {
+    MagicAnimationData* temp_v0 = (MagicAnimationData*)&D_80162978[BattleEffectRegister(BattleAnimationUpdate)];
+    temp_v0->TargetCursor = 0;
+    temp_v0->TargetMask = arg0;
+    temp_v0->CallbackArg = arg1;
+    temp_v0->FrameStep = arg2;
+    temp_v0->Callback = func;
 }
 
 static s32 func_800D54BC(s32 arg0) {

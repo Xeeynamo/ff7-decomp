@@ -281,7 +281,7 @@ static void BarrierAnimationUpdate(void) {
     barrier->AnimationFrame++;
 }
 
-static void BarrierAttachToTarget(int target) {
+static void BarrierAttachToTarget(int target, int arg1) {
     BarrierData* barrier;
 
     barrier = &D_80162978[BattleEffectRegister(BarrierAnimationUpdate)];

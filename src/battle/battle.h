@@ -520,7 +520,7 @@ s32 func_800D55A4(s32 target);
 void BattleCommandSend(s32 cmdId, ...);
 void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
 // Runs `func` once per set bit in targetMask, frameStep frames apart.
-void MagicAnimationRegister(s32 targetMask, s32 arg1, s32 frameStep, void (*func)(int));
+void MagicAnimationRegister(s32 targetMask, s32 arg1, s32 frameStep, void (*func)(s32, s32));
 s32 BattlePositionToStereoPan(SVECTOR* sv);
 s32 BattleEntityGetStereoPan(s32 arg0);
 void func_800D5774(u32 targetIndex);

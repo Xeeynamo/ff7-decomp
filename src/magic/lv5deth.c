@@ -164,7 +164,7 @@ static void Lv5DeathScreenFade(void) {
     }
 }
 
-static void Lv5DeathAttachToTarget(s32 target) {
+static void Lv5DeathAttachToTarget(s32 target, s32 arg1) {
     Lv5DeathEffect* effect;
     Lv5DeathEffect* ring;
 

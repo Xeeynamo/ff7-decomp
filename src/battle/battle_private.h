@@ -69,6 +69,20 @@ typedef struct {
     /* 0x1E */ s16 unk1E;
 } Unk80162978; // size:0x20
 
+// One effect slot driven by BattleAnimationUpdate, allocated by
+// MagicAnimationRegister. Same 0x20 bytes as Unk80162978; only the fields
+// this pair of functions touches are named.
+typedef struct {
+    /* 0x00 */ s16 TargetCursor; // bit index into TargetMask; -1 retires the slot
+    /* 0x02 */ s16 FrameCounter; // counts up to FrameStep
+    /* 0x04 */ s16 TargetMask;
+    /* 0x06 */ s16 CallbackArg; // handed to Callback as its second argument
+    /* 0x08 */ s16 FrameStep;   // 0 fans out to every target in one frame
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ void (*Callback)(s32, s32);
+    /* 0x10 */ char pad10[0x10]; // untouched by this pair
+} MagicAnimationData; // size:0x20
+
 typedef struct {
     u16 unk0;
     s16 unk2;
