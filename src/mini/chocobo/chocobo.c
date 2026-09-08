@@ -1,8 +1,46 @@
+//! PSYQ=4.0 CC1=2.7.2
+
 #include "common.h"
+#include "game.h"
+#include "libgte.h"
+
+typedef struct {
+    u32 unk0;
+    u32 unk4;
+} UnkRectData;
+
+extern UnkRectData D_800A0020;
+extern UnkRectData D_800A0028;
+extern u32 D_80079F64;
+extern u32 D_8007AF64;
+extern u32 D_8007BF64;
+extern u32 D_8007C764;
+extern s32 D_800B7598;
+extern s32 D_800F507C;
+extern s32* D_800F5084;
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A02D0);
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1260);
+void func_800A1260(void) {
+    s32 temp_s0;
+    s32 temp_s1;
+    s32 temp_s2;
+
+    temp_s0 = *D_800F5084;
+    temp_s2 = (D_800B7598 + temp_s0) % temp_s0;
+    temp_s1 = (D_800F507C + temp_s0) % temp_s0;
+
+    PushMatrix();
+
+    if (temp_s1 < temp_s2) {
+        func_800A1354(0, temp_s1);
+        func_800A1354(temp_s2, temp_s0);
+    } else {
+        func_800A1354(temp_s2, temp_s1);
+    }
+
+    PopMatrix();
+}
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1354);
 
@@ -16,9 +54,85 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A18BC);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1F40);
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A272C);
+void func_800A272C(s32 arg0, s32 arg1) {
+    RECT sp10;
+    RECT sp18;
+    s32 var_a0;
+    u32 var_a1;
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A28D8);
+    sp10 = *(RECT*)&D_800A0020;
+    sp18 = *(RECT*)&D_800A0028;
+
+    if (arg0 != 0) {
+        SysCdromStartLoadLzs(0x3C1, 0x20000, (u32*)0x80110000, 0);
+    } else {
+        SysCdromStartLoadLzs(0x32C, 0x20000, (u32*)0x80110000, 0);
+    }
+
+    while (SystemCdromReadChain() != 0) {
+    }
+
+    LoadImage(&sp10, (u32*)0x80110000);
+    DrawSync(0);
+
+    if (arg0 != 0) {
+        SysCdromStartLoadLzs(0x3F1, 0x1E000, (u32*)0x80190000, 0);
+    } else {
+        SysCdromStartLoadLzs(0x3CE, 0x1E800, (u32*)0x80190000, 0);
+    }
+
+    while (SystemCdromReadChain() != 0) {
+    }
+
+    switch (arg1) {
+    case 0:
+        SysCdromStartLoadLzs(0x459, 0x30000, (u32*)0x80110000, 0);
+        break;
+    case 1:
+        SysCdromStartLoadLzs(0x433, 0x30000, (u32*)0x80110000, 0);
+        break;
+    case 2:
+        SysCdromStartLoadLzs(0x417, 0x30000, (u32*)0x80110000, 0);
+        break;
+    case 3:
+        SysCdromStartLoadLzs(0x49C, 0x30000, (u32*)0x80110000, 0);
+        break;
+    }
+
+    while (SystemCdromReadChain() != 0) {
+    }
+
+    LoadImage(&sp18, (u32*)0x80110000);
+    DrawSync(0);
+
+    if (arg0 != 0) {
+        SysCdromStartLoadLzs(0x33E, 0x6A000, (u32*)0x80110000, 0);
+    } else {
+        SysCdromStartLoadLzs(0x293, 0x7D000, (u32*)0x80110000, 0);
+    }
+
+    while (SystemCdromReadChain() != 0) {
+    }
+}
+
+void func_800A28D8(void) {
+    SysCdromStartLoadLzs(0x4C9, 0x1000U, &D_80079F64, NULL);
+    do {
+
+    } while (SystemCdromReadChain() != 0);
+    SysCdromStartLoadLzs(0x4CA, 0x1000U, &D_8007AF64, NULL);
+    do {
+
+    } while (SystemCdromReadChain() != 0);
+    SysCdromStartLoadLzs(0x4C8, 0x800U, &D_8007BF64, NULL);
+    do {
+
+    } while (SystemCdromReadChain() != 0);
+    SysCdromStartLoadLzs(0x4C7, 0x800U, &D_8007C764, NULL);
+    do {
+
+    } while (SystemCdromReadChain() != 0);
+}
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A2984);
 
