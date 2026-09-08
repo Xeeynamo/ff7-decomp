@@ -11,7 +11,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitMain);
 
 static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void));
 void BattleInitSetup(s32 sceneID) {
-    Unk800F83E0* c;
+    BattleUnit* c;
     s32 i;
     s32 var_s1;
 
@@ -56,7 +56,7 @@ void BattleInitSetup(s32 sceneID) {
 
 extern u16 g_BattleUnitPresentMask;
 extern u16 D_8009D864[][0x220]; // stride 0x440, one per Unk8009D84C record
-u16 BattleGetRndU16(void);        // random, 16-bit
+u16 BattleGetRndU16(void);      // random, 16-bit
 
 // Rolls the initial ATB timer of every present combatant and writes it into
 // D_800F5BBC. The battle type (battleType) then biases those timers: a
@@ -135,10 +135,10 @@ typedef struct {
     /* 0x01 */ u8 attackEffectId;
     /* 0x02 */ u8 damageFormulaId;
     /* 0x03 */ u8 hitChance;
-    /* 0x04 */ u8  impactEffectId;
-    /* 0x05 */ u8  criticalHitChance;
-    /* 0x06 */ u8  unk06;
-    /* 0x07 */ u8  unk07;
+    /* 0x04 */ u8 impactEffectId;
+    /* 0x05 */ u8 criticalHitChance;
+    /* 0x06 */ u8 unk06;
+    /* 0x07 */ u8 unk07;
     /* 0x08 */ u16 normalAttackSound;
     /* 0x0A */ u16 criticalAttackSound;
     /* 0x0C */ u16 missAttackSound;
@@ -167,7 +167,7 @@ s32 BattleInitApplyStartFX(s32 slot);
 void BattleInitPartyFromSavemap(void) {
     BattlePartyWork* party;
     ActiveCharacterData* rec;
-    Unk800F83E0* c;
+    BattleUnit* c;
     Unk800AF470* t;
     BattleUnitAttackSetup* setup;
     SavePartyMember* m;
@@ -191,7 +191,7 @@ void BattleInitPartyFromSavemap(void) {
                     c->unk28 = m->mp_cur;
                     t->unk3C = c->curHP;
                     t->unk3E = c->unk28;
-                    func_801B18F8(rec, party, c);
+                    BattleInitCharStats(rec, party, c);
                     t->unk34 = rec->immuneStatuses;
                     setup->attackElement = rec->weapon.attackElement | rec->physicalAttackElements;
                     setup->attackStatusMask = rec->physicalAttackStatuses;
@@ -370,14 +370,14 @@ s32 BattleGetMateriaValue(u32 arg0) {
     return ret;
 }
 
-s32 BattleGetEquipMateriaVal(u32* arg0) {
+s32 BattleGetEquipMateriaVal(u32* equipment) {
     s32 ret;
     s32 i;
 
     ret = 0;
     for (i = 0; i < 8; i++) {
-        ret |= BattleGetMateriaValue(arg0[0x10 + i]);
-        ret |= BattleGetMateriaValue(arg0[0x18 + i]);
+        ret |= BattleGetMateriaValue(equipment[0x10 + i]);
+        ret |= BattleGetMateriaValue(equipment[0x18 + i]);
     }
     return ret;
 }
@@ -390,7 +390,7 @@ extern u8 D_80071C29[][0x10]; // accessory table, 0x10 stride
 void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
     Unk800AF470* t;
     BattlePartyWork* party;
-    Unk800F83E0* c;
+    BattleUnit* c;
     u8 effect;
 
     t = &g_CombatantTurnState.turn[slot];
@@ -436,7 +436,7 @@ void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
 const s32 D_801B001C[] = {0x0000, 0x1000, 0x0008, 0x0800};
 const s32 D_801B002C[] = {0x0000, 0x000A, 0x0027, 0x000A};
 extern u8 g_BattleStartFXFlags; // pending battle-start status flags, one bit per entry
-                      // of D_801B001C / D_801B002C (bit 4 = full-heal)
+                                // of D_801B001C / D_801B002C (bit 4 = full-heal)
 void BattleQueueEvent(s32, s32, s32, s32);
 
 // Applies the pending battle-start effects in g_BattleStartFXFlags to party member
@@ -471,27 +471,27 @@ s32 BattleInitApplyStartFX(s32 slot) {
     return ret;
 }
 
-void func_801B18F8(ActiveCharacterData* arg0, BattlePartyWork* arg1, Unk800F83E0* arg2) {
-    arg2->unk14 = arg0->dexterity;
-    arg2->unk15 = arg0->luck;
-    arg2->maxHP = arg0->baseHp;
-    arg2->unk2A = arg0->baseMp;
-    arg2->unkD = arg0->physAttack;
-    arg2->unkE = arg0->magAttack;
-    arg2->unk20 = arg0->physDefence;
-    arg2->unk22 = arg0->magDefence;
-    if (arg2->unkD == 0) {
-        arg2->unkD = 1;
+void BattleInitCharStats(ActiveCharacterData* character, BattlePartyWork* partyWork, BattleUnit* battleUnit) {
+    battleUnit->unk14 = character->dexterity;
+    battleUnit->unk15 = character->luck;
+    battleUnit->maxHP = character->baseHp;
+    battleUnit->unk2A = character->baseMp;
+    battleUnit->unkD = character->physAttack;
+    battleUnit->unkE = character->magAttack;
+    battleUnit->unk20 = character->physDefence;
+    battleUnit->unk22 = character->magDefence;
+    if (battleUnit->unkD == 0) {
+        battleUnit->unkD = 1;
     }
-    arg1->maxHP = arg2->maxHP;
-    arg1->maxMP = arg2->unk2A;
+    partyWork->maxHP = battleUnit->maxHP;
+    partyWork->maxMP = battleUnit->unk2A;
     // 8 = HP_MP_SWAP
-    if (arg0->characterFlags & 8) {
-        arg1->capHP = 999;
-        arg1->capMP = 9999;
+    if (character->characterFlags & 8) {
+        partyWork->capHP = 999;
+        partyWork->capMP = 9999;
     } else {
-        arg1->capHP = 9999;
-        arg1->capMP = 999;
+        partyWork->capHP = 9999;
+        partyWork->capMP = 999;
     }
 }
 

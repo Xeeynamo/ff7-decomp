@@ -1,29 +1,20 @@
 g_BattleState = 0x800F83AC; // size:0x444
 BattleInitMain = 0x801B0050;
 BattleInitSetup = 0x801B0490;
+BattleInitATBTimers = 0x801B0668;
+BattleInitSetSpeed = 0x801B085C;
+BattleInitPlayer = 0x801B08C0;
 BattleInitPartyFromSavemap = 0x801B0F08;
+BattleInitPartyScripts = 0x801B1120;
+BattleInitCharCmdMenu = 0x801B11BC;
+BattleInitResetExtraCmds = 0x801B137C;
+BattleResolveMateriaSlots = 0x801B13DC;
+BattleGetMateriaValue = 0x801B14E8;
+BattleGetEquipMateriaVal = 0x801B1530;
+BattleInitApplyAccStatus = 0x801B1598;
+BattleInitApplyStartFX = 0x801B1734;
+BattleInitCharStats = 0x801B18F8;
 BattleInitFormation = 0x801B19AC;
 BattleInitEnemyUnits = 0x801B1E0C;
 BattleInitEnemyAI = 0x801B2308;
 BattleInitLoadSceneData = 0x801B23E0;
-BattleInitATBTimers = 0x801B0668;
-
-BattleInitSetSpeed = 0x801B085C;
-BattleInitPlayer = 0x801B08C0;
-
-
-BattleInitApplyAccStatus = 0x801B1598;
-
-BattleInitCharCmdMenu = 0x801B11BC;
-
-BattleInitApplyStartFX = 0x801B1734; 
-
-BattleInitPartyScripts = 0x801B1120; 
-
-BattleInitResetExtraCmds = 0x801B137C;
-
-BattleResolveMateriaSlots = 0x801B13DC;
-
-BattleGetMateriaValue =  0x801B14E8;
-
-BattleGetEquipMateriaVal = 0x801B1530;

@@ -26,7 +26,7 @@ typedef enum {
 } BattleEventType;
 
 // full standard FF7 status bitmask (wiki.ffrtt.ru/FF7/Battle/Status_Effects)
-// for Unk800F83E0.status. NOTE: the standard table's bit 0x2 (Near Death)
+// for BattleUnit.status. NOTE: the standard table's bit 0x2 (Near Death)
 // does not appear to be set here -- this engine computes Near Death live
 // from curHP/maxHP instead (see func_800B10B4), not via this flag. Bits
 // actually confirmed live in decompiled code so far: Death, Confu, Silence,
@@ -107,7 +107,7 @@ typedef struct {
     /* 0x4E */ u8 unk4E;
     /* 0x4F */ u8 unk4F;
     /* 0x50 */ u32 unk50[6];
-} Unk800F83E0; // size:0x68
+} BattleUnit; // size:0x68
 
 typedef struct {
     /* 0x000 */ u16 unk0;
@@ -128,7 +128,7 @@ typedef struct {
     /* 0x026 */ u16 unk26;       // D_800F83D2
     /* 0x028 */ u16 unk28;       // D_800F83D4
     /* 0x02A */ u8 unk2A[0xA];   // D_800F83D8..D_800F83DC
-    /* 0x034 */ Unk800F83E0 combatant[10];
+    /* 0x034 */ BattleUnit combatant[10];
 } BattleState; // size:0x444
 
 typedef struct {
