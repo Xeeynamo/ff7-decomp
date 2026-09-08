@@ -363,7 +363,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleInitModelsAnimAndColor);
 // BattleUpdateRender below, once all actor slots are ready -- so this function
 // is a generic "process the next queued visual/counter effect, one per
 // frame" drainer, not itself the source of any particular command's
-// damage/effect. See func_800A4AF4's comment in battle.c: opcode 0x14 just
+// damage/effect. See BattleActionType14's comment in battle.c: opcode 0x14 just
 // spins this to drain whatever's already queued
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleQueue1Execute);
 

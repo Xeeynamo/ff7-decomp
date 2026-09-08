@@ -213,7 +213,7 @@ typedef enum {
 // D_800F39DC write idx); the wiki describes up to 64 queued actions, so this
 // may be a smaller staging ring rather than the full logical queue --
 // unconfirmed. Drain chain: func_800A3ED0 drains this ring into a 64-slot
-// priority table (func_800A3D4C), which func_800A23E0 drains in priority
+// priority table (BattleCopyBattleActionToBattleQueue), which BattleBattleActionQueueExecute drains in priority
 // order into func_800A1798, which runs the command as a byte-coded sequence
 // of opcodes (D_800F38AC/D_800A0098/D_800E7B28), not a single switch on
 // cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
@@ -324,7 +324,7 @@ extern s32 D_800F39E4;
 extern volatile s32 D_800F39EC; // polled by a tight wait loop
 extern u8 D_800F39F0[][6];
 extern s32 D_800F3A1C;     // write index into D_800F3A20
-extern s16 D_800F3A20[16]; // ring buffer, see func_800A56B0
+extern s16 D_800F3A20[16]; // ring buffer, see BattleReqReturnReservedItems
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
 typedef struct {
@@ -433,7 +433,7 @@ extern s32 D_8015174C[10];
 extern s32 D_8015178C[10];
 extern s32 D_801517C8[10];
 extern s32 D_8015187C[10];
-// queued-action-ish record, allocated by func_800A2FD0 (unk3 set to -1,
+// queued-action-ish record, allocated by BattleQueue2GetPtr (unk3 set to -1,
 // marking it unassigned) and searched by func_800A34CC. Traced through
 // func_800ABA68's callers (func_800AB830/BattleMainDmgCalculation, still undecompiled):
 // unk0 is very likely an actorId (0-2) -- its source value independently
