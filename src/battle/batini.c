@@ -131,20 +131,27 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitPlayer);
 // records (D_800F5E60) and their setup config (D_800F5EFC) are one object, so
 // BATINI reaches all three off a single base.
 typedef struct {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 unk1;
-    /* 0x02 */ u8 unk2;
-    /* 0x03 */ u8 unk3;
-    /* 0x04 */ u8 unk4[0xA];
-    /* 0x0E */ u16 unkE;
-    /* 0x10 */ u8 unk10[4];
-    /* 0x14 */ s32 unk14;
-} Unk800F5EFC; // size:0x18
+    /* 0x00 */ u8 targetFlags;
+    /* 0x01 */ u8 attackEffectId;
+    /* 0x02 */ u8 damageFormulaId;
+    /* 0x03 */ u8 hitChance;
+    /* 0x04 */ u8  impactEffectId;
+    /* 0x05 */ u8  criticalHitChance;
+    /* 0x06 */ u8  unk06;
+    /* 0x07 */ u8  unk07;
+    /* 0x08 */ u16 normalAttackSound;
+    /* 0x0A */ u16 criticalAttackSound;
+    /* 0x0C */ u16 missAttackSound;
+    /* 0x0E */ u16 attackElement;
+    /* 0x10 */ u16 cameraMovementId;
+    /* 0x12 */ u16 specialAttackFlags;
+    /* 0x14 */ s32 attackStatusMask;
+} BattleUnitAttackSetup; // size:0x18
 
 typedef struct {
     /* 0x000 */ Unk800AF470 turn[10];
     /* 0x2A8 */ Unk800F5E60 party[3];
-    /* 0x344 */ Unk800F5EFC setup[3];
+    /* 0x344 */ BattleUnitAttackSetup setup[3];
 } BattleWork; // size:0x38C
 
 extern BattleWork g_CombatantTurnState;
@@ -162,7 +169,7 @@ void BattleInitPartyFromSavemap(void) {
     ActiveCharacterData* rec;
     Unk800F83E0* c;
     Unk800AF470* t;
-    Unk800F5EFC* setup;
+    BattleUnitAttackSetup* setup;
     SavePartyMember* m;
     s32 id;
     s32 i;
@@ -186,15 +193,15 @@ void BattleInitPartyFromSavemap(void) {
                     t->unk3E = c->unk28;
                     func_801B18F8(rec, party, c);
                     t->unk34 = rec->immuneStatuses;
-                    setup->unkE = rec->weapon.attackElement | rec->physicalAttackElements;
-                    setup->unk14 = rec->physicalAttackStatuses;
-                    setup->unk3 = rec->weapon.attackPercent;
-                    setup->unk0 = rec->weapon.targetFlags;
+                    setup->attackElement = rec->weapon.attackElement | rec->physicalAttackElements;
+                    setup->attackStatusMask = rec->physicalAttackStatuses;
+                    setup->hitChance = rec->weapon.attackPercent;
+                    setup->targetFlags = rec->weapon.targetFlags;
                     t->unk29 &= 0xFD;
                     if (rec->characterFlags & 4) {
-                        setup->unk0 &= 0xDF;
+                        setup->targetFlags &= 0xDF;
                     }
-                    if (!(setup->unk0 & 0x20)) {
+                    if (!(setup->targetFlags & 0x20)) {
                         t->unk29 |= 2;
                     }
                     func_801B1598(i, m->accessory);
