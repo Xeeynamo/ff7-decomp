@@ -26,6 +26,7 @@ SysBattleSwirlRender = 0x800140A4;
 SysBattleSwirlInit = 0x800140F4;
 SysLoadUncompressImg = 0x80014980;
 SysLoadDrawSync = 0x800149E0;
+SysMemCopy32 = 0x80014A00;
 SysGetLsbNumber = 0x80014A38;
 SysCountActiveBits = 0x80014A58;
 SysSelectRandomBit = 0x80014A84;

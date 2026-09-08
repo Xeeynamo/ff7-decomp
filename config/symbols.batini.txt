@@ -1,4 +1,6 @@
+BattleBoostVal25Percent = 0x001B2770;
 g_BattleState = 0x800F83AC; // size:0x444
+g_BattleTypeMap = 0x801B0044;
 BattleInitMain = 0x801B0050;
 BattleInitSetup = 0x801B0490;
 BattleInitATBTimers = 0x801B0668;
@@ -15,6 +17,8 @@ BattleInitApplyAccStatus = 0x801B1598;
 BattleInitApplyStartFX = 0x801B1734;
 BattleInitCharStats = 0x801B18F8;
 BattleInitFormation = 0x801B19AC;
+BattleInitItemList = 0x801B1CB0;
 BattleInitEnemyUnits = 0x801B1E0C;
 BattleInitEnemyAI = 0x801B2308;
 BattleInitLoadSceneData = 0x801B23E0;
+BattleGetScenePackId = 0x801B2738;

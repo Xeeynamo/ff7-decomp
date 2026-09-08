@@ -234,20 +234,20 @@ extern u8 D_800708D0[][0x1C]; // attack table, 0x1C stride
 extern u8 D_800F5EFC[][0x18]; // per-slot formation-setup config
 extern u8 D_800F5BE1[][0x44]; // same records as D_800F5BBC
 
-// Fixes up party member arg0's battle command list: each of the 16 command
+// Fixes up party member sceneID's battle command list: each of the 16 command
 // slots gets its target flags from the command table (falling back to the
 // formation setup), with extra flags for the Enemy Skill / W- commands, and
 // unk21 ends up as the number of command rows in use. The second pass clears
 // the "usable" byte of every equipped materia whose attack is not flagged
 // battle-usable.
-void BattleInitCharCmdMenu(s32 arg0) {
+void BattleInitCharCmdMenu(s32 sceneID) {
     ActiveCharacterData* e;
     s32 cmd;
     s32 flags;
     s32 id;
     s32 i;
 
-    e = &g_ActiveCharacters[arg0];
+    e = &g_ActiveCharacters[sceneID];
     e->unk21 = 1;
     for (i = 0; i < 16; i++) {
         flags = 0xFF;
@@ -255,7 +255,7 @@ void BattleInitCharCmdMenu(s32 arg0) {
         if (cmd != 0xFF) {
             flags = D_800707C5[cmd][0];
             if (flags == 0xFF) {
-                flags = D_800F5EFC[arg0][0];
+                flags = D_800F5EFC[sceneID][0];
             }
             if (cmd < 0x1C) {
                 if (cmd >= 0x18) {
@@ -263,7 +263,7 @@ void BattleInitCharCmdMenu(s32 arg0) {
                 }
             }
             if (e->commandMenu[i].initialCursorAction == 7) {
-                if (D_800F5BE1[arg0][0] & 2) {
+                if (D_800F5BE1[sceneID][0] & 2) {
                     e->commandMenu[i].initialCursorAction = 0;
                 }
                 if (e->commandMenu[i].allCount != 0) {
@@ -300,11 +300,11 @@ void BattleInitCharCmdMenu(s32 arg0) {
     }
 }
 
-void BattleInitResetExtraCmds(s32 arg0) {
+void BattleInitResetExtraCmds(s32 sceneID) {
     s32 i;
     ActiveCharacterData* data;
 
-    data = &g_ActiveCharacters[arg0];
+    data = &g_ActiveCharacters[sceneID];
     data->unk21 = 1;
     for (i = 1; i < 4; i++) {
         data->commandMenu[i].id = 0xFF;
@@ -330,7 +330,7 @@ typedef struct {
     } unk14[3];
 } BattleMateriaSlotData; // size:0x68
 
-// Resolves up to three materia slots of character arg0 against the equipment
+// Resolves up to three materia slots of character sceneID against the equipment
 // mask arg1: a slot whose bit is set copies its paired value into unk3 and
 // counts towards unk6.
 void BattleResolveMateriaSlots(s32 slot, s32 materiaMask, BattleMateriaSlotData* data) {
@@ -358,14 +358,14 @@ void BattleResolveMateriaSlots(s32 slot, s32 materiaMask, BattleMateriaSlotData*
     data->count = count;
 }
 
-s32 BattleGetMateriaValue(u32 arg0) {
+s32 BattleGetMateriaValue(u32 sceneID) {
     u8 temp_v1;
     s32 ret;
 
-    temp_v1 = arg0;
+    temp_v1 = sceneID;
     ret = 0;
     if (temp_v1 != 0xFF && (D_800730CC[temp_v1].unk11 & 0xF) == 7) {
-        ret = (arg0 >> 8) | 0x80000000;
+        ret = (sceneID >> 8) | 0x80000000;
     }
     return ret;
 }
@@ -496,7 +496,7 @@ void BattleInitCharStats(ActiveCharacterData* character, BattlePartyWork* partyW
 }
 
 const u8 D_801B003C[] = {0xFF, 0x32, 0x33, 0x34, 0x35, 0xFF, 0x48, 0x07};
-extern u16 D_8016376E[3];
+extern u16 g_CharacterMask[3];
 extern s16 D_801636BE[][8]; // stride 0x10
 void func_800B1060(s32);
 
@@ -594,9 +594,9 @@ void BattleInitFormation(void) {
         }
         D_801636BE[i][0] = back;
     }
-    D_8016376E[0] = row[0];
-    D_8016376E[1] = row[1];
-    D_8016376E[2] = row[2];
+    g_CharacterMask[0] = row[0];
+    g_CharacterMask[1] = row[1];
+    g_CharacterMask[2] = row[2];
 }
 
 extern u16 D_8009CBE0[];     // item inventory (320 slots; (count << 9) | id)
@@ -614,7 +614,7 @@ extern BattleItemEntry D_801671B8[];
 // flags pulled from the item / weapon / armor / accessory table the id falls
 // in. D_80166F74 ends up as half the number of slots up to the last used one
 // (at least 3) -- the row count the item widget scrolls over.
-void func_801B1CB0(void) {
+void BattleInitItemList(void) {
     BattleItemEntry* entry;
     s32 i;
     s32 last;
@@ -678,52 +678,52 @@ void BattleInitEnemyAI(void) {
     }
 }
 
-static const s8 D_801B0044[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x03, 0x03, 0x03, 0x05, 0x6E, 0x64, 0x62};
+static const s8 g_BattleTypeMap[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x03, 0x03, 0x03, 0x05, 0x6E, 0x64, 0x62};
 static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     u8 dummy[0x100];
     SceneContainer scene;
-    s32 chunkID;
-    s32 temp_s1;
+    s32 sceneChunkID;
+    s32 scenePackID;
     s32 formationIndex;
     s32 i;
     u_long* var_s2;
-    s32* var_s5;
+    s32* scenePackBuffer;
     s32* var_s3_2;
 
-    var_s5 = (s32*)0x801C0000;
-    chunkID = sceneID / 4;
-    temp_s1 = func_801B2738(chunkID);              // sector modified based on the Chunk ID
-    SystemLoadFileBySector(                        // load file from disk
-        func_800144D8(BATTLE_SCENE) + temp_s1 * 4, // Disk sector where to load the file from
-        0x800 * 4,                                 // Size in bytes to copy
-        (u_long*)var_s5,                           // Destination
+    scenePackBuffer = (s32*)0x801C0000;
+    sceneChunkID = sceneID / 4;
+    scenePackID = BattleGetScenePackId(sceneChunkID);  // sector modified based on the Chunk ID
+    SystemLoadFileBySector(                            // load file from disk
+        func_800144D8(BATTLE_SCENE) + scenePackID * 4, // Disk sector where to load the file from
+        0x800 * 4,                                     // Size in bytes to copy
+        (u_long*)scenePackBuffer,                      // Destination
         NULL);
-    formationIndex = chunkID - D_80083184[temp_s1];
+    formationIndex = sceneChunkID - D_80083184[scenePackID];
     func_800145BC(cb); // wait until all data is read, keep executing the vsync
                        // callback until then
-    i = var_s5[formationIndex];
-    var_s3_2 = &var_s5[i];
+    i = scenePackBuffer[formationIndex];
+    var_s3_2 = &scenePackBuffer[i];
     var_s2 = (u_long*)&scene;
     Unzip(        // gzip decompress
         var_s3_2, // src
         var_s2);  // dst
-    formationIndex = sceneID - chunkID * 4;
-    func_80014A00(D_8016360C.enemyModelIDs, scene.enemyModelIDs, sizeof(scene.enemyModelIDs));
-    func_80014A00((s32*)&D_8016360C.setup, &scene.setup[formationIndex], sizeof(BattleSetup));
-    func_80014A00((s32*)&D_8016360C.camera, &scene.camera[formationIndex], sizeof(CameraPlacement) * 4);
-    func_80014A00((s32*)&D_8016360C.formation, &scene.formation[formationIndex], sizeof(FormationEntry) * 6);
-    func_80014A00((s32*)&D_800F5F44.enemy, &scene.enemy, sizeof(scene.enemy));
-    func_80014A00((s32*)&D_800F5F44.attacks, &scene.attacks, sizeof(scene.attacks));
-    func_80014A00((s32*)&D_800F5F44.attackIDs, scene.attackIDs, sizeof(scene.attackIDs));
-    func_80014A00((s32*)&D_800F5F44.attackNames, &scene.attackNames, sizeof(scene.attackNames));
-    func_80014A00((s32*)&D_800F5F44._5, &scene.unkC80, sizeof(Unk800F5F44_5));
-    func_80014A00((s32*)&D_800F5F44.script, &scene.script, sizeof(scene.script));
+    formationIndex = sceneID - sceneChunkID * 4;
+    SysMemCopy32(D_8016360C.enemyModelIDs, scene.enemyModelIDs, sizeof(scene.enemyModelIDs));
+    SysMemCopy32((s32*)&D_8016360C.setup, &scene.setup[formationIndex], sizeof(BattleSetup));
+    SysMemCopy32((s32*)&D_8016360C.camera, &scene.camera[formationIndex], sizeof(CameraPlacement) * 4);
+    SysMemCopy32((s32*)&D_8016360C.formation, &scene.formation[formationIndex], sizeof(FormationEntry) * 6);
+    SysMemCopy32((s32*)&D_800F5F44.enemy, &scene.enemy, sizeof(scene.enemy));
+    SysMemCopy32((s32*)&D_800F5F44.attacks, &scene.attacks, sizeof(scene.attacks));
+    SysMemCopy32((s32*)&D_800F5F44.attackIDs, scene.attackIDs, sizeof(scene.attackIDs));
+    SysMemCopy32((s32*)&D_800F5F44.attackNames, &scene.attackNames, sizeof(scene.attackNames));
+    SysMemCopy32((s32*)&D_800F5F44._5, &scene.unkC80, sizeof(Unk800F5F44_5));
+    SysMemCopy32((s32*)&D_800F5F44.script, &scene.script, sizeof(scene.script));
     if (D_8016376A & 4 && D_8016360C.setup.flags & SETUP_NO_PREEMPTIVE_STRIKE) {
         if (D_8016360C.setup.type == SETUP_DEFAULT) {
             D_8016360C.setup.type = SETUP_PREEMPTIVE;
         }
     }
-    D_800F5F44.battleType = (u8)D_801B0044[D_8016360C.setup.type];
+    D_800F5F44.battleType = (u8)g_BattleTypeMap[D_8016360C.setup.type];
     if (D_8016376A & EVENT_BATTLE_SQUARE) {
         D_8016360C.setup.stageID = 37;
         D_8016360C.setup.flags |= SETUP_CANNOT_ESCAPE;
@@ -732,8 +732,8 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
         // enemy strength and magic is 25% higher at battle square
         for (i = 0; i < 3; i++) {
             D_800F5F44.enemy[i].unk90[5] *= 2;
-            D_800F5F44.enemy[i].strength = func_801B2770(D_800F5F44.enemy[i].strength);
-            D_800F5F44.enemy[i].magic = func_801B2770(D_800F5F44.enemy[i].magic);
+            D_800F5F44.enemy[i].strength = BattleBoostVal25Percent(D_800F5F44.enemy[i].strength);
+            D_800F5F44.enemy[i].magic = BattleBoostVal25Percent(D_800F5F44.enemy[i].magic);
         }
     } else if (D_8016376A & 8) {
         D_8016360C.setup.flags &= ~SETUP_CANNOT_ESCAPE;
@@ -748,11 +748,11 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     D_800F5F44.D_800F7DB6 = D_800F5F44.D_800F7DB2;
 }
 
-s32 func_801B2738(s32 arg0) {
+s32 BattleGetScenePackId(s32 sceneID) {
     u32 i;
 
     for (i = 1; i < LEN(D_80083184); i++) {
-        if (arg0 < D_80083184[i]) {
+        if (sceneID < D_80083184[i]) {
             break;
         }
     }
@@ -760,10 +760,10 @@ s32 func_801B2738(s32 arg0) {
 }
 
 // increase param by 25%
-s32 func_801B2770(s32 arg0) {
-    arg0 = (arg0 * 125) / 100;
-    if (arg0 > 255) {
-        arg0 = 255;
+s32 BattleBoostVal25Percent(s32 value) {
+    value = (value * 125) / 100;
+    if (value > 255) {
+        value = 255;
     }
-    return arg0;
+    return value;
 }

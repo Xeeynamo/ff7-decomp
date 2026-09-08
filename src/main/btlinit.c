@@ -20,7 +20,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", SysLoadUncompressImg);
 
 void SysLoadDrawSync(void) { DrawSync(0); }
 
-void func_80014A00(s32* dst, s32* src, s32 len) {
+void SysMemCopy32(s32* dst, s32* src, s32 len) {
     int i;
     for (i = 0; i < len >> 2; i++) {
         *dst++ = *src++;
