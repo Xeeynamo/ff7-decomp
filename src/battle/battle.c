@@ -461,7 +461,7 @@ void func_800A4480(void) {
 }
 
 // Manipulate redirect: if arg0 (an enemy id) is currently manipulated
-// (D_800F7DCA bit), return the party slot whose D_800F5E60[].unk6 is
+// (D_800F7DCA bit), return the party slot whose g_BattlePartyWork[].unk6 is
 // tracking it in place of arg0; otherwise arg0 passes through unchanged.
 s32 func_800A44D8(s32 arg0) {
     s32 i;
@@ -472,8 +472,8 @@ s32 func_800A44D8(s32 arg0) {
     if (!((D_800F5F44.D_800F7DCA >> arg0) & 1)) {
         goto end;
     }
-    for (i = 0; i < LEN(D_800F5E60); i++) {
-        if (D_800F5E60[i].unk6 == arg0) {
+    for (i = 0; i < LEN(g_BattlePartyWork); i++) {
+        if (g_BattlePartyWork[i].unk6 == arg0) {
             arg0 = i;
             goto end;
         }
@@ -593,7 +593,7 @@ s32 func_800A4CC8(s32 arg0) {
     s32 temp_v1;
 
     if (arg0 < 3) {
-        temp_v1 = D_800F5E60[arg0].unk6;
+        temp_v1 = g_BattlePartyWork[arg0].unk6;
         if ((temp_v1 >= 4) && ((D_800F5F44.D_800F7DCA >> temp_v1) & 1)) {
             arg0 = temp_v1;
         }
@@ -1053,8 +1053,8 @@ void func_800A6E04(void) {}
 
 void func_800A6E0C(s32 arg0) {
     if (arg0 < 3) {
-        D_800F5E60[arg0].limitBarUI = 0;
-        D_800F5E60[arg0].limitBar = 0;
+        g_BattlePartyWork[arg0].limitBarUI = 0;
+        g_BattlePartyWork[arg0].limitBar = 0;
         BattleQueueEvent(0, arg0, 1, 0);
     }
 }
@@ -1182,7 +1182,7 @@ void func_800A76CC(void) {
 
 void func_800A7784(void) {}
 
-// actorId here is the live party slot (0-2, indexes D_800F5E60's 3-element
+// actorId here is the live party slot (0-2, indexes g_BattlePartyWork's 3-element
 // gauge table below) -- NOT the per-character Limit-name block index. Each
 // of the 9 playable characters has a uniform 7-slot block in the shared
 // name table (relativeActionIndex 0x00=Cloud, 0x07=Barret, 0x0E=Aerith,
@@ -1203,8 +1203,8 @@ void BATTLE_ResolveLimitActionIndex(void) {
     if (relativeActionIndex < 0x60) {
         s32 off = actorId * 0x34;
         g_CurrentAction->absoluteActionIndex = relativeActionIndex + 0x80;
-        *(u16*)((u8*)D_800F5E60 + off + 8) = 0; // ideally D_800F5E60[actorId].limitBar = 0;
-        D_800F5E60[actorId].limitCount++;
+        *(u16*)((u8*)g_BattlePartyWork + off + 8) = 0; // ideally g_BattlePartyWork[actorId].limitBar = 0;
+        g_BattlePartyWork[actorId].limitCount++;
         if (!(g_BattleState.setupFlags & 8)) {
             BattleQueueEvent(2, actorId, 0x11, 0);
         }
@@ -1707,8 +1707,8 @@ void func_800ABB0C(s32 arg0, s32 arg1) {
 
     // clamp the computed damage to this target's HP or MP cap
     if (arg1 < 3) {
-        cap = D_800F5E60[arg1].capHP;
-        capMP = D_800F5E60[arg1].capMP;
+        cap = g_BattlePartyWork[arg1].capHP;
+        capMP = g_BattlePartyWork[arg1].capMP;
     } else {
         cap = 9999;
         capMP = 999;
@@ -2231,7 +2231,7 @@ void BATTLE_ApplyKillCountBonus(void) {
 
     var_v1 = 0;
     if (g_CurrentAction->unk208 < 3) {
-        var_v1 = D_800F5E60[g_CurrentAction->unk208].partyMember->kill_count;
+        var_v1 = g_BattlePartyWork[g_CurrentAction->unk208].partyMember->kill_count;
     }
     g_CurrentAction->unk214 = var_v1 * 0xA;
 }
@@ -2248,7 +2248,7 @@ void BATTLE_CalcMateriaSlotScore(void) {
     if (slot < 3) {
         i = 0;
         none = -1;
-        pm = D_800F5E60[slot].partyMember;
+        pm = g_BattlePartyWork[slot].partyMember;
         for (; i < 8; i++) {
             if (pm->materia_weapon[i] != none) {
                 count++;
@@ -2450,9 +2450,9 @@ void BATTLE_ClearActorSlotReferences(s32 arg0, s32 arg1, s32 arg2) {
         func_800A23BC(arg0);
         return;
     }
-    for (i = 0; i < LEN(D_800F5E60); i++) {
-        if (D_800F5E60[i].unk6 == arg0) {
-            D_800F5E60[i].unk6 = 0;
+    for (i = 0; i < LEN(g_BattlePartyWork); i++) {
+        if (g_BattlePartyWork[i].unk6 == arg0) {
+            g_BattlePartyWork[i].unk6 = 0;
             BattleQueueEvent(0, i, 6, 0);
         }
     }

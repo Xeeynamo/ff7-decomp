@@ -57,7 +57,6 @@ g_AtbBarPulseColor = 0x800F32C4; // size:0x2
 g_AtbBarPulseValue = 0x800F32C6; // size:0x2
 g_ActiveCharsHPMPInited = 0x800F32C8; // size:0x2
 g_CombatantTurnState = 0x800F5BB8; // size:0xCC
-D_800F5E60 = 0x800F5E60; // size:0x9C
 D_800F5F44 = 0x800F5F44; // size:0x1E88
 g_dbIndex = 0x800F8368;
 g_BattleState = 0x800F83AC; // size:0x444
@@ -80,3 +79,6 @@ g_IsMutiBattle =  0x8016376C;
 
 BattleGetRndU16 = 0x800B2F50;
 g_BattleUnitPresentMask = 0x8016375A;
+
+
+g_BattlePartyWork = 0x800F5E60;

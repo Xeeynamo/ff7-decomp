@@ -431,7 +431,7 @@ typedef struct {
 typedef struct {
     /* 0x00 */ SavePartyMember* partyMember;
     /* 0x04 */ u8 limitCount; // inferred: bumped when a Limit Break executes
-    /* 0x05 */ u8 unk5;
+    /* 0x05 */ u8 limitLevel;
     /* 0x06 */ u8 unk6;
     /* 0x07 */ u8 killCount; // enemy kills this battle; reconciled into
                              // SavePartyMember.kill_count after battle
@@ -446,21 +446,18 @@ typedef struct {
     /* 0x16 */ u16 capHP;
     /* 0x18 */ u16 unk18;
     /* 0x1A */ u16 unk1A;
-    /* 0x1C */ u16 unk1C;
-    /* 0x1E */ u16 unk1E;
-    /* 0x20 */ u32 unk20; // status mask granted by the equipped accessory
-    /* 0x24 */ u16 unk24;
-    /* 0x26 */ u16 unk26;
-    /* 0x28 */ u16 unk28;
-    /* 0x2A */ u16 unk2A;
+    /* 0x1C */ u32 limitBreakHPDivisor;
+    /* 0x20 */ u32 accessoryStatusMask; // status mask granted by the equipped accessory
+    /* 0x24 */ u32 enemySkillMateriaData;
+    /* 0x28 */ u32 enemySkillMateriaData2;
     /* 0x2C */ u16 unk2C;
     /* 0x2E */ u16 unk2E;
     /* 0x30 */ u16 unk30;
     /* 0x32 */ u16 unk32;
-} Unk800F5E60; // size:0x34
+} BattlePartyWork; // size:0x34
 
 extern u16 D_800F5BBC[10][0x22];
-extern Unk800F5E60 D_800F5E60[3];
+extern BattlePartyWork g_BattlePartyWork[3];
 extern Unk800F5F44 D_800F5F44;
 extern s8 D_800F6936[0x40][8];
 extern u8 D_800F83A8;

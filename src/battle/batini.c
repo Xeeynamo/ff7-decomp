@@ -27,7 +27,7 @@ void BattleInitSetup(s32 sceneID) {
         }
     }
     for (i = 0; i < 3; i++) {
-        D_800F5E60[i].unk6 = 0;
+        g_BattlePartyWork[i].unk6 = 0;
     }
     if (g_IsMutiBattle) {
         BattleInitPartyFromSavemap();
@@ -128,7 +128,7 @@ void BattleInitSetSpeed(s32 speed) { D_800F5F44.battleSpeed = 0x10000 / ((speed 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitPlayer);
 
 // The per-party work area at 0x800F5BB8: the turn state, the three party
-// records (D_800F5E60) and their setup config (D_800F5EFC) are one object, so
+// records (g_BattlePartyWork) and their setup config (D_800F5EFC) are one object, so
 // BATINI reaches all three off a single base.
 typedef struct {
     /* 0x00 */ u8 targetFlags;
@@ -150,7 +150,7 @@ typedef struct {
 
 typedef struct {
     /* 0x000 */ Unk800AF470 turn[10];
-    /* 0x2A8 */ Unk800F5E60 party[3];
+    /* 0x2A8 */ BattlePartyWork party[3];
     /* 0x344 */ BattleUnitAttackSetup setup[3];
 } BattleWork; // size:0x38C
 
@@ -165,7 +165,7 @@ s32 func_801B1734(s32 slot);
 // party member record, copies HP/MP and the derived battle stats across, then
 // applies the equipped accessory, the command list and the row/limit setup.
 void BattleInitPartyFromSavemap(void) {
-    Unk800F5E60* party;
+    BattlePartyWork* party;
     ActiveCharacterData* rec;
     Unk800F83E0* c;
     Unk800AF470* t;
@@ -389,16 +389,16 @@ extern u8 D_80071C29[][0x10]; // accessory table, 0x10 stride
 // status is ORed into the combatant, its turn state and the party record.
 void func_801B1598(s32 slot, s32 accessory) {
     Unk800AF470* t;
-    Unk800F5E60* party;
+    BattlePartyWork* party;
     Unk800F83E0* c;
     u8 effect;
 
     t = &g_CombatantTurnState.turn[slot];
     party = &g_CombatantTurnState.party[slot];
     c = &g_BattleState.combatant[slot];
-    c->status &= ~party->unk20;
-    t->unk34 &= ~party->unk20;
-    party->unk20 = 0;
+    c->status &= ~party->accessoryStatusMask;
+    t->unk34 &= ~party->accessoryStatusMask;
+    party->accessoryStatusMask = 0;
     t->unkD = 0xFF;
     if (accessory != 0xFF) {
         effect = D_80071C29[accessory][0];
@@ -407,27 +407,27 @@ void func_801B1598(s32 slot, s32 accessory) {
         case 0:
             c->status |= STATUS_HASTE;
             t->unk34 |= STATUS_HASTE;
-            party->unk20 |= STATUS_HASTE;
+            party->accessoryStatusMask |= STATUS_HASTE;
             break;
         case 1:
             c->status |= STATUS_BERSERK;
             t->unk34 |= STATUS_BERSERK;
-            party->unk20 |= STATUS_BERSERK;
+            party->accessoryStatusMask |= STATUS_BERSERK;
             break;
         case 2:
             c->status |= STATUS_D_SENTENCE;
             t->unk34 |= STATUS_D_SENTENCE;
-            party->unk20 |= STATUS_D_SENTENCE;
+            party->accessoryStatusMask |= STATUS_D_SENTENCE;
             t->unk12 = 0xFF;
             break;
         case 3:
             c->status |= STATUS_REFLECT;
             t->unk34 |= STATUS_REFLECT;
-            party->unk20 |= STATUS_REFLECT;
+            party->accessoryStatusMask |= STATUS_REFLECT;
             break;
         case 6:
             c->status |= STATUS_BARRIER | STATUS_M_BARRIER;
-            party->unk20 |= STATUS_BARRIER | STATUS_M_BARRIER;
+            party->accessoryStatusMask |= STATUS_BARRIER | STATUS_M_BARRIER;
             break;
         }
     }
@@ -471,7 +471,7 @@ s32 func_801B1734(s32 slot) {
     return ret;
 }
 
-void func_801B18F8(ActiveCharacterData* arg0, Unk800F5E60* arg1, Unk800F83E0* arg2) {
+void func_801B18F8(ActiveCharacterData* arg0, BattlePartyWork* arg1, Unk800F83E0* arg2) {
     arg2->unk14 = arg0->dexterity;
     arg2->unk15 = arg0->luck;
     arg2->maxHP = arg0->baseHp;

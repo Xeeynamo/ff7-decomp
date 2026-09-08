@@ -31,7 +31,7 @@ typedef struct {
     /* 0x00 */ u8 unk0[8];
     /* 0x08 */ u16 limitCharge;
     /* 0x0A */ u8 unkA[0x2A];
-} Unk800F5E60; // size:0x34
+} BattlePartyWork; // size:0x34
 
 extern u8 D_80082268[];
 extern u8 D_80082460[3][12]; // one 12-entry roll table per gauge kind
@@ -43,7 +43,7 @@ extern u8 D_8009D7ED[][12];
 extern s16 D_8009D7EE[][6]; // same 12-byte record as D_8009D7ED
 extern SavePartyMember D_8009C738[];
 extern u8 D_8009D58A[]; // gil, stored unaligned, so it is copied a byte at a time
-extern Unk800F5E60 D_800F5E60[3];
+extern BattlePartyWork g_BattlePartyWork[3];
 extern u16 D_800F7DD2;
 extern u8 D_80163790[]; // the char_id occupying each of the three party slots
 extern SavePartyMember D_80167938;
@@ -90,7 +90,7 @@ void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
             if (id == c->char_id) {
                 c->hp_cur = hp;
                 c->mp_cur = mp;
-                c->limit_charge = D_800F5E60[slot].limitCharge;
+                c->limit_charge = g_BattlePartyWork[slot].limitCharge;
                 c->status_flags = g_BattleState.combatant[slot].status & 0x30;
                 if (g_BattleState.setupFlags & 0x10) {
                     if (c->char_id == 0) {
