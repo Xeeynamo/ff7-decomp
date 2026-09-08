@@ -159,7 +159,7 @@ extern SavePartyMember D_8009C738[];
 void BattleInitApplyAccStatus(s32 slot, s32 accessory);
 void BattleInitCharCmdMenu(s32 slot);
 void BattleInitCharCmdState(s32 slot);
-s32 func_801B1734(s32 slot);
+s32 BattleInitApplyStartFX(s32 slot);
 
 // Seeds the three live party slots from the save data: finds each slot's
 // party member record, copies HP/MP and the derived battle stats across, then
@@ -207,7 +207,7 @@ void BattleInitPartyFromSavemap(void) {
                     BattleInitApplyAccStatus(i, m->accessory);
                     BattleInitCharCmdMenu(i);
                     BattleInitCharCmdState(i);
-                    if (func_801B1734(i) == 0) {
+                    if (BattleInitApplyStartFX(i) == 0) {
                         BattleInitUnitAction(i);
                     }
                     break;
@@ -435,15 +435,15 @@ void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
 
 const s32 D_801B001C[] = {0x0000, 0x1000, 0x0008, 0x0800};
 const s32 D_801B002C[] = {0x0000, 0x000A, 0x0027, 0x000A};
-extern u8 D_800F9DA0; // pending battle-start status flags, one bit per entry
+extern u8 g_BattleStartFXFlags; // pending battle-start status flags, one bit per entry
                       // of D_801B001C / D_801B002C (bit 4 = full-heal)
 void BattleQueueEvent(s32, s32, s32, s32);
 
-// Applies the pending battle-start effects in D_800F9DA0 to party member
+// Applies the pending battle-start effects in g_BattleStartFXFlags to party member
 // `slot`: bit 4 restores half its max HP, bits 0-3 inflict the matching status
 // from D_801B001C unless the member's turn state already carries it. Returns
 // nonzero if any status was inflicted.
-s32 func_801B1734(s32 slot) {
+s32 BattleInitApplyStartFX(s32 slot) {
     s32 mask;
     s32 ret;
     s32 i;
@@ -454,7 +454,7 @@ s32 func_801B1734(s32 slot) {
     if (g_CombatantTurnState.turn[slot].unk29 & 8) {
         mask |= STATUS_FROG;
     }
-    if (D_800F9DA0 & 0x10) {
+    if (g_BattleStartFXFlags & 0x10) {
         g_BattleState.combatant[slot].curHP += g_BattleState.combatant[slot].maxHP >> 1;
         if (g_BattleState.combatant[slot].curHP > g_BattleState.combatant[slot].maxHP) {
             g_BattleState.combatant[slot].curHP = g_BattleState.combatant[slot].maxHP;
@@ -462,7 +462,7 @@ s32 func_801B1734(s32 slot) {
         BattleQueueEvent(2, slot, 0x17, 0);
     }
     for (i = 0; i < 4; i++) {
-        if ((D_800F9DA0 >> i) & 1) {
+        if ((g_BattleStartFXFlags >> i) & 1) {
             g_BattleState.combatant[slot].status |= D_801B001C[i] & ~mask;
             BattleQueueEvent(2, slot, 0x17, D_801B002C[i]);
             ret = 1;

@@ -84,3 +84,5 @@ g_BattleUnitPresentMask = 0x8016375A;
 g_BattlePartyWork = 0x800F5E60;
 
 BattleInitCharCmdState = 0x800A4BA4;
+
+g_BattleStartFXFlags = 0x800F9DA0;
