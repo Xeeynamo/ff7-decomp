@@ -10,3 +10,6 @@ BattleInitATBTimers = 0x801B0668;
 
 BattleInitSetSpeed = 0x801B085C;
 BattleInitPlayer = 0x801B08C0;
+
+
+BattleInitApplyAccStatus = 0x801B1598;

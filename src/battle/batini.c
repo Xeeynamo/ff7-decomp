@@ -156,7 +156,7 @@ typedef struct {
 
 extern BattleWork g_CombatantTurnState;
 extern SavePartyMember D_8009C738[];
-void func_801B1598(s32 slot, s32 accessory);
+void BattleInitApplyAccStatus(s32 slot, s32 accessory);
 void func_801B11BC(s32 slot);
 void func_800A4BA4(s32 slot);
 s32 func_801B1734(s32 slot);
@@ -204,7 +204,7 @@ void BattleInitPartyFromSavemap(void) {
                     if (!(setup->targetFlags & 0x20)) {
                         t->unk29 |= 2;
                     }
-                    func_801B1598(i, m->accessory);
+                    BattleInitApplyAccStatus(i, m->accessory);
                     func_801B11BC(i);
                     func_800A4BA4(i);
                     if (func_801B1734(i) == 0) {
@@ -387,7 +387,7 @@ extern u8 D_80071C29[][0x10]; // accessory table, 0x10 stride
 // Applies party member `slot`'s equipped accessory: the status the previously
 // equipped one granted is cleared first, then the new accessory's permanent
 // status is ORed into the combatant, its turn state and the party record.
-void func_801B1598(s32 slot, s32 accessory) {
+void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
     Unk800AF470* t;
     BattlePartyWork* party;
     Unk800F83E0* c;
