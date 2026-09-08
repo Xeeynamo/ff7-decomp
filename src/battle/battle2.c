@@ -297,11 +297,11 @@ static void func_800CE7E0(void) {
         if (D_80162978[D_8015169C].D_8016297E != -1) {
             func_800CE75C();
             dst = func_800BC04C(func_800C2928);
-            D_801621F0[dst].unk14 = D_80162978[D_8015169C].unkA;
+            D_801621F0[dst].unk14 = D_80162978[D_8015169C].unkE;
             D_801621F0[dst].unkE = D_80162978[D_8015169C].D_80162982;
             D_801621F0[dst].unk10.ptr = (u8*)(u32)D_80162978[D_8015169C].D_80162980;
             dst = func_800BC04C(func_800CE638);
-            D_801621F0[dst].unkA = D_80162978[D_8015169C].unk15;
+            D_801621F0[dst].unkA = D_80162978[D_8015169C].unk19;
             D_801621F0[dst].unk8 = D_80162978[D_8015169C].D_8016297E;
         }
         D_80162978[D_8015169C].D_80162978 = -1;
@@ -316,17 +316,17 @@ void func_800CE970(void) {
     s32 dst;
 
     if (!D_80162978[D_8015169C].D_8016297C) {
-        if (D_80162978[D_8015169C].unkA & 2) {
+        if (D_80162978[D_8015169C].unkE & 2) {
             D_80163C74 = (DR_MODE*)func_800C4FC8(0xFA, 0xFA, 0xFA);
         }
-        if (D_80162978[D_8015169C].D_8016297E != -1 && D_80162978[D_8015169C].unk14 != 1) {
+        if (D_80162978[D_8015169C].D_8016297E != -1 && D_80162978[D_8015169C].unk18 != 1) {
             func_800CE75C();
             dst = func_800BC04C(func_800C2928);
-            D_801621F0[dst].unk14 = D_80162978[D_8015169C].unkA;
+            D_801621F0[dst].unk14 = D_80162978[D_8015169C].unkE;
             D_801621F0[dst].unkE = D_80162978[D_8015169C].D_80162982;
             D_801621F0[dst].unk10.ptr = (u8*)(u32)D_80162978[D_8015169C].D_80162980;
             dst = func_800BC04C(func_800CE638);
-            D_801621F0[dst].unkA = D_80162978[D_8015169C].unk15;
+            D_801621F0[dst].unkA = D_80162978[D_8015169C].unk19;
             D_801621F0[dst].unk8 = D_80162978[D_8015169C].D_8016297E;
         }
         func_800CEB48();
@@ -1096,7 +1096,7 @@ static void BattleFixedPointRampInit(s32 arg0) {
         D_800F10E0 = &D_80162978[BattleEffectRegister(func_800D508C)];
     }
     *(s32*)&D_800F10E0->D_8016297C = 0;
-    *(s32*)&D_800F10E0->unk8 = 0x10000 / arg0;
+    *(s32*)&D_800F10E0->unkC = 0x10000 / arg0;
 }
 
 void func_800D51D4(s32 arg0);
@@ -1116,8 +1116,8 @@ static void BattleFixedPointRampUpdate(void) {
         v0 = *(s32*)&slot->D_8016297C + *(s32*)&slot->D_80162980;
         *(s32*)&slot->D_8016297C = v0;
         D_800F5B74 = v0 >> 0x10;
-        v1 = *(s32*)&slot->unk8 - 1;
-        *(s32*)&slot->unk8 = v1;
+        v1 = *(s32*)&slot->unkC - 1;
+        *(s32*)&slot->unkC = v1;
         if (v1 == 0) {
             D_800F10E4 = 0;
             slot->D_80162978 = -1;
@@ -1136,7 +1136,7 @@ void MagicAnimationRegister(s32 arg0, s32 arg1, s32 arg2, void (*func)(int)) {
     temp_v0->D_8016297C = arg0;
     temp_v0->D_8016297E = arg1;
     temp_v0->D_80162980 = arg2;
-    *(s32*)&temp_v0->unk8 = (s32)func;
+    *(s32*)&temp_v0->unkC = (s32)func;
 }
 
 static s32 func_800D54BC(s32 arg0) {
