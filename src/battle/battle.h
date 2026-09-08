@@ -79,25 +79,25 @@ typedef struct {
     /* 0x0A */ s8 unkA;
     /* 0x0B */ s8 unkB;
     /* 0x0C */ s8 unkC;
-    /* 0x0D */ u8 unkD;
-    /* 0x0E */ s8 unkE;
+    /* 0x0D */ u8 physAttack;
+    /* 0x0E */ s8 magAttack;
     /* 0x0F */ s8 unkF;
     /* 0x10 */ s8 unk10; // cached "Near Death" display flag; see func_800B10B4
                          // for the live check
     /* 0x11 */ u8 unk11;
     /* 0x12 */ s8 unk12;
     /* 0x13 */ s8 unk13;
-    /* 0x14 */ s8 unk14;
-    /* 0x15 */ u8 unk15;
+    /* 0x14 */ s8 dexterity;
+    /* 0x15 */ u8 luck;
     /* 0x16 */ s8 unk16;
     /* 0x17 */ u8 unk17;
     /* 0x18 */ s32 unk18;
     /* 0x1C */ s32 unk1C;
-    /* 0x20 */ s16 unk20;
-    /* 0x22 */ s16 unk22;
+    /* 0x20 */ s16 physDefence;
+    /* 0x22 */ s16 magDefence;
     /* 0x24 */ s32 unk24;
     /* 0x28 */ s16 unk28;
-    /* 0x2A */ s16 unk2A;
+    /* 0x2A */ s16 maxMP;
     /* 0x2C */ u32 curHP;
     /* 0x30 */ u32 maxHP;
     /* 0x34 */ u32 unk34[4];

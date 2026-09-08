@@ -2509,7 +2509,7 @@ void BATTLE_RollPhysicalHit(void) {
     if (!(g_CurrentAction->unk218 & 1)) {
         acc = 0xFF;
         if (!(g_CurrentAction->unkC8 & 0x40000000)) {
-            v = (g_CurrentAction->characterLevel + g_BattleState.combatant[attacker].unk15) -
+            v = (g_CurrentAction->characterLevel + g_BattleState.combatant[attacker].luck) -
                 g_BattleState.combatant[target].unk9;
             acc = v / 4;
             if (attacker < 3) {

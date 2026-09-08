@@ -11,7 +11,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitMain);
 
 static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void));
 void BattleInitSetup(s32 sceneID) {
-    BattleUnit* c;
+    BattleUnit* unit;
     s32 i;
     s32 var_s1;
 
@@ -37,8 +37,8 @@ void BattleInitSetup(s32 sceneID) {
     g_BattleState.presentMask = 0;
     for (i = 0; i < 10; i++) {
         BattleRecalcUnitSpeed(i);
-        c = &g_BattleState.combatant[i];
-        if (c->unk8 != -1) {
+        unit = &g_BattleState.combatant[i];
+        if (unit->unk8 != -1) {
             g_BattleState.presentMask |= 1 << i;
         }
     }
@@ -472,19 +472,19 @@ s32 BattleInitApplyStartFX(s32 slot) {
 }
 
 void BattleInitCharStats(ActiveCharacterData* character, BattlePartyWork* partyWork, BattleUnit* battleUnit) {
-    battleUnit->unk14 = character->dexterity;
-    battleUnit->unk15 = character->luck;
+    battleUnit->dexterity = character->dexterity;
+    battleUnit->luck = character->luck;
     battleUnit->maxHP = character->baseHp;
-    battleUnit->unk2A = character->baseMp;
-    battleUnit->unkD = character->physAttack;
-    battleUnit->unkE = character->magAttack;
-    battleUnit->unk20 = character->physDefence;
-    battleUnit->unk22 = character->magDefence;
-    if (battleUnit->unkD == 0) {
-        battleUnit->unkD = 1;
+    battleUnit->maxMP = character->baseMp;
+    battleUnit->physAttack = character->physAttack;
+    battleUnit->magAttack = character->magAttack;
+    battleUnit->physDefence = character->physDefence;
+    battleUnit->magDefence = character->magDefence;
+    if (battleUnit->physAttack == 0) {
+        battleUnit->physAttack = 1;
     }
     partyWork->maxHP = battleUnit->maxHP;
-    partyWork->maxMP = battleUnit->unk2A;
+    partyWork->maxMP = battleUnit->maxMP;
     // 8 = HP_MP_SWAP
     if (character->characterFlags & 8) {
         partyWork->capHP = 999;
