@@ -157,8 +157,8 @@ typedef struct {
 extern BattleWork g_CombatantTurnState;
 extern SavePartyMember D_8009C738[];
 void BattleInitApplyAccStatus(s32 slot, s32 accessory);
-void func_801B11BC(s32 slot);
-void func_800A4BA4(s32 slot);
+void BattleInitCharCmdMenu(s32 slot);
+void BattleInitCharCmdState(s32 slot);
 s32 func_801B1734(s32 slot);
 
 // Seeds the three live party slots from the save data: finds each slot's
@@ -205,8 +205,8 @@ void BattleInitPartyFromSavemap(void) {
                         t->unk29 |= 2;
                     }
                     BattleInitApplyAccStatus(i, m->accessory);
-                    func_801B11BC(i);
-                    func_800A4BA4(i);
+                    BattleInitCharCmdMenu(i);
+                    BattleInitCharCmdState(i);
                     if (func_801B1734(i) == 0) {
                         BattleInitUnitAction(i);
                     }
@@ -240,7 +240,7 @@ extern u8 D_800F5BE1[][0x44]; // same records as D_800F5BBC
 // unk21 ends up as the number of command rows in use. The second pass clears
 // the "usable" byte of every equipped materia whose attack is not flagged
 // battle-usable.
-void func_801B11BC(s32 arg0) {
+void BattleInitCharCmdMenu(s32 arg0) {
     ActiveCharacterData* e;
     s32 cmd;
     s32 flags;

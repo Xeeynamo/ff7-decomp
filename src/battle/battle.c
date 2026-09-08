@@ -585,7 +585,7 @@ u8 func_800A4B3C(s32 index, s32 arg1) {
 
 void func_800A4B9C(void) {}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4BA4);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleInitCharCmdState);
 
 s32 func_800A4CA8(s32 arg0) { return D_800F39F0[arg0][0]; }
 

@@ -13,3 +13,6 @@ BattleInitPlayer = 0x801B08C0;
 
 
 BattleInitApplyAccStatus = 0x801B1598;
+
+BattleInitCharCmdMenu = 0x801B11BC;
+
