@@ -591,7 +591,7 @@ void func_800C5E94(void);
 void func_8002DF88(s16*);
 void func_800D088C(s32 loc, s32 len);
 void func_800D0C80(u8 arg0);
-void func_800D3BF0();
+void BattleEffectSingleDustCloud();
 void func_800D8A78(s8);
 int func_800D8A88(void);
 void func_800D91DC(s32, s32, s16, u8, s32, s32);

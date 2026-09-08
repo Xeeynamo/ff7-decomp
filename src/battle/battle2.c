@@ -955,9 +955,9 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3AF0);
 
 const s32 D_800A0D98[] = {
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00001000, 0x00000000, 0x00000000, 0x00000000};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3BF0);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleEffectSingleDustCloud);
 
-void func_800D3D88(void) {
+void BattleEffectDustClouds(void) {
     Unk801621F0* temp_s0_2;
     Unk801621F0* temp_s1;
     s32 temp_s0;
@@ -969,7 +969,7 @@ void func_800D3D88(void) {
     temp_s0++; // !FAKE
     temp_s0--; // !FAKE
     if (temp_s2 != 0xFF) {
-        temp_s0_2 = &D_801621F0[func_800BC04C(func_800D3BF0)];
+        temp_s0_2 = &D_801621F0[func_800BC04C(BattleEffectSingleDustCloud)];
         BattleGetPartPosition(temp_s0, temp_s2, &temp_s0_2->D_801621F4);
         temp_s0_2->D_801621F6 = 0;
         temp_s0_2->unkE = temp_s1->unkE;
@@ -984,7 +984,7 @@ void func_800D3D88(void) {
 void func_800D3E8C(s32 arg0) {
     Unk801621F0* temp_v0;
 
-    temp_v0 = &D_801621F0[func_800BC04C(func_800D3D88)];
+    temp_v0 = &D_801621F0[func_800BC04C(BattleEffectDustClouds)];
     temp_v0->D_801621F0 = arg0;
     temp_v0->unkE = *(s16*)& temp_v0->unk10 = D_801518E4[arg0].D_801518EA;
 }
@@ -1268,7 +1268,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5D28);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D61AC);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D6260);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleEffectSpriteAdd);
 
 extern Unk801B0C98 D_800F14D0;
 
