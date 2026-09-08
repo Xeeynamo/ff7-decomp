@@ -164,3 +164,36 @@ BattleLoadEnemyModel = 0x800B5CD4;
 BattleLoadEnemyTexture = 0x800B5D38;
 BattleLoadPlayerTexture = 0x800B5E64;
 BattleInitModelsAnimAndColor = 0x800B6B98;
+
+
+BattlePostAddDeath = 0x800AEC10;
+BattlePostRemoveDeath = 0x800AEF68;
+BattleRestoreBattleActionIfCan = 0x800AF0C4;
+BattleUpperFunc00 = 0x800B0378;
+BattleUpperFunc01 = 0x800B062C;
+
+BattleUpperFunc07 = 0x800B089C;
+BattleUpperFunc06 = 0x800B0910;
+BattleUpperFunc03 = 0x800B0B8C;
+BattleGetRndItemIdForSteal = 0x800B0F04;
+BattleAddStringToDisplay = 0x800B0FFC;
+BattleGetAttackIdInSceneByAttackId = 0x800B11B4;
+
+
+BattleOpcodeValOffs = 0x800B13B0;
+BattleOpcodeWriteVal = 0x800B141C;
+BattleOpcodeReadVal = 0x800B153C;
+BattleOpcodePushToStack = 0x800B1624;
+BattleOpcodeStoreVal = 0x800B16D0;
+BattleOpcodePopFromStack = 0x800B17F0;
+BattleOpcodeLoadVal = 0x800B18A8;
+BattleOpcodeLoadValWithoutPop = 0x800B1A5C;
+BattleOpcodeMakeMath = 0x800B1AA0;
+
+BattleOpcodeValueConvertToBool = 0x800B1C1C;
+
+BattleOpcodeCycle = 0x800B1D48;
+
+BattleGetRnd164 = 0x800B2F70;
+BattleOpcodeCountActiveBits = 0x800B3000;
+BattleOpcodeGetRndBit = 0x800B3030;
