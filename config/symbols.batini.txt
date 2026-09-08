@@ -18,3 +18,4 @@ BattleInitCharCmdMenu = 0x801B11BC;
 
 BattleInitApplyStartFX = 0x801B1734; 
 
+BattleInitPartyScripts = 0x801B1120; 

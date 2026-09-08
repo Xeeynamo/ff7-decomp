@@ -217,14 +217,14 @@ void BattleInitPartyFromSavemap(void) {
     }
 }
 
-extern void func_800A6000(s32, s32, s32);
+extern void BattleRunUnitScript(s32, s32, s32);
 
-void func_801B1120(void) {
+void BattleInitPartyScripts(void) {
     s32 i;
 
     for (i = 0; i < 3; i++) {
         if (((s8)D_80163624.unk94[i][0] != -1) && !(g_BattleState.combatant[i].status & 1)) {
-            func_800A6000(i, 0, 0);
+            BattleRunUnitScript(i, 0, 0);
         }
     }
 }
@@ -668,7 +668,7 @@ void BattleInitEnemyAI(void) {
 
     for (i = 0; i < 6; i++) {
         if (D_80163624.unk34[i].unk0 != -1) {
-            func_800A6000(i + 4, 0, 0);
+            BattleRunUnitScript(i + 4, 0, 0);
         }
     };
     for (i = 0; i < 6; i++) {

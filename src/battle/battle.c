@@ -841,7 +841,7 @@ s32 func_800A5FB0(u16* arg0, s32 arg1, s32 arg2) {
     return var_v1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6000);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRunUnitScript);
 
 void func_800B1D48(s32, s32, s32);
 void func_800B2A2C(s32, s32);
@@ -1282,14 +1282,14 @@ void BATTLE_QueueCurrentActionEffect(void) {
 
 void func_800A8528(void) { g_CurrentAction->unkB4 = 4; }
 
-void func_800A6000(s32, s32, s32);
+void BattleRunUnitScript(s32, s32, s32);
 
 void func_800A853C(void) {
     s32 var_s0;
 
     for (var_s0 = 0; var_s0 < 0xA; var_s0 += 1) {
         if ((g_CurrentAction->allowedTargetsMask >> var_s0) & 1) {
-            func_800A6000(var_s0, g_CurrentAction->relativeActionIndex, 0);
+            BattleRunUnitScript(var_s0, g_CurrentAction->relativeActionIndex, 0);
         }
     }
 }
