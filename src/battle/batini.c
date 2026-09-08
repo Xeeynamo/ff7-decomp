@@ -125,7 +125,7 @@ void BattleInitATBTimers(void) {
 
 void BattleInitSetSpeed(s32 speed) { D_800F5F44.battleSpeed = 0x10000 / ((speed * 480 / 256 + 0x78) * 2); }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/batini", func_801B08C0);
+INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitPlayer);
 
 // The per-party work area at 0x800F5BB8: the turn state, the three party
 // records (D_800F5E60) and their setup config (D_800F5EFC) are one object, so
