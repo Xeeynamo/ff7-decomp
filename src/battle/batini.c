@@ -300,7 +300,7 @@ void BattleInitCharCmdMenu(s32 arg0) {
     }
 }
 
-void func_801B137C(s32 arg0) {
+void BattleInitResetExtraCmds(s32 arg0) {
     s32 i;
     ActiveCharacterData* data;
 
@@ -328,37 +328,37 @@ typedef struct {
         u8 unk0;
         u8 unk1[0x1B];
     } unk14[3];
-} Unk801B13DC; // size:0x68
+} BattleMateriaSlotData; // size:0x68
 
 // Resolves up to three materia slots of character arg0 against the equipment
 // mask arg1: a slot whose bit is set copies its paired value into unk3 and
 // counts towards unk6.
-void func_801B13DC(s32 arg0, s32 arg1, Unk801B13DC* arg2) {
+void BattleResolveMateriaSlots(s32 slot, s32 materiaMask, BattleMateriaSlotData* data) {
     s32 count;
     s32 i;
     s32 j;
 
     count = 0;
     for (i = 0; i < 3; i++) {
-        if (arg2->materiaID[i] != 0xFF) {
+        if (data->materiaID[i] != 0xFF) {
             for (j = 0; j < 12; j++) {
-                if (SysGetLimitCmdId(arg0, j) == arg2->materiaID[i]) {
+                if (SysGetLimitCmdId(slot, j) == data->materiaID[i]) {
                     break;
                 }
             }
             if (j == 12) {
                 func_800155A4(0x26);
-            } else if ((arg1 >> j) & 1) {
+            } else if ((materiaMask >> j) & 1) {
                 count++;
-                arg2->unk3[i] = arg2->unk14[i].unk0;
+                data->unk3[i] = data->unk14[i].unk0;
             }
         }
     }
-    arg2->unk7 = 0;
-    arg2->count = count;
+    data->unk7 = 0;
+    data->count = count;
 }
 
-s32 func_801B14E8(u32 arg0) {
+s32 BattleGetMateriaValue(u32 arg0) {
     u8 temp_v1;
     s32 ret;
 
@@ -370,14 +370,14 @@ s32 func_801B14E8(u32 arg0) {
     return ret;
 }
 
-s32 func_801B1530(u32* arg0) {
+s32 BattleGetEquipMateriaVal(u32* arg0) {
     s32 ret;
     s32 i;
 
     ret = 0;
     for (i = 0; i < 8; i++) {
-        ret |= func_801B14E8(arg0[0x10 + i]);
-        ret |= func_801B14E8(arg0[0x18 + i]);
+        ret |= BattleGetMateriaValue(arg0[0x10 + i]);
+        ret |= BattleGetMateriaValue(arg0[0x18 + i]);
     }
     return ret;
 }

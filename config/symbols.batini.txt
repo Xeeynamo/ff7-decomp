@@ -19,3 +19,11 @@ BattleInitCharCmdMenu = 0x801B11BC;
 BattleInitApplyStartFX = 0x801B1734; 
 
 BattleInitPartyScripts = 0x801B1120; 
+
+BattleInitResetExtraCmds = 0x801B137C;
+
+BattleResolveMateriaSlots = 0x801B13DC;
+
+BattleGetMateriaValue =  0x801B14E8;
+
+BattleGetEquipMateriaVal = 0x801B1530;
