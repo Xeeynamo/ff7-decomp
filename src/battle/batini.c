@@ -2,7 +2,7 @@
 #include "unzip.h"
 
 extern Unk801B2308 D_80163624;
-extern u16 D_8016376C;
+extern u16 g_IsMutiBattle;
 void BATTLE_RunFrame(void); // battle callback for batini, move to battle.h
 void BattleInitEnemyAI(void);
 
@@ -16,7 +16,7 @@ void BattleInitSetup(s32 sceneID) {
     s32 var_s1;
 
     var_s1 = 4;
-    if (D_8016376C) {
+    if (g_IsMutiBattle) {
         var_s1 = 0;
         BattleQueueEvent(0, 0, 15, 0);
         BattleQueueEvent(0, 0, 14, 0);
@@ -29,7 +29,7 @@ void BattleInitSetup(s32 sceneID) {
     for (i = 0; i < 3; i++) {
         D_800F5E60[i].unk6 = 0;
     }
-    if (D_8016376C) {
+    if (g_IsMutiBattle) {
         BattleInitPartyFromSavemap();
     }
     BattleInitLoadSceneData(sceneID, BATTLE_RunFrame);

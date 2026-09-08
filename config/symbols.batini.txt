@@ -6,3 +6,4 @@ BattleInitFormation = 0x801B19AC;
 BattleInitEnemyUnits = 0x801B1E0C;
 BattleInitEnemyAI = 0x801B2308;
 BattleInitLoadSceneData = 0x801B23E0;
+
