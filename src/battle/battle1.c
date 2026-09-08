@@ -5,10 +5,10 @@
 
 static void func_800B37A0(void);
 static void func_800B37EC(void);
-static void func_800B38E0(void);
-static void func_800B3D38(void);
-static void func_800B3D88(void);
-static void func_800B3DBC(void);
+static void BattleLoadFirstEnemy(void);
+static void BattleLoadSeffects(void);
+static void BattleEnemyInitBonesAndAnims(void);
+static void BattlePlayersInitBonesAndAnims(void);
 static s32 func_800B3FAC(s32 arg0);
 static void BattleQueue1ClearTargs(void);
 static void BattleUpdateRender(void);
@@ -33,10 +33,10 @@ static void BattleStoreUnitClut(u_long* arg0, s32 arg1);
 static void func_800C627C(void);
 void func_800C62F4(s32);
 static void func_800BC81C(s16 arg0, s16 arg1);
-static void func_800B3A04(void);
+static void BattleLoadSecondEnemy(void);
 static void func_800B950C(void);
 
-void func_800B30E4(void) {
+void BattleNormalStartSeq(void) {
     s32 i;
 
     g_cDb = &g_db;
@@ -64,21 +64,21 @@ void func_800B30E4(void) {
         switch (D_80163C7C) {
         case 0:
             D_801635FC = 0x3D;
-            func_800B38E0();
+            BattleLoadFirstEnemy();
             BattleUpdateRender();
             D_80163C7C = 1;
             break;
         case 1:
             BattleUpdateRender();
             if (D_800F7DF4 == (u8)D_80166F64 && D_801518DC == 0) {
-                func_800B3D38();
-                func_800B5138();
+                BattleLoadSeffects();
+                BattleParseEnemyModels();
                 D_80163C7C = 6;
             }
             break;
         case 6:
             BattleUpdateRender();
-            func_800B3D88();
+            BattleEnemyInitBonesAndAnims();
             for (i = 4; i < D_800F7E04[0] + 4; i++) {
                 D_801518E4[i].D_80151922 |= 4;
             }
@@ -87,7 +87,7 @@ void func_800B30E4(void) {
         case 2:
             BattleUpdateRender();
             if ((u8)D_80166F64 == 3 && D_801518DC == 0) {
-                func_800B3DBC();
+                BattlePlayersInitBonesAndAnims();
                 D_80163C7C = 3;
                 D_801518E4[0].D_80151922 |= 4;
                 D_801518E4[1].D_80151922 |= 4;
@@ -107,9 +107,9 @@ void func_800B30E4(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B33A4);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleNextStartSeq);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B36B4);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEnemyPlayInitAnims);
 
 // one-shot setup call centered on the 320x240 screen
 static void func_800B37A0(void) {
@@ -128,62 +128,62 @@ static void func_800B37EC(void) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B383C);
 
 // load stage entry i (D_800F7DF8[0]) into VRAM staging via SysCdromStartLoadLzs
-static void func_800B38E0(void) {
+static void BattleLoadFirstEnemy(void) {
     s32 i = D_800F7DF8[0];
 
-    SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, 0x801B0000, &func_800B3A04);
+    SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, 0x801B0000, &BattleLoadSecondEnemy);
     BattleCdromReadChain();
 }
 
-static void func_800B3934(void) {
-    func_800B5D38(2);
-    func_800B5CD4(2);
+static void BattleLoadEnemyFinish(void) {
+    BattleLoadEnemyTexture(2);
+    BattleLoadEnemyModel(2);
     D_80166F64 = 3;
 }
 
-// third link of the stage-load chain (func_800B38E0 -> func_800B3A04 ->
-// here -> func_800B3934): unpack the part just read into the staging buffer,
+// third link of the stage-load chain (BattleLoadFirstEnemy -> BattleLoadSecondEnemy ->
+// here -> BattleLoadEnemyFinish): unpack the part just read into the staging buffer,
 // record where the next part lands (D_800F8390[n+1] = D_800F8390[n] + size),
-// advance the D_80166F64 phase counter func_800B30E4 waits on, and queue the
+// advance the D_80166F64 phase counter BattleNormalStartSeq waits on, and queue the
 // next part's read only while entries remain (D_800F7DF4 is the entry count)
-static void func_800B3968(void) {
+static void BattleLoadThirdEnemy(void) {
     s32 size;
     s32 i;
 
-    func_800B5D38(1);
-    size = func_800B5CD4(1);
+    BattleLoadEnemyTexture(1);
+    size = BattleLoadEnemyModel(1);
     D_80166F64 = 2;
     D_800F8390[2] = size + D_800F8390[1];
     if (D_800F7DF4 >= 3U) {
         i = D_800F7DF8[2];
-        SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, func_800B3934);
+        SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, BattleLoadEnemyFinish);
         BattleCdromReadChain();
     }
 }
 
 // second link of the chain: unpack part 0 out of the staging buffer, then
 // queue part 1's read
-static void func_800B3A04(void) {
+static void BattleLoadSecondEnemy(void) {
     s32 size;
     s32 i;
 
     D_800F8390[0] = D_80130200;
-    func_800B5D38(0);
-    size = func_800B5CD4(0);
+    BattleLoadEnemyTexture(0);
+    size = BattleLoadEnemyModel(0);
     D_80166F64 = 1;
     D_800F8390[1] = size + D_800F8390[0];
     if (D_800F7DF4 >= 2U) {
         i = D_800F7DF8[1];
-        SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, func_800B3968);
+        SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, BattleLoadThirdEnemy);
         BattleCdromReadChain();
     }
 }
 
-static void func_800B3AB8(void);
-void func_800B5C1C(s16);
-void func_800B5E64(s16);
-void func_800B3B84(void);
-static void func_800B3AB8(void) {
+static void BattleLoadSecondPlayer(void);
+void BattleLoadPlayerModel(s16);
+void BattleLoadPlayerTexture(s16);
+void BattleLoadThirdPlayer(void);
+static void BattleLoadSecondPlayer(void) {
     s16* s0;
     u8** dst;
     s16 v1;
@@ -193,51 +193,51 @@ static void func_800B3AB8(void) {
     v1 = *s0;
     dst = &D_800F8384[v1];
     *dst = D_80103200 + v1 * 0xF000;
-    func_800B5E64(*s0);
-    func_800B5C1C(*s0);
+    BattleLoadPlayerTexture(*s0);
+    BattleLoadPlayerModel(*s0);
     cmp = D_800FA9C8;
     if (cmp != 0xC8) {
-        SysCdromStartLoadLzs(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len, (u_long*)0x801B0000, func_800B3B84);
+        SysCdromStartLoadLzs(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len, (u_long*)0x801B0000, BattleLoadThirdPlayer);
         BattleCdromReadChain();
         return;
     }
     D_80166F64 = 3;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3B84);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadThirdPlayer);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3C50);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadPlayerFinish);
 
-static void func_800B3CD0(void) {
+static void BattleLoadFirstPlayer(void) {
     Yamada* y;
     u_long* dst;
 
     dst = (u_long*)0x801B0000;
     BattleSetLoadTimToVram(dst, 0, 0, 0);
     y = &D_800E8068[D_800FA9C4];
-    SysCdromStartLoadLzs(y->loc, *&D_800E8068[D_800FA9C4].len, dst, func_800B3AB8);
+    SysCdromStartLoadLzs(y->loc, *&D_800E8068[D_800FA9C4].len, dst, BattleLoadSecondPlayer);
     BattleCdromReadChain();
 }
 
-static void func_800B3D38(void) {
+static void BattleLoadSeffects(void) {
     BattleSelectPlayerModelFiles();
     D_800F839C = D_800EA50C;
-    SysCdromStartLoadLzs(LBA_ENEMY6_SEFFECT, 0xA800, (u_long*)0x801B0000, func_800B3CD0);
+    SysCdromStartLoadLzs(LBA_ENEMY6_SEFFECT, 0xA800, (u_long*)0x801B0000, BattleLoadFirstPlayer);
     BattleCdromReadChain();
 }
 
-static void func_800B3D88(void) {
-    func_800B588C();
-    func_800B6B98(4, 10);
-    func_800B36B4();
+static void BattleEnemyInitBonesAndAnims(void) {
+    BattleEnemyModelsUpdateBonesPosClut();
+    BattleInitModelsAnimAndColor(4, 10);
+    BattleEnemyPlayInitAnims();
 }
 
-static void func_800B3DBC(void) {
+static void BattlePlayersInitBonesAndAnims(void) {
     s32 i;
 
-    func_800B4794();
-    func_800B6B98(0, 3);
-    func_800B6B98(3, 3);
+    BattlePlayerModelsUpdateBonesPos();
+    BattleInitModelsAnimAndColor(0, 3);
+    BattleInitModelsAnimAndColor(3, 3);
     if (D_8016360C.setup.stageID == 57) {
         for (i = 0; i < 10; i++) {
             D_801518E4[i].D_80151909 |= 0x10;
@@ -305,29 +305,29 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3FFC);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B430C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B45F0);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattlePlayerModifyDefaultPosByFormation);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B46B4);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattlePlayerSetDefaultRot);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B4794);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattlePlayerModelsUpdateBonesPos);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B4E30);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattlePlayerInitModelWithSettings);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5138);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleParseEnemyModels);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B54B8);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEnemyInitModelWithSettings);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B588C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEnemyModelsUpdateBonesPosClut);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5AAC);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5C1C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadPlayerModel);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5CD4);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadEnemyModel);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5D38);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadEnemyTexture);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5E64);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadPlayerTexture);
 
 void func_800B60E0(s16);
 void func_800B5FC4(s16 arg0) { func_800B60E0(arg0); }
@@ -341,7 +341,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B64CC);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B677C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6B98);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleInitModelsAnimAndColor);
 
 // drains D_80163798 (12-byte entries, -1-terminated, index D_801590E0), one
 // entry per call, dispatched by a type byte (0-5, jtbl_800A05FC) via m2c
