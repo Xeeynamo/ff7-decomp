@@ -587,7 +587,7 @@ static void func_800C0630(s16);
 static void func_800C0970(s16);
 static void func_800C0B20(s16);
 static void func_800C1908(u8 arg0);
-void func_800C5E94(void);
+void BattleSelectPlayerModelFiles(void);
 void func_8002DF88(s16*);
 void func_800D088C(s32 loc, s32 len);
 void func_800D0C80(u8 arg0);

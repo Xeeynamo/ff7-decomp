@@ -110,3 +110,17 @@ BattleModelAnimReadDynamicFrameOffsBits = 0x800D3548;
 BattleModelAnimReadBitStream = 0x800D35D8;
 BattleModelAnimReadEncryptedRotBits = 0x800D3658;
 BattleModelReadAnimStream = 0x800D376C;
+
+
+BattleSelectPlayerModelFiles = 0x800C5E94;
+BattleStoreUnitClut = 0x800C614C;
+
+BattleUnitInitBonesAndMatrixes = 0x800BB538;
+BattleQueue1CameraInit = 0x800BB684;
+BattleCameraResetCallbacks = 0x800BC2F0;
+CopyCameraStartEndFromBattleSetup = 0x800BC754;
+BattleCreateStatusIconPacket = 0x800C1D8C;
+BattleAddStatusIconToRender = 0x800C2000;
+BattleGet4DigitsFromValue = 0x800C20E8;
+BattleAddStatusDigitsToRender = 0x800C2150;
+BattleCreateStatusDigitsPackets = 0x800C223C;
