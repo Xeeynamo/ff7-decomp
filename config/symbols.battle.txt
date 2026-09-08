@@ -197,3 +197,32 @@ BattleOpcodeCycle = 0x800B1D48;
 BattleGetRnd164 = 0x800B2F70;
 BattleOpcodeCountActiveBits = 0x800B3000;
 BattleOpcodeGetRndBit = 0x800B3030;
+
+BattleCopyTargTypeDatToTemp = 0x800A8D60;
+
+BattleGetRndOpponentBit = 0x800AA700;
+BattleActionType09 = 0x800AABBC;
+BattleMainDmgCalculation = 0x800ABB0C;
+BattleCalcTargStats = 0x800AC73C;
+BattleDmgFormulaRun = 0x800AD4EC;
+BattleSetFormulaAndBaseDmg = 0x800AD5E8;
+BattleAddBarriersModifier = 0x800AD73C;
+BattleAddSplitQuaterModifier = 0x800AD804;
+
+BattleAddRndModifierAndZeroCheck = 0x800AD8DC;
+BattleLowerFunc00 = 0x800AD924;
+BattleSetTempDmgAsPhysical = 0x800AD944;
+BattleSetTempDmgAsMagical = 0x800ADBBC;
+
+BattleLowerFunc04 = 0x800ADD2C;
+BattleLowerFunc05 = 0x800ADDE8;
+BattleLowerFunc06 = 0x800ADE5C;
+BattleLowerFunc07 = 0x800ADE84;
+BattleLowerFunc08 = 0x800ADED8;
+BattleLowerFunc09 = 0x800ADF04;
+BattleLowerFunc0a = 0x800ADF38;
+
+BattleSetTempDmgAsMaxHpMinusCurrentHp = 0x800ADFF4;
+BattleLowerFunc18 = 0x800AE080;
+BattleSetTempDmgAsNumberOfEscapes = 0x800AE234;
+BattleSetTempDmgAsTargHpMinusOne = 0x800AE25C;

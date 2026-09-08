@@ -435,7 +435,7 @@ extern s32 D_801517C8[10];
 extern s32 D_8015187C[10];
 // queued-action-ish record, allocated by func_800A2FD0 (unk3 set to -1,
 // marking it unassigned) and searched by func_800A34CC. Traced through
-// func_800ABA68's callers (func_800AB830/func_800ABB0C, still undecompiled):
+// func_800ABA68's callers (func_800AB830/BattleMainDmgCalculation, still undecompiled):
 // unk0 is very likely an actorId (0-2) -- its source value independently
 // indexes D_800F83E0 with the same 0x68 stride confirmed elsewhere, in both
 // callers. unk1 is a second actor-related value (not always equal to unk0).
@@ -558,7 +558,7 @@ void func_800AB480(void);
 void BATTLE_LearnEnemySkill(void);
 void func_800ABA68(Unk800FA9D0*, s16, u16, s16, s16);
 void func_800AC6B4(s32);
-void func_800AC73C(s32);
+void BattleCalcTargStats(s32);
 void func_800ACA24(void);
 s32 func_800ACD88(s32);
 s32 BATTLE_IsDamageNullified(s32);
@@ -566,7 +566,7 @@ void BATTLE_QueueUnassignedResultDisplay(Unk800FA9D0*);
 void func_800AD0FC(void);
 void func_800AD324(s32, s32, s32, s32);
 void BATTLE_ApplyDefaultAbsorbEffect(void);
-void func_800AD4EC(void);
+void BattleDmgFormulaRun(void);
 void func_800AE82C(void);
 s32 BattleOpcodeGetRndBit(s32);
 void BattlePlayerModelsUpdateBonesPos(void);
