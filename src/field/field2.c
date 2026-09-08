@@ -3,6 +3,8 @@
 #include <libetc.h>
 
 extern u8 D_800E08C0[];
+extern char D_800E0628[];
+extern char D_800E0630[];
 extern u8 g_DialogDigitCharacters[16];
 extern u8 g_WindowReplaceBank[4][8];
 extern u16 g_WindowReplaceBankAddr[4][8];
@@ -19,8 +21,6 @@ extern s16 g_WindowBufferPos[4];
 extern u8 g_WindowBuffer[4][16];
 extern s16 g_WindowTotalRowsHeight[4];
 extern char g_FieldDebugDigits[16];
-extern s8 D_800E0628;
-extern s8 D_800E0630;
 extern u16 g_FieldDebugRb;
 extern s16 g_FieldDebugRChars;
 extern s16 g_FieldDebugRLines;
@@ -1212,13 +1212,13 @@ void InitFieldDebugPages(void) {
     SetStrToDebugRow(5, 6, "  Info  OFF");
     FieldDebugPageHide(5);
     FieldDebugPageInit(4, 0x6C, 0x52, 0x6C, 0x52);
-    AddStrNextDebugRow(4, &D_800E0628);
+    AddStrNextDebugRow(4, D_800E0628);
     FieldDebugPageHide(4);
     FieldDebugPageInit(3, 0x6C, 0xA4, 0x6C, 0x5C);
-    AddStrNextDebugRow(3, &D_800E0630);
+    AddStrNextDebugRow(3, D_800E0630);
     FieldDebugPageHide(3);
     FieldDebugPageInit(1, 0, 0, 0x6C, 0xCA);
-    AddStrNextDebugRow(1, &D_800E0628);
+    AddStrNextDebugRow(1, D_800E0628);
     FieldDebugPageHide(1);
     D_80099FFC = 3;
     D_8007EBCC = 4;
