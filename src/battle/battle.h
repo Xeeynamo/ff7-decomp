@@ -279,7 +279,7 @@ typedef struct {
     /* 0x1E7E */ u16 D_800F7DC2;
     /* 0x1E80 */ u16 D_800F7DC4;
     /* 0x1E72 */ u16 D_800F7DC6;
-    /* 0x1E84 */ u16 D_800F7DC8;
+    /* 0x1E84 */ u16 battleType;
     /* 0x1E84 */ u16 D_800F7DCA;
     /* 0x1E88 */ u8 unk1E88[0x12];
     /* 0x1E9A */ s16 D_800F7DDE;

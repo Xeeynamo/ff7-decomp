@@ -77,3 +77,6 @@ D_801636B8 = 0x801636B8; // size:0xA0
 D_80163798 = 0x80163798; // size:0x300
 D_80163C80 = 0x80163C80; // size:0xC
 g_IsMutiBattle =  0x8016376C;
+
+BattleGetRndU16 = 0x800B2F50;
+g_BattleUnitPresentMask = 0x8016375A;

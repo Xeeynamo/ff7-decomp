@@ -2654,13 +2654,13 @@ void func_800B1268(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-// nonzero if D_800F5F44.D_800F7DC8 is < 3
+// nonzero if D_800F5F44.battleType is < 3
 static u32 func_800B12DC(void) {
     u32 result = 0;
-    s32 cmp = (s32)D_800F5F44.D_800F7DC8;
+    s32 cmp = (s32)D_800F5F44.battleType;
 
     if (cmp < 3) {
-        result = (u32)~D_800F5F44.D_800F7DC8 >> 0x1F;
+        result = (u32)~D_800F5F44.battleType >> 0x1F;
     }
     return result;
 }
@@ -2910,10 +2910,10 @@ AttackData* BATTLE_GetAttackData(s32 id) {
 
 u8 func_800B2F30(void) { return SysGetRandomByteFromTable(); }
 
-u16 func_800B2F50(void) { return SysRandomTwoBytes(); }
+u16 BattleGetRndU16(void) { return SysRandomTwoBytes(); }
 
 // scale a 16-bit value into the range 1..100
-static s32 func_800B2F70(void) { return (((func_800B2F50() & 0xFFFF) * 0x63) / 0xFFFF) + 1; }
+static s32 func_800B2F70(void) { return (((BattleGetRndU16() & 0xFFFF) * 0x63) / 0xFFFF) + 1; }
 
 static s32 func_800B2FC4(s32 arg0) { return (arg0 * (func_800B2F30() + 0xF01)) >> 12; }
 
