@@ -1126,7 +1126,7 @@ void BATTLE_ResolveSummonActionIndex(void) {
 }
 
 void func_800A55F4(s16, s16);
-void func_800A73F8(void) {
+void BattlePrepareTempFromItemForUse(void) {
     g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex;
     g_CurrentAction->unk24 = g_CurrentAction->relativeActionIndex;
     func_800A55F4(g_CurrentAction->actorId, (s16)g_CurrentAction->absoluteActionIndex);
@@ -1166,7 +1166,7 @@ void BATTLE_ResolveEnemySkillActionIndex(void) {
 }
 
 static u32 func_800B12DC(void);
-void func_800A76CC(void) {
+void BattleActionType04(void) {
     s32 val;
 
     g_CurrentAction->unk20 = -1;
@@ -1180,7 +1180,7 @@ void func_800A76CC(void) {
     }
 }
 
-void func_800A7784(void) {}
+void BattlePrepareTempForDefend(void) {}
 
 // actorId here is the live party slot (0-2, indexes g_BattlePartyWork's 3-element
 // gauge table below) -- NOT the per-character Limit-name block index. Each
@@ -1214,9 +1214,9 @@ void BATTLE_ResolveLimitActionIndex(void) {
 const s16 D_800A0290[] = {0, 56, 72, 96, 256};
 const s32 D_800A029C[] = {
     0x140D0302, 0x3D3CFFFF, 0x41403F3E, 0xFFFFFF42, 0xFFFFFFFF, 0x43424140, 0x47464544, 0xFF444843, 0xFFFFFFFF};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A784C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType07);
 
-void func_800A7940(void) {
+void BattlePrepareTempForManip(void) {
     g_CurrentAction->unk80 = 0x400000;
     g_CurrentAction->unkE4 = 0x59;
 }
@@ -1225,15 +1225,15 @@ void func_800B1060(s32);
 void func_800A795C(void) { func_800B1060(g_CurrentAction->relativeActionIndex); }
 
 void func_800AF9C8();
-void func_800A7988(void) { func_800AF9C8(); }
+void BattleActionType0A(void) { func_800AF9C8(); }
 
-void func_800A79A8(void) {
+void BattleActionType0B(void) {
     g_CurrentAction->unk50 = 0;
     g_CurrentAction->allowedTargetsMask = 1 << g_CurrentAction->actorId;
 }
 
-void func_800A79CC();
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A79CC);
+void BattleActionType0C();
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType0C);
 
 void BATTLE_LoadActionAttackData(void) {
     AttackData* atk;
@@ -1256,7 +1256,7 @@ void BATTLE_LoadActionAttackData(void) {
     func_800A8D88(atk->additionalEffects, atk->effectsModifier);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A81B8);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType0E);
 
 void BATTLE_QueueCurrentActionEffect(void) {
     Unk800A2F4C* unk;
@@ -1280,7 +1280,7 @@ void BATTLE_QueueCurrentActionEffect(void) {
     }
 }
 
-void func_800A8528(void) { g_CurrentAction->unkB4 = 4; }
+void BattleActionType10(void) { g_CurrentAction->unkB4 = 4; }
 
 void BattleRunUnitScript(s32, s32, s32);
 
@@ -1294,7 +1294,7 @@ void func_800A853C(void) {
     }
 }
 
-void func_800A85A0(void) { g_CurrentAction->unkB4 = 2; }
+void BattleActionType12(void) { g_CurrentAction->unkB4 = 2; }
 
 void func_800A85B4(void) {
     g_CurrentAction->unk44 = 0x10;
@@ -1305,25 +1305,25 @@ void func_800A85B4(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A85FC);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType15);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A866C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType16);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8A6C);
 
-void func_800A8C94(void) {
+void BattleActionType18(void) {
     g_CurrentAction->unk8C = 0xFF;
     g_CurrentAction->unk40 = 0xB0;
     g_CurrentAction->unk80 |= 1;
     g_CurrentAction->unk3C = (s32)g_CurrentAction->unk3C >> 1;
 }
 
-void func_800A8CC8(void) {
+void BattleActionType1B(void) {
     g_CurrentAction->unk6C &= ~0x2000;
     g_CurrentAction->unk3C /= 3;
 }
 
-void func_800A8D04(void) { g_CurrentAction->unk48 = 2; }
+void BattleActionType1C(void) { g_CurrentAction->unk48 = 2; }
 
 // seed this combatant's unk50 (a flag word later read by the damage formula
 // in BattleAddSplitQuaterModifier -- bit 0x80 there appears to exempt a hit from the
@@ -1331,7 +1331,7 @@ void func_800A8D04(void) { g_CurrentAction->unk48 = 2; }
 // multiple targets) with a per-slot default, but only if nothing has set
 // unk50 explicitly yet this turn (see BattleCopyTargTypeDatToTemp's sentinel check)
 void BattleCopyTargTypeDatToTemp(s32 arg0);
-void func_800A8D18(void) { BattleCopyTargTypeDatToTemp(D_800F5EFC[g_CurrentAction->actorId * 0x18]); }
+void BattleActionType1E(void) { BattleCopyTargTypeDatToTemp(D_800F5EFC[g_CurrentAction->actorId * 0x18]); }
 
 void BattleCopyTargTypeDatToTemp(s32 arg0) {
     if (g_CurrentAction->unk50 == 0xFF) {
@@ -1376,7 +1376,7 @@ void BATTLE_SetActionStatusChange(u32 arg0, s32 arg1) {
     }
 }
 
-void func_800A8E34(void) { func_800A79CC(); }
+void func_800A8E34(void) { BattleActionType0C(); }
 
 void func_800A8E54(s32 arg0) {
     g_CurrentAction->unkF8 = arg0;
@@ -2024,7 +2024,7 @@ s32 BattleAddBarriersModifier(s32 arg0) {
 // multi-target damage-reduction formula, s32 BattleAddSplitQuaterModifier(s32 damage, s32
 // fullDamage): if fullDamage is false, it still gets forced true when
 // unkB8 < 2 (single target) or unk50 & 0x80 is set (the exemption bit
-// documented on unk50's seed at func_800A8D18/BattleCopyTargTypeDatToTemp above); then
+// documented on unk50's seed at BattleActionType1E/BattleCopyTargTypeDatToTemp above); then
 // if unkAC != 0 (hit-sequence position, see func_800A8E54) returns
 // damage>>1, else returns damage unchanged when fullDamage else damage/3
 // (magic-number signed divide) -- this is the classic "multi-target hits

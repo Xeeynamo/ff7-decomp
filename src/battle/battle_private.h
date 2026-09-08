@@ -675,7 +675,7 @@ extern u16 D_800F5634;
 extern u8 D_800F5638;
 extern u8 D_800F563C;
 extern u8 D_800F5EFC[]; // per-slot formation-setup config, 0x18 B stride; byte
-                        // 0 -> func_800A8D18
+                        // 0 -> BattleActionType1E
 extern BattleMenuWidget D_800F90C6[];
 extern u8 D_80151698;
 extern u8 D_80166F74;

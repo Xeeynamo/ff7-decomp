@@ -226,3 +226,29 @@ BattleSetTempDmgAsMaxHpMinusCurrentHp = 0x800ADFF4;
 BattleLowerFunc18 = 0x800AE080;
 BattleSetTempDmgAsNumberOfEscapes = 0x800AE234;
 BattleSetTempDmgAsTargHpMinusOne = 0x800AE25C;
+
+
+
+
+BattlePrepareTempFromItemForUse = 0x800A73F8;
+
+
+BattleActionType04 = 0x800A76CC;
+BattlePrepareTempForDefend = 0x800A7784;
+
+BattleActionType07 = 0x800A784C;
+BattlePrepareTempForManip = 0x800A7940;
+BattleActionType0A = 0x800A7988;
+BattleActionType0B = 0x800A79A8;
+BattleActionType0C = 0x800A79CC;
+
+BattleActionType0E = 0x800A81B8;
+
+BattleActionType10 = 0x800A8528;
+BattleActionType12 = 0x800A85A0;
+BattleActionType15 = 0x800A85FC;
+BattleActionType16 = 0x800A866C;
+BattleActionType18 = 0x800A8C94;
+BattleActionType1B = 0x800A8CC8;
+BattleActionType1C = 0x800A8D04;
+BattleActionType1E = 0x800A8D18;
