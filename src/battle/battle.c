@@ -2087,8 +2087,8 @@ void BattleSetTempDmgAsMagical(void) {
     if (var_v1 < 0) {
         var_v1 += 0x1FFF;
     }
-    g_CurrentAction->unk214 =
-        BattleAddRndModifierAndZeroCheck(BattleAddBarriersModifier(BattleAddSplitQuaterModifier(BATTLE_ApplySadnessReduction(var_v1 >> 0xD), temp_s0)));
+    g_CurrentAction->unk214 = BattleAddRndModifierAndZeroCheck(
+        BattleAddBarriersModifier(BattleAddSplitQuaterModifier(BATTLE_ApplySadnessReduction(var_v1 >> 0xD), temp_s0)));
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADC70);
@@ -2103,7 +2103,8 @@ void BattleLowerFunc05(void) {
     s32 term1 = base * 3;
     s32 term2 = g_CurrentAction->unk48 * 0xB;
     s32 damage = (term2 + term1) * 2;
-    g_CurrentAction->unk214 = BattleAddRndModifierAndZeroCheck(BattleAddBarriersModifier(BattleAddSplitQuaterModifier(damage, 0)));
+    g_CurrentAction->unk214 =
+        BattleAddRndModifierAndZeroCheck(BattleAddBarriersModifier(BattleAddSplitQuaterModifier(damage, 0)));
 }
 
 void BattleLowerFunc06(void) { g_CurrentAction->unk214 = g_CurrentAction->unk48 * 20; }
@@ -2216,7 +2217,9 @@ void BattleSetTempDmgAsNumberOfEscapes(void) {
 }
 
 // Sephiroth's Heartless Angel attack damage formula.
-void BattleSetTempDmgAsTargHpMinusOne(void) { g_CurrentAction->unk214 = g_BattleState.combatant[g_CurrentAction->unk208].curHP - 1; }
+void BattleSetTempDmgAsTargHpMinusOne(void) {
+    g_CurrentAction->unk214 = g_BattleState.combatant[g_CurrentAction->unk208].curHP - 1;
+}
 
 // Tonberry's Time Damage attack damage formula.
 void func_800AE2A0(void) {
@@ -2335,7 +2338,7 @@ int BattleUpperFunc06();
 int BattleUpperFunc07();
 int (* const D_800A04E0[])() = {
     BattleUpperFunc00, BattleUpperFunc01, BATTLE_RollPhysicalHit, BattleUpperFunc03,
-    BattleUpperFunc03, BattleUpperFunc03, BattleUpperFunc06,          BattleUpperFunc07,
+    BattleUpperFunc03, BattleUpperFunc03, BattleUpperFunc06,      BattleUpperFunc07,
 };
 // ___end
 
