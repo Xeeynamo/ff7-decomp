@@ -195,7 +195,7 @@ static void Lv5DeathMainSetup(s32 targetMask, s32 arg1) {
     s32 i;
 
     Lv5DeathFlipEffect = &D_80162978[BattleEffectRegister(Lv5DeathBufferFlip)];
-    func_800D2980(Lv5DeathTexture, 0, 0, 0);
+    BattleSetLoadTimToVram(Lv5DeathTexture, 0, 0, 0);
     effect = &D_80162978[BattleEffectRegister(Lv5DeathScreenFade)];
     effect->u.FadeOutStartFrame = 0;
     MagicAnimationRegister(targetMask, arg1, 2, Lv5DeathAttachToTarget);

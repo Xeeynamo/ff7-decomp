@@ -49,11 +49,14 @@ BattleEffectRegister = 0x800BBEAC;
 BATTLE_EnqueueLoadImage = 0x800D2538;
 BATTLE_FlushImageQueue = 0x800D25E8;
 BattleGetPartPosition = 0x800D3994;
+BattleEffectSingleDustCloud = 0x800D3BF0;
+BattleEffectDustClouds = 0x800D3D88;
 BattleEventQueuePush = 0x800D4FA8;
 BattleFixedPointRampUpdate = 0x800D5230;
 BattleAnimationUpdate = 0x800D5350;
 BattleEntityGetCenter = 0x800D54EC;
 BattleCommandSend = 0x800D55F4;
+BattleEffectSpriteAdd = 0x800D6260;
 g_StatusExpireTable = 0x800E7AB4; // size:0x30
 D_800E7BA4 = 0x800E7BA4; // size:0x15
 g_AtbBarPulseColor = 0x800F32C4; // size:0x2
@@ -84,11 +87,26 @@ g_CharacterMask = 0x8016376E;
 D_80163798 = 0x80163798; // size:0x300
 D_80163C80 = 0x80163C80; // size:0xC
 
+BattleGetModelBoneNumberAndInitBones = 0x800C76C8;
+BattleGetWeaponBoneNumberAndInitBones = 0x800C7924;
+BattleModelReadAnimIntoMatrix = 0x800C7B60;
+BattleWeaponReadAnimIntoMatrix = 0x800C7BE8;
+BattleExecuteUnitAnimScript = 0x800C7C4C;
+BattleResetUnitAnimScript = 0x800CDD44;
+BattleStorePlayerAnimScriptsPtr = 0x800D0958;
+BattleRestorePlayerAnimScriptsPtr = 0x800D09D0;
 
-
-BattleEffectSingleDustCloud = 0x800D3BF0;
-BattleEffectDustClouds = 0x800D3D88;
-
-BattleEffectSpriteAdd = 0x800D6260;
-
-
+BattleSetStoreFromVram = 0x800D2564;
+BattleSetMoveInVram = 0x800D2590;
+BattleSetClearVram = 0x800D25C0;
+BattleSetLoadClutToVram = 0x800D2710;
+BattleSetLoadTextureToVram = 0x800D2828;
+BattleSetLoadTimToVram = 0x800D2980;
+BattleModelFlipR11R21R31 = 0x800D3418;
+BattleModelFlipR12R22R32 = 0x800D3474;
+BattleModelFlipR13R23R33 = 0x800D34C8;
+BattleModelUpdateBoneHeight = 0x800D3520;
+BattleModelAnimReadDynamicFrameOffsBits = 0x800D3548;
+BattleModelAnimReadBitStream = 0x800D35D8;
+BattleModelAnimReadEncryptedRotBits = 0x800D3658;
+BattleModelReadAnimStream = 0x800D376C;

@@ -475,7 +475,7 @@ extern u16 D_8016376A;
 int BattleEffectRegister(void (*func)(void));
 
 // battle2.c
-void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
+void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void* func_800D29D4(Unk801B0C98*, u_long**, int, void*);
 // Build the model matrix for a battle effect: `scale` goes on the matrix
 // diagonal, `pos` is transformed into view space to become the translation,

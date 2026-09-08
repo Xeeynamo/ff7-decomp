@@ -213,7 +213,7 @@ static void func_800B3CD0(void) {
     u_long* dst;
 
     dst = (u_long*)0x801B0000;
-    func_800D2980(dst, 0, 0, 0);
+    BattleSetLoadTimToVram(dst, 0, 0, 0);
     y = &D_800E8068[D_800FA9C4];
     SysCdromStartLoadLzs(y->loc, *&D_800E8068[D_800FA9C4].len, dst, func_800B3AB8);
     func_800B7FB4();
@@ -1443,12 +1443,12 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C7340);
 
 static void func_800C74A4(void) {
     if (!(D_801518E4[3].D_80151909 & 2)) {
-        func_800C7C4C(3, D_800F57D0->unk8, D_800F57D0 + 1, D_800F57D0);
+        BattleExecuteUnitAnimScript(3, D_800F57D0->unk8, D_800F57D0 + 1, D_800F57D0);
     }
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C74E4);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C76C8);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleGetModelBoneNumberAndInitBones);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C7924);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleGetWeaponBoneNumberAndInitBones);

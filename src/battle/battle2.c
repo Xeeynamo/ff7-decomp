@@ -26,7 +26,7 @@ void func_800C44B4();
 void func_800C4814();
 void func_800CFB14();
 void func_800D1530();
-s32 func_800D376C(BattleModelSub* arg0, s32 arg1, s16 nItems, u8* arg3);
+s32 BattleModelReadAnimStream(BattleModelSub* arg0, s32 arg1, s16 nItems, u8* arg3);
 void func_800D3AF0();
 static void func_800D4D4C(s32 arg0, s32 arg1);
 
@@ -39,7 +39,7 @@ void func_801B0040(s16, u8);
 void func_801B0054(s16, u8);
 void func_801B0084(s16, u8);
 
-static s32 func_800C7B60(s16 arg0, s16 nItems, u8* arg2) {
+static s32 BattleModelReadAnimIntoMatrix(s16 arg0, s16 nItems, u8* arg2) {
     BattleModelSub* var_a0;
     s32 var_a1;
     s32 temp_s0;
@@ -47,15 +47,15 @@ static s32 func_800C7B60(s16 arg0, s16 nItems, u8* arg2) {
 
     var_a0 = D_801518E4[arg0].D_80151A58;
     var_a1 = D_801518E4[arg0].D_80151958;
-    D_801518E4[arg0].D_80151958 = func_800D376C(var_a0, var_a1, nItems, arg2);
+    D_801518E4[arg0].D_80151958 = BattleModelReadAnimStream(var_a0, var_a1, nItems, arg2);
     return D_801518E4[arg0].D_80151958 == 0;
 }
 
-static void func_800C7BE8(s16 arg0, s16 arg1, u8* arg2) {
-    D_800FA6D8[arg0].unk0 = func_800D376C(D_800FA6D8[arg0].unk8, D_800FA6D8[arg0].unk0, arg1, arg2);
+static void BattleWeaponReadAnimIntoMatrix(s16 arg0, s16 arg1, u8* arg2) {
+    D_800FA6D8[arg0].unk0 = BattleModelReadAnimStream(D_800FA6D8[arg0].unk8, D_800FA6D8[arg0].unk0, arg1, arg2);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800C7C4C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleExecuteUnitAnimScript);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD400);
 
@@ -80,7 +80,7 @@ static void func_800CD82C(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD860);
 
-static void func_800CDD44(s16 arg0) {
+static void BattleResetUnitAnimScript(s16 arg0) {
     D_801518E4[arg0].D_8015191F = 1;
     D_801518E4[arg0].D_80151920 = 0;
     D_801518E4[arg0].D_80151921 = 0;
@@ -604,9 +604,9 @@ void func_800D088C(s32 loc, s32 len) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D08B8);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D0958);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleStorePlayerAnimScriptsPtr);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D09D0);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleRestorePlayerAnimScriptsPtr);
 
 void func_800D0A44(void) {}
 
@@ -858,7 +858,7 @@ void BATTLE_FlushImageQueue(void) {
 
 void BATTLE_ResetImageQueue(void) { D_800F01DC = D_800F4BAC; }
 
-void func_800D2710(u_long* addr, s16 x, s16 y) {
+void BattleSetLoadClutToVram(u_long* addr, s16 x, s16 y) {
     TIM_IMAGE tim;
 
     OpenTIM(addr);
@@ -872,7 +872,7 @@ void func_800D2710(u_long* addr, s16 x, s16 y) {
     }
 }
 
-void func_800D2828(u_long* addr, s32 xy) {
+void BattleSetLoadTextureToVram(u_long* addr, s32 xy) {
     TIM_IMAGE tim;
     s32 temp_a1;
     s32 temp_a3;
@@ -893,9 +893,9 @@ void func_800D2828(u_long* addr, s32 xy) {
     }
 }
 
-void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY) {
-    func_800D2710(addr, clutX, clutY);
-    func_800D2828(addr, imgXY);
+void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY) {
+    BattleSetLoadClutToVram(addr, clutX, clutY);
+    BattleSetLoadTextureToVram(addr, imgXY);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D29D4);
@@ -904,17 +904,17 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D32B4);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3354);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3418);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR11R21R31);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3474);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR12R22R32);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D34C8);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR13R23R33);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3520);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelUpdateBoneHeight);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3548);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelAnimReadDynamicFrameOffsBits);
 
-s32 func_800D35D8(u8* arg0, s32* arg1, s32 arg2) {
+s32 BattleModelAnimReadBitStream(u8* arg0, s32* arg1, s32 arg2) {
     s32 bits;
     s32 i;
 
@@ -931,9 +931,9 @@ s32 func_800D35D8(u8* arg0, s32* arg1, s32 arg2) {
     return bits;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3658);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelAnimReadEncryptedRotBits);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D376C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelReadAnimStream);
 
 void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleGetPartPosition);
