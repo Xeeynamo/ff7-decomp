@@ -26,7 +26,7 @@ typedef enum {
 } BattleEventType;
 
 // full standard FF7 status bitmask (wiki.ffrtt.ru/FF7/Battle/Status_Effects)
-// for Unk800F83E0.status. NOTE: the standard table's bit 0x2 (Near Death)
+// for BattleUnit.status. NOTE: the standard table's bit 0x2 (Near Death)
 // does not appear to be set here -- this engine computes Near Death live
 // from curHP/maxHP instead (see func_800B10B4), not via this flag. Bits
 // actually confirmed live in decompiled code so far: Death, Confu, Silence,
@@ -79,25 +79,25 @@ typedef struct {
     /* 0x0A */ s8 unkA;
     /* 0x0B */ s8 unkB;
     /* 0x0C */ s8 unkC;
-    /* 0x0D */ u8 unkD;
-    /* 0x0E */ s8 unkE;
+    /* 0x0D */ u8 physAttack;
+    /* 0x0E */ s8 magAttack;
     /* 0x0F */ s8 unkF;
     /* 0x10 */ s8 unk10; // cached "Near Death" display flag; see func_800B10B4
                          // for the live check
     /* 0x11 */ u8 unk11;
     /* 0x12 */ s8 unk12;
     /* 0x13 */ s8 unk13;
-    /* 0x14 */ s8 unk14;
-    /* 0x15 */ u8 unk15;
+    /* 0x14 */ s8 dexterity;
+    /* 0x15 */ u8 luck;
     /* 0x16 */ s8 unk16;
     /* 0x17 */ u8 unk17;
     /* 0x18 */ s32 unk18;
     /* 0x1C */ s32 unk1C;
-    /* 0x20 */ s16 unk20;
-    /* 0x22 */ s16 unk22;
+    /* 0x20 */ s16 physDefence;
+    /* 0x22 */ s16 magDefence;
     /* 0x24 */ s32 unk24;
     /* 0x28 */ s16 unk28;
-    /* 0x2A */ s16 unk2A;
+    /* 0x2A */ s16 maxMP;
     /* 0x2C */ u32 curHP;
     /* 0x30 */ u32 maxHP;
     /* 0x34 */ u32 unk34[4];
@@ -107,7 +107,7 @@ typedef struct {
     /* 0x4E */ u8 unk4E;
     /* 0x4F */ u8 unk4F;
     /* 0x50 */ u32 unk50[6];
-} Unk800F83E0; // size:0x68
+} BattleUnit; // size:0x68
 
 typedef struct {
     /* 0x000 */ u16 unk0;
@@ -128,7 +128,7 @@ typedef struct {
     /* 0x026 */ u16 unk26;       // D_800F83D2
     /* 0x028 */ u16 unk28;       // D_800F83D4
     /* 0x02A */ u8 unk2A[0xA];   // D_800F83D8..D_800F83DC
-    /* 0x034 */ Unk800F83E0 combatant[10];
+    /* 0x034 */ BattleUnit combatant[10];
 } BattleState; // size:0x444
 
 typedef struct {
@@ -262,7 +262,7 @@ typedef struct {
     /* 0x0C60 */ Unk800F5F44_5 _5;
     /* 0x0E60 */ u8 script[0x1000];
     /* 0x1E60 */ u16 D_800F7DA4;
-    /* 0x1E62 */ u16 D_800F7DA6;
+    /* 0x1E62 */ u16 battleSpeed;
     /* 0x1E64 */ u16 D_800F7DA8;
     /* 0x1E66 */ u16 D_800F7DAA;
     /* 0x1E68 */ u16 D_800F7DAC;
@@ -279,7 +279,7 @@ typedef struct {
     /* 0x1E7E */ u16 D_800F7DC2;
     /* 0x1E80 */ u16 D_800F7DC4;
     /* 0x1E72 */ u16 D_800F7DC6;
-    /* 0x1E84 */ u16 D_800F7DC8;
+    /* 0x1E84 */ u16 battleType;
     /* 0x1E84 */ u16 D_800F7DCA;
     /* 0x1E88 */ u8 unk1E88[0x12];
     /* 0x1E9A */ s16 D_800F7DDE;
@@ -431,7 +431,7 @@ typedef struct {
 typedef struct {
     /* 0x00 */ SavePartyMember* partyMember;
     /* 0x04 */ u8 limitCount; // inferred: bumped when a Limit Break executes
-    /* 0x05 */ u8 unk5;
+    /* 0x05 */ u8 limitLevel;
     /* 0x06 */ u8 unk6;
     /* 0x07 */ u8 killCount; // enemy kills this battle; reconciled into
                              // SavePartyMember.kill_count after battle
@@ -446,21 +446,18 @@ typedef struct {
     /* 0x16 */ u16 capHP;
     /* 0x18 */ u16 unk18;
     /* 0x1A */ u16 unk1A;
-    /* 0x1C */ u16 unk1C;
-    /* 0x1E */ u16 unk1E;
-    /* 0x20 */ u32 unk20; // status mask granted by the equipped accessory
-    /* 0x24 */ u16 unk24;
-    /* 0x26 */ u16 unk26;
-    /* 0x28 */ u16 unk28;
-    /* 0x2A */ u16 unk2A;
+    /* 0x1C */ u32 limitBreakHPDivisor;
+    /* 0x20 */ u32 accessoryStatusMask; // status mask granted by the equipped accessory
+    /* 0x24 */ u32 enemySkillMateriaData;
+    /* 0x28 */ u32 enemySkillMateriaData2;
     /* 0x2C */ u16 unk2C;
     /* 0x2E */ u16 unk2E;
     /* 0x30 */ u16 unk30;
     /* 0x32 */ u16 unk32;
-} Unk800F5E60; // size:0x34
+} BattlePartyWork; // size:0x34
 
 extern u16 D_800F5BBC[10][0x22];
-extern Unk800F5E60 D_800F5E60[3];
+extern BattlePartyWork g_BattlePartyWork[3];
 extern Unk800F5F44 D_800F5F44;
 extern s8 D_800F6936[0x40][8];
 extern u8 D_800F83A8;

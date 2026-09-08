@@ -40,7 +40,7 @@ s32 D_80062F9C;
 s32 D_80062FF0;
 
 void SysBgRender(void);
-void func_80014A00(s32* dst, s32* src, s32 len);
+void SysMemCopy32(s32* dst, s32* src, s32 len);
 u16* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
 s32 SysDecompKernStringWithF9(u16*, u16*);
 u16* SysGetPtrToKernBattleTxtWithId(s32);

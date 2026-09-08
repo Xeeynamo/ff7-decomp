@@ -53,7 +53,7 @@ void BATTLE_SetFocusedActor(s32 arg0) {
         if (i == 64) {
             g_CombatantTurnState[D_800E7A38].unk2A++;
             func_800A56B0(*(s16*)&D_800E7A38);
-            func_800A7254(0, D_800E7A38, 0, 0);
+            BattleQueueEvent(0, D_800E7A38, 0, 0);
         }
     }
     D_800E7A38 = arg0;
@@ -260,7 +260,7 @@ void func_800A329C(void) {
     }
 }
 
-void func_800A7254(s32, s32, s32, s32);
+void BattleQueueEvent(s32, s32, s32, s32);
 s32 func_800A37F8(s32);
 
 static void func_800A32C0(s32 arg0) {
@@ -273,10 +273,10 @@ static void func_800A32C0(s32 arg0) {
                 if (D_800F5F44.D_800F6B9A != D_800F5F44.D_800F6BA1) {
                     var_a3 = 3;
                 }
-                func_800A7254(0, 0, 7, var_a3);
+                BattleQueueEvent(0, 0, 7, var_a3);
             }
         } else if (func_800A37F8(-1) != 0) {
-            func_800A7254(0, 0, 7, 0);
+            BattleQueueEvent(0, 0, 7, 0);
         }
     }
 }
@@ -356,7 +356,7 @@ s32 func_800A37F8(s32 arg0) {
 s32 func_800A3828(void) {
     s32 ret = 0;
     if (D_800F39E0 == 3) {
-        D_800F39E4 += D_800F5F44.D_800F7DA6;
+        D_800F39E4 += D_800F5F44.battleSpeed;
     }
     if (D_800F5F44.D_800F7DAA == 2) {
         switch (D_800F3896) {
@@ -461,7 +461,7 @@ void func_800A4480(void) {
 }
 
 // Manipulate redirect: if arg0 (an enemy id) is currently manipulated
-// (D_800F7DCA bit), return the party slot whose D_800F5E60[].unk6 is
+// (D_800F7DCA bit), return the party slot whose g_BattlePartyWork[].unk6 is
 // tracking it in place of arg0; otherwise arg0 passes through unchanged.
 s32 func_800A44D8(s32 arg0) {
     s32 i;
@@ -472,8 +472,8 @@ s32 func_800A44D8(s32 arg0) {
     if (!((D_800F5F44.D_800F7DCA >> arg0) & 1)) {
         goto end;
     }
-    for (i = 0; i < LEN(D_800F5E60); i++) {
-        if (D_800F5E60[i].unk6 == arg0) {
+    for (i = 0; i < LEN(g_BattlePartyWork); i++) {
+        if (g_BattlePartyWork[i].unk6 == arg0) {
             arg0 = i;
             goto end;
         }
@@ -482,7 +482,7 @@ end:
     return arg0;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4540);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpdateUnitMasks);
 
 void func_800A4844(s32 arg0) {
     s32 var_v0 = arg0 ? 3 : 1;
@@ -497,7 +497,7 @@ s32 BATTLE_RunToResultScreen(void) {
     D_800F39EC = 0;
     g_BattleState.setupFlags |= 2;
     for (i = 0; i < 3; i++) {
-        func_800A7254(0, i, 4, 0);
+        BattleQueueEvent(0, i, 4, 0);
     }
     for (i = 0; i < 4; i++) {
         BATTLE_RunFrame();
@@ -522,7 +522,7 @@ s32 BATTLE_RunEscapeSequence(void) {
     D_800F39EC = 0;
     g_BattleState.setupFlags |= 2;
     for (i = 0; i < 3; i++) {
-        func_800A7254(0, i, 4, 0);
+        BattleQueueEvent(0, i, 4, 0);
     }
     for (i = 0; i < 4; i++) {
         BATTLE_RunFrame();
@@ -534,7 +534,7 @@ s32 BATTLE_RunEscapeSequence(void) {
     }
     g_BattleState.setupFlags &= ~2;
     for (i = 0; i < 3; i++) {
-        func_800A7254(0, i, 6, 0);
+        BattleQueueEvent(0, i, 6, 0);
     }
     if (D_800F39EC & 2) {
         ret = 1;
@@ -585,7 +585,7 @@ u8 func_800A4B3C(s32 index, s32 arg1) {
 
 void func_800A4B9C(void) {}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4BA4);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleInitCharCmdState);
 
 s32 func_800A4CA8(s32 arg0) { return D_800F39F0[arg0][0]; }
 
@@ -593,7 +593,7 @@ s32 func_800A4CC8(s32 arg0) {
     s32 temp_v1;
 
     if (arg0 < 3) {
-        temp_v1 = D_800F5E60[arg0].unk6;
+        temp_v1 = g_BattlePartyWork[arg0].unk6;
         if ((temp_v1 >= 4) && ((D_800F5F44.D_800F7DCA >> temp_v1) & 1)) {
             arg0 = temp_v1;
         }
@@ -776,7 +776,7 @@ s32 BATTLE_PickRandomThrowItem(void) {
     if (n != 0) {
         pick = list[SysGetRandomByteRange(n)];
         if (pick >= 0x80 && pick < 0x100) {
-            func_800A7254(0, 0, 0x10, pick);
+            BattleQueueEvent(0, 0, 0x10, pick);
             ret = pick;
         }
     }
@@ -841,7 +841,7 @@ s32 func_800A5FB0(u16* arg0, s32 arg1, s32 arg2) {
     return var_v1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6000);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRunUnitScript);
 
 void func_800B1D48(s32, s32, s32);
 void func_800B2A2C(s32, s32);
@@ -1018,7 +1018,7 @@ void func_800A6C04(s32 arg0) {
 }
 
 void func_800A6C5C(s32 arg0, s32 arg1) {
-    func_800A7254(2, arg0, 0x14, arg1);
+    BattleQueueEvent(2, arg0, 0x14, arg1);
     *(u16*)((u8*)&g_BattleState.combatant[arg0].unk44 + 0xE) = arg1;
 }
 
@@ -1053,14 +1053,14 @@ void func_800A6E04(void) {}
 
 void func_800A6E0C(s32 arg0) {
     if (arg0 < 3) {
-        D_800F5E60[arg0].limitBarUI = 0;
-        D_800F5E60[arg0].limitBar = 0;
-        func_800A7254(0, arg0, 1, 0);
+        g_BattlePartyWork[arg0].limitBarUI = 0;
+        g_BattlePartyWork[arg0].limitBar = 0;
+        BattleQueueEvent(0, arg0, 1, 0);
     }
 }
 
-void func_800A7254(s32, s32, s32, s32);
-void func_800A6E6C(s32 arg0, s32 arg1) { func_800A7254(0, arg0, 13, arg1); }
+void BattleQueueEvent(s32, s32, s32, s32);
+void func_800A6E6C(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 13, arg1); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6E9C);
 
@@ -1070,7 +1070,7 @@ void func_800A7034(s32 arg0, s16 arg1) {
     func_800B0FFC(arg0, 0x53, 1, &out);
 }
 
-void func_800A7060(s32 arg0, s32 arg1) { func_800A7254(0, arg0, 12, arg1); }
+void func_800A7060(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 12, arg1); }
 
 void func_800A7090(s32 arg0) { g_CombatantTurnState[arg0].unk29 |= 0x40; }
 
@@ -1097,7 +1097,7 @@ void func_800A71F4(void) {
     }
 }
 
-void func_800A7254(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32* base;
     s32* temp_s0;
     s32 temp_t0;
@@ -1182,7 +1182,7 @@ void func_800A76CC(void) {
 
 void func_800A7784(void) {}
 
-// actorId here is the live party slot (0-2, indexes D_800F5E60's 3-element
+// actorId here is the live party slot (0-2, indexes g_BattlePartyWork's 3-element
 // gauge table below) -- NOT the per-character Limit-name block index. Each
 // of the 9 playable characters has a uniform 7-slot block in the shared
 // name table (relativeActionIndex 0x00=Cloud, 0x07=Barret, 0x0E=Aerith,
@@ -1203,10 +1203,10 @@ void BATTLE_ResolveLimitActionIndex(void) {
     if (relativeActionIndex < 0x60) {
         s32 off = actorId * 0x34;
         g_CurrentAction->absoluteActionIndex = relativeActionIndex + 0x80;
-        *(u16*)((u8*)D_800F5E60 + off + 8) = 0; // ideally D_800F5E60[actorId].limitBar = 0;
-        D_800F5E60[actorId].limitCount++;
+        *(u16*)((u8*)g_BattlePartyWork + off + 8) = 0; // ideally g_BattlePartyWork[actorId].limitBar = 0;
+        g_BattlePartyWork[actorId].limitCount++;
         if (!(g_BattleState.setupFlags & 8)) {
-            func_800A7254(2, actorId, 0x11, 0);
+            BattleQueueEvent(2, actorId, 0x11, 0);
         }
     }
 }
@@ -1282,14 +1282,14 @@ void BATTLE_QueueCurrentActionEffect(void) {
 
 void func_800A8528(void) { g_CurrentAction->unkB4 = 4; }
 
-void func_800A6000(s32, s32, s32);
+void BattleRunUnitScript(s32, s32, s32);
 
 void func_800A853C(void) {
     s32 var_s0;
 
     for (var_s0 = 0; var_s0 < 0xA; var_s0 += 1) {
         if ((g_CurrentAction->allowedTargetsMask >> var_s0) & 1) {
-            func_800A6000(var_s0, g_CurrentAction->relativeActionIndex, 0);
+            BattleRunUnitScript(var_s0, g_CurrentAction->relativeActionIndex, 0);
         }
     }
 }
@@ -1554,7 +1554,7 @@ void BATTLE_LearnEnemySkill(void) {
             *flags = mask | bit;
             id = (u16)g_CurrentAction->absoluteActionIndex;
             func_800B0FFC(g_CurrentAction->unk208, 0x73, 1, &id);
-            func_800A7254(2, g_CurrentAction->unk208, 0x12, id);
+            BattleQueueEvent(2, g_CurrentAction->unk208, 0x12, id);
             g_CurrentAction->unk224 = 0xA;
         }
     }
@@ -1707,8 +1707,8 @@ void func_800ABB0C(s32 arg0, s32 arg1) {
 
     // clamp the computed damage to this target's HP or MP cap
     if (arg1 < 3) {
-        cap = D_800F5E60[arg1].capHP;
-        capMP = D_800F5E60[arg1].capMP;
+        cap = g_BattlePartyWork[arg1].capHP;
+        capMP = g_BattlePartyWork[arg1].capMP;
     } else {
         cap = 9999;
         capMP = 999;
@@ -2231,7 +2231,7 @@ void BATTLE_ApplyKillCountBonus(void) {
 
     var_v1 = 0;
     if (g_CurrentAction->unk208 < 3) {
-        var_v1 = D_800F5E60[g_CurrentAction->unk208].partyMember->kill_count;
+        var_v1 = g_BattlePartyWork[g_CurrentAction->unk208].partyMember->kill_count;
     }
     g_CurrentAction->unk214 = var_v1 * 0xA;
 }
@@ -2248,7 +2248,7 @@ void BATTLE_CalcMateriaSlotScore(void) {
     if (slot < 3) {
         i = 0;
         none = -1;
-        pm = D_800F5E60[slot].partyMember;
+        pm = g_BattlePartyWork[slot].partyMember;
         for (; i < 8; i++) {
             if (pm->materia_weapon[i] != none) {
                 count++;
@@ -2306,8 +2306,8 @@ void func_800AE764(s32 mask, s32 arg1, s32 arg2) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE82C);
 
-void func_800AE954(int index);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE954);
+void BattleRecalcUnitSpeed(int index);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRecalcUnitSpeed);
 
 const u8 D_800A04BC[] = {0x1E, 0x14, 0x3C, 0x1E, 0x7F, 0x7F, 0x0A, 0x64, 0x7F, 0x7F,
                          0x40, 0x40, 0x00, 0x00, 0x00, 0x00, 0x8B, 0x0D, 0x00, 0x00};
@@ -2339,7 +2339,7 @@ int (* const D_800A04E0[])() = {
 };
 // ___end
 
-void func_800B108C(s32 arg0);
+void BattleInitUnitAction(s32 arg0);
 
 void func_800AEB80(s32 arg0, s32 arg1, s32 arg2) {
     s32 index;
@@ -2350,12 +2350,12 @@ void func_800AEB80(s32 arg0, s32 arg1, s32 arg2) {
         p = (u8*)&g_CombatantTurnState[arg0].unk10;
         p[index] = 0;
         if ((0xD8B >> index) & 1) {
-            func_800B108C(arg0);
+            BattleInitUnitAction(arg0);
         }
     }
 }
 
-void func_800AEBF0(int index) { func_800AE954(index); }
+void func_800AEBF0(int index) { BattleRecalcUnitSpeed(index); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AEC10);
 
@@ -2363,7 +2363,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AEF68);
 
 void func_800AF0C4(s32 arg0, s32 arg1, s32 arg2) {
     if (!(g_BattleState.combatant[arg0].status & 0x2804444)) {
-        func_800A7254(0, arg0, 6, 0);
+        BattleQueueEvent(0, arg0, 6, 0);
     }
     if (!(g_BattleState.combatant[arg0].status & 0x2004404)) {
         if ((D_800F5F44.D_800F7DC2 >> arg0) & 1) {
@@ -2375,15 +2375,15 @@ void func_800AF0C4(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-void func_800A7254(s32, s32, s32, s32);
-void func_800AF1A8(s32 arg0) { func_800A7254(0, arg0, 8, 0); }
+void BattleQueueEvent(s32, s32, s32, s32);
+void func_800AF1A8(s32 arg0) { BattleQueueEvent(0, arg0, 8, 0); }
 
 void func_800AF0C4(s32, s32, s32);
 
 // skips (does nothing) while combatant[arg0].status has Berserk or Confusion
 void BATTLE_TryApplyHitEffect(s32 arg0, s32 arg1, s32 arg2) {
     if (!(g_BattleState.combatant[arg0].status & (STATUS_BERSERK | STATUS_CONFU))) {
-        func_800A7254(0, arg0, 9, 0);
+        BattleQueueEvent(0, arg0, 9, 0);
         func_800AF0C4(arg0, arg1, arg2);
     }
 }
@@ -2393,7 +2393,7 @@ void func_800AF264(s32 arg0, s32 arg1, s32 arg2) {
 
     func_800AEBF0(arg0);
     func_800AEB20(arg0, arg1, arg2);
-    func_800A7254(0, arg0, 4, 0);
+    BattleQueueEvent(0, arg0, 4, 0);
 
     status = g_BattleState.combatant[arg0].status & 0xFFBFFFFF;
     g_BattleState.combatant[arg0].status = status;
@@ -2409,7 +2409,7 @@ void func_800AF320(s32 arg0, s32 arg1, s32 arg2) {
     func_800AF0C4(arg0, arg1, arg2);
 }
 
-void func_800AF380(s32 arg0) { func_800A7254(2, arg0, 0x15, 0xF); }
+void func_800AF380(s32 arg0) { BattleQueueEvent(2, arg0, 0x15, 0xF); }
 
 void BATTLE_ApplyRegenPoisonTick(s32 arg0, s32 arg1, s32 arg2) {
     s32 amount;
@@ -2445,22 +2445,22 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF494);
 void BATTLE_ClearActorSlotReferences(s32 arg0, s32 arg1, s32 arg2) {
     s32 i;
 
-    func_800A7254(0, arg0, 0xA, arg2);
+    BattleQueueEvent(0, arg0, 0xA, arg2);
     if (arg2 != 0) {
         func_800A23BC(arg0);
         return;
     }
-    for (i = 0; i < LEN(D_800F5E60); i++) {
-        if (D_800F5E60[i].unk6 == arg0) {
-            D_800F5E60[i].unk6 = 0;
-            func_800A7254(0, i, 6, 0);
+    for (i = 0; i < LEN(g_BattlePartyWork); i++) {
+        if (g_BattlePartyWork[i].unk6 == arg0) {
+            g_BattlePartyWork[i].unk6 = 0;
+            BattleQueueEvent(0, i, 6, 0);
         }
     }
-    func_800B108C(arg0);
+    BattleInitUnitAction(arg0);
 }
 
-void func_800B108C(s32 arg0);
-void func_800AF63C(s32 arg0) { func_800B108C(arg0); }
+void BattleInitUnitAction(s32 arg0);
+void func_800AF63C(s32 arg0) { BattleInitUnitAction(arg0); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF65C);
 
@@ -2509,7 +2509,7 @@ void BATTLE_RollPhysicalHit(void) {
     if (!(g_CurrentAction->unk218 & 1)) {
         acc = 0xFF;
         if (!(g_CurrentAction->unkC8 & 0x40000000)) {
-            v = (g_CurrentAction->characterLevel + g_BattleState.combatant[attacker].unk15) -
+            v = (g_CurrentAction->characterLevel + g_BattleState.combatant[attacker].luck) -
                 g_BattleState.combatant[target].unk9;
             acc = v / 4;
             if (attacker < 3) {
@@ -2576,7 +2576,7 @@ void func_800B0FFC(s32 arg0, s32 arg1, s32 arg2, s16* arg3) {
 
 void func_800B1060(s32 arg0) { func_800A31A0(10, 2, 1, arg0); }
 
-void func_800B108C(s32 arg0) { func_800A31A0(arg0, 5, 0, 0); }
+void BattleInitUnitAction(s32 arg0) { func_800A31A0(arg0, 5, 0, 0); }
 
 // true when the combatant's HP is at or below a quarter of max -- the "Near
 // Death" threshold used by weapon-specific damage formulas (e.g. Powersoul's
@@ -2654,13 +2654,13 @@ void func_800B1268(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-// nonzero if D_800F5F44.D_800F7DC8 is < 3
+// nonzero if D_800F5F44.battleType is < 3
 static u32 func_800B12DC(void) {
     u32 result = 0;
-    s32 cmp = (s32)D_800F5F44.D_800F7DC8;
+    s32 cmp = (s32)D_800F5F44.battleType;
 
     if (cmp < 3) {
-        result = (u32)~D_800F5F44.D_800F7DC8 >> 0x1F;
+        result = (u32)~D_800F5F44.battleType >> 0x1F;
     }
     return result;
 }
@@ -2910,10 +2910,10 @@ AttackData* BATTLE_GetAttackData(s32 id) {
 
 u8 func_800B2F30(void) { return SysGetRandomByteFromTable(); }
 
-u16 func_800B2F50(void) { return SysRandomTwoBytes(); }
+u16 BattleGetRndU16(void) { return SysRandomTwoBytes(); }
 
 // scale a 16-bit value into the range 1..100
-static s32 func_800B2F70(void) { return (((func_800B2F50() & 0xFFFF) * 0x63) / 0xFFFF) + 1; }
+static s32 func_800B2F70(void) { return (((BattleGetRndU16() & 0xFFFF) * 0x63) / 0xFFFF) + 1; }
 
 static s32 func_800B2FC4(s32 arg0) { return (arg0 * (func_800B2F30() + 0xF01)) >> 12; }
 
