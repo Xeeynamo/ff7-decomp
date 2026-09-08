@@ -573,7 +573,7 @@ void func_800B4794(void);
 s32 func_800B5CD4(s32);
 void func_800B5D38(s32);
 void func_800B6B98(s32, s32);
-void func_800B7FB4(void);
+void BattleCdromReadChain(void);
 s16 func_800B888C(s32);
 void func_800B8438(void);
 void func_800B8A34(s16, s32);

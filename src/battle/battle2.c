@@ -599,7 +599,7 @@ void func_800D0760(void) {
 
 void func_800D088C(s32 loc, s32 len) {
     SystemLoadFileBySector(loc, len, (u_long*)0x801B0000, NULL);
-    func_800B7FB4();
+    BattleCdromReadChain();
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D08B8);

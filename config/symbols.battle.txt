@@ -124,3 +124,16 @@ BattleAddStatusIconToRender = 0x800C2000;
 BattleGet4DigitsFromValue = 0x800C20E8;
 BattleAddStatusDigitsToRender = 0x800C2150;
 BattleCreateStatusDigitsPackets = 0x800C223C;
+
+
+BattleQueue1Execute = 0x800B6D6C;
+BattleQueue1InitPlayAnim = 0x800B7764;
+BattleQueue1ClearTargs = 0x800B798C;
+BattleQueue1AddNewTarg = 0x800B79F0;
+BattleQueue1UpdateTargMasks = 0x800B7DB4;
+BattleCdromReadChain = 0x800B7FB4;
+BattleUpdateRender = 0x800B7FDC;
+BattleUpdateModelMatrixesWithSelfAndParent = 0x800BACEC;
+BattleUpdateMatrixWithSelfAndParentAndSetToGte = 0x800BAF34;
+BattleUpdateMatrixWithScaleAndSetToGte = 0x800BAFF8;
+BattleModelUpdateAllBonesHeight = 0x800BB430;

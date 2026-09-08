@@ -10,8 +10,8 @@ static void func_800B3D38(void);
 static void func_800B3D88(void);
 static void func_800B3DBC(void);
 static s32 func_800B3FAC(s32 arg0);
-static void func_800B798C(void);
-static void func_800B7FDC(void);
+static void BattleQueue1ClearTargs(void);
+static void BattleUpdateRender(void);
 static void func_800B8360(s32);
 static void func_800B85E0();
 static void func_800B88CC(s32 arg0);
@@ -54,8 +54,8 @@ void func_800B30E4(void) {
     func_800B3E2C();
     BattleQueue1CameraInit();
     func_800BC04C(func_800C4D10);
-    func_800B7FDC();
-    func_800B7FDC();
+    BattleUpdateRender();
+    BattleUpdateRender();
     do {
     } while (D_80095DD4);
     func_800B37EC();
@@ -65,11 +65,11 @@ void func_800B30E4(void) {
         case 0:
             D_801635FC = 0x3D;
             func_800B38E0();
-            func_800B7FDC();
+            BattleUpdateRender();
             D_80163C7C = 1;
             break;
         case 1:
-            func_800B7FDC();
+            BattleUpdateRender();
             if (D_800F7DF4 == (u8)D_80166F64 && D_801518DC == 0) {
                 func_800B3D38();
                 func_800B5138();
@@ -77,7 +77,7 @@ void func_800B30E4(void) {
             }
             break;
         case 6:
-            func_800B7FDC();
+            BattleUpdateRender();
             func_800B3D88();
             for (i = 4; i < D_800F7E04[0] + 4; i++) {
                 D_801518E4[i].D_80151922 |= 4;
@@ -85,7 +85,7 @@ void func_800B30E4(void) {
             D_80163C7C = 2;
             break;
         case 2:
-            func_800B7FDC();
+            BattleUpdateRender();
             if ((u8)D_80166F64 == 3 && D_801518DC == 0) {
                 func_800B3DBC();
                 D_80163C7C = 3;
@@ -95,7 +95,7 @@ void func_800B30E4(void) {
             }
             break;
         case 3:
-            func_800B7FDC();
+            BattleUpdateRender();
             if (D_801635FC == 0) {
                 D_80163C7C = 4;
                 func_800C61C0();
@@ -132,7 +132,7 @@ static void func_800B38E0(void) {
     s32 i = D_800F7DF8[0];
 
     SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, 0x801B0000, &func_800B3A04);
-    func_800B7FB4();
+    BattleCdromReadChain();
 }
 
 static void func_800B3934(void) {
@@ -157,7 +157,7 @@ static void func_800B3968(void) {
     if (D_800F7DF4 >= 3U) {
         i = D_800F7DF8[2];
         SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, func_800B3934);
-        func_800B7FB4();
+        BattleCdromReadChain();
     }
 }
 
@@ -175,7 +175,7 @@ static void func_800B3A04(void) {
     if (D_800F7DF4 >= 2U) {
         i = D_800F7DF8[1];
         SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, func_800B3968);
-        func_800B7FB4();
+        BattleCdromReadChain();
     }
 }
 
@@ -198,7 +198,7 @@ static void func_800B3AB8(void) {
     cmp = D_800FA9C8;
     if (cmp != 0xC8) {
         SysCdromStartLoadLzs(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len, (u_long*)0x801B0000, func_800B3B84);
-        func_800B7FB4();
+        BattleCdromReadChain();
         return;
     }
     D_80166F64 = 3;
@@ -216,14 +216,14 @@ static void func_800B3CD0(void) {
     BattleSetLoadTimToVram(dst, 0, 0, 0);
     y = &D_800E8068[D_800FA9C4];
     SysCdromStartLoadLzs(y->loc, *&D_800E8068[D_800FA9C4].len, dst, func_800B3AB8);
-    func_800B7FB4();
+    BattleCdromReadChain();
 }
 
 static void func_800B3D38(void) {
     BattleSelectPlayerModelFiles();
     D_800F839C = D_800EA50C;
     SysCdromStartLoadLzs(LBA_ENEMY6_SEFFECT, 0xA800, (u_long*)0x801B0000, func_800B3CD0);
-    func_800B7FB4();
+    BattleCdromReadChain();
 }
 
 static void func_800B3D88(void) {
@@ -360,18 +360,18 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6B98);
 //   5 immediate: sets a per-actor "step complete" flag, conditionally
 //     copies animation-state fields
 // D_800F7DE4 (the gate for cases 1/3/4) is set once per frame by
-// func_800B7FDC below, once all actor slots are ready -- so this function
+// BattleUpdateRender below, once all actor slots are ready -- so this function
 // is a generic "process the next queued visual/counter effect, one per
 // frame" drainer, not itself the source of any particular command's
 // damage/effect. See func_800A4AF4's comment in battle.c: opcode 0x14 just
 // spins this to drain whatever's already queued
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6D6C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleQueue1Execute);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B7764);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleQueue1InitPlayAnim);
 
 extern u8 D_801517F0[0x4E];
 
-static void func_800B798C(void) {
+static void BattleQueue1ClearTargs(void) {
     s32 i;
 
     for (i = 0; i < LEN(D_801517F0); i += 1) {
@@ -382,31 +382,31 @@ static void func_800B798C(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B79F0);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleQueue1AddNewTarg);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B7DB4);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleQueue1UpdateTargMasks);
 
 static void func_800B7F6C(void) {
     volatile s32 padding;
 
     while (g_SavemapBusy) {
-        func_800B7FB4();
+        BattleCdromReadChain();
     }
     D_80062D98 = 0;
 }
 
-void func_800B7FB4(void) { D_801518DC = SystemCdromReadChain(); }
+void BattleCdromReadChain(void) { D_801518DC = SystemCdromReadChain(); }
 
 // per-frame tick: pumps the GPU ordering-table draw lists, runs render/vsync,
 // drains the action-queue ring buffer (func_800A3ED0 -- see the queue-push
 // writeup), and sets D_800F7DE4 = 1 exactly once per frame once every actor
-// slot is ready and D_80162080 (a per-frame counter) reaches 0. func_800B6D6C
+// slot is ready and D_80162080 (a per-frame counter) reaches 0. BattleQueue1Execute
 // gates several of its event-queue steps on this flag, effectively waiting
 // for "the next frame is ready" before consuming a queued effect
-static void func_800B7FDC(void) {
+static void BattleUpdateRender(void) {
     s32 i;
 
-    func_800B7FB4();
+    BattleCdromReadChain();
     ClearOTagR((u_long*)g_cDb->unk40A4, LEN(g_cDb->unk40A4));
     ClearOTag((u_long*)g_cDb->unk4070, LEN(g_cDb->unk4070));
     ClearOTag((u_long*)g_cDb->unk4078, LEN(g_cDb->unk4078));
@@ -441,7 +441,7 @@ static void func_800B7FDC(void) {
     }
     D_800FA9B8 = VSync(1);
     BATTLE_FlushImageQueue();
-    func_800B7FB4();
+    BattleCdromReadChain();
     D_80158D08 = func_800D8A88();
     SetGeomScreen(D_80162084);
     D_801516F4++;
@@ -521,12 +521,12 @@ void func_800B8438(void) {
         func_800B905C();
         func_800B8234(D_801517BC);
         func_800BC440();
-        func_800B7FB4();
+        BattleCdromReadChain();
         func_800B83C4();
         func_800B8B48();
         break;
     }
-    func_800B7FB4();
+    BattleCdromReadChain();
     func_800B91CC();
     D_80151694 = D_80163758[1];
     func_800B85E0();
@@ -700,9 +700,9 @@ static void func_800BA4C8(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BA598);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BACEC);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleUpdateModelMatrixesWithSelfAndParent);
 
-static void func_800BAF34(BattleModelSub* modelSub) {
+static void BattleUpdateMatrixWithSelfAndParentAndSetToGte(BattleModelSub* modelSub) {
     s32 flag;
 
     *(MATRIX**)0x1F800020 = modelSub->pm;
@@ -715,7 +715,7 @@ static void func_800BAF34(BattleModelSub* modelSub) {
     SetTransMatrix(&modelSub->m);
 }
 
-static void func_800BAFF8(MATRIX* m, VECTOR* v) {
+static void BattleUpdateMatrixWithScaleAndSetToGte(MATRIX* m, VECTOR* v) {
     ScaleMatrix(m, v);
     SetRotMatrix(m);
     SetTransMatrix(m);
@@ -734,7 +734,7 @@ static void func_800BB030(s16 arg0) {
     }
 
     for (i = 0; i < D_800FA6D8[arg0].unk3C; i++) {
-        func_800BAF34(&D_800FA6D8[arg0].unk8[i]);
+        BattleUpdateMatrixWithSelfAndParentAndSetToGte(&D_800FA6D8[arg0].unk8[i]);
         if (!D_800FA6D8[arg0].unk4[i])
             continue;
         unk->unk0 = D_800FA6D8[arg0].unk4[i];
@@ -752,7 +752,7 @@ static void func_800BB030(s16 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB2A8);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB430);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleModelUpdateAllBonesHeight);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB4F8);
 
@@ -772,14 +772,14 @@ static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3) {
     SetRotMatrix(m);
     SetTransMatrix(m);
     RotTrans(&arg0->u.sub.sv2, (VECTOR*)&arg0->m.t, &flag);
-    func_800BAFF8(&arg0->m, &D_800E7D20);
+    BattleUpdateMatrixWithScaleAndSetToGte(&arg0->m, &D_800E7D20);
 }
 
 static void func_800BB89C(void);
 static void func_800BB804(void) {
     if (!(D_8016376A & 0x20)) {
         SystemLoadFileBySector(LBA_ENEMY6_FAN2, 0x1000, (u_long*)0x801D0000, func_800BB89C);
-        func_800B7FB4();
+        BattleCdromReadChain();
         return;
     }
     D_80163B80 = 0;
@@ -788,7 +788,7 @@ static void func_800BB804(void) {
 
 static void func_800BB864(void) {
     SystemLoadFileBySector(LBA_ENEMY6_OVER2, 0x800, (u_long*)0x801D0000, func_800BB89C);
-    func_800B7FB4();
+    BattleCdromReadChain();
 }
 
 static void func_800BB89C(void) {
@@ -1387,7 +1387,7 @@ s32 func_800C60F4(void) { return Savemap.battle_msg_speed / 4 + 4; }
 
 static void func_800C610C(void) {
     while (D_801518DC) {
-        func_800B7FB4();
+        BattleCdromReadChain();
     }
 }
 
