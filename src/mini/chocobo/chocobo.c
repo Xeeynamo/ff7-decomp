@@ -86,20 +86,16 @@ void func_800A272C(s32 arg0, s32 arg1) {
 
     switch (arg1) {
     case 0:
-        var_a0 = 0x459;
-        SysCdromStartLoadLzs(var_a0, 0x30000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x459, 0x30000, (u32*)0x80110000, 0);
         break;
     case 1:
-        var_a0 = 0x433;
-        SysCdromStartLoadLzs(var_a0, 0x30000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x433, 0x30000, (u32*)0x80110000, 0);
         break;
     case 2:
-        var_a0 = 0x417;
-        SysCdromStartLoadLzs(var_a0, 0x30000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x417, 0x30000, (u32*)0x80110000, 0);
         break;
     case 3:
-        var_a0 = 0x49C;
-        SysCdromStartLoadLzs(var_a0, 0x30000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x49C, 0x30000, (u32*)0x80110000, 0);
         break;
     }
 
