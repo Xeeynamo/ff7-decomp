@@ -304,7 +304,7 @@ typedef struct {
     /* 0x00C */ s16 ModelSetting0A;
     /* 0x00E */ s16 AnimationToPlay;
     /* 0x010 */ s16 BoneCount;
-    /* 0x012 */ s16 unk12;
+    /* 0x012 */ s16 CollisionRadius;
     /* 0x014 */ u16 unk14[2];
     /* 0x018 */ s16 D_801518FC;
     /* 0x01A */ s16 D_801518FE;
