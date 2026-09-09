@@ -69,28 +69,28 @@ void SysMenuSetPosAddWindow(s16 arg0, s16 arg1, s16 arg2) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawAddWindow);
 
-void SysMenuSound(u16 arg0) {
+static void SysMenuSound(u16 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
     SystemAkaoExecute();
 }
 
-void func_8001FA68(u16 arg0) {
+static void func_8001FA68(u16 arg0) {
     D_8009A000[0] = 0x28;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = arg0;
     SystemAkaoExecute();
 }
 
-void func_8001FAAC(u16 arg0) {
+static void func_8001FAAC(u16 arg0) {
     D_8009A000[0] = 0x29;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = arg0;
     SystemAkaoExecute();
 }
 
-void func_8001FAF0(void) {}
+static void func_8001FAF0(void) {}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuGetInventoryRestrictionMask);
 
@@ -144,7 +144,7 @@ void SysMenuCreateDrawenvDispenv(DRAWENV* draw_env, DISPENV* disp_env) {
     SetDispMask(1);
 }
 
-void func_800211B8(s32 arg0) { D_80062DEC = arg0; }
+static void func_800211B8(s32 arg0) { D_80062DEC = arg0; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_800211C4);
 
@@ -159,9 +159,9 @@ void SysMenuLoadMenuFileById(s32 arg0) {
     }
 }
 
-const char* func_80021258(s32 arg0) { return SysKernGetString(13, arg0, 8); }
+static const char* func_80021258(s32 arg0) { return SysKernGetString(13, arg0, 8); }
 
-void func_80021280(s32 arg0) { SysKernGetString(4, arg0, 8); }
+static void func_80021280(s32 arg0) { SysKernGetString(4, arg0, 8); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_800212A8);
 
@@ -294,7 +294,7 @@ void func_80024FC4(s32 arg0) {
     func_801D3018(arg0);
 }
 
-void func_80025008(void) {
+static void func_80025008(void) {
     func_800211C4(1);
     do {
     } while (SystemCdromReadChain());
@@ -346,7 +346,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuRemoveItem);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuSearchItem);
 
-void func_80025360() { SysMenuSound(0x19F); }
+static void func_80025360() { SysMenuSound(0x19F); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuAddItem);
 
@@ -401,7 +401,7 @@ u8* GetPartySlotArmorMateriaSlots(s32 arg0) {
 // character -> that character's equipped weapon's materia-slot configuration
 // (see WeaponRecord in main_private.h). Returns sentinel (void*)0xFF for an
 // empty party slot.
-void* GetPartySlotWeaponMateriaSlots(s32 arg0) {
+static void* GetPartySlotWeaponMateriaSlots(s32 arg0) {
     u8 temp_v1;
     void* var_v0;
 
@@ -428,7 +428,7 @@ ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId) {
     return (ActiveCharacterData*)0xFF;
 }
 
-void func_800257C4(void) {}
+static void func_800257C4(void) {}
 
 u8* GetCharacterName(s32 battleCharId) { return Savemap.party[g_BattleCharIdToCharId[battleCharId]].name; }
 
@@ -544,7 +544,7 @@ void SysMenuLoadAvatars(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025ED4);
 
-void func_80026034(void) {}
+static void func_80026034(void) {}
 
 s32 SysMenuGetMateriaColorByType(u8 arg0) { return D_80049520[D_80049528[g_MateriaData[arg0].materiaType & 0xF]]; }
 

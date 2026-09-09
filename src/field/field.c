@@ -78,7 +78,7 @@ extern s32* g_FieldTriggersP;
 extern s32* g_FieldEncountersP;
 extern u32 g_FieldLzsInfo[];
 
-void FieldLoadMimDatFiles(void) {
+static void FieldLoadMimDatFiles(void) {
     s32* temp;
 
     if (g_isFieldLoading == 0) {
@@ -102,7 +102,7 @@ void FieldLoadMimDatFiles(void) {
     g_FieldModelLoaderData = (FieldModelLoaderData*)++temp;
 }
 
-void StopFieldMapPreload(void) {
+static void StopFieldMapPreload(void) {
     if (g_isFieldLoading == 1) {
         SystemCdromAbortLoading();
     }
@@ -215,7 +215,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldMainLoop);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldLoadMimToVram);
 
-u32 FieldButtonsUpdate(void) {
+static u32 FieldButtonsUpdate(void) {
     g_FieldKeyState = InputReadPadsRaw();
     g_FieldState.activeKeysPrevRaw = g_FieldState.activeKeysRaw;
     g_FieldState.activeKeysRaw = g_FieldKeyState;
@@ -235,7 +235,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldBackgroundInitPackets);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", AddBackgroundToRender);
 
-s32 FieldCalcLinearStep(s32 start, s32 target, s32 duration, s32 step) {
+static s32 FieldCalcLinearStep(s32 start, s32 target, s32 duration, s32 step) {
     s32 delta = target - start;
 
     if ((u32)(delta + 0x7FFFF) <= 0xFFFFE) {
@@ -293,9 +293,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityGatewayMapLoad);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityCheckTalk);
 
-s16 FieldEntityGetDirVectorX(u8 arg0) { return D_800DF120[arg0][0]; }
+static s16 FieldEntityGetDirVectorX(u8 arg0) { return D_800DF120[arg0][0]; }
 
-s16 FieldEntityGetDirVectorY(u8 arg0) { return D_800DF120[arg0][1]; }
+static s16 FieldEntityGetDirVectorY(u8 arg0) { return D_800DF120[arg0][1]; }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldEntityDirByVec);
 
@@ -349,7 +349,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldModelLoadAndInit);
 INCLUDE_ASM("asm/us/field/nonmatchings/field", HandleKawaiDataInModel);
 
 // Possable Debug routine. Ran at beginning of every main field loop. (FPS?)
-void DebugRunEveryLoop(void) {}
+static void DebugRunEveryLoop(void) {}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldCameraAssign);
 
@@ -372,7 +372,7 @@ extern struct FieldRain g_FieldRain[64];
 extern u8 g_RainForce;
 extern s16 D_800E42EE[0x40][12];
 
-void FieldRainInit(struct FieldRenderData* renderData) {
+static void FieldRainInit(struct FieldRenderData* renderData) {
     LINE_F2* line;
     s32 i;
     s32 adjustedIndex;
@@ -395,7 +395,7 @@ void FieldRainInit(struct FieldRenderData* renderData) {
     SetDrawMode(&renderData->RainDm, 0, 0, GetTPage(0, 1, 0, 0) & 0xffff, NULL);
 }
 
-void FieldRainAddToRender(u32* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm) {
+static void FieldRainAddToRender(u32* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm) {
     long p;
     long flag;
     s32 i;

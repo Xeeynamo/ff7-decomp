@@ -164,7 +164,7 @@ s32 WmGetPcEntityTerrainId(void);
 s32 func_800A9B04(s16, u8);
 void func_800A9C64(WorldActor*, VECTOR*);
 s32 func_800AA304(WorldActor*, WorldActor*);
-WorldActor* FindCollidingActor(WorldActor*);
+static WorldActor* FindCollidingActor(WorldActor*);
 void func_800AAB18(WorldActor*);
 void func_800AB398(WorldActor*);
 void func_800AB48C(WorldActor*);

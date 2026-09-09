@@ -24,7 +24,7 @@ void func_800C3CA8();
 void func_800C40F4();
 void func_800C44B4();
 void func_800C4814();
-void func_800CFB14();
+static void func_800CFB14();
 void func_800D1530();
 s32 func_800D376C(BattleModelSub* arg0, s32 arg1, s16 nItems, u8* arg3);
 void func_800D3AF0();
@@ -59,7 +59,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800C7C4C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD400);
 
-s16 func_800CD558(s16 arg0, u8* arg1) {
+static s16 func_800CD558(s16 arg0, u8* arg1) {
     u32 val;
     val = arg1[D_801518E4[arg0].D_80151920++];
     return (arg1[D_801518E4[arg0].D_80151920++] << 8) + val;
@@ -375,7 +375,7 @@ static void func_800CF4A8(void) {
     D_801620AC[D_801590D0].D_801621B0 = D_801620AC[D_801590D0].D_801621B0 - 1;
 }
 
-void func_800CF5BC(void) {
+static void func_800CF5BC(void) {
 #define MUL(a, b) (((a) * (b)) >> 12)
 #define IDX1 *(s32*)0x1F80000C
 #define IDX2 *(s32*)0x1F800008
@@ -414,7 +414,7 @@ void func_800CF5BC(void) {
 #undef MUL
 }
 
-void func_800CF8C0(s16 arg0, s16 arg1, u8 arg2) {
+static void func_800CF8C0(s16 arg0, s16 arg1, u8 arg2) {
     u8 dst;
 
     dst = func_800BBF7C(func_800CFB14);
@@ -433,7 +433,7 @@ void func_800CF8C0(s16 arg0, s16 arg1, u8 arg2) {
     D_801620AC[dst].D_801621B2 = (D_80163C80[arg0].vy - D_801518E4[arg0].D_80151A4C.vy) / arg1;
 }
 
-void func_800CFB14(void) {
+static void func_800CFB14(void) {
     s16 dst;
 
     dst = D_801620AC[D_801590D0].D_801621B4;
@@ -453,7 +453,7 @@ void func_800CFB14(void) {
     D_801620AC[D_801590D0].unk14--;
 }
 
-void func_800CFCB0(void) {
+static void func_800CFCB0(void) {
     s32 temp_a3;
     s16 temp_a2;
     s32 temp_a1;
@@ -474,7 +474,7 @@ void func_800CFCB0(void) {
     D_801620AC[D_801590D0].D_801621B0--;
 }
 
-void func_800CFE60(void) {
+static void func_800CFE60(void) {
 #define MUL(a, b) (((a) * (b)) >> 12)
 #define IDX1 *(s32*)0x1F80000C
 #define IDX2 *(s32*)0x1F800008
@@ -513,7 +513,7 @@ void func_800CFE60(void) {
 #undef MUL
 }
 
-void func_800D01C0(void) {
+static void func_800D01C0(void) {
 #define MUL(a, b) (((a) * (b)) >> 12)
 #define IDX1 *(s32*)0x1F80000C
 #define IDX2 *(s32*)0x1F800008
@@ -555,7 +555,7 @@ void func_800D01C0(void) {
 #undef MUL
 }
 
-void func_800D0578(void) {
+static void func_800D0578(void) {
     if (D_801621F0[D_801590D4].D_801621F4 == 0) {
         func_800D4D4C(D_801621F0[D_801590D4].unk8, D_801621F0[D_801590D4].D_801621F6);
         D_801621F0[D_801590D4].D_801621F0 = -1;
@@ -564,7 +564,7 @@ void func_800D0578(void) {
     D_801621F0[D_801590D4].D_801621F4--;
 }
 
-void func_800D061C(void) {
+static void func_800D061C(void) {
     if (D_801621F0[D_801590D4].D_801621F4 == 0) {
         func_800BBA84(D_801621F0[D_801590D4].D_801621F6, D_801590CC, 0);
         D_801621F0[D_801590D4].D_801621F0 = -1;
@@ -573,7 +573,7 @@ void func_800D061C(void) {
     D_801621F0[D_801590D4].D_801621F4--;
 }
 
-void func_800D06B8(void) {
+static void func_800D06B8(void) {
     if (D_801621F0[D_801590D4].D_801621F4 == 0) {
         if (D_801518DC == 0) {
             func_800D0C80(D_801621F0[D_801590D4].D_801621F6);
@@ -584,7 +584,7 @@ void func_800D06B8(void) {
     }
 }
 
-void func_800D0760(void) {
+static void func_800D0760(void) {
     if (D_80162978[D_8015169C].D_8016297E == 0) {
         if (D_80162978[D_8015169C].D_8016297C == 0) {
             D_80162978[D_8015169C].D_80162978 = -1;
@@ -608,7 +608,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D0958);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D09D0);
 
-void func_800D0A44(void) {}
+static void func_800D0A44(void) {}
 
 static void func_800D0AD4(void);
 void func_800D0A4C(void) {
@@ -633,7 +633,7 @@ static void func_800D0AD4(void) {
     D_801621F0[D_801590D4].D_801621F4--;
 }
 
-void func_800D0B4C(u8 arg0) {
+static void func_800D0B4C(u8 arg0) {
     D_800F8CF0 = 0;
     func_800D1530();
     switch (D_801518E4[arg0].D_80151907) {
@@ -738,7 +738,7 @@ void func_800D0C80(u8 arg0) {
     }
 }
 
-void func_800D1110(u8 arg0) {
+static void func_800D1110(u8 arg0) {
     s32 lba;
     s32 var_a1;
     s32 id;
@@ -813,14 +813,14 @@ void BATTLE_EnqueueLoadImage(RECT* rect, u_long* ptr) {
     D_800F01DC++;
 }
 
-void BATTLE_EnqueueStoreImage(RECT* rect, u_long* ptr) {
+static void BATTLE_EnqueueStoreImage(RECT* rect, u_long* ptr) {
     D_800F01DC->method = QUEUE_STORE_IMAGE;
     D_800F01DC->rect = rect;
     D_800F01DC->ptr = ptr;
     D_800F01DC++;
 }
 
-void BATTLE_EnqueueMoveImage(RECT* rect, s32 x, s32 y) {
+static void BATTLE_EnqueueMoveImage(RECT* rect, s32 x, s32 y) {
     D_800F01DC->method = QUEUE_MOVE_IMAGE;
     D_800F01DC->rect = rect;
     D_800F01DC->x = x;
@@ -828,7 +828,7 @@ void BATTLE_EnqueueMoveImage(RECT* rect, s32 x, s32 y) {
     D_800F01DC++;
 }
 
-void BATTLE_EnqueueClearImage(RECT* rect) {
+static void BATTLE_EnqueueClearImage(RECT* rect) {
     D_800F01DC->method = QUEUE_CLEAR_IMAGE;
     D_800F01DC->rect = rect;
     D_800F01DC++;
@@ -856,9 +856,9 @@ void BATTLE_FlushImageQueue(void) {
     D_800F01DC = D_800F4BAC;
 }
 
-void BATTLE_ResetImageQueue(void) { D_800F01DC = D_800F4BAC; }
+static void BATTLE_ResetImageQueue(void) { D_800F01DC = D_800F4BAC; }
 
-void func_800D2710(u_long* addr, s16 x, s16 y) {
+static void func_800D2710(u_long* addr, s16 x, s16 y) {
     TIM_IMAGE tim;
 
     OpenTIM(addr);
@@ -872,7 +872,7 @@ void func_800D2710(u_long* addr, s16 x, s16 y) {
     }
 }
 
-void func_800D2828(u_long* addr, s32 xy) {
+static void func_800D2828(u_long* addr, s32 xy) {
     TIM_IMAGE tim;
     s32 temp_a1;
     s32 temp_a3;
@@ -914,7 +914,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3520);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3548);
 
-s32 func_800D35D8(u8* arg0, s32* arg1, s32 arg2) {
+static s32 func_800D35D8(u8* arg0, s32* arg1, s32 arg2) {
     s32 bits;
     s32 i;
 
@@ -941,7 +941,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleGetPartPosition);
 // Take the low 16 bits of each of arg0's translation components relative to the
 // camera D_800FA63C, then rotate that offset by the camera's transposed
 // orientation into arg1.
-void func_800D3A6C(MATRIX* arg0, SVECTOR* arg1) {
+static void func_800D3A6C(MATRIX* arg0, SVECTOR* arg1) {
     MATRIX sp10;
 
     arg1->vx = (s16)(*(u16*)&arg0->t[0] - *(u16*)&D_800FA63C.m.t[0]);
@@ -957,7 +957,7 @@ const s32 D_800A0D98[] = {
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00001000, 0x00000000, 0x00000000, 0x00000000};
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3BF0);
 
-void func_800D3D88(void) {
+static void func_800D3D88(void) {
     Unk801621F0* temp_s0_2;
     Unk801621F0* temp_s1;
     s32 temp_s0;
@@ -981,7 +981,7 @@ void func_800D3D88(void) {
     }
 }
 
-void func_800D3E8C(s32 arg0) {
+static void func_800D3E8C(s32 arg0) {
     Unk801621F0* temp_v0;
 
     temp_v0 = &D_801621F0[func_800BC04C(func_800D3D88)];
@@ -991,7 +991,7 @@ void func_800D3E8C(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3F0C);
 
-void func_800D3F8C(void) {
+static void func_800D3F8C(void) {
     Unk801621F0* temp_s0;
     Unk801621F0* temp_s1;
 
@@ -1051,7 +1051,7 @@ static void func_800D4D6C(void* arg0, s32 arg1, s32 arg2);
 void func_800D4C08(void* arg0, s32 arg1, s32 arg2, s32 arg3);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4C08);
 
-void func_800D4CBC(s32 arg0, s32 arg1, s32 arg2) {
+static void func_800D4CBC(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp10;
 
     BattleGetPartPosition(arg0, D_801518E4[arg0].D_8015190F, &sp10);
@@ -1088,7 +1088,7 @@ extern Unk80162978* D_800F10E0;
 
 // Reset the fixed-point ramp: zero the accumulator (0x04) and seed the
 // countdown (0x0C) so it lasts arg0 ticks.
-void BattleFixedPointRampInit(s32 arg0) {
+static void BattleFixedPointRampInit(s32 arg0) {
     if (D_800F10E0 == NULL) {
         D_800F10E0 = &D_80162978[BattleEffectRegister(func_800D508C)];
     }
@@ -1104,7 +1104,7 @@ extern s16 D_800F5B74;
 
 // Step the ramp once: accumulate (0x04 += 0x08), publish the high word, and
 // free the slot when the countdown (0x0C) reaches 0.
-void BattleFixedPointRampUpdate(void) {
+static void BattleFixedPointRampUpdate(void) {
     Unk80162978* slot = &D_80162978[D_8015169C];
     s32 v0;
     s32 v1;
@@ -1136,7 +1136,7 @@ void MagicAnimationRegister(s32 arg0, s32 arg1, s32 arg2, void (*func)(int)) {
     *(s32*)&temp_v0->unk8 = (s32)func;
 }
 
-s32 func_800D54BC(s32 arg0) {
+static s32 func_800D54BC(s32 arg0) {
     s32 count;
     s32 i;
 
@@ -1233,7 +1233,7 @@ void func_800D5774(u32 arg0) {
 void func_800D57C0();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D57C0);
 
-void func_800D58D0(s16 arg0, s16 arg1, s16 arg2) {
+static void func_800D58D0(s16 arg0, s16 arg1, s16 arg2) {
     Unk80162978* temp_v0 = &D_80162978[BattleEffectRegister(func_800D57C0)];
     temp_v0->D_80162978 = 0;
     temp_v0->D_80162980 = arg0;
@@ -1273,7 +1273,7 @@ extern Unk801B0C98 D_800F14D0;
 // Draw a model 4 times through func_800D29D4 (same request-struct pattern as
 // barrier.c's D_801B0C98/D_801B0CB0), toggling the 0x1/0x2 flag bits between
 // passes.
-void func_800D6394(s32* arg0, s16 arg1) {
+static void func_800D6394(s32* arg0, s16 arg1) {
     D_800F14D0.unk0 = arg0;
     D_800F14D0.unkA = arg1;
     SetFarColor(0, 0, 0);
@@ -1335,7 +1335,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D70C0);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D7178);
 
-void func_800D72B4(void) {
+static void func_800D72B4(void) {
     Unk801621F0* elem = &D_801621F0[D_801590D4];
 
     if (D_80062D98 == 0) {
@@ -1392,7 +1392,7 @@ typedef struct {
     /* 0x1C */ s32 unk1C;
 } UnkStruct800D8468; // size:0x20
 
-void func_800D8468(UnkStruct800D8468* dst, UnkStruct800D8468* src) {
+static void func_800D8468(UnkStruct800D8468* dst, UnkStruct800D8468* src) {
     dst->unk0 = src->unk0;
     dst->unk6 = src->unk6;
     dst->unkC = src->unkC;

@@ -12,7 +12,7 @@ static void BattleInitEnemyAI(void);
 static void BattleInitPartyFromSavemap(void);
 static void BattleInitCharStats(ActiveCharacterData* character, BattlePartyWork* partyWork, BattleUnit* battleUnit);
 static void BattleInitFormation(void);
-void BattleInitSetup(s32 sceneID) {
+static void BattleInitSetup(s32 sceneID) {
     BattleUnit* unit;
     s32 i;
     s32 var_s1;
@@ -64,7 +64,7 @@ u16 BattleGetRndU16(void);      // random, 16-bit
 // D_800F5BBC. The battle type (battleType) then biases those timers: a
 // preemptive-style opening zeroes the party's, an ambush pushes it towards the
 // enemies, and a Battle Square opening (setup flag 8) overrides both.
-void BattleInitATBTimers(void) {
+static void BattleInitATBTimers(void) {
     s32 timer[NUM_BATTLE_ACTOR];
     s32 presentMask;
     s32 max;
@@ -125,7 +125,7 @@ void BattleInitATBTimers(void) {
     }
 }
 
-void BattleInitSetSpeed(s32 speed) { D_800F5F44.battleSpeed = 0x10000 / ((speed * 480 / 256 + 0x78) * 2); }
+static void BattleInitSetSpeed(s32 speed) { D_800F5F44.battleSpeed = 0x10000 / ((speed * 480 / 256 + 0x78) * 2); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitPlayer);
 
@@ -158,10 +158,10 @@ typedef struct {
 
 extern BattleWork g_CombatantTurnState;
 extern SavePartyMember D_8009C738[];
-void BattleInitApplyAccStatus(s32 slot, s32 accessory);
-void BattleInitCharCmdMenu(s32 slot);
+static void BattleInitApplyAccStatus(s32 slot, s32 accessory);
+static void BattleInitCharCmdMenu(s32 slot);
 void BattleInitCharCmdState(s32 slot);
-s32 BattleInitApplyStartFX(s32 slot);
+static s32 BattleInitApplyStartFX(s32 slot);
 
 // Seeds the three live party slots from the save data: finds each slot's
 // party member record, copies HP/MP and the derived battle stats across, then
@@ -221,7 +221,7 @@ static void BattleInitPartyFromSavemap(void) {
 
 extern void BattleRunUnitScript(s32, s32, s32);
 
-void BattleInitPartyScripts(void) {
+static void BattleInitPartyScripts(void) {
     s32 i;
 
     for (i = 0; i < NUM_PARTY; i++) {
@@ -242,7 +242,7 @@ extern u8 D_800F5BE1[][0x44]; // same records as D_800F5BBC
 // unk21 ends up as the number of command rows in use. The second pass clears
 // the "usable" byte of every equipped materia whose attack is not flagged
 // battle-usable.
-void BattleInitCharCmdMenu(s32 sceneID) {
+static void BattleInitCharCmdMenu(s32 sceneID) {
     ActiveCharacterData* e;
     s32 cmd;
     s32 flags;
@@ -302,7 +302,7 @@ void BattleInitCharCmdMenu(s32 sceneID) {
     }
 }
 
-void BattleInitResetExtraCmds(s32 sceneID) {
+static void BattleInitResetExtraCmds(s32 sceneID) {
     s32 i;
     ActiveCharacterData* data;
 
@@ -335,7 +335,7 @@ typedef struct {
 // Resolves up to three materia slots of character sceneID against the equipment
 // mask arg1: a slot whose bit is set copies its paired value into unk3 and
 // counts towards unk6.
-void BattleResolveMateriaSlots(s32 slot, s32 materiaMask, BattleMateriaSlotData* data) {
+static void BattleResolveMateriaSlots(s32 slot, s32 materiaMask, BattleMateriaSlotData* data) {
     s32 count;
     s32 i;
     s32 j;
@@ -360,7 +360,7 @@ void BattleResolveMateriaSlots(s32 slot, s32 materiaMask, BattleMateriaSlotData*
     data->count = count;
 }
 
-s32 BattleGetMateriaValue(u32 sceneID) {
+static s32 BattleGetMateriaValue(u32 sceneID) {
     u8 temp_v1;
     s32 ret;
 
@@ -372,7 +372,7 @@ s32 BattleGetMateriaValue(u32 sceneID) {
     return ret;
 }
 
-s32 BattleGetEquipMateriaVal(u32* equipment) {
+static s32 BattleGetEquipMateriaVal(u32* equipment) {
     s32 ret;
     s32 i;
 
@@ -389,7 +389,7 @@ extern u8 D_80071C29[][0x10]; // accessory table, 0x10 stride
 // Applies party member `slot`'s equipped accessory: the status the previously
 // equipped one granted is cleared first, then the new accessory's permanent
 // status is ORed into the combatant, its turn state and the party record.
-void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
+static void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
     Unk800AF470* t;
     BattlePartyWork* party;
     BattleUnit* c;
@@ -445,7 +445,7 @@ void BattleQueueEvent(s32, s32, s32, s32);
 // `slot`: bit 4 restores half its max HP, bits 0-3 inflict the matching status
 // from D_801B001C unless the member's turn state already carries it. Returns
 // nonzero if any status was inflicted.
-s32 BattleInitApplyStartFX(s32 slot) {
+static s32 BattleInitApplyStartFX(s32 slot) {
     s32 mask;
     s32 ret;
     s32 i;
@@ -616,7 +616,7 @@ extern BattleItemEntry D_801671B8[];
 // flags pulled from the item / weapon / armor / accessory table the id falls
 // in. D_80166F74 ends up as half the number of slots up to the last used one
 // (at least 3) -- the row count the item widget scrolls over.
-void BattleInitItemList(void) {
+static void BattleInitItemList(void) {
     BattleItemEntry* entry;
     s32 i;
     s32 last;
@@ -748,7 +748,7 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     D_800F5F44.D_800F7DB6 = D_800F5F44.D_800F7DB2;
 }
 
-s32 BattleGetScenePackId(s32 sceneID) {
+static s32 BattleGetScenePackId(s32 sceneID) {
     u32 i;
 
     for (i = 1; i < LEN(D_80083184); i++) {
@@ -760,7 +760,7 @@ s32 BattleGetScenePackId(s32 sceneID) {
 }
 
 // increase param by 25%
-s32 BattleBoostVal25Percent(s32 value) {
+static s32 BattleBoostVal25Percent(s32 value) {
     value = (value * 125) / 100;
     if (value > 255) {
         value = 255;

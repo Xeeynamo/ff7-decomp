@@ -331,7 +331,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5D38);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5E64);
 
 void func_800B60E0(s16);
-void func_800B5FC4(s16 arg0) { func_800B60E0(arg0); }
+static void func_800B5FC4(s16 arg0) { func_800B60E0(arg0); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5FE8);
 
@@ -451,7 +451,7 @@ static void func_800B7FDC(void) {
     D_801516A0 = D_800F198C;
 }
 
-void func_800B8234(s32 arg0) {
+static void func_800B8234(s32 arg0) {
     if (arg0) {
         func_800D0C80(D_801590CC);
         D_801517BC = 0;
@@ -953,7 +953,7 @@ extern u8 D_8015184C[];
 extern u8 D_801518AC[];
 
 // Read the next u16 from arg0's byte stream via this category's read cursor.
-s16 func_800BFA98(u8* arg0, s32 arg1) {
+static s16 func_800BFA98(u8* arg0, s32 arg1) {
     s32 off = (arg1 & 0xFF) * 14;
     u16 pos = *(u16*)(D_8015184C + off);
     u32 lo;
@@ -966,7 +966,7 @@ s16 func_800BFA98(u8* arg0, s32 arg1) {
     return (hi << 8) + lo;
 }
 
-s16 func_800BFB10(u8* arg0, s32 arg1) {
+static s16 func_800BFB10(u8* arg0, s32 arg1) {
     s32 off = (arg1 & 0xFF) * 14;
     u16 pos = *(u16*)(D_801518AC + off);
     u32 lo;
@@ -992,7 +992,7 @@ void func_800C0DD8(s16, s32, s32);
 s32 func_800C0314(s32, s32);
 
 // Sample sp[3], then accumulate it into the scratchpad totals at 0x1F800000.
-void func_800C018C(s16 arg0, s16 arg1, s32 arg2, s32 arg3) {
+static void func_800C018C(s16 arg0, s16 arg1, s32 arg2, s32 arg3) {
     s16 sp[3];
 
     if (arg0 == 0xF) {
@@ -1006,7 +1006,7 @@ void func_800C018C(s16 arg0, s16 arg1, s32 arg2, s32 arg3) {
     *(s32*)0x1F800008 += sp[2];
 }
 
-void func_800C0254(s16 arg0, s16 arg1) {
+static void func_800C0254(s16 arg0, s16 arg1) {
     s16 sp[3];
 
     if (arg0 == 0xF) {
@@ -1030,7 +1030,7 @@ static s16 func_800C03B8(s16 arg0, s16 arg1) {
     return SquareRoot0(delta * delta);
 }
 
-s32 func_800C03FC(s32 arg0, s32 arg1) { return arg0 < 0 ? -arg1 : arg1; }
+static s32 func_800C03FC(s32 arg0, s32 arg1) { return arg0 < 0 ? -arg1 : arg1; }
 
 void func_800C0480(s16); // TODO: mark as static once decompiled
 void func_800C0630(s16); // TODO: mark as static once decompiled
@@ -1294,7 +1294,7 @@ static u_long* func_800C5040(u8 r, u8 g, u8 b, s32 tpage, u_long* ot);
 
 u_long* func_800C4FC8(u8 r, u8 g, u8 b) { return func_800C5040(r, g, b, 1, (u_long*)&g_cDb->unk4080[1]); }
 
-u_long* func_800C5004(u8 r, u8 g, u8 b) { return func_800C5040(r, g, b, 2, (u_long*)&g_cDb->unk40EC); }
+static u_long* func_800C5004(u8 r, u8 g, u8 b) { return func_800C5040(r, g, b, 2, (u_long*)&g_cDb->unk40EC); }
 
 static u_long* func_800C5040(u8 r, u8 g, u8 b, s32 tpage, u_long* ot) {
     DR_MODE* drMode;

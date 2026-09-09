@@ -20,7 +20,7 @@ s32 SysGetMateriaActivatedStars(u8, s32);
 s32 SysAddCommandToTemp(s32);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 
-s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
+static s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
     *arg2 = arg0;
     *arg1 = arg0 >> 8;
     return SysGetMateriaActivatedStars(*arg2, *arg1);
@@ -108,7 +108,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaEquipStatBonus);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX2);
 
-void SysAddMateria30(u8 arg0, u8 arg1) {
+static void SysAddMateria30(u8 arg0, u8 arg1) {
     if (arg1 == 0xB) {
         SysAddMateriaLongRange(arg0);
     }
@@ -183,7 +183,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaXc);
 void SysAddMateria00(u8, s32);
 void SysAddMateria20(u8, s32);
 void SysAddMateria40(u8, s32);
-void SysAddMateriaX0(u8 materiaSubType, u8 materiaId, s32 materiaAp) {
+static void SysAddMateriaX0(u8 materiaSubType, u8 materiaId, s32 materiaAp) {
     u8 id;
     u8 materiaLevel;
 

@@ -7,9 +7,9 @@ u8* func_80014C80(s32 arg0);
 // obtain file sector from a YamadaFile
 s32 func_800144D8(s32 file_no) { return D_80048D84[file_no].loc; }
 
-void func_800144F0(s32 file_no) { func_80033DAC(file_no, 0); }
+static void func_800144F0(s32 file_no) { func_80033DAC(file_no, 0); }
 
-void func_80014510(s32 file_no) { func_800144F0(D_80048D84[file_no].loc); }
+static void func_80014510(s32 file_no) { func_800144F0(D_80048D84[file_no].loc); }
 
 // used to load WORLD/WORLD.BIN or FIELD/FIELD.BIN
 void func_80014540(void) { SystemLoadFileBySector(D_80071744, D_80095DD8, D_800722C8, NULL); }
@@ -26,7 +26,7 @@ void func_800145BC(void (*cb)(void)) {
     }
 }
 
-void func_80014608(void) {}
+static void func_80014608(void) {}
 
 // initialize LBA system
 void func_80014610(void) {
@@ -36,7 +36,7 @@ void func_80014610(void) {
     SysMemCopy32((s32*)D_80048D84, (s32*)&buf, sizeof(Yamada) * YAMADA_FILE_NUM);
 }
 
-void func_80014658(s32 file_no, void (*cb)(void)) {
+static void func_80014658(s32 file_no, void (*cb)(void)) {
     func_80014578(file_no, (void*)0x801B0000, 0);
     func_800145BC(0);
     SysGzipBinDecompress((GzHeader*)0x801B0000, (u8*)0x800A0000);
