@@ -84,29 +84,37 @@ typedef struct {
     /* 0x0F */ s8 evade;
     /* 0x10 */ s8 idleActionId; // cached "Near Death" display flag; see func_800B10B4
                          // for the live check
-    /* 0x11 */ u8 unk11;
-    /* 0x12 */ s8 unk12;
-    /* 0x13 */ s8 unk13;
+    /* 0x11 */ u8 hurtActionId;
+    /* 0x12 */ s8 backDamageMultiplier;
+    /* 0x13 */ s8 modelScale;
     /* 0x14 */ s8 dexterity;
     /* 0x15 */ u8 luck;
     /* 0x16 */ s8 unk16;
-    /* 0x17 */ u8 unk17;
-    /* 0x18 */ s32 unk18;
-    /* 0x1C */ s32 unk1C;
+    /* 0x17 */ u8 coveredCharacterIndex;
+    /* 0x18 */ s32 attackMask;
+    /* 0x1C */ s32 attackerMask;
     /* 0x20 */ s16 physDefence;
     /* 0x22 */ s16 magDefence;
-    /* 0x24 */ s32 unk24;
-    /* 0x28 */ s16 unk28;
+    /* 0x24 */ s16 enemyId;
+	/* 0x26 */ u16 absorbElements;
+    /* 0x28 */ s16 curMP;
     /* 0x2A */ s16 maxMP;
     /* 0x2C */ u32 curHP;
     /* 0x30 */ u32 maxHP;
     /* 0x34 */ u32 unk34[4];
-    /* 0x44 */ u32 unk44[2];
+    /* 0x44 */ u32 previousStatus[2];
     /* 0x4C */ u8 unk4C;
-    /* 0x4D */ u8 unk4D;
-    /* 0x4E */ u8 unk4E;
+    /* 0x4D */ u8 magicEvade;
+    /* 0x4E */ u8 row;
     /* 0x4F */ u8 unk4F;
-    /* 0x50 */ u32 unk50[6];
+    /* 0x50 */ u16 unk50;
+    /* 0x52 */ u16 unk52;
+    /* 0x54 */ u16 noDamageElements;
+    /* 0x56 */ u16 ap;
+    /* 0x58 */ u32 gil;
+    /* 0x5C */ u32 exp;
+    /* 0x60 */ u32 unk60;
+    /* 0x64 */ u32 unk64;
 } BattleUnit; // size:0x68
 
 typedef struct {

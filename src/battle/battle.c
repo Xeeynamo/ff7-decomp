@@ -133,7 +133,7 @@ s32 func_800A2D0C(void) {
     s32 temp_v1;
 
     if (g_CurrentAction->unk208 >= 3) {
-        return g_BattleState.combatant[g_CurrentAction->unk208].unk11;
+        return g_BattleState.combatant[g_CurrentAction->unk208].hurtActionId;
     }
     return D_800A01A8[g_CurrentAction->unkCC];
 }
@@ -456,7 +456,7 @@ void func_800A4480(void) {
 
     for (i = 0; i < LEN(g_CombatantTurnState); i++) {
         g_CombatantTurnState[i].unk3C = g_BattleState.combatant[i].curHP;
-        g_CombatantTurnState[i].unk3E = g_BattleState.combatant[i].unk28;
+        g_CombatantTurnState[i].unk3E = g_BattleState.combatant[i].curMP;
     }
 }
 
@@ -1019,7 +1019,7 @@ void BattleSetLimitBreakStringToDisplay(s32 arg0) {
 
 void func_800A6C5C(s32 arg0, s32 arg1) {
     BattleQueueEvent(2, arg0, 0x14, arg1);
-    *(u16*)((u8*)&g_BattleState.combatant[arg0].unk44 + 0xE) = arg1;
+    *(u16*)((u8*)&g_BattleState.combatant[arg0].previousStatus + 0xE) = arg1;
 }
 
 extern const u8 g_StatusBitTable[];
@@ -1523,7 +1523,7 @@ void BATTLE_DropDyingEnemiesFromTargets(void) {
         ((g_CurrentAction->unk44 & 0x1C00) || g_CurrentAction->unk28 == 5)) {
         mask = g_CurrentAction->allowedTargetsMask;
         for (i = 4; i < 10; i++) {
-            if (g_BattleState.combatant[i].unk4E >= 16) {
+            if (g_BattleState.combatant[i].row >= 16) {
                 mask &= ~(1 << i);
             }
         }
@@ -1609,7 +1609,7 @@ void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     act->unk0 = arg1;
     act->unk1 = arg0;
     act->unk4 = 0;
-    g_BattleState.combatant[arg1].unk17 = 0xFF;
+    g_BattleState.combatant[arg1].coveredCharacterIndex = 0xFF;
     func_800AA950(act);
     BattleCalcTargStats(act->unk0);
     if (act->unk0 != arg1) {

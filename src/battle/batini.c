@@ -188,9 +188,9 @@ void BattleInitPartyFromSavemap(void) {
                 if (member->char_id == id) {
                     combatant->level = member->level;
                     combatant->curHP = member->hp_cur;
-                    combatant->unk28 = member->mp_cur;
+                    combatant->curMP = member->mp_cur;
                     turn->unk3C = combatant->curHP;
-                    turn->unk3E = combatant->unk28;
+                    turn->unk3E = combatant->curMP;
                     BattleInitCharStats(characterData, party, combatant);
                     turn->unk34 = characterData->immuneStatuses;
                     setup->attackElement = characterData->weapon.attackElement | characterData->physicalAttackElements;
@@ -674,7 +674,7 @@ void BattleInitEnemyAI(void) {
     for (i = 0; i < 6; i++) {
         D_80163624.unk34[i].unkC = g_BattleState.combatant[4 + i].rowState;
         D_80163624.unk94[4 + i][1] = g_BattleState.combatant[4 + i].idleActionId;
-        g_BattleState.combatant[4 + i].unk44[0] = g_BattleState.combatant[4 + i].status;
+        g_BattleState.combatant[4 + i].previousStatus[0] = g_BattleState.combatant[4 + i].status;
     }
 }
 

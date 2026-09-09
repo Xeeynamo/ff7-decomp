@@ -76,7 +76,7 @@ void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     }
     for (slot = 0; slot < 3; slot++) {
         hp = g_BattleState.combatant[slot].curHP;
-        mp = (u16)g_BattleState.combatant[slot].unk28;
+        mp = (u16)g_BattleState.combatant[slot].curMP;
         id = D_80163790[slot];
         if ((D_800F7DD2 >> slot) & 1) {
             hp = hpOverride;
