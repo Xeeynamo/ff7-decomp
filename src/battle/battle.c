@@ -2338,7 +2338,7 @@ int BattleUpperFunc06();
 int BattleUpperFunc07();
 int (* const D_800A04E0[])() = {
     BattleUpperFunc00, BattleUpperFunc01, BattleRollPhysicalHit, BattleUpperFunc03,
-    BattleUpperFunc03, BattleUpperFunc03, BattleUpperFunc06,      BattleUpperFunc07,
+    BattleUpperFunc03, BattleUpperFunc03, BattleUpperFunc06,     BattleUpperFunc07,
 };
 // ___end
 
