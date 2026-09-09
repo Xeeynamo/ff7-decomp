@@ -395,9 +395,9 @@ void BattleCopyBattleActionToBattleQueue(Unk800A3D4C* arg0) {
             D_800F5F44.unkC57[category] += 1;
             D_800F5F44.D_800F7DDE = category;
             if (arg0->unk0 >= 2) {
-                g_BattleState.combatant[arg0->unk2].unk4 &= ~0x20;
+                g_BattleState.combatant[arg0->unk2].rowState &= ~0x20;
                 if ((arg0->unk3 & 0x3F) == 0x13) {
-                    g_BattleState.combatant[arg0->unk2].unk4 |= 0x20;
+                    g_BattleState.combatant[arg0->unk2].rowState |= 0x20;
                 }
             }
             return;
@@ -1172,11 +1172,11 @@ void BattleActionType04(void) {
     g_CurrentAction->unk20 = -1;
     if (func_800B12DC() != 0) {
         val = 4;
-        if (g_BattleState.combatant[g_CurrentAction->actorId].unk4 & 0x40) {
+        if (g_BattleState.combatant[g_CurrentAction->actorId].rowState & 0x40) {
             val = 3;
         }
         g_CurrentAction->unk20 = val;
-        g_BattleState.combatant[g_CurrentAction->actorId].unk4 ^= 0x40;
+        g_BattleState.combatant[g_CurrentAction->actorId].rowState ^= 0x40;
     }
 }
 
@@ -1601,7 +1601,7 @@ void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     s32 i;
     s32 j;
     s32 isReflected;
-    Unk800AF470* entry;
+    CombatantTurnState* entry;
 
     // grab a free action-result slot, tag it attacker/target, clear the
     // "just processed" marker on the target
@@ -1629,7 +1629,7 @@ void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     if (!(g_CurrentAction->unk6C & 1)) {
         g_CurrentAction->unk220 |= 4;
     }
-    if (g_BattleState.combatant[arg1].unk4 & 0x4000) {
+    if (g_BattleState.combatant[arg1].rowState & 0x4000) {
         // target already marked -- treat as an automatic miss/no-effect
         g_CurrentAction->unk218 |= 1;
     }
@@ -1894,9 +1894,9 @@ s32 func_800ACD88(s32 arg0) {
 
     result = 0;
     if (g_CurrentAction->unk6C & 4) {
-        flags = g_BattleState.combatant[arg0].unk4 & 0x200;
+        flags = g_BattleState.combatant[arg0].rowState & 0x200;
         result = flags != 0;
-    } else if (g_BattleState.combatant[arg0].unk4 & 0x100) {
+    } else if (g_BattleState.combatant[arg0].rowState & 0x100) {
         result = 1;
     }
 
@@ -2513,7 +2513,7 @@ void BATTLE_RollPhysicalHit(void) {
         acc = 0xFF;
         if (!(g_CurrentAction->unkC8 & 0x40000000)) {
             v = (g_CurrentAction->characterLevel + g_BattleState.combatant[attacker].luck) -
-                g_BattleState.combatant[target].unk9;
+                g_BattleState.combatant[target].level;
             acc = v / 4;
             if (attacker < 3) {
                 acc += D_800F5F01[attacker * 0x18];
@@ -2544,7 +2544,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0C14);
 
 void func_800B0DF8(void) {
     if (g_CurrentAction->unk234 & 2) {
-        g_BattleState.combatant[g_CurrentAction->unk208].unk4 ^= 0x80;
+        g_BattleState.combatant[g_CurrentAction->unk208].rowState ^= 0x80;
     }
 }
 

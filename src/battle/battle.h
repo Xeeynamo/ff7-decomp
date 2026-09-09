@@ -72,10 +72,10 @@ typedef struct {
     // condition/status bitmask; see BattleStatusFlags above for the bits
     // confirmed live here
     /* 0x00 */ s32 status;
-    /* 0x04 */ u32 unk4; // battle-state flags (e.g. bit 0x40 = back row, bit
+    /* 0x04 */ u32 rowState; // battle-state flags (e.g. bit 0x40 = back row, bit
                          // 0x20 = defending)
-    /* 0x08 */ s8 unk8;
-    /* 0x09 */ u8 unk9;
+    /* 0x08 */ s8 index;
+    /* 0x09 */ u8 level;
     /* 0x0A */ s8 unkA;
     /* 0x0B */ s8 unkB;
     /* 0x0C */ s8 unkC;
@@ -420,7 +420,7 @@ typedef struct {
     u16 unk3C;
     u16 unk3E;
     s32 unk40;
-} Unk800AF470; // 0x44
+} CombatantTurnState; // 0x44
 
 /* one battle-usable item in the in-battle item list (built from the inventory
    by BATINI; counts are committed back when the battle ends) */

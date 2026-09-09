@@ -38,7 +38,7 @@ void BattleInitSetup(s32 sceneID) {
     for (i = 0; i < 10; i++) {
         BattleRecalcUnitSpeed(i);
         unit = &g_BattleState.combatant[i];
-        if (unit->unk8 != -1) {
+        if (unit->index != -1) {
             g_BattleState.presentMask |= 1 << i;
         }
     }
@@ -149,7 +149,7 @@ typedef struct {
 } BattleUnitAttackSetup; // size:0x18
 
 typedef struct {
-    /* 0x000 */ Unk800AF470 turn[10];
+    /* 0x000 */ CombatantTurnState turn[10];
     /* 0x2A8 */ BattlePartyWork party[3];
     /* 0x344 */ BattleUnitAttackSetup setup[3];
 } BattleWork; // size:0x38C
@@ -166,45 +166,45 @@ s32 BattleInitApplyStartFX(s32 slot);
 // applies the equipped accessory, the command list and the row/limit setup.
 void BattleInitPartyFromSavemap(void) {
     BattlePartyWork* party;
-    ActiveCharacterData* rec;
-    BattleUnit* c;
-    Unk800AF470* t;
+    ActiveCharacterData* characterData;
+    BattleUnit* combatant;
+    CombatantTurnState* turn;
     BattleUnitAttackSetup* setup;
-    SavePartyMember* m;
+    SavePartyMember* member;
     s32 id;
     s32 i;
     s32 j;
 
     for (i = 0; i < 3; i++) {
-        t = &g_CombatantTurnState.turn[i];
+        turn = &g_CombatantTurnState.turn[i];
         party = &g_CombatantTurnState.party[i];
-        rec = &g_ActiveCharacters[i];
-        c = &g_BattleState.combatant[i];
+        characterData = &g_ActiveCharacters[i];
+        combatant = &g_BattleState.combatant[i];
         setup = &g_CombatantTurnState.setup[i];
         id = D_8009CBDC[i];
         if (id != 0xFF) {
             for (j = 0; j < 9; j++) {
-                m = &D_8009C738[j];
-                if (m->char_id == id) {
-                    c->unk9 = m->level;
-                    c->curHP = m->hp_cur;
-                    c->unk28 = m->mp_cur;
-                    t->unk3C = c->curHP;
-                    t->unk3E = c->unk28;
-                    BattleInitCharStats(rec, party, c);
-                    t->unk34 = rec->immuneStatuses;
-                    setup->attackElement = rec->weapon.attackElement | rec->physicalAttackElements;
-                    setup->attackStatusMask = rec->physicalAttackStatuses;
-                    setup->hitChance = rec->weapon.attackPercent;
-                    setup->targetFlags = rec->weapon.targetFlags;
-                    t->unk29 &= 0xFD;
-                    if (rec->characterFlags & 4) {
+                member = &D_8009C738[j];
+                if (member->char_id == id) {
+                    combatant->level = member->level;
+                    combatant->curHP = member->hp_cur;
+                    combatant->unk28 = member->mp_cur;
+                    turn->unk3C = combatant->curHP;
+                    turn->unk3E = combatant->unk28;
+                    BattleInitCharStats(characterData, party, combatant);
+                    turn->unk34 = characterData->immuneStatuses;
+                    setup->attackElement = characterData->weapon.attackElement | characterData->physicalAttackElements;
+                    setup->attackStatusMask = characterData->physicalAttackStatuses;
+                    setup->hitChance = characterData->weapon.attackPercent;
+                    setup->targetFlags = characterData->weapon.targetFlags;
+                    turn->unk29 &= 0xFD;
+                    if (characterData->characterFlags & 4) {
                         setup->targetFlags &= 0xDF;
                     }
                     if (!(setup->targetFlags & 0x20)) {
-                        t->unk29 |= 2;
+                        turn->unk29 |= 2;
                     }
-                    BattleInitApplyAccStatus(i, m->accessory);
+                    BattleInitApplyAccStatus(i, member->accessory);
                     BattleInitCharCmdMenu(i);
                     BattleInitCharCmdState(i);
                     if (BattleInitApplyStartFX(i) == 0) {
@@ -388,7 +388,7 @@ extern u8 D_80071C29[][0x10]; // accessory table, 0x10 stride
 // equipped one granted is cleared first, then the new accessory's permanent
 // status is ORed into the combatant, its turn state and the party record.
 void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
-    Unk800AF470* t;
+    CombatantTurnState* t;
     BattlePartyWork* party;
     BattleUnit* c;
     u8 effect;
@@ -547,7 +547,7 @@ void BattleInitFormation(void) {
         row[1] = partyMask;
         for (i = 0; i < 6; i++) {
             if ((enemyMask >> (i + 4)) & 1) {
-                row[g_BattleState.combatant[i + 4].unk4 & 2] |= 1 << (i + 4);
+                row[g_BattleState.combatant[i + 4].rowState & 2] |= 1 << (i + 4);
             }
         }
         mask = row[2] | (partyMask & 2);
@@ -568,16 +568,16 @@ void BattleInitFormation(void) {
         break;
     }
     for (i = 0; i < 10; i++) {
-        g_BattleState.combatant[i].unk4 &= ~0x82;
+        g_BattleState.combatant[i].rowState &= ~0x82;
         if ((row[2] >> i) & 1) {
-            g_BattleState.combatant[i].unk4 |= 2;
+            g_BattleState.combatant[i].rowState |= 2;
         }
         if ((mask >> i) & 1) {
-            g_BattleState.combatant[i].unk4 |= 0x80;
+            g_BattleState.combatant[i].rowState |= 0x80;
         }
     }
     for (i = 0; i < 3; i++) {
-        back = g_BattleState.combatant[i].unk4 >> 6;
+        back = g_BattleState.combatant[i].rowState >> 6;
         back &= 1;
         switch (D_800F5F44.battleType) {
         case 0:
@@ -585,11 +585,11 @@ void BattleInitFormation(void) {
             break;
         case 2:
             back = !back;
-            g_BattleState.combatant[i].unk4 ^= 0x40;
+            g_BattleState.combatant[i].rowState ^= 0x40;
             break;
         default:
             back = 0;
-            g_BattleState.combatant[i].unk4 &= ~0x40;
+            g_BattleState.combatant[i].rowState &= ~0x40;
             break;
         }
         D_801636BE[i][0] = back;
@@ -672,7 +672,7 @@ void BattleInitEnemyAI(void) {
         }
     };
     for (i = 0; i < 6; i++) {
-        D_80163624.unk34[i].unkC = g_BattleState.combatant[4 + i].unk4;
+        D_80163624.unk34[i].unkC = g_BattleState.combatant[4 + i].rowState;
         D_80163624.unk94[4 + i][1] = g_BattleState.combatant[4 + i].unk10;
         g_BattleState.combatant[4 + i].unk44[0] = g_BattleState.combatant[4 + i].status;
     }
