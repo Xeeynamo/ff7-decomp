@@ -1054,7 +1054,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4C08);
 void func_800D4CBC(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp10;
 
-    BattleGetPartPosition(arg0, D_801518E4[arg0].D_8015190F, &sp10);
+    BattleGetPartPosition(arg0, D_801518E4[arg0].jointCount, &sp10);
     func_800D4C08(&sp10, arg1, arg2, -D_801518E4[arg0].collisionRadius);
 }
 

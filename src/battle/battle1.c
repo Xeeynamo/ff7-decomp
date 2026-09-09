@@ -672,7 +672,7 @@ static void func_800BA40C(void) {
             param = i;
             func_800C1908(param);
             func_800BA598(i);
-            if (D_801518E4[i].D_8015190B & 0x80) {
+            if (D_801518E4[i].modelFlags & 0x80) {
                 func_800BB2A8(param);
                 func_800BB030(i);
             }
@@ -692,7 +692,7 @@ static void func_800BA4C8(void) {
         }
         func_800C1908(i);
         func_800BA598(i);
-        if (D_801518E4[i].D_8015190B & 0x80) {
+        if (D_801518E4[i].modelFlags & 0x80) {
             func_800BB030(i);
         }
     }
@@ -726,7 +726,7 @@ static void func_800BB030(s16 arg0) {
     Unk801B0C98* unk;
 
     unk = (Unk801B0C98*)0x1F800020;
-    SetFarColor(D_801518E4[arg0].D_8015190C, D_801518E4[arg0].D_8015190D, D_801518E4[arg0].D_8015190E);
+    SetFarColor(D_801518E4[arg0].additionalColorR, D_801518E4[arg0].additionalColorG, D_801518E4[arg0].additionalColorB);
     SetRotMatrix(&D_801518E4[arg0].m);
     SetTransMatrix(&D_801518E4[arg0].m);
     for (i = 0; i < D_800FA6D8[arg0].unk3C; i++) {
@@ -1123,9 +1123,9 @@ static void func_800C17A0(s32 arg0, s32 arg1) {
         D_801518E4[arg0].additionalColorAlpha = 0xC00;
         break;
     }
-    D_801518E4[arg0].D_8015190C = D_800EA19C[arg1][1];
-    D_801518E4[arg0].D_8015190D = D_800EA19C[arg1][2];
-    D_801518E4[arg0].D_8015190E = D_800EA19C[arg1][3];
+    D_801518E4[arg0].additionalColorR = D_800EA19C[arg1][1];
+    D_801518E4[arg0].additionalColorG = D_800EA19C[arg1][2];
+    D_801518E4[arg0].additionalColorB = D_800EA19C[arg1][3];
     D_801518E4[arg0].animationState = 0;
 }
 

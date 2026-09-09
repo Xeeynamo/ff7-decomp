@@ -316,11 +316,11 @@ typedef struct {
     /* 0x024 */ u8 animationState;
     /* 0x025 */ u8 flags;
     /* 0x026 */ u8 deathType;
-    /* 0x027 */ u8 D_8015190B;
-    /* 0x028 */ u8 D_8015190C;
-    /* 0x029 */ u8 D_8015190D;
-    /* 0x02A */ u8 D_8015190E;
-    /* 0x02B */ u8 D_8015190F;
+    /* 0x027 */ u8 modelFlags;
+    /* 0x028 */ u8 additionalColorR;
+    /* 0x029 */ u8 additionalColorG;
+    /* 0x02A */ u8 additionalColorB;
+    /* 0x02B */ u8 jointCount;
     /* 0x02C */ s32 D_80151910;
     /* 0x030 */ s32 D_80151914;
     /* 0x034 */ s16 D_80151918;
