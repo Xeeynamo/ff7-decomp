@@ -91,9 +91,9 @@ void BATTLE_CheckAllLucky7s(void) {
     s32 i;
 
     for (i = 0; i < 3; i++) {
-        if (g_BattleState.combatant[i].curHP == 7777 && !(g_CombatantTurnState[i].unk29 & 0x80)) {
+        if (g_BattleState.combatant[i].curHP == 7777 && !(g_CombatantTurnState[i].battleFlags2 & 0x80)) {
             if ((*D_800F7DE2)++ < 64) {
-                g_CombatantTurnState[i].unk29 |= 0x80;
+                g_CombatantTurnState[i].battleFlags2 |= 0x80;
                 BattleAddBattleActionToBattleQueue(i, 1, 1, 0, 0);
             }
         }
@@ -664,7 +664,7 @@ void BattleEnableLimitToPlayerWithoutSpeed(s32 arg0) {
 
     temp_v0 = arg0 * 0x44;
     *(u16*)((u8*)&g_CombatantTurnState[0].limitTimeFlags + temp_v0) &= 0xFFFE;
-    *(u8*)((u8*)&g_CombatantTurnState[0].LimitBreakFlags + temp_v0) |= 1;
+    *(u8*)((u8*)&g_CombatantTurnState[0].limitBreakFlags + temp_v0) |= 1;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4F60);
@@ -958,13 +958,13 @@ void func_800A6858(s32 arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A68FC);
 
-void func_800A6A3C(s32 arg0, s32 arg1) { g_CombatantTurnState[arg0].LimitBreakFlags |= arg1; }
+void func_800A6A3C(s32 arg0, s32 arg1) { g_CombatantTurnState[arg0].limitBreakFlags |= arg1; }
 
 void func_800A555C();
 
 void func_800A6A70(s32 arg0) {
     func_800A555C();
-    g_CombatantTurnState[arg0].LimitBreakFlags |= 9;
+    g_CombatantTurnState[arg0].limitBreakFlags |= 9;
 }
 
 void func_800A6AC4(void) {
@@ -1042,7 +1042,7 @@ void BattleChangeSlownumbToPetrify(s32 arg0) {
 
 void BATTLE_TickPoison(s32 arg0) {
     if (g_BattleState.combatant[arg0].status & 8) {
-        g_CombatantTurnState[arg0].StatusPoison = 0xA;
+        g_CombatantTurnState[arg0].statusPoison = 0xA;
         BattleAddBattleActionToBattleQueue(arg0, 3, 0x23, 0, 0);
     }
 }
@@ -1072,7 +1072,7 @@ void BattleSetItemWasStolenStringToDisplay(s32 arg0, s16 arg1) {
 
 void func_800A7060(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 12, arg1); }
 
-void func_800A7090(s32 arg0) { g_CombatantTurnState[arg0].unk29 |= 0x40; }
+void func_800A7090(s32 arg0) { g_CombatantTurnState[arg0].battleFlags2 |= 0x40; }
 
 void func_800A70C4(s32 arg0, s32 arg1) {
     BATTLE_QueueEffect(arg0, 0x34, 2, D_800708D0[arg1][1], 0, 9, g_BattleState.combatant[arg0].status);
@@ -1681,10 +1681,10 @@ void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
             D_800F4938[arg1] |= 1 << bounceTarget;
             func_800ACA24();
             entry = g_CurrentAction->unk200;
-            if (entry->StatusProtectionMask & 0x40000) {
+            if (entry->statusProtectionMask & 0x40000) {
                 D_800F4958 |= 1 << arg1;
-            } else if (entry->unk28 != 0) {
-                entry->unk28--;
+            } else if (entry->battleFlags != 0) {
+                entry->battleFlags--;
             } else {
                 g_CurrentAction->unk23C |= 0x40000;
             }
@@ -2322,7 +2322,7 @@ void func_800AEB20(s32 arg0, s32 arg1, s32 arg2) {
 
     index = func_800AF834(arg1);
     if (index >= 0) {
-        p = (u8*)&g_CombatantTurnState[arg0].StatusStop;
+        p = (u8*)&g_CombatantTurnState[arg0].statusStop;
         p[index] = D_800A04BC[index];
     }
 }
@@ -2350,7 +2350,7 @@ void func_800AEB80(s32 arg0, s32 arg1, s32 arg2) {
 
     index = func_800AF834(arg1);
     if (index >= 0) {
-        p = (u8*)&g_CombatantTurnState[arg0].StatusStop;
+        p = (u8*)&g_CombatantTurnState[arg0].statusStop;
         p[index] = 0;
         if ((0xD8B >> index) & 1) {
             BattleInitUnitAction(arg0);
@@ -2441,7 +2441,7 @@ void BATTLE_ApplyRegenPoisonTick(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-void func_800AF470(s32 arg0) { g_CombatantTurnState[arg0].unk28 = 3; }
+void func_800AF470(s32 arg0) { g_CombatantTurnState[arg0].battleFlags = 3; }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF494);
 

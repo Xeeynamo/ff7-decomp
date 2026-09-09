@@ -1,6 +1,6 @@
 #include <game.h>
 
-// https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleFlags.cs#L4
+// https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/battleFlags.cs#L4
 typedef enum {
     SETUP_CANNOT_ESCAPE = 4,
     SETUP_NO_VICTORY_POSE = 8,
@@ -73,7 +73,7 @@ typedef struct {
     // confirmed live here
     /* 0x00 */ s32 status;
     /* 0x04 */ u32 rowState; // battle-state flags (e.g. bit 0x40 = back row, bit
-                         // 0x20 = defending)
+                             // 0x20 = defending)
     /* 0x08 */ s8 index;
     /* 0x09 */ u8 level;
     /* 0x0A */ s8 unkA;
@@ -83,7 +83,7 @@ typedef struct {
     /* 0x0E */ s8 magAttack;
     /* 0x0F */ s8 evade;
     /* 0x10 */ s8 idleActionId; // cached "Near Death" display flag; see func_800B10B4
-                         // for the live check
+                                // for the live check
     /* 0x11 */ u8 hurtActionId;
     /* 0x12 */ s8 backDamageMultiplier;
     /* 0x13 */ s8 modelScale;
@@ -96,7 +96,7 @@ typedef struct {
     /* 0x20 */ s16 physDefence;
     /* 0x22 */ s16 magDefence;
     /* 0x24 */ s16 enemyId;
-	/* 0x26 */ u16 absorbElements;
+    /* 0x26 */ u16 absorbElements;
     /* 0x28 */ s16 curMP;
     /* 0x2A */ s16 maxMP;
     /* 0x2C */ u32 curHP;
@@ -404,36 +404,36 @@ typedef struct {
     /* 0x04 */ u16 ATBtimeValue; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
     /* 0x06 */ s16 unk6;
     /* 0x08 */ s32 limitTimeFlags;
-    /* 0x0C */ u8 SenseTargetMask;
-    /* 0x0D */ u8 AccessoryEffectId; // effect id of the equipped accessory (0xFF = none)
-    /* 0x0E */ u8 LimitBreakFlags;
-    /* 0x0F */ u8 FormationNumber;
-    /* 0x10 */ u8 StatusStop;
-    /* 0x11 */ u8 StatusParalyzed;
-    /* 0x12 */ u8 StatusDeathSentence;
-    /* 0x13 */ u8 StatusSlowNumb;
-    /* 0x14 */ u8 StatusBarrier;
-    /* 0x15 */ u8 StatusMBarrier;
-    /* 0x16 */ u8 StatusPoison;
-    /* 0x17 */ u8 StatusSleep;
-    /* 0x18 */ u8 StatusRegen;
-    /* 0x19 */ u8 StatusDual;
-    /* 0x1A */ u8 StatusShield;
-    /* 0x1B */ u8 StatusPeerless;
+    /* 0x0C */ u8 senseTargetMask;
+    /* 0x0D */ u8 accessoryEffectId; // effect id of the equipped accessory (0xFF = none)
+    /* 0x0E */ u8 limitBreakFlags;
+    /* 0x0F */ u8 formationNumber;
+    /* 0x10 */ u8 statusStop;
+    /* 0x11 */ u8 statusParalyzed;
+    /* 0x12 */ u8 statusDeathSentence;
+    /* 0x13 */ u8 statusSlowNumb;
+    /* 0x14 */ u8 statusBarrier;
+    /* 0x15 */ u8 statusMBarrier;
+    /* 0x16 */ u8 statusPoison;
+    /* 0x17 */ u8 statusSleep;
+    /* 0x18 */ u8 statusRegen;
+    /* 0x19 */ u8 statusDual;
+    /* 0x1A */ u8 statusShield;
+    /* 0x1B */ u8 statusPeerless;
     /* 0x1C */ u8 unk1C;
     /* 0x1D */ u8 unk1D;
     /* 0x1E */ u8 unk1E;
     /* 0x1F */ u8 unk1F;
-    s32 unk20;
-    s32 unk24;
-    u8 unk28;
-    u8 unk29;
-    u8 unk2A;
-    u8 unk2B;
-    s32 unk2C;
-    s32 unk30;
-    /* 0x34 */ u32 StatusProtectionMask;
-    /* 0x38 */ u8 *Name;
+    /* 0x20 */ s32 unk20;
+    /* 0x24 */ s32 unk24;
+    /* 0x28 */ u8 battleFlags;
+    /* 0x29 */ u8 battleFlags2;
+    /* 0x2A */ u8 unk2A;
+    /* 0x2B */ u8 unk2B;
+    /* 0x2C */ s32 unk2C;
+    /* 0x30 */ s32 unk30;
+    /* 0x34 */ u32 statusProtectionMask;
+    /* 0x38 */ u8* name;
     /* 0x3C */ u16 curHP;
     /* 0x3E */ u16 curMP;
     /* 0x40 */ u8 unk40;

@@ -358,8 +358,8 @@ extern s32 D_800F57CC; // btlmenu_cursorMemory
 extern Unk800F57D0* D_800F57D0;
 extern u8 D_800F57D4;
 extern CombatantTurnState g_CombatantTurnState[10]; // per-party-slot turn/effect state
-                                             // (flags, countdown timers)
-extern u16 D_800F7DE2[];                     // All Lucky 7s trigger count
+                                                    // (flags, countdown timers)
+extern u16 D_800F7DE2[];                            // All Lucky 7s trigger count
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
 extern s32 D_800F7DF8[3];
