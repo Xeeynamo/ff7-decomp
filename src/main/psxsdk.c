@@ -185,7 +185,58 @@ u32 SystemCdromReadChain(void) {
     return *op;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SystemLzsDecompress);
+// Haruhiko Okumura's PD implementation modified to work on byte streams.
+// Original macros:
+#define N 4096      // Size of ring buffer
+#define F 18        // Upper limit for match_length
+#define THRESHOLD 2 // Encode string into position and length if match_length is greater than this
+
+void SystemLzsDecompress(u8* src, u8* dst) {
+    s32 flags, flagCount, i, j;
+    u8 *copy, *copyEnd, *dstStart, *srcEnd;
+
+    flagCount = 0;
+    flags = 0;
+    dstStart = dst;
+    srcEnd = src + *(u32*)src + 4;
+    src += 4;
+    for (;;) {
+        if (!flagCount) {
+            flagCount = 8;
+            if (src >= srcEnd) {
+                return;
+            }
+            flags = *src++;
+        }
+        if (flags & 1) {
+            if (src >= srcEnd) {
+                return;
+            }
+            *dst++ = *src++;
+        } else {
+            if (src >= srcEnd) {
+                return;
+            }
+            i = *src++;
+            j = *src++;
+            i |= (j & 0xF0) << 4;
+            copyEnd = dst + (j & 0x0F) + THRESHOLD + 1;
+            copy = &dst[-((dst - dstStart - (i - (N - F))) & (N - 1))];
+            for (; copy < dstStart; copy++) {
+                *dst++ = 0;
+            }
+            for (; dst < copyEnd; copy++) {
+                *dst++ = *copy;
+            }
+        }
+        flags >>= 1;
+        flagCount--;
+    }
+}
+
+#undef N
+#undef F
+#undef THRESHOLD
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034CAC);
 

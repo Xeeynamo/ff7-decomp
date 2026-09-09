@@ -992,7 +992,7 @@ extern FieldEntity g_FieldEntity[];
 extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
 extern Unk80075D00* D_80075D00;
-extern int D_80075DEC;           // buffer index, either 0 or 1
+extern u16 D_80075DEC;           // buffer index, either 0 or 1
 extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern u8* g_FieldText;
@@ -1022,7 +1022,7 @@ extern FieldModelLoaderData* g_FieldModelLoaderData;
 extern s16 g_FieldLineCount;
 extern u16 g_FieldPaletteBuffer[64][16];
 extern s8 D_80095DCC;
-extern volatile u16 D_80095DD4;
+extern volatile s16 D_80095DD4;
 extern s16 g_PlayerModelId;
 extern s16 g_isFieldLoading;
 extern volatile s16 D_800965EC;

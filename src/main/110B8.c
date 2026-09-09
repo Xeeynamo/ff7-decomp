@@ -1,4 +1,4 @@
-//! PSYQ=3.3 CC1=2.7.2 G=0
+//! PSYQ=3.3 G=0
 #include "main_private.h"
 #include "unzip.h"
 
@@ -6,6 +6,7 @@ u8* func_80014C80(s32 arg0);
 extern u8 g_KernRndTable[];
 
 extern u8 D_80062D98;
+extern u8 D_80062D99;
 extern s32 D_80062D9C;
 extern s32 D_80062DA0;
 extern s32 D_80062DA4;
@@ -42,8 +43,7 @@ extern s32 D_80062E04;
 extern s16 D_80062E08;
 extern s16 D_80062E0A;
 extern s32 D_80062E0C;
-void SysBgRender(void);
-void SysMemCopy32(s32* dst, s32* src, s32 len);
+extern s16 D_8007E768;
 u16* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
 s32 SysDecompKernStringWithF9(u16*, u16*);
 u16* SysGetPtrToKernBattleTxtWithId(s32);
@@ -52,6 +52,7 @@ void SysAddCommandToTemp(s32);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 u8 func_8001F6B4();
 void SysMenuSetPosAddWindow(s16, s16, s16);
+void func_800D8D78();
 
 void __main(void) {}
 
@@ -96,7 +97,43 @@ INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800112E8);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBgFadeRender);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBgRender);
+static void VSyncCallbackFunc(void) {
+    switch (D_80095DD4) {
+    case 0:
+        break;
+    case 1:
+        SysBgFadeRender();
+        break;
+    case 2:
+        func_800D8D78();
+        break;
+    case 3:
+        SysBattleSwirlRender();
+        break;
+    case 4:
+        SysMenuDrawBattleResult();
+        break;
+    }
+    if (!D_80062D98 && !D_80062D99) {
+        Savemap.game_timer_fraction += 1092; // 65536 / 1092 = ~60
+        if (Savemap.game_timer_fraction >> 16) {
+            Savemap.time++;
+            Savemap.game_timer_fraction &= 0xFFFF;
+        }
+        Savemap.countdown_timer_fraction += 1092;
+        if (Savemap.countdown_timer_fraction >> 16) {
+            if (!(Savemap.memory_bank_1[95] & 2)) {
+                if (Savemap.countdown_timer_seconds != 0) {
+                    Savemap.countdown_timer_seconds--;
+                }
+            } else {
+                Savemap.countdown_timer_seconds++;
+            }
+            Savemap.countdown_timer_fraction &= 0xFFFF;
+        }
+    }
+    D_8007E768 = 1;
+}
 
 static void SysInitBase(void) {
     StopCallback();
@@ -104,7 +141,7 @@ static void SysInitBase(void) {
     ResetGraph(0);
     func_80036298();
     D_80095DD4 = 0;
-    VSyncCallback(&SysBgRender);
+    VSyncCallback(&VSyncCallbackFunc);
     SetGraphDebug(0);
     SetDispMask(0);
     InitGeom();
@@ -206,15 +243,3 @@ const u8 D_80010120[4] = {0, 0x38, 0x48, 0x80};
 const u8 D_80010124[20] = {
     1, 1, 1, 1, 2, 0, 0xFF, 0xFF, 0xFF, 0xFF, 3, 4, 5, 6, 7, 0, 0, 0, 0, 0,
 };
-
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBattleSwirlUpdate);
-
-static void SysBattleSwirlRender(void) {
-    D_8019DAA0++;
-    if (!(D_8019DAA0 & 1)) {
-        DrawOTag(D_8019D5E8);
-        SysBattleSwirlUpdate();
-    }
-}
-
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBattleSwirlInit);
