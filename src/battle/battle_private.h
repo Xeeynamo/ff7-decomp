@@ -216,7 +216,7 @@ typedef enum {
 // priority table (BattleCopyBattleActionToBattleQueue), which BattleBattleActionQueueExecute drains in priority
 // order into func_800A1798, which runs the command as a byte-coded sequence
 // of opcodes (D_800F38AC/D_800A0098/D_800E7B28), not a single switch on
-// cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
+// cmdIndex. Full writeup: ff7-re/reference/BattleCOMMAND_QUEUE.md
 typedef struct {
     /* 0x0 */ u8 priority; // 0=limits/counters, 6=player spells (see func_800A4350)
     /* 0x1 */ u8 queuePos; // position within priority band; not set by func_800A4350
@@ -254,7 +254,7 @@ extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
 // Cait Sith's "Slots" limit: 7 three-symbol combos (one row per combo)
 // checked in order against the 3 landed reel symbols (D_80163774) -- see
-// BATTLE_ResolveCaitSithSlotsResult in battle.c
+// BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
 extern void (*D_800E7BFC[])(void); // per-action epilogue hook
 extern Yamada D_800E8050[];
@@ -524,7 +524,7 @@ extern u16 D_8016375C;
 extern u16 D_8016375E;
 extern u16 D_80163762; // part of a struct
 // Cait Sith's 3 landed Slots reel symbols (see func_800E5358, and
-// BATTLE_ResolveCaitSithSlotsResult in battle.c)
+// BattleResolveCaitSithSlotsResult in battle.c)
 extern u8 D_80163774[4];
 extern u16 g_CharacterMask[];
 extern u8 D_80163784[3];
@@ -555,17 +555,17 @@ void func_800A8E84(s32);
 void func_800AA950(Unk800FA9D0*);
 void func_800AB308(void);
 void func_800AB480(void);
-void BATTLE_LearnEnemySkill(void);
+void BattleLearnEnemySkill(void);
 void func_800ABA68(Unk800FA9D0*, s16, u16, s16, s16);
 void func_800AC6B4(s32);
 void BattleCalcTargStats(s32);
 void func_800ACA24(void);
 s32 func_800ACD88(s32);
-s32 BATTLE_IsDamageNullified(s32);
-void BATTLE_QueueUnassignedResultDisplay(Unk800FA9D0*);
+s32 BattleIsDamageNullified(s32);
+void BattleQueueUnassignedResultDisplay(Unk800FA9D0*);
 void func_800AD0FC(void);
 void func_800AD324(s32, s32, s32, s32);
-void BATTLE_ApplyDefaultAbsorbEffect(void);
+void BattleApplyDefaultAbsorbEffect(void);
 void BattleDmgFormulaRun(void);
 void func_800AE82C(void);
 s32 BattleOpcodeGetRndBit(s32);
@@ -601,7 +601,7 @@ void func_800DDFEC(void);
 void func_800E15D8(void);
 void func_800E5814(void);
 void func_800E6B94(void);
-void BATTLE_EnqueueLoadImage(RECT* rect, u_long* ptr);
+void BattleEnqueueLoadImage(RECT* rect, u_long* ptr);
 
 /* battle menu widget block (one per widget id, 0x240 apart) -- partial */
 typedef struct {

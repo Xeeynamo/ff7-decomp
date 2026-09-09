@@ -3,7 +3,7 @@
 
 extern Unk801B2308 D_80163624;
 extern u16 g_IsMutiBattle;
-void BATTLE_RunFrame(void); // battle callback for batini, move to battle.h
+void BattleRunFrame(void); // battle callback for batini, move to battle.h
 void BattleInitEnemyAI(void);
 
 // entrypoint
@@ -32,7 +32,7 @@ void BattleInitSetup(s32 sceneID) {
     if (g_IsMutiBattle) {
         BattleInitPartyFromSavemap();
     }
-    BattleInitLoadSceneData(sceneID, BATTLE_RunFrame);
+    BattleInitLoadSceneData(sceneID, BattleRunFrame);
     BattleInitEnemyUnits();
     g_BattleState.presentMask = 0;
     for (i = 0; i < 10; i++) {
@@ -694,7 +694,7 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     sceneChunkID = sceneID / 4;
     scenePackID = BattleGetScenePackId(sceneChunkID);  // sector modified based on the Chunk ID
     SystemLoadFileBySector(                            // load file from disk
-        func_800144D8(BATTLE_SCENE) + scenePackID * 4, // Disk sector where to load the file from
+        func_800144D8(BattleSCENE) + scenePackID * 4, // Disk sector where to load the file from
         0x800 * 4,                                     // Size in bytes to copy
         (u_long*)scenePackBuffer,                      // Destination
         NULL);
@@ -724,7 +724,7 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
         }
     }
     D_800F5F44.battleType = (u8)g_BattleTypeMap[D_8016360C.setup.type];
-    if (D_8016376A & EVENT_BATTLE_SQUARE) {
+    if (D_8016376A & EVENT_BattleSQUARE) {
         D_8016360C.setup.stageID = 37;
         D_8016360C.setup.flags |= SETUP_CANNOT_ESCAPE;
         D_8016360C.setup.cameraID = (SysGetRandomByteFromTable() & 3) + 0x60;

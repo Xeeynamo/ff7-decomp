@@ -440,7 +440,7 @@ static void BattleUpdateRender(void) {
         func_800E16B8(g_cDb->unk40E4, 0x10, 0x10, D_8009D268[0]);
     }
     D_800FA9B8 = VSync(1);
-    BATTLE_FlushImageQueue();
+    BattleFlushImageQueue();
     BattleCdromReadChain();
     D_80158D08 = func_800D8A88();
     SetGeomScreen(D_80162084);
@@ -1419,7 +1419,7 @@ static void func_800C627C(void) {
     D_800F4B24.y = 0x1E0;
     D_800F4B24.w = 0x10;
     D_800F4B24.h = 0x1E;
-    BATTLE_EnqueueLoadImage(&D_800F4B24, D_80158D0C);
+    BattleEnqueueLoadImage(&D_800F4B24, D_80158D0C);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C62F4);
