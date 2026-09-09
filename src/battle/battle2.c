@@ -14,7 +14,7 @@ extern s16 D_800EF6FC[];
 extern s16 D_800EF838[];
 extern s16 D_800EF8D8[];
 
-s32 func_800BBF7C(void (*f)(void));
+s32 BattleMovementRegister(void (*f)(void));
 s32 func_800BC04C(void (*f)());
 void func_800C2928();
 void func_800C328C();
@@ -148,7 +148,7 @@ static void func_800CE0C8(s16 arg0, u8 arg1, u8 arg2) {
         break;
     case 1:
     case 10:
-        ret = func_800BBF7C(func_800C3950);
+        ret = BattleMovementRegister(func_800C3950);
         D_801620AC[ret].D_801621B2 = arg2;
         D_801620AC[ret].D_801621B4 = arg0;
         D_801620AC[ret].D_801621B6 = 0xF8;
@@ -194,7 +194,7 @@ static void func_800CE21C(s16 arg0, u8 arg1) {
         break;
     case 1:
     case 10:
-        ret = func_800BBF7C(func_800C3950);
+        ret = BattleMovementRegister(func_800C3950);
         D_801620AC[ret].D_801621B2 = arg1;
         D_801620AC[ret].D_801621B4 = arg0;
         D_801620AC[ret].D_801621B6 = 0xF8;
@@ -420,7 +420,7 @@ static void func_800CF5BC(void) {
 static void func_800CF8C0(s16 arg0, s16 arg1, u8 arg2) {
     u8 dst;
 
-    dst = func_800BBF7C(func_800CFB14);
+    dst = BattleMovementRegister(func_800CFB14);
     D_801620AC[dst].D_801621B4 = arg0;
     D_801620AC[dst].D_801621B0 = arg1;
     D_801620AC[dst].D_801621B6 = D_800F99E8;

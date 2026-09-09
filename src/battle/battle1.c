@@ -246,7 +246,7 @@ static void func_800B3DBC(void) {
     }
 }
 
-void func_800BC1E0(u8);
+void BattleCallbacksReset(u8);
 static void func_800C5BEC(void);
 static void func_800B3E2C(void) {
     s32 i;
@@ -283,7 +283,7 @@ static void func_800B3E2C(void) {
     D_801518E4[var_a0].D_80151906 = 0;
     D_800F8374 = 0xE;
     D_80163798[D_801590E0].unk8 = -2;
-    func_800BC1E0(var_a0);
+    BattleCallbacksReset(var_a0);
     func_800C5BEC();
 }
 
@@ -507,7 +507,7 @@ void func_800B8438(void) {
     switch (D_80163C7C) {
     case 2:
         func_800B905C();
-        func_800BC440();
+        BattleMovementUpdate();
         func_800BA4C8();
         break;
     case 0:
@@ -521,7 +521,7 @@ void func_800B8438(void) {
         func_800B8EE4();
         func_800B905C();
         func_800B8234(D_801517BC);
-        func_800BC440();
+        BattleMovementUpdate();
         func_800B7FB4();
         func_800B83C4();
         func_800B8B48();
@@ -879,16 +879,20 @@ static void func_800BBDF8(void) {
     }
 }
 
+// returns a slot index into the 0x64-entry data array, not a pointer; the
+// callback writes -1 over field 0 of its slot to have the Update free it
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEffectRegister);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBF7C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleMovementRegister);
 
+// q-gears: "add effect callback"
 s32 func_800BC04C(void (*cb)(void));
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC04C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC11C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleCameraRegister);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC1E0);
+// q-gears: "init damage, unit movement, effect and camera callback arrays"
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleCallbacksReset);
 
 static void func_800BC2F0(void) {
     s32 i;
@@ -918,7 +922,7 @@ static void func_800BC72C(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC754);
 
-void func_800BC630(void);
+void BattleCameraUpdate(void);
 void func_800BCB1C(u8, s16, s16);
 void func_800BEA38(u8, s16, s16);
 // run both per-slot handlers for each of the three party slots, then the
@@ -931,7 +935,7 @@ static void func_800BC81C(s16 arg0, s16 arg1) {
             func_800BEA38(i, arg1, arg0);
             func_800BCB1C(i, arg1, arg0);
         }
-        func_800BC630();
+        BattleCameraUpdate();
     }
 }
 
