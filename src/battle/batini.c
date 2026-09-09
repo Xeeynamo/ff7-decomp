@@ -673,7 +673,7 @@ void BattleInitEnemyAI(void) {
     };
     for (i = 0; i < 6; i++) {
         D_80163624.unk34[i].unkC = g_BattleState.combatant[4 + i].rowState;
-        D_80163624.unk94[4 + i][1] = g_BattleState.combatant[4 + i].unk10;
+        D_80163624.unk94[4 + i][1] = g_BattleState.combatant[4 + i].idleActionId;
         g_BattleState.combatant[4 + i].unk44[0] = g_BattleState.combatant[4 + i].status;
     }
 }

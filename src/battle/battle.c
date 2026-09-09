@@ -299,13 +299,13 @@ void BATTLE_RunFrame(void) {
             break;
         }
         if (a > 3 && a < 10) {
-            D_801636B8[a].D_801636B9 = g_BattleState.combatant[a].unk10;
+            D_801636B8[a].D_801636B9 = g_BattleState.combatant[a].idleActionId;
         }
     }
     BattleQueue1Execute();
     func_800A3278();
     for (i = 4; i < 0xA; i++) {
-        D_801636B8[i].D_801636B9 = g_BattleState.combatant[i].unk10;
+        D_801636B8[i].D_801636B9 = g_BattleState.combatant[i].idleActionId;
     }
 }
 
@@ -2295,11 +2295,11 @@ void func_800AE764(s32 mask, s32 arg1, s32 arg2) {
 
     result = 0;
     for (i = 0; i < 10; i++) {
-        g_BattleState.combatant[i].unkB = 3;
+        g_BattleState.combatant[i].elementalInfluence = 3;
         if ((mask >> i) & 1) {
             v = func_800AE6C0(i, arg1, arg2);
             if (v != 3) {
-                g_BattleState.combatant[i].unkB = v;
+                g_BattleState.combatant[i].elementalInfluence = v;
                 result |= 1 << i;
             }
         }

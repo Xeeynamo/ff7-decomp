@@ -77,12 +77,12 @@ typedef struct {
     /* 0x08 */ s8 index;
     /* 0x09 */ u8 level;
     /* 0x0A */ s8 unkA;
-    /* 0x0B */ s8 unkB;
-    /* 0x0C */ s8 unkC;
+    /* 0x0B */ s8 elementalInfluence;
+    /* 0x0C */ s8 formationNumber;
     /* 0x0D */ u8 physAttack;
     /* 0x0E */ s8 magAttack;
-    /* 0x0F */ s8 unkF;
-    /* 0x10 */ s8 unk10; // cached "Near Death" display flag; see func_800B10B4
+    /* 0x0F */ s8 evade;
+    /* 0x10 */ s8 idleActionId; // cached "Near Death" display flag; see func_800B10B4
                          // for the live check
     /* 0x11 */ u8 unk11;
     /* 0x12 */ s8 unk12;
