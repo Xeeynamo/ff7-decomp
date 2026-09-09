@@ -26,6 +26,9 @@ static void func_800BB804(void);
 static void func_800BB864(void);
 static void func_800BC2F0(void);
 static void func_800BC348(void);
+static void BattleMovementUpdate(void);
+static void BattleCameraUpdate(void);
+static void func_800BC538(void);
 static void func_800C0410(void);
 static void func_800C0900(void);
 static void func_800C20E8(s16 arg0, s16* arg1);
@@ -910,7 +913,7 @@ static void func_800BC2F0(void) {
 static void func_800BC348(void) {
     void (*callback)(void);
 
-    for (D_8015169C = 0; D_8015169C < 0x64; D_8015169C++) {
+    for (D_8015169C = 0; D_8015169C < 100; D_8015169C++) {
         callback = D_80161EF0[D_8015169C];
         if (callback) {
             callback();
@@ -925,12 +928,60 @@ static void func_800BC348(void) {
     D_8015169C = 0;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleMovementUpdate);
+static void BattleMovementUpdate(void) {
+    void (*callback)(void);
+
+    for (D_801590D0 = 0; D_801590D0 < 10; D_801590D0++) {
+        callback = D_80163B48[D_801590D0];
+        if (callback) {
+            callback();
+            if (D_801620AC[D_801590D0].D_801621AC == -1) {
+                D_801620AC[D_801590D0].D_801621AC = 0;
+                D_801620AC[D_801590D0].D_801621AE = 0;
+                D_80163B48[D_801590D0] = NULL;
+                D_80163B7C--;
+            }
+        }
+    }
+    D_801590D0 = 0;
+}
 
 // q-gears: "effects update"
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC538);
+static void func_800BC538(void) {
+    void (*callback)(void);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleCameraUpdate);
+    for (D_801590D4 = 0; D_801590D4 < 60; D_801590D4++) {
+        callback = D_80163B84[D_801590D4];
+        if (callback) {
+            callback();
+            if (D_801621F0[D_801590D4].D_801621F0 == -1) {
+                D_801621F0[D_801590D4].D_801621F0 = 0;
+                D_801621F0[D_801590D4].D_801621F2 = 0;
+                D_80163B84[D_801590D4] = NULL;
+                D_80163C78--;
+            }
+        }
+    }
+    D_801590D4 = 0;
+}
+
+static void BattleCameraUpdate(void) {
+    void (*callback)(void);
+
+    for (D_800F8360 = 0; D_800F8360 < 16; D_800F8360++) {
+        callback = D_800FA978[D_800F8360];
+        if (callback) {
+            callback();
+            if (D_800F7ED8[D_800F8360].D_800F7ED8 == -1) {
+                D_800F7ED8[D_800F8360].D_800F7ED8 = 0;
+                D_800F7ED8[D_800F8360].D_800F7EDA = 0;
+                D_800FA978[D_800F8360] = NULL;
+                D_800FA9BC--;
+            }
+        }
+    }
+    D_800F8360 = 0;
+}
 
 void func_800BCA58(s32);
 void func_800C1104();
@@ -941,7 +992,6 @@ static void func_800BC72C(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC754);
 
-void BattleCameraUpdate(void);
 void func_800BCB1C(u8, s16, s16);
 void func_800BEA38(u8, s16, s16);
 // run both per-slot handlers for each of the three party slots, then the

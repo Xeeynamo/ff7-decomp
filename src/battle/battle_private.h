@@ -433,9 +433,9 @@ extern u16 D_800FA6B8;
 extern u8 D_800FA6D4;
 extern Unk800FA6D8 D_800FA6D8[];
 extern MATRIX D_800FA958;
-extern s32 D_800FA978[];
+extern void (*D_800FA978[16])(void);
 extern s32 D_800FA9B8;
-extern u16 D_800FA9BC;
+extern s16 D_800FA9BC;
 extern s16 D_800FA9C4;
 extern s16 D_800FA9C6;
 extern s16 D_800FA9C8;
@@ -549,8 +549,12 @@ extern Unk800A2F4C D_80163798[0x40];
 extern s8 D_80163A98;
 extern u8 D_80163B38;
 extern s16 D_80163B44[];
+extern void (*D_80163B48[10])(void);
+extern s16 D_80163B7C;
 extern u16 D_80163B80;
+extern void (*D_80163B84[60])(void);
 extern DR_MODE* D_80163C74; // TODO might be a generic u_long*, not DR_MODE*
+extern s16 D_80163C78;
 extern u8 D_80163C7C;
 extern ShortVectorXYZ D_80163C80[];
 typedef struct {
