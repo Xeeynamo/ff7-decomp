@@ -39,6 +39,11 @@ static void WmDialogAddHexDigitWithoutLeadingSpace(u16 value, u8* dst);
 static void WmSetCamMode(s16 arg0);
 static s16 WmGetCamMode(void);
 static void func_800BCA48(void);
+static s32 WmGetDistanceBetweenPoints(VECTOR* arg0, VECTOR* arg1);
+static s32 WmGetDistanceToActivePoint(VECTOR* v);
+static s32 func_800B785C(void);
+static s32 func_800B786C(void);
+static void WmDialogSetModeAndPermanency(s16 window, s16 style, s16 preventClose);
 
 const char D_800A0000[] = "NEW  ";
 static const char D_800A0008[] = "OLD  ";
@@ -1216,23 +1221,22 @@ s32 WmGetModelIdFromPcEntity(void) { return D_8010AD40 != NULL ? D_8010AD40->act
 static WorldActor* func_800A9194(void) { return D_8010AD3C; }
 
 static s32 WmIsPcEntityModelInMask(s32 arg0) {
-    return D_8010AD40 != NULL && D_8010AD40->actorType < 0x20U ? (arg0 >> D_8010AD40->actorType) & 1 : 0;
+    return D_8010AD40 != NULL && D_8010AD40->actorType < 0x20 ? (arg0 >> D_8010AD40->actorType) & 1 : 0;
 }
 
 static s32 func_800A91E0(s32 arg0) {
-    return D_8010AD3C != NULL && D_8010AD3C->actorType < 0x20U ? (arg0 >> D_8010AD3C->actorType) & 1 : 0;
+    return D_8010AD3C != NULL && D_8010AD3C->actorType < 0x20 ? (arg0 >> D_8010AD3C->actorType) & 1 : 0;
 }
 
 static s32 func_800A921C(s32 arg0, u8 arg1) { return arg1 >= 0x20 ? 0 : (arg0 >> arg1) & 1; }
 
 static s32 func_800A9240(void) {
     s32 out;
-    u8 actorType;
 
     if (D_8010AD40 != NULL) {
-        actorType = D_8010AD40->actorType;
         out = 0;
-        if (actorType == 4 || actorType == 0x13 || D_8010AD40->actorType - 0x29 < 2U)
+        if (D_8010AD40->actorType == 4 || D_8010AD40->actorType == 0x13 || D_8010AD40->actorType == 0x29 ||
+            D_8010AD40->actorType == 0x2A)
             out = 1;
     } else
         out = 0;
@@ -1241,19 +1245,20 @@ static s32 func_800A9240(void) {
 
 s32 func_800A929C(void) {
     s32 out;
-    u8 actorType;
 
     if (D_8010AD3C != NULL) {
-        actorType = D_8010AD3C->actorType;
         out = 0;
-        if (actorType == 4 || actorType == 0x13 || D_8010AD3C->actorType - 0x29 < 2U)
+        if (D_8010AD3C->actorType == 4 || D_8010AD3C->actorType == 0x13 || D_8010AD3C->actorType == 0x29 ||
+            D_8010AD3C->actorType == 0x2A)
             out = 1;
     } else
         out = 0;
     return out;
 }
 
-static s32 func_800A92F8(s32 arg0) { return (arg0 & 0xFF) == 4 || (arg0 & 0xFF) == 0x13 || ((arg0 - 0x29) & 0xFF) < 2U; }
+static s32 func_800A92F8(u8 actorType) {
+    return actorType == 4 || actorType == 0x13 || actorType == 0x29 || actorType == 0x2A;
+}
 
 static const s32 D_800A01D8[] = {0, 0xF000};
 static const s32 D_800A01E0[] = {0, 0};
@@ -1419,17 +1424,17 @@ s32 func_800A99BC(void) {
     return D_8010AD40 != NULL && D_8010AD3C != NULL && D_8010AD40 != D_8010AD3C && !(D_8010AD3C->flags1 & 0x10);
 }
 
-static void func_800A9A04(s8 arg0) {
+static void func_800A9A04(s8 actorType) {
     if (D_8010AD40)
-        D_8010AD40->actorType = arg0;
+        D_8010AD40->actorType = actorType;
 }
 
-static void WmSetPcEntityTerrainData(s16 arg0) {
+static void WmSetPcEntityTerrainData(s16 walkmesh) {
     if (D_8010AD40)
-        D_8010AD40->walkmesh = arg0;
+        D_8010AD40->walkmesh = walkmesh;
 }
 
-s32 WmGetPcEntityTerrainId(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->walkmesh & 0x1F; }
+static s32 WmGetPcEntityTerrainId(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->walkmesh & 0x1F; }
 
 static s32 func_800A9A70(void) { return D_8010AD40 == NULL ? 0 : (D_8010AD40->walkmesh >> 9) & 0x1F; }
 
@@ -1439,7 +1444,7 @@ static s32 func_800A9AD0(void) { return D_8010AD40 == NULL ? 0 : (D_8010AD40->wa
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A9B04);
 
-void func_800A9C64(WorldActor* arg0, VECTOR* arg1) {
+static void func_800A9C64(WorldActor* arg0, VECTOR* arg1) {
     u8 var_v0;
 
     if (arg1 != NULL && arg0 != NULL) {
@@ -2591,7 +2596,9 @@ static void func_800AF364(u8 arg0, u8 arg1, u8 arg2) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", WmUpdateLightingFromPoints);
 
-static s32 WmGetDistanceToActivePoint(VECTOR* v) { return D_8010B3B8 ? WmGetDistanceBetweenPoints(v, &D_8010B3B8->unk0) : 0; }
+static s32 WmGetDistanceToActivePoint(VECTOR* v) {
+    return D_8010B3B8 ? WmGetDistanceBetweenPoints(v, &D_8010B3B8->unk0) : 0;
+}
 
 static s16 func_800AF9A0(VECTOR* arg0) {
     return D_8010B3B8 == NULL ? 0 : WmGetRotFromEntityToEntity(arg0, (VECTOR*)D_8010B3B8);
@@ -3591,7 +3598,7 @@ static s32 WmDialogSetWindowToCloseIfPossible(s16 window) {
     return 1;
 }
 
-static void WmDialogSetModeAndPermanency(s16 window, s8 style, s16 preventClose) {
+static void WmDialogSetModeAndPermanency(s16 window, s16 style, s16 preventClose) {
     g_WindowData[window].style = style;
     g_WindowData[window].preventClose = preventClose;
 }
