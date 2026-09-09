@@ -296,11 +296,14 @@ typedef struct {
 
 typedef struct {
     /* 0x000 */ s16 D_801518E4;
-    /* 0x002 */ s16 D_801518E6;
-    /* 0x004 */ s16 D_801518E8;
-    /* 0x006 */ s16 D_801518EA;
-    /* 0x008 */ u8 unk8[8];
-    /* 0x010 */ s16 unk10;
+    /* 0x002 */ s16 animationId;
+    /* 0x004 */ s16 actionId;
+    /* 0x006 */ s16 modelScale;
+    /* 0x008 */ s16 ModelSetting06;
+    /* 0x00A */ s16 ModelSetting08;
+    /* 0x00C */ s16 ModelSetting0A;
+    /* 0x00E */ s16 AnimationToPlay;
+    /* 0x010 */ s16 BoneCount;
     /* 0x012 */ s16 unk12;
     /* 0x014 */ u16 unk14[2];
     /* 0x018 */ s16 D_801518FC;

@@ -386,8 +386,8 @@ void func_800CF5BC(void) {
         if (IDX1 >= 4) {
             if (D_801031F0 == 0) {
                 D_801620AC[D_801590D0].D_801621B2 =
-                    (MUL(D_801518E4[IDX2].D_80151A4C.vy, D_801518E4[IDX2].D_801518EA) -
-                     MUL(D_801518E4[IDX1].D_80151A4C.vy, D_801518E4[IDX1].D_801518EA)) /
+                    (MUL(D_801518E4[IDX2].D_80151A4C.vy, D_801518E4[IDX2].modelScale) -
+                     MUL(D_801518E4[IDX1].D_80151A4C.vy, D_801518E4[IDX1].modelScale)) /
                     D_801620AC[D_801590D0].D_801621B0;
             } else {
                 D_801620AC[D_801590D0].D_801621B2 = 0;
@@ -490,7 +490,7 @@ void func_800CFE60(void) {
             D_801620AC[D_801590D0].D_801621AE = 2;
             D_801620AC[D_801590D0].D_801621B0 = D_801620AC[D_801590D0].unk16;
             D_801620AC[D_801590D0].D_801621B2 =
-                MUL(D_801518E4[IDX1].D_80151A4C.vy - D_801620AC[D_801590D0].unkC, D_801518E4[IDX2].D_801518EA) /
+                MUL(D_801518E4[IDX1].D_80151A4C.vy - D_801620AC[D_801590D0].unkC, D_801518E4[IDX2].modelScale) /
                 D_801620AC[D_801590D0].unk16;
             return;
         }
@@ -531,7 +531,7 @@ void func_800D01C0(void) {
             D_801620AC[D_801590D0].D_801621B0 = D_801620AC[D_801590D0].unk15;
             D_801620AC[D_801590D0].D_801621B2 =
                 MUL(D_801620AC[D_801590D0].unk10 - D_801620AC[D_801590D0].unkC,
-                    D_801518E4[D_801620AC[D_801590D0].D_801621B6].D_801518EA) /
+                    D_801518E4[D_801620AC[D_801590D0].D_801621B6].modelScale) /
                 D_801620AC[D_801590D0].unk15;
             D_801620AC[D_801590D0].D_801621AE = 2;
             return;
@@ -986,7 +986,7 @@ void func_800D3E8C(s32 arg0) {
 
     temp_v0 = &D_801621F0[func_800BC04C(BattleEffectDustClouds)];
     temp_v0->D_801621F0 = arg0;
-    temp_v0->unkE = *(s16*)& temp_v0->unk10 = D_801518E4[arg0].D_801518EA;
+    temp_v0->unkE = *(s16*)& temp_v0->unk10 = D_801518E4[arg0].modelScale;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3F0C);
@@ -1151,7 +1151,7 @@ s32 func_800D54BC(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleEntityGetCenter);
 
-s32 func_800D55A4(s32 arg0) { return (D_801518E4[arg0].unk12 * 0x10) * D_801518E4[arg0].D_801518EA >> 0xC; }
+s32 func_800D55A4(s32 arg0) { return (D_801518E4[arg0].unk12 * 0x10) * D_801518E4[arg0].modelScale >> 0xC; }
 
 void SystemAkaoExecute(void*, s32, s32, void**);
 
