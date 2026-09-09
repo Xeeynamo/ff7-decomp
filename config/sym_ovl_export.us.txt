@@ -261,7 +261,6 @@ BattleEffectRegister = 0x800bbeac;
 BattleMovementRegister = 0x800bbf7c;
 func_800BC04C = 0x800bc04c;
 BattleCameraRegister = 0x800bc11c;
-BattleCallbacksReset = 0x800bc1e0;
 func_800BC754 = 0x800bc754;
 func_800BC8B0 = 0x800bc8b0;
 func_800BCA58 = 0x800bca58;

@@ -24,6 +24,7 @@ static void func_800BB030(s16);
 static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3);
 static void func_800BB804(void);
 static void func_800BB864(void);
+static void BattleCallbacksReset(void);
 static void func_800BC2F0(void);
 static void func_800BC348(void);
 static void BattleMovementUpdate(void);
@@ -250,7 +251,6 @@ static void func_800B3DBC(void) {
     }
 }
 
-void BattleCallbacksReset(u8);
 static void func_800C5BEC(void);
 static void func_800B3E2C(void) {
     s32 i;
@@ -287,7 +287,7 @@ static void func_800B3E2C(void) {
     D_801518E4[var_a0].D_80151906 = 0;
     D_800F8374 = 0xE;
     D_80163798[D_801590E0].unk8 = -2;
-    BattleCallbacksReset(var_a0);
+    BattleCallbacksReset();
     func_800C5BEC();
 }
 
@@ -896,7 +896,26 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC04C);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleCameraRegister);
 
 // q-gears: "init damage, unit movement, effect and camera callback arrays"
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleCallbacksReset);
+static void BattleCallbacksReset(void) {
+    s32 i;
+
+    D_80162080 = D_80163B7C = D_80163C78 = 0;
+
+    for (i = 0; i < 100; i++) {
+        D_80161EF0[i] = NULL;
+        D_80162978[i].D_80162978 = D_80162978[i].D_8016297A = 0;
+    }
+    for (i = 0; i < 10; i++) {
+        D_80163B48[i] = NULL;
+        D_801620AC[i].D_801620AC = D_801620AC[i].D_801620AE = 0;
+    }
+    for (i = 0; i < 60; i++) {
+        D_80163B84[i] = NULL;
+        D_801621F0[i].D_801621F0 = D_801621F0[i].D_801621F2 = 0;
+    }
+
+    func_800BC2F0();
+}
 
 static void func_800BC2F0(void) {
     s32 i;
