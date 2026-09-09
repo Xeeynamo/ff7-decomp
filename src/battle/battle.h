@@ -293,7 +293,7 @@ typedef struct {
     /* 0x1E9A */ s16 D_800F7DDE;
 } Unk800F5F44; // size:0x1E9C
 
-#define BattleSCENE 7
+#define BATTLE_SCENE 7
 
 typedef struct {
     MATRIX m;
