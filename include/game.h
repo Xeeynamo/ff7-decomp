@@ -11,7 +11,7 @@
 #define _SL(len, x) x // same as _S, but for fixed-length strings with padding
 #endif
 
-#define MAX_PARTY_COUNT 9
+#define NUM_CHARACTERS 9
 #define MAX_INVENTORY_COUNT 320
 #define MAX_MATERIA_COUNT 200
 
@@ -302,7 +302,7 @@ typedef struct {
 // https://ff7-mods.github.io/ff7-flat-wiki/FF7/Savemap
 typedef struct {
     SaveHeader header;
-    /* 0x54 */ SavePartyMember party[MAX_PARTY_COUNT];
+    /* 0x54 */ SavePartyMember party[NUM_CHARACTERS];
     /* 0x4F8 */ u8 partyID[4];
     /* 0x4FC */ u16 inventory[MAX_INVENTORY_COUNT];
     /* 0x77C */ s32 materia[MAX_MATERIA_COUNT];
