@@ -1042,7 +1042,7 @@ void BattleChangeSlownumbToPetrify(s32 arg0) {
 
 void BATTLE_TickPoison(s32 arg0) {
     if (g_BattleState.combatant[arg0].status & 8) {
-        g_CombatantTurnState[arg0].unk14[2] = 0xA;
+        g_CombatantTurnState[arg0].StatusPoison = 0xA;
         BattleAddBattleActionToBattleQueue(arg0, 3, 0x23, 0, 0);
     }
 }
@@ -2322,7 +2322,7 @@ void func_800AEB20(s32 arg0, s32 arg1, s32 arg2) {
 
     index = func_800AF834(arg1);
     if (index >= 0) {
-        p = (u8*)&g_CombatantTurnState[arg0].unk10;
+        p = (u8*)&g_CombatantTurnState[arg0].StatusStop;
         p[index] = D_800A04BC[index];
     }
 }
@@ -2350,7 +2350,7 @@ void func_800AEB80(s32 arg0, s32 arg1, s32 arg2) {
 
     index = func_800AF834(arg1);
     if (index >= 0) {
-        p = (u8*)&g_CombatantTurnState[arg0].unk10;
+        p = (u8*)&g_CombatantTurnState[arg0].StatusStop;
         p[index] = 0;
         if ((0xD8B >> index) & 1) {
             BattleInitUnitAction(arg0);

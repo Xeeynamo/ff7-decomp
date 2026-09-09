@@ -418,7 +418,7 @@ void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
             combatant->status |= STATUS_D_SENTENCE;
             turn->StatusProtectionMask |= STATUS_D_SENTENCE;
             party->accessoryStatusMask |= STATUS_D_SENTENCE;
-            turn->unk12 = 0xFF;
+            turn->StatusDeathSentence = 0xFF;
             break;
         case 3:
             combatant->status |= STATUS_REFLECT;
