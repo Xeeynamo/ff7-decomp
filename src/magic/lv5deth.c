@@ -178,7 +178,7 @@ static void Lv5DeathAttachToTarget(s32 target) {
     Lv5DeathEffect* ring;
 
     effect = &D_80162978[BattleEffectRegister(Lv5DeathRenderTargetSprite)];
-    BattleGetPartPosition(target, D_801518E4[target].jointCount, &effect->Pos);
+    BattleGetPartPosition(target, g_battleModel[target].jointCount, &effect->Pos);
     effect->Scale = 0x1CCC;
     effect->u.TargetIndex = target;
 
