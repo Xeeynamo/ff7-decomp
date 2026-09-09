@@ -885,7 +885,25 @@ static void func_800BBDF8(void) {
 
 // returns a slot index into the 0x64-entry data array, not a pointer; the
 // callback writes -1 over field 0 of its slot to have the Update free it
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEffectRegister);
+s32 BattleEffectRegister(void (*func)(void)) {
+    s16 i;
+
+    for (i = 0; i < 100; i++) {
+        if (!D_80161EF0[i]) {
+            if (i >= D_8015169C) {
+                D_80161EF0[i] = func;
+                D_80162978[i].D_80162978 = D_8015169C;
+                D_80162080++;
+                return i;
+            }
+        }
+    }
+
+    PadStop();
+    ResetGraph(1);
+    StopCallback();
+    SystemError('a', 1);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleMovementRegister);
 
