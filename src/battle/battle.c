@@ -664,7 +664,7 @@ void BattleEnableLimitToPlayerWithoutSpeed(s32 arg0) {
 
     temp_v0 = arg0 * 0x44;
     *(u16*)((u8*)&g_CombatantTurnState[0].limitTimeFlags + temp_v0) &= 0xFFFE;
-    *(u8*)((u8*)&g_CombatantTurnState[0].unkE + temp_v0) |= 1;
+    *(u8*)((u8*)&g_CombatantTurnState[0].LimitBreakFlags + temp_v0) |= 1;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4F60);
@@ -958,13 +958,13 @@ void func_800A6858(s32 arg0, s32 arg1) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A68FC);
 
-void func_800A6A3C(s32 arg0, s32 arg1) { g_CombatantTurnState[arg0].unkE |= arg1; }
+void func_800A6A3C(s32 arg0, s32 arg1) { g_CombatantTurnState[arg0].LimitBreakFlags |= arg1; }
 
 void func_800A555C();
 
 void func_800A6A70(s32 arg0) {
     func_800A555C();
-    g_CombatantTurnState[arg0].unkE |= 9;
+    g_CombatantTurnState[arg0].LimitBreakFlags |= 9;
 }
 
 void func_800A6AC4(void) {
@@ -1681,7 +1681,7 @@ void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
             D_800F4938[arg1] |= 1 << bounceTarget;
             func_800ACA24();
             entry = g_CurrentAction->unk200;
-            if (entry->unk34 & 0x40000) {
+            if (entry->StatusProtectionMask & 0x40000) {
                 D_800F4958 |= 1 << arg1;
             } else if (entry->unk28 != 0) {
                 entry->unk28--;

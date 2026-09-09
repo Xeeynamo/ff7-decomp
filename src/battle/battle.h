@@ -404,9 +404,9 @@ typedef struct {
     /* 0x04 */ u16 ATBtimeValue; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
     /* 0x06 */ s16 unk6;
     /* 0x08 */ s32 limitTimeFlags;
-    u8 unkC;
-    u8 unkD; // effect id of the equipped accessory (0xFF = none)
-    u8 unkE;
+    /* 0x0C */ u8 SenseTargetMask;
+    /* 0x0D */ u8 AccessoryEffectId; // effect id of the equipped accessory (0xFF = none)
+    /* 0x0E */ u8 LimitBreakFlags;
     u8 unkF;
     u8 unk10;
     u8 unk11;
@@ -423,11 +423,14 @@ typedef struct {
     u8 unk2B;
     s32 unk2C;
     s32 unk30;
-    s32 unk34;
-    s32 unk38;
+    /* 0x34 */ u32 StatusProtectionMask;
+    /* 0x38 */ u8 *Name;
     /* 0x3C */ u16 curHP;
     /* 0x3E */ u16 curMP;
-    s32 unk40;
+    /* 0x40 */ u8 unk40;
+    /* 0x41 */ u8 unk41;
+    /* 0x42 */ u8 unk42;
+    /* 0x43 */ u8 unk43;
 } CombatantTurnState; // 0x44
 
 /* one battle-usable item in the in-battle item list (built from the inventory

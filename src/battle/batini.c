@@ -192,7 +192,7 @@ void BattleInitPartyFromSavemap(void) {
                     turn->curHP = combatant->curHP;
                     turn->curMP = combatant->curMP;
                     BattleInitCharStats(characterData, party, combatant);
-                    turn->unk34 = characterData->immuneStatuses;
+                    turn->StatusProtectionMask = characterData->immuneStatuses;
                     setup->attackElement = characterData->weapon.attackElement | characterData->physicalAttackElements;
                     setup->attackStatusMask = characterData->physicalAttackStatuses;
                     setup->hitChance = characterData->weapon.attackPercent;
@@ -388,45 +388,45 @@ extern u8 D_80071C29[][0x10]; // accessory table, 0x10 stride
 // equipped one granted is cleared first, then the new accessory's permanent
 // status is ORed into the combatant, its turn state and the party record.
 void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
-    CombatantTurnState* t;
+    CombatantTurnState* turn;
     BattlePartyWork* party;
-    BattleUnit* c;
+    BattleUnit* combatant;
     u8 effect;
 
-    t = &g_CombatantTurnState.turn[slot];
+    turn = &g_CombatantTurnState.turn[slot];
     party = &g_CombatantTurnState.party[slot];
-    c = &g_BattleState.combatant[slot];
-    c->status &= ~party->accessoryStatusMask;
-    t->unk34 &= ~party->accessoryStatusMask;
+    combatant = &g_BattleState.combatant[slot];
+    combatant->status &= ~party->accessoryStatusMask;
+    turn->StatusProtectionMask &= ~party->accessoryStatusMask;
     party->accessoryStatusMask = 0;
-    t->unkD = 0xFF;
+    turn->AccessoryEffectId = 0xFF;
     if (accessory != 0xFF) {
         effect = D_80071C29[accessory][0];
-        t->unkD = effect;
+        turn->AccessoryEffectId = effect;
         switch (effect) {
         case 0:
-            c->status |= STATUS_HASTE;
-            t->unk34 |= STATUS_HASTE;
+            combatant->status |= STATUS_HASTE;
+            turn->StatusProtectionMask |= STATUS_HASTE;
             party->accessoryStatusMask |= STATUS_HASTE;
             break;
         case 1:
-            c->status |= STATUS_BERSERK;
-            t->unk34 |= STATUS_BERSERK;
+            combatant->status |= STATUS_BERSERK;
+            turn->StatusProtectionMask |= STATUS_BERSERK;
             party->accessoryStatusMask |= STATUS_BERSERK;
             break;
         case 2:
-            c->status |= STATUS_D_SENTENCE;
-            t->unk34 |= STATUS_D_SENTENCE;
+            combatant->status |= STATUS_D_SENTENCE;
+            turn->StatusProtectionMask |= STATUS_D_SENTENCE;
             party->accessoryStatusMask |= STATUS_D_SENTENCE;
-            t->unk12 = 0xFF;
+            turn->unk12 = 0xFF;
             break;
         case 3:
-            c->status |= STATUS_REFLECT;
-            t->unk34 |= STATUS_REFLECT;
+            combatant->status |= STATUS_REFLECT;
+            turn->StatusProtectionMask |= STATUS_REFLECT;
             party->accessoryStatusMask |= STATUS_REFLECT;
             break;
         case 6:
-            c->status |= STATUS_BARRIER | STATUS_M_BARRIER;
+            combatant->status |= STATUS_BARRIER | STATUS_M_BARRIER;
             party->accessoryStatusMask |= STATUS_BARRIER | STATUS_M_BARRIER;
             break;
         }
@@ -448,7 +448,7 @@ s32 BattleInitApplyStartFX(s32 slot) {
     s32 ret;
     s32 i;
 
-    mask = g_CombatantTurnState.turn[slot].unk34;
+    mask = g_CombatantTurnState.turn[slot].StatusProtectionMask;
     g_BattleState.combatant[slot].status &= ~STATUS_D_SENTENCE;
     ret = 0;
     if (g_CombatantTurnState.turn[slot].unk29 & 8) {
