@@ -2332,8 +2332,8 @@ int func_800B0B8C();
 int func_800B0910();
 void func_800B089C(void);
 int (* const D_800A04E0[])() = {
-    func_800B0378, func_800B062C, (void*)BATTLE_RollPhysicalHit, func_800B0B8C,
-    func_800B0B8C, func_800B0B8C, func_800B0910,                 (void*)func_800B089C,
+    func_800B0378, func_800B062C, (void*)BATTLE_RollPhysicalHit, func_800B0B8C, func_800B0B8C,
+    func_800B0B8C, func_800B0910, (void*)func_800B089C,
 };
 // ___end
 
@@ -2569,8 +2569,8 @@ s32 func_800B0EB4(s32 arg0) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0F04);
 
 void func_800B0FFC(s32 arg0, s32 arg1, s32 arg2, s16* arg3) {
-    func_800A31A0(arg0, 2, arg2,
-        BATTLE_ExpandScriptToBuffer((u8*)SysGetPtrToUncompKernBattleTxtWithId(arg1), arg3) + 0x100);
+    func_800A31A0(
+        arg0, 2, arg2, BATTLE_ExpandScriptToBuffer((u8*)SysGetPtrToUncompKernBattleTxtWithId(arg1), arg3) + 0x100);
 }
 
 void func_800B1060(s32 arg0) { func_800A31A0(10, 2, 1, arg0); }

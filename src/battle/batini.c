@@ -706,9 +706,7 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     i = scenePackBuffer[formationIndex];
     src = &scenePackBuffer[i];
     dst = (u_long*)&scene;
-    Unzip(          
-        (u8*)src,   
-        (u8*)dst);  
+    Unzip((u8*)src, (u8*)dst);
     formationIndex = sceneID - sceneChunkID * 4;
     SysMemCopy32(D_8016360C.enemyModelIDs, scene.enemyModelIDs, sizeof(scene.enemyModelIDs));
     SysMemCopy32((s32*)&D_8016360C.setup, &scene.setup[formationIndex], sizeof(BattleSetup));
