@@ -295,7 +295,7 @@ typedef struct {
 } BattleModelSub; // size:0x34
 
 typedef struct {
-    /* 0x000 */ s16 D_801518E4;
+    /* 0x000 */ s16 animationBlockId;
     /* 0x002 */ s16 animationId;
     /* 0x004 */ s16 actionId;
     /* 0x006 */ s16 modelScale;
@@ -349,7 +349,7 @@ typedef struct {
     /* 0x078 */ u8 unk5C[0xC8];
     /* 0x140 */ MATRIX m;
     /* 0x160 */ SVECTOR rootRotation;
-    /* 0x168 */ SVECTOR D_80151A4C;
+    /* 0x168 */ SVECTOR rootTranslation;
     /* 0x170 */ s32 CameraMatrix;
     /* 0x174 */ BattleModelSub D_80151A58[50];
 } BattleModel; // size:0xB9C

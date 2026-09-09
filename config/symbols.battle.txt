@@ -254,3 +254,5 @@ g_IsMutiBattle = 0x8016376C;
 g_CharacterMask = 0x8016376E;
 D_80163798 = 0x80163798; // size:0x300
 D_80163C80 = 0x80163C80; // size:0xC
+
+//g_battleModel = 0x801518E4
