@@ -935,9 +935,9 @@ static void BattleMovementUpdate(void) {
         callback = D_80163B48[D_801590D0];
         if (callback) {
             callback();
-            if (D_801620AC[D_801590D0].D_801621AC == -1) {
-                D_801620AC[D_801590D0].D_801621AC = 0;
-                D_801620AC[D_801590D0].D_801621AE = 0;
+            if (D_801620AC[D_801590D0].D_801620AC == -1) {
+                D_801620AC[D_801590D0].D_801620AC = 0;
+                D_801620AC[D_801590D0].D_801620AE = 0;
                 D_80163B48[D_801590D0] = NULL;
                 D_80163B7C--;
             }

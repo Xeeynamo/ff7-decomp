@@ -31,22 +31,22 @@ typedef struct {
 } Unk800A2F4C; // size: 0xC (confirmed by D_80163A98 - D_80163798 == 0x40 * 0xC)
 
 typedef struct {
-    s16 D_801621AC;
-    s16 D_801621AE;
-    s16 D_801621B0;
-    s16 D_801621B2;
-    s16 D_801621B4;
-    s16 D_801621B6;
-    s16 unk8;
-    s16 unkA;
-    s32 unkC;
-    s32 unk10;
-    u8 unk14;
-    u8 unk15;
-    u8 unk16;
-    u8 unk17;
-    s16 unk18;
-    s16 unk1A;
+    /* 0x00 */ s16 D_801620AC;
+    /* 0x02 */ s16 D_801620AE;
+    /* 0x04 */ s16 D_801620B0;
+    /* 0x06 */ s16 D_801620B2;
+    /* 0x08 */ s16 D_801620B4;
+    /* 0x0A */ s16 D_801620B6;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ u8 unk18;
+    /* 0x19 */ u8 unk19;
+    /* 0x1A */ u8 unk1A;
+    /* 0x1B */ u8 unk1B;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
 } Unk801620AC; // size:0x20
 
 typedef struct {
