@@ -25,7 +25,7 @@ void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
 void FieldWindowResetTextAll(void);
 void SetStrToDebugRow(s32 page, s16 row, const char* str);
 void FieldDebugStringCopy(char* dst, const char* src);
-void FieldDebugStringConcat(char* dest, char* src);
+void FieldDebugStringConcat(char* dest, const char* src);
 void InitFieldDebugPages(void);
 void FieldEventClearAkaoStruct(void);
 void FieldWindowResetAll(void);

@@ -70,7 +70,7 @@ s32 SysGzipPackDecompressById(u8* src, void* dst, s32 type) {
     return size;
 }
 
-void SysGzipBinDecompress(GzHeader* src, s32* dst) {
+void SysGzipBinDecompress(GzHeader* src, u8* dst) {
     s32 i;
     s32* var_s1;
     u32 len;
@@ -78,8 +78,8 @@ void SysGzipBinDecompress(GzHeader* src, s32* dst) {
 
     unk4 = src->unk4;
     len = src->len;
-    Unzip(src + 1, dst);
-    var_s1 = &dst[len >> 2];
+    Unzip((u8*)(src + 1), (u8*)dst);
+    var_s1 = (s32*)&dst[(len >> 2) << 2];
     unk4 = (u32)unk4 >> 2;
     for (i = 0; i < unk4; i++) {
         var_s1[i] = 0;

@@ -1,5 +1,10 @@
 #include <game.h>
 
+#define NUM_PARTY (3)
+#define START_ENEMY (NUM_PARTY + 1)
+#define NUM_ENEMY (6)
+#define NUM_BATTLE_ACTOR (START_ENEMY + NUM_ENEMY)
+
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleFlags.cs#L4
 typedef enum {
     SETUP_CANNOT_ESCAPE = 4,
@@ -128,7 +133,7 @@ typedef struct {
     /* 0x026 */ u16 unk26;       // D_800F83D2
     /* 0x028 */ u16 unk28;       // D_800F83D4
     /* 0x02A */ u8 unk2A[0xA];   // D_800F83D8..D_800F83DC
-    /* 0x034 */ BattleUnit combatant[10];
+    /* 0x034 */ BattleUnit combatant[NUM_BATTLE_ACTOR];
 } BattleState; // size:0x444
 
 typedef struct {
@@ -234,7 +239,7 @@ typedef struct {
     /* 0x00 */ u16 enemyModelIDs[4];
     /* 0x08 */ BattleSetup setup;
     /* 0x1C */ CameraPlacement camera[4];
-    /* 0x4C */ FormationEntry formation[6];
+    /* 0x4C */ FormationEntry formation[NUM_ENEMY];
 } Unk8016360C; // size:0xAC
 
 typedef struct {
@@ -456,8 +461,8 @@ typedef struct {
     /* 0x32 */ u16 unk32;
 } BattlePartyWork; // size:0x34
 
-extern u16 D_800F5BBC[10][0x22];
-extern BattlePartyWork g_BattlePartyWork[3];
+extern u16 D_800F5BBC[NUM_BATTLE_ACTOR][34];
+extern BattlePartyWork g_BattlePartyWork[NUM_PARTY];
 extern Unk800F5F44 D_800F5F44;
 extern s8 D_800F6936[0x40][8];
 extern u8 D_800F83A8;
@@ -471,19 +476,10 @@ extern short D_80162080;
 extern Unk8016360C D_8016360C;
 extern u16 D_8016376A;
 
-// battle.c
 int BattleEffectRegister(void (*func)(void));
-
-// battle2.c
 void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void* func_800D29D4(Unk801B0C98*, u_long**, int, void*);
-// Build the model matrix for a battle effect: `scale` goes on the matrix
-// diagonal, `pos` is transformed into view space to become the translation,
-// and `depthBias` nudges it along that view vector (negative pulls it toward
-// the camera). Leaves the result installed as the rot/trans matrix.
 void func_800D4368(SVECTOR* pos, s32 scale, s32 depthBias);
-// Same descriptor layout as func_800D29D4 (offsets 0/4/8/A), different
-// renderer; callers that colour the model type offset 4 as a CVECTOR.
 void* func_800D4D90(void* desc, u_long** ot, int otLen, void* prim);
 void func_800D5444(int, int, int, void (*func)(int));
 void BattleCommandSend(s32 cmdId, ...);
@@ -493,3 +489,5 @@ void MagicAnimationRegister(s32 targetMask, s32 arg1, s32 frameStep, void (*func
 s32 BattlePositionToStereoPan(SVECTOR* sv);
 s32 BattleEntityGetStereoPan(s32 arg0);
 void func_800D5774(u32 targetIndex);
+void BATTLE_RunFrame(void);
+void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);

@@ -688,7 +688,7 @@ s32 func_800E1A2C(void) {
     s32 i;
     s32 off;
 
-    for (i = 0, off = 0; i < 3; i++, off += 0x440) {
+    for (i = 0, off = 0; i < NUM_PARTY; i++, off += 0x440) {
         if (D_8009CBDC[i] == 0) {
             s16 val1 = *(s16*)((u8*)D_8009D85C + off);
             s16 val2 = *(s16*)((u8*)D_8009D85E + off);
@@ -869,7 +869,7 @@ static s32 func_800E5F30() {
     s32 i;
     s32 ret;
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         if (D_8009CBDC[i] != 0xFF) {
             ret = D_8009CBDC[i];
         }
@@ -882,7 +882,7 @@ static s32 func_800E5F70(void) {
     s32 i;
     s32 ret;
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         if (D_8009CBDC[i] != 0xFF) {
             ret = i;
         }

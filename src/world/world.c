@@ -11,6 +11,18 @@ void WmCreateShadowPacket(POLY_FT4*, RECT*);
 static s32 func_800B716C(void);
 static s32 func_800B7B2C(void);
 s32 func_800B7B3C(void);
+void RegisterChunksForNode(WorldListNode* arg0);
+void WmAbortMapLoading(void);
+void func_800A9064(s16 x, s16 z);
+s32 WmAddMutexPriority(s16 arg0);
+void func_800AF1A8(u32 arg0, s32 arg1);
+s16 func_800AF9A0(VECTOR* arg0);
+void WmSetFadeIn(s32 arg0, s32 arg1);
+void WmSetFadeOut(s32 arg0, s32 arg1);
+void WmAbortModelLoading(void);
+s32 WmDialogSetWindowToCloseIfPossible(s16 window);
+void WmDialogSetPosAndSize(s16 window, s16 x, s16 y, s16 width, s16 height);
+s32 WmDialogSetMessageToShow(u8 window, u8 message);
 void WmDialogReset(s16 window);
 void WmDialogPlaySound(void);
 s32 WmDialogInitWindow(s16 window, s16 stringId);
@@ -892,7 +904,7 @@ void func_800A6BCC(SVECTOR* arg0) {
     }
 }
 
-void func_800A6C00(s32 arg0) {
+void func_800A6C00(SVECTOR* arg0) {
     if (func_800A1DB0() != 2)
         WmSetTranslationVectorInScreenSpace(arg0);
 }
@@ -1291,7 +1303,7 @@ void WmInitActiveEntityStruct(s32 arg0) {
             rect.h = 0xF;
             D_8010AD3C->unk58 = 0x20;
         }
-        WmCreateShadowPacket(D_8010AD3C->unk90, &rect);
+        WmCreateShadowPacket((POLY_FT4*)D_8010AD3C->unk90, &rect);
         WmRestoreEntityPosAndDirFromSavemap(D_8010AD3C);
     }
 }
@@ -1560,13 +1572,13 @@ WorldActor* FindCollidingActor(WorldActor* arg0) {
     return rc < 2 ? hit : NULL;
 }
 
-s32 func_800AA640(void) {
-    WorldActor* temp_v0;
+WorldActor* func_800AA640(void) {
+    WorldActor* actor;
 
-    temp_v0 = FindCollidingActor(D_8010AD3C);
-    if (temp_v0 != NULL)
+    actor = FindCollidingActor(D_8010AD3C);
+    if (actor)
         func_800AA1B8();
-    return temp_v0;
+    return actor;
 }
 
 WorldActor* func_800AA684(void) { return D_8010AD3C != NULL ? D_8010AD3C->collide : NULL; }
@@ -2977,7 +2989,7 @@ void ResetEffectState(void) {
     *(s16*)0x1F800012 = 0x32;
     *(s16*)0x1F800014 = 0;
     *(s16*)0x1F800020 = 0;
-    WmGetPosFromPcEntity(0x1F800000);
+    WmGetPosFromPcEntity((VECTOR*)0x1F800000);
     *(s16*)0x1F80001C = 0;
     *(s16*)0x1F80001A = 0;
     *(s16*)0x1F800018 = 0;
@@ -4543,7 +4555,7 @@ void WmScriptPushToStoreStack(u8 arg0) {
     s8* temp_v1;
 
     temp_v1 = D_801163E8;
-    if (temp_v1 < &D_801163E8) {
+    if (temp_v1 < (s8*)&D_801163E8) {
         D_801163E8 = temp_v1 + 1;
         *temp_v1 = arg0;
     }

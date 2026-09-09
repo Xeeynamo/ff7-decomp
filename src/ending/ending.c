@@ -112,6 +112,7 @@ void func_800A3368(EndingSprite*);
 void func_800A343C(EndingSprite*);
 void* func_800A358C(void*, s32, void*, void*);
 void func_800A0E68(void);
+static void func_800A34C4(EndingSprite* spr);
 
 s32 func_80048540(s32);
 EndingNode* func_800A3314(s16);
@@ -936,7 +937,7 @@ void func_800A343C(EndingSprite* spr) {
     }
 }
 
-void func_800A34C4(EndingSprite* spr) {
+static void func_800A34C4(EndingSprite* spr) {
     u16 count;
 
     if (!(spr->flags & 2)) {

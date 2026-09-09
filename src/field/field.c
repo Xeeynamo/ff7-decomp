@@ -2,7 +2,7 @@
 #include <game.h>
 #include <libetc.h>
 
-typedef struct FieldRenderData {
+struct FieldRenderData {
     OT_TYPE ot[0x1000];   // 0x00000: Main scene ordering table
     SPRT_16 Arrows[0x18]; // 0x04000: Field arrow sprite packets
     DR_MODE ArrowsDm;     // 0x04180: Arrow sprite draw mode
@@ -52,7 +52,7 @@ void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
 void FieldWindowResetTextAll(void);
 void SetStrToDebugRow(s32 page, s16 row, const char* str);
 void FieldDebugStringCopy(char* dst, const char* src);
-void FieldDebugStringConcat(char* arg0, char* arg1);
+void FieldDebugStringConcat(char* arg0, const char* arg1);
 
 /////////////////////////////////////////////////
 // Begin of field_main.c
@@ -79,11 +79,11 @@ extern s32* g_FieldEncountersP;
 extern u32 g_FieldLzsInfo[];
 
 void FieldLoadMimDatFiles(void) {
-    s32 temp;
+    s32* temp;
 
     if (g_isFieldLoading == 0) {
         SysCdromStartLoadLzs(g_FieldLzsInfo[g_CurrentFieldIndex * 6], g_FieldLzsInfo[g_CurrentFieldIndex * 6 + 1],
-                             (u32*)0x80128000, NULL);
+                             (u_long*)0x80128000, NULL);
         while (SystemCdromReadChain() != 0) {
         }
     } else {
@@ -92,14 +92,14 @@ void FieldLoadMimDatFiles(void) {
         SystemLzsDecompress((void*)0x801B0000, (void*)0x80128000);
     }
     SysCdromStartLoadLzs(((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6],
-                         ((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6 + 1], (u32*)0x80114FE4, NULL);
+                         ((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6 + 1], (u_long*)0x80114FE4, NULL);
     while (SystemCdromReadChain() != 0) {
     }
     g_FieldTriggers = *g_FieldTriggersP;
     g_FieldEncounters = *g_FieldEncountersP;
     temp = *g_FieldModelsP;
     D_8007E770 = temp;
-    g_FieldModelLoaderData = temp + 4;
+    g_FieldModelLoaderData = (FieldModelLoaderData*)++temp;
 }
 
 void StopFieldMapPreload(void) {
@@ -408,8 +408,8 @@ void FieldRainAddToRender(u32* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainD
     for (i = 0, j = 0; i < LEN(g_FieldRain); i++) {
         // 12 * sizeof(s16) = 24 bytes (0x18), the exact size of FieldRain
         if (D_800E42EE[i][0] == 1) {
-            RotTransPers(&g_FieldRain[i].p1, &rain->x0, &p, &flag);
-            RotTransPers(&g_FieldRain[i].p2, &rain->x1, &p, &flag);
+            RotTransPers(&g_FieldRain[i].p1, (long*)&rain->x0, &p, &flag);
+            RotTransPers(&g_FieldRain[i].p2, (long*)&rain->x1, &p, &flag);
             AddPrim(ot, rain);
         }
         rain++;

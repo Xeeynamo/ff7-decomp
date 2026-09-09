@@ -125,7 +125,7 @@ static void RemoveMasteredMateria(s32 materiaId) {
 
     materiaId |= 0xFFFFFF00;
 
-    for (i = 0; i < MAX_PARTY_COUNT; i++) {
+    for (i = 0; i < NUM_CHARACTERS; i++) {
         if ((Savemap.phs_visibility_mask >> i) & 1) {
             for (j = 0; j < 8; j++) {
                 if (Savemap.party[i].materia_weapon[j] == materiaId) {
@@ -159,7 +159,7 @@ static s32 PartyHasMasteredMateria(s32 materiaId) {
     u32 materia;
     u32 ap;
 
-    for (i = 0; i < MAX_PARTY_COUNT; i++) {
+    for (i = 0; i < NUM_CHARACTERS; i++) {
         if ((Savemap.phs_visibility_mask >> i) & 1) {
             for (j = 0; j < 8; j++) {
                 materia = Savemap.party[i].materia_weapon[j];
