@@ -198,7 +198,6 @@ s32 func_800B7200();
 void WmSetFieldToLoad(s32);
 void func_800B77A8(s32);
 s32 WmGetPcCharModelIdFromParty();
-void WmScriptSetFirstToStoreStack(s32);
 static void func_800B7C44(void);
 s32 func_800B7C7C();
 void func_800B7838();

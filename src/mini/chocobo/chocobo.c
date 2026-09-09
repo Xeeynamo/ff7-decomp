@@ -11,10 +11,10 @@ typedef struct {
 
 extern UnkRectData D_800A0020;
 extern UnkRectData D_800A0028;
-extern u32 D_80079F64;
-extern u32 D_8007AF64;
-extern u32 D_8007BF64;
-extern u32 D_8007C764;
+extern u_long D_80079F64;
+extern u_long D_8007AF64;
+extern u_long D_8007BF64;
+extern u_long D_8007C764;
 extern s32 D_800B7598;
 extern s32 D_800F507C;
 extern s32* D_800F5084;
@@ -64,21 +64,21 @@ void func_800A272C(s32 arg0, s32 arg1) {
     sp18 = *(RECT*)&D_800A0028;
 
     if (arg0 != 0) {
-        SysCdromStartLoadLzs(0x3C1, 0x20000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x3C1, 0x20000, (u_long*)0x80110000, 0);
     } else {
-        SysCdromStartLoadLzs(0x32C, 0x20000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x32C, 0x20000, (u_long*)0x80110000, 0);
     }
 
     while (SystemCdromReadChain() != 0) {
     }
 
-    LoadImage(&sp10, (u32*)0x80110000);
+    LoadImage(&sp10, (u_long*)0x80110000);
     DrawSync(0);
 
     if (arg0 != 0) {
-        SysCdromStartLoadLzs(0x3F1, 0x1E000, (u32*)0x80190000, 0);
+        SysCdromStartLoadLzs(0x3F1, 0x1E000, (u_long*)0x80190000, 0);
     } else {
-        SysCdromStartLoadLzs(0x3CE, 0x1E800, (u32*)0x80190000, 0);
+        SysCdromStartLoadLzs(0x3CE, 0x1E800, (u_long*)0x80190000, 0);
     }
 
     while (SystemCdromReadChain() != 0) {
@@ -86,29 +86,29 @@ void func_800A272C(s32 arg0, s32 arg1) {
 
     switch (arg1) {
     case 0:
-        SysCdromStartLoadLzs(0x459, 0x30000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x459, 0x30000, (u_long*)0x80110000, 0);
         break;
     case 1:
-        SysCdromStartLoadLzs(0x433, 0x30000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x433, 0x30000, (u_long*)0x80110000, 0);
         break;
     case 2:
-        SysCdromStartLoadLzs(0x417, 0x30000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x417, 0x30000, (u_long*)0x80110000, 0);
         break;
     case 3:
-        SysCdromStartLoadLzs(0x49C, 0x30000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x49C, 0x30000, (u_long*)0x80110000, 0);
         break;
     }
 
     while (SystemCdromReadChain() != 0) {
     }
 
-    LoadImage(&sp18, (u32*)0x80110000);
+    LoadImage(&sp18, (u_long*)0x80110000);
     DrawSync(0);
 
     if (arg0 != 0) {
-        SysCdromStartLoadLzs(0x33E, 0x6A000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x33E, 0x6A000, (u_long*)0x80110000, 0);
     } else {
-        SysCdromStartLoadLzs(0x293, 0x7D000, (u32*)0x80110000, 0);
+        SysCdromStartLoadLzs(0x293, 0x7D000, (u_long*)0x80110000, 0);
     }
 
     while (SystemCdromReadChain() != 0) {

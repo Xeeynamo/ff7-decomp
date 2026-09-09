@@ -582,10 +582,6 @@ static void func_800BB030(s16 arg0);
 void func_800BB2A8(u8);
 void func_800BB9B8(s32);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
-static void func_800C0480(s16);
-static void func_800C0630(s16);
-static void func_800C0970(s16);
-static void func_800C0B20(s16);
 static void func_800C1908(u8 arg0);
 void func_800C5E94(void);
 void func_8002DF88(s16*);
@@ -602,6 +598,8 @@ void func_800E15D8(void);
 void func_800E5814(void);
 void func_800E6B94(void);
 void BATTLE_EnqueueLoadImage(RECT* rect, u_long* ptr);
+void func_800A56B0(s16 arg0);
+void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 /* battle menu widget block (one per widget id, 0x240 apart) -- partial */
 typedef struct {

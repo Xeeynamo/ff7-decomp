@@ -2,10 +2,7 @@
 #include "main_private.h"
 #include "unzip.h"
 
-void SysGzipSetDataBlock(u8* arg0);
 u8* func_80014C80(s32 arg0);
-u16 SysGzipGetType(void);
-u16 SysGzipGetSize(void);
 extern u8 g_KernRndTable[];
 
 extern u8 D_80062D98;
@@ -50,7 +47,6 @@ void SysMemCopy32(s32* dst, s32* src, s32 len);
 u16* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
 s32 SysDecompKernStringWithF9(u16*, u16*);
 u16* SysGetPtrToKernBattleTxtWithId(s32);
-void SysGzipBinDecompress(GzHeader* src, s32* dst);
 s32 SysGetMateriaActivatedStars(u8, s32);
 void SysAddCommandToTemp(s32);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
@@ -128,14 +124,14 @@ void SysFieldRun(void) {
                     break;
                 }
             }
-            SysGzipBinDecompress((GzHeader*)0x80180000, (s32*)0x800A0000);
+            SysGzipBinDecompress((GzHeader*)0x80180000, (u8*)0x800A0000);
         } else {
             while (1) {
                 if (SystemCdromReadChain() == 0) {
                     break;
                 }
             }
-            SysGzipBinDecompress((GzHeader*)0x801C0000, (s32*)0x800A0000);
+            SysGzipBinDecompress((GzHeader*)0x801C0000, (u8*)0x800A0000);
         }
     }
     func_800CF60C();

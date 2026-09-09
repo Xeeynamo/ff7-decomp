@@ -1019,7 +1019,7 @@ static void func_800D41FC(MATRIX* arg0, MATRIX* arg1, MATRIX* arg2) {
     arg2->t[1] = arg1->t[1] - arg0->t[1];
     arg2->t[2] = arg1->t[2] - arg0->t[2];
     TransposeMatrix(arg0, arg2);
-    ApplyMatrixLV(arg2, arg2->t, arg2->t);
+    ApplyMatrixLV(arg2, (VECTOR*)arg2->t, (VECTOR*)arg2->t);
     MulMatrix(arg2, arg1);
 }
 
@@ -1047,7 +1047,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D491C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4A64);
 
-static void func_800D4D6C(s32 arg0, s32 arg1, s32 arg2);
+static void func_800D4D6C(void* arg0, s32 arg1, s32 arg2);
 void func_800D4C08(void* arg0, s32 arg1, s32 arg2, s32 arg3);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4C08);
 
@@ -1060,7 +1060,7 @@ void func_800D4CBC(s32 arg0, s32 arg1, s32 arg2) {
 
 static void func_800D4D4C(s32 arg0, s32 arg1) { func_800D4CBC(arg0, arg1, 0x1000); }
 
-static void func_800D4D6C(s32 arg0, s32 arg1, s32 arg2) { func_800D4C08(arg0, arg1, 0x1000, arg2); }
+static void func_800D4D6C(void* arg0, s32 arg1, s32 arg2) { func_800D4C08(arg0, arg1, 0x1000, arg2); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4D90);
 
@@ -1153,8 +1153,6 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleEntityGetCenter);
 
 s32 func_800D55A4(s32 arg0) { return (D_801518E4[arg0].unk12 * 0x10) * D_801518E4[arg0].D_801518EA >> 0xC; }
 
-void SystemAkaoExecute(void*, s32, s32, void**);
-
 // Generic AKAO sound-command dispatcher: the first vararg's low 16 bits are
 // the command id, which selects how many trailing u32 params get copied into
 // the D_8009A004 queue before calling SystemAkaoExecute.
@@ -1189,7 +1187,7 @@ void BattleCommandSend(s32 cmdId, ...) {
             *dst++ = *src++;
         }
     }
-    SystemAkaoExecute(dst, count, nExtra, args);
+    SystemAkaoExecute();
 }
 
 // Project a point through the current view matrix and convert its clamped

@@ -834,7 +834,7 @@ typedef struct {
     u16 unk40;
     u8 unk42;
     u8 unk43;
-    u32 nextBattleMusic;
+    u8* nextBattleMusic;
     u32 nextFieldMusic;
     // Set by FADE or NFADE to start fades.
     u16 fadeType; // enum FieldFadeType.
@@ -1028,7 +1028,7 @@ extern s16 g_isFieldLoading;
 extern volatile s16 D_800965EC;
 extern u8 D_80099FFC;
 extern s16 D_8009A000[1];
-extern u32 D_8009A004[1];
+extern u_long D_8009A004[1]; // may be a u8*
 extern s32 D_8009A008[1];
 extern s32 D_8009A00C;
 extern s32 D_8009A024[8];
@@ -1091,7 +1091,7 @@ void SysMenuSetCursorMovement(
 void SysMenuSetPoly(void* poly);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
-int SystemAkaoExecute();
+void SystemAkaoExecute(void);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);
@@ -1101,6 +1101,9 @@ int func_80033EDC(int sector_no, void (*cb)());
 int SysCdromLoadFile(int sector_no, size_t size, u_long* dst, void (*cb)());
 int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)());
 u32 SystemCdromReadChain(void);
+s32 SysGetLimitCmdId(s32 charId, s32 limitIndex);
+u8* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2);
+u8* SysGetPtrToKernBattleTxtWithId(s32 arg0);
 
 // from overlays
 extern u8 SavedScriptIds[48][8]; // script ids of latest queued scripts

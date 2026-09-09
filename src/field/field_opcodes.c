@@ -61,7 +61,7 @@ s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId);
 void DebugPrintToFieldWindow(const char* str);
 void FieldEventDebugError(const char* errmsg);
 void FieldDebugStringCopy(char* dst, const char* src);
-void FieldDebugStringConcat(char* dest, char* src);
+void FieldDebugStringConcat(char* dest, const char* src);
 void FieldDebugStringU8hex(s32 val, char* msg_out);
 void FieldDebugStringU16hex(s32 val, char* msg_out);
 void FieldDebugStringU32hex(s32 val, char* msg_out);
@@ -2261,7 +2261,7 @@ s32 SetAndApplyAkao(void) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("music=", akaoId, 2);
         }
-        *D_8009A004 = (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
+        *D_8009A004 = (u_long)g_FieldScripts + GetAkaoBlockOffset(akaoId);
         g_pFieldState->nextFieldMusic = *D_8009A004;
         SystemAkaoExecute();
     }
@@ -2273,7 +2273,7 @@ static u32 GetAkaoBlockOffset(s16 akaoId) {
     s32 akaoData;
     u32 akaoOffset;
 
-    akaoData = akaoId * 4 + g_FieldScripts->numEntities * 8 + (s32)g_FieldScripts;
+    akaoData = akaoId * 4 + g_FieldScripts->numEntities * 8 + (u_long)g_FieldScripts;
     akaoOffset = ((u8*)akaoData)[sizeof(FieldScriptHeader)];
     akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 1] << 8;
     akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 2] << 16;
@@ -2292,7 +2292,7 @@ s32 OpcodeFuncBmusc(void) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("bmusic=", akaoId, 2);
         }
-        g_pFieldState->nextBattleMusic = (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
+        g_pFieldState->nextBattleMusic = (u8*)g_FieldScripts + GetAkaoBlockOffset(akaoId);
     } else {
         g_pFieldState->nextBattleMusic = 0;
     }
@@ -2311,7 +2311,7 @@ s32 OpcodeFuncFmusc(void) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("bmusic=", akaoId, 2);
         }
-        g_pFieldState->nextFieldMusic = (u8*)((s32)g_FieldScripts + GetAkaoBlockOffset(akaoId));
+        g_pFieldState->nextFieldMusic = (u8*)g_FieldScripts + GetAkaoBlockOffset(akaoId);
     } else {
         g_pFieldState->nextFieldMusic = 0;
     }

@@ -9,6 +9,7 @@ static void func_800B38E0(void);
 static void func_800B3D38(void);
 static void func_800B3D88(void);
 static void func_800B3DBC(void);
+static void func_800B3E2C(void);
 static s32 func_800B3FAC(s32 arg0);
 static void func_800B798C(void);
 static void func_800B7FDC(void);
@@ -131,7 +132,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B383C);
 static void func_800B38E0(void) {
     s32 i = D_800F7DF8[0];
 
-    SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, 0x801B0000, &func_800B3A04);
+    SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, &func_800B3A04);
     func_800B7FB4();
 }
 
@@ -1031,6 +1032,8 @@ static s16 func_800C03B8(s16 arg0, s16 arg1) {
 
 s32 func_800C03FC(s32 arg0, s32 arg1) { return arg0 < 0 ? -arg1 : arg1; }
 
+void func_800C0480(s16); // TODO: mark as static once decompiled
+void func_800C0630(s16); // TODO: mark as static once decompiled
 static void func_800C0410(void) {
     switch (D_800F7ED8[D_800F8360].D_800F7EDA) {
     case 0:
@@ -1047,6 +1050,8 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0480);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0630);
 
+void func_800C0970(s16); // TODO: mark as static once decompiled
+void func_800C0B20(s16); // TODO: mark as static once decompiled
 static void func_800C0900(void) {
     switch (D_800F7ED8[D_800F8360].D_800F7EDA) {
     case 0:

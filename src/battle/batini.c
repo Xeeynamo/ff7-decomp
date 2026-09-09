@@ -3,13 +3,15 @@
 
 extern Unk801B2308 D_80163624;
 extern u16 g_IsMutiBattle;
-void BATTLE_RunFrame(void); // battle callback for batini, move to battle.h
-void BattleInitEnemyAI(void);
 
 // entrypoint
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitMain);
 
 static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void));
+static void BattleInitEnemyAI(void);
+static void BattleInitPartyFromSavemap(void);
+static void BattleInitCharStats(ActiveCharacterData* character, BattlePartyWork* partyWork, BattleUnit* battleUnit);
+static void BattleInitFormation(void);
 void BattleInitSetup(s32 sceneID) {
     BattleUnit* unit;
     s32 i;
@@ -164,7 +166,7 @@ s32 BattleInitApplyStartFX(s32 slot);
 // Seeds the three live party slots from the save data: finds each slot's
 // party member record, copies HP/MP and the derived battle stats across, then
 // applies the equipped accessory, the command list and the row/limit setup.
-void BattleInitPartyFromSavemap(void) {
+static void BattleInitPartyFromSavemap(void) {
     BattlePartyWork* party;
     ActiveCharacterData* rec;
     BattleUnit* c;
@@ -471,7 +473,7 @@ s32 BattleInitApplyStartFX(s32 slot) {
     return ret;
 }
 
-void BattleInitCharStats(ActiveCharacterData* character, BattlePartyWork* partyWork, BattleUnit* battleUnit) {
+static void BattleInitCharStats(ActiveCharacterData* character, BattlePartyWork* partyWork, BattleUnit* battleUnit) {
     battleUnit->dexterity = character->dexterity;
     battleUnit->luck = character->luck;
     battleUnit->maxHP = character->baseHp;
@@ -506,7 +508,7 @@ void func_800B1060(s32);
 // start "turned around" (bit 0x80 of unk4) -- back attacks, side attacks and
 // pincers each split the party differently. Finally the front/back row bit is
 // re-derived for the three party slots.
-void BattleInitFormation(void) {
+static void BattleInitFormation(void) {
     u16 row[3];
     s32 enemyMask;
     s32 partyMask;
@@ -663,7 +665,7 @@ void BattleInitItemList(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitEnemyUnits);
 
-void BattleInitEnemyAI(void) {
+static void BattleInitEnemyAI(void) {
     s32 i;
 
     for (i = 0; i < 6; i++) {
@@ -686,9 +688,9 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     s32 scenePackID;
     s32 formationIndex;
     s32 i;
-    u_long* var_s2;
+    u_long* dst;
     s32* scenePackBuffer;
-    s32* var_s3_2;
+    s32* src;
 
     scenePackBuffer = (s32*)0x801C0000;
     sceneChunkID = sceneID / 4;
@@ -702,11 +704,11 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     func_800145BC(cb); // wait until all data is read, keep executing the vsync
                        // callback until then
     i = scenePackBuffer[formationIndex];
-    var_s3_2 = &scenePackBuffer[i];
-    var_s2 = (u_long*)&scene;
-    Unzip(        // gzip decompress
-        var_s3_2, // src
-        var_s2);  // dst
+    src = &scenePackBuffer[i];
+    dst = (u_long*)&scene;
+    Unzip(          
+        (u8*)src,   
+        (u8*)dst);  
     formationIndex = sceneID - sceneChunkID * 4;
     SysMemCopy32(D_8016360C.enemyModelIDs, scene.enemyModelIDs, sizeof(scene.enemyModelIDs));
     SysMemCopy32((s32*)&D_8016360C.setup, &scene.setup[formationIndex], sizeof(BattleSetup));

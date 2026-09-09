@@ -34,7 +34,7 @@ void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
 void FieldWindowReset(s16 window);
 void AddStrNextDebugRow(s32 val, const char* msg_out);
 void FieldDebugStringCopy(char* dst, const char* src);
-void FieldDebugStringConcat(char* dest, char* src);
+void FieldDebugStringConcat(char* dest, const char* src);
 void FieldDebugStringU8hex(s32 val, char* msg_out);
 void FieldDebugStringU16hex(s32 val, char* msg_out);
 void FieldDebugStringU32hex(s32 val, char* msg_out);
@@ -1285,7 +1285,7 @@ void FieldDebugStringCopy(char* dst, const char* src) {
     *dst = '\0';
 }
 
-void FieldDebugStringConcat(char* dest, char* src) {
+void FieldDebugStringConcat(char* dest, const char* src) {
     if (*dest != '\0') {
         while (*++dest != '\0') {
         }

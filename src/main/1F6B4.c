@@ -37,10 +37,9 @@ s32 D_80062ECC;
 
 void SysBgRender(void);
 void SysMemCopy32(s32* dst, s32* src, s32 len);
-u16* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
+u8* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
 s32 SysDecompKernStringWithF9(u16*, u16*);
-u16* SysGetPtrToKernBattleTxtWithId(s32);
-void SysGzipBinDecompress(GzHeader* src, s32* dst);
+u8* SysGetPtrToKernBattleTxtWithId(s32);
 s32 SysGetMateriaActivatedStars(u8, s32);
 s32 SysAddCommandToTemp(s32);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
