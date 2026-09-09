@@ -80,7 +80,7 @@ void BattleNormalStartSeq(void) {
             BattleUpdateRender();
             BattleEnemyInitBonesAndAnims();
             for (i = 4; i < D_800F7E04[0] + 4; i++) {
-                D_801518E4[i].D_80151922 |= 4;
+                D_801518E4[i].animationScriptFlags |= 4;
             }
             D_80163C7C = 2;
             break;
@@ -89,9 +89,9 @@ void BattleNormalStartSeq(void) {
             if ((u8)D_80166F64 == 3 && D_801518DC == 0) {
                 BattlePlayersInitBonesAndAnims();
                 D_80163C7C = 3;
-                D_801518E4[0].D_80151922 |= 4;
-                D_801518E4[1].D_80151922 |= 4;
-                D_801518E4[2].D_80151922 |= 4;
+                D_801518E4[0].animationScriptFlags |= 4;
+                D_801518E4[1].animationScriptFlags |= 4;
+                D_801518E4[2].animationScriptFlags |= 4;
             }
             break;
         case 3:
@@ -469,7 +469,7 @@ static void func_800B8268(void) {
         *var_a1 = D_801636B8[i].D_801636B9;
         if (!(D_80151200[i].D_8015120C & 8) && D_801518E4[i].animationId != *var_a1 &&
             D_801518E4[i].deathType == var_t1) {
-            D_801518E4[i].D_80151922 |= 1;
+            D_801518E4[i].animationScriptFlags |= 1;
             D_801518E4[i].animationId = *var_a1;
         }
         var_a1++;
@@ -551,7 +551,7 @@ static void func_800B85E0() {
         D_80163798[D_801590E0].unk8 = -3;
         BattleQueue1CameraInit();
         for (i = 0; i < 3; i++) {
-            D_801518E4[i].D_80151922 |= 0x20;
+            D_801518E4[i].animationScriptFlags |= 0x20;
             D_80151200[i].D_80151200 = D_801636B8[i].D_801636C0;
         }
     }
@@ -570,9 +570,9 @@ static void func_800B85E0() {
         i = 0;
         if (g_BattleMode & 8) {
             for (; i < 3; i++) {
-                D_801518E4[i].D_80151922 |= 1;
+                D_801518E4[i].animationScriptFlags |= 1;
                 D_801518E4[i].animationId = D_801636B8[i].D_801636B9;
-                D_801518E4[i].D_80151922 |= 0x20;
+                D_801518E4[i].animationScriptFlags |= 0x20;
                 D_80151200[i].D_80151200 = D_801636B8[i].D_801636C0;
             }
             D_800F9D9C = 100;
@@ -1138,14 +1138,14 @@ static void func_800C1908(u8 arg0) {
     u8 temp_s0;
 
     temp_s0 = arg0;
-    if (D_801518E4[temp_s0].D_80151922 & 0x20) {
+    if (D_801518E4[temp_s0].animationScriptFlags & 0x20) {
         if (temp_s0 < 4) {
             D_800F9F28[temp_s0] = D_801636B8[temp_s0].D_801636C0;
         }
         func_800C5170(temp_s0);
         func_800C5468(temp_s0);
         func_800C17A0(temp_s0, func_800C169C(temp_s0));
-        D_801518E4[temp_s0].D_80151922 &= 0xDF;
+        D_801518E4[temp_s0].animationScriptFlags &= 0xDF;
     }
     temp_a1 = arg0;
     if (D_80151200[temp_a1].D_80151235 == 0) {
@@ -1168,15 +1168,15 @@ static void func_800C1908(u8 arg0) {
         }
         if (D_80151200[temp_a1].D_80151200 & 0x40) {
             if (D_801518E4[temp_a1].animationId == D_80163784[temp_a1]) {
-                D_801518E4[temp_a1].unk160.vy += 0x100;
+                D_801518E4[temp_a1].rootRotation.vy += 0x100;
             }
         }
         var_a0 = arg0;
         if (D_80151200[var_a0].D_80151200 & 0x400000 && D_801518E4[var_a0].animationId == D_80163784[var_a0]) {
             if (D_801518E4[var_a0].defaultRotationX == 0) {
-                D_801518E4[var_a0].unk160.vy = 0x800;
+                D_801518E4[var_a0].rootRotation.vy = 0x800;
             } else {
-                D_801518E4[var_a0].unk160.vy = 0;
+                D_801518E4[var_a0].rootRotation.vy = 0;
             }
         }
         var_a0 = arg0;

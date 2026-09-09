@@ -327,11 +327,11 @@ typedef struct {
     /* 0x036 */ s16 D_8015191A;
     /* 0x038 */ s16 D_8015191C;
     /* 0x03A */ s8 D_8015191E;
-    /* 0x03B */ s8 D_8015191F;
-    /* 0x03C */ u8 D_80151920;
-    /* 0x03D */ s8 D_80151921;
-    /* 0x03E */ s8 D_80151922;
-    /* 0x03F */ s8 D_80151923;
+    /* 0x03B */ s8 animationScriptEnabled;
+    /* 0x03C */ u8 animationScriptPosition;
+    /* 0x03D */ s8 animationWaitFrames;
+    /* 0x03E */ s8 animationScriptFlags;
+    /* 0x03F */ s8 boneFlags;
     /* 0x040 */ s32 D_80151924;
     /* 0x044 */ s32 D_80151928;
     /* 0x048 */ s32 D_8015192C;
@@ -345,12 +345,12 @@ typedef struct {
     /* 0x068 */ s32 D_8015194C;
     /* 0x06C */ s32 D_80151950;
     /* 0x070 */ s32 D_80151954;
-    /* 0x074 */ s32 D_80151958;
+    /* 0x074 */ s32 animationInProgress;
     /* 0x078 */ u8 unk5C[0xC8];
     /* 0x140 */ MATRIX m;
-    /* 0x160 */ SVECTOR unk160;
+    /* 0x160 */ SVECTOR rootRotation;
     /* 0x168 */ SVECTOR D_80151A4C;
-    /* 0x170 */ s32 D_80151A54;
+    /* 0x170 */ s32 CameraMatrix;
     /* 0x174 */ BattleModelSub D_80151A58[50];
 } BattleModel; // size:0xB9C
 

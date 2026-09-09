@@ -259,9 +259,9 @@ static void BarrierAttachToTarget(int target) {
     BarrierData* barrier = &D_80162978[BattleEffectRegister(BarrierAnimationUpdate)];
 
     BattleGetPartPosition(target, D_801518E4[target].jointCount, &barrier->Pos);
-    barrier->Pos.vx -= (rsin(D_801518E4[target].unk160.vy) * D_801518E4[target].collisionRadius) >> 12;
-    barrier->Pos.vz -= (rcos(D_801518E4[target].unk160.vy) * D_801518E4[target].collisionRadius) >> 12;
-    barrier->Rot = D_801518E4[target].unk160;
+    barrier->Pos.vx -= (rsin(D_801518E4[target].rootRotation.vy) * D_801518E4[target].collisionRadius) >> 12;
+    barrier->Pos.vz -= (rcos(D_801518E4[target].rootRotation.vy) * D_801518E4[target].collisionRadius) >> 12;
+    barrier->Rot = D_801518E4[target].rootRotation;
     barrier->TargetIndex = target;
 }
 

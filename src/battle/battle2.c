@@ -46,9 +46,9 @@ static s32 BattleModelReadAnimIntoMatrix(s16 arg0, s16 nItems, u8* arg2) {
     s32 temp_v0;
 
     var_a0 = D_801518E4[arg0].D_80151A58;
-    var_a1 = D_801518E4[arg0].D_80151958;
-    D_801518E4[arg0].D_80151958 = BattleModelReadAnimStream(var_a0, var_a1, nItems, arg2);
-    return D_801518E4[arg0].D_80151958 == 0;
+    var_a1 = D_801518E4[arg0].animationInProgress;
+    D_801518E4[arg0].animationInProgress = BattleModelReadAnimStream(var_a0, var_a1, nItems, arg2);
+    return D_801518E4[arg0].animationInProgress == 0;
 }
 
 static void BattleWeaponReadAnimIntoMatrix(s16 arg0, s16 arg1, u8* arg2) {
@@ -61,8 +61,8 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD400);
 
 s16 func_800CD558(s16 arg0, u8* arg1) {
     u32 val;
-    val = arg1[D_801518E4[arg0].D_80151920++];
-    return (arg1[D_801518E4[arg0].D_80151920++] << 8) + val;
+    val = arg1[D_801518E4[arg0].animationScriptPosition++];
+    return (arg1[D_801518E4[arg0].animationScriptPosition++] << 8) + val;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD5E4);
@@ -81,9 +81,9 @@ static void func_800CD82C(void) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD860);
 
 static void BattleResetUnitAnimScript(s16 arg0) {
-    D_801518E4[arg0].D_8015191F = 1;
-    D_801518E4[arg0].D_80151920 = 0;
-    D_801518E4[arg0].D_80151921 = 0;
+    D_801518E4[arg0].animationScriptEnabled = 1;
+    D_801518E4[arg0].animationScriptPosition = 0;
+    D_801518E4[arg0].animationWaitFrames = 0;
 }
 
 void func_800CDDA4(void) {
@@ -357,7 +357,7 @@ static void func_800CF3CC(void) {
         D_801620AC[D_801590D0].D_801621AC = -1;
         return;
     }
-    D_801518E4[index].unk160.vy += D_801620AC[D_801590D0].unkA;
+    D_801518E4[index].rootRotation.vy += D_801620AC[D_801590D0].unkA;
     D_801620AC[D_801590D0].D_801621B0--;
 }
 
@@ -1000,7 +1000,7 @@ void func_800D3F8C(void) {
         temp_s1->unkC--;
         if (temp_s1->unkC == -1) {
             temp_s0 = &D_801621F0[func_800BC04C(func_800D3AF0)];
-            RotMatrixYXZ(&D_801518E4[temp_s1->unk10.unk.unk2].unk160, (MATRIX*)0x1F800008);
+            RotMatrixYXZ(&D_801518E4[temp_s1->unk10.unk.unk2].rootRotation, (MATRIX*)0x1F800008);
             ApplyMatrixSV((MATRIX*)0x1F800008, (SVECTOR*)&temp_s1->D_801621F4, (SVECTOR*)0x1F800000);
             temp_s0->D_801621F4 = D_801518E4[temp_s1->unk10.unk.unk2].D_80151A4C.vx + ((SVECTOR*)0x1F800000)->vx;
             temp_s0->D_801621F6 = D_801518E4[temp_s1->unk10.unk.unk2].D_80151A4C.vy + ((SVECTOR*)0x1F800000)->vy;
