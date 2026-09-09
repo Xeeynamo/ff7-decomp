@@ -22,7 +22,7 @@ typedef enum {
 } BattleSetupType;
 
 typedef enum {
-    EVENT_BattleSQUARE = 0x40,
+    EVENT_BATTLE_SQUARE = 0x40,
 } BattleEventType;
 
 // full standard FF7 status bitmask (wiki.ffrtt.ru/FF7/Battle/Status_Effects)

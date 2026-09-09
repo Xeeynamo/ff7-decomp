@@ -724,7 +724,7 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
         }
     }
     D_800F5F44.battleType = (u8)g_BattleTypeMap[D_8016360C.setup.type];
-    if (D_8016376A & EVENT_BattleSQUARE) {
+    if (D_8016376A & EVENT_BATTLE_SQUARE) {
         D_8016360C.setup.stageID = 37;
         D_8016360C.setup.flags |= SETUP_CANNOT_ESCAPE;
         D_8016360C.setup.cameraID = (SysGetRandomByteFromTable() & 3) + 0x60;
