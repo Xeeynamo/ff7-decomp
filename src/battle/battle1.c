@@ -240,7 +240,7 @@ static void BattlePlayersInitBonesAndAnims(void) {
     BattleInitModelsAnimAndColor(3, 3);
     if (D_8016360C.setup.stageID == 57) {
         for (i = 0; i < 10; i++) {
-            D_801518E4[i].D_80151909 |= 0x10;
+            D_801518E4[i].flags |= 0x10;
         }
     }
 }
@@ -273,13 +273,13 @@ static void func_800B3E2C(void) {
     D_801516A0 = 0;
     D_800F8380 = 0;
     for (i = 0; i < LEN(D_801518E4); i++) {
-        D_801518E4[i].D_8015190A = 1;
+        D_801518E4[i].deathType = 1;
     }
     for (i = 2; i >= 0; i--) {
         D_800F9F28[i] = 0;
     }
     var_a0 = D_801590CC;
-    D_801518E4[var_a0].D_80151906 = 0;
+    D_801518E4[var_a0].effectId = 0;
     D_800F8374 = 0xE;
     D_80163798[D_801590E0].unk8 = -2;
     func_800BC1E0(var_a0);
@@ -419,7 +419,7 @@ static void BattleUpdateRender(void) {
     func_800C5CC0();
     func_800B8438();
     for (i = 0; i < 10; i++) {
-        if (D_801518E4[i].D_8015190A == 0) {
+        if (D_801518E4[i].deathType == 0) {
             D_800F7DE4 = 0;
             break;
         }
@@ -468,7 +468,7 @@ static void func_800B8268(void) {
     while (i < 10) {
         *var_a1 = D_801636B8[i].D_801636B9;
         if (!(D_80151200[i].D_8015120C & 8) && D_801518E4[i].animationId != *var_a1 &&
-            D_801518E4[i].D_8015190A == var_t1) {
+            D_801518E4[i].deathType == var_t1) {
             D_801518E4[i].D_80151922 |= 1;
             D_801518E4[i].animationId = *var_a1;
         }
@@ -530,7 +530,7 @@ void func_800B8438(void) {
     func_800B91CC();
     D_80151694 = D_80163758[1];
     func_800B85E0();
-    func_800BC81C(D_800F8370, D_801518E4[D_801590CC].D_80151906);
+    func_800BC81C(D_800F8370, D_801518E4[D_801590CC].effectId);
     func_800BC8B0(D_800F8370);
     func_800B8268();
     SetFarColor(0, 0, 0);
@@ -616,8 +616,8 @@ static void func_800B8E48(s32 arg0) {
     s32 temp_a0;
 
     temp_a0 = arg0 & 0xFF;
-    D_801518E4[temp_a0].D_8015190A = 1;
-    D_801518E4[temp_a0].D_80151909 &= 0x7F;
+    D_801518E4[temp_a0].deathType = 1;
+    D_801518E4[temp_a0].flags &= 0x7F;
     D_80151200[temp_a0].D_8015120C &= 0xFFDF;
 }
 
@@ -668,7 +668,7 @@ static void func_800BA40C(void) {
     u8 param;
 
     for (i = 0; i < 3; i++) {
-        if (!(D_801518E4[i].D_80151909 & 2)) {
+        if (!(D_801518E4[i].flags & 2)) {
             param = i;
             func_800C1908(param);
             func_800BA598(i);
@@ -684,10 +684,10 @@ static void func_800BA4C8(void) {
     s32 i;
 
     for (i = 4; i < D_800F7E04[0] + 4; i++) {
-        if (!(D_801518E4[i].D_80151909 & 0x80)) {
+        if (!(D_801518E4[i].flags & 0x80)) {
             continue;
         }
-        if (D_801518E4[i].D_80151909 & 2) {
+        if (D_801518E4[i].flags & 2) {
             continue;
         }
         func_800C1908(i);
@@ -743,7 +743,7 @@ static void func_800BB030(s16 arg0) {
         unk->unkA = D_801518E4[arg0].additionalColorAlpha;
         unk->unkC = 0x20;
         unk->unkE = D_801518E4[arg0].clutOffset;
-        if (D_801518E4[arg0].D_80151909 & 4) {
+        if (D_801518E4[arg0].flags & 4) {
             continue;
         }
         D_80163C74 = func_800D29D4(unk, g_cDb->unk70, 12, D_80163C74);
@@ -1082,7 +1082,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1394);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C14C0);
 
 static s32 func_800C169C(u8 arg0) {
-    D_801518E4[arg0].D_80151909 |= 8;
+    D_801518E4[arg0].flags |= 8;
     if (D_80151200[arg0].D_80151200 & 0x2000) {
         return 10;
     }
@@ -1107,7 +1107,7 @@ static s32 func_800C169C(u8 arg0) {
     if (D_80151200[arg0].D_80151200 & 0x400000) {
         return 7;
     }
-    D_801518E4[arg0].D_80151909 &= ~8;
+    D_801518E4[arg0].flags &= ~8;
     return 0;
 }
 
@@ -1126,7 +1126,7 @@ static void func_800C17A0(s32 arg0, s32 arg1) {
     D_801518E4[arg0].D_8015190C = D_800EA19C[arg1][1];
     D_801518E4[arg0].D_8015190D = D_800EA19C[arg1][2];
     D_801518E4[arg0].D_8015190E = D_800EA19C[arg1][3];
-    D_801518E4[arg0].D_80151908 = 0;
+    D_801518E4[arg0].animationState = 0;
 }
 
 static void func_800C5468(u8 arg0);
@@ -1173,21 +1173,21 @@ static void func_800C1908(u8 arg0) {
         }
         var_a0 = arg0;
         if (D_80151200[var_a0].D_80151200 & 0x400000 && D_801518E4[var_a0].animationId == D_80163784[var_a0]) {
-            if (D_801518E4[var_a0].D_801518FC == 0) {
+            if (D_801518E4[var_a0].defaultRotationX == 0) {
                 D_801518E4[var_a0].unk160.vy = 0x800;
             } else {
                 D_801518E4[var_a0].unk160.vy = 0;
             }
         }
         var_a0 = arg0;
-        if (D_801518E4[var_a0].D_80151909 & 8) {
-            if (D_801518E4[var_a0].D_80151908 < 0x10) {
+        if (D_801518E4[var_a0].flags & 8) {
+            if (D_801518E4[var_a0].animationState < 0x10) {
                 D_801518E4[var_a0].additionalColorAlpha += 0x80;
             } else {
                 D_801518E4[var_a0].additionalColorAlpha -= 0x80;
             }
-            D_801518E4[arg0].D_80151908--;
-            D_801518E4[arg0].D_80151908 &= 0x1F;
+            D_801518E4[arg0].animationState--;
+            D_801518E4[arg0].animationState &= 0x1F;
         }
     }
 }
@@ -1442,7 +1442,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C7220);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C7340);
 
 static void func_800C74A4(void) {
-    if (!(D_801518E4[3].D_80151909 & 2)) {
+    if (!(D_801518E4[3].flags & 2)) {
         BattleExecuteUnitAnimScript(3, D_800F57D0->unk8, D_800F57D0 + 1, D_800F57D0);
     }
 }
