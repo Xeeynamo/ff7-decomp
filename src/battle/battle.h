@@ -1,5 +1,10 @@
 #include <game.h>
 
+#define NUM_PARTY (3)
+#define START_ENEMY (NUM_PARTY + 1)
+#define NUM_ENEMY (6)
+#define NUM_BATTLE_ACTOR (START_ENEMY + NUM_ENEMY)
+
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleFlags.cs#L4
 typedef enum {
     SETUP_CANNOT_ESCAPE = 4,
@@ -128,7 +133,7 @@ typedef struct {
     /* 0x026 */ u16 unk26;       // D_800F83D2
     /* 0x028 */ u16 unk28;       // D_800F83D4
     /* 0x02A */ u8 unk2A[0xA];   // D_800F83D8..D_800F83DC
-    /* 0x034 */ BattleUnit combatant[10];
+    /* 0x034 */ BattleUnit combatant[NUM_BATTLE_ACTOR];
 } BattleState; // size:0x444
 
 typedef struct {
@@ -234,7 +239,7 @@ typedef struct {
     /* 0x00 */ u16 enemyModelIDs[4];
     /* 0x08 */ BattleSetup setup;
     /* 0x1C */ CameraPlacement camera[4];
-    /* 0x4C */ FormationEntry formation[6];
+    /* 0x4C */ FormationEntry formation[NUM_ENEMY];
 } Unk8016360C; // size:0xAC
 
 typedef struct {
@@ -456,8 +461,8 @@ typedef struct {
     /* 0x32 */ u16 unk32;
 } BattlePartyWork; // size:0x34
 
-extern u16 D_800F5BBC[10][0x22];
-extern BattlePartyWork g_BattlePartyWork[3];
+extern u16 D_800F5BBC[NUM_BATTLE_ACTOR][34];
+extern BattlePartyWork g_BattlePartyWork[NUM_PARTY];
 extern Unk800F5F44 D_800F5F44;
 extern s8 D_800F6936[0x40][8];
 extern u8 D_800F83A8;
