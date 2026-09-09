@@ -2,6 +2,7 @@
 #include <game.h>
 #include <psxsdk/types.h>
 #include <psxsdk/libcd.h>
+#include <psxsdk/libetc.h>
 
 typedef enum {
     CDOP_0,
@@ -23,6 +24,8 @@ extern CdlLOC D_80071A68;    // cd sector
 extern size_t D_80071A6C;    // amount of sectors to read
 extern u_long* D_80071A80;   // read content destination
 extern void (*D_80071A84)(); // callback
+void func_80034CAC(u32 arg0);
+
 void SysCdromInit(void) {
     while (!CdInit()) {
     }
@@ -238,9 +241,17 @@ void SystemLzsDecompress(u8* src, u8* dst) {
 #undef F
 #undef THRESHOLD
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034CAC);
+void func_80034CAC(u32 arg0) {
+    *D_8009A000 = 0x30;
+    *D_8009A004 = arg0;
+    *D_8009A008 = arg0;
+    SystemAkaoExecute();
+    VSync(60);
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", ChangeClearSIO);
+/* The LZS routines keep their writable state between functions in .text. */
+u32 D_80034CF0[9] __attribute__((section(".text"))) = {0};
+u32 D_80034D14 __attribute__((section(".text"))) = 0; // Saved LZS continuation address.
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SysCdromGetPackPointer);
 

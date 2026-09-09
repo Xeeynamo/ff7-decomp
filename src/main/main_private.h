@@ -223,4 +223,4 @@ void SysGzipBinDecompress(GzHeader* src, u8* dst);
 void SysGzipSetDataBlock(u8* arg0);
 u16 SysGzipGetType(void);
 u16 SysGzipGetSize(void);
-u32 SysGzipPackDecompressNextBlock(u8* dst);
+s32 SysGzipPackDecompressNextBlock(u8* dst);

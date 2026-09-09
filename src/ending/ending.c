@@ -100,7 +100,7 @@ void VectorNormal(VECTOR*, VECTOR*);
 u32 InputReadPadsRaw(void);
 void func_80041D28(u32, void*, s32);
 s32 func_80041E30(s32, s32);
-void SystemLzsDecompress(void*, void*);
+void SystemLzsDecompress(u8*, u8*);
 static s32 func_800A379C(EndingObj*, VECTOR*, VECTOR*, s32);
 void func_80036244(void*, u16);
 void func_800A3178(EndingNode*, s16, u8, void (*)());
@@ -151,7 +151,7 @@ void func_800A0030(void) {
         } while (res > 0);
     } while (res != 0);
 
-    SystemLzsDecompress((void*)0x80180000, (void*)0x80100000);
+    SystemLzsDecompress((u8*)0x80180000, (u8*)0x80100000);
     SetDispMask(1);
 
     b = 0xFE;

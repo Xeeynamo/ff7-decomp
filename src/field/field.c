@@ -68,7 +68,7 @@ typedef struct {
 } FieldFileInfo;
 
 extern FieldFileInfo g_FieldFileInfo[];
-extern void SystemLzsDecompress(void* dst, void* src);
+extern void SystemLzsDecompress(u8* dst, u8* src);
 extern s32* g_FieldModelsP;
 extern s32 g_FieldTriggers;
 extern s32 g_FieldEncounters;
@@ -89,7 +89,7 @@ static void FieldLoadMimDatFiles(void) {
     } else {
         while (SystemCdromReadChain() != 0) {
         }
-        SystemLzsDecompress((void*)0x801B0000, (void*)0x80128000);
+        SystemLzsDecompress((u8*)0x801B0000, (u8*)0x80128000);
     }
     SysCdromStartLoadLzs(((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6],
                          ((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6 + 1], (u_long*)0x80114FE4, NULL);
