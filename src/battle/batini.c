@@ -170,7 +170,7 @@ void BattleInitPartyFromSavemap(void) {
     BattleUnit* combatant;
     CombatantTurnState* turn;
     BattleUnitAttackSetup* setup;
-    SavePartyMember* member;
+    SavePartyMember* partyMember;
     s32 id;
     s32 i;
     s32 j;
@@ -184,13 +184,13 @@ void BattleInitPartyFromSavemap(void) {
         id = D_8009CBDC[i];
         if (id != 0xFF) {
             for (j = 0; j < 9; j++) {
-                member = &D_8009C738[j];
-                if (member->char_id == id) {
-                    combatant->level = member->level;
-                    combatant->curHP = member->hp_cur;
-                    combatant->curMP = member->mp_cur;
-                    turn->unk3C = combatant->curHP;
-                    turn->unk3E = combatant->curMP;
+                partyMember = &D_8009C738[j];
+                if (partyMember->char_id == id) {
+                    combatant->level = partyMember->level;
+                    combatant->curHP = partyMember->hp_cur;
+                    combatant->curMP = partyMember->mp_cur;
+                    turn->curHP = combatant->curHP;
+                    turn->curMP = combatant->curMP;
                     BattleInitCharStats(characterData, party, combatant);
                     turn->unk34 = characterData->immuneStatuses;
                     setup->attackElement = characterData->weapon.attackElement | characterData->physicalAttackElements;
@@ -204,7 +204,7 @@ void BattleInitPartyFromSavemap(void) {
                     if (!(setup->targetFlags & 0x20)) {
                         turn->unk29 |= 2;
                     }
-                    BattleInitApplyAccStatus(i, member->accessory);
+                    BattleInitApplyAccStatus(i, partyMember->accessory);
                     BattleInitCharCmdMenu(i);
                     BattleInitCharCmdState(i);
                     if (BattleInitApplyStartFX(i) == 0) {

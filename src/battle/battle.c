@@ -455,8 +455,8 @@ void func_800A4480(void) {
     s32 i;
 
     for (i = 0; i < LEN(g_CombatantTurnState); i++) {
-        g_CombatantTurnState[i].unk3C = g_BattleState.combatant[i].curHP;
-        g_CombatantTurnState[i].unk3E = g_BattleState.combatant[i].curMP;
+        g_CombatantTurnState[i].curHP = g_BattleState.combatant[i].curHP;
+        g_CombatantTurnState[i].curMP = g_BattleState.combatant[i].curMP;
     }
 }
 
@@ -663,7 +663,7 @@ void BattleEnableLimitToPlayerWithoutSpeed(s32 arg0) {
     s32 temp_v0;
 
     temp_v0 = arg0 * 0x44;
-    *(u16*)((u8*)&g_CombatantTurnState[0].unk8 + temp_v0) &= 0xFFFE;
+    *(u16*)((u8*)&g_CombatantTurnState[0].limitTimeFlags + temp_v0) &= 0xFFFE;
     *(u8*)((u8*)&g_CombatantTurnState[0].unkE + temp_v0) |= 1;
 }
 
@@ -886,7 +886,7 @@ u16 BattleGetItemFromSlot(s32 arg0) {
 
 void BattleResetManipulatorTimer(s32 arg0) {
     s32 index = BattleGetManipulatorIdByEnemyUnitId(arg0);
-    g_CombatantTurnState[index].unk4 = 0;
+    g_CombatantTurnState[index].ATBtimeValue = 0;
     D_800F5F44.D_800F7DC2 &= ~(1 << index);
 }
 
@@ -906,7 +906,7 @@ void BattleEnableLimitToPlayerResettingBar(s32 arg0, s32 arg1) {
 void func_800A661C(s32 arg0) {
     func_800A4D88(arg0);
     if ((D_800F5F44.D_800F7DAC >> arg0) & 1) {
-        if (g_CombatantTurnState[arg0].unk4 == 0xFFFF) {
+        if (g_CombatantTurnState[arg0].ATBtimeValue == 0xFFFF) {
             func_800A4D2C(arg0);
             return;
         }
@@ -1724,7 +1724,7 @@ void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     }
     if (g_CurrentAction->unk214 != 0) {
         // All Lucky 7s: force the damage display to the "7777" value
-        cap = g_CombatantTurnState[g_CurrentAction->actorId].unk3C;
+        cap = g_CombatantTurnState[g_CurrentAction->actorId].curHP;
         if (cap == 0x1E61) {
             g_CurrentAction->unk214 = cap;
         }
@@ -2138,11 +2138,11 @@ void BattleLowerFunc0a(void) {
 }
 
 // White Wind "damage" formula. Restores HP equal to caster's HP to all allies.
-void func_800ADFC0(void) { g_CurrentAction->unk214 = *(u16*)(&g_CombatantTurnState[g_CurrentAction->actorId].unk3C); }
+void func_800ADFC0(void) { g_CurrentAction->unk214 = *(u16*)(&g_CombatantTurnState[g_CurrentAction->actorId].curHP); }
 
 void BattleSetTempDmgAsMaxHpMinusCurrentHp(void) {
     s32 index = g_CurrentAction->actorId;
-    g_CurrentAction->unk214 = g_BattleState.combatant[index].maxHP - g_CombatantTurnState[index].unk3C;
+    g_CurrentAction->unk214 = g_BattleState.combatant[index].maxHP - g_CombatantTurnState[index].curHP;
 }
 
 void func_800AE050(void) {}

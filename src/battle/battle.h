@@ -399,11 +399,11 @@ typedef struct {
 } Unk801B0C98;
 
 typedef struct {
-    s16 unk0;
-    s16 unk2;
-    u16 unk4; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
-    s16 unk6;
-    s32 unk8;
+    /* 0x00 */ s16 unitSpeed;
+    /* 0x02 */ s16 timeValueAddition;
+    /* 0x04 */ u16 ATBtimeValue; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s32 limitTimeFlags;
     u8 unkC;
     u8 unkD; // effect id of the equipped accessory (0xFF = none)
     u8 unkE;
@@ -425,8 +425,8 @@ typedef struct {
     s32 unk30;
     s32 unk34;
     s32 unk38;
-    u16 unk3C;
-    u16 unk3E;
+    /* 0x3C */ u16 curHP;
+    /* 0x3E */ u16 curMP;
     s32 unk40;
 } CombatantTurnState; // 0x44
 
