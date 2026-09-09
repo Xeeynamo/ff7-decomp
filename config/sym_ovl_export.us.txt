@@ -262,7 +262,6 @@ BattleMovementRegister = 0x800bbf7c;
 func_800BC04C = 0x800bc04c;
 BattleCameraRegister = 0x800bc11c;
 BattleCallbacksReset = 0x800bc1e0;
-func_800BC348 = 0x800bc348;
 BattleMovementUpdate = 0x800bc440;
 func_800BC538 = 0x800bc538;
 BattleCameraUpdate = 0x800bc630;

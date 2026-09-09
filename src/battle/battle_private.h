@@ -81,7 +81,7 @@ typedef struct {
     /* 0x0A */ s16 unkA;
     /* 0x0C */ void (*Callback)(s32, s32);
     /* 0x10 */ char pad10[0x10]; // untouched by this pair
-} MagicAnimationData; // size:0x20
+} MagicAnimationData;            // size:0x20
 
 typedef struct {
     u16 unk0;
@@ -518,6 +518,7 @@ extern s16 D_801590D4;
 extern u8 D_801590D8;
 extern u8 D_801590DC;
 extern u8 D_801590E0;
+extern void (*D_80161EF0[100])(void);
 extern s16 D_80162080;
 extern s16 D_80162084;
 extern s8 D_80162094;

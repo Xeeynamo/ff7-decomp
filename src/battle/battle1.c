@@ -25,6 +25,7 @@ static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3);
 static void func_800BB804(void);
 static void func_800BB864(void);
 static void func_800BC2F0(void);
+static void func_800BC348(void);
 static void func_800C0410(void);
 static void func_800C0900(void);
 static void func_800C20E8(s16 arg0, s16* arg1);
@@ -905,13 +906,31 @@ static void func_800BC2F0(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC348);
+// drives the 0x64 queue; q-gears calls that one the damage callbacks
+static void func_800BC348(void) {
+    void (*callback)(void);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC440);
+    for (D_8015169C = 0; D_8015169C < 0x64; D_8015169C++) {
+        callback = D_80161EF0[D_8015169C];
+        if (callback) {
+            callback();
+            if (D_80162978[D_8015169C].D_80162978 == -1) {
+                D_80162978[D_8015169C].D_80162978 = 0;
+                D_80162978[D_8015169C].D_8016297A = 0;
+                D_80161EF0[D_8015169C] = NULL;
+                D_80162080--;
+            }
+        }
+    }
+    D_8015169C = 0;
+}
 
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleMovementUpdate);
+
+// q-gears: "effects update"
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC538);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC630);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleCameraUpdate);
 
 void func_800BCA58(s32);
 void func_800C1104();
