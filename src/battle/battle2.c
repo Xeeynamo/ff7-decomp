@@ -1055,7 +1055,7 @@ void func_800D4CBC(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp10;
 
     BattleGetPartPosition(arg0, D_801518E4[arg0].D_8015190F, &sp10);
-    func_800D4C08(&sp10, arg1, arg2, -D_801518E4[arg0].CollisionRadius);
+    func_800D4C08(&sp10, arg1, arg2, -D_801518E4[arg0].collisionRadius);
 }
 
 static void func_800D4D4C(s32 arg0, s32 arg1) { func_800D4CBC(arg0, arg1, 0x1000); }
@@ -1151,7 +1151,7 @@ s32 func_800D54BC(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleEntityGetCenter);
 
-s32 func_800D55A4(s32 arg0) { return (D_801518E4[arg0].CollisionRadius * 0x10) * D_801518E4[arg0].modelScale >> 0xC; }
+s32 func_800D55A4(s32 arg0) { return (D_801518E4[arg0].collisionRadius * 0x10) * D_801518E4[arg0].modelScale >> 0xC; }
 
 void SystemAkaoExecute(void*, s32, s32, void**);
 

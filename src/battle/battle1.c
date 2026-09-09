@@ -740,9 +740,9 @@ static void func_800BB030(s16 arg0) {
         unk->unk0 = D_800FA6D8[arg0].unk4[i];
         unk->unk4 = D_800FA6D8[arg0].unk3E[i] | 0x180;
         unk->unk8 = 0;
-        unk->unkA = D_801518E4[arg0].unk14[0];
+        unk->unkA = D_801518E4[arg0].additionalColorAlpha;
         unk->unkC = 0x20;
-        unk->unkE = D_801518E4[arg0].unk14[1];
+        unk->unkE = D_801518E4[arg0].clutOffset;
         if (D_801518E4[arg0].D_80151909 & 4) {
             continue;
         }
@@ -1114,13 +1114,13 @@ static s32 func_800C169C(u8 arg0) {
 static void func_800C17A0(s32 arg0, s32 arg1) {
     switch (D_800EA19C[arg1][0]) {
     case 0:
-        D_801518E4[arg0].unk14[0] = 0;
+        D_801518E4[arg0].additionalColorAlpha = 0;
         break;
     case 1:
-        D_801518E4[arg0].unk14[0] = 0x800;
+        D_801518E4[arg0].additionalColorAlpha = 0x800;
         break;
     case 2:
-        D_801518E4[arg0].unk14[0] = 0xC00;
+        D_801518E4[arg0].additionalColorAlpha = 0xC00;
         break;
     }
     D_801518E4[arg0].D_8015190C = D_800EA19C[arg1][1];
@@ -1182,9 +1182,9 @@ static void func_800C1908(u8 arg0) {
         var_a0 = arg0;
         if (D_801518E4[var_a0].D_80151909 & 8) {
             if (D_801518E4[var_a0].D_80151908 < 0x10) {
-                D_801518E4[var_a0].unk14[0] += 0x80;
+                D_801518E4[var_a0].additionalColorAlpha += 0x80;
             } else {
-                D_801518E4[var_a0].unk14[0] -= 0x80;
+                D_801518E4[var_a0].additionalColorAlpha -= 0x80;
             }
             D_801518E4[arg0].D_80151908--;
             D_801518E4[arg0].D_80151908 &= 0x1F;
