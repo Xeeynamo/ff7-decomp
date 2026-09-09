@@ -39,17 +39,17 @@ void FieldDebugStringU8hex(s32 val, char* msg_out);
 void FieldDebugStringU16hex(s32 val, char* msg_out);
 void FieldDebugStringU32hex(s32 val, char* msg_out);
 static void PlayWindowPointerClickSound(void);
-s32 FieldDialogWindowInit(s16 window, s16 stringId);
-void FieldDialogWindowGrowth(s16 window);
-void FieldDialogCopyTextFromField(s16 window);
-void DialogScrollText(s16 window);
-void DialogScrollTextDuringOk(s16 window);
-void FieldDialogWindowInitNext(s16 window);
-s32 FieldDialogWindowDecrease(s16 window);
-u16 FieldDialogGetVariableFromBank(s16 window);
-void ConvertDigitToString(u16 value, u8* dst);
-void ConvertNumToStrWithSpace(u16 value, u8* dst);
-void ConvertHexToString(u16 value, u8* dst);
+static s32 FieldDialogWindowInit(s16 window, s16 stringId);
+static void FieldDialogWindowGrowth(s16 window);
+static void FieldDialogCopyTextFromField(s16 window);
+static void DialogScrollText(s16 window);
+static void DialogScrollTextDuringOk(s16 window);
+static void FieldDialogWindowInitNext(s16 window);
+static s32 FieldDialogWindowDecrease(s16 window);
+static u16 FieldDialogGetVariableFromBank(s16 window);
+static void ConvertDigitToString(u16 value, u8* dst);
+static void ConvertNumToStrWithSpace(u16 value, u8* dst);
+static void ConvertHexToString(u16 value, u8* dst);
 
 /////////////////////////////////////////////////
 // Begin of field_dialog.c
@@ -385,7 +385,7 @@ static void PlayWindowPointerClickSound(void) {
     SystemAkaoExecute();
 }
 
-s32 FieldDialogWindowInit(s16 window, s16 stringId) {
+static s32 FieldDialogWindowInit(s16 window, s16 stringId) {
     if (g_FieldText == NULL) {
         FieldEventDebugError("No mes data!");
         return 1;
@@ -431,7 +431,7 @@ s32 FieldDialogWindowInit(s16 window, s16 stringId) {
     return 0;
 }
 
-void FieldDialogWindowGrowth(s16 window) {
+static void FieldDialogWindowGrowth(s16 window) {
     if (g_WindowToEntity[window] != g_CurrentEntity) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("mes busy=", window, 1);
@@ -461,7 +461,7 @@ void FieldDialogWindowGrowth(s16 window) {
     }
 }
 
-void FieldDialogCopyTextFromField(s16 window) {
+static void FieldDialogCopyTextFromField(s16 window) {
     u8 opcode;
     u16 len;
     s16 i;
@@ -834,7 +834,7 @@ end:
     g_WindowString[window][g_WindowData[window].stringByteLength] = 0xFF;
 }
 
-void DialogScrollText(s16 window) {
+static void DialogScrollText(s16 window) {
     if (g_WindowToEntity[window] != g_CurrentEntity) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("mes busy=", window, 1);
@@ -849,7 +849,7 @@ void DialogScrollText(s16 window) {
     }
 }
 
-void DialogScrollTextDuringOk(s16 window) {
+static void DialogScrollTextDuringOk(s16 window) {
     if (g_WindowToEntity[window] != g_CurrentEntity) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("mes busy=", window, 1);
@@ -875,7 +875,7 @@ void DialogScrollTextDuringOk(s16 window) {
     }
 }
 
-void FieldDialogWindowInitNext(s16 window) {
+static void FieldDialogWindowInitNext(s16 window) {
     if (g_WindowToEntity[window] != g_CurrentEntity) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("mes busy=", window, 1);
@@ -893,7 +893,7 @@ void FieldDialogWindowInitNext(s16 window) {
     g_WindowFastForwardLevel[window] = 1;
 }
 
-s32 FieldDialogWindowDecrease(s16 window) {
+static s32 FieldDialogWindowDecrease(s16 window) {
     if (g_WindowToEntity[window] != g_CurrentEntity) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("mes busy=", window, 1);
@@ -923,7 +923,7 @@ s32 FieldDialogWindowDecrease(s16 window) {
     return 0;
 }
 
-u16 FieldDialogGetVariableFromBank(s16 window) {
+static u16 FieldDialogGetVariableFromBank(s16 window) {
     u16 value;
     u16 offset;
 
@@ -993,7 +993,7 @@ u16 FieldDialogGetVariableFromBank(s16 window) {
     return value;
 }
 
-void ConvertDigitToString(u16 value, u8* dst) {
+static void ConvertDigitToString(u16 value, u8* dst) {
     u32 foundDigit;
     s16 i;
     s16 divisor;
@@ -1016,7 +1016,7 @@ void ConvertDigitToString(u16 value, u8* dst) {
     dst[i + 1] = 0xFF;
 }
 
-void ConvertNumToStrWithSpace(u16 value, u8* dst) {
+static void ConvertNumToStrWithSpace(u16 value, u8* dst) {
     s32 foundDigit;
     s16 i;
     s16 divisor;
@@ -1042,7 +1042,7 @@ void ConvertNumToStrWithSpace(u16 value, u8* dst) {
     dst[i + 1] = 0xFF;
 }
 
-void ConvertHexToString(u16 value, u8* dst) {
+static void ConvertHexToString(u16 value, u8* dst) {
     u32 foundDigit;
     s16 i;
     s16 divisor;
@@ -1240,7 +1240,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageAddPos);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageAddSize);
 
-bool FieldDebugPageIsRender(s16 arg0) { return D_800E08C0[arg0 * 378] == 0; }
+static bool FieldDebugPageIsRender(s16 arg0) { return D_800E08C0[arg0 * 378] == 0; }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageResetStrings);
 

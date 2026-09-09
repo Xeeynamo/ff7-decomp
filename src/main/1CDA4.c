@@ -51,7 +51,7 @@ u8 func_8001F6B4();
 void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
 
-void func_8001CDA4(void) {
+static void func_8001CDA4(void) {
     SetPolyFT4(D_80062F24.ft4);
     SetShadeTex(D_80062F24.ft4, 1);
     D_80062F24.ft4->x0 = 0;
@@ -132,7 +132,7 @@ void SysMenuDrawAvatar2(s16 x, s16 y, s16 w, s16 h, u16 tx, u16 ty, u16 tw, u16 
     D_80062F24.ft4++;
 }
 
-void func_8001D3C0(s16 x, s16 y) {
+static void func_8001D3C0(s16 x, s16 y) {
     SetTile1(D_80062F24.tile1);
     D_80062F24.tile1->x0 = x;
     D_80062F24.tile1->y0 = y;
@@ -143,7 +143,7 @@ void func_8001D3C0(s16 x, s16 y) {
     D_80062F24.tile1++;
 }
 
-void func_8001D47C(s16 x0, s16 x1, s16 y, s32 color) {
+static void func_8001D47C(s16 x0, s16 x1, s16 y, s32 color) {
     SetLineF2(D_80062F24.linef2);
     D_80062F24.linef2->r0 = color >> 16;
     D_80062F24.linef2->g0 = color >> 8;
@@ -156,7 +156,7 @@ void func_8001D47C(s16 x0, s16 x1, s16 y, s32 color) {
     D_80062F24.linef2++;
 }
 
-void func_8001D56C(s16 x0, s16 y0, s16 x1, s16 y1, s16 is_yellow) {
+static void func_8001D56C(s16 x0, s16 y0, s16 x1, s16 y1, s16 is_yellow) {
     if (is_yellow) {
         SetLineF2(D_80062F24.linef2);
         D_80062F24.linef2->r0 = 0xFF;
@@ -176,7 +176,7 @@ void func_8001D56C(s16 x0, s16 y0, s16 x1, s16 y1, s16 is_yellow) {
     D_80062F24.linef2++;
 }
 
-s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
+static s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
     RECT rect;
     u8 c;
     s32 width;
@@ -448,7 +448,7 @@ void SysMenuDrawCursor(s16 x, s16 y) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1CDA4", SysMenuDrawDialogTimer);
 
-void SysMenuDrawDialogDigits(s32 x, s32 y, s32 n, s32 len) {
+static void SysMenuDrawDialogDigits(s32 x, s32 y, s32 n, s32 len) {
     RECT rect;
     s32 i;
     s32 uv;
@@ -479,4 +479,4 @@ void SysMenuDrawDialogDigits(s32 x, s32 y, s32 n, s32 len) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1CDA4", SystemMenuDrawDialog);
 
-void func_8001F6AC(void) {}
+static void func_8001F6AC(void) {}

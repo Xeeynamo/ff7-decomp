@@ -21,7 +21,7 @@ extern s32* D_800F5084;
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A02D0);
 
-void func_800A1260(void) {
+static void func_800A1260(void) {
     s32 temp_s0;
     s32 temp_s1;
     s32 temp_s2;
@@ -54,7 +54,7 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A18BC);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A1F40);
 
-void func_800A272C(s32 arg0, s32 arg1) {
+static void func_800A272C(s32 arg0, s32 arg1) {
     RECT sp10;
     RECT sp18;
     s32 var_a0;
@@ -115,7 +115,7 @@ void func_800A272C(s32 arg0, s32 arg1) {
     }
 }
 
-void func_800A28D8(void) {
+static void func_800A28D8(void) {
     SysCdromStartLoadLzs(0x4C9, 0x1000U, &D_80079F64, NULL);
     do {
 

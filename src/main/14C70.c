@@ -51,7 +51,7 @@ s32 func_80014CBC(s32 arg0, s32 arg1) {
     return var_a2;
 }
 
-u8* func_80014D58(u8* arg0, u8* arg1, s32 arg2) {
+static u8* func_80014D58(u8* arg0, u8* arg1, s32 arg2) {
     u8 var_a3 = *arg1;
     while (var_a3 != 0xFF) {
         *arg0 = var_a3;
@@ -71,7 +71,7 @@ u8* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2) {
     return (u8*)&temp_v1[*(u16*)&temp_v1[arg1 * 2]];
 }
 
-void func_80014DD0(s32 arg0, s32 arg1, u8* arg2) {
+static void func_80014DD0(s32 arg0, s32 arg1, u8* arg2) {
     func_80014D58(arg2, SysGetPointerToTextInKernWithBlockAndTextId(arg0, arg1, 0), -1);
 }
 

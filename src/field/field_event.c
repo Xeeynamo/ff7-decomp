@@ -17,8 +17,8 @@ extern char g_DebugText[];
 extern u8 D_800716D4;
 
 void DebugPrintToFieldWindow(const char* str);
-void FieldEventOpcodeCycle(void);
-void FieldUpdateAnimationState(void);
+static void FieldEventOpcodeCycle(void);
+static void FieldUpdateAnimationState(void);
 u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId);
 void DebugUpdateActor(s32 arg0, u8 actorId);
 void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
@@ -29,11 +29,11 @@ void FieldDebugStringConcat(char* dest, const char* src);
 void InitFieldDebugPages(void);
 void FieldEventClearAkaoStruct(void);
 void FieldWindowResetAll(void);
-void FieldInitDefaultValues(void);
-void FieldEventRunInit(void);
-void ResetPositionCursorPrimitives(void);
-void UpdatePositionCursor(OT_TYPE* ot);
-void DrawPositionCursor(OT_TYPE* ot);
+static void FieldInitDefaultValues(void);
+static void FieldEventRunInit(void);
+static void ResetPositionCursorPrimitives(void);
+static void UpdatePositionCursor(OT_TYPE* ot);
+static void DrawPositionCursor(OT_TYPE* ot);
 
 void FieldEventInit(FieldState* fieldState, FieldEntity* fieldModels, FieldScriptHeader* fieldScripts) {
     g_pFieldState = fieldState;
@@ -95,7 +95,7 @@ void FieldEventUpdate(OT_TYPE* ot) {
     UpdatePositionCursor(ot);
 }
 
-void FieldInitDefaultValues(void) {
+static void FieldInitDefaultValues(void) {
     s32 i, j;
 
     g_pFieldState->eventCmd = EVTCMD_NONE;
@@ -250,7 +250,7 @@ void FieldInitDefaultValues(void) {
     Savemap.memory_bank_1[31] |= 3; // Locks PHS and save menus
 }
 
-void FieldEventRunInit(void) {
+static void FieldEventRunInit(void) {
     g_FieldModelCount = 0;
     for (g_CurrentEntity = 0; g_CurrentEntity < g_FieldScripts->numEntities; g_CurrentEntity++) {
         s16 extrasHeaderSize;
@@ -282,7 +282,7 @@ void FieldEventRunInit(void) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_event", FieldEnablePartyModels);
 
-void FieldEventOpcodeCycle(void) {
+static void FieldEventOpcodeCycle(void) {
     s32 i, j, count;
     u16 hours, seconds;
     s32 talkDone = 0;
@@ -414,7 +414,7 @@ done:
     FieldUpdateAnimationState();
 }
 
-void FieldUpdateAnimationState(void) {
+static void FieldUpdateAnimationState(void) {
     s32 i;
     s32 modelEntryId;
     u8* anims;
@@ -568,7 +568,7 @@ u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId) {
     return 0;
 }
 
-void ResetPositionCursorPrimitives(void) {
+static void ResetPositionCursorPrimitives(void) {
     s16 tpage;
 
     g_PosCursorX = 32767;
@@ -593,7 +593,7 @@ void ResetPositionCursorPrimitives(void) {
     g_PosCursorPrims[1].b0 = 0;
 }
 
-void UpdatePositionCursor(OT_TYPE* ot) {
+static void UpdatePositionCursor(OT_TYPE* ot) {
     if (g_pFieldState->pressedKeys & PADselect) {
         Savemap.memory_bank_4[30] ^= 1;
     }
@@ -602,7 +602,7 @@ void UpdatePositionCursor(OT_TYPE* ot) {
     }
 }
 
-void DrawPositionCursor(OT_TYPE* ot) {
+static void DrawPositionCursor(OT_TYPE* ot) {
     s16 x, y;
 
     if (!g_PosCursorDisabled && ((g_PosCursorX != 32767) || (g_PosCursorY != 32767))) {

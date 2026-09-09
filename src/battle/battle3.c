@@ -10,17 +10,17 @@ static s32 func_800E4BCC(void);
 static void func_800E68B4(void);
 void func_800E58CC(void);
 
-void func_800D8A04(void) {}
+static void func_800D8A04(void) {}
 
-s32 func_800D8A0C(s32 arg0) { return arg0 < 0 ? -arg0 : arg0; }
+static s32 func_800D8A0C(s32 arg0) { return arg0 < 0 ? -arg0 : arg0; }
 
-void func_800D8A24(void) {}
+static void func_800D8A24(void) {}
 
-void func_800D8A2C(void) { D_800F199C = 0; }
+static void func_800D8A2C(void) { D_800F199C = 0; }
 
 static void func_800D8A3C(s32 arg0) { D_800F9780[D_800F199C++] = arg0; }
 
-void func_800D8A70(void) {}
+static void func_800D8A70(void) {}
 
 void func_800D8A78(s8 arg0) { D_800F19A4 = arg0; }
 
@@ -55,7 +55,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D8D78);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D91DC);
 
-void func_800D93DC(void) {}
+static void func_800D93DC(void) {}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D93E4);
 
@@ -89,7 +89,7 @@ static void func_800DBEA4(OT_TYPE* arg0, s16 arg1) { func_800DBC18(arg0, arg1); 
 // ot: this frame's ordering table, selected by func_800D8D78 via the
 // D_800F1994 double-buffer index -- forwarded through to func_800DBEA4 and
 // func_800DB818's libgpu OT insert, not otherwise used here
-void func_800DBEC8(OT_TYPE* ot) {
+static void func_800DBEC8(OT_TYPE* ot) {
     if (D_800F3896 == 0) {
         func_800DBEA4(ot, D_800F38A9);
         return;
@@ -108,7 +108,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DBF8C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DC0CC);
 
-void func_800DCF58(void) {}
+static void func_800DCF58(void) {}
 
 void func_800DCF60(s16 arg0, s16 arg1) {
     D_800F3138 = 1;
@@ -469,7 +469,7 @@ static void func_800E0DF4(void) {
 // and without checking that a refund is still owed. Repeating select/cancel
 // therefore adds one to the first item's count each time (clamped at 99), and
 // restores its slot id if it had reached zero: the W-Item duplication glitch.
-void func_800E0E34(void) {
+static void func_800E0E34(void) {
     BattleItemEntry* list;
     BattleMenuWidget* menu;
     void (*handler)(void);
@@ -776,7 +776,7 @@ void func_800E1C40(void) {
     }
 }
 
-void func_800E2054(s32 arg0, s32 arg1) { SysMenuDraw8widthFont(0xB0, arg0, &D_800F3184[arg1 * 10], 3); }
+static void func_800E2054(s32 arg0, s32 arg1) { SysMenuDraw8widthFont(0xB0, arg0, &D_800F3184[arg1 * 10], 3); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E2098);
 
@@ -837,7 +837,7 @@ static void func_800E5358(void) {
 void func_800E53C8();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E53C8);
 
-s32 func_800E54EC(void) {
+static s32 func_800E54EC(void) {
     if (D_800F33A0[0] == 0) {
         return 0;
     }
@@ -851,7 +851,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E5530);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E5814);
 
-void func_800E58B0(void) {
+static void func_800E58B0(void) {
     D_800F3468 = 0;
     D_800F5760 = 10;
 }
@@ -860,7 +860,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E58CC);
 
 static u8 func_800E593C(void) { return D_800F381C[D_80163604]; }
 
-s32 func_800E5960(s32 arg0) { return arg0 < 0 ? -arg0 : arg0; }
+static s32 func_800E5960(s32 arg0) { return arg0 < 0 ? -arg0 : arg0; }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E5978);
 
@@ -937,7 +937,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E6018);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E60F8);
 
-s32 func_800E6820(void) { return SysGetSingleStringWidth(D_800F384A); }
+static s32 func_800E6820(void) { return SysGetSingleStringWidth(D_800F384A); }
 
 static void func_800E6848(void) {
     SysMenuDrawString(0x10, 8, &D_800F3828[0], 7);

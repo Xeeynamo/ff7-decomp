@@ -91,7 +91,7 @@ extern s32 D_800A63B0;
 s32 func_80034410(void);
 void SysMoviePlay(void*, s16);
 void* SysCdromGetPackPointer(void*, s32);
-void func_800A2888(void*, s16*, s16*);
+static void func_800A2888(void*, s16*, s16*);
 void SysCdromSetLzsExtract(void*, void*);
 s32 func_80034D5C(void);
 s32 func_800484A8(void);
@@ -101,22 +101,22 @@ u32 InputReadPadsRaw(void);
 void func_80041D28(u32, void*, s32);
 s32 func_80041E30(s32, s32);
 void SystemLzsDecompress(void*, void*);
-s32 func_800A379C(EndingObj*, VECTOR*, VECTOR*, s32);
+static s32 func_800A379C(EndingObj*, VECTOR*, VECTOR*, s32);
 void func_80036244(void*, u16);
 void func_800A3178(EndingNode*, s16, u8, void (*)());
-void func_800A09DC(void);
-void func_800A2504(s32, s32, s32, u8, u8, u8);
+static void func_800A09DC(void);
+static void func_800A2504(s32, s32, s32, u8, u8, u8);
 s32 SetGraphDebug(s32);
-s32 func_800A273C(s32);
-void func_800A3368(EndingSprite*);
-void func_800A343C(EndingSprite*);
+static s32 func_800A273C(s32);
+static void func_800A3368(EndingSprite*);
+static void func_800A343C(EndingSprite*);
 void* func_800A358C(void*, s32, void*, void*);
-void func_800A0E68(void);
+static void func_800A0E68(void);
 static void func_800A34C4(EndingSprite* spr);
 
 s32 func_80048540(s32);
-EndingNode* func_800A3314(s16);
-void func_800A32D8(EndingNode*);
+static EndingNode* func_800A3314(s16);
+static void func_800A32D8(EndingNode*);
 
 void func_800A0030(void) {
     RECT rect;
@@ -258,7 +258,7 @@ void func_800A0030(void) {
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A04C4);
 
-void func_800A09DC(void) {
+static void func_800A09DC(void) {
     u8 unused[0x100];
     s32 i;
 
@@ -338,7 +338,7 @@ s32 func_800A0CAC(void) {
     return 1;
 }
 
-void func_800A0E68(void) {
+static void func_800A0E68(void) {
     s32 i;
 
     AddPrim(D_800AF3E8, &D_800A763C[D_800AF408]);
@@ -435,7 +435,7 @@ s32 func_800A11B4(void) {
     return 0;
 }
 
-void func_800A12F0(void) {
+static void func_800A12F0(void) {
     s32 i;
 
     for (i = 0; i < 0x20; i++) {
@@ -492,7 +492,7 @@ INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A17C0);
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A19A4);
 
-void func_800A1E20(void) {
+static void func_800A1E20(void) {
     s16* pc;
 
     do {
@@ -509,7 +509,7 @@ void func_800A1E20(void) {
     } while (D_800A6394 != 0);
 }
 
-void func_800A1ED4(s16* arg0) { D_800A6528 = arg0; }
+static void func_800A1ED4(s16* arg0) { D_800A6528 = arg0; }
 
 s32 func_800A1EE4(void) { return 0; }
 
@@ -634,7 +634,7 @@ s32 func_800A2420(void) {
     return 0;
 }
 
-void func_800A2458(void) {
+static void func_800A2458(void) {
     StopCallback();
     ResetCallback();
     ResetGraph(0);
@@ -644,7 +644,7 @@ void func_800A2458(void) {
     SysCdromInit();
 }
 
-void func_800A24A8(void) {
+static void func_800A24A8(void) {
     s32 res;
 
     while ((res = func_800484A8()) == -1) {
@@ -657,7 +657,7 @@ void func_800A24A8(void) {
     }
 }
 
-void func_800A2504(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
+static void func_800A2504(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
     RECT rect;
     s32 y;
     s32 res;
@@ -710,7 +710,7 @@ void func_800A2504(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
     func_800A273C(0);
 }
 
-s32 func_800A273C(s32 arg0) {
+static s32 func_800A273C(s32 arg0) {
     u32 pad0;
     u32 pad1;
     u32 old0;
@@ -739,7 +739,7 @@ s32 func_800A273C(s32 arg0) {
     return D_800AF408;
 }
 
-void func_800A2888(void* addr, s16* tpage, s16* clut) {
+static void func_800A2888(void* addr, s16* tpage, s16* clut) {
     TIM_IMAGE tim;
 
     OpenTIM(addr);
@@ -756,7 +756,7 @@ void func_800A2888(void* addr, s16* tpage, s16* clut) {
     }
 }
 
-void func_800A2934(EndingObj* parent, EndingObj* child) {
+static void func_800A2934(EndingObj* parent, EndingObj* child) {
     parent->unk4 = (s32)child;
     child->parent = parent;
     child->scale.pad = 0x1000;
@@ -779,7 +779,7 @@ INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A2A2C);
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A2C68);
 
-s32 func_800A2E80(EndingObj* obj) {
+static s32 func_800A2E80(EndingObj* obj) {
     s32 flag;
 
     RotMatrix(&obj->rot, &obj->mtx);
@@ -795,7 +795,7 @@ s32 func_800A2E80(EndingObj* obj) {
     return flag;
 }
 
-s32 func_800A2F1C(EndingObj* obj) {
+static s32 func_800A2F1C(EndingObj* obj) {
     s32 flag;
 
     RotMatrixYXZ(&obj->rot, &obj->mtx);
@@ -811,7 +811,7 @@ s32 func_800A2F1C(EndingObj* obj) {
     return flag;
 }
 
-s32 func_800A2FB8(EndingObj* obj, VECTOR* target, VECTOR* out, s32 scale) {
+static s32 func_800A2FB8(EndingObj* obj, VECTOR* target, VECTOR* out, s32 scale) {
     VECTOR d;
 
     d.vx = target->vx - obj->pos.vx;
@@ -839,7 +839,7 @@ s32 func_800A2FB8(EndingObj* obj, VECTOR* target, VECTOR* out, s32 scale) {
     return 0;
 }
 
-void func_800A310C(void) {
+static void func_800A310C(void) {
     D_800AF3C8.id = 0;
     D_800AF3C8.state = 1;
     D_800AF3C8.prio = 0xFF;
@@ -855,7 +855,7 @@ void func_800A310C(void) {
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A3178);
 
-void func_800A3210(void) {
+static void func_800A3210(void) {
     EndingNode* node = D_800AF3C8.next;
 
     while (node->next != NULL) {
@@ -875,7 +875,7 @@ void func_800A3210(void) {
     }
 }
 
-void func_800A32D8(EndingNode* node) {
+static void func_800A32D8(EndingNode* node) {
     EndingNode* prev = node->prev;
     EndingNode* next = node->next;
 
@@ -883,13 +883,13 @@ void func_800A32D8(EndingNode* node) {
     next->prev = prev;
 }
 
-void func_800A32F0(u8* arg0) { arg0[0xE] = 8; }
+static void func_800A32F0(u8* arg0) { arg0[0xE] = 8; }
 
-void func_800A32FC(u8* arg0) { arg0[0xE] = 4; }
+static void func_800A32FC(u8* arg0) { arg0[0xE] = 4; }
 
 void func_800A3308(u8* arg0) { arg0[0xE] = 0x10; }
 
-EndingNode* func_800A3314(s16 id) {
+static EndingNode* func_800A3314(s16 id) {
     EndingNode* node = D_800AF3C8.next;
 
     while (node->next != NULL) {
@@ -902,7 +902,7 @@ EndingNode* func_800A3314(s16 id) {
     return NULL;
 }
 
-void func_800A3368(EndingSprite* spr) {
+static void func_800A3368(EndingSprite* spr) {
     VECTOR d;
 
     if (!(spr->flags & 0x10)) {
@@ -922,7 +922,7 @@ void func_800A3368(EndingSprite* spr) {
     spr->unk60 = spr->unk70 / 4096;
 }
 
-void func_800A343C(EndingSprite* spr) {
+static void func_800A343C(EndingSprite* spr) {
     if (spr->flags & 8) {
         spr->r += spr->dr;
         spr->g += spr->dg;
@@ -966,7 +966,7 @@ static void func_800A34C4(EndingSprite* spr) {
 
 INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A358C);
 
-s32 func_800A379C(EndingObj* obj, VECTOR* target, VECTOR* out, s32 scale) {
+static s32 func_800A379C(EndingObj* obj, VECTOR* target, VECTOR* out, s32 scale) {
     VECTOR d;
     s32 v;
 

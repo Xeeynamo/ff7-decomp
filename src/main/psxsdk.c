@@ -94,7 +94,7 @@ int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)()) {
     return 0;
 }
 
-void func_80034048(void) {
+static void func_80034048(void) {
     D_80071A6C = 0;
     D_80071A80 = NULL;
     D_80071A84 = NULL;
@@ -142,13 +142,13 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_800348F4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80034974);
 
-void func_80034A58(void) {
+static void func_80034A58(void) {
     CdControlF(CdlPause, NULL);
     D_80071A60 = CDOP_20;
     D_8006E0F4 = 0;
 }
 
-void func_80034A90(void) {
+static void func_80034A90(void) {
     s32 temp_v0;
     s32* var_a1;
 

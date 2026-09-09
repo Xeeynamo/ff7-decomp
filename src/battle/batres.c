@@ -45,7 +45,7 @@ void func_801B0EF8(SavePartyMember* c, s32 exp, s32 slot);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batres", func_801B0000);
 
-void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
+static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     SavePartyMember* c;
     SavePartyMember* src;
     SavePartyMember* dst;
@@ -112,7 +112,7 @@ void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     }
 }
 
-void GiveMateriaAp(SavePartyMember* c, s32 ap) {
+static void GiveMateriaAp(SavePartyMember* c, s32 ap) {
     s32 bits;
     s32 i;
     s32 m;
@@ -133,7 +133,7 @@ void GiveMateriaAp(SavePartyMember* c, s32 ap) {
     }
 }
 
-void GiveSharedExp(s32 mask) {
+static void GiveSharedExp(s32 mask) {
     SavePartyMember* c;
     s32 hp;
     s32 mp;
@@ -159,7 +159,7 @@ void GiveSharedExp(s32 mask) {
     }
 }
 
-void ResetBattleResults(void) {
+static void ResetBattleResults(void) {
     s32 mask;
     s32 i;
 
@@ -186,7 +186,7 @@ void ResetBattleResults(void) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/batres", func_801B0EF8);
 
 // Load a party member's saved stats into a results row.
-void LoadResultsRow(BatresRow* p, SavePartyMember* c) {
+static void LoadResultsRow(BatresRow* p, SavePartyMember* c) {
     p->charId = c->char_id;
     p->level = c->level;
     p->baseStat[0] = c->strength;
@@ -200,7 +200,7 @@ void LoadResultsRow(BatresRow* p, SavePartyMember* c) {
     p->expStart = c->exp;
 }
 
-void StoreResultsRow(BatresRow* p, SavePartyMember* c) {
+static void StoreResultsRow(BatresRow* p, SavePartyMember* c) {
     c->level = p->level;
     c->strength = p->stat[0];
     c->vitality = p->stat[1];
@@ -222,7 +222,7 @@ void StoreResultsRow(BatresRow* p, SavePartyMember* c) {
     }
 }
 
-void InitResultsRow(BatresRow* p) {
+static void InitResultsRow(BatresRow* p) {
     s32 i;
 
     p->curve = &D_80082268[p->charId * 56];
@@ -240,7 +240,7 @@ void InitResultsRow(BatresRow* p) {
 static void GrowStat(BatresRow* p, s32 gauge);
 static void GrowMaxHp(BatresRow* p);
 static void GrowMaxMp(BatresRow* p);
-void GiveExp(BatresRow* p) {
+static void GiveExp(BatresRow* p) {
     s32 i;
     s32 g;
     s32 lv;
@@ -275,7 +275,7 @@ void GiveExp(BatresRow* p) {
     }
 }
 
-s32 CalcTotalExp(BatresRow* r, s32 level) {
+static s32 CalcTotalExp(BatresRow* r, s32 level) {
     s32 total;
     s32 i;
     s32 m;
@@ -303,7 +303,7 @@ s32 CalcTotalExp(BatresRow* r, s32 level) {
     return total;
 }
 
-s32 RollGrowthRank(s32 arg0) {
+static s32 RollGrowthRank(s32 arg0) {
     s32 v;
 
     v = arg0 + (SysGetRandomByteFromTable() & 7) + 1;
@@ -315,15 +315,15 @@ s32 RollGrowthRank(s32 arg0) {
     return v;
 }
 
-s32 CalcStatGrowth(BatresRow* p, s32 level, s32 gauge) {
+static s32 CalcStatGrowth(BatresRow* p, s32 level, s32 gauge) {
     return D_80082484[p->curve[gauge]][p->tier].mul * level / 100 + D_80082484[p->curve[gauge]][p->tier].add;
 }
 
-s32 CalcHpGrowth(BatresRow* p, s32 level) {
+static s32 CalcHpGrowth(BatresRow* p, s32 level) {
     return D_80082484[p->curve[6]][p->tier].mul * level + D_80082484[p->curve[6]][p->tier].add * 40;
 }
 
-s32 CalcMpGrowth(BatresRow* p, s32 level) {
+static s32 CalcMpGrowth(BatresRow* p, s32 level) {
     return D_80082484[p->curve[7]][p->tier].mul * level / 10 + D_80082484[p->curve[7]][p->tier].add * 2;
 }
 

@@ -53,11 +53,11 @@ void SystemMenuAddMpByPartyId(s32 partyId, u16 mp);
 
 u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId);
 void DebugUpdateActor(s16 arg0, s16 entityId);
-void DebugPrintOpcode(const char* name, s32 arg1);
-u32 IfCheck(void);
-u32 If2CheckSigned(void);
-u32 If2CheckUnsigned(void);
-s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId);
+static void DebugPrintOpcode(const char* name, s32 arg1);
+static u32 IfCheck(void);
+static u32 If2CheckSigned(void);
+static u32 If2CheckUnsigned(void);
+static s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId);
 void DebugPrintToFieldWindow(const char* str);
 void FieldEventDebugError(const char* errmsg);
 void FieldDebugStringCopy(char* dst, const char* src);
@@ -543,7 +543,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
     }
 }
 
-void DebugPrintOpcode(const char* name, s32 arg1) {
+static void DebugPrintOpcode(const char* name, s32 arg1) {
     s32 temp_s0;
     s32 temp_s4;
     s32 var_s1;
@@ -1502,7 +1502,7 @@ s32 OpcodeFuncLif(void) {
     return 0;
 }
 
-u32 IfCheck(void) {
+static u32 IfCheck(void) {
     u8 ope;
     u8 result;
 
@@ -1600,7 +1600,7 @@ s32 OpcodeFuncLif2(void) {
     return 0;
 }
 
-u32 If2CheckSigned(void) {
+static u32 If2CheckSigned(void) {
     u8 ope;
     u8 result;
 
@@ -1698,7 +1698,7 @@ s32 OpcodeFuncLif2u(void) {
     return 0;
 }
 
-u32 If2CheckUnsigned(void) {
+static u32 If2CheckUnsigned(void) {
     u8 ope;
     u8 result;
 
@@ -1891,7 +1891,7 @@ s32 OpcodeFuncPrqew(void) {
     return FieldEventRequest(3, entityId, GET_PRIORITY(GET_PARAM_U8(2)), GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
-s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
+static s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
     s32 scriptOffset;
     s32 entityDataSize;
     s32 extrasHeaderSize;
@@ -2251,7 +2251,7 @@ s32 OpcodeFuncCmusc(void) {
     return result;
 }
 
-s32 SetAndApplyAkao(void) {
+static s32 SetAndApplyAkao(void) {
     // Indexes into AKAO block of field file which contains the list of music
     // tracks available for current field.
     u8 akaoId;
@@ -2574,7 +2574,7 @@ s32 OpcodeFuncCcanm(void) {
  * second operand, frame counter rewound and the last frame looked up in
  * the animation header of the model's file.
  */
-void StartModelAnimation(void) {
+static void StartModelAnimation(void) {
     u8 modelIdx;
     u8* anims;
     FieldModelEntry* model;
@@ -4240,7 +4240,7 @@ s32 OpcodeFuncCos(void) {
     return 0;
 }
 
-void SystemRefreshParty(void) {
+static void SystemRefreshParty(void) {
     s16 i;
 
     for (i = 0; i < 3; i++) {
@@ -4252,7 +4252,7 @@ void SystemRefreshParty(void) {
     SysCalculateTotalLureGilPreemptiveValue();
 }
 
-void SystemRestoreParty(void) {
+static void SystemRestoreParty(void) {
     s32 i;
 
     SystemRefreshParty();
