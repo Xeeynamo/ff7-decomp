@@ -4,6 +4,4 @@ BrizadAttachToTargetUnused = 0x801B028C;
 BrizadAttachToTarget = 0x801B02D4;
 BrizadDoubleBufferFlip = 0x801B031C;
 MAGIC_Brizad = 0x801B037C;
-BrizadRenderDesc = 0x801B1004; // size:0x10
-BrizadPrimBuffer = 0x801B1014;
-BrizadBufferPtr = 0x801D1014;
+g_BrizadRenderDesc = 0x801B1004; // size:0x10
