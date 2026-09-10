@@ -31,7 +31,7 @@ void BATINI_Main(s32 sceneID) {
     SysInitRndTablePos(VSync(-1));
     VSync(-1);
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         SysInitPlayerStatFromEquip(i);
         SysInitPlayerStatFromMateria(i);
     }
@@ -54,7 +54,7 @@ void BATINI_Main(s32 sceneID) {
     func_800A71F4();
     D_801620A8 = -1;
     func_800DCF94(-1);
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         g_BattleState.combatant[i].unk8 = -1;
         g_BattleState.combatant[i].unk13 = 0x10;
     }
@@ -67,7 +67,7 @@ void BATINI_Main(s32 sceneID) {
     q = g_BattleState.combatant;
     p = q;
     D_800F5F44.D_800F7DAA = (Savemap.config & 0xC0) >> 6;
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         BattleRecalcUnitSpeed(i);
         if ((s8)p[i].unk8 != -1) {
             *(u16*)((u8*)q - 0x32) |= 1 << i;
@@ -84,13 +84,13 @@ void BATINI_Main(s32 sceneID) {
     BattleInitATBTimers();
     func_800A4480();
     D_800F7DE8 |= 1;
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         func_800A5BC8(i, 1);
     }
     if (g_BattleState.setupFlags & 8) {
         BattleInitSetSpeed(0x80);
         D_800F5F44.D_800F7DAA = 0;
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < NUM_PARTY; i++) {
             BattleInitResetExtraCmds(i);
         }
     } else {
@@ -120,13 +120,13 @@ void BATINI_Main(s32 sceneID) {
     loop:
         if (*prev & mask) {
             *prev &= ~mask;
-        } else if (*(s8*)((u8*)g_BattleState.combatant + 8 + offset) != sentinel) {
-            *(s32*)((u8*)g_BattleState.combatant + 0x2C + offset) = *order2;
+        } else if (((BattleUnit*)((u8*)g_BattleState.combatant + offset))->unk8 != sentinel) {
+            ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->curHP = *order2;
 
-            if (*(s32*)((u8*)g_BattleState.combatant + 0x2C + offset) == 0) {
-                *(s32*)((u8*)g_BattleState.combatant + offset) |= 1;
-                *(s32*)((u8*)g_BattleState.combatant + 0x44 + offset) |= 1;
-                *(s32*)((u8*)g_BattleState.combatant + 4 + offset) &= ~0x18;
+            if (((BattleUnit*)((u8*)g_BattleState.combatant + offset))->curHP == 0) {
+                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->status |= 1;
+                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->unk44[0] |= 1;
+                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->unk4 &= ~0x18;
             }
         }
 
