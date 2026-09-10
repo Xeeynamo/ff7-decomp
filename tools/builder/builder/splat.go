@@ -33,6 +33,7 @@ type SplatOptions struct {
 	SectionOrder                   []string `yaml:"section_order"`
 	LdGenerateSymbolPerDataSegment bool     `yaml:"ld_generate_symbol_per_data_segment"`
 	LdBssIsNoLoad                  bool     `yaml:"ld_bss_is_noload"`
+	HasmInSrcPath                  bool     `yaml:"hasm_in_src_path"`
 }
 
 type SplatSegment struct {
@@ -119,6 +120,7 @@ func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 			SectionOrder:                   []string{".rodata", ".text", ".data", ".sdata", ".sbss", ".bss"},
 			LdGenerateSymbolPerDataSegment: true,
 			LdBssIsNoLoad:                  o.Name != "main" && o.BssSize > 0,
+			HasmInSrcPath:                  true,
 		},
 		Segments: segments,
 	}, nil
