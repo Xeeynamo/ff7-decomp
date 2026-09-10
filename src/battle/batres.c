@@ -26,13 +26,6 @@ typedef struct {
     /* 0x80 */ u32 expLevelEnd;
 } BatresRow; // size:0x84
 
-// One party slot's live battle record, three of them starting at 0x800F5E60.
-typedef struct {
-    /* 0x00 */ u8 unk0[8];
-    /* 0x08 */ u16 limitCharge;
-    /* 0x0A */ u8 unkA[0x2A];
-} Unk800F5E60; // size:0x34
-
 extern u8 D_80082268[];
 extern u8 D_80082460[3][12]; // one 12-entry roll table per gauge kind
 extern StatGrowth D_80082484[][8];
@@ -43,17 +36,16 @@ extern u8 D_8009D7ED[][12];
 extern s16 D_8009D7EE[][6]; // same 12-byte record as D_8009D7ED
 extern SavePartyMember D_8009C738[];
 extern u8 D_8009D58A[]; // gil, stored unaligned, so it is copied a byte at a time
-extern Unk800F5E60 D_800F5E60[3];
+extern BattlePartyWork g_BattlePartyWork[NUM_PARTY];
 extern u16 D_800F7DD2;
 extern u8 D_80163790[]; // the char_id occupying each of the three party slots
 extern SavePartyMember D_80167938;
 
-s32 SysGetLimitCmdId(s32 charId, s32 limitIndex);
 void func_801B0EF8(SavePartyMember* c, s32 exp, s32 slot);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batres", func_801B0000);
 
-void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
+static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     SavePartyMember* c;
     SavePartyMember* src;
     SavePartyMember* dst;
@@ -74,7 +66,7 @@ void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     for (i = 0; i < 4; i++) {
         D_8009D58A[i] = gil[i];
     }
-    for (slot = 0; slot < 3; slot++) {
+    for (slot = 0; slot < NUM_PARTY; slot++) {
         hp = g_BattleState.combatant[slot].curHP;
         mp = (u16)g_BattleState.combatant[slot].unk28;
         id = D_80163790[slot];
@@ -90,7 +82,7 @@ void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
             if (id == c->char_id) {
                 c->hp_cur = hp;
                 c->mp_cur = mp;
-                c->limit_charge = D_800F5E60[slot].limitCharge;
+                c->limit_charge = g_BattlePartyWork[slot].limitBar;
                 c->status_flags = g_BattleState.combatant[slot].status & 0x30;
                 if (g_BattleState.setupFlags & 0x10) {
                     if (c->char_id == 0) {
@@ -120,7 +112,7 @@ void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     }
 }
 
-void GiveMateriaAp(SavePartyMember* c, s32 ap) {
+static void GiveMateriaAp(SavePartyMember* c, s32 ap) {
     s32 bits;
     s32 i;
     s32 m;
@@ -141,7 +133,7 @@ void GiveMateriaAp(SavePartyMember* c, s32 ap) {
     }
 }
 
-void GiveSharedExp(s32 mask) {
+static void GiveSharedExp(s32 mask) {
     SavePartyMember* c;
     s32 hp;
     s32 mp;
@@ -167,7 +159,7 @@ void GiveSharedExp(s32 mask) {
     }
 }
 
-void ResetBattleResults(void) {
+static void ResetBattleResults(void) {
     s32 mask;
     s32 i;
 
@@ -179,11 +171,11 @@ void ResetBattleResults(void) {
         g_BattleItemsEarned[i].id = -1;
         g_BattleItemsEarned[i].enabled = 0;
     }
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         D_8009D7EE[i][0] = 0;
         D_8009D7ED[i][0] = 0;
     }
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         if (D_8009CBDC[i] == 0xFF) {
             mask |= 1 << i;
         }
@@ -194,7 +186,7 @@ void ResetBattleResults(void) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/batres", func_801B0EF8);
 
 // Load a party member's saved stats into a results row.
-void LoadResultsRow(BatresRow* p, SavePartyMember* c) {
+static void LoadResultsRow(BatresRow* p, SavePartyMember* c) {
     p->charId = c->char_id;
     p->level = c->level;
     p->baseStat[0] = c->strength;
@@ -208,7 +200,7 @@ void LoadResultsRow(BatresRow* p, SavePartyMember* c) {
     p->expStart = c->exp;
 }
 
-void StoreResultsRow(BatresRow* p, SavePartyMember* c) {
+static void StoreResultsRow(BatresRow* p, SavePartyMember* c) {
     c->level = p->level;
     c->strength = p->stat[0];
     c->vitality = p->stat[1];
@@ -230,7 +222,7 @@ void StoreResultsRow(BatresRow* p, SavePartyMember* c) {
     }
 }
 
-void InitResultsRow(BatresRow* p) {
+static void InitResultsRow(BatresRow* p) {
     s32 i;
 
     p->curve = &D_80082268[p->charId * 56];
@@ -245,7 +237,10 @@ void InitResultsRow(BatresRow* p) {
     }
 }
 
-void GiveExp(BatresRow* p) {
+static void GrowStat(BatresRow* p, s32 gauge);
+static void GrowMaxHp(BatresRow* p);
+static void GrowMaxMp(BatresRow* p);
+static void GiveExp(BatresRow* p) {
     s32 i;
     s32 g;
     s32 lv;
@@ -280,7 +275,7 @@ void GiveExp(BatresRow* p) {
     }
 }
 
-s32 CalcTotalExp(BatresRow* r, s32 level) {
+static s32 CalcTotalExp(BatresRow* r, s32 level) {
     s32 total;
     s32 i;
     s32 m;
@@ -308,7 +303,7 @@ s32 CalcTotalExp(BatresRow* r, s32 level) {
     return total;
 }
 
-s32 RollGrowthRank(s32 arg0) {
+static s32 RollGrowthRank(s32 arg0) {
     s32 v;
 
     v = arg0 + (SysGetRandomByteFromTable() & 7) + 1;
@@ -320,19 +315,19 @@ s32 RollGrowthRank(s32 arg0) {
     return v;
 }
 
-s32 CalcStatGrowth(BatresRow* p, s32 level, s32 gauge) {
+static s32 CalcStatGrowth(BatresRow* p, s32 level, s32 gauge) {
     return D_80082484[p->curve[gauge]][p->tier].mul * level / 100 + D_80082484[p->curve[gauge]][p->tier].add;
 }
 
-s32 CalcHpGrowth(BatresRow* p, s32 level) {
+static s32 CalcHpGrowth(BatresRow* p, s32 level) {
     return D_80082484[p->curve[6]][p->tier].mul * level + D_80082484[p->curve[6]][p->tier].add * 40;
 }
 
-s32 CalcMpGrowth(BatresRow* p, s32 level) {
+static s32 CalcMpGrowth(BatresRow* p, s32 level) {
     return D_80082484[p->curve[7]][p->tier].mul * level / 10 + D_80082484[p->curve[7]][p->tier].add * 2;
 }
 
-void GrowStat(BatresRow* p, s32 gauge) {
+static void GrowStat(BatresRow* p, s32 gauge) {
     s32 v;
 
     v = p->stat[gauge] + D_80082460[0][RollGrowthRank(CalcStatGrowth(p, p->level + 1, gauge) - p->stat[gauge])];
@@ -342,7 +337,7 @@ void GrowStat(BatresRow* p, s32 gauge) {
     p->stat[gauge] = v;
 }
 
-void GrowMaxHp(BatresRow* p) {
+static void GrowMaxHp(BatresRow* p) {
     s32 cur;
     s32 next;
     s32 v;
@@ -356,7 +351,7 @@ void GrowMaxHp(BatresRow* p) {
     p->stat[6] = v;
 }
 
-void GrowMaxMp(BatresRow* p) {
+static void GrowMaxMp(BatresRow* p) {
     s32 cur;
     s32 next;
     s32 v;

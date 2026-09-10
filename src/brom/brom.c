@@ -19,7 +19,7 @@ typedef struct {
     u16 colors[1];
 } BromStruct;
 
-void func_800A0534(BromStruct* arg0) {
+static void func_800A0534(BromStruct* arg0) {
     s32 total_pixels;
     s32 i;
     s32 limit;
@@ -42,7 +42,7 @@ void func_800A0534(BromStruct* arg0) {
 
 extern void LoadImage(void* rect, void* p);
 
-u16 func_800A05D4(BromStruct* img, s32 arg1, s32 arg2) {
+static u16 func_800A05D4(BromStruct* img, s32 arg1, s32 arg2) {
     s16 rect[4];
     s32 w, h;
     s32 y;

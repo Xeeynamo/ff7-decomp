@@ -446,15 +446,15 @@ void func_801D0BA0(void) {
 }
 
 // True if the two adjacent record fields for entry arg0 are equal.
-s32 func_801D0CAC(s32 arg0) { return D_8009D85E[arg0 * 0x220] == D_8009D85C[arg0 * 0x220]; }
+static s32 func_801D0CAC(s32 arg0) { return D_8009D85E[arg0 * 0x220] == D_8009D85C[arg0 * 0x220]; }
 
 // True if the two adjacent record fields for entry arg0 are equal.
-s32 func_801D0CE8(s32 arg0) { return D_8009D862[arg0 * 0x220] == D_8009D860[arg0 * 0x220]; }
+static s32 func_801D0CE8(s32 arg0) { return D_8009D862[arg0 * 0x220] == D_8009D860[arg0 * 0x220]; }
 
 // Builds a 10-bit mask of which of character arg0's slots are occupied (slot
 // value != 0x7F), clears bit 9, and returns whether it matches the stored
 // value.
-s32 func_801D0D24(s32 arg0) {
+static s32 func_801D0D24(s32 arg0) {
     s32 mask;
     s32 i;
     for (i = 0, mask = 0; i < 10; i++) {
@@ -470,7 +470,7 @@ s32 func_801D0D24(s32 arg0) {
 // context-dependent overrides: item 0x46 (the Tent) becomes field-usable while
 // a location flag permits resting, and item 0x62 (the Save Crystal) while its
 // one-time-use save flag is still clear.
-s32 func_801D0DCC(s32 arg0) {
+static s32 func_801D0DCC(s32 arg0) {
     s32 flags = SysMenuGetInventoryRestrictionMask(arg0);
     if (arg0 != 0x46) {
         if (arg0 == 0x62) {
@@ -487,7 +487,7 @@ s32 func_801D0DCC(s32 arg0) {
 }
 
 // Copies 0x50 bytes from arg0 into the D_801D3E60 buffer.
-void func_801D0E4C(u8* arg0) {
+static void func_801D0E4C(u8* arg0) {
     s32 i;
     for (i = 0; i < 0x50; i++) {
         D_801D3E60[i] = *arg0;
@@ -497,7 +497,7 @@ void func_801D0E4C(u8* arg0) {
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D0E80);
 
-void func_801D296C(void) {}
+static void func_801D296C(void) {}
 
 static void EvictWeakestStolenMateria(s32 newMateria, s32 priority) {
     s32 i;
@@ -631,7 +631,7 @@ static void FinalizeMateriaSteal(void) {
     }
 }
 
-void StealAllMateria(void) {
+static void StealAllMateria(void) {
     s32 i;
     s32 c;
     s32 slot;
@@ -659,7 +659,7 @@ void StealAllMateria(void) {
 
 // Give back every materia that was stolen: try to re-equip each one, and if no
 // equip slot is free, return it to the materia inventory instead.
-void ReturnStolenMateria(void) {
+static void ReturnStolenMateria(void) {
     s32 i;
 
     for (i = 0; i < 0x30; i++) {
@@ -674,7 +674,7 @@ void ReturnStolenMateria(void) {
 
 // Unequip a party member: move their 16 equipped materia into the materia
 // inventory and their accessory into the item inventory.
-void UnequipCharacterMateria(s32 charIdx) {
+static void UnequipCharacterMateria(s32 charIdx) {
     u8 v;
     {
         s32 i = 0;
@@ -712,7 +712,7 @@ void UnequipCharacterMateria(s32 charIdx) {
 // Save the current party lineup, a party member's weapon/armor ids, the first
 // three materia inventory slots and the member's 16 equipped materia into the
 // stolen-materia buffer (reused as scratch space), clearing each source slot.
-void BackupCharacterMateria(s32 charIdx) {
+static void BackupCharacterMateria(s32 charIdx) {
     s32 i = 0;
     u8* base = (u8*)Savemap.yuffie_stolen_materia;
     {
@@ -779,7 +779,7 @@ void BackupCharacterMateria(s32 charIdx) {
 // Restore everything saved by BackupCharacterMateria: party lineup, the
 // member's weapon/armor ids, the first three materia inventory slots and
 // their 16 equipped materia.
-void RestoreCharacterMateria(s32 charIdx) {
+static void RestoreCharacterMateria(s32 charIdx) {
     s32 i = 0;
     u8* base = (u8*)Savemap.yuffie_stolen_materia;
     {

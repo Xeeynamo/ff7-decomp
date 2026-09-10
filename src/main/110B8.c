@@ -2,11 +2,8 @@
 #include "main_private.h"
 #include "unzip.h"
 
-void SysGzipSetDataBlock(u8* arg0);
 u8* func_80014C80(s32 arg0);
-u16 SysGzipGetType(void);
-u16 SysGzipGetSize(void);
-extern u8 D_80083084[];
+extern u8 g_KernRndTable[];
 
 extern u8 D_80062D98;
 extern s32 D_80062D9C;
@@ -46,11 +43,10 @@ extern s16 D_80062E08;
 extern s16 D_80062E0A;
 extern s32 D_80062E0C;
 void SysBgRender(void);
-void func_80014A00(s32* dst, s32* src, s32 len);
+void SysMemCopy32(s32* dst, s32* src, s32 len);
 u16* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
 s32 SysDecompKernStringWithF9(u16*, u16*);
 u16* SysGetPtrToKernBattleTxtWithId(s32);
-void SysGzipBinDecompress(GzHeader* src, s32* dst);
 s32 SysGetMateriaActivatedStars(u8, s32);
 void SysAddCommandToTemp(s32);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
@@ -63,7 +59,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/110B8", __SN_ENTRY_POINT);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_8001117C);
 
-void func_800111E4(void) {
+static void func_800111E4(void) {
     D_8009A000[0] = 0xF4;
     SystemAkaoExecute();
     if (!(Savemap.memory_bank_4[97] & 0x30)) {
@@ -76,7 +72,7 @@ void func_800111E4(void) {
     D_800716D0 = 0;
 }
 
-void func_80011274(void) {
+static void func_80011274(void) {
     SystemLoadFileBySector(D_80048CFC[4].loc, D_80048CFC[4].len, (u_long*)0x800E0000, NULL);
 
     while (1) {
@@ -102,7 +98,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBgFadeRender);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBgRender);
 
-void SysInitBase(void) {
+static void SysInitBase(void) {
     StopCallback();
     ResetCallback();
     ResetGraph(0);
@@ -119,7 +115,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitDispenvDrawenv);
 void func_800A16CC(); // field loop
 void func_800CF60C(); // field load
 
-void SysFieldRun(void) {
+static void SysFieldRun(void) {
     if (D_800965EC != 5 && D_800965EC != 13) {
         if (D_800965EC != 2) {
             SystemLoadFileBySector(D_80048CFC[5].loc, D_80048CFC[5].len, (u_long*)0x80180000, NULL);
@@ -128,26 +124,26 @@ void SysFieldRun(void) {
                     break;
                 }
             }
-            SysGzipBinDecompress((GzHeader*)0x80180000, (s32*)0x800A0000);
+            SysGzipBinDecompress((GzHeader*)0x80180000, (u8*)0x800A0000);
         } else {
             while (1) {
                 if (SystemCdromReadChain() == 0) {
                     break;
                 }
             }
-            SysGzipBinDecompress((GzHeader*)0x801C0000, (s32*)0x800A0000);
+            SysGzipBinDecompress((GzHeader*)0x801C0000, (u8*)0x800A0000);
         }
     }
     func_800CF60C();
     func_800A16CC();
 }
 
-void func_80011920(void) {
+static void func_80011920(void) {
     g_isFieldLoading = 0;
     D_80071A5C = 0;
 }
 
-void SysInitAkaoEngine(void) {
+static void SysInitAkaoEngine(void) {
     SystemLoadFileBySector(D_80048CFC[0].loc, D_80048CFC[0].len, (u_long*)0x800F0000, NULL);
     do {
     } while (SystemCdromReadChain());
@@ -213,7 +209,7 @@ const u8 D_80010124[20] = {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBattleSwirlUpdate);
 
-void SysBattleSwirlRender(void) {
+static void SysBattleSwirlRender(void) {
     D_8019DAA0++;
     if (!(D_8019DAA0 & 1)) {
         DrawOTag(D_8019D5E8);

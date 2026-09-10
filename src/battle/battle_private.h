@@ -357,9 +357,9 @@ extern u8 D_800F5774;
 extern s32 D_800F57CC; // btlmenu_cursorMemory
 extern Unk800F57D0* D_800F57D0;
 extern u8 D_800F57D4;
-extern Unk800AF470 g_CombatantTurnState[10]; // per-party-slot turn/effect state
-                                             // (flags, countdown timers)
-extern u16 D_800F7DE2[];                     // All Lucky 7s trigger count
+extern Unk800AF470 g_CombatantTurnState[NUM_BATTLE_ACTOR]; // per-party-slot turn/effect state
+                                                           // (flags, countdown timers)
+extern u16 D_800F7DE2[];                                   // All Lucky 7s trigger count
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
 extern s32 D_800F7DF8[3];
@@ -526,7 +526,7 @@ extern u16 D_80163762; // part of a struct
 // Cait Sith's 3 landed Slots reel symbols (see func_800E5358, and
 // BATTLE_ResolveCaitSithSlotsResult in battle.c)
 extern u8 D_80163774[4];
-extern u16 D_8016376E[];
+extern u16 g_CharacterMask[];
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct
 extern u8 D_8016378C[];
@@ -555,17 +555,17 @@ void func_800A8E84(s32);
 void func_800AA950(Unk800FA9D0*);
 void func_800AB308(void);
 void func_800AB480(void);
-void BATTLE_LearnEnemySkill(void);
+static void BATTLE_LearnEnemySkill(void);
 void func_800ABA68(Unk800FA9D0*, s16, u16, s16, s16);
 void func_800AC6B4(s32);
 void func_800AC73C(s32);
 void func_800ACA24(void);
 s32 func_800ACD88(s32);
-s32 BATTLE_IsDamageNullified(s32);
-void BATTLE_QueueUnassignedResultDisplay(Unk800FA9D0*);
+static s32 BATTLE_IsDamageNullified(s32);
+static void BATTLE_QueueUnassignedResultDisplay(Unk800FA9D0*);
 void func_800AD0FC(void);
 void func_800AD324(s32, s32, s32, s32);
-void BATTLE_ApplyDefaultAbsorbEffect(void);
+static void BATTLE_ApplyDefaultAbsorbEffect(void);
 void func_800AD4EC(void);
 void func_800AE82C(void);
 s32 func_800B3030(s32);
@@ -582,10 +582,6 @@ static void func_800BB030(s16 arg0);
 void func_800BB2A8(u8);
 void func_800BB9B8(s32);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
-static void func_800C0480(s16);
-static void func_800C0630(s16);
-static void func_800C0970(s16);
-static void func_800C0B20(s16);
 static void func_800C1908(u8 arg0);
 void func_800C5E94(void);
 void func_8002DF88(s16*);
@@ -602,6 +598,8 @@ void func_800E15D8(void);
 void func_800E5814(void);
 void func_800E6B94(void);
 void BATTLE_EnqueueLoadImage(RECT* rect, u_long* ptr);
+void func_800A56B0(s16 arg0);
+void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 /* battle menu widget block (one per widget id, 0x240 apart) -- partial */
 typedef struct {

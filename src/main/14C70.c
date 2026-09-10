@@ -8,9 +8,9 @@ s32 D_80062E24;
 s32 D_80062E28;
 s32 D_80062E2C;
 
-u16* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2);
+u8* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2);
 s32 SysDecompKernStringWithF9(u16* arg0, u16* arg1);
-u16* SysGetPtrToKernBattleTxtWithId(s32 arg0);
+u8* SysGetPtrToKernBattleTxtWithId(s32 arg0);
 
 void func_80014C70() {
     D_80062E1C = 0;
@@ -51,7 +51,7 @@ s32 func_80014CBC(s32 arg0, s32 arg1) {
     return var_a2;
 }
 
-u8* func_80014D58(u8* arg0, u8* arg1, s32 arg2) {
+static u8* func_80014D58(u8* arg0, u8* arg1, s32 arg2) {
     u8 var_a3 = *arg1;
     while (var_a3 != 0xFF) {
         *arg0 = var_a3;
@@ -66,13 +66,13 @@ u8* func_80014D58(u8* arg0, u8* arg1, s32 arg2) {
     return arg0;
 }
 
-u16* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2) {
+u8* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2) {
     u8* temp_v1 = D_80063690 + D_80069490[arg0 + arg2];
-    return (u16*)&temp_v1[*(u16*)&temp_v1[arg1 * 2]];
+    return (u8*)&temp_v1[*(u16*)&temp_v1[arg1 * 2]];
 }
 
-void func_80014DD0(s32 arg0, s32 arg1, u8* arg2) {
-    func_80014D58(arg2, (u8*)SysGetPointerToTextInKernWithBlockAndTextId(arg0, arg1, 0), -1);
+static void func_80014DD0(s32 arg0, s32 arg1, u8* arg2) {
+    func_80014D58(arg2, SysGetPointerToTextInKernWithBlockAndTextId(arg0, arg1, 0), -1);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80014E0C);
@@ -81,10 +81,10 @@ INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80014E74);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysDecompKernStringWithF9);
 
-u16* SysGetPtrToKernBattleTxtWithId(s32 arg0) { return SysGetPointerToTextInKernWithBlockAndTextId(0x10, arg0, 0); }
+u8* SysGetPtrToKernBattleTxtWithId(s32 arg0) { return SysGetPointerToTextInKernWithBlockAndTextId(0x10, arg0, 0); }
 
 s32 SysGetPtrToUncompKernBattleTxtWithId(s32 arg0) {
-    u16* temp_v0 = SysGetPtrToKernBattleTxtWithId(arg0);
+    u8* temp_v0 = SysGetPtrToKernBattleTxtWithId(arg0);
     return SysDecompKernStringWithF9(temp_v0, temp_v0);
 }
 

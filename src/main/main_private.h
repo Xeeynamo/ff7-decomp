@@ -218,3 +218,9 @@ extern u8 D_8009D5E9;
 extern u16 D_8009D78A; // party-present bitmask
 void D_800A00CC(void); // battle/brom entrypoint
 void D_800A1158(void); // battle/battle entrypoint
+
+void SysGzipBinDecompress(GzHeader* src, u8* dst);
+void SysGzipSetDataBlock(u8* arg0);
+u16 SysGzipGetType(void);
+u16 SysGzipGetSize(void);
+u32 SysGzipPackDecompressNextBlock(u8* dst);

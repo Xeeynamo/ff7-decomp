@@ -134,8 +134,10 @@ extern int (*GPU_printf)(); /* printf() object */
     ((tge) ? setcode(p, getcode(p) | 0x01) : setcode(p, getcode(p) & ~0x01))
 
 #define getTPage(tp, abr, x, y)                                                \
-    ((((tp) & 0x3) << 7) | (((abr) & 0x3) << 5) | (((y) & 0x100) >> 4) |       \
-     (((x) & 0x3ff) >> 6) | (((y) & 0x200) << 2))
+    ((GetGraphType()==1||GetGraphType()==2)?			                       \
+	 ((((tp)&0x3)<<9)|(((abr)&0x3)<<7)|(((y)&0x300)>>3)|(((x)&0x3ff)>>6)):     \
+	 ((((tp)&0x3)<<7)|(((abr)&0x3)<<5)|(((y)&0x100)>>4)|(((x)&0x3ff)>>6)|      \
+	 (((y)&0x200)<<2)))
 
 #define getClut(x, y) ((y << 6) | ((x >> 4) & 0x3f))
 
@@ -644,4 +646,5 @@ extern DISPENV* SetDefDispEnv(DISPENV* env, int x, int y, int w, int h);
 extern DRAWENV* SetDefDrawEnv(DRAWENV* env, int x, int y, int w, int h);
 extern TIM_IMAGE* ReadTIM(TIM_IMAGE* timimg);
 
+extern int GetGraphType(void);
 #endif

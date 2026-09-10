@@ -1,20 +1,15 @@
 //! G=0
 #include "main_private.h"
 
-void func_80014A00(s32* dst, s32* src, s32 len);
+void SysMemCopy32(s32* dst, s32* src, s32 len);
 u8* func_80014C80(s32 arg0);
-void SysGzipBinDecompress(GzHeader* src, s32* dst);
-void SysGzipSetDataBlock(u8* arg0);
-u16 SysGzipGetType(void);
-u16 SysGzipGetSize(void);
-u32 SysGzipPackDecompressNextBlock(u8* dst);
 
 // obtain file sector from a YamadaFile
 s32 func_800144D8(s32 file_no) { return D_80048D84[file_no].loc; }
 
-void func_800144F0(s32 file_no) { func_80033DAC(file_no, 0); }
+static void func_800144F0(s32 file_no) { func_80033DAC(file_no, 0); }
 
-void func_80014510(s32 file_no) { func_800144F0(D_80048D84[file_no].loc); }
+static void func_80014510(s32 file_no) { func_800144F0(D_80048D84[file_no].loc); }
 
 // used to load WORLD/WORLD.BIN or FIELD/FIELD.BIN
 void func_80014540(void) { SystemLoadFileBySector(D_80071744, D_80095DD8, D_800722C8, NULL); }
@@ -31,20 +26,20 @@ void func_800145BC(void (*cb)(void)) {
     }
 }
 
-void func_80014608(void) {}
+static void func_80014608(void) {}
 
 // initialize LBA system
 void func_80014610(void) {
     u8 buf[2048];
     SystemLoadFileBySector(LBA_INIT_YAMADA, sizeof(buf), (u_long*)&buf, NULL);
     func_800145BC(0);
-    func_80014A00((s32*)D_80048D84, (s32*)&buf, sizeof(Yamada) * YAMADA_FILE_NUM);
+    SysMemCopy32((s32*)D_80048D84, (s32*)&buf, sizeof(Yamada) * YAMADA_FILE_NUM);
 }
 
-void func_80014658(s32 file_no, void (*cb)(void)) {
+static void func_80014658(s32 file_no, void (*cb)(void)) {
     func_80014578(file_no, (void*)0x801B0000, 0);
     func_800145BC(0);
-    SysGzipBinDecompress((GzHeader*)0x801B0000, (s32*)0x800A0000);
+    SysGzipBinDecompress((GzHeader*)0x801B0000, (u8*)0x800A0000);
     cb();
 }
 
@@ -68,20 +63,20 @@ void func_800146A4(void) {
 }
 
 void func_80014750(void) {
-    s32 temp_a0;
-    s32 temp_s0;
+    s32 size;
+    s32 kind;
 
-    SysGzipSetDataBlock(0x801B0000);
+    SysGzipSetDataBlock((u8*)0x801B0000);
     while (1) {
-        temp_s0 = SysGzipGetType() & 0xFFFF;
-        if (temp_s0 == 0xFFFF) {
+        kind = SysGzipGetType();
+        if (kind == 0xFFFF) {
             break;
         }
-        temp_a0 = SysGzipGetSize() & 0xFFFF;
-        if (temp_s0 == 9) {
-            SysGzipPackDecompressNextBlock(func_80014C80(temp_a0));
-        } else if (D_80048DD4[temp_s0]) {
-            SysGzipPackDecompressNextBlock(D_80048DD4[temp_s0]);
+        size = SysGzipGetSize();
+        if (kind == 9) {
+            SysGzipPackDecompressNextBlock(func_80014C80(size));
+        } else if (D_80048DD4[kind]) {
+            SysGzipPackDecompressNextBlock((u8*)D_80048DD4[kind]);
         }
     }
 }

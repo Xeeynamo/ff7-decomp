@@ -11,7 +11,7 @@
 #define _SL(len, x) x // same as _S, but for fixed-length strings with padding
 #endif
 
-#define MAX_PARTY_COUNT 9
+#define NUM_CHARACTERS 9
 #define MAX_INVENTORY_COUNT 320
 #define MAX_MATERIA_COUNT 200
 
@@ -177,6 +177,20 @@ typedef enum {
     WSTATE_WAIT_NEXT_WINDOW,
 } WindowState;
 
+typedef enum {
+    ANIMSTATUS_DEFAULT_LOOP,         // Loop and track animId/effAnimSpeed.
+    ANIMSTATUS_SCRIPTED_LOOP,        // Loop current requested animation without
+                                     // re-tracking defaults.
+    ANIMSTATUS_PLAY_ONCE_SYNC,       // Blocking one-shot.
+    ANIMSTATUS_HOLD_FRAME,           // Freeze on last frame.
+    ANIMSTATUS_PLAY_ONCE_SYNC_DONE,  // Blocking one-shot finished, waiting for
+                                     // script-side consumption.
+    ANIMSTATUS_PLAY_ONCE_THEN_RESET, // Non-blocking one-shot, return to
+                                     // DEFAULT_LOOP when done.
+    ANIMSTATUS_PLAY_ONCE_THEN_HOLD,  // Non-blocking one-shot, go to HOLD_FRAME
+                                     // when done.
+} ModelAnimationStatus;
+
 typedef struct {
     s16 x1;
     s16 y1;
@@ -288,7 +302,7 @@ typedef struct {
 // https://ff7-mods.github.io/ff7-flat-wiki/FF7/Savemap
 typedef struct {
     SaveHeader header;
-    /* 0x54 */ SavePartyMember party[MAX_PARTY_COUNT];
+    /* 0x54 */ SavePartyMember party[NUM_CHARACTERS];
     /* 0x4F8 */ u8 partyID[4];
     /* 0x4FC */ u16 inventory[MAX_INVENTORY_COUNT];
     /* 0x77C */ s32 materia[MAX_MATERIA_COUNT];
@@ -820,7 +834,7 @@ typedef struct {
     u16 unk40;
     u8 unk42;
     u8 unk43;
-    u32 nextBattleMusic;
+    u8* nextBattleMusic;
     u32 nextFieldMusic;
     // Set by FADE or NFADE to start fades.
     u16 fadeType; // enum FieldFadeType.
@@ -840,14 +854,14 @@ typedef struct {
     u8 unk67;
     // Uses PADx macros in libetc.h
     // Raw states ignore custom key mapping set by player.
-    u32 activeKeysRaw;     // Currently active keys.
-    u32 activeKeysPrevRaw; // activeKeysRaw from last frame.
-    u32 pressedKeysRaw;    // Was inactive last frame.
-    u32 releasedKeysRaw;   // Was active last frame.
-    u32 activeKeys;
-    u32 activeKeysPrev;
-    u32 pressedKeys;
-    u32 releasedKeys;
+    s32 activeKeysRaw;     // Currently active keys.
+    s32 activeKeysPrevRaw; // activeKeysRaw from last frame.
+    s32 pressedKeysRaw;    // Was inactive last frame.
+    s32 releasedKeysRaw;   // Was active last frame.
+    s32 activeKeys;
+    s32 activeKeysPrev;
+    s32 pressedKeys;
+    s32 releasedKeys;
     s16 currentMovieFrame;
     // Set by SHAKE to enable a randomized camera shake effect.
     FieldShakeData shakeX;
@@ -975,7 +989,7 @@ extern u8 D_800708D0[][0x1C];        // kernel-region table, by attack/effect id
 extern AttackData D_800722CC[];      // magic/summon/skill table
 extern WeaponRecord g_WeaponTable[]; // 0x800738A0, by weapon id
 extern FieldEntity g_FieldEntity[];
-extern u8 D_800756E8[]; // per-model flags, indexed by field model id
+extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
 extern Unk80075D00* D_80075D00;
 extern int D_80075DEC;           // buffer index, either 0 or 1
@@ -988,22 +1002,25 @@ extern DISPENV D_8007EB68[2];
 extern u8 g_EntityToModel[48]; // entity id -> model id (0xFF: none)
 extern s8 D_8007EBCC;
 extern s8 D_8007EBDC;
-extern u8 D_8007EBE0;                 // field debug mode
-extern u8 g_CharacterLock;            // mirror of the UC opcode's control-lock flag
-extern u8 g_EntitySplitJoinState[48]; // states for SPLIT and JOIN opcodes
-extern s16 D_80082248[];              // per-model current animation playback speed
+extern u8 D_8007EBE0;                    // field debug mode
+extern u8 g_CharacterLock;               // mirror of the UC opcode's control-lock flag
+extern u8 g_EntitySplitJoinState[48];    // states for SPLIT and JOIN opcodes
+extern s16 g_FieldModelEffAnimSpeed[16]; // per-model current animation playback speed
 extern u8 D_80083184[0x40];
-extern u8 D_800831C4[];         // Magic Order table from kernel.bin section 3.
-extern u16 g_FieldScriptPC[48]; // program counters for active entity scripts
-extern u8 D_8008325C[];         // per-model default animation id (DFANM)
+extern u8 D_800831C4[];           // Magic Order table from kernel.bin section 3.
+extern u16 g_FieldScriptPC[48];   // program counters for active entity scripts
+extern u8 g_FieldModelAnimId[16]; // per-model default animation id (DFANM)
 extern u8 g_WindowToEntity[4];
 extern WindowData g_WindowData[4];
+extern u8 D_8008325C[16];
 extern u8 D_8008326C[4];
 extern s32 D_80083338;
+
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level
 extern FieldModelLoaderData* g_FieldModelLoaderData;
 extern s16 g_FieldLineCount;
+extern u16 g_FieldPaletteBuffer[64][16];
 extern s8 D_80095DCC;
 extern volatile u16 D_80095DD4;
 extern s16 g_PlayerModelId;
@@ -1011,7 +1028,7 @@ extern s16 g_isFieldLoading;
 extern volatile s16 D_800965EC;
 extern u8 D_80099FFC;
 extern s16 D_8009A000[1];
-extern u32 D_8009A004[1];
+extern u_long D_8009A004[1]; // may be a u8*
 extern s32 D_8009A008[1];
 extern s32 D_8009A00C;
 extern s32 D_8009A024[8];
@@ -1041,8 +1058,8 @@ extern u8 D_8009D60E;
 extern u8 g_DebugLevel; // field debug related
 extern CharacterLevelData g_CharacterLevelData[3];
 extern u8 D_8009D824;
-extern s16 D_8009D828[]; // per-model base animation speed
-extern s16 D_8009D85C[]; // record fields, stride 0x440
+extern s16 g_FieldModelBaseAnimSpeed[16]; // per-model base animation speed
+extern s16 D_8009D85C[];                  // record fields, stride 0x440
 extern BattleItemReward g_BattleItemsEarned[4];
 extern u8 D_8009D8F8[];
 extern u32 D_8009D260;
@@ -1074,7 +1091,7 @@ void SysMenuSetCursorMovement(
 void SysMenuSetPoly(void* poly);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
-int SystemAkaoExecute();
+void SystemAkaoExecute(void);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);
@@ -1084,6 +1101,9 @@ int func_80033EDC(int sector_no, void (*cb)());
 int SysCdromLoadFile(int sector_no, size_t size, u_long* dst, void (*cb)());
 int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)());
 u32 SystemCdromReadChain(void);
+s32 SysGetLimitCmdId(s32 charId, s32 limitIndex);
+u8* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2);
+u8* SysGetPtrToKernBattleTxtWithId(s32 arg0);
 
 // from overlays
 extern u8 SavedScriptIds[48][8]; // script ids of latest queued scripts
