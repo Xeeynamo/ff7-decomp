@@ -191,7 +191,7 @@ static void FieldInitDefaultValues(void) {
         g_FieldModels[i].MoveEndZ = 0;
         g_FieldModels[i].animCurrentFrame = 0;
         g_FieldModels[i].animLastFrame = 0;
-        g_FieldModels[i].visible = 0;
+        g_FieldModels[i].Visible = 0;
         g_FieldModels[i].MoveSpeed = 1024 * g_pFieldState->currentFieldScale / 512;
         g_FieldModels[i].scriptedMoveMode = SMODE_NONE;
         g_FieldModels[i].ActionArg = 0;
@@ -280,7 +280,35 @@ static void FieldEventRunInit(void) {
     g_CurrentEntity = 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_event", FieldEnablePartyModels);
+void FieldEnablePartyModels(void) {
+    s16 i, j, charId, entityId, modelId;
+
+    for (i = 0; i < 3; i++) {
+        charId = Savemap.memory_bank_2[9 + i];
+        if (charId != 0xFF) {
+            entityId = g_CharIdToEntity[charId];
+            if (entityId != 0xFF) {
+                modelId = g_EntityToModel[entityId];
+                if (modelId != 0xFF && modelId < D_8007E770->modelCount) {
+                    g_FieldModelLoaderData[modelId].npcFlag = 1;
+                }
+            }
+        }
+    }
+
+    for (i = 0; i < D_8007E770->modelCount; i++) {
+        if (!g_FieldModelLoaderData[i].npcFlag) {
+            for (j = 0; j < g_FieldScripts->numEntities; j++) {
+                if (g_EntityToModel[j] == i) {
+                    g_EntityToModel[j] = 0xFF;
+                    g_FieldModels[i].Visible = 0;
+                    g_FieldModels[i].SolidOff = 1;
+                    g_FieldModels[i].TalkOff = 1;
+                }
+            }
+        }
+    }
+}
 
 static void FieldEventOpcodeCycle(void) {
     s32 i, j, count;

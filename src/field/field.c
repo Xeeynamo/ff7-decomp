@@ -72,7 +72,6 @@ extern void SystemLzsDecompress(u8* dst, u8* src);
 extern s32* g_FieldModelsP;
 extern s32 g_FieldTriggers;
 extern s32 g_FieldEncounters;
-extern s32 D_8007E770;
 extern s16 g_CurrentFieldIndex;
 extern s32* g_FieldTriggersP;
 extern s32* g_FieldEncountersP;
@@ -98,7 +97,7 @@ static void FieldLoadMimDatFiles(void) {
     g_FieldTriggers = *g_FieldTriggersP;
     g_FieldEncounters = *g_FieldEncountersP;
     temp = *g_FieldModelsP;
-    D_8007E770 = temp;
+    D_8007E770 = (FieldModelLoaderHeader*)temp;
     g_FieldModelLoaderData = (FieldModelLoaderData*)++temp;
 }
 

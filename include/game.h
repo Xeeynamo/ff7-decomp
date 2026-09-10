@@ -693,7 +693,7 @@ typedef struct {
     u8 SolidOff;          // 0x59
     u8 requestTalkScript; // 0x5A
     u8 TalkOff;           // 0x5B
-    u8 visible;           // 0x5C
+    u8 Visible;           // 0x5C
     u8 scriptedMoveMode;  // 0x5D - enum ScriptedMoveMode
     u8 activeAnimId;      // 0x5E
     s8 unk5F;             // 0x5F
@@ -724,6 +724,11 @@ typedef struct {
     /* 0x06 */ u8 unk6;
     /* 0x07 */ u8 globalModelId; // BCX/global model lookup id
 } FieldModelLoaderData;          // size:0x8
+
+typedef struct {
+    u8 unk0[2];
+    u16 modelCount;
+} FieldModelLoaderHeader; // followed by FieldModelLoaderData entries
 
 typedef struct {
     /* 0x00 */ u8 flags;     // initialized to 1, later cleared
@@ -1019,6 +1024,7 @@ extern s32 D_80083338;
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level
 extern FieldModelLoaderData* g_FieldModelLoaderData;
+extern FieldModelLoaderHeader* D_8007E770;
 extern s16 g_FieldLineCount;
 extern u16 g_FieldPaletteBuffer[64][16];
 extern s8 D_80095DCC;

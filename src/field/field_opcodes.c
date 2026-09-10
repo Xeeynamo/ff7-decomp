@@ -209,7 +209,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
         if (D_80071E24 & 2) {
             DebugPrintToFieldWindow(g_DebugText);
         }
-        if (g_FieldModels[g_EntityToModel[entityId]].visible) {
+        if (g_FieldModels[g_EntityToModel[entityId]].Visible) {
             FieldDebugStringCopy(g_DebugText, "V");
         } else {
             FieldDebugStringCopy(g_DebugText, ".");
@@ -2511,7 +2511,7 @@ s32 OpcodeFuncChar(void) {
     }
     g_EntityToModel[g_CurrentEntity] = g_FieldModelCount++;
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].charId = GET_PARAM_U8(1);
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].visible = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].Visible = 1;
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].entityId = g_CurrentEntity;
     PC_INC(2);
     return 0;
@@ -3687,7 +3687,7 @@ s32 OpcodeFuncPc(void) {
     for (i = 0; i < 3; i++) {
         if (Savemap.memory_bank_2[9 + i] == charId) {
             if (i != 0) {
-                g_FieldModels[g_EntityToModel[g_CurrentEntity]].visible = 0;
+                g_FieldModels[g_EntityToModel[g_CurrentEntity]].Visible = 0;
                 g_FieldModels[g_EntityToModel[g_CurrentEntity]].SolidOff = 1;
                 g_FieldModels[g_EntityToModel[g_CurrentEntity]].TalkOff = 1;
             } else {
@@ -3701,7 +3701,7 @@ s32 OpcodeFuncPc(void) {
 
     g_CharIdToEntity[charId] = g_CurrentEntity;
 
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].visible = 0;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].Visible = 0;
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].SolidOff = 1;
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].TalkOff = 1;
 
