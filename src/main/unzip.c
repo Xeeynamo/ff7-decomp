@@ -70,15 +70,7 @@ static u32 inflateMemAlloced = 0;
 static s32 lbits = 9; /* bits in base literal/length lookup table */
 static s32 dbits = 6; /* bits in base distance lookup table */
 
-static s32 inflate();
-static s32 inflate_block(s32* e);
-static s32 inflate_stored();
-static s32 inflate_fixed();
-static s32 huft_build(u32* b, u32 n, u32 s, u16* d, u16* e, huft** t, s32* m);
-static void* inflate_malloc(u32 size);
 static s32 huft_free(huft* t);
-static s32 inflate_codes(huft* tl, huft* td, s32 bl, s32 bd);
-static s32 inflate_dynamic();
 
 /* If BMAX needs to be larger than 16, then h and dr[] should be ulg. */
 #define BMAX 16   /* maximum bit length of any code (16 for explode) */

@@ -838,15 +838,15 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     Unzip((u8*)src, (u8*)dst);
     formationIndex = sceneID - sceneChunkID * 4;
     SysMemCopy32(D_8016360C.enemyModelIDs, scene.enemyModelIDs, sizeof(scene.enemyModelIDs));
-    SysMemCopy32((s32*)&D_8016360C.setup, &scene.setup[formationIndex], sizeof(BattleSetup));
-    SysMemCopy32((s32*)&D_8016360C.camera, &scene.camera[formationIndex], sizeof(CameraPlacement) * 4);
-    SysMemCopy32((s32*)&D_8016360C.formation, &scene.formation[formationIndex], sizeof(FormationEntry) * NUM_ENEMY);
-    SysMemCopy32((s32*)&D_800F5F44.enemy, &scene.enemy, sizeof(scene.enemy));
-    SysMemCopy32((s32*)&D_800F5F44.attacks, &scene.attacks, sizeof(scene.attacks));
-    SysMemCopy32((s32*)&D_800F5F44.attackIDs, scene.attackIDs, sizeof(scene.attackIDs));
-    SysMemCopy32((s32*)&D_800F5F44.attackNames, &scene.attackNames, sizeof(scene.attackNames));
-    SysMemCopy32((s32*)&D_800F5F44._5, &scene.unkC80, sizeof(Unk800F5F44_5));
-    SysMemCopy32((s32*)&D_800F5F44.script, &scene.script, sizeof(scene.script));
+    SysMemCopy32(&D_8016360C.setup, &scene.setup[formationIndex], sizeof(BattleSetup));
+    SysMemCopy32(&D_8016360C.camera, &scene.camera[formationIndex], sizeof(CameraPlacement) * 4);
+    SysMemCopy32(&D_8016360C.formation, &scene.formation[formationIndex], sizeof(FormationEntry) * NUM_ENEMY);
+    SysMemCopy32(&D_800F5F44.enemy, &scene.enemy, sizeof(scene.enemy));
+    SysMemCopy32(&D_800F5F44.attacks, &scene.attacks, sizeof(scene.attacks));
+    SysMemCopy32(&D_800F5F44.attackIDs, scene.attackIDs, sizeof(scene.attackIDs));
+    SysMemCopy32(&D_800F5F44.attackNames, &scene.attackNames, sizeof(scene.attackNames));
+    SysMemCopy32(&D_800F5F44._5, &scene.unkC80, sizeof(Unk800F5F44_5));
+    SysMemCopy32(&D_800F5F44.script, &scene.script, sizeof(scene.script));
     if (D_8016376A & 4 && D_8016360C.setup.flags & SETUP_NO_PREEMPTIVE_STRIKE) {
         if (D_8016360C.setup.type == SETUP_DEFAULT) {
             D_8016360C.setup.type = SETUP_PREEMPTIVE;

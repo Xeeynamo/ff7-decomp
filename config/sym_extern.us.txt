@@ -26,7 +26,6 @@ g_EntitySplitJoinState = 0x80081D90;
 g_CharacterLock = 0x80081DC4;
 g_FieldModelEffAnimSpeed = 0x80082248;
 g_FieldScriptPC = 0x800831FC;
-
 g_FieldModelAnimId = 0x8008325C;
 g_WindowToEntity = 0x8008326C;
 g_WindowData = 0x80083274;
