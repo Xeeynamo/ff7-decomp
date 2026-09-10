@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 jobs:
-  build:
+  build-ps1:
     # Building and testing cannot work if the repository owner is not Xeeynamo
     # due to the missing secrets to clone the CI dependencies
     if: github.repository == 'Xeeynamo/ff7-decomp'
@@ -69,3 +69,20 @@ jobs:
       with:
         name: us_report
         path: build/report.json
+  build-modern:
+    runs-on: ubuntu-latest
+    steps:
+    - run: sudo apt-get install -y ninja-build
+    - if: github.event_name != 'pull_request_target'
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ github.ref }}
+        submodules: true
+    - if: github.event_name == 'pull_request_target'
+      uses: actions/checkout@v7
+      with:
+        allow-unsafe-pr-checkout: true
+        ref: ${{ github.event.pull_request.head.sha }}
+        submodules: true
+    - run: cmake -B build/pc -GNinja
+    - run: cmake --build build/pc
