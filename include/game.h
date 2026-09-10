@@ -14,12 +14,35 @@
 #define NUM_CHARACTERS 9
 #define MAX_INVENTORY_COUNT 320
 #define MAX_MATERIA_COUNT 200
+#define NUM_MENU_COLOR 12
+#define LABEL_SIZE 12
 
 typedef unsigned char ff7s[];
 
 typedef enum {
+    LABEL_ITEM,
+    LABEL_MAGIC,
+    LABEL_MATERIA,
+    LABEL_EQUIP,
+    LABEL_STATUS,
+    LABEL_ORDER,
+    LABEL_LIMIT,
+    LABEL_CONFIG,
+    LABEL_PHS,
+    LABEL_SAVE,
+    LABEL_USO_10,
+    LABEL_BEGINNER,
+    LABEL_USO_12,
+    LABEL_USO_13,
     LABEL_TIME,
     LABEL_GIL,
+    LABEL_NEXT_LEVEL,
+    LABEL_LIMIT_LEVEL,
+    LABEL_TUTORIAL,
+    LABEL_UNDER,
+    LABEL_LEVEL_UP,
+    LABEL_FURY,
+    LABEL_SADNESS,
 } Labels;
 
 typedef enum {
@@ -42,10 +65,26 @@ typedef struct {
 } Yamada;
 
 typedef enum {
-    LBA_INIT_YAMADA = 614,
-    LBA_ENEMY6_SEFFECT = 30046,
-    LBA_ENEMY6_OVER2 = 30694,
-    LBA_ENEMY6_FAN2 = 30695,
+    LBA_SOUND_INSTR_ALL = 219,   // SOUND/INSTR.ALL
+    LBA_SOUND_EFFECT = 455,      // SOUND/EFFECT.ALL
+    LBA_SOUND_INSTR_DAT = 480,   // SOUND/INSTR.DAT
+    LBA_SOUND_INSTR2_ALL = 484,  // SOUND/INSTR2.ALL
+    LBA_SOUND_INSTR2_DAT = 607,  // SOUND/INSTR2.DAT
+    LBA_INIT_YAMADA = 614,       // INIT/YAMADA.BIN
+    LBA_MINI_CHOCOBO = 639,      // MINI/CHOCOBO.BIN
+    LBA_MINI_SNOBO = 1235,       // MINI/SNOBO.BIN
+    LBA_MINI_SNOBO2 = 1395,      // MINI/SNOBO2.BIN
+    LBA_MINI_CONDOR = 1585,      // MINI/CONDOR.BIN
+    LBA_MINI_SUBMAR = 1900,      // MINI/SUBMAR.BIN
+    LBA_MINI_HIGHWAY = 1965,     // MINI/HIGHWAY.BIN
+    LBA_MINI_JET = 2500,         // MINI/JET.BIN
+    LBA_WORLD_WORLD = 2870,      // WORLD/WORLD.BIN
+    LBA_ENEMY6_SEFFECT = 30046,  // ENEMY6/SEFFECT.LZS
+    LBA_ENEMY6_OVER2 = 30694,    // ENEMY6/OVER2.SND
+    LBA_ENEMY6_FAN2 = 30695,     // ENEMY6/FAN2.SND
+    LBA_FIELD_FIELD = 55000,     // FIELD/FIELD.BIN
+    LBA_FIELD_DSCHANGE = 126886, // FIELD/DSCHANGE.X
+    LBA_FIELD_ENDING = 126889,   // FIELD/ENDING.X
 } Lba;
 
 typedef enum {
@@ -252,8 +291,8 @@ typedef struct {
     s32 gil;
     s32 time;
     s8 place_name[0x20];
-    u8 menu_color[12]; // 4 corners x RGB
-} SaveHeader;          // size: 0x54
+    u8 menu_color[NUM_MENU_COLOR]; // 4 corners x RGB
+} SaveHeader;                      // size: 0x54
 
 // partially inspired by Q-Gears 'VI. The Save game format'
 typedef struct {
@@ -341,6 +380,11 @@ typedef struct {
     /* 0x10EE */ u16 D_8009D7D2; // ??
     /* 0x10F0 */ u32 D_8009D7D4;
 } SaveWork; // size: 0x10F4
+
+typedef struct {
+    u8 color[4];
+    u8 labels[23][LABEL_SIZE];
+} MainMenuColorLabels;
 
 typedef struct {
     s32 actorId;
@@ -948,9 +992,9 @@ extern u16 g_Pad1KeysRepeat;
 // Battle characters have IDs 0-10. 9 and 10 are young Cloud and Sephiroth from
 // flashback sequence and they use same character records as Cait Sith and
 // Vincent.
-extern s32 g_BattleCharIdToCharId[11];
-extern u8 g_MenuColors[12]; // 4 corners x RGB
-extern u8 D_800492F0[][12]; // see Labels enum
+extern s32 g_BattleCharIdToCharId[14];
+extern MainMenuColorLabels g_Labels;    // labels indexed by Labels enum
+extern u8 g_MenuColors[NUM_MENU_COLOR]; // 4 corners x RGB
 extern FieldModelData* g_FieldModelData;
 extern u8 D_80062D98; // battle_clearRenderList
 extern u8 D_80062D99;
@@ -1113,7 +1157,6 @@ void SysCalculateTotalLureGilPreemptiveValue(void);
 s32 SysMenuGetMateriaColorByType(s32 arg0);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
 s32 SysAddCommandToTemp(s32);
-u8* func_80014C80(s32 arg0);
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
 
 int func_80033DAC(int sector_no, void (*cb)());

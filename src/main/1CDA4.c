@@ -388,10 +388,17 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1CDA4", SysMenuStoreWindowColor);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1CDA4", SysMenuRestoreWindowColor);
 
+// default FF7 menu colors
+u8 g_MenuColors[NUM_MENU_COLOR] = {
+    0, 88, 176, // top-left
+    0, 0,  128, // top-right
+    0, 0,  80,  // bottom-left
+    0, 0,  32,  // bottom-right
+};
 // sets the menu color with a quadruplet of RGB values
 void SysMenuSetWindowColor(u8* menu_colors) {
     s32 i;
-    for (i = 0; i < 12; i++) {
+    for (i = 0; i < NUM_MENU_COLOR; i++) {
         g_MenuColors[i] = *menu_colors++;
     }
 }
@@ -434,15 +441,17 @@ void SysMenuDrawCursor(s16 x, s16 y) {
     SysMenuSetDrawMode(0, 1, (u16)GetTPage(0, 2, 0x3C0, 0x100), &rect);
 }
 
+static s32 D_80049214[4] = {600, 60, 10, 1}; // 10 minutes, 1 minute, 10 seconds, 1 second
 INCLUDE_ASM("asm/us/main/nonmatchings/1CDA4", SysMenuDrawDialogTimer);
 
+static s32 digit_splitter[8] = {10000000, 1000000, 100000, 10000, 1000, 100, 10, 1}; // digit splitter
 static void SysMenuDrawDialogDigits(s32 x, s32 y, s32 n, s32 len) {
     RECT rect;
     s32 i;
     s32 uv;
 
     for (i = 0; i < 8; i++) {
-        uv = n / D_80049224[i];
+        uv = n / digit_splitter[i];
         setSprt(D_80062F24.sprt);
         SetShadeTex(D_80062F24.sprt, 1);
         D_80062F24.sprt->x0 = x;
@@ -456,7 +465,7 @@ static void SysMenuDrawDialogDigits(s32 x, s32 y, s32 n, s32 len) {
             x += 16;
             AddPrim(D_80062FC4, D_80062F24.sprt++);
         }
-        n %= D_80049224[i];
+        n %= digit_splitter[i];
     }
     rect.x = 0;
     rect.y = 0;

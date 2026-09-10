@@ -176,8 +176,8 @@ void func_801D370C(s32 x, s32 y, s32 slot_no) {
     SysMenuSetDrawMode(0, 1, 127, &rect);
     SysMenuDrawString(189, y + 26, D_801E3684, 5);
     SysMenuDrawString(184, y + 8, save->leader_name, 7);
-    SysMenuDrawString(284, y + 9, D_800492F0[LABEL_TIME], 7);
-    SysMenuDrawString(284, y + 23, D_800492F0[LABEL_GIL], 7);
+    SysMenuDrawString(284, y + 9, g_Labels.labels[LABEL_TIME], 7);
+    SysMenuDrawString(284, y + 23, g_Labels.labels[LABEL_GIL], 7);
     SysMenuSetWindowColor(save->menu_color);
 
     for (j = 0; j < 3; j++) {

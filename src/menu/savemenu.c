@@ -629,7 +629,7 @@ read_ok:
     saveDst = (u8*)&Savemap;
     saveSrc = g_SaveFileData;
     memcpy(saveDst, saveSrc, sizeof(SaveWork));
-    for (i = 0; i < 12; i++) {
+    for (i = 0; i < NUM_MENU_COLOR; i++) {
         g_MenuColors[i] = Savemap.header.menu_color[i];
     }
     return 0;

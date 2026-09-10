@@ -1,6 +1,27 @@
 //! G=0
 #include "main_private.h"
 
+// placeholder sectors and sizes, replaced at boot with INIT/YAMADA.BIN
+static Yamada D_80048D84[YAMADA_FILE_NUM] = {
+    {501, 2048},     // INIT_YAMADA,
+    {502, 40960},    // INIT_WINDOW,
+    {522, 16384},    // INIT_KERNEL,
+    {10001, 2048},   // BATTLE_BROM,
+    {10002, 14336},  // BATTLE_TITLE,
+    {10009, 90112},  // BATTLE_BATTLE,
+    {10053, 4096},   // BATTLE_BATINI,
+    {10055, 139264}, // BATTLE_SCENE,
+    {10053, 4096},   // BATTLE_BATRES,
+    {0, 0},          // BATTLE_CO,
+};
+
+// decompression destinations, indexed by SysGzipGetType
+static s32 D_80048DD4[] = {
+    (s32)D_800707C4,    0x800708C4,         0x80082268,        0x8009C738,
+    0x800722CC,         (s32)g_WeaponTable, (s32)g_ArmorTable, (s32)g_AccessoryTable,
+    (s32)g_MateriaData,
+};
+
 // obtain file sector from a YamadaFile
 s32 func_800144D8(s32 file_no) { return D_80048D84[file_no].loc; }
 

@@ -4,6 +4,47 @@
 
 void SysBgRender(void);
 
+enum {
+    YAMA_SOUND_INSTR_ALL,
+    YAMA_SOUND_EFFECT,
+    YAMA_SOUND_INSTR_DAT,
+    YAMA_SOUND_INSTR2_ALL,
+    YAMA_SOUND_INSTR2_DAT,
+    YAMA_FIELD_FIELD,
+    YAMA_WORLD_WORLD,
+    YAMA_MINI_CONDOR,
+    YAMA_MINI_SNOBO,
+    YAMA_MINI_SNOBO2,
+    YAMA_FIELD_DSCHANGE,
+    YAMA_FIELD_ENDING,
+    YAMA_MINI_CHOCOBO,
+    YAMA_MINI_JET,
+    YAMA_MINI_SUBMAR,
+    YAMA_MINI_HIGHWAY,
+};
+
+static Yamada yama_files[16] = {
+    {LBA_SOUND_INSTR_ALL, 483232},  // YAMA_SOUND_INSTR_ALL
+    {LBA_SOUND_EFFECT, 51200},      // YAMA_SOUND_EFFECT
+    {LBA_SOUND_INSTR_DAT, 8192},    // YAMA_SOUND_INSTR_DAT
+    {LBA_SOUND_INSTR2_ALL, 251120}, // YAMA_SOUND_INSTR2_ALL
+    {LBA_SOUND_INSTR2_DAT, 8192},   // YAMA_SOUND_INSTR2_DAT
+    {LBA_FIELD_FIELD, 85435},       // YAMA_FIELD_FIELD
+    {LBA_WORLD_WORLD, 66715},       // YAMA_WORLD_WORLD
+    {LBA_MINI_CONDOR, 39600},       // YAMA_MINI_CONDOR
+    {LBA_MINI_SNOBO, 70075},        // YAMA_MINI_SNOBO
+    {LBA_MINI_SNOBO2, 81441},       // YAMA_MINI_SNOBO2
+    {LBA_FIELD_DSCHANGE, 6004},     // YAMA_FIELD_DSCHANGE
+    {LBA_FIELD_ENDING, 62484},      // YAMA_FIELD_ENDING
+    {LBA_MINI_CHOCOBO, 36521},      // YAMA_MINI_CHOCOBO
+    {LBA_MINI_JET, 14067},          // YAMA_MINI_JET
+    {LBA_MINI_SUBMAR, 31341},       // YAMA_MINI_SUBMAR
+    {LBA_MINI_HIGHWAY, 34138},      // YAMA_MINI_HIGHWAY
+};
+
+// likely a left-over from a debug build that used to load sparse files instead from the Yamada LBA.
+static char unk_signature[8] = {'Y', 'A', 'M', 'A', '@', 'F', 'F', '7'};
+
 void __main(void) {}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", __SN_ENTRY_POINT);
@@ -24,7 +65,8 @@ static void func_800111E4(void) {
 }
 
 static void func_80011274(void) {
-    SystemLoadFileBySector(D_80048CFC[4].loc, D_80048CFC[4].len, (u_long*)0x800E0000, NULL);
+    SystemLoadFileBySector(
+        yama_files[YAMA_SOUND_INSTR2_DAT].loc, yama_files[YAMA_SOUND_INSTR2_DAT].len, (u_long*)0x800E0000, NULL);
 
     while (1) {
         if (SystemCdromReadChain() == 0) {
@@ -32,7 +74,8 @@ static void func_80011274(void) {
         }
     }
 
-    SystemLoadFileBySector(D_80048CFC[3].loc, D_80048CFC[3].len, (u_long*)0x800A0000, NULL);
+    SystemLoadFileBySector(
+        yama_files[YAMA_SOUND_INSTR2_ALL].loc, yama_files[YAMA_SOUND_INSTR2_ALL].len, (u_long*)0x800A0000, NULL);
 
     while (1) {
         if (SystemCdromReadChain() == 0) {
@@ -105,7 +148,8 @@ void func_800CF60C(); // field load
 static void SysFieldRun(void) {
     if (D_800965EC != 5 && D_800965EC != 13) {
         if (D_800965EC != 2) {
-            SystemLoadFileBySector(D_80048CFC[5].loc, D_80048CFC[5].len, (u_long*)0x80180000, NULL);
+            SystemLoadFileBySector(
+                yama_files[YAMA_FIELD_FIELD].loc, yama_files[YAMA_FIELD_FIELD].len, (u_long*)0x80180000, NULL);
             while (1) {
                 if (SystemCdromReadChain() == 0) {
                     break;
@@ -131,13 +175,16 @@ static void func_80011920(void) {
 }
 
 static void SysInitAkaoEngine(void) {
-    SystemLoadFileBySector(D_80048CFC[0].loc, D_80048CFC[0].len, (u_long*)0x800F0000, NULL);
+    SystemLoadFileBySector(
+        yama_files[YAMA_SOUND_INSTR_ALL].loc, yama_files[YAMA_SOUND_INSTR_ALL].len, (u_long*)0x800F0000, NULL);
     do {
     } while (SystemCdromReadChain());
-    SystemLoadFileBySector(D_80048CFC[1].loc, D_80048CFC[1].len, (u_long*)0x801B0000, NULL);
+    SystemLoadFileBySector(
+        yama_files[YAMA_SOUND_EFFECT].loc, yama_files[YAMA_SOUND_EFFECT].len, (u_long*)0x801B0000, NULL);
     do {
     } while (SystemCdromReadChain());
-    SystemLoadFileBySector(D_80048CFC[2].loc, D_80048CFC[2].len, (u_long*)0x801BC800, NULL);
+    SystemLoadFileBySector(
+        yama_files[YAMA_SOUND_INSTR_DAT].loc, yama_files[YAMA_SOUND_INSTR_DAT].len, (u_long*)0x801BC800, NULL);
     do {
     } while (SystemCdromReadChain());
     func_8002988C(0x800F0000, 0x801BC800);
