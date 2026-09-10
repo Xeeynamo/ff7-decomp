@@ -1,20 +1,147 @@
 #include "battle.h"
 #include "unzip.h"
 
-extern Unk801B2308 D_80163624;
-extern u16 g_IsMutiBattle;
-
-static s32 BattleGetScenePackId(s32 sceneID);
-static s32 BattleBoostVal25Percent(s32 value);
-
-// entrypoint
-INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitMain);
-
 static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void));
 static void BattleInitEnemyAI(void);
 static void BattleInitPartyFromSavemap(void);
 static void BattleInitCharStats(ActiveCharacterData* character, BattlePartyWork* partyWork, BattleUnit* battleUnit);
 static void BattleInitFormation(void);
+static void BattleInitItemList(void);
+static void BattleInitPartyScripts(void);
+static void BattleInitSetSpeed(s32 speed);
+static void BattleInitResetExtraCmds(s32 sceneID);
+static void BattleInitATBTimers(void);
+void BattleInitPlayer(void);
+void BattleInitEnemyUnits(void);
+
+// entrypoint
+void BATINI_Main(s32 sceneID) {
+    s32 mask;
+    s32 i;
+    s32* order;
+    s32* order2;
+    s32* prev;
+    u8* temp_v0;
+    BattleUnit* p;
+    BattleUnit* q;
+    s32* next;
+    s32 offset;
+    s32 sentinel;
+
+    SysInitRndTablePos(VSync(-1));
+    VSync(-1);
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        SysInitPlayerStatFromEquip(i);
+        SysInitPlayerStatFromMateria(i);
+    }
+    SysCalculateTotalLureGilPreemptiveValue();
+    temp_v0 = (u8*)SysGetPtrToUncompKernBattleTxtWithId(0x7E);
+    D_800FAFD0 = temp_v0[0];
+    D_800F7ED0 = temp_v0[1];
+    func_800A3278();
+    func_800A283C();
+    func_800AD480();
+    for (i = 0; i < 0x40; i++) {
+        D_800F6934[i][0] = 0xFF;
+    }
+    for (i = 0; i < 10; i++) {
+        D_800F6B34[i][0] = 0xFF;
+    }
+    for (i = 0; i < 2; i++) {
+        D_800F6B86[i][0] = 0xFF;
+    }
+    func_800A71F4();
+    D_801620A8 = -1;
+    func_800DCF94(-1);
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        g_BattleState.combatant[i].unk8 = -1;
+        g_BattleState.combatant[i].unk13 = 0x10;
+    }
+    func_800A55BC();
+    BattleInitPlayer();
+    BattleInitItemList();
+    BattleInitLoadSceneData(sceneID, 0);
+    BattleInitEnemyUnits();
+    BattleInitSetSpeed(Savemap.battle_speed);
+    q = g_BattleState.combatant;
+    p = q;
+    D_800F5F44.D_800F7DAA = (Savemap.config & 0xC0) >> 6;
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        BattleRecalcUnitSpeed(i);
+        if ((s8)p[i].unk8 != -1) {
+            *(u16*)((u8*)q - 0x32) |= 1 << i;
+        }
+    }
+    g_BattleState.sceneID = sceneID;
+    D_800F83A8 = D_8016360C.setup.type;
+    BattleInitFormation();
+    BattleUpdateUnitMasks();
+    BattleInitPartyScripts();
+    BattleInitEnemyAI();
+    func_800A61D4();
+    BattleUpdateUnitMasks();
+    BattleInitATBTimers();
+    func_800A4480();
+    D_800F7DE8 |= 1;
+    for (i = 0; i < NUM_PARTY; i++) {
+        func_800A5BC8(i, 1);
+    }
+    if (g_BattleState.setupFlags & 8) {
+        BattleInitSetSpeed(0x80);
+        D_800F5F44.D_800F7DAA = 0;
+        for (i = 0; i < NUM_PARTY; i++) {
+            BattleInitResetExtraCmds(i);
+        }
+    } else {
+        BATTLE_CheckAllLucky7s();
+    }
+
+    if (g_BattleState.setupFlags & 4) {
+        i = 0;
+
+        if (!(D_80062F88 & 4)) {
+            D_80062F88 |= 4;
+            D_80075D04 = -1;
+        }
+
+        order = D_80075D08;
+        prev = order - 1;
+        mask = 1 << (g_BattleState.unk28 * 6);
+
+        next = order + 1;
+        order2 = next + g_BattleState.unk28 * 6;
+
+        order[0] = g_BattleState.unk28;
+
+        sentinel = -1;
+        offset = 0x1A0;
+
+    loop:
+        if (*prev & mask) {
+            *prev &= ~mask;
+        } else if (((BattleUnit*)((u8*)g_BattleState.combatant + offset))->unk8 != sentinel) {
+            ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->curHP = *order2;
+
+            if (((BattleUnit*)((u8*)g_BattleState.combatant + offset))->curHP == 0) {
+                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->status |= 1;
+                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->unk44[0] |= 1;
+                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->unk4 &= ~0x18;
+            }
+        }
+
+        mask <<= 1;
+        order2++;
+        i++;
+        offset += 0x68;
+
+        if (i < 6) {
+            goto loop;
+        }
+
+        BattleUpdateUnitMasks();
+    }
+}
 static void BattleInitSetup(s32 sceneID) {
     BattleUnit* unit;
     s32 i;
@@ -48,7 +175,7 @@ static void BattleInitSetup(s32 sceneID) {
         }
     }
     g_BattleState.sceneID = sceneID;
-    D_800F83A8 = D_80163624.unk2;
+    D_800F83A8 = D_8016360C.setup.type;
     BattleInitFormation();
     BattleUpdateUnitMasks();
     BattleInitEnemyAI();
@@ -228,7 +355,7 @@ static void BattleInitPartyScripts(void) {
     s32 i;
 
     for (i = 0; i < NUM_PARTY; i++) {
-        if (((s8)D_80163624.unk94[i][0] != -1) && !(g_BattleState.combatant[i].status & 1)) {
+        if ((D_801636B8[i].D_801636B8 != -1) && !(g_BattleState.combatant[i].status & 1)) {
             BattleRunUnitScript(i, 0, 0);
         }
     }
@@ -502,7 +629,6 @@ static void BattleInitCharStats(ActiveCharacterData* character, BattlePartyWork*
 
 const u8 D_801B003C[] = {0xFF, 0x32, 0x33, 0x34, 0x35, 0xFF, 0x48, 0x07};
 extern u16 g_CharacterMask[3];
-extern s16 D_801636BE[][8]; // stride 0x10
 void func_800B1060(s32);
 
 // Lays out the two sides for the opening of the battle. D_801B003C picks the
@@ -566,7 +692,7 @@ static void BattleInitFormation(void) {
         row[2] = partyMask & ~sideMask;
         mask = row[2];
         for (i = 0; i < NUM_ENEMY; i++) {
-            if (((enemyMask >> (i + START_ENEMY)) & 1) && D_80163624.unk34[i].unk6 >= 0) {
+            if (((enemyMask >> (i + START_ENEMY)) & 1) && D_8016360C.formation[i].z >= 0) {
                 mask |= 1 << (i + START_ENEMY);
             }
         }
@@ -597,7 +723,7 @@ static void BattleInitFormation(void) {
             g_BattleState.combatant[i].unk4 &= ~0x40;
             break;
         }
-        D_801636BE[i][0] = back;
+        D_801636B8[i].D_801636BE = back;
     }
     g_CharacterMask[0] = row[0];
     g_CharacterMask[1] = row[1];
@@ -672,13 +798,13 @@ static void BattleInitEnemyAI(void) {
     s32 i;
 
     for (i = 0; i < NUM_ENEMY; i++) {
-        if (D_80163624.unk34[i].unk0 != -1) {
+        if (D_8016360C.formation[i].enemyID != -1) {
             BattleRunUnitScript(i + START_ENEMY, 0, 0);
         }
     };
     for (i = 0; i < NUM_ENEMY; i++) {
-        D_80163624.unk34[i].unkC = g_BattleState.combatant[START_ENEMY + i].unk4;
-        D_80163624.unk94[START_ENEMY + i][1] = g_BattleState.combatant[START_ENEMY + i].unk10;
+        D_8016360C.formation[i].flags = g_BattleState.combatant[START_ENEMY + i].unk4;
+        D_801636B8[START_ENEMY + i].D_801636B9 = g_BattleState.combatant[START_ENEMY + i].unk10;
         g_BattleState.combatant[START_ENEMY + i].unk44[0] = g_BattleState.combatant[START_ENEMY + i].status;
     }
 }
