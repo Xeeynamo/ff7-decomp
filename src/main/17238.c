@@ -16,8 +16,6 @@ u32 D_80062E88;
 u32 D_80062E8C;
 u32 D_80062E90;
 
-s32 SysGetMateriaActivatedStars(u8, s32);
-s32 SysAddCommandToTemp(s32);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 
 static s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {

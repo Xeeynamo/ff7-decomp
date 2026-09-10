@@ -39,8 +39,6 @@ s32 D_80062DC8 = 0x00000000;
 s32 D_80062F9C;
 s32 D_80062FF0;
 
-void SysMenuSetDrawMode(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
-
 static void func_8001CDA4(void) {
     SetPolyFT4(D_80062F24.ft4);
     SetShadeTex(D_80062F24.ft4, 1);

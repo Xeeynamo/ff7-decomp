@@ -11,6 +11,8 @@ static void BattleInitPartyScripts(void);
 static void BattleInitSetSpeed(s32 speed);
 static void BattleInitResetExtraCmds(s32 sceneID);
 static void BattleInitATBTimers(void);
+static s32 BattleGetScenePackId(s32 sceneID);
+static s32 BattleBoostVal25Percent(s32 value);
 void BattleInitPlayer(void);
 void BattleInitEnemyUnits(void);
 
@@ -159,7 +161,7 @@ static void BattleInitSetup(s32 sceneID) {
         }
     }
     for (i = 0; i < NUM_PARTY; i++) {
-        g_BattlePartyWork[i].unk6 = 0;
+        g_BattleWork.party[i].unk6 = 0;
     }
     if (g_IsMutiBattle) {
         BattleInitPartyFromSavemap();
@@ -181,7 +183,7 @@ static void BattleInitSetup(s32 sceneID) {
     BattleInitEnemyAI();
     BattleUpdateUnitMasks();
     for (i = START_ENEMY; i < NUM_BATTLE_ACTOR; i++) {
-        D_800F5BBC[i][0] = ((u8)SysGetRandomByteRange(0x40) + 0x80) << 8;
+        g_BattleWork.turn[i].unk4 = ((u8)SysGetRandomByteRange(0x40) + 0x80) << 8;
         BattleInitUnitAction(i);
     }
 }
@@ -191,9 +193,10 @@ extern u16 D_8009D864[][0x220]; // stride 0x440, one per Unk8009D84C record
 u16 BattleGetRndU16(void);      // random, 16-bit
 
 // Rolls the initial ATB timer of every present combatant and writes it into
-// D_800F5BBC. The battle type (battleType) then biases those timers: a
-// preemptive-style opening zeroes the party's, an ambush pushes it towards the
-// enemies, and a Battle Square opening (setup flag 8) overrides both.
+// g_BattleWork.turn[i].unk4. The battle type (battleType) then biases
+// those timers: a preemptive-style opening zeroes the party's, an ambush
+// pushes it towards the enemies, and a Battle Square opening (setup flag 8)
+// overrides both.
 static void BattleInitATBTimers(void) {
     s32 timer[NUM_BATTLE_ACTOR];
     s32 presentMask;
@@ -205,7 +208,7 @@ static void BattleInitATBTimers(void) {
     presentMask = g_BattleUnitPresentMask;
     max = 0;
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
-        D_800F5BBC[i][0] = 0;
+        g_BattleWork.turn[i].unk4 = 0;
         val = 0;
         if ((presentMask >> i) & 1) {
             val = BattleGetRndU16() >> 1;
@@ -247,11 +250,11 @@ static void BattleInitATBTimers(void) {
                     timer[i] = 0;
                 }
             }
-            D_800F5BBC[i][0] = timer[i];
+            g_BattleWork.turn[i].unk4 = timer[i];
         }
     }
     for (i = 0; i < NUM_PARTY; i++) {
-        D_8009D864[i][0] = D_800F5BBC[i][0];
+        D_8009D864[i][0] = g_BattleWork.turn[i].unk4;
     }
 }
 
@@ -259,35 +262,6 @@ static void BattleInitSetSpeed(s32 speed) { D_800F5F44.battleSpeed = 0x10000 / (
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitPlayer);
 
-// The per-party work area at 0x800F5BB8: the turn state, the three party
-// records (g_BattlePartyWork) and their setup config (D_800F5EFC) are one object, so
-// BATINI reaches all three off a single base.
-typedef struct {
-    /* 0x00 */ u8 targetFlags;
-    /* 0x01 */ u8 attackEffectId;
-    /* 0x02 */ u8 damageFormulaId;
-    /* 0x03 */ u8 hitChance;
-    /* 0x04 */ u8 impactEffectId;
-    /* 0x05 */ u8 criticalHitChance;
-    /* 0x06 */ u8 unk06;
-    /* 0x07 */ u8 unk07;
-    /* 0x08 */ u16 normalAttackSound;
-    /* 0x0A */ u16 criticalAttackSound;
-    /* 0x0C */ u16 missAttackSound;
-    /* 0x0E */ u16 attackElement;
-    /* 0x10 */ u16 cameraMovementId;
-    /* 0x12 */ u16 specialAttackFlags;
-    /* 0x14 */ s32 attackStatusMask;
-} BattleUnitAttackSetup; // size:0x18
-
-typedef struct {
-    /* 0x000 */ Unk800AF470 turn[NUM_BATTLE_ACTOR];
-    /* 0x2A8 */ BattlePartyWork party[NUM_PARTY];
-    /* 0x344 */ BattleUnitAttackSetup setup[NUM_PARTY];
-} BattleWork; // size:0x38C
-
-extern BattleWork g_CombatantTurnState;
-extern SavePartyMember D_8009C738[];
 static void BattleInitApplyAccStatus(s32 slot, s32 accessory);
 static void BattleInitCharCmdMenu(s32 slot);
 void BattleInitCharCmdState(s32 slot);
@@ -296,7 +270,7 @@ static s32 BattleInitApplyStartFX(s32 slot);
 // Seeds the three live party slots from the save data: finds each slot's
 // party member record, copies HP/MP and the derived battle stats across, then
 // applies the equipped accessory, the command list and the row/limit setup.
-static void BattleInitPartyFromSavemap(void) {
+void BattleInitPartyFromSavemap(void) {
     BattlePartyWork* party;
     ActiveCharacterData* rec;
     BattleUnit* c;
@@ -308,15 +282,15 @@ static void BattleInitPartyFromSavemap(void) {
     s32 j;
 
     for (i = 0; i < NUM_PARTY; i++) {
-        t = &g_CombatantTurnState.turn[i];
-        party = &g_CombatantTurnState.party[i];
+        t = &g_BattleWork.turn[i];
+        party = &g_BattleWork.party[i];
         rec = &g_ActiveCharacters[i];
         c = &g_BattleState.combatant[i];
-        setup = &g_CombatantTurnState.setup[i];
+        setup = &g_BattleWork.setup[i];
         id = D_8009CBDC[i];
         if (id != 0xFF) {
             for (j = 0; j < 9; j++) {
-                m = &D_8009C738[j];
+                m = &Savemap.party[j];
                 if (m->char_id == id) {
                     c->unk9 = m->level;
                     c->curHP = m->hp_cur;
@@ -363,8 +337,6 @@ static void BattleInitPartyScripts(void) {
 
 extern u8 D_800707C5[][8];    // command table, 8-byte stride
 extern u8 D_800708D0[][0x1C]; // attack table, 0x1C stride
-extern u8 D_800F5EFC[][0x18]; // per-slot formation-setup config
-extern u8 D_800F5BE1[][0x44]; // same records as D_800F5BBC
 
 // Fixes up party member sceneID's battle command list: each of the 16 command
 // slots gets its target flags from the command table (falling back to the
@@ -387,7 +359,7 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
         if (cmd != 0xFF) {
             flags = D_800707C5[cmd][0];
             if (flags == 0xFF) {
-                flags = D_800F5EFC[sceneID][0];
+                flags = g_BattleWork.setup[sceneID].targetFlags;
             }
             if (cmd < 0x1C) {
                 if (cmd >= 0x18) {
@@ -395,7 +367,7 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
                 }
             }
             if (e->commandMenu[i].initialCursorAction == 7) {
-                if (D_800F5BE1[sceneID][0] & 2) {
+                if (g_BattleWork.turn[sceneID].unk29 & 2) {
                     e->commandMenu[i].initialCursorAction = 0;
                 }
                 if (e->commandMenu[i].allCount != 0) {
@@ -525,8 +497,8 @@ static void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
     BattleUnit* c;
     u8 effect;
 
-    t = &g_CombatantTurnState.turn[slot];
-    party = &g_CombatantTurnState.party[slot];
+    t = &g_BattleWork.turn[slot];
+    party = &g_BattleWork.party[slot];
     c = &g_BattleState.combatant[slot];
     c->status &= ~party->accessoryStatusMask;
     t->unk34 &= ~party->accessoryStatusMask;
@@ -580,10 +552,10 @@ static s32 BattleInitApplyStartFX(s32 slot) {
     s32 ret;
     s32 i;
 
-    mask = g_CombatantTurnState.turn[slot].unk34;
+    mask = g_BattleWork.turn[slot].unk34;
     g_BattleState.combatant[slot].status &= ~STATUS_D_SENTENCE;
     ret = 0;
-    if (g_CombatantTurnState.turn[slot].unk29 & 8) {
+    if (g_BattleWork.turn[slot].unk29 & 8) {
         mask |= STATUS_FROG;
     }
     if (g_BattleStartFXFlags & 0x10) {

@@ -2,9 +2,7 @@
 #include "main_private.h"
 #include "unzip.h"
 
-extern u8 D_80062D99;
-extern s16 D_8007E768;
-void func_800D8D78();
+void SysBgRender(void);
 
 void __main(void) {}
 
@@ -93,7 +91,7 @@ static void SysInitBase(void) {
     ResetGraph(0);
     func_80036298();
     D_80095DD4 = 0;
-    VSyncCallback(&VSyncCallbackFunc);
+    VSyncCallback(VSyncCallbackFunc);
     SetGraphDebug(0);
     SetDispMask(0);
     InitGeom();

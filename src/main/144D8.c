@@ -1,9 +1,6 @@
 //! G=0
 #include "main_private.h"
 
-void SysMemCopy32(void* dst, const void* src, const s32 len);
-u8* func_80014C80(s32 arg0);
-
 // obtain file sector from a YamadaFile
 s32 func_800144D8(s32 file_no) { return D_80048D84[file_no].loc; }
 

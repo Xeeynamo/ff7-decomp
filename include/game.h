@@ -953,6 +953,7 @@ extern u8 g_MenuColors[12]; // 4 corners x RGB
 extern u8 D_800492F0[][12]; // see Labels enum
 extern FieldModelData* g_FieldModelData;
 extern u8 D_80062D98; // battle_clearRenderList
+extern u8 D_80062D99;
 // Set while a memory-card transfer is in flight and the savemap must not be
 // touched; battle code spin-waits on it.
 extern volatile u8 g_SavemapBusy;
@@ -1028,6 +1029,7 @@ extern s32 D_80083338;
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level
 extern FieldModelLoaderData* g_FieldModelLoaderData;
+extern s16 D_8007E768;
 extern FieldModelLoaderHeader* D_8007E770;
 extern s16 g_FieldLineCount;
 extern u16 g_FieldPaletteBuffer[64][16];
@@ -1104,10 +1106,15 @@ void SysMenuSetPoly(void* poly);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
 void SystemAkaoExecute(void);
-s32 SysInitRndTablePos(s32 seed);
+void SysInitRndTablePos(s32 seed);
 void SysInitPlayerStatFromEquip(s32 arg0);
 void SysInitPlayerStatFromMateria(s32 arg0);
 void SysCalculateTotalLureGilPreemptiveValue(void);
+s32 SysMenuGetMateriaColorByType(s32 arg0);
+void SysMemCopy32(void* dst, const void* src, const s32 len);
+s32 SysAddCommandToTemp(s32);
+u8* func_80014C80(s32 arg0);
+void SysMenuSetDrawMode(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);
@@ -1118,8 +1125,6 @@ int SysCdromLoadFile(int sector_no, size_t size, u_long* dst, void (*cb)());
 int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)());
 u32 SystemCdromReadChain(void);
 s32 SysGetLimitCmdId(s32 charId, s32 limitIndex);
-u8* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2);
-u8* SysGetPtrToKernBattleTxtWithId(s32 arg0);
 
 // from overlays
 extern u8 SavedScriptIds[48][8]; // script ids of latest queued scripts

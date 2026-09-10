@@ -301,7 +301,7 @@ void SnapshotPartyLevels(void) {
     u16* present;
     for (i = 0, present = &D_8009D78A; i < 8; i++) {
         if ((*present >> D_80049500[i]) & 1) {
-            D_8009D44C[i] = D_8009C738[D_80049500[i]].level;
+            D_8009D44C[i] = Savemap.party[D_80049500[i]].level;
         }
     }
 }
@@ -366,7 +366,7 @@ void SysMenuRemoveMateria(void) {}
 void func_80025650(void) {}
 
 // get party leader (Cloud) level
-s32 func_80025658() { return D_8009C738[0].level; }
+s32 func_80025658() { return Savemap.party[0].level; }
 
 // Party slot -> equipped character -> that character's equipped armor's
 // materia-slot configuration (slot count / linked-pair layout / growth rate;
@@ -534,7 +534,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025ED4);
 
 static void func_80026034(void) {}
 
-s32 SysMenuGetMateriaColorByType(u8 arg0) { return D_80049520[D_80049528[g_MateriaData[arg0].materiaType & 0xF]]; }
+s32 SysMenuGetMateriaColorByType(s32 arg0) {
+    return D_80049520[D_80049528[g_MateriaData[arg0 & 0xFF].materiaType & 0xF]];
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80026090);
 

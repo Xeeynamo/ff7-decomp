@@ -13,7 +13,7 @@ void func_80014934(void) {
     func_800148A0();
     func_80014578(INIT_KERNEL, (void*)0x801B0000, 0);
     func_800145BC(0);
-    SysGzipPackDecompressById((u8*)0x801B0000, D_8009C738, KERNEL_INIT);
+    SysGzipPackDecompressById((u8*)0x801B0000, &Savemap.party, KERNEL_INIT);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", SysLoadUncompressImg);

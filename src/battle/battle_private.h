@@ -292,7 +292,6 @@ extern u8 D_800F38A1;
 extern s16 D_800F38A2;
 extern s32 D_800F4300;  // write cursor into the shared script buffer
 extern s32 D_800F4304;  // slot cursor, wraps at 0x40
-extern u8 D_800F5F01[]; // per-slot accuracy bonus, 0x18 B stride
 extern u8 D_800F7E04[]; // part of a struct
 extern u8 D_800F7ED4;
 extern u8 D_800F38A7;
@@ -345,9 +344,7 @@ extern u8 D_800F5774;
 extern s32 D_800F57CC; // btlmenu_cursorMemory
 extern Unk800F57D0* D_800F57D0;
 extern u8 D_800F57D4;
-extern Unk800AF470 g_CombatantTurnState[NUM_BATTLE_ACTOR]; // per-party-slot turn/effect state
-                                                           // (flags, countdown timers)
-extern u16 D_800F7DE2[];                                   // All Lucky 7s trigger count
+extern u16 D_800F7DE2[]; // All Lucky 7s trigger count
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
 extern s32 D_800F7DF8[3];
@@ -659,8 +656,6 @@ extern u8 D_800F5630;
 extern u16 D_800F5634;
 extern u8 D_800F5638;
 extern u8 D_800F563C;
-extern u8 D_800F5EFC[]; // per-slot formation-setup config, 0x18 B stride; byte
-                        // 0 -> func_800A8D18
 extern BattleMenuWidget D_800F90C6[];
 extern u8 D_80151698;
 extern u8 D_80166F74;

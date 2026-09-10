@@ -34,9 +34,7 @@ extern s32 D_8009D7DC;
 extern s32 D_8009D7E0;
 extern u8 D_8009D7ED[][12];
 extern s16 D_8009D7EE[][6]; // same 12-byte record as D_8009D7ED
-extern SavePartyMember D_8009C738[];
-extern u8 D_8009D58A[]; // gil, stored unaligned, so it is copied a byte at a time
-extern BattlePartyWork g_BattlePartyWork[NUM_PARTY];
+extern u8 D_8009D58A[];     // gil, stored unaligned, so it is copied a byte at a time
 extern u16 D_800F7DD2;
 extern u8 D_80163790[]; // the char_id occupying each of the three party slots
 extern SavePartyMember D_80167938;
@@ -78,11 +76,11 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
             hp = 1;
         }
         for (j = 0; j < 9; j++) {
-            c = &D_8009C738[j];
+            c = &Savemap.party[j];
             if (id == c->char_id) {
                 c->hp_cur = hp;
                 c->mp_cur = mp;
-                c->limit_charge = g_BattlePartyWork[slot].limitBar;
+                c->limit_charge = g_BattleWork.party[slot].limitBar;
                 c->status_flags = g_BattleState.combatant[slot].status & 0x30;
                 if (g_BattleState.setupFlags & 0x10) {
                     if (c->char_id == 0) {
@@ -102,8 +100,8 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     if (D_8016376A & 0x40) {
         leader = D_80167938.char_id;
         for (j = 0; j < 9; j++) {
-            if (leader == D_8009C738[j].char_id) {
-                dst = &D_8009C738[j];
+            if (leader == Savemap.party[j].char_id) {
+                dst = &Savemap.party[j];
                 src = &D_80167938;
                 *dst = *src;
                 return;
@@ -141,9 +139,9 @@ static void GiveSharedExp(s32 mask) {
     u8 id;
 
     for (i = 0; i < 9; i++) {
-        id = D_8009C738[i].char_id;
+        id = Savemap.party[i].char_id;
         if (id < 9 && ((mask >> id) & 1)) {
-            c = &D_8009C738[i];
+            c = &Savemap.party[i];
             hp = c->hp_base;
             mp = c->mp_base;
             func_801B0EF8(c, D_8009D7D8 / 2, -1);
@@ -240,6 +238,7 @@ static void InitResultsRow(BatresRow* p) {
 static void GrowStat(BatresRow* p, s32 gauge);
 static void GrowMaxHp(BatresRow* p);
 static void GrowMaxMp(BatresRow* p);
+static s32 CalcTotalExp(BatresRow* r, s32 level);
 static void GiveExp(BatresRow* p) {
     s32 i;
     s32 g;
