@@ -91,6 +91,18 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 						ProgressCategories: []string{o.Name},
 					},
 				})
+			case "hasm":
+				srcFile := filepath.Join(srcDir, name+".s")
+				objFile := filepath.Join(b.BuildPath, srcFile+".o")
+				units = append(units, objdiffUnit{
+					Name:       fmt.Sprintf("%s/%s", o.Name, name),
+					BasePath:   objFile,
+					TargetPath: targetPath(objFile),
+					Metadata: objdiffMetadata{
+						SourcePath:         srcFile,
+						ProgressCategories: []string{o.Name},
+					},
+				})
 			case "data":
 				fallthrough
 			case "sbss":
@@ -120,6 +132,7 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 			"include/**.h",
 			"src/**.c",
 			"src/**.h",
+			"src/**.s",
 		},
 		IgnorePatterns: []string{
 			"build/**/*",

@@ -159,13 +159,16 @@ def get_compiler_params(source_file_name: str) -> CompilerParams:
     return default_compiler_params()
 
 
-def add_s(cfg: any, file_name: str):
-    in_path = f"{asm_path(cfg)}/{file_name}.s"
+def add_s(cfg: any, file_name: str, is_hasm=False):
+    if is_hasm:
+        in_path = f"{src_path(cfg)}/{file_name}.s"
+    else:
+        in_path = f"{asm_path(cfg)}/{file_name}.s"
     out_path = f"{build_path(cfg)}/{in_path}.o"
     if out_path in objs:
         return
     objs.append(out_path)
-    if progress_report:
+    if progress_report and not is_hasm:
         out = pathlib.Path(out_path)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_bytes(dummy_object)
@@ -175,11 +178,12 @@ def add_s(cfg: any, file_name: str):
         outputs=[out_path],
         inputs=[in_path],
     )
-    nw.build(
-        rule="phony",
-        outputs=[in_path],
-        implicit=[ld_path(cfg)],
-    )
+    if not is_hasm:
+        nw.build(
+            rule="phony",
+            outputs=[in_path],
+            implicit=[ld_path(cfg)],
+        )
 
 
 def add_c(cfg: any, file_name: str):
@@ -266,6 +270,8 @@ def add_splat_config(file_name: str):
                 add_s(cfg, f"data/{name}.bss")
             elif kind == "asm":
                 add_s(cfg, name)
+            elif kind == "hasm":
+                add_s(cfg, name, True)
             elif kind == "c" or kind == ".data":
                 add_c(cfg, name)
     if progress_report:
