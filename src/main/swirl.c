@@ -107,9 +107,9 @@ static void SysBattleSwirlUpdate(void) {
     } else {
         for (j = 0; j < SWIRL_QUAD_ROWS; j++) {
             for (i = 0; i < SWIRL_QUAD_COLS; i++) {
-                buf->quads[i][j].tpage = GetTPage(
-                    2, SWIRL_DATA->frame % SWIRL_BLEND_INTERVAL ? BLEND_AVERAGE : BLEND_ADD_QUARTER,
-                    (i * SWIRL_CELL_SIZE) & ~SWIRL_TPAGE_X_MASK, 0);
+                buf->quads[i][j].tpage =
+                    GetTPage(2, SWIRL_DATA->frame % SWIRL_BLEND_INTERVAL ? BLEND_AVERAGE : BLEND_ADD_QUARTER,
+                             (i * SWIRL_CELL_SIZE) & ~SWIRL_TPAGE_X_MASK, 0);
             }
         }
     }
