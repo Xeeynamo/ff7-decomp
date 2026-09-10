@@ -279,11 +279,14 @@ static void func_800CE638(void) {
     }
 }
 
+// Shell over a covered unit; MBarrier wins when both masks are set. Masks
+// named by Akari's q-gears_reverse (ffvii/address_battle.txt): D_800FA69C is
+// the magic barrier mask, D_80163608 the physical one.
 static void func_800CE75C(void) {
     if ((D_800FA69C >> D_80162978[D_8015169C].D_80162980) & 1) {
-        func_800D67E8(D_80162978[D_8015169C].D_80162980);
+        func_800D67E8(D_80162978[D_8015169C].D_80162980); // MBarrier
     } else if ((D_80163608 >> D_80162978[D_8015169C].D_80162980) & 1) {
-        func_800D67BC(D_80162978[D_8015169C].D_80162980);
+        func_800D67BC(D_80162978[D_8015169C].D_80162980); // Barrier
     }
 }
 
@@ -1268,29 +1271,30 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D61AC);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D6260);
 
-extern Unk801B0C98 D_800F14D0;
+extern ModelRenderDesc D_800F14D0;
 
 // Draw a model 4 times through func_800D29D4 (same request-struct pattern as
 // barrier.c's D_801B0C98/D_801B0CB0), toggling the 0x1/0x2 flag bits between
-// passes.
+// passes. Those bits mirror on X and Y, so the four passes are the four
+// quadrants of a symmetric model built from one quarter.
 static void func_800D6394(s32* arg0, s16 arg1) {
-    D_800F14D0.unk0 = arg0;
-    D_800F14D0.unkA = arg1;
+    D_800F14D0.model = arg0;
+    D_800F14D0.color = arg1;
     SetFarColor(0, 0, 0);
     PushMatrix();
     D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
     PopMatrix();
     PushMatrix();
-    D_800F14D0.unk4 |= 1;
+    D_800F14D0.flags |= MODEL_MIRROR_X;
     D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
     PopMatrix();
     PushMatrix();
-    D_800F14D0.unk4 |= 2;
+    D_800F14D0.flags |= MODEL_MIRROR_Y;
     D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
     PopMatrix();
-    D_800F14D0.unk4 &= ~1;
+    D_800F14D0.flags &= ~MODEL_MIRROR_X;
     D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
-    D_800F14D0.unk4 &= ~2;
+    D_800F14D0.flags &= ~MODEL_MIRROR_Y;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D650C);
@@ -1302,20 +1306,19 @@ u8* const D_800A0DC8[] = {D_800F10EC, D_800F11E8, D_800F1304};
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D6734);
 
 void func_800D6734(s32, s32);
-extern s32 D_800F14D4;
 
 static void func_800D67BC(s32 arg0) {
-    D_800F14D4 = 0x88;
+    D_800F14D0.flags = MODEL_DEPTH_CUE | MODEL_SEMI_TRANS; // Barrier
     func_800D6734(arg0, 0);
 }
 
 static void func_800D67E8(s32 arg0) {
-    D_800F14D4 = 0xA8;
+    D_800F14D0.flags = MODEL_DEPTH_CUE | MODEL_NO_CULL | MODEL_SEMI_TRANS; // MBarrier
     func_800D6734(arg0, 1);
 }
 
 void func_800D6814(s32 arg0) {
-    D_800F14D4 = 0x88;
+    D_800F14D0.flags = MODEL_DEPTH_CUE | MODEL_SEMI_TRANS;
     func_800D6734(arg0, 2);
 }
 

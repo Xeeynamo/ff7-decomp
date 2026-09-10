@@ -2,6 +2,12 @@
 
 #include "common.h"
 #include "../battle/battle.h"
+#include "magic_private.h"
+
+#define FADE_LAST_FRAME 7
+#define FADE_PER_FRAME 0x200
+#define SCALE_BASE 0xC00
+#define SCALE_PER_FADE_FRAME 0x180
 
 // This is placeholder for now so I can access the SVECTORs correctly
 typedef struct BarrierData {
@@ -11,7 +17,8 @@ typedef struct BarrierData {
     s16 unk6;
     SVECTOR Pos;
     SVECTOR Rot;
-    u16 FaceIndex;
+    u16 FaceIndex; // 0..3, straight into the descriptor's mirror bits
+                   // 0x1 and 0x2; one instance per quadrant
     char pad1[0x6];
 } BarrierData;
 
@@ -65,45 +72,57 @@ static s32 bari_a2[] = {    // Embedded Model
     0x303F3F3F,  // Primitive/color: command 0x30, RGB 3F3F3F
     0x00D4D4D4,  // Triangle 1: vertex 1 color, RGB D4D4D4
     0x003F3F3F}; // Triangle 1: vertex 2 color, RGB 3F3F3F
-static int emptyPoly = 0x00000000;
-static SVECTOR BorderPivotOffset = {0, 0, -500};
-static Unk801B0C98 BorderRenderDesc = {bari_a1, 0, 0, 0, 0x20};
-static SVECTOR ShieldPivotOffset = {0, 0, -500};
-static Unk801B0C98 ShieldRenderDesc = {bari_a2, 0, 0, 0, 0x20};
-static int BarrierBaseScale;
-static char BarrierPrimBuffer[0x20000];
-static void* BarrierBufferPtr;
+static int empty_poly = 0x00000000;
+static SVECTOR border_pivot_offset = {0, 0, -500};
+static ModelRenderDesc border_render_desc = {bari_a1, 0, 0, 0, 0x20};
+static SVECTOR shield_pivot_offset = {0, 0, -500};
+static ModelRenderDesc shield_render_desc = {bari_a2, 0, 0, 0, 0x20};
+static int barrier_base_scale;
+
+typedef struct {
+    /* 0x00 */ char pad[MAGIC_PAGE_SIZE];
+} BarrierPrimPage; // size:0x10000
+
+static BarrierPrimPage barrier_prim_buffer[2];
+static void* barrier_buffer_ptr;
 
 // barrier.c forward declarations
 static void BarrierMainSetup(int arg0, int arg1);
 
 void MAGIC_Barrier(int arg0, int arg1) { BarrierMainSetup(arg0, arg1); }
 
+// FaceIndex runs 0, 1, 3, 2 across the four instances -- Gray code, so the
+// shell grows through adjacent quadrants.
 static void BarrierRenderBorder(void) {
-    MATRIX* matrix = (MATRIX*)0x1F800000;
-    VECTOR* scale = (VECTOR*)0x1F800020;
-    BarrierData* barrier = &D_80162978[D_8015169C];
-    int temp_a0 = (barrier->AnimationFrame + barrier->StartFrame) - 17;
-    int var_s4;
-    int var_s3;
+    MATRIX* matrix;
+    VECTOR* scale;
+    BarrierData* barrier;
+    int temp_a0;
+    int fade;
+    int faceFlags;
 
+    matrix = (MATRIX*)0x1F800000;
+    scale = (VECTOR*)0x1F800020;
+    barrier = &D_80162978[D_8015169C];
+    temp_a0 = (barrier->AnimationFrame + barrier->StartFrame) - 17;
     if (temp_a0 < 0) {
-        scale->vx = scale->vy = scale->vz = (BarrierBaseScale * 0xC00) >> 12;
-        var_s3 = barrier->FaceIndex;
-        var_s4 = 0;
-    } else if (temp_a0 > 7) {
+        scale->vx = scale->vy = scale->vz = (barrier_base_scale * SCALE_BASE) >> 12;
+        faceFlags = barrier->FaceIndex;
+        fade = 0;
+    } else if (temp_a0 > FADE_LAST_FRAME) {
         barrier->StartFrame = -1;
         return;
     } else {
-        var_s3 = barrier->FaceIndex | 8;
-        var_s4 = temp_a0 << 9;
-        scale->vx = scale->vy = scale->vz = (((temp_a0 * 0x180) + 0xC00) * BarrierBaseScale) >> 12;
+        faceFlags = barrier->FaceIndex | MODEL_SEMI_TRANS;
+        fade = temp_a0 * FADE_PER_FRAME;
+        scale->vx = scale->vy = scale->vz =
+            (((temp_a0 * SCALE_PER_FADE_FRAME) + SCALE_BASE) * barrier_base_scale) >> 12;
     }
 
     SetFarColor(0, 0, 0);
     RotMatrixYXZ(&barrier->Rot, matrix);
     ScaleMatrix(matrix, scale);
-    ApplyMatrix(matrix, &BorderPivotOffset, matrix->t);
+    ApplyMatrix(matrix, &border_pivot_offset, matrix->t);
 
     matrix->t[0] += barrier->Pos.vx;
     matrix->t[1] += barrier->Pos.vy;
@@ -113,9 +132,9 @@ static void BarrierRenderBorder(void) {
     SetRotMatrix(matrix);
     SetTransMatrix(matrix);
 
-    BorderRenderDesc.unk4 = var_s3 | 0x80;
-    BorderRenderDesc.unkA = var_s4;
-    BarrierBufferPtr = func_800D29D4(&BorderRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
+    border_render_desc.flags = faceFlags | MODEL_DEPTH_CUE;
+    border_render_desc.color = fade;
+    barrier_buffer_ptr = func_800D29D4(&border_render_desc, g_cDb->unk70, 12, barrier_buffer_ptr);
 
     if (D_80062D98 == 0) {
         barrier->AnimationFrame++;
@@ -123,34 +142,40 @@ static void BarrierRenderBorder(void) {
 }
 
 static void BarrierRenderShield(void) {
-    MATRIX* matrix1 = (MATRIX*)0x1F800000;
-    MATRIX* matrix2 = (MATRIX*)0x1F800020;
-    VECTOR* scale1 = (VECTOR*)0x1F800040;
-    VECTOR* scale2 = (VECTOR*)0x1F800050;
-    BarrierData* barrier = &D_80162978[D_8015169C];
-    int temp_a0 = barrier->AnimationFrame + barrier->StartFrame - 17;
-    int var_s5;
-    int var_s6;
+    MATRIX* matrix1;
+    MATRIX* matrix2;
+    VECTOR* scale1;
+    VECTOR* scale2;
+    BarrierData* barrier;
+    int temp_a0;
+    int faceFlags;
+    int fade;
 
+    matrix1 = (MATRIX*)0x1F800000;
+    matrix2 = (MATRIX*)0x1F800020;
+    scale1 = (VECTOR*)0x1F800040;
+    scale2 = (VECTOR*)0x1F800050;
+    barrier = &D_80162978[D_8015169C];
+    temp_a0 = barrier->AnimationFrame + barrier->StartFrame - 17;
     if (temp_a0 < 0) {
         if (barrier->AnimationFrame < 6) {
-            scale1->vx = scale1->vy = scale1->vz = (barrier->AnimationFrame * (BarrierBaseScale << 9)) >> 12;
+            scale1->vx = scale1->vy = scale1->vz = (barrier->AnimationFrame * (barrier_base_scale << 9)) >> 12;
         } else {
-            scale1->vx = scale1->vy = scale1->vz = (BarrierBaseScale * 0xC00) >> 12;
+            scale1->vx = scale1->vy = scale1->vz = (barrier_base_scale * SCALE_BASE) >> 12;
         }
 
-        scale2->vx = scale2->vy = scale2->vz = (BarrierBaseScale * 0xC00) >> 12;
+        scale2->vx = scale2->vy = scale2->vz = (barrier_base_scale * SCALE_BASE) >> 12;
 
-        var_s5 = barrier->FaceIndex;
-        var_s6 = 0;
-    } else if (temp_a0 > 7) {
+        faceFlags = barrier->FaceIndex;
+        fade = 0;
+    } else if (temp_a0 > FADE_LAST_FRAME) {
         barrier->StartFrame = -1;
         return;
     } else {
-        var_s5 = barrier->FaceIndex | 8;
-        var_s6 = temp_a0 << 9;
+        faceFlags = barrier->FaceIndex | MODEL_SEMI_TRANS;
+        fade = temp_a0 * FADE_PER_FRAME;
         scale1->vx = scale1->vy = scale1->vz = scale2->vx = scale2->vy = scale2->vz =
-            (((temp_a0 * 0x180) + 0xC00) * BarrierBaseScale) >> 12;
+            (((temp_a0 * SCALE_PER_FADE_FRAME) + SCALE_BASE) * barrier_base_scale) >> 12;
     }
 
     SetFarColor(0, 0, 0);
@@ -158,7 +183,7 @@ static void BarrierRenderShield(void) {
     *matrix2 = *matrix1;
     ScaleMatrix(matrix1, scale1);
     ScaleMatrix(matrix2, scale2);
-    ApplyMatrix(matrix2, &ShieldPivotOffset, matrix1->t);
+    ApplyMatrix(matrix2, &shield_pivot_offset, matrix1->t);
     matrix1->t[0] += barrier->Pos.vx;
     matrix1->t[1] += barrier->Pos.vy;
     matrix1->t[2] += barrier->Pos.vz;
@@ -166,9 +191,9 @@ static void BarrierRenderShield(void) {
     SetRotMatrix(matrix1);
     SetTransMatrix(matrix1);
 
-    ShieldRenderDesc.unk4 = var_s5 | 0x80;
-    ShieldRenderDesc.unkA = var_s6;
-    BarrierBufferPtr = func_800D29D4(&ShieldRenderDesc, g_cDb->unk70, 12, BarrierBufferPtr);
+    shield_render_desc.flags = faceFlags | MODEL_DEPTH_CUE;
+    shield_render_desc.color = fade;
+    barrier_buffer_ptr = func_800D29D4(&shield_render_desc, g_cDb->unk70, 12, barrier_buffer_ptr);
 
     if (D_80062D98 == 0) {
         barrier->AnimationFrame++;
@@ -176,9 +201,10 @@ static void BarrierRenderShield(void) {
 }
 
 static void BarrierAnimationUpdate(void) {
-    BarrierData* barrier = &D_80162978[D_8015169C]; // model instance
+    BarrierData* barrier; // model instance
     BarrierData* next;
 
+    barrier = &D_80162978[D_8015169C];
     if (D_80062D98 != 0) {
         return;
     }
@@ -256,8 +282,9 @@ static void BarrierAnimationUpdate(void) {
 }
 
 static void BarrierAttachToTarget(int target) {
-    BarrierData* barrier = &D_80162978[BattleEffectRegister(BarrierAnimationUpdate)];
+    BarrierData* barrier;
 
+    barrier = &D_80162978[BattleEffectRegister(BarrierAnimationUpdate)];
     BattleGetPartPosition(target, D_801518E4[target].D_8015190F, &barrier->Pos);
     barrier->Pos.vx -= (rsin(D_801518E4[target].unk160.vy) * D_801518E4[target].unk12) >> 12;
     barrier->Pos.vz -= (rcos(D_801518E4[target].unk160.vy) * D_801518E4[target].unk12) >> 12;
@@ -266,9 +293,10 @@ static void BarrierAttachToTarget(int target) {
 }
 
 static void BarrierDoubleBufferFlip(void) {
-    BarrierData* barrier = &D_80162978[D_8015169C];
+    BarrierData* barrier;
 
-    BarrierBufferPtr = &BarrierPrimBuffer[barrier->AnimationFrame * 65536];
+    barrier = &D_80162978[D_8015169C];
+    barrier_buffer_ptr = &barrier_prim_buffer[barrier->AnimationFrame];
     barrier->AnimationFrame ^= 1;
 
     if (D_80162080 < 2) {
@@ -277,7 +305,7 @@ static void BarrierDoubleBufferFlip(void) {
 }
 
 static void BarrierMainSetup(int arg0, int arg1) {
-    BarrierBaseScale = 0x3000;
+    barrier_base_scale = 0x3000;
     BattleEffectRegister(BarrierDoubleBufferFlip);
     MagicAnimationRegister(arg0, arg1, 4, BarrierAttachToTarget);
     BattleCommandSend(32, BattleEntityGetStereoPan(arg0), 94);

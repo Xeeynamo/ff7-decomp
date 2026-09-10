@@ -305,3 +305,29 @@ overlays:
     segments:
       - [0, c, lv5deth]
       - [0x5e0, data, lv5deth]
+  # THUNDER.BIN -- "Bolt", the tier-1 lightning spell
+  - name: thunder
+    disk_path: disks/us/MAGIC/THUNDER.BIN
+    sha1: 5767aed5f73876075f01b3958a2e4738fa33b043
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.magic-thunder.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, c, thunder]
+      - [0x73c, data, thunder]
+  # MABARIA.BIN -- "MBarrier", the magic-damage half of Wall
+  - name: mabaria
+    disk_path: disks/us/MAGIC/MABARIA.BIN
+    sha1: 9169442d3e1702b7ad4425d95367f52334f84d60
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.magic-mabaria.us.txt
+      - config/sym_export_battle.us.txt
+    segments:
+      - [0, c, mabaria]
+      - [0x5b4, data, mabaria]

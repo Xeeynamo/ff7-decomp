@@ -724,9 +724,9 @@ static void func_800BAFF8(MATRIX* m, VECTOR* v) {
 
 static void func_800BB030(s16 arg0) {
     s32 i;
-    Unk801B0C98* unk;
+    ModelRenderDesc* unk;
 
-    unk = (Unk801B0C98*)0x1F800020;
+    unk = (ModelRenderDesc*)0x1F800020;
     SetFarColor(D_801518E4[arg0].D_8015190C, D_801518E4[arg0].D_8015190D, D_801518E4[arg0].D_8015190E);
     SetRotMatrix(&D_801518E4[arg0].m);
     SetTransMatrix(&D_801518E4[arg0].m);
@@ -738,12 +738,12 @@ static void func_800BB030(s16 arg0) {
         func_800BAF34(&D_800FA6D8[arg0].unk8[i]);
         if (!D_800FA6D8[arg0].unk4[i])
             continue;
-        unk->unk0 = D_800FA6D8[arg0].unk4[i];
-        unk->unk4 = D_800FA6D8[arg0].unk3E[i] | 0x180;
-        unk->unk8 = 0;
-        unk->unkA = D_801518E4[arg0].unk14[0];
-        unk->unkC = 0x20;
-        unk->unkE = D_801518E4[arg0].unk14[1];
+        unk->model = D_800FA6D8[arg0].unk4[i];
+        unk->flags = D_800FA6D8[arg0].unk3E[i] | MODEL_PRIM_PACKET_BITS | MODEL_DEPTH_CUE;
+        unk->uvOffset = 0;
+        unk->color = D_801518E4[arg0].unk14[0];
+        unk->tpage = 0x20;
+        unk->clut = D_801518E4[arg0].unk14[1];
         if (D_801518E4[arg0].D_80151909 & 4) {
             continue;
         }
