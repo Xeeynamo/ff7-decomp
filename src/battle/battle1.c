@@ -28,8 +28,8 @@ static void BattleCallbacksReset(void);
 static void func_800BC2F0(void);
 static void func_800BC348(void);
 static void BattleMovementUpdate(void);
-static void BattleCameraUpdate(void);
 static void func_800BC538(void);
+static void BattleCameraUpdate(void);
 static void func_800C0410(void);
 static void func_800C0900(void);
 static void func_800C20E8(s16 arg0, s16* arg1);
@@ -883,8 +883,7 @@ static void func_800BBDF8(void) {
     }
 }
 
-// returns a slot index into the 0x64-entry data array, not a pointer; the
-// callback writes -1 over field 0 of its slot to have the Update free it
+// the callback writes -1 over field 0 of its slot to have the Update free it
 s32 BattleEffectRegister(void (*func)(void)) {
     s16 i;
 

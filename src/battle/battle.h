@@ -505,7 +505,7 @@ extern short D_80162080;
 extern Unk8016360C D_8016360C;
 extern u16 D_8016376A;
 
-int BattleEffectRegister(void (*func)(void));
+s32 BattleEffectRegister(void (*func)(void));
 void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);
 // Build the model matrix for a battle effect: `scale` goes on the matrix
