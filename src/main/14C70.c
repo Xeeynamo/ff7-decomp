@@ -8,9 +8,7 @@ s32 D_80062E24;
 s32 D_80062E28;
 s32 D_80062E2C;
 
-u8* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2);
 s32 SysDecompKernStringWithF9(u16* arg0, u16* arg1);
-u8* SysGetPtrToKernBattleTxtWithId(s32 arg0);
 
 void func_80014C70() {
     D_80062E1C = 0;

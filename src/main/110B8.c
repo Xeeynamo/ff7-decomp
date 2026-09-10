@@ -2,55 +2,8 @@
 #include "main_private.h"
 #include "unzip.h"
 
-u8* func_80014C80(s32 arg0);
-extern u8 g_KernRndTable[];
-
-extern u8 D_80062D98;
 extern u8 D_80062D99;
-extern s32 D_80062D9C;
-extern s32 D_80062DA0;
-extern s32 D_80062DA4;
-extern s32 D_80062DA8;
-extern s32 D_80062DAC;
-extern s32 D_80062DB0;
-extern s16 D_80062DB4;
-extern s16 D_80062DB6;
-extern s16 D_80062DB8;
-extern s16 D_80062DBA;
-extern s16 D_80062DBC;
-extern s16 D_80062DBE;
-extern s32 D_80062DC0;
-extern s32 D_80062DC4;
-extern s32 D_80062DC8;
-extern s32 D_80062DCC;
-extern s32 D_80062DD0;
-extern s32 D_80062DD4;
-extern u8 D_80062DDB;
-extern u8 D_80062DDC;
-extern s32 D_80062DE0;
-extern u8 D_80062DE4;
-extern u8 D_80062DE5;
-extern s16 D_80062DE6;
-extern s16 D_80062DE8;
-extern s16 D_80062DEA;
-extern s32 D_80062DEC;
-extern s32 D_80062DF0;
-extern s32 D_80062DF4;
-extern s8 D_80062DFC;
-extern s8 _D_80062DFD;
-extern s32 D_80062E00;
-extern s32 D_80062E04;
-extern s16 D_80062E08;
-extern s16 D_80062E0A;
-extern s32 D_80062E0C;
 extern s16 D_8007E768;
-u8* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
-s32 SysDecompKernStringWithF9(u16*, u16*);
-s32 SysGetMateriaActivatedStars(u8, s32);
-void SysAddCommandToTemp(s32);
-void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
-u8 func_8001F6B4();
-void SysMenuSetPosAddWindow(s16, s16, s16);
 void func_800D8D78();
 
 void __main(void) {}

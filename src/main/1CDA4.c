@@ -39,14 +39,6 @@ s32 D_80062DC8 = 0x00000000;
 s32 D_80062F9C;
 s32 D_80062FF0;
 
-u8* SysGetPointerToTextInKernWithBlockAndTextId(s32, s32, s32);
-s32 SysDecompKernStringWithF9(u16*, u16*);
-u8* SysGetPtrToKernBattleTxtWithId(s32);
-s32 SysGetMateriaActivatedStars(u8, s32);
-s32 SysAddCommandToTemp(s32);
-void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
-u8 func_8001F6B4();
-void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
 
 static void func_8001CDA4(void) {

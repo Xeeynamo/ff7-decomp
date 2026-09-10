@@ -130,7 +130,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria25);
 
 #ifndef NON_MATCHINGS
 // needs BSS import for %gp regs
-void SysAddMateriaX4(u8 arg0, s32 arg1);
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX4);
 #else
 extern s8 D_80062FFC = 0;
@@ -145,7 +144,6 @@ void SysAddMateriaX4(u8 arg0, s32 arg1) {
 
 #ifndef NON_MATCHINGS
 // needs BSS import for %gp regs
-void SysAddMateriaX7(s32 arg0, s32 arg1, s32 arg2);
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX7);
 #else
 extern s8 D_80062FFC = 0;
@@ -219,7 +217,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria41);
 
 #ifndef NON_MATCHINGS
 // matching with GCC 2.6.3
-s32 SysGetMateriaActivatedStars(u8, s32);
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysGetMateriaActivatedStars);
 #else
 extern Unk80062F7C* D_80062F7C = NULL; // %gp
