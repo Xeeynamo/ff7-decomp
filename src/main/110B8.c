@@ -163,7 +163,13 @@ INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitFieldFromSavemap);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitNewGame);
 
+#ifdef SKIP_ASM
+// Native builds cannot define a function named `main`, since the host entry point (src/pc/main.c)
+// already claims that name. GameMain is the PSX entry point under this build.
+void GameMain(void) {}
+#else
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", main);
+#endif
 
 const s16 D_80010020[4] = {0, 0, 0x1E0, 0x1D8};
 

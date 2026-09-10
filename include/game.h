@@ -958,6 +958,7 @@ extern u8 D_80062F1B;
 extern Gpu D_80062F24;
 extern u16 D_80062F3C;
 extern s32 g_MenuRenderBufferIndex;
+extern s32 D_80062F88;
 extern u_long* D_80062FC4;
 extern Unk800A8D04* g_CurrentAction;
 extern DRAWENV D_800706A4[2];
@@ -992,6 +993,8 @@ extern FieldEntity g_FieldEntity[];
 extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
 extern Unk80075D00* D_80075D00;
+extern s32 D_80075D04;
+extern s32 D_80075D08[];
 extern int D_80075DEC;           // buffer index, either 0 or 1
 extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
@@ -1067,6 +1070,8 @@ extern volatile s32 D_8009D268[];
 extern ActiveCharacterData g_ActiveCharacters[9];
 extern u8 D_8009FE8C;
 extern u8 D_800C7304[16];
+extern s32 D_800F7ED0;
+extern s32 D_800FAFD0;
 
 // PSXSDK funcs
 SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
@@ -1092,6 +1097,10 @@ void SysMenuSetPoly(void* poly);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
 void SystemAkaoExecute(void);
+s32 SysInitRndTablePos(s32 seed);
+void SysInitPlayerStatFromEquip(s32 arg0);
+void SysInitPlayerStatFromMateria(s32 arg0);
+void SysCalculateTotalLureGilPreemptiveValue(void);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);

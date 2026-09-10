@@ -97,18 +97,6 @@ typedef struct {
 } Unk801621F0; // size:0x20
 
 typedef struct {
-    /* 0x00 */ s8 D_801636B8;
-    /* 0x01 */ u8 D_801636B9;
-    /* 0x02 */ s8 D_801636BA;
-    /* 0x03 */ s8 D_801636BB;
-    /* 0x04 */ u8 D_801636BC;
-    /* 0x05 */ s8 D_801636BD;
-    /* 0x06 */ s16 D_801636BE;
-    /* 0x08 */ s32 D_801636C0;
-    /* 0x0C */ s32 D_801636C4;
-} Unk801636B8; // size:0x10
-
-typedef struct {
     s32 method; // enum QueueMethod
     RECT* rect;
     u_long* ptr;
@@ -518,7 +506,6 @@ extern u8 D_801635FC;
 extern u8 D_80163600;
 extern u8 D_80163604;
 extern s16 D_80163608;
-extern Unk801636B8 D_801636B8[10];
 extern u16 D_80163758[]; // part of a struct
 extern u16 D_8016375C;
 extern u16 D_8016375E;
