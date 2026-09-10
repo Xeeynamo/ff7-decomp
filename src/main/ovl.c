@@ -16,7 +16,6 @@ void SysMenuDrawMainMenu();
 void func_801D00C4();
 void func_801D080C();
 void func_801D06B0();
-void func_801D00C4();
 void* D_800493FC[] = {
     SysMenuDrawMainMenu, (void*)0x801D0E80, (void*)0x801D0490, (void*)0x801D6C2C, (void*)0x801D0BD0, (void*)0x801D167C,
     func_801D00C4,       (void*)0x801D042C, func_801D080C,     (void*)0x801D0E94, func_801D06B0,     (void*)0x801D0250,

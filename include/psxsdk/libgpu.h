@@ -6,6 +6,9 @@ extern int (*GPU_printf)(); /* printf() object */
 
 #define limitRange(x, l, h) ((x) = ((x) < (l) ? (l) : (x) > (h) ? (h) : (x)))
 
+#define setVector(v, _x, _y, _z)                                               \
+	(v)->vx = (_x), (v)->vy = (_y), (v)->vz = (_z)	
+
 #define setRECT(r, _x, _y, _w, _h)                                             \
     (r)->x = (_x), (r)->y = (_y), (r)->w = (_w), (r)->h = (_h)
 
@@ -641,6 +644,7 @@ extern int OpenTIM(u_long* addr);
 extern OT_TYPE* ClearOTag(OT_TYPE* ot, int n);
 extern OT_TYPE* ClearOTagR(OT_TYPE* ot, int n);
 extern DRAWENV* PutDrawEnv(DRAWENV* env);
+extern DISPENV *GetDispEnv(DISPENV *env);
 extern DISPENV* PutDispEnv(DISPENV* env);
 extern DISPENV* SetDefDispEnv(DISPENV* env, int x, int y, int w, int h);
 extern DRAWENV* SetDefDrawEnv(DRAWENV* env, int x, int y, int w, int h);

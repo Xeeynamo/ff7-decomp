@@ -725,6 +725,12 @@ typedef struct {
     /* 0x07 */ u8 globalModelId; // BCX/global model lookup id
 } FieldModelLoaderData;          // size:0x8
 
+// Incomplete struct to make FieldEnablePartyModels match
+typedef struct {
+    u8 unk0[2];
+    u16 modelCount;
+} FieldModelLoaderHeader; // size:??
+
 typedef struct {
     /* 0x00 */ u8 flags;     // initialized to 1, later cleared
     /* 0x01 */ u8 kawaiType; // KAWAI second byte
@@ -992,7 +998,7 @@ extern FieldEntity g_FieldEntity[];
 extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
 extern Unk80075D00* D_80075D00;
-extern int D_80075DEC;           // buffer index, either 0 or 1
+extern u16 D_80075DEC;           // buffer index, either 0 or 1
 extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern u8* g_FieldText;
@@ -1019,10 +1025,11 @@ extern s32 D_80083338;
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level
 extern FieldModelLoaderData* g_FieldModelLoaderData;
+extern FieldModelLoaderHeader* D_8007E770;
 extern s16 g_FieldLineCount;
 extern u16 g_FieldPaletteBuffer[64][16];
 extern s8 D_80095DCC;
-extern volatile u16 D_80095DD4;
+extern volatile s16 D_80095DD4;
 extern s16 g_PlayerModelId;
 extern s16 g_isFieldLoading;
 extern volatile s16 D_800965EC;
@@ -1072,7 +1079,7 @@ extern u8 D_800C7304[16];
 SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
 MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
 void SystemError(char c, long n);
-
+void SysMemCopy32(void* dst, const void* src, const s32 len);
 void SysIncSeedForRandom(void);
 s32 SysGetPtrToUncompKernBattleTxtWithId(s32);
 const char* SysKernGetString(s32 arg0, s32 arg1, s32 arg2);
