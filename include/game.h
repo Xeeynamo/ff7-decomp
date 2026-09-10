@@ -725,10 +725,11 @@ typedef struct {
     /* 0x07 */ u8 globalModelId; // BCX/global model lookup id
 } FieldModelLoaderData;          // size:0x8
 
+// Incomplete struct to make FieldEnablePartyModels match
 typedef struct {
     u8 unk0[2];
     u16 modelCount;
-} FieldModelLoaderHeader; // followed by FieldModelLoaderData entries
+} FieldModelLoaderHeader; // size:??
 
 typedef struct {
     /* 0x00 */ u8 flags;     // initialized to 1, later cleared
