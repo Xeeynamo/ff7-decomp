@@ -23,7 +23,7 @@ typedef struct BarrierData {
 } BarrierData;
 
 // Battle effect instances.
-extern BarrierData D_80162978[];
+extern BarrierData g_BattleEffectSlots[];
 static s32 bari_a1[] = {    // Embedded Model
                             // 6 verts, 12 polys,1 group
     0x00000030,             // Vertex data size: 6 verts × 8 bytes
@@ -103,7 +103,7 @@ static void BarrierRenderBorder(void) {
 
     matrix = (MATRIX*)0x1F800000;
     scale = (VECTOR*)0x1F800020;
-    barrier = &D_80162978[D_8015169C];
+    barrier = &g_BattleEffectSlots[g_BattleEffectCursor];
     temp_a0 = (barrier->AnimationFrame + barrier->StartFrame) - 17;
     if (temp_a0 < 0) {
         scale->vx = scale->vy = scale->vz = (barrier_base_scale * SCALE_BASE) >> 12;
@@ -155,7 +155,7 @@ static void BarrierRenderShield(void) {
     matrix2 = (MATRIX*)0x1F800020;
     scale1 = (VECTOR*)0x1F800040;
     scale2 = (VECTOR*)0x1F800050;
-    barrier = &D_80162978[D_8015169C];
+    barrier = &g_BattleEffectSlots[g_BattleEffectCursor];
     temp_a0 = barrier->AnimationFrame + barrier->StartFrame - 17;
     if (temp_a0 < 0) {
         if (barrier->AnimationFrame < 6) {
@@ -204,13 +204,13 @@ static void BarrierAnimationUpdate(void) {
     BarrierData* barrier; // model instance
     BarrierData* next;
 
-    barrier = &D_80162978[D_8015169C];
+    barrier = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (D_80062D98 != 0) {
         return;
     }
 
     if (barrier->AnimationFrame == 0) {
-        next = &D_80162978[BattleEffectRegister(BarrierRenderBorder)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(BarrierRenderBorder)];
         next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 0;
         next->Rot = barrier->Rot;
@@ -218,7 +218,7 @@ static void BarrierAnimationUpdate(void) {
     }
 
     if (barrier->AnimationFrame == 2) {
-        next = &D_80162978[BattleEffectRegister(BarrierRenderBorder)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(BarrierRenderBorder)];
         next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 1;
         next->Rot = barrier->Rot;
@@ -226,7 +226,7 @@ static void BarrierAnimationUpdate(void) {
     }
 
     if (barrier->AnimationFrame == 4) {
-        next = &D_80162978[BattleEffectRegister(BarrierRenderBorder)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(BarrierRenderBorder)];
         next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 3;
         next->Rot = barrier->Rot;
@@ -234,7 +234,7 @@ static void BarrierAnimationUpdate(void) {
     }
 
     if (barrier->AnimationFrame == 6) {
-        next = &D_80162978[BattleEffectRegister(BarrierRenderBorder)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(BarrierRenderBorder)];
         next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 2;
         next->Rot = barrier->Rot;
@@ -242,7 +242,7 @@ static void BarrierAnimationUpdate(void) {
     }
 
     if (barrier->AnimationFrame == 1) {
-        next = &D_80162978[BattleEffectRegister(BarrierRenderShield)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(BarrierRenderShield)];
         next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 0;
         next->Rot = barrier->Rot;
@@ -250,7 +250,7 @@ static void BarrierAnimationUpdate(void) {
     }
 
     if (barrier->AnimationFrame == 3) {
-        next = &D_80162978[BattleEffectRegister(BarrierRenderShield)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(BarrierRenderShield)];
         next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 1;
         next->Rot = barrier->Rot;
@@ -258,7 +258,7 @@ static void BarrierAnimationUpdate(void) {
     }
 
     if (barrier->AnimationFrame == 5) {
-        next = &D_80162978[BattleEffectRegister(BarrierRenderShield)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(BarrierRenderShield)];
         next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 3;
         next->Rot = barrier->Rot;
@@ -266,7 +266,7 @@ static void BarrierAnimationUpdate(void) {
     }
 
     if (barrier->AnimationFrame == 7) {
-        next = &D_80162978[BattleEffectRegister(BarrierRenderShield)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(BarrierRenderShield)];
         next->StartFrame = barrier->AnimationFrame;
         next->FaceIndex = 2;
         next->Rot = barrier->Rot;
@@ -284,7 +284,7 @@ static void BarrierAnimationUpdate(void) {
 static void BarrierAttachToTarget(int target, int arg1) {
     BarrierData* barrier;
 
-    barrier = &D_80162978[BattleEffectRegister(BarrierAnimationUpdate)];
+    barrier = &g_BattleEffectSlots[BattleEffectRegister(BarrierAnimationUpdate)];
     BattleGetPartPosition(target, D_801518E4[target].D_8015190F, &barrier->Pos);
     barrier->Pos.vx -= (rsin(D_801518E4[target].unk160.vy) * D_801518E4[target].unk12) >> 12;
     barrier->Pos.vz -= (rcos(D_801518E4[target].unk160.vy) * D_801518E4[target].unk12) >> 12;
@@ -295,11 +295,11 @@ static void BarrierAttachToTarget(int target, int arg1) {
 static void BarrierDoubleBufferFlip(void) {
     BarrierData* barrier;
 
-    barrier = &D_80162978[D_8015169C];
+    barrier = &g_BattleEffectSlots[g_BattleEffectCursor];
     barrier_buffer_ptr = &barrier_prim_buffer[barrier->AnimationFrame];
     barrier->AnimationFrame ^= 1;
 
-    if (D_80162080 < 2) {
+    if (g_BattleEffectCount < 2) {
         barrier->StartFrame = -1;
     }
 }

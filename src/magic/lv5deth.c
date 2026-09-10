@@ -33,7 +33,7 @@ typedef struct Lv5DeathEffect {
     /* 0x10 */ char pad10[0x10];
 } Lv5DeathEffect; // size:0x20
 
-extern Lv5DeathEffect D_80162978[];
+extern Lv5DeathEffect g_BattleEffectSlots[];
 
 // Primitive buffer, one 0xC000 page per double-buffered frame.
 extern char g_Lv5DeathPrimBuffer0[];
@@ -51,7 +51,7 @@ extern SpriteRenderDesc g_Lv5DeathSpriteDesc;
 
 static void Lv5DeathBufferFlip(void) {
     g_Lv5DeathBufferPtr = g_dbIndex == 0 ? g_Lv5DeathPrimBuffer0 : g_Lv5DeathPrimBuffer1;
-    if (D_80162080 < 2) {
+    if (g_BattleEffectCount < 2) {
         *(s32*)g_Lv5DeathFlipEffect = -1;
     }
 }
@@ -70,7 +70,7 @@ static void Lv5DeathRenderRing(void) {
     s32 frame;
     ModelRenderDesc* desc;
 
-    effect = &D_80162978[D_8015169C];
+    effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     // The shift pair sign-extends Scale.
     scale = effect->Scale << 16;
     func_800D4368(&effect->Pos, scale >> 16, -(scale >> 19));
@@ -108,7 +108,7 @@ static void Lv5DeathRenderTargetSprite(void) {
     s32 frame;
     u8 intensity;
 
-    effect = &D_80162978[D_8015169C];
+    effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     g_Lv5DeathSpriteDesc.frameIndex = effect->AnimationFrame & 7;
 
     frame = effect->AnimationFrame;
@@ -140,7 +140,7 @@ static void Lv5DeathScreenFade(void) {
     Lv5DeathEffect* effect;
     s32 farDepth;
 
-    effect = &D_80162978[D_8015169C];
+    effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (effect->AnimationFrame < FADE_IN_FRAMES) {
         D_800F5B70.r = D_800F5B70.g = D_800F5B70.b = 0;
         farDepth = effect->AnimationFrame * FAR_DEPTH_PER_FRAME;
@@ -168,12 +168,12 @@ static void Lv5DeathAttachToTarget(s32 target, s32 arg1) {
     Lv5DeathEffect* effect;
     Lv5DeathEffect* ring;
 
-    effect = &D_80162978[BattleEffectRegister(Lv5DeathRenderTargetSprite)];
+    effect = &g_BattleEffectSlots[BattleEffectRegister(Lv5DeathRenderTargetSprite)];
     BattleGetPartPosition(target, D_801518E4[target].D_8015190F, &effect->Pos);
     effect->Scale = 0x1CCC;
     effect->u.TargetIndex = target;
 
-    ring = &D_80162978[BattleEffectRegister(Lv5DeathRenderRing)];
+    ring = &g_BattleEffectSlots[BattleEffectRegister(Lv5DeathRenderRing)];
     ring->Pos = effect->Pos;
     ring->Scale = 0x13DC;
 
@@ -185,9 +185,9 @@ static void Lv5DeathMainSetup(s32 targetMask, s32 arg1) {
     s32 count;
     s32 i;
 
-    g_Lv5DeathFlipEffect = &D_80162978[BattleEffectRegister(Lv5DeathBufferFlip)];
+    g_Lv5DeathFlipEffect = &g_BattleEffectSlots[BattleEffectRegister(Lv5DeathBufferFlip)];
     func_800D2980(g_Lv5DeathTexture, 0, 0, 0);
-    effect = &D_80162978[BattleEffectRegister(Lv5DeathScreenFade)];
+    effect = &g_BattleEffectSlots[BattleEffectRegister(Lv5DeathScreenFade)];
     effect->u.FadeOutStartFrame = 0;
     // frameStep 2: with three targets the pairs spawn on frames 1, 3 and 5.
     MagicAnimationRegister(targetMask, arg1, 2, Lv5DeathAttachToTarget);

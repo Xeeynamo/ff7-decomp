@@ -499,9 +499,9 @@ extern BattleState g_BattleState;
 extern s8 D_800F90B4[][0x240];
 extern Unk800BB75C D_800FA63C;
 extern DB* g_cDb;
-extern short D_8015169C;
+extern short g_BattleEffectCursor;
 extern BattleModel D_801518E4[10];
-extern short D_80162080;
+extern short g_BattleEffectCount;
 extern Unk8016360C D_8016360C;
 extern u16 D_8016376A;
 

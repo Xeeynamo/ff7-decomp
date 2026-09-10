@@ -138,41 +138,41 @@ static void func_800CE0C8(s16 arg0, u8 arg1, u8 arg2) {
     switch (arg1) {
     case 0:
         ret = BattleEffectRegister(func_800C3578);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg2;
+        g_BattleEffectSlots[ret].D_80162980 = arg0;
+        g_BattleEffectSlots[ret].D_8016297E = arg2;
         break;
     case 8:
         ret = BattleEffectRegister(func_800C4814);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg2;
+        g_BattleEffectSlots[ret].D_80162980 = arg0;
+        g_BattleEffectSlots[ret].D_8016297E = arg2;
         break;
     case 1:
     case 10:
         ret = BattleMovementRegister(func_800C3950);
-        D_801620AC[ret].D_801620B2 = arg2;
-        D_801620AC[ret].D_801620B4 = arg0;
-        D_801620AC[ret].D_801620B6 = 0xF8;
+        g_BattleMovementSlots[ret].D_801620B2 = arg2;
+        g_BattleMovementSlots[ret].D_801620B4 = arg0;
+        g_BattleMovementSlots[ret].D_801620B6 = 0xF8;
         return;
     case 2:
         ret = BattleEffectRegister(func_800C3CA8);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg2;
+        g_BattleEffectSlots[ret].D_80162980 = arg0;
+        g_BattleEffectSlots[ret].D_8016297E = arg2;
         break;
     case 3:
         ret = BattleEffectRegister(func_800C328C);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg2;
+        g_BattleEffectSlots[ret].D_80162980 = arg0;
+        g_BattleEffectSlots[ret].D_8016297E = arg2;
         break;
     case 17:
     case 18:
         ret = BattleEffectRegister(func_800C40F4);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg2;
+        g_BattleEffectSlots[ret].D_80162980 = arg0;
+        g_BattleEffectSlots[ret].D_8016297E = arg2;
         break;
     case 7:
         ret = BattleEffectRegister(func_800C44B4);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg2;
+        g_BattleEffectSlots[ret].D_80162980 = arg0;
+        g_BattleEffectSlots[ret].D_8016297E = arg2;
         break;
     }
 }
@@ -184,41 +184,41 @@ static void func_800CE21C(s16 arg0, u8 arg1) {
     switch (D_801636B8[arg0].D_801636BC) {
     case 0:
         ret = BattleEffectRegister(func_800C3578);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg1;
+        g_BattleEffectSlots[ret].D_80162980 = arg0;
+        g_BattleEffectSlots[ret].D_8016297E = arg1;
         break;
     case 8:
         ret = BattleEffectRegister(func_800C4814);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg1;
+        g_BattleEffectSlots[ret].D_80162980 = arg0;
+        g_BattleEffectSlots[ret].D_8016297E = arg1;
         break;
     case 1:
     case 10:
         ret = BattleMovementRegister(func_800C3950);
-        D_801620AC[ret].D_801620B2 = arg1;
-        D_801620AC[ret].D_801620B4 = arg0;
-        D_801620AC[ret].D_801620B6 = 0xF8;
+        g_BattleMovementSlots[ret].D_801620B2 = arg1;
+        g_BattleMovementSlots[ret].D_801620B4 = arg0;
+        g_BattleMovementSlots[ret].D_801620B6 = 0xF8;
         break;
     case 2:
         ret = BattleEffectRegister(func_800C3CA8);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg1;
+        g_BattleEffectSlots[ret].D_80162980 = arg0;
+        g_BattleEffectSlots[ret].D_8016297E = arg1;
         break;
     case 3:
         ret = BattleEffectRegister(func_800C328C);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg1;
+        g_BattleEffectSlots[ret].D_80162980 = arg0;
+        g_BattleEffectSlots[ret].D_8016297E = arg1;
         break;
     case 17:
     case 18:
         ret = BattleEffectRegister(func_800C40F4);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg1;
+        g_BattleEffectSlots[ret].D_80162980 = arg0;
+        g_BattleEffectSlots[ret].D_8016297E = arg1;
         break;
     case 7:
         ret = BattleEffectRegister(func_800C44B4);
-        D_80162978[ret].D_80162980 = arg0;
-        D_80162978[ret].D_8016297E = arg1;
+        g_BattleEffectSlots[ret].D_80162980 = arg0;
+        g_BattleEffectSlots[ret].D_8016297E = arg1;
         break;
     }
 }
@@ -283,31 +283,31 @@ static void func_800CE638(void) {
 // named by Akari's q-gears_reverse (ffvii/address_battle.txt): D_800FA69C is
 // the magic barrier mask, D_80163608 the physical one.
 static void func_800CE75C(void) {
-    if ((D_800FA69C >> D_80162978[D_8015169C].D_80162980) & 1) {
-        func_800D67E8(D_80162978[D_8015169C].D_80162980); // MBarrier
-    } else if ((D_80163608 >> D_80162978[D_8015169C].D_80162980) & 1) {
-        func_800D67BC(D_80162978[D_8015169C].D_80162980); // Barrier
+    if ((D_800FA69C >> g_BattleEffectSlots[g_BattleEffectCursor].D_80162980) & 1) {
+        func_800D67E8(g_BattleEffectSlots[g_BattleEffectCursor].D_80162980); // MBarrier
+    } else if ((D_80163608 >> g_BattleEffectSlots[g_BattleEffectCursor].D_80162980) & 1) {
+        func_800D67BC(g_BattleEffectSlots[g_BattleEffectCursor].D_80162980); // Barrier
     }
 }
 
 static void func_800CE7E0(void) {
     s32 dst;
 
-    if (!D_80162978[D_8015169C].D_8016297C) {
-        if (D_80162978[D_8015169C].D_8016297E != -1) {
+    if (!g_BattleEffectSlots[g_BattleEffectCursor].D_8016297C) {
+        if (g_BattleEffectSlots[g_BattleEffectCursor].D_8016297E != -1) {
             func_800CE75C();
             dst = func_800BC04C(func_800C2928);
-            D_801621F0[dst].unk14 = D_80162978[D_8015169C].unkE;
-            D_801621F0[dst].unkE = D_80162978[D_8015169C].D_80162982;
-            D_801621F0[dst].unk10.ptr = (u8*)(u32)D_80162978[D_8015169C].D_80162980;
+            D_801621F0[dst].unk14 = g_BattleEffectSlots[g_BattleEffectCursor].unkE;
+            D_801621F0[dst].unkE = g_BattleEffectSlots[g_BattleEffectCursor].D_80162982;
+            D_801621F0[dst].unk10.ptr = (u8*)(u32)g_BattleEffectSlots[g_BattleEffectCursor].D_80162980;
             dst = func_800BC04C(func_800CE638);
-            D_801621F0[dst].unkA = D_80162978[D_8015169C].unk19;
-            D_801621F0[dst].unk8 = D_80162978[D_8015169C].D_8016297E;
+            D_801621F0[dst].unkA = g_BattleEffectSlots[g_BattleEffectCursor].unk19;
+            D_801621F0[dst].unk8 = g_BattleEffectSlots[g_BattleEffectCursor].D_8016297E;
         }
-        D_80162978[D_8015169C].D_80162978 = -1;
+        g_BattleEffectSlots[g_BattleEffectCursor].D_80162978 = -1;
         return;
     } else {
-        D_80162978[D_8015169C].D_8016297C--;
+        g_BattleEffectSlots[g_BattleEffectCursor].D_8016297C--;
     }
 }
 
@@ -315,24 +315,24 @@ void func_800CEB48(void);
 void func_800CE970(void) {
     s32 dst;
 
-    if (!D_80162978[D_8015169C].D_8016297C) {
-        if (D_80162978[D_8015169C].unkE & 2) {
+    if (!g_BattleEffectSlots[g_BattleEffectCursor].D_8016297C) {
+        if (g_BattleEffectSlots[g_BattleEffectCursor].unkE & 2) {
             D_80163C74 = (DR_MODE*)func_800C4FC8(0xFA, 0xFA, 0xFA);
         }
-        if (D_80162978[D_8015169C].D_8016297E != -1 && D_80162978[D_8015169C].unk18 != 1) {
+        if (g_BattleEffectSlots[g_BattleEffectCursor].D_8016297E != -1 && g_BattleEffectSlots[g_BattleEffectCursor].unk18 != 1) {
             func_800CE75C();
             dst = func_800BC04C(func_800C2928);
-            D_801621F0[dst].unk14 = D_80162978[D_8015169C].unkE;
-            D_801621F0[dst].unkE = D_80162978[D_8015169C].D_80162982;
-            D_801621F0[dst].unk10.ptr = (u8*)(u32)D_80162978[D_8015169C].D_80162980;
+            D_801621F0[dst].unk14 = g_BattleEffectSlots[g_BattleEffectCursor].unkE;
+            D_801621F0[dst].unkE = g_BattleEffectSlots[g_BattleEffectCursor].D_80162982;
+            D_801621F0[dst].unk10.ptr = (u8*)(u32)g_BattleEffectSlots[g_BattleEffectCursor].D_80162980;
             dst = func_800BC04C(func_800CE638);
-            D_801621F0[dst].unkA = D_80162978[D_8015169C].unk19;
-            D_801621F0[dst].unk8 = D_80162978[D_8015169C].D_8016297E;
+            D_801621F0[dst].unkA = g_BattleEffectSlots[g_BattleEffectCursor].unk19;
+            D_801621F0[dst].unk8 = g_BattleEffectSlots[g_BattleEffectCursor].D_8016297E;
         }
         func_800CEB48();
         return;
     } else {
-        D_80162978[D_8015169C].D_8016297C--;
+        g_BattleEffectSlots[g_BattleEffectCursor].D_8016297C--;
     }
 }
 
@@ -341,77 +341,77 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CEB48);
 static void func_800CF2F0(void) {
     s16 index;
 
-    if (D_801620AC[D_801590D0].D_801620B0 == 0) {
-        D_801620AC[D_801590D0].D_801620AC = -1;
+    if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
         return;
     }
-    index = D_801620AC[D_801590D0].D_801620B4;
-    D_801518E4[index].D_80151A4C.vy += D_801620AC[D_801590D0].D_801620B6;
+    index = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
+    D_801518E4[index].D_80151A4C.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
     *(s32*)0x1F80000C = index;
-    D_801620AC[D_801590D0].D_801620B0 = D_801620AC[D_801590D0].D_801620B0 - 1;
+    g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 - 1;
 }
 
 static void func_800CF3CC(void) {
     s16 index;
 
-    index = D_801620AC[D_801590D0].D_801620B4;
+    index = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
     *(s32*)0x1F80000C = index;
-    if (D_801620AC[D_801590D0].D_801620B0 == 0) {
-        D_801620AC[D_801590D0].D_801620AC = -1;
+    if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
         return;
     }
-    D_801518E4[index].unk160.vy += D_801620AC[D_801590D0].unkE;
-    D_801620AC[D_801590D0].D_801620B0--;
+    D_801518E4[index].unk160.vy += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+    g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
 }
 
 static void func_800CF4A8(void) {
     s16 index;
 
-    if (D_801620AC[D_801590D0].D_801620B0 == 0) {
-        D_801620AC[D_801590D0].D_801620AC = -1;
+    if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
         return;
     }
-    index = D_801620AC[D_801590D0].D_801620B4;
-    D_801518E4[index].D_80151A4C.vx += D_801620AC[D_801590D0].D_801620B6;
-    D_801518E4[index].D_80151A4C.vz += D_801620AC[D_801590D0].unkC;
+    index = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
+    D_801518E4[index].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
+    D_801518E4[index].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
     *(s32*)0x1F80000C = index;
-    D_801620AC[D_801590D0].D_801620B0 = D_801620AC[D_801590D0].D_801620B0 - 1;
+    g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 - 1;
 }
 
 static void func_800CF5BC(void) {
 #define MUL(a, b) (((a) * (b)) >> 12)
 #define IDX1 *(s32*)0x1F80000C
 #define IDX2 *(s32*)0x1F800008
-    IDX1 = D_801620AC[D_801590D0].D_801620B4;
-    IDX2 = D_801620AC[D_801590D0].D_801620B6;
-    if (D_801620AC[D_801590D0].D_801620AE == 0) {
-        D_801620AC[D_801590D0].D_801620AE = 1;
+    IDX1 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
+    IDX2 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
+    if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE == 0) {
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE = 1;
         if (IDX1 >= 4) {
             if (D_801031F0 == 0) {
-                D_801620AC[D_801590D0].D_801620B2 =
+                g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
                     (MUL(D_801518E4[IDX2].D_80151A4C.vy, D_801518E4[IDX2].D_801518EA) -
                      MUL(D_801518E4[IDX1].D_80151A4C.vy, D_801518E4[IDX1].D_801518EA)) /
-                    D_801620AC[D_801590D0].D_801620B0;
+                    g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0;
             } else {
-                D_801620AC[D_801590D0].D_801620B2 = 0;
+                g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 = 0;
             }
         } else {
-            D_801620AC[D_801590D0].D_801620B2 = 0;
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 = 0;
         }
     }
-    if (!D_801620AC[D_801590D0].unk18) {
+    if (!g_BattleMovementSlots[g_BattleMovementCursor].unk18) {
         D_80166F58 = 0;
-        if (D_801620AC[D_801590D0].D_801620B0 == 0) {
-            D_801620AC[D_801590D0].D_801620AC = -1;
+        if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
             return;
         }
-        D_801518E4[IDX1].D_80151A4C.vx += D_801620AC[D_801590D0].unkC;
-        D_801518E4[IDX1].D_80151A4C.vz += D_801620AC[D_801590D0].unkE;
-        D_801518E4[IDX1].D_80151A4C.vy += D_801620AC[D_801590D0].D_801620B2;
-        D_801620AC[D_801590D0].D_801620B0--;
+        D_801518E4[IDX1].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+        D_801518E4[IDX1].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+        D_801518E4[IDX1].D_80151A4C.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
         return;
     }
-    D_801620AC[D_801590D0].unk18--;
+    g_BattleMovementSlots[g_BattleMovementCursor].unk18--;
 #undef IDX2
 #undef IDX1
 #undef MUL
@@ -421,39 +421,39 @@ static void func_800CF8C0(s16 arg0, s16 arg1, u8 arg2) {
     u8 dst;
 
     dst = BattleMovementRegister(func_800CFB14);
-    D_801620AC[dst].D_801620B4 = arg0;
-    D_801620AC[dst].D_801620B0 = arg1;
-    D_801620AC[dst].D_801620B6 = D_800F99E8;
-    D_801620AC[dst].unk18 = arg2;
+    g_BattleMovementSlots[dst].D_801620B4 = arg0;
+    g_BattleMovementSlots[dst].D_801620B0 = arg1;
+    g_BattleMovementSlots[dst].D_801620B6 = D_800F99E8;
+    g_BattleMovementSlots[dst].unk18 = arg2;
     if (D_800F99E8 == arg0) {
-        D_801620AC[dst].unkC = 0;
-        D_801620AC[dst].unkE = 0;
-        D_801620AC[dst].D_801620B2 = 0;
+        g_BattleMovementSlots[dst].unkC = 0;
+        g_BattleMovementSlots[dst].unkE = 0;
+        g_BattleMovementSlots[dst].D_801620B2 = 0;
         return;
     }
-    D_801620AC[dst].unkC = (D_80163C80[arg0].vx - D_801518E4[arg0].D_80151A4C.vx) / arg1;
-    D_801620AC[dst].unkE = (D_80163C80[arg0].vz - D_801518E4[arg0].D_80151A4C.vz) / arg1;
-    D_801620AC[dst].D_801620B2 = (D_80163C80[arg0].vy - D_801518E4[arg0].D_80151A4C.vy) / arg1;
+    g_BattleMovementSlots[dst].unkC = (D_80163C80[arg0].vx - D_801518E4[arg0].D_80151A4C.vx) / arg1;
+    g_BattleMovementSlots[dst].unkE = (D_80163C80[arg0].vz - D_801518E4[arg0].D_80151A4C.vz) / arg1;
+    g_BattleMovementSlots[dst].D_801620B2 = (D_80163C80[arg0].vy - D_801518E4[arg0].D_80151A4C.vy) / arg1;
 }
 
 static void func_800CFB14(void) {
     s16 dst;
 
-    dst = D_801620AC[D_801590D0].D_801620B4;
+    dst = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
     *(s32*)0x1F80000C = dst;
-    *(s32*)0x1F800008 = D_801620AC[D_801590D0].D_801620B6;
-    if (D_801620AC[D_801590D0].unk18 == 0) {
-        if (D_801620AC[D_801590D0].D_801620B0 == 0) {
-            D_801620AC[D_801590D0].D_801620AC = -1;
+    *(s32*)0x1F800008 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
+    if (g_BattleMovementSlots[g_BattleMovementCursor].unk18 == 0) {
+        if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
             return;
         }
-        D_801518E4[dst].D_80151A4C.vx += D_801620AC[D_801590D0].unkC;
-        D_801518E4[dst].D_80151A4C.vz += D_801620AC[D_801590D0].unkE;
-        D_801518E4[dst].D_80151A4C.vy += D_801620AC[D_801590D0].D_801620B2;
-        D_801620AC[D_801590D0].D_801620B0--;
+        D_801518E4[dst].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+        D_801518E4[dst].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+        D_801518E4[dst].D_80151A4C.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
         return;
     }
-    D_801620AC[D_801590D0].unk18--;
+    g_BattleMovementSlots[g_BattleMovementCursor].unk18--;
 }
 
 static void func_800CFCB0(void) {
@@ -461,54 +461,54 @@ static void func_800CFCB0(void) {
     s16 temp_a2;
     s32 temp_a1;
 
-    if (D_801620AC[D_801590D0].D_801620B0 == 0) {
-        D_801620AC[D_801590D0].D_801620AC = -1;
+    if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
         return;
     }
-    temp_a2 = D_801620AC[D_801590D0].D_801620B4;
-    temp_a3 = D_801620AC[D_801590D0].D_801620B6;
-    temp_a1 = D_801620AC[D_801590D0].unk10;
+    temp_a2 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
+    temp_a3 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
+    temp_a1 = g_BattleMovementSlots[g_BattleMovementCursor].unk10;
     *((s32*)0x1F80000C) = temp_a2;
     *((s32*)0x1F800008) = temp_a3;
     *((s32*)0x1F800010) = temp_a1;
-    D_801518E4[temp_a2].D_80151A4C.vx += D_801620AC[D_801590D0].unkC;
-    D_801518E4[temp_a2].D_80151A4C.vz += D_801620AC[D_801590D0].unkE;
-    D_801518E4[temp_a2].D_80151A4C.vy += D_800EEB28[temp_a1][D_801620AC[D_801590D0].unk18++];
-    D_801620AC[D_801590D0].D_801620B0--;
+    D_801518E4[temp_a2].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+    D_801518E4[temp_a2].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+    D_801518E4[temp_a2].D_80151A4C.vy += D_800EEB28[temp_a1][g_BattleMovementSlots[g_BattleMovementCursor].unk18++];
+    g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
 }
 
 static void func_800CFE60(void) {
 #define MUL(a, b) (((a) * (b)) >> 12)
 #define IDX1 *(s32*)0x1F80000C
 #define IDX2 *(s32*)0x1F800008
-    IDX1 = D_801620AC[D_801590D0].D_801620B4;
-    IDX2 = D_801620AC[D_801590D0].D_801620B6;
-    switch (D_801620AC[D_801590D0].D_801620AE) {
+    IDX1 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
+    IDX2 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
+    switch (g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE) {
     case 0:
-        D_801620AC[D_801590D0].D_801620AE = 1;
-        D_801620AC[D_801590D0].D_801620B0 = D_801620AC[D_801590D0].unk19;
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE = 1;
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 = g_BattleMovementSlots[g_BattleMovementCursor].unk19;
         break;
     case 1:
-        if (D_801620AC[D_801590D0].D_801620B0 == 0) {
-            D_801620AC[D_801590D0].D_801620AE = 2;
-            D_801620AC[D_801590D0].D_801620B0 = D_801620AC[D_801590D0].unk1A;
-            D_801620AC[D_801590D0].D_801620B2 =
-                MUL(D_801518E4[IDX1].D_80151A4C.vy - D_801620AC[D_801590D0].unk10, D_801518E4[IDX2].D_801518EA) /
-                D_801620AC[D_801590D0].unk1A;
+        if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE = 2;
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 = g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
+                MUL(D_801518E4[IDX1].D_80151A4C.vy - g_BattleMovementSlots[g_BattleMovementCursor].unk10, D_801518E4[IDX2].D_801518EA) /
+                g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
             return;
         }
-        D_801518E4[IDX1].D_80151A4C.vy += D_801620AC[D_801590D0].unk14;
-        D_801620AC[D_801590D0].D_801620B0--;
+        D_801518E4[IDX1].D_80151A4C.vy += g_BattleMovementSlots[g_BattleMovementCursor].unk14;
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
         break;
     case 2:
-        if (D_801620AC[D_801590D0].D_801620B0 == 0) {
-            D_801620AC[D_801590D0].D_801620AC = -1;
+        if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
             return;
         }
-        D_801518E4[IDX1].D_80151A4C.vx += D_801620AC[D_801590D0].unkC;
-        D_801518E4[IDX1].D_80151A4C.vz += D_801620AC[D_801590D0].unkE;
-        D_801518E4[IDX1].D_80151A4C.vy -= D_801620AC[D_801590D0].D_801620B2;
-        D_801620AC[D_801590D0].D_801620B0--;
+        D_801518E4[IDX1].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+        D_801518E4[IDX1].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+        D_801518E4[IDX1].D_80151A4C.vy -= g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
         break;
     }
 #undef IDX2
@@ -520,37 +520,37 @@ static void func_800D01C0(void) {
 #define MUL(a, b) (((a) * (b)) >> 12)
 #define IDX1 *(s32*)0x1F80000C
 #define IDX2 *(s32*)0x1F800008
-    IDX2 = D_801620AC[D_801590D0].D_801620B6;
-    IDX1 = D_801620AC[D_801590D0].D_801620B4;
-    switch (D_801620AC[D_801590D0].D_801620AE) {
+    IDX2 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
+    IDX1 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
+    switch (g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE) {
     case 0:
-        D_801620AC[D_801590D0].D_801620B0 = D_801620AC[D_801590D0].unk1A;
-        D_801620AC[D_801590D0].D_801620B2 =
-            (D_801620AC[D_801590D0].unk14 - D_801518E4[IDX1].D_80151A4C.vy) / D_801620AC[D_801590D0].unk1A;
-        D_801620AC[D_801590D0].D_801620AE = 1;
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 = g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
+            (g_BattleMovementSlots[g_BattleMovementCursor].unk14 - D_801518E4[IDX1].D_80151A4C.vy) / g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE = 1;
         break;
     case 1:
-        if (D_801620AC[D_801590D0].D_801620B0 == 0) {
-            D_801620AC[D_801590D0].D_801620B0 = D_801620AC[D_801590D0].unk19;
-            D_801620AC[D_801590D0].D_801620B2 =
-                MUL(D_801620AC[D_801590D0].unk14 - D_801620AC[D_801590D0].unk10,
-                    D_801518E4[D_801620AC[D_801590D0].D_801620B6].D_801518EA) /
-                D_801620AC[D_801590D0].unk19;
-            D_801620AC[D_801590D0].D_801620AE = 2;
+        if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 = g_BattleMovementSlots[g_BattleMovementCursor].unk19;
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
+                MUL(g_BattleMovementSlots[g_BattleMovementCursor].unk14 - g_BattleMovementSlots[g_BattleMovementCursor].unk10,
+                    D_801518E4[g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6].D_801518EA) /
+                g_BattleMovementSlots[g_BattleMovementCursor].unk19;
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE = 2;
             return;
         }
-        D_801518E4[IDX1].D_80151A4C.vx += D_801620AC[D_801590D0].unkC;
-        D_801518E4[IDX1].D_80151A4C.vz += D_801620AC[D_801590D0].unkE;
-        D_801518E4[IDX1].D_80151A4C.vy += D_801620AC[D_801590D0].D_801620B2;
-        D_801620AC[D_801590D0].D_801620B0--;
+        D_801518E4[IDX1].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+        D_801518E4[IDX1].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+        D_801518E4[IDX1].D_80151A4C.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
         break;
     case 2:
-        if (D_801620AC[D_801590D0].D_801620B0 == 0) {
-            D_801620AC[D_801590D0].D_801620AC = -1;
+        if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
             return;
         }
-        D_801518E4[IDX1].D_80151A4C.vy -= D_801620AC[D_801590D0].D_801620B2;
-        D_801620AC[D_801590D0].D_801620B0--;
+        D_801518E4[IDX1].D_80151A4C.vy -= g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
         break;
     }
 #undef IDX2
@@ -588,16 +588,16 @@ static void func_800D06B8(void) {
 }
 
 static void func_800D0760(void) {
-    if (D_80162978[D_8015169C].D_8016297E == 0) {
-        if (D_80162978[D_8015169C].D_8016297C == 0) {
-            D_80162978[D_8015169C].D_80162978 = -1;
+    if (g_BattleEffectSlots[g_BattleEffectCursor].D_8016297E == 0) {
+        if (g_BattleEffectSlots[g_BattleEffectCursor].D_8016297C == 0) {
+            g_BattleEffectSlots[g_BattleEffectCursor].D_80162978 = -1;
             return;
         }
         func_800DCF60(D_801518E4[D_801590CC].D_80151907, D_80151200[D_801590CC].D_8015123E);
-        D_80162978[D_8015169C].D_8016297C--;
+        g_BattleEffectSlots[g_BattleEffectCursor].D_8016297C--;
         return;
     }
-    D_80162978[D_8015169C].D_8016297E--;
+    g_BattleEffectSlots[g_BattleEffectCursor].D_8016297E--;
 }
 
 void func_800D088C(s32 loc, s32 len) {
@@ -1093,7 +1093,7 @@ extern Unk80162978* D_800F10E0;
 // countdown (0x0C) so it lasts arg0 ticks.
 static void BattleFixedPointRampInit(s32 arg0) {
     if (D_800F10E0 == NULL) {
-        D_800F10E0 = &D_80162978[BattleEffectRegister(func_800D508C)];
+        D_800F10E0 = &g_BattleEffectSlots[BattleEffectRegister(func_800D508C)];
     }
     *(s32*)&D_800F10E0->D_8016297C = 0;
     *(s32*)&D_800F10E0->unkC = 0x10000 / arg0;
@@ -1108,7 +1108,7 @@ extern s16 D_800F5B74;
 // Step the ramp once: accumulate (0x04 += 0x08), publish the high word, and
 // free the slot when the countdown (0x0C) reaches 0.
 static void BattleFixedPointRampUpdate(void) {
-    Unk80162978* slot = &D_80162978[D_8015169C];
+    Unk80162978* slot = &g_BattleEffectSlots[g_BattleEffectCursor];
     s32 v0;
     s32 v1;
 
@@ -1131,7 +1131,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D52A0);
 // the next target in the mask, fires the callback, and retires the slot once
 // the mask is exhausted; FrameStep decides how often that happens.
 void BattleAnimationUpdate(void) {
-    MagicAnimationData* slot = (MagicAnimationData*)&D_80162978[D_8015169C];
+    MagicAnimationData* slot = (MagicAnimationData*)&g_BattleEffectSlots[g_BattleEffectCursor];
     s16 target;
 
     if (D_80062D98 != 0) { // global pause
@@ -1167,7 +1167,7 @@ void BattleAnimationUpdate(void) {
 // leaves every object byte-identical, so the build cannot check it.
 
 void MagicAnimationRegister(s32 arg0, s32 arg1, s32 arg2, void (*func)(s32, s32)) {
-    MagicAnimationData* temp_v0 = (MagicAnimationData*)&D_80162978[BattleEffectRegister(BattleAnimationUpdate)];
+    MagicAnimationData* temp_v0 = (MagicAnimationData*)&g_BattleEffectSlots[BattleEffectRegister(BattleAnimationUpdate)];
     temp_v0->TargetCursor = 0;
     temp_v0->TargetMask = arg0;
     temp_v0->CallbackArg = arg1;
@@ -1273,7 +1273,7 @@ void func_800D57C0();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D57C0);
 
 static void func_800D58D0(s16 arg0, s16 arg1, s16 arg2) {
-    Unk80162978* temp_v0 = &D_80162978[BattleEffectRegister(func_800D57C0)];
+    Unk80162978* temp_v0 = &g_BattleEffectSlots[BattleEffectRegister(func_800D57C0)];
     temp_v0->D_80162978 = 0;
     temp_v0->D_80162980 = arg0;
     temp_v0->D_8016297E = arg2;
@@ -1286,7 +1286,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5938);
 static void func_800D5A68(s16 arg0, s16 arg1) {
     Unk80162978* temp_v0;
 
-    temp_v0 = &D_80162978[BattleEffectRegister(func_800D5938)];
+    temp_v0 = &g_BattleEffectSlots[BattleEffectRegister(func_800D5938)];
     temp_v0->D_80162978 = 0;
     temp_v0->D_8016297E = arg1;
     temp_v0->D_8016297C = arg0;
