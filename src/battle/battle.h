@@ -484,8 +484,31 @@ typedef struct {
     /* 0x0C */ s32 D_801636C4;
 } Unk801636B8; // size:0x10
 
-extern u16 D_800F5BBC[NUM_BATTLE_ACTOR][34];
-extern BattlePartyWork g_BattlePartyWork[NUM_PARTY];
+typedef struct {
+    /* 0x00 */ u8 targetFlags;
+    /* 0x01 */ u8 attackEffectId;
+    /* 0x02 */ u8 damageFormulaId;
+    /* 0x03 */ u8 hitChance;
+    /* 0x04 */ u8 impactEffectId;
+    /* 0x05 */ u8 criticalHitChance;
+    /* 0x06 */ u8 unk06;
+    /* 0x07 */ u8 unk07;
+    /* 0x08 */ u16 normalAttackSound;
+    /* 0x0A */ u16 criticalAttackSound;
+    /* 0x0C */ u16 missAttackSound;
+    /* 0x0E */ u16 attackElement;
+    /* 0x10 */ u16 cameraMovementId;
+    /* 0x12 */ u16 specialAttackFlags;
+    /* 0x14 */ s32 attackStatusMask;
+} BattleUnitAttackSetup; // size:0x18
+
+typedef struct {
+    /* 0x000 */ Unk800AF470 turn[NUM_BATTLE_ACTOR];
+    /* 0x2A8 */ BattlePartyWork party[NUM_PARTY];
+    /* 0x344 */ BattleUnitAttackSetup setup[NUM_PARTY];
+} BattleWork; // size:0x38C
+
+extern BattleWork g_BattleWork;
 extern Unk800F5F44 D_800F5F44;
 extern u8 D_800F6934[0x40][8];
 extern s8 D_800F6936[0x40][8];

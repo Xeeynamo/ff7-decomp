@@ -2493,8 +2493,8 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AEA48);
 
 static void func_800AF0A0(s32 arg0) { D_8010B174 = arg0; }
 
+static void WmSetGteColourSettings(void);
 static void func_800AF0B0(void) {
-    static void WmSetGteColourSettings(void);
     s32 i;
     s32 offset;
 

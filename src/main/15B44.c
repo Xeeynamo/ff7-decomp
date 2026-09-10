@@ -39,7 +39,7 @@ u16 SysGzipGetSize(void) {
     return size;
 }
 
-s32 SysGzipPackDecompressNextBlock(u8* dst) {
+u32 SysGzipPackDecompressNextBlock(u8* dst) {
     u16 zippedSize;
     s32 size;
 

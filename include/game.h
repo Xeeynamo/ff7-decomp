@@ -1028,6 +1028,7 @@ extern s32 D_80083338;
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level
 extern FieldModelLoaderData* g_FieldModelLoaderData;
+extern s16 D_8007E768;
 extern FieldModelLoaderHeader* D_8007E770;
 extern s16 g_FieldLineCount;
 extern u16 g_FieldPaletteBuffer[64][16];
@@ -1104,10 +1105,18 @@ void SysMenuSetPoly(void* poly);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
 void SystemAkaoExecute(void);
-s32 SysInitRndTablePos(s32 seed);
+void SysInitRndTablePos(s32 seed);
 void SysInitPlayerStatFromEquip(s32 arg0);
 void SysInitPlayerStatFromMateria(s32 arg0);
 void SysCalculateTotalLureGilPreemptiveValue(void);
+s32 SysMenuGetMateriaColorByType(s32 arg0);
+void SysMemCopy32(void* dst, const void* src, const s32 len);
+s32 SysDecompKernStringWithF9(u16*, u16*);
+s32 SysAddCommandToTemp(s32);
+void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
+u8 func_8001F6B4(void);
+void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y);
+u8* func_80014C80(s32 arg0);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);

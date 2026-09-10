@@ -208,7 +208,6 @@ extern WeaponRecord g_WeaponTable[]; // weapon kernel table, by weapon id
 extern s32 D_80095DD8;               // LBA len for func_80014540
 extern s16 g_isFieldLoading;
 extern volatile s16 D_8009C560; // refer to Subsystem enum
-extern SavePartyMember D_8009C738[8];
 extern u8 D_8009C754[]; // Savemap.party[0].weapon, with a 0x84-byte stride
 extern u8 D_8009C755[]; // Savemap.party[0].armor, with a 0x84-byte stride
 extern s16 D_8009ABF6;
@@ -224,3 +223,5 @@ void SysGzipSetDataBlock(u8* arg0);
 u16 SysGzipGetType(void);
 u16 SysGzipGetSize(void);
 s32 SysGzipPackDecompressNextBlock(u8* dst);
+u32 SysGzipPackDecompressNextBlock(u8* dst);
+u16 func_801D1950(u16 len, u8* data);
