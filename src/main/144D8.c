@@ -17,9 +17,8 @@ static Yamada D_80048D84[YAMADA_FILE_NUM] = {
 
 // decompression destinations, indexed by SysGzipGetType
 static void* D_80048DD4[] = {
-    D_800707C4,         (void*)0x800708C4, (void*)0x80082268, (void*)0x8009C738,
-    (void*)0x800722CC,  g_WeaponTable,      g_ArmorTable,      g_AccessoryTable,
-    g_MateriaData,
+    D_800707C4,    (void*)0x800708C4, (void*)0x80082268, (void*)0x8009C738, (void*)0x800722CC,
+    g_WeaponTable, g_ArmorTable,      g_AccessoryTable,  g_MateriaData,
 };
 
 // obtain file sector from a YamadaFile
