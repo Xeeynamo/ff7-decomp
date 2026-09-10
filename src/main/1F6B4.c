@@ -534,7 +534,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025ED4);
 
 static void func_80026034(void) {}
 
-s32 SysMenuGetMateriaColorByType(s32 arg0) { return D_80049520[D_80049528[g_MateriaData[arg0 & 0xFF].materiaType & 0xF]]; }
+s32 SysMenuGetMateriaColorByType(s32 arg0) {
+    return D_80049520[D_80049528[g_MateriaData[arg0 & 0xFF].materiaType & 0xF]];
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80026090);
 

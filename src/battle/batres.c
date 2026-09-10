@@ -34,7 +34,7 @@ extern s32 D_8009D7DC;
 extern s32 D_8009D7E0;
 extern u8 D_8009D7ED[][12];
 extern s16 D_8009D7EE[][6]; // same 12-byte record as D_8009D7ED
-extern u8 D_8009D58A[]; // gil, stored unaligned, so it is copied a byte at a time
+extern u8 D_8009D58A[];     // gil, stored unaligned, so it is copied a byte at a time
 extern u16 D_800F7DD2;
 extern u8 D_80163790[]; // the char_id occupying each of the three party slots
 extern SavePartyMember D_80167938;

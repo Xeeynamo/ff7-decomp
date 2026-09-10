@@ -344,7 +344,7 @@ extern u8 D_800F5774;
 extern s32 D_800F57CC; // btlmenu_cursorMemory
 extern Unk800F57D0* D_800F57D0;
 extern u8 D_800F57D4;
-extern u16 D_800F7DE2[];                                   // All Lucky 7s trigger count
+extern u16 D_800F7DE2[]; // All Lucky 7s trigger count
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
 extern s32 D_800F7DF8[3];

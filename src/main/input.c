@@ -37,7 +37,6 @@ Macros inspired by CTRLLER.H from SDK samples.
 
 static u8 s_PadBuffers[2][34];
 
-
 void InputInit(void) {
     if (!s_PadsInitialized) {
         s_PadsInitialized = 1;
