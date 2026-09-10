@@ -8,8 +8,6 @@ s32 D_80062E24;
 s32 D_80062E28;
 s32 D_80062E2C;
 
-s32 SysDecompKernStringWithF9(u16* arg0, u16* arg1);
-
 void func_80014C70() {
     D_80062E1C = 0;
     D_80062E20 = 0;
@@ -77,6 +75,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80014E0C);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80014E74);
 
+s32 SysDecompKernStringWithF9(u16* arg0, u16* arg1);
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysDecompKernStringWithF9);
 
 u8* SysGetPtrToKernBattleTxtWithId(s32 arg0) { return SysGetPointerToTextInKernWithBlockAndTextId(0x10, arg0, 0); }

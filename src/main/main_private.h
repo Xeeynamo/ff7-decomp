@@ -222,6 +222,11 @@ void SysGzipBinDecompress(GzHeader* src, u8* dst);
 void SysGzipSetDataBlock(u8* arg0);
 u16 SysGzipGetType(void);
 u16 SysGzipGetSize(void);
-s32 SysGzipPackDecompressNextBlock(u8* dst);
 u32 SysGzipPackDecompressNextBlock(u8* dst);
 u16 func_801D1950(u16 len, u8* data);
+s32 SysGetMateriaActivatedStars(u8 arg0, s32 arg1);
+u8* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2);
+u8* SysGetPtrToKernBattleTxtWithId(s32 arg0);
+u8 func_8001F6B4(void);
+void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
+void SysMenuRequestAddWindow(u8* text, s8 palette); // PC: menu_setNotificationMessage

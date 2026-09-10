@@ -953,6 +953,7 @@ extern u8 g_MenuColors[12]; // 4 corners x RGB
 extern u8 D_800492F0[][12]; // see Labels enum
 extern FieldModelData* g_FieldModelData;
 extern u8 D_80062D98; // battle_clearRenderList
+extern u8 D_80062D99;
 // Set while a memory-card transfer is in flight and the savemap must not be
 // touched; battle code spin-waits on it.
 extern volatile u8 g_SavemapBusy;
@@ -1111,12 +1112,9 @@ void SysInitPlayerStatFromMateria(s32 arg0);
 void SysCalculateTotalLureGilPreemptiveValue(void);
 s32 SysMenuGetMateriaColorByType(s32 arg0);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
-s32 SysDecompKernStringWithF9(u16*, u16*);
 s32 SysAddCommandToTemp(s32);
-void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
-u8 func_8001F6B4(void);
-void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y);
 u8* func_80014C80(s32 arg0);
+void SysMenuSetDrawMode(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);
@@ -1127,8 +1125,6 @@ int SysCdromLoadFile(int sector_no, size_t size, u_long* dst, void (*cb)());
 int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)());
 u32 SystemCdromReadChain(void);
 s32 SysGetLimitCmdId(s32 charId, s32 limitIndex);
-u8* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2);
-u8* SysGetPtrToKernBattleTxtWithId(s32 arg0);
 
 // from overlays
 extern u8 SavedScriptIds[48][8]; // script ids of latest queued scripts

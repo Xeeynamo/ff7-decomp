@@ -37,11 +37,6 @@ Macros inspired by CTRLLER.H from SDK samples.
 
 static u8 s_PadBuffers[2][34];
 
-u8 func_8001F6B4(void);
-// PC: menu_setNotificationMessage
-void SysMenuRequestAddWindow(u8* text, s8 palette);
-// PC: menu_setNotificationWindowPosition
-void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y);
 
 void InputInit(void) {
     if (!s_PadsInitialized) {
