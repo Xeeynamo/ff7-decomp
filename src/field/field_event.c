@@ -191,7 +191,7 @@ static void FieldInitDefaultValues(void) {
         g_FieldModels[i].MoveEndZ = 0;
         g_FieldModels[i].animCurrentFrame = 0;
         g_FieldModels[i].animLastFrame = 0;
-        g_FieldModels[i].Visible = 0;
+        g_FieldModels[i].visible = 0;
         g_FieldModels[i].MoveSpeed = 1024 * g_pFieldState->currentFieldScale / 512;
         g_FieldModels[i].scriptedMoveMode = SMODE_NONE;
         g_FieldModels[i].ActionArg = 0;
@@ -301,7 +301,7 @@ void FieldEnablePartyModels(void) {
             for (j = 0; j < g_FieldScripts->numEntities; j++) {
                 if (g_EntityToModel[j] == i) {
                     g_EntityToModel[j] = 0xFF;
-                    g_FieldModels[i].Visible = 0;
+                    g_FieldModels[i].visible = 0;
                     g_FieldModels[i].SolidOff = 1;
                     g_FieldModels[i].TalkOff = 1;
                 }

@@ -3,7 +3,6 @@
 
 extern Unk801B2308 D_80163624;
 extern u16 g_IsMutiBattle;
-void SysMemCopy32(void* dst, const void* src, const s32 len);
 
 static s32 BattleGetScenePackId(s32 sceneID);
 static s32 BattleBoostVal25Percent(s32 value);

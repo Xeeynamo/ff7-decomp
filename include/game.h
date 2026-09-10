@@ -693,7 +693,7 @@ typedef struct {
     u8 SolidOff;          // 0x59
     u8 requestTalkScript; // 0x5A
     u8 TalkOff;           // 0x5B
-    u8 Visible;           // 0x5C
+    u8 visible;           // 0x5C
     u8 scriptedMoveMode;  // 0x5D - enum ScriptedMoveMode
     u8 activeAnimId;      // 0x5E
     s8 unk5F;             // 0x5F
@@ -1079,7 +1079,7 @@ extern u8 D_800C7304[16];
 SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
 MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
 void SystemError(char c, long n);
-
+void SysMemCopy32(void* dst, const void* src, const s32 len);
 void SysIncSeedForRandom(void);
 s32 SysGetPtrToUncompKernBattleTxtWithId(s32);
 const char* SysKernGetString(s32 arg0, s32 arg1, s32 arg2);
