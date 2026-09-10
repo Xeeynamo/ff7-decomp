@@ -59,7 +59,7 @@ extern s32 D_801E36A0;
 extern s32 D_801E36A4;
 extern s32 D_801E36A8;
 extern s32 D_801E36AC;
-extern s32 D_801E368C[];
+extern s32 D_801E368C[NUM_MENU_COLOR];
 extern u8 D_801E3684[]; // "Level" label
 extern s32 D_801E3698;
 extern s32 D_801E36B0;

@@ -22,6 +22,55 @@ s32 D_80062DF0 = 0x00000084;
 s32 D_80062DF4 = 0xFFFFFFFF;
 s32 g_PartyMenuListState = 0x00000001;
 
+// clang-format off
+MainMenuColorLabels g_Labels = {
+    {0x69, 0x99, 0x53, 0xFF}, // not sure if these are actually colors or is it a JP unused string
+    {
+        _SL(12, "Item"),
+        _SL(12, "Magic"),
+        _SL(12, "Materia"),
+        _SL(12, "Equip"),
+        _SL(12, "Status"),
+        _SL(12, "Order"),
+        _SL(12, "Limit"),
+        _SL(12, "Config"),
+        _SL(12, "PHS"),
+        _SL(12, "Save"),
+        _SL(12, "Uso"),
+        _SL(12, "Beginner"),
+        _SL(12, "Uso"),
+        _SL(12, "Uso"),
+        _SL(12, "Time"),
+        _SL(12, "Gil"),
+        _SL(12, "next level"),
+        _SL(12, "Limit level"),
+        _SL(12, "Tutorial"),
+        _SL(12, "Under"),
+        _SL(12, "LEVEL UP"),
+        _SL(12, "Fury"),
+        _SL(12, "Sadness"),
+    },
+};
+// clang-format on
+
+// kernel tables that hold equipment and materia records
+static void* D_8004935C[5] = {
+    D_800722CC, g_WeaponTable, g_ArmorTable, g_AccessoryTable, g_MateriaData,
+};
+
+static s32 D_80049370[5] = {0xE00, 0x1600, 0x480, 0x200, 0x7D0};
+static u8 D_80049384[12] = {
+    0x70, 0x00, 0xB0, // RGB for something
+    0x70, 0x00, 0x80, // RGB for something
+    0x70, 0x00, 0x50, // RGB for something
+    0x70, 0x00, 0x20, // RGB for something
+};
+static u8 D_80049390[3][8] = {
+    {0xBB, 0xC3, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00},
+    {0xC0, 0xC3, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00},
+    {0xBF, 0xC9, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00},
+};
+
 s32 g_RewardMenuHasEarnedItems;
 u_long* g_CurrentMenuOrderingTable;
 s32 D_80062EA8;
@@ -519,8 +568,8 @@ void SysMenuLoadAvatars(void) {
 
     i = 0;
     dst = (u_long*)buf;
-    sector_off = &D_80048FE8->sector_off;
-    length = &D_80048FE8->length;
+    sector_off = &D_80048FE8->loc;
+    length = &D_80048FE8->len;
     for (; i < 9; i++) {
         SysCdromLoadFile(sector_off[i * 2], length[i * 2], dst, 0);
         cx = 0x340 + (i / 5) * 0x18;
@@ -534,8 +583,8 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025ED4);
 
 static void func_80026034(void) {}
 
-s32 SysMenuGetMateriaColorByType(s32 arg0) {
-    return D_80049520[D_80049528[g_MateriaData[arg0 & 0xFF].materiaType & 0xF]];
+s32 SysMenuGetMateriaColorByType(s32 materiaId) {
+    return D_80049520[D_80049528[g_MateriaData[materiaId & 0xFF].materiaType & 0xF]];
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80026090);
