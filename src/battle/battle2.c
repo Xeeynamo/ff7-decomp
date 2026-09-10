@@ -319,7 +319,8 @@ void func_800CE970(void) {
         if (g_BattleEffectSlots[g_BattleEffectCursor].unkE & 2) {
             D_80163C74 = (DR_MODE*)func_800C4FC8(0xFA, 0xFA, 0xFA);
         }
-        if (g_BattleEffectSlots[g_BattleEffectCursor].D_8016297E != -1 && g_BattleEffectSlots[g_BattleEffectCursor].unk18 != 1) {
+        if (g_BattleEffectSlots[g_BattleEffectCursor].D_8016297E != -1 &&
+            g_BattleEffectSlots[g_BattleEffectCursor].unk18 != 1) {
             func_800CE75C();
             dst = func_800BC04C(func_800C2928);
             D_801621F0[dst].unk14 = g_BattleEffectSlots[g_BattleEffectCursor].unkE;
@@ -348,7 +349,8 @@ static void func_800CF2F0(void) {
     index = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
     D_801518E4[index].D_80151A4C.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
     *(s32*)0x1F80000C = index;
-    g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 - 1;
+    g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 =
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 - 1;
 }
 
 static void func_800CF3CC(void) {
@@ -375,7 +377,8 @@ static void func_800CF4A8(void) {
     D_801518E4[index].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
     D_801518E4[index].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
     *(s32*)0x1F80000C = index;
-    g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 - 1;
+    g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 =
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 - 1;
 }
 
 static void func_800CF5BC(void) {
@@ -491,9 +494,11 @@ static void func_800CFE60(void) {
     case 1:
         if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE = 2;
-            g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 = g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 =
+                g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
-                MUL(D_801518E4[IDX1].D_80151A4C.vy - g_BattleMovementSlots[g_BattleMovementCursor].unk10, D_801518E4[IDX2].D_801518EA) /
+                MUL(D_801518E4[IDX1].D_80151A4C.vy - g_BattleMovementSlots[g_BattleMovementCursor].unk10,
+                    D_801518E4[IDX2].D_801518EA) /
                 g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
             return;
         }
@@ -526,14 +531,17 @@ static void func_800D01C0(void) {
     case 0:
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 = g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
-            (g_BattleMovementSlots[g_BattleMovementCursor].unk14 - D_801518E4[IDX1].D_80151A4C.vy) / g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
+            (g_BattleMovementSlots[g_BattleMovementCursor].unk14 - D_801518E4[IDX1].D_80151A4C.vy) /
+            g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE = 1;
         break;
     case 1:
         if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
-            g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 = g_BattleMovementSlots[g_BattleMovementCursor].unk19;
+            g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 =
+                g_BattleMovementSlots[g_BattleMovementCursor].unk19;
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
-                MUL(g_BattleMovementSlots[g_BattleMovementCursor].unk14 - g_BattleMovementSlots[g_BattleMovementCursor].unk10,
+                MUL(g_BattleMovementSlots[g_BattleMovementCursor].unk14 -
+                        g_BattleMovementSlots[g_BattleMovementCursor].unk10,
                     D_801518E4[g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6].D_801518EA) /
                 g_BattleMovementSlots[g_BattleMovementCursor].unk19;
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE = 2;
@@ -1167,7 +1175,8 @@ void BattleAnimationUpdate(void) {
 // leaves every object byte-identical, so the build cannot check it.
 
 void MagicAnimationRegister(s32 arg0, s32 arg1, s32 arg2, void (*func)(s32, s32)) {
-    MagicAnimationData* temp_v0 = (MagicAnimationData*)&g_BattleEffectSlots[BattleEffectRegister(BattleAnimationUpdate)];
+    MagicAnimationData* temp_v0 =
+        (MagicAnimationData*)&g_BattleEffectSlots[BattleEffectRegister(BattleAnimationUpdate)];
     temp_v0->TargetCursor = 0;
     temp_v0->TargetMask = arg0;
     temp_v0->CallbackArg = arg1;
