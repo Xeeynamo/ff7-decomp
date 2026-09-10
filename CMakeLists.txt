@@ -66,6 +66,8 @@ set(FF7_SOURCES
     src/magic/thunder.c
 )
 
+add_executable(str tools/str.c)
+
 set(FF7_STR_SOURCES)
 foreach(src ${FF7_SOURCES})
     set(strd_src "${CMAKE_CURRENT_BINARY_DIR}/strd/${src}")
@@ -74,8 +76,8 @@ foreach(src ${FF7_SOURCES})
     add_custom_command(
         OUTPUT ${strd_src}
         COMMAND ${CMAKE_COMMAND} -E make_directory "${strd_dir}"
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/str < ${CMAKE_CURRENT_SOURCE_DIR}/${src} > ${strd_src}
-        DEPENDS ${src} ${CMAKE_CURRENT_SOURCE_DIR}/bin/str
+        COMMAND $<TARGET_FILE:str> < ${CMAKE_CURRENT_SOURCE_DIR}/${src} > ${strd_src}
+        DEPENDS ${src} str
     )
     set_source_files_properties(${strd_src} PROPERTIES
         INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/${src_dir}")
