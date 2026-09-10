@@ -27,8 +27,8 @@
 #define SWIRL_TPAGE_X_MASK 0x3F
 
 #define SWIRL_BLEND_INTERVAL 5
-#define SWIRL_BLEND_AVERAGE 0
-#define SWIRL_BLEND_ADD_QUARTER 3
+#define BLEND_AVERAGE 0
+#define BLEND_ADD_QUARTER 3
 
 #define SWIRL_STRIP_COUNT 3
 #define SWIRL_STRIP_HEIGHT (DRAW_HEIGHT / SWIRL_STRIP_COUNT)
@@ -108,7 +108,7 @@ static void SysBattleSwirlUpdate(void) {
         for (j = 0; j < SWIRL_QUAD_ROWS; j++) {
             for (i = 0; i < SWIRL_QUAD_COLS; i++) {
                 buf->quads[i][j].tpage = GetTPage(
-                    2, SWIRL_DATA->frame % SWIRL_BLEND_INTERVAL ? SWIRL_BLEND_AVERAGE : SWIRL_BLEND_ADD_QUARTER,
+                    2, SWIRL_DATA->frame % SWIRL_BLEND_INTERVAL ? BLEND_AVERAGE : BLEND_ADD_QUARTER,
                     (i * SWIRL_CELL_SIZE) & ~SWIRL_TPAGE_X_MASK, 0);
             }
         }
