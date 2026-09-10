@@ -24,7 +24,14 @@ static void func_800BB030(s16);
 static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3);
 static void func_800BB804(void);
 static void func_800BB864(void);
+s32 func_800BC04C(void (*callback)(void));
+static s32 BattleCameraRegister(void (*callback)(void));
+static void BattleCallbacksReset(void);
 static void func_800BC2F0(void);
+static void func_800BC348(void);
+static void BattleMovementUpdate(void);
+static void func_800BC538(void);
+static void BattleCameraUpdate(void);
 static void func_800C0410(void);
 static void func_800C0900(void);
 static void func_800C20E8(s16 arg0, s16* arg1);
@@ -246,7 +253,6 @@ static void func_800B3DBC(void) {
     }
 }
 
-void func_800BC1E0(u8);
 static void func_800C5BEC(void);
 static void func_800B3E2C(void) {
     s32 i;
@@ -283,7 +289,7 @@ static void func_800B3E2C(void) {
     D_801518E4[var_a0].D_80151906 = 0;
     D_800F8374 = 0xE;
     D_80163798[D_801590E0].unk8 = -2;
-    func_800BC1E0(var_a0);
+    BattleCallbacksReset();
     func_800C5BEC();
 }
 
@@ -356,7 +362,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6B98);
 //     direction -- looks like "show next status icon"
 //   4 gated on D_800F7DE4: HP-counter tick-animation init -- writes to PS1
 //     scratchpad (0x1F800004/8), computes abs(diff)/entryField, stores
-//     start/target/increment into a D_80162978 slot (allocated via
+//     start/target/increment into a g_BattleEffectSlots slot (allocated via
 //     BattleEffectRegister)
 //   5 immediate: sets a per-actor "step complete" flag, conditionally
 //     copies animation-state fields
@@ -401,7 +407,7 @@ void func_800B7FB4(void) { D_801518DC = SystemCdromReadChain(); }
 // per-frame tick: pumps the GPU ordering-table draw lists, runs render/vsync,
 // drains the action-queue ring buffer (func_800A3ED0 -- see the queue-push
 // writeup), and sets D_800F7DE4 = 1 exactly once per frame once every actor
-// slot is ready and D_80162080 (a per-frame counter) reaches 0. func_800B6D6C
+// slot is ready and g_BattleEffectCount (a per-frame counter) reaches 0. func_800B6D6C
 // gates several of its event-queue steps on this flag, effectively waiting
 // for "the next frame is ready" before consuming a queued effect
 static void func_800B7FDC(void) {
@@ -424,7 +430,7 @@ static void func_800B7FDC(void) {
             D_800F7DE4 = 0;
             break;
         }
-        if (D_80162080 == 0) {
+        if (g_BattleEffectCount == 0) {
             D_800F7DE4 = 1;
         } else {
             D_800F7DE4 = 0;
@@ -507,7 +513,7 @@ void func_800B8438(void) {
     switch (D_80163C7C) {
     case 2:
         func_800B905C();
-        func_800BC440();
+        BattleMovementUpdate();
         func_800BA4C8();
         break;
     case 0:
@@ -521,7 +527,7 @@ void func_800B8438(void) {
         func_800B8EE4();
         func_800B905C();
         func_800B8234(D_801517BC);
-        func_800BC440();
+        BattleMovementUpdate();
         func_800B7FB4();
         func_800B83C4();
         func_800B8B48();
@@ -597,13 +603,13 @@ s16 func_800B888C(s32 arg0) {
     }
 }
 
-// initialize D_80162978 slot v (registered via BattleEffectRegister) from arg0
+// initialize g_BattleEffectSlots slot v (registered via BattleEffectRegister) from arg0
 // and dispatch
 static void func_800B88CC(s32 arg0) {
     s32 v = BattleEffectRegister(&func_800CE970);
 
-    D_80162978[v].D_8016297C = 0;
-    D_80162978[v].D_80162980 = arg0;
+    g_BattleEffectSlots[v].D_8016297C = 0;
+    g_BattleEffectSlots[v].D_80162980 = arg0;
     func_800B8A34(func_800B888C(arg0), v);
 }
 
@@ -879,35 +885,192 @@ static void func_800BBDF8(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEffectRegister);
+// the callback writes -1 over field 0 of its slot to have the Update free it
+s32 BattleEffectRegister(void (*callback)(void)) {
+    s16 i;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBF7C);
+    for (i = 0; i < 100; i++) {
+        if (!g_BattleEffectCallbacks[i]) {
+            if (i >= g_BattleEffectCursor) {
+                g_BattleEffectCallbacks[i] = callback;
+                g_BattleEffectSlots[i].D_80162978 = g_BattleEffectCursor;
+                g_BattleEffectCount++;
+                return i;
+            }
+        }
+    }
 
-s32 func_800BC04C(void (*cb)(void));
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC04C);
+    PadStop();
+    ResetGraph(1);
+    StopCallback();
+    SystemError('a', 1);
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC11C);
+s32 BattleMovementRegister(void (*callback)(void)) {
+    s16 i;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC1E0);
+    for (i = 0; i < 10; i++) {
+        if (!g_BattleMovementCallbacks[i]) {
+            if (i >= g_BattleMovementCursor) {
+                g_BattleMovementCallbacks[i] = callback;
+                g_BattleMovementSlots[i].D_801620AC = g_BattleMovementCursor;
+                g_BattleMovementCount++;
+                return i;
+            }
+        }
+    }
+
+    PadStop();
+    ResetGraph(1);
+    StopCallback();
+    SystemError('a', 2);
+}
+
+// q-gears: "add effect callback"
+s32 func_800BC04C(void (*callback)(void)) {
+    s16 i;
+
+    for (i = 0; i < 60; i++) {
+        if (!D_80163B84[i]) {
+            if (i >= D_801590D4) {
+                D_80163B84[i] = callback;
+                D_801621F0[i].D_801621F0 = D_801590D4;
+                D_80163C78++;
+                return i;
+            }
+        }
+    }
+
+    PadStop();
+    ResetGraph(1);
+    StopCallback();
+    SystemError('a', 4);
+}
+
+static s32 BattleCameraRegister(void (*callback)(void)) {
+    s16 i;
+
+    for (i = 0; i < 16; i++) {
+        if (!g_BattleCameraCallbacks[i]) {
+            g_BattleCameraCallbacks[i] = callback;
+            g_BattleCameraSlots[i].D_800F7ED8 = g_BattleCameraCursor;
+            g_BattleCameraCount++;
+            return i;
+        }
+    }
+
+    PadStop();
+    ResetGraph(1);
+    StopCallback();
+    SystemError('a', 3);
+}
+
+// q-gears: "init damage, unit movement, effect and camera callback arrays"
+static void BattleCallbacksReset(void) {
+    s32 i;
+
+    g_BattleEffectCount = g_BattleMovementCount = D_80163C78 = 0;
+
+    for (i = 0; i < 100; i++) {
+        g_BattleEffectCallbacks[i] = NULL;
+        g_BattleEffectSlots[i].D_80162978 = g_BattleEffectSlots[i].D_8016297A = 0;
+    }
+    for (i = 0; i < 10; i++) {
+        g_BattleMovementCallbacks[i] = NULL;
+        g_BattleMovementSlots[i].D_801620AC = g_BattleMovementSlots[i].D_801620AE = 0;
+    }
+    for (i = 0; i < 60; i++) {
+        D_80163B84[i] = NULL;
+        D_801621F0[i].D_801621F0 = D_801621F0[i].D_801621F2 = 0;
+    }
+
+    func_800BC2F0();
+}
 
 static void func_800BC2F0(void) {
     s32 i;
 
-    D_800FA9BC = 0;
+    g_BattleCameraCount = 0;
     for (i = 0; i < 0x10; i++) {
-        D_800FA978[i] = 0;
-        D_800F7ED8[i].D_800F7ED8 = 0;
-        D_800F7ED8[i].D_800F7EDA = 0;
+        g_BattleCameraCallbacks[i] = 0;
+        g_BattleCameraSlots[i].D_800F7ED8 = 0;
+        g_BattleCameraSlots[i].D_800F7EDA = 0;
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC348);
+// drives the 0x64 queue; q-gears calls that one the damage callbacks
+static void func_800BC348(void) {
+    void (*callback)(void);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC440);
+    for (g_BattleEffectCursor = 0; g_BattleEffectCursor < 100; g_BattleEffectCursor++) {
+        callback = g_BattleEffectCallbacks[g_BattleEffectCursor];
+        if (callback) {
+            callback();
+            if (g_BattleEffectSlots[g_BattleEffectCursor].D_80162978 == -1) {
+                g_BattleEffectSlots[g_BattleEffectCursor].D_80162978 = 0;
+                g_BattleEffectSlots[g_BattleEffectCursor].D_8016297A = 0;
+                g_BattleEffectCallbacks[g_BattleEffectCursor] = NULL;
+                g_BattleEffectCount--;
+            }
+        }
+    }
+    g_BattleEffectCursor = 0;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC538);
+static void BattleMovementUpdate(void) {
+    void (*callback)(void);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC630);
+    for (g_BattleMovementCursor = 0; g_BattleMovementCursor < 10; g_BattleMovementCursor++) {
+        callback = g_BattleMovementCallbacks[g_BattleMovementCursor];
+        if (callback) {
+            callback();
+            if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC == -1) {
+                g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = 0;
+                g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE = 0;
+                g_BattleMovementCallbacks[g_BattleMovementCursor] = NULL;
+                g_BattleMovementCount--;
+            }
+        }
+    }
+    g_BattleMovementCursor = 0;
+}
+
+// q-gears: "effects update"
+static void func_800BC538(void) {
+    void (*callback)(void);
+
+    for (D_801590D4 = 0; D_801590D4 < 60; D_801590D4++) {
+        callback = D_80163B84[D_801590D4];
+        if (callback) {
+            callback();
+            if (D_801621F0[D_801590D4].D_801621F0 == -1) {
+                D_801621F0[D_801590D4].D_801621F0 = 0;
+                D_801621F0[D_801590D4].D_801621F2 = 0;
+                D_80163B84[D_801590D4] = NULL;
+                D_80163C78--;
+            }
+        }
+    }
+    D_801590D4 = 0;
+}
+
+static void BattleCameraUpdate(void) {
+    void (*callback)(void);
+
+    for (g_BattleCameraCursor = 0; g_BattleCameraCursor < 16; g_BattleCameraCursor++) {
+        callback = g_BattleCameraCallbacks[g_BattleCameraCursor];
+        if (callback) {
+            callback();
+            if (g_BattleCameraSlots[g_BattleCameraCursor].D_800F7ED8 == -1) {
+                g_BattleCameraSlots[g_BattleCameraCursor].D_800F7ED8 = 0;
+                g_BattleCameraSlots[g_BattleCameraCursor].D_800F7EDA = 0;
+                g_BattleCameraCallbacks[g_BattleCameraCursor] = NULL;
+                g_BattleCameraCount--;
+            }
+        }
+    }
+    g_BattleCameraCursor = 0;
+}
 
 void func_800BCA58(s32);
 void func_800C1104();
@@ -918,7 +1081,6 @@ static void func_800BC72C(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC754);
 
-void func_800BC630(void);
 void func_800BCB1C(u8, s16, s16);
 void func_800BEA38(u8, s16, s16);
 // run both per-slot handlers for each of the three party slots, then the
@@ -931,7 +1093,7 @@ static void func_800BC81C(s16 arg0, s16 arg1) {
             func_800BEA38(i, arg1, arg0);
             func_800BCB1C(i, arg1, arg0);
         }
-        func_800BC630();
+        BattleCameraUpdate();
     }
 }
 
@@ -1035,13 +1197,13 @@ static s32 func_800C03FC(s32 arg0, s32 arg1) { return arg0 < 0 ? -arg1 : arg1; }
 void func_800C0480(s16); // TODO: mark as static once decompiled
 void func_800C0630(s16); // TODO: mark as static once decompiled
 static void func_800C0410(void) {
-    switch (D_800F7ED8[D_800F8360].D_800F7EDA) {
+    switch (g_BattleCameraSlots[g_BattleCameraCursor].D_800F7EDA) {
     case 0:
-        func_800C0480(D_800F8360);
-        func_800C0630(D_800F8360);
+        func_800C0480(g_BattleCameraCursor);
+        func_800C0630(g_BattleCameraCursor);
         return;
     case 1:
-        func_800C0630(D_800F8360);
+        func_800C0630(g_BattleCameraCursor);
         return;
     }
 }
@@ -1053,13 +1215,13 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0630);
 void func_800C0970(s16); // TODO: mark as static once decompiled
 void func_800C0B20(s16); // TODO: mark as static once decompiled
 static void func_800C0900(void) {
-    switch (D_800F7ED8[D_800F8360].D_800F7EDA) {
+    switch (g_BattleCameraSlots[g_BattleCameraCursor].D_800F7EDA) {
     case 0:
-        func_800C0970(D_800F8360);
-        func_800C0B20(D_800F8360);
+        func_800C0970(g_BattleCameraCursor);
+        func_800C0B20(g_BattleCameraCursor);
         return;
     case 1:
-        func_800C0B20(D_800F8360);
+        func_800C0B20(g_BattleCameraCursor);
         return;
     }
 }

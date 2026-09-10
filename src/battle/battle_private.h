@@ -31,22 +31,22 @@ typedef struct {
 } Unk800A2F4C; // size: 0xC (confirmed by D_80163A98 - D_80163798 == 0x40 * 0xC)
 
 typedef struct {
-    s16 D_801621AC;
-    s16 D_801621AE;
-    s16 D_801621B0;
-    s16 D_801621B2;
-    s16 D_801621B4;
-    s16 D_801621B6;
-    s16 unk8;
-    s16 unkA;
-    s32 unkC;
-    s32 unk10;
-    u8 unk14;
-    u8 unk15;
-    u8 unk16;
-    u8 unk17;
-    s16 unk18;
-    s16 unk1A;
+    /* 0x00 */ s16 D_801620AC;
+    /* 0x02 */ s16 D_801620AE;
+    /* 0x04 */ s16 D_801620B0;
+    /* 0x06 */ s16 D_801620B2;
+    /* 0x08 */ s16 D_801620B4;
+    /* 0x0A */ s16 D_801620B6;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ u8 unk18;
+    /* 0x19 */ u8 unk19;
+    /* 0x1A */ u8 unk1A;
+    /* 0x1B */ u8 unk1B;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
 } Unk801620AC; // size:0x20
 
 typedef struct {
@@ -56,18 +56,32 @@ typedef struct {
     /* 0x06 */ s16 D_8016297E;
     /* 0x08 */ s16 D_80162980;
     /* 0x0A */ s16 D_80162982;
-    /* 0x0C */ s16 unk8;
-    /* 0x0E */ s16 unkA;
-    /* 0x10 */ s16 unkC;
-    /* 0x12 */ s16 unkE;
-    /* 0x14 */ s16 unk10;
-    /* 0x16 */ s16 unk12;
-    /* 0x18 */ u8 unk14;
-    /* 0x19 */ u8 unk15;
-    /* 0x1A */ s16 unk16;
-    /* 0x1C */ s16 unk18;
-    /* 0x1E */ s16 unk1A;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ u8 unk18;
+    /* 0x19 */ u8 unk19;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
 } Unk80162978; // size:0x20
+
+// One effect slot driven by BattleAnimationUpdate, allocated by
+// MagicAnimationRegister. Same 0x20 bytes as Unk80162978; only the fields
+// this pair of functions touches are named.
+typedef struct {
+    /* 0x00 */ s16 TargetCursor; // bit index into TargetMask; -1 retires the slot
+    /* 0x02 */ s16 FrameCounter; // counts up to FrameStep
+    /* 0x04 */ s16 TargetMask;
+    /* 0x06 */ s16 CallbackArg; // handed to Callback as its second argument
+    /* 0x08 */ s16 FrameStep;   // 0 fans out to every target in one frame
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ void (*Callback)(s32, s32);
+    /* 0x10 */ char pad10[0x10]; // untouched by this pair
+} MagicAnimationData;            // size:0x20
 
 typedef struct {
     u16 unk0;
@@ -354,9 +368,9 @@ typedef struct {
     /* 0x04 */ u8 unk4[0x24];
 } Unk800F7ED8; // size:0x28
 
-extern Unk800F7ED8 D_800F7ED8[];
+extern Unk800F7ED8 g_BattleCameraSlots[];
 extern s16 D_800F8182[];
-extern s16 D_800F8360;
+extern s16 g_BattleCameraCursor;
 extern s32 g_dbIndex;
 extern s16 D_800F836C;
 extern s16 D_800F8370;
@@ -404,9 +418,9 @@ extern u16 D_800FA6B8;
 extern u8 D_800FA6D4;
 extern Unk800FA6D8 D_800FA6D8[];
 extern MATRIX D_800FA958;
-extern s32 D_800FA978[];
+extern void (*g_BattleCameraCallbacks[16])(void);
 extern s32 D_800FA9B8;
-extern u16 D_800FA9BC;
+extern s16 g_BattleCameraCount;
 extern s16 D_800FA9C4;
 extern s16 D_800FA9C6;
 extern s16 D_800FA9C8;
@@ -451,7 +465,7 @@ extern u8 D_80103200[];
 extern u8 D_80130200[];
 extern Unk80151200 D_80151200[3];
 extern u16 D_80151694;
-extern s16 D_8015169C;
+extern s16 g_BattleEffectCursor;
 extern u16 D_801516A0;
 extern u8 D_801516F4;
 extern u16 D_801516F8;
@@ -484,20 +498,21 @@ extern s32 D_800F9780[];
 extern u8 D_80153BDD;
 extern u32 D_80151840;
 extern u8 D_801590CC;
-extern s16 D_801590D0;
+extern s16 g_BattleMovementCursor;
 extern s16 D_801590D4;
 extern u8 D_801590D8;
 extern u8 D_801590DC;
 extern u8 D_801590E0;
-extern s16 D_80162080;
+extern void (*g_BattleEffectCallbacks[100])(void);
+extern s16 g_BattleEffectCount;
 extern s16 D_80162084;
 extern s8 D_80162094;
 extern u8 D_801620A0;
 extern u8 D_801620A4;
-extern Unk801620AC D_801620AC[10];
+extern Unk801620AC g_BattleMovementSlots[10];
 extern Unk801621F0 D_801621F0[60];
 extern u8 D_80162974;
-extern Unk80162978 D_80162978[100];
+extern Unk80162978 g_BattleEffectSlots[100];
 extern u8 D_801635F8;
 extern u8 D_801635FC;
 extern u8 D_80163600;
@@ -518,8 +533,12 @@ extern Unk800A2F4C D_80163798[0x40];
 extern s8 D_80163A98;
 extern u8 D_80163B38;
 extern s16 D_80163B44[];
+extern void (*g_BattleMovementCallbacks[10])(void);
+extern s16 g_BattleMovementCount;
 extern u16 D_80163B80;
+extern void (*D_80163B84[60])(void);
 extern DR_MODE* D_80163C74; // TODO might be a generic u_long*, not DR_MODE*
+extern s16 D_80163C78;
 extern u8 D_80163C7C;
 extern ShortVectorXYZ D_80163C80[];
 typedef struct {

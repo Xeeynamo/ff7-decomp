@@ -43,7 +43,7 @@ typedef struct {
 #define SCALE_MAX 0x7FFF
 
 extern ModelRenderDesc g_BrizadRenderDesc;
-extern BrizadData D_80162978[];
+extern BrizadData g_BattleEffectSlots[];
 extern s16 D_80151774;
 
 static void BrizadRenderIce(void) {
@@ -55,7 +55,7 @@ static void BrizadRenderIce(void) {
     s32 growth;
     s32 scale;
 
-    effect = &D_80162978[D_8015169C];
+    effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     growth = (effect->Scale * GROWTH_PER_FRAME);
     scale = (effect->AnimationFrame * growth) >> 12;
     if (scale > SCALE_MAX) {
@@ -91,10 +91,10 @@ static void BrizadSpawnIce(void) {
     BrizadData* next;
     BrizadData* effect;
 
-    effect = &D_80162978[D_8015169C];
+    effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == 0) {
-            next = &D_80162978[BattleEffectRegister(BrizadRenderIce)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(BrizadRenderIce)];
             BattleGetPartPosition(effect->TargetIndex, D_801518E4[effect->TargetIndex].D_8015190F, &next->Pos);
             next->Rot.vz = 0;
             next->Rot.vy = 0;
@@ -111,20 +111,22 @@ static void BrizadSpawnIce(void) {
 
 // Byte-identical twin of BrizadAttachToTarget below, present in the original
 // and never registered by this overlay. Kept so the layout matches.
-static void BrizadAttachToTargetUnused(s32 target) {
-    D_80162978[BattleEffectRegister(BrizadSpawnIce)].TargetIndex = target;
+static void BrizadAttachToTargetUnused(s32 target, s32 arg1) {
+    g_BattleEffectSlots[BattleEffectRegister(BrizadSpawnIce)].TargetIndex = target;
 }
 
-static void BrizadAttachToTarget(s32 target) { D_80162978[BattleEffectRegister(BrizadSpawnIce)].TargetIndex = target; }
+static void BrizadAttachToTarget(s32 target, s32 arg1) {
+    g_BattleEffectSlots[BattleEffectRegister(BrizadSpawnIce)].TargetIndex = target;
+}
 
 // This slot uses AnimationFrame as a 0/1 page index, not as a frame counter.
 static void BrizadDoubleBufferFlip(void) {
     BrizadData* flip;
 
-    flip = &D_80162978[D_8015169C];
+    flip = &g_BattleEffectSlots[g_BattleEffectCursor];
     brizad_buffer_ptr = &brizad_prim_buffer[flip->AnimationFrame];
     flip->AnimationFrame ^= 1;
-    if (D_80162080 < 2) {
+    if (g_BattleEffectCount < 2) {
         flip->StartFrame = -1;
     }
 }

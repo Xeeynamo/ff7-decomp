@@ -29,7 +29,7 @@ typedef struct {
 
 extern s32 D_801B0CA0;
 extern s32 D_801B0CA4;
-extern MabariaData D_80162978[];
+extern MabariaData g_BattleEffectSlots[];
 extern ModelRenderDesc g_MabariaRenderDesc;
 extern MabariaPrimPage g_MabariaPrimBuffer[];
 extern void* g_MabariaBufferPtr;
@@ -45,7 +45,7 @@ static void MabariaRenderModel(void) {
     s32 fade;
     VECTOR scale;
 
-    effect = &D_80162978[D_8015169C];
+    effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     growth = effect->AnimationFrame * GROWTH_TOTAL / MABARIA_LIFETIME;
     scale.vx = scale.vy = scale.vz = ((growth + SCALE_BASE) * D_801B0CA0) >> 12;
     // D_801B0CA4 holds 0, so the lerp passes the fade through.
@@ -78,25 +78,25 @@ static void MabariaAnimationUpdate(void) {
     MabariaData* effect;
     MabariaData* next;
 
-    effect = &D_80162978[D_8015169C];
+    effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (D_80062D98 != 0) {
         return;
     }
 
     if (effect->AnimationFrame == 0) {
-        next = &D_80162978[BattleEffectRegister(MabariaRenderModel)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(MabariaRenderModel)];
         next->Pos = effect->Pos;
         next->Rot = effect->Rot;
     }
 
     if (effect->AnimationFrame == 4) {
-        next = &D_80162978[BattleEffectRegister(MabariaRenderModel)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(MabariaRenderModel)];
         next->Pos = effect->Pos;
         next->Rot = effect->Rot;
     }
 
     if (effect->AnimationFrame == 8) {
-        next = &D_80162978[BattleEffectRegister(MabariaRenderModel)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(MabariaRenderModel)];
         next->Pos = effect->Pos;
         next->Rot = effect->Rot;
     }
@@ -109,10 +109,10 @@ static void MabariaAnimationUpdate(void) {
     effect->AnimationFrame++;
 }
 
-static void MabariaAttachToTarget(s32 target) {
+static void MabariaAttachToTarget(s32 target, s32 arg1) {
     MabariaData* effect;
 
-    effect = &D_80162978[BattleEffectRegister(MabariaAnimationUpdate)];
+    effect = &g_BattleEffectSlots[BattleEffectRegister(MabariaAnimationUpdate)];
     BattleGetPartPosition(target, D_801518E4[target].D_8015190F, &effect->Pos);
     effect->Pos.vx = effect->Pos.vx - ((rsin(D_801518E4[target].unk160.vy) * D_801518E4[target].unk12) >> 12);
     effect->Pos.vz = effect->Pos.vz - ((rcos(D_801518E4[target].unk160.vy) * D_801518E4[target].unk12) >> 12);
@@ -123,10 +123,10 @@ static void MabariaAttachToTarget(s32 target) {
 static void MabariaDoubleBufferFlip(void) {
     MabariaData* effect;
 
-    effect = &D_80162978[D_8015169C];
+    effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     g_MabariaBufferPtr = &g_MabariaPrimBuffer[effect->AnimationFrame];
     effect->AnimationFrame = effect->AnimationFrame ^ 1;
-    if (D_80162080 < 2) {
+    if (g_BattleEffectCount < 2) {
         effect->StartFrame = -1;
     }
 }

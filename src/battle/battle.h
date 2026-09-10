@@ -520,16 +520,16 @@ extern BattleState g_BattleState;
 extern s8 D_800F90B4[][0x240];
 extern Unk800BB75C D_800FA63C;
 extern DB* g_cDb;
-extern short D_8015169C;
+extern short g_BattleEffectCursor;
 extern BattleModel D_801518E4[NUM_BATTLE_ACTOR];
-extern short D_80162080;
+extern short g_BattleEffectCount;
 extern s32 D_801620A8;
 extern Unk8016360C D_8016360C;
 extern Unk801636B8 D_801636B8[NUM_BATTLE_ACTOR];
 extern u16 D_8016376A;
 extern u16 g_IsMutiBattle;
 
-int BattleEffectRegister(void (*func)(void));
+s32 BattleEffectRegister(void (*func)(void));
 void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);
 // Build the model matrix for a battle effect: `scale` goes on the matrix
@@ -544,7 +544,7 @@ s32 func_800D55A4(s32 target);
 void BattleCommandSend(s32 cmdId, ...);
 void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
 // Runs `func` once per set bit in targetMask, frameStep frames apart.
-void MagicAnimationRegister(s32 targetMask, s32 arg1, s32 frameStep, void (*func)(int));
+void MagicAnimationRegister(s32 targetMask, s32 arg1, s32 frameStep, void (*func)(s32, s32));
 s32 BattlePositionToStereoPan(SVECTOR* sv);
 s32 BattleEntityGetStereoPan(s32 arg0);
 void func_800D5774(u32 targetIndex);

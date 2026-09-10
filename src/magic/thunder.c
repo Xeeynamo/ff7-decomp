@@ -32,7 +32,7 @@ typedef struct {
 } ThunderPrimPage; // size:0x10000
 
 extern void* g_ThunderBufferPtr;
-extern ThunderData D_80162978[];
+extern ThunderData g_BattleEffectSlots[];
 extern ThunderPrimPage g_ThunderPrimBuffer[];
 extern u_long g_ThunderTexture[]; // 8bpp TIM + CLUT, uploaded on setup
 extern SpriteRenderDesc g_ThunderRenderDesc0;
@@ -49,7 +49,7 @@ static void ThunderRenderModel(void) {
     ThunderData* effect;
     s16 frame;
 
-    effect = &D_80162978[D_8015169C];
+    effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     frame = effect->AnimationFrame;
     if (frame < DIM_START_FRAME) {
         g_ThunderModelDesc.color = GREY_FULL;
@@ -78,7 +78,7 @@ static void ThunderRenderModel(void) {
 static void func_801B0180(void) {
     ThunderData* effect;
 
-    effect = &D_80162978[D_8015169C];
+    effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     func_800D4368(&effect->Pos, 0x2000, effect->unk1C);
     g_ThunderRenderDesc0.frameIndex = effect->AnimationFrame >> 1;
     g_ThunderBufferPtr = func_800D4D90(&g_ThunderRenderDesc0, g_cDb->unk70, 0xC, g_ThunderBufferPtr);
@@ -94,7 +94,7 @@ static void func_801B023C(void) {
     MATRIX* matrix;
     ThunderData* effect;
 
-    effect = &D_80162978[D_8015169C];
+    effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     matrix = func_800D4368(&effect->Pos, 0x2000, effect->unk1C);
     if (effect->unk1A & 1) {
         matrix->m[0][0] = -matrix->m[0][0];
@@ -118,16 +118,16 @@ static void ThunderSpawnBolt(void) {
     ThunderData* next;
     ThunderData* effect;
 
-    effect = &D_80162978[D_8015169C];
+    effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == 0) {
-            next = &D_80162978[BattleEffectRegister(func_801B0180)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B0180)];
             next->Pos = effect->Pos;
             next->Pos.vy = 0;
             next->unk1C = effect->unk1C;
             func_800D5774(effect->unk14);
             if (effect->AnimationFrame == 0) {
-                next = &D_80162978[BattleEffectRegister(ThunderRenderModel)];
+                next = &g_BattleEffectSlots[BattleEffectRegister(ThunderRenderModel)];
                 next->Pos = effect->Pos;
                 next->Scale = 4096;
                 next->Pos.vy = 0;
@@ -136,7 +136,7 @@ static void ThunderSpawnBolt(void) {
             }
         }
         if (effect->AnimationFrame >= SPARK_START_FRAME) {
-            next = &D_80162978[BattleEffectRegister(func_801B023C)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B023C)];
             next->Pos.vx = (effect->Pos.vx + rand() % 1000) - 500;
             next->Pos.vy = (effect->Pos.vy + rand() % 1000) - 500;
             next->Pos.vz = (effect->Pos.vz + rand() % 1000) - 500;
@@ -150,10 +150,10 @@ static void ThunderSpawnBolt(void) {
     }
 }
 
-static void ThunderAttachToTarget(s32 target) {
+static void ThunderAttachToTarget(s32 target, s32 arg1) {
     ThunderData* effect;
 
-    effect = &D_80162978[BattleEffectRegister(ThunderSpawnBolt)];
+    effect = &g_BattleEffectSlots[BattleEffectRegister(ThunderSpawnBolt)];
     BattleGetPartPosition(target, D_801518E4[target].D_8015190F, &effect->Pos);
     effect->unk14 = target;
     effect->unk1C = -D_801518E4[target].unk12;
@@ -163,10 +163,10 @@ static void ThunderAttachToTarget(s32 target) {
 static void ThunderDoubleBufferFlip(void) {
     ThunderData* data;
 
-    data = &D_80162978[D_8015169C];
+    data = &g_BattleEffectSlots[g_BattleEffectCursor];
     g_ThunderBufferPtr = &g_ThunderPrimBuffer[data->AnimationFrame];
     data->AnimationFrame = data->AnimationFrame ^ 1;
-    if (D_80162080 < 2) {
+    if (g_BattleEffectCount < 2) {
         data->StartFrame = -1;
     }
 }
