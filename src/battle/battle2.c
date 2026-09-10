@@ -4,6 +4,7 @@
 static void func_800D67BC(s32 arg0);
 static void func_800D67E8(s32 arg0);
 void func_800D6814(s32 arg0);
+static void func_800D58D0(s32 arg0, s16 arg1, s16 arg2);
 
 extern Yamada D_800EEBB8[]; // MAGIC/*.BIN overlay
 extern s16 D_800EF5B0[];
@@ -1229,7 +1230,7 @@ void BattleCommandSend(s32 cmdId, ...) {
     }
     count = 1;
     if (count <= nExtra) {
-        dst = D_8009A004;
+        dst = (u32*)D_8009A004;
         src = (u32*)args + 1;
         for (; count <= nExtra; count++) {
             *dst++ = *src++;
@@ -1281,7 +1282,7 @@ void func_800D5774(u32 arg0) {
 void func_800D57C0();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D57C0);
 
-static void func_800D58D0(s16 arg0, s16 arg1, s16 arg2) {
+static void func_800D58D0(s32 arg0, s16 arg1, s16 arg2) {
     Unk80162978* temp_v0 = &g_BattleEffectSlots[BattleEffectRegister(func_800D57C0)];
     temp_v0->D_80162978 = 0;
     temp_v0->D_80162980 = arg0;

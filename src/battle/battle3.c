@@ -8,6 +8,7 @@ static void func_800E5358(void);
 static void func_800E4B88(void);
 static s32 func_800E4BCC(void);
 static void func_800E68B4(void);
+static s32 func_800E54EC(void);
 void func_800E58CC(void);
 
 static void func_800D8A04(void) {}

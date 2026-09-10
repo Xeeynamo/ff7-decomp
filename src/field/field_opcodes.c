@@ -72,6 +72,7 @@ void FieldDebugPageSetColor(s32 page, s32 r, s32 g, s32 b);
 
 static s32 KeyCheck(u16 keys);
 static u32 GetAkaoBlockOffset(s16 akaoId);
+static s32 SetAndApplyAkao(void);
 static void PartyReplace(u8* newParty);
 static void PartyFromBank2ToSave(s32 unused);
 static void PartyRemove(u8* party, u8* toRemove);

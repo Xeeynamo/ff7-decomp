@@ -58,11 +58,6 @@ typedef struct {
     u16 unk6;
 } Unk8001DE0C;
 
-typedef struct {
-    s32 sector_off;
-    s32 length;
-} PortraitEntry;
-
 // Kernel armor record, one per armor id (g_ArmorTable). Field meanings were
 // verified by dumping the live table and matching each field against
 // published stats for all 32 armors.
@@ -132,20 +127,15 @@ extern u16 g_Pad2BattleKeysPressed;
 extern u16 g_Pad2BattleKeysRepeat;
 
 extern s32 D_80010100[];
-extern Yamada D_80048CFC[];
-extern Yamada D_80048D84[];
-extern s32 D_80048DD4[];
-extern PortraitEntry D_80048FE8[15];
-extern s32 D_80049224[8];
-extern s32 D_80049474[];  // play-clock divisors: 36000 (seconds per 10 hours),
-                          // 3600 (seconds per hour)
+extern Yamada D_80048F60[17];
+extern Yamada D_80048FE8[15];
+extern s32 D_80049474[6]; // play-clock divisors, see ovl.c
 extern s32 D_80049500[8]; // party slot -> character id (endgame level snapshot)
 extern u8 D_80049520[];
 extern u8 D_80049528[];
 extern u8 D_80062E54[8];
 extern u8 D_80062E5C;                   // Pre-emptive materia is at maximum level.
 extern ActiveCharacterData* D_80062E60; // Current active character.
-extern u16 g_ElementIdToBitmask[16];
 extern u32 D_80062E64;
 extern u32 D_80062E68;
 extern s16 D_80062E6C[4];
@@ -208,9 +198,8 @@ extern WeaponRecord g_WeaponTable[]; // weapon kernel table, by weapon id
 extern s32 D_80095DD8;               // LBA len for func_80014540
 extern s16 g_isFieldLoading;
 extern volatile s16 D_8009C560; // refer to Subsystem enum
-extern SavePartyMember D_8009C738[8];
-extern u8 D_8009C754[]; // Savemap.party[0].weapon, with a 0x84-byte stride
-extern u8 D_8009C755[]; // Savemap.party[0].armor, with a 0x84-byte stride
+extern u8 D_8009C754[];         // Savemap.party[0].weapon, with a 0x84-byte stride
+extern u8 D_8009C755[];         // Savemap.party[0].armor, with a 0x84-byte stride
 extern s16 D_8009ABF6;
 extern u16 D_8009AC32;
 extern u8 D_8009D44C[8]; // party-level snapshot for endgame battle AI
@@ -224,3 +213,10 @@ void SysGzipSetDataBlock(u8* arg0);
 u16 SysGzipGetType(void);
 u16 SysGzipGetSize(void);
 u32 SysGzipPackDecompressNextBlock(u8* dst);
+u16 func_801D1950(u16 len, u8* data);
+u8* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2);
+u8* SysGetPtrToKernBattleTxtWithId(s32 arg0);
+u8 func_8001F6B4(void);
+void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
+void SysMenuRequestAddWindow(u8* text, s8 palette);     // PC: menu_setNotificationMessage
+u8* func_80014C80(s32 arg0);

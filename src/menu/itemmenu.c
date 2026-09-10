@@ -436,7 +436,7 @@ static void ArrangeItems(s32 mode) {
 // func_801D1A6C if they back out to the tab selector (see ItemMenuScreen).
 // Reached from src/main/ovl.c's D_800493A8 per-screen entry table for
 // several item-menu pages, called out of SysMenuDrawMenuList in
-// src/main/21D5C.c.
+// src/main/1F6B4.c.
 void func_801D0BA0(void) {
     D_801D3E48 = ITEMMENU_SCREEN_USE;
     SysMenuSetCursorMovement(&D_801D3DDC[0], 0, 0, 3, 1, 0, 0, 3, 1, 0, 0, 1, 0, 0);

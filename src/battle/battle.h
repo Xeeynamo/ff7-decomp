@@ -3,7 +3,7 @@
 #define NUM_PARTY (3)
 #define START_ENEMY (NUM_PARTY + 1)
 #define NUM_ENEMY (6)
-#define NUM_BATTLE_ACTOR (START_ENEMY + NUM_ENEMY)
+#define NUM_BATTLE_ACTOR (START_ENEMY + NUM_ENEMY) // 10
 
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleFlags.cs#L4
 typedef enum {
@@ -136,25 +136,6 @@ typedef struct {
     /* 0x034 */ BattleUnit combatant[NUM_BATTLE_ACTOR];
 } BattleState; // size:0x444
 
-typedef struct {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
-    s16 unkA;
-    s32 unkC;
-} UnkStruct; // size:0x10
-
-typedef struct {
-    s16 unk0;
-    u8 unk2;
-    u8 unk3;
-    /* 0x04 */ u8 unk4[0x30];
-    /* 0x34 */ UnkStruct unk34[6];
-    /* 0x94 */ u8 unk94[6][0x10];
-} Unk801B2308;
-
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleSetupData.cs
 typedef struct {
     /* 0x00 0x80163614 */ u16 stageID; // load STAGE/ files
@@ -179,7 +160,8 @@ typedef struct {
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/EnemyLocation.cs
 typedef struct {
     /* 0x00 */ s16 enemyID;
-    /* 0x02 */ u16 x, y, z;
+    /* 0x02 */ u16 x, y;
+    /* 0x06 */ s16 z;
     /* 0x08 */ u16 row;
     /* 0x0A */ u16 coverFlags;
     /* 0x0C */ u32 flags;
@@ -490,20 +472,62 @@ typedef struct {
     /* 0x32 */ u16 unk32;
 } BattlePartyWork; // size:0x34
 
-extern u16 D_800F5BBC[NUM_BATTLE_ACTOR][34];
-extern BattlePartyWork g_BattlePartyWork[NUM_PARTY];
+typedef struct {
+    /* 0x00 */ s8 D_801636B8;
+    /* 0x01 */ u8 D_801636B9;
+    /* 0x02 */ s8 D_801636BA;
+    /* 0x03 */ s8 D_801636BB;
+    /* 0x04 */ u8 D_801636BC;
+    /* 0x05 */ s8 D_801636BD;
+    /* 0x06 */ s16 D_801636BE;
+    /* 0x08 */ s32 D_801636C0;
+    /* 0x0C */ s32 D_801636C4;
+} Unk801636B8; // size:0x10
+
+typedef struct {
+    /* 0x00 */ u8 targetFlags;
+    /* 0x01 */ u8 attackEffectId;
+    /* 0x02 */ u8 damageFormulaId;
+    /* 0x03 */ u8 hitChance;
+    /* 0x04 */ u8 impactEffectId;
+    /* 0x05 */ u8 criticalHitChance;
+    /* 0x06 */ u8 unk06;
+    /* 0x07 */ u8 unk07;
+    /* 0x08 */ u16 normalAttackSound;
+    /* 0x0A */ u16 criticalAttackSound;
+    /* 0x0C */ u16 missAttackSound;
+    /* 0x0E */ u16 attackElement;
+    /* 0x10 */ u16 cameraMovementId;
+    /* 0x12 */ u16 specialAttackFlags;
+    /* 0x14 */ s32 attackStatusMask;
+} BattleUnitAttackSetup; // size:0x18
+
+typedef struct {
+    /* 0x000 */ Unk800AF470 turn[NUM_BATTLE_ACTOR];
+    /* 0x2A8 */ BattlePartyWork party[NUM_PARTY];
+    /* 0x344 */ BattleUnitAttackSetup setup[NUM_PARTY];
+} BattleWork; // size:0x38C
+
+extern BattleWork g_BattleWork;
 extern Unk800F5F44 D_800F5F44;
+extern u8 D_800F6934[0x40][8];
 extern s8 D_800F6936[0x40][8];
+extern u8 D_800F6B34[10][8];
+extern s8 D_800F6B86[2][8];
+extern u16 D_800F7DE8;
 extern u8 D_800F83A8;
 extern BattleState g_BattleState;
 extern s8 D_800F90B4[][0x240];
 extern Unk800BB75C D_800FA63C;
 extern DB* g_cDb;
 extern short g_BattleEffectCursor;
-extern BattleModel D_801518E4[10];
+extern BattleModel D_801518E4[NUM_BATTLE_ACTOR];
 extern short g_BattleEffectCount;
+extern s32 D_801620A8;
 extern Unk8016360C D_8016360C;
+extern Unk801636B8 D_801636B8[NUM_BATTLE_ACTOR];
 extern u16 D_8016376A;
+extern u16 g_IsMutiBattle;
 
 s32 BattleEffectRegister(void (*func)(void));
 void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
@@ -526,3 +550,15 @@ s32 BattleEntityGetStereoPan(s32 arg0);
 void func_800D5774(u32 targetIndex);
 void BATTLE_RunFrame(void);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+void BattleRecalcUnitSpeed(s32 index);
+void BattleUpdateUnitMasks(void);
+void BATTLE_CheckAllLucky7s(void);
+void func_800A3278(void);
+void func_800A283C(void);
+void func_800AD480(void);
+void func_800A71F4(void);
+void func_800DCF94(s16 arg0);
+void func_800A55BC(void);
+void func_800A61D4(void);
+void func_800A4480(void);
+void func_800A5BC8(s32 arg0, s32 arg1);

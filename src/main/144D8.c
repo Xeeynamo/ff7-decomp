@@ -1,8 +1,25 @@
 //! G=0
 #include "main_private.h"
 
-void SysMemCopy32(s32* dst, s32* src, s32 len);
-u8* func_80014C80(s32 arg0);
+// placeholder sectors and sizes, replaced at boot with INIT/YAMADA.BIN
+static Yamada D_80048D84[YAMADA_FILE_NUM] = {
+    {501, 2048},     // INIT_YAMADA,
+    {502, 40960},    // INIT_WINDOW,
+    {522, 16384},    // INIT_KERNEL,
+    {10001, 2048},   // BATTLE_BROM,
+    {10002, 14336},  // BATTLE_TITLE,
+    {10009, 90112},  // BATTLE_BATTLE,
+    {10053, 4096},   // BATTLE_BATINI,
+    {10055, 139264}, // BATTLE_SCENE,
+    {10053, 4096},   // BATTLE_BATRES,
+    {0, 0},          // BATTLE_CO,
+};
+
+// decompression destinations, indexed by SysGzipGetType
+static void* D_80048DD4[] = {
+    D_800707C4,    (void*)0x800708C4, (void*)0x80082268, (void*)0x8009C738, (void*)0x800722CC,
+    g_WeaponTable, g_ArmorTable,      g_AccessoryTable,  g_MateriaData,
+};
 
 // obtain file sector from a YamadaFile
 s32 func_800144D8(s32 file_no) { return D_80048D84[file_no].loc; }
@@ -33,7 +50,7 @@ void func_80014610(void) {
     u8 buf[2048];
     SystemLoadFileBySector(LBA_INIT_YAMADA, sizeof(buf), (u_long*)&buf, NULL);
     func_800145BC(0);
-    SysMemCopy32((s32*)D_80048D84, (s32*)&buf, sizeof(Yamada) * YAMADA_FILE_NUM);
+    SysMemCopy32(D_80048D84, &buf, sizeof(Yamada) * YAMADA_FILE_NUM);
 }
 
 static void func_80014658(s32 file_no, void (*cb)(void)) {
@@ -76,7 +93,7 @@ void func_80014750(void) {
         if (kind == 9) {
             SysGzipPackDecompressNextBlock(func_80014C80(size));
         } else if (D_80048DD4[kind]) {
-            SysGzipPackDecompressNextBlock((u8*)D_80048DD4[kind]);
+            SysGzipPackDecompressNextBlock(D_80048DD4[kind]);
         }
     }
 }

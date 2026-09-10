@@ -13,17 +13,17 @@ void func_80014934(void) {
     func_800148A0();
     func_80014578(INIT_KERNEL, (void*)0x801B0000, 0);
     func_800145BC(0);
-    SysGzipPackDecompressById((u8*)0x801B0000, D_8009C738, KERNEL_INIT);
+    SysGzipPackDecompressById((u8*)0x801B0000, &Savemap.party, KERNEL_INIT);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", SysLoadUncompressImg);
 
 void SysLoadDrawSync(void) { DrawSync(0); }
 
-void SysMemCopy32(s32* dst, s32* src, s32 len) {
-    int i;
+void SysMemCopy32(void* dst, const void* src, const s32 len) {
+    s32 i;
     for (i = 0; i < len >> 2; i++) {
-        *dst++ = *src++;
+        ((s32*)dst)[i] = ((s32*)src)[i];
     }
 }
 

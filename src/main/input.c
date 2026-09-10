@@ -27,8 +27,7 @@ Offset: Contents:
         Lower 4 bits: Number of received bytes/2 (always 1 for 16 button pad)
 2,3     Key status bits, 1: Release, 0: Push
 
-Max possible number of received bytes is 32 (when offset 1, lower 4 bits = 0)
-so Psy-Q recommends allocating 34 bytes.
+Max possible number of received bytes is 32 (when offset 1, lower 4 bits = 0) so Psy-Q recommends allocating 34 bytes.
 
 Macros inspired by CTRLLER.H from SDK samples.
 */
@@ -37,12 +36,6 @@ Macros inspired by CTRLLER.H from SDK samples.
 #define GET_KEYS(x) (~((x)[3] | ((x)[2] << 8)))
 
 static u8 s_PadBuffers[2][34];
-
-u8 func_8001F6B4(void);
-// PC: menu_setNotificationMessage
-void SysMenuRequestAddWindow(u8* text, s8 palette);
-// PC: menu_setNotificationWindowPosition
-void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y);
 
 void InputInit(void) {
     if (!s_PadsInitialized) {
@@ -221,8 +214,7 @@ u32 InputReadPadsRaw(void) {
     return inputA | (inputB << 16);
 }
 
-// Same as InputReadPadsRaw, but player configured remapping is applied to
-// pad 1.
+// Same as InputReadPadsRaw, but player configured remapping is applied to pad 1.
 u32 InputReadPads(void) {
     u32 inputs, inputA, inputB;
     s32 i;
@@ -251,14 +243,10 @@ void InputUpdateBattleKeyStates(void) {
     g_Pad1BattleKeysPressed = g_Pad1BattleKeys ^ g_Pad1BattleKeysPrev;
     g_Pad1BattleKeysPressed &= g_Pad1BattleKeys;
 
-    /*
-    State machine for repeating keys.
-    First repeat is triggered 10 frames (~667 ms) after key press,
-    then every 2 frames (~133 ms) after that.
-    g_Pad1BattleKeysRepeat is not cleared per call so if a release
-    immediately follows a repeat, that repeat state can survive through the
-    next call to this function.
-    */
+    // State machine for repeating keys.
+    // First repeat is triggered 10 frames (~667 ms) after key press, then every 2 frames (~133 ms) after that.
+    // g_Pad1BattleKeysRepeat is not cleared per call so if a release immediately follows a repeat, that repeat state
+    // can survive through the next call to this function.
     if (g_Pad1BattleKeys != g_Pad1BattleKeysPrev) {
         s_PadFastRepeatState.enabled[0] = 0;
         s_PadFastRepeatState.counter[0] = 0;
@@ -309,8 +297,7 @@ void InputUpdateBattleKeyStates(void) {
 }
 
 // The main key state update function. Called normally at each v-sync.
-// Reads key states from pads, applies remapping (if tutorial is inactive),
-// and updates state globals.
+// Reads key states from pads, applies remapping (if tutorial is inactive), and updates state globals.
 void InputUpdateKeyStates(void) {
     s32 i;
     u32 inputs;
@@ -335,10 +322,9 @@ void InputUpdateKeyStates(void) {
     g_Pad1KeysPressed &= g_Pad1Keys;
 
     // State machine for repeating keys.
-    // First repeat is triggered 20 frames (~330 ms) after key press,
-    // then every 4 frames (~67 ms) after that.
-    // State machine works on the entire key state so pressing or releasing
-    // any key will reset repeat state for all keys.
+    // First repeat is triggered 20 frames (~330 ms) after key press, then every 4 frames (~67 ms) after that.
+    // State machine works on the entire key state so pressing or releasing any key will reset repeat state for all
+    // keys.
     if (g_Pad1Keys != g_Pad1KeysPrev) {
         s_PadRepeatState.counter[0] = 0;
         s_PadRepeatState.enabled[0] = 0;
@@ -383,8 +369,7 @@ void InputUpdateKeyStates(void) {
         g_Pad2KeysRepeat = 0;
     }
 
-    // Pressed keys are added to repeat globals so they can be used
-    // to detect both new key presses and repeats.
+    // Pressed keys are added to repeat globals so they can be used to detect both new key presses and repeats.
     g_Pad1KeysRepeat |= g_Pad1KeysPressed;
     g_Pad2KeysRepeat |= g_Pad2KeysPressed;
     g_Pad1KeysPrev = g_Pad1Keys;

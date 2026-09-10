@@ -16,8 +16,24 @@ u32 D_80062E88;
 u32 D_80062E8C;
 u32 D_80062E90;
 
-s32 SysGetMateriaActivatedStars(u8, s32);
-s32 SysAddCommandToTemp(s32);
+// not sure what this is, used by SysAddMateriaEquipStatBonus
+static s16 D_80049060[168] = {
+    0, 0,  0, 0, 0,  0,  0,   0,  -2, -1, 2,  1, 0, 0,  -5,  5,  -4, -2, 4,  2, 0,  0, -10, 10, 0, 0, 0,  0,
+    2, -2, 0, 0, -1, -1, 1,   1,  0,  0,  0,  0, 1, 1,  -1,  -1, 0,  0,  0,  0, 0,  1, 0,   0,  0, 0, 0,  0,
+    0, 0,  0, 0, 0,  1,  0,   0,  0,  0,  0,  0, 0, -1, 0,   0,  0,  0,  0,  0, -2, 0, 0,   0,  0, 0, 0,  0,
+    2, 0,  0, 0, -1, 0,  1,   0,  0,  0,  -2, 2, 0, 0,  1,   0,  0,  0,  -2, 2, 0,  0, 1,   1,  0, 0, -5, 5,
+    0, 0,  2, 2, 0,  0,  -10, 10, 0,  0,  4,  4, 0, 0,  -10, 15, 0,  0,  8,  8, 0,  0, -10, 20, 0, 0, 0,  0,
+    0, 0,  0, 0, 0,  0,  0,   0,  0,  0,  0,  0, 0, 0,  0,   0,  0,  0,  0,  0, 0,  0, 0,   0,  0, 0, 0,  0,
+};
+
+static u16 g_ElementIdToBitmask[16] = {
+    0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080,
+    0x0100, 0x0200, 0x0400, 0x0800, 0x1000, 0x2000, 0x4000, 0x8000,
+};
+
+s32 g_BattleCharIdToCharId[14] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 6, 7, 0, 0, 0};
+
+s32 SysGetMateriaActivatedStars(u8 arg0, s32 arg1);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 
 static s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
@@ -130,7 +146,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria25);
 
 #ifndef NON_MATCHINGS
 // needs BSS import for %gp regs
-void SysAddMateriaX4(u8 arg0, s32 arg1);
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX4);
 #else
 extern s8 D_80062FFC = 0;
@@ -145,7 +160,6 @@ void SysAddMateriaX4(u8 arg0, s32 arg1) {
 
 #ifndef NON_MATCHINGS
 // needs BSS import for %gp regs
-void SysAddMateriaX7(s32 arg0, s32 arg1, s32 arg2);
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX7);
 #else
 extern s8 D_80062FFC = 0;
@@ -219,7 +233,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria41);
 
 #ifndef NON_MATCHINGS
 // matching with GCC 2.6.3
-s32 SysGetMateriaActivatedStars(u8, s32);
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysGetMateriaActivatedStars);
 #else
 extern Unk80062F7C* D_80062F7C = NULL; // %gp

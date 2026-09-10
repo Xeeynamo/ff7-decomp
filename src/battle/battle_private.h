@@ -111,18 +111,6 @@ typedef struct {
 } Unk801621F0; // size:0x20
 
 typedef struct {
-    /* 0x00 */ s8 D_801636B8;
-    /* 0x01 */ u8 D_801636B9;
-    /* 0x02 */ s8 D_801636BA;
-    /* 0x03 */ s8 D_801636BB;
-    /* 0x04 */ u8 D_801636BC;
-    /* 0x05 */ s8 D_801636BD;
-    /* 0x06 */ s16 D_801636BE;
-    /* 0x08 */ s32 D_801636C0;
-    /* 0x0C */ s32 D_801636C4;
-} Unk801636B8; // size:0x10
-
-typedef struct {
     s32 method; // enum QueueMethod
     RECT* rect;
     u_long* ptr;
@@ -318,7 +306,6 @@ extern u8 D_800F38A1;
 extern s16 D_800F38A2;
 extern s32 D_800F4300;  // write cursor into the shared script buffer
 extern s32 D_800F4304;  // slot cursor, wraps at 0x40
-extern u8 D_800F5F01[]; // per-slot accuracy bonus, 0x18 B stride
 extern u8 D_800F7E04[]; // part of a struct
 extern u8 D_800F7ED4;
 extern u8 D_800F38A7;
@@ -371,9 +358,7 @@ extern u8 D_800F5774;
 extern s32 D_800F57CC; // btlmenu_cursorMemory
 extern Unk800F57D0* D_800F57D0;
 extern u8 D_800F57D4;
-extern Unk800AF470 g_CombatantTurnState[NUM_BATTLE_ACTOR]; // per-party-slot turn/effect state
-                                                           // (flags, countdown timers)
-extern u16 D_800F7DE2[];                                   // All Lucky 7s trigger count
+extern u16 D_800F7DE2[]; // All Lucky 7s trigger count
 extern s8 D_800F7DE4;
 extern u8 D_800F7DF4;
 extern s32 D_800F7DF8[3];
@@ -533,7 +518,6 @@ extern u8 D_801635FC;
 extern u8 D_80163600;
 extern u8 D_80163604;
 extern s16 D_80163608;
-extern Unk801636B8 D_801636B8[10];
 extern u16 D_80163758[]; // part of a struct
 extern u16 D_8016375C;
 extern u16 D_8016375E;
@@ -691,8 +675,6 @@ extern u8 D_800F5630;
 extern u16 D_800F5634;
 extern u8 D_800F5638;
 extern u8 D_800F563C;
-extern u8 D_800F5EFC[]; // per-slot formation-setup config, 0x18 B stride; byte
-                        // 0 -> func_800A8D18
 extern BattleMenuWidget D_800F90C6[];
 extern u8 D_80151698;
 extern u8 D_80166F74;

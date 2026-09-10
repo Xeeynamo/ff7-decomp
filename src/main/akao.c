@@ -187,7 +187,6 @@ extern u16 D_80062FB8;
 extern u16 g_AkaoCdVolSlideSteps;
 extern s32 g_AkaoCdVol;
 extern u16 D_80062FD6;
-extern s32 D_80062FD8;
 extern s32 D_80062FE0;
 extern s32 g_AkaoPitchMulMusic;
 extern s32 g_AkaoTempoMulMusic;
@@ -250,22 +249,6 @@ extern SpuCommonAttr D_8009C578;
 
 #define READ_S8(addr) ((s8)(*(addr)++))
 #define READ_S16(addr) ((s16)(*(addr)++ | (*(addr)++ << 8)))
-
-void func_8002CF98(Unk8002B7E0* arg0);
-void func_8002B1F8(Unk8002B7E0* arg0);
-void func_8002B2F8(Unk8002B7E0* arg0);
-void func_8002B3B4(Unk8002B7E0* arg0);
-void func_8002B5A8(Unk8002B7E0* arg0);
-void func_8002B608(Unk8002B7E0* arg0);
-void func_8002B904(Unk8002B7E0* arg0);
-void func_8002B6AC(Unk8002B7E0* arg0);
-void func_8002B730(Unk8002B7E0* arg0);
-void func_8002B7E0(Unk8002B7E0* arg0);
-void func_8002B958(Unk8002B7E0* arg0);
-void func_8002B9AC(Unk8002B7E0* arg0);
-void func_8002BA08(Unk8002B7E0* arg0);
-void func_8002B8B4(Unk8002B7E0* arg0);
-void func_8002B668(Unk8002B7E0* arg0);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800293D0);
 
@@ -1095,10 +1078,6 @@ void Akao9DApplyPendingSoundUpdates(void) {
     D_80062FF8 |= 2;
 }
 
-void func_8002FF4C();
-void func_80030038();
-void func_80030148();
-
 // channels_3 counterpart to Akao9AFlushPendingMusicUpdates.
 void Akao9CFlushPendingSoundUpdates(void) {
     u8* voiceAttr;
@@ -1196,8 +1175,6 @@ void func_8002CF98(Unk8002B7E0* arg0) {}
 static void func_8002CFA0() { SpuSetTransferCallback(0); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CFC0);
-
-void func_8002E23C(s32, void*);
 
 // Configures the voice-attribute block for a mono CD-stream voice (ADSR
 // envelope, pan, reverb-echo work area) and applies it via func_8002E23C.
@@ -1650,8 +1627,6 @@ static void func_80032A98(AKAO_TRACK* track) {
     track->attr_mask |= 3;
 }
 
-void func_8002FF4C();
-
 static void AkaoC4NoiseOn(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
     if (track->type == 0) {
         config->noise_mask = mask | config->noise_mask;
@@ -1673,8 +1648,6 @@ static void AkaoC5NoiseOff(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
     track->noise_switch_delay = 0;
 }
 
-void func_80030148();
-
 static void AkaoC6PitchLfoOn(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
     if (track->type == 0) {
         config->pitch_lfo_mask = mask | config->pitch_lfo_mask;
@@ -1693,8 +1666,6 @@ static void AkaoC7PitchLfoOff(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) 
     func_80030148();
     track->pitch_lfo_switch_delay = 0;
 }
-
-void func_80030038();
 
 static void AkaoC2ReverbOn(AKAO_TRACK* track, AKAO_CONFIG* config, u32 mask) {
     if (track->type == 0) {
