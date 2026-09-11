@@ -428,7 +428,7 @@ with open("build.ninja", "w") as f:
         "field",
         # MINI
         "chocobo",
-		"jet",
+        "jet",
         # MENU
         "bginmenu",
         "cnfgmenu",
