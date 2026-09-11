@@ -282,6 +282,7 @@ overlays:
     segments:
       - [0x0, rodata, jet]
       - [0x450, c, jet]
+      - [0x8310, data, jet]
   - name: barrier
     disk_path: disks/us/MAGIC/BARRIER.BIN
     sha1: e93c458117a937879f1a6d8c956dfbdacd6286e0

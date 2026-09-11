@@ -50,8 +50,7 @@ INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2C50);
 
 INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2DE4);
 
-void func_800A2E30(void) {
-}
+void func_800A2E30(void) {}
 
 INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2E38);
 
@@ -150,17 +149,3 @@ INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A8264);
 INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A8290);
 
 INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A82F0);
-
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A8310);
-
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A83F0);
-
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A84A4);
-
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A84DC);
-
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A8604);
-
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A8734);
-
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A882C);
