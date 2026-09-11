@@ -674,15 +674,6 @@ typedef struct {
 } ActiveCharacterData; // size: 0x440
 
 typedef struct {
-    /* 00 */ u16 unk0;
-    /* 02 */ u16 unk2;
-    /* 04 */ u16 unk4[6];
-    /* 10 */ u8 unk10;
-    /* 11 */ u8 unk11;
-    /* 12 */ u16 unk12;
-} Unk800730CC;
-
-typedef struct {
     u8 unk0;
     u8 unk1;
     u8 unk2;
@@ -1049,7 +1040,6 @@ extern u8 D_80071E30;
 extern MATRIX* D_80071E40;
 extern u8 g_PartyUpdatedByFieldScript;
 extern u8 g_CurrentEntity; // entity owning the currently executing script
-extern Unk800730CC D_800730CC[];
 extern MateriaData g_MateriaData[100];
 extern CurrentCharBattleMenuCommand D_80069508[16];
 extern CurrentCharMagicCommand D_80069554[56];

@@ -13,4 +13,4 @@ g_ThunderModelDesc = 0x801C0E4C; // size:0x10
 g_ThunderRenderDesc0 = 0x801C0E5C; // size:0xC
 g_ThunderRenderDesc1 = 0x801C0E68; // size:0xC
 g_ThunderPrimBuffer = 0x801C0E78;
-g_ThunderBufferPtr = 0x801E0E78;
+g_ThunderBufferPtr = 0x801E0E78; // size:0x4

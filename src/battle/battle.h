@@ -74,6 +74,11 @@ typedef enum {
 } BattleStatusFlags;
 
 typedef struct {
+    /* 0x0 */ u16 isMultiBattle;
+    /* 0x2 */ u16 characterMask[NUM_PARTY];
+} BattleMultiInfo; /* size = 0x8 */
+
+typedef struct {
     // condition/status bitmask; see BattleStatusFlags above for the bits
     // confirmed live here
     /* 0x00 */ s32 status;
@@ -525,7 +530,8 @@ extern s32 D_801620A8;
 extern Unk8016360C D_8016360C;
 extern Unk801636B8 D_801636B8[NUM_BATTLE_ACTOR];
 extern u16 D_8016376A;
-extern u16 g_IsMutiBattle;
+
+extern BattleMultiInfo g_BattleMultiInfo;
 
 s32 BattleEffectRegister(void (*func)(void));
 void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);

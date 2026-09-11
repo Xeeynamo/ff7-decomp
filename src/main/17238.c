@@ -247,7 +247,7 @@ s32 SysGetMateriaActivatedStars(u8 arg0, s32 arg1) {
 
     found = 1;
     for (i = 3; i >= 0; i--) {
-        temp_a2 = D_800730CC[arg0].unk4[i];
+        temp_a2 = g_MateriaData[arg0].levelUpApLimits[i];
         if (temp_a2 == 0xFFFF || arg1 < temp_a2 * 100) {
             continue;
         }
@@ -256,13 +256,13 @@ s32 SysGetMateriaActivatedStars(u8 arg0, s32 arg1) {
     }
     D_80062FBC = 1;
     for (i = 0; i < 4; i++) {
-        temp_a2 = D_800730CC[arg0].unk4[i];
+        temp_a2 = g_MateriaData[arg0].levelUpApLimits[i];
         if (temp_a2 != 0xFFFF) {
             D_80062FBC++;
         }
     }
     if (D_80063020) {
-        temp_a2 = D_800730CC[arg0].unk4[found - 1];
+        temp_a2 = g_MateriaData[arg0].levelUpApLimits[found - 1];
         if (temp_a2 == 0xFFFF || found == D_80062FBC) {
             D_80062F10 = 0;
         } else {
