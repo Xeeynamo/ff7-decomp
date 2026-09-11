@@ -270,6 +270,18 @@ overlays:
       - [0x0, rodata, chocobo]
       - [0x2d0, c, chocobo]
       - [0x11250, data, chocobo]
+  - name: jet
+    disk_path: disks/us/MINI/JET.BIN.dec
+    sha1: 46a9f4dd9071786adedc169b0e5463874b1f965a
+    base_path: mini/jet
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/symbols.jet.us.txt
+    migrate_rodata_to_functions: false
+    vram_start: 0x800A0000
+    segments:
+      - [0x0, rodata, jet]
+      - [0x450, c, jet]
   - name: barrier
     disk_path: disks/us/MAGIC/BARRIER.BIN
     sha1: e93c458117a937879f1a6d8c956dfbdacd6286e0
