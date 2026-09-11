@@ -784,11 +784,11 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
 
     scenePackBuffer = (s32*)0x801C0000;
     sceneChunkID = sceneID / 4;
-    scenePackID = BattleGetScenePackId(sceneChunkID);  // sector modified based on the Chunk ID
-    SystemLoadFileBySector(                            // load file from disk
+    scenePackID = BattleGetScenePackId(sceneChunkID);   // sector modified based on the Chunk ID
+    SystemLoadFileBySector(                             // load file from disk
         func_800144D8(BATTTLE_SCENE) + scenePackID * 4, // Disk sector where to load the file from
-        0x800 * 4,                                     // Size in bytes to copy
-        (u_long*)scenePackBuffer,                      // Destination
+        0x800 * 4,                                      // Size in bytes to copy
+        (u_long*)scenePackBuffer,                       // Destination
         NULL);
     formationIndex = sceneChunkID - D_80083184[scenePackID];
     func_800145BC(cb); // wait until all data is read, keep executing the vsync

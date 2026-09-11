@@ -1236,7 +1236,7 @@ void BattleActionType0B(void) {
 void BattleActionType0C();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType0C);
 
-static void func_800A8D60(s32 arg0);
+static void BattleCopyTargTypeDatToTmp(s32 arg0);
 static void SetActionStatusChange(u32 arg0, s32 arg1);
 static void func_800A8D88(s32 arg0, s32 arg1);
 void BattleLoadActionAttackData(void) {
@@ -1255,7 +1255,7 @@ void BattleLoadActionAttackData(void) {
     g_CurrentAction->unk64 = atk->cameraSingleID;
     g_CurrentAction->unk24 = atk->attackEffectID;
     g_CurrentAction->unk6C = atk->flags;
-    func_800A8D60(atk->targetFlags);
+    BattleCopyTargTypeDatToTmp(atk->targetFlags);
     SetActionStatusChange(atk->statusChange, atk->statuses);
     func_800A8D88(atk->additionalEffects, atk->effectsModifier);
 }
@@ -1329,9 +1329,9 @@ void BattleActionType1B(void) {
 
 void BattleActionType1C(void) { g_CurrentAction->unk48 = 2; }
 
-void BattleActionType1E(void) { func_800A8D60(g_BattleWork.setup[g_CurrentAction->actorId].targetFlags); }
+void BattleActionType1E(void) { BattleCopyTargTypeDatToTmp(g_BattleWork.setup[g_CurrentAction->actorId].targetFlags); }
 
-static void func_800A8D60(s32 arg0) {
+static void BattleCopyTargTypeDatToTmp(s32 arg0) {
     if (g_CurrentAction->unk50 == 0xFF) {
         g_CurrentAction->unk50 = arg0;
     }
@@ -1495,7 +1495,7 @@ static s32 func_800AA6E8(s32 arg0, s32 arg1) {
     return arg0 & 1;
 }
 
-static s32 func_800AA700(s32 arg0) {
+static s32 BattleGetRndOpponentBit(s32 arg0) {
     s32 var_v0;
 
     var_v0 = 0xF;
@@ -1509,7 +1509,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA738);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA950);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AABBC);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType09);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AB308);
 
@@ -1585,11 +1585,11 @@ static void func_800AB9C4(s32 arg0, s32 arg1) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ABA68);
 
 // mutually exclusive status pairs -- row 0 Slow/Haste, row 1 Sadness/Fury.
-// func_800ABB0C queues the partner for removal when one is applied; for
+// BattleMainDmgCalculation queues the partner for removal when one is applied; for
 // row 1 an already-held partner cancels the incoming status instead
 const s32 D_800A03A0[2][2] = {{0x200, 0x100}, {0x010, 0x020}};
 
-static void func_800ABB0C(s32 arg0, s32 arg1) {
+static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     Unk800FA9D0* act;
     s32 cap;
     s32 capMP;
@@ -1611,7 +1611,7 @@ static void func_800ABB0C(s32 arg0, s32 arg1) {
     act->unk4 = 0;
     g_BattleState.combatant[arg1].unk17 = 0xFF;
     func_800AA950(act);
-    func_800AC73C(act->unk0);
+    BattleCalcTargStats(act->unk0);
     if (act->unk0 != arg1) {
         // target got redirected (e.g. covered by another actor) -- flag it
         func_800A3240();
@@ -1634,7 +1634,7 @@ static void func_800ABB0C(s32 arg0, s32 arg1) {
         g_CurrentAction->unk218 |= 1;
     }
     if (!(g_CurrentAction->unk218 & 1)) {
-        func_800AD4EC();
+        BattleDmgFormulaRun();
     }
     func_800A8E84(3);
     if (g_CurrentAction->unk48 == 0) {
@@ -1673,7 +1673,7 @@ static void func_800ABB0C(s32 arg0, s32 arg1) {
                 bounceTarget = arg0;
             } else {
                 if (D_800F494C[arg1] == -1) {
-                    D_800F494C[arg1] = SysGetLsbNumber(func_800AA700(arg1));
+                    D_800F494C[arg1] = SysGetLsbNumber(BattleGetRndOpponentBit(arg1));
                 }
                 bounceTarget = D_800F494C[arg1];
             }
@@ -1873,7 +1873,7 @@ void func_800AC6B4(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AC73C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleCalcTargStats);
 
 void func_800ACA24(void) {
     g_CurrentAction->unk238 = 0;
@@ -1911,7 +1911,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACE88);
 
 // arg0 never got a ring slot from func_800A311C (still unassigned) --
 // queue a placeholder display entry via func_800ABA68 anyway. unk22C here
-// is the same status-immunity mask func_800ABB0C (this function's only
+// is the same status-immunity mask BattleMainDmgCalculation (this function's only
 // caller) uses earlier.
 static void BattleQueueUnassignedResultDisplay(Unk800FA9D0* arg0) {
     s8 temp_v1;
@@ -1997,12 +1997,12 @@ void func_800AD480(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD4EC);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleDmgFormulaRun);
 
 const s8 D_800A04B0[] = {0x0A, 0x0B, 0x0C, 0x0D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x7F, 0x03, 0x34};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD5E8);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleSetFormulaAndBaseDmg);
 
-static s32 func_800AD73C(s32 arg0) {
+static s32 BattleAddBarriersModifier(s32 arg0) {
     if (g_CurrentAction->unk6C & 4) {
         if (g_CurrentAction->unk228 & 0x20000) {
             g_CurrentAction->unk218 |= 0x8000;
@@ -2021,15 +2021,15 @@ static s32 func_800AD73C(s32 arg0) {
     return arg0;
 }
 
-// multi-target damage-reduction formula, s32 func_800AD804(s32 damage, s32
+// multi-target damage-reduction formula, s32 BattleAddSplitQuaterModifier(s32 damage, s32
 // fullDamage): if fullDamage is false, it still gets forced true when
 // unkB8 < 2 (single target) or unk50 & 0x80 is set (the exemption bit
-// documented on unk50's seed at BattleActionType1E/func_800A8D60 above); then
+// documented on unk50's seed at BattleActionType1E/BattleCopyTargTypeDatToTmp above); then
 // if unkAC != 0 (hit-sequence position, see func_800A8E54) returns
 // damage>>1, else returns damage unchanged when fullDamage else damage/3
 // (magic-number signed divide) -- this is the classic "multi-target hits
 // deal reduced per-target damage" mechanic
-static s32 func_800AD804(s32 arg0, s32 arg1) {
+static s32 BattleAddSplitQuaterModifier(s32 arg0, s32 arg1) {
     if (arg1 == 0) {
         if ((g_CurrentAction->unkB8 < 2) || (g_CurrentAction->unk50 & 0x80)) {
             arg1 = 1;
@@ -2057,7 +2057,7 @@ static s32 BattleApplySadnessReduction(s32 arg0) {
 
 // scale arg0 by a fixed-point random variance factor (~93.77%..100%), then
 // clamp the result to a minimum of 1
-static s32 func_800AD8DC(s32 arg0) {
+static s32 BattleAddRndModifierAndZeroCheck(s32 arg0) {
     s32 temp_s0;
     s32 var_v0;
 
@@ -2070,10 +2070,10 @@ static s32 func_800AD8DC(s32 arg0) {
     return var_v0;
 }
 
-void func_800AD924(void) { g_CurrentAction->unk218 |= 2; }
+void BattleLowerFunc00(void) { g_CurrentAction->unk218 |= 2; }
 
-void func_800AD944();
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD944);
+void BattleSetTmpDmgAsPhysical();
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleSetTmpDmgAsPhysical);
 
 void func_800ADBBC(void) {
     s32 temp_s0;
@@ -2087,23 +2087,24 @@ void func_800ADBBC(void) {
     if (var_v1 < 0) {
         var_v1 += 0x1FFF;
     }
-    g_CurrentAction->unk214 =
-        func_800AD8DC(func_800AD73C(func_800AD804(BattleApplySadnessReduction(var_v1 >> 0xD), temp_s0)));
+    g_CurrentAction->unk214 = BattleAddRndModifierAndZeroCheck(
+        BattleAddBarriersModifier(BattleAddSplitQuaterModifier(BattleApplySadnessReduction(var_v1 >> 0xD), temp_s0)));
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADC70);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADD2C);
 
-static s32 func_800AD804(s32, s32);
-static s32 func_800AD73C(s32);
+static s32 BattleAddSplitQuaterModifier(s32, s32);
+static s32 BattleAddBarriersModifier(s32);
 
 void func_800ADDE8(void) {
     s32 base = g_CurrentAction->unk4C + g_CurrentAction->characterLevel;
     s32 term1 = base * 3;
     s32 term2 = g_CurrentAction->unk48 * 0xB;
     s32 damage = (term2 + term1) * 2;
-    g_CurrentAction->unk214 = func_800AD8DC(func_800AD73C(func_800AD804(damage, 0)));
+    g_CurrentAction->unk214 =
+        BattleAddRndModifierAndZeroCheck(BattleAddBarriersModifier(BattleAddSplitQuaterModifier(damage, 0)));
 }
 
 void func_800ADE5C(void) { g_CurrentAction->unk214 = g_CurrentAction->unk48 * 20; }
@@ -2111,7 +2112,7 @@ void func_800ADE5C(void) { g_CurrentAction->unk214 = g_CurrentAction->unk48 * 20
 // Item attack damage formula.
 void func_800ADE84(void) {
     s32 value = g_CurrentAction->unk48 * (0x200 - g_CurrentAction->unk210);
-    g_CurrentAction->unk214 = func_800AD8DC(value / 32);
+    g_CurrentAction->unk214 = BattleAddRndModifierAndZeroCheck(value / 32);
 }
 
 void func_800ADED8(void) {
@@ -2124,7 +2125,7 @@ void func_800ADED8(void) {
 
 void func_800ADF04(void) {
     g_CurrentAction->unk4C = g_CurrentAction->unkD8 * 2;
-    func_800AD944();
+    BattleSetTmpDmgAsPhysical();
 }
 
 void func_800ADF38(void) {
