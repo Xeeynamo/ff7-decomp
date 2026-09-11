@@ -10,6 +10,7 @@ import (
 
 	"github.com/goccy/go-yaml"
 	"github.com/xeeynamo/ff7-decomp/tools/builder/deps"
+	"golang.org/x/sync/errgroup"
 )
 
 func Build(version string) error {
@@ -18,28 +19,33 @@ func Build(version string) error {
 	if err := yaml.Unmarshal(data, &b); err != nil {
 		panic(err)
 	}
-	if err := writeObjdiffConfig(b); err != nil {
-		return err
-	}
-	if err := os.MkdirAll(b.BuildPath, 0755); err != nil {
-		return err
-	}
-	if err := writeSplatConfigs(b); err != nil {
-		return err
-	}
-	if err := writeSha1Check(b); err != nil {
-		return err
-	}
-	if err := deps.GenNinja(b.BuildPath); err != nil {
-		return err
-	}
-	if err := deps.Ninja(); err != nil {
-		return err
-	}
-	if err := generateExpected(); err != nil {
-		return err
-	}
-	return nil
+
+	var eg errgroup.Group
+	eg.Go(func() error {
+		return writeCompileCommands(b)
+	})
+	eg.Go(func() error {
+		if err := writeObjdiffConfig(b); err != nil {
+			return err
+		}
+		if err := os.MkdirAll(b.BuildPath, 0755); err != nil {
+			return err
+		}
+		if err := writeSplatConfigs(b); err != nil {
+			return err
+		}
+		if err := writeSha1Check(b); err != nil {
+			return err
+		}
+		if err := deps.GenNinja(b.BuildPath); err != nil {
+			return err
+		}
+		if err := deps.Ninja(); err != nil {
+			return err
+		}
+		return generateExpected()
+	})
+	return eg.Wait()
 }
 
 func writeSplatConfigs(b BuildConfig) error {
