@@ -59,8 +59,8 @@ extern s32 D_801E36A0;
 extern s32 D_801E36A4;
 extern s32 D_801E36A8;
 extern s32 D_801E36AC;
-extern s32 D_801E368C[NUM_MENU_COLOR];
-extern u8 D_801E3684[]; // "Level" label
+extern u8 D_801E368C[NUM_MENU_COLOR]; // 4 corners x RGB
+extern u8 D_801E3684[];               // "Level" label
 extern s32 D_801E3698;
 extern s32 D_801E36B0;
 extern s32 D_801E36B8;
@@ -76,7 +76,7 @@ extern s32 D_801E3D54;
 extern s32 D_801E3D58;     // backbuffer id?
 extern u_long* D_801E3D5C; // otag pointer
 extern u_long* D_801E3D60[2][4];
-extern MenuTable D_801E3DFE[2];
+extern MenuTable D_801E3DEC[2];
 extern DRAWENV D_801E3E34[2];
 extern DISPENV D_801E3EEC[2];
 extern s32 D_801E3F2C[];
@@ -96,19 +96,15 @@ extern s32 g_SaveWriteRemaining;
 extern u8 D_801E8F38[2][3];
 extern s32 D_801E3850;
 extern s32 D_801E3860;
-extern u8 D_801E8F3B;
 extern s32 D_801E8F44[];
 extern u8 D_801E2E88;
 extern u8 D_801E3158;
 extern RECT D_801E3668;
-extern s16 D_801E366A;
-extern s16 D_801E366E;
 extern MenuTable D_801E3D80[2];
 extern s32 D_801E3F14;
 extern s32 D_801E3F18;
 extern s32 D_801E3F1C;
 extern s32 D_801E3F20;
-extern s32 D_801E3660;
 
 extern unsigned char D_801E2CFC[][0x24];
 extern unsigned char D_801E3260[][0x30];

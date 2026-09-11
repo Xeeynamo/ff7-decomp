@@ -97,7 +97,9 @@ typedef struct {
 } WorldZolomSegment; // size: 0x8
 
 typedef struct {
-    /* 0x00 */ u8 unk00[0x13];
+    /* 0x00 */ u8 unk00[4];
+    /* 0x04 */ s32 unk04;
+    /* 0x08 */ u8 unk08[0xB];
     /* 0x13 */ u8 unk13;
     /* 0x14 */ u8 unk14[0x10];
 } Unk8010B178; // size: 0x24
@@ -272,9 +274,7 @@ extern s32 D_80109D58;
 extern s32 D_80109D6C;
 extern s32 D_80109D70;
 extern WorldActor D_80109D74[0x10]; // World map actor heap, TODO: Confirm size
-extern WorldActor D_80109E54;
 extern WorldActor* D_8010AD34;
-extern s16 D_80109DBA;
 extern WorldActor* D_8010AD38;
 extern WorldActor* D_8010AD3C; // Active Actor
 extern WorldActor* D_8010AD40; // Player Actor
@@ -306,7 +306,7 @@ extern u8 D_8010AE5C[521]; // WM RNG Buffer
 extern u8 D_8010B068[1];   // TODO: size unknown
 extern s32 D_8010B080;
 extern s32 D_8010B174;
-extern Unk8010B178 D_8010B178[1]; // TODO: determine size
+extern Unk8010B178 D_8010B178[0x10];
 extern Unk8010B3B8* D_8010B3B8;
 typedef struct {
     /* 0x00 */ DR_MODE mode;
@@ -384,7 +384,6 @@ extern s16 D_800BE5F0[];
 extern s32 D_8010B488[];
 extern s32 D_8010B494[];
 extern s32 D_8010B4A0[];
-extern u8 D_8010B18B[];
 extern u8 D_800C8564[];
 extern u8 D_800CC564[];
 extern u8* D_800D05E4;
@@ -396,7 +395,6 @@ extern u8* D_80109D5C;
 extern u8 D_800BF5F0[];
 extern SPRT D_800C6648[];
 extern s32 D_800C84F0;
-extern s16 D_8009ABF6;
 extern s16 D_8009ABF8;
 extern s16 D_8009ABFA;
 extern s16 D_8009AC16;
@@ -409,7 +407,6 @@ extern u16 D_8008327A[];
 extern s16 D_80083286[];
 extern u8 D_80115A14[];
 extern s8 D_801159E8[];
-extern u8 D_8010B17C[];
 extern u8 D_8008328D[];
 extern s16 D_800832A2[];
 extern s32 D_80109D64;

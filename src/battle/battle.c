@@ -682,12 +682,12 @@ static void func_800A555C(s32 arg0, s32 arg1) {
     u8* row;
     u16 value;
 
-    row = &D_8009D954[arg0 * 0x440];
+    row = D_8009D866[arg0].effects;
     row += arg1 * 8;
 
     row[6] = 2;
-    row[5] = D_800708D0[arg1][0];
-    value = *(u16*)&D_800708C8[arg1 * 0x1C];
+    row[5] = D_800708C4[arg1].targetFlags;
+    value = D_800708C4[arg1].mpCost;
     arg1 -= 0x48;
     row[0] = arg1;
     row[1] = value;
@@ -1076,7 +1076,7 @@ void func_800A7060(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 12, arg1); }
 void func_800A7090(s32 arg0) { g_BattleWork.turn[arg0].unk29 |= 0x40; }
 
 void func_800A70C4(s32 arg0, s32 arg1) {
-    BATTLE_QueueEffect(arg0, 0x34, 2, D_800708D0[arg1][1], 0, 9, g_BattleState.combatant[arg0].status);
+    BATTLE_QueueEffect(arg0, 0x34, 2, D_800708C4[arg1].attackEffectID, 0, 9, g_BattleState.combatant[arg0].status);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A7130);

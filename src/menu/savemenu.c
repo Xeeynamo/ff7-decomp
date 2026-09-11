@@ -98,7 +98,7 @@ int func_801D06B0(s32 arg0) {
         SysMenuDrawCursor(D_801D4EC8.x - 18, D_801D4EC8.y + 6 + (menus.D_801E379C[0].row * 12));
         SysMenuDrawString(0xA, 0xB, D_801E2CFC[1], 7);
         SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 5, D_801E2CFC[3], -(D_801E8F38[0][0] != 0) & 7);
-        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 17, D_801E2CFC[4], -(D_801E8F3B != 0) & 7);
+        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 17, D_801E2CFC[4], -(D_801E8F38[1][0] != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;

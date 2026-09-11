@@ -4,7 +4,6 @@
 #include <psxsdk/libetc.h>
 
 extern s32 D_801E2CF4;
-extern MenuTable D_801E3DEC[2];
 
 static void func_801D2B58(u16 arg0) {
     D_8009A000[0] = 0x30;
@@ -193,7 +192,7 @@ static void func_801D39C4(void) {
     SysMenuSetWindowColor(D_801E368C);
     SysMenuLoadImg(D_801D4EDC, 0x380, 0, 0, 0x1E0);
     DrawSync(0);
-    SysMenuSetCursorMovement(D_801E3DFE, 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(&D_801E3DEC[1], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
     SysMenuStoreCharacterClutToRam(D_801E3F2C);
     func_80025B8C(D_801E8F44);
     func_80025C14(D_801E4538);
@@ -235,7 +234,7 @@ static s32 func_801D3AB0(s32 arg0) {
         SysMenuDrawCursor(D_801E3668.x - 18, D_801E3668.y + 6 + D_801E3D80[0].row * 12);
         SysMenuDrawString(10, 11, D_801E2CFC[1], 7);
         SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 5, D_801E2CFC[3], -(D_801E8F38[0][0] != 0) & 7);
-        SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 0x11, D_801E2CFC[4], -(D_801E8F3B != 0) & 7);
+        SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 0x11, D_801E2CFC[4], -(D_801E8F38[1][0] != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
@@ -258,7 +257,7 @@ static s32 func_801D3AB0(s32 arg0) {
                     SysMenuRestoreWindowColor();
                 } else {
                     SysMenuDrawString(0x32, var_s0 * 64 + 55 + D_801E3D80[1].unkF * 8, D_801E2CFC[8], 6);
-                    SysMenuCopyWindowRect(&sp38, &D_801E3660);
+                    SysMenuCopyWindowRect(&sp38, &D_801E3650[2]);
                     SysMenuMoveWindowRect(&sp38, 0, var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8);
                     SysMenuDrawWindow(&sp38);
                 }
@@ -314,7 +313,7 @@ static s32 func_801D3AB0(s32 arg0) {
             SysMenuDrawCursor(D_801E3668.x - 0x12, D_801E3668.y + 6 + D_801E3D80[0].row * 12);
         }
         SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 5, D_801E2CFC[3], -(D_801E8F38[0][0] != 0) & 7);
-        SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 0x11, D_801E2CFC[4], -(D_801E8F3B != 0) & 7);
+        SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 0x11, D_801E2CFC[4], -(D_801E8F38[1][0] != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
@@ -525,7 +524,7 @@ static s32 func_801D3AB0(s32 arg0) {
                     D_801E3D54 = 2;
                     break;
                 case 1:
-                    if (D_801E8F38[0][0] || D_801E8F3B) {
+                    if (D_801E8F38[0][0] || D_801E8F38[1][0]) {
                         func_801D2B58(1);
                         SysMenuSetCursorMovement(&D_801E3D80[0], 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
                         g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
@@ -535,7 +534,7 @@ static s32 func_801D3AB0(s32 arg0) {
                     break;
                 }
             } else {
-                SysMenuHandleButtons(D_801E3DFE);
+                SysMenuHandleButtons(&D_801E3DEC[1]);
             }
             break;
         }

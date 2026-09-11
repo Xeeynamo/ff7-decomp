@@ -701,7 +701,7 @@ void func_800D0C80(u8 arg0) {
         break;
     case 20:
         if (D_801518E4[arg0].D_80151906 == 2) {
-            if (D_801590CC == D_800FA9E8) {
+            if (D_801590CC == D_800FA9D0[2].unk0) {
                 D_80163A98 = 0;
             } else {
                 D_80163A98 = 1;

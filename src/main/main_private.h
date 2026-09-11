@@ -92,26 +92,6 @@ typedef struct {
     u8 unk22[2];           // unknown, always 0xFFFF
 } ArmorRecord;
 
-// Kernel accessory record, one per accessory id (g_AccessoryTable), 0x10 bytes.
-// Field meanings verified by dumping the live table and matching each field
-// against published stats for all 32 accessories (same method as ArmorRecord).
-typedef struct {
-    u8 statBonusId[2];     // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
-                           // 4=Dex,5=Lck; 0xFF = unused
-    u8 statBonusValue[2];  // bonus amount, paired with statBonusId
-    u8 elementalStrength;  // 0=absorb, 1=nullify, 2=halve; 0xFF = none
-    u8 specialEffect;      // 0xFF none; 0=Haste, 1=Berserk, 2=Curse, 3=Reflect,
-                           // 4=raise steal rate, 5=raise manipulate rate,
-                           // 6=Barrier/MBarrier
-    u8 elementMask[2];     // elements the elementalStrength applies to (u16 mask,
-                           // same element bits as ArmorRecord.elementalMask)
-    u8 statusProtect[4];   // status-immunity bitmask (u32); e.g. Ribbon sets most
-    u8 equipMask[2];       // equippable-by-character bitmask (see ArmorRecord);
-                           // 0x01FF (all nine) on every accessory
-    u8 restrictionMask[2]; // a set bit forbids: 0x01 sell, 0x02 use in battle,
-                           // 0x04 use in menu (0xFFFE on every accessory)
-} AccessoryRecord;
-
 extern u16 g_Pad1KeysPrev;
 extern u16 g_Pad2Keys;
 extern u16 g_Pad2KeysPrev;
@@ -154,7 +134,6 @@ extern s32 g_PartyMenuPreviousMenuId;
 extern s32 g_PartyMenuListTransitionFactor;
 extern s32 g_PartyMenuSelectedMenuId;
 extern u32 D_8006966C[16];
-extern u32 D_8006968C[8];
 extern s16 g_RewardMenuState;
 extern u8 D_80062DDA;
 extern u8 D_80062F98;
@@ -174,39 +153,21 @@ extern u8 D_800694B4[16];
 extern u8 D_800694C4[16];
 extern u8 D_800694D4[16];
 extern s16 D_800694E4[12];
-extern u16 D_800694F4[];
-extern u16 D_800694F6;
-extern u8 D_800694FA;
 extern s16 D_800694FC[6];
-extern s16 D_800694FE;
-extern s16 D_80069500;
-extern s16 D_80069502;
-extern s16 D_80069504;
-extern s16 D_80069506;
-extern DRAWENV D_80070700;    // active draw environment (double-buffered)
 extern DISPENV D_8007075C[2]; // active display environments (double-buffered)
 extern u16 D_800707BC;
-extern u8 D_800708D4[];
 extern u8 D_800716D0;
 extern s32 D_80071744; // LBA loc for func_80014540
 extern s16 D_80071A5C;
 extern AccessoryRecord g_AccessoryTable[]; // accessory kernel table, by acc. id
 extern ArmorRecord g_ArmorTable[];         // armor kernel table, indexed by armor id
 extern u_long* D_800722C8;                 // LBA dst for func_80014540
-extern u8 D_800722DC[];
-extern WeaponRecord g_WeaponTable[]; // weapon kernel table, by weapon id
-extern s32 D_80095DD8;               // LBA len for func_80014540
+extern WeaponRecord g_WeaponTable[];       // weapon kernel table, by weapon id
+extern s32 D_80095DD8;                     // LBA len for func_80014540
 extern s16 g_isFieldLoading;
 extern volatile s16 D_8009C560; // refer to Subsystem enum
-extern u8 D_8009C754[];         // Savemap.party[0].weapon, with a 0x84-byte stride
-extern u8 D_8009C755[];         // Savemap.party[0].armor, with a 0x84-byte stride
-extern s16 D_8009ABF6;
-extern u16 D_8009AC32;
-extern u8 D_8009D44C[8]; // party-level snapshot for endgame battle AI
-extern u8 D_8009D5E9;
-extern u16 D_8009D78A; // party-present bitmask
-void D_800A00CC(void); // battle/brom entrypoint
-void D_800A1158(void); // battle/battle entrypoint
+void D_800A00CC(void);          // battle/brom entrypoint
+void D_800A1158(void);          // battle/battle entrypoint
 
 void SysGzipBinDecompress(GzHeader* src, u8* dst);
 void SysGzipSetDataBlock(u8* arg0);

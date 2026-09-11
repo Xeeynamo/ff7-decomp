@@ -250,8 +250,8 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DE618);
 void func_800DE910(void) {}
 
 void func_800DE918(void) {
-    D_80151840 = D_8009D260;
-    if (D_8009D260 > 600000) {
+    D_80151840 = Savemap.gil;
+    if (D_80151840 > 600000) {
         D_80151840 = 600000;
     }
 }
@@ -267,7 +267,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DEC10);
 void func_800DF244(void) {}
 
 void func_800DF24C(void) {
-    BattleMenuWidget* widget = &D_800F90C6[D_800F38A0];
+    BattleMenuWidget* widget = &D_800F90B4[D_800F38A0].widget;
     u8 v;
 
     if (D_800F57CC == 0) {
@@ -384,7 +384,7 @@ void func_800E03D0(void) { func_800E4B88(); }
 void func_800E03F0(void) {
     u8* temp_s0;
 
-    temp_s0 = &D_8009D8F8[D_800F38A1 * 0x440];
+    temp_s0 = D_8009D866[D_800F38A1].unk92;
     if ((D_800F3896 == 0x1A) && (D_800F99E4 == 0)) {
         if (g_Pad1KeysRepeat & PADRright) {
             D_800F99E4 = 1;
@@ -413,7 +413,7 @@ void func_800E0528(void) {}
 void func_800E0530(void) {
     s32 i;
 
-    SysMenuSetCursorMovement(&D_800F9132, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
+    SysMenuSetCursorMovement(&D_800F90B4[0].table7E, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
     for (i = 1; i < 0x1C; i++) {
         if (D_800F514C[i] != 0) {
             func_800D9F5C(i);
@@ -431,9 +431,9 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E0794);
 
 void func_800E084C(void) {
     if (D_800F3896 == 9) {
-        SysMenuHandleButtons(&D_800F9144);
+        SysMenuHandleButtons(&D_800F90B4[0].table90);
         if (g_Pad1KeysPressed & PADRright) {
-            if (D_800F914E == 0) {
+            if (D_800F90B4[0].table90.column == 0) {
                 func_800A4844(1);
             } else {
                 func_800A4844(0);
@@ -475,14 +475,14 @@ static void func_800E0E34(void) {
     BattleMenuWidget* menu;
     void (*handler)(void);
     s16 i;
-    if ((D_800F514D != 0) && (D_8009CBDC[D_800F38A0] == 0xFF)) {
+    if ((D_800F514D != 0) && (Savemap.partyID[D_800F38A0] == 0xFF)) {
         for (i = 1; i < 0x20; i++) {
             if (D_800F514C[i] != 0) {
                 func_800D9F5C(i);
             }
         }
     }
-    menu = &D_800F90C6[D_800F38A0];
+    menu = &D_800F90B4[D_800F38A0].widget;
     list = D_801671B8;
     if (g_Pad1Keys & PADRleft) {
         D_800F99E4 = 1;
@@ -687,12 +687,11 @@ static void func_800E1938(s16 arg0, s16 arg1, s32 arg2) {
 
 s32 func_800E1A2C(void) {
     s32 i;
-    s32 off;
 
-    for (i = 0, off = 0; i < NUM_PARTY; i++, off += 0x440) {
-        if (D_8009CBDC[i] == 0) {
-            s16 val1 = *(s16*)((u8*)D_8009D85C + off);
-            s16 val2 = *(s16*)((u8*)D_8009D85E + off);
+    for (i = 0; i < NUM_PARTY; i++) {
+        if (Savemap.partyID[i] == 0) {
+            s16 val1 = g_ActiveCharacters[i].hp;
+            s16 val2 = g_ActiveCharacters[i].baseHp;
             return (val1 * 0xFFFF) / val2;
         }
     }
@@ -871,8 +870,8 @@ static s32 func_800E5F30() {
     s32 ret;
 
     for (i = 0; i < NUM_PARTY; i++) {
-        if (D_8009CBDC[i] != 0xFF) {
-            ret = D_8009CBDC[i];
+        if (Savemap.partyID[i] != 0xFF) {
+            ret = Savemap.partyID[i];
         }
     }
     return ret;
@@ -884,7 +883,7 @@ static s32 func_800E5F70(void) {
     s32 ret;
 
     for (i = 0; i < NUM_PARTY; i++) {
-        if (D_8009CBDC[i] != 0xFF) {
+        if (Savemap.partyID[i] != 0xFF) {
             ret = i;
         }
     }
