@@ -46,6 +46,22 @@ type objdiffConfig struct {
 	ProgressCategory []objdiffProgressCategory `json:"progress_categories,omitempty"`
 }
 
+// A segment name made only of digits, such as 17238, decodes as a number
+// rather than a string, so accept both.
+func segmentName(v any) string {
+	switch n := v.(type) {
+	case string:
+		return n
+	case uint64:
+		return strconv.FormatUint(n, 10)
+	case int64:
+		return strconv.FormatInt(n, 10)
+	case int:
+		return strconv.Itoa(n)
+	}
+	return ""
+}
+
 func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 	var units []objdiffUnit
 	var categories []objdiffProgressCategory
@@ -65,9 +81,7 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 			}
 			name := ""
 			if len(src) >= 3 {
-				if n, ok := src[2].(string); ok {
-					name = n
-				}
+				name = segmentName(src[2])
 			}
 			if name == "" {
 				if v, ok := src[0].(uint64); ok {
