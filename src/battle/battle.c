@@ -1127,7 +1127,7 @@ void BattleResolveSummonActionIndex(void) {
 }
 
 static void BattleRemoveUnitReservedItem(s16, s16);
-void func_800A73F8(void) {
+void BattlePrepareTmpFromItemForUse(void) {
     g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex;
     g_CurrentAction->unk24 = g_CurrentAction->relativeActionIndex;
     BattleRemoveUnitReservedItem(g_CurrentAction->actorId, (s16)g_CurrentAction->absoluteActionIndex);
@@ -1167,7 +1167,7 @@ void BattleResolveEnemySkillActionIndex(void) {
 }
 
 static u32 func_800B12DC(void);
-void func_800A76CC(void) {
+void BattleActionType04(void) {
     s32 val;
 
     g_CurrentAction->unk20 = -1;
@@ -1181,7 +1181,7 @@ void func_800A76CC(void) {
     }
 }
 
-void func_800A7784(void) {}
+void BattlePrepareTmpForDefend(void) {}
 
 // actorId here is the live party slot (0-2, indexes g_BattleWork.party's 3-element
 // gauge table below) -- NOT the per-character Limit-name block index. Each
@@ -1215,9 +1215,9 @@ void BattleResolveLimitActionIndex(void) {
 const s16 D_800A0290[] = {0, 56, 72, 96, 256};
 const s32 D_800A029C[] = {
     0x140D0302, 0x3D3CFFFF, 0x41403F3E, 0xFFFFFF42, 0xFFFFFFFF, 0x43424140, 0x47464544, 0xFF444843, 0xFFFFFFFF};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A784C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType07);
 
-void func_800A7940(void) {
+void BattlePrepareTmpForManip(void) {
     g_CurrentAction->unk80 = 0x400000;
     g_CurrentAction->unkE4 = 0x59;
 }
@@ -1226,15 +1226,15 @@ void func_800B1060(s32);
 void func_800A795C(void) { func_800B1060(g_CurrentAction->relativeActionIndex); }
 
 void func_800AF9C8();
-void func_800A7988(void) { func_800AF9C8(); }
+void BattleActionType0A(void) { func_800AF9C8(); }
 
-void func_800A79A8(void) {
+void BattleActionType0B(void) {
     g_CurrentAction->unk50 = 0;
     g_CurrentAction->allowedTargetsMask = 1 << g_CurrentAction->actorId;
 }
 
-void func_800A79CC();
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A79CC);
+void BattleActionType0C();
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType0C);
 
 static void func_800A8D60(s32 arg0);
 static void SetActionStatusChange(u32 arg0, s32 arg1);
@@ -1260,7 +1260,7 @@ void BattleLoadActionAttackData(void) {
     func_800A8D88(atk->additionalEffects, atk->effectsModifier);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A81B8);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType0E);
 
 void BattleQueueCurrentActionEffect(void) {
     Unk800A2F4C* unk;
@@ -1284,7 +1284,7 @@ void BattleQueueCurrentActionEffect(void) {
     }
 }
 
-void func_800A8528(void) { g_CurrentAction->unkB4 = 4; }
+void BattleActionType10(void) { g_CurrentAction->unkB4 = 4; }
 
 void BattleRunUnitScript(s32, s32, s32);
 
@@ -1298,7 +1298,7 @@ void func_800A853C(void) {
     }
 }
 
-void func_800A85A0(void) { g_CurrentAction->unkB4 = 2; }
+void BattleActionType12(void) { g_CurrentAction->unkB4 = 2; }
 
 void func_800A85B4(void) {
     g_CurrentAction->unk44 = 0x10;
@@ -1309,27 +1309,27 @@ void func_800A85B4(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A85FC);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType15);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A866C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType16);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8A6C);
 
-void func_800A8C94(void) {
+void BattleActionType18(void) {
     g_CurrentAction->unk8C = 0xFF;
     g_CurrentAction->unk40 = 0xB0;
     g_CurrentAction->unk80 |= 1;
     g_CurrentAction->unk3C = (s32)g_CurrentAction->unk3C >> 1;
 }
 
-void func_800A8CC8(void) {
+void BattleActionType1B(void) {
     g_CurrentAction->unk6C &= ~0x2000;
     g_CurrentAction->unk3C /= 3;
 }
 
-void func_800A8D04(void) { g_CurrentAction->unk48 = 2; }
+void BattleActionType1C(void) { g_CurrentAction->unk48 = 2; }
 
-void func_800A8D18(void) { func_800A8D60(g_BattleWork.setup[g_CurrentAction->actorId].targetFlags); }
+void BattleActionType1E(void) { func_800A8D60(g_BattleWork.setup[g_CurrentAction->actorId].targetFlags); }
 
 static void func_800A8D60(s32 arg0) {
     if (g_CurrentAction->unk50 == 0xFF) {
@@ -1374,7 +1374,7 @@ static void SetActionStatusChange(u32 arg0, s32 arg1) {
     }
 }
 
-static void func_800A8E34(void) { func_800A79CC(); }
+static void func_800A8E34(void) { BattleActionType0C(); }
 
 static void func_800A8E54(s32 arg0) {
     g_CurrentAction->unkF8 = arg0;
@@ -2024,7 +2024,7 @@ static s32 func_800AD73C(s32 arg0) {
 // multi-target damage-reduction formula, s32 func_800AD804(s32 damage, s32
 // fullDamage): if fullDamage is false, it still gets forced true when
 // unkB8 < 2 (single target) or unk50 & 0x80 is set (the exemption bit
-// documented on unk50's seed at func_800A8D18/func_800A8D60 above); then
+// documented on unk50's seed at BattleActionType1E/func_800A8D60 above); then
 // if unkAC != 0 (hit-sequence position, see func_800A8E54) returns
 // damage>>1, else returns damage unchanged when fullDamage else damage/3
 // (magic-number signed divide) -- this is the classic "multi-target hits
