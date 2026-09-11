@@ -7,8 +7,8 @@ static void func_800B37A0(void);
 static void func_800B37EC(void);
 static void BattleLoadFirstEnemy(void);
 static void BattleLoadSeffects(void);
-static void func_800B3D88(void);
-static void func_800B3DBC(void);
+static void BattleEnemyInitBonesAndAnims(void);
+static void BattlePlayersInitBonesAndAnims(void);
 static void func_800B3E2C(void);
 static s32 func_800B3FAC(s32 arg0);
 static void func_800B798C(void);
@@ -80,13 +80,13 @@ void BattleNormalStartSeq(void) {
             func_800B7FDC();
             if (D_800F7DF4 == (u8)D_80166F64 && D_801518DC == 0) {
                 BattleLoadSeffects();
-                func_800B5138();
+                BattleParseEnemyModels();
                 D_80163C7C = 6;
             }
             break;
         case 6:
             func_800B7FDC();
-            func_800B3D88();
+            BattleEnemyInitBonesAndAnims();
             for (i = 4; i < D_800F7E04[0] + 4; i++) {
                 D_801518E4[i].D_80151922 |= 4;
             }
@@ -95,7 +95,7 @@ void BattleNormalStartSeq(void) {
         case 2:
             func_800B7FDC();
             if ((u8)D_80166F64 == 3 && D_801518DC == 0) {
-                func_800B3DBC();
+                BattlePlayersInitBonesAndAnims();
                 D_80163C7C = 3;
                 D_801518E4[0].D_80151922 |= 4;
                 D_801518E4[1].D_80151922 |= 4;
@@ -144,8 +144,8 @@ static void BattleLoadFirstEnemy(void) {
 }
 
 static void BattleLoadEnemyFinish(void) {
-    func_800B5D38(2);
-    func_800B5CD4(2);
+    BattleLoadEnemyTexture(2);
+    BattleLoadEnemyModel(2);
     D_80166F64 = 3;
 }
 
@@ -158,8 +158,8 @@ static void BattleLoadThirdEnemy(void) {
     s32 size;
     s32 i;
 
-    func_800B5D38(1);
-    size = func_800B5CD4(1);
+    BattleLoadEnemyTexture(1);
+    size = BattleLoadEnemyModel(1);
     D_80166F64 = 2;
     D_800F8390[2] = size + D_800F8390[1];
     if (D_800F7DF4 >= 3U) {
@@ -176,8 +176,8 @@ static void BattleLoadSecondEnemy(void) {
     s32 i;
 
     D_800F8390[0] = D_80130200;
-    func_800B5D38(0);
-    size = func_800B5CD4(0);
+    BattleLoadEnemyTexture(0);
+    size = BattleLoadEnemyModel(0);
     D_80166F64 = 1;
     D_800F8390[1] = size + D_800F8390[0];
     if (D_800F7DF4 >= 2U) {
@@ -188,8 +188,8 @@ static void BattleLoadSecondEnemy(void) {
 }
 
 static void BattleLoadSecondPlayer(void);
-void func_800B5C1C(s16);
-void func_800B5E64(s16);
+void BattleLoadPlayerModel(s16);
+void BattleLoadPlayerTexture(s16);
 void BattleLoadThirdPlayer(void);
 static void BattleLoadSecondPlayer(void) {
     s16* s0;
@@ -201,8 +201,8 @@ static void BattleLoadSecondPlayer(void) {
     v1 = *s0;
     dst = &D_800F8384[v1];
     *dst = D_80103200 + v1 * 0xF000;
-    func_800B5E64(*s0);
-    func_800B5C1C(*s0);
+    BattleLoadPlayerTexture(*s0);
+    BattleLoadPlayerModel(*s0);
     cmp = D_800FA9C8;
     if (cmp != 0xC8) {
         SysCdromStartLoadLzs(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len, (u_long*)0x801B0000, BattleLoadThirdPlayer);
@@ -234,18 +234,18 @@ static void BattleLoadSeffects(void) {
     func_800B7FB4();
 }
 
-static void func_800B3D88(void) {
-    func_800B588C();
-    func_800B6B98(4, 10);
+static void BattleEnemyInitBonesAndAnims(void) {
+    BattleEnemyModelsUpdateBonesPosClut();
+    BattleInitModelsAnimAndColor(4, 10);
     BattleEnemyPlayInitAnims();
 }
 
-static void func_800B3DBC(void) {
+static void BattlePlayersInitBonesAndAnims(void) {
     s32 i;
 
-    func_800B4794();
-    func_800B6B98(0, 3);
-    func_800B6B98(3, 3);
+    BattlePlayerModelsUpdateBonesPos();
+    BattleInitModelsAnimAndColor(0, 3);
+    BattleInitModelsAnimAndColor(3, 3);
     if (D_8016360C.setup.stageID == 57) {
         for (i = 0; i < 10; i++) {
             D_801518E4[i].D_80151909 |= 0x10;
@@ -312,29 +312,29 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3FFC);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B430C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B45F0);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattlePlayerModifyDefaultPosByFormation);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B46B4);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattlePlayerSetDefaultRot);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B4794);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattlePlayerModelsUpdateBonesPos);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B4E30);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattlePlayerInitModelWithSettings);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5138);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleParseEnemyModels);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B54B8);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEnemyInitModelWithSettings);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B588C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEnemyModelsUpdateBonesPosClut);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5AAC);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5C1C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadPlayerModel);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5CD4);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadEnemyModel);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5D38);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadEnemyTexture);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5E64);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadPlayerTexture);
 
 void func_800B60E0(s16);
 static void func_800B5FC4(s16 arg0) { func_800B60E0(arg0); }
@@ -348,7 +348,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B64CC);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B677C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B6B98);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleInitModelsAnimAndColor);
 
 // drains D_80163798 (12-byte entries, -1-terminated, index D_801590E0), one
 // entry per call, dispatched by a type byte (0-5, jtbl_800A05FC) via m2c
