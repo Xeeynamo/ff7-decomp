@@ -117,12 +117,12 @@ static void GiveMateriaAp(SavePartyMember* c, s32 ap) {
     for (i = 0; i < 8; i++) {
         m = c->materia_weapon[i];
         id = m;
-        if (id != 0xFF && (D_800730CC[id].unk11 & 0xF) == 7) {
+        if (id != 0xFF && (g_MateriaData[id].materiaType & 0xF) == 7) {
             c->materia_weapon[i] = m | bits;
         }
         m = c->materia_armor[i];
         id = m;
-        if (id != 0xFF && (D_800730CC[id].unk11 & 0xF) == 7) {
+        if (id != 0xFF && (g_MateriaData[id].materiaType & 0xF) == 7) {
             c->materia_armor[i] = m | bits;
         }
     }

@@ -335,8 +335,6 @@ static void BattleInitPartyScripts(void) {
     }
 }
 
-extern u8 D_800707C5[][8]; // command table, 8-byte stride
-
 // Fixes up party member sceneID's battle command list: each of the 16 command
 // slots gets its target flags from the command table (falling back to the
 // formation setup), with extra flags for the Enemy Skill / W- commands, and
@@ -356,7 +354,7 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
         flags = 0xFF;
         cmd = e->commandMenu[i].id;
         if (cmd != 0xFF) {
-            flags = D_800707C5[cmd][0];
+            flags = D_800707C4[cmd].targetFlags;
             if (flags == 0xFF) {
                 flags = g_BattleWork.setup[sceneID].targetFlags;
             }
@@ -467,7 +465,7 @@ static s32 BattleGetMateriaValue(u32 sceneID) {
 
     temp_v1 = sceneID;
     ret = 0;
-    if (temp_v1 != 0xFF && (D_800730CC[temp_v1].unk11 & 0xF) == 7) {
+    if (temp_v1 != 0xFF && (g_MateriaData[temp_v1].materiaType & 0xF) == 7) {
         ret = (sceneID >> 8) | 0x80000000;
     }
     return ret;
