@@ -369,10 +369,10 @@ extern u8 D_800F8380;
 extern u8* D_800F8384[3];
 extern u8* D_800F8390[3];
 extern s32* D_800F839C; // CD offset?
-extern u8 D_800F83A4[]; // shared battle-script variable bank (func_800B13B0)
+extern u8 D_800F83A4[]; // shared battle-script variable bank (BattleOpcodeValOffs)
 extern u8 D_800F83A6;
 extern u8 D_800F87F0[]; // per-combatant battle-script variable bank, 0x80 B
-                        // each (func_800B13B0)
+                        // each (BattleOpcodeValOffs)
 extern s8 D_800F8CF0;
 extern u32 D_800F8CF4[][0x18];
 extern s32 D_800F9F28[]; // size is either 4 or 5
@@ -553,7 +553,7 @@ void func_800AD324(s32, s32, s32, s32);
 static void BattleApplyDefaultAbsorbEffect(void);
 void BattleDmgFormulaRun(void);
 void func_800AE82C(void);
-s32 func_800B3030(s32);
+s32 BattleOpcodeGetRndBit(s32);
 void func_800B4794(void);
 s32 func_800B5CD4(s32);
 void func_800B5D38(s32);
@@ -615,7 +615,7 @@ typedef struct {
     /* 0xA2 */ u8 unkA2[0x19E];
 } BattleMenuSlot; /* size: 0x240 */
 
-/* State of the battle-script VM interpreted by func_800B1D48. Operands are
+/* State of the battle-script VM interpreted by BattleOpcodeCycle. Operands are
    fetched from the script buffer D_800F4AC0 at `pc` and evaluated on `stack`,
    which grows downwards: a push predecrements `sp` before storing, a pop reads
    at `sp` then postincrements it. Instructions address two operand slots by
@@ -638,7 +638,7 @@ typedef struct {
 extern u8* D_800F4AC0;
 extern BattleScriptVm* D_800F4AC4;
 
-s32 func_800B18A8(s32);
+s32 BattleOpcodeLoadVal(s32);
 
 void func_800A4E40(void);
 void func_800DE2B4(void);
