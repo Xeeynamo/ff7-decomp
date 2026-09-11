@@ -1065,10 +1065,10 @@ void func_800A6E6C(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 13, arg1); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRemovePlayersFromBattle);
 
-static void func_800B0FFC(s32, s32, s32, s16*);
+static void BattleAddStringToDisplay(s32, s32, s32, s16*);
 void BattleSetItemWasStolenStringToDisplay(s32 arg0, s16 arg1) {
     s16 out = arg1;
-    func_800B0FFC(arg0, 0x53, 1, &out);
+    BattleAddStringToDisplay(arg0, 0x53, 1, &out);
 }
 
 void func_800A7060(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 12, arg1); }
@@ -1553,7 +1553,7 @@ static void BattleLearnEnemySkill(void) {
         if (!(mask & bit)) {
             *flags = mask | bit;
             id = (u16)g_CurrentAction->absoluteActionIndex;
-            func_800B0FFC(g_CurrentAction->unk208, 0x73, 1, &id);
+            BattleAddStringToDisplay(g_CurrentAction->unk208, 0x73, 1, &id);
             BattleQueueEvent(2, g_CurrentAction->unk208, 0x12, id);
             g_CurrentAction->unk224 = 0xA;
         }
@@ -2330,15 +2330,15 @@ void func_800AEB20(s32 arg0, s32 arg1, s32 arg2) {
 // this data belong to functions located above:
 const u8 g_StatusBitTable[] = {
     0x0A, 0x19, 0x15, 0x0D, 0x10, 0x11, 0x03, 0x02, 0x0F, 0x1B, 0x14, 0x18, 0xFF, 0xFF, 0xFF, 0xFF};
-int func_800B0378();
-int func_800B062C();
+int BattleUpperFunc00();
+int BattleUpperFunc01();
 static void BattleRollPhysicalHit(void);
-static int func_800B0B8C();
-int func_800B0910();
-static void func_800B089C(void);
+static int BattleUpperFunc03();
+int BattleUpperFunc06();
+static void BattleUpperFunc07(void);
 int (* const D_800A04E0[])() = {
-    func_800B0378, func_800B062C, (void*)BattleRollPhysicalHit, func_800B0B8C, func_800B0B8C,
-    func_800B0B8C, func_800B0910, (void*)func_800B089C,
+    BattleUpperFunc00, BattleUpperFunc01, (void*)BattleRollPhysicalHit, BattleUpperFunc03, BattleUpperFunc03,
+    BattleUpperFunc03, BattleUpperFunc06, (void*)BattleUpperFunc07,
 };
 // ___end
 
@@ -2360,11 +2360,11 @@ void func_800AEB80(s32 arg0, s32 arg1, s32 arg2) {
 
 void func_800AEBF0(int index) { BattleRecalcUnitSpeed(index); }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AEC10);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattlePostAddDeath);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AEF68);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattlePostRemoveDeath);
 
-void func_800AF0C4(s32 arg0, s32 arg1, s32 arg2) {
+void BattleRestoreBattleActionIfCan(s32 arg0, s32 arg1, s32 arg2) {
     if (!(g_BattleState.combatant[arg0].status & 0x2804444)) {
         BattleQueueEvent(0, arg0, 6, 0);
     }
@@ -2381,13 +2381,13 @@ void func_800AF0C4(s32 arg0, s32 arg1, s32 arg2) {
 void BattleQueueEvent(s32, s32, s32, s32);
 void func_800AF1A8(s32 arg0) { BattleQueueEvent(0, arg0, 8, 0); }
 
-void func_800AF0C4(s32, s32, s32);
+void BattleRestoreBattleActionIfCan(s32, s32, s32);
 
 // skips (does nothing) while combatant[arg0].status has Berserk or Confusion
 void BattleTryApplyHitEffect(s32 arg0, s32 arg1, s32 arg2) {
     if (!(g_BattleState.combatant[arg0].status & (STATUS_BERSERK | STATUS_CONFU))) {
         BattleQueueEvent(0, arg0, 9, 0);
-        func_800AF0C4(arg0, arg1, arg2);
+        BattleRestoreBattleActionIfCan(arg0, arg1, arg2);
     }
 }
 
@@ -2409,7 +2409,7 @@ void func_800AF264(s32 arg0, s32 arg1, s32 arg2) {
 void func_800AF320(s32 arg0, s32 arg1, s32 arg2) {
     func_800AEBF0(arg0);
     func_800AEB80(arg0, arg1, arg2);
-    func_800AF0C4(arg0, arg1, arg2);
+    BattleRestoreBattleActionIfCan(arg0, arg1, arg2);
 }
 
 void func_800AF380(s32 arg0) { BattleQueueEvent(2, arg0, 0x15, 0xF); }
@@ -2496,9 +2496,9 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0170);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0234);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0378);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpperFunc00);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B062C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpperFunc01);
 
 static s32 func_800B2F70(void);
 static void BattleRollPhysicalHit(void) {
@@ -2525,7 +2525,7 @@ static void BattleRollPhysicalHit(void) {
     }
 }
 
-static void func_800B089C(void) {
+static void BattleUpperFunc07(void) {
     s32 temp_v1;
 
     temp_v1 = g_CurrentAction->unk3C;
@@ -2534,9 +2534,9 @@ static void func_800B089C(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0910);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpperFunc06);
 
-static int func_800B0B8C(void) {}
+static int BattleUpperFunc03(void) {}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0B94);
 
@@ -2571,9 +2571,9 @@ static s32 func_800B0EB4(s32 arg0) {
     return count & 1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0F04);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleGetRndItemIdForSteal);
 
-static void func_800B0FFC(s32 arg0, s32 arg1, s32 arg2, s16* arg3) {
+static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* arg3) {
     func_800A31A0(
         arg0, 2, arg2, BattleExpandScriptToBuffer((u8*)SysGetPtrToUncompKernBattleTxtWithId(arg1), arg3) + 0x100);
 }
@@ -2613,7 +2613,7 @@ static void BattleQueueEffect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, 
 
 // find arg0 in D_800F5F44.attackIDs[]; returns its index, or 0x20 (and signals
 // func_800155A4) if it is not present
-static s32 func_800B11B4(s32 arg0) {
+static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0) {
     s32 i;
     u16* p;
 
