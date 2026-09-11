@@ -186,7 +186,7 @@ static void Lv5DeathMainSetup(s32 targetMask, s32 arg1) {
     s32 i;
 
     g_Lv5DeathFlipEffect = &g_BattleEffectSlots[BattleEffectRegister(Lv5DeathBufferFlip)];
-    func_800D2980(g_Lv5DeathTexture, 0, 0, 0);
+    BattleSetLoadTimToVram(g_Lv5DeathTexture, 0, 0, 0);
     effect = &g_BattleEffectSlots[BattleEffectRegister(Lv5DeathScreenFade)];
     effect->u.FadeOutStartFrame = 0;
     // frameStep 2: with three targets the pairs spawn on frames 1, 3 and 5.
