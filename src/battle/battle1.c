@@ -27,17 +27,17 @@ static void func_800BB864(void);
 s32 func_800BC04C(void (*callback)(void));
 static s32 BattleCameraRegister(void (*callback)(void));
 static void BattleCallbacksReset(void);
-static void func_800BC2F0(void);
+static void BattleCameraResetCallbacks(void);
 static void func_800BC348(void);
 static void BattleMovementUpdate(void);
 static void func_800BC538(void);
 static void BattleCameraUpdate(void);
 static void func_800C0410(void);
 static void func_800C0900(void);
-static void func_800C20E8(s16 arg0, s16* arg1);
+static void BattleGet4DigitsFromValue(s16 arg0, s16* arg1);
 static void func_800C4D10(void);
 DR_MODE* func_800C4DC8(s16 x, s16 y, s16 w, s16 h, s32*);
-static void func_800C614C(u_long* arg0, s32 arg1);
+static void BattleStoreUnitClut(u_long* arg0, s32 arg1);
 static void func_800C627C(void);
 void func_800C62F4(s32);
 static void func_800BC81C(s16 arg0, s16 arg1);
@@ -60,7 +60,7 @@ void BattleNormalStartSeq(void) {
     D_800FA6A0 = 0;
     func_800B37A0();
     func_800B3E2C();
-    func_800BB684();
+    BattleQueue1CameraInit();
     func_800BC04C(func_800C4D10);
     BattleUpdateRender();
     BattleUpdateRender();
@@ -228,7 +228,7 @@ static void BattleLoadFirstPlayer(void) {
 }
 
 static void BattleLoadSeffects(void) {
-    func_800C5E94();
+    BattleSelectPlayerModelFiles();
     D_800F839C = D_800EA50C;
     SysCdromStartLoadLzs(LBA_ENEMY6_SEFFECT, 0xA800, (u_long*)0x801B0000, BattleLoadFirstPlayer);
     BattleCdromReadChain();
@@ -556,7 +556,7 @@ static void func_800B85E0() {
         func_800D8B2C();
         D_800F7ED4 = 100;
         D_80163798[D_801590E0].unk8 = -3;
-        func_800BB684();
+        BattleQueue1CameraInit();
         for (i = 0; i < 3; i++) {
             D_801518E4[i].D_80151922 |= 0x20;
             D_80151200[i].D_80151200 = D_801636B8[i].D_801636C0;
@@ -567,7 +567,7 @@ static void func_800B85E0() {
         func_800D8B2C();
         D_800F9D98 = 100;
         D_80163798[D_801590E0].unk8 = -1;
-        func_800BB684();
+        BattleQueue1CameraInit();
     }
     if (!D_801590D8 && D_80163B80) {
         func_800BB864();
@@ -586,7 +586,7 @@ static void func_800B85E0() {
             D_80163C7C = 5;
             func_800D8B2C();
             D_80163798[D_801590E0].unk8 = -1;
-            func_800BB684();
+            BattleQueue1CameraInit();
         }
     }
 }
@@ -763,11 +763,11 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleModelUpdateAllBonesHeigh
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB4F8);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB538);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleUnitInitBonesAndMatrixes);
 
 void func_800BB67C(s32 arg0, Unk800BB67C* arg1) { arg1->unk30 = arg0; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB684);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleQueue1CameraInit);
 
 static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3) {
     int flag;
@@ -984,10 +984,10 @@ static void BattleCallbacksReset(void) {
         D_801621F0[i].D_801621F0 = D_801621F0[i].D_801621F2 = 0;
     }
 
-    func_800BC2F0();
+    BattleCameraResetCallbacks();
 }
 
-static void func_800BC2F0(void) {
+static void BattleCameraResetCallbacks(void) {
     s32 i;
 
     g_BattleCameraCount = 0;
@@ -1079,7 +1079,7 @@ static void func_800BC72C(void) {
     func_800BCA58(3);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC754);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", CopyCameraStartEndFromBattleSetup);
 
 void func_800BCB1C(u8, s16, s16);
 void func_800BEA38(u8, s16, s16);
@@ -1359,11 +1359,11 @@ static void func_800C1908(u8 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1D8C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleCreateStatusIconPacket);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2000);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleAddStatusIconToRender);
 
-static void func_800C20E8(s16 arg0, s16* arg1) {
+static void BattleGet4DigitsFromValue(s16 arg0, s16* arg1) {
     s32 i;
 
     for (i = 0; i < 4; i++) {
@@ -1372,9 +1372,9 @@ static void func_800C20E8(s16 arg0, s16* arg1) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2150);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleAddStatusDigitsToRender);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C223C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleCreateStatusDigitsPackets);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2704);
 
@@ -1548,7 +1548,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5C18);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5CC0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5E94);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleSelectPlayerModelFiles);
 
 s32 func_800C60F4(void) { return Savemap.battle_msg_speed / 4 + 4; }
 
@@ -1558,7 +1558,7 @@ static void func_800C610C(void) {
     }
 }
 
-static void func_800C614C(u_long* pTim, s32 palIndex) {
+static void BattleStoreUnitClut(u_long* pTim, s32 palIndex) {
     TIM_IMAGE tim;
     u32* dst;
     s32 i;
