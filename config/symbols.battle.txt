@@ -98,3 +98,39 @@ D_80163798 = 0x80163798; // size:0x300
 g_BattleMovementCallbacks = 0x80163B48; // size:0x28
 g_BattleMovementCount = 0x80163B7C; // size:0x4
 D_80163C80 = 0x80163C80; // size:0xC
+
+
+BattleMain = 0x800A1158;
+BattleBattleActionQueueExecute = 0x800A23E0;
+BattleQueue1GetPtr = 0x800A2F4C;
+BattleQueue2GetPtr = 0x800A2FD0;
+BattleCopyBattleActionToBattleQueue = 0x800A3D4C;
+BattleAddBattleActionToBattleQueue = 0x800A3E98;
+BattleGetManipulatorIdByEnemyUnitId = 0x800A44D8;
+BattleActionType14 = 0x800A4AF4;
+BattleGetBerserkToadAttackTypeId = 0x800A4CA8;
+BattleGetManipIdByPlayerUnitId = 0x800A4CC8;
+BattleEnableLimitToPlayerWithSpeed = 0x800A4E80;
+BattleEnableLimitToPlayerWithoutSpeed = 0x800A4F14;
+BattleResetReservedItems = 0x800A55BC;
+BattleRemoveUnitReservedItem = 0x800A55F4;
+BattleAddUnitReservedItem = 0x800A5660;
+BattleReqReturnReservedItems = 0x800A56B0;
+BattleReturnReservedItems = 0x800A5750;
+BattleGetRndAutoBattleAction = 0x800A5AC8;
+BattleAddAutoBattleActionByChance = 0x800A5BC8;
+BattleCopyStringAndSetNamesFromVar = 0x800A5E0C;
+BattleGetStringPtrFromStringBuffer = 0x800A5F90;
+GetEnemyAiScriptOffs = 0x800A5FB0;
+BattleGetItemFromSlot = 0x800A64B4;
+BattleResetManipulatorTimer = 0x800A653C;
+BattleEnableLimitToPlayerResettingBar = 0x800A65B0;
+BattleAddStolenItemToReservedItem = 0x800A6720;
+BattleSearchAndRemoveItemFromSlot = 0x800A6B88;
+BattleSetLimitBreakStringToDisplay = 0x800A6C04;
+BattleChangeSlownumbToPetrify = 0x800A6D3C;
+BattleHudResetLimit = 0x800A6E0C;
+BattleRemovePlayersFromBattle = 0x800A6E9C;
+BattleSetItemWasStolenStringToDisplay = 0x800A7034;
+
+

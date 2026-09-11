@@ -60,7 +60,7 @@ void BatInitMain(s32 sceneID) {
         g_BattleState.combatant[i].unk8 = -1;
         g_BattleState.combatant[i].unk13 = 0x10;
     }
-    func_800A55BC();
+    BattleResetReservedItems();
     BattleInitPlayer();
     BattleInitItemList();
     BattleInitLoadSceneData(sceneID, 0);
@@ -87,7 +87,7 @@ void BatInitMain(s32 sceneID) {
     func_800A4480();
     D_800F7DE8 |= 1;
     for (i = 0; i < NUM_PARTY; i++) {
-        func_800A5BC8(i, 1);
+        BattleAddAutoBattleActionByChance(i, 1);
     }
     if (g_BattleState.setupFlags & 8) {
         BattleInitSetSpeed(0x80);
