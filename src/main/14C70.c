@@ -34,11 +34,11 @@ s32 func_80014CBC(s32 arg0, s32 arg1) {
     case 0:
     case 1:
     case 2:
-        var_v1 = D_800708D4[(D_80010100[arg0] + arg1) * 0x1C];
+        var_v1 = D_800708C4[D_80010100[arg0] + arg1].conditionSubmenu;
         break;
     case 4:
         if (arg1 < 0x80) {
-            var_v1 = D_800722DC[arg1 * 0x1C];
+            var_v1 = D_800722CC[arg1].conditionSubmenu;
         }
     }
     if (var_v1 != 0xFF) {

@@ -347,7 +347,7 @@ typedef struct {
     /* 0x77C */ s32 materia[MAX_MATERIA_COUNT];
     /* 0xA9C */ s32 yuffie_stolen_materia[48];
     /* 0xB5C */ u8 unk_b5c[32];
-    /* 0xB7C */ s32 gil;
+    /* 0xB7C */ u32 gil;
     /* 0xB80 */ volatile u32 time;
     /* 0xB84 */ volatile u32 countdown_timer_seconds;
     /* 0xB88 */ volatile u32 game_timer_fraction;
@@ -578,10 +578,30 @@ typedef struct {
     u8 missSound;             // sound-effect id for a miss (0x2F on firearms, else 0x05)
     u8 impactEffect;          // impact-effect id (varies per weapon)
     u8 specialAttackFlags[2]; // always 0xFFFF
-    u8 restrictionMask[2];    // a set bit forbids: 0x01 sell, 0x02 use in battle,
+    u16 restrictionMask;      // a set bit forbids: 0x01 sell, 0x02 use in battle,
                               // 0x04 use in menu, 0x08 throw (0xFFF6 base; the
                               // initial weapons add sell+throw -> 0xFFFF)
 } WeaponRecord;
+
+// Kernel accessory record, one per accessory id (g_AccessoryTable), 0x10 bytes.
+// Field meanings verified by dumping the live table and matching each field
+// against published stats for all 32 accessories (same method as ArmorRecord).
+typedef struct {
+    u8 statBonusId[2];    // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
+                          // 4=Dex,5=Lck; 0xFF = unused
+    u8 statBonusValue[2]; // bonus amount, paired with statBonusId
+    u8 elementalStrength; // 0=absorb, 1=nullify, 2=halve; 0xFF = none
+    u8 specialEffect;     // 0xFF none; 0=Haste, 1=Berserk, 2=Curse, 3=Reflect,
+                          // 4=raise steal rate, 5=raise manipulate rate,
+                          // 6=Barrier/MBarrier
+    u8 elementMask[2];    // elements the elementalStrength applies to (u16 mask,
+                          // same element bits as ArmorRecord.elementalMask)
+    u8 statusProtect[4];  // status-immunity bitmask (u32); e.g. Ribbon sets most
+    u8 equipMask[2];      // equippable-by-character bitmask (see ArmorRecord);
+                          // 0x01FF (all nine) on every accessory
+    u16 restrictionMask;  // a set bit forbids: 0x01 sell, 0x02 use in battle,
+                          // 0x04 use in menu (0xFFFE on every accessory)
+} AccessoryRecord;
 
 typedef struct {
     u16 levelUpApLimits[4];
@@ -1036,10 +1056,9 @@ extern CurrentCharMagicCommand D_80069554[56];
 extern u8* D_800707C0;
 extern BattleCommandData D_800707C4[32];
 extern AttackData D_800708C4[];
-extern u8 D_800708C8[];              // kernel-region table, 0x1C-byte rows
-extern u8 D_800708D0[][0x1C];        // kernel-region table, by attack/effect id
-extern AttackData D_800722CC[];      // magic/summon/skill table
-extern WeaponRecord g_WeaponTable[]; // 0x800738A0, by weapon id
+extern AttackData D_800722CC[];            // magic/summon/skill table
+extern WeaponRecord g_WeaponTable[];       // 0x800738A0, by weapon id
+extern AccessoryRecord g_AccessoryTable[]; // 0x80071C24, by accessory id
 extern FieldEntity g_FieldEntity[];
 extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
@@ -1066,8 +1085,6 @@ extern u16 g_FieldScriptPC[48];   // program counters for active entity scripts
 extern u8 g_FieldModelAnimId[16]; // per-model default animation id (DFANM)
 extern u8 g_WindowToEntity[4];
 extern WindowData g_WindowData[4];
-extern u8 D_8008325C[16];
-extern u8 D_8008326C[4];
 extern s32 D_80083338;
 
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
@@ -1093,32 +1110,17 @@ extern s32 D_8009A064;
 extern MenuTable g_PartyMenuTables[3];
 extern u8 g_FieldScriptPriority[48]; // active scripts execution priority
 extern FieldState g_FieldState;
-extern u8 D_8009AC2F;
 extern u8 g_CharIdToEntity[9];
 extern FieldEntity* g_FieldModels; // loaded field models
 extern u8 g_FieldModelCount;       // number of allocated field models
 extern FieldScriptHeader* g_FieldScripts;
 extern FieldState* g_pFieldState; // points to g_FieldState
 extern SaveWork Savemap;          // 0x8009C6E4
-extern u8 D_8009CBDC[];
-extern u16 D_8009D288[];
-extern u8 D_8009D2E7;
-extern u8 D_8009D302;
-extern u8 D_8009D391[1]; // part of a struct?
-extern u8 D_8009D40D;
-extern u8 D_8009D588; // disc number requested by the DSKCG opcode
-extern u8 D_8009D684;
-extern u8 D_8009D685;
-extern u8 D_8009D686;
-extern u8 D_8009D60E;
-extern u8 g_DebugLevel; // field debug related
+extern u8 g_DebugLevel;           // field debug related
 extern CharacterLevelData g_CharacterLevelData[3];
 extern u8 D_8009D824;
 extern s16 g_FieldModelBaseAnimSpeed[16]; // per-model base animation speed
-extern s16 D_8009D85C[];                  // record fields, stride 0x440
 extern BattleItemReward g_BattleItemsEarned[4];
-extern u8 D_8009D8F8[];
-extern u32 D_8009D260;
 extern volatile s32 D_8009D268[];
 extern ActiveCharacterData g_ActiveCharacters[9];
 extern u8 D_8009FE8C;
@@ -1166,6 +1168,7 @@ int SysCdromStartLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)());
 int func_80033EDC(int sector_no, void (*cb)());
 int SysCdromLoadFile(int sector_no, size_t size, u_long* dst, void (*cb)());
 int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)());
+void SystemLzsDecompress(u8* dst, u8* src);
 u32 SystemCdromReadChain(void);
 s32 SysGetLimitCmdId(s32 charId, s32 limitIndex);
 

@@ -19,8 +19,6 @@ void SysMenuDrawTexturedRect(s16, s16, s32, s32, s32, s32, s32, s32);
 extern u16 D_80062F50;
 extern u8 D_8009D5E8;
 extern u16 D_8009C75A[]; // character record fields, stride 0x84
-extern s16 D_8009D85C[]; // record fields, stride 0x440
-extern s16 D_8009D85E[];
 extern s16 D_8009D860[];
 extern s16 D_8009D862[];
 extern u8 D_801D3890[];
@@ -446,7 +444,7 @@ void func_801D0BA0(void) {
 }
 
 // True if the two adjacent record fields for entry arg0 are equal.
-static s32 func_801D0CAC(s32 arg0) { return D_8009D85E[arg0 * 0x220] == D_8009D85C[arg0 * 0x220]; }
+static s32 func_801D0CAC(s32 arg0) { return g_ActiveCharacters[arg0].baseHp == g_ActiveCharacters[arg0].hp; }
 
 // True if the two adjacent record fields for entry arg0 are equal.
 static s32 func_801D0CE8(s32 arg0) { return D_8009D862[arg0 * 0x220] == D_8009D860[arg0 * 0x220]; }

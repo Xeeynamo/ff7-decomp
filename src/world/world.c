@@ -1277,7 +1277,7 @@ static void WmInitActiveEntityStruct(s32 arg0) {
             break;
         case 3:
             if (func_800B716C() == 0)
-                D_8010AD3C->riding = &D_80109E54;
+                D_8010AD3C->riding = &D_80109D74[1];
 
             rect.x = 0x18;
             rect.y = 0x48;
@@ -2256,7 +2256,7 @@ static s32 WmScriptIsAnyScriptRuns(void) {
     WorldActor* a;
     s32 flag;
 
-    flag = D_80109DBA != 0;
+    flag = D_80109D74[0].scriptIdx != 0;
     a = D_8010AD38;
     while (a != NULL && flag == 0) {
         flag |= a->scriptIdx != 0;
@@ -2496,14 +2496,10 @@ static void func_800AF0A0(s32 arg0) { D_8010B174 = arg0; }
 static void WmSetGteColourSettings(void);
 static void func_800AF0B0(void) {
     s32 i;
-    s32 offset;
 
-    i = 0;
-    offset = 0;
-    for (; i < 0x10; i++) {
-        D_8010B18B[offset] = 0;
-        *(s32*)&D_8010B17C[offset] = 0;
-        offset += 0x24;
+    for (i = 0; i < 0x10; i++) {
+        D_8010B178[i].unk13 = 0;
+        D_8010B178[i].unk04 = 0;
     }
 
     D_8010B3B8 = NULL;
@@ -3239,24 +3235,27 @@ static s32 func_800B717C(void) {
     s32 var_v0;
 
     var_v0 = 0;
-    if (*D_8009D288 >= 1000) {
-        if (*D_8009D288 < 1580) {
-            temp_a0 = D_8009D302 & 1;
-            if (*D_8009D288 >= 1620)
+    if (*(u16*)Savemap.memory_bank_1 >= 1000) {
+        if (*(u16*)Savemap.memory_bank_1 < 1580) {
+            temp_a0 = Savemap.memory_bank_1[0x7A] & 1;
+            if (*(u16*)Savemap.memory_bank_1 >= 1620)
                 return (temp_a0 | 2) + 1;
             return temp_a0 + 1;
         }
-        temp_v1 = (*D_8009D288 < 1620) ^ 1;
-        if (D_8009D60E & 0x10)
+        temp_v1 = (*(u16*)Savemap.memory_bank_1 < 1620) ^ 1;
+        if (Savemap.memory_bank_4[0x86] & 0x10)
             return (temp_v1 | 2) + 5;
         return temp_v1 + 5;
     }
     return var_v0;
 }
 
-s32 func_800B7200(void) { return D_8009D288[0] >= 1000 && D_8009D288[0] < 1200; }
+s32 func_800B7200(void) {
+    u16 progress = *(u16*)Savemap.memory_bank_1;
+    return progress >= 1000 && progress < 1200;
+}
 
-static u8 func_800B7218(void) { return D_8009D686; }
+static u8 func_800B7218(void) { return Savemap.memory_bank_4[0xFE]; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B7228);
 
@@ -3287,7 +3286,7 @@ static void GetSavedParams(s32* arg0, s32* arg1, s32* arg2) {
 static void func_800B76A8(void) {
     u32 var_a0;
 
-    var_a0 = D_8009D685;
+    var_a0 = Savemap.memory_bank_4[0xFD];
     if (var_a0 >= 3) {
         if (var_a0 >= 0x2B) {
             WmSetActiveEntityWithModelId(0x13);
@@ -3307,7 +3306,7 @@ void WmSetFieldToLoad(s32 arg0) {
     index = ((((arg0 >> 8) - 1) << 1) & 0x1FE) | (arg0 & 1);
     p = &D_800BF5F0[index * 12];
 
-    D_8009ABF6 = *(u16*)(p + 6);
+    g_FieldState.eventCmdParam = *(u16*)(p + 6);
     D_8009ABF8 = *(u16*)(p + 0);
     D_8009ABFA = *(u16*)(p + 2);
     D_8009AC16 = *(u16*)(p + 4);
@@ -3329,12 +3328,12 @@ void func_800B77A8(s32 arg0) {
 static void func_800B77F4(s32 arg0) {
     D_8009D268[0] = arg0;
     D_80116278 = 1;
-    D_8009D2E7 = 1;
+    Savemap.memory_bank_1[0x5F] = 1;
 }
 
 static void func_800B7820(void) {
     D_80116278 = 0;
-    D_8009D2E7 = 0;
+    Savemap.memory_bank_1[0x5F] = 0;
 }
 
 void func_800B7838(void) {
@@ -3349,14 +3348,13 @@ static s32 func_800B786C(void) { return D_80116270; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B787C);
 
-extern u8 D_8009D392;
-extern u8 D_8009D393;
-
 // Player party member model ID (0=Cloud, 1=Tifa, 2=Cid)
 s32 WmGetPcCharModelIdFromParty(void) {
-    if ((*D_8009D391 != 0) && (D_8009D392 != 0) && (D_8009D393 != 0)) {
-        if ((*D_8009D391 != 2) && (D_8009D392 != 2) && (D_8009D393 != 2)) {
-            if ((*D_8009D391 == 8) || (D_8009D392 == 8) || (D_8009D393 == 8)) {
+    if ((Savemap.memory_bank_2[0x9] != 0) && (Savemap.memory_bank_2[0xA] != 0) && (Savemap.memory_bank_2[0xB] != 0)) {
+        if ((Savemap.memory_bank_2[0x9] != 2) && (Savemap.memory_bank_2[0xA] != 2) &&
+            (Savemap.memory_bank_2[0xB] != 2)) {
+            if ((Savemap.memory_bank_2[0x9] == 8) || (Savemap.memory_bank_2[0xA] == 8) ||
+                (Savemap.memory_bank_2[0xB] == 8)) {
                 return 2;
             }
             return 0;
@@ -3378,7 +3376,7 @@ static void CopyAreaName(s16 arg0) {
 
     src = (u8*)func_800A40F0(arg0);
     term = 0xFF;
-    base = (u8*)D_8009D288;
+    base = Savemap.memory_bank_1;
     dst = base + 0x368;
     end = base + 0x380;
     do {
@@ -3387,9 +3385,9 @@ static void CopyAreaName(s16 arg0) {
     } while (c != term && (s32)dst < (s32)end);
 }
 
-static void func_800B7B1C(u8 arg0) { D_8009D684 = arg0; }
+static void func_800B7B1C(u8 arg0) { Savemap.memory_bank_4[0xFC] = arg0; }
 
-static s32 func_800B7B2C(void) { return D_8009D684; }
+static s32 func_800B7B2C(void) { return Savemap.memory_bank_4[0xFC]; }
 
 static s32 func_800B7B3C(void) { return (g_BattleMode >> 3) & 1; }
 
@@ -3416,7 +3414,7 @@ static u8 func_800B7BA0(void) { return D_80062F1B >> 7; }
 
 static u8 func_800B7BB0(void) { return D_80062F1A; }
 
-static u8 func_800B7BC0(void) { return D_8009D40D & 1; }
+static u8 func_800B7BC0(void) { return Savemap.memory_bank_2[0x85] & 1; }
 
 static s32 func_800B7BD0(void) { return 1; }
 
@@ -3425,7 +3423,7 @@ static s32 func_800B7BD8(void) {
     s32 var_v1;
 
     for (var_a0 = 0, var_v1 = 0; var_v1 < 3; var_v1++)
-        var_a0 += D_8009CBDC[var_v1] != 0xFF;
+        var_a0 += Savemap.partyID[var_v1] != 0xFF;
     return (var_a0 < 2) ^ 1;
 }
 
@@ -3456,12 +3454,12 @@ static void func_800B832C(void) {
     s32 temp_v0_2;
 
     temp_a0 = WmGetWmId();
-    if ((D_8009AC2F == 0) && (temp_a0 != 2) && (func_800B2FD0() == 0) && (func_800A21A4() != 0)) {
+    if (g_FieldState.battlesDisabled == 0 && temp_a0 != 2 && !func_800B2FD0() && func_800A21A4()) {
         temp_s0 = func_800A9AD0();
         WmGetPosFromPcEntity(&sp10);
         WmGetPos2FromPcEntity(&sp20);
-        if ((WmIsPcEntityModelInMask(0x47) != 0) && (D_80116280 != 0)) {
-            if ((temp_s0 == 0) && ((sp10.vx != sp20.vx) || (sp10.vz != sp20.vz))) {
+        if (WmIsPcEntityModelInMask(0x47) && D_80116280) {
+            if ((temp_s0 == 0) && (sp10.vx != sp20.vx || sp10.vz != sp20.vz)) {
                 if ((D_8011627C == 8) || (D_8011627C == 0x10))
                     func_800262D8();
                 temp_v0 = D_8011627C < 0x10;
@@ -3482,7 +3480,7 @@ static void func_800B832C(void) {
 
 // type?
 static void WmDialogsInit(FieldScriptHeader* fieldScripts) {
-    D_8008326C[0] = 0xFF;
+    g_WindowToEntity[0] = 0xFF;
     g_CurrentEntity = 0xFF;
     g_FieldScripts = fieldScripts;
     fieldScripts->stringOffset = 8;

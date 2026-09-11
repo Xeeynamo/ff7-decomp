@@ -152,7 +152,9 @@ typedef struct {
     u8* unk0;
     u8 pad04[0x52];
     u16 unk56;
-    u8 pad58[0xB0];
+    u8 pad58[0x88];
+    s32 voiceAttrMask;
+    u8 padE4[0x24];
 } Unk80096608; // size 0x108
 
 extern void (*D_80049548[])(Unk8002B7E0*);
@@ -186,6 +188,9 @@ extern s32 g_AkaoCdVolSlideStep;
 extern u16 D_80062FB8;
 extern u16 g_AkaoCdVolSlideSteps;
 extern s32 g_AkaoCdVol;
+// High half of g_AkaoCdVol, which is 16.16 fixed point: the integer volume the
+// SPU wants. PSYQ loads it as a halfword at the folded address, so it stays a
+// symbol of its own rather than a shift of g_AkaoCdVol.
 extern u16 D_80062FD6;
 extern s32 D_80062FE0;
 extern s32 g_AkaoPitchMulMusic;
@@ -219,10 +224,8 @@ extern s32 D_80083394;
 extern u16 D_800833DE;
 extern s32 D_80083580[];
 extern Unk80096608 D_80096608[];
-extern Unk80096608 D_800966E8[];
 extern s32 D_80097768;
 extern s32 D_80097870;
-extern Unk80096608 D_80099868[];
 extern Unk80099788 D_80099788[];
 extern u16 D_80099E0C;
 extern s32 D_80099FCC[];
@@ -1015,7 +1018,7 @@ void func_80030148();
 // Restore counterpart: moves the stored channels_1 mask back to active,
 // resetting SPU attributes along the way.
 void Akao9AFlushPendingMusicUpdates(void) {
-    u8* voiceAttr;
+    Unk80096608* voice;
     s32 savedMask;
     unsigned int stillPending;
     s32 bit;
@@ -1024,14 +1027,14 @@ void Akao9AFlushPendingMusicUpdates(void) {
     pendingBits = g_AkaoMusicActiveMaskStored;
     if (pendingBits != 0) {
         bit = 1;
-        voiceAttr = (u8*)D_800966E8;
+        voice = D_80096608;
         do {
             if (pendingBits & bit) {
                 pendingBits ^= bit;
-                *(s32*)voiceAttr |= SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
+                voice->voiceAttrMask |= SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
             }
             bit *= 2;
-            voiceAttr += sizeof(Unk80096608);
+            voice++;
         } while (stillPending = pendingBits != 0);
         savedMask = g_AkaoMusicActiveMaskStored;
         g_AkaoMusicActiveMaskStored = 0;
@@ -1080,17 +1083,17 @@ void Akao9DApplyPendingSoundUpdates(void) {
 
 // channels_3 counterpart to Akao9AFlushPendingMusicUpdates.
 void Akao9CFlushPendingSoundUpdates(void) {
-    u8* voiceAttr;
+    Unk80099788Half* half;
     s32 savedMask;
     s32 bit;
     s32 pendingBits;
 
     pendingBits = g_AkaoSoundActiveMaskStored;
     if (pendingBits != 0) {
-        for (bit = 0x10000, voiceAttr = (u8*)D_80099868; pendingBits != 0; bit *= 2, voiceAttr += 0x108) {
+        for (bit = 0x10000, half = &D_80099788[0].half0; pendingBits != 0; bit *= 2, half++) {
             if (pendingBits & bit) {
                 pendingBits ^= bit;
-                *(s32*)voiceAttr |= SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
+                half->unkE0 |= SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
             }
         }
         savedMask = g_AkaoSoundActiveMaskStored;

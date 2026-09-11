@@ -253,8 +253,8 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawMainMenu);
 // double-buffer flip (activate the finished buffer for scanout, point drawing
 // at the other one).
 static void func_80024A04(void) {
-    PutDispEnv(D_8007075C);
-    PutDrawEnv(&D_80070700);
+    PutDispEnv(&D_8007075C[0]);
+    PutDrawEnv(&D_800706A4[1]);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuShow);
@@ -339,7 +339,7 @@ static void func_80025008(void) {
 }
 
 // MENU event 0x18: snapshot each present party member's level into
-// D_8009D44C[]. The endgame battle AI (Jenova-SYNTHESIS) counts how many of
+// Savemap.memory_bank_2+0xC4. The endgame battle AI (Jenova-SYNTHESIS) counts how many of
 // these are 99 to scale Safer-Sephiroth's HP.
 
 #ifndef NON_MATCHINGS
@@ -348,9 +348,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SnapshotPartyLevels);
 void SnapshotPartyLevels(void) {
     s32 i;
     u16* present;
-    for (i = 0, present = &D_8009D78A; i < 8; i++) {
+    for (i = 0, present = &Savemap.phs_visibility_mask; i < 8; i++) {
         if ((*present >> D_80049500[i]) & 1) {
-            D_8009D44C[i] = Savemap.party[D_80049500[i]].level;
+            Savemap.memory_bank_2[0xC4 + i] = Savemap.party[D_80049500[i]].level;
         }
     }
 }
@@ -425,11 +425,11 @@ u8* GetPartySlotArmorMateriaSlots(s32 arg0) {
     u8 temp_v1;
     u8* var_v0;
 
-    temp_v1 = D_8009CBDC[arg0];
+    temp_v1 = Savemap.partyID[arg0];
     var_v0 = (u8*)0xFF;
     if (temp_v1 != 0xFF) {
         u32 idx = g_BattleCharIdToCharId[temp_v1];
-        var_v0 = g_ArmorTable[D_8009C755[idx * 0x84]].materiaSlot;
+        var_v0 = g_ArmorTable[Savemap.party[idx].armor].materiaSlot;
     }
     return var_v0;
 }
@@ -442,14 +442,11 @@ static void* GetPartySlotWeaponMateriaSlots(s32 arg0) {
     u8 temp_v1;
     void* var_v0;
 
-    temp_v1 = D_8009CBDC[arg0];
+    temp_v1 = Savemap.partyID[arg0];
     var_v0 = (void*)0xFF;
     if (temp_v1 != 0xFF) {
         u32 idx = g_BattleCharIdToCharId[temp_v1];
-        // SMELL: raw 0x84 char-record stride math; wants a CharacterRecord
-        // struct (equippedWeapon at +0xC) ->
-        // g_CharacterRecords[idx].equippedWeapon
-        var_v0 = g_WeaponTable[D_8009C754[idx * 0x84]].materiaSlot;
+        var_v0 = g_WeaponTable[Savemap.party[idx].weapon].materiaSlot;
     }
     return var_v0;
 }

@@ -58,30 +58,19 @@ void FieldDebugStringConcat(char* arg0, const char* arg1);
 // Begin of field_main.c
 /////////////////////////////////////////////////
 
-typedef struct {
-    u32 datSector; // +0x00
-    u32 datSize;   // +0x04
-    u32 mimSector; // +0x08
-    u32 mimSize;   // +0x0C
-    u32 bsxSector; // +0x10
-    u32 bsxSize;   // +0x14
-} FieldFileInfo;
-
-extern FieldFileInfo g_FieldFileInfo[];
-extern void SystemLzsDecompress(u8* dst, u8* src);
+extern u32 g_FieldFileInfo[];
 extern s32* g_FieldModelsP;
 extern s32 g_FieldTriggers;
 extern s32 g_FieldEncounters;
 extern s16 g_CurrentFieldIndex;
 extern s32* g_FieldTriggersP;
 extern s32* g_FieldEncountersP;
-extern u32 g_FieldLzsInfo[];
 
 static void FieldLoadMimDatFiles(void) {
     s32* temp;
 
     if (g_isFieldLoading == 0) {
-        SysCdromStartLoadLzs(g_FieldLzsInfo[g_CurrentFieldIndex * 6], g_FieldLzsInfo[g_CurrentFieldIndex * 6 + 1],
+        SysCdromStartLoadLzs(g_FieldFileInfo[g_CurrentFieldIndex * 6 + 2], g_FieldFileInfo[g_CurrentFieldIndex * 6 + 3],
                              (u_long*)0x80128000, NULL);
         while (SystemCdromReadChain() != 0) {
         }
@@ -90,15 +79,15 @@ static void FieldLoadMimDatFiles(void) {
         }
         SystemLzsDecompress((u8*)0x801B0000, (u8*)0x80128000);
     }
-    SysCdromStartLoadLzs(((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6],
-                         ((u32*)g_FieldFileInfo)[g_CurrentFieldIndex * 6 + 1], (u_long*)0x80114FE4, NULL);
+    SysCdromStartLoadLzs(g_FieldFileInfo[g_CurrentFieldIndex * 6 + 0], g_FieldFileInfo[g_CurrentFieldIndex * 6 + 1],
+                         (u_long*)0x80114FE4, NULL);
     while (SystemCdromReadChain() != 0) {
     }
     g_FieldTriggers = *g_FieldTriggersP;
     g_FieldEncounters = *g_FieldEncountersP;
     temp = *g_FieldModelsP;
-    D_8007E770 = (FieldModelLoaderHeader*)temp;
-    g_FieldModelLoaderData = (FieldModelLoaderData*)++temp;
+    D_8007E770 = (FieldModelLoaderHeader*)temp++;
+    g_FieldModelLoaderData = (FieldModelLoaderData*)temp++;
 }
 
 static void StopFieldMapPreload(void) {
@@ -109,7 +98,6 @@ static void StopFieldMapPreload(void) {
     g_isFieldLoading = 0;
 }
 
-extern FieldFileInfo g_FieldFileTable[];
 extern u16 g_FieldMoviePlayed;
 extern u16 g_FieldPreloadMapId;
 extern s32 g_WmPreSector;
@@ -180,8 +168,8 @@ void PreloadNextFieldMap(FieldEntity* Player, FieldLine* gateway) {
         return;
     }
 
-    table = g_FieldFileTable;
-    if (0x4DFFF < table[g_FieldPreloadMapId].datSize) {
+    table = g_FieldFileInfo;
+    if (0x4DFFF < table[g_FieldPreloadMapId].mimSize) {
         return;
     }
 
@@ -189,8 +177,8 @@ void PreloadNextFieldMap(FieldEntity* Player, FieldLine* gateway) {
     D_80071A5C = g_FieldPreloadMapId;
 
     if (D_80071A5C >= 0x41) {
-        sector = table[D_80071A5C].datSector;
-        size = table[D_80071A5C].datSize;
+        sector = table[D_80071A5C].mimSector;
+        size = table[D_80071A5C].mimSize;
     } else {
         sector = g_WmPreSector;
         size = g_WmPreSize;
@@ -369,7 +357,6 @@ struct FieldRain {
 
 extern struct FieldRain g_FieldRain[64];
 extern u8 g_RainForce;
-extern s16 D_800E42EE[0x40][12];
 
 static void FieldRainInit(struct FieldRenderData* renderData) {
     LINE_F2* line;
@@ -405,8 +392,7 @@ static void FieldRainAddToRender(u32* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE
     SetTransMatrix(matrix);
 
     for (i = 0, j = 0; i < LEN(g_FieldRain); i++) {
-        // 12 * sizeof(s16) = 24 bytes (0x18), the exact size of FieldRain
-        if (D_800E42EE[i][0] == 1) {
+        if (g_FieldRain[i].render == 1) {
             RotTransPers(&g_FieldRain[i].p1, (long*)&rain->x0, &p, &flag);
             RotTransPers(&g_FieldRain[i].p2, (long*)&rain->x1, &p, &flag);
             AddPrim(ot, rain);

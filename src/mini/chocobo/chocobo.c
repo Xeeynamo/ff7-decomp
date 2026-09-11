@@ -11,10 +11,6 @@ typedef struct {
 
 extern UnkRectData D_800A0020;
 extern UnkRectData D_800A0028;
-extern u_long D_80079F64;
-extern u_long D_8007AF64;
-extern u_long D_8007BF64;
-extern u_long D_8007C764;
 extern s32 D_800B7598;
 extern s32 D_800F507C;
 extern s32* D_800F5084;
@@ -116,19 +112,19 @@ static void func_800A272C(s32 arg0, s32 arg1) {
 }
 
 static void func_800A28D8(void) {
-    SysCdromStartLoadLzs(0x4C9, 0x1000U, &D_80079F64, NULL);
+    SysCdromStartLoadLzs(0x4C9, 0x1000U, (u_long*)&D_80077F64[0][0x2000], NULL);
     do {
 
     } while (SystemCdromReadChain() != 0);
-    SysCdromStartLoadLzs(0x4CA, 0x1000U, &D_8007AF64, NULL);
+    SysCdromStartLoadLzs(0x4CA, 0x1000U, (u_long*)&D_80077F64[0][0x3000], NULL);
     do {
 
     } while (SystemCdromReadChain() != 0);
-    SysCdromStartLoadLzs(0x4C8, 0x800U, &D_8007BF64, NULL);
+    SysCdromStartLoadLzs(0x4C8, 0x800U, (u_long*)&D_80077F64[1][0xC00], NULL);
     do {
 
     } while (SystemCdromReadChain() != 0);
-    SysCdromStartLoadLzs(0x4C7, 0x800U, &D_8007C764, NULL);
+    SysCdromStartLoadLzs(0x4C7, 0x800U, (u_long*)&D_80077F64[1][0x1400], NULL);
     do {
 
     } while (SystemCdromReadChain() != 0);

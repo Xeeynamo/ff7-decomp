@@ -2411,7 +2411,7 @@ s32 OpcodeFuncDskcg(void) {
     switch (g_pFieldState->eventCmd) {
     case EVTCMD_NONE:
         g_pFieldState->eventCmd = EVTCMD_CD_CHANGE;
-        D_8009D588 = GET_PARAM_U8(1);
+        Savemap.memory_bank_4[0] = GET_PARAM_U8(1);
         return 1;
     case EVTCMD_CD_CHANGE:
         if (g_pFieldState->movieCommandState == MOVCMD_DONE) {

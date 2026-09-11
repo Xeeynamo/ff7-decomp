@@ -14,8 +14,10 @@ typedef struct {
 } Unk800BB67C;
 
 typedef struct {
-    u16 unk0;
-    u8 pad[0x43E];
+    /* 0x000 */ u16 unk0;
+    /* 0x002 */ u8 pad[0x90];
+    /* 0x092 */ u8 unk92[0x5C];
+    /* 0x0EE */ u8 effects[0x352];
 } Unk8009D866; // 0x440
 
 typedef struct {
@@ -237,20 +239,7 @@ typedef struct {
     s32 unk8;
 } Unk800F57D0;
 
-typedef struct {
-    /* 0x00 */ s32 D_800F83E4;
-    /* 0x04 */ u8 unk4[0x64];
-} Unk800F83E4; // size:0x68
-
-extern u8 D_800708C8[];       // kernel-region table, 0x1C-byte rows, indexed by
-                              // attack/effect id
-extern u8 D_800708D0[][0x1C]; // kernel-region table, indexed by
-                              // attack/effect id
-extern s16 D_8009D85C[];      // record fields, stride 0x440
-extern s16 D_8009D85E[];
 extern Unk8009D866 D_8009D866[];
-extern u8 D_8009D954[]; // per-actor sub-table, 0x440 stride, 8-byte rows keyed
-                        // by effect id
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
@@ -382,15 +371,10 @@ extern u8* D_800F8390[3];
 extern s32* D_800F839C; // CD offset?
 extern u8 D_800F83A4[]; // shared battle-script variable bank (func_800B13B0)
 extern u8 D_800F83A6;
-extern Unk800F83E4 D_800F83E4[];
-extern s32 D_800F8408;
 extern u8 D_800F87F0[]; // per-combatant battle-script variable bank, 0x80 B
                         // each (func_800B13B0)
 extern s8 D_800F8CF0;
 extern u32 D_800F8CF4[][0x18];
-extern MenuTable D_800F9132;
-extern s32 D_800F9144;
-extern s8 D_800F914E;
 extern s32 D_800F9F28[]; // size is either 4 or 5
 extern u8 D_800F9F34;
 typedef struct {
@@ -451,7 +435,6 @@ typedef struct {
 } Unk800FA9D0; // size:0xC
 
 extern Unk800FA9D0 D_800FA9D0[0x80];
-extern s8 D_800FA9E8;
 extern u8 D_800FAFDC;
 extern s16 D_800FAFD4;
 extern s32 D_800FAFEC;
@@ -619,8 +602,19 @@ typedef struct {
     /* 0xF */ u8 unkF;
     /* 0x10 */ u8 unk10;
     /* 0x11 */ u8 unk11;
-    /* 0x12 */ u8 unk12[0x22E];
-} BattleMenuWidget; /* size: 0x240 */
+} BattleMenuWidget; /* size: 0x12 */
+
+/* The 0x240-byte battle menu record, one per widget id. The widget fields
+   above are reached at +0x12; PSYQ bases them on that folded address, so they
+   are cast from here rather than declared at the record start. */
+typedef struct {
+    /* 0x00 */ u8 unk00[0x12];
+    /* 0x12 */ BattleMenuWidget widget;
+    /* 0x24 */ u8 unk24[0x5A];
+    /* 0x7E */ MenuTable table7E;
+    /* 0x90 */ MenuTable table90;
+    /* 0xA2 */ u8 unkA2[0x19E];
+} BattleMenuSlot; /* size: 0x240 */
 
 /* State of the battle-script VM interpreted by func_800B1D48. Operands are
    fetched from the script buffer D_800F4AC0 at `pc` and evaluated on `stack`,
@@ -675,7 +669,7 @@ extern u8 D_800F5630;
 extern u16 D_800F5634;
 extern u8 D_800F5638;
 extern u8 D_800F563C;
-extern BattleMenuWidget D_800F90C6[];
+extern BattleMenuSlot D_800F90B4[];
 extern u8 D_80151698;
 extern u8 D_80166F74;
 extern u8 D_80166F75;

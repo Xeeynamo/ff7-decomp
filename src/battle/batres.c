@@ -32,10 +32,7 @@ extern StatGrowth D_80082484[][8];
 extern s32 D_8009D7D8;
 extern s32 D_8009D7DC;
 extern s32 D_8009D7E0;
-extern u8 D_8009D7ED[][12];
-extern s16 D_8009D7EE[][6]; // same 12-byte record as D_8009D7ED
-extern u8 D_8009D58A[];     // gil, stored unaligned, so it is copied a byte at a time
-extern u16 D_800F7DD2;
+extern u8 D_8009D58A[]; // gil, stored unaligned, so it is copied a byte at a time
 extern u8 D_80163790[]; // the char_id occupying each of the three party slots
 extern SavePartyMember D_80167938;
 
@@ -68,7 +65,7 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
         hp = g_BattleState.combatant[slot].curHP;
         mp = (u16)g_BattleState.combatant[slot].unk28;
         id = D_80163790[slot];
-        if ((D_800F7DD2 >> slot) & 1) {
+        if ((D_800F5F44.reviveMask >> slot) & 1) {
             hp = hpOverride;
             mp = mpOverride;
         }
@@ -170,11 +167,11 @@ static void ResetBattleResults(void) {
         g_BattleItemsEarned[i].enabled = 0;
     }
     for (i = 0; i < NUM_PARTY; i++) {
-        D_8009D7EE[i][0] = 0;
-        D_8009D7ED[i][0] = 0;
+        g_CharacterLevelData[i].newLimitBreaks = 0;
+        g_CharacterLevelData[i].level = 0;
     }
     for (i = 0; i < NUM_PARTY; i++) {
-        if (D_8009CBDC[i] == 0xFF) {
+        if (Savemap.partyID[i] == 0xFF) {
             mask |= 1 << i;
         }
     }
