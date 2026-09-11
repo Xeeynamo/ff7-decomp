@@ -196,3 +196,17 @@ D_80163798 = 0x80163798; // size:0x300
 g_BattleMovementCallbacks = 0x80163B48; // size:0x28
 g_BattleMovementCount = 0x80163B7C; // size:0x4
 D_80163C80 = 0x80163C80; // size:0xC
+
+
+BattleNormalStartSeq = 0x800B30E4;
+BattleNextStartSeq = 0x800B33A4;
+BattleEnemyPlayInitAnims = 0x800B36B4;
+BattleLoadFirstEnemy = 0x800B38E0;
+BattleLoadEnemyFinish = 0x800B3934;
+BattleLoadThirdEnemy = 0x800B3968;
+BattleLoadSecondEnemy = 0x800B3A04;
+BattleLoadSecondPlayer = 0x800B3AB8;
+BattleLoadThirdPlayer = 0x800B3B84;
+BattleLoadPlayerFinish = 0x800B3C50;
+BattleLoadFirstPlayer = 0x800B3CD0;
+BattleLoadSeffects = 0x800B3D38;

@@ -5,8 +5,8 @@
 
 static void func_800B37A0(void);
 static void func_800B37EC(void);
-static void func_800B38E0(void);
-static void func_800B3D38(void);
+static void BattleLoadFirstEnemy(void);
+static void BattleLoadSeffects(void);
 static void func_800B3D88(void);
 static void func_800B3DBC(void);
 static void func_800B3E2C(void);
@@ -41,10 +41,10 @@ static void func_800C614C(u_long* arg0, s32 arg1);
 static void func_800C627C(void);
 void func_800C62F4(s32);
 static void func_800BC81C(s16 arg0, s16 arg1);
-static void func_800B3A04(void);
+static void BattleLoadSecondEnemy(void);
 static void func_800B950C(void);
 
-void func_800B30E4(void) {
+void BattleNormalStartSeq(void) {
     s32 i;
 
     g_cDb = &g_db;
@@ -72,14 +72,14 @@ void func_800B30E4(void) {
         switch (D_80163C7C) {
         case 0:
             D_801635FC = 0x3D;
-            func_800B38E0();
+            BattleLoadFirstEnemy();
             func_800B7FDC();
             D_80163C7C = 1;
             break;
         case 1:
             func_800B7FDC();
             if (D_800F7DF4 == (u8)D_80166F64 && D_801518DC == 0) {
-                func_800B3D38();
+                BattleLoadSeffects();
                 func_800B5138();
                 D_80163C7C = 6;
             }
@@ -115,9 +115,9 @@ void func_800B30E4(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B33A4);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleNextStartSeq);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B36B4);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEnemyPlayInitAnims);
 
 // one-shot setup call centered on the 320x240 screen
 static void func_800B37A0(void) {
@@ -136,25 +136,25 @@ static void func_800B37EC(void) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B383C);
 
 // load stage entry i (D_800F7DF8[0]) into VRAM staging via SysCdromStartLoadLzs
-static void func_800B38E0(void) {
+static void BattleLoadFirstEnemy(void) {
     s32 i = D_800F7DF8[0];
 
-    SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, &func_800B3A04);
+    SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, &BattleLoadSecondEnemy);
     func_800B7FB4();
 }
 
-static void func_800B3934(void) {
+static void BattleLoadEnemyFinish(void) {
     func_800B5D38(2);
     func_800B5CD4(2);
     D_80166F64 = 3;
 }
 
-// third link of the stage-load chain (func_800B38E0 -> func_800B3A04 ->
-// here -> func_800B3934): unpack the part just read into the staging buffer,
+// third link of the stage-load chain (BattleLoadFirstEnemy -> BattleLoadSecondEnemy ->
+// here -> BattleLoadEnemyFinish): unpack the part just read into the staging buffer,
 // record where the next part lands (D_800F8390[n+1] = D_800F8390[n] + size),
-// advance the D_80166F64 phase counter func_800B30E4 waits on, and queue the
+// advance the D_80166F64 phase counter BattleNormalStartSeq waits on, and queue the
 // next part's read only while entries remain (D_800F7DF4 is the entry count)
-static void func_800B3968(void) {
+static void BattleLoadThirdEnemy(void) {
     s32 size;
     s32 i;
 
@@ -164,14 +164,14 @@ static void func_800B3968(void) {
     D_800F8390[2] = size + D_800F8390[1];
     if (D_800F7DF4 >= 3U) {
         i = D_800F7DF8[2];
-        SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, func_800B3934);
+        SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, BattleLoadEnemyFinish);
         func_800B7FB4();
     }
 }
 
 // second link of the chain: unpack part 0 out of the staging buffer, then
 // queue part 1's read
-static void func_800B3A04(void) {
+static void BattleLoadSecondEnemy(void) {
     s32 size;
     s32 i;
 
@@ -182,16 +182,16 @@ static void func_800B3A04(void) {
     D_800F8390[1] = size + D_800F8390[0];
     if (D_800F7DF4 >= 2U) {
         i = D_800F7DF8[1];
-        SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, func_800B3968);
+        SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, BattleLoadThirdEnemy);
         func_800B7FB4();
     }
 }
 
-static void func_800B3AB8(void);
+static void BattleLoadSecondPlayer(void);
 void func_800B5C1C(s16);
 void func_800B5E64(s16);
-void func_800B3B84(void);
-static void func_800B3AB8(void) {
+void BattleLoadThirdPlayer(void);
+static void BattleLoadSecondPlayer(void) {
     s16* s0;
     u8** dst;
     s16 v1;
@@ -205,39 +205,39 @@ static void func_800B3AB8(void) {
     func_800B5C1C(*s0);
     cmp = D_800FA9C8;
     if (cmp != 0xC8) {
-        SysCdromStartLoadLzs(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len, (u_long*)0x801B0000, func_800B3B84);
+        SysCdromStartLoadLzs(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len, (u_long*)0x801B0000, BattleLoadThirdPlayer);
         func_800B7FB4();
         return;
     }
     D_80166F64 = 3;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3B84);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadThirdPlayer);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3C50);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadPlayerFinish);
 
-static void func_800B3CD0(void) {
+static void BattleLoadFirstPlayer(void) {
     Yamada* y;
     u_long* dst;
 
     dst = (u_long*)0x801B0000;
     func_800D2980(dst, 0, 0, 0);
     y = &D_800E8068[D_800FA9C4];
-    SysCdromStartLoadLzs(y->loc, *&D_800E8068[D_800FA9C4].len, dst, func_800B3AB8);
+    SysCdromStartLoadLzs(y->loc, *&D_800E8068[D_800FA9C4].len, dst, BattleLoadSecondPlayer);
     func_800B7FB4();
 }
 
-static void func_800B3D38(void) {
+static void BattleLoadSeffects(void) {
     func_800C5E94();
     D_800F839C = D_800EA50C;
-    SysCdromStartLoadLzs(LBA_ENEMY6_SEFFECT, 0xA800, (u_long*)0x801B0000, func_800B3CD0);
+    SysCdromStartLoadLzs(LBA_ENEMY6_SEFFECT, 0xA800, (u_long*)0x801B0000, BattleLoadFirstPlayer);
     func_800B7FB4();
 }
 
 static void func_800B3D88(void) {
     func_800B588C();
     func_800B6B98(4, 10);
-    func_800B36B4();
+    BattleEnemyPlayInitAnims();
 }
 
 static void func_800B3DBC(void) {
