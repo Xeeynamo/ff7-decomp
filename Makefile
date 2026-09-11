@@ -4,19 +4,22 @@ OVL_US += BATTLE/BATTLE.X
 OVL_US += BATTLE/BROM.X
 OVL_US += FIELD/FIELD.BIN
 OVL_US += MINI/CHOCOBO.BIN
+OVL_US += MINI/JET.BIN
 OVL_US += WORLD/WORLD.BIN
+
+# Expected .dec files based on OVL_US
+DEC_FILES = $(patsubst %,disks/us/%.dec,$(OVL_US))
 
 .PHONY: all
 all: disks build
 
 .PHONY: build
-build: bin/cc1-psx-26 bin/cc1-psx-272 bin/str disks/us/FIELD/FIELD.BIN.dec
+build: bin/cc1-psx-26 bin/cc1-psx-272 bin/str $(DEC_FILES)
 	@./mako.sh build
 
-disks/us/FIELD/FIELD.BIN.dec:
-	@for f in $(OVL_US); do \
-		tail --bytes=+9 "disks/us/$$f" | gzip -cd > "disks/us/$$f.dec"; \
-	done
+# If file is in OVL_US list and not decompressed, then decompress. 
+disks/us/%.dec: disks/us/%
+	tail --bytes=+9 "$<" | gzip -cd > "$@"
 
 .PHONY: disks
 disks: disks/us
