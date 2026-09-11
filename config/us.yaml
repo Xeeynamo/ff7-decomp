@@ -178,14 +178,20 @@ overlays:
     vram_start: 0x800A0000
     segments:
       - [0x0, .rodata, field]
+      - [0xA4, .rodata, field_entity]
+      - [0xDC, .rodata, field3]
       - [0x13C, .rodata, field_event]
       - [0x1D4, .rodata, field_opcodes]
       - [0xFF8, .rodata, field2]
       - [0x1368, c, field]
+      - [0x5FB4, c, field_entity]
+      - [0xA930, c, field3]
       - [0x1A534, c, field_event]
       - [0x1C9FC, c, field_opcodes]
       - [0x34838, c, field2]
       - [0x3A5B8, data]
+      - [0x3EF88, .data, field_entity]
+      - [0x3F08C, data]
   - name: bginmenu
     disk_path: disks/us/MENU/BGINMENU.MNU
     sha1: af17d71fa4738e53ec50df5d15d992a355500223

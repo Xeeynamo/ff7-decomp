@@ -683,6 +683,69 @@ typedef struct {
     Unk80062F7CMateriaAttribute materiaAttributes[5];
 } Unk80062F7C;
 
+typedef enum {
+    CAMRAIL_NONE = 0,
+    CAMRAIL_TL_BR = 1,
+    CAMRAIL_BL_TR = 2,
+} FieldCameraRailModes;
+
+typedef struct {
+    s16 left;
+    s16 top;
+    s16 right;
+    s16 bottom;
+} FieldCameraRange;
+
+typedef struct {
+    /* 0x00 */ LinePos pos;
+    /* 0x0C */ DVECTOR destFieldPos;
+    /* 0x10 */ s16 pcWalkMeshTriangleId;
+    /* 0x12 */ u16 fieldId;
+    /* 0x14 */ u8 pcDirection;
+    /* 0x15 */ u8 unk15[3];
+} FieldGateway; // size: 0x18
+
+typedef struct {
+    /* 0x00 */ LinePos pos;
+    /* 0x0C */ u8 backgroundGroupId;
+    /* 0x0D */ u8 backgroundFrameId;
+    /* 0x0E */ u8 behaviour;
+    /* 0x0F */ u8 soundId; // Index into the trigger sound table.
+} FieldBgTrigger; // size: 0x10
+
+typedef struct {
+    s32 x;
+    s32 z;
+    s32 y;
+    s32 type;
+} FieldArrow; // size: 0x10
+
+typedef struct {
+    /* 0x000 */ char name[9];
+    /* 0x009 */ u8 controlDirection;
+    /* 0x00A */ s16 viewOffset;
+    /* 0x00C */ FieldCameraRange cameraRange;
+    /* 0x014 */ u8 cameraRailMode; // FieldCameraRailModes
+    /* 0x015 */ u8 unk15[3];
+    /* 0x018 */ s16 layer2AnimWidth;
+    /* 0x01A */ s16 layer2AnimHeight;
+    /* 0x01C */ s16 layer3AnimWidth;
+    /* 0x01E */ s16 layer3AnimHeight;
+    /* 0x020 */ s16 layer2ScrollPhaseX;
+    /* 0x022 */ s16 layer2ScrollPhaseY;
+    /* 0x024 */ s16 layer3ScrollPhaseX;
+    /* 0x026 */ s16 layer3ScrollPhaseY;
+    /* 0x028 */ s16 layer2ParallaxFactorX;
+    /* 0x02A */ s16 layer2ParallaxFactorY;
+    /* 0x02C */ s16 layer3ParallaxFactorX;
+    /* 0x02E */ s16 layer3ParallaxFactorY;
+    /* 0x030 */ u8 unk30[8];
+    /* 0x038 */ FieldGateway gateways[12];
+    /* 0x158 */ FieldBgTrigger triggers[12];
+    /* 0x218 */ u8 showArrow[12];
+    /* 0x224 */ FieldArrow arrows[12];
+} FieldTriggers; // size: 0x2E4
+
 typedef struct {
     /* 0x00 */ LinePos pos;
     /* 0x0C */ u8 isActive;
