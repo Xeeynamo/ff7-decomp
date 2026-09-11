@@ -2075,7 +2075,7 @@ void BattleLowerFunc00(void) { g_CurrentAction->unk218 |= 2; }
 void BattleSetTmpDmgAsPhysical();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleSetTmpDmgAsPhysical);
 
-void func_800ADBBC(void) {
+void BattleSetTmpDmgAsMagical(void) {
     s32 temp_s0;
     s32 var_v1;
     s32 base;
@@ -2093,12 +2093,12 @@ void func_800ADBBC(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADC70);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADD2C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleLowerFunc04);
 
 static s32 BattleAddSplitQuaterModifier(s32, s32);
 static s32 BattleAddBarriersModifier(s32);
 
-void func_800ADDE8(void) {
+void BattleLowerFunc05(void) {
     s32 base = g_CurrentAction->unk4C + g_CurrentAction->characterLevel;
     s32 term1 = base * 3;
     s32 term2 = g_CurrentAction->unk48 * 0xB;
@@ -2107,15 +2107,15 @@ void func_800ADDE8(void) {
         BattleAddRndModifierAndZeroCheck(BattleAddBarriersModifier(BattleAddSplitQuaterModifier(damage, 0)));
 }
 
-void func_800ADE5C(void) { g_CurrentAction->unk214 = g_CurrentAction->unk48 * 20; }
+void BattleLowerFunc06(void) { g_CurrentAction->unk214 = g_CurrentAction->unk48 * 20; }
 
 // Item attack damage formula.
-void func_800ADE84(void) {
+void BattleLowerFunc07(void) {
     s32 value = g_CurrentAction->unk48 * (0x200 - g_CurrentAction->unk210);
     g_CurrentAction->unk214 = BattleAddRndModifierAndZeroCheck(value / 32);
 }
 
-void func_800ADED8(void) {
+void BattleLowerFunc08(void) {
     if (g_CurrentAction->unk230 & 0x40) {
         g_CurrentAction->unk230 = 1;
     } else {
@@ -2123,12 +2123,12 @@ void func_800ADED8(void) {
     }
 }
 
-void func_800ADF04(void) {
+void BattleLowerFunc09(void) {
     g_CurrentAction->unk4C = g_CurrentAction->unkD8 * 2;
     BattleSetTmpDmgAsPhysical();
 }
 
-void func_800ADF38(void) {
+void BattleLowerFunc0a(void) {
     s32 divisor = SysCountActiveBits(g_CurrentAction->allowedTargetsMask);
     s32 result = 0;
     if (divisor != 0) {
@@ -2140,7 +2140,7 @@ void func_800ADF38(void) {
 // White Wind "damage" formula. Restores HP equal to caster's HP to all allies.
 void func_800ADFC0(void) { g_CurrentAction->unk214 = *(u16*)(&g_BattleWork.turn[g_CurrentAction->actorId].unk3C); }
 
-void func_800ADFF4(void) {
+void BattleSetTmpDmgAsMaxHpMinusCurrentHp(void) {
     s32 index = g_CurrentAction->actorId;
     g_CurrentAction->unk214 = g_BattleState.combatant[index].maxHP - g_BattleWork.turn[index].unk3C;
 }
@@ -2158,7 +2158,7 @@ void func_800AE070(void) {}
 void func_800AE078(void) {}
 
 // Cait Sith's Dice attack damage formula.
-void func_800AE080(void) {
+void BattleLowerFunc18(void) {
     s32 i;
     s32 j;
     s32 numDice;
@@ -2211,13 +2211,15 @@ void func_800AE080(void) {
 }
 
 // Chocobuckle attack damage formula.
-void func_800AE234(void) {
+void BattleSetTmpDmgAsNumOfEscapes(void) {
     g_CurrentAction->unk214 =
         Savemap.memory_bank_1[26] + Savemap.memory_bank_1[27] * 256; // Number of escapes from battles.
 }
 
 // Sephiroth's Heartless Angel attack damage formula.
-void func_800AE25C(void) { g_CurrentAction->unk214 = g_BattleState.combatant[g_CurrentAction->unk208].curHP - 1; }
+void BattleSetTmpDmgAsTargHpMinusOne(void) {
+    g_CurrentAction->unk214 = g_BattleState.combatant[g_CurrentAction->unk208].curHP - 1;
+}
 
 // Tonberry's Time Damage attack damage formula.
 void func_800AE2A0(void) {
