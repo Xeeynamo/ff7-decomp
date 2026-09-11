@@ -17,7 +17,7 @@ void BattleInitPlayer(void);
 void BattleInitEnemyUnits(void);
 
 // entrypoint
-void BATINI_Main(s32 sceneID) {
+void BatInitMain(s32 sceneID) {
     s32 mask;
     s32 i;
     s32* order;
