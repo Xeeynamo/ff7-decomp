@@ -225,3 +225,16 @@ BattleLoadEnemyModel = 0x800B5CD4;
 BattleLoadEnemyTexture = 0x800B5D38;
 BattleLoadPlayerTexture = 0x800B5E64;
 BattleInitModelsAnimAndColor = 0x800B6B98;
+
+BattleQueue1Execute = 0x800B6D6C;
+BattleQueue1InitPlayAnim = 0x800B7764;
+BattleQueue1ClearTargs = 0x800B798C;
+BattleQueue1AddNewTarg = 0x800B79F0;
+BattleQueue1UpdateTargMasks = 0x800B7DB4;
+BattleCdromReadChain = 0x800B7FB4;
+BattleUpdateRender = 0x800B7FDC;
+BattleUpdateModelMatrixesWithSelfAndParent = 0x800BACEC;
+BattleUpdateMatrixWithSelfAndParentAndSetToGte = 0x800BAF34;
+BattleUpdateMatrixWithScaleAndSetToGte = 0x800BAFF8;
+BattleModelUpdateAllBonesHeight = 0x800BB430;
+

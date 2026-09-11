@@ -285,7 +285,7 @@ static void func_800A32C0(s32 arg0) {
 
 void BattleRunFrame();
 void func_800155B0(void);
-void func_800B6D6C();
+void BattleQueue1Execute();
 void BattleRunFrame(void) {
     s32 i;
     s32 a;
@@ -304,7 +304,7 @@ void BattleRunFrame(void) {
             D_801636B8[a].D_801636B9 = g_BattleState.combatant[a].unk10;
         }
     }
-    func_800B6D6C();
+    BattleQueue1Execute();
     func_800A3278();
     for (i = START_ENEMY; i < NUM_BATTLE_ACTOR; i++) {
         D_801636B8[i].D_801636B9 = g_BattleState.combatant[i].unk10;
@@ -563,21 +563,21 @@ static s32 func_800A4A80(void) {
 
 void func_800A4ACC(s16 arg0, u16 arg1) { func_8001726C(arg0, arg1); }
 
-// opcode 0x14 handler (D_800E7B28[0x14]): spins on func_800B6D6C() until
+// opcode 0x14 handler (D_800E7B28[0x14]): spins on BattleQueue1Execute() until
 // status bit D_800F9DA4 & 2 clears. Not itself a damage dealer -- injecting
 // cmdIndex 0x23 (single-opcode sequence: just this one) produced ~3.1%
-// max-HP damage, but func_800B6D6C (still nonmatching, battle1 overlay) is
+// max-HP damage, but BattleQueue1Execute (still nonmatching, battle1 overlay) is
 // just a generic drainer for the D_80163798 event queue (HP-counter ticks,
 // status-icon show/hide, sound cues -- see its own comment in battle1.c),
-// gated one-per-frame on D_800F7DE4 which func_800B7FDC sets. So this
+// gated one-per-frame on D_800F7DE4 which BattleUpdateRender sets. So this
 // opcode is "wait for already-queued visual/counter effects to finish",
 // not the source of the damage -- whatever queues an HP-tick entry into
 // D_80163798 before this opcode runs is the real damage source, still
 // untraced
-void func_800B6D6C();
+void BattleQueue1Execute();
 void BattleActionType14(void) {
     while (D_800F9DA4 & 2) {
-        func_800B6D6C();
+        BattleQueue1Execute();
     }
 }
 

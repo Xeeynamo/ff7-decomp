@@ -558,7 +558,7 @@ void BattlePlayerModelsUpdateBonesPos(void);
 s32 BattleLoadEnemyModel(s32);
 void BattleLoadEnemyTexture(s32);
 void BattleInitModelsAnimAndColor(s32, s32);
-void func_800B7FB4(void);
+void BattleCdromReadChain(void);
 s16 func_800B888C(s32);
 void func_800B8438(void);
 void func_800B8A34(s16, s32);
