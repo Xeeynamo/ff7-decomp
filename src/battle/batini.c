@@ -96,7 +96,7 @@ void BATINI_Main(s32 sceneID) {
             BattleInitResetExtraCmds(i);
         }
     } else {
-        BATTLE_CheckAllLucky7s();
+        BattleCheckAllLucky7s();
     }
 
     if (g_BattleState.setupFlags & 4) {
@@ -166,7 +166,7 @@ static void BattleInitSetup(s32 sceneID) {
     if (g_BattleMultiInfo.isMultiBattle) {
         BattleInitPartyFromSavemap();
     }
-    BattleInitLoadSceneData(sceneID, BATTLE_RunFrame);
+    BattleInitLoadSceneData(sceneID, BattleRunFrame);
     BattleInitEnemyUnits();
     g_BattleState.presentMask = 0;
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
@@ -786,7 +786,7 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     sceneChunkID = sceneID / 4;
     scenePackID = BattleGetScenePackId(sceneChunkID);  // sector modified based on the Chunk ID
     SystemLoadFileBySector(                            // load file from disk
-        func_800144D8(BATTLE_SCENE) + scenePackID * 4, // Disk sector where to load the file from
+        func_800144D8(BATTTLE_SCENE) + scenePackID * 4, // Disk sector where to load the file from
         0x800 * 4,                                     // Size in bytes to copy
         (u_long*)scenePackBuffer,                      // Destination
         NULL);

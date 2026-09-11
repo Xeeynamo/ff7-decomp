@@ -818,21 +818,21 @@ static void func_800D1110(u8 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D1530);
 
-void BATTLE_EnqueueLoadImage(RECT* rect, u_long* ptr) {
+void BattleEnqueueLoadImage(RECT* rect, u_long* ptr) {
     D_800F01DC->method = QUEUE_LOAD_IMAGE;
     D_800F01DC->rect = rect;
     D_800F01DC->ptr = ptr;
     D_800F01DC++;
 }
 
-static void BATTLE_EnqueueStoreImage(RECT* rect, u_long* ptr) {
+static void BattleEnqueueStoreImage(RECT* rect, u_long* ptr) {
     D_800F01DC->method = QUEUE_STORE_IMAGE;
     D_800F01DC->rect = rect;
     D_800F01DC->ptr = ptr;
     D_800F01DC++;
 }
 
-static void BATTLE_EnqueueMoveImage(RECT* rect, s32 x, s32 y) {
+static void BattleEnqueueMoveImage(RECT* rect, s32 x, s32 y) {
     D_800F01DC->method = QUEUE_MOVE_IMAGE;
     D_800F01DC->rect = rect;
     D_800F01DC->x = x;
@@ -840,13 +840,13 @@ static void BATTLE_EnqueueMoveImage(RECT* rect, s32 x, s32 y) {
     D_800F01DC++;
 }
 
-static void BATTLE_EnqueueClearImage(RECT* rect) {
+static void BattleEnqueueClearImage(RECT* rect) {
     D_800F01DC->method = QUEUE_CLEAR_IMAGE;
     D_800F01DC->rect = rect;
     D_800F01DC++;
 }
 
-void BATTLE_FlushImageQueue(void) {
+void BattleFlushImageQueue(void) {
     Unk800F01DC* item;
 
     for (item = D_800F4BAC; item < D_800F01DC; item++) {
@@ -868,7 +868,7 @@ void BATTLE_FlushImageQueue(void) {
     D_800F01DC = D_800F4BAC;
 }
 
-static void BATTLE_ResetImageQueue(void) { D_800F01DC = D_800F4BAC; }
+static void BattleResetImageQueue(void) { D_800F01DC = D_800F4BAC; }
 
 static void func_800D2710(u_long* addr, s16 x, s16 y) {
     TIM_IMAGE tim;
@@ -879,7 +879,7 @@ static void func_800D2710(u_long* addr, s16 x, s16 y) {
         D_800F4B2C[D_800F01E0] = *tim.crect;
         D_800F4B2C[D_800F01E0].x += x & ~15;
         D_800F4B2C[D_800F01E0].y = y + D_800F4B2C[D_800F01E0].y; // requires GCC 2.6.3
-        BATTLE_EnqueueLoadImage(&D_800F4B2C[D_800F01E0], tim.caddr);
+        BattleEnqueueLoadImage(&D_800F4B2C[D_800F01E0], tim.caddr);
         D_800F01E0 = (D_800F01E0 + 1) & 7;
     }
 }
@@ -900,7 +900,7 @@ static void func_800D2828(u_long* addr, s32 xy) {
         D_800F4B6C[D_800F01E4].x = ((temp_a2 & 0x0F) * 0x40 + (D_800F4B6C[D_800F01E4].x - temp_a3)) & 0x3FF;
         temp_a3 = (temp_a1 & 0x30) * 0x10;
         D_800F4B6C[D_800F01E4].y = ((temp_a2 & 0x30) * 0x10 + (D_800F4B6C[D_800F01E4].y - temp_a3)) & 0x1FF;
-        BATTLE_EnqueueLoadImage(&D_800F4B6C[D_800F01E4], tim.paddr);
+        BattleEnqueueLoadImage(&D_800F4B6C[D_800F01E4], tim.paddr);
         D_800F01E4 = (D_800F01E4 + 1) & 7;
     }
 }

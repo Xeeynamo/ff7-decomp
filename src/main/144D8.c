@@ -6,13 +6,13 @@ static Yamada D_80048D84[YAMADA_FILE_NUM] = {
     {501, 2048},     // INIT_YAMADA,
     {502, 40960},    // INIT_WINDOW,
     {522, 16384},    // INIT_KERNEL,
-    {10001, 2048},   // BATTLE_BROM,
-    {10002, 14336},  // BATTLE_TITLE,
-    {10009, 90112},  // BATTLE_BATTLE,
-    {10053, 4096},   // BATTLE_BATINI,
-    {10055, 139264}, // BATTLE_SCENE,
-    {10053, 4096},   // BATTLE_BATRES,
-    {0, 0},          // BATTLE_CO,
+    {10001, 2048},   // BattleBROM,
+    {10002, 14336},  // BattleTITLE,
+    {10009, 90112},  // BattleBATTLE,
+    {10053, 4096},   // BattleBATINI,
+    {10055, 139264}, // BATTTLE_SCENE,
+    {10053, 4096},   // BattleBATRES,
+    {0, 0},          // BattleCO,
 };
 
 // decompression destinations, indexed by SysGzipGetType
@@ -66,11 +66,11 @@ void func_800146A4(void) {
         switch (D_8009C560) {
         case 4:
             func_800145BC(0);
-            func_80014658(BATTLE_BROM, D_800A00CC);
+            func_80014658(BattleBROM, D_800A00CC);
             break;
         case 2:
             SysBattleSwirlInit();
-            func_80014658(BATTLE_BATTLE, D_800A1158);
+            func_80014658(BattleBATTLE, D_800A1158);
             break;
         default:
             var_s0 = 0;

@@ -279,7 +279,7 @@ typedef struct {
     /* 0x1E9A */ s16 D_800F7DDE;
 } Unk800F5F44; // size:0x1E9C
 
-#define BATTLE_SCENE 7
+#define BATTTLE_SCENE 7
 
 typedef struct {
     MATRIX m;
@@ -552,11 +552,11 @@ void MagicAnimationRegister(s32 targetMask, s32 arg1, s32 frameStep, void (*func
 s32 BattlePositionToStereoPan(SVECTOR* sv);
 s32 BattleEntityGetStereoPan(s32 arg0);
 void func_800D5774(u32 targetIndex);
-void BATTLE_RunFrame(void);
+void BattleRunFrame(void);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 void BattleRecalcUnitSpeed(s32 index);
 void BattleUpdateUnitMasks(void);
-void BATTLE_CheckAllLucky7s(void);
+void BattleCheckAllLucky7s(void);
 void func_800A3278(void);
 void func_800A283C(void);
 void func_800AD480(void);
