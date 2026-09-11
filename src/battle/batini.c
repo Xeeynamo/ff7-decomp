@@ -150,7 +150,7 @@ static void BattleInitSetup(s32 sceneID) {
     s32 var_s1;
 
     var_s1 = 4;
-    if (g_IsMutiBattle) {
+    if (g_BattleMultiInfo.isMultiBattle) {
         var_s1 = 0;
         BattleQueueEvent(0, 0, 15, 0);
         BattleQueueEvent(0, 0, 14, 0);
@@ -163,7 +163,7 @@ static void BattleInitSetup(s32 sceneID) {
     for (i = 0; i < NUM_PARTY; i++) {
         g_BattleWork.party[i].unk6 = 0;
     }
-    if (g_IsMutiBattle) {
+    if (g_BattleMultiInfo.isMultiBattle) {
         BattleInitPartyFromSavemap();
     }
     BattleInitLoadSceneData(sceneID, BATTLE_RunFrame);
@@ -597,7 +597,6 @@ static void BattleInitCharStats(ActiveCharacterData* character, BattlePartyWork*
 }
 
 const u8 D_801B003C[] = {0xFF, 0x32, 0x33, 0x34, 0x35, 0xFF, 0x48, 0x07};
-extern u16 g_CharacterMask[3];
 void func_800B1060(s32);
 
 // Lays out the two sides for the opening of the battle. D_801B003C picks the
@@ -694,9 +693,9 @@ static void BattleInitFormation(void) {
         }
         D_801636B8[i].D_801636BE = back;
     }
-    g_CharacterMask[0] = row[0];
-    g_CharacterMask[1] = row[1];
-    g_CharacterMask[2] = row[2];
+    g_BattleMultiInfo.characterMask[0] = row[0];
+    g_BattleMultiInfo.characterMask[1] = row[1];
+    g_BattleMultiInfo.characterMask[2] = row[2];
 }
 
 extern u16 D_8009CBE0[];     // item inventory (320 slots; (count << 9) | id)

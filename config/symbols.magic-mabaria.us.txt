@@ -6,4 +6,4 @@ MabariaDoubleBufferFlip = 0x801B04DC;
 MabariaMainSetup = 0x801B053C;
 g_MabariaRenderDesc = 0x801B0C90; // size:0x10
 g_MabariaPrimBuffer = 0x801B0CA8;
-g_MabariaBufferPtr = 0x801D0CA8;
+g_MabariaBufferPtr = 0x801D0CA8; // size:0x4

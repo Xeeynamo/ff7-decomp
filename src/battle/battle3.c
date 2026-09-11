@@ -963,7 +963,7 @@ static s32 func_800E6B40(void) {
     s32 i;
 
     for (i = 0; i < 3; i++) {
-        if ((1 << D_800F38A7) & D_801516F8 & g_CharacterMask[i]) {
+        if ((1 << D_800F38A7) & D_801516F8 & g_BattleMultiInfo.characterMask[i]) {
             return i;
         }
     }

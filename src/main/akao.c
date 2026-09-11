@@ -187,11 +187,17 @@ extern s32 D_80062FB0;
 extern s32 g_AkaoCdVolSlideStep;
 extern u16 D_80062FB8;
 extern u16 g_AkaoCdVolSlideSteps;
-extern s32 g_AkaoCdVol;
-// High half of g_AkaoCdVol, which is 16.16 fixed point: the integer volume the
-// SPU wants. PSYQ loads it as a halfword at the folded address, so it stays a
-// symbol of its own rather than a shift of g_AkaoCdVol.
-extern u16 D_80062FD6;
+
+// 16.16 fixed point volume
+typedef union {
+    s32 val;
+    struct {
+        s16 lo;
+        s16 hi;
+    } i;
+} AkaoCdVol; /* size = 0x4 */
+
+extern AkaoCdVol g_AkaoCdVol;
 extern s32 D_80062FE0;
 extern s32 g_AkaoPitchMulMusic;
 extern s32 g_AkaoTempoMulMusic;
@@ -664,7 +670,7 @@ void AkaoC9CdVolumeSlideFromCurrent(Unk8002BBEC* arg0) {
         var_a1 = temp_v0;
     }
     g_AkaoCdVolSlideSteps = var_a1;
-    g_AkaoCdVolSlideStep = ((arg0->unk8 << 0x10) - g_AkaoCdVol) / var_a1;
+    g_AkaoCdVolSlideStep = ((arg0->unk8 << 0x10) - g_AkaoCdVol.val) / var_a1;
 }
 
 typedef struct {
@@ -693,7 +699,7 @@ void AkaoCACdVolumeSlideBetweenTargets(Unk8002BC58* arg0) {
     temp_v0_shifted = arg0->unkC << 0x10;
     temp_v1_shifted = arg0->unk8 << 0x10;
     g_AkaoCdVolSlideSteps = var_a1;
-    g_AkaoCdVol = temp_v1_shifted;
+    g_AkaoCdVol.val = temp_v1_shifted;
     g_AkaoCdVolSlideStep = (temp_v0_shifted - temp_v1_shifted) / var_a1;
 }
 
@@ -1379,8 +1385,8 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002E23C);
 static void AkaoUpdateCdVolume(void) {
     D_8009C578.mask = 0x1C0;
     D_8009C578.unk14 = 0;
-    D_8009C578.unk12 = D_80062FD6;
-    D_8009C578.unk10 = D_80062FD6;
+    D_8009C578.unk12 = g_AkaoCdVol.i.hi;
+    D_8009C578.unk10 = g_AkaoCdVol.i.hi;
     SpuSetCommonAttr(&D_8009C578);
 }
 

@@ -508,7 +508,6 @@ extern u16 D_80163762; // part of a struct
 // Cait Sith's 3 landed Slots reel symbols (see func_800E5358, and
 // BATTLE_ResolveCaitSithSlotsResult in battle.c)
 extern u8 D_80163774[4];
-extern u16 g_CharacterMask[];
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct
 extern u8 D_8016378C[];
