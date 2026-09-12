@@ -279,7 +279,7 @@ typedef struct {
     /* 0x1E9A */ s16 D_800F7DDE;
 } Unk800F5F44; // size:0x1E9C
 
-#define BATTLE_SCENE 7
+#define BATTTLE_SCENE 7
 
 typedef struct {
     MATRIX m;
@@ -534,7 +534,7 @@ extern u16 D_8016376A;
 extern BattleMultiInfo g_BattleMultiInfo;
 
 s32 BattleEffectRegister(void (*func)(void));
-void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
+void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);
 // Build the model matrix for a battle effect: `scale` goes on the matrix
 // diagonal, `pos` is transformed into view space to become the translation,
@@ -552,17 +552,17 @@ void MagicAnimationRegister(s32 targetMask, s32 arg1, s32 frameStep, void (*func
 s32 BattlePositionToStereoPan(SVECTOR* sv);
 s32 BattleEntityGetStereoPan(s32 arg0);
 void func_800D5774(u32 targetIndex);
-void BATTLE_RunFrame(void);
+void BattleRunFrame(void);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 void BattleRecalcUnitSpeed(s32 index);
 void BattleUpdateUnitMasks(void);
-void BATTLE_CheckAllLucky7s(void);
+void BattleCheckAllLucky7s(void);
 void func_800A3278(void);
 void func_800A283C(void);
 void func_800AD480(void);
 void func_800A71F4(void);
 void func_800DCF94(s16 arg0);
-void func_800A55BC(void);
+void BattleResetReservedItems(void);
 void func_800A61D4(void);
 void func_800A4480(void);
-void func_800A5BC8(s32 arg0, s32 arg1);
+void BattleAddAutoBattleActionByChance(s32 arg0, s32 arg1);

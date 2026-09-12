@@ -1,7 +1,7 @@
 BattleBoostVal25Percent = 0x001B2770;
 g_BattleState = 0x800F83AC; // size:0x444
 g_BattleTypeMap = 0x801B0044;
-BATINI_Main = 0x801B0050;
+BattleInitMain = 0x801B0050;
 BattleInitSetup = 0x801B0490;
 BattleInitATBTimers = 0x801B0668;
 BattleInitSetSpeed = 0x801B085C;

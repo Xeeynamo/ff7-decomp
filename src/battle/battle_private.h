@@ -217,7 +217,7 @@ typedef enum {
 // D_800F39DC write idx); the wiki describes up to 64 queued actions, so this
 // may be a smaller staging ring rather than the full logical queue --
 // unconfirmed. Drain chain: func_800A3ED0 drains this ring into a 64-slot
-// priority table (func_800A3D4C), which func_800A23E0 drains in priority
+// priority table (BattleCopyBattleActionToBattleQueue), which BattleBattleActionQueueExecute drains in priority
 // order into func_800A1798, which runs the command as a byte-coded sequence
 // of opcodes (D_800F38AC/D_800A0098/D_800E7B28), not a single switch on
 // cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
@@ -245,7 +245,7 @@ extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
 // Cait Sith's "Slots" limit: 7 three-symbol combos (one row per combo)
 // checked in order against the 3 landed reel symbols (D_80163774) -- see
-// BATTLE_ResolveCaitSithSlotsResult in battle.c
+// BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
 extern void (*D_800E7BFC[])(void); // per-action epilogue hook
 extern Yamada D_800E8050[];
@@ -314,7 +314,7 @@ extern s32 D_800F39E4;
 extern volatile s32 D_800F39EC; // polled by a tight wait loop
 extern u8 D_800F39F0[][6];
 extern s32 D_800F3A1C;     // write index into D_800F3A20
-extern s16 D_800F3A20[16]; // ring buffer, see func_800A56B0
+extern s16 D_800F3A20[16]; // ring buffer, see BattleReqReturnReservedItems
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
 typedef struct {
@@ -369,10 +369,10 @@ extern u8 D_800F8380;
 extern u8* D_800F8384[3];
 extern u8* D_800F8390[3];
 extern s32* D_800F839C; // CD offset?
-extern u8 D_800F83A4[]; // shared battle-script variable bank (func_800B13B0)
+extern u8 D_800F83A4[]; // shared battle-script variable bank (BattleOpcodeValOffs)
 extern u8 D_800F83A6;
 extern u8 D_800F87F0[]; // per-combatant battle-script variable bank, 0x80 B
-                        // each (func_800B13B0)
+                        // each (BattleOpcodeValOffs)
 extern s8 D_800F8CF0;
 extern u32 D_800F8CF4[][0x18];
 extern s32 D_800F9F28[]; // size is either 4 or 5
@@ -416,9 +416,9 @@ extern s32 D_8015174C[10];
 extern s32 D_8015178C[10];
 extern s32 D_801517C8[10];
 extern s32 D_8015187C[10];
-// queued-action-ish record, allocated by func_800A2FD0 (unk3 set to -1,
+// queued-action-ish record, allocated by BattleQueue2GetPtr (unk3 set to -1,
 // marking it unassigned) and searched by func_800A34CC. Traced through
-// func_800ABA68's callers (func_800AB830/func_800ABB0C, still undecompiled):
+// func_800ABA68's callers (func_800AB830/BattleMainDmgCalculation, still undecompiled):
 // unk0 is very likely an actorId (0-2) -- its source value independently
 // indexes D_800F83E0 with the same 0x68 stride confirmed elsewhere, in both
 // callers. unk1 is a second actor-related value (not always equal to unk0).
@@ -506,7 +506,7 @@ extern u16 D_8016375C;
 extern u16 D_8016375E;
 extern u16 D_80163762; // part of a struct
 // Cait Sith's 3 landed Slots reel symbols (see func_800E5358, and
-// BATTLE_ResolveCaitSithSlotsResult in battle.c)
+// BattleResolveCaitSithSlotsResult in battle.c)
 extern u8 D_80163774[4];
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct
@@ -540,25 +540,25 @@ void func_800A8E84(s32);
 void func_800AA950(Unk800FA9D0*);
 void func_800AB308(void);
 void func_800AB480(void);
-static void BATTLE_LearnEnemySkill(void);
+static void BattleLearnEnemySkill(void);
 void func_800ABA68(Unk800FA9D0*, s16, u16, s16, s16);
 void func_800AC6B4(s32);
-void func_800AC73C(s32);
+void BattleCalcTargStats(s32);
 void func_800ACA24(void);
 s32 func_800ACD88(s32);
-static s32 BATTLE_IsDamageNullified(s32);
-static void BATTLE_QueueUnassignedResultDisplay(Unk800FA9D0*);
+static s32 BattleIsDamageNullified(s32);
+static void BattleQueueUnassignedResultDisplay(Unk800FA9D0*);
 void func_800AD0FC(void);
 void func_800AD324(s32, s32, s32, s32);
-static void BATTLE_ApplyDefaultAbsorbEffect(void);
-void func_800AD4EC(void);
+static void BattleApplyDefaultAbsorbEffect(void);
+void BattleDmgFormulaRun(void);
 void func_800AE82C(void);
-s32 func_800B3030(s32);
-void func_800B4794(void);
-s32 func_800B5CD4(s32);
-void func_800B5D38(s32);
-void func_800B6B98(s32, s32);
-void func_800B7FB4(void);
+s32 BattleOpcodeGetRndBit(s32);
+void BattlePlayerModelsUpdateBonesPos(void);
+s32 BattleLoadEnemyModel(s32);
+void BattleLoadEnemyTexture(s32);
+void BattleInitModelsAnimAndColor(s32, s32);
+void BattleCdromReadChain(void);
 s16 func_800B888C(s32);
 void func_800B8438(void);
 void func_800B8A34(s16, s32);
@@ -568,11 +568,11 @@ void func_800BB2A8(u8);
 void func_800BB9B8(s32);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 static void func_800C1908(u8 arg0);
-void func_800C5E94(void);
+void BattleSelectPlayerModelFiles(void);
 void func_8002DF88(s16*);
 void func_800D088C(s32 loc, s32 len);
 void func_800D0C80(u8 arg0);
-void func_800D3BF0();
+void BattleEffectSingleDustCloud();
 void func_800D8A78(s8);
 int func_800D8A88(void);
 void func_800D91DC(s32, s32, s16, u8, s32, s32);
@@ -582,8 +582,8 @@ void func_800DDFEC(void);
 void func_800E15D8(void);
 void func_800E5814(void);
 void func_800E6B94(void);
-void BATTLE_EnqueueLoadImage(RECT* rect, u_long* ptr);
-void func_800A56B0(s16 arg0);
+void BattleEnqueueLoadImage(RECT* rect, u_long* ptr);
+void BattleReqReturnReservedItems(s16 arg0);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 /* battle menu widget block (one per widget id, 0x240 apart) -- partial */
@@ -615,7 +615,7 @@ typedef struct {
     /* 0xA2 */ u8 unkA2[0x19E];
 } BattleMenuSlot; /* size: 0x240 */
 
-/* State of the battle-script VM interpreted by func_800B1D48. Operands are
+/* State of the battle-script VM interpreted by BattleOpcodeCycle. Operands are
    fetched from the script buffer D_800F4AC0 at `pc` and evaluated on `stack`,
    which grows downwards: a push predecrements `sp` before storing, a pop reads
    at `sp` then postincrements it. Instructions address two operand slots by
@@ -638,7 +638,7 @@ typedef struct {
 extern u8* D_800F4AC0;
 extern BattleScriptVm* D_800F4AC4;
 
-s32 func_800B18A8(s32);
+s32 BattleOpcodeLoadVal(s32);
 
 void func_800A4E40(void);
 void func_800DE2B4(void);

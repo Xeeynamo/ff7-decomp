@@ -27,7 +27,7 @@ void func_800C44B4();
 void func_800C4814();
 static void func_800CFB14();
 void func_800D1530();
-s32 func_800D376C(BattleModelSub* arg0, s32 arg1, s16 nItems, u8* arg3);
+s32 BattleModelReadAnimStream(BattleModelSub* arg0, s32 arg1, s16 nItems, u8* arg3);
 void func_800D3AF0();
 static void func_800D4D4C(s32 arg0, s32 arg1);
 
@@ -40,7 +40,7 @@ void func_801B0040(s16, u8);
 void func_801B0054(s16, u8);
 void func_801B0084(s16, u8);
 
-static s32 func_800C7B60(s16 arg0, s16 nItems, u8* arg2) {
+static s32 BattleModelReadAnimIntoMatrix(s16 arg0, s16 nItems, u8* arg2) {
     BattleModelSub* var_a0;
     s32 var_a1;
     s32 temp_s0;
@@ -48,15 +48,15 @@ static s32 func_800C7B60(s16 arg0, s16 nItems, u8* arg2) {
 
     var_a0 = D_801518E4[arg0].D_80151A58;
     var_a1 = D_801518E4[arg0].D_80151958;
-    D_801518E4[arg0].D_80151958 = func_800D376C(var_a0, var_a1, nItems, arg2);
+    D_801518E4[arg0].D_80151958 = BattleModelReadAnimStream(var_a0, var_a1, nItems, arg2);
     return D_801518E4[arg0].D_80151958 == 0;
 }
 
-static void func_800C7BE8(s16 arg0, s16 arg1, u8* arg2) {
-    D_800FA6D8[arg0].unk0 = func_800D376C(D_800FA6D8[arg0].unk8, D_800FA6D8[arg0].unk0, arg1, arg2);
+static void BattleWeaponReadAnimIntoMatrix(s16 arg0, s16 arg1, u8* arg2) {
+    D_800FA6D8[arg0].unk0 = BattleModelReadAnimStream(D_800FA6D8[arg0].unk8, D_800FA6D8[arg0].unk0, arg1, arg2);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800C7C4C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleExecuteUnitAnimScript);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD400);
 
@@ -81,7 +81,7 @@ static void func_800CD82C(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD860);
 
-static void func_800CDD44(s16 arg0) {
+static void BattleResetUnitAnimScript(s16 arg0) {
     D_801518E4[arg0].D_8015191F = 1;
     D_801518E4[arg0].D_80151920 = 0;
     D_801518E4[arg0].D_80151921 = 0;
@@ -611,14 +611,14 @@ static void func_800D0760(void) {
 
 void func_800D088C(s32 loc, s32 len) {
     SystemLoadFileBySector(loc, len, (u_long*)0x801B0000, NULL);
-    func_800B7FB4();
+    BattleCdromReadChain();
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D08B8);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D0958);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleStorePlayerAnimScriptsPtr);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D09D0);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleRestorePlayerAnimScriptsPtr);
 
 static void func_800D0A44(void) {}
 
@@ -818,21 +818,21 @@ static void func_800D1110(u8 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D1530);
 
-void BATTLE_EnqueueLoadImage(RECT* rect, u_long* ptr) {
+void BattleEnqueueLoadImage(RECT* rect, u_long* ptr) {
     D_800F01DC->method = QUEUE_LOAD_IMAGE;
     D_800F01DC->rect = rect;
     D_800F01DC->ptr = ptr;
     D_800F01DC++;
 }
 
-static void BATTLE_EnqueueStoreImage(RECT* rect, u_long* ptr) {
+static void BattleEnqueueStoreImage(RECT* rect, u_long* ptr) {
     D_800F01DC->method = QUEUE_STORE_IMAGE;
     D_800F01DC->rect = rect;
     D_800F01DC->ptr = ptr;
     D_800F01DC++;
 }
 
-static void BATTLE_EnqueueMoveImage(RECT* rect, s32 x, s32 y) {
+static void BattleEnqueueMoveImage(RECT* rect, s32 x, s32 y) {
     D_800F01DC->method = QUEUE_MOVE_IMAGE;
     D_800F01DC->rect = rect;
     D_800F01DC->x = x;
@@ -840,13 +840,13 @@ static void BATTLE_EnqueueMoveImage(RECT* rect, s32 x, s32 y) {
     D_800F01DC++;
 }
 
-static void BATTLE_EnqueueClearImage(RECT* rect) {
+static void BattleEnqueueClearImage(RECT* rect) {
     D_800F01DC->method = QUEUE_CLEAR_IMAGE;
     D_800F01DC->rect = rect;
     D_800F01DC++;
 }
 
-void BATTLE_FlushImageQueue(void) {
+void BattleFlushImageQueue(void) {
     Unk800F01DC* item;
 
     for (item = D_800F4BAC; item < D_800F01DC; item++) {
@@ -868,9 +868,9 @@ void BATTLE_FlushImageQueue(void) {
     D_800F01DC = D_800F4BAC;
 }
 
-static void BATTLE_ResetImageQueue(void) { D_800F01DC = D_800F4BAC; }
+static void BattleResetImageQueue(void) { D_800F01DC = D_800F4BAC; }
 
-static void func_800D2710(u_long* addr, s16 x, s16 y) {
+static void BattleSetLoadClutToVram(u_long* addr, s16 x, s16 y) {
     TIM_IMAGE tim;
 
     OpenTIM(addr);
@@ -879,12 +879,12 @@ static void func_800D2710(u_long* addr, s16 x, s16 y) {
         D_800F4B2C[D_800F01E0] = *tim.crect;
         D_800F4B2C[D_800F01E0].x += x & ~15;
         D_800F4B2C[D_800F01E0].y = y + D_800F4B2C[D_800F01E0].y; // requires GCC 2.6.3
-        BATTLE_EnqueueLoadImage(&D_800F4B2C[D_800F01E0], tim.caddr);
+        BattleEnqueueLoadImage(&D_800F4B2C[D_800F01E0], tim.caddr);
         D_800F01E0 = (D_800F01E0 + 1) & 7;
     }
 }
 
-static void func_800D2828(u_long* addr, s32 xy) {
+static void BattleSetLoadTextureToVram(u_long* addr, s32 xy) {
     TIM_IMAGE tim;
     s32 temp_a1;
     s32 temp_a3;
@@ -900,14 +900,14 @@ static void func_800D2828(u_long* addr, s32 xy) {
         D_800F4B6C[D_800F01E4].x = ((temp_a2 & 0x0F) * 0x40 + (D_800F4B6C[D_800F01E4].x - temp_a3)) & 0x3FF;
         temp_a3 = (temp_a1 & 0x30) * 0x10;
         D_800F4B6C[D_800F01E4].y = ((temp_a2 & 0x30) * 0x10 + (D_800F4B6C[D_800F01E4].y - temp_a3)) & 0x1FF;
-        BATTLE_EnqueueLoadImage(&D_800F4B6C[D_800F01E4], tim.paddr);
+        BattleEnqueueLoadImage(&D_800F4B6C[D_800F01E4], tim.paddr);
         D_800F01E4 = (D_800F01E4 + 1) & 7;
     }
 }
 
-void func_800D2980(u_long* addr, s16 imgXY, s16 clutX, s16 clutY) {
-    func_800D2710(addr, clutX, clutY);
-    func_800D2828(addr, imgXY);
+void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY) {
+    BattleSetLoadClutToVram(addr, clutX, clutY);
+    BattleSetLoadTextureToVram(addr, imgXY);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D29D4);
@@ -916,17 +916,17 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D32B4);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3354);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3418);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR11R21R31);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3474);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR12R22R32);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D34C8);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR13R23R33);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3520);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelUpdateBoneHeight);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3548);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelAnimReadDynamicFrameOffsBits);
 
-static s32 func_800D35D8(u8* arg0, s32* arg1, s32 arg2) {
+static s32 BattleModelAnimReadBitStream(u8* arg0, s32* arg1, s32 arg2) {
     s32 bits;
     s32 i;
 
@@ -943,9 +943,9 @@ static s32 func_800D35D8(u8* arg0, s32* arg1, s32 arg2) {
     return bits;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3658);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelAnimReadEncryptedRotBits);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D376C);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelReadAnimStream);
 
 void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleGetPartPosition);
@@ -967,9 +967,9 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3AF0);
 
 const s32 D_800A0D98[] = {
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00001000, 0x00000000, 0x00000000, 0x00000000};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3BF0);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleEffectSingleDustCloud);
 
-static void func_800D3D88(void) {
+static void BattleEffectDustClouds(void) {
     Unk801621F0* temp_s0_2;
     Unk801621F0* temp_s1;
     s32 temp_s0;
@@ -981,7 +981,7 @@ static void func_800D3D88(void) {
     temp_s0++; // !FAKE
     temp_s0--; // !FAKE
     if (temp_s2 != 0xFF) {
-        temp_s0_2 = &D_801621F0[func_800BC04C(func_800D3BF0)];
+        temp_s0_2 = &D_801621F0[func_800BC04C(BattleEffectSingleDustCloud)];
         BattleGetPartPosition(temp_s0, temp_s2, &temp_s0_2->D_801621F4);
         temp_s0_2->D_801621F6 = 0;
         temp_s0_2->unkE = temp_s1->unkE;
@@ -996,7 +996,7 @@ static void func_800D3D88(void) {
 static void func_800D3E8C(s32 arg0) {
     Unk801621F0* temp_v0;
 
-    temp_v0 = &D_801621F0[func_800BC04C(func_800D3D88)];
+    temp_v0 = &D_801621F0[func_800BC04C(BattleEffectDustClouds)];
     temp_v0->D_801621F0 = arg0;
     temp_v0->unkE = *(s16*)& temp_v0->unk10 = D_801518E4[arg0].D_801518EA;
 }
@@ -1315,7 +1315,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5D28);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D61AC);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D6260);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleEffectSpriteAdd);
 
 extern ModelRenderDesc D_800F14D0;
 

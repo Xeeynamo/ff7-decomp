@@ -10,7 +10,7 @@ static Yamada D_80048D84[YAMADA_FILE_NUM] = {
     {10002, 14336},  // BATTLE_TITLE,
     {10009, 90112},  // BATTLE_BATTLE,
     {10053, 4096},   // BATTLE_BATINI,
-    {10055, 139264}, // BATTLE_SCENE,
+    {10055, 139264}, // BATTTLE_SCENE,
     {10053, 4096},   // BATTLE_BATRES,
     {0, 0},          // BATTLE_CO,
 };
