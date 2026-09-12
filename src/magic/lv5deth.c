@@ -3,11 +3,8 @@
 #include "common.h"
 #include "../battle/battle.h"
 
-extern s32 g_dbIndex;
 // Battle far colour; func_800B9568 feeds r/g/b straight to SetFarColor.
 extern CVECTOR D_800F5B70;
-extern s16 D_800F5B74;
-extern u8 D_80062D98; // set while the battle is paused
 
 #define TARGET_LIFETIME 45
 #define FADE_IN_FRAMES 8
@@ -56,11 +53,11 @@ static void Lv5DeathBufferFlip(void) {
     }
 }
 
-static void Lv5DeathMainSetup(s32 targetMask, s32 arg1);
+static void Lv5DeathMainSetup(s32 targetMask, s32 callbackArg);
 
 // Overlay entry point, at 0x801B0054; func_800D0C80 dispatches magic id 32
 // here.
-void MAGIC_Lv5Death(s32 targetMask, s32 arg1) { Lv5DeathMainSetup(targetMask, arg1); }
+void MAGIC_Lv5Death(s32 targetMask, s32 callbackArg) { Lv5DeathMainSetup(targetMask, callbackArg); }
 
 static void Lv5DeathRenderRing(void) {
     // Unused; gives the function its 0x58 stack frame.
@@ -164,7 +161,7 @@ static void Lv5DeathScreenFade(void) {
     }
 }
 
-static void Lv5DeathAttachToTarget(s32 target, s32 arg1) {
+static void Lv5DeathAttachToTarget(s32 target, s32 callbackArg) {
     Lv5DeathEffect* effect;
     Lv5DeathEffect* ring;
 
@@ -180,7 +177,7 @@ static void Lv5DeathAttachToTarget(s32 target, s32 arg1) {
     BattleCommandSend(0x20, BattlePositionToStereoPan(&effect->Pos), 0xAA);
 }
 
-static void Lv5DeathMainSetup(s32 targetMask, s32 arg1) {
+static void Lv5DeathMainSetup(s32 targetMask, s32 callbackArg) {
     Lv5DeathEffect* effect;
     s32 count;
     s32 i;
@@ -190,7 +187,7 @@ static void Lv5DeathMainSetup(s32 targetMask, s32 arg1) {
     effect = &g_BattleEffectSlots[BattleEffectRegister(Lv5DeathScreenFade)];
     effect->u.FadeOutStartFrame = 0;
     // frameStep 2: with three targets the pairs spawn on frames 1, 3 and 5.
-    MagicAnimationRegister(targetMask, arg1, 2, Lv5DeathAttachToTarget);
+    MagicAnimationRegister(targetMask, callbackArg, 2, Lv5DeathAttachToTarget);
 
     i = 0;
     count = 0;

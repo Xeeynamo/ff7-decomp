@@ -1,0 +1,10 @@
+MAGIC_Refrec = 0x801B0000;
+RefrecRenderModel = 0x801B0020;
+RefrecAnimationUpdate = 0x801B01C0;
+RefrecAttachToTarget = 0x801B03A8;
+RefrecDoubleBufferFlip = 0x801B04AC;
+RefrecMainSetup = 0x801B050C;
+g_RefrecRenderDesc = 0x801B0C00;
+g_RefrecBaseScale = 0x801B0C10; // size:0x4
+g_RefrecPrimBuffer = 0x801B0C18;
+g_RefrecBufferPtr = 0x801D0C18; // size:0x4
