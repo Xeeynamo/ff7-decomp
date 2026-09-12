@@ -151,7 +151,7 @@ int CdGetSector(void* madr, int size);
 void(*CdDataCallback(void (*func)()));
 CdlLOC* CdIntToPos(int i, CdlLOC* p);
 int CdPosToInt(CdlLOC* p);
-CdlFILE* CdSearchFile(CdlFILE* fp, char* name);
+CdlFILE* CdSearchFile(CdlFILE* fp, const char* name);
 int CdRead(int sectors, u_long* buf, int mode);
 int CdReadSync(int mode, u_char* result);
 CdlCB CdReadCallback(CdlCB func);
