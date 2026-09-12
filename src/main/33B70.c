@@ -32,7 +32,10 @@ void SysCdromInit(void) {
     D_80071A60 = CDOP_0;
     func_8003DDA4(0);
     func_80034F3C();
+#ifndef VERSION_PC
+    // BUG: CdControlB will read at ptr CdlModeSpeed, not the intended value!
     CdControlB(CdlSetmode, (u8*)CdlModeSpeed, NULL);
+#endif
     VSync(3);
     D_80071A64 = ReadDiskNo();
     SysMovieLoadMovieSettings();
@@ -148,6 +151,9 @@ static s32 ReadDiskNo(void) {
 
     do {
     } while (SystemCdromReadChain());
+#ifdef VERSION_PC
+    PC_FetchDiskNo(D_800698F0);
+#else
     do {
         fd = (s32)CdSearchFile(&file, "\\MINT\\DISKINFO.CNF;1");
         if (fd <= 0) {
@@ -161,6 +167,7 @@ static s32 ReadDiskNo(void) {
             res = func_80041E30(1, 0);
         } while (res > 0);
     } while (res != 0);
+#endif
 
     // DISK0001, where [7] is '1'
     return D_800698F0[7] - '0';
@@ -230,6 +237,7 @@ static void func_80034A90(void) {
     }
 }
 
+#ifndef VERSION_PC
 u32 SystemCdromReadChain(void) {
     u32* op;
     if (D_80071A60 >= LEN(D_8004A634)) {
@@ -240,6 +248,7 @@ u32 SystemCdromReadChain(void) {
     D_8004A634[*op]();
     return *op;
 }
+#endif
 
 // Haruhiko Okumura's PD implementation modified to work on byte streams.
 // Original macros:
