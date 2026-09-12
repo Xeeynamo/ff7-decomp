@@ -2,7 +2,7 @@
 
 #include "common.h"
 #include "game.h"
-#include "psxsdk/libspu.h"
+#include "libspu.h"
 
 typedef struct {
     s32 unk0;

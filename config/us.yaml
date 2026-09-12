@@ -76,6 +76,8 @@ overlays:
       - [0x53694, .sbss, input]
       - [0x536A0, .sbss, 1F6B4]
       - [0x536D0, bss]
+      - [0x537C4, bss] # to 26B70
+      - [0x537C8, bss]
       - [0x53828, .bss, swirl]
       - [0x53848, bss]
       - [0x59EAC, .bss, input]

@@ -1,6 +1,6 @@
 //! PSYQ=3.3 CC1=2.7.2
 #include <game.h>
-#include <psxsdk/libetc.h>
+#include <libetc.h>
 
 typedef struct {
     u8 unk0;
