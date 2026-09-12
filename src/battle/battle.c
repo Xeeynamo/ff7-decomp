@@ -162,11 +162,11 @@ static void func_800A2F24(void) {
     g_BattleActionQueueTargIndex = D_800F3954;
 }
 
-static Unk800A2F4C* BattleQueue1GetPtr(void) {
-    Unk800A2F4C* unk = &g_BattleActionQueue[g_BattleActionQueueIndex];
+static BattleActionQueueEntry* BattleQueue1GetPtr(void) {
+    BattleActionQueueEntry* unk = &g_BattleActionQueue[g_BattleActionQueueIndex];
     unk->unk3 = 0;
     unk->unk2 = 0;
-    unk->unkA = g_BattleActionQueueTargIndex;
+    unk->targetIndex = g_BattleActionQueueTargIndex;
     if (g_BattleActionQueueIndex < LEN(g_BattleActionQueue)) {
         g_BattleActionQueueIndex++;
     } else {
@@ -226,18 +226,18 @@ static void func_800A317C(void) {
 }
 
 void func_800A31A0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    Unk800A2F4C* unk = BattleQueue1GetPtr();
-    unk->unk0 = arg0;
+    BattleActionQueueEntry* unk = BattleQueue1GetPtr();
+    unk->actionId = arg0;
     unk->unk1 = arg1;
     unk->unk5 = arg2;
     unk->unk6 = arg3;
     unk->unk8 = -1;
-    unk->unkA = -1;
+    unk->targetIndex = -1;
 }
 
 static void func_800A3208(s8 arg0, s8 arg1) {
     if (g_BattleActionQueueIndex != 0) {
-        Unk800A2F4C* ptr = &g_BattleActionQueue[g_BattleActionQueueIndex - 1];
+        BattleActionQueueEntry* ptr = &g_BattleActionQueue[g_BattleActionQueueIndex - 1];
         ptr->unk3 = arg0;
         ptr->unk2 = arg1;
     }
@@ -252,7 +252,7 @@ static void func_800A3240(void) {
 void BattleActionQueueReset(void) {
     g_BattleActionQueueIndex = 0;
     g_BattleActionQueueTargIndex = 0;
-    g_BattleActionQueue[0].unk0 = -1;
+    g_BattleActionQueue[0].actionId = -1;
 }
 
 static void func_800A329C(void) {
@@ -292,11 +292,11 @@ void BattleRunFrame(void) {
 
     func_800A32C0(g_BattleActionQueueIndex);
     if (g_BattleActionQueueIndex != 0) {
-        BattleQueue1GetPtr()->unk0 = -1;
+        BattleQueue1GetPtr()->actionId = -1;
     }
     func_800155B0();
     for (i = 0; i < 0x40; i++) {
-        a = g_BattleActionQueue[i].unk0;
+        a = g_BattleActionQueue[i].actionId;
         if (a == -1) {
             break;
         }
@@ -1263,12 +1263,12 @@ void BattleLoadActionAttackData(void) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType0E);
 
 void BattleQueueCurrentActionEffect(void) {
-    Unk800A2F4C* unk;
+    BattleActionQueueEntry* unk;
     Unk800FA9D0* act;
 
     if (g_CurrentAction->unk20 >= 0) {
         unk = BattleQueue1GetPtr();
-        unk->unk0 = g_CurrentAction->actorId;
+        unk->actionId = g_CurrentAction->actorId;
         unk->unk1 = g_CurrentAction->unk1C;
         unk->unk5 = g_CurrentAction->unk20;
         unk->unk3 = g_CurrentAction->unk28;
@@ -1565,13 +1565,13 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AB830);
 void func_800AB830(s32, s32);
 
 static void func_800AB9C4(s32 arg0, s32 arg1) {
-    Unk800A2F4C* temp_v0;
+    BattleActionQueueEntry* temp_v0;
 
     if (!(g_BattleState.combatant[arg0].status & 1)) {
         temp_v0 = BattleQueue1GetPtr();
         temp_v0->unk1 = 1;
         temp_v0->unk5 = 0x2E;
-        temp_v0->unk0 = arg0;
+        temp_v0->actionId = arg0;
         temp_v0->unk3 = 0;
         temp_v0->unk2 = 0;
         temp_v0->unk8 = -1;
@@ -2590,14 +2590,14 @@ static s32 func_800B10B4(s32 arg0) {
 }
 
 static void BattleQueueEffect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
-    Unk800A2F4C* unk;
+    BattleActionQueueEntry* unk;
     Unk800FA9D0* act;
 
     unk = BattleQueue1GetPtr();
     act = BattleQueue2GetPtr();
     unk->unk1 = 1;
     unk->unk8 = -1;
-    unk->unk0 = arg0;
+    unk->actionId = arg0;
     unk->unk5 = arg1;
     unk->unk3 = arg2;
     unk->unk2 = arg3;

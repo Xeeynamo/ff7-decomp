@@ -21,7 +21,7 @@ typedef struct {
 } Unk8009D866; // 0x440
 
 typedef struct {
-    s8 unk0;
+    s8 actionId;
     s8 unk1;
     s8 unk2;
     s8 unk3;
@@ -29,8 +29,8 @@ typedef struct {
     s8 unk5;
     s16 unk6;
     s16 unk8;
-    s16 unkA;
-} Unk800A2F4C; // size: 0xC (confirmed by D_80163A98 - g_BattleActionQueue == 0x40 * 0xC)
+    s16 targetIndex;
+} BattleActionQueueEntry; // size: 0xC (confirmed by D_80163A98 - g_BattleActionQueue == 0x40 * 0xC)
 
 typedef struct {
     /* 0x00 */ s16 D_801620AC;
@@ -511,7 +511,7 @@ extern u8 D_80163774[4];
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct
 extern u8 D_8016378C[];
-extern Unk800A2F4C g_BattleActionQueue[0x40];
+extern BattleActionQueueEntry g_BattleActionQueue[0x40];
 extern s8 D_80163A98;
 extern u8 D_80163B38;
 extern s16 D_80163B44[];
