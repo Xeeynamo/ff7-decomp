@@ -163,7 +163,7 @@ overlays:
     segments:
       - [0x0, .rodata, ending]
       - [0x30, c, ending]
-      - [0x3934, data]
+      - [0x3934, .data, ending]
       - [0x6524, .bss, ending]
   - name: field
     disk_path: disks/us/FIELD/FIELD.BIN.dec
