@@ -3,10 +3,6 @@
 #include <game.h>
 #include <psxsdk/libcd.h>
 
-extern s16* D_800A6528;
-extern s32 D_800AF40C;
-extern s32 D_800AF410;
-extern void* D_800A6524;
 typedef struct EndingNode {
     struct EndingNode* prev;
     struct EndingNode* next;
@@ -14,7 +10,7 @@ typedef struct EndingNode {
     u16 id;
     u8 state;
     u8 prio;
-} EndingNode;
+} EndingNode; // size:0x10
 
 typedef struct EndingObj {
     struct EndingObj* parent;
@@ -23,68 +19,88 @@ typedef struct EndingObj {
     VECTOR scale;
     SVECTOR rot;
     SVECTOR pos;
-} EndingObj;
+} EndingObj; // size:0x48
 
-extern EndingNode D_800AF3C8;
-extern EndingNode D_800AF3D8;
+typedef struct {
+    /* 0x0 */ u16 flags;
+    /* 0x2 */ s16 timer;
+    /* 0x4 */ s16 unk4;
+    /* 0x6 */ u16 delay;
+    /* 0x8 */ u16 frame;
+    /* 0xA */ u16 unkA;
+    /* 0xC */ void* anim;
+    /* 0x10 */ u8 r;
+    /* 0x11 */ u8 g;
+    /* 0x12 */ u8 b;
+    /* 0x13 */ u8 unk13;
+    /* 0x14 */ u8 dr;
+    /* 0x15 */ u8 dg;
+    /* 0x16 */ u8 db;
+    /* 0x17 */ u8 unk17;
+    /* 0x18 */ u8 r0;
+    /* 0x19 */ u8 g0;
+    /* 0x1A */ u8 b0;
+    /* 0x1B */ u8 unk1B;
+    /* 0x1C */ u8 unk1C[0x40];
+    /* 0x5C */ s16 unk5C;
+    /* 0x5E */ s16 unk5E;
+    /* 0x60 */ s16 unk60;
+    /* 0x62 */ u8 unk62[6];
+    /* 0x68 */ s32 unk68;
+    /* 0x6C */ s32 unk6C;
+    /* 0x70 */ s32 unk70;
+    /* 0x74 */ u8 unk74[4];
+    /* 0x78 */ VECTOR unk78;
+} EndingSprite; // size:0x88
 
 extern s32 D_800A6390;
 extern s32 D_800A6394;
-extern EndingNode D_800A762C;
-extern s32 D_800AF408;
 extern OT_TYPE D_800A64E4[1];
 extern DR_MODE D_800A64EC[2];
 extern TILE D_800A6504[2];
-extern DISPENV D_800AF398[2];
-extern DRAWENV D_800AF2E0[2];
 extern DISPENV* D_8007EBD8;
 extern DRAWENV* D_8007EBD0;
-extern u32 D_800AF3C0;
-extern u32 D_800AF3C4;
-extern u32 D_800AF3EC;
-extern u32 D_800AF3F0;
-extern u32 D_800AF3F4;
-extern u32 D_800AF3F8;
-extern void* D_800AF3E8;
-extern void* D_800AF3FC;
-extern TILE D_800A763C[];
-extern TILE D_800A765C[];
 extern s32 (*D_800A63DC[])(void);
 extern u8* D_8003623C;
 
-typedef struct {
-    u16 flags;
-    s16 timer;
-    s16 unk4;
-    u16 delay;
-    u16 frame;
-    u16 unkA;
-    void* anim;
-    u8 r;
-    u8 g;
-    u8 b;
-    u8 unk13;
-    u8 dr;
-    u8 dg;
-    u8 db;
-    u8 unk17;
-    u8 r0;
-    u8 g0;
-    u8 b0;
-    u8 unk1B;
-    u8 unk1C[0x40];
-    s16 unk5C;
-    s16 unk5E;
-    s16 unk60;
-    u8 unk62[6];
-    s32 unk68;
-    s32 unk6C;
-    s32 unk70;
-    u8 unk74[4];
-    VECTOR unk78;
-} EndingSprite;
+void* D_800A6524;
+s16* D_800A6528;
+EndingSprite D_800A652C[32];
+EndingNode D_800A762C;
+TILE D_800A763C[2];
+TILE D_800A765C[2];
+u8 D_800A767C[0x8];
+u8 D_800A7684[0x38];
+u8 D_800A76BC[0x4];
+u8 D_800A76C0[0x8];
+u8 D_800A76C8[0x44];
+u8 D_800A770C[0x4BBC];
+u8 D_800AC2C8[0x4];
+u8 D_800AC2CC[0x8];
+u8 D_800AC2D4[0x27F4];
+u8 D_800AEAC8[0x4];
+u8 D_800AEACC[0x4];
+u8 D_800AEAD0[0x8];
+u8 D_800AEAD8[0x4];
+u8 D_800AEADC[0x4];
+u8 D_800AEAE0[0x800];
+DRAWENV D_800AF2E0[2];
+DISPENV D_800AF398[2];
+u32 D_800AF3C0;
+u32 D_800AF3C4;
+EndingNode D_800AF3C8;
+EndingNode D_800AF3D8;
+void* D_800AF3E8;
+u32 D_800AF3EC;
+u32 D_800AF3F0;
+u32 D_800AF3F4;
+u32 D_800AF3F8;
+void* D_800AF3FC;
+u8 D_800AF400[0x8];
+s32 D_800AF408;
+s32 D_800AF40C;
+s32 D_800AF410;
 
-extern EndingSprite D_800A652C[];
 extern s32 D_800A63B0;
 
 s32 func_80034410(void);
