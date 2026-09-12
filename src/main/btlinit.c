@@ -5,8 +5,10 @@ void func_80014578(s32 file_no, void* dst, void (*cb)(void));
 void func_800145BC(void (*cb)(void));
 s32 SysGzipPackDecompressById(u8* src, void* dst, s32 type);
 
+void func_800148A0(void);
 INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", func_800148A0);
 
+void func_800148B4(void);
 INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", func_800148B4);
 
 void func_80014934(void) {

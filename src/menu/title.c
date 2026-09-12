@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.7.2
-#include <psxsdk/libapi.h>
+#include <libapi.h>
 #include "savemenu.h"
-#include <psxsdk/libetc.h>
+#include <libetc.h>
 
 extern s32 D_801E2CF4;
 

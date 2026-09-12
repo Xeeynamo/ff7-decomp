@@ -1,7 +1,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "psxsdk/libgpu.h"
 #include <common.h>
 #include <libgte.h>
 #include <libgpu.h>
