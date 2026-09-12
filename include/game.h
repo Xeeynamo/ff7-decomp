@@ -1121,6 +1121,11 @@ extern s32 D_800FAFD0;
 // PSXSDK funcs
 SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
 MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
+s32 func_80041E30(s32 arg0, s32 arg1);
+void func_80041D28(int, void*, int);
+void func_8003DE6C(s32 arg0);
+void func_8003DE84(s32 arg0);
+
 void SystemError(char c, long n);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
 void SysIncSeedForRandom(void);
@@ -1150,6 +1155,7 @@ s32 SysMenuGetMateriaColorByType(s32 arg0);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
 s32 SysAddCommandToTemp(s32);
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
+void SysMovieAbortPlay(void);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);
@@ -1161,6 +1167,7 @@ int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)());
 void SystemLzsDecompress(u8* dst, u8* src);
 u32 SystemCdromReadChain(void);
 s32 SysGetLimitCmdId(s32 charId, s32 limitIndex);
+int SYS_GetDiskNo(void);
 
 // from overlays
 extern u8 SavedScriptIds[48][8]; // script ids of latest queued scripts

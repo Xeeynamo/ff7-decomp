@@ -98,8 +98,6 @@ s32 func_800484A8(void);
 MATRIX* ScaleMatrix(MATRIX*, VECTOR*);
 void VectorNormal(VECTOR*, VECTOR*);
 u32 InputReadPadsRaw(void);
-void func_80041D28(u32, void*, s32);
-s32 func_80041E30(s32, s32);
 static s32 func_800A379C(EndingObj*, VECTOR*, VECTOR*, s32);
 void func_80036244(void*, u16);
 void func_800A3178(EndingNode*, s16, u8, void (*)());
@@ -134,7 +132,6 @@ void func_800A0030(void) {
 
     do {
         res = (s32)CdSearchFile(&file, D_800A0018);
-
         if (res <= 0) {
             if (res >= -1) {
                 printf(D_800A0000);
@@ -142,7 +139,7 @@ void func_800A0030(void) {
             }
         }
 
-        CdControlB(2, (u_char*)&file, NULL);
+        CdControlB(CdlSetloc, (u_char*)&file, NULL);
         func_80041D28((file.size + 0x7FF) >> 11, (void*)0x80180000, 0x80);
 
         do {
@@ -156,7 +153,6 @@ void func_800A0030(void) {
     b = 0xFE;
     g = 0xFE;
     r = 0xFE;
-
     do {
         buf = buf == 0;
         func_800A273C(0);

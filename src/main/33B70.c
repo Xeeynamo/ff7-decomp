@@ -14,8 +14,8 @@ typedef enum {
 } CdOp;
 
 extern void (*D_8004A634[21])(void);
-extern int D_800698E8; // sector_no
-extern int D_800698F0;
+extern int D_800698E8;        // sector_no
+extern u8 D_800698F0[0x4800]; // disc buffer
 extern int D_8006E0F0;
 extern int D_8006E0F4;
 extern CdOp D_80071A60;      // some kind of operation?
@@ -25,6 +25,7 @@ extern size_t D_80071A6C;    // amount of sectors to read
 extern u_long* D_80071A80;   // read content destination
 extern void (*D_80071A84)(); // callback
 void func_80034CAC(u32 arg0);
+static s32 ReadDiskNo(void);
 
 void SysCdromInit(void) {
     while (!CdInit()) {
@@ -32,9 +33,9 @@ void SysCdromInit(void) {
     D_80071A60 = CDOP_0;
     func_8003DDA4(0);
     func_80034F3C();
-    CdControlB(CdlSetmode, (u8*)0x80, NULL);
+    CdControlB(CdlSetmode, (u8*)CdlModeSpeed, NULL);
     VSync(3);
-    D_80071A64 = func_80034350();
+    D_80071A64 = ReadDiskNo();
     SysMovieLoadMovieSettings();
 }
 
@@ -66,7 +67,7 @@ int SystemLoadFileBySector(int sector_no, size_t size, u_long* dst, void (*cb)()
 int SysCdromStartLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)()) {
     SysCdromSetChainParam(CDOP_11, sector_no, size, dst, cb);
     D_800698E8 = sector_no;
-    SysCdromSetLzsExtract(&D_800698F0, dst);
+    SysCdromSetLzsExtract(D_800698F0, dst);
     return 0;
 }
 
@@ -105,15 +106,68 @@ static void func_80034048(void) {
     SystemCdromReadChain();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", SystemCdromAbortLoading);
+void SystemCdromAbortLoading(void) {
+    switch (D_80071A60) {
+    case 0:
+    case 7:
+        return;
+    case 5:
+    case 6:
+    case 13:
+    case 14:
+        func_8003DE6C(0);
+        func_8003DE84(0);
+        break;
+    case 8:
+    case 9:
+    case 10:
+        SysMovieAbortPlay();
+        return;
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 11:
+    case 12:
+    case 15:
+    case 16:
+    case 17:
+    case 18:
+        break;
+    }
+    func_80034048();
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80034104);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80034150);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80034350);
+static s32 ReadDiskNo(void) {
+    CdlFILE file;
+    s32 fd;
+    s32 res;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_800343F0);
+    do {
+    } while (SystemCdromReadChain());
+    do {
+        fd = (s32)CdSearchFile(&file, "\\MINT\\DISKINFO.CNF;1");
+        if (fd <= 0) {
+            if (fd >= -1) {
+                return -1;
+            }
+        }
+        CdControlB(CdlSetloc, &file.pos.minute, NULL);
+        func_80041D28(1, D_800698F0, 0x80);
+        do {
+            res = func_80041E30(1, 0);
+        } while (res > 0);
+    } while (res != 0);
+
+    // DISK0001, where [7] is '1'
+    return D_800698F0[7] - '0';
+}
+
+s32 SYS_GetDiskNo(void) { return ReadDiskNo(); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80034410);
 
