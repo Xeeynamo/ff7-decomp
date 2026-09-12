@@ -1930,3 +1930,5 @@ g_ThunderRenderDesc0 = 0x801c0e5c;
 g_ThunderRenderDesc1 = 0x801c0e68;
 MAGIC_MBarrier = 0x801b0000;
 g_MabariaRenderDesc = 0x801b0c90;
+MAGIC_Refrec = 0x801b0000;
+g_RefrecRenderDesc = 0x801b0c00;
