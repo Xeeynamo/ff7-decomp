@@ -128,7 +128,8 @@ static void VSyncCallbackFunc(void) {
     D_8007E768 = 1;
 }
 
-static void SysInitBase(void) {
+// TODO mark as 'static' once 'main' is decompiled
+void SysInitBase(void) {
     StopCallback();
     ResetCallback();
     ResetGraph(0);

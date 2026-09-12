@@ -565,6 +565,9 @@ void func_800A0030(void) {
 
     func_800A2504(640, 480, 0x200, 0, 0, 0);
 
+#ifdef VERSION_PC
+    PC_LoadStartup();
+#else
     do {
         res = (s32)CdSearchFile(&file, "\\STARTUP\\SCEAP.LZS;1");
         if (res <= 0) {
@@ -581,6 +584,7 @@ void func_800A0030(void) {
             res = func_80041E30(1, 0);
         } while (res > 0);
     } while (res != 0);
+#endif
 
     SystemLzsDecompress((u8*)0x80180000, (u8*)0x80100000);
     SetDispMask(1);

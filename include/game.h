@@ -4,6 +4,9 @@
 #include <common.h>
 #include <libgte.h>
 #include <libgpu.h>
+#ifdef VERSION_PC
+#include <pc.h>
+#endif
 
 #ifndef FF7_STR
 #define _S(x) x       // check the usage of 'bin/str' to see how this works
