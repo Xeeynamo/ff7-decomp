@@ -220,7 +220,7 @@ typedef enum {
 // priority table (BattleCopyBattleActionToBattleQueue), which BattleBattleActionQueueExecute drains in priority
 // order into func_800A1798, which runs the command as a byte-coded sequence
 // of opcodes (D_800F38AC/D_800A0098/D_800E7B28), not a single switch on
-// cmdIndex. Full writeup: ff7-re/reference/BattleCOMMAND_QUEUE.md
+// cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
 typedef struct {
     /* 0x0 */ u8 priority; // 0=limits/counters, 6=player spells (see func_800A4350)
     /* 0x1 */ u8 queuePos; // position within priority band; not set by func_800A4350
