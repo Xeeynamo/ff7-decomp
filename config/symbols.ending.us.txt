@@ -1,1 +1,2 @@
 func_8003A08C = 0x8003A08C; // ignore:true
+D_800A652C = 0x800A652C; // size:0x1100
