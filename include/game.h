@@ -1013,7 +1013,7 @@ extern u8 D_80062D99;
 // touched; battle code spin-waits on it.
 extern volatile u8 g_SavemapBusy;
 extern s32 D_80062DCC;
-extern s8 _D_80062DFD;
+extern u8 _D_80062DFD;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
 extern u8 D_80062F1A;
 extern u8 D_80062F1B;
