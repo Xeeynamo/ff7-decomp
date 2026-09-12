@@ -68,14 +68,14 @@ extern s32 D_801E36B4;
 extern DRAWENV D_801E36BC[2];
 extern DISPENV D_801E3774[2];
 extern Menus menus;
-extern u_long* D_801E3854; // otag pointer
-extern u_long* D_801E3858[2][1];
+extern OT_TYPE* D_801E3854;
+extern OT_TYPE* D_801E3858[2][1];
 extern SaveHeader D_801E3864[];
 extern s32 g_SaveSlot;
 extern s32 D_801E3D54;
-extern s32 D_801E3D58;     // backbuffer id?
-extern u_long* D_801E3D5C; // otag pointer
-extern u_long* D_801E3D60[2][4];
+extern s32 D_801E3D58; // backbuffer id?
+extern OT_TYPE* D_801E3D5C;
+extern OT_TYPE* D_801E3D60[2][4];
 extern MenuTable D_801E3DEC[2];
 extern DRAWENV D_801E3E34[2];
 extern DISPENV D_801E3EEC[2];
