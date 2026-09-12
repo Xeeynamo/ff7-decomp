@@ -538,36 +538,19 @@ static s32 D_800AF408;
 static s32 D_800AF40C;
 static s32 D_800AF410;
 
-extern DISPENV* D_8007EBD8;
-extern DRAWENV* D_8007EBD0;
-extern u8* D_8003623C;
-
-s32 func_80034410(void);
-void SysMoviePlay(void*, s16);
-void* SysCdromGetPackPointer(void*, s32);
 static void func_800A2888(void*, s16*, s16*);
-void SysCdromSetLzsExtract(void*, void*);
-s32 func_80034D5C(void);
-s32 func_800484A8(void);
-MATRIX* ScaleMatrix(MATRIX*, VECTOR*);
-void VectorNormal(VECTOR*, VECTOR*);
-u32 InputReadPadsRaw(void);
 static s32 func_800A379C(EndingObj*, VECTOR*, VECTOR*, s32);
-void func_80036244(void*, u16);
 void func_800A3178(EndingNode*, s16, u8, void (*)());
 static void func_800A09DC(void);
 static void func_800A2504(s32, s32, s32, u8, u8, u8);
-s32 SetGraphDebug(s32);
 static s32 func_800A273C(s32);
 static void func_800A3368(EndingSprite*);
 static void func_800A343C(EndingSprite*);
 void* func_800A358C(void*, s32, void*, void*);
 static void func_800A0E68(void);
 static void func_800A34C4(EndingSprite* spr);
-
-s32 func_80048540(s32);
-static EndingNode* func_800A3314(s16);
 static void func_800A32D8(EndingNode*);
+static EndingNode* func_800A3314(s16);
 
 static const char cd_msg_err[] = "scea file read error\n";
 void func_800A0030(void) {
