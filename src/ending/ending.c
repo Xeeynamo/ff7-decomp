@@ -1,4 +1,5 @@
 //! PSYQ=3.3 CC1=2.6.3
+#include "libgpu.h"
 #include <game.h>
 #include <psxsdk/libcd.h>
 
@@ -31,13 +32,11 @@ extern s32 D_800A6390;
 extern s32 D_800A6394;
 extern EndingNode D_800A762C;
 extern s32 D_800AF408;
-extern u_long D_800A64E4[];
-extern DR_MODE D_800A64EC[];
-extern TILE D_800A6504[];
-extern char D_800A0000[];
-extern char D_800A0018[];
-extern DISPENV D_800AF398[];
-extern DRAWENV D_800AF2E0[];
+extern OT_TYPE D_800A64E4[1];
+extern DR_MODE D_800A64EC[2];
+extern TILE D_800A6504[2];
+extern DISPENV D_800AF398[2];
+extern DRAWENV D_800AF2E0[2];
 extern DISPENV* D_8007EBD8;
 extern DRAWENV* D_8007EBD0;
 extern u32 D_800AF3C0;
@@ -115,6 +114,7 @@ s32 func_80048540(s32);
 static EndingNode* func_800A3314(s16);
 static void func_800A32D8(EndingNode*);
 
+static const char cd_msg_err[] = "scea file read error\n";
 void func_800A0030(void) {
     RECT rect;
     CdlFILE file;
@@ -128,13 +128,13 @@ void func_800A0030(void) {
     s32 tp;
     u8* src;
 
-    func_800A2504(0x280, 0x1E0, 0x200, 0, 0, 0);
+    func_800A2504(640, 480, 0x200, 0, 0, 0);
 
     do {
-        res = (s32)CdSearchFile(&file, D_800A0018);
+        res = (s32)CdSearchFile(&file, "\\STARTUP\\SCEAP.LZS;1");
         if (res <= 0) {
             if (res >= -1) {
-                printf(D_800A0000);
+                printf(cd_msg_err);
                 return;
             }
         }
@@ -153,7 +153,7 @@ void func_800A0030(void) {
     b = 0xFE;
     g = 0xFE;
     r = 0xFE;
-    do {
+    while (r > 0) {
         buf = buf == 0;
         func_800A273C(0);
         ode = GetODE() ^ 1;
@@ -171,27 +171,27 @@ void func_800A0030(void) {
             src += 0xA00;
         }
 
-        ClearOTagR(((u_long*)((buf * 4) + (s32)D_800A64E4)), 1);
-        SetTile((TILE*)((buf * 0x10) + (s32)D_800A6504));
-        SetSemiTrans(((TILE*)((buf * 0x10) + (s32)D_800A6504)), 1);
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->x0 = 0x1E;
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->y0 = 0xC8;
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->w = 0x244;
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->h = 0x4A;
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->r0 = r;
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->g0 = g;
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->b0 = b;
-        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)), ((TILE*)((buf * 0x10) + (s32)D_800A6504)));
+        ClearOTagR(&D_800A64E4[buf], LEN(D_800A64E4));
+        SetTile(&D_800A6504[buf]);
+        SetSemiTrans(&D_800A6504[buf], 1);
+        (&D_800A6504[buf])->x0 = 0x1E;
+        (&D_800A6504[buf])->y0 = 0xC8;
+        (&D_800A6504[buf])->w = 0x244;
+        (&D_800A6504[buf])->h = 0x4A;
+        (&D_800A6504[buf])->r0 = r;
+        (&D_800A6504[buf])->g0 = g;
+        (&D_800A6504[buf])->b0 = b;
+        AddPrim(&D_800A64E4[buf], &D_800A6504[buf]);
         tp = GetTPage(2, 2, 0, 0);
-        SetDrawMode(((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)), 1, 1, tp & 0xFFFF, NULL);
-        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)), ((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)));
-        DrawOTag((u_long*)((buf * 4) + (s32)D_800A64E4));
+        SetDrawMode(&D_800A64EC[buf], 1, 1, tp, NULL);
+        AddPrim(&D_800A64E4[buf], &D_800A64EC[buf]);
+        DrawOTag(&D_800A64E4[buf]);
         r -= 2;
         g -= 2;
         b -= 2;
-    } while (r > 0);
+    }
 
-    for (i = 0; i < 0x12C; i++) {
+    for (i = 0; i < 300; i++) {
         buf = buf == 0;
         func_800A273C(0);
         ode = GetODE() ^ 1;
@@ -228,21 +228,21 @@ void func_800A0030(void) {
             src += 0xA00;
         }
 
-        ClearOTagR(((u_long*)((buf * 4) + (s32)D_800A64E4)), 1);
-        SetTile((TILE*)((buf * 0x10) + (s32)D_800A6504));
-        SetSemiTrans(((TILE*)((buf * 0x10) + (s32)D_800A6504)), 1);
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->x0 = 0x1E;
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->y0 = 0xC8;
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->w = 0x244;
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->h = 0x4A;
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->r0 = r;
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->g0 = g;
-        ((TILE*)((buf * 0x10) + (s32)D_800A6504))->b0 = b;
-        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)), ((TILE*)((buf * 0x10) + (s32)D_800A6504)));
+        ClearOTagR(&D_800A64E4[buf], LEN(D_800A64E4));
+        SetTile(&D_800A6504[buf]);
+        SetSemiTrans(&D_800A6504[buf], 1);
+        (&D_800A6504[buf])->x0 = 0x1E;
+        (&D_800A6504[buf])->y0 = 0xC8;
+        (&D_800A6504[buf])->w = 0x244;
+        (&D_800A6504[buf])->h = 0x4A;
+        (&D_800A6504[buf])->r0 = r;
+        (&D_800A6504[buf])->g0 = g;
+        (&D_800A6504[buf])->b0 = b;
+        AddPrim(&D_800A64E4[buf], &D_800A6504[buf]);
         tp = GetTPage(2, 2, 0, 0);
-        SetDrawMode(((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)), 1, 1, tp & 0xFFFF, NULL);
-        AddPrim(((u_long*)((buf * 4) + (s32)D_800A64E4)), ((DR_MODE*)((buf * 0xC) + (s32)D_800A64EC)));
-        DrawOTag((u_long*)((buf * 4) + (s32)D_800A64E4));
+        SetDrawMode(&D_800A64EC[buf], 1, 1, tp, NULL);
+        AddPrim(&D_800A64E4[buf], &D_800A64EC[buf]);
+        DrawOTag(&D_800A64E4[buf]);
         r += 2;
         g += 2;
         b += 2;

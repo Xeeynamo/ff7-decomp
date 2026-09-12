@@ -161,7 +161,7 @@ overlays:
       - config/symbols.ending.us.txt
     vram_start: 0x800A0000
     segments:
-      - [0x0, rodata]
+      - [0x0, .rodata, ending]
       - [0x30, c, ending]
       - [0x3934, data]
       - [0x6524, bss]
