@@ -79,17 +79,13 @@ static SVECTOR shield_pivot_offset = {0, 0, -500};
 static ModelRenderDesc shield_render_desc = {bari_a2, 0, 0, 0, 0x20};
 static int barrier_base_scale;
 
-typedef struct {
-    /* 0x00 */ char pad[MAGIC_PAGE_SIZE];
-} BarrierPrimPage; // size:0x10000
-
-static BarrierPrimPage barrier_prim_buffer[2];
+static u8 barrier_prim_buffer[2][MAGIC_PAGE_SIZE];
 static void* barrier_buffer_ptr;
 
 // barrier.c forward declarations
-static void BarrierMainSetup(int arg0, int arg1);
+static void BarrierMainSetup(int targetMask, int callbackArg);
 
-void MAGIC_Barrier(int arg0, int arg1) { BarrierMainSetup(arg0, arg1); }
+void MAGIC_Barrier(int targetMask, int callbackArg) { BarrierMainSetup(targetMask, callbackArg); }
 
 // FaceIndex runs 0, 1, 3, 2 across the four instances -- Gray code, so the
 // shell grows through adjacent quadrants.
@@ -281,7 +277,7 @@ static void BarrierAnimationUpdate(void) {
     barrier->AnimationFrame++;
 }
 
-static void BarrierAttachToTarget(int target, int arg1) {
+static void BarrierAttachToTarget(int target, int callbackArg) {
     BarrierData* barrier;
 
     barrier = &g_BattleEffectSlots[BattleEffectRegister(BarrierAnimationUpdate)];
@@ -296,7 +292,7 @@ static void BarrierDoubleBufferFlip(void) {
     BarrierData* barrier;
 
     barrier = &g_BattleEffectSlots[g_BattleEffectCursor];
-    barrier_buffer_ptr = &barrier_prim_buffer[barrier->AnimationFrame];
+    barrier_buffer_ptr = barrier_prim_buffer[barrier->AnimationFrame];
     barrier->AnimationFrame ^= 1;
 
     if (g_BattleEffectCount < 2) {
@@ -304,9 +300,9 @@ static void BarrierDoubleBufferFlip(void) {
     }
 }
 
-static void BarrierMainSetup(int arg0, int arg1) {
+static void BarrierMainSetup(int targetMask, int callbackArg) {
     barrier_base_scale = 0x3000;
     BattleEffectRegister(BarrierDoubleBufferFlip);
-    MagicAnimationRegister(arg0, arg1, 4, BarrierAttachToTarget);
-    BattleCommandSend(32, BattleEntityGetStereoPan(arg0), 94);
+    MagicAnimationRegister(targetMask, callbackArg, 4, BarrierAttachToTarget);
+    BattleCommandSend(32, BattleEntityGetStereoPan(targetMask), 94);
 }

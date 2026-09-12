@@ -515,6 +515,7 @@ typedef struct {
     /* 0x344 */ BattleUnitAttackSetup setup[NUM_PARTY];
 } BattleWork; // size:0x38C
 
+extern s16 D_800F5B74;
 extern BattleWork g_BattleWork;
 extern Unk800F5F44 D_800F5F44;
 extern s8 D_800F6B86[2][8];
@@ -523,7 +524,9 @@ extern u8 D_800F83A8;
 extern BattleState g_BattleState;
 extern Unk800BB75C D_800FA63C;
 extern DB* g_cDb;
+extern s32 g_dbIndex;
 extern short g_BattleEffectCursor;
+extern s16 D_80151774;
 extern BattleModel D_801518E4[NUM_BATTLE_ACTOR];
 extern short g_BattleEffectCount;
 extern s32 D_801620A8;
@@ -548,7 +551,7 @@ s32 func_800D55A4(s32 target);
 void BattleCommandSend(s32 cmdId, ...);
 void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
 // Runs `func` once per set bit in targetMask, frameStep frames apart.
-void MagicAnimationRegister(s32 targetMask, s32 arg1, s32 frameStep, void (*func)(s32, s32));
+void MagicAnimationRegister(s32 targetMask, s32 callbackArg, s32 frameStep, void (*func)(s32, s32));
 s32 BattlePositionToStereoPan(SVECTOR* sv);
 s32 BattleEntityGetStereoPan(s32 arg0);
 void func_800D5774(u32 targetIndex);
