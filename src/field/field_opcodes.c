@@ -45,7 +45,7 @@ extern u32 D_80075E10;
 extern SVECTOR (*D_800E4274)[3];
 extern u8* D_800E48E0;
 
-void SysCalculateTotalLureGilPreemptiveValue(void);
+void SysCalcTotalLureGilPreempVal(void);
 void SysInitPlayerStatFromMateria(s32);
 void SysInitPlayerStatFromEquip(s32);
 void SystemMenuAddHpByPartyId(s32 partyId, u16 hp);
@@ -4250,7 +4250,7 @@ static void SystemRefreshParty(void) {
             SysInitPlayerStatFromMateria(i);
         }
     }
-    SysCalculateTotalLureGilPreemptiveValue();
+    SysCalcTotalLureGilPreempVal();
 }
 
 static void SystemRestoreParty(void) {

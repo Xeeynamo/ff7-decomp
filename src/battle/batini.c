@@ -1,6 +1,8 @@
 #include "battle.h"
 #include "unzip.h"
 
+#define BATTLE_TEXT_OFFSET_ENTRY 0x7E
+
 static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void));
 static void BattleInitEnemyAI(void);
 static void BattleInitPartyFromSavemap(void);
@@ -23,7 +25,7 @@ void BatInitMain(s32 sceneID) {
     s32* order;
     s32* order2;
     s32* prev;
-    u8* temp_v0;
+    u8* FFTextOffset;
     BattleUnit* p;
     BattleUnit* q;
     s32* next;
@@ -37,10 +39,10 @@ void BatInitMain(s32 sceneID) {
         SysInitPlayerStatFromEquip(i);
         SysInitPlayerStatFromMateria(i);
     }
-    SysCalculateTotalLureGilPreemptiveValue();
-    temp_v0 = (u8*)SysGetPtrToUncompKernBattleTxtWithId(0x7E);
-    D_800FAFD0 = temp_v0[0];
-    D_800F7ED0 = temp_v0[1];
+    SysCalcTotalLureGilPreempVal();
+    FFTextOffset = (u8*)SysGetKernBattleTextById(BATTLE_TEXT_OFFSET_ENTRY);
+    g_FFTextNumberOffset = FFTextOffset[0];
+    g_FFTextLetterOffset = FFTextOffset[1];
     func_800A3278();
     func_800A283C();
     func_800AD480();
