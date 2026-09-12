@@ -162,17 +162,17 @@ static void func_800A2F24(void) {
     g_BattleActionQueueTargIndex = D_800F3954;
 }
 
-static BattleActionQueueEntry* BattleQueue1GetPtr(void) {
-    BattleActionQueueEntry* unk = &g_BattleActionQueue[g_BattleActionQueueIndex];
-    unk->unk3 = 0;
-    unk->unk2 = 0;
-    unk->targetIndex = g_BattleActionQueueTargIndex;
+static BattleActionQueueEntry* BattleActionQueueAlloc(void) {
+    BattleActionQueueEntry* entry = &g_BattleActionQueue[g_BattleActionQueueIndex];
+    entry->unk3 = 0;
+    entry->unk2 = 0;
+    entry->targetIndex = g_BattleActionQueueTargIndex;
     if (g_BattleActionQueueIndex < LEN(g_BattleActionQueue)) {
         g_BattleActionQueueIndex++;
     } else {
         func_800155A4(40);
     }
-    return unk;
+    return entry;
 }
 
 static Unk800FA9D0* BattleQueue2GetPtr(void) {
@@ -226,7 +226,7 @@ static void func_800A317C(void) {
 }
 
 void func_800A31A0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    BattleActionQueueEntry* unk = BattleQueue1GetPtr();
+    BattleActionQueueEntry* unk = BattleActionQueueAlloc();
     unk->actionId = arg0;
     unk->unk1 = arg1;
     unk->unk5 = arg2;
@@ -292,7 +292,7 @@ void BattleRunFrame(void) {
 
     func_800A32C0(g_BattleActionQueueIndex);
     if (g_BattleActionQueueIndex != 0) {
-        BattleQueue1GetPtr()->actionId = -1;
+        BattleActionQueueAlloc()->actionId = -1;
     }
     func_800155B0();
     for (i = 0; i < 0x40; i++) {
@@ -1267,7 +1267,7 @@ void BattleQueueCurrentActionEffect(void) {
     Unk800FA9D0* act;
 
     if (g_CurrentAction->unk20 >= 0) {
-        unk = BattleQueue1GetPtr();
+        unk = BattleActionQueueAlloc();
         unk->actionId = g_CurrentAction->actorId;
         unk->unk1 = g_CurrentAction->unk1C;
         unk->unk5 = g_CurrentAction->unk20;
@@ -1568,7 +1568,7 @@ static void func_800AB9C4(s32 arg0, s32 arg1) {
     BattleActionQueueEntry* temp_v0;
 
     if (!(g_BattleState.combatant[arg0].status & 1)) {
-        temp_v0 = BattleQueue1GetPtr();
+        temp_v0 = BattleActionQueueAlloc();
         temp_v0->unk1 = 1;
         temp_v0->unk5 = 0x2E;
         temp_v0->actionId = arg0;
@@ -2593,7 +2593,7 @@ static void BattleQueueEffect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, 
     BattleActionQueueEntry* unk;
     Unk800FA9D0* act;
 
-    unk = BattleQueue1GetPtr();
+    unk = BattleActionQueueAlloc();
     act = BattleQueue2GetPtr();
     unk->unk1 = 1;
     unk->unk8 = -1;
