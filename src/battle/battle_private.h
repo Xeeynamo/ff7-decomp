@@ -30,7 +30,7 @@ typedef struct {
     s16 unk6;
     s16 unk8;
     s16 unkA;
-} Unk800A2F4C; // size: 0xC (confirmed by D_80163A98 - D_80163798 == 0x40 * 0xC)
+} Unk800A2F4C; // size: 0xC (confirmed by D_80163A98 - g_BattleActionQueue == 0x40 * 0xC)
 
 typedef struct {
     /* 0x00 */ s16 D_801620AC;
@@ -301,8 +301,8 @@ extern u8 D_800F38A7;
 extern u8 D_800F389C;
 extern s16 D_800F389E;
 extern s16 D_800F3896; // btlmenu_activeWindowId
-extern s32 D_800F3944;
-extern s32 D_800F3948;
+extern s32 g_BattleActionQueueIndex;
+extern s32 g_BattleActionQueueTargIndex;
 extern s32 D_800F394C;
 extern s32 D_800F3950;
 extern s32 D_800F3954;
@@ -511,7 +511,7 @@ extern u8 D_80163774[4];
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct
 extern u8 D_8016378C[];
-extern Unk800A2F4C D_80163798[0x40];
+extern Unk800A2F4C g_BattleActionQueue[0x40];
 extern s8 D_80163A98;
 extern u8 D_80163B38;
 extern s16 D_80163B44[];

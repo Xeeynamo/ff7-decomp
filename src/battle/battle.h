@@ -557,7 +557,7 @@ void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 void BattleRecalcUnitSpeed(s32 index);
 void BattleUpdateUnitMasks(void);
 void BattleCheckAllLucky7s(void);
-void func_800A3278(void);
+void BattleActionQueueReset(void);
 void func_800A283C(void);
 void func_800AD480(void);
 void func_800A71F4(void);

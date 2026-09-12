@@ -25,3 +25,4 @@ BattleGetScenePackId = 0x801B2738;
 
 g_FFTextNumberOffset = 0x800FAFD0;
 g_FFTextLetterOffset = 0x800F7ED0;
+

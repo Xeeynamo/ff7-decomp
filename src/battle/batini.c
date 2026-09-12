@@ -43,7 +43,7 @@ void BatInitMain(s32 sceneID) {
     FFTextOffset = (u8*)SysGetKernBattleTextById(BATTLE_TEXT_OFFSET_ENTRY);
     g_FFTextNumberOffset = FFTextOffset[0];
     g_FFTextLetterOffset = FFTextOffset[1];
-    func_800A3278();
+    BattleActionQueueReset();
     func_800A283C();
     func_800AD480();
     for (i = 0; i < 0x40; i++) {
