@@ -363,3 +363,18 @@ overlays:
     segments:
       - [0, c, refrec]
       - [0x584, data, refrec]
+  # FIRE.BIN -- "Fire", the tier-1 fire spell
+  - name: fire
+    disk_path: disks/us/MAGIC/FIRE.BIN
+    sha1: f97e855561ac37c55ff049503f6d70f065b61197
+    base_path: magic
+    vram_start: 0x801B0000
+    bss_size: 0x8004
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+      - config/symbols.magic-fire.us.txt
+    segments:
+      - [0, c, fire]
+      - [0x39c, data, fire]
+      - [0x10604, .bss, fire]

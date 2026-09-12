@@ -1,0 +1,4 @@
+g_FireTexture = 0x801B039C;
+g_FireRenderDesc = 0x801C05F8; // size:0xC
+fire_prim_buffer = 0x801C0604; // size:0x8000
+fire_buffer_ptr = 0x801C8604; // size:0x4

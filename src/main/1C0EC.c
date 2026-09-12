@@ -7,6 +7,7 @@ const u8 D_8001029C[6][4] = {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1C0EC", SysSortMagicInUnitStructure);
 
-static void func_8001C3C4(void) {}
+// called from the FIRE overlay, so it cannot be static
+void func_8001C3C4(void) {}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1C0EC", func_8001C3CC);
