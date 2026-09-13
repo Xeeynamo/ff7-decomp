@@ -47,10 +47,10 @@ void BatInitMain(s32 sceneID) {
     BattleCmdScriptInitTbl();
     BattleHitFormulaInit();
     for (i = 0; i < 0x40; i++) {
-        g_BattleSceneContext.actionQueue[i].unk0 = 0xFF;
+        g_BattleSceneContext.actionQueue[i].priority = 0xFF;
     }
     for (i = 0; i < 10; i++) {
-        g_BattleSceneContext.subActionSlots[i].unk0 = 0xFF;
+        g_BattleSceneContext.subActionSlots[i].priority = 0xFF;
     }
     for (i = 0; i < 2; i++) {
         D_800F6B86[i][0] = 0xFF;
@@ -158,8 +158,8 @@ static void BattleInitSetup(s32 sceneID) {
         BattleQueueEvent(0, 0, 14, 0);
     }
     for (i = 0; i < 0x40; i++) {
-        if (g_BattleSceneContext.actionQueue[i].unk2 >= var_s1) {
-            g_BattleSceneContext.actionQueue[i].unk2 = -1;
+        if (g_BattleSceneContext.actionQueue[i].unitID >= var_s1) {
+            g_BattleSceneContext.actionQueue[i].unitID = -1;
         }
     }
     for (i = 0; i < NUM_PARTY; i++) {

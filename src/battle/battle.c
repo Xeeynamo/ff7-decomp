@@ -46,7 +46,7 @@ static void BattleSetFocusedActor(s32 arg0) {
             return;
         }
         for (i = 0; i < 64; i++) {
-            if (g_BattleSceneContext.actionQueue[i].unk0 == 6 && g_BattleSceneContext.actionQueue[i].unk2 == D_800E7A38) {
+            if (g_BattleSceneContext.actionQueue[i].priority == 6 && g_BattleSceneContext.actionQueue[i].unitID == D_800E7A38) {
                 break;
             }
         }
@@ -389,17 +389,17 @@ static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* arg0) {
     s32 category;
     s32 i;
 
-    category = arg0->unk0;
+    category = arg0->priority;
     for (i = 0; i < LEN(g_BattleSceneContext.actionQueue); i++) {
-        if (g_BattleSceneContext.actionQueue[i].unk0 == 0xFF) {
-            arg0->unk1 = g_BattleSceneContext.unkC57[category];
+        if (g_BattleSceneContext.actionQueue[i].priority == 0xFF) {
+            arg0->orderInPriority = g_BattleSceneContext.unkC57[category];
             g_BattleSceneContext.actionQueue[i] = *arg0;
             g_BattleSceneContext.unkC57[category] += 1;
             g_BattleSceneContext.D_800F7DDE = category;
-            if (arg0->unk0 >= 2) {
-                g_BattleState.combatant[arg0->unk2].unk4 &= ~0x20;
-                if ((arg0->unk3 & 0x3F) == 0x13) {
-                    g_BattleState.combatant[arg0->unk2].unk4 |= 0x20;
+            if (arg0->priority >= 2) {
+                g_BattleState.combatant[arg0->unitID].unk4 &= ~0x20;
+                if ((arg0->actionType & 0x3F) == 0x13) {
+                    g_BattleState.combatant[arg0->unitID].unk4 |= 0x20;
                 }
             }
             return;
@@ -407,15 +407,15 @@ static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* arg0) {
     }
 }
 
-static void BattleAddBattleActionToBattleQueue(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    BattleActionEntry sp;
+static void BattleAddBattleActionToBattleQueue(s32 unitId, s32 prio, s32 type, s32 index, s32 target) {
+    BattleActionEntry battleAction;
 
-    sp.unk2 = arg0;
-    sp.unk0 = arg1;
-    sp.unk3 = arg2;
-    sp.unk4 = arg3;
-    sp.unk6 = arg4;
-    BattleCopyBattleActionToBattleQueue(&sp);
+    battleAction.unitID = unitId;
+    battleAction.priority = prio;
+    battleAction.actionType = type;
+    battleAction.attackIndex = index;
+    battleAction.targetMask = target;
+    BattleCopyBattleActionToBattleQueue(&battleAction);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3ED0);
@@ -2370,9 +2370,9 @@ void BattleRestoreBattleActionIfCan(s32 arg0, s32 arg1, s32 arg2) {
     }
     if (!(g_BattleState.combatant[arg0].status & 0x2004404)) {
         if ((g_BattleSceneContext.D_800F7DC2 >> arg0) & 1) {
-            if (g_BattleSceneContext.subActionSlots[arg0].unk0 != 0xFF) {
+            if (g_BattleSceneContext.subActionSlots[arg0].priority != 0xFF) {
                 BattleCopyBattleActionToBattleQueue(&g_BattleSceneContext.subActionSlots[arg0]);
-                g_BattleSceneContext.subActionSlots[arg0].unk0 = 0xFF;
+                g_BattleSceneContext.subActionSlots[arg0].priority = 0xFF;
             }
         }
     }
@@ -2669,16 +2669,16 @@ static u32 func_800B12DC(void) {
 }
 
 // invalidates (unk2 = -1) any occupied actionQueue entry (unk0 != 0xFF)
-// of category arg0 whose unk0 is >= arg1; see BattleCopyBattleActionToBattleQueue, which pushes
+// of category arg0 whose priority is >= arg1; see BattleCopyBattleActionToBattleQueue, which pushes
 // entries into this same queue
 static void BattleInvalidateQueuedMessages(s32 arg0, s32 arg1) {
     s32 i;
 
     for (i = 0; i < LEN(g_BattleSceneContext.actionQueue); i++) {
-        if (g_BattleSceneContext.actionQueue[i].unk2 == arg0) {
-            u8 val = g_BattleSceneContext.actionQueue[i].unk0;
+        if (g_BattleSceneContext.actionQueue[i].unitID == arg0) {
+            u8 val = g_BattleSceneContext.actionQueue[i].priority;
             if (val != 0xFF && val >= arg1) {
-                g_BattleSceneContext.actionQueue[i].unk2 = -1;
+                g_BattleSceneContext.actionQueue[i].unitID = -1;
             }
         }
     }

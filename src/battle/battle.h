@@ -232,12 +232,12 @@ typedef struct {
 } Unk8016360C; // size:0xAC
 
 typedef struct {
-    u8 unk0;
-    s8 unk1;
-    s8 unk2;
-    u8 unk3;
-    s16 unk4;
-    s16 unk6;
+    u8 priority;
+    s8 orderInPriority;
+    s8 unitID;
+    u8 actionType;
+    s16 attackIndex;
+    s16 targetMask;
 } BattleActionEntry; // size:8
 
 typedef struct {
