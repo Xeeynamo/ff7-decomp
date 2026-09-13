@@ -1,7 +1,11 @@
+g_BattleCmdOpcodeStream = 0x800A0098;
 g_StatusBitTable = 0x800A04D0; // size:0x10
+g_BattleHitFormulaJmpTbl = 0x800A04E0;
 BattleMain = 0x800A1158;
+BattleCmdScriptDispatch = 0x800A1798;
 BattleSetFocusedActor = 0x800A22C0;
 BattleBattleActionQueueExecute = 0x800A23E0;
+BattleCmdScriptInitTbl = 0x800A283C;
 BattleCheckAllLucky7s = 0x800A2894;
 BattleActionQueueAlloc = 0x800A2F4C;
 BattleQueue2GetPtr = 0x800A2FD0;
@@ -83,6 +87,7 @@ BattleCalcTargStats = 0x800AC73C;
 BattleIsDamageNullified = 0x800ACE14;
 BattleQueueUnassignedResultDisplay = 0x800AD088;
 BattleApplyDefaultAbsorbEffect = 0x800AD420;
+BattleHitFormulaInit = 0x800AD480;
 BattleDmgFormulaRun = 0x800AD4EC;
 BattleSetFormulaAndBaseDmg = 0x800AD5E8;
 BattleAddBarriersModifier = 0x800AD73C;
@@ -232,12 +237,17 @@ BattleEntityGetCenter = 0x800D54EC;
 BattleCommandSend = 0x800D55F4;
 BattleEffectSpriteAdd = 0x800D6260;
 g_StatusExpireTable = 0x800E7AB4; // size:0x30
+g_BattleCmdOpcodeJmpTbl = 0x800E7B28;
 D_800E7BA4 = 0x800E7BA4; // size:0x15
+g_BattleHitFormulaOpcodeStream = 0x800E7BCC;
+g_BattleDmgFormulaJmpTbl = 0x800E7BFC;
 g_AtbBarPulseColor = 0x800F32C4; // size:0x2
 g_AtbBarPulseValue = 0x800F32C6; // size:0x2
 g_ActiveCharsHPMPInited = 0x800F32C8; // size:0x4
+g_BattleCmdOpcodeOffs = 0x800F38AC;
 g_BattleActionQueueIndex = 0x800F3944;
 g_BattleActionQueueTargIndex = 0x800F3948;
+g_BattleHitFormulaOffs = 0x800F495C;
 g_BattleWork = 0x800F5BB8; // size:0x38C
 D_800F5F44 = 0x800F5F44; // size:0x1E9C
 g_BattleCameraSlots = 0x800F7ED8; // size:0x280
@@ -272,19 +282,3 @@ g_BattleActionQueue = 0x80163798; // size:0x300
 g_BattleMovementCallbacks = 0x80163B48; // size:0x28
 g_BattleMovementCount = 0x80163B7C; // size:0x4
 D_80163C80 = 0x80163C80; // size:0xC
-
-BattleCmdScriptInitTbl = 0x800A283C; 
-g_BattleCmdOpcodeStream = 0x800A0098;
-g_BattleCmdOpcodeOffs = 0x800F38AC;
-BattleCmdScriptDispatch = 0x800A1798;
-g_BattleCmdOpcodeJmpTbl = 0x800E7B28;
-
-BattleHitFormulaInit = 0x800AD480;
-
-g_BattleHitFormulaOpcodeStream = 0x800E7BCC;
-
-g_BattleHitFormulaOffs = 0x800F495C;
-
-g_BattleHitFormulaJmpTbl = 0x800A04E0;
-
-g_BattleDmgFormulaJmpTbl = 0x800E7BFC;
