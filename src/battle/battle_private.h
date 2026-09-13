@@ -1,6 +1,9 @@
 // should be imported only by the BATTLE overlay, not BATINI or similar
 #include "battle.h"
 
+#define CMD_OPCODE_DELIM 0x1F
+#define HIT_OPCODE_DELIM 0x08
+
 enum QueueMethod {
     QUEUE_LOAD_IMAGE,
     QUEUE_STORE_IMAGE,
@@ -21,7 +24,7 @@ typedef struct {
 } Unk8009D866; // 0x440
 
 typedef struct {
-    s8 unk0;
+    s8 actionId;
     s8 unk1;
     s8 unk2;
     s8 unk3;
@@ -29,8 +32,8 @@ typedef struct {
     s8 unk5;
     s16 unk6;
     s16 unk8;
-    s16 unkA;
-} Unk800A2F4C; // size: 0xC (confirmed by D_80163A98 - D_80163798 == 0x40 * 0xC)
+    s16 targetIndex;
+} BattleActionQueueEntry; // size: 0xC (confirmed by D_80163A98 - g_BattleActionQueue == 0x40 * 0xC)
 
 typedef struct {
     /* 0x00 */ s16 D_801620AC;
@@ -218,8 +221,8 @@ typedef enum {
 // may be a smaller staging ring rather than the full logical queue --
 // unconfirmed. Drain chain: func_800A3ED0 drains this ring into a 64-slot
 // priority table (BattleCopyBattleActionToBattleQueue), which BattleBattleActionQueueExecute drains in priority
-// order into func_800A1798, which runs the command as a byte-coded sequence
-// of opcodes (D_800F38AC/D_800A0098/D_800E7B28), not a single switch on
+// order into BattleCmdScriptDispatch, which runs the command as a byte-coded sequence
+// of opcodes (g_BattleCmdOpcodeOffs/g_BattleCmdOpcodeStream/g_BattleCmdOpcodeJmpTbl), not a single switch on
 // cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
 typedef struct {
     /* 0x0 */ u8 priority; // 0=limits/counters, 6=player spells (see func_800A4350)
@@ -247,7 +250,7 @@ extern s8 D_800E7A58[];
 // checked in order against the 3 landed reel symbols (D_80163774) -- see
 // BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
-extern void (*D_800E7BFC[])(void); // per-action epilogue hook
+extern void (*g_BattleDmgFormulaJmpTbl[])(void); // per-action epilogue hook
 extern Yamada D_800E8050[];
 extern VECTOR D_800E7D10;
 extern VECTOR D_800E7D20;
@@ -289,7 +292,7 @@ extern s8 D_800F3468;
 extern u8 D_800F381C[];
 extern u8 D_800F3828[];
 extern unsigned char D_800F384A[];
-extern s32 D_800F38AC[];
+extern s32 g_BattleCmdOpcodeOffs[];
 extern u8 D_800F38A0;
 extern u8 D_800F38A1;
 extern s16 D_800F38A2;
@@ -301,8 +304,8 @@ extern u8 D_800F38A7;
 extern u8 D_800F389C;
 extern s16 D_800F389E;
 extern s16 D_800F3896; // btlmenu_activeWindowId
-extern s32 D_800F3944;
-extern s32 D_800F3948;
+extern s32 g_BattleActionQueueIndex;
+extern s32 g_BattleActionQueueTargIndex;
 extern s32 D_800F394C;
 extern s32 D_800F3950;
 extern s32 D_800F3954;
@@ -323,10 +326,10 @@ typedef struct {
     s16 unk2;
 } Unk800F4308;
 extern Unk800F4308 D_800F4308[][128];
-extern u8 D_800E7BCC[];
+extern u8 g_BattleHitFormulaOpcodeStream[];
 extern s32 D_800F4908[];
 extern s32 D_800F4914[];
-extern s32 D_800F495C[];
+extern s32 g_BattleHitFormulaOffs[];
 extern s32 D_800F4920;
 extern u16 D_800F4938[];
 extern s8 D_800F494C[];
@@ -511,7 +514,7 @@ extern u8 D_80163774[4];
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct
 extern u8 D_8016378C[];
-extern Unk800A2F4C D_80163798[0x40];
+extern BattleActionQueueEntry g_BattleActionQueue[0x40];
 extern s8 D_80163A98;
 extern u8 D_80163B38;
 extern s16 D_80163B44[];

@@ -1,5 +1,7 @@
 BattleBoostVal25Percent = 0x001B2770;
+g_FFTextLetterOffset = 0x800F7ED0;
 g_BattleState = 0x800F83AC; // size:0x444
+g_FFTextNumberOffset = 0x800FAFD0;
 g_BattleTypeMap = 0x801B0044;
 BattleInitMain = 0x801B0050;
 BattleInitSetup = 0x801B0490;

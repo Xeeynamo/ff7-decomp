@@ -590,6 +590,6 @@ s32 func_801D4CC0(void) {
             SysInitPlayerStatFromMateria((u8)i);
         }
     }
-    SysCalculateTotalLureGilPreemptiveValue();
+    SysCalcTotalLureGilPreempVal();
     return ret;
 }

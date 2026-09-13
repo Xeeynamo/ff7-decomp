@@ -44,7 +44,7 @@ static s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", func_8001726C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysCalculateTotalLureGilPreemptiveValue);
+INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysCalcTotalLureGilPreempVal);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysInitPlayerStatFromMateria);
 

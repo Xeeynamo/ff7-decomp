@@ -1117,8 +1117,8 @@ extern volatile s32 D_8009D268[];
 extern ActiveCharacterData g_ActiveCharacters[9];
 extern u8 D_8009FE8C;
 extern u8 D_800C7304[16];
-extern s32 D_800F7ED0;
-extern s32 D_800FAFD0;
+extern s32 g_FFTextLetterOffset;
+extern s32 g_FFTextNumberOffset;
 
 // PSXSDK funcs
 SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
@@ -1134,7 +1134,7 @@ void func_8003DE84(s32 arg0);
 void SystemError(char c, long n);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
 void SysIncSeedForRandom(void);
-s32 SysGetPtrToUncompKernBattleTxtWithId(s32);
+s32 SysGetKernBattleTextById(s32);
 const char* SysKernGetString(s32 arg0, s32 arg1, s32 arg2);
 void func_800155A4(s32, ...);
 void func_8001726C(s16, u16);
@@ -1155,7 +1155,7 @@ void SystemAkaoExecute(void);
 void SysInitRndTablePos(s32 seed);
 void SysInitPlayerStatFromEquip(s32 arg0);
 void SysInitPlayerStatFromMateria(s32 arg0);
-void SysCalculateTotalLureGilPreemptiveValue(void);
+void SysCalcTotalLureGilPreempVal(void);
 s32 SysMenuGetMateriaColorByType(s32 arg0);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
 s32 SysAddCommandToTemp(s32);
