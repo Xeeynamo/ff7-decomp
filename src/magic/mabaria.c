@@ -98,7 +98,7 @@ static void MabariaAnimationUpdate(void) {
     }
 
     if (effect->AnimationFrame == 16) {
-        func_800D5774(effect->TargetIndex);
+        BattleQueueStatusChangeEvent(effect->TargetIndex);
         effect->StartFrame = -1;
     }
 

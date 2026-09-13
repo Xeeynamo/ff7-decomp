@@ -127,9 +127,9 @@ static void func_800B37A0(void) {
 
 static void func_800B37EC(void) {
     D_80162094 = 4;
-    func_800D8A78(4);
-    func_800E15D8();
-    func_800D9E0C(-1, -1, 0);
+    BattleSetVsyncMode(4);
+    BattleMenuInit();
+    BattleMenuWidgetOpen(-1, -1, 0);
     D_80095DD4 = 2;
 }
 
@@ -450,7 +450,7 @@ static void BattleUpdateRender(void) {
     D_800FA9B8 = VSync(1);
     BattleFlushImageQueue();
     BattleCdromReadChain();
-    D_80158D08 = func_800D8A88();
+    D_80158D08 = BattleFlipDoubleBuffer();
     SetGeomScreen(D_80162084);
     D_801516F4++;
     func_800B7F6C();
@@ -460,7 +460,7 @@ static void BattleUpdateRender(void) {
 
 static void func_800B8234(s32 arg0) {
     if (arg0) {
-        func_800D0C80(D_801590CC);
+        BattleDispatchModelCommand(D_801590CC);
         D_801517BC = 0;
     }
 }
@@ -554,7 +554,7 @@ static void func_800B85E0() {
     if (D_800F7ED4 != 100 && D_800FA6B8) {
         func_800BB804();
         D_80163C7C = 5;
-        func_800D8B2C();
+        BattlePlaySavemapDoneSound();
         D_800F7ED4 = 100;
         g_BattleActionQueue[D_801590E0].unk8 = -3;
         BattleQueue1CameraInit();
@@ -565,7 +565,7 @@ static void func_800B85E0() {
     }
     if (D_800F9D98 != 100 && (g_BattleMode & 1)) {
         D_80163C7C = 5;
-        func_800D8B2C();
+        BattlePlaySavemapDoneSound();
         D_800F9D98 = 100;
         g_BattleActionQueue[D_801590E0].unk8 = -1;
         BattleQueue1CameraInit();
@@ -585,7 +585,7 @@ static void func_800B85E0() {
             }
             D_800F9D9C = 100;
             D_80163C7C = 5;
-            func_800D8B2C();
+            BattlePlaySavemapDoneSound();
             g_BattleActionQueue[D_801590E0].unk8 = -1;
             BattleQueue1CameraInit();
         }
@@ -607,7 +607,7 @@ s16 func_800B888C(s32 arg0) {
 // initialize g_BattleEffectSlots slot v (registered via BattleEffectRegister) from arg0
 // and dispatch
 static void func_800B88CC(s32 arg0) {
-    s32 v = BattleEffectRegister(&func_800CE970);
+    s32 v = BattleEffectRegister(&BattleFixedPointRampSpawnChildEffectsWithFade);
 
     g_BattleEffectSlots[v].D_8016297C = 0;
     g_BattleEffectSlots[v].D_80162980 = arg0;

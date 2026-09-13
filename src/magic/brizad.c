@@ -93,8 +93,8 @@ static void BrizadSpawnIce(void) {
             BattleGetPartPosition(
                 effect->TargetIndex, g_BattleModels[effect->TargetIndex].battleModelRootBone, &next->Pos);
             next->Rot.vx = next->Rot.vy = next->Rot.vz = 0;
-            next->Scale = func_800D55A4(effect->TargetIndex);
-            func_800D5774(effect->TargetIndex);
+            next->Scale = BattleCalcModelPartScale(effect->TargetIndex);
+            BattleQueueStatusChangeEvent(effect->TargetIndex);
             if (effect->AnimationFrame == 0) {
                 effect->StartFrame = -1;
             }
