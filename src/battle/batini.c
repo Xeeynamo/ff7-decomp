@@ -46,14 +46,14 @@ void BatInitMain(s32 sceneID) {
     BattleActionQueueReset();
     BattleCmdScriptInitTbl();
     BattleHitFormulaInit();
-    for (i = 0; i < 0x40; i++) {
+    for (i = 0; i < LEN(g_BattleSceneContext.actionQueue); i++) {
         g_BattleSceneContext.actionQueue[i].priority = 0xFF;
     }
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < LEN(g_BattleSceneContext.subActionSlots); i++) {
         g_BattleSceneContext.subActionSlots[i].priority = 0xFF;
     }
-    for (i = 0; i < 2; i++) {
-        D_800F6B86[i][0] = 0xFF;
+    for (i = 0; i < LEN(g_BattleSceneContext.postExecAction); i++) {
+        g_BattleSceneContext.postExecAction[i].unitID = 0xFF;
     }
     func_800A71F4();
     D_801620A8 = -1;

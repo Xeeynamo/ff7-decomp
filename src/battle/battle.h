@@ -528,7 +528,6 @@ typedef struct {
 extern s16 D_800F5B74;
 extern BattleWork g_BattleWork;
 extern BattleSceneContext g_BattleSceneContext;
-extern s8 D_800F6B86[2][8];
 extern u16 D_800F7DE8;
 extern u8 D_800F83A8;
 extern BattleState g_BattleState;

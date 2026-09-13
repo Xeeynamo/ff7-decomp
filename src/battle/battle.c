@@ -1093,7 +1093,7 @@ void func_800A71F4(void) {
 
     for (i = 0; i < NUM_PARTY; i++) {
         for (j = 0x7F; j >= 0; j--) {
-            D_800F4308[i][j].unk0 = 0xFF;
+            D_800F4308[i][j].unitId = 0xFF;
         }
         D_800F4908[i] = 0;
         D_800F4914[i] = 0;
@@ -1104,16 +1104,16 @@ void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32* base;
     s32* temp_s0;
     s32 temp_t0;
-    Unk800F4308* temp_a0;
+    BattleCallbackEvent* temp_a0;
 
     base = D_800F4914;
     temp_s0 = base + arg0;
     temp_t0 = *temp_s0;
     temp_a0 = &D_800F4308[arg0][temp_t0];
-    if (temp_a0->unk0 == 0xFF) {
-        temp_a0->unk2 = arg3;
-        temp_a0->unk1 = arg2;
-        temp_a0->unk0 = arg1;
+    if (temp_a0->unitId == 0xFF) {
+        temp_a0->param = arg3;
+        temp_a0->callbackId = arg2;
+        temp_a0->unitId = arg1;
         *temp_s0 = func_800A71E8(temp_t0);
     }
 }

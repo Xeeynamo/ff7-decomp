@@ -320,12 +320,15 @@ extern s32 D_800F3A1C;     // write index into D_800F3A20
 extern s16 D_800F3A20[16]; // ring buffer, see BattleReqReturnReservedItems
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
+
 typedef struct {
-    u8 unk0;
-    s8 unk1;
-    s16 unk2;
-} Unk800F4308;
-extern Unk800F4308 D_800F4308[][128];
+    u8 unitId;
+    s8 callbackId;
+    s16 param;
+} BattleCallbackEvent;
+extern BattleCallbackEvent D_800F4308[][128];
+
+
 extern u8 g_BattleHitFormulaOpcodeStream[];
 extern s32 D_800F4908[];
 extern s32 D_800F4914[];
