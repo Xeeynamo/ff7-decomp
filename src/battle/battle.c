@@ -14,7 +14,7 @@ const u8 D_800A0004[] = {
     0x00, 0x00, 0x00, 0x2E, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 // opcode-byte program for BattleCmdScriptDispatch's dispatch loop: a 0x1F-delimited
 // stream of per-command opcode sequences, sliced by g_BattleCmdOpcodeOffs[cmdIndex]
-// (see BattleCmdScriptBuildIndexTable) into per-command runs; each byte indexes g_BattleCmdOpcodeJmpTbl
+// (see BattleCmdScriptInitTbl) into per-command runs; each byte indexes g_BattleCmdOpcodeJmpTbl
 // (function-pointer table) for BattleCmdScriptDispatch to jalr through in order
 const u8 g_BattleCmdOpcodeStream[] = {
     0x1F, 0x0E, 0x09, 0x1F, 0x00, 0x0C, 0x09, 0x1F, 0x01, 0x0C, 0x09, 0x1F, 0x02, 0x0D, 0x09, 0x1F, 0x1E, 0x09, 0x1F,
@@ -67,7 +67,7 @@ static void func_800A23BC(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleBattleActionQueueExecute);
 
-void BattleCmdScriptBuildIndexTable(void) {
+void BattleCmdScriptInitTbl(void) {
     s32 next;
     s32* out;
     u32 i;
@@ -1976,7 +1976,7 @@ static void BattleApplyDefaultAbsorbEffect(void) {
     func_800AD324(g_CurrentAction->unkF4, g_CurrentAction->unk208, g_CurrentAction->unk214, result);
 }
 
-void func_800AD480(void) {
+void BattleHitFormulaInit(void) {
     s32 count;
     s32 next;
     u32 i;
@@ -1987,10 +1987,10 @@ void func_800AD480(void) {
     for (; i < 0x1E; i++) {
         if (count < 0x10) {
             if (i == next) {
-                D_800F495C[count] = i;
+                g_BattleHitFormulaOffs[count] = i;
                 count++;
             }
-            if (D_800E7BCC[i] == 8) {
+            if (g_BattleHitFormulaOpcodeStream[i] == HIT_OPCODE_DELIM) {
                 next = i + 1;
             }
         }
@@ -2336,7 +2336,7 @@ static void BattleRollPhysicalHit(void);
 static int BattleUpperFunc03();
 int BattleUpperFunc06();
 static void BattleUpperFunc07(void);
-int (* const D_800A04E0[])() = {
+int (* const g_BattleHitFormulaJmpTbl[])() = {
     BattleUpperFunc00, BattleUpperFunc01, (void*)BattleRollPhysicalHit, BattleUpperFunc03, BattleUpperFunc03,
     BattleUpperFunc03, BattleUpperFunc06, (void*)BattleUpperFunc07,
 };

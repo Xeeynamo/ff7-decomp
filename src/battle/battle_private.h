@@ -2,6 +2,7 @@
 #include "battle.h"
 
 #define CMD_OPCODE_DELIM 0x1F
+#define HIT_OPCODE_DELIM 0x08
 
 enum QueueMethod {
     QUEUE_LOAD_IMAGE,
@@ -249,7 +250,7 @@ extern s8 D_800E7A58[];
 // checked in order against the 3 landed reel symbols (D_80163774) -- see
 // BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
-extern void (*D_800E7BFC[])(void); // per-action epilogue hook
+extern void (*g_BattleDmgFormulaJmpTbl[])(void); // per-action epilogue hook
 extern Yamada D_800E8050[];
 extern VECTOR D_800E7D10;
 extern VECTOR D_800E7D20;
@@ -325,10 +326,10 @@ typedef struct {
     s16 unk2;
 } Unk800F4308;
 extern Unk800F4308 D_800F4308[][128];
-extern u8 D_800E7BCC[];
+extern u8 g_BattleHitFormulaOpcodeStream[];
 extern s32 D_800F4908[];
 extern s32 D_800F4914[];
-extern s32 D_800F495C[];
+extern s32 g_BattleHitFormulaOffs[];
 extern s32 D_800F4920;
 extern u16 D_800F4938[];
 extern s8 D_800F494C[];

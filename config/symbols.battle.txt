@@ -273,12 +273,18 @@ g_BattleMovementCallbacks = 0x80163B48; // size:0x28
 g_BattleMovementCount = 0x80163B7C; // size:0x4
 D_80163C80 = 0x80163C80; // size:0xC
 
-BattleCmdScriptBuildIndexTable = 0x800A283C; 
-
+BattleCmdScriptInitTbl = 0x800A283C; 
 g_BattleCmdOpcodeStream = 0x800A0098;
-
 g_BattleCmdOpcodeOffs = 0x800F38AC;
-
 BattleCmdScriptDispatch = 0x800A1798;
-
 g_BattleCmdOpcodeJmpTbl = 0x800E7B28;
+
+BattleHitFormulaInit = 0x800AD480;
+
+g_BattleHitFormulaOpcodeStream = 0x800E7BCC;
+
+g_BattleHitFormulaOffs = 0x800F495C;
+
+g_BattleHitFormulaJmpTbl = 0x800A04E0;
+
+g_BattleDmgFormulaJmpTbl = 0x800E7BFC;
