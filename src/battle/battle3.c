@@ -351,16 +351,16 @@ void func_800E53C8();
 void func_800E0274(void) { func_800E53C8(); }
 
 void func_800E0294(void) {
-    u8* temp_s0;
+    BattleLimitData* temp_s0;
 
-    temp_s0 = &g_ActiveCharacters[D_800F38A1].unkAC[0];
+    temp_s0 = &g_ActiveCharacters[D_800F38A1].limits;
     if (D_800F3896 == 0x1B && D_800F99E4 == 0) {
         if (g_Pad1KeysRepeat & PADRright) {
             if (func_800E54EC() == 2) {
                 D_800F99E4 = 1;
                 func_800BB9B8(1);
-                D_800F38A2 = temp_s0[3];
-                D_800F389E = temp_s0[0];
+                D_800F38A2 = temp_s0->unk3[0];
+                D_800F389E = temp_s0->limitId[0];
                 D_800FAFD4 = 0;
                 func_800E6B94();
                 func_800DDFEC();

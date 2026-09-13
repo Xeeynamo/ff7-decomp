@@ -1,5 +1,4 @@
 BatInitMain = 0x801b0050;
-BattleInitPlayer = 0x801b08c0;
 BattleInitEnemyUnits = 0x801b1e0c;
 func_801B0000 = 0x801b0000;
 func_801B0EF8 = 0x801b0ef8;

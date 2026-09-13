@@ -91,9 +91,8 @@ typedef struct {
     /* 0x0C */ s8 unkC;
     /* 0x0D */ u8 physAttack;
     /* 0x0E */ s8 magAttack;
-    /* 0x0F */ s8 unkF;
-    /* 0x10 */ s8 unk10; // cached "Near Death" display flag; see func_800B10B4
-                         // for the live check
+    /* 0x0F */ u8 defensePercent;
+    /* 0x10 */ s8 unk10;
     /* 0x11 */ u8 unk11;
     /* 0x12 */ s8 unk12;
     /* 0x13 */ s8 unk13;
@@ -106,17 +105,23 @@ typedef struct {
     /* 0x20 */ s16 physDefence;
     /* 0x22 */ s16 magDefence;
     /* 0x24 */ s32 unk24;
-    /* 0x28 */ s16 unk28;
+    /* 0x28 */ s16 curMP;
     /* 0x2A */ s16 maxMP;
     /* 0x2C */ u32 curHP;
     /* 0x30 */ u32 maxHP;
     /* 0x34 */ u32 unk34[4];
-    /* 0x44 */ u32 unk44[2];
+    /* 0x44 */ s32 unk44;
+    /* 0x48 */ u32 unk48;
     /* 0x4C */ u8 unk4C;
-    /* 0x4D */ u8 unk4D;
+    /* 0x4D */ u8 magicDefensePercent;
     /* 0x4E */ u8 unk4E;
     /* 0x4F */ u8 unk4F;
-    /* 0x50 */ u32 unk50[6];
+    /* 0x50 */ u16 unk50;
+    /* 0x52 */ u16 unk52;
+    /* 0x54 */ u16 unk54;
+    /* 0x56 */ u8 unk56;
+    /* 0x57 */ u8 unk57;
+    /* 0x58 */ u32 unk58[4];
 } BattleUnit; // size:0x68
 
 typedef struct {
@@ -416,7 +421,8 @@ typedef struct {
     s16 unk2;
     u16 unk4; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
     s16 unk6;
-    s32 unk8;
+    u16 unk8;
+    u16 unkA;
     u8 unkC;
     u8 unkD; // effect id of the equipped accessory (0xFF = none)
     u8 unkE;
@@ -502,9 +508,7 @@ typedef struct {
     /* 0x05 */ u8 criticalHitChance;
     /* 0x06 */ u8 unk06;
     /* 0x07 */ u8 unk07;
-    /* 0x08 */ u16 normalAttackSound;
-    /* 0x0A */ u16 criticalAttackSound;
-    /* 0x0C */ u16 missAttackSound;
+    /* 0x08 */ u16 attackSound[3]; // [0] normal hit, [1] critical, [2] miss; 0x100 set from WeaponRecord.soundIdMask
     /* 0x0E */ u16 attackElement;
     /* 0x10 */ u16 cameraMovementId;
     /* 0x12 */ u16 specialAttackFlags;
@@ -537,6 +541,9 @@ extern Unk801636B8 D_801636B8[NUM_BATTLE_ACTOR];
 extern u16 D_8016376A;
 
 extern BattleMultiInfo g_BattleMultiInfo;
+
+// Scratch copy of a party member's save record, taken when D_8016376A bit 0x40 is set.
+extern SavePartyMember D_80167938;
 
 s32 BattleEffectRegister(void (*func)(void));
 void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
@@ -571,3 +578,5 @@ void BattleResetReservedItems(void);
 void func_800A61D4(void);
 void func_800A4480(void);
 void BattleAddAutoBattleActionByChance(s32 arg0, s32 arg1);
+void BattleInitUnitAction(s32 index);
+void BattleEnableLimitToPlayerWithSpeed(s32 index);

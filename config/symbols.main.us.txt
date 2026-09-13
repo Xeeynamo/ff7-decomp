@@ -760,7 +760,6 @@ g_AkaoTempoMulMusic = 0x80062FE8; // size:0x4
 g_CurrentAction = 0x80063014; // size:0x4
 g_KernelTextBuffer = 0x80063690;
 g_KernelTextBlockOffsets = 0x80069490;
-g_ArmorTable = 0x80071E44;
 g_AkaoVoiceAttr = 0x8007EBE4;
 g_AkaoVoiceAttrMask = 0x8007EBE8; // size:0x4
 D_80082268 = 0x80082268;
