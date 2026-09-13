@@ -271,7 +271,7 @@ static void func_800A32C0(s32 arg0) {
 
     if (g_BattleSceneContext.atbWaitMode != 0) {
         if (arg0 != 0) {
-            if (g_BattleSceneContext.D_800F7DBA == 6) {
+            if (g_BattleSceneContext.currentQueuePriority == 6) {
                 var_a3 = 1;
                 if (g_BattleSceneContext.activeTargetSlot != g_BattleSceneContext.cursorFocusSlot) {
                     var_a3 = 3;
@@ -386,21 +386,21 @@ static s32 func_800A3828(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A38FC);
 
-static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* arg0) {
-    s32 category;
+static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* action) {
+    s32 priorityTier;
     s32 i;
 
-    category = arg0->priority;
+    priorityTier = action->priority;
     for (i = 0; i < LEN(g_BattleSceneContext.actionQueue); i++) {
         if (g_BattleSceneContext.actionQueue[i].priority == 0xFF) {
-            arg0->orderInPriority = g_BattleSceneContext.enemySlotMap[category];
-            g_BattleSceneContext.actionQueue[i] = *arg0;
-            g_BattleSceneContext.enemySlotMap[category] += 1;
-            g_BattleSceneContext.D_800F7DDE = category;
-            if (arg0->priority >= 2) {
-                g_BattleState.combatant[arg0->unitID].unk4 &= ~0x20;
-                if ((arg0->actionType & 0x3F) == 0x13) {
-                    g_BattleState.combatant[arg0->unitID].unk4 |= 0x20;
+            action->orderInPriority = g_BattleSceneContext.enemySlotMap[priorityTier];
+            g_BattleSceneContext.actionQueue[i] = *action;
+            g_BattleSceneContext.enemySlotMap[priorityTier] += 1;
+            g_BattleSceneContext.pendingActionPriority = priorityTier;
+            if (action->priority >= 2) {
+                g_BattleState.combatant[action->unitID].unk4 &= ~0x20;
+                if ((action->actionType & 0x3F) == 0x13) {
+                    g_BattleState.combatant[action->unitID].unk4 |= 0x20;
                 }
             }
             return;
@@ -858,8 +858,8 @@ void func_800A61D4(void) {
 
     func_800B2A2C(-1, 0);
     for (i = 0; i < 8; i++) {
-        if ((g_BattleSceneContext.D_800F7DBC >> i) & 1) {
-            g_BattleSceneContext.D_800F7DBC &= ~(1 << i);
+        if ((g_BattleSceneContext.activeScriptMask >> i) & 1) {
+            g_BattleSceneContext.activeScriptMask &= ~(1 << i);
             temp_v0 =
                 GetEnemyAiScriptOffs(g_BattleSceneContext.formationAI.scriptOffsets, g_BattleState.sceneID & 3, i);
             if (temp_v0 != 0) {
@@ -1016,8 +1016,8 @@ void BattleSetLimitBreakStringToDisplay(s32 arg0) {
     s16 sp10;
 
     sp10 = (s16)D_801636B8[arg0].D_801636B8;
-    g_BattleSceneContext.D_800F7DBE = BattleExpandScriptToBuffer(SysGetKernBattleTextPtr(0x26), &sp10) + 0x100;
-    g_BattleSceneContext.D_800F7DC0 = 0xF;
+    g_BattleSceneContext.lucky7777StringID = BattleExpandScriptToBuffer(SysGetKernBattleTextPtr(0x26), &sp10) + 0x100;
+    g_BattleSceneContext.lucky7777ActionParam = 0xF;
 }
 
 void func_800A6C5C(s32 arg0, s32 arg1) {
@@ -1348,7 +1348,7 @@ static void func_800A8D88(s32 arg0, s32 arg1) {
     }
 }
 
-static void SetActionStatusChange(u32 arg0, s32 arg1) {
+static void SetActionStatusChange(u32 arg0, s32 statusMask) {
     u8 unused[8]; // retail reserves it, nothing reads it
     Unk800A8D04* act = g_CurrentAction;
     s32 idx = arg0 >> 6;
@@ -1365,13 +1365,13 @@ static void SetActionStatusChange(u32 arg0, s32 arg1) {
         slot = idx;
         tmp = 0x80000000;
 
-        if (arg1 < 0) {
+        if (statusMask < 0) {
             act->unk80 = tmp;
-            g_BattleSceneContext.D_800F7DC6 = arg1 & 3;
+            g_BattleSceneContext.imprisonedType = statusMask & 3;
         } else {
             act->unk8C = v;
             tmp = (s32)act;
-            *(s32*)((slot * 4) + tmp + 0x80) = arg1;
+            *(s32*)((slot * 4) + tmp + 0x80) = statusMask;
         }
     }
 }
@@ -2425,7 +2425,7 @@ void BattleApplyRegenPoisonTick(s32 arg0, s32 arg1, s32 arg2) {
     step = g_BattleState.combatant[arg0].maxHP >> 5;
     status = g_BattleState.combatant[arg0].status;
     if (status < 0) {
-        if (g_BattleSceneContext.D_800F7DC6 == 1) {
+        if (g_BattleSceneContext.imprisonedType == 1) {
             status |= 0x8000000;
         }
     }
@@ -2659,13 +2659,13 @@ static void func_800B1268(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-// nonzero if g_BattleSceneContext.battleType is < 3
+// nonzero if g_BattleSceneContext.encounterType is < 3
 static u32 func_800B12DC(void) {
     u32 result = 0;
-    s32 cmp = (s32)g_BattleSceneContext.battleType;
+    s32 cmp = (s32)g_BattleSceneContext.encounterType;
 
     if (cmp < 3) {
-        result = (u32)~g_BattleSceneContext.battleType >> 0x1F;
+        result = (u32)~g_BattleSceneContext.encounterType >> 0x1F;
     }
     return result;
 }

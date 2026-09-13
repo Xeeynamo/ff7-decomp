@@ -195,7 +195,7 @@ extern u16 D_8009D864[][0x220]; // stride 0x440, one per Unk8009D84C record
 u16 BattleGetRndU16(void);      // random, 16-bit
 
 // Rolls the initial ATB timer of every present combatant and writes it into
-// g_BattleWork.turn[i].unk4. The battle type (battleType) then biases
+// g_BattleWork.turn[i].unk4. The battle type (encounterType) then biases
 // those timers: a preemptive-style opening zeroes the party's, an ambush
 // pushes it towards the enemies, and a Battle Square opening (setup flag 8)
 // overrides both.
@@ -222,7 +222,7 @@ static void BattleInitATBTimers(void) {
     }
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         if ((presentMask >> i) & 1) {
-            switch (g_BattleSceneContext.battleType) {
+            switch (g_BattleSceneContext.encounterType) {
             case SETUP_DEFAULT:
             case SETUP_PINCER_2:
                 t = timer[i] + 0xE000;
@@ -623,7 +623,7 @@ static void BattleInitFormation(void) {
     if (D_8016360C.setup.type == SETUP_SIDE_ATTACK_3) {
         sideMask = ~5;
     }
-    intro = D_801B003C[g_BattleSceneContext.battleType];
+    intro = D_801B003C[g_BattleSceneContext.encounterType];
     if (intro != 0xFF && g_BattleState.sceneID != 0x3D6) {
         func_800B1060(intro);
     }
@@ -631,7 +631,7 @@ static void BattleInitFormation(void) {
     row[0] = 0;
     row[1] = 0;
     row[2] = 0;
-    switch (g_BattleSceneContext.battleType) {
+    switch (g_BattleSceneContext.encounterType) {
     case 0:
         mask = enemyMask;
         /* fallthrough */
@@ -680,7 +680,7 @@ static void BattleInitFormation(void) {
     for (i = 0; i < NUM_PARTY; i++) {
         back = g_BattleState.combatant[i].unk4 >> 6;
         back &= 1;
-        switch (g_BattleSceneContext.battleType) {
+        switch (g_BattleSceneContext.encounterType) {
         case 0:
         case 1:
             break;
@@ -817,7 +817,7 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
             D_8016360C.setup.type = SETUP_PREEMPTIVE;
         }
     }
-    g_BattleSceneContext.battleType = (u8)g_BattleTypeMap[D_8016360C.setup.type];
+    g_BattleSceneContext.encounterType = (u8)g_BattleTypeMap[D_8016360C.setup.type];
     if (D_8016376A & EVENT_BATTLE_SQUARE) {
         D_8016360C.setup.stageID = 37;
         D_8016360C.setup.flags |= SETUP_CANNOT_ESCAPE;
@@ -835,11 +835,11 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     if (!(D_8016360C.setup.flags & SETUP_CANNOT_ESCAPE)) {
         D_8016376A |= 8;
     }
-    g_BattleSceneContext.D_800F7DB2 = D_8016360C.setup.escapeCounter;
-    if (g_BattleSceneContext.battleType == 1 || g_BattleSceneContext.battleType == 3) {
-        g_BattleSceneContext.D_800F7DB2 = 1;
+    g_BattleSceneContext.escapeCounter1 = D_8016360C.setup.escapeCounter;
+    if (g_BattleSceneContext.encounterType == 1 || g_BattleSceneContext.encounterType == 3) {
+        g_BattleSceneContext.escapeCounter1 = 1;
     }
-    g_BattleSceneContext.D_800F7DB6 = g_BattleSceneContext.D_800F7DB2;
+    g_BattleSceneContext.escapeCounter2 = g_BattleSceneContext.escapeCounter1;
 }
 
 static s32 BattleGetScenePackId(s32 sceneID) {
