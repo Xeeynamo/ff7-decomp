@@ -183,23 +183,25 @@ typedef struct {
     /* 0x25 */ u8 defense;
     /* 0x26 */ u8 magic;
     /* 0x27 */ u8 magicDef;
-    /* 0x28 */ u8 resist[8];
-    /* 0x30 */ u8 elemResist[8];
-    /* 0x38 */ u8 anim[16];
-    /* 0x48 */ u8 attackID[16];
-    /* 0x58 */ u8 cameraID[16];
-    /* 0x68 */ u8 dropItem[4];
-    /* 0x6C */ u16 dropItemCount[4];
-    /* 0x74 */ u16 manipAttackID[4];
-    /* 0x7C */ u16 mp;
-    /* 0x7E */ u16 ap;
-    /* 0x80 */ u16 morphItem;
-    /* 0x82 */ u8 backAttackMul;
-    /* 0x83 */ u8 unk83;
-    /* 0x84 */ s32 exp;
-    /* 0x88 */ s32 gil;
-    /* 0x8C */ s32 statusImmunities;
-    /* 0x90 */ u32 unk90[10];
+    /* 0x28 */ u8 elementTypes[8];
+    /* 0x30 */ u8 elementRates[8];
+    /* 0x38 */ u8 actionAnimeIdx[16];
+    /* 0x48 */ u16 attackID[16];
+	/* 0x68 */ u16 cameraMovementIDs[16];
+    /* 0x88 */ u8   dropItemRates[4];
+    /* 0x8C */ u16  dropItemIDs[4];
+    /* 0x94 */ u16  manipAttackIDs[3];
+    /* 0x9A */ u16  unk9A;
+    /* 0x9C */ u16  mp;
+    /* 0x9E */ u16  ap;
+    /* 0xA0 */ u16  morphItem;
+    /* 0xA2 */ u8   backAttackMultiplier;
+    /* 0xA3 */ u8   padA3;
+    /* 0xA4 */ u32  hp;
+    /* 0xA8 */ u32  exp;
+    /* 0xAC */ u32  gil;
+    /* 0xB0 */ u32  statusImmunities;
+    /* 0xB4 */ u32  padB4;
 } SceneEnemy; // size:0xB8
 
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/Shared/DataParser.cs
