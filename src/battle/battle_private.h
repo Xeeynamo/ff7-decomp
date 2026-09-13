@@ -1,6 +1,8 @@
 // should be imported only by the BATTLE overlay, not BATINI or similar
 #include "battle.h"
 
+#define CMD_OPCODE_DELIM 0x1F
+
 enum QueueMethod {
     QUEUE_LOAD_IMAGE,
     QUEUE_STORE_IMAGE,
@@ -218,8 +220,8 @@ typedef enum {
 // may be a smaller staging ring rather than the full logical queue --
 // unconfirmed. Drain chain: func_800A3ED0 drains this ring into a 64-slot
 // priority table (BattleCopyBattleActionToBattleQueue), which BattleBattleActionQueueExecute drains in priority
-// order into func_800A1798, which runs the command as a byte-coded sequence
-// of opcodes (D_800F38AC/D_800A0098/D_800E7B28), not a single switch on
+// order into BattleCmdScriptDispatch, which runs the command as a byte-coded sequence
+// of opcodes (g_BattleCmdOpcodeOffs/g_BattleCmdOpcodeStream/g_BattleCmdOpcodeJmpTbl), not a single switch on
 // cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
 typedef struct {
     /* 0x0 */ u8 priority; // 0=limits/counters, 6=player spells (see func_800A4350)
@@ -289,7 +291,7 @@ extern s8 D_800F3468;
 extern u8 D_800F381C[];
 extern u8 D_800F3828[];
 extern unsigned char D_800F384A[];
-extern s32 D_800F38AC[];
+extern s32 g_BattleCmdOpcodeOffs[];
 extern u8 D_800F38A0;
 extern u8 D_800F38A1;
 extern s16 D_800F38A2;

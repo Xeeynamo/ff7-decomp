@@ -67,9 +67,7 @@ u8* SysGetKernTextPtr(s32 blockId, s32 entryId, s32 blockOffset) {
     return (u8*)&sectionBase[*(u16*)&sectionBase[entryId * 2]];
 }
 
-static void func_80014DD0(s32 arg0, s32 arg1, u8* arg2) {
-    func_80014D58(arg2, SysGetKernTextPtr(arg0, arg1, 0), -1);
-}
+static void func_80014DD0(s32 arg0, s32 arg1, u8* arg2) { func_80014D58(arg2, SysGetKernTextPtr(arg0, arg1, 0), -1); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80014E0C);
 

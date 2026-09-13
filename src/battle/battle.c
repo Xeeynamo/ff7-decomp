@@ -12,11 +12,11 @@ const u8 D_800A0004[] = {
     0x00, 0x16, 0x11, 0x00, 0x10, 0x1C, 0x11, 0x02, 0x00, 0x18, 0x11, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x2E, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-// opcode-byte program for func_800A1798's dispatch loop: a 0x1F-delimited
-// stream of per-command opcode sequences, sliced by D_800F38AC[cmdIndex]
-// (see func_800A283C) into per-command runs; each byte indexes D_800E7B28
-// (function-pointer table) for func_800A1798 to jalr through in order
-const u8 D_800A0098[] = {
+// opcode-byte program for BattleCmdScriptDispatch's dispatch loop: a 0x1F-delimited
+// stream of per-command opcode sequences, sliced by g_BattleCmdOpcodeOffs[cmdIndex]
+// (see BattleCmdScriptBuildIndexTable) into per-command runs; each byte indexes g_BattleCmdOpcodeJmpTbl
+// (function-pointer table) for BattleCmdScriptDispatch to jalr through in order
+const u8 g_BattleCmdOpcodeStream[] = {
     0x1F, 0x0E, 0x09, 0x1F, 0x00, 0x0C, 0x09, 0x1F, 0x01, 0x0C, 0x09, 0x1F, 0x02, 0x0D, 0x09, 0x1F, 0x1E, 0x09, 0x1F,
     0x0A, 0x16, 0x09, 0x1F, 0x1D, 0x09, 0x1F, 0x19, 0x09, 0x1F, 0x0E, 0x1C, 0x09, 0x1F, 0x0E, 0x1B, 0x09, 0x1F, 0x1A,
     0x09, 0x1F, 0x17, 0x1F, 0x03, 0x0C, 0x09, 0x1F, 0x1F, 0x1F, 0x1F, 0x0E, 0x09, 0x1F, 0x04, 0x0B, 0x0F, 0x1F, 0x05,
@@ -31,12 +31,12 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleMain);
 
 // per-command opcode dispatcher: reads cmdIndex from the turn context
 // (g_CurrentAction->unkC), looks up its opcode-sequence start via
-// D_800F38AC[cmdIndex] into D_800A0098, then for each byte until the 0x1F
-// delimiter, jalr's through D_800E7B28[opcode]. After each call, checks
+// g_BattleCmdOpcodeOffs[cmdIndex] into g_BattleCmdOpcodeStream, then for each byte until the 0x1F
+// delimiter, jalr's through g_BattleCmdOpcodeJmpTbl[opcode]. After each call, checks
 // D_80062F14 -- if it goes >= 0 the whole sequence aborts immediately
 // (handler requested a suspend, e.g. to wait on an animation), otherwise
 // continues to the next opcode byte
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A1798);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleCmdScriptDispatch);
 
 static void BattleSetFocusedActor(s32 arg0) {
     s32 i;
@@ -67,7 +67,7 @@ static void func_800A23BC(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleBattleActionQueueExecute);
 
-void func_800A283C(void) {
+void BattleCmdScriptBuildIndexTable(void) {
     s32 next;
     s32* out;
     u32 i;
@@ -75,13 +75,13 @@ void func_800A283C(void) {
 
     i = 0;
     next = 0;
-    delim = 0x1F;
-    out = D_800F38AC;
+    delim = CMD_OPCODE_DELIM;
+    out = g_BattleCmdOpcodeOffs;
     for (; i < 0x6D; i++) {
         if (i == next) {
             *out++ = i;
         }
-        if (D_800A0098[i] == delim) {
+        if (g_BattleCmdOpcodeStream[i] == delim) {
             next = i + 1;
         }
     }
@@ -563,7 +563,7 @@ static s32 func_800A4A80(void) {
 
 void func_800A4ACC(s16 arg0, u16 arg1) { func_8001726C(arg0, arg1); }
 
-// opcode 0x14 handler (D_800E7B28[0x14]): spins on BattleQueue1Execute() until
+// opcode 0x14 handler (g_BattleCmdOpcodeJmpTbl[0x14]): spins on BattleQueue1Execute() until
 // status bit D_800F9DA4 & 2 clears. Not itself a damage dealer -- injecting
 // cmdIndex 0x23 (single-opcode sequence: just this one) produced ~3.1%
 // max-HP damage, but BattleQueue1Execute (still nonmatching, battle1 overlay) is
@@ -2574,8 +2574,7 @@ static s32 func_800B0EB4(s32 arg0) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleGetRndItemIdForSteal);
 
 static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* arg3) {
-    func_800A31A0(
-        arg0, 2, arg2, BattleExpandScriptToBuffer((u8*)SysGetKernBattleTextById(arg1), arg3) + 0x100);
+    func_800A31A0(arg0, 2, arg2, BattleExpandScriptToBuffer((u8*)SysGetKernBattleTextById(arg1), arg3) + 0x100);
 }
 
 void func_800B1060(s32 arg0) { func_800A31A0(10, 2, 1, arg0); }

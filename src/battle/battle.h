@@ -558,7 +558,7 @@ void BattleRecalcUnitSpeed(s32 index);
 void BattleUpdateUnitMasks(void);
 void BattleCheckAllLucky7s(void);
 void BattleActionQueueReset(void);
-void func_800A283C(void);
+void BattleCmdScriptBuildIndexTable(void);
 void func_800AD480(void);
 void func_800A71F4(void);
 void func_800DCF94(s16 arg0);

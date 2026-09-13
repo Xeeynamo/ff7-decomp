@@ -30,7 +30,6 @@ typedef enum {
     KERNEL_NAME_SUMMON,
 } KernelID;
 
-
 typedef enum {
     KERNEL_TEXT_DESC_COMMAND,    // 0x00
     KERNEL_TEXT_DESC_MAGIC,      // 0x01
@@ -48,7 +47,7 @@ typedef enum {
     KERNEL_TEXT_NAME_ACCESSORY,  // 0x0D
     KERNEL_TEXT_NAME_MATERIA,    // 0x0E
     KERNEL_TEXT_NAME_KEY_ITEM,   // 0x0F
-    KERNEL_TEXT_BATTLE_MESSAGES, // 0x10 
+    KERNEL_TEXT_BATTLE_MESSAGES, // 0x10
     KERNEL_TEXT_NAME_SUMMON,     // 0x11
 } KernelTextBlockID;
 

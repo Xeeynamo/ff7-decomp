@@ -44,7 +44,7 @@ void BatInitMain(s32 sceneID) {
     g_FFTextNumberOffset = FFTextOffset[0];
     g_FFTextLetterOffset = FFTextOffset[1];
     BattleActionQueueReset();
-    func_800A283C();
+    BattleCmdScriptBuildIndexTable();
     func_800AD480();
     for (i = 0; i < 0x40; i++) {
         D_800F5F44.messageQueue[i].unk0 = 0xFF;
