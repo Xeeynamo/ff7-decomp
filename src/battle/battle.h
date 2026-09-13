@@ -207,9 +207,9 @@ typedef struct {
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/Shared/DataParser.cs
 
 typedef struct {
-	/* 0x000 */ u16 scriptOffsets[4]; // Offsets for formations 1 through 4 (0x00 - 0x07)
-	/* 0x008 */ u8  scriptData[504];  // Bytecode stream for formation scripts (0x08 - 0x1FF)
-} FormationAIScripts; // size:0x200
+    /* 0x000 */ u16 scriptOffsets[4]; // Offsets for formations 1 through 4 (0x00 - 0x07)
+    /* 0x008 */ u8 scriptData[504];   // Bytecode stream for formation scripts (0x08 - 0x1FF)
+} FormationAIScripts;                 // size:0x200
 
 // an uncompressed chunk from SCENE.BIN
 typedef struct {
@@ -248,19 +248,20 @@ typedef struct {
     /* 0x05E8 */ u8 attackNames[0x20][0x20];
     /* 0x09E8 */ BattleActionEntry currentAction;
     /* 0x09F0 */ BattleActionEntry actionQueue[64];
-    /* 0x0BF0 */ BattleActionEntry subActionSlots[12];
+    /* 0x0BF0 */ BattleActionEntry subActionSlots[10];
+    /* 0x0C40 */ BattleActionEntry postExecAction[2];
     /* 0x0C50 */ u8 partySlotMap[6];
     /* 0x0C56 */ u8 activeTargetSlot;
     /* 0x0C57 */ u8 enemySlotMap[6];
     /* 0x0C5D */ u8 cursorFocusSlot;
-    /* 0x0C5E */ u8 dialogPad[2];
+    /* 0x0C5E */ u8 unkC5E[2];
     /* 0x0C60 */ FormationAIScripts formationAI;
-    /* 0x0E60 */ u8 script[0x1000];
-    /* 0x1E60 */ u16 D_800F7DA4;
+    /* 0x0E60 */ u8 aiScriptBuffer[0x1000];
+    /* 0x1E60 */ u16 configFlags;
     /* 0x1E62 */ u16 battleSpeed;
-    /* 0x1E64 */ u16 D_800F7DA8;
-    /* 0x1E66 */ u16 D_800F7DAA;
-    /* 0x1E68 */ u16 D_800F7DAC;
+    /* 0x1E64 */ u16 avgPartyDexterity;
+    /* 0x1E66 */ u16 atbWaitMode;
+    /* 0x1E68 */ u16 activeUnitCmdMask;
     /* 0x1E6A */ u16 D_800F7DAE;
     /* 0x1E6C */ u16 D_800F7DB0;
     /* 0x1E6E */ u16 D_800F7DB2;
@@ -271,11 +272,11 @@ typedef struct {
     /* 0x1E78 */ u16 D_800F7DBC;
     /* 0x1E7A */ u16 D_800F7DBE;
     /* 0x1E7B */ u16 D_800F7DC0;
-    /* 0x1E7E */ u16 D_800F7DC2;
-    /* 0x1E80 */ u16 D_800F7DC4;
+    /* 0x1E7E */ u16 turnReadyUnitMask;
+    /* 0x1E80 */ u16 disabledUnitMask;
     /* 0x1E72 */ u16 D_800F7DC6;
     /* 0x1E84 */ u16 battleType;
-    /* 0x1E84 */ u16 D_800F7DCA;
+    /* 0x1E84 */ u16 manipulatedUnitMask;
     /* 0x1E88 */ u8 unk1E88[6];
     /* 0x1E8E */ u16 reviveMask;
     /* 0x1E90 */ u8 unk1E90[0xA];

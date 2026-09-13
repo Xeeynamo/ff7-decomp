@@ -70,7 +70,7 @@ void BatInitMain(s32 sceneID) {
     BattleInitSetSpeed(Savemap.battle_speed);
     q = g_BattleState.combatant;
     p = q;
-    g_BattleSceneContext.D_800F7DAA = (Savemap.config & 0xC0) >> 6;
+    g_BattleSceneContext.atbWaitMode = (Savemap.config & 0xC0) >> 6;
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         BattleRecalcUnitSpeed(i);
         if ((s8)p[i].unk8 != -1) {
@@ -93,7 +93,7 @@ void BatInitMain(s32 sceneID) {
     }
     if (g_BattleState.setupFlags & 8) {
         BattleInitSetSpeed(0x80);
-        g_BattleSceneContext.D_800F7DAA = 0;
+        g_BattleSceneContext.atbWaitMode = 0;
         for (i = 0; i < NUM_PARTY; i++) {
             BattleInitResetExtraCmds(i);
         }
@@ -260,7 +260,9 @@ static void BattleInitATBTimers(void) {
     }
 }
 
-static void BattleInitSetSpeed(s32 speed) { g_BattleSceneContext.battleSpeed = 0x10000 / ((speed * 480 / 256 + 0x78) * 2); }
+static void BattleInitSetSpeed(s32 speed) {
+    g_BattleSceneContext.battleSpeed = 0x10000 / ((speed * 480 / 256 + 0x78) * 2);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitPlayer);
 
@@ -809,7 +811,7 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     SysMemCopy32(&g_BattleSceneContext.attackIDs, scene.attackIDs, sizeof(scene.attackIDs));
     SysMemCopy32(&g_BattleSceneContext.attackNames, &scene.attackNames, sizeof(scene.attackNames));
     SysMemCopy32(&g_BattleSceneContext.formationAI, &scene.formationAI, sizeof(FormationAIScripts));
-    SysMemCopy32(&g_BattleSceneContext.script, &scene.script, sizeof(scene.script));
+    SysMemCopy32(&g_BattleSceneContext.aiScriptBuffer, &scene.script, sizeof(scene.script));
     if (D_8016376A & 4 && D_8016360C.setup.flags & SETUP_NO_PREEMPTIVE_STRIKE) {
         if (D_8016360C.setup.type == SETUP_DEFAULT) {
             D_8016360C.setup.type = SETUP_PREEMPTIVE;
