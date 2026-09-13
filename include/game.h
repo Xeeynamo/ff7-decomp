@@ -693,9 +693,7 @@ typedef struct {
     } limitData[3];
 } BattleLimitData; // size:0x5C
 
-// Runtime data for a battle participant.
-// ActiveCharacterData.characterFlags (offset 0x23), documented as
-// "Underwater, Long Range, HP<->MP" in
+// ActiveCharacterData.characterFlags bits.
 // https://ff7-mods.github.io/ff7-flat-wiki/FF7/Battle/Battle_Mechanics.html
 typedef enum {
     CHARFLAG_LONG_RANGE = 0x04, // clears TARGET_SHORT_RANGE on the character's attacks
@@ -721,15 +719,14 @@ typedef struct {
     s16 baseHp;
     s16 mp;
     s16 baseMp;
-    u16 atbTimer;           // seeded from BattleWork.turn[].unk4 (wiki: 0x18 "Timer")
-    u16 unk1A;              // set to BattlePartyWork.limitBar << 8; the wiki folds
-                            // 0x18-0x1B into one 32-bit "Timer", so PSX differs here
-    u16 counterActionIndex; // wiki: 0x1C "Counter Attack Action Index"
-    u16 counterChance;      // wiki: 0x1E "Counter Attack Chance"
-    s8 limitLevel;          // 1-based, unlike BattlePartyWork.limitLevel
+    u16 atbTimer; // seeded from BattleWork.turn[].unk4
+    u16 unk1A;    // BattlePartyWork.limitBar << 8
+    u16 counterActionIndex;
+    u16 counterChance;
+    s8 limitLevel; // 1-based, unlike BattlePartyWork.limitLevel
     s8 unk21;
     s8 unk22;
-    u8 characterFlags; // CharacterFlags bits
+    u8 characterFlags;
     ActiveCharEnabledCounter enabledCounters[8];
     u16 physicalAttackElements;
     u16 halvedElements;

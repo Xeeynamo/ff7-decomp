@@ -461,7 +461,7 @@ void func_800A4480(void) {
 
     for (i = 0; i < LEN(g_BattleWork.turn); i++) {
         g_BattleWork.turn[i].unk3C = g_BattleState.combatant[i].curHP;
-        g_BattleWork.turn[i].unk3E = g_BattleState.combatant[i].unk28;
+        g_BattleWork.turn[i].unk3E = g_BattleState.combatant[i].curMP;
     }
 }
 

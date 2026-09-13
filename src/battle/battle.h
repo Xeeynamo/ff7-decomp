@@ -91,9 +91,8 @@ typedef struct {
     /* 0x0C */ s8 unkC;
     /* 0x0D */ u8 physAttack;
     /* 0x0E */ s8 magAttack;
-    /* 0x0F */ u8 defensePercent; // from ArmorRecord.defensePercent
-    /* 0x10 */ s8 unk10;          // cached "Near Death" display flag; see func_800B10B4
-                                  // for the live check
+    /* 0x0F */ u8 defensePercent;
+    /* 0x10 */ s8 unk10;
     /* 0x11 */ u8 unk11;
     /* 0x12 */ s8 unk12;
     /* 0x13 */ s8 unk13;
@@ -106,17 +105,15 @@ typedef struct {
     /* 0x20 */ s16 physDefence;
     /* 0x22 */ s16 magDefence;
     /* 0x24 */ s32 unk24;
-    /* 0x28 */ s16 unk28;
+    /* 0x28 */ s16 curMP;
     /* 0x2A */ s16 maxMP;
     /* 0x2C */ u32 curHP;
     /* 0x30 */ u32 maxHP;
     /* 0x34 */ u32 unk34[4];
-    /* 0x44 */ s32 unk44; // mirrors `status`: 0 for party members, the enemy's own
-                          // status for enemies, and gains STATUS_DEATH when curHP
-                          // hits 0
+    /* 0x44 */ s32 unk44;
     /* 0x48 */ u32 unk48;
     /* 0x4C */ u8 unk4C;
-    /* 0x4D */ u8 magicDefensePercent; // from ArmorRecord.magicDefensePercent
+    /* 0x4D */ u8 magicDefensePercent;
     /* 0x4E */ u8 unk4E;
     /* 0x4F */ u8 unk4F;
     /* 0x50 */ u16 unk50;
@@ -440,7 +437,7 @@ typedef struct {
     s32 unk20;
     s32 unk24;
     u8 unk28;
-    u8 unk29; // bit 0x02 mirrors "attack is not short range" (see BattleInitPlayer)
+    u8 unk29;
     u8 unk2A;
     u8 unk2B;
     s32 unk2C;
