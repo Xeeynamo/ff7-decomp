@@ -272,7 +272,7 @@ static void func_800A32C0(s32 arg0) {
         if (arg0 != 0) {
             if (g_BattleSceneContext.D_800F7DBA == 6) {
                 var_a3 = 1;
-                if (g_BattleSceneContext.D_800F6B9A != g_BattleSceneContext.D_800F6BA1) {
+                if (g_BattleSceneContext.activeTargetSlot != g_BattleSceneContext.cursorFocusSlot) {
                     var_a3 = 3;
                 }
                 BattleQueueEvent(0, 0, 7, var_a3);
@@ -392,9 +392,9 @@ static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* arg0) {
     category = arg0->priority;
     for (i = 0; i < LEN(g_BattleSceneContext.actionQueue); i++) {
         if (g_BattleSceneContext.actionQueue[i].priority == 0xFF) {
-            arg0->orderInPriority = g_BattleSceneContext.unkC57[category];
+            arg0->orderInPriority = g_BattleSceneContext.enemySlotMap[category];
             g_BattleSceneContext.actionQueue[i] = *arg0;
-            g_BattleSceneContext.unkC57[category] += 1;
+            g_BattleSceneContext.enemySlotMap[category] += 1;
             g_BattleSceneContext.D_800F7DDE = category;
             if (arg0->priority >= 2) {
                 g_BattleState.combatant[arg0->unitID].unk4 &= ~0x20;
@@ -859,7 +859,7 @@ void func_800A61D4(void) {
     for (i = 0; i < 8; i++) {
         if ((g_BattleSceneContext.D_800F7DBC >> i) & 1) {
             g_BattleSceneContext.D_800F7DBC &= ~(1 << i);
-            temp_v0 = GetEnemyAiScriptOffs(g_BattleSceneContext._5.unk0, g_BattleState.sceneID & 3, i);
+            temp_v0 = GetEnemyAiScriptOffs(g_BattleSceneContext.formationAI.scriptOffsets, g_BattleState.sceneID & 3, i);
             if (temp_v0 != 0) {
                 BattleOpcodeCycle(3, temp_v0, -1);
             }

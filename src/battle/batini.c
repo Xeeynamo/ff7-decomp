@@ -808,7 +808,7 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     SysMemCopy32(&g_BattleSceneContext.attacks, &scene.attacks, sizeof(scene.attacks));
     SysMemCopy32(&g_BattleSceneContext.attackIDs, scene.attackIDs, sizeof(scene.attackIDs));
     SysMemCopy32(&g_BattleSceneContext.attackNames, &scene.attackNames, sizeof(scene.attackNames));
-    SysMemCopy32(&g_BattleSceneContext._5, &scene.unkC80, sizeof(BattleSceneContext_5));
+    SysMemCopy32(&g_BattleSceneContext.formationAI, &scene.formationAI, sizeof(FormationAIScripts));
     SysMemCopy32(&g_BattleSceneContext.script, &scene.script, sizeof(scene.script));
     if (D_8016376A & 4 && D_8016360C.setup.flags & SETUP_NO_PREEMPTIVE_STRIKE) {
         if (D_8016360C.setup.type == SETUP_DEFAULT) {

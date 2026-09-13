@@ -207,8 +207,9 @@ typedef struct {
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/Shared/DataParser.cs
 
 typedef struct {
-    u16 unk0[0x100];
-} BattleSceneContext_5; // size:0x200
+	/* 0x000 */ u16 scriptOffsets[4]; // Offsets for formations 1 through 4 (0x00 - 0x07)
+	/* 0x008 */ u8  scriptData[504];  // Bytecode stream for formation scripts (0x08 - 0x1FF)
+} FormationAIScripts; // size:0x200
 
 // an uncompressed chunk from SCENE.BIN
 typedef struct {
@@ -219,8 +220,8 @@ typedef struct {
     /* 0x298 */ SceneEnemy enemy[3];
     /* 0x4C0 */ AttackData attacks[0x20];
     /* 0x840 */ u16 attackIDs[0x20];
-    /* 0x880 */ char attackNames[0x20][0x20];
-    /* 0xC80 */ BattleSceneContext_5 unkC80;
+    /* 0x880 */ u8 attackNames[0x20][0x20];
+    /* 0xC80 */ FormationAIScripts formationAI;
     /* 0xE80 */ u8 script[0x1000];
 } SceneContainer; // 0x1E80
 
@@ -248,12 +249,12 @@ typedef struct {
     /* 0x09E8 */ BattleActionEntry currentAction;
     /* 0x09F0 */ BattleActionEntry actionQueue[64];
     /* 0x0BF0 */ BattleActionEntry subActionSlots[12];
-    /* 0x0C50 */ u8 unkC50[6];
-    /* 0x0C56 */ u8 D_800F6B9A;
-    /* 0x0C57 */ u8 unkC57[6];
-    /* 0x0C5D */ u8 D_800F6BA1;
-    /* 0x0C5E */ u8 unkC5E[2];
-    /* 0x0C60 */ BattleSceneContext_5 _5;
+    /* 0x0C50 */ u8 partySlotMap[6];
+    /* 0x0C56 */ u8 activeTargetSlot;
+    /* 0x0C57 */ u8 enemySlotMap[6];
+    /* 0x0C5D */ u8 cursorFocusSlot;
+    /* 0x0C5E */ u8 dialogPad[2];
+    /* 0x0C60 */ FormationAIScripts formationAI;
     /* 0x0E60 */ u8 script[0x1000];
     /* 0x1E60 */ u16 D_800F7DA4;
     /* 0x1E62 */ u16 battleSpeed;
