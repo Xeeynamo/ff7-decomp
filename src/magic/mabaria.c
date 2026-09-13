@@ -1,8 +1,8 @@
 //! PSYQ=3.3 CC1=2.6.3
 
 #include "common.h"
-#include "../battle/battle.h"
 #include "magic_private.h"
+#include "../battle/battle.h"
 
 // Frame 16 would land on 0x7FFE, just under ScaleMatrix's 0x7FFF s16 ceiling.
 #define GROWTH_TOTAL 0x3BFF
@@ -23,20 +23,16 @@ typedef struct {
     /* 0x16 */ char pad16[0xA]; // untouched by the overlay
 } MabariaData;                  // size:0x20
 
-typedef struct {
-    /* 0x00 */ char pad[MAGIC_PAGE_SIZE];
-} MabariaPrimPage; // size:0x10000
-
 extern s32 D_801B0CA0;
 extern s32 D_801B0CA4;
 extern MabariaData g_BattleEffectSlots[];
 extern ModelRenderDesc g_MabariaRenderDesc;
-extern MabariaPrimPage g_MabariaPrimBuffer[];
+extern u8 g_MabariaPrimBuffer[2][MAGIC_PAGE_SIZE];
 extern void* g_MabariaBufferPtr;
 
-static void MabariaMainSetup(s32 arg0, s32 arg1);
+static void MabariaMainSetup(s32 targetMask, s32 callbackArg);
 
-void MAGIC_MBarrier(s32 arg0, s32 arg1) { MabariaMainSetup(arg0, arg1); }
+void MAGIC_MBarrier(s32 targetMask, s32 callbackArg) { MabariaMainSetup(targetMask, callbackArg); }
 
 static void MabariaRenderModel(void) {
     MabariaData* effect;
@@ -109,7 +105,7 @@ static void MabariaAnimationUpdate(void) {
     effect->AnimationFrame++;
 }
 
-static void MabariaAttachToTarget(s32 target, s32 arg1) {
+static void MabariaAttachToTarget(s32 target, s32 callbackArg) {
     MabariaData* effect;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(MabariaAnimationUpdate)];
@@ -124,17 +120,17 @@ static void MabariaDoubleBufferFlip(void) {
     MabariaData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    g_MabariaBufferPtr = &g_MabariaPrimBuffer[effect->AnimationFrame];
+    g_MabariaBufferPtr = g_MabariaPrimBuffer[effect->AnimationFrame];
     effect->AnimationFrame = effect->AnimationFrame ^ 1;
     if (g_BattleEffectCount < 2) {
         effect->StartFrame = -1;
     }
 }
 
-static void MabariaMainSetup(s32 arg0, s32 arg1) {
+static void MabariaMainSetup(s32 targetMask, s32 callbackArg) {
     D_801B0CA0 = 0x2000;
     D_801B0CA4 = 0;
     BattleEffectRegister(MabariaDoubleBufferFlip);
-    MagicAnimationRegister(arg0, arg1, 0, MabariaAttachToTarget);
+    MagicAnimationRegister(targetMask, callbackArg, 0, MabariaAttachToTarget);
     BattleCommandSend(0x20, 0x40, 0x43);
 }

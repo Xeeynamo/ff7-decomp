@@ -27,22 +27,18 @@ typedef struct {
     /* 0x1E */ char pad1E[2];
 } ThunderData; // size:0x20
 
-typedef struct {
-    /* 0x00 */ char pad[MAGIC_PAGE_SIZE];
-} ThunderPrimPage; // size:0x10000
-
 extern void* g_ThunderBufferPtr;
 extern ThunderData g_BattleEffectSlots[];
-extern ThunderPrimPage g_ThunderPrimBuffer[];
+extern u8 g_ThunderPrimBuffer[2][MAGIC_PAGE_SIZE];
 extern u_long g_ThunderTexture[]; // 8bpp TIM + CLUT, uploaded on setup
 extern SpriteRenderDesc g_ThunderRenderDesc0;
 extern SpriteRenderDesc g_ThunderRenderDesc1;
 extern MATRIX g_ThunderModelMatrix;
 extern ModelRenderDesc g_ThunderModelDesc;
 
-static void ThunderMainSetup(s32 arg0, s32 arg1);
+static void ThunderMainSetup(s32 targetMask, s32 callbackArg);
 
-void MAGIC_Thunder(s32 arg0, s32 arg1) { ThunderMainSetup(arg0, arg1); }
+void MAGIC_Thunder(s32 targetMask, s32 callbackArg) { ThunderMainSetup(targetMask, callbackArg); }
 
 static void ThunderRenderModel(void) {
     MATRIX matrix;
@@ -150,7 +146,7 @@ static void ThunderSpawnBolt(void) {
     }
 }
 
-static void ThunderAttachToTarget(s32 target, s32 arg1) {
+static void ThunderAttachToTarget(s32 target, s32 callbackArg) {
     ThunderData* effect;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(ThunderSpawnBolt)];
@@ -164,15 +160,15 @@ static void ThunderDoubleBufferFlip(void) {
     ThunderData* data;
 
     data = &g_BattleEffectSlots[g_BattleEffectCursor];
-    g_ThunderBufferPtr = &g_ThunderPrimBuffer[data->AnimationFrame];
+    g_ThunderBufferPtr = g_ThunderPrimBuffer[data->AnimationFrame];
     data->AnimationFrame = data->AnimationFrame ^ 1;
     if (g_BattleEffectCount < 2) {
         data->StartFrame = -1;
     }
 }
 
-static void ThunderMainSetup(s32 arg0, s32 arg1) {
+static void ThunderMainSetup(s32 targetMask, s32 callbackArg) {
     BattleSetLoadTimToVram(g_ThunderTexture, 0, 0, 0);
     BattleEffectRegister(ThunderDoubleBufferFlip);
-    MagicAnimationRegister(arg0, arg1, 2, ThunderAttachToTarget);
+    MagicAnimationRegister(targetMask, callbackArg, 2, ThunderAttachToTarget);
 }

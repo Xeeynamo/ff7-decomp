@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "libgpu.h"
 #include <game.h>
-#include <psxsdk/libcd.h>
+#include <libcd.h>
 
 typedef struct EndingNode {
     struct EndingNode* prev;

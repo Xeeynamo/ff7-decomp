@@ -1,10 +1,10 @@
 //! PSYQ=3.3 CC1=2.7.2
-#include <psxsdk/libapi.h>
-#include <psxsdk/libgpu.h>
-#include <psxsdk/kernel.h>
+#include <libapi.h>
+#include <libgpu.h>
+#include <kernel.h>
 
 #include "savemenu.h"
-#include <psxsdk/libetc.h>
+#include <libetc.h>
 
 static void func_801D0408(u16 arg0) {
     D_8009A000[0] = 0x30;

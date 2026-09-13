@@ -1,8 +1,7 @@
 //! PSYQ=3.3
 #include <game.h>
-#include <psxsdk/types.h>
-#include <psxsdk/libcd.h>
-#include <psxsdk/libetc.h>
+#include <libcd.h>
+#include <libetc.h>
 
 typedef enum {
     CDOP_0,

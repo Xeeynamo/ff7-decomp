@@ -12,11 +12,7 @@
 
 // brizad_buffer_ptr must land immediately after the buffer, at 0x801B1014 +
 // 0x20000.
-typedef struct {
-    /* 0x00 */ char pad[MAGIC_PAGE_SIZE];
-} BrizadPrimPage; // size:0x10000
-
-static BrizadPrimPage brizad_prim_buffer[2];
+static u8 brizad_prim_buffer[2][MAGIC_PAGE_SIZE];
 static void* brizad_buffer_ptr;
 
 typedef struct {
@@ -44,7 +40,6 @@ typedef struct {
 
 extern ModelRenderDesc g_BrizadRenderDesc;
 extern BrizadData g_BattleEffectSlots[];
-extern s16 D_80151774;
 
 static void BrizadRenderIce(void) {
     MATRIX matrix;
@@ -96,9 +91,7 @@ static void BrizadSpawnIce(void) {
         if (effect->AnimationFrame == 0) {
             next = &g_BattleEffectSlots[BattleEffectRegister(BrizadRenderIce)];
             BattleGetPartPosition(effect->TargetIndex, D_801518E4[effect->TargetIndex].D_8015190F, &next->Pos);
-            next->Rot.vz = 0;
-            next->Rot.vy = 0;
-            next->Rot.vx = 0;
+            next->Rot.vx = next->Rot.vy = next->Rot.vz = 0;
             next->Scale = func_800D55A4(effect->TargetIndex);
             func_800D5774(effect->TargetIndex);
             if (effect->AnimationFrame == 0) {
@@ -111,11 +104,11 @@ static void BrizadSpawnIce(void) {
 
 // Byte-identical twin of BrizadAttachToTarget below, present in the original
 // and never registered by this overlay. Kept so the layout matches.
-static void BrizadAttachToTargetUnused(s32 target, s32 arg1) {
+static void BrizadAttachToTargetUnused(s32 target, s32 callbackArg) {
     g_BattleEffectSlots[BattleEffectRegister(BrizadSpawnIce)].TargetIndex = target;
 }
 
-static void BrizadAttachToTarget(s32 target, s32 arg1) {
+static void BrizadAttachToTarget(s32 target, s32 callbackArg) {
     g_BattleEffectSlots[BattleEffectRegister(BrizadSpawnIce)].TargetIndex = target;
 }
 
@@ -124,7 +117,7 @@ static void BrizadDoubleBufferFlip(void) {
     BrizadData* flip;
 
     flip = &g_BattleEffectSlots[g_BattleEffectCursor];
-    brizad_buffer_ptr = &brizad_prim_buffer[flip->AnimationFrame];
+    brizad_buffer_ptr = brizad_prim_buffer[flip->AnimationFrame];
     flip->AnimationFrame ^= 1;
     if (g_BattleEffectCount < 2) {
         flip->StartFrame = -1;
@@ -133,8 +126,8 @@ static void BrizadDoubleBufferFlip(void) {
 
 // Overlay entry, at 0x801B037C. This is the last function in the overlay, so
 // it must stay last in this file.
-void MAGIC_Brizad(s32 targetMask, s32 arg1) {
+void MAGIC_Brizad(s32 targetMask, s32 callbackArg) {
     BattleEffectRegister(BrizadDoubleBufferFlip);
-    MagicAnimationRegister(targetMask, arg1, 4, BrizadAttachToTarget);
+    MagicAnimationRegister(targetMask, callbackArg, 4, BrizadAttachToTarget);
     BattleCommandSend(0x20, BattleEntityGetStereoPan(D_80151774), 0x18);
 }

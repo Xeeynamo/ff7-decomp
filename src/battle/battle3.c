@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.7.2
 #include "battle_private.h"
 #include "game.h"
-#include <psxsdk/libetc.h>
+#include <libetc.h>
 
 static void func_800E1C40(void);
 static void func_800E5358(void);
