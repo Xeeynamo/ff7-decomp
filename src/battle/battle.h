@@ -314,7 +314,10 @@ typedef struct {
     /* 0x02A */ u8 D_8015190E;
     /* 0x02B */ u8 D_8015190F;
     /* 0x02C */ s32 D_80151910;
-    /* 0x030 */ s32 D_80151914;
+    /* 0x030 */ u8 unk30;
+    /* 0x031 */ u8 subModelIdx;
+    /* 0x032 */ u8 subModelIdx2;
+    /* 0x033 */ u8 unk33;
     /* 0x034 */ s16 D_80151918;
     /* 0x036 */ s16 D_8015191A;
     /* 0x038 */ s16 D_8015191C;
@@ -549,14 +552,14 @@ MATRIX* func_800D4368(SVECTOR* pos, s32 scale, s32 depthBias);
 void* func_800D4D90(SpriteRenderDesc* desc, u_long** ot, int otLen, void* prim);
 void func_800D5444(int, int, int, void (*func)(int));
 // Returns a scale derived from the target's model size.
-s32 func_800D55A4(s32 target);
+s32 BattleCalcModelPartScale(s32 target);
 void BattleCommandSend(s32 cmdId, ...);
 void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
 // Runs `func` once per set bit in targetMask, frameStep frames apart.
 void MagicAnimationRegister(s32 targetMask, s32 callbackArg, s32 frameStep, void (*func)(s32, s32));
 s32 BattlePositionToStereoPan(SVECTOR* sv);
 s32 BattleEntityGetStereoPan(s32 arg0);
-void func_800D5774(u32 targetIndex);
+void BattleQueueStatusChangeEvent(u32 targetIndex);
 void BattleRunFrame(void);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 void BattleRecalcUnitSpeed(s32 index);
@@ -566,7 +569,7 @@ void BattleActionQueueReset(void);
 void BattleCmdScriptInitTbl(void);
 void BattleHitFormulaInit(void);
 void func_800A71F4(void);
-void func_800DCF94(s16 arg0);
+void BattleSetActiveCursorTarget(s16 arg0);
 void BattleResetReservedItems(void);
 void func_800A61D4(void);
 void func_800A4480(void);

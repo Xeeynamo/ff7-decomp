@@ -55,7 +55,7 @@ static void Lv5DeathBufferFlip(void) {
 
 static void Lv5DeathMainSetup(s32 targetMask, s32 callbackArg);
 
-// Overlay entry point, at 0x801B0054; func_800D0C80 dispatches magic id 32
+// Overlay entry point, at 0x801B0054; BattleDispatchModelCommand dispatches magic id 32
 // here.
 void MAGIC_Lv5Death(s32 targetMask, s32 callbackArg) { Lv5DeathMainSetup(targetMask, callbackArg); }
 
@@ -127,7 +127,7 @@ static void Lv5DeathRenderTargetSprite(void) {
     }
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == RESULT_POPUP_FRAME) {
-            func_800D5774(effect->u.TargetIndex);
+            BattleQueueStatusChangeEvent(effect->u.TargetIndex);
         }
         effect->AnimationFrame++;
     }

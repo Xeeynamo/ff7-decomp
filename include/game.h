@@ -647,7 +647,7 @@ typedef struct {
     s32 unk18;
     s32 unk1C;
     s8 unk20;
-    s8 unk21;
+    u8 commandRows;
     s8 unk22;
     u8 characterFlags;
     ActiveCharEnabledCounter enabledCounters[8];

@@ -57,7 +57,7 @@ void BatInitMain(s32 sceneID) {
     }
     func_800A71F4();
     D_801620A8 = -1;
-    func_800DCF94(-1);
+    BattleSetActiveCursorTarget(-1);
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         g_BattleState.combatant[i].unk8 = -1;
         g_BattleState.combatant[i].unk13 = 0x10;
@@ -340,7 +340,7 @@ static void BattleInitPartyScripts(void) {
 // Fixes up party member sceneID's battle command list: each of the 16 command
 // slots gets its target flags from the command table (falling back to the
 // formation setup), with extra flags for the Enemy Skill / W- commands, and
-// unk21 ends up as the number of command rows in use. The second pass clears
+// commandRows ends up as the number of command rows in use. The second pass clears
 // the "usable" byte of every equipped materia whose attack is not flagged
 // battle-usable.
 static void BattleInitCharCmdMenu(s32 sceneID) {
@@ -351,7 +351,7 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
     s32 i;
 
     e = &g_ActiveCharacters[sceneID];
-    e->unk21 = 1;
+    e->commandRows = 1;
     for (i = 0; i < 16; i++) {
         flags = 0xFF;
         cmd = e->commandMenu[i].id;
@@ -382,7 +382,7 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
                     }
                 }
             }
-            e->unk21 = i / 4 + 1;
+            e->commandRows = i / 4 + 1;
         }
         e->commandMenu[i].targetFlags = flags;
     }
@@ -408,7 +408,7 @@ static void BattleInitResetExtraCmds(s32 sceneID) {
     ActiveCharacterData* data;
 
     data = &g_ActiveCharacters[sceneID];
-    data->unk21 = 1;
+    data->commandRows = 1;
     for (i = 1; i < 4; i++) {
         data->commandMenu[i].id = 0xFF;
         data->commandMenu[i].initialCursorAction = 0;
