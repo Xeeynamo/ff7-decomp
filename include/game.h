@@ -522,7 +522,7 @@ typedef struct {
     /* 0x00 */ u8 accuracyRate;
     /* 0x01 */ u8 impactEffectID;
     /* 0x02 */ u8 impactAnimID;
-    /* 0x03 */ u8 unk3;
+    /* 0x03 */ u8 pad3;
     /* 0x04 */ u16 mpCost;
     /* 0x06 */ u16 impactSfxID;
     /* 0x08 */ u16 cameraSingleID;

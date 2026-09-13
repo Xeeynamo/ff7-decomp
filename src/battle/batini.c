@@ -47,10 +47,10 @@ void BatInitMain(s32 sceneID) {
     BattleCmdScriptInitTbl();
     BattleHitFormulaInit();
     for (i = 0; i < 0x40; i++) {
-        D_800F5F44.messageQueue[i].unk0 = 0xFF;
+        g_BattleSceneContext.actionQueue[i].unk0 = 0xFF;
     }
     for (i = 0; i < 10; i++) {
-        D_800F5F44.unkBF0[i].unk0 = 0xFF;
+        g_BattleSceneContext.subActionSlots[i].unk0 = 0xFF;
     }
     for (i = 0; i < 2; i++) {
         D_800F6B86[i][0] = 0xFF;
@@ -70,7 +70,7 @@ void BatInitMain(s32 sceneID) {
     BattleInitSetSpeed(Savemap.battle_speed);
     q = g_BattleState.combatant;
     p = q;
-    D_800F5F44.D_800F7DAA = (Savemap.config & 0xC0) >> 6;
+    g_BattleSceneContext.D_800F7DAA = (Savemap.config & 0xC0) >> 6;
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         BattleRecalcUnitSpeed(i);
         if ((s8)p[i].unk8 != -1) {
@@ -93,7 +93,7 @@ void BatInitMain(s32 sceneID) {
     }
     if (g_BattleState.setupFlags & 8) {
         BattleInitSetSpeed(0x80);
-        D_800F5F44.D_800F7DAA = 0;
+        g_BattleSceneContext.D_800F7DAA = 0;
         for (i = 0; i < NUM_PARTY; i++) {
             BattleInitResetExtraCmds(i);
         }
@@ -158,8 +158,8 @@ static void BattleInitSetup(s32 sceneID) {
         BattleQueueEvent(0, 0, 14, 0);
     }
     for (i = 0; i < 0x40; i++) {
-        if (D_800F5F44.messageQueue[i].unk2 >= var_s1) {
-            D_800F5F44.messageQueue[i].unk2 = -1;
+        if (g_BattleSceneContext.actionQueue[i].unk2 >= var_s1) {
+            g_BattleSceneContext.actionQueue[i].unk2 = -1;
         }
     }
     for (i = 0; i < NUM_PARTY; i++) {
@@ -222,7 +222,7 @@ static void BattleInitATBTimers(void) {
     }
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         if ((presentMask >> i) & 1) {
-            switch (D_800F5F44.battleType) {
+            switch (g_BattleSceneContext.battleType) {
             case SETUP_DEFAULT:
             case SETUP_PINCER_2:
                 t = timer[i] + 0xE000;
@@ -260,7 +260,7 @@ static void BattleInitATBTimers(void) {
     }
 }
 
-static void BattleInitSetSpeed(s32 speed) { D_800F5F44.battleSpeed = 0x10000 / ((speed * 480 / 256 + 0x78) * 2); }
+static void BattleInitSetSpeed(s32 speed) { g_BattleSceneContext.battleSpeed = 0x10000 / ((speed * 480 / 256 + 0x78) * 2); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitPlayer);
 
@@ -621,7 +621,7 @@ static void BattleInitFormation(void) {
     if (D_8016360C.setup.type == SETUP_SIDE_ATTACK_3) {
         sideMask = ~5;
     }
-    intro = D_801B003C[D_800F5F44.battleType];
+    intro = D_801B003C[g_BattleSceneContext.battleType];
     if (intro != 0xFF && g_BattleState.sceneID != 0x3D6) {
         func_800B1060(intro);
     }
@@ -629,7 +629,7 @@ static void BattleInitFormation(void) {
     row[0] = 0;
     row[1] = 0;
     row[2] = 0;
-    switch (D_800F5F44.battleType) {
+    switch (g_BattleSceneContext.battleType) {
     case 0:
         mask = enemyMask;
         /* fallthrough */
@@ -678,7 +678,7 @@ static void BattleInitFormation(void) {
     for (i = 0; i < NUM_PARTY; i++) {
         back = g_BattleState.combatant[i].unk4 >> 6;
         back &= 1;
-        switch (D_800F5F44.battleType) {
+        switch (g_BattleSceneContext.battleType) {
         case 0:
         case 1:
             break;
@@ -804,18 +804,18 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     SysMemCopy32(&D_8016360C.setup, &scene.setup[formationIndex], sizeof(BattleSetup));
     SysMemCopy32(&D_8016360C.camera, &scene.camera[formationIndex], sizeof(CameraPlacement) * 4);
     SysMemCopy32(&D_8016360C.formation, &scene.formation[formationIndex], sizeof(FormationEntry) * NUM_ENEMY);
-    SysMemCopy32(&D_800F5F44.enemy, &scene.enemy, sizeof(scene.enemy));
-    SysMemCopy32(&D_800F5F44.attacks, &scene.attacks, sizeof(scene.attacks));
-    SysMemCopy32(&D_800F5F44.attackIDs, scene.attackIDs, sizeof(scene.attackIDs));
-    SysMemCopy32(&D_800F5F44.attackNames, &scene.attackNames, sizeof(scene.attackNames));
-    SysMemCopy32(&D_800F5F44._5, &scene.unkC80, sizeof(Unk800F5F44_5));
-    SysMemCopy32(&D_800F5F44.script, &scene.script, sizeof(scene.script));
+    SysMemCopy32(&g_BattleSceneContext.enemy, &scene.enemy, sizeof(scene.enemy));
+    SysMemCopy32(&g_BattleSceneContext.attacks, &scene.attacks, sizeof(scene.attacks));
+    SysMemCopy32(&g_BattleSceneContext.attackIDs, scene.attackIDs, sizeof(scene.attackIDs));
+    SysMemCopy32(&g_BattleSceneContext.attackNames, &scene.attackNames, sizeof(scene.attackNames));
+    SysMemCopy32(&g_BattleSceneContext._5, &scene.unkC80, sizeof(BattleSceneContext_5));
+    SysMemCopy32(&g_BattleSceneContext.script, &scene.script, sizeof(scene.script));
     if (D_8016376A & 4 && D_8016360C.setup.flags & SETUP_NO_PREEMPTIVE_STRIKE) {
         if (D_8016360C.setup.type == SETUP_DEFAULT) {
             D_8016360C.setup.type = SETUP_PREEMPTIVE;
         }
     }
-    D_800F5F44.battleType = (u8)g_BattleTypeMap[D_8016360C.setup.type];
+    g_BattleSceneContext.battleType = (u8)g_BattleTypeMap[D_8016360C.setup.type];
     if (D_8016376A & EVENT_BATTLE_SQUARE) {
         D_8016360C.setup.stageID = 37;
         D_8016360C.setup.flags |= SETUP_CANNOT_ESCAPE;
@@ -823,9 +823,9 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
         D_8016360C.setup.escapeCounter = 1;
         // enemy strength and magic is 25% higher at battle square
         for (i = 0; i < 3; i++) {
-            D_800F5F44.enemy[i].hp *= 2;
-            D_800F5F44.enemy[i].strength = BattleBoostVal25Percent(D_800F5F44.enemy[i].strength);
-            D_800F5F44.enemy[i].magic = BattleBoostVal25Percent(D_800F5F44.enemy[i].magic);
+            g_BattleSceneContext.enemy[i].hp *= 2;
+            g_BattleSceneContext.enemy[i].strength = BattleBoostVal25Percent(g_BattleSceneContext.enemy[i].strength);
+            g_BattleSceneContext.enemy[i].magic = BattleBoostVal25Percent(g_BattleSceneContext.enemy[i].magic);
         }
     } else if (D_8016376A & 8) {
         D_8016360C.setup.flags &= ~SETUP_CANNOT_ESCAPE;
@@ -833,11 +833,11 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     if (!(D_8016360C.setup.flags & SETUP_CANNOT_ESCAPE)) {
         D_8016376A |= 8;
     }
-    D_800F5F44.D_800F7DB2 = D_8016360C.setup.escapeCounter;
-    if (D_800F5F44.battleType == 1 || D_800F5F44.battleType == 3) {
-        D_800F5F44.D_800F7DB2 = 1;
+    g_BattleSceneContext.D_800F7DB2 = D_8016360C.setup.escapeCounter;
+    if (g_BattleSceneContext.battleType == 1 || g_BattleSceneContext.battleType == 3) {
+        g_BattleSceneContext.D_800F7DB2 = 1;
     }
-    D_800F5F44.D_800F7DB6 = D_800F5F44.D_800F7DB2;
+    g_BattleSceneContext.D_800F7DB6 = g_BattleSceneContext.D_800F7DB2;
 }
 
 static s32 BattleGetScenePackId(s32 sceneID) {

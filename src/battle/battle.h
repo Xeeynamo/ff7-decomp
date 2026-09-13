@@ -208,7 +208,7 @@ typedef struct {
 
 typedef struct {
     u16 unk0[0x100];
-} Unk800F5F44_5; // size:0x200
+} BattleSceneContext_5; // size:0x200
 
 // an uncompressed chunk from SCENE.BIN
 typedef struct {
@@ -220,7 +220,7 @@ typedef struct {
     /* 0x4C0 */ AttackData attacks[0x20];
     /* 0x840 */ u16 attackIDs[0x20];
     /* 0x880 */ char attackNames[0x20][0x20];
-    /* 0xC80 */ Unk800F5F44_5 unkC80;
+    /* 0xC80 */ BattleSceneContext_5 unkC80;
     /* 0xE80 */ u8 script[0x1000];
 } SceneContainer; // 0x1E80
 
@@ -238,22 +238,22 @@ typedef struct {
     u8 unk3;
     s16 unk4;
     s16 unk6;
-} Unk800A3D4C; // size:8
+} BattleActionEntry; // size:8
 
 typedef struct {
     /* 0x0000 */ SceneEnemy enemy[3];
     /* 0x0228 */ AttackData attacks[0x20];
     /* 0x05A8 */ u16 attackIDs[0x20];
-    /* 0x05E8 */ char attackNames[0x20][0x20];
-    /* 0x09E8 */ u8 unk9E8[8];
-    /* 0x09F0 */ Unk800A3D4C messageQueue[64];
-    /* 0x0BF0 */ Unk800A3D4C unkBF0[12];
+    /* 0x05E8 */ u8 attackNames[0x20][0x20];
+    /* 0x09E8 */ BattleActionEntry currentAction;
+    /* 0x09F0 */ BattleActionEntry actionQueue[64];
+    /* 0x0BF0 */ BattleActionEntry subActionSlots[12];
     /* 0x0C50 */ u8 unkC50[6];
     /* 0x0C56 */ u8 D_800F6B9A;
     /* 0x0C57 */ u8 unkC57[6];
     /* 0x0C5D */ u8 D_800F6BA1;
     /* 0x0C5E */ u8 unkC5E[2];
-    /* 0x0C60 */ Unk800F5F44_5 _5;
+    /* 0x0C60 */ BattleSceneContext_5 _5;
     /* 0x0E60 */ u8 script[0x1000];
     /* 0x1E60 */ u16 D_800F7DA4;
     /* 0x1E62 */ u16 battleSpeed;
@@ -279,7 +279,7 @@ typedef struct {
     /* 0x1E8E */ u16 reviveMask;
     /* 0x1E90 */ u8 unk1E90[0xA];
     /* 0x1E9A */ s16 D_800F7DDE;
-} Unk800F5F44; // size:0x1E9C
+} BattleSceneContext; // size:0x1E9C
 
 #define BATTTLE_SCENE 7
 
@@ -519,7 +519,7 @@ typedef struct {
 
 extern s16 D_800F5B74;
 extern BattleWork g_BattleWork;
-extern Unk800F5F44 D_800F5F44;
+extern BattleSceneContext g_BattleSceneContext;
 extern s8 D_800F6B86[2][8];
 extern u16 D_800F7DE8;
 extern u8 D_800F83A8;
