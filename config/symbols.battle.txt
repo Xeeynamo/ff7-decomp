@@ -290,4 +290,8 @@ g_BattleMovementCallbacks = 0x80163B48; // size:0x28
 g_BattleMovementCount = 0x80163B7C; // size:0x4
 D_80163C80 = 0x80163C80; // size:0xC
 
-//D_800F4308 = 0x800f4308;
+g_BattleCallbackEvent = 0x800f4308;
+
+BattleEventQueueInit = 0x800A71F4;
+g_BattlePartyEventReadIdx = 0x800F4908;
+g_BattlePartyEventWriteIdx = 0x800F4914;

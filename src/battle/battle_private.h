@@ -3,6 +3,7 @@
 
 #define CMD_OPCODE_DELIM 0x1F
 #define HIT_OPCODE_DELIM 0x08
+#define BATTLE_EVENT_QUEUE_SIZE 128
 
 enum QueueMethod {
     QUEUE_LOAD_IMAGE,
@@ -326,12 +327,12 @@ typedef struct {
     s8 callbackId;
     s16 param;
 } BattleCallbackEvent;
-extern BattleCallbackEvent D_800F4308[][128];
+extern BattleCallbackEvent g_BattleCallbackEvent[][128];
 
 
 extern u8 g_BattleHitFormulaOpcodeStream[];
-extern s32 D_800F4908[];
-extern s32 D_800F4914[];
+extern s32 g_BattlePartyEventReadIdx[];
+extern s32 g_BattlePartyEventWriteIdx[];
 extern s32 g_BattleHitFormulaOffs[];
 extern s32 D_800F4920;
 extern u16 D_800F4938[];

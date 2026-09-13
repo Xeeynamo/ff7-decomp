@@ -1087,16 +1087,16 @@ void func_800A71E0(void) {}
 
 s32 func_800A71E8(s32 arg0) { return (arg0 + 1) & 0x7F; }
 
-void func_800A71F4(void) {
+void BattleEventQueueInit(void) {
     s32 i;
     s32 j;
 
     for (i = 0; i < NUM_PARTY; i++) {
-        for (j = 0x7F; j >= 0; j--) {
-            D_800F4308[i][j].unitId = 0xFF;
+        for (j = BATTLE_EVENT_QUEUE_SIZE-1; j >= 0; j--) {
+            g_BattleCallbackEvent[i][j].unitId = 0xFF;
         }
-        D_800F4908[i] = 0;
-        D_800F4914[i] = 0;
+        g_BattlePartyEventReadIdx[i] = 0;
+        g_BattlePartyEventWriteIdx[i] = 0;
     }
 }
 
@@ -1106,10 +1106,10 @@ void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 temp_t0;
     BattleCallbackEvent* temp_a0;
 
-    base = D_800F4914;
+    base = g_BattlePartyEventWriteIdx;
     temp_s0 = base + arg0;
     temp_t0 = *temp_s0;
-    temp_a0 = &D_800F4308[arg0][temp_t0];
+    temp_a0 = &g_BattleCallbackEvent[arg0][temp_t0];
     if (temp_a0->unitId == 0xFF) {
         temp_a0->param = arg3;
         temp_a0->callbackId = arg2;

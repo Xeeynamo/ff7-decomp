@@ -55,7 +55,7 @@ void BatInitMain(s32 sceneID) {
     for (i = 0; i < LEN(g_BattleSceneContext.postExecAction); i++) {
         g_BattleSceneContext.postExecAction[i].unitID = 0xFF;
     }
-    func_800A71F4();
+    BattleEventQueueInit();
     D_801620A8 = -1;
     func_800DCF94(-1);
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {

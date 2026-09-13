@@ -572,7 +572,7 @@ void BattleCheckAllLucky7s(void);
 void BattleActionQueueReset(void);
 void BattleCmdScriptInitTbl(void);
 void BattleHitFormulaInit(void);
-void func_800A71F4(void);
+void BattleEventQueueInit(void);
 void func_800DCF94(s16 arg0);
 void BattleResetReservedItems(void);
 void func_800A61D4(void);
