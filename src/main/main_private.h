@@ -31,6 +31,27 @@ typedef enum {
 } KernelID;
 
 typedef enum {
+    KERNEL_TEXT_DESC_COMMAND,    // 0x00
+    KERNEL_TEXT_DESC_MAGIC,      // 0x01
+    KERNEL_TEXT_DESC_ITEM,       // 0x02
+    KERNEL_TEXT_DESC_WEAPON,     // 0x03
+    KERNEL_TEXT_DESC_ARMOR,      // 0x04
+    KERNEL_TEXT_DESC_ACCESSORY,  // 0x05
+    KERNEL_TEXT_DESC_MATERIA,    // 0x06
+    KERNEL_TEXT_DESC_KEY_ITEM,   // 0x07
+    KERNEL_TEXT_NAME_COMMAND,    // 0x08
+    KERNEL_TEXT_NAME_MAGIC,      // 0x09
+    KERNEL_TEXT_NAME_ITEM,       // 0x0A
+    KERNEL_TEXT_NAME_WEAPON,     // 0x0B
+    KERNEL_TEXT_NAME_ARMOR,      // 0x0C
+    KERNEL_TEXT_NAME_ACCESSORY,  // 0x0D
+    KERNEL_TEXT_NAME_MATERIA,    // 0x0E
+    KERNEL_TEXT_NAME_KEY_ITEM,   // 0x0F
+    KERNEL_TEXT_BATTLE_MESSAGES, // 0x10
+    KERNEL_TEXT_NAME_SUMMON,     // 0x11
+} KernelTextBlockID;
+
+typedef enum {
     SUBSYSTEM_FIELD = 1,
     SUBSYSTEM_BATTLE = 2,
     SUBSYSTEM_WORLD = 3, // also used for snowfield
@@ -108,13 +129,13 @@ extern s16 D_80062FF4;
 extern u8 D_80062FEC;
 extern u16 D_80062F34[3];
 extern Unk80062F7C* D_80062F7C;
-extern u8 D_80063690[];
+extern u8 g_KernelTextBuffer[];
 extern TILE D_800696FC[5];
 extern u_long g_MenuOrderingTables[2][20];
 extern MenuTable g_RewardMenuTable;
 extern s32 g_TutorialActive;
 extern u32 D_80062FA4[2];
-extern u16 D_80069490[];
+extern u16 g_KernelTextBlockOffsets[];
 extern u8 D_800694B4[16];
 extern u8 D_800694C4[16];
 extern u8 D_800694D4[16];
@@ -141,8 +162,8 @@ u16 SysGzipGetType(void);
 u16 SysGzipGetSize(void);
 u32 SysGzipPackDecompressNextBlock(u8* dst);
 u16 func_801D1950(u16 len, u8* data);
-u8* SysGetPointerToTextInKernWithBlockAndTextId(s32 arg0, s32 arg1, s32 arg2);
-u8* SysGetPtrToKernBattleTxtWithId(s32 arg0);
+u8* SysGetKernTextPtrByBlock(s32 arg0, s32 arg1, s32 arg2);
+u8* SysGetKernBattleTextPtr(s32 arg0);
 u8 func_8001F6B4(void);
 void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
 void SysMenuRequestAddWindow(u8* text, s8 palette);     // PC: menu_setNotificationMessage

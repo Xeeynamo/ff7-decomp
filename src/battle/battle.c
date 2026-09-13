@@ -12,11 +12,11 @@ const u8 D_800A0004[] = {
     0x00, 0x16, 0x11, 0x00, 0x10, 0x1C, 0x11, 0x02, 0x00, 0x18, 0x11, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x2E, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-// opcode-byte program for func_800A1798's dispatch loop: a 0x1F-delimited
-// stream of per-command opcode sequences, sliced by D_800F38AC[cmdIndex]
-// (see func_800A283C) into per-command runs; each byte indexes D_800E7B28
-// (function-pointer table) for func_800A1798 to jalr through in order
-const u8 D_800A0098[] = {
+// opcode-byte program for BattleCmdScriptDispatch's dispatch loop: a 0x1F-delimited
+// stream of per-command opcode sequences, sliced by g_BattleCmdOpcodeOffs[cmdIndex]
+// (see BattleCmdScriptInitTbl) into per-command runs; each byte indexes g_BattleCmdOpcodeJmpTbl
+// (function-pointer table) for BattleCmdScriptDispatch to jalr through in order
+const u8 g_BattleCmdOpcodeStream[] = {
     0x1F, 0x0E, 0x09, 0x1F, 0x00, 0x0C, 0x09, 0x1F, 0x01, 0x0C, 0x09, 0x1F, 0x02, 0x0D, 0x09, 0x1F, 0x1E, 0x09, 0x1F,
     0x0A, 0x16, 0x09, 0x1F, 0x1D, 0x09, 0x1F, 0x19, 0x09, 0x1F, 0x0E, 0x1C, 0x09, 0x1F, 0x0E, 0x1B, 0x09, 0x1F, 0x1A,
     0x09, 0x1F, 0x17, 0x1F, 0x03, 0x0C, 0x09, 0x1F, 0x1F, 0x1F, 0x1F, 0x0E, 0x09, 0x1F, 0x04, 0x0B, 0x0F, 0x1F, 0x05,
@@ -31,12 +31,12 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleMain);
 
 // per-command opcode dispatcher: reads cmdIndex from the turn context
 // (g_CurrentAction->unkC), looks up its opcode-sequence start via
-// D_800F38AC[cmdIndex] into D_800A0098, then for each byte until the 0x1F
-// delimiter, jalr's through D_800E7B28[opcode]. After each call, checks
+// g_BattleCmdOpcodeOffs[cmdIndex] into g_BattleCmdOpcodeStream, then for each byte until the 0x1F
+// delimiter, jalr's through g_BattleCmdOpcodeJmpTbl[opcode]. After each call, checks
 // D_80062F14 -- if it goes >= 0 the whole sequence aborts immediately
 // (handler requested a suspend, e.g. to wait on an animation), otherwise
 // continues to the next opcode byte
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A1798);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleCmdScriptDispatch);
 
 static void BattleSetFocusedActor(s32 arg0) {
     s32 i;
@@ -67,7 +67,7 @@ static void func_800A23BC(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleBattleActionQueueExecute);
 
-void func_800A283C(void) {
+void BattleCmdScriptInitTbl(void) {
     s32 next;
     s32* out;
     u32 i;
@@ -75,13 +75,13 @@ void func_800A283C(void) {
 
     i = 0;
     next = 0;
-    delim = 0x1F;
-    out = D_800F38AC;
+    delim = CMD_OPCODE_DELIM;
+    out = g_BattleCmdOpcodeOffs;
     for (; i < 0x6D; i++) {
         if (i == next) {
             *out++ = i;
         }
-        if (D_800A0098[i] == delim) {
+        if (g_BattleCmdOpcodeStream[i] == delim) {
             next = i + 1;
         }
     }
@@ -153,33 +153,33 @@ static void func_800A2D68(u8 arg0) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2DB0);
 
 static void func_800A2EFC(void) {
-    D_800F3950 = D_800F3944;
-    D_800F3954 = D_800F3948;
+    D_800F3950 = g_BattleActionQueueIndex;
+    D_800F3954 = g_BattleActionQueueTargIndex;
 }
 
 static void func_800A2F24(void) {
-    D_800F3944 = D_800F3950;
-    D_800F3948 = D_800F3954;
+    g_BattleActionQueueIndex = D_800F3950;
+    g_BattleActionQueueTargIndex = D_800F3954;
 }
 
-static Unk800A2F4C* BattleQueue1GetPtr(void) {
-    Unk800A2F4C* unk = &D_80163798[D_800F3944];
-    unk->unk3 = 0;
-    unk->unk2 = 0;
-    unk->unkA = D_800F3948;
-    if (D_800F3944 < LEN(D_80163798)) {
-        D_800F3944++;
+static BattleActionQueueEntry* BattleActionQueueAlloc(void) {
+    BattleActionQueueEntry* entry = &g_BattleActionQueue[g_BattleActionQueueIndex];
+    entry->unk3 = 0;
+    entry->unk2 = 0;
+    entry->targetIndex = g_BattleActionQueueTargIndex;
+    if (g_BattleActionQueueIndex < LEN(g_BattleActionQueue)) {
+        g_BattleActionQueueIndex++;
     } else {
         func_800155A4(40);
     }
-    return unk;
+    return entry;
 }
 
 static Unk800FA9D0* BattleQueue2GetPtr(void) {
-    Unk800FA9D0* ptr = &D_800FA9D0[D_800F3948];
+    Unk800FA9D0* ptr = &D_800FA9D0[g_BattleActionQueueTargIndex];
     ptr->unk3 = -1;
-    if (D_800F3948 < LEN(D_800FA9D0)) {
-        D_800F3948++;
+    if (g_BattleActionQueueTargIndex < LEN(D_800FA9D0)) {
+        g_BattleActionQueueTargIndex++;
     } else {
         func_800155A4(40);
     }
@@ -197,7 +197,7 @@ static void BattleDropSupersededQueuedActions(void) {
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         slot[i] = none;
     }
-    for (i = 0; i < D_800F3948; i++) {
+    for (i = 0; i < g_BattleActionQueueTargIndex; i++) {
         actor = D_800FA9D0[i].unk0;
         if (actor != -1 && (D_800FA9D0[i].unk4 & 4)) {
             prev = slot[actor];
@@ -226,38 +226,38 @@ static void func_800A317C(void) {
 }
 
 void func_800A31A0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    Unk800A2F4C* unk = BattleQueue1GetPtr();
-    unk->unk0 = arg0;
+    BattleActionQueueEntry* unk = BattleActionQueueAlloc();
+    unk->actionId = arg0;
     unk->unk1 = arg1;
     unk->unk5 = arg2;
     unk->unk6 = arg3;
     unk->unk8 = -1;
-    unk->unkA = -1;
+    unk->targetIndex = -1;
 }
 
 static void func_800A3208(s8 arg0, s8 arg1) {
-    if (D_800F3944 != 0) {
-        Unk800A2F4C* ptr = &D_80163798[D_800F3944 - 1];
+    if (g_BattleActionQueueIndex != 0) {
+        BattleActionQueueEntry* ptr = &g_BattleActionQueue[g_BattleActionQueueIndex - 1];
         ptr->unk3 = arg0;
         ptr->unk2 = arg1;
     }
 }
 
 static void func_800A3240(void) {
-    if (D_800F3944 != 0) {
-        D_80163798[D_800F3944 - 1].unk8 = -1;
+    if (g_BattleActionQueueIndex != 0) {
+        g_BattleActionQueue[g_BattleActionQueueIndex - 1].unk8 = -1;
     }
 }
 
-void func_800A3278(void) {
-    D_800F3944 = 0;
-    D_800F3948 = 0;
-    D_80163798[0].unk0 = -1;
+void BattleActionQueueReset(void) {
+    g_BattleActionQueueIndex = 0;
+    g_BattleActionQueueTargIndex = 0;
+    g_BattleActionQueue[0].actionId = -1;
 }
 
 static void func_800A329C(void) {
-    if (D_800F3944) {
-        D_800F3944--;
+    if (g_BattleActionQueueIndex) {
+        g_BattleActionQueueIndex--;
     }
 }
 
@@ -290,13 +290,13 @@ void BattleRunFrame(void) {
     s32 i;
     s32 a;
 
-    func_800A32C0(D_800F3944);
-    if (D_800F3944 != 0) {
-        BattleQueue1GetPtr()->unk0 = -1;
+    func_800A32C0(g_BattleActionQueueIndex);
+    if (g_BattleActionQueueIndex != 0) {
+        BattleActionQueueAlloc()->actionId = -1;
     }
     func_800155B0();
     for (i = 0; i < 0x40; i++) {
-        a = D_80163798[i].unk0;
+        a = g_BattleActionQueue[i].actionId;
         if (a == -1) {
             break;
         }
@@ -305,14 +305,14 @@ void BattleRunFrame(void) {
         }
     }
     BattleQueue1Execute();
-    func_800A3278();
+    BattleActionQueueReset();
     for (i = START_ENEMY; i < NUM_BATTLE_ACTOR; i++) {
         D_801636B8[i].D_801636B9 = g_BattleState.combatant[i].unk10;
     }
 }
 
 static void func_800A345C(void) {
-    if (D_800F3944) {
+    if (g_BattleActionQueueIndex) {
         BattleRunFrame();
     }
 }
@@ -563,16 +563,16 @@ static s32 func_800A4A80(void) {
 
 void func_800A4ACC(s16 arg0, u16 arg1) { func_8001726C(arg0, arg1); }
 
-// opcode 0x14 handler (D_800E7B28[0x14]): spins on BattleQueue1Execute() until
+// opcode 0x14 handler (g_BattleCmdOpcodeJmpTbl[0x14]): spins on BattleQueue1Execute() until
 // status bit D_800F9DA4 & 2 clears. Not itself a damage dealer -- injecting
 // cmdIndex 0x23 (single-opcode sequence: just this one) produced ~3.1%
 // max-HP damage, but BattleQueue1Execute (still nonmatching, battle1 overlay) is
-// just a generic drainer for the D_80163798 event queue (HP-counter ticks,
+// just a generic drainer for the g_BattleActionQueue event queue (HP-counter ticks,
 // status-icon show/hide, sound cues -- see its own comment in battle1.c),
 // gated one-per-frame on D_800F7DE4 which BattleUpdateRender sets. So this
 // opcode is "wait for already-queued visual/counter effects to finish",
 // not the source of the damage -- whatever queues an HP-tick entry into
-// D_80163798 before this opcode runs is the real damage source, still
+// g_BattleActionQueue before this opcode runs is the real damage source, still
 // untraced
 void BattleQueue1Execute();
 void BattleActionType14(void) {
@@ -1014,7 +1014,7 @@ void BattleSetLimitBreakStringToDisplay(s32 arg0) {
     s16 sp10;
 
     sp10 = (s16)D_801636B8[arg0].D_801636B8;
-    D_800F5F44.D_800F7DBE = BattleExpandScriptToBuffer(SysGetPtrToKernBattleTxtWithId(0x26), &sp10) + 0x100;
+    D_800F5F44.D_800F7DBE = BattleExpandScriptToBuffer(SysGetKernBattleTextPtr(0x26), &sp10) + 0x100;
     D_800F5F44.D_800F7DC0 = 0xF;
 }
 
@@ -1263,12 +1263,12 @@ void BattleLoadActionAttackData(void) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType0E);
 
 void BattleQueueCurrentActionEffect(void) {
-    Unk800A2F4C* unk;
+    BattleActionQueueEntry* unk;
     Unk800FA9D0* act;
 
     if (g_CurrentAction->unk20 >= 0) {
-        unk = BattleQueue1GetPtr();
-        unk->unk0 = g_CurrentAction->actorId;
+        unk = BattleActionQueueAlloc();
+        unk->actionId = g_CurrentAction->actorId;
         unk->unk1 = g_CurrentAction->unk1C;
         unk->unk5 = g_CurrentAction->unk20;
         unk->unk3 = g_CurrentAction->unk28;
@@ -1565,13 +1565,13 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AB830);
 void func_800AB830(s32, s32);
 
 static void func_800AB9C4(s32 arg0, s32 arg1) {
-    Unk800A2F4C* temp_v0;
+    BattleActionQueueEntry* temp_v0;
 
     if (!(g_BattleState.combatant[arg0].status & STATUS_DEATH)) {
-        temp_v0 = BattleQueue1GetPtr();
+        temp_v0 = BattleActionQueueAlloc();
         temp_v0->unk1 = 1;
         temp_v0->unk5 = 0x2E;
-        temp_v0->unk0 = arg0;
+        temp_v0->actionId = arg0;
         temp_v0->unk3 = 0;
         temp_v0->unk2 = 0;
         temp_v0->unk8 = -1;
@@ -1976,7 +1976,7 @@ static void BattleApplyDefaultAbsorbEffect(void) {
     func_800AD324(g_CurrentAction->unkF4, g_CurrentAction->unk208, g_CurrentAction->unk214, result);
 }
 
-void func_800AD480(void) {
+void BattleHitFormulaInit(void) {
     s32 count;
     s32 next;
     u32 i;
@@ -1987,10 +1987,10 @@ void func_800AD480(void) {
     for (; i < 0x1E; i++) {
         if (count < 0x10) {
             if (i == next) {
-                D_800F495C[count] = i;
+                g_BattleHitFormulaOffs[count] = i;
                 count++;
             }
-            if (D_800E7BCC[i] == 8) {
+            if (g_BattleHitFormulaOpcodeStream[i] == HIT_OPCODE_DELIM) {
                 next = i + 1;
             }
         }
@@ -2336,7 +2336,7 @@ static void BattleRollPhysicalHit(void);
 static int BattleUpperFunc03();
 int BattleUpperFunc06();
 static void BattleUpperFunc07(void);
-int (* const D_800A04E0[])() = {
+int (* const g_BattleHitFormulaJmpTbl[])() = {
     BattleUpperFunc00, BattleUpperFunc01, (void*)BattleRollPhysicalHit, BattleUpperFunc03, BattleUpperFunc03,
     BattleUpperFunc03, BattleUpperFunc06, (void*)BattleUpperFunc07,
 };
@@ -2574,8 +2574,7 @@ static s32 func_800B0EB4(s32 arg0) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleGetRndItemIdForSteal);
 
 static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* arg3) {
-    func_800A31A0(
-        arg0, 2, arg2, BattleExpandScriptToBuffer((u8*)SysGetPtrToUncompKernBattleTxtWithId(arg1), arg3) + 0x100);
+    func_800A31A0(arg0, 2, arg2, BattleExpandScriptToBuffer((u8*)SysGetKernBattleTextById(arg1), arg3) + 0x100);
 }
 
 void func_800B1060(s32 arg0) { func_800A31A0(10, 2, 1, arg0); }
@@ -2590,14 +2589,14 @@ static s32 func_800B10B4(s32 arg0) {
 }
 
 static void BattleQueueEffect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
-    Unk800A2F4C* unk;
+    BattleActionQueueEntry* unk;
     Unk800FA9D0* act;
 
-    unk = BattleQueue1GetPtr();
+    unk = BattleActionQueueAlloc();
     act = BattleQueue2GetPtr();
     unk->unk1 = 1;
     unk->unk8 = -1;
-    unk->unk0 = arg0;
+    unk->actionId = arg0;
     unk->unk5 = arg1;
     unk->unk3 = arg2;
     unk->unk2 = arg3;

@@ -288,7 +288,7 @@ static void func_800B3E2C(void) {
     var_a0 = D_801590CC;
     D_801518E4[var_a0].D_80151906 = 0;
     D_800F8374 = 0xE;
-    D_80163798[D_801590E0].unk8 = -2;
+    g_BattleActionQueue[D_801590E0].unk8 = -2;
     BattleCallbacksReset();
     func_800C5BEC();
 }
@@ -350,7 +350,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B677C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleInitModelsAnimAndColor);
 
-// drains D_80163798 (12-byte entries, -1-terminated, index D_801590E0), one
+// drains g_BattleActionQueue (12-byte entries, -1-terminated, index D_801590E0), one
 // entry per call, dispatched by a type byte (0-5, jtbl_800A05FC) via m2c
 // structural read (not yet decompiled):
 //   0 callback-driven step (func_800BC04C(&func_800C494C)), immediate
@@ -555,7 +555,7 @@ static void func_800B85E0() {
         D_80163C7C = 5;
         func_800D8B2C();
         D_800F7ED4 = 100;
-        D_80163798[D_801590E0].unk8 = -3;
+        g_BattleActionQueue[D_801590E0].unk8 = -3;
         BattleQueue1CameraInit();
         for (i = 0; i < 3; i++) {
             D_801518E4[i].D_80151922 |= 0x20;
@@ -566,7 +566,7 @@ static void func_800B85E0() {
         D_80163C7C = 5;
         func_800D8B2C();
         D_800F9D98 = 100;
-        D_80163798[D_801590E0].unk8 = -1;
+        g_BattleActionQueue[D_801590E0].unk8 = -1;
         BattleQueue1CameraInit();
     }
     if (!D_801590D8 && D_80163B80) {
@@ -585,7 +585,7 @@ static void func_800B85E0() {
             D_800F9D9C = 100;
             D_80163C7C = 5;
             func_800D8B2C();
-            D_80163798[D_801590E0].unk8 = -1;
+            g_BattleActionQueue[D_801590E0].unk8 = -1;
             BattleQueue1CameraInit();
         }
     }
