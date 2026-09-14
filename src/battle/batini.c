@@ -129,7 +129,7 @@ void BatInitMain(s32 sceneID) {
 
             if (((BattleUnit*)((u8*)g_BattleState.combatant + offset))->curHP == 0) {
                 ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->status |= 1;
-                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->unk44[0] |= 1;
+                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->prevStatus |= 1;
                 ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->stateFlags &= ~0x18;
             }
         }
@@ -770,7 +770,7 @@ static void BattleInitEnemyAI(void) {
     for (i = 0; i < NUM_ENEMY; i++) {
         D_8016360C.formation[i].flags = g_BattleState.combatant[START_ENEMY + i].stateFlags;
         D_801636B8[START_ENEMY + i].D_801636B9 = g_BattleState.combatant[START_ENEMY + i].idleActionId;
-        g_BattleState.combatant[START_ENEMY + i].unk44[0] = g_BattleState.combatant[START_ENEMY + i].status;
+        g_BattleState.combatant[START_ENEMY + i].prevStatus = g_BattleState.combatant[START_ENEMY + i].status;
     }
 }
 

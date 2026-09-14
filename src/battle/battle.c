@@ -1022,7 +1022,7 @@ void BattleSetLimitBreakStringToDisplay(s32 arg0) {
 
 void func_800A6C5C(s32 arg0, s32 arg1) {
     BattleQueueEvent(2, arg0, 0x14, arg1);
-    *(u16*)((u8*)&g_BattleState.combatant[arg0].unk44 + 0xE) = arg1;
+    *(u16*)((u8*)&g_BattleState.combatant[arg0].unk52) = arg1; 
 }
 
 extern const u8 g_StatusBitTable[];
@@ -1525,7 +1525,7 @@ static void BattleDropDyingEnemiesFromTargets(void) {
         ((g_CurrentAction->unk44 & 0x1C00) || g_CurrentAction->unk28 == 5)) {
         mask = g_CurrentAction->allowedTargetsMask;
         for (i = START_ENEMY; i < NUM_BATTLE_ACTOR; i++) {
-            if (g_BattleState.combatant[i].unk4E >= 16) {
+            if (g_BattleState.combatant[i].formationRow >= 16) {
                 mask &= ~(1 << i);
             }
         }

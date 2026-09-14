@@ -110,13 +110,23 @@ typedef struct {
     /* 0x2A */ s16 maxMP;
     /* 0x2C */ u32 curHP;
     /* 0x30 */ u32 maxHP;
-    /* 0x34 */ u32 unk34[4];
-    /* 0x44 */ u32 unk44[2];
+	/* 0x34 */ u32 elemHalve;
+    /* 0x38 */ u32 elemNullify;
+    /* 0x3C */ u32 elemAbsorb;
+    /* 0x40 */ u32 elemWeakness; 
+	/* 0x44 */ u32 prevStatus;
+    /* 0x48 */ u32 unk48;
     /* 0x4C */ u8 unk4C;
-    /* 0x4D */ u8 unk4D;
-    /* 0x4E */ u8 unk4E;
+    /* 0x4D */ u8 magEvade;
+    /* 0x4E */ u8 formationRow;
     /* 0x4F */ u8 unk4F;
-    /* 0x50 */ u32 unk50[6];
+	/* 0x50 */ u16 unk50;                   // Akari: Init 0
+    /* 0x52 */ u16 unk52;                   // Akari: Init 0xFFFF
+    /* 0x54 */ u16 elemImmuneExtra;         // Akari: no damage element mask
+    /* 0x56 */ u16 ap;                      // Akari: AP (or Init 8 player / 2 enemy)
+    /* 0x58 */ u32 gil;                     // Akari: gil
+    /* 0x5C */ u32 exp;                     // Akari: exp
+    /* 0x60 */ u32 unk60[2];                // Tail padding to align to 0x68
 } BattleUnit; // size:0x68
 
 typedef struct {
