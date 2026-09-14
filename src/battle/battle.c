@@ -508,7 +508,7 @@ static s32 BattleRunToResultScreen(void) {
         BattleRunFrame();
     }
     D_800F3896 = 0x1C;
-    func_800D9E0C(-1, -1, 0x1C);
+    BattleMenuWidgetOpen(-1, -1, 0x1C);
     while (D_800F39EC == 0) {
         BattleRunFrame();
     }
@@ -533,7 +533,7 @@ static s32 BattleRunEscapeSequence(void) {
         BattleRunFrame();
     }
     D_800F3896 = 9;
-    func_800D9E0C(-1, -1, 9);
+    BattleMenuWidgetOpen(-1, -1, 9);
     while (D_800F39EC == 0) {
         BattleRunFrame();
     }
