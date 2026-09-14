@@ -459,7 +459,7 @@ static void BattleUpdateRender(void) {
 
 static void func_800B8234(s32 arg0) {
     if (arg0) {
-        BattleDispatchModelCommand(D_801590CC);
+        func_800D0C80(D_801590CC);
         D_801517BC = 0;
     }
 }

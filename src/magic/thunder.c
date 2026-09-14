@@ -121,7 +121,7 @@ static void ThunderSpawnBolt(void) {
             next->Pos = effect->Pos;
             next->Pos.vy = 0;
             next->unk1C = effect->unk1C;
-            BattleQueueStatusChangeEvent(effect->unk14);
+            func_800D5774(effect->unk14);
             if (effect->AnimationFrame == 0) {
                 next = &g_BattleEffectSlots[BattleEffectRegister(ThunderRenderModel)];
                 next->Pos = effect->Pos;

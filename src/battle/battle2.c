@@ -595,7 +595,7 @@ static void BattleApplyDelayedActionTick(void) {
 static void BattleApplyGatedDelayedTick(void) {
     if (D_801621F0[D_801590D4].D_801621F4 == 0) {
         if (D_801518DC == 0) {
-            BattleDispatchModelCommand(D_801621F0[D_801590D4].D_801621F6);
+            func_800D0C80(D_801621F0[D_801590D4].D_801621F6);
             D_801621F0[D_801590D4].D_801621F0 = -1;
         }
     } else {
@@ -668,7 +668,7 @@ static void BattleDispatchModelRunScript(u8 arg0) {
     }
 }
 
-void BattleDispatchModelCommand(u8 arg0) {
+void func_800D0C80(u8 arg0) {
     D_800F8CF0 = 0;
     func_800D1530();
     switch (D_801518E4[arg0].D_80151907) {
@@ -1423,7 +1423,7 @@ static s32 BattleCountSetBits(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleEntityGetCenter);
 
-s32 BattleCalcModelPartScale(s32 arg0) { return (D_801518E4[arg0].unk12 * 0x10) * D_801518E4[arg0].D_801518EA >> 0xC; }
+s32 func_800D55A4(s32 arg0) { return (D_801518E4[arg0].unk12 * 0x10) * D_801518E4[arg0].D_801518EA >> 0xC; }
 
 // Generic AKAO sound-command dispatcher: the first vararg's low 16 bits are
 // the command id, which selects how many trailing u32 params get copied into
@@ -1489,7 +1489,7 @@ s32 BattleEntityGetStereoPan(s32 arg0) {
 
 // Queue a popup carrying bit index arg0, using push type 6 if that bit is
 // set in the D_800F836C flag word, else type 4.
-void BattleQueueStatusChangeEvent(u32 arg0) {
+void func_800D5774(u32 arg0) {
     s32 cond;
     s16* ptr;
 
