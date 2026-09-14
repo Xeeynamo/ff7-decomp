@@ -1,5 +1,7 @@
-//! G=0
+//! PSYQ=3.6 G=0
 #include "main_private.h"
+
+extern volatile s16 g_GameState;
 
 // placeholder sectors and sizes, replaced at boot with INIT/YAMADA.BIN
 static Yamada D_80048D84[YAMADA_FILE_NUM] = {
@@ -63,7 +65,7 @@ static void func_80014658(s32 file_no, void (*cb)(void)) {
 void func_800146A4(void) {
     s32 var_s0 = -1;
     while (var_s0) {
-        switch (D_8009C560) {
+        switch (g_GameState) {
         case 4:
             func_800145BC(0);
             func_80014658(BATTLE_BROM, D_800A00CC);

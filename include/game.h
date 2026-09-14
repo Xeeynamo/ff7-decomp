@@ -19,6 +19,24 @@
 typedef unsigned char ff7s[];
 
 typedef enum {
+    GAMESTATE_FIELD = 1,
+    GAMESTATE_BATTLE = 2,
+    GAMESTATE_WORLD = 3, // Also used for snowfield
+    GAMESTATE_BROM = 4,  // Unused?
+    GAMESTATE_MENU = 5,
+    GAMESTATE_HIGHWAY = 6,
+    GAMESTATE_CHOCOBO = 7,
+    GAMESTATE_SNOWBOARD1 = 8,
+    GAMESTATE_FORTCONDOR = 9,
+    GAMESTATE_SUBMARIME = 10,
+    GAMESTATE_JET = 11,
+    GAMESTATE_CHANGE_DISK = 12,
+    GAMESTATE_MENU_COMMANND = 13, // Commands called from field to menus
+    GAMESTATE_SNOWBOARD2 = 14,
+    GAMESTATE_LOAD_INSTR2 = 16, // Load instrument bank for One-Winged Angel
+} GameState;
+
+typedef enum {
     LABEL_ITEM,
     LABEL_MAGIC,
     LABEL_MATERIA,
@@ -711,7 +729,7 @@ typedef struct {
     /* 0x0D */ u8 backgroundFrameId;
     /* 0x0E */ u8 behaviour;
     /* 0x0F */ u8 soundId; // Index into the trigger sound table.
-} FieldBgTrigger; // size: 0x10
+} FieldBgTrigger;          // size: 0x10
 
 typedef struct {
     s32 x;
@@ -926,7 +944,7 @@ typedef struct {
     u16 pcWalkMeshId;      // Walk mesh triangle id player is inside of.
     s16 pcDirection;       // Direction player is facing.
     s16 movieCommandState; // enum MovieCommandState.
-    u16 modelCount;
+    s16 modelCount;
     s16 pcModelId;
     u16 idleAnimId;
     u16 walkAnimId;
@@ -960,7 +978,7 @@ typedef struct {
     u8* nextBattleMusic;
     u32 nextFieldMusic;
     // Set by FADE or NFADE to start fades.
-    u16 fadeType; // enum FieldFadeType.
+    volatile u16 fadeType; // enum FieldFadeType.
     s16 fadeAdjust;
     s16 fadeSpeed;
     s16 fadeRed;
@@ -1118,7 +1136,7 @@ extern s32 D_800756F8[];
 extern Unk80075D00* D_80075D00;
 extern s32 D_80075D04;
 extern s32 D_80075D08[];
-extern u16 D_80075DEC;           // buffer index, either 0 or 1
+extern volatile s16 D_80075DEC;  // buffer index, also updated by the VSync callback
 extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern u8* g_FieldText;
@@ -1153,7 +1171,7 @@ extern s8 D_80095DCC;
 extern volatile s16 D_80095DD4;
 extern s16 g_PlayerModelId;
 extern s16 g_isFieldLoading;
-extern volatile s16 D_800965EC;
+extern volatile s16 g_PrevGameState;
 extern u8 D_80099FFC;
 extern s16 D_8009A000[1];
 extern u_long D_8009A004[1]; // may be a u8*

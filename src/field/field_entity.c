@@ -7,15 +7,11 @@ extern s16 D_800DF120[][2];
 u8 FieldEntityDirByVec(VECTOR* start, VECTOR* target, s32* distance);
 
 static s16 D_800DEF88[130] = {
-    0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5,
-    5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10,
-    10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14, 15, 15, 15,
-    16, 16, 16, 17, 17, 17, 18, 18, 18, 19, 19, 20, 20, 20, 21, 21,
-    21, 22, 22, 22, 23, 23, 24, 24, 24, 25, 25, 26, 26, 26, 27, 27,
-    28, 28, 28, 29, 29, 30, 30, 30, 31, 31, 32, 32, 32, 32, 32, 32,
-    32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
-    32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
-    32, 32,
+    0,  0,  1,  1,  1,  2,  2,  2,  3,  3,  3,  4,  4,  4,  4,  5,  5,  5,  6,  6,  6,  7,  7,  7,  8,  8,
+    8,  9,  9,  9,  10, 10, 10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14, 15, 15, 15, 16, 16, 16, 17,
+    17, 17, 18, 18, 18, 19, 19, 20, 20, 20, 21, 21, 21, 22, 22, 22, 23, 23, 24, 24, 24, 25, 25, 26, 26, 26,
+    27, 27, 28, 28, 28, 29, 29, 30, 30, 30, 31, 31, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
+    32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
 };
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_entity", FieldEntityInitPos);
@@ -44,8 +40,7 @@ void FieldEntityAnimationUpdate(s32 modelId) {
         if (!g_FieldState.suspendWalkAndAnim) {
             g_FieldEntity[modelId].animCurrentFrame += g_FieldEntity[modelId].animSpeed;
             if (modelId == g_PlayerModelId && !g_FieldState.characterLock) {
-                g_FieldEntity[modelId].animLastFrame =
-                    *(u16*)&anims[g_FieldEntity[modelId].activeAnimId * 16] - 1;
+                g_FieldEntity[modelId].animLastFrame = *(u16*)&anims[g_FieldEntity[modelId].activeAnimId * 16] - 1;
                 if (g_FieldEntity[modelId].animCurrentFrame > (g_FieldEntity[modelId].animLastFrame << 4)) {
                     g_FieldEntity[modelId].animCurrentFrame = 0;
                 }
@@ -82,16 +77,16 @@ void FieldEntityCheckTalk(void) {
         start.vx = g_FieldEntity[g_PlayerModelId].PosX >> 12;
         start.vy = g_FieldEntity[g_PlayerModelId].PosY >> 12;
         start.vz = g_FieldEntity[g_PlayerModelId].PosZ >> 12;
-        for (i = 0; i < (s16)g_FieldState.modelCount; i++) {
+        for (i = 0; i < g_FieldState.modelCount; i++) {
             diffs[i] = 256;
             if (i != g_PlayerModelId && !g_FieldEntity[i].TalkOff) {
                 target.vx = g_FieldEntity[i].PosX >> 12;
                 target.vy = g_FieldEntity[i].PosY >> 12;
                 target.vz = g_FieldEntity[i].PosZ >> 12;
-                if ((start.vx != target.vx || start.vy != target.vy) &&
-                    start.vz - target.vz > -256 && start.vz - target.vz < 256) {
-                    diffs[i] = (g_FieldEntity[g_PlayerModelId].Dir -
-                                FieldEntityDirByVec(&start, &target, &distance)) & 0xFF;
+                if ((start.vx != target.vx || start.vy != target.vy) && start.vz - target.vz > -256 &&
+                    start.vz - target.vz < 256) {
+                    diffs[i] =
+                        (g_FieldEntity[g_PlayerModelId].Dir - FieldEntityDirByVec(&start, &target, &distance)) & 0xFF;
                     if (diffs[i] > 128) {
                         diffs[i] = 256 - diffs[i];
                     }
@@ -103,7 +98,7 @@ void FieldEntityCheckTalk(void) {
         }
         modelId = g_PlayerModelId;
         bestDiff = 64;
-        for (i = 0; i < (s16)g_FieldState.modelCount; i++) {
+        for (i = 0; i < g_FieldState.modelCount; i++) {
             if (diffs[i] < bestDiff) {
                 bestDiff = diffs[i];
                 modelId = i;
@@ -205,7 +200,20 @@ static void FieldEntityVectorSub(s32* arg0, s16* arg1, s16* arg2) {
     arg0[2] = arg1[2] - arg2[2];
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_entity", FieldEntityCalculateZ);
+s32 FieldEntityCalculateZ(VECTOR* edge1, VECTOR* edge2, VECTOR* point, SVECTOR* anchor) {
+    VECTOR normal;
+
+    normal.vx = -edge1->vy * edge2->vz + edge2->vy * edge1->vz;
+    normal.vy = -edge1->vz * edge2->vx + edge1->vx * edge2->vz;
+    normal.vz = -edge1->vx * edge2->vy + edge2->vx * edge1->vy;
+    edge1->vx = anchor->vx;
+    edge1->vy = anchor->vy;
+    edge1->vz = anchor->vz;
+
+    return (normal.vx * edge1->vx + normal.vy * edge1->vy + normal.vz * edge1->vz - normal.vx * point->vx -
+            normal.vy * point->vy) /
+           normal.vz;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_entity", FieldEntityMove);
 
@@ -221,7 +229,7 @@ s32 FieldEntityCollisionCheck(s16 modelId, VECTOR* pos) {
 
     result = 0;
     collisionRadius = g_FieldEntity[modelId].SolidRange;
-    for (i = 0; i < (s16)g_FieldState.modelCount; i++) {
+    for (i = 0; i < g_FieldState.modelCount; i++) {
         if (i != modelId && !g_FieldEntity[i].SolidOff) {
             dz = (g_FieldEntity[i].PosZ >> 12) - pos->vz;
             if (dz > -127 && dz < 128) {
@@ -245,29 +253,84 @@ s32 FieldEntityCollisionCheck(s16 modelId, VECTOR* pos) {
 s32 FieldEntitySqrDistToLine(LinePos* pos, VECTOR* from, VECTOR* nearest) {
     s32 dist;
 
-    dist = -256 * ((pos->x1 - from->vx) * (pos->x2 - pos->x1) +
-                     (pos->y1 - from->vy) * (pos->y2 - pos->y1) +
-                     (pos->z1 - from->vz) * (pos->z2 - pos->z1)) /
-             ((pos->x2 - pos->x1) * (pos->x2 - pos->x1) +
-              (pos->y2 - pos->y1) * (pos->y2 - pos->y1) +
-              (pos->z2 - pos->z1) * (pos->z2 - pos->z1));
+    dist = -256 *
+           ((pos->x1 - from->vx) * (pos->x2 - pos->x1) + (pos->y1 - from->vy) * (pos->y2 - pos->y1) +
+            (pos->z1 - from->vz) * (pos->z2 - pos->z1)) /
+           ((pos->x2 - pos->x1) * (pos->x2 - pos->x1) + (pos->y2 - pos->y1) * (pos->y2 - pos->y1) +
+            (pos->z2 - pos->z1) * (pos->z2 - pos->z1));
     nearest->vx = ((dist * (pos->x2 - pos->x1)) >> 8) + pos->x1;
     nearest->vy = ((dist * (pos->y2 - pos->y1)) >> 8) + pos->y1;
     nearest->vz = ((dist * (pos->z2 - pos->z1)) >> 8) + pos->z1;
     if (!(((pos->x1 - nearest->vx < 0 || pos->x2 - nearest->vx > 0) &&
-         (pos->x1 - nearest->vx > 0 || pos->x2 - nearest->vx < 0)) ||
-        ((pos->y1 - nearest->vy < 0 || pos->y2 - nearest->vy > 0) &&
-         (pos->y1 - nearest->vy > 0 || pos->y2 - nearest->vy < 0)))) {
-        dist = (nearest->vx - from->vx) * (nearest->vx - from->vx) +
-                 (nearest->vy - from->vy) * (nearest->vy - from->vy) +
-                 (nearest->vz - from->vz) * (nearest->vz - from->vz);
+           (pos->x1 - nearest->vx > 0 || pos->x2 - nearest->vx < 0)) ||
+          ((pos->y1 - nearest->vy < 0 || pos->y2 - nearest->vy > 0) &&
+           (pos->y1 - nearest->vy > 0 || pos->y2 - nearest->vy < 0)))) {
+        dist =
+            (nearest->vx - from->vx) * (nearest->vx - from->vx) + (nearest->vy - from->vy) * (nearest->vy - from->vy) +
+            (nearest->vz - from->vz) * (nearest->vz - from->vz);
     } else {
         dist = -1;
     }
     return dist;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_entity", FieldEntityLineCheck);
+s32 FieldEntityLineCheck(FieldEntity* entity, FieldLine* lines, VECTOR* pos) {
+    VECTOR* from = (VECTOR*)getScratchAddr(0);
+    VECTOR* to = (VECTOR*)getScratchAddr(sizeof(VECTOR) / 4);
+    VECTOR* nearest = (VECTOR*)getScratchAddr(sizeof(VECTOR) / 4 * 2);
+    s32 distanceSq;
+    s32 sideFrom;
+    s32 sideTo;
+    s32 result;
+    s32 i;
+
+    from->vx = entity->PosX >> 12;
+    from->vy = entity->PosY >> 12;
+    result = 0;
+    from->vz = entity->PosZ >> 12;
+    to->vx = pos->vx >> 12;
+    to->vy = pos->vy >> 12;
+    to->vz = entity->PosZ >> 12;
+    for (i = 0; i < 32; i++, lines++) {
+        if (lines->isActive == 1) {
+            lines->isOnLine = 0;
+            distanceSq = FieldEntitySqrDistToLine(&lines->pos, from, nearest);
+            if (distanceSq != -1 && distanceSq < entity->SolidRange * entity->SolidRange) {
+                if (lines->slipDisabled == 1) {
+                    result = 1;
+                }
+                if (!lines->touch) {
+                    lines->requestTouchOnScript = 1;
+                }
+                lines->touch = 1;
+                sideFrom = (lines->pos.x2 - lines->pos.x1) * (from->vy - lines->pos.y1) -
+                           (from->vx - lines->pos.x1) * (lines->pos.y2 - lines->pos.y1);
+                sideTo = (lines->pos.x2 - lines->pos.x1) * (to->vy - lines->pos.y1) -
+                         (to->vx - lines->pos.x1) * (lines->pos.y2 - lines->pos.y1);
+                if ((sideFrom >= 0 && sideTo < 0) || (sideTo >= 0 && sideFrom < 0) || (sideFrom > 0 && sideTo <= 0) ||
+                    (sideTo > 0 && sideFrom <= 0)) {
+                    lines->across = 1;
+                }
+                if (from->vx == nearest->vx && from->vy == nearest->vy) {
+                    lines->requestPushScript = 1;
+                    lines->isOnLine = 1;
+                } else {
+                    lines->proximityAngle = FieldEntityDirByVec(from, nearest, &distanceSq);
+                    if (((lines->proximityAngle - entity->MoveDir + 64) & 0xFF) < 128) {
+                        lines->requestPushScript = 1;
+                        lines->isOnLine = 1;
+                    }
+                }
+            } else {
+                if (lines->touch == 1) {
+                    lines->requestTouchOffScript = 1;
+                }
+                lines->touch = 0;
+            }
+        }
+    }
+    return result;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_entity", FieldEntityLineInteract);
 
@@ -288,24 +351,24 @@ s16 FieldEntityBgTriggerActivate(FieldBgTrigger* trigger, u8 behaviour) {
 
     changed = 0;
     switch (behaviour) {
-        case 0:
-        case 2:
-        case 4:
-            frameBit = 1 << trigger->backgroundFrameId;
-            if (!(g_FieldState.backgroundLayerVisibility[trigger->backgroundGroupId] & frameBit)) {
-                changed = 1;
-            }
-            g_FieldState.backgroundLayerVisibility[trigger->backgroundGroupId] |= frameBit;
-            break;
-        case 1:
-        case 3:
-        case 5:
-            frameBit = ~(1 << trigger->backgroundFrameId);
-            if ((g_FieldState.backgroundLayerVisibility[trigger->backgroundGroupId] | frameBit) == 0xFF) {
-                changed = 1;
-            }
-            g_FieldState.backgroundLayerVisibility[trigger->backgroundGroupId] &= frameBit;
-            break;
+    case 0:
+    case 2:
+    case 4:
+        frameBit = 1 << trigger->backgroundFrameId;
+        if (!(g_FieldState.backgroundLayerVisibility[trigger->backgroundGroupId] & frameBit)) {
+            changed = 1;
+        }
+        g_FieldState.backgroundLayerVisibility[trigger->backgroundGroupId] |= frameBit;
+        break;
+    case 1:
+    case 3:
+    case 5:
+        frameBit = ~(1 << trigger->backgroundFrameId);
+        if ((g_FieldState.backgroundLayerVisibility[trigger->backgroundGroupId] | frameBit) == 0xFF) {
+            changed = 1;
+        }
+        g_FieldState.backgroundLayerVisibility[trigger->backgroundGroupId] &= frameBit;
+        break;
     }
     return changed;
 }
@@ -319,16 +382,16 @@ void FieldEntityBgTriggerInit(FieldBgTrigger* triggers) {
     for (i = 0; i < 12; i++, triggers++) {
         if (triggers->backgroundGroupId != 0xFF) {
             switch (triggers->behaviour) {
-                case 0:
-                case 2:
-                case 4:
-                    FieldEntityBgTriggerActivate(triggers, 1);
-                    break;
-                case 1:
-                case 3:
-                case 5:
-                    FieldEntityBgTriggerActivate(triggers, 0);
-                    break;
+            case 0:
+            case 2:
+            case 4:
+                FieldEntityBgTriggerActivate(triggers, 1);
+                break;
+            case 1:
+            case 3:
+            case 5:
+                FieldEntityBgTriggerActivate(triggers, 0);
+                break;
             }
         }
     }

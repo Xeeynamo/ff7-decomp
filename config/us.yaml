@@ -19,7 +19,7 @@ overlays:
     gp_value: 0x80062D44
     segments:
       - [0x800, .rodata, 110B8]
-      - [0x938, .rodata, 14C70]
+      - [0x900, .rodata, 14C70]
       - [0x958, .rodata, 17238]
       - [0xA9C, .rodata, 1C0EC]
       - [0xAB4, .rodata, input]
