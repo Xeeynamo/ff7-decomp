@@ -82,31 +82,31 @@ typedef struct {
     // condition/status bitmask; see BattleStatusFlags above for the bits
     // confirmed live here
     /* 0x00 */ s32 status;
-    /* 0x04 */ u32 unk4; // battle-state flags (e.g. bit 0x40 = back row, bit
-                         // 0x20 = defending)
-    /* 0x08 */ s8 unk8;
-    /* 0x09 */ u8 unk9;
-    /* 0x0A */ s8 unkA;
-    /* 0x0B */ s8 unkB;
-    /* 0x0C */ s8 unkC;
+    /* 0x04 */ u32 stateFlags; 
+    /* 0x08 */ s8 actorId;
+    /* 0x09 */ u8 level;
+    /* 0x0A */ s8 targetSubSlot;
+    /* 0x0B */ s8 minElemInfluence;
+    /* 0x0C */ s8 formationIndex;
     /* 0x0D */ u8 physAttack;
     /* 0x0E */ s8 magAttack;
-    /* 0x0F */ s8 unkF;
-    /* 0x10 */ s8 unk10; // cached "Near Death" display flag; see func_800B10B4
-                         // for the live check
-    /* 0x11 */ u8 unk11;
-    /* 0x12 */ s8 unk12;
-    /* 0x13 */ s8 unk13;
+    /* 0x0F */ s8 physEvade;
+    /* 0x10 */ s8 idleActionId; 
+    /* 0x11 */ u8 hurtActionId;
+    /* 0x12 */ s8 backDamageMult;
+    /* 0x13 */ s8 rowFlags;
     /* 0x14 */ s8 dexterity;
     /* 0x15 */ u8 luck;
     /* 0x16 */ s8 unk16;
-    /* 0x17 */ u8 unk17;
-    /* 0x18 */ s32 unk18;
-    /* 0x1C */ s32 unk1C;
+    /* 0x17 */ u8 coverTargetSlot;
+    /* 0x18 */ u16 attackMask;
+	/* 0x1A */ u16 attackerMask;
+    /* 0x1C */ s32 statusAppliedMask;
     /* 0x20 */ s16 physDefence;
     /* 0x22 */ s16 magDefence;
-    /* 0x24 */ s32 unk24;
-    /* 0x28 */ s16 unk28;
+    /* 0x24 */ s16 enemyId;
+	/* 0x26 */ u16 elemAbsorbExtra;
+    /* 0x28 */ s16 curMP;
     /* 0x2A */ s16 maxMP;
     /* 0x2C */ u32 curHP;
     /* 0x30 */ u32 maxHP;

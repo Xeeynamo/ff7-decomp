@@ -135,7 +135,7 @@ static s32 func_800A2D0C(void) {
     s32 temp_v1;
 
     if (g_CurrentAction->unk208 >= NUM_PARTY) {
-        return g_BattleState.combatant[g_CurrentAction->unk208].unk11;
+        return g_BattleState.combatant[g_CurrentAction->unk208].hurtActionId;
     }
     return D_800A01A8[g_CurrentAction->unkCC];
 }
@@ -302,13 +302,13 @@ void BattleRunFrame(void) {
             break;
         }
         if (a > NUM_PARTY && a < NUM_BATTLE_ACTOR) {
-            D_801636B8[a].D_801636B9 = g_BattleState.combatant[a].unk10;
+            D_801636B8[a].D_801636B9 = g_BattleState.combatant[a].idleActionId;
         }
     }
     BattleQueue1Execute();
     BattleActionQueueReset();
     for (i = START_ENEMY; i < NUM_BATTLE_ACTOR; i++) {
-        D_801636B8[i].D_801636B9 = g_BattleState.combatant[i].unk10;
+        D_801636B8[i].D_801636B9 = g_BattleState.combatant[i].idleActionId;
     }
 }
 
@@ -398,9 +398,9 @@ static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* action) {
             g_BattleSceneContext.enemySlotMap[priorityTier] += 1;
             g_BattleSceneContext.pendingActionPriority = priorityTier;
             if (action->priority >= 2) {
-                g_BattleState.combatant[action->unitID].unk4 &= ~0x20;
+                g_BattleState.combatant[action->unitID].stateFlags &= ~0x20;
                 if ((action->actionType & 0x3F) == 0x13) {
-                    g_BattleState.combatant[action->unitID].unk4 |= 0x20;
+                    g_BattleState.combatant[action->unitID].stateFlags |= 0x20;
                 }
             }
             return;
@@ -462,7 +462,7 @@ void func_800A4480(void) {
 
     for (i = 0; i < LEN(g_BattleWork.turn); i++) {
         g_BattleWork.turn[i].unk3C = g_BattleState.combatant[i].curHP;
-        g_BattleWork.turn[i].unk3E = g_BattleState.combatant[i].unk28;
+        g_BattleWork.turn[i].unk3E = g_BattleState.combatant[i].curMP;
     }
 }
 
@@ -1175,11 +1175,11 @@ void BattleActionType04(void) {
     g_CurrentAction->unk20 = -1;
     if (func_800B12DC() != 0) {
         val = 4;
-        if (g_BattleState.combatant[g_CurrentAction->actorId].unk4 & 0x40) {
+        if (g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & 0x40) {
             val = 3;
         }
         g_CurrentAction->unk20 = val;
-        g_BattleState.combatant[g_CurrentAction->actorId].unk4 ^= 0x40;
+        g_BattleState.combatant[g_CurrentAction->actorId].stateFlags ^= 0x40;
     }
 }
 
@@ -1611,7 +1611,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     act->unk0 = arg1;
     act->unk1 = arg0;
     act->unk4 = 0;
-    g_BattleState.combatant[arg1].unk17 = 0xFF;
+    g_BattleState.combatant[arg1].coverTargetSlot = 0xFF;
     func_800AA950(act);
     BattleCalcTargStats(act->unk0);
     if (act->unk0 != arg1) {
@@ -1631,7 +1631,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     if (!(g_CurrentAction->unk6C & 1)) {
         g_CurrentAction->unk220 |= 4;
     }
-    if (g_BattleState.combatant[arg1].unk4 & 0x4000) {
+    if (g_BattleState.combatant[arg1].stateFlags & 0x4000) {
         // target already marked -- treat as an automatic miss/no-effect
         g_CurrentAction->unk218 |= 1;
     }
@@ -1896,9 +1896,9 @@ s32 func_800ACD88(s32 arg0) {
 
     result = 0;
     if (g_CurrentAction->unk6C & 4) {
-        flags = g_BattleState.combatant[arg0].unk4 & 0x200;
+        flags = g_BattleState.combatant[arg0].stateFlags & 0x200;
         result = flags != 0;
-    } else if (g_BattleState.combatant[arg0].unk4 & 0x100) {
+    } else if (g_BattleState.combatant[arg0].stateFlags & 0x100) {
         result = 1;
     }
 
@@ -2297,11 +2297,11 @@ static void func_800AE764(s32 mask, s32 arg1, s32 arg2) {
 
     result = 0;
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
-        g_BattleState.combatant[i].unkB = 3;
+        g_BattleState.combatant[i].minElemInfluence = 3;
         if ((mask >> i) & 1) {
             v = func_800AE6C0(i, arg1, arg2);
             if (v != 3) {
-                g_BattleState.combatant[i].unkB = v;
+                g_BattleState.combatant[i].minElemInfluence = v;
                 result |= 1 << i;
             }
         }
@@ -2515,7 +2515,7 @@ static void BattleRollPhysicalHit(void) {
         acc = 0xFF;
         if (!(g_CurrentAction->unkC8 & 0x40000000)) {
             v = (g_CurrentAction->characterLevel + g_BattleState.combatant[attacker].luck) -
-                g_BattleState.combatant[target].unk9;
+                g_BattleState.combatant[target].level;
             acc = v / 4;
             if (attacker < NUM_PARTY) {
                 acc += g_BattleWork.setup[attacker].criticalHitChance;
@@ -2546,7 +2546,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0C14);
 
 static void func_800B0DF8(void) {
     if (g_CurrentAction->unk234 & 2) {
-        g_BattleState.combatant[g_CurrentAction->unk208].unk4 ^= 0x80;
+        g_BattleState.combatant[g_CurrentAction->unk208].stateFlags ^= 0x80;
     }
 }
 

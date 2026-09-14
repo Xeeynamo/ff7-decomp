@@ -324,9 +324,9 @@ typedef struct {
     u16 limit_lv1_count;
     u16 limit_lv2_count;
     u16 limit_lv3_count;
-    u16 hp_cur;
+    u16 curHP;
     u16 hp_base;
-    u16 mp_cur;
+    u16 curMP;
     u16 mp_base;
     u32 unk34;
     u16 hp_max;
