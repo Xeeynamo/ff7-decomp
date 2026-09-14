@@ -155,7 +155,7 @@ static void func_800DD690(s32 arg0, s16 arg1) {
         break;
     case 2:
         setupType = SETUP_SIDE_ATTACK_3;
-        temp_v1 = D_8016360C.setup.type;
+        temp_v1 = g_ActiveEncounter.setup.type;
         if (temp_v1 < NUM_SETUP) {
             setupType = -(temp_v1 <= SETUP_BACK_ATTACK) & 7;
         }

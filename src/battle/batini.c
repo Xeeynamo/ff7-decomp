@@ -26,8 +26,8 @@ void BatInitMain(s32 sceneID) {
     s32* order2;
     s32* prev;
     u8* FFTextOffset;
-    BattleUnit* p;
-    BattleUnit* q;
+    BattleUnit* pCombatantBase;
+    BattleUnit* pUnit;
     s32* next;
     s32 offset;
     s32 sentinel;
@@ -68,25 +68,28 @@ void BatInitMain(s32 sceneID) {
     BattleInitLoadSceneData(sceneID, 0);
     BattleInitEnemyUnits();
     BattleInitSetSpeed(Savemap.battle_speed);
-    q = g_BattleState.combatant;
-    p = q;
+
+	//This probably needs to be demangled
+    pCombatantBase = g_BattleState.combatant;
+    pUnit = pCombatantBase;
     g_BattleSceneContext.atbWaitMode = (Savemap.config & 0xC0) >> 6;
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         BattleRecalcUnitSpeed(i);
-        if ((s8)p[i].actorId != -1) {
-            *(u16*)((u8*)q - 0x32) |= 1 << i;
+        if ((s8)pUnit[i].actorId != -1) {
+            *(u16*)((u8*)pCombatantBase - 0x32) |= 1 << i;
         }
     }
+
     g_BattleState.sceneID = sceneID;
-    D_800F83A8 = D_8016360C.setup.type;
+    g_EncounterType = g_ActiveEncounter.setup.type;
     BattleInitFormation();
     BattleUpdateUnitMasks();
     BattleInitPartyScripts();
     BattleInitEnemyAI();
-    func_800A61D4();
+    BattleExecFormationAIScripts();
     BattleUpdateUnitMasks();
     BattleInitATBTimers();
-    func_800A4480();
+    BattleInitTurnWorkHPMP();
     D_800F7DE8 |= 1;
     for (i = 0; i < NUM_PARTY; i++) {
         BattleAddAutoBattleActionByChance(i, 1);
@@ -146,6 +149,8 @@ void BatInitMain(s32 sceneID) {
         BattleUpdateUnitMasks();
     }
 }
+
+
 static void BattleInitSetup(s32 sceneID) {
     BattleUnit* unit;
     s32 i;
@@ -179,7 +184,7 @@ static void BattleInitSetup(s32 sceneID) {
         }
     }
     g_BattleState.sceneID = sceneID;
-    D_800F83A8 = D_8016360C.setup.type;
+    g_EncounterType = g_ActiveEncounter.setup.type;
     BattleInitFormation();
     BattleUpdateUnitMasks();
     BattleInitEnemyAI();
@@ -278,7 +283,7 @@ void BattleInitPartyFromSavemap(void) {
     BattlePartyWork* party;
     ActiveCharacterData* characterRecord;
     BattleUnit* battleUnit;
-    Unk800AF470* turn;
+    BattleTurnWork* turn;
     BattleUnitAttackSetup* setup;
     SavePartyMember* savedPartyMember;
     s32 id;
@@ -491,7 +496,7 @@ static s32 BattleGetEquipMateriaVal(u32* equipment) {
 // equipped one granted is cleared first, then the new accessory's permanent
 // status is ORed into the combatant, its turn state and the party record.
 static void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
-    Unk800AF470* t;
+    BattleTurnWork* t;
     BattlePartyWork* party;
     BattleUnit* c;
     u8 effect;
@@ -620,7 +625,7 @@ static void BattleInitFormation(void) {
     enemyMask = g_BattleState.unk12;
     partyMask = g_BattleState.unk10;
     sideMask = 5;
-    if (D_8016360C.setup.type == SETUP_SIDE_ATTACK_3) {
+    if (g_ActiveEncounter.setup.type == SETUP_SIDE_ATTACK_3) {
         sideMask = ~5;
     }
     intro = D_801B003C[g_BattleSceneContext.encounterType];
@@ -662,7 +667,7 @@ static void BattleInitFormation(void) {
         row[2] = partyMask & ~sideMask;
         mask = row[2];
         for (i = 0; i < NUM_ENEMY; i++) {
-            if (((enemyMask >> (i + START_ENEMY)) & 1) && D_8016360C.formation[i].z >= 0) {
+            if (((enemyMask >> (i + START_ENEMY)) & 1) && g_ActiveEncounter.formation[i].z >= 0) {
                 mask |= 1 << (i + START_ENEMY);
             }
         }
@@ -763,12 +768,12 @@ static void BattleInitEnemyAI(void) {
     s32 i;
 
     for (i = 0; i < NUM_ENEMY; i++) {
-        if (D_8016360C.formation[i].enemyID != -1) {
+        if (g_ActiveEncounter.formation[i].enemyID != -1) {
             BattleRunUnitScript(i + START_ENEMY, 0, 0);
         }
     };
     for (i = 0; i < NUM_ENEMY; i++) {
-        D_8016360C.formation[i].flags = g_BattleState.combatant[START_ENEMY + i].stateFlags;
+        g_ActiveEncounter.formation[i].flags = g_BattleState.combatant[START_ENEMY + i].stateFlags;
         D_801636B8[START_ENEMY + i].D_801636B9 = g_BattleState.combatant[START_ENEMY + i].idleActionId;
         g_BattleState.combatant[START_ENEMY + i].prevStatus = g_BattleState.combatant[START_ENEMY + i].status;
     }
@@ -802,27 +807,27 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     dst = (u_long*)&scene;
     Unzip((u8*)src, (u8*)dst);
     formationIndex = sceneID - sceneChunkID * 4;
-    SysMemCopy32(D_8016360C.enemyModelIDs, scene.enemyModelIDs, sizeof(scene.enemyModelIDs));
-    SysMemCopy32(&D_8016360C.setup, &scene.setup[formationIndex], sizeof(BattleSetup));
-    SysMemCopy32(&D_8016360C.camera, &scene.camera[formationIndex], sizeof(CameraPlacement) * 4);
-    SysMemCopy32(&D_8016360C.formation, &scene.formation[formationIndex], sizeof(FormationEntry) * NUM_ENEMY);
+    SysMemCopy32(g_ActiveEncounter.enemyModelIDs, scene.enemyModelIDs, sizeof(scene.enemyModelIDs));
+    SysMemCopy32(&g_ActiveEncounter.setup, &scene.setup[formationIndex], sizeof(BattleSetup));
+    SysMemCopy32(&g_ActiveEncounter.camera, &scene.camera[formationIndex], sizeof(CameraPlacement) * 4);
+    SysMemCopy32(&g_ActiveEncounter.formation, &scene.formation[formationIndex], sizeof(FormationEntry) * NUM_ENEMY);
     SysMemCopy32(&g_BattleSceneContext.enemy, &scene.enemy, sizeof(scene.enemy));
     SysMemCopy32(&g_BattleSceneContext.attacks, &scene.attacks, sizeof(scene.attacks));
     SysMemCopy32(&g_BattleSceneContext.attackIDs, scene.attackIDs, sizeof(scene.attackIDs));
     SysMemCopy32(&g_BattleSceneContext.attackNames, &scene.attackNames, sizeof(scene.attackNames));
     SysMemCopy32(&g_BattleSceneContext.formationAI, &scene.formationAI, sizeof(FormationAIScripts));
     SysMemCopy32(&g_BattleSceneContext.aiScriptBuffer, &scene.script, sizeof(scene.script));
-    if (D_8016376A & 4 && D_8016360C.setup.flags & SETUP_NO_PREEMPTIVE_STRIKE) {
-        if (D_8016360C.setup.type == SETUP_DEFAULT) {
-            D_8016360C.setup.type = SETUP_PREEMPTIVE;
+    if (D_8016376A & 4 && g_ActiveEncounter.setup.flags & SETUP_NO_PREEMPTIVE_STRIKE) {
+        if (g_ActiveEncounter.setup.type == SETUP_DEFAULT) {
+            g_ActiveEncounter.setup.type = SETUP_PREEMPTIVE;
         }
     }
-    g_BattleSceneContext.encounterType = (u8)g_BattleTypeMap[D_8016360C.setup.type];
+    g_BattleSceneContext.encounterType = (u8)g_BattleTypeMap[g_ActiveEncounter.setup.type];
     if (D_8016376A & EVENT_BATTLE_SQUARE) {
-        D_8016360C.setup.stageID = 37;
-        D_8016360C.setup.flags |= SETUP_CANNOT_ESCAPE;
-        D_8016360C.setup.cameraID = (SysGetRandomByteFromTable() & 3) + 0x60;
-        D_8016360C.setup.escapeCounter = 1;
+        g_ActiveEncounter.setup.stageID = 37;
+        g_ActiveEncounter.setup.flags |= SETUP_CANNOT_ESCAPE;
+        g_ActiveEncounter.setup.cameraID = (SysGetRandomByteFromTable() & 3) + 0x60;
+        g_ActiveEncounter.setup.escapeCounter = 1;
         // enemy strength and magic is 25% higher at battle square
         for (i = 0; i < 3; i++) {
             g_BattleSceneContext.enemy[i].hp *= 2;
@@ -830,12 +835,12 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
             g_BattleSceneContext.enemy[i].magic = BattleBoostVal25Percent(g_BattleSceneContext.enemy[i].magic);
         }
     } else if (D_8016376A & 8) {
-        D_8016360C.setup.flags &= ~SETUP_CANNOT_ESCAPE;
+        g_ActiveEncounter.setup.flags &= ~SETUP_CANNOT_ESCAPE;
     }
-    if (!(D_8016360C.setup.flags & SETUP_CANNOT_ESCAPE)) {
+    if (!(g_ActiveEncounter.setup.flags & SETUP_CANNOT_ESCAPE)) {
         D_8016376A |= 8;
     }
-    g_BattleSceneContext.escapeCounter1 = D_8016360C.setup.escapeCounter;
+    g_BattleSceneContext.escapeCounter1 = g_ActiveEncounter.setup.escapeCounter;
     if (g_BattleSceneContext.encounterType == 1 || g_BattleSceneContext.encounterType == 3) {
         g_BattleSceneContext.escapeCounter1 = 1;
     }

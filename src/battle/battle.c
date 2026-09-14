@@ -457,7 +457,7 @@ void func_800A4350(s16 actorId, s16 cmdIndex, s16 attackIndex, u16 targetMask) {
     D_800F39DC = (D_800F39DC + 1) & 0xF;
 }
 
-void func_800A4480(void) {
+void BattleInitTurnWorkHPMP(void) {
     s32 i;
 
     for (i = 0; i < LEN(g_BattleWork.turn); i++) {
@@ -852,18 +852,18 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRunUnitScript);
 void BattleOpcodeCycle(s32, s32, s32);
 void func_800B2A2C(s32, s32);
 
-void func_800A61D4(void) {
-    s32 temp_v0;
+void BattleExecFormationAIScripts(void) {
+    s32 scriptOffset;
     s32 i;
 
     func_800B2A2C(-1, 0);
     for (i = 0; i < 8; i++) {
         if ((g_BattleSceneContext.activeScriptMask >> i) & 1) {
             g_BattleSceneContext.activeScriptMask &= ~(1 << i);
-            temp_v0 =
+            scriptOffset =
                 GetEnemyAiScriptOffs(g_BattleSceneContext.formationAI.scriptOffsets, g_BattleState.sceneID & 3, i);
-            if (temp_v0 != 0) {
-                BattleOpcodeCycle(3, temp_v0, -1);
+            if (scriptOffset != 0) {
+                BattleOpcodeCycle(3, scriptOffset, -1);
             }
         }
     }
@@ -1603,7 +1603,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     s32 i;
     s32 j;
     s32 isReflected;
-    Unk800AF470* entry;
+    BattleTurnWork* entry;
 
     // grab a free action-result slot, tag it attacker/target, clear the
     // "just processed" marker on the target

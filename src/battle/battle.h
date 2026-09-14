@@ -120,13 +120,13 @@ typedef struct {
     /* 0x4D */ u8 magEvade;
     /* 0x4E */ u8 formationRow;
     /* 0x4F */ u8 unk4F;
-	/* 0x50 */ u16 unk50;                   // Akari: Init 0
-    /* 0x52 */ u16 unk52;                   // Akari: Init 0xFFFF
-    /* 0x54 */ u16 elemImmuneExtra;         // Akari: no damage element mask
-    /* 0x56 */ u16 ap;                      // Akari: AP (or Init 8 player / 2 enemy)
-    /* 0x58 */ u32 gil;                     // Akari: gil
-    /* 0x5C */ u32 exp;                     // Akari: exp
-    /* 0x60 */ u32 unk60[2];                // Tail padding to align to 0x68
+	/* 0x50 */ u16 unk50;
+    /* 0x52 */ u16 unk52;
+    /* 0x54 */ u16 elemImmuneExtra;
+    /* 0x56 */ u16 ap;
+    /* 0x58 */ u32 gil;
+    /* 0x5C */ u32 exp;
+    /* 0x60 */ u32 unk60[2];
 } BattleUnit; // size:0x68
 
 typedef struct {
@@ -240,7 +240,7 @@ typedef struct {
     /* 0x08 */ BattleSetup setup;
     /* 0x1C */ CameraPlacement camera[4];
     /* 0x4C */ FormationEntry formation[NUM_ENEMY];
-} Unk8016360C; // size:0xAC
+} ActiveEncounterData; // size:0xAC
 
 typedef struct {
     u8 priority;
@@ -459,7 +459,7 @@ typedef struct {
     u16 unk3C;
     u16 unk3E;
     s32 unk40;
-} Unk800AF470; // 0x44
+} BattleTurnWork; // 0x44
 
 /* one battle-usable item in the in-battle item list (built from the inventory
    by BATINI; counts are committed back when the battle ends) */
@@ -530,7 +530,7 @@ typedef struct {
 } BattleUnitAttackSetup; // size:0x18
 
 typedef struct {
-    /* 0x000 */ Unk800AF470 turn[NUM_BATTLE_ACTOR];
+    /* 0x000 */ BattleTurnWork turn[NUM_BATTLE_ACTOR];
     /* 0x2A8 */ BattlePartyWork party[NUM_PARTY];
     /* 0x344 */ BattleUnitAttackSetup setup[NUM_PARTY];
 } BattleWork; // size:0x38C
@@ -539,7 +539,7 @@ extern s16 D_800F5B74;
 extern BattleWork g_BattleWork;
 extern BattleSceneContext g_BattleSceneContext;
 extern u16 D_800F7DE8;
-extern u8 D_800F83A8;
+extern u8 g_EncounterType;
 extern BattleState g_BattleState;
 extern Unk800BB75C D_800FA63C;
 extern DB* g_cDb;
@@ -549,7 +549,7 @@ extern s16 D_80151774;
 extern BattleModel D_801518E4[NUM_BATTLE_ACTOR];
 extern short g_BattleEffectCount;
 extern s32 D_801620A8;
-extern Unk8016360C D_8016360C;
+extern ActiveEncounterData g_ActiveEncounter;
 extern Unk801636B8 D_801636B8[NUM_BATTLE_ACTOR];
 extern u16 D_8016376A;
 
@@ -585,6 +585,6 @@ void BattleHitFormulaInit(void);
 void BattleEventQueueInit(void);
 void BattleBannerSetEncounterString(s16 arg0);
 void BattleResetReservedItems(void);
-void func_800A61D4(void);
-void func_800A4480(void);
+void BattleExecFormationAIScripts(void);
+void BattleInitTurnWorkHPMP(void);
 void BattleAddAutoBattleActionByChance(s32 arg0, s32 arg1);

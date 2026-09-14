@@ -246,7 +246,7 @@ static void BattlePlayersInitBonesAndAnims(void) {
     BattlePlayerModelsUpdateBonesPos();
     BattleInitModelsAnimAndColor(0, 3);
     BattleInitModelsAnimAndColor(3, 3);
-    if (D_8016360C.setup.stageID == 57) {
+    if (g_ActiveEncounter.setup.stageID == 57) {
         for (i = 0; i < 10; i++) {
             D_801518E4[i].D_80151909 |= 0x10;
         }
@@ -299,8 +299,8 @@ static s32 func_800B3FAC(s32 arg0) {
     s32 i;
     u8* p = &D_800F7DF4;
 
-    for (i = 0; i < (s32)sizeof(D_8016360C.formation); i += sizeof(FormationEntry)) {
-        if (((FormationEntry*)((u8*)D_8016360C.formation + i))->enemyID == arg0) {
+    for (i = 0; i < (s32)sizeof(g_ActiveEncounter.formation); i += sizeof(FormationEntry)) {
+        if (((FormationEntry*)((u8*)g_ActiveEncounter.formation + i))->enemyID == arg0) {
             *p += 1;
             return 0;
         }
