@@ -112,7 +112,7 @@ typedef struct {
     s16 D_801621F0;
     s16 D_801621F2;
     s16 D_801621F4;
-    s16 D_801621F6; // player idx? 0, 1 or 2. See BattleDispatchModelCommand
+    s16 D_801621F6; // player idx? 0, 1 or 2. See func_800D0C80
     s16 unk8;
     s16 unkA;
     s16 unkC;
@@ -626,7 +626,7 @@ static void func_800C1908(u8 arg0);
 void BattleSelectPlayerModelFiles(void);
 void func_8002DF88(s16*);
 void BattleLoadOverlaySector(s32 loc, s32 len);
-void BattleDispatchModelCommand(u8 arg0);
+void func_800D0C80(u8 arg0);
 void BattleEffectSingleDustCloud();
 void BattleSetVsyncMode(s8);
 int BattleFlipDoubleBuffer(void);
