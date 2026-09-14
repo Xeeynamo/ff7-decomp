@@ -93,9 +93,9 @@ void BattleCheckAllLucky7s(void) {
     s32 i;
 
     for (i = 0; i < NUM_PARTY; i++) {
-        if (g_BattleState.combatant[i].curHP == 7777 && !(g_BattleWork.turn[i].unk29 & 0x80)) {
+        if (g_BattleState.combatant[i].curHP == 7777 && !(g_BattleWork.turn[i].turnFlags & 0x80)) {
             if ((*D_800F7DE2)++ < 64) {
-                g_BattleWork.turn[i].unk29 |= 0x80;
+                g_BattleWork.turn[i].turnFlags |= 0x80;
                 BattleAddBattleActionToBattleQueue(i, 1, 1, 0, 0);
             }
         }
@@ -461,8 +461,8 @@ void BattleInitTurnWorkHPMP(void) {
     s32 i;
 
     for (i = 0; i < LEN(g_BattleWork.turn); i++) {
-        g_BattleWork.turn[i].unk3C = g_BattleState.combatant[i].curHP;
-        g_BattleWork.turn[i].unk3E = g_BattleState.combatant[i].curMP;
+        g_BattleWork.turn[i].prevHP = g_BattleState.combatant[i].curHP;
+        g_BattleWork.turn[i].prevMP = g_BattleState.combatant[i].curMP;
     }
 }
 
@@ -669,8 +669,8 @@ static void BattleEnableLimitToPlayerWithoutSpeed(s32 arg0) {
     s32 temp_v0;
 
     temp_v0 = arg0 * 0x44;
-    *(u16*)((u8*)&g_BattleWork.turn[0].unk8 + temp_v0) &= 0xFFFE;
-    *(u8*)((u8*)&g_BattleWork.turn[0].unkE + temp_v0) |= 1;
+    *(u16*)((u8*)&g_BattleWork.turn[0].limitSpeedFlag + temp_v0) &= 0xFFFE;
+    *(u8*)((u8*)&g_BattleWork.turn[0].hasLimitBreak + temp_v0) |= 1;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4F60);
@@ -893,7 +893,7 @@ static u16 BattleGetItemFromSlot(s32 arg0) {
 
 void BattleResetManipulatorTimer(s32 arg0) {
     s32 index = BattleGetManipulatorIdByEnemyUnitId(arg0);
-    g_BattleWork.turn[index].unk4 = 0;
+    g_BattleWork.turn[index].atbGauge = 0;
     g_BattleSceneContext.turnReadyUnitMask &= ~(1 << index);
 }
 
@@ -913,7 +913,7 @@ void BattleEnableLimitToPlayerResettingBar(s32 arg0, s32 arg1) {
 void BattleUnitChkClearActiveTurn(s32 unitIdx) {
     func_800A4D88(unitIdx);
     if ((g_BattleSceneContext.activeUnitCmdMask >> unitIdx) & 1) {
-        if (g_BattleWork.turn[unitIdx].unk4 == 0xFFFF) {
+        if (g_BattleWork.turn[unitIdx].atbGauge == 0xFFFF) {
             func_800A4D2C(unitIdx);
             return;
         }
@@ -965,11 +965,11 @@ void BattleUnitSetManipulated(s32 unitIdx, s32 isManipulated) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A68FC);
 
-void func_800A6A3C(s32 arg0, s32 arg1) { g_BattleWork.turn[arg0].unkE |= arg1; }
+void func_800A6A3C(s32 arg0, s32 arg1) { g_BattleWork.turn[arg0].hasLimitBreak |= arg1; }
 
 void func_800A6A70(s32 arg0, s32 arg1) {
     func_800A555C(arg0, arg1);
-    g_BattleWork.turn[arg0].unkE |= 9;
+    g_BattleWork.turn[arg0].hasLimitBreak |= 9;
 }
 
 void BattleUnitFlushEnemyTurnMasks(void) {
@@ -1045,7 +1045,7 @@ void BattleChangeSlownumbToPetrify(s32 arg0) {
 
 void BattleTickPoison(s32 arg0) {
     if (g_BattleState.combatant[arg0].status & 8) {
-        g_BattleWork.turn[arg0].unk14[2] = 0xA;
+        g_BattleWork.turn[arg0].poisonTimer = 0xA;
         BattleAddBattleActionToBattleQueue(arg0, 3, 0x23, 0, 0);
     }
 }
@@ -1075,7 +1075,7 @@ void BattleSetItemWasStolenStringToDisplay(s32 arg0, s16 arg1) {
 
 void func_800A7060(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 12, arg1); }
 
-void func_800A7090(s32 arg0) { g_BattleWork.turn[arg0].unk29 |= 0x40; }
+void func_800A7090(s32 arg0) { g_BattleWork.turn[arg0].turnFlags |= 0x40; }
 
 void func_800A70C4(s32 arg0, s32 arg1) {
     BattleQueueEffect(arg0, 0x34, 2, D_800708C4[arg1].attackEffectID, 0, 9, g_BattleState.combatant[arg0].status);
@@ -1683,7 +1683,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
             D_800F4938[arg1] |= 1 << bounceTarget;
             func_800ACA24();
             entry = g_CurrentAction->unk200;
-            if (entry->unk34 & 0x40000) {
+            if (entry->statusProtectionMask & 0x40000) {
                 D_800F4958 |= 1 << arg1;
             } else if (entry->unk28 != 0) {
                 entry->unk28--;
@@ -1726,7 +1726,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     }
     if (g_CurrentAction->unk214 != 0) {
         // All Lucky 7s: force the damage display to the "7777" value
-        cap = g_BattleWork.turn[g_CurrentAction->actorId].unk3C;
+        cap = g_BattleWork.turn[g_CurrentAction->actorId].prevHP;
         if (cap == 0x1E61) {
             g_CurrentAction->unk214 = cap;
         }
@@ -1943,7 +1943,7 @@ void func_800AD324(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
         if (temp_t0) {
             var_a2 = -var_a2;
         }
-        g_BattleWork.turn[arg0].unk30 -= var_a2;
+        g_BattleWork.turn[arg0].action09Data2 -= var_a2;
     }
     if (arg3 & 2) {
         if (arg1 == g_CurrentAction->unk208) {
@@ -1954,7 +1954,7 @@ void func_800AD324(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
         if (temp_t0) {
             var_a2 = -var_a2;
         }
-        g_BattleWork.turn[arg0].unk2C -= var_a2;
+        g_BattleWork.turn[arg0].action09Data1 -= var_a2;
     }
 }
 
@@ -2140,11 +2140,11 @@ void BattleLowerFunc0a(void) {
 }
 
 // White Wind "damage" formula. Restores HP equal to caster's HP to all allies.
-void func_800ADFC0(void) { g_CurrentAction->unk214 = *(u16*)(&g_BattleWork.turn[g_CurrentAction->actorId].unk3C); }
+void func_800ADFC0(void) { g_CurrentAction->unk214 = *(u16*)(&g_BattleWork.turn[g_CurrentAction->actorId].prevHP); }
 
 void BattleSetTmpDmgAsMaxHpMinusCurrentHp(void) {
     s32 index = g_CurrentAction->actorId;
-    g_CurrentAction->unk214 = g_BattleState.combatant[index].maxHP - g_BattleWork.turn[index].unk3C;
+    g_CurrentAction->unk214 = g_BattleState.combatant[index].maxHP - g_BattleWork.turn[index].prevHP;
 }
 
 void func_800AE050(void) {}
@@ -2324,7 +2324,7 @@ void func_800AEB20(s32 arg0, s32 arg1, s32 arg2) {
 
     index = func_800AF834(arg1);
     if (index >= 0) {
-        p = (u8*)&g_BattleWork.turn[arg0].unk10;
+        p = (u8*)&g_BattleWork.turn[arg0].stopTimer;
         p[index] = D_800A04BC[index];
     }
 }
@@ -2352,7 +2352,7 @@ void func_800AEB80(s32 arg0, s32 arg1, s32 arg2) {
 
     index = func_800AF834(arg1);
     if (index >= 0) {
-        p = (u8*)&g_BattleWork.turn[arg0].unk10;
+        p = (u8*)&g_BattleWork.turn[arg0].stopTimer;
         p[index] = 0;
         if ((0xD8B >> index) & 1) {
             BattleInitUnitAction(arg0);
@@ -2633,7 +2633,7 @@ static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0) {
 static s32 func_800B1218(s32 arg0, s32 arg1, s32 arg2) {
     s8* p;
 
-    p = (s8*)&g_BattleWork.turn[arg0].unk20;
+    p = (s8*)&g_BattleWork.turn[arg0].physAtkMult;
 
     return arg1 + ((arg1 * p[arg2]) / 100);
 }
@@ -2643,7 +2643,7 @@ static void func_800B1268(s32 arg0, s32 arg1, s32 arg2) {
     s8* p;
 
     i = 0;
-    p = (s8*)&g_BattleWork.turn[arg0].unk20;
+    p = (s8*)&g_BattleWork.turn[arg0].physAtkMult;
     for (; i < 8; i++, p++) {
         if ((arg2 >> i) & 1) {
             s32 value = *p + arg1;

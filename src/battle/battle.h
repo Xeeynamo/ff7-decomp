@@ -430,35 +430,50 @@ typedef struct {
 } SpriteRenderDesc;           // size:0xC
 
 typedef struct {
-    s16 unk0;
-    s16 unk2;
-    u16 unk4; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
-    s16 unk6;
-    s32 unk8;
-    u8 unkC;
-    u8 unkD; // effect id of the equipped accessory (0xFF = none)
-    u8 unkE;
-    u8 unkF;
-    u8 unk10;
-    u8 unk11;
-    u8 unk12;
-    u8 unk13;
-    u8 unk14[4];
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-    u8 unk28;
-    u8 unk29;
-    u8 unk2A;
-    u8 unk2B;
-    s32 unk2C;
-    s32 unk30;
-    s32 unk34;
-    s32 unk38;
-    u16 unk3C;
-    u16 unk3E;
-    s32 unk40;
+    /* 0x00 */ s16 unitSpeed;
+    /* 0x02 */ s16 atbIncrement;
+    /* 0x04 */ u16 atbGauge; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 limitSpeedFlag;
+	/* 0x0A */ u16 atbSpeedMultiplier;
+    /* 0x0C */ u8  senseTargetMask;
+    /* 0x0D */ u8  accessoryEffectId;
+    /* 0x0E */ u8  hasLimitBreak;
+    /* 0x0F */ u8  formationIndex;
+    /* 0x10 */ u8  stopTimer;
+    /* 0x11 */ u8  paralyzeTimer;
+    /* 0x12 */ u8  curseRingDoom;
+    /* 0x13 */ u8  slowNumbTimer;
+	/* 0x14 */ u8  barrierTimer;
+    /* 0x15 */ u8  mbarrierTimer;
+    /* 0x16 */ u8  poisonTimer;
+    /* 0x17 */ u8  sleepTimer;
+	/* 0x18 */ u8  regenTimer;
+    /* 0x19 */ u8  dualTimer;
+    /* 0x1A */ u8  shieldTimer;
+    /* 0x1B */ u8  peerlessTimer;
+    /* 0x1C */ u8  unk1C;
+	/* 0x1D */ u8  unk1D;
+	/* 0x1E */ u8  unk1E;
+	/* 0x1F */ u8  unk1F;
+	/* 0x20 */ u8  physAtkMult;
+    /* 0x21 */ u8  magAtkMult;
+    /* 0x22 */ u8  physDefMult;
+    /* 0x23 */ u8  magDefMult;
+    /* 0x24 */ u8  unk24;
+    /* 0x25 */ u8  dexterityMult;
+    /* 0x26 */ u8  unk26[2];
+    /* 0x28 */ u8  unk28;
+    /* 0x29 */ u8  turnFlags;
+    /* 0x2A */ u8  unk2A;
+    /* 0x2B */ u8  deathEffectState;
+    /* 0x2C */ s32 action09Data1;
+    /* 0x30 */ s32 action09Data2;
+    /* 0x34 */ s32 statusProtectionMask;
+    /* 0x38 */ u8* enemyNamePtr;
+	/* 0x3C */ u16 prevHP;
+    /* 0x3E */ u16 prevMP;
+    /* 0x40 */ s32 unk40;
 } BattleTurnWork; // 0x44
 
 /* one battle-usable item in the in-battle item list (built from the inventory
