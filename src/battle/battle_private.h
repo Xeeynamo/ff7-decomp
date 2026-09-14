@@ -274,8 +274,8 @@ extern s32 D_800F01E4;
 extern u16 D_800F198C; // btlmenu_limitReadyMask
 extern s32 D_800F199C;
 extern u8 D_800F19A4;
-extern s8 D_800F1E4F;
-extern s16 D_800F1E50;
+extern s8 g_EncounterBannerActive;
+extern s16 g_EncounterBannerStringId;
 extern s32 D_800F311C;
 extern s16 D_800F3122; // part of a struct?
 extern s32 D_800F3138;
@@ -328,7 +328,6 @@ typedef struct {
     s16 param;
 } BattleCallbackEvent;
 extern BattleCallbackEvent g_BattleCallbackEvent[][128];
-
 
 extern u8 g_BattleHitFormulaOpcodeStream[];
 extern s32 g_BattlePartyEventReadIdx[];

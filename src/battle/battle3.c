@@ -117,13 +117,13 @@ void func_800DCF60(s16 arg0, s16 arg1) {
     D_800F3140 = arg1;
 }
 
-void func_800DCF94(s16 arg0) {
-    if (arg0 == -1) {
-        D_800F1E4F = 0;
+void BattleBannerSetEncounterString(s16 stringId) {
+    if (stringId == -1) {
+        g_EncounterBannerActive = 0;
         return;
     }
-    D_800F1E4F = 1;
-    D_800F1E50 = arg0;
+    g_EncounterBannerActive = 1;
+    g_EncounterBannerStringId = stringId;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DCFD4);

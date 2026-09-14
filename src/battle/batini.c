@@ -56,8 +56,8 @@ void BatInitMain(s32 sceneID) {
         g_BattleSceneContext.postExecAction[i].unitID = 0xFF;
     }
     BattleEventQueueInit();
-    D_801620A8 = -1;
-    func_800DCF94(-1);
+    D_801620A8 = -1; // This is not referenced anywhere in the code
+    BattleBannerSetEncounterString(-1);
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         g_BattleState.combatant[i].unk8 = -1;
         g_BattleState.combatant[i].unk13 = 0x10;

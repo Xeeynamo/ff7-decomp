@@ -1092,7 +1092,7 @@ void BattleEventQueueInit(void) {
     s32 j;
 
     for (i = 0; i < NUM_PARTY; i++) {
-        for (j = BATTLE_EVENT_QUEUE_SIZE-1; j >= 0; j--) {
+        for (j = BATTLE_EVENT_QUEUE_SIZE - 1; j >= 0; j--) {
             g_BattleCallbackEvent[i][j].unitId = 0xFF;
         }
         g_BattlePartyEventReadIdx[i] = 0;
