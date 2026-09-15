@@ -1,0 +1,10 @@
+MAGIC_Faira = 0x801B0000;
+FairaRenderModel = 0x801B0020;
+FairaAttachToTarget = 0x801B020C;
+FairaDoubleBufferFlip = 0x801B02BC;
+FairaMainSetup = 0x801B031C;
+g_FairaTexture = 0x801B03A4;
+g_FairaModel = 0x801BD3E4;
+faira_matrix = 0x801BD7C8; // size:0x20
+faira_prim_buffer = 0x801BD7E8; // size:0x20000
+faira_buffer_ptr = 0x801DD7E8; // size:0x4

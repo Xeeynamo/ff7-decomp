@@ -380,3 +380,49 @@ overlays:
       - [0, c, fire]
       - [0x39c, data, fire]
       - [0x10604, .bss, fire]
+  # FAIRA.BIN -- "Fire2", the tier-2 fire spell
+  - name: faira
+    disk_path: disks/us/MAGIC/FAIRA.BIN
+    sha1: fcd7a3209d88f529aab3076ea8f7587d6eb3e074
+    base_path: magic
+    vram_start: 0x801B0000
+    bss_size: 0x20024
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+      - config/symbols.magic-faira.us.txt
+    segments:
+      - [0, c, faira]
+      - [0x3a4, data, faira_model]
+      - [0xD7B8, .data, faira]
+      - [0xD7C8, bss, faira]
+  # BRIZARA.BIN -- "Ice2", the tier-2 ice spell
+  - name: brizara
+    disk_path: disks/us/MAGIC/BRIZARA.BIN
+    sha1: bbeb47124e8c8582bab9c3cd2c78ebcd87529d62
+    base_path: magic
+    vram_start: 0x801B0000
+    bss_size: 0x20004
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+      - config/symbols.magic-brizara.us.txt
+    segments:
+      - [0, c, brizara]
+      - [0x7a4, data, brizara_model]
+      - [0x8F78, .data, brizara]
+      - [0x8F98, .bss, brizara]
+  # THUNDERA.BIN -- "Bolt2", the tier-2 lightning spell
+  - name: thundera
+    disk_path: disks/us/MAGIC/THUNDERA.BIN
+    sha1: 29c8b0352638357bb635d9320328f738e1dc7476
+    base_path: magic
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/sym_export.us.txt
+      - config/sym_export_battle.us.txt
+      - config/symbols.magic-thundera.us.txt
+    segments:
+      - [0, c, thundera]
+      - [0x97c, data, thundera_model]
+      - [0x190BC, .data, thundera]
