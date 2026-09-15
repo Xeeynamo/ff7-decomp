@@ -14,6 +14,7 @@ BattleActionQueueReset = 0x800A3278;
 BattleRunFrame = 0x800A3354;
 BattleCopyBattleActionToBattleQueue = 0x800A3D4C;
 BattleAddBattleActionToBattleQueue = 0x800A3E98;
+BattleInitTurnWorkHPMP = 0x800A4480;
 BattleGetManipulatorIdByEnemyUnitId = 0x800A44D8;
 BattleUpdateUnitMasks = 0x800A4540;
 BattleRunToResultScreen = 0x800A4860;
@@ -37,6 +38,7 @@ BattleExpandScriptToBuffer = 0x800A5EB0;
 BattleGetStringPtrFromStringBuffer = 0x800A5F90;
 GetEnemyAiScriptOffs = 0x800A5FB0;
 BattleRunUnitScript = 0x800A6000;
+BattleExecFormationAIScripts = 0x800A61D4;
 BattleGetItemFromSlot = 0x800A64B4;
 BattleResetManipulatorTimer = 0x800A653C;
 BattleEnableLimitToPlayerResettingBar = 0x800A65B0;
@@ -296,7 +298,3 @@ g_BattleActionQueue = 0x80163798; // size:0x300
 g_BattleMovementCallbacks = 0x80163B48; // size:0x28
 g_BattleMovementCount = 0x80163B7C; // size:0x4
 D_80163C80 = 0x80163C80; // size:0xC
-
-BattleExecFormationAIScripts = 0x800A61D4;
-
-BattleInitTurnWorkHPMP = 0x800A4480;

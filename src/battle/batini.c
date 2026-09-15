@@ -69,7 +69,7 @@ void BatInitMain(s32 sceneID) {
     BattleInitEnemyUnits();
     BattleInitSetSpeed(Savemap.battle_speed);
 
-	//This probably needs to be demangled
+    // This probably needs to be demangled
     pCombatantBase = g_BattleState.combatant;
     pUnit = pCombatantBase;
     g_BattleSceneContext.atbWaitMode = (Savemap.config & 0xC0) >> 6;
@@ -149,7 +149,6 @@ void BatInitMain(s32 sceneID) {
         BattleUpdateUnitMasks();
     }
 }
-
 
 static void BattleInitSetup(s32 sceneID) {
     BattleUnit* unit;
@@ -308,7 +307,8 @@ void BattleInitPartyFromSavemap(void) {
                     turn->prevMP = battleUnit->curMP;
                     BattleInitCharStats(characterRecord, party, battleUnit);
                     turn->statusProtectionMask = characterRecord->immuneStatuses;
-                    setup->attackElement = characterRecord->weapon.attackElement | characterRecord->physicalAttackElements;
+                    setup->attackElement =
+                        characterRecord->weapon.attackElement | characterRecord->physicalAttackElements;
                     setup->attackStatusMask = characterRecord->physicalAttackStatuses;
                     setup->hitChance = characterRecord->weapon.attackPercent;
                     setup->targetFlags = characterRecord->weapon.targetFlags;

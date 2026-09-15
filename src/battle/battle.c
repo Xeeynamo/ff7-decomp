@@ -1022,7 +1022,7 @@ void BattleSetLimitBreakStringToDisplay(s32 arg0) {
 
 void func_800A6C5C(s32 arg0, s32 arg1) {
     BattleQueueEvent(2, arg0, 0x14, arg1);
-    *(u16*)((u8*)&g_BattleState.combatant[arg0].unk52) = arg1; 
+    *(u16*)((u8*)&g_BattleState.combatant[arg0].unk52) = arg1;
 }
 
 extern const u8 g_StatusBitTable[];
