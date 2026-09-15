@@ -116,9 +116,9 @@ static void RefrecAttachToTarget(s32 target, s32 callbackArg) {
     effect = &g_BattleEffectSlots[BattleEffectRegister(RefrecAnimationUpdate)];
     model = &g_BattleModels[target];
     BattleGetPartPosition(target, model->battleModelRootBone, &effect->Pos);
-    effect->Pos.vx = effect->Pos.vx - ((rsin(model->unk160.vy) * model->collisionRadius) >> 12);
-    effect->Pos.vz -= (rcos(model->unk160.vy) * model->collisionRadius) >> 12;
-    effect->Rot = model->unk160;
+    effect->Pos.vx = effect->Pos.vx - ((rsin(model->rootRot.vy) * model->collisionRadius) >> 12);
+    effect->Pos.vz -= (rcos(model->rootRot.vy) * model->collisionRadius) >> 12;
+    effect->Rot = model->rootRot;
     effect->TargetIndex = target;
 }
 

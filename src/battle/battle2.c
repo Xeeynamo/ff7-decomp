@@ -47,9 +47,9 @@ static s32 BattleModelReadAnimIntoMatrix(s16 arg0, s16 nItems, u8* arg2) {
     s32 temp_v0;
 
     var_a0 = g_BattleModels[arg0].boneTransforms;
-    var_a1 = g_BattleModels[arg0].D_80151958;
-    g_BattleModels[arg0].D_80151958 = BattleModelReadAnimStream(var_a0, var_a1, nItems, arg2);
-    return g_BattleModels[arg0].D_80151958 == 0;
+    var_a1 = g_BattleModels[arg0].animInProgress;
+    g_BattleModels[arg0].animInProgress = BattleModelReadAnimStream(var_a0, var_a1, nItems, arg2);
+    return g_BattleModels[arg0].animInProgress == 0;
 }
 
 static void BattleWeaponReadAnimIntoMatrix(s16 arg0, s16 arg1, u8* arg2) {
@@ -62,16 +62,16 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD400);
 
 static s16 func_800CD558(s16 arg0, u8* arg1) {
     u32 val;
-    val = arg1[g_BattleModels[arg0].D_80151920++];
-    return (arg1[g_BattleModels[arg0].D_80151920++] << 8) + val;
+    val = arg1[g_BattleModels[arg0].scriptPc++];
+    return (arg1[g_BattleModels[arg0].scriptPc++] << 8) + val;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD5E4);
 
 static void func_800CD798(u8 arg0) {
-    g_BattleModels[arg0].D_80151A4C.vx = D_80163C80[arg0].vx;
-    g_BattleModels[arg0].D_80151A4C.vy = D_80163C80[arg0].vy;
-    g_BattleModels[arg0].D_80151A4C.vz = D_80163C80[arg0].vz;
+    g_BattleModels[arg0].rootTrans.vx = D_80163C80[arg0].vx;
+    g_BattleModels[arg0].rootTrans.vy = D_80163C80[arg0].vy;
+    g_BattleModels[arg0].rootTrans.vz = D_80163C80[arg0].vz;
 }
 
 static void func_800CD82C(void) {
@@ -82,9 +82,9 @@ static void func_800CD82C(void) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD860);
 
 static void BattleResetUnitAnimScript(s16 arg0) {
-    g_BattleModels[arg0].D_8015191F = 1;
-    g_BattleModels[arg0].D_80151920 = 0;
-    g_BattleModels[arg0].D_80151921 = 0;
+    g_BattleModels[arg0].scriptEnabled = 1;
+    g_BattleModels[arg0].scriptPc = 0;
+    g_BattleModels[arg0].scriptWaitFrames = 0;
 }
 
 void func_800CDDA4(void) {
@@ -348,7 +348,7 @@ static void func_800CF2F0(void) {
         return;
     }
     index = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
-    g_BattleModels[index].D_80151A4C.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
+    g_BattleModels[index].rootTrans.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
     *(s32*)0x1F80000C = index;
     g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 =
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 - 1;
@@ -363,7 +363,7 @@ static void func_800CF3CC(void) {
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
         return;
     }
-    g_BattleModels[index].unk160.vy += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+    g_BattleModels[index].rootRot.vy += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
     g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
 }
 
@@ -375,8 +375,8 @@ static void func_800CF4A8(void) {
         return;
     }
     index = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
-    g_BattleModels[index].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
-    g_BattleModels[index].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+    g_BattleModels[index].rootTrans.vx += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
+    g_BattleModels[index].rootTrans.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
     *(s32*)0x1F80000C = index;
     g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 =
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 - 1;
@@ -393,8 +393,8 @@ static void func_800CF5BC(void) {
         if (IDX1 >= 4) {
             if (D_801031F0 == 0) {
                 g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
-                    (MUL(g_BattleModels[IDX2].D_80151A4C.vy, g_BattleModels[IDX2].scale) -
-                     MUL(g_BattleModels[IDX1].D_80151A4C.vy, g_BattleModels[IDX1].scale)) /
+                    (MUL(g_BattleModels[IDX2].rootTrans.vy, g_BattleModels[IDX2].scale) -
+                     MUL(g_BattleModels[IDX1].rootTrans.vy, g_BattleModels[IDX1].scale)) /
                     g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0;
             } else {
                 g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 = 0;
@@ -409,9 +409,9 @@ static void func_800CF5BC(void) {
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
             return;
         }
-        g_BattleModels[IDX1].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
-        g_BattleModels[IDX1].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
-        g_BattleModels[IDX1].D_80151A4C.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
+        g_BattleModels[IDX1].rootTrans.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+        g_BattleModels[IDX1].rootTrans.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+        g_BattleModels[IDX1].rootTrans.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
         return;
     }
@@ -435,9 +435,9 @@ static void func_800CF8C0(s16 arg0, s16 arg1, u8 arg2) {
         g_BattleMovementSlots[dst].D_801620B2 = 0;
         return;
     }
-    g_BattleMovementSlots[dst].unkC = (D_80163C80[arg0].vx - g_BattleModels[arg0].D_80151A4C.vx) / arg1;
-    g_BattleMovementSlots[dst].unkE = (D_80163C80[arg0].vz - g_BattleModels[arg0].D_80151A4C.vz) / arg1;
-    g_BattleMovementSlots[dst].D_801620B2 = (D_80163C80[arg0].vy - g_BattleModels[arg0].D_80151A4C.vy) / arg1;
+    g_BattleMovementSlots[dst].unkC = (D_80163C80[arg0].vx - g_BattleModels[arg0].rootTrans.vx) / arg1;
+    g_BattleMovementSlots[dst].unkE = (D_80163C80[arg0].vz - g_BattleModels[arg0].rootTrans.vz) / arg1;
+    g_BattleMovementSlots[dst].D_801620B2 = (D_80163C80[arg0].vy - g_BattleModels[arg0].rootTrans.vy) / arg1;
 }
 
 static void func_800CFB14(void) {
@@ -451,9 +451,9 @@ static void func_800CFB14(void) {
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
             return;
         }
-        g_BattleModels[dst].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
-        g_BattleModels[dst].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
-        g_BattleModels[dst].D_80151A4C.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
+        g_BattleModels[dst].rootTrans.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+        g_BattleModels[dst].rootTrans.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+        g_BattleModels[dst].rootTrans.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
         return;
     }
@@ -475,9 +475,9 @@ static void func_800CFCB0(void) {
     *((s32*)0x1F80000C) = temp_a2;
     *((s32*)0x1F800008) = temp_a3;
     *((s32*)0x1F800010) = temp_a1;
-    g_BattleModels[temp_a2].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
-    g_BattleModels[temp_a2].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
-    g_BattleModels[temp_a2].D_80151A4C.vy += D_800EEB28[temp_a1][g_BattleMovementSlots[g_BattleMovementCursor].unk18++];
+    g_BattleModels[temp_a2].rootTrans.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+    g_BattleModels[temp_a2].rootTrans.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+    g_BattleModels[temp_a2].rootTrans.vy += D_800EEB28[temp_a1][g_BattleMovementSlots[g_BattleMovementCursor].unk18++];
     g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
 }
 
@@ -498,12 +498,12 @@ static void func_800CFE60(void) {
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 =
                 g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
-                MUL(g_BattleModels[IDX1].D_80151A4C.vy - g_BattleMovementSlots[g_BattleMovementCursor].unk10,
+                MUL(g_BattleModels[IDX1].rootTrans.vy - g_BattleMovementSlots[g_BattleMovementCursor].unk10,
                     g_BattleModels[IDX2].scale) /
                 g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
             return;
         }
-        g_BattleModels[IDX1].D_80151A4C.vy += g_BattleMovementSlots[g_BattleMovementCursor].unk14;
+        g_BattleModels[IDX1].rootTrans.vy += g_BattleMovementSlots[g_BattleMovementCursor].unk14;
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
         break;
     case 2:
@@ -511,9 +511,9 @@ static void func_800CFE60(void) {
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
             return;
         }
-        g_BattleModels[IDX1].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
-        g_BattleModels[IDX1].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
-        g_BattleModels[IDX1].D_80151A4C.vy -= g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
+        g_BattleModels[IDX1].rootTrans.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+        g_BattleModels[IDX1].rootTrans.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+        g_BattleModels[IDX1].rootTrans.vy -= g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
         break;
     }
@@ -532,7 +532,7 @@ static void func_800D01C0(void) {
     case 0:
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 = g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
-            (g_BattleMovementSlots[g_BattleMovementCursor].unk14 - g_BattleModels[IDX1].D_80151A4C.vy) /
+            (g_BattleMovementSlots[g_BattleMovementCursor].unk14 - g_BattleModels[IDX1].rootTrans.vy) /
             g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE = 1;
         break;
@@ -548,9 +548,9 @@ static void func_800D01C0(void) {
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE = 2;
             return;
         }
-        g_BattleModels[IDX1].D_80151A4C.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
-        g_BattleModels[IDX1].D_80151A4C.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
-        g_BattleModels[IDX1].D_80151A4C.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
+        g_BattleModels[IDX1].rootTrans.vx += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+        g_BattleModels[IDX1].rootTrans.vz += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+        g_BattleModels[IDX1].rootTrans.vy += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
         break;
     case 2:
@@ -558,7 +558,7 @@ static void func_800D01C0(void) {
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
             return;
         }
-        g_BattleModels[IDX1].D_80151A4C.vy -= g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
+        g_BattleModels[IDX1].rootTrans.vy -= g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
         g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
         break;
     }
@@ -1012,11 +1012,11 @@ static void func_800D3F8C(void) {
         temp_s1->unkC--;
         if (temp_s1->unkC == -1) {
             temp_s0 = &D_801621F0[func_800BC04C(func_800D3AF0)];
-            RotMatrixYXZ(&g_BattleModels[temp_s1->unk10.unk.unk2].unk160, (MATRIX*)0x1F800008);
+            RotMatrixYXZ(&g_BattleModels[temp_s1->unk10.unk.unk2].rootRot, (MATRIX*)0x1F800008);
             ApplyMatrixSV((MATRIX*)0x1F800008, (SVECTOR*)&temp_s1->D_801621F4, (SVECTOR*)0x1F800000);
-            temp_s0->D_801621F4 = g_BattleModels[temp_s1->unk10.unk.unk2].D_80151A4C.vx + ((SVECTOR*)0x1F800000)->vx;
-            temp_s0->D_801621F6 = g_BattleModels[temp_s1->unk10.unk.unk2].D_80151A4C.vy + ((SVECTOR*)0x1F800000)->vy;
-            temp_s0->unk8 = g_BattleModels[temp_s1->unk10.unk.unk2].D_80151A4C.vz + ((SVECTOR*)0x1F800000)->vz;
+            temp_s0->D_801621F4 = g_BattleModels[temp_s1->unk10.unk.unk2].rootTrans.vx + ((SVECTOR*)0x1F800000)->vx;
+            temp_s0->D_801621F6 = g_BattleModels[temp_s1->unk10.unk.unk2].rootTrans.vy + ((SVECTOR*)0x1F800000)->vy;
+            temp_s0->unk8 = g_BattleModels[temp_s1->unk10.unk.unk2].rootTrans.vz + ((SVECTOR*)0x1F800000)->vz;
             temp_s0->unkE = temp_s1->unkE;
             temp_s0->unk10.unk.unk0 = temp_s1->unk10.unk.unk0;
             temp_s1->D_801621F0 = -1;

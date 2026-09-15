@@ -343,35 +343,25 @@ typedef struct {
     /* 0x028 */ u8 colorR;
     /* 0x029 */ u8 colorG;
     /* 0x02A */ u8 colorB;
+
+	// This is an ugly hack and this 
+	// needs to be in it's own bone struct
     /* 0x02B */ u8 battleModelRootBone;
-    /* 0x02C */ u8 joints[10];
-    /* 0x036 */ s16 battleModelFeet;
-    /* 0x038 */ s16 D_8015191C;
-    /* 0x03A */ s8 D_8015191E;
-    /* 0x03B */ s8 D_8015191F;
-    /* 0x03C */ u8 D_80151920;
-    /* 0x03D */ s8 D_80151921;
-    /* 0x03E */ s8 D_80151922;
-    /* 0x03F */ s8 D_80151923;
-    /* 0x040 */ s32 D_80151924;
-    /* 0x044 */ s32 D_80151928;
-    /* 0x048 */ s32 D_8015192C;
-    /* 0x04C */ s32 D_80151930;
-    /* 0x050 */ s32 D_80151934;
-    /* 0x054 */ s32 D_80151938;
-    /* 0x058 */ s32 D_8015193C;
-    /* 0x05C */ s32 D_80151940;
-    /* 0x060 */ s32 D_80151944;
-    /* 0x064 */ s32 D_80151948;
-    /* 0x068 */ s32 D_8015194C;
-    /* 0x06C */ s32 D_80151950;
-    /* 0x070 */ s32 D_80151954;
-    /* 0x074 */ s32 D_80151958;
+    /* 0x02C */ u8 joints1[10];
+    /* 0x036 */ s16 battleModelFeet; // for BattleEffectDustClouds
+    /* 0x038 */ u8 joints2[3];
+
+    /* 0x03B */ s8 scriptEnabled;
+    /* 0x03C */ u8 scriptPc;
+    /* 0x03D */ s8 scriptWaitFrames;
+    /* 0x03E */ s8 animControlFlags;
+    /* 0x03F */ u8 boneFlags[53];
+    /* 0x074 */ s32 animInProgress;
     /* 0x078 */ u8 unk5C[0xC8];
-    /* 0x140 */ MATRIX m;
-    /* 0x160 */ SVECTOR unk160;
-    /* 0x168 */ SVECTOR D_80151A4C;
-    /* 0x170 */ s32 D_80151A54;
+    /* 0x140 */ MATRIX stageMatrix;
+    /* 0x160 */ SVECTOR rootRot;
+    /* 0x168 */ SVECTOR rootTrans;
+    /* 0x170 */ MATRIX* pCameraMatrix;
     /* 0x174 */ BattleModelSub boneTransforms[50];
 } BattleModel; // size:0xB9C
 
