@@ -114,7 +114,7 @@ static void RefrecAttachToTarget(s32 target, s32 callbackArg) {
     RefrecData* effect;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(RefrecAnimationUpdate)];
-    model = &D_801518E4[target];
+    model = &g_BattleModel[target];
     BattleGetPartPosition(target, model->D_8015190F, &effect->Pos);
     effect->Pos.vx = effect->Pos.vx - ((rsin(model->unk160.vy) * model->collisionRadius) >> 12);
     effect->Pos.vz -= (rcos(model->unk160.vy) * model->collisionRadius) >> 12;

@@ -571,7 +571,7 @@ extern DB* g_cDb;
 extern s32 g_dbIndex;
 extern short g_BattleEffectCursor;
 extern s16 D_80151774;
-extern BattleModel D_801518E4[NUM_BATTLE_ACTOR];
+extern BattleModel g_BattleModel[NUM_BATTLE_ACTOR];
 extern short g_BattleEffectCount;
 extern s32 D_801620A8;
 extern ActiveEncounterData g_ActiveEncounter;
