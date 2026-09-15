@@ -47,7 +47,7 @@ static void FireAnimationUpdate(void) {
         }
         if (!(effect->AnimationFrame & 1)) {
             next = &g_BattleEffectSlots[BattleEffectRegister(FireRenderSprite)];
-            effect->unk6 = (effect->unk6 + (rand() & 0xF) + 1) % D_801518E4[effect->TargetIndex].unk10;
+            effect->unk6 = (effect->unk6 + (rand() & 0xF) + 1) % D_801518E4[effect->TargetIndex].numBones;
             BattleGetPartPosition(effect->TargetIndex, effect->unk6, &next->Pos);
             next->unk12 = effect->unk12;
         }
@@ -64,7 +64,7 @@ static void FireAttachToTarget(s32 target, s32 callbackArg) {
     effect = &g_BattleEffectSlots[BattleEffectRegister(FireAnimationUpdate)];
     effect->TargetIndex = target;
     effect->unk6 = 0;
-    effect->unk12 = -D_801518E4[target].unk12;
+    effect->unk12 = -D_801518E4[target].collisionRadius;
 }
 
 static void FireDoubleBufferFlip(void) {

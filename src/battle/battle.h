@@ -324,8 +324,8 @@ typedef struct {
     /* 0x00A */ s16 modelSetting2;
     /* 0x00C */ s16 modelSetting3;
     /* 0x00E */ s16 nextAnimId;
-    /* 0x010 */ s16 unk10;
-    /* 0x012 */ s16 unk12;
+    /* 0x010 */ s16 numBones;
+    /* 0x012 */ s16 collisionRadius;
     /* 0x014 */ u16 unk14[2];
     /* 0x018 */ s16 D_801518FC;
     /* 0x01A */ s16 D_801518FE;
