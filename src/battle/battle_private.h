@@ -3,6 +3,7 @@
 
 #define CMD_OPCODE_DELIM 0x1F
 #define HIT_OPCODE_DELIM 0x08
+#define BATTLE_EVENT_QUEUE_SIZE 128
 
 enum QueueMethod {
     QUEUE_LOAD_IMAGE,
@@ -273,8 +274,8 @@ extern s32 D_800F01E4;
 extern u16 D_800F198C; // btlmenu_limitReadyMask
 extern s32 D_800F199C;
 extern u8 D_800F19A4;
-extern s8 D_800F1E4F;
-extern s16 D_800F1E50;
+extern s8 g_EncounterBannerActive;
+extern s16 g_EncounterBannerStringId;
 extern s32 D_800F311C;
 extern s16 D_800F3122; // part of a struct?
 extern s32 D_800F3138;
@@ -320,15 +321,17 @@ extern s32 D_800F3A1C;     // write index into D_800F3A20
 extern s16 D_800F3A20[16]; // ring buffer, see BattleReqReturnReservedItems
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
+
 typedef struct {
-    u8 unk0;
-    s8 unk1;
-    s16 unk2;
-} Unk800F4308;
-extern Unk800F4308 D_800F4308[][128];
+    u8 unitId;
+    s8 callbackId;
+    s16 param;
+} BattleCallbackEvent;
+extern BattleCallbackEvent g_BattleCallbackEvent[][128];
+
 extern u8 g_BattleHitFormulaOpcodeStream[];
-extern s32 D_800F4908[];
-extern s32 D_800F4914[];
+extern s32 g_BattlePartyEventReadIdx[];
+extern s32 g_BattlePartyEventWriteIdx[];
 extern s32 g_BattleHitFormulaOffs[];
 extern s32 D_800F4920;
 extern u16 D_800F4938[];
