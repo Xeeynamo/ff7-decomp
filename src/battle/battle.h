@@ -131,23 +131,30 @@ typedef struct {
 
 typedef struct {
     /* 0x000 */ u16 unk0;
-    /* 0x002 */ u16 presentMask; // D_800F83AE: bit per combatant present
-    /* 0x004 */ u8 unk4[2];      // D_800F83B0
-    /* 0x006 */ u16 unk6;        // D_800F83B2
-    /* 0x008 */ u8 unk8[8];      // D_800F83B4..D_800F83BC
-    /* 0x010 */ u16 unk10;       // D_800F83BC
-    /* 0x012 */ u16 unk12;       // D_800F83BE
-    /* 0x014 */ u8 unk14[4];     // D_800F83C0
-    /* 0x018 */ u16 unk18;       // D_800F83C4
-    /* 0x01A */ u16 unk1A;       // D_800F83C6
-    /* 0x01C */ u16 unk1C;       // D_800F83C8
-    /* 0x01E */ u16 unk1E;       // D_800F83CA
-    /* 0x020 */ u16 sceneID;     // D_800F83CC
-    /* 0x022 */ u16 unk22;       // D_800F83CE
-    /* 0x024 */ u16 setupFlags;  // D_800F83D0: BattleSetupFlags
-    /* 0x026 */ u16 unk26;       // D_800F83D2
-    /* 0x028 */ u16 unk28;       // D_800F83D4
-    /* 0x02A */ u8 unk2A[0xA];   // D_800F83D8..D_800F83DC
+    /* 0x002 */ u16 presentMask;
+    /* 0x004 */ u16 scriptSelfMask;
+    /* 0x006 */ u16 scriptOpponentNonPetrifiedMask;
+    /* 0x008 */ u16 scriptAllyAliveMask;
+    /* 0x00A */ u16 scriptAllyDeadMask;
+    /* 0x00C */ u16 scriptOpponentAliveMask;
+    /* 0x00E */ u16 scriptOpponentDeadMask;  
+    /* 0x010 */ u16 playerUnitMask;
+    /* 0x012 */ u16 enemyUnitMask;
+    /* 0x014 */ u16 allUnitsMask;
+    /* 0x016 */ u16 pad16;
+    /* 0x018 */ u16 unk18;
+    /* 0x01A */ u16 cycleFlags;
+    /* 0x01C */ u16 unk1C;
+    /* 0x01E */ u16 unk1E;
+    /* 0x020 */ u16 sceneID;
+    /* 0x022 */ u16 pad22;
+    /* 0x024 */ u16 setupFlags;
+    /* 0x026 */ u16 attackCategoryFlags;
+    /* 0x028 */ u16 arenaRound;
+    /* 0x02A */ u16 pad2A;
+    /* 0x02C */ u16 unk2C;
+    /* 0x02E */ u16 pad2E;
+    /* 0x030 */ u32 partyGil;
     /* 0x034 */ BattleUnit combatant[NUM_BATTLE_ACTOR];
 } BattleState; // size:0x444
 

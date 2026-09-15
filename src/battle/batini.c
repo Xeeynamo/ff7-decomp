@@ -114,12 +114,12 @@ void BatInitMain(s32 sceneID) {
 
         order = D_80075D08;
         prev = order - 1;
-        mask = 1 << (g_BattleState.unk28 * 6);
+        mask = 1 << (g_BattleState.arenaRound * 6);
 
         next = order + 1;
-        order2 = next + g_BattleState.unk28 * 6;
+        order2 = next + g_BattleState.arenaRound * 6;
 
-        order[0] = g_BattleState.unk28;
+        order[0] = g_BattleState.arenaRound;
 
         sentinel = -1;
         offset = 0x1A0;
@@ -622,8 +622,8 @@ static void BattleInitFormation(void) {
     s32 intro;
     s32 i;
 
-    enemyMask = g_BattleState.unk12;
-    partyMask = g_BattleState.unk10;
+    enemyMask = g_BattleState.enemyUnitMask;
+    partyMask = g_BattleState.playerUnitMask;
     sideMask = 5;
     if (g_ActiveEncounter.setup.type == SETUP_SIDE_ATTACK_3) {
         sideMask = ~5;

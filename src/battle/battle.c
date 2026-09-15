@@ -610,7 +610,7 @@ static s32 BattleGetManipIdByPlayerUnitId(s32 arg0) {
 static void func_800A4D2C(s32 arg0) {
     u32 i;
 
-    if (g_BattleState.unk1A) {
+    if (g_BattleState.cycleFlags) {
         return;
     }
     for (i = 0; i < LEN(D_800E7A48); i++) {
@@ -2306,7 +2306,7 @@ static void func_800AE764(s32 mask, s32 arg1, s32 arg2) {
             }
         }
     }
-    g_BattleState.unk6 = result;
+    g_BattleState.scriptOpponentNonPetrifiedMask = result;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE82C);
