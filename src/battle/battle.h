@@ -316,11 +316,14 @@ typedef struct {
 } BattleModelSub; // size:0x34
 
 typedef struct {
-    /* 0x000 */ s16 D_801518E4;
-    /* 0x002 */ s16 D_801518E6;
-    /* 0x004 */ s16 D_801518E8;
-    /* 0x006 */ s16 D_801518EA;
-    /* 0x008 */ u8 unk8[8];
+    /* 0x000 */ s16 animDescOffset;
+    /* 0x002 */ s16 animId;
+    /* 0x004 */ s16 queuedActionId;
+    /* 0x006 */ s16 scale;
+    /* 0x008 */ s16 modelSetting1;
+    /* 0x00A */ s16 modelSetting2;
+    /* 0x00C */ s16 modelSetting3;
+    /* 0x00E */ s16 nextAnimId;
     /* 0x010 */ s16 unk10;
     /* 0x012 */ s16 unk12;
     /* 0x014 */ u16 unk14[2];
@@ -368,7 +371,7 @@ typedef struct {
     /* 0x160 */ SVECTOR unk160;
     /* 0x168 */ SVECTOR D_80151A4C;
     /* 0x170 */ s32 D_80151A54;
-    /* 0x174 */ BattleModelSub D_80151A58[50];
+    /* 0x174 */ BattleModelSub boneTransforms[50];
 } BattleModel; // size:0xB9C
 
 typedef struct {

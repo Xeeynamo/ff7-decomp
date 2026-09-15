@@ -46,7 +46,7 @@ static s32 BattleModelReadAnimIntoMatrix(s16 arg0, s16 nItems, u8* arg2) {
     s32 temp_s0;
     s32 temp_v0;
 
-    var_a0 = D_801518E4[arg0].D_80151A58;
+    var_a0 = D_801518E4[arg0].boneTransforms;
     var_a1 = D_801518E4[arg0].D_80151958;
     D_801518E4[arg0].D_80151958 = BattleModelReadAnimStream(var_a0, var_a1, nItems, arg2);
     return D_801518E4[arg0].D_80151958 == 0;
@@ -393,8 +393,8 @@ static void func_800CF5BC(void) {
         if (IDX1 >= 4) {
             if (D_801031F0 == 0) {
                 g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
-                    (MUL(D_801518E4[IDX2].D_80151A4C.vy, D_801518E4[IDX2].D_801518EA) -
-                     MUL(D_801518E4[IDX1].D_80151A4C.vy, D_801518E4[IDX1].D_801518EA)) /
+                    (MUL(D_801518E4[IDX2].D_80151A4C.vy, D_801518E4[IDX2].scale) -
+                     MUL(D_801518E4[IDX1].D_80151A4C.vy, D_801518E4[IDX1].scale)) /
                     g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0;
             } else {
                 g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 = 0;
@@ -499,7 +499,7 @@ static void func_800CFE60(void) {
                 g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
                 MUL(D_801518E4[IDX1].D_80151A4C.vy - g_BattleMovementSlots[g_BattleMovementCursor].unk10,
-                    D_801518E4[IDX2].D_801518EA) /
+                    D_801518E4[IDX2].scale) /
                 g_BattleMovementSlots[g_BattleMovementCursor].unk1A;
             return;
         }
@@ -543,7 +543,7 @@ static void func_800D01C0(void) {
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2 =
                 MUL(g_BattleMovementSlots[g_BattleMovementCursor].unk14 -
                         g_BattleMovementSlots[g_BattleMovementCursor].unk10,
-                    D_801518E4[g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6].D_801518EA) /
+                    D_801518E4[g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6].scale) /
                 g_BattleMovementSlots[g_BattleMovementCursor].unk19;
             g_BattleMovementSlots[g_BattleMovementCursor].D_801620AE = 2;
             return;
@@ -998,7 +998,7 @@ static void func_800D3E8C(s32 arg0) {
 
     temp_v0 = &D_801621F0[func_800BC04C(BattleEffectDustClouds)];
     temp_v0->D_801621F0 = arg0;
-    temp_v0->unkE = *(s16*)& temp_v0->unk10 = D_801518E4[arg0].D_801518EA;
+    temp_v0->unkE = *(s16*)& temp_v0->unk10 = D_801518E4[arg0].scale;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3F0C);
@@ -1200,7 +1200,7 @@ static s32 func_800D54BC(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleEntityGetCenter);
 
-s32 func_800D55A4(s32 arg0) { return (D_801518E4[arg0].unk12 * 0x10) * D_801518E4[arg0].D_801518EA >> 0xC; }
+s32 func_800D55A4(s32 arg0) { return (D_801518E4[arg0].unk12 * 0x10) * D_801518E4[arg0].scale >> 0xC; }
 
 // Generic AKAO sound-command dispatcher: the first vararg's low 16 bits are
 // the command id, which selects how many trailing u32 params get copied into
