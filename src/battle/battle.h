@@ -137,7 +137,7 @@ typedef struct {
     /* 0x008 */ u16 scriptAllyAliveMask;
     /* 0x00A */ u16 scriptAllyDeadMask;
     /* 0x00C */ u16 scriptOpponentAliveMask;
-    /* 0x00E */ u16 scriptOpponentDeadMask;  
+    /* 0x00E */ u16 scriptOpponentDeadMask;
     /* 0x010 */ u16 playerUnitMask;
     /* 0x012 */ u16 enemyUnitMask;
     /* 0x014 */ u16 allUnitsMask;
@@ -315,7 +315,6 @@ typedef struct {
     MATRIX* pm;
 } BattleModelSub; // size:0x34
 
-
 typedef struct {
     /* 0x000 */ s16 animDescOffset;
     /* 0x002 */ s16 animId;
@@ -332,7 +331,7 @@ typedef struct {
     /* 0x018 */ s16 defaultRotX;
     /* 0x01A */ s16 defaultRotY;
     /* 0x01C */ s16 defaultRotZ;
-	/* 0x01E */ s16 pad1E;
+    /* 0x01E */ s16 pad1E;
     /* 0x020 */ s16 modelFlags;
     /* 0x022 */ u8 attackEffectId;
     /* 0x023 */ u8 currentActionId;
@@ -344,8 +343,8 @@ typedef struct {
     /* 0x029 */ u8 colorG;
     /* 0x02A */ u8 colorB;
 
-	// This is an ugly hack and this 
-	// needs to be in it's own bone struct
+    // This is an ugly hack and this
+    // needs to be in it's own bone struct
     /* 0x02B */ u8 battleModelRootBone;
     /* 0x02C */ u8 joints1[10];
     /* 0x036 */ s16 battleModelFeet; // for BattleEffectDustClouds
