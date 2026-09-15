@@ -584,9 +584,9 @@ void BattleActionType14(void) {
 
 static u8 func_800A4B3C(s32 index, s32 arg1) {
     if (arg1 != -1) {
-        g_BattleModel[index].D_8015190F = arg1;
+        g_BattleModels[index].battleModelRootBone = arg1;
     }
-    return g_BattleModel[index].D_8015190F;
+    return g_BattleModels[index].battleModelRootBone;
 }
 
 static void func_800A4B9C(void) {}

@@ -88,7 +88,7 @@ void BattleNormalStartSeq(void) {
             BattleUpdateRender();
             BattleEnemyInitBonesAndAnims();
             for (i = 4; i < D_800F7E04[0] + 4; i++) {
-                g_BattleModel[i].D_80151922 |= 4;
+                g_BattleModels[i].D_80151922 |= 4;
             }
             D_80163C7C = 2;
             break;
@@ -97,9 +97,9 @@ void BattleNormalStartSeq(void) {
             if ((u8)D_80166F64 == 3 && D_801518DC == 0) {
                 BattlePlayersInitBonesAndAnims();
                 D_80163C7C = 3;
-                g_BattleModel[0].D_80151922 |= 4;
-                g_BattleModel[1].D_80151922 |= 4;
-                g_BattleModel[2].D_80151922 |= 4;
+                g_BattleModels[0].D_80151922 |= 4;
+                g_BattleModels[1].D_80151922 |= 4;
+                g_BattleModels[2].D_80151922 |= 4;
             }
             break;
         case 3:
@@ -248,7 +248,7 @@ static void BattlePlayersInitBonesAndAnims(void) {
     BattleInitModelsAnimAndColor(3, 3);
     if (g_ActiveEncounter.setup.stageID == 57) {
         for (i = 0; i < 10; i++) {
-            g_BattleModel[i].specialFlags |= 0x10;
+            g_BattleModels[i].specialFlags |= 0x10;
         }
     }
 }
@@ -279,14 +279,14 @@ static void func_800B3E2C(void) {
     D_80166F58 = 0;
     D_801516A0 = 0;
     D_800F8380 = 0;
-    for (i = 0; i < LEN(g_BattleModel); i++) {
-        g_BattleModel[i].unk26 = 1;
+    for (i = 0; i < LEN(g_BattleModels); i++) {
+        g_BattleModels[i].unk26 = 1;
     }
     for (i = 2; i >= 0; i--) {
         D_800F9F28[i] = 0;
     }
     var_a0 = D_801590CC;
-    g_BattleModel[var_a0].attackEffectId = 0;
+    g_BattleModels[var_a0].attackEffectId = 0;
     D_800F8374 = 0xE;
     g_BattleActionQueue[D_801590E0].unk8 = -2;
     BattleCallbacksReset();
@@ -426,7 +426,7 @@ static void BattleUpdateRender(void) {
     func_800C5CC0();
     func_800B8438();
     for (i = 0; i < 10; i++) {
-        if (g_BattleModel[i].unk26 == 0) {
+        if (g_BattleModels[i].unk26 == 0) {
             D_800F7DE4 = 0;
             break;
         }
@@ -474,10 +474,10 @@ static void func_800B8268(void) {
     var_a1 = D_80163784;
     while (i < 10) {
         *var_a1 = D_801636B8[i].D_801636B9;
-        if (!(D_80151200[i].D_8015120C & 8) && g_BattleModel[i].animId != *var_a1 &&
-            g_BattleModel[i].unk26 == var_t1) {
-            g_BattleModel[i].D_80151922 |= 1;
-            g_BattleModel[i].animId = *var_a1;
+        if (!(D_80151200[i].D_8015120C & 8) && g_BattleModels[i].animId != *var_a1 &&
+            g_BattleModels[i].unk26 == var_t1) {
+            g_BattleModels[i].D_80151922 |= 1;
+            g_BattleModels[i].animId = *var_a1;
         }
         var_a1++;
         i += 1;
@@ -537,7 +537,7 @@ void func_800B8438(void) {
     func_800B91CC();
     D_80151694 = D_80163758[1];
     func_800B85E0();
-    func_800BC81C(D_800F8370, g_BattleModel[D_801590CC].attackEffectId);
+    func_800BC81C(D_800F8370, g_BattleModels[D_801590CC].attackEffectId);
     func_800BC8B0(D_800F8370);
     func_800B8268();
     SetFarColor(0, 0, 0);
@@ -558,7 +558,7 @@ static void func_800B85E0() {
         g_BattleActionQueue[D_801590E0].unk8 = -3;
         BattleQueue1CameraInit();
         for (i = 0; i < 3; i++) {
-            g_BattleModel[i].D_80151922 |= 0x20;
+            g_BattleModels[i].D_80151922 |= 0x20;
             D_80151200[i].D_80151200 = D_801636B8[i].D_801636C0;
         }
     }
@@ -577,9 +577,9 @@ static void func_800B85E0() {
         i = 0;
         if (g_BattleMode & 8) {
             for (; i < 3; i++) {
-                g_BattleModel[i].D_80151922 |= 1;
-                g_BattleModel[i].animId = D_801636B8[i].D_801636B9;
-                g_BattleModel[i].D_80151922 |= 0x20;
+                g_BattleModels[i].D_80151922 |= 1;
+                g_BattleModels[i].animId = D_801636B8[i].D_801636B9;
+                g_BattleModels[i].D_80151922 |= 0x20;
                 D_80151200[i].D_80151200 = D_801636B8[i].D_801636C0;
             }
             D_800F9D9C = 100;
@@ -623,8 +623,8 @@ static void func_800B8E48(s32 arg0) {
     s32 temp_a0;
 
     temp_a0 = arg0 & 0xFF;
-    g_BattleModel[temp_a0].unk26 = 1;
-    g_BattleModel[temp_a0].specialFlags &= 0x7F;
+    g_BattleModels[temp_a0].unk26 = 1;
+    g_BattleModels[temp_a0].specialFlags &= 0x7F;
     D_80151200[temp_a0].D_8015120C &= 0xFFDF;
 }
 
@@ -675,11 +675,11 @@ static void func_800BA40C(void) {
     u8 param;
 
     for (i = 0; i < 3; i++) {
-        if (!(g_BattleModel[i].specialFlags & 2)) {
+        if (!(g_BattleModels[i].specialFlags & 2)) {
             param = i;
             func_800C1908(param);
             func_800BA598(i);
-            if (g_BattleModel[i].deathType & 0x80) {
+            if (g_BattleModels[i].deathType & 0x80) {
                 func_800BB2A8(param);
                 func_800BB030(i);
             }
@@ -691,15 +691,15 @@ static void func_800BA4C8(void) {
     s32 i;
 
     for (i = 4; i < D_800F7E04[0] + 4; i++) {
-        if (!(g_BattleModel[i].specialFlags & 0x80)) {
+        if (!(g_BattleModels[i].specialFlags & 0x80)) {
             continue;
         }
-        if (g_BattleModel[i].specialFlags & 2) {
+        if (g_BattleModels[i].specialFlags & 2) {
             continue;
         }
         func_800C1908(i);
         func_800BA598(i);
-        if (g_BattleModel[i].deathType & 0x80) {
+        if (g_BattleModels[i].deathType & 0x80) {
             func_800BB030(i);
         }
     }
@@ -733,9 +733,9 @@ static void func_800BB030(s16 arg0) {
     ModelRenderDesc* unk;
 
     unk = (ModelRenderDesc*)0x1F800020;
-    SetFarColor(g_BattleModel[arg0].colorR, g_BattleModel[arg0].colorG, g_BattleModel[arg0].colorB);
-    SetRotMatrix(&g_BattleModel[arg0].m);
-    SetTransMatrix(&g_BattleModel[arg0].m);
+    SetFarColor(g_BattleModels[arg0].colorR, g_BattleModels[arg0].colorG, g_BattleModels[arg0].colorB);
+    SetRotMatrix(&g_BattleModels[arg0].m);
+    SetTransMatrix(&g_BattleModels[arg0].m);
     for (i = 0; i < D_800FA6D8[arg0].unk3C; i++) {
         RotMatrixYXZ(&D_800FA6D8[arg0].unk8[i].sv1, &D_800FA6D8[arg0].unk8[i].m);
     }
@@ -747,10 +747,10 @@ static void func_800BB030(s16 arg0) {
         unk->model = D_800FA6D8[arg0].unk4[i];
         unk->flags = D_800FA6D8[arg0].unk3E[i] | MODEL_PRIM_PACKET_BITS | MODEL_DEPTH_CUE;
         unk->uvOffset = 0;
-        unk->color = g_BattleModel[arg0].blendAlpha;
+        unk->color = g_BattleModels[arg0].blendAlpha;
         unk->tpage = 0x20;
-        unk->clut = g_BattleModel[arg0].clutOffset;
-        if (g_BattleModel[arg0].specialFlags & 4) {
+        unk->clut = g_BattleModels[arg0].clutOffset;
+        if (g_BattleModels[arg0].specialFlags & 4) {
             continue;
         }
         D_80163C74 = func_800D29D4(unk, g_cDb->unk70, 12, D_80163C74);
@@ -1249,7 +1249,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1394);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C14C0);
 
 static s32 func_800C169C(u8 arg0) {
-    g_BattleModel[arg0].specialFlags |= 8;
+    g_BattleModels[arg0].specialFlags |= 8;
     if (D_80151200[arg0].D_80151200 & 0x2000) {
         return 10;
     }
@@ -1274,26 +1274,26 @@ static s32 func_800C169C(u8 arg0) {
     if (D_80151200[arg0].D_80151200 & 0x400000) {
         return 7;
     }
-    g_BattleModel[arg0].specialFlags &= ~8;
+    g_BattleModels[arg0].specialFlags &= ~8;
     return 0;
 }
 
 static void func_800C17A0(s32 arg0, s32 arg1) {
     switch (D_800EA19C[arg1][0]) {
     case 0:
-        g_BattleModel[arg0].blendAlpha = 0;
+        g_BattleModels[arg0].blendAlpha = 0;
         break;
     case 1:
-        g_BattleModel[arg0].blendAlpha = 0x800;
+        g_BattleModels[arg0].blendAlpha = 0x800;
         break;
     case 2:
-        g_BattleModel[arg0].blendAlpha = 0xC00;
+        g_BattleModels[arg0].blendAlpha = 0xC00;
         break;
     }
-    g_BattleModel[arg0].colorR = D_800EA19C[arg1][1];
-    g_BattleModel[arg0].colorG = D_800EA19C[arg1][2];
-    g_BattleModel[arg0].colorB = D_800EA19C[arg1][3];
-    g_BattleModel[arg0].unk24 = 0;
+    g_BattleModels[arg0].colorR = D_800EA19C[arg1][1];
+    g_BattleModels[arg0].colorG = D_800EA19C[arg1][2];
+    g_BattleModels[arg0].colorB = D_800EA19C[arg1][3];
+    g_BattleModels[arg0].unk24 = 0;
 }
 
 static void func_800C5468(u8 arg0);
@@ -1305,14 +1305,14 @@ static void func_800C1908(u8 arg0) {
     u8 temp_s0;
 
     temp_s0 = arg0;
-    if (g_BattleModel[temp_s0].D_80151922 & 0x20) {
+    if (g_BattleModels[temp_s0].D_80151922 & 0x20) {
         if (temp_s0 < 4) {
             D_800F9F28[temp_s0] = D_801636B8[temp_s0].D_801636C0;
         }
         func_800C5170(temp_s0);
         func_800C5468(temp_s0);
         func_800C17A0(temp_s0, func_800C169C(temp_s0));
-        g_BattleModel[temp_s0].D_80151922 &= 0xDF;
+        g_BattleModels[temp_s0].D_80151922 &= 0xDF;
     }
     temp_a1 = arg0;
     if (D_80151200[temp_a1].D_80151235 == 0) {
@@ -1334,27 +1334,27 @@ static void func_800C1908(u8 arg0) {
             D_80151200[temp_a1].D_80151233 = 3;
         }
         if (D_80151200[temp_a1].D_80151200 & 0x40) {
-            if (g_BattleModel[temp_a1].animId == D_80163784[temp_a1]) {
-                g_BattleModel[temp_a1].unk160.vy += 0x100;
+            if (g_BattleModels[temp_a1].animId == D_80163784[temp_a1]) {
+                g_BattleModels[temp_a1].unk160.vy += 0x100;
             }
         }
         var_a0 = arg0;
-        if (D_80151200[var_a0].D_80151200 & 0x400000 && g_BattleModel[var_a0].animId == D_80163784[var_a0]) {
-            if (g_BattleModel[var_a0].defaultRotX == 0) {
-                g_BattleModel[var_a0].unk160.vy = 0x800;
+        if (D_80151200[var_a0].D_80151200 & 0x400000 && g_BattleModels[var_a0].animId == D_80163784[var_a0]) {
+            if (g_BattleModels[var_a0].defaultRotX == 0) {
+                g_BattleModels[var_a0].unk160.vy = 0x800;
             } else {
-                g_BattleModel[var_a0].unk160.vy = 0;
+                g_BattleModels[var_a0].unk160.vy = 0;
             }
         }
         var_a0 = arg0;
-        if (g_BattleModel[var_a0].specialFlags & 8) {
-            if (g_BattleModel[var_a0].unk24 < 0x10) {
-                g_BattleModel[var_a0].blendAlpha += 0x80;
+        if (g_BattleModels[var_a0].specialFlags & 8) {
+            if (g_BattleModels[var_a0].unk24 < 0x10) {
+                g_BattleModels[var_a0].blendAlpha += 0x80;
             } else {
-                g_BattleModel[var_a0].blendAlpha -= 0x80;
+                g_BattleModels[var_a0].blendAlpha -= 0x80;
             }
-            g_BattleModel[arg0].unk24--;
-            g_BattleModel[arg0].unk24 &= 0x1F;
+            g_BattleModels[arg0].unk24--;
+            g_BattleModels[arg0].unk24 &= 0x1F;
         }
     }
 }
@@ -1519,7 +1519,7 @@ static void func_800C55B8(void) {
         D_801621F0[D_801590D4].D_801621F0 = -1;
         return;
     }
-    g_BattleModel[D_801621F0[D_801590D4].D_801621F6].scale += D_801621F0[D_801590D4].D_801621F2;
+    g_BattleModels[D_801621F0[D_801590D4].D_801621F6].scale += D_801621F0[D_801590D4].D_801621F2;
     D_801621F0[D_801590D4].D_801621F4--;
 }
 
@@ -1609,7 +1609,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C7220);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C7340);
 
 static void func_800C74A4(void) {
-    if (!(g_BattleModel[3].specialFlags & 2)) {
+    if (!(g_BattleModels[3].specialFlags & 2)) {
         BattleExecuteUnitAnimScript(3, D_800F57D0->unk8, D_800F57D0 + 1, D_800F57D0);
     }
 }

@@ -150,9 +150,9 @@ static void ThunderAttachToTarget(s32 target, s32 callbackArg) {
     ThunderData* effect;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(ThunderSpawnBolt)];
-    BattleGetPartPosition(target, g_BattleModel[target].D_8015190F, &effect->Pos);
+    BattleGetPartPosition(target, g_BattleModels[target].battleModelRootBone, &effect->Pos);
     effect->unk14 = target;
-    effect->unk1C = -g_BattleModel[target].collisionRadius;
+    effect->unk1C = -g_BattleModels[target].collisionRadius;
     BattleCommandSend(0x20, BattlePositionToStereoPan(&effect->Pos), 0xB);
 }
 

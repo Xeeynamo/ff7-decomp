@@ -315,6 +315,7 @@ typedef struct {
     MATRIX* pm;
 } BattleModelSub; // size:0x34
 
+
 typedef struct {
     /* 0x000 */ s16 animDescOffset;
     /* 0x002 */ s16 animId;
@@ -342,11 +343,9 @@ typedef struct {
     /* 0x028 */ u8 colorR;
     /* 0x029 */ u8 colorG;
     /* 0x02A */ u8 colorB;
-    /* 0x02B */ u8 D_8015190F;
-    /* 0x02C */ s32 D_80151910;
-    /* 0x030 */ s32 D_80151914;
-    /* 0x034 */ s16 D_80151918;
-    /* 0x036 */ s16 D_8015191A;
+    /* 0x02B */ u8 battleModelRootBone;
+    /* 0x02C */ u8 joints[10];
+    /* 0x036 */ s16 battleModelFeet;
     /* 0x038 */ s16 D_8015191C;
     /* 0x03A */ s8 D_8015191E;
     /* 0x03B */ s8 D_8015191F;
@@ -573,7 +572,7 @@ extern DB* g_cDb;
 extern s32 g_dbIndex;
 extern short g_BattleEffectCursor;
 extern s16 D_80151774;
-extern BattleModel g_BattleModel[NUM_BATTLE_ACTOR];
+extern BattleModel g_BattleModels[NUM_BATTLE_ACTOR];
 extern short g_BattleEffectCount;
 extern s32 D_801620A8;
 extern ActiveEncounterData g_ActiveEncounter;
