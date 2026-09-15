@@ -124,6 +124,7 @@ void BatInitMain(s32 sceneID) {
         sentinel = -1;
         offset = 0x1A0;
 
+    // This needs to be refactored to get rid of the goto.
     loop:
         if (*prev & mask) {
             *prev &= ~mask;
@@ -131,8 +132,8 @@ void BatInitMain(s32 sceneID) {
             ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->curHP = *order2;
 
             if (((BattleUnit*)((u8*)g_BattleState.combatant + offset))->curHP == 0) {
-                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->status |= 1;
-                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->prevStatus |= 1;
+                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->status |= STATUS_DEATH;
+                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->prevStatus |= STATUS_DEATH;
                 ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->stateFlags &= ~0x18;
             }
         }
@@ -457,7 +458,7 @@ static void BattleResolveMateriaSlots(s32 slot, s32 materiaMask, BattleMateriaSl
                 }
             }
             if (j == 12) {
-                func_800155A4(0x26);
+                SysSetEngineErrorCode(0x26);
             } else if ((materiaMask >> j) & 1) {
                 count++;
                 data->unk3[i] = data->unk14[i].unk0;
@@ -604,7 +605,7 @@ static void BattleInitCharStats(ActiveCharacterData* character, BattlePartyWork*
 }
 
 const u8 D_801B003C[] = {0xFF, 0x32, 0x33, 0x34, 0x35, 0xFF, 0x48, 0x07};
-void func_800B1060(s32);
+void BattleQueueIntroCamera(s32);
 
 // Lays out the two sides for the opening of the battle. D_801B003C picks the
 // intro animation for the battle type, then the type decides which rows the
@@ -630,7 +631,7 @@ static void BattleInitFormation(void) {
     }
     intro = D_801B003C[g_BattleSceneContext.encounterType];
     if (intro != 0xFF && g_BattleState.sceneID != 0x3D6) {
-        func_800B1060(intro);
+        BattleQueueIntroCamera(intro);
     }
     mask = 0;
     row[0] = 0;
@@ -793,15 +794,15 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
 
     scenePackBuffer = (s32*)0x801C0000;
     sceneChunkID = sceneID / 4;
-    scenePackID = BattleGetScenePackId(sceneChunkID);   // sector modified based on the Chunk ID
-    SystemLoadFileBySector(                             // load file from disk
-        func_800144D8(BATTTLE_SCENE) + scenePackID * 4, // Disk sector where to load the file from
-        0x800 * 4,                                      // Size in bytes to copy
-        (u_long*)scenePackBuffer,                       // Destination
+    scenePackID = BattleGetScenePackId(sceneChunkID);      // sector modified based on the Chunk ID
+    SystemLoadFileBySector(                                // load file from disk
+        SystemGetFileLBA(BATTTLE_SCENE) + scenePackID * 4, // Disk sector where to load the file from
+        0x800 * 4,                                         // Size in bytes to copy
+        (u_long*)scenePackBuffer,                          // Destination
         NULL);
     formationIndex = sceneChunkID - D_80083184[scenePackID];
-    func_800145BC(cb); // wait until all data is read, keep executing the vsync
-                       // callback until then
+    SystemCdWaitCallback(cb); // wait until all data is read, keep executing the vsync
+                              // callback until then
     i = scenePackBuffer[formationIndex];
     src = &scenePackBuffer[i];
     dst = (u_long*)&scene;

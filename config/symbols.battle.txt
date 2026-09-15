@@ -136,6 +136,7 @@ BattleUpperFunc03 = 0x800B0B8C;
 BattleApplyConditionalReduction = 0x800B0E5C;
 BattleGetRndItemIdForSteal = 0x800B0F04;
 BattleAddStringToDisplay = 0x800B0FFC;
+BattleQueueIntroCamera = 0x800B1060;
 BattleInitUnitAction = 0x800B108C;
 BattleQueueEffect = 0x800B10F0;
 BattleGetAttackIdInSceneByAttackId = 0x800B11B4;

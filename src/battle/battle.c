@@ -171,7 +171,7 @@ static BattleActionQueueEntry* BattleActionQueueAlloc(void) {
     if (g_BattleActionQueueIndex < LEN(g_BattleActionQueue)) {
         g_BattleActionQueueIndex++;
     } else {
-        func_800155A4(40);
+        SysSetEngineErrorCode(40);
     }
     return entry;
 }
@@ -182,7 +182,7 @@ static Unk800FA9D0* BattleQueue2GetPtr(void) {
     if (g_BattleActionQueueTargIndex < LEN(D_800FA9D0)) {
         g_BattleActionQueueTargIndex++;
     } else {
-        func_800155A4(40);
+        SysSetEngineErrorCode(40);
     }
     return ptr;
 }
@@ -1198,7 +1198,7 @@ void BattleResolveLimitActionIndex(void) {
 
     actorId = g_CurrentAction->actorId;
     if (actorId >= START_ENEMY) {
-        func_800155A4(0x25, actorId);
+        SysSetEngineErrorCode(0x25, actorId);
         return;
     }
     relativeActionIndex = g_CurrentAction->relativeActionIndex;
@@ -1224,8 +1224,8 @@ void BattlePrepareTmpForManip(void) {
     g_CurrentAction->unkE4 = 0x59;
 }
 
-void func_800B1060(s32);
-void func_800A795C(void) { func_800B1060(g_CurrentAction->relativeActionIndex); }
+void BattleQueueIntroCamera(s32);
+void func_800A795C(void) { BattleQueueIntroCamera(g_CurrentAction->relativeActionIndex); }
 
 void func_800AF9C8();
 void BattleActionType0A(void) { func_800AF9C8(); }
@@ -2579,7 +2579,7 @@ static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* arg3) {
     func_800A31A0(arg0, 2, arg2, BattleExpandScriptToBuffer((u8*)SysGetKernBattleTextById(arg1), arg3) + 0x100);
 }
 
-void func_800B1060(s32 arg0) { func_800A31A0(10, 2, 1, arg0); }
+void BattleQueueIntroCamera(s32 arg0) { func_800A31A0(10, 2, 1, arg0); }
 
 void BattleInitUnitAction(s32 arg0) { func_800A31A0(arg0, 5, 0, 0); }
 
@@ -2613,7 +2613,7 @@ static void BattleQueueEffect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, 
 }
 
 // find arg0 in g_BattleSceneContext.attackIDs[]; returns its index, or 0x20 (and signals
-// func_800155A4) if it is not present
+// SysSetEngineErrorCode) if it is not present
 static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0) {
     s32 i;
     u16* p;
@@ -2625,7 +2625,7 @@ static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0) {
         p++;
     }
     if (i == LEN(g_BattleSceneContext.attackIDs)) {
-        func_800155A4(0x20);
+        SysSetEngineErrorCode(0x20);
     }
     return i;
 }

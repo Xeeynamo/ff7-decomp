@@ -1136,7 +1136,7 @@ void SysMemCopy32(void* dst, const void* src, const s32 len);
 void SysIncSeedForRandom(void);
 s32 SysGetKernBattleTextById(s32);
 const char* SysKernGetString(s32 arg0, s32 arg1, s32 arg2);
-void func_800155A4(s32, ...);
+void SysSetEngineErrorCode(s32, ...);
 void func_8001726C(s16, u16);
 u32 InputReadPadsRaw(void);
 u32 InputReadPads(void);
