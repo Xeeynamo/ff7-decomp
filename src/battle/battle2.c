@@ -602,7 +602,7 @@ static void func_800D0760(void) {
             g_BattleEffectSlots[g_BattleEffectCursor].D_80162978 = -1;
             return;
         }
-        func_800DCF60(g_BattleModel[D_801590CC].D_80151907, D_80151200[D_801590CC].D_8015123E);
+        func_800DCF60(g_BattleModel[D_801590CC].currentActionId, D_80151200[D_801590CC].D_8015123E);
         g_BattleEffectSlots[g_BattleEffectCursor].D_8016297C--;
         return;
     }
@@ -628,7 +628,7 @@ void func_800D0A4C(void) {
     s32 i;
 
     for (i = 0; i < 3; i++) {
-        g_BattleModel[i].D_80151909 |= 1;
+        g_BattleModel[i].specialFlags |= 1;
     }
     func_801B0040(D_80151774, D_801590CC);
     ret = func_800BC04C(func_800D0AD4);
@@ -648,15 +648,15 @@ static void func_800D0AD4(void) {
 static void func_800D0B4C(u8 arg0) {
     D_800F8CF0 = 0;
     func_800D1530();
-    switch (g_BattleModel[arg0].D_80151907) {
+    switch (g_BattleModel[arg0].currentActionId) {
     case 4:
-        D_800EF9D8[g_BattleModel[arg0].D_80151906](D_80151774, D_801590CC);
+        D_800EF9D8[g_BattleModel[arg0].attackEffectId](D_80151774, D_801590CC);
         break;
     case 7:
         func_801B037C(D_80151774, D_801590CC);
         break;
     case 8:
-        D_800EFFE0[g_BattleModel[arg0].D_80151906](D_80151774, D_801590CC);
+        D_800EFFE0[g_BattleModel[arg0].attackEffectId](D_80151774, D_801590CC);
         break;
     }
 }
@@ -664,18 +664,18 @@ static void func_800D0B4C(u8 arg0) {
 void func_800D0C80(u8 arg0) {
     D_800F8CF0 = 0;
     func_800D1530();
-    switch (g_BattleModel[arg0].D_80151907) {
+    switch (g_BattleModel[arg0].currentActionId) {
     case 2:
         if (D_801031F0 == 0) {
-            if (g_BattleModel[arg0].D_80151906 == 25) {
-                g_BattleModel[0].D_8015190A = 1;
-                g_BattleModel[1].D_8015190A = 1;
-                g_BattleModel[2].D_8015190A = 1;
+            if (g_BattleModel[arg0].attackEffectId == 25) {
+                g_BattleModel[0].unk26 = 1;
+                g_BattleModel[1].unk26 = 1;
+                g_BattleModel[2].unk26 = 1;
             }
-            D_800EFAF0[g_BattleModel[arg0].D_80151906](D_80151774, D_801590CC);
+            D_800EFAF0[g_BattleModel[arg0].attackEffectId](D_80151774, D_801590CC);
             return;
         }
-        switch (g_BattleModel[arg0].D_80151906) {
+        switch (g_BattleModel[arg0].attackEffectId) {
         case 41:
             func_801B0000(D_80151774, D_801590CC);
             break;
@@ -692,23 +692,23 @@ void func_800D0C80(u8 arg0) {
             func_801B0084(D_80151774, D_801590CC);
             break;
         default:
-            D_800EFAF0[g_BattleModel[arg0].D_80151906](D_80151774, D_801590CC);
+            D_800EFAF0[g_BattleModel[arg0].attackEffectId](D_80151774, D_801590CC);
             break;
         }
         break;
     case 13:
-        D_800EFBC8[g_BattleModel[arg0].D_80151906](D_80151774, D_801590CC);
+        D_800EFBC8[g_BattleModel[arg0].attackEffectId](D_80151774, D_801590CC);
         break;
     case 20:
-        if (g_BattleModel[arg0].D_80151906 == 2) {
+        if (g_BattleModel[arg0].attackEffectId == 2) {
             if (D_801590CC == D_800FA9D0[2].unk0) {
                 D_80163A98 = 0;
             } else {
                 D_80163A98 = 1;
             }
         }
-        *(s32*)0x1F800000 = D_800EFEA0[g_BattleModel[arg0].D_80151906](D_80151774, D_801590CC);
-        switch (g_BattleModel[arg0].D_80151906) {
+        *(s32*)0x1F800000 = D_800EFEA0[g_BattleModel[arg0].attackEffectId](D_80151774, D_801590CC);
+        switch (g_BattleModel[arg0].attackEffectId) {
         case 0x2D:
         case 0x2E:
         case 0x2F:
@@ -742,7 +742,7 @@ void func_800D0C80(u8 arg0) {
         func_800D08B8(arg0, *(s32*)0x1F800000);
         break;
     case 32:
-        D_800EFC28[g_BattleModel[arg0].D_80151906](D_80151774, D_801590CC);
+        D_800EFC28[g_BattleModel[arg0].attackEffectId](D_80151774, D_801590CC);
         break;
     case 3:
         func_800C64AC();
@@ -755,13 +755,13 @@ static void func_800D1110(u8 arg0) {
     s32 var_a1;
     s32 id;
 
-    switch (g_BattleModel[arg0].D_80151907) {
+    switch (g_BattleModel[arg0].currentActionId) {
     case 2:
         if (D_801031F0 == 0) {
-            id = D_800EF63C[g_BattleModel[arg0].D_80151906];
+            id = D_800EF63C[g_BattleModel[arg0].attackEffectId];
             func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         } else {
-            switch (g_BattleModel[arg0].D_80151906) {
+            switch (g_BattleModel[arg0].attackEffectId) {
             case 29:
                 func_800D088C(D_800EEBB8[77].loc, D_800EEBB8[77].len);
                 break;
@@ -778,7 +778,7 @@ static void func_800D1110(u8 arg0) {
                 func_800D088C(D_800EEBB8[6].loc, D_800EEBB8[6].len);
                 break;
             default:
-                id = D_800EF63C[g_BattleModel[arg0].D_80151906];
+                id = D_800EF63C[g_BattleModel[arg0].attackEffectId];
                 lba = D_800EEBB8[id].loc;
                 var_a1 = D_800EEBB8[id].len;
                 func_800D088C(lba, var_a1);
@@ -790,27 +790,27 @@ static void func_800D1110(u8 arg0) {
         func_800D088C(D_800EEBB8[221].loc, D_800EEBB8[221].len);
         break;
     case 8:
-        id = D_800EF8D8[g_BattleModel[arg0].D_80151906];
+        id = D_800EF8D8[g_BattleModel[arg0].attackEffectId];
         func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         break;
     case 13:
-        id = D_800EF6A8[g_BattleModel[arg0].D_80151906];
+        id = D_800EF6A8[g_BattleModel[arg0].attackEffectId];
         func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         break;
     case 20:
-        id = D_800EF838[g_BattleModel[arg0].D_80151906];
+        id = D_800EF838[g_BattleModel[arg0].attackEffectId];
         func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         break;
     case 4:
-        id = D_800EF5B0[g_BattleModel[arg0].D_80151906];
+        id = D_800EF5B0[g_BattleModel[arg0].attackEffectId];
         func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         break;
     case 32:
-        id = D_800EF6FC[g_BattleModel[arg0].D_80151906];
+        id = D_800EF6FC[g_BattleModel[arg0].attackEffectId];
         func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         break;
     case 3:
-        id = D_800EF6D8[g_BattleModel[arg0].D_80151906];
+        id = D_800EF6D8[g_BattleModel[arg0].attackEffectId];
         func_800D088C(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         break;
     }
