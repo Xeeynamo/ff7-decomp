@@ -278,6 +278,7 @@ D_800FA6D8 = 0x800FA6D8; // size:0xA8
 D_800FA958 = 0x800FA958; // size:0x20
 g_BattleCameraCallbacks = 0x800FA978; // size:0x40
 g_BattleCameraCount = 0x800FA9BC; // size:0x4
+g_BattleQueueTargets = 0x800FA9D0;
 g_db = 0x800FAFF4; // size:0x40F4
 D_80151200 = 0x80151200; // size:0x15C
 g_BattleEffectCursor = 0x8015169C; // size:0x4
@@ -299,5 +300,3 @@ g_BattleActionQueue = 0x80163798; // size:0x300
 g_BattleMovementCallbacks = 0x80163B48; // size:0x28
 g_BattleMovementCount = 0x80163B7C; // size:0x4
 D_80163C80 = 0x80163C80; // size:0xC
-
-g_BattleQueueTargets = 0x800FA9D0;

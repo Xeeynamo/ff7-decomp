@@ -2590,7 +2590,8 @@ static s32 func_800B10B4(s32 arg0) {
     return g_BattleState.combatant[arg0].curHP <= g_BattleState.combatant[arg0].maxHP / 4;
 }
 
-static void BattleQueueEffect(s32 actorId, s32 animeId, s32 actioId, s32 effectParam, s32 arg4, s32 flags, s32 statusMask) {
+static void BattleQueueEffect(
+    s32 actorId, s32 animeId, s32 actioId, s32 effectParam, s32 arg4, s32 flags, s32 statusMask) {
     BattleActionQueueEntry* action;
     BattleQueueTargetEntry* target;
 
