@@ -200,7 +200,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitNewGame);
 void main(void) {
     char name[9] = "battle.x";
     RECT rect = {0, 0, 480, 472};
-    u16 temp_v0_3;
+    u16 minigameResult;
 
     SetMem(8);
     SysInitBase();
@@ -490,9 +490,9 @@ void main(void) {
                     while (SystemCdromReadChain()) {
                     }
                     SysGzipBinDecompress((GzHeader*)0x80180000, (u8*)0x800A0000);
-                    temp_v0_3 = func_800A0450();
-                    Savemap.memory_bank_1[354] = temp_v0_3;
-                    Savemap.memory_bank_1[355] = temp_v0_3 >> 8;
+                    minigameResult = func_800A0450();
+                    Savemap.memory_bank_1[354] = minigameResult;
+                    Savemap.memory_bank_1[355] = minigameResult >> 8;
                     g_PrevGameState = GAMESTATE_JET;
                     g_GameState = GAMESTATE_FIELD;
                     g_FieldState.eventCmd = EVTCMD_FIELD_MAP_CHANGE;
@@ -502,9 +502,9 @@ void main(void) {
                     while (SystemCdromReadChain()) {
                     }
                     SysGzipBinDecompress((GzHeader*)0x80180000, (u8*)0x800A0000);
-                    temp_v0_3 = func_800A00BC(Savemap.memory_bank_1[861]);
-                    Savemap.memory_bank_1[862] = temp_v0_3;
-                    Savemap.memory_bank_1[863] = temp_v0_3 >> 8;
+                    minigameResult = func_800A00BC(Savemap.memory_bank_1[861]);
+                    Savemap.memory_bank_1[862] = minigameResult;
+                    Savemap.memory_bank_1[863] = minigameResult >> 8;
                     g_PrevGameState = GAMESTATE_SUBMARIME;
                     g_GameState = GAMESTATE_FIELD;
                     g_FieldState.eventCmd = EVTCMD_FIELD_MAP_CHANGE;
