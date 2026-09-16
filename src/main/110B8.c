@@ -41,6 +41,16 @@ static Yamada yama_mini_highway = {LBA_MINI_HIGHWAY, 34138};
 // likely a left-over from a debug build that used to load sparse files instead from the Yamada LBA.
 static char unk_signature[8] = {'Y', 'A', 'M', 'A', '@', 'F', 'F', '7'};
 
+extern u8 D_8007EBC8;
+extern s8 D_8009C6D8;
+extern s16 D_8007173C;
+extern s32 D_80095DDC; // Battle mode flags from world map
+extern s32 D_80071E28; // Which module to transition to from world map
+extern u8* g_MenuTutorial;
+extern s32 SYS_GetDiskNo(void);
+extern s32 SysMenuShow(u8*);
+extern s16 g_GameState;
+
 void __main(void) {}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", __SN_ENTRY_POINT);
@@ -187,15 +197,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitFieldFromSavemap);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitNewGame);
 
-extern u8 D_8007EBC8;
-extern s8 D_8009C6D8;
-extern s16 D_8007173C;
-extern s32 D_80095DDC;
-extern s32 D_80071E28;
-extern u8* D_800E48E0;
-extern s32 func_800343F0(void);
-extern s32 SysMenuShow(s32);
-extern s16 g_GameState;
 void main(void) {
     char name[9] = "battle.x";
     RECT rect = {0, 0, 480, 472};
@@ -230,7 +231,7 @@ void main(void) {
         }
         func_80026090();
         while (1) {
-            if (Savemap.memory_bank_1[768] != func_800343F0()) {
+            if (Savemap.memory_bank_1[768] != SYS_GetDiskNo()) {
                 SysCdromLoadFile(yama_field_dschange.loc, yama_field_dschange.len, (u_long*)0x800A0000, NULL);
                 if (func_800A0000(Savemap.memory_bank_1[768]) == 1) {
                     g_FieldState.eventCmd = EVTCMD_NONE;
@@ -368,9 +369,9 @@ void main(void) {
                         break;
                     case EVTCMD_PARTY_MENU:
                         if (g_FieldState.eventCmdParam == 1) {
-                            SysMenuShow(D_800E48E0);
+                            SysMenuShow(g_MenuTutorial);
                         } else {
-                            SysMenuShow(0);
+                            SysMenuShow(NULL);
                             g_FieldState.eventCmd = EVTCMD_NONE;
                         }
                         break;
@@ -422,7 +423,7 @@ void main(void) {
                     g_GameState = GAMESTATE_FIELD;
                     break;
                 case GAMESTATE_CHANGE_DISK:
-                    if (Savemap.memory_bank_1[768] != func_800343F0()) {
+                    if (Savemap.memory_bank_1[768] != SYS_GetDiskNo()) {
                         SysCdromLoadFile(yama_field_dschange.loc, yama_field_dschange.len, (u_long*)0x800A0000, NULL);
                         if (func_800A0000(Savemap.memory_bank_1[768]) == 1) {
                             g_FieldState.eventCmd = EVTCMD_TITLE_SCREEN;
@@ -539,6 +540,7 @@ void main(void) {
     }
 }
 
+// Start of field_fade.c
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeSetDrawMode);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeInitPoly);

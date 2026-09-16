@@ -57,7 +57,7 @@ extern s16 g_CameraScrollX;
 extern s16 g_CameraScrollY;
 extern u32 D_80075E10;
 extern SVECTOR (*D_800E4274)[3];
-extern u8* D_800E48E0;
+extern u8* g_MenuTutorial;
 
 void SysCalcTotalLureGilPreempVal(void);
 void SysInitPlayerStatFromMateria(s32);
@@ -2350,7 +2350,7 @@ s32 OpcodeFuncTutor(void) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("data=", tutorialId, 2);
         }
-        D_800E48E0 = (GetAkaoBlockOffset(tutorialId) + (u8*)g_FieldScripts);
+        g_MenuTutorial = (GetAkaoBlockOffset(tutorialId) + (u8*)g_FieldScripts);
         return 1;
     }
 

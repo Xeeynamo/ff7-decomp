@@ -178,3 +178,4 @@ D_800722CC = 0x800722CC;
 g_WeaponTable = 0x800738A0;
 g_AccessoryTable = 0x80071C24;
 D_800708C4 = 0x800708C4;
+g_MenuTutorial = 0x800E48E0;
