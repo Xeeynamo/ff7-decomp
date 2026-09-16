@@ -384,16 +384,16 @@ extern u32 D_800F8CF4[][0x18];
 extern s32 D_800F9F28[]; // size is either 4 or 5
 extern u8 D_800F9F34;
 typedef struct {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ u16 unk6;
-    /* 0x8 */ u16 unk8;
-    /* 0xA */ s16 unkA;
-    /* 0xC */ s16 unkC;
-} Unk800F9F3C; // size:0xE
+    /* 0x0 */ s16 targetId;
+    /* 0x2 */ s16 damage;
+    /* 0x4 */ s16 damageFlags;
+    /* 0x6 */ u16 currentHp;
+    /* 0x8 */ u16 currentMp;
+    /* 0xA */ s16 impactSfxId;
+    /* 0xC */ s16 impactEffectId;
+} BattleImpactData; // size:0xE
 
-extern Unk800F9F3C D_800F9F3C[];
+extern BattleImpactData D_800F9F3C[];
 extern u8 D_800F99E8;
 extern s32 D_800F99E4;
 extern u8 D_800F9D94;

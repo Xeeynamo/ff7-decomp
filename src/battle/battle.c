@@ -210,13 +210,13 @@ static void BattleDropSupersededQueuedActions(void) {
     }
 }
 
-static Unk800F9F3C* func_800A311C(BattleQueueTargetEntry* arg0) {
-    Unk800F9F3C* ptr = &D_800F9F3C[D_800F394C];
+static BattleImpactData* func_800A311C(BattleQueueTargetEntry* arg0) {
+    BattleImpactData* ptr = &D_800F9F3C[D_800F394C];
 
     arg0->extraDataIndex = D_800F394C;
-    ptr->unk0 = arg0->targetId;
-    ptr->unk6 = -1;
-    ptr->unk8 = -1;
+    ptr->targetId = arg0->targetId;
+    ptr->currentHp = -1;
+    ptr->currentMp = -1;
     D_800F394C = (D_800F394C + 1) & 0x7F;
     return ptr;
 }
@@ -466,26 +466,26 @@ void BattleInitTurnWorkHPMP(void) {
     }
 }
 
-// Manipulate redirect: if arg0 (an enemy id) is currently manipulated
+// Manipulate redirect: if enemyId (an enemy id) is currently manipulated
 // (manipulatedUnitMask bit), return the party slot whose g_BattleWork.party[].unk6 is
-// tracking it in place of arg0; otherwise arg0 passes through unchanged.
-static s32 BattleGetManipulatorIdByEnemyUnitId(s32 arg0) {
+// tracking it in place of enemyId; otherwise enemyId passes through unchanged.
+static s32 BattleGetManipulatorIdByEnemyUnitId(s32 enemyId) {
     s32 i;
 
-    if (arg0 < START_ENEMY) {
+    if (enemyId < START_ENEMY) {
         goto end;
     }
-    if (!((g_BattleSceneContext.manipulatedUnitMask >> arg0) & 1)) {
+    if (!((g_BattleSceneContext.manipulatedUnitMask >> enemyId) & 1)) {
         goto end;
     }
     for (i = 0; i < LEN(g_BattleWork.party); i++) {
-        if (g_BattleWork.party[i].unk6 == arg0) {
-            arg0 = i;
+        if (g_BattleWork.party[i].unk6 == enemyId) {
+            enemyId = i;
             goto end;
         }
     }
 end:
-    return arg0;
+    return enemyId;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpdateUnitMasks);
