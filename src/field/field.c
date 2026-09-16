@@ -110,7 +110,7 @@ static u32 FieldButtonsUpdate(s16* scrollX, s16* scrollY);
 void SystemCdromAbortLoading(void);
 
 static void FieldLoadMimDatFiles(void) {
-    if (g_isFieldLoading == 0) {
+    if (g_IsFieldLoading == 0) {
         SysCdromStartLoadLzs(g_FieldFileInfo[g_CurrentFieldIndex * 6 + 2], g_FieldFileInfo[g_CurrentFieldIndex * 6 + 3],
                              (u_long*)0x80128000, NULL);
         while (SystemCdromReadChain() != 0) {
@@ -131,11 +131,11 @@ static void FieldLoadMimDatFiles(void) {
 }
 
 void StopFieldMapPreload(void) {
-    if (g_isFieldLoading == 1) {
+    if (g_IsFieldLoading == 1) {
         SystemCdromAbortLoading();
     }
     D_80071A5C = 0; // needs to be called g_preloadedFieldMapId;
-    g_isFieldLoading = 0;
+    g_IsFieldLoading = 0;
 }
 
 void PreloadNextFieldMap(FieldEntity* player, FieldGateway* gateways) {
@@ -180,24 +180,24 @@ void PreloadNextFieldMap(FieldEntity* player, FieldGateway* gateways) {
     StopFieldMapPreload();
     D_80071A5C = g_FieldPreloadMapId;
     if (D_80071A5C >= 65) {
-        SystemLoadFileBySector(g_FieldFileInfo[D_80071A5C * 6 + 2],
-                               g_FieldFileInfo[D_80071A5C * 6 + 3], (u_long*)0x801B0000, NULL);
+        SystemLoadFileBySector(
+            g_FieldFileInfo[D_80071A5C * 6 + 2], g_FieldFileInfo[D_80071A5C * 6 + 3], (u_long*)0x801B0000, NULL);
     } else {
         SystemLoadFileBySector(g_WmPreSector, g_WmPreSize, (u_long*)0x801B0000, NULL);
     }
-    g_isFieldLoading = 1;
+    g_IsFieldLoading = 1;
 }
 
 void FieldMain(void) {
     RECT clearRect = {0, 0, 480, 472};
     s32 i;
 
-    ClearOTagR(&g_FieldRenderData[0].OtFadeDrenv, 1);
-    ClearOTagR(&g_FieldRenderData[1].OtFadeDrenv, 1);
-    SetDrawEnv(&g_FieldRenderData[0].FadeDrenv, &D_8007EAAC[0]);
-    SetDrawEnv(&g_FieldRenderData[1].FadeDrenv, &D_8007EAAC[1]);
-    addPrim(&g_FieldRenderData[0].OtFadeDrenv, &g_FieldRenderData[0].FadeDrenv);
-    addPrim(&g_FieldRenderData[1].OtFadeDrenv, &g_FieldRenderData[1].FadeDrenv);
+    ClearOTagR(&g_FieldRenderData[0].otFadeDrenv, 1);
+    ClearOTagR(&g_FieldRenderData[1].otFadeDrenv, 1);
+    SetDrawEnv(&g_FieldRenderData[0].fadeDrenv, &D_8007EAAC[0]);
+    SetDrawEnv(&g_FieldRenderData[1].fadeDrenv, &D_8007EAAC[1]);
+    addPrim(&g_FieldRenderData[0].otFadeDrenv, &g_FieldRenderData[0].fadeDrenv);
+    addPrim(&g_FieldRenderData[1].otFadeDrenv, &g_FieldRenderData[1].fadeDrenv);
     SetDefDrawEnv(&D_80113F2C[0], 0, 8, 320, 224);
     SetDefDrawEnv(&D_80113F2C[1], 0, 240, 320, 224);
     SetDefDrawEnv(&D_80114154[0], 0, 8, 320, 224);
@@ -216,12 +216,12 @@ void FieldMain(void) {
     D_80114154[1].isbg = 0;
     D_8011420C[0].isbg = 0;
     D_8011420C[1].isbg = 0;
-    ClearOTagR(&g_FieldRenderData[0].OtSceneDrenv, 1);
-    ClearOTagR(&g_FieldRenderData[1].OtSceneDrenv, 1);
-    SetDrawEnv(&g_FieldRenderData[0].SceneDrenv, &D_80113F2C[0]);
-    SetDrawEnv(&g_FieldRenderData[1].SceneDrenv, &D_80113F2C[1]);
-    addPrim(&g_FieldRenderData[0].OtSceneDrenv, &g_FieldRenderData[0].SceneDrenv);
-    addPrim(&g_FieldRenderData[1].OtSceneDrenv, &g_FieldRenderData[1].SceneDrenv);
+    ClearOTagR(&g_FieldRenderData[0].otSceneDrenv, 1);
+    ClearOTagR(&g_FieldRenderData[1].otSceneDrenv, 1);
+    SetDrawEnv(&g_FieldRenderData[0].sceneDrenv, &D_80113F2C[0]);
+    SetDrawEnv(&g_FieldRenderData[1].sceneDrenv, &D_80113F2C[1]);
+    addPrim(&g_FieldRenderData[0].otSceneDrenv, &g_FieldRenderData[0].sceneDrenv);
+    addPrim(&g_FieldRenderData[1].otSceneDrenv, &g_FieldRenderData[1].sceneDrenv);
     SetDefDrawEnv(&D_80113FE4[0], 0, 8, 320, 224);
     SetDefDrawEnv(&D_80113FE4[1], 0, 240, 320, 224);
     D_80113FE4[0].isbg = 0;
@@ -236,17 +236,17 @@ void FieldMain(void) {
     D_8011409C[1].dtd = 1;
     SysFadeInitPoly();
     g_FieldState.fadeType = FFT_INSTANT;
-    if ((g_PrevGameState != GAMESTATE_FIELD) && (g_PrevGameState != GAMESTATE_BATTLE) &&
-        (g_PrevGameState != GAMESTATE_WORLD) && (g_PrevGameState != GAMESTATE_MENU) &&
-        (g_PrevGameState != GAMESTATE_MENU_COMMANND)) {
+    if (g_PrevGameState != GAMESTATE_FIELD && g_PrevGameState != GAMESTATE_BATTLE &&
+        g_PrevGameState != GAMESTATE_WORLD && g_PrevGameState != GAMESTATE_MENU &&
+        g_PrevGameState != GAMESTATE_MENU_COMMANND) {
         ClearImage(&clearRect, 0, 0, 0);
     }
-    for (;;) {
+    while (1) {
         DebugRunEveryLoop();
         D_80071A5C = 0;
         g_FieldPreloadMapId = 0;
-        if (((g_PrevGameState == GAMESTATE_FIELD) || (g_PrevGameState == GAMESTATE_WORLD)) &&
-            (g_FieldState.fadeType == FFT_INSTANT)) {
+        if ((g_PrevGameState == GAMESTATE_FIELD || g_PrevGameState == GAMESTATE_WORLD) &&
+            g_FieldState.fadeType == FFT_INSTANT) {
             SysFadeCopyScreen();
             g_FieldState.fadeType = FFT_SYS_FADE_TO_BLACK_FIELD_CHANGE;
             D_80071A58 = 3;
@@ -254,7 +254,7 @@ void FieldMain(void) {
             D_8007E768 = 0;
             D_80095DD4 = 1;
         }
-        if ((g_PrevGameState != GAMESTATE_MENU) && (g_PrevGameState != GAMESTATE_MENU_COMMANND)) {
+        if (g_PrevGameState != GAMESTATE_MENU && g_PrevGameState != GAMESTATE_MENU_COMMANND) {
             D_8007EB64 = (FieldScriptHeader**)0x80114FE4;
             D_8009A044 = (s32**)0x80114FE8;
             D_8009D848 = (u8**)0x80114FEC;
@@ -285,10 +285,10 @@ void FieldMain(void) {
             g_FieldState.fadeGreen = 0;
             g_FieldState.fadeBlue = 0;
         }
-        if ((g_PrevGameState == 0) || (g_PrevGameState == GAMESTATE_FIELD) || (g_PrevGameState == GAMESTATE_WORLD) ||
-            (g_PrevGameState == GAMESTATE_HIGHWAY) || (g_PrevGameState == GAMESTATE_SNOWBOARD1) ||
-            (g_PrevGameState == GAMESTATE_CHOCOBO) || (g_PrevGameState == GAMESTATE_FORTCONDOR) ||
-            (g_PrevGameState == GAMESTATE_JET) || (g_PrevGameState == GAMESTATE_SUBMARIME)) {
+        if (g_PrevGameState == 0 || g_PrevGameState == GAMESTATE_FIELD || g_PrevGameState == GAMESTATE_WORLD ||
+            g_PrevGameState == GAMESTATE_HIGHWAY || g_PrevGameState == GAMESTATE_SNOWBOARD1 ||
+            g_PrevGameState == GAMESTATE_CHOCOBO || g_PrevGameState == GAMESTATE_FORTCONDOR ||
+            g_PrevGameState == GAMESTATE_JET || g_PrevGameState == GAMESTATE_SUBMARIME) {
             g_FieldState.layer2_bgScrollXSpeed = 0;
             g_FieldState.layer2_bgScrollYSpeed = 0;
             g_FieldState.layer3_bgScrollXSpeed = 0;
@@ -316,9 +316,9 @@ void FieldMain(void) {
         FieldEnablePartyModels();
         FieldEntityLineClear(g_FieldLines);
         D_800716D0 = 0;
-        FieldArrowsInit(g_FieldRenderData[0].Arrows, &g_FieldRenderData[0].ArrowsDm);
-        FieldArrowsInit(g_FieldRenderData[1].Arrows, &g_FieldRenderData[1].ArrowsDm);
-        if ((g_PrevGameState != GAMESTATE_MENU) && (g_PrevGameState != GAMESTATE_MENU_COMMANND)) {
+        FieldArrowsInit(g_FieldRenderData[0].arrows, &g_FieldRenderData[0].arrowsDm);
+        FieldArrowsInit(g_FieldRenderData[1].arrows, &g_FieldRenderData[1].arrowsDm);
+        if (g_PrevGameState != GAMESTATE_MENU && g_PrevGameState != GAMESTATE_MENU_COMMANND) {
             FieldLoadMimToVram(0, (void*)0x80128000);
         }
         if (g_PrevGameState == GAMESTATE_BATTLE) {
@@ -338,8 +338,8 @@ void FieldMain(void) {
         PutDispEnv(&D_8007EB68[D_80075DEC]);
         PutDrawEnv(&D_8007EAAC[D_80075DEC]);
         g_PrevGameState = GAMESTATE_FIELD;
-        if ((g_FieldState.eventCmd == EVTCMD_BEAT_GAME) || (g_FieldState.eventCmd == EVTCMD_GAME_OVER) ||
-            (g_FieldState.eventCmd == EVTCMD_PLAY_ENDING_FMV)) {
+        if (g_FieldState.eventCmd == EVTCMD_TITLE_SCREEN || g_FieldState.eventCmd == EVTCMD_GAME_OVER ||
+            g_FieldState.eventCmd == EVTCMD_PLAY_ENDING_FMV) {
             break;
         }
         if (g_FieldState.eventCmd == EVTCMD_FIELD_MAP_CHANGE) {
@@ -348,7 +348,7 @@ void FieldMain(void) {
             if (g_CurrentFieldIndex != D_80071A5C) {
                 StopFieldMapPreload();
             }
-            if ((u32)((u16)g_CurrentFieldIndex - 1) < 64U) {
+            if (((u16)g_CurrentFieldIndex - 1) < 64U) {
                 g_GameState = GAMESTATE_WORLD;
                 SysFadeCopyScreen();
                 g_FieldState.fadeType = FFT_SYS_FADE_TO_BLACK_FIELD_CHANGE;
@@ -422,16 +422,16 @@ s32 FieldMainLoop(void) {
     if (g_PrevGameState != GAMESTATE_MENU && g_PrevGameState != GAMESTATE_MENU_COMMANND) {
         FieldModelLoadAndInit();
     }
-    D_800E4274 = (SVECTOR (*)[3])(*D_8009A044 + 1);
-    D_80114458 = (s16 (*)[3])(D_800E4274 + *(u16*)*D_8009A044);
+    D_800E4274 = (SVECTOR(*)[3])(*D_8009A044 + 1);
+    D_80114458 = (s16(*)[3])(D_800E4274 + *(u16*)*D_8009A044);
     if (g_PrevGameState != GAMESTATE_MENU && g_PrevGameState != GAMESTATE_BATTLE &&
         g_PrevGameState != GAMESTATE_MENU_COMMANND) {
         FieldEntityInitPos();
     }
-    FieldBackgroundInitPackets(g_FieldRenderData[0].Bg1, g_FieldRenderData[0].Bg2,
-                               g_FieldRenderData[0].BgAnim, g_FieldRenderData[0].BgDm);
-    FieldBackgroundInitPackets(g_FieldRenderData[1].Bg1, g_FieldRenderData[1].Bg2,
-                               g_FieldRenderData[1].BgAnim, g_FieldRenderData[1].BgDm);
+    FieldBackgroundInitPackets(
+        g_FieldRenderData[0].bg1, g_FieldRenderData[0].bg2, g_FieldRenderData[0].bgAnim, g_FieldRenderData[0].bgDm);
+    FieldBackgroundInitPackets(
+        g_FieldRenderData[1].bg1, g_FieldRenderData[1].bg2, g_FieldRenderData[1].bgAnim, g_FieldRenderData[1].bgDm);
     FieldRainInit(&g_FieldRenderData[0]);
     FieldRainInit(&g_FieldRenderData[1]);
     displayDelay = 1;
@@ -439,10 +439,10 @@ s32 FieldMainLoop(void) {
     D_801142C8 = 0;
     g_FieldMoviePlayed = 0;
     D_80071C0C = 0;
-    g_isFieldLoading = 0;
+    g_IsFieldLoading = 0;
 
     state = &g_FieldState;
-    for (;;) {
+    while (1) {
         if (!displayDelay) {
             D_80075DEC++;
         }
@@ -450,11 +450,11 @@ s32 FieldMainLoop(void) {
         state->renderBuffer = D_80075DEC;
         renderData = &g_FieldRenderData[D_80075DEC];
         ClearOTagR(renderData->ot, 4096);
-        ClearOTagR(&renderData->OtUi, 1);
+        ClearOTagR(&renderData->otUi, 1);
         FieldCameraAssign();
         g_FieldKeyState = FieldButtonsUpdate(&g_CameraScrollX, &g_CameraScrollY);
         state->currentMovieFrame = D_80075D00->unk8;
-        FieldEventUpdate(&renderData->OtUi);
+        FieldEventUpdate(&renderData->otUi);
         g_PlayerModelId = state->pcModelId;
         FieldBGScrollInit();
         FieldBGScrollUpdate();
@@ -464,7 +464,7 @@ s32 FieldMainLoop(void) {
         PreloadNextFieldMap(&g_FieldEntity[g_PlayerModelId], g_FieldTriggers->gateways);
         if ((state->activeKeysRaw & (PADstart | PADselect | PADR1 | PADR2 | PADL1 | PADL2)) ==
             (PADstart | PADselect | PADR1 | PADR2 | PADL1 | PADL2)) {
-            state->eventCmd = EVTCMD_BEAT_GAME;
+            state->eventCmd = EVTCMD_TITLE_SCREEN;
             SysMovieAbortPlay();
             StopFieldMapPreload();
             return;
@@ -486,12 +486,9 @@ s32 FieldMainLoop(void) {
             StopFieldMapPreload();
             return;
         }
-        if (state->eventCmd == EVTCMD_YUFFIE_STEALS_MATERIA ||
-            state->eventCmd == EVTCMD_YUFFIE_RETURNS_MATERIA ||
-            state->eventCmd == EVTCMD_REMOVE_CHARS_MATERIA_ACCESSORY ||
-            state->eventCmd == EVTCMD_UNK15 ||
-            state->eventCmd == EVTCMD_MASTER_MATERIA_CHECK ||
-            state->eventCmd == EVTCMD_ADD_MASTER_MATERIA ||
+        if (state->eventCmd == EVTCMD_YUFFIE_STEALS_MATERIA || state->eventCmd == EVTCMD_YUFFIE_RETURNS_MATERIA ||
+            state->eventCmd == EVTCMD_REMOVE_CHARS_MATERIA_ACCESSORY || state->eventCmd == EVTCMD_UNK15 ||
+            state->eventCmd == EVTCMD_MASTER_MATERIA_CHECK || state->eventCmd == EVTCMD_ADD_MASTER_MATERIA ||
             state->eventCmd == EVTCMD_JENOVA_SYNTH_COPY_LEVELS) {
             g_GameState = GAMESTATE_MENU_COMMANND;
             StopFieldMapPreload();
@@ -499,8 +496,7 @@ s32 FieldMainLoop(void) {
         }
         if (state->eventCmd == EVTCMD_CHAR_NAME_ENTRY || state->eventCmd == EVTCMD_PARTY_SELECT ||
             state->eventCmd == EVTCMD_PARTY_MENU || state->eventCmd == EVTCMD_SAVE_SCREEN ||
-            state->eventCmd == EVTCMD_SHOP || state->eventCmd == EVTCMD_UNK12 ||
-            state->eventCmd == EVTCMD_UNK13) {
+            state->eventCmd == EVTCMD_SHOP || state->eventCmd == EVTCMD_UNK12 || state->eventCmd == EVTCMD_UNK13) {
             g_GameState = GAMESTATE_MENU;
             StopFieldMapPreload();
             return;
@@ -538,7 +534,7 @@ s32 FieldMainLoop(void) {
         }
         HandleKawaiDataInModel(renderData);
         FieldRainUpdate();
-        FieldRainAddToRender((u32*)renderData->ot, renderData->Rain, D_80071E40, &renderData->RainDm);
+        FieldRainAddToRender(renderData->ot, renderData->Rain, D_80071E40, &renderData->rainDm);
         FieldArrowsAddToRender(renderData, D_80071E40, g_FieldTriggers->gateways);
         SysFadeUpdate();
         D_80114478 = VSync(1);
@@ -579,21 +575,21 @@ s32 FieldMainLoop(void) {
             FieldState* drawState = &g_FieldState;
 
             if (!drawState->mpdspSet) {
-                DrawOTag(&renderData->OtSceneDrenv);
+                DrawOTag(&renderData->otSceneDrenv);
                 DrawOTag(&renderData->ot[4095]);
-                DrawOTag(&renderData->OtFadeDrenv);
+                DrawOTag(&renderData->otFadeDrenv);
                 if (drawState->fadeType) {
                     DrawOTag(&D_8007E7A0[D_80075DEC]);
                 }
             }
         }
-        DrawOTag(&renderData->OtUi);
+        DrawOTag(&renderData->otUi);
     }
 }
 
 void FieldLoadMimToVram(s32 arg0, void* mimData) {
     RECT rect;
-    u8 unused[40]; // Unaccessed target stack space; original locals unknown.
+    u8 unused[40];
     u_long* data = mimData;
 
     D_800E4D94 = *data++;
@@ -623,12 +619,10 @@ void FieldLoadMimToVram(s32 arg0, void* mimData) {
     DrawSync(0);
     LoadImage(&rect, D_800E4D90);
     DrawSync(0);
-    D_800E4DB4 = LoadTPage(D_800E4DA4, 1, 0, D_800E4DAC, D_800E4DAE,
-                         D_800E4DB0, D_800E4DB2);
+    D_800E4DB4 = LoadTPage(D_800E4DA4, 1, 0, D_800E4DAC, D_800E4DAE, D_800E4DB0, D_800E4DB2);
     if (D_800E4DD8) {
         DrawSync(0);
-        D_800E4DE4 = LoadTPage(D_800E4DD4, 1, 0, D_800E4DDC, D_800E4DDE,
-                             D_800E4DE0, D_800E4DE2);
+        D_800E4DE4 = LoadTPage(D_800E4DD4, 1, 0, D_800E4DDC, D_800E4DDE, D_800E4DE0, D_800E4DE2);
     }
     DrawSync(0);
 }

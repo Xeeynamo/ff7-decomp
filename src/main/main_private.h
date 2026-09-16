@@ -171,9 +171,8 @@ extern ArmorRecord g_ArmorTable[];         // armor kernel table, indexed by arm
 extern u_long* D_800722C8;                 // LBA dst for func_80014540
 extern WeaponRecord g_WeaponTable[];       // weapon kernel table, by weapon id
 extern s32 D_80095DD8;                     // LBA len for func_80014540
-extern s16 g_isFieldLoading;
-void D_800A00CC(void); // battle/brom entrypoint
-void D_800A1158(void); // battle/battle entrypoint
+void D_800A00CC(void);                     // battle/brom entrypoint
+void D_800A1158(void);                     // battle/battle entrypoint
 
 void SysGzipBinDecompress(GzHeader* src, u8* dst);
 void SysGzipSetDataBlock(u8* arg0);

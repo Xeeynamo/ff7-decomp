@@ -2,8 +2,6 @@
 #include "main_private.h"
 #include "unzip.h"
 
-void SysBgRender(void);
-
 enum {
     YAMA_SOUND_INSTR_ALL,
     YAMA_SOUND_EFFECT,
@@ -165,7 +163,7 @@ static void SysFieldRun(void) {
 }
 
 static void func_80011920(void) {
-    g_isFieldLoading = 0;
+    g_IsFieldLoading = 0;
     D_80071A5C = 0;
 }
 
@@ -335,7 +333,7 @@ void main(void) {
                         g_GameState = GAMESTATE_BATTLE;
                         break;
                     case 2:
-                        g_FieldState.eventCmd = EVTCMD_BEAT_GAME;
+                        g_FieldState.eventCmd = EVTCMD_TITLE_SCREEN;
                         break;
                     }
                     break;
@@ -427,7 +425,7 @@ void main(void) {
                     if (Savemap.memory_bank_1[768] != func_800343F0()) {
                         SysCdromLoadFile(yama_field_dschange.loc, yama_field_dschange.len, (u_long*)0x800A0000, NULL);
                         if (func_800A0000(Savemap.memory_bank_1[768]) == 1) {
-                            g_FieldState.eventCmd = EVTCMD_BEAT_GAME;
+                            g_FieldState.eventCmd = EVTCMD_TITLE_SCREEN;
                             break;
                         }
                     }
@@ -512,7 +510,7 @@ void main(void) {
                     break;
                 }
             } while (g_FieldState.eventCmd != EVTCMD_PLAY_ENDING_FMV && g_FieldState.eventCmd != EVTCMD_GAME_OVER &&
-                     g_FieldState.eventCmd != EVTCMD_BEAT_GAME);
+                     g_FieldState.eventCmd != EVTCMD_TITLE_SCREEN);
 
             if (g_FieldState.eventCmd == EVTCMD_PLAY_ENDING_FMV) {
                 SysCdromLoadFile(yama_field_ending.loc, yama_field_ending.len, (u_long*)0x800A0000, NULL);
@@ -531,7 +529,7 @@ void main(void) {
                 func_80033BE0();
                 func_800299C8();
                 break;
-            } else if (g_FieldState.eventCmd == EVTCMD_BEAT_GAME) {
+            } else if (g_FieldState.eventCmd == EVTCMD_TITLE_SCREEN) {
                 g_FieldState.eventCmd = EVTCMD_NONE;
                 func_80033BE0();
                 func_800299C8();

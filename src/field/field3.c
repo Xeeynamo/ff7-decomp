@@ -58,10 +58,10 @@ void FieldRainInit(struct FieldRenderData* renderData) {
         renderData->Rain[i].b0 = 0x10;
     }
 
-    SetDrawMode(&renderData->RainDm, 0, 0, GetTPage(0, 1, 0, 0) & 0xffff, NULL);
+    SetDrawMode(&renderData->rainDm, 0, 0, GetTPage(0, 1, 0, 0) & 0xffff, NULL);
 }
 
-void FieldRainAddToRender(u32* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm) {
+void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm) {
     long p;
     long flag;
     s32 i;

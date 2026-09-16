@@ -130,7 +130,7 @@ typedef enum {
     EVTCMD_PARTY_SELECT,
     EVTCMD_SHOP,
     EVTCMD_PARTY_MENU,
-    EVTCMD_BEAT_GAME,
+    EVTCMD_TITLE_SCREEN,
     EVTCMD_UNKB,
     EVTCMD_LOAD_MINIGAME,
     EVTCMD_CD_CHANGE,
@@ -1169,7 +1169,7 @@ extern u16 g_FieldPaletteBuffer[64][16];
 extern s8 D_80095DCC;
 extern volatile s16 D_80095DD4;
 extern s16 g_PlayerModelId;
-extern s16 g_isFieldLoading;
+extern s16 g_IsFieldLoading;
 extern volatile s16 g_PrevGameState;
 extern u8 D_80099FFC;
 extern s16 D_8009A000[1];
