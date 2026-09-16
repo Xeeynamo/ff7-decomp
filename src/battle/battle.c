@@ -176,10 +176,10 @@ static BattleActionQueueEntry* BattleActionQueueAlloc(void) {
     return entry;
 }
 
-static Unk800FA9D0* BattleQueue2GetPtr(void) {
-    Unk800FA9D0* ptr = &D_800FA9D0[g_BattleActionQueueTargIndex];
-    ptr->unk3 = -1;
-    if (g_BattleActionQueueTargIndex < LEN(D_800FA9D0)) {
+static BattleQueueTargetEntry* BattleQueue2GetPtr(void) {
+    BattleQueueTargetEntry* ptr = &g_BattleQueueTargets[g_BattleActionQueueTargIndex];
+    ptr->extraDataIndex = -1;
+    if (g_BattleActionQueueTargIndex < LEN(g_BattleQueueTargets)) {
         g_BattleActionQueueTargIndex++;
     } else {
         SysSetEngineErrorCode(40);
@@ -199,22 +199,22 @@ static void BattleDropSupersededQueuedActions(void) {
         slot[i] = none;
     }
     for (i = 0; i < g_BattleActionQueueTargIndex; i++) {
-        actor = D_800FA9D0[i].unk0;
-        if (actor != -1 && (D_800FA9D0[i].unk4 & 4)) {
+        actor = g_BattleQueueTargets[i].targetId;
+        if (actor != -1 && (g_BattleQueueTargets[i].flags & 4)) {
             prev = slot[actor];
             if (prev != -1) {
-                D_800FA9D0[prev].unk4 &= ~4;
+                g_BattleQueueTargets[prev].flags &= ~4;
             }
             slot[actor] = i;
         }
     }
 }
 
-static Unk800F9F3C* func_800A311C(Unk800FA9D0* arg0) {
+static Unk800F9F3C* func_800A311C(BattleQueueTargetEntry* arg0) {
     Unk800F9F3C* ptr = &D_800F9F3C[D_800F394C];
 
-    arg0->unk3 = D_800F394C;
-    ptr->unk0 = arg0->unk0;
+    arg0->extraDataIndex = D_800F394C;
+    ptr->unk0 = arg0->targetId;
     ptr->unk6 = -1;
     ptr->unk8 = -1;
     D_800F394C = (D_800F394C + 1) & 0x7F;
@@ -222,8 +222,8 @@ static Unk800F9F3C* func_800A311C(Unk800FA9D0* arg0) {
 }
 
 static void func_800A317C(void) {
-    Unk800FA9D0* ret = BattleQueue2GetPtr();
-    ret->unk0 = -1;
+    BattleQueueTargetEntry* ret = BattleQueue2GetPtr();
+    ret->targetId = -1;
 }
 
 void func_800A31A0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
@@ -321,10 +321,10 @@ static void func_800A345C(void) {
 static void func_800A3488(s32 arg0) {
     s32 i;
 
-    for (i = 0; i < LEN(D_800FA9D0); i++) {
-        Unk800FA9D0* p = &D_800FA9D0[i];
-        if (p->unk0 == arg0) {
-            p->unk4 &= ~4;
+    for (i = 0; i < LEN(g_BattleQueueTargets); i++) {
+        BattleQueueTargetEntry* p = &g_BattleQueueTargets[i];
+        if (p->targetId == arg0) {
+            p->flags &= ~4;
         }
     }
 }
@@ -332,13 +332,13 @@ static void func_800A3488(s32 arg0) {
 static void func_800A34CC(s32 arg0, s32 arg1, s8 arg2, s32 arg3) {
     s32 i = 0;
 
-    for (; i < LEN(D_800FA9D0); i++) {
-        Unk800FA9D0* p = &D_800FA9D0[i];
-        if (p->unk0 != arg0 || p->unk2 != arg1) {
+    for (; i < LEN(g_BattleQueueTargets); i++) {
+        BattleQueueTargetEntry* p = &g_BattleQueueTargets[i];
+        if (p->targetId != arg0 || p->hurtAnimScript != arg1) {
             continue;
         }
-        if (arg3 != 1 || (p->unk4 & 4)) {
-            p->unk2 = arg2;
+        if (arg3 != 1 || (p->flags & 4)) {
+            p->hurtAnimScript = arg2;
         }
     }
 }
@@ -1266,7 +1266,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType0E);
 
 void BattleQueueCurrentActionEffect(void) {
     BattleActionQueueEntry* unk;
-    Unk800FA9D0* act;
+    BattleQueueTargetEntry* act;
 
     if (g_CurrentAction->unk20 >= 0) {
         unk = BattleActionQueueAlloc();
@@ -1278,10 +1278,10 @@ void BattleQueueCurrentActionEffect(void) {
         unk->unk8 = g_CurrentAction->unk60;
         unk->unk4 = 0;
         act = BattleQueue2GetPtr();
-        act->unk0 = g_CurrentAction->actorId;
-        act->unk1 = g_CurrentAction->actorId;
-        act->unk2 = 0;
-        act->unk4 = 0;
+        act->targetId = g_CurrentAction->actorId;
+        act->attackerId = g_CurrentAction->actorId;
+        act->hurtAnimScript = 0;
+        act->flags = 0;
         func_800A317C();
     }
 }
@@ -1592,7 +1592,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ABA68);
 const s32 D_800A03A0[2][2] = {{0x200, 0x100}, {0x010, 0x020}};
 
 static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
-    Unk800FA9D0* act;
+    BattleQueueTargetEntry* act;
     s32 cap;
     s32 capMP;
     s32 oldStatus;
@@ -1608,13 +1608,13 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     // grab a free action-result slot, tag it attacker/target, clear the
     // "just processed" marker on the target
     act = BattleQueue2GetPtr();
-    act->unk0 = arg1;
-    act->unk1 = arg0;
-    act->unk4 = 0;
+    act->targetId = arg1;
+    act->attackerId = arg0;
+    act->flags = 0;
     g_BattleState.combatant[arg1].coverTargetSlot = 0xFF;
     func_800AA950(act);
-    BattleCalcTargStats(act->unk0);
-    if (act->unk0 != arg1) {
+    BattleCalcTargStats(act->targetId);
+    if (act->targetId != arg1) {
         // target got redirected (e.g. covered by another actor) -- flag it
         func_800A3240();
         g_CurrentAction->unk218 |= 0x20;
@@ -1660,7 +1660,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     if (!(g_CurrentAction->unk218 & 1)) {
         // hit actually lands on the target
         g_CurrentAction->unkE0++;
-        act->unk4 |= 1;
+        act->flags |= 1;
         func_800A8E84(4);
         if (g_CurrentAction->actorId != arg1) {
             g_CurrentAction->unk78 |= 1 << arg1;
@@ -1691,16 +1691,16 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
                 g_CurrentAction->unk23C |= 0x40000;
             }
             g_CurrentAction->unk218 |= 2;
-            act->unk4 |= 2;
+            act->flags |= 2;
             if (arg1 < NUM_PARTY) {
                 g_CurrentAction->unk224 = 0xA;
             }
         }
         if (g_CurrentAction->unk218 & 0x4000) {
-            act->unk4 |= 0x10;
+            act->flags |= 0x10;
         }
         if (g_CurrentAction->unk218 & 0x8000) {
-            act->unk4 |= 0x20;
+            act->flags |= 0x20;
         }
     } else {
         // hit missed/had no effect -- wipe any accumulated status/damage
@@ -1799,7 +1799,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
                 // Death bit flipped -- pick the death/revive message
                 func_800AC6B4(oldStatus & 1);
             } else {
-                act->unk4 |= 8;
+                act->flags |= 8;
             }
         } else {
             g_CurrentAction->unk218 |= 0x800000;
@@ -1837,15 +1837,15 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     }
 
     // finalize the action-result descriptor for whatever consumes it next
-    act->unk8 = g_BattleState.combatant[arg1].status;
-    act->unk2 = g_CurrentAction->unk224;
+    act->targetStatus = g_BattleState.combatant[arg1].status;
+    act->hurtAnimScript = g_CurrentAction->unk224;
     if (g_CurrentAction->unk218 & 0x20) {
-        act->unk2 = 9;
+        act->hurtAnimScript = 9;
     }
     if (g_BattleState.combatant[arg1].status & 1) {
         // target just died -- mark it and re-queue a death message if the
         // current message slot isn't already showing one
-        act->unk4 = (act->unk4 | 4) & ~8;
+        act->flags = (act->flags | 4) & ~8;
         g_CurrentAction->unk7C |= 1 << arg1;
         if (g_CurrentAction->unk28 == 0x1A) {
             if (D_801636B8[arg1].D_801636BC < 0x11) {
@@ -1915,11 +1915,11 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACE88);
 // queue a placeholder display entry via func_800ABA68 anyway. unk22C here
 // is the same status-immunity mask BattleMainDmgCalculation (this function's only
 // caller) uses earlier.
-static void BattleQueueUnassignedResultDisplay(Unk800FA9D0* arg0) {
+static void BattleQueueUnassignedResultDisplay(BattleQueueTargetEntry* arg0) {
     s8 temp_v1;
 
     if ((g_CurrentAction->unk80 | g_CurrentAction->unk84 | g_CurrentAction->unk88) & ~g_CurrentAction->unk22C) {
-        temp_v1 = arg0->unk3;
+        temp_v1 = arg0->extraDataIndex;
         if (temp_v1 == -1) {
             func_800ABA68(arg0, -1, 0, -1, temp_v1);
         }
@@ -2590,25 +2590,26 @@ static s32 func_800B10B4(s32 arg0) {
     return g_BattleState.combatant[arg0].curHP <= g_BattleState.combatant[arg0].maxHP / 4;
 }
 
-static void BattleQueueEffect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
-    BattleActionQueueEntry* unk;
-    Unk800FA9D0* act;
+static void BattleQueueEffect(s32 actorId, s32 animeId, s32 actioId, s32 effectParam, s32 arg4, s32 flags, s32 statusMask) {
+    BattleActionQueueEntry* action;
+    BattleQueueTargetEntry* target;
 
-    unk = BattleActionQueueAlloc();
-    act = BattleQueue2GetPtr();
-    unk->unk1 = 1;
-    unk->unk8 = -1;
-    unk->actionId = arg0;
-    unk->unk5 = arg1;
-    unk->unk3 = arg2;
-    unk->unk2 = arg3;
-    unk->unk4 = 0;
-    unk->unk6 = arg4;
-    act->unk0 = arg0;
-    act->unk1 = arg0;
-    act->unk2 = 0x33;
-    act->unk4 = arg5;
-    act->unk8 = arg6;
+    action = BattleActionQueueAlloc();
+    target = BattleQueue2GetPtr();
+    action->unk1 = 1;
+    action->unk8 = -1;
+    action->actionId = actorId;
+    action->unk5 = animeId;
+    action->unk3 = actioId;
+    action->unk2 = effectParam;
+    action->unk4 = 0;
+    action->unk6 = arg4;
+
+    target->targetId = actorId;
+    target->attackerId = actorId;
+    target->hurtAnimScript = 0x33;
+    target->flags = flags;
+    target->targetStatus = statusMask;
     func_800A317C();
 }
 

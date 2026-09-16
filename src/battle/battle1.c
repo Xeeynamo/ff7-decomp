@@ -354,7 +354,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleInitModelsAnimAndColor);
 // entry per call, dispatched by a type byte (0-5, jtbl_800A05FC) via m2c
 // structural read (not yet decompiled):
 //   0 callback-driven step (func_800BC04C(&func_800C494C)), immediate
-//   1 gated on D_800F7DE4: walks a linked status list (D_800FA9D0/1/2),
+//   1 gated on D_800F7DE4: walks a linked status list (g_BattleQueueTargets/1/2),
 //     looks like "hide next status icon" (sets D_800FA6D4/D_80161EEC/
 //     D_800F99E8 icon slots, or 0xF when the list is exhausted)
 //   2 func_800C5C18(4 entry fields), immediate -- shape matches a sound cue

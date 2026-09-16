@@ -431,16 +431,16 @@ extern s32 D_8015187C[10];
 // unk3 becomes a real D_800F9F3C slot index (0-0x7F) once func_800A311C
 // activates the record. unk4's bit 0x4 is checked by func_800A34CC.
 typedef struct {
-    /* 0x0 */ s8 unk0;
-    /* 0x1 */ s8 unk1;
-    /* 0x2 */ s8 unk2;
-    /* 0x3 */ s8 unk3;
-    /* 0x4 */ u16 unk4;
-    /* 0x6 */ u8 unk6[2];
-    /* 0x8 */ u32 unk8;
-} Unk800FA9D0; // size:0xC
+    /* 0x0 */ s8 targetId;
+    /* 0x1 */ s8 attackerId;
+    /* 0x2 */ s8 hurtAnimScript;
+    /* 0x3 */ s8 extraDataIndex;
+    /* 0x4 */ u16 flags;
+    /* 0x6 */ u16 pad6;
+    /* 0x8 */ u32 targetStatus;
+} BattleQueueTargetEntry; // size:0xC
 
-extern Unk800FA9D0 D_800FA9D0[0x80];
+extern BattleQueueTargetEntry g_BattleQueueTargets[0x80];
 extern u8 D_800FAFDC;
 extern s16 D_800FAFD4;
 extern s32 D_800FAFEC;
@@ -543,17 +543,17 @@ extern u8 D_80166F68;
 
 void func_800A4350(s16, s16, s16, u16);
 void func_800A8E84(s32);
-void func_800AA950(Unk800FA9D0*);
+void func_800AA950(BattleQueueTargetEntry*);
 void func_800AB308(void);
 void func_800AB480(void);
 static void BattleLearnEnemySkill(void);
-void func_800ABA68(Unk800FA9D0*, s16, u16, s16, s16);
+void func_800ABA68(BattleQueueTargetEntry*, s16, u16, s16, s16);
 void func_800AC6B4(s32);
 void BattleCalcTargStats(s32);
 void func_800ACA24(void);
 s32 func_800ACD88(s32);
 static s32 BattleIsDamageNullified(s32);
-static void BattleQueueUnassignedResultDisplay(Unk800FA9D0*);
+static void BattleQueueUnassignedResultDisplay(BattleQueueTargetEntry*);
 void func_800AD0FC(void);
 void func_800AD324(s32, s32, s32, s32);
 static void BattleApplyDefaultAbsorbEffect(void);
