@@ -66,11 +66,11 @@ void func_800146A4(void) {
     s32 var_s0 = -1;
     while (var_s0) {
         switch (g_GameState) {
-        case 4:
+        case GAMESTATE_BROM:
             func_800145BC(0);
             func_80014658(BATTLE_BROM, D_800A00CC);
             break;
-        case 2:
+        case GAMESTATE_BATTLE:
             SysBattleSwirlInit();
             func_80014658(BATTLE_BATTLE, D_800A1158);
             break;
