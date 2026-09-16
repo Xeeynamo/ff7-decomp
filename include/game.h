@@ -770,11 +770,10 @@ typedef struct {
     /* 0x0D */ u8 entityId;
     /* 0x0E */ u8 touch;
     /* 0x0F */ u8 across;
-
     /* 0x10 */ u8 requestPushScript;
     /* 0x11 */ u8 requestTalkScript;
-    /* 0x12 */ u8 requestTouchOnScript;
-    /* 0x13 */ u8 requestTouchOffScript;
+    /* 0x12 */ u8 touchOn;
+    /* 0x13 */ u8 touchOff;
     /* 0x14 */ u8 proximityAngle;
     /* 0x15 */ u8 isOnLine;
     /* 0x16 */ u8 slipDisabled;
@@ -956,7 +955,7 @@ typedef struct {
     u8 mapJumpDisabled; // Set by MPJPO. Disables gateways to other maps.
     u8 scrloSet;        // Set by SCRLO. Unused(?)
     // Set by MPDSP in field map junbin5. Also set to 1 if
-    // fadeType == FFT_INSTANT_BLACK.
+    // fade.fadeType == FFT_INSTANT_BLACK.
     u8 mpdspSet;
     // Set by MVCAM. Static field map camera is used instead of dynamic movie
     // camera.

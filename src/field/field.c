@@ -4,13 +4,8 @@
 #include "field_private.h"
 
 extern struct FieldRenderData g_FieldRenderData[2]; // double buffered
-
-extern s32 (*g_FieldOpcodes[256])(void);
-extern u8 g_EntityForSplitJoin;
-extern char g_DebugMessageBuffer[]; // debug value transformed into text
 extern u32 g_FieldKeyState;
 extern u8 g_RandomTable[256];
-
 extern s16 g_CameraScrollX;
 extern s16 g_CameraScrollY;
 extern s16 g_CameraScrollCurrentStep;
@@ -20,25 +15,6 @@ extern s16 g_CameraScrollStartY;
 extern s16 g_CameraScrollTargetY;
 extern s16 g_CameraScrollEnabled;
 extern s16 g_CameraScrollNumSteps;
-
-void AddBackgroundToRender(struct FieldRenderData* buf);
-s32 FieldEntitySqrDistToLine(FieldLine*, u_long*, u_long*);
-void FieldEntityLineInteract(FieldEntity* arg0, FieldLine* arg1);
-void HandleKawaiDataInModel(struct FieldRenderData* buf);
-void FieldEventOpcodeCycle(void);
-void FieldUpdateAnimationState(void);
-u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId);
-void DebugUpdateActor(s32 arg0, u8 actorId);
-void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
-void FieldWindowResetTextAll(void);
-void SetStrToDebugRow(s32 page, s16 row, const char* str);
-void FieldDebugStringCopy(char* dst, const char* src);
-void FieldDebugStringConcat(char* arg0, const char* arg1);
-
-/////////////////////////////////////////////////
-// Begin of field_main.c
-/////////////////////////////////////////////////
-
 extern u32 g_FieldFileInfo[];
 extern FieldModelLoaderHeader** g_FieldModelsP;
 extern FieldTriggers* g_FieldTriggers;
@@ -46,6 +22,92 @@ extern u16* g_FieldEncounters;
 extern s16 g_CurrentFieldIndex;
 extern FieldTriggers** g_FieldTriggersP;
 extern u16** g_FieldEncountersP;
+extern volatile s16 g_FieldMoviePlayed;
+extern s16 g_FieldPreloadMapId;
+extern s32 g_WmPreSector;
+extern u32 g_WmPreSize;
+extern u8 D_800716D0;
+extern s16 D_8007173C;
+extern s8 D_80071A58;
+extern FieldScriptHeader** D_8007EB64;
+extern u8 D_8007EBC8;
+extern MATRIX** D_80083578;
+extern s32** D_8009A044;
+extern s8 D_8009A048[16];
+extern volatile s16 g_GameState;
+extern s8 D_8009C6D8;
+extern u8** D_8009D848;
+extern DRAWENV D_80113F2C[2];
+extern DRAWENV D_80113FE4[2];
+extern DRAWENV D_8011409C[2];
+extern DRAWENV D_80114154[2];
+extern DRAWENV D_8011420C[2];
+extern u8 g_RainControl;
+extern u8 g_RainForce;
+extern s8 D_80071C0C;
+extern OT_TYPE D_8007E7A0[2];
+extern s32 D_8007EB90;
+extern s32 D_8007EB94;
+extern DRAWENV* D_8007EBD0;
+extern DISPENV* D_8007EBD8;
+extern s32 D_800965E4;
+extern s32 D_8009A060;
+extern SVECTOR (*D_800E4274)[3];
+extern u_long* D_800E4D90;
+extern u32 D_800E4D94;
+extern u16 D_800E4D98;
+extern u16 D_800E4D9A;
+extern u16 D_800E4D9C;
+extern u16 D_800E4D9E;
+extern u_long* D_800E4DA4;
+extern u32 D_800E4DA8;
+extern s16 D_800E4DAC;
+extern s16 D_800E4DAE;
+extern u16 D_800E4DB0;
+extern u16 D_800E4DB2;
+extern u16 D_800E4DB4;
+extern u_long* D_800E4DD4;
+extern u32 D_800E4DD8;
+extern s16 D_800E4DDC;
+extern s16 D_800E4DDE;
+extern u16 D_800E4DE0;
+extern u16 D_800E4DE2;
+extern u16 D_800E4DE4;
+extern s16 D_801142C8;
+extern s16 (*D_80114458)[3];
+extern s32 D_80114478;
+extern s32 D_8011447C;
+extern u16 D_80114488;
+
+void AddBackgroundToRender(struct FieldRenderData* buf);
+void FieldEntityLineInteract(FieldEntity* arg0, FieldLine* arg1);
+void HandleKawaiDataInModel(struct FieldRenderData* buf);
+void FieldArrowsInit(SPRT_16* arrows, DR_MODE* drawMode);
+void FieldEnablePartyModels(void);
+void FieldEntityBgTriggerInit(FieldBgTrigger* triggers);
+void FieldEventInit(FieldState* fieldState, FieldEntity* fieldModels, FieldScriptHeader* fieldScripts);
+void FieldLoadMimToVram(s32 arg0, void* mimData);
+s32 FieldMainLoop(void);
+void SysFadeCopyScreen(void);
+void SysFadeInitPoly(void);
+void FieldModelLoadAndInit(void);
+void FieldEntityInitPos(void);
+void FieldBackgroundInitPackets(SPRT_16* bg1, SPRT* bg2, u16* animation, DR_MODE* drawMode);
+void FieldCameraAssign(void);
+void FieldEventUpdate(OT_TYPE* ot);
+void FieldBGScrollInit(void);
+void FieldBGScrollUpdate(void);
+void FieldBGShakeUpdate(FieldShakeData* data);
+void FieldBGUpdateDrawenv(struct FieldRenderData* renderData);
+void FieldEntityMovementUpdate(u32 keys);
+void FieldEntityCheckTalk(void);
+void FieldRainUpdate(void);
+void FieldArrowsAddToRender(struct FieldRenderData* renderData, MATRIX* matrix, FieldGateway* gateways);
+void SysFadeUpdate(void);
+void SysMovieAbortPlay(void);
+void FieldUpdateMovieStream(void);
+static u32 FieldButtonsUpdate(s16* scrollX, s16* scrollY);
+void SystemCdromAbortLoading(void);
 
 static void FieldLoadMimDatFiles(void) {
     if (g_isFieldLoading == 0) {
@@ -76,130 +138,56 @@ void StopFieldMapPreload(void) {
     g_isFieldLoading = 0;
 }
 
-extern u16 g_FieldMoviePlayed;
-extern u16 g_FieldPreloadMapId;
-extern s32 g_WmPreSector;
-extern u32 g_WmPreSize;
+void PreloadNextFieldMap(FieldEntity* player, FieldGateway* gateways) {
+    VECTOR* pos;
+    s32 minDistance = 2147483647;
+    s32 i;
+    s32 dx;
+    s32 dy;
+    s32 distance;
 
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field", PreloadNextFieldMap);
-#else
+    pos = (VECTOR*)getScratchAddr(0);
+    pos->vx = player->PosX >> 12;
+    pos->vy = player->PosY >> 12;
+    pos->vz = player->PosZ >> 12;
 
-// External Declarations
-extern u8 D_8009ABF5;
-extern u8 D_8009AC26;
-extern s16 D_80071A5C;
-
-// D_8009ABF5 = g_pFieldState -> command
-
-void PreloadNextFieldMap(FieldEntity* Player, FieldLine* gateway) {
-    s16* ptr_a3;
-    s32* scratchpad;
-    s32 min_dist;
-    s32 counter;
-    s16* ptr_a1;
-    s32 term_val;
-    s32 diff_x, diff_y, dist;
-    s16 map_id;
-    FieldFileInfo* table;
-    s32 sector;
-    u32 size;
-
-    ptr_a3 = gateway;
-    min_dist = 0x7FFFFFFF;
-
-    scratchpad = 0x1F800000;
-    scratchpad[0] = Player->PosX >> 12;
-    scratchpad[1] = Player->PosY >> 12;
-    scratchpad[2] = Player->PosZ >> 12;
-
-    if (D_8009AC26 == 0) {
-        counter = 0;
-        term_val = 0x7FFF;
-        ptr_a1 = (gateway + 0x12);
-
-        do {
-            map_id = ptr_a1[0];
-            if (map_id != term_val) {
-                diff_x = ptr_a3[0] - scratchpad[0];
-                diff_y = ptr_a1[-8] - scratchpad[1];
-                dist = (diff_x * diff_x) + (diff_y * diff_y);
-
-                if (dist < min_dist) {
-                    min_dist = dist;
-                    g_FieldPreloadMapId = map_id;
+    if (!g_FieldState.characterLock) {
+        for (i = 0; i < 12; i++, gateways++) {
+            if (gateways->fieldId != 32767) {
+                dx = gateways->pos.x1 - pos->vx;
+                dy = gateways->pos.y1 - pos->vy;
+                distance = dx * dx + dy * dy;
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    g_FieldPreloadMapId = gateways->fieldId;
                 }
             }
-
-            counter++;
-            ptr_a1 = (ptr_a1 + 0x18);
-            ptr_a3 = (ptr_a3 + 0x18);
-        } while (counter < 12);
+        }
     }
 
-    if (D_8009ABF5 == 3 || (g_FieldMoviePlayed == 1) || D_8009ABF5 == 2) {
+    if (g_FieldState.eventCmd == EVTCMD_LOAD_MOVIE || g_FieldMoviePlayed == 1 ||
+        g_FieldState.eventCmd == EVTCMD_ENTERING_BATTLE) {
         StopFieldMapPreload();
         return;
     }
-
     if (D_80071A5C == g_FieldPreloadMapId) {
         return;
     }
-
-    table = g_FieldFileInfo;
-    if (0x4DFFF < table[g_FieldPreloadMapId].mimSize) {
+    if (g_FieldFileInfo[g_FieldPreloadMapId * 6 + 3] >= 319488) {
         return;
     }
 
     StopFieldMapPreload();
     D_80071A5C = g_FieldPreloadMapId;
-
-    if (D_80071A5C >= 0x41) {
-        sector = table[D_80071A5C].mimSector;
-        size = table[D_80071A5C].mimSize;
+    if (D_80071A5C >= 65) {
+        SystemLoadFileBySector(g_FieldFileInfo[D_80071A5C * 6 + 2],
+                               g_FieldFileInfo[D_80071A5C * 6 + 3], (u_long*)0x801B0000, NULL);
     } else {
-        sector = g_WmPreSector;
-        size = g_WmPreSize;
+        SystemLoadFileBySector(g_WmPreSector, g_WmPreSize, (u_long*)0x801B0000, NULL);
     }
-
-    SystemLoadFileBySector(sector, size, 0x801B0000, NULL);
     g_isFieldLoading = 1;
 }
 
-#endif
-
-void FieldArrowsInit(SPRT_16* arrows, DR_MODE* drawMode);
-void FieldEnablePartyModels(void);
-void FieldEntityBgTriggerInit(FieldBgTrigger* triggers);
-void FieldEventInit(FieldState* fieldState, FieldEntity* fieldModels, FieldScriptHeader* fieldScripts);
-void FieldLoadMimToVram(s32 arg0, void* mimData);
-s32 FieldMainLoop(void);
-void SysFadeCopyScreen(void);
-void SysFadeInitPoly(void);
-
-extern u8 D_800716D0;
-extern s16 D_8007173C;
-extern s8 D_80071A58;
-extern FieldScriptHeader** D_8007EB64;
-extern u8 D_8007EBC8;
-extern MATRIX** D_80083578;
-extern s32** D_8009A044;
-extern s8 D_8009A048[16];
-extern volatile s16 g_GameState;
-extern s8 D_8009C6D8;
-extern u8** D_8009D848;
-extern DRAWENV D_80113F2C[2];
-extern DRAWENV D_80113FE4[2];
-extern DRAWENV D_8011409C[2];
-extern DRAWENV D_80114154[2];
-extern DRAWENV D_8011420C[2];
-extern u8 g_RainControl;
-extern u8 g_RainForce;
-
-#define NON_MATCHINGS
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldMain);
-#else
 void FieldMain(void) {
     RECT clearRect = {0, 0, 480, 472};
     s32 i;
@@ -417,45 +405,7 @@ void FieldMain(void) {
     }
     VSync(0);
 }
-#endif
 
-void FieldModelLoadAndInit(void);
-void FieldEntityInitPos(void);
-void FieldBackgroundInitPackets(SPRT_16* bg1, SPRT* bg2, u16* animation, DR_MODE* drawMode);
-void FieldCameraAssign(void);
-void FieldEventUpdate(OT_TYPE* ot);
-void FieldBGScrollInit(void);
-void FieldBGScrollUpdate(void);
-void FieldBGShakeUpdate(FieldShakeData* data);
-void FieldBGUpdateDrawenv(struct FieldRenderData* renderData);
-void PreloadNextFieldMap(FieldEntity* player, FieldGateway* gateways);
-void FieldEntityMovementUpdate(u32 keys);
-void FieldEntityCheckTalk(void);
-void FieldRainUpdate(void);
-void FieldArrowsAddToRender(struct FieldRenderData* renderData, MATRIX* matrix, FieldGateway* gateways);
-void SysFadeUpdate(void);
-void SysMovieAbortPlay(void);
-void FieldUpdateMovieStream(void);
-static u32 FieldButtonsUpdate(s16* scrollX, s16* scrollY);
-
-extern s8 D_80071C0C;
-extern OT_TYPE D_8007E7A0[2];
-extern s32 D_8007EB90;
-extern s32 D_8007EB94;
-extern DRAWENV* D_8007EBD0;
-extern DISPENV* D_8007EBD8;
-extern s32 D_800965E4;
-extern s32 D_8009A060;
-extern SVECTOR (*D_800E4274)[3];
-extern s16 D_801142C8;
-extern s16 (*D_80114458)[3];
-extern s32 D_80114478;
-extern s32 D_8011447C;
-extern u16 D_80114488;
-
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldMainLoop);
-#else
 s32 FieldMainLoop(void) {
     RECT wideTop = {0, 0, 480, 8};
     RECT wideMiddle = {0, 232, 480, 8};
@@ -463,6 +413,7 @@ s32 FieldMainLoop(void) {
     RECT top = {0, 0, 320, 8};
     RECT middle = {0, 232, 320, 8};
     RECT bottom = {0, 464, 320, 8};
+    FieldState* state;
     s16 displayDelay;
     struct FieldRenderData* renderData;
 
@@ -490,87 +441,94 @@ s32 FieldMainLoop(void) {
     D_80071C0C = 0;
     g_isFieldLoading = 0;
 
+    state = &g_FieldState;
     for (;;) {
         if (!displayDelay) {
             D_80075DEC++;
         }
         D_80075DEC &= 1;
-        g_FieldState.renderBuffer = D_80075DEC;
+        state->renderBuffer = D_80075DEC;
         renderData = &g_FieldRenderData[D_80075DEC];
         ClearOTagR(renderData->ot, 4096);
         ClearOTagR(&renderData->OtUi, 1);
         FieldCameraAssign();
         g_FieldKeyState = FieldButtonsUpdate(&g_CameraScrollX, &g_CameraScrollY);
-        g_FieldState.currentMovieFrame = D_80075D00->unk8;
+        state->currentMovieFrame = D_80075D00->unk8;
         FieldEventUpdate(&renderData->OtUi);
-        g_PlayerModelId = g_FieldState.pcModelId;
+        g_PlayerModelId = state->pcModelId;
         FieldBGScrollInit();
         FieldBGScrollUpdate();
-        FieldBGShakeUpdate(&g_FieldState.shakeX);
-        FieldBGShakeUpdate(&g_FieldState.shakeY);
+        FieldBGShakeUpdate(&state->shakeX);
+        FieldBGShakeUpdate(&state->shakeY);
         FieldBGUpdateDrawenv(renderData);
         PreloadNextFieldMap(&g_FieldEntity[g_PlayerModelId], g_FieldTriggers->gateways);
-        if ((g_FieldState.activeKeysRaw & (PADstart | PADselect | PADR1 | PADR2 | PADL1 | PADL2)) ==
+        if ((state->activeKeysRaw & (PADstart | PADselect | PADR1 | PADR2 | PADL1 | PADL2)) ==
             (PADstart | PADselect | PADR1 | PADR2 | PADL1 | PADL2)) {
-            g_FieldState.eventCmd = EVTCMD_BEAT_GAME;
+            state->eventCmd = EVTCMD_BEAT_GAME;
             SysMovieAbortPlay();
             StopFieldMapPreload();
             return;
         }
-        if (g_FieldState.eventCmd == EVTCMD_FIELD_MAP_CHANGE) {
+        if (state->eventCmd == EVTCMD_FIELD_MAP_CHANGE) {
             break;
         }
-        if (g_FieldState.eventCmd == EVTCMD_LOAD_MINIGAME) {
+        if (state->eventCmd == EVTCMD_LOAD_MINIGAME) {
             StopFieldMapPreload();
             return;
         }
-        if (g_FieldState.eventCmd == EVTCMD_CD_CHANGE) {
+        if (state->eventCmd == EVTCMD_CD_CHANGE) {
             StopFieldMapPreload();
             g_GameState = GAMESTATE_CHANGE_DISK;
             return;
         }
-        if (g_FieldState.eventCmd == EVTCMD_UNK19) {
+        if (state->eventCmd == EVTCMD_UNK19) {
             g_GameState = GAMESTATE_LOAD_INSTR2;
             StopFieldMapPreload();
             return;
         }
-        if (g_FieldState.eventCmd == EVTCMD_YUFFIE_STEALS_MATERIA ||
-            g_FieldState.eventCmd == EVTCMD_YUFFIE_RETURNS_MATERIA ||
-            g_FieldState.eventCmd == EVTCMD_REMOVE_CHARS_MATERIA_ACCESSORY ||
-            g_FieldState.eventCmd == EVTCMD_UNK15 ||
-            g_FieldState.eventCmd == EVTCMD_MASTER_MATERIA_CHECK ||
-            g_FieldState.eventCmd == EVTCMD_ADD_MASTER_MATERIA ||
-            g_FieldState.eventCmd == EVTCMD_JENOVA_SYNTH_COPY_LEVELS) {
+        if (state->eventCmd == EVTCMD_YUFFIE_STEALS_MATERIA ||
+            state->eventCmd == EVTCMD_YUFFIE_RETURNS_MATERIA ||
+            state->eventCmd == EVTCMD_REMOVE_CHARS_MATERIA_ACCESSORY ||
+            state->eventCmd == EVTCMD_UNK15 ||
+            state->eventCmd == EVTCMD_MASTER_MATERIA_CHECK ||
+            state->eventCmd == EVTCMD_ADD_MASTER_MATERIA ||
+            state->eventCmd == EVTCMD_JENOVA_SYNTH_COPY_LEVELS) {
             g_GameState = GAMESTATE_MENU_COMMANND;
             StopFieldMapPreload();
             return;
         }
-        if (g_FieldState.eventCmd == EVTCMD_CHAR_NAME_ENTRY || g_FieldState.eventCmd == EVTCMD_PARTY_SELECT ||
-            g_FieldState.eventCmd == EVTCMD_PARTY_MENU || g_FieldState.eventCmd == EVTCMD_SAVE_SCREEN ||
-            g_FieldState.eventCmd == EVTCMD_SHOP || g_FieldState.eventCmd == EVTCMD_UNK12 ||
-            g_FieldState.eventCmd == EVTCMD_UNK13) {
+        if (state->eventCmd == EVTCMD_CHAR_NAME_ENTRY || state->eventCmd == EVTCMD_PARTY_SELECT ||
+            state->eventCmd == EVTCMD_PARTY_MENU || state->eventCmd == EVTCMD_SAVE_SCREEN ||
+            state->eventCmd == EVTCMD_SHOP || state->eventCmd == EVTCMD_UNK12 ||
+            state->eventCmd == EVTCMD_UNK13) {
             g_GameState = GAMESTATE_MENU;
             StopFieldMapPreload();
             return;
         }
-        if ((g_FieldKeyState & PADRup) && !g_FieldState.menuDisabled && !g_FieldMoviePlayed && !D_80114488) {
+        if ((g_FieldKeyState & PADRup) && !state->menuDisabled && !g_FieldMoviePlayed && !D_80114488) {
             g_GameState = GAMESTATE_MENU;
-            g_FieldState.eventCmd = EVTCMD_PARTY_MENU;
-            g_FieldState.eventCmdParam = 0;
+            state->eventCmd = EVTCMD_PARTY_MENU;
+            state->eventCmdParam = 0;
             StopFieldMapPreload();
             return;
         }
-        if (g_FieldState.eventCmd == EVTCMD_PLAY_ENDING_FMV || g_FieldState.eventCmd == EVTCMD_GAME_OVER) {
-            StopFieldMapPreload();
-            return;
-        }
-        if (g_FieldState.eventCmd == EVTCMD_ENTERING_BATTLE) {
-            g_FieldState.pcPosX = g_FieldEntity[g_PlayerModelId].PosX / 4096;
-            g_FieldState.pcPosY = g_FieldEntity[g_PlayerModelId].PosY / 4096;
-            g_FieldState.pcWalkMeshId = g_FieldEntity[g_PlayerModelId].PosI;
-            g_GameState = GAMESTATE_BATTLE;
-            StopFieldMapPreload();
-            return;
+        {
+            u8* const eventCmd = &g_FieldState.eventCmd;
+
+            if (*eventCmd == EVTCMD_PLAY_ENDING_FMV || *eventCmd == EVTCMD_GAME_OVER) {
+                StopFieldMapPreload();
+                return;
+            }
+            if (*eventCmd == EVTCMD_ENTERING_BATTLE) {
+                u16* const walkMeshId = &g_FieldState.pcWalkMeshId;
+
+                g_FieldState.pcPosX = g_FieldEntity[g_PlayerModelId].PosX / 4096;
+                g_FieldState.pcPosY = g_FieldEntity[g_PlayerModelId].PosY / 4096;
+                *walkMeshId = g_FieldEntity[g_PlayerModelId].PosI;
+                g_GameState = GAMESTATE_BATTLE;
+                StopFieldMapPreload();
+                return;
+            }
         }
         FieldEntityMovementUpdate(g_FieldKeyState);
         FieldEntityLineInteract(&g_FieldEntity[g_PlayerModelId], g_FieldLines);
@@ -617,21 +575,63 @@ s32 FieldMainLoop(void) {
         D_8007EBD8 = &D_8007EB68[D_80075DEC];
         D_8007EBD0 = &D_80113F2C[D_80075DEC];
         FieldUpdateMovieStream();
-        if (!g_FieldState.mpdspSet) {
-            DrawOTag(&renderData->OtSceneDrenv);
-            DrawOTag(&renderData->ot[4095]);
-            DrawOTag(&renderData->OtFadeDrenv);
-            if (g_FieldState.fadeType) {
-                DrawOTag(&D_8007E7A0[D_80075DEC]);
+        {
+            FieldState* drawState = &g_FieldState;
+
+            if (!drawState->mpdspSet) {
+                DrawOTag(&renderData->OtSceneDrenv);
+                DrawOTag(&renderData->ot[4095]);
+                DrawOTag(&renderData->OtFadeDrenv);
+                if (drawState->fadeType) {
+                    DrawOTag(&D_8007E7A0[D_80075DEC]);
+                }
             }
         }
         DrawOTag(&renderData->OtUi);
     }
 }
-#endif
-#undef NON_MATCHINGS
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field", FieldLoadMimToVram);
+void FieldLoadMimToVram(s32 arg0, void* mimData) {
+    RECT rect;
+    u8 unused[40]; // Unaccessed target stack space; original locals unknown.
+    u_long* data = mimData;
+
+    D_800E4D94 = *data++;
+    D_800E4D98 = *data & 0xFFFF;
+    D_800E4D9A = *data++ >> 16;
+    D_800E4D9C = *data & 0xFFFF;
+    D_800E4D9E = *data++ >> 16;
+    D_800E4D90 = data;
+    data += D_800E4D94 / 4 - 3;
+
+    D_800E4DA8 = *data++;
+    D_800E4DAC = *data & 0xFFFF;
+    D_800E4DAE = *data++ >> 16;
+    D_800E4DB0 = (*data & 0xFFFF) * 2;
+    D_800E4DB2 = *data++ >> 16;
+    D_800E4DA4 = data;
+    data += D_800E4DA8 / 4 - 3;
+
+    D_800E4DD8 = *data++;
+    D_800E4DDC = *data & 0xFFFF;
+    D_800E4DDE = *data++ >> 16;
+    D_800E4DE0 = (*data & 0xFFFF) * 2;
+    D_800E4DE2 = *data++ >> 16;
+    D_800E4DD4 = data;
+
+    setRECT(&rect, 0, 480, 256, 16);
+    DrawSync(0);
+    LoadImage(&rect, D_800E4D90);
+    DrawSync(0);
+    D_800E4DB4 = LoadTPage(D_800E4DA4, 1, 0, D_800E4DAC, D_800E4DAE,
+                         D_800E4DB0, D_800E4DB2);
+    if (D_800E4DD8) {
+        DrawSync(0);
+        D_800E4DE4 = LoadTPage(D_800E4DD4, 1, 0, D_800E4DDC, D_800E4DDE,
+                             D_800E4DE0, D_800E4DE2);
+    }
+    DrawSync(0);
+}
 
 static u32 FieldButtonsUpdate(s16* scrollX, s16* scrollY) {
     FieldState* state = &g_FieldState;

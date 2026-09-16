@@ -300,7 +300,7 @@ s32 FieldEntityLineCheck(FieldEntity* entity, FieldLine* lines, VECTOR* pos) {
                     result = 1;
                 }
                 if (!lines->touch) {
-                    lines->requestTouchOnScript = 1;
+                    lines->touchOn = 1;
                 }
                 lines->touch = 1;
                 sideFrom = (lines->pos.x2 - lines->pos.x1) * (from->vy - lines->pos.y1) -
@@ -323,7 +323,7 @@ s32 FieldEntityLineCheck(FieldEntity* entity, FieldLine* lines, VECTOR* pos) {
                 }
             } else {
                 if (lines->touch == 1) {
-                    lines->requestTouchOffScript = 1;
+                    lines->touchOff = 1;
                 }
                 lines->touch = 0;
             }
