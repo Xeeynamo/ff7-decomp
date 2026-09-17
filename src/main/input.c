@@ -35,7 +35,7 @@ Macros inspired by CTRLLER.H from SDK samples.
 #define GOOD_FORMAT(x) ((x)[1] == 0x41)
 #define GET_KEYS(x) (~((x)[3] | ((x)[2] << 8)))
 
-static u8 s_PadBuffers[2][34];
+extern u8 s_PadBuffers[2][34];
 
 void InputInit(void) {
     if (!s_PadsInitialized) {

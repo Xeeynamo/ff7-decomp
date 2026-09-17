@@ -1,8 +1,17 @@
-//! PSYQ=3.3 CC1=2.6.3
+//! PSYQ=3.3 CC1=2.6.3 COMM=true
 
 #include "common.h"
 #include "game.h"
 #include "libspu.h"
+
+// 16.16 fixed point volume
+typedef union {
+    s32 val;
+    struct {
+        s16 lo;
+        s16 hi;
+    } i;
+} AkaoCdVol; /* size = 0x4 */
 
 typedef struct {
     s32 unk0;
@@ -161,9 +170,9 @@ extern void (*D_80049548[])(Unk8002B7E0*);
 extern u8 D_800499A8[]; // opcode lenghts
 extern u8 D_80049C40[];
 extern s32 g_AkaoWaveTableKey[];
-extern s32 D_80062F00;
-extern s32 D_80062F08;
-extern u16 D_80062F1E;
+s32 D_80062F00;
+s32 D_80062F08;
+u16 D_80062F1E;
 // Music-driver slide state: each MulMusic value is a fixed-point scalar for
 // pitch/volume/tempo (current value in the upper 16 bits, lower 16 bits are
 // fractional precision the driver accumulates every tick for a smooth
@@ -171,31 +180,22 @@ extern u16 D_80062F1E;
 // remaining tick count. Names/meaning confirmed one-off against the
 // independent qgears reverse-engineering project (not part of this repo):
 // https://github.com/q-gears/q-gears, src/main/SCUS_941_akao.cpp.
-extern s32 g_AkaoPitchMulMusicSlideStep;
-extern s32 g_AkaoVolMulMusicSlideStep;
-extern s32 g_AkaoTempoMulMusicSlideStep;
-extern s16 g_AkaoPitchMulMusicSlideSteps;
-extern s16 g_AkaoVolMulMusicSlideSteps;
-extern s16 g_AkaoTempoMulMusicSlideSteps;
-extern s32 g_AkaoVolMulMusic;
-extern u16 D_80062F70;
-extern s32 D_80062F74;
-extern s32 D_80062F84;
-extern s32 D_80062F8C;
-extern s32 D_80062FAC;
-extern s32 D_80062FB0;
-extern s32 g_AkaoCdVolSlideStep;
-extern u16 D_80062FB8;
-extern u16 g_AkaoCdVolSlideSteps;
-
-// 16.16 fixed point volume
-typedef union {
-    s32 val;
-    struct {
-        s16 lo;
-        s16 hi;
-    } i;
-} AkaoCdVol; /* size = 0x4 */
+s32 g_AkaoPitchMulMusicSlideStep;
+s32 g_AkaoVolMulMusicSlideStep;
+s32 g_AkaoTempoMulMusicSlideStep;
+s16 g_AkaoPitchMulMusicSlideSteps;
+s16 g_AkaoVolMulMusicSlideSteps;
+s16 g_AkaoTempoMulMusicSlideSteps;
+s32 g_AkaoVolMulMusic;
+u16 D_80062F70;
+s32 D_80062F74;
+s32 D_80062F84;
+s32 D_80062F8C;
+s32 D_80062FAC;
+s32 D_80062FB0;
+s32 g_AkaoCdVolSlideStep;
+u16 D_80062FB8;
+u16 g_AkaoCdVolSlideSteps;
 
 extern AkaoCdVol g_AkaoCdVol;
 extern s32 D_80062FE0;
@@ -250,10 +250,8 @@ extern s32 g_AkaoMusicActiveMaskStored;
 extern s32 g_AkaoMusicOverMask;
 extern s32 g_AkaoMusicAltMask;
 extern s32 D_8009A13C;
-
 extern u32 g_ReverbMode;
 extern SpuReverbAttr g_ReverbAttr;
-
 extern SpuCommonAttr D_8009C578;
 
 #define READ_S8(addr) ((s8)(*(addr)++))

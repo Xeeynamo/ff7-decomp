@@ -1,20 +1,20 @@
-//! PSYQ=3.3 CC1=2.6.3 G=8
+//! PSYQ=3.3 CC1=2.6.3 G=8 COMM=true
 #include "main_private.h"
 
-u8 D_80062E54[8];
-u8 D_80062E5C;
-ActiveCharacterData* D_80062E60;
-u32 D_80062E64;
-u32 D_80062E68;
-s16 D_80062E6C[4];
-u32 D_80062E74;
-u32 D_80062E78;
-s32 D_80062E7C;
-s32 D_80062E80;
-s32 D_80062E84;
-u32 D_80062E88;
-u32 D_80062E8C;
-u32 D_80062E90;
+static u8 D_80062E54[8];
+static u8 D_80062E5C;
+static ActiveCharacterData* D_80062E60;
+static u32 D_80062E64;
+static u32 D_80062E68;
+static s16 D_80062E6C[4];
+static u32 D_80062E74;
+static u32 D_80062E78;
+static s32 D_80062E7C;
+static s32 D_80062E80;
+static s32 D_80062E84;
+static u32 D_80062E88;
+static u32 D_80062E8C;
+static u32 D_80062E90;
 
 // not sure what this is, used by SysAddMateriaEquipStatBonus
 static s16 D_80049060[168] = {
@@ -144,26 +144,15 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria35);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria25);
 
-#ifndef NON_MATCHINGS
-// needs BSS import for %gp regs
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX4);
-#else
-extern s8 D_80062FFC = 0;
-extern u8 D_80063020 = 0;
+s8 D_80062FFC; // %gp_rel
+u8 D_80063020; // %gp_rel
 void SysAddMateriaX4(u8 arg0, s32 arg1) {
     SysGetMateriaActivatedStars(arg0, arg1);
     if (D_80063020) {
         D_80062FFC = 11;
     }
 }
-#endif
 
-#ifndef NON_MATCHINGS
-// needs BSS import for %gp regs
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX7);
-#else
-extern s8 D_80062FFC = 0;
-extern u8 D_80063020 = 0;
 void SysAddMateriaX7(s32 arg0, s32 arg1, s32 arg2) {
     u8 param;
     s32 i;
@@ -186,7 +175,6 @@ void SysAddMateriaX7(s32 arg0, s32 arg1, s32 arg2) {
     }
     D_80062FFC = 8;
 }
-#endif
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX8);
 
@@ -231,14 +219,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria21);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria41);
 
-#ifndef NON_MATCHINGS
-// matching with GCC 2.6.3
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysGetMateriaActivatedStars);
-#else
-extern Unk80062F7C* D_80062F7C = NULL; // %gp
-extern s32 D_80062F10 = 0;             // %gp
-extern s32 D_80062FBC = 0;             // %gp
-extern u8 D_80063020 = 0;              // %gp
+s32 D_80062F10;          // %gp_rel
+Unk80062F7C* D_80062F7C; // %gp_rel
+s32 D_80062FBC;          // %gp_rel
 s32 SysGetMateriaActivatedStars(u8 arg0, s32 arg1) {
     s32 i;
     s32 found;
@@ -275,7 +258,6 @@ s32 SysGetMateriaActivatedStars(u8 arg0, s32 arg1) {
     }
     return found;
 }
-#endif
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", func_8001AE08);
 

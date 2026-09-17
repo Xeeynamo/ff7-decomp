@@ -1,4 +1,4 @@
-//! PSYQ=3.3 CC1=2.7.2 G=8
+//! PSYQ=3.3 CC1=2.7.2 G=8 COMM=true
 #include "main_private.h"
 
 u8 D_80062DFC = 0x40;
@@ -10,7 +10,23 @@ s32 D_80062E04 = 0x00000000;
 s16 D_80062E08 = 0x0000;
 s16 D_80062E0A = 0x0000;
 s32 D_80062E0C = 0;
-extern OT_TYPE* D_80062FC4; // TODO: import sbss
+OT_TYPE* D_80062FC4;
+
+void SysMenuSetPoly(void* arg0) { D_80062F24.poly = arg0; }
+
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_800269D0);
+
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_800269E8);
+
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuSetOtag);
+
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80026A0C);
+
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80026A20);
+
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuSetDrawMode);
+
+INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuSetDrawenv);
 
 void func_80026B5C(void) {}
 
@@ -85,7 +101,7 @@ void SysMenuDrawString(s32 x, s32 y, const char* str, s32 color) {
             break;
         }
         if (ch > 0xF9 && ch < 0xFF || ch == 0xF8) {
-            x = SysMenuDrawSingleLetter(x, y, (u8)color, (ch | (str[1] << 8)));
+            x = SysMenuDrawSingleLetter(x, y, (u8)color, ch | (str[1] << 8));
             str += 2;
         } else {
             str++;

@@ -744,6 +744,7 @@ D_80062D90 = 0x80062D90;
 D_80062D94 = 0x80062D94;
 g_PartyMenuListState = 0x80062DF8; // size:0x4
 D_80062E6C = 0x80062E6C; // size:0x8
+D_80062EE4 = 0x80062EE4;
 g_PartyMenuPreviousMenuId = 0x80062F0C; // size:0x4
 g_PartyMenuListTransitionFactor = 0x80062F20; // size:0x4
 g_AkaoPitchMulMusicSlideStep = 0x80062F28; // size:0x4

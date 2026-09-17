@@ -186,6 +186,17 @@ def add_s(cfg: any, file_name: str, is_hasm=False):
         )
 
 
+def add_s_as(cfg: any, in_path: str, out_path: str):
+    if out_path in objs:
+        return
+    objs.append(out_path)
+    nw.build(
+        rule=f"{platform(cfg)}-as",
+        outputs=[out_path],
+        inputs=[in_path],
+    )
+
+
 def add_c(cfg: any, file_name: str):
     in_path = f"{src_path(cfg)}/{file_name}.c"
     out_path = f"{build_path(cfg)}/{in_path}.o"
@@ -246,6 +257,11 @@ def add_splat_config(file_name: str):
     is_magic = "/magic" in src_path(cfg)
     if platform(cfg) == "psx" and is_main:
         add_s(cfg, "header")
+        add_s_as(
+            cfg,
+            f"{src_path(cfg)}/common.s",
+            f"{build_path(cfg)}/{asm_path(cfg)}/data/common.bss.s.o",
+        )
     for segment in cfg["segments"]:
         if not "type" in segment:
             continue

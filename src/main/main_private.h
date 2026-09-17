@@ -144,6 +144,7 @@ extern u8 D_80062F98;
 extern s8 D_80062FFC;
 extern s16 D_80062FF4;
 extern u8 D_80062FEC;
+extern void* D_80063008; // saved copy of D_80062F24.poly
 extern u16 D_80062F34[3];
 extern Unk80062F7C* D_80062F7C;
 extern u8 g_KernelTextBuffer[];
