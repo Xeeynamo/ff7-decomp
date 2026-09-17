@@ -416,8 +416,9 @@ with open("build.ninja", "w") as f:
     )
     nw.rule(
         "sym-export",
-        command=".venv/bin/python3 tools/symbols.py $in > $out",
+        command=".venv/bin/python3 tools/symbols.py -o $out $in",
         description="sym export $in",
+        restat=True,
     )
     nw.rule(
         "check",
