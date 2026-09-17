@@ -11,26 +11,49 @@ s16 D_80062E08 = 0x0000;
 s16 D_80062E0A = 0x0000;
 s32 D_80062E0C = 0;
 OT_TYPE* D_80062FC4;
+void* D_80063008;
+OT_TYPE* D_8006300C;
 
 void SysMenuSetPoly(void* arg0) { D_80062F24.poly = arg0; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_800269D0);
+void func_800269D0(void) { D_80063008 = D_80062F24.poly; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_800269E8);
+void func_800269E8(void) { D_80062F24.poly = D_80063008; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuSetOtag);
+void SysMenuSetOtag(OT_TYPE* otag) { D_80062FC4 = otag; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80026A0C);
+void func_80026A0C(void) { D_8006300C = D_80062FC4; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80026A20);
+void func_80026A20(void) { D_80062FC4 = D_8006300C; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuSetDrawMode);
+void SysMenuSetDrawMode(s32 dfe, s32 dtd, s32 tpage, RECT* tw) {
+    DR_MODE* prim;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuSetDrawenv);
+    SetDrawMode(D_80062F24.poly, dfe, dtd, tpage, tw);
+    prim = D_80062F24.poly;
+    D_80062F24.poly = prim + 1;
+    AddPrim(D_80062FC4, prim);
+}
+
+void SysMenuSetDrawenv(DRAWENV* src, RECT* rect) {
+    DRAWENV env;
+
+    SetDefDrawEnv(&env, src->ofs[0], src->ofs[1], src->clip.w, src->clip.h);
+    env.dfe = 1;
+    env.isbg = 0;
+    env.clip.x += rect->x;
+    env.clip.y += rect->y;
+    env.clip.w = rect->w;
+    env.clip.h = rect->h;
+    env.tpage = 0x1F | 0x20; // 0x1F:last tpage, 0x20:8bpp
+    SetDrawEnv(D_80062F24.poly, &env);
+    AddPrim(D_80062FC4, D_80062F24.poly);
+    D_80062F24.poly = (u8*)D_80062F24.poly + 0x40;
+}
 
 void func_80026B5C(void) {}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80026B64);
+void func_80026B64(u8 arg0) { D_80062DFC = arg0; }
 
 // strlen but for FF7 strings
 // FF7 string is 0x00: ' ', 0x10: '0', 0x21: 'A', 0xFF: terminator
@@ -83,9 +106,6 @@ s32 SysGetSingleStringWidth(u8* str) {
 s32 SysMenuDrawSingleLetter(s16, s16, u8, s32);
 INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawSingleLetter);
 
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawString);
-#else
 void SysMenuDrawString(s32 x, s32 y, const char* str, s32 color) {
     RECT rect;
     s16 i;
@@ -119,27 +139,216 @@ void SysMenuDrawString(s32 x, s32 y, const char* str, s32 color) {
         AddPrim(D_80062FC4, temp_a1);
     }
 }
-#endif
 
 INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawSingleFontLetter);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDraw8widthFont);
+void SysMenuDraw8widthFont(s16 x, s16 y, u8* str, u8 color) {
+    s16 i;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawHpMpBar);
+    if (!str) {
+        return;
+    }
+    for (i = 0; i < D_80062DFC; i++) {
+        if (*str == 0xFF) {
+            break;
+        }
+        SysMenuDrawSingleFontLetter(x, y, *str++, color);
+        x += 8;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80027990);
+void SysMenuDrawHpMpBar(MenuHpMpBar* bar) {
+    s16 w;
+    s16 fillWidth;
+    s16 barWidth;
+    s16 x;
+    s16 y;
+    s16 h;
+    u8 r;
+    u8 g;
+    u8 b;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawScrollbarTrack);
+    if (bar->max == 0) {
+        return;
+    }
+    w = bar->w;
+    fillWidth = w * bar->fillValue / bar->max;
+    barWidth = w * bar->barValue / bar->max;
+    x = bar->x;
+    y = bar->y;
+    h = bar->h;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawScrollbarSlider);
+    SetPolyG4(D_80062F24.polyg4);
+    setXYWH(D_80062F24.polyg4, x, y, barWidth, h);
+    r = bar->r;
+    g = bar->g;
+    b = bar->b;
+    setRGB0(D_80062F24.polyg4, r, g, b);
+    setRGB1(D_80062F24.polyg4, 0xC8, 0xC8, 0xC8);
+    setRGB2(D_80062F24.polyg4, r, g, b);
+    setRGB3(D_80062F24.polyg4, 0xC8, 0xC8, 0xC8);
+    AddPrim(D_80062FC4, D_80062F24.polyg4++);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawScrollbar);
+    if (bar->barMode != 0) {
+        if (bar->barMode == 1) {
+            r = 0;
+            g = 0xC8;
+            b = 0x50;
+        } else {
+            r = 0xC8;
+            g = 0;
+            b = 0;
+        }
+        SetPolyG4(D_80062F24.polyg4);
+        setXYWH(D_80062F24.polyg4, x, y, fillWidth, h);
+        setRGB0(D_80062F24.polyg4, r, g, b);
+        setRGB1(D_80062F24.polyg4, r, g, b);
+        setRGB2(D_80062F24.polyg4, r, g, b);
+        setRGB3(D_80062F24.polyg4, r, g, b);
+        AddPrim(D_80062FC4, D_80062F24.polyg4++);
+    }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawProgressBar);
+    SetPolyG4(D_80062F24.polyg4);
+    setXY4(D_80062F24.polyg4, x, y, x + w, y, x, y + h + 1, x + w, y + h + 1);
+    setRGB0(D_80062F24.polyg4, 0x50, 0, 0);
+    setRGB1(D_80062F24.polyg4, 0x50, 0, 0);
+    setRGB2(D_80062F24.polyg4, 0, 0, 0);
+    setRGB3(D_80062F24.polyg4, 0, 0, 0);
+    AddPrim(D_80062FC4, D_80062F24.polyg4++);
+}
+
+// unused?
+void MENU_OutlineRect(s32 x, s32 y, s32 w, s32 h, s32 color) {
+    setLineF4(D_80062F24.linef4);
+    setXY4(D_80062F24.linef4, x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1);
+    setRGB0(D_80062F24.linef4, color, color, color);
+    AddPrim(D_80062FC4, D_80062F24.linef4++);
+
+    setLineF2(D_80062F24.linef2);
+    setXY2(D_80062F24.linef2, x, y, x, y + h - 1);
+    setRGB0(D_80062F24.linef2, color, color, color);
+    AddPrim(D_80062FC4, D_80062F24.linef2++);
+}
+
+void SysMenuDrawScrollbarTrack(RECT* rect) {
+    setLineF2(D_80062F24.linef2);
+    SetSemiTrans(D_80062F24.linef2, 1);
+    setXY2(D_80062F24.linef2, rect->x, rect->y, rect->x + rect->w - 1, rect->y);
+    setRGB0(D_80062F24.linef2, 0x10, 0x10, 0x10);
+    AddPrim(D_80062FC4, D_80062F24.linef2++);
+
+    setLineF2(D_80062F24.linef2);
+    SetSemiTrans(D_80062F24.linef2, 1);
+    setXY2(D_80062F24.linef2, rect->x, rect->y + rect->h - 1, rect->x + rect->w - 1, rect->y + rect->h - 1);
+    setRGB0(D_80062F24.linef2, 0x70, 0x70, 0x70);
+    AddPrim(D_80062FC4, D_80062F24.linef2++);
+
+    setLineF2(D_80062F24.linef2);
+    SetSemiTrans(D_80062F24.linef2, 1);
+    setXY2(D_80062F24.linef2, rect->x, rect->y, rect->x, rect->y + rect->h - 1);
+    setRGB0(D_80062F24.linef2, 0x20, 0x20, 0x20);
+    AddPrim(D_80062FC4, D_80062F24.linef2++);
+
+    setLineF2(D_80062F24.linef2);
+    SetSemiTrans(D_80062F24.linef2, 1);
+    setXY2(D_80062F24.linef2, rect->x + rect->w - 1, rect->y, rect->x + rect->w - 1, rect->y + rect->h - 1);
+    setRGB0(D_80062F24.linef2, 0x70, 0x70, 0x70);
+    AddPrim(D_80062FC4, D_80062F24.linef2++);
+
+    setTile(D_80062F24.tile);
+    SetSemiTrans(D_80062F24.tile, 1);
+    setXY0(D_80062F24.tile, rect->x, rect->y);
+    setWH(D_80062F24.tile, rect->w, rect->h);
+    setRGB0(D_80062F24.tile, 0x50, 0x50, 0x50);
+    AddPrim(D_80062FC4, D_80062F24.tile++);
+}
+
+void SysMenuDrawScrollbarSlider(RECT* rect) {
+    setLineF2(D_80062F24.linef2);
+    setXY2(D_80062F24.linef2, rect->x, rect->y, rect->x + rect->w - 1, rect->y);
+    setRGB0(D_80062F24.linef2, 0xF0, 0xF0, 0xF0);
+    AddPrim(D_80062FC4, D_80062F24.linef2++);
+
+    setLineF2(D_80062F24.linef2);
+    setXY2(D_80062F24.linef2, rect->x, rect->y + rect->h - 1, rect->x + rect->w - 1, rect->y + rect->h - 1);
+    setRGB0(D_80062F24.linef2, 0x40, 0x40, 0x40);
+    AddPrim(D_80062FC4, D_80062F24.linef2++);
+
+    setLineF2(D_80062F24.linef2);
+    setXY2(D_80062F24.linef2, rect->x, rect->y, rect->x, rect->y + rect->h - 1);
+    setRGB0(D_80062F24.linef2, 0xC8, 0xC8, 0xC8);
+    AddPrim(D_80062FC4, D_80062F24.linef2++);
+
+    setLineF2(D_80062F24.linef2);
+    setXY2(D_80062F24.linef2, rect->x + rect->w - 1, rect->y, rect->x + rect->w - 1, rect->y + rect->h - 1);
+    setRGB0(D_80062F24.linef2, 0x70, 0x70, 0x70);
+    AddPrim(D_80062FC4, D_80062F24.linef2++);
+
+    setTile(D_80062F24.tile);
+    setXY0(D_80062F24.tile, rect->x, rect->y);
+    setWH(D_80062F24.tile, rect->w, rect->h);
+    setRGB0(D_80062F24.tile, 0xA0, 0xA0, 0xA0);
+    AddPrim(D_80062FC4, D_80062F24.tile++);
+}
+
+void SysMenuDrawScrollbar(MenuScrollbar* bar) {
+    RECT rect;
+    s32 offset;
+    s32 length;
+
+    offset = bar->track.h * bar->topRow / bar->totalRows;
+    length = bar->track.h * bar->visibleRows / bar->totalRows;
+
+    rect.x = bar->track.x;
+    rect.y = bar->track.y + offset;
+    rect.w = bar->track.w - 1;
+    rect.h = length + 1;
+    SysMenuDrawScrollbarSlider(&rect);
+
+    rect.x = bar->track.x;
+    rect.y = bar->track.y;
+    rect.w = bar->track.w;
+    rect.h = bar->track.h;
+    SysMenuDrawScrollbarTrack(&rect);
+
+    SysMenuSetDrawMode(0, 1, 0x1F, NULL);
+}
+
+void SysMenuDrawProgressBar(s16 x, s16 y, s16 w, s16 h, u8 r, u8 g, u8 b) {
+    SetPolyG4(D_80062F24.polyg4);
+    SetSemiTrans(D_80062F24.polyg4, 1);
+    setXY4(D_80062F24.polyg4, x, y, x + w, y, x, y + h / 2, x + w, y + h / 2);
+    setRGB0(D_80062F24.polyg4, r, g, b);
+    setRGB1(D_80062F24.polyg4, r, g, b);
+    setRGB2(D_80062F24.polyg4, 0x80, 0x80, 0x80);
+    setRGB3(D_80062F24.polyg4, 0x80, 0x80, 0x80);
+    AddPrim(D_80062FC4, D_80062F24.polyg4++);
+
+    SetPolyG4(D_80062F24.polyg4);
+    SetSemiTrans(D_80062F24.polyg4, 1);
+    setXY4(D_80062F24.polyg4, x, y + h / 2, x + w, y + h / 2, x, y + h, x + w, y + h);
+    setRGB0(D_80062F24.polyg4, r, g, b);
+    setRGB1(D_80062F24.polyg4, r, g, b);
+    setRGB2(D_80062F24.polyg4, 0, 0, 0);
+    setRGB3(D_80062F24.polyg4, 0, 0, 0);
+    AddPrim(D_80062FC4, D_80062F24.polyg4++);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80028930);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawTexturedRect);
+void SysMenuDrawTexturedRect(s16 x, s16 y, u8 u, u8 v, s16 w, s16 h, s16 clutY, s16 semiTrans) {
+    setSprt(D_80062F24.sprt);
+    SetShadeTex(D_80062F24.sprt, 1);
+    if (semiTrans) {
+        SetSemiTrans(D_80062F24.sprt, 1);
+    }
+    setXY0(D_80062F24.sprt, x, y);
+    setUV0(D_80062F24.sprt, u, v);
+    setWH(D_80062F24.sprt, w, h);
+    D_80062F24.sprt->clut = GetClut(0x100, clutY + 0x1E0);
+    AddPrim(D_80062FC4, D_80062F24.sprt);
+    D_80062F24.sprt++;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawDigitsWithoutLeadingZeroes);
 

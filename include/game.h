@@ -273,6 +273,25 @@ typedef struct {
 } MenuTable;           // size: 0x12
 
 typedef struct {
+    /* 0x0 */ s16 visibleRows; // rows shown at once, sets slider length
+    /* 0x2 */ s16 totalRows;   // rows in the whole list, the divisor
+    /* 0x4 */ s16 topRow;      // index of the first visible row
+    /* 0x6 */ RECT track;      // full extent of the scrollbar
+} MenuScrollbar;               // size: 0xE
+
+typedef struct {
+    /* 0x00 */ u16 x;
+    /* 0x02 */ u16 y;
+    /* 0x04 */ s16 w;
+    /* 0x06 */ u16 h;
+    /* 0x08 */ s16 barValue;  // length of the second bar, same scale as max
+    /* 0x0A */ s16 max;       // full-scale value; nothing is drawn when zero
+    /* 0x0C */ s16 barMode;   // 0:hidden, 1:green tint, else black
+    /* 0x0E */ s16 fillValue; // length of the main coloured fill
+    /* 0x10 */ u8 r, g, b;    // colour of the main fill
+} MenuHpMpBar;                // size: 0x14
+
+typedef struct {
     s16 id;
     s16 quantity;
     s16 enabled;
@@ -289,11 +308,13 @@ typedef struct {
 typedef union {
     void* poly;
     POLY_FT4* ft4;
+    POLY_G4* polyg4;
     SPRT* sprt;
     TILE* tile;
     TILE_1* tile1;
     BLK_FILL* blk_fill;
     LINE_F2* linef2;
+    LINE_F4* linef4;
 } Gpu;
 
 typedef struct {
@@ -1239,7 +1260,7 @@ void SysCalcTotalLureGilPreempVal(void);
 s32 SysMenuGetMateriaColorByType(s32 arg0);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
 s32 SysAddCommandToTemp(s32);
-void SysMenuSetDrawMode(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
+void SysMenuSetDrawMode(s32 dfe, s32 dtd, s32 tpage, RECT* tw);
 void SysMovieAbortPlay(void);
 s32 func_80048540(s32 arg0);
 s32 func_80034410(void);

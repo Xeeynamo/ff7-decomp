@@ -144,7 +144,6 @@ extern u8 D_80062F98;
 extern s8 D_80062FFC;
 extern s16 D_80062FF4;
 extern u8 D_80062FEC;
-extern void* D_80063008; // saved copy of D_80062F24.poly
 extern u16 D_80062F34[3];
 extern Unk80062F7C* D_80062F7C;
 extern u8 g_KernelTextBuffer[];
@@ -187,3 +186,6 @@ u8 func_8001F6B4(void);
 void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
 void SysMenuRequestAddWindow(u8* text, s8 palette);     // PC: menu_setNotificationMessage
 u8* func_80014C80(s32 arg0);
+void SysMenuDrawScrollbarSlider(RECT* rect);
+void SysMenuDrawScrollbarTrack(RECT* rect);
+void SysMenuDrawSingleFontLetter(s16 x, s16 y, u8 ch, u8 color);
