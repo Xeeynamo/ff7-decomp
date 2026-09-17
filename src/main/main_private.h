@@ -51,22 +51,6 @@ typedef enum {
     KERNEL_TEXT_NAME_SUMMON,     // 0x11
 } KernelTextBlockID;
 
-typedef enum {
-    SUBSYSTEM_FIELD = 1,
-    SUBSYSTEM_BATTLE = 2,
-    SUBSYSTEM_WORLD = 3, // also used for snowfield
-    SUBSYSTEM_UNK = 4,   // similar to battle?
-    SUBSYSTEM_MENU = 5,
-    SUBSYSTEM_BIKE = 6,
-    SUBSYSTEM_RACE = 7,
-    SUBSYSTEM_SNOWBOARD = 8,
-    SUBSYSTEM_FORTCONDOR = 9,
-    SUBSYSTEM_SUBMARIME = 10,
-    SUBSYSTEM_SHOOTING = 11,
-    SUBSYSTEM_CHANGE_DISK,
-    SUBSYSTEM_SNOWBOARD_GOLDSAURCER = 14,
-} Subsystem;
-
 typedef struct {
     s32 len; // decompressed length
     s32 unk4;
@@ -78,40 +62,6 @@ typedef struct {
     u16 unk4;
     u16 unk6;
 } Unk8001DE0C;
-
-// Kernel armor record, one per armor id (g_ArmorTable). Field meanings were
-// verified by dumping the live table and matching each field against
-// published stats for all 32 armors.
-typedef struct {
-    u8 unk0;            // 0 on every armor except Wizard Bracelet (0xFF)
-    u8 elementalEffect; // "damage type": 0xFF=none, 0=absorb, 1=nullify,
-                        // 2=halve
-    u8 defense;
-    u8 magicDefense;
-    u8 defensePercent;
-    u8 magicDefensePercent;
-    u8 statusDefense; // index of the status bit this armor guards against;
-                      // 0xFF (none) on every armor (a mostly-accessory field)
-    u8 unk7;
-    u8 unk8;               // 0 on every armor except Four Slots (0xFF)
-    u8 materiaSlot[8];     // one byte per possible slot; 0=none, else slot present
-                           // (5=single/6,7=linked-pair when materiaGrowth!=None;
-                           //  1=single/2,3=linked-pair when materiaGrowth==None)
-    u8 materiaGrowth;      // 0=None, 1=Normal, 2=Double
-    u8 equipMask[2];       // equippable-by-character bitmask (bit0=Cloud,1=Barret,
-                           // 2=Tifa,3=Aeris,4=RedXIII,5=Yuffie,6=CaitSith,7=Vincent,
-                           // 8=Cid,9=Young Cloud). 0x01FF=all; Minerva=0x002C
-                           // (women), Escort Guard=0x03D3 (men + Young Cloud).
-    u8 elementalMask[2];   // bit0=Fire,1=Ice,2=Lightning,3=Earth,4=Poison,5=Gravity,
-                           // 6=Water,7=Wind,8=Holy,10=Cut,11=Hit,12=Punch,13=Shoot
-    u8 unk16[2];           // unknown, always 0x00FF
-    u8 statBonusId[4];     // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
-                           // 4=Dex,5=Lck; unused slot when paired value==0
-    u8 statBonusValue[4];  // bonus amount; 0 = slot unused
-    u8 restrictionMask[2]; // usage flags (sellability / battle-use / menu-use);
-                           // 0xFFFE on armor
-    u8 unk22[2];           // unknown, always 0xFFFF
-} ArmorRecord;
 
 extern u16 g_Pad1KeysPrev;
 extern u16 g_Pad2Keys;
@@ -127,27 +77,12 @@ extern u16 g_Pad2BattleKeysPrev;
 extern u16 g_Pad2BattleKeysPressed;
 extern u16 g_Pad2BattleKeysRepeat;
 
-extern s32 D_80010100[];
 extern Yamada D_80048F60[17];
 extern Yamada D_80048FE8[15];
 extern s32 D_80049474[6]; // play-clock divisors, see ovl.c
 extern s32 D_80049500[8]; // party slot -> character id (endgame level snapshot)
 extern u8 D_80049520[];
 extern u8 D_80049528[];
-extern u8 D_80062E54[8];
-extern u8 D_80062E5C;                   // Pre-emptive materia is at maximum level.
-extern ActiveCharacterData* D_80062E60; // Current active character.
-extern u32 D_80062E64;
-extern u32 D_80062E68;
-extern s16 D_80062E6C[4];
-extern u32 D_80062E74;
-extern u32 D_80062E78;
-extern s32 D_80062E7C;
-extern s32 D_80062E80;
-extern s32 D_80062E84;
-extern u32 D_80062E88;
-extern u32 D_80062E8C;
-extern u32 D_80062E90;
 extern s32 g_RewardMenuHasEarnedItems;
 extern u_long* g_CurrentMenuOrderingTable;
 extern s32 g_PartyMenuListState;
@@ -176,7 +111,10 @@ extern u8 D_800694D4[16];
 extern s16 D_800694E4[12];
 extern s16 D_800694FC[6];
 extern DISPENV D_8007075C[2]; // active display environments (double-buffered)
-extern u16 D_800707BC;
+extern struct {
+    u16 battleId;
+    u16 mode;
+} D_800707BC;
 extern u8 D_800716D0;
 extern s32 D_80071744; // LBA loc for func_80014540
 extern s16 D_80071A5C;
@@ -185,10 +123,8 @@ extern ArmorRecord g_ArmorTable[];         // armor kernel table, indexed by arm
 extern u_long* D_800722C8;                 // LBA dst for func_80014540
 extern WeaponRecord g_WeaponTable[];       // weapon kernel table, by weapon id
 extern s32 D_80095DD8;                     // LBA len for func_80014540
-extern s16 g_isFieldLoading;
-extern volatile s16 D_8009C560; // refer to Subsystem enum
-void D_800A00CC(void);          // battle/brom entrypoint
-void D_800A1158(void);          // battle/battle entrypoint
+void D_800A00CC(void);                     // battle/brom entrypoint
+void D_800A1158(void);                     // battle/battle entrypoint
 
 void SysGzipBinDecompress(GzHeader* src, u8* dst);
 void SysGzipSetDataBlock(u8* arg0);
@@ -202,3 +138,6 @@ u8 func_8001F6B4(void);
 void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
 void SysMenuRequestAddWindow(u8* text, s8 palette);     // PC: menu_setNotificationMessage
 u8* func_80014C80(s32 arg0);
+void SysMenuDrawScrollbarSlider(RECT* rect);
+void SysMenuDrawScrollbarTrack(RECT* rect);
+void SysMenuDrawSingleFontLetter(s16 x, s16 y, s32 ch, u8 color);

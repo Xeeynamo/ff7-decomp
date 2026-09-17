@@ -3,6 +3,7 @@
 
 #define CMD_OPCODE_DELIM 0x1F
 #define HIT_OPCODE_DELIM 0x08
+#define BATTLE_EVENT_QUEUE_SIZE 128
 
 enum QueueMethod {
     QUEUE_LOAD_IMAGE,
@@ -273,8 +274,8 @@ extern s32 D_800F01E4;
 extern u16 D_800F198C; // btlmenu_limitReadyMask
 extern s32 D_800F199C;
 extern u8 D_800F19A4;
-extern s8 D_800F1E4F;
-extern s16 D_800F1E50;
+extern s8 g_EncounterBannerActive;
+extern s16 g_EncounterBannerStringId;
 extern s32 D_800F311C;
 extern s16 D_800F3122; // part of a struct?
 extern s32 D_800F3138;
@@ -320,15 +321,17 @@ extern s32 D_800F3A1C;     // write index into D_800F3A20
 extern s16 D_800F3A20[16]; // ring buffer, see BattleReqReturnReservedItems
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
+
 typedef struct {
-    u8 unk0;
-    s8 unk1;
-    s16 unk2;
-} Unk800F4308;
-extern Unk800F4308 D_800F4308[][128];
+    u8 unitId;
+    s8 callbackId;
+    s16 param;
+} BattleCallbackEvent;
+extern BattleCallbackEvent g_BattleCallbackEvent[][128];
+
 extern u8 g_BattleHitFormulaOpcodeStream[];
-extern s32 D_800F4908[];
-extern s32 D_800F4914[];
+extern s32 g_BattlePartyEventReadIdx[];
+extern s32 g_BattlePartyEventWriteIdx[];
 extern s32 g_BattleHitFormulaOffs[];
 extern s32 D_800F4920;
 extern u16 D_800F4938[];
@@ -381,16 +384,16 @@ extern u32 D_800F8CF4[][0x18];
 extern s32 D_800F9F28[]; // size is either 4 or 5
 extern u8 D_800F9F34;
 typedef struct {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ u16 unk6;
-    /* 0x8 */ u16 unk8;
-    /* 0xA */ s16 unkA;
-    /* 0xC */ s16 unkC;
-} Unk800F9F3C; // size:0xE
+    /* 0x0 */ s16 targetId;
+    /* 0x2 */ s16 damage;
+    /* 0x4 */ s16 damageFlags;
+    /* 0x6 */ u16 currentHp;
+    /* 0x8 */ u16 currentMp;
+    /* 0xA */ s16 impactSfxId;
+    /* 0xC */ s16 impactEffectId;
+} BattleImpactData; // size:0xE
 
-extern Unk800F9F3C D_800F9F3C[];
+extern BattleImpactData D_800F9F3C[];
 extern u8 D_800F99E8;
 extern s32 D_800F99E4;
 extern u8 D_800F9D94;
@@ -418,7 +421,16 @@ extern s32 D_801516CC[10];
 extern s32 D_8015174C[10];
 extern s32 D_8015178C[10];
 extern s32 D_801517C8[10];
+typedef struct {
+    /* 0x0 */ u16 pos;
+    /* 0x2 */ u16 unk2;
+    /* 0x4 */ u8 unk4;
+    /* 0x5 */ u8 unk5[0x9];
+} BattleQueue1CamCursor; // size:0xE
+
+extern BattleQueue1CamCursor g_BattleQueue1CamReadCursor[4]; // read cursor per category
 extern s32 D_8015187C[10];
+extern BattleQueue1CamCursor g_BattleQueue1CamWriteCursor[4]; // write cursor per category
 // queued-action-ish record, allocated by BattleQueue2GetPtr (unk3 set to -1,
 // marking it unassigned) and searched by func_800A34CC. Traced through
 // func_800ABA68's callers (func_800AB830/BattleMainDmgCalculation, still undecompiled):
@@ -428,16 +440,16 @@ extern s32 D_8015187C[10];
 // unk3 becomes a real D_800F9F3C slot index (0-0x7F) once func_800A311C
 // activates the record. unk4's bit 0x4 is checked by func_800A34CC.
 typedef struct {
-    /* 0x0 */ s8 unk0;
-    /* 0x1 */ s8 unk1;
-    /* 0x2 */ s8 unk2;
-    /* 0x3 */ s8 unk3;
-    /* 0x4 */ u16 unk4;
-    /* 0x6 */ u8 unk6[2];
-    /* 0x8 */ u32 unk8;
-} Unk800FA9D0; // size:0xC
+    /* 0x0 */ s8 targetId;
+    /* 0x1 */ s8 attackerId;
+    /* 0x2 */ s8 hurtAnimScript;
+    /* 0x3 */ s8 extraDataIndex;
+    /* 0x4 */ u16 flags;
+    /* 0x6 */ u16 pad6;
+    /* 0x8 */ u32 targetStatus;
+} BattleQueueTargetEntry; // size:0xC
 
-extern Unk800FA9D0 D_800FA9D0[0x80];
+extern BattleQueueTargetEntry g_BattleQueueTargets[0x80];
 extern u8 D_800FAFDC;
 extern s16 D_800FAFD4;
 extern s32 D_800FAFEC;
@@ -540,17 +552,17 @@ extern u8 D_80166F68;
 
 void func_800A4350(s16, s16, s16, u16);
 void func_800A8E84(s32);
-void func_800AA950(Unk800FA9D0*);
+void func_800AA950(BattleQueueTargetEntry*);
 void func_800AB308(void);
 void func_800AB480(void);
 static void BattleLearnEnemySkill(void);
-void func_800ABA68(Unk800FA9D0*, s16, u16, s16, s16);
+void func_800ABA68(BattleQueueTargetEntry*, s16, u16, s16, s16);
 void func_800AC6B4(s32);
 void BattleCalcTargStats(s32);
 void func_800ACA24(void);
 s32 func_800ACD88(s32);
 static s32 BattleIsDamageNullified(s32);
-static void BattleQueueUnassignedResultDisplay(Unk800FA9D0*);
+static void BattleQueueUnassignedResultDisplay(BattleQueueTargetEntry*);
 void func_800AD0FC(void);
 void func_800AD324(s32, s32, s32, s32);
 static void BattleApplyDefaultAbsorbEffect(void);

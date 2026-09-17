@@ -70,15 +70,33 @@ def filter_functions(
     ]
 
 
+def write_if_changed(out_path: str, content: str) -> None:
+    if os.path.isfile(out_path):
+        with open(out_path, "r") as f:
+            if f.read() == content:
+                return
+    with open(out_path, "w") as f:
+        f.write(content)
+
+
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
+    argv = sys.argv[1:]
+    out_path = None
+    if len(argv) >= 2 and argv[0] == "-o":
+        out_path = argv[1]
+        argv = argv[2:]
+    if len(argv) < 1:
         print(
-            f"Usage: {sys.executable} {sys.argv[0]} <elf_file_path> [elf_file_paths...]"
+            f"Usage: {sys.executable} {sys.argv[0]} [-o out_file] <elf_file_path> [elf_file_paths...]"
         )
         sys.exit(1)
     functions = []
-    for elf_file_path in sys.argv[1:]:
+    for elf_file_path in argv:
         symbols = get_symbols_from_file(elf_file_path)
         symbols.sort(key=lambda s: (int(s[0], 16), s[2]))
         functions += filter_functions(symbols)
-    sys.stdout.writelines([f"{s[2]} = 0x{s[0]};\n" for s in functions])
+    content = "".join([f"{s[2]} = 0x{s[0]};\n" for s in functions])
+    if out_path is None:
+        sys.stdout.write(content)
+    else:
+        write_if_changed(out_path, content)

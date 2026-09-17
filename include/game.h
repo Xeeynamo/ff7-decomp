@@ -19,6 +19,24 @@
 typedef unsigned char ff7s[];
 
 typedef enum {
+    GAMESTATE_FIELD = 1,
+    GAMESTATE_BATTLE = 2,
+    GAMESTATE_WORLD = 3, // Also used for snowfield
+    GAMESTATE_BROM = 4,  // Unused?
+    GAMESTATE_MENU = 5,
+    GAMESTATE_HIGHWAY = 6,
+    GAMESTATE_CHOCOBO = 7,
+    GAMESTATE_SNOWBOARD1 = 8,
+    GAMESTATE_FORTCONDOR = 9,
+    GAMESTATE_SUBMARIME = 10,
+    GAMESTATE_JET = 11,
+    GAMESTATE_CHANGE_DISK = 12,
+    GAMESTATE_MENU_COMMANND = 13, // Commands called from field to menus
+    GAMESTATE_SNOWBOARD2 = 14,
+    GAMESTATE_LOAD_INSTR2 = 16, // Load instrument bank for One-Winged Angel
+} GameState;
+
+typedef enum {
     LABEL_ITEM,
     LABEL_MAGIC,
     LABEL_MATERIA,
@@ -112,7 +130,7 @@ typedef enum {
     EVTCMD_PARTY_SELECT,
     EVTCMD_SHOP,
     EVTCMD_PARTY_MENU,
-    EVTCMD_BEAT_GAME,
+    EVTCMD_TITLE_SCREEN,
     EVTCMD_UNKB,
     EVTCMD_LOAD_MINIGAME,
     EVTCMD_CD_CHANGE,
@@ -255,6 +273,25 @@ typedef struct {
 } MenuTable;           // size: 0x12
 
 typedef struct {
+    /* 0x0 */ s16 visibleRows; // rows shown at once, sets slider length
+    /* 0x2 */ s16 totalRows;   // rows in the whole list, the divisor
+    /* 0x4 */ s16 topRow;      // index of the first visible row
+    /* 0x6 */ RECT track;      // full extent of the scrollbar
+} MenuScrollbar;               // size: 0xE
+
+typedef struct {
+    /* 0x00 */ u16 x;
+    /* 0x02 */ u16 y;
+    /* 0x04 */ s16 w;
+    /* 0x06 */ u16 h;
+    /* 0x08 */ s16 barValue;  // length of the second bar, same scale as max
+    /* 0x0A */ s16 max;       // full-scale value; nothing is drawn when zero
+    /* 0x0C */ s16 barMode;   // 0:hidden, 1:green tint, else black
+    /* 0x0E */ s16 fillValue; // length of the main coloured fill
+    /* 0x10 */ u8 r, g, b;    // colour of the main fill
+} MenuHpMpBar;                // size: 0x14
+
+typedef struct {
     s16 id;
     s16 quantity;
     s16 enabled;
@@ -271,11 +308,15 @@ typedef struct {
 typedef union {
     void* poly;
     POLY_FT4* ft4;
+    POLY_G4* polyg4;
     SPRT* sprt;
+    SPRT_8* sprt8;
     TILE* tile;
     TILE_1* tile1;
     BLK_FILL* blk_fill;
     LINE_F2* linef2;
+    LINE_F4* linef4;
+    DR_MODE* dr_mode;
 } Gpu;
 
 typedef struct {
@@ -324,9 +365,9 @@ typedef struct {
     u16 limit_lv1_count;
     u16 limit_lv2_count;
     u16 limit_lv3_count;
-    u16 hp_cur;
+    u16 curHP;
     u16 hp_base;
-    u16 mp_cur;
+    u16 curMP;
     u16 mp_base;
     u32 unk34;
     u16 hp_max;
@@ -480,6 +521,19 @@ typedef struct {
     s32 unk25C;
 } Unk800A8D04; // size: ???
 
+// Targeting byte shared by weapons, magic, items and battle commands.
+// Bit meanings per https://ff7-mods.github.io/ff7-flat-wiki/FF7/Battle/Targeting_Data.html
+typedef enum {
+    TARGET_ENABLE_SELECTION = 0x01, // cursor moves to the field; a target can be picked
+    TARGET_START_ENEMY_ROW = 0x02,  // cursor starts on the first enemy row
+    TARGET_MULTIPLE_DEFAULT = 0x04, // cursor selects every target in a row
+    TARGET_TOGGLE_MULTIPLE = 0x08,  // player may switch single/multi (splits damage)
+    TARGET_ONE_ROW_ONLY = 0x10,     // cursor is locked to one row
+    TARGET_SHORT_RANGE = 0x20,      // halved physical damage unless both are front row
+    TARGET_ALL_ROWS = 0x40,         // cursor selects viable targets across every row
+    TARGET_RANDOM = 0x80,           // one of the selected targets is picked at random
+} TargetFlags;
+
 typedef struct {
     u8 id;
     u8 mpCost;
@@ -522,7 +576,7 @@ typedef struct {
     /* 0x00 */ u8 accuracyRate;
     /* 0x01 */ u8 impactEffectID;
     /* 0x02 */ u8 impactAnimID;
-    /* 0x03 */ u8 unk3;
+    /* 0x03 */ u8 pad3;
     /* 0x04 */ u16 mpCost;
     /* 0x06 */ u16 impactSfxID;
     /* 0x08 */ u16 cameraSingleID;
@@ -540,46 +594,79 @@ typedef struct {
     /* 0x1A */ u16 flags;
 } AttackData; // size: 0x1C
 
+// Kernel armor record, one per armor id (g_ArmorTable). Field meanings were
+// verified by dumping the live table and matching each field against
+// published stats for all 32 armors.
+typedef struct {
+    u8 unk0;            // 0 on every armor except Wizard Bracelet (0xFF)
+    u8 elementalEffect; // "damage type": 0xFF=none, 0=absorb, 1=nullify,
+                        // 2=halve
+    u8 defense;
+    u8 magicDefense;
+    u8 defensePercent;
+    u8 magicDefensePercent;
+    u8 statusDefense; // index of the status bit this armor guards against;
+                      // 0xFF (none) on every armor (a mostly-accessory field)
+    u8 unk7;
+    u8 unk8;              // 0 on every armor except Four Slots (0xFF)
+    u8 materiaSlot[8];    // one byte per possible slot; 0=none, else slot present
+                          // (5=single/6,7=linked-pair when materiaGrowth!=None;
+                          //  1=single/2,3=linked-pair when materiaGrowth==None)
+    u8 materiaGrowth;     // 0=None, 1=Normal, 2=Double
+    u16 equipMask;        // equippable-by-character bitmask (bit0=Cloud,1=Barret,
+                          // 2=Tifa,3=Aeris,4=RedXIII,5=Yuffie,6=CaitSith,7=Vincent,
+                          // 8=Cid,9=Young Cloud). 0x01FF=all; Minerva=0x002C
+                          // (women), Escort Guard=0x03D3 (men + Young Cloud).
+    u16 elementalMask;    // bit0=Fire,1=Ice,2=Lightning,3=Earth,4=Poison,5=Gravity,
+                          // 6=Water,7=Wind,8=Holy,10=Cut,11=Hit,12=Punch,13=Shoot
+    u16 unk16;            // unknown, always 0x00FF
+    u8 statBonusId[4];    // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
+                          // 4=Dex,5=Lck; unused slot when paired value==0
+    u8 statBonusValue[4]; // bonus amount; 0 = slot unused
+    u16 restrictionMask;  // usage flags (sellability / battle-use / menu-use);
+                          // 0xFFFE on armor
+    u16 unk22;            // unknown, always 0xFFFF
+} ArmorRecord;
+
 // Kernel weapon record, one per weapon id (g_WeaponTable), 0x2C-byte stride.
 // Combat fields verified by dumping the live table and matching each field
 // against published weapon stats (same method as ArmorRecord); the remaining
 // fields follow the standard kernel weapon-data layout.
 typedef struct {
-    u8 targetFlags;           // 0x23 = melee, 0x03 = long-range (hits back row)
-    u8 attackEffectId;        // always 0xFF (unused by weapons)
-    u8 damageFormula;         // 0x11 = physical; 0xA0-0xA8 select a special formula
-                              // (HP/MP/AP/Limit/kills/status/dead-allies), shared by
-                              // formula across weapons
-    u8 unk3;                  // always 0xFF (unused)
-    u8 attack;                // attack power
-    u8 statusAttack;          // index of the status this attack inflicts; 0xFF (none)
-                              // on every weapon (cf. ArmorRecord.statusDefense)
-    u8 materiaGrowth;         // 0=None, 1=Normal, 2=Double, 3=Triple
-    u8 criticalPercent;       // bonus critical-hit %
-    u8 attackPercent;         // hit rate
-    u8 weaponModel;           // lo nibble = model index, hi nibble = animation mod
-    u8 alignmentA;            // always 0xFF (alignment padding)
-    u8 soundIdMask;           // mask to reach the high (0x100+) sound-effect ids
-    u8 cameraMovementId[2];   // attack camera; always 0xFFFF
-    u8 equipMask[2];          // equippable-by-character bitmask (see ArmorRecord);
-                              // Cloud weapons add bit9 (Young Cloud) = 0x0201
-    u16 attackElement;        // 0x0400=Cut,0x0800=Hit,0x1000=Punch,0x2000=Shoot
-    u8 unk12[2];              // unknown, always 0xFFFF
-    u8 statBonusId[4];        // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
-                              // 4=Dex,5=Lck; 0xFF = unused (the Mag column is id 2)
-    u8 statBonusValue[4];     // bonus amount, paired with statBonusId; 0xFF unused
-    u8 materiaSlot[8];        // one byte per slot; same encoding as ArmorRecord
-                              // (5=single/6,7=linked-pair when materiaGrowth!=None;
-                              //  1=single/2,3=linked-pair when materiaGrowth==None)
-    u8 hitSound;              // sound-effect id for a normal hit (constant per weapon
-                              // class)
-    u8 criticalSound;         // sound-effect id for a critical hit
-    u8 missSound;             // sound-effect id for a miss (0x2F on firearms, else 0x05)
-    u8 impactEffect;          // impact-effect id (varies per weapon)
-    u8 specialAttackFlags[2]; // always 0xFFFF
-    u16 restrictionMask;      // a set bit forbids: 0x01 sell, 0x02 use in battle,
-                              // 0x04 use in menu, 0x08 throw (0xFFF6 base; the
-                              // initial weapons add sell+throw -> 0xFFFF)
+    u8 targetFlags;         // 0x23 = melee, 0x03 = long-range (hits back row)
+    u8 attackEffectId;      // always 0xFF (unused by weapons)
+    u8 damageFormula;       // 0x11 = physical; 0xA0-0xA8 select a special formula
+                            // (HP/MP/AP/Limit/kills/status/dead-allies), shared by
+                            // formula across weapons
+    u8 unk3;                // always 0xFF (unused)
+    u8 attack;              // attack power
+    u8 statusAttack;        // index of the status this attack inflicts; 0xFF (none)
+                            // on every weapon (cf. ArmorRecord.statusDefense)
+    u8 materiaGrowth;       // 0=None, 1=Normal, 2=Double, 3=Triple
+    u8 criticalPercent;     // bonus critical-hit %
+    u8 attackPercent;       // hit rate
+    u8 weaponModel;         // lo nibble = model index, hi nibble = animation mod
+    u8 alignmentA;          // always 0xFF (alignment padding)
+    u8 soundIdMask;         // mask to reach the high (0x100+) sound-effect ids
+    u16 cameraMovementId;   // attack camera; always 0xFFFF
+    u16 equipMask;          // equippable-by-character bitmask (see ArmorRecord);
+                            // Cloud weapons add bit9 (Young Cloud) = 0x0201
+    u16 attackElement;      // 0x0400=Cut,0x0800=Hit,0x1000=Punch,0x2000=Shoot
+    u16 unk12;              // unknown, always 0xFFFF
+    u8 statBonusId[4];      // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
+                            // 4=Dex,5=Lck; 0xFF = unused (the Mag column is id 2)
+    u8 statBonusValue[4];   // bonus amount, paired with statBonusId; 0xFF unused
+    u8 materiaSlot[8];      // one byte per slot; same encoding as ArmorRecord
+                            // (5=single/6,7=linked-pair when materiaGrowth!=None;
+                            //  1=single/2,3=linked-pair when materiaGrowth==None)
+    u8 attackSound[3];      // sound-effect ids: [0] normal hit (constant per weapon
+                            // class), [1] critical hit, [2] miss (0x2F on firearms,
+                            // else 0x05)
+    u8 impactEffect;        // impact-effect id (varies per weapon)
+    u16 specialAttackFlags; // always 0xFFFF
+    u16 restrictionMask;    // a set bit forbids: 0x01 sell, 0x02 use in battle,
+                            // 0x04 use in menu, 0x08 throw (0xFFF6 base; the
+                            // initial weapons add sell+throw -> 0xFFFF)
 } WeaponRecord;
 
 // Kernel accessory record, one per accessory id (g_AccessoryTable), 0x10 bytes.
@@ -601,6 +688,13 @@ typedef struct {
     u16 restrictionMask;  // a set bit forbids: 0x01 sell, 0x02 use in battle,
                           // 0x04 use in menu (0xFFFE on every accessory)
 } AccessoryRecord;
+
+// Kernel limit-break record, one per character: the HP divisor for each of the
+// four limit levels, followed by the rest of the 0x38-byte stride.
+typedef struct {
+    s32 hpDivisor[4];
+    u8 rest[0x28];
+} KernelLimitRecord;
 
 typedef struct {
     u16 levelUpApLimits[4];
@@ -626,7 +720,29 @@ typedef struct {
     u8 materiaEffectFlags;
 } ActiveCharCommandMenu; // size: 0x6
 
-// Runtime data for a battle participant.
+// The character's three limit techniques: their ids, the learned-limit filter
+// applied by BattleInitLimits, and the 0x1C-byte record behind each one.
+typedef struct {
+    /* 00 */ u8 limitId[3];
+    /* 03 */ u8 unk3[3];
+    /* 06 */ u8 activeLimits;
+    /* 07 */ u8 unk7;
+    /* 08 */ struct {
+        u8 unk0[0xC];
+        u8 unkC;
+        u8 unkD[0xF];
+    } limitData[3];
+} BattleLimitData; // size:0x5C
+
+// ActiveCharacterData.characterFlags bits.
+// https://ff7-mods.github.io/ff7-flat-wiki/FF7/Battle/Battle_Mechanics.html
+typedef enum {
+    CHARFLAG_LONG_RANGE = 0x04, // clears TARGET_SHORT_RANGE on the character's attacks
+    CHARFLAG_HP_MP_SWAP = 0x08, // HP<->MP materia: swaps the HP and MP caps
+} CharacterFlags;
+
+// Field names and offsets per the "Active Character Data" table in
+// https://ff7-mods.github.io/ff7-flat-wiki/FF7/Battle/Battle_Mechanics.html
 typedef struct {
     u8 id;
     u8 coverChance;
@@ -644,9 +760,11 @@ typedef struct {
     s16 baseHp;
     s16 mp;
     s16 baseMp;
-    s32 unk18;
-    s32 unk1C;
-    s8 unk20;
+    u16 atbTimer; // seeded from BattleWork.turn[].unk4
+    u16 unk1A;    // BattlePartyWork.limitBar << 8
+    u16 counterActionIndex;
+    u16 counterChance;
+    s8 limitLevel; // 1-based, unlike BattlePartyWork.limitLevel
     s8 unk21;
     s8 unk22;
     u8 characterFlags;
@@ -658,7 +776,7 @@ typedef struct {
     u32 physicalAttackStatuses;
     u32 immuneStatuses;
     ActiveCharCommandMenu commandMenu[16];
-    u8 unkAC[92];
+    BattleLimitData limits;
     MagicRecord enabledMagic[96];
     WeaponRecord weapon;
     s16 unk434;
@@ -683,22 +801,83 @@ typedef struct {
     Unk80062F7CMateriaAttribute materiaAttributes[5];
 } Unk80062F7C;
 
+typedef enum {
+    CAMRAIL_NONE = 0,
+    CAMRAIL_TL_BR = 1,
+    CAMRAIL_BL_TR = 2,
+} FieldCameraRailModes;
+
+typedef struct {
+    s16 left;
+    s16 top;
+    s16 right;
+    s16 bottom;
+} FieldCameraRange;
+
+typedef struct {
+    /* 0x00 */ LinePos pos;
+    /* 0x0C */ DVECTOR destFieldPos;
+    /* 0x10 */ s16 pcWalkMeshTriangleId;
+    /* 0x12 */ u16 fieldId;
+    /* 0x14 */ u8 pcDirection;
+    /* 0x15 */ u8 unk15[3];
+} FieldGateway; // size: 0x18
+
+typedef struct {
+    /* 0x00 */ LinePos pos;
+    /* 0x0C */ u8 backgroundGroupId;
+    /* 0x0D */ u8 backgroundFrameId;
+    /* 0x0E */ u8 behaviour;
+    /* 0x0F */ u8 soundId; // Index into the trigger sound table.
+} FieldBgTrigger;          // size: 0x10
+
+typedef struct {
+    s32 x;
+    s32 z;
+    s32 y;
+    s32 type;
+} FieldArrow; // size: 0x10
+
+typedef struct {
+    /* 0x000 */ char name[9];
+    /* 0x009 */ u8 controlDirection;
+    /* 0x00A */ s16 viewOffset;
+    /* 0x00C */ FieldCameraRange cameraRange;
+    /* 0x014 */ u8 cameraRailMode; // FieldCameraRailModes
+    /* 0x015 */ u8 unk15[3];
+    /* 0x018 */ s16 layer2AnimWidth;
+    /* 0x01A */ s16 layer2AnimHeight;
+    /* 0x01C */ s16 layer3AnimWidth;
+    /* 0x01E */ s16 layer3AnimHeight;
+    /* 0x020 */ s16 layer2ScrollPhaseX;
+    /* 0x022 */ s16 layer2ScrollPhaseY;
+    /* 0x024 */ s16 layer3ScrollPhaseX;
+    /* 0x026 */ s16 layer3ScrollPhaseY;
+    /* 0x028 */ s16 layer2ParallaxFactorX;
+    /* 0x02A */ s16 layer2ParallaxFactorY;
+    /* 0x02C */ s16 layer3ParallaxFactorX;
+    /* 0x02E */ s16 layer3ParallaxFactorY;
+    /* 0x030 */ u8 unk30[8];
+    /* 0x038 */ FieldGateway gateways[12];
+    /* 0x158 */ FieldBgTrigger triggers[12];
+    /* 0x218 */ u8 showArrow[12];
+    /* 0x224 */ FieldArrow arrows[12];
+} FieldTriggers; // size: 0x2E4
+
 typedef struct {
     /* 0x00 */ LinePos pos;
     /* 0x0C */ u8 isActive;
     /* 0x0D */ u8 entityId;
     /* 0x0E */ u8 touch;
     /* 0x0F */ u8 across;
-
     /* 0x10 */ u8 requestPushScript;
     /* 0x11 */ u8 requestTalkScript;
-    /* 0x12 */ u8 requestTouchOnScript;
-    /* 0x13 */ u8 requestTouchOffScript;
+    /* 0x12 */ u8 touchOn;
+    /* 0x13 */ u8 touchOff;
     /* 0x14 */ u8 proximityAngle;
     /* 0x15 */ u8 isOnLine;
     /* 0x16 */ u8 slipDisabled;
     /* 0x17 */ u8 unk17;
-
 } FieldLine; // size:0x18
 
 typedef struct {
@@ -863,7 +1042,7 @@ typedef struct {
     u16 pcWalkMeshId;      // Walk mesh triangle id player is inside of.
     s16 pcDirection;       // Direction player is facing.
     s16 movieCommandState; // enum MovieCommandState.
-    u16 modelCount;
+    s16 modelCount;
     s16 pcModelId;
     u16 idleAnimId;
     u16 walkAnimId;
@@ -875,7 +1054,7 @@ typedef struct {
     u8 mapJumpDisabled; // Set by MPJPO. Disables gateways to other maps.
     u8 scrloSet;        // Set by SCRLO. Unused(?)
     // Set by MPDSP in field map junbin5. Also set to 1 if
-    // fadeType == FFT_INSTANT_BLACK.
+    // fade.fadeType == FFT_INSTANT_BLACK.
     u8 mpdspSet;
     // Set by MVCAM. Static field map camera is used instead of dynamic movie
     // camera.
@@ -897,7 +1076,7 @@ typedef struct {
     u8* nextBattleMusic;
     u32 nextFieldMusic;
     // Set by FADE or NFADE to start fades.
-    u16 fadeType; // enum FieldFadeType.
+    volatile u16 fadeType; // enum FieldFadeType.
     s16 fadeAdjust;
     s16 fadeSpeed;
     s16 fadeRed;
@@ -1049,13 +1228,15 @@ extern AttackData D_800708C4[];
 extern AttackData D_800722CC[];            // magic/summon/skill table
 extern WeaponRecord g_WeaponTable[];       // 0x800738A0, by weapon id
 extern AccessoryRecord g_AccessoryTable[]; // 0x80071C24, by accessory id
+extern ArmorRecord g_ArmorTable[];         // 0x80071E44, by armor id
+extern KernelLimitRecord D_80082290[];     // 0x80082290, by character id
 extern FieldEntity g_FieldEntity[];
 extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
 extern s32 D_800756F8[];
 extern Unk80075D00* D_80075D00;
 extern s32 D_80075D04;
 extern s32 D_80075D08[];
-extern u16 D_80075DEC;           // buffer index, either 0 or 1
+extern volatile s16 D_80075DEC;  // buffer index, also updated by the VSync callback
 extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern u8* g_FieldText;
@@ -1089,8 +1270,8 @@ extern u16 g_FieldPaletteBuffer[64][16];
 extern s8 D_80095DCC;
 extern volatile s16 D_80095DD4;
 extern s16 g_PlayerModelId;
-extern s16 g_isFieldLoading;
-extern volatile s16 D_800965EC;
+extern s16 g_IsFieldLoading;
+extern volatile s16 g_PrevGameState;
 extern u8 D_80099FFC;
 extern s16 D_8009A000[1];
 extern u_long D_8009A004[1]; // may be a u8*
@@ -1136,7 +1317,7 @@ void SysMemCopy32(void* dst, const void* src, const s32 len);
 void SysIncSeedForRandom(void);
 s32 SysGetKernBattleTextById(s32);
 const char* SysKernGetString(s32 arg0, s32 arg1, s32 arg2);
-void func_800155A4(s32, ...);
+void SysSetEngineErrorCode(s32, ...);
 void func_8001726C(s16, u16);
 u32 InputReadPadsRaw(void);
 u32 InputReadPads(void);
@@ -1159,7 +1340,7 @@ void SysCalcTotalLureGilPreempVal(void);
 s32 SysMenuGetMateriaColorByType(s32 arg0);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
 s32 SysAddCommandToTemp(s32);
-void SysMenuSetDrawMode(s32 dfe, s32 dtd, u16 tpage, RECT* tw);
+void SysMenuSetDrawMode(s32 dfe, s32 dtd, s32 tpage, RECT* tw);
 void SysMovieAbortPlay(void);
 s32 func_80048540(s32 arg0);
 s32 func_80034410(void);

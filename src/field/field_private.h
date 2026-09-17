@@ -10,4 +10,42 @@
                sizeof(FieldScriptHeader) + 1)                                                                          \
              << 8
 
+struct FieldRenderData {
+    OT_TYPE ot[0x1000];   // 0x00000: Main scene ordering table
+    SPRT_16 arrows[0x18]; // 0x04000: Field arrow sprite packets
+    DR_MODE arrowsDm;     // 0x04180: Arrow sprite draw mode
+
+    OT_TYPE otFadeDrenv;  // 0x0418c: Fade draw environment OT entry
+    OT_TYPE otSceneDrenv; // 0x04190: Scene draw environment OT entry
+
+    DR_ENV fadeDrenv;  // 0x04194: Screen fade draw environment
+    DR_ENV sceneDrenv; // 0x041d4: Main scene draw environment
+
+    DR_ENV bgDrenv3S; // 0x04214: Background layer 3 start env
+    DR_ENV bgDrenv4S; // 0x04254: Background layer 4 start env
+    DR_ENV bgDrenv3E; // 0x04294: Background layer 3 end env
+    DR_ENV bgDrenv4E; // 0x042d4: Background layer 4 end env
+
+    u8 unk4314[1536]; // 0x04314: Unknown render data
+
+    SPRT_16 bg1[2500]; // 0x04914: Background layer 1/2 sprites
+    SPRT bg2[512];     // 0x0e554: Background layer 3/4 sprites
+
+    u16 bgAnim[3012];   // 0x10d54: Background animation data
+    DR_MODE bgDm[1700]; // 0x124dc: Background draw mode packets
+
+    OT_TYPE otUi;     // 0x1748c: UI ordering table
+    DR_MODE rainDm;   // 0x17490: Rain draw mode
+    LINE_F2 Rain[64]; // 0x1749c: Rain line primitives
+};
+
+void StopFieldMapPreload(void);
+s32 FieldCalcLinearStep(s32 start, s32 target, s32 duration, s32 step);
+s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, long* screenPos);
+s32 FieldEntityGetDirVectorY(u8 angle);
+void FieldEntityLineClear(FieldLine* lines);
+void DebugRunEveryLoop(void);
+void FieldRainInit(struct FieldRenderData* renderData);
+void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm);
+
 #endif

@@ -229,8 +229,8 @@ static void FieldInitDefaultValues(void) {
         g_FieldLines[i].requestPushScript = 0;
         g_FieldLines[i].across = 0;
         g_FieldLines[i].touch = 0;
-        g_FieldLines[i].requestTouchOnScript = 0;
-        g_FieldLines[i].requestTouchOffScript = 0;
+        g_FieldLines[i].touchOn = 0;
+        g_FieldLines[i].touchOff = 0;
         g_FieldLines[i].isActive = 0;
         g_FieldLines[i].entityId = 0;
         g_FieldLines[i].slipDisabled = 0;
@@ -375,13 +375,13 @@ static void FieldEventOpcodeCycle(void) {
             FieldEventRequestRun(g_FieldLines[i].entityId, 1, 3);
             g_FieldLines[i].across = 0;
         }
-        if (g_FieldLines[i].requestTouchOnScript) {
+        if (g_FieldLines[i].touchOn) {
             FieldEventRequestRun(g_FieldLines[i].entityId, 1, 5);
-            g_FieldLines[i].requestTouchOnScript = 0;
+            g_FieldLines[i].touchOn = 0;
         }
-        if (g_FieldLines[i].requestTouchOffScript) {
+        if (g_FieldLines[i].touchOff) {
             FieldEventRequestRun(g_FieldLines[i].entityId, 1, 6);
-            g_FieldLines[i].requestTouchOffScript = 0;
+            g_FieldLines[i].touchOff = 0;
         }
         if (g_FieldLines[i].touch) {
             FieldEventRequestRun(g_FieldLines[i].entityId, 1, 4);

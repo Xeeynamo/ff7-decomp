@@ -19,7 +19,7 @@ overlays:
     gp_value: 0x80062D44
     segments:
       - [0x800, .rodata, 110B8]
-      - [0x938, .rodata, 14C70]
+      - [0x900, .rodata, 14C70]
       - [0x958, .rodata, 17238]
       - [0xA9C, .rodata, 1C0EC]
       - [0xAB4, .rodata, input]
@@ -43,8 +43,7 @@ overlays:
       - [0xD5A4, c, 1CDA4]
       - [0xFEB4, c, 1F6B4]
       - [0x16C08, c, menutable]
-      - [0x171C0, c, 269C0]
-      - [0x1735C, c, 26B70]
+      - [0x171C0, c, 26B70]
       - [0x19BD0, c, akao]
       - [0x24370, c, 33B70]
       - [0x254F0, hasm, lzss]
@@ -75,13 +74,7 @@ overlays:
       - [0x53654, .sbss, 17238]
       - [0x53694, .sbss, input]
       - [0x536A0, .sbss, 1F6B4]
-      - [0x536D0, bss]
-      - [0x537C4, bss] # to 26B70
-      - [0x537C8, bss]
-      - [0x53828, .bss, swirl]
-      - [0x53848, bss]
-      - [0x59EAC, .bss, input]
-      - [0x59EF0, bss]
+      - [0x536D0, bss, common]
   - name: batini
     disk_path: disks/us/BATTLE/BATINI.X.dec
     sha1: 2771b06f7249d34ed8a4f8c94e6047f70278e17c
@@ -178,14 +171,20 @@ overlays:
     vram_start: 0x800A0000
     segments:
       - [0x0, .rodata, field]
+      - [0xA4, .rodata, field_entity]
+      - [0xDC, .rodata, field3]
       - [0x13C, .rodata, field_event]
       - [0x1D4, .rodata, field_opcodes]
       - [0xFF8, .rodata, field2]
       - [0x1368, c, field]
+      - [0x5FB4, c, field_entity]
+      - [0xA930, c, field3]
       - [0x1A534, c, field_event]
       - [0x1C9FC, c, field_opcodes]
       - [0x34838, c, field2]
       - [0x3A5B8, data]
+      - [0x3EF88, .data, field_entity]
+      - [0x3F08C, data]
   - name: bginmenu
     disk_path: disks/us/MENU/BGINMENU.MNU
     sha1: af17d71fa4738e53ec50df5d15d992a355500223

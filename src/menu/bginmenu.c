@@ -110,11 +110,11 @@ void ScalePartyHp(void) {
     s32 scaled;
 
     for (i = 0; i < 5; i++) {
-        scaled = Savemap.party[i].hp_cur * BankRead16((Unk801D026C*)&Savemap.memory_bank_2[116] + i) / 65535;
+        scaled = Savemap.party[i].curHP * BankRead16((Unk801D026C*)&Savemap.memory_bank_2[116] + i) / 65535;
         if (scaled <= 0) {
             scaled = 1;
         }
-        Savemap.party[i].hp_cur = scaled;
+        Savemap.party[i].curHP = scaled;
     }
 }
 
