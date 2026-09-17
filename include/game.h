@@ -310,6 +310,7 @@ typedef union {
     POLY_FT4* ft4;
     POLY_G4* polyg4;
     SPRT* sprt;
+    SPRT_8* sprt8;
     TILE* tile;
     TILE_1* tile1;
     BLK_FILL* blk_fill;

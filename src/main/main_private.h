@@ -188,4 +188,4 @@ void SysMenuRequestAddWindow(u8* text, s8 palette);     // PC: menu_setNotificat
 u8* func_80014C80(s32 arg0);
 void SysMenuDrawScrollbarSlider(RECT* rect);
 void SysMenuDrawScrollbarTrack(RECT* rect);
-void SysMenuDrawSingleFontLetter(s16 x, s16 y, u8 ch, u8 color);
+void SysMenuDrawSingleFontLetter(s16 x, s16 y, s32 ch, u8 color);

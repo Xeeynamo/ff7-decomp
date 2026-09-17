@@ -217,7 +217,55 @@ void SysMenuDrawString(s32 x, s32 y, const char* str, s32 color) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawSingleFontLetter);
+void SysMenuDrawSingleFontLetter(s16 x, s16 y, s32 ch, u8 color) {
+    s32 index;
+    s32 u;
+    s32 v;
+    u32 c;
+
+    c = ch & 0xFF;
+    if (c < 0x29) {
+        setSprt8(D_80062F24.sprt8);
+        SetShadeTex(D_80062F24.sprt8, 1);
+        D_80062F24.sprt8->x0 = x;
+        D_80062F24.sprt8->y0 = y - 8;
+        D_80062F24.sprt8->u0 = 0x88;
+        D_80062F24.sprt8->v0 = 0x98;
+        D_80062F24.sprt8->clut = GetClut(0x100, (color & 0xFF) + 0x1E0);
+        AddPrim(D_80062FC4, D_80062F24.sprt8++);
+        index = c + 0x40;
+        u = ((index & 0xF) * 8) | 0x80;
+        index >>= 4;
+        index *= 8;
+        v = index + 0x80;
+    } else if ((u8)(ch - 0xB4) >= 0x1A && (u8)(ch - 0x29) < 0xA) {
+        setSprt8(D_80062F24.sprt8);
+        SetShadeTex(D_80062F24.sprt8, 1);
+        D_80062F24.sprt8->x0 = x;
+        D_80062F24.sprt8->y0 = y - 8;
+        D_80062F24.sprt8->u0 = 0x90;
+        D_80062F24.sprt8->v0 = 0x98;
+        D_80062F24.sprt8->clut = GetClut(0x100, (color & 0xFF) + 0x1E0);
+        AddPrim(D_80062FC4, D_80062F24.sprt8++);
+        index = c + 0x17;
+        u = ((index & 0xF) * 8) | 0x80;
+        index >>= 4;
+        index *= 8;
+        v = index + 0x80;
+    } else {
+        u = ((ch & 0xF) * 8) | 0x80;
+        v = ((c >> 4) * 8) | 0x80;
+    }
+
+    setSprt8(D_80062F24.sprt8);
+    SetShadeTex(D_80062F24.sprt8, 1);
+    D_80062F24.sprt8->x0 = x;
+    D_80062F24.sprt8->y0 = y;
+    D_80062F24.sprt8->u0 = u;
+    D_80062F24.sprt8->v0 = v;
+    D_80062F24.sprt8->clut = GetClut(0x100, (color & 0xFF) + 0x1E0);
+    AddPrim(D_80062FC4, D_80062F24.sprt8++);
+}
 
 void SysMenuDraw8widthFont(s16 x, s16 y, u8* str, u8 color) {
     s16 i;
