@@ -141,3 +141,4 @@ u8* func_80014C80(s32 arg0);
 void SysMenuDrawScrollbarSlider(RECT* rect);
 void SysMenuDrawScrollbarTrack(RECT* rect);
 void SysMenuDrawSingleFontLetter(s16 x, s16 y, s32 ch, u8 color);
+void SystemCdWaitCallback(void (*cb)(void));

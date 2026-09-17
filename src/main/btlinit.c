@@ -1,15 +1,31 @@
-//! G=8
+//! G=8 COMM=true
 #include "main_private.h"
 
 void func_80014578(s32 file_no, void* dst, void (*cb)(void));
-void SystemCdWaitCallback(void (*cb)(void));
 s32 SysGzipPackDecompressById(u8* src, void* dst, s32 type);
+void func_80014610(void);
+void func_80014750(void);
+void func_80014804(void);
+void func_80014C70(void);
 
 void func_800148A0(void);
 INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", func_800148A0);
 
-void func_800148B4(void);
-INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", func_800148B4);
+extern u8 D_80063048;
+Unk800A8D04* g_CurrentAction;
+
+int func_800148B4(void) {
+    func_800148A0();
+    g_CurrentAction = (Unk800A8D04*)0x1F800000;
+    D_800707C0 = &D_80063048;
+    func_80014610();
+    func_80014C70();
+    func_80014578(1, (void*)0x801B0000, func_80014804);
+    SystemCdWaitCallback(NULL);
+    func_80014578(2, (void*)0x801B0000, func_80014750);
+    SystemCdWaitCallback(NULL);
+    return 1;
+}
 
 void func_80014934(void) {
     func_800148A0();
