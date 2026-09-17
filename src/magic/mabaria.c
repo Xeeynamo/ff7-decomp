@@ -109,10 +109,12 @@ static void MabariaAttachToTarget(s32 target, s32 callbackArg) {
     MabariaData* effect;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(MabariaAnimationUpdate)];
-    BattleGetPartPosition(target, D_801518E4[target].D_8015190F, &effect->Pos);
-    effect->Pos.vx = effect->Pos.vx - ((rsin(D_801518E4[target].unk160.vy) * D_801518E4[target].unk12) >> 12);
-    effect->Pos.vz = effect->Pos.vz - ((rcos(D_801518E4[target].unk160.vy) * D_801518E4[target].unk12) >> 12);
-    effect->Rot = D_801518E4[target].unk160;
+    BattleGetPartPosition(target, g_BattleModels[target].battleModelRootBone, &effect->Pos);
+    effect->Pos.vx =
+        effect->Pos.vx - ((rsin(g_BattleModels[target].rootRot.vy) * g_BattleModels[target].collisionRadius) >> 12);
+    effect->Pos.vz =
+        effect->Pos.vz - ((rcos(g_BattleModels[target].rootRot.vy) * g_BattleModels[target].collisionRadius) >> 12);
+    effect->Rot = g_BattleModels[target].rootRot;
     effect->TargetIndex = target;
 }
 

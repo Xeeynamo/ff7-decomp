@@ -65,7 +65,7 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
         hp = g_BattleState.combatant[slot].curHP;
         mp = (u16)g_BattleState.combatant[slot].curMP;
         id = D_80163790[slot];
-        if ((D_800F5F44.reviveMask >> slot) & 1) {
+        if ((g_BattleSceneContext.reviveMask >> slot) & 1) {
             hp = hpOverride;
             mp = mpOverride;
         }
@@ -75,8 +75,8 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
         for (j = 0; j < 9; j++) {
             c = &Savemap.party[j];
             if (id == c->char_id) {
-                c->hp_cur = hp;
-                c->mp_cur = mp;
+                c->curHP = hp;
+                c->curMP = mp;
                 c->limit_charge = g_BattleWork.party[slot].limitBar;
                 c->status_flags = g_BattleState.combatant[slot].status & 0x30;
                 if (g_BattleState.setupFlags & 0x10) {
@@ -142,12 +142,12 @@ static void GiveSharedExp(s32 mask) {
             hp = c->hp_base;
             mp = c->mp_base;
             func_801B0EF8(c, D_8009D7D8 / 2, -1);
-            if (c->hp_cur != 0) {
+            if (c->curHP != 0) {
                 if (hp < c->hp_base) {
-                    c->hp_cur += c->hp_base - hp;
+                    c->curHP += c->hp_base - hp;
                 }
                 if (mp < c->mp_base) {
-                    c->mp_cur += c->mp_base - mp;
+                    c->curMP += c->mp_base - mp;
                 }
             }
         }

@@ -19,6 +19,24 @@
 typedef unsigned char ff7s[];
 
 typedef enum {
+    GAMESTATE_FIELD = 1,
+    GAMESTATE_BATTLE = 2,
+    GAMESTATE_WORLD = 3, // Also used for snowfield
+    GAMESTATE_BROM = 4,  // Unused?
+    GAMESTATE_MENU = 5,
+    GAMESTATE_HIGHWAY = 6,
+    GAMESTATE_CHOCOBO = 7,
+    GAMESTATE_SNOWBOARD1 = 8,
+    GAMESTATE_FORTCONDOR = 9,
+    GAMESTATE_SUBMARIME = 10,
+    GAMESTATE_JET = 11,
+    GAMESTATE_CHANGE_DISK = 12,
+    GAMESTATE_MENU_COMMANND = 13, // Commands called from field to menus
+    GAMESTATE_SNOWBOARD2 = 14,
+    GAMESTATE_LOAD_INSTR2 = 16, // Load instrument bank for One-Winged Angel
+} GameState;
+
+typedef enum {
     LABEL_ITEM,
     LABEL_MAGIC,
     LABEL_MATERIA,
@@ -112,7 +130,7 @@ typedef enum {
     EVTCMD_PARTY_SELECT,
     EVTCMD_SHOP,
     EVTCMD_PARTY_MENU,
-    EVTCMD_BEAT_GAME,
+    EVTCMD_TITLE_SCREEN,
     EVTCMD_UNKB,
     EVTCMD_LOAD_MINIGAME,
     EVTCMD_CD_CHANGE,
@@ -324,9 +342,9 @@ typedef struct {
     u16 limit_lv1_count;
     u16 limit_lv2_count;
     u16 limit_lv3_count;
-    u16 hp_cur;
+    u16 curHP;
     u16 hp_base;
-    u16 mp_cur;
+    u16 curMP;
     u16 mp_base;
     u32 unk34;
     u16 hp_max;
@@ -535,7 +553,7 @@ typedef struct {
     /* 0x00 */ u8 accuracyRate;
     /* 0x01 */ u8 impactEffectID;
     /* 0x02 */ u8 impactAnimID;
-    /* 0x03 */ u8 unk3;
+    /* 0x03 */ u8 pad3;
     /* 0x04 */ u16 mpCost;
     /* 0x06 */ u16 impactSfxID;
     /* 0x08 */ u16 cameraSingleID;
@@ -760,17 +778,79 @@ typedef struct {
     Unk80062F7CMateriaAttribute materiaAttributes[5];
 } Unk80062F7C;
 
+typedef enum {
+    CAMRAIL_NONE = 0,
+    CAMRAIL_TL_BR = 1,
+    CAMRAIL_BL_TR = 2,
+} FieldCameraRailModes;
+
+typedef struct {
+    s16 left;
+    s16 top;
+    s16 right;
+    s16 bottom;
+} FieldCameraRange;
+
+typedef struct {
+    /* 0x00 */ LinePos pos;
+    /* 0x0C */ DVECTOR destFieldPos;
+    /* 0x10 */ s16 pcWalkMeshTriangleId;
+    /* 0x12 */ u16 fieldId;
+    /* 0x14 */ u8 pcDirection;
+    /* 0x15 */ u8 unk15[3];
+} FieldGateway; // size: 0x18
+
+typedef struct {
+    /* 0x00 */ LinePos pos;
+    /* 0x0C */ u8 backgroundGroupId;
+    /* 0x0D */ u8 backgroundFrameId;
+    /* 0x0E */ u8 behaviour;
+    /* 0x0F */ u8 soundId; // Index into the trigger sound table.
+} FieldBgTrigger;          // size: 0x10
+
+typedef struct {
+    s32 x;
+    s32 z;
+    s32 y;
+    s32 type;
+} FieldArrow; // size: 0x10
+
+typedef struct {
+    /* 0x000 */ char name[9];
+    /* 0x009 */ u8 controlDirection;
+    /* 0x00A */ s16 viewOffset;
+    /* 0x00C */ FieldCameraRange cameraRange;
+    /* 0x014 */ u8 cameraRailMode; // FieldCameraRailModes
+    /* 0x015 */ u8 unk15[3];
+    /* 0x018 */ s16 layer2AnimWidth;
+    /* 0x01A */ s16 layer2AnimHeight;
+    /* 0x01C */ s16 layer3AnimWidth;
+    /* 0x01E */ s16 layer3AnimHeight;
+    /* 0x020 */ s16 layer2ScrollPhaseX;
+    /* 0x022 */ s16 layer2ScrollPhaseY;
+    /* 0x024 */ s16 layer3ScrollPhaseX;
+    /* 0x026 */ s16 layer3ScrollPhaseY;
+    /* 0x028 */ s16 layer2ParallaxFactorX;
+    /* 0x02A */ s16 layer2ParallaxFactorY;
+    /* 0x02C */ s16 layer3ParallaxFactorX;
+    /* 0x02E */ s16 layer3ParallaxFactorY;
+    /* 0x030 */ u8 unk30[8];
+    /* 0x038 */ FieldGateway gateways[12];
+    /* 0x158 */ FieldBgTrigger triggers[12];
+    /* 0x218 */ u8 showArrow[12];
+    /* 0x224 */ FieldArrow arrows[12];
+} FieldTriggers; // size: 0x2E4
+
 typedef struct {
     /* 0x00 */ LinePos pos;
     /* 0x0C */ u8 isActive;
     /* 0x0D */ u8 entityId;
     /* 0x0E */ u8 touch;
     /* 0x0F */ u8 across;
-
     /* 0x10 */ u8 requestPushScript;
     /* 0x11 */ u8 requestTalkScript;
-    /* 0x12 */ u8 requestTouchOnScript;
-    /* 0x13 */ u8 requestTouchOffScript;
+    /* 0x12 */ u8 touchOn;
+    /* 0x13 */ u8 touchOff;
     /* 0x14 */ u8 proximityAngle;
     /* 0x15 */ u8 isOnLine;
     /* 0x16 */ u8 slipDisabled;
@@ -939,7 +1019,7 @@ typedef struct {
     u16 pcWalkMeshId;      // Walk mesh triangle id player is inside of.
     s16 pcDirection;       // Direction player is facing.
     s16 movieCommandState; // enum MovieCommandState.
-    u16 modelCount;
+    s16 modelCount;
     s16 pcModelId;
     u16 idleAnimId;
     u16 walkAnimId;
@@ -951,7 +1031,7 @@ typedef struct {
     u8 mapJumpDisabled; // Set by MPJPO. Disables gateways to other maps.
     u8 scrloSet;        // Set by SCRLO. Unused(?)
     // Set by MPDSP in field map junbin5. Also set to 1 if
-    // fadeType == FFT_INSTANT_BLACK.
+    // fade.fadeType == FFT_INSTANT_BLACK.
     u8 mpdspSet;
     // Set by MVCAM. Static field map camera is used instead of dynamic movie
     // camera.
@@ -973,7 +1053,7 @@ typedef struct {
     u8* nextBattleMusic;
     u32 nextFieldMusic;
     // Set by FADE or NFADE to start fades.
-    u16 fadeType; // enum FieldFadeType.
+    volatile u16 fadeType; // enum FieldFadeType.
     s16 fadeAdjust;
     s16 fadeSpeed;
     s16 fadeRed;
@@ -1133,7 +1213,7 @@ extern s32 D_800756F8[];
 extern Unk80075D00* D_80075D00;
 extern s32 D_80075D04;
 extern s32 D_80075D08[];
-extern u16 D_80075DEC;           // buffer index, either 0 or 1
+extern volatile s16 D_80075DEC;  // buffer index, also updated by the VSync callback
 extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
 extern u8* g_FieldText;
@@ -1167,8 +1247,8 @@ extern u16 g_FieldPaletteBuffer[64][16];
 extern s8 D_80095DCC;
 extern volatile s16 D_80095DD4;
 extern s16 g_PlayerModelId;
-extern s16 g_isFieldLoading;
-extern volatile s16 D_800965EC;
+extern s16 g_IsFieldLoading;
+extern volatile s16 g_PrevGameState;
 extern u8 D_80099FFC;
 extern s16 D_8009A000[1];
 extern u_long D_8009A004[1]; // may be a u8*
@@ -1214,7 +1294,7 @@ void SysMemCopy32(void* dst, const void* src, const s32 len);
 void SysIncSeedForRandom(void);
 s32 SysGetKernBattleTextById(s32);
 const char* SysKernGetString(s32 arg0, s32 arg1, s32 arg2);
-void func_800155A4(s32, ...);
+void SysSetEngineErrorCode(s32, ...);
 void func_8001726C(s16, u16);
 u32 InputReadPadsRaw(void);
 u32 InputReadPads(void);
