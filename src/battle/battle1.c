@@ -21,6 +21,7 @@ static void func_800BA24C(void);
 static void func_800BA4C8(void);
 void func_800BA598(s16);
 static void func_800BB030(s16);
+void BattleQueue1CameraInit(void);
 static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3);
 static void func_800BB804(void);
 static void func_800BB864(void);
@@ -767,7 +768,31 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleUnitInitBonesAndMatrixes
 
 void func_800BB67C(s32 arg0, Unk800BB67C* arg1) { arg1->unk30 = arg0; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleQueue1CameraInit);
+void BattleQueue1CameraInit(void) {
+    s16 command = g_BattleActionQueue[D_801590E0].unk8;
+    u8 category;
+
+    if (command == -4) {
+        return;
+    }
+    D_800F8370 = command;
+    D_801590DC = 0;
+    g_BattleQueue1CamWriteCursor[3].pos = 0xFF;
+    g_BattleQueue1CamWriteCursor[2].pos = 0xFF;
+    g_BattleQueue1CamWriteCursor[1].pos = 0xFF;
+    g_BattleQueue1CamWriteCursor[0].pos = 0xFF;
+    g_BattleQueue1CamReadCursor[3].pos = 0xFF;
+    g_BattleQueue1CamReadCursor[2].pos = 0xFF;
+    g_BattleQueue1CamReadCursor[1].pos = 0xFF;
+    g_BattleQueue1CamReadCursor[0].pos = 0xFF;
+    BattleCameraResetCallbacks();
+    if (D_800F837C != 3) {
+        category = D_801516F4 & 3;
+        if (category != 3) {
+            D_800F837C = category;
+        }
+    }
+}
 
 static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3) {
     int flag;
@@ -1111,32 +1136,29 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BE86C);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BEA38);
 
-extern u8 D_8015184C[];
-extern u8 D_801518AC[];
-
 // Read the next u16 from arg0's byte stream via this category's read cursor.
 static s16 func_800BFA98(u8* arg0, s32 arg1) {
-    s32 off = (arg1 & 0xFF) * 14;
-    u16 pos = *(u16*)(D_8015184C + off);
+    s32 category = arg1 & 0xFF;
+    u16 pos = g_BattleQueue1CamReadCursor[category].pos;
     u32 lo;
     u8 hi;
 
-    *(u16*)(D_8015184C + off) = pos + 1;
+    g_BattleQueue1CamReadCursor[category].pos = pos + 1;
     lo = arg0[pos];
-    *(u16*)(D_8015184C + off) = pos + 2;
+    g_BattleQueue1CamReadCursor[category].pos = pos + 2;
     hi = arg0[(u16)(pos + 1)];
     return (hi << 8) + lo;
 }
 
 static s16 func_800BFB10(u8* arg0, s32 arg1) {
-    s32 off = (arg1 & 0xFF) * 14;
-    u16 pos = *(u16*)(D_801518AC + off);
+    s32 category = arg1 & 0xFF;
+    u16 pos = g_BattleQueue1CamWriteCursor[category].pos;
     u32 lo;
     u8 hi;
 
-    *(u16*)(D_801518AC + off) = pos + 1;
+    g_BattleQueue1CamWriteCursor[category].pos = pos + 1;
     lo = arg0[pos];
-    *(u16*)(D_801518AC + off) = pos + 2;
+    g_BattleQueue1CamWriteCursor[category].pos = pos + 2;
     hi = arg0[(u16)(pos + 1)];
     return (hi << 8) + lo;
 }
