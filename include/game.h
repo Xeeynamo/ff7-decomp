@@ -1351,6 +1351,7 @@ s32 func_80034D5C(void);
 s32 func_800484A8(void);
 u32 InputReadPadsRaw(void);
 void func_80036244(void* anim, u16 frame);
+void func_800354CC(void);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);
