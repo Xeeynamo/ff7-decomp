@@ -27,12 +27,8 @@ void func_80026A0C(void) { D_8006300C = D_80062FC4; }
 void func_80026A20(void) { D_80062FC4 = D_8006300C; }
 
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, s32 tpage, RECT* tw) {
-    DR_MODE* prim;
-
     SetDrawMode(D_80062F24.poly, dfe, dtd, tpage, tw);
-    prim = D_80062F24.poly;
-    D_80062F24.poly = prim + 1;
-    AddPrim(D_80062FC4, prim);
+    AddPrim(D_80062FC4, D_80062F24.dr_mode++);
 }
 
 void SysMenuSetDrawenv(DRAWENV* src, RECT* rect) {
@@ -103,14 +99,97 @@ s32 SysGetSingleStringWidth(u8* str) {
     return width;
 }
 
-s32 SysMenuDrawSingleLetter(s16, s16, u8, s32);
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawSingleLetter);
+s32 SysMenuDrawSingleLetter(s32 x, s32 y, s32 color, s32 character) {
+    RECT sp18;
+    u16 sp20;
+    s16 base;
+    s32 tv;
+    s16 palette;
+    s16 var_s5;
+    u8 tu;
+    s32 clutY;
+    s32 clutX;
+    u8* var_v1;
+
+    palette = 0;
+    var_s5 = 0;
+    sp20 = character;
+    var_v1 = (u8*)&sp20;
+    switch (*var_v1) {
+    case 0xF8:
+        return x;
+    case 0xF9:
+        base = 0;
+        tv = 0;
+        break;
+    case 0xFA:
+        var_v1++;
+        tv = 0x84;
+        base = 0xE7;
+        break;
+    case 0xFB:
+        var_v1++;
+        tv = 0;
+        palette = 0x10;
+        base = 0x1B9;
+        break;
+    case 0xFC:
+        var_v1++;
+        tv = 0x84;
+        palette = 0x10;
+        base = 0x2A0;
+        break;
+    case 0xFD:
+        var_v1++;
+        tv = 0x84;
+        base = 0x372;
+        var_s5 = -0x40;
+        break;
+    case 0xFE:
+        var_v1++;
+        tv = 0x84;
+        palette = 0x10;
+        base = 0x444;
+        var_s5 = -0x40;
+        break;
+    default:
+        base = 0;
+        tv = 0;
+        break;
+    }
+
+    sp20 = *var_v1;
+    tu = (sp20 % 21) * 12;
+    tv = sp20 / 21 * 12 + tv;
+    clutY = color;
+    clutX = 0x100;
+    x += D_800707C0[sp20 + base] >> 5;
+    setSprt(D_80062F24.sprt);
+    SetShadeTex(D_80062F24.sprt, 1);
+    D_80062F24.sprt->x0 = x;
+    D_80062F24.sprt->y0 = y;
+    D_80062F24.sprt->u0 = tu;
+    D_80062F24.sprt->v0 = tv;
+    D_80062F24.sprt->w = 12;
+    D_80062F24.sprt->h = 12;
+    D_80062F24.sprt->clut = GetClut(palette | clutX, clutY + 0x1F0);
+    AddPrim(D_80062FC4, D_80062F24.sprt++);
+    x += D_800707C0[sp20 + base] & 0x1F;
+    if (_D_80062DFD == 0) {
+        sp18.w = 0xFF;
+        sp18.h = 0xFF;
+        sp18.x = 0;
+        sp18.y = 0;
+        SetDrawMode(D_80062F24.dr_mode, 0, 1, (((var_s5 + 0x380) & 0x3FF) >> 6) | 0x30, &sp18);
+        AddPrim(D_80062FC4, D_80062F24.dr_mode++);
+    }
+    return x;
+}
 
 void SysMenuDrawString(s32 x, s32 y, const char* str, s32 color) {
     RECT rect;
     s16 i;
     u8 ch;
-    DR_MODE* temp_a1;
 
     if (!str) {
         return;
@@ -121,11 +200,11 @@ void SysMenuDrawString(s32 x, s32 y, const char* str, s32 color) {
             break;
         }
         if (ch > 0xF9 && ch < 0xFF || ch == 0xF8) {
-            x = SysMenuDrawSingleLetter(x, y, (u8)color, ch | (str[1] << 8));
+            x = SysMenuDrawSingleLetter((s16)x, (s16)y, (u8)color, ch | (str[1] << 8));
             str += 2;
         } else {
             str++;
-            x = SysMenuDrawSingleLetter(x, y, (u8)color, ch);
+            x = SysMenuDrawSingleLetter((s16)x, (s16)y, (u8)color, ch);
         }
     }
     if (_D_80062DFD) {
@@ -133,10 +212,8 @@ void SysMenuDrawString(s32 x, s32 y, const char* str, s32 color) {
         rect.h = 0xFF;
         rect.x = 0;
         rect.y = 0;
-        SetDrawMode((DR_MODE*)D_80062F24.poly, 0, 1, 0x3E, &rect);
-        temp_a1 = D_80062F24.poly;
-        D_80062F24.poly = temp_a1 + 1;
-        AddPrim(D_80062FC4, temp_a1);
+        SetDrawMode(D_80062F24.dr_mode, 0, 1, 0x3E, &rect);
+        AddPrim(D_80062FC4, D_80062F24.dr_mode++);
     }
 }
 

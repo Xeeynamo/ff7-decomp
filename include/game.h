@@ -315,6 +315,7 @@ typedef union {
     BLK_FILL* blk_fill;
     LINE_F2* linef2;
     LINE_F4* linef4;
+    DR_MODE* dr_mode;
 } Gpu;
 
 typedef struct {
