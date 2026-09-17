@@ -26,7 +26,21 @@
         Savemap.phs_visibility_mask = mask;                                                                            \
     }
 
-typedef enum { IF_EQ, IF_NOT_EQ, IF_GT, IF_LT, IF_GTE, IF_LTE, IF_AND, IF_XOR, IF_OR, IF_BIT, IF_NOT_BIT } IfOps;
+// clang-format off
+typedef enum {
+    IF_EQ,
+    IF_NOT_EQ,
+    IF_GT,
+    IF_LT,
+    IF_GTE,
+    IF_LTE,
+    IF_AND,
+    IF_XOR,
+    IF_OR,
+    IF_BIT,
+    IF_NOT_BIT
+} IfOps;
+// clang-format on
 
 extern s32 (*g_FieldOpcodes[256])(void);
 extern u8 g_EntityForSplitJoin;
@@ -39,11 +53,11 @@ extern char D_800E0630[];
 extern char g_DebugText[];
 extern char g_DebugMessageBuffer[];
 extern s8 D_800716C8;
-extern s16 D_80071E38;
-extern s16 D_80071E3C;
+extern s16 g_CameraScrollX;
+extern s16 g_CameraScrollY;
 extern u32 D_80075E10;
 extern SVECTOR (*D_800E4274)[3];
-extern u8* D_800E48E0;
+extern u8* g_MenuTutorial;
 
 void SysCalcTotalLureGilPreempVal(void);
 void SysInitPlayerStatFromMateria(s32);
@@ -303,10 +317,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
     }
     if (arg0 != 4) {
         FieldDebugStringCopy(g_DebugText, "SX");
-        FieldDebugStringU32hex(D_80071E38, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_CameraScrollX, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " SY");
-        FieldDebugStringU32hex(D_80071E3C, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(g_CameraScrollY, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 8, g_DebugText);
@@ -2336,7 +2350,7 @@ s32 OpcodeFuncTutor(void) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("data=", tutorialId, 2);
         }
-        D_800E48E0 = (GetAkaoBlockOffset(tutorialId) + (u8*)g_FieldScripts);
+        g_MenuTutorial = (GetAkaoBlockOffset(tutorialId) + (u8*)g_FieldScripts);
         return 1;
     }
 

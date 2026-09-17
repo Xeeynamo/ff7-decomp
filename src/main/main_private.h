@@ -51,22 +51,6 @@ typedef enum {
     KERNEL_TEXT_NAME_SUMMON,     // 0x11
 } KernelTextBlockID;
 
-typedef enum {
-    SUBSYSTEM_FIELD = 1,
-    SUBSYSTEM_BATTLE = 2,
-    SUBSYSTEM_WORLD = 3, // also used for snowfield
-    SUBSYSTEM_UNK = 4,   // similar to battle?
-    SUBSYSTEM_MENU = 5,
-    SUBSYSTEM_BIKE = 6,
-    SUBSYSTEM_RACE = 7,
-    SUBSYSTEM_SNOWBOARD = 8,
-    SUBSYSTEM_FORTCONDOR = 9,
-    SUBSYSTEM_SUBMARIME = 10,
-    SUBSYSTEM_SHOOTING = 11,
-    SUBSYSTEM_CHANGE_DISK,
-    SUBSYSTEM_SNOWBOARD_GOLDSAURCER = 14,
-} Subsystem;
-
 typedef struct {
     s32 len; // decompressed length
     s32 unk4;
@@ -127,7 +111,6 @@ extern u16 g_Pad2BattleKeysPrev;
 extern u16 g_Pad2BattleKeysPressed;
 extern u16 g_Pad2BattleKeysRepeat;
 
-extern s32 D_80010100[];
 extern Yamada D_80048F60[17];
 extern Yamada D_80048FE8[15];
 extern s32 D_80049474[6]; // play-clock divisors, see ovl.c
@@ -176,7 +159,10 @@ extern u8 D_800694D4[16];
 extern s16 D_800694E4[12];
 extern s16 D_800694FC[6];
 extern DISPENV D_8007075C[2]; // active display environments (double-buffered)
-extern u16 D_800707BC;
+extern struct {
+    u16 battleId;
+    u16 mode;
+} D_800707BC;
 extern u8 D_800716D0;
 extern s32 D_80071744; // LBA loc for func_80014540
 extern s16 D_80071A5C;
@@ -185,10 +171,8 @@ extern ArmorRecord g_ArmorTable[];         // armor kernel table, indexed by arm
 extern u_long* D_800722C8;                 // LBA dst for func_80014540
 extern WeaponRecord g_WeaponTable[];       // weapon kernel table, by weapon id
 extern s32 D_80095DD8;                     // LBA len for func_80014540
-extern s16 g_isFieldLoading;
-extern volatile s16 D_8009C560; // refer to Subsystem enum
-void D_800A00CC(void);          // battle/brom entrypoint
-void D_800A1158(void);          // battle/battle entrypoint
+void D_800A00CC(void);                     // battle/brom entrypoint
+void D_800A1158(void);                     // battle/battle entrypoint
 
 void SysGzipBinDecompress(GzHeader* src, u8* dst);
 void SysGzipSetDataBlock(u8* arg0);

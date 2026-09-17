@@ -1,6 +1,23 @@
 //! G=8
 #include "main_private.h"
 
+typedef struct {
+    s32 dataOffsets[3];
+    u16 itemOffsets[6];
+    u8 itemToType[5];
+    u8 pad_1[3];
+    u8 magicTypeOffsets[4];
+    u8 typeToSection[16];
+    u8 pad_2[4];
+} KernelTextMaps;
+
+static const KernelTextMaps kernel_maps = {
+    {0, 56, 72},         {0, 128, 256, 288, 384, 65535},
+    {4, 10, 11, 12, 13}, {0, 0, 0},
+    {0, 56, 72, 128},    {1, 1, 1, 1, 2, 0, 255, 255, 255, 255, 3, 4, 5, 6, 7, 0},
+    {0, 0, 0, 0},
+};
+
 s32 D_80062D50 = 0x000000FF;
 s32 D_80062E1C;
 s32 D_80062E20;
@@ -34,7 +51,7 @@ s32 func_80014CBC(s32 arg0, s32 arg1) {
     case 0:
     case 1:
     case 2:
-        var_v1 = D_800708C4[D_80010100[arg0] + arg1].conditionSubmenu;
+        var_v1 = D_800708C4[kernel_maps.dataOffsets[arg0] + arg1].conditionSubmenu;
         break;
     case 4:
         if (arg1 < 0x80) {
