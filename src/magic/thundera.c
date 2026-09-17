@@ -3,6 +3,7 @@
 #include "common.h"
 #include "magic_private.h"
 #include "../battle/battle.h"
+#include <libc.h>
 
 // Bolt2 (サンダラ / Thundara), tier 2.
 
@@ -52,7 +53,7 @@ static void ThunderaRenderModel(void) {
     matrix.t[0] = effect->Pos.vx;
     matrix.t[1] = effect->Pos.vy;
     matrix.t[2] = effect->Pos.vz;
-    CompMatrix(&D_800FA63C, &matrix, &matrix);
+    CompMatrix(&D_800FA63C.m, &matrix, &matrix);
     SetRotMatrix(&matrix);
     SetTransMatrix(&matrix);
     desc = (ModelRenderDesc*)0x1F800000;
@@ -201,8 +202,8 @@ static void ThunderaAttachToTarget(s32 target, s32 callbackArg) {
     ThunderaData* effect;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(ThunderaSpawnBolt)];
-    BattleGetPartPosition(target, D_801518E4[target].D_8015190F, &effect->Pos);
-    effect->DepthBias = -D_801518E4[target].unk12;
+    BattleGetPartPosition(target, g_BattleModels[target].battleModelRootBone, &effect->Pos);
+    effect->DepthBias = -g_BattleModels[target].collisionRadius;
     effect->TargetIndex = target;
 }
 

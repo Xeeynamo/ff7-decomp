@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "../battle/battle.h"
+#include <libc.h>
 
 typedef struct {
     /* 0x00 */ s16 StartFrame;

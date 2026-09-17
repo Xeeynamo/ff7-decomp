@@ -49,7 +49,7 @@ static void FairaRenderModel(void) {
     faira_matrix.t[0] = effect->Pos.vx;
     faira_matrix.t[1] = effect->Pos.vy;
     faira_matrix.t[2] = effect->Pos.vz;
-    CompMatrix(&D_800FA63C, &faira_matrix, &composedMatrix);
+    CompMatrix(&D_800FA63C.m, &faira_matrix, &composedMatrix);
     SetRotMatrix(&composedMatrix);
     SetTransMatrix(&composedMatrix);
 
@@ -80,7 +80,7 @@ static void FairaAttachToTarget(s32 target, s32 callbackArg) {
     s32 scale;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(FairaRenderModel)];
-    BattleGetPartPosition(target, D_801518E4[target].D_8015190F, &effect->Pos);
+    BattleGetPartPosition(target, g_BattleModels[target].battleModelRootBone, &effect->Pos);
     effect->Pos.vy = 0;
     scale = func_800D55A4(target);
     if (scale > SCALE_MAX) {
