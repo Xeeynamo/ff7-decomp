@@ -2,8 +2,8 @@
 #include "main_private.h"
 
 static u8 D_80062E54[8];
-static u8 D_80062E5C;
-static ActiveCharacterData* D_80062E60;
+static u8 D_80062E5C;                   // Pre-emptive materia is at maximum level.
+static ActiveCharacterData* D_80062E60; // Current active character.
 static u32 D_80062E64;
 static u32 D_80062E68;
 static s16 D_80062E6C[4];

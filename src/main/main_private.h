@@ -117,20 +117,6 @@ extern s32 D_80049474[6]; // play-clock divisors, see ovl.c
 extern s32 D_80049500[8]; // party slot -> character id (endgame level snapshot)
 extern u8 D_80049520[];
 extern u8 D_80049528[];
-extern u8 D_80062E54[8];
-extern u8 D_80062E5C;                   // Pre-emptive materia is at maximum level.
-extern ActiveCharacterData* D_80062E60; // Current active character.
-extern u32 D_80062E64;
-extern u32 D_80062E68;
-extern s16 D_80062E6C[4];
-extern u32 D_80062E74;
-extern u32 D_80062E78;
-extern s32 D_80062E7C;
-extern s32 D_80062E80;
-extern s32 D_80062E84;
-extern u32 D_80062E88;
-extern u32 D_80062E8C;
-extern u32 D_80062E90;
 extern s32 g_RewardMenuHasEarnedItems;
 extern u_long* g_CurrentMenuOrderingTable;
 extern s32 g_PartyMenuListState;
