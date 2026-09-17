@@ -123,7 +123,8 @@ typedef struct {
     /* 0x50 */ u16 unk50;
     /* 0x52 */ u16 unk52;
     /* 0x54 */ u16 elemImmuneExtra;
-    /* 0x56 */ u16 ap;
+    /* 0x56 */ u8 unk56;
+    /* 0x57 */ u8 unk57;
     /* 0x58 */ u32 gil;
     /* 0x5C */ u32 exp;
     /* 0x60 */ u32 unk60[2];
@@ -535,9 +536,7 @@ typedef struct {
     /* 0x05 */ u8 criticalHitChance;
     /* 0x06 */ u8 unk06;
     /* 0x07 */ u8 unk07;
-    /* 0x08 */ u16 normalAttackSound;
-    /* 0x0A */ u16 criticalAttackSound;
-    /* 0x0C */ u16 missAttackSound;
+    /* 0x08 */ u16 attackSound[3]; // [0] normal hit, [1] critical, [2] miss; 0x100 set from WeaponRecord.soundIdMask
     /* 0x0E */ u16 attackElement;
     /* 0x10 */ u16 cameraMovementId;
     /* 0x12 */ u16 specialAttackFlags;
@@ -569,6 +568,9 @@ extern Unk801636B8 D_801636B8[NUM_BATTLE_ACTOR];
 extern u16 D_8016376A;
 
 extern BattleMultiInfo g_BattleMultiInfo;
+
+// Scratch copy of a party member's save record, taken when D_8016376A bit 0x40 is set.
+extern SavePartyMember D_80167938;
 
 s32 BattleEffectRegister(void (*func)(void));
 void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
@@ -603,3 +605,5 @@ void BattleResetReservedItems(void);
 void BattleExecFormationAIScripts(void);
 void BattleInitTurnWorkHPMP(void);
 void BattleAddAutoBattleActionByChance(s32 arg0, s32 arg1);
+void BattleInitUnitAction(s32 index);
+void BattleEnableLimitToPlayerWithSpeed(s32 index);

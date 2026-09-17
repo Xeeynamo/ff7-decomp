@@ -1482,7 +1482,7 @@ static void func_800AA688(void) {
 
     var_a1 = 1;
     for (var_a0 = 0; var_a0 < NUM_PARTY; var_a0++) {
-        if (g_BattleState.combatant[var_a0].status & 1) {
+        if (g_BattleState.combatant[var_a0].status & STATUS_DEATH) {
             var_a1 += 1;
         }
     }
@@ -1569,7 +1569,7 @@ void func_800AB830(s32, s32);
 static void func_800AB9C4(s32 arg0, s32 arg1) {
     BattleActionQueueEntry* temp_v0;
 
-    if (!(g_BattleState.combatant[arg0].status & 1)) {
+    if (!(g_BattleState.combatant[arg0].status & STATUS_DEATH)) {
         temp_v0 = BattleActionQueueAlloc();
         temp_v0->unk1 = 1;
         temp_v0->unk5 = 0x2E;
@@ -1842,7 +1842,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     if (g_CurrentAction->unk218 & 0x20) {
         act->hurtAnimScript = 9;
     }
-    if (g_BattleState.combatant[arg1].status & 1) {
+    if (g_BattleState.combatant[arg1].status & STATUS_DEATH) {
         // target just died -- mark it and re-queue a death message if the
         // current message slot isn't already showing one
         act->flags = (act->flags | 4) & ~8;
