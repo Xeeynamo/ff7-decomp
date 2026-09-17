@@ -421,7 +421,16 @@ extern s32 D_801516CC[10];
 extern s32 D_8015174C[10];
 extern s32 D_8015178C[10];
 extern s32 D_801517C8[10];
+typedef struct {
+    /* 0x0 */ u16 pos;
+    /* 0x2 */ u16 unk2;
+    /* 0x4 */ u8 unk4;
+    /* 0x5 */ u8 unk5[0x9];
+} BattleQueue1CamCursor; // size:0xE
+
+extern BattleQueue1CamCursor g_BattleQueue1CamReadCursor[4]; // read cursor per category
 extern s32 D_8015187C[10];
+extern BattleQueue1CamCursor g_BattleQueue1CamWriteCursor[4]; // write cursor per category
 // queued-action-ish record, allocated by BattleQueue2GetPtr (unk3 set to -1,
 // marking it unassigned) and searched by func_800A34CC. Traced through
 // func_800ABA68's callers (func_800AB830/BattleMainDmgCalculation, still undecompiled):
