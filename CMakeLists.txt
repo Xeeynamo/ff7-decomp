@@ -14,9 +14,8 @@ set(FF7_SOURCES
     src/main/1C0EC.c
     src/main/1CDA4.c
     src/main/1F6B4.c
-    src/main/269C0.c
-    src/main/48F60.c
     src/main/26B70.c
+    src/main/48F60.c
     src/main/akao.c
     src/main/btlinit.c
     src/main/btlrand.c

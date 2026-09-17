@@ -73,7 +73,7 @@ typedef struct {
 void SysMemCopy32(void* dst, const void* src, const s32 len);
 
 static RECT buf_rect = {0, SWIRL_DRAW_Y, SCREEN_WIDTH, DRAW_HEIGHT};
-static MATRIX transform_matrix;
+extern MATRIX transform_matrix;
 
 static void SysBattleSwirlUpdate(void) {
     long p, flag;
