@@ -24,7 +24,7 @@ static void* D_80048DD4[] = {
 };
 
 // obtain file sector from a YamadaFile
-s32 func_800144D8(s32 file_no) { return D_80048D84[file_no].loc; }
+s32 SystemGetFileLBA(s32 file_no) { return D_80048D84[file_no].loc; }
 
 static void func_800144F0(s32 file_no) { func_80033DAC(file_no, 0); }
 
@@ -37,7 +37,7 @@ void func_80014578(s32 file_no, void* dst, void (*cb)(void)) {
     SystemLoadFileBySector(D_80048D84[file_no].loc, D_80048D84[file_no].len, dst, cb);
 }
 
-void func_800145BC(void (*cb)(void)) {
+void SystemCdWaitCallback(void (*cb)(void)) {
     while (SystemCdromReadChain()) {
         if (cb) {
             cb();
@@ -51,13 +51,13 @@ static void func_80014608(void) {}
 void func_80014610(void) {
     u8 buf[2048];
     SystemLoadFileBySector(LBA_INIT_YAMADA, sizeof(buf), (u_long*)&buf, NULL);
-    func_800145BC(0);
+    SystemCdWaitCallback(0);
     SysMemCopy32(D_80048D84, &buf, sizeof(Yamada) * YAMADA_FILE_NUM);
 }
 
 static void func_80014658(s32 file_no, void (*cb)(void)) {
     func_80014578(file_no, (void*)0x801B0000, 0);
-    func_800145BC(0);
+    SystemCdWaitCallback(0);
     SysGzipBinDecompress((GzHeader*)0x801B0000, (u8*)0x800A0000);
     cb();
 }
@@ -67,7 +67,7 @@ void func_800146A4(void) {
     while (var_s0) {
         switch (g_GameState) {
         case GAMESTATE_BROM:
-            func_800145BC(0);
+            SystemCdWaitCallback(0);
             func_80014658(BATTLE_BROM, D_800A00CC);
             break;
         case GAMESTATE_BATTLE:

@@ -2,7 +2,7 @@
 #include "main_private.h"
 
 void func_80014578(s32 file_no, void* dst, void (*cb)(void));
-void func_800145BC(void (*cb)(void));
+void SystemCdWaitCallback(void (*cb)(void));
 s32 SysGzipPackDecompressById(u8* src, void* dst, s32 type);
 
 void func_800148A0(void);
@@ -14,7 +14,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", func_800148B4);
 void func_80014934(void) {
     func_800148A0();
     func_80014578(INIT_KERNEL, (void*)0x801B0000, 0);
-    func_800145BC(0);
+    SystemCdWaitCallback(0);
     SysGzipPackDecompressById((u8*)0x801B0000, &Savemap.party, KERNEL_INIT);
 }
 

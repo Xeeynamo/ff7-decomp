@@ -102,7 +102,7 @@ s32 SysGetKernBattleTextById(s32 TextId) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysKernGetString);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_800155A4);
+INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysSetEngineErrorCode);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_800155B0);
 
