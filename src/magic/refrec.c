@@ -30,7 +30,9 @@ extern s32 D_801B0C14;
 extern u8 g_RefrecPrimBuffer[2][MAGIC_PAGE_SIZE];
 extern void* g_RefrecBufferPtr;
 extern RefrecData g_BattleEffectSlots[];
-extern ModelRenderDesc g_RefrecRenderDesc;
+extern s32 D_801B0584[];
+
+static ModelRenderDesc refrec_render_desc = {D_801B0584, MODEL_DEPTH_CUE | MODEL_SEMI_TRANS, 0, 0, 0x20};
 
 static void RefrecMainSetup(s32 targetMask, s32 callbackArg);
 
@@ -62,8 +64,8 @@ static void RefrecRenderModel(void) {
     SetRotMatrix(&matrix);
     SetTransMatrix(&matrix);
     SetFarColor(0, 0, 0);
-    g_RefrecRenderDesc.color = fade;
-    g_RefrecBufferPtr = func_800D29D4(&g_RefrecRenderDesc, g_cDb->unk70, 0xC, g_RefrecBufferPtr);
+    refrec_render_desc.color = fade;
+    g_RefrecBufferPtr = func_800D29D4(&refrec_render_desc, g_cDb->unk70, 0xC, g_RefrecBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame >= RING_LIFETIME) {

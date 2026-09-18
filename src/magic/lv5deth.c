@@ -43,8 +43,10 @@ extern u_long g_Lv5DeathTexture[]; // 8bpp TIM + 256-colour CLUT, uploaded on se
 // Flat 16-point ring of radius 976 lying in the XY plane at z = -21.
 extern s32 g_Lv5DeathRingModel[];
 
+extern s32 g_Lv5DeathSpriteModel[];
+
 // .color.cd holds the GPU primitive code (0x2E).
-extern SpriteRenderDesc g_Lv5DeathSpriteDesc;
+static SpriteRenderDesc lv5deth_sprite_desc = {g_Lv5DeathSpriteModel, {0x80, 0x80, 0x80, 0x2E}, 0, 0};
 
 static void Lv5DeathBufferFlip(void) {
     g_Lv5DeathBufferPtr = g_dbIndex == 0 ? g_Lv5DeathPrimBuffer0 : g_Lv5DeathPrimBuffer1;
@@ -106,7 +108,7 @@ static void Lv5DeathRenderTargetSprite(void) {
     u8 intensity;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    g_Lv5DeathSpriteDesc.frameIndex = effect->AnimationFrame & 7;
+    lv5deth_sprite_desc.frameIndex = effect->AnimationFrame & 7;
 
     frame = effect->AnimationFrame;
     if (frame < FADE_IN_FRAMES) {
@@ -116,10 +118,10 @@ static void Lv5DeathRenderTargetSprite(void) {
     } else {
         intensity = 128;
     }
-    g_Lv5DeathSpriteDesc.color.r = g_Lv5DeathSpriteDesc.color.g = g_Lv5DeathSpriteDesc.color.b = intensity;
+    lv5deth_sprite_desc.color.r = lv5deth_sprite_desc.color.g = lv5deth_sprite_desc.color.b = intensity;
 
     func_800D4368(&effect->Pos, (s16)effect->Scale, -((s16)effect->Scale >> 2));
-    g_Lv5DeathBufferPtr = func_800D4D90(&g_Lv5DeathSpriteDesc, g_cDb->unk70, 12, g_Lv5DeathBufferPtr);
+    g_Lv5DeathBufferPtr = func_800D4D90(&lv5deth_sprite_desc, g_cDb->unk70, 12, g_Lv5DeathBufferPtr);
 
     if (effect->AnimationFrame >= TARGET_LIFETIME) {
         effect->StartFrame = -1;

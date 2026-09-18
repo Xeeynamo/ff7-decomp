@@ -1,0 +1,8 @@
+BrizaraRenderModel0 = 0x801B0000;
+BrizaraRenderModel1 = 0x801B01C8;
+BrizaraAnimationUpdate = 0x801B03A4;
+BrizaraAttachToTarget = 0x801B0634;
+BrizaraDoubleBufferFlip = 0x801B06B4;
+MAGIC_Brizara = 0x801B0714;
+g_BrizaraTexture = 0x801B07A4;
+g_BrizaraModel = 0x801B8844;

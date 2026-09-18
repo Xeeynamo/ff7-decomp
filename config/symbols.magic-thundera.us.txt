@@ -1,0 +1,14 @@
+MAGIC_Thundera = 0x801B0000;
+ThunderaRenderModel = 0x801B0020;
+ThunderaSpawnBolt = 0x801B04D8;
+ThunderaAttachToTarget = 0x801B07F0;
+ThunderaDoubleBufferFlip = 0x801B0894;
+ThunderaMainSetup = 0x801B08F4;
+g_ThunderaRenderData0 = 0x801B097C;
+g_ThunderaRenderData1 = 0x801B09B0;
+g_ThunderaRenderData2 = 0x801B0A78;
+g_ThunderaRenderData3 = 0x801B0B40;
+g_ThunderaModel = 0x801B0C08;
+g_ThunderaTexture = 0x801B0E9C;
+g_ThunderaPrimBuffer = 0x801C90EC;
+g_ThunderaBufferPtr = 0x801E90EC; // size:0x4

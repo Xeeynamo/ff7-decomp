@@ -1,8 +1,9 @@
 //! PSYQ=3.3 CC1=2.6.3
 
 #include "common.h"
-#include "../battle/battle.h"
 #include "magic_private.h"
+#include "../battle/battle.h"
+#include <libc.h>
 
 // Bolt (サンダー / Thunder), tier 1.
 
@@ -31,10 +32,14 @@ extern void* g_ThunderBufferPtr;
 extern ThunderData g_BattleEffectSlots[];
 extern u8 g_ThunderPrimBuffer[2][MAGIC_PAGE_SIZE];
 extern u_long g_ThunderTexture[]; // 8bpp TIM + CLUT, uploaded on setup
-extern SpriteRenderDesc g_ThunderRenderDesc0;
-extern SpriteRenderDesc g_ThunderRenderDesc1;
-extern MATRIX g_ThunderModelMatrix;
-extern ModelRenderDesc g_ThunderModelDesc;
+extern s32 g_ThunderModel[];
+extern s32 g_ThunderRenderData0[];
+extern s32 g_ThunderRenderData1[];
+
+static MATRIX thunder_model_matrix = {0};
+static ModelRenderDesc thunder_model_desc = {g_ThunderModel, MODEL_SEMI_TRANS, 0, GREY_FULL, 0x20};
+static SpriteRenderDesc thunder_render_desc0 = {g_ThunderRenderData0, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
+static SpriteRenderDesc thunder_render_desc1 = {g_ThunderRenderData1, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
 
 static void ThunderMainSetup(s32 targetMask, s32 callbackArg);
 
@@ -48,23 +53,23 @@ static void ThunderRenderModel(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     frame = effect->AnimationFrame;
     if (frame < DIM_START_FRAME) {
-        g_ThunderModelDesc.color = GREY_FULL;
+        thunder_model_desc.color = GREY_FULL;
     } else if (frame < MODEL_LIFETIME) {
-        g_ThunderModelDesc.color = GREY_FULL - ((frame - DIM_START_FRAME) * GREY_PER_FRAME);
+        thunder_model_desc.color = GREY_FULL - ((frame - DIM_START_FRAME) * GREY_PER_FRAME);
     } else {
         effect->StartFrame = -1;
         return;
     }
 
-    g_ThunderModelMatrix.m[0][0] = g_ThunderModelMatrix.m[2][1] = effect->Scale;
-    g_ThunderModelMatrix.m[1][2] = -effect->Scale;
-    g_ThunderModelMatrix.t[0] = effect->Pos.vx;
-    g_ThunderModelMatrix.t[1] = effect->Pos.vy;
-    g_ThunderModelMatrix.t[2] = effect->Pos.vz;
-    CompMatrix(&D_800FA63C.m, &g_ThunderModelMatrix, &matrix);
+    thunder_model_matrix.m[0][0] = thunder_model_matrix.m[2][1] = effect->Scale;
+    thunder_model_matrix.m[1][2] = -effect->Scale;
+    thunder_model_matrix.t[0] = effect->Pos.vx;
+    thunder_model_matrix.t[1] = effect->Pos.vy;
+    thunder_model_matrix.t[2] = effect->Pos.vz;
+    CompMatrix(&D_800FA63C.m, &thunder_model_matrix, &matrix);
     SetRotMatrix(&matrix);
     SetTransMatrix(&matrix);
-    g_ThunderBufferPtr = func_800D29D4(&g_ThunderModelDesc, g_cDb->unk70, 0xC, g_ThunderBufferPtr);
+    g_ThunderBufferPtr = func_800D29D4(&thunder_model_desc, g_cDb->unk70, 0xC, g_ThunderBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         effect->Scale += effect->ScaleStep;
@@ -76,8 +81,8 @@ static void func_801B0180(void) {
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     func_800D4368(&effect->Pos, 0x2000, effect->unk1C);
-    g_ThunderRenderDesc0.frameIndex = effect->AnimationFrame >> 1;
-    g_ThunderBufferPtr = func_800D4D90(&g_ThunderRenderDesc0, g_cDb->unk70, 0xC, g_ThunderBufferPtr);
+    thunder_render_desc0.frameIndex = effect->AnimationFrame >> 1;
+    g_ThunderBufferPtr = func_800D4D90(&thunder_render_desc0, g_cDb->unk70, 0xC, g_ThunderBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame == 9) {
@@ -100,8 +105,8 @@ static void func_801B023C(void) {
     }
     SetRotMatrix(matrix);
     SetTransMatrix(matrix);
-    g_ThunderRenderDesc1.frameIndex = effect->AnimationFrame;
-    g_ThunderBufferPtr = func_800D4D90(&g_ThunderRenderDesc1, g_cDb->unk70, 0xC, g_ThunderBufferPtr);
+    thunder_render_desc1.frameIndex = effect->AnimationFrame;
+    g_ThunderBufferPtr = func_800D4D90(&thunder_render_desc1, g_cDb->unk70, 0xC, g_ThunderBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame == 8) {
