@@ -62,14 +62,91 @@ func segmentName(v any) string {
 	return ""
 }
 
+type metaOverlay struct {
+	id   string
+	kind string
+	name string
+}
+
+var metaCategories = map[string]string{
+	"main":   "Game engine",
+	"battle": "Battle",
+	"field":  "Field",
+	"menu":   "Menu",
+	"world":  "World map",
+	"mini":   "Minigame",
+	"magic":  "Magic effect",
+}
+
+var metaOverlays = map[string]metaOverlay{
+	"main":     {"main", "main", "Game engine"},
+
+	"batini":   {"batini", "battle", "Battle init"},
+	"batres":   {"batres", "battle", "Battle result"},
+	"battle":   {"battle", "battle", "Battle"},
+	"brom":     {"brom", "battle", "Battle ROM"},
+
+	"dschange": {"dschange", "field", "Disc change"},
+	"ending":   {"ending", "field", "Ending"},
+	"field":    {"field", "field", "Field"},
+
+	"bginmenu": {"bginmenu", "menu", "Background menu"},
+	"cnfgmenu": {"cnfgmenu", "menu", "Config menu"},
+	"savemenu": {"savemenu", "menu", "Save menu"},
+	"itemmenu": {"itemmenu", "menu", "Item menu"},
+	"world":    {"world", "world", "World map"},
+
+	"chocobo":  {"chocobo", "mini", "Chocobo racing"},
+	"jet":      {"jet", "mini", "jet"},
+
+	"fire":     {"fire", "magic", "Fire"},
+	"faira":    {"faira", "magic", "Fira"},
+	"brizad":   {"brizad", "magic", "Blizzard"},
+	"brizara":  {"brizara", "magic", "Blizzara"},
+	"thunder":  {"thunder", "magic", "Thunder"},
+	"thundera": {"thundera", "magic", "Thundara"},
+	"barrier":  {"barrier", "magic", "Barrier"},
+	"mabaria":  {"mabaria", "magic", "MBarrier"},
+	"refrec":   {"refrec", "magic", "Reflect"},
+	"lv5deth":  {"lv5deth", "magic", "LV.5 Death"},
+}
+
 func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 	var units []objdiffUnit
 	var categories []objdiffProgressCategory
+	kindCount := map[string]int{}
 	for _, o := range b.Overlays {
+		meta, ok := metaOverlays[o.Name]
+		if !ok {
+			panic(fmt.Sprintf("no metaOverlay entry for overlay %q", o.Name))
+		}
+		kindCount[meta.kind]++
+	}
+	seenKind := map[string]bool{}
+	for _, o := range b.Overlays {
+		meta := metaOverlays[o.Name]
+		kindName, ok := metaCategories[meta.kind]
+		if !ok {
+			panic(fmt.Sprintf("no metaCategories entry for kind %q", meta.kind))
+		}
+		categoryID := meta.kind
+		categoryName := kindName
+		if kindCount[meta.kind] > 1 {
+			categoryID = fmt.Sprintf("%s.%s", meta.kind, meta.id)
+			categoryName = meta.name
+			if !seenKind[meta.kind] {
+				seenKind[meta.kind] = true
+				categories = append(categories, objdiffProgressCategory{
+					ID:   meta.kind,
+					Name: kindName,
+				})
+			}
+		}
 		srcDir := filepath.Join(b.SrcPath, o.BasePath)
 		asmDir := filepath.Join(b.AsmPath, o.BasePath)
 		categories = append(categories, objdiffProgressCategory{
-			ID: o.Name,
+			ID:   categoryID,
+			Name: categoryName,
 		})
 		for _, src := range o.Segments {
 			if len(src) < 2 {
@@ -102,7 +179,7 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 					TargetPath: targetPath(objFile),
 					Metadata: objdiffMetadata{
 						SourcePath:         srcFile,
-						ProgressCategories: []string{o.Name},
+						ProgressCategories: unitCategories(meta.kind, categoryID),
 					},
 				})
 			case "hasm":
@@ -114,7 +191,7 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 					TargetPath: targetPath(objFile),
 					Metadata: objdiffMetadata{
 						SourcePath:         srcFile,
-						ProgressCategories: []string{o.Name},
+						ProgressCategories: unitCategories(meta.kind, categoryID),
 					},
 				})
 			case "data":
@@ -130,7 +207,7 @@ func makeObjdiffConfig(b BuildConfig) objdiffConfig {
 					TargetPath: targetPath(objFile),
 					Metadata: objdiffMetadata{
 						SourcePath:         asmFile,
-						ProgressCategories: []string{o.Name},
+						ProgressCategories: unitCategories(meta.kind, categoryID),
 					},
 				})
 			}
@@ -167,4 +244,11 @@ func writeObjdiffConfig(b BuildConfig) error {
 func targetPath(path string) string {
 	path = strings.Replace(path, "report/", "", 1)
 	return filepath.Join("expected", path)
+}
+
+func unitCategories(kind, categoryID string) []string {
+	if kind == categoryID {
+		return []string{kind}
+	}
+	return []string{kind, categoryID}
 }
