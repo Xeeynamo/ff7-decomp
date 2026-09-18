@@ -26,9 +26,11 @@ typedef struct {
 extern s32 D_801B0CA0;
 extern s32 D_801B0CA4;
 extern MabariaData g_BattleEffectSlots[];
-extern ModelRenderDesc g_MabariaRenderDesc;
+extern s32 D_801B05B4[];
 extern u8 g_MabariaPrimBuffer[2][MAGIC_PAGE_SIZE];
 extern void* g_MabariaBufferPtr;
+
+static ModelRenderDesc mabaria_render_desc = {D_801B05B4, MODEL_DEPTH_CUE | MODEL_SEMI_TRANS, 0, 0, 0x20};
 
 static void MabariaMainSetup(s32 targetMask, s32 callbackArg);
 
@@ -60,8 +62,8 @@ static void MabariaRenderModel(void) {
     SetRotMatrix(&matrix);
     SetTransMatrix(&matrix);
     SetFarColor(0, 0, 0);
-    g_MabariaRenderDesc.color = fade;
-    g_MabariaBufferPtr = func_800D29D4(&g_MabariaRenderDesc, g_cDb->unk70, 0xC, g_MabariaBufferPtr);
+    mabaria_render_desc.color = fade;
+    g_MabariaBufferPtr = func_800D29D4(&mabaria_render_desc, g_cDb->unk70, 0xC, g_MabariaBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame >= MABARIA_LIFETIME) {

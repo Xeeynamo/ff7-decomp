@@ -1,8 +1,8 @@
 //! PSYQ=3.3 CC1=2.6.3
 
 #include "common.h"
-#include "../battle/battle.h"
 #include "magic_private.h"
+#include "../battle/battle.h"
 
 // Ice (ブリザド / Blizzard), tier 1.
 //
@@ -38,8 +38,10 @@ typedef struct {
 // ScaleMatrix writes into MATRIX.m, which is s16, so the scale clamps here.
 #define SCALE_MAX 0x7FFF
 
-extern ModelRenderDesc g_BrizadRenderDesc;
+extern s32 D_801B03F0[];
 extern BrizadData g_BattleEffectSlots[];
+
+static ModelRenderDesc brizad_render_desc = {D_801B03F0, MODEL_DEPTH_CUE | MODEL_SEMI_TRANS, 0, 0, 0x20};
 
 static void BrizadRenderIce(void) {
     MATRIX matrix;
@@ -72,8 +74,8 @@ static void BrizadRenderIce(void) {
     SetRotMatrix(&matrix);
     SetTransMatrix(&matrix);
     SetFarColor(0, 0, 0);
-    g_BrizadRenderDesc.color = fade;
-    brizad_buffer_ptr = func_800D29D4(&g_BrizadRenderDesc, g_cDb->unk70, 12, brizad_buffer_ptr);
+    brizad_render_desc.color = fade;
+    brizad_buffer_ptr = func_800D29D4(&brizad_render_desc, g_cDb->unk70, 12, brizad_buffer_ptr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame >= BRIZAD_LIFETIME) {

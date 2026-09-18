@@ -19,15 +19,17 @@ extern FireData g_BattleEffectSlots[];
 static u8 fire_prim_buffer[2][0x4000];
 static void* fire_buffer_ptr;
 extern u_long g_FireTexture[]; // 4bpp TIM + four 16-colour CLUTs, uploaded on setup
-extern SpriteRenderDesc g_FireRenderDesc;
+extern s32 D_801C043C[];
+
+static SpriteRenderDesc fire_render_desc = {D_801C043C, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
 
 static void FireRenderSprite(void) {
     FireData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     func_800D4368(&effect->Pos, 0x1000, effect->unk12);
-    g_FireRenderDesc.frameIndex = effect->AnimationFrame;
-    fire_buffer_ptr = func_800D4D90(&g_FireRenderDesc, g_cDb->unk70, 0xC, fire_buffer_ptr);
+    fire_render_desc.frameIndex = effect->AnimationFrame;
+    fire_buffer_ptr = func_800D4D90(&fire_render_desc, g_cDb->unk70, 0xC, fire_buffer_ptr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame >= 14) {
