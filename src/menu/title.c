@@ -111,7 +111,60 @@ static s32 func_801D33F4(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/title", func_801D3478);
+#ifdef VERSION_PC
+void func_801D3478(s32 arg0) {
+#else
+s32 func_801D3478(s32 arg0) {
+#endif
+    s32 chan;
+
+    chan = (arg0 != 0) * 0x10;
+    _card_info(chan);
+    switch (func_801D3370()) {
+    case 1:
+        D_801E8F38[arg0][1] = 1;
+        return;
+    case 0:
+        if (D_801E8F38[arg0][0]) {
+            return;
+        }
+        D_801E8F38[arg0][0] = 1;
+        break;
+    case 2:
+        D_801E8F38[arg0][0] = 0;
+        D_801E8F38[arg0][1] = 0;
+        D_801E8F38[arg0][2] = 0;
+        return;
+    case 3:
+        func_801D3318();
+        _card_clear(chan);
+        func_801D33F4();
+        break;
+    default:
+        D_801E8F38[arg0][1] = 1;
+        return;
+    }
+
+    func_801D32C0();
+    _card_load(chan);
+    switch (func_801D3370()) {
+    case 0:
+        D_801E8F38[arg0][2] = 0;
+        break;
+    case 2:
+        D_801E8F38[arg0][0] = 0;
+        break;
+    case 1:
+        D_801E8F38[arg0][1] = 1;
+        break;
+    case 3:
+        D_801E8F38[arg0][2] = 1;
+        break;
+    default:
+        D_801E8F38[arg0][1] = 1;
+        break;
+    }
+}
 
 void func_801D3668(s32 arg0) {
     if (!(arg0 & 0x3F)) {
