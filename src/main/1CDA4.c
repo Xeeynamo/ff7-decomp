@@ -39,6 +39,8 @@ s32 D_80062DC8 = 0x00000000;
 s32 D_80062F9C;
 s32 D_80062FF0;
 
+extern u8 D_800696F0[NUM_MENU_COLOR];
+
 static void func_8001CDA4(void) {
     SetPolyFT4(D_80062F24.ft4);
     SetShadeTex(D_80062F24.ft4, 1);
@@ -164,7 +166,7 @@ static void func_8001D56C(s16 x0, s16 y0, s16 x1, s16 y1, s16 is_yellow) {
     D_80062F24.linef2++;
 }
 
-static s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
+static s16 SysMenuDrawDialogString(s32 x, s16 y, s16 w, u8* txt) {
     RECT rect;
     u8 c;
     s32 width;
@@ -384,9 +386,19 @@ void SysMenuCopyWindowRect(MenuRect* rect, MenuRect* src) {
     rect->h = src->h;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1CDA4", SysMenuStoreWindowColor);
+void SysMenuStoreWindowColor(void) {
+    s32 i;
+    for (i = 0; i < NUM_MENU_COLOR; i++) {
+        D_800696F0[i] = g_MenuColors[i];
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1CDA4", SysMenuRestoreWindowColor);
+void SysMenuRestoreWindowColor(void) {
+    s32 i;
+    for (i = 0; i < NUM_MENU_COLOR; i++) {
+        g_MenuColors[i] = D_800696F0[i];
+    }
+}
 
 // default FF7 menu colors
 u8 g_MenuColors[NUM_MENU_COLOR] = {

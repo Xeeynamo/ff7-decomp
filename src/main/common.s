@@ -149,7 +149,7 @@
 /* 8006966C */ glabel D_8006966C;                           .space 0x20
 /* 8006968C */ glabel D_8006968C;                           .space 0x20
 /* 800696AC */ glabel s_PadBuffers;                         .space 0x44  # input.c (InputInit, InputReadPad1Raw, InputReadPadsRaw)
-/* 800696F0 */ glabel D_800696F0;                           .space 0xc
+/* 800696F0 */ glabel D_800696F0;                           .space 0xc   # 1CDA4.c (SysMenuStoreWindowColor, SysMenuRestoreWindowColor)
 /* 800696FC */ glabel D_800696FC;                           .space 0x50
 /* 8006974C */ glabel g_MenuOrderingTables;                 .space 0xa0
 /* 800697EC */ glabel g_RewardMenuTable;                    .space 0x2
