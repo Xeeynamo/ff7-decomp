@@ -1,0 +1,1 @@
+MINI_Chocobo = 0x800A02D0;

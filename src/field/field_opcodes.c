@@ -3929,7 +3929,7 @@ static void PartyFromBank2ToSave(s32 unused) {
 
 // Transfers party from save to bank 2 while preserving order in bank 2 of
 // characters existing in both parties.
-static void PartyFromSaveToBank2(void) {
+void FIELD_Init(void) {
     u8 notInBank2[3];
     u8 notInSave[3];
 
@@ -4148,7 +4148,7 @@ s32 OpcodeFuncMenu(void) {
             PC_INC(4);
             g_pFieldState->eventCmd = EVTCMD_NONE;
             g_pFieldState->movieCommandState = MOVCMD_IDLE;
-            PartyFromSaveToBank2();
+            FIELD_Init();
             return 0;
         }
     } else if (GET_PARAM_U8(2) == EVTCMD_UNK14 && g_pFieldState->eventCmd == EVTCMD_PLAY_MOVIE) {

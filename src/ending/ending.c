@@ -540,8 +540,8 @@ static void func_800A2888(void*, s16*, s16*);
 static s32 func_800A379C(EndingObj*, VECTOR*, VECTOR*, s32);
 void func_800A3178(EndingNode*, s16, u8, void (*)());
 static void func_800A09DC(void);
-static void func_800A2504(s32, s32, s32, u8, u8, u8);
-static s32 func_800A273C(s32);
+static void SetGameResolution(s32, s32, s32, u8, u8, u8);
+static s32 StartFrame(s32 sync);
 static void func_800A310C(void);
 static void func_800A1ED4(s16*);
 static void func_800A1E20(void);
@@ -555,7 +555,7 @@ static void func_800A32D8(EndingNode*);
 static EndingNode* func_800A3314(s16);
 
 static const char cd_msg_err[] = "scea file read error\n";
-void func_800A0030(void) {
+void ENDING_SceaLoop(void) {
     RECT rect;
     CdlFILE file;
     s32 buf;
@@ -568,7 +568,7 @@ void func_800A0030(void) {
     s32 tp;
     u8* src;
 
-    func_800A2504(640, 480, 0x200, 0, 0, 0);
+    SetGameResolution(640, 480, 0x200, 0, 0, 0);
 
     do {
         res = (s32)CdSearchFile(&file, "\\STARTUP\\SCEAP.LZS;1");
@@ -595,7 +595,7 @@ void func_800A0030(void) {
     r = 0xFE;
     while (r > 0) {
         buf = buf == 0;
-        func_800A273C(0);
+        StartFrame(0);
         ode = GetODE() ^ 1;
         src = (u8*)((ode * 0x500) + 0x80100000);
         rect.x = 0;
@@ -633,7 +633,7 @@ void func_800A0030(void) {
 
     for (i = 0; i < 300; i++) {
         buf = buf == 0;
-        func_800A273C(0);
+        StartFrame(0);
         ode = GetODE() ^ 1;
         src = (u8*)((ode * 0x500) + 0x80100000);
         rect.x = 0;
@@ -652,7 +652,7 @@ void func_800A0030(void) {
 
     while (r < 0xFE) {
         buf = buf == 0;
-        func_800A273C(0);
+        StartFrame(0);
         ode = GetODE() ^ 1;
         src = (u8*)((ode * 0x500) + 0x80100000);
         rect.x = 0;
@@ -691,7 +691,7 @@ void func_800A0030(void) {
     SetDispMask(0);
 }
 
-void func_800A04C4(s32 arg0) {
+void ENDING_Loop(s32 arg0) {
     u8 unused[0x100];
     RECT rect;
     s16 col;
@@ -699,7 +699,7 @@ void func_800A04C4(s32 arg0) {
     s32 h = 0x1E0;
 
     while (1) {
-        func_800A2504(0x140, 0xF0, 0x200, 0, 0, 0);
+        SetGameResolution(320, 240, 0x200, 0, 0, 0);
         if (arg0 != 0) {
             rect.x = 0;
             rect.y = 0;
@@ -727,7 +727,7 @@ void func_800A04C4(s32 arg0) {
             VSync(1);
             DrawSync(0);
             VSync(1);
-            D_800AF408 = func_800A273C(D_800AF40C);
+            D_800AF408 = StartFrame(D_800AF40C);
             if (D_800AF408 != 0) {
                 D_800AF3FC = (void*)0x801F0000;
             }
@@ -763,7 +763,7 @@ fade_out:
     D_8009A008[0] = 0;
     SystemAkaoExecute();
     for (col = 0; col < 0xFF; col += 4) {
-        D_800AF408 = func_800A273C(D_800AF40C);
+        D_800AF408 = StartFrame(D_800AF40C);
         rect.x = D_8007EBD0->clip.x;
         rect.y = D_8007EBD0->clip.y;
         rect.w = D_8007EBD0->clip.w;
@@ -1092,9 +1092,9 @@ s32 func_800A20D4(void) { return func_80034410() == 0; }
 s32 func_800A20F8(void) {
     u8 unused[8]; /* retail reserves it, nothing reads it */
 
-    func_800A2504(
+    SetGameResolution(
         *D_800A6528++, *D_800A6528++, *D_800A6528++, *(u8*)D_800A6528++, *(u8*)D_800A6528++, *(u8*)D_800A6528++);
-    func_800A273C(0);
+    StartFrame(0);
 
     return 1;
 }
@@ -1192,12 +1192,12 @@ static void func_800A24A8(void) {
     }
 }
 
-static void func_800A2504(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
+static void SetGameResolution(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
     RECT rect;
     s32 y;
     s32 res;
 
-    y = (h != 0x1E0) ? 0xF0 : 0;
+    y = (h != 480) ? 240 : 0;
 
     while ((res = func_800484A8()) == -1) {
         VSync(0);
@@ -1240,12 +1240,12 @@ static void func_800A2504(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
 
     rect.x = 0;
     rect.y = 0;
-    rect.h = 0x1E0;
+    rect.h = 480;
     ClearImage(&rect, 0, 0, 0);
-    func_800A273C(0);
+    StartFrame(0);
 }
 
-static s32 func_800A273C(s32 arg0) {
+static s32 StartFrame(s32 sync) {
     u32 pad0;
     u32 pad1;
     u32 old0;
@@ -1253,7 +1253,7 @@ static s32 func_800A273C(s32 arg0) {
 
     D_800AF408 ^= 1;
     DrawSync(0);
-    VSync(arg0);
+    VSync(sync);
     PutDispEnv(&D_800AF398[D_800AF408]);
     PutDrawEnv(&D_800AF2E0[D_800AF408]);
     D_8007EBD8 = &D_800AF398[D_800AF408];

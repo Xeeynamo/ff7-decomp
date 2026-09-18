@@ -5,37 +5,32 @@
 
 extern s32 D_801E2CF4;
 
-static void func_801D2B58(u16 arg0) {
+static void PlaySfx(u16 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
     SystemAkaoExecute();
 }
 
-static s32 func_801D2B98(s32 arg0) {
+static s32 DoFade(s32 fadeDirection) {
     RECT rect;
 
     setTile(D_80062F24.tile);
     SetSemiTrans(D_80062F24.tile, 1);
     D_80062F24.tile->x0 = 0;
     D_80062F24.tile->y0 = 0;
-    D_80062F24.tile->w = 0x180;
-    D_80062F24.tile->h = 0xE8;
-    D_80062F24.tile->r0 = (u8)D_801E2CF4;
-    D_80062F24.tile->g0 = (u8)D_801E2CF4;
-    D_80062F24.tile->b0 = (u8)D_801E2CF4;
+    D_80062F24.tile->w = 384;
+    D_80062F24.tile->h = 232;
+    setRGB0(D_80062F24.tile, D_801E2CF4, D_801E2CF4, D_801E2CF4);
     AddPrim(D_80062FC4, D_80062F24.tile++);
-    rect.x = 0;
-    rect.y = 0;
-    rect.w = 255;
-    rect.h = 255;
-    SysMenuSetDrawMode(0, 1, 0x5F, &rect);
-    D_801E2CF4 += arg0;
+    setRECT(&rect, 0, 0, 255, 255);
+    SysMenuSetDrawMode(0, 1, 0x1F | 0x40, &rect);
+    D_801E2CF4 += fadeDirection;
     if (D_801E2CF4 < 0) {
         D_801E2CF4 = 0;
     }
-    if (D_801E2CF4 >= 0x100) {
-        D_801E2CF4 = 0xFF;
+    if (D_801E2CF4 > 255) {
+        D_801E2CF4 = 255;
     }
     return D_801E2CF4;
 }
@@ -63,21 +58,21 @@ static void func_801D2D10(s32 arg0) {
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/title", func_801D2DA8);
 
-static void func_801D32C0(void) {
+static void PeekSwCardStatus(void) {
     TestEvent(D_8009A024[0]);
     TestEvent(D_8009A024[1]);
     TestEvent(D_8009A024[2]);
     TestEvent(D_8009A024[3]);
 }
 
-static void func_801D3318(void) {
+static void PeekHwCardStatus(void) {
     TestEvent(D_8009A024[4]);
     TestEvent(D_8009A024[5]);
     TestEvent(D_8009A024[6]);
     TestEvent(D_8009A024[7]);
 }
 
-static s32 func_801D3370(void) {
+static s32 WaitSwCardStatus(void) {
     while (1) {
         if (TestEvent(D_8009A024[0]) == 1) {
             return 0;
@@ -94,7 +89,7 @@ static s32 func_801D3370(void) {
     }
 }
 
-static s32 func_801D33F4(void) {
+static s32 WaitHwCardStatus(void) {
     while (1) {
         if (TestEvent(D_8009A024[4]) == 1) {
             return 0;
@@ -112,78 +107,78 @@ static s32 func_801D33F4(void) {
 }
 
 #ifdef VERSION_PC
-void func_801D3478(s32 arg0) {
+static void func_801D3478(s32 cardId) {
 #else
-s32 func_801D3478(s32 arg0) {
+static s32 FetchMemCardStatus(s32 cardId) {
 #endif
     s32 chan;
 
-    chan = (arg0 != 0) * 0x10;
+    chan = (cardId != 0) * 0x10;
     _card_info(chan);
-    switch (func_801D3370()) {
+    switch (WaitSwCardStatus()) {
     case 1:
-        D_801E8F38[arg0][1] = 1;
+        D_801E8F38[cardId][1] = 1;
         return;
     case 0:
-        if (D_801E8F38[arg0][0]) {
+        if (D_801E8F38[cardId][0]) {
             return;
         }
-        D_801E8F38[arg0][0] = 1;
+        D_801E8F38[cardId][0] = 1;
         break;
     case 2:
-        D_801E8F38[arg0][0] = 0;
-        D_801E8F38[arg0][1] = 0;
-        D_801E8F38[arg0][2] = 0;
+        D_801E8F38[cardId][0] = 0;
+        D_801E8F38[cardId][1] = 0;
+        D_801E8F38[cardId][2] = 0;
         return;
     case 3:
-        func_801D3318();
+        PeekHwCardStatus();
         _card_clear(chan);
-        func_801D33F4();
+        WaitHwCardStatus();
         break;
     default:
-        D_801E8F38[arg0][1] = 1;
+        D_801E8F38[cardId][1] = 1;
         return;
     }
 
-    func_801D32C0();
+    PeekSwCardStatus();
     _card_load(chan);
-    switch (func_801D3370()) {
+    switch (WaitSwCardStatus()) {
     case 0:
-        D_801E8F38[arg0][2] = 0;
+        D_801E8F38[cardId][2] = 0;
         break;
     case 2:
-        D_801E8F38[arg0][0] = 0;
+        D_801E8F38[cardId][0] = 0;
         break;
     case 1:
-        D_801E8F38[arg0][1] = 1;
+        D_801E8F38[cardId][1] = 1;
         break;
     case 3:
-        D_801E8F38[arg0][2] = 1;
+        D_801E8F38[cardId][2] = 1;
         break;
     default:
-        D_801E8F38[arg0][1] = 1;
+        D_801E8F38[cardId][1] = 1;
         break;
     }
 }
 
-void func_801D3668(s32 arg0) {
-    if (!(arg0 & 0x3F)) {
-        func_801D3478(0);
-        func_801D3478(1);
+void SaveMenuFetchAllMemCardStatus(s32 retryCounter) {
+    if (!(retryCounter & 0x3F)) {
+        FetchMemCardStatus(0);
+        FetchMemCardStatus(1);
     }
 }
 
-s32 func_801D3698(s32 arg0, s32 arg1) {
-    s32 var_a0;
+s32 SaveMenuFetchSaveHeader(s32 cardId, s32 slotId) {
+    s32 saveId;
     s32 i;
     s32 ret;
 
-    for (i = 0; i < 0x14; i++) {
-        var_a0 = arg1;
-        if (arg0) {
-            var_a0 |= 0x10;
+    for (i = 0; i < 20; i++) {
+        saveId = slotId;
+        if (cardId) {
+            saveId |= 0x10;
         }
-        if (LoadSaveHeader(var_a0) == 0) {
+        if (LoadSaveHeader(saveId) == 0) {
             ret = 0;
             break;
         }
@@ -254,7 +249,7 @@ static void func_801D39C4(void) {
 }
 
 // title screen handler
-static s32 func_801D3AB0(s32 arg0) {
+static s32 HandleTitleScreen(s32 counter) {
     RECT sp38;
     RECT rect;
     s32 temp_v1_2;
@@ -269,15 +264,15 @@ static s32 func_801D3AB0(s32 arg0) {
 
     if ((g_MenuStartMode < START_MENU_MODE_CHECKING_FILES || g_MenuStartMode == START_MENU_MODE_TITLE) &&
         D_801E3D54 != 2 && D_801E3D54 != 0) {
-        func_801D3668(arg0);
+        SaveMenuFetchAllMemCardStatus(counter);
     }
     func_80026B5C(0x80);
     if (D_801E3D54 == 0) {
-        if (func_801D2B98(-15) == 0) {
+        if (DoFade(-15) == 0) {
             D_801E3D54 = 1;
         }
     } else if (D_801E3D54 == 2) {
-        if (func_801D2B98(15) == 0xFF) {
+        if (DoFade(15) == 255) {
             D_801E3D54 = -1;
         }
     }
@@ -362,7 +357,7 @@ static s32 func_801D3AB0(s32 arg0) {
         }
         break;
     case START_MENU_MODE_FORMAT_PROMPT:
-        if (arg0 & 2) {
+        if (counter & 2) {
             SysMenuDrawCursor(D_801E3668.x - 0x12, D_801E3668.y + 6 + D_801E3D80[0].row * 12);
         }
         SysMenuDrawString(D_801E3668.x + 12, D_801E3668.y + 5, D_801E2CFC[3], -(D_801E8F38[0][0] != 0) & 7);
@@ -437,7 +432,7 @@ static s32 func_801D3AB0(s32 arg0) {
                     break;
                 }
                 if (D_801E8F38[temp_v1_2][0]) {
-                    func_801D2B58(1);
+                    PlaySfx(1);
                     if (D_801E8F38[D_801E3D80[0].row][2]) {
                         g_MenuStartMode = START_MENU_MODE_FORMAT_PROMPT;
                         SysMenuSetCursorMovement(&D_801E3D80[6], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
@@ -451,11 +446,11 @@ static s32 func_801D3AB0(s32 arg0) {
                         SysMenuSetCursorMovement(&D_801E3D80[1], 0, 0, 1, 3, 0, 0, 1, 15, 0, 0, 0, 0, 0);
                     }
                 } else {
-                    func_801D2B58(3);
+                    PlaySfx(3);
                     SysMenuRequestAddWindow(D_801E33B0, 7);
                 }
             } else if (g_Pad1KeysPressed & PADRdown) {
-                func_801D2B58(4);
+                PlaySfx(4);
                 g_MenuStartMode = START_MENU_MODE_TITLE;
             } else {
                 SysMenuHandleButtons(&D_801E3D80[0]);
@@ -467,14 +462,14 @@ static s32 func_801D3AB0(s32 arg0) {
             if (!D_801E3D80[1].unkF && !var_s1) {
                 if (g_Pad1KeysPressed & PADRright) {
                     if (((s32)D_80062F3C >> (D_801E3D80[1].row + D_801E3D80[1].rowOffset)) & 1) {
-                        func_801D2B58(1);
+                        PlaySfx(1);
                         g_MenuStartMode = START_MENU_MODE_LOADING;
                         D_801E3F18 = 10;
                     } else {
-                        func_801D2B58(3);
+                        PlaySfx(3);
                     }
                 } else if (g_Pad1KeysPressed & PADRdown) {
-                    func_801D2B58(4);
+                    PlaySfx(4);
                     g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                 }
             }
@@ -488,19 +483,19 @@ static s32 func_801D3AB0(s32 arg0) {
                 } else {
                     var_s1 = 0;
                     if ((D_80062F3C >> D_801E3F20) & 1) {
-                        var_s1 = func_801D3698(D_801E3D80[0].row, D_801E3F20);
+                        var_s1 = SaveMenuFetchSaveHeader(D_801E3D80[0].row, D_801E3F20);
                     }
                     D_801E3F20++;
                     if (var_s1) {
                         g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                         SysMenuRequestAddWindow(D_801E33B0[8], 2);
-                        func_801D2B58(3);
+                        PlaySfx(3);
                     }
                     if (D_801E3F20 == 0xF) {
                         D_801E3F20 = 0xE;
                         g_MenuStartMode = START_MENU_MODE_CHECKING_WAIT;
                         D_801E3F18 = 10;
-                        func_801D2B58(2);
+                        PlaySfx(2);
                     }
                 }
             } else {
@@ -527,16 +522,16 @@ static s32 func_801D3AB0(s32 arg0) {
             if (var_s1 == 0) {
                 if (Savemap.header.checksum != (u16)func_801D1950(sizeof(SaveWork) - 4, &Savemap.header.leader_level)) {
                     g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
-                    func_801D2B58(3);
+                    PlaySfx(3);
                     SysMenuRequestAddWindow(D_801E2CFC[31], 0);
                 } else {
-                    func_801D2B58(0xD0);
+                    PlaySfx(0xD0);
                     D_801E3D54 = 2;
                     func_801D2D10(Savemap.config & 3);
                 }
             } else {
                 g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
-                func_801D2B58(3);
+                PlaySfx(3);
                 SysMenuRequestAddWindow(D_801E2CFC[11], var_s1);
             }
             g_SavemapBusy = 0;
@@ -554,35 +549,35 @@ static s32 func_801D3AB0(s32 arg0) {
                     if (temp_v1_2 == 1) {
                         D_801E8F38[D_801E3D80[0].row][2] = 0;
                         SysMenuRequestAddWindow(D_801E2CFC[41], 7);
-                        func_801D2B58(0xD0);
+                        PlaySfx(0xD0);
                     } else {
                         SysMenuRequestAddWindow(D_801E3260[3], 7);
-                        func_801D2B58(3);
+                        PlaySfx(3);
                     }
                 } else {
                     g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
-                    func_801D2B58(4);
+                    PlaySfx(4);
                 }
             } else if (g_Pad1KeysPressed & PADRdown) {
                 g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
-                func_801D2B58(4);
+                PlaySfx(4);
             }
             break;
         case START_MENU_MODE_TITLE:
             if (g_Pad1KeysPressed & PADRright) {
                 switch (D_801E3D80[7].row) {
                 case 0:
-                    func_801D2B58(0xD0);
+                    PlaySfx(0xD0);
                     D_801E3698 = 1;
                     D_801E3D54 = 2;
                     break;
                 case 1:
                     if (D_801E8F38[0][0] || D_801E8F38[1][0]) {
-                        func_801D2B58(1);
+                        PlaySfx(1);
                         SysMenuSetCursorMovement(&D_801E3D80[0], 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
                         g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                     } else {
-                        func_801D2B58(3);
+                        PlaySfx(3);
                     }
                     break;
                 }
@@ -606,8 +601,7 @@ static void func_801D4C38(void) {
     PutDrawEnv(D_801E3E34);
 }
 
-// title screen loop
-s32 func_801D4CC0(void) {
+s32 SAVEMENU_Title(void) {
     s32 i;
     s32 ret;
 
@@ -622,7 +616,7 @@ s32 func_801D4CC0(void) {
         ClearOTag(D_801E3D5C, 1);
         SysMenuSetOtag(D_801E3D5C);
         SysMenuDrawAddWindow();
-        ret = func_801D3AB0(i);
+        ret = HandleTitleScreen(i);
         if (D_801E3D54 == -1) {
             break;
         }

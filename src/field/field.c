@@ -188,7 +188,7 @@ void PreloadNextFieldMap(FieldEntity* player, FieldGateway* gateways) {
     g_IsFieldLoading = 1;
 }
 
-void FieldMain(void) {
+void FIELD_Main(void) {
     RECT clearRect = {0, 0, 480, 472};
     s32 i;
 

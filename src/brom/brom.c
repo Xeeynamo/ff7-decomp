@@ -2,7 +2,7 @@
 
 INCLUDE_ASM("asm/us/brom/nonmatchings/brom", func_800A0000);
 
-INCLUDE_ASM("asm/us/brom/nonmatchings/brom", func_800A00CC);
+INCLUDE_ASM("asm/us/brom/nonmatchings/brom", BROM_Handle);
 
 INCLUDE_ASM("asm/us/brom/nonmatchings/brom", func_800A015C);
 

@@ -1,26 +1,6 @@
 //! PSYQ=3.3 G=0
 #include "main_private.h"
 #include "unzip.h"
-
-enum {
-    YAMA_SOUND_INSTR_ALL,
-    YAMA_SOUND_EFFECT,
-    YAMA_SOUND_INSTR_DAT,
-    YAMA_SOUND_INSTR2_ALL,
-    YAMA_SOUND_INSTR2_DAT,
-    YAMA_FIELD_FIELD,
-    YAMA_WORLD_WORLD,
-    YAMA_MINI_CONDOR,
-    YAMA_MINI_SNOBO,
-    YAMA_MINI_SNOBO2,
-    YAMA_FIELD_DSCHANGE,
-    YAMA_FIELD_ENDING,
-    YAMA_MINI_CHOCOBO,
-    YAMA_MINI_JET,
-    YAMA_MINI_SUBMAR,
-    YAMA_MINI_HIGHWAY,
-};
-
 static Yamada yama_sound_instr_all = {LBA_SOUND_INSTR_ALL, 483232};
 static Yamada yama_sound_effect = {LBA_SOUND_EFFECT, 51200};
 static Yamada yama_sound_instr_dat = {LBA_SOUND_INSTR_DAT, 8192};
@@ -146,10 +126,10 @@ static void SysInitBase(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitDispenvDrawenv);
 
-void func_800A16CC(); // field loop
-void func_800CF60C(); // field load
-
-static void SysFieldRun(void) {
+void FIELD_Main(void);
+void FIELD_Init(void);
+static void HandleField(void) {
+#ifndef VERSION_PC
     if (g_PrevGameState != GAMESTATE_MENU && g_PrevGameState != GAMESTATE_MENU_COMMANND) {
         if (g_PrevGameState != GAMESTATE_BATTLE) {
             SystemLoadFileBySector(yama_field_field.loc, yama_field_field.len, (u_long*)0x80180000, NULL);
@@ -168,8 +148,9 @@ static void SysFieldRun(void) {
             SysGzipBinDecompress((GzHeader*)0x801C0000, (u8*)0x800A0000);
         }
     }
-    func_800CF60C();
-    func_800A16CC();
+#endif
+    FIELD_Init();
+    FIELD_Main();
 }
 
 static void func_80011920(void) {
@@ -177,7 +158,7 @@ static void func_80011920(void) {
     D_80071A5C = 0;
 }
 
-static void SysInitAkaoEngine(void) {
+static void AkaoInit(void) {
     SystemLoadFileBySector(yama_sound_instr_all.loc, yama_sound_instr_all.len, (u_long*)0x800F0000, NULL);
     do {
     } while (SystemCdromReadChain());
@@ -206,16 +187,16 @@ void main(void) {
     SysInitBase();
     SysCdromInit();
     SysCdromLoadFile(yama_field_ending.loc, yama_field_ending.len, (u_long*)0x800A0000, NULL);
-    func_800A0030();
+    ENDING_SceaLoop();
     func_800148B4();
     while (1) {
         g_FieldState.battleMode2 = 0;
         g_FieldState.battlesDisabled = 0;
         func_800148A0();
-        SysInitAkaoEngine();
+        AkaoInit();
         InputInit();
         SysCdromLoadFile(yama_field_ending.loc, yama_field_ending.len, (u_long*)0x800A0000, NULL);
-        func_800A04C4(0);
+        ENDING_Loop(0);
         *D_8009A000 = 192;
         *D_8009A004 = 127;
         SystemAkaoExecute();
@@ -223,7 +204,7 @@ void main(void) {
         func_80026258();
         func_80011920();
         SysSavemapReset();
-        if (func_80024E5C() == 1) {
+        if (HandleTitle() == 1) {
             func_80014934();
             func_80026258();
             SysSavemapReset();
@@ -233,7 +214,7 @@ void main(void) {
         while (1) {
             if (Savemap.memory_bank_1[768] != SYS_GetDiskNo()) {
                 SysCdromLoadFile(yama_field_dschange.loc, yama_field_dschange.len, (u_long*)0x800A0000, NULL);
-                if (func_800A0000(Savemap.memory_bank_1[768]) == 1) {
+                if (DSCHANGE_WaitDiskLoop(Savemap.memory_bank_1[768]) == 1) {
                     g_FieldState.eventCmd = EVTCMD_NONE;
                     func_80033BE0();
                     func_800299C8();
@@ -249,7 +230,7 @@ void main(void) {
             do {
                 switch (g_GameState) {
                 case GAMESTATE_FIELD:
-                    SysFieldRun();
+                    HandleField();
                     break;
                 case GAMESTATE_BATTLE:
                 case GAMESTATE_BROM:
@@ -377,7 +358,7 @@ void main(void) {
                         }
                         break;
                     case EVTCMD_SAVE_SCREEN:
-                        func_80024E94();
+                        HandleSaveMenu();
                         break;
                     case EVTCMD_UNK12:
                         func_80024FC4(g_FieldState.eventCmdParam);
@@ -386,7 +367,7 @@ void main(void) {
                         func_80024F80(g_FieldState.eventCmdParam);
                         break;
                     }
-                    func_800CF60C();
+                    FIELD_Init();
                     g_FieldState.movieCommandState = MOVCMD_DONE;
                     g_PrevGameState = GAMESTATE_MENU;
                     g_GameState = GAMESTATE_FIELD;
@@ -417,7 +398,7 @@ void main(void) {
                         break;
                     }
                     if (g_FieldState.eventCmd != EVTCMD_UNK19) {
-                        func_800CF60C();
+                        FIELD_Init();
                     }
                     g_FieldState.movieCommandState = MOVCMD_DONE;
                     g_PrevGameState = GAMESTATE_MENU_COMMANND;
@@ -426,7 +407,7 @@ void main(void) {
                 case GAMESTATE_CHANGE_DISK:
                     if (Savemap.memory_bank_1[768] != SYS_GetDiskNo()) {
                         SysCdromLoadFile(yama_field_dschange.loc, yama_field_dschange.len, (u_long*)0x800A0000, NULL);
-                        if (func_800A0000(Savemap.memory_bank_1[768]) == 1) {
+                        if (DSCHANGE_WaitDiskLoop(Savemap.memory_bank_1[768]) == 1) {
                             g_FieldState.eventCmd = EVTCMD_TITLE_SCREEN;
                             break;
                         }
@@ -451,7 +432,7 @@ void main(void) {
                     while (SystemCdromReadChain()) {
                     }
                     SysGzipBinDecompress((GzHeader*)0x80180000, (u8*)0x800A0000);
-                    func_800A02D0();
+                    MINI_Chocobo();
                     g_PrevGameState = GAMESTATE_CHOCOBO;
                     g_GameState = GAMESTATE_FIELD;
                     g_FieldState.eventCmd = EVTCMD_FIELD_MAP_CHANGE;
@@ -491,7 +472,7 @@ void main(void) {
                     while (SystemCdromReadChain()) {
                     }
                     SysGzipBinDecompress((GzHeader*)0x80180000, (u8*)0x800A0000);
-                    minigameResult = func_800A0450();
+                    minigameResult = MINI_Jet();
                     Savemap.memory_bank_1[354] = minigameResult;
                     Savemap.memory_bank_1[355] = minigameResult >> 8;
                     g_PrevGameState = GAMESTATE_JET;
@@ -516,7 +497,7 @@ void main(void) {
 
             if (g_FieldState.eventCmd == EVTCMD_PLAY_ENDING_FMV) {
                 SysCdromLoadFile(yama_field_ending.loc, yama_field_ending.len, (u_long*)0x800A0000, NULL);
-                func_800A04C4(1);
+                ENDING_Loop(1);
                 func_80033BE0();
                 func_800299C8();
                 break;

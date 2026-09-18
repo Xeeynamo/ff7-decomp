@@ -1,6 +1,6 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A0450);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", MINI_Jet);
 
 INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A0874);
 
