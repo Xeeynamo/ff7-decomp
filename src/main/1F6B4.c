@@ -623,7 +623,7 @@ static void* GetPartySlotWeaponMateriaSlots(s32 arg0) {
 
 ArmorRecord* SysGetArmorAddressById(s32 armorId) { return &g_ArmorTable[armorId]; }
 
-s32* SysGetAccessoryAddressById(s32 arg0) { return (s32*)&g_AccessoryTable[arg0]; }
+AccessoryRecord* SysGetAccessoryAddressById(s32 accessoryId) { return &g_AccessoryTable[accessoryId]; }
 
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId) {
     if (Savemap.partyID[partyId] != 0xFF) {
@@ -746,7 +746,39 @@ void SysMenuLoadAvatars(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025ED4);
+void func_80025ED4(void) {
+    RECT rect;
+    s32 i;
+    s32 portraitId;
+
+    DrawSync(0);
+    for (i = 0; i < NUM_PARTY; i++) {
+        portraitId = Savemap.partyID[i];
+        if (portraitId == -1) {
+            continue;
+        }
+        rect.w = 24;
+        rect.h = 48;
+        rect.x = 0x340;
+        rect.y = 0x100;
+        if (portraitId > 4) {
+            rect.x = 0x358;
+        } else {
+            rect.x = 0x340;
+        }
+        rect.y = rect.y + (portraitId % 5) * 48;
+        MoveImage(&rect, 0x3C0, 0x138 + i * 48);
+        DrawSync(0);
+        rect.x = 0x180;
+        rect.y = portraitId;
+        rect.w = 0x100;
+        rect.h = 1;
+        MoveImage(&rect, 0x100, 0x1ED + i);
+        DrawSync(0);
+    }
+    SysMenuStoreCharacterClutToRam((u_long*)D_800756F8);
+    DrawSync(0);
+}
 
 static void func_80026034(void) {}
 
