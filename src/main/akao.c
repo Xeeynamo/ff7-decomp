@@ -1382,9 +1382,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002E23C);
 // first field is a field-select mask, not a voice bitmask.
 static void AkaoUpdateCdVolume(void) {
     D_8009C578.mask = 0x1C0;
-    D_8009C578.unk14 = 0;
-    D_8009C578.unk12 = g_AkaoCdVol.i.hi;
-    D_8009C578.unk10 = g_AkaoCdVol.i.hi;
+    D_8009C578.cd.reverb = 0;
+    D_8009C578.cd.volume.right = g_AkaoCdVol.i.hi;
+    D_8009C578.cd.volume.left = g_AkaoCdVol.i.hi;
     SpuSetCommonAttr(&D_8009C578);
 }
 

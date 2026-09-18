@@ -100,11 +100,18 @@ extern long SpuMallocWithStartAddr(unsigned long addr, long size);
 extern SpuIRQCallbackProc SpuSetIRQCallback(SpuIRQCallbackProc);
 
 typedef struct {
+    SpuVolume volume;
+    s32 reverb;
+    s32 mix;
+} SpuExtAttr;
+
+typedef struct {
     u32 mask; // which sub-fields to apply, e.g. SPU_COMMON_CDVOLL|CDVOLR|CDREV
-    u8 pad4[0xC];
-    u16 unk10;
-    u16 unk12;
-    s32 unk14;
+    SpuVolume mvol;
+    SpuVolume mvolmode;
+    SpuVolume mvolx;
+    SpuExtAttr cd;
+    SpuExtAttr ext;
 } SpuCommonAttr;
 
 extern void SpuSetCommonAttr(SpuCommonAttr* attr);
