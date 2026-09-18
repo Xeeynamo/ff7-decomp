@@ -166,7 +166,7 @@ static void func_8001D56C(s16 x0, s16 y0, s16 x1, s16 y1, s16 is_yellow) {
     D_80062F24.linef2++;
 }
 
-static s16 SysMenuDrawDialogString(s32 x, s16 y, s16 w, u8* txt) {
+static s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
     RECT rect;
     u8 c;
     s32 width;
