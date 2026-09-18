@@ -17,6 +17,7 @@ overlays:
     migrate_rodata_to_functions: true
     vram_start: 0x80010000
     gp_value: 0x80062D44
+    bss_size: 0x3C930
     segments:
       - [0x800, .rodata, 110B8]
       - [0x900, .rodata, 14C70]
