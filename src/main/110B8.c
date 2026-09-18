@@ -307,7 +307,8 @@ void main(void) {
                             if (!Savemap.memory_bank_1[26]) {
                                 Savemap.memory_bank_1[27] += 1;
                             }
-                        } else if (D_800707BC.mode & 1 || (!D_8009D268[0] && D_80095DDC & 0x20000000)) {
+                        } else if (
+                            D_800707BC.mode & 1 || (!Savemap.countdown_timer_seconds && D_80095DDC & 0x20000000)) {
                             D_800707BC.mode = 0;
                             g_FieldState.eventCmd = EVTCMD_GAME_OVER;
                         } else if (D_80095DDC & 0x40000000) { // Yuffie battle

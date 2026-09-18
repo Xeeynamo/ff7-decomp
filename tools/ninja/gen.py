@@ -15,6 +15,7 @@ objs: list[str] = []
 work_dir = "build/us"
 if len(sys.argv) > 1:
     work_dir = sys.argv[1]
+sym_extern_ld_path = f"{work_dir}/sym_extern_ld.us.txt"
 progress_report = os.environ.get("FF7_PROGRESS_REPORT") == "1"
 dummy_object = bytes()
 if progress_report:
@@ -304,7 +305,7 @@ def add_splat_config(file_name: str):
         objs.append(sym_export)
     sym_paths = [
         f"-T {cfg["options"]["undefined_syms_auto_path"]}",
-        f"-T config/sym_extern.us.txt",
+        f"-T {sym_extern_ld_path}",
     ]
     if is_main:
         sym_paths.append("-T config/sym_ovl_export.us.txt")
@@ -421,6 +422,11 @@ with open("build.ninja", "w") as f:
         restat=True,
     )
     nw.rule(
+        "strip-ld-comments",
+        command="sed 's#//.*##' $in > $out",
+        description="strip ld comments $in",
+    )
+    nw.rule(
         "check",
         command=f"sha1sum -c {check_path}",
         description="check",
@@ -431,6 +437,11 @@ with open("build.ninja", "w") as f:
             outputs=["build/check.dummy"],
             inputs=get_check_list(check_path),
         )
+    nw.build(
+        rule="strip-ld-comments",
+        outputs=[sym_extern_ld_path],
+        inputs=["config/sym_extern.us.txt"],
+    )
     for ovl in [
         "main",
         # BATTLE

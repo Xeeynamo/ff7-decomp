@@ -129,23 +129,201 @@ static void func_8001FAAC(u16 arg0) {
 
 static void func_8001FAF0(void) {}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuGetInventoryRestrictionMask);
+u16 SysMenuGetInventoryRestrictionMask(s32 itemId) {
+    if (itemId < 0x80) {
+        return D_800722CC[itemId].cameraMultiID;
+    }
+    if (itemId < 0x100) {
+        return g_WeaponTable[itemId - 0x80].restrictionMask;
+    }
+    if (itemId < 0x120) {
+        return g_ArmorTable[itemId - 0x100].restrictionMask;
+    }
+    return g_AccessoryTable[itemId - 0x120].restrictionMask;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysGetPlayerBaseAttackDefense);
+s32 SysGetPlayerBaseAttackDefense(s32 partyIdx, s32 kind, s32 fallback) {
+    s32 charId;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddStats);
+    charId = g_BattleCharIdToCharId[Savemap.partyID[partyIdx]];
+    switch (kind) {
+    case 0:
+        fallback = g_WeaponTable[Savemap.party[g_BattleCharIdToCharId[charId]].weapon].attack;
+        break;
+    case 1:
+        fallback = g_ArmorTable[Savemap.party[g_BattleCharIdToCharId[charId]].armor].defense;
+        break;
+    case 2:
+        fallback = 0;
+        break;
+    case 3:
+        fallback = 0;
+        break;
+    }
+    return fallback;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddElementalDefense);
+void SysAddStats(s32 charId, s32 statId, u8 amount) {
+    switch (statId) {
+    case 0:
+        g_ActiveCharacters[charId].strength += amount;
+        break;
+    case 1:
+        g_ActiveCharacters[charId].vitality += amount;
+        break;
+    case 2:
+        g_ActiveCharacters[charId].magic += amount;
+        break;
+    case 3:
+        g_ActiveCharacters[charId].spirit += amount;
+        break;
+    case 4:
+        g_ActiveCharacters[charId].dexterity += amount;
+        break;
+    case 5:
+        g_ActiveCharacters[charId].luck += amount;
+        break;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddAttackType);
+void SysAddElementalDefense(s32 charId, s32 effect, u16 mask) {
+    switch (effect) {
+    case 0:
+        g_ActiveCharacters[charId].absorbedElements |= mask;
+        break;
+    case 1:
+        g_ActiveCharacters[charId].nullifiedElements |= mask;
+        break;
+    case 2:
+        g_ActiveCharacters[charId].halvedElements |= mask;
+        break;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddStatusAttackBit);
+void SysAddAttackType(s32 charId, u16 element) { g_ActiveCharacters[charId].physicalAttackElements |= element; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddStatusProtectBit);
+void SysAddStatusAttackBit(s32 charId, s32 statusId) {
+    if (statusId < 0x41) {
+        g_ActiveCharacters[charId].physicalAttackStatuses |= 1 << statusId;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysAddStatusProtect);
+void SysAddStatusProtectBit(s32 charId, s32 arg1) {
+    if (arg1 < 0x41) {
+        g_ActiveCharacters[charId].immuneStatuses |= 1 << arg1;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysInitPlayerStatFromEquip);
+void SysAddStatusProtect(s32 charId, s32 arg1) { g_ActiveCharacters[charId].immuneStatuses |= arg1; }
+
+void SysInitPlayerStatFromEquip(s32 charId) {
+    ArmorRecord* armor;
+    AccessoryRecord* accessory;
+    s32 battleCharId;
+    s32 i;
+    s32 strength;
+    s32 dexterity;
+    s32 vitality;
+    s32 spirit;
+    s32 magic;
+    s32 luck;
+
+    if (Savemap.partyID[charId] == 0xFF) {
+        return;
+    }
+
+    battleCharId = g_BattleCharIdToCharId[Savemap.partyID[charId]];
+
+    g_ActiveCharacters[charId].physicalAttackElements = 0;
+    g_ActiveCharacters[charId].halvedElements = 0;
+    g_ActiveCharacters[charId].nullifiedElements = 0;
+    g_ActiveCharacters[charId].absorbedElements = 0;
+    g_ActiveCharacters[charId].physicalAttackStatuses = 0;
+    g_ActiveCharacters[charId].immuneStatuses = 0;
+    g_ActiveCharacters[charId].weapon = g_WeaponTable[Savemap.party[battleCharId].weapon];
+    g_ActiveCharacters[charId].hp = Savemap.party[battleCharId].curHP;
+    g_ActiveCharacters[charId].mp = Savemap.party[battleCharId].curMP;
+    g_ActiveCharacters[charId].baseHp = Savemap.party[battleCharId].hp_base;
+    g_ActiveCharacters[charId].baseMp = Savemap.party[battleCharId].mp_base;
+    g_ActiveCharacters[charId].strength = 0;
+    g_ActiveCharacters[charId].dexterity = 0;
+    g_ActiveCharacters[charId].vitality = 0;
+    g_ActiveCharacters[charId].spirit = 0;
+    g_ActiveCharacters[charId].magic = 0;
+    g_ActiveCharacters[charId].luck = 0;
+
+    for (i = 0; i < 4; i++) {
+        SysAddStats(charId, g_ActiveCharacters[charId].weapon.statBonusId[i],
+                    g_ActiveCharacters[charId].weapon.statBonusValue[i]);
+    }
+    SysAddAttackType(charId, g_ActiveCharacters[charId].weapon.attackElement);
+    SysAddStatusAttackBit(charId, g_ActiveCharacters[charId].weapon.statusAttack);
+
+    armor = SysGetArmorAddressById(Savemap.party[battleCharId].armor);
+    for (i = 0; i < 4; i++) {
+        SysAddStats(charId, armor->statBonusId[i], armor->statBonusValue[i]);
+    }
+    SysAddElementalDefense(charId, armor->elementalEffect, armor->elementalMask);
+    SysAddStatusProtectBit(charId, armor->statusDefense);
+
+    if (Savemap.party[battleCharId].accessory != 0xFF) {
+        accessory = SysGetAccessoryAddressById(Savemap.party[battleCharId].accessory);
+        for (i = 0; i < 2; i++) {
+            SysAddStats(charId, accessory->statBonusId[i], accessory->statBonusValue[i]);
+        }
+        SysAddElementalDefense(charId, accessory->elementalStrength, *(u16*)accessory->elementMask);
+        SysAddStatusProtect(charId, *(u32*)accessory->statusProtect);
+    }
+
+    strength = (Savemap.party[battleCharId].strength + Savemap.party[battleCharId].strength_bonus) +
+               g_ActiveCharacters[charId].strength;
+    dexterity = (Savemap.party[battleCharId].dexterity + Savemap.party[battleCharId].dexterity_bonus) +
+                g_ActiveCharacters[charId].dexterity;
+    vitality = (Savemap.party[battleCharId].vitality + Savemap.party[battleCharId].vitality_bonus) +
+               g_ActiveCharacters[charId].vitality;
+    spirit = (Savemap.party[battleCharId].spirit + Savemap.party[battleCharId].spirit_bonus) +
+             g_ActiveCharacters[charId].spirit;
+    magic = (Savemap.party[battleCharId].magic + Savemap.party[battleCharId].magic_bonus) +
+            g_ActiveCharacters[charId].magic;
+    luck =
+        (Savemap.party[battleCharId].luck + Savemap.party[battleCharId].luck_bonus) + g_ActiveCharacters[charId].luck;
+
+    if ((Savemap.party[battleCharId].accessory + 0x120) == 0x139) {
+        // Curse Ring stat boost
+        strength += 15;
+        dexterity += 15;
+        vitality += 15;
+        spirit += 15;
+        magic += 15;
+        luck += 10;
+    }
+
+    if (strength > 255) {
+        strength = 255;
+    }
+    if (dexterity > 255) {
+        dexterity = 255;
+    }
+    if (vitality > 255) {
+        vitality = 255;
+    }
+    if (spirit > 255) {
+        spirit = 255;
+    }
+    if (magic > 255) {
+        magic = 255;
+    }
+    if (luck > 255) {
+        luck = 255;
+    }
+
+    g_ActiveCharacters[charId].strength = strength;
+    g_ActiveCharacters[charId].dexterity = dexterity;
+    g_ActiveCharacters[charId].vitality = vitality;
+    g_ActiveCharacters[charId].spirit = spirit;
+    g_ActiveCharacters[charId].magic = magic;
+    g_ActiveCharacters[charId].luck = luck;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpBySaveCharId);
 
@@ -226,19 +404,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawMenuList);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuInitInput);
 
-// Extract the hours field (0-99) of the HH:MM play-time clock from a seconds
-// counter, capped at 99:59:59 (0x57E3F seconds). Returned as a plain decimal
-// (tens*10 + units) so the 2-digit number drawer renders it.
-// SysGetMinutesFromSeconds formats the matching minutes field.
 s32 SysGetHoursFromSeconds(s32 arg0) {
-    s32 var_a0;
-
-    var_a0 = arg0;
-    if (var_a0 > 0x57E3F) { // clamp to 99:59:59, in seconds
-        var_a0 = 0x57E3F;
+    if (arg0 > 359999) { // clamp to 99:59:59, in seconds
+        arg0 = 359999;
     }
-    // tens-of-hours (sec / 36000) * 10 + units-of-hours ((sec % 36000) / 3600)
-    return ((var_a0 / D_80049474[0]) * 0xA) + ((var_a0 % D_80049474[0]) / D_80049474[1]);
+    return (arg0 / D_80049474[0]) * 10 + (arg0 % D_80049474[0]) / D_80049474[1];
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysGetMinutesFromSeconds);
@@ -453,7 +623,7 @@ static void* GetPartySlotWeaponMateriaSlots(s32 arg0) {
 
 ArmorRecord* SysGetArmorAddressById(s32 armorId) { return &g_ArmorTable[armorId]; }
 
-s32* SysGetAccessoryAddressById(s32 arg0) { return (s32*)&g_AccessoryTable[arg0]; }
+AccessoryRecord* SysGetAccessoryAddressById(s32 accessoryId) { return &g_AccessoryTable[accessoryId]; }
 
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId) {
     if (Savemap.partyID[partyId] != 0xFF) {
@@ -576,7 +746,39 @@ void SysMenuLoadAvatars(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025ED4);
+void func_80025ED4(void) {
+    RECT rect;
+    s32 i;
+    s32 portraitId;
+
+    DrawSync(0);
+    for (i = 0; i < NUM_PARTY; i++) {
+        portraitId = Savemap.partyID[i];
+        if (portraitId == -1) {
+            continue;
+        }
+        rect.w = 24;
+        rect.h = 48;
+        rect.x = 0x340;
+        rect.y = 0x100;
+        if (portraitId > 4) {
+            rect.x = 0x358;
+        } else {
+            rect.x = 0x340;
+        }
+        rect.y = rect.y + (portraitId % 5) * 48;
+        MoveImage(&rect, 0x3C0, 0x138 + i * 48);
+        DrawSync(0);
+        rect.x = 0x180;
+        rect.y = portraitId;
+        rect.w = 0x100;
+        rect.h = 1;
+        MoveImage(&rect, 0x100, 0x1ED + i);
+        DrawSync(0);
+    }
+    SysMenuStoreCharacterClutToRam((u_long*)D_800756F8);
+    DrawSync(0);
+}
 
 static void func_80026034(void) {}
 
