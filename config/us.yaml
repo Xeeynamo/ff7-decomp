@@ -123,6 +123,8 @@ overlays:
       - [0x27B60, c, battle2]
       - [0x38A04, c, battle3]
       - [0x47A38, data]
+      - [0x4F5B0, .data, battle2]
+      - [0x501DC, data]
       - [0x538AC, bss]
   - name: brom
     disk_path: disks/us/BATTLE/BROM.X.dec
