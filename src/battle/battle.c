@@ -27,7 +27,7 @@ const s32 D_800A0108 = 21;
 const s32 D_800A010C[] = {2, 22, 3, 23, 4};
 
 // entrypoint
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleMain);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BATTLE_Main);
 
 // per-command opcode dispatcher: reads cmdIndex from the turn context
 // (g_CurrentAction->unkC), looks up its opcode-sequence start via

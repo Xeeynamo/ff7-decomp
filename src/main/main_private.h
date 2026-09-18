@@ -116,8 +116,8 @@ extern ArmorRecord g_ArmorTable[];         // armor kernel table, indexed by arm
 extern u_long* D_800722C8;                 // LBA dst for func_80014540
 extern WeaponRecord g_WeaponTable[];       // weapon kernel table, by weapon id
 extern s32 D_80095DD8;                     // LBA len for func_80014540
-void D_800A00CC(void);                     // battle/brom entrypoint
-void D_800A1158(void);                     // battle/battle entrypoint
+void BROM_Handle(void);                    // battle/brom entrypoint
+void BATTLE_Main(void);                    // battle/battle entrypoint
 
 void SysGzipBinDecompress(GzHeader* src, u8* dst);
 void SysGzipSetDataBlock(u8* arg0);
@@ -143,3 +143,4 @@ void SysMenuDrawScrollbarSlider(RECT* rect);
 void SysMenuDrawScrollbarTrack(RECT* rect);
 void SysMenuDrawSingleFontLetter(s16 x, s16 y, s32 ch, u8 color);
 void SystemCdWaitCallback(void (*cb)(void));
+int HandleTitle(void);

@@ -15,7 +15,7 @@ extern s32 D_800B7598;
 extern s32 D_800F507C;
 extern s32* D_800F5084;
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", func_800A02D0);
+INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo", MINI_Chocobo);
 
 static void func_800A1260(void) {
     s32 temp_s0;

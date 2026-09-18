@@ -457,7 +457,7 @@ static s32 func_800A45F4(void) { return D_800E5674; }
 static void func_800A4604(void) {}
 
 // World Entry
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmMain);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WORLD_Main);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", WmInitLoadMapFileStruct);
 

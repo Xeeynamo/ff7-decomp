@@ -363,14 +363,14 @@ static void func_800211B8(s32 arg0) { D_80062DEC = arg0; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_800211C4);
 
-void SysMenuLoadMenuFileById(s32 arg0) {
+void SysMenuLoadMenuFileById(s32 yamaOvlId) {
     s32 prev;
 
     prev = D_80062DD4;
-    D_80062DD4 = arg0;
+    D_80062DD4 = yamaOvlId;
     D_80062DD0 = prev;
-    if (arg0 != 0 && (prev < 3 || prev > 4 || arg0 < 3 || arg0 > 4)) {
-        func_800211C4(arg0);
+    if (yamaOvlId != 0 && (prev < 3 || prev > 4 || yamaOvlId < 3 || yamaOvlId > 4)) {
+        func_800211C4(yamaOvlId);
     }
 }
 
@@ -429,8 +429,18 @@ static void func_80024A04(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuShow);
 
+typedef enum {
+    YAMA_1 = 1,
+    YAMA_10 = 10,
+    YAMA_12 = 12,
+    YAMA_13,
+    YAMA_14,
+    YAMA_15,
+    YAMA_SAVEMENU,
+} YamadaOvl;
+
 void func_80024D88(s32 arg0) {
-    func_800211C4(0xD);
+    func_800211C4(YAMA_13);
     do {
     } while (SystemCdromReadChain());
     VSync(30);
@@ -438,71 +448,70 @@ void func_80024D88(s32 arg0) {
 }
 
 void func_80024DD4(s32 arg0) {
-    func_800211C4(0xE);
+    func_800211C4(YAMA_14);
     do {
     } while (SystemCdromReadChain());
     func_801D1A6C(arg0);
 }
 
 void func_80024E18(s32 arg0) {
-    func_800211C4(0xF);
+    func_800211C4(YAMA_15);
     do {
     } while (SystemCdromReadChain());
     func_801D4118(arg0);
 }
 
-// This should be the title screen handler
-void func_80024E5C(void) {
-    func_800211C4(0x10); // load title screen?
-    do {                 // wait until it's loaded?
-    } while (SystemCdromReadChain());
-    func_801D4CC0(); // jump into title screen loop?
-}
-
-void func_80024E94(void) {
-    func_800211C4(0xA);
+int HandleTitle(void) {
+    func_800211C4(YAMA_SAVEMENU);
     do {
     } while (SystemCdromReadChain());
-    func_801D1774();
+    SAVEMENU_Title();
+}
+
+void HandleSaveMenu(void) {
+    func_800211C4(YAMA_10);
+    do {
+    } while (SystemCdromReadChain());
+    SAVEMENU_Main();
 }
 
 void func_80024ECC(void) {
-    func_800211C4(1);
+    func_800211C4(YAMA_1);
     do {
     } while (SystemCdromReadChain());
     func_801D2D74();
 }
 
 void func_80024F04(void) {
-    func_800211C4(1);
+    func_800211C4(YAMA_1);
     do {
     } while (SystemCdromReadChain());
     func_801D2E84();
 }
 
 void func_80024F3C(s32 arg0) {
-    func_800211C4(1);
+    func_800211C4(YAMA_1);
     do {
     } while (SystemCdromReadChain());
     func_801D2F00(arg0);
 }
 
 void func_80024F80(s32 arg0) {
-    func_800211C4(1);
+    func_800211C4(YAMA_1);
     do {
     } while (SystemCdromReadChain());
     func_801D3138(arg0);
 }
 
 void func_80024FC4(s32 arg0) {
-    func_800211C4(1);
+    func_800211C4(YAMA_1);
     do {
     } while (SystemCdromReadChain());
     func_801D3018(arg0);
 }
 
 static void func_80025008(void) {
-    func_800211C4(1);
+    func_800211C4(YAMA_1);
     do {
     } while (SystemCdromReadChain());
     func_801D3228();
@@ -527,21 +536,21 @@ void SnapshotPartyLevels(void) {
 #endif
 
 void func_800250B4(void) {
-    func_800211C4(0xC);
+    func_800211C4(YAMA_12);
     do {
     } while (SystemCdromReadChain());
     ScalePartyHp();
 }
 
 void func_800250EC(s32 arg0) {
-    func_800211C4(0xC);
+    func_800211C4(YAMA_12);
     do {
     } while (SystemCdromReadChain());
     func_801D05C4(arg0);
 }
 
 void func_80025130(s32 arg0) {
-    func_800211C4(0xC);
+    func_800211C4(YAMA_12);
     do {
     } while (SystemCdromReadChain());
     func_801D0704(arg0);

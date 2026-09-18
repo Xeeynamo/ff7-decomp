@@ -1,7 +1,7 @@
 g_BattleCmdOpcodeStream = 0x800A0098;
 g_StatusBitTable = 0x800A04D0;
 g_BattleHitFormulaJmpTbl = 0x800A04E0;
-BattleMain = 0x800A1158;
+BATTLE_Main = 0x800A1158;
 BattleCmdScriptDispatch = 0x800A1798;
 BattleSetFocusedActor = 0x800A22C0;
 BattleBattleActionQueueExecute = 0x800A23E0;
