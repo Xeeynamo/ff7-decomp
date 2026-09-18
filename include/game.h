@@ -326,6 +326,7 @@ typedef union {
     LINE_F2* linef2;
     LINE_F4* linef4;
     DR_MODE* dr_mode;
+    DR_ENV* dr_env;
 } Gpu;
 
 typedef struct {

@@ -128,6 +128,14 @@ u16 func_801D1950(u16 len, u8* data);
 u8* SysGetKernTextPtrByBlock(s32 arg0, s32 arg1, s32 arg2);
 u8* SysGetKernBattleTextPtr(s32 arg0);
 u8 func_8001F6B4(void);
+void SysAddStats(s32 battleCharId, s32 statId, u8 amount);
+void SysAddElementalDefense(s32 battleCharId, s32 effect, u16 mask);
+void SysAddAttackType(s32 battleCharId, u16 element);
+void SysAddStatusAttackBit(s32 battleCharId, s32 statusId);
+void SysAddStatusProtectBit(s32 battleCharId, s32 statusId);
+void SysAddStatusProtect(s32 battleCharId, s32 statusMask);
+ArmorRecord* SysGetArmorAddressById(s32 armorId);
+AccessoryRecord* SysGetAccessoryAddressById(s32 accessoryId);
 void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
 void SysMenuRequestAddWindow(u8* text, s8 palette);     // PC: menu_setNotificationMessage
 u8* func_80014C80(s32 arg0);
