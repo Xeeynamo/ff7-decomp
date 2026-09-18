@@ -56,13 +56,6 @@ typedef struct {
     s32 unk4;
 } GzHeader;
 
-typedef struct {
-    u16 unk0;
-    u16 unk2;
-    u16 unk4;
-    u16 unk6;
-} Unk8001DE0C;
-
 extern u16 g_Pad1KeysPrev;
 extern u16 g_Pad2Keys;
 extern u16 g_Pad2KeysPrev;
@@ -141,3 +134,4 @@ u8* func_80014C80(s32 arg0);
 void SysMenuDrawScrollbarSlider(RECT* rect);
 void SysMenuDrawScrollbarTrack(RECT* rect);
 void SysMenuDrawSingleFontLetter(s16 x, s16 y, s32 ch, u8 color);
+void SystemCdWaitCallback(void (*cb)(void));

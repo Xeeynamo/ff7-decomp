@@ -7,14 +7,8 @@ typedef struct {
     u8 unk1;
 } Unk801D026C;
 
-typedef struct {
-    u8 unk0[2];
-    s16 cursorY; // base Y the party-slot cursor is drawn from
-    u8 unk4[4];
-} Unk8001E040;
-
 extern s32 D_801D07F0;
-extern Unk8001E040 D_801D07F4[2];
+extern MenuRect D_801D07F4[2];
 extern u8 D_801D0804[];
 extern u8 D_801D082C[21];
 extern u8 D_801D0844[16];
@@ -41,7 +35,7 @@ void func_801D00C4(void) {
 
     SysMenuDrawMenuList(g_MenuRenderBufferIndex);
     if (D_801D07F0 == 0) {
-        SysMenuDrawCursor(0, D_801D07F4[1].cursorY + (D_801D0860[0].row << 6) + 0x20);
+        SysMenuDrawCursor(0, D_801D07F4[1].y + (D_801D0860[0].row << 6) + 0x20);
     }
     SysMenuDrawString(0x10, 0xB, D_801D0804, 7);
     for (i = 0; i < 2; i++) {

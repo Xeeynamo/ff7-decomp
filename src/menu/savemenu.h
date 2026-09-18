@@ -42,8 +42,8 @@ typedef struct {
 #define SAVE_ICON_SIZE 0x3F6
 
 extern s32 D_801D4EC4;
-extern RECT D_801D4EC8;
-extern RECT D_801D4ED0;
+extern MenuRect D_801D4EC8;
+extern MenuRect D_801D4ED0;
 extern u8 D_801D4EDC[];
 extern u8 D_801E2DF8;
 extern u8 D_801E2E1C;
@@ -99,7 +99,7 @@ extern s32 D_801E3860;
 extern s32 D_801E8F44[];
 extern u8 D_801E2E88;
 extern u8 D_801E3158;
-extern RECT D_801E3668;
+extern MenuRect D_801E3668;
 extern MenuTable D_801E3D80[2];
 extern s32 D_801E3F14;
 extern s32 D_801E3F18;

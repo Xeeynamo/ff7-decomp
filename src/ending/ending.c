@@ -489,9 +489,10 @@ static s32 (*D_800A63DC[])(void) = {
     func_800A2248, func_800A0BA8, func_800A2274, func_800A0CAC, func_800A22A4, func_800A0F90,
     func_800A11B4, func_800A22D4, func_800A139C, func_800A14BC, func_800A22E4, func_800A16E4,
     func_800A2328, func_800A23F8, func_800A2380, func_800A2420, func_800A17C0, func_800A19A4};
-static u32 D_800A6454[] = {0, 0};
-static u32 D_800A645C[] = {0, 0, 0, 0, 0, 0, 0, 0};
-static u32 D_800A647C[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static OT_TYPE D_800A6454[2] = {NULL, NULL};
+static TILE D_800A645C[2] = {{0}, {0}};
+static DR_MODE D_800A647C[2] = {{0}, {0}};
+static u32 D_800A6494[20] = {0};
 static OT_TYPE D_800A64E4[1] = {NULL};
 static u32 D_800A64E8 = 0;
 static DR_MODE D_800A64EC[2] = {{0}, {0}};
@@ -530,7 +531,7 @@ static u32 D_800AF3F0;
 static u32 D_800AF3F4;
 static u32 D_800AF3F8;
 static void* D_800AF3FC;
-static u8 D_800AF400[0x8];
+static OT_TYPE D_800AF400[2];
 static s32 D_800AF408;
 static s32 D_800AF40C;
 static s32 D_800AF410;
@@ -541,6 +542,10 @@ void func_800A3178(EndingNode*, s16, u8, void (*)());
 static void func_800A09DC(void);
 static void func_800A2504(s32, s32, s32, u8, u8, u8);
 static s32 func_800A273C(s32);
+static void func_800A310C(void);
+static void func_800A1ED4(s16*);
+static void func_800A1E20(void);
+static void func_800A3210(void);
 static void func_800A3368(EndingSprite*);
 static void func_800A343C(EndingSprite*);
 void* func_800A358C(void*, s32, void*, void*);
@@ -686,7 +691,107 @@ void func_800A0030(void) {
     SetDispMask(0);
 }
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A04C4);
+void func_800A04C4(s32 arg0) {
+    u8 unused[0x100];
+    RECT rect;
+    s16 col;
+    TILE* tile;
+    s32 h = 0x1E0;
+
+    while (1) {
+        func_800A2504(0x140, 0xF0, 0x200, 0, 0, 0);
+        if (arg0 != 0) {
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = 0x3C0;
+            rect.h = h;
+        } else {
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = h;
+            rect.h = h;
+        }
+        ClearImage(&rect, 0, 0, 0);
+        while (DrawSync(1) != 0) {
+        }
+        func_800A310C();
+        D_800AF40C = 0;
+        D_800AF3FC = (void*)0x801F0000;
+        if (arg0 != 0) {
+            func_800A1ED4((s16*)D_800A5048);
+        } else {
+            func_800A1ED4((s16*)D_800A3934);
+        }
+        D_800AF410 = 1;
+        while (D_800AF410) {
+            VSync(1);
+            DrawSync(0);
+            VSync(1);
+            D_800AF408 = func_800A273C(D_800AF40C);
+            if (D_800AF408 != 0) {
+                D_800AF3FC = (void*)0x801F0000;
+            }
+            rect.x = D_8007EBD0->clip.x;
+            rect.y = D_8007EBD0->clip.y;
+            if (D_8007EBD8->isrgb24 == 0) {
+                rect.w = D_8007EBD0->clip.w;
+            } else {
+                rect.w = D_8007EBD0->clip.w * 3 / 2;
+            }
+            rect.h = D_8007EBD0->clip.h;
+            ClearImage(&rect, 0, 0, 0);
+            DrawSync(0);
+            VSync(1);
+            if (SystemCdromReadChain() == 10) {
+                func_800354CC();
+            }
+            ClearOTagR(&D_800AF400[D_800AF408], 1);
+            D_800AF3E8 = &D_800AF400[D_800AF408];
+            func_800A1E20();
+            func_800A3210();
+            DrawOTag(&D_800AF400[D_800AF408]);
+            VSync(1);
+            if (arg0 == 0 && (D_800AF3EC & 0x9F0)) {
+                goto fade_out;
+            }
+        }
+    }
+
+fade_out:
+    D_8009A000[0] = 0xC1;
+    D_8009A004[0] = 0x3C;
+    D_8009A008[0] = 0;
+    SystemAkaoExecute();
+    for (col = 0; col < 0xFF; col += 4) {
+        D_800AF408 = func_800A273C(D_800AF40C);
+        rect.x = D_8007EBD0->clip.x;
+        rect.y = D_8007EBD0->clip.y;
+        rect.w = D_8007EBD0->clip.w;
+        rect.h = D_8007EBD0->clip.h;
+        ClearImage(&rect, 0, 0, 0);
+        DrawSync(0);
+        if (SystemCdromReadChain() == 10) {
+            func_800354CC();
+        }
+        ClearOTagR(&D_800AF400[D_800AF408], 1);
+        D_800AF3E8 = &D_800AF400[D_800AF408];
+        func_800A3210();
+        DrawOTag(&D_800AF400[D_800AF408]);
+        ClearOTagR(&D_800A6454[D_800AF408], 1);
+        SetTile(&D_800A645C[D_800AF408]);
+        SetSemiTrans(&D_800A645C[D_800AF408], 1);
+        setRGB0(&D_800A645C[D_800AF408], col, col, col);
+        tile = &D_800A645C[D_800AF408];
+        setXY0(tile, 0, 0);
+        setWH(tile, 0x140, 0xF0);
+        AddPrim(&D_800A6454[D_800AF408], tile);
+        SetDrawMode(&D_800A647C[D_800AF408], 0, 0, GetTPage(2, 2, 0, 0), NULL);
+        AddPrim(&D_800A6454[D_800AF408], &D_800A647C[D_800AF408]);
+        DrawOTag(&D_800A6454[D_800AF408]);
+    }
+    VSync(4);
+    ResetGraph(1);
+}
 
 static void func_800A09DC(void) {
     u8 unused[0x100];

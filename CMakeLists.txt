@@ -87,7 +87,7 @@ endforeach()
 
 add_library(${PROJECT_NAME} ${FF7_STR_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE include include/psxsdk)
-target_compile_definitions(${PROJECT_NAME} PRIVATE SKIP_ASM=1 FF7_STR)
+target_compile_definitions(${PROJECT_NAME} PRIVATE VERSION_PC SKIP_ASM=1 FF7_STR)
 target_compile_options(${PROJECT_NAME} PRIVATE
     -Wno-implicit-function-declaration
     -Wno-int-conversion
