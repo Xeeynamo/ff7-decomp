@@ -774,7 +774,7 @@ typedef struct {
     u16 counterActionIndex;
     u16 counterChance;
     s8 limitLevel; // 1-based, unlike BattlePartyWork.limitLevel
-    s8 unk21;
+    u8 unk21;
     s8 unk22;
     u8 characterFlags;
     ActiveCharEnabledCounter enabledCounters[8];

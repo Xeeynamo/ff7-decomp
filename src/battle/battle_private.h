@@ -99,6 +99,16 @@ typedef union {
 } Union80162200;
 
 typedef struct {
+    s16 a;
+    s16 b;
+} Pair16;
+
+typedef struct {
+    Pair16 a;
+    Pair16 b;
+} Pair16x2;
+
+typedef struct {
     s16 D_801621F0;
     s16 D_801621F2;
     s16 D_801621F4;
@@ -112,8 +122,7 @@ typedef struct {
     u8 unk18;
     s8 unk19;
     s16 unk1A;
-    s16 unk1C;
-    s16 unk1E;
+    s32 unk1C;
 } Unk801621F0; // size:0x20
 
 typedef struct {
@@ -243,7 +252,10 @@ typedef struct {
     s32 unk8;
 } Unk800F57D0;
 
+extern u8 D_800492FC[];
+extern u8 D_8009CBDC[];
 extern Unk8009D866 D_8009D866[];
+extern u8 D_8009D8F8[];
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
@@ -271,13 +283,37 @@ extern s32 (*D_800EFEA0[])(s16, u8);
 extern Unk800F01DC* D_800F01DC;
 extern s32 D_800F01E0;
 extern s32 D_800F01E4;
+extern s8* D_800F0C44[];
+extern s32 D_800F10DC;
+extern s32 D_800F14E0[];
+extern ModelRenderDesc D_800F1698;
+extern MATRIX D_800F16CC;
+extern MATRIX* D_800F16EC;
 extern u16 D_800F198C; // btlmenu_limitReadyMask
 extern s32 D_800F199C;
 extern u8 D_800F19A4;
 extern s8 g_EncounterBannerActive;
 extern s16 g_EncounterBannerStringId;
+typedef struct {
+    /* 0x00 */ s16 x;
+    /* 0x02 */ s16 y;
+    /* 0x04 */ s16 w;
+    /* 0x06 */ s16 h;
+    /* 0x08 */ s16 halfW;
+    /* 0x0A */ s16 halfH;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 rectCount;
+    /* 0x12 */ s16 rects[16][4];
+    /* 0x92 */ u8 unk92[6];
+} BattleMenuFrame; /* size: 0x98 */
+extern BattleMenuFrame D_800F1E54[];
+extern s16 D_800F1EF0;
+extern s16 D_800F1F02;
+extern void (*D_800F2F8C[32])(void);
 extern s32 D_800F311C;
 extern s16 D_800F3122; // part of a struct?
+extern u16 D_800F3124[5];
 extern s32 D_800F3138;
 extern s32 D_800F313C;
 extern s32 D_800F3140;
@@ -287,8 +323,9 @@ extern s16 g_AtbBarPulseValue;
 extern s16 g_ActiveCharsHPMPInited;
 extern u8 D_800F332C[3][0x10];
 extern s16 D_800F338C[];
-extern u8 D_800F33A0[3];
+extern u8 D_800F33A0[7];
 extern u8 D_800F33AA;
+extern u8 D_800F33B0[][0x10];
 extern s8 D_800F3468;
 extern u8 D_800F381C[];
 extern u8 D_800F3828[];
@@ -484,6 +521,7 @@ typedef struct {
 
 extern s16 D_800F3110;
 extern u8 D_800F3150; // btlmenu_prevLimitReadyMask
+extern u8 D_800F3163[];
 extern ModelScreenPos g_modelScreenPos[10];
 extern s16 D_80151774;
 extern u8 D_801517BC;
@@ -520,9 +558,10 @@ extern u16 D_80163758[]; // part of a struct
 extern u16 D_8016375C;
 extern u16 D_8016375E;
 extern u16 D_80163762; // part of a struct
-// Cait Sith's 3 landed Slots reel symbols (see func_800E5358, and
+// Cait Sith's 3 landed Slots reel symbols (see BattleMenuUpdateSelectorIcons, and
 // BattleResolveCaitSithSlotsResult in battle.c)
 extern u8 D_80163774[4];
+extern u8 D_80163778[];
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct
 extern u8 D_8016378C[];
@@ -530,6 +569,7 @@ extern BattleActionQueueEntry g_BattleActionQueue[0x40];
 extern s8 D_80163A98;
 extern u8 D_80163B38;
 extern s16 D_80163B44[];
+extern u8 D_80163B70[];
 extern void (*g_BattleMovementCallbacks[10])(void);
 extern s16 g_BattleMovementCount;
 extern u16 D_80163B80;
@@ -585,17 +625,17 @@ void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 static void func_800C1908(u8 arg0);
 void BattleSelectPlayerModelFiles(void);
 void func_8002DF88(s16*);
-void func_800D088C(s32 loc, s32 len);
+void BattleLoadOverlaySector(s32 loc, s32 len);
 void func_800D0C80(u8 arg0);
 void BattleEffectSingleDustCloud();
-void func_800D8A78(s8);
-int func_800D8A88(void);
+void BattleSetVsyncMode(s8);
+int BattleFlipDoubleBuffer(void);
 void func_800D91DC(s32, s32, s16, u8, s32, s32);
-void func_800D9E0C(s32, s32, s32);
+void BattleMenuWidgetOpen(s16, s16, s16);
 void func_800DCFD4(u_long*);
 void func_800DDFEC(void);
-void func_800E15D8(void);
-void func_800E5814(void);
+void BattleMenuInit(void);
+void BattleMenuUpdateSelectorIconsAlt(void);
 void func_800E6B94(void);
 void BattleEnqueueLoadImage(RECT* rect, u_long* ptr);
 void BattleReqReturnReservedItems(s16 arg0);
@@ -622,9 +662,13 @@ typedef struct {
    above are reached at +0x12; PSYQ bases them on that folded address, so they
    are cast from here rather than declared at the record start. */
 typedef struct {
-    /* 0x00 */ u8 unk00[0x12];
+    /* 0x00 */ MenuTable table00;
     /* 0x12 */ BattleMenuWidget widget;
-    /* 0x24 */ u8 unk24[0x5A];
+    /* 0x24 */ MenuTable table24;
+    /* 0x36 */ MenuTable table36;
+    /* 0x48 */ MenuTable table48;
+    /* 0x5A */ MenuTable table5A;
+    /* 0x6C */ u8 unk6C[0x12];
     /* 0x7E */ MenuTable table7E;
     /* 0x90 */ MenuTable table90;
     /* 0xA2 */ u8 unkA2[0x19E];
@@ -656,11 +700,11 @@ extern BattleScriptVm* D_800F4AC4;
 s32 BattleOpcodeLoadVal(s32);
 
 void func_800A4E40(void);
-void func_800DE2B4(void);
+void BattleMenuCommitWItemPair(void);
 void func_800E08C4(s32);
 void func_800E0BE0(s32);
 void func_800E7170(void);
-extern void func_800CE970(void);
+extern void BattleFixedPointRampSpawnChildEffectsWithFade(void);
 extern void (*D_800F300C[])();
 extern s16 D_800F310E;
 extern s16 D_800F3120;
@@ -677,6 +721,7 @@ extern u8 D_800F5161;
 extern u8 D_800F5166;
 extern u8 D_800F5167;
 extern u8 D_800F5168;
+extern u8 D_800F55D8[];
 extern u8 D_800F5628;
 extern u16 D_800F562C;
 extern u8 D_800F5630;
@@ -684,6 +729,8 @@ extern u16 D_800F5634;
 extern u8 D_800F5638;
 extern u8 D_800F563C;
 extern BattleMenuSlot D_800F90B4[];
+extern MenuTable D_800F9144;
+extern u8 D_800F977C;
 extern u8 D_80151698;
 extern u8 D_80166F74;
 extern u8 D_80166F75;
