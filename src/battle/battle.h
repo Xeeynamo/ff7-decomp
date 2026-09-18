@@ -1,6 +1,5 @@
 #include <game.h>
 
-#define NUM_PARTY (3)
 #define START_ENEMY (NUM_PARTY + 1)
 #define NUM_ENEMY (6)
 #define NUM_BATTLE_ACTOR (START_ENEMY + NUM_ENEMY) // 10

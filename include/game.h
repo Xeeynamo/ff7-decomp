@@ -10,6 +10,7 @@
 #define _SL(len, x) x // same as _S, but for fixed-length strings with padding
 #endif
 
+#define NUM_PARTY 3
 #define NUM_CHARACTERS 9
 #define MAX_INVENTORY_COUNT 320
 #define MAX_MATERIA_COUNT 200
