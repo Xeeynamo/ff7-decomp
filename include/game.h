@@ -305,6 +305,15 @@ typedef struct {
     s16 newLimitBreaks;
 } CharacterLevelData; // size: 0xC
 
+// Screen-space geometry of a menu window. Same layout as RECT, but these are
+// window coordinates rather than a VRAM region, so they never reach libgpu.
+typedef struct {
+    s16 x;
+    s16 y;
+    s16 w;
+    s16 h;
+} MenuRect;
+
 typedef union {
     void* poly;
     POLY_FT4* ft4;

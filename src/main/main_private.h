@@ -56,13 +56,6 @@ typedef struct {
     s32 unk4;
 } GzHeader;
 
-typedef struct {
-    u16 unk0;
-    u16 unk2;
-    u16 unk4;
-    u16 unk6;
-} Unk8001DE0C;
-
 extern u16 g_Pad1KeysPrev;
 extern u16 g_Pad2Keys;
 extern u16 g_Pad2KeysPrev;

@@ -372,7 +372,7 @@ static s32 func_801D3AB0(s32 arg0) {
         rect.w = 0x100;
         rect.h = 0x100;
         SysMenuSetDrawMode(0, 1, 0x7F, &rect);
-        SysMenuDrawWindow(&D_801E3668.x);
+        SysMenuDrawWindow(&D_801E3668);
         SysMenuDrawString(10, 11, D_801E3260[4], 7);
         temp_s2 = SysGetSingleStringWidth(D_801E3260[5]) + 0x10;
         SysMenuDrawString(190 - temp_s2 / 2, D_801E3668.h + 99, D_801E3260[5], 7);

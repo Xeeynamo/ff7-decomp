@@ -363,25 +363,25 @@ static s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
     return y;
 }
 
-void SysMenuSetWindowRect(Unk8001DE0C* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    arg0->unk0 = arg1;
-    arg0->unk2 = arg2;
-    arg0->unk4 = arg3;
-    arg0->unk6 = arg4;
+void SysMenuSetWindowRect(MenuRect* rect, s32 x, s32 y, s32 w, s32 h) {
+    rect->x = x;
+    rect->y = y;
+    rect->w = w;
+    rect->h = h;
 }
 
 // translate window dialog
-void SysMenuMoveWindowRect(Unk8001DE0C* arg0, s32 arg1, s32 arg2) {
-    arg0->unk0 = arg0->unk0 + arg1;
-    arg0->unk2 = arg0->unk2 + arg2;
+void SysMenuMoveWindowRect(MenuRect* rect, s32 dx, s32 dy) {
+    rect->x = rect->x + dx;
+    rect->y = rect->y + dy;
 }
 
 // set window dialog rect
-void SysMenuCopyWindowRect(Unk8001DE0C* arg0, Unk8001DE0C* arg1) {
-    arg0->unk0 = arg1->unk0;
-    arg0->unk2 = arg1->unk2;
-    arg0->unk4 = arg1->unk4;
-    arg0->unk6 = arg1->unk6;
+void SysMenuCopyWindowRect(MenuRect* rect, MenuRect* src) {
+    rect->x = src->x;
+    rect->y = src->y;
+    rect->w = src->w;
+    rect->h = src->h;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1CDA4", SysMenuStoreWindowColor);
@@ -416,8 +416,135 @@ void SysMenuDrawColoredRect(RECT* rect, u8 arg1, u8 arg2, u8 arg3) {
     AddPrim(D_80062FC4, D_80062F24.tile++);
 }
 
-// prints menu window
-INCLUDE_ASM("asm/us/main/nonmatchings/1CDA4", SysMenuDrawWindow);
+void SysMenuDrawWindow(MenuRect* window) {
+    RECT rect;
+    s32 w;
+    s32 h;
+    s32 x;
+    s32 y;
+
+    if (window->w >= 9) {
+        setSprt(D_80062F24.sprt);
+        SetShadeTex(D_80062F24.sprt, 1);
+        setXY0(D_80062F24.sprt, window->x + 4, window->y);
+        setWH(D_80062F24.sprt, window->w - 8, 4);
+        setUV0(D_80062F24.sprt, 0, 0);
+        D_80062F24.sprt->clut = GetClut(0x100, 0x1E0);
+        AddPrim(D_80062FC4, D_80062F24.sprt++);
+
+        rect.x = 0;
+        rect.y = 0xE0;
+        rect.w = 0x10;
+        rect.h = 0x10;
+        SysMenuSetDrawMode(0, 1, GetTPage(0, 1, 0x3C0, 0x100), &rect);
+
+        setSprt(D_80062F24.sprt);
+        SetShadeTex(D_80062F24.sprt, 1);
+        setXY0(D_80062F24.sprt, window->x + 4, (window->y + window->h) - 4);
+        setWH(D_80062F24.sprt, window->w - 8, 4);
+        setUV0(D_80062F24.sprt, 0, 12);
+        D_80062F24.sprt->clut = GetClut(0x100, 0x1E0);
+        AddPrim(D_80062FC4, D_80062F24.sprt++);
+
+        rect.x = 0x10;
+        rect.y = 0xE8;
+        rect.w = 0x10;
+        rect.h = 0x10;
+        SysMenuSetDrawMode(0, 1, GetTPage(0, 1, 0x3C0, 0x100), &rect);
+    }
+    if (window->h >= 9) {
+        setSprt(D_80062F24.sprt);
+        SetShadeTex(D_80062F24.sprt, 1);
+        setXY0(D_80062F24.sprt, (window->x + window->w) - 4, window->y + 4);
+        setWH(D_80062F24.sprt, 4, window->h - 8);
+        setUV0(D_80062F24.sprt, 12, 0);
+        D_80062F24.sprt->clut = GetClut(0x100, 0x1E0);
+        AddPrim(D_80062FC4, D_80062F24.sprt++);
+
+        rect.x = 0x10;
+        rect.y = 0xF0;
+        rect.w = 0x10;
+        rect.h = 0x10;
+        SysMenuSetDrawMode(0, 1, GetTPage(0, 1, 0x3C0, 0x100), &rect);
+
+        setSprt(D_80062F24.sprt);
+        SetShadeTex(D_80062F24.sprt, 1);
+        setXY0(D_80062F24.sprt, window->x, window->y + 4);
+        setWH(D_80062F24.sprt, 4, window->h - 8);
+        setUV0(D_80062F24.sprt, 0, 0);
+        D_80062F24.sprt->clut = GetClut(0x100, 0x1E0);
+        AddPrim(D_80062FC4, D_80062F24.sprt++);
+
+        rect.x = 0;
+        rect.y = 0xF0;
+        rect.w = 0x10;
+        rect.h = 0x10;
+        SysMenuSetDrawMode(0, 1, GetTPage(0, 1, 0x3C0, 0x100), &rect);
+    }
+    setSprt(D_80062F24.sprt);
+    SetShadeTex(D_80062F24.sprt, 1);
+    setXY0(D_80062F24.sprt, window->x, window->y);
+    setUV0(D_80062F24.sprt, 0, 232);
+    setWH(D_80062F24.sprt, 4, 4);
+    D_80062F24.sprt->clut = GetClut(0x100, 0x1E0);
+    AddPrim(D_80062FC4, D_80062F24.sprt);
+    D_80062F24.sprt++;
+
+    setSprt(D_80062F24.sprt);
+    SetShadeTex(D_80062F24.sprt, 1);
+    setXY0(D_80062F24.sprt, (window->x + window->w) - 4, window->y);
+    setUV0(D_80062F24.sprt, 12, 232);
+    setWH(D_80062F24.sprt, 4, 4);
+    D_80062F24.sprt->clut = GetClut(0x100, 0x1E0);
+    AddPrim(D_80062FC4, D_80062F24.sprt);
+    D_80062F24.sprt++;
+
+    setSprt(D_80062F24.sprt);
+    SetShadeTex(D_80062F24.sprt, 1);
+    setXY0(D_80062F24.sprt, window->x, (window->y + window->h) - 4);
+    setUV0(D_80062F24.sprt, 16, 228);
+    setWH(D_80062F24.sprt, 4, 4);
+    D_80062F24.sprt->clut = GetClut(0x100, 0x1E0);
+    AddPrim(D_80062FC4, D_80062F24.sprt);
+    D_80062F24.sprt++;
+
+    setSprt(D_80062F24.sprt);
+    SetShadeTex(D_80062F24.sprt, 1);
+    setXY0(D_80062F24.sprt, (window->x + window->w) - 4, (window->y + window->h) - 4);
+    setUV0(D_80062F24.sprt, 28, 228);
+    setWH(D_80062F24.sprt, 4, 4);
+    D_80062F24.sprt->clut = GetClut(0x100, 0x1E0);
+    AddPrim(D_80062FC4, D_80062F24.sprt);
+    D_80062F24.sprt++;
+
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = 0x100;
+    rect.h = 0x100;
+    SysMenuSetDrawMode(0, 1, GetTPage(0, 1, 0x3C0, 0x100), &rect);
+
+    if (window->w >= 7 && window->h >= 7) {
+        w = window->w - 6;
+        h = window->h - 6;
+        x = window->x + 3;
+        y = window->y + 3;
+        setPolyG4(D_80062F24.polyg4);
+        if (D_80062DC8) {
+            SetSemiTrans(D_80062F24.polyg4, 1);
+        }
+        setXY4(D_80062F24.polyg4, x, y, x + w, y, x, y + h, x + w, y + h);
+        setRGB0(D_80062F24.polyg4, g_MenuColors[0], g_MenuColors[1], g_MenuColors[2]);
+        setRGB1(D_80062F24.polyg4, g_MenuColors[3], g_MenuColors[4], g_MenuColors[5]);
+        setRGB2(D_80062F24.polyg4, g_MenuColors[6], g_MenuColors[7], g_MenuColors[8]);
+        setRGB3(D_80062F24.polyg4, g_MenuColors[9], g_MenuColors[10], g_MenuColors[11]);
+        AddPrim(D_80062FC4, D_80062F24.polyg4++);
+        rect.x = 0x60;
+        rect.y = 0xE0;
+        rect.w = 0x20;
+        rect.h = 0x20;
+        SysMenuSetDrawMode(0, 1, GetTPage(0, 0, 0x3C0, 0x100), &rect);
+    }
+}
 
 // print menu cursor
 void SysMenuDrawCursor(s16 x, s16 y) {
@@ -471,7 +598,7 @@ static void SysMenuDrawDialogDigits(s32 x, s32 y, s32 n, s32 len) {
     rect.y = 0;
     rect.w = 255;
     rect.h = 255;
-    SysMenuSetDrawMode(0, 1, (u16)GetTPage(0, 1, 0x3C0, 0x100), &rect);
+    SysMenuSetDrawMode(0, 1, GetTPage(0, 1, 0x3C0, 0x100), &rect);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1CDA4", SystemMenuDrawDialog);
