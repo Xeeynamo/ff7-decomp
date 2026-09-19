@@ -2,10 +2,10 @@
 #include <game.h>
 #include <libetc.h>
 
-extern u8 D_800E08C0[];
-extern s16 D_800E0756[];
 extern char D_800E0628[];
 extern char D_800E0630[];
+extern s16 D_800E0756[];
+extern u8 D_800E08C0[];
 extern u8 g_DialogDigitCharacters[16];
 extern u8 g_WindowReplaceBank[4][8];
 extern u16 g_WindowReplaceBankAddr[4][8];
@@ -1199,6 +1199,7 @@ void SystemMessageSetCharName(s16 battleCharId, s16 stringId) {
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugInitBuffers);
 
 static void FieldDebugPageSetHeadRow(s16 pageId, s16 row);
+static void FieldDebugPageHide(s16 pageId);
 void InitFieldDebugPages(void) {
     FieldDebugPageInit(5, 0x6C, 0, 0x6C, 0x52);
     FieldDebugStringCopy(g_DebugText, "Authr:");
@@ -1277,7 +1278,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageSetColor);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageNotInit);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageHide);
+static void FieldDebugPageHide(s16 pageId) {
+    D_800E08C0[pageId * 378] = 2;
+    D_8009D824 = 1;
+}
 
 static void FieldDebugTranspSwitch(void) { g_FieldDebugTransp = (g_FieldDebugTransp + 1) & 3; }
 
