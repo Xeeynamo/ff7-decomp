@@ -5,6 +5,7 @@
 extern char D_800E0628[];
 extern char D_800E0630[];
 extern s16 D_800E0756[];
+extern char D_800E0758[];
 extern u8 D_800E08C0[];
 extern u8 g_DialogDigitCharacters[16];
 extern u8 g_WindowReplaceBank[4][8];
@@ -39,6 +40,8 @@ void FieldDebugStringConcat(char* dest, const char* src);
 void FieldDebugStringU8hex(s32 val, char* msg_out);
 void FieldDebugStringU16hex(s32 val, char* msg_out);
 void FieldDebugStringU32hex(s32 val, char* msg_out);
+void FieldDebugPageSetPosSize(s16 pageId, s16 x, s16 y, s16 width, s16 height);
+void FieldDebugPageResetStrings(s16 pageId);
 static void PlayWindowPointerClickSound(void);
 static s32 FieldDialogWindowInit(s16 window, s16 stringId);
 static void FieldDialogWindowGrowth(s16 window);
@@ -1200,7 +1203,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugInitBuffers);
 
 static void FieldDebugPageSetHeadRow(s16 pageId, s16 row);
 static void FieldDebugPageHide(s16 pageId);
-static s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str);
+s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str);
 void InitFieldDebugPages(void) {
     FieldDebugPageInit(5, 0x6C, 0, 0x6C, 0x52);
     FieldDebugStringCopy(g_DebugText, "Authr:");
@@ -1236,7 +1239,18 @@ void InitFieldDebugPages(void) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPagesResetPosSize);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageInit);
+void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height) {
+    s32 offset;
+
+    FieldDebugPageSetPosSize(pageId, x, y, width, height);
+    offset = pageId * 378;
+    if (D_800E08C0[offset] != 2) {
+        FieldDebugPageResetStrings(pageId);
+        return;
+    }
+    D_800E08C0[pageId * 378] = 0;
+    D_8009D824 = 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageSetPosSize);
 
@@ -1266,7 +1280,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field2", AddStrNextDebugRow);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", AddColorStrNextDebugRow);
 
-static s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str) {
+s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str) {
     char* page = &D_800E0758[pageId * 378];
 
     FieldDebugStringCopy(&page[row * 14], str);
