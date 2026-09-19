@@ -37,7 +37,7 @@ func Build(version string) error {
 		if err := writeSha1Check(b); err != nil {
 			return err
 		}
-		if err := deps.GenNinja(b.BuildPath); err != nil {
+		if err := deps.GenNinja(b.BuildPath, ConfigPath(version)); err != nil {
 			return err
 		}
 		if err := deps.Ninja(); err != nil {

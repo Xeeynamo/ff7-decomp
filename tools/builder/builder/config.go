@@ -14,6 +14,7 @@ type Overlay struct {
 	Sha1Decompressed         string   `yaml:"sha1_decompressed"`
 	BasePath                 string   `yaml:"base_path"`
 	SymbolAddrsPath          []string `yaml:"symbol_addrs_path"`
+	Imports                  []string `yaml:"imports"`
 	MigrateRodataToFunctions bool     `yaml:"migrate_rodata_to_functions"`
 	VramStart                int64    `yaml:"vram_start"`
 	GPValue                  int64    `yaml:"gp_value"`
