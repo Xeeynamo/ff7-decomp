@@ -1,3 +1,4 @@
+MAGIC_Lv5Death = 0x801B0054;
 g_Lv5DeathTexture = 0x801B05E0;
 g_Lv5DeathSpriteModel = 0x801C0700;
 g_Lv5DeathRingModel = 0x801C0868;

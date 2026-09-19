@@ -1,5 +1,6 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "battle_private.h"
+#include "../magic/magic.h"
 
 void func_800D751C();
 void func_800D7888();
@@ -33,7 +34,7 @@ static void BattleSpawnFloatingIcon(s32 arg0, s32 arg1);
 void BattleQueueImpactEffect(s32 arg0, s16 arg1);
 void BattleInitMagicCastEffect(void);
 
-// MAGIC/ entrypoints
+// MAGIC/ entrypoints of overlays that are not split yet
 void func_801B037C(s16, u8);
 void func_801B0000(s16, u8);
 void func_801B0000_2(s16, u8);
@@ -42,11 +43,6 @@ void func_801B0040(s16, u8);
 void func_801B0054(s16, u8);
 void func_801B0084(s16, u8);
 void func_800C6CB8(s16, u8);
-
-// A MAGIC/*.BIN overlay entrypoint. Only meaningful while that overlay is
-// resident: every overlay loads at 0x801B0000, so these addresses collide.
-typedef void (*MagicEntry)(s16, u8);
-typedef s32 (*MagicEntryResult)(s16, u8);
 
 // Effect dispatch, indexed by attackEffectId within one currentActionId.
 // The id table gives a D_800EEBB8 file id; the entrypoint table, the call into it.
@@ -643,11 +639,11 @@ MagicEntry D_800EF9D8[] = {
     (MagicEntry)0x801B0054,              //  27 SAILESS.BIN
     (MagicEntry)0x801B07D0,              //  28 BERSERK.BIN
     (MagicEntry)func_800C6CB8,           //  29 CONF.BIN
-    (MagicEntry)0x801B0000,              //  30 FAIRA.BIN
+    MAGIC_Faira,                         //  30 FAIRA.BIN
     (MagicEntry)0x801B0084,              //  31 FAIGA2.BIN
-    (MagicEntry)0x801B0714,              //  32 BRIZARA.BIN
+    MAGIC_Brizara,                       //  32 BRIZARA.BIN
     (MagicEntry)0x801B0054,              //  33 BRIZAG2.BIN
-    (MagicEntry)0x801B0000,              //  34 THUNDERA.BIN
+    MAGIC_Thundera,                      //  34 THUNDERA.BIN
     (MagicEntry)0x801B000C,              //  35 THUNDG2.BIN
     (MagicEntry)0x801B0074,              //  36 QUEIR.BIN
     (MagicEntry)0x801B0054,              //  37 QUEIG.BIN
@@ -657,16 +653,16 @@ MagicEntry D_800EF9D8[] = {
     (MagicEntry)0x801B1028,              //  41 Q_KETSU.BIN
     (MagicEntry)0x801B1028,              //  42 Q_SHU.BIN
     (MagicEntry)0x801B0854,              //  43 BREAK.BIN
-    (MagicEntry)0x801B0000,              //  44 BARRIER.BIN
-    (MagicEntry)0x801B0000,              //  45 MABARIA.BIN
-    (MagicEntry)0x801B0000,              //  46 REFREC.BIN
+    MAGIC_Barrier,                       //  44 BARRIER.BIN
+    MAGIC_MBarrier,                      //  45 MABARIA.BIN
+    MAGIC_Refrec,                        //  46 REFREC.BIN
     (MagicEntry)0x801B0054,              //  47 DETHPER.BIN
     (MagicEntry)0x801B0054,              //  48 DAISENP.BIN
     (MagicEntry)0x801B0054,              //  49 AQUA.BIN
     (MagicEntry)0x801B0054,              //  50 TODO.BIN
     (MagicEntry)0x801B0054,              //  51 MINIMAM.BIN
     (MagicEntry)0x801B0000,              //  52 ESNA.BIN
-    (MagicEntry)0x801B02EC,              //  53 FIRE.BIN
+    MAGIC_Fire,                          //  53 FIRE.BIN
     (MagicEntry)0x801B0000,              //  54 HAKUGEK2.BIN
     (MagicEntry)0x801B0000,              //  55 NAPALM.BIN
     (MagicEntry)0x801B0730,              //  56 GRAVIDE.BIN
@@ -702,9 +698,9 @@ MagicEntry D_800EFAF0[] = {
     (MagicEntry)func_800C6CB8, //  12 CONF.BIN
     (MagicEntry)0x801B0054,    //  13 SAILESS.BIN
     (MagicEntry)0x801B07D0,    //  14 BERSERK.BIN
-    (MagicEntry)0x801B0000,    //  15 BARRIER.BIN
-    (MagicEntry)0x801B0000,    //  16 MABARIA.BIN
-    (MagicEntry)0x801B0000,    //  17 REFREC.BIN
+    MAGIC_Barrier,             //  15 BARRIER.BIN
+    MAGIC_MBarrier,            //  16 MABARIA.BIN
+    MAGIC_Refrec,              //  17 REFREC.BIN
     (MagicEntry)0x801B0000,    //  18 WALL.BIN
     (MagicEntry)0x801B0054,    //  19 HEIST.BIN
     (MagicEntry)0x801B0000,    //  20 SLOW.BIN
@@ -714,14 +710,14 @@ MagicEntry D_800EFAF0[] = {
     (MagicEntry)func_800C6CB8, //  24 DEATH.BIN
     (MagicEntry)0x801B0000,    //  25 ESCAPE.BIN
     (MagicEntry)0x801B0000,    //  26 DEJON.BIN
-    (MagicEntry)0x801B02EC,    //  27 FIRE.BIN
-    (MagicEntry)0x801B0000,    //  28 FAIRA.BIN
+    MAGIC_Fire,                //  27 FIRE.BIN
+    MAGIC_Faira,               //  28 FAIRA.BIN
     (MagicEntry)0x801B0084,    //  29 FAIGA.BIN
-    (MagicEntry)0x801B037C,    //  30 BRIZAD.BIN
-    (MagicEntry)0x801B0714,    //  31 BRIZARA.BIN
+    MAGIC_Brizad,              //  30 BRIZAD.BIN
+    MAGIC_Brizara,             //  31 BRIZARA.BIN
     (MagicEntry)0x801B0054,    //  32 BRIZAG.BIN
-    (MagicEntry)0x801B0000,    //  33 THUNDER.BIN
-    (MagicEntry)0x801B0000,    //  34 THUNDERA.BIN
+    MAGIC_Thunder,             //  33 THUNDER.BIN
+    MAGIC_Thundera,            //  34 THUNDERA.BIN
     (MagicEntry)0x801B000C,    //  35 THUNDG1.BIN
     (MagicEntry)0x801B0054,    //  36 QUEIK.BIN
     (MagicEntry)0x801B0074,    //  37 QUEIR.BIN
@@ -764,7 +760,7 @@ MagicEntry D_800EFBC8[] = {
     (MagicEntry)0x801B0054,    //  16 HATENA.BIN
     (MagicEntry)0x801B0054,    //  17 GOBLINP.BIN
     (MagicEntry)func_800C6CB8, //  18 CONF.BIN
-    (MagicEntry)0x801B0054,    //  19 LV5DETH.BIN
+    MAGIC_Lv5Death,            //  19 LV5DETH.BIN
     (MagicEntry)func_800C6CB8, //  20 SENNKOKU.BIN
     (MagicEntry)func_800C6CB8, //  21 SENNKOKU.BIN
     (MagicEntry)0x801B0054,    //  22 SFLEA.BIN
@@ -803,7 +799,7 @@ MagicEntry D_800EFC28[] = {
     (MagicEntry)0x801B0000,                //  27 BACUME.BIN
     (MagicEntry)0x801B0338,                //  28 JIBAKU1.BIN
     (MagicEntry)0x801B0000,                //  29 SOUTHERN.BIN
-    (MagicEntry)0x801B02EC,                //  30 FIRE.BIN
+    MAGIC_Fire,                            //  30 FIRE.BIN
     (MagicEntry)0x801B0FC4,                //  31 HARI1000.BIN
     (MagicEntry)0x801B0000,                //  32 QUASAR.BIN
     (MagicEntry)0x801B0000,                //  33 NADARE.BIN
@@ -814,11 +810,11 @@ MagicEntry D_800EFC28[] = {
     (MagicEntry)0x801B0000,                //  38 BLASTER.BIN
     (MagicEntry)0x801B0000,                //  39 TRIANGLE.BIN
     (MagicEntry)0x801B1978,                //  40 ATOMIC.BIN
-    (MagicEntry)0x801B02EC,                //  41 FIRE.BIN
+    MAGIC_Fire,                            //  41 FIRE.BIN
     (MagicEntry)0x801B0000,                //  42 HADO.BIN
     (MagicEntry)0x801B0000,                //  43 HO_DEN.BIN
     (MagicEntry)0x801B0000,                //  44 HARRIER.BIN
-    (MagicEntry)0x801B02EC,                //  45 FIRE.BIN
+    MAGIC_Fire,                            //  45 FIRE.BIN
     (MagicEntry)0x801B0054,                //  46 SPADE1.BIN
     (MagicEntry)0x801B0054,                //  47 HEART1.BIN
     (MagicEntry)0x801B0054,                //  48 CLUB1.BIN
@@ -909,7 +905,7 @@ MagicEntry D_800EFC28[] = {
     (MagicEntry)0x801B0054,                // 133 QUEIK.BIN
     (MagicEntry)0x801B0074,                // 134 QUEIR.BIN
     (MagicEntry)0x801B0054,                // 135 QUEIG.BIN
-    (MagicEntry)0x801B0000,                // 136 THUNDERA.BIN
+    MAGIC_Thundera,                        // 136 THUNDERA.BIN
     (MagicEntry)0x801B0000,                // 137 JAMMER2.BIN
     (MagicEntry)0x801B0000,                // 138 FLAME.BIN
     (MagicEntry)0x801B00F0,                // 139 FLAME.BIN
@@ -995,7 +991,7 @@ MagicEntryResult D_800EFEA0[] = {
     (MagicEntryResult)func_800C6CB8, //  57 MDANCE.BIN
     (MagicEntryResult)func_800C6CB8, //  58 TSOL.BIN
     (MagicEntryResult)0x801B0054,    //  59 LGIRL.BIN
-    (MagicEntryResult)0x801B0054,    //  60 LV5DETH.BIN
+    (MagicEntryResult)MAGIC_Lv5Death,//  60 LV5DETH.BIN
     (MagicEntryResult)func_800C6CB8, //  61 DEATH.BIN
     (MagicEntryResult)0x801B0054,    //  62 BEAST.BIN
     (MagicEntryResult)0x801B0054,    //  63 BEAST.BIN
@@ -1762,6 +1758,7 @@ static void BattleDispatchModelRunScript(u8 arg0) {
         D_800EF9D8[g_BattleModels[arg0].attackEffectId](D_80151774, D_801590CC);
         break;
     case 7:
+        // WPYU.BIN: the loader always fetches D_800EEBB8[221] for this action.
         func_801B037C(D_80151774, D_801590CC);
         break;
     case 8:
@@ -1786,18 +1783,23 @@ void func_800D0C80(u8 arg0) {
         }
         switch (g_BattleModels[arg0].attackEffectId) {
         case 41:
+            // BIOGA2.BIN
             func_801B0000(D_80151774, D_801590CC);
             break;
         case 44:
+            // GRAVIGA2.BIN
             func_801B0000_2(D_80151774, D_801590CC);
             break;
         case 35:
+            // THUNDG2.BIN
             func_801B000C(D_80151774, D_801590CC);
             break;
         case 32:
+            // BRIZAG2.BIN
             func_801B0054(D_80151774, D_801590CC);
             break;
         case 29:
+            // FAIGA2.BIN
             func_801B0084(D_80151774, D_801590CC);
             break;
         default:
