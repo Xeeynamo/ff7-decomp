@@ -2,11 +2,25 @@
 #include <game.h>
 #include <libetc.h>
 
+typedef struct {
+    /* 0x000 */ s16 x;
+    /* 0x002 */ s16 y;
+    /* 0x004 */ s16 width;
+    /* 0x006 */ s16 height;
+    /* 0x008 */ u8 r;
+    /* 0x009 */ u8 g;
+    /* 0x00A */ u8 b;
+    /* 0x00B */ u8 pad0B;
+    /* 0x00C */ s16 rowCount;
+    /* 0x00E */ s16 headRow;
+    /* 0x010 */ char text[24][14];
+    /* 0x160 */ u8 rowColor[24];
+    /* 0x178 */ u8 state;
+} FieldDebugPage; /* size = 0x17A */
+
 extern char D_800E0628[];
 extern char D_800E0630[];
-extern s16 D_800E0756[];
-extern char D_800E0758[];
-extern u8 D_800E08C0[];
+extern FieldDebugPage g_FieldDebugPages[6];
 extern u8 g_DialogDigitCharacters[16];
 extern u8 g_WindowReplaceBank[4][8];
 extern u16 g_WindowReplaceBankAddr[4][8];
@@ -1201,6 +1215,7 @@ void SystemMessageSetCharName(s16 battleCharId, s16 stringId) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugInitBuffers);
 
+static void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height);
 static void FieldDebugPageSetHeadRow(s16 pageId, s16 row);
 static void FieldDebugPageHide(s16 pageId);
 s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str);
@@ -1239,16 +1254,16 @@ void InitFieldDebugPages(void) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPagesResetPosSize);
 
-void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height) {
+static void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height) {
     s32 offset;
 
     FieldDebugPageSetPosSize(pageId, x, y, width, height);
     offset = pageId * 378;
-    if (D_800E08C0[offset] != 2) {
+    if ((&g_FieldDebugPages[0].state)[offset] != 2) {
         FieldDebugPageResetStrings(pageId);
         return;
     }
-    D_800E08C0[pageId * 378] = 0;
+    g_FieldDebugPages[pageId].state = 0;
     D_8009D824 = 1;
 }
 
@@ -1258,7 +1273,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageAddPos);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageAddSize);
 
-static bool FieldDebugPageIsRender(s16 arg0) { return D_800E08C0[arg0 * 378] == 0; }
+static bool FieldDebugPageIsRender(s16 pageId) { return g_FieldDebugPages[pageId].state == 0; }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageResetStrings);
 
@@ -1281,9 +1296,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field2", AddStrNextDebugRow);
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", AddColorStrNextDebugRow);
 
 s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str) {
-    char* page = &D_800E0758[pageId * 378];
-
-    FieldDebugStringCopy(&page[row * 14], str);
+    FieldDebugStringCopy(g_FieldDebugPages[pageId].text[row], str);
     D_8009D824 = 1;
     return 1;
 }
@@ -1291,7 +1304,7 @@ s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str) {
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", SetDebugStrRowColor);
 
 static void FieldDebugPageSetHeadRow(s16 pageId, s16 row) {
-    D_800E0756[pageId * 189] = row;
+    g_FieldDebugPages[pageId].headRow = row;
     D_8009D824 = 1;
 }
 
@@ -1300,7 +1313,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageSetColor);
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageNotInit);
 
 static void FieldDebugPageHide(s16 pageId) {
-    D_800E08C0[pageId * 378] = 2;
+    g_FieldDebugPages[pageId].state = 2;
     D_8009D824 = 1;
 }
 
