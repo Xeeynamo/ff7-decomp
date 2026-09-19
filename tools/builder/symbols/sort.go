@@ -16,6 +16,23 @@ type symbolEntry struct {
 	comment string
 }
 
+// ParseLine parses one "name = 0xADDR; comment" symbol_addrs line.
+func ParseLine(line string) (name string, addr uint32, comment string, err error) {
+	split := strings.SplitN(line, "=", 2)
+	if len(split) != 2 {
+		return "", 0, "", fmt.Errorf("invalid symbol entry: %s", line)
+	}
+	split2 := strings.SplitN(split[1], ";", 2)
+	if len(split2) != 2 {
+		return "", 0, "", fmt.Errorf("invalid symbol entry: %s", line)
+	}
+	offset, err := utils.ParseDigit(split2[0])
+	if err != nil {
+		return "", 0, "", fmt.Errorf("invalid symbol offset at %s: %w", line, err)
+	}
+	return strings.TrimSpace(split[0]), uint32(offset), strings.TrimSpace(split2[1]), nil
+}
+
 func Sort(path string) error {
 	f, err := os.Open(path)
 	if err != nil {
@@ -30,22 +47,14 @@ func Sort(path string) error {
 		if line == "" {
 			continue
 		}
-		split := strings.SplitN(line, "=", 2)
-		if len(split) != 2 {
-			return fmt.Errorf("invalid symbol entry: %s", line)
-		}
-		split2 := strings.SplitN(split[1], ";", 2)
-		if len(split2) != 2 {
-			return fmt.Errorf("invalid symbol entry: %s", line)
-		}
-		offset, err := utils.ParseDigit(split2[0])
+		name, offset, comment, err := ParseLine(line)
 		if err != nil {
-			return fmt.Errorf("invalid symbol offset at %s: %w", line, err)
+			return err
 		}
-		symbols[uint32(offset)] = symbolEntry{
-			offset:  uint32(offset),
-			name:    strings.TrimSpace(split[0]),
-			comment: strings.TrimSpace(split2[1]),
+		symbols[offset] = symbolEntry{
+			offset:  offset,
+			name:    name,
+			comment: comment,
 		}
 	}
 	if err := scanner.Err(); err != nil {
