@@ -29,7 +29,7 @@ extern s32 D_80071E28; // Which module to transition to from world map
 extern u8* g_MenuTutorial;
 extern s32 SYS_GetDiskNo(void);
 extern s32 SysMenuShow(u8*);
-extern s16 g_GameState;
+extern u16 g_GameState;
 
 void __main(void) {}
 
@@ -185,7 +185,24 @@ static void AkaoInit(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800119E4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitFieldFromSavemap);
+static void SysInitFieldFromSavemap(void) {
+    s32 exitAction;
+
+    exitAction = Savemap.worldmap_exit_action;
+    g_GameState = Savemap.current_module;
+    D_80071E28 = exitAction;
+    if (g_GameState == 0) {
+        g_GameState = 1;
+    }
+    g_CurrentFieldIndex = Savemap.current_location_id;
+    g_FieldState.prevFieldId = Savemap.current_location_id;
+    g_FieldState.pcPosX = Savemap.field_x;
+    g_FieldState.pcPosY = Savemap.field_y;
+    g_FieldState.pcWalkMeshId = Savemap.field_triangle;
+    g_FieldState.pcDirection = Savemap.field_direction;
+    D_8009C540 = Savemap.step_id;
+    D_8009AD2C = Savemap.step_offset;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitNewGame);
 
@@ -239,7 +256,7 @@ void main(void) {
             SysInitFieldFromSavemap();
             g_PrevGameState = 0;
             do {
-                switch (g_GameState) {
+                switch ((s16)g_GameState) {
                 case GAMESTATE_FIELD:
                     HandleField();
                     break;

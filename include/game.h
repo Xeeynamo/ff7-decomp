@@ -1290,11 +1290,14 @@ extern s32 D_8009A008[1];
 extern s32 D_8009A00C;
 extern s32 D_8009A024[8];
 extern u8 g_FieldCurrentOpcode;
+extern u16 g_CurrentFieldIndex;
 extern s32 D_8009A064;
 extern MenuTable g_PartyMenuTables[3];
 extern u8 g_FieldScriptPriority[48]; // active scripts execution priority
 extern FieldState g_FieldState;
+extern u8 D_8009AD2C;
 extern u8 g_CharIdToEntity[9];
+extern u8 D_8009C540;
 extern FieldEntity* g_FieldModels; // loaded field models
 extern u8 g_FieldModelCount;       // number of allocated field models
 extern FieldScriptHeader* g_FieldScripts;
