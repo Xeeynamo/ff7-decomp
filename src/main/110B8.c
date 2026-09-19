@@ -124,7 +124,18 @@ static void SysInitBase(void) {
     InitGeom();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitDispenvDrawenv);
+static void SysInitDispenvDrawenv(void) {
+    SetDefDispEnv(&D_8007EB68[0], 0, 232, 320, 240);
+    SetDefDispEnv(&D_8007EB68[1], 0, 0, 320, 240);
+    SetDefDrawEnv(&D_8007EAAC[0], 0, 8, 320, 224);
+    SetDefDrawEnv(&D_8007EAAC[1], 0, 240, 320, 224);
+    D_8007EAAC[0].dtd = 1;
+    D_8007EAAC[1].dtd = 1;
+    D_8007EAAC[0].isbg = 0;
+    D_8007EAAC[1].isbg = 0;
+    PutDispEnv(&D_8007EB68[0]);
+    PutDrawEnv(&D_8007EAAC[0]);
+}
 
 void FIELD_Main(void);
 void FIELD_Init(void);
