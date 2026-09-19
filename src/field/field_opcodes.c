@@ -2752,9 +2752,58 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncAxyzi);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncPxyzi);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncVisi);
+/**
+ * @brief Opcode 0xA4 - **VISI** - Set model visibility
+ *
+ * Memory layout:
+ *
+ * | 0xA4 | S |
+ *
+ * - const UByte S: Visibility switch. 0 hides the model, non-zero shows it.
+ * @details
+ * Sets the visibility of the model bound to the entity currently running the
+ * script. Does nothing if the entity has no model attached.
+ */
+s32 OpcodeFuncVisi(void) {
+    u8 modelId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncTlkon);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("visi", 1);
+    }
+    modelId = g_EntityToModel[g_CurrentEntity];
+    if (modelId != 0xFF) {
+        g_FieldModels[modelId].visible = GET_PARAM_U8(1);
+    }
+    PC_INC(2);
+    return 0;
+}
+
+/**
+ * @brief Opcode 0x7E - **TLKON** - Set talkability
+ *
+ * Memory layout:
+ *
+ * | 0x7E | S |
+ *
+ * - const UByte S: Talk switch. 0 makes the model talkable, non-zero disables
+ * talking to it.
+ * @details
+ * Sets whether the model bound to the entity currently running the script can
+ * be talked to. Does nothing if the entity has no model attached.
+ */
+s32 OpcodeFuncTlkon(void) {
+    u8 modelId;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("tlkon", 1);
+    }
+    modelId = g_EntityToModel[g_CurrentEntity];
+    if (modelId != 0xFF) {
+        g_FieldModels[modelId].TalkOff = GET_PARAM_U8(1);
+    }
+    PC_INC(2);
+    return 0;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncXyzi);
 
