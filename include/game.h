@@ -1290,7 +1290,7 @@ extern s32 D_8009A008[1];
 extern s32 D_8009A00C;
 extern s32 D_8009A024[8];
 extern u8 g_FieldCurrentOpcode;
-extern u16 g_CurrentFieldIndex;
+extern s16 g_CurrentFieldIndex;
 extern s32 D_8009A064;
 extern MenuTable g_PartyMenuTables[3];
 extern u8 g_FieldScriptPriority[48]; // active scripts execution priority
