@@ -3,6 +3,7 @@
 #include <libetc.h>
 
 extern u8 D_800E08C0[];
+extern s16 D_800E0756[];
 extern char D_800E0628[];
 extern char D_800E0630[];
 extern u8 g_DialogDigitCharacters[16];
@@ -1197,6 +1198,7 @@ void SystemMessageSetCharName(s16 battleCharId, s16 stringId) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugInitBuffers);
 
+static void FieldDebugPageSetHeadRow(s16 pageId, s16 row);
 void InitFieldDebugPages(void) {
     FieldDebugPageInit(5, 0x6C, 0, 0x6C, 0x52);
     FieldDebugStringCopy(g_DebugText, "Authr:");
@@ -1266,7 +1268,10 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field2", SetStrToDebugRow);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", SetDebugStrRowColor);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageSetHeadRow);
+static void FieldDebugPageSetHeadRow(s16 pageId, s16 row) {
+    D_800E0756[pageId * 189] = row;
+    D_8009D824 = 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageSetColor);
 
