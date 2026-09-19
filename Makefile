@@ -40,6 +40,10 @@ clean:
 format:
 	@./mako.sh format
 
+.PHONY: lint
+lint: bin/cc1-psx-26 bin/cc1-psx-272 bin/str
+	@./mako.sh lint --min-overlaps 12
+
 .PHONY: rebuild
 rebuild:
 	@./mako.sh clean

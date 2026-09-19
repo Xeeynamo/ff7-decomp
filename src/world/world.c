@@ -44,6 +44,10 @@ static s32 WmGetDistanceToActivePoint(VECTOR* v);
 static s32 func_800B785C(void);
 static s32 func_800B786C(void);
 static void WmDialogSetModeAndPermanency(s16 window, s16 style, s16 preventClose);
+void func_800B4244(void);
+void WmCalculateBoneMatrixes(void*, MATRIX*, s32, s32);
+void WmCalculateModelLighting(void*, u8*);
+void func_800B5314(WorldActor*, s32);
 
 const char D_800A0000[] = "NEW  ";
 static const char D_800A0008[] = "OLD  ";
@@ -87,7 +91,31 @@ static u32* AllocPrims(s32 arg0) {
     return ret;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmLoadTxzFile);
+void WmLoadTxzFile(s32 sector, s32 size, u_long* dst, s32 compressed) {
+    int (*load)(int, size_t, u_long*, void (*)());
+    s32 i;
+
+    while (1) {
+        load = SystemLoadFileBySector;
+        if (compressed) {
+            load = SysCdromStartLoadLzs;
+        }
+        if (load(sector, size, dst, NULL) != 0) {
+            i = 10000;
+        } else {
+            for (i = 0; i < 10000; i++) {
+                if (SystemCdromReadChain() == 0) {
+                    break;
+                }
+                VSync(0);
+            }
+        }
+        if (i < 10000) {
+            break;
+        }
+        SysCdromInit();
+    }
+}
 
 static void func_800A0D1C(void) { D_800E55EC = 0; }
 
@@ -154,7 +182,49 @@ static void func_800A1DD0(s32 arg0) { D_800E5654 = arg0; }
 
 static s32 WmGetWmId(void) { return D_800E5634; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A1DF0);
+void WmCalcViewMatrix(s16 rotY) {
+    SVECTOR rot;
+    VECTOR trans;
+    VECTOR out;
+    MATRIX m;
+    MATRIX tilt;
+    s32 value;
+
+    rot.vx = func_800A3304();
+    rot.vz = 0;
+    rot.vy = 0;
+    RotMatrix(&rot, &m);
+    trans.vz = 0;
+    trans.vy = 0;
+    trans.vx = 0;
+    TransMatrix(&m, &trans);
+    SetRotMatrix(&m);
+    SetTransMatrix(&m);
+    rot.vy = 0;
+    rot.vx = 0;
+    rot.vz = D_800E5614;
+    RotTrans(&rot, &out, &value);
+    trans.vx = 0;
+    trans.vy = 0;
+    value = out.vy * 16 - D_80116508;
+    trans.vz = D_800E5614;
+    TransMatrix(&D_800E56B8, &trans);
+    value = (value * 256) / (out.vz * 16);
+    if (value < 0) {
+        value = 0;
+    } else if (value >= 512) {
+        value = 511;
+    }
+    D_800E56D8 = rot.vx = D_800BE1E8[value] + 0x800;
+    rot.vy = rotY;
+    rot.vz = 0;
+    RotMatrix(&rot, &m);
+    rot.vy = 0;
+    rot.vx = 0;
+    rot.vz = D_800E5654;
+    RotMatrix(&rot, &tilt);
+    MulMatrix0(&tilt, &m, &D_800E5698);
+}
 
 static void WmSetTranslationVectorInScreenSpace(SVECTOR* arg0) {
     MATRIX m;
@@ -459,7 +529,29 @@ static void func_800A4604(void) {}
 // World Entry
 INCLUDE_ASM("asm/us/world/nonmatchings/world", WORLD_Main);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmInitLoadMapFileStruct);
+void WmInitLoadMapFileStruct(void) {
+    s16 i;
+
+    D_800E5714 = 0x80156000;
+    for (i = 0; i < 8; i++) {
+        D_800E5718[i].next = &D_800E5718[i + 1];
+    }
+    D_800E5718[i].next = NULL;
+    D_800E5760 = D_800E5718;
+    D_800E5768 = NULL;
+    D_800E5764 = NULL;
+    for (i = 0; i < 19; i++) {
+        D_800E576C[i].next = &D_800E576C[i + 1];
+    }
+    D_800E576C[i].next = NULL;
+    D_800E580C = D_800E576C;
+    D_800E5810 = NULL;
+    D_800E5814 = 0;
+    D_800E5818 = 0;
+    D_800E581C = 0;
+    D_800E5820 = -1;
+    D_800E5824 = 0;
+}
 
 // Converts x and y coords of megachunk into index
 static s16 WmGetBlockIdByXZForPlanet(s16 x, s16 y) {
@@ -715,9 +807,73 @@ static void RegisterChunksForNode(WorldListNode* arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5C08);
+void WmLzsDecompress(s32* file, u8* dst) {
+    u8* in;
+    s32 count;
+    s32 flags;
+    u8* start;
+    u8* end;
+    s32 back;
+    s32 length;
+    s32 pos;
+    u8* copy;
+    u8* copyEnd;
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5D00);
+    in = (u8*)file;
+    count = 0;
+    start = dst;
+    end = in + *file + 3;
+    in += 4;
+    while (1) {
+        if (count == 0) {
+            count = 8;
+            if (in >= end) {
+                return;
+            }
+            flags = *in++;
+        }
+        if (flags & 1) {
+            if (in >= end) {
+                return;
+            }
+            *dst++ = *in++;
+        } else {
+            if (in >= end) {
+                return;
+            }
+            back = *in++;
+            length = *in++;
+            back |= (length & 0xF0) << 4;
+            pos = dst - start + 0xFEE;
+            copy = dst - ((pos - back) & 0xFFF);
+            copyEnd = dst + (length & 0xF) + 3;
+            while (copy < start) {
+                *dst++ = 0;
+                copy++;
+            }
+            while (dst < copyEnd) {
+                *dst++ = *copy++;
+            }
+        }
+        flags >>= 1;
+        count--;
+    }
+}
+
+static void WmLoadChunkGeometry(WorldChunkHeader* chunk, WorldListNode* node) {
+    s32* file;
+    u8* buf;
+    s16 numTris;
+
+    file = (s32*)(((node - D_800E5718) * 0xB800) + D_800E5714);
+    buf = D_800E5A38[chunk - D_80109A38];
+    WmLzsDecompress((s32*)((s32)file + (((u32)file[((chunk->z & 3) * 4) | (chunk->x & 3)] >> 2) * 4)), buf);
+    chunk->tris = (WorldTriangle*)(buf + 4);
+    numTris = *(u16*)buf;
+    chunk->numTris = numTris;
+    chunk->verts = (SVECTOR*)((s32)chunk->tris + (numTris * 12));
+    chunk->norms = (SVECTOR*)((s32)chunk->verts + (*(s16*)(buf + 2) * 8));
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5E28);
 
@@ -1002,7 +1158,55 @@ static s32 IsChunkLoaded(s16 arg0, s16 arg1) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A835C);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A86C4);
+s32 WmReserveMapBuffer(s16 slot) {
+    WorldListNode* node;
+    WorldListNode* last;
+    WorldListNode* prev;
+
+    if (D_800E5828 != 0) {
+        func_800A0B40(14);
+    }
+    last = NULL;
+    for (node = D_800E5810; node != NULL; node = node->next) {
+        last = node;
+    }
+    prev = NULL;
+    if (last != NULL) {
+        last->next = D_800E580C;
+        D_800E580C = D_800E5810;
+        D_800E5810 = NULL;
+    }
+    for (last = D_800E5768; last != NULL; last = last->next) {
+        prev = last;
+    }
+    if (prev != NULL) {
+        prev->next = D_800E5760;
+        D_800E5760 = D_800E5768;
+        D_800E5768 = NULL;
+    }
+    prev = NULL;
+    last = D_800E5764;
+    while (last != NULL) {
+        if (last >= &D_800E5718[slot]) {
+            if (prev != NULL) {
+                prev->next = last->next;
+            } else {
+                D_800E5764 = last->next;
+            }
+            last->next = D_800E5760;
+            D_800E5760 = last;
+            if (prev != NULL) {
+                last = prev->next;
+            } else {
+                last = D_800E5764;
+            }
+        } else {
+            prev = last;
+            last = last->next;
+        }
+    }
+    return (slot * 0xB800) + D_800E5714;
+}
 
 static void func_800A886C(s32 arg0) {
     D_80109D64 = 2;
@@ -1076,7 +1280,48 @@ static void WmUnlinkEntityAndInsertAsNew(WorldActor* arg0) {
     arg0->next = temp_v0;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmUnlinkEntityFromAll);
+void WmUnlinkEntityFromAll(WorldActor* actor) {
+    WorldActor* it;
+    WorldActor* prev;
+    FieldModelEntry* model;
+
+    if (actor == D_8010AD3C) {
+        D_8010AD3C = NULL;
+    }
+    if (actor == D_8010AD40) {
+        D_8010AD40 = NULL;
+    }
+    for (it = D_8010AD38; it != NULL; it = it->next) {
+        if (it->collide == actor) {
+            it->collide = NULL;
+        }
+        if (it->riding == actor) {
+            it->riding = NULL;
+        }
+    }
+    prev = NULL;
+    for (it = D_8010AD38; it != NULL; it = it->next) {
+        if (it == actor) {
+            break;
+        }
+        prev = it;
+    }
+    if (it != NULL) {
+        if (prev != NULL) {
+            prev->next = it->next;
+        } else {
+            D_8010AD38 = it->next;
+        }
+    }
+    if (it != NULL) {
+        it->next = NULL;
+    }
+    model = WmGetModelDataByModelId(actor->actorType);
+    if (model != NULL && (s8)model->kawaiType == 12) {
+        WmSetCalculateAllPartsLighting(model);
+        actor->unk5E = -1;
+    }
+}
 
 void WmInsertStructInEntityStructList(WorldActor* arg0) {
     WorldActor* temp_v0;
@@ -1218,7 +1463,7 @@ s32 WmGetModelIdFromActiveEntity(void) { return D_8010AD3C != NULL ? D_8010AD3C-
 
 s32 WmGetModelIdFromPcEntity(void) { return D_8010AD40 != NULL ? D_8010AD40->actorType : NULL; }
 
-static WorldActor* func_800A9194(void) { return D_8010AD3C; }
+static WorldActor* WmGetActiveEntity(s32 modelId) { return D_8010AD3C; }
 
 static s32 WmIsPcEntityModelInMask(s32 arg0) {
     return D_8010AD40 != NULL && D_8010AD40->actorType < 0x20 ? (arg0 >> D_8010AD40->actorType) & 1 : 0;
@@ -1299,7 +1544,7 @@ static void WmInitActiveEntityStruct(s32 arg0) {
             D_8010AD3C->unk58 = 0x20;
             break;
         case 4:
-            func_800B624C(4, 0);
+            WmApplyModelLightingById(4, 0);
             /* fallthrough */
         default:
             rect.x = 0x18;
@@ -1329,14 +1574,14 @@ static void func_800A94A8(u16 arg0) {
     }
 }
 
-static void func_800A94D0(u16 arg0) {
+static void func_800A94D0(s16 arg0) {
     if (D_8010AD3C != NULL) {
         D_8010AD3C->direction = arg0;
         D_8010AD3C->facing = (s16)arg0;
     }
 }
 
-static void func_800A94F4(u16 arg0) {
+static void func_800A94F4(s16 arg0) {
     if (D_8010AD3C != NULL) {
         D_8010AD3C->direction = arg0;
         D_8010AD3C->unk3C = arg0;
@@ -1442,7 +1687,49 @@ static u32 func_800A9AA4(void) { return D_8010AD40 == NULL ? 0 : (u16)D_8010AD40
 
 static s32 func_800A9AD0(void) { return D_8010AD40 == NULL ? 0 : (D_8010AD40->walkmesh >> 5) & 7; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A9B04);
+static s32 WmGetModelYOffset(s32 walkmesh, s32 actorType) {
+    s32 modelId = actorType & 0xFF;
+    s32 terrainId = walkmesh & 0x1F;
+    s32 target;
+
+    switch (modelId) {
+    case 8:
+        return -15;
+    case 13:
+        return -240;
+    case 19:
+        if ((terrainId >= 3 && terrainId <= 6) || terrainId == 26) {
+            if (D_8010AD40->flags1 & 1) {
+                if (D_8010AD64 >= 0) {
+                    return D_8010AD64;
+                }
+                D_8010AD64 += 20;
+                if (D_8010AD64 > 0) {
+                    D_8010AD64 = 0;
+                }
+                return D_8010AD64;
+            }
+            target = (terrainId == 4 || terrainId == 6) ? -50 : -250;
+            if (target < D_8010AD64) {
+                D_8010AD64 -= 10;
+            } else if (D_8010AD64 < target - 20) {
+                D_8010AD64 = target;
+            }
+            return D_8010AD64;
+        }
+        D_8010AD64 = 0;
+        break;
+    case 25:
+        return 0;
+    }
+    if (terrainId != 1 && terrainId != 25) {
+        if (terrainId == 4 || terrainId == 7) {
+            return -64;
+        }
+        return 0;
+    }
+    return -192;
+}
 
 static void func_800A9C64(WorldActor* arg0, VECTOR* arg1) {
     u8 var_v0;
@@ -1454,7 +1741,7 @@ static void func_800A9C64(WorldActor* arg0, VECTOR* arg1) {
             arg0->pos.vz = arg1->vz;
         } else {
             arg0->pos = *arg1;
-            arg0->pos.vy += func_800A9B04(arg0->walkmesh, arg0->actorType);
+            arg0->pos.vy += WmGetModelYOffset(arg0->walkmesh, arg0->actorType);
         }
         arg0->unk42 = arg1->vy;
         arg0->flags1 =
@@ -1605,7 +1892,7 @@ static void func_800AA6D0(WorldChunkHeader* arg0) {
             if ((sp28 == arg0->x) && (sp2A == arg0->z)) {
                 func_800A19FC(arg0, &sp20, var_s0->storedTris, &var_s0->unk42, 0, &var_s0->walkmesh, var_s0->actorType);
                 if (!(var_s0->flags1 & 0x80)) {
-                    var_s0->pos.vy = var_s0->unk42 + func_800A9B04(var_s0->walkmesh, var_s0->actorType);
+                    var_s0->pos.vy = var_s0->unk42 + WmGetModelYOffset(var_s0->walkmesh, var_s0->actorType);
                 }
                 var_s0->flags1 |= 2;
             }
@@ -2487,7 +2774,28 @@ static s32 func_800AE628(void) { return D_8010B080; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", WmUpdateSkyboxOverlayVertexes);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AE8AC);
+void WmInitOverlayTexturePrims(void) {
+    POLY_FT4* p;
+    s32 i;
+
+    for (i = 0; i < 2; i++) {
+        for (p = &D_8010B084[i][0]; p < &D_8010B084[i + 1][0]; p++) {
+            setPolyFT4(p);
+            p->v1 = 192;
+            p->r0 = p->g0 = p->b0 = 64;
+            p->v0 = 192;
+            p->v3 = 255;
+            p->v2 = 255;
+            p->clut = 0x7B0F;
+            setSemiTrans(p, 1);
+            p->tpage = getTPage(0, 1, 0x240, 0x100);
+        }
+        setPolyFT4(&D_800C67B8[i]);
+        setSemiTrans(&D_800C67B8[i], 1);
+        D_800C67B8[i].tpage = getTPage(0, 1, 0x2C0, 0x100);
+    }
+    D_8010B174 = 0;
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AEA48);
 
@@ -2712,7 +3020,41 @@ static s32 func_800B0800(void) { return D_8010C808; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B0810);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B0BF4);
+void WmDrawZolomSegments(void) {
+    s32 buffer;
+    VECTOR pos;
+    WorldZolomSegment* seg;
+    POLY_FT4* prim;
+    s32 base;
+    s32 d;
+
+    buffer = WmGetCurrRenderBufferId();
+    func_800A6B8C(&pos);
+    seg = D_8010C42C - 1;
+    if (seg < D_8010C2AC) {
+        seg = &D_8010C2AC[0x2F];
+    }
+    for (prim = D_8010C430[buffer]; prim < &D_8010C430[buffer][12]; prim++) {
+        seg += 4;
+        if (seg >= &D_8010C2AC[0x30]) {
+            seg -= 0x30;
+        }
+        if (IsChunkLoaded((seg->x >> 13) + 26, (seg->z >> 13) | 16) != 0) {
+            base = pos.vx - 0x34000;
+            d = seg->x - base;
+            if (d >= -30000 && d <= 30000) {
+                prim->pad1 = d;
+                base = pos.vz - 0x20000;
+                d = seg->z - base;
+                if (d >= -30000 && d <= 30000) {
+                    prim->pad2 = d;
+                    func_800B59F4(
+                        300, 300, seg->z2 - func_800AA8F8(prim->pad1, prim->pad2) * 4, seg->x2 + 0x800, prim, 0);
+                }
+            }
+        }
+    }
+}
 
 void UpdateZolomGroundHeight(WorldChunkHeader* arg0) {
     VECTOR pos;
@@ -2736,7 +3078,54 @@ void UpdateZolomGroundHeight(WorldChunkHeader* arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B0E84);
+void WmUpdateZolom(void) {
+    VECTOR pos;
+    s32 dist;
+    s32 total;
+    s32 d;
+    s32 terrain;
+    s32 model;
+
+    WmGetPosFromPcEntity(&pos);
+    if (func_800B0794() != 0) {
+        if (D_8010C800 == 0) {
+            D_8010C42C->x = (D_8010C42C->x * 63 + 10000) >> 6;
+            D_8010C42C->z = (D_8010C42C->z * 63 + 15000) >> 6;
+            D_8010C7F0 = D_8010C42C->x2 + 0x800;
+        }
+        D_8010C800 = 0;
+        d = pos.vx - D_8010C42C->x;
+        dist = d - 0x34000;
+        if (dist <= 0) {
+            dist = 0x34000 - d;
+        }
+        d = pos.vz - D_8010C42C->z;
+        if (d - 0x20000 > 0) {
+            total = dist - 0x20000;
+            total += d;
+        } else {
+            total = dist + 0x20000;
+            total -= d;
+        }
+        if (total >= 201 || (WmIsPcEntityModelInMask(7) == 0 && func_800A9240() == 0)) {
+            func_800B0810();
+        } else {
+            func_800ABA18(7);
+            D_8010C804 = 0;
+        }
+        WmDrawZolomSegments();
+    }
+    terrain = WmGetPcEntityTerrainId() & 0x1F;
+    model = WmGetModelIdFromPcEntity();
+    if (model != D_8010AE50) {
+        terrain = D_8010AE4C;
+    }
+    D_8010AE50 = model;
+    if (terrain == 7 && D_8010AE4C == 0) {
+        D_8010C808 = pos.vx > 0x36000;
+    }
+    D_8010AE4C = terrain;
+}
 
 static void func_800B104C(void) {
     D_8010CA20 = 0;
@@ -2917,20 +3306,72 @@ static void WmSnowReset(s16 arg0) {
     D_8010CB00 = 0;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmSnowUpdate);
+static s16 WmSnowUpdate(s32 arg0, s32 arg1) {
+    VECTOR pos;
+    s16 vec[3];
+    s32 camRot;
+    s16 angle;
+    s32 step;
+
+    camRot = WmGetRealCamRot();
+    angle = camRot;
+    if (D_8010CB04 == D_8010CB08) {
+        D_8010CB10 = func_800A97A8() + camRot;
+        WmFadeStartSnow(1);
+        WmFadeStartSnow(2);
+    } else if (D_8010CB04 < D_8010CB08) {
+        func_800A94D0(D_8010CB10 - camRot);
+    }
+    step = 0;
+    if (arg0 != 0 || D_8010CB04 < D_8010CB08) {
+        step = 1;
+    }
+    D_8010CB04 -= step;
+    if (D_8010CB04 <= 0) {
+        D_8010CB04 = D_8010CB0C = func_800ADFC0() + 128;
+        D_8010CB08 = (func_800ADFC0() >> 3) + 64;
+        D_8010CB00 = ((func_800ADFC0() & 2) - 1) * 16;
+    }
+    if (D_8010CB04 >= D_8010CB08) {
+        if (arg1 != 0) {
+            if (WmSetActiveEntityWithModelId(D_8010CAFC + 21) == 0) {
+                WmInsertInEntityStructList();
+                WmInitActiveEntityStruct(D_8010CAFC + 21);
+            }
+            angle = -angle;
+            vec[1] = 0;
+            vec[0] = 0;
+            vec[2] = 300;
+            D_8010CAFC = (D_8010CAFC + 1) % 3;
+            WmRotateVectorByYAngle(vec, angle);
+            WmGetPosFromPcEntity(&pos);
+            pos.vx = vec[0] + pos.vx;
+            pos.vz = vec[2] + pos.vz;
+            func_800A9D5C(&pos);
+            func_800A94F4(angle);
+            WmSetPcEntityAsActiveEntity();
+        }
+        if (D_8010CB04 >= D_8010CB08) {
+            return 0;
+        }
+    }
+    return D_8010CB00;
+}
 
 static s16 func_800B32F0(void) { return D_8010CAFC; }
 
 static void func_800B3300(u32 arg0) {
-    D_800C68EE = arg0 & 0xFF;
-    D_800C6902 = (arg0 >> 8) & 0xFF;
-    D_800C6916 = (arg0 >> 0x10) & 0xFF;
+    D_800C68E8[0].timer = arg0 & 0xFF;
+    D_800C68E8[1].timer = (arg0 >> 8) & 0xFF;
+    D_800C68E8[2].timer = (arg0 >> 0x10) & 0xFF;
     D_8010CB14 = arg0 >> 0x18;
     D_8010CB1C = 0;
     D_8010CB18 = 0;
 }
 
-static s32 func_800B3350(void) { return D_800C68EE | (D_800C6902 << 8) | (D_800C6916 << 0x10) | (D_8010CB14 << 0x18); }
+static s32 func_800B3350(void) {
+    return D_800C68E8[0].timer | (D_800C68E8[1].timer << 8) | (D_800C68E8[2].timer << 0x10) | (D_8010CB14 << 0x18);
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B338C);
 
@@ -2945,7 +3386,28 @@ static void func_800B37E0(s32* arg0, s32* arg1) {
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B3828);
+void WmUpdateAmbientSoundTimers(void) {
+    VECTOR pos;
+    s16 x;
+    s16 z;
+    WorldSoundArea* area;
+    WorldSoundArea* it;
+
+    if (WmGetPcEntityTerrainId() == 14 && (InputReadPads() & (PADLup | PADLdown | PADLleft | PADLright))) {
+        WmGetPosFromPcEntity(&pos);
+        WmExtractLoopCoordsTopBottomParts(&pos, NULL, &x, &z);
+        area = func_800B338C(x, z);
+        if (area != NULL && area->timer < 100) {
+            area->timer += 10;
+        }
+        ToggleAmbientSound(203);
+    }
+    for (it = D_800C68E8; it < &D_800C68E8[3]; it++) {
+        if ((it->timer -= it->timer > 0) == 1) {
+            ToggleAmbientSound(-203);
+        }
+    }
+}
 
 static void InitEffectPool(void) {
     s32 off;
@@ -2977,7 +3439,46 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B39B4);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B3C40);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B40B4);
+void WmDrawBillboardSprites(void) {
+    s32 dz;
+    WorldSprite* node;
+    s32 dy;
+    s32 dx;
+    VECTOR pos;
+    SVECTOR v;
+    SVECTOR rot;
+    MATRIX rotMat;
+    MATRIX camMat;
+    MATRIX worldMat;
+
+    rot.vx = 0;
+    rot.vy = -WmGetRealCamRot();
+    rot.vz = 0;
+    RotMatrixYXZ(&rot, &worldMat);
+    rot.vx = -func_800A2078();
+    RotMatrixYXZ(&rot, &camMat);
+    func_800A6B8C(&pos);
+    for (node = D_8010D9A8; node != NULL; node = node->next) {
+        dx = node->x - pos.vx;
+        dy = node->y - D_80116508;
+        dz = node->z - pos.vz;
+        if (dx > -30000 && dx < 30000 && dz > -30000 && dz < 30000) {
+            v.vx = dx;
+            v.vy = dy - func_800AA8F8(dx, dz);
+            v.vz = dz;
+            if (node->rotate != 0) {
+                rot.vz = 0;
+                rot.vx = 0;
+                rot.vy = node->rotY;
+                RotMatrix(&rot, &rotMat);
+                SetRotMatrix(&rotMat);
+            } else {
+                SetRotMatrix(&camMat);
+            }
+            func_800B3C40(&node->prims[WmGetCurrRenderBufferId()], &D_800C6A10[node->type * 12], &v, node->rotate);
+        }
+    }
+}
 
 static const s32 D_800A0768[] = {0, 0x28};
 
@@ -3005,17 +3506,51 @@ void ResetEffectState(void) {
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B5314);
 
 static void func_800B579C(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
-    u8* p = &D_8010D9B8[arg0 * 4];
+    WorldEffectSlot* slot = &D_8010D9B8[arg0];
 
-    p[0] = arg1;
-    p[1] = arg2;
-    p[2] = arg3;
-    p[3] = 0;
+    slot->modelId = arg1;
+    slot->unk1 = arg2;
+    slot->interval = arg3;
+    slot->timer = 0;
 }
 
 static void func_800B57C0(s32 arg0) { D_8010D9BA[arg0 * 4] = 0; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B57DC);
+static void WmUpdateEffects(void) {
+    WorldEffectSlot* slot;
+    WorldActor* actor;
+    s32* tail;
+    u8* head;
+    s32 timer;
+
+    if (D_8010D9AC != 0) {
+        tail = (s32*)D_8010D9B0;
+        if (tail != NULL) {
+            head = D_8010D9A4;
+            D_8010D9A4 = (u8*)D_8010D9AC;
+            D_8010D9B0 = 0;
+            D_8010D9AC = 0;
+            *tail = (s32)head;
+        }
+    }
+    WmDrawBillboardSprites();
+    func_800B4244();
+    for (slot = D_8010D9B8; slot < &D_8010D9B8[2]; slot++) {
+        if (slot->interval > 0) {
+            timer = slot->timer;
+            slot->timer = timer - 1;
+            if ((s8)timer < 2) {
+                if (WmSetActiveEntityWithModelId(slot->modelId) != 0) {
+                    slot->timer = slot->interval;
+                    actor = WmGetActiveEntity(slot->modelId);
+                    func_800B5314(actor, slot->unk1);
+                } else {
+                    slot->interval = 0;
+                }
+            }
+        }
+    }
+}
 
 static void WmCreateShadowPacket(POLY_FT4* prims, RECT* rect) {
     s32 i;
@@ -3048,13 +3583,66 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B59F4);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B5C7C);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmSetCalculateAllPartsLighting);
+void WmSetCalculateAllPartsLighting(FieldModelEntry* model) {
+    u8* part;
+    s32 i;
+
+    part = model->partsOffset + model->modelData;
+    if (part == NULL) {
+        return;
+    }
+    for (i = 0; i < model->partCount; i++) {
+        *part = 1;
+        part += 0x20;
+    }
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", WmUpdateModelByAnimationFrame);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B624C);
+void WmApplyModelLightingById(s16 modelId, s16 lightId) {
+    u8* model;
+    s32 i;
+    SVECTOR* light;
+    u8* packet;
+    u8* buffer;
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B6348);
+    model = WmGetModelDataByModelId(modelId);
+    if (model == NULL) {
+        return;
+    }
+    packet = (u8*)0x1F800000;
+    model[1] = 2;
+    i = 0;
+    light = &D_800C70DC[lightId];
+    buffer = &D_800C752C;
+    do {
+        packet[0] = light->vx;
+        packet[1] = (u16)light->vx >> 8;
+        packet[2] = light->vy;
+        packet[3] = (u16)light->vy >> 8;
+        packet[4] = light->vz;
+        packet[5] = (u16)light->vz >> 8;
+        packet[6] = 1;
+        WmApplyModelLightingToPacket(model, packet);
+        i++;
+        *buffer = *buffer == 0;
+    } while (i < 2);
+}
+
+void WmInitMusicData(u32* file) {
+    s32* src;
+    s32 i;
+
+    src = (s32*)((s32)file + ((file[5] >> 2) << 2));
+    for (i = 0; i < 0x2000; i++) {
+        D_8010D9C0[i] = src[i];
+    }
+    for (i = 0; i < 7; i++) {
+        D_801159BC[i + 1] = (s32)&D_8010D9C0[(file[5 + i] - file[5]) >> 2];
+    }
+    D_801159DC = 0;
+    D_801159E0 = 0;
+}
 
 static void func_800B63E0(s32 arg0) { D_801159DC = arg0; }
 
@@ -3145,11 +3733,84 @@ static void WmInitModelVariablesAndArray(void) {
     D_800C80BC = D_80115A6C;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmCalculateBonesAndLighting);
+void WmCalculateBonesAndLighting(FieldModelEntry* model) {
+    MATRIX m;
+    u8* packet;
+    u8* buffer;
+
+    packet = (u8*)0x1F800000;
+    m.m[0][0] = m.m[1][1] = m.m[2][2] = 0x1000;
+    m.t[0] = m.t[1] = m.t[2] = 0;
+    m.m[0][1] = m.m[0][2] = m.m[1][0] = m.m[1][2] = m.m[2][0] = m.m[2][1] = 0;
+    *(s32*)0x1F800000 = 1;
+    WmCalculateBoneMatrixes(model, &m, 0, 0);
+    packet[0] = 0x40;
+    packet[1] = 0x40;
+    packet[2] = 0x40;
+    packet[3] = 0x6E;
+    packet[4] = 0x6E;
+    packet[5] = 0x6E;
+    packet[6] = 0xAA;
+    packet[7] = 0xAA;
+    packet[8] = 0xAA;
+    packet[9] = 0x3C;
+    packet[10] = 0x3C;
+    packet[11] = 0x3C;
+    packet[12] = 0x6D;
+    packet[13] = 0xFD;
+    packet[14] = 0x9B;
+    packet[15] = 0x01;
+    packet[16] = 0xC2;
+    packet[17] = 0x0F;
+    packet[18] = 0x00;
+    packet[19] = 0x06;
+    packet[20] = 0xEB;
+    packet[21] = 0xF2;
+    packet[22] = 0xD1;
+    packet[23] = 0xF8;
+    packet[24] = 0x98;
+    packet[25] = 0xF4;
+    packet[26] = 0x3E;
+    packet[27] = 0xFA;
+    packet[28] = 0x4C;
+    packet[29] = 0xF6;
+    packet[30] = 0x00;
+    WmCalculateModelLighting(model, (u8*)0x1F800000);
+    packet[0] = 0;
+    packet[1] = 0;
+    packet[2] = 0;
+    packet[3] = 0;
+    packet[4] = 0;
+    packet[5] = 0;
+    packet[6] = 1;
+    WmApplyModelLightingToPacket(model, (u8*)0x1F800000);
+    buffer = &D_800C752C;
+    packet[0] = 0;
+    packet[1] = 0;
+    packet[2] = 0;
+    packet[3] = 0;
+    packet[4] = 0;
+    packet[5] = 0;
+    packet[6] = 1;
+    *buffer ^= 1;
+    WmApplyModelLightingToPacket(model, (u8*)0x1F800000);
+    *buffer ^= 1;
+    WmSetGteColourSettings();
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", WmLoadPcCharModelFile);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmLoadPcCharModelIntoMemory);
+void WmLoadPcCharModelIntoMemory(void) {
+    FieldModelEntry* model;
+
+    WmLoadTexturesToVram(((D_8014A608 >> 2) << 2) + 0x8014A604);
+    model = D_8014A610;
+    WmLoadModelPacketAndScale(model, 0x8014FC00, 0);
+    WmCalculateBonesAndLighting(model);
+    D_80115A48 = 1;
+    D_801159E8[0] = D_801159E8[1] = D_801159E8[2] = -1;
+    D_801159E8[D_80115A5C] = 0;
+}
 
 void WmPcCharModelLoadFileCallback(void) {
     if (D_80115A60 != 0) {
@@ -3159,14 +3820,38 @@ void WmPcCharModelLoadFileCallback(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B6B28);
+void WmLoadModelPacketsForSet(s16 arg0) {
+    s32 dst;
+    s32 i;
+    s32 j;
+    s8 id;
+    FieldModelEntry* model;
+    WorldModelPart* parts;
+
+    dst = 0x80117000;
+    for (i = 0; i < D_8013A800; i++) {
+        dst = WmLoadModelPacketAndScale(&D_8013A804[i], dst, i);
+    }
+    for (i = 3; i < 32; i++) {
+        id = D_800C7114[D_80115A58][i];
+        D_801159E8[i] = id;
+        if (id >= 0 && i == 24) {
+            model = &D_8013A804[D_801159E8[24] - 1];
+            parts = (WorldModelPart*)(model->partsOffset + model->modelData);
+            for (j = 0; j < model->partCount; j++) {
+                WmUpdatePartTransparency(&parts[j], 1);
+            }
+        }
+    }
+    D_80115A4C = 1;
+}
 
 static void StartStreamRead(void) {
     if (D_80115A60 != 0) {
         return;
     }
     WmAbortMapLoading();
-    D_80115A40 = (u_long*)func_800A86C4(2);
+    D_80115A40 = (u_long*)WmReserveMapBuffer(2);
     if (WmAddMutexPriority(2) != 0) {
         D_80115A60 = 1;
         D_80115A50 = 0;
@@ -3175,13 +3860,27 @@ static void StartStreamRead(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B6D10);
+void WmLoadPackModelsIntoMemory(void) {
+    u_long* pack = D_80115A40;
+    s32 i;
+    s32 offset;
+
+    D_80115A50 = 1;
+    offset = ((pack[2] >> 2) << 2) + 4;
+    D_80115A44 = offset + (s32)pack;
+    for (i = 32; i < 43; i++) {
+        D_801159E8[i] = i - 19;
+        if (D_801159E8[i] >= 0 && i >= 41 && i < 43) {
+            WmApplyModelLightingById(i, 0);
+        }
+    }
+}
 
 void WmPackModelLoadFileCallback(void) {
     if (D_80115A60 != 0) {
         D_80115A60 = 0;
         WmRemoveMutexPriority(2);
-        func_800B6D10();
+        WmLoadPackModelsIntoMemory();
     }
 }
 
@@ -3217,7 +3916,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", WmGetModelDataByModelId);
 
 static void func_800B7104(s16 arg0) {
     D_80115A58 = arg0;
-    func_800B6B28(arg0);
+    WmLoadModelPacketsForSet(arg0);
 }
 
 static void WmAbortModelLoading(void) {
@@ -3346,7 +4045,42 @@ static s32 func_800B785C(void) { return D_8011626C; }
 
 static s32 func_800B786C(void) { return D_80116270; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B787C);
+void WmSyncPartyMembers(u8* slots, u8* next, s32 notify) {
+    s32 oldMask;
+    s32 newMask;
+    s32 bits;
+    s32 mask;
+    u32 i;
+    u8 id;
+
+    oldMask = (1 << slots[0]) | (1 << slots[1]) | (1 << slots[2]);
+    newMask = (1 << next[0]) | (1 << next[1]) | (1 << next[2]);
+    if (notify != 0) {
+        func_800ADB30(oldMask, newMask);
+    }
+    bits = oldMask & ~newMask;
+    for (i = 0; i < 3; i++) {
+        mask = 1 << slots[i];
+        if (bits & mask) {
+            slots[i] = 0xFF;
+        }
+    }
+    bits = ~oldMask & newMask;
+    i = 0;
+    for (id = 0; bits != 0; bits = (u32)bits >> 1, id++) {
+        if (bits & 1) {
+            for (; i < 3; i++) {
+                if (slots[i] == 0xFF) {
+                    break;
+                }
+            }
+            if (i >= 3) {
+                return;
+            }
+            slots[i++] = id;
+        }
+    }
+}
 
 // Player party member model ID (0=Cloud, 1=Tifa, 2=Cid)
 s32 WmGetPcCharModelIdFromParty(void) {

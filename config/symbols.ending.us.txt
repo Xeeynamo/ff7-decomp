@@ -1,3 +1,4 @@
 func_8003A08C = 0x8003A08C; // ignore:true
+ENDING_SceaLoop = 0x800A0030;
 ENDING_Loop = 0x800A04C4;
 D_800A652C = 0x800A652C; // size:0x1100

@@ -1,3 +1,4 @@
+MAGIC_Fire = 0x801B02EC;
 g_FireTexture = 0x801B039C;
 D_801C043C = 0x801C043C;
 fire_prim_buffer = 0x801C0604; // size:0x8000

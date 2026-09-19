@@ -15,7 +15,9 @@ objs: list[str] = []
 work_dir = "build/us"
 if len(sys.argv) > 1:
     work_dir = sys.argv[1]
-sym_extern_ld_path = f"{work_dir}/sym_extern_ld.us.txt"
+config_path = "config/us.yaml"
+if len(sys.argv) > 2:
+    config_path = sys.argv[2]
 progress_report = os.environ.get("FF7_PROGRESS_REPORT") == "1"
 dummy_object = bytes()
 if progress_report:
@@ -30,6 +32,10 @@ if progress_report:
         "AAAAAQAAAAMAAAAAAAAAAAAAADQAAAAhAAAAAAAAAAAAAAABAAAAAAAAAA=="
     )  # minimal stripped object file generated from an empty assembly file
 check_path = os.path.join(work_dir, "check.sha1")
+
+with open(config_path) as f:
+    us_cfg = yaml.load(f, Loader=yaml.SafeLoader)
+ovl_by_name = {o["name"]: o for o in us_cfg["overlays"]}
 
 
 def basename(cfg) -> str:
@@ -58,6 +64,24 @@ def asset_path(cfg) -> str:
 
 def platform(cfg) -> str:
     return cfg["options"]["platform"]
+
+
+def imports_path(name: str) -> str:
+    return f"{work_dir}/{name}.imports.txt"
+
+
+def vram_range(splat_cfg) -> tuple[int, int]:
+    code_seg = next(
+        s
+        for s in splat_cfg["segments"]
+        if isinstance(s, dict) and s.get("type") == "code"
+    )
+    start = code_seg["vram"]
+    file_size = next(
+        s[0] for s in splat_cfg["segments"] if isinstance(s, list) and len(s) == 1
+    )
+    end = start + (file_size - code_seg["start"])
+    return start, end
 
 
 @dataclass
@@ -241,7 +265,7 @@ def add_copy(cfg: any, file_name: str):
     )
 
 
-def add_splat_config(file_name: str):
+def add_splat_config(ovl_name: str, file_name: str):
     with open(file_name) as f:
         cfg = yaml.load(f, Loader=yaml.SafeLoader)
     nw.build(
@@ -252,10 +276,6 @@ def add_splat_config(file_name: str):
     )
     objs.clear()
     is_main = basename(cfg) == "main"
-    is_battle = basename(cfg) == "battle"
-    is_batini = basename(cfg) == "batini"
-    is_batres = basename(cfg) == "batres"
-    is_magic = "/magic" in src_path(cfg)
     if platform(cfg) == "psx" and is_main:
         add_s(cfg, "header")
         add_s_as(
@@ -291,87 +311,61 @@ def add_splat_config(file_name: str):
                 add_s(cfg, name, True)
             elif kind == "c" or kind == ".data":
                 add_c(cfg, name)
+
+    ovl = ovl_by_name[ovl_name]
+    import_names = ovl.get("imports") or []
+    own_files = cfg["options"]["symbol_addrs_path"]
+    if import_names:
+        own_files = own_files[:-1]
+    import_files = [
+        f for imp in import_names for f in ovl_by_name[imp]["symbol_addrs_path"]
+    ]
+
+    if import_names:
+        assert imports_path(ovl_name) in cfg["options"]["symbol_addrs_path"]
+        vram_start, vram_end = vram_range(cfg)
+        nw.build(
+            rule="sym-imports",
+            outputs=[imports_path(ovl_name)],
+            inputs=own_files + import_files,
+            variables={
+                "range": f"--vram-start 0x{vram_start:X} --vram-end 0x{vram_end:X}",
+                "own": " ".join(f"--own {p}" for p in own_files),
+                "imports": " ".join(f"--import {p}" for p in import_files),
+            },
+        )
+
     if progress_report:
         return
+
     output_name = f"{build_path(cfg)}/{basename(cfg)}.elf"
-    sym_export = "config/sym_export.us.txt"
-    if is_main:
-        nw.build(
-            rule="sym-export",
-            outputs=[sym_export],
-            inputs=[output_name],
-        )
-    else:
-        objs.append(sym_export)
-    sym_paths = [
-        f"-T {cfg["options"]["undefined_syms_auto_path"]}",
-        f"-T {sym_extern_ld_path}",
-    ]
-    if is_main:
-        sym_paths.append("-T config/sym_ovl_export.us.txt")
-    if is_battle:
-        nw.build(  # needs to export symbol list for batini
-            rule="sym-export",
-            outputs=f"config/sym_export_{basename(cfg)}.us.txt",
-            inputs=[output_name],
-        )
-        sym_paths.append("-T config/sym_battle_import.us.txt")
-    if is_batini or is_batres or is_magic:
-        # batini, batres and the magic overlays use symbols from battle
-        sym_paths.append("-T config/sym_export_battle.us.txt")
+    syms_ld_path = f"{build_path(cfg)}/{basename(cfg)}.syms.ld"
+    nw.build(
+        rule="sym-ld",
+        outputs=[syms_ld_path],
+        inputs=list(objs),
+        implicit=own_files + import_files + [ld_path(cfg)],
+        variables={
+            "own": " ".join(f"--own {p}" for p in own_files),
+            "imports": " ".join(f"--import {p}" for p in import_files),
+        },
+    )
     nw.build(
         rule="psx-ld",
         outputs=[output_name],
         inputs=[ld_path(cfg)],
-        implicit=objs,
+        implicit=objs + [syms_ld_path],
         variables={
             "map_path": f"{build_path(cfg)}/{basename(cfg)}.map",
             "obj_paths": objs,
-            "symbol_path": str.join(" ", sym_paths),
+            "symbol_path": f"-T {cfg["options"]["undefined_syms_auto_path"]} -T {syms_ld_path}",
         },
     )
-    if is_main:
-        # main must be linked twice:
-        # 1. generate sym_export.*.txt and allow other overlays to use SDK funcs
-        # 2. to allow overlays re-generating sym_ovl_export.*.txt
-        nw.build(
-            rule="sym-export",
-            outputs=["config/sym_ovl_export.us.txt"],
-            inputs=get_ovl_elf_list(check_path),
-        )
-        nw.build(
-            rule="psx-ld",
-            outputs=[f"{build_path(cfg)}/{basename(cfg)}_final.elf"],
-            inputs=[ld_path(cfg)],
-            implicit=objs + ["config/sym_ovl_export.us.txt"],
-            variables={
-                "map_path": f"{build_path(cfg)}/{basename(cfg)}.map",
-                "obj_paths": objs,
-                "symbol_path": str.join(" ", sym_paths),
-            },
-        )
-        nw.build(
-            rule="psx-exe",
-            outputs=[f"{build_path(cfg)}/{basename(cfg)}.exe"],
-            inputs=[f"{build_path(cfg)}/{basename(cfg)}_final.elf"],
-        )
-    else:
-        nw.build(
-            rule="psx-exe",
-            outputs=[f"{build_path(cfg)}/{basename(cfg)}.exe"],
-            inputs=[f"{build_path(cfg)}/{basename(cfg)}.elf"],
-        )
-
-
-def get_check_list(file_path) -> list[str]:
-    with open(file_path, "r") as f:
-        lines = f.readlines()
-    return [line.strip().split(" ")[2] for line in lines if line]
-
-
-def get_ovl_elf_list(file_path) -> list[str]:
-    checks = get_check_list(file_path)
-    return [x.replace(".exe", ".elf") for x in checks if not x.endswith("main.exe")]
+    nw.build(
+        rule="psx-exe",
+        outputs=[f"{build_path(cfg)}/{basename(cfg)}.exe"],
+        inputs=[output_name],
+    )
 
 
 with open("build.ninja", "w") as f:
@@ -416,15 +410,16 @@ with open("build.ninja", "w") as f:
         description="psx exe $in",
     )
     nw.rule(
-        "sym-export",
-        command=".venv/bin/python3 tools/symbols.py -o $out $in",
-        description="sym export $in",
+        "sym-imports",
+        command=".venv/bin/python3 tools/symbols.py splat-imports -o $out $range $own $imports",
+        description="sym imports $out",
         restat=True,
     )
     nw.rule(
-        "strip-ld-comments",
-        command="sed 's#//.*##' $in > $out",
-        description="strip ld comments $in",
+        "sym-ld",
+        command=".venv/bin/python3 tools/symbols.py ld -o $out $own $imports $in",
+        description="sym ld $out",
+        restat=True,
     )
     nw.rule(
         "check",
@@ -435,45 +430,12 @@ with open("build.ninja", "w") as f:
         nw.build(
             rule="check",
             outputs=["build/check.dummy"],
-            inputs=get_check_list(check_path),
+            inputs=[
+                line.strip().split(" ")[2]
+                for line in open(check_path, "r").readlines()
+                if line
+            ],
         )
-    nw.build(
-        rule="strip-ld-comments",
-        outputs=[sym_extern_ld_path],
-        inputs=["config/sym_extern.us.txt"],
-    )
-    for ovl in [
-        "main",
-        # BATTLE
-        "batini",
-        "batres",
-        "battle",
-        "brom",
-        # MISC
-        "dschange",
-        "ending",
-        # FIELD
-        "field",
-        # MINI
-        "chocobo",
-        "jet",
-        # MENU
-        "bginmenu",
-        "cnfgmenu",
-        "savemenu",
-        "itemmenu",
-        # WORLD
-        "world",
-        # MAGIC
-        "barrier",
-        "lv5deth",
-        "brizad",
-        "thunder",
-        "mabaria",
-        "refrec",
-        "fire",
-        "faira",
-        "brizara",
-        "thundera",
-    ]:
-        add_splat_config(os.path.join(work_dir, f"{ovl}.yaml"))
+    for ovl_cfg in us_cfg["overlays"]:
+        name = ovl_cfg["name"]
+        add_splat_config(name, os.path.join(work_dir, f"{name}.yaml"))

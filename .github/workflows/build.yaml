@@ -57,9 +57,10 @@ jobs:
         7z x -sdel tmp/ff7.7z -odisks/
         rm tmp/*
         ls -la disks/
-    - run: make build
-    - name: Check if updated ovl export is committed
-      run: git diff --exit-code -- config/sym_ovl_export.us.txt
+    - name: Verify build matches
+      run: make build
+    - name: Verify overlapping symbols
+      run: make lint
     - name: Generate progress report
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: make report

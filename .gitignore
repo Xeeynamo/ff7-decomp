@@ -8,10 +8,8 @@ asm/
 assets/
 bin/
 build/
-config/sym_export_battle.us.txt
 disks/
 report/
-sym_export.*.txt
 undefined_funcs_auto.*.txt
 undefined_syms_auto.*.txt
 .ninja_log

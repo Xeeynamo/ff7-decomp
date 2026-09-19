@@ -11,9 +11,14 @@ overlays:
     disk_path: disks/us/SCUS_941.63
     sha1: a95e8b16b97071203b953bb81a33980509262f30
     base_path: main
+    imports: [
+      field, world, dschange, ending,
+      battle, brom,
+      savemenu, bginmenu, cnfgmenu, itemmenu,
+      chocobo, jet
+    ]
     symbol_addrs_path:
     - config/symbols.main.us.txt
-    - config/sym_extern.us.txt
     migrate_rodata_to_functions: true
     vram_start: 0x80010000
     gp_value: 0x80062D44
@@ -80,10 +85,9 @@ overlays:
     disk_path: disks/us/BATTLE/BATINI.X.dec
     sha1: 2771b06f7249d34ed8a4f8c94e6047f70278e17c
     base_path: battle
+    imports: [main, battle]
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.batini.txt
-      - config/sym_export_battle.us.txt
     migrate_rodata_to_functions: true
     vram_start: 0x801B0000
     segments:
@@ -93,10 +97,9 @@ overlays:
     disk_path: disks/us/BATTLE/BATRES.X.dec
     sha1: e7ae9182df1c8ee457bae5bf7d7dc63c61a8c3d8
     base_path: battle
+    imports: [main, battle]
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.batres.txt
-      - config/sym_export_battle.us.txt
     migrate_rodata_to_functions: true
     vram_start: 0x801B0000
     bss_size: 0x4
@@ -106,10 +109,9 @@ overlays:
     disk_path: disks/us/BATTLE/BATTLE.X.dec
     sha1: c82690f814b18664c3b2d024f4edeea5743995d9
     base_path: battle
+    imports: [main, batini, batres, barrier, brizad, lv5deth, thunder, mabaria, refrec, fire, faira, brizara, thundera]
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.battle.txt
-      - config/sym_battle_import.us.txt
     migrate_rodata_to_functions: true
     vram_start: 0x800A0000
     bss_size: 0x70684
@@ -130,9 +132,9 @@ overlays:
     disk_path: disks/us/BATTLE/BROM.X.dec
     sha1: ebc7a6559f677d1caef8c5db5fd884fd9e0ab156
     base_path: brom
+    imports: [main]
     symbol_addrs_path:
       - config/symbols.brom.us.txt
-      - config/sym_export.us.txt
     migrate_rodata_to_functions: false
     vram_start: 0x800A0000
     segments:
@@ -142,8 +144,8 @@ overlays:
     disk_path: disks/us/FIELD/DSCHANGE.X
     sha1: e884441c5ceacdeb94e16a603b73ca53706078e8
     base_path: dschange
+    imports: [main]
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.dschange.us.txt
     vram_start: 0x800A0000
     segments:
@@ -154,8 +156,8 @@ overlays:
     disk_path: disks/us/FIELD/ENDING.X
     sha1: 1b3fbf999913024209b23a1bb8a6874a66fc19ba
     base_path: ending
+    imports: [main]
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.ending.us.txt
     vram_start: 0x800A0000
     segments:
@@ -167,8 +169,8 @@ overlays:
     disk_path: disks/us/FIELD/FIELD.BIN.dec
     sha1: 9d4dc1688526f48a5e0706228e6a751d01871396
     base_path: field
+    imports: [main]
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.field.us.txt
     migrate_rodata_to_functions: true
     vram_start: 0x800A0000
@@ -192,8 +194,8 @@ overlays:
     disk_path: disks/us/MENU/BGINMENU.MNU
     sha1: af17d71fa4738e53ec50df5d15d992a355500223
     base_path: menu
+    imports: [main]
     symbol_addrs_path:
-    - config/sym_export.us.txt
     - config/symbols.bginmenu.us.txt
     vram_start: 0x801D0000
     segments:
@@ -204,8 +206,8 @@ overlays:
     disk_path: disks/us/MENU/CNFGMENU.MNU
     sha1: 20450f6e53a204f0f3b251a3864f125bc7b27bb6
     base_path: menu
+    imports: [main]
     symbol_addrs_path:
-    - config/sym_export.us.txt
     - config/symbols.cnfgmenu.us.txt
     migrate_rodata_to_functions: true
     vram_start: 0x801D0000
@@ -218,8 +220,8 @@ overlays:
     disk_path: disks/us/MENU/SAVEMENU.MNU
     sha1: 430d54dbe01d9a0c670b1d2d2b5c642bdd1b3199
     base_path: menu
+    imports: [main]
     symbol_addrs_path:
-    - config/sym_export.us.txt
     - config/symbols.savemenu.us.txt
     migrate_rodata_to_functions: true
     vram_start: 0x801D0000
@@ -236,8 +238,8 @@ overlays:
     disk_path: disks/us/MENU/ITEMMENU.MNU
     sha1: baf50a4ab2d364d0a712b9f74ee69029db0b3b5c
     base_path: menu
+    imports: [main]
     symbol_addrs_path:
-    - config/sym_export.us.txt
     - config/symbols.itemmenu.us.txt
     migrate_rodata_to_functions: true
     vram_start: 0x801D0000
@@ -250,8 +252,8 @@ overlays:
     disk_path: disks/us/WORLD/WORLD.BIN.dec
     sha1: a6b26b066e6fb8b5985c928d76faeb6f5f29ce2c
     base_path: world
+    imports: [main]
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.world.txt
     migrate_rodata_to_functions: true
     vram_start: 0x800A0000
@@ -266,8 +268,8 @@ overlays:
     disk_path: disks/us/MINI/CHOCOBO.BIN.dec
     sha1: d5ada4f6281dcaec86005dd4429a1f18240f752a
     base_path: mini/chocobo
+    imports: [main]
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.chocobo.us.txt
     migrate_rodata_to_functions: false
     vram_start: 0x800A0000
@@ -279,8 +281,8 @@ overlays:
     disk_path: disks/us/MINI/JET.BIN.dec
     sha1: 46a9f4dd9071786adedc169b0e5463874b1f965a
     base_path: mini/jet
+    imports: [main]
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.jet.us.txt
     migrate_rodata_to_functions: false
     vram_start: 0x800A0000
@@ -292,12 +294,11 @@ overlays:
     disk_path: disks/us/MAGIC/BARRIER.BIN
     sha1: e93c458117a937879f1a6d8c956dfbdacd6286e0
     base_path: magic
+    imports: [main, battle]
     vram_start: 0x801B0000
     bss_size: 0x20008
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.magic-barrier.us.txt
-      - config/sym_export_battle.us.txt
     segments:
       - [0, c, barrier]
       - [0xB68, .data, barrier]
@@ -306,12 +307,11 @@ overlays:
     disk_path: disks/us/MAGIC/BRIZAD.BIN
     sha1: d06ef02a1e37a85eb6c0206c9793a44a713bfe82
     base_path: magic
+    imports: [main, battle]
     vram_start: 0x801B0000
     bss_size: 0x20004
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.magic-brizad.us.txt
-      - config/sym_export_battle.us.txt
     segments:
       - [0, c, brizad]
       - [0x3f0, data, brizad_model]
@@ -321,11 +321,10 @@ overlays:
     disk_path: disks/us/MAGIC/LV5DETH.BIN
     sha1: 860f9495082983be362f605ca5da4968adf4c025
     base_path: magic
+    imports: [main, battle]
     vram_start: 0x801B0000
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.magic-lv5deth.us.txt
-      - config/sym_export_battle.us.txt
     segments:
       - [0, c, lv5deth]
       - [0x5e0, data, lv5deth_model]
@@ -336,11 +335,10 @@ overlays:
     disk_path: disks/us/MAGIC/THUNDER.BIN
     sha1: 5767aed5f73876075f01b3958a2e4738fa33b043
     base_path: magic
+    imports: [main, battle]
     vram_start: 0x801B0000
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.magic-thunder.us.txt
-      - config/sym_export_battle.us.txt
     segments:
       - [0, c, thunder]
       - [0x73c, data, thunder_model]
@@ -350,11 +348,10 @@ overlays:
     disk_path: disks/us/MAGIC/MABARIA.BIN
     sha1: 9169442d3e1702b7ad4425d95367f52334f84d60
     base_path: magic
+    imports: [main, battle]
     vram_start: 0x801B0000
     symbol_addrs_path:
-      - config/sym_export.us.txt
       - config/symbols.magic-mabaria.us.txt
-      - config/sym_export_battle.us.txt
     segments:
       - [0, c, mabaria]
       - [0x5b4, data, mabaria_model]
@@ -364,10 +361,9 @@ overlays:
     disk_path: disks/us/MAGIC/REFREC.BIN
     sha1: f13cbfffcc3222a493c03ac6ba801102c512e5a2
     base_path: magic
+    imports: [main, battle]
     vram_start: 0x801B0000
     symbol_addrs_path:
-      - config/sym_export.us.txt
-      - config/sym_export_battle.us.txt
       - config/symbols.magic-refrec.us.txt
     segments:
       - [0, c, refrec]
@@ -378,11 +374,10 @@ overlays:
     disk_path: disks/us/MAGIC/FIRE.BIN
     sha1: f97e855561ac37c55ff049503f6d70f065b61197
     base_path: magic
+    imports: [main, battle]
     vram_start: 0x801B0000
     bss_size: 0x8004
     symbol_addrs_path:
-      - config/sym_export.us.txt
-      - config/sym_export_battle.us.txt
       - config/symbols.magic-fire.us.txt
     segments:
       - [0, c, fire]
@@ -394,11 +389,10 @@ overlays:
     disk_path: disks/us/MAGIC/FAIRA.BIN
     sha1: fcd7a3209d88f529aab3076ea8f7587d6eb3e074
     base_path: magic
+    imports: [main, battle]
     vram_start: 0x801B0000
     bss_size: 0x20024
     symbol_addrs_path:
-      - config/sym_export.us.txt
-      - config/sym_export_battle.us.txt
       - config/symbols.magic-faira.us.txt
     segments:
       - [0, c, faira]
@@ -410,11 +404,10 @@ overlays:
     disk_path: disks/us/MAGIC/BRIZARA.BIN
     sha1: bbeb47124e8c8582bab9c3cd2c78ebcd87529d62
     base_path: magic
+    imports: [main, battle]
     vram_start: 0x801B0000
     bss_size: 0x20004
     symbol_addrs_path:
-      - config/sym_export.us.txt
-      - config/sym_export_battle.us.txt
       - config/symbols.magic-brizara.us.txt
     segments:
       - [0, c, brizara]
@@ -426,10 +419,9 @@ overlays:
     disk_path: disks/us/MAGIC/THUNDERA.BIN
     sha1: 29c8b0352638357bb635d9320328f738e1dc7476
     base_path: magic
+    imports: [main, battle]
     vram_start: 0x801B0000
     symbol_addrs_path:
-      - config/sym_export.us.txt
-      - config/sym_export_battle.us.txt
       - config/symbols.magic-thundera.us.txt
     segments:
       - [0, c, thundera]
