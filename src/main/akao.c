@@ -82,7 +82,7 @@ typedef struct {
     s16 unkAC;
     s16 unkAE;
     u8 unkB0[0x8];
-    s16 loop_id;
+    u16 loop_id;
     u16 loop_times[0x4];
     u16 length_stored;
     u16 length_fixed;
@@ -1722,7 +1722,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033128);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800331CC);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033224);
+void AkaoC8LoopPoint(AKAO_TRACK* track) {
+    track->loop_id = (track->loop_id + 1) & 3;
+    track->loop_addr[track->loop_id] = track->addr;
+    track->loop_times[track->loop_id] = 0;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033264);
 
@@ -1730,7 +1734,10 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800332EC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003337C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033420);
+void AkaoCALoopReturn(AKAO_TRACK* track) {
+    track->loop_times[track->loop_id]++;
+    track->addr = track->loop_addr[track->loop_id];
+}
 
 static void func_8003345C(AKAO_TRACK* track) {
     u16 val = *track->addr++;
