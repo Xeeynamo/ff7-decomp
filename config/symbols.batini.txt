@@ -1,6 +1,4 @@
-BattleBoostVal25Percent = 0x001B2770;
 g_FFTextLetterOffset = 0x800F7ED0;
-g_BattleState = 0x800F83AC; // size:0x444
 g_FFTextNumberOffset = 0x800FAFD0;
 g_BattleTypeMap = 0x801B0044;
 BattleInitMain = 0x801B0050;
@@ -24,3 +22,4 @@ BattleInitEnemyUnits = 0x801B1E0C;
 BattleInitEnemyAI = 0x801B2308;
 BattleInitLoadSceneData = 0x801B23E0;
 BattleGetScenePackId = 0x801B2738;
+BattleBoostVal25Percent = 0x801B2770;

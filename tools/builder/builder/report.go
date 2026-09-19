@@ -28,7 +28,7 @@ func Report(version string, outputFile string) error {
 		return err
 	}
 	_ = os.Setenv("FF7_PROGRESS_REPORT", "1")
-	if err := deps.GenNinja(b.BuildPath); err != nil {
+	if err := deps.GenNinja(b.BuildPath, ConfigPath(version)); err != nil {
 		return err
 	}
 	_ = os.Unsetenv("FF7_PROGRESS_REPORT")

@@ -54,6 +54,22 @@ type SplatConfig struct {
 }
 
 func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
+	overlayExists := func(name string) bool {
+		for _, other := range b.Overlays {
+			if other.Name == name {
+				return true
+			}
+		}
+		return false
+	}
+	for _, imp := range o.Imports {
+		if imp == o.Name {
+			return SplatConfig{}, fmt.Errorf("overlay %s cannot import itself", o.Name)
+		}
+		if !overlayExists(imp) {
+			return SplatConfig{}, fmt.Errorf("overlay %s imports unknown overlay %s", o.Name, imp)
+		}
+	}
 	getRootDir := func(path string) string {
 		if path == "" {
 			return "."
@@ -93,6 +109,10 @@ func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 	}
 	segments = append(segments, seg)
 	segments = append(segments, []int64{stat.Size()})
+	symbolAddrsPath := o.SymbolAddrsPath
+	if len(o.Imports) > 0 {
+		symbolAddrsPath = append(append([]string{}, o.SymbolAddrsPath...), filepath.Join(b.BuildPath, o.Name+".imports.txt"))
+	}
 	return SplatConfig{
 		Sha1: o.Sha1,
 		Options: SplatOptions{
@@ -106,7 +126,7 @@ func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 			AssetPath:                      filepath.Join(b.AssetPath, o.BasePath),
 			SrcPath:                        filepath.Join(b.SrcPath, o.BasePath),
 			LdScriptPath:                   filepath.Join(b.LdScriptPath, fmt.Sprintf("%s.ld", o.Name)),
-			SymbolAddrsPath:                o.SymbolAddrsPath,
+			SymbolAddrsPath:                symbolAddrsPath,
 			CreateUndefinedFuncsAuto:       true,
 			UndefinedFuncsAutoPath:         filepath.Join(b.GeneratedSymPath, fmt.Sprintf("undefined_funcs.%s.txt", o.Name)),
 			CreateUndefinedSymsAuto:        true,
