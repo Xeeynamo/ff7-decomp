@@ -1200,6 +1200,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugInitBuffers);
 
 static void FieldDebugPageSetHeadRow(s16 pageId, s16 row);
 static void FieldDebugPageHide(s16 pageId);
+static s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str);
 void InitFieldDebugPages(void) {
     FieldDebugPageInit(5, 0x6C, 0, 0x6C, 0x52);
     FieldDebugStringCopy(g_DebugText, "Authr:");
@@ -1265,7 +1266,13 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field2", AddStrNextDebugRow);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", AddColorStrNextDebugRow);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", SetStrToDebugRow);
+static s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str) {
+    char* page = &D_800E0758[pageId * 378];
+
+    FieldDebugStringCopy(&page[row * 14], str);
+    D_8009D824 = 1;
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", SetDebugStrRowColor);
 
