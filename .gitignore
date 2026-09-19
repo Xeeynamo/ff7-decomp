@@ -3,6 +3,8 @@ __pycache__/
 .venv/
 .vscode/
 .cache/
+bu00/
+bu10/
 compile_commands.json
 asm/
 assets/
