@@ -1,10 +1,7 @@
 package lint
 
 import (
-	"bufio"
-	"os"
 	"sort"
-	"strings"
 )
 
 // Symbol is one resolved, sized symbol inside an overlay's address space.
@@ -86,33 +83,3 @@ func findOverlaps(syms []Symbol) []Finding {
 	return findings
 }
 
-// ignored reports whether any of decl's source lines carries a "// lint:ignore-overlap"
-// marker, used as an escape hatch for findings that are accepted for now.
-func ignored(decls []Decl) bool {
-	cache := map[string][]string{}
-	for _, d := range decls {
-		lines, ok := cache[d.File]
-		if !ok {
-			lines = readLines(d.File)
-			cache[d.File] = lines
-		}
-		if d.Line >= 1 && d.Line <= len(lines) && strings.Contains(lines[d.Line-1], "// lint:ignore-overlap") {
-			return true
-		}
-	}
-	return false
-}
-
-func readLines(path string) []string {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil
-	}
-	defer f.Close()
-	var lines []string
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	return lines
-}

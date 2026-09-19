@@ -12,14 +12,7 @@ var (
 
 var lintCmd = &cobra.Command{
 	Use:   "lint [overlay...]",
-	Short: "Detect symbols whose memory ranges overlap inside an overlay",
-	Long: "Compiles a small probe translation unit per .c file with the game's own " +
-		"cpp | cc1-psx pipeline and reads the sizes of every file-scope symbol back from " +
-		"the emitted .comm directives, then checks for symbols in the same overlay whose " +
-		"address ranges intersect. Addresses are compared per overlay, since several " +
-		"overlays share the same vram_start and reuse the same D_XXXXXXXX names for " +
-		"unrelated data. Add `// lint:ignore-overlap` to a declaration's source line to " +
-		"suppress a finding that is accepted for now.",
+	Short: "Detect symbols whose memory ranges overlap",
 	SilenceErrors: true,
 	SilenceUsage:  true,
 	RunE: func(cmd *cobra.Command, args []string) error {

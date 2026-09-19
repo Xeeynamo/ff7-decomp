@@ -139,14 +139,6 @@ func lintOverlay(ovl Overlay, verbose bool) ([]Finding, *StructResolver, error) 
 	merged := mergeSymbols(perTU...)
 	findings := findOverlaps(merged)
 
-	var kept []Finding
-	for _, f := range findings {
-		if ignored(f.A.Decls) || ignored(f.B.Decls) {
-			continue
-		}
-		kept = append(kept, f)
-	}
-
 	resolver := NewStructResolver(allStructs)
-	return kept, resolver, nil
+	return findings, resolver, nil
 }
