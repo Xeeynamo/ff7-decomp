@@ -47,7 +47,7 @@ void func_800C6CB8(s16, u8);
 // Effect dispatch, indexed by attackEffectId within one currentActionId.
 // The id table gives a D_800EEBB8 file id; the entrypoint table, the call into it.
 // clang-format off
-// currentActionId 4: overlay file id per slot.
+// currentActionId 4 -- items: overlay file id per slot.
 s16 D_800EF5B0[] = {
     0,   //   0 CAREL.BIN
     0,   //   1 CAREL.BIN
@@ -475,7 +475,7 @@ s16 D_800EF838[] = {
     291  //  79 HAKOU.BIN
 };
 
-// currentActionId 8: overlay file id per slot.
+// currentActionId 8 -- throw: overlay file id per slot.
 s16 D_800EF8D8[] = {
     0,   //   0 CAREL.BIN
     217, //   1 WPCU.BIN
@@ -607,7 +607,7 @@ s16 D_800EF8D8[] = {
     0    // 127 CAREL.BIN
 };
 
-// currentActionId 4: entrypoint per slot.
+// currentActionId 4 -- items: entrypoint per slot.
 MagicEntry D_800EF9D8[] = {
     (MagicEntry)0x801B08D4,              //   0 CAREL.BIN
     (MagicEntry)0x801B109C,              //   1 CAREL.BIN
@@ -1013,7 +1013,7 @@ MagicEntryResult D_800EFEA0[] = {
     (MagicEntryResult)0x801B0038     //  79 HAKOU.BIN
 };
 
-// currentActionId 8: entrypoint per slot.
+// currentActionId 8 -- throw: entrypoint per slot.
 MagicEntry D_800EFFE0[] = {
     (MagicEntry)0x801B0054, //   0 CAREL.BIN
     (MagicEntry)0x801B0054, //   1 WPCU.BIN
@@ -1758,7 +1758,7 @@ static void BattleDispatchModelRunScript(u8 arg0) {
         D_800EF9D8[g_BattleModels[arg0].attackEffectId](D_80151774, D_801590CC);
         break;
     case 7:
-        // WPYU.BIN: the loader always fetches D_800EEBB8[221] for this action.
+        // Coin: always WPYU.BIN, via the loader's fixed D_800EEBB8[221].
         func_801B037C(D_80151774, D_801590CC);
         break;
     case 8:
