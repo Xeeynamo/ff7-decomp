@@ -1323,8 +1323,6 @@ void VectorNormal(VECTOR*, VECTOR*);
 s32 SetGraphDebug(s32);
 s32 func_80041E30(s32 arg0, s32 arg1);
 void func_80041D28(int, void*, int);
-void func_8003DE6C(s32 arg0);
-void func_8003DE84(s32 arg0);
 
 void SystemError(char c, long n);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
