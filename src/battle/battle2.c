@@ -26,6 +26,7 @@ void func_800C3CA8();
 void func_800C40F4();
 void func_800C44B4();
 void func_800C4814();
+void func_800C6CB8(s16, u8);
 static void BattleModelMoveTick();
 void func_800D1530();
 s32 BattleModelReadAnimStream(BattleModelSub* arg0, s32 arg1, s16 nItems, u8* arg3);
@@ -42,7 +43,6 @@ void func_801B000C(s16, u8);
 void func_801B0040(s16, u8);
 void func_801B0054(s16, u8);
 void func_801B0084(s16, u8);
-void func_800C6CB8(s16, u8);
 
 // Effect dispatch, indexed by attackEffectId within one currentActionId.
 // The id table gives a D_800EEBB8 file id; the entrypoint table, the call into it.
