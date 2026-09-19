@@ -2866,7 +2866,31 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeCycle);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B2A2C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B2B5C);
+static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex) {
+    BattleActionEntry action;
+    u8 categories[2] = {CMD_SUMMON, CMD_ENEMY_SKILL};
+    u8 categoryBases[2] = {0x38, 0x48}; // D_800A0290[1], D_800A0290[2]
+    u32 i;
+    u16 mask;
+
+    for (i = 0; i < LEN(categories); i++) {
+        if (actionType == categories[i]) {
+            attackIndex -= categoryBases[i];
+        }
+    }
+    if (actionType == 0x20) { // non-player: monster/counter scene-attack id
+        attackIndex = BattleGetAttackIdInSceneByAttackId(attackIndex);
+    }
+
+    mask = g_BattleState.scriptOpponentNonPetrifiedMask;
+    g_BattleState.combatant[unitId].attackMask = mask;
+    action.priority = D_800F4AC8;
+    action.unitID = unitId;
+    action.actionType = actionType;
+    action.attackIndex = attackIndex;
+    action.targetMask = mask;
+    BattleCopyBattleActionToBattleQueue(&action);
+}
 
 static AttackData* BattleGetAttackData(s32);
 static s32 func_800B2C60(s32 arg0) {
