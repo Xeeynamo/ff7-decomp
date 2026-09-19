@@ -1,6 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 
 #include "common.h"
+#include "magic.h"
 #include "magic_private.h"
 #include "../battle/battle.h"
 
@@ -85,7 +86,7 @@ static void* barrier_buffer_ptr;
 // barrier.c forward declarations
 static void BarrierMainSetup(int targetMask, int callbackArg);
 
-void MAGIC_Barrier(int targetMask, int callbackArg) { BarrierMainSetup(targetMask, callbackArg); }
+void MAGIC_Barrier(s32 targetMask, s32 callbackArg) { BarrierMainSetup(targetMask, callbackArg); }
 
 // FaceIndex runs 0, 1, 3, 2 across the four instances -- Gray code, so the
 // shell grows through adjacent quadrants.

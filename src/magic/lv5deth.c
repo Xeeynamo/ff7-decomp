@@ -1,6 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 
 #include "common.h"
+#include "magic.h"
 #include "../battle/battle.h"
 
 // Battle far colour; func_800B9568 feeds r/g/b straight to SetFarColor.
@@ -57,8 +58,6 @@ static void Lv5DeathBufferFlip(void) {
 
 static void Lv5DeathMainSetup(s32 targetMask, s32 callbackArg);
 
-// Overlay entry point, at 0x801B0054; func_800D0C80 dispatches magic id 32
-// here.
 void MAGIC_Lv5Death(s32 targetMask, s32 callbackArg) { Lv5DeathMainSetup(targetMask, callbackArg); }
 
 static void Lv5DeathRenderRing(void) {
