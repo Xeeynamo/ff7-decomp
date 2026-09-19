@@ -29,7 +29,7 @@ extern s32 D_80071E28; // Which module to transition to from world map
 extern u8* g_MenuTutorial;
 extern s32 SYS_GetDiskNo(void);
 extern s32 SysMenuShow(u8*);
-extern s16 g_GameState;
+extern volatile s16 g_GameState;
 
 void __main(void) {}
 
@@ -124,7 +124,18 @@ static void SysInitBase(void) {
     InitGeom();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitDispenvDrawenv);
+static void SysInitDispenvDrawenv(void) {
+    SetDefDispEnv(&D_8007EB68[0], 0, 232, 320, 240);
+    SetDefDispEnv(&D_8007EB68[1], 0, 0, 320, 240);
+    SetDefDrawEnv(&D_8007EAAC[0], 0, 8, 320, 224);
+    SetDefDrawEnv(&D_8007EAAC[1], 0, 240, 320, 224);
+    D_8007EAAC[0].dtd = 1;
+    D_8007EAAC[1].dtd = 1;
+    D_8007EAAC[0].isbg = 0;
+    D_8007EAAC[1].isbg = 0;
+    PutDispEnv(&D_8007EB68[0]);
+    PutDrawEnv(&D_8007EAAC[0]);
+}
 
 void FIELD_Main(void);
 void FIELD_Init(void);
@@ -172,9 +183,46 @@ static void AkaoInit(void) {
     func_80029998(0x801B0000);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800119E4);
+static void InitWorldFromSavemap(void) {
+    s32 modelId;
+    s32 state;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitFieldFromSavemap);
+    state = g_GameState;
+    if (state == 3) {
+        Savemap.worldmap_exit_action = 2;
+        Savemap.current_module = 3;
+    } else {
+        Savemap.worldmap_exit_action = 0;
+        Savemap.current_module = 1;
+    }
+    Savemap.current_location_id = g_CurrentFieldIndex;
+    modelId = g_PlayerModelId;
+    Savemap.field_x = g_FieldEntity[modelId].PosX >> 12;
+    Savemap.field_y = g_FieldEntity[modelId].PosY >> 12;
+    Savemap.field_triangle = g_FieldEntity[modelId].PosI;
+    Savemap.field_direction = g_FieldEntity[modelId].MoveDir;
+    Savemap.step_id = D_8009C540;
+    Savemap.step_offset = D_8009AD2C;
+}
+
+static void InitFieldFromSavemap(void) {
+    s32 exitAction;
+
+    exitAction = Savemap.worldmap_exit_action;
+    g_GameState = Savemap.current_module;
+    D_80071E28 = exitAction;
+    if (g_GameState == 0) {
+        g_GameState = 1;
+    }
+    g_CurrentFieldIndex = Savemap.current_location_id;
+    g_FieldState.prevFieldId = Savemap.current_location_id;
+    g_FieldState.pcPosX = Savemap.field_x;
+    g_FieldState.pcPosY = Savemap.field_y;
+    g_FieldState.pcWalkMeshId = Savemap.field_triangle;
+    g_FieldState.pcDirection = Savemap.field_direction;
+    D_8009C540 = Savemap.step_id;
+    D_8009AD2C = Savemap.step_offset;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitNewGame);
 
@@ -225,7 +273,7 @@ void main(void) {
             D_8007EBC8 = 0;
             D_8009C6D8 = 0;
             D_8007173C = 0;
-            SysInitFieldFromSavemap();
+            InitFieldFromSavemap();
             g_PrevGameState = 0;
             do {
                 switch (g_GameState) {
@@ -304,7 +352,7 @@ void main(void) {
                     }
                     break;
                 case GAMESTATE_WORLD:
-                    func_800119E4();
+                    InitWorldFromSavemap();
                     func_800112E8();
                     switch (D_80071E28) {
                     case 0:
@@ -331,7 +379,7 @@ void main(void) {
                     }
                     while (DrawSync(1)) {
                     }
-                    func_800119E4();
+                    InitWorldFromSavemap();
                     if (g_PartyUpdatedByFieldScript == 1) {
                         func_800260DC();
                         func_80026090();
@@ -373,7 +421,7 @@ void main(void) {
                     g_GameState = GAMESTATE_FIELD;
                     break;
                 case GAMESTATE_MENU_COMMANND:
-                    func_800119E4();
+                    InitWorldFromSavemap();
                     switch (g_FieldState.eventCmd) {
                     case EVTCMD_YUFFIE_STEALS_MATERIA:
                         func_80024ECC();

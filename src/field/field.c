@@ -19,7 +19,6 @@ extern u32 g_FieldFileInfo[];
 extern FieldModelLoaderHeader** g_FieldModelsP;
 extern FieldTriggers* g_FieldTriggers;
 extern u16* g_FieldEncounters;
-extern s16 g_CurrentFieldIndex;
 extern FieldTriggers** g_FieldTriggersP;
 extern u16** g_FieldEncountersP;
 extern volatile s16 g_FieldMoviePlayed;
