@@ -56,6 +56,7 @@ void FieldDebugStringU16hex(s32 val, char* msg_out);
 void FieldDebugStringU32hex(s32 val, char* msg_out);
 void FieldDebugPageSetPosSize(s16 pageId, s16 x, s16 y, s16 width, s16 height);
 void FieldDebugPageResetStrings(s16 pageId);
+static void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height);
 static void PlayWindowPointerClickSound(void);
 static s32 FieldDialogWindowInit(s16 window, s16 stringId);
 static void FieldDialogWindowGrowth(s16 window);
@@ -1215,7 +1216,6 @@ void SystemMessageSetCharName(s16 battleCharId, s16 stringId) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugInitBuffers);
 
-static void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height);
 static void FieldDebugPageSetHeadRow(s16 pageId, s16 row);
 static void FieldDebugPageHide(s16 pageId);
 s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str);
