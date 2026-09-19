@@ -39,6 +39,11 @@ struct FieldRenderData {
     LINE_F2 Rain[64]; // 0x1749c: Rain line primitives
 };
 
+extern MATRIX* D_80083270;
+extern MATRIX** D_80083578;
+extern u8 D_8009AC2D;
+extern u16 D_80114488;
+
 void StopFieldMapPreload(void);
 s32 FieldCalcLinearStep(s32 start, s32 target, s32 duration, s32 step);
 s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, long* screenPos);
