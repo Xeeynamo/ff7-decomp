@@ -12,12 +12,12 @@ typedef union {
 } AkaoCdVol; /* size = 0x4 */
 
 typedef struct {
-    s32 unk0;
-    s8 unk4;
+    s32 opcode;
+    s8 start;
     s8 pad5[3];
-    s32 unk8;
-    s8 unkC;
-} Unk8002C5A8;
+    s32 steps;
+    s8 target;
+} AkaoSlide;
 
 // Field names cross-checked against the independent qgears reverse-engineering
 // project's AkaoChannel struct (same source as the g_Akao*SlideStep/Steps

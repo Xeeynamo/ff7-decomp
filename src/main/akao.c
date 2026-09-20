@@ -609,8 +609,8 @@ void AkaoCmd_B3(void* arg0) { func_8002C2CC(arg0, &g_Channel3[6]); }
 
 void AkaoCmd_B7(s32 arg0) { func_8002C300(arg0, &g_Channel3[6]); }
 
-void AkaoCmd_D0(Unk8002C5A8* arg0) {
-    s32 n = arg0->unk4;
+void AkaoCmd_D0(AkaoSlide* arg0) {
+    s32 n = arg0->start;
     g_AkaoTempoMulMusicSlideSteps = 0;
     g_AkaoTempoMulMusic = n << 0x10;
 }
@@ -638,26 +638,26 @@ void AkaoCmd_D1_TempoSlideFromCurr(Unk8002C5C8* arg0) {
 
 // Starts a tempo slide between two explicit targets from arg0, over arg0's
 // tick count.
-void AkaoCmd_D2_TempoSlideBetweenTargets(Unk8002C5A8* arg0) {
+void AkaoCmd_D2_TempoSlideBetweenTargets(AkaoSlide* arg0) {
     long new_var;
     s32 temp_a2;
     s32 temp_v1;
     s32 var_a1;
 
-    temp_v1 = arg0->unk8;
-    temp_a2 = arg0->unk4 << 0x10;
+    temp_v1 = arg0->steps;
+    temp_a2 = arg0->start << 0x10;
     g_AkaoTempoMulMusic = temp_a2;
     var_a1 = 1;
     if (temp_v1 != 0) {
         var_a1 = temp_v1;
     }
-    new_var = (arg0->unkC << 0x10) - temp_a2;
+    new_var = (arg0->target << 0x10) - temp_a2;
     g_AkaoTempoMulMusicSlideSteps = var_a1;
     g_AkaoTempoMulMusicSlideStep = new_var / var_a1;
 }
 
-void AkaoCmd_D4(Unk8002C5A8* arg0) {
-    s32 n = arg0->unk4;
+void AkaoCmd_D4(AkaoSlide* arg0) {
+    s32 n = arg0->start;
     g_AkaoPitchMulMusicSlideSteps = 0;
     g_AkaoPitchMulMusic = n << 0x10;
 }
@@ -687,20 +687,20 @@ void AkaoCmd_D5_PitchSlideFromCurr(Unk8002C6C8* arg0) {
 
 // Starts a pitch slide between two explicit targets from arg0, over arg0's
 // tick count.
-void AkaoCmd_D6_PitchSlideBetweenTargets(Unk8002C5A8* arg0) {
+void AkaoCmd_D6_PitchSlideBetweenTargets(AkaoSlide* arg0) {
     s32 new_var;
     s32 temp_a2;
     s32 temp_v1;
     s32 var_a1;
 
-    temp_v1 = arg0->unk8;
-    temp_a2 = arg0->unk4 << 0x10;
+    temp_v1 = arg0->steps;
+    temp_a2 = arg0->start << 0x10;
     g_AkaoPitchMulMusic = temp_a2;
     var_a1 = 1;
     if (temp_v1 != 0) {
         var_a1 = temp_v1;
     }
-    new_var = (arg0->unkC << 0x10) - temp_a2;
+    new_var = (arg0->target << 0x10) - temp_a2;
     g_AkaoPitchMulMusicSlideSteps = var_a1;
     g_AkaoPitchMulMusicSlideStep = new_var / var_a1;
 }
