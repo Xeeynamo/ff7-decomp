@@ -1408,11 +1408,11 @@ static u8 func_80031A70(u8** arg0) {
     return opcode == expected ? 0xCA : 0xA0;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031AB0);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_E8_Tempo);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031AFC);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_E9_TempoSlide);
 
-static void func_80031BA0(u8** cursor, AkaoChannel* track) {
+static void AkaoOp_EA_ReverbDepth(u8** cursor, AkaoChannel* track) {
     u8* p = *cursor;
     u8 v0;
     u8 v1;
@@ -1431,14 +1431,14 @@ static void func_80031BA0(u8** cursor, AkaoChannel* track) {
     track->unk40 = combined;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031BE4);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_EB_ReverbDepthSlide);
 
-static void func_80031C88(AkaoChannel* track) {
+static void AkaoOp_A3_MasterVol(AkaoChannel* track) {
     track->volumeMultiplier = *track->akaoSequencePointer++;
     track->setFlags |= 3;
 }
 
-static void func_80031CB0(AkaoChannel* track) {
+static void AkaoOp_A8_SetVol(AkaoChannel* track) {
     s32 val = (s8)*track->akaoSequencePointer++;
 
     track->initWith0_5C = 0;
@@ -1446,13 +1446,13 @@ static void func_80031CB0(AkaoChannel* track) {
     track->volumeLevel = val << 0x17;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031CE0);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_A9_SetVolSlide);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031D6C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F4_OverlayVoiceOn);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031E98);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F5_OverlayVoiceOff);
 
-static void func_80031EEC(AkaoChannel* track) {
+static void AkaoOp_F6_OverlayVolBalance(AkaoChannel* track) {
     u8 val = *track->akaoSequencePointer++;
 
     track->unk5E = 0;
@@ -1462,15 +1462,15 @@ static void func_80031EEC(AkaoChannel* track) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031F30);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F7_OverlayVolBalanceSlide);
 
-static void func_80031FC0(AkaoChannel* track) {
+static void AkaoOp_AA_SetPan(AkaoChannel* track) {
     track->baseVolumePan = *track->akaoSequencePointer++ << 8;
     track->setTo0_62 = 0;
     track->setFlags |= 3;
 }
 
-static void func_80031FF0(AkaoChannel* track) {
+static void AkaoOp_AB_SetPanSlide(AkaoChannel* track) {
     u8 ch;
     u16 var_a0;
 
@@ -1484,27 +1484,27 @@ static void func_80031FF0(AkaoChannel* track) {
     track->unkCA = ((ch << 8) - var_a0) / (u16)track->setTo0_62;
 }
 
-static void func_80032078(AkaoChannel* track) { track->pitchCorrection = *track->akaoSequencePointer++; }
+static void AkaoOp_A5_SetOctave(AkaoChannel* track) { track->pitchCorrection = *track->akaoSequencePointer++; }
 
-static void func_80032094(AkaoChannel* track) { track->pitchCorrection = (track->pitchCorrection + 1) & 0xF; }
+static void AkaoOp_A6_IncOctave(AkaoChannel* track) { track->pitchCorrection = (track->pitchCorrection + 1) & 0xF; }
 
-static void func_800320AC(AkaoChannel* track) { track->pitchCorrection = (track->pitchCorrection + 0xFFFF) & 0xF; }
+static void AkaoOp_A7_DecOctave(AkaoChannel* track) { track->pitchCorrection = (track->pitchCorrection + 0xFFFF) & 0xF; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800320C4);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_A1_LoadInstrument);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032274);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F2_LoadInstrument);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800323CC);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_B3_ResetAdsr);
 
-static void func_800324D8(AkaoChannel* track) { track->absoluteTransposition = (s8)*track->akaoSequencePointer++; }
+static void AkaoOp_C0_TransposeAbsolute(AkaoChannel* track) { track->absoluteTransposition = (s8)*track->akaoSequencePointer++; }
 
-static void func_80032500(AkaoChannel* track) {
+static void AkaoOp_C1_TransposeRelative(AkaoChannel* track) {
     track->absoluteTransposition = (s8)*track->akaoSequencePointer++ + track->absoluteTransposition;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003252C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_A4_PitchBendSlide);
 
-static void func_8003257C(AkaoChannel* track) {
+static void AkaoOp_DA_PortamentoOn(AkaoChannel* track) {
     u8 val = *track->akaoSequencePointer++;
 
     track->initWith0_6C = (s16)val;
@@ -1516,29 +1516,29 @@ static void func_8003257C(AkaoChannel* track) {
     track->initWith0_6E = 1;
 }
 
-static void func_800325B8(AkaoChannel* track) { track->initWith0_6C = 0; }
+static void AkaoOp_DB_PortamentoOff(AkaoChannel* track) { track->initWith0_6C = 0; }
 
-static void func_800325C0(AkaoChannel* track) { track->frequencyMultiplier = (s8)*track->akaoSequencePointer++; }
+static void AkaoOp_D8_FineTuningAbsolute(AkaoChannel* track) { track->frequencyMultiplier = (s8)*track->akaoSequencePointer++; }
 
-static void func_800325E8(AkaoChannel* track) {
+static void AkaoOp_D9_FineTuningRelative(AkaoChannel* track) {
     track->frequencyMultiplier = (s8)*track->akaoSequencePointer++ + track->frequencyMultiplier;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032614);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_B4_Vibrato);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032718);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_B5_VibratoDepth);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032770);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_DD_VibratoDepthSlide);
 
-static void func_800327E0(AkaoChannel* track) {
+static void AkaoOp_B6_VibratoOff(AkaoChannel* track) {
     track->pitchLfoValue = 0;
     track->updateMirror &= ~1;
     track->setFlags |= 0x10;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032804);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_B8_Tremolo);
 
-static void func_800328D4(AkaoChannel* track) { track->volumeLfoMultiplier = *track->akaoSequencePointer++ << 8; }
+static void AkaoOp_B9_TremoloDepth(AkaoChannel* track) { track->volumeLfoMultiplier = *track->akaoSequencePointer++ << 8; }
 
 static void AkaoDETremoloDepthSlideFromCurrent(AkaoChannel* track) {
     u16 rate;
@@ -1557,7 +1557,7 @@ static void AkaoDETremoloDepthSlideFromCurrent(AkaoChannel* track) {
     track->unk94 = delta;
 }
 
-static void func_80032968(AkaoChannel* track) {
+static void AkaoOp_BA_TremoloOff(AkaoChannel* track) {
     track->volumeLfoValue = 0;
     track->updateMirror &= ~2;
     track->setFlags |= 3;
@@ -1583,7 +1583,7 @@ static void AkaoBCSetPanLfo(AkaoChannel* track) {
     track->volumePanLfoRefreshIntervalCounter = 1;
 }
 
-static void func_80032A04(AkaoChannel* track) { track->initWith0_9E = *track->akaoSequencePointer++ << 7; }
+static void AkaoOp_BD_PanLfoDepth(AkaoChannel* track) { track->initWith0_9E = *track->akaoSequencePointer++ << 7; }
 
 static void AkaoDFPanLfoDepthSlideFromCurrent(AkaoChannel* track) {
     u8* addr;
@@ -1602,7 +1602,7 @@ static void AkaoDFPanLfoDepthSlideFromCurrent(AkaoChannel* track) {
     track->unkA2 = delta;
 }
 
-static void func_80032A98(AkaoChannel* track) {
+static void AkaoOp_BE_PanLfoOff(AkaoChannel* track) {
     track->volumePanLfoValue = 0;
     track->updateMirror &= ~4;
     track->setFlags |= 3;
@@ -1666,35 +1666,35 @@ static void AkaoC3ReverbOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     AkaoUpdateReverbVoices();
 }
 
-static void func_80032D44(AkaoChannel* track) { track->initWith0_6E = 1; }
+static void AkaoOp_CC_LegatoOn(AkaoChannel* track) { track->initWith0_6E = 1; }
 
-static void func_80032D50(void) {}
+static void AkaoOp_CD_LegatoOff(void) {}
 
-static void func_80032D58(AkaoChannel* track) { track->initWith0_6E = 4; }
+static void AkaoOp_D0_FullLengthOn(AkaoChannel* track) { track->initWith0_6E = 4; }
 
-static void func_80032D64(void) {}
+static void AkaoOp_D1_FullLengthOff(void) {}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032D6C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_AC_NoiseClockFreq);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032E08);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_AD_SetAr);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032E6C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_AE_SetDr);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032ED0);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_AF_SetSl);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032F34);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_B1_SetSr);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032F98);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_B2_SetRr);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032FFC);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_B7_AttackMode);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033060);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_BB_SustainMode);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800330C4);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_BF_ReleaseMode);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033128);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F8_AltVoiceOn);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800331CC);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F9_AltVoiceOff);
 
 void AkaoC8LoopPoint(AkaoChannel* track) {
     track->lastSavedLoopPointIndex = (track->lastSavedLoopPointIndex + 1) & 3;
@@ -1702,18 +1702,18 @@ void AkaoC8LoopPoint(AkaoChannel* track) {
     track->loopPointState[track->lastSavedLoopPointIndex] = 0;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033264);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_C9_LoopReturnTimes);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800332EC);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F0_LoopJumpTimes);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003337C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F1_LoopBreakTimes);
 
 void AkaoCALoopReturn(AkaoChannel* track) {
     track->loopPointState[track->lastSavedLoopPointIndex]++;
     track->akaoSequencePointer = track->loopPoint[track->lastSavedLoopPointIndex];
 }
 
-static void func_8003345C(AkaoChannel* track) {
+static void AkaoOp_A2_NextNoteLength(AkaoChannel* track) {
     u16 val = *track->akaoSequencePointer++;
 
     track->pauseMultiplier = 0;
@@ -1723,7 +1723,7 @@ static void func_8003345C(AkaoChannel* track) {
     track->pauseStorage = val;
 }
 
-static void func_80033488(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_DC_FixNoteLength(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     short delta = READ_S8(track->akaoSequencePointer);
     if (delta != 0) {
         delta += track->pauseStorage;
@@ -1736,33 +1736,33 @@ static void func_80033488(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     track->pauseMultiplier = delta;
 }
 
-static void func_800334EC(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_EC_DrumModeOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     track->drumOffset = track->akaoSequencePointer + READ_S16(track->akaoSequencePointer);
     track->updateMirror |= 0x8;
 }
 
-static void func_80033534(AkaoChannel* track, AkaoConfig* config, u32 mask) { track->updateMirror &= ~0x8; }
+static void AkaoOp_ED_DrumModeOff(AkaoChannel* track, AkaoConfig* config, u32 mask) { track->updateMirror &= ~0x8; }
 
-static void func_80033548(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_FD_TimeSignature(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     config->lowerTimerEqualValue = *track->akaoSequencePointer++;
     config->upperTimerEqualValue = *track->akaoSequencePointer++;
     config->lowerTimerValue = 0;
     config->upperTimerValue = 0;
 }
 
-static void func_80033588(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_FE_MeasureNumber(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     config->topTimer = *track->akaoSequencePointer++;
     config->topTimer |= *track->akaoSequencePointer++ << 8;
 }
 
 static void func_800335CC(AkaoChannel* track, AkaoConfig* config, u32 mask) { config->unk54 = 1; }
 
-static void func_800335D8(AkaoChannel* track, AkaoConfig* config, u32 mask) {
-    func_80032E6C(track, config, mask);
-    func_80032ED0(track, config, mask);
+static void AkaoOp_B0_SetVoiceDrSl(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+    AkaoOp_AE_SetDr(track, config, mask);
+    AkaoOp_AF_SetSl(track, config, mask);
 }
 
-static void func_80033628(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_CE_NoiseSwitch(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     int delay = *track->akaoSequencePointer++;
     if (delay == 0) {
         track->noiseSwitchDelay = 257;
@@ -1772,7 +1772,7 @@ static void func_80033628(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     AkaoC4NoiseOn(track, config, mask);
 }
 
-static void func_8003366C(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_CF_NoiseSwitch(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     s16 var_v0 = *track->akaoSequencePointer++;
     if (var_v0 == 0) {
         var_v0 = 257;
@@ -1782,7 +1782,7 @@ static void func_8003366C(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     track->noiseSwitchDelay = var_v0;
 }
 
-static void func_80033698(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_D2_FrequencyModulationSwitch(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     int delay = *track->akaoSequencePointer++;
     if (delay == 0) {
         track->pitchLfoSwitchDelay = 257;
@@ -1792,7 +1792,7 @@ static void func_80033698(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     AkaoC6PitchLfoOn(track, config, mask);
 }
 
-static void func_800336DC(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_D3_FrequencyModulationSwitch(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     s16 var_v0 = *track->akaoSequencePointer++;
     if (var_v0 == 0) {
         var_v0 = 257;
@@ -1802,7 +1802,7 @@ static void func_800336DC(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     track->pitchLfoSwitchDelay = var_v0;
 }
 
-static void func_80033708(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_CB_SfxReset(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     track->updateMirror &= ~0x37;
     AkaoC5NoiseOff(track, config, mask);
     AkaoC7PitchLfoOff(track, config, mask);
@@ -1810,19 +1810,19 @@ static void func_80033708(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     track->initWith0_6E &= ~0x5;
 }
 
-static void func_80033788(AkaoChannel* track, AkaoConfig* config, u32 mask) { track->updateMirror |= 0x10; }
+static void AkaoOp_D4_SideChainPlaybackOn(AkaoChannel* track, AkaoConfig* config, u32 mask) { track->updateMirror |= 0x10; }
 
-static void func_8003379C(AkaoChannel* track, AkaoConfig* config, u32 mask) { track->updateMirror &= ~0x10; }
+static void AkaoOp_D5_SideChainPlaybackOff(AkaoChannel* track, AkaoConfig* config, u32 mask) { track->updateMirror &= ~0x10; }
 
-static void func_800337B0(AkaoChannel* track, AkaoConfig* config, u32 mask) { track->updateMirror |= 0x20; }
+static void AkaoOp_D6_SideChainPitchVolOn(AkaoChannel* track, AkaoConfig* config, u32 mask) { track->updateMirror |= 0x20; }
 
-static void func_800337C4(AkaoChannel* track, AkaoConfig* config, u32 mask) { track->updateMirror &= ~0x20; }
+static void AkaoOp_D7_SideChainPitchVolOff(AkaoChannel* track, AkaoConfig* config, u32 mask) { track->updateMirror &= ~0x20; }
 
-static void func_800337D8(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_EE_Jump(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     track->akaoSequencePointer += READ_S16(track->akaoSequencePointer);
 }
 
-static void func_80033818(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_EF_JumpConditional(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     int cond = *track->akaoSequencePointer++;
     if (config->jumpConditionStorage2 != 0 && cond <= config->jumpConditionStorage2) {
         track->akaoSequencePointer += READ_S16(track->akaoSequencePointer);
@@ -1832,9 +1832,9 @@ static void func_80033818(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033894);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_A0_FinishChannel);
 
-static void func_80033A70(AkaoChannel* track, AkaoConfig* config, u32 mask) { func_80033894(track, config, mask); }
+static void AkaoOp_Null(AkaoChannel* track, AkaoConfig* config, u32 mask) { AkaoOp_A0_FinishChannel(track, config, mask); }
 
 void SysSavemapReset(void) {
     s32 i;
