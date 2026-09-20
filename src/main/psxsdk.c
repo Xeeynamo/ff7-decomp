@@ -961,7 +961,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", InitCARD);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", StartCARD);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SsInitHot);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", StopCARD);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", InitCARD2);
 
