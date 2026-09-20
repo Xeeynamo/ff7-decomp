@@ -404,8 +404,6 @@ typedef struct {
 
 extern WorldSoundArea D_800C68E8[3];
 WorldSoundArea* func_800B338C(s16, s16);
-extern u8 D_800C68FC[];
-extern u8 D_800C6910[];
 extern WorldChunkHeader D_80109A38[0x20];
 extern WorldChunkHeader* D_80109D38;
 extern WorldChunkHeader* D_80109D3C;
@@ -435,20 +433,10 @@ extern u8* D_80109D5C;
 extern u8 D_800BF5F0[];
 extern SPRT D_800C6648[];
 extern s32 D_800C84F0;
-extern s16 D_8009ABF8;
-extern s16 D_8009ABFA;
-extern s16 D_8009AC16;
-extern s16 D_8009AC18;
-extern u8* D_8009C6DC;
 extern WorldListNode* D_800E5810;
 extern WorldListNode* D_800E580C;
-extern u16 D_80083278[];
-extern u16 D_8008327A[];
-extern s16 D_80083286[];
 extern s8 D_80115A14[];
 extern s8 D_801159E8[];
-extern u8 D_8008328D[];
-extern s16 D_800832A2[];
 extern s32 D_80109D64;
 extern s32 D_80109D68;
 typedef struct {
@@ -459,7 +447,6 @@ typedef struct {
 } WorldEffectSlot; // size: 0x4
 
 extern WorldEffectSlot D_8010D9B8[2];
-extern u16 D_8009D2A6;
 extern u8 D_800C6678[][8];
 extern u8 D_800C6748[];
 extern MATRIX D_800C6808;
@@ -504,7 +491,6 @@ extern u8 D_8013A800;
 extern FieldModelEntry* D_8013A804;
 extern u32 D_8014A608;
 extern FieldModelEntry* D_8014A610;
-extern u8 D_8010D9BA[];
 extern s32 D_80116274;
 extern s16 D_80116288;
 extern s16 D_8011628C;

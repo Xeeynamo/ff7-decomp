@@ -91,7 +91,7 @@ static void VSyncCallbackFunc(void) {
         SysMenuDrawBattleResult();
         break;
     }
-    if (!D_80062D98 && !D_80062D99) {
+    if (!D_80062D98 && !g_SavemapBusy) {
         Savemap.game_timer_fraction += 1092; // 65536 / 1092 = ~60
         if (Savemap.game_timer_fraction >> 16) {
             Savemap.time++;

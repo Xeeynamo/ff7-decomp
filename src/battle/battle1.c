@@ -445,7 +445,7 @@ static void BattleUpdateRender(void) {
         D_800F9D94 = 1;
     }
     if (D_8016376A & 2) {
-        func_800E16B8(g_cDb->unk40E4, 0x10, 0x10, D_8009D268[0]);
+        func_800E16B8(g_cDb->unk40E4, 0x10, 0x10, Savemap.countdown_timer_seconds);
     }
     D_800FA9B8 = VSync(1);
     BattleFlushImageQueue();

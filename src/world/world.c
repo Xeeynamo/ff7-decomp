@@ -3430,7 +3430,7 @@ static void InitEffectPool(void) {
     D_8010D9A8 = 0;
     D_8010D9B4 = 0;
     do {
-        D_8010D9BA[i] = 0;
+        ((u8*)D_8010D9B8)[i + 2] = 0; // WorldEffectSlot.interval
         i -= 4;
     } while (i >= 0);
 }
@@ -3514,7 +3514,7 @@ static void func_800B579C(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
     slot->timer = 0;
 }
 
-static void func_800B57C0(s32 arg0) { D_8010D9BA[arg0 * 4] = 0; }
+static void func_800B57C0(s32 arg0) { D_8010D9B8[arg0].interval = 0; }
 
 static void WmUpdateEffects(void) {
     WorldEffectSlot* slot;
@@ -3961,7 +3961,6 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B7228);
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B7480);
 
 static void GetSavedParams(s32* arg0, s32* arg1, s32* arg2) {
-    u16* p;
     s32 flags;
 
     if (arg0 != NULL) {
@@ -3977,8 +3976,7 @@ static void GetSavedParams(s32* arg0, s32* arg1, s32* arg2) {
         }
         *arg2 = flags;
     }
-    p = &D_8009D2A6;
-    *p |= 0x300;
+    *(u16*)&Savemap.memory_bank_1[0x1E] |= 0x300;
     func_800B7480();
 }
 
@@ -4006,12 +4004,12 @@ void WmSetFieldToLoad(s32 arg0) {
     p = &D_800BF5F0[index * 12];
 
     g_FieldState.eventCmdParam = *(u16*)(p + 6);
-    D_8009ABF8 = *(u16*)(p + 0);
-    D_8009ABFA = *(u16*)(p + 2);
-    D_8009AC16 = *(u16*)(p + 4);
+    g_FieldState.pcPosX = *(u16*)(p + 0);
+    g_FieldState.pcPosY = *(u16*)(p + 2);
+    g_FieldState.pcWalkMeshId = *(u16*)(p + 4);
     D_8011626C = 0;
     D_80116270 = arg0;
-    D_8009AC18 = p[8];
+    g_FieldState.pcDirection = p[8];
 }
 
 void func_800B77A8(s32 arg0) {
@@ -4025,7 +4023,7 @@ void func_800B77A8(s32 arg0) {
 }
 
 static void func_800B77F4(s32 arg0) {
-    D_8009D268[0] = arg0;
+    *(volatile s32*)&Savemap.countdown_timer_seconds = arg0;
     D_80116278 = 1;
     Savemap.memory_bank_1[0x5F] = 1;
 }

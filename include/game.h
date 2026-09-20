@@ -12,6 +12,7 @@
 
 #define NUM_PARTY 3
 #define NUM_CHARACTERS 9
+#define NUM_MATERIA_ROW 8 // maximum amount of materia per row (weapon or armor)
 #define MAX_INVENTORY_COUNT 320
 #define MAX_MATERIA_COUNT 200
 #define NUM_MENU_COLOR 12
@@ -1199,7 +1200,6 @@ extern MainMenuColorLabels g_Labels;    // labels indexed by Labels enum
 extern u8 g_MenuColors[NUM_MENU_COLOR]; // 4 corners x RGB
 extern FieldModelData* g_FieldModelData;
 extern u8 D_80062D98; // battle_clearRenderList
-extern u8 D_80062D99;
 // Set while a memory-card transfer is in flight and the savemap must not be
 // touched; battle code spin-waits on it.
 extern volatile u8 g_SavemapBusy;
@@ -1309,7 +1309,6 @@ extern CharacterLevelData g_CharacterLevelData[3];
 extern u8 D_8009D824;
 extern s16 g_FieldModelBaseAnimSpeed[16]; // per-model base animation speed
 extern BattleItemReward g_BattleItemsEarned[4];
-extern volatile s32 D_8009D268[];
 extern ActiveCharacterData g_ActiveCharacters[9];
 extern u8 D_8009FE8C;
 extern u8 D_800C7304[16];
@@ -1379,7 +1378,6 @@ s32 SysGetLimitCmdId(s32 charId, s32 limitIndex);
 int SYS_GetDiskNo(void);
 
 // from overlays
-extern u8 SavedScriptIds[48][8]; // script ids of latest queued scripts
 extern u_long* D_8019D5E8;
 extern s32 D_8019DAA0;
 

@@ -15,8 +15,6 @@ extern u8 D_801D0844[16];
 extern u8 D_801D0854[7];
 extern u8 D_801D085C[2];
 extern MenuTable D_801D0860[];
-extern u8 D_8009D78A[];
-extern s32 D_8009CE60[];
 
 // Initializes window parameters and UI elements for party selection screen
 // (bginmenu).
@@ -51,35 +49,20 @@ void func_801D00C4(void) {
 // Empty stub/hook function.
 static void func_801D01BC(void) {}
 
-extern u8 D_8009C778[]; // Savemap.party
-extern u8 D_8009C798[]; // Savemap.party
-
-// Never called by this overlay -- present in the original and kept so the
-// layout matches, like BrizadAttachToTargetUnused in brizad.c.
-// Counts the materia equipped by party member arg0: the 8 weapon slots at
-// party[arg0].materia_weapon plus the 8 armor slots, an empty slot being -1.
-static s32 CountEquippedMateria(s32 arg0) {
+static s32 CountEquippedMateria(s32 partyIndex) {
     s32 i;
     s32 count;
-    s32 minus_one;
-    s32* ptr;
 
     i = 0;
     count = 0;
-    minus_one = -1;
-    ptr = (s32*)&D_8009C778[arg0 * 0x84];
-
-    for (; i < 8; i++) {
-        if (ptr[i] != minus_one) {
+    for (; i < NUM_MATERIA_ROW; i++) {
+        if (Savemap.party[partyIndex].materia_weapon[i] != -1) {
             count++;
         }
     }
 
-    i = 0;
-    minus_one = -1;
-    ptr = (s32*)&D_8009C798[arg0 * 0x84];
-    for (; i < 8; i++) {
-        if (ptr[i] != minus_one) {
+    for (i = 0; i < NUM_MATERIA_ROW; i++) {
+        if (Savemap.party[partyIndex].materia_armor[i] != -1) {
             count++;
         }
     }
@@ -191,38 +174,25 @@ static s32 PartyHasMasteredMateria(s32 materiaId) {
 // are party[0].materia_weapon and party[0].materia_armor.)
 static s32 PartyHasMateria(s32 materiaId) {
     s32 i, j;
-    s32 flags;
-    u8* base;
-    u8* party0;
-    u8* party1;
-    u8* inventory;
 
     i = 0;
-    base = D_8009D78A;
-    flags = *(u16*)base;
-    party1 = base - 0xFF2;
-    party0 = base - 0x1012;
-
-    for (; i < 9; i++) {
-        if ((flags >> i) & 1) {
-            for (j = 0; j < 8; j++) {
-                if (party0[j * 4] == materiaId) {
+    for (; i < NUM_CHARACTERS; i++) {
+        if ((Savemap.phs_visibility_mask >> i) & 1) {
+            for (j = 0; j < NUM_MATERIA_ROW; j++) {
+                if ((u8)Savemap.party[i].materia_weapon[j] == materiaId) {
                     return 1;
                 }
             }
-            for (j = 0; j < 8; j++) {
-                if (party1[j * 4] == materiaId) {
+            for (j = 0; j < NUM_MATERIA_ROW; j++) {
+                if ((u8)Savemap.party[i].materia_armor[j] == materiaId) {
                     return 1;
                 }
             }
         }
-        party1 += 0x84;
-        party0 += 0x84;
     }
 
-    inventory = (u8*)D_8009CE60;
-    for (j = 0; j < 200; j++) {
-        if (inventory[j * 4] == materiaId) {
+    for (j = 0; j < MAX_MATERIA_COUNT; j++) {
+        if ((u8)Savemap.materia[j] == materiaId) {
             return 1;
         }
     }

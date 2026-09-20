@@ -48,7 +48,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_camera", HandleKawaiDataInModel);
 void DebugRunEveryLoop(void) {}
 
 void FieldCameraAssign(void) {
-    if (D_80114488 == 0 || D_8009AC2D == 1) {
+    if (D_80114488 == 0 || g_FieldState.movieCamDisabled == 1) {
         D_80071E40 = *D_80083578;
     } else {
         D_80071E40 = D_80083270;

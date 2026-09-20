@@ -3,9 +3,6 @@
 
 extern u8 g_MateriaPriority[];
 extern s32 g_MateriaStealLoot[];
-extern u8 D_800738BC[][44];
-extern u8 D_80071E4D[][36];
-extern u16 D_8009CBE0[]; // item inventory (320 slots; each u16 = (count << 9) | id)
 extern u16 D_801D35B4[]; // per-item-id sort order for the "Name" arrange option
 
 s32 SysMenuGetInventoryRestrictionMask(s32); // returns an item's usage flags (0x2 battle, 0x4 field, 0x8 throw)
@@ -17,15 +14,11 @@ s32 SysGetLimitCmdId(s32, s32);
 void SysMenuLoadImg(u_long*, s32, s32, s32, s32);
 void SysMenuDrawTexturedRect(s16, s16, s32, s32, s32, s32, s32, s32);
 extern u16 D_80062F50;
-extern u8 D_8009D5E8;
-extern u16 D_8009C75A[]; // character record fields, stride 0x84
-extern s16 D_8009D860[];
-extern s16 D_8009D862[];
 extern u8 D_801D3890[];
 // [0]: single-slot, non-scrolling widget (total=1, 1/page) - purpose not yet
 //      identified.
 // [1]: the Use tab's item list - total=0x140 (320) matches the item
-//      inventory D_8009CBE0 exactly, 10/page.
+//      inventory Savemap.inventory exactly, 10/page.
 // [2]: the Use/Arrange/Key-Items tab selector itself - total=3, wraps.
 extern MenuTable D_801D3DDC[];
 
@@ -403,25 +396,25 @@ static void ArrangeItems(s32 mode) {
     case 0:
         break;
     case 1:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByField, (SortSwap)SwapItemSlots);
+        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByField, (SortSwap)SwapItemSlots);
         break;
     case 2:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByBattle, (SortSwap)SwapItemSlots);
+        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByBattle, (SortSwap)SwapItemSlots);
         break;
     case 3:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByThrow, (SortSwap)SwapItemSlots);
+        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByThrow, (SortSwap)SwapItemSlots);
         break;
     case 4:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByType, (SortSwap)SwapItemSlots);
+        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByType, (SortSwap)SwapItemSlots);
         break;
     case 5:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByName, (SortSwap)SwapItemSlots);
+        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByName, (SortSwap)SwapItemSlots);
         break;
     case 6:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByMost, (SortSwap)SwapItemSlots);
+        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByMost, (SortSwap)SwapItemSlots);
         break;
     case 7:
-        Quicksort((s32)D_8009CBE0, 0x140, (SortCmp)CompareItemsByLeast, (SortSwap)SwapItemSlots);
+        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByLeast, (SortSwap)SwapItemSlots);
         break;
     }
 }
@@ -447,7 +440,7 @@ void func_801D0BA0(void) {
 static s32 func_801D0CAC(s32 arg0) { return g_ActiveCharacters[arg0].baseHp == g_ActiveCharacters[arg0].hp; }
 
 // True if the two adjacent record fields for entry arg0 are equal.
-static s32 func_801D0CE8(s32 arg0) { return D_8009D862[arg0 * 0x220] == D_8009D860[arg0 * 0x220]; }
+static s32 func_801D0CE8(s32 arg0) { return g_ActiveCharacters[arg0].baseMp == g_ActiveCharacters[arg0].mp; }
 
 // Builds a 10-bit mask of which of character arg0's slots are occupied (slot
 // value != 0x7F), clears bit 9, and returns whether it matches the stored
@@ -461,7 +454,7 @@ static s32 func_801D0D24(s32 arg0) {
         }
     }
     mask &= ~0x200;
-    return (D_8009C75A[arg0 * 0x42] ^ mask) == 0;
+    return (Savemap.party[arg0].limit_learn ^ mask) == 0;
 }
 
 // Returns an item's usage flags (SysMenuGetInventoryRestrictionMask), with two
@@ -472,7 +465,7 @@ static s32 func_801D0DCC(s32 arg0) {
     s32 flags = SysMenuGetInventoryRestrictionMask(arg0);
     if (arg0 != 0x46) {
         if (arg0 == 0x62) {
-            if (!(D_8009D5E8 & 2)) {
+            if (!(Savemap.memory_bank_4[0x60] & 2)) {
                 flags |= 4;
             }
         }
@@ -565,8 +558,9 @@ static s32 ReequipReturnedMateria(s32 materia) {
         if ((Savemap.phs_visibility_mask >> c) & 1) {
             {
                 s32 j;
-                for (j = 0; j < 8; j++) {
-                    if (Savemap.party[c].materia_weapon[j] == -1 && D_800738BC[Savemap.party[c].weapon][j]) {
+                for (j = 0; j < NUM_MATERIA_ROW; j++) {
+                    if (Savemap.party[c].materia_weapon[j] == -1 &&
+                        g_WeaponTable[Savemap.party[c].weapon].materiaSlot[j]) {
                         Savemap.party[c].materia_weapon[j] = materia;
                         return 0;
                     }
@@ -574,8 +568,9 @@ static s32 ReequipReturnedMateria(s32 materia) {
             }
             {
                 s32 j;
-                for (j = 0; j < 8; j++) {
-                    if (Savemap.party[c].materia_armor[j] == -1 && D_80071E4D[Savemap.party[c].armor][j]) {
+                for (j = 0; j < NUM_MATERIA_ROW; j++) {
+                    if (Savemap.party[c].materia_armor[j] == -1 &&
+                        g_ArmorTable[Savemap.party[c].armor].materiaSlot[j]) {
                         Savemap.party[c].materia_armor[j] = materia;
                         return 0;
                     }
