@@ -268,9 +268,9 @@ static void func_80029A50(void) {
         D_80097870 = 0x1FF93;
     }
     g_AkaoStreamMask = 0;
-    func_80030038();
-    func_80030148();
-    func_8002FF4C();
+    AkaoUpdateReverbVoices();
+    AkaoUpdatePitchLfoVoices();
+    AkaoUpdateNoiseVoices();
 }
 
 static void SetReverbMode(s32 in_ReverbMode) {
@@ -301,12 +301,12 @@ static void AkaoCopyMusic(s32* arg0, u32 arg1) {
     }
 }
 
-void func_80031820(AkaoChannel*, s32);
+void AkaoInstrInit(AkaoChannel*, s32);
 
 static void SoundChannelInit(AkaoChannel* arg0, u8* arg1) {
     arg0->akaoSequencePointer = arg1;
     arg0->volumeMultiplier = 0x78;
-    func_80031820(arg0, 5);
+    AkaoInstrInit(arg0, 5);
     arg0->pitchCorrection = 2;
     arg0->frequencyMultiplier = 0;
     arg0->absoluteTransposition = 0;
@@ -951,7 +951,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_90);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_92);
 
-void func_8002E23C(s32, void*);
+void AkaoUpdateChannelParamsToSpu(s32, void*);
 
 // Moves newly-requested channels_1 voices into the active mask, resetting
 // each one's SPU attributes.
@@ -973,7 +973,7 @@ void Akao9BApplyPendingMusicUpdates(void) {
             for (; pendingBits != 0; bit *= 2, voiceIdx += 1) {
                 if (pendingBits & bit) {
                     g_AkaoVoiceAttrMask = SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
-                    func_8002E23C(voiceIdx & 0xFFFF, &g_AkaoVoiceAttr);
+                    AkaoUpdateChannelParamsToSpu(voiceIdx & 0xFFFF, &g_AkaoVoiceAttr);
                     pendingBits ^= bit;
                 }
             }
@@ -985,9 +985,9 @@ void Akao9BApplyPendingMusicUpdates(void) {
     g_AkaoControlFlags |= 1;
 }
 
-void func_8002FF4C();
-void func_80030038();
-void func_80030148();
+void AkaoUpdateNoiseVoices();
+void AkaoUpdateReverbVoices();
+void AkaoUpdatePitchLfoVoices();
 
 // Restore counterpart: moves the stored channels_1 mask back to active,
 // resetting SPU attributes along the way.
@@ -1013,9 +1013,9 @@ void Akao9AFlushPendingMusicUpdates(void) {
         savedMask = g_AkaoMusicActiveMaskStored;
         g_AkaoMusicActiveMaskStored = 0;
         g_AkaoMusicActiveMask = savedMask;
-        func_8002FF4C(bit, pendingBits);
-        func_80030038();
-        func_80030148();
+        AkaoUpdateNoiseVoices(bit, pendingBits);
+        AkaoUpdateReverbVoices();
+        AkaoUpdatePitchLfoVoices();
     }
     g_AkaoControlFlags &= ~1;
 }
@@ -1046,7 +1046,7 @@ void Akao9DApplyPendingSoundUpdates(void) {
             for (; newMask != 0; bit *= 2, voiceIdx += 1) {
                 if (newMask & bit) {
                     g_AkaoVoiceAttrMask = SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
-                    func_8002E23C(voiceIdx & 0xFFFF, &g_AkaoVoiceAttr);
+                    AkaoUpdateChannelParamsToSpu(voiceIdx & 0xFFFF, &g_AkaoVoiceAttr);
                     newMask ^= bit;
                 }
             }
@@ -1073,9 +1073,9 @@ void Akao9CFlushPendingSoundUpdates(void) {
         savedMask = g_AkaoSoundActiveMaskStored;
         g_AkaoSoundActiveMaskStored = 0;
         g_Channel3ActiveMask[0] = savedMask;
-        func_8002FF4C(bit);
-        func_80030038();
-        func_80030148();
+        AkaoUpdateNoiseVoices(bit);
+        AkaoUpdateReverbVoices();
+        AkaoUpdatePitchLfoVoices();
     }
     g_AkaoControlFlags &= ~2;
 }
@@ -1109,7 +1109,7 @@ static void AkaoE4SetReverbMul(Unk8002CC44* arg0) {
         var_v0 = g_AkaoControlFlags & mask;
     }
     g_AkaoControlFlags = var_v0;
-    func_80030038();
+    AkaoUpdateReverbVoices();
     D_8009A13C |= 0x80;
 }
 
@@ -1132,7 +1132,7 @@ static void AkaoF8StreamReverbMaskClear(void) {
     temp_v1 = ~g_AkaoStreamMask;
     *addr &= temp_v1;
     g_AkaoReverbMask = temp_v1 & temp_a0;
-    func_80030038(temp_a0, addr);
+    AkaoUpdateReverbVoices(temp_a0, addr);
 }
 
 static void AkaoF9StreamReverbMaskRestore(void) {
@@ -1142,7 +1142,7 @@ static void AkaoF9StreamReverbMaskRestore(void) {
     temp_a0 = g_Channel3ActiveMask[0];
     g_Channel3ActiveMask[0] = ~g_AkaoStreamMask & temp_a0;
     g_AkaoReverbMask |= g_AkaoStreamMask;
-    func_80030038(temp_a0, g_Channel3ActiveMask, g_AkaoStreamMask);
+    AkaoUpdateReverbVoices(temp_a0, g_Channel3ActiveMask, g_AkaoStreamMask);
 }
 
 static void AkaoCmd_FA(void) { func_80029A50(); }
@@ -1154,7 +1154,7 @@ static void func_8002CFA0() { SpuSetTransferCallback(0); }
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CFC0);
 
 // Configures the voice-attribute block for a mono CD-stream voice (ADSR
-// envelope, pan, reverb-echo work area) and applies it via func_8002E23C.
+// envelope, pan, reverb-echo work area) and applies it via AkaoUpdateChannelParamsToSpu.
 static void AkaoStreamVoiceAttrMono(void) {
     g_AkaoVoiceAttrMask = 0x1FF93;
     D_8007EC02 = 0;
@@ -1170,7 +1170,7 @@ static void AkaoStreamVoiceAttrMono(void) {
     D_8007EC0C = (D_80062FB0 ^ 0x7F) * D_80062FAC >> 7;
     D_8007EC00 = D_80062F1E;
     D_8007EC0E = D_80062FAC * D_80062FB0 >> 7;
-    func_8002E23C(0x10, &g_AkaoVoiceAttr);
+    AkaoUpdateChannelParamsToSpu(0x10, &g_AkaoVoiceAttr);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D2D4);
@@ -1324,7 +1324,7 @@ static void AkaoStreamIrqCallbackSplit1(void) {
     SpuSetIRQ(1);
 }
 
-static void func_8002DA30(Unk8002B7E0** out_msg) {
+static void AkaoGetCommandQueue(Unk8002B7E0** out_msg) {
     *out_msg = D_80081DC8;
     *out_msg = &D_80081DC8[g_AkaoCommandQueueId];
     g_AkaoCommandQueueId++;
@@ -1334,7 +1334,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoExec);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002DF88);
 
-static void func_8002E1A8(void) {
+static void AkaoExecuteCommandsQueue(void) {
     Unk8002B7E0* msg;
 
     if (g_AkaoMutex == 0) {
@@ -1344,7 +1344,7 @@ static void func_8002E1A8(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002E23C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoUpdateChannelParamsToSpu);
 
 // Applies the current CD volume (g_AkaoCdVol) to the SPU's CD-input channel.
 // Confirmed against qgears' independent reverse-engineering (system_psyq_spu_
@@ -1358,39 +1358,39 @@ static void AkaoUpdateCdVolume(void) {
     SpuSetCommonAttr(&g_SpuCommonAttr);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002E478);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicUpdateSlideAndDelay);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002E954);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundUpdateSlideAndDelay);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002ED34);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicUpdatePitchAndVol);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002F24C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundUpdatePitchAndVol);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002F738);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoUpdateChannelAndOvlParamsToSpu);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002F848);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoUpdateKeysOn);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002FDA0);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCollectChannelsVoicesMask);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002FE48);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoUpdateKeysOff);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002FF4C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoUpdateNoiseVoices);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80030038);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoUpdateReverbVoices);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80030148);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoUpdatePitchLfoVoices);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80030234);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMain);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80030380);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800308D4);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMainUpdate);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80030E7C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoExecuteSequence);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80031820);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoInstrInit);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800318BC);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoGetNextNote);
 
 static u8 func_80031A70(u8** arg0) {
     u8 expected;
@@ -1615,7 +1615,7 @@ static void AkaoC4NoiseOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
         g_AkaoNoiseMask |= mask;
     }
     D_8009A13C |= 0x10;
-    func_8002FF4C();
+    AkaoUpdateNoiseVoices();
 }
 
 static void AkaoC5NoiseOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
@@ -1625,7 +1625,7 @@ static void AkaoC5NoiseOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
         g_AkaoNoiseMask &= ~mask;
     }
     D_8009A13C |= 0x10;
-    func_8002FF4C();
+    AkaoUpdateNoiseVoices();
     track->noiseSwitchDelay = 0;
 }
 
@@ -1635,7 +1635,7 @@ static void AkaoC6PitchLfoOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     } else if (!(mask & 0x555555)) {
         g_AkaoPitchLfoMask |= mask;
     }
-    func_80030148();
+    AkaoUpdatePitchLfoVoices();
 }
 
 static void AkaoC7PitchLfoOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
@@ -1644,7 +1644,7 @@ static void AkaoC7PitchLfoOff(AkaoChannel* track, AkaoConfig* config, u32 mask) 
     } else {
         g_AkaoPitchLfoMask &= ~mask;
     }
-    func_80030148();
+    AkaoUpdatePitchLfoVoices();
     track->pitchLfoSwitchDelay = 0;
 }
 
@@ -1654,7 +1654,7 @@ static void AkaoC2ReverbOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     } else {
         g_AkaoReverbMask |= mask;
     }
-    func_80030038();
+    AkaoUpdateReverbVoices();
 }
 
 static void AkaoC3ReverbOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
@@ -1663,7 +1663,7 @@ static void AkaoC3ReverbOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     } else {
         g_AkaoReverbMask &= ~mask;
     }
-    func_80030038();
+    AkaoUpdateReverbVoices();
 }
 
 static void func_80032D44(AkaoChannel* track) { track->initWith0_6E = 1; }

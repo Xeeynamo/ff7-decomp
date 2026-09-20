@@ -1069,3 +1069,28 @@ g_BattleItemsEarned = 0x8009D808;
 g_DebugLevel = 0x8009D820;
 g_FieldModelBaseAnimSpeed = 0x8009D828;
 g_ActiveCharacters = 0x8009D84C; // size:0x2700
+
+
+AkaoGetCommandQueue = 0x8002DA30;
+
+
+AkaoExecuteCommandsQueue = 0x8002E1A8;
+AkaoUpdateChannelParamsToSpu = 0x8002E23C;
+
+AkaoMusicUpdateSlideAndDelay = 0x8002E478;
+AkaoSoundUpdateSlideAndDelay = 0x8002E954;
+AkaoMusicUpdatePitchAndVol = 0x8002ED34;
+AkaoSoundUpdatePitchAndVol = 0x8002F24C;
+AkaoUpdateChannelAndOvlParamsToSpu = 0x8002F738;
+AkaoUpdateKeysOn = 0x8002F848;
+AkaoCollectChannelsVoicesMask = 0x8002FDA0;
+AkaoUpdateKeysOff = 0x8002FE48;
+AkaoUpdateNoiseVoices = 0x8002FF4C;
+AkaoUpdateReverbVoices = 0x80030038;
+AkaoUpdatePitchLfoVoices = 0x80030148;
+AkaoMain = 0x80030234;
+
+AkaoMainUpdate = 0x800308D4;
+AkaoExecuteSequence = 0x80030E7C;
+AkaoInstrInit = 0x80031820;
+AkaoGetNextNote = 0x800318BC;
