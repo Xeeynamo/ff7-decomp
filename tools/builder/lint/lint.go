@@ -9,8 +9,8 @@ import (
 
 // Options controls one Lint run.
 type Options struct {
-	Only    []string
-	Verbose bool
+	Only        []string
+	Verbose     bool
 	MinOverlaps int
 }
 
@@ -18,18 +18,26 @@ type Options struct {
 // whose real, compiler-measured byte ranges overlap, and prints one line per finding.
 // It returns an error when the number of overlapping pairs exceeds opts.MinOverlaps.
 func Lint(opts Options) error {
-	overlays, err := LoadOverlays()
+	all, err := LoadOverlays()
 	if err != nil {
 		return err
 	}
-	overlays, err = filterOverlays(overlays, opts.Only)
+	// The shared-region boundary and the symbol table come from every overlay, even
+	// when only a few are being linted, so that -only runs resolve the same addresses.
+	sharedEnd := SharedRegionEnd(all)
+	table, err := LoadSymbolTableUnion(all)
+	if err != nil {
+		return err
+	}
+
+	overlays, err := filterOverlays(all, opts.Only)
 	if err != nil {
 		return err
 	}
 
 	type overlayResult struct {
 		name     string
-		findings []Finding
+		symbols  []Symbol
 		resolver *StructResolver
 	}
 	results := make([]overlayResult, len(overlays))
@@ -38,11 +46,11 @@ func Lint(opts Options) error {
 	for i, ovl := range overlays {
 		i, ovl := i, ovl
 		eg.Go(func() error {
-			findings, resolver, err := lintOverlay(ovl, opts.Verbose)
+			symbols, resolver, err := lintOverlay(ovl, table, opts.Verbose)
 			if err != nil {
 				return fmt.Errorf("%s: %w", ovl.Name, err)
 			}
-			results[i] = overlayResult{name: ovl.Name, findings: findings, resolver: resolver}
+			results[i] = overlayResult{name: ovl.Name, symbols: symbols, resolver: resolver}
 			return nil
 		})
 	}
@@ -52,9 +60,24 @@ func Lint(opts Options) error {
 
 	findingsByOverlay := map[string][]Finding{}
 	resolvers := map[string]*StructResolver{}
+
+	// Overlay-local symbols are only compared within their own overlay: overlays that
+	// share a vram_start are never resident together, so comparing them would invent
+	// overlaps. Shared-region symbols are pooled and compared once, across everything.
+	var shared []Symbol
 	for _, r := range results {
-		findingsByOverlay[r.name] = r.findings
 		resolvers[r.name] = r.resolver
+		local, sh := splitByRegion(r.symbols, sharedEnd)
+		findingsByOverlay[r.name] = findOverlaps(local)
+		shared = append(shared, sh...)
+	}
+	if len(shared) > 0 {
+		findingsByOverlay[SharedScope] = findOverlaps(mergeSymbols(shared))
+		rs := make([]*StructResolver, 0, len(results))
+		for _, r := range results {
+			rs = append(rs, r.resolver)
+		}
+		resolvers[SharedScope] = NewStructResolverUnion(rs)
 	}
 
 	n := Report(os.Stdout, os.Stderr, findingsByOverlay, resolvers)
@@ -64,12 +87,24 @@ func Lint(opts Options) error {
 	return nil
 }
 
-func lintOverlay(ovl Overlay, verbose bool) ([]Finding, *StructResolver, error) {
-	table, err := LoadSymbolTable(ovl.SymbolAddrsPath)
-	if err != nil {
-		return nil, nil, err
-	}
+// SharedScope is the reporting bucket for findings in the always-resident region,
+// which belong to no single overlay.
+const SharedScope = "(shared)"
 
+// splitByRegion separates an overlay's symbols into the ones private to it and the
+// ones in the always-resident region below sharedEnd.
+func splitByRegion(syms []Symbol, sharedEnd uint32) (local, shared []Symbol) {
+	for _, s := range syms {
+		if sharedEnd != 0 && s.Addr < sharedEnd {
+			shared = append(shared, s)
+		} else {
+			local = append(local, s)
+		}
+	}
+	return local, shared
+}
+
+func lintOverlay(ovl Overlay, table map[string]uint32, verbose bool) ([]Symbol, *StructResolver, error) {
 	type tuResult struct {
 		symbols []Symbol
 		structs map[string]StructDef
@@ -136,9 +171,6 @@ func lintOverlay(ovl Overlay, verbose bool) ([]Finding, *StructResolver, error) 
 		}
 	}
 
-	merged := mergeSymbols(perTU...)
-	findings := findOverlaps(merged)
-
 	resolver := NewStructResolver(allStructs)
-	return findings, resolver, nil
+	return mergeSymbols(perTU...), resolver, nil
 }

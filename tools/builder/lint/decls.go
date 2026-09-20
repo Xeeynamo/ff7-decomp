@@ -35,8 +35,12 @@ var lineMarkerRe = regexp.MustCompile(`^# (\d+) "([^"]*)"`)
 // declRe matches one single-line file-scope declaration or definition, terminated by
 // the same line it starts on. Function declarations and pointers-to-function are
 // filtered out by the caller because they contain '(' before the terminator.
+//
+// The qualifier group repeats so any mix of const/volatile survives, and it must not
+// swallow the type: without it "extern volatile s32 D_8009D268[];" parses as type
+// "volatile" named "s32".
 var declRe = regexp.MustCompile(
-	`^(extern\s+)?(static\s+)?(const\s+)?(struct\s+\w+|\w+)\s*(\**)\s*(_?[A-Za-z_]\w*)\s*((?:\[[^\]]*\])*)\s*(=|;)`)
+	`^(extern\s+)?(static\s+)?((?:(?:const|volatile)\s+)*)(struct\s+\w+|\w+)\s*(\**)\s*(_?[A-Za-z_]\w*)\s*((?:\[[^\]]*\])*)\s*(=|;)`)
 
 // preprocess runs the cross preprocessor over src with the flags gen.py uses for the
 // psx-cc rule, minus -DUSE_INCLUDE_ASM and -Wall so INCLUDE_ASM(...) expands to nothing
@@ -139,7 +143,7 @@ func scanDecls(pre []byte, tuPath string) ([]Decl, []StructDef) {
 	return decls, structs
 }
 
-var structFieldRe = regexp.MustCompile(`^\s*(?:const\s+)?[A-Za-z_]\w*\s*\**\s*([A-Za-z_]\w*)\s*(?:\[[^\]]*\])*\s*;`)
+var structFieldRe = regexp.MustCompile(`^\s*(?:(?:const|volatile)\s+)*[A-Za-z_]\w*\s*\**\s*([A-Za-z_]\w*)\s*(?:\[[^\]]*\])*\s*;`)
 var structTypedefNameRe = regexp.MustCompile(`\}\s*([A-Za-z_]\w*)\s*;`)
 
 // parseDims splits a run of [..] groups into their raw contents. The first group empty
