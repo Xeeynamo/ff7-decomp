@@ -789,7 +789,7 @@ void AkaoCmd_9A_FlushPendingMusicUpdates(void) {
         savedMask = g_AkaoMusicActiveMaskStored;
         g_AkaoMusicActiveMaskStored = 0;
         g_AkaoMusicActiveMask = savedMask;
-        AkaoUpdateNoiseVoices(bit, pendingBits);
+        AkaoUpdateNoiseVoices();
         AkaoUpdateReverbVoices();
         AkaoUpdatePitchLfoVoices();
     }
@@ -849,7 +849,7 @@ void AkaoCmd_9C_FlushPendingSoundUpdates(void) {
         savedMask = g_AkaoSoundActiveMaskStored;
         g_AkaoSoundActiveMaskStored = 0;
         g_Channel3ActiveMask[0] = savedMask;
-        AkaoUpdateNoiseVoices(bit);
+        AkaoUpdateNoiseVoices();
         AkaoUpdateReverbVoices();
         AkaoUpdatePitchLfoVoices();
     }
@@ -908,7 +908,7 @@ static void AkaoCmd_F8_StreamReverbMaskClear(void) {
     temp_v1 = ~g_AkaoStreamMask;
     *addr &= temp_v1;
     g_AkaoReverbMask = temp_v1 & temp_a0;
-    AkaoUpdateReverbVoices(temp_a0, addr);
+    AkaoUpdateReverbVoices();
 }
 
 static void AkaoCmd_F9_StreamReverbMaskRestore(void) {
@@ -918,7 +918,7 @@ static void AkaoCmd_F9_StreamReverbMaskRestore(void) {
     temp_a0 = g_Channel3ActiveMask[0];
     g_Channel3ActiveMask[0] = ~g_AkaoStreamMask & temp_a0;
     g_AkaoReverbMask |= g_AkaoStreamMask;
-    AkaoUpdateReverbVoices(temp_a0, g_Channel3ActiveMask, g_AkaoStreamMask);
+    AkaoUpdateReverbVoices();
 }
 
 static void AkaoCmd_FA(void) { func_80029A50(); }
