@@ -248,9 +248,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferSync);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoInitData);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800297A4);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoLoadInstr);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029818);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoLoadInstr2);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002988C);
 

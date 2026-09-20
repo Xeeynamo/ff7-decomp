@@ -67,7 +67,7 @@ static void func_80011274(void) {
         }
     }
 
-    func_80029818((u32*)0x800A0000, (u32*)0x800E0000);
+    AkaoLoadInstr2((u32*)0x800A0000, (u32*)0x800E0000);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800112E8);
