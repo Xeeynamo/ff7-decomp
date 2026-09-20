@@ -150,11 +150,11 @@ typedef struct {
     u8 pad4[0x18];
     s32 unkE0;
     u8 pad5[0x24];
-} Unk80099788Half; // size 0x108
+} AkaoChannel; // size 0x108
 
 typedef struct {
-    Unk80099788Half half0;
-    Unk80099788Half half1;
+    AkaoChannel half0;
+    AkaoChannel half1;
 } Unk80099788; // size 0x210
 
 typedef struct {
@@ -266,14 +266,14 @@ static void AkaoSpuWrite(s32 addr, s32 size) {
     SpuWrite(addr, size);
 }
 
-static void func_80029464(s32 addr, s32 size) {
+static void AkaoSpuRead(s32 addr, s32 size) {
     AkaoSpuTransferPrep();
     SpuRead(addr, size);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferSync);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800294BC);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoInitData);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800297A4);
 
@@ -1087,7 +1087,7 @@ void Akao9DApplyPendingSoundUpdates(void) {
 
 // channels_3 counterpart to Akao9AFlushPendingMusicUpdates.
 void Akao9CFlushPendingSoundUpdates(void) {
-    Unk80099788Half* half;
+    AkaoChannel* half;
     s32 savedMask;
     s32 bit;
     s32 pendingBits;

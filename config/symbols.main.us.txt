@@ -244,6 +244,8 @@ SysMenuDrawDigitsWithLeadingZeroes = 0x80029114;
 AkaoSpuTransferComplete = 0x800293D0;
 AkaoSpuTransferPrep = 0x800293F4;
 AkaoSpuWrite = 0x80029424;
+AkaoSpuRead = 0x80029464;
+AkaoSpuTransferSync = 0x800294A4;
 SetReverbMode = 0x80029AF0;
 SoundChannelInit = 0x80029BAC;
 AkaoC0VolumeSet = 0x8002BA5C;
@@ -342,6 +344,7 @@ SpuSetIRQCallback = 0x80038C04;
 _SpuCallback = 0x80038C48;
 SpuSetKey = 0x80038C6C;
 SpuGetKeyStatus = 0x80038E70;
+SpuWrite = 0x80038F04;
 SpuSetTransferStartAddr = 0x80038F64;
 SpuSetTransferMode = 0x80038FB8;
 SpuSetTransferCallback = 0x80038FEC;
@@ -971,7 +974,4 @@ g_BattleItemsEarned = 0x8009D808;
 g_DebugLevel = 0x8009D820;
 g_FieldModelBaseAnimSpeed = 0x8009D828;
 g_ActiveCharacters = 0x8009D84C; // size:0x2700
-
-SpuWrite = 0x80038F04;
-
-AkaoSpuTransferSync = 0x800294A4;
+AkaoInitData = 0x800294BC;
