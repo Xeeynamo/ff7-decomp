@@ -665,12 +665,9 @@ void func_800A4E40(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleEnableLimitToPlayerWithSpeed);
 
-static void BattleEnableLimitToPlayerWithoutSpeed(s32 arg0) {
-    s32 temp_v0;
-
-    temp_v0 = arg0 * 0x44;
-    *(u16*)((u8*)&g_BattleWork.turn[0].limitSpeedFlag + temp_v0) &= 0xFFFE;
-    *(u8*)((u8*)&g_BattleWork.turn[0].hasLimitBreak + temp_v0) |= 1;
+static void BattleEnableLimitToPlayerWithoutSpeed(s32 turnIdx) {
+    g_BattleWork.turn[turnIdx].limitSpeedFlag &= ~1;
+    g_BattleWork.turn[turnIdx].hasLimitBreak |= 1;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4F60);
@@ -679,19 +676,16 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A50E0);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A5250);
 
-static void func_800A555C(s32 arg0, s32 arg1) {
-    u8* row;
-    u16 value;
+static void func_800A555C(s32 charIdx, s32 magicId) {
+    MagicRecord* magic;
+    u16 mpCost;
 
-    row = D_8009D866[arg0].effects;
-    row += arg1 * 8;
+    magic = &g_ActiveCharacters[charIdx].enabledMagic[magicId];
 
-    row[6] = 2;
-    row[5] = D_800708C4[arg1].targetFlags;
-    value = D_800708C4[arg1].mpCost;
-    arg1 -= 0x48;
-    row[0] = arg1;
-    row[1] = value;
+    magic->menuflags = 2;
+    magic->targetFlags = D_800708C4[magicId].targetFlags;
+    magic->mpCost = D_800708C4[magicId].mpCost;
+    magic->id = magicId - 0x48;
 }
 
 typedef struct {
@@ -899,14 +893,14 @@ void BattleResetManipulatorTimer(s32 arg0) {
 
 void func_800A6590(s32 arg0) { func_800A4D88(arg0); }
 
-void BattleEnableLimitToPlayerResettingBar(s32 arg0, s32 arg1) {
+void BattleEnableLimitToPlayerResettingBar(s32 charIdx, s32 arg1) {
     u16* p;
 
-    if (arg0 < NUM_PARTY) {
-        BattleEnableLimitToPlayerWithoutSpeed(arg0);
-        D_8009D866[arg0].unk0 = 0;
+    if (charIdx < NUM_PARTY) {
+        BattleEnableLimitToPlayerWithoutSpeed(charIdx);
+        g_ActiveCharacters[charIdx].unk1A = 0;
         p = &D_80163762;
-        *p &= ~(1 << arg0);
+        *p &= ~(1 << charIdx);
     }
 }
 

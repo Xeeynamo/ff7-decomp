@@ -32,7 +32,6 @@ extern StatGrowth D_80082484[][8];
 extern s32 D_8009D7D8;
 extern s32 D_8009D7DC;
 extern s32 D_8009D7E0;
-extern u8 D_8009D58A[]; // gil, stored unaligned, so it is copied a byte at a time
 extern u8 D_80163790[]; // the char_id occupying each of the three party slots
 extern SavePartyMember D_80167938;
 
@@ -55,11 +54,11 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     s32 leader;
 
     for (i = 0; i < 4; i++) { // the save's gil field is not aligned
-        gil[i] = D_8009D58A[i];
+        gil[i] = Savemap.memory_bank_4[i + 2];
     }
     *(s32*)gil += D_8009D7DC;
     for (i = 0; i < 4; i++) {
-        D_8009D58A[i] = gil[i];
+        Savemap.memory_bank_4[i + 2] = gil[i];
     }
     for (slot = 0; slot < NUM_PARTY; slot++) {
         hp = g_BattleState.combatant[slot].curHP;

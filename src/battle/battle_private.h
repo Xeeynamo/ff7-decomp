@@ -18,13 +18,6 @@ typedef struct {
 } Unk800BB67C;
 
 typedef struct {
-    /* 0x000 */ u16 unk0;
-    /* 0x002 */ u8 pad[0x90];
-    /* 0x092 */ u8 unk92[0x5C];
-    /* 0x0EE */ u8 effects[0x352];
-} Unk8009D866; // 0x440
-
-typedef struct {
     s8 actionId;
     s8 unk1;
     s8 unk2;
@@ -252,10 +245,6 @@ typedef struct {
     s32 unk8;
 } Unk800F57D0;
 
-extern u8 D_800492FC[];
-extern u8 D_8009CBDC[];
-extern Unk8009D866 D_8009D866[];
-extern u8 D_8009D8F8[];
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];

@@ -72,7 +72,6 @@ void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* ra
 INCLUDE_ASM("asm/us/field/nonmatchings/field_rain", FieldRainUpdate);
 #else
 
-extern u8 g_RainControl;
 extern s16 g_PlayerModelId;
 
 extern FieldEntity g_FieldEntities[];
@@ -85,7 +84,7 @@ void FieldRainUpdate(void) {
     s32 max = 255;
     s32 vz;
 
-    if ((g_RainControl & 0x80) == 0) {
+    if ((Savemap.memory_bank_5[0x83] & 0x80) == 0) {
         if (g_RainForce != 0) {
             g_RainForce--;
         }

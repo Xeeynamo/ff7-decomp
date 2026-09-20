@@ -48,13 +48,13 @@ typedef struct FieldModelLzsRequest {
 extern u8* D_80075E10;
 extern MATRIX* D_80083270;
 extern MATRIX** D_80083578;
-extern u8 D_8009AC2D;
 extern u32 D_800DA5C8[];
 extern u8 D_800DF08C[];
 extern u8 D_800DF0D4[];
 extern s32* D_800DFCA0;
 extern u8* D_800E0204;
 extern u16 D_80114488;
+extern u8 SavedScriptIds[48][8];
 
 void StopFieldMapPreload(void);
 s32 FieldCalcLinearStep(s32 start, s32 target, s32 duration, s32 step);
