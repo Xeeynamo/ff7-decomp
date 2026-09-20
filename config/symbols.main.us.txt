@@ -249,8 +249,33 @@ AkaoSpuTransferSync = 0x800294A4;
 AkaoInitData = 0x800294BC;
 AkaoLoadInstr = 0x800297A4;
 AkaoLoadInstr2 = 0x80029818;
+AkaoStart = 0x8002988C;
+AkaoLoadEffect = 0x80029998;
+AkaoDeinit = 0x800299C8;
 SetReverbMode = 0x80029AF0;
+AkaoCopyMusic = 0x80029B78;
 SoundChannelInit = 0x80029BAC;
+AkaoMusicChannelsInit = 0x80029C48;
+AkaoMusicStopChannels1 = 0x80029E98;
+AkaoMusicStopChannels12 = 0x80029F44;
+AkaoSoundChannelsInit = 0x8002A094;
+AkaoSoundMenuChannelsInit = 0x8002A28C;
+AkaoSoundChannelsStop = 0x8002A43C;
+AkaoSoundChannelsClear = 0x8002A510;
+AkaoSoundGetSequence = 0x8002A6C4;
+AkaoMusicVolReset = 0x8002A748;
+AkaoSoundVolReset = 0x8002A798;
+AkaoMusicRestoreChannelsAndConfig = 0x8002AABC;
+AkaoMusicCopyChannels1Into2 = 0x8002AFB8;
+AkaoCmd_10 = 0x8002B1F8;
+AkaoCmd_14 = 0x8002B2F8;
+AkaoCmd_15 = 0x8002B3B4;
+AkaoCmd_18 = 0x8002B5A8;
+AkaoCmd_19 = 0x8002B608;
+AkaoCmd_34 = 0x8002B668;
+AkaoCmd_21 = 0x8002B6AC;
+AkaoCmd_22 = 0x8002B730;
+AkaoCmd_23 = 0x8002B7E0;
 AkaoC0VolumeSet = 0x8002BA5C;
 AkaoC1VolumeSlideFromCurrent = 0x8002BA98;
 AkaoC2VolumeSlideBetweenTargets = 0x8002BB20;
@@ -996,37 +1021,61 @@ g_FieldModelBaseAnimSpeed = 0x8009D828;
 g_ActiveCharacters = 0x8009D84C; // size:0x2700
 
 
-AkaoStart = 0x8002988C;
-AkaoLoadEffect = 0x80029998;
-AkaoDeinit = 0x800299C8;
+AkaoCmd_30 = 0x8002B8B4;
+AkaoCmd_20 = 0x8002B904;
+AkaoCmd_29 = 0x8002B958;
+AkaoCmd_2A = 0x8002B9AC;
+AkaoCmd_2B = 0x8002BA08;
+AkaoCmd_C8 = 0x8002BBB4;
 
 
-AkaoCopyMusic = 0x80029B78;
-
-AkaoMusicChannelsInit = 0x80029C48;
-AkaoMusicStopChannels1 = 0x80029E98;
-AkaoMusicStopChannels12 = 0x80029F44;
-AkaoSoundChannelsInit = 0x8002A094;
-AkaoSoundMenuChannelsInit = 0x8002A28C;
-AkaoSoundChannelsStop = 0x8002A43C;
-AkaoSoundChannelsClear = 0x8002A510;
-AkaoSoundGetSequence = 0x8002A6C4;
-AkaoMusicVolReset = 0x8002A748;
-AkaoSoundVolReset = 0x8002A798;
-
-AkaoMusicRestoreChannelsAndConfig = 0x8002AABC;
-
-AkaoMusicCopyChannels1Into2 = 0x8002AFB8;
-
-AkaoCmd_10 = 0x8002B1F8;
-AkaoCmd_14 = 0x8002B2F8;
+AkaoCmd_B8 = 0x8002BDCC;
+AkaoCmd_B9 = 0x8002BE2C;
+AkaoCmd_A0 = 0x8002BE8C;
+AkaoCmd_A4 = 0x8002BEB4;
+AkaoCmd_A1 = 0x8002BEDC;
+AkaoCmd_A5 = 0x8002BF04;
+AkaoCmd_A2 = 0x8002BF2C;
+AkaoCmd_A6 = 0x8002BF54;
+AkaoCmd_A3 = 0x8002BF7C;
+AkaoCmd_A7 = 0x8002BFA4;
 
 
-AkaoCmd_15 = 0x8002B3B4;
+AkaoCmd_BA = 0x8002C0CC;
+AkaoCmd_BB = 0x8002C12C;
+AkaoCmd_A8 = 0x8002C18C;
+AkaoCmd_AC = 0x8002C1B4;
+AkaoCmd_A9 = 0x8002C1DC;
+AkaoCmd_AD = 0x8002C204;
+AkaoCmd_AA = 0x8002C22C;
+AkaoCmd_AE = 0x8002C254;
+AkaoCmd_AB = 0x8002C27C;
+AkaoCmd_AF = 0x8002C2A4;
 
-AkaoCmd_18 = 0x8002B5A8;
-AkaoCmd_19 = 0x8002B608;
-AkaoCmd_34 = 0x8002B668;
-AkaoCmd_21 = 0x8002B6AC;
-AkaoCmd_22 = 0x8002B730;
-AkaoCmd_23 = 0x8002B7E0;
+
+AkaoCmd_BC = 0x8002C3A8;
+AkaoCmd_BD = 0x8002C408;
+AkaoCmd_B0 = 0x8002C468;
+AkaoCmd_B4 = 0x8002C490;
+AkaoCmd_B1 = 0x8002C4B8;
+AkaoCmd_B5 = 0x8002C4E0;
+AkaoCmd_B2 = 0x8002C508;
+AkaoCmd_B6 = 0x8002C530;
+AkaoCmd_B3 = 0x8002C558;
+AkaoCmd_B7 = 0x8002C580;
+AkaoCmd_D0 = 0x8002C5A8;
+
+AkaoCmd_D4 = 0x8002C6A8;
+AkaoCmd_F0 = 0x8002C7A8;
+AkaoCmd_F1 = 0x8002C7C8;
+AkaoCmd_80 = 0x8002C7E8;
+AkaoCmd_82 = 0x8002C81C;
+AkaoCmd_90 = 0x8002C884;
+AkaoCmd_92 = 0x8002C8C4;
+
+AkaoCmd_F2 = 0x8002CCBC;
+AkaoCmd_F3 = 0x8002CCCC;
+AkaoCmd_F4 = 0x8002CCDC;
+AkaoCmd_F5 = 0x8002CDD0;
+AkaoCmd_FA = 0x8002CF78;
+AkaoCmd_Null = 0x8002CF98;

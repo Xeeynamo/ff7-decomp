@@ -522,7 +522,7 @@ void AkaoCmd_23(Unk8002B7E0* arg0) {
     AkaoSoundChannelsInit(arg0->unk4, 0x36, sp10, sp14);
 }
 
-void func_8002B8B4(Unk8002B7E0* arg0) {
+void AkaoCmd_30(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(6, 1);
@@ -530,7 +530,7 @@ void func_8002B8B4(Unk8002B7E0* arg0) {
     AkaoSoundMenuChannelsInit(sp10, sp14);
 }
 
-void func_8002B904(Unk8002B7E0* arg0) {
+void AkaoCmd_20(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(4, 1);
@@ -538,7 +538,7 @@ void func_8002B904(Unk8002B7E0* arg0) {
     AkaoSoundChannelsInit(arg0->unk4, 0x34, sp10, sp14);
 }
 
-void func_8002B958(Unk8002B7E0* arg0) {
+void AkaoCmd_29(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(2, 1);
@@ -546,7 +546,7 @@ void func_8002B958(Unk8002B7E0* arg0) {
     AkaoSoundChannelsInit(arg0->unk4, 0x32, sp10, sp14);
 }
 
-void func_8002B9AC(Unk8002B7E0* arg0) {
+void AkaoCmd_2A(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(0, 1);
@@ -555,7 +555,7 @@ void func_8002B9AC(Unk8002B7E0* arg0) {
     AkaoSoundChannelsInit(arg0->unk4, 0x30, sp10, sp14);
 }
 
-void func_8002BA08(Unk8002B7E0* arg0) {
+void AkaoCmd_2B(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(6, 1);
@@ -618,7 +618,7 @@ void AkaoC2VolumeSlideBetweenTargets(Unk8002BB20* arg0) {
     AkaoMusicVolReset();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BBB4);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_C8);
 
 typedef struct {
     u32 unk0;
@@ -698,7 +698,7 @@ static void func_8002BCCC(void* arg0, void* arg1) {
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BD04);
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
-void func_8002BDCC(void* arg0) {
+void AkaoCmd_B8(void* arg0) {
     func_8002BCCC(arg0, &g_Channel3[6]);
     func_8002BCCC(arg0, &g_Channel3[4]);
     func_8002BCCC(arg0, &g_Channel3[2]);
@@ -706,28 +706,28 @@ void func_8002BDCC(void* arg0) {
 }
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
-void func_8002BE2C(void* arg0) {
+void AkaoCmd_B9(void* arg0) {
     func_8002BD04(arg0, &g_Channel3[6]);
     func_8002BD04(arg0, &g_Channel3[4]);
     func_8002BD04(arg0, &g_Channel3[2]);
     func_8002BD04(arg0, &g_Channel3[0]);
 }
 
-void func_8002BE8C(void* arg0) { func_8002BCCC(arg0, &g_Channel3[4]); }
+void AkaoCmd_A0(void* arg0) { func_8002BCCC(arg0, &g_Channel3[4]); }
 
-void func_8002BEB4(s32 arg0) { func_8002BD04(arg0, &g_Channel3[4]); }
+void AkaoCmd_A4(s32 arg0) { func_8002BD04(arg0, &g_Channel3[4]); }
 
-void func_8002BEDC(void* arg0) { func_8002BCCC(arg0, &g_Channel3[2]); }
+void AkaoCmd_A1(void* arg0) { func_8002BCCC(arg0, &g_Channel3[2]); }
 
-void func_8002BF04(s32 arg0) { func_8002BD04(arg0, &g_Channel3[2]); }
+void AkaoCmd_A5(s32 arg0) { func_8002BD04(arg0, &g_Channel3[2]); }
 
-void func_8002BF2C(void* arg0) { func_8002BCCC(arg0, &g_Channel3[0]); }
+void AkaoCmd_A2(void* arg0) { func_8002BCCC(arg0, &g_Channel3[0]); }
 
-void func_8002BF54(s32 arg0) { func_8002BD04(arg0, &g_Channel3[0]); }
+void AkaoCmd_A6(s32 arg0) { func_8002BD04(arg0, &g_Channel3[0]); }
 
-void func_8002BF7C(void* arg0) { func_8002BCCC(arg0, &g_Channel3[6]); }
+void AkaoCmd_A3(void* arg0) { func_8002BCCC(arg0, &g_Channel3[6]); }
 
-void func_8002BFA4(s32 arg0) { func_8002BD04(arg0, &g_Channel3[6]); }
+void AkaoCmd_A7(s32 arg0) { func_8002BD04(arg0, &g_Channel3[6]); }
 
 // Same shape as func_8002BCCC (two 0x108-byte halves, shared +0xE0 control
 // word), at a different pitch/clear field within each half.
@@ -749,7 +749,7 @@ static void func_8002BFCC(void* arg0, void* arg1) {
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C004);
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
-void func_8002C0CC(void* arg0) {
+void AkaoCmd_BA(void* arg0) {
     func_8002BFCC(arg0, &g_Channel3[6]);
     func_8002BFCC(arg0, &g_Channel3[4]);
     func_8002BFCC(arg0, &g_Channel3[2]);
@@ -757,28 +757,28 @@ void func_8002C0CC(void* arg0) {
 }
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
-void func_8002C12C(void* arg0) {
+void AkaoCmd_BB(void* arg0) {
     func_8002C004(arg0, &g_Channel3[6]);
     func_8002C004(arg0, &g_Channel3[4]);
     func_8002C004(arg0, &g_Channel3[2]);
     func_8002C004(arg0, &g_Channel3[0]);
 }
 
-void func_8002C18C(void* arg0) { func_8002BFCC(arg0, &g_Channel3[4]); }
+void AkaoCmd_A8(void* arg0) { func_8002BFCC(arg0, &g_Channel3[4]); }
 
-void func_8002C1B4(s32 arg0) { func_8002C004(arg0, &g_Channel3[4]); }
+void AkaoCmd_AC(s32 arg0) { func_8002C004(arg0, &g_Channel3[4]); }
 
-void func_8002C1DC(void* arg0) { func_8002BFCC(arg0, &g_Channel3[2]); }
+void AkaoCmd_A9(void* arg0) { func_8002BFCC(arg0, &g_Channel3[2]); }
 
-void func_8002C204(s32 arg0) { func_8002C004(arg0, &g_Channel3[2]); }
+void AkaoCmd_AD(s32 arg0) { func_8002C004(arg0, &g_Channel3[2]); }
 
-void func_8002C22C(void* arg0) { func_8002BFCC(arg0, &g_Channel3[0]); }
+void AkaoCmd_AA(void* arg0) { func_8002BFCC(arg0, &g_Channel3[0]); }
 
-void func_8002C254(s32 arg0) { func_8002C004(arg0, &g_Channel3[0]); }
+void AkaoCmd_AE(s32 arg0) { func_8002C004(arg0, &g_Channel3[0]); }
 
-void func_8002C27C(void* arg0) { func_8002BFCC(arg0, &g_Channel3[6]); }
+void AkaoCmd_AB(void* arg0) { func_8002BFCC(arg0, &g_Channel3[6]); }
 
-void func_8002C2A4(s32 arg0) { func_8002C004(arg0, &g_Channel3[6]); }
+void AkaoCmd_AF(s32 arg0) { func_8002C004(arg0, &g_Channel3[6]); }
 
 // Same shape as func_8002BCCC/func_8002BFCC (two 0x108-byte halves, shared
 // +0xE0 control word), at a third pitch/clear field, setting flag bit 0x10
@@ -802,7 +802,7 @@ static void func_8002C2CC(void* arg0, void* arg1) {
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C300);
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
-void func_8002C3A8(void* arg0) {
+void AkaoCmd_BC(void* arg0) {
     func_8002C2CC(arg0, &g_Channel3[6]);
     func_8002C2CC(arg0, &g_Channel3[4]);
     func_8002C2CC(arg0, &g_Channel3[2]);
@@ -810,30 +810,30 @@ void func_8002C3A8(void* arg0) {
 }
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
-void func_8002C408(void* arg0) {
+void AkaoCmd_BD(void* arg0) {
     func_8002C300(arg0, &g_Channel3[6]);
     func_8002C300(arg0, &g_Channel3[4]);
     func_8002C300(arg0, &g_Channel3[2]);
     func_8002C300(arg0, &g_Channel3[0]);
 }
 
-void func_8002C468(void* arg0) { func_8002C2CC(arg0, &g_Channel3[4]); }
+void AkaoCmd_B0(void* arg0) { func_8002C2CC(arg0, &g_Channel3[4]); }
 
-void func_8002C490(s32 arg0) { func_8002C300(arg0, &g_Channel3[4]); }
+void AkaoCmd_B4(s32 arg0) { func_8002C300(arg0, &g_Channel3[4]); }
 
-void func_8002C4B8(void* arg0) { func_8002C2CC(arg0, &g_Channel3[2]); }
+void AkaoCmd_B1(void* arg0) { func_8002C2CC(arg0, &g_Channel3[2]); }
 
-void func_8002C4E0(s32 arg0) { func_8002C300(arg0, &g_Channel3[2]); }
+void AkaoCmd_B5(s32 arg0) { func_8002C300(arg0, &g_Channel3[2]); }
 
-void func_8002C508(void* arg0) { func_8002C2CC(arg0, &g_Channel3[0]); }
+void AkaoCmd_B2(void* arg0) { func_8002C2CC(arg0, &g_Channel3[0]); }
 
-void func_8002C530(s32 arg0) { func_8002C300(arg0, &g_Channel3[0]); }
+void AkaoCmd_B6(s32 arg0) { func_8002C300(arg0, &g_Channel3[0]); }
 
-void func_8002C558(void* arg0) { func_8002C2CC(arg0, &g_Channel3[6]); }
+void AkaoCmd_B3(void* arg0) { func_8002C2CC(arg0, &g_Channel3[6]); }
 
-void func_8002C580(s32 arg0) { func_8002C300(arg0, &g_Channel3[6]); }
+void AkaoCmd_B7(s32 arg0) { func_8002C300(arg0, &g_Channel3[6]); }
 
-void func_8002C5A8(Unk8002C5A8* arg0) {
+void AkaoCmd_D0(Unk8002C5A8* arg0) {
     s32 n = arg0->unk4;
     g_AkaoTempoMulMusicSlideSteps = 0;
     g_AkaoTempoMulMusic = n << 0x10;
@@ -880,7 +880,7 @@ void AkaoD2TempoSlideBetweenTargets(Unk8002C5A8* arg0) {
     g_AkaoTempoMulMusicSlideStep = new_var / var_a1;
 }
 
-void func_8002C6A8(Unk8002C5A8* arg0) {
+void AkaoCmd_D4(Unk8002C5A8* arg0) {
     s32 n = arg0->unk4;
     g_AkaoPitchMulMusicSlideSteps = 0;
     g_AkaoPitchMulMusic = n << 0x10;
@@ -929,17 +929,17 @@ void AkaoD6PitchSlideBetweenTargets(Unk8002C5A8* arg0) {
     g_AkaoPitchMulMusicSlideStep = new_var / var_a1;
 }
 
-static void func_8002C7A8(void) { AkaoMusicStopChannels12(); }
+static void AkaoCmd_F0(void) { AkaoMusicStopChannels12(); }
 
-static void func_8002C7C8(void) { AkaoSoundChannelsStop(); }
+static void AkaoCmd_F1(void) { AkaoSoundChannelsStop(); }
 
-static void func_8002C7E8(void) {
+static void AkaoCmd_80(void) {
     g_Channel1Config = 1;
     AkaoMusicVolReset();
     AkaoSoundVolReset();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C81C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_82);
 
 static void Akao81SetMonoMode(void) {
     g_Channel1Config = 2;
@@ -947,9 +947,9 @@ static void Akao81SetMonoMode(void) {
     AkaoSoundVolReset();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C884);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_90);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C8C4);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_92);
 
 void func_8002E23C(s32, void*);
 
@@ -1113,13 +1113,13 @@ static void AkaoE4SetReverbMul(Unk8002CC44* arg0) {
     D_8009A13C |= 0x80;
 }
 
-static void func_8002CCBC(void) { D_8008337E = 0; }
+static void AkaoCmd_F2(void) { D_8008337E = 0; }
 
-static void func_8002CCCC(void) { D_800833DE = 0; }
+static void AkaoCmd_F3(void) { D_800833DE = 0; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CCDC);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_F4);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CDD0);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_F5);
 
 static void AkaoF8StreamReverbMaskClear(void) {
     s32* addr;
@@ -1145,9 +1145,9 @@ static void AkaoF9StreamReverbMaskRestore(void) {
     func_80030038(temp_a0, g_Channel3ActiveMask, g_AkaoStreamMask);
 }
 
-static void func_8002CF78(void) { func_80029A50(); }
+static void AkaoCmd_FA(void) { func_80029A50(); }
 
-void func_8002CF98(Unk8002B7E0* arg0) {}
+void AkaoCmd_Null(Unk8002B7E0* arg0) {}
 
 static void func_8002CFA0() { SpuSetTransferCallback(0); }
 
