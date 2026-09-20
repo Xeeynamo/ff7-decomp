@@ -70,7 +70,7 @@
 /* 80062FBC */ glabel D_80062FBC;                           .space 4     # !!GP!! 17238.c
 /* 80062FC0 */ glabel D_80062FC0;                           .space 4     # !!GP!! 1F6B4.c
 /* 80062FC4 */ glabel D_80062FC4;                           .space 4     # !!GP!! 26B70.c (SysMenuSetOtag, SysMenuSetDrawenv, ...)
-/* 80062FC8 */ glabel D_80062FC8;                           .space 4     # akao.c (func_8002B5A8, func_8002B608)
+/* 80062FC8 */ glabel D_80062FC8;                           .space 4     # akao.c (AkaoCmd_18, AkaoCmd_19)
 /* 80062FCC */ glabel g_AkaoCdVolSlideSteps;                .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062FD0 */ glabel D_80062FD0;                           .space 4
 /* 80062FD4 */ glabel g_AkaoCdVol;                          .space 4     # !!GP!! akao.c (AkaoUpdateCdVolume, AkaoInitData)

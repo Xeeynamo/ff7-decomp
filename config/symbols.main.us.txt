@@ -1018,3 +1018,15 @@ AkaoMusicRestoreChannelsAndConfig = 0x8002AABC;
 
 AkaoMusicCopyChannels1Into2 = 0x8002AFB8;
 
+AkaoCmd_10 = 0x8002B1F8;
+AkaoCmd_14 = 0x8002B2F8;
+
+
+AkaoCmd_15 = 0x8002B3B4;
+
+AkaoCmd_18 = 0x8002B5A8;
+AkaoCmd_19 = 0x8002B608;
+AkaoCmd_34 = 0x8002B668;
+AkaoCmd_21 = 0x8002B6AC;
+AkaoCmd_22 = 0x8002B730;
+AkaoCmd_23 = 0x8002B7E0;

@@ -424,7 +424,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicCopyChannels1Into2);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002B1A8);
 
-void func_8002B1F8(Unk8002B7E0* arg0) {
+void AkaoCmd_10(Unk8002B7E0* arg0) {
     AkaoCopyMusic(arg0->unk4, arg0->unk8);
     if (D_8009A14E == 0xE) {
         func_8002A7E8();
@@ -441,7 +441,7 @@ void func_8002B1F8(Unk8002B7E0* arg0) {
     D_8009A14E = arg0->unkC;
 }
 
-void func_8002B2F8(Unk8002B7E0* arg0) {
+void AkaoCmd_14(Unk8002B7E0* arg0) {
     s32* var_a2;
 
     AkaoCopyMusic(arg0->unk4, arg0->unk8);
@@ -459,32 +459,32 @@ void func_8002B2F8(Unk8002B7E0* arg0) {
     D_8009A14E = arg0->unkC;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002B3B4);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_15);
 
 extern u16 D_80062FC8;
 
-void func_8002B5A8(Unk8002B7E0* arg0) {
+void AkaoCmd_18(Unk8002B7E0* arg0) {
     if (D_8009A14E) {
         D_80062FC8 = arg0->unk10 ? arg0->unk10 : 0x10;
         AkaoMusicCopyChannels1Into2();
     }
-    func_8002B1F8(arg0);
+    AkaoCmd_10(arg0);
 }
 
-void func_8002B608(Unk8002B7E0* arg0) {
+void AkaoCmd_19(Unk8002B7E0* arg0) {
     if (D_8009A14E) {
         D_80062FC8 = arg0->unk10 ? arg0->unk10 : 0x10;
         AkaoMusicCopyChannels1Into2();
     }
-    func_8002B2F8(arg0);
+    AkaoCmd_14(arg0);
 }
 
-void func_8002B668(Unk8002B7E0* arg0) {
+void AkaoCmd_34(Unk8002B7E0* arg0) {
     AkaoSoundChannelsClear(4, 1);
     AkaoSoundChannelsInit(0x40, 0x34, arg0->unk4, arg0->unk8);
 }
 
-void func_8002B6AC(Unk8002B7E0* arg0) {
+void AkaoCmd_21(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(4, 2);
@@ -494,7 +494,7 @@ void func_8002B6AC(Unk8002B7E0* arg0) {
     AkaoSoundChannelsInit(arg0->unk4, 0x34, sp10, sp14);
 }
 
-void func_8002B730(Unk8002B7E0* arg0) {
+void AkaoCmd_22(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(4, 3);
@@ -507,7 +507,7 @@ void func_8002B730(Unk8002B7E0* arg0) {
     AkaoSoundChannelsInit(arg0->unk4, 0x34, sp10, sp14);
 }
 
-void func_8002B7E0(Unk8002B7E0* arg0) {
+void AkaoCmd_23(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(6, 4);
