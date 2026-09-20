@@ -119,7 +119,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetKey);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuGetKeyStatus);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80038F04);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuWrite);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuSetTransferStartAddr);
 

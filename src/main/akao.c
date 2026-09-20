@@ -261,17 +261,17 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferComplete);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferPrep);
 
-static void AkaoSpuWrite(s32 arg0, s32 arg1) {
+static void AkaoSpuWrite(s32 addr, s32 size) {
     AkaoSpuTransferPrep();
-    func_80038F04(arg0, arg1);
+    SpuWrite(addr, size);
 }
 
-static void func_80029464(s32 arg0, s32 arg1) {
+static void func_80029464(s32 addr, s32 size) {
     AkaoSpuTransferPrep();
-    SpuRead(arg0, arg1);
+    SpuRead(addr, size);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800294A4);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferSync);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800294BC);
 
@@ -1245,7 +1245,7 @@ static void AkaoStreamIrqCallbackMono0(void) {
         return;
     }
     SpuSetTransferStartAddr(0x77000);
-    func_80038F04(D_80062FE0, 0x1000);
+    SpuWrite(D_80062FE0, 0x1000);
     SpuSetIRQ(0);
     if (D_80063004 > 0x1000) {
         SpuSetIRQAddr(0x77000);
@@ -1274,7 +1274,7 @@ static void AkaoStreamIrqCallbackMono1(void) {
         return;
     }
     SpuSetTransferStartAddr(0x78000);
-    func_80038F04(D_80062FE0, 0x1000);
+    SpuWrite(D_80062FE0, 0x1000);
     SpuSetIRQ(0);
     if (D_80063004 > 0x1000) {
         SpuSetIRQAddr(0x78000);
@@ -1305,7 +1305,7 @@ static void AkaoStreamIrqCallbackSplit0(void) {
         return;
     }
     SpuSetTransferStartAddr(0x77000);
-    func_80038F04(D_80062FE0, 0x1000);
+    SpuWrite(D_80062FE0, 0x1000);
     SpuSetIRQ(0);
     SpuSetVoiceLoopStartAddr(0x10, 0x77000);
     SpuSetVoiceLoopStartAddr(0x11, 0x77800);
@@ -1332,7 +1332,7 @@ static void AkaoStreamIrqCallbackSplit1(void) {
         return;
     }
     SpuSetTransferStartAddr(0x78000);
-    func_80038F04(D_80062FE0, 0x1000);
+    SpuWrite(D_80062FE0, 0x1000);
     SpuSetIRQ(0);
     SpuSetVoiceLoopStartAddr(0x10, 0x78000);
     SpuSetVoiceLoopStartAddr(0x11, 0x78800);
