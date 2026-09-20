@@ -249,11 +249,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoLoadInstr);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoLoadInstr2);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002988C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoStart);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029998);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoLoadEffect);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800299C8);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoDeinit);
 
 // Key off the voices in g_AkaoStreamMask and clear the SPU transfer/IRQ callbacks.
 static void func_80029A50(void) {
@@ -287,7 +287,7 @@ static void SetReverbMode(s32 in_ReverbMode) {
 }
 
 // Word-copies (arg1 >> 2) words from arg0 into staging buffer D_80083580.
-static void func_80029B78(s32* arg0, u32 arg1) {
+static void AkaoCopyMusic(s32* arg0, u32 arg1) {
     s32* dst;
     u32 nwords;
 
@@ -332,13 +332,13 @@ static void SoundChannelInit(AkaoChannel* arg0, u8* arg1) {
     arg0->noiseSwitchDelay = 0;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029C48);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicChannelsInit);
 
 // Merges newly-requested bits (g_AkaoMusicOverMask/g_AkaoMusicAltMask) into the
 // pending mask g_AkaoMusicActiveMask, then for each set bit points the matching
 // g_Channel1 slot at the default D_80049C40 sample and marks it (unk56 =
 // 0x204), clearing the request bits as it goes.
-static void func_80029E98(void) {
+static void AkaoMusicStopChannels1(void) {
     s32 mask;
     s32 bit;
     AkaoChannel* slot;
@@ -371,21 +371,21 @@ static void func_80029E98(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029F44);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicStopChannels12);
 
-void func_8002A094(u16 arg0, s32 arg1, s32 arg2, s32 arg3);
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A094);
+void AkaoSoundChannelsInit(u16 arg0, s32 arg1, s32 arg2, s32 arg3);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundChannelsInit);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A28C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundMenuChannelsInit);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A43C);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundChannelsStop);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A510);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundChannelsClear);
 
 // Resolves a 10-bit note index into a pair of table entries: looks up
 // g_AkaoEffectsAll[index] and g_AkaoEffectsAll[index+1] (u16), adding g_AkaoEffectsAllSeq unless the
 // entry is the 0xFFFF "unused" sentinel (in which case the result is 0).
-static void func_8002A6C4(s32* arg0, s32* arg1, u16 arg2) {
+static void AkaoSoundGetSequence(s32* arg0, s32* arg1, u16 arg2) {
     u16 idx;
     s32 val0;
     s32 val1;
@@ -410,9 +410,9 @@ static void func_8002A6C4(s32* arg0, s32* arg1, u16 arg2) {
     *arg1 = val1;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A748);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicVolReset);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A798);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundVolReset);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A7E8);
 
@@ -425,18 +425,18 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002AFB8);
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002B1A8);
 
 void func_8002B1F8(Unk8002B7E0* arg0) {
-    func_80029B78(arg0->unk4, arg0->unk8);
+    AkaoCopyMusic(arg0->unk4, arg0->unk8);
     if (D_8009A14E == 0xE) {
         func_8002A7E8();
         func_8002B1A8(&g_Channel1, &D_800804D0, &g_Channel1Config, &D_80083394);
     }
-    func_80029E98();
+    AkaoMusicStopChannels1();
     if (D_8008337E && D_8008337E == arg0->unkC) {
         func_8002AABC(0);
     } else if (D_800833DE && D_800833DE == arg0->unkC) {
         func_8002AABC(1);
     } else {
-        func_80029C48();
+        AkaoMusicChannelsInit();
     }
     D_8009A14E = arg0->unkC;
 }
@@ -444,7 +444,7 @@ void func_8002B1F8(Unk8002B7E0* arg0) {
 void func_8002B2F8(Unk8002B7E0* arg0) {
     s32* var_a2;
 
-    func_80029B78(arg0->unk4, arg0->unk8);
+    AkaoCopyMusic(arg0->unk4, arg0->unk8);
     func_8002A7E8();
     var_a2 = &g_Channel1Config;
     if (D_8009A14E) {
@@ -454,8 +454,8 @@ void func_8002B2F8(Unk8002B7E0* arg0) {
             func_8002B1A8(&g_Channel1, &D_8007EC10, var_a2, &D_80083334);
         }
     }
-    func_80029E98();
-    func_80029C48();
+    AkaoMusicStopChannels1();
+    AkaoMusicChannelsInit();
     D_8009A14E = arg0->unkC;
 }
 
@@ -480,93 +480,93 @@ void func_8002B608(Unk8002B7E0* arg0) {
 }
 
 void func_8002B668(Unk8002B7E0* arg0) {
-    func_8002A510(4, 1);
-    func_8002A094(0x40, 0x34, arg0->unk4, arg0->unk8);
+    AkaoSoundChannelsClear(4, 1);
+    AkaoSoundChannelsInit(0x40, 0x34, arg0->unk4, arg0->unk8);
 }
 
 void func_8002B6AC(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
-    func_8002A510(4, 2);
-    func_8002A6C4(&sp10, &sp14, arg0->unk8);
-    func_8002A094(arg0->unk4, 0x32, sp10, sp14);
-    func_8002A6C4(&sp10, &sp14, arg0->unkC);
-    func_8002A094(arg0->unk4, 0x34, sp10, sp14);
+    AkaoSoundChannelsClear(4, 2);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
+    AkaoSoundChannelsInit(arg0->unk4, 0x32, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unkC);
+    AkaoSoundChannelsInit(arg0->unk4, 0x34, sp10, sp14);
 }
 
 void func_8002B730(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
-    func_8002A510(4, 3);
+    AkaoSoundChannelsClear(4, 3);
     func_80029A50();
-    func_8002A6C4(&sp10, &sp14, arg0->unk8);
-    func_8002A094(arg0->unk4, 0x30, sp10, sp14);
-    func_8002A6C4(&sp10, &sp14, arg0->unkC);
-    func_8002A094(arg0->unk4, 0x32, sp10, sp14);
-    func_8002A6C4(&sp10, &sp14, arg0->unk10);
-    func_8002A094(arg0->unk4, 0x34, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
+    AkaoSoundChannelsInit(arg0->unk4, 0x30, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unkC);
+    AkaoSoundChannelsInit(arg0->unk4, 0x32, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk10);
+    AkaoSoundChannelsInit(arg0->unk4, 0x34, sp10, sp14);
 }
 
 void func_8002B7E0(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
-    func_8002A510(6, 4);
+    AkaoSoundChannelsClear(6, 4);
     func_80029A50();
-    func_8002A6C4(&sp10, &sp14, arg0->unk8);
-    func_8002A094(arg0->unk4, 0x30, sp10, sp14);
-    func_8002A6C4(&sp10, &sp14, arg0->unkC);
-    func_8002A094(arg0->unk4, 0x32, sp10, sp14);
-    func_8002A6C4(&sp10, &sp14, arg0->unk10);
-    func_8002A094(arg0->unk4, 0x34, sp10, sp14);
-    func_8002A6C4(&sp10, &sp14, arg0->unk14);
-    func_8002A094(arg0->unk4, 0x36, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
+    AkaoSoundChannelsInit(arg0->unk4, 0x30, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unkC);
+    AkaoSoundChannelsInit(arg0->unk4, 0x32, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk10);
+    AkaoSoundChannelsInit(arg0->unk4, 0x34, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk14);
+    AkaoSoundChannelsInit(arg0->unk4, 0x36, sp10, sp14);
 }
 
 void func_8002B8B4(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
-    func_8002A510(6, 1);
-    func_8002A6C4(&sp10, &sp14, arg0->unk4);
-    func_8002A28C(sp10, sp14);
+    AkaoSoundChannelsClear(6, 1);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk4);
+    AkaoSoundMenuChannelsInit(sp10, sp14);
 }
 
 void func_8002B904(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
-    func_8002A510(4, 1);
-    func_8002A6C4(&sp10, &sp14, arg0->unk8);
-    func_8002A094(arg0->unk4, 0x34, sp10, sp14);
+    AkaoSoundChannelsClear(4, 1);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
+    AkaoSoundChannelsInit(arg0->unk4, 0x34, sp10, sp14);
 }
 
 void func_8002B958(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
-    func_8002A510(2, 1);
-    func_8002A6C4(&sp10, &sp14, arg0->unk8);
-    func_8002A094(arg0->unk4, 0x32, sp10, sp14);
+    AkaoSoundChannelsClear(2, 1);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
+    AkaoSoundChannelsInit(arg0->unk4, 0x32, sp10, sp14);
 }
 
 void func_8002B9AC(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
-    func_8002A510(0, 1);
+    AkaoSoundChannelsClear(0, 1);
     func_80029A50();
-    func_8002A6C4(&sp10, &sp14, arg0->unk8);
-    func_8002A094(arg0->unk4, 0x30, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
+    AkaoSoundChannelsInit(arg0->unk4, 0x30, sp10, sp14);
 }
 
 void func_8002BA08(Unk8002B7E0* arg0) {
     s32 sp10, sp14;
 
-    func_8002A510(6, 1);
-    func_8002A6C4(&sp10, &sp14, arg0->unk8);
-    func_8002A094(arg0->unk4, 0x36, sp10, sp14);
+    AkaoSoundChannelsClear(6, 1);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
+    AkaoSoundChannelsInit(arg0->unk4, 0x36, sp10, sp14);
 }
 
 void AkaoC0VolumeSet(Unk8002B7E0* arg0) {
     g_AkaoVolMulMusicSlideSteps = 0;
     g_AkaoVolMulMusic = (arg0->unk4 & 0x7F) << 0x10;
-    func_8002A748();
+    AkaoMusicVolReset();
 }
 
 typedef struct {
@@ -588,7 +588,7 @@ void AkaoC1VolumeSlideFromCurrent(Unk8002BA98* arg0) {
     }
     g_AkaoVolMulMusicSlideSteps = var_a1;
     g_AkaoVolMulMusicSlideStep = (((arg0->unk8 & 0x7F) << 0x10) - g_AkaoVolMulMusic) / var_a1;
-    func_8002A748();
+    AkaoMusicVolReset();
 }
 
 typedef struct {
@@ -615,7 +615,7 @@ void AkaoC2VolumeSlideBetweenTargets(Unk8002BB20* arg0) {
     g_AkaoVolMulMusicSlideSteps = var_a1;
     g_AkaoVolMulMusic = temp_v1;
     g_AkaoVolMulMusicSlideStep = (temp_v0 - temp_v1) / var_a1;
-    func_8002A748();
+    AkaoMusicVolReset();
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BBB4);
@@ -929,22 +929,22 @@ void AkaoD6PitchSlideBetweenTargets(Unk8002C5A8* arg0) {
     g_AkaoPitchMulMusicSlideStep = new_var / var_a1;
 }
 
-static void func_8002C7A8(void) { func_80029F44(); }
+static void func_8002C7A8(void) { AkaoMusicStopChannels12(); }
 
-static void func_8002C7C8(void) { func_8002A43C(); }
+static void func_8002C7C8(void) { AkaoSoundChannelsStop(); }
 
 static void func_8002C7E8(void) {
     g_Channel1Config = 1;
-    func_8002A748();
-    func_8002A798();
+    AkaoMusicVolReset();
+    AkaoSoundVolReset();
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C81C);
 
 static void Akao81SetMonoMode(void) {
     g_Channel1Config = 2;
-    func_8002A748();
-    func_8002A798();
+    AkaoMusicVolReset();
+    AkaoSoundVolReset();
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C884);

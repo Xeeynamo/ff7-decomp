@@ -994,3 +994,22 @@ g_BattleItemsEarned = 0x8009D808;
 g_DebugLevel = 0x8009D820;
 g_FieldModelBaseAnimSpeed = 0x8009D828;
 g_ActiveCharacters = 0x8009D84C; // size:0x2700
+
+
+AkaoStart = 0x8002988C;
+AkaoLoadEffect = 0x80029998;
+AkaoDeinit = 0x800299C8;
+
+
+AkaoCopyMusic = 0x80029B78;
+
+AkaoMusicChannelsInit = 0x80029C48;
+AkaoMusicStopChannels1 = 0x80029E98;
+AkaoMusicStopChannels12 = 0x80029F44;
+AkaoSoundChannelsInit = 0x8002A094;
+AkaoSoundMenuChannelsInit = 0x8002A28C;
+AkaoSoundChannelsStop = 0x8002A43C;
+AkaoSoundChannelsClear = 0x8002A510;
+AkaoSoundGetSequence = 0x8002A6C4;
+AkaoMusicVolReset = 0x8002A748;
+AkaoSoundVolReset = 0x8002A798;
