@@ -1015,3 +1015,6 @@ AkaoMusicVolReset = 0x8002A748;
 AkaoSoundVolReset = 0x8002A798;
 
 AkaoMusicRestoreChannelsAndConfig = 0x8002AABC;
+
+AkaoMusicCopyChannels1Into2 = 0x8002AFB8;
+

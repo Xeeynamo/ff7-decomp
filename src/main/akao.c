@@ -420,7 +420,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A958);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicRestoreChannelsAndConfig);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002AFB8);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicCopyChannels1Into2);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002B1A8);
 
@@ -466,7 +466,7 @@ extern u16 D_80062FC8;
 void func_8002B5A8(Unk8002B7E0* arg0) {
     if (D_8009A14E) {
         D_80062FC8 = arg0->unk10 ? arg0->unk10 : 0x10;
-        func_8002AFB8();
+        AkaoMusicCopyChannels1Into2();
     }
     func_8002B1F8(arg0);
 }
@@ -474,7 +474,7 @@ void func_8002B5A8(Unk8002B7E0* arg0) {
 void func_8002B608(Unk8002B7E0* arg0) {
     if (D_8009A14E) {
         D_80062FC8 = arg0->unk10 ? arg0->unk10 : 0x10;
-        func_8002AFB8();
+        AkaoMusicCopyChannels1Into2();
     }
     func_8002B2F8(arg0);
 }
