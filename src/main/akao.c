@@ -1548,7 +1548,7 @@ static void AkaoOp_B9_TremoloDepth(AkaoChannel* track) {
     track->volumeLfoMultiplier = *track->akaoSequencePointer++ << 8;
 }
 
-static void AkaoDETremoloDepthSlideFromCurrent(AkaoChannel* track) {
+static void AkaoOp_DE_TremoloDepthSlideFromCurr(AkaoChannel* track) {
     u16 rate;
     u8* addr;
     s32 delta;
@@ -1571,7 +1571,7 @@ static void AkaoOp_BA_TremoloOff(AkaoChannel* track) {
     track->setFlags |= 3;
 }
 
-static void AkaoBCSetPanLfo(AkaoChannel* track) {
+static void AkaoOp_BC_SetPanLfo(AkaoChannel* track) {
     u8* addr;
     u8* addr2;
     u8 rate;
@@ -1593,7 +1593,7 @@ static void AkaoBCSetPanLfo(AkaoChannel* track) {
 
 static void AkaoOp_BD_PanLfoDepth(AkaoChannel* track) { track->initWith0_9E = *track->akaoSequencePointer++ << 7; }
 
-static void AkaoDFPanLfoDepthSlideFromCurrent(AkaoChannel* track) {
+static void AkaoOp_DF_PanLfoDepthSlideFromCurr(AkaoChannel* track) {
     u8* addr;
     s32 rate;
     s32 delta;
@@ -1616,7 +1616,7 @@ static void AkaoOp_BE_PanLfoOff(AkaoChannel* track) {
     track->setFlags |= 3;
 }
 
-static void AkaoC4NoiseOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_C4_NoiseOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     if (track->playingType == 0) {
         config->noiseMusicVoicesMask = mask | config->noiseMusicVoicesMask;
     } else {
@@ -1626,7 +1626,7 @@ static void AkaoC4NoiseOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     AkaoUpdateNoiseVoices();
 }
 
-static void AkaoC5NoiseOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_C5_NoiseOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     if (track->playingType == 0) {
         config->noiseMusicVoicesMask &= ~mask;
     } else {
@@ -1637,7 +1637,7 @@ static void AkaoC5NoiseOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     track->noiseSwitchDelay = 0;
 }
 
-static void AkaoC6PitchLfoOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_C6_PitchLfoOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     if (track->playingType == 0) {
         config->pitchLfoMusicVoicesMask = mask | config->pitchLfoMusicVoicesMask;
     } else if (!(mask & 0x555555)) {
@@ -1646,7 +1646,7 @@ static void AkaoC6PitchLfoOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     AkaoUpdatePitchLfoVoices();
 }
 
-static void AkaoC7PitchLfoOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_C7_PitchLfoOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     if (track->playingType == 0) {
         config->pitchLfoMusicVoicesMask &= ~mask;
     } else {
@@ -1656,7 +1656,7 @@ static void AkaoC7PitchLfoOff(AkaoChannel* track, AkaoConfig* config, u32 mask) 
     track->pitchLfoSwitchDelay = 0;
 }
 
-static void AkaoC2ReverbOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_C2_ReverbOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     if (track->playingType == 0) {
         config->reverbMusicVoicesMask = mask | config->reverbMusicVoicesMask;
     } else {
@@ -1665,7 +1665,7 @@ static void AkaoC2ReverbOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     AkaoUpdateReverbVoices();
 }
 
-static void AkaoC3ReverbOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+static void AkaoOp_C3_ReverbOff(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     if (track->playingType == 0) {
         config->reverbMusicVoicesMask = ~mask & config->reverbMusicVoicesMask;
     } else {
@@ -1704,7 +1704,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F8_AltVoiceOn);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F9_AltVoiceOff);
 
-void AkaoC8LoopPoint(AkaoChannel* track) {
+void AkaoOp_C8_LoopPoint(AkaoChannel* track) {
     track->lastSavedLoopPointIndex = (track->lastSavedLoopPointIndex + 1) & 3;
     track->loopPoint[track->lastSavedLoopPointIndex] = track->akaoSequencePointer;
     track->loopPointState[track->lastSavedLoopPointIndex] = 0;
@@ -1716,7 +1716,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F0_LoopJumpTimes);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F1_LoopBreakTimes);
 
-void AkaoCALoopReturn(AkaoChannel* track) {
+void AkaoOp_CA_LoopReturn(AkaoChannel* track) {
     track->loopPointState[track->lastSavedLoopPointIndex]++;
     track->akaoSequencePointer = track->loopPoint[track->lastSavedLoopPointIndex];
 }
@@ -1777,7 +1777,7 @@ static void AkaoOp_CE_NoiseSwitch(AkaoChannel* track, AkaoConfig* config, u32 ma
     } else {
         track->noiseSwitchDelay = delay + 1;
     }
-    AkaoC4NoiseOn(track, config, mask);
+    AkaoOp_C4_NoiseOn(track, config, mask);
 }
 
 static void AkaoOp_CF_NoiseSwitch(AkaoChannel* track, AkaoConfig* config, u32 mask) {
@@ -1797,7 +1797,7 @@ static void AkaoOp_D2_FrequencyModulationSwitch(AkaoChannel* track, AkaoConfig* 
     } else {
         track->pitchLfoSwitchDelay = delay + 1;
     }
-    AkaoC6PitchLfoOn(track, config, mask);
+    AkaoOp_C6_PitchLfoOn(track, config, mask);
 }
 
 static void AkaoOp_D3_FrequencyModulationSwitch(AkaoChannel* track, AkaoConfig* config, u32 mask) {
@@ -1812,9 +1812,9 @@ static void AkaoOp_D3_FrequencyModulationSwitch(AkaoChannel* track, AkaoConfig* 
 
 static void AkaoOp_CB_SfxReset(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     track->updateMirror &= ~0x37;
-    AkaoC5NoiseOff(track, config, mask);
-    AkaoC7PitchLfoOff(track, config, mask);
-    AkaoC3ReverbOff(track, config, mask);
+    AkaoOp_C5_NoiseOff(track, config, mask);
+    AkaoOp_C7_PitchLfoOff(track, config, mask);
+    AkaoOp_C3_ReverbOff(track, config, mask);
     track->initWith0_6E &= ~0x5;
 }
 
