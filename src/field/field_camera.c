@@ -3,26 +3,12 @@
 #include <libetc.h>
 #include "field_private.h"
 
-extern u32 D_800DA5C8[];
-extern u8 D_800DF08C[];
-extern u8 D_800DF0D4[];
-extern s32 D_80075E10;
-extern s32 D_800DFCA0;
-extern s32 D_800E0204;
-
-s32 FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelData);
-s32 FieldModelLoadGlobalModels(FieldModelLoaderHeader* header, FieldModelData* modelData, s32 arg2, s32 arg3);
-s32 LoadLocalFieldModelAndInitAll(
-    FieldModelLoaderHeader* header, FieldModelData* modelData, const u32* arg2, u32* arg3);
-void KawaiLoadEyesMouthTexToVram(FieldModelEntry* entry, u8* scratch);
-void KawaiClearData(void);
-
 const u32 D_800A00DC[] = {0x00000000};
 
 void FieldModelLoadAndInit(void) {
     FieldModelEntry** entries;
     FieldModelEntry* entry;
-    s32 result;
+    u8* result;
     s32 offset;
     u32 i;
 

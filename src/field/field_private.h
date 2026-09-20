@@ -39,9 +39,15 @@ struct FieldRenderData {
     LINE_F2 Rain[64]; // 0x1749c: Rain line primitives
 };
 
+extern u8* D_80075E10;
 extern MATRIX* D_80083270;
 extern MATRIX** D_80083578;
 extern u8 D_8009AC2D;
+extern u32 D_800DA5C8[];
+extern u8 D_800DF08C[];
+extern u8 D_800DF0D4[];
+extern s32 D_800DFCA0;
+extern u8* D_800E0204;
 extern u16 D_80114488;
 
 void StopFieldMapPreload(void);
@@ -52,5 +58,11 @@ void FieldEntityLineClear(FieldLine* lines);
 void DebugRunEveryLoop(void);
 void FieldRainInit(struct FieldRenderData* renderData);
 void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm);
+u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelData);
+u8* FieldModelLoadGlobalModels(FieldModelLoaderHeader* header, FieldModelData* modelData, u8* buffer, s32 arg3);
+u8* LoadLocalFieldModelAndInitAll(
+    FieldModelLoaderHeader* header, FieldModelData* modelData, const u32* arg2, u32* arg3);
+void KawaiLoadEyesMouthTexToVram(FieldModelEntry* entry, u8* scratch);
+void KawaiClearData(void);
 
 #endif
