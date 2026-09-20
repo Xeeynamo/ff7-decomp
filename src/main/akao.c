@@ -418,7 +418,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A7E8);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A958);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002AABC);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicRestoreChannelsAndConfig);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002AFB8);
 
@@ -432,9 +432,9 @@ void func_8002B1F8(Unk8002B7E0* arg0) {
     }
     AkaoMusicStopChannels1();
     if (D_8008337E && D_8008337E == arg0->unkC) {
-        func_8002AABC(0);
+        AkaoMusicRestoreChannelsAndConfig(0);
     } else if (D_800833DE && D_800833DE == arg0->unkC) {
-        func_8002AABC(1);
+        AkaoMusicRestoreChannelsAndConfig(1);
     } else {
         AkaoMusicChannelsInit();
     }

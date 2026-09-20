@@ -1013,3 +1013,5 @@ AkaoSoundChannelsClear = 0x8002A510;
 AkaoSoundGetSequence = 0x8002A6C4;
 AkaoMusicVolReset = 0x8002A748;
 AkaoSoundVolReset = 0x8002A798;
+
+AkaoMusicRestoreChannelsAndConfig = 0x8002AABC;
