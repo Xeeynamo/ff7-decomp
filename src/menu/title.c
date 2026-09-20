@@ -5,10 +5,10 @@
 
 extern s32 D_801E2CF4;
 
-static void PlaySfx(u16 arg0) {
+static void PlaySfx(u16 soundId) {
     D_8009A000[0] = 0x30;
-    D_8009A004[0] = arg0;
-    D_8009A008[0] = arg0;
+    D_8009A004[0] = soundId;
+    D_8009A008[0] = soundId;
     SystemAkaoExecute();
 }
 
