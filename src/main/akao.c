@@ -136,9 +136,6 @@ typedef struct {
     /* 0x20 */ s32 unk20;
 } Unk8002B7E0; // size:0x24
 
-
-
-
 extern void (*D_80049548[])(Unk8002B7E0*);
 extern u8 D_800499A8[]; // opcode lenghts
 extern u8 D_80049C40[];
@@ -1501,7 +1498,9 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800323CC);
 
 static void func_800324D8(AkaoChannel* track) { track->absoluteTransposition = (s8)*track->akaoSequencePointer++; }
 
-static void func_80032500(AkaoChannel* track) { track->absoluteTransposition = (s8)*track->akaoSequencePointer++ + track->absoluteTransposition; }
+static void func_80032500(AkaoChannel* track) {
+    track->absoluteTransposition = (s8)*track->akaoSequencePointer++ + track->absoluteTransposition;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003252C);
 
@@ -1521,7 +1520,9 @@ static void func_800325B8(AkaoChannel* track) { track->initWith0_6C = 0; }
 
 static void func_800325C0(AkaoChannel* track) { track->frequencyMultiplier = (s8)*track->akaoSequencePointer++; }
 
-static void func_800325E8(AkaoChannel* track) { track->frequencyMultiplier = (s8)*track->akaoSequencePointer++ + track->frequencyMultiplier; }
+static void func_800325E8(AkaoChannel* track) {
+    track->frequencyMultiplier = (s8)*track->akaoSequencePointer++ + track->frequencyMultiplier;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80032614);
 
@@ -1817,7 +1818,9 @@ static void func_800337B0(AkaoChannel* track, AkaoConfig* config, u32 mask) { tr
 
 static void func_800337C4(AkaoChannel* track, AkaoConfig* config, u32 mask) { track->updateMirror &= ~0x20; }
 
-static void func_800337D8(AkaoChannel* track, AkaoConfig* config, u32 mask) { track->akaoSequencePointer += READ_S16(track->akaoSequencePointer); }
+static void func_800337D8(AkaoChannel* track, AkaoConfig* config, u32 mask) {
+    track->akaoSequencePointer += READ_S16(track->akaoSequencePointer);
+}
 
 static void func_80033818(AkaoChannel* track, AkaoConfig* config, u32 mask) {
     int cond = *track->akaoSequencePointer++;

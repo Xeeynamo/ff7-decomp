@@ -246,6 +246,9 @@ AkaoSpuTransferPrep = 0x800293F4;
 AkaoSpuWrite = 0x80029424;
 AkaoSpuRead = 0x80029464;
 AkaoSpuTransferSync = 0x800294A4;
+AkaoInitData = 0x800294BC;
+AkaoLoadInstr = 0x800297A4;
+AkaoLoadInstr2 = 0x80029818;
 SetReverbMode = 0x80029AF0;
 SoundChannelInit = 0x80029BAC;
 AkaoC0VolumeSet = 0x8002BA5C;
@@ -991,7 +994,3 @@ g_BattleItemsEarned = 0x8009D808;
 g_DebugLevel = 0x8009D820;
 g_FieldModelBaseAnimSpeed = 0x8009D828;
 g_ActiveCharacters = 0x8009D84C; // size:0x2700
-AkaoInitData = 0x800294BC;
-
-AkaoLoadInstr = 0x800297A4;
-AkaoLoadInstr2 = 0x80029818;
