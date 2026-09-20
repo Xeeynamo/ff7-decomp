@@ -634,7 +634,7 @@ void BattleMenuNoop10(void) {}
 void BattleMenuFlagTableReset(void) {
     s32 i;
 
-    SysMenuSetCursorMovement(&D_800F9144, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
+    SysMenuSetCursorMovement(&D_800F90B4[0].table90, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
     i = 1;
     do {
         if ((i != 9) && (D_800F514C[i] != 0)) {

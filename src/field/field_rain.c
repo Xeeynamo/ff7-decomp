@@ -16,7 +16,6 @@ struct FieldRain {
 };
 
 extern struct FieldRain g_FieldRain[64];
-extern s16 D_800E42EE[0x40][12];
 
 void FieldRainInit(struct FieldRenderData* renderData) {
     LINE_F2* line;
@@ -53,7 +52,7 @@ void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* ra
 
     for (i = 0, j = 0; i < LEN(g_FieldRain); i++) {
         // 12 * sizeof(s16) = 24 bytes (0x18), the exact size of FieldRain
-        if (D_800E42EE[i][0] == 1) {
+        if (g_FieldRain[i].render == 1) {
             RotTransPers(&g_FieldRain[i].p1, (long*)&rain->x0, &p, &flag);
             RotTransPers(&g_FieldRain[i].p2, (long*)&rain->x1, &p, &flag);
             AddPrim(ot, rain);
