@@ -61,7 +61,7 @@ void FieldEventInit(FieldState* fieldState, FieldEntity* fieldModels, FieldScrip
     if (!D_800716D4) {
         FieldEventClearAkaoStruct();
         D_8009A000[0] = 242;
-        SystemAkaoExecute();
+        AkaoExec();
     }
 }
 

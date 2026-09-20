@@ -322,11 +322,11 @@ void FIELD_Main(void) {
         }
         if (g_PrevGameState == GAMESTATE_BATTLE) {
             *D_8009A000 = 0xF5;
-            SystemAkaoExecute();
+            AkaoExec();
             *D_8009A000 = 0x18;
             *D_8009A008 = 4;
             *D_8009A004 = g_FieldState.nextFieldMusic;
-            SystemAkaoExecute();
+            AkaoExec();
         }
         FieldMainLoop();
         while (DrawSync(1)) {

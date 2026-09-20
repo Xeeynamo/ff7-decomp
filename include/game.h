@@ -1346,7 +1346,7 @@ void SysMenuSetCursorMovement(
 void SysMenuSetPoly(void* poly);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
-void SystemAkaoExecute(void);
+void AkaoExec(void);
 void SysInitRndTablePos(s32 seed);
 void SysInitPlayerStatFromEquip(s32 arg0);
 void SysInitPlayerStatFromMateria(s32 arg0);

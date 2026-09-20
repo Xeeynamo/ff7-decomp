@@ -2278,7 +2278,7 @@ static s32 SetAndApplyAkao(void) {
         }
         *D_8009A004 = (u_long)g_FieldScripts + GetAkaoBlockOffset(akaoId);
         g_pFieldState->nextFieldMusic = *D_8009A004;
-        SystemAkaoExecute();
+        AkaoExec();
     }
     PC_INC(2);
     return 0;
