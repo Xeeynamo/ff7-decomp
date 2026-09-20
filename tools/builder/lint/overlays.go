@@ -11,13 +11,19 @@ import (
 	"github.com/xeeynamo/ff7-decomp/tools/builder/builder"
 )
 
+// mainOverlay is the always-resident overlay. Everything below SharedRegionEnd
+// belongs to it and stays mapped no matter which overlay is loaded on top.
+const mainOverlay = "main"
+
 // Overlay is the subset of builder.Overlay that lint needs, plus the resolved
 // list of .c source paths that belong to it.
 type Overlay struct {
 	Name            string
 	Sources         []string
 	SymbolAddrsPath []string
+	Imports         []string
 	VramStart       uint32
+	BssSize         uint32
 }
 
 // LoadOverlays reads config/us.yaml and resolves each overlay's .c sources.
@@ -52,10 +58,33 @@ func LoadOverlays() ([]Overlay, error) {
 			Name:            ovl.Name,
 			Sources:         sources,
 			SymbolAddrsPath: ovl.SymbolAddrsPath,
+			Imports:         ovl.Imports,
 			VramStart:       uint32(ovl.VramStart),
+			BssSize:         uint32(ovl.BssSize),
 		})
 	}
 	return overlays, nil
+}
+
+// SharedRegionEnd returns the first address that belongs to an overlay rather than
+// to main's image and bss. Symbols below it live at a fixed address for the whole
+// game, so they can be compared across overlays; symbols at or above it belong to
+// whichever overlay is currently resident and are only comparable within it.
+//
+// It is the lowest vram_start among the non-main overlays. Overlays that load at the
+// same address (the four 0x801D0000 menus, for instance) are mutually exclusive, so
+// this boundary is what keeps them from being compared against each other.
+func SharedRegionEnd(overlays []Overlay) uint32 {
+	var end uint32
+	for _, ovl := range overlays {
+		if ovl.Name == mainOverlay || ovl.VramStart == 0 {
+			continue
+		}
+		if end == 0 || ovl.VramStart < end {
+			end = ovl.VramStart
+		}
+	}
+	return end
 }
 
 // compilerFor picks the cc1-psx binary a source file must be probed with,

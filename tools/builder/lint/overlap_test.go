@@ -90,3 +90,87 @@ func TestMergeSymbolsKeepsLargestLowerBoundWhenNoCompleteSize(t *testing.T) {
 		t.Fatalf("expected the largest lower bound to win, got %+v", merged[0])
 	}
 }
+
+// savemapSymbols is the real layout: Savemap with a complete size, plus the raw
+// address aliases that decompiled code declares as neighbours of it. The array
+// decls only ever probe to sizeof(x[0]), so most of them are one-byte lower bounds.
+func savemapSymbols() []Symbol {
+	return []Symbol{
+		{Name: "Savemap", Addr: 0x8009C6E4, Size: 0x10F4},
+		{Name: "D_8009C75A", Addr: 0x8009C75A, Size: 2, LowerBound: true},
+		{Name: "D_8009C778", Addr: 0x8009C778, Size: 1, LowerBound: true},
+		{Name: "D_8009C798", Addr: 0x8009C798, Size: 1, LowerBound: true},
+		{Name: "D_8009CBDC", Addr: 0x8009CBDC, Size: 1, LowerBound: true},
+		{Name: "D_8009CBE0", Addr: 0x8009CBE0, Size: 2, LowerBound: true},
+		{Name: "D_8009CE60", Addr: 0x8009CE60, Size: 4, LowerBound: true},
+		{Name: "D_8009D268", Addr: 0x8009D268, Size: 4, LowerBound: true},
+		{Name: "D_8009D2A6", Addr: 0x8009D2A6, Size: 2},
+		{Name: "D_8009D58A", Addr: 0x8009D58A, Size: 1, LowerBound: true},
+		{Name: "D_8009D5E8", Addr: 0x8009D5E8, Size: 1},
+		{Name: "D_8009D78A", Addr: 0x8009D78A, Size: 1, LowerBound: true},
+	}
+}
+
+func TestFindOverlapsCatchesEverySavemapAlias(t *testing.T) {
+	syms := savemapSymbols()
+	got := findOverlaps(syms)
+	if len(got) != len(syms)-1 {
+		t.Fatalf("expected %d overlaps against Savemap, got %d", len(syms)-1, len(got))
+	}
+	seen := map[string]bool{}
+	for _, f := range got {
+		if f.A.Name != "Savemap" {
+			t.Fatalf("expected every pair to be against Savemap, got %s vs %s", f.A.Name, f.B.Name)
+		}
+		seen[f.B.Name] = true
+	}
+	for _, s := range syms[1:] {
+		if !seen[s.Name] {
+			t.Errorf("%s was not reported as overlapping Savemap", s.Name)
+		}
+	}
+}
+
+func TestSplitByRegionKeepsOverlayLocalsApart(t *testing.T) {
+	const sharedEnd = 0x800A0000
+	syms := []Symbol{
+		{Name: "Savemap", Addr: 0x8009C6E4, Size: 0x10F4},
+		{Name: "D_801D3834", Addr: 0x801D3834, Size: 0x5C},
+	}
+	local, shared := splitByRegion(syms, sharedEnd)
+	if len(shared) != 1 || shared[0].Name != "Savemap" {
+		t.Fatalf("expected only Savemap in the shared region, got %+v", shared)
+	}
+	if len(local) != 1 || local[0].Name != "D_801D3834" {
+		t.Fatalf("expected only the overlay-local symbol, got %+v", local)
+	}
+}
+
+// Two overlays that load at the same vram_start are never resident together, so
+// their identical addresses must not be pooled into one comparison.
+func TestSplitByRegionAliasingOverlaysNeverPool(t *testing.T) {
+	const sharedEnd = 0x800A0000
+	itemmenu := []Symbol{{Name: "D_801D3834", Addr: 0x801D3834, Size: 0x40}}
+	bginmenu := []Symbol{{Name: "D_801D3840", Addr: 0x801D3840, Size: 0x40}}
+
+	_, sharedA := splitByRegion(itemmenu, sharedEnd)
+	_, sharedB := splitByRegion(bginmenu, sharedEnd)
+	if len(sharedA) != 0 || len(sharedB) != 0 {
+		t.Fatalf("overlay-local symbols must never reach the shared pool")
+	}
+	if got := findOverlaps(append(sharedA, sharedB...)); len(got) != 0 {
+		t.Fatalf("expected no cross-overlay finding for aliasing overlays, got %v", got)
+	}
+}
+
+func TestSharedRegionEndIsLowestNonMainVram(t *testing.T) {
+	overlays := []Overlay{
+		{Name: "main", VramStart: 0x80010000, BssSize: 0x3C930},
+		{Name: "field", VramStart: 0x800A0000},
+		{Name: "batres", VramStart: 0x801B0000},
+		{Name: "itemmenu", VramStart: 0x801D0000},
+	}
+	if got := SharedRegionEnd(overlays); got != 0x800A0000 {
+		t.Fatalf("expected 0x800A0000, got 0x%08X", got)
+	}
+}

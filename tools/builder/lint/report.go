@@ -35,6 +35,24 @@ func NewStructResolver(defs map[string]StructDef) *StructResolver {
 	return &StructResolver{compilerFor: compilerFor, defs: defs, cache: map[string]map[string]FieldLayout{}}
 }
 
+// NewStructResolverUnion builds one resolver covering every overlay's struct defs, for
+// shared-region findings whose two symbols come from different overlays. A type seen in
+// several overlays keeps its first definition, which is enough to name a field.
+func NewStructResolverUnion(resolvers []*StructResolver) *StructResolver {
+	defs := map[string]StructDef{}
+	for _, r := range resolvers {
+		if r == nil {
+			continue
+		}
+		for name, def := range r.defs {
+			if _, ok := defs[name]; !ok {
+				defs[name] = def
+			}
+		}
+	}
+	return NewStructResolver(defs)
+}
+
 func (r *StructResolver) fields(typeName string) map[string]FieldLayout {
 	if r == nil {
 		return nil
@@ -110,11 +128,17 @@ func Report(w, errw io.Writer, findingsByOverlay map[string][]Finding, resolvers
 		for _, o := range e.overlays {
 			overlayCount[o] = true
 		}
+		full := false
+		for _, o := range e.overlays {
+			if o == SharedScope {
+				full = true
+			}
+		}
 		fr := findingRows{
-			declA:    shortLoc(e.a),
+			declA:    shortLoc(e.a, full),
 			nameA:    e.a.Name,
 			rngA:     rangePlain(e.a),
-			declB:    shortLoc(e.b),
+			declB:    shortLoc(e.b, full),
 			nameB:    e.b.Name,
 			rngB:     rangePlain(e.b),
 			relation: relationStr(*e, resolver),
@@ -139,7 +163,7 @@ func Report(w, errw io.Writer, findingsByOverlay map[string][]Finding, resolvers
 		}
 	}
 
-	fmt.Fprintf(errw, "lint: %d overlapping symbol pairs in %d overlays\n", len(order), len(overlayCount))
+	fmt.Fprintf(errw, "lint: %d overlapping symbol pairs in %d scopes\n", len(order), len(overlayCount))
 	return len(order)
 }
 
@@ -153,14 +177,18 @@ func relationStr(e reportEntry, resolver *StructResolver) string {
 	return fmt.Sprintf("== %s + 0x%X", e.a.Name, delta)
 }
 
-// shortLoc renders a symbol's declaration site as "file:line" using just the
-// file's basename, to keep the DECL column narrow; source lines are unambiguous
-// within an overlay.
-func shortLoc(s Symbol) string {
+// shortLoc renders a symbol's declaration site as "file:line". Within one overlay a
+// basename is unambiguous and keeps the DECL column narrow, but a shared-region pair
+// spans overlays, so there it keeps the path as scanned.
+func shortLoc(s Symbol, full bool) string {
 	if len(s.Decls) == 0 {
 		return "?"
 	}
-	return fmt.Sprintf("%s:%d", filepath.Base(s.Decls[0].File), s.Decls[0].Line)
+	d := s.Decls[0]
+	if full {
+		return fmt.Sprintf("%s:%d", d.File, d.Line)
+	}
+	return fmt.Sprintf("%s:%d", filepath.Base(d.File), d.Line)
 }
 
 // rangePlain renders a symbol's byte range without the [..) brackets used in the
