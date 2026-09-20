@@ -368,6 +368,7 @@ extern s32 D_800F4920;
 extern u16 D_800F4938[];
 extern s8 D_800F494C[];
 extern u16 D_800F4958;
+extern s32 D_800F4AC8;
 extern s16 D_800F4AD0;
 extern s32 D_800F4AD4;
 extern s32 D_800F4AD8;

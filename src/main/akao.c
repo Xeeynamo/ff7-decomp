@@ -81,7 +81,7 @@ typedef struct {
     /* 0xAC */ s16 unkAC;
     /* 0xAE */ s16 unkAE;
     /* 0xB0 */ u8 unkB0[0x8];
-    /* 0xB8 */ s16 lastSavedLoopPointIndex;
+    /* 0xB8 */ u16 lastSavedLoopPointIndex;
     /* 0xBA */ u16 loopPointState[0x4];
     /* 0xC2 */ u16 pauseStorage;
     /* 0xC4 */ u16 pauseMultiplier;
@@ -1695,7 +1695,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033128);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800331CC);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033224);
+void AkaoC8LoopPoint(AkaoChannel* track) {
+    track->lastSavedLoopPointIndex = (track->lastSavedLoopPointIndex + 1) & 3;
+    track->loopPoint[track->lastSavedLoopPointIndex] = track->akaoSequencePointer;
+    track->loopPointState[track->lastSavedLoopPointIndex] = 0;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033264);
 
@@ -1703,7 +1707,10 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800332EC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8003337C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80033420);
+void AkaoCALoopReturn(AkaoChannel* track) {
+    track->loopPointState[track->lastSavedLoopPointIndex]++;
+    track->akaoSequencePointer = track->loopPoint[track->lastSavedLoopPointIndex];
+}
 
 static void func_8003345C(AkaoChannel* track) {
     u16 val = *track->akaoSequencePointer++;

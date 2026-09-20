@@ -55,7 +55,6 @@ extern char g_DebugMessageBuffer[];
 extern s8 D_800716C8;
 extern s16 g_CameraScrollX;
 extern s16 g_CameraScrollY;
-extern u32 D_80075E10;
 extern SVECTOR (*D_800E4274)[3];
 extern u8* g_MenuTutorial;
 
@@ -451,34 +450,34 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "DP ");
-        FieldDebugStringU32hex(D_80075E10 >> 16, g_DebugMessageBuffer);
+        FieldDebugStringU32hex((u_long)D_80075E10 >> 16, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " ");
-        FieldDebugStringU32hex(D_80075E10 & 0xFFFF, g_DebugMessageBuffer);
+        FieldDebugStringU32hex((u_long)D_80075E10 & 0xFFFF, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (g_FieldMusicLock) {
             FieldDebugStringConcat(g_DebugText, "M");
         }
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 18, g_DebugText);
-            if (D_80075E10 > 0x801AFFFFU) {
+            if ((u_long)D_80075E10 > (u_long)(void*)0x801AFFFF) {
                 if (Savemap.memory_bank_1[19] & 0x10) {
                     SetDebugStrRowColor(arg0, 18, 5);
                 } else {
                     SetDebugStrRowColor(arg0, 18, 3);
                 }
             }
-            if (D_80075E10 > 0x801ADFFFU) {
+            if ((u_long)D_80075E10 > (u_long)(void*)0x801ADFFF) {
                 SetDebugStrRowColor(arg0, 18, 5);
-            } else if (D_80075E10 > 0x801AAFFFU) {
+            } else if ((u_long)D_80075E10 > (u_long)(void*)0x801AAFFF) {
                 SetDebugStrRowColor(arg0, 18, 4);
-            } else if (D_80075E10 > 0x801A7FFFU) {
+            } else if ((u_long)D_80075E10 > (u_long)(void*)0x801A7FFF) {
                 SetDebugStrRowColor(arg0, 18, 1);
-            } else if (D_80075E10 > 0x801A3FFFU) {
+            } else if ((u_long)D_80075E10 > (u_long)(void*)0x801A3FFF) {
                 SetDebugStrRowColor(arg0, 18, 3);
-            } else if (D_80075E10 > 0x8019FFFFU) {
+            } else if ((u_long)D_80075E10 > (u_long)(void*)0x8019FFFF) {
                 SetDebugStrRowColor(arg0, 18, 2);
-            } else if (D_80075E10 > 0x80197FFFU) {
+            } else if ((u_long)D_80075E10 > (u_long)(void*)0x80197FFF) {
                 SetDebugStrRowColor(arg0, 18, 0);
             } else {
                 SetDebugStrRowColor(arg0, 18, 7);

@@ -30,7 +30,7 @@ void SysCdromInit(void) {
     while (!CdInit()) {
     }
     D_80071A60 = CDOP_0;
-    func_8003DDA4(0);
+    CdSetDebug(0);
     func_80034F3C();
     CdControlB(CdlSetmode, (u8*)CdlModeSpeed, NULL);
     VSync(3);
@@ -114,8 +114,8 @@ void SystemCdromAbortLoading(void) {
     case 6:
     case 13:
     case 14:
-        func_8003DE6C(0);
-        func_8003DE84(0);
+        CdSyncCallback(0);
+        CdReadyCallback(0);
         break;
     case 8:
     case 9:
@@ -208,7 +208,7 @@ static void func_80034A90(void) {
     s32 temp_v0;
     s32* var_a1;
 
-    switch (func_8003DE2C(1, 0)) {
+    switch (CdSync(1, 0)) {
     case 2:
         func_80034444();
         return;

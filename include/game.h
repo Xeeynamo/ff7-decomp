@@ -966,7 +966,7 @@ typedef struct {
     /* 0x04 */ u8 modelEntryIndex; // index into FieldModelData->modelEntries
     /* 0x05 */ u8 npcFlag;         // NPC/model type flag?
     /* 0x06 */ u8 unk6;
-    /* 0x07 */ u8 globalModelId; // BCX/global model lookup id
+    /* 0x07 */ s8 globalModelId; // BCX/global model lookup id
 } FieldModelLoaderData;          // size:0x8
 
 // Incomplete struct to make FieldEnablePartyModels match
@@ -977,7 +977,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ u8 flags;     // initialized to 1, later cleared
-    /* 0x01 */ u8 kawaiType; // KAWAI second byte
+    /* 0x01 */ s8 kawaiType; // KAWAI second byte
     /* 0x02 */ u8 boneCount;
     /* 0x03 */ u8 partCount;
     /* 0x04 */ u8 animationCount;
@@ -1001,7 +1001,8 @@ typedef struct {
     /* 0x01 */ u8 unk1;                       // (initialized to 0)
     /* 0x02 */ u16 unk2;                      // (initialized to 0)
     /* 0x04 */ FieldModelEntry* modelEntries; // per-model-file records
-} FieldModelData;
+    /* 0x08 */ void* unk8;                    // (initialized to NULL)
+} FieldModelData;                             // size:0xC
 
 typedef struct {
     u8 enabled;
@@ -1323,8 +1324,6 @@ void VectorNormal(VECTOR*, VECTOR*);
 s32 SetGraphDebug(s32);
 s32 func_80041E30(s32 arg0, s32 arg1);
 void func_80041D28(int, void*, int);
-void func_8003DE6C(s32 arg0);
-void func_8003DE84(s32 arg0);
 
 void SystemError(char c, long n);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
