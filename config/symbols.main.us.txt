@@ -944,3 +944,8 @@ g_BattleItemsEarned = 0x8009D808;
 g_DebugLevel = 0x8009D820;
 g_FieldModelBaseAnimSpeed = 0x8009D828;
 g_ActiveCharacters = 0x8009D84C; // size:0x2700
+
+AkaoSpuTransferComplete = 0x800293D0;
+AkaoSpuTransferPrep = 0x800293F4;
+AkaoSpuWrite = 0x80029424;
+g_AkaoTransfer = 0x80062E08;

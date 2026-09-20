@@ -257,17 +257,20 @@ extern SpuCommonAttr D_8009C578;
 #define READ_S8(addr) ((s8)(*(addr)++))
 #define READ_S16(addr) ((s16)(*(addr)++ | (*(addr)++ << 8)))
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800293D0);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferComplete);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800293F4);
 
-static void func_80029424(s32 arg0, s32 arg1) {
-    func_800293F4();
+
+
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferPrep);
+
+static void AkaoSpuWrite(s32 arg0, s32 arg1) {
+    AkaoSpuTransferPrep();
     func_80038F04(arg0, arg1);
 }
 
 static void func_80029464(s32 arg0, s32 arg1) {
-    func_800293F4();
+    AkaoSpuTransferPrep();
     SpuRead(arg0, arg1);
 }
 
