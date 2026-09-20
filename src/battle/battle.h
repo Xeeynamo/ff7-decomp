@@ -92,7 +92,7 @@ typedef struct {
     /* 0x0F */ s8 physEvade;
     /* 0x10 */ s8 idleActionId;
     /* 0x11 */ u8 hurtActionId;
-    /* 0x12 */ s8 backDamageMult;
+    /* 0x12 */ u8 backDamageMult;
     /* 0x13 */ s8 rowFlags;
     /* 0x14 */ s8 dexterity;
     /* 0x15 */ u8 luck;
