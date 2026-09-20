@@ -761,7 +761,7 @@ fade_out:
     D_8009A000[0] = 0xC1;
     D_8009A004[0] = 0x3C;
     D_8009A008[0] = 0;
-    SystemAkaoExecute();
+    AkaoExec();
     for (col = 0; col < 0xFF; col += 4) {
         D_800AF408 = StartFrame(D_800AF40C);
         rect.x = D_8007EBD0->clip.x;
@@ -1146,7 +1146,7 @@ s32 func_800A22E4(void) {
 s32 func_800A2328(void) {
     D_8009A000[0] = 0x10;
     D_8009A004[0] = (u32)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
-    SystemAkaoExecute();
+    AkaoExec();
 
     return 1;
 }
@@ -1155,7 +1155,7 @@ s32 func_800A2380(void) {
     D_8009A000[0] = *D_800A6528++;
     D_8009A004[0] = *D_800A6528++;
     D_8009A008[0] = *D_800A6528++;
-    SystemAkaoExecute();
+    AkaoExec();
 
     return 1;
 }

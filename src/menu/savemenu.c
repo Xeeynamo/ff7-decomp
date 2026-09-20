@@ -10,7 +10,7 @@ static void PlaySfx(u16 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 static s32 func_801D0448(s32 fadeDirection) {

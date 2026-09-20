@@ -39,7 +39,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_8001117C);
 
 static void func_800111E4(void) {
     D_8009A000[0] = 0xF4;
-    SystemAkaoExecute();
+    AkaoExec();
     if (!(Savemap.memory_bank_4[97] & 0x30)) {
         func_8001117C(0x2B);
     }
@@ -67,7 +67,7 @@ static void func_80011274(void) {
         }
     }
 
-    func_80029818((u32*)0x800A0000, (u32*)0x800E0000);
+    AkaoLoadInstr2((u32*)0x800A0000, (u32*)0x800E0000);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800112E8);
@@ -247,7 +247,7 @@ void main(void) {
         ENDING_Loop(0);
         *D_8009A000 = 192;
         *D_8009A004 = 127;
-        SystemAkaoExecute();
+        AkaoExec();
         ClearImage(&rect, 0, 0, 0);
         func_80026258();
         func_80011920();
@@ -296,7 +296,7 @@ void main(void) {
                             if (g_FieldState.nextBattleMusic) {
                                 *D_8009A000 = 20;
                                 *D_8009A004 = (u32)g_FieldState.nextBattleMusic;
-                                SystemAkaoExecute();
+                                AkaoExec();
                             }
                             D_800722C8 = (u_long*)0x801C0000;
                             D_80071744 = yama_field_field.loc;
@@ -551,12 +551,12 @@ void main(void) {
                 break;
             } else if (g_FieldState.eventCmd == EVTCMD_GAME_OVER) {
                 g_FieldState.eventCmd = EVTCMD_NONE;
-                SystemAkaoExecute();
+                AkaoExec();
                 SysCdromLoadFile(yama_field_dschange.loc, yama_field_dschange.len, (u_long*)0x800A0000, NULL);
                 func_800A0C58();
                 *D_8009A000 = 192;
                 *D_8009A004 = 127;
-                SystemAkaoExecute();
+                AkaoExec();
                 func_80033BE0();
                 func_800299C8();
                 break;

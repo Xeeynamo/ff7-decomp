@@ -3663,7 +3663,7 @@ void PlayMusicTrack(s32 arg0) {
         }
         D_8009A004[0] = D_801159BC[arg0];
         D_8009A008[0] = 4;
-        SystemAkaoExecute();
+        AkaoExec();
     }
     prev = D_801159E0;
     D_801159E0 = arg0;
@@ -3677,7 +3677,7 @@ static s32 func_800B64C8(void) { return D_801159E0; }
 static void func_800B64D8(u32 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B650C);
@@ -3685,14 +3685,14 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B650C);
 static void WmSetMusicVolume(u32 arg0) {
     D_8009A000[0] = 0xC0;
     D_8009A004[0] = arg0;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 static void func_800B65A4(u32 arg0, s32 arg1) {
     D_8009A000[0] = 0xBD;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg1;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 void ToggleAmbientSound(s32 arg0) {
@@ -3701,14 +3701,14 @@ void ToggleAmbientSound(s32 arg0) {
         D_8010CB20 = arg0;
         D_8009A004[0] = 0x40;
         D_8009A008[0] = arg0;
-        SystemAkaoExecute();
+        AkaoExec();
     } else if (arg0 == -D_8010CB20) {
         D_8010CB20 = 0;
         D_8009A000[0] = 0xF1;
-        SystemAkaoExecute();
+        AkaoExec();
         D_8009A000[0] = 0xBC;
         D_8009A004[0] = 0;
-        SystemAkaoExecute();
+        AkaoExec();
     }
 }
 
@@ -4563,7 +4563,7 @@ static void WmDialogPlaySound(void) {
     *D_8009A000 = 0x30;
     *D_8009A004 = 1;
     *D_8009A008 = 0x40;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 static s32 WmDialogInitWindow(s16 window, s16 stringId) {

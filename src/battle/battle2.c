@@ -2533,7 +2533,7 @@ s32 func_800D55A4(s32 arg0) {
 
 // Generic AKAO sound-command dispatcher: the first vararg's low 16 bits are
 // the command id, which selects how many trailing u32 params get copied into
-// the D_8009A004 queue before calling SystemAkaoExecute.
+// the D_8009A004 queue before calling AkaoExec.
 void BattleCommandSend(s32 cmdId, ...) {
     void** args = (void**)&cmdId;
     u32* dst = (u32*)cmdId;
@@ -2565,7 +2565,7 @@ void BattleCommandSend(s32 cmdId, ...) {
             *dst++ = *src++;
         }
     }
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 // Project a point through the current view matrix and convert its clamped

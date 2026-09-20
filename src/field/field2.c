@@ -401,7 +401,7 @@ static void PlayWindowPointerClickSound(void) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = 1;
     D_8009A008[0] = 0x40;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 static s32 FieldDialogWindowInit(s16 window, s16 stringId) {
