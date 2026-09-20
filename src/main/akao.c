@@ -563,7 +563,7 @@ void AkaoCmd_2B(Unk8002B7E0* arg0) {
     AkaoSoundChannelsInit(arg0->unk4, 0x36, sp10, sp14);
 }
 
-void AkaoC0VolumeSet(Unk8002B7E0* arg0) {
+void AkaoCmd_C0_VolumeSet(Unk8002B7E0* arg0) {
     g_AkaoVolMulMusicSlideSteps = 0;
     g_AkaoVolMulMusic = (arg0->unk4 & 0x7F) << 0x10;
     AkaoMusicVolReset();
@@ -577,7 +577,7 @@ typedef struct {
 
 // Starts a volume slide from the current g_AkaoVolMulMusic toward a target
 // derived from arg0, over arg0's tick count.
-void AkaoC1VolumeSlideFromCurrent(Unk8002BA98* arg0) {
+void AkaoCmd_C1_VolSlideFromCurr(Unk8002BA98* arg0) {
     s32 temp_v0;
     s32 var_a1;
 
@@ -600,7 +600,7 @@ typedef struct {
 
 // Starts a volume slide between two explicit targets from arg0 (rather than
 // from the current g_AkaoVolMulMusic), over arg0's tick count.
-void AkaoC2VolumeSlideBetweenTargets(Unk8002BB20* arg0) {
+void AkaoCmd_C2_VolSlideBetweenTargets(Unk8002BB20* arg0) {
     s32 temp_v1;
     s32 var_a1;
     s32 temp_v0;
@@ -628,7 +628,7 @@ typedef struct {
 
 // Starts a CD-audio volume slide from the current g_AkaoCdVol toward a
 // target derived from arg0, over arg0's tick count.
-void AkaoC9CdVolumeSlideFromCurrent(Unk8002BBEC* arg0) {
+void AkaoCmd_C9_CdVolSlideFromCurr(Unk8002BBEC* arg0) {
     s32 temp_v0;
     s32 var_a1;
 
@@ -652,7 +652,7 @@ typedef struct {
 
 // Starts a CD-audio volume slide between two explicit targets from arg0
 // (rather than from the current g_AkaoCdVol), over arg0's tick count.
-void AkaoCACdVolumeSlideBetweenTargets(Unk8002BC58* arg0) {
+void AkaoCmd_CA_CdVolSlideBetweenTargets(Unk8002BC58* arg0) {
     s32 temp_v0;
     s32 temp_v1;
     s32 var_a1;
@@ -847,7 +847,7 @@ typedef struct {
 
 // Starts a tempo slide toward a target derived from arg0, over arg0's tick
 // count.
-void AkaoD1TempoSlideFromCurrent(Unk8002C5C8* arg0) {
+void AkaoCmd_D1_TempoSlideFromCurr(Unk8002C5C8* arg0) {
     s32 temp_v0;
     s32 var_a1;
 
@@ -862,7 +862,7 @@ void AkaoD1TempoSlideFromCurrent(Unk8002C5C8* arg0) {
 
 // Starts a tempo slide between two explicit targets from arg0, over arg0's
 // tick count.
-void AkaoD2TempoSlideBetweenTargets(Unk8002C5A8* arg0) {
+void AkaoCmd_D2_TempoSlideBetweenTargets(Unk8002C5A8* arg0) {
     long new_var;
     s32 temp_a2;
     s32 temp_v1;
@@ -894,7 +894,7 @@ typedef struct {
 
 // Starts a pitch slide from the current g_AkaoPitchMulMusic toward a
 // target derived from arg0, over arg0's tick count.
-void AkaoD5PitchSlideFromCurrent(Unk8002C6C8* arg0) {
+void AkaoCmd_D5_PitchSlideFromCurr(Unk8002C6C8* arg0) {
     s32 temp_v0;
     s32 var_a1;
     s32 temp_v1;
@@ -911,7 +911,7 @@ void AkaoD5PitchSlideFromCurrent(Unk8002C6C8* arg0) {
 
 // Starts a pitch slide between two explicit targets from arg0, over arg0's
 // tick count.
-void AkaoD6PitchSlideBetweenTargets(Unk8002C5A8* arg0) {
+void AkaoCmd_D6_PitchSlideBetweenTargets(Unk8002C5A8* arg0) {
     s32 new_var;
     s32 temp_a2;
     s32 temp_v1;
@@ -941,7 +941,7 @@ static void AkaoCmd_80(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_82);
 
-static void Akao81SetMonoMode(void) {
+static void AkaoCmd_81_SetMonoMode(void) {
     g_Channel1Config = 2;
     AkaoMusicVolReset();
     AkaoSoundVolReset();
@@ -955,7 +955,7 @@ void AkaoUpdateChannelParamsToSpu(s32, void*);
 
 // Moves newly-requested channels_1 voices into the active mask, resetting
 // each one's SPU attributes.
-void Akao9BApplyPendingMusicUpdates(void) {
+void AkaoCmd_9B_ApplyPendingMusicUpdates(void) {
     s32 savedMask;
     s32 bit;
     s32 pendingBits;
@@ -991,7 +991,7 @@ void AkaoUpdatePitchLfoVoices();
 
 // Restore counterpart: moves the stored channels_1 mask back to active,
 // resetting SPU attributes along the way.
-void Akao9AFlushPendingMusicUpdates(void) {
+void AkaoCmd_9A_FlushPendingMusicUpdates(void) {
     AkaoChannel* voice;
     s32 savedMask;
     unsigned int stillPending;
@@ -1020,9 +1020,9 @@ void Akao9AFlushPendingMusicUpdates(void) {
     g_AkaoControlFlags &= ~1;
 }
 
-// channels_3 counterpart to Akao9BApplyPendingMusicUpdates; also masks off
+// channels_3 counterpart to AkaoCmd_9B_ApplyPendingMusicUpdates; also masks off
 // the top two voices in mono mode.
-void Akao9DApplyPendingSoundUpdates(void) {
+void AkaoCmd_9D_ApplyPendingSoundUpdates(void) {
     s32 savedMask;
     short cleared;
     s32 newMask;
@@ -1055,8 +1055,8 @@ void Akao9DApplyPendingSoundUpdates(void) {
     g_AkaoControlFlags |= 2;
 }
 
-// channels_3 counterpart to Akao9AFlushPendingMusicUpdates.
-void Akao9CFlushPendingSoundUpdates(void) {
+// channels_3 counterpart to AkaoCmd_9A_FlushPendingMusicUpdates.
+void AkaoCmd_9C_FlushPendingSoundUpdates(void) {
     AkaoChannel* half;
     s32 savedMask;
     s32 bit;
@@ -1085,7 +1085,7 @@ typedef struct {
     u16 unk4;
 } Unk8002CC18;
 
-static void AkaoE0SetReverbPan(Unk8002CC18* arg0) {
+static void AkaoCmd_E0_SetReverbPan(Unk8002CC18* arg0) {
     g_AkaoReverbPan = arg0->unk4 & 0x7F;
     D_8009A13C |= 0x80;
 }
@@ -1095,7 +1095,7 @@ typedef struct {
     u8 unk4;
 } Unk8002CC44;
 
-static void AkaoE4SetReverbMul(Unk8002CC44* arg0) {
+static void AkaoCmd_E4_SetReverbMul(Unk8002CC44* arg0) {
     u8 temp_v0;
     s32 var_v0;
     s32 mask;
@@ -1121,7 +1121,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_F4);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_F5);
 
-static void AkaoF8StreamReverbMaskClear(void) {
+static void AkaoCmd_F8_StreamReverbMaskClear(void) {
     s32* addr;
     s32 temp_a0;
     s32 temp_v1;
@@ -1135,7 +1135,7 @@ static void AkaoF8StreamReverbMaskClear(void) {
     AkaoUpdateReverbVoices(temp_a0, addr);
 }
 
-static void AkaoF9StreamReverbMaskRestore(void) {
+static void AkaoCmd_F9_StreamReverbMaskRestore(void) {
     s32 temp_a0;
 
     func_8002CFC0();
