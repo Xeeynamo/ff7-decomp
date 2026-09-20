@@ -229,19 +229,19 @@ extern u16 D_8008337E;
 extern s32 D_80083394;
 extern u16 D_800833DE;
 extern s32 D_80083580[];
-extern Unk80096608 D_80096608[];
+extern Unk80096608 g_Channel1[];
 extern s32 D_80097768;
 extern s32 D_80097870;
-extern Unk80099788 D_80099788[];
+extern Unk80099788 g_Channel3[];
 extern u16 D_80099E0C;
-extern s32 D_80099FCC[];
-extern s32 D_80099FD8;
+extern s32 g_Channel3ActiveMask[];
+extern s32 g_Channel3OffMask;
 extern s32 g_AkaoSoundActiveMaskStored;
 extern s32 g_AkaoNoiseMask;
 extern s32 g_AkaoReverbMask;
 extern s32 g_AkaoPitchLfoMask;
 extern u16 D_8009A14E;
-extern s32 D_8009A104;
+extern s32 g_Channel1Config;
 extern s32 g_AkaoMusicActiveMask;
 extern s32 D_8009A10C;
 extern s32 D_8009A110;
@@ -252,7 +252,7 @@ extern s32 g_AkaoMusicAltMask;
 extern s32 D_8009A13C;
 extern u32 g_ReverbMode;
 extern SpuReverbAttr g_ReverbAttr;
-extern SpuCommonAttr D_8009C578;
+extern SpuCommonAttr g_SpuCommonAttr;
 
 #define READ_S8(addr) ((s8)(*(addr)++))
 #define READ_S16(addr) ((s16)(*(addr)++ | (*(addr)++ << 8)))
@@ -366,7 +366,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029C48);
 
 // Merges newly-requested bits (g_AkaoMusicOverMask/g_AkaoMusicAltMask) into the
 // pending mask g_AkaoMusicActiveMask, then for each set bit points the matching
-// D_80096608 slot at the default D_80049C40 sample and marks it (unk56 =
+// g_Channel1 slot at the default D_80049C40 sample and marks it (unk56 =
 // 0x204), clearing the request bits as it goes.
 static void func_80029E98(void) {
     s32 mask;
@@ -376,7 +376,7 @@ static void func_80029E98(void) {
     s32 req1;
 
     if (g_AkaoMusicActiveMask != 0) {
-        slot = D_80096608;
+        slot = g_Channel1;
         bit = 1;
         req0 = g_AkaoMusicOverMask;
         req1 = g_AkaoMusicAltMask;
@@ -458,7 +458,7 @@ void func_8002B1F8(Unk8002B7E0* arg0) {
     func_80029B78(arg0->unk4, arg0->unk8);
     if (D_8009A14E == 0xE) {
         func_8002A7E8();
-        func_8002B1A8(&D_80096608, &D_800804D0, &D_8009A104, &D_80083394);
+        func_8002B1A8(&g_Channel1, &D_800804D0, &g_Channel1Config, &D_80083394);
     }
     func_80029E98();
     if (D_8008337E && D_8008337E == arg0->unkC) {
@@ -476,12 +476,12 @@ void func_8002B2F8(Unk8002B7E0* arg0) {
 
     func_80029B78(arg0->unk4, arg0->unk8);
     func_8002A7E8();
-    var_a2 = &D_8009A104;
+    var_a2 = &g_Channel1Config;
     if (D_8009A14E) {
         if (D_8009A14E == 0xE) {
-            func_8002B1A8(&D_80096608, &D_800804D0, var_a2, &D_80083394);
+            func_8002B1A8(&g_Channel1, &D_800804D0, var_a2, &D_80083394);
         } else {
-            func_8002B1A8(&D_80096608, &D_8007EC10, var_a2, &D_80083334);
+            func_8002B1A8(&g_Channel1, &D_8007EC10, var_a2, &D_80083334);
         }
     }
     func_80029E98();
@@ -729,35 +729,35 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BD04);
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
 void func_8002BDCC(void* arg0) {
-    func_8002BCCC(arg0, &D_80099788[3]);
-    func_8002BCCC(arg0, &D_80099788[2]);
-    func_8002BCCC(arg0, &D_80099788[1]);
-    func_8002BCCC(arg0, &D_80099788[0]);
+    func_8002BCCC(arg0, &g_Channel3[3]);
+    func_8002BCCC(arg0, &g_Channel3[2]);
+    func_8002BCCC(arg0, &g_Channel3[1]);
+    func_8002BCCC(arg0, &g_Channel3[0]);
 }
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
 void func_8002BE2C(void* arg0) {
-    func_8002BD04(arg0, &D_80099788[3]);
-    func_8002BD04(arg0, &D_80099788[2]);
-    func_8002BD04(arg0, &D_80099788[1]);
-    func_8002BD04(arg0, &D_80099788[0]);
+    func_8002BD04(arg0, &g_Channel3[3]);
+    func_8002BD04(arg0, &g_Channel3[2]);
+    func_8002BD04(arg0, &g_Channel3[1]);
+    func_8002BD04(arg0, &g_Channel3[0]);
 }
 
-void func_8002BE8C(void* arg0) { func_8002BCCC(arg0, &D_80099788[2]); }
+void func_8002BE8C(void* arg0) { func_8002BCCC(arg0, &g_Channel3[2]); }
 
-void func_8002BEB4(s32 arg0) { func_8002BD04(arg0, &D_80099788[2]); }
+void func_8002BEB4(s32 arg0) { func_8002BD04(arg0, &g_Channel3[2]); }
 
-void func_8002BEDC(void* arg0) { func_8002BCCC(arg0, &D_80099788[1]); }
+void func_8002BEDC(void* arg0) { func_8002BCCC(arg0, &g_Channel3[1]); }
 
-void func_8002BF04(s32 arg0) { func_8002BD04(arg0, &D_80099788[1]); }
+void func_8002BF04(s32 arg0) { func_8002BD04(arg0, &g_Channel3[1]); }
 
-void func_8002BF2C(void* arg0) { func_8002BCCC(arg0, &D_80099788[0]); }
+void func_8002BF2C(void* arg0) { func_8002BCCC(arg0, &g_Channel3[0]); }
 
-void func_8002BF54(s32 arg0) { func_8002BD04(arg0, &D_80099788[0]); }
+void func_8002BF54(s32 arg0) { func_8002BD04(arg0, &g_Channel3[0]); }
 
-void func_8002BF7C(void* arg0) { func_8002BCCC(arg0, &D_80099788[3]); }
+void func_8002BF7C(void* arg0) { func_8002BCCC(arg0, &g_Channel3[3]); }
 
-void func_8002BFA4(s32 arg0) { func_8002BD04(arg0, &D_80099788[3]); }
+void func_8002BFA4(s32 arg0) { func_8002BD04(arg0, &g_Channel3[3]); }
 
 // Same shape as func_8002BCCC (two 0x108-byte halves, shared +0xE0 control
 // word), at a different pitch/clear field within each half.
@@ -780,35 +780,35 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C004);
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
 void func_8002C0CC(void* arg0) {
-    func_8002BFCC(arg0, &D_80099788[3]);
-    func_8002BFCC(arg0, &D_80099788[2]);
-    func_8002BFCC(arg0, &D_80099788[1]);
-    func_8002BFCC(arg0, &D_80099788[0]);
+    func_8002BFCC(arg0, &g_Channel3[3]);
+    func_8002BFCC(arg0, &g_Channel3[2]);
+    func_8002BFCC(arg0, &g_Channel3[1]);
+    func_8002BFCC(arg0, &g_Channel3[0]);
 }
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
 void func_8002C12C(void* arg0) {
-    func_8002C004(arg0, &D_80099788[3]);
-    func_8002C004(arg0, &D_80099788[2]);
-    func_8002C004(arg0, &D_80099788[1]);
-    func_8002C004(arg0, &D_80099788[0]);
+    func_8002C004(arg0, &g_Channel3[3]);
+    func_8002C004(arg0, &g_Channel3[2]);
+    func_8002C004(arg0, &g_Channel3[1]);
+    func_8002C004(arg0, &g_Channel3[0]);
 }
 
-void func_8002C18C(void* arg0) { func_8002BFCC(arg0, &D_80099788[2]); }
+void func_8002C18C(void* arg0) { func_8002BFCC(arg0, &g_Channel3[2]); }
 
-void func_8002C1B4(s32 arg0) { func_8002C004(arg0, &D_80099788[2]); }
+void func_8002C1B4(s32 arg0) { func_8002C004(arg0, &g_Channel3[2]); }
 
-void func_8002C1DC(void* arg0) { func_8002BFCC(arg0, &D_80099788[1]); }
+void func_8002C1DC(void* arg0) { func_8002BFCC(arg0, &g_Channel3[1]); }
 
-void func_8002C204(s32 arg0) { func_8002C004(arg0, &D_80099788[1]); }
+void func_8002C204(s32 arg0) { func_8002C004(arg0, &g_Channel3[1]); }
 
-void func_8002C22C(void* arg0) { func_8002BFCC(arg0, &D_80099788[0]); }
+void func_8002C22C(void* arg0) { func_8002BFCC(arg0, &g_Channel3[0]); }
 
-void func_8002C254(s32 arg0) { func_8002C004(arg0, &D_80099788[0]); }
+void func_8002C254(s32 arg0) { func_8002C004(arg0, &g_Channel3[0]); }
 
-void func_8002C27C(void* arg0) { func_8002BFCC(arg0, &D_80099788[3]); }
+void func_8002C27C(void* arg0) { func_8002BFCC(arg0, &g_Channel3[3]); }
 
-void func_8002C2A4(s32 arg0) { func_8002C004(arg0, &D_80099788[3]); }
+void func_8002C2A4(s32 arg0) { func_8002C004(arg0, &g_Channel3[3]); }
 
 // Same shape as func_8002BCCC/func_8002BFCC (two 0x108-byte halves, shared
 // +0xE0 control word), at a third pitch/clear field, setting flag bit 0x10
@@ -833,35 +833,35 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C300);
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
 void func_8002C3A8(void* arg0) {
-    func_8002C2CC(arg0, &D_80099788[3]);
-    func_8002C2CC(arg0, &D_80099788[2]);
-    func_8002C2CC(arg0, &D_80099788[1]);
-    func_8002C2CC(arg0, &D_80099788[0]);
+    func_8002C2CC(arg0, &g_Channel3[3]);
+    func_8002C2CC(arg0, &g_Channel3[2]);
+    func_8002C2CC(arg0, &g_Channel3[1]);
+    func_8002C2CC(arg0, &g_Channel3[0]);
 }
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
 void func_8002C408(void* arg0) {
-    func_8002C300(arg0, &D_80099788[3]);
-    func_8002C300(arg0, &D_80099788[2]);
-    func_8002C300(arg0, &D_80099788[1]);
-    func_8002C300(arg0, &D_80099788[0]);
+    func_8002C300(arg0, &g_Channel3[3]);
+    func_8002C300(arg0, &g_Channel3[2]);
+    func_8002C300(arg0, &g_Channel3[1]);
+    func_8002C300(arg0, &g_Channel3[0]);
 }
 
-void func_8002C468(void* arg0) { func_8002C2CC(arg0, &D_80099788[2]); }
+void func_8002C468(void* arg0) { func_8002C2CC(arg0, &g_Channel3[2]); }
 
-void func_8002C490(s32 arg0) { func_8002C300(arg0, &D_80099788[2]); }
+void func_8002C490(s32 arg0) { func_8002C300(arg0, &g_Channel3[2]); }
 
-void func_8002C4B8(void* arg0) { func_8002C2CC(arg0, &D_80099788[1]); }
+void func_8002C4B8(void* arg0) { func_8002C2CC(arg0, &g_Channel3[1]); }
 
-void func_8002C4E0(s32 arg0) { func_8002C300(arg0, &D_80099788[1]); }
+void func_8002C4E0(s32 arg0) { func_8002C300(arg0, &g_Channel3[1]); }
 
-void func_8002C508(void* arg0) { func_8002C2CC(arg0, &D_80099788[0]); }
+void func_8002C508(void* arg0) { func_8002C2CC(arg0, &g_Channel3[0]); }
 
-void func_8002C530(s32 arg0) { func_8002C300(arg0, &D_80099788[0]); }
+void func_8002C530(s32 arg0) { func_8002C300(arg0, &g_Channel3[0]); }
 
-void func_8002C558(void* arg0) { func_8002C2CC(arg0, &D_80099788[3]); }
+void func_8002C558(void* arg0) { func_8002C2CC(arg0, &g_Channel3[3]); }
 
-void func_8002C580(s32 arg0) { func_8002C300(arg0, &D_80099788[3]); }
+void func_8002C580(s32 arg0) { func_8002C300(arg0, &g_Channel3[3]); }
 
 void func_8002C5A8(Unk8002C5A8* arg0) {
     s32 n = arg0->unk4;
@@ -964,7 +964,7 @@ static void func_8002C7A8(void) { func_80029F44(); }
 static void func_8002C7C8(void) { func_8002A43C(); }
 
 static void func_8002C7E8(void) {
-    D_8009A104 = 1;
+    g_Channel1Config = 1;
     func_8002A748();
     func_8002A798();
 }
@@ -972,7 +972,7 @@ static void func_8002C7E8(void) {
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C81C);
 
 static void Akao81SetMonoMode(void) {
-    D_8009A104 = 2;
+    g_Channel1Config = 2;
     func_8002A748();
     func_8002A798();
 }
@@ -992,8 +992,8 @@ void Akao9BApplyPendingMusicUpdates(void) {
     s32 voiceIdx;
 
     if (g_AkaoMusicActiveMask != 0) {
-        pendingBits =
-            (g_AkaoMusicActiveMask | g_AkaoMusicOverMask | g_AkaoMusicAltMask) & ~(D_80099FCC[0] | g_AkaoStreamMask);
+        pendingBits = (g_AkaoMusicActiveMask | g_AkaoMusicOverMask | g_AkaoMusicAltMask) &
+                      ~(g_Channel3ActiveMask[0] | g_AkaoStreamMask);
         if (pendingBits != 0) {
             bit = 1;
             voiceIdx = 0;
@@ -1031,7 +1031,7 @@ void Akao9AFlushPendingMusicUpdates(void) {
     pendingBits = g_AkaoMusicActiveMaskStored;
     if (pendingBits != 0) {
         bit = 1;
-        voice = D_80096608;
+        voice = g_Channel1;
         do {
             if (pendingBits & bit) {
                 pendingBits ^= bit;
@@ -1059,7 +1059,7 @@ void Akao9DApplyPendingSoundUpdates(void) {
     s32 bit;
     s32 voiceIdx;
 
-    newMask = D_80099FCC[0];
+    newMask = g_Channel3ActiveMask[0];
     savedMask = newMask;
     if (newMask != 0) {
         bit = 0x10000;
@@ -1067,7 +1067,7 @@ void Akao9DApplyPendingSoundUpdates(void) {
             newMask &= ~((1 << 22) | (1 << 23));
         }
         g_AkaoSoundActiveMaskStored = newMask;
-        D_80099FCC[cleared = 0] = newMask ^ savedMask;
+        g_Channel3ActiveMask[cleared = 0] = newMask ^ savedMask;
         D_8007EC0E = cleared;
         D_8007EC0C = cleared;
         D_8007EC08 = 0x7F;
@@ -1094,7 +1094,7 @@ void Akao9CFlushPendingSoundUpdates(void) {
 
     pendingBits = g_AkaoSoundActiveMaskStored;
     if (pendingBits != 0) {
-        for (bit = 0x10000, half = &D_80099788[0].half0; pendingBits != 0; bit *= 2, half++) {
+        for (bit = 0x10000, half = &g_Channel3[0].half0; pendingBits != 0; bit *= 2, half++) {
             if (pendingBits & bit) {
                 pendingBits ^= bit;
                 half->unkE0 |= SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
@@ -1102,7 +1102,7 @@ void Akao9CFlushPendingSoundUpdates(void) {
         }
         savedMask = g_AkaoSoundActiveMaskStored;
         g_AkaoSoundActiveMaskStored = 0;
-        D_80099FCC[0] = savedMask;
+        g_Channel3ActiveMask[0] = savedMask;
         func_8002FF4C(bit);
         func_80030038();
         func_80030148();
@@ -1157,7 +1157,7 @@ static void AkaoF8StreamReverbMaskClear(void) {
     s32 temp_v1;
 
     func_8002CFC0();
-    addr = D_80099FCC;
+    addr = g_Channel3ActiveMask;
     temp_a0 = g_AkaoReverbMask;
     temp_v1 = ~g_AkaoStreamMask;
     *addr &= temp_v1;
@@ -1169,10 +1169,10 @@ static void AkaoF9StreamReverbMaskRestore(void) {
     s32 temp_a0;
 
     func_8002CFC0();
-    temp_a0 = D_80099FCC[0];
-    D_80099FCC[0] = ~g_AkaoStreamMask & temp_a0;
+    temp_a0 = g_Channel3ActiveMask[0];
+    g_Channel3ActiveMask[0] = ~g_AkaoStreamMask & temp_a0;
     g_AkaoReverbMask |= g_AkaoStreamMask;
-    func_80030038(temp_a0, D_80099FCC, g_AkaoStreamMask);
+    func_80030038(temp_a0, g_Channel3ActiveMask, g_AkaoStreamMask);
 }
 
 static void func_8002CF78(void) { func_80029A50(); }
@@ -1219,7 +1219,7 @@ static void AkaoStreamTransferCallbackMono(void) {
         SpuSetIRQ(1);
     }
     SpuSetKey(1, g_AkaoStreamMask);
-    D_80099FD8 &= ~g_AkaoStreamMask;
+    g_Channel3OffMask &= ~g_AkaoStreamMask;
 }
 
 static void AkaoStreamIrqCallbackSplit0(void);
@@ -1235,7 +1235,7 @@ static void AkaoStreamTransferCallbackSplit(void) {
         SpuSetIRQ(1);
     }
     SpuSetKey(1, g_AkaoStreamMask);
-    D_80099FD8 &= ~g_AkaoStreamMask;
+    g_Channel3OffMask &= ~g_AkaoStreamMask;
 }
 
 static void AkaoStreamIrqCallbackMono1(void);
@@ -1378,14 +1378,14 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002E23C);
 
 // Applies the current CD volume (g_AkaoCdVol) to the SPU's CD-input channel.
 // Confirmed against qgears' independent reverse-engineering (system_psyq_spu_
-// set_common_attr call, mask = SPU_COMMON_CDVOLL|CDVOLR|CDREV): D_8009C578's
+// set_common_attr call, mask = SPU_COMMON_CDVOLL|CDVOLR|CDREV): g_SpuCommonAttr's
 // first field is a field-select mask, not a voice bitmask.
 static void AkaoUpdateCdVolume(void) {
-    D_8009C578.mask = 0x1C0;
-    D_8009C578.cd.reverb = 0;
-    D_8009C578.cd.volume.right = g_AkaoCdVol.i.hi;
-    D_8009C578.cd.volume.left = g_AkaoCdVol.i.hi;
-    SpuSetCommonAttr(&D_8009C578);
+    g_SpuCommonAttr.mask = 0x1C0;
+    g_SpuCommonAttr.cd.reverb = 0;
+    g_SpuCommonAttr.cd.volume.right = g_AkaoCdVol.i.hi;
+    g_SpuCommonAttr.cd.volume.left = g_AkaoCdVol.i.hi;
+    SpuSetCommonAttr(&g_SpuCommonAttr);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002E478);
