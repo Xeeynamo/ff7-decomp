@@ -170,7 +170,7 @@ extern void (*D_80049548[])(Unk8002B7E0*);
 extern u8 D_800499A8[]; // opcode lenghts
 extern u8 D_80049C40[];
 extern s32 g_AkaoWaveTableKey[];
-s32 D_80062F00;
+s32 g_AkaoStreamMask;
 s32 D_80062F08;
 u16 D_80062F1E;
 // Music-driver slide state: each MulMusic value is a fixed-point scalar for
@@ -187,24 +187,24 @@ s16 g_AkaoPitchMulMusicSlideSteps;
 s16 g_AkaoVolMulMusicSlideSteps;
 s16 g_AkaoTempoMulMusicSlideSteps;
 s32 g_AkaoVolMulMusic;
-u16 D_80062F70;
-s32 D_80062F74;
-s32 D_80062F84;
-s32 D_80062F8C;
+u16 g_AkaoReverbPan;
+s32 g_AkaoEffectsAll;
+s32 g_AkaoEffectsAllSeq;
+s32 g_AkaoMutex;
 s32 D_80062FAC;
 s32 D_80062FB0;
 s32 g_AkaoCdVolSlideStep;
-u16 D_80062FB8;
+u16 g_AkaoReverbMul;
 u16 g_AkaoCdVolSlideSteps;
 
 extern AkaoCdVol g_AkaoCdVol;
 extern s32 D_80062FE0;
 extern s32 g_AkaoPitchMulMusic;
 extern s32 g_AkaoTempoMulMusic;
-extern s32 D_80062FF8;
+extern s32 g_AkaoControlFlags;
 extern s32 D_80063000;
 extern u32 D_80063004;
-extern s32 D_80063010; // sound message queue count
+extern s32 g_AkaoCommandQueueId; // sound message queue count
 extern u8 D_800716CC;
 extern u8 g_AkaoVoiceAttr[];
 extern s32 g_AkaoVoiceAttrMask;
@@ -259,9 +259,6 @@ extern SpuCommonAttr D_8009C578;
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferComplete);
 
-
-
-
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferPrep);
 
 static void AkaoSpuWrite(s32 arg0, s32 arg1) {
@@ -288,19 +285,19 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_80029998);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_800299C8);
 
-// Key off the voices in D_80062F00 and clear the SPU transfer/IRQ callbacks.
+// Key off the voices in g_AkaoStreamMask and clear the SPU transfer/IRQ callbacks.
 static void func_80029A50(void) {
     SpuSetTransferCallback(0);
     SpuSetIRQ(0);
     SpuSetIRQCallback(0);
-    SpuSetKey(0, D_80062F00);
-    if (D_80062F00 & 0x10000) {
+    SpuSetKey(0, g_AkaoStreamMask);
+    if (g_AkaoStreamMask & 0x10000) {
         D_80097768 = 0x1FF93;
     }
-    if (D_80062F00 & 0x20000) {
+    if (g_AkaoStreamMask & 0x20000) {
         D_80097870 = 0x1FF93;
     }
-    D_80062F00 = 0;
+    g_AkaoStreamMask = 0;
     func_80030038();
     func_80030148();
     func_8002FF4C();
@@ -416,7 +413,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A43C);
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A510);
 
 // Resolves a 10-bit note index into a pair of table entries: looks up
-// D_80062F74[index] and D_80062F74[index+1] (u16), adding D_80062F84 unless the
+// g_AkaoEffectsAll[index] and g_AkaoEffectsAll[index+1] (u16), adding g_AkaoEffectsAllSeq unless the
 // entry is the 0xFFFF "unused" sentinel (in which case the result is 0).
 static void func_8002A6C4(s32* arg0, s32* arg1, u16 arg2) {
     u16 idx;
@@ -426,17 +423,17 @@ static void func_8002A6C4(s32* arg0, s32* arg1, u16 arg2) {
     u16 raw1;
 
     idx = (arg2 & 0x3FF) * 2;
-    raw0 = *(u16*)((idx * 2) + D_80062F74);
+    raw0 = *(u16*)((idx * 2) + g_AkaoEffectsAll);
     if (raw0 != 0xFFFF) {
-        val0 = raw0 + D_80062F84;
+        val0 = raw0 + g_AkaoEffectsAllSeq;
     } else {
         val0 = 0;
     }
     *arg0 = val0;
     idx = idx + 1;
-    raw1 = *(u16*)((idx * 2) + D_80062F74);
+    raw1 = *(u16*)((idx * 2) + g_AkaoEffectsAll);
     if (raw1 != 0xFFFF) {
-        val1 = raw1 + D_80062F84;
+        val1 = raw1 + g_AkaoEffectsAllSeq;
     } else {
         val1 = 0;
     }
@@ -996,7 +993,7 @@ void Akao9BApplyPendingMusicUpdates(void) {
 
     if (g_AkaoMusicActiveMask != 0) {
         pendingBits =
-            (g_AkaoMusicActiveMask | g_AkaoMusicOverMask | g_AkaoMusicAltMask) & ~(D_80099FCC[0] | D_80062F00);
+            (g_AkaoMusicActiveMask | g_AkaoMusicOverMask | g_AkaoMusicAltMask) & ~(D_80099FCC[0] | g_AkaoStreamMask);
         if (pendingBits != 0) {
             bit = 1;
             voiceIdx = 0;
@@ -1015,7 +1012,7 @@ void Akao9BApplyPendingMusicUpdates(void) {
         g_AkaoMusicActiveMask = 0;
         g_AkaoMusicActiveMaskStored = savedMask;
     }
-    D_80062FF8 |= 1;
+    g_AkaoControlFlags |= 1;
 }
 
 void func_8002FF4C();
@@ -1050,7 +1047,7 @@ void Akao9AFlushPendingMusicUpdates(void) {
         func_80030038();
         func_80030148();
     }
-    D_80062FF8 &= ~1;
+    g_AkaoControlFlags &= ~1;
 }
 
 // channels_3 counterpart to Akao9BApplyPendingMusicUpdates; also masks off
@@ -1085,7 +1082,7 @@ void Akao9DApplyPendingSoundUpdates(void) {
             }
         }
     }
-    D_80062FF8 |= 2;
+    g_AkaoControlFlags |= 2;
 }
 
 // channels_3 counterpart to Akao9AFlushPendingMusicUpdates.
@@ -1110,7 +1107,7 @@ void Akao9CFlushPendingSoundUpdates(void) {
         func_80030038();
         func_80030148();
     }
-    D_80062FF8 &= ~2;
+    g_AkaoControlFlags &= ~2;
 }
 
 typedef struct {
@@ -1119,7 +1116,7 @@ typedef struct {
 } Unk8002CC18;
 
 static void AkaoE0SetReverbPan(Unk8002CC18* arg0) {
-    D_80062F70 = arg0->unk4 & 0x7F;
+    g_AkaoReverbPan = arg0->unk4 & 0x7F;
     D_8009A13C |= 0x80;
 }
 
@@ -1134,14 +1131,14 @@ static void AkaoE4SetReverbMul(Unk8002CC44* arg0) {
     s32 mask;
 
     temp_v0 = arg0->unk4;
-    D_80062FB8 = (s16)temp_v0;
+    g_AkaoReverbMul = (s16)temp_v0;
     mask = ~0x10;
     if (temp_v0 != 0) {
-        var_v0 = D_80062FF8 | 0x10;
+        var_v0 = g_AkaoControlFlags | 0x10;
     } else {
-        var_v0 = D_80062FF8 & mask;
+        var_v0 = g_AkaoControlFlags & mask;
     }
-    D_80062FF8 = var_v0;
+    g_AkaoControlFlags = var_v0;
     func_80030038();
     D_8009A13C |= 0x80;
 }
@@ -1162,7 +1159,7 @@ static void AkaoF8StreamReverbMaskClear(void) {
     func_8002CFC0();
     addr = D_80099FCC;
     temp_a0 = g_AkaoReverbMask;
-    temp_v1 = ~D_80062F00;
+    temp_v1 = ~g_AkaoStreamMask;
     *addr &= temp_v1;
     g_AkaoReverbMask = temp_v1 & temp_a0;
     func_80030038(temp_a0, addr);
@@ -1173,9 +1170,9 @@ static void AkaoF9StreamReverbMaskRestore(void) {
 
     func_8002CFC0();
     temp_a0 = D_80099FCC[0];
-    D_80099FCC[0] = ~D_80062F00 & temp_a0;
-    g_AkaoReverbMask |= D_80062F00;
-    func_80030038(temp_a0, D_80099FCC, D_80062F00);
+    D_80099FCC[0] = ~g_AkaoStreamMask & temp_a0;
+    g_AkaoReverbMask |= g_AkaoStreamMask;
+    func_80030038(temp_a0, D_80099FCC, g_AkaoStreamMask);
 }
 
 static void func_8002CF78(void) { func_80029A50(); }
@@ -1211,7 +1208,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D2D4);
 static void AkaoStreamIrqCallbackMono0(void);
 
 // CD-stream DMA transfer-complete callback (mono case). Keys on the stream
-// voice(s) in D_80062F00; when D_80063004 (bytes remaining) is nonzero, first
+// voice(s) in g_AkaoStreamMask; when D_80063004 (bytes remaining) is nonzero, first
 // re-arms the SPU transfer IRQ with AkaoStreamIrqCallbackMono0 to continue streaming.
 static void AkaoStreamTransferCallbackMono(void) {
     SpuSetTransferCallback(0);
@@ -1221,8 +1218,8 @@ static void AkaoStreamTransferCallbackMono(void) {
         SpuSetIRQCallback(AkaoStreamIrqCallbackMono0);
         SpuSetIRQ(1);
     }
-    SpuSetKey(1, D_80062F00);
-    D_80099FD8 &= ~D_80062F00;
+    SpuSetKey(1, g_AkaoStreamMask);
+    D_80099FD8 &= ~g_AkaoStreamMask;
 }
 
 static void AkaoStreamIrqCallbackSplit0(void);
@@ -1237,8 +1234,8 @@ static void AkaoStreamTransferCallbackSplit(void) {
         SpuSetIRQCallback(AkaoStreamIrqCallbackSplit0);
         SpuSetIRQ(1);
     }
-    SpuSetKey(1, D_80062F00);
-    D_80099FD8 &= ~D_80062F00;
+    SpuSetKey(1, g_AkaoStreamMask);
+    D_80099FD8 &= ~g_AkaoStreamMask;
 }
 
 static void AkaoStreamIrqCallbackMono1(void);
@@ -1359,8 +1356,8 @@ static void AkaoStreamIrqCallbackSplit1(void) {
 
 static void func_8002DA30(Unk8002B7E0** out_msg) {
     *out_msg = D_80081DC8;
-    *out_msg = &D_80081DC8[D_80063010];
-    D_80063010++;
+    *out_msg = &D_80081DC8[g_AkaoCommandQueueId];
+    g_AkaoCommandQueueId++;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", SystemAkaoExecute);
@@ -1370,8 +1367,8 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002DF88);
 static void func_8002E1A8(void) {
     Unk8002B7E0* msg;
 
-    if (D_80062F8C == 0) {
-        for (msg = D_80081DC8; D_80063010; D_80063010--, msg++) {
+    if (g_AkaoMutex == 0) {
+        for (msg = D_80081DC8; g_AkaoCommandQueueId; g_AkaoCommandQueueId--, msg++) {
             D_80049548[msg->unk0](msg);
         }
     }
