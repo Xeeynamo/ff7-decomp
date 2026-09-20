@@ -69,7 +69,26 @@ u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelDa
     return buffer;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_model", FieldModelLoadGlobalModels);
+u8* FieldModelLoadBcx(FieldModelLoaderHeader*, FieldModelData*, u8*, u32);
+u8* FieldModelLoadGlobalModels(
+    FieldModelLoaderHeader* header, FieldModelData* modelData, u8* buffer, s32 loadTextures) {
+    FieldModelLzsRequest* request;
+    s32 savedScratch;
+    u32 i;
+
+    savedScratch = *(u_long*)getScratchAddr(0);
+    request = *(FieldModelLzsRequest**)getScratchAddr(1);
+    for (i = 0; i < header->modelCount; i++) {
+        *(u_long*)0x1F800000 = savedScratch;
+        buffer = FieldModelLoadBcx(header, modelData, buffer, i);
+    }
+    if (loadTextures) {
+        SysCdromStartLoadLzs(request->sector, request->size, (u_long*)D_800DFCA0, NULL);
+        while (SystemCdromReadChain()) {
+        }
+    }
+    return buffer;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_model", FieldModelLoadBcx);
 

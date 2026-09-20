@@ -39,6 +39,12 @@ struct FieldRenderData {
     LINE_F2 Rain[64]; // 0x1749c: Rain line primitives
 };
 
+// Staged in scratchpad at 0x1F800004; describes the LZS blob to stream off the CD.
+typedef struct FieldModelLzsRequest {
+    /* 0x0 */ s32 sector;
+    /* 0x4 */ s32 size;
+} FieldModelLzsRequest;
+
 extern u8* D_80075E10;
 extern MATRIX* D_80083270;
 extern MATRIX** D_80083578;
@@ -46,7 +52,7 @@ extern u8 D_8009AC2D;
 extern u32 D_800DA5C8[];
 extern u8 D_800DF08C[];
 extern u8 D_800DF0D4[];
-extern s32 D_800DFCA0;
+extern s32* D_800DFCA0;
 extern u8* D_800E0204;
 extern u16 D_80114488;
 

@@ -12,7 +12,7 @@ void FieldModelLoadAndInit(void) {
     s32 offset;
     u32 i;
 
-    D_800DFCA0 = 0x80128000;
+    D_800DFCA0 = (s32*)0x80128000;
     result = FieldModelStructInit(D_8007E770, g_FieldModelData);
     D_80075E10 = result;
     D_800E0204 = result;
