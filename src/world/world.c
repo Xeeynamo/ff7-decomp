@@ -3651,7 +3651,7 @@ void PlayMusicTrack(s32 arg0) {
     s32 prev;
 
     if (D_801159DC != 0) {
-        cmd = D_8009A000;
+        cmd = &D_8009A000;
         if (arg0 != 1) {
             s16 mode = 0x10;
             if (D_801159E0 == 1) {
@@ -3661,8 +3661,8 @@ void PlayMusicTrack(s32 arg0) {
         } else {
             *cmd = 0x18;
         }
-        D_8009A004[0] = D_801159BC[arg0];
-        D_8009A008[0] = 4;
+        D_8009A004 = D_801159BC[arg0];
+        D_8009A008 = 4;
         AkaoExec();
     }
     prev = D_801159E0;
@@ -3675,39 +3675,42 @@ static void func_800B64A0(void) { PlayMusicTrack(D_801159E0); }
 static s32 func_800B64C8(void) { return D_801159E0; }
 
 static void func_800B64D8(u32 arg0) {
-    D_8009A000[0] = 0x30;
-    D_8009A004[0] = arg0;
+    D_8009A000 = 0x30;
+    D_8009A004 = arg0;
     AkaoExec();
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B650C);
 
 static void WmSetMusicVolume(u32 arg0) {
-    D_8009A000[0] = 0xC0;
-    D_8009A004[0] = arg0;
+    D_8009A000 = 0xC0;
+    D_8009A004 = arg0;
     AkaoExec();
 }
 
 static void func_800B65A4(u32 arg0, s32 arg1) {
-    D_8009A000[0] = 0xBD;
-    D_8009A004[0] = arg0;
-    D_8009A008[0] = arg1;
+    D_8009A000 = 0xBD;
+    D_8009A004 = arg0;
+    D_8009A008 = arg1;
     AkaoExec();
 }
 
 void ToggleAmbientSound(s32 arg0) {
+    s16* cmd;
+
     if (D_8010CB20 < arg0) {
-        D_8009A000[0] = 0x20;
+        D_8009A000 = 0x20;
         D_8010CB20 = arg0;
-        D_8009A004[0] = 0x40;
-        D_8009A008[0] = arg0;
+        D_8009A004 = 0x40;
+        D_8009A008 = arg0;
         AkaoExec();
     } else if (arg0 == -D_8010CB20) {
+        cmd = &D_8009A000;
         D_8010CB20 = 0;
-        D_8009A000[0] = 0xF1;
+        *cmd = 0xF1;
         AkaoExec();
-        D_8009A000[0] = 0xBC;
-        D_8009A004[0] = 0;
+        *cmd = 0xBC;
+        D_8009A004 = 0;
         AkaoExec();
     }
 }
@@ -4558,9 +4561,9 @@ s32 WmDialogSetAskToShow(u8 window, u8 message, u8 first, u8 last, s16* selected
 }
 
 static void WmDialogPlaySound(void) {
-    *D_8009A000 = 0x30;
-    *D_8009A004 = 1;
-    *D_8009A008 = 0x40;
+    D_8009A000 = 0x30;
+    D_8009A004 = 1;
+    D_8009A008 = 0x40;
     AkaoExec();
 }
 

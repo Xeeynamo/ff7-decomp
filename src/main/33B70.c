@@ -295,9 +295,9 @@ void SystemLzsDecompress(u8* src, u8* dst) {
 #undef THRESHOLD
 
 void func_80034CAC(u32 arg0) {
-    *D_8009A000 = 48;
-    *D_8009A004 = arg0;
-    *D_8009A008 = arg0;
+    D_8009A000 = 48;
+    D_8009A004 = arg0;
+    D_8009A008 = arg0;
     AkaoExec();
     VSync(60);
 }

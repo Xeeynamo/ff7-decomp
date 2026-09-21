@@ -2210,8 +2210,9 @@ void FieldEventClearAkaoStruct(void) {
     s32 i;
     s16* p;
 
-    D_8009A000[0] = 0;
-    for (i = 5, p = &D_8009A000[10]; i >= 0; i--) {
+    p = &D_8009A000;
+    *p = 0;
+    for (i = 5, p += 10; i >= 0; i--) {
         *(s32*)(p + 2) = 0;
         p -= 2;
     }
@@ -2228,7 +2229,7 @@ s32 OpcodeFuncMusic(void) {
         DebugPrintOpcode("music", 1);
     }
     FieldEventClearAkaoStruct();
-    D_8009A000[0] = 0x10;
+    D_8009A000 = 0x10;
     return SetAndApplyAkao();
 }
 
@@ -2237,7 +2238,7 @@ s32 OpcodeFuncMusvt(void) {
         DebugPrintOpcode("musvt", 1);
     }
     FieldEventClearAkaoStruct();
-    D_8009A000[0] = 0x14;
+    D_8009A000 = 0x14;
     return SetAndApplyAkao();
 }
 
@@ -2246,7 +2247,7 @@ s32 OpcodeFuncMusvm(void) {
         DebugPrintOpcode("musvm", 1);
     }
     FieldEventClearAkaoStruct();
-    D_8009A000[0] = 0x15;
+    D_8009A000 = 0x15;
     return SetAndApplyAkao();
 }
 
@@ -2257,8 +2258,8 @@ s32 OpcodeFuncCmusc(void) {
         DebugPrintOpcode("cmusc", 5);
     }
     FieldEventClearAkaoStruct();
-    *D_8009A000 = GET_PARAM_U8(3);
-    *D_8009A008 = (s16)FieldEventReadMemoryS16(3, 4);
+    D_8009A000 = GET_PARAM_U8(3);
+    D_8009A008 = (s16)FieldEventReadMemoryS16(3, 4);
     D_8009A00C = (s16)FieldEventReadMemoryS16(4, 6);
     result = SetAndApplyAkao();
     PC_INC(6);
@@ -2275,8 +2276,8 @@ static s32 SetAndApplyAkao(void) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("music=", akaoId, 2);
         }
-        *D_8009A004 = (u_long)g_FieldScripts + GetAkaoBlockOffset(akaoId);
-        g_pFieldState->nextFieldMusic = *D_8009A004;
+        D_8009A004 = (u_long)g_FieldScripts + GetAkaoBlockOffset(akaoId);
+        g_pFieldState->nextFieldMusic = D_8009A004;
         AkaoExec();
     }
     PC_INC(2);

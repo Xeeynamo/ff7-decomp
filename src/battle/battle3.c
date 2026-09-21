@@ -37,9 +37,9 @@ int BattleFlipDoubleBuffer(void) {
 }
 
 static void BattleTriggerSoundCommand(u16 arg0) {
-    D_8009A000[0] = arg0;
-    D_8009A004[0] = arg0;
-    D_8009A008[0] = arg0;
+    D_8009A000 = arg0;
+    D_8009A004 = arg0;
+    D_8009A008 = arg0;
     AkaoExec();
 }
 

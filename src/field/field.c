@@ -320,11 +320,12 @@ void FIELD_Main(void) {
             FieldLoadMimToVram(0, (void*)0x80128000);
         }
         if (g_PrevGameState == GAMESTATE_BATTLE) {
-            *D_8009A000 = 0xF5;
+            s16* cmd = &D_8009A000;
+            *cmd = 0xF5;
             AkaoExec();
-            *D_8009A000 = 0x18;
-            *D_8009A008 = 4;
-            *D_8009A004 = g_FieldState.nextFieldMusic;
+            *cmd = 0x18;
+            D_8009A008 = 4;
+            D_8009A004 = g_FieldState.nextFieldMusic;
             AkaoExec();
         }
         FieldMainLoop();

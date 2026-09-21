@@ -2542,7 +2542,7 @@ void BattleCommandSend(s32 cmdId, ...) {
     s32 count;
     s32 nExtra;
 
-    D_8009A000[0] = cmd;
+    D_8009A000 = cmd;
     switch (cmd & 0xFFFF) {
     case 0x21:
         nExtra = 3;
@@ -2559,7 +2559,7 @@ void BattleCommandSend(s32 cmdId, ...) {
     }
     count = 1;
     if (count <= nExtra) {
-        dst = (u32*)D_8009A004;
+        dst = (u32*)&D_8009A004;
         src = (u32*)args + 1;
         for (; count <= nExtra; count++) {
             *dst++ = *src++;

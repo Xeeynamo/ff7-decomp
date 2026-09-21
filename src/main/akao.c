@@ -136,6 +136,19 @@ typedef struct {
     /* 0x20 */ s32 unk20;
 } Unk8002B7E0; // size:0x24
 
+typedef struct {
+    /* 0x0 */ u16 cmd;
+    /* 0x2 */ s16 unk2;
+    /* 0x4 */ volatile u_long unk4;
+    /* 0x8 */ volatile s32 unk8;
+    /* 0xC */ volatile s32 unkC;
+    /* 0x10 */ volatile s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ s32 unk20;
+} AkaoCommand; // size:0x24
+
 extern void (*D_80049548[])(Unk8002B7E0*);
 extern u8 D_800499A8[]; // opcode lenghts
 extern u8 D_80049C40[];
@@ -1324,13 +1337,141 @@ static void AkaoStreamIrqCallbackSplit1(void) {
     SpuSetIRQ(1);
 }
 
-static void func_8002DA30(Unk8002B7E0** out_msg) {
-    *out_msg = D_80081DC8;
-    *out_msg = &D_80081DC8[g_AkaoCommandQueueId];
+static void func_8002DA30(AkaoCommand** out_msg) {
+    *out_msg = (AkaoCommand*)D_80081DC8;
+    *out_msg = &((AkaoCommand*)D_80081DC8)[g_AkaoCommandQueueId];
     g_AkaoCommandQueueId++;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoExec);
+s32 AkaoExec(void) {
+    extern volatile s32 D_8009A008;
+    extern volatile s32 D_8009A00C;
+    AkaoCommand* msg;
+    u8* data;
+    u16* reqCmd;
+    u16 songId;
+    s32 reverbDepth;
+    u16 reverbMode;
+    s32 ret;
+
+    ret = 0;
+    g_AkaoMutex = 1;
+    reqCmd = &D_8009A000;
+    switch (D_8009A000) {
+    case 0x10:
+    case 0x14:
+    case 0x15:
+    case 0x18:
+    case 0x19:
+        data = (u8*)D_8009A004;
+        if (data[0] == 'A' && data[1] == 'K' && data[2] == 'A' && data[3] == 'O') {
+            data += 4;
+            songId = *(u16*)data;
+            data += 2;
+            reverbDepth = *(u16*)data;
+            data += 2;
+            reverbMode = *(u16*)data;
+            data += 8;
+            if (D_8009A14E != songId) {
+                SetReverbMode(reverbMode);
+                func_8002DA30(&msg);
+                msg->unk4 = (u_long)data;
+                msg->unk8 = reverbDepth;
+                msg->unkC = songId;
+                *(s32*)&msg->unk10 = D_8009A008;
+                msg->cmd = D_8009A000;
+            } else {
+                ret = 1;
+            }
+        } else {
+            ret = -1;
+        }
+        break;
+    case 0x24:
+        func_8002DA30(&msg);
+        msg->unk4 = D_8009A004;
+        msg->cmd = 0x20;
+        *(s32*)&msg->unk8 = D_8009A008;
+        break;
+    case 0x25:
+        func_8002DA30(&msg);
+        msg->unk4 = D_8009A004;
+        msg->unk8 = D_8009A008;
+        msg->cmd = 0x21;
+        *(s32*)&msg->unkC = D_8009A008 + 1;
+        break;
+    case 0x26:
+        func_8002DA30(&msg);
+        msg->unk4 = D_8009A004;
+        msg->unk8 = D_8009A008;
+        msg->unkC = D_8009A008 + 1;
+        msg->cmd = 0x22;
+        *(s32*)&msg->unk10 = D_8009A008 + 2;
+        break;
+    case 0x27:
+        func_8002DA30(&msg);
+        msg->unk4 = D_8009A004;
+        msg->unk8 = D_8009A008;
+        msg->unkC = D_8009A008 + 1;
+        msg->unk10 = D_8009A008 + 2;
+        msg->cmd = 0x23;
+        msg->unk14 = D_8009A008 + 3;
+        break;
+    case 0xD8:
+        func_8002DA30(&msg);
+        msg->unk4 = D_8009A004;
+        msg->cmd = 0xD0;
+        func_8002DA30(&msg);
+        msg->unk4 = D_8009A004;
+        msg->cmd = 0xD4;
+        break;
+    case 0xD9:
+        func_8002DA30(&msg);
+        msg->unk4 = D_8009A004;
+        msg->cmd = 0xD1;
+        *(s32*)&msg->unk8 = D_8009A008;
+        func_8002DA30(&msg);
+        msg->unk4 = D_8009A004;
+        msg->cmd = 0xD5;
+        *(s32*)&msg->unk8 = D_8009A008;
+        break;
+    case 0xDA:
+        func_8002DA30(&msg);
+        msg->unk4 = D_8009A004;
+        msg->unk8 = D_8009A008;
+        msg->cmd = 0xD2;
+        *(s32*)&msg->unkC = D_8009A00C;
+        func_8002DA30(&msg);
+        msg->unk4 = D_8009A004;
+        msg->unk8 = D_8009A008;
+        msg->cmd = 0xD6;
+        *(s32*)&msg->unkC = D_8009A00C;
+        break;
+    case 0x99:
+        func_8002DA30(&msg);
+        msg->cmd = 0x9B;
+        func_8002DA30(&msg);
+        msg->cmd = 0x9D;
+        break;
+    case 0x98:
+        func_8002DA30(&msg);
+        msg->cmd = 0x9A;
+        func_8002DA30(&msg);
+        msg->cmd = 0x9C;
+        break;
+    default:
+        func_8002DA30(&msg);
+        msg->unk4 = D_8009A004;
+        msg->unk8 = D_8009A008;
+        msg->unkC = D_8009A00C;
+        msg->unk10 = D_8009A010;
+        msg->unk14 = D_8009A014;
+        msg->cmd = *reqCmd;
+        break;
+    }
+    g_AkaoMutex = 0;
+    return ret;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002DF88);
 

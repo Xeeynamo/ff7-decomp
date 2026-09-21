@@ -107,23 +107,23 @@ void SysMenuSetPosAddWindow(s16 arg0, s16 arg1, s16 arg2) {
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawAddWindow);
 
 static void SysMenuSound(u16 arg0) {
-    D_8009A000[0] = 0x30;
-    D_8009A004[0] = arg0;
-    D_8009A008[0] = arg0;
+    D_8009A000 = 0x30;
+    D_8009A004 = arg0;
+    D_8009A008 = arg0;
     AkaoExec();
 }
 
 static void func_8001FA68(u16 arg0) {
-    D_8009A000[0] = 0x28;
-    D_8009A004[0] = 0x40;
-    D_8009A008[0] = arg0;
+    D_8009A000 = 0x28;
+    D_8009A004 = 0x40;
+    D_8009A008 = arg0;
     AkaoExec();
 }
 
 static void func_8001FAAC(u16 arg0) {
-    D_8009A000[0] = 0x29;
-    D_8009A004[0] = 0x40;
-    D_8009A008[0] = arg0;
+    D_8009A000 = 0x29;
+    D_8009A004 = 0x40;
+    D_8009A008 = arg0;
     AkaoExec();
 }
 

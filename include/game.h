@@ -1285,9 +1285,11 @@ extern s16 g_PlayerModelId;
 extern s16 g_IsFieldLoading;
 extern volatile s16 g_PrevGameState;
 extern u8 D_80099FFC;
-extern s16 D_8009A000[1];
-extern u_long D_8009A004[1]; // may be a u8*
-extern s32 D_8009A008[1];
+extern u16 D_8009A000;
+extern u_long D_8009A004; // can hold a pointer, depending of D_8009A000
+extern s32 D_8009A008;
+extern volatile s32 D_8009A010;
+extern volatile s32 D_8009A014;
 extern s32 D_8009A00C;
 extern s32 D_8009A024[8];
 extern u8 g_FieldCurrentOpcode;
@@ -1344,7 +1346,7 @@ void SysMenuSetCursorMovement(
 void SysMenuSetPoly(void* poly);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
-void AkaoExec(void);
+s32 AkaoExec(void);
 void SysInitRndTablePos(s32 seed);
 void SysInitPlayerStatFromEquip(s32 arg0);
 void SysInitPlayerStatFromMateria(s32 arg0);
