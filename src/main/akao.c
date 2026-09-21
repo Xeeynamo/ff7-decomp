@@ -467,167 +467,187 @@ void AkaoCmd_CA_CdVolSlideBetweenTargets(AkaoCdVolSlideBetweenTargets* arg0) {
     g_AkaoCdVolSlideStep = (temp_v0_shifted - temp_v1_shifted) / var_a1;
 }
 
-// The voice record at arg1 is two identical-layout 0x108-byte halves. Write the
-// note's transposed pitch (arg0+4) into a field in each half, clear another
-// field in each half, and set flag bits 0x3 in each half's control word
-// (+0xE0).
-static void func_8002BCCC(void* arg0, void* arg1) {
-    u16 val0;
-    s32 v1;
-    s32 v0_e0;
-    AkaoChannel* voice = (AkaoChannel*)arg1;
+// Sets the volume balance for a 2-voice sound effect channel pair (voice[0]
+// and voice[1]). Clears any active balance slide and flags the hardware voices
+// (SPU_VOICE_VOLL | SPU_VOICE_VOLR) for volume recalculation.
+static void AkaoSoundChannelSetVolBalance(AkaoCommand* cmd, AkaoSoundSlot* slot) {
+    u16 balance;
+    s32 mask1;
+    s32 mask0;
+    AkaoChannel* voice = slot->voices;
     // The do{}while(0) affects register allocation and is required for the
     // match.
     do {
-        val0 = *((u16*)((u8*)arg0 + 0x4));
-        v1 = voice[1].voiceAttr.mask;
+        balance = *(u16*)&cmd->param0;
+        mask1 = voice[1].voiceAttr.mask;
         voice[1].volBalanceSlideSteps = 0;
         voice[0].volBalanceSlideSteps = 0;
-        voice[1].volBalance = (s16)((val0 & 0x7F) << 8);
+        voice[1].volBalance = (s16)((balance & 0x7F) << 8);
     } while (0);
-    voice[0].volBalance = (s16)((val0 & 0x7F) << 8);
-    v0_e0 = voice[0].voiceAttr.mask;
-    voice[1].voiceAttr.mask = v1 | 3;
-    voice[0].voiceAttr.mask = v0_e0 | 3;
+    voice[0].volBalance = (s16)((balance & 0x7F) << 8);
+    mask0 = voice[0].voiceAttr.mask;
+    voice[1].voiceAttr.mask = mask1 | 3;
+    voice[0].voiceAttr.mask = mask0 | 3;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BD04);
+// Starts a volume balance slide from current balance toward target in cmd over
+// the specified step count for a 2-voice sound effect channel pair.
+static void AkaoSoundChannelSlideVolBalance(AkaoCommand* cmd, AkaoSoundSlot* slot) {
+    s16 steps;
+    s32 rawSteps;
+    AkaoChannel* voice = slot->voices;
 
-// Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
-void AkaoCmd_B8(void* arg0) {
-    func_8002BCCC(arg0, &g_Channel3[6]);
-    func_8002BCCC(arg0, &g_Channel3[4]);
-    func_8002BCCC(arg0, &g_Channel3[2]);
-    func_8002BCCC(arg0, &g_Channel3[0]);
+    rawSteps = cmd->param0;
+    steps = 1;
+    if (rawSteps != 0) {
+        steps = *(u16*)&cmd->param0;
+    }
+    voice[0].volBalanceSlideStep = (s16)(((*(u16*)&cmd->param1 & 0x7F) << 8) - voice[0].volBalance) / steps;
+    voice[1].volBalanceSlideStep = (s16)(((*(u16*)&cmd->param1 & 0x7F) << 8) - voice[1].volBalance) / steps;
+    voice[1].volBalanceSlideSteps = steps;
+    voice[0].volBalanceSlideSteps = steps;
 }
 
-// Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
-void AkaoCmd_B9(void* arg0) {
-    func_8002BD04(arg0, &g_Channel3[6]);
-    func_8002BD04(arg0, &g_Channel3[4]);
-    func_8002BD04(arg0, &g_Channel3[2]);
-    func_8002BD04(arg0, &g_Channel3[0]);
+// Sets the volume balance across all 4 sound effect channel slots (slots 3, 2, 1, 0)
+// in g_AkaoSoundSlots.
+void AkaoCmd_B8_SetAllSoundVolBalance(AkaoCommand* cmd) {
+    AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[3]);
+    AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[2]);
+    AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[1]);
+    AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[0]);
 }
 
-void AkaoCmd_A0(void* arg0) { func_8002BCCC(arg0, &g_Channel3[4]); }
+// Slides the volume balance across all 4 sound effect channel slots (slots 3, 2, 1, 0)
+// in g_AkaoSoundSlots toward the target balance in cmd.
+void AkaoCmd_B9_SlideAllSoundVolBalance(AkaoCommand* cmd) {
+    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[3]);
+    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[2]);
+    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[1]);
+    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[0]);
+}
 
-void AkaoCmd_A4(s32 arg0) { func_8002BD04(arg0, &g_Channel3[4]); }
+void AkaoCmd_A0(void* arg0) { AkaoSoundChannelSetVolBalance(arg0, &g_AkaoSoundSlots[2]); }
 
-void AkaoCmd_A1(void* arg0) { func_8002BCCC(arg0, &g_Channel3[2]); }
+void AkaoCmd_A4(void* arg0) { AkaoSoundChannelSlideVolBalance(arg0, &g_AkaoSoundSlots[2]); }
 
-void AkaoCmd_A5(s32 arg0) { func_8002BD04(arg0, &g_Channel3[2]); }
+void AkaoCmd_A1(void* arg0) { AkaoSoundChannelSetVolBalance(arg0, &g_AkaoSoundSlots[1]); }
 
-void AkaoCmd_A2(void* arg0) { func_8002BCCC(arg0, &g_Channel3[0]); }
+void AkaoCmd_A5(void* arg0) { AkaoSoundChannelSlideVolBalance(arg0, &g_AkaoSoundSlots[1]); }
 
-void AkaoCmd_A6(s32 arg0) { func_8002BD04(arg0, &g_Channel3[0]); }
+void AkaoCmd_A2(void* arg0) { AkaoSoundChannelSetVolBalance(arg0, &g_AkaoSoundSlots[0]); }
 
-void AkaoCmd_A3(void* arg0) { func_8002BCCC(arg0, &g_Channel3[6]); }
+void AkaoCmd_A6(void* arg0) { AkaoSoundChannelSlideVolBalance(arg0, &g_AkaoSoundSlots[0]); }
 
-void AkaoCmd_A7(s32 arg0) { func_8002BD04(arg0, &g_Channel3[6]); }
+void AkaoCmd_A3(void* arg0) { AkaoSoundChannelSetVolBalance(arg0, &g_AkaoSoundSlots[3]); }
 
-// Same shape as func_8002BCCC (two 0x108-byte halves, shared +0xE0 control
-// word), at a different pitch/clear field within each half.
-static void func_8002BFCC(void* arg0, void* arg1) {
-    s16 temp_v0;
-    s32 v1;
-    AkaoChannel* voice = (AkaoChannel*)arg1;
+void AkaoCmd_A7(void* arg0) { AkaoSoundChannelSlideVolBalance(arg0, &g_AkaoSoundSlots[3]); }
 
-    temp_v0 = (*(u16*)((u8*)arg0 + 0x4) & 0x7F) << 8;
-    v1 = voice[1].voiceAttr.mask;
+// Sets the stereo pan for a 2-voice sound effect channel pair (voice[0]
+// and voice[1]). Clears any active pan slide and flags the hardware voices
+// (SPU_VOICE_VOLL | SPU_VOICE_VOLR) for volume recalculation.
+static void AkaoSoundChannelSetPan(AkaoCommand* cmd, AkaoSoundSlot* slot) {
+    s16 pan;
+    s32 mask1;
+    AkaoChannel* voice = slot->voices;
+
+    pan = (*(u16*)&cmd->param0 & 0x7F) << 8;
+    mask1 = voice[1].voiceAttr.mask;
     voice[1].volPanSlideSteps = 0;
     voice[0].volPanSlideSteps = 0;
-    voice[1].volPan = temp_v0;
-    voice[0].volPan = temp_v0;
+    voice[1].volPan = pan;
+    voice[0].volPan = pan;
     voice[0].voiceAttr.mask = voice[0].voiceAttr.mask | 3;
-    voice[1].voiceAttr.mask = (v1 | 3);
+    voice[1].voiceAttr.mask = (mask1 | 3);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C004);
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
 void AkaoCmd_BA(void* arg0) {
-    func_8002BFCC(arg0, &g_Channel3[6]);
-    func_8002BFCC(arg0, &g_Channel3[4]);
-    func_8002BFCC(arg0, &g_Channel3[2]);
-    func_8002BFCC(arg0, &g_Channel3[0]);
+    AkaoSoundChannelSetPan(arg0, &g_AkaoSoundSlots[3]);
+    AkaoSoundChannelSetPan(arg0, &g_AkaoSoundSlots[2]);
+    AkaoSoundChannelSetPan(arg0, &g_AkaoSoundSlots[1]);
+    AkaoSoundChannelSetPan(arg0, &g_AkaoSoundSlots[0]);
 }
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
 void AkaoCmd_BB(void* arg0) {
-    func_8002C004(arg0, &g_Channel3[6]);
-    func_8002C004(arg0, &g_Channel3[4]);
-    func_8002C004(arg0, &g_Channel3[2]);
-    func_8002C004(arg0, &g_Channel3[0]);
+    func_8002C004(arg0, &g_AkaoSoundSlots[3]);
+    func_8002C004(arg0, &g_AkaoSoundSlots[2]);
+    func_8002C004(arg0, &g_AkaoSoundSlots[1]);
+    func_8002C004(arg0, &g_AkaoSoundSlots[0]);
 }
 
-void AkaoCmd_A8(void* arg0) { func_8002BFCC(arg0, &g_Channel3[4]); }
+void AkaoCmd_A8(void* arg0) { AkaoSoundChannelSetPan(arg0, &g_AkaoSoundSlots[2]); }
 
-void AkaoCmd_AC(s32 arg0) { func_8002C004(arg0, &g_Channel3[4]); }
+void AkaoCmd_AC(s32 arg0) { func_8002C004(arg0, &g_AkaoSoundSlots[2]); }
 
-void AkaoCmd_A9(void* arg0) { func_8002BFCC(arg0, &g_Channel3[2]); }
+void AkaoCmd_A9(void* arg0) { AkaoSoundChannelSetPan(arg0, &g_AkaoSoundSlots[1]); }
 
-void AkaoCmd_AD(s32 arg0) { func_8002C004(arg0, &g_Channel3[2]); }
+void AkaoCmd_AD(s32 arg0) { func_8002C004(arg0, &g_AkaoSoundSlots[1]); }
 
-void AkaoCmd_AA(void* arg0) { func_8002BFCC(arg0, &g_Channel3[0]); }
+void AkaoCmd_AA(void* arg0) { AkaoSoundChannelSetPan(arg0, &g_AkaoSoundSlots[0]); }
 
-void AkaoCmd_AE(s32 arg0) { func_8002C004(arg0, &g_Channel3[0]); }
+void AkaoCmd_AE(s32 arg0) { func_8002C004(arg0, &g_AkaoSoundSlots[0]); }
 
-void AkaoCmd_AB(void* arg0) { func_8002BFCC(arg0, &g_Channel3[6]); }
+void AkaoCmd_AB(void* arg0) { AkaoSoundChannelSetPan(arg0, &g_AkaoSoundSlots[3]); }
 
-void AkaoCmd_AF(s32 arg0) { func_8002C004(arg0, &g_Channel3[6]); }
+void AkaoCmd_AF(s32 arg0) { func_8002C004(arg0, &g_AkaoSoundSlots[3]); }
 
-// Same shape as func_8002BCCC/func_8002BFCC (two 0x108-byte halves, shared
-// +0xE0 control word), at a third pitch/clear field, setting flag bit 0x10
-// instead of 0x3.
-static void func_8002C2CC(void* arg0, void* arg1) {
-    s32 temp_v0;
-    s32 temp_v1;
-    s8* arg0_bytes = (s8*)arg0;
-    AkaoChannel* voice = (AkaoChannel*)arg1;
+// Sets the sound effect pitch multiplier for a 2-voice sound effect channel pair
+// (voice[0] and voice[1]). Clears any active pitch slide and flags the hardware voices
+// (SPU_VOICE_PITCH) for pitch recalculation.
+static void AkaoSoundChannelSetPitch(AkaoCommand* cmd, AkaoSoundSlot* slot) {
+    s32 pitch;
+    s32 mask1;
+    s8* cmdBytes = (s8*)cmd;
+    AkaoChannel* voice = slot->voices;
 
-    temp_v0 = arg0_bytes[4] << 8;
-    temp_v1 = voice[1].voiceAttr.mask;
+    pitch = cmdBytes[4] << 8;
+    mask1 = voice[1].voiceAttr.mask;
     voice[1].pitchMulSoundSlideSteps = 0;
     voice[0].pitchMulSoundSlideSteps = 0;
-    voice[1].pitchMulSound = temp_v0;
-    voice[0].pitchMulSound = temp_v0;
+    voice[1].pitchMulSound = pitch;
+    voice[0].pitchMulSound = pitch;
     voice[0].voiceAttr.mask = voice[0].voiceAttr.mask | 0x10;
-    voice[1].voiceAttr.mask = temp_v1 | 0x10;
+    voice[1].voiceAttr.mask = mask1 | 0x10;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C300);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundChannelSlidePitch);
 
-// Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
-void AkaoCmd_BC(void* arg0) {
-    func_8002C2CC(arg0, &g_Channel3[6]);
-    func_8002C2CC(arg0, &g_Channel3[4]);
-    func_8002C2CC(arg0, &g_Channel3[2]);
-    func_8002C2CC(arg0, &g_Channel3[0]);
+// Sets the pitch multiplier across all 4 sound effect channel slots (slots 3, 2, 1, 0)
+// in g_AkaoSoundSlots.
+void AkaoCmd_BC_SetAllSoundPitch(AkaoCommand* cmd) {
+    AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[3]);
+    AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[2]);
+    AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[1]);
+    AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[0]);
 }
 
-// Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
-void AkaoCmd_BD(void* arg0) {
-    func_8002C300(arg0, &g_Channel3[6]);
-    func_8002C300(arg0, &g_Channel3[4]);
-    func_8002C300(arg0, &g_Channel3[2]);
-    func_8002C300(arg0, &g_Channel3[0]);
+// Slides the pitch multiplier across all 4 sound effect channel slots (slots 3, 2, 1, 0)
+// in g_AkaoSoundSlots toward the target pitch multiplier in cmd.
+void AkaoCmd_BD_SlideAllSoundPitch(AkaoCommand* cmd) {
+    AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[3]);
+    AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[2]);
+    AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[1]);
+    AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[0]);
 }
 
-void AkaoCmd_B0(void* arg0) { func_8002C2CC(arg0, &g_Channel3[4]); }
+void AkaoCmd_B0(AkaoCommand* cmd) { AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[2]); }
 
-void AkaoCmd_B4(s32 arg0) { func_8002C300(arg0, &g_Channel3[4]); }
+void AkaoCmd_B4(AkaoCommand* cmd) { AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[2]); }
 
-void AkaoCmd_B1(void* arg0) { func_8002C2CC(arg0, &g_Channel3[2]); }
+void AkaoCmd_B1(AkaoCommand* cmd) { AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[1]); }
 
-void AkaoCmd_B5(s32 arg0) { func_8002C300(arg0, &g_Channel3[2]); }
+void AkaoCmd_B5(AkaoCommand* cmd) { AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[1]); }
 
-void AkaoCmd_B2(void* arg0) { func_8002C2CC(arg0, &g_Channel3[0]); }
+void AkaoCmd_B2(AkaoCommand* cmd) { AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[0]); }
 
-void AkaoCmd_B6(s32 arg0) { func_8002C300(arg0, &g_Channel3[0]); }
+void AkaoCmd_B6(AkaoCommand* cmd) { AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[0]); }
 
-void AkaoCmd_B3(void* arg0) { func_8002C2CC(arg0, &g_Channel3[6]); }
+void AkaoCmd_B3(AkaoCommand* cmd) { AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[3]); }
 
-void AkaoCmd_B7(s32 arg0) { func_8002C300(arg0, &g_Channel3[6]); }
+void AkaoCmd_B7(AkaoCommand* cmd) { AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[3]); }
 
 void AkaoCmd_D0(AkaoTempoPitchSlide* arg0) {
     s32 n = arg0->start;
@@ -848,7 +868,7 @@ void AkaoCmd_9C_FlushPendingSoundUpdates(void) {
 
     pendingBits = g_AkaoSoundActiveMaskStored;
     if (pendingBits != 0) {
-        for (bit = 0x10000, half = &g_Channel3[0]; pendingBits != 0; bit *= 2, half++) {
+        for (bit = 0x10000, half = &g_AkaoSoundSlots[0].voices[0]; pendingBits != 0; bit *= 2, half++) {
             if (pendingBits & bit) {
                 pendingBits ^= bit;
                 half->voiceAttr.mask |= SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;

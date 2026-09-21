@@ -180,6 +180,11 @@ typedef struct {
     /* 0xDC */ AkaoVoiceAttr voiceAttr;
 } AkaoChannel;
 
+// Each sound effect slot occupies a stereo voice pair (2 channels, 0x210 bytes).
+typedef struct {
+    AkaoChannel voices[2];
+} AkaoSoundSlot; // size: 0x210
+
 typedef struct {
     /* 0x00 */ u32 stereoMono;
     /* 0x04 */ u32 activeMask;
@@ -351,7 +356,7 @@ extern AkaoChannel g_Channel1[];
 extern AkaoChannel g_Channel2[];
 extern s32 D_80097768;
 extern s32 D_80097870;
-extern AkaoChannel g_Channel3[];
+extern AkaoSoundSlot g_AkaoSoundSlots[];
 extern u16 g_Channel3NoiseClock;
 extern u16 D_80099E0C;
 extern s32 g_Channel3ActiveMask[];
@@ -433,10 +438,10 @@ void AkaoCmd_A0(void* arg0);
 void AkaoCmd_A1(void* arg0);
 void AkaoCmd_A2(void* arg0);
 void AkaoCmd_A3(void* arg0);
-void AkaoCmd_A4(s32 arg0);
-void AkaoCmd_A5(s32 arg0);
-void AkaoCmd_A6(s32 arg0);
-void AkaoCmd_A7(s32 arg0);
+void AkaoCmd_A4(void* arg0);
+void AkaoCmd_A5(void* arg0);
+void AkaoCmd_A6(void* arg0);
+void AkaoCmd_A7(void* arg0);
 void AkaoCmd_A8(void* arg0);
 void AkaoCmd_A9(void* arg0);
 void AkaoCmd_AA(void* arg0);
@@ -445,20 +450,20 @@ void AkaoCmd_AC(s32 arg0);
 void AkaoCmd_AD(s32 arg0);
 void AkaoCmd_AE(s32 arg0);
 void AkaoCmd_AF(s32 arg0);
-void AkaoCmd_B0(void* arg0);
-void AkaoCmd_B1(void* arg0);
-void AkaoCmd_B2(void* arg0);
-void AkaoCmd_B3(void* arg0);
-void AkaoCmd_B4(s32 arg0);
-void AkaoCmd_B5(s32 arg0);
-void AkaoCmd_B6(s32 arg0);
-void AkaoCmd_B7(s32 arg0);
-void AkaoCmd_B8(void* arg0);
-void AkaoCmd_B9(void* arg0);
+void AkaoCmd_B0(AkaoCommand* cmd);
+void AkaoCmd_B1(AkaoCommand* cmd);
+void AkaoCmd_B2(AkaoCommand* cmd);
+void AkaoCmd_B3(AkaoCommand* cmd);
+void AkaoCmd_B4(AkaoCommand* cmd);
+void AkaoCmd_B5(AkaoCommand* cmd);
+void AkaoCmd_B6(AkaoCommand* cmd);
+void AkaoCmd_B7(AkaoCommand* cmd);
+void AkaoCmd_B8_SetAllSoundVolBalance(AkaoCommand* cmd);
+void AkaoCmd_B9_SlideAllSoundVolBalance(AkaoCommand* cmd);
 void AkaoCmd_BA(void* arg0);
 void AkaoCmd_BB(void* arg0);
-void AkaoCmd_BC(void* arg0);
-void AkaoCmd_BD(void* arg0);
+void AkaoCmd_BC_SetAllSoundPitch(AkaoCommand* cmd);
+void AkaoCmd_BD_SlideAllSoundPitch(AkaoCommand* cmd);
 void AkaoCmd_C0_VolumeSet(AkaoCommand* arg0);
 void AkaoCmd_C1_VolSlideFromCurr(AkaoVolSlideFromCurr* arg0);
 void AkaoCmd_C2_VolSlideBetweenTargets(AkaoVolSlideBetweenTargets* arg0);
@@ -756,12 +761,12 @@ void (*D_80049548[0x100])() = {
     AkaoCmd_B5,
     AkaoCmd_B6,
     AkaoCmd_B7,
-    AkaoCmd_B8,
-    AkaoCmd_B9,
+    AkaoCmd_B8_SetAllSoundVolBalance,
+    AkaoCmd_B9_SlideAllSoundVolBalance,
     AkaoCmd_BA,
     AkaoCmd_BB,
-    AkaoCmd_BC,
-    AkaoCmd_BD,
+    AkaoCmd_BC_SetAllSoundPitch,
+    AkaoCmd_BD_SlideAllSoundPitch,
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_C0_VolumeSet,
