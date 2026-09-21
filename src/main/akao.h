@@ -125,24 +125,37 @@ typedef struct {
 } AkaoChannel;
 
 typedef struct {
-    /* 0x0 */ u8 pad0[0x2C];
-    /* 0x2C */ u32 noiseMusicVoicesMask;
-    /* 0x30 */ u32 reverbMusicVoicesMask;
-    /* 0x34 */ u32 pitchLfoMusicVoicesMask;
-    /* 0x38 */ u8 pad38[0x10];
-    /* 0x48 */ u16 tempoMusicIncreaseSteps;
-    /* 0x4A */ u16 akaoMusicId;
-    /* 0x4C */ u16 jumpConditionStorage1;
-    /* 0x4E */ u16 jumpConditionStorage2;
-    /* 0x50 */ u16 reverbDepthIncrementSteps;
+    /* 0x00 */ u32 stereoMono;
+    /* 0x04 */ u32 activeMask;
+    /* 0x08 */ u32 onMask;
+    /* 0x0C */ u32 keyedMask;
+    /* 0x10 */ u32 offMask;
+    /* 0x14 */ u32 activeMaskStored;
+    /* 0x18 */ u32 tempo;
+    /* 0x1C */ s32 tempoSlideStep;
+    /* 0x20 */ u32 tempoUpdate;
+    /* 0x24 */ u32 overMask;
+    /* 0x28 */ u32 altMask;
+    /* 0x2C */ u32 noiseMask;
+    /* 0x30 */ u32 reverbMask;
+    /* 0x34 */ u32 pitchLfoMask;
+    /* 0x38 */ u32 updateFlags;
+    /* 0x3C */ s32 reverbMode;
+    /* 0x40 */ s32 reverbDepth;
+    /* 0x44 */ s32 reverbDepthSlideStep;
+    /* 0x48 */ u16 tempoSlideSteps;
+    /* 0x4A */ u16 musicId;
+    /* 0x4C */ u16 conditionStored;
+    /* 0x4E */ u16 condition;
+    /* 0x50 */ u16 reverbDepthSlideSteps;
     /* 0x52 */ u16 noiseClock;
-    /* 0x54 */ u16 unk54;
-    /* 0x56 */ u16 upperTimerEqualValue;
-    /* 0x58 */ u16 upperTimerValue;
-    /* 0x5A */ u16 lowerTimerEqualValue;
-    /* 0x5C */ u16 lowerTimerValue;
-    /* 0x5E */ u16 topTimer;
-} AkaoConfig;
+    /* 0x54 */ u16 muteMusic;
+    /* 0x56 */ u16 timerUpper;
+    /* 0x58 */ u16 timerUpperCur;
+    /* 0x5A */ u16 timerLower;
+    /* 0x5C */ u16 timerLowerCur;
+    /* 0x5E */ u16 timerTopCur;
+} AkaoChannelConfig;
 
 typedef struct {
     /* 0x0 */ u8 opcode;
