@@ -20,7 +20,10 @@ void SysMenuShow(s32);
 void WmRotateVectorByYAngle(SVECTOR*, s16);
 void WmQueueBlocksAroundPos(VECTOR*);
 void func_800A5E28(void);
-void func_800A64AC(VECTOR*, s16);
+void WmRequestVisibleChunks(VECTOR*, s16);
+s32 func_800A63FC(WorldChunkHeader*, s16, s16, s16*, s16*);
+static WorldChunkHeader* AllocChunk(void);
+void func_800A6168(VECTOR*, s32, s32 (*)[5]);
 void func_800A71E8(VECTOR*, VECTOR*, VECTOR*, s16);
 void WmMovePcEntityByDistance(s32);
 static void WmRestoreEntityPosAndDirFromSavemap(WorldActor*);
@@ -326,7 +329,42 @@ void func_800A368C(s32 arg0) { D_800E5658 = arg0; }
 
 static s32 func_800A369C(void) { return D_800E5658; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A36AC);
+void WmSetModelTransformMatrix(FieldModelEntry* model, SVECTOR* rot, MATRIX* m, s32 arg3) {
+    MATRIX tmp;
+    VECTOR trans;
+    SVECTOR v;
+
+    tmp.m[0][0] = tmp.m[1][1] = tmp.m[2][2] = 0x1000;
+    tmp.m[0][1] = tmp.m[0][2] = tmp.m[1][0] = tmp.m[1][2] = tmp.m[2][0] = tmp.m[2][1] = 0;
+    RotMatrixX(rot->vx, &tmp);
+    RotMatrixZ(rot->vz, &tmp);
+    RotMatrixY(rot->vy, &tmp);
+    MulMatrix0(&D_800E5698, &tmp, m);
+    SetRotMatrix(&D_800E5698);
+    if (D_800E5670 > 0 && arg3 != 0) {
+        trans.vx = D_800E56B8.t[0] / 8;
+        trans.vy = D_800E56B8.t[1] / 8;
+        trans.vz = D_800E56B8.t[2] / 8;
+        D_800E5670--;
+        if (D_800E5670 == 0) {
+            PlayMusicTrack(D_80116510);
+        }
+    } else {
+        trans.vx = D_800E56B8.t[0] / 4;
+        trans.vy = D_800E56B8.t[1] / 4;
+        trans.vz = D_800E56B8.t[2] / 4;
+    }
+    TransMatrix(m, &trans);
+    SetTransMatrix(m);
+    v.vx = model->translationX;
+    v.vy = model->translationY;
+    v.vz = model->translationZ;
+    gte_ldv0(&v);
+    gte_rtv0();
+    gte_stlvnl(&trans);
+    model->translationX = model->translationY = model->translationZ = 0;
+    TransMatrix(m, &trans);
+}
 
 static void func_800A38C8(void) {
     if (g_PartyUpdatedByFieldScript == 1) {
@@ -1150,7 +1188,68 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A6168);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A63FC);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A64AC);
+void WmRequestVisibleChunks(VECTOR* pos, s16 angle) {
+    s32 visible[5][5];
+    s16 chunkX;
+    s16 chunkZ;
+    s16 x;
+    s16 z;
+    WorldChunkHeader* chunk;
+    WorldListNode* node;
+    s16 cx;
+    s16 cz;
+    s16 blockId;
+
+    if (ExpireChunks() < 16) {
+        WmExtractLoopCoordsTopBottomParts(pos, NULL, &chunkX, &chunkZ);
+        func_800A6168(pos, angle, visible);
+        for (chunk = D_80109D3C; chunk != NULL; chunk = chunk->next) {
+            if (func_800A63FC(chunk, chunkX, chunkZ, &x, &z) != 0) {
+                visible[z + 2][x + 2] = 0;
+            }
+        }
+        for (chunk = D_80109D40; chunk != NULL; chunk = chunk->next) {
+            if (func_800A63FC(chunk, chunkX, chunkZ, &x, &z) != 0) {
+                visible[z + 2][x + 2] = 0;
+            }
+        }
+        for (z = 0; z < 5; z++) {
+            for (x = 0; x < 5; x++) {
+                if (visible[z][x] != 0) {
+                    cx = (x + (u16)chunkX) - 2;
+                    if (cx < 0) {
+                        cx = (x + (u16)chunkX) + 34;
+                    } else if (cx >= 36) {
+                        cx = (x + (u16)chunkX) - 38;
+                    }
+                    cz = ((u16)z + (u16)chunkZ) - 2;
+                    if (cz < 0) {
+                        cz = ((u16)z + (u16)chunkZ) + 26;
+                    } else if (cz >= 28) {
+                        cz = ((u16)z + (u16)chunkZ) - 30;
+                    }
+                    chunk = AllocChunk();
+                    if (chunk != NULL) {
+                        blockId = ((cz >> 2) * 9) + (cx >> 2);
+                        chunk->z = cz;
+                        chunk->x = cx;
+                        if (WmGetElementWithBlockIdAndSetItFirst(blockId) != 0) {
+                            func_800A5AD8(chunk);
+                        } else if (IsRegionLoading(blockId) == 0) {
+                            if (D_800E580C == NULL) {
+                                func_800A0B40(15);
+                            }
+                            node = D_800E580C;
+                            node->unk4 = blockId;
+                            D_800E580C = node->next;
+                            WmAssignRegionToNode(node);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 static WorldChunkHeader* AllocChunk(void) {
     WorldChunkHeader* chunk;
@@ -1271,7 +1370,55 @@ static void func_800A6C00(SVECTOR* arg0) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A6C3C);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A6FC0);
+void WmSetMapPosAndNeighbors(WorldMapPos* out, SVECTOR* dir, SVECTOR* rot, s32 dist) {
+    MATRIX m;
+    VECTOR pos;
+
+    RotMatrix(rot, &m);
+    SetRotMatrix(&m);
+    gte_ldv0(dir);
+    gte_rtv0();
+    gte_stlvnl(&pos);
+
+    out[0].pos = pos;
+    WmExtractLoopCoordsTopBottomParts(&out[0].pos, &out[0].offset, &out[0].chunkX, &out[0].chunkZ);
+    out[0].unk24 = 1;
+    out[0].unk28 = 0;
+    out[0].unk1C = 0;
+    out[0].rotY = rot->vy;
+
+    out[1].pos = pos;
+    out[1].pos.vx -= dist;
+    WmExtractLoopCoordsTopBottomParts(&out[1].pos, &out[1].offset, &out[1].chunkX, &out[1].chunkZ);
+    out[1].unk24 = 1;
+    out[1].unk28 = 0;
+    out[1].unk1C = 0;
+    out[1].rotY = rot->vy;
+
+    out[2].pos = pos;
+    out[2].pos.vx += dist;
+    WmExtractLoopCoordsTopBottomParts(&out[2].pos, &out[2].offset, &out[2].chunkX, &out[2].chunkZ);
+    out[2].unk24 = 1;
+    out[2].unk28 = 0;
+    out[2].unk1C = 0;
+    out[2].rotY = rot->vy;
+
+    out[3].pos = pos;
+    out[3].pos.vz -= dist;
+    WmExtractLoopCoordsTopBottomParts(&out[3].pos, &out[3].offset, &out[3].chunkX, &out[3].chunkZ);
+    out[3].unk24 = 1;
+    out[3].unk28 = 0;
+    out[3].unk1C = 0;
+    out[3].rotY = rot->vy;
+
+    out[4].pos = pos;
+    out[4].pos.vz += dist;
+    WmExtractLoopCoordsTopBottomParts(&out[4].pos, &out[4].offset, &out[4].chunkX, &out[4].chunkZ);
+    out[4].unk24 = 1;
+    out[4].unk28 = 0;
+    out[4].unk1C = 0;
+    out[4].rotY = rot->vy;
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A71E8);
 
@@ -1367,7 +1514,7 @@ void WmUpdateStreamingAndCamera(s16 angle, s32 arg1) {
             target.vz -= 0x38000;
         }
         WmQueueBlocksAroundPos(&target);
-        func_800A64AC(&pos, angle);
+        WmRequestVisibleChunks(&pos, angle);
         WmExtractLoopCoordsTopBottomParts(&target, NULL, &mapX, &mapZ);
         WmLoadClosestMapFileBlock(mapX, mapZ);
         UpdateRegionLoad();
@@ -2184,7 +2331,28 @@ static void func_800AA8D8(s16 arg0, s16 arg1, s16 arg2) {
     D_8010AD4C = arg2;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AA8F8);
+static const SVECTOR D_800A0260;
+
+s32 WmGetHorizonCurveDrop(s32 x, s32 z) {
+    SVECTOR pos;
+    s32 otz;
+    s32 sxy;
+    s16 sx;
+
+    pos = D_800A0260;
+    WmSetTranslationVectorInScreenSpace(&pos);
+    pos.vx = x;
+    pos.vy = 0;
+    pos.vz = z;
+    gte_ldv0(&pos);
+    gte_rtps();
+    gte_stszotz(&otz);
+    gte_stsxy2(&sxy);
+    sx = sxy;
+    otz -= func_800A32F4();
+    otz = otz > 0 ? ((otz * otz) >> 12) + ((sx * sx) >> 10) : 0;
+    return otz >> 2;
+}
 
 static s32 WmGetBuggyMoveAnimationId(u8* arg0) {
     s32 prev;
@@ -2421,7 +2589,7 @@ static void func_800ABA78(s16 arg0, s16 arg1) {
     WmScriptRunFunction(tmp0 | tmp1, 3);
 }
 
-static const s32 D_800A0260[] = {0, 0};
+static const SVECTOR D_800A0260 = {0, 0, 0, 0};
 
 static s32 WmScriptPopStack(void) {
     s32 var_s0;
@@ -3013,7 +3181,27 @@ static s32 WmGetDistanceBetweenPoints(VECTOR* arg0, VECTOR* arg1) {
     return var_a2 + var_a3 + var_v1;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmRotateVectorByYAngle);
+void WmRotateVectorByYAngle(SVECTOR* vec, s16 angle) {
+    MATRIX m;
+    SVECTOR rot;
+    VECTOR trans;
+
+    if (vec != NULL) {
+        trans.vx = trans.vy = trans.vz = 0;
+        rot.vx = rot.vz = 0;
+        rot.vy = angle;
+        RotMatrix(&rot, &m);
+        SetRotMatrix(&m);
+        TransMatrix(&m, &trans);
+        SetTransMatrix(&m);
+        gte_ldv0(vec);
+        gte_rtv0();
+        gte_stlvnl(&trans);
+        vec->vx = trans.vx;
+        vec->vy = trans.vy;
+        vec->vz = trans.vz;
+    }
+}
 
 s16 WmGetRotFromVector(s32 x, s32 z, s32 arg2) {
     s32 rot;
@@ -3092,7 +3280,65 @@ static void* WmGetSkyboxOverlayCurrTextureSettingBuffer(void) { return (WmGetCur
 
 static s32 func_800AE628(void) { return D_8010B080; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmUpdateSkyboxOverlayVertexes);
+void WmUpdateSkyboxOverlayVertexes(s32 angle) {
+    SVECTOR v;
+    SVECTOR rot;
+    VECTOR out;
+    MATRIX m;
+    s32 y;
+    POLY_G4* prim;
+
+    prim = &D_800C6770[WmGetCurrRenderBufferId()];
+    v.vx = 0;
+    v.vz = -0x4000;
+    v.vy = -D_80116508;
+    WmRotateVectorByYAngle(&v, -angle);
+    WmSetTranslationVectorInScreenSpace(&v);
+    v.vx = v.vy = v.vz = 0;
+    gte_ldv0(&v);
+    gte_rtps();
+    gte_stsxy2(&y);
+    rot.vx = rot.vy = 0;
+    y = (u16)(y >> 16) + 0x1A;
+    D_8010B080 = y;
+    rot.vz = func_800A1DC0();
+    RotMatrix(&rot, &m);
+    SetRotMatrix(&m);
+    out.vx = 160;
+    out.vz = 0;
+    out.vy = y;
+    TransMatrix(&m, &out);
+    SetTransMatrix(&m);
+    v.vz = 0;
+    v.vx = -180;
+    v.vy = -y - 24;
+    gte_ldv0(&v);
+    gte_rtv0();
+    gte_stlvnl(&out);
+    prim->x0 = out.vx;
+    prim->y0 = out.vy;
+    v.vx = 180;
+    v.vy = -y - 24;
+    gte_ldv0(&v);
+    gte_rtv0();
+    gte_stlvnl(&out);
+    prim->x1 = out.vx;
+    prim->y1 = out.vy;
+    v.vx = -180;
+    v.vy = 0;
+    gte_ldv0(&v);
+    gte_rtv0();
+    gte_stlvnl(&out);
+    prim->x2 = out.vx;
+    prim->y2 = out.vy;
+    v.vx = 180;
+    v.vy = 0;
+    gte_ldv0(&v);
+    gte_rtv0();
+    gte_stlvnl(&out);
+    prim->x3 = out.vx;
+    prim->y3 = out.vy;
+}
 
 void WmInitOverlayTexturePrims(void) {
     POLY_FT4* p;
@@ -3368,8 +3614,8 @@ void WmDrawZolomSegments(void) {
                 d = seg->z - base;
                 if (d >= -30000 && d <= 30000) {
                     prim->pad2 = d;
-                    func_800B59F4(
-                        300, 300, seg->z2 - func_800AA8F8(prim->pad1, prim->pad2) * 4, seg->x2 + 0x800, prim, 0);
+                    WmDrawGroundQuad(300, 300, seg->z2 - WmGetHorizonCurveDrop(prim->pad1, prim->pad2) * 4,
+                                     seg->x2 + 0x800, prim, 0);
                 }
             }
         }
@@ -3836,7 +4082,7 @@ void WmDrawBillboardSprites(void) {
         dz = node->z - pos.vz;
         if (dx > -30000 && dx < 30000 && dz > -30000 && dz < 30000) {
             v.vx = dx;
-            v.vy = dy - func_800AA8F8(dx, dz);
+            v.vy = dy - WmGetHorizonCurveDrop(dx, dz);
             v.vz = dz;
             if (node->rotate != 0) {
                 rot.vz = 0;
@@ -3951,7 +4197,62 @@ static void WmCreateShadowPacket(POLY_FT4* prims, RECT* rect) {
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B59F4);
+void WmDrawGroundQuad(s16 halfX, s16 halfZ, s16 y, s16 angle, POLY_FT4* prim, s32 offsetY) {
+    SVECTOR v[4];
+    SVECTOR rot;
+    SVECTOR pos;
+    MATRIX rotMatrix;
+    MATRIX m;
+    s32 sz0;
+    s32 sz1;
+    s32 sz2;
+    s32 minz;
+    s32 minz2;
+    s32 otz;
+
+    pos.vx = prim->pad1;
+    pos.vy = -D_80116508;
+    pos.vz = prim->pad2;
+    WmSetTranslationVectorInScreenSpace(&pos);
+    v[1].vx = v[3].vx = halfX;
+    v[2].vz = v[3].vz = halfZ;
+    v[0].vx = v[2].vx = -halfX;
+    v[0].vz = v[1].vz = -halfZ;
+    v[0].vy = v[1].vy = v[2].vy = v[3].vy = y;
+    rot.vx = rot.vz = 0;
+    rot.vy = angle;
+    RotMatrix(&rot, &rotMatrix);
+    MulRotMatrix0(&rotMatrix, &m);
+    SetRotMatrix(&m);
+    gte_ldv3(&v[0], &v[1], &v[2]);
+    gte_rtpt();
+    gte_stsxy3(&prim->x0, &prim->x1, &prim->x2);
+    gte_stsz3(&sz0, &sz1, &sz2);
+    minz = sz0;
+    if (sz1 < minz) {
+        minz = sz1;
+    }
+    if (sz2 < minz) {
+        minz = sz2;
+    }
+    sz0 = minz;
+    gte_ldv0(&v[3]);
+    gte_rtps();
+    gte_stsxy2(&prim->x3);
+    prim->y0 = offsetY + prim->y0;
+    prim->y1 = offsetY + prim->y1;
+    prim->y2 = offsetY + prim->y2;
+    prim->y3 = offsetY + prim->y3;
+    gte_stsz(&sz1);
+    minz2 = sz0;
+    if (sz1 < sz0) {
+        minz2 = sz1;
+    }
+    sz0 = minz2 >> 4;
+    if ((u32)sz0 < 0x1000) {
+        addPrim(&D_800BD130[sz0], prim);
+    }
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B5C7C);
 

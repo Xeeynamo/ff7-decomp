@@ -48,6 +48,20 @@ typedef struct WorldChunkNode {
 } WorldChunkNode; // size: 0x8
 
 typedef struct {
+    /* 0x00 */ VECTOR pos;
+    /* 0x10 */ SVECTOR offset;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ s16 chunkX;
+    /* 0x22 */ s16 chunkZ;
+    /* 0x24 */ s16 unk24;
+    /* 0x26 */ s16 rotY;
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ s16 unk2A;
+    /* 0x2C */ s32 unk2C;
+} WorldMapPos; // size: 0x30
+
+typedef struct {
     /* 0x00 */ s16 scriptIdx;
     /* 0x02 */ u8 waitFrames;
     /* 0x03 */ u8 scriptPriority;
@@ -142,6 +156,7 @@ typedef struct {
 void WmSetRenderBuffers();
 s32 GetGraphType(void);
 MATRIX* MulMatrix0(MATRIX*, MATRIX*, MATRIX*);
+MATRIX* MulRotMatrix0(MATRIX*, MATRIX*);
 s16 func_800A3304(void);
 s32 func_800A19FC(WorldChunkHeader*, SVECTOR*, WorldStoredTriangle*, s16*, s32, s16*, s32);
 void func_800A31C0(s16);
@@ -197,8 +212,8 @@ void WmPackModelLoadFileCallback(void);
 s32 WmDialogSetAskToShow(u8, u8, u8, u8, s16*);
 void func_800B1C80(WorldChunkHeader*);
 void ResetEffectState();
-s32 func_800AA8F8(s32, s32);
-void func_800B59F4(s16, s16, s16, s16, POLY_FT4*, s32);
+s32 WmGetHorizonCurveDrop(s32, s32);
+void WmDrawGroundQuad(s16, s16, s16, s16, POLY_FT4*, s32);
 void func_800B5C7C(WorldActor*);
 void* WmGetModelDataByModelId(s16);
 s32 WmGetModelTotalRenderPacketSize(FieldModelEntry*);
