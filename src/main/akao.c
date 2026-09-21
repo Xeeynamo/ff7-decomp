@@ -247,47 +247,60 @@ void AkaoCmd_10_PlayMusic(AkaoCommand* cmd) {
     g_AkaoMusicId = cmd->param2;
 }
 
-void AkaoCmd_14(AkaoCommand* arg0) {
-    s32* var_a2;
+// Copies the music sequence to the staging buffer, backs up the currently playing
+// song (to backup slot 1 if MUSIC_TA, or slot 0 for any other song), stops channels,
+// initializes new channels from the beginning, and sets g_AkaoMusicId.
+void AkaoCmd_14_PlayMusicSaveCurrent(AkaoCommand* cmd) {
+    s32* channelConfig;
 
-    AkaoCopyMusic((s32*)arg0->param0, arg0->param1);
+    AkaoCopyMusic((s32*)cmd->param0, cmd->param1);
     AkaoMusicSyncKeyStatus();
-    var_a2 = &g_Channel1Config;
+    channelConfig = &g_Channel1Config;
     if (g_AkaoMusicId) {
         if (g_AkaoMusicId == MUSIC_TA) {
-            AkaoMusicCopyChannelsAndConfig(&g_Channel1, &g_AkaoSavedChannels1, var_a2, &g_AkaoSavedChannelConfig1);
+            AkaoMusicCopyChannelsAndConfig(&g_Channel1, &g_AkaoSavedChannels1, channelConfig, &g_AkaoSavedChannelConfig1);
         } else {
-            AkaoMusicCopyChannelsAndConfig(&g_Channel1, &g_AkaoSavedChannels0, var_a2, &g_AkaoSavedChannelConfig0);
+            AkaoMusicCopyChannelsAndConfig(&g_Channel1, &g_AkaoSavedChannels0, channelConfig, &g_AkaoSavedChannelConfig0);
         }
     }
     AkaoMusicStopChannels1();
     AkaoMusicChannelsInit();
-    g_AkaoMusicId = arg0->param2;
+    g_AkaoMusicId = cmd->param2;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_15);
+// Copies the sequence to staging buffer, clears flag 0x100, and switches music with
+// backup state swapping: if the requested music ID matches backup slot 0 or 1, active
+// music (channel 1) is moved to channel 2 (transition) and saved back into the backup slot,
+// while the target music is restored into active channel 1. If not saved in a slot, the
+// current music is backed up and new channels are initialized fresh.
+void AkaoCmd_15_PlayMusicSwapSaved(AkaoCommand* cmd);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_15_PlayMusicSwapSaved);
 
-extern u16 D_80062FC8;
-
-void AkaoCmd_18(AkaoCommand* arg0) {
+// Fades out the currently playing music (if any) over cmd->param3 ticks (default 0x10)
+// and plays new music via AkaoCmd_10_PlayMusic (resuming from backup if previously saved).
+void AkaoCmd_18_FadePlayMusic(AkaoCommand* cmd) {
     if (g_AkaoMusicId) {
-        D_80062FC8 = arg0->param3 ? arg0->param3 : 0x10;
+        g_AkaoMusicFadeSteps = cmd->param3 ? cmd->param3 : 0x10;
         AkaoMusicCopyChannels1Into2();
     }
-    AkaoCmd_10_PlayMusic(arg0);
+    AkaoCmd_10_PlayMusic(cmd);
 }
 
-void AkaoCmd_19(AkaoCommand* arg0) {
+// Fades out the currently playing music (if any) over cmd->param3 ticks (default 0x10)
+// and plays new music via AkaoCmd_14_PlayMusicSaveCurrent (saving current music to backup).
+void AkaoCmd_19_FadePlayMusicSaveCurrent(AkaoCommand* cmd) {
     if (g_AkaoMusicId) {
-        D_80062FC8 = arg0->param3 ? arg0->param3 : 0x10;
+        g_AkaoMusicFadeSteps = cmd->param3 ? cmd->param3 : 0x10;
         AkaoMusicCopyChannels1Into2();
     }
-    AkaoCmd_14(arg0);
+    AkaoCmd_14_PlayMusicSaveCurrent(cmd);
 }
 
-void AkaoCmd_34(AkaoCommand* arg0) {
+// Clears sound channel 4 (1 voice) and initializes it with center pan (0x40)
+// using the provided raw sound sequence pointers directly (bypassing table lookup).
+void AkaoCmd_34_PlaySoundDirect(AkaoCommand* cmd) {
     AkaoSoundChannelsClear(4, 1);
-    AkaoSoundChannelsInit(0x40, 0x34, arg0->param0, arg0->param1);
+    AkaoSoundChannelsInit(0x40, 0x34, cmd->param0, cmd->param1);
 }
 
 void AkaoCmd_21(AkaoCommand* arg0) {
@@ -1163,6 +1176,13 @@ static u8 func_80031A70(u8** arg0) {
     } while (len);
     return opcode == expected ? 0xCA : 0xA0;
 }
+
+
+/////////////////////////
+// AKAO OPCODES
+/////////////////////////
+
+
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_E8_Tempo);
 
