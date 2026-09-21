@@ -17,7 +17,7 @@ typedef struct {
     s8 pad5[3];
     s32 steps;
     s8 target;
-} AkaoSlide;
+} AkaoTempoPitchSlide;
 
 // Field names cross-checked against the independent qgears reverse-engineering
 // project's AkaoChannel struct (same source as the g_Akao*SlideStep/Steps
@@ -120,7 +120,7 @@ typedef struct {
 } AkaoConfig;
 
 typedef struct {
-    /* 0x0 */ u8 unk0;
+    /* 0x0 */ u8 opcode;
     /* 0x1 */ u8 unk1;
     /* 0x2 */ s16 unk2;
     /* 0x4 */ s32 unk4;
@@ -132,9 +132,63 @@ typedef struct {
     /* 0x18 */ s32 unk18;
     /* 0x1C */ s32 unk1C;
     /* 0x20 */ s32 unk20;
-} Unk8002B7E0; // size:0x24
+} AkaoCommand; // size:0x24
 
-extern void (*D_80049548[])(Unk8002B7E0*);
+typedef struct {
+    u32 unk0;
+    s32 unk4;
+    s32 unk8;
+} Unk8002BA98;
+
+
+typedef struct {
+    u32 unk0;
+    s32 unk4;
+    s32 unk8;
+    s32 unkC;
+} Unk8002BB20;
+
+
+typedef struct {
+    u32 unk0;
+    s32 unk4;
+    u16 unk8;
+} Unk8002BBEC;
+
+
+typedef struct {
+    u32 unk0;
+    s32 unk4;
+    u16 unk8;
+    u16 unkA;
+    u16 unkC;
+    u16 unkE;
+} Unk8002BC58;
+
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s8 unk8;
+} Unk8002C5C8;
+
+
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s8 unk8;
+} Unk8002C6C8;
+
+typedef struct {
+    u32 unk0;
+    u16 unk4;
+} Unk8002CC18;
+
+typedef struct {
+    u32 unk0;
+    u8 unk4;
+} Unk8002CC44;
+
+extern void (*D_80049548[])(AkaoCommand*);
 extern u8 D_800499A8[]; // opcode lenghts
 extern u8 D_80049C40[];
 extern s32 g_AkaoWaveTableKey[];
@@ -191,7 +245,7 @@ extern s16 D_8007EC0C;
 extern s16 D_8007EC0E;
 extern s32 D_8007EC10;
 extern s32 D_800804D0;
-extern Unk8002B7E0 D_80081DC8[]; // sound messages queue
+extern AkaoCommand D_80081DC8[]; // sound messages queue
 extern s32 D_80083334;
 extern u16 D_8008337E;
 extern s32 D_80083394;
