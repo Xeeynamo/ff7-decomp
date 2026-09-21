@@ -122,37 +122,37 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicChannelsInit);
 
 // Merges newly-requested bits (g_AkaoMusicOverMask/g_AkaoMusicAltMask) into the
 // pending mask g_AkaoMusicActiveMask, then for each set bit points the matching
-// g_Channel1 slot at the default D_80049C40 sample and marks it (unk56 =
-// 0x204), clearing the request bits as it goes.
+// g_Channel1 channel at the stop sequence D_80049C40 and sets length1/2 to
+// 0x204, clearing the request bits as it goes.
 static void AkaoMusicStopChannels1(void) {
     s32 mask;
     s32 bit;
-    AkaoChannel* slot;
-    s32 req0;
-    s32 req1;
+    AkaoChannel* channel;
+    s32 overMask;
+    s32 altMask;
 
     if (g_AkaoMusicActiveMask != 0) {
-        slot = g_Channel1;
+        channel = g_Channel1;
         bit = 1;
-        req0 = g_AkaoMusicOverMask;
-        req1 = g_AkaoMusicAltMask;
+        overMask = g_AkaoMusicOverMask;
+        altMask = g_AkaoMusicAltMask;
         g_AkaoMusicAltMask = 0;
         g_AkaoMusicOverMask = 0;
-        D_8009A110 = 0;
-        D_8009A10C = 0;
-        req0 |= req1;
+        g_AkaoMusicKeyedMask = 0;
+        g_AkaoMusicOnMask = 0;
+        overMask |= altMask;
         mask = g_AkaoMusicActiveMask;
-        mask |= req0;
+        mask |= overMask;
         g_AkaoMusicActiveMask = mask;
-        D_8009A114 |= mask;
+        g_AkaoMusicOffMask |= mask;
         do {
             if (mask & bit) {
                 mask ^= bit;
-                *(u16*)&slot->length1 = 0x204;
-                slot->akaoSequencePointer = D_80049C40;
+                *(u16*)&channel->length1 = 0x204;
+                channel->akaoSequencePointer = D_80049C40;
             }
             bit *= 2;
-            slot += 1;
+            channel += 1;
         } while (mask != 0);
     }
 }
