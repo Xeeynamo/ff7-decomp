@@ -2,6 +2,16 @@
 #include "game.h"
 #include "libspu.h"
 
+#define AKAO_PAN_LEFT 0x00
+#define AKAO_PAN_CENTER 0x40
+#define AKAO_PAN_RIGHT 0x7F
+
+#define AKAO_SFX_SLOT_0 0x30
+#define AKAO_SFX_SLOT_1 0x32
+#define AKAO_SFX_SLOT_2 0x34
+#define AKAO_SFX_SLOT_3 0x36
+
+
 #define AKAO_MUSIC 0x0
 #define AKAO_SOUND 0x1
 #define AKAO_MENU 0x2
@@ -402,8 +412,8 @@ void AkaoCmd_15_PlayMusicSwapSaved(AkaoCommand* cmd);
 void AkaoCmd_18_FadePlayMusic(AkaoCommand* cmd);
 void AkaoCmd_19_FadePlayMusicSaveCurrent(AkaoCommand* cmd);
 void AkaoCmd_20(AkaoCommand* arg0);
-void AkaoCmd_21(AkaoCommand* arg0);
-void AkaoCmd_22(AkaoCommand* arg0);
+void AkaoCmd_21_PlayTwoSounds(AkaoCommand* cmd);
+void AkaoCmd_22_PlayThreeSounds(AkaoCommand* arg0);
 void AkaoCmd_23(AkaoCommand* arg0);
 void AkaoCmd_29(AkaoCommand* arg0);
 void AkaoCmd_2A(AkaoCommand* arg0);
@@ -595,8 +605,8 @@ void (*D_80049548[0x100])() = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_20,
-    AkaoCmd_21,
-    AkaoCmd_22,
+    AkaoCmd_21_PlayTwoSounds,
+    AkaoCmd_22_PlayThreeSounds,
     AkaoCmd_23,
     AkaoCmd_Null,
     AkaoCmd_Null,

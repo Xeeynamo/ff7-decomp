@@ -300,30 +300,32 @@ void AkaoCmd_19_FadePlayMusicSaveCurrent(AkaoCommand* cmd) {
 // using the provided raw sound sequence pointers directly (bypassing table lookup).
 void AkaoCmd_34_PlaySoundDirect(AkaoCommand* cmd) {
     AkaoSoundChannelsClear(4, 1);
-    AkaoSoundChannelsInit(0x40, 0x34, cmd->param0, cmd->param1);
+    AkaoSoundChannelsInit(AKAO_PAN_CENTER, AKAO_SFX_SLOT_2, cmd->param0, cmd->param1);
 }
 
-void AkaoCmd_21(AkaoCommand* arg0) {
-    s32 sp10, sp14;
+// Clears sound channels for 2 voices starting at voice 4 (SFX slots 1 and 2),
+// then resolves and initializes two sound effect sequences with the requested pan.
+void AkaoCmd_21_PlayTwoSounds(AkaoCommand* cmd) {
+    s32 seq0, seq1;
 
     AkaoSoundChannelsClear(4, 2);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
-    AkaoSoundChannelsInit(arg0->param0, 0x32, sp10, sp14);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->param2);
-    AkaoSoundChannelsInit(arg0->param0, 0x34, sp10, sp14);
+    AkaoSoundGetSequence(&seq0, &seq1, cmd->param1);
+    AkaoSoundChannelsInit(cmd->param0, AKAO_SFX_SLOT_1, seq0, seq1);
+    AkaoSoundGetSequence(&seq0, &seq1, cmd->param2);
+    AkaoSoundChannelsInit(cmd->param0, AKAO_SFX_SLOT_2, seq0, seq1);
 }
 
-void AkaoCmd_22(AkaoCommand* arg0) {
-    s32 sp10, sp14;
+void AkaoCmd_22_PlayThreeSounds(AkaoCommand* cmd) {
+    s32 seq0, seq1;
 
     AkaoSoundChannelsClear(4, 3);
     AkaoStreamStop();
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
-    AkaoSoundChannelsInit(arg0->param0, 0x30, sp10, sp14);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->param2);
-    AkaoSoundChannelsInit(arg0->param0, 0x32, sp10, sp14);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->param3);
-    AkaoSoundChannelsInit(arg0->param0, 0x34, sp10, sp14);
+    AkaoSoundGetSequence(&seq0, &seq1, cmd->param1);
+    AkaoSoundChannelsInit(cmd->param0, AKAO_SFX_SLOT_0, seq0, seq1);
+    AkaoSoundGetSequence(&seq0, &seq1, cmd->param2);
+    AkaoSoundChannelsInit(cmd->param0, AKAO_SFX_SLOT_1, seq0, seq1);
+    AkaoSoundGetSequence(&seq0, &seq1, cmd->param3);
+    AkaoSoundChannelsInit(cmd->param0, AKAO_SFX_SLOT_2, seq0, seq1);
 }
 
 void AkaoCmd_23(AkaoCommand* arg0) {
