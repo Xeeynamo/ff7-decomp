@@ -6,6 +6,109 @@
 #define AKAO_SOUND 0x1
 #define AKAO_MENU 0x2
 
+typedef enum {
+    MUSIC_NONE     = 0x00, // none
+    MUSIC_NOTHING  = 0x01, // nothing
+    MUSIC_OA       = 0x02, // Opening - Bombing Mission
+    MUSIC_OB       = 0x03, // Bombing Mission
+    MUSIC_DUN2     = 0x04, // Chasing The Black-Caped Man
+    MUSIC_GUITAR2  = 0x05, // On The Other Side Of The Mountain
+    MUSIC_FANFARE  = 0x06, // Fanfare (intro)
+    MUSIC_MAKORO   = 0x07, // Mako Reactor
+    MUSIC_BAT      = 0x08, // Fighting
+    MUSIC_FIDDLE   = 0x09, // Fiddle De Chocobo
+    MUSIC_KURAI    = 0x0A, // Anxious Heart
+    MUSIC_CHU      = 0x0B, // Still More Fighting
+    MUSIC_KETC     = 0x0C, // Cait Sith's Theme
+    MUSIC_EARIS    = 0x0D, // Aerith's Theme
+    MUSIC_TA       = 0x0E, // Final Fantasy VII Main Theme (World Map)
+    MUSIC_TB       = 0x0F, // Final Fantasy VII Main Theme B
+    MUSIC_SATO     = 0x10, // sato
+    MUSIC_PARADE   = 0x11, // Rufus' Welcoming Ceremony
+    MUSIC_COMICAL  = 0x12, // comical
+    MUSIC_YUME     = 0x13, // Who Are You
+    MUSIC_MATI     = 0x14, // Ahead on Our Way
+    MUSIC_SIDO     = 0x15, // It's Difficult to Stand on Both Feet, Isn't It
+    MUSIC_SIERA    = 0x16, // If You Open Your Heart
+    MUSIC_WALZ     = 0x17, // Waltz de Chocobo
+    MUSIC_CORNEO   = 0x18, // Don of the Slums
+    MUSIC_HORROR   = 0x19, // Trail Of Blood
+    MUSIC_CANYON   = 0x1A, // Cosmo Canyon
+    MUSIC_RED      = 0x1B, // Red XIII's Theme
+    MUSIC_SETO     = 0x1C, // Great Warrior
+    MUSIC_AYASI    = 0x1D, // Lurking in the Darkness
+    MUSIC_SINRA    = 0x1E, // Shinra Company
+    MUSIC_SINRASLO = 0x1F, // Infiltrating Shinra Tower
+    MUSIC_DOKUBO   = 0x20, // Underneath the Rotting Pizza
+    MUSIC_BOKUJO   = 0x21, // Farm Boy
+    MUSIC_TM       = 0x22, // On That Day, Five Years Ago
+    MUSIC_TIFA     = 0x23, // Tifa's Theme
+    MUSIC_COSTA    = 0x24, // Costa Del Sol
+    MUSIC_ROCKET   = 0x25, // Oppressed People
+    MUSIC_EARISLO  = 0x26, // Flowers Blooming in the Church
+    MUSIC_CHASE    = 0x27, // Crazy Motorcycle
+    MUSIC_RUKEI    = 0x28, // Sandy Badlands
+    MUSIC_CEPHIROS = 0x29, // Those Chosen by the Planet
+    MUSIC_BARRET   = 0x2A, // Barret's Theme
+    MUSIC_COREL    = 0x2B, // Mining Town
+    MUSIC_BOO      = 0x2C, // Life Stream
+    MUSIC_ELEC     = 0x2D, // Electric de Chocobo
+    MUSIC_RHYTHM   = 0x2E, // Turk's Theme
+    MUSIC_FAN2     = 0x2F, // Fanfare
+    MUSIC_HIKU     = 0x30, // Highwind Takes To The Skies
+    MUSIC_CANNON   = 0x31, // The Makou Cannon Is Fired ~ Shinra Explodes A
+    MUSIC_DATE     = 0x32, // Interrupted By Fireworks
+    MUSIC_CINTRO   = 0x33, // Those Chosen By The Planet (Intro)
+    MUSIC_CINCO    = 0x34, // Cinco de Chocobo
+    MUSIC_CHU2     = 0x35, // J-E-N-O-V-A
+    MUSIC_YUFI     = 0x36, // Descendant Of Shinobi
+    MUSIC_ASERI    = 0x37, // Hurry!
+    MUSIC_GOLD1    = 0x38, // Gold Saucer
+    MUSIC_MURA1    = 0x39, // Parochial Town
+    MUSIC_YADO     = 0x3A, // Good Night, Until Tomorrow
+    MUSIC_OVER2    = 0x3B, // Continue
+    MUSIC_CRWIN    = 0x3C, // A Great Success
+    MUSIC_CRLOST   = 0x3D, // Tango Of Tears
+    MUSIC_ODDS     = 0x3E, // Racing Chocobo ~ Place Your Bets
+    MUSIC_GEKI     = 0x3F, // Debut
+    MUSIC_JUNON    = 0x40, // Off The Edge Of Despair
+    MUSIC_TENDER   = 0x41, // Holding My Thoughts In My Heart
+    MUSIC_WIND     = 0x42, // wind
+    MUSIC_VINCENT  = 0x43, // The Nightmare's Beginning
+    MUSIC_BEE      = 0x44, // Honeybee Manor
+    MUSIC_JUKAI    = 0x45, // Forest Temple
+    MUSIC_SADBAR   = 0x46, // Mark of the Traitor
+    MUSIC_ASERI2   = 0x47, // Hurry Faster!
+    MUSIC_KITA     = 0x48, // The Great Northern Cave
+    MUSIC_SID2     = 0x49, // Cid's Theme
+    MUSIC_SADSID   = 0x4A, // Sending a Dream Into the Universe
+    MUSIC_ISEKI    = 0x4B, // You Can Hear the Cry of the Planet
+    MUSIC_HEN      = 0x4C, // Who Am I
+    MUSIC_UTAI     = 0x4D, // Utai
+    MUSIC_SNOW     = 0x4E, // Buried in the Snow
+    MUSIC_YUFI2    = 0x4F, // Stolen Materia
+    MUSIC_MEKYU    = 0x50, // Reunion
+    MUSIC_CONDOR   = 0x51, // Fortress Of The Condor
+    MUSIC_LB2      = 0x52, // One-Winged Angel
+    MUSIC_GUN      = 0x53, // Shinra Army Wages A Full-Scale Attack
+    MUSIC_WEAPON   = 0x54, // Weapon Raid
+    MUSIC_PJ       = 0x55, // Jenova Absolute
+    MUSIC_SEA      = 0x56, // A Secret, Sleeping in the Deep Sea
+    MUSIC_LD       = 0x57, // Judgment Day
+    MUSIC_LB1      = 0x58, // The Birth of God
+    MUSIC_SENSUI   = 0x59, // sensui
+    MUSIC_RO       = 0x5A, // The Countdown Begins
+    MUSIC_JYRO     = 0x5B, // Steal The Tiny Bronco!
+    MUSIC_NOINTRO  = 0x5C, // Those Chosen By The Planet (no intro)
+    MUSIC_RIKU     = 0x5D, // The Makou Cannon Is Fired ~ Shinra Explodes B
+    MUSIC_SI       = 0x5E, // The Makou Cannon Is Fired ~ Shinra Explodes C
+    MUSIC_MOGU     = 0x5F, // Highwind Takes to the Skies
+    MUSIC_PRE      = 0x60, // The Prelude
+    MUSIC_FIN      = 0x61, // World Crisis
+    MUSIC_HEART    = 0x62, // heart
+    MUSIC_ROLL     = 0x63, // Staff Roll
+} AkaoMusicTrack;
+
 #define AKAO_STEREO 0x1
 #define AKAO_MONO 0x2
 #define AKAO_STEREO_CHANNELS 0x4
@@ -328,13 +431,13 @@ extern u16 D_8007EC08;
 extern u16 D_8007EC0A;
 extern s16 D_8007EC0C;
 extern s16 D_8007EC0E;
-extern s32 D_8007EC10;
-extern s32 D_800804D0;
+extern s32 g_AkaoSavedChannels0;
+extern s32 g_AkaoSavedChannels1;
 extern AkaoCommand D_80081DC8[32]; // sound messages queue
-extern s32 D_80083334;
-extern u16 D_8008337E;
-extern s32 D_80083394;
-extern u16 D_800833DE;
+extern s32 g_AkaoSavedChannelConfig0;
+extern u16 g_AkaoSavedMusicId0;
+extern s32 g_AkaoSavedChannelConfig1;
+extern u16 g_AkaoSavedMusicId1;
 extern s32 g_AkaoMusicBuffer[];
 extern AkaoChannel g_Channel1[];
 extern AkaoChannel g_Channel2[];
@@ -349,7 +452,7 @@ extern s32 g_AkaoSoundActiveMaskStored;
 extern s32 g_AkaoNoiseMask;
 extern s32 g_AkaoReverbMask;
 extern s32 g_AkaoPitchLfoMask;
-extern u16 D_8009A14E;
+extern u16 g_AkaoMusicId;
 extern s32 g_Channel1Config;
 extern s32 g_Channel2Config;
 extern s32 g_AkaoMusicActiveMask;
@@ -395,7 +498,7 @@ extern s32 g_Channel3TempoUpdate;
 
 volatile s16 g_AkaoTransfer;
 
-void AkaoCmd_10(AkaoCommand* arg0);
+void AkaoCmd_10_PlayMusic(AkaoCommand* cmd);
 void AkaoCmd_14(AkaoCommand* arg0);
 void AkaoCmd_15();
 void AkaoCmd_18(AkaoCommand* arg0);
@@ -577,7 +680,7 @@ void (*D_80049548[0x100])() = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_10,
+    AkaoCmd_10_PlayMusic,
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,

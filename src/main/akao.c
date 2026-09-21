@@ -159,7 +159,7 @@ static void AkaoMusicStopChannels1(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicStopChannels12);
 
-void AkaoSoundChannelsInit(u16 arg0, s32 arg1, s32 arg2, s32 arg3);
+void AkaoSoundChannelsInit(u16 volPan, s32 channelId, s32 seq1, s32 seq2);
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundChannelsInit);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundMenuChannelsInit);
@@ -168,81 +168,101 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundChannelsStop);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundChannelsClear);
 
-// Resolves a 10-bit note index into a pair of table entries: looks up
-// g_AkaoEffectsAll[index] and g_AkaoEffectsAll[index+1] (u16), adding g_AkaoEffectsAllSeq unless the
-// entry is the 0xFFFF "unused" sentinel (in which case the result is 0).
-static void AkaoSoundGetSequence(s32* arg0, s32* arg1, u16 arg2) {
+// Resolves a 10-bit sound effect ID into a pair of sequence pointers: looks up
+// g_AkaoEffectsAll[index] and g_AkaoEffectsAll[index+1] (u16 offsets), adding
+// the sequence base g_AkaoEffectsAllSeq unless the entry is the 0xFFFF sentinel
+// (in which case the sequence pointer is 0).
+static void AkaoSoundGetSequence(s32* outSeq0, s32* outSeq1, u16 soundId) {
     u16 idx;
-    s32 val0;
-    s32 val1;
-    u16 raw0;
-    u16 raw1;
+    s32 seq0;
+    s32 seq1;
+    u16 offset0;
+    u16 offset1;
 
-    idx = (arg2 & 0x3FF) * 2;
-    raw0 = *(u16*)((idx * 2) + g_AkaoEffectsAll);
-    if (raw0 != 0xFFFF) {
-        val0 = raw0 + g_AkaoEffectsAllSeq;
+    idx = (soundId & 0x3FF) * 2;
+    offset0 = *(u16*)((idx * 2) + g_AkaoEffectsAll);
+    if (offset0 != 0xFFFF) {
+        seq0 = offset0 + g_AkaoEffectsAllSeq;
     } else {
-        val0 = 0;
+        seq0 = 0;
     }
-    *arg0 = val0;
+    *outSeq0 = seq0;
     idx = idx + 1;
-    raw1 = *(u16*)((idx * 2) + g_AkaoEffectsAll);
-    if (raw1 != 0xFFFF) {
-        val1 = raw1 + g_AkaoEffectsAllSeq;
+    offset1 = *(u16*)((idx * 2) + g_AkaoEffectsAll);
+    if (offset1 != 0xFFFF) {
+        seq1 = offset1 + g_AkaoEffectsAllSeq;
     } else {
-        val1 = 0;
+        seq1 = 0;
     }
-    *arg1 = val1;
+    *outSeq1 = seq1;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicVolReset);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundVolReset);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A7E8);
+// Synchronizes g_AkaoMusicOnMask and g_AkaoMusicKeyedMask with the hardware
+// SPU key status (SpuGetKeyStatus) for all active music channels not stolen
+// by sound effects or stream audio, right before channel state backup/switching.
+void AkaoMusicSyncKeyStatus(void);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicSyncKeyStatus);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002A958);
+// Synchronizes g_Channel3OnMask and g_Channel3KeyedMask with the hardware
+// SPU key status (SpuGetKeyStatus) for all active sound effect channels.
+void AkaoSoundSyncKeyStatus(void);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundSyncKeyStatus);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicRestoreChannelsAndConfig);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicCopyChannels1Into2);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002B1A8);
+// Copies 24 channels (0x18C0 bytes) and channel configuration (0x60 bytes)
+// from source to destination buffers.
+void AkaoMusicCopyChannelsAndConfig(void* srcChannels, void* dstChannels, void* srcConfig, void* dstConfig);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicCopyChannelsAndConfig);
 
-void AkaoCmd_10(AkaoCommand* arg0) {
-    AkaoCopyMusic(arg0->param0, arg0->param1);
-    if (D_8009A14E == 0xE) {
-        func_8002A7E8();
-        func_8002B1A8(&g_Channel1, &D_800804D0, &g_Channel1Config, &D_80083394);
+
+
+/////////////////////////
+// AKAO COMMANDS
+/////////////////////////
+
+
+// Copies the sequence to the staging buffer, restores channels and config from backup
+// if musicId matches backup slot 0 or 1, otherwise initializes fresh music channels.
+void AkaoCmd_10_PlayMusic(AkaoCommand* cmd) {
+    AkaoCopyMusic((s32*)cmd->param0, cmd->param1);
+    if (g_AkaoMusicId == MUSIC_TA) {
+        AkaoMusicSyncKeyStatus();
+        AkaoMusicCopyChannelsAndConfig(&g_Channel1, &g_AkaoSavedChannels1, &g_Channel1Config, &g_AkaoSavedChannelConfig1);
     }
     AkaoMusicStopChannels1();
-    if (D_8008337E && D_8008337E == arg0->param2) {
+    if (g_AkaoSavedMusicId0 && g_AkaoSavedMusicId0 == cmd->param2) {
         AkaoMusicRestoreChannelsAndConfig(0);
-    } else if (D_800833DE && D_800833DE == arg0->param2) {
+    } else if (g_AkaoSavedMusicId1 && g_AkaoSavedMusicId1 == cmd->param2) {
         AkaoMusicRestoreChannelsAndConfig(1);
     } else {
         AkaoMusicChannelsInit();
     }
-    D_8009A14E = arg0->param2;
+    g_AkaoMusicId = cmd->param2;
 }
 
 void AkaoCmd_14(AkaoCommand* arg0) {
     s32* var_a2;
 
-    AkaoCopyMusic(arg0->param0, arg0->param1);
-    func_8002A7E8();
+    AkaoCopyMusic((s32*)arg0->param0, arg0->param1);
+    AkaoMusicSyncKeyStatus();
     var_a2 = &g_Channel1Config;
-    if (D_8009A14E) {
-        if (D_8009A14E == 0xE) {
-            func_8002B1A8(&g_Channel1, &D_800804D0, var_a2, &D_80083394);
+    if (g_AkaoMusicId) {
+        if (g_AkaoMusicId == MUSIC_TA) {
+            AkaoMusicCopyChannelsAndConfig(&g_Channel1, &g_AkaoSavedChannels1, var_a2, &g_AkaoSavedChannelConfig1);
         } else {
-            func_8002B1A8(&g_Channel1, &D_8007EC10, var_a2, &D_80083334);
+            AkaoMusicCopyChannelsAndConfig(&g_Channel1, &g_AkaoSavedChannels0, var_a2, &g_AkaoSavedChannelConfig0);
         }
     }
     AkaoMusicStopChannels1();
     AkaoMusicChannelsInit();
-    D_8009A14E = arg0->param2;
+    g_AkaoMusicId = arg0->param2;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_15);
@@ -250,15 +270,15 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_15);
 extern u16 D_80062FC8;
 
 void AkaoCmd_18(AkaoCommand* arg0) {
-    if (D_8009A14E) {
+    if (g_AkaoMusicId) {
         D_80062FC8 = arg0->param3 ? arg0->param3 : 0x10;
         AkaoMusicCopyChannels1Into2();
     }
-    AkaoCmd_10(arg0);
+    AkaoCmd_10_PlayMusic(arg0);
 }
 
 void AkaoCmd_19(AkaoCommand* arg0) {
-    if (D_8009A14E) {
+    if (g_AkaoMusicId) {
         D_80062FC8 = arg0->param3 ? arg0->param3 : 0x10;
         AkaoMusicCopyChannels1Into2();
     }
@@ -849,9 +869,9 @@ static void AkaoCmd_E4_SetReverbMul(AkaoSetReverbMul* arg0) {
     D_8009A13C |= 0x80;
 }
 
-static void AkaoCmd_F2(void) { D_8008337E = 0; }
+static void AkaoCmd_F2(void) { g_AkaoSavedMusicId0 = 0; }
 
-static void AkaoCmd_F3(void) { D_800833DE = 0; }
+static void AkaoCmd_F3(void) { g_AkaoSavedMusicId1 = 0; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_F4);
 
