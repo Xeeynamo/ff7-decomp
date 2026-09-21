@@ -38,7 +38,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/110B8", __SN_ENTRY_POINT);
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_8001117C);
 
 static void func_800111E4(void) {
-    D_8009A000 = 0xF4;
+    D_8009A000 = AKAO_CMD_STOP_ALL;
     AkaoExec();
     if (!(Savemap.memory_bank_4[97] & 0x30)) {
         func_8001117C(0x2B);
@@ -245,7 +245,7 @@ void main(void) {
         InputInit();
         SysCdromLoadFile(yama_field_ending.loc, yama_field_ending.len, (u_long*)0x800A0000, NULL);
         ENDING_Loop(0);
-        D_8009A000 = 192;
+        D_8009A000 = AKAO_CMD_SET_MUSIC_VOLUME;
         D_8009A004 = 127;
         AkaoExec();
         ClearImage(&rect, 0, 0, 0);
@@ -294,7 +294,7 @@ void main(void) {
                     if (g_PrevGameState == GAMESTATE_FIELD) {
                         if (!D_80071E30) {
                             if (g_FieldState.nextBattleMusic) {
-                                D_8009A000 = 20;
+                                D_8009A000 = AKAO_CMD_PLAY_MUSIC_UNK14;
                                 D_8009A004 = (u_long)g_FieldState.nextBattleMusic;
                                 AkaoExec();
                             }
@@ -554,7 +554,7 @@ void main(void) {
                 AkaoExec();
                 SysCdromLoadFile(yama_field_dschange.loc, yama_field_dschange.len, (u_long*)0x800A0000, NULL);
                 func_800A0C58();
-                D_8009A000 = 192;
+                D_8009A000 = AKAO_CMD_SET_MUSIC_VOLUME;
                 D_8009A004 = 127;
                 AkaoExec();
                 func_80033BE0();

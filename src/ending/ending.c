@@ -758,7 +758,7 @@ void ENDING_Loop(s32 arg0) {
     }
 
 fade_out:
-    D_8009A000 = 0xC1;
+    D_8009A000 = AKAO_CMD_FADE_OUT;
     D_8009A004 = 0x3C;
     D_8009A008 = 0;
     AkaoExec();
@@ -1144,10 +1144,9 @@ s32 func_800A22E4(void) {
 }
 
 s32 func_800A2328(void) {
-    D_8009A000 = 0x10;
+    D_8009A000 = AKAO_CMD_PLAY_MUSIC;
     D_8009A004 = (u_long)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
     AkaoExec();
-
     return 1;
 }
 

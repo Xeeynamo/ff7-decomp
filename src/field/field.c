@@ -321,9 +321,9 @@ void FIELD_Main(void) {
         }
         if (g_PrevGameState == GAMESTATE_BATTLE) {
             s16* cmd = &D_8009A000;
-            *cmd = 0xF5;
+            *cmd = AKAO_CMD_RESET_FIELD_MUSIC;
             AkaoExec();
-            *cmd = 0x18;
+            *cmd = AKAO_CMD_PLAY_MUSIC_RESUME;
             D_8009A008 = 4;
             D_8009A004 = g_FieldState.nextFieldMusic;
             AkaoExec();

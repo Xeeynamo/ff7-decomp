@@ -107,7 +107,7 @@ static s32 D_801D2528;
 static u8 D_801D252C[NUM_MENU_COLOR];
 
 static void func_801D0040(u16 arg0) {
-    D_8009A000 = 0x30;
+    D_8009A000 = AKAO_CMD_PLAY_SFX;
     D_8009A004 = arg0;
     D_8009A008 = arg0;
     AkaoExec();
@@ -116,19 +116,19 @@ static void func_801D0040(u16 arg0) {
 static void func_801D0080(s32 arg0) {
     switch (arg0) {
     case 0:
-        D_8009A000 = 0x81;
-        D_8009A004 = 0x81;
-        D_8009A008 = 0x81;
+        D_8009A000 = AKAO_CMD_SET_MODE_MONO;
+        D_8009A004 = AKAO_CMD_SET_MODE_MONO;
+        D_8009A008 = AKAO_CMD_SET_MODE_MONO;
         break;
     case 1:
-        D_8009A000 = 0x80;
-        D_8009A004 = 0x80;
-        D_8009A008 = 0x80;
+        D_8009A000 = AKAO_CMD_SET_MODE_STEREO;
+        D_8009A004 = AKAO_CMD_SET_MODE_STEREO;
+        D_8009A008 = AKAO_CMD_SET_MODE_STEREO;
         break;
     case 2:
-        D_8009A000 = 0x82;
-        D_8009A004 = 0x82;
-        D_8009A008 = 0x82;
+        D_8009A000 = AKAO_CMD_UNK82;
+        D_8009A004 = AKAO_CMD_UNK82;
+        D_8009A008 = AKAO_CMD_UNK82;
         break;
     }
     AkaoExec();

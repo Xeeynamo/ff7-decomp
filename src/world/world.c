@@ -3653,13 +3653,13 @@ void PlayMusicTrack(s32 arg0) {
     if (D_801159DC != 0) {
         cmd = &D_8009A000;
         if (arg0 != 1) {
-            s16 mode = 0x10;
+            s16 mode = AKAO_CMD_PLAY_MUSIC;
             if (D_801159E0 == 1) {
-                mode = 0x14;
+                mode = AKAO_CMD_PLAY_MUSIC_UNK14;
             }
             *cmd = mode;
         } else {
-            *cmd = 0x18;
+            *cmd = AKAO_CMD_PLAY_MUSIC_RESUME;
         }
         D_8009A004 = D_801159BC[arg0];
         D_8009A008 = 4;
@@ -3675,7 +3675,7 @@ static void func_800B64A0(void) { PlayMusicTrack(D_801159E0); }
 static s32 func_800B64C8(void) { return D_801159E0; }
 
 static void func_800B64D8(u32 arg0) {
-    D_8009A000 = 0x30;
+    D_8009A000 = AKAO_CMD_PLAY_SFX;
     D_8009A004 = arg0;
     AkaoExec();
 }
@@ -3683,13 +3683,13 @@ static void func_800B64D8(u32 arg0) {
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B650C);
 
 static void WmSetMusicVolume(u32 arg0) {
-    D_8009A000 = 0xC0;
+    D_8009A000 = AKAO_CMD_SET_MUSIC_VOLUME;
     D_8009A004 = arg0;
     AkaoExec();
 }
 
 static void func_800B65A4(u32 arg0, s32 arg1) {
-    D_8009A000 = 0xBD;
+    D_8009A000 = AKAO_CMD_UNKBD;
     D_8009A004 = arg0;
     D_8009A008 = arg1;
     AkaoExec();
@@ -3699,7 +3699,7 @@ void ToggleAmbientSound(s32 arg0) {
     s16* cmd;
 
     if (D_8010CB20 < arg0) {
-        D_8009A000 = 0x20;
+        D_8009A000 = AKAO_CMD_TOGGLE_AMBIENT;
         D_8010CB20 = arg0;
         D_8009A004 = 0x40;
         D_8009A008 = arg0;
@@ -3707,9 +3707,9 @@ void ToggleAmbientSound(s32 arg0) {
     } else if (arg0 == -D_8010CB20) {
         cmd = &D_8009A000;
         D_8010CB20 = 0;
-        *cmd = 0xF1;
+        *cmd = AKAO_CMD_STOP_SOUND;
         AkaoExec();
-        *cmd = 0xBC;
+        *cmd = AKAO_CMD_STOP_AMBIENT;
         D_8009A004 = 0;
         AkaoExec();
     }
@@ -4561,7 +4561,7 @@ s32 WmDialogSetAskToShow(u8 window, u8 message, u8 first, u8 last, s16* selected
 }
 
 static void WmDialogPlaySound(void) {
-    D_8009A000 = 0x30;
+    D_8009A000 = AKAO_CMD_PLAY_SFX;
     D_8009A004 = 1;
     D_8009A008 = 0x40;
     AkaoExec();
@@ -5339,7 +5339,7 @@ static void func_800BBA5C(void) {
         WmScriptPushToStoreStack(WmGetModelIdFromPcEntity());
         if (func_800A929C()) {
             WmLinkPcToActiveEntity();
-            PlayMusicTrack(2);
+            PlayMusicTrack(WORLD_BGM_CHOCOBO);
             return;
         }
         WmUnlinkPcLinkedEntityFromAll();
@@ -5351,7 +5351,7 @@ static void func_800BBA5C(void) {
             func_800A368C(1);
             ResetEffectState();
             if (func_800B64C8() < 6) {
-                PlayMusicTrack(func_800B7200() ? 1 : 3);
+                PlayMusicTrack(func_800B7200() ? WORLD_BGM_OVERWORLD : WORLD_BGM_HIGHWIND);
             }
             break;
         case 6:
@@ -5470,7 +5470,7 @@ static void func_800BBD20(s32 arg0) {
 
                             func_800AA2E4(2);
                             WmSetActiveEntityDirectionAndRot(temp_v0);
-                            PlayMusicTrack(1);
+                            PlayMusicTrack(WORLD_BGM_OVERWORLD);
                             func_800A2108(0, 6);
                             if (temp_s1 == 4)
                                 func_800A82DC();
@@ -5482,7 +5482,7 @@ static void func_800BBD20(s32 arg0) {
                         } else {
                             WmInsertInEntityStructList();
                             temp_s0 = WmScriptPopFromStoreStack() & 0xFF;
-                            if (func_800A92F8(temp_s0) != 0) {
+                            if (func_800A92F8(temp_s0)) {
                                 WmInitActiveEntityStruct(WmScriptGetTopFromStoreStack() & 0xFF);
                                 WmSetActiveEntityAsPcEntity();
                                 WmInsertInEntityStructList();
@@ -5495,10 +5495,10 @@ static void func_800BBD20(s32 arg0) {
                                     func_800BCA48();
                             }
                             func_800A9DB4(&sp10);
-                            if (func_800A9240() != 0)
-                                PlayMusicTrack(2);
+                            if (func_800A9240())
+                                PlayMusicTrack(WORLD_BGM_CHOCOBO);
                             else
-                                PlayMusicTrack(1);
+                                PlayMusicTrack(WORLD_BGM_OVERWORLD);
 
                             if (temp_s1 == 6)
                                 ToggleAmbientSound(-0x1EC);
@@ -5509,17 +5509,16 @@ static void func_800BBD20(s32 arg0) {
                         }
                     }
                 } else {
-                    if ((WmGetModelIdFromPcEntity() == 3) || (WmGetModelIdFromPcEntity() == 4))
+                    if (WmGetModelIdFromPcEntity() == 3 || WmGetModelIdFromPcEntity() == 4)
                         WmScriptDisableForPcEntity(0);
 
-                    if ((temp_s2 != 0) ||
-                        ((WmGetModelIdFromPcEntity() == 5) && (WmIsPcEntityPosNeedRecalculation() != 0)))
+                    if ((temp_s2 != 0) || (WmGetModelIdFromPcEntity() == 5 && WmIsPcEntityPosNeedRecalculation()))
                         func_800A368C(1);
                 }
             }
         }
-        if ((temp_s4 & PADRdown) != 0) {
-            D_801163DC += 1;
+        if (temp_s4 & PADRdown) {
+            D_801163DC++;
             return;
         }
         D_801163DC = 0;

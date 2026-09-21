@@ -11,7 +11,7 @@
 // propagating this same int-return pattern to those sibling wrappers may be a
 // good change.
 static void func_80026408(u16 arg0) {
-    D_8009A000 = 0x30;
+    D_8009A000 = AKAO_CMD_PLAY_SFX;
     D_8009A004 = arg0;
     D_8009A008 = arg0;
     AkaoExec();

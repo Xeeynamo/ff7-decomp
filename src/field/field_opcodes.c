@@ -2229,7 +2229,7 @@ s32 OpcodeFuncMusic(void) {
         DebugPrintOpcode("music", 1);
     }
     FieldEventClearAkaoStruct();
-    D_8009A000 = 0x10;
+    D_8009A000 = AKAO_CMD_PLAY_MUSIC;
     return SetAndApplyAkao();
 }
 
@@ -2238,7 +2238,7 @@ s32 OpcodeFuncMusvt(void) {
         DebugPrintOpcode("musvt", 1);
     }
     FieldEventClearAkaoStruct();
-    D_8009A000 = 0x14;
+    D_8009A000 = AKAO_CMD_PLAY_MUSIC_UNK14;
     return SetAndApplyAkao();
 }
 
@@ -2247,7 +2247,7 @@ s32 OpcodeFuncMusvm(void) {
         DebugPrintOpcode("musvm", 1);
     }
     FieldEventClearAkaoStruct();
-    D_8009A000 = 0x15;
+    D_8009A000 = AKAO_CMD_PLAY_MUSIC_UNK15;
     return SetAndApplyAkao();
 }
 

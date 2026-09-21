@@ -1358,11 +1358,11 @@ s32 AkaoExec(void) {
     g_AkaoMutex = 1;
     reqCmd = &D_8009A000;
     switch (D_8009A000) {
-    case 0x10:
-    case 0x14:
-    case 0x15:
-    case 0x18:
-    case 0x19:
+    case AKAO_CMD_PLAY_MUSIC:
+    case AKAO_CMD_PLAY_MUSIC_UNK14:
+    case AKAO_CMD_PLAY_MUSIC_UNK15:
+    case AKAO_CMD_PLAY_MUSIC_RESUME:
+    case AKAO_CMD_PLAY_MUSIC_UNK19:
         data = (u8*)D_8009A004;
         if (data[0] == 'A' && data[1] == 'K' && data[2] == 'A' && data[3] == 'O') {
             data += 4;
@@ -1387,77 +1387,77 @@ s32 AkaoExec(void) {
             ret = -1;
         }
         break;
-    case 0x24:
+    case AKAO_CMD_TOGGLE_AMBIENT_1PARAM:
         func_8002DA30(&msg);
         msg->unk4 = D_8009A004;
-        msg->cmd = 0x20;
+        msg->cmd = AKAO_CMD_TOGGLE_AMBIENT;
         *(s32*)&msg->unk8 = D_8009A008;
         break;
-    case 0x25:
+    case AKAO_CMD_UNK21_2PARAMS:
         func_8002DA30(&msg);
         msg->unk4 = D_8009A004;
         msg->unk8 = D_8009A008;
-        msg->cmd = 0x21;
+        msg->cmd = AKAO_CMD_UNK21;
         *(s32*)&msg->unkC = D_8009A008 + 1;
         break;
-    case 0x26:
+    case AKAO_CMD_UNK22_3PARAMS:
         func_8002DA30(&msg);
         msg->unk4 = D_8009A004;
         msg->unk8 = D_8009A008;
         msg->unkC = D_8009A008 + 1;
-        msg->cmd = 0x22;
+        msg->cmd = AKAO_CMD_UNK22;
         *(s32*)&msg->unk10 = D_8009A008 + 2;
         break;
-    case 0x27:
+    case AKAO_CMD_UNK23_4PARAMS:
         func_8002DA30(&msg);
         msg->unk4 = D_8009A004;
         msg->unk8 = D_8009A008;
         msg->unkC = D_8009A008 + 1;
         msg->unk10 = D_8009A008 + 2;
-        msg->cmd = 0x23;
+        msg->cmd = AKAO_CMD_UNK23;
         msg->unk14 = D_8009A008 + 3;
         break;
-    case 0xD8:
+    case AKAO_CMD_UNKD0_D4_PAIR:
         func_8002DA30(&msg);
         msg->unk4 = D_8009A004;
-        msg->cmd = 0xD0;
+        msg->cmd = AKAO_CMD_UNKD0;
         func_8002DA30(&msg);
         msg->unk4 = D_8009A004;
-        msg->cmd = 0xD4;
+        msg->cmd = AKAO_CMD_UNKD4;
         break;
-    case 0xD9:
+    case AKAO_CMD_UNKD1_D5_PAIR:
         func_8002DA30(&msg);
         msg->unk4 = D_8009A004;
-        msg->cmd = 0xD1;
+        msg->cmd = AKAO_CMD_UNKD1;
         *(s32*)&msg->unk8 = D_8009A008;
         func_8002DA30(&msg);
         msg->unk4 = D_8009A004;
-        msg->cmd = 0xD5;
+        msg->cmd = AKAO_CMD_UNKD5;
         *(s32*)&msg->unk8 = D_8009A008;
         break;
-    case 0xDA:
+    case AKAO_CMD_UNKD2_D6_PAIR:
         func_8002DA30(&msg);
         msg->unk4 = D_8009A004;
         msg->unk8 = D_8009A008;
-        msg->cmd = 0xD2;
+        msg->cmd = AKAO_CMD_UNKD2;
         *(s32*)&msg->unkC = D_8009A00C;
         func_8002DA30(&msg);
         msg->unk4 = D_8009A004;
         msg->unk8 = D_8009A008;
-        msg->cmd = 0xD6;
+        msg->cmd = AKAO_CMD_UNKD6;
         *(s32*)&msg->unkC = D_8009A00C;
         break;
-    case 0x99:
+    case AKAO_CMD_UNK99:
         func_8002DA30(&msg);
-        msg->cmd = 0x9B;
+        msg->cmd = AKAO_CMD_UNK9B;
         func_8002DA30(&msg);
-        msg->cmd = 0x9D;
+        msg->cmd = AKAO_CMD_UNK9D;
         break;
-    case 0x98:
+    case AKAO_CMD_UNK98:
         func_8002DA30(&msg);
-        msg->cmd = 0x9A;
+        msg->cmd = AKAO_CMD_UNK9A;
         func_8002DA30(&msg);
-        msg->cmd = 0x9C;
+        msg->cmd = AKAO_CMD_UNK9C;
         break;
     default:
         func_8002DA30(&msg);

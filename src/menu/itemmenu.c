@@ -48,7 +48,7 @@ extern u8 D_801D3E60[];
 // id (arg0) into the sound-request globals, then dispatches via
 // AkaoExec.
 void func_801D01E8(u16 arg0) {
-    D_8009A000 = 0x30;
+    D_8009A000 = AKAO_CMD_PLAY_SFX;
     D_8009A004 = arg0;
     D_8009A008 = arg0;
     AkaoExec();

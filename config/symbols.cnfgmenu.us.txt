@@ -1,3 +1,4 @@
+SetSoundMode = 0x801D0080;
 D_801D2478 = 0x801D2478; // size:0x14
 D_801D24A0 = 0x801D24A0; // size:0x10
 D_801D24B8 = 0x801D24B8; // size:0x4

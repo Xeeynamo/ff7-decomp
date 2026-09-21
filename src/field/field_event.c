@@ -59,7 +59,7 @@ void FieldEventInit(FieldState* fieldState, FieldEntity* fieldModels, FieldScrip
     FieldEventRunInit();
     if (!g_FieldMusicLock) {
         FieldEventClearAkaoStruct();
-        D_8009A000 = 242;
+        D_8009A000 = AKAO_CMD_FIELD_MUSIC_INIT;
         AkaoExec();
     }
 }

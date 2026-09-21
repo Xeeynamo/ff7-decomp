@@ -2538,19 +2538,18 @@ void BattleCommandSend(s32 cmdId, ...) {
     void** args = (void**)&cmdId;
     u32* dst = (u32*)cmdId;
     u32* src;
-    s32 cmd = *(u16*)args;
+    u16 cmd;
     s32 count;
     s32 nExtra;
 
-    D_8009A000 = cmd;
-    switch (cmd & 0xFFFF) {
-    case 0x21:
+    switch (D_8009A000 = *(u16*)args) {
+    case AKAO_CMD_UNK21:
         nExtra = 3;
         break;
-    case 0x22:
+    case AKAO_CMD_UNK22:
         nExtra = 4;
         break;
-    case 0x23:
+    case AKAO_CMD_UNK23:
         nExtra = 5;
         break;
     default:

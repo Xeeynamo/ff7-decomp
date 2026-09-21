@@ -6,7 +6,7 @@
 extern s32 D_801E2CF4;
 
 static void PlaySfx(u16 soundId) {
-    D_8009A000 = 0x30;
+    D_8009A000 = AKAO_CMD_PLAY_SFX;
     D_8009A004 = soundId;
     D_8009A008 = soundId;
     AkaoExec();
@@ -35,22 +35,22 @@ static s32 DoFade(s32 fadeDirection) {
     return D_801E2CF4;
 }
 
-static void func_801D2D10(s32 arg0) {
+static void SetSoundMode(s32 arg0) {
     switch (arg0) {
     case 0:
-        D_8009A000 = 0x81;
-        D_8009A004 = 0x81;
-        D_8009A008 = 0x81;
+        D_8009A000 = AKAO_CMD_SET_MODE_MONO;
+        D_8009A004 = AKAO_CMD_SET_MODE_MONO;
+        D_8009A008 = AKAO_CMD_SET_MODE_MONO;
         break;
     case 1:
-        D_8009A000 = 0x80;
-        D_8009A004 = 0x80;
-        D_8009A008 = 0x80;
+        D_8009A000 = AKAO_CMD_SET_MODE_STEREO;
+        D_8009A004 = AKAO_CMD_SET_MODE_STEREO;
+        D_8009A008 = AKAO_CMD_SET_MODE_STEREO;
         break;
     case 2:
-        D_8009A000 = 0x82;
-        D_8009A004 = 0x82;
-        D_8009A008 = 0x82;
+        D_8009A000 = AKAO_CMD_UNK82;
+        D_8009A004 = AKAO_CMD_UNK82;
+        D_8009A008 = AKAO_CMD_UNK82;
         break;
     }
     AkaoExec();
@@ -527,7 +527,7 @@ static s32 HandleTitleScreen(s32 counter) {
                 } else {
                     PlaySfx(0xD0);
                     D_801E3D54 = 2;
-                    func_801D2D10(Savemap.config & 3);
+                    SetSoundMode(Savemap.config & 3);
                 }
             } else {
                 g_MenuStartMode = START_MENU_MODE_SELECT_FILE;

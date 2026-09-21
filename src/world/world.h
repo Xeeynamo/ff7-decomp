@@ -5,6 +5,14 @@
 
 #define ABS(x) ((x <= 0) ? -(x) : (x))
 
+enum {
+    WORLD_BGM_OVERWORLD = 1,
+    WORLD_BGM_CHOCOBO = 2,
+    WORLD_BGM_HIGHWIND = 3,
+    WORLD_BGM_BATTLE = 4,
+    WORLD_BGM_CHOCOBO_BATTLE = 5,
+};
+
 typedef struct {
     /* 0x00 */ u8 vert[3];
     /* 0x03 */ u8 walkabilityAndScript; // packed of 5 bits for walkabilty and 3

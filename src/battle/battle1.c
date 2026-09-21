@@ -826,13 +826,14 @@ static void func_800BB864(void) {
 static void func_800BB89C(void) {
     D_80163B80 = 0;
     D_800FA6B8 = 0;
-    D_8009A000 = !(!(D_8016376A & 0x10) && !D_80083338) ? 0x10 : 0x14;
+    D_8009A000 =
+        !(!(D_8016376A & 0x10) && !D_80083338) ? AKAO_CMD_PLAY_MUSIC : AKAO_CMD_PLAY_MUSIC_UNK14;
     D_8009A004 = (u_long)0x801D0000;
     AkaoExec();
 }
 
 void func_800BB90C(void) {
-    D_8009A000 = 0xA0;
+    D_8009A000 = AKAO_CMD_BATTLE_SOUND_A0;
     D_8009A004 = 0x7F;
     AkaoExec();
 }
@@ -840,13 +841,13 @@ void func_800BB90C(void) {
 // queue the 0xF1 sound command after the 0xA0 pair; called from batres
 void func_800BB944(void) {
     func_800BB90C();
-    D_8009A000 = 0xF1;
+    D_8009A000 = AKAO_CMD_STOP_SOUND;
     AkaoExec();
 }
 
 // queue sound command 0xC1
 void func_800BB978(void) {
-    D_8009A000 = 0xC1;
+    D_8009A000 = AKAO_CMD_FADE_OUT;
     D_8009A004 = 0x12C;
     D_8009A008 = 0;
     AkaoExec();
@@ -868,7 +869,7 @@ void func_800BB9B8(s32 arg0) {
 void func_800BB9FC(s32 arg0) {
     s32 param;
 
-    D_8009A000 = 0x2B;
+    D_8009A000 = AKAO_CMD_UNK2B;
     param = arg0 & 0xFFFF;
     D_8009A004 = 0x40;
     D_8009A008 = param;
@@ -879,7 +880,7 @@ void func_800BB9FC(s32 arg0) {
 static void func_800BBA40(s32 arg0) {
     s32 param;
 
-    D_8009A000 = 0x20;
+    D_8009A000 = AKAO_CMD_TOGGLE_AMBIENT;
     param = arg0 & 0xFFFF;
     D_8009A004 = 0x40;
     D_8009A008 = param;
