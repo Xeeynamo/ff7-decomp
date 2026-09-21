@@ -277,7 +277,8 @@ typedef struct {
     /* 0x4 */ u8 mul;
 } AkaoSetReverbMul;
 
-extern void (*D_80049548[0x100])();
+typedef void (*AkaoCommandHandler)();
+extern AkaoCommandHandler g_AkaoCommandHandler[0x100];
 extern u8 D_80049948[0x60];
 extern u8 g_AkaoOpcodeSize[0x100]; // opcode lengths
 extern void (*g_AkaoOpcodeHandler[96])();
@@ -292,7 +293,7 @@ extern u8 g_AkaoDefaultSound[0x20];
 extern u32 g_AkaoSoundEvent;
 extern s32 g_AkaoStreamMask;
 extern s32 D_80062F08;
-extern u16 D_80062F1E;
+extern u16 g_AkaoStreamPitch;
 // Music-driver slide state: each MulMusic value is a fixed-point scalar for
 // pitch/volume/tempo (current value in the upper 16 bits, lower 16 bits are
 // fractional precision the driver accumulates every tick for a smooth
@@ -311,8 +312,8 @@ extern u16 g_AkaoReverbPan;
 extern s32 g_AkaoEffectsAll;
 extern s32 g_AkaoEffectsAllSeq;
 extern s32 g_AkaoMutex;
-extern s32 D_80062FAC;
-extern s32 D_80062FB0;
+extern s32 g_AkaoStreamVol;
+extern s32 g_AkaoStreamPan;
 extern s32 g_AkaoCdVolSlideStep;
 extern u16 g_AkaoReverbMul;
 extern u16 g_AkaoCdVolSlideSteps;
@@ -331,22 +332,22 @@ extern AkaoInstrument g_AkaoInstrument[];
 extern u8 g_AkaoVoiceAttr[];
 extern u16 g_AkaoMusicFadeSteps; // music fade/transition steps (default 0x10)
 extern s32 g_AkaoVoiceAttrMask;
-extern s32 D_8007EBEC;
-extern s32 D_8007EBF0;
-extern s32 D_8007EBF4;
-extern s32 D_8007EBF8;
-extern s32 D_8007EBFC;
-extern u16 D_8007EC00;
-extern u16 D_8007EC02;
-extern u16 D_8007EC04;
-extern u16 D_8007EC06;
+extern s32 g_AkaoVoiceAttrAddr;
+extern s32 g_AkaoVoiceAttrLoopAddr;
+extern s32 g_AkaoVoiceAttrAMode;
+extern s32 g_AkaoVoiceAttrSMode;
+extern s32 g_AkaoVoiceAttrRMode;
+extern u16 g_AkaoVoiceAttrPitch;
+extern u16 g_AkaoVoiceAttrAr;
+extern u16 g_AkaoVoiceAttrDr;
+extern u16 g_AkaoVoiceAttrSl;
 extern u16 g_AkaoVoiceAttrSr;
-extern u16 D_8007EC0A;
+extern u16 g_AkaoVoiceAttrRr;
 extern s16 g_AkaoVoiceAttrVolL;
 extern s16 g_AkaoVoiceAttrVolR;
 extern s32 g_AkaoSavedChannels0;
 extern s32 g_AkaoSavedChannels1;
-extern AkaoCommand D_80081DC8[32]; // sound messages queue
+extern AkaoCommand g_AkaoCommandQueue[32]; // sound messages queue
 extern s32 g_AkaoSavedChannelConfig0;
 extern u16 g_AkaoSavedMusicId0;
 extern s32 g_AkaoSavedChannelConfig1;
@@ -576,7 +577,7 @@ static void func_800335CC(AkaoChannel* track, AkaoChannelConfig* config, u32 mas
 
 s32 D_80049538[4] = {0, 0, 0, 0};
 
-void (*D_80049548[0x100])() = {
+AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,

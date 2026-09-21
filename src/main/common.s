@@ -31,7 +31,7 @@
 /* 80062F14 */ glabel D_80062F14;                           .space 4     # !!GP!! 14C70.c (func_800155A4, func_800155B0)
 /* 80062F18 */ glabel D_80062F18;                           .space 4   
 /* 80062F1C */ glabel D_80062F1C;                           .space 2   
-/* 80062F1E */ glabel D_80062F1E;                           .space 2   
+/* 80062F1E */ glabel g_AkaoStreamPitch;                       .space 2   
 /* 80062F20 */ glabel g_PartyMenuListTransitionFactor;      .space 4     # !!GP!! 1F6B4.c
 /* 80062F24 */ glabel D_80062F24;                           .space 4   
 /* 80062F28 */ glabel g_AkaoPitchMulMusicSlideStep;         .space 4   
@@ -63,8 +63,8 @@
 /* 80062F9C */ glabel D_80062F9C;                           .space 4     # !!GP!! 1CDA4.c
 /* 80062FA0 */ glabel g_TutorialActive;                     .space 4   
 /* 80062FA4 */ glabel D_80062FA4;                           .space 8
-/* 80062FAC */ glabel D_80062FAC;                           .space 4   
-/* 80062FB0 */ glabel D_80062FB0;                           .space 4   
+/* 80062FAC */ glabel g_AkaoStreamVol;                         .space 4   
+/* 80062FB0 */ glabel g_AkaoStreamPan;                         .space 4   
 /* 80062FB4 */ glabel g_AkaoCdVolSlideStep;                 .space 4   
 /* 80062FB8 */ glabel g_AkaoReverbMul;                           .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062FBC */ glabel D_80062FBC;                           .space 4     # !!GP!! 17238.c

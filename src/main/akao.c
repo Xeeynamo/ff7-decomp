@@ -951,19 +951,19 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002CFC0);
 // envelope, pan, reverb-echo work area) and applies it via AkaoUpdateChannelParamsToSpu.
 static void AkaoStreamVoiceAttrMono(void) {
     g_AkaoVoiceAttrMask = 0x1FF93;
-    D_8007EC02 = 0;
-    D_8007EBEC = 0x77000;
-    D_8007EBF0 = 0x77000;
-    D_8007EC04 = 0xF;
-    D_8007EC06 = 0xF;
+    g_AkaoVoiceAttrAr = 0;
+    g_AkaoVoiceAttrAddr = 0x77000;
+    g_AkaoVoiceAttrLoopAddr = 0x77000;
+    g_AkaoVoiceAttrDr = 0xF;
+    g_AkaoVoiceAttrSl = 0xF;
     g_AkaoVoiceAttrSr = 0x7F;
-    D_8007EC0A = 6;
-    D_8007EBF4 = 1;
-    D_8007EBF8 = 3;
-    D_8007EBFC = 3;
-    g_AkaoVoiceAttrVolL = (D_80062FB0 ^ 0x7F) * D_80062FAC >> 7;
-    D_8007EC00 = D_80062F1E;
-    g_AkaoVoiceAttrVolR = D_80062FAC * D_80062FB0 >> 7;
+    g_AkaoVoiceAttrRr = 6;
+    g_AkaoVoiceAttrAMode = 1;
+    g_AkaoVoiceAttrSMode = 3;
+    g_AkaoVoiceAttrRMode = 3;
+    g_AkaoVoiceAttrVolL = (g_AkaoStreamPan ^ 0x7F) * g_AkaoStreamVol >> 7;
+    g_AkaoVoiceAttrPitch = g_AkaoStreamPitch;
+    g_AkaoVoiceAttrVolR = g_AkaoStreamVol * g_AkaoStreamPan >> 7;
     AkaoUpdateChannelParamsToSpu(0x10, &g_AkaoVoiceAttr);
 }
 
@@ -1118,9 +1118,9 @@ static void AkaoStreamIrqCallbackSplit1(void) {
     SpuSetIRQ(1);
 }
 
-static void AkaoGetCommandQueue(AkaoCommand** out_msg) {
-    *out_msg = D_80081DC8;
-    *out_msg = &D_80081DC8[g_AkaoCommandQueueId];
+static void AkaoGetCommandQueue(AkaoCommand** out_cmd) {
+    *out_cmd = g_AkaoCommandQueue;
+    *out_cmd = &g_AkaoCommandQueue[g_AkaoCommandQueueId];
     g_AkaoCommandQueueId++;
 }
 
@@ -1129,11 +1129,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoExec);
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002DF88);
 
 static void AkaoExecuteCommandsQueue(void) {
-    AkaoCommand* msg;
+    AkaoCommand* cmd;
 
     if (g_AkaoMutex == 0) {
-        for (msg = D_80081DC8; g_AkaoCommandQueueId; g_AkaoCommandQueueId--, msg++) {
-            D_80049548[msg->opcode](msg);
+        for (cmd = g_AkaoCommandQueue; g_AkaoCommandQueueId; g_AkaoCommandQueueId--, cmd++) {
+            ((void (*)(AkaoCommand*))g_AkaoCommandHandler[cmd->opcode])(cmd);
         }
     }
 }
