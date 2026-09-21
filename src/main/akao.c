@@ -771,9 +771,9 @@ void AkaoCmd_9B_ApplyPendingMusicUpdates(void) {
         if (pendingBits != 0) {
             bit = 1;
             voiceIdx = 0;
-            D_8007EC0E = 0;
-            D_8007EC0C = 0;
-            D_8007EC08 = 0x7F;
+            g_AkaoVoiceAttrVolR = 0;
+            g_AkaoVoiceAttrVolL = 0;
+            g_AkaoVoiceAttrSr = 0x7F;
             for (; pendingBits != 0; bit *= 2, voiceIdx += 1) {
                 if (pendingBits & bit) {
                     g_AkaoVoiceAttrMask = SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
@@ -842,9 +842,9 @@ void AkaoCmd_9D_ApplyPendingSoundUpdates(void) {
         }
         g_AkaoSoundActiveMaskStored = newMask;
         g_Channel3ActiveMask[cleared = 0] = newMask ^ savedMask;
-        D_8007EC0E = cleared;
-        D_8007EC0C = cleared;
-        D_8007EC08 = 0x7F;
+        g_AkaoVoiceAttrVolR = cleared;
+        g_AkaoVoiceAttrVolL = cleared;
+        g_AkaoVoiceAttrSr = 0x7F;
         voiceIdx = 0x10;
         if (newMask != cleared) {
             for (; newMask != 0; bit *= 2, voiceIdx += 1) {
@@ -956,14 +956,14 @@ static void AkaoStreamVoiceAttrMono(void) {
     D_8007EBF0 = 0x77000;
     D_8007EC04 = 0xF;
     D_8007EC06 = 0xF;
-    D_8007EC08 = 0x7F;
+    g_AkaoVoiceAttrSr = 0x7F;
     D_8007EC0A = 6;
     D_8007EBF4 = 1;
     D_8007EBF8 = 3;
     D_8007EBFC = 3;
-    D_8007EC0C = (D_80062FB0 ^ 0x7F) * D_80062FAC >> 7;
+    g_AkaoVoiceAttrVolL = (D_80062FB0 ^ 0x7F) * D_80062FAC >> 7;
     D_8007EC00 = D_80062F1E;
-    D_8007EC0E = D_80062FAC * D_80062FB0 >> 7;
+    g_AkaoVoiceAttrVolR = D_80062FAC * D_80062FB0 >> 7;
     AkaoUpdateChannelParamsToSpu(0x10, &g_AkaoVoiceAttr);
 }
 

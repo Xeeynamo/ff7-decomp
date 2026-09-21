@@ -340,10 +340,10 @@ extern u16 D_8007EC00;
 extern u16 D_8007EC02;
 extern u16 D_8007EC04;
 extern u16 D_8007EC06;
-extern u16 D_8007EC08;
+extern u16 g_AkaoVoiceAttrSr;
 extern u16 D_8007EC0A;
-extern s16 D_8007EC0C;
-extern s16 D_8007EC0E;
+extern s16 g_AkaoVoiceAttrVolL;
+extern s16 g_AkaoVoiceAttrVolR;
 extern s32 g_AkaoSavedChannels0;
 extern s32 g_AkaoSavedChannels1;
 extern AkaoCommand D_80081DC8[32]; // sound messages queue
