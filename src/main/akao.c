@@ -1344,8 +1344,10 @@ static void func_8002DA30(AkaoCommand** out_msg) {
 }
 
 s32 AkaoExec(void) {
+#ifndef VERSION_PC
     extern volatile s32 D_8009A008;
     extern volatile s32 D_8009A00C;
+#endif
     AkaoCommand* msg;
     u8* data;
     u16* reqCmd;
