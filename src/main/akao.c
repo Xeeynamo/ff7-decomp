@@ -972,11 +972,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002D2D4);
 static void AkaoStreamIrqCallbackMono0(void);
 
 // CD-stream DMA transfer-complete callback (mono case). Keys on the stream
-// voice(s) in g_AkaoStreamMask; when D_80063004 (bytes remaining) is nonzero, first
+// voice(s) in g_AkaoStreamMask; when g_AkaoStreamRemainingBytes (bytes remaining) is nonzero, first
 // re-arms the SPU transfer IRQ with AkaoStreamIrqCallbackMono0 to continue streaming.
 static void AkaoStreamTransferCallbackMono(void) {
     SpuSetTransferCallback(0);
-    if (D_80063004 != 0) {
+    if (g_AkaoStreamRemainingBytes != 0) {
         SpuSetIRQ(0);
         SpuSetIRQAddr(0x78000);
         SpuSetIRQCallback(AkaoStreamIrqCallbackMono0);
@@ -992,7 +992,7 @@ static void AkaoStreamIrqCallbackSplit0(void);
 // AkaoStreamTransferCallbackMono above, using a different IRQ callback.
 static void AkaoStreamTransferCallbackSplit(void) {
     SpuSetTransferCallback(0);
-    if (D_80063004 != 0) {
+    if (g_AkaoStreamRemainingBytes != 0) {
         SpuSetIRQ(0);
         SpuSetIRQAddr(0x78000);
         SpuSetIRQCallback(AkaoStreamIrqCallbackSplit0);
@@ -1005,58 +1005,58 @@ static void AkaoStreamTransferCallbackSplit(void) {
 static void AkaoStreamIrqCallbackMono1(void);
 
 static void AkaoStreamIrqCallbackMono0(void) {
-    if (D_80063004 == 0) {
+    if (g_AkaoStreamRemainingBytes == 0) {
         return;
     }
     SpuSetTransferStartAddr(0x77000);
-    SpuWrite(D_80062FE0, 0x1000);
+    SpuWrite(g_AkaoStreamSrc, 0x1000);
     SpuSetIRQ(0);
-    if (D_80063004 > 0x1000) {
+    if (g_AkaoStreamRemainingBytes > 0x1000) {
         SpuSetIRQAddr(0x77000);
         SpuSetIRQCallback(AkaoStreamIrqCallbackMono1);
         SpuSetIRQ(1);
-        D_80063004 -= 0x1000;
-        D_80062FE0 += 0x1000;
+        g_AkaoStreamRemainingBytes -= 0x1000;
+        g_AkaoStreamSrc += 0x1000;
         return;
     }
-    if (D_80063000 != 0) {
+    if (g_AkaoStreamLoopSrc != 0) {
         SpuSetIRQAddr(0x77000);
         SpuSetIRQCallback(AkaoStreamIrqCallbackMono1);
         SpuSetIRQ(1);
-        D_80062FE0 = D_80063000;
-        D_80063004 = D_80062F08;
+        g_AkaoStreamSrc = g_AkaoStreamLoopSrc;
+        g_AkaoStreamRemainingBytes = g_AkaoStreamLoopSize;
         return;
     }
-    D_80063004 = 0;
+    g_AkaoStreamRemainingBytes = 0;
     SpuSetIRQAddr(0x77000);
     SpuSetIRQCallback(AkaoStreamStop);
     SpuSetIRQ(1);
 }
 
 static void AkaoStreamIrqCallbackMono1(void) {
-    if (D_80063004 == 0) {
+    if (g_AkaoStreamRemainingBytes == 0) {
         return;
     }
     SpuSetTransferStartAddr(0x78000);
-    SpuWrite(D_80062FE0, 0x1000);
+    SpuWrite(g_AkaoStreamSrc, 0x1000);
     SpuSetIRQ(0);
-    if (D_80063004 > 0x1000) {
+    if (g_AkaoStreamRemainingBytes > 0x1000) {
         SpuSetIRQAddr(0x78000);
         SpuSetIRQCallback(AkaoStreamIrqCallbackMono0);
         SpuSetIRQ(1);
-        D_80063004 -= 0x1000;
-        D_80062FE0 += 0x1000;
+        g_AkaoStreamRemainingBytes -= 0x1000;
+        g_AkaoStreamSrc += 0x1000;
         return;
     }
-    if (D_80063000 != 0) {
+    if (g_AkaoStreamLoopSrc != 0) {
         SpuSetIRQAddr(0x78000);
         SpuSetIRQCallback(AkaoStreamIrqCallbackMono0);
         SpuSetIRQ(1);
-        D_80062FE0 = D_80063000;
-        D_80063004 = D_80062F08;
+        g_AkaoStreamSrc = g_AkaoStreamLoopSrc;
+        g_AkaoStreamRemainingBytes = g_AkaoStreamLoopSize;
         return;
     }
-    D_80063004 = 0;
+    g_AkaoStreamRemainingBytes = 0;
     SpuSetIRQAddr(0x78000);
     SpuSetIRQCallback(AkaoStreamStop);
     SpuSetIRQ(1);
@@ -1065,26 +1065,26 @@ static void AkaoStreamIrqCallbackMono1(void) {
 static void AkaoStreamIrqCallbackSplit1(void);
 
 static void AkaoStreamIrqCallbackSplit0(void) {
-    if (D_80063004 == 0) {
+    if (g_AkaoStreamRemainingBytes == 0) {
         return;
     }
     SpuSetTransferStartAddr(0x77000);
-    SpuWrite(D_80062FE0, 0x1000);
+    SpuWrite(g_AkaoStreamSrc, 0x1000);
     SpuSetIRQ(0);
     SpuSetVoiceLoopStartAddr(0x10, 0x77000);
     SpuSetVoiceLoopStartAddr(0x11, 0x77800);
-    if (D_80063004 > 0x1000) {
+    if (g_AkaoStreamRemainingBytes > 0x1000) {
         SpuSetIRQAddr(0x77000);
         SpuSetIRQCallback(AkaoStreamIrqCallbackSplit1);
-        D_80063004 -= 0x1000;
-        D_80062FE0 += 0x1000;
-    } else if (D_80063000 != 0) {
+        g_AkaoStreamRemainingBytes -= 0x1000;
+        g_AkaoStreamSrc += 0x1000;
+    } else if (g_AkaoStreamLoopSrc != 0) {
         SpuSetIRQAddr(0x77000);
         SpuSetIRQCallback(AkaoStreamIrqCallbackSplit1);
-        D_80062FE0 = D_80063000;
-        D_80063004 = D_80062F08;
+        g_AkaoStreamSrc = g_AkaoStreamLoopSrc;
+        g_AkaoStreamRemainingBytes = g_AkaoStreamLoopSize;
     } else {
-        D_80063004 = 0;
+        g_AkaoStreamRemainingBytes = 0;
         SpuSetIRQAddr(0x77000);
         SpuSetIRQCallback(AkaoStreamStop);
     }
@@ -1092,26 +1092,26 @@ static void AkaoStreamIrqCallbackSplit0(void) {
 }
 
 static void AkaoStreamIrqCallbackSplit1(void) {
-    if (D_80063004 == 0) {
+    if (g_AkaoStreamRemainingBytes == 0) {
         return;
     }
     SpuSetTransferStartAddr(0x78000);
-    SpuWrite(D_80062FE0, 0x1000);
+    SpuWrite(g_AkaoStreamSrc, 0x1000);
     SpuSetIRQ(0);
     SpuSetVoiceLoopStartAddr(0x10, 0x78000);
     SpuSetVoiceLoopStartAddr(0x11, 0x78800);
-    if (D_80063004 > 0x1000) {
+    if (g_AkaoStreamRemainingBytes > 0x1000) {
         SpuSetIRQAddr(0x78000);
         SpuSetIRQCallback(AkaoStreamIrqCallbackSplit0);
-        D_80063004 -= 0x1000;
-        D_80062FE0 += 0x1000;
-    } else if (D_80063000 != 0) {
+        g_AkaoStreamRemainingBytes -= 0x1000;
+        g_AkaoStreamSrc += 0x1000;
+    } else if (g_AkaoStreamLoopSrc != 0) {
         SpuSetIRQAddr(0x78000);
         SpuSetIRQCallback(AkaoStreamIrqCallbackSplit0);
-        D_80062FE0 = D_80063000;
-        D_80063004 = D_80062F08;
+        g_AkaoStreamSrc = g_AkaoStreamLoopSrc;
+        g_AkaoStreamRemainingBytes = g_AkaoStreamLoopSize;
     } else {
-        D_80063004 = 0;
+        g_AkaoStreamRemainingBytes = 0;
         SpuSetIRQAddr(0x78000);
         SpuSetIRQCallback(AkaoStreamStop);
     }

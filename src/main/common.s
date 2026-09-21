@@ -25,7 +25,7 @@
 /* 80062EF0 */ glabel D_80062EF0;                           .space 0x10
 /* 80062F00 */ glabel g_AkaoStreamMask;                           .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062F04 */ glabel D_80062F04;                           .space 4   
-/* 80062F08 */ glabel D_80062F08;                           .space 4   
+/* 80062F08 */ glabel g_AkaoStreamLoopSize;                    .space 4     # akao.c (AkaoStreamIrqCallback*)   
 /* 80062F0C */ glabel g_PartyMenuPreviousMenuId;            .space 4     # !!GP!! 1F6B4.c
 /* 80062F10 */ glabel D_80062F10;                           .space 4     # !!GP!! 17238.c (SysGetMateriaActivatedStars)
 /* 80062F14 */ glabel D_80062F14;                           .space 4     # !!GP!! 14C70.c (func_800155A4, func_800155B0)
@@ -75,7 +75,7 @@
 /* 80062FD0 */ glabel D_80062FD0;                           .space 4
 /* 80062FD4 */ glabel g_AkaoCdVol;                          .space 4     # !!GP!! akao.c (AkaoUpdateCdVolume, AkaoInitData)
 /* 80062FD8 */ glabel g_AkaoMuteMusicMask;                           .space 8     # !!GP!! akao.c (AkaoInitData)
-/* 80062FE0 */ glabel D_80062FE0;                           .space 4     # akao.c (AkaoStreamIrqCallback*)
+/* 80062FE0 */ glabel g_AkaoStreamSrc;                         .space 4     # akao.c (AkaoStreamIrqCallback*)
 /* 80062FE4 */ glabel g_AkaoPitchMulMusic;                  .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062FE8 */ glabel g_AkaoTempoMulMusic;                  .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062FEC */ glabel D_80062FEC;                           .space 4     # !!GP!! 1F6B4.c (SysMenuDrawBattleResult, func_800212A8)
@@ -83,8 +83,8 @@
 /* 80062FF4 */ glabel D_80062FF4;                           .space 4     # !!GP!! 1F6B4.c (SysMenuShow, SysMenuDrawMainMenu)
 /* 80062FF8 */ glabel g_AkaoControlFlags;                           .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062FFC */ glabel D_80062FFC;                           .space 4     # !!GP!! 17238.c (SysAddMateria*)
-/* 80063000 */ glabel D_80063000;                           .space 4     # akao.c (AkaoStreamIrqCallback*)
-/* 80063004 */ glabel D_80063004;                           .space 4     # akao.c (AkaoStreamTransferCallback*)
+/* 80063000 */ glabel g_AkaoStreamLoopSrc;                     .space 4     # akao.c (AkaoStreamIrqCallback*)
+/* 80063004 */ glabel g_AkaoStreamRemainingBytes;              .space 4     # akao.c (AkaoStreamTransferCallback*)
 /* 80063008 */ glabel D_80063008;                           .space 4     # !!GP!! 26B70.c (func_800269D0, func_800269E8)
 /* 8006300C */ glabel D_8006300C;                           .space 4     # !!GP!! 26B70.c (func_80026A0C, func_80026A20)
 /* 80063010 */ glabel g_AkaoCommandQueueId;                           .space 4     # !!GP!! akao.c (AkaoInitData)

@@ -292,7 +292,7 @@ extern u8 g_AkaoDefaultSound[0x20];
 
 extern u32 g_AkaoSoundEvent;
 extern s32 g_AkaoStreamMask;
-extern s32 D_80062F08;
+extern u32 g_AkaoStreamLoopSize;
 extern u16 g_AkaoStreamPitch;
 // Music-driver slide state: each MulMusic value is a fixed-point scalar for
 // pitch/volume/tempo (current value in the upper 16 bits, lower 16 bits are
@@ -320,12 +320,12 @@ extern u16 g_AkaoCdVolSlideSteps;
 
 extern AkaoCdVol g_AkaoCdVol;
 extern u32 g_AkaoMuteMusicMask;
-extern s32 D_80062FE0;
+extern u8* g_AkaoStreamSrc;
 extern s32 g_AkaoPitchMulMusic;
 extern s32 g_AkaoTempoMulMusic;
 extern s32 g_AkaoControlFlags;
-extern s32 D_80063000;
-extern u32 D_80063004;
+extern u8* g_AkaoStreamLoopSrc;
+extern u32 g_AkaoStreamRemainingBytes;
 extern s32 g_AkaoCommandQueueId; // sound message queue count
 extern u8 D_800716CC;
 extern AkaoInstrument g_AkaoInstrument[];
@@ -489,7 +489,7 @@ static void AkaoCmd_F8_StreamReverbMaskClear(void);
 static void AkaoCmd_F9_StreamReverbMaskRestore(void);
 static void AkaoCmd_FA(void);
 void AkaoCmd_Null(AkaoCommand* arg0);
-void AkaoOp_A0_FinishChannel();
+void AkaoOp_A0_FinishChannel(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 void AkaoOp_A1_LoadInstrument();
 static void AkaoOp_A2_NextNoteLength(AkaoChannel* track);
 static void AkaoOp_A3_MasterVol(AkaoChannel* track);
@@ -503,8 +503,8 @@ static void AkaoOp_AA_SetPan(AkaoChannel* track);
 static void AkaoOp_AB_SetPanSlide(AkaoChannel* track);
 void AkaoOp_AC_NoiseClockFreq();
 void AkaoOp_AD_SetAr();
-void AkaoOp_AE_SetDr();
-void AkaoOp_AF_SetSl();
+void AkaoOp_AE_SetDr(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
+void AkaoOp_AF_SetSl(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 static void AkaoOp_B0_SetVoiceDrSl(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 void AkaoOp_B1_SetSr();
 void AkaoOp_B2_SetRr();
