@@ -113,9 +113,9 @@ typedef struct {
     /* 0x00 */ u8* akaoSequencePointer;
     /* 0x04 */ u8* loopPoint[4];
     /* 0x14 */ u8* drumOffset;
-    /* 0x18 */ u32 vibratoWave;
-    /* 0x1C */ u32 tremoloWave;
-    /* 0x20 */ u32 panLfoWave;
+    /* 0x18 */ s16* vibratoWave;
+    /* 0x1C */ s16* tremoloWave;
+    /* 0x20 */ s16* panLfoWave;
     /* 0x24 */ u32 overlayChannelId;
     /* 0x28 */ s32 alternativeChannelId;
     /* 0x2C */ s32 volumeMultiplier;
@@ -293,7 +293,7 @@ extern u8 g_AkaoOpcodeParamLength[0x60];
 extern u8 g_AkaoOpcodeSize[0x100]; // opcode lengths
 extern void (*g_AkaoOpcodeHandler[96])();
 extern u16 g_AkaoLengthTable[14];
-extern u8 D_80049C40[];
+extern u8 g_AkaoDummyStopSequence[];
 extern s16 g_AkaoLeftVolumeTable[0x100];
 extern s16 g_AkaoRightVolumeTable[0x100];
 extern s16 g_AkaoWaveTable[0x2C4];
@@ -337,7 +337,10 @@ extern s32 g_AkaoControlFlags;
 extern u8* g_AkaoStreamLoopSrc;
 extern u32 g_AkaoStreamRemainingBytes;
 extern s32 g_AkaoCommandQueueId; // sound message queue count
-extern AkaoInstrument g_AkaoInstrument[];
+// Voice attribute work block (0x8007EBE4, size 0x2C).
+// NOTE: SPU update calls pass '&g_AkaoVoiceAttr', but functions in akao.c assign to the
+// individual 'g_AkaoVoiceAttrXxx' globals below. Do not replace individual global accesses
+// with struct member accesses, or GCC 2.7.2 will hoist the base address and break byte matching.
 extern u8 g_AkaoVoiceAttr[];
 extern u16 g_AkaoMusicFadeSteps; // music fade/transition steps (default 0x10)
 extern s32 g_AkaoVoiceAttrMask;
@@ -354,19 +357,19 @@ extern u16 g_AkaoVoiceAttrSr;
 extern u16 g_AkaoVoiceAttrRr;
 extern s16 g_AkaoVoiceAttrVolL;
 extern s16 g_AkaoVoiceAttrVolR;
-extern s32 g_AkaoSavedChannels0;
-extern s32 g_AkaoSavedChannels1;
+extern AkaoChannel g_AkaoSavedChannels0[24];
+extern AkaoChannel g_AkaoSavedChannels1[24];
 extern AkaoCommand g_AkaoCommandQueue[32]; // sound messages queue
-extern s32 g_AkaoSavedChannelConfig0;
+extern AkaoChannelConfig g_AkaoSavedChannelConfig0;
 extern u16 g_AkaoSavedMusicId0;
-extern s32 g_AkaoSavedChannelConfig1;
+extern AkaoChannelConfig g_AkaoSavedChannelConfig1;
 extern u16 g_AkaoSavedMusicId1;
 extern s32 g_AkaoMusicBuffer[];
 extern AkaoChannel g_Channel1[];
 extern AkaoChannel g_Channel2[];
 extern s32 g_AkaoStreamVoice16UpdateMask;
 extern s32 g_AkaoStreamVoice17UpdateMask;
-extern AkaoSoundSlot g_AkaoSoundSlots[];
+extern AkaoSoundSlot g_AkaoSoundSlots[4];
 extern u16 g_Channel3NoiseClock;
 extern u16 g_AkaoSoundChannelsMode;
 extern s32 g_Channel3ActiveMask[];
@@ -376,8 +379,8 @@ extern s32 g_AkaoNoiseMask;
 extern s32 g_AkaoReverbMask;
 extern s32 g_AkaoPitchLfoMask;
 extern u16 g_AkaoMusicId;
-extern s32 g_Channel1Config;
-extern s32 g_Channel2Config;
+extern AkaoChannelConfig g_Channel1Config;
+extern AkaoChannelConfig g_Channel2Config;
 extern s32 g_AkaoMusicActiveMask;
 extern s32 g_AkaoMusicOnMask;
 extern s32 g_AkaoMusicKeyedMask;
@@ -396,10 +399,10 @@ typedef struct {
     s16 currentKey;
     s16 padA;
 } AkaoVoiceWork;
-extern AkaoVoiceWork D_8009C5A0[24];
+extern AkaoVoiceWork g_AkaoVoiceWork[24];
 
-extern s32 D_80083338;
-extern s32 D_80083398;
+extern s32 g_AkaoSavedMusicActiveMask0;
+extern s32 g_AkaoSavedMusicActiveMask1;
 extern s32 g_Channel3OnMask;
 extern s32 g_Channel3KeyedMask;
 extern s32 g_Channel3Tempo;
@@ -433,22 +436,27 @@ void AkaoCmd_9A_FlushPendingMusicUpdates(void);
 void AkaoCmd_9B_ApplyPendingMusicUpdates(void);
 void AkaoCmd_9C_FlushPendingSoundUpdates(void);
 void AkaoCmd_9D_ApplyPendingSoundUpdates(void);
-void AkaoCmd_A0_SetSoundVolBalanceSlot2(void* cmd);
-void AkaoCmd_A1_SetSoundVolBalanceSlot1(void* cmd);
-void AkaoCmd_A2_SetSoundVolBalanceSlot0(void* cmd);
-void AkaoCmd_A3_SetSoundVolBalanceSlot3(void* cmd);
-void AkaoCmd_A4_SlideSoundVolBalanceSlot2(void* cmd);
-void AkaoCmd_A5_SlideSoundVolBalanceSlot1(void* cmd);
-void AkaoCmd_A6_SlideSoundVolBalanceSlot0(void* cmd);
-void AkaoCmd_A7_SlideSoundVolBalanceSlot3(void* cmd);
-void AkaoCmd_A8_SetSoundPanSlot2(void* cmd);
-void AkaoCmd_A9_SetSoundPanSlot1(void* cmd);
-void AkaoCmd_AA_SetSoundPanSlot0(void* cmd);
-void AkaoCmd_AB_SetSoundPanSlot3(void* cmd);
-void AkaoCmd_AC_SlideSoundPanSlot2(void* cmd);
-void AkaoCmd_AD_SlideSoundPanSlot1(void* cmd);
-void AkaoCmd_AE_SlideSoundPanSlot0(void* cmd);
-void AkaoCmd_AF_SlideSoundPanSlot3(void* cmd);
+void AkaoUpdateChannelParamsToSpu(s32 voiceIdx, void* attr);
+void AkaoUpdateNoiseVoices(void);
+void AkaoUpdateReverbVoices(void);
+void AkaoUpdatePitchLfoVoices(void);
+
+void AkaoCmd_A0_SetSoundVolBalanceSlot2(AkaoCommand* cmd);
+void AkaoCmd_A1_SetSoundVolBalanceSlot1(AkaoCommand* cmd);
+void AkaoCmd_A2_SetSoundVolBalanceSlot0(AkaoCommand* cmd);
+void AkaoCmd_A3_SetSoundVolBalanceSlot3(AkaoCommand* cmd);
+void AkaoCmd_A4_SlideSoundVolBalanceSlot2(AkaoCommand* cmd);
+void AkaoCmd_A5_SlideSoundVolBalanceSlot1(AkaoCommand* cmd);
+void AkaoCmd_A6_SlideSoundVolBalanceSlot0(AkaoCommand* cmd);
+void AkaoCmd_A7_SlideSoundVolBalanceSlot3(AkaoCommand* cmd);
+void AkaoCmd_A8_SetSoundPanSlot2(AkaoCommand* cmd);
+void AkaoCmd_A9_SetSoundPanSlot1(AkaoCommand* cmd);
+void AkaoCmd_AA_SetSoundPanSlot0(AkaoCommand* cmd);
+void AkaoCmd_AB_SetSoundPanSlot3(AkaoCommand* cmd);
+void AkaoCmd_AC_SlideSoundPanSlot2(AkaoCommand* cmd);
+void AkaoCmd_AD_SlideSoundPanSlot1(AkaoCommand* cmd);
+void AkaoCmd_AE_SlideSoundPanSlot0(AkaoCommand* cmd);
+void AkaoCmd_AF_SlideSoundPanSlot3(AkaoCommand* cmd);
 void AkaoCmd_B0_SetSoundPitchSlot2(AkaoCommand* cmd);
 void AkaoCmd_B1_SetSoundPitchSlot1(AkaoCommand* cmd);
 void AkaoCmd_B2_SetSoundPitchSlot0(AkaoCommand* cmd);
@@ -459,8 +467,8 @@ void AkaoCmd_B6_SlideSoundPitchSlot0(AkaoCommand* cmd);
 void AkaoCmd_B7_SlideSoundPitchSlot3(AkaoCommand* cmd);
 void AkaoCmd_B8_SetAllSoundVolBalance(AkaoCommand* cmd);
 void AkaoCmd_B9_SlideAllSoundVolBalance(AkaoCommand* cmd);
-void AkaoCmd_BA_SetAllSoundPan(void* cmd);
-void AkaoCmd_BB_SlideAllSoundPan(void* cmd);
+void AkaoCmd_BA_SetAllSoundPan(AkaoCommand* cmd);
+void AkaoCmd_BB_SlideAllSoundPan(AkaoCommand* cmd);
 void AkaoCmd_BC_SetAllSoundPitch(AkaoCommand* cmd);
 void AkaoCmd_BD_SlideAllSoundPitch(AkaoCommand* cmd);
 void AkaoCmd_C0_VolumeSet(AkaoCommand* cmd);
@@ -573,7 +581,7 @@ static void AkaoOp_FE_MeasureNumber(AkaoChannel* track, AkaoChannelConfig* confi
 static void AkaoOp_Null(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 static void AkaoOp_F3_MuteMusic(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 
-s32 D_80049538[4] = {0, 0, 0, 0};
+s32 g_AkaoFrameTimeHistory[4] = {0, 0, 0, 0};
 
 AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,

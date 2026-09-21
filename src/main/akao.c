@@ -2,7 +2,6 @@
 
 #include "akao.h"
 
-
 void AkaoSpuTransferComplete(void) {
     SpuSetTransferCallback(NULL);
     g_AkaoTransfer = 0;
@@ -13,12 +12,12 @@ void AkaoSpuTransferPrep(void) {
     SpuSetTransferCallback(AkaoSpuTransferComplete);
 }
 
-static void AkaoSpuWrite(s32 addr, s32 size) {
+static void AkaoSpuWrite(u8* addr, s32 size) {
     AkaoSpuTransferPrep();
     SpuWrite(addr, size);
 }
 
-static void AkaoSpuRead(s32 addr, s32 size) {
+static void AkaoSpuRead(u8* addr, s32 size) {
     AkaoSpuTransferPrep();
     SpuRead(addr, size);
 }
@@ -122,7 +121,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicChannelsInit);
 
 // Merges newly-requested bits (g_AkaoMusicOverMask/g_AkaoMusicAltMask) into the
 // pending mask g_AkaoMusicActiveMask, then for each set bit points the matching
-// g_Channel1 channel at the stop sequence D_80049C40 and sets length1/2 to
+// g_Channel1 channel at the stop sequence g_AkaoDummyStopSequence and sets length1/2 to
 // 0x204, clearing the request bits as it goes.
 static void AkaoMusicStopChannels1(void) {
     s32 mask;
@@ -149,7 +148,7 @@ static void AkaoMusicStopChannels1(void) {
             if (mask & bit) {
                 mask ^= bit;
                 *(u16*)&channel->length1 = 0x204;
-                channel->akaoSequencePointer = D_80049C40;
+                channel->akaoSequencePointer = g_AkaoDummyStopSequence;
             }
             bit *= 2;
             channel += 1;
@@ -218,15 +217,13 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicCopyChannels1Into2);
 
 // Copies 24 channels (0x18C0 bytes) and channel configuration (0x60 bytes)
 // from source to destination buffers.
-void AkaoMusicCopyChannelsAndConfig(void* srcChannels, void* dstChannels, void* srcConfig, void* dstConfig);
+void AkaoMusicCopyChannelsAndConfig(
+    AkaoChannel* srcChannels, AkaoChannel* dstChannels, AkaoChannelConfig* srcConfig, AkaoChannelConfig* dstConfig);
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicCopyChannelsAndConfig);
-
-
 
 /////////////////////////
 // AKAO COMMANDS
 /////////////////////////
-
 
 // Copies the sequence to the staging buffer, restores channels and config from backup
 // if musicId matches backup slot 0 or 1, otherwise initializes fresh music channels.
@@ -234,7 +231,7 @@ void AkaoCmd_10_PlayMusic(AkaoCommand* cmd) {
     AkaoCopyMusic((s32*)cmd->param0, cmd->param1);
     if (g_AkaoMusicId == MUSIC_TA) {
         AkaoMusicSyncKeyStatus();
-        AkaoMusicCopyChannelsAndConfig(&g_Channel1, &g_AkaoSavedChannels1, &g_Channel1Config, &g_AkaoSavedChannelConfig1);
+        AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels1, &g_Channel1Config, &g_AkaoSavedChannelConfig1);
     }
     AkaoMusicStopChannels1();
     if (g_AkaoSavedMusicId0 && g_AkaoSavedMusicId0 == cmd->param2) {
@@ -251,16 +248,16 @@ void AkaoCmd_10_PlayMusic(AkaoCommand* cmd) {
 // song (to backup slot 1 if MUSIC_TA, or slot 0 for any other song), stops channels,
 // initializes new channels from the beginning, and sets g_AkaoMusicId.
 void AkaoCmd_14_PlayMusicSaveCurrent(AkaoCommand* cmd) {
-    s32* channelConfig;
+    AkaoChannelConfig* channelConfig;
 
     AkaoCopyMusic((s32*)cmd->param0, cmd->param1);
     AkaoMusicSyncKeyStatus();
     channelConfig = &g_Channel1Config;
     if (g_AkaoMusicId) {
         if (g_AkaoMusicId == MUSIC_TA) {
-            AkaoMusicCopyChannelsAndConfig(&g_Channel1, &g_AkaoSavedChannels1, channelConfig, &g_AkaoSavedChannelConfig1);
+            AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels1, channelConfig, &g_AkaoSavedChannelConfig1);
         } else {
-            AkaoMusicCopyChannelsAndConfig(&g_Channel1, &g_AkaoSavedChannels0, channelConfig, &g_AkaoSavedChannelConfig0);
+            AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels0, channelConfig, &g_AkaoSavedChannelConfig0);
         }
     }
     AkaoMusicStopChannels1();
@@ -526,21 +523,29 @@ void AkaoCmd_B9_SlideAllSoundVolBalance(AkaoCommand* cmd) {
     AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[0]);
 }
 
-void AkaoCmd_A0_SetSoundVolBalanceSlot2(void* cmd) { AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[2]); }
+void AkaoCmd_A0_SetSoundVolBalanceSlot2(AkaoCommand* cmd) { AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[2]); }
 
-void AkaoCmd_A4_SlideSoundVolBalanceSlot2(void* cmd) { AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[2]); }
+void AkaoCmd_A4_SlideSoundVolBalanceSlot2(AkaoCommand* cmd) {
+    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[2]);
+}
 
-void AkaoCmd_A1_SetSoundVolBalanceSlot1(void* cmd) { AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[1]); }
+void AkaoCmd_A1_SetSoundVolBalanceSlot1(AkaoCommand* cmd) { AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[1]); }
 
-void AkaoCmd_A5_SlideSoundVolBalanceSlot1(void* cmd) { AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[1]); }
+void AkaoCmd_A5_SlideSoundVolBalanceSlot1(AkaoCommand* cmd) {
+    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[1]);
+}
 
-void AkaoCmd_A2_SetSoundVolBalanceSlot0(void* cmd) { AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[0]); }
+void AkaoCmd_A2_SetSoundVolBalanceSlot0(AkaoCommand* cmd) { AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[0]); }
 
-void AkaoCmd_A6_SlideSoundVolBalanceSlot0(void* cmd) { AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[0]); }
+void AkaoCmd_A6_SlideSoundVolBalanceSlot0(AkaoCommand* cmd) {
+    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[0]);
+}
 
-void AkaoCmd_A3_SetSoundVolBalanceSlot3(void* cmd) { AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[3]); }
+void AkaoCmd_A3_SetSoundVolBalanceSlot3(AkaoCommand* cmd) { AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[3]); }
 
-void AkaoCmd_A7_SlideSoundVolBalanceSlot3(void* cmd) { AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[3]); }
+void AkaoCmd_A7_SlideSoundVolBalanceSlot3(AkaoCommand* cmd) {
+    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[3]);
+}
 
 // Sets the stereo pan for a 2-voice sound effect channel pair (voice[0]
 // and voice[1]). Clears any active pan slide and flags the hardware voices
@@ -560,10 +565,26 @@ static void AkaoSoundChannelSetPan(AkaoCommand* cmd, AkaoSoundSlot* slot) {
     voice[1].voiceAttr.mask = (mask1 | AKAO_UPDATE_SPU_VOICE);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundChannelSlidePan);
+// Starts a pan slide from current pan toward target in cmd over
+// the specified step count for a 2-voice sound effect channel pair.
+static void AkaoSoundChannelSlidePan(AkaoCommand* cmd, AkaoSoundSlot* slot) {
+    s16 steps;
+    s32 rawSteps;
+    AkaoChannel* voice = slot->voices;
+
+    rawSteps = cmd->param0;
+    steps = 1;
+    if (rawSteps != 0) {
+        steps = *(u16*)&cmd->param0;
+    }
+    voice[0].volPanSlideStep = (s16)(((*(u16*)&cmd->param1 & AKAO_PAN_MAX) << 8) - voice[0].volPan) / steps;
+    voice[1].volPanSlideStep = (s16)(((*(u16*)&cmd->param1 & AKAO_PAN_MAX) << 8) - voice[1].volPan) / steps;
+    voice[1].volPanSlideSteps = steps;
+    voice[0].volPanSlideSteps = steps;
+}
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
-void AkaoCmd_BA_SetAllSoundPan(void* cmd) {
+void AkaoCmd_BA_SetAllSoundPan(AkaoCommand* cmd) {
     AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[3]);
     AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[2]);
     AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[1]);
@@ -571,28 +592,28 @@ void AkaoCmd_BA_SetAllSoundPan(void* cmd) {
 }
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
-void AkaoCmd_BB_SlideAllSoundPan(void* cmd) {
+void AkaoCmd_BB_SlideAllSoundPan(AkaoCommand* cmd) {
     AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[3]);
     AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[2]);
     AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[1]);
     AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[0]);
 }
 
-void AkaoCmd_A8_SetSoundPanSlot2(void* cmd) { AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[2]); }
+void AkaoCmd_A8_SetSoundPanSlot2(AkaoCommand* cmd) { AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[2]); }
 
-void AkaoCmd_AC_SlideSoundPanSlot2(void* cmd) { AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[2]); }
+void AkaoCmd_AC_SlideSoundPanSlot2(AkaoCommand* cmd) { AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[2]); }
 
-void AkaoCmd_A9_SetSoundPanSlot1(void* cmd) { AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[1]); }
+void AkaoCmd_A9_SetSoundPanSlot1(AkaoCommand* cmd) { AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[1]); }
 
-void AkaoCmd_AD_SlideSoundPanSlot1(void* cmd) { AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[1]); }
+void AkaoCmd_AD_SlideSoundPanSlot1(AkaoCommand* cmd) { AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[1]); }
 
-void AkaoCmd_AA_SetSoundPanSlot0(void* cmd) { AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[0]); }
+void AkaoCmd_AA_SetSoundPanSlot0(AkaoCommand* cmd) { AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[0]); }
 
-void AkaoCmd_AE_SlideSoundPanSlot0(void* cmd) { AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[0]); }
+void AkaoCmd_AE_SlideSoundPanSlot0(AkaoCommand* cmd) { AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[0]); }
 
-void AkaoCmd_AB_SetSoundPanSlot3(void* cmd) { AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[3]); }
+void AkaoCmd_AB_SetSoundPanSlot3(AkaoCommand* cmd) { AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[3]); }
 
-void AkaoCmd_AF_SlideSoundPanSlot3(void* cmd) { AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[3]); }
+void AkaoCmd_AF_SlideSoundPanSlot3(AkaoCommand* cmd) { AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[3]); }
 
 // Sets the sound effect pitch multiplier for a 2-voice sound effect channel pair
 // (voice[0] and voice[1]). Clears any active pitch slide and flags the hardware voices
@@ -738,7 +759,7 @@ static void AkaoCmd_F0_StopMusic(void) { AkaoMusicStopChannels12(); }
 static void AkaoCmd_F1_StopAllSounds(void) { AkaoSoundChannelsStop(); }
 
 static void AkaoCmd_80_ClearSoundReverb(void) {
-    g_Channel1Config = AKAO_STEREO;
+    g_Channel1Config.stereoMono = AKAO_STEREO;
     AkaoMusicVolReset();
     AkaoSoundVolReset();
 }
@@ -746,7 +767,7 @@ static void AkaoCmd_80_ClearSoundReverb(void) {
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_82_ResetMusicAndSoundVol);
 
 static void AkaoCmd_81_SetMonoMode(void) {
-    g_Channel1Config = AKAO_MONO;
+    g_Channel1Config.stereoMono = AKAO_MONO;
     AkaoMusicVolReset();
     AkaoSoundVolReset();
 }
@@ -754,8 +775,6 @@ static void AkaoCmd_81_SetMonoMode(void) {
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_90_SetMuteMusicMask);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_92_SetCondition);
-
-void AkaoUpdateChannelParamsToSpu(s32, void*);
 
 // Moves newly-requested channels_1 voices into the active mask, resetting
 // each one's SPU attributes.
@@ -788,10 +807,6 @@ void AkaoCmd_9B_ApplyPendingMusicUpdates(void) {
     }
     g_AkaoControlFlags |= AKAO_CONTROL_PAUSE_MUSIC_UPDATE;
 }
-
-void AkaoUpdateNoiseVoices();
-void AkaoUpdateReverbVoices();
-void AkaoUpdatePitchLfoVoices();
 
 // Restore counterpart: moves the stored channels_1 mask back to active,
 // resetting SPU attributes along the way.
@@ -949,6 +964,13 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoStreamInit);
 
 // Configures the voice-attribute block for a mono CD-stream voice (ADSR
 // envelope, pan, reverb-echo work area) and applies it via AkaoUpdateChannelParamsToSpu.
+//
+// NOTE: Although these fields form the exact memory layout of an AkaoVoiceAttr
+// struct starting at &g_AkaoVoiceAttr (0x8007EBE4), accessing them as struct members
+// (e.g. g_AkaoVoiceAttr.mask = ...) causes GCC 2.7.2 to hoist the base address into
+// a register and use offset-based stores. The original binary was written using
+// separate global variables, generating individual lui/sw instructions for each field.
+// They must remain accessed as individual globals here to preserve 100% byte-exact matching.
 static void AkaoStreamVoiceAttrMono(void) {
     g_AkaoVoiceAttrMask = 0x1FF93;
     g_AkaoVoiceAttrAr = 0;
@@ -1202,12 +1224,9 @@ static u8 AkaoScanSequenceTerminator(u8** seqPtr) {
     return opcode == expected ? 0xCA : 0xA0;
 }
 
-
 /////////////////////////
 // AKAO OPCODES
 /////////////////////////
-
-
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_E8_Tempo);
 
