@@ -1273,7 +1273,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageAddPos);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageAddSize);
 
-static bool FieldDebugPageIsRender(s16 pageId) { return g_FieldDebugPages[pageId].state == 0; }
+static s32 FieldDebugPageIsRender(s16 pageId) { return g_FieldDebugPages[pageId].state == 0; }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageResetStrings);
 
