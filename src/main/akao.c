@@ -1,9 +1,15 @@
-//! PSYQ=3.3 CC1=2.6.3 COMM=true
+//! PSYQ=3.3 CC1=2.6.3 G=8 COMM=true
 
 #include "akao.h"
 
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferComplete);
+s16 g_AkaoTransfer;
+
+void AkaoSpuTransferComplete(void)
+{
+    SpuSetTransferCallback(NULL);
+    g_AkaoTransfer = 0;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferPrep);
 

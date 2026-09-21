@@ -234,9 +234,9 @@ extern void (*D_80049548[])(AkaoCommand*);
 extern u8 D_800499A8[]; // opcode lenghts
 extern u8 D_80049C40[];
 extern s32 g_AkaoWaveTableKey[];
-s32 g_AkaoStreamMask;
-s32 D_80062F08;
-u16 D_80062F1E;
+extern s32 g_AkaoStreamMask;
+extern s32 D_80062F08;
+extern u16 D_80062F1E;
 // Music-driver slide state: each MulMusic value is a fixed-point scalar for
 // pitch/volume/tempo (current value in the upper 16 bits, lower 16 bits are
 // fractional precision the driver accumulates every tick for a smooth
@@ -244,22 +244,22 @@ u16 D_80062F1E;
 // remaining tick count. Names/meaning confirmed one-off against the
 // independent qgears reverse-engineering project (not part of this repo):
 // https://github.com/q-gears/q-gears, src/main/SCUS_941_akao.cpp.
-s32 g_AkaoPitchMulMusicSlideStep;
-s32 g_AkaoVolMulMusicSlideStep;
-s32 g_AkaoTempoMulMusicSlideStep;
-s16 g_AkaoPitchMulMusicSlideSteps;
-s16 g_AkaoVolMulMusicSlideSteps;
-s16 g_AkaoTempoMulMusicSlideSteps;
-s32 g_AkaoVolMulMusic;
-u16 g_AkaoReverbPan;
-s32 g_AkaoEffectsAll;
-s32 g_AkaoEffectsAllSeq;
-s32 g_AkaoMutex;
-s32 D_80062FAC;
-s32 D_80062FB0;
-s32 g_AkaoCdVolSlideStep;
-u16 g_AkaoReverbMul;
-u16 g_AkaoCdVolSlideSteps;
+extern s32 g_AkaoPitchMulMusicSlideStep;
+extern s32 g_AkaoVolMulMusicSlideStep;
+extern s32 g_AkaoTempoMulMusicSlideStep;
+extern s16 g_AkaoPitchMulMusicSlideSteps;
+extern s16 g_AkaoVolMulMusicSlideSteps;
+extern s16 g_AkaoTempoMulMusicSlideSteps;
+extern s32 g_AkaoVolMulMusic;
+extern u16 g_AkaoReverbPan;
+extern s32 g_AkaoEffectsAll;
+extern s32 g_AkaoEffectsAllSeq;
+extern s32 g_AkaoMutex;
+extern s32 D_80062FAC;
+extern s32 D_80062FB0;
+extern s32 g_AkaoCdVolSlideStep;
+extern u16 g_AkaoReverbMul;
+extern u16 g_AkaoCdVolSlideSteps;
 
 extern AkaoCdVol g_AkaoCdVol;
 extern s32 D_80062FE0;

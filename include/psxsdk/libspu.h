@@ -96,8 +96,13 @@ extern void SpuSetVoiceAttr(SpuVoiceAttr* arg);
 extern void SpuSetKey(long on_off, unsigned long voice_bit);
 
 extern long SpuMallocWithStartAddr(unsigned long addr, long size);
+#ifndef __SPU_TRANSFERCALLBACK_PROC
+#define __SPU_TRANSFERCALLBACK_PROC
+typedef void (*SpuTransferCallbackProc)(void);
+#endif
 
 extern SpuIRQCallbackProc SpuSetIRQCallback(SpuIRQCallbackProc);
+extern SpuTransferCallbackProc SpuSetTransferCallback(SpuTransferCallbackProc);
 
 typedef struct {
     SpuVolume volume;
