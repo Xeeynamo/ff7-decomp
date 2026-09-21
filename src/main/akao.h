@@ -417,77 +417,77 @@ void AkaoCmd_14_PlayMusicSaveCurrent(AkaoCommand* cmd);
 void AkaoCmd_15_PlayMusicSwapSaved(AkaoCommand* cmd);
 void AkaoCmd_18_FadePlayMusic(AkaoCommand* cmd);
 void AkaoCmd_19_FadePlayMusicSaveCurrent(AkaoCommand* cmd);
-void AkaoCmd_20(AkaoCommand* arg0);
+void AkaoCmd_20_PlaySoundSlot2(AkaoCommand* arg0);
 void AkaoCmd_21_PlayTwoSounds(AkaoCommand* cmd);
 void AkaoCmd_22_PlayThreeSounds(AkaoCommand* cmd);
 void AkaoCmd_23_PlayFourSounds(AkaoCommand* cmd);
-void AkaoCmd_29(AkaoCommand* arg0);
-void AkaoCmd_2A(AkaoCommand* arg0);
-void AkaoCmd_2B(AkaoCommand* arg0);
-void AkaoCmd_30(AkaoCommand* arg0);
+void AkaoCmd_29_PlaySoundSlot1(AkaoCommand* arg0);
+void AkaoCmd_2A_PlaySoundSlot0(AkaoCommand* arg0);
+void AkaoCmd_2B_PlaySoundSlot3(AkaoCommand* arg0);
+void AkaoCmd_30_PlayMenuSound(AkaoCommand* arg0);
 void AkaoCmd_34_PlaySoundDirect(AkaoCommand* cmd);
-static void AkaoCmd_80(void);
+static void AkaoCmd_80_ClearSoundReverb(void);
 static void AkaoCmd_81_SetMonoMode(void);
-void AkaoCmd_82();
-void AkaoCmd_90();
-void AkaoCmd_92();
+void AkaoCmd_82_ResetMusicAndSoundVol();
+void AkaoCmd_90_SetMuteMusicMask();
+void AkaoCmd_92_SetCondition();
 void AkaoCmd_9A_FlushPendingMusicUpdates(void);
 void AkaoCmd_9B_ApplyPendingMusicUpdates(void);
 void AkaoCmd_9C_FlushPendingSoundUpdates(void);
 void AkaoCmd_9D_ApplyPendingSoundUpdates(void);
-void AkaoCmd_A0(void* arg0);
-void AkaoCmd_A1(void* arg0);
-void AkaoCmd_A2(void* arg0);
-void AkaoCmd_A3(void* arg0);
-void AkaoCmd_A4(void* arg0);
-void AkaoCmd_A5(void* arg0);
-void AkaoCmd_A6(void* arg0);
-void AkaoCmd_A7(void* arg0);
-void AkaoCmd_A8(void* arg0);
-void AkaoCmd_A9(void* arg0);
-void AkaoCmd_AA(void* arg0);
-void AkaoCmd_AB(void* arg0);
-void AkaoCmd_AC(void* cmd);
-void AkaoCmd_AD(void* cmd);
-void AkaoCmd_AE(void* cmd);
-void AkaoCmd_AF(void* cmd);
-void AkaoCmd_B0(AkaoCommand* cmd);
-void AkaoCmd_B1(AkaoCommand* cmd);
-void AkaoCmd_B2(AkaoCommand* cmd);
-void AkaoCmd_B3(AkaoCommand* cmd);
-void AkaoCmd_B4(AkaoCommand* cmd);
-void AkaoCmd_B5(AkaoCommand* cmd);
-void AkaoCmd_B6(AkaoCommand* cmd);
-void AkaoCmd_B7(AkaoCommand* cmd);
+void AkaoCmd_A0_SetSoundVolBalanceSlot2(void* arg0);
+void AkaoCmd_A1_SetSoundVolBalanceSlot1(void* arg0);
+void AkaoCmd_A2_SetSoundVolBalanceSlot0(void* arg0);
+void AkaoCmd_A3_SetSoundVolBalanceSlot3(void* arg0);
+void AkaoCmd_A4_SlideSoundVolBalanceSlot2(void* arg0);
+void AkaoCmd_A5_SlideSoundVolBalanceSlot1(void* arg0);
+void AkaoCmd_A6_SlideSoundVolBalanceSlot0(void* arg0);
+void AkaoCmd_A7_SlideSoundVolBalanceSlot3(void* arg0);
+void AkaoCmd_A8_SetSoundPanSlot2(void* arg0);
+void AkaoCmd_A9_SetSoundPanSlot1(void* arg0);
+void AkaoCmd_AA_SetSoundPanSlot0(void* arg0);
+void AkaoCmd_AB_SetSoundPanSlot3(void* arg0);
+void AkaoCmd_AC_SlideSoundPanSlot2(void* cmd);
+void AkaoCmd_AD_SlideSoundPanSlot1(void* cmd);
+void AkaoCmd_AE_SlideSoundPanSlot0(void* cmd);
+void AkaoCmd_AF_SlideSoundPanSlot3(void* cmd);
+void AkaoCmd_B0_SetSoundPitchSlot2(AkaoCommand* cmd);
+void AkaoCmd_B1_SetSoundPitchSlot1(AkaoCommand* cmd);
+void AkaoCmd_B2_SetSoundPitchSlot0(AkaoCommand* cmd);
+void AkaoCmd_B3_SetSoundPitchSlot3(AkaoCommand* cmd);
+void AkaoCmd_B4_SlideSoundPitchSlot2(AkaoCommand* cmd);
+void AkaoCmd_B5_SlideSoundPitchSlot1(AkaoCommand* cmd);
+void AkaoCmd_B6_SlideSoundPitchSlot0(AkaoCommand* cmd);
+void AkaoCmd_B7_SlideSoundPitchSlot3(AkaoCommand* cmd);
 void AkaoCmd_B8_SetAllSoundVolBalance(AkaoCommand* cmd);
 void AkaoCmd_B9_SlideAllSoundVolBalance(AkaoCommand* cmd);
-void AkaoCmd_BA(void* arg0);
-void AkaoCmd_BB(void* arg0);
+void AkaoCmd_BA_SetAllSoundPan(void* arg0);
+void AkaoCmd_BB_SlideAllSoundPan(void* arg0);
 void AkaoCmd_BC_SetAllSoundPitch(AkaoCommand* cmd);
 void AkaoCmd_BD_SlideAllSoundPitch(AkaoCommand* cmd);
 void AkaoCmd_C0_VolumeSet(AkaoCommand* arg0);
 void AkaoCmd_C1_VolSlideFromCurr(AkaoVolSlideFromCurr* arg0);
 void AkaoCmd_C2_VolSlideBetweenTargets(AkaoVolSlideBetweenTargets* arg0);
-void AkaoCmd_C8();
+void AkaoCmd_C8_SetCdVol();
 void AkaoCmd_C9_CdVolSlideFromCurr(AkaoCdVolSlideFromCurr* arg0);
 void AkaoCmd_CA_CdVolSlideBetweenTargets(AkaoCdVolSlideBetweenTargets* arg0);
-void AkaoCmd_D0(AkaoTempoPitchSlide* arg0);
+void AkaoCmd_D0_SetTempo(AkaoTempoPitchSlide* arg0);
 void AkaoCmd_D1_TempoSlideFromCurr(AkaoSlideFromCurr* arg0);
 void AkaoCmd_D2_TempoSlideBetweenTargets(AkaoTempoPitchSlide* arg0);
-void AkaoCmd_D4(AkaoTempoPitchSlide* arg0);
+void AkaoCmd_D4_SetPitch(AkaoTempoPitchSlide* arg0);
 void AkaoCmd_D5_PitchSlideFromCurr(AkaoSlideFromCurr* arg0);
 void AkaoCmd_D6_PitchSlideBetweenTargets(AkaoTempoPitchSlide* arg0);
 static void AkaoCmd_E0_SetReverbPan(AkaoSetReverbPan* arg0);
 static void AkaoCmd_E4_SetReverbMul(AkaoSetReverbMul* arg0);
-static void AkaoCmd_F0(void);
-static void AkaoCmd_F1(void);
-static void AkaoCmd_F2(void);
-static void AkaoCmd_F3(void);
-void AkaoCmd_F4();
-void AkaoCmd_F5();
+static void AkaoCmd_F0_StopMusic(void);
+static void AkaoCmd_F1_StopAllSounds(void);
+static void AkaoCmd_F2_ClearSavedMusic0(void);
+static void AkaoCmd_F3_ClearSavedMusic1(void);
+void AkaoCmd_F4_SaveSoundState();
+void AkaoCmd_F5_RestoreSoundState();
 static void AkaoCmd_F8_StreamReverbMaskClear(void);
 static void AkaoCmd_F9_StreamReverbMaskRestore(void);
-static void AkaoCmd_FA(void);
+static void AkaoCmd_FA_StopStream(void);
 void AkaoCmd_Null(AkaoCommand* arg0);
 void AkaoOp_A0_FinishChannel(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 void AkaoOp_A1_LoadInstrument();
@@ -610,7 +610,7 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_20,
+    AkaoCmd_20_PlaySoundSlot2,
     AkaoCmd_21_PlayTwoSounds,
     AkaoCmd_22_PlayThreeSounds,
     AkaoCmd_23_PlayFourSounds,
@@ -618,15 +618,15 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_20,
-    AkaoCmd_29,
-    AkaoCmd_2A,
-    AkaoCmd_2B,
+    AkaoCmd_20_PlaySoundSlot2,
+    AkaoCmd_29_PlaySoundSlot1,
+    AkaoCmd_2A_PlaySoundSlot0,
+    AkaoCmd_2B_PlaySoundSlot3,
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_30,
+    AkaoCmd_30_PlayMenuSound,
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
@@ -706,9 +706,9 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_80,
+    AkaoCmd_80_ClearSoundReverb,
     AkaoCmd_81_SetMonoMode,
-    AkaoCmd_82,
+    AkaoCmd_82_ResetMusicAndSoundVol,
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
@@ -722,9 +722,9 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_90,
+    AkaoCmd_90_SetMuteMusicMask,
     AkaoCmd_Null,
-    AkaoCmd_92,
+    AkaoCmd_92_SetCondition,
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
@@ -738,34 +738,34 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_9D_ApplyPendingSoundUpdates,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_A0,
-    AkaoCmd_A1,
-    AkaoCmd_A2,
-    AkaoCmd_A3,
-    AkaoCmd_A4,
-    AkaoCmd_A5,
-    AkaoCmd_A6,
-    AkaoCmd_A7,
-    AkaoCmd_A8,
-    AkaoCmd_A9,
-    AkaoCmd_AA,
-    AkaoCmd_AB,
-    AkaoCmd_AC,
-    AkaoCmd_AD,
-    AkaoCmd_AE,
-    AkaoCmd_AF,
-    AkaoCmd_B0,
-    AkaoCmd_B1,
-    AkaoCmd_B2,
-    AkaoCmd_B3,
-    AkaoCmd_B4,
-    AkaoCmd_B5,
-    AkaoCmd_B6,
-    AkaoCmd_B7,
+    AkaoCmd_A0_SetSoundVolBalanceSlot2,
+    AkaoCmd_A1_SetSoundVolBalanceSlot1,
+    AkaoCmd_A2_SetSoundVolBalanceSlot0,
+    AkaoCmd_A3_SetSoundVolBalanceSlot3,
+    AkaoCmd_A4_SlideSoundVolBalanceSlot2,
+    AkaoCmd_A5_SlideSoundVolBalanceSlot1,
+    AkaoCmd_A6_SlideSoundVolBalanceSlot0,
+    AkaoCmd_A7_SlideSoundVolBalanceSlot3,
+    AkaoCmd_A8_SetSoundPanSlot2,
+    AkaoCmd_A9_SetSoundPanSlot1,
+    AkaoCmd_AA_SetSoundPanSlot0,
+    AkaoCmd_AB_SetSoundPanSlot3,
+    AkaoCmd_AC_SlideSoundPanSlot2,
+    AkaoCmd_AD_SlideSoundPanSlot1,
+    AkaoCmd_AE_SlideSoundPanSlot0,
+    AkaoCmd_AF_SlideSoundPanSlot3,
+    AkaoCmd_B0_SetSoundPitchSlot2,
+    AkaoCmd_B1_SetSoundPitchSlot1,
+    AkaoCmd_B2_SetSoundPitchSlot0,
+    AkaoCmd_B3_SetSoundPitchSlot3,
+    AkaoCmd_B4_SlideSoundPitchSlot2,
+    AkaoCmd_B5_SlideSoundPitchSlot1,
+    AkaoCmd_B6_SlideSoundPitchSlot0,
+    AkaoCmd_B7_SlideSoundPitchSlot3,
     AkaoCmd_B8_SetAllSoundVolBalance,
     AkaoCmd_B9_SlideAllSoundVolBalance,
-    AkaoCmd_BA,
-    AkaoCmd_BB,
+    AkaoCmd_BA_SetAllSoundPan,
+    AkaoCmd_BB_SlideAllSoundPan,
     AkaoCmd_BC_SetAllSoundPitch,
     AkaoCmd_BD_SlideAllSoundPitch,
     AkaoCmd_Null,
@@ -778,7 +778,7 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_C8,
+    AkaoCmd_C8_SetCdVol,
     AkaoCmd_C9_CdVolSlideFromCurr,
     AkaoCmd_CA_CdVolSlideBetweenTargets,
     AkaoCmd_Null,
@@ -786,11 +786,11 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_D0,
+    AkaoCmd_D0_SetTempo,
     AkaoCmd_D1_TempoSlideFromCurr,
     AkaoCmd_D2_TempoSlideBetweenTargets,
     AkaoCmd_Null,
-    AkaoCmd_D4,
+    AkaoCmd_D4_SetPitch,
     AkaoCmd_D5_PitchSlideFromCurr,
     AkaoCmd_D6_PitchSlideBetweenTargets,
     AkaoCmd_Null,
@@ -818,17 +818,17 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_F0,
-    AkaoCmd_F1,
-    AkaoCmd_F2,
-    AkaoCmd_F3,
-    AkaoCmd_F4,
-    AkaoCmd_F5,
+    AkaoCmd_F0_StopMusic,
+    AkaoCmd_F1_StopAllSounds,
+    AkaoCmd_F2_ClearSavedMusic0,
+    AkaoCmd_F3_ClearSavedMusic1,
+    AkaoCmd_F4_SaveSoundState,
+    AkaoCmd_F5_RestoreSoundState,
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_F8_StreamReverbMaskClear,
     AkaoCmd_F9_StreamReverbMaskRestore,
-    AkaoCmd_FA,
+    AkaoCmd_FA_StopStream,
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
