@@ -46,6 +46,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoLoadEffect);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoDeinit);
 
+
 // Key off the voices in g_AkaoStreamMask and clear the SPU transfer/IRQ callbacks.
 static void func_80029A50(void) {
     SpuSetTransferCallback(0);

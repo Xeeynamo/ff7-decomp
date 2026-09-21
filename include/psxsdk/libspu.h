@@ -93,6 +93,7 @@ extern unsigned long SpuWrite(unsigned char* addr, unsigned long size);
 extern long SpuSetReverbModeParam(SpuReverbAttr* attr);
 
 extern void SpuSetVoiceAttr(SpuVoiceAttr* arg);
+extern void SpuSetVoiceVolumeAttr(int voice_bit, short voll, short volr, short volmode_l, short volmode_r);
 extern void SpuSetKey(long on_off, unsigned long voice_bit);
 
 extern long SpuMallocWithStartAddr(unsigned long addr, long size);

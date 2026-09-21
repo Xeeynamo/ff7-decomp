@@ -319,5 +319,31 @@ extern u32 g_ReverbMode;
 extern SpuReverbAttr g_ReverbAttr;
 extern SpuCommonAttr g_SpuCommonAttr;
 
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s16 unk8;
+    s16 padA;
+} AkaoVoiceWork;
+extern AkaoVoiceWork D_8009C5A0[24];
+
+extern s32 D_80083338;
+extern s32 D_80083398;
+extern s32 D_8009A130;
+extern s32 D_8009A134;
+extern s32 D_8009A138;
+extern s32 D_8009A144;
+extern s16 D_8009A154;
+extern s16 D_8009A15A;
+extern s16 D_8009A15C;
+extern s16 D_8009A15E;
+extern s16 D_8009A162;
+extern s32 D_8009A168;
+extern s16 D_8009A1AE;
+extern s32 g_Channel3OnMask;
+extern s32 g_Channel3KeyedMask;
+extern s32 g_Channel3Tempo;
+extern s32 g_Channel3TempoUpdate;
+
 #define READ_S8(addr) ((s8)(*(addr)++))
 #define READ_S16(addr) ((s16)(*(addr)++ | (*(addr)++ << 8)))
