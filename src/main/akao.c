@@ -2,7 +2,6 @@
 
 #include "akao.h"
 
-volatile s16 g_AkaoTransfer;
 
 void AkaoSpuTransferComplete(void) {
     SpuSetTransferCallback(NULL);
@@ -1138,7 +1137,7 @@ static u8 func_80031A70(u8** arg0) {
     expected = 0xCA;
     do {
         opcode = *data;
-        len = D_800499A8[opcode];
+        len = g_AkaoOpcodeSize[opcode];
         data += len;
     } while (len);
     return opcode == expected ? 0xCA : 0xA0;
