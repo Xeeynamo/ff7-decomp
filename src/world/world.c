@@ -4,6 +4,11 @@
 
 static void WmSetActiveEntityDirectionAndRot(s16 arg0);
 static void WmGetPosFromPcEntity(VECTOR* arg0);
+static void WmGetPos2FromPcEntity(VECTOR*);
+static void WmSetPcEntityAsActiveEntity(void);
+static void func_800B7820(void);
+static s32 func_800BC1AC(void);
+WorldListNode* WmAssignRegionToNode(WorldListNode*);
 static s32 func_800A9A70(void);
 static void CopyAreaName(s16);
 static void func_800AA02C(s32);
