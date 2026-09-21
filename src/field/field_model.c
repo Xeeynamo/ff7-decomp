@@ -83,7 +83,7 @@ typedef struct {
     u32 unk4;
 } FieldTdbHeader;
 
-extern u8 D_800DF114[4];
+extern u8 g_FieldPrimitiveBufferIndex;
 extern u8* D_800E0200;
 
 u8* FieldModelCreatePktsAndScale(FieldModelEntry* model, u8* nextFree, s32 modelId);
@@ -294,7 +294,7 @@ u8* LoadLocalFieldModelAndInitAll(
             params[5] = 0;
             params[6] = 1;
             KawaiSetColorToModelPkts(&models->modelEntries[modelId], params);
-            bufferIndex = D_800DF114;
+            bufferIndex = &g_FieldPrimitiveBufferIndex;
             *bufferIndex ^= 1;
             params[0] = 0;
             params[1] = 0;

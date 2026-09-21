@@ -18,10 +18,13 @@ typedef struct {
     /* 0x178 */ u8 state;
 } FieldDebugPage; /* size = 0x17A */
 
-extern char D_800E0628[];
-extern char D_800E0630[];
+u8 g_DialogDigitCharacters[16] = {
+    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26,
+};
+
+extern char g_FieldDebugActorLabel[8];
+extern char g_FieldDebugWordLabel[8];
 extern FieldDebugPage g_FieldDebugPages[6];
-extern u8 g_DialogDigitCharacters[16];
 extern u8 g_WindowReplaceBank[4][8];
 extern u16 g_WindowReplaceBankAddr[4][8];
 extern u32 g_FieldKeyState;

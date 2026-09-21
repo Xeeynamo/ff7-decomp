@@ -56,9 +56,11 @@ set(FF7_SOURCES
     # Field
     src/field/field_dialog.c
     src/field/field_debug.c
+    src/field/field_fileInfo.c
     src/field/field_main.c
     src/field/field_loop.c
     src/field/field_bg.c
+    src/field/field_rand.c
     src/field/field_event.c
     src/field/field_opcodes.c
 

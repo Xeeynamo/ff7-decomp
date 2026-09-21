@@ -201,9 +201,15 @@ overlays:
       - [0x1C9FC, c, field_opcodes]
       - [0x34838, c, field_dialog]
       - [0x37D6C, c, field_debug]
-      - [0x3A5B8, data]
+      - [0x3A5B8, .data, field_fileInfo]
+      - [0x3EF80, .data, field_main]
       - [0x3EF88, .data, field_entity]
-      - [0x3F08C, data]
+      - [0x3F08C, .data, field_camera]
+      - [0x3F0DC, .data, field_kawai_char_model]
+      - [0x40208, .data, field_event]
+      - [0x40228, .data, field_opcodes]
+      - [0x40638, .data, field_rand]
+      - [0x40738, .data, field_dialog]
   - name: bginmenu
     disk_path: disks/us/MENU/BGINMENU.MNU
     sha1: af17d71fa4738e53ec50df5d15d992a355500223

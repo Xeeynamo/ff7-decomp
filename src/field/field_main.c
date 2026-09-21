@@ -3,8 +3,8 @@
 #include <libetc.h>
 #include "field_private.h"
 
-extern s32 g_WmPreSector;
-extern u32 g_WmPreSize;
+s32 g_WmPreSector = 2903;
+u32 g_WmPreSize = 280222;
 extern u32 g_FieldFileInfo[];
 
 extern struct FieldRenderData g_FieldRenderData[2]; // double buffered

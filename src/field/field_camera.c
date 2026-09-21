@@ -3,9 +3,16 @@
 #include <libetc.h>
 #include "field_private.h"
 
-const u32 D_800A00DC[] = {0x00000000};
+const u32 D_800A00DC = 0;
 
-extern u8 D_800DF114[4];
+static Yamada global_model_files[9] = {
+    {126841, 7072}, {126845, 7051}, {126849, 7973}, {126853, 8243}, {126858, 8503},
+    {126863, 7372}, {126867, 7611}, {126871, 7366}, {126875, 7050},
+};
+
+static Yamada face_texture_file = {126879, 13631};
+
+extern u8 g_FieldPrimitiveBufferIndex;
 extern struct FieldRenderData* D_800DF118;
 extern u8 D_801144D8;
 extern s16 D_801142C8;
@@ -32,10 +39,10 @@ void FieldModelLoadAndInit(void) {
     while (SystemCdromReadChain()) {
     }
 
-    *(Yamada**)getScratchAddr(0) = g_FieldGlobalModelFiles;
-    *(Yamada**)getScratchAddr(1) = &g_FieldFaceTextureFile;
+    *(Yamada**)getScratchAddr(0) = global_model_files;
+    *(Yamada**)getScratchAddr(1) = &face_texture_file;
     D_80075E10 = FieldModelLoadGlobalModels(D_8007E770, g_FieldModelData, D_80075E10, 1);
-    D_80075E10 = LoadLocalFieldModelAndInitAll(D_8007E770, g_FieldModelData, D_800A00DC, (u32*)0x801B0000);
+    D_80075E10 = LoadLocalFieldModelAndInitAll(D_8007E770, g_FieldModelData, &D_800A00DC, (u32*)0x801B0000);
 
     for (i = 1; i < g_FieldModelData->modelCount; i++) {
         g_FieldModelData->modelEntries[i].flags = 0;
@@ -66,7 +73,7 @@ void HandleKawaiDataInModel(struct FieldRenderData* buf) {
     u32* matrixSrc;
     u32* matrixDst;
 
-    D_800DF114[0] = D_80075DEC;
+    g_FieldPrimitiveBufferIndex = D_80075DEC;
     D_800DF118 = buf;
     models = (FieldModelLoaderData*)(D_8007E770 + 1);
 

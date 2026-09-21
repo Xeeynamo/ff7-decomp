@@ -42,14 +42,13 @@ typedef enum {
 } IfOps;
 // clang-format on
 
-extern s32 (*g_FieldOpcodes[256])(void);
 extern u8 g_EntityForSplitJoin;
 extern u8 D_80114498[];
 extern u8 g_RandomTableStep;
 extern u8 g_RandomTableIndex;
 extern u8 g_RandomTable[256];
-extern char D_800E0628[];
-extern char D_800E0630[];
+extern char g_FieldDebugActorLabel[8];
+extern char g_FieldDebugWordLabel[8];
 extern char g_DebugText[];
 extern char g_DebugMessageBuffer[];
 extern s8 D_800716C8;
@@ -91,6 +90,122 @@ static void PartyFromBank2ToSave(s32 unused);
 static void PartyRemove(u8* party, u8* toRemove);
 static void PartyAdd(u8* party, u8* toAdd);
 
+s32 OpcodeFuncPmjmp(void);
+s32 OpcodeFuncPmjmp2(void);
+s32 OpcodeFuncMgame(void);
+s32 OpcodeFuncBatle(void);
+s32 OpcodeFuncAkao(void);
+s32 OpcodeFuncAkao2(void);
+s32 OpcodeFuncSe(void);
+s32 OpcodeFuncCanim(void);
+s32 OpcodeFuncCanmEx(void);
+s32 OpcodeFuncAnimw(void);
+s32 OpcodeFuncAnimb(void);
+s32 OpcodeFuncMove(void);
+s32 OpcodeFuncFmove(void);
+s32 OpcodeFuncCmove(void);
+s32 OpcodeFuncFcfix(void);
+s32 OpcodeFuncJump(void);
+s32 OpcodeFuncLader(void);
+s32 OpcodeFuncPmova(void);
+s32 OpcodeFuncMova(void);
+s32 OpcodeFuncDira(void);
+s32 OpcodeFuncPdira(void);
+s32 OpcodeFuncTura(void);
+s32 OpcodeFuncPtura(void);
+s32 OpcodeFuncOfstd(void);
+s32 OpcodeFuncOfstw(void);
+s32 OpcodeFuncTurnw(void);
+s32 OpcodeFuncTurn(void);
+s32 OpcodeFuncTurnr(void);
+s32 OpcodeFuncDir(void);
+s32 OpcodeFuncSlidr(void);
+s32 OpcodeFuncSldr2(void);
+s32 OpcodeFuncTalkr(void);
+s32 OpcodeFuncTlkr2(void);
+s32 OpcodeFuncMsped(void);
+s32 OpcodeFuncAsped(void);
+s32 OpcodeFuncGtdir(void);
+s32 OpcodeFuncPgtdr(void);
+s32 OpcodeFuncGetai(void);
+s32 OpcodeFuncGetaxy(void);
+s32 OpcodeFuncAxyzi(void);
+s32 OpcodeFuncPxyzi(void);
+s32 OpcodeFuncXyzi(void);
+s32 OpcodeFuncXyz(void);
+s32 OpcodeFuncXyi(void);
+s32 OpcodeFuncMes(void);
+s32 OpcodeFuncMpnam(void);
+s32 OpcodeFuncAsk(void);
+s32 OpcodeFuncWclsEx(void);
+s32 OpcodeFuncWsizw(void);
+s32 OpcodeFuncWsize(void);
+s32 OpcodeFuncWrow(void);
+s32 OpcodeFuncWmove(void);
+s32 OpcodeFuncWrest(void);
+s32 OpcodeFuncWclse(void);
+s32 OpcodeFuncWmode(void);
+s32 OpcodeFuncBgon(void);
+s32 OpcodeFuncBgoff(void);
+s32 OpcodeFuncBgclr(void);
+s32 OpcodeFuncBgrol(void);
+s32 OpcodeFuncBgrol2(void);
+s32 OpcodeFuncPmvie(void);
+s32 OpcodeFuncMovie(void);
+s32 OpcodeFuncMvief(void);
+s32 OpcodeFuncMpjpo(void);
+s32 OpcodeFuncScr2d(void);
+s32 OpcodeFuncScrlc(void);
+s32 OpcodeFuncScrla(void);
+s32 OpcodeFuncScrlp(void);
+s32 OpcodeFuncScrcc(void);
+s32 OpcodeFuncScr2dc(void);
+s32 OpcodeFuncScr2dl(void);
+s32 OpcodeFuncScrlw(void);
+s32 OpcodeFuncStpal(void);
+s32 OpcodeFuncStpls(void);
+s32 OpcodeFuncLdpal(void);
+s32 OpcodeFuncLdpls(void);
+s32 OpcodeFuncCppal(void);
+s32 OpcodeFuncCppal2(void);
+s32 OpcodeFuncRtpal(void);
+s32 OpcodeFuncRtpal2(void);
+s32 OpcodeFuncAdpal(void);
+s32 OpcodeFuncAdpal2(void);
+s32 OpcodeFuncMppal2(void);
+s32 OpcodeFuncMppal(void);
+s32 OpcodeFuncVwoft(void);
+s32 OpcodeFuncJoin(void);
+s32 OpcodeFuncSplit(void);
+s32 OpcodeFuncFade(void);
+s32 OpcodeFuncNfade(void);
+s32 OpcodeFuncFadew(void);
+s32 OpcodeFuncIdlck(void);
+s32 OpcodeFuncGwcol(void);
+s32 OpcodeFuncSwcol(void);
+s32 OpcodeFuncLstmp(void);
+s32 OpcodeFuncShake(void);
+s32 OpcodeFuncStitm(void);
+s32 OpcodeFuncDlitm(void);
+s32 OpcodeFuncCkitm(void);
+s32 OpcodeFuncSpcal(void);
+s32 OpcodeFuncBgscr(void);
+s32 OpcodeFuncBgdph(void);
+s32 OpcodeFuncSmtra(void);
+s32 OpcodeFuncDmtra(void);
+s32 OpcodeFuncCmtra(void);
+s32 OpcodeFuncGetpc(void);
+s32 OpcodeFuncMpara(void);
+s32 OpcodeFuncMpra2(void);
+s32 OpcodeFuncMhmmx(void);
+s32 OpcodeFuncHmpmx(void);
+s32 OpcodeFuncMpPlus(void);
+s32 OpcodeFuncMpMinus(void);
+s32 OpcodeFuncHpPlus(void);
+s32 OpcodeFuncHpMinus(void);
+s32 OpcodeFuncChmph(void);
+s32 OpcodeFuncChmst(void);
+
 void DebugUpdateActor(s16 arg0, s16 entityId) {
     if (arg0 == 4) {
         if (!(D_80071E24 & 4) || (D_80114498[entityId])) {
@@ -100,7 +215,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             } else {
                 FieldDebugPageSetColor(4, 7, 15, 31);
             }
-            FieldDebugStringCopy(g_DebugText, D_800E0628);
+            FieldDebugStringCopy(g_DebugText, g_FieldDebugActorLabel);
         } else {
             return;
         }
@@ -564,7 +679,7 @@ static void DebugPrintOpcode(const char* name, s32 arg1) {
 
     var_s1 = arg1;
     if (!(D_80071E24 & 4) || (D_80114498[g_CurrentEntity] != 0)) {
-        FieldDebugStringCopy(g_DebugText, D_800E0630);
+        FieldDebugStringCopy(g_DebugText, g_FieldDebugWordLabel);
         FieldDebugStringConcat(g_DebugText, name);
         if (g_DebugLevel & 1) {
             SetStrToDebugRow(3, 0, g_DebugText);
@@ -1084,7 +1199,7 @@ static void FieldEventWriteMemoryS16(s16 arg0, s16 arg1, s16 value) {
 // This is called when the script tries to execute an invalid opcode
 // called for opcodes:
 // 0C 0D 1A 1B 1C 1D 1E 1F 44 46 4C 4E BE
-s32 OpcodeFuncBad(void) {
+static s32 OpcodeFuncBad(void) {
     if (g_DebugLevel & 3) {
         FieldDebugStringU16hex(g_FieldCurrentOpcode, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugMessageBuffer, "???");
@@ -1107,7 +1222,7 @@ s32 OpcodeFuncBad(void) {
  @note
  This does not emit a debug message.
  */
-s32 OpcodeFuncWait1(void) {
+static s32 OpcodeFuncWait1(void) {
     PC_INC(1);
     return 1;
 }
@@ -1132,7 +1247,7 @@ s32 OpcodeFuncWait1(void) {
  * tells the script parser to continue executing next opcode.
  */
 
-s32 OpcodeFuncWait(void) {
+static s32 OpcodeFuncWait(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("wait", 2);
     }
@@ -1166,7 +1281,7 @@ s32 OpcodeFuncWait(void) {
     return 1;
 }
 
-s32 OpcodeFuncSet(void) {
+static s32 OpcodeFuncSet(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("set", 3);
     }
@@ -1175,7 +1290,7 @@ s32 OpcodeFuncSet(void) {
     return 0;
 }
 
-s32 OpcodeFuncSet2(void) {
+static s32 OpcodeFuncSet2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("set2", 4);
     }
@@ -1184,7 +1299,7 @@ s32 OpcodeFuncSet2(void) {
     return 0;
 }
 
-s32 OpcodeFuncLbyte(void) {
+static s32 OpcodeFuncLbyte(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("lbyte", 3);
     }
@@ -1193,7 +1308,7 @@ s32 OpcodeFuncLbyte(void) {
     return 0;
 }
 
-s32 OpcodeFuncHbyte(void) {
+static s32 OpcodeFuncHbyte(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("hbyte", 4);
     }
@@ -1202,7 +1317,7 @@ s32 OpcodeFuncHbyte(void) {
     return 0;
 }
 
-s32 OpcodeFunc2byte(void) {
+static s32 OpcodeFunc2byte(void) {
     s16 lhs;
 
     if (g_DebugLevel & 3) {
@@ -1214,7 +1329,7 @@ s32 OpcodeFunc2byte(void) {
     return 0;
 }
 
-s32 OpcodeFuncSetx(void) {
+static s32 OpcodeFuncSetx(void) {
     s16 offset;
     u8 bank;
     u8 value;
@@ -1251,7 +1366,7 @@ s32 OpcodeFuncSetx(void) {
     return 0;
 }
 
-s32 OpcodeFuncGetx(void) {
+static s32 OpcodeFuncGetx(void) {
     s16 offset;
     u8 bank;
     u8 value;
@@ -1289,7 +1404,7 @@ s32 OpcodeFuncGetx(void) {
     return 0;
 }
 
-s32 OpcodeFuncSrchx(void) {
+static s32 OpcodeFuncSrchx(void) {
     s16 end;
     s16 start;
     s16 where;
@@ -1353,7 +1468,7 @@ s32 OpcodeFuncSrchx(void) {
     return 0;
 }
 
-s32 OpcodeFuncBiton(void) {
+static s32 OpcodeFuncBiton(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("biton", 3);
     }
@@ -1362,7 +1477,7 @@ s32 OpcodeFuncBiton(void) {
     return 0;
 }
 
-s32 OpcodeFuncBitof(void) {
+static s32 OpcodeFuncBitof(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("bitof", 3);
     }
@@ -1371,7 +1486,7 @@ s32 OpcodeFuncBitof(void) {
     return 0;
 }
 
-s32 OpcodeFuncBitxr(void) {
+static s32 OpcodeFuncBitxr(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("bitxr", 3);
     }
@@ -1380,7 +1495,7 @@ s32 OpcodeFuncBitxr(void) {
     return 0;
 }
 
-s32 OpcodeFuncLine(void) {
+static s32 OpcodeFuncLine(void) {
     s16 value;
 
     if (g_DebugLevel & 3) {
@@ -1413,7 +1528,7 @@ s32 OpcodeFuncLine(void) {
     return 0;
 }
 
-s32 OpcodeFuncSline(void) {
+static s32 OpcodeFuncSline(void) {
     u8 lineId;
 
     if (g_DebugLevel & 3) {
@@ -1430,7 +1545,7 @@ s32 OpcodeFuncSline(void) {
     return 0;
 }
 
-s32 OpcodeFuncLinon(void) {
+static s32 OpcodeFuncLinon(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("linon", 1);
     }
@@ -1450,7 +1565,7 @@ s32 OpcodeFuncLinon(void) {
  * line defined alongside it with opcode LINE.
  */
 
-s32 OpcodeFuncSlip(void) {
+static s32 OpcodeFuncSlip(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("slip", 1);
     }
@@ -1466,7 +1581,7 @@ s32 OpcodeFuncSlip(void) {
  * Jumps given number of bytes ahead if the comparison is false.
  */
 
-s32 OpcodeFuncIf(void) {
+static s32 OpcodeFuncIf(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("if", 5);
     }
@@ -1495,7 +1610,7 @@ s32 OpcodeFuncIf(void) {
  * jumps.
  */
 
-s32 OpcodeFuncLif(void) {
+static s32 OpcodeFuncLif(void) {
     s16 param;
 
     if (g_DebugLevel & 3) {
@@ -1570,7 +1685,7 @@ static u32 IfCheck(void) {
  *
  * Compares two s16 using a given logical operator.
  */
-s32 OpcodeFuncIf2(void) {
+static s32 OpcodeFuncIf2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("if2", 7);
     }
@@ -1593,7 +1708,7 @@ s32 OpcodeFuncIf2(void) {
  *
  * Compares two s16 using a given logical operator.
  */
-s32 OpcodeFuncLif2(void) {
+static s32 OpcodeFuncLif2(void) {
     s16 param;
 
     if (g_DebugLevel & 3) {
@@ -1668,7 +1783,7 @@ static u32 If2CheckSigned(void) {
  *
  * Compares two u16 using a given logical operator.
  */
-s32 OpcodeFuncIf2u(void) {
+static s32 OpcodeFuncIf2u(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("if2", 7);
     }
@@ -1691,7 +1806,7 @@ s32 OpcodeFuncIf2u(void) {
  *
  * Compares two u16 using a given logical operator.
  */
-s32 OpcodeFuncLif2u(void) {
+static s32 OpcodeFuncLif2u(void) {
     s16 param;
 
     if (g_DebugLevel & 3) {
@@ -1769,7 +1884,7 @@ static u32 If2CheckUnsigned(void) {
  * for controller 1.
  */
 
-s32 OpcodeFuncKeyEx(void) {
+static s32 OpcodeFuncKeyEx(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("key!", 3);
     }
@@ -1786,7 +1901,7 @@ s32 OpcodeFuncKeyEx(void) {
  * Checks keys that player pressed this frame.
  */
 
-s32 OpcodeFuncKeyon(void) {
+static s32 OpcodeFuncKeyon(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("keyon", 3);
     }
@@ -1803,7 +1918,7 @@ s32 OpcodeFuncKeyon(void) {
  * Checks keys that player released this frame.
  */
 
-s32 OpcodeFuncKeyof(void) {
+static s32 OpcodeFuncKeyof(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("keyof", 3);
     }
@@ -1836,28 +1951,28 @@ static s32 KeyCheck(u16 keys) {
     return 0;
 }
 
-s32 OpcodeFuncReq(void) {
+static s32 OpcodeFuncReq(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("req", 2);
     }
     return FieldEventRequest(1, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)), GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
-s32 OpcodeFuncReqsw(void) {
+static s32 OpcodeFuncReqsw(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("reqsw", 2);
     }
     return FieldEventRequest(2, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)), GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
-s32 OpcodeFuncReqew(void) {
+static s32 OpcodeFuncReqew(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("reqew", 2);
     }
     return FieldEventRequest(3, GET_PARAM_U8(1), GET_PRIORITY(GET_PARAM_U8(2)), GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
-s32 OpcodeFuncPreq(void) {
+static s32 OpcodeFuncPreq(void) {
     u8 charId;
     u8 entityId;
 
@@ -1873,7 +1988,7 @@ s32 OpcodeFuncPreq(void) {
     return FieldEventRequest(1, entityId, GET_PRIORITY(GET_PARAM_U8(2)), GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
-s32 OpcodeFuncPrqsw(void) {
+static s32 OpcodeFuncPrqsw(void) {
     u8 charId;
     u8 entityId;
 
@@ -1889,7 +2004,7 @@ s32 OpcodeFuncPrqsw(void) {
     return FieldEventRequest(2, entityId, GET_PRIORITY(GET_PARAM_U8(2)), GET_SCRIPTID(GET_PARAM_U8(2)));
 }
 
-s32 OpcodeFuncPrqew(void) {
+static s32 OpcodeFuncPrqew(void) {
     u8 charId;
     u8 entityId;
 
@@ -2048,7 +2163,7 @@ static s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
     return 1;
 }
 
-s32 OpcodeFuncRet(void) {
+static s32 OpcodeFuncRet(void) {
     u16* fieldScriptPC;
     u16(*savedPC)[8];
     u16* savedRow;
@@ -2099,7 +2214,7 @@ s32 OpcodeFuncRet(void) {
     return 0;
 }
 
-s32 OpcodeFuncRetto(void) {
+static s32 OpcodeFuncRetto(void) {
     s16 scriptId;
     u8 priority;
     s32 extrasHeaderSize;
@@ -2132,7 +2247,7 @@ s32 OpcodeFuncRetto(void) {
     return 0;
 }
 
-s32 OpcodeFuncBack(void) {
+static s32 OpcodeFuncBack(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("back", 1);
     }
@@ -2140,7 +2255,7 @@ s32 OpcodeFuncBack(void) {
     return 1;
 }
 
-s32 OpcodeFuncLback(void) {
+static s32 OpcodeFuncLback(void) {
     u16 param;
 
     if (g_DebugLevel & 3) {
@@ -2151,7 +2266,7 @@ s32 OpcodeFuncLback(void) {
     return 1;
 }
 
-s32 OpcodeFuncSkip(void) {
+static s32 OpcodeFuncSkip(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("skip", 1);
     }
@@ -2159,7 +2274,7 @@ s32 OpcodeFuncSkip(void) {
     return 0;
 }
 
-s32 OpcodeFuncLskip(void) {
+static s32 OpcodeFuncLskip(void) {
     u16 param;
 
     if (g_DebugLevel & 3) {
@@ -2170,7 +2285,7 @@ s32 OpcodeFuncLskip(void) {
     return 0;
 }
 
-s32 OpcodeFuncMjump(void) {
+static s32 OpcodeFuncMjump(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mjump", 8);
     }
@@ -2223,7 +2338,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncAkao2);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncSe);
 
-s32 OpcodeFuncMusic(void) {
+static s32 OpcodeFuncMusic(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("music", 1);
     }
@@ -2232,7 +2347,7 @@ s32 OpcodeFuncMusic(void) {
     return SetAndApplyAkao();
 }
 
-s32 OpcodeFuncMusvt(void) {
+static s32 OpcodeFuncMusvt(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("musvt", 1);
     }
@@ -2241,7 +2356,7 @@ s32 OpcodeFuncMusvt(void) {
     return SetAndApplyAkao();
 }
 
-s32 OpcodeFuncMusvm(void) {
+static s32 OpcodeFuncMusvm(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("musvm", 1);
     }
@@ -2250,7 +2365,7 @@ s32 OpcodeFuncMusvm(void) {
     return SetAndApplyAkao();
 }
 
-s32 OpcodeFuncCmusc(void) {
+static s32 OpcodeFuncCmusc(void) {
     u32 result;
 
     if (g_DebugLevel & 3) {
@@ -2295,7 +2410,7 @@ static u32 GetAkaoBlockOffset(s16 akaoId) {
     return akaoOffset;
 }
 
-s32 OpcodeFuncBmusc(void) {
+static s32 OpcodeFuncBmusc(void) {
     u8 akaoId;
 
     if (g_DebugLevel & 3) {
@@ -2314,7 +2429,7 @@ s32 OpcodeFuncBmusc(void) {
     return 0;
 }
 
-s32 OpcodeFuncFmusc(void) {
+static s32 OpcodeFuncFmusc(void) {
     u8 akaoId;
 
     if (g_DebugLevel & 3) {
@@ -2333,7 +2448,7 @@ s32 OpcodeFuncFmusc(void) {
     return 0;
 }
 
-s32 OpcodeFuncTutor(void) {
+static s32 OpcodeFuncTutor(void) {
     u8 tutorialId;
 
     if (g_DebugLevel & 3) {
@@ -2381,7 +2496,7 @@ s32 OpcodeFuncTutor(void) {
  * so g_FieldScripts[pc + 1] is the 1-byte operand. The program counter is then
  * stepped past the 2-byte instruction (opcode + operand).
  */
-s32 OpcodeFuncMulck(void) {
+static s32 OpcodeFuncMulck(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mulck", 1);
     }
@@ -2390,7 +2505,7 @@ s32 OpcodeFuncMulck(void) {
     return 0;
 }
 
-s32 OpcodeFuncBgmovie(void) {
+static s32 OpcodeFuncBgmovie(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("bgmovie", 1);
     }
@@ -2399,7 +2514,7 @@ s32 OpcodeFuncBgmovie(void) {
     return 0;
 }
 
-s32 OpcodeFuncScrlo(void) {
+static s32 OpcodeFuncScrlo(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("scrlo", 1);
     }
@@ -2417,7 +2532,7 @@ s32 OpcodeFuncScrlo(void) {
  * (opcode not finished) until the loop reports the swap is done
  * (movieCommandState == 2). Only then does the script advance past the opcode.
  */
-s32 OpcodeFuncDskcg(void) {
+static s32 OpcodeFuncDskcg(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("dskcg", 1);
     }
@@ -2444,7 +2559,7 @@ s32 OpcodeFuncDskcg(void) {
  * A nonzero operand freezes the player character; on unlock the
  * per-model flag of the player's model is cleared as well.
  */
-s32 OpcodeFuncUc(void) {
+static s32 OpcodeFuncUc(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("uc", 1);
     }
@@ -2456,7 +2571,7 @@ s32 OpcodeFuncUc(void) {
     return 0;
 }
 
-s32 OpcodeFuncBtlon(void) {
+static s32 OpcodeFuncBtlon(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("btlon", 1);
     }
@@ -2465,7 +2580,7 @@ s32 OpcodeFuncBtlon(void) {
     return 0;
 }
 
-s32 OpcodeFuncMpdsp(void) {
+static s32 OpcodeFuncMpdsp(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mpdsp", 1);
     }
@@ -2474,7 +2589,7 @@ s32 OpcodeFuncMpdsp(void) {
     return 0;
 }
 
-s32 OpcodeFuncMvcam(void) {
+static s32 OpcodeFuncMvcam(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mvcam", 1);
     }
@@ -2483,7 +2598,7 @@ s32 OpcodeFuncMvcam(void) {
     return 0;
 }
 
-s32 OpcodeFuncGmovr(void) {
+static s32 OpcodeFuncGmovr(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("gmovr", 0);
     }
@@ -2498,7 +2613,7 @@ s32 OpcodeFuncGmovr(void) {
  * The operand is a script entity id; if that entity has a field model
  * assigned (g_EntityToModel entry != 0xFF) it becomes the new player model.
  */
-s32 OpcodeFuncCc(void) {
+static s32 OpcodeFuncCc(void) {
     u8 charId;
 
     if (g_DebugLevel & 3) {
@@ -2519,7 +2634,7 @@ s32 OpcodeFuncCc(void) {
  * records the mapping in g_EntityToModel and initializes the model with the
  * model id from the opcode operand and the owning entity id.
  */
-s32 OpcodeFuncChar(void) {
+static s32 OpcodeFuncChar(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("char", 1);
     }
@@ -2539,7 +2654,7 @@ s32 OpcodeFuncChar(void) {
  * A model holding the last frame of a script animation (state 3) is
  * released so the new default animation starts playing.
  */
-s32 OpcodeFuncDfanm(void) {
+static s32 OpcodeFuncDfanm(void) {
     u8 modelIdx;
 
     if (g_DebugLevel & 3) {
@@ -2562,7 +2677,7 @@ s32 OpcodeFuncDfanm(void) {
  * Field-script opcode CCANM: set one of the player animation ids
  * (0: idle, 1: walk, 2: run) used while the player controls a model.
  */
-s32 OpcodeFuncCcanm(void) {
+static s32 OpcodeFuncCcanm(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("ccanm", 3);
     }
@@ -2611,7 +2726,7 @@ static void StartModelAnimation(void) {
  * animation system reports completion (state 4), then resets the model to
  * its default animation.
  */
-s32 OpcodeFuncAnime(void) {
+static s32 OpcodeFuncAnime(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("anime", 2);
     }
@@ -2647,7 +2762,7 @@ s32 OpcodeFuncAnime(void) {
  * instead of returning to its default animation. 0xAE becomes 0xAF and
  * state 5 becomes 6 to tell the two opcode pairs apart.
  */
-s32 OpcodeFuncAnimEx(void) {
+static s32 OpcodeFuncAnimEx(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("anim!", 2);
     }
@@ -2763,7 +2878,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncPxyzi);
  * Sets the visibility of the model bound to the entity currently running the
  * script. Does nothing if the entity has no model attached.
  */
-s32 OpcodeFuncVisi(void) {
+static s32 OpcodeFuncVisi(void) {
     u8 modelId;
 
     if (g_DebugLevel & 3) {
@@ -2790,7 +2905,7 @@ s32 OpcodeFuncVisi(void) {
  * Sets whether the model bound to the entity currently running the script can
  * be talked to. Does nothing if the entity has no model attached.
  */
-s32 OpcodeFuncTlkon(void) {
+static s32 OpcodeFuncTlkon(void) {
     u8 modelId;
 
     if (g_DebugLevel & 3) {
@@ -2850,7 +2965,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncWmode);
  * operand to AND with. If the Source Bank is an 8 bit bank, then the "Oper" is
  * the address in that bank where the operand is.
  */
-s32 OpcodeFuncAnd(void) {
+static s32 OpcodeFuncAnd(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("and", 3);
     }
@@ -2879,7 +2994,7 @@ s32 OpcodeFuncAnd(void) {
  * operand to AND with. If the Source Bank is a 16-bit bank, then the "Oper" is
  * the address in that bank where the operand is.
  */
-s32 OpcodeFuncAnd2(void) {
+static s32 OpcodeFuncAnd2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("and2", 3);
     }
@@ -2907,7 +3022,7 @@ s32 OpcodeFuncAnd2(void) {
  * is an 8 bit bank, then the "Oper" is the address in that bank where
  * the operand is.
  */
-s32 OpcodeFuncOr(void) {
+static s32 OpcodeFuncOr(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("or", 3);
     }
@@ -2936,7 +3051,7 @@ s32 OpcodeFuncOr(void) {
  * to OR with. If the Source Bank is a 16-bit bank, then the "Oper" is the
  * address in that bank where the operand is.
  */
-s32 OpcodeFuncOr2(void) {
+static s32 OpcodeFuncOr2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("or2", 3);
     }
@@ -2963,7 +3078,7 @@ s32 OpcodeFuncOr2(void) {
  * to XOR with. If the Source Bank is an 8 bit bank, then the "Oper" is the
  * address in that bank where the operand is.
  */
-s32 OpcodeFuncXor(void) {
+static s32 OpcodeFuncXor(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("xor", 3);
     }
@@ -2992,7 +3107,7 @@ s32 OpcodeFuncXor(void) {
  * operand to XOR with. If the Source Bank is a 16-bit bank, then the "Oper" is
  * the address in that bank where the operand is.
  */
-s32 OpcodeFuncXor2(void) {
+static s32 OpcodeFuncXor2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("xor2", 3);
     }
@@ -3019,7 +3134,7 @@ s32 OpcodeFuncXor2(void) {
  * Bank is an 8 bit bank, then the "Oper" is the address in that bank where the
  * operand is.
  */
-s32 OpcodeFuncPlus(void) {
+static s32 OpcodeFuncPlus(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("plus", 3);
     }
@@ -3045,7 +3160,7 @@ s32 OpcodeFuncPlus(void) {
  * added to the destination value. If the Source Bank is an 8 bit bank, then the
  * "Oper" is the address in that bank where the operand is.
  */
-s32 OpcodeFuncPlusEx(void) {
+static s32 OpcodeFuncPlusEx(void) {
     s16 sum;
 
     if (g_DebugLevel & 3) {
@@ -3078,7 +3193,7 @@ s32 OpcodeFuncPlusEx(void) {
  * Source Bank is an 16 bit bank, then the "Oper" is the address in that bank
  * where the operand is.
  */
-s32 OpcodeFuncPlus2(void) {
+static s32 OpcodeFuncPlus2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("plus2", 3);
     }
@@ -3106,7 +3221,7 @@ s32 OpcodeFuncPlus2(void) {
  * to the destination value. If the Source Bank is an 16 bit bank, then the
  * "Oper" is the address in that bank where the operand is.
  */
-s32 OpcodeFuncPls2Ex(void) {
+static s32 OpcodeFuncPls2Ex(void) {
     s32 sum;
 
     if (g_DebugLevel & 3) {
@@ -3140,7 +3255,7 @@ s32 OpcodeFuncPls2Ex(void) {
  * is an 8 bit bank, then the "Oper" is the address in that bank where the
  * operand is.
  */
-s32 OpcodeFuncMinus(void) {
+static s32 OpcodeFuncMinus(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("minus", 3);
     }
@@ -3167,7 +3282,7 @@ s32 OpcodeFuncMinus(void) {
  * "Oper" is subtracted from the destination value. If the Source Bank is an 8
  * bit bank, then the "Oper" is the address in that bank where the operand is.
  */
-s32 OpcodeFuncMinsEx(void) {
+static s32 OpcodeFuncMinsEx(void) {
     s16 differ;
 
     if (g_DebugLevel & 3) {
@@ -3201,7 +3316,7 @@ s32 OpcodeFuncMinsEx(void) {
  * is an 16 bit bank, then the "Oper" is the address in that bank where the
  * operand is.
  */
-s32 OpcodeFuncMins2(void) {
+static s32 OpcodeFuncMins2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mins2", 3);
     }
@@ -3232,7 +3347,7 @@ s32 OpcodeFuncMins2(void) {
  * Bank is an 16 bit bank, then the "Oper" is the address in that bank
  * where the operand is.
  */
-s32 OpcodeFuncMns2Ex(void) {
+static s32 OpcodeFuncMns2Ex(void) {
     s32 differ;
 
     if (g_DebugLevel & 3) {
@@ -3266,7 +3381,7 @@ s32 OpcodeFuncMns2Ex(void) {
  * Bank is an 8 bit bank, then the "Oper" is the address in that bank where the
  * operand is.
  */
-s32 OpcodeFuncMul(void) {
+static s32 OpcodeFuncMul(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mul", 3);
     }
@@ -3294,7 +3409,7 @@ s32 OpcodeFuncMul(void) {
  * Bank is an 8 bit bank, then the "Oper" is the address in that bank where the
  * operand is.
  */
-s32 OpcodeFuncMul2(void) {
+static s32 OpcodeFuncMul2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mul2", 3);
     }
@@ -3321,7 +3436,7 @@ s32 OpcodeFuncMul2(void) {
  * Bank is 0 then the "Den" is the denominator. If the Source Bank is an 8 bit
  * bank, then the "Den" is the address in that bank where the denominator is.
  */
-s32 OpcodeFuncDiv(void) {
+static s32 OpcodeFuncDiv(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("div", 3);
     }
@@ -3349,7 +3464,7 @@ s32 OpcodeFuncDiv(void) {
  * 8 bit bank, then the "Den" is the address in that bank where the denominator
  * is.
  */
-s32 OpcodeFuncDiv2(void) {
+static s32 OpcodeFuncDiv2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("div2", 3);
     }
@@ -3376,7 +3491,7 @@ s32 OpcodeFuncDiv2(void) {
  * 8 bit bank, then the "Den" is the address in that bank where the denominator
  * is.
  */
-s32 OpcodeFuncRemai(void) {
+static s32 OpcodeFuncRemai(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("remai", 3);
     }
@@ -3403,7 +3518,7 @@ s32 OpcodeFuncRemai(void) {
  * 16 bit bank, then the "Den" is the address in that bank where the denominator
  * is.
  */
-s32 OpcodeFuncRema2(void) {
+static s32 OpcodeFuncRema2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("rema2", 3);
     }
@@ -3427,7 +3542,7 @@ s32 OpcodeFuncRema2(void) {
  * will be incremented, and if the lower byte is 0xFF, the higher byte will be
  * unaffected whilst the lower byte will return to 0x00.
  */
-s32 OpcodeFuncInc(void) {
+static s32 OpcodeFuncInc(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("inc", 2);
     }
@@ -3449,7 +3564,7 @@ s32 OpcodeFuncInc(void) {
  * @details
  * Increments the value in "Dest" by 1. The result is capped at 255.
  */
-s32 OpcodeFuncIncEx(void) {
+static s32 OpcodeFuncIncEx(void) {
     s16 result;
 
     if (g_DebugLevel & 3) {
@@ -3477,7 +3592,7 @@ s32 OpcodeFuncIncEx(void) {
  * Increments the 16-bit value found at bank B, address A. If the value is
  * 0xFFFF, it will roll over to 0x0000.
  */
-s32 OpcodeFuncInc2(void) {
+static s32 OpcodeFuncInc2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("inc2", 3);
     }
@@ -3500,7 +3615,7 @@ s32 OpcodeFuncInc2(void) {
  * Increments the value in "Dest" by 1. The result is capped at
  * 32767.
  */
-s32 OpcodeFuncInc2Ex(void) {
+static s32 OpcodeFuncInc2Ex(void) {
     s32 sum;
 
     if (g_DebugLevel & 3) {
@@ -3530,7 +3645,7 @@ s32 OpcodeFuncInc2Ex(void) {
  * lower byte will be decremented, and if the lower byte is 0x00, the higher
  * byte will be unaffected whilst the lower byte will return to 0xFF.
  */
-s32 OpcodeFuncDec(void) {
+static s32 OpcodeFuncDec(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("dec", 2);
     }
@@ -3552,7 +3667,7 @@ s32 OpcodeFuncDec(void) {
  * @details
  * Decreases the value in "Dest" by 1. The result is capped at 0.
  */
-s32 OpcodeFuncDecEx(void) {
+static s32 OpcodeFuncDecEx(void) {
     s16 differ;
 
     if (g_DebugLevel & 3) {
@@ -3580,7 +3695,7 @@ s32 OpcodeFuncDecEx(void) {
  * Decrements the 16-bit value found at bank B, address A. If the value is
  * 0x0000, it will roll over to 0xFFFF.
  */
-s32 OpcodeFuncDec2(void) {
+static s32 OpcodeFuncDec2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("dec2", 3);
     }
@@ -3602,7 +3717,7 @@ s32 OpcodeFuncDec2(void) {
  * @details
  * Decreases the value in "Dest" by 1. The result is capped at -32768.
  */
-s32 OpcodeFuncDec2Ex(void) {
+static s32 OpcodeFuncDec2Ex(void) {
     s32 result;
 
     if (g_DebugLevel & 3) {
@@ -3630,7 +3745,7 @@ s32 OpcodeFuncDec2Ex(void) {
  * Places a random 8-bit value into the destination bank and address specified.
  * If you specify a 16-bit bank, only the lower byte is randomised.
  */
-s32 OpcodeFuncRandm(void) {
+static s32 OpcodeFuncRandm(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("randm", 2);
     }
@@ -3655,7 +3770,7 @@ s32 OpcodeFuncRandm(void) {
  * arguments are used as the seed value by altering the offset used to take a
  * value from the table of pseudo-random numbers.
  */
-s32 OpcodeFuncRdmsd(void) {
+static s32 OpcodeFuncRdmsd(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("rdmsd", 2);
     }
@@ -3736,7 +3851,7 @@ static void SetPcModel(void) {
     }
 }
 
-s32 OpcodeFuncPc(void) {
+static s32 OpcodeFuncPc(void) {
     u8 charId;
     s32 i;
 
@@ -3772,7 +3887,7 @@ s32 OpcodeFuncPc(void) {
     return 0;
 }
 
-s32 OpcodeFuncPrtyp(void) {
+static s32 OpcodeFuncPrtyp(void) {
     s32 i;
     u8 charId;
 
@@ -3814,7 +3929,7 @@ s32 OpcodeFuncPrtyp(void) {
     return 0;
 }
 
-s32 OpcodeFuncPrtym(void) {
+static s32 OpcodeFuncPrtym(void) {
     s32 i;
     u8 charId;
 
@@ -3840,7 +3955,7 @@ s32 OpcodeFuncPrtym(void) {
     return 0;
 }
 
-s32 OpcodeFuncPrtye(void) {
+static s32 OpcodeFuncPrtye(void) {
     u8 newParty[3];
     s32 i;
 
@@ -3857,7 +3972,7 @@ s32 OpcodeFuncPrtye(void) {
     return 0;
 }
 
-s32 OpcodeFuncSptye(void) {
+static s32 OpcodeFuncSptye(void) {
     u8 newParty[3];
     s32 i;
 
@@ -3874,7 +3989,7 @@ s32 OpcodeFuncSptye(void) {
     return 0;
 }
 
-s32 OpcodeFuncGptye(void) {
+static s32 OpcodeFuncGptye(void) {
     s32 i;
 
     if (g_DebugLevel & 3) {
@@ -4013,7 +4128,7 @@ static void PartyAdd(u8* party, u8* toAdd) {
     }
 }
 
-s32 OpcodeFuncPrtyq(void) {
+static s32 OpcodeFuncPrtyq(void) {
     s32 i;
     u8 charId;
 
@@ -4040,7 +4155,7 @@ s32 OpcodeFuncPrtyq(void) {
     return 0;
 }
 
-s32 OpcodeFuncMembq(void) {
+static s32 OpcodeFuncMembq(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("membq", 2);
     }
@@ -4060,7 +4175,7 @@ s32 OpcodeFuncMembq(void) {
     return 0;
 }
 
-s32 OpcodeFuncMmbPlusMinus(void) {
+static s32 OpcodeFuncMmbPlusMinus(void) {
     s16 i;
     s16 charId;
 
@@ -4085,7 +4200,7 @@ s32 OpcodeFuncMmbPlusMinus(void) {
     return 0;
 }
 
-s32 OpcodeFuncMmblk(void) {
+static s32 OpcodeFuncMmblk(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mmblk", 3);
     }
@@ -4095,7 +4210,7 @@ s32 OpcodeFuncMmblk(void) {
     return 0;
 }
 
-s32 OpcodeFuncMmbuk(void) {
+static s32 OpcodeFuncMmbuk(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mmbuk", 3);
     }
@@ -4105,7 +4220,7 @@ s32 OpcodeFuncMmbuk(void) {
     return 0;
 }
 
-s32 OpcodeFuncSolid(void) {
+static s32 OpcodeFuncSolid(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("solid", 1);
     }
@@ -4169,7 +4284,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncDmtra);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncCmtra);
 
-s32 OpcodeFuncMenu(void) {
+static s32 OpcodeFuncMenu(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("menu", 3);
     }
@@ -4206,7 +4321,7 @@ s32 OpcodeFuncMenu(void) {
     return 1;
 }
 
-s32 OpcodeFuncMenu2(void) {
+static s32 OpcodeFuncMenu2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("menu", 1);
     }
@@ -4245,7 +4360,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMpra2);
  * Creates a variable from the another variable, with SIN, a multiplicand and an
  * addition factor
  */
-s32 OpcodeFuncSin(void) {
+static s32 OpcodeFuncSin(void) {
     s32 result;
 
     if (g_DebugLevel & 3) {
@@ -4286,7 +4401,7 @@ s32 OpcodeFuncSin(void) {
  * Creates a variable from the another variable, with COS, a multiplicand and an
  * addition factor
  */
-s32 OpcodeFuncCos(void) {
+static s32 OpcodeFuncCos(void) {
     s32 result;
 
     if (g_DebugLevel & 3) {
@@ -4360,7 +4475,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncHpMinus);
  * the source bank B and address A. The total gil is capped above by 0xFFFFFFFF;
  * attempts to increment further will fail.
  */
-s32 OpcodeFuncGoldPlus(void) {
+static s32 OpcodeFuncGoldPlus(void) {
     u32 gold;
 
     if (g_DebugLevel & 3) {
@@ -4393,7 +4508,7 @@ s32 OpcodeFuncGoldPlus(void) {
  * the source bank B and address A. The total gil is capped below by 0; attempts
  * to decrement further will fail.
  */
-s32 OpcodeFuncGoldMinus(void) {
+static s32 OpcodeFuncGoldMinus(void) {
     u32 gold;
 
     if (g_DebugLevel & 3) {
@@ -4423,7 +4538,7 @@ s32 OpcodeFuncGoldMinus(void) {
  * addresses to place two two-byte values into. Address 1 takes the lower two
  * bytes of the gil amount, while address 2 takes the higher two bytes.
  */
-s32 OpcodeFuncChgld(void) {
+static s32 OpcodeFuncChgld(void) {
     u32 partyGold;
 
     if (g_DebugLevel & 3) {
@@ -4440,7 +4555,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncChmph);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncChmst);
 
-s32 OpcodeFuncSttim(void) {
+static s32 OpcodeFuncSttim(void) {
     s32 time;
 
     if (g_DebugLevel & 3) {
@@ -4456,7 +4571,7 @@ s32 OpcodeFuncSttim(void) {
     return 0;
 }
 
-s32 OpcodeFuncWspcl(void) {
+static s32 OpcodeFuncWspcl(void) {
     u8 window;
 
     if (g_DebugLevel & 3) {
@@ -4472,7 +4587,7 @@ s32 OpcodeFuncWspcl(void) {
     return 0;
 }
 
-s32 OpcodeFuncWnumb(void) {
+static s32 OpcodeFuncWnumb(void) {
     u8 window;
     s32 value;
 
@@ -4490,7 +4605,7 @@ s32 OpcodeFuncWnumb(void) {
     return 0;
 }
 
-s32 OpcodeFuncBtlmd(void) {
+static s32 OpcodeFuncBtlmd(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("btlmd", 2);
     }
@@ -4502,7 +4617,7 @@ s32 OpcodeFuncBtlmd(void) {
     return 0;
 }
 
-s32 OpcodeFuncBtmd2(void) {
+static s32 OpcodeFuncBtmd2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("btmd2", 2);
     }
@@ -4516,7 +4631,7 @@ s32 OpcodeFuncBtmd2(void) {
     return 0;
 }
 
-s32 OpcodeFuncBtrlt(void) {
+static s32 OpcodeFuncBtrlt(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("btrlt", 2);
     }
@@ -4527,7 +4642,7 @@ s32 OpcodeFuncBtrlt(void) {
     return 0;
 }
 
-s32 OpcodeFuncBtltb(void) {
+static s32 OpcodeFuncBtltb(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("btltb", 1);
     }
@@ -4538,7 +4653,7 @@ s32 OpcodeFuncBtltb(void) {
     return 0;
 }
 
-s32 OpcodeFuncBlink(void) {
+static s32 OpcodeFuncBlink(void) {
     u8 modelId;
 
     if (g_DebugLevel & 3) {
@@ -4554,7 +4669,7 @@ s32 OpcodeFuncBlink(void) {
     return 0;
 }
 
-s32 OpcodeFuncKawai(void) {
+static s32 OpcodeFuncKawai(void) {
     u16 size;
     u8 modelId;
     u8 kawaiType;
@@ -4590,7 +4705,7 @@ s32 OpcodeFuncKawai(void) {
     return 0;
 }
 
-s32 OpcodeFuncKawiw(void) {
+static s32 OpcodeFuncKawiw(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("kawiw", 0);
     }
@@ -4607,3 +4722,61 @@ s32 OpcodeFuncKawiw(void) {
     PC_INC(1);
     return 0;
 }
+
+s32 (*g_FieldOpcodes[256])(void) = {
+    OpcodeFuncRet,          OpcodeFuncReq,     OpcodeFuncReqsw,    OpcodeFuncReqew,     OpcodeFuncPreq,
+    OpcodeFuncPrqsw,        OpcodeFuncPrqew,   OpcodeFuncRetto,    OpcodeFuncJoin,      OpcodeFuncSplit,
+    OpcodeFuncSptye,        OpcodeFuncGptye,   OpcodeFuncBad,      OpcodeFuncBad,       OpcodeFuncDskcg,
+    OpcodeFuncSpcal,        OpcodeFuncSkip,    OpcodeFuncLskip,    OpcodeFuncBack,      OpcodeFuncLback,
+    OpcodeFuncIf,           OpcodeFuncLif,     OpcodeFuncIf2,      OpcodeFuncLif2,      OpcodeFuncIf2u,
+    OpcodeFuncLif2u,        OpcodeFuncBad,     OpcodeFuncBad,      OpcodeFuncBad,       OpcodeFuncBad,
+    OpcodeFuncBad,          OpcodeFuncBad,     OpcodeFuncMgame,    OpcodeFuncTutor,     OpcodeFuncBtmd2,
+    OpcodeFuncBtrlt,        OpcodeFuncWait,    OpcodeFuncNfade,    OpcodeFuncBlink,     OpcodeFuncBgmovie,
+    OpcodeFuncKawai,        OpcodeFuncKawiw,   OpcodeFuncPmova,    OpcodeFuncSlip,      OpcodeFuncBgdph,
+    OpcodeFuncBgscr,        OpcodeFuncWclsEx,  OpcodeFuncWsizw,    OpcodeFuncKeyEx,     OpcodeFuncKeyon,
+    OpcodeFuncKeyof,        OpcodeFuncUc,      OpcodeFuncPdira,    OpcodeFuncPtura,     OpcodeFuncWspcl,
+    OpcodeFuncWnumb,        OpcodeFuncSttim,   OpcodeFuncGoldPlus, OpcodeFuncGoldMinus, OpcodeFuncChgld,
+    OpcodeFuncHmpmx,        OpcodeFuncHmpmx,   OpcodeFuncMhmmx,    OpcodeFuncHmpmx,     OpcodeFuncMes,
+    OpcodeFuncMpara,        OpcodeFuncMpra2,   OpcodeFuncMpnam,    OpcodeFuncBad,       OpcodeFuncMpPlus,
+    OpcodeFuncBad,          OpcodeFuncMpMinus, OpcodeFuncAsk,      OpcodeFuncMenu,      OpcodeFuncMenu2,
+    OpcodeFuncBtltb,        OpcodeFuncBad,     OpcodeFuncHpPlus,   OpcodeFuncBad,       OpcodeFuncHpMinus,
+    OpcodeFuncWsize,        OpcodeFuncWmove,   OpcodeFuncWmode,    OpcodeFuncWrest,     OpcodeFuncWclse,
+    OpcodeFuncWrow,         OpcodeFuncGwcol,   OpcodeFuncSwcol,    OpcodeFuncStitm,     OpcodeFuncDlitm,
+    OpcodeFuncCkitm,        OpcodeFuncSmtra,   OpcodeFuncDmtra,    OpcodeFuncCmtra,     OpcodeFuncShake,
+    OpcodeFuncWait1,        OpcodeFuncMjump,   OpcodeFuncScrlo,    OpcodeFuncScrlc,     OpcodeFuncScrla,
+    OpcodeFuncScr2d,        OpcodeFuncScrcc,   OpcodeFuncScr2dc,   OpcodeFuncScrlw,     OpcodeFuncScr2dl,
+    OpcodeFuncMpdsp,        OpcodeFuncVwoft,   OpcodeFuncFade,     OpcodeFuncFadew,     OpcodeFuncIdlck,
+    OpcodeFuncLstmp,        OpcodeFuncScrlp,   OpcodeFuncBatle,    OpcodeFuncBtlon,     OpcodeFuncBtlmd,
+    OpcodeFuncPgtdr,        OpcodeFuncGetpc,   OpcodeFuncPxyzi,    OpcodeFuncPlusEx,    OpcodeFuncPls2Ex,
+    OpcodeFuncMinsEx,       OpcodeFuncMns2Ex,  OpcodeFuncIncEx,    OpcodeFuncInc2Ex,    OpcodeFuncDecEx,
+    OpcodeFuncDec2Ex,       OpcodeFuncTlkon,   OpcodeFuncRdmsd,    OpcodeFuncSet,       OpcodeFuncSet2,
+    OpcodeFuncBiton,        OpcodeFuncBitof,   OpcodeFuncBitxr,    OpcodeFuncPlus,      OpcodeFuncPlus2,
+    OpcodeFuncMinus,        OpcodeFuncMins2,   OpcodeFuncMul,      OpcodeFuncMul2,      OpcodeFuncDiv,
+    OpcodeFuncDiv2,         OpcodeFuncRemai,   OpcodeFuncRema2,    OpcodeFuncAnd,       OpcodeFuncAnd2,
+    OpcodeFuncOr,           OpcodeFuncOr2,     OpcodeFuncXor,      OpcodeFuncXor2,      OpcodeFuncInc,
+    OpcodeFuncInc2,         OpcodeFuncDec,     OpcodeFuncDec2,     OpcodeFuncRandm,     OpcodeFuncLbyte,
+    OpcodeFuncHbyte,        OpcodeFunc2byte,   OpcodeFuncSetx,     OpcodeFuncGetx,      OpcodeFuncSrchx,
+    OpcodeFuncPc,           OpcodeFuncChar,    OpcodeFuncDfanm,    OpcodeFuncAnime,     OpcodeFuncVisi,
+    OpcodeFuncXyzi,         OpcodeFuncXyi,     OpcodeFuncXyz,      OpcodeFuncMove,      OpcodeFuncCmove,
+    OpcodeFuncMova,         OpcodeFuncTura,    OpcodeFuncAnimw,    OpcodeFuncFmove,     OpcodeFuncAnime,
+    OpcodeFuncAnimEx,       OpcodeFuncCanim,   OpcodeFuncCanmEx,   OpcodeFuncMsped,     OpcodeFuncDir,
+    OpcodeFuncTurnr,        OpcodeFuncTurn,    OpcodeFuncDira,     OpcodeFuncGtdir,     OpcodeFuncGetaxy,
+    OpcodeFuncGetai,        OpcodeFuncAnimEx,  OpcodeFuncCanim,    OpcodeFuncCanmEx,    OpcodeFuncAsped,
+    OpcodeFuncBad,          OpcodeFuncCc,      OpcodeFuncJump,     OpcodeFuncAxyzi,     OpcodeFuncLader,
+    OpcodeFuncOfstd,        OpcodeFuncOfstw,   OpcodeFuncTalkr,    OpcodeFuncSlidr,     OpcodeFuncSolid,
+    OpcodeFuncPrtyp,        OpcodeFuncPrtym,   OpcodeFuncPrtye,    OpcodeFuncPrtyq,     OpcodeFuncMembq,
+    OpcodeFuncMmbPlusMinus, OpcodeFuncMmblk,   OpcodeFuncMmbuk,    OpcodeFuncLine,      OpcodeFuncLinon,
+    OpcodeFuncMpjpo,        OpcodeFuncSline,   OpcodeFuncSin,      OpcodeFuncCos,       OpcodeFuncTlkr2,
+    OpcodeFuncSldr2,        OpcodeFuncPmjmp,   OpcodeFuncPmjmp2,   OpcodeFuncAkao2,     OpcodeFuncFcfix,
+    OpcodeFuncCcanm,        OpcodeFuncAnimb,   OpcodeFuncTurnw,    OpcodeFuncMppal,     OpcodeFuncBgon,
+    OpcodeFuncBgoff,        OpcodeFuncBgrol,   OpcodeFuncBgrol2,   OpcodeFuncBgclr,     OpcodeFuncStpal,
+    OpcodeFuncLdpal,        OpcodeFuncCppal,   OpcodeFuncRtpal,    OpcodeFuncAdpal,     OpcodeFuncMppal2,
+    OpcodeFuncStpls,        OpcodeFuncLdpls,   OpcodeFuncCppal2,   OpcodeFuncRtpal2,    OpcodeFuncAdpal2,
+    OpcodeFuncMusic,        OpcodeFuncSe,      OpcodeFuncAkao,     OpcodeFuncMusvt,     OpcodeFuncMusvm,
+    OpcodeFuncMulck,        OpcodeFuncBmusc,   OpcodeFuncChmph,    OpcodeFuncPmvie,     OpcodeFuncMovie,
+    OpcodeFuncMvief,        OpcodeFuncMvcam,   OpcodeFuncFmusc,    OpcodeFuncCmusc,     OpcodeFuncChmst,
+    OpcodeFuncGmovr,
+};
+
+char g_FieldDebugActorLabel[8] = "Actor:";
+char g_FieldDebugWordLabel[8] = "Word:";

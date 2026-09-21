@@ -18,8 +18,8 @@ typedef struct {
     /* 0x178 */ u8 state;
 } FieldDebugPage; /* size = 0x17A */
 
-extern char D_800E0628[];
-extern char D_800E0630[];
+extern char g_FieldDebugActorLabel[8];
+extern char g_FieldDebugWordLabel[8];
 extern FieldDebugPage g_FieldDebugPages[6];
 extern u8 g_DialogDigitCharacters[16];
 extern u8 g_WindowReplaceBank[4][8];
@@ -77,13 +77,13 @@ void InitFieldDebugPages(void) {
     SetStrToDebugRow(5, 6, "  Info  OFF");
     FieldDebugPageHide(5);
     FieldDebugPageInit(4, 0x6C, 0x52, 0x6C, 0x52);
-    AddStrNextDebugRow(4, D_800E0628);
+    AddStrNextDebugRow(4, g_FieldDebugActorLabel);
     FieldDebugPageHide(4);
     FieldDebugPageInit(3, 0x6C, 0xA4, 0x6C, 0x5C);
-    AddStrNextDebugRow(3, D_800E0630);
+    AddStrNextDebugRow(3, g_FieldDebugWordLabel);
     FieldDebugPageHide(3);
     FieldDebugPageInit(1, 0, 0, 0x6C, 0xCA);
-    AddStrNextDebugRow(1, D_800E0628);
+    AddStrNextDebugRow(1, g_FieldDebugActorLabel);
     FieldDebugPageHide(1);
     D_80099FFC = 3;
     D_8007EBCC = 4;

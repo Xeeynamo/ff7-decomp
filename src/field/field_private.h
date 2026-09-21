@@ -56,13 +56,13 @@ typedef struct {
 extern u8* D_80075E10;
 extern MATRIX* D_80083270;
 extern MATRIX** D_80083578;
-extern u32 g_FieldFileInfo[];
-extern Yamada g_FieldGlobalModelFiles[9];
-extern Yamada g_FieldFaceTextureFile;
+extern u32 g_FieldFileInfo[787 * 6];
+
 extern FieldFaceTextureHeader* g_FieldFaceTextureData;
 extern u8* D_800E0204;
 extern volatile s16 g_FieldMovieJustStarted;
 extern u8 SavedScriptIds[48][8];
+extern s32 (*g_FieldOpcodes[256])(void);
 
 void StopFieldMapPreload(void);
 void PreloadNextFieldMap(FieldEntity* player, FieldGateway* gateways);
