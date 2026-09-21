@@ -7,3 +7,6 @@
 [submodule "tools/m2c"]
 	path = tools/m2c
 	url = https://github.com/matt-kempster/m2c.git
+[submodule "tools/psyz"]
+	path = tools/psyz
+	url = https://github.com/Xeeynamo/psyz.git

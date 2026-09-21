@@ -112,7 +112,8 @@ static void VSyncCallbackFunc(void) {
     D_8007E768 = 1;
 }
 
-static void SysInitBase(void) {
+// TODO mark as 'static' once 'main' is decompiled
+void SysInitBase(void) {
     StopCallback();
     ResetCallback();
     ResetGraph(0);
@@ -226,7 +227,12 @@ static void InitFieldFromSavemap(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitNewGame);
 
-void main(void) {
+#ifdef VERSION_PC
+void GameMain(void)
+#else
+void main(void)
+#endif
+{
     char name[9] = "battle.x";
     RECT rect = {0, 0, 480, 472};
     u16 minigameResult;
