@@ -48,6 +48,72 @@ void func_800B4244(void);
 void WmCalculateBoneMatrixes(void*, MATRIX*, s32, s32);
 void WmCalculateModelLighting(void*, u8*);
 void func_800B5314(WorldActor*, s32);
+void WmDialogUpdate(void);
+void WmFadeInit(void);
+void WmFadeRender(void);
+void WmHandleButtons(void);
+void WmLoadTxzDataAndInit(s32);
+void WmRenderAll(s16);
+void WmScriptInitVariables(WorldScriptData*);
+void WmUiMapCreate(void);
+void WmUiMapUpdate(s16);
+void WmUpdateLightingFromPoints(VECTOR*);
+void WmUpdateSkyboxOverlayVertexes(s16);
+void func_800A12AC(void);
+void func_800A3964(void);
+void func_800A3C74(void);
+void func_800A806C(s16, s32);
+void func_800A835C(void);
+void func_800AEA48(s16);
+void func_800B04AC(void);
+void func_800B650C(void);
+void func_800B7228(s32*, s32*, s32);
+static void InitWorldState(void);
+static void WmAbortMapLoadingWrapper(void);
+static void func_800A886C(s32);
+static void func_800A8A88(void);
+static s32 WmGetPcEntityOriginalY(void);
+static void func_800AA02C(s32);
+static void func_800AA238(void);
+static void WmPrepareEntities(void);
+static void func_800AB570(void);
+static void WmScriptRunAll(void);
+static void UpdateSurfaceEffect(void);
+static void func_800AF0B0(void);
+static void func_800B104C(void);
+static void UpdateWorldMode(void);
+static void InitEffectPool(void);
+static void WmUpdateEffects(void);
+static void func_800B63E0(s32);
+static void func_800B64A0(void);
+static s32 func_800B64C8(void);
+static void WmSetMusicVolume(u32);
+static void func_800B6E78(void);
+static void func_800B715C(s32);
+static s32 func_800B717C(void);
+static s32 func_800B7218(void);
+static void GetSavedParams(s32*, s32*, s32*);
+static void func_800B76A8(void);
+static void func_800B7C1C(void);
+static void func_800B7C6C(s32);
+static void func_800B832C(void);
+static void WmDialogsInit(FieldScriptHeader*);
+static void func_800BB8B0(void);
+static void func_800BBD20(s32);
+static s32 WmScriptIsAnyScriptRuns(void);
+void func_800ADC70(void);
+void WmInitOverlayTexturePrims(void);
+void WmUpdateZolom(void);
+void WmUpdateAmbientSoundTimers(void);
+static s32 func_800A9878(void);
+static s32 func_800A82F0(void);
+static s32 WmIsPcEntityModelInMask(s32);
+
+extern s32 D_800BD13C;
+extern u8 D_800BE5E8[];
+extern s32 D_800E55F8;
+extern s32 D_800E5640;
+extern s32 D_800E567C;
 
 const char D_800A0000[] = "NEW  ";
 static const char D_800A0008[] = "OLD  ";
@@ -526,8 +592,185 @@ static s32 func_800A45F4(void) { return D_800E5674; }
 
 static void func_800A4604(void) {}
 
-// World Entry
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WORLD_Main);
+void WORLD_Main(s32* arg0, s32* arg1, s32* arg2, s32 arg3) {
+    VECTOR pcEntityPos;
+    s32 temp_v0;
+    s16 var_a0;
+    s32 temp_s0;
+    s32 temp_s0_2;
+    s32 var_s0;
+    s32 var_v0;
+    s32 var_v0_2;
+    s32 var_v1;
+
+    D_800E566C = 0;
+    D_800E567C = arg3;
+    D_800E566C = 0;
+    while (D_800E566C < 9) {
+        if (*arg0 != 0) {
+            var_v1 = func_800B7218();
+        } else {
+            var_v1 = 2;
+            if (D_800E566C != 6) {
+                if (*arg1 != 0x1E && *arg1 != 0x1F && *arg1 != 0x2A && *arg1 != 0x38) {
+                    var_v1 = 0;
+                    if (D_800E566C != 7) {
+                        var_v1 = -(*arg1 >= 0x3C) & 3;
+                    }
+                }
+            }
+        }
+        D_800E5634 = var_v1;
+        temp_s0 = func_800B717C();
+        if ((*arg0 == 0) && ((u32)(*arg1 - 0x24) < 4U)) {
+            WmLoadTxzDataAndInit(temp_s0 > 0 ? 10 : 9);
+        } else {
+            var_v0 = (D_800E5634 == 0 ? temp_s0 : (u16)D_800E5634 + 9);
+            var_v0 <<= 16;
+            WmLoadTxzDataAndInit(var_v0 >> 16);
+        }
+        func_800B650C();
+        func_800B715C(temp_s0 == 3 || temp_s0 == 4 || temp_s0 == 6 || temp_s0 == 8);
+        D_800E5648 = 0;
+        WmUiMapCreate();
+        InitWorldState();
+        func_800B7228(arg0, arg1, D_800E5634 != 3);
+        if (D_800E5634 == 2) {
+            WmSetCamView(2);
+        }
+        D_800E5604 = 0;
+        UpdateFogRanges();
+        func_800A12AC();
+        func_800ADC70();
+        func_800AF0B0();
+        WmFadeInit();
+        func_800B104C();
+        func_800B7C1C();
+        func_800B7C6C(1);
+        InitSpritePrims();
+        WmDialogsInit((FieldScriptHeader*)D_800BE5E8);
+        func_800B04AC();
+        WmInitOverlayTexturePrims();
+        InitEffectPool();
+        func_800A8A88();
+        func_800BB8B0();
+        WmSetMusicVolume(127);
+        WmScriptInitVariables(&D_800D05EC);
+        func_800ABA18(0);
+        WmScriptRunAll();
+        D_800E5640 = WmGetModelIdFromPcEntity() == 3 ? 0xFA0 : 0x7D0;
+        if (*arg0 == 1 || *arg0 == 2 || D_800E566C == 6 || D_800E566C == 7) {
+            func_800B76A8();
+            if (D_800E566C == 6 || D_800E566C == 7) {
+                func_800A886C(0xBB8);
+            }
+        }
+        if (D_800E5634 == 2) {
+            func_800A98A4(1);
+            func_800AA02C(-0xBB8);
+        }
+        func_800A835C();
+        WmGetModelDataByModelId(WmGetPcCharModelIdFromParty());
+        if (func_800B64C8() < 6) {
+            func_800B63E0(1);
+        }
+        if (func_800B64C8() != 0) {
+            func_800B64A0();
+        } else {
+            PlayMusicTrack(1);
+        }
+        WmHandleButtons();
+        D_800E566C = -15;
+        while (D_800E566C < 6) {
+            WmPrepareForRender();
+            D_800BD13C = 0;
+            WmPrepareEntities();
+            WmGetPosFromPcEntity(&pcEntityPos);
+            var_s0 = pcEntityPos.vy - D_80116508;
+            if (var_s0 <= 0) {
+                var_s0 = D_80116508 - pcEntityPos.vy;
+            }
+            if (D_800E5618 != 2) {
+                if (func_800A9878() || var_s0 > 0xC8) {
+                    var_v0_2 = ((D_80116508 * 7) + pcEntityPos.vy) >> 3;
+                } else if (var_s0 > 0x32) {
+                    var_v0_2 = pcEntityPos.vy <= D_80116508 ? D_80116508 - 0x32 : D_80116508 + 0x32;
+                } else {
+                    var_v0_2 = pcEntityPos.vy;
+                }
+                var_v1 = var_v0_2;
+                D_80116508 = var_v1;
+            }
+            WmHandleButtons();
+            func_800A44C4();
+            WmGetPosFromPcEntity(&pcEntityPos);
+            WmUpdateLightingFromPoints(&pcEntityPos);
+            WmScriptRunAll();
+            WmCalcViewMatrix(D_800E560C);
+            func_800A806C(D_800E560C, 1);
+            UpdateSurfaceEffect();
+            func_800A3C74();
+            func_800A3964();
+            if (D_800E566C < 9) {
+                WmDialogUpdate();
+            }
+            WmUpdateAmbientSoundTimers();
+            if ((D_800E5648 == 3 && D_800E5658 == 0) || (D_800E5634 == 2 && func_800A82F0())) {
+                WmGetPosFromPcEntity(&pcEntityPos);
+                temp_v0 = WmGetPcEntityOriginalY();
+                temp_s0_2 = temp_v0 + 0xC8;
+                D_800E55F8 = temp_s0_2 < pcEntityPos.vy;
+                if (!D_800E55F8 && !D_800E5658) {
+                    if (WmIsPcEntityModelInMask(0x2000)) {
+                        func_800AA02C(temp_s0_2 > -0xBB8 ? -0xBB8 : temp_s0_2);
+                    } else if (WmGetModelIdFromPcEntity() == 3 || temp_v0 < 0x7D0) {
+                        func_800AA02C(temp_s0_2);
+                    } else {
+                        func_800AA238();
+                    }
+                }
+            }
+            WmUpdateSkyboxOverlayVertexes(D_800E560C);
+            func_800AEA48(D_800E560C);
+            UpdateFadeOverlay();
+            WmFadeRender();
+            if ((D_800E566C < 9) && (D_800E5634 != 3)) {
+                WmUiMapUpdate(D_800E560C);
+            }
+            func_800BBD20(0);
+            UpdateWorldMode();
+            SetGeomScreen(D_800C65EC);
+            if (D_800E566C >= 0) {
+                func_800AB570();
+            }
+            WmUpdateEffects();
+            WmUpdateZolom();
+            func_800B6E78();
+            if (D_800E566C == 1) {
+                func_800B832C();
+            }
+            WmRenderAll(D_8011650C == 1 ? D_8011650C - 1 : D_8011650C);
+            if ((InputReadPadsRaw() & 0x90F) == 0x90F) {
+                WmResetGame();
+            }
+        }
+        func_800ABA18(1);
+        while (WmScriptIsAnyScriptRuns() != 0) {
+            WmScriptRunAll();
+        }
+        WmAbortMapLoadingWrapper();
+        GetSavedParams(arg0, arg1, arg2);
+        if (*arg0 == 1) {
+            WmAddMutexPriority(3);
+            func_800A38C8();
+        }
+        func_800B650C();
+        while (DrawSync(1) != 0) {
+        }
+        func_800A3908();
+    }
+    WmGetCurrRenderBufferId();
+}
 
 void WmInitLoadMapFileStruct(void) {
     s16 i;
@@ -1648,7 +1891,7 @@ void func_800A98A4(s32 arg0) {
 
 s32 WmIsPcEntityPosNeedRecalculation(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->flags1 >> 7; }
 
-static s16 WmGetPcEntityOriginalY(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->unk42; }
+static s32 WmGetPcEntityOriginalY(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->unk42; }
 
 static s32 WmSetActiveEntityWithModelId(s32 arg0) {
     WorldActor* var_v1;
@@ -3954,7 +4197,7 @@ s32 func_800B7200(void) {
     return progress >= 1000 && progress < 1200;
 }
 
-static u8 func_800B7218(void) { return Savemap.memory_bank_4[0xFE]; }
+static s32 func_800B7218(void) { return Savemap.memory_bank_4[0xFE]; }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B7228);
 
