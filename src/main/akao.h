@@ -2,6 +2,39 @@
 #include "game.h"
 #include "libspu.h"
 
+#define AKAO_MUSIC 0x0
+#define AKAO_SOUND 0x1
+#define AKAO_MENU 0x2
+
+#define AKAO_STEREO 0x1
+#define AKAO_MONO 0x2
+#define AKAO_STEREO_CHANNELS 0x4
+
+#define AKAO_SFX_LEGATO 0x1
+#define AKAO_SFX_FULL_LENGTH 0x4
+
+#define AKAO_UPDATE_SPU_VOICE (SPU_VOICE_VOLL | SPU_VOICE_VOLR)
+#define AKAO_UPDATE_SPU_ADSR                                                                                           \
+    (SPU_VOICE_ADSR_AMODE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_RMODE | SPU_VOICE_ADSR_AR | SPU_VOICE_ADSR_DR |      \
+     SPU_VOICE_ADSR_SR | SPU_VOICE_ADSR_RR | SPU_VOICE_ADSR_SL)
+#define AKAO_UPDATE_SPU_BASE_WOR                                                                                       \
+    (SPU_VOICE_WDSA | SPU_VOICE_ADSR_AMODE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_AR | SPU_VOICE_ADSR_DR |            \
+     SPU_VOICE_ADSR_SR | SPU_VOICE_ADSR_SL | SPU_VOICE_LSAX)
+#define AKAO_UPDATE_SPU_BASE (AKAO_UPDATE_SPU_BASE_WOR | SPU_VOICE_ADSR_RMODE | SPU_VOICE_ADSR_RR)
+#define AKAO_UPDATE_SPU_ALL (AKAO_UPDATE_SPU_BASE | AKAO_UPDATE_SPU_VOICE | SPU_VOICE_PITCH)
+
+#define AKAO_UPDATE_VIBRATO 0x1
+#define AKAO_UPDATE_TREMOLO 0x2
+#define AKAO_UPDATE_PAN_LFO 0x4
+#define AKAO_UPDATE_DRUM_MODE 0x8
+#define AKAO_UPDATE_SIDE_CHAIN_PITCH 0x10
+#define AKAO_UPDATE_SIDE_CHAIN_VOL 0x20
+#define AKAO_UPDATE_OVERLAY 0x100
+#define AKAO_UPDATE_ALTERNATIVE 0x200
+
+#define AKAO_UPDATE_NOISE_CLOCK 0x10
+#define AKAO_UPDATE_REVERB 0x80
+
 // 16.16 fixed point volume
 typedef union {
     s32 val;
@@ -18,7 +51,6 @@ typedef struct {
     /* 0x8 */ s32 steps;
     /* 0xC */ s8 target;
 } AkaoTempoPitchSlide;
-
 
 typedef struct {
     /* 0x00 */ u32 voice_id;

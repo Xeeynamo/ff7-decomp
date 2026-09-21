@@ -88,6 +88,7 @@ typedef struct {
 } SpuReverbAttr;
 
 extern long SpuSetTransferMode(long mode);
+extern unsigned long SpuSetTransferStartAddr(unsigned long addr);
 extern unsigned long SpuWrite(unsigned char* addr, unsigned long size);
 
 extern long SpuSetReverbModeParam(SpuReverbAttr* attr);

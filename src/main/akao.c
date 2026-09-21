@@ -2,17 +2,14 @@
 
 #include "akao.h"
 
-
 volatile s16 g_AkaoTransfer;
 
-void AkaoSpuTransferComplete(void)
-{
+void AkaoSpuTransferComplete(void) {
     SpuSetTransferCallback(NULL);
     g_AkaoTransfer = 0;
 }
 
-void AkaoSpuTransferPrep(void)
-{
+void AkaoSpuTransferPrep(void) {
     g_AkaoTransfer = 1;
     SpuSetTransferCallback(AkaoSpuTransferComplete);
 }
@@ -27,10 +24,8 @@ static void AkaoSpuRead(s32 addr, s32 size) {
     SpuRead(addr, size);
 }
 
-void AkaoSpuTransferSync(void)
-{
-    while (g_AkaoTransfer != 0)
-    {
+void AkaoSpuTransferSync(void) {
+    while (g_AkaoTransfer != 0) {
     }
 }
 
@@ -46,18 +41,17 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoLoadEffect);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoDeinit);
 
-
 // Key off the voices in g_AkaoStreamMask and clear the SPU transfer/IRQ callbacks.
-static void func_80029A50(void) {
+static void AkaoStreamStop(void) {
     SpuSetTransferCallback(0);
     SpuSetIRQ(0);
     SpuSetIRQCallback(0);
     SpuSetKey(0, g_AkaoStreamMask);
     if (g_AkaoStreamMask & 0x10000) {
-        D_80097768 = 0x1FF93;
+        D_80097768 = AKAO_UPDATE_SPU_ALL;
     }
     if (g_AkaoStreamMask & 0x20000) {
-        D_80097870 = 0x1FF93;
+        D_80097870 = AKAO_UPDATE_SPU_ALL;
     }
     g_AkaoStreamMask = 0;
     AkaoUpdateReverbVoices();
@@ -66,7 +60,7 @@ static void func_80029A50(void) {
 }
 
 static void SetReverbMode(s32 in_ReverbMode) {
-    func_80029A50();
+    AkaoStreamStop();
     SpuGetReverbModeParam(&g_ReverbAttr);
     if (g_ReverbAttr.mode != in_ReverbMode) {
         g_ReverbMode = in_ReverbMode;
@@ -290,7 +284,7 @@ void AkaoCmd_22(AkaoCommand* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(4, 3);
-    func_80029A50();
+    AkaoStreamStop();
     AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
     AkaoSoundChannelsInit(arg0->param0, 0x30, sp10, sp14);
     AkaoSoundGetSequence(&sp10, &sp14, arg0->param2);
@@ -303,7 +297,7 @@ void AkaoCmd_23(AkaoCommand* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(6, 4);
-    func_80029A50();
+    AkaoStreamStop();
     AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
     AkaoSoundChannelsInit(arg0->param0, 0x30, sp10, sp14);
     AkaoSoundGetSequence(&sp10, &sp14, arg0->param2);
@@ -342,7 +336,7 @@ void AkaoCmd_2A(AkaoCommand* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(0, 1);
-    func_80029A50();
+    AkaoStreamStop();
     AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
     AkaoSoundChannelsInit(arg0->param0, 0x30, sp10, sp14);
 }
@@ -361,8 +355,6 @@ void AkaoCmd_C0_VolumeSet(AkaoCommand* arg0) {
     AkaoMusicVolReset();
 }
 
-
-
 // Starts a volume slide from the current g_AkaoVolMulMusic toward a target
 // derived from arg0, over arg0's tick count.
 void AkaoCmd_C1_VolSlideFromCurr(AkaoVolSlideFromCurr* arg0) {
@@ -378,8 +370,6 @@ void AkaoCmd_C1_VolSlideFromCurr(AkaoVolSlideFromCurr* arg0) {
     g_AkaoVolMulMusicSlideStep = (((arg0->targetVol & 0x7F) << 0x10) - g_AkaoVolMulMusic) / var_a1;
     AkaoMusicVolReset();
 }
-
-
 
 // Starts a volume slide between two explicit targets from arg0 (rather than
 // from the current g_AkaoVolMulMusic), over arg0's tick count.
@@ -403,7 +393,6 @@ void AkaoCmd_C2_VolSlideBetweenTargets(AkaoVolSlideBetweenTargets* arg0) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_C8);
 
-
 // Starts a CD-audio volume slide from the current g_AkaoCdVol toward a
 // target derived from arg0, over arg0's tick count.
 void AkaoCmd_C9_CdVolSlideFromCurr(AkaoCdVolSlideFromCurr* arg0) {
@@ -418,8 +407,6 @@ void AkaoCmd_C9_CdVolSlideFromCurr(AkaoCdVolSlideFromCurr* arg0) {
     g_AkaoCdVolSlideSteps = var_a1;
     g_AkaoCdVolSlideStep = ((arg0->targetVol << 0x10) - g_AkaoCdVol.val) / var_a1;
 }
-
-
 
 // Starts a CD-audio volume slide between two explicit targets from arg0
 // (rather than from the current g_AkaoCdVol), over arg0's tick count.
@@ -610,8 +597,6 @@ void AkaoCmd_D0(AkaoTempoPitchSlide* arg0) {
     g_AkaoTempoMulMusic = n << 0x10;
 }
 
-
-
 // Starts a tempo slide toward a target derived from arg0, over arg0's tick
 // count.
 void AkaoCmd_D1_TempoSlideFromCurr(AkaoSlideFromCurr* arg0) {
@@ -652,8 +637,6 @@ void AkaoCmd_D4(AkaoTempoPitchSlide* arg0) {
     g_AkaoPitchMulMusicSlideSteps = 0;
     g_AkaoPitchMulMusic = n << 0x10;
 }
-
-
 
 // Starts a pitch slide from the current g_AkaoPitchMulMusic toward a
 // target derived from arg0, over arg0's tick count.
@@ -843,14 +826,10 @@ void AkaoCmd_9C_FlushPendingSoundUpdates(void) {
     g_AkaoControlFlags &= ~2;
 }
 
-
-
 static void AkaoCmd_E0_SetReverbPan(AkaoSetReverbPan* arg0) {
     g_AkaoReverbPan = arg0->pan & 0x7F;
     D_8009A13C |= 0x80;
 }
-
-
 
 static void AkaoCmd_E4_SetReverbMul(AkaoSetReverbMul* arg0) {
     u8 temp_v0;
@@ -902,7 +881,7 @@ static void AkaoCmd_F9_StreamReverbMaskRestore(void) {
     AkaoUpdateReverbVoices();
 }
 
-static void AkaoCmd_FA(void) { func_80029A50(); }
+static void AkaoCmd_FA(void) { AkaoStreamStop(); }
 
 void AkaoCmd_Null(AkaoCommand* arg0) {}
 
@@ -992,7 +971,7 @@ static void AkaoStreamIrqCallbackMono0(void) {
     }
     D_80063004 = 0;
     SpuSetIRQAddr(0x77000);
-    SpuSetIRQCallback(func_80029A50);
+    SpuSetIRQCallback(AkaoStreamStop);
     SpuSetIRQ(1);
 }
 
@@ -1021,7 +1000,7 @@ static void AkaoStreamIrqCallbackMono1(void) {
     }
     D_80063004 = 0;
     SpuSetIRQAddr(0x78000);
-    SpuSetIRQCallback(func_80029A50);
+    SpuSetIRQCallback(AkaoStreamStop);
     SpuSetIRQ(1);
 }
 
@@ -1049,7 +1028,7 @@ static void AkaoStreamIrqCallbackSplit0(void) {
     } else {
         D_80063004 = 0;
         SpuSetIRQAddr(0x77000);
-        SpuSetIRQCallback(func_80029A50);
+        SpuSetIRQCallback(AkaoStreamStop);
     }
     SpuSetIRQ(1);
 }
@@ -1076,7 +1055,7 @@ static void AkaoStreamIrqCallbackSplit1(void) {
     } else {
         D_80063004 = 0;
         SpuSetIRQAddr(0x78000);
-        SpuSetIRQCallback(func_80029A50);
+        SpuSetIRQCallback(AkaoStreamStop);
     }
     SpuSetIRQ(1);
 }
@@ -1245,9 +1224,7 @@ static void AkaoOp_A5_SetOctave(AkaoChannel* track) { track->octave = *track->ak
 
 static void AkaoOp_A6_IncOctave(AkaoChannel* track) { track->octave = (track->octave + 1) & 0xF; }
 
-static void AkaoOp_A7_DecOctave(AkaoChannel* track) {
-    track->octave = (track->octave + 0xFFFF) & 0xF;
-}
+static void AkaoOp_A7_DecOctave(AkaoChannel* track) { track->octave = (track->octave + 0xFFFF) & 0xF; }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_A1_LoadInstrument);
 
@@ -1255,9 +1232,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F2_LoadInstrument);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_B3_ResetAdsr);
 
-static void AkaoOp_C0_TransposeAbsolute(AkaoChannel* track) {
-    track->transpose = (s8)*track->akaoSequencePointer++;
-}
+static void AkaoOp_C0_TransposeAbsolute(AkaoChannel* track) { track->transpose = (s8)*track->akaoSequencePointer++; }
 
 static void AkaoOp_C1_TransposeRelative(AkaoChannel* track) {
     track->transpose = (s8)*track->akaoSequencePointer++ + track->transpose;
@@ -1279,9 +1254,7 @@ static void AkaoOp_DA_PortamentoOn(AkaoChannel* track) {
 
 static void AkaoOp_DB_PortamentoOff(AkaoChannel* track) { track->portamentoSteps = 0; }
 
-static void AkaoOp_D8_FineTuningAbsolute(AkaoChannel* track) {
-    track->fineTuning = (s8)*track->akaoSequencePointer++;
-}
+static void AkaoOp_D8_FineTuningAbsolute(AkaoChannel* track) { track->fineTuning = (s8)*track->akaoSequencePointer++; }
 
 static void AkaoOp_D9_FineTuningRelative(AkaoChannel* track) {
     track->fineTuning = (s8)*track->akaoSequencePointer++ + track->fineTuning;
@@ -1301,9 +1274,7 @@ static void AkaoOp_B6_VibratoOff(AkaoChannel* track) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_B8_Tremolo);
 
-static void AkaoOp_B9_TremoloDepth(AkaoChannel* track) {
-    track->tremoloDepth = *track->akaoSequencePointer++ << 8;
-}
+static void AkaoOp_B9_TremoloDepth(AkaoChannel* track) { track->tremoloDepth = *track->akaoSequencePointer++ << 8; }
 
 static void AkaoOp_DE_TremoloDepthSlideFromCurr(AkaoChannel* track) {
     u16 rate;
@@ -1506,7 +1477,9 @@ static void AkaoOp_EC_DrumModeOn(AkaoChannel* track, AkaoChannelConfig* config, 
     track->updateFlags |= 0x8;
 }
 
-static void AkaoOp_ED_DrumModeOff(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) { track->updateFlags &= ~0x8; }
+static void AkaoOp_ED_DrumModeOff(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
+    track->updateFlags &= ~0x8;
+}
 
 static void AkaoOp_FD_TimeSignature(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
     config->timerLower = *track->akaoSequencePointer++;
