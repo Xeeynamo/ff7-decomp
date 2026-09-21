@@ -826,8 +826,7 @@ static void func_800BB864(void) {
 static void func_800BB89C(void) {
     D_80163B80 = 0;
     D_800FA6B8 = 0;
-    D_8009A000 =
-        !(!(D_8016376A & 0x10) && !D_80083338) ? AKAO_CMD_PLAY_MUSIC : AKAO_CMD_PLAY_MUSIC_UNK14;
+    D_8009A000 = !(!(D_8016376A & 0x10) && !D_80083338) ? AKAO_CMD_PLAY_MUSIC : AKAO_CMD_PLAY_MUSIC_UNK14;
     D_8009A004 = (u_long)0x801D0000;
     AkaoExec();
 }
