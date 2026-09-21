@@ -3,7 +3,7 @@
 #include "akao.h"
 
 
-s16 g_AkaoTransfer;
+volatile s16 g_AkaoTransfer;
 
 void AkaoSpuTransferComplete(void)
 {
@@ -11,7 +11,11 @@ void AkaoSpuTransferComplete(void)
     g_AkaoTransfer = 0;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferPrep);
+void AkaoSpuTransferPrep(void)
+{
+    g_AkaoTransfer = 1;
+    SpuSetTransferCallback(AkaoSpuTransferComplete);
+}
 
 static void AkaoSpuWrite(s32 addr, s32 size) {
     AkaoSpuTransferPrep();
@@ -23,7 +27,12 @@ static void AkaoSpuRead(s32 addr, s32 size) {
     SpuRead(addr, size);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSpuTransferSync);
+void AkaoSpuTransferSync(void)
+{
+    while (g_AkaoTransfer != 0)
+    {
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoInitData);
 
