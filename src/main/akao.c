@@ -439,15 +439,15 @@ static void func_8002BCCC(void* arg0, void* arg1) {
     // match.
     do {
         val0 = *((u16*)((u8*)arg0 + 0x4));
-        v1 = voice[1].setFlags;
+        v1 = voice[1].voiceAttr.mask;
         voice[1].unk5E = 0;
         voice[0].unk5E = 0;
         voice[1].volumeMultiplier2 = (s16)((val0 & 0x7F) << 8);
     } while (0);
     voice[0].volumeMultiplier2 = (s16)((val0 & 0x7F) << 8);
-    v0_e0 = voice[0].setFlags;
-    voice[1].setFlags = v1 | 3;
-    voice[0].setFlags = v0_e0 | 3;
+    v0_e0 = voice[0].voiceAttr.mask;
+    voice[1].voiceAttr.mask = v1 | 3;
+    voice[0].voiceAttr.mask = v0_e0 | 3;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002BD04);
@@ -492,13 +492,13 @@ static void func_8002BFCC(void* arg0, void* arg1) {
     AkaoChannel* voice = (AkaoChannel*)arg1;
 
     temp_v0 = (*(u16*)((u8*)arg0 + 0x4) & 0x7F) << 8;
-    v1 = voice[1].setFlags;
+    v1 = voice[1].voiceAttr.mask;
     voice[1].setTo0_62 = 0;
     voice[0].setTo0_62 = 0;
     voice[1].baseVolumePan = temp_v0;
     voice[0].baseVolumePan = temp_v0;
-    voice[0].setFlags = voice[0].setFlags | 3;
-    voice[1].setFlags = (v1 | 3);
+    voice[0].voiceAttr.mask = voice[0].voiceAttr.mask | 3;
+    voice[1].voiceAttr.mask = (v1 | 3);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C004);
@@ -545,13 +545,13 @@ static void func_8002C2CC(void* arg0, void* arg1) {
     AkaoChannel* voice = (AkaoChannel*)arg1;
 
     temp_v0 = arg0_bytes[4] << 8;
-    temp_v1 = voice[1].setFlags;
+    temp_v1 = voice[1].voiceAttr.mask;
     voice[1].unk5A = 0;
     voice[0].unk5A = 0;
     voice[1].pitchModifier = temp_v0;
     voice[0].pitchModifier = temp_v0;
-    voice[0].setFlags = voice[0].setFlags | 0x10;
-    voice[1].setFlags = temp_v1 | 0x10;
+    voice[0].voiceAttr.mask = voice[0].voiceAttr.mask | 0x10;
+    voice[1].voiceAttr.mask = temp_v1 | 0x10;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002C300);
@@ -752,7 +752,7 @@ void AkaoCmd_9A_FlushPendingMusicUpdates(void) {
         do {
             if (pendingBits & bit) {
                 pendingBits ^= bit;
-                voice->setFlags |= SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
+                voice->voiceAttr.mask |= SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
             }
             bit *= 2;
             voice++;
@@ -814,7 +814,7 @@ void AkaoCmd_9C_FlushPendingSoundUpdates(void) {
         for (bit = 0x10000, half = &g_Channel3[0]; pendingBits != 0; bit *= 2, half++) {
             if (pendingBits & bit) {
                 pendingBits ^= bit;
-                half->setFlags |= SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
+                half->voiceAttr.mask |= SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
             }
         }
         savedMask = g_AkaoSoundActiveMaskStored;
@@ -1176,14 +1176,14 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_EB_ReverbDepthSlide);
 
 static void AkaoOp_A3_MasterVol(AkaoChannel* track) {
     track->volumeMultiplier = *track->akaoSequencePointer++;
-    track->setFlags |= 3;
+    track->voiceAttr.mask |= 3;
 }
 
 static void AkaoOp_A8_SetVol(AkaoChannel* track) {
     s32 val = (s8)*track->akaoSequencePointer++;
 
     track->initWith0_5C = 0;
-    track->setFlags |= 3;
+    track->voiceAttr.mask |= 3;
     track->volumeLevel = val << 0x17;
 }
 
@@ -1199,7 +1199,7 @@ static void AkaoOp_F6_OverlayVolBalance(AkaoChannel* track) {
     track->unk5E = 0;
     track->volumeMultiplier2 = val << 8;
     if (track->updateMirror & 0x100) {
-        track->setFlags |= 3;
+        track->voiceAttr.mask |= 3;
     }
 }
 
@@ -1208,7 +1208,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F7_OverlayVolBalanceSlide);
 static void AkaoOp_AA_SetPan(AkaoChannel* track) {
     track->baseVolumePan = *track->akaoSequencePointer++ << 8;
     track->setTo0_62 = 0;
-    track->setFlags |= 3;
+    track->voiceAttr.mask |= 3;
 }
 
 static void AkaoOp_AB_SetPanSlide(AkaoChannel* track) {
@@ -1280,7 +1280,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_DD_VibratoDepthSlide);
 static void AkaoOp_B6_VibratoOff(AkaoChannel* track) {
     track->pitchLfoValue = 0;
     track->updateMirror &= ~1;
-    track->setFlags |= 0x10;
+    track->voiceAttr.mask |= 0x10;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_B8_Tremolo);
@@ -1309,7 +1309,7 @@ static void AkaoOp_DE_TremoloDepthSlideFromCurr(AkaoChannel* track) {
 static void AkaoOp_BA_TremoloOff(AkaoChannel* track) {
     track->volumeLfoValue = 0;
     track->updateMirror &= ~2;
-    track->setFlags |= 3;
+    track->voiceAttr.mask |= 3;
 }
 
 static void AkaoOp_BC_SetPanLfo(AkaoChannel* track) {
@@ -1354,7 +1354,7 @@ static void AkaoOp_DF_PanLfoDepthSlideFromCurr(AkaoChannel* track) {
 static void AkaoOp_BE_PanLfoOff(AkaoChannel* track) {
     track->volumePanLfoValue = 0;
     track->updateMirror &= ~4;
-    track->setFlags |= 3;
+    track->voiceAttr.mask |= 3;
 }
 
 static void AkaoOp_C4_NoiseOn(AkaoChannel* track, AkaoConfig* config, u32 mask) {

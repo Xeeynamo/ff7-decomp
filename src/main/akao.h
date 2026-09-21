@@ -12,12 +12,31 @@ typedef union {
 } AkaoCdVol; /* size = 0x4 */
 
 typedef struct {
-    s32 opcode;
-    s8 start;
-    s8 pad5[3];
-    s32 steps;
-    s8 target;
+    /* 0x0 */ s32 opcode;
+    /* 0x4 */ s8 start;
+    /* 0x5 */ s8 pad5[3];
+    /* 0x8 */ s32 steps;
+    /* 0xC */ s8 target;
 } AkaoTempoPitchSlide;
+
+
+typedef struct {
+    /* 0x00 */ u32 voice_id;
+    /* 0x04 */ u32 mask;
+    /* 0x08 */ u32 addr;
+    /* 0x0C */ u32 loop_addr;
+    /* 0x10 */ s32 a_mode;
+    /* 0x14 */ s32 s_mode;
+    /* 0x18 */ s32 r_mode;
+    /* 0x1C */ u16 pitch;
+    /* 0x1E */ u16 ar;
+    /* 0x20 */ u16 dr;
+    /* 0x22 */ u16 sl;
+    /* 0x24 */ s16 sr;
+    /* 0x26 */ u16 rr;
+    /* 0x28 */ s16 vol_l;
+    /* 0x2A */ s16 vol_r;
+} AkaoVoiceAttr; /* size = 0x2C */
 
 // Field names cross-checked against the independent qgears reverse-engineering
 // project's AkaoChannel struct (same source as the g_Akao*SlideStep/Steps
@@ -94,9 +113,7 @@ typedef struct {
     /* 0xD6 */ s16 pitchLfoValue;
     /* 0xD8 */ s16 volumeLfoValue;
     /* 0xDA */ s16 volumePanLfoValue;
-    /* 0xDC */ s32 unkDC;
-    /* 0xE0 */ s32 setFlags;
-    /* 0xE4 */ u8 padE4[0x24];
+    /* 0xDC */ AkaoVoiceAttr voiceAttr;
 } AkaoChannel;
 
 typedef struct {
@@ -135,52 +152,47 @@ typedef struct {
 } AkaoCommand; // size:0x24
 
 typedef struct {
-    u32 opcode;
-    s32 steps;
-    s32 targetVol;
+    /* 0x0 */ u32 opcode;
+    /* 0x4 */ s32 steps;
+    /* 0x8 */ s32 targetVol;
 } AkaoVolSlideFromCurr;
 
-
 typedef struct {
-    u32 opcode;
-    s32 steps;
-    s32 startVol;
-    s32 targetVol;
+    /* 0x0 */ u32 opcode;
+    /* 0x4 */ s32 steps;
+    /* 0x8 */ s32 startVol;
+    /* 0xC */ s32 targetVol;
 } AkaoVolSlideBetweenTargets;
 
-
 typedef struct {
-    u32 opcode;
-    s32 steps;
-    u16 targetVol;
+    /* 0x0 */ u32 opcode;
+    /* 0x4 */ s32 steps;
+    /* 0x8 */ u16 targetVol;
 } AkaoCdVolSlideFromCurr;
 
-
 typedef struct {
-    u32 opcode;
-    s32 steps;
-    u16 startVol;
-    u16 padA;
-    u16 targetVol;
-    u16 padE;
+    /* 0x0 */ u32 opcode;
+    /* 0x4 */ s32 steps;
+    /* 0x8 */ u16 startVol;
+    /* 0xA */ u16 padA;
+    /* 0xC */ u16 targetVol;
+    /* 0xE */ u16 padE;
 } AkaoCdVolSlideBetweenTargets;
 
 typedef struct {
-    s32 opcode;
-    s32 steps;
-    s8 target;
+    /* 0x0 */ s32 opcode;
+    /* 0x4 */ s32 steps;
+    /* 0x8 */ s8 target;
 } AkaoSlideFromCurr;
 
-
-
 typedef struct {
-    u32 opcode;
-    u16 pan;
+    /* 0x0 */ u32 opcode;
+    /* 0x4 */ u16 pan;
 } AkaoSetReverbPan;
 
 typedef struct {
-    u32 opcode;
-    u8 mul;
+    /* 0x0 */ u32 opcode;
+    /* 0x4 */ u8 mul;
 } AkaoSetReverbMul;
 
 extern void (*D_80049548[])(AkaoCommand*);
