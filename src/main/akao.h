@@ -5,12 +5,13 @@
 #define AKAO_PAN_LEFT 0x00
 #define AKAO_PAN_CENTER 0x40
 #define AKAO_PAN_RIGHT 0x7F
+#define AKAO_PAN_MAX 0x7F
+#define AKAO_VOL_MAX 0x7F
 
 #define AKAO_SFX_SLOT_0 0x30
 #define AKAO_SFX_SLOT_1 0x32
 #define AKAO_SFX_SLOT_2 0x34
 #define AKAO_SFX_SLOT_3 0x36
-
 
 #define AKAO_MUSIC 0x0
 #define AKAO_SOUND 0x1
@@ -22,6 +23,11 @@
 
 #define AKAO_SFX_LEGATO 0x1
 #define AKAO_SFX_FULL_LENGTH 0x4
+
+#define AKAO_CONTROL_PAUSE_MUSIC_UPDATE 0x001
+#define AKAO_CONTROL_PAUSE_SOUND_UPDATE 0x002
+#define AKAO_CONTROL_REVERB_ENABLE 0x010
+#define AKAO_CONTROL_SOUND_STATE_SAVED 0x100
 
 #define AKAO_UPDATE_SPU_VOICE (SPU_VOICE_VOLL | SPU_VOICE_VOLR)
 #define AKAO_UPDATE_SPU_ADSR                                                                                           \
@@ -39,8 +45,12 @@
 #define AKAO_UPDATE_DRUM_MODE 0x8
 #define AKAO_UPDATE_SIDE_CHAIN_PITCH 0x10
 #define AKAO_UPDATE_SIDE_CHAIN_VOL 0x20
+#define AKAO_UPDATE_REVERB_DEPTH 0x80
 #define AKAO_UPDATE_OVERLAY 0x100
 #define AKAO_UPDATE_ALTERNATIVE 0x200
+#define AKAO_UPDATE_LFO_MASK                                                                                           \
+    (AKAO_UPDATE_VIBRATO | AKAO_UPDATE_TREMOLO | AKAO_UPDATE_PAN_LFO | AKAO_UPDATE_SIDE_CHAIN_PITCH |                  \
+     AKAO_UPDATE_SIDE_CHAIN_VOL)
 
 #define AKAO_UPDATE_NOISE_CLOCK 0x10
 #define AKAO_UPDATE_REVERB 0x80
