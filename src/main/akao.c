@@ -328,19 +328,22 @@ void AkaoCmd_22_PlayThreeSounds(AkaoCommand* cmd) {
     AkaoSoundChannelsInit(cmd->param0, AKAO_SFX_SLOT_2, seq0, seq1);
 }
 
-void AkaoCmd_23(AkaoCommand* arg0) {
-    s32 sp10, sp14;
+// Clears sound channels for 4 voices starting at voice 6 (SFX slots 0 through 3),
+// stops streaming audio, then resolves and initializes four sound effect sequences
+// with the requested pan.
+void AkaoCmd_23_PlayFourSounds(AkaoCommand* cmd) {
+    s32 seq0, seq1;
 
     AkaoSoundChannelsClear(6, 4);
     AkaoStreamStop();
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
-    AkaoSoundChannelsInit(arg0->param0, 0x30, sp10, sp14);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->param2);
-    AkaoSoundChannelsInit(arg0->param0, 0x32, sp10, sp14);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->param3);
-    AkaoSoundChannelsInit(arg0->param0, 0x34, sp10, sp14);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->param4);
-    AkaoSoundChannelsInit(arg0->param0, 0x36, sp10, sp14);
+    AkaoSoundGetSequence(&seq0, &seq1, cmd->param1);
+    AkaoSoundChannelsInit(cmd->param0, AKAO_SFX_SLOT_0, seq0, seq1);
+    AkaoSoundGetSequence(&seq0, &seq1, cmd->param2);
+    AkaoSoundChannelsInit(cmd->param0, AKAO_SFX_SLOT_1, seq0, seq1);
+    AkaoSoundGetSequence(&seq0, &seq1, cmd->param3);
+    AkaoSoundChannelsInit(cmd->param0, AKAO_SFX_SLOT_2, seq0, seq1);
+    AkaoSoundGetSequence(&seq0, &seq1, cmd->param4);
+    AkaoSoundChannelsInit(cmd->param0, AKAO_SFX_SLOT_3, seq0, seq1);
 }
 
 void AkaoCmd_30(AkaoCommand* arg0) {

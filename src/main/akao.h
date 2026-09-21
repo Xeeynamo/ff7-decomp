@@ -413,8 +413,8 @@ void AkaoCmd_18_FadePlayMusic(AkaoCommand* cmd);
 void AkaoCmd_19_FadePlayMusicSaveCurrent(AkaoCommand* cmd);
 void AkaoCmd_20(AkaoCommand* arg0);
 void AkaoCmd_21_PlayTwoSounds(AkaoCommand* cmd);
-void AkaoCmd_22_PlayThreeSounds(AkaoCommand* arg0);
-void AkaoCmd_23(AkaoCommand* arg0);
+void AkaoCmd_22_PlayThreeSounds(AkaoCommand* cmd);
+void AkaoCmd_23_PlayFourSounds(AkaoCommand* cmd);
 void AkaoCmd_29(AkaoCommand* arg0);
 void AkaoCmd_2A(AkaoCommand* arg0);
 void AkaoCmd_2B(AkaoCommand* arg0);
@@ -607,7 +607,7 @@ void (*D_80049548[0x100])() = {
     AkaoCmd_20,
     AkaoCmd_21_PlayTwoSounds,
     AkaoCmd_22_PlayThreeSounds,
-    AkaoCmd_23,
+    AkaoCmd_23_PlayFourSounds,
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
