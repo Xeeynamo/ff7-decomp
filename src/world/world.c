@@ -2277,7 +2277,6 @@ static void func_800AB570(void) {
 }
 
 void WmScriptInitVariables(WorldScriptData* data) {
-    u8* p;
     s32 i;
 
     D_8010AD68 = data;
@@ -2289,8 +2288,8 @@ void WmScriptInitVariables(WorldScriptData* data) {
     D_8010ADF0 = 0;
     D_8010ADEC = 0;
     D_8010ADE8 = 0;
-    for (i = 63, p = &D_8010ADA4[63]; i >= 0; i--) {
-        *p-- = 0;
+    for (i = 0; i < 64; i++) {
+        D_8010ADA4[i] = 0;
     }
     for (i = 0; i < 3; i++) {
         D_8010ADF4[i].vx = D_8010ADF4[i].vy = D_8010ADF4[i].vz = 0;
@@ -4368,7 +4367,7 @@ void WmReadSavemap(s32* arg0, s32* arg1, s32 arg2) {
     func_800A7E8C(*(u16*)&Savemap.memory_bank_4[0xB6]);
     WmInitAllEntityStructs(&Savemap.memory_bank_4[0xB8]);
     if (arg2 != 0) {
-        *(u16*)&Savemap.memory_bank_1[0x1E] &= 0xFCFF;
+        *(u16*)&Savemap.memory_bank_1[0x1E] &= ~0x300;
     } else {
         WmSnowReset(Savemap.memory_bank_4[0xFB]);
         if (D_8011626C == 1) {
@@ -4738,24 +4737,25 @@ void WmDialogUpdate(void) {
     s32 prev;
     s32 prev2;
 
-    if (g_WindowData[0].state != WSTATE_INIT) {
-        keys = InputReadPads();
-        fs = g_pFieldState;
-        prev = fs->activeKeysRaw;
-        fs->activeKeysRaw = keys;
-        fs->pressedKeysRaw = keys & ~prev;
-        keys = InputReadPads();
-        fs = g_pFieldState;
-        prev2 = fs->activeKeys;
-        fs->activeKeys = keys;
-        fs->pressedKeys = keys & ~prev2;
-        if (D_80116288 || D_8011628C) {
-            WmDialogSetAskToShow(0, 0, D_80116288, D_8011628C, &D_80116290);
-        } else {
-            WmDialogSetMessageToShow(0, 0);
-        }
-        SystemMenuDrawDialog(g_WindowData, 1, D_800BD130, WmGetCurrRenderBufferId() == 0);
+    if (g_WindowData[0].state == WSTATE_INIT) {
+        return;
     }
+    keys = InputReadPads();
+    fs = g_pFieldState;
+    prev = fs->activeKeysRaw;
+    fs->activeKeysRaw = keys;
+    fs->pressedKeysRaw = keys & ~prev;
+    keys = InputReadPads();
+    fs = g_pFieldState;
+    prev2 = fs->activeKeys;
+    fs->activeKeys = keys;
+    fs->pressedKeys = keys & ~prev2;
+    if (D_80116288 || D_8011628C) {
+        WmDialogSetAskToShow(0, 0, D_80116288, D_8011628C, &D_80116290);
+    } else {
+        WmDialogSetMessageToShow(0, 0);
+    }
+    SystemMenuDrawDialog(g_WindowData, 1, D_800BD130, WmGetCurrRenderBufferId() == 0);
 }
 
 extern s16 D_80116290;
