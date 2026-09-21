@@ -1438,7 +1438,46 @@ static void BattleResolveCaitSithSlotsResult(void) {
 const u8 D_800A0398[] = {0x64, 0x14, 0x14, 0x14, 0xEC, 0xCE, 0xCE, 0x00};
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A9DA0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA1C8);
+static void BattleAddStatMult(s32 unitId, s32 deltaPct, s32 statMask);
+
+// attack additional-effect handler for Vincent's transformation Limits; the effect modifier (unkC0) picks the form
+void BattleApplyVincentLimitTransform(void) {
+    s32 unitId;
+
+    unitId = g_CurrentAction->actorId;
+    g_BattleState.combatant[unitId].stateFlags |= 0x10;
+    g_BattleState.combatant[unitId].status &= ~(STATUS_CONFU | STATUS_FROG | STATUS_BERSERK);
+    g_BattleWork.turn[unitId].turnFlags |= 8;
+    BattleAddBattleActionToBattleQueue(unitId, 0, -1, 0, 0);
+    D_800F83AB[0] = g_CurrentAction->unkC0;
+    switch (g_CurrentAction->unkC0) {
+    case 0: // Lvl 1. Galian Beast
+        BattleAddStatMult(unitId, 0x14, 0x10);
+        BattleAddStatMult(unitId, 0x32, 0x20);
+        g_BattleState.combatant[unitId].maxHP = g_BattleState.combatant[unitId].maxHP * 13 / 10;
+        break;
+    case 1: // Lvl 2. Death Gigas
+        BattleAddStatMult(unitId, 0x32, 4);
+        BattleAddStatMult(unitId, -0x46, 8);
+        BattleAddStatMult(unitId, -0x14, 0x20);
+        g_BattleState.combatant[unitId].maxHP *= 2;
+        break;
+    case 2: // Lvl 3. Hellmasker
+        BattleAddStatMult(unitId, 0x32, 4);
+        BattleAddStatMult(unitId, 0x32, 0x10);
+        break;
+    case 3: // Lvl 4. Chaos
+        BattleAddStatMult(unitId, 0x64, 4);
+        BattleAddStatMult(unitId, 0x64, 8);
+        break;
+    }
+    if (g_BattleState.combatant[unitId].maxHP > g_BattleWork.party[unitId].capHP) {
+        g_BattleState.combatant[unitId].maxHP = g_BattleWork.party[unitId].capHP;
+    }
+    g_BattleState.combatant[unitId].curHP = g_BattleState.combatant[unitId].maxHP;
+    BattleRecalcUnitSpeed(unitId);
+    BattleQueueEvent(2, unitId, 0x18, 1);
+}
 
 static s32 func_800B10B4(s32 arg0);
 
@@ -2634,15 +2673,16 @@ static s32 func_800B1218(s32 arg0, s32 arg1, s32 arg2) {
     return arg1 + ((arg1 * p[arg2]) / 100);
 }
 
-static void func_800B1268(s32 arg0, s32 arg1, s32 arg2) {
+// adds deltaPct to each stat multiplier selected by statMask (bit i = i-th s8 from physAtkMult), clamped to +-100
+static void BattleAddStatMult(s32 unitId, s32 deltaPct, s32 statMask) {
     s32 i;
     s8* p;
 
     i = 0;
-    p = (s8*)&g_BattleWork.turn[arg0].physAtkMult;
+    p = (s8*)&g_BattleWork.turn[unitId].physAtkMult;
     for (; i < 8; i++, p++) {
-        if ((arg2 >> i) & 1) {
-            s32 value = *p + arg1;
+        if ((statMask >> i) & 1) {
+            s32 value = *p + deltaPct;
 
             if (value > 100) {
                 value = 100;

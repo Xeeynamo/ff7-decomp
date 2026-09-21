@@ -81,6 +81,8 @@ typedef struct {
     // condition/status bitmask; see BattleStatusFlags above for the bits
     // confirmed live here
     /* 0x00 */ s32 status;
+    // 0x10 = Limit transformation active (set by BattleApplyVincentLimitTransform),
+    // 0x20 = defending, 0x40 = back row
     /* 0x04 */ u32 stateFlags;
     /* 0x08 */ s8 actorId;
     /* 0x09 */ u8 level;
