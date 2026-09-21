@@ -335,7 +335,7 @@ extern s32 D_80083334;
 extern u16 D_8008337E;
 extern s32 D_80083394;
 extern u16 D_800833DE;
-extern s32 D_80083580[];
+extern s32 g_AkaoMusicBuffer[];
 extern AkaoChannel g_Channel1[];
 extern AkaoChannel g_Channel2[];
 extern s32 D_80097768;

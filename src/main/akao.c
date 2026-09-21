@@ -71,50 +71,51 @@ static void SetReverbMode(s32 in_ReverbMode) {
     }
 }
 
-// Word-copies (arg1 >> 2) words from arg0 into staging buffer D_80083580.
-static void AkaoCopyMusic(s32* arg0, u32 arg1) {
+// Word-copies (size >> 2) words from src into music staging buffer g_AkaoMusicBuffer.
+static void AkaoCopyMusic(s32* src, u32 size) {
     s32* dst;
     u32 nwords;
 
-    nwords = arg1 >> 2;
-    dst = D_80083580;
+    nwords = size >> 2;
+    dst = g_AkaoMusicBuffer;
     while (nwords != 0) {
         nwords -= 1;
-        *dst = *arg0;
-        arg0 += 1;
+        *dst = *src;
+        src += 1;
         dst += 1;
     }
 }
 
 void AkaoInstrInit(AkaoChannel*, s32);
 
-static void SoundChannelInit(AkaoChannel* arg0, u8* arg1) {
-    arg0->akaoSequencePointer = arg1;
-    arg0->volumeMultiplier = 0x78;
-    AkaoInstrInit(arg0, 5);
-    arg0->octave = 2;
-    arg0->fineTuning = 0;
-    arg0->transpose = 0;
-    arg0->portamentoSteps = 0;
-    arg0->pitchSlide = 0;
-    arg0->keyAdd = 0;
-    arg0->lengthFixed = 0;
-    arg0->lengthStored = 0;
-    arg0->pitchSlideStepsCur = 0;
-    arg0->volumeLevel = 0x32000000;
-    arg0->volSlideSteps = 0;
-    arg0->updateFlags = 0;
-    arg0->loopId = 0;
-    arg0->sfxMask = 0;
-    arg0->panLfoVol = 0;
-    arg0->panLfoDepth = 0;
-    arg0->tremoloDepth = 0;
-    arg0->vibratoDepth = 0;
-    arg0->panLfoDepthSlideSteps = 0;
-    arg0->tremoloDepthSlideSteps = 0;
-    arg0->vibratoDepthSlideSteps = 0;
-    arg0->pitchLfoSwitchDelay = 0;
-    arg0->noiseSwitchDelay = 0;
+// Resets and initializes sound effect channel parameters, pointing to seqData with default volume and instrument 5.
+static void SoundChannelInit(AkaoChannel* channel, u8* seqData) {
+    channel->akaoSequencePointer = seqData;
+    channel->volumeMultiplier = 0x78;
+    AkaoInstrInit(channel, 5);
+    channel->octave = 2;
+    channel->fineTuning = 0;
+    channel->transpose = 0;
+    channel->portamentoSteps = 0;
+    channel->pitchSlide = 0;
+    channel->keyAdd = 0;
+    channel->lengthFixed = 0;
+    channel->lengthStored = 0;
+    channel->pitchSlideStepsCur = 0;
+    channel->volumeLevel = 0x32000000;
+    channel->volSlideSteps = 0;
+    channel->updateFlags = 0;
+    channel->loopId = 0;
+    channel->sfxMask = 0;
+    channel->panLfoVol = 0;
+    channel->panLfoDepth = 0;
+    channel->tremoloDepth = 0;
+    channel->vibratoDepth = 0;
+    channel->panLfoDepthSlideSteps = 0;
+    channel->tremoloDepthSlideSteps = 0;
+    channel->vibratoDepthSlideSteps = 0;
+    channel->pitchLfoSwitchDelay = 0;
+    channel->noiseSwitchDelay = 0;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicChannelsInit);

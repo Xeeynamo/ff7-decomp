@@ -1105,6 +1105,7 @@ g_WindowToEntity = 0x8008326C;
 g_WindowData = 0x80083274;
 g_FieldScriptSyncState = 0x800833F8; // size:0x180
 g_FieldModelLoaderData = 0x8008357C; // size:0x4
+g_AkaoMusicBuffer = 0x80083580;
 g_FieldLineCount = 0x80095D84;
 g_RandomTableIndex = 0x80095DC8; // size:0x4
 g_FieldPreloadMapId = 0x80095DD0; // size:0x4
