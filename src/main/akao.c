@@ -47,10 +47,10 @@ static void AkaoStreamStop(void) {
     SpuSetIRQCallback(0);
     SpuSetKey(0, g_AkaoStreamMask);
     if (g_AkaoStreamMask & 0x10000) {
-        D_80097768 = AKAO_UPDATE_SPU_ALL;
+        g_AkaoStreamVoice16UpdateMask = AKAO_UPDATE_SPU_ALL;
     }
     if (g_AkaoStreamMask & 0x20000) {
-        D_80097870 = AKAO_UPDATE_SPU_ALL;
+        g_AkaoStreamVoice17UpdateMask = AKAO_UPDATE_SPU_ALL;
     }
     g_AkaoStreamMask = 0;
     AkaoUpdateReverbVoices();
@@ -837,7 +837,7 @@ void AkaoCmd_9D_ApplyPendingSoundUpdates(void) {
     savedMask = newMask;
     if (newMask != 0) {
         bit = 0x10000;
-        if (D_80099E0C == 2) {
+        if (g_AkaoSoundChannelsMode == AKAO_MONO) {
             newMask &= ~((1 << 22) | (1 << 23));
         }
         g_AkaoSoundActiveMaskStored = newMask;
@@ -886,7 +886,7 @@ void AkaoCmd_9C_FlushPendingSoundUpdates(void) {
 
 static void AkaoCmd_E0_SetReverbPan(AkaoSetReverbPan* cmd) {
     g_AkaoReverbPan = cmd->pan & AKAO_PAN_MAX;
-    D_8009A13C |= AKAO_UPDATE_REVERB;
+    g_AkaoGlobalUpdateFlags |= AKAO_UPDATE_REVERB;
 }
 
 static void AkaoCmd_E4_SetReverbMul(AkaoSetReverbMul* cmd) {
@@ -904,7 +904,7 @@ static void AkaoCmd_E4_SetReverbMul(AkaoSetReverbMul* cmd) {
     }
     g_AkaoControlFlags = flags;
     AkaoUpdateReverbVoices();
-    D_8009A13C |= AKAO_UPDATE_REVERB;
+    g_AkaoGlobalUpdateFlags |= AKAO_UPDATE_REVERB;
 }
 
 static void AkaoCmd_F2_ClearSavedMusic0(void) { g_AkaoSavedMusicId0 = 0; }
@@ -1415,7 +1415,7 @@ static void AkaoOp_C4_NoiseOn(AkaoChannel* track, AkaoChannelConfig* config, u32
     } else {
         g_AkaoNoiseMask |= mask;
     }
-    D_8009A13C |= AKAO_UPDATE_NOISE_CLOCK;
+    g_AkaoGlobalUpdateFlags |= AKAO_UPDATE_NOISE_CLOCK;
     AkaoUpdateNoiseVoices();
 }
 
@@ -1425,7 +1425,7 @@ static void AkaoOp_C5_NoiseOff(AkaoChannel* track, AkaoChannelConfig* config, u3
     } else {
         g_AkaoNoiseMask &= ~mask;
     }
-    D_8009A13C |= AKAO_UPDATE_NOISE_CLOCK;
+    g_AkaoGlobalUpdateFlags |= AKAO_UPDATE_NOISE_CLOCK;
     AkaoUpdateNoiseVoices();
     track->noiseSwitchDelay = 0;
 }

@@ -230,8 +230,8 @@ typedef struct {
 
 typedef struct {
     /* 0x0 */ u8 opcode;
-    /* 0x1 */ u8 unk1;
-    /* 0x2 */ s16 unk2;
+    /* 0x1 */ u8 pad1;
+    /* 0x2 */ u16 pad2;
     /* 0x4 */ s32 param0;
     /* 0x8 */ s32 param1;
     /* 0xC */ u16 param2;
@@ -289,7 +289,7 @@ typedef struct {
 
 typedef void (*AkaoCommandHandler)();
 extern AkaoCommandHandler g_AkaoCommandHandler[0x100];
-extern u8 D_80049948[0x60];
+extern u8 g_AkaoOpcodeParamLength[0x60];
 extern u8 g_AkaoOpcodeSize[0x100]; // opcode lengths
 extern void (*g_AkaoOpcodeHandler[96])();
 extern u16 g_AkaoLengthTable[14];
@@ -337,7 +337,6 @@ extern s32 g_AkaoControlFlags;
 extern u8* g_AkaoStreamLoopSrc;
 extern u32 g_AkaoStreamRemainingBytes;
 extern s32 g_AkaoCommandQueueId; // sound message queue count
-extern u8 D_800716CC;
 extern AkaoInstrument g_AkaoInstrument[];
 extern u8 g_AkaoVoiceAttr[];
 extern u16 g_AkaoMusicFadeSteps; // music fade/transition steps (default 0x10)
@@ -365,11 +364,11 @@ extern u16 g_AkaoSavedMusicId1;
 extern s32 g_AkaoMusicBuffer[];
 extern AkaoChannel g_Channel1[];
 extern AkaoChannel g_Channel2[];
-extern s32 D_80097768;
-extern s32 D_80097870;
+extern s32 g_AkaoStreamVoice16UpdateMask;
+extern s32 g_AkaoStreamVoice17UpdateMask;
 extern AkaoSoundSlot g_AkaoSoundSlots[];
 extern u16 g_Channel3NoiseClock;
-extern u16 D_80099E0C;
+extern u16 g_AkaoSoundChannelsMode;
 extern s32 g_Channel3ActiveMask[];
 extern s32 g_Channel3OffMask;
 extern s32 g_AkaoSoundActiveMaskStored;
@@ -386,32 +385,21 @@ extern s32 g_AkaoMusicOffMask;
 extern s32 g_AkaoMusicActiveMaskStored;
 extern s32 g_AkaoMusicOverMask;
 extern s32 g_AkaoMusicAltMask;
-extern s32 D_8009A13C;
+extern s32 g_AkaoGlobalUpdateFlags;
 extern u32 g_ReverbMode;
 extern SpuReverbAttr g_ReverbAttr;
 extern SpuCommonAttr g_SpuCommonAttr;
 
 typedef struct {
-    s32 unk0;
-    s32 unk4;
-    s16 unk8;
+    s32 pitchSlide;
+    s32 volSlide;
+    s16 currentKey;
     s16 padA;
 } AkaoVoiceWork;
 extern AkaoVoiceWork D_8009C5A0[24];
 
 extern s32 D_80083338;
 extern s32 D_80083398;
-extern s32 D_8009A130;
-extern s32 D_8009A134;
-extern s32 D_8009A138;
-extern s32 D_8009A144;
-extern s16 D_8009A154;
-extern s16 D_8009A15A;
-extern s16 D_8009A15C;
-extern s16 D_8009A15E;
-extern s16 D_8009A162;
-extern s32 D_8009A168;
-extern s16 D_8009A1AE;
 extern s32 g_Channel3OnMask;
 extern s32 g_Channel3KeyedMask;
 extern s32 g_Channel3Tempo;
@@ -846,7 +834,7 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
 };
 
-u8 D_80049948[0x60] = {
+u8 g_AkaoOpcodeParamLength[0x60] = {
     0x00, 0x02, 0x02, 0x02, 0x03, 0x02, 0x01, 0x01, 0x02, 0x03, 0x02, 0x03, 0x02, 0x02, 0x02, 0x02,
     0x03, 0x02, 0x02, 0x01, 0x04, 0x02, 0x01, 0x02, 0x04, 0x02, 0x01, 0x02, 0x03, 0x02, 0x01, 0x02,
     0x02, 0x02, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x02,
