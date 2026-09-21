@@ -231,7 +231,8 @@ void AkaoCmd_10_PlayMusic(AkaoCommand* cmd) {
     AkaoCopyMusic((s32*)cmd->param0, cmd->param1);
     if (g_AkaoMusicId == MUSIC_TA) {
         AkaoMusicSyncKeyStatus();
-        AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels1, &g_Channel1Config, &g_AkaoSavedChannelConfig1);
+        AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels1, (AkaoChannelConfig*)&g_Channel1Config,
+                                       (AkaoChannelConfig*)&g_AkaoSavedChannelConfig1);
     }
     AkaoMusicStopChannels1();
     if (g_AkaoSavedMusicId0 && g_AkaoSavedMusicId0 == cmd->param2) {
@@ -252,12 +253,14 @@ void AkaoCmd_14_PlayMusicSaveCurrent(AkaoCommand* cmd) {
 
     AkaoCopyMusic((s32*)cmd->param0, cmd->param1);
     AkaoMusicSyncKeyStatus();
-    channelConfig = &g_Channel1Config;
+    channelConfig = (AkaoChannelConfig*)&g_Channel1Config;
     if (g_AkaoMusicId) {
         if (g_AkaoMusicId == MUSIC_TA) {
-            AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels1, channelConfig, &g_AkaoSavedChannelConfig1);
+            AkaoMusicCopyChannelsAndConfig(
+                g_Channel1, g_AkaoSavedChannels1, channelConfig, (AkaoChannelConfig*)&g_AkaoSavedChannelConfig1);
         } else {
-            AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels0, channelConfig, &g_AkaoSavedChannelConfig0);
+            AkaoMusicCopyChannelsAndConfig(
+                g_Channel1, g_AkaoSavedChannels0, channelConfig, (AkaoChannelConfig*)&g_AkaoSavedChannelConfig0);
         }
     }
     AkaoMusicStopChannels1();
@@ -759,7 +762,7 @@ static void AkaoCmd_F0_StopMusic(void) { AkaoMusicStopChannels12(); }
 static void AkaoCmd_F1_StopAllSounds(void) { AkaoSoundChannelsStop(); }
 
 static void AkaoCmd_80_ClearSoundReverb(void) {
-    g_Channel1Config.stereoMono = AKAO_STEREO;
+    g_Channel1Config = AKAO_STEREO;
     AkaoMusicVolReset();
     AkaoSoundVolReset();
 }
@@ -767,7 +770,7 @@ static void AkaoCmd_80_ClearSoundReverb(void) {
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_82_ResetMusicAndSoundVol);
 
 static void AkaoCmd_81_SetMonoMode(void) {
-    g_Channel1Config.stereoMono = AKAO_MONO;
+    g_Channel1Config = AKAO_MONO;
     AkaoMusicVolReset();
     AkaoSoundVolReset();
 }
