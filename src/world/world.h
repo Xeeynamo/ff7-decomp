@@ -61,7 +61,7 @@ typedef struct WorldActor {
     /* 0x1C */ VECTOR altPos;
     /* 0x2C */ WorldScriptFrame scriptStack[3]; // may be [4]?
     /* 0x38 */ s32 unk38;
-    /* 0x3C */ u16 unk3C;
+    /* 0x3C */ s16 unk3C;
     /* 0x3E */ u16 unk3E;
     /* 0x40 */ s16 direction;
     /* 0x42 */ s16 unk42;
@@ -86,7 +86,7 @@ typedef struct WorldActor {
     /* 0x5E */ s8 unk5E;
     /* 0x5F */ s8 unk5F;
     /* 0x60 */ WorldStoredTriangle storedTris[6];
-    /* 0x90 */ u8 unk90[0x50];
+    /* 0x90 */ POLY_FT4 prims[2];
 } WorldActor; // size: 0xE0
 
 typedef struct {
@@ -198,7 +198,7 @@ s32 WmDialogSetAskToShow(u8, u8, u8, u8, s16*);
 void func_800B1C80(WorldChunkHeader*);
 void ResetEffectState();
 s32 func_800AA8F8(s32, s32);
-void func_800B59F4(s32, s32, s16, s16, POLY_FT4*, s32);
+void func_800B59F4(s16, s16, s16, s16, POLY_FT4*, s32);
 void func_800B5C7C(WorldActor*);
 void* WmGetModelDataByModelId(s16);
 s32 WmGetModelTotalRenderPacketSize(FieldModelEntry*);
@@ -229,12 +229,14 @@ s32 func_800BBBB0(void);
 static void func_800BBD0C(void);
 
 extern u32* D_800BD130;
+extern s32 D_800BD134;
+extern s32 D_800BD138;
 extern s32 D_800BD144;
 extern u16 D_800BD9E8[16][4][16]; // world map encounter data, size: 0x800
-extern s16 D_800BE1E8[512];
+extern u16 D_800BE1E8[512];
 extern s32 D_800C65EC;
-extern s32 D_800C6628;
-extern s32 D_800C6638;
+extern s32 D_800C6628[];
+extern s32 D_800C6638[];
 extern CVECTOR D_800C6768;
 extern CVECTOR D_800C676C;
 extern POLY_G4 D_800C6770[1];
@@ -242,6 +244,7 @@ extern SVECTOR D_800C70DC[];
 extern u8 D_800C7114[][32];
 extern u8 D_800C72B4[16][4]; // size: 0x40
 extern u8 D_800C72F4[16];    // yuffie spawn chances per area, size: 0x10
+extern s32 D_800C74E4[][2];
 extern s8 D_800C752D;
 extern u32* D_800C7530;
 extern s32 D_800D05E8;
@@ -302,7 +305,7 @@ extern WorldActor* D_8010AD3C; // Active Actor
 extern WorldActor* D_8010AD40; // Player Actor
 extern WorldActor* D_8010ADE4; // World current script context object?
 // 8010ADF4 appears to maybe only be read from in an unused world script opcode
-extern s32 D_8010ADF4;
+extern VECTOR D_8010ADF4[3];
 extern s32 D_8010ADE8;
 extern s16 D_8010AD44;
 extern s16 D_8010AD48;
@@ -316,6 +319,7 @@ extern u16* D_8010AD6C;
 extern Unk8010AD70 D_8010AD70[1]; // todo: size
 extern Unk8010AD70* D_8010AD90;
 extern u8* D_8010AD94[4];
+extern u8 D_8010ADA4[64];
 extern s32 D_8010ADEC;
 extern s16 D_8010ADF0;
 extern s32 D_8010AE24;
@@ -394,6 +398,7 @@ extern s32 D_80115A68;
 typedef struct WorldListNode {
     /* 0x0 */ struct WorldListNode* next;
     /* 0x4 */ s16 unk4;
+    /* 0x6 */ s16 unk6;
 } WorldListNode;
 
 typedef struct {
