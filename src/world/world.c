@@ -3523,7 +3523,7 @@ static void* WmGetSkyboxOverlayCurrTextureSettingBuffer(void) { return (WmGetCur
 
 static s32 func_800AE628(void) { return D_8010B080; }
 
-void WmUpdateSkyboxOverlayVertexes(s32 angle) {
+void WmUpdateSkyboxOverlayVertexes(s16 angle) {
     SVECTOR v;
     SVECTOR rot;
     VECTOR out;
