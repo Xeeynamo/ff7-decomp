@@ -38,6 +38,20 @@ typedef struct {
     /* 0x2A */ s16 vol_r;
 } AkaoVoiceAttr; /* size = 0x2C */
 
+typedef struct {
+    /* 0x00 */ u32 addr;
+    /* 0x04 */ u32 loopAddr;
+    /* 0x08 */ u8 ar;
+    /* 0x09 */ u8 dr;
+    /* 0x0A */ u8 sl;
+    /* 0x0B */ s8 sr;
+    /* 0x0C */ u8 rr;
+    /* 0x0D */ u8 aMode;
+    /* 0x0E */ u8 sMode;
+    /* 0x0F */ u8 rMode;
+    /* 0x10 */ s32 pitch[12];
+} AkaoInstrument; // size: 0x40
+
 // Field names cross-checked against the independent qgears reverse-engineering
 // project's AkaoChannel struct (same source as the g_Akao*SlideStep/Steps
 // naming above): https://github.com/Akari1982/q-gears_reverse,
@@ -256,6 +270,7 @@ extern s32 D_80063000;
 extern u32 D_80063004;
 extern s32 g_AkaoCommandQueueId; // sound message queue count
 extern u8 D_800716CC;
+extern AkaoInstrument g_AkaoInstrument[];
 extern u8 g_AkaoVoiceAttr[];
 extern s32 g_AkaoVoiceAttrMask;
 extern s32 D_8007EBEC;
