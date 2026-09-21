@@ -123,70 +123,65 @@ typedef struct {
     /* 0x0 */ u8 opcode;
     /* 0x1 */ u8 unk1;
     /* 0x2 */ s16 unk2;
-    /* 0x4 */ s32 unk4;
-    /* 0x8 */ s32 unk8;
-    /* 0xC */ u16 unkC;
-    /* 0xE */ u16 unkE;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ s32 unk14;
-    /* 0x18 */ s32 unk18;
-    /* 0x1C */ s32 unk1C;
-    /* 0x20 */ s32 unk20;
+    /* 0x4 */ s32 param0;
+    /* 0x8 */ s32 param1;
+    /* 0xC */ u16 param2;
+    /* 0xE */ u16 padE;
+    /* 0x10 */ s32 param3;
+    /* 0x14 */ s32 param4;
+    /* 0x18 */ s32 param5;
+    /* 0x1C */ s32 param6;
+    /* 0x20 */ s32 param7;
 } AkaoCommand; // size:0x24
 
 typedef struct {
-    u32 unk0;
-    s32 unk4;
-    s32 unk8;
-} Unk8002BA98;
+    u32 opcode;
+    s32 steps;
+    s32 targetVol;
+} AkaoVolSlideFromCurr;
 
 
 typedef struct {
-    u32 unk0;
-    s32 unk4;
-    s32 unk8;
-    s32 unkC;
-} Unk8002BB20;
+    u32 opcode;
+    s32 steps;
+    s32 startVol;
+    s32 targetVol;
+} AkaoVolSlideBetweenTargets;
 
 
 typedef struct {
-    u32 unk0;
-    s32 unk4;
-    u16 unk8;
-} Unk8002BBEC;
+    u32 opcode;
+    s32 steps;
+    u16 targetVol;
+} AkaoCdVolSlideFromCurr;
 
 
 typedef struct {
-    u32 unk0;
-    s32 unk4;
-    u16 unk8;
-    u16 unkA;
-    u16 unkC;
-    u16 unkE;
-} Unk8002BC58;
+    u32 opcode;
+    s32 steps;
+    u16 startVol;
+    u16 padA;
+    u16 targetVol;
+    u16 padE;
+} AkaoCdVolSlideBetweenTargets;
 
 typedef struct {
-    s32 unk0;
-    s32 unk4;
-    s8 unk8;
-} Unk8002C5C8;
+    s32 opcode;
+    s32 steps;
+    s8 target;
+} AkaoSlideFromCurr;
 
 
-typedef struct {
-    s32 unk0;
-    s32 unk4;
-    s8 unk8;
-} Unk8002C6C8;
 
 typedef struct {
-    u32 unk0;
-    u16 unk4;
-} Unk8002CC18;
+    u32 opcode;
+    u16 pan;
+} AkaoSetReverbPan;
 
 typedef struct {
-    u32 unk0;
-    u8 unk4;
-} Unk8002CC44;
+    u32 opcode;
+    u8 mul;
+} AkaoSetReverbMul;
 
 extern void (*D_80049548[])(AkaoCommand*);
 extern u8 D_800499A8[]; // opcode lenghts
@@ -245,7 +240,7 @@ extern s16 D_8007EC0C;
 extern s16 D_8007EC0E;
 extern s32 D_8007EC10;
 extern s32 D_800804D0;
-extern AkaoCommand D_80081DC8[]; // sound messages queue
+extern AkaoCommand D_80081DC8[32]; // sound messages queue
 extern s32 D_80083334;
 extern u16 D_8008337E;
 extern s32 D_80083394;

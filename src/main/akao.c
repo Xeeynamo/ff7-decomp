@@ -201,26 +201,26 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicCopyChannels1Into2);
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", func_8002B1A8);
 
 void AkaoCmd_10(AkaoCommand* arg0) {
-    AkaoCopyMusic(arg0->unk4, arg0->unk8);
+    AkaoCopyMusic(arg0->param0, arg0->param1);
     if (D_8009A14E == 0xE) {
         func_8002A7E8();
         func_8002B1A8(&g_Channel1, &D_800804D0, &g_Channel1Config, &D_80083394);
     }
     AkaoMusicStopChannels1();
-    if (D_8008337E && D_8008337E == arg0->unkC) {
+    if (D_8008337E && D_8008337E == arg0->param2) {
         AkaoMusicRestoreChannelsAndConfig(0);
-    } else if (D_800833DE && D_800833DE == arg0->unkC) {
+    } else if (D_800833DE && D_800833DE == arg0->param2) {
         AkaoMusicRestoreChannelsAndConfig(1);
     } else {
         AkaoMusicChannelsInit();
     }
-    D_8009A14E = arg0->unkC;
+    D_8009A14E = arg0->param2;
 }
 
 void AkaoCmd_14(AkaoCommand* arg0) {
     s32* var_a2;
 
-    AkaoCopyMusic(arg0->unk4, arg0->unk8);
+    AkaoCopyMusic(arg0->param0, arg0->param1);
     func_8002A7E8();
     var_a2 = &g_Channel1Config;
     if (D_8009A14E) {
@@ -232,7 +232,7 @@ void AkaoCmd_14(AkaoCommand* arg0) {
     }
     AkaoMusicStopChannels1();
     AkaoMusicChannelsInit();
-    D_8009A14E = arg0->unkC;
+    D_8009A14E = arg0->param2;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_15);
@@ -241,7 +241,7 @@ extern u16 D_80062FC8;
 
 void AkaoCmd_18(AkaoCommand* arg0) {
     if (D_8009A14E) {
-        D_80062FC8 = arg0->unk10 ? arg0->unk10 : 0x10;
+        D_80062FC8 = arg0->param3 ? arg0->param3 : 0x10;
         AkaoMusicCopyChannels1Into2();
     }
     AkaoCmd_10(arg0);
@@ -249,7 +249,7 @@ void AkaoCmd_18(AkaoCommand* arg0) {
 
 void AkaoCmd_19(AkaoCommand* arg0) {
     if (D_8009A14E) {
-        D_80062FC8 = arg0->unk10 ? arg0->unk10 : 0x10;
+        D_80062FC8 = arg0->param3 ? arg0->param3 : 0x10;
         AkaoMusicCopyChannels1Into2();
     }
     AkaoCmd_14(arg0);
@@ -257,17 +257,17 @@ void AkaoCmd_19(AkaoCommand* arg0) {
 
 void AkaoCmd_34(AkaoCommand* arg0) {
     AkaoSoundChannelsClear(4, 1);
-    AkaoSoundChannelsInit(0x40, 0x34, arg0->unk4, arg0->unk8);
+    AkaoSoundChannelsInit(0x40, 0x34, arg0->param0, arg0->param1);
 }
 
 void AkaoCmd_21(AkaoCommand* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(4, 2);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
-    AkaoSoundChannelsInit(arg0->unk4, 0x32, sp10, sp14);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unkC);
-    AkaoSoundChannelsInit(arg0->unk4, 0x34, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
+    AkaoSoundChannelsInit(arg0->param0, 0x32, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param2);
+    AkaoSoundChannelsInit(arg0->param0, 0x34, sp10, sp14);
 }
 
 void AkaoCmd_22(AkaoCommand* arg0) {
@@ -275,12 +275,12 @@ void AkaoCmd_22(AkaoCommand* arg0) {
 
     AkaoSoundChannelsClear(4, 3);
     func_80029A50();
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
-    AkaoSoundChannelsInit(arg0->unk4, 0x30, sp10, sp14);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unkC);
-    AkaoSoundChannelsInit(arg0->unk4, 0x32, sp10, sp14);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk10);
-    AkaoSoundChannelsInit(arg0->unk4, 0x34, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
+    AkaoSoundChannelsInit(arg0->param0, 0x30, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param2);
+    AkaoSoundChannelsInit(arg0->param0, 0x32, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param3);
+    AkaoSoundChannelsInit(arg0->param0, 0x34, sp10, sp14);
 }
 
 void AkaoCmd_23(AkaoCommand* arg0) {
@@ -288,21 +288,21 @@ void AkaoCmd_23(AkaoCommand* arg0) {
 
     AkaoSoundChannelsClear(6, 4);
     func_80029A50();
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
-    AkaoSoundChannelsInit(arg0->unk4, 0x30, sp10, sp14);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unkC);
-    AkaoSoundChannelsInit(arg0->unk4, 0x32, sp10, sp14);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk10);
-    AkaoSoundChannelsInit(arg0->unk4, 0x34, sp10, sp14);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk14);
-    AkaoSoundChannelsInit(arg0->unk4, 0x36, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
+    AkaoSoundChannelsInit(arg0->param0, 0x30, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param2);
+    AkaoSoundChannelsInit(arg0->param0, 0x32, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param3);
+    AkaoSoundChannelsInit(arg0->param0, 0x34, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param4);
+    AkaoSoundChannelsInit(arg0->param0, 0x36, sp10, sp14);
 }
 
 void AkaoCmd_30(AkaoCommand* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(6, 1);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk4);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param0);
     AkaoSoundMenuChannelsInit(sp10, sp14);
 }
 
@@ -310,16 +310,16 @@ void AkaoCmd_20(AkaoCommand* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(4, 1);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
-    AkaoSoundChannelsInit(arg0->unk4, 0x34, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
+    AkaoSoundChannelsInit(arg0->param0, 0x34, sp10, sp14);
 }
 
 void AkaoCmd_29(AkaoCommand* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(2, 1);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
-    AkaoSoundChannelsInit(arg0->unk4, 0x32, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
+    AkaoSoundChannelsInit(arg0->param0, 0x32, sp10, sp14);
 }
 
 void AkaoCmd_2A(AkaoCommand* arg0) {
@@ -327,21 +327,21 @@ void AkaoCmd_2A(AkaoCommand* arg0) {
 
     AkaoSoundChannelsClear(0, 1);
     func_80029A50();
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
-    AkaoSoundChannelsInit(arg0->unk4, 0x30, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
+    AkaoSoundChannelsInit(arg0->param0, 0x30, sp10, sp14);
 }
 
 void AkaoCmd_2B(AkaoCommand* arg0) {
     s32 sp10, sp14;
 
     AkaoSoundChannelsClear(6, 1);
-    AkaoSoundGetSequence(&sp10, &sp14, arg0->unk8);
-    AkaoSoundChannelsInit(arg0->unk4, 0x36, sp10, sp14);
+    AkaoSoundGetSequence(&sp10, &sp14, arg0->param1);
+    AkaoSoundChannelsInit(arg0->param0, 0x36, sp10, sp14);
 }
 
 void AkaoCmd_C0_VolumeSet(AkaoCommand* arg0) {
     g_AkaoVolMulMusicSlideSteps = 0;
-    g_AkaoVolMulMusic = (arg0->unk4 & 0x7F) << 0x10;
+    g_AkaoVolMulMusic = (arg0->param0 & 0x7F) << 0x10;
     AkaoMusicVolReset();
 }
 
@@ -349,17 +349,17 @@ void AkaoCmd_C0_VolumeSet(AkaoCommand* arg0) {
 
 // Starts a volume slide from the current g_AkaoVolMulMusic toward a target
 // derived from arg0, over arg0's tick count.
-void AkaoCmd_C1_VolSlideFromCurr(Unk8002BA98* arg0) {
+void AkaoCmd_C1_VolSlideFromCurr(AkaoVolSlideFromCurr* arg0) {
     s32 temp_v0;
     s32 var_a1;
 
-    temp_v0 = arg0->unk4;
+    temp_v0 = arg0->steps;
     var_a1 = 1;
     if (temp_v0 != 0) {
         var_a1 = temp_v0;
     }
     g_AkaoVolMulMusicSlideSteps = var_a1;
-    g_AkaoVolMulMusicSlideStep = (((arg0->unk8 & 0x7F) << 0x10) - g_AkaoVolMulMusic) / var_a1;
+    g_AkaoVolMulMusicSlideStep = (((arg0->targetVol & 0x7F) << 0x10) - g_AkaoVolMulMusic) / var_a1;
     AkaoMusicVolReset();
 }
 
@@ -367,18 +367,18 @@ void AkaoCmd_C1_VolSlideFromCurr(Unk8002BA98* arg0) {
 
 // Starts a volume slide between two explicit targets from arg0 (rather than
 // from the current g_AkaoVolMulMusic), over arg0's tick count.
-void AkaoCmd_C2_VolSlideBetweenTargets(Unk8002BB20* arg0) {
+void AkaoCmd_C2_VolSlideBetweenTargets(AkaoVolSlideBetweenTargets* arg0) {
     s32 temp_v1;
     s32 var_a1;
     s32 temp_v0;
 
-    temp_v0 = arg0->unk4;
+    temp_v0 = arg0->steps;
     var_a1 = 1;
     if (temp_v0 != 0) {
         var_a1 = temp_v0;
     }
-    temp_v0 = (arg0->unkC & 0x7F) << 0x10;
-    temp_v1 = (arg0->unk8 & 0x7F) << 0x10;
+    temp_v0 = (arg0->targetVol & 0x7F) << 0x10;
+    temp_v1 = (arg0->startVol & 0x7F) << 0x10;
     g_AkaoVolMulMusicSlideSteps = var_a1;
     g_AkaoVolMulMusic = temp_v1;
     g_AkaoVolMulMusicSlideStep = (temp_v0 - temp_v1) / var_a1;
@@ -390,37 +390,37 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_C8);
 
 // Starts a CD-audio volume slide from the current g_AkaoCdVol toward a
 // target derived from arg0, over arg0's tick count.
-void AkaoCmd_C9_CdVolSlideFromCurr(Unk8002BBEC* arg0) {
+void AkaoCmd_C9_CdVolSlideFromCurr(AkaoCdVolSlideFromCurr* arg0) {
     s32 temp_v0;
     s32 var_a1;
 
-    temp_v0 = arg0->unk4;
+    temp_v0 = arg0->steps;
     var_a1 = 1;
     if (temp_v0 != 0) {
         var_a1 = temp_v0;
     }
     g_AkaoCdVolSlideSteps = var_a1;
-    g_AkaoCdVolSlideStep = ((arg0->unk8 << 0x10) - g_AkaoCdVol.val) / var_a1;
+    g_AkaoCdVolSlideStep = ((arg0->targetVol << 0x10) - g_AkaoCdVol.val) / var_a1;
 }
 
 
 
 // Starts a CD-audio volume slide between two explicit targets from arg0
 // (rather than from the current g_AkaoCdVol), over arg0's tick count.
-void AkaoCmd_CA_CdVolSlideBetweenTargets(Unk8002BC58* arg0) {
+void AkaoCmd_CA_CdVolSlideBetweenTargets(AkaoCdVolSlideBetweenTargets* arg0) {
     s32 temp_v0;
     s32 temp_v1;
     s32 var_a1;
     s32 temp_v0_shifted;
     s32 temp_v1_shifted;
 
-    temp_v0 = arg0->unk4;
+    temp_v0 = arg0->steps;
     var_a1 = 1;
     if (temp_v0 != 0) {
         var_a1 = temp_v0;
     }
-    temp_v0_shifted = arg0->unkC << 0x10;
-    temp_v1_shifted = arg0->unk8 << 0x10;
+    temp_v0_shifted = arg0->targetVol << 0x10;
+    temp_v1_shifted = arg0->startVol << 0x10;
     g_AkaoCdVolSlideSteps = var_a1;
     g_AkaoCdVol.val = temp_v1_shifted;
     g_AkaoCdVolSlideStep = (temp_v0_shifted - temp_v1_shifted) / var_a1;
@@ -598,16 +598,16 @@ void AkaoCmd_D0(AkaoTempoPitchSlide* arg0) {
 
 // Starts a tempo slide toward a target derived from arg0, over arg0's tick
 // count.
-void AkaoCmd_D1_TempoSlideFromCurr(Unk8002C5C8* arg0) {
+void AkaoCmd_D1_TempoSlideFromCurr(AkaoSlideFromCurr* arg0) {
     s32 temp_v0;
     s32 var_a1;
 
-    temp_v0 = arg0->unk4;
+    temp_v0 = arg0->steps;
     var_a1 = 1;
     if (temp_v0 != 0) {
         var_a1 = temp_v0;
     }
-    g_AkaoTempoMulMusicSlideStep = ((arg0->unk8 << 0x10) - g_AkaoTempoMulMusic) / var_a1;
+    g_AkaoTempoMulMusicSlideStep = ((arg0->target << 0x10) - g_AkaoTempoMulMusic) / var_a1;
     g_AkaoTempoMulMusicSlideSteps = var_a1;
 }
 
@@ -641,17 +641,17 @@ void AkaoCmd_D4(AkaoTempoPitchSlide* arg0) {
 
 // Starts a pitch slide from the current g_AkaoPitchMulMusic toward a
 // target derived from arg0, over arg0's tick count.
-void AkaoCmd_D5_PitchSlideFromCurr(Unk8002C6C8* arg0) {
+void AkaoCmd_D5_PitchSlideFromCurr(AkaoSlideFromCurr* arg0) {
     s32 temp_v0;
     s32 var_a1;
     s32 temp_v1;
 
-    temp_v0 = arg0->unk4;
+    temp_v0 = arg0->steps;
     var_a1 = 1;
     if (temp_v0 != 0) {
         var_a1 = temp_v0;
     }
-    temp_v1 = ((arg0->unk8 << 0x10) - g_AkaoPitchMulMusic) / var_a1;
+    temp_v1 = ((arg0->target << 0x10) - g_AkaoPitchMulMusic) / var_a1;
     g_AkaoPitchMulMusicSlideSteps = var_a1;
     g_AkaoPitchMulMusicSlideStep = temp_v1;
 }
@@ -829,19 +829,19 @@ void AkaoCmd_9C_FlushPendingSoundUpdates(void) {
 
 
 
-static void AkaoCmd_E0_SetReverbPan(Unk8002CC18* arg0) {
-    g_AkaoReverbPan = arg0->unk4 & 0x7F;
+static void AkaoCmd_E0_SetReverbPan(AkaoSetReverbPan* arg0) {
+    g_AkaoReverbPan = arg0->pan & 0x7F;
     D_8009A13C |= 0x80;
 }
 
 
 
-static void AkaoCmd_E4_SetReverbMul(Unk8002CC44* arg0) {
+static void AkaoCmd_E4_SetReverbMul(AkaoSetReverbMul* arg0) {
     u8 temp_v0;
     s32 var_v0;
     s32 mask;
 
-    temp_v0 = arg0->unk4;
+    temp_v0 = arg0->mul;
     g_AkaoReverbMul = (s16)temp_v0;
     mask = ~0x10;
     if (temp_v0 != 0) {
