@@ -39,7 +39,7 @@ s32 FieldCalcEaseInOut(s32 start, s32 target, s32 duration, s32 step) {
     return start;
 }
 
-s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, long* screenPos) {
+s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, SVECTOR* screenPos) {
     long flag;
     long depth;
     s32 ret;
@@ -48,7 +48,7 @@ s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, long* screenPos) {
     SetRotMatrix(D_80071E40);
     SetTransMatrix(D_80071E40);
     SetGeomOffset(0, 0);
-    ret = RotTransPers(worldPos, screenPos, &flag, &depth);
+    ret = RotTransPers(worldPos, (long*)screenPos, &flag, &depth);
     PopMatrix();
     return ret;
 }

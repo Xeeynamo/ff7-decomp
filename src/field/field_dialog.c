@@ -1205,4 +1205,3 @@ void SystemMessageSetCharName(s16 battleCharId, s16 stringId) {
         *charName = 0xFF;
     }
 }
-

@@ -44,7 +44,7 @@ extern s16 D_801142C8;
 extern s16 (*D_80114458)[3];
 extern s32 D_80114478;
 extern s32 D_8011447C;
-extern volatile s16 D_80114488;
+extern volatile s16 g_FieldMovieJustStarted;
 extern volatile s16 g_GameState;
 
 void FieldEntityLineInteract(FieldEntity* arg0, FieldLine* arg1);
@@ -95,7 +95,7 @@ s32 FieldMainLoop(void) {
     FieldRainInit(&g_FieldRenderData[0]);
     FieldRainInit(&g_FieldRenderData[1]);
     displayDelay = 1;
-    D_80114488 = 0;
+    g_FieldMovieJustStarted = 0;
     D_801142C8 = 0;
     g_FieldMoviePlayed = 0;
     D_80071C0C = 0;
@@ -145,9 +145,11 @@ s32 FieldMainLoop(void) {
             StopFieldMapPreload();
             return;
         }
-        if (g_FieldState.eventCmd == EVTCMD_YUFFIE_STEALS_MATERIA || g_FieldState.eventCmd == EVTCMD_YUFFIE_RETURNS_MATERIA ||
+        if (g_FieldState.eventCmd == EVTCMD_YUFFIE_STEALS_MATERIA ||
+            g_FieldState.eventCmd == EVTCMD_YUFFIE_RETURNS_MATERIA ||
             g_FieldState.eventCmd == EVTCMD_REMOVE_CHARS_MATERIA_ACCESSORY || g_FieldState.eventCmd == EVTCMD_UNK15 ||
-            g_FieldState.eventCmd == EVTCMD_MASTER_MATERIA_CHECK || g_FieldState.eventCmd == EVTCMD_ADD_MASTER_MATERIA ||
+            g_FieldState.eventCmd == EVTCMD_MASTER_MATERIA_CHECK ||
+            g_FieldState.eventCmd == EVTCMD_ADD_MASTER_MATERIA ||
             g_FieldState.eventCmd == EVTCMD_JENOVA_SYNTH_COPY_LEVELS) {
             g_GameState = GAMESTATE_MENU_COMMANND;
             StopFieldMapPreload();
@@ -155,12 +157,14 @@ s32 FieldMainLoop(void) {
         }
         if (g_FieldState.eventCmd == EVTCMD_CHAR_NAME_ENTRY || g_FieldState.eventCmd == EVTCMD_PARTY_SELECT ||
             g_FieldState.eventCmd == EVTCMD_PARTY_MENU || g_FieldState.eventCmd == EVTCMD_SAVE_SCREEN ||
-            g_FieldState.eventCmd == EVTCMD_SHOP || g_FieldState.eventCmd == EVTCMD_UNK12 || g_FieldState.eventCmd == EVTCMD_UNK13) {
+            g_FieldState.eventCmd == EVTCMD_SHOP || g_FieldState.eventCmd == EVTCMD_UNK12 ||
+            g_FieldState.eventCmd == EVTCMD_UNK13) {
             g_GameState = GAMESTATE_MENU;
             StopFieldMapPreload();
             return;
         }
-        if ((g_FieldKeyState & PADRup) && !g_FieldState.menuDisabled && !g_FieldMoviePlayed && !D_80114488) {
+        if ((g_FieldKeyState & PADRup) && !g_FieldState.menuDisabled && !g_FieldMoviePlayed &&
+            !g_FieldMovieJustStarted) {
             g_GameState = GAMESTATE_MENU;
             g_FieldState.eventCmd = EVTCMD_PARTY_MENU;
             g_FieldState.eventCmdParam = 0;
@@ -182,7 +186,7 @@ s32 FieldMainLoop(void) {
         FieldEntityMovementUpdate(g_FieldKeyState);
         FieldEntityLineInteract(&g_FieldEntity[g_PlayerModelId], g_FieldLines);
         FieldEntityCheckTalk();
-        if (!D_80114488 || D_8009A060 == 1) {
+        if (!g_FieldMovieJustStarted || D_8009A060 == 1) {
             AddBackgroundToRender(renderData);
         }
         HandleKawaiDataInModel(renderData);
@@ -194,14 +198,14 @@ s32 FieldMainLoop(void) {
         while (DrawSync(1)) {
         }
         D_8011447C = VSync(1);
-        VSync(D_80114488 && D_800965E4 != 1 ? 3 : 2);
+        VSync(g_FieldMovieJustStarted && D_800965E4 != 1 ? 3 : 2);
         if (displayDelay) {
             if (!--displayDelay) {
                 SetDispMask(1);
             }
         }
         ResetGraph(1);
-        if (!D_80114488) {
+        if (!g_FieldMovieJustStarted) {
             if (!D_801142C8) {
                 D_8007EB68[D_80075DEC].isrgb24 = 0;
             } else {
@@ -210,7 +214,7 @@ s32 FieldMainLoop(void) {
         }
         PutDispEnv(&D_8007EB68[D_80075DEC]);
         PutDrawEnv(&D_8007EAAC[D_80075DEC]);
-        if (!D_80114488) {
+        if (!g_FieldMovieJustStarted) {
             ClearImage(&D_8007EAAC[D_80075DEC].clip, 0, 0, 0);
         } else if (!D_8007EB68[D_80075DEC].isrgb24) {
             ClearImage(&top, 0, 0, 0);
@@ -224,7 +228,7 @@ s32 FieldMainLoop(void) {
         D_8007EBD8 = &D_8007EB68[D_80075DEC];
         D_8007EBD0 = &D_80113F2C[D_80075DEC];
         FieldUpdateMovieStream();
-        if(!g_FieldState.mpdspSet) {
+        if (!g_FieldState.mpdspSet) {
             DrawOTag(&renderData->otSceneDrenv);
             DrawOTag(&renderData->ot[4095]);
             DrawOTag(&renderData->otFadeDrenv);

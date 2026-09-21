@@ -92,7 +92,7 @@ extern long ratan2(long y, long x);
         "lw	$13, 12( %0 );"                                                    \
         "lw	$14, 16( %0 );"                                                    \
         "ctc2	$12, $2;"                                                        \
-        "ctc2	$13, $3;"                                                        \
+        "ctc2	$13, $3;\n\t"                                                        \
         "ctc2	$14, $4"                                                         \
         :                                                                      \
         : "r"(r0)                                                              \
@@ -238,5 +238,19 @@ extern long ratan2(long y, long x);
 #define gte_stsxy(r0)
 #define gte_SetGeomScreen(r0)
 #endif
+
+#define gte_rt()                                                                                                       \
+    __asm__ volatile("nop;"                                                                                            \
+                     "nop;"                                                                                            \
+                     ".word 0x4A480012")
+
+#define gte_stlvnl(r0)                                                                                                 \
+    __asm__ volatile(                                                                                                  \
+        "swc2\t$25, 0( %0 );"                                                                                          \
+        "swc2\t$26, 4( %0 );"                                                                                          \
+        "swc2\t$27, 8( %0 )"                                                                                           \
+        :                                                                                                              \
+        : "r"(r0)                                                                                                      \
+        : "memory")
 
 #endif

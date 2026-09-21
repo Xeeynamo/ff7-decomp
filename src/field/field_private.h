@@ -45,15 +45,23 @@ typedef struct FieldModelLzsRequest {
     /* 0x4 */ s32 size;
 } FieldModelLzsRequest;
 
+typedef struct {
+    u32 size;
+    u16 textureCount;
+    u16 paletteCount;
+    u32 texturesOffset;
+    u32 palettesOffset;
+} FieldFaceTextureHeader;
+
 extern u8* D_80075E10;
 extern MATRIX* D_80083270;
 extern MATRIX** D_80083578;
-extern u32 D_800DA5C8[];
-extern u8 D_800DF08C[];
-extern u8 D_800DF0D4[];
-extern s32* D_800DFCA0;
+extern u32 g_FieldFileInfo[];
+extern Yamada g_FieldGlobalModelFiles[9];
+extern Yamada g_FieldFaceTextureFile;
+extern FieldFaceTextureHeader* g_FieldFaceTextureData;
 extern u8* D_800E0204;
-extern volatile s16 D_80114488;
+extern volatile s16 g_FieldMovieJustStarted;
 extern u8 SavedScriptIds[48][8];
 
 void StopFieldMapPreload(void);
@@ -63,7 +71,7 @@ void FieldLoadMimToVram(s32 arg0, void* mimData);
 void FieldBackgroundInitPackets(SPRT_16* bg1, SPRT* bg2, u16* animation, DR_MODE* drawMode);
 void AddBackgroundToRender(struct FieldRenderData* renderData);
 s32 FieldCalcLinearStep(s32 start, s32 target, s32 duration, s32 step);
-s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, long* screenPos);
+s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, SVECTOR* screenPos);
 s32 FieldEntityGetDirVectorY(u8 angle);
 void FieldEntityLineClear(FieldLine* lines);
 void DebugRunEveryLoop(void);
@@ -72,8 +80,8 @@ void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* ra
 u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelData);
 u8* FieldModelLoadGlobalModels(FieldModelLoaderHeader* header, FieldModelData* modelData, u8* buffer, s32 arg3);
 u8* LoadLocalFieldModelAndInitAll(
-    FieldModelLoaderHeader* header, FieldModelData* modelData, const u32* arg2, u32* arg3);
-void KawaiLoadEyesMouthTexToVram(FieldModelEntry* entry, u8* scratch);
+    FieldModelLoaderHeader* header, FieldModelData* modelData, const u32* arg2, void* arg3);
+s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* entry, u8* scratch);
 void KawaiClearData(void);
 
 #endif

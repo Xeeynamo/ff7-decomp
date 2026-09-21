@@ -968,7 +968,7 @@ typedef struct {
     /* 0x03 */ u8 animationCount;  // number of animations
     /* 0x04 */ u8 modelEntryIndex; // index into FieldModelData->modelEntries
     /* 0x05 */ u8 npcFlag;         // NPC/model type flag?
-    /* 0x06 */ u8 unk6;
+    /* 0x06 */ u8 globalModelLoaded;
     /* 0x07 */ s8 globalModelId; // BCX/global model lookup id
 } FieldModelLoaderData;          // size:0x8
 
@@ -977,6 +977,48 @@ typedef struct {
     u8 unk0[2];
     u16 modelCount;
 } FieldModelLoaderHeader; // size:??
+
+typedef struct {
+    s16 length;
+    s8 parentIndex;
+    u8 hasPart;
+} FieldModelBone;
+
+typedef struct {
+    u16 frameCount;
+    u8 boneCount;
+    u8 translationCount;
+    u8 staticTranslationCount;
+    u8 rotationCount;
+    u16 translationOffset;
+    u16 staticTranslationsOffset;
+    u16 rotationOffset;
+    u8* data;
+} FieldModelAnimation;
+
+typedef struct {
+    u8 flags;
+    u8 boneIndex;
+    u8 vertexCount;
+    u8 texCoordCount;
+    u8 polyGT4Count;
+    u8 polyGT3Count;
+    u8 polyFT4Count;
+    u8 polyFT3Count;
+    u8 polyF3Count;
+    u8 polyF4Count;
+    u8 polyG3Count;
+    u8 polyG4Count;
+    u8 textureCount;
+    u8 texturedPolygonCount;
+    u16 polygonsOffset;
+    u16 texCoordsOffset;
+    u16 texturesOffset;
+    u16 textureFlagsOffset;
+    u16 packetBufferSize;
+    u8* data;
+    u8* packets;
+} FieldModelPart;
 
 typedef struct {
     /* 0x00 */ u8 flags;     // initialized to 1, later cleared
