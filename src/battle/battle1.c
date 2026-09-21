@@ -852,7 +852,7 @@ void func_800BB978(void) {
     AkaoExec();
 }
 
-// queue sound command 0x30, dispatched directly via func_8002DF88 (akao.c)
+// queue sound command 0x30, dispatched directly via AkaoDispatchCommand (akao.c)
 // rather than the D_8009A000 global queue used by the sibling functions below
 void func_800BB9B8(s32 arg0) {
     s16* ptr;
@@ -861,7 +861,7 @@ void func_800BB9B8(s32 arg0) {
     *ptr = 0x30;
     D_800F4AD4 = arg0 & 0xFFFF;
     D_800F4AD8 = arg0 & 0xFFFF;
-    func_8002DF88(ptr);
+    AkaoDispatchCommand(ptr);
 }
 
 // queue sound command 0x2B

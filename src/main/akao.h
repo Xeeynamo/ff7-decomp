@@ -447,10 +447,10 @@ void AkaoCmd_A8(void* arg0);
 void AkaoCmd_A9(void* arg0);
 void AkaoCmd_AA(void* arg0);
 void AkaoCmd_AB(void* arg0);
-void AkaoCmd_AC(s32 arg0);
-void AkaoCmd_AD(s32 arg0);
-void AkaoCmd_AE(s32 arg0);
-void AkaoCmd_AF(s32 arg0);
+void AkaoCmd_AC(void* cmd);
+void AkaoCmd_AD(void* cmd);
+void AkaoCmd_AE(void* cmd);
+void AkaoCmd_AF(void* cmd);
 void AkaoCmd_B0(AkaoCommand* cmd);
 void AkaoCmd_B1(AkaoCommand* cmd);
 void AkaoCmd_B2(AkaoCommand* cmd);
@@ -573,7 +573,7 @@ void AkaoOp_F9_AltVoiceOff();
 static void AkaoOp_FD_TimeSignature(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 static void AkaoOp_FE_MeasureNumber(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 static void AkaoOp_Null(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
-static void func_800335CC(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
+static void AkaoOp_F3_MuteMusic(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 
 s32 D_80049538[4] = {0, 0, 0, 0};
 
@@ -946,7 +946,7 @@ void (*g_AkaoOpcodeHandler[96])() = {
     AkaoOp_F0_LoopJumpTimes,
     AkaoOp_F1_LoopBreakTimes,
     AkaoOp_F2_LoadInstrument,
-    func_800335CC,
+    AkaoOp_F3_MuteMusic,
     AkaoOp_F4_OverlayVoiceOn,
     AkaoOp_F5_OverlayVoiceOff,
     AkaoOp_F6_OverlayVolBalance,
