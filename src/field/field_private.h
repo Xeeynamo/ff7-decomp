@@ -53,10 +53,15 @@ extern u8 D_800DF08C[];
 extern u8 D_800DF0D4[];
 extern s32* D_800DFCA0;
 extern u8* D_800E0204;
-extern u16 D_80114488;
+extern volatile s16 D_80114488;
 extern u8 SavedScriptIds[48][8];
 
 void StopFieldMapPreload(void);
+void PreloadNextFieldMap(FieldEntity* player, FieldGateway* gateways);
+s32 FieldMainLoop(void);
+void FieldLoadMimToVram(s32 arg0, void* mimData);
+void FieldBackgroundInitPackets(SPRT_16* bg1, SPRT* bg2, u16* animation, DR_MODE* drawMode);
+void AddBackgroundToRender(struct FieldRenderData* renderData);
 s32 FieldCalcLinearStep(s32 start, s32 target, s32 duration, s32 step);
 s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, long* screenPos);
 s32 FieldEntityGetDirVectorY(u8 angle);

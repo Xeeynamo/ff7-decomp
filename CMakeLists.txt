@@ -54,8 +54,11 @@ set(FF7_SOURCES
     src/battle/battle.c
 
     # Field
-    src/field/field2.c
-    src/field/field.c
+    src/field/field_dialog.c
+    src/field/field_debug.c
+    src/field/field_main.c
+    src/field/field_loop.c
+    src/field/field_bg.c
     src/field/field_event.c
     src/field/field_opcodes.c
 
