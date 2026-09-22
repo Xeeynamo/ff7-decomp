@@ -302,13 +302,13 @@ void BattleRunFrame(void) {
             break;
         }
         if (a > NUM_PARTY && a < NUM_BATTLE_ACTOR) {
-            D_801636B8[a].D_801636B9 = g_BattleState.combatant[a].idleActionId;
+            D_801636B8[a].idleActionId = g_BattleState.combatant[a].idleActionId;
         }
     }
     BattleQueue1Execute();
     BattleActionQueueReset();
     for (i = START_ENEMY; i < NUM_BATTLE_ACTOR; i++) {
-        D_801636B8[i].D_801636B9 = g_BattleState.combatant[i].idleActionId;
+        D_801636B8[i].idleActionId = g_BattleState.combatant[i].idleActionId;
     }
 }
 
@@ -329,7 +329,7 @@ static void func_800A3488(s32 arg0) {
     }
 }
 
-static void func_800A34CC(s32 arg0, s32 arg1, s8 arg2, s32 arg3) {
+static void func_800A34CC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 i = 0;
 
     for (; i < LEN(g_BattleQueueTargets); i++) {
@@ -841,10 +841,59 @@ static s32 GetEnemyAiScriptOffs(u16* arg0, s32 arg1, s32 arg2) {
     return var_v1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRunUnitScript);
+extern u16 D_80082884[];
 
 void BattleOpcodeCycle(s32, s32, s32);
 void func_800B2A2C(s32, s32);
+
+void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 arg2) {
+    s32 scriptOffset = 0;
+    s32 presetIdx = -1;
+    s32 remapped;
+    s32 i;
+    struct {
+        u8 rowFlags;
+        u8 idleActionId; // captured but never compared back below
+        u8 hurtActionId;
+        u8 unk3;
+        u8 unk4;
+    } snapshot[NUM_BATTLE_ACTOR];
+
+    g_BattleSceneContext.activeScriptMask |= 1 << scriptType;
+
+    if (actorId >= START_ENEMY) {
+        s32 enemySlot = actorId - START_ENEMY;
+        scriptOffset = GetEnemyAiScriptOffs(
+            &g_BattleSceneContext.activeScriptMask - 0x80C, g_ActiveEncounter.formation[enemySlot].enemyID, scriptType);
+    } else if (actorId < NUM_PARTY) {
+        presetIdx = D_801636B8[actorId].charId;
+        if (presetIdx != -1) {
+            remapped = D_800E7A58[presetIdx];
+            if (remapped != 0xFF) {
+                presetIdx = remapped;
+            }
+        }
+        scriptOffset = GetEnemyAiScriptOffs(D_80082884, presetIdx, scriptType);
+    }
+
+    if (scriptOffset) {
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            snapshot[i].rowFlags = g_BattleState.combatant[i].rowFlags;
+            snapshot[i].idleActionId = g_BattleState.combatant[i].idleActionId;
+            snapshot[i].hurtActionId = g_BattleState.combatant[i].hurtActionId;
+        }
+        func_800B2A2C(actorId, arg2);
+        BattleOpcodeCycle(actorId, scriptOffset, presetIdx);
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            if (snapshot[i].rowFlags != g_BattleState.combatant[i].rowFlags) {
+                func_800A31A0(i, 4, g_BattleState.combatant[i].rowFlags, 0x10);
+            }
+            if (snapshot[i].hurtActionId != g_BattleState.combatant[i].hurtActionId) {
+                func_800A34CC(i, snapshot[i].hurtActionId, g_BattleState.combatant[i].hurtActionId, 0);
+            }
+        }
+    }
+}
 
 void BattleExecFormationAIScripts(void) {
     s32 scriptOffset;
@@ -1009,7 +1058,7 @@ void func_800A6BFC(void) {}
 void BattleSetLimitBreakStringToDisplay(s32 arg0) {
     s16 sp10;
 
-    sp10 = (s16)D_801636B8[arg0].D_801636B8;
+    sp10 = (s16)D_801636B8[arg0].charId;
     g_BattleSceneContext.lucky7777StringID = BattleExpandScriptToBuffer(SysGetKernBattleTextPtr(0x26), &sp10) + 0x100;
     g_BattleSceneContext.lucky7777ActionParam = 0xF;
 }
