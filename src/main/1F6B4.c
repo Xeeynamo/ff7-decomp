@@ -110,21 +110,21 @@ static void SysMenuSound(u16 arg0) {
     D_8009A000[0] = 0x30;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 static void func_8001FA68(u16 arg0) {
     D_8009A000[0] = 0x28;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = arg0;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 static void func_8001FAAC(u16 arg0) {
     D_8009A000[0] = 0x29;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = arg0;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 static void func_8001FAF0(void) {}

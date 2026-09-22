@@ -40,7 +40,7 @@ static void BattleTriggerSoundCommand(u16 arg0) {
     D_8009A000[0] = arg0;
     D_8009A004[0] = arg0;
     D_8009A008[0] = arg0;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 void BattlePlaySavemapDoneSound(void) {
@@ -137,7 +137,7 @@ void BattleFormatAmountString(s32 value) {
     }
     D_800F55D8[pos++] = 0x10;
     for (i = 0; i < 5; i++) {
-        D_800F55D8[pos++] = D_800492FC[i];
+        D_800F55D8[pos++] = g_Labels.labels[15][i];
     }
 }
 
@@ -259,7 +259,7 @@ void BattleMenuDrawActiveWidgets(s32 ot) {
     if (g_SavemapBusy) {
         BattleDrawPauseOverlay(ot);
     }
-    if ((D_800F514D != 0) && (D_8009CBDC[D_800F38A0] == 0xFF)) {
+    if ((D_800F514D != 0) && (Savemap.partyID[D_800F38A0] == 0xFF)) {
         for (i = 1; i < 32; i++) {
             if (D_800F514C[i] != 0) {
                 BattleSetStatusFlashState(i);
@@ -526,15 +526,15 @@ void BattleMenuNoop6(void) {}
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", BattleMenuWidgetSub4Reset);
 
 void BattleMenuInputState18(void) {
-    u8* entries = &D_8009D8F8[D_800F38A1 * 0x440];
+    BattleLimitData* limits = &g_ActiveCharacters[D_800F38A1].limits;
     MenuTable* menu = &D_800F90B4[D_800F38A1].table5A;
 
     if (D_800F3896 == 0x18 && D_800F99E4 == 0) {
         SysMenuHandleButtons(menu);
         if (g_Pad1KeysRepeat & PADRright) {
             func_800BB9B8(1);
-            D_800F38A2 = *(u8*)((s32)entries + (menu->row + 3));
-            D_800F389E = entries[menu->row];
+            D_800F38A2 = limits->unk3[menu->row];
+            D_800F389E = limits->limitId[menu->row];
             D_800FAFD4 = menu->row;
             func_800E6B94();
             D_800F3894 = 0x18;
@@ -586,16 +586,16 @@ void BattleMenuNoop8(void) {}
 void BattleMenuEnterStateB(void) { BattleMenuResetSelectorState(); }
 
 void BattleMenuInputState1A(void) {
-    u8* temp_s0;
+    BattleLimitData* temp_s0;
 
-    temp_s0 = D_8009D866[D_800F38A1].unk92;
+    temp_s0 = &g_ActiveCharacters[D_800F38A1].limits;
     if ((D_800F3896 == 0x1A) && (D_800F99E4 == 0)) {
         if (g_Pad1KeysRepeat & PADRright) {
             D_800F99E4 = 1;
             if (BattleMenuGetSelectorStatus() == 2) {
                 func_800BB9B8(1);
-                D_800F38A2 = temp_s0[3];
-                D_800F389E = temp_s0[0];
+                D_800F38A2 = temp_s0->unk3[0];
+                D_800F389E = temp_s0->limitId[0];
                 D_800FAFD4 = 0;
                 func_800E6B94();
                 func_800DDFEC();
@@ -634,7 +634,7 @@ void BattleMenuNoop10(void) {}
 void BattleMenuFlagTableReset(void) {
     s32 i;
 
-    SysMenuSetCursorMovement(&D_800F9144, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
+    SysMenuSetCursorMovement(&D_800F90B4[0].table90, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
     i = 1;
     do {
         if ((i != 9) && (D_800F514C[i] != 0)) {

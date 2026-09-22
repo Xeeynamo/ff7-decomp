@@ -445,7 +445,7 @@ static void BattleUpdateRender(void) {
         D_800F9D94 = 1;
     }
     if (D_8016376A & 2) {
-        func_800E16B8(g_cDb->unk40E4, 0x10, 0x10, D_8009D268[0]);
+        func_800E16B8(g_cDb->unk40E4, 0x10, 0x10, Savemap.countdown_timer_seconds);
     }
     D_800FA9B8 = VSync(1);
     BattleFlushImageQueue();
@@ -826,22 +826,22 @@ static void func_800BB864(void) {
 static void func_800BB89C(void) {
     D_80163B80 = 0;
     D_800FA6B8 = 0;
-    D_8009A000[0] = !(!(D_8016376A & 0x10) && !D_80083338) ? 0x10 : 0x14;
+    D_8009A000[0] = !(!(D_8016376A & 0x10) && !g_AkaoSavedMusicActiveMask0) ? 0x10 : 0x14;
     D_8009A004[0] = 0x801D0000;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 void func_800BB90C(void) {
     D_8009A000[0] = 0xA0;
     D_8009A004[0] = 0x7F;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 // queue the 0xF1 sound command after the 0xA0 pair; called from batres
 void func_800BB944(void) {
     func_800BB90C();
     D_8009A000[0] = 0xF1;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 // queue sound command 0xC1
@@ -849,10 +849,10 @@ void func_800BB978(void) {
     D_8009A000[0] = 0xC1;
     D_8009A004[0] = 0x12C;
     D_8009A008[0] = 0;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
-// queue sound command 0x30, dispatched directly via func_8002DF88 (akao.c)
+// queue sound command 0x30, dispatched directly via AkaoDispatchCommand (akao.c)
 // rather than the D_8009A000 global queue used by the sibling functions below
 void func_800BB9B8(s32 arg0) {
     s16* ptr;
@@ -861,7 +861,7 @@ void func_800BB9B8(s32 arg0) {
     *ptr = 0x30;
     D_800F4AD4 = arg0 & 0xFFFF;
     D_800F4AD8 = arg0 & 0xFFFF;
-    func_8002DF88(ptr);
+    AkaoDispatchCommand(ptr);
 }
 
 // queue sound command 0x2B
@@ -872,7 +872,7 @@ void func_800BB9FC(s32 arg0) {
     param = arg0 & 0xFFFF;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = param;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 // queue sound command 0x20
@@ -883,7 +883,7 @@ static void func_800BBA40(s32 arg0) {
     param = arg0 & 0xFFFF;
     D_8009A004[0] = 0x40;
     D_8009A008[0] = param;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBA84);

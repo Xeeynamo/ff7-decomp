@@ -88,16 +88,23 @@ typedef struct {
 } SpuReverbAttr;
 
 extern long SpuSetTransferMode(long mode);
+extern unsigned long SpuSetTransferStartAddr(unsigned long addr);
 extern unsigned long SpuWrite(unsigned char* addr, unsigned long size);
 
 extern long SpuSetReverbModeParam(SpuReverbAttr* attr);
 
 extern void SpuSetVoiceAttr(SpuVoiceAttr* arg);
+extern void SpuSetVoiceVolumeAttr(int voice_bit, short voll, short volr, short volmode_l, short volmode_r);
 extern void SpuSetKey(long on_off, unsigned long voice_bit);
 
 extern long SpuMallocWithStartAddr(unsigned long addr, long size);
+#ifndef __SPU_TRANSFERCALLBACK_PROC
+#define __SPU_TRANSFERCALLBACK_PROC
+typedef void (*SpuTransferCallbackProc)(void);
+#endif
 
 extern SpuIRQCallbackProc SpuSetIRQCallback(SpuIRQCallbackProc);
+extern SpuTransferCallbackProc SpuSetTransferCallback(SpuTransferCallbackProc);
 
 typedef struct {
     SpuVolume volume;

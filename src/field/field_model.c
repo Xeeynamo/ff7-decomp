@@ -13,9 +13,82 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_model", FieldModelLoadBsxTexToVram)
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_model", FieldModelBsxTdbModify);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_model", FieldModelStructInit);
+u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelData) {
+    FieldModelLoaderData* loaders;
+    FieldModelEntry* entry;
+    u8* buffer;
+    s16 partsOffset;
+    u32 i;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_model", FieldModelLoadGlobalModels);
+    buffer = (u8*)modelData;
+    modelData->modelCount = 0;
+    loaders = (FieldModelLoaderData*)(header + 1);
+    for (i = 0; i < header->modelCount; i++) {
+        if (loaders[i].npcFlag) {
+            loaders[i].modelEntryIndex = modelData->modelCount;
+            modelData->modelCount++;
+        } else {
+            loaders[i].modelEntryIndex = 0xFF;
+        }
+    }
+
+    modelData->unk2 = 0;
+    modelData->unk1 = 0;
+    modelData->modelEntries = (FieldModelEntry*)(modelData + 1);
+    modelData->unk8 = NULL;
+    buffer += sizeof(FieldModelData) + modelData->modelCount * sizeof(FieldModelEntry);
+    for (i = 0; i < header->modelCount; i++) {
+        if (loaders[i].npcFlag) {
+            if (loaders[i].globalModelId > 0 && loaders[i].globalModelId < 10 && loaders[i].animationCount < 3) {
+                loaders[i].animationCount = 3;
+            }
+            entry = &modelData->modelEntries[loaders[i].modelEntryIndex];
+            entry->flags = 1;
+            entry->kawaiType = -1;
+            entry->boneCount = loaders[i].boneCount;
+            entry->partCount = loaders[i].partCount;
+            entry->animationCount = loaders[i].animationCount;
+            entry->rotationZ = 0;
+            entry->rotationY = 0;
+            entry->rotationX = 0;
+            entry->translationZ = 0;
+            entry->translationY = 0;
+            entry->translationX = 0;
+            entry->globalModelId = loaders[i].globalModelId;
+            entry->textureFaceId = loaders[i].faceId;
+            entry->scale = 0x1000;
+            partsOffset = loaders[i].boneCount * 4;
+            entry->partsOffset = partsOffset;
+            entry->animationOffset = partsOffset + (loaders[i].partCount << 5);
+            entry->modelData = buffer;
+            entry->partMatrices = NULL;
+            buffer += loaders[i].boneCount * 4 + (loaders[i].partCount << 5) + loaders[i].animationCount * 0x10;
+        }
+    }
+    D_800E0204 = 0;
+    return buffer;
+}
+
+u8* FieldModelLoadBcx(FieldModelLoaderHeader*, FieldModelData*, u8*, u32);
+u8* FieldModelLoadGlobalModels(
+    FieldModelLoaderHeader* header, FieldModelData* modelData, u8* buffer, s32 loadTextures) {
+    FieldModelLzsRequest* request;
+    s32 savedScratch;
+    u32 i;
+
+    savedScratch = *(u_long*)getScratchAddr(0);
+    request = *(FieldModelLzsRequest**)getScratchAddr(1);
+    for (i = 0; i < header->modelCount; i++) {
+        *(u_long*)0x1F800000 = savedScratch;
+        buffer = FieldModelLoadBcx(header, modelData, buffer, i);
+    }
+    if (loadTextures) {
+        SysCdromStartLoadLzs(request->sector, request->size, (u_long*)D_800DFCA0, NULL);
+        while (SystemCdromReadChain()) {
+        }
+    }
+    return buffer;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_model", FieldModelLoadBcx);
 

@@ -48,6 +48,20 @@ typedef struct WorldChunkNode {
 } WorldChunkNode; // size: 0x8
 
 typedef struct {
+    /* 0x00 */ VECTOR pos;
+    /* 0x10 */ SVECTOR offset;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ s16 chunkX;
+    /* 0x22 */ s16 chunkZ;
+    /* 0x24 */ s16 unk24;
+    /* 0x26 */ s16 rotY;
+    /* 0x28 */ s16 unk28;
+    /* 0x2A */ s16 unk2A;
+    /* 0x2C */ s32 unk2C;
+} WorldMapPos; // size: 0x30
+
+typedef struct {
     /* 0x00 */ s16 scriptIdx;
     /* 0x02 */ u8 waitFrames;
     /* 0x03 */ u8 scriptPriority;
@@ -61,7 +75,7 @@ typedef struct WorldActor {
     /* 0x1C */ VECTOR altPos;
     /* 0x2C */ WorldScriptFrame scriptStack[3]; // may be [4]?
     /* 0x38 */ s32 unk38;
-    /* 0x3C */ u16 unk3C;
+    /* 0x3C */ s16 unk3C;
     /* 0x3E */ u16 unk3E;
     /* 0x40 */ s16 direction;
     /* 0x42 */ s16 unk42;
@@ -86,7 +100,7 @@ typedef struct WorldActor {
     /* 0x5E */ s8 unk5E;
     /* 0x5F */ s8 unk5F;
     /* 0x60 */ WorldStoredTriangle storedTris[6];
-    /* 0x90 */ u8 unk90[0x50];
+    /* 0x90 */ POLY_FT4 prims[2];
 } WorldActor; // size: 0xE0
 
 typedef struct {
@@ -142,6 +156,7 @@ typedef struct {
 void WmSetRenderBuffers();
 s32 GetGraphType(void);
 MATRIX* MulMatrix0(MATRIX*, MATRIX*, MATRIX*);
+MATRIX* MulRotMatrix0(MATRIX*, MATRIX*);
 s16 func_800A3304(void);
 s32 func_800A19FC(WorldChunkHeader*, SVECTOR*, WorldStoredTriangle*, s16*, s32, s16*, s32);
 void func_800A31C0(s16);
@@ -197,8 +212,8 @@ void WmPackModelLoadFileCallback(void);
 s32 WmDialogSetAskToShow(u8, u8, u8, u8, s16*);
 void func_800B1C80(WorldChunkHeader*);
 void ResetEffectState();
-s32 func_800AA8F8(s32, s32);
-void func_800B59F4(s32, s32, s16, s16, POLY_FT4*, s32);
+s32 WmGetHorizonCurveDrop(s32, s32);
+void WmDrawGroundQuad(s16, s16, s16, s16, POLY_FT4*, s32);
 void func_800B5C7C(WorldActor*);
 void* WmGetModelDataByModelId(s16);
 s32 WmGetModelTotalRenderPacketSize(FieldModelEntry*);
@@ -229,12 +244,14 @@ s32 func_800BBBB0(void);
 static void func_800BBD0C(void);
 
 extern u32* D_800BD130;
+extern s32 D_800BD134;
+extern s32 D_800BD138;
 extern s32 D_800BD144;
 extern u16 D_800BD9E8[16][4][16]; // world map encounter data, size: 0x800
-extern s16 D_800BE1E8[512];
+extern u16 D_800BE1E8[512];
 extern s32 D_800C65EC;
-extern s32 D_800C6628;
-extern s32 D_800C6638;
+extern s32 D_800C6628[];
+extern s32 D_800C6638[];
 extern CVECTOR D_800C6768;
 extern CVECTOR D_800C676C;
 extern POLY_G4 D_800C6770[1];
@@ -243,6 +260,7 @@ extern u8 D_800C7114[][32];
 extern u8 D_800C72B4[16][4]; // size: 0x40
 extern u8 D_800C72F4[16];    // yuffie spawn chances per area, size: 0x10
 extern u8 D_800C7304[16];
+extern s32 D_800C74E4[][2];
 extern s8 D_800C752D;
 extern u32* D_800C7530;
 extern s32 D_800D05E8;
@@ -303,7 +321,7 @@ extern WorldActor* D_8010AD3C; // Active Actor
 extern WorldActor* D_8010AD40; // Player Actor
 extern WorldActor* D_8010ADE4; // World current script context object?
 // 8010ADF4 appears to maybe only be read from in an unused world script opcode
-extern s32 D_8010ADF4;
+extern VECTOR D_8010ADF4[3];
 extern s32 D_8010ADE8;
 extern s16 D_8010AD44;
 extern s16 D_8010AD48;
@@ -317,6 +335,7 @@ extern u16* D_8010AD6C;
 extern Unk8010AD70 D_8010AD70[1]; // todo: size
 extern Unk8010AD70* D_8010AD90;
 extern u8* D_8010AD94[4];
+extern u8 D_8010ADA4[64];
 extern s32 D_8010ADEC;
 extern s16 D_8010ADF0;
 extern s32 D_8010AE24;
@@ -395,6 +414,7 @@ extern s32 D_80115A68;
 typedef struct WorldListNode {
     /* 0x0 */ struct WorldListNode* next;
     /* 0x4 */ s16 unk4;
+    /* 0x6 */ s16 unk6;
 } WorldListNode;
 
 typedef struct {
@@ -405,8 +425,6 @@ typedef struct {
 
 extern WorldSoundArea D_800C68E8[3];
 WorldSoundArea* func_800B338C(s16, s16);
-extern u8 D_800C68FC[];
-extern u8 D_800C6910[];
 extern WorldChunkHeader D_80109A38[0x20];
 extern WorldChunkHeader* D_80109D38;
 extern WorldChunkHeader* D_80109D3C;
@@ -436,20 +454,10 @@ extern u8* D_80109D5C;
 extern u8 D_800BF5F0[];
 extern SPRT D_800C6648[];
 extern s32 D_800C84F0;
-extern s16 D_8009ABF8;
-extern s16 D_8009ABFA;
-extern s16 D_8009AC16;
-extern s16 D_8009AC18;
-extern u8* D_8009C6DC;
 extern WorldListNode* D_800E5810;
 extern WorldListNode* D_800E580C;
-extern u16 D_80083278[];
-extern u16 D_8008327A[];
-extern s16 D_80083286[];
 extern s8 D_80115A14[];
 extern s8 D_801159E8[];
-extern u8 D_8008328D[];
-extern s16 D_800832A2[];
 extern s32 D_80109D64;
 extern s32 D_80109D68;
 typedef struct {
@@ -460,7 +468,6 @@ typedef struct {
 } WorldEffectSlot; // size: 0x4
 
 extern WorldEffectSlot D_8010D9B8[2];
-extern u16 D_8009D2A6;
 extern u8 D_800C6678[][8];
 extern u8 D_800C6748[];
 extern MATRIX D_800C6808;
@@ -505,7 +512,6 @@ extern u8 D_8013A800;
 extern FieldModelEntry* D_8013A804;
 extern u32 D_8014A608;
 extern FieldModelEntry* D_8014A610;
-extern u8 D_8010D9BA[];
 extern s32 D_80116274;
 extern s16 D_80116288;
 extern s16 D_8011628C;

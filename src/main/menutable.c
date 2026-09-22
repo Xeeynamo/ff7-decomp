@@ -4,8 +4,8 @@
 
 // Likely plays a sound effect: writes a sound command (0x30) and the masked
 // 16-bit sound id (arg0, duplicated into both parameter words) into the
-// sound-request globals, then dispatches via SystemAkaoExecute.
-// NOTE: SystemAkaoExecute's own body computes a value in $v0 before
+// sound-request globals, then dispatches via AkaoExec.
+// NOTE: AkaoExec's own body computes a value in $v0 before
 // returning, so its game.h prototype has been corrected to `int`. Its other
 // callers across the codebase still discard the result via a bare statement;
 // propagating this same int-return pattern to those sibling wrappers may be a
@@ -14,7 +14,7 @@ static void func_80026408(u16 arg0) {
     *D_8009A000 = 0x30;
     *D_8009A004 = arg0;
     *D_8009A008 = arg0;
-    SystemAkaoExecute();
+    AkaoExec();
 }
 
 void SysMenuSetCursorMovement(

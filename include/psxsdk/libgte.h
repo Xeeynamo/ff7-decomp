@@ -81,6 +81,7 @@ extern int rcos(int a);
 extern int rsin(int a);
 extern long ratan2(long y, long x);
 
+#ifndef VERSION_PC
 #define gte_SetRotMatrix(r0)                                                   \
     __asm__ volatile(                                                          \
         "lw	$12, 0( %0 );"                                                     \
@@ -109,10 +110,12 @@ extern long ratan2(long y, long x);
         : "r"(r0)                                                              \
         : "$12", "$13", "$14")
 #define gte_ldv0(r0)                                                           \
-    __asm__ volatile("lwc2	$0, 0( %0 );"                                       \
-                     "lwc2	$1, 4( %0 )"                                        \
+    __asm__ volatile("addu	$12, %0, $zero;"                                    \
+                     "lwc2	$0, 0( $12 );"                                      \
+                     "lwc2	$1, 4( $12 )"                                       \
                      :                                                         \
-                     : "r"(r0))
+                     : "r"(r0)                                                 \
+                     : "$12")
 
 // NOTE: These are not the official defines in the SDK.
 // They were identified by looking at functions which used them.
@@ -129,43 +132,111 @@ extern long ratan2(long y, long x);
                      "nop;"                                                    \
                      ".word 0x4B400006")
 
-#define gte_stsxy2(r0)                                                         \
-    __asm__ volatile("swc2	$14, 0( %0 )" : : "r"(r0) : "memory")
-#define gte_stszotz(r0)                                                        \
+#define gte_rtv0()                                                             \
+    __asm__ volatile("nop;"                                                    \
+                     "nop;"                                                    \
+                     ".word 0x4A480012")
+
+#define gte_stlvnl(r0)                                                         \
     __asm__ volatile(                                                          \
-        "mfc2	$12, $19;"                                                       \
-        "nop;"                                                                 \
-        "sra	$12, $12, 2;"                                                     \
-        "sw	$12, 0( %0 )"                                                      \
+        "addu	$12, %0, $zero;"                                                 \
+        "swc2	$25, 0( $12 );"                                                  \
+        "swc2	$26, 4( $12 );"                                                  \
+        "swc2	$27, 8( $12 )"                                                   \
         :                                                                      \
         : "r"(r0)                                                              \
         : "$12", "memory")
 
-#define gte_ldv3(r0, r1, r2)                                                   \
+#define gte_stsxy2(r0)                                                         \
+    __asm__ volatile("addu	$12, %0, $zero;"                                    \
+                     "swc2	$14, 0( $12 )"                                      \
+                     :                                                         \
+                     : "r"(r0)                                                 \
+                     : "$12", "memory")
+#define gte_stszotz(r0)                                                        \
     __asm__ volatile(                                                          \
-        "lwc2	$0, 0( %0 );"                                                    \
-        "lwc2	$1, 4( %0 );"                                                    \
-        "lwc2	$2, 0( %1 );"                                                    \
-        "lwc2	$3, 4( %1 );"                                                    \
-        "lwc2	$4, 0( %2 );"                                                    \
-        "lwc2	$5, 4( %2 )"                                                     \
+        "addu	$12, %0, $zero;"                                                 \
+        "mfc2	$13, $19;"                                                       \
+        "nop;"                                                                 \
+        "sra	$13, $13, 2;"                                                     \
+        "sw	$13, 0( $12 )"                                                     \
         :                                                                      \
-        : "r"(r0), "r"(r1), "r"(r2))
+        : "r"(r0)                                                              \
+        : "$12", "$13", "memory")
+
+#define gte_ldv3(r0, r1, r2)                                                   \
+    do {                                                                       \
+        __asm__ volatile("addu	$12, %0, $zero" : : "r"(r0) : "$12");           \
+        __asm__ volatile("addu	$13, %0, $zero" : : "r"(r1) : "$13");           \
+        __asm__ volatile("addu	$14, %0, $zero;"                                \
+                         "lwc2	$0, 0( $12 );"                                  \
+                         "lwc2	$1, 4( $12 );"                                  \
+                         "lwc2	$2, 0( $13 );"                                  \
+                         "lwc2	$3, 4( $13 );"                                  \
+                         "lwc2	$4, 0( $14 );"                                  \
+                         "lwc2	$5, 4( $14 )"                                   \
+                         :                                                     \
+                         : "r"(r2)                                             \
+                         : "$14");                                             \
+    } while (0)
 
 #define gte_stopz(r0)                                                          \
     __asm__ volatile("swc2	$24, 0( %0 )" : : "r"(r0) : "memory")
 
 #define gte_stsxy3(r0, r1, r2)                                                 \
-    __asm__ volatile(                                                          \
-        "swc2	$12, 0( %0 );"                                                   \
-        "swc2	$13, 0( %1 );"                                                   \
-        "swc2	$14, 0( %2 )"                                                    \
-        :                                                                      \
-        : "r"(r0), "r"(r1), "r"(r2)                                            \
-        : "memory")
+    do {                                                                       \
+        __asm__ volatile("addu	$12, %0, $zero" : : "r"(r0) : "$12");           \
+        __asm__ volatile("addu	$13, %0, $zero" : : "r"(r1) : "$13");           \
+        __asm__ volatile("addu	$14, %0, $zero;"                                \
+                         "swc2	$12, 0( $12 );"                                 \
+                         "swc2	$13, 0( $13 );"                                 \
+                         "swc2	$14, 0( $14 )"                                  \
+                         :                                                     \
+                         : "r"(r2)                                             \
+                         : "$14", "memory");                                   \
+    } while (0)
+
+#define gte_stsz3(r0, r1, r2)                                                  \
+    do {                                                                       \
+        __asm__ volatile("addu	$12, %0, $zero" : : "r"(r0) : "$12");           \
+        __asm__ volatile("addu	$13, %0, $zero" : : "r"(r1) : "$13");           \
+        __asm__ volatile("addu	$14, %0, $zero;"                                \
+                         "swc2	$17, 0( $12 );"                                 \
+                         "swc2	$18, 0( $13 );"                                 \
+                         "swc2	$19, 0( $14 )"                                  \
+                         :                                                     \
+                         : "r"(r2)                                             \
+                         : "$14", "memory");                                   \
+    } while (0)
+
+#define gte_stsz(r0)                                                           \
+    __asm__ volatile("addu	$12, %0, $zero;"                                    \
+                     "swc2	$19, 0( $12 )"                                      \
+                     :                                                         \
+                     : "r"(r0)                                                 \
+                     : "$12", "memory")
 #define gte_stsxy(r0)                                                          \
     __asm__ volatile("swc2	$14, 0( %0 )" : : "r"(r0) : "memory")
 
 #define gte_SetGeomScreen(r0) __asm__ volatile("ctc2	%0, $26" : : "r"(r0))
+#else
+#define gte_SetRotMatrix(r0)
+#define gte_SetTransMatrix(r0)
+#define gte_ldv0(r0)
+#define gte_rtps()
+#define gte_rtpt()
+#define gte_nclip()
+#define gte_rtv0()
+#define gte_stlvnl(r0)
+#define gte_stsxy2(r0)
+#define gte_stszotz(r0)
+#define gte_ldv3(r0, r1, r2)
+#define gte_stopz(r0)
+#define gte_stsxy3(r0, r1, r2)
+#define gte_stsz3(r0, r1, r2)
+#define gte_stsz(r0)
+#define gte_stsxy(r0)
+#define gte_SetGeomScreen(r0)
+#endif
 
 #endif

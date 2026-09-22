@@ -4,6 +4,8 @@
 #include <common.h>
 #include <libgte.h>
 #include <libgpu.h>
+#include "sfx.h"
+#include "bgm.h"
 
 #ifndef FF7_STR
 #define _S(x) x       // check the usage of 'bin/str' to see how this works
@@ -12,6 +14,7 @@
 
 #define NUM_PARTY 3
 #define NUM_CHARACTERS 9
+#define NUM_MATERIA_ROW 8 // maximum amount of materia per row (weapon or armor)
 #define MAX_INVENTORY_COUNT 320
 #define MAX_MATERIA_COUNT 200
 #define NUM_MENU_COLOR 12
@@ -449,7 +452,7 @@ typedef struct {
     s32 unk1C;
     s32 unk20; // pending message/animation id, -1 = none
     s32 unk24;
-    s32 unk28;
+    s32 cmdIndex;
     s32 absoluteActionIndex; // relativeActionIndex remapped into the single
                              // shared spell/summon/enemy-skill/limit name
                              // table (kernel.bin section 18) via
@@ -459,10 +462,10 @@ typedef struct {
     s32 unk38;
     s32 unk3C;
     s32 unk40;
-    s32 unk44;
-    s32 unk48;
-    s32 unk4C;
-    s32 unk50;
+    s32 elements;
+    s32 power;
+    s32 attackStat;
+    s32 targetFlags;
     s32 unk54;
     s32 unk58;
     s32 unk5C;
@@ -492,7 +495,7 @@ typedef struct {
     s32 unkBC;
     s32 unkC0;
     s32 unkC4;
-    s32 unkC8;
+    s32 attackerStatus;
     s32 unkCC;
     u8 unkD0[8];
     s32 unkD8;
@@ -508,13 +511,13 @@ typedef struct {
     s32 unk100[0x40];
     void* unk200;
     void* unk204;
-    s32 unk208;
+    s32 targetId;
     s32 unk20C;
-    s32 unk210;
-    s32 unk214;
+    s32 targetDefense;
+    s32 tmpDamage;
     s32 unk218;
     s32 unk21C;
-    s32 unk220;
+    s32 damageFlags;
     s32 unk224;
     u32 unk228;
     s32 unk22C;
@@ -966,7 +969,7 @@ typedef struct {
     /* 0x04 */ u8 modelEntryIndex; // index into FieldModelData->modelEntries
     /* 0x05 */ u8 npcFlag;         // NPC/model type flag?
     /* 0x06 */ u8 unk6;
-    /* 0x07 */ u8 globalModelId; // BCX/global model lookup id
+    /* 0x07 */ s8 globalModelId; // BCX/global model lookup id
 } FieldModelLoaderData;          // size:0x8
 
 // Incomplete struct to make FieldEnablePartyModels match
@@ -977,7 +980,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ u8 flags;     // initialized to 1, later cleared
-    /* 0x01 */ u8 kawaiType; // KAWAI second byte
+    /* 0x01 */ s8 kawaiType; // KAWAI second byte
     /* 0x02 */ u8 boneCount;
     /* 0x03 */ u8 partCount;
     /* 0x04 */ u8 animationCount;
@@ -1001,7 +1004,8 @@ typedef struct {
     /* 0x01 */ u8 unk1;                       // (initialized to 0)
     /* 0x02 */ u16 unk2;                      // (initialized to 0)
     /* 0x04 */ FieldModelEntry* modelEntries; // per-model-file records
-} FieldModelData;
+    /* 0x08 */ void* unk8;                    // (initialized to NULL)
+} FieldModelData;                             // size:0xC
 
 typedef struct {
     u8 enabled;
@@ -1198,7 +1202,6 @@ extern MainMenuColorLabels g_Labels;    // labels indexed by Labels enum
 extern u8 g_MenuColors[NUM_MENU_COLOR]; // 4 corners x RGB
 extern FieldModelData* g_FieldModelData;
 extern u8 D_80062D98; // battle_clearRenderList
-extern u8 D_80062D99;
 // Set while a memory-card transfer is in flight and the savemap must not be
 // touched; battle code spin-waits on it.
 extern volatile u8 g_SavemapBusy;
@@ -1217,6 +1220,7 @@ extern DRAWENV D_800706A4[2];
 extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
                             // (set by the MULCK opcode)
 extern u8 D_80070788;
+extern u8 D_800716CC;
 extern u8 g_EntityToLine[48];
 extern u16 g_BattleMode;
 extern u16 g_FieldWaitCounter[48];      // Used by WAIT opcode to pause script
@@ -1269,7 +1273,7 @@ extern u16 g_FieldScriptPC[48];   // program counters for active entity scripts
 extern u8 g_FieldModelAnimId[16]; // per-model default animation id (DFANM)
 extern u8 g_WindowToEntity[4];
 extern WindowData g_WindowData[4];
-extern s32 D_80083338;
+extern s32 g_AkaoSavedMusicActiveMask0;
 
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level
@@ -1308,7 +1312,6 @@ extern CharacterLevelData g_CharacterLevelData[3];
 extern u8 D_8009D824;
 extern s16 g_FieldModelBaseAnimSpeed[16]; // per-model base animation speed
 extern BattleItemReward g_BattleItemsEarned[4];
-extern volatile s32 D_8009D268[];
 extern ActiveCharacterData g_ActiveCharacters[9];
 extern u8 D_8009FE8C;
 extern s32 g_FFTextLetterOffset;
@@ -1322,8 +1325,6 @@ void VectorNormal(VECTOR*, VECTOR*);
 s32 SetGraphDebug(s32);
 s32 func_80041E30(s32 arg0, s32 arg1);
 void func_80041D28(int, void*, int);
-void func_8003DE6C(s32 arg0);
-void func_8003DE84(s32 arg0);
 
 void SystemError(char c, long n);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
@@ -1345,7 +1346,7 @@ void SysMenuSetCursorMovement(
 void SysMenuSetPoly(void* poly);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
-void SystemAkaoExecute(void);
+void AkaoExec(void);
 void SysInitRndTablePos(s32 seed);
 void SysInitPlayerStatFromEquip(s32 arg0);
 void SysInitPlayerStatFromMateria(s32 arg0);
@@ -1379,7 +1380,6 @@ s32 SysGetLimitCmdId(s32 charId, s32 limitIndex);
 int SYS_GetDiskNo(void);
 
 // from overlays
-extern u8 SavedScriptIds[48][8]; // script ids of latest queued scripts
 extern u_long* D_8019D5E8;
 extern s32 D_8019DAA0;
 

@@ -7,6 +7,13 @@ set(CMAKE_C_STANDARD 11)
 set(FF7_SOURCES
     # Engine
     src/main/110B8.c
+    src/main/33B70.c
+    src/main/1F6B4.c
+    src/main/ovl.c
+    src/main/1CDA4.c
+    src/main/26B70.c
+    src/main/input.c
+    src/main/menutable.c
     src/main/144D8.c
     src/main/14C70.c
     src/main/15B44.c
@@ -85,9 +92,17 @@ foreach(src ${FF7_SOURCES})
     list(APPEND FF7_STR_SOURCES ${strd_src})
 endforeach()
 
+add_subdirectory(tools/psyz/psyz)
+target_include_directories(psyz PUBLIC tools/psyz/psyz/include)
+target_compile_definitions(psyz PRIVATE __psyz)
+
 add_library(${PROJECT_NAME} ${FF7_STR_SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE include include/psxsdk)
-target_compile_definitions(${PROJECT_NAME} PRIVATE VERSION_PC SKIP_ASM=1 FF7_STR)
+psyz_strip_file_prefix(${PROJECT_NAME})
+psyz_title(${PROJECT_NAME} "Final Fantasy VII")
+find_package(ZLIB REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE psyz m ZLIB::ZLIB)
+target_include_directories(${PROJECT_NAME} PRIVATE include src/pc)
+target_compile_definitions(${PROJECT_NAME} PRIVATE SKIP_ASM=1 NON_MATCHINGS FF7_STR VERSION_PC)
 target_compile_options(${PROJECT_NAME} PRIVATE
     -Wno-implicit-function-declaration
     -Wno-int-conversion

@@ -126,16 +126,16 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2BF4);
 
 static void BattleQueueEffect(s32, s32, s32, s32, s32, s32, s32);
 static void func_800A2CC4(s32 arg0) {
-    BattleQueueEffect(
-        g_CurrentAction->actorId, arg0, g_CurrentAction->unk28, g_CurrentAction->unk24, g_CurrentAction->unk98, 0, 0);
+    BattleQueueEffect(g_CurrentAction->actorId, arg0, g_CurrentAction->cmdIndex, g_CurrentAction->unk24,
+                      g_CurrentAction->unk98, 0, 0);
 }
 
 const u8 D_800A01A8[] = {0x05, 0x06, 0x07, 0x12, 0x0F, 0x00, 0x03, 0xA6};
 static s32 func_800A2D0C(void) {
     s32 temp_v1;
 
-    if (g_CurrentAction->unk208 >= NUM_PARTY) {
-        return g_BattleState.combatant[g_CurrentAction->unk208].hurtActionId;
+    if (g_CurrentAction->targetId >= NUM_PARTY) {
+        return g_BattleState.combatant[g_CurrentAction->targetId].hurtActionId;
     }
     return D_800A01A8[g_CurrentAction->unkCC];
 }
@@ -665,12 +665,9 @@ void func_800A4E40(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleEnableLimitToPlayerWithSpeed);
 
-static void BattleEnableLimitToPlayerWithoutSpeed(s32 arg0) {
-    s32 temp_v0;
-
-    temp_v0 = arg0 * 0x44;
-    *(u16*)((u8*)&g_BattleWork.turn[0].limitSpeedFlag + temp_v0) &= 0xFFFE;
-    *(u8*)((u8*)&g_BattleWork.turn[0].hasLimitBreak + temp_v0) |= 1;
+static void BattleEnableLimitToPlayerWithoutSpeed(s32 turnIdx) {
+    g_BattleWork.turn[turnIdx].limitSpeedFlag &= ~1;
+    g_BattleWork.turn[turnIdx].hasLimitBreak |= 1;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4F60);
@@ -679,19 +676,16 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A50E0);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A5250);
 
-static void func_800A555C(s32 arg0, s32 arg1) {
-    u8* row;
-    u16 value;
+static void func_800A555C(s32 charIdx, s32 magicId) {
+    MagicRecord* magic;
+    u16 mpCost;
 
-    row = D_8009D866[arg0].effects;
-    row += arg1 * 8;
+    magic = &g_ActiveCharacters[charIdx].enabledMagic[magicId];
 
-    row[6] = 2;
-    row[5] = D_800708C4[arg1].targetFlags;
-    value = D_800708C4[arg1].mpCost;
-    arg1 -= 0x48;
-    row[0] = arg1;
-    row[1] = value;
+    magic->menuflags = 2;
+    magic->targetFlags = D_800708C4[magicId].targetFlags;
+    magic->mpCost = D_800708C4[magicId].mpCost;
+    magic->id = magicId - 0x48;
 }
 
 typedef struct {
@@ -899,14 +893,14 @@ void BattleResetManipulatorTimer(s32 arg0) {
 
 void func_800A6590(s32 arg0) { func_800A4D88(arg0); }
 
-void BattleEnableLimitToPlayerResettingBar(s32 arg0, s32 arg1) {
+void BattleEnableLimitToPlayerResettingBar(s32 charIdx, s32 arg1) {
     u16* p;
 
-    if (arg0 < NUM_PARTY) {
-        BattleEnableLimitToPlayerWithoutSpeed(arg0);
-        D_8009D866[arg0].unk0 = 0;
+    if (charIdx < NUM_PARTY) {
+        BattleEnableLimitToPlayerWithoutSpeed(charIdx);
+        g_ActiveCharacters[charIdx].unk1A = 0;
         p = &D_80163762;
-        *p &= ~(1 << arg0);
+        *p &= ~(1 << charIdx);
     }
 }
 
@@ -1153,7 +1147,7 @@ void BattleSetupThrowAction(void) {
         g_CurrentAction->unk98 = g_CurrentAction->relativeActionIndex;
         g_CurrentAction->unk24 = g_CurrentAction->relativeActionIndex - 0x80;
         BattleRemoveUnitReservedItem(g_CurrentAction->actorId, g_CurrentAction->absoluteActionIndex);
-        g_CurrentAction->unk48 = 0x10;
+        g_CurrentAction->power = 0x10;
         weapon = g_CurrentAction->unk24;
         g_CurrentAction->unkD8 = g_WeaponTable[weapon].attack + g_ActiveCharacters[g_CurrentAction->actorId].strength;
         g_CurrentAction->unk68 = g_WeaponTable[weapon].impactEffect;
@@ -1231,7 +1225,7 @@ void func_800AF9C8();
 void BattleActionType0A(void) { func_800AF9C8(); }
 
 void BattleActionType0B(void) {
-    g_CurrentAction->unk50 = 0;
+    g_CurrentAction->targetFlags = 0;
     g_CurrentAction->allowedTargetsMask = 1 << g_CurrentAction->actorId;
 }
 
@@ -1248,10 +1242,10 @@ void BattleLoadActionAttackData(void) {
     g_CurrentAction->unk3C = 0xFF;
     atk = &D_800722CC[g_CurrentAction->absoluteActionIndex];
     g_CurrentAction->unk40 = atk->damageCalcID;
-    g_CurrentAction->unk48 = atk->strength;
+    g_CurrentAction->power = atk->strength;
     elements = atk->elements;
     if (elements != 0xFFFF) {
-        g_CurrentAction->unk44 = elements;
+        g_CurrentAction->elements = elements;
     }
     g_CurrentAction->unk60 = atk->cameraSingleID;
     g_CurrentAction->unk64 = atk->cameraSingleID;
@@ -1273,7 +1267,7 @@ void BattleQueueCurrentActionEffect(void) {
         unk->actionId = g_CurrentAction->actorId;
         unk->unk1 = g_CurrentAction->unk1C;
         unk->unk5 = g_CurrentAction->unk20;
-        unk->unk3 = g_CurrentAction->unk28;
+        unk->unk3 = g_CurrentAction->cmdIndex;
         unk->unk2 = g_CurrentAction->unk24;
         unk->unk8 = g_CurrentAction->unk60;
         unk->unk4 = 0;
@@ -1303,9 +1297,9 @@ void func_800A853C(void) {
 void BattleActionType12(void) { g_CurrentAction->unkB4 = 2; }
 
 void func_800A85B4(void) {
-    g_CurrentAction->unk44 = 0x10;
-    g_CurrentAction->unk48 = 1;
-    g_CurrentAction->unk50 = 0;
+    g_CurrentAction->elements = 0x10;
+    g_CurrentAction->power = 1;
+    g_CurrentAction->targetFlags = 0;
     if (!((D_80163758[1] >> g_CurrentAction->actorId) & 1)) {
         g_CurrentAction->unk20 = -1;
     }
@@ -1329,13 +1323,13 @@ void BattleActionType1B(void) {
     g_CurrentAction->unk3C /= 3;
 }
 
-void BattleActionType1C(void) { g_CurrentAction->unk48 = 2; }
+void BattleActionType1C(void) { g_CurrentAction->power = 2; }
 
 void BattleActionType1E(void) { BattleCopyTargTypeDatToTmp(g_BattleWork.setup[g_CurrentAction->actorId].targetFlags); }
 
 static void BattleCopyTargTypeDatToTmp(s32 arg0) {
-    if (g_CurrentAction->unk50 == 0xFF) {
-        g_CurrentAction->unk50 = arg0;
+    if (g_CurrentAction->targetFlags == 0xFF) {
+        g_CurrentAction->targetFlags = arg0;
     }
 }
 
@@ -1431,9 +1425,9 @@ static void BattleResolveCaitSithSlotsResult(void) {
             rollSum = 0xF;
         }
         g_CurrentAction->absoluteActionIndex = rollSum + 0x38;
-        g_CurrentAction->unk28 = 3;
+        g_CurrentAction->cmdIndex = 3;
     }
-    g_CurrentAction->unk50 = 0xFF;
+    g_CurrentAction->targetFlags = 0xFF;
     g_CurrentAction->unk98 = g_CurrentAction->absoluteActionIndex;
     savedUnk20 = g_CurrentAction->unk20;
     func_800A8E34();
@@ -1444,7 +1438,46 @@ static void BattleResolveCaitSithSlotsResult(void) {
 const u8 D_800A0398[] = {0x64, 0x14, 0x14, 0x14, 0xEC, 0xCE, 0xCE, 0x00};
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A9DA0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA1C8);
+static void BattleAddStatMult(s32 unitId, s32 deltaPct, s32 statMask);
+
+// attack additional-effect handler for Vincent's transformation Limits; the effect modifier (unkC0) picks the form
+void BattleApplyVincentLimitTransform(void) {
+    s32 unitId;
+
+    unitId = g_CurrentAction->actorId;
+    g_BattleState.combatant[unitId].stateFlags |= 0x10;
+    g_BattleState.combatant[unitId].status &= ~(STATUS_CONFU | STATUS_FROG | STATUS_BERSERK);
+    g_BattleWork.turn[unitId].turnFlags |= 8;
+    BattleAddBattleActionToBattleQueue(unitId, 0, -1, 0, 0);
+    D_800F83AB[0] = g_CurrentAction->unkC0;
+    switch (g_CurrentAction->unkC0) {
+    case 0: // Lvl 1. Galian Beast
+        BattleAddStatMult(unitId, 0x14, 0x10);
+        BattleAddStatMult(unitId, 0x32, 0x20);
+        g_BattleState.combatant[unitId].maxHP = g_BattleState.combatant[unitId].maxHP * 13 / 10;
+        break;
+    case 1: // Lvl 2. Death Gigas
+        BattleAddStatMult(unitId, 0x32, 4);
+        BattleAddStatMult(unitId, -0x46, 8);
+        BattleAddStatMult(unitId, -0x14, 0x20);
+        g_BattleState.combatant[unitId].maxHP *= 2;
+        break;
+    case 2: // Lvl 3. Hellmasker
+        BattleAddStatMult(unitId, 0x32, 4);
+        BattleAddStatMult(unitId, 0x32, 0x10);
+        break;
+    case 3: // Lvl 4. Chaos
+        BattleAddStatMult(unitId, 0x64, 4);
+        BattleAddStatMult(unitId, 0x64, 8);
+        break;
+    }
+    if (g_BattleState.combatant[unitId].maxHP > g_BattleWork.party[unitId].capHP) {
+        g_BattleState.combatant[unitId].maxHP = g_BattleWork.party[unitId].capHP;
+    }
+    g_BattleState.combatant[unitId].curHP = g_BattleState.combatant[unitId].maxHP;
+    BattleRecalcUnitSpeed(unitId);
+    BattleQueueEvent(2, unitId, 0x18, 1);
+}
 
 static s32 func_800B10B4(s32 arg0);
 
@@ -1452,13 +1485,13 @@ static void func_800AA468(void) {
     s32 temp_s0;
     s32 var_s1;
 
-    var_s1 = g_CurrentAction->unkC8;
+    var_s1 = g_CurrentAction->attackerStatus;
     if (func_800B10B4(g_CurrentAction->actorId)) {
         var_s1 |= 2;
     }
     temp_s0 = SysCountActiveBits(var_s1 & 0x0400029A);
     temp_s0 += SysCountActiveBits(var_s1 & 0x202000) * 2;
-    g_CurrentAction->unk214 *= temp_s0 + 1;
+    g_CurrentAction->tmpDamage *= temp_s0 + 1;
 }
 
 static void func_800AA4FC(void) {
@@ -1468,10 +1501,10 @@ static void func_800AA4FC(void) {
     if (func_800B10B4(g_CurrentAction->actorId) != 0) {
         var_s0 = 2;
     }
-    if (g_CurrentAction->unkC8 & 0x200000) {
+    if (g_CurrentAction->attackerStatus & 0x200000) {
         var_s0 *= 4;
     }
-    g_CurrentAction->unk214 *= var_s0;
+    g_CurrentAction->tmpDamage *= var_s0;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA574);
@@ -1486,7 +1519,7 @@ static void func_800AA688(void) {
             var_a1 += 1;
         }
     }
-    g_CurrentAction->unk214 *= var_a1;
+    g_CurrentAction->tmpDamage *= var_a1;
 }
 
 static s32 func_800AA6E8(s32 arg0, s32 arg1) {
@@ -1522,7 +1555,7 @@ static void BattleDropDyingEnemiesFromTargets(void) {
     s32 i;
 
     if (!(g_CurrentAction->unk90 & 0x10) && g_CurrentAction->actorId < NUM_PARTY &&
-        ((g_CurrentAction->unk44 & 0x1C00) || g_CurrentAction->unk28 == 5)) {
+        ((g_CurrentAction->elements & 0x1C00) || g_CurrentAction->cmdIndex == 5)) {
         mask = g_CurrentAction->allowedTargetsMask;
         for (i = START_ENEMY; i < NUM_BATTLE_ACTOR; i++) {
             if (g_BattleState.combatant[i].formationRow >= 16) {
@@ -1555,8 +1588,8 @@ static void BattleLearnEnemySkill(void) {
         if (!(mask & bit)) {
             *flags = mask | bit;
             id = (u16)g_CurrentAction->absoluteActionIndex;
-            BattleAddStringToDisplay(g_CurrentAction->unk208, 0x73, 1, &id);
-            BattleQueueEvent(2, g_CurrentAction->unk208, 0x12, id);
+            BattleAddStringToDisplay(g_CurrentAction->targetId, 0x73, 1, &id);
+            BattleQueueEvent(2, g_CurrentAction->targetId, 0x12, id);
             g_CurrentAction->unk224 = 0xA;
         }
     }
@@ -1622,14 +1655,14 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
 
     // reload the (possibly redirected) target id, then run the damage/effect
     // calculation pipeline for this hit
-    arg1 = g_CurrentAction->unk208;
+    arg1 = g_CurrentAction->targetId;
     func_800AE82C();
     func_800AB308();
-    if (g_CurrentAction->unk44 & 0x200) {
-        g_CurrentAction->unk220 |= 1;
+    if (g_CurrentAction->elements & 0x200) {
+        g_CurrentAction->damageFlags |= 1;
     }
     if (!(g_CurrentAction->unk6C & 1)) {
-        g_CurrentAction->unk220 |= 4;
+        g_CurrentAction->damageFlags |= 4;
     }
     if (g_BattleState.combatant[arg1].stateFlags & 0x4000) {
         // target already marked -- treat as an automatic miss/no-effect
@@ -1639,7 +1672,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
         BattleDmgFormulaRun();
     }
     func_800A8E84(3);
-    if (g_CurrentAction->unk48 == 0) {
+    if (g_CurrentAction->power == 0) {
         g_CurrentAction->unk218 |= 2;
     }
     if (func_800ACD88(arg1) != 0) {
@@ -1715,39 +1748,39 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
         cap = 9999;
         capMP = 999;
     }
-    if (g_CurrentAction->unk220 & 4) {
+    if (g_CurrentAction->damageFlags & 4) {
         cap = capMP;
     }
-    if (cap < g_CurrentAction->unk214) {
-        g_CurrentAction->unk214 = cap;
+    if (cap < g_CurrentAction->tmpDamage) {
+        g_CurrentAction->tmpDamage = cap;
     }
     if (BattleIsDamageNullified(arg1) != 0) {
-        g_CurrentAction->unk214 = 0;
+        g_CurrentAction->tmpDamage = 0;
     }
-    if (g_CurrentAction->unk214 != 0) {
+    if (g_CurrentAction->tmpDamage != 0) {
         // All Lucky 7s: force the damage display to the "7777" value
         cap = g_BattleWork.turn[g_CurrentAction->actorId].prevHP;
         if (cap == 0x1E61) {
-            g_CurrentAction->unk214 = cap;
+            g_CurrentAction->tmpDamage = cap;
         }
     }
 
     // pick which damage-number/message params to show for this hit
     flags = g_CurrentAction->unk218;
     if (!(flags & 3)) {
-        if (!(g_CurrentAction->unk220 & 1) && (g_CurrentAction->actorId != arg1)) {
+        if (!(g_CurrentAction->damageFlags & 1) && (g_CurrentAction->actorId != arg1)) {
             g_CurrentAction->unkA8 |= 1 << arg1;
         }
         if (g_CurrentAction->unk250 == -1) {
-            g_CurrentAction->unk250 = g_CurrentAction->unk214;
+            g_CurrentAction->unk250 = g_CurrentAction->tmpDamage;
         }
         g_CurrentAction->unk24C = g_CurrentAction->unk68;
-        if (g_CurrentAction->unk220 & 2) {
+        if (g_CurrentAction->damageFlags & 2) {
             g_CurrentAction->unk248 = g_CurrentAction->unk58;
         } else {
             g_CurrentAction->unk248 = g_CurrentAction->unk54;
         }
-        if ((g_CurrentAction->unk220 & 1) || (g_CurrentAction->unk250 == 0)) {
+        if ((g_CurrentAction->damageFlags & 1) || (g_CurrentAction->unk250 == 0)) {
             g_CurrentAction->unk224 = 0x33;
         } else {
             func_800AC6B4(0);
@@ -1814,8 +1847,8 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     }
     if (!(g_CurrentAction->unk218 & 2)) {
         // queue the hit's damage/message display
-        func_800ABA68(
-            act, g_CurrentAction->unk250, g_CurrentAction->unk220, g_CurrentAction->unk248, g_CurrentAction->unk24C);
+        func_800ABA68(act, g_CurrentAction->unk250, g_CurrentAction->damageFlags, g_CurrentAction->unk248,
+                      g_CurrentAction->unk24C);
     } else if (g_CurrentAction->unk218 & 0x800000) {
         BattleQueueUnassignedResultDisplay(act);
     }
@@ -1824,14 +1857,14 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     }
     if (g_CurrentAction->unk90 & 0x80) {
         // HP-absorb / MP-absorb bonus effects
-        func_800AD324(g_CurrentAction->unkF4, g_CurrentAction->unk208, g_CurrentAction->unk214 / 100, 1);
+        func_800AD324(g_CurrentAction->unkF4, g_CurrentAction->targetId, g_CurrentAction->tmpDamage / 100, 1);
     }
     if (g_CurrentAction->unk90 & 0x40) {
-        func_800AD324(g_CurrentAction->unkF4, g_CurrentAction->unk208, g_CurrentAction->unk214 / 10, 2);
+        func_800AD324(g_CurrentAction->unkF4, g_CurrentAction->targetId, g_CurrentAction->tmpDamage / 10, 2);
     }
     if (arg1 < NUM_PARTY && g_CurrentAction->actorId >= START_ENEMY) {
         // enemy attack triggered a scripted counter/follow-up
-        if ((*(s32*)(g_CurrentAction->unk204 + 0x24) != 0) && (g_CurrentAction->unk28 == 0xD)) {
+        if ((*(s32*)(g_CurrentAction->unk204 + 0x24) != 0) && (g_CurrentAction->cmdIndex == 0xD)) {
             BattleLearnEnemySkill();
         }
     }
@@ -1847,7 +1880,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
         // current message slot isn't already showing one
         act->flags = (act->flags | 4) & ~8;
         g_CurrentAction->unk7C |= 1 << arg1;
-        if (g_CurrentAction->unk28 == 0x1A) {
+        if (g_CurrentAction->cmdIndex == 0x1A) {
             if (D_801636B8[arg1].D_801636BC < 0x11) {
                 D_801636B8[arg1].D_801636BC = 8;
             }
@@ -1860,7 +1893,7 @@ void func_800AC6B4(s32 arg0) {
     s32 temp_a0;
 
     if (arg0 != 0) {
-        if (g_CurrentAction->unk208 >= 4) {
+        if (g_CurrentAction->targetId >= 4) {
             g_CurrentAction->unk224 = 0x39;
         }
     } else {
@@ -1883,7 +1916,7 @@ void func_800ACA24(void) {
     g_CurrentAction->unk240 = 0;
     g_CurrentAction->unk244 = 0;
     g_CurrentAction->unk230 = 0;
-    g_CurrentAction->unk214 = 0;
+    g_CurrentAction->tmpDamage = 0;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACA4C);
@@ -1933,9 +1966,9 @@ void func_800AD324(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 var_a2;
 
     var_a2 = arg2;
-    temp_t0 = g_CurrentAction->unk220 & 1;
+    temp_t0 = g_CurrentAction->damageFlags & 1;
     if (arg3 & 1) {
-        if (arg1 == g_CurrentAction->unk208) {
+        if (arg1 == g_CurrentAction->targetId) {
             if (g_CurrentAction->unk25C < var_a2) {
                 var_a2 = g_CurrentAction->unk25C;
             }
@@ -1946,7 +1979,7 @@ void func_800AD324(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
         g_BattleWork.turn[arg0].action09Data2 -= var_a2;
     }
     if (arg3 & 2) {
-        if (arg1 == g_CurrentAction->unk208) {
+        if (arg1 == g_CurrentAction->targetId) {
             if (g_CurrentAction->unk258 < var_a2) {
                 var_a2 = g_CurrentAction->unk258;
             }
@@ -1966,7 +1999,7 @@ static void BattleApplyDefaultAbsorbEffect(void) {
     s32 result;
 
     t0 = 2;
-    if (g_CurrentAction->unk220 & 4) {
+    if (g_CurrentAction->damageFlags & 4) {
         t0 = 1;
     }
 
@@ -1975,7 +2008,7 @@ static void BattleApplyDefaultAbsorbEffect(void) {
     a3 = (a3 == 0) ? 3 : 0;
     result = t0 | a3;
 
-    func_800AD324(g_CurrentAction->unkF4, g_CurrentAction->unk208, g_CurrentAction->unk214, result);
+    func_800AD324(g_CurrentAction->unkF4, g_CurrentAction->targetId, g_CurrentAction->tmpDamage, result);
 }
 
 void BattleHitFormulaInit(void) {
@@ -2033,7 +2066,7 @@ static s32 BattleAddBarriersModifier(s32 arg0) {
 // deal reduced per-target damage" mechanic
 static s32 BattleAddSplitQuaterModifier(s32 arg0, s32 arg1) {
     if (arg1 == 0) {
-        if ((g_CurrentAction->unkB8 < 2) || (g_CurrentAction->unk50 & 0x80)) {
+        if ((g_CurrentAction->unkB8 < 2) || (g_CurrentAction->targetFlags & 0x80)) {
             arg1 = 1;
         }
     }
@@ -2074,22 +2107,75 @@ static s32 BattleAddRndModifierAndZeroCheck(s32 arg0) {
 
 void BattleLowerFunc00(void) { g_CurrentAction->unk218 |= 2; }
 
-void BattleSetTmpDmgAsPhysical();
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleSetTmpDmgAsPhysical);
+void BattleSetTmpDmgAsPhysical(void) {
+    s32 stat;
+    s32 level;
+    s32 target;
+    s32 raw;
+    s32 damage;
+    s32 halve;
+    s32 sumTerm;
+    s32 mulTerm;
+    s32 isBackRow;
+
+    if (!(g_CurrentAction->unk6C & 0x2000)) {
+        g_CurrentAction->damageFlags |= 2;
+    }
+    stat = g_CurrentAction->attackStat;
+    level = g_CurrentAction->characterLevel;
+    mulTerm = (level * stat) / 32;
+    sumTerm = (level + stat) / 32;
+    raw = ((mulTerm * sumTerm) + stat) * (0x200 - g_CurrentAction->targetDefense) * g_CurrentAction->power;
+    damage = raw / 0x2000;
+    if (g_CurrentAction->damageFlags & 2) {
+        damage *= 2;
+    }
+    if (g_CurrentAction->attackerStatus & STATUS_BERSERK) {
+        damage *= 3;
+        damage >>= 1;
+    }
+    isBackRow = g_BattleState.combatant[g_CurrentAction->targetId].stateFlags & 0x40;
+    halve = isBackRow != 0;
+    if ((g_CurrentAction->targetFlags & 0x20) || (g_CurrentAction->cmdIndex == 0x20)) {
+        if (g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & 0x40) {
+            halve = 1;
+        }
+    } else {
+        halve = 0;
+    }
+    if (halve) {
+        damage = damage / 2;
+    }
+    target = g_CurrentAction->targetId;
+    if (g_BattleState.combatant[target].stateFlags & 0x20) {
+        damage = damage / 2;
+    }
+    if (g_CurrentAction->unk234 & 1) {
+        damage = damage * g_BattleState.combatant[target].backDamageMult >> 3;
+    }
+    if (g_CurrentAction->attackerStatus & STATUS_FROG) {
+        damage >>= 2;
+    }
+    damage = BattleAddBarriersModifier(BattleAddSplitQuaterModifier(BattleApplySadnessReduction(damage), 0));
+    if (g_CurrentAction->attackerStatus & STATUS_SMALL) {
+        damage = 0;
+    }
+    g_CurrentAction->tmpDamage = BattleAddRndModifierAndZeroCheck(damage);
+}
 
 void BattleSetTmpDmgAsMagical(void) {
     s32 temp_s0;
     s32 var_v1;
     s32 base;
 
-    base = (g_CurrentAction->unk4C + g_CurrentAction->characterLevel) * 6;
+    base = (g_CurrentAction->attackStat + g_CurrentAction->characterLevel) * 6;
 
-    var_v1 = base * (0x200 - g_CurrentAction->unk210) * g_CurrentAction->unk48;
-    temp_s0 = (g_CurrentAction->unk50 & 0xC) == 4;
+    var_v1 = base * (0x200 - g_CurrentAction->targetDefense) * g_CurrentAction->power;
+    temp_s0 = (g_CurrentAction->targetFlags & 0xC) == 4;
     if (var_v1 < 0) {
         var_v1 += 0x1FFF;
     }
-    g_CurrentAction->unk214 = BattleAddRndModifierAndZeroCheck(
+    g_CurrentAction->tmpDamage = BattleAddRndModifierAndZeroCheck(
         BattleAddBarriersModifier(BattleAddSplitQuaterModifier(BattleApplySadnessReduction(var_v1 >> 0xD), temp_s0)));
 }
 
@@ -2101,20 +2187,20 @@ static s32 BattleAddSplitQuaterModifier(s32, s32);
 static s32 BattleAddBarriersModifier(s32);
 
 void BattleLowerFunc05(void) {
-    s32 base = g_CurrentAction->unk4C + g_CurrentAction->characterLevel;
+    s32 base = g_CurrentAction->attackStat + g_CurrentAction->characterLevel;
     s32 term1 = base * 3;
-    s32 term2 = g_CurrentAction->unk48 * 0xB;
+    s32 term2 = g_CurrentAction->power * 0xB;
     s32 damage = (term2 + term1) * 2;
-    g_CurrentAction->unk214 =
+    g_CurrentAction->tmpDamage =
         BattleAddRndModifierAndZeroCheck(BattleAddBarriersModifier(BattleAddSplitQuaterModifier(damage, 0)));
 }
 
-void BattleLowerFunc06(void) { g_CurrentAction->unk214 = g_CurrentAction->unk48 * 20; }
+void BattleLowerFunc06(void) { g_CurrentAction->tmpDamage = g_CurrentAction->power * 20; }
 
 // Item attack damage formula.
 void BattleLowerFunc07(void) {
-    s32 value = g_CurrentAction->unk48 * (0x200 - g_CurrentAction->unk210);
-    g_CurrentAction->unk214 = BattleAddRndModifierAndZeroCheck(value / 32);
+    s32 value = g_CurrentAction->power * (0x200 - g_CurrentAction->targetDefense);
+    g_CurrentAction->tmpDamage = BattleAddRndModifierAndZeroCheck(value / 32);
 }
 
 void BattleLowerFunc08(void) {
@@ -2126,7 +2212,7 @@ void BattleLowerFunc08(void) {
 }
 
 void BattleLowerFunc09(void) {
-    g_CurrentAction->unk4C = g_CurrentAction->unkD8 * 2;
+    g_CurrentAction->attackStat = g_CurrentAction->unkD8 * 2;
     BattleSetTmpDmgAsPhysical();
 }
 
@@ -2134,17 +2220,17 @@ void BattleLowerFunc0a(void) {
     s32 divisor = SysCountActiveBits(g_CurrentAction->allowedTargetsMask);
     s32 result = 0;
     if (divisor != 0) {
-        result = (g_CurrentAction->unk48 + (divisor - 1)) / divisor;
+        result = (g_CurrentAction->power + (divisor - 1)) / divisor;
     }
-    g_CurrentAction->unk214 = result;
+    g_CurrentAction->tmpDamage = result;
 }
 
 // White Wind "damage" formula. Restores HP equal to caster's HP to all allies.
-void func_800ADFC0(void) { g_CurrentAction->unk214 = *(u16*)(&g_BattleWork.turn[g_CurrentAction->actorId].prevHP); }
+void func_800ADFC0(void) { g_CurrentAction->tmpDamage = *(u16*)(&g_BattleWork.turn[g_CurrentAction->actorId].prevHP); }
 
 void BattleSetTmpDmgAsMaxHpMinusCurrentHp(void) {
     s32 index = g_CurrentAction->actorId;
-    g_CurrentAction->unk214 = g_BattleState.combatant[index].maxHP - g_BattleWork.turn[index].prevHP;
+    g_CurrentAction->tmpDamage = g_BattleState.combatant[index].maxHP - g_BattleWork.turn[index].prevHP;
 }
 
 void func_800AE050(void) {}
@@ -2209,24 +2295,24 @@ void BattleLowerFunc18(void) {
     }
 
     diceSum *= 100 * maxRepeat;
-    g_CurrentAction->unk214 = diceSum;
+    g_CurrentAction->tmpDamage = diceSum;
 }
 
 // Chocobuckle attack damage formula.
 void BattleSetTmpDmgAsNumOfEscapes(void) {
-    g_CurrentAction->unk214 =
+    g_CurrentAction->tmpDamage =
         Savemap.memory_bank_1[26] + Savemap.memory_bank_1[27] * 256; // Number of escapes from battles.
 }
 
 // Sephiroth's Heartless Angel attack damage formula.
 void BattleSetTmpDmgAsTargHpMinusOne(void) {
-    g_CurrentAction->unk214 = g_BattleState.combatant[g_CurrentAction->unk208].curHP - 1;
+    g_CurrentAction->tmpDamage = g_BattleState.combatant[g_CurrentAction->targetId].curHP - 1;
 }
 
 // Tonberry's Time Damage attack damage formula.
 void func_800AE2A0(void) {
     s32 minutes = Savemap.time / 60;
-    g_CurrentAction->unk214 = (minutes / 60) * 100 + minutes % 60;
+    g_CurrentAction->tmpDamage = (minutes / 60) * 100 + minutes % 60;
 }
 
 // target-side damage/effect scaling from the target's save-file kill count
@@ -2235,10 +2321,10 @@ void BattleApplyKillCountBonus(void) {
     s32 var_v1;
 
     var_v1 = 0;
-    if (g_CurrentAction->unk208 < NUM_PARTY) {
-        var_v1 = g_BattleWork.party[g_CurrentAction->unk208].partyMember->kill_count;
+    if (g_CurrentAction->targetId < NUM_PARTY) {
+        var_v1 = g_BattleWork.party[g_CurrentAction->targetId].partyMember->kill_count;
     }
-    g_CurrentAction->unk214 = var_v1 * 0xA;
+    g_CurrentAction->tmpDamage = var_v1 * 0xA;
 }
 
 void BattleCalcMateriaSlotScore(void) {
@@ -2248,7 +2334,7 @@ void BattleCalcMateriaSlotScore(void) {
     s32 i;
     s32 none;
 
-    slot = g_CurrentAction->unk208;
+    slot = g_CurrentAction->targetId;
     count = 0;
     if (slot < NUM_PARTY) {
         i = 0;
@@ -2263,7 +2349,7 @@ void BattleCalcMateriaSlotScore(void) {
             }
         }
     }
-    g_CurrentAction->unk214 = count * 1111;
+    g_CurrentAction->tmpDamage = count * 1111;
 }
 
 void func_800AE42C(s32, s32, s32, s32*, s32, s32);
@@ -2510,10 +2596,10 @@ static void BattleRollPhysicalHit(void) {
     s32 v;
 
     attacker = g_CurrentAction->actorId;
-    target = g_CurrentAction->unk208;
+    target = g_CurrentAction->targetId;
     if (!(g_CurrentAction->unk218 & 1)) {
         acc = 0xFF;
-        if (!(g_CurrentAction->unkC8 & 0x40000000)) {
+        if (!(g_CurrentAction->attackerStatus & 0x40000000)) {
             v = (g_CurrentAction->characterLevel + g_BattleState.combatant[attacker].luck) -
                 g_BattleState.combatant[target].level;
             acc = v / 4;
@@ -2522,7 +2608,7 @@ static void BattleRollPhysicalHit(void) {
             }
         }
         if (acc >= BattleGetRnd164()) {
-            g_CurrentAction->unk220 |= 2;
+            g_CurrentAction->damageFlags |= 2;
         }
     }
 }
@@ -2546,14 +2632,14 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0C14);
 
 static void func_800B0DF8(void) {
     if (g_CurrentAction->unk234 & 2) {
-        g_BattleState.combatant[g_CurrentAction->unk208].stateFlags ^= 0x80;
+        g_BattleState.combatant[g_CurrentAction->targetId].stateFlags ^= 0x80;
     }
 }
 
 // same ~30% reduction as BattleApplySadnessReduction, gated on a bit of unkC8
 // (not unk218)
 static s32 BattleApplyConditionalReduction(s32 arg0) {
-    if ((arg0 < 0xFF) && (g_CurrentAction->unkC8 & 0x20)) {
+    if ((arg0 < 0xFF) && (g_CurrentAction->attackerStatus & 0x20)) {
         arg0 -= (arg0 * 3) / 10;
     }
     return arg0;
@@ -2640,15 +2726,16 @@ static s32 func_800B1218(s32 arg0, s32 arg1, s32 arg2) {
     return arg1 + ((arg1 * p[arg2]) / 100);
 }
 
-static void func_800B1268(s32 arg0, s32 arg1, s32 arg2) {
+// adds deltaPct to each stat multiplier selected by statMask (bit i = i-th s8 from physAtkMult), clamped to +-100
+static void BattleAddStatMult(s32 unitId, s32 deltaPct, s32 statMask) {
     s32 i;
     s8* p;
 
     i = 0;
-    p = (s8*)&g_BattleWork.turn[arg0].physAtkMult;
+    p = (s8*)&g_BattleWork.turn[unitId].physAtkMult;
     for (; i < 8; i++, p++) {
-        if ((arg2 >> i) & 1) {
-            s32 value = *p + arg1;
+        if ((statMask >> i) & 1) {
+            s32 value = *p + deltaPct;
 
             if (value > 100) {
                 value = 100;
@@ -2866,7 +2953,31 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeCycle);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B2A2C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B2B5C);
+static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex) {
+    BattleActionEntry action;
+    u8 categories[2] = {CMD_SUMMON, CMD_ENEMY_SKILL};
+    u8 categoryBases[2] = {0x38, 0x48}; // D_800A0290[1], D_800A0290[2]
+    u32 i;
+    u16 mask;
+
+    for (i = 0; i < LEN(categories); i++) {
+        if (actionType == categories[i]) {
+            attackIndex -= categoryBases[i];
+        }
+    }
+    if (actionType == 0x20) { // non-player: monster/counter scene-attack id
+        attackIndex = BattleGetAttackIdInSceneByAttackId(attackIndex);
+    }
+
+    mask = g_BattleState.scriptOpponentNonPetrifiedMask;
+    g_BattleState.combatant[unitId].attackMask = mask;
+    action.priority = D_800F4AC8;
+    action.unitID = unitId;
+    action.actionType = actionType;
+    action.attackIndex = attackIndex;
+    action.targetMask = mask;
+    BattleCopyBattleActionToBattleQueue(&action);
+}
 
 static AttackData* BattleGetAttackData(s32);
 static s32 func_800B2C60(s32 arg0) {

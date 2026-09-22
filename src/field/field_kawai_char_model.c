@@ -3,7 +3,21 @@
 #include <libetc.h>
 #include "field_private.h"
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiClearData);
+extern u8 D_800DFDFC[];
+void KawaiClearData(void) {
+    s32 i;
+    u8* data;
+    s32 count;
+
+    data = D_800DFDFC;
+    count = 0x10;
+    *data = count;
+    i = 0;
+    for (; i < count; i++) {
+        data[i * 2 + 2] = 0;
+        data[i * 2 + 3] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiExecute);
 

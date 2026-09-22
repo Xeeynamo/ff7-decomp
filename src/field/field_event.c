@@ -14,7 +14,6 @@ extern s16 g_PosCursorY;
 extern u8 g_PosCursorPrimId;
 extern char D_800E0628[]; // "Actor:"
 extern char g_DebugText[];
-extern u8 D_800716D4;
 
 void DebugPrintToFieldWindow(const char* str);
 static void FieldEventOpcodeCycle(void);
@@ -58,10 +57,10 @@ void FieldEventInit(FieldState* fieldState, FieldEntity* fieldModels, FieldScrip
     FieldWindowResetAll();
     FieldInitDefaultValues();
     FieldEventRunInit();
-    if (!D_800716D4) {
+    if (!g_FieldMusicLock) {
         FieldEventClearAkaoStruct();
         D_8009A000[0] = 242;
-        SystemAkaoExecute();
+        AkaoExec();
     }
 }
 

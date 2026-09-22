@@ -41,7 +41,6 @@ extern DRAWENV D_80113FE4[2];
 extern DRAWENV D_8011409C[2];
 extern DRAWENV D_80114154[2];
 extern DRAWENV D_8011420C[2];
-extern u8 g_RainControl;
 extern u8 g_RainForce;
 extern s8 D_80071C0C;
 extern OT_TYPE D_8007E7A0[2];
@@ -300,7 +299,7 @@ void FIELD_Main(void) {
             g_FieldState.viewOffset = g_FieldTriggers->viewOffset;
             FieldEventInit(&g_FieldState, g_FieldEntity, *D_8007EB64);
             g_FieldEntity[g_FieldState.pcModelId].Dir = g_FieldState.pcDirection;
-            if (!(g_RainControl & 0x80)) {
+            if (!(Savemap.memory_bank_5[0x83] & 0x80)) {
                 g_RainForce = 0;
             } else {
                 g_RainForce = 0xFF;
@@ -322,11 +321,11 @@ void FIELD_Main(void) {
         }
         if (g_PrevGameState == GAMESTATE_BATTLE) {
             *D_8009A000 = 0xF5;
-            SystemAkaoExecute();
+            AkaoExec();
             *D_8009A000 = 0x18;
             *D_8009A008 = 4;
             *D_8009A004 = g_FieldState.nextFieldMusic;
-            SystemAkaoExecute();
+            AkaoExec();
         }
         FieldMainLoop();
         while (DrawSync(1)) {

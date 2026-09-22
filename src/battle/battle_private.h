@@ -18,13 +18,6 @@ typedef struct {
 } Unk800BB67C;
 
 typedef struct {
-    /* 0x000 */ u16 unk0;
-    /* 0x002 */ u8 pad[0x90];
-    /* 0x092 */ u8 unk92[0x5C];
-    /* 0x0EE */ u8 effects[0x352];
-} Unk8009D866; // 0x440
-
-typedef struct {
     s8 actionId;
     s8 unk1;
     s8 unk2;
@@ -252,10 +245,6 @@ typedef struct {
     s32 unk8;
 } Unk800F57D0;
 
-extern u8 D_800492FC[];
-extern u8 D_8009CBDC[];
-extern Unk8009D866 D_8009D866[];
-extern u8 D_8009D8F8[];
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern s8 D_800E7A58[];
@@ -368,6 +357,7 @@ extern s32 D_800F4920;
 extern u16 D_800F4938[];
 extern s8 D_800F494C[];
 extern u16 D_800F4958;
+extern s32 D_800F4AC8;
 extern s16 D_800F4AD0;
 extern s32 D_800F4AD4;
 extern s32 D_800F4AD8;
@@ -404,6 +394,7 @@ extern u8 D_800F8374;
 extern u8 D_800F837C;
 extern u8 D_800F8380;
 extern u8* D_800F8384[3];
+extern s8 D_800F83AB[];
 extern u8* D_800F8390[3];
 extern s32* D_800F839C; // CD offset?
 extern u8 D_800F83A4[]; // shared battle-script variable bank (BattleOpcodeValOffs)
@@ -503,7 +494,7 @@ extern u16 D_801516F8;
 // into the committed (prevX, prevY) pair. Two decoupled consumers then read
 // the COMMITTED pair on their own schedule: func_800BBA84/func_800C2FD4
 // derive a positional-audio parameter from prevX (feeds a sound-queue call
-// via SystemAkaoExecute), and func_800DBC18 folds prevY (low bit masked) into
+// via AkaoExec), and func_800DBC18 folds prevY (low bit masked) into
 // limit-gauge draw positioning. func_800C2864 reads the staging pair
 // directly (with small centering offsets) for an on-screen draw call.
 typedef struct {
@@ -618,7 +609,7 @@ void func_800BB9B8(s32);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 static void func_800C1908(u8 arg0);
 void BattleSelectPlayerModelFiles(void);
-void func_8002DF88(s16*);
+void AkaoDispatchCommand(void*);
 void BattleLoadOverlaySector(s32 loc, s32 len);
 void func_800D0C80(u8 arg0);
 void BattleEffectSingleDustCloud();

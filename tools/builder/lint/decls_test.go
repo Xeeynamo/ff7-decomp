@@ -144,3 +144,40 @@ func TestEvalDim(t *testing.T) {
 		}
 	}
 }
+
+// A qualifier run must not be mistaken for the type. Before this was handled,
+// "extern volatile s32 D_8009D268[];" scanned as a symbol literally named "s32",
+// so the real symbol never got an address and its overlap went unreported.
+func TestScanDeclsQualifiedDecls(t *testing.T) {
+	src := `# 1 "include/game.h"
+extern volatile s32 D_8009D268[];
+extern const volatile u8 D_8009D269;
+extern const u16 D_8009D26A[4];
+`
+	decls, _ := scanDecls([]byte(src), "include/game.h")
+
+	for _, c := range []struct {
+		name     string
+		typeName string
+		unsized  bool
+	}{
+		{"D_8009D268", "s32", true},
+		{"D_8009D269", "u8", false},
+		{"D_8009D26A", "u16", false},
+	} {
+		d, ok := declByName(decls, c.name)
+		if !ok {
+			t.Errorf("%s was not scanned", c.name)
+			continue
+		}
+		if d.TypeName != c.typeName {
+			t.Errorf("%s TypeName = %q, want %q", c.name, d.TypeName, c.typeName)
+		}
+		if d.Unsized != c.unsized {
+			t.Errorf("%s Unsized = %v, want %v", c.name, d.Unsized, c.unsized)
+		}
+	}
+	if _, ok := declByName(decls, "s32"); ok {
+		t.Error("the qualifier run was parsed as the type, leaving a decl named s32")
+	}
+}
