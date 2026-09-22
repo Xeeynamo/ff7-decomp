@@ -826,7 +826,7 @@ static void func_800BB864(void) {
 static void func_800BB89C(void) {
     D_80163B80 = 0;
     D_800FA6B8 = 0;
-    D_8009A000[0] = !(!(D_8016376A & 0x10) && !D_80083338) ? 0x10 : 0x14;
+    D_8009A000[0] = !(!(D_8016376A & 0x10) && !g_AkaoSavedMusicActiveMask0) ? 0x10 : 0x14;
     D_8009A004[0] = 0x801D0000;
     AkaoExec();
 }
@@ -852,7 +852,7 @@ void func_800BB978(void) {
     AkaoExec();
 }
 
-// queue sound command 0x30, dispatched directly via func_8002DF88 (akao.c)
+// queue sound command 0x30, dispatched directly via AkaoDispatchCommand (akao.c)
 // rather than the D_8009A000 global queue used by the sibling functions below
 void func_800BB9B8(s32 arg0) {
     s16* ptr;
@@ -861,7 +861,7 @@ void func_800BB9B8(s32 arg0) {
     *ptr = 0x30;
     D_800F4AD4 = arg0 & 0xFFFF;
     D_800F4AD8 = arg0 & 0xFFFF;
-    func_8002DF88(ptr);
+    AkaoDispatchCommand(ptr);
 }
 
 // queue sound command 0x2B

@@ -4,6 +4,8 @@
 #include <common.h>
 #include <libgte.h>
 #include <libgpu.h>
+#include "sfx.h"
+#include "bgm.h"
 
 #ifndef FF7_STR
 #define _S(x) x       // check the usage of 'bin/str' to see how this works
@@ -1218,6 +1220,7 @@ extern DRAWENV D_800706A4[2];
 extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
                             // (set by the MULCK opcode)
 extern u8 D_80070788;
+extern u8 D_800716CC;
 extern u8 g_EntityToLine[48];
 extern u16 g_BattleMode;
 extern u16 g_FieldWaitCounter[48];      // Used by WAIT opcode to pause script
@@ -1270,7 +1273,7 @@ extern u16 g_FieldScriptPC[48];   // program counters for active entity scripts
 extern u8 g_FieldModelAnimId[16]; // per-model default animation id (DFANM)
 extern u8 g_WindowToEntity[4];
 extern WindowData g_WindowData[4];
-extern s32 D_80083338;
+extern s32 g_AkaoSavedMusicActiveMask0;
 
 extern u8 g_FieldScriptSyncState[48][8]; // sync states of entity scripts per
                                          // priority level

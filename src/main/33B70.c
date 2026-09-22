@@ -23,8 +23,40 @@ extern CdlLOC D_80071A68;    // cd sector
 extern size_t D_80071A6C;    // amount of sectors to read
 extern u_long* D_80071A80;   // read content destination
 extern void (*D_80071A84)(); // callback
+
 void func_80034CAC(u32 arg0);
 static s32 ReadDiskNo(void);
+
+void SysSavemapReset(void) {
+    s32 i;
+    u8* bank;
+
+    for (i = 0; i < 1280; i++) {
+        Savemap.memory_bank_1[i] = 0;
+    }
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        Savemap.partyID[i] = 0xFF;
+        Savemap.memory_bank_2[i + 9] = 0xFF;
+    }
+
+    Savemap.phs_visibility_mask = 1; // Only Cloud is visible.
+    g_FieldMusicLock = 0;
+    D_800716CC = 0;
+    D_80071E30 = 0;
+    Savemap.partyID[0] = 0;
+    Savemap.memory_bank_2[9] = 0;
+    Savemap.memory_bank_4[0x68] = 0xFF; // Start of location name.
+    Savemap.memory_bank_1[0x1C] = 0xFF; // Menu visibility, 2 bytes.
+    Savemap.memory_bank_1[0x1D] = 0xFF;
+    Savemap.time = 0;
+    Savemap.countdown_timer_seconds = 0;
+    g_FieldState.nFadeRedStart = 0;
+    g_FieldState.nFadeGreenStart = 0;
+    g_FieldState.nFadeBlueStart = 0;
+    g_FieldState.movieCamDisabled = 0;
+    g_PartyUpdatedByFieldScript = 0;
+}
 
 void SysCdromInit(void) {
     while (!CdInit()) {

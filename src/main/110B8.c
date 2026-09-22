@@ -179,8 +179,8 @@ static void AkaoInit(void) {
     SystemLoadFileBySector(yama_sound_instr_dat.loc, yama_sound_instr_dat.len, (u_long*)0x801BC800, NULL);
     do {
     } while (SystemCdromReadChain());
-    func_8002988C(0x800F0000, 0x801BC800);
-    func_80029998(0x801B0000);
+    AkaoStart(0x800F0000, 0x801BC800);
+    AkaoLoadEffect(0x801B0000);
 }
 
 static void InitWorldFromSavemap(void) {
@@ -265,7 +265,7 @@ void main(void) {
                 if (DSCHANGE_WaitDiskLoop(Savemap.memory_bank_1[768]) == 1) {
                     g_FieldState.eventCmd = EVTCMD_NONE;
                     func_80033BE0();
-                    func_800299C8();
+                    AkaoDeinit();
                     break;
                 }
             }
@@ -547,7 +547,7 @@ void main(void) {
                 SysCdromLoadFile(yama_field_ending.loc, yama_field_ending.len, (u_long*)0x800A0000, NULL);
                 ENDING_Loop(1);
                 func_80033BE0();
-                func_800299C8();
+                AkaoDeinit();
                 break;
             } else if (g_FieldState.eventCmd == EVTCMD_GAME_OVER) {
                 g_FieldState.eventCmd = EVTCMD_NONE;
@@ -558,12 +558,12 @@ void main(void) {
                 *D_8009A004 = 127;
                 AkaoExec();
                 func_80033BE0();
-                func_800299C8();
+                AkaoDeinit();
                 break;
             } else if (g_FieldState.eventCmd == EVTCMD_TITLE_SCREEN) {
                 g_FieldState.eventCmd = EVTCMD_NONE;
                 func_80033BE0();
-                func_800299C8();
+                AkaoDeinit();
                 break;
             }
         }

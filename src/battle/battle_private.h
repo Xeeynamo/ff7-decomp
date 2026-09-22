@@ -609,7 +609,7 @@ void func_800BB9B8(s32);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 static void func_800C1908(u8 arg0);
 void BattleSelectPlayerModelFiles(void);
-void func_8002DF88(s16*);
+void AkaoDispatchCommand(void*);
 void BattleLoadOverlaySector(s32 loc, s32 len);
 void func_800D0C80(u8 arg0);
 void BattleEffectSingleDustCloud();
