@@ -289,16 +289,20 @@ def add_splat_config(ovl_name: str, file_name: str):
         if segment["type"] != "code":
             continue
         for sub in segment["subsegments"]:
-            offset = int(sub[0])
-            if len(sub) < 2:
-                kind = "data"
-                name = segment["name"]
+            if isinstance(sub, dict):
+                kind = str(sub.get("kind", sub["type"]))
+                name = str(sub["name"])
             else:
-                kind = str(sub[1])
-                if len(sub) > 2:
-                    name = str(sub[2])
+                offset = int(sub[0])
+                if len(sub) < 2:
+                    kind = "data"
+                    name = segment["name"]
                 else:
-                    name = str.format("{0:X}", offset)
+                    kind = str(sub[1])
+                    if len(sub) > 2:
+                        name = str(sub[2])
+                    else:
+                        name = str.format("{0:X}", offset)
             if kind == "data":
                 add_s(cfg, f"data/{name}.data")
             elif kind == "rodata":
@@ -311,6 +315,8 @@ def add_splat_config(ovl_name: str, file_name: str):
                 add_s(cfg, name, True)
             elif kind == "c" or kind == ".data":
                 add_c(cfg, name)
+            elif kind == "tim":
+                add_s(cfg, f"data/{name}")
 
     ovl = ovl_by_name[ovl_name]
     import_names = ovl.get("imports") or []

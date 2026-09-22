@@ -31,7 +31,7 @@ func Build(version string) error {
 		if err := os.MkdirAll(b.BuildPath, 0755); err != nil {
 			return err
 		}
-		if err := writeSplatConfigs(b); err != nil {
+		if err := writeSplatConfigs(b, version); err != nil {
 			return err
 		}
 		if err := writeSha1Check(b); err != nil {
@@ -48,14 +48,14 @@ func Build(version string) error {
 	return eg.Wait()
 }
 
-func writeSplatConfigs(b BuildConfig) error {
+func writeSplatConfigs(b BuildConfig, version string) error {
 	for _, o := range b.Overlays {
 		expectedFingerprint := o.Fingerprint()
 		actualFingerprint, _ := os.ReadFile(fmt.Sprintf("%s/%s.fingerprint", b.BuildPath, o.Name))
 		if actualFingerprint != nil && bytes.Equal(expectedFingerprint, actualFingerprint) {
 			continue
 		}
-		splatConfig, err := makeSplatConfig(b, o)
+		splatConfig, err := makeSplatConfig(b, o, version)
 		if err != nil {
 			return err
 		}

@@ -5,7 +5,15 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/xeeynamo/ff7-decomp/tools/builder/assets"
+	"github.com/xeeynamo/ff7-decomp/tools/builder/assets/tims"
+	"golang.org/x/sync/errgroup"
 )
+
+var assetHandlers = map[string]assets.Handler{
+	"tim": tims.Tim{},
+}
 
 type SplatOptions struct {
 	Platform                       string   `yaml:"platform"`
@@ -37,14 +45,14 @@ type SplatOptions struct {
 }
 
 type SplatSegment struct {
-	Name        string  `yaml:"name"`
-	Type        string  `yaml:"type"`
-	Start       int     `yaml:"start"`
-	Vram        int64   `yaml:"vram"`
-	BssSize     int64   `yaml:"bss_size,omitempty"`
-	Align       int     `yaml:"align"`
-	Subalign    int     `yaml:"subalign"`
-	Subsegments [][]any `yaml:"subsegments"`
+	Name        string `yaml:"name"`
+	Type        string `yaml:"type"`
+	Start       int    `yaml:"start"`
+	Vram        int64  `yaml:"vram"`
+	BssSize     int64  `yaml:"bss_size,omitempty"`
+	Align       int    `yaml:"align"`
+	Subalign    int    `yaml:"subalign"`
+	Subsegments []any  `yaml:"subsegments"`
 }
 
 type SplatConfig struct {
@@ -53,7 +61,115 @@ type SplatConfig struct {
 	Segments []any        `yaml:"segments"`
 }
 
-func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
+func asInt(v any) (int, bool) {
+	switch n := v.(type) {
+	case int:
+		return n, true
+	case int64:
+		return int(n), true
+	case uint64:
+		return int(n), true
+	}
+	return 0, false
+}
+
+type assetMatch struct {
+	index   int
+	kind    string
+	handler assets.Handler
+	meta    assets.Metadata
+}
+
+func makeAssetSubsegments(b BuildConfig, o Overlay, version string) ([]any, error) {
+	subsegments := make([]any, len(o.Segments))
+	for i, sub := range o.Segments {
+		subsegments[i] = sub
+	}
+
+	cfgInfo, err := os.Stat(ConfigPath(version))
+	if err != nil {
+		return nil, err
+	}
+	cfgModTime := cfgInfo.ModTime()
+
+	var raw []byte
+	var matches []assetMatch
+	for i, sub := range o.Segments {
+		if len(sub) < 3 {
+			continue
+		}
+		kind, ok := sub[1].(string)
+		if !ok {
+			continue
+		}
+		handler, ok := assetHandlers[kind]
+		if !ok {
+			continue
+		}
+		start, ok := asInt(sub[0])
+		if !ok {
+			return nil, fmt.Errorf("overlay %s: %s subsegment has non-integer start %v", o.Name, kind, sub[0])
+		}
+		name, ok := sub[2].(string)
+		if !ok {
+			return nil, fmt.Errorf("overlay %s: %s subsegment has non-string name %v", o.Name, kind, sub[2])
+		}
+		if i+1 >= len(o.Segments) {
+			return nil, fmt.Errorf("overlay %s: %s subsegment %q has no following subsegment to bound its end", o.Name, kind, name)
+		}
+		end, ok := asInt(o.Segments[i+1][0])
+		if !ok {
+			return nil, fmt.Errorf("overlay %s: %s subsegment %q cannot determine end offset", o.Name, kind, name)
+		}
+
+		if raw == nil {
+			var err error
+			raw, err = os.ReadFile(o.DiskPath)
+			if err != nil {
+				return nil, err
+			}
+		}
+		if end > len(raw) {
+			return nil, fmt.Errorf("overlay %s: %s subsegment %q end 0x%X exceeds disk image size 0x%X", o.Name, kind, name, end, len(raw))
+		}
+
+		m := assets.Metadata{
+			Data:       raw,
+			Start:      start,
+			End:        end,
+			Name:       name,
+			Symbol:     name + "_" + kind,
+			AssetDir:   filepath.Join(b.AssetPath, o.BasePath),
+			AsmDataDir: filepath.Join(b.AsmPath, o.BasePath, "data"),
+		}
+		matches = append(matches, assetMatch{index: i, kind: kind, handler: handler, meta: m})
+	}
+
+	var eg errgroup.Group
+	for _, mt := range matches {
+		mt := mt
+		eg.Go(func() error {
+			ts := mt.handler.Timestamp(mt.meta)
+			if !ts.IsZero() && !ts.Before(cfgModTime) {
+				return nil
+			}
+			if err := mt.handler.Extract(mt.meta); err != nil {
+				return fmt.Errorf("overlay %s: %s subsegment %q: %w", o.Name, mt.kind, mt.meta.Name, err)
+			}
+			return nil
+		})
+	}
+	if err := eg.Wait(); err != nil {
+		return nil, err
+	}
+
+	for _, mt := range matches {
+		subsegments[mt.index] = mt.handler.SplatEntry(mt.meta)
+	}
+	return subsegments, nil
+}
+
+func makeSplatConfig(b BuildConfig, o Overlay, version string) (SplatConfig, error) {
 	overlayExists := func(name string) bool {
 		for _, other := range b.Overlays {
 			if other.Name == name {
@@ -90,6 +206,10 @@ func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 	if err != nil {
 		return SplatConfig{}, err
 	}
+	subsegments, err := makeAssetSubsegments(b, o, version)
+	if err != nil {
+		return SplatConfig{}, err
+	}
 	start := 0
 	var segments []any
 	if o.Name == "main" {
@@ -105,7 +225,7 @@ func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 		BssSize:     o.BssSize,
 		Align:       b.Align,
 		Subalign:    b.Align,
-		Subsegments: o.Segments,
+		Subsegments: subsegments,
 	}
 	segments = append(segments, seg)
 	segments = append(segments, []int64{stat.Size()})
