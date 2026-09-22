@@ -73,58 +73,64 @@ void HandleKawaiDataInModel(struct FieldRenderData* buf) {
     models = (FieldModelLoaderData*)(D_8007E770 + 1);
 
     for (i = 0; i < g_FieldState.modelCount; i++) {
-        if (models[i].modelEntryIndex != 0xFF) {
-            pos.vx = (g_FieldEntity[i].PosX >> 12) + g_FieldEntity[i].OffsetX;
-            pos.vy = (g_FieldEntity[i].PosY >> 12) + g_FieldEntity[i].OffsetY;
-            pos.vz = (g_FieldEntity[i].PosZ >> 12) + g_FieldEntity[i].OffsetZ - 10;
-            g_FieldModelData->modelEntries[models[i].modelEntryIndex].translationX = pos.vx;
-            g_FieldModelData->modelEntries[models[i].modelEntryIndex].translationY = pos.vy;
-            g_FieldModelData->modelEntries[models[i].modelEntryIndex].translationZ = pos.vz;
-            if (FieldCalcWorldToScreenPos(&pos, &screenPos) < 3840) {
-                g_FieldModelData->modelEntries[models[i].modelEntryIndex].rotationZ = g_FieldEntity[i].Dir;
-                matrixKawaiType = g_FieldModelData->modelEntries[models[i].modelEntryIndex].kawaiType;
-                if (matrixKawaiType == 4 || matrixKawaiType == 8 || matrixKawaiType == 9 || matrixKawaiType == 11 ||
-                    matrixKawaiType == 12) {
-                    identity.m[0][0] = identity.m[1][1] = identity.m[2][2] = 4096;
-                    identity.m[0][1] = identity.m[0][2] = identity.m[1][0] = identity.m[1][2] = identity.m[2][0] =
-                        identity.m[2][1] = identity.t[0] = identity.t[1] = identity.t[2] = 0;
-                    *getScratchAddr(0) = 3;
-                    FieldModelAnimCalcMtrxs(&g_FieldModelData->modelEntries[models[i].modelEntryIndex], &identity,
-                                            g_FieldEntity[i].activeAnimId, g_FieldEntity[i].animCurrentFrame >> 4);
-                    matrixDst = (u32*)g_FieldModelData->modelEntries[models[i].modelEntryIndex].partMatrices;
-                    matrixSrc = (u32*)D_80071E40;
-                    matrixDst[0] = matrixSrc[0];
-                    matrixDst[1] = matrixSrc[1];
-                    matrixDst[2] = matrixSrc[2];
-                    matrixDst[3] = matrixSrc[3];
-                    matrixDst[4] = matrixSrc[4];
-                    matrixDst[5] = matrixSrc[5];
-                    matrixDst[6] = matrixSrc[6];
-                    matrixDst[7] = matrixSrc[7];
-                } else {
-                    *getScratchAddr(0) = 3;
-                    FieldModelAnimCalcMtrxs(&g_FieldModelData->modelEntries[models[i].modelEntryIndex], D_80071E40,
-                                            g_FieldEntity[i].activeAnimId, g_FieldEntity[i].animCurrentFrame >> 4);
-                }
-            }
+        if (models[i].modelEntryIndex == 0xFF) {
+            continue;
+        }
+        pos.vx = (g_FieldEntity[i].PosX >> 12) + g_FieldEntity[i].OffsetX;
+        pos.vy = (g_FieldEntity[i].PosY >> 12) + g_FieldEntity[i].OffsetY;
+        pos.vz = (g_FieldEntity[i].PosZ >> 12) + g_FieldEntity[i].OffsetZ - 10;
+        g_FieldModelData->modelEntries[models[i].modelEntryIndex].translationX = pos.vx;
+        g_FieldModelData->modelEntries[models[i].modelEntryIndex].translationY = pos.vy;
+        g_FieldModelData->modelEntries[models[i].modelEntryIndex].translationZ = pos.vz;
+
+        if (FieldCalcWorldToScreenPos(&pos, &screenPos) >= 3840) {
+            continue;
+        }
+        g_FieldModelData->modelEntries[models[i].modelEntryIndex].rotationZ = g_FieldEntity[i].Dir;
+        matrixKawaiType = g_FieldModelData->modelEntries[models[i].modelEntryIndex].kawaiType;
+        if (matrixKawaiType == 4 || matrixKawaiType == 8 || matrixKawaiType == 9 || matrixKawaiType == 11 ||
+            matrixKawaiType == 12) {
+            identity.m[0][0] = identity.m[1][1] = identity.m[2][2] = 4096;
+            identity.m[0][1] = identity.m[0][2] = identity.m[1][0] = identity.m[1][2] = identity.m[2][0] =
+                identity.m[2][1] = identity.t[0] = identity.t[1] = identity.t[2] = 0;
+            *getScratchAddr(0) = 3;
+            FieldModelAnimCalcMtrxs(&g_FieldModelData->modelEntries[models[i].modelEntryIndex], &identity,
+                                    g_FieldEntity[i].activeAnimId, g_FieldEntity[i].animCurrentFrame >> 4);
+            matrixDst = (u32*)g_FieldModelData->modelEntries[models[i].modelEntryIndex].partMatrices;
+            matrixSrc = (u32*)D_80071E40;
+            matrixDst[0] = matrixSrc[0];
+            matrixDst[1] = matrixSrc[1];
+            matrixDst[2] = matrixSrc[2];
+            matrixDst[3] = matrixSrc[3];
+            matrixDst[4] = matrixSrc[4];
+            matrixDst[5] = matrixSrc[5];
+            matrixDst[6] = matrixSrc[6];
+            matrixDst[7] = matrixSrc[7];
+        } else {
+            *getScratchAddr(0) = 3;
+            FieldModelAnimCalcMtrxs(&g_FieldModelData->modelEntries[models[i].modelEntryIndex], D_80071E40,
+                                    g_FieldEntity[i].activeAnimId, g_FieldEntity[i].animCurrentFrame >> 4);
         }
     }
 
     for (i = 0; i < g_FieldState.modelCount; i++) {
-        if (models[i].modelEntryIndex != 0xFF) {
-            pos.vx = g_FieldEntity[i].PosX >> 12;
-            pos.vy = g_FieldEntity[i].PosY >> 12;
-            pos.vz = (g_FieldEntity[i].PosZ >> 12) - 10;
-            if (FieldCalcWorldToScreenPos(&pos, &screenPos) < 3840) {
-                kawaiType = g_FieldModelData->modelEntries[models[i].modelEntryIndex].kawaiType;
-                if (kawaiType == 4 || kawaiType == 8 || kawaiType == 9 || kawaiType == 11 || kawaiType == 12) {
-                    FieldModelPrepareRender(&g_FieldModelData->modelEntries[models[i].modelEntryIndex]);
-                } else {
-                    g_FieldModelData->modelEntries[models[i].modelEntryIndex].kawaiType = -1;
-                    FieldModelPrepareRender(&g_FieldModelData->modelEntries[models[i].modelEntryIndex]);
-                    g_FieldModelData->modelEntries[models[i].modelEntryIndex].kawaiType = kawaiType;
-                }
-            }
+        if (models[i].modelEntryIndex == 0xFF) {
+            continue;
+        }
+        pos.vx = g_FieldEntity[i].PosX >> 12;
+        pos.vy = g_FieldEntity[i].PosY >> 12;
+        pos.vz = (g_FieldEntity[i].PosZ >> 12) - 10;
+
+        if (FieldCalcWorldToScreenPos(&pos, &screenPos) >= 3840) {
+            continue;
+        }
+        kawaiType = g_FieldModelData->modelEntries[models[i].modelEntryIndex].kawaiType;
+        if (kawaiType == 4 || kawaiType == 8 || kawaiType == 9 || kawaiType == 11 || kawaiType == 12) {
+            FieldModelPrepareRender(&g_FieldModelData->modelEntries[models[i].modelEntryIndex]);
+        } else {
+            g_FieldModelData->modelEntries[models[i].modelEntryIndex].kawaiType = -1;
+            FieldModelPrepareRender(&g_FieldModelData->modelEntries[models[i].modelEntryIndex]);
+            g_FieldModelData->modelEntries[models[i].modelEntryIndex].kawaiType = kawaiType;
         }
     }
 
