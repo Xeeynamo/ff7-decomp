@@ -22,12 +22,8 @@ u8 g_DialogDigitCharacters[16] = {
     0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26,
 };
 
-extern char g_FieldDebugActorLabel[8];
-extern char g_FieldDebugWordLabel[8];
-extern FieldDebugPage g_FieldDebugPages[6];
 extern u8 g_WindowReplaceBank[4][8];
 extern u16 g_WindowReplaceBankAddr[4][8];
-extern u32 g_FieldKeyState;
 extern s16 g_WindowWaitTime[4];
 extern u8* g_WindowStringPtr[4];
 extern u8 g_WindowString[4][256];
@@ -39,26 +35,10 @@ extern s16 g_WindowFastForwardLevel[4];
 extern s16 g_WindowBufferPos[4];
 extern u8 g_WindowBuffer[4][16];
 extern s16 g_WindowTotalRowsHeight[4];
-extern char g_FieldDebugDigits[16];
-extern u16 g_FieldDebugRb;
-extern s16 g_FieldDebugRChars;
-extern s16 g_FieldDebugRLines;
-extern s16 g_FieldDebugRRect;
-extern s16 g_FieldDebugRDm;
-extern u16 g_FieldDebugTransp;
-extern char g_DebugText[];
-extern char g_DebugMessageBuffer[];
 
 void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
 void FieldWindowReset(s16 window);
 void AddStrNextDebugRow(s32 val, const char* msg_out);
-void FieldDebugStringCopy(char* dst, const char* src);
-void FieldDebugStringConcat(char* dest, const char* src);
-void FieldDebugStringU8hex(s32 val, char* msg_out);
-void FieldDebugStringU16hex(s32 val, char* msg_out);
-void FieldDebugStringU32hex(s32 val, char* msg_out);
-void FieldDebugPageSetPosSize(s16 pageId, s16 x, s16 y, s16 width, s16 height);
-void FieldDebugPageResetStrings(s16 pageId);
 void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height);
 static void PlayWindowPointerClickSound(void);
 static s32 FieldDialogWindowInit(s16 window, s16 stringId);

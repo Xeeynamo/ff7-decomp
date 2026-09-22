@@ -13,8 +13,6 @@ extern s8 D_80071C0C;
 extern OT_TYPE D_8007E7A0[2];
 extern s32 D_8007EB90;
 extern s32 D_8007EB94;
-extern DRAWENV* D_8007EBD0;
-extern DISPENV* D_8007EBD8;
 extern s32 D_800965E4;
 extern s32** D_8009A044;
 extern s32 D_8009A060;
@@ -44,7 +42,6 @@ extern s16 D_801142C8;
 extern s16 (*D_80114458)[3];
 extern s32 D_80114478;
 extern s32 D_8011447C;
-extern volatile s16 g_FieldMovieJustStarted;
 extern volatile s16 g_GameState;
 
 void FieldEntityLineInteract(FieldEntity* arg0, FieldLine* arg1);
@@ -62,7 +59,6 @@ void FieldEntityCheckTalk(void);
 void FieldRainUpdate(void);
 void FieldArrowsAddToRender(struct FieldRenderData* renderData, MATRIX* matrix, FieldGateway* gateways);
 void SysFadeUpdate(void);
-void SysMovieAbortPlay(void);
 void FieldUpdateMovieStream(void);
 
 static u32 FieldButtonsUpdate(s16* scrollX, s16* scrollY);

@@ -5,8 +5,6 @@
 
 s32 g_WmPreSector = 2903;
 u32 g_WmPreSize = 280222;
-extern u32 g_FieldFileInfo[];
-
 extern struct FieldRenderData g_FieldRenderData[2]; // double buffered
 extern s16 g_CameraScrollX;
 extern s16 g_CameraScrollY;
@@ -14,7 +12,6 @@ extern s16 g_CameraScrollEnabled;
 extern FieldModelLoaderHeader** g_FieldModelsP;
 extern FieldTriggers* g_FieldTriggers;
 extern u16* g_FieldEncounters;
-extern s16 g_CurrentFieldIndex;
 extern FieldTriggers** g_FieldTriggersP;
 extern u16** g_FieldEncountersP;
 extern volatile s16 g_FieldMoviePlayed;
@@ -24,7 +21,6 @@ extern s16 D_8007173C;
 extern s8 D_80071A58;
 extern FieldScriptHeader** D_8007EB64;
 extern u8 D_8007EBC8;
-extern MATRIX** D_80083578;
 extern s32** D_8009A044;
 extern s8 D_8009A048[16];
 extern volatile s16 g_GameState;
@@ -44,9 +40,6 @@ void FieldEventInit(FieldState* fieldState, FieldEntity* fieldModels, FieldScrip
 void SysFadeCopyScreen(void);
 void SysFadeInitPoly(void);
 void SystemCdromAbortLoading(void);
-s32 FieldMainLoop(void);
-void FieldLoadMimToVram(s32 arg0, void* mimData);
-
 static void FieldLoadMimDatFiles(void) {
 
     if (g_IsFieldLoading == 0) {

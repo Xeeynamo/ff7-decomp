@@ -70,7 +70,6 @@ s32 FieldMainLoop(void);
 void FieldLoadMimToVram(s32 arg0, void* mimData);
 void FieldBackgroundInitPackets(SPRT_16* bg1, SPRT* bg2, u16* animation, DR_MODE* drawMode);
 void AddBackgroundToRender(struct FieldRenderData* renderData);
-s32 FieldCalcLinearStep(s32 start, s32 target, s32 duration, s32 step);
 s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, SVECTOR* screenPos);
 s32 FieldEntityGetDirVectorY(u8 angle);
 void FieldEntityLineClear(FieldLine* lines);
@@ -81,7 +80,7 @@ u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelDa
 u8* FieldModelLoadGlobalModels(FieldModelLoaderHeader* header, FieldModelData* modelData, u8* buffer, s32 arg3);
 u8* LoadLocalFieldModelAndInitAll(
     FieldModelLoaderHeader* header, FieldModelData* modelData, const u32* arg2, void* arg3);
-s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* entry, u8* scratch);
+s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* entry, u8* params);
 void KawaiClearData(void);
 
 #endif

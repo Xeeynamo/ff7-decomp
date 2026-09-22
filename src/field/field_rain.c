@@ -71,10 +71,7 @@ void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* ra
 INCLUDE_ASM("asm/us/field/nonmatchings/field_rain", FieldRainUpdate);
 #else
 
-extern s16 g_PlayerModelId;
-
 extern FieldEntity g_FieldEntities[];
-extern struct FieldRain g_FieldRain[];
 
 void FieldRainUpdate(void) {
     s32 i;

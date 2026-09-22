@@ -42,7 +42,6 @@ typedef enum {
 } IfOps;
 // clang-format on
 
-extern u8 g_EntityForSplitJoin;
 extern u8 D_80114498[];
 extern u8 g_RandomTableStep;
 extern u8 g_RandomTableIndex;
@@ -57,15 +56,9 @@ extern s16 g_CameraScrollY;
 extern SVECTOR (*D_800E4274)[3];
 extern u8* g_MenuTutorial;
 
-void SysCalcTotalLureGilPreempVal(void);
-void SysInitPlayerStatFromMateria(s32);
-void SysInitPlayerStatFromEquip(s32);
 void SystemMenuAddHpByPartyId(s32 partyId, u16 hp);
 void SystemMenuAddMpByPartyId(s32 partyId, u16 mp);
 
-u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId);
-void DebugUpdateActor(s16 arg0, s16 entityId);
-static void DebugPrintOpcode(const char* name, s32 arg1);
 static u32 IfCheck(void);
 static u32 If2CheckSigned(void);
 static u32 If2CheckUnsigned(void);
