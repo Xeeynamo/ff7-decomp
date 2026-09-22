@@ -89,7 +89,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugPageAddPos);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugPageAddSize);
 
-static bool FieldDebugPageIsRender(s16 pageId) { return g_FieldDebugPages[pageId].state == 0; }
+static s32 FieldDebugPageIsRender(s16 pageId) { return g_FieldDebugPages[pageId].state == 0; }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugPageResetStrings);
 
