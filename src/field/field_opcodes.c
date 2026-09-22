@@ -14,16 +14,16 @@
 #define GET_PRIORITY(x) (((x) >> 5) & 0x7)
 #define GET_SCRIPTID(x) ((x) & 0x1F)
 
-#define ADD_PARTY_MEMBER(slot, charId)        \
-    Savemap.memory_bank_2[9 + slot] = charId; \
-    if (charId != 0xFF) {                     \
-        u16 mask;                             \
-        u16 bit;                              \
-        bit = charId;                         \
-        mask = Savemap.phs_visibility_mask;   \
-        bit = 1 << bit;                       \
-        mask |= bit;                          \
-        Savemap.phs_visibility_mask = mask;   \
+#define ADD_PARTY_MEMBER(slot, charId)                                                                                 \
+    Savemap.memory_bank_2[9 + slot] = charId;                                                                          \
+    if (charId != 0xFF) {                                                                                              \
+        u16 mask;                                                                                                      \
+        u16 bit;                                                                                                       \
+        bit = charId;                                                                                                  \
+        mask = Savemap.phs_visibility_mask;                                                                            \
+        bit = 1 << bit;                                                                                                \
+        mask |= bit;                                                                                                   \
+        Savemap.phs_visibility_mask = mask;                                                                            \
     }
 
 // clang-format off
@@ -69,6 +69,8 @@ static void PartyReplace(u8* newParty);
 static void PartyFromBank2ToSave(s32 unused);
 static void PartyRemove(u8* party, u8* toRemove);
 static void PartyAdd(u8* party, u8* toAdd);
+
+void FieldWindowResetTextAll(void);
 
 s32 OpcodeFuncPmjmp(void);
 s32 OpcodeFuncPmjmp2(void);
@@ -2341,31 +2343,93 @@ s32 OpcodeFuncMgame(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncBatle);
+s32 OpcodeFuncBatle(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("batle", 3);
+    }
+
+    if (g_pFieldState->eventCmd != EVTCMD_NONE && g_pFieldState->eventCmd != EVTCMD_ENTERING_BATTLE) {
+        return 1;
+    }
+    if (g_pFieldState->eventCmd == EVTCMD_NONE) {
+        FieldWindowResetTextAll();
+        g_pFieldState->eventCmd = EVTCMD_ENTERING_BATTLE;
+        g_pFieldState->eventCmdParam = FieldEventReadMemoryS16(2, 2);
+        g_pFieldState->movieCommandState = MOVCMD_IDLE;
+        D_8007EBE0 = 1;
+        return 1;
+    }
+    if (g_pFieldState->eventCmd == EVTCMD_ENTERING_BATTLE && g_pFieldState->movieCommandState == MOVCMD_DONE) {
+        PC_INC(4);
+        g_pFieldState->eventCmd = EVTCMD_NONE;
+        g_pFieldState->movieCommandState = MOVCMD_IDLE;
+        return 0;
+    }
+    return 1;
+}
 
 void FieldEventClearAkaoStruct(void) {
     s32 i;
-    s16* p;
+    AkaoCmd* cmd;
 
-    D_8009A000[0] = 0;
-    for (i = 5, p = &D_8009A000[10]; i >= 0; i--) {
-        *(s32*)(p + 2) = 0;
-        p -= 2;
+    cmd = &g_AkaoCmd;
+    cmd->opcode = 0;
+    for (i = 0; i < 6; i++) {
+        cmd->params[i] = 0;
     }
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncAkao);
+s32 OpcodeFuncAkao(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("akao", 3);
+    }
+    FieldEventClearAkaoStruct();
+    g_AkaoCmd.opcode = GET_PARAM_U8(4);
+    g_AkaoCmd.params[0] = FieldEventReadMemoryU8(1, 5);
+    g_AkaoCmd.params[1] = FieldEventReadMemoryS16(2, 6);
+    g_AkaoCmd.params[2] = FieldEventReadMemoryS16(3, 8);
+    g_AkaoCmd.params[3] = FieldEventReadMemoryS16(4, 10);
+    g_AkaoCmd.params[4] = FieldEventReadMemoryS16(6, 12);
+    AkaoExec();
+    PC_INC(14);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncAkao2);
+s32 OpcodeFuncAkao2(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("akao2", 3);
+    }
+    FieldEventClearAkaoStruct();
+    g_AkaoCmd.opcode = GET_PARAM_U8(4);
+    g_AkaoCmd.params[0] = FieldEventReadMemoryS16(1, 5);
+    g_AkaoCmd.params[1] = FieldEventReadMemoryS16(2, 7);
+    g_AkaoCmd.params[2] = FieldEventReadMemoryS16(3, 9);
+    g_AkaoCmd.params[3] = FieldEventReadMemoryS16(4, 11);
+    g_AkaoCmd.params[4] = FieldEventReadMemoryS16(6, 13);
+    AkaoExec();
+    PC_INC(15);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncSe);
+s32 OpcodeFuncSe(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("se", 3);
+    }
+    FieldEventClearAkaoStruct();
+    g_AkaoCmd.opcode = 0x20;
+    g_AkaoCmd.params[0] = FieldEventReadMemoryU8(2, 4);
+    g_AkaoCmd.params[1] = FieldEventReadMemoryS16(1, 2);
+    AkaoExec();
+    PC_INC(5);
+    return 0;
+}
 
 static s32 OpcodeFuncMusic(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("music", 1);
     }
     FieldEventClearAkaoStruct();
-    D_8009A000[0] = 0x10;
+    g_AkaoCmd.opcode = 0x10;
     return SetAndApplyAkao();
 }
 
@@ -2374,7 +2438,7 @@ static s32 OpcodeFuncMusvt(void) {
         DebugPrintOpcode("musvt", 1);
     }
     FieldEventClearAkaoStruct();
-    D_8009A000[0] = 0x14;
+    g_AkaoCmd.opcode = 0x14;
     return SetAndApplyAkao();
 }
 
@@ -2383,7 +2447,7 @@ static s32 OpcodeFuncMusvm(void) {
         DebugPrintOpcode("musvm", 1);
     }
     FieldEventClearAkaoStruct();
-    D_8009A000[0] = 0x15;
+    g_AkaoCmd.opcode = 0x15;
     return SetAndApplyAkao();
 }
 
@@ -2394,9 +2458,9 @@ static s32 OpcodeFuncCmusc(void) {
         DebugPrintOpcode("cmusc", 5);
     }
     FieldEventClearAkaoStruct();
-    *D_8009A000 = GET_PARAM_U8(3);
-    *D_8009A008 = (s16)FieldEventReadMemoryS16(3, 4);
-    D_8009A00C = (s16)FieldEventReadMemoryS16(4, 6);
+    g_AkaoCmd.opcode = GET_PARAM_U8(3);
+    g_AkaoCmd.params[1] = FieldEventReadMemoryS16(3, 4);
+    g_AkaoCmd.params[2] = FieldEventReadMemoryS16(4, 6);
     result = SetAndApplyAkao();
     PC_INC(6);
     return result;
@@ -2412,8 +2476,8 @@ static s32 SetAndApplyAkao(void) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("music=", akaoId, 2);
         }
-        *D_8009A004 = (u_long)g_FieldScripts + GetAkaoBlockOffset(akaoId);
-        g_pFieldState->nextFieldMusic = *D_8009A004;
+        g_AkaoCmd.params[0] = (s32)((u8*)g_FieldScripts + GetAkaoBlockOffset(akaoId));
+        g_pFieldState->nextFieldMusic = g_AkaoCmd.params[0];
         AkaoExec();
     }
     PC_INC(2);
@@ -2424,7 +2488,7 @@ static u32 GetAkaoBlockOffset(s16 akaoId) {
     s32 akaoData;
     u32 akaoOffset;
 
-    akaoData = akaoId * 4 + g_FieldScripts->numEntities * 8 + (u_long)g_FieldScripts;
+    akaoData = akaoId * 4 + g_FieldScripts->numEntities * 8 + (u32)g_FieldScripts;
     akaoOffset = ((u8*)akaoData)[sizeof(FieldScriptHeader)];
     akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 1] << 8;
     akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 2] << 16;
@@ -2462,7 +2526,7 @@ static s32 OpcodeFuncFmusc(void) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("bmusic=", akaoId, 2);
         }
-        g_pFieldState->nextFieldMusic = (u8*)g_FieldScripts + GetAkaoBlockOffset(akaoId);
+        g_pFieldState->nextFieldMusic = (s32)((u8*)g_FieldScripts + GetAkaoBlockOffset(akaoId));
     } else {
         g_pFieldState->nextFieldMusic = 0;
     }

@@ -7,9 +7,9 @@
 #include <libetc.h>
 
 static void PlaySfx(u16 arg0) {
-    D_8009A000[0] = 0x30;
-    D_8009A004[0] = arg0;
-    D_8009A008[0] = arg0;
+    g_AkaoCmd.opcode = 0x30;
+    g_AkaoCmd.params[0] = arg0;
+    g_AkaoCmd.params[1] = arg0;
     AkaoExec();
 }
 
