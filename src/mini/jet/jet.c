@@ -3,7 +3,6 @@
 #include "types.h"
 #include <game.h>
 
-// One pool per primitive type, each with the write cursor that walks it.
 typedef struct {
     /* 0x0000 */ void* f3Cursor;
     /* 0x0004 */ void* f4Cursor;
@@ -25,8 +24,6 @@ typedef struct {
     /* 0xE2E4 */ LINE_F2 line[1];
 } JetPrimBuffer; // size: 0xE2F4
 
-// Offsets 0x00 and 0x5C are fixed by SetDefDrawEnv/SetDefDispEnv; both
-// ordering tables are sized by their ClearOTagR calls.
 typedef struct {
     /* 0x0000 */ DRAWENV draw;
     /* 0x005C */ DISPENV disp;
@@ -59,8 +56,6 @@ typedef struct {
     /* 0x1C */ char pad1C[4];
 } JetModel; // size: 0x20
 
-// Scene graph node. The prev/next pair chains every node of one depth
-// between the head and tail sentinels g_JetNodeListHeads/g_JetNodeListTails.
 typedef struct JetNode {
     /* 0x00 */ JetModel* model;
     /* 0x04 */ MATRIX m;
@@ -83,8 +78,6 @@ typedef struct {
     /* 0x04 */ char pad4[0x24];
 } JetQuad; // size: 0x28
 
-// The two view frustum side planes: an unnormalised normal, a plane distance,
-// and the normal's length, which scales a half-space value to a world distance.
 extern s32 g_JetLeftPlaneNormalX;
 extern s32 g_JetLeftPlaneNormalY;
 extern s32 g_JetLeftPlaneNormalZ;
@@ -98,8 +91,6 @@ extern s32 g_JetRightPlaneDistance;
 extern s32 g_JetLeftNormalLength;
 extern s32 g_JetRightNormalLength;
 
-// Models and their primitives are carved out of three streams by bump
-// cursors that are never rewound; g_Jet*Base holds each stream's start.
 extern JetModelInfo* g_JetModelInfo;
 extern JetModelInfo* g_JetModelInfoBase;
 extern JetTriangle* g_JetTriangles;
@@ -554,7 +545,6 @@ void JetBufferReset(void) {
     JetPrimCursorsReset(&g_JetBufferPtr[0]->prims);
 }
 
-// Tag every primitive in the nine pools with its type and length.
 void JetPrimsInit(JetPrimBuffer* prims) {
     s32 i;
 
