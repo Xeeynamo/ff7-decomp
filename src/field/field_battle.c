@@ -9,21 +9,12 @@
 #define ENCOUNTER_MASTERED_PROB(x) ((x) >> 11) // Half the chance if player has equipped mastered Pre-emptive materia.
 #define ENCOUNTER_ID(x) ((x) & 0x3FF)
 
-typedef struct {
-    s16 enabled;
-    s16 standard[6];
-    s16 special[4];
-    s16 pad;
-} FieldEncounterTable;
-
 extern u8 D_800716D0;
 extern u16 D_8007173C;
-extern FieldEncounterTable* g_FieldEncounters;
 extern u8 D_80071C20;
 extern s16 D_8007E774;
 extern u8 D_8007EBC8;
 extern u8 D_8009C6D8;
-extern u8 g_RandomTable[256];
 
 u8 FieldGetRandomU8FromList(void) {
     D_8009C540++;

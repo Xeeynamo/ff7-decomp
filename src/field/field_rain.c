@@ -3,9 +3,6 @@
 #include <libetc.h>
 #include "field_private.h"
 
-extern u8 g_RandomTable[256];
-extern u8 g_RainForce;
-
 struct FieldRain {
     /* 0x00 */ SVECTOR p1;
     /* 0x08 */ SVECTOR p2;

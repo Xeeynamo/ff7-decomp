@@ -5,33 +5,23 @@
 
 s32 g_WmPreSector = 2903;
 u32 g_WmPreSize = 280222;
-extern struct FieldRenderData g_FieldRenderData[2]; // double buffered
-extern s16 g_CameraScrollX;
-extern s16 g_CameraScrollY;
-extern s16 g_CameraScrollEnabled;
 extern FieldModelLoaderHeader** g_FieldModelsP;
-extern FieldTriggers* g_FieldTriggers;
-extern u16* g_FieldEncounters;
 extern FieldTriggers** g_FieldTriggersP;
-extern u16** g_FieldEncountersP;
-extern volatile s16 g_FieldMoviePlayed;
 extern s16 g_FieldPreloadMapId;
 extern u8 D_800716D0;
-extern s16 D_8007173C;
+extern u16 D_8007173C;
 extern s8 D_80071A58;
 extern FieldScriptHeader** D_8007EB64;
 extern u8 D_8007EBC8;
 extern s32** D_8009A044;
 extern s8 D_8009A048[16];
 extern volatile s16 g_GameState;
-extern s8 D_8009C6D8;
+extern u8 D_8009C6D8;
 extern u8** D_8009D848;
-extern DRAWENV D_80113F2C[2];
 extern DRAWENV D_80113FE4[2];
 extern DRAWENV D_8011409C[2];
 extern DRAWENV D_80114154[2];
 extern DRAWENV D_8011420C[2];
-extern u8 g_RainForce;
 
 void FieldArrowsInit(SPRT_16* arrows, DR_MODE* drawMode);
 void FieldEnablePartyModels(void);
@@ -192,7 +182,7 @@ void FIELD_Main(void) {
             D_8009D848 = (u8**)0x80114FEC;
             D_80083578 = (MATRIX**)0x80114FF0;
             g_FieldTriggersP = (FieldTriggers**)0x80114FF4;
-            g_FieldEncountersP = (u16**)0x80114FF8;
+            g_FieldEncountersP = (FieldEncounterTable**)0x80114FF8;
             g_FieldModelsP = (FieldModelLoaderHeader**)0x80114FFC;
             FieldLoadMimDatFiles();
         }

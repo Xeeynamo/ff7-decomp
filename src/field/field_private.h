@@ -53,10 +53,38 @@ typedef struct {
     u32 palettesOffset;
 } FieldFaceTextureHeader;
 
+typedef struct {
+    s16 enabled;
+    s16 standard[6];
+    s16 special[4];
+    s16 pad;
+} FieldEncounterTable;
+
 extern u8* D_80075E10;
 extern MATRIX* D_80083270;
 extern MATRIX** D_80083578;
 extern u32 g_FieldFileInfo[787 * 6];
+
+extern struct FieldRenderData g_FieldRenderData[2];
+extern FieldTriggers* g_FieldTriggers;
+extern FieldEncounterTable* g_FieldEncounters;
+extern FieldEncounterTable** g_FieldEncountersP;
+extern volatile s16 g_FieldMoviePlayed;
+extern s16 g_CameraScrollX;
+extern s16 g_CameraScrollY;
+extern s16 g_CameraScrollEnabled;
+extern u8 g_RandomTable[256];
+extern u8 g_RainForce;
+extern u8 g_FieldPrimitiveBufferIndex;
+extern SVECTOR (*D_800E4274)[3];
+extern DRAWENV D_80113F2C[2];
+extern s16 D_801142C8;
+extern u8 D_80114498[48];
+
+extern char g_FieldDebugActorLabel[8];
+extern char g_FieldDebugWordLabel[8];
+extern char g_DebugText[];
+extern char g_DebugMessageBuffer[];
 
 extern FieldFaceTextureHeader* g_FieldFaceTextureData;
 extern u8* D_800E0204;
@@ -80,7 +108,18 @@ u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelDa
 u8* FieldModelLoadGlobalModels(FieldModelLoaderHeader* header, FieldModelData* modelData, u8* buffer, s32 arg3);
 u8* LoadLocalFieldModelAndInitAll(
     FieldModelLoaderHeader* header, FieldModelData* modelData, const u32* arg2, void* arg3);
+void FieldModelAnimCalcMtrxs(FieldModelEntry* model, MATRIX* matrix, u8 animationId, s32 frame);
 s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* entry, u8* params);
+s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params);
 void KawaiClearData(void);
+
+void DebugPrintToFieldWindow(const char* str);
+void DebugUpdateActor(s16 arg0, s16 entityId);
+void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
+void FieldDebugStringCopy(char* dst, const char* src);
+void FieldDebugStringConcat(char* dest, const char* src);
+void AddStrNextDebugRow(s32 val, const char* msg_out);
+void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height);
+s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str);
 
 #endif

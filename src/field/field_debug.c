@@ -1,6 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include <game.h>
 #include <libetc.h>
+#include "field_private.h"
 
 typedef struct {
     /* 0x000 */ s16 x;
@@ -18,8 +19,6 @@ typedef struct {
     /* 0x178 */ u8 state;
 } FieldDebugPage; /* size = 0x17A */
 
-extern char g_FieldDebugActorLabel[8];
-extern char g_FieldDebugWordLabel[8];
 extern FieldDebugPage g_FieldDebugPages[6];
 extern char g_FieldDebugDigits[16];
 extern u16 g_FieldDebugRb;
@@ -28,19 +27,14 @@ extern s16 g_FieldDebugRLines;
 extern s16 g_FieldDebugRRect;
 extern s16 g_FieldDebugRDm;
 extern u16 g_FieldDebugTransp;
-extern char g_DebugText[];
 
-void AddStrNextDebugRow(s32 val, const char* msg_out);
-void FieldDebugStringCopy(char* dst, const char* src);
-void FieldDebugStringConcat(char* dest, const char* src);
 void FieldDebugPageSetPosSize(s16 pageId, s16 x, s16 y, s16 width, s16 height);
 void FieldDebugPageResetStrings(s16 pageId);
-void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height);
-INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugInitBuffers);
-
 static void FieldDebugPageSetHeadRow(s16 pageId, s16 row);
 static void FieldDebugPageHide(s16 pageId);
-s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str);
+
+INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugInitBuffers);
+
 void InitFieldDebugPages(void) {
     FieldDebugPageInit(5, 0x6C, 0, 0x6C, 0x52);
     FieldDebugStringCopy(g_DebugText, "Authr:");

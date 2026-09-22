@@ -83,7 +83,6 @@ typedef struct {
     u32 unk4;
 } FieldTdbHeader;
 
-extern u8 g_FieldPrimitiveBufferIndex;
 extern u8* D_800E0200;
 
 u8* FieldModelCreatePktsAndScale(FieldModelEntry* model, u8* nextFree, s32 modelId);
@@ -94,8 +93,6 @@ void FieldModelScaleModel(FieldModelEntry* model, s16 scale, s32 force);
 void FieldModelScalePartVrtxs(FieldModelPart* part, s16 scale, s32 force);
 void FieldModelScaleAnimTranslat(FieldModelAnimation* animation, s16 scale, s32 force);
 s32 KawaiLightingApplyToModel(FieldModelEntry* model, u8* params);
-s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params);
-void FieldModelAnimCalcMtrxs(FieldModelEntry* model, MATRIX* matrix, u8 animationId, s32 frame);
 u8* FieldModelLoadBcx(FieldModelLoaderHeader*, FieldModelData*, u8*, u32);
 
 u8* LoadLocalFieldModelAndInitAll(

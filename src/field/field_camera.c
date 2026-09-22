@@ -12,16 +12,11 @@ static Yamada global_model_files[9] = {
 
 static Yamada face_texture_file = {126879, 13631};
 
-extern u8 g_FieldPrimitiveBufferIndex;
 extern struct FieldRenderData* D_800DF118;
 extern u8 D_801144D8;
-extern s16 D_801142C8;
-extern volatile s16 g_FieldMoviePlayed;
-extern u8 g_RandomTable[256];
 
 void FieldModelPrepareRender(FieldModelEntry* model);
 s32 KawaiExecute(FieldModelEntry* model, u8* params, s32 modelId, MATRIX* matrix);
-void FieldModelAnimCalcMtrxs(FieldModelEntry* model, MATRIX* matrix, s32 animationId, s32 frame);
 
 void FieldModelLoadAndInit(void) {
     FieldModelEntry** entries;

@@ -3,12 +3,7 @@
 #include <libetc.h>
 #include "field_private.h"
 
-extern struct FieldRenderData g_FieldRenderData[2];
 extern u32 g_FieldKeyState;
-extern s16 g_CameraScrollX;
-extern s16 g_CameraScrollY;
-extern FieldTriggers* g_FieldTriggers;
-extern volatile s16 g_FieldMoviePlayed;
 extern s8 D_80071C0C;
 extern OT_TYPE D_8007E7A0[2];
 extern s32 D_8007EB90;
@@ -16,7 +11,6 @@ extern s32 D_8007EB94;
 extern s32 D_800965E4;
 extern s32** D_8009A044;
 extern s32 D_8009A060;
-extern SVECTOR (*D_800E4274)[3];
 extern u_long* D_800E4D90;
 extern u32 D_800E4D94;
 extern u16 D_800E4D98;
@@ -37,8 +31,6 @@ extern s16 D_800E4DDE;
 extern u16 D_800E4DE0;
 extern u16 D_800E4DE2;
 extern u16 D_800E4DE4;
-extern DRAWENV D_80113F2C[2];
-extern s16 D_801142C8;
 extern s16 (*D_80114458)[3];
 extern s32 D_80114478;
 extern s32 D_8011447C;

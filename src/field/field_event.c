@@ -7,26 +7,16 @@ char g_FieldDebugDigits[16] = "0123456789ABCDEF";
 char g_FieldDebugDigitsLower[16] = "0123456789abcdef";
 
 extern u8 g_EntityForSplitJoin;
-extern char g_DebugMessageBuffer[];
-extern u8 D_80114498[48];
 extern u8 g_PosCursorDisabled;
 extern POLY_FT4 g_PosCursorPrims[2];
 extern s16 g_PosCursorX;
 extern s16 g_PosCursorY;
 extern u8 g_PosCursorPrimId;
-extern char g_FieldDebugActorLabel[8];
-extern char g_DebugText[];
 
-void DebugPrintToFieldWindow(const char* str);
 static void FieldEventOpcodeCycle(void);
 static void FieldUpdateAnimationState(void);
 u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId);
-void DebugUpdateActor(s32 arg0, u8 actorId);
-void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
 void FieldWindowResetTextAll(void);
-void SetStrToDebugRow(s32 page, s16 row, const char* str);
-void FieldDebugStringCopy(char* dst, const char* src);
-void FieldDebugStringConcat(char* dest, const char* src);
 void InitFieldDebugPages(void);
 void FieldEventClearAkaoStruct(void);
 void FieldWindowResetAll(void);

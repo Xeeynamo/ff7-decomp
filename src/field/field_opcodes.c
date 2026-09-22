@@ -42,18 +42,9 @@ typedef enum {
 } IfOps;
 // clang-format on
 
-extern u8 D_80114498[];
 extern u8 g_RandomTableStep;
 extern u8 g_RandomTableIndex;
-extern u8 g_RandomTable[256];
-extern char g_FieldDebugActorLabel[8];
-extern char g_FieldDebugWordLabel[8];
-extern char g_DebugText[];
-extern char g_DebugMessageBuffer[];
 extern s8 D_800716C8;
-extern s16 g_CameraScrollX;
-extern s16 g_CameraScrollY;
-extern SVECTOR (*D_800E4274)[3];
 extern u8* g_MenuTutorial;
 
 void SystemMenuAddHpByPartyId(s32 partyId, u16 hp);
@@ -63,15 +54,10 @@ static u32 IfCheck(void);
 static u32 If2CheckSigned(void);
 static u32 If2CheckUnsigned(void);
 static s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId);
-void DebugPrintToFieldWindow(const char* str);
 void FieldEventDebugError(const char* errmsg);
-void FieldDebugStringCopy(char* dst, const char* src);
-void FieldDebugStringConcat(char* dest, const char* src);
 void FieldDebugStringU8hex(s32 val, char* msg_out);
 void FieldDebugStringU16hex(s32 val, char* msg_out);
 void FieldDebugStringU32hex(s32 val, char* msg_out);
-void AddStrNextDebugRow(s32 val, const char* msg_out);
-void SetStrToDebugRow(s32 page, s16 row, const char* str);
 void SetDebugStrRowColor(s16 page, s16 row, s16 color);
 void FieldDebugPageSetColor(s32 page, s32 r, s32 g, s32 b);
 

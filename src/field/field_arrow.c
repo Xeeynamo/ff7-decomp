@@ -3,7 +3,6 @@
 #include <libetc.h>
 #include "field_private.h"
 
-extern FieldTriggers* g_FieldTriggers;
 extern u16 D_8011446C;
 
 void FieldArrowsInit(SPRT_16* arrows, DR_MODE* drawMode) {

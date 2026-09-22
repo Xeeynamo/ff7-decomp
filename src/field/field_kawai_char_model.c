@@ -199,7 +199,6 @@ void* D_800E01FC = (void*)0x801AF800;
 u8* D_800E0200 = NULL;
 u8* D_800E0204 = NULL;
 
-
 void KawaiClearData(void) {
     s32 count;
     s32 i;

@@ -1,6 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include <game.h>
 #include <libetc.h>
+#include "field_private.h"
 
 typedef struct {
     /* 0x000 */ s16 x;
@@ -36,10 +37,7 @@ extern s16 g_WindowBufferPos[4];
 extern u8 g_WindowBuffer[4][16];
 extern s16 g_WindowTotalRowsHeight[4];
 
-void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
 void FieldWindowReset(s16 window);
-void AddStrNextDebugRow(s32 val, const char* msg_out);
-void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height);
 static void PlayWindowPointerClickSound(void);
 static s32 FieldDialogWindowInit(s16 window, s16 stringId);
 static void FieldDialogWindowGrowth(s16 window);

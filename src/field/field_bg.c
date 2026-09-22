@@ -3,15 +3,11 @@
 #include <libetc.h>
 #include "field_private.h"
 
-extern u8 g_RandomTable[256];
-extern s16 g_CameraScrollX;
-extern s16 g_CameraScrollY;
 extern s16 g_CameraScrollCurrentStep;
 extern s16 g_CameraScrollStartX;
 extern s16 g_CameraScrollTargetX;
 extern s16 g_CameraScrollStartY;
 extern s16 g_CameraScrollTargetY;
-extern s16 g_CameraScrollEnabled;
 extern s16 g_CameraScrollNumSteps;
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_bg", FieldBackgroundInitPackets);
