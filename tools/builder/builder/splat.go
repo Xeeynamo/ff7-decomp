@@ -8,7 +8,6 @@ import (
 
 	"github.com/xeeynamo/ff7-decomp/tools/builder/assets"
 	"github.com/xeeynamo/ff7-decomp/tools/builder/assets/tims"
-	"golang.org/x/sync/errgroup"
 )
 
 var assetHandlers = map[string]assets.Handler{
@@ -80,18 +79,7 @@ type assetMatch struct {
 	meta    assets.Metadata
 }
 
-func makeAssetSubsegments(b BuildConfig, o Overlay, version string) ([]any, error) {
-	subsegments := make([]any, len(o.Segments))
-	for i, sub := range o.Segments {
-		subsegments[i] = sub
-	}
-
-	cfgInfo, err := os.Stat(ConfigPath(version))
-	if err != nil {
-		return nil, err
-	}
-	cfgModTime := cfgInfo.ModTime()
-
+func findAssetMatches(b BuildConfig, o Overlay) ([]assetMatch, error) {
 	var raw []byte
 	var matches []assetMatch
 	for i, sub := range o.Segments {
@@ -144,32 +132,25 @@ func makeAssetSubsegments(b BuildConfig, o Overlay, version string) ([]any, erro
 		}
 		matches = append(matches, assetMatch{index: i, kind: kind, handler: handler, meta: m})
 	}
+	return matches, nil
+}
 
-	var eg errgroup.Group
-	for _, mt := range matches {
-		mt := mt
-		eg.Go(func() error {
-			ts := mt.handler.Timestamp(mt.meta)
-			if !ts.IsZero() && !ts.Before(cfgModTime) {
-				return nil
-			}
-			if err := mt.handler.Extract(mt.meta); err != nil {
-				return fmt.Errorf("overlay %s: %s subsegment %q: %w", o.Name, mt.kind, mt.meta.Name, err)
-			}
-			return nil
-		})
+func makeAssetSubsegments(b BuildConfig, o Overlay) ([]any, error) {
+	subsegments := make([]any, len(o.Segments))
+	for i, sub := range o.Segments {
+		subsegments[i] = sub
 	}
-	if err := eg.Wait(); err != nil {
+	matches, err := findAssetMatches(b, o)
+	if err != nil {
 		return nil, err
 	}
-
 	for _, mt := range matches {
 		subsegments[mt.index] = mt.handler.SplatEntry(mt.meta)
 	}
 	return subsegments, nil
 }
 
-func makeSplatConfig(b BuildConfig, o Overlay, version string) (SplatConfig, error) {
+func makeSplatConfig(b BuildConfig, o Overlay) (SplatConfig, error) {
 	overlayExists := func(name string) bool {
 		for _, other := range b.Overlays {
 			if other.Name == name {
@@ -206,7 +187,7 @@ func makeSplatConfig(b BuildConfig, o Overlay, version string) (SplatConfig, err
 	if err != nil {
 		return SplatConfig{}, err
 	}
-	subsegments, err := makeAssetSubsegments(b, o, version)
+	subsegments, err := makeAssetSubsegments(b, o)
 	if err != nil {
 		return SplatConfig{}, err
 	}
