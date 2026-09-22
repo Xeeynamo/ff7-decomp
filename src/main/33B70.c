@@ -23,7 +23,7 @@ extern CdlLOC D_80071A68;    // cd sector
 extern size_t D_80071A6C;    // amount of sectors to read
 extern u_long* D_80071A80;   // read content destination
 extern void (*D_80071A84)(); // callback
-extern u8 D_800716CC;
+
 void func_80034CAC(u32 arg0);
 static s32 ReadDiskNo(void);
 
@@ -31,11 +31,11 @@ void SysSavemapReset(void) {
     s32 i;
     u8* bank;
 
-    for (i = 1279, bank = &Savemap.memory_bank_5[255]; i >= 0; i--, bank--) {
-        *bank = 0;
+    for (i = 0; i < 1280; i++) {
+        Savemap.memory_bank_1[i] = 0;
     }
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         Savemap.partyID[i] = 0xFF;
         Savemap.memory_bank_2[i + 9] = 0xFF;
     }
