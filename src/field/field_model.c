@@ -211,7 +211,7 @@ u8* LoadLocalFieldModelAndInitAll(
     copyModelDst = (FieldBsxModel*)workspaceEnd;
     for (i = 0; i < modelCount; i++) {
         u32* modelSrc = (u32*)&copyModelSrc[i];
-        u32* modelDst =(u32*)&copyModelDst[i];
+        u32* modelDst = (u32*)&copyModelDst[i];
         modelDst[0] = modelSrc[0];
         modelDst[1] = modelSrc[1];
         modelDst[2] = modelSrc[2];
@@ -357,7 +357,7 @@ u8* FieldModelCreatePktsForPart(FieldModelPart* part, u8* nextFree, s32 relocate
     vOffset4 = (modelId / 4) * 32;
     uOffset8 = (modelId % 8) * 32;
     vOffset8 = (modelId / 8) * 32;
-    
+
     for (buffer = 0; buffer < 2; buffer++) {
         cursor = nextFree;
         textureFlags = part->data + part->textureFlagsOffset;
@@ -782,7 +782,7 @@ u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8
                     partDst[i][5] = partSrc[i][5];
                     partDst[i][6] = partSrc[i][6];
                     partDst[i][7] = partSrc[i][7];
-                    
+
                     partDst[i][6] = relocation + partSrc[i][6];
                 }
                 count = source->animationCount;
@@ -793,7 +793,7 @@ u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8
                     animationDst[i][1] = animationSrc[i][1];
                     animationDst[i][2] = animationSrc[i][2];
                     animationDst[i][3] = animationSrc[i][3];
-                    
+
                     animationDst[i][3] = relocation + animationSrc[i][3];
                 }
                 D_800E0204 = (u8*)source;
@@ -945,7 +945,7 @@ void FieldModelScaleAnimTranslat(FieldModelAnimation* animation, s16 scale, s32 
         count = animation->translationCount;
         frameCount = animation->frameCount;
         for (i = 0; i < count; i++) {
-             s16* trans = (s16*)(animation->data + animation->translationOffset) + i * frameCount;
+            s16* trans = (s16*)(animation->data + animation->translationOffset) + i * frameCount;
             groups = frameCount / 3;
             for (j = 0; j < groups; j++) {
                 input->vx = trans[j * 3];
