@@ -3,7 +3,7 @@
 #include <libetc.h>
 #include "field_private.h"
 
-#define GET_PARAM_U8(offset) (*(u8*)((s32)g_FieldScripts + g_FieldScriptPC[g_CurrentEntity] + (offset)))
+#define GET_PARAM_U8(offset) (*((u8*)g_FieldScripts + g_FieldScriptPC[g_CurrentEntity] + (offset)))
 #define GET_PARAM_S16(value, offset)                                                                                   \
     value = GET_PARAM_U8(offset);                                                                                      \
     value |= (GET_PARAM_U8((offset) + 1) << 8)
