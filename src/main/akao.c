@@ -429,7 +429,7 @@ void AkaoCmd_2A_PlaySoundSlot0(AkaoCommand* cmd);
 void AkaoCmd_2B_PlaySoundSlot3(AkaoCommand* cmd);
 void AkaoCmd_30_PlayMenuSound(AkaoCommand* cmd);
 void AkaoCmd_34_PlaySoundDirect(AkaoCommand* cmd);
-static void AkaoCmd_80_ClearSoundReverb(void);
+static void AkaoCmd_80_SetStereoMode(void);
 static void AkaoCmd_81_SetMonoMode(void);
 void AkaoCmd_82_ResetMusicAndSoundVol();
 void AkaoCmd_90_SetMuteMusicMask();
@@ -714,7 +714,7 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_80_ClearSoundReverb,
+    AkaoCmd_80_SetStereoMode,
     AkaoCmd_81_SetMonoMode,
     AkaoCmd_82_ResetMusicAndSoundVol,
     AkaoCmd_Null,
@@ -1842,7 +1842,7 @@ static void AkaoCmd_F0_StopMusic(void) { AkaoMusicStopChannels12(); }
 
 static void AkaoCmd_F1_StopAllSounds(void) { AkaoSoundChannelsStop(); }
 
-static void AkaoCmd_80_ClearSoundReverb(void) {
+static void AkaoCmd_80_SetStereoMode(void) {
     g_Channel1Config = AKAO_STEREO;
     AkaoMusicVolReset();
     AkaoSoundVolReset();
