@@ -1,7 +1,7 @@
 //! PSYQ=3.3
 #include <game.h>
 #include <libetc.h>
-#include <inline_c.h>
+#include <psxsdk/inline_c.h>
 #include "field_private.h"
 
 typedef struct {

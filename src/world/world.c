@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3 g=false gcoff=false
 #include "world.h"
 #include <libetc.h>
-#include <inline_o.h>
+#include <psxsdk/inline_o.h>
 
 static void WmSetActiveEntityDirectionAndRot(s16 arg0);
 static void WmGetPosFromPcEntity(VECTOR* arg0);
