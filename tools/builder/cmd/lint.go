@@ -11,8 +11,8 @@ var (
 )
 
 var lintCmd = &cobra.Command{
-	Use:   "lint [overlay...]",
-	Short: "Detect symbols whose memory ranges overlap",
+	Use:           "lint [overlay...]",
+	Short:         "Detect symbols whose memory ranges overlap",
 	SilenceErrors: true,
 	SilenceUsage:  true,
 	RunE: func(cmd *cobra.Command, args []string) error {

@@ -79,12 +79,12 @@ var metaCategories = map[string]string{
 }
 
 var metaOverlays = map[string]metaOverlay{
-	"main":     {"main", "main", "Game engine"},
+	"main": {"main", "main", "Game engine"},
 
-	"batini":   {"batini", "battle", "Battle init"},
-	"batres":   {"batres", "battle", "Battle result"},
-	"battle":   {"battle", "battle", "Battle"},
-	"brom":     {"brom", "battle", "Battle ROM"},
+	"batini": {"batini", "battle", "Battle init"},
+	"batres": {"batres", "battle", "Battle result"},
+	"battle": {"battle", "battle", "Battle"},
+	"brom":   {"brom", "battle", "Battle ROM"},
 
 	"dschange": {"dschange", "field", "Disc change"},
 	"ending":   {"ending", "field", "Ending"},
@@ -96,8 +96,8 @@ var metaOverlays = map[string]metaOverlay{
 	"itemmenu": {"itemmenu", "menu", "Item menu"},
 	"world":    {"world", "world", "World map"},
 
-	"chocobo":  {"chocobo", "mini", "Chocobo racing"},
-	"jet":      {"jet", "mini", "jet"},
+	"chocobo": {"chocobo", "mini", "Chocobo racing"},
+	"jet":     {"jet", "mini", "jet"},
 
 	"fire":     {"fire", "magic", "Fire"},
 	"faira":    {"faira", "magic", "Fira"},

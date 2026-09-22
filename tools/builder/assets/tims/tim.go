@@ -55,6 +55,10 @@ func (Tim) Timestamp(m assets.Metadata) time.Time {
 	return ts
 }
 
+func (Tim) Build(m assets.Metadata) []assets.BuildStep {
+	return nil
+}
+
 func (Tim) SplatEntry(m assets.Metadata) map[string]any {
 	return map[string]any{
 		"start":   m.Start,

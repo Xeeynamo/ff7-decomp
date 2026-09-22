@@ -82,4 +82,3 @@ func findOverlaps(syms []Symbol) []Finding {
 	}
 	return findings
 }
-

@@ -7,11 +7,13 @@ import (
 	"strings"
 
 	"github.com/xeeynamo/ff7-decomp/tools/builder/assets"
+	"github.com/xeeynamo/ff7-decomp/tools/builder/assets/saveicons"
 	"github.com/xeeynamo/ff7-decomp/tools/builder/assets/tims"
 )
 
 var assetHandlers = map[string]assets.Handler{
-	"tim": tims.Tim{},
+	"tim":       tims.Tim{},
+	"saveicons": saveicons.SaveIcons{},
 }
 
 type SplatOptions struct {
@@ -98,9 +100,8 @@ func findAssetMatches(b BuildConfig, o Overlay) ([]assetMatch, error) {
 		if !ok {
 			return nil, fmt.Errorf("overlay %s: %s subsegment has non-integer start %v", o.Name, kind, sub[0])
 		}
-		name, ok := sub[2].(string)
-		if !ok {
-			return nil, fmt.Errorf("overlay %s: %s subsegment has non-string name %v", o.Name, kind, sub[2])
+		if s, ok := sub[2].(string); ok {
+			name, symbol = s, s+"_"+kind
 		}
 		if i+1 >= len(o.Segments) {
 			return nil, fmt.Errorf("overlay %s: %s subsegment %q has no following subsegment to bound its end", o.Name, kind, name)
@@ -126,9 +127,11 @@ func findAssetMatches(b BuildConfig, o Overlay) ([]assetMatch, error) {
 			Start:      start,
 			End:        end,
 			Name:       name,
-			Symbol:     name + "_" + kind,
+			Symbol:     symbol,
+			Args:       sub[2:],
 			AssetDir:   filepath.Join(b.AssetPath, o.BasePath),
 			AsmDataDir: filepath.Join(b.AsmPath, o.BasePath, "data"),
+			BuildDir:   filepath.Join(b.BuildPath, b.AssetPath, o.BasePath),
 		}
 		matches = append(matches, assetMatch{index: i, kind: kind, handler: handler, meta: m})
 	}
@@ -145,7 +148,11 @@ func makeAssetSubsegments(b BuildConfig, o Overlay) ([]any, error) {
 		return nil, err
 	}
 	for _, mt := range matches {
-		subsegments[mt.index] = mt.handler.SplatEntry(mt.meta)
+		entry := mt.handler.SplatEntry(mt.meta)
+		if steps := mt.handler.Build(mt.meta); len(steps) > 0 {
+			entry["build"] = steps
+		}
+		subsegments[mt.index] = entry
 	}
 	return subsegments, nil
 }
