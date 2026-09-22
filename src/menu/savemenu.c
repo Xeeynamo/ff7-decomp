@@ -121,9 +121,9 @@ int SAVEMENU_HandleSave(s32 counter) {
         } else {
             func_800269D0();
             if (D_801E36B8 == 0) {
-                SysMenuSetPoly(g_MenuRenderBufferIndex * 0x5000 + D_801D4EDC);
+                SysMenuSetPoly(g_MenuRenderBufferIndex * 0x5000 + buster_tim);
             } else {
-                SysMenuSetPoly(D_801E36B4 * 0x5000 + D_801D4EDC);
+                SysMenuSetPoly(D_801E36B4 * 0x5000 + buster_tim);
             }
             if (D_801E3850 != 7 || (counter & 2)) {
                 SysMenuDrawCursor(8, (menus.D_801E379C[1].row << 6) | 0x38);

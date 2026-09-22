@@ -238,7 +238,7 @@ static void func_801D39C4(void) {
     D_801E3698 = 0;
     g_MenuStartMode = START_MENU_MODE_TITLE;
     SysMenuSetWindowColor(D_801E368C);
-    SysMenuLoadImg(D_801D4EDC, 0x380, 0, 0, 0x1E0);
+    SysMenuLoadImg(buster_tim, 0x380, 0, 0, 0x1E0);
     DrawSync(0);
     SysMenuSetCursorMovement(&D_801E3DEC[1], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
     SysMenuStoreCharacterClutToRam(D_801E3F2C);
@@ -295,7 +295,7 @@ static s32 HandleTitleScreen(s32 counter) {
             g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
         } else {
             func_800269D0();
-            SysMenuSetPoly(D_801E3D58 * 0x5000 + D_801D4EDC);
+            SysMenuSetPoly(D_801E3D58 * 0x5000 + buster_tim);
             SysMenuDrawCursor(8, (D_801E3D80[1].row * 64) | 0x38);
             var_s3 = !D_801E3D80[1].scrolling ? 3 : 4;
             for (var_s0 = 0; var_s0 < var_s3; var_s0++) {
