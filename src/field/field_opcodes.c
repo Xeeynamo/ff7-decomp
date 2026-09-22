@@ -14,16 +14,16 @@
 #define GET_PRIORITY(x) (((x) >> 5) & 0x7)
 #define GET_SCRIPTID(x) ((x) & 0x1F)
 
-#define ADD_PARTY_MEMBER(slot, charId)                                                                                 \
-    Savemap.memory_bank_2[9 + slot] = charId;                                                                          \
-    if (charId != 0xFF) {                                                                                              \
-        u16 mask;                                                                                                      \
-        u16 bit;                                                                                                       \
-        bit = charId;                                                                                                  \
-        mask = Savemap.phs_visibility_mask;                                                                            \
-        bit = 1 << bit;                                                                                                \
-        mask |= bit;                                                                                                   \
-        Savemap.phs_visibility_mask = mask;                                                                            \
+#define ADD_PARTY_MEMBER(slot, charId)        \
+    Savemap.memory_bank_2[9 + slot] = charId; \
+    if (charId != 0xFF) {                     \
+        u16 mask;                             \
+        u16 bit;                              \
+        bit = charId;                         \
+        mask = Savemap.phs_visibility_mask;   \
+        bit = 1 << bit;                       \
+        mask |= bit;                          \
+        Savemap.phs_visibility_mask = mask;   \
     }
 
 // clang-format off
@@ -46,6 +46,7 @@ extern u8 g_RandomTableStep;
 extern u8 g_RandomTableIndex;
 extern s8 D_800716C8;
 extern u8* g_MenuTutorial;
+extern s16 g_FieldPreloadMapId;
 
 void SystemMenuAddHpByPartyId(s32 partyId, u16 hp);
 void SystemMenuAddMpByPartyId(s32 partyId, u16 mp);
@@ -2292,11 +2293,53 @@ static s32 OpcodeFuncMjump(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncPmjmp);
+s32 OpcodeFuncPmjmp(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("pmjmp", 8);
+    }
+    GET_PARAM_S16(g_FieldPreloadMapId, 1);
+    PC_INC(3);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncPmjmp2);
+s32 OpcodeFuncPmjmp2(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("pmjmp", 8);
+    }
+    if (g_IsFieldLoading == 2) {
+        PC_INC(1);
+        return 0;
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMgame);
+s32 OpcodeFuncMgame(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mgame", 8);
+    }
+
+    if (g_pFieldState->eventCmd != EVTCMD_NONE && g_pFieldState->eventCmd != EVTCMD_LOAD_MINIGAME) {
+        return 1;
+    }
+    if (g_pFieldState->eventCmd == EVTCMD_NONE) {
+        g_pFieldState->eventCmd = EVTCMD_LOAD_MINIGAME;
+        g_pFieldState->movieCommandState = MOVCMD_IDLE;
+        // Set field map and PC position the mini-game will exit to once it's done
+        GET_PARAM_S16(g_pFieldState->eventCmdParam, 1);
+        GET_PARAM_S16(g_pFieldState->pcPosX, 3);
+        GET_PARAM_S16(g_pFieldState->pcPosY, 5);
+        GET_PARAM_S16(g_pFieldState->pcWalkMeshId, 7);
+        g_pFieldState->pcDirection = GET_PARAM_U8(9);
+        g_pFieldState->backgroundLayerVisibility[0] = GET_PARAM_U8(10); // Minigame id
+        return 1;
+    }
+    if (g_pFieldState->eventCmd == EVTCMD_LOAD_MINIGAME && g_pFieldState->movieCommandState == MOVCMD_DONE) {
+        PC_INC(11);
+        g_pFieldState->eventCmd = EVTCMD_NONE;
+        return 0;
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncBatle);
 
