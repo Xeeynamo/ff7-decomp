@@ -247,7 +247,7 @@ typedef struct {
 
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
-extern s8 D_800E7A58[];
+extern u8 D_800E7A58[];
 // Cait Sith's "Slots" limit: 7 three-symbol combos (one row per combo)
 // checked in order against the 3 landed reel symbols (D_80163774) -- see
 // BattleResolveCaitSithSlotsResult in battle.c

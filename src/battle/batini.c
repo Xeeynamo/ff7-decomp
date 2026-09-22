@@ -301,7 +301,7 @@ static void BattleInitPlayer(void) {
     g_BattleState.playerUnitMask = 0;
     for (i = 0; i < NUM_PARTY; i++) {
         charId = Savemap.partyID[i];
-        D_801636B8[i].D_801636B8 = -1;
+        D_801636B8[i].charId = -1;
         turn = &g_BattleWork.turn[i];
         party = &g_BattleWork.party[i];
         setup = &g_BattleWork.setup[i];
@@ -322,7 +322,7 @@ static void BattleInitPlayer(void) {
             turn->senseTargetMask = 0xFF;
             bit = 1;
             turn->formationIndex = 0xFF;
-            D_801636B8[i].D_801636B8 = charId;
+            D_801636B8[i].charId = charId;
             unit->actorId = charId;
             unit->formationIndex = charId + 0x10;
             unit->level = member->level;
@@ -491,7 +491,7 @@ static void BattleInitPartyScripts(void) {
     s32 i;
 
     for (i = 0; i < NUM_PARTY; i++) {
-        if ((D_801636B8[i].D_801636B8 != -1) && !(g_BattleState.combatant[i].status & STATUS_DEATH)) {
+        if ((D_801636B8[i].charId != -1) && !(g_BattleState.combatant[i].status & STATUS_DEATH)) {
             BattleRunUnitScript(i, 0, 0);
         }
     }
@@ -911,7 +911,7 @@ static void BattleInitEnemyAI(void) {
     };
     for (i = 0; i < NUM_ENEMY; i++) {
         g_ActiveEncounter.formation[i].flags = g_BattleState.combatant[START_ENEMY + i].stateFlags;
-        D_801636B8[START_ENEMY + i].D_801636B9 = g_BattleState.combatant[START_ENEMY + i].idleActionId;
+        D_801636B8[START_ENEMY + i].idleActionId = g_BattleState.combatant[START_ENEMY + i].idleActionId;
         g_BattleState.combatant[START_ENEMY + i].prevStatus = g_BattleState.combatant[START_ENEMY + i].status;
     }
 }

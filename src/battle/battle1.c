@@ -474,7 +474,7 @@ static void func_800B8268(void) {
     var_t1 = 1;
     var_a1 = D_80163784;
     while (i < 10) {
-        *var_a1 = D_801636B8[i].D_801636B9;
+        *var_a1 = D_801636B8[i].idleActionId;
         if (!(D_80151200[i].D_8015120C & 8) && g_BattleModels[i].animId != *var_a1 &&
             g_BattleModels[i].unk26 == var_t1) {
             g_BattleModels[i].animControlFlags |= 1;
@@ -579,7 +579,7 @@ static void func_800B85E0() {
         if (g_BattleMode & 8) {
             for (; i < 3; i++) {
                 g_BattleModels[i].animControlFlags |= 1;
-                g_BattleModels[i].animId = D_801636B8[i].D_801636B9;
+                g_BattleModels[i].animId = D_801636B8[i].idleActionId;
                 g_BattleModels[i].animControlFlags |= 0x20;
                 D_80151200[i].D_80151200 = D_801636B8[i].D_801636C0;
             }
