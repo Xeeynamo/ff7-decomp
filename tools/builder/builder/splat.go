@@ -100,6 +100,7 @@ func findAssetMatches(b BuildConfig, o Overlay) ([]assetMatch, error) {
 		if !ok {
 			return nil, fmt.Errorf("overlay %s: %s subsegment has non-integer start %v", o.Name, kind, sub[0])
 		}
+		name, symbol := kind, kind
 		if s, ok := sub[2].(string); ok {
 			name, symbol = s, s+"_"+kind
 		}
