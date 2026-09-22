@@ -13,6 +13,7 @@ WorldListNode* WmAssignRegionToNode(WorldListNode*);
 static s32 func_800A9A70(void);
 static void CopyAreaName(s16);
 static void func_800AA02C(s32);
+static void func_800AA04C(s32);
 void func_800A12AC(void);
 s32 WmFadeIsStopped(void);
 void WmWriteSavemap(void);
@@ -279,7 +280,7 @@ void WmCalcViewMatrix(s16 rotY) {
     MATRIX tilt;
     s32 value;
 
-    rot.vx = func_800A3304();
+    rot.vx = WmUpdateCameraTransition();
     rot.vz = 0;
     rot.vy = 0;
     RotMatrix(&rot, &m);
@@ -390,7 +391,93 @@ static void UpdateFogRanges(void) {
 
 static s32 func_800A32F4(void) { return D_800E5678; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A3304);
+s16 WmUpdateCameraTransition(void) {
+    VECTOR pos;
+    VECTOR pos2;
+    s32 step;
+    s32 rate;
+    s32 y;
+    s32 target;
+    s32 camView;
+    s32 camX;
+    s32 camZ;
+    s32 next;
+    s32 next2;
+
+    if (D_800E5658 != 0) {
+        if (D_800E565C == 0) {
+            if (D_800E5658 > 0) {
+                WmSetCamView(3);
+                D_800E5640 = WmGetModelIdFromPcEntity() == 3 ? 4000 : 2000;
+            }
+            D_800C84D4 = D_800E5608;
+            if (D_800E5608 >= 2048) {
+                D_800C84D4 = D_800E5608 - 4096;
+            }
+        }
+        if (D_800E5660 < 128) {
+            step = D_800E565C + D_8011650C;
+        } else {
+            rate = D_8011650C;
+            step = D_800E565C - rate;
+        }
+        D_800E565C = step;
+        if (D_800E565C != 0) {
+            D_800E5660 += D_800E565C;
+            if (D_800E5660 < 0) {
+                D_800E5660 = 0;
+            } else if (D_800E5660 > 256) {
+                D_800E5660 = 256;
+            }
+            UpdateFogRanges();
+            WmGetPosFromPcEntity(&pos);
+            WmGetPos2FromPcEntity(&pos2);
+            y = WmGetPcEntityOriginalY();
+            if (D_800E5658 > 0) {
+                target = D_800E5640;
+            } else {
+                target = pos2.vy;
+            }
+            target = ((target - y) * D_800E5660) >> 8;
+            func_800AA04C(y + target);
+            if ((u32)D_800E5650 < 2) {
+                D_800E5608 = (D_800E5660 * D_800C84D4) >> 8;
+            }
+        } else {
+            if (D_800E5658 < 0) {
+                WmSetCamView(D_800E5650);
+                func_800A2108(0, 2);
+            }
+            D_800E5658 = 0;
+        }
+    }
+    if (D_800E5658 >= 0 || D_800E5650 != 0) {
+        camView = D_800E5648;
+    } else {
+        camView = 0;
+    }
+    camX = D_800E563C;
+    if (camX == 0) {
+        camX = D_800C6628[camView] + D_800E5664;
+    }
+    if (D_8011650C == 1) {
+        next = ((D_800E5610 * 7) + camX) >> 3;
+    } else {
+        next = ((D_800E5610 * 3) + camX) >> 2;
+    }
+    camZ = D_800E5638;
+    D_800E5610 = next;
+    if (camZ == 0) {
+        camZ = D_800C6638[camView];
+    }
+    if (D_8011650C == 1) {
+        next2 = ((D_800E5614 * 7) + camZ) >> 3;
+    } else {
+        next2 = ((D_800E5614 * 3) + camZ) >> 2;
+    }
+    D_800E5614 = next2;
+    return ((((D_80116508 >> 5) + 1750) * D_800E5660) + ((256 - D_800E5660) * D_800E5610)) >> 8;
+}
 
 void func_800A368C(s32 arg0) { D_800E5658 = arg0; }
 
