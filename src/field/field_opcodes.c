@@ -2324,7 +2324,7 @@ s32 OpcodeFuncMgame(void) {
     if (g_pFieldState->eventCmd == EVTCMD_NONE) {
         g_pFieldState->eventCmd = EVTCMD_LOAD_MINIGAME;
         g_pFieldState->movieCommandState = MOVCMD_IDLE;
-        // Set field map and PC position the mini-game will exit to once it's done
+        // Set field map and PC position the minigame will exit to once it's done
         GET_PARAM_S16(g_pFieldState->eventCmdParam, 1);
         GET_PARAM_S16(g_pFieldState->pcPosX, 3);
         GET_PARAM_S16(g_pFieldState->pcPosY, 5);
