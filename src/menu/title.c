@@ -225,7 +225,7 @@ void func_801D370C(s32 x, s32 y, s32 slot_no) {
     SysMenuDrawString(184, y + 8, save->leader_name, 7);
     SysMenuDrawString(284, y + 9, g_Labels.labels[LABEL_TIME], 7);
     SysMenuDrawString(284, y + 23, g_Labels.labels[LABEL_GIL], 7);
-    SysMenuSetWindowColor(save->menu_color);
+    MENU_SetWindowColors(save->menu_color);
 
     for (j = 0; j < 3; j++) {
         SysMenuCopyWindowRect(&sp28, &D_801E3650[j]);
@@ -237,8 +237,8 @@ void func_801D370C(s32 x, s32 y, s32 slot_no) {
 static void func_801D39C4(void) {
     D_801E3698 = 0;
     g_MenuStartMode = START_MENU_MODE_TITLE;
-    SysMenuSetWindowColor(D_801E368C);
-    SysMenuLoadImg(buster_tim, 0x380, 0, 0, 0x1E0);
+    MENU_SetWindowColors(D_801E368C);
+    MENU_LoadTim(buster_tim, 0x380, 0, 0, 0x1E0);
     DrawSync(0);
     SysMenuSetCursorMovement(&D_801E3DEC[1], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
     SysMenuStoreCharacterClutToRam(D_801E3F2C);

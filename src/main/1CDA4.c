@@ -408,10 +408,10 @@ u8 g_MenuColors[NUM_MENU_COLOR] = {
     0, 0,  32,  // bottom-right
 };
 // sets the menu color with a quadruplet of RGB values
-void SysMenuSetWindowColor(u8* menu_colors) {
+void MENU_SetWindowColors(u8* menuColors) {
     s32 i;
     for (i = 0; i < NUM_MENU_COLOR; i++) {
-        g_MenuColors[i] = *menu_colors++;
+        g_MenuColors[i] = *menuColors++;
     }
 }
 

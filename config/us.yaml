@@ -241,6 +241,7 @@ overlays:
       - [0x4EC4, data]
       - [0x4EDC, tim, buster]
       - [0xEEDC, data]
+      - [0xF120, data]
       - [0x12C78, .data, savemenu]
       - [0x13650, data]
       - [0x13698, bss]

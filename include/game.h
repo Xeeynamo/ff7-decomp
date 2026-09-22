@@ -1367,6 +1367,8 @@ s32 func_800484A8(void);
 u32 InputReadPadsRaw(void);
 void func_80036244(void* anim, u16 frame);
 void func_800354CC(void);
+void MENU_LoadTim(u_long* addr, s32 px, s32 py, s32 cx, s32 cy);
+void MENU_SetWindowColors(u8* menuColors);
 
 int func_80033DAC(int sector_no, void (*cb)());
 int func_80033DE4(int sector_no);
