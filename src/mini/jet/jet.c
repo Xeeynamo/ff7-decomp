@@ -84,8 +84,8 @@ extern s32 g_JetLeftPlaneNormalZ;
 extern s32 g_JetRightPlaneNormalX;
 extern s32 g_JetRightPlaneNormalY;
 extern s32 g_JetRightPlaneNormalZ;
-extern s32 D_800A8950; // the sign the left plane's inside half-space has
-extern s32 D_800A8968; // the same, for the right plane
+extern s32 D_800A8950;
+extern s32 D_800A8968;
 extern s32 g_JetLeftPlaneDistance;
 extern s32 g_JetRightPlaneDistance;
 extern s32 g_JetLeftNormalLength;
@@ -517,7 +517,7 @@ void JetBuffersInit(void) {
     SetDefDispEnv(&g_JetBuffers[1].disp, 0, 0, 0x140, 0xF0);
     db = g_JetBuffers;
     g_JetBuffers[0].draw.isbg = 0;
-    // Stored off the buffer base register; a direct field store folds to an absolute address.
+    // do not fold into a direct store; it stops matching.
     isbg = &db[1].draw.isbg;
     *isbg = 0;
     setRGB0(&g_JetBuffers[0].draw, 0, 0, 8);
