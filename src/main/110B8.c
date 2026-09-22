@@ -22,8 +22,8 @@ static Yamada yama_mini_highway = {LBA_MINI_HIGHWAY, 34138};
 static char unk_signature[8] = {'Y', 'A', 'M', 'A', '@', 'F', 'F', '7'};
 
 extern u8 D_8007EBC8;
-extern s8 D_8009C6D8;
-extern s16 D_8007173C;
+extern u8 D_8009C6D8;
+extern u16 D_8007173C;
 extern s32 D_80095DDC; // Battle mode flags from world map
 extern s32 D_80071E28; // Which module to transition to from world map
 extern u8* g_MenuTutorial;

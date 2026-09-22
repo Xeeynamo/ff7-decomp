@@ -1220,3 +1220,4 @@ g_BattleItemsEarned = 0x8009D808;
 g_DebugLevel = 0x8009D820;
 g_FieldModelBaseAnimSpeed = 0x8009D828;
 g_ActiveCharacters = 0x8009D84C; // size:0x2700
+g_FieldMovieJustStarted = 0x80114488; // size:0x4

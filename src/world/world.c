@@ -1,6 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3 g=false gcoff=false
 #include "world.h"
 #include <libetc.h>
+#include <psxsdk/inline_o.h>
 
 static void WmSetActiveEntityDirectionAndRot(s16 arg0);
 static void WmGetPosFromPcEntity(VECTOR* arg0);
@@ -426,7 +427,7 @@ void WmSetModelTransformMatrix(FieldModelEntry* model, SVECTOR* rot, MATRIX* m, 
     v.vy = model->translationY;
     v.vz = model->translationZ;
     gte_ldv0(&v);
-    gte_rtv0();
+    gte_rt();
     gte_stlvnl(&trans);
     model->translationX = model->translationY = model->translationZ = 0;
     TransMatrix(m, &trans);
@@ -1620,7 +1621,7 @@ void WmSetMapPosAndNeighbors(WorldMapPos* out, SVECTOR* dir, SVECTOR* rot, s32 d
     RotMatrix(rot, &m);
     SetRotMatrix(&m);
     gte_ldv0(dir);
-    gte_rtv0();
+    gte_rt();
     gte_stlvnl(&pos);
 
     out[0].pos = pos;
@@ -3438,7 +3439,7 @@ void WmRotateVectorByYAngle(SVECTOR* vec, s16 angle) {
         TransMatrix(&m, &trans);
         SetTransMatrix(&m);
         gte_ldv0(vec);
-        gte_rtv0();
+        gte_rt();
         gte_stlvnl(&trans);
         vec->vx = trans.vx;
         vec->vy = trans.vy;
@@ -3556,28 +3557,28 @@ void WmUpdateSkyboxOverlayVertexes(s16 angle) {
     v.vx = -180;
     v.vy = -y - 24;
     gte_ldv0(&v);
-    gte_rtv0();
+    gte_rt();
     gte_stlvnl(&out);
     prim->x0 = out.vx;
     prim->y0 = out.vy;
     v.vx = 180;
     v.vy = -y - 24;
     gte_ldv0(&v);
-    gte_rtv0();
+    gte_rt();
     gte_stlvnl(&out);
     prim->x1 = out.vx;
     prim->y1 = out.vy;
     v.vx = -180;
     v.vy = 0;
     gte_ldv0(&v);
-    gte_rtv0();
+    gte_rt();
     gte_stlvnl(&out);
     prim->x2 = out.vx;
     prim->y2 = out.vy;
     v.vx = 180;
     v.vy = 0;
     gte_ldv0(&v);
-    gte_rtv0();
+    gte_rt();
     gte_stlvnl(&out);
     prim->x3 = out.vx;
     prim->y3 = out.vy;

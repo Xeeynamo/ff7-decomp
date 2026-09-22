@@ -4,7 +4,6 @@
 #include "field_private.h"
 
 extern s16 D_800DF120[][2];
-u8 FieldEntityDirByVec(VECTOR* start, VECTOR* target, s32* distance);
 
 static s16 D_800DEF88[130] = {
     0,  0,  1,  1,  1,  2,  2,  2,  3,  3,  3,  4,  4,  4,  4,  5,  5,  5,  6,  6,  6,  7,  7,  7,  8,  8,
@@ -13,6 +12,8 @@ static s16 D_800DEF88[130] = {
     27, 27, 28, 28, 28, 29, 29, 30, 30, 30, 31, 31, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
     32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
 };
+
+u8 FieldEntityDirByVec(VECTOR* start, VECTOR* target, s32* distance);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_entity", FieldEntityInitPos);
 
@@ -105,7 +106,6 @@ void FieldEntityCheckTalk(void) {
             }
         }
         if (modelId != g_PlayerModelId) {
-            /* Locals preserve GCC 2.6.3's constant-load and delay-slot ordering. */
             s32 limit = 64;
             if (bestDiff != limit) {
                 u8 request = 1;

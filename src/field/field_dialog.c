@@ -1,6 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include <game.h>
 #include <libetc.h>
+#include "field_private.h"
 
 typedef struct {
     /* 0x000 */ s16 x;
@@ -18,13 +19,12 @@ typedef struct {
     /* 0x178 */ u8 state;
 } FieldDebugPage; /* size = 0x17A */
 
-extern char D_800E0628[];
-extern char D_800E0630[];
-extern FieldDebugPage g_FieldDebugPages[6];
-extern u8 g_DialogDigitCharacters[16];
+u8 g_DialogDigitCharacters[16] = {
+    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26,
+};
+
 extern u8 g_WindowReplaceBank[4][8];
 extern u16 g_WindowReplaceBankAddr[4][8];
-extern u32 g_FieldKeyState;
 extern s16 g_WindowWaitTime[4];
 extern u8* g_WindowStringPtr[4];
 extern u8 g_WindowString[4][256];
@@ -36,27 +36,8 @@ extern s16 g_WindowFastForwardLevel[4];
 extern s16 g_WindowBufferPos[4];
 extern u8 g_WindowBuffer[4][16];
 extern s16 g_WindowTotalRowsHeight[4];
-extern char g_FieldDebugDigits[16];
-extern u16 g_FieldDebugRb;
-extern s16 g_FieldDebugRChars;
-extern s16 g_FieldDebugRLines;
-extern s16 g_FieldDebugRRect;
-extern s16 g_FieldDebugRDm;
-extern u16 g_FieldDebugTransp;
-extern char g_DebugText[];
-extern char g_DebugMessageBuffer[];
 
-void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
 void FieldWindowReset(s16 window);
-void AddStrNextDebugRow(s32 val, const char* msg_out);
-void FieldDebugStringCopy(char* dst, const char* src);
-void FieldDebugStringConcat(char* dest, const char* src);
-void FieldDebugStringU8hex(s32 val, char* msg_out);
-void FieldDebugStringU16hex(s32 val, char* msg_out);
-void FieldDebugStringU32hex(s32 val, char* msg_out);
-void FieldDebugPageSetPosSize(s16 pageId, s16 x, s16 y, s16 width, s16 height);
-void FieldDebugPageResetStrings(s16 pageId);
-static void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height);
 static void PlayWindowPointerClickSound(void);
 static s32 FieldDialogWindowInit(s16 window, s16 stringId);
 static void FieldDialogWindowGrowth(s16 window);
@@ -69,10 +50,6 @@ static u16 FieldDialogGetVariableFromBank(s16 window);
 static void ConvertDigitToString(u16 value, u8* dst);
 static void ConvertNumToStrWithSpace(u16 value, u8* dst);
 static void ConvertHexToString(u16 value, u8* dst);
-
-/////////////////////////////////////////////////
-// Begin of field_dialog.c
-/////////////////////////////////////////////////
 
 static void DebugDummyFunc(void) {}
 
@@ -1209,174 +1186,3 @@ void SystemMessageSetCharName(s16 battleCharId, s16 stringId) {
         *charName = 0xFF;
     }
 }
-
-/////////////////////////////////////////////////
-// Begin of field_debug.c
-/////////////////////////////////////////////////
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugInitBuffers);
-
-static void FieldDebugPageSetHeadRow(s16 pageId, s16 row);
-static void FieldDebugPageHide(s16 pageId);
-s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str);
-void InitFieldDebugPages(void) {
-    FieldDebugPageInit(5, 0x6C, 0, 0x6C, 0x52);
-    FieldDebugStringCopy(g_DebugText, "Authr:");
-    FieldDebugStringConcat(g_DebugText, g_FieldScripts->author);
-    AddStrNextDebugRow(5, g_DebugText);
-    FieldDebugStringCopy(g_DebugText, "Event:");
-    FieldDebugStringConcat(g_DebugText, g_FieldScripts->name);
-    AddStrNextDebugRow(5, g_DebugText);
-    AddStrNextDebugRow(5, "  Go");
-    AddStrNextDebugRow(5, "  Stop");
-    AddStrNextDebugRow(5, "  Step");
-    SetStrToDebugRow(5, 5, "  Actor OFF");
-    SetStrToDebugRow(5, 6, "  Info  OFF");
-    FieldDebugPageHide(5);
-    FieldDebugPageInit(4, 0x6C, 0x52, 0x6C, 0x52);
-    AddStrNextDebugRow(4, D_800E0628);
-    FieldDebugPageHide(4);
-    FieldDebugPageInit(3, 0x6C, 0xA4, 0x6C, 0x5C);
-    AddStrNextDebugRow(3, D_800E0630);
-    FieldDebugPageHide(3);
-    FieldDebugPageInit(1, 0, 0, 0x6C, 0xCA);
-    AddStrNextDebugRow(1, D_800E0628);
-    FieldDebugPageHide(1);
-    D_80099FFC = 3;
-    D_8007EBCC = 4;
-    D_8007EBDC = 8;
-    D_80071E24 = 0;
-    g_DebugLevel = 0;
-    D_80070788 = 0;
-    g_FieldDebugCurPage = 5;
-    FieldDebugPageSetHeadRow(5, 4);
-}
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPagesResetPosSize);
-
-static void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height) {
-    s32 offset;
-
-    FieldDebugPageSetPosSize(pageId, x, y, width, height);
-    offset = pageId * 378;
-    if ((&g_FieldDebugPages[0].state)[offset] != 2) {
-        FieldDebugPageResetStrings(pageId);
-        return;
-    }
-    g_FieldDebugPages[pageId].state = 0;
-    D_8009D824 = 1;
-}
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageSetPosSize);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageAddPos);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageAddSize);
-
-static s32 FieldDebugPageIsRender(s16 pageId) { return g_FieldDebugPages[pageId].state == 0; }
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageResetStrings);
-
-static void FieldDebugRenderClear(void) {
-    g_FieldDebugRChars = 0;
-    g_FieldDebugRLines = 0;
-    g_FieldDebugRRect = 0;
-    g_FieldDebugRDm = 0;
-    g_FieldDebugRb ^= 1;
-}
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugRender);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugRenderPage);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugRenderString);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", AddStrNextDebugRow);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", AddColorStrNextDebugRow);
-
-s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str) {
-    FieldDebugStringCopy(g_FieldDebugPages[pageId].text[row], str);
-    D_8009D824 = 1;
-    return 1;
-}
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", SetDebugStrRowColor);
-
-static void FieldDebugPageSetHeadRow(s16 pageId, s16 row) {
-    g_FieldDebugPages[pageId].headRow = row;
-    D_8009D824 = 1;
-}
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageSetColor);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugPageNotInit);
-
-static void FieldDebugPageHide(s16 pageId) {
-    g_FieldDebugPages[pageId].state = 2;
-    D_8009D824 = 1;
-}
-
-static void FieldDebugTranspSwitch(void) { g_FieldDebugTransp = (g_FieldDebugTransp + 1) & 3; }
-
-void FieldDebugStringCopy(char* dst, const char* src) {
-    if (*src) {
-        do {
-            *dst++ = *src++;
-        } while (*src != '\0');
-    }
-    *dst = '\0';
-}
-
-void FieldDebugStringConcat(char* dest, const char* src) {
-    if (*dest != '\0') {
-        while (*++dest != '\0') {
-        }
-    }
-    if (*src != '\0') {
-        do {
-            *dest++ = *src++;
-        } while (*src != '\0');
-    }
-    *dest = '\0';
-}
-
-static s32 FieldDebugStringSize(char* src) {
-    s32 len = 0;
-
-    while (*src != '\0') {
-        src++;
-        len++;
-    }
-    return len;
-}
-
-static void FieldDebugStringPartCopy(char* dst, char* src, s32 len) {
-    s32 i;
-    for (i = len - 1; i != -1; i--) {
-        *dst = *src;
-        src++;
-        dst++;
-    }
-}
-
-void FieldDebugStringU8hex(s32 val, char* msg_out) {
-    msg_out[1] = '\0';
-    msg_out[0] = g_FieldDebugDigits[val & 0xF];
-}
-
-void FieldDebugStringU16hex(s32 val, char* msg_out) {
-    msg_out[2] = '\0';
-    msg_out[0] = g_FieldDebugDigits[(val & 0xF0) >> 4];
-    msg_out[1] = g_FieldDebugDigits[val & 0xF];
-}
-
-void FieldDebugStringU32hex(s32 val, char* msg_out) {
-    msg_out[4] = '\0';
-    msg_out[0] = g_FieldDebugDigits[(val & 0xF000) >> 0xC];
-    msg_out[1] = g_FieldDebugDigits[(val & 0xF00) >> 8];
-    msg_out[2] = g_FieldDebugDigits[(val & 0xF0) >> 4];
-    msg_out[3] = g_FieldDebugDigits[val & 0xF];
-}
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field2", FieldDebugIntToString);
