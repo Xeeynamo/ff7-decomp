@@ -4,15 +4,15 @@
 #include <game.h>
 
 typedef struct {
-    /* 0x0000 */ void* f3Cursor;
-    /* 0x0004 */ void* f4Cursor;
-    /* 0x0008 */ void* g3Cursor;
-    /* 0x000C */ void* g4Cursor;
-    /* 0x0010 */ void* ft3Cursor;
-    /* 0x0014 */ void* ft4Cursor;
-    /* 0x0018 */ void* gt3Cursor;
-    /* 0x001C */ void* gt4Cursor;
-    /* 0x0020 */ void* lineCursor;
+    /* 0x0000 */ POLY_F3* f3Cursor;
+    /* 0x0004 */ POLY_F4* f4Cursor;
+    /* 0x0008 */ POLY_G3* g3Cursor;
+    /* 0x000C */ POLY_G4* g4Cursor;
+    /* 0x0010 */ POLY_FT3* ft3Cursor;
+    /* 0x0014 */ POLY_FT4* ft4Cursor;
+    /* 0x0018 */ POLY_GT3* gt3Cursor;
+    /* 0x001C */ POLY_GT4* gt4Cursor;
+    /* 0x0020 */ LINE_F2* lineCursor;
     /* 0x0024 */ POLY_F3 f3[1];
     /* 0x0038 */ POLY_F4 f4[1];
     /* 0x0050 */ POLY_G3 g3[0x640];
@@ -27,9 +27,9 @@ typedef struct {
 typedef struct {
     /* 0x0000 */ DRAWENV draw;
     /* 0x005C */ DISPENV disp;
-    /* 0x0070 */ u_long ot[0x1000];
+    /* 0x0070 */ OT_TYPE ot[0x1000];
     /* 0x4070 */ u_long unk4070[10];
-    /* 0x4098 */ u_long ot2[0xB4];
+    /* 0x4098 */ OT_TYPE ot2[0xB4];
     /* 0x4368 */ JetPrimBuffer prims;
 } JetBuffer; // size: 0x1265C
 
@@ -41,19 +41,32 @@ typedef struct {
 } JetModelInfo; // size: 0x14
 
 typedef struct {
+    /* 0x00 */ SVECTOR v0;
+    /* 0x08 */ SVECTOR v1;
+    /* 0x10 */ SVECTOR v2;
+    /* 0x18 */ CVECTOR c0;
+    /* 0x1C */ CVECTOR c1;
+    /* 0x20 */ CVECTOR c2;
+} JetTriangle; // size: 0x24
+
+typedef struct {
+    /* 0x00 */ s32 unk0[10];
+} JetQuad; // size: 0x28
+
+typedef struct {
     /* 0x00 */ s16 polyCount;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ s16 triCount;
     /* 0x06 */ s16 quadCount;
     /* 0x08 */ s16 unk8;
-    /* 0x0A */ char padA[2];
-    /* 0x0C */ s32* tris;
-    /* 0x10 */ s32* quads;
+    /* 0x0A */ s16 : 16;
+    /* 0x0C */ JetTriangle* tris;
+    /* 0x10 */ JetQuad* quads;
     /* 0x14 */ s16 unk14;
     /* 0x16 */ s16 unk16;
     /* 0x18 */ s16 unk18;
     /* 0x1A */ s16 unk1A;
-    /* 0x1C */ char pad1C[4];
+    /* 0x1C */ s32 : 32;
 } JetModel; // size: 0x20
 
 typedef struct JetNode {
@@ -67,16 +80,6 @@ typedef struct JetNode {
     /* 0x30 */ struct JetNode* prev;
     /* 0x34 */ struct JetNode* next;
 } JetNode; // size: 0x38
-
-typedef struct {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ char pad4[0x20];
-} JetTriangle; // size: 0x24
-
-typedef struct {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ char pad4[0x24];
-} JetQuad; // size: 0x28
 
 extern s32 g_JetLeftPlaneNormalX;
 extern s32 g_JetLeftPlaneNormalY;
@@ -114,8 +117,8 @@ extern JetNode g_JetNodeListHeads[10];
 extern JetNode g_JetNodeListTails[10];
 
 JetModel* JetModelAlloc(void);
-s32* JetTrianglesAlloc(s32 count);
-s32* JetQuadsAlloc(s32 count);
+JetTriangle* JetTrianglesAlloc(s32 count);
+JetQuad* JetQuadsAlloc(s32 count);
 void JetPrimsInit(JetPrimBuffer* prims);
 void JetPrimCursorsReset(JetPrimBuffer* prims);
 void JetNodeInit(JetNode* node, s16 index);
@@ -301,27 +304,27 @@ s32 JetSVectorInsidePlanes(SVECTOR* point) {
 }
 
 s32 JetLeftPlaneHalfSpace(s32 x, s32 y, s32 z) {
-    s32 a;
-    s32 b;
-    s32 c;
+    s32 nx;
+    s32 ny;
+    s32 nz;
 
-    a = g_JetLeftPlaneNormalX;
-    b = g_JetLeftPlaneNormalY;
-    c = g_JetLeftPlaneNormalZ;
+    nx = g_JetLeftPlaneNormalX;
+    ny = g_JetLeftPlaneNormalY;
+    nz = g_JetLeftPlaneNormalZ;
 
-    return (a * (x >> 2)) + (b * (y >> 2)) + (c * (z >> 2)) + g_JetLeftPlaneDistance;
+    return (nx * (x >> 2)) + (ny * (y >> 2)) + (nz * (z >> 2)) + g_JetLeftPlaneDistance;
 }
 
 s32 JetRightPlaneHalfSpace(s32 x, s32 y, s32 z) {
-    s32 a;
-    s32 b;
-    s32 c;
+    s32 nx;
+    s32 ny;
+    s32 nz;
 
-    a = g_JetRightPlaneNormalX;
-    b = g_JetRightPlaneNormalY;
-    c = g_JetRightPlaneNormalZ;
+    nx = g_JetRightPlaneNormalX;
+    ny = g_JetRightPlaneNormalY;
+    nz = g_JetRightPlaneNormalZ;
 
-    return (a * (x >> 2)) + (b * (y >> 2)) + (c * (z >> 2)) + g_JetRightPlaneDistance;
+    return (nx * (x >> 2)) + (ny * (y >> 2)) + (nz * (z >> 2)) + g_JetRightPlaneDistance;
 }
 
 s32 JetSphereInsidePlanes(VECTOR* center, s16 radius) {
@@ -482,7 +485,7 @@ JetModel* JetModelAlloc(void) {
     return &base[index];
 }
 
-s32* JetTrianglesAlloc(s32 count) {
+JetTriangle* JetTrianglesAlloc(s32 count) {
     s32* cursor;
     JetTriangle* base;
     s32 index;
@@ -491,10 +494,10 @@ s32* JetTrianglesAlloc(s32 count) {
     index = *cursor;
     *cursor = index + count;
     base = g_JetTriangles;
-    return &base[index].unk0;
+    return &base[index];
 }
 
-s32* JetQuadsAlloc(s32 count) {
+JetQuad* JetQuadsAlloc(s32 count) {
     s32* cursor;
     JetQuad* base;
     s32 index;
@@ -503,7 +506,7 @@ s32* JetQuadsAlloc(s32 count) {
     index = *cursor;
     *cursor = index + count;
     base = g_JetQuads;
-    return &base[index].unk0;
+    return &base[index];
 }
 
 void JetBuffersInit(void) {
@@ -511,10 +514,10 @@ void JetBuffersInit(void) {
     JetBuffer* db;
     u_char* isbg;
 
-    SetDefDrawEnv(&g_JetBuffers[0].draw, 0, 0, 0x140, 0xF0);
-    SetDefDispEnv(&g_JetBuffers[0].disp, 0, 0xF0, 0x140, 0xF0);
-    SetDefDrawEnv(&g_JetBuffers[1].draw, 0, 0xF0, 0x140, 0xF0);
-    SetDefDispEnv(&g_JetBuffers[1].disp, 0, 0, 0x140, 0xF0);
+    SetDefDrawEnv(&g_JetBuffers[0].draw, 0, 0, 320, 240);
+    SetDefDispEnv(&g_JetBuffers[0].disp, 0, 240, 320, 240);
+    SetDefDrawEnv(&g_JetBuffers[1].draw, 0, 240, 320, 240);
+    SetDefDispEnv(&g_JetBuffers[1].disp, 0, 0, 320, 240);
     db = g_JetBuffers;
     g_JetBuffers[0].draw.isbg = 0;
     // do not fold into a direct store; it stops matching.
@@ -522,7 +525,7 @@ void JetBuffersInit(void) {
     *isbg = 0;
     setRGB0(&g_JetBuffers[0].draw, 0, 0, 8);
     setRGB0(&g_JetBuffers[1].draw, 0, 0, 8);
-    SetGeomOffset(0xA0, 0xA0);
+    SetGeomOffset(160, 160);
     SetGeomScreen(0x100);
     SetDispMask(1);
     SetBackColor(0x80, 0x80, 0x80);
