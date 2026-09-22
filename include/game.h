@@ -1311,7 +1311,6 @@ extern BattleItemReward g_BattleItemsEarned[4];
 extern volatile s32 D_8009D268[];
 extern ActiveCharacterData g_ActiveCharacters[9];
 extern u8 D_8009FE8C;
-extern u8 D_800C7304[16];
 extern s32 g_FFTextLetterOffset;
 extern s32 g_FFTextNumberOffset;
 

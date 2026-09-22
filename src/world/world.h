@@ -242,6 +242,7 @@ extern SVECTOR D_800C70DC[];
 extern u8 D_800C7114[][32];
 extern u8 D_800C72B4[16][4]; // size: 0x40
 extern u8 D_800C72F4[16];    // yuffie spawn chances per area, size: 0x10
+extern u8 D_800C7304[16];
 extern s8 D_800C752D;
 extern u32* D_800C7530;
 extern s32 D_800D05E8;
