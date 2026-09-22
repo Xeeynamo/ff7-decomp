@@ -21,6 +21,9 @@ func Report(version string, outputFile string) error {
 	if err := writeObjdiffConfig(b); err != nil {
 		return err
 	}
+	if err := extractAssets(b, version); err != nil {
+		return err
+	}
 	if err := writeSplatConfigs(b); err != nil {
 		return err
 	}

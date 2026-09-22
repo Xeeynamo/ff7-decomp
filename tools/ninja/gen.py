@@ -184,7 +184,7 @@ def get_compiler_params(source_file_name: str) -> CompilerParams:
     return default_compiler_params()
 
 
-def add_s(cfg: any, file_name: str, is_hasm=False):
+def add_s(cfg: any, file_name: str, is_hasm=False, implicit: list[str] = []):
     if is_hasm:
         in_path = f"{src_path(cfg)}/{file_name}.s"
     else:
@@ -202,6 +202,7 @@ def add_s(cfg: any, file_name: str, is_hasm=False):
         rule=f"{platform(cfg)}-as",
         outputs=[out_path],
         inputs=[in_path],
+        implicit=implicit,
     )
     if not is_hasm:
         nw.build(
@@ -265,6 +266,19 @@ def add_copy(cfg: any, file_name: str):
     )
 
 
+def add_asset(cfg: any, name: str, steps: list[dict]):
+    outputs = []
+    for step in steps:
+        nw.build(
+            rule="asset",
+            outputs=step["outputs"],
+            inputs=step["inputs"],
+            variables={"cmd": step["command"]},
+        )
+        outputs += step["outputs"]
+    add_s(cfg, f"data/{name}", implicit=outputs)
+
+
 def add_splat_config(ovl_name: str, file_name: str):
     with open(file_name) as f:
         cfg = yaml.load(f, Loader=yaml.SafeLoader)
@@ -289,16 +303,20 @@ def add_splat_config(ovl_name: str, file_name: str):
         if segment["type"] != "code":
             continue
         for sub in segment["subsegments"]:
-            offset = int(sub[0])
-            if len(sub) < 2:
-                kind = "data"
-                name = segment["name"]
+            if isinstance(sub, dict):
+                kind = str(sub.get("kind", sub["type"]))
+                name = str(sub["name"])
             else:
-                kind = str(sub[1])
-                if len(sub) > 2:
-                    name = str(sub[2])
+                offset = int(sub[0])
+                if len(sub) < 2:
+                    kind = "data"
+                    name = segment["name"]
                 else:
-                    name = str.format("{0:X}", offset)
+                    kind = str(sub[1])
+                    if len(sub) > 2:
+                        name = str(sub[2])
+                    else:
+                        name = str.format("{0:X}", offset)
             if kind == "data":
                 add_s(cfg, f"data/{name}.data")
             elif kind == "rodata":
@@ -311,6 +329,8 @@ def add_splat_config(ovl_name: str, file_name: str):
                 add_s(cfg, name, True)
             elif kind == "c" or kind == ".data":
                 add_c(cfg, name)
+            elif isinstance(sub, dict) and "kind" in sub:
+                add_asset(cfg, name, sub.get("build") or [])
 
     ovl = ovl_by_name[ovl_name]
     import_names = ovl.get("imports") or []
@@ -398,6 +418,11 @@ with open("build.ninja", "w") as f:
         "copy",
         command="mipsel-linux-gnu-ld -r -b binary -o $out $in",
         description="copy $in",
+    )
+    nw.rule(
+        "asset",
+        command="$cmd $in $out",
+        description="asset $in",
     )
     nw.rule(
         "psx-ld",

@@ -7,7 +7,7 @@ bu00/
 bu10/
 compile_commands.json
 asm/
-assets/
+/assets/
 bin/
 build/
 disks/

@@ -1,4 +1,5 @@
 //! PSYQ=3.3 CC1=2.7.2 G=8
+#include "game.h"
 #include "main_private.h"
 
 s32 D_80062DCC = 0x00000000;
@@ -713,7 +714,7 @@ void SysMenuStoreCharacterClutToRam(u_long* image) {
     StoreImage(&rect, image);
 }
 
-void SysMenuLoadImg(u_long* addr, s32 px, s32 py, s32 cx, s32 cy) {
+void MENU_LoadTim(u_long* addr, s32 px, s32 py, s32 cx, s32 cy) {
     TIM_IMAGE tim;
     OpenTIM(addr);
     while (ReadTIM(&tim)) {
@@ -746,11 +747,11 @@ void SysMenuLoadAvatars(void) {
     dst = (u_long*)buf;
     sector_off = &D_80048FE8->loc;
     length = &D_80048FE8->len;
-    for (; i < 9; i++) {
+    for (; i < NUM_CHARACTERS; i++) {
         SysCdromLoadFile(sector_off[i * 2], length[i * 2], dst, 0);
-        cx = 0x340 + (i / 5) * 0x18;
-        cy = 0x100 + (i % 5) * 0x30;
-        SysMenuLoadImg(dst, cx, cy, 0x180, i);
+        cx = 0x340 + (i / 5) * 24;
+        cy = 0x100 + (i % 5) * 48;
+        MENU_LoadTim(dst, cx, cy, 0x180, i);
         DrawSync(0);
     }
 }

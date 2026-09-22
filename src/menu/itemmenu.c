@@ -11,7 +11,6 @@ typedef void (*SortSwap)(s32, s32, s32*);
 static s32 Quicksort(s32, s32, SortCmp, SortSwap);
 
 s32 SysGetLimitCmdId(s32, s32);
-void SysMenuLoadImg(u_long*, s32, s32, s32, s32);
 void SysMenuDrawTexturedRect(s16, s16, s32, s32, s32, s32, s32, s32);
 extern u16 D_80062F50;
 extern u8 D_801D3890[];
@@ -833,6 +832,6 @@ static void RestoreCharacterMateria(s32 charIdx) {
 // Runs once at boot/menu init (main -> func_80026258 -> func_80025008); the
 // texture stays resident so the battle UI can scroll it as the animated
 // backdrop behind the coin-throw amount prompt.
-void func_801D3228(void) { SysMenuLoadImg((u_long*)D_801D3890, 0x3F0, 0x120, 0x110, 0x1E0); }
+void func_801D3228(void) { MENU_LoadTim((u_long*)D_801D3890, 0x3F0, 0x120, 0x110, 0x1E0); }
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3260);

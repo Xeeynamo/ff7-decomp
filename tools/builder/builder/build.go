@@ -31,6 +31,9 @@ func Build(version string) error {
 		if err := os.MkdirAll(b.BuildPath, 0755); err != nil {
 			return err
 		}
+		if err := extractAssets(b, version); err != nil {
+			return err
+		}
 		if err := writeSplatConfigs(b); err != nil {
 			return err
 		}
@@ -45,6 +48,37 @@ func Build(version string) error {
 		}
 		return generateExpected()
 	})
+	return eg.Wait()
+}
+
+func extractAssets(b BuildConfig, version string) error {
+	cfgInfo, err := os.Stat(ConfigPath(version))
+	if err != nil {
+		return err
+	}
+	cfgModTime := cfgInfo.ModTime()
+
+	var eg errgroup.Group
+	for _, o := range b.Overlays {
+		o := o
+		matches, err := findAssetMatches(b, o)
+		if err != nil {
+			return err
+		}
+		for _, mt := range matches {
+			mt := mt
+			eg.Go(func() error {
+				ts := mt.handler.Timestamp(mt.meta)
+				if !ts.IsZero() && !ts.Before(cfgModTime) {
+					return nil
+				}
+				if err := mt.handler.Extract(mt.meta); err != nil {
+					return fmt.Errorf("overlay %s: %s subsegment %q: %w", o.Name, mt.kind, mt.meta.Name, err)
+				}
+				return nil
+			})
+		}
+	}
 	return eg.Wait()
 }
 
