@@ -73,7 +73,7 @@ jobs:
   build-modern:
     runs-on: ubuntu-latest
     steps:
-    - run: sudo apt-get install -y ninja-build
+    - run: sudo apt-get update && sudo apt-get install build-essential libsdl2-dev libxtst-dev
     - if: github.event_name != 'pull_request_target'
       uses: actions/checkout@v7
       with:
@@ -85,5 +85,10 @@ jobs:
         allow-unsafe-pr-checkout: true
         ref: ${{ github.event.pull_request.head.sha }}
         submodules: true
+    - name: Clone psyz backend
+      run: |
+        git submodule update --init tools/psyz
+        cd tools/psyz
+        git submodule update --init --recursive external/SDL
     - run: cmake -B build/pc -GNinja
     - run: cmake --build build/pc

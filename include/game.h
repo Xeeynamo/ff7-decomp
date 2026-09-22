@@ -558,7 +558,7 @@ typedef struct {
     s32 unk1C;
     s32 unk20; // pending message/animation id, -1 = none
     s32 unk24;
-    s32 unk28;
+    s32 cmdIndex;
     s32 absoluteActionIndex; // relativeActionIndex remapped into the single
                              // shared spell/summon/enemy-skill/limit name
                              // table (kernel.bin section 18) via
@@ -568,10 +568,10 @@ typedef struct {
     s32 unk38;
     s32 unk3C;
     s32 unk40;
-    s32 unk44;
-    s32 unk48;
-    s32 unk4C;
-    s32 unk50;
+    s32 elements;
+    s32 power;
+    s32 attackStat;
+    s32 targetFlags;
     s32 unk54;
     s32 unk58;
     s32 unk5C;
@@ -601,7 +601,7 @@ typedef struct {
     s32 unkBC;
     s32 unkC0;
     s32 unkC4;
-    s32 unkC8;
+    s32 attackerStatus;
     s32 unkCC;
     u8 unkD0[8];
     s32 unkD8;
@@ -617,13 +617,13 @@ typedef struct {
     s32 unk100[0x40];
     void* unk200;
     void* unk204;
-    s32 unk208;
+    s32 targetId;
     s32 unk20C;
-    s32 unk210;
-    s32 unk214;
+    s32 targetDefense;
+    s32 tmpDamage;
     s32 unk218;
     s32 unk21C;
-    s32 unk220;
+    s32 damageFlags;
     s32 unk224;
     u32 unk228;
     s32 unk22C;

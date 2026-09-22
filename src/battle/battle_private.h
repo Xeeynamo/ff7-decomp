@@ -394,6 +394,7 @@ extern u8 D_800F8374;
 extern u8 D_800F837C;
 extern u8 D_800F8380;
 extern u8* D_800F8384[3];
+extern s8 D_800F83AB[];
 extern u8* D_800F8390[3];
 extern s32* D_800F839C; // CD offset?
 extern u8 D_800F83A4[]; // shared battle-script variable bank (BattleOpcodeValOffs)
