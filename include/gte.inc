@@ -10,6 +10,12 @@
 		.word	0x4A280030
 .endm
 
+.macro nRTPT
+		nop
+		nop
+		RTPT
+.endm
+
 .macro DPCL
 		.word	0x4A680029
 .endm

@@ -18,9 +18,7 @@ JetProject6Points:
     lwc2 $3, 0xC($a0)
     lwc2 $4, 0x10($a0)
     lwc2 $5, 0x14($a0)
-    nop
-    nop
-    rtpt
+    nRTPT
     swc2 $12, 0x0($a1)
     swc2 $13, 0x4($a1)
     swc2 $14, 0x8($a1)
@@ -34,9 +32,7 @@ JetProject6Points:
     lwc2 $3, 0xC($a0)
     lwc2 $4, 0x10($a0)
     lwc2 $5, 0x14($a0)
-    nop
-    nop
-    rtpt
+    nRTPT
     swc2 $12, 0x0($a1)
     swc2 $13, 0x4($a1)
     swc2 $14, 0x8($a1)
@@ -50,9 +46,7 @@ JetProject6Points:
     lwc2 $3, 0xC($a0)
     lwc2 $4, 0x10($a0)
     lwc2 $5, 0x14($a0)
-    nop
-    nop
-    rtpt
+    nRTPT
     swc2 $12, 0x0($a1)
     swc2 $13, 0x4($a1)
     jr $ra
@@ -68,9 +62,7 @@ func_800A84A4:
     lwc2 $3, 0xC($a0)
     lwc2 $4, 0x10($a0)
     lwc2 $5, 0x14($a0)
-    nop
-    nop
-    rtpt
+    nRTPT
     swc2 $12, 0x0($a1)
     swc2 $13, 0x4($a1)
     swc2 $14, 0x8($a1)
