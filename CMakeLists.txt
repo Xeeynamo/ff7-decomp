@@ -70,6 +70,8 @@ set(FF7_SOURCES
 
     # Minigames
     src/mini/chocobo/chocobo.c
+    src/mini/chocobo/chocobo2.c
+    src/mini/chocobo/chocobo_model.c
 
     # Magics
     src/magic/barrier.c
