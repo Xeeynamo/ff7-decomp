@@ -11,12 +11,6 @@
                sizeof(FieldScriptHeader) + 1)                                                                          \
              << 8
 
-typedef struct {
-    Yamada script;     // DAT
-    Yamada background; // MIM
-    Yamada models;     // BSX
-} FieldFileInfo;
-
 struct FieldRenderData {
     OT_TYPE ot[0x1000];   // 0x00000: Main scene ordering table
     SPRT_16 arrows[0x18]; // 0x04000: Field arrow sprite packets
@@ -70,7 +64,7 @@ typedef struct {
 extern u8* D_80075E10;
 extern MATRIX* D_80083270;
 extern MATRIX** D_80083578;
-extern u32 g_FieldFileInfo[787 * 6];
+extern u32 g_FieldFileInfo[787 * 6]; // Yamada pair for DAT, MIM, BSX
 
 extern struct FieldRenderData g_FieldRenderData[2];
 extern FieldTriggers* g_FieldTriggers;
