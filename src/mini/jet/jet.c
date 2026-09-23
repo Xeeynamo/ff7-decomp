@@ -2,7 +2,7 @@
 
 #include "types.h"
 #include <game.h>
-#include <inline_c.h>
+#include <inline_o.h>
 
 typedef struct {
     /* 0x0000 */ POLY_F3* f3Cursor;
@@ -271,22 +271,22 @@ void func_800A0874(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, Unk800A4
     wm->t[1] -= D_800A83A8.vy;
     wm->t[2] -= D_800A83A8.vz;
     cam = &D_800EE404;
-    gte_SetRotMatrix2(cam);
-    gte_ldclmv2(&world[0]->m[0][0]);
+    gte_SetRotMatrix(cam);
+    gte_ldclmv(&world[0]->m[0][0]);
     gte_rtir();
-    gte_stclmv2(&world[0]->m[0][0]);
-    gte_ldclmv2(&world[0]->m[0][1]);
+    gte_stclmv(&world[0]->m[0][0]);
+    gte_ldclmv(&world[0]->m[0][1]);
     gte_rtir();
-    gte_stclmv2(&world[0]->m[0][1]);
-    gte_ldclmv2(&world[0]->m[0][2]);
+    gte_stclmv(&world[0]->m[0][1]);
+    gte_ldclmv(&world[0]->m[0][2]);
     gte_rtir();
-    gte_stclmv2(&world[0]->m[0][2]);
-    gte_SetTransMatrix2(cam);
-    gte_ldlv0_2(&world[0]->t[0]);
-    gte_rt2();
-    gte_stlvnl2(&world[0]->t[0]);
-    gte_SetRotMatrix2(world[0]);
-    gte_SetTransMatrix2(world[0]);
+    gte_stclmv(&world[0]->m[0][2]);
+    gte_SetTransMatrix(cam);
+    gte_ldlv0(&world[0]->t[0]);
+    gte_rt();
+    gte_stlvl(&world[0]->t[0]);
+    gte_SetRotMatrix(world[0]);
+    gte_SetTransMatrix(world[0]);
     args.tris = node->model->tris;
     args.prim = db->prims.g3Cursor;
     args.ot = &db->ot[otIndex];
@@ -346,8 +346,8 @@ void JetDrawNodeUI(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, s32 arg4
     m->t[0] = node->m.t[0];
     m->t[1] = node->m.t[1];
     m->t[2] = node->m.t[2];
-    gte_SetRotMatrix2(world[0]);
-    gte_SetTransMatrix2(world[0]);
+    gte_SetRotMatrix(world[0]);
+    gte_SetTransMatrix(world[0]);
     args.tris = node->model->tris;
     args.prim = db->prims.g3Cursor;
     args.ot = &db->ot2[otIndex];
@@ -409,23 +409,23 @@ void JetSetWorldMatrix(void) {
     view[0]->t[1] = -D_800A83A8.vy;
     view[0]->t[2] = -D_800A83A8.vz;
     cam = &D_800EE404;
-    gte_SetRotMatrix2(cam);
-    gte_ldclmv2(&view[0]->m[0][0]);
+    gte_SetRotMatrix(cam);
+    gte_ldclmv(&view[0]->m[0][0]);
     gte_rtir();
     world = &D_800D1BD0;
-    gte_stclmv2(&world[0]->m[0][0]);
-    gte_ldclmv2(&view[0]->m[0][1]);
+    gte_stclmv(&world[0]->m[0][0]);
+    gte_ldclmv(&view[0]->m[0][1]);
     gte_rtir();
-    gte_stclmv2(&world[0]->m[0][1]);
-    gte_ldclmv2(&view[0]->m[0][2]);
+    gte_stclmv(&world[0]->m[0][1]);
+    gte_ldclmv(&view[0]->m[0][2]);
     gte_rtir();
-    gte_stclmv2(&world[0]->m[0][2]);
-    gte_SetTransMatrix2(cam);
-    gte_ldlv0_2(&view[0]->t[0]);
-    gte_rt2();
-    gte_stlvnl2(&world[0]->t[0]);
-    gte_SetRotMatrix2(world[0]);
-    gte_SetTransMatrix2(world[0]);
+    gte_stclmv(&world[0]->m[0][2]);
+    gte_SetTransMatrix(cam);
+    gte_ldlv0(&view[0]->t[0]);
+    gte_rt();
+    gte_stlvl(&world[0]->t[0]);
+    gte_SetRotMatrix(world[0]);
+    gte_SetTransMatrix(world[0]);
 }
 
 // Sample the track at a fractional segment index, giving a point lifted along
