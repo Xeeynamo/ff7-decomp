@@ -427,8 +427,6 @@ void JetSetWorldMatrix(void) {
     gte_SetTransMatrix(world[0]);
 }
 
-// Sample the track at a fractional segment index, giving a point lifted along
-// the surface normal and the interpolated banking rotation.
 void JetTrackSample(u32 at, s32 lift, VECTOR* pos, SVECTOR* rot) {
     VECTOR left;
     VECTOR right;
@@ -556,7 +554,6 @@ void JetDrawEnergyGauge(void) {
     db[0]->prims.g4Cursor = poly;
 }
 
-// Spin and draw the score model, alternating it with the title every so often.
 void JetDrawScorePopup(JetBuffer* arg0, s16 arg1, s32 arg2, s32 arg3, s32 arg4) {
     JetNode* node;
     u8* alternate;
@@ -577,11 +574,11 @@ void JetDrawScorePopup(JetBuffer* arg0, s16 arg1, s32 arg2, s32 arg3, s32 arg4) 
     if (alternate[0] == 1) {
         RotMatrix(&g_JetPopupRot, &D_800A8A74[index]->m);
         JetDrawNodeUI(arg0, D_800A8A74[index], 0, 0, unused);
-        func_800A1CD8(g_JetPopupPoints, 0xDC, 0xA0, 0, 0x18);
+        func_800A1CD8(g_JetPopupPoints, 220, 160, 0, 0x18);
     }
     counter = &g_JetPopupTimer;
     (*counter)--;
-    if (*counter < 0x32) {
+    if (*counter < 50) {
         if (alternate[0] == 0) {
             alternate[0] = 1;
         } else {
