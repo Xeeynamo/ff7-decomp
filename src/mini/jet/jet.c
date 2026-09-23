@@ -294,8 +294,6 @@ void func_800A0874(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, Unk800A4
     args.model = node->model;
     db->prims.g3Cursor = JetDrawModelTris(&args);
     JetProject6Points(obj->unkDC, obj->unk11C);
-    // Both reads have to stay: -fforce-mem is what keeps the second one a
-    // word load instead of letting gcc narrow it to lhu.
     ys[0] = obj->unk11C[0] >> 16;
     minY = ys[0];
     maxY = minY;
@@ -386,7 +384,6 @@ void JetDrawTrack(void) {
     trackId = g_JetTrackListHead;
     prim = g_JetBufferPtr[0]->prims.ft4Cursor;
     list = g_JetTrackLinks;
-// A loop keyword hoists the 0xFFFF test into a register; the goto keeps it inline.
 loop:
     left = g_JetTrackLeft;
     right = g_JetTrackRight;
