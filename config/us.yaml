@@ -299,6 +299,8 @@ overlays:
     segments:
       - [0x0, rodata, chocobo]
       - [0x2d0, c, chocobo]
+      - [0x157C, c, chocobo2]
+      - [0xD91C, c, chocobo_model]
       - [0x11250, data, chocobo]
   - name: jet
     disk_path: disks/us/MINI/JET.BIN.dec

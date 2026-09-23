@@ -24,6 +24,16 @@
 	:							\
 	: "r"( r0 ), "r"( r1 ), "r"( r2 ) )
 
+#define gte_ldv3c( r0 ) __asm__ volatile (			\
+	"lwc2	$0, 0( %0 );"					\
+	"lwc2	$1, 4( %0 );"					\
+	"lwc2	$2, 8( %0 );"					\
+	"lwc2	$3, 12( %0 );"					\
+	"lwc2	$4, 16( %0 );"					\
+	"lwc2	$5, 20( %0 )"					\
+	:							\
+	: "r"( r0 ) )
+
 #define gte_SetGeomScreen( r0 ) __asm__ volatile (		\
 	"ctc2	%0, $26"					\
 	:							\
@@ -102,6 +112,14 @@
 	: "r"( r0 ), "r"( r1 ), "r"( r2 )			\
 	: "memory" )
 
+#define gte_stsxy3_g3( r0 ) __asm__ volatile (		\
+	"swc2	$12, 8( %0 );"					\
+	"swc2	$13, 16( %0 );"					\
+	"swc2	$14, 24( %0 )"					\
+	:							\
+	: "r"( r0 )						\
+	: "memory" )
+
 #define gte_stsxy2( r0 ) __asm__ volatile (			\
 	"swc2	$14, 0( %0 )"					\
 	:							\
@@ -131,6 +149,20 @@
 	: "r"( r0 )						\
 	: "$12", "memory" )
 
+#define gte_stflg( r0 ) __asm__ volatile (			\
+	"cfc2	$12, $31;"					\
+	"nop;"							\
+	"sw	$12, 0( %0 )"					\
+	:							\
+	: "r"( r0 )						\
+	: "$12", "memory" )
+
+// reads the GTE FLAG register into a variable; bit 31 is set on any error
+#define gte_readflg( r0 ) __asm__ volatile (			\
+	"cfc2	%0, $31;"					\
+	"nop"							\
+	: "=r"( r0 ) )
+
 #define gte_stopz( r0 ) __asm__ volatile (			\
 	"swc2	$24, 0( %0 )"					\
 	:							\
@@ -147,6 +179,7 @@
 #else
 #define gte_ldv0( r0 )
 #define gte_ldv3( r0, r1, r2 )
+#define gte_ldv3c( r0 )
 #define gte_SetGeomScreen( r0 )
 #define gte_SetRotMatrix( r0 )
 #define gte_SetTransMatrix( r0 )
@@ -157,10 +190,13 @@
 #define gte_nclip()
 #define gte_stsxy( r0 )
 #define gte_stsxy3( r0, r1, r2 )
+#define gte_stsxy3_g3( r0 )
 #define gte_stsxy2( r0 )
 #define gte_stsz( r0 )
 #define gte_stsz3( r0, r1, r2 )
 #define gte_stszotz( r0 )
+#define gte_stflg( r0 )
+#define gte_readflg( r0 ) ((r0) = 0)
 #define gte_stopz( r0 )
 #define gte_stlvnl( r0 )
 #endif
