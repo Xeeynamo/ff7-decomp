@@ -2,7 +2,7 @@
 #include "chocobo_private.h"
 #include "libetc.h"
 #include <libgte.h>
-#include <inline_c.h>
+#include <psxsdk/inline_c.h>
 #include "sincos.h"
 
 u8* func_800AD91C(ChocoboModel* model, u8* buf, s32 arg2) {

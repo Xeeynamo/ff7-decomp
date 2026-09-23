@@ -1,6 +1,6 @@
 //! PSYQ=4.0 CC1=2.7.2 UNROLL=true
 #include <libgte.h>
-#include <inline_c.h>
+#include <psxsdk/inline_c.h>
 #include "chocobo_private.h"
 #include <libetc.h>
 
