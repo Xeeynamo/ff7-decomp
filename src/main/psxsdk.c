@@ -557,25 +557,25 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", StGetNext);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", StSetMask);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80040CA8);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", StCdInterrupt);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80041620);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", mem2mem);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80041654);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", dma_execute);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", StRingStatus);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_800418D8);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", cb_read);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80041AFC);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", cd_read_retry);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80041CD4);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdReadBreak);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80041D28);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdRead);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80041E30);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdReadSync);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80041EFC);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", CdReadCallback);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DecDCTReset);
 
@@ -937,11 +937,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", unpack_packet);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", memset);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_800484A8);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", BreakDraw);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80048540);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", IsIdleGPU);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_800485A0);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", ContinueDraw);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_800487F0);
 
