@@ -92,6 +92,7 @@ class CompilerParams:
     as_flags: str
     g_opt: str
     gcoff_opt: str
+    unroll_opt: str = ""
 
 
 def default_compiler_params() -> CompilerParams:
@@ -171,6 +172,13 @@ def parse_compiler_params(line: str) -> CompilerParams:
                 c.gcoff_opt = ""
             else:
                 raise Exception(f"{key} value {value} is not a valid boolean")
+        elif key == "UNROLL":
+            if value == "true":
+                c.unroll_opt = "-funroll-loops"
+            elif value == "false":
+                c.unroll_opt = ""
+            else:
+                raise Exception(f"{key} value {value} is not a valid boolean")
         else:
             raise Exception(f"{key} is not recognized")
     return c
@@ -243,7 +251,8 @@ def add_c(cfg: any, file_name: str):
         variables={
             "cc1": compiler_flags.cc1,
             "as_flags": compiler_flags.as_flags,
-            "cc_flags": f"{compiler_flags.cc_opt} {compiler_flags.cc_gp} {compiler_flags.g_opt} {compiler_flags.gcoff_opt}",
+            "cc_flags": f"{compiler_flags.cc_opt} {compiler_flags.cc_gp} {compiler_flags.g_opt} {compiler_flags.gcoff_opt}"
+            + (f" {compiler_flags.unroll_opt}" if compiler_flags.unroll_opt else ""),
         },
     )
     nw.build(

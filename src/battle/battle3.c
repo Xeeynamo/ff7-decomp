@@ -37,9 +37,9 @@ int BattleFlipDoubleBuffer(void) {
 }
 
 static void BattleTriggerSoundCommand(u16 arg0) {
-    D_8009A000[0] = arg0;
-    D_8009A004[0] = arg0;
-    D_8009A008[0] = arg0;
+    g_AkaoCmd.opcode = arg0;
+    g_AkaoCmd.params[0] = arg0;
+    g_AkaoCmd.params[1] = arg0;
     AkaoExec();
 }
 
@@ -58,6 +58,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D91DC);
 
 static void BattleUnusedHook3(void) {}
 
+void func_800D93E4(OT_TYPE* ot);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D93E4);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D9BF4);
@@ -163,11 +164,11 @@ void BattleBannerSetEncounterString(s16 stringId) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DCFD4);
 
 static void BattleMenuDrawItemDescription(void);
-static void BattleDrawSetupTypeInfo(s32 arg0, s16 arg1) {
+static void BattleDrawSetupTypeInfo(OT_TYPE* ot, s16 arg1) {
     s32 setupType;
     s32 temp_v1;
 
-    SysMenuSetOtag();
+    SysMenuSetOtag(ot);
     switch (arg1) {
     case 0:
         func_800E2098();
@@ -225,35 +226,23 @@ static void BattleDrawSetupTypeInfo(s32 arg0, s16 arg1) {
     }
 }
 
-void func_800DD85C(s32, s16);
+void func_800DD85C(OT_TYPE* ot, s16);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DD85C);
 
-void BattleMenuDrawFrameWindows(s32, s16);
+void BattleMenuDrawFrameWindows(OT_TYPE* ot, s16);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", BattleMenuDrawFrameWindows);
 
-/*
- * Draw step for one active on-screen entity. The caller (BattleMenuDrawActiveWidgets) walks
- * the per-entity active-flag array (D_800F514C) and packs the flagged entities
- * into sequential slots; D_800F5628 is that slot counter and arg1 is the
- * entity's index. Runs the three sub-handlers on the current record's
- * sub-fields at offsets 0, 8 and 0x10, then advances to the next slot. Called
- * once per active entity per frame.
- */
-static void BattleAppendSetupInfoRow(s32 arg0, s16 arg1) {
-    s32 off2;
-    s32 off3;
-
-    func_800DD85C(arg0 + (D_800F5628 * 0x14), arg1);
-    off2 = (D_800F5628 * 0x14) + 8;
-    BattleMenuDrawFrameWindows(arg0 + off2, arg1);
-    off3 = (D_800F5628 * 0x14) + 0x10;
-    BattleDrawSetupTypeInfo(arg0 + off3, arg1);
+static void BattleAppendSetupInfoRow(OT_TYPE* ot, s16 arg1) {
+    func_800DD85C(&ot[D_800F5628 * 5], arg1);
+    BattleMenuDrawFrameWindows(&ot[D_800F5628 * 5 + 2], arg1);
+    BattleDrawSetupTypeInfo(&ot[D_800F5628 * 5 + 4], arg1);
     D_800F5628++;
 }
 
+void BattleDrawPauseOverlay(OT_TYPE* ot);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", BattleDrawPauseOverlay);
 
-void BattleMenuDrawActiveWidgets(s32 ot) {
+void BattleMenuDrawActiveWidgets(OT_TYPE* ot) {
     s16 i;
 
     if (g_SavemapBusy) {

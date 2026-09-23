@@ -188,9 +188,9 @@ static s32 ReadDiskNo(void) {
             }
         }
         CdControlB(CdlSetloc, &file.pos.minute, NULL);
-        func_80041D28(1, D_800698F0, 0x80);
+        CdRead(1, D_800698F0, 0x80);
         do {
-            res = func_80041E30(1, 0);
+            res = CdReadSync(1, 0);
         } while (res > 0);
     } while (res != 0);
 
@@ -327,9 +327,9 @@ void SystemLzsDecompress(u8* src, u8* dst) {
 #undef THRESHOLD
 
 void func_80034CAC(u32 arg0) {
-    *D_8009A000 = 48;
-    *D_8009A004 = arg0;
-    *D_8009A008 = arg0;
+    g_AkaoCmd.opcode = 48;
+    g_AkaoCmd.params[0] = arg0;
+    g_AkaoCmd.params[1] = arg0;
     AkaoExec();
     VSync(60);
 }

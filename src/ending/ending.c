@@ -580,10 +580,10 @@ void ENDING_SceaLoop(void) {
         }
 
         CdControlB(CdlSetloc, (u_char*)&file, NULL);
-        func_80041D28((file.size + 0x7FF) >> 11, (void*)0x80180000, 0x80);
+        CdRead((file.size + 0x7FF) >> 11, (void*)0x80180000, 0x80);
 
         do {
-            res = func_80041E30(1, 0);
+            res = CdReadSync(1, 0);
         } while (res > 0);
     } while (res != 0);
 
@@ -758,9 +758,9 @@ void ENDING_Loop(s32 arg0) {
     }
 
 fade_out:
-    D_8009A000[0] = 0xC1;
-    D_8009A004[0] = 0x3C;
-    D_8009A008[0] = 0;
+    g_AkaoCmd.opcode = 0xC1;
+    g_AkaoCmd.params[0] = 0x3C;
+    g_AkaoCmd.params[1] = 0;
     AkaoExec();
     for (col = 0; col < 0xFF; col += 4) {
         D_800AF408 = StartFrame(D_800AF40C);
@@ -1144,17 +1144,17 @@ s32 func_800A22E4(void) {
 }
 
 s32 func_800A2328(void) {
-    D_8009A000[0] = 0x10;
-    D_8009A004[0] = (u32)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
+    g_AkaoCmd.opcode = 0x10;
+    g_AkaoCmd.params[0] = (u32)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
     AkaoExec();
 
     return 1;
 }
 
 s32 func_800A2380(void) {
-    D_8009A000[0] = *D_800A6528++;
-    D_8009A004[0] = *D_800A6528++;
-    D_8009A008[0] = *D_800A6528++;
+    g_AkaoCmd.opcode = *D_800A6528++;
+    g_AkaoCmd.params[0] = *D_800A6528++;
+    g_AkaoCmd.params[1] = *D_800A6528++;
     AkaoExec();
 
     return 1;
@@ -1182,13 +1182,13 @@ static void func_800A2458(void) {
 static void func_800A24A8(void) {
     s32 res;
 
-    while ((res = func_800484A8()) == -1) {
+    while ((res = BreakDraw()) == -1) {
         VSync(0);
     }
 
     if (res != 0) {
         do {
-        } while (func_80048540(1) != 0);
+        } while (IsIdleGPU(1) != 0);
     }
 }
 
@@ -1199,13 +1199,13 @@ static void SetGameResolution(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
 
     y = (h != 480) ? 240 : 0;
 
-    while ((res = func_800484A8()) == -1) {
+    while ((res = BreakDraw()) == -1) {
         VSync(0);
     }
 
     if (res != 0) {
         do {
-        } while (func_80048540(1) != 0);
+        } while (IsIdleGPU(1) != 0);
     }
 
     ResetGraph(1);

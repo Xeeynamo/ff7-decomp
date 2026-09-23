@@ -13,6 +13,7 @@ WorldListNode* WmAssignRegionToNode(WorldListNode*);
 static s32 func_800A9A70(void);
 static void CopyAreaName(s16);
 static void func_800AA02C(s32);
+static void func_800AA04C(s32);
 void func_800A12AC(void);
 s32 WmFadeIsStopped(void);
 void WmWriteSavemap(void);
@@ -279,7 +280,7 @@ void WmCalcViewMatrix(s16 rotY) {
     MATRIX tilt;
     s32 value;
 
-    rot.vx = func_800A3304();
+    rot.vx = WmUpdateCameraTransition();
     rot.vz = 0;
     rot.vy = 0;
     RotMatrix(&rot, &m);
@@ -390,7 +391,93 @@ static void UpdateFogRanges(void) {
 
 static s32 func_800A32F4(void) { return D_800E5678; }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A3304);
+s16 WmUpdateCameraTransition(void) {
+    VECTOR pos;
+    VECTOR pos2;
+    s32 step;
+    s32 rate;
+    s32 y;
+    s32 target;
+    s32 camView;
+    s32 camX;
+    s32 camZ;
+    s32 next;
+    s32 next2;
+
+    if (D_800E5658 != 0) {
+        if (D_800E565C == 0) {
+            if (D_800E5658 > 0) {
+                WmSetCamView(3);
+                D_800E5640 = WmGetModelIdFromPcEntity() == 3 ? 4000 : 2000;
+            }
+            D_800C84D4 = D_800E5608;
+            if (D_800E5608 >= 2048) {
+                D_800C84D4 = D_800E5608 - 4096;
+            }
+        }
+        if (D_800E5660 < 128) {
+            step = D_800E565C + D_8011650C;
+        } else {
+            rate = D_8011650C;
+            step = D_800E565C - rate;
+        }
+        D_800E565C = step;
+        if (D_800E565C != 0) {
+            D_800E5660 += D_800E565C;
+            if (D_800E5660 < 0) {
+                D_800E5660 = 0;
+            } else if (D_800E5660 > 256) {
+                D_800E5660 = 256;
+            }
+            UpdateFogRanges();
+            WmGetPosFromPcEntity(&pos);
+            WmGetPos2FromPcEntity(&pos2);
+            y = WmGetPcEntityOriginalY();
+            if (D_800E5658 > 0) {
+                target = D_800E5640;
+            } else {
+                target = pos2.vy;
+            }
+            target = ((target - y) * D_800E5660) >> 8;
+            func_800AA04C(y + target);
+            if ((u32)D_800E5650 < 2) {
+                D_800E5608 = (D_800E5660 * D_800C84D4) >> 8;
+            }
+        } else {
+            if (D_800E5658 < 0) {
+                WmSetCamView(D_800E5650);
+                func_800A2108(0, 2);
+            }
+            D_800E5658 = 0;
+        }
+    }
+    if (D_800E5658 >= 0 || D_800E5650 != 0) {
+        camView = D_800E5648;
+    } else {
+        camView = 0;
+    }
+    camX = D_800E563C;
+    if (camX == 0) {
+        camX = D_800C6628[camView] + D_800E5664;
+    }
+    if (D_8011650C == 1) {
+        next = ((D_800E5610 * 7) + camX) >> 3;
+    } else {
+        next = ((D_800E5610 * 3) + camX) >> 2;
+    }
+    camZ = D_800E5638;
+    D_800E5610 = next;
+    if (camZ == 0) {
+        camZ = D_800C6638[camView];
+    }
+    if (D_8011650C == 1) {
+        next2 = ((D_800E5614 * 7) + camZ) >> 3;
+    } else {
+        next2 = ((D_800E5614 * 3) + camZ) >> 2;
+    }
+    D_800E5614 = next2;
+    return ((((D_80116508 >> 5) + 1750) * D_800E5660) + ((256 - D_800E5660) * D_800E5610)) >> 8;
+}
 
 void func_800A368C(s32 arg0) { D_800E5658 = arg0; }
 
@@ -445,14 +532,14 @@ static void func_800A3908(void) {
     s32 ret;
 
     do {
-        ret = func_800484A8();
+        ret = BreakDraw();
         if (ret == -1) {
             VSync(0);
         }
     } while (ret == -1);
     if (ret) {
         do {
-        } while (func_80048540(1));
+        } while (IsIdleGPU(1));
     }
 }
 
@@ -4564,22 +4651,22 @@ void WmInitMusicData(u32* file) {
 static void func_800B63E0(s32 arg0) { D_801159DC = arg0; }
 
 void PlayMusicTrack(s32 arg0) {
-    s16* cmd;
+    AkaoCmd* cmd;
     s32 prev;
 
     if (D_801159DC != 0) {
-        cmd = D_8009A000;
+        cmd = &g_AkaoCmd;
         if (arg0 != 1) {
-            s16 mode = 0x10;
+            u16 op = 0x10;
             if (D_801159E0 == 1) {
-                mode = 0x14;
+                op = 0x14;
             }
-            *cmd = mode;
+            cmd->opcode = op;
         } else {
-            *cmd = 0x18;
+            cmd->opcode = 0x18;
         }
-        D_8009A004[0] = D_801159BC[arg0];
-        D_8009A008[0] = 4;
+        g_AkaoCmd.params[0] = D_801159BC[arg0];
+        g_AkaoCmd.params[1] = 4;
         AkaoExec();
     }
     prev = D_801159E0;
@@ -4592,39 +4679,39 @@ static void func_800B64A0(void) { PlayMusicTrack(D_801159E0); }
 static s32 func_800B64C8(void) { return D_801159E0; }
 
 static void func_800B64D8(u32 arg0) {
-    D_8009A000[0] = 0x30;
-    D_8009A004[0] = arg0;
+    g_AkaoCmd.opcode = 0x30;
+    g_AkaoCmd.params[0] = arg0;
     AkaoExec();
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B650C);
 
 static void WmSetMusicVolume(u32 arg0) {
-    D_8009A000[0] = 0xC0;
-    D_8009A004[0] = arg0;
+    g_AkaoCmd.opcode = 0xC0;
+    g_AkaoCmd.params[0] = arg0;
     AkaoExec();
 }
 
 static void func_800B65A4(u32 arg0, s32 arg1) {
-    D_8009A000[0] = 0xBD;
-    D_8009A004[0] = arg0;
-    D_8009A008[0] = arg1;
+    g_AkaoCmd.opcode = 0xBD;
+    g_AkaoCmd.params[0] = arg0;
+    g_AkaoCmd.params[1] = arg1;
     AkaoExec();
 }
 
 void ToggleAmbientSound(s32 arg0) {
     if (D_8010CB20 < arg0) {
-        D_8009A000[0] = 0x20;
+        g_AkaoCmd.opcode = 0x20;
         D_8010CB20 = arg0;
-        D_8009A004[0] = 0x40;
-        D_8009A008[0] = arg0;
+        g_AkaoCmd.params[0] = 0x40;
+        g_AkaoCmd.params[1] = arg0;
         AkaoExec();
     } else if (arg0 == -D_8010CB20) {
         D_8010CB20 = 0;
-        D_8009A000[0] = 0xF1;
+        g_AkaoCmd.opcode = 0xF1;
         AkaoExec();
-        D_8009A000[0] = 0xBC;
-        D_8009A004[0] = 0;
+        g_AkaoCmd.opcode = 0xBC;
+        g_AkaoCmd.params[0] = 0;
         AkaoExec();
     }
 }
@@ -5613,9 +5700,9 @@ s32 WmDialogSetAskToShow(u8 window, u8 message, u8 first, u8 last, s16* selected
 }
 
 static void WmDialogPlaySound(void) {
-    *D_8009A000 = 0x30;
-    *D_8009A004 = 1;
-    *D_8009A008 = 0x40;
+    g_AkaoCmd.opcode = 0x30;
+    g_AkaoCmd.params[0] = 1;
+    g_AkaoCmd.params[1] = 0x40;
     AkaoExec();
 }
 

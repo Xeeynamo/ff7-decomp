@@ -16,6 +16,7 @@ WmSetTranslationVectorInScreenSpace = 0x800A1FAC;
 WmSetCamView = 0x800A2088;
 WmHandleButtons = 0x800A21B4;
 UpdateFogRanges = 0x800A31F8;
+WmUpdateCameraTransition = 0x800A3304;
 WmSetModelTransformMatrix = 0x800A36AC;
 WmUpdateWorldState = 0x800A3964;
 WmSubmarineFloatToPlanet = 0x800A3DFC;

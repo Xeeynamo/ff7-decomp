@@ -10,6 +10,7 @@
 #ifndef FF7_STR
 #define _S(x) x       // check the usage of 'bin/str' to see how this works
 #define _SL(len, x) x // same as _S, but for fixed-length strings with padding
+#define _SF(len, x) x // same as _SL, but pads with 0xFF instead of 0
 #endif
 
 #define NUM_PARTY 3
@@ -1131,7 +1132,7 @@ typedef struct {
     u8 unk42;
     u8 unk43;
     u8* nextBattleMusic;
-    u32 nextFieldMusic;
+    s32 nextFieldMusic;
     // Set by FADE or NFADE to start fades.
     volatile u16 fadeType; // enum FieldFadeType.
     s16 fadeAdjust;
@@ -1229,6 +1230,12 @@ typedef struct WindowData {
     s16 state; // enum WindowState
     u16 preventClose;
 } WindowData; // size:0x30
+
+typedef struct {
+    u16 opcode;
+    s16 pad;
+    s32 params[6];
+} AkaoCmd;
 
 extern u8* D_8003623C;
 extern u16 g_Pad1Keys;
@@ -1330,10 +1337,7 @@ extern s16 g_PlayerModelId;
 extern s16 g_IsFieldLoading;
 extern volatile s16 g_PrevGameState;
 extern u8 D_80099FFC;
-extern s16 D_8009A000[1];
-extern u_long D_8009A004[1]; // may be a u8*
-extern s32 D_8009A008[1];
-extern s32 D_8009A00C;
+extern AkaoCmd g_AkaoCmd;
 extern s32 D_8009A024[8];
 extern u8 g_FieldCurrentOpcode;
 extern s16 g_CurrentFieldIndex;
@@ -1365,8 +1369,6 @@ MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
 MATRIX* ScaleMatrix(MATRIX*, VECTOR*);
 void VectorNormal(VECTOR*, VECTOR*);
 s32 SetGraphDebug(s32);
-s32 func_80041E30(s32 arg0, s32 arg1);
-void func_80041D28(int, void*, int);
 
 void SystemError(char c, long n);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
@@ -1386,9 +1388,11 @@ void SysMenuSetCursorMovement(
     MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage, s32 unk0, s32 rowOffset, s32 unk4,
     s32 numTotalRows, s32 unkE, s32 unkF, s32 unk10, s32 unk11, u16 scrolling);
 void SysMenuSetPoly(void* poly);
+void SysMenuSetOtag(OT_TYPE* otag);
+void SysMenuDrawDigitsWithoutLeadingZeroes(s32 x, s32 y, s32 value, s32 digits, s32 color);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
-void AkaoExec(void);
+s32 AkaoExec(void);
 void SysInitRndTablePos(s32 seed);
 void SysInitPlayerStatFromEquip(s32 arg0);
 void SysInitPlayerStatFromMateria(s32 arg0);
@@ -1398,13 +1402,11 @@ void SysMemCopy32(void* dst, const void* src, const s32 len);
 s32 SysAddCommandToTemp(s32);
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, s32 tpage, RECT* tw);
 void SysMovieAbortPlay(void);
-s32 func_80048540(s32 arg0);
 s32 func_80034410(void);
 void SysMoviePlay(void* ptr, s16);
 void* SysCdromGetPackPointer(void* ptr, s32);
 void SysCdromSetLzsExtract(void* src, void* dst);
 s32 func_80034D5C(void);
-s32 func_800484A8(void);
 u32 InputReadPadsRaw(void);
 void func_80036244(void* anim, u16 frame);
 void func_800354CC(void);

@@ -826,34 +826,34 @@ static void func_800BB864(void) {
 static void func_800BB89C(void) {
     D_80163B80 = 0;
     D_800FA6B8 = 0;
-    D_8009A000[0] = !(!(D_8016376A & 0x10) && !g_AkaoSavedMusicActiveMask0) ? 0x10 : 0x14;
-    D_8009A004[0] = 0x801D0000;
+    g_AkaoCmd.opcode = !(!(D_8016376A & 0x10) && !g_AkaoSavedMusicActiveMask0) ? 0x10 : 0x14;
+    g_AkaoCmd.params[0] = 0x801D0000;
     AkaoExec();
 }
 
 void func_800BB90C(void) {
-    D_8009A000[0] = 0xA0;
-    D_8009A004[0] = 0x7F;
+    g_AkaoCmd.opcode = 0xA0;
+    g_AkaoCmd.params[0] = 0x7F;
     AkaoExec();
 }
 
 // queue the 0xF1 sound command after the 0xA0 pair; called from batres
 void func_800BB944(void) {
     func_800BB90C();
-    D_8009A000[0] = 0xF1;
+    g_AkaoCmd.opcode = 0xF1;
     AkaoExec();
 }
 
 // queue sound command 0xC1
 void func_800BB978(void) {
-    D_8009A000[0] = 0xC1;
-    D_8009A004[0] = 0x12C;
-    D_8009A008[0] = 0;
+    g_AkaoCmd.opcode = 0xC1;
+    g_AkaoCmd.params[0] = 0x12C;
+    g_AkaoCmd.params[1] = 0;
     AkaoExec();
 }
 
 // queue sound command 0x30, dispatched directly via AkaoDispatchCommand (akao.c)
-// rather than the D_8009A000 global queue used by the sibling functions below
+// rather than the g_AkaoCmd staging command used by the sibling functions below
 void func_800BB9B8(s32 arg0) {
     s16* ptr;
 
@@ -868,10 +868,10 @@ void func_800BB9B8(s32 arg0) {
 void func_800BB9FC(s32 arg0) {
     s32 param;
 
-    D_8009A000[0] = 0x2B;
+    g_AkaoCmd.opcode = 0x2B;
     param = arg0 & 0xFFFF;
-    D_8009A004[0] = 0x40;
-    D_8009A008[0] = param;
+    g_AkaoCmd.params[0] = 0x40;
+    g_AkaoCmd.params[1] = param;
     AkaoExec();
 }
 
@@ -879,10 +879,10 @@ void func_800BB9FC(s32 arg0) {
 static void func_800BBA40(s32 arg0) {
     s32 param;
 
-    D_8009A000[0] = 0x20;
+    g_AkaoCmd.opcode = 0x20;
     param = arg0 & 0xFFFF;
-    D_8009A004[0] = 0x40;
-    D_8009A008[0] = param;
+    g_AkaoCmd.params[0] = 0x40;
+    g_AkaoCmd.params[1] = param;
     AkaoExec();
 }
 
