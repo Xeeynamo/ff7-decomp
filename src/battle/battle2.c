@@ -2533,7 +2533,7 @@ s32 func_800D55A4(s32 arg0) {
 
 // Generic AKAO sound-command dispatcher: the first vararg's low 16 bits are
 // the command id, which selects how many trailing u32 params get copied into
-// the D_8009A004 queue before calling AkaoExec.
+// the g_AkaoCmd parameter array before calling AkaoExec.
 void BattleCommandSend(s32 cmdId, ...) {
     void** args = (void**)&cmdId;
     u32* dst = (u32*)cmdId;
@@ -2542,7 +2542,7 @@ void BattleCommandSend(s32 cmdId, ...) {
     s32 count;
     s32 nExtra;
 
-    D_8009A000[0] = cmd;
+    g_AkaoCmd.opcode = cmd;
     switch (cmd & 0xFFFF) {
     case 0x21:
         nExtra = 3;
@@ -2559,7 +2559,7 @@ void BattleCommandSend(s32 cmdId, ...) {
     }
     count = 1;
     if (count <= nExtra) {
-        dst = (u32*)D_8009A004;
+        dst = (u32*)g_AkaoCmd.params;
         src = (u32*)args + 1;
         for (; count <= nExtra; count++) {
             *dst++ = *src++;

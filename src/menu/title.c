@@ -6,9 +6,9 @@
 extern s32 D_801E2CF4;
 
 static void PlaySfx(u16 soundId) {
-    D_8009A000[0] = 0x30;
-    D_8009A004[0] = soundId;
-    D_8009A008[0] = soundId;
+    g_AkaoCmd.opcode = 0x30;
+    g_AkaoCmd.params[0] = soundId;
+    g_AkaoCmd.params[1] = soundId;
     AkaoExec();
 }
 
@@ -38,19 +38,19 @@ static s32 DoFade(s32 fadeDirection) {
 static void func_801D2D10(s32 arg0) {
     switch (arg0) {
     case 0:
-        D_8009A000[0] = 0x81;
-        D_8009A004[0] = 0x81;
-        D_8009A008[0] = 0x81;
+        g_AkaoCmd.opcode = 0x81;
+        g_AkaoCmd.params[0] = 0x81;
+        g_AkaoCmd.params[1] = 0x81;
         break;
     case 1:
-        D_8009A000[0] = 0x80;
-        D_8009A004[0] = 0x80;
-        D_8009A008[0] = 0x80;
+        g_AkaoCmd.opcode = 0x80;
+        g_AkaoCmd.params[0] = 0x80;
+        g_AkaoCmd.params[1] = 0x80;
         break;
     case 2:
-        D_8009A000[0] = 0x82;
-        D_8009A004[0] = 0x82;
-        D_8009A008[0] = 0x82;
+        g_AkaoCmd.opcode = 0x82;
+        g_AkaoCmd.params[0] = 0x82;
+        g_AkaoCmd.params[1] = 0x82;
         break;
     }
     AkaoExec();

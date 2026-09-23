@@ -758,9 +758,9 @@ void ENDING_Loop(s32 arg0) {
     }
 
 fade_out:
-    D_8009A000[0] = 0xC1;
-    D_8009A004[0] = 0x3C;
-    D_8009A008[0] = 0;
+    g_AkaoCmd.opcode = 0xC1;
+    g_AkaoCmd.params[0] = 0x3C;
+    g_AkaoCmd.params[1] = 0;
     AkaoExec();
     for (col = 0; col < 0xFF; col += 4) {
         D_800AF408 = StartFrame(D_800AF40C);
@@ -1144,17 +1144,17 @@ s32 func_800A22E4(void) {
 }
 
 s32 func_800A2328(void) {
-    D_8009A000[0] = 0x10;
-    D_8009A004[0] = (u32)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
+    g_AkaoCmd.opcode = 0x10;
+    g_AkaoCmd.params[0] = (u32)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
     AkaoExec();
 
     return 1;
 }
 
 s32 func_800A2380(void) {
-    D_8009A000[0] = *D_800A6528++;
-    D_8009A004[0] = *D_800A6528++;
-    D_8009A008[0] = *D_800A6528++;
+    g_AkaoCmd.opcode = *D_800A6528++;
+    g_AkaoCmd.params[0] = *D_800A6528++;
+    g_AkaoCmd.params[1] = *D_800A6528++;
     AkaoExec();
 
     return 1;
