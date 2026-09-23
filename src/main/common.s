@@ -1,4 +1,4 @@
-# Shared .bss block for 0x80062ED0..0x80070800. See SBSS.md for the full story.
+# Shared .bss block for 0x80062ED0..0x8006E11C. See SBSS.md for the full story.
 #
 # One line per COMMON variable: the /* ADDR */ comment is the absolute address,
 # glabel emits the symbol, and .space reserves its size. Addresses are fixed by
@@ -14,15 +14,11 @@
 
 .include "macro.inc"
 
-.section .bss, "wa"
+.section .sbss, "wa"
 .set push
 .set noreorder
 .align 2
 
-/* 80062ED0 */ glabel D_80062ED0;                           .space 0x10
-/* 80062EE0 */ glabel D_80062EE0;                           .space 4   
-/* 80062EE4 */ glabel D_80062EE4;                           .space 0xC
-/* 80062EF0 */ glabel D_80062EF0;                           .space 0x10
 /* 80062F00 */ glabel g_AkaoStreamMask;                           .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062F04 */ glabel D_80062F04;                           .space 4   
 /* 80062F08 */ glabel g_AkaoStreamLoopSize;                    .space 4     # akao.c (AkaoStreamIrqCallback*)   
@@ -192,55 +188,7 @@
 /* 8006E110 */ glabel D_8006E110;                           .space 0x4
 /* 8006E114 */ glabel D_8006E114;                           .space 0x4
 /* 8006E118 */ glabel D_8006E118;                           .space 0x4
-/* 8006E11C */ glabel D_8006E11C;                           .space 0x4
-/* 8006E120 */ glabel D_8006E120;                           .space 0x8
-/* 8006E128 */ glabel D_8006E128;                           .space 0x8
-/* 8006E130 */ glabel D_8006E130;                           .space 0x8
-/* 8006E138 */ glabel D_8006E138;                           .space 0x4
-/* 8006E13C */ glabel D_8006E13C;                           .space 0x4
-/* 8006E140 */ glabel D_8006E140;                           .space 0x4
-/* 8006E144 */ glabel D_8006E144;                           .space 0x1
-/* 8006E145 */ glabel D_8006E145;                           .space 0x1
-/* 8006E146 */ glabel D_8006E146;                           .space 0x2
-/* 8006E148 */ glabel D_8006E148;                           .space 0x4
-/* 8006E14C */ glabel D_8006E14C;                           .space 0x5d4
-/* 8006E720 */ glabel D_8006E720;                           .space 0x24
-/* 8006E744 */ glabel D_8006E744;                           .space 0x4
-/* 8006E748 */ glabel D_8006E748;                           .space 0x4
-/* 8006E74C */ glabel D_8006E74C;                           .space 0x4
-/* 8006E750 */ glabel D_8006E750;                           .space 0x15f4
-/* 8006FD44 */ glabel D_8006FD44;                           .space 0x8c
-/* 8006FDD0 */ glabel D_8006FDD0;                           .space 0x774
-/* 80070544 */ glabel D_80070544;                           .space 0x4
-/* 80070548 */ glabel D_80070548;                           .space 0x4
-/* 8007054C */ glabel D_8007054C;                           .space 0x4
-/* 80070550 */ glabel D_80070550;                           .space 0x4
-/* 80070554 */ glabel D_80070554;                           .space 0x4
-/* 80070558 */ glabel D_80070558;                           .space 0x4
-/* 8007055C */ glabel D_8007055C;                           .space 0x4
-/* 80070560 */ glabel D_80070560;                           .space 0x4
-/* 80070564 */ glabel D_80070564;                           .space 0x4
-/* 80070568 */ glabel D_80070568;                           .space 0x4
-/* 8007056C */ glabel D_8007056C;                           .space 0x4
-/* 80070570 */ glabel D_80070570;                           .space 0x4
-/* 80070574 */ glabel D_80070574;                           .space 0x4
-/* 80070578 */ glabel D_80070578;                           .space 0x4
-/* 8007057C */ glabel D_8007057C;                           .space 0x14
-/* 80070590 */ glabel D_80070590;                           .space 0x100
-/* 80070690 */ glabel D_80070690;                           .space 0x4
-/* 80070694 */ glabel D_80070694;                           .space 0x4
-/* 80070698 */ glabel D_80070698;                           .space 0x4
-/* 8007069C */ glabel D_8007069C;                           .space 0x4
-/* 800706A0 */ glabel D_800706A0;                           .space 0x4
-/* 800706A4 */ glabel D_800706A4;                           .space 0x5c  # 1F6B4.c (func_80024A04)
-/* 80070700 */ glabel D_80070700;                           .space 0x5c  # 1F6B4.c (func_80024A04)
-/* 8007075C */ glabel D_8007075C;                           .space 0x30  # 1F6B4.c (func_80024A04)
-/* 8007078C */ glabel g_EntityToLine;                       .space 0x30
-/* 800707BC */ glabel D_800707BC;                           .space 0x2  # 110B8.c (func_800111E4)
-/* 800707BE */ glabel g_BattleMode;                         .space 0x2  # 110B8.c (func_800111E4)
-/* 800707C0 */ glabel D_800707C0;                           .space 0x4  # 1CDA4.c (SysMenuDrawDialogString); 26B70.c (SysGetSingleStringWidth)
-/* 800707C4 */ glabel D_800707C4;                           .space 0x1  # 144D8.c
-/* 800707C5 */ glabel D_800707C5;                           .space 0x3b
 
 .set pop
+
 

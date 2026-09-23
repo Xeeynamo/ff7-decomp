@@ -309,7 +309,7 @@ def add_splat_config(ovl_name: str, file_name: str):
         add_s_as(
             cfg,
             f"{src_path(cfg)}/common.s",
-            f"{build_path(cfg)}/{asm_path(cfg)}/data/common.bss.s.o",
+            f"{build_path(cfg)}/{asm_path(cfg)}/data/common.sbss.s.o",
         )
     for segment in cfg["segments"]:
         if not "type" in segment:
@@ -337,6 +337,8 @@ def add_splat_config(ovl_name: str, file_name: str):
                 add_s(cfg, f"data/{name}.rodata")
             elif kind == "bss":
                 add_s(cfg, f"data/{name}.bss")
+            elif kind == "sbss":
+                add_s(cfg, f"data/{name}.sbss")
             elif kind == "asm":
                 add_s(cfg, name)
             elif kind == "hasm":

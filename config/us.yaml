@@ -323,7 +323,18 @@ overlays:
       - [0x53654, .sbss, 17238]
       - [0x53694, .sbss, input]
       - [0x536A0, .sbss, 1F6B4]
-      - [0x536D0, bss, common]
+      - [0x536D0, sbss, psxsdk/libgte/patchgte]
+      - [0x536E0, sbss, psxsdk/libcard/patch]
+      - [0x536F0, sbss, psxsdk/libcard/end]
+      - [0x53700, sbss, common]
+      - [0x5E91C, bss, psxsdk/libetc/pad]
+      - [0x5E920, bss, psxsdk/libcd/bios]
+      - [0x5E944, bss, psxsdk/libcd/iso9660]
+      - [0x60D44, bss, psxsdk/libcd/c_004]
+      - [0x60D4C, bss, psxsdk/libcd/c_011]
+      - [0x60D50, bss, psxsdk/libgpu/sys]
+      - [0x60E90, bss, psxsdk/libgpu/tmd]
+      - [0x60EA4, bss]
   - name: batini
     disk_path: disks/us/BATTLE/BATINI.X.dec
     sha1: 2771b06f7249d34ed8a4f8c94e6047f70278e17c
