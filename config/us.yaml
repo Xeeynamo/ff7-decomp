@@ -297,11 +297,18 @@ overlays:
     migrate_rodata_to_functions: false
     vram_start: 0x800A0000
     segments:
-      - [0x0, rodata, chocobo]
+      - [0x0, rodata]
+      - [0x34, rodata]
+      - [0x68, rodata]
+      - [0x294, rodata]
       - [0x2d0, c, chocobo]
       - [0x157C, c, chocobo2]
       - [0xD91C, c, chocobo_model]
-      - [0x11250, data, chocobo]
+      - [0x11250, data]
+      - [0x123EC, .data, chocobo2]
+      - [0x166CC, data]
+      - [0x167B8, .data, chocobo_model]
+      - [0x16BB8, data]
   - name: jet
     disk_path: disks/us/MINI/JET.BIN.dec
     sha1: 46a9f4dd9071786adedc169b0e5463874b1f965a

@@ -10,6 +10,7 @@
 #ifndef FF7_STR
 #define _S(x) x       // check the usage of 'bin/str' to see how this works
 #define _SL(len, x) x // same as _S, but for fixed-length strings with padding
+#define _SF(len, x) x // same as _SL, but pads with 0xFF instead of 0
 #endif
 
 #define NUM_PARTY 3

@@ -242,7 +242,6 @@ extern GpuBuffer* D_800F5074;
 extern GpuBuffer D_800B7A68[2];
 extern Unk800F5078 D_800F5078;
 extern ChocoboModel* D_800F50A0[];
-extern u16 D_800B26CC[];
 extern s32 D_800B7598;
 extern s32 D_800B74F8;
 extern s32 D_800B74FC;
@@ -252,7 +251,6 @@ extern s32 D_800B759C;
 extern s32 D_800F5124;
 extern s32 D_800F5034; // next free entry of GpuBuffer::prims
 extern s32 D_800B745C[3];
-extern char D_800B23EC[][16];
 extern s16 D_800F5028;
 extern s32 D_800B1358;
 extern POLY_F4 D_800B14B4;

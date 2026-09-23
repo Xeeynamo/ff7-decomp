@@ -248,6 +248,82 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A2BD4);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A3308);
 
+// clang-format off
+u8 D_800B23EC[][16] = {
+    _SF(16, "Sprint Shoes"),
+    _SF(16, "Counter"),
+    _SF(16, "Magic Counter"),
+    _SF(16, "Precious Watch"),
+    _SF(16, "Cat's Bell"),
+    _SF(16, "Enemy Away"),
+    _SF(16, "Sneak Attack"),
+    _SF(16, "Chocobracelet"),
+    _SF(16, "Ether"),
+    _SF(16, "Elixir"),
+    _SF(16, "Hero Drink"),
+    _SF(16, "Bolt Plume"),
+    _SF(16, "Fire Fang"),
+    _SF(16, "Antarctic Wind"),
+    _SF(16, "Swift Bolt"),
+    _SF(16, "Fire Veil"),
+    _SF(16, "Ice Crystal"),
+    _SF(16, "Megalixir"),
+    _SF(16, "Turbo Ether"),
+    _SF(16, "Potion"),
+    _SF(16, "Phoenix Down"),
+    _SF(16, "Hyper"),
+    _SF(16, "Tranquilizer"),
+    _SF(16, "Hi-Potion"),
+};
+
+u8 D_800B256C[][8] = {
+    _SF(8, "SAM"),
+    _SF(8, "ELEN"),
+    _SF(8, "BLUES"),
+    _SF(8, "TOM"),
+    _SF(8, "JOHN"),
+    _SF(8, "GARY"),
+    _SF(8, "MIKE"),
+    _SF(8, "SANDY"),
+    _SF(8, "JU"),
+    _SF(8, "LY"),
+    _SF(8, "JOEL"),
+    _SF(8, "GREY"),
+    _SF(8, "EDWARD"),
+    _SF(8, "JAMES"),
+    _SF(8, "HARVEY"),
+    _SF(8, "DAN"),
+    _SF(8, "RUDY"),
+    _SF(8, "GRAHAM"),
+    _SF(8, "FOX"),
+    _SF(8, "CLIVE"),
+    _SF(8, "SEAN"),
+    _SF(8, "YOUNG"),
+    _SF(8, "ROBIN"),
+    _SF(8, "DARIO"),
+    _SF(8, "ARL"),
+    _SF(8, "SARA"),
+    _SF(8, "MARIE"),
+    _SF(8, "SAMMY"),
+    _SF(8, "LIA"),
+    _SF(8, "KNIGHT"),
+    _SF(8, "PAULA"),
+    _SF(8, "PAU"),
+    _SF(8, "LE"),
+    _SF(8, "PETER"),
+    _SF(8, "AIMEE"),
+    _SF(8, "TERRY"),
+    _SF(8, "ANDY"),
+    _SF(8, "NANCY"),
+    _SF(8, "TIM"),
+    _SF(8, "ROBER"),
+    _SF(8, "GEORGE"),
+    _SF(8, "JENNY"),
+    _SF(8, "RICA"),
+    _SF(8, "JULIA"),
+};
+// clang-format on
+
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A34A8);
 
 void func_800A44E4(void) {
@@ -465,6 +541,8 @@ void func_800A8940(s16 node) {
         D_800F5078.track->nodes[node].step = 1;
     }
 }
+
+#include "acos.h"
 
 inline s32 func_800A89A0(s16 x, s16 y) {
     s32 i;
