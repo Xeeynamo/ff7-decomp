@@ -90,7 +90,7 @@ void MINI_Chocobo(void) {
     maxVSync1 = 0;
     D_800B7530.unk8 = 0;
     VSync(2);
-    while (true) {
+    while (1) {
         if (D_800F5040.unk8 > 3000) {
             D_800F5040.fadeSpeed = 0x10;
             g_AkaoCmd.opcode = 0xC1;
