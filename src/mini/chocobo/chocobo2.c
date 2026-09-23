@@ -582,7 +582,168 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800AAC00);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800AAF1C);
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800AB410);
+typedef struct {
+    /* 0x0 */ u8 id;
+    /* 0x1 */ u8 unk1;
+    /* 0x2 */ u8 unk2;
+    /* 0x3 */ u8 unk3;
+} Unk800B7458Entry;
+
+typedef struct {
+    /* 0x0 */ Unk800B7458Entry* entries;
+} Unk800B7458;
+
+typedef struct {
+    /* 0x0 */ s16 unk0;
+    /* 0x2 */ u8 unk2;
+    /* 0x3 */ u8 unk3;
+    /* 0x4 */ u8 unk4;
+    /* 0x5 */ u8 unk5;
+    /* 0x6 */ u8 unk6;
+    /* 0x7 */ u8 unk7;
+} Unk800B7480;
+
+extern Unk800B7458Entry D_800B23C0[];
+extern Unk800B7458Entry D_800B2380[];
+extern Unk800B7458Entry D_800B232C[];
+extern Unk800B7458Entry D_800B22D0[];
+extern Unk800B7458 D_800B7458[1];
+extern Unk800B7480 D_800B7480[5][3];
+extern u8* D_800F502C;
+
+void func_800AB410(void) {
+    s32 ids[16];
+    s32 groups[16];
+    Unk800B7458* table;
+    s32* out;
+    s32 i;
+    s32 j;
+    s32 n;
+    s32 r;
+    s32 x;
+    s32 k;
+    s32 locked;
+    s32 forced;
+    s32 id;
+    s32 swap;
+    Unk800B7458Entry* e;
+
+    switch (D_800F5078.unk20) {
+    case 0:
+        D_800B7458->entries = D_800B23C0;
+        break;
+    case 1:
+        D_800B7458->entries = D_800B2380;
+        break;
+    case 2:
+        D_800B7458->entries = D_800B232C;
+        break;
+    case 3:
+        D_800B7458->entries = D_800B22D0;
+        break;
+    }
+    i = 0;
+    locked = 0;
+    n = *(s32*)D_800B7458->entries;
+    D_800B7458->entries += 1; // skip the s32 count header, same size as one entry
+    D_800B745C[0] = D_800B745C[1] = D_800B745C[2] = -1;
+    forced = -1;
+    table = D_800B7458;
+    out = D_800B745C;
+    while (i != 3) {
+        r = rand() % n;
+        id = table->entries[r].id;
+        if (id == D_800B745C[0] || id == D_800B745C[1] || id == D_800B745C[2]) {
+            continue;
+        }
+        if (table->entries[r].unk1) {
+            if (locked && table->entries[r].unk3) {
+                continue;
+            }
+            if (D_800B747C) {
+                *out++ = id;
+                i++;
+            }
+            if (table->entries[r].unk3) {
+                forced = table->entries[r].id;
+                locked = -1;
+            }
+        } else {
+            e = &table->entries[r];
+            if (locked && e->unk3) {
+                continue;
+            }
+            *out++ = id;
+            i++;
+            if (e->unk3) {
+                forced = e->id;
+                locked = -1;
+            }
+        }
+        if (i >= 3) {
+            break;
+        }
+    }
+
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 2; j++) {
+            if (D_800B745C[j] > D_800B745C[j + 1]) {
+                swap = D_800B745C[j];
+                D_800B745C[j] = D_800B745C[j + 1];
+                D_800B745C[j + 1] = swap;
+            }
+        }
+    }
+
+    if (forced != -1) {
+        if (D_800B745C[0] == forced) {
+            D_800B745C[0] = D_800B745C[2];
+            D_800B745C[2] = forced;
+        } else if (D_800B745C[1] == forced) {
+            D_800B745C[1] = D_800B745C[2];
+            D_800B745C[2] = forced;
+        }
+    }
+
+    for (i = 0; i < 7; i++) {
+        ids[i] = D_800B745C[0];
+        groups[i] = 0;
+    }
+    for (i = 7; i < 12; i++) {
+        ids[i] = D_800B745C[1];
+        groups[i] = 1;
+    }
+    for (i = 12; i < 15; i++) {
+        ids[i] = D_800B745C[2];
+        groups[i] = 2;
+    }
+
+    for (i = 0; i < 100; i++) {
+        x = rand() % 15;
+        j = rand() % 15;
+        swap = ids[x];
+        ids[x] = ids[j];
+        ids[j] = swap;
+        swap = groups[x];
+        groups[x] = groups[j];
+        groups[j] = swap;
+    }
+
+    for (k = 0; k < 3; k++) {
+        for (i = 0; i < 5; i++) {
+            (&D_800B7480[i][k])->unk0 = 0;
+            (&D_800B7480[i][k])->unk2 = 0;
+            (&D_800B7480[i][k])->unk3 = 0;
+            (&D_800B7480[i][k])->unk6 = ids[k * 5 + i];
+            (&D_800B7480[i][k])->unk7 = groups[k * 5 + i];
+            (&D_800B7480[i][k])->unk5 = 2;
+            setlen(&D_800B7A68[0].unk1E368[i][k], 9);
+            setlen(&D_800B7A68[1].unk1E368[i][k], 9);
+        }
+    }
+    D_800F502C = (u8*)&Savemap.gil;
+    D_800B7530.unkC = 0;
+}
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800ABABC);
 

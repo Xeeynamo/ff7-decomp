@@ -122,12 +122,15 @@ typedef struct {
 typedef struct {
     /* 0x00000 */ OT_TYPE ot[0x1000];
     /* 0x04000 */ u8 unk4000[0x10];
-    /* 0x04010 */ POLY_FT4 prims[2507]; // pool indexed by D_800F5034
+    /* 0x04010 */ POLY_FT4 prims[2507];
     /* 0x1C7C8 */ u8 unk1C7C8[0x20];
     /* 0x1C7E8 */ OT_TYPE ot2[4];
     /* 0x1C7F8 */ POLY_G3 polys[250];
     /* 0x1E350 */ TILE bg;
-    /* 0x1E360 */ u8 unk1E360[0x710];
+    /* 0x1E360 */ u8 unk1E360[0x8];
+    /* 0x1E368 */ POLY_FT4 unk1E368[5][3];
+    /* 0x1E5C0 */ POLY_FT4 unk1E5C0[5][3];
+    /* 0x1E818 */ POLY_FT4 unk1E818[5][3];
     /* 0x1EA70 */ DRAWENV draw;
     /* 0x1EACC */ DISPENV disp;
 } GpuBuffer; // size:0x1EAE0
