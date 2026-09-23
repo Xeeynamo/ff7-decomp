@@ -84,7 +84,7 @@ s32 func_800B00DC(ChocoboModel* model, u8* data) {
     x = (data[1] << 8) | data[0];
     y = (data[3] << 8) | data[2];
     z = (data[5] << 8) | data[4];
-    *getScratchAddr(0x80) = data[6];
+    *(u_long*)getScratchAddr(0x80) = data[6];
     for (i = 0; i < n; i++) {
         func_800B01B0(&parts[i], x, y, z);
     }
