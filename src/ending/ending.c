@@ -580,10 +580,10 @@ void ENDING_SceaLoop(void) {
         }
 
         CdControlB(CdlSetloc, (u_char*)&file, NULL);
-        func_80041D28((file.size + 0x7FF) >> 11, (void*)0x80180000, 0x80);
+        CdRead((file.size + 0x7FF) >> 11, (void*)0x80180000, 0x80);
 
         do {
-            res = func_80041E30(1, 0);
+            res = CdReadSync(1, 0);
         } while (res > 0);
     } while (res != 0);
 
@@ -1182,13 +1182,13 @@ static void func_800A2458(void) {
 static void func_800A24A8(void) {
     s32 res;
 
-    while ((res = func_800484A8()) == -1) {
+    while ((res = BreakDraw()) == -1) {
         VSync(0);
     }
 
     if (res != 0) {
         do {
-        } while (func_80048540(1) != 0);
+        } while (IsIdleGPU(1) != 0);
     }
 }
 
@@ -1199,13 +1199,13 @@ static void SetGameResolution(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
 
     y = (h != 480) ? 240 : 0;
 
-    while ((res = func_800484A8()) == -1) {
+    while ((res = BreakDraw()) == -1) {
         VSync(0);
     }
 
     if (res != 0) {
         do {
-        } while (func_80048540(1) != 0);
+        } while (IsIdleGPU(1) != 0);
     }
 
     ResetGraph(1);

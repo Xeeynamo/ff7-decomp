@@ -188,9 +188,9 @@ static s32 ReadDiskNo(void) {
             }
         }
         CdControlB(CdlSetloc, &file.pos.minute, NULL);
-        func_80041D28(1, D_800698F0, 0x80);
+        CdRead(1, D_800698F0, 0x80);
         do {
-            res = func_80041E30(1, 0);
+            res = CdReadSync(1, 0);
         } while (res > 0);
     } while (res != 0);
 

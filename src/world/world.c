@@ -532,14 +532,14 @@ static void func_800A3908(void) {
     s32 ret;
 
     do {
-        ret = func_800484A8();
+        ret = BreakDraw();
         if (ret == -1) {
             VSync(0);
         }
     } while (ret == -1);
     if (ret) {
         do {
-        } while (func_80048540(1));
+        } while (IsIdleGPU(1));
     }
 }
 
