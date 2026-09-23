@@ -4,6 +4,12 @@
 
 #define NUM_CHOCOBO 6
 
+#define ChocoboPrizeTable(name, n, ...)                                                                                \
+    struct {                                                                                                           \
+        s32 count;                                                                                                     \
+        ChocoboPrize prizes[n];                                                                                        \
+    } name = {n, {__VA_ARGS__}}
+
 typedef struct {
     /* 0x0 */ u32 flags; // bit 0 is set once the vertices got scaled
     /* 0x4 */ SVECTOR verts[1];
@@ -120,6 +126,13 @@ typedef struct {
 } Unk800B1254;
 
 typedef struct {
+    /* 0x0 */ u8 strIndex;
+    /* 0x1 */ u8 unk1;
+    /* 0x2 */ u8 unk2;
+    /* 0x3 */ u8 unk3;
+} ChocoboPrize;
+
+typedef struct {
     /* 0x00000 */ OT_TYPE ot[0x1000];
     /* 0x04000 */ u8 unk4000[0x10];
     /* 0x04010 */ POLY_FT4 prims[2507];
@@ -221,6 +234,20 @@ typedef struct {
     /* 0x04 */ u8 unk4[0x18];
     /* 0x1C */ s32 unk1C;
 } Unk800B7A48; // size:0x20
+
+typedef struct {
+    ChocoboPrize* entries;
+} ChocoboPrizePtr;
+
+typedef struct {
+    /* 0x0 */ s16 unk0;
+    /* 0x2 */ u8 unk2;
+    /* 0x3 */ u8 unk3;
+    /* 0x4 */ u8 unk4;
+    /* 0x5 */ u8 unk5;
+    /* 0x6 */ u8 unk6;
+    /* 0x7 */ u8 unk7;
+} Unk800B7480;
 
 extern SVECTOR D_800A0000;
 extern VECTOR D_800A0008;

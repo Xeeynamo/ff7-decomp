@@ -248,6 +248,89 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A2BD4);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A3308);
 
+ChocoboPrizeTable(
+    D_800B22D0, 22, //
+    {18, 1, 5, 0},  // Turbo Ether
+    {10, 0, 5, 0},  // Hero Drink
+    {9, 0, 5, 1},   // Elixir
+    {1, 0, 5, 1},   // Counter
+    {5, 1, 5, 1},   // Enemy Away
+    {6, 1, 5, 1},   // Sneak Attack
+    {14, 1, 5, 0},  // Swift Bolt
+    {15, 1, 5, 0},  // Fire Veil
+    {11, 0, 2, 0},  // Bolt Plume
+    {15, 1, 5, 0},  // Fire Veil
+    {20, 0, 20, 0}, // Phoenix Down
+    {16, 0, 5, 0},  // Ice Crystal
+    {17, 1, 5, 1},  // Megalixir
+    {18, 0, 5, 0},  // Turbo Ether
+    {0, 1, 5, 1},   // Sprint Shoes
+    {14, 0, 5, 0},  // Swift Bolt
+    {4, 1, 5, 1},   // Cat's Bell
+    {9, 0, 5, 1},   // Elixir
+    {7, 1, 5, 1},   // Chocobracelet
+    {16, 1, 5, 0},  // Ice Crystal
+    {3, 1, 5, 1},   // Precious Watch
+    {2, 1, 5, 1}    // Magic Counter
+);
+
+ChocoboPrizeTable(
+    D_800B232C, 20, //
+    {8, 0, 20, 0},  // Ether
+    {10, 0, 10, 0}, // Hero Drink
+    {14, 1, 10, 0}, // Swift Bolt
+    {15, 1, 10, 0}, // Fire Veil
+    {12, 0, 10, 0}, // Fire Fang
+    {16, 1, 10, 0}, // Ice Crystal
+    {1, 0, 10, 1},  // Counter
+    {5, 1, 5, 1},   // Enemy Away
+    {11, 0, 10, 0}, // Bolt Plume
+    {12, 0, 10, 0}, // Fire Fang
+    {13, 0, 10, 0}, // Antarctic Wind
+    {9, 0, 10, 1},  // Elixir
+    {23, 0, 5, 0},  // Hi-Potion
+    {8, 0, 20, 0},  // Ether
+    {0, 1, 7, 1},   // Sprint Shoes
+    {9, 0, 5, 1},   // Elixir
+    {20, 0, 20, 0}, // Phoenix Down
+    {12, 0, 10, 0}, // Fire Fang
+    {4, 1, 7, 1},   // Cat's Bell
+    {6, 1, 7, 1}    // Sneak Attack
+);
+
+ChocoboPrizeTable(
+    D_800B2380, 15, //
+    {8, 0, 30, 0},  // Ether
+    {10, 0, 10, 0}, // Hero Drink
+    {20, 0, 20, 0}, // Phoenix Down
+    {18, 0, 5, 1},  // Turbo Ether
+    {8, 0, 30, 0},  // Ether
+    {23, 0, 5, 0},  // Hi-Potion
+    {21, 0, 10, 0}, // Hyper
+    {22, 0, 10, 0}, // Tranquilizer
+    {23, 0, 5, 0},  // Hi-Potion
+    {11, 0, 10, 1}, // Bolt Plume
+    {12, 0, 10, 0}, // Fire Fang
+    {13, 0, 10, 0}, // Antarctic Wind
+    {9, 0, 10, 1},  // Elixir
+    {5, 1, 5, 1},   // Enemy Away
+    {23, 0, 5, 0}   // Hi-Potion
+);
+
+ChocoboPrizeTable(
+    D_800B23C0, 10, //
+    {23, 0, 5, 1},  // Hi-Potion
+    {8, 0, 20, 1},  // Ether
+    {21, 0, 10, 0}, // Hyper
+    {22, 0, 10, 0}, // Tranquilizer
+    {20, 0, 20, 0}, // Phoenix Down
+    {11, 0, 5, 1},  // Bolt Plume
+    {12, 0, 5, 0},  // Fire Fang
+    {13, 0, 5, 0},  // Antarctic Wind
+    {19, 0, 5, 1},  // Potion
+    {20, 0, 20, 1}  // Phoenix Down
+);
+
 // clang-format off
 u8 D_800B23EC[][16] = {
     _SF(16, "Sprint Shoes"),
@@ -582,101 +665,76 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800AAC00);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800AAF1C);
 
-typedef struct {
-    /* 0x0 */ u8 id;
-    /* 0x1 */ u8 unk1;
-    /* 0x2 */ u8 unk2;
-    /* 0x3 */ u8 unk3;
-} Unk800B7458Entry;
-
-typedef struct {
-    /* 0x0 */ Unk800B7458Entry* entries;
-} Unk800B7458;
-
-typedef struct {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ u8 unk2;
-    /* 0x3 */ u8 unk3;
-    /* 0x4 */ u8 unk4;
-    /* 0x5 */ u8 unk5;
-    /* 0x6 */ u8 unk6;
-    /* 0x7 */ u8 unk7;
-} Unk800B7480;
-
-extern Unk800B7458Entry D_800B23C0[];
-extern Unk800B7458Entry D_800B2380[];
-extern Unk800B7458Entry D_800B232C[];
-extern Unk800B7458Entry D_800B22D0[];
-extern Unk800B7458 D_800B7458[1];
+extern ChocoboPrizePtr D_800B7458[1];
 extern Unk800B7480 D_800B7480[5][3];
 extern u8* D_800F502C;
 
 void func_800AB410(void) {
     s32 ids[16];
     s32 groups[16];
-    Unk800B7458* table;
+    ChocoboPrizePtr* table;
     s32* out;
     s32 i;
     s32 j;
-    s32 n;
-    s32 r;
+    s32 nPrize;
+    s32 prizeIndex;
     s32 x;
     s32 k;
     s32 locked;
-    s32 forced;
+    s32 strIndex;
     s32 id;
     s32 swap;
-    Unk800B7458Entry* e;
+    ChocoboPrize* e;
 
     switch (D_800F5078.unk20) {
     case 0:
-        D_800B7458->entries = D_800B23C0;
+        D_800B7458->entries = (ChocoboPrize*)&D_800B23C0;
         break;
     case 1:
-        D_800B7458->entries = D_800B2380;
+        D_800B7458->entries = (ChocoboPrize*)&D_800B2380;
         break;
     case 2:
-        D_800B7458->entries = D_800B232C;
+        D_800B7458->entries = (ChocoboPrize*)&D_800B232C;
         break;
     case 3:
-        D_800B7458->entries = D_800B22D0;
+        D_800B7458->entries = (ChocoboPrize*)&D_800B22D0;
         break;
     }
     i = 0;
     locked = 0;
-    n = *(s32*)D_800B7458->entries;
-    D_800B7458->entries += 1; // skip the s32 count header, same size as one entry
+    nPrize = *(s32*)D_800B7458->entries;
+    D_800B7458->entries++; // skip the header with the amount of entries
     D_800B745C[0] = D_800B745C[1] = D_800B745C[2] = -1;
-    forced = -1;
+    strIndex = -1;
     table = D_800B7458;
     out = D_800B745C;
     while (i != 3) {
-        r = rand() % n;
-        id = table->entries[r].id;
+        prizeIndex = rand() % nPrize;
+        id = table->entries[prizeIndex].strIndex;
         if (id == D_800B745C[0] || id == D_800B745C[1] || id == D_800B745C[2]) {
             continue;
         }
-        if (table->entries[r].unk1) {
-            if (locked && table->entries[r].unk3) {
+        if (table->entries[prizeIndex].unk1) {
+            if (locked && table->entries[prizeIndex].unk3) {
                 continue;
             }
             if (D_800B747C) {
                 *out++ = id;
                 i++;
             }
-            if (table->entries[r].unk3) {
-                forced = table->entries[r].id;
+            if (table->entries[prizeIndex].unk3) {
+                strIndex = table->entries[prizeIndex].strIndex;
                 locked = -1;
             }
         } else {
-            e = &table->entries[r];
+            e = &table->entries[prizeIndex];
             if (locked && e->unk3) {
                 continue;
             }
             *out++ = id;
             i++;
             if (e->unk3) {
-                forced = e->id;
+                strIndex = e->strIndex;
                 locked = -1;
             }
         }
@@ -695,13 +753,13 @@ void func_800AB410(void) {
         }
     }
 
-    if (forced != -1) {
-        if (D_800B745C[0] == forced) {
+    if (strIndex != -1) {
+        if (D_800B745C[0] == strIndex) {
             D_800B745C[0] = D_800B745C[2];
-            D_800B745C[2] = forced;
-        } else if (D_800B745C[1] == forced) {
+            D_800B745C[2] = strIndex;
+        } else if (D_800B745C[1] == strIndex) {
             D_800B745C[1] = D_800B745C[2];
-            D_800B745C[2] = forced;
+            D_800B745C[2] = strIndex;
         }
     }
 

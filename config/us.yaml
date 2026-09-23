@@ -305,7 +305,7 @@ overlays:
       - [0x157C, c, chocobo2]
       - [0xD91C, c, chocobo_model]
       - [0x11250, data]
-      - [0x123EC, .data, chocobo2]
+      - [0x122D0, .data, chocobo2]
       - [0x166CC, data]
       - [0x167B8, .data, chocobo_model]
       - [0x16BB8, data]
