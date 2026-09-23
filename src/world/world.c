@@ -147,7 +147,7 @@ extern s32 D_800E55F8;
 extern s32 D_800E5640;
 extern s32 D_800E567C;
 
-const char D_800A0000[] = "NEW  ";
+const char str_800A0000[] = "NEW  ";
 static const char D_800A0008[] = "OLD  ";
 static const char D_800A0010[] = "JUMP ";
 static const char D_800A0018[] = "FROM ";

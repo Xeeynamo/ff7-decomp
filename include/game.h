@@ -8,6 +8,13 @@
 #include "bgm.h"
 #include "akao.h"
 
+#ifdef PLATFORM_PSYZ
+#include <psyz.h>
+#include <psyz/log.h>
+#else
+#define INFOF(...) (void)0
+#endif
+
 #ifndef FF7_STR
 #define _S(x) x       // check the usage of 'bin/str' to see how this works
 #define _SL(len, x) x // same as _S, but for fixed-length strings with padding
@@ -1294,6 +1301,14 @@ typedef struct {
     s32 params[6];
 } AkaoCmd;
 
+typedef struct {
+    /* 0x00 */ u8 unk0;
+    /* 0x01 */ u8 unk1;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ u8 unk4[16];
+    /* 0x14 */ u8 unk14;
+} Unk8009D7BC;
+
 extern u8* D_8003623C;
 extern u8* D_80036240;
 extern u16 g_Pad0Keys;
@@ -1416,6 +1431,7 @@ extern SaveWork Savemap;          // 0x8009C6E4
 extern u8 g_DebugLevel;           // field debug related
 extern CharacterLevelData g_CharacterLevelData[3];
 extern u8 D_8009D824;
+extern Unk8009D7BC D_8009D7BC;
 extern s16 g_FieldModelBaseAnimSpeed[16]; // per-model base animation speed
 extern BattleItemReward g_BattleItemsEarned[4];
 extern ActiveCharacterData g_ActiveCharacters[9];

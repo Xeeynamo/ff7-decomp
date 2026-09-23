@@ -3,7 +3,7 @@
 #define INLINE_C_H
 #include <libgte.h>
 
-#ifdef VERSION_PC
+#ifdef PLATFORM_PSYZ
 #include <libgte.h>
 
 // the pc build has no gte, so every macro defined below needs a stand in here or a file

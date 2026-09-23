@@ -1,3 +1,4 @@
+str_800A0000 = 0x800A0000;
 WmSetRenderBuffers = 0x800A0B48;
 WmGetCurrRenderBufferId = 0x800A0BD4;
 AllocPrims = 0x800A0BE4;

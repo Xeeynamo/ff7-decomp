@@ -92,18 +92,6 @@ typedef struct {
     /* 0xA */ u16 clut;
 } EndingFramePart; // size:0xC
 
-#ifdef PLATFORM_PSYZ
-#define ENDING_OUTER_PRODUCT(a, b, out) OuterProduct12(a, b, out)
-#else
-#define ENDING_OUTER_PRODUCT(a, b, out)                                                                                \
-    {                                                                                                                  \
-        gte_ldopv1(a);                                                                                                 \
-        gte_ldopv2(b);                                                                                                 \
-        gte_op12();                                                                                                    \
-        gte_stlvnl(out);                                                                                               \
-    }
-#endif
-
 static s16 script_intro_credits[] = {
     0x0008, 0x0140, 0x00F0, 0x0200, 0x0000, 0x0000, 0x0040, 0x0010, 0x0002, 0x000A, 0x001E, 0x0009, 0x0001, 0x001A,
     0x00C0, 0x007F, 0x0000, 0x0001, 0x0002, 0x0003, 0x0014, 0x0005, 0x0015, 0x0015, 0x0000, 0xA001, 0x0016, 0x0000,
@@ -1553,10 +1541,16 @@ static void EndingLookAt(MATRIX* m, SVECTOR* eye, SVECTOR* target, VECTOR* up) {
         z.vz++;
     }
 
-    ENDING_OUTER_PRODUCT(&z, up, &d);
+    gte_ldopv1(&z);
+    gte_ldopv2(up);
+    gte_op12();
+    gte_stlvnl(&d);
     VectorNormal(&d, &x);
 
-    ENDING_OUTER_PRODUCT(&z, &x, &d);
+    gte_ldopv1(&z);
+    gte_ldopv2(&x);
+    gte_op12();
+    gte_stlvnl(&d);
     VectorNormal(&d, &y);
 
     m->m[0][0] = x.vx;
@@ -1593,10 +1587,16 @@ static void EndingLookAtNoNegate(MATRIX* m, SVECTOR* eye, SVECTOR* target, VECTO
         z.vz++;
     }
 
-    ENDING_OUTER_PRODUCT(&z, up, &d);
+    gte_ldopv1(&z);
+    gte_ldopv2(up);
+    gte_op12();
+    gte_stlvnl(&d);
     VectorNormal(&d, &x);
 
-    ENDING_OUTER_PRODUCT(&z, &x, &d);
+    gte_ldopv1(&z);
+    gte_ldopv2(&x);
+    gte_op12();
+    gte_stlvnl(&d);
     VectorNormal(&d, &y);
 
     m->m[0][0] = x.vx;

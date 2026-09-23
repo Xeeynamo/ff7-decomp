@@ -5,7 +5,7 @@
 #include <psxsdk/inline_c.h>
 #include "chocobo_private.h"
 
-#ifndef VERSION_PC
+#ifndef PLATFORM_PSYZ
 // macros from SEMINAR/ADVANCED/SOURCE/GRAPHICS/GTE/PROGRAM/MAINRDIV.C
 #define SetSpadStack(addr)                                                                                             \
     {                                                                                                                  \

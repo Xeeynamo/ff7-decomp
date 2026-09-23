@@ -102,7 +102,10 @@ void SysCdromInit(void) {
     D_80071A60 = CDOP_IDLE;
     CdSetDebug(0);
     func_80034F3C();
+#ifndef PLATFORM_PSYZ
+    // BUG: CdControlB will read at ptr CdlModeSpeed, not the intended value!
     CdControlB(CdlSetmode, (u8*)CdlModeSpeed, NULL);
+#endif
     VSync(3);
     D_80071A64 = ReadDiskNo();
     SysMovieLoadMovieSettings();
@@ -303,7 +306,10 @@ s32 func_80034150(void) {
         if (result[1] & 0x40) {
             return 1;
         }
+#ifndef PLATFORM_PSYZ
+        // BUG: same as SysCdromInit, the mode is passed as a pointer
         CdControlB(CdlSetmode, (u8*)CdlModeSpeed, result);
+#endif
         VSync(3);
         D_80071A60 = CDOP_IDLE;
         D_80071A64 = ReadDiskNo();
@@ -330,12 +336,19 @@ static s32 ReadDiskNo(void) {
     do {
     } while (SystemCdromReadChain());
     do {
+#ifdef PLATFORM_PSYZ
+        // a 64-bit pointer does not fit in fd
+        if (CdSearchFile(&file, "\\MINT\\DISKINFO.CNF;1") == NULL) {
+            return -1;
+        }
+#else
         fd = (s32)CdSearchFile(&file, "\\MINT\\DISKINFO.CNF;1");
         if (fd <= 0) {
             if (fd >= -1) {
                 return -1;
             }
         }
+#endif
         CdControlB(CdlSetloc, &file.pos.minute, NULL);
         CdRead(1, D_800698F0, 0x80);
         do {
@@ -542,7 +555,12 @@ static void CdOpLzsReadWait(void) {
             *op = CDOP_COMPLETE;
             return;
         }
+#ifdef PLATFORM_PSYZ
+        // globals are not laid out in address order on PC
+        CdIntToPos(*sector, &D_80071A68);
+#else
         CdIntToPos(*sector, (CdlLOC*)(op + 2));
+#endif
         *op = CDOP_LZS_SEEK;
         break;
     case -1:

@@ -1255,7 +1255,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicCopyChannelsAndConfig);
 // Copies the sequence to the staging buffer, restores audio channels and config from backup
 // if musicId matches backup slot 0 or 1, otherwise initializes fresh music audio channels.
 void AkaoCmd_10_PlayMusic(AkaoQueuedCommand* cmd) {
-    AkaoCopyMusic((s32*)cmd->param0, cmd->param1);
+    AkaoCopyMusic((s32*)(u_long)(u32)cmd->param0, cmd->param1);
     if (g_AkaoMusicId == BGM_TA) { // Final Fantasy VII Main Theme (World Map)
         AkaoMusicSyncKeyStatus();
         AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels1, (AkaoChannelConfig*)&g_Channel1Config,
@@ -1278,7 +1278,7 @@ void AkaoCmd_10_PlayMusic(AkaoQueuedCommand* cmd) {
 void AkaoCmd_14_PlayMusicSaveCurrent(AkaoQueuedCommand* cmd) {
     AkaoChannelConfig* channelConfig;
 
-    AkaoCopyMusic((s32*)cmd->param0, cmd->param1);
+    AkaoCopyMusic((s32*)(u_long)(u32)cmd->param0, cmd->param1);
     AkaoMusicSyncKeyStatus();
     channelConfig = (AkaoChannelConfig*)&g_Channel1Config;
     if (g_AkaoMusicId) {
@@ -2193,7 +2193,7 @@ s32 AkaoExec(void) {
     case AKAO_PLAY_MUSIC_SWAP_SAVED:
     case AKAO_FADE_PLAY_MUSIC:
     case AKAO_FADE_PLAY_MUSIC_SAVE_CURR:
-        data = (u8*)g_AkaoCmd.params[0];
+        data = (u8*)(u_long)(u32)g_AkaoCmd.params[0];
         if (data[0] == 'A' && data[1] == 'K' && data[2] == 'A' && data[3] == 'O') {
             data += 4;
             musicId = *(u16*)data;

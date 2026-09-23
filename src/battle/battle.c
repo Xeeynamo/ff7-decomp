@@ -2348,7 +2348,9 @@ void BattleLowerFunc0a(void) {
 }
 
 // White Wind "damage" formula. Restores HP equal to caster's HP to all allies.
-void func_800ADFC0(void) { g_CurrentAction->tmpDamage = *(u16*)(&g_BattleWork.turn[g_CurrentAction->actorId].prevHP); }
+void func_battle_800ADFC0(void) {
+    g_CurrentAction->tmpDamage = *(u16*)(&g_BattleWork.turn[g_CurrentAction->actorId].prevHP);
+}
 
 void BattleSetTmpDmgAsMaxHpMinusCurrentHp(void) {
     s32 index = g_CurrentAction->actorId;
@@ -2585,7 +2587,7 @@ void BattleRestoreBattleActionIfCan(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 void BattleQueueEvent(s32, s32, s32, s32);
-void func_800AF1A8(s32 arg0) { BattleQueueEvent(0, arg0, 8, 0); }
+void func_battle_800AF1A8(s32 arg0) { BattleQueueEvent(0, arg0, 8, 0); }
 
 void BattleRestoreBattleActionIfCan(s32, s32, s32);
 

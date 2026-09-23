@@ -1,6 +1,11 @@
 //! PSYQ=3.3 G=0
 #include "main_private.h"
 #include "unzip.h"
+
+#ifdef PLATFORM_PSYZ
+#define main GameMain
+#endif
+
 static Yamada yama_sound_instr_all = {LBA_SOUND_INSTR_ALL, 483232};
 static Yamada yama_sound_effect = {LBA_SOUND_EFFECT, 51200};
 static Yamada yama_sound_instr_dat = {LBA_SOUND_INSTR_DAT, 8192};
@@ -174,7 +179,6 @@ static void SysInitDispenvDrawenv(void) {
 void FIELD_Main(void);
 void FIELD_Init(void);
 static void HandleField(void) {
-#ifndef VERSION_PC
     if (g_PrevGameState != GAMESTATE_MENU && g_PrevGameState != GAMESTATE_MENU_COMMANND) {
         if (g_PrevGameState != GAMESTATE_BATTLE) {
             SystemLoadFileBySector(yama_field_field.loc, yama_field_field.len, (u_long*)0x80180000, NULL);
@@ -193,7 +197,6 @@ static void HandleField(void) {
             SysGzipBinDecompress((GzHeader*)0x801C0000, (u8*)0x800A0000);
         }
     }
-#endif
     FIELD_Init();
     FIELD_Main();
 }
@@ -280,7 +283,9 @@ void main(void) {
     SysInitBase();
     SysCdromInit();
     SysCdromLoadFile(yama_field_ending.loc, yama_field_ending.len, (u_long*)0x800A0000, NULL);
+#ifndef PLATFORM_PSYZ
     ENDING_SceaLoop();
+#endif
     func_800148B4();
     while (1) {
         g_FieldState.battleMode2 = 0;
