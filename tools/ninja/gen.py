@@ -153,6 +153,11 @@ def parse_compiler_params(line: str) -> CompilerParams:
                 c.cc_opt = f"-O{n}"
             except ValueError:
                 raise Exception(f"{key} value {value} is not a valid integer")
+        elif key == "FORCE_MEM":
+            if value == "true":
+                c.cc_opt += " -fforce-mem"
+            elif value != "false":
+                raise Exception(f"{key} value {value} is not a valid boolean")
         elif key == "g":
             if value == "true":
                 c.g_opt = "-g"
