@@ -1,9 +1,12 @@
+// clang-format off
 #ifndef INLINE_C_H
 #define INLINE_C_H
-
 #include <libgte.h>
 
-#ifndef VERSION_PC
+#ifdef VERSION_PC
+#include <libgte.h>
+#else
+
 /*
  * Type 1 functions
  */
@@ -176,29 +179,6 @@
 	:							\
 	: "r"( r0 )						\
 	: "memory" )
-#else
-#define gte_ldv0( r0 )
-#define gte_ldv3( r0, r1, r2 )
-#define gte_ldv3c( r0 )
-#define gte_SetGeomScreen( r0 )
-#define gte_SetRotMatrix( r0 )
-#define gte_SetTransMatrix( r0 )
-#define gte_rtps()
-#define gte_rtpt()
-#define gte_rt()
-#define gte_rtv0()
-#define gte_nclip()
-#define gte_stsxy( r0 )
-#define gte_stsxy3( r0, r1, r2 )
-#define gte_stsxy3_g3( r0 )
-#define gte_stsxy2( r0 )
-#define gte_stsz( r0 )
-#define gte_stsz3( r0, r1, r2 )
-#define gte_stszotz( r0 )
-#define gte_stflg( r0 )
-#define gte_readflg( r0 ) ((r0) = 0)
-#define gte_stopz( r0 )
-#define gte_stlvnl( r0 )
 #endif
 
 #endif
