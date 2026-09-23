@@ -85,7 +85,7 @@ typedef struct JetNode {
 // The behaviour state an object's type handler drives.
 typedef struct {
     /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
+    /* 0x04 */ s32 hit;
     /* 0x08 */ s32 unk8;
     /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
@@ -127,10 +127,12 @@ typedef struct {
     /* 0xC */ JetModel* model;
 } Unk800A8604; // size: 0x10
 
+// A doubly-linked draw-list entry, parallel to the array it orders. Both
+// links are indices into that array, with 0xFFFF for the ends.
 typedef struct {
-    /* 0x0 */ u16 unk0;
-    /* 0x2 */ u16 unk2;
-} Unk800E2608; // size: 0x4
+    /* 0x0 */ u16 prev;
+    /* 0x2 */ u16 next;
+} JetListLink; // size: 0x4
 
 extern s32 g_JetLeftPlaneNormalX;
 extern s32 g_JetLeftPlaneNormalY;
@@ -167,31 +169,30 @@ extern JetNode g_JetRootNode;
 extern JetNode g_JetNodeListHeads[10];
 extern JetNode g_JetNodeListTails[10];
 
-extern u16 D_800A8990[]; // sprite tpage table
-extern s16 D_800A89CC;
-extern u16 D_800A89DC;
-extern u16 D_800A8A60;
+extern u16 g_JetSpriteTPage[];
+extern s16 g_JetPopupTimer;
+extern u16 g_JetTrackListHead;
+extern u16 g_JetTriangleListHead;
 extern JetNode* D_800A8A74[1];
-extern s16 D_800A8A88;
-extern MATRIX* D_800D1728; // view matrix
-extern MATRIX* D_800D1BD0; // world matrix
-extern u8 D_800D1C4C;
-extern SVECTOR* D_800D1C58;
-extern u16 D_800D1C78;
-extern Unk800E2608 D_800D9948[];
+extern s16 g_JetPopupModelId;
+extern MATRIX* g_JetViewMatrix;
+extern MATRIX* g_JetWorldMatrix;
+extern u8 g_JetFiring;
+extern SVECTOR* g_JetTrackLeft;
+extern u16 g_JetTriangleListCount;
+extern JetListLink g_JetTrackLinks[];
 extern u8 D_800E25E8;
-extern u16 D_800E25EC;
-extern u16 D_800E25F0;
-extern Unk800E2608 D_800E2608;
-extern SVECTOR D_800EE18C;
-extern SVECTOR* D_800EE194;
-extern u16 D_800EE198[];  // sprite clut table
-extern MATRIX D_800EE404; // camera rotation
-extern SVECTOR* D_800EE424;
+extern s16 g_JetCursorX;
+extern s16 g_JetCursorY;
+extern JetListLink g_JetTriangleLinks;
+extern SVECTOR g_JetPopupRot;
+extern SVECTOR* g_JetTrackRight;
+extern u16 g_JetSpriteClut[];
+extern MATRIX g_JetCameraRot;
+extern SVECTOR* g_JetTrackRot;
 extern s16 g_JetPopupPoints;
 extern u16 g_JetShotPower;
 
-// .data in ROM order, the sector and size pairs feeding func_800A2420's loads.
 s32 D_800A8310 = 0x9D8;
 u32 D_800A8314 = 0x28;
 s32 D_800A8318 = 0x9D9;
@@ -208,7 +209,7 @@ MATRIX D_800A8340 = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}
 MATRIX D_800A8360 = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}};
 MATRIX D_800A8380 = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}};
 SVECTOR D_800A83A0 = {0, 0, 0, 0}; // world rotation
-VECTOR D_800A83A8 = {0, 0, 0, 0};
+VECTOR g_JetCameraPos = {0, 0, 0, 0};
 VECTOR D_800A83B8 = {0, 0, 0, 0};
 VECTOR D_800A83C8 = {0, 0, 0, 0};
 VECTOR D_800A83D8 = {0, 0, 0, 0};
@@ -249,7 +250,7 @@ void func_800A0874(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, Unk800A4
     s16 maxY;
     s16 i;
 
-    world = &D_800D1BD0;
+    world = &g_JetWorldMatrix;
     m = world[0];
     m->m[0][0] = node->m.m[0][0];
     m->m[0][1] = node->m.m[0][1];
@@ -267,10 +268,10 @@ void func_800A0874(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, Unk800A4
         CompMatrix(&node->parent->m, m, m);
     }
     wm = world[0];
-    wm->t[0] -= D_800A83A8.vx;
-    wm->t[1] -= D_800A83A8.vy;
-    wm->t[2] -= D_800A83A8.vz;
-    cam = &D_800EE404;
+    wm->t[0] -= g_JetCameraPos.vx;
+    wm->t[1] -= g_JetCameraPos.vy;
+    wm->t[2] -= g_JetCameraPos.vz;
+    cam = &g_JetCameraRot;
     gte_SetRotMatrix(cam);
     gte_ldclmv(&world[0]->m[0][0]);
     gte_rtir();
@@ -293,6 +294,8 @@ void func_800A0874(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, Unk800A4
     args.model = node->model;
     db->prims.g3Cursor = JetDrawModelTris(&args);
     JetProject6Points(obj->unkDC, obj->unk11C);
+    // Both reads have to stay: -fforce-mem is what keeps the second one a
+    // word load instead of letting gcc narrow it to lhu.
     ys[0] = obj->unk11C[0] >> 16;
     minY = ys[0];
     maxY = minY;
@@ -315,24 +318,23 @@ void func_800A0874(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, Unk800A4
             maxY = ys[i];
         }
     }
-    if (JetVectorInsidePlanes((VECTOR*)&D_800D1BD0->t[0])) {
-        obj->unk28.unk4 = 0;
-        if ((s16)D_800E25EC < maxX && minX < (s16)D_800E25EC && (s16)D_800E25F0 < maxY && minY < (s16)D_800E25F0 &&
-            D_800D1C4C == 1) {
-            obj->unk28.unk4 = D_800D1C4C;
+    if (JetVectorInsidePlanes((VECTOR*)g_JetWorldMatrix->t)) {
+        obj->unk28.hit = 0;
+        if (g_JetCursorX < maxX && minX < g_JetCursorX && g_JetCursorY < maxY && minY < g_JetCursorY &&
+            g_JetFiring == 1) {
+            obj->unk28.hit = g_JetFiring;
         }
     }
 }
 
 INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A0D78);
 
-// Load a node's matrix into the GTE and draw its model's triangles.
 void JetDrawNodeUI(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, s32 arg4) {
     Unk800A8604 args;
     MATRIX** world;
     MATRIX* m;
 
-    world = &D_800D1BD0;
+    world = &g_JetWorldMatrix;
     m = world[0];
     m->m[0][0] = node->m.m[0][0];
     m->m[0][1] = node->m.m[0][1];
@@ -355,64 +357,61 @@ void JetDrawNodeUI(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, s32 arg4
     db->prims.g3Cursor = JetDrawModelTrisUI(&args);
 }
 
-// Draw every background triangle on the draw list, front to back.
-void func_800A12EC(void) {
-    Unk800E2608* list;
+void JetDrawTriangleList(void) {
+    JetListLink* list;
     JetTriangle* tris;
     u16 triId;
     POLY_G3* prim;
 
     prim = g_JetBufferPtr[0]->prims.g3Cursor;
     tris = g_JetTrianglesBase;
-    if (D_800D1C78) {
-        triId = D_800A8A60;
-        list = &D_800E2608;
+    if (g_JetTriangleListCount) {
+        triId = g_JetTriangleListHead;
+        list = &g_JetTriangleLinks;
         do {
             prim = JetDrawTriangle(&tris[triId], prim, g_JetBufferPtr[0]->ot, &tris[triId]);
-            triId = list[triId].unk2;
+            triId = list[triId].next;
         } while (triId != 0xFFFF);
     }
     g_JetBufferPtr[0]->prims.g3Cursor = prim;
 }
 
-// Draw every track element on the draw list, front to back.
 void JetDrawTrack(void) {
-    Unk800E2608* list;
+    JetListLink* list;
     SVECTOR* left;
     SVECTOR* right;
     u16 trackId;
     POLY_FT4* prim;
 
-    trackId = D_800A89DC;
+    trackId = g_JetTrackListHead;
     prim = g_JetBufferPtr[0]->prims.ft4Cursor;
-    list = D_800D9948;
-// A loop keyword makes gcc duplicate the exit test, so the goto is load-bearing.
+    list = g_JetTrackLinks;
+// A loop keyword hoists the 0xFFFF test into a register; the goto keeps it inline.
 loop:
-    left = D_800D1C58;
-    right = D_800EE194;
+    left = g_JetTrackLeft;
+    right = g_JetTrackRight;
     prim = JetDrawTrackQuad(&left[trackId], prim, g_JetBufferPtr[0]->ot, &right[trackId]);
-    trackId = list[trackId].unk2;
+    trackId = list[trackId].next;
     if (trackId != 0xFFFF) {
         goto loop;
     }
     g_JetBufferPtr[0]->prims.ft4Cursor = prim;
 }
 
-// Build the world matrix from the camera rotation and the view position.
 void JetSetWorldMatrix(void) {
     MATRIX** view;
     MATRIX** world;
     MATRIX* cam;
 
-    view = &D_800D1728;
-    view[0]->t[0] = -D_800A83A8.vx;
-    view[0]->t[1] = -D_800A83A8.vy;
-    view[0]->t[2] = -D_800A83A8.vz;
-    cam = &D_800EE404;
+    view = &g_JetViewMatrix;
+    view[0]->t[0] = -g_JetCameraPos.vx;
+    view[0]->t[1] = -g_JetCameraPos.vy;
+    view[0]->t[2] = -g_JetCameraPos.vz;
+    cam = &g_JetCameraRot;
     gte_SetRotMatrix(cam);
     gte_ldclmv(&view[0]->m[0][0]);
     gte_rtir();
-    world = &D_800D1BD0;
+    world = &g_JetWorldMatrix;
     gte_stclmv(&world[0]->m[0][0]);
     gte_ldclmv(&view[0]->m[0][1]);
     gte_rtir();
@@ -456,8 +455,8 @@ void JetTrackSample(u32 at, s32 lift, VECTOR* pos, SVECTOR* rot) {
 
     seg = at >> 16;
     frac = at & 0xFFFF;
-    rotCur = &D_800EE424[seg];
-    rotNext = &D_800EE424[seg + 1];
+    rotCur = &g_JetTrackRot[seg];
+    rotNext = &g_JetTrackRot[seg + 1];
     dx = rotNext->vx - rotCur->vx;
     dy = rotCur->vy - rotNext->vy;
     dz = rotNext->vz - rotCur->vz;
@@ -486,14 +485,14 @@ void JetTrackSample(u32 at, s32 lift, VECTOR* pos, SVECTOR* rot) {
     dy >>= 16;
     dz >>= 16;
 
-    leftCur = &D_800D1C58[seg];
-    leftNext = &D_800D1C58[seg + 1];
+    leftCur = &g_JetTrackLeft[seg];
+    leftNext = &g_JetTrackLeft[seg + 1];
     dLeft.vx = (leftNext->vx - leftCur->vx) * frac;
     dLeft.vy = (leftNext->vy - leftCur->vy) * frac;
     dLeft.vz = (leftNext->vz - leftCur->vz) * frac;
 
-    rightCur = &D_800EE194[seg];
-    rightNext = &D_800EE194[seg + 1];
+    rightCur = &g_JetTrackRight[seg];
+    rightNext = &g_JetTrackRight[seg + 1];
     left.vx = leftCur->vx + (dLeft.vx >> 16);
     left.vy = leftCur->vy + (dLeft.vy >> 16);
     left.vz = leftCur->vz + (dLeft.vz >> 16);
@@ -572,15 +571,15 @@ void JetDrawScorePopup(JetBuffer* arg0, s16 arg1, s32 arg2, s32 arg3, s32 arg4) 
     index = 0;
     node = D_800A8A74[index];
     node->model = g_JetModelTable[arg1];
-    D_800EE18C.vx += arg2;
-    D_800EE18C.vy += arg3;
-    D_800EE18C.vz += arg4;
+    g_JetPopupRot.vx += arg2;
+    g_JetPopupRot.vy += arg3;
+    g_JetPopupRot.vz += arg4;
     if (alternate[0] == 1) {
-        RotMatrix(&D_800EE18C, &D_800A8A74[index]->m);
+        RotMatrix(&g_JetPopupRot, &D_800A8A74[index]->m);
         JetDrawNodeUI(arg0, D_800A8A74[index], 0, 0, unused);
         func_800A1CD8(g_JetPopupPoints, 0xDC, 0xA0, 0, 0x18);
     }
-    counter = &D_800A89CC;
+    counter = &g_JetPopupTimer;
     (*counter)--;
     if (*counter < 0x32) {
         if (alternate[0] == 0) {
@@ -589,14 +588,13 @@ void JetDrawScorePopup(JetBuffer* arg0, s16 arg1, s32 arg2, s32 arg3, s32 arg4) 
             alternate[0] = 0;
         }
     }
-    if (D_800A89CC == 0) {
-        D_800A8A88 = 0;
+    if (g_JetPopupTimer == 0) {
+        g_JetPopupModelId = 0;
     }
 }
 
 INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A1CD8);
 
-// Draw one sprite from the HUD sprite table.
 void JetDrawSprite(s16 spriteId, s16 x, s16 y, s16 w, s16 h, u8 u, u8 v, u8 uw, u8 vh, u8 semiTrans) {
     JetBuffer** db;
     POLY_FT4* poly;
@@ -606,8 +604,8 @@ void JetDrawSprite(s16 spriteId, s16 x, s16 y, s16 w, s16 h, u8 u, u8 v, u8 uw, 
     setXYWH(poly, x, y, w, h);
     setRGB0(poly, 0x80, 0x80, 0x80);
     setUVWH(poly, u, v, uw, vh);
-    poly->tpage = D_800A8990[spriteId];
-    poly->clut = D_800EE198[spriteId];
+    poly->tpage = g_JetSpriteTPage[spriteId];
+    poly->clut = g_JetSpriteClut[spriteId];
     SetSemiTrans(poly, semiTrans);
     addPrim(&db[0]->ot2[1], poly);
     poly++;
@@ -624,16 +622,16 @@ void func_800A2058(void) {
     setXY4(poly, 0, 0, 0, 0, 0, 0, 0, 0);
     setRGB0(poly, 0x80, 0x80, 0x80);
     setUV4(poly, 0, 0, 0, 0, 0, 0, 0, 0);
-    poly->tpage = D_800A8990[5];
-    poly->clut = D_800EE198[5];
+    poly->tpage = g_JetSpriteTPage[5];
+    poly->clut = g_JetSpriteClut[5];
     SetSemiTrans(poly, 0);
     addPrim(&db[0]->ot[0xFFF], poly);
     poly++;
     setXY4(poly, 0, 0, 0, 0, 0, 0, 0, 0);
     setRGB0(poly, 0x80, 0x80, 0x80);
     setUV4(poly, 0, 0, 0, 0, 0, 0, 0, 0);
-    poly->tpage = D_800A8990[5];
-    poly->clut = D_800EE198[5];
+    poly->tpage = g_JetSpriteTPage[5];
+    poly->clut = g_JetSpriteClut[5];
     SetSemiTrans(poly, 0);
     addPrim(&db[0]->ot[2], poly);
     poly++;
@@ -868,18 +866,18 @@ s32 JetSphereInsidePlanes(VECTOR* center, s16 radius) {
 }
 
 s32 JetSphereInsideLeftPlane(s32 x, s32 y, s32 z, s16 radius) {
-    s32 a;
-    s32 b;
-    s32 c;
+    s32 nx;
+    s32 ny;
+    s32 nz;
     s32 hs;
     s32 ok;
     s32 len;
 
-    a = g_JetLeftPlaneNormalX;
-    b = g_JetLeftPlaneNormalY;
-    c = g_JetLeftPlaneNormalZ;
+    nx = g_JetLeftPlaneNormalX;
+    ny = g_JetLeftPlaneNormalY;
+    nz = g_JetLeftPlaneNormalZ;
     ok = 0;
-    hs = (a * (x >> 2)) + (b * (y >> 2)) + (c * (z >> 2)) + g_JetLeftPlaneDistance;
+    hs = (nx * (x >> 2)) + (ny * (y >> 2)) + (nz * (z >> 2)) + g_JetLeftPlaneDistance;
     if (D_800A8950 > 0 && hs >= 0) {
         ok = 1;
     }
@@ -899,18 +897,18 @@ s32 JetSphereInsideLeftPlane(s32 x, s32 y, s32 z, s16 radius) {
 }
 
 s32 JetSphereInsideRightPlane(s32 x, s32 y, s32 z, s16 radius) {
-    s32 a;
-    s32 b;
-    s32 c;
+    s32 nx;
+    s32 ny;
+    s32 nz;
     s32 hs;
     s32 ok;
     s32 len;
 
-    a = g_JetRightPlaneNormalX;
-    b = g_JetRightPlaneNormalY;
-    c = g_JetRightPlaneNormalZ;
+    nx = g_JetRightPlaneNormalX;
+    ny = g_JetRightPlaneNormalY;
+    nz = g_JetRightPlaneNormalZ;
     ok = 0;
-    hs = (a * (x >> 2)) + (b * (y >> 2)) + (c * (z >> 2)) + g_JetRightPlaneDistance;
+    hs = (nx * (x >> 2)) + (ny * (y >> 2)) + (nz * (z >> 2)) + g_JetRightPlaneDistance;
     if (D_800A8968 > 0 && hs >= 0) {
         ok = 1;
     }
@@ -997,7 +995,7 @@ JetQuad* JetQuadsAlloc(s32 count) {
 }
 
 void JetBuffersInit(void) {
-    JetPrimBuffer* temp_s1;
+    JetPrimBuffer* prims;
     JetBuffer* db;
     u_char* isbg;
 
@@ -1017,10 +1015,10 @@ void JetBuffersInit(void) {
     SetDispMask(1);
     SetBackColor(0x80, 0x80, 0x80);
     SetFarColor(0, 0, 8);
-    temp_s1 = &g_JetBuffers[0].prims;
-    JetPrimsInit(temp_s1);
+    prims = &g_JetBuffers[0].prims;
+    JetPrimsInit(prims);
     JetPrimsInit(&g_JetBuffers[1].prims);
-    JetPrimCursorsReset(temp_s1);
+    JetPrimCursorsReset(prims);
     JetPrimCursorsReset(&g_JetBuffers[1].prims);
     ClearOTagR(g_JetBuffers[0].ot, LEN(g_JetBuffers[0].ot));
     ClearOTagR(g_JetBuffers[1].ot, LEN(g_JetBuffers[1].ot));
@@ -1080,8 +1078,8 @@ void JetPrimCursorsReset(JetPrimBuffer* prims) {
 }
 
 void JetNodesInit(void) {
-    JetNode* a;
-    JetNode* b;
+    JetNode* head;
+    JetNode* tail;
     s32 i;
 
     JetNodeInit(&g_JetRootNode, 0);
@@ -1091,12 +1089,12 @@ void JetNodesInit(void) {
         g_JetNodeFreeList[i] = i + 1;
     }
     for (i = 0; i < LEN(g_JetNodeListHeads); i++) {
-        a = &g_JetNodeListHeads[i];
-        b = &g_JetNodeListTails[i];
-        a->prev = NULL;
-        a->next = b;
-        b->prev = a;
-        b->next = NULL;
+        head = &g_JetNodeListHeads[i];
+        tail = &g_JetNodeListTails[i];
+        head->prev = NULL;
+        head->next = tail;
+        tail->prev = head;
+        tail->next = NULL;
     }
 }
 
@@ -1121,24 +1119,24 @@ void JetNodeInit(JetNode* node, s16 index) {
 
 JetNode* JetNodeAlloc(
     s16 modelId, s32 arg1, s32 arg2, s32 arg3, JetNode* parent, s32 x, s32 y, s32 z, s16 rotX, s16 rotY, s16 rotZ) {
-    SVECTOR sp10;
-    JetNode* temp_s0;
-    JetNode* temp_v1;
-    s16 temp_v0;
+    SVECTOR rot;
+    JetNode* node;
+    JetNode* pool;
+    s16 index;
 
-    temp_v0 = JetNodeIndexAlloc();
-    temp_v1 = g_JetNodePool;
-    temp_s0 = &temp_v1[temp_v0];
-    JetNodeLink(temp_s0, parent);
-    temp_s0->model = g_JetModelTable[modelId];
-    temp_s0->modelId = modelId;
-    temp_s0->index = temp_v0;
-    setVector(&sp10, rotX, rotY, rotZ);
-    RotMatrix(&sp10, &temp_s0->m);
-    temp_s0->m.t[0] = x;
-    temp_s0->m.t[1] = y;
-    temp_s0->m.t[2] = z;
-    return temp_s0;
+    index = JetNodeIndexAlloc();
+    pool = g_JetNodePool;
+    node = &pool[index];
+    JetNodeLink(node, parent);
+    node->model = g_JetModelTable[modelId];
+    node->modelId = modelId;
+    node->index = index;
+    setVector(&rot, rotX, rotY, rotZ);
+    RotMatrix(&rot, &node->m);
+    node->m.t[0] = x;
+    node->m.t[1] = y;
+    node->m.t[2] = z;
+    return node;
 }
 
 void JetNodeFree(JetNode* node) {
@@ -1158,29 +1156,29 @@ s16 JetNodeIndexAlloc(void) {
 }
 
 void JetNodeIndexFree(s16 index) {
-    s16* temp;
-    s16* temp2;
+    s16* head;
+    s16* slot;
 
-    temp2 = &g_JetNodeFreeList[index];
-    temp = &g_JetNextFreeNode;
-    *temp2 = *temp;
-    *temp = index;
+    slot = &g_JetNodeFreeList[index];
+    head = &g_JetNextFreeNode;
+    *slot = *head;
+    *head = index;
 }
 
 void JetNodeLink(JetNode* node, JetNode* parent) {
-    JetNode* temp_v0_2;
-    JetNode* temp_v1;
-    s16 temp_v0;
+    JetNode* last;
+    JetNode* tail;
+    s16 depth;
 
     node->parent = parent;
-    temp_v0 = parent->depth + 1;
-    node->depth = temp_v0;
-    temp_v1 = &g_JetNodeListTails[temp_v0];
-    temp_v0_2 = temp_v1->prev;
-    node->prev = temp_v0_2;
-    node->next = temp_v0_2->next;
-    temp_v1->prev->next = node;
-    temp_v1->prev = node;
+    depth = parent->depth + 1;
+    node->depth = depth;
+    tail = &g_JetNodeListTails[depth];
+    last = tail->prev;
+    node->prev = last;
+    node->next = last->next;
+    tail->prev->next = node;
+    tail->prev = node;
 }
 
 void JetNodeUnlink(JetNode* node) {
