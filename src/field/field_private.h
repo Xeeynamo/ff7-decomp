@@ -1,5 +1,6 @@
 #ifndef FIELD_PRIVATE_H
 #define FIELD_PRIVATE_H
+#include <game.h>
 
 #define GET_ENTITY_NAME(entityId) ((char*)g_FieldScripts + sizeof(FieldScriptHeader) + (entityId) * 8)
 
@@ -9,6 +10,12 @@
     (dst) |= *((u8*)((scriptOffset) + ((entityDataOffset) + (s32)g_FieldScripts) + (extrasHeaderSize)) +               \
                sizeof(FieldScriptHeader) + 1)                                                                          \
              << 8
+
+typedef struct {
+    Yamada script;     // DAT
+    Yamada background; // MIM
+    Yamada models;     // BSX
+} FieldFileInfo;
 
 struct FieldRenderData {
     OT_TYPE ot[0x1000];   // 0x00000: Main scene ordering table
