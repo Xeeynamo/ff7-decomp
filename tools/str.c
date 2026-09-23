@@ -24,7 +24,7 @@ void init() {
     }
 }
 
-const char* remap_string(FILE* out, int padding, const char* str) {
+const char* remap_string(FILE* out, int padding, const char* fill, const char* str) {
     fputs("{", out);
     int first = 1;
     while (*str) {
@@ -61,12 +61,12 @@ const char* remap_string(FILE* out, int padding, const char* str) {
             }
         }
     }
-    while (--padding > 0) {
+    while (padding-- > 0) {
         if (!first) {
             fputs(", ", out);
         }
         first = 0;
-        fputs("0", out);
+        fputs(fill, out);
     }
     fputc('}', out);
     return str + 1; // skip the ')' character
@@ -79,12 +79,16 @@ void rewrite_line(FILE* out, const char* line) {
         if (begin) {
             const char* next = begin;
             int padding = 0;
+            const char* fill = "0";
             if (strncmp(next, "_S(\"", 4) == 0) {
                 // it seems to be a _S("")
                 next += 4;
                 padding = -1;
-            } else if (strncmp(next, "_SL(", 4) == 0) {
-                // it seems to be a _S(len, "")
+            } else if (strncmp(next, "_SL(", 4) == 0 || strncmp(next, "_SF(", 4) == 0) {
+                // it seems to be a _SL(len, "") or a _SF(len, ""), the latter pads with 0xFF
+                if (next[2] == 'F') {
+                    fill = "0xFF";
+                }
                 next += 4;
                 if (next[0] == '0' && next[1] == 'x') {
                     next += 2;
@@ -102,7 +106,7 @@ void rewrite_line(FILE* out, const char* line) {
             if (padding) {
                 // padding is non-zero, we probably have a valid macro
                 fwrite(line, 1, begin - line, out);
-                line = remap_string(out, padding, next);
+                line = remap_string(out, padding, fill, next);
                 continue; // catch more macro at the same line
             }
         }
@@ -177,17 +181,16 @@ int test_str(const char* str, const char* expected) {
 int test() {
     int r = 0;
     r |= test_str("ignore me", "ignore me");
-    r |= test_str("char str[] = _S(\"Hello FF7\");",
-                  "char str[] = {0x28, 0x45, 0x4C, 0x4C, 0x4F, 0x00, "
-                  "0x26, 0x26, 0x17, 0xFF};");
-    r |= test_str("char str[] = _SL(10, \"test\");",
-                  "char str[] = {0x54, 0x45, 0x53, 0x54, 0xFF, 0, 0, 0, 0};");
-    r |= test_str("char str[] = _SL(0xA, \"test\");",
-                  "char str[] = {0x54, 0x45, 0x53, 0x54, 0xFF, 0, 0, 0, 0};");
+    r |= test_str("char str[] = _S(\"Hello FF7\");", "char str[] = {0x28, 0x45, 0x4C, 0x4C, 0x4F, 0x00, "
+                                                     "0x26, 0x26, 0x17, 0xFF};");
+    r |= test_str("char str[] = _SL(10, \"test\");", "char str[] = {0x54, 0x45, 0x53, 0x54, 0xFF, 0, 0, 0, 0, 0};");
+    r |= test_str("char str[] = _SL(0xA, \"test\");", "char str[] = {0x54, 0x45, 0x53, 0x54, 0xFF, 0, 0, 0, 0, 0};");
     r |= test_str("_S(99, \"invalid\")", "_S(99, \"invalid\")");
     r |= test_str("_SL(0, \"invalid\")", "_SL(0, \"invalid\")");
     r |= test_str("_SL(\"invalid\")", "_SL(\"invalid\")");
     r |= test_str("_SL(1, \"ok\")", "{0x4F, 0x4B, 0xFF}");
+    r |= test_str("_SF(6, \"test\")", "{0x54, 0x45, 0x53, 0x54, 0xFF, 0xFF}");
+    r |= test_str("_SF(0x8, \"ok\")", "{0x4F, 0x4B, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}");
     r |= test_str("_S(\"aa'bb\")", "{0x41, 0x41, 0x07, 0x42, 0x42, 0xFF}");
     r |= test_str("_S(\"‘’❛❜\")", "{0xB4, 0xB5, 0xB4, 0xB5, 0xFF}");
     return r;

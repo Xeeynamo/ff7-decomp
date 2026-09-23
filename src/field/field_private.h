@@ -1,5 +1,6 @@
 #ifndef FIELD_PRIVATE_H
 #define FIELD_PRIVATE_H
+#include <game.h>
 
 #define GET_ENTITY_NAME(entityId) ((char*)g_FieldScripts + sizeof(FieldScriptHeader) + (entityId) * 8)
 
@@ -63,7 +64,7 @@ typedef struct {
 extern u8* D_80075E10;
 extern MATRIX* D_80083270;
 extern MATRIX** D_80083578;
-extern u32 g_FieldFileInfo[787 * 6];
+extern u32 g_FieldFileInfo[787 * 6]; // Yamada pair for DAT, MIM, BSX
 
 extern struct FieldRenderData g_FieldRenderData[2];
 extern FieldTriggers* g_FieldTriggers;

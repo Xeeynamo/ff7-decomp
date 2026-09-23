@@ -10,6 +10,7 @@
 #ifndef FF7_STR
 #define _S(x) x       // check the usage of 'bin/str' to see how this works
 #define _SL(len, x) x // same as _S, but for fixed-length strings with padding
+#define _SF(len, x) x // same as _SL, but pads with 0xFF instead of 0
 #endif
 
 #define NUM_PARTY 3
@@ -1368,8 +1369,6 @@ MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
 MATRIX* ScaleMatrix(MATRIX*, VECTOR*);
 void VectorNormal(VECTOR*, VECTOR*);
 s32 SetGraphDebug(s32);
-s32 func_80041E30(s32 arg0, s32 arg1);
-void func_80041D28(int, void*, int);
 
 void SystemError(char c, long n);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
@@ -1389,6 +1388,8 @@ void SysMenuSetCursorMovement(
     MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage, s32 unk0, s32 rowOffset, s32 unk4,
     s32 numTotalRows, s32 unkE, s32 unkF, s32 unk10, s32 unk11, u16 scrolling);
 void SysMenuSetPoly(void* poly);
+void SysMenuSetOtag(OT_TYPE* otag);
+void SysMenuDrawDigitsWithoutLeadingZeroes(s32 x, s32 y, s32 value, s32 digits, s32 color);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
 s32 AkaoExec(void);
@@ -1401,13 +1402,11 @@ void SysMemCopy32(void* dst, const void* src, const s32 len);
 s32 SysAddCommandToTemp(s32);
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, s32 tpage, RECT* tw);
 void SysMovieAbortPlay(void);
-s32 func_80048540(s32 arg0);
 s32 func_80034410(void);
 void SysMoviePlay(void* ptr, s16);
 void* SysCdromGetPackPointer(void* ptr, s32);
 void SysCdromSetLzsExtract(void* src, void* dst);
 s32 func_80034D5C(void);
-s32 func_800484A8(void);
 u32 InputReadPadsRaw(void);
 void func_80036244(void* anim, u16 frame);
 void func_800354CC(void);

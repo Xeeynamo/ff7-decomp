@@ -9,7 +9,7 @@ void PopMatrix(void);
 typedef struct {
     short m[3][3]; // 3 x 3 matrix coefficient value
     long t[3];     // Parallel transfer volume
-} MATRIX;          // size = 0x1E
+} MATRIX;          // size = 0x20
 
 typedef struct {
     long vx, vy, vz; // Vector coordinates
@@ -66,7 +66,9 @@ MATRIX* RotMatrixY(long r,   // Rotation angle(input)
 );
 MATRIX* MulMatrix(MATRIX* m0, MATRIX* m1);
 MATRIX* MulMatrix2(MATRIX* m0, MATRIX* m1);
+VECTOR* ApplyMatrix(MATRIX* m, SVECTOR* v0, VECTOR* v1);
 long ApplyMatrixLV(MATRIX* m, VECTOR* v0, VECTOR* v1);
+void OuterProduct12(VECTOR* v0, VECTOR* v1, VECTOR* v2);
 void RotTrans(SVECTOR* v0, VECTOR* v1, int* flag);
 void SetBackColor(long rbk, long gbk, long bbk);
 void SetColorMatrix(MATRIX* m);
@@ -76,6 +78,7 @@ void SetFarColor(long rfc, long gfc, long bfc); // Color values (input)
 void SetFogNear(long a, long h); // Distance between visual point and screen
 
 extern long SquareRoot0(long a);
+extern void OuterProduct0(VECTOR* v0, VECTOR* v1, VECTOR* v2);
 extern long SquareRoot12(long a);
 extern int rcos(int a);
 extern int rsin(int a);

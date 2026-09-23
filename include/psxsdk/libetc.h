@@ -36,7 +36,7 @@ extern int PadIdentifier;
 #define MOUSEright (1 << 2)
 
 // scratch pad address 0x1f800000 - 0x1f800400
-#define getScratchAddr(offset)  ((u_long *)(0x1f800000+offset*4))
+#define getScratchAddr(offset) ((u_long*)(0x1f800000 + offset * 4))
 
 #define MODE_NTSC 0
 #define MODE_PAL 1
@@ -51,9 +51,6 @@ struct Callbacks {
     int (*RestartCallback)(void);
 };
 
-extern u16 D_8002C2BA;
-extern struct Callbacks* D_8002D340;
-
 int VSync(int mode);
 int VSyncCallback(void (*f)());
 int VSyncCallbacks(int ch, void (*f)());
@@ -62,7 +59,7 @@ void* DMACallback(int dma, void (*func)());
 int ResetCallback(void);
 int StopCallback(void);
 int RestartCallback(void);
-u16 CheckCallback(void);
+int CheckCallback(void);
 long GetVideoMode(void);
 long SetVideoMode(long mode);
 
