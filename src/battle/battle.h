@@ -560,7 +560,7 @@ extern Unk800BB75C D_800FA63C;
 extern DB* g_cDb;
 extern s32 g_dbIndex;
 extern short g_BattleEffectCursor;
-extern s16 D_80151774;
+extern s16 g_BattleCurrentTargetMask;
 extern BattleModel g_BattleModels[NUM_BATTLE_ACTOR];
 extern short g_BattleEffectCount;
 extern s32 D_801620A8;

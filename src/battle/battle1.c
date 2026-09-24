@@ -1180,7 +1180,7 @@ static void func_800C018C(s16 arg0, s16 arg1, s32 arg2, s32 arg3) {
     s16 sp[3];
 
     if (arg0 == 0xF) {
-        BattleEntityGetCenter(D_80151774, sp);
+        BattleEntityGetCenter(g_BattleCurrentTargetMask, sp);
     } else {
         BattleGetPartPosition(arg0, arg1, sp);
         func_800C0DD8(arg0, arg2 & 0xFF, arg3 & 0xFF);
@@ -1194,7 +1194,7 @@ static void func_800C0254(s16 arg0, s16 arg1) {
     s16 sp[3];
 
     if (arg0 == 0xF) {
-        BattleEntityGetCenter(D_80151774, sp);
+        BattleEntityGetCenter(g_BattleCurrentTargetMask, sp);
     } else {
         BattleGetPartPosition(arg0, arg1, sp);
         *(s32*)0x1F800004 = func_800C0314(*(s32*)0x1F800004, (u8)arg0);

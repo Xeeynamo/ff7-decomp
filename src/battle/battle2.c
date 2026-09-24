@@ -1735,7 +1735,7 @@ void BattleInitMagicCastEffect(void) {
     for (i = 0; i < 3; i++) {
         g_BattleModels[i].specialFlags |= 1;
     }
-    func_801B0040(D_80151774, D_801590CC);
+    func_801B0040(g_BattleCurrentTargetMask, D_801590CC);
     ret = func_800BC04C(BattleEffectTimeoutTick);
     *(s32*)0x1F800000 = ret;
     D_801621F0[ret].D_801621F4 = 2;
@@ -1755,14 +1755,14 @@ static void BattleDispatchModelRunScript(u8 arg0) {
     func_800D1530();
     switch (g_BattleModels[arg0].currentActionId) {
     case 4:
-        D_800EF9D8[g_BattleModels[arg0].attackEffectId](D_80151774, D_801590CC);
+        D_800EF9D8[g_BattleModels[arg0].attackEffectId](g_BattleCurrentTargetMask, D_801590CC);
         break;
     case 7:
         // Coin: always WPYU.BIN, via the loader's fixed D_800EEBB8[221].
-        func_801B037C(D_80151774, D_801590CC);
+        func_801B037C(g_BattleCurrentTargetMask, D_801590CC);
         break;
     case 8:
-        D_800EFFE0[g_BattleModels[arg0].attackEffectId](D_80151774, D_801590CC);
+        D_800EFFE0[g_BattleModels[arg0].attackEffectId](g_BattleCurrentTargetMask, D_801590CC);
         break;
     }
 }
@@ -1778,37 +1778,37 @@ void func_800D0C80(u8 arg0) {
                 g_BattleModels[1].unk26 = 1;
                 g_BattleModels[2].unk26 = 1;
             }
-            D_800EFAF0[g_BattleModels[arg0].attackEffectId](D_80151774, D_801590CC);
+            D_800EFAF0[g_BattleModels[arg0].attackEffectId](g_BattleCurrentTargetMask, D_801590CC);
             return;
         }
         switch (g_BattleModels[arg0].attackEffectId) {
         case 41:
             // BIOGA2.BIN
-            func_801B0000(D_80151774, D_801590CC);
+            func_801B0000(g_BattleCurrentTargetMask, D_801590CC);
             break;
         case 44:
             // GRAVIGA2.BIN
-            func_801B0000_2(D_80151774, D_801590CC);
+            func_801B0000_2(g_BattleCurrentTargetMask, D_801590CC);
             break;
         case 35:
             // THUNDG2.BIN
-            func_801B000C(D_80151774, D_801590CC);
+            func_801B000C(g_BattleCurrentTargetMask, D_801590CC);
             break;
         case 32:
             // BRIZAG2.BIN
-            func_801B0054(D_80151774, D_801590CC);
+            func_801B0054(g_BattleCurrentTargetMask, D_801590CC);
             break;
         case 29:
             // FAIGA2.BIN
-            func_801B0084(D_80151774, D_801590CC);
+            func_801B0084(g_BattleCurrentTargetMask, D_801590CC);
             break;
         default:
-            D_800EFAF0[g_BattleModels[arg0].attackEffectId](D_80151774, D_801590CC);
+            D_800EFAF0[g_BattleModels[arg0].attackEffectId](g_BattleCurrentTargetMask, D_801590CC);
             break;
         }
         break;
     case 13:
-        D_800EFBC8[g_BattleModels[arg0].attackEffectId](D_80151774, D_801590CC);
+        D_800EFBC8[g_BattleModels[arg0].attackEffectId](g_BattleCurrentTargetMask, D_801590CC);
         break;
     case 20:
         if (g_BattleModels[arg0].attackEffectId == 2) {
@@ -1818,7 +1818,7 @@ void func_800D0C80(u8 arg0) {
                 D_80163A98 = 1;
             }
         }
-        *(s32*)0x1F800000 = D_800EFEA0[g_BattleModels[arg0].attackEffectId](D_80151774, D_801590CC);
+        *(s32*)0x1F800000 = D_800EFEA0[g_BattleModels[arg0].attackEffectId](g_BattleCurrentTargetMask, D_801590CC);
         switch (g_BattleModels[arg0].attackEffectId) {
         case 0x2D:
         case 0x2E:
@@ -1853,7 +1853,7 @@ void func_800D0C80(u8 arg0) {
         func_800D08B8(arg0, *(s32*)0x1F800000);
         break;
     case 32:
-        D_800EFC28[g_BattleModels[arg0].attackEffectId](D_80151774, D_801590CC);
+        D_800EFC28[g_BattleModels[arg0].attackEffectId](g_BattleCurrentTargetMask, D_801590CC);
         break;
     case 3:
         func_800C64AC();

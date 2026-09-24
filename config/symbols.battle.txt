@@ -461,6 +461,7 @@ g_db = 0x800FAFF4;
 D_80151200 = 0x80151200;
 g_BattleEffectCursor = 0x8015169C;
 g_modelScreenPos = 0x801516FC;
+g_BattleCurrentTargetMask = 0x80151774;
 g_cDb = 0x801517C0;
 g_BattleQueue1CamReadCursor = 0x8015184C;
 g_BattleQueue1CamWriteCursor = 0x801518AC;

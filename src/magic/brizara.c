@@ -186,5 +186,5 @@ void MAGIC_Brizara(s32 targetMask, s32 callbackArg) {
     BattleSetLoadTimToVram(g_BrizaraTexture, 0, 0, 0);
     BattleEffectRegister(BrizaraDoubleBufferFlip);
     MagicAnimationRegister(targetMask, callbackArg, 0, BrizaraAttachToTarget);
-    BattleAkaoCommand(0x20, BattleEntityGetStereoPan(D_80151774), 0x1D);
+    BattleAkaoCommand(0x20, BattleEntityGetStereoPan(g_BattleCurrentTargetMask), 0x1D);
 }

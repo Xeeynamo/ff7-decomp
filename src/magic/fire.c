@@ -91,7 +91,7 @@ void MAGIC_Fire(s32 targetMask, s32 callbackArg) {
     BattleSetLoadTimToVram(g_FireTexture, 0, 0, 0);
     MagicAnimationRegister(targetMask, callbackArg, 0, FireAttachToTarget);
     BattleEffectRegister(FireDoubleBufferFlip);
-    BattleAkaoCommand(AKAO_PLAY_SOUND, BattleEntityGetStereoPan(D_80151774), SFX_FIRE);
+    BattleAkaoCommand(AKAO_PLAY_SOUND, BattleEntityGetStereoPan(g_BattleCurrentTargetMask), SFX_FIRE);
 }
 
 void func_801B037C(void) { func_8001C3C4(); }
