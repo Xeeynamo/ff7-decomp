@@ -2,6 +2,7 @@
 #define SFX_H
 
 typedef enum {
+	SFX_NULL = 0x000,
 	SFX_MENU_CURSOR_MOVE = 0x001,
 	SFX_MENU_CONFIRMED = 0x002,
 	SFX_MENU_BAD = 0x003,

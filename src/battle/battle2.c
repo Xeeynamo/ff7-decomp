@@ -2544,13 +2544,13 @@ void BattleAkaoCommand(s32 cmdId, ...) {
 
     g_AkaoCmd.opcode = cmd;
     switch (cmd & 0xFFFF) {
-    case 0x21:
+    case AKAO_PLAY_TWO_SOUNDS:
         nExtra = 3;
         break;
-    case 0x22:
+    case AKAO_PLAY_THREE_SOUNDS:
         nExtra = 4;
         break;
-    case 0x23:
+    case AKAO_PLAY_FOUR_SOUNDS:
         nExtra = 5;
         break;
     default:

@@ -826,27 +826,27 @@ static void func_800BB864(void) {
 static void func_800BB89C(void) {
     D_80163B80 = 0;
     D_800FA6B8 = 0;
-    g_AkaoCmd.opcode = !(!(D_8016376A & 0x10) && !g_AkaoSavedMusicActiveMask0) ? 0x10 : 0x14;
+    g_AkaoCmd.opcode = !(!(D_8016376A & 0x10) && !g_AkaoSavedMusicActiveMask0) ? AKAO_PLAY_MUSIC : AKAO_PLAY_MUSIC_SAVE_CURR;
     g_AkaoCmd.params[0] = 0x801D0000;
     AkaoExec();
 }
 
 void func_800BB90C(void) {
-    g_AkaoCmd.opcode = 0xA0;
-    g_AkaoCmd.params[0] = 0x7F;
+    g_AkaoCmd.opcode = AKAO_SET_SOUND_VOL_BALANCE_SLOT2;
+    g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
 }
 
 // queue the 0xF1 sound command after the 0xA0 pair; called from batres
 void func_800BB944(void) {
     func_800BB90C();
-    g_AkaoCmd.opcode = 0xF1;
+    g_AkaoCmd.opcode = AKAO_STOP_ALL_SOUNDS;
     AkaoExec();
 }
 
 // queue sound command 0xC1
 void func_800BB978(void) {
-    g_AkaoCmd.opcode = 0xC1;
+    g_AkaoCmd.opcode = AKAO_VOL_SLIDE_FROM_CURR;
     g_AkaoCmd.params[0] = 0x12C;
     g_AkaoCmd.params[1] = 0;
     AkaoExec();
@@ -858,7 +858,7 @@ void func_800BB9B8(s32 arg0) {
     s16* ptr;
 
     ptr = &D_800F4AD0;
-    *ptr = 0x30;
+    *ptr = AKAO_PLAY_MENU_SOUND;
     D_800F4AD4 = arg0 & 0xFFFF;
     D_800F4AD8 = arg0 & 0xFFFF;
     AkaoDispatchCommand(ptr);
@@ -868,9 +868,9 @@ void func_800BB9B8(s32 arg0) {
 void func_800BB9FC(s32 arg0) {
     s32 param;
 
-    g_AkaoCmd.opcode = 0x2B;
+    g_AkaoCmd.opcode = AKAO_PLAY_SOUND_SLOT3;
     param = arg0 & 0xFFFF;
-    g_AkaoCmd.params[0] = 0x40;
+    g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
     g_AkaoCmd.params[1] = param;
     AkaoExec();
 }
@@ -879,9 +879,9 @@ void func_800BB9FC(s32 arg0) {
 static void func_800BBA40(s32 arg0) {
     s32 param;
 
-    g_AkaoCmd.opcode = 0x20;
+    g_AkaoCmd.opcode = AKAO_PLAY_SOUND;
     param = arg0 & 0xFFFF;
-    g_AkaoCmd.params[0] = 0x40;
+    g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
     g_AkaoCmd.params[1] = param;
     AkaoExec();
 }

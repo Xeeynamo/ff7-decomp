@@ -4657,13 +4657,13 @@ void PlayMusicTrack(s32 arg0) {
     if (D_801159DC != 0) {
         cmd = &g_AkaoCmd;
         if (arg0 != 1) {
-            u16 op = 0x10;
+            u16 op = AKAO_PLAY_MUSIC;
             if (D_801159E0 == 1) {
-                op = 0x14;
+                op = AKAO_PLAY_MUSIC_SAVE_CURR;
             }
             cmd->opcode = op;
         } else {
-            cmd->opcode = 0x18;
+            cmd->opcode = AKAO_FADE_PLAY_MUSIC;
         }
         g_AkaoCmd.params[0] = D_801159BC[arg0];
         g_AkaoCmd.params[1] = 4;
@@ -4679,7 +4679,7 @@ static void func_800B64A0(void) { PlayMusicTrack(D_801159E0); }
 static s32 func_800B64C8(void) { return D_801159E0; }
 
 static void func_800B64D8(u32 arg0) {
-    g_AkaoCmd.opcode = 0x30;
+    g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
     g_AkaoCmd.params[0] = arg0;
     AkaoExec();
 }
@@ -4687,13 +4687,13 @@ static void func_800B64D8(u32 arg0) {
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B650C);
 
 static void WmSetMusicVolume(u32 arg0) {
-    g_AkaoCmd.opcode = 0xC0;
+    g_AkaoCmd.opcode = AKAO_VOLUME_SET;
     g_AkaoCmd.params[0] = arg0;
     AkaoExec();
 }
 
 static void func_800B65A4(u32 arg0, s32 arg1) {
-    g_AkaoCmd.opcode = 0xBD;
+    g_AkaoCmd.opcode = AKAO_SLIDE_ALL_SOUND_PITCH;
     g_AkaoCmd.params[0] = arg0;
     g_AkaoCmd.params[1] = arg1;
     AkaoExec();
@@ -4701,16 +4701,16 @@ static void func_800B65A4(u32 arg0, s32 arg1) {
 
 void ToggleAmbientSound(s32 arg0) {
     if (D_8010CB20 < arg0) {
-        g_AkaoCmd.opcode = 0x20;
+        g_AkaoCmd.opcode = AKAO_PLAY_SOUND;
         D_8010CB20 = arg0;
-        g_AkaoCmd.params[0] = 0x40;
+        g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
         g_AkaoCmd.params[1] = arg0;
         AkaoExec();
     } else if (arg0 == -D_8010CB20) {
         D_8010CB20 = 0;
-        g_AkaoCmd.opcode = 0xF1;
+        g_AkaoCmd.opcode = AKAO_STOP_ALL_SOUNDS;
         AkaoExec();
-        g_AkaoCmd.opcode = 0xBC;
+        g_AkaoCmd.opcode = AKAO_SET_ALL_SOUND_PITCH;
         g_AkaoCmd.params[0] = 0;
         AkaoExec();
     }
@@ -5700,9 +5700,9 @@ s32 WmDialogSetAskToShow(u8 window, u8 message, u8 first, u8 last, s16* selected
 }
 
 static void WmDialogPlaySound(void) {
-    g_AkaoCmd.opcode = 0x30;
-    g_AkaoCmd.params[0] = 1;
-    g_AkaoCmd.params[1] = 0x40;
+    g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
+    g_AkaoCmd.params[0] = SFX_MENU_CURSOR_MOVE;
+    g_AkaoCmd.params[1] = AKAO_PAN_CENTER;
     AkaoExec();
 }
 

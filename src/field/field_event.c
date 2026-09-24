@@ -51,7 +51,7 @@ void FieldEventInit(FieldState* fieldState, FieldEntity* fieldModels, FieldScrip
     FieldEventRunInit();
     if (!g_FieldMusicLock) {
         FieldEventClearAkaoStruct();
-        g_AkaoCmd.opcode = 242;
+        g_AkaoCmd.opcode = AKAO_CLEAR_SAVED_MUSIC0;
         AkaoExec();
     }
 }
