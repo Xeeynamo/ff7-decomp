@@ -43,7 +43,7 @@ void MINI_Chocobo(void) {
     Unk800B1254* modelTable;
     s32* flags;
     Chocobo* model;
-    TILE* tile;
+    POLY_F4* tile;
     ChocoboModels* models;
     s32 i;
     s32 j;
