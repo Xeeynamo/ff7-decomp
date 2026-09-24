@@ -223,5 +223,5 @@ static void ThunderaMainSetup(s32 targetMask, s32 callbackArg) {
     BattleSetLoadTimToVram(g_ThunderaTexture, 0, 0, 0);
     BattleEffectRegister(ThunderaDoubleBufferFlip);
     MagicAnimationRegister(targetMask, callbackArg, 2, ThunderaAttachToTarget);
-    BattleCommandSend(0x20, BattleEntityGetStereoPan(targetMask), 0xC);
+    BattleAkaoCommand(0x20, BattleEntityGetStereoPan(targetMask), 0xC);
 }

@@ -3,59 +3,8 @@
 #include "common.h"
 #include "game.h"
 #include "libspu.h"
+#include "akao.h"
 
-#define AKAO_PAN_LEFT 0x00
-#define AKAO_PAN_CENTER 0x40
-#define AKAO_PAN_RIGHT 0x7F
-#define AKAO_PAN_MAX 0x7F
-#define AKAO_VOL_MAX 0x7F
-
-#define AKAO_SFX_SLOT_0 0x30
-#define AKAO_SFX_SLOT_1 0x32
-#define AKAO_SFX_SLOT_2 0x34
-#define AKAO_SFX_SLOT_3 0x36
-
-#define AKAO_MUSIC 0x0
-#define AKAO_SOUND 0x1
-#define AKAO_MENU 0x2
-
-#define AKAO_STEREO 0x1
-#define AKAO_MONO 0x2
-#define AKAO_STEREO_CHANNELS 0x4
-
-#define AKAO_SFX_LEGATO 0x1
-#define AKAO_SFX_FULL_LENGTH 0x4
-
-#define AKAO_CONTROL_PAUSE_MUSIC_UPDATE 0x001
-#define AKAO_CONTROL_PAUSE_SOUND_UPDATE 0x002
-#define AKAO_CONTROL_REVERB_ENABLE 0x010
-#define AKAO_CONTROL_SOUND_STATE_SAVED 0x100
-
-#define AKAO_UPDATE_SPU_VOICE (SPU_VOICE_VOLL | SPU_VOICE_VOLR)
-#define AKAO_UPDATE_SPU_ADSR                                                                                           \
-    (SPU_VOICE_ADSR_AMODE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_RMODE | SPU_VOICE_ADSR_AR | SPU_VOICE_ADSR_DR |      \
-     SPU_VOICE_ADSR_SR | SPU_VOICE_ADSR_RR | SPU_VOICE_ADSR_SL)
-#define AKAO_UPDATE_SPU_BASE_WOR                                                                                       \
-    (SPU_VOICE_WDSA | SPU_VOICE_ADSR_AMODE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_AR | SPU_VOICE_ADSR_DR |            \
-     SPU_VOICE_ADSR_SR | SPU_VOICE_ADSR_SL | SPU_VOICE_LSAX)
-#define AKAO_UPDATE_SPU_BASE (AKAO_UPDATE_SPU_BASE_WOR | SPU_VOICE_ADSR_RMODE | SPU_VOICE_ADSR_RR)
-#define AKAO_UPDATE_SPU_ALL (AKAO_UPDATE_SPU_BASE | AKAO_UPDATE_SPU_VOICE | SPU_VOICE_PITCH)
-
-#define AKAO_UPDATE_VIBRATO 0x1
-#define AKAO_UPDATE_TREMOLO 0x2
-#define AKAO_UPDATE_PAN_LFO 0x4
-#define AKAO_UPDATE_DRUM_MODE 0x8
-#define AKAO_UPDATE_SIDE_CHAIN_PITCH 0x10
-#define AKAO_UPDATE_SIDE_CHAIN_VOL 0x20
-#define AKAO_UPDATE_REVERB_DEPTH 0x80
-#define AKAO_UPDATE_OVERLAY 0x100
-#define AKAO_UPDATE_ALTERNATIVE 0x200
-#define AKAO_UPDATE_LFO_MASK                                                                                           \
-    (AKAO_UPDATE_VIBRATO | AKAO_UPDATE_TREMOLO | AKAO_UPDATE_PAN_LFO | AKAO_UPDATE_SIDE_CHAIN_PITCH |                  \
-     AKAO_UPDATE_SIDE_CHAIN_VOL)
-
-#define AKAO_UPDATE_NOISE_CLOCK 0x10
-#define AKAO_UPDATE_REVERB 0x80
 
 // 16.16 fixed point volume
 typedef union {
@@ -418,7 +367,7 @@ void AkaoCmd_14_PlayMusicSaveCurrent(AkaoQueuedCommand* cmd);
 void AkaoCmd_15_PlayMusicSwapSaved(AkaoQueuedCommand* cmd);
 void AkaoCmd_18_FadePlayMusic(AkaoQueuedCommand* cmd);
 void AkaoCmd_19_FadePlayMusicSaveCurrent(AkaoQueuedCommand* cmd);
-void AkaoCmd_20_PlaySoundSlot2(AkaoQueuedCommand* cmd);
+void AkaoCmd_20_PlaySound(AkaoQueuedCommand* cmd);
 void AkaoCmd_21_PlayTwoSounds(AkaoQueuedCommand* cmd);
 void AkaoCmd_22_PlayThreeSounds(AkaoQueuedCommand* cmd);
 void AkaoCmd_23_PlayFourSounds(AkaoQueuedCommand* cmd);
@@ -616,7 +565,7 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_20_PlaySoundSlot2,
+    AkaoCmd_20_PlaySound,
     AkaoCmd_21_PlayTwoSounds,
     AkaoCmd_22_PlayThreeSounds,
     AkaoCmd_23_PlayFourSounds,
@@ -624,7 +573,7 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
-    AkaoCmd_20_PlaySoundSlot2,
+    AkaoCmd_20_PlaySound,
     AkaoCmd_29_PlaySoundSlot1,
     AkaoCmd_2A_PlaySoundSlot0,
     AkaoCmd_2B_PlaySoundSlot3,
@@ -1433,7 +1382,7 @@ void AkaoCmd_30_PlayMenuSound(AkaoQueuedCommand* cmd) {
     AkaoSoundMenuChannelsInit(seq0, seq1);
 }
 
-void AkaoCmd_20_PlaySoundSlot2(AkaoQueuedCommand* cmd) {
+void AkaoCmd_20_PlaySound(AkaoQueuedCommand* cmd) {
     s32 seq0, seq1;
 
     AkaoSoundChannelsClear(4, 1);

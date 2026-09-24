@@ -5,6 +5,7 @@
 #include "magic_private.h"
 #include "../battle/battle.h"
 
+
 // Three rings spawn 8 frames apart, each growing a little faster than the
 // last; Scale starts at RING_START_SCALE and gains ScaleStep every frame.
 #define RING_LIFETIME 16
@@ -141,5 +142,5 @@ static void RefrecMainSetup(s32 targetMask, s32 callbackArg) {
     D_801B0C14 = 0;
     BattleEffectRegister(RefrecDoubleBufferFlip);
     MagicAnimationRegister(targetMask, callbackArg, 0, RefrecAttachToTarget);
-    BattleCommandSend(0x20, 0x40, 0x48);
+    BattleAkaoCommand(AKAO_PLAY_SOUND, AKAO_PAN_CENTER, SFX_POWERUP);
 }

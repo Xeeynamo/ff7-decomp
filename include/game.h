@@ -6,6 +6,8 @@
 #include <libgpu.h>
 #include "sfx.h"
 #include "bgm.h"
+#include "akao.h"
+
 
 #ifndef FF7_STR
 #define _S(x) x       // check the usage of 'bin/str' to see how this works

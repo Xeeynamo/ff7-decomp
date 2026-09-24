@@ -305,5 +305,5 @@ static void BarrierMainSetup(int targetMask, int callbackArg) {
     barrier_base_scale = 0x3000;
     BattleEffectRegister(BarrierDoubleBufferFlip);
     MagicAnimationRegister(targetMask, callbackArg, 4, BarrierAttachToTarget);
-    BattleCommandSend(32, BattleEntityGetStereoPan(targetMask), 94);
+    BattleAkaoCommand(32, BattleEntityGetStereoPan(targetMask), 94);
 }

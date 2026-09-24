@@ -137,5 +137,5 @@ static void MabariaMainSetup(s32 targetMask, s32 callbackArg) {
     D_801B0CA4 = 0;
     BattleEffectRegister(MabariaDoubleBufferFlip);
     MagicAnimationRegister(targetMask, callbackArg, 0, MabariaAttachToTarget);
-    BattleCommandSend(0x20, 0x40, 0x43);
+    BattleAkaoCommand(0x20, 0x40, 0x43);
 }

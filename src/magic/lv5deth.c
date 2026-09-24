@@ -175,7 +175,7 @@ static void Lv5DeathAttachToTarget(s32 target, s32 callbackArg) {
     ring->Pos = effect->Pos;
     ring->Scale = 0x13DC;
 
-    BattleCommandSend(0x20, BattlePositionToStereoPan(&effect->Pos), 0xAA);
+    BattleAkaoCommand(0x20, BattlePositionToStereoPan(&effect->Pos), 0xAA);
 }
 
 static void Lv5DeathMainSetup(s32 targetMask, s32 callbackArg) {
