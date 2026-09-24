@@ -159,7 +159,7 @@ static void ThunderAttachToTarget(s32 target, s32 callbackArg) {
     BattleGetPartPosition(target, g_BattleModels[target].battleModelRootBone, &effect->Pos);
     effect->unk14 = target;
     effect->unk1C = -g_BattleModels[target].collisionRadius;
-    BattleAkaoCommand(0x20, BattlePositionToStereoPan(&effect->Pos), 0xB);
+    BattleAkaoCommand(AKAO_PLAY_SOUND, BattlePositionToStereoPan(&effect->Pos), SFX_THUNDER);
 }
 
 static void ThunderDoubleBufferFlip(void) {
