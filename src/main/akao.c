@@ -5,7 +5,6 @@
 #include "libspu.h"
 #include "akao.h"
 
-
 // 16.16 fixed point volume
 typedef union {
     s32 val;
@@ -1831,10 +1830,10 @@ void AkaoCmd_9B_ApplyPendingMusicUpdates(void) {
             voiceIdx = 0;
             g_AkaoVoiceAttrVolR = 0;
             g_AkaoVoiceAttrVolL = 0;
-            g_AkaoVoiceAttrSr = 0x7F;
+            g_AkaoVoiceAttrSr = AKAO_VOL_MAX;
             for (; pendingBits != 0; bit *= 2, voiceIdx += 1) {
                 if (pendingBits & bit) {
-                    g_AkaoVoiceAttrMask = SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
+                    g_AkaoVoiceAttrMask = AKAO_UPDATE_SPU_VOICE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
                     AkaoUpdateChannelParamsToSpu(voiceIdx & 0xFFFF, &g_AkaoVoiceAttr);
                     pendingBits ^= bit;
                 }
@@ -1863,7 +1862,7 @@ void AkaoCmd_9A_FlushPendingMusicUpdates(void) {
         do {
             if (pendingBits & bit) {
                 pendingBits ^= bit;
-                voice->voiceAttr.mask |= SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
+                voice->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
             }
             bit *= 2;
             voice++;
@@ -1898,12 +1897,12 @@ void AkaoCmd_9D_ApplyPendingSoundUpdates(void) {
         g_Channel3ActiveMask[cleared = 0] = newMask ^ savedMask;
         g_AkaoVoiceAttrVolR = cleared;
         g_AkaoVoiceAttrVolL = cleared;
-        g_AkaoVoiceAttrSr = 0x7F;
+        g_AkaoVoiceAttrSr = AKAO_VOL_MAX;
         voiceIdx = 0x10;
         if (newMask != cleared) {
             for (; newMask != 0; bit *= 2, voiceIdx += 1) {
                 if (newMask & bit) {
-                    g_AkaoVoiceAttrMask = SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
+                    g_AkaoVoiceAttrMask = AKAO_UPDATE_SPU_VOICE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
                     AkaoUpdateChannelParamsToSpu(voiceIdx & 0xFFFF, &g_AkaoVoiceAttr);
                     newMask ^= bit;
                 }
@@ -1925,7 +1924,7 @@ void AkaoCmd_9C_FlushPendingSoundUpdates(void) {
         for (bit = 0x10000, half = &g_AkaoSoundSlots[0].voices[0]; pendingBits != 0; bit *= 2, half++) {
             if (pendingBits & bit) {
                 pendingBits ^= bit;
-                half->voiceAttr.mask |= SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
+                half->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
             }
         }
         savedMask = g_AkaoSoundActiveMaskStored;
@@ -2022,7 +2021,7 @@ static void AkaoStreamVoiceAttrMono(void) {
     g_AkaoVoiceAttrAMode = 1;
     g_AkaoVoiceAttrSMode = 3;
     g_AkaoVoiceAttrRMode = 3;
-    g_AkaoVoiceAttrVolL = (g_AkaoStreamPan ^ 0x7F) * g_AkaoStreamVol >> 7;
+    g_AkaoVoiceAttrVolL = (g_AkaoStreamPan ^ AKAO_PAN_MAX) * g_AkaoStreamVol >> 7;
     g_AkaoVoiceAttrPitch = g_AkaoStreamPitch;
     g_AkaoVoiceAttrVolR = g_AkaoStreamVol * g_AkaoStreamPan >> 7;
     AkaoUpdateChannelParamsToSpu(0x10, &g_AkaoVoiceAttr);
@@ -2197,11 +2196,11 @@ s32 AkaoExec(void) {
     g_AkaoMutex = 1;
 
     switch (g_AkaoCmd.opcode) {
-    case 0x10:
-    case 0x14:
-    case 0x15:
-    case 0x18:
-    case 0x19:
+    case AKAO_PLAY_MUSIC:
+    case AKAO_PLAY_MUSIC_SAVE_CURR:
+    case AKAO_PLAY_MUSIC_SWAP_SAVED:
+    case AKAO_FADE_PLAY_MUSIC:
+    case AKAO_FADE_PLAY_MUSIC_SAVE_CURR:
         data = (u8*)g_AkaoCmd.params[0];
         if (data[0] == 'A' && data[1] == 'K' && data[2] == 'A' && data[3] == 'O') {
             data += 4;
@@ -2226,77 +2225,77 @@ s32 AkaoExec(void) {
             result = -1;
         }
         break;
-    case 0x24:
+    case AKAO_PLAY_ONE_CONSECUTIVE_SOUND:
         AkaoGetCommandQueue(&command);
         command->param0 = g_AkaoCmd.params[0];
         command->param1 = g_AkaoCmd.params[1];
-        command->opcode = 0x20;
+        command->opcode = AKAO_PLAY_SOUND;
         break;
-    case 0x25:
+    case AKAO_PLAY_TWO_CONSECUTIVE_SOUNDS:
         AkaoGetCommandQueue(&command);
         command->param0 = g_AkaoCmd.params[0];
         command->param1 = g_AkaoCmd.params[1];
         command->param2 = g_AkaoCmd.params[1] + 1;
-        command->opcode = 0x21;
+        command->opcode = AKAO_PLAY_TWO_SOUNDS;
         break;
-    case 0x26:
+    case AKAO_PLAY_THREE_CONSECUTIVE_SOUNDS:
         AkaoGetCommandQueue(&command);
         command->param0 = g_AkaoCmd.params[0];
         command->param1 = g_AkaoCmd.params[1];
         command->param2 = g_AkaoCmd.params[1] + 1;
         command->param3 = g_AkaoCmd.params[1] + 2;
-        command->opcode = 0x22;
+        command->opcode = AKAO_PLAY_THREE_SOUNDS;
         break;
-    case 0x27:
+    case AKAO_PLAY_FOUR_CONSECUTIVE_SOUNDS:
         AkaoGetCommandQueue(&command);
         command->param0 = g_AkaoCmd.params[0];
         command->param1 = g_AkaoCmd.params[1];
         command->param2 = g_AkaoCmd.params[1] + 1;
         command->param3 = g_AkaoCmd.params[1] + 2;
         command->param4 = g_AkaoCmd.params[1] + 3;
-        command->opcode = 0x23;
+        command->opcode = AKAO_PLAY_FOUR_SOUNDS;
         break;
-    case 0xD8:
+    case AKAO_SET_TEMPO_AND_PITCH:
         AkaoGetCommandQueue(&command);
         command->param0 = g_AkaoCmd.params[0];
-        command->opcode = 0xD0;
+        command->opcode = AKAO_SET_TEMPO;
         AkaoGetCommandQueue(&command);
         command->param0 = g_AkaoCmd.params[0];
-        command->opcode = 0xD4;
+        command->opcode = AKAO_SET_PITCH;
         break;
-    case 0xD9:
+    case AKAO_TEMPO_AND_PITCH_SLIDE_FROM_CURR:
         AkaoGetCommandQueue(&command);
         command->param0 = g_AkaoCmd.params[0];
         command->param1 = g_AkaoCmd.params[1];
-        command->opcode = 0xD1;
+        command->opcode = AKAO_TEMPO_SLIDE_FROM_CURR;
         AkaoGetCommandQueue(&command);
         command->param0 = g_AkaoCmd.params[0];
         command->param1 = g_AkaoCmd.params[1];
-        command->opcode = 0xD5;
+        command->opcode = AKAO_PITCH_SLIDE_FROM_CURR;
         break;
-    case 0xDA:
-        AkaoGetCommandQueue(&command);
-        command->param0 = g_AkaoCmd.params[0];
-        command->param1 = g_AkaoCmd.params[1];
-        command->param2 = g_AkaoCmd.params[2];
-        command->opcode = 0xD2;
+    case AKAO_TEMPO_AND_PITCH_SLIDE_BETWEEN_TARGETS:
         AkaoGetCommandQueue(&command);
         command->param0 = g_AkaoCmd.params[0];
         command->param1 = g_AkaoCmd.params[1];
         command->param2 = g_AkaoCmd.params[2];
-        command->opcode = 0xD6;
+        command->opcode = AKAO_TEMPO_SLIDE_BETWEEN_TARGETS;
+        AkaoGetCommandQueue(&command);
+        command->param0 = g_AkaoCmd.params[0];
+        command->param1 = g_AkaoCmd.params[1];
+        command->param2 = g_AkaoCmd.params[2];
+        command->opcode = AKAO_PITCH_SLIDE_BETWEEN_TARGETS;
         break;
-    case 0x99:
+    case AKAO_APPLY_ALL_PENDING_UPDATES:
         AkaoGetCommandQueue(&command);
-        command->opcode = 0x9B;
+        command->opcode = AKAO_APPLY_PENDING_MUSIC_UPDATES;
         AkaoGetCommandQueue(&command);
-        command->opcode = 0x9D;
+        command->opcode = AKAO_APPLY_PENDING_SOUND_UPDATES;
         break;
-    case 0x98:
+    case AKAO_FLUSH_ALL_PENDING_UPDATES:
         AkaoGetCommandQueue(&command);
-        command->opcode = 0x9A;
+        command->opcode = AKAO_FLUSH_PENDING_MUSIC_UPDATES;
         AkaoGetCommandQueue(&command);
-        command->opcode = 0x9C;
+        command->opcode = AKAO_FLUSH_PENDING_SOUND_UPDATES;
         break;
     default:
         AkaoGetCommandQueue(&command);
@@ -2380,13 +2379,13 @@ static u8 AkaoScanSequenceTerminator(u8** seqPtr) {
     u8* data;
 
     data = *seqPtr;
-    expected = 0xCA;
+    expected = AKAO_OP_LOOP_RETURN;
     do {
         opcode = *data;
         len = g_AkaoOpcodeSize[opcode];
         data += len;
     } while (len);
-    return opcode == expected ? 0xCA : 0xA0;
+    return opcode == expected ? AKAO_OP_LOOP_RETURN : AKAO_OP_FINISH_CHANNEL;
 }
 
 /////////////////////////
