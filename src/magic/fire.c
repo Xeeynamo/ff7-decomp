@@ -2,8 +2,11 @@
 
 #include "common.h"
 #include "magic.h"
+#include "magic_private.h"
 #include "../battle/battle.h"
 #include <libc.h>
+
+// Fire (ファイア / Fire), tier 1.
 
 typedef struct {
     /* 0x00 */ s16 StartFrame;

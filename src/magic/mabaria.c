@@ -5,6 +5,8 @@
 #include "magic_private.h"
 #include "../battle/battle.h"
 
+// MBarrier (マバリア / MBarrier).
+
 // Frame 16 would land on 0x7FFE, just under ScaleMatrix's 0x7FFF s16 ceiling.
 #define GROWTH_TOTAL 0x3BFF
 #define SCALE_BASE 0x400

@@ -5,6 +5,7 @@
 #include "magic_private.h"
 #include "../battle/battle.h"
 
+// Reflect (リフレク / Reflect).
 
 // Three rings spawn 8 frames apart, each growing a little faster than the
 // last; Scale starts at RING_START_SCALE and gains ScaleStep every frame.

@@ -107,5 +107,5 @@ static void FairaMainSetup(s32 targetMask, s32 callbackArg) {
     BattleSetLoadTimToVram(g_FairaTexture, 0, 0, 0);
     BattleEffectRegister(FairaDoubleBufferFlip);
     MagicAnimationRegister(targetMask, callbackArg, 0, FairaAttachToTarget);
-    BattleAkaoCommand(0x20, BattleEntityGetStereoPan(targetMask), 0xA);
+    BattleAkaoCommand(AKAO_PLAY_SOUND, BattleEntityGetStereoPan(targetMask), SFX_FIRA);
 }

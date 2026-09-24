@@ -133,5 +133,5 @@ static void BrizadDoubleBufferFlip(void) {
 void MAGIC_Brizad(s32 targetMask, s32 callbackArg) {
     BattleEffectRegister(BrizadDoubleBufferFlip);
     MagicAnimationRegister(targetMask, callbackArg, 4, BrizadAttachToTarget);
-    BattleAkaoCommand(0x20, BattleEntityGetStereoPan(g_BattleCurrentTargetMask), 0x18);
+    BattleAkaoCommand(AKAO_PLAY_SOUND, BattleEntityGetStereoPan(g_BattleCurrentTargetMask), SFX_BLIZZARD);
 }

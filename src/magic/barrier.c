@@ -5,23 +5,23 @@
 #include "magic_private.h"
 #include "../battle/battle.h"
 
+// Barrier (バリア / Barrier).
+
 #define FADE_LAST_FRAME 7
 #define FADE_PER_FRAME 0x200
 #define SCALE_BASE 0xC00
 #define SCALE_PER_FADE_FRAME 0x180
 
-// This is placeholder for now so I can access the SVECTORs correctly
-typedef struct BarrierData {
-    s16 StartFrame;
-    s16 AnimationFrame;
-    s16 TargetIndex;
-    s16 unk6;
-    SVECTOR Pos;
-    SVECTOR Rot;
-    u16 FaceIndex; // 0..3, straight into the descriptor's mirror bits
-                   // 0x1 and 0x2; one instance per quadrant
-    char pad1[0x6];
-} BarrierData;
+typedef struct {
+    /* 0x00 */ s16 StartFrame;
+    /* 0x02 */ s16 AnimationFrame;
+    /* 0x04 */ s16 TargetIndex;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ SVECTOR Pos;
+    /* 0x10 */ SVECTOR Rot;
+    /* 0x18 */ u16 FaceIndex; // 0..3, straight into descriptor mirror bits 0x1 and 0x2
+    /* 0x1A */ char pad1A[6];
+} BarrierData; // size:0x20
 
 // Battle effect instances.
 extern BarrierData g_BattleEffectSlots[];
@@ -73,18 +73,18 @@ static s32 bari_a2[] = {    // Embedded Model
     0x303F3F3F,  // Primitive/color: command 0x30, RGB 3F3F3F
     0x00D4D4D4,  // Triangle 1: vertex 1 color, RGB D4D4D4
     0x003F3F3F}; // Triangle 1: vertex 2 color, RGB 3F3F3F
-static int empty_poly = 0x00000000;
+static s32 empty_poly = 0x00000000;
 static SVECTOR border_pivot_offset = {0, 0, -500};
 static ModelRenderDesc border_render_desc = {bari_a1, 0, 0, 0, 0x20};
 static SVECTOR shield_pivot_offset = {0, 0, -500};
 static ModelRenderDesc shield_render_desc = {bari_a2, 0, 0, 0, 0x20};
-static int barrier_base_scale;
+static s32 barrier_base_scale;
 
 static u8 barrier_prim_buffer[2][MAGIC_PAGE_SIZE];
 static void* barrier_buffer_ptr;
 
 // barrier.c forward declarations
-static void BarrierMainSetup(int targetMask, int callbackArg);
+static void BarrierMainSetup(s32 targetMask, s32 callbackArg);
 
 void MAGIC_Barrier(s32 targetMask, s32 callbackArg) { BarrierMainSetup(targetMask, callbackArg); }
 
@@ -94,9 +94,9 @@ static void BarrierRenderBorder(void) {
     MATRIX* matrix;
     VECTOR* scale;
     BarrierData* barrier;
-    int temp_a0;
-    int fade;
-    int faceFlags;
+    s32 temp_a0;
+    s32 fade;
+    s32 faceFlags;
 
     matrix = (MATRIX*)0x1F800000;
     scale = (VECTOR*)0x1F800020;
@@ -144,9 +144,9 @@ static void BarrierRenderShield(void) {
     VECTOR* scale1;
     VECTOR* scale2;
     BarrierData* barrier;
-    int temp_a0;
-    int faceFlags;
-    int fade;
+    s32 temp_a0;
+    s32 faceFlags;
+    s32 fade;
 
     matrix1 = (MATRIX*)0x1F800000;
     matrix2 = (MATRIX*)0x1F800020;
@@ -278,7 +278,7 @@ static void BarrierAnimationUpdate(void) {
     barrier->AnimationFrame++;
 }
 
-static void BarrierAttachToTarget(int target, int callbackArg) {
+static void BarrierAttachToTarget(s32 target, s32 callbackArg) {
     BarrierData* barrier;
 
     barrier = &g_BattleEffectSlots[BattleEffectRegister(BarrierAnimationUpdate)];
@@ -301,9 +301,9 @@ static void BarrierDoubleBufferFlip(void) {
     }
 }
 
-static void BarrierMainSetup(int targetMask, int callbackArg) {
+static void BarrierMainSetup(s32 targetMask, s32 callbackArg) {
     barrier_base_scale = 0x3000;
     BattleEffectRegister(BarrierDoubleBufferFlip);
     MagicAnimationRegister(targetMask, callbackArg, 4, BarrierAttachToTarget);
-    BattleAkaoCommand(32, BattleEntityGetStereoPan(targetMask), 94);
+    BattleAkaoCommand(AKAO_PLAY_SOUND, BattleEntityGetStereoPan(targetMask), SFX_BARRIER);
 }

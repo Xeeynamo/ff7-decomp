@@ -75,7 +75,7 @@ static void ThunderaRenderModel(void) {
     }
 }
 
-static void func_801B01A0(void) {
+static void ThunderaRenderFlash(void) {
     SpriteRenderDesc* desc;
     ThunderaData* effect;
     u8 frame;
@@ -99,7 +99,7 @@ static void func_801B01A0(void) {
     }
 }
 
-static void func_801B028C(void) {
+static void ThunderaRenderImpact(void) {
     ThunderaData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -114,7 +114,7 @@ static void func_801B028C(void) {
     }
 }
 
-static void func_801B0348(void) {
+static void ThunderaRenderSpark(void) {
     int flag;
     SpriteRenderDesc* desc;
     ThunderaData* effect;
@@ -163,7 +163,7 @@ static void ThunderaSpawnBolt(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == 1) {
-            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B01A0)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(ThunderaRenderFlash)];
             next->Pos = effect->Pos;
             next->Pos.vy = 0;
             next->DepthBias = effect->DepthBias;
@@ -179,13 +179,13 @@ static void ThunderaSpawnBolt(void) {
             next->ScaleStep = 0x800;
         }
         if (effect->AnimationFrame == 8) {
-            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B028C)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(ThunderaRenderImpact)];
             next->Pos = effect->Pos;
             next->DepthBias = effect->DepthBias;
         }
         boltFrame = effect->AnimationFrame;
         if (boltFrame < 16) {
-            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B0348)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(ThunderaRenderSpark)];
             next->Pos.vx = (effect->Pos.vx + rand() % 1000) - 500;
             next->Pos.vy = (effect->Pos.vy + rand() % 1000) - 500;
             next->Pos.vz = (effect->Pos.vz + rand() % 1000) - 500;
@@ -223,5 +223,5 @@ static void ThunderaMainSetup(s32 targetMask, s32 callbackArg) {
     BattleSetLoadTimToVram(g_ThunderaTexture, 0, 0, 0);
     BattleEffectRegister(ThunderaDoubleBufferFlip);
     MagicAnimationRegister(targetMask, callbackArg, 2, ThunderaAttachToTarget);
-    BattleAkaoCommand(AKAO_PLAY_SOUND, BattleEntityGetStereoPan(targetMask),SFX_THUNDARA);
+    BattleAkaoCommand(AKAO_PLAY_SOUND, BattleEntityGetStereoPan(targetMask), SFX_THUNDARA);
 }
