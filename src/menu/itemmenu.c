@@ -47,7 +47,7 @@ extern u8 D_801D3E60[];
 // id (arg0) into the sound-request globals, then dispatches via
 // AkaoExec.
 void func_801D01E8(u16 arg0) {
-    g_AkaoCmd.opcode = 0x30;
+    g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
     g_AkaoCmd.params[0] = arg0;
     g_AkaoCmd.params[1] = arg0;
     AkaoExec();

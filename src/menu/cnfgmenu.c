@@ -107,7 +107,7 @@ static s32 D_801D2528;
 static u8 D_801D252C[NUM_MENU_COLOR];
 
 static void func_801D0040(u16 arg0) {
-    g_AkaoCmd.opcode = 0x30;
+    g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
     g_AkaoCmd.params[0] = arg0;
     g_AkaoCmd.params[1] = arg0;
     AkaoExec();
@@ -116,19 +116,19 @@ static void func_801D0040(u16 arg0) {
 static void func_801D0080(s32 arg0) {
     switch (arg0) {
     case 0:
-        g_AkaoCmd.opcode = 0x81;
-        g_AkaoCmd.params[0] = 0x81;
-        g_AkaoCmd.params[1] = 0x81;
+        g_AkaoCmd.opcode = AKAO_SET_MONO_MODE;
+        g_AkaoCmd.params[0] = AKAO_SET_MONO_MODE;
+        g_AkaoCmd.params[1] = AKAO_SET_MONO_MODE;
         break;
     case 1:
-        g_AkaoCmd.opcode = 0x80;
-        g_AkaoCmd.params[0] = 0x80;
-        g_AkaoCmd.params[1] = 0x80;
+        g_AkaoCmd.opcode = AKAO_SET_STEREO_MODE;
+        g_AkaoCmd.params[0] = AKAO_SET_STEREO_MODE;
+        g_AkaoCmd.params[1] = AKAO_SET_STEREO_MODE;
         break;
     case 2:
-        g_AkaoCmd.opcode = 0x82;
-        g_AkaoCmd.params[0] = 0x82;
-        g_AkaoCmd.params[1] = 0x82;
+        g_AkaoCmd.opcode = AKAO_RESET_MUSIC_AND_SOUND_VOL;
+        g_AkaoCmd.params[0] = AKAO_RESET_MUSIC_AND_SOUND_VOL;
+        g_AkaoCmd.params[1] = AKAO_RESET_MUSIC_AND_SOUND_VOL;
         break;
     }
     AkaoExec();

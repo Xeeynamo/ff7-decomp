@@ -6,7 +6,7 @@
 extern s32 D_801E2CF4;
 
 static void PlaySfx(u16 soundId) {
-    g_AkaoCmd.opcode = 0x30;
+    g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
     g_AkaoCmd.params[0] = soundId;
     g_AkaoCmd.params[1] = soundId;
     AkaoExec();
@@ -38,19 +38,19 @@ static s32 DoFade(s32 fadeDirection) {
 static void func_801D2D10(s32 arg0) {
     switch (arg0) {
     case 0:
-        g_AkaoCmd.opcode = 0x81;
-        g_AkaoCmd.params[0] = 0x81;
-        g_AkaoCmd.params[1] = 0x81;
+        g_AkaoCmd.opcode = AKAO_SET_MONO_MODE;
+        g_AkaoCmd.params[0] = AKAO_SET_MONO_MODE;
+        g_AkaoCmd.params[1] = AKAO_SET_MONO_MODE;
         break;
     case 1:
-        g_AkaoCmd.opcode = 0x80;
-        g_AkaoCmd.params[0] = 0x80;
-        g_AkaoCmd.params[1] = 0x80;
+        g_AkaoCmd.opcode = AKAO_SET_STEREO_MODE;
+        g_AkaoCmd.params[0] = AKAO_SET_STEREO_MODE;
+        g_AkaoCmd.params[1] = AKAO_SET_STEREO_MODE;
         break;
     case 2:
-        g_AkaoCmd.opcode = 0x82;
-        g_AkaoCmd.params[0] = 0x82;
-        g_AkaoCmd.params[1] = 0x82;
+        g_AkaoCmd.opcode = AKAO_RESET_MUSIC_AND_SOUND_VOL;
+        g_AkaoCmd.params[0] = AKAO_RESET_MUSIC_AND_SOUND_VOL;
+        g_AkaoCmd.params[1] = AKAO_RESET_MUSIC_AND_SOUND_VOL;
         break;
     }
     AkaoExec();
@@ -432,7 +432,7 @@ static s32 HandleTitleScreen(s32 counter) {
                     break;
                 }
                 if (D_801E8F38[temp_v1_2][0]) {
-                    PlaySfx(1);
+                    PlaySfx(SFX_MENU_CURSOR_MOVE);
                     if (D_801E8F38[D_801E3D80[0].row][2]) {
                         g_MenuStartMode = START_MENU_MODE_FORMAT_PROMPT;
                         SysMenuSetCursorMovement(&D_801E3D80[6], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
@@ -446,11 +446,11 @@ static s32 HandleTitleScreen(s32 counter) {
                         SysMenuSetCursorMovement(&D_801E3D80[1], 0, 0, 1, 3, 0, 0, 1, 15, 0, 0, 0, 0, 0);
                     }
                 } else {
-                    PlaySfx(3);
+                    PlaySfx(SFX_MENU_BAD);
                     SysMenuRequestAddWindow(D_801E33B0, 7);
                 }
             } else if (g_Pad1KeysPressed & PADRdown) {
-                PlaySfx(4);
+                PlaySfx(SFX_MENU_BACK);
                 g_MenuStartMode = START_MENU_MODE_TITLE;
             } else {
                 SysMenuHandleButtons(&D_801E3D80[0]);
@@ -462,14 +462,14 @@ static s32 HandleTitleScreen(s32 counter) {
             if (!D_801E3D80[1].unkF && !var_s1) {
                 if (g_Pad1KeysPressed & PADRright) {
                     if (((s32)D_80062F3C >> (D_801E3D80[1].row + D_801E3D80[1].rowOffset)) & 1) {
-                        PlaySfx(1);
+                        PlaySfx(SFX_MENU_CURSOR_MOVE);
                         g_MenuStartMode = START_MENU_MODE_LOADING;
                         D_801E3F18 = 10;
                     } else {
-                        PlaySfx(3);
+                        PlaySfx(SFX_MENU_BAD);
                     }
                 } else if (g_Pad1KeysPressed & PADRdown) {
-                    PlaySfx(4);
+                    PlaySfx(SFX_MENU_BACK);
                     g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                 }
             }
@@ -489,13 +489,13 @@ static s32 HandleTitleScreen(s32 counter) {
                     if (var_s1) {
                         g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                         SysMenuRequestAddWindow(D_801E33B0[8], 2);
-                        PlaySfx(3);
+                        PlaySfx(SFX_MENU_BAD);
                     }
                     if (D_801E3F20 == 0xF) {
                         D_801E3F20 = 0xE;
                         g_MenuStartMode = START_MENU_MODE_CHECKING_WAIT;
                         D_801E3F18 = 10;
-                        PlaySfx(2);
+                        PlaySfx(SFX_MENU_CONFIRMED);
                     }
                 }
             } else {
@@ -522,16 +522,16 @@ static s32 HandleTitleScreen(s32 counter) {
             if (var_s1 == 0) {
                 if (Savemap.header.checksum != (u16)func_801D1950(sizeof(SaveWork) - 4, &Savemap.header.leader_level)) {
                     g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
-                    PlaySfx(3);
+                    PlaySfx(SFX_MENU_BAD);
                     SysMenuRequestAddWindow(D_801E2CFC[31], 0);
                 } else {
-                    PlaySfx(0xD0);
+                    PlaySfx(SFX_MEMCARD_LOADED);
                     D_801E3D54 = 2;
                     func_801D2D10(Savemap.config & 3);
                 }
             } else {
                 g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
-                PlaySfx(3);
+                PlaySfx(SFX_MENU_BAD);
                 SysMenuRequestAddWindow(D_801E2CFC[11], var_s1);
             }
             g_SavemapBusy = 0;
@@ -549,35 +549,35 @@ static s32 HandleTitleScreen(s32 counter) {
                     if (temp_v1_2 == 1) {
                         D_801E8F38[D_801E3D80[0].row][2] = 0;
                         SysMenuRequestAddWindow(D_801E2CFC[41], 7);
-                        PlaySfx(0xD0);
+                        PlaySfx(SFX_MEMCARD_LOADED);
                     } else {
                         SysMenuRequestAddWindow(D_801E3260[3], 7);
-                        PlaySfx(3);
+                        PlaySfx(SFX_MENU_BAD);
                     }
                 } else {
                     g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
-                    PlaySfx(4);
+                    PlaySfx(SFX_MENU_BACK);
                 }
             } else if (g_Pad1KeysPressed & PADRdown) {
                 g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
-                PlaySfx(4);
+                PlaySfx(SFX_MENU_BACK);
             }
             break;
         case START_MENU_MODE_TITLE:
             if (g_Pad1KeysPressed & PADRright) {
                 switch (D_801E3D80[7].row) {
                 case 0:
-                    PlaySfx(0xD0);
+                    PlaySfx(SFX_MEMCARD_LOADED);
                     D_801E3698 = 1;
                     D_801E3D54 = 2;
                     break;
                 case 1:
                     if (D_801E8F38[0][0] || D_801E8F38[1][0]) {
-                        PlaySfx(1);
+                        PlaySfx(SFX_MENU_CURSOR_MOVE);
                         SysMenuSetCursorMovement(&D_801E3D80[0], 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
                         g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                     } else {
-                        PlaySfx(3);
+                        PlaySfx(SFX_MENU_BAD);
                     }
                     break;
                 }
