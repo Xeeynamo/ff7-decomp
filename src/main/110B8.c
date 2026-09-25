@@ -1,11 +1,11 @@
 //! PSYQ=3.3 G=0
 #include "main_private.h"
 #include "unzip.h"
-static Yamada yama_sound_instr_all = {LBA_INSTR_ALL, 483232};
-static Yamada yama_sound_effect = {LBA_EFFECT, 51200};
-static Yamada yama_sound_instr_dat = {LBA_INSTR_DAT, 8192};
-static Yamada yama_sound_instr2_all = {LBA_INSTR2_ALL, 251120};
-static Yamada yama_sound_instr2_dat = {LBA_INSTR2_DAT, 8192};
+static Yamada yama_sound_instr_all = {LBA_SOUND_INSTR_ALL, 483232};
+static Yamada yama_sound_effect = {LBA_SOUND_EFFECT, 51200};
+static Yamada yama_sound_instr_dat = {LBA_SOUND_INSTR_DAT, 8192};
+static Yamada yama_sound_instr2_all = {LBA_SOUND_INSTR2_ALL, 251120};
+static Yamada yama_sound_instr2_dat = {LBA_SOUND_INSTR2_DAT, 8192};
 static Yamada yama_field_field = {LBA_FIELD_FIELD, 85435};
 static Yamada yama_world_world = {LBA_WORLD_WORLD, 66715};
 static Yamada yama_mini_condor = {LBA_MINI_CONDOR, 39600};
