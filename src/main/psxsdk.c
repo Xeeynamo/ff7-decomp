@@ -33,11 +33,11 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80036190);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80036244);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80036298);
-
 // NOTE: please do not decompile any of these functions.
 // Please refer to psyz/decomp for decompiled PSX SDK functions:
 // https://github.com/Xeeynamo/psyz/tree/main/decomp
+
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", SpuInit);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _SpuInit);
 
@@ -175,7 +175,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", VectorNormal);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", VectorNormalSS);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003A0E8);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", VectorNormal_entry);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", MatrixNormal);
 
@@ -377,7 +377,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", ratan2);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _patch_gte);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_8003CE0C);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _patch_GTE);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", PadInit);
 
@@ -609,11 +609,13 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", MDEC_out_sync);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", timeout);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_800425F8);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", break_cnt);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DecDCTvlcSize);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", DecDCTvlc);
+
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", save_regs);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", InitHeap);
 
@@ -943,7 +945,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", IsIdleGPU);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", ContinueDraw);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_800487F0);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", ContinueDraw_3_6);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _card_info);
 
@@ -969,12 +971,14 @@ INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", StartCARD2);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", StopCARD2);
 
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _dsr_start);
+
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _patch_card);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80048BBC);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _patch_wait_start);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _patch_card2);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", func_80048C58);
+INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _wait);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/psxsdk", _ExitCard);
