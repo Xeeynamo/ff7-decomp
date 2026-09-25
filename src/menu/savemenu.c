@@ -46,16 +46,16 @@ void func_801D05C0(u8 arg0) {
     func_80025B8C(&D_801E8F44);
     func_80025C14(&D_801E4538);
     SysMenuLoadAvatars();
-    func_801D19C4();
+    SaveInitCardEvents();
 }
 
 static void func_801D0670(void) {
     func_80025BD0(D_801E8F44);
     func_80025C54(D_801E4538);
-    func_801D1BA4();
+    SaveCleanupCardEvents();
 }
 
-int SAVEMENU_HandleSave(s32 counter) {
+int SaveUpdate(s32 counter) {
     RECT sp38;
     RECT rect;
     s32 temp_s1;
@@ -82,7 +82,7 @@ int SAVEMENU_HandleSave(s32 counter) {
     if (!SysMenuGetMenuListState() || (D_801E36B8 && D_801E36B0 == 1)) {
         if (!(u8)func_8001F6B4()) {
             if (D_801E3850 >= 0 && D_801E3850 < 2) {
-                SaveMenuFetchAllMemCardStatus(counter);
+                SaveFetchAllCardStatus(counter);
             }
             if (D_801E3860) {
                 D_801E3860--;
@@ -132,7 +132,7 @@ int SAVEMENU_HandleSave(s32 counter) {
             for (var_s0 = 0; var_s0 < var_s3; var_s0++) {
                 if ((D_80062F3C >> (var_s0 + menus.D_801E379C[1].rowOffset)) & 1) {
                     SysMenuStoreWindowColor();
-                    SaveMenuDrawSaveSlot(
+                    SaveDrawSlot(
                         0, var_s0 * 64 + 29 + menus.D_801E379C[1].unkF * 8, var_s0 + menus.D_801E379C[1].rowOffset);
                     SysMenuRestoreWindowColor();
                 } else {
@@ -263,7 +263,7 @@ int SAVEMENU_HandleSave(s32 counter) {
         break;
     case 1:
         var_s0 = menus.D_801E379C[1].unkF;
-        SysMenuHandleScrollButtons(&menus.D_801E379C[1]);
+        SaveHandleScrollCursor(&menus.D_801E379C[1]);
         if ((menus.D_801E379C[1].unkF == 0) && (var_s0 == 0)) {
             if (g_Pad1KeysPressed & PADRright) {
                 D_801E3850 = 7;
@@ -284,7 +284,7 @@ int SAVEMENU_HandleSave(s32 counter) {
             } else {
                 var_s0 = 0;
                 if ((D_80062F3C >> D_801E36AC) & 1) {
-                    var_s0 = SaveMenuFetchSaveHeader(menus.D_801E379C[0].row, D_801E36AC);
+                    var_s0 = SaveFetchHeader(menus.D_801E379C[0].row, D_801E36AC);
                 }
                 D_801E36AC++;
                 if (var_s0) {
@@ -318,7 +318,7 @@ int SAVEMENU_HandleSave(s32 counter) {
         if (menus.D_801E379C[0].row != 0) {
             var_v0_6 |= 0x10;
         }
-        if (!func_801D2A34(var_v0_6)) {
+        if (!SaveCheckFile(var_v0_6)) {
             PlaySfx(SFX_MEMCARD_LOADED);
             SysMenuRequestAddWindow(D_801E2CFC[28], 7);
             D_80062F3C |= 1 << (menus.D_801E379C[1].row + menus.D_801E379C[1].rowOffset);
@@ -385,7 +385,7 @@ static const char* D_801E2C78[] = {
 };
 static s32 D_801E2CB4 = 0;
 
-s32 SAVEMENU_Main(void) {
+s32 SaveMain(void) {
     s32 ret;
     s32 i;
 
@@ -401,7 +401,7 @@ s32 SAVEMENU_Main(void) {
         ClearOTag(D_801E3854, 1);
         SysMenuSetOtag(D_801E3854);
         SysMenuDrawAddWindow();
-        ret = SAVEMENU_HandleSave(i);
+        ret = SaveUpdate(i);
         if (D_801E36B0 == -1) {
             break;
         }
@@ -423,7 +423,7 @@ s32 SAVEMENU_Main(void) {
     return ret;
 }
 
-u16 func_801D1950(u16 len, u8* data) {
+u16 SaveCalcChecksum(u16 len, u8* data) {
     u16 i, j;
     s32 sum = 0xFFFF;
     for (i = 0; i < len; i++) {
@@ -439,7 +439,7 @@ u16 func_801D1950(u16 len, u8* data) {
     return ~sum;
 }
 
-void func_801D19C4(void) {
+void SaveInitCardEvents(void) {
     s32 i;
 
     if (D_80062DCC == 0) {
@@ -470,7 +470,7 @@ void func_801D19C4(void) {
     }
 }
 
-void func_801D1BA4(void) {}
+void SaveCleanupCardEvents(void) {}
 
 static void func_801D1BAC(s32 arg0, s32 arg1) { TestEvent(D_8009A024[arg1]); }
 
@@ -530,7 +530,7 @@ u16 GetSaveSlotMask(s32 cardSlot) {
 static const char D_801D018C[] = "bu10:%s";
 static const char D_801D0194[] = "bu00:%s";
 
-SaveHeader* func_801D1D1C(s32 arg0) { return &D_801E3864[arg0]; }
+SaveHeader* SaveGetHeader(s32 arg0) { return &D_801E3864[arg0]; }
 
 s32 LoadSaveHeader(s32 save_id) {
     // Declared but never used, like the one GetSaveSlotMask passes to
@@ -749,7 +749,7 @@ static s32 WriteSaveFile(s8* path, u8* title) {
     headerDst = (u8*)&g_SaveFile.header;
     memcpy(headerDst, (u8*)&g_SaveFileHeader, sizeof(MemcardFileHeader));
     g_SavemapBusy = 1;
-    Savemap.header.checksum = func_801D1950(0x10F0, (u8*)&Savemap.header.leader_level);
+    Savemap.header.checksum = SaveCalcChecksum(0x10F0, (u8*)&Savemap.header.leader_level);
     savemapSrc = (u8*)&Savemap;
     memcpy((u8*)&g_SaveFile.save, savemapSrc, sizeof(SaveWork));
     g_SavemapBusy = 0;
@@ -809,7 +809,7 @@ static const char* D_801E2CB8[] = {
     "ＦＦ７／ＳＡＶＥ１３／１１：１１", "ＦＦ７／ＳＡＶＥ１４／１１：１１", "ＦＦ７／ＳＡＶＥ１５／１１：１１",
 };
 
-static s16 func_801D2A34(s32 save_id) {
+static s16 SaveCheckFile(s32 save_id) {
     char path[0x40];
     s32 ret;
     s32 slot;

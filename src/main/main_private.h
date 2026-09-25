@@ -124,7 +124,7 @@ void SysGzipSetDataBlock(u8* arg0);
 u16 SysGzipGetType(void);
 u16 SysGzipGetSize(void);
 u32 SysGzipPackDecompressNextBlock(u8* dst);
-u16 func_801D1950(u16 len, u8* data);
+u16 SaveCalcChecksum(u16 len, u8* data);
 u8* SysGetKernTextPtrByBlock(s32 arg0, s32 arg1, s32 arg2);
 u8* SysGetKernBattleTextPtr(s32 arg0);
 u8 func_8001F6B4(void);

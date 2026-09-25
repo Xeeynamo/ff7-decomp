@@ -15,11 +15,11 @@ void* D_800493A8[] = {
 void SysMenuDrawMainMenu();
 void func_801D00C4();
 void func_801D080C();
-void SAVEMENU_HandleSave();
+void SaveUpdate();
 void* D_800493FC[] = {
     SysMenuDrawMainMenu, (void*)0x801D0E80, (void*)0x801D0490, (void*)0x801D6C2C, (void*)0x801D0BD0,
     (void*)0x801D167C,   func_801D00C4,     (void*)0x801D042C, func_801D080C,     (void*)0x801D0E94,
-    SAVEMENU_HandleSave, (void*)0x801D0250, func_801D00C4,     (void*)0x801D0E80, (void*)0x801D0E80,
+    SaveUpdate,          (void*)0x801D0250, func_801D00C4,     (void*)0x801D0E80, (void*)0x801D0E80,
     (void*)0x801D0BD0,   (void*)0x801D0E80, (void*)0x801D0E80, (void*)0x801D0E80, (void*)0x801D0E80,
     (void*)0x801D0E80,
 };
