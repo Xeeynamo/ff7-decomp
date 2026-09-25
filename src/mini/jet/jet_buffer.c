@@ -2,6 +2,8 @@
 
 #include "jet_private.h"
 
+static void JetPrimsInit(JetPrimBuffer* prims);
+
 void JetBuffersInit(void) {
     JetPrimBuffer* prims;
     JetBuffer* db;
@@ -35,13 +37,14 @@ void JetBuffersInit(void) {
     *g_JetBufferPtr = &g_JetBuffers[0];
 }
 
-void JetBufferReset(void) {
+static void JetBufferReset(void) {
     ClearOTagR(g_JetBufferPtr[0]->ot, LEN(g_JetBufferPtr[0]->ot));
     ClearOTagR(g_JetBufferPtr[0]->ot2, LEN(g_JetBufferPtr[0]->ot2));
     JetPrimCursorsReset(&g_JetBufferPtr[0]->prims);
 }
 
-void JetPrimsInit(JetPrimBuffer* prims) {
+// Tag every primitive in the nine pools with its type and length.
+static void JetPrimsInit(JetPrimBuffer* prims) {
     s32 i;
 
     for (i = 0; i < LEN(prims->f3); i++) {

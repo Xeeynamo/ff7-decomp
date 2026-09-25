@@ -319,7 +319,9 @@ overlays:
     migrate_rodata_to_functions: false
     vram_start: 0x800A0000
     segments:
-      - [0x0, rodata, jet]
+      - [0x0, .rodata, jet]
+      - [0x8, .rodata, jet_object]
+      - [0x410, .rodata, jet_collide]
       - [0x450, c, jet]
       - [0x3AAC, c, jet_object]
       - [0x70D4, c, jet_collide]

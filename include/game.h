@@ -1366,6 +1366,7 @@ extern s32 g_FFTextNumberOffset;
 // PSXSDK funcs
 SVECTOR* ApplyMatrixSV(MATRIX* m, SVECTOR* v0, SVECTOR* v1);
 MATRIX* RotMatrixYXZ(SVECTOR* r, MATRIX* m);
+MATRIX* RotMatrixZYX(SVECTOR* r, MATRIX* m);
 MATRIX* ScaleMatrix(MATRIX*, VECTOR*);
 void VectorNormal(VECTOR*, VECTOR*);
 s32 SetGraphDebug(s32);
