@@ -139,8 +139,6 @@ void JetDrawObjectAndCheckHit(JetBuffer* drawBuffer, JetNode* node, s16 otIndex,
     args.model = node->model;
     drawBuffer->prims.g3Cursor = JetDrawModelTris(&args);
     JetProject6Points(object->unkDC, object->unk11C);
-    // Both reads have to stay: -fforce-mem is what keeps the second one a
-    // word load instead of letting gcc narrow it to lhu.
     ys[0] = object->unk11C[0] >> 16;
     minY = ys[0];
     maxY = minY;
@@ -275,8 +273,6 @@ static void JetSetWorldMatrix(void) {
     gte_SetTransMatrix(world[0]);
 }
 
-// Sample the track at a fractional segment index, giving a point lifted along
-// the surface normal and the interpolated banking rotation.
 void JetTrackSample(u32 trackPosition, s32 heightOffset, VECTOR* position, SVECTOR* rotation) {
     VECTOR left;
     VECTOR right;
