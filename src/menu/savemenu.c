@@ -132,7 +132,7 @@ int SAVEMENU_HandleSave(s32 counter) {
             for (var_s0 = 0; var_s0 < var_s3; var_s0++) {
                 if ((D_80062F3C >> (var_s0 + menus.D_801E379C[1].rowOffset)) & 1) {
                     SysMenuStoreWindowColor();
-                    func_801D370C(
+                    SaveMenuDrawSaveSlot(
                         0, var_s0 * 64 + 29 + menus.D_801E379C[1].unkF * 8, var_s0 + menus.D_801E379C[1].rowOffset);
                     SysMenuRestoreWindowColor();
                 } else {
@@ -263,7 +263,7 @@ int SAVEMENU_HandleSave(s32 counter) {
         break;
     case 1:
         var_s0 = menus.D_801E379C[1].unkF;
-        func_801D2DA8(&menus.D_801E379C[1]);
+        SysMenuHandleScrollButtons(&menus.D_801E379C[1]);
         if ((menus.D_801E379C[1].unkF == 0) && (var_s0 == 0)) {
             if (g_Pad1KeysPressed & PADRright) {
                 D_801E3850 = 7;

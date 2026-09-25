@@ -35,19 +35,19 @@ static s32 DoFade(s32 fadeDirection) {
     return D_801E2CF4;
 }
 
-static void func_801D2D10(s32 arg0) {
-    switch (arg0) {
-    case 0:
+static void ApplySoundMode(s32 mode) {
+    switch (mode) {
+    case MONO:
         g_AkaoCmd.opcode = AKAO_SET_MONO_MODE;
         g_AkaoCmd.params[0] = AKAO_SET_MONO_MODE;
         g_AkaoCmd.params[1] = AKAO_SET_MONO_MODE;
         break;
-    case 1:
+    case STEREO:
         g_AkaoCmd.opcode = AKAO_SET_STEREO_MODE;
         g_AkaoCmd.params[0] = AKAO_SET_STEREO_MODE;
         g_AkaoCmd.params[1] = AKAO_SET_STEREO_MODE;
         break;
-    case 2:
+    case VOL_RESET:
         g_AkaoCmd.opcode = AKAO_RESET_VOLUME;
         g_AkaoCmd.params[0] = AKAO_RESET_VOLUME;
         g_AkaoCmd.params[1] = AKAO_RESET_VOLUME;
@@ -56,7 +56,7 @@ static void func_801D2D10(s32 arg0) {
     AkaoExec();
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/title", func_801D2DA8);
+INCLUDE_ASM("asm/us/menu/nonmatchings/title", SysMenuHandleScrollButtons);
 
 static void PeekSwCardStatus(void) {
     TestEvent(D_8009A024[0]);
@@ -187,7 +187,7 @@ s32 SaveMenuFetchSaveHeader(s32 cardId, s32 slotId) {
     return ret;
 }
 
-void func_801D370C(s32 x, s32 y, s32 slot_no) {
+void SaveMenuDrawSaveSlot(s32 x, s32 y, s32 slot_no) {
     RECT sp28;
     RECT rect;
     s32 i;
@@ -234,7 +234,7 @@ void func_801D370C(s32 x, s32 y, s32 slot_no) {
     }
 }
 
-static void func_801D39C4(void) {
+static void InitTitleScreen(void) {
     D_801E3698 = 0;
     g_MenuStartMode = START_MENU_MODE_TITLE;
     MENU_SetWindowColors(D_801E368C);
@@ -301,7 +301,7 @@ static s32 HandleTitleScreen(s32 counter) {
             for (var_s0 = 0; var_s0 < var_s3; var_s0++) {
                 if ((D_80062F3C >> (var_s0 + D_801E3D80[1].rowOffset)) & 1) {
                     SysMenuStoreWindowColor();
-                    func_801D370C(0, var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8, var_s0 + D_801E3D80[1].rowOffset);
+                    SaveMenuDrawSaveSlot(0, var_s0 * 64 + 0x1D + D_801E3D80[1].unkF * 8, var_s0 + D_801E3D80[1].rowOffset);
                     SysMenuRestoreWindowColor();
                 } else {
                     SysMenuDrawString(0x32, var_s0 * 64 + 55 + D_801E3D80[1].unkF * 8, D_801E2CFC[8], 6);
@@ -458,7 +458,7 @@ static s32 HandleTitleScreen(s32 counter) {
             break;
         case START_MENU_MODE_SELECT_FILE:
             var_s1 = D_801E3D80[1].unkF;
-            func_801D2DA8(&D_801E3D80[1]);
+            SysMenuHandleScrollButtons(&D_801E3D80[1]);
             if (!D_801E3D80[1].unkF && !var_s1) {
                 if (g_Pad1KeysPressed & PADRright) {
                     if (((s32)D_80062F3C >> (D_801E3D80[1].row + D_801E3D80[1].rowOffset)) & 1) {
@@ -527,7 +527,7 @@ static s32 HandleTitleScreen(s32 counter) {
                 } else {
                     PlaySfx(SFX_MEMCARD_LOADED);
                     D_801E3D54 = 2;
-                    func_801D2D10(Savemap.config & 3);
+                    ApplySoundMode(Savemap.config & 3);
                 }
             } else {
                 g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
@@ -590,7 +590,7 @@ static s32 HandleTitleScreen(s32 counter) {
     return D_801E3698;
 }
 
-static void func_801D4C38(void) {
+static void SaveMenuExitTitle(void) {
     func_80025ED4();
     SysMenuStoreCharacterClutToRam(D_800756F8);
     SysMenuLoadCharacterClutFromRam(D_801E3F2C);
@@ -607,7 +607,7 @@ s32 SAVEMENU_Title(void) {
 
     SysMenuCreateDrawenvDispenv(D_801E3E34, D_801E3EEC);
     D_801E3D54 = 0;
-    func_801D39C4();
+    InitTitleScreen();
     D_801E3D58 = 0;
     for (i = 0;; i++) {
         InputUpdateKeyStates();
@@ -627,7 +627,7 @@ s32 SAVEMENU_Title(void) {
         DrawOTag(D_801E3D5C);
         D_801E3D58 ^= 1; // flip back buffer ID?
     }
-    func_801D4C38();
+    SaveMenuExitTitle();
     VSync(0);
     PutDispEnv(&D_801E3EEC[1]);
     PutDrawEnv(&D_801E3E34[1]);

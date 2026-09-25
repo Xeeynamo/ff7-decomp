@@ -18,3 +18,6 @@ g_SaveFileHeader = 0x801E6D38; // size:0x200
 g_SaveFile = 0x801E6F38; // size:0x2000
 g_SaveFileData = 0x801E7138;
 g_SaveWriteRemaining = 0x801E8F40; // size:0x4
+
+SysMenuHandleScrollButtons = 0x801D2DA8;
+SaveMenuDrawSaveSlot = 0x801D370C;

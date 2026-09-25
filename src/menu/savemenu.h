@@ -1,6 +1,13 @@
 #include <game.h>
 
 typedef enum {
+	MONO = 0,
+	STEREO = 1,
+	VOL_RESET = 2
+} MenuAudioMode;
+
+
+typedef enum {
     START_MENU_MODE_SELECT_SLOT = 0,
     START_MENU_MODE_SELECT_FILE = 1,
     START_MENU_MODE_CHECKING_FILES = 2,
@@ -118,4 +125,4 @@ u16 GetSaveSlotMask(s32 cardSlot);
 SaveHeader* func_801D1D1C(s32 arg0);
 static s16 func_801D2A34(s32 save_id);
 void SaveMenuFetchAllMemCardStatus(s32 arg0);
-void func_801D370C(s32 x, s32 y, s32 slot_no);
+void SaveMenuDrawSaveSlot(s32 x, s32 y, s32 slot_no);
