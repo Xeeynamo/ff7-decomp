@@ -88,7 +88,6 @@ s32 OpcodeFuncFmove(void);
 s32 OpcodeFuncCmove(void);
 s32 OpcodeFuncFcfix(void);
 s32 OpcodeFuncJump(void);
-s32 OpcodeFuncLader(void);
 s32 OpcodeFuncPmova(void);
 s32 OpcodeFuncMova(void);
 s32 OpcodeFuncDira(void);
@@ -2896,7 +2895,76 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncFcfix);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncJump);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncLader);
+static s32 OpcodeFuncLader(void) {
+    u8 modelId;
+    s16 value;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("lader", 8);
+    }
+
+    modelId = g_EntityToModel[g_CurrentEntity];
+    if (modelId == 0xFF) {
+        PC_INC(0xF);
+        return 0;
+    }
+
+    switch (g_FieldModels[modelId].scriptedMoveMode) {
+    case SMODE_LADDER_V:
+    case SMODE_LADDER_H:
+        switch (g_FieldModels[modelId].ActionState) {
+        case 1:
+            return 1;
+        case 2:
+            g_FieldModels[modelId].scriptedMoveMode = SMODE_NONE;
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState = 0;
+            PC_INC(0xF);
+            return 0;
+        }
+        break;
+    }
+
+    switch (GET_PARAM_U8(0xB)) {
+    case 0:
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = SMODE_LADDER_V;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionArg = 0;
+        break;
+    case 1:
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = SMODE_LADDER_V;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionArg = 1;
+        break;
+    case 2:
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = SMODE_LADDER_H;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionArg = 0;
+        break;
+    case 3:
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = SMODE_LADDER_H;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionArg = 1;
+        break;
+    }
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState = 0;
+    value = FieldEventReadMemoryS16(1, 3);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndX = value << 12;
+    value = FieldEventReadMemoryS16(2, 5);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndY = value << 12;
+    value = FieldEventReadMemoryS16(3, 7);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndZ = value << 12;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndI = FieldEventReadMemoryS16(4, 9);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(0xC);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].animSpeed =
+        g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(0xE);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
+    {
+        FieldModelEntry* entry =
+            &g_FieldModelData->modelEntries[g_FieldModelLoaderData[g_EntityToModel[g_CurrentEntity]].modelEntryIndex];
+        FieldModelAnimation* anims = (FieldModelAnimation*)(entry->modelData + entry->animationOffset);
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].animLastFrame =
+            anims[g_FieldEntity[g_EntityToModel[g_CurrentEntity]].activeAnimId].frameCount - 1;
+    }
+    g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = 0;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir = GET_PARAM_U8(0xD);
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncPmova);
 
