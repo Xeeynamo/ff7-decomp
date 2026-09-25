@@ -48,9 +48,9 @@ static void func_801D2D10(s32 arg0) {
         g_AkaoCmd.params[1] = AKAO_SET_STEREO_MODE;
         break;
     case 2:
-        g_AkaoCmd.opcode = AKAO_RESET_MUSIC_AND_SOUND_VOL;
-        g_AkaoCmd.params[0] = AKAO_RESET_MUSIC_AND_SOUND_VOL;
-        g_AkaoCmd.params[1] = AKAO_RESET_MUSIC_AND_SOUND_VOL;
+        g_AkaoCmd.opcode = AKAO_RESET_MUSIC_AND_VOL;
+        g_AkaoCmd.params[0] = AKAO_RESET_MUSIC_AND_VOL;
+        g_AkaoCmd.params[1] = AKAO_RESET_MUSIC_AND_VOL;
         break;
     }
     AkaoExec();

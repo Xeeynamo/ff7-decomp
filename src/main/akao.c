@@ -1909,7 +1909,7 @@ void AkaoCmd_9D_ApplyPendingSoundUpdates(void) {
             }
         }
     }
-    g_AkaoControlFlags |= AKAO_CONTROL_PAUSE_SOUND_UPDATE;
+    g_AkaoControlFlags |= AKAO_CONTROL_PAUSE_UPDATE;
 }
 
 // channels_3 counterpart to AkaoCmd_9A_FlushPendingMusicUpdates.
@@ -1934,7 +1934,7 @@ void AkaoCmd_9C_FlushPendingSoundUpdates(void) {
         AkaoUpdateReverbVoices();
         AkaoUpdatePitchLfoVoices();
     }
-    g_AkaoControlFlags &= ~AKAO_CONTROL_PAUSE_SOUND_UPDATE;
+    g_AkaoControlFlags &= ~AKAO_CONTROL_PAUSE_UPDATE;
 }
 
 static void AkaoCmd_E0_SetReverbPan(AkaoSetReverbPan* cmd) {
@@ -2289,13 +2289,13 @@ s32 AkaoExec(void) {
         AkaoGetCommandQueue(&command);
         command->opcode = AKAO_APPLY_PENDING_MUSIC_UPDATES;
         AkaoGetCommandQueue(&command);
-        command->opcode = AKAO_APPLY_PENDING_SOUND_UPDATES;
+        command->opcode = AKAO_APPLY_PENDING_UPDATES;
         break;
     case AKAO_FLUSH_ALL_PENDING_UPDATES:
         AkaoGetCommandQueue(&command);
         command->opcode = AKAO_FLUSH_PENDING_MUSIC_UPDATES;
         AkaoGetCommandQueue(&command);
-        command->opcode = AKAO_FLUSH_PENDING_SOUND_UPDATES;
+        command->opcode = AKAO_FLUSH_PENDING_UPDATES;
         break;
     default:
         AkaoGetCommandQueue(&command);

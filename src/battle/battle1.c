@@ -833,7 +833,7 @@ static void func_800BB89C(void) {
 }
 
 void func_800BB90C(void) {
-    g_AkaoCmd.opcode = AKAO_SET_SOUND_VOL_BALANCE_SLOT2;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT2;
     g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
 }
@@ -869,7 +869,7 @@ void func_800BB9B8(s32 arg0) {
 void func_800BB9FC(s32 arg0) {
     s32 param;
 
-    g_AkaoCmd.opcode = AKAO_PLAY_SOUND_SLOT3;
+    g_AkaoCmd.opcode = AKAO_PLAY_SLOT3;
     param = arg0 & 0xFFFF;
     g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
     g_AkaoCmd.params[1] = param;

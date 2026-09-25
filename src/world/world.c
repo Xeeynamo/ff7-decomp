@@ -4693,7 +4693,7 @@ static void WmSetMusicVolume(u32 arg0) {
 }
 
 static void func_800B65A4(u32 arg0, s32 arg1) {
-    g_AkaoCmd.opcode = AKAO_SLIDE_ALL_SOUND_PITCH;
+    g_AkaoCmd.opcode = AKAO_SLIDE_ALL_PITCH;
     g_AkaoCmd.params[0] = arg0;
     g_AkaoCmd.params[1] = arg1;
     AkaoExec();
@@ -4710,7 +4710,7 @@ void ToggleAmbientSound(s32 arg0) {
         D_8010CB20 = 0;
         g_AkaoCmd.opcode = AKAO_STOP_ALL_SOUNDS;
         AkaoExec();
-        g_AkaoCmd.opcode = AKAO_SET_ALL_SOUND_PITCH;
+        g_AkaoCmd.opcode = AKAO_SET_ALL_PITCH;
         g_AkaoCmd.params[0] = 0;
         AkaoExec();
     }

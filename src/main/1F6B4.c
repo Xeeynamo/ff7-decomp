@@ -122,7 +122,7 @@ static void func_8001FA68(u16 arg0) {
 }
 
 static void func_8001FAAC(u16 arg0) {
-    g_AkaoCmd.opcode = AKAO_PLAY_SOUND_SLOT1;
+    g_AkaoCmd.opcode = AKAO_PLAY_SLOT1;
     g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
     g_AkaoCmd.params[1] = arg0;
     AkaoExec();

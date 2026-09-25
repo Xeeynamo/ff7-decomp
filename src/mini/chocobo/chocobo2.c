@@ -88,16 +88,16 @@ void func_800A17F0(void) {
     g_AkaoCmd.params[2] = 0;
     g_AkaoCmd.params[1] = 0;
     AkaoExec();
-    g_AkaoCmd.opcode = AKAO_SET_SOUND_VOL_BALANCE_SLOT2;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT2;
     g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
-    g_AkaoCmd.opcode = AKAO_SET_SOUND_VOL_BALANCE_SLOT1;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT1;
     g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
-    g_AkaoCmd.opcode = AKAO_SET_SOUND_VOL_BALANCE_SLOT0;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT0;
     g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
-    g_AkaoCmd.opcode = AKAO_SET_SOUND_VOL_BALANCE_SLOT3;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT3;
     g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
 }
