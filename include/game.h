@@ -1260,11 +1260,11 @@ extern u8 _D_80062DFD;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
 extern u8 D_80062F1A;
 extern u8 D_80062F1B;
-extern Gpu D_80062F24;
-extern u16 D_80062F3C;
+extern Gpu g_GpuPacketPtr;
+extern u16 g_SaveSlotMask;
 extern s32 g_MenuRenderBufferIndex;
 extern s32 D_80062F88;
-extern OT_TYPE* D_80062FC4;
+extern OT_TYPE* g_CurrentOT;
 extern Unk800A8D04* g_CurrentAction;
 extern DRAWENV D_800706A4[2];
 extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
@@ -1297,7 +1297,7 @@ extern ArmorRecord g_ArmorTable[];         // 0x80071E44, by armor id
 extern KernelLimitRecord D_80082290[];     // 0x80082290, by character id
 extern FieldEntity g_FieldEntity[];
 extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
-extern s32 D_800756F8[];
+extern s32 g_PartyPortraitClut[];
 extern Unk80075D00* D_80075D00;
 extern s32 D_80075D04;
 extern s32 D_80075D08[];
@@ -1399,7 +1399,7 @@ void SysMenuRestoreAvatarVram(u_long* image);
 void SysMenuStoreFontVram(u_long* image);
 void SysMenuRestoreFontVram(u_long* image);
 void SysMenuLoadPartyPortraits(void);
-void SysMenuDrawNoop();
+void SysMenuDrawNoop(s32 arg0);
 void SysMenuDrawDigitsWithoutLeadingZeroes(s32 x, s32 y, s32 value, s32 digits, s32 color);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string

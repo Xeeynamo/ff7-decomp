@@ -786,7 +786,7 @@ void SysMenuLoadPartyPortraits(void) {
         MoveImage(&rect, 0x100, 0x1ED + i);
         DrawSync(0);
     }
-    SysMenuStoreCharacterClutToRam((u_long*)D_800756F8);
+    SysMenuStoreCharacterClutToRam((u_long*)g_PartyPortraitClut);
     DrawSync(0);
 }
 
