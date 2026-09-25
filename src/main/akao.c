@@ -370,20 +370,20 @@ void AkaoCmd_20_PlaySound(AkaoQueuedCommand* cmd);
 void AkaoCmd_21_PlayTwoSounds(AkaoQueuedCommand* cmd);
 void AkaoCmd_22_PlayThreeSounds(AkaoQueuedCommand* cmd);
 void AkaoCmd_23_PlayFourSounds(AkaoQueuedCommand* cmd);
-void AkaoCmd_29_PlaySoundSlot1(AkaoQueuedCommand* cmd);
-void AkaoCmd_2A_PlaySoundSlot0(AkaoQueuedCommand* cmd);
+void AkaoCmd_29_PlaySlot1(AkaoQueuedCommand* cmd);
+void AkaoCmd_2A_PlaySlot0(AkaoQueuedCommand* cmd);
 void AkaoCmd_2B_PlaySoundSlot3(AkaoQueuedCommand* cmd);
 void AkaoCmd_30_PlayMenuSound(AkaoQueuedCommand* cmd);
 void AkaoCmd_34_PlaySoundDirect(AkaoQueuedCommand* cmd);
 static void AkaoCmd_80_SetStereoMode(void);
 static void AkaoCmd_81_SetMonoMode(void);
-void AkaoCmd_82_ResetMusicAndSoundVol();
+void AkaoCmd_82_ResetVolume();
 void AkaoCmd_90_SetMuteMusicMask();
 void AkaoCmd_92_SetCondition();
 void AkaoCmd_9A_FlushPendingMusicUpdates(void);
 void AkaoCmd_9B_ApplyPendingMusicUpdates(void);
-void AkaoCmd_9C_FlushPendingSoundUpdates(void);
-void AkaoCmd_9D_ApplyPendingSoundUpdates(void);
+void AkaoCmd_9C_FlushPendingSfxUpdates(void);
+void AkaoCmd_9D_ApplyPendingSfxUpdates(void);
 void AkaoUpdateChannelParamsToSpu(s32 voiceIdx, void* attr);
 void AkaoUpdateNoiseVoices(void);
 void AkaoUpdateReverbVoices(void);
@@ -573,8 +573,8 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_20_PlaySound,
-    AkaoCmd_29_PlaySoundSlot1,
-    AkaoCmd_2A_PlaySoundSlot0,
+    AkaoCmd_29_PlaySlot1,
+    AkaoCmd_2A_PlaySlot0,
     AkaoCmd_2B_PlaySoundSlot3,
     AkaoCmd_Null,
     AkaoCmd_Null,
@@ -662,7 +662,7 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_80_SetStereoMode,
     AkaoCmd_81_SetMonoMode,
-    AkaoCmd_82_ResetMusicAndSoundVol,
+    AkaoCmd_82_ResetVolume,
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_Null,
@@ -688,8 +688,8 @@ AkaoCommandHandler g_AkaoCommandHandler[0x100] = {
     AkaoCmd_Null,
     AkaoCmd_9A_FlushPendingMusicUpdates,
     AkaoCmd_9B_ApplyPendingMusicUpdates,
-    AkaoCmd_9C_FlushPendingSoundUpdates,
-    AkaoCmd_9D_ApplyPendingSoundUpdates,
+    AkaoCmd_9C_FlushPendingSfxUpdates,
+    AkaoCmd_9D_ApplyPendingSfxUpdates,
     AkaoCmd_Null,
     AkaoCmd_Null,
     AkaoCmd_A0_SetSoundVolBalanceSlot2,
@@ -1389,7 +1389,7 @@ void AkaoCmd_20_PlaySound(AkaoQueuedCommand* cmd) {
     AkaoSoundChannelsInit(cmd->param0, AKAO_SFX_SLOT_2, seq0, seq1);
 }
 
-void AkaoCmd_29_PlaySoundSlot1(AkaoQueuedCommand* cmd) {
+void AkaoCmd_29_PlaySlot1(AkaoQueuedCommand* cmd) {
     s32 seq0, seq1;
 
     AkaoSoundChannelsClear(2, 1);
@@ -1397,7 +1397,7 @@ void AkaoCmd_29_PlaySoundSlot1(AkaoQueuedCommand* cmd) {
     AkaoSoundChannelsInit(cmd->param0, AKAO_SFX_SLOT_1, seq0, seq1);
 }
 
-void AkaoCmd_2A_PlaySoundSlot0(AkaoQueuedCommand* cmd) {
+void AkaoCmd_2A_PlaySlot0(AkaoQueuedCommand* cmd) {
     s32 seq0, seq1;
 
     AkaoSoundChannelsClear(0, 1);
@@ -1802,7 +1802,7 @@ static void AkaoCmd_80_SetStereoMode(void) {
     AkaoSoundVolReset();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_82_ResetMusicAndSoundVol);
+INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_82_ResetVolume);
 
 static void AkaoCmd_81_SetMonoMode(void) {
     g_Channel1Config = AKAO_MONO;
@@ -1879,7 +1879,7 @@ void AkaoCmd_9A_FlushPendingMusicUpdates(void) {
 
 // channels_3 counterpart to AkaoCmd_9B_ApplyPendingMusicUpdates; also masks off
 // the top two voices in mono mode.
-void AkaoCmd_9D_ApplyPendingSoundUpdates(void) {
+void AkaoCmd_9D_ApplyPendingSfxUpdates(void) {
     s32 savedMask;
     short cleared;
     s32 newMask;
@@ -1913,7 +1913,7 @@ void AkaoCmd_9D_ApplyPendingSoundUpdates(void) {
 }
 
 // channels_3 counterpart to AkaoCmd_9A_FlushPendingMusicUpdates.
-void AkaoCmd_9C_FlushPendingSoundUpdates(void) {
+void AkaoCmd_9C_FlushPendingSfxUpdates(void) {
     AkaoChannel* half;
     s32 savedMask;
     s32 bit;
@@ -2289,13 +2289,13 @@ s32 AkaoExec(void) {
         AkaoGetCommandQueue(&command);
         command->opcode = AKAO_APPLY_PENDING_MUSIC_UPDATES;
         AkaoGetCommandQueue(&command);
-        command->opcode = AKAO_APPLY_PENDING_UPDATES;
+        command->opcode = AKAO_APPLY_PENDING_SFX_UPDATES;
         break;
     case AKAO_FLUSH_ALL_PENDING_UPDATES:
         AkaoGetCommandQueue(&command);
         command->opcode = AKAO_FLUSH_PENDING_MUSIC_UPDATES;
         AkaoGetCommandQueue(&command);
-        command->opcode = AKAO_FLUSH_PENDING_UPDATES;
+        command->opcode = AKAO_FLUSH_PENDING_SFX_UPDATES;
         break;
     default:
         AkaoGetCommandQueue(&command);
