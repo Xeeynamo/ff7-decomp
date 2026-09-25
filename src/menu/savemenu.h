@@ -12,6 +12,89 @@ typedef enum {
     START_MENU_MODE_TITLE = 7,
 } StartMenuMode;
 
+typedef enum {
+    TITLE_FADE_DONE = -1,
+    TITLE_FADE_IN = 0,
+    TITLE_FADE_ACTIVE = 1,
+    TITLE_FADE_OUT = 2,
+} TitleFadeState;
+
+typedef enum {
+    TITLE_OPTION_NEW_GAME = 0,
+    TITLE_OPTION_CONTINUE = 1,
+} TitleMenuOption;
+
+typedef enum {
+    FORMAT_OPTION_YES = 0,
+    FORMAT_OPTION_NO = 1,
+} FormatMenuOption;
+
+typedef enum {
+    TITLE_RESULT_CONTINUE = 0,
+    TITLE_RESULT_NEW_GAME = 1,
+} TitleResult;
+
+typedef enum {
+    CARD_STATUS_INSERTED = 0,
+    CARD_STATUS_ERROR = 1,
+    CARD_STATUS_UNFORMATTED = 2,
+} CardStatusFlag;
+
+typedef enum {
+    CARD_EVENT_SUCCESS = 0,
+    CARD_EVENT_ERROR = 1,
+    CARD_EVENT_TIMEOUT = 2,
+    CARD_EVENT_NEW_CARD = 3,
+} CardEventCode;
+
+typedef enum {
+    TITLE_TABLE_SLOTS = 0,
+    TITLE_TABLE_FILES = 1,
+    TITLE_TABLE_FORMAT = 6,
+    TITLE_TABLE_TITLE = 7,
+} TitleMenuTableIndex;
+
+typedef enum {
+    TITLE_BTN_FORMAT = 0,
+    TITLE_BTN_TITLE = 1,
+} TitleButtonTableIndex;
+
+#define NUM_CARD_SLOTS 2
+#define CARD_SLOT_1 0
+#define CARD_SLOT_2 1
+#define CARD_PORT_STRIDE 0x10
+#define NUM_SAVE_FILES_PER_CARD 15
+#define SAVE_HEADER_MAX_RETRIES 20
+#define TITLE_TRANSITION_DELAY 10
+#define TITLE_FADE_STEP 15
+
+typedef enum {
+    SAVE_STR_LOAD = 0,
+    SAVE_STR_SELECT_SLOT = 1,
+    SAVE_STR_SELECT_FILE = 2,
+    SAVE_STR_SLOT_1 = 3,
+    SAVE_STR_SLOT_2 = 4,
+    SAVE_STR_ARE_YOU_SURE = 5,
+    SAVE_STR_LOADING = 6,
+    SAVE_STR_SAVING = 7,
+    SAVE_STR_EMPTY = 8,
+    SAVE_STR_FILE = 9,
+    SAVE_STR_CONTINUE = 10,
+    SAVE_STR_COULD_NOT_LOAD = 11,
+    SAVE_STR_CHECKING_CARD = 12,
+    SAVE_STR_FILE_RUINED = 31,
+    SAVE_STR_NEW_GAME = 32,
+    SAVE_STR_YES = 34,
+    SAVE_STR_NO = 35,
+    SAVE_STR_COMPLETED = 41,
+} SaveMenuStringId;
+
+typedef enum {
+    SAVE_FORMAT_STR_FAILED = 3,
+    SAVE_FORMAT_STR_UNFORMATTED = 4,
+    SAVE_FORMAT_STR_PROMPT = 5,
+} SaveFormatStringId;
+
 typedef struct {
     // this whole thing might be a D_801E379C[6]
     /* 0x00 */ MenuTable D_801E379C[2];
