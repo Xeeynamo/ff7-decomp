@@ -321,6 +321,11 @@ overlays:
     segments:
       - [0x0, rodata, jet]
       - [0x450, c, jet]
+      - [0x3AAC, c, jet_object]
+      - [0x70D4, c, jet_collide]
+      - [0x7AF8, c, jet_model]
+      - [0x7C88, c, jet_buffer]
+      - [0x8010, c, jet_node]
       - [0x8310, .data, jet]
       - [0x83F0, hasm, jet_gte]
   - name: barrier
