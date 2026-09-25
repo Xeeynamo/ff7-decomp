@@ -10,10 +10,10 @@ static void WmSetPcEntityAsActiveEntity(void);
 static void func_800B7820(void);
 static s32 func_800BC1AC(void);
 WorldListNode* WmAssignRegionToNode(WorldListNode*);
-static s32 func_800A9A70(void);
+static s32 WmGetPcEntityWalkmeshRegion(void);
 static void CopyAreaName(s16);
-static void func_800AA02C(s32);
-static void func_800AA04C(s32);
+static void WmSetPcEntityY(s32);
+static void WmSetPcEntityYAndMarkMoved(s32);
 void func_800A12AC(void);
 s32 WmFadeIsStopped(void);
 void WmWriteSavemap(void);
@@ -97,7 +97,7 @@ static void WmAbortMapLoadingWrapper(void);
 static void func_800A886C(s32);
 static void func_800A8A88(void);
 static s32 WmGetPcEntityOriginalY(void);
-static void func_800AA02C(s32);
+static void WmSetPcEntityY(s32);
 static void func_800AA238(void);
 static void WmPrepareEntities(void);
 static void func_800AB570(void);
@@ -109,8 +109,8 @@ static void UpdateWorldMode(void);
 static void InitEffectPool(void);
 static void WmUpdateEffects(void);
 static void func_800B63E0(s32);
-static void func_800B64A0(void);
-static s32 func_800B64C8(void);
+static void WmPlayCurrentMusicTrack(void);
+static s32 WmGetCurrentMusicTrack(void);
 static void WmSetMusicVolume(u32);
 static void func_800B6E78(void);
 static void func_800B715C(s32);
@@ -331,7 +331,7 @@ static void WmSetTranslationVectorInScreenSpace(SVECTOR* arg0) {
     SetTransMatrix(&m);
 }
 
-static void func_800A2040(void) {
+static void WmApplyViewMatrix(void) {
     SetRotMatrix(&D_800E5698);
     SetTransMatrix(&D_800E56B8);
 }
@@ -439,7 +439,7 @@ s16 WmUpdateCameraTransition(void) {
                 target = pos2.vy;
             }
             target = ((target - y) * D_800E5660) >> 8;
-            func_800AA04C(y + target);
+            WmSetPcEntityYAndMarkMoved(y + target);
             if ((u32)D_800E5650 < 2) {
                 D_800E5608 = (D_800E5660 * D_800C84D4) >> 8;
             }
@@ -575,7 +575,7 @@ void WmUpdateWorldState(void) {
         break;
     case 2:
         if (WmFadeIsStopped() != 0) {
-            CopyAreaName(func_800A9A70());
+            CopyAreaName(WmGetPcEntityWalkmeshRegion());
             WmWriteSavemap();
             WmAddMutexPriority(3);
             func_800A38C8();
@@ -593,7 +593,7 @@ void WmUpdateWorldState(void) {
     case 4:
     case 5:
         WmGetPosFromPcEntity(&pos);
-        func_800AA02C(pos.vy + D_800E5644);
+        WmSetPcEntityY(pos.vy + D_800E5644);
         D_800E5644 += D_800E5644 >> 2;
         if (WmFadeIsStopped() != 0) {
             D_800E566C = (D_800E566C == 4) ? 6 : 7;
@@ -636,7 +636,7 @@ static void WmSubmarineSubmergeUnderwater(void) {
     WmSetFadeOut(0x10, 1);
 }
 
-static void func_800A3E9C(s32 arg0) {
+static void WmRequestFieldLoad(s32 arg0) {
     WmSetFieldToLoad(arg0);
     D_800E566C = 8;
 }
@@ -688,9 +688,9 @@ static void WmResetGame(void) {
     }
 }
 
-static s32 func_800A4080(void) { return (D_800E5648 & 3) | ((WmGetCamMode() * 4) & 0xC); }
+static s32 WmGetCamViewAndMode(void) { return (D_800E5648 & 3) | ((WmGetCamMode() * 4) & 0xC); }
 
-static void func_800A40B8(s32 arg0) {
+static void WmSetCamViewAndMode(s32 arg0) {
     WmSetCamView(arg0 & 3);
     WmSetCamMode((arg0 >> 2) & 3);
 }
@@ -885,15 +885,15 @@ void WORLD_Main(s32* arg0, s32* arg1, s32* arg2, s32 arg3) {
         }
         if (D_800E5634 == 2) {
             func_800A98A4(1);
-            func_800AA02C(-0xBB8);
+            WmSetPcEntityY(-0xBB8);
         }
         func_800A835C();
         WmGetModelDataByModelId(WmGetPcCharModelIdFromParty());
-        if (func_800B64C8() < 6) {
+        if (WmGetCurrentMusicTrack() < 6) {
             func_800B63E0(1);
         }
-        if (func_800B64C8() != 0) {
-            func_800B64A0();
+        if (WmGetCurrentMusicTrack() != 0) {
+            WmPlayCurrentMusicTrack();
         } else {
             PlayMusicTrack(1);
         }
@@ -940,9 +940,9 @@ void WORLD_Main(s32* arg0, s32* arg1, s32* arg2, s32 arg3) {
                 D_800E55F8 = temp_s0_2 < pcEntityPos.vy;
                 if (!D_800E55F8 && !D_800E5658) {
                     if (WmIsPcEntityModelInMask(0x2000)) {
-                        func_800AA02C(temp_s0_2 > -0xBB8 ? -0xBB8 : temp_s0_2);
+                        WmSetPcEntityY(temp_s0_2 > -0xBB8 ? -0xBB8 : temp_s0_2);
                     } else if (WmGetModelIdFromPcEntity() == 3 || temp_v0 < 0x7D0) {
-                        func_800AA02C(temp_s0_2);
+                        WmSetPcEntityY(temp_s0_2);
                     } else {
                         func_800AA238();
                     }
@@ -2138,7 +2138,7 @@ static void func_800A8E50(void) {
     }
 }
 
-static s32 func_800A8F48(void) { return D_8010AD3C == NULL ? 0 : D_8010AD3C->riding != NULL; }
+static s32 WmIsActiveEntityRiding(void) { return D_8010AD3C == NULL ? 0 : D_8010AD3C->riding != NULL; }
 
 void WmUnlinkPcEntityFromAll(void) {
     if (D_8010AD40)
@@ -2206,11 +2206,11 @@ static s32 WmIsPcEntityModelInMask(s32 arg0) {
     return D_8010AD40 != NULL && D_8010AD40->actorType < 0x20 ? (arg0 >> D_8010AD40->actorType) & 1 : 0;
 }
 
-static s32 func_800A91E0(s32 arg0) {
+static s32 WmIsActiveEntityModelInMask(s32 arg0) {
     return D_8010AD3C != NULL && D_8010AD3C->actorType < 0x20 ? (arg0 >> D_8010AD3C->actorType) & 1 : 0;
 }
 
-static s32 func_800A921C(s32 arg0, u8 arg1) { return arg1 >= 0x20 ? 0 : (arg0 >> arg1) & 1; }
+static s32 WmIsModelIdInMask(s32 arg0, u8 arg1) { return arg1 >= 0x20 ? 0 : (arg0 >> arg1) & 1; }
 
 static s32 func_800A9240(void) {
     s32 out;
@@ -2311,7 +2311,7 @@ static void func_800A94A8(u16 arg0) {
     }
 }
 
-static void func_800A94D0(s16 arg0) {
+static void WmSetActiveEntityDirection(s16 arg0) {
     if (D_8010AD3C != NULL) {
         D_8010AD3C->direction = arg0;
         D_8010AD3C->facing = (s16)arg0;
@@ -2327,11 +2327,11 @@ static void func_800A94F4(s16 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A9520);
+INCLUDE_ASM("asm/us/world/nonmatchings/world", WmMoveActorByDistance);
 
-static void func_800A9678(s16 arg0) { func_800A9520(D_8010AD3C, arg0); }
+static void WmMoveActiveEntityByDistance(s16 arg0) { WmMoveActorByDistance(D_8010AD3C, arg0); }
 
-static void func_800A96A4(s16 arg0) { func_800A9520(D_8010AD40, arg0); }
+static void func_800A96A4(s16 arg0) { WmMoveActorByDistance(D_8010AD40, arg0); }
 
 static void BlendActorFacing(s16 arg0) {
     WorldActor* actor;
@@ -2355,11 +2355,11 @@ static void BlendActorFacing(s16 arg0) {
     actor->unk3E = blend;
 }
 
-s16 func_800A97A8(void) { return D_8010AD3C == NULL ? 0 : D_8010AD3C->unk3C + D_8010AD3C->unk3E; }
+s16 WmGetActiveEntityTotalRot(void) { return D_8010AD3C == NULL ? 0 : D_8010AD3C->unk3C + D_8010AD3C->unk3E; }
 
 static s16 WmGetPcEntityTotalRot(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->unk3C + D_8010AD40->unk3E; }
 
-static void func_800A9820(s32 arg0) {
+static void WmAddToActiveEntityY(s32 arg0) {
     if (D_8010AD3C != NULL)
         D_8010AD3C->pos.vy += arg0;
 }
@@ -2397,16 +2397,16 @@ static s32 WmSetActiveEntityWithModelId(s32 arg0) {
     return var_v1 != NULL;
 }
 
-static void func_800A9988(void) {
+static void WmSetCollidingActorAsActiveEntity(void) {
     if (D_8010AD40 != NULL && D_8010AD40->collide != NULL)
         D_8010AD3C = D_8010AD40->collide;
 }
 
-s32 func_800A99BC(void) {
+s32 WmIsActiveEntitySeparateFromPcEntity(void) {
     return D_8010AD40 != NULL && D_8010AD3C != NULL && D_8010AD40 != D_8010AD3C && !(D_8010AD3C->flags1 & 0x10);
 }
 
-static void func_800A9A04(s8 actorType) {
+static void WmSetPcEntityModelId(s8 actorType) {
     if (D_8010AD40)
         D_8010AD40->actorType = actorType;
 }
@@ -2418,11 +2418,11 @@ static void WmSetPcEntityTerrainData(s16 walkmesh) {
 
 static s32 WmGetPcEntityTerrainId(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->walkmesh & 0x1F; }
 
-static s32 func_800A9A70(void) { return D_8010AD40 == NULL ? 0 : (D_8010AD40->walkmesh >> 9) & 0x1F; }
+static s32 WmGetPcEntityWalkmeshRegion(void) { return D_8010AD40 == NULL ? 0 : (D_8010AD40->walkmesh >> 9) & 0x1F; }
 
-static u32 func_800A9AA4(void) { return D_8010AD40 == NULL ? 0 : (u16)D_8010AD40->walkmesh >> 0xF; }
+static u32 WmGetPcEntityWalkmeshFlag(void) { return D_8010AD40 == NULL ? 0 : (u16)D_8010AD40->walkmesh >> 0xF; }
 
-static s32 func_800A9AD0(void) { return D_8010AD40 == NULL ? 0 : (D_8010AD40->walkmesh >> 5) & 7; }
+static s32 WmGetPcEntityWalkmeshKind(void) { return D_8010AD40 == NULL ? 0 : (D_8010AD40->walkmesh >> 5) & 7; }
 
 static s32 WmGetModelYOffset(s32 walkmesh, s32 actorType) {
     s32 modelId = actorType & 0xFF;
@@ -2468,7 +2468,7 @@ static s32 WmGetModelYOffset(s32 walkmesh, s32 actorType) {
     return -192;
 }
 
-static void func_800A9C64(WorldActor* arg0, VECTOR* arg1) {
+static void WmSetActorPos(WorldActor* arg0, VECTOR* arg1) {
     u8 var_v0;
 
     if (arg1 != NULL && arg0 != NULL) {
@@ -2486,24 +2486,24 @@ static void func_800A9C64(WorldActor* arg0, VECTOR* arg1) {
     }
 }
 
-static void func_800A9D5C(VECTOR* arg0) { func_800A9C64(D_8010AD3C, arg0); }
+static void WmSetActiveEntityPos(VECTOR* arg0) { WmSetActorPos(D_8010AD3C, arg0); }
 
-static void func_800A9D88(VECTOR* arg0) { func_800A9C64(D_8010AD40, arg0); }
+static void WmSetPcEntityPos(VECTOR* arg0) { WmSetActorPos(D_8010AD40, arg0); }
 
-static void func_800A9DB4(VECTOR* arg0) {
-    func_800A9C64(D_8010AD40, arg0);
+static void WmSetPcEntityPosAndAltPos(VECTOR* arg0) {
+    WmSetActorPos(D_8010AD40, arg0);
     if (D_8010AD40 != NULL)
         D_8010AD40->altPos = D_8010AD40->pos;
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A9E14);
 
-static void func_800AA02C(s32 arg0) {
+static void WmSetPcEntityY(s32 arg0) {
     if (D_8010AD40)
         D_8010AD40->pos.vy = arg0;
 }
 
-static void func_800AA04C(s32 arg0) {
+static void WmSetPcEntityYAndMarkMoved(s32 arg0) {
     if (D_8010AD40 != NULL) {
         D_8010AD40->pos.vy = arg0;
         D_8010AD40->flags1 = D_8010AD40->flags1 | 4;
@@ -2570,7 +2570,7 @@ static void func_800AA2B8(void) {
         D_8010AD40->flags1 &= 0xFD;
 }
 
-static void func_800AA2E4(s8 arg0) {
+static void WmSetActiveEntityAnimId(s8 arg0) {
     if (D_8010AD3C)
         D_8010AD3C->animId = arg0;
 }
@@ -2610,7 +2610,7 @@ static WorldActor* func_800AA640(void) {
     return actor;
 }
 
-static WorldActor* func_800AA684(void) { return D_8010AD3C != NULL ? D_8010AD3C->collide : NULL; }
+static WorldActor* WmGetActiveEntityCollidingActor(void) { return D_8010AD3C != NULL ? D_8010AD3C->collide : NULL; }
 
 static void func_800AA6A4(void) {
     if (D_8010AD40 != NULL)
@@ -2742,7 +2742,7 @@ void func_800AB398(WorldActor* arg0) {
     if (!(arg0->flags1 & 2)) {
         return;
     }
-    if ((func_800A921C(7, arg0->actorType) != 0 && (arg0->animId < 2 || arg0->animId > 5) ||
+    if ((WmIsModelIdInMask(7, arg0->actorType) != 0 && (arg0->animId < 2 || arg0->animId > 5) ||
          func_800A92F8(arg0->actorType) != 0) &&
         (arg0 != D_8010AD40 || D_8010AD5C == 0) && ((0x311B6F05 >> (arg0->walkmesh & 0x1F)) & 1)) {
         func_800B5C7C(arg0);
@@ -2974,7 +2974,7 @@ static s32 WmScriptPopStack(void) {
             var_s0 = func_800B786C();
             break;
         case 7: // Map options (eg. minimap & camera settings)
-            var_s0 = func_800A4080();
+            var_s0 = WmGetCamViewAndMode();
             break;
         case 8: // Model ID of the player actor
             var_s0 = WmGetModelIdFromPcEntity();
@@ -3278,7 +3278,7 @@ void WmScriptRunOne(WorldActor* arg0) {
             }
         } while (var_s0 == 0);
     }
-    func_800A9678(arg0->direction);
+    WmMoveActiveEntityByDistance(arg0->direction);
     if (arg0->collide != NULL && D_8010ADEC == 0 && func_800A21A4() != 0)
         func_800AB988(arg0->collide->actorType, (InputReadPads() & PADRright) ? 4 : 3);
 }
@@ -3304,7 +3304,7 @@ static void UpdateSurfaceEffect(void) {
     } else if (D_8010AD40->flags1 & 0x80) {
         return;
     }
-    kind = func_800A9AD0();
+    kind = WmGetPcEntityWalkmeshKind();
     if (kind >= 3) {
         if (D_8010ADF0 != kind) {
             D_8010ADF0 = kind;
@@ -4198,7 +4198,7 @@ static void func_800B28CC(s32 arg0) {
         D_8010CAF0 = 0;
         break;
     case 1:
-        if (func_800A8F48() != 0) {
+        if (WmIsActiveEntityRiding() != 0) {
             WmSetActiveEntityAsPcEntity();
             func_800BBD0C();
         } else
@@ -4265,11 +4265,11 @@ static s16 WmSnowUpdate(s32 arg0, s32 arg1) {
     camRot = WmGetRealCamRot();
     angle = camRot;
     if (D_8010CB04 == D_8010CB08) {
-        D_8010CB10 = func_800A97A8() + camRot;
+        D_8010CB10 = WmGetActiveEntityTotalRot() + camRot;
         WmFadeStartSnow(1);
         WmFadeStartSnow(2);
     } else if (D_8010CB04 < D_8010CB08) {
-        func_800A94D0(D_8010CB10 - camRot);
+        WmSetActiveEntityDirection(D_8010CB10 - camRot);
     }
     step = 0;
     if (arg0 != 0 || D_8010CB04 < D_8010CB08) {
@@ -4296,7 +4296,7 @@ static s16 WmSnowUpdate(s32 arg0, s32 arg1) {
             WmGetPosFromPcEntity(&pos);
             pos.vx = vec[0] + pos.vx;
             pos.vz = vec[2] + pos.vz;
-            func_800A9D5C(&pos);
+            WmSetActiveEntityPos(&pos);
             func_800A94F4(angle);
             WmSetPcEntityAsActiveEntity();
         }
@@ -4674,9 +4674,9 @@ void PlayMusicTrack(s32 arg0) {
     D_80116510 = prev;
 }
 
-static void func_800B64A0(void) { PlayMusicTrack(D_801159E0); }
+static void WmPlayCurrentMusicTrack(void) { PlayMusicTrack(D_801159E0); }
 
-static s32 func_800B64C8(void) { return D_801159E0; }
+static s32 WmGetCurrentMusicTrack(void) { return D_801159E0; }
 
 static void func_800B64D8(u32 arg0) {
     g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
@@ -5010,7 +5010,7 @@ void WmReadSavemap(s32* arg0, s32* arg1, s32 arg2) {
                     pos.vx = entityPos[0];
                     pos.vy = 0;
                     pos.vz = entityPos[1];
-                    func_800A9D5C(&pos);
+                    WmSetActiveEntityPos(&pos);
                 }
                 entityPos += 2;
             }
@@ -5094,7 +5094,7 @@ static void func_800B76A8(void) {
         }
         WmSetActiveEntityWithModelId(var_a0);
         func_800BBA5C();
-        func_800A31C0(func_800A97A8());
+        func_800A31C0(WmGetActiveEntityTotalRot());
     }
 }
 
@@ -5208,7 +5208,7 @@ void WmSyncPartyAndPcModel(void) {
     WmSyncPartyMembers(&Savemap.memory_bank_2[9], Savemap.partyID, WmGetWmId() != 2);
     if (WmGetWmId() != 2) {
         modelId = WmGetPcCharModelIdFromParty() & 0xFF;
-        setModel = WmScriptIsDataInStoreStack() ? WmScriptSetFirstToStoreStack : func_800A9A04;
+        setModel = WmScriptIsDataInStoreStack() ? WmScriptSetFirstToStoreStack : WmSetPcEntityModelId;
         setModel(modelId);
     }
 }
@@ -5302,7 +5302,7 @@ static void func_800B832C(void) {
 
     temp_a0 = WmGetWmId();
     if (g_FieldState.battlesDisabled == 0 && temp_a0 != 2 && !func_800B2FD0() && func_800A21A4()) {
-        temp_s0 = func_800A9AD0();
+        temp_s0 = WmGetPcEntityWalkmeshKind();
         WmGetPosFromPcEntity(&sp10);
         WmGetPos2FromPcEntity(&sp20);
         if (WmIsPcEntityModelInMask(0x47) && D_80116280) {
@@ -5315,7 +5315,7 @@ static void func_800B832C(void) {
                     D_8011627C = 0;
                     temp_v0_2 = func_800B7C7C();
                     if (temp_v0_2 != -1) {
-                        func_800A9D88(&sp20);
+                        WmSetPcEntityPos(&sp20);
                         func_800A3F4C(temp_v0_2);
                     }
                 }
@@ -6472,7 +6472,7 @@ static void func_800BBA5C(void) {
         func_800A368C(1);
         return;
     }
-    if (func_800A99BC()) {
+    if (WmIsActiveEntitySeparateFromPcEntity()) {
         WmGetPosFromActiveEntity(&sp10);
         func_800A6994(&sp10, WmGetModelIdFromActiveEntity() == 3 ? -1 : 1);
         WmScriptPushToStoreStack(WmGetModelIdFromPcEntity());
@@ -6489,7 +6489,7 @@ static void func_800BBA5C(void) {
             func_800A98A4(1);
             func_800A368C(1);
             ResetEffectState();
-            if (func_800B64C8() < 6) {
+            if (WmGetCurrentMusicTrack() < 6) {
                 PlayMusicTrack(func_800B7200() ? 1 : 3);
             }
             break;
@@ -6607,7 +6607,7 @@ static void func_800BBD20(s32 arg0) {
                             if (temp_s1 < 0x29)
                                 WmSetActiveEntityAsPcEntity();
 
-                            func_800AA2E4(2);
+                            WmSetActiveEntityAnimId(2);
                             WmSetActiveEntityDirectionAndRot(temp_v0);
                             PlayMusicTrack(1);
                             func_800A2108(0, 6);
@@ -6633,7 +6633,7 @@ static void func_800BBD20(s32 arg0) {
                                 if (temp_s2 != 0)
                                     func_800BCA48();
                             }
-                            func_800A9DB4(&sp10);
+                            WmSetPcEntityPosAndAltPos(&sp10);
                             if (func_800A9240() != 0)
                                 PlayMusicTrack(2);
                             else
