@@ -999,3 +999,4 @@ g_KernelTextBuffer = 0x80063690;
 g_KernelTextBlockOffsets = 0x80069490;
 s_PadBuffers = 0x800696ac;
 g_PartyPortraitClut = 0x800756f8;
+g_MemcardEvents = 0x8009a024;

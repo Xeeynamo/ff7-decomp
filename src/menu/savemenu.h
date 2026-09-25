@@ -61,8 +61,8 @@ extern s32 D_801E36A0;
 extern s32 D_801E36A4;
 extern s32 D_801E36A8;
 extern s32 D_801E36AC;
-extern u8 D_801E368C[NUM_MENU_COLOR]; // 4 corners x RGB
-extern u8 D_801E3684[];               // "Level" label
+extern u8 g_TitleDefaultWindowColors[NUM_MENU_COLOR]; // 4 corners x RGB
+extern u8 g_SaveLevelLabel[];                         // "Level" label
 extern s32 g_TitleResult;
 extern s32 D_801E36B0;
 extern s32 D_801E36B8;
@@ -74,6 +74,7 @@ extern OT_TYPE* D_801E3854;
 extern OT_TYPE* D_801E3858[2][1];
 extern SaveHeader D_801E3864[];
 extern s32 g_SaveSlot;
+extern s32 g_TitleFadeBrightness;
 extern s32 g_TitleFadeState;
 extern s32 g_TitleBufferIndex;
 extern OT_TYPE* g_TitleActiveOT;
@@ -125,5 +126,5 @@ u16 SaveCalcChecksum(u16 len, u8* data);
 static s16 SaveCheckFile(s32 save_id);
 void SaveFetchAllCardStatus(s32 arg0);
 s32 SaveFetchHeader(s32 cardId, s32 slotId);
-void SaveDrawSlot(s32 x, s32 y, s32 slot_no);
+void SaveDrawSlot(s32 x, s32 y, s32 slotIndex);
 void SaveHandleScrollCursor(MenuTable* table);

@@ -94,8 +94,10 @@ int SaveUpdate(s32 counter) {
     case 0:
         SysMenuDrawCursor(D_801D4EC8.x - 18, D_801D4EC8.y + 6 + (menus.D_801E379C[0].row * 12));
         SysMenuDrawString(0xA, 0xB, g_SaveMenuStrings[1], 7);
-        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 5, g_SaveMenuStrings[3], -(g_SaveCardSlotStatus[0][0] != 0) & 7);
-        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 17, g_SaveMenuStrings[4], -(g_SaveCardSlotStatus[1][0] != 0) & 7);
+        SysMenuDrawString(
+            D_801D4EC8.x + 12, D_801D4EC8.y + 5, g_SaveMenuStrings[3], -(g_SaveCardSlotStatus[0][0] != 0) & 7);
+        SysMenuDrawString(
+            D_801D4EC8.x + 12, D_801D4EC8.y + 17, g_SaveMenuStrings[4], -(g_SaveCardSlotStatus[1][0] != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
@@ -132,13 +134,14 @@ int SaveUpdate(s32 counter) {
             for (var_s0 = 0; var_s0 < var_s3; var_s0++) {
                 if ((g_SaveSlotMask >> (var_s0 + menus.D_801E379C[1].rowOffset)) & 1) {
                     SysMenuStoreWindowColor();
-                    SaveDrawSlot(
-                        0, var_s0 * 64 + 29 + menus.D_801E379C[1].unkF * 8, var_s0 + menus.D_801E379C[1].rowOffset);
+                    SaveDrawSlot(0, var_s0 * 64 + 29 + menus.D_801E379C[1].scrollAnimY * 8,
+                                 var_s0 + menus.D_801E379C[1].rowOffset);
                     SysMenuRestoreWindowColor();
                 } else {
-                    SysMenuDrawString(0x32, var_s0 * 64 + 55 + menus.D_801E379C[1].unkF * 8, g_SaveMenuStrings[8], 6);
+                    SysMenuDrawString(
+                        0x32, var_s0 * 64 + 55 + menus.D_801E379C[1].scrollAnimY * 8, g_SaveMenuStrings[8], 6);
                     SysMenuCopyWindowRect(&sp38, &D_801DEEF4);
-                    SysMenuMoveWindowRect(&sp38, 0, var_s0 * 64 + 29 + menus.D_801E379C[1].unkF * 8);
+                    SysMenuMoveWindowRect(&sp38, 0, var_s0 * 64 + 29 + menus.D_801E379C[1].scrollAnimY * 8);
                     SysMenuDrawWindow(&sp38);
                 }
             }
@@ -154,8 +157,9 @@ int SaveUpdate(s32 counter) {
             }
             SysMenuDrawString(10, 11, g_SaveMenuStrings[2], 7);
             SysMenuDrawString(206, 11, g_SaveMenuStrings[9], 6);
-            SysMenuDrawString(SysGetSingleStringWidth(g_SaveMenuStrings[9]) + 208, 11,
-                              ((13 + menus.D_801E379C[1].row + menus.D_801E379C[1].rowOffset) * 36) + g_SaveMenuStrings[0], 7);
+            SysMenuDrawString(
+                SysGetSingleStringWidth(g_SaveMenuStrings[9]) + 208, 11,
+                ((13 + menus.D_801E379C[1].row + menus.D_801E379C[1].rowOffset) * 36) + g_SaveMenuStrings[0], 7);
             SysMenuSetWindowRect(&sp38, 200, 5, 78, 24);
             SysMenuDrawWindow(&sp38);
             SysMenuRestorePoly();
@@ -194,8 +198,10 @@ int SaveUpdate(s32 counter) {
         if (counter & 2) {
             SysMenuDrawCursor(D_801D4EC8.x - 18, D_801D4EC8.y + 6 + menus.D_801E379C[0].row * 0xC);
         }
-        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 5, g_SaveMenuStrings[3], -(g_SaveCardSlotStatus[0][0] != 0) & 7);
-        SysMenuDrawString(D_801D4EC8.x + 12, D_801D4EC8.y + 0x11, g_SaveMenuStrings[4], -(g_SaveCardSlotStatus[1][0] != 0) & 7);
+        SysMenuDrawString(
+            D_801D4EC8.x + 12, D_801D4EC8.y + 5, g_SaveMenuStrings[3], -(g_SaveCardSlotStatus[0][0] != 0) & 7);
+        SysMenuDrawString(
+            D_801D4EC8.x + 12, D_801D4EC8.y + 0x11, g_SaveMenuStrings[4], -(g_SaveCardSlotStatus[1][0] != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 0x100;
@@ -262,9 +268,9 @@ int SaveUpdate(s32 counter) {
         }
         break;
     case 1:
-        var_s0 = menus.D_801E379C[1].unkF;
+        var_s0 = menus.D_801E379C[1].scrollAnimY;
         SaveHandleScrollCursor(&menus.D_801E379C[1]);
-        if ((menus.D_801E379C[1].unkF == 0) && (var_s0 == 0)) {
+        if ((menus.D_801E379C[1].scrollAnimY == 0) && (var_s0 == 0)) {
             if (g_Pad1KeysPressed & PADRright) {
                 D_801E3850 = 7;
                 SysMenuSetCursorMovement(&menus.D_801E3808[1], 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
@@ -444,21 +450,21 @@ void SaveInitCardEvents(void) {
 
     if (D_80062DCC == 0) {
         EnterCriticalSection();
-        D_8009A024[0] = OpenEvent(SwCARD, EvSpIOE, EvMdNOINTR, NULL);
-        D_8009A024[1] = OpenEvent(SwCARD, EvSpERROR, EvMdNOINTR, NULL);
-        D_8009A024[2] = OpenEvent(SwCARD, EvSpTIMOUT, EvMdNOINTR, NULL);
-        D_8009A024[3] = OpenEvent(SwCARD, EvSpNEW, EvMdNOINTR, NULL);
-        D_8009A024[4] = OpenEvent(HwCARD, EvSpIOE, EvMdNOINTR, NULL);
-        D_8009A024[5] = OpenEvent(HwCARD, EvSpERROR, EvMdNOINTR, NULL);
-        D_8009A024[6] = OpenEvent(HwCARD, EvSpTIMOUT, EvMdNOINTR, NULL);
-        D_8009A024[7] = OpenEvent(HwCARD, EvSpNEW, EvMdNOINTR, NULL);
+        g_MemcardEvents[0] = OpenEvent(SwCARD, EvSpIOE, EvMdNOINTR, NULL);
+        g_MemcardEvents[1] = OpenEvent(SwCARD, EvSpERROR, EvMdNOINTR, NULL);
+        g_MemcardEvents[2] = OpenEvent(SwCARD, EvSpTIMOUT, EvMdNOINTR, NULL);
+        g_MemcardEvents[3] = OpenEvent(SwCARD, EvSpNEW, EvMdNOINTR, NULL);
+        g_MemcardEvents[4] = OpenEvent(HwCARD, EvSpIOE, EvMdNOINTR, NULL);
+        g_MemcardEvents[5] = OpenEvent(HwCARD, EvSpERROR, EvMdNOINTR, NULL);
+        g_MemcardEvents[6] = OpenEvent(HwCARD, EvSpTIMOUT, EvMdNOINTR, NULL);
+        g_MemcardEvents[7] = OpenEvent(HwCARD, EvSpNEW, EvMdNOINTR, NULL);
         InitCARD(1);
         StartCARD();
         ChangeClearPAD(0);
         _bu_init();
         _card_auto(0);
         for (i = 0; i < 8; i++) {
-            EnableEvent(D_8009A024[i]);
+            EnableEvent(g_MemcardEvents[i]);
         }
         ExitCriticalSection();
         D_80062DCC = 1;
@@ -472,7 +478,7 @@ void SaveInitCardEvents(void) {
 
 void SaveCleanupCardEvents(void) {}
 
-static void func_801D1BAC(s32 arg0, s32 arg1) { TestEvent(D_8009A024[arg1]); }
+static void func_801D1BAC(s32 arg0, s32 arg1) { TestEvent(g_MemcardEvents[arg1]); }
 
 // strcmp?
 static s32 func_801D1BE0(u8* arg0, u8* arg1) {
@@ -828,7 +834,7 @@ static s16 SaveCheckFile(s32 save_id) {
     return ret;
 }
 
-s32 D_801E2CF4 = 0xFF;                                       // used by title.c
+s32 g_TitleFadeBrightness = 0xFF;                            // used by title.c
 StartMenuMode g_MenuStartMode = START_MENU_MODE_SELECT_SLOT; // used by title.c
 
 unsigned char g_SaveMenuStrings[][0x24] = {

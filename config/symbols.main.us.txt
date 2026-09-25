@@ -1467,6 +1467,7 @@ g_AkaoReverbMask = 0x80099FF0; // size:0x4
 g_AkaoPitchLfoMask = 0x80099FF4; // size:0x4
 g_Channel3NoiseClock = 0x80099FFA;
 g_AkaoCmd = 0x8009A000; // size:0x1C
+g_MemcardEvents = 0x8009A024; // size:0x20
 g_FieldCurrentOpcode = 0x8009A058; // size:0x4
 g_CurrentFieldIndex = 0x8009A05C; // size:0x4
 g_PartyMenuTables = 0x8009A0C8; // size:0x36
