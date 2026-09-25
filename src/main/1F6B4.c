@@ -85,7 +85,7 @@ u32 D_80062EC4;
 u32 D_80062EC8;
 s32 D_80062ECC;
 
-u8 func_8001F6B4(void) { return D_80062DDB; }
+u8 SysMenuIsWindowActive(void) { return D_80062DDB; }
 
 void SysMenuRequestAddWindow(u8* arg0, s8 arg1) {
     D_80062DDB = 1;
@@ -660,7 +660,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SystemMenuAddPartyGold);
 
 s32 SystemMenuGetPartyGold(void) { return Savemap.gil; }
 
-void func_80025B8C(u_long* image) {
+void SysMenuStoreAvatarVram(u_long* image) {
     RECT rect;
     rect.x = 0x340;
     rect.y = 0x184;
@@ -669,7 +669,7 @@ void func_80025B8C(u_long* image) {
     StoreImage(&rect, image);
 }
 
-void func_80025BD0(u_long* image) {
+void SysMenuRestoreAvatarVram(u_long* image) {
     RECT rect;
     rect.x = 0x340;
     rect.y = 0x184;
@@ -678,7 +678,7 @@ void func_80025BD0(u_long* image) {
     LoadImage(&rect, image);
 }
 
-void func_80025C14(u_long* image) {
+void SysMenuStoreFontVram(u_long* image) {
     RECT rect;
     rect.x = 0x180;
     rect.y = 0;
@@ -687,7 +687,7 @@ void func_80025C14(u_long* image) {
     StoreImage(&rect, image);
 }
 
-void func_80025C54(u_long* image) {
+void SysMenuRestoreFontVram(u_long* image) {
     RECT rect;
     rect.x = 0x180;
     rect.y = 0;
@@ -756,7 +756,7 @@ void SysMenuLoadAvatars(void) {
     }
 }
 
-void func_80025ED4(void) {
+void SysMenuLoadPartyPortraits(void) {
     RECT rect;
     s32 i;
     s32 portraitId;

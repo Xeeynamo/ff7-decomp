@@ -16,9 +16,9 @@ OT_TYPE* D_8006300C;
 
 void SysMenuSetPoly(void* arg0) { D_80062F24.poly = arg0; }
 
-void func_800269D0(void) { D_80063008 = D_80062F24.poly; }
+void SysMenuSavePoly(void) { D_80063008 = D_80062F24.poly; }
 
-void func_800269E8(void) { D_80062F24.poly = D_80063008; }
+void SysMenuRestorePoly(void) { D_80062F24.poly = D_80063008; }
 
 void SysMenuSetOtag(OT_TYPE* otag) { D_80062FC4 = otag; }
 
@@ -47,7 +47,7 @@ void SysMenuSetDrawenv(DRAWENV* src, RECT* rect) {
     D_80062F24.poly = (u8*)D_80062F24.poly + 0x40;
 }
 
-void func_80026B5C(void) {}
+void SysMenuDrawNoop(void) {}
 
 void func_80026B64(u8 arg0) { D_80062DFC = arg0; }
 

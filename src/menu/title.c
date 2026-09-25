@@ -242,8 +242,8 @@ static void TitleInit(void) {
     DrawSync(0);
     SysMenuSetCursorMovement(&D_801E3DEC[1], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
     SysMenuStoreCharacterClutToRam(D_801E3F2C);
-    func_80025B8C(D_801E8F44);
-    func_80025C14(D_801E4538);
+    SysMenuStoreAvatarVram(D_801E8F44);
+    SysMenuStoreFontVram(D_801E4538);
     SysMenuLoadAvatars();
     SaveInitCardEvents();
 }
@@ -266,7 +266,7 @@ static s32 TitleUpdate(s32 counter) {
         D_801E3D54 != 2 && D_801E3D54 != 0) {
         SaveFetchAllCardStatus(counter);
     }
-    func_80026B5C(0x80);
+    SysMenuDrawNoop(0x80);
     if (D_801E3D54 == 0) {
         if (TitleDoFade(-15) == 0) {
             D_801E3D54 = 1;
@@ -276,7 +276,7 @@ static s32 TitleUpdate(s32 counter) {
             D_801E3D54 = -1;
         }
     }
-    func_8001F6B4();
+    SysMenuIsWindowActive();
     switch (g_MenuStartMode) {
     case START_MENU_MODE_SELECT_SLOT:
         SysMenuDrawCursor(D_801E3668.x - 18, D_801E3668.y + 6 + D_801E3D80[0].row * 12);
@@ -294,7 +294,7 @@ static s32 TitleUpdate(s32 counter) {
         if (!D_801E8F38[D_801E3D80[0].row][0]) {
             g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
         } else {
-            func_800269D0();
+            SysMenuSavePoly();
             SysMenuSetPoly(D_801E3D58 * 0x5000 + buster_tim);
             SysMenuDrawCursor(8, (D_801E3D80[1].row * 64) | 0x38);
             var_s3 = !D_801E3D80[1].scrolling ? 3 : 4;
@@ -310,7 +310,7 @@ static s32 TitleUpdate(s32 counter) {
                     SysMenuDrawWindow(&sp38);
                 }
             }
-            func_80026B5C(0x80);
+            SysMenuDrawNoop(0x80);
             rect.y = 0x1D;
             rect.w = 0x16C;
             rect.h = 0xC3;
@@ -322,7 +322,7 @@ static s32 TitleUpdate(s32 counter) {
                               ((13 + D_801E3D80[1].row + D_801E3D80[1].rowOffset) * 36) + (D_801E2CFC[0]), 7);
             SysMenuSetWindowRect(&sp38, 200, 5, 0x4E, 0x18);
             SysMenuDrawWindow(&sp38);
-            func_800269E8();
+            SysMenuRestorePoly();
         }
         break;
     case START_MENU_MODE_CHECKING_FILES:
@@ -420,7 +420,7 @@ static s32 TitleUpdate(s32 counter) {
         SysMenuSetWindowRect(&sp38, 0, 5, 0x16C, 0x18);
         SysMenuDrawWindow(&sp38);
     }
-    if (!(func_8001F6B4() & 0xFF) && D_801E3D54 == 1) {
+    if (!(SysMenuIsWindowActive() & 0xFF) && D_801E3D54 == 1) {
         switch (g_MenuStartMode) {
         case START_MENU_MODE_SELECT_SLOT:
             if (g_Pad1KeysPressed & PADRright) {
@@ -591,11 +591,11 @@ static s32 TitleUpdate(s32 counter) {
 }
 
 static void TitleCleanup(void) {
-    func_80025ED4();
+    SysMenuLoadPartyPortraits();
     SysMenuStoreCharacterClutToRam(D_800756F8);
     SysMenuLoadCharacterClutFromRam(D_801E3F2C);
-    func_80025BD0(D_801E8F44);
-    func_80025C54(D_801E4538);
+    SysMenuRestoreAvatarVram(D_801E8F44);
+    SysMenuRestoreFontVram(D_801E4538);
     SaveCleanupCardEvents();
     PutDispEnv(D_801E3EEC);
     PutDrawEnv(D_801E3E34);

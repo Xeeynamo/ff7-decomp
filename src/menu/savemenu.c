@@ -43,15 +43,15 @@ void func_801D05C0(u8 arg0) {
     D_801E36B8 = arg0;
     D_801E3850 = 0;
     SysMenuSetCursorMovement(menus.D_801E379C, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
-    func_80025B8C(&D_801E8F44);
-    func_80025C14(&D_801E4538);
+    SysMenuStoreAvatarVram(&D_801E8F44);
+    SysMenuStoreFontVram(&D_801E4538);
     SysMenuLoadAvatars();
     SaveInitCardEvents();
 }
 
 static void func_801D0670(void) {
-    func_80025BD0(D_801E8F44);
-    func_80025C54(D_801E4538);
+    SysMenuRestoreAvatarVram(D_801E8F44);
+    SysMenuRestoreFontVram(D_801E4538);
     SaveCleanupCardEvents();
 }
 
@@ -80,7 +80,7 @@ int SaveUpdate(s32 counter) {
         }
     }
     if (!SysMenuGetMenuListState() || (D_801E36B8 && D_801E36B0 == 1)) {
-        if (!(u8)func_8001F6B4()) {
+        if (!(u8)SysMenuIsWindowActive()) {
             if (D_801E3850 >= 0 && D_801E3850 < 2) {
                 SaveFetchAllCardStatus(counter);
             }
@@ -89,7 +89,7 @@ int SaveUpdate(s32 counter) {
             }
         }
     }
-    func_80026B5C(0x80);
+    SysMenuDrawNoop(0x80);
     switch (D_801E3850) {
     case 0:
         SysMenuDrawCursor(D_801D4EC8.x - 18, D_801D4EC8.y + 6 + (menus.D_801E379C[0].row * 12));
@@ -119,7 +119,7 @@ int SaveUpdate(s32 counter) {
         if (!D_801E8F38[menus.D_801E379C[0].row][0]) {
             D_801E3850 = 0;
         } else {
-            func_800269D0();
+            SysMenuSavePoly();
             if (D_801E36B8 == 0) {
                 SysMenuSetPoly(g_MenuRenderBufferIndex * 0x5000 + buster_tim);
             } else {
@@ -142,7 +142,7 @@ int SaveUpdate(s32 counter) {
                     SysMenuDrawWindow(&sp38);
                 }
             }
-            func_80026B5C(0x80);
+            SysMenuDrawNoop(0x80);
             rect.y = 29;
             rect.w = 364;
             rect.x = 0;
@@ -158,7 +158,7 @@ int SaveUpdate(s32 counter) {
                               ((13 + menus.D_801E379C[1].row + menus.D_801E379C[1].rowOffset) * 36) + D_801E2CFC[0], 7);
             SysMenuSetWindowRect(&sp38, 200, 5, 78, 24);
             SysMenuDrawWindow(&sp38);
-            func_800269E8();
+            SysMenuRestorePoly();
         }
         break;
     case 2:
@@ -213,7 +213,7 @@ int SaveUpdate(s32 counter) {
         break;
     }
     if (D_801E36B8 != 0) {
-        func_80026B5C(0x80);
+        SysMenuDrawNoop(0x80);
         SysMenuDrawString(294, 11, &D_801DEEDC, 7);
         SysMenuDrawWindow(&D_801DEEFC);
     }
@@ -222,7 +222,7 @@ int SaveUpdate(s32 counter) {
     if (!(D_801E36B8 == 0 && !SysMenuGetMenuListState()) && (D_801E36B8 == 0 || D_801E36B0 != 1)) {
         return;
     }
-    if (func_8001F6B4() & 0xFF) {
+    if (SysMenuIsWindowActive() & 0xFF) {
         return;
     }
     switch (D_801E3850) {

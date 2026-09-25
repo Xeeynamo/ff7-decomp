@@ -127,7 +127,7 @@ u32 SysGzipPackDecompressNextBlock(u8* dst);
 u16 SaveCalcChecksum(u16 len, u8* data);
 u8* SysGetKernTextPtrByBlock(s32 arg0, s32 arg1, s32 arg2);
 u8* SysGetKernBattleTextPtr(s32 arg0);
-u8 func_8001F6B4(void);
+u8 SysMenuIsWindowActive(void);
 void SysAddStats(s32 battleCharId, s32 statId, u8 amount);
 void SysAddElementalDefense(s32 battleCharId, s32 effect, u16 mask);
 void SysAddAttackType(s32 battleCharId, u16 element);

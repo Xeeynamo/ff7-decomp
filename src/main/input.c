@@ -91,7 +91,7 @@ static u8* TutorialShowMessage(u8* txt) {
 }
 
 static void TutorialUpdateMessageState(void) {
-    if (!func_8001F6B4()) {
+    if (!SysMenuIsWindowActive()) {
         s_TutorialMessageVisible = 0;
     }
 }
