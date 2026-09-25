@@ -263,17 +263,17 @@ static s32 TitleUpdate(s32 counter) {
     s32 var_s3;
 
     if ((g_MenuStartMode < START_MENU_MODE_CHECKING_FILES || g_MenuStartMode == START_MENU_MODE_TITLE) &&
-        D_801E3D54 != 2 && D_801E3D54 != 0) {
+        g_TitleFadeState != 2 && g_TitleFadeState != 0) {
         SaveFetchAllCardStatus(counter);
     }
     SysMenuDrawNoop(0x80);
-    if (D_801E3D54 == 0) {
+    if (g_TitleFadeState == 0) {
         if (TitleDoFade(-15) == 0) {
-            D_801E3D54 = 1;
+            g_TitleFadeState = 1;
         }
-    } else if (D_801E3D54 == 2) {
+    } else if (g_TitleFadeState == 2) {
         if (TitleDoFade(15) == 255) {
-            D_801E3D54 = -1;
+            g_TitleFadeState = -1;
         }
     }
     SysMenuIsWindowActive();
@@ -295,7 +295,7 @@ static s32 TitleUpdate(s32 counter) {
             g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
         } else {
             SysMenuSavePoly();
-            SysMenuSetPoly(D_801E3D58 * 0x5000 + buster_tim);
+            SysMenuSetPoly(g_TitleBufferIndex * 0x5000 + buster_tim);
             SysMenuDrawCursor(8, (D_801E3D80[1].row * 64) | 0x38);
             var_s3 = !D_801E3D80[1].scrolling ? 3 : 4;
             for (var_s0 = 0; var_s0 < var_s3; var_s0++) {
@@ -315,7 +315,7 @@ static s32 TitleUpdate(s32 counter) {
             rect.w = 0x16C;
             rect.h = 0xC3;
             rect.x = 0;
-            SysMenuSetDrawenv(&D_801E3E34[D_801E3D58], &rect);
+            SysMenuSetDrawenv(&g_TitleDrawEnv[g_TitleBufferIndex], &rect);
             SysMenuDrawString(10, 11, D_801E2CFC[2], 7);
             SysMenuDrawString(0xCE, 11, D_801E2CFC[9], 6);
             SysMenuDrawString(SysGetSingleStringWidth(D_801E2CFC[9]) + 0xD0, 11,
@@ -349,7 +349,7 @@ static s32 TitleUpdate(s32 counter) {
         SysMenuDrawWindow(&sp38);
         break;
     case START_MENU_MODE_LOADING:
-        if (D_801E3D54 != 2) {
+        if (g_TitleFadeState != 2) {
             temp_s1 = SysGetSingleStringWidth(D_801E2CFC[6]) + 0x10;
             SysMenuDrawString(190 - temp_s1 / 2, 0x73, D_801E2CFC[6], 7);
             SysMenuSetWindowRect(&sp38, 0xB6 - temp_s1 / 2, 0x6D, temp_s1, 24);
@@ -420,7 +420,7 @@ static s32 TitleUpdate(s32 counter) {
         SysMenuSetWindowRect(&sp38, 0, 5, 0x16C, 0x18);
         SysMenuDrawWindow(&sp38);
     }
-    if (!(SysMenuIsWindowActive() & 0xFF) && D_801E3D54 == 1) {
+    if (!(SysMenuIsWindowActive() & 0xFF) && g_TitleFadeState == 1) {
         switch (g_MenuStartMode) {
         case START_MENU_MODE_SELECT_SLOT:
             if (g_Pad1KeysPressed & PADRright) {
@@ -520,13 +520,14 @@ static s32 TitleUpdate(s32 counter) {
             }
             var_s1 = (s16)LoadSaveFile(var_a0_3);
             if (var_s1 == 0) {
-                if (Savemap.header.checksum != (u16)SaveCalcChecksum(sizeof(SaveWork) - 4, &Savemap.header.leader_level)) {
+                if (Savemap.header.checksum !=
+                    (u16)SaveCalcChecksum(sizeof(SaveWork) - 4, &Savemap.header.leader_level)) {
                     g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
                     TitlePlaySfx(SFX_MENU_BAD);
                     SysMenuRequestAddWindow(D_801E2CFC[31], 0);
                 } else {
                     TitlePlaySfx(SFX_MEMCARD_LOADED);
-                    D_801E3D54 = 2;
+                    g_TitleFadeState = 2;
                     TitleApplySoundMode(Savemap.config & 3);
                 }
             } else {
@@ -569,7 +570,7 @@ static s32 TitleUpdate(s32 counter) {
                 case 0:
                     TitlePlaySfx(SFX_MEMCARD_LOADED);
                     D_801E3698 = 1;
-                    D_801E3D54 = 2;
+                    g_TitleFadeState = 2;
                     break;
                 case 1:
                     if (D_801E8F38[0][0] || D_801E8F38[1][0]) {
@@ -597,40 +598,40 @@ static void TitleCleanup(void) {
     SysMenuRestoreAvatarVram(D_801E8F44);
     SysMenuRestoreFontVram(D_801E4538);
     SaveCleanupCardEvents();
-    PutDispEnv(D_801E3EEC);
-    PutDrawEnv(D_801E3E34);
+    PutDispEnv(g_TitleDispEnv);
+    PutDrawEnv(g_TitleDrawEnv);
 }
 
 s32 TitleMain(void) {
     s32 i;
     s32 ret;
 
-    SysMenuCreateDrawenvDispenv(D_801E3E34, D_801E3EEC);
-    D_801E3D54 = 0;
+    SysMenuCreateDrawenvDispenv(g_TitleDrawEnv, g_TitleDispEnv);
+    g_TitleFadeState = 0;
     TitleInit();
-    D_801E3D58 = 0;
+    g_TitleBufferIndex = 0;
     for (i = 0;; i++) {
         InputUpdateKeyStates();
-        SysMenuSetPoly(D_80077F64[D_801E3D58]);
-        D_801E3D5C = (u_long*)D_801E3D60[D_801E3D58];
-        ClearOTag(D_801E3D5C, 1);
-        SysMenuSetOtag(D_801E3D5C);
+        SysMenuSetPoly(D_80077F64[g_TitleBufferIndex]);
+        g_TitleActiveOT = (u_long*)g_TitleOrderingTable[g_TitleBufferIndex];
+        ClearOTag(g_TitleActiveOT, 1);
+        SysMenuSetOtag(g_TitleActiveOT);
         SysMenuDrawAddWindow();
         ret = TitleUpdate(i);
-        if (D_801E3D54 == -1) {
+        if (g_TitleFadeState == -1) {
             break;
         }
         DrawSync(0);
         VSync(0);
-        PutDispEnv(&D_801E3EEC[D_801E3D58]);
-        PutDrawEnv(&D_801E3E34[D_801E3D58]);
-        DrawOTag(D_801E3D5C);
-        D_801E3D58 ^= 1; // flip back buffer ID?
+        PutDispEnv(&g_TitleDispEnv[g_TitleBufferIndex]);
+        PutDrawEnv(&g_TitleDrawEnv[g_TitleBufferIndex]);
+        DrawOTag(g_TitleActiveOT);
+        g_TitleBufferIndex ^= 1; // flip back buffer ID?
     }
     TitleCleanup();
     VSync(0);
-    PutDispEnv(&D_801E3EEC[1]);
-    PutDrawEnv(&D_801E3E34[1]);
+    PutDispEnv(&g_TitleDispEnv[1]);
+    PutDrawEnv(&g_TitleDrawEnv[1]);
     for (i = 0; i < 3; i++) {
         if (Savemap.partyID[i] != 0xFF) {
             SysInitPlayerStatFromEquip(i);

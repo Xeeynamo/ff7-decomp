@@ -1,11 +1,6 @@
 #include <game.h>
 
-typedef enum {
-	MONO = 0,
-	STEREO = 1,
-	VOL_RESET = 2
-} MenuAudioMode;
-
+typedef enum { MONO = 0, STEREO = 1, VOL_RESET = 2 } MenuAudioMode;
 
 typedef enum {
     START_MENU_MODE_SELECT_SLOT = 0,
@@ -79,13 +74,13 @@ extern OT_TYPE* D_801E3854;
 extern OT_TYPE* D_801E3858[2][1];
 extern SaveHeader D_801E3864[];
 extern s32 g_SaveSlot;
-extern s32 D_801E3D54;
-extern s32 D_801E3D58; // backbuffer id?
-extern OT_TYPE* D_801E3D5C;
-extern OT_TYPE* D_801E3D60[2][4];
+extern s32 g_TitleFadeState;
+extern s32 g_TitleBufferIndex;
+extern OT_TYPE* g_TitleActiveOT;
+extern OT_TYPE* g_TitleOrderingTable[2][4];
 extern MenuTable D_801E3DEC[2];
-extern DRAWENV D_801E3E34[2];
-extern DISPENV D_801E3EEC[2];
+extern DRAWENV g_TitleDrawEnv[2];
+extern DISPENV g_TitleDispEnv[2];
 extern s32 D_801E3F2C[];
 extern s32 D_801E4538[];
 // FF7 char code -> 2-byte Shift-JIS, byte-indexed; digits start at 0x20
