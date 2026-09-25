@@ -116,7 +116,7 @@ static void SysInitBase(void) {
     StopCallback();
     ResetCallback();
     ResetGraph(0);
-    func_80036298();
+    SpuInit();
     D_80095DD4 = 0;
     VSyncCallback(VSyncCallbackFunc);
     SetGraphDebug(0);
