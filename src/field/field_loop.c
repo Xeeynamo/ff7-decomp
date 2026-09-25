@@ -36,7 +36,7 @@ extern s32 D_80114478;
 extern s32 D_8011447C;
 extern volatile s16 g_GameState;
 
-void FieldEntityLineInteract(FieldEntity* arg0, FieldLine* arg1);
+void FieldEntityLineInteract(FieldEntity* entity, FieldLine* lines);
 void HandleKawaiDataInModel(struct FieldRenderData* renderData);
 void FieldModelLoadAndInit(void);
 void FieldEntityInitPos(void);
