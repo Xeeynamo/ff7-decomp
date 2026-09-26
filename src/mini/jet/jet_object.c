@@ -854,7 +854,7 @@ void JetObjectsUpdate(JetBuffer* db) {
             }
             break;
         case JET_OBJ_EXPLOSION:
-            JetPlaySfx(0x8E);
+            JetPlaySfx(SFX_FIRAGA);
             for (j = 0; j < st->params.raw[3]; j++) {
                 func_800A4650(0x3446, -0x2710, 0x20CB, JET_OBJ_DEBRIS, 0x2A);
             }
@@ -914,7 +914,7 @@ void JetObjectsUpdate(JetBuffer* db) {
             obj->position.vy -= st->params.raw[3];
             st->params.raw[3] -= st->params.raw[4];
             if (st->params.raw[3] < 0) {
-                JetPlaySfx(0x98);
+                JetPlaySfx(SFX_DETONANTE_ECHO);
                 for (j = 0; j < 20; j++) {
                     s32 x;
                     s32 y;
@@ -957,7 +957,7 @@ void JetObjectsUpdate(JetBuffer* db) {
                 s32 pathLen;
                 s32 offset;
 
-                JetPlaySfx(0xA);
+                JetPlaySfx(SFX_FIRA);
                 pathIndex = st->pathIndex & 0xFF;
                 pathLen = g_JetXbinAdr.objectPathLengths[pathIndex];
                 offset = g_JetXbinAdr.objectPathOffsets[pathIndex];
