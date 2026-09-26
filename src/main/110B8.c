@@ -31,10 +31,6 @@ extern s32 SYS_GetDiskNo(void);
 extern s32 SysMenuShow(u8*);
 extern volatile s16 g_GameState;
 
-void __main(void) {}
-
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", __SN_ENTRY_POINT);
-
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_8001117C);
 
 static void func_800111E4(void) {
@@ -116,7 +112,7 @@ static void SysInitBase(void) {
     StopCallback();
     ResetCallback();
     ResetGraph(0);
-    func_80036298();
+    SpuInit();
     D_80095DD4 = 0;
     VSyncCallback(VSyncCallbackFunc);
     SetGraphDebug(0);
