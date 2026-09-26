@@ -20,11 +20,9 @@ extern s32 D_800F5030;
 extern s16 D_800F5038;
 extern s16 D_800F503A;
 extern s16 D_800F503C;
-extern u8 D_8009D48F;
-extern u8 D_8009D49F;
 
-static void func_800A272C(s32 arg0, s32 arg1);
-static void func_800A28D8(void);
+void func_800A272C(s32 arg0, s32 arg1);
+void func_800A28D8(void);
 static inline s32 ChocoboCalcAngle(s16 x, s16 y);
 void func_800A9828(void);
 
@@ -154,7 +152,7 @@ void func_800A18BC(void) {
     D_800F503A = 0;
     D_800F503C = 0;
     func_800A28D8();
-    func_800A272C(D_8009D48F, D_8009D49F);
+    func_800A272C(Savemap.memory_bank_3[7], Savemap.memory_bank_3[0x17]);
     D_800F5040.event = *D_800F5078.track->events;
     if (D_800B7A48.unk0) {
         D_800F5040.event.type = -1;
@@ -198,7 +196,7 @@ void func_800A18BC(void) {
     D_800B7A68[0].unk1C780.x1 = D_800B7A68[0].unk1C780.x3 = 30;
     D_800B7A68[0].unk1C780.y2 = D_800B7A68[0].unk1C780.y3 = 209;
     D_800B7A68[1].unk1C780 = D_800B7A68[0].unk1C780;
-    func_800A1F40(D_800B1254.unk0, D_8009D48F);
+    func_800A1F40(D_800B1254.unk0, Savemap.memory_bank_3[7]);
     func_800A9828();
 }
 
