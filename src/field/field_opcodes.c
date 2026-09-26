@@ -72,22 +72,6 @@ static void PartyAdd(u8* party, u8* toAdd);
 
 void FieldWindowResetTextAll(void);
 
-s32 OpcodeFuncPmjmp(void);
-s32 OpcodeFuncPmjmp2(void);
-s32 OpcodeFuncMgame(void);
-s32 OpcodeFuncBatle(void);
-s32 OpcodeFuncAkao(void);
-s32 OpcodeFuncAkao2(void);
-s32 OpcodeFuncSe(void);
-s32 OpcodeFuncCanim(void);
-s32 OpcodeFuncCanmEx(void);
-s32 OpcodeFuncAnimw(void);
-s32 OpcodeFuncAnimb(void);
-s32 OpcodeFuncMove(void);
-s32 OpcodeFuncFmove(void);
-s32 OpcodeFuncCmove(void);
-s32 OpcodeFuncFcfix(void);
-s32 OpcodeFuncJump(void);
 s32 OpcodeFuncPmova(void);
 s32 OpcodeFuncMova(void);
 s32 OpcodeFuncDira(void);
@@ -2294,7 +2278,7 @@ static s32 OpcodeFuncMjump(void) {
     return 1;
 }
 
-s32 OpcodeFuncPmjmp(void) {
+static s32 OpcodeFuncPmjmp(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("pmjmp", 8);
     }
@@ -2303,7 +2287,7 @@ s32 OpcodeFuncPmjmp(void) {
     return 0;
 }
 
-s32 OpcodeFuncPmjmp2(void) {
+static s32 OpcodeFuncPmjmp2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("pmjmp", 8);
     }
@@ -2314,7 +2298,7 @@ s32 OpcodeFuncPmjmp2(void) {
     return 1;
 }
 
-s32 OpcodeFuncMgame(void) {
+static s32 OpcodeFuncMgame(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mgame", 8);
     }
@@ -2342,7 +2326,7 @@ s32 OpcodeFuncMgame(void) {
     return 1;
 }
 
-s32 OpcodeFuncBatle(void) {
+static s32 OpcodeFuncBatle(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("batle", 3);
     }
@@ -2378,7 +2362,7 @@ void FieldEventClearAkaoStruct(void) {
     }
 }
 
-s32 OpcodeFuncAkao(void) {
+static s32 OpcodeFuncAkao(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("akao", 3);
     }
@@ -2394,7 +2378,7 @@ s32 OpcodeFuncAkao(void) {
     return 0;
 }
 
-s32 OpcodeFuncAkao2(void) {
+static s32 OpcodeFuncAkao2(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("akao2", 3);
     }
@@ -2410,7 +2394,7 @@ s32 OpcodeFuncAkao2(void) {
     return 0;
 }
 
-s32 OpcodeFuncSe(void) {
+static s32 OpcodeFuncSe(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("se", 3);
     }
@@ -2877,23 +2861,332 @@ static s32 OpcodeFuncAnimEx(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncCanim);
+static s32 OpcodeFuncCanim(void) {
+    FieldModelEntry* model;
+    FieldModelAnimation* animations;
+    s16 animationLastFrame;
+    s16 requestedLastFrame;
+    s16 speed;
+    s32 modelEntryId;
+    u8 modelId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncCanmEx);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("canim", 4);
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncAnimw);
+    if (g_EntityToModel[g_CurrentEntity] == 0xFF) {
+        PC_INC(5);
+        return 0;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncAnimb);
+    switch (g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]]) {
+    case ANIMSTATUS_DEFAULT_LOOP:
+    case ANIMSTATUS_SCRIPTED_LOOP:
+    case ANIMSTATUS_HOLD_FRAME: {
+        speed = GET_PARAM_U8(4);
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(1);
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].animSpeed =
+            g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] / speed;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 16 * (GET_PARAM_U8(2) / speed);
+        modelId = g_EntityToModel[g_CurrentEntity];
+        modelEntryId = g_FieldModelLoaderData[modelId].modelEntryIndex;
+        model = &g_FieldModelData->modelEntries[modelEntryId];
+        animations = (FieldModelAnimation*)(model->modelData + model->animationOffset);
+        animationLastFrame = animations[g_FieldEntity[modelId].activeAnimId].frameCount - 1;
+        requestedLastFrame = GET_PARAM_U8(3) / speed;
+        if (animationLastFrame < requestedLastFrame) {
+            g_FieldModels[modelId].animLastFrame = animationLastFrame;
+        } else {
+            g_FieldModels[modelId].animLastFrame = requestedLastFrame;
+        }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMove);
+        if (g_FieldCurrentOpcode == 0xB0) {
+            g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = ANIMSTATUS_PLAY_ONCE_THEN_RESET;
+            PC_INC(5);
+            return 0;
+        }
+        g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = ANIMSTATUS_PLAY_ONCE_SYNC;
+        break;
+    }
+    case ANIMSTATUS_PLAY_ONCE_SYNC_DONE:
+        g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = ANIMSTATUS_DEFAULT_LOOP;
+        PC_INC(5);
+        return 0;
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncFmove);
+static s32 OpcodeFuncCanmEx(void) {
+    FieldModelEntry* model;
+    FieldModelAnimation* animations;
+    s16 animationLastFrame;
+    s16 requestedLastFrame;
+    s16 speed;
+    s32 modelEntryId;
+    u8 modelId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncCmove);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("canm!", 4);
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncFcfix);
+    if (g_EntityToModel[g_CurrentEntity] == 0xFF) {
+        PC_INC(5);
+        return 0;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncJump);
+    switch (g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]]) {
+    case ANIMSTATUS_DEFAULT_LOOP:
+    case ANIMSTATUS_SCRIPTED_LOOP:
+    case ANIMSTATUS_HOLD_FRAME: {
+        speed = GET_PARAM_U8(4);
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(1);
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].animSpeed =
+            g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] / speed;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 16 * GET_PARAM_U8(2);
+
+        modelId = g_EntityToModel[g_CurrentEntity];
+        modelEntryId = g_FieldModelLoaderData[modelId].modelEntryIndex;
+        model = &g_FieldModelData->modelEntries[modelEntryId];
+        animations = (FieldModelAnimation*)(model->modelData + model->animationOffset);
+        animationLastFrame = animations[g_FieldEntity[modelId].activeAnimId].frameCount - 1;
+        requestedLastFrame = GET_PARAM_U8(3) / speed;
+        if (animationLastFrame < requestedLastFrame) {
+            g_FieldModels[modelId].animLastFrame = animationLastFrame;
+        } else {
+            g_FieldModels[modelId].animLastFrame = requestedLastFrame;
+        }
+
+        if (g_FieldCurrentOpcode == 0xB1) {
+            g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = ANIMSTATUS_PLAY_ONCE_THEN_HOLD;
+            PC_INC(5);
+            return 0;
+        }
+        g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = ANIMSTATUS_PLAY_ONCE_SYNC;
+        break;
+    }
+    case ANIMSTATUS_PLAY_ONCE_SYNC_DONE:
+        g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = ANIMSTATUS_HOLD_FRAME;
+        PC_INC(5);
+        return 0;
+    }
+    return 1;
+}
+
+static s32 OpcodeFuncAnimw(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("animw", 0);
+    }
+
+    if (g_EntityToModel[g_CurrentEntity] == 0xFF) {
+        PC_INC(1);
+        return 0;
+    }
+
+    switch (g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]]) {
+    case ANIMSTATUS_PLAY_ONCE_SYNC:
+    case ANIMSTATUS_PLAY_ONCE_THEN_RESET:
+    case ANIMSTATUS_PLAY_ONCE_THEN_HOLD:
+        return 1;
+    case ANIMSTATUS_PLAY_ONCE_SYNC_DONE:
+        g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = ANIMSTATUS_DEFAULT_LOOP;
+        break;
+    }
+
+    PC_INC(1);
+    return 0;
+}
+
+static s32 OpcodeFuncAnimb(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("animb", 0);
+    }
+
+    if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].animLastFrame =
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame >> 4;
+        g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = ANIMSTATUS_HOLD_FRAME;
+    }
+    PC_INC(1);
+    return 0;
+}
+
+static s32 OpcodeFuncMove(void) {
+    FieldEntity* entity;
+    FieldModelEntry* model;
+    FieldModelAnimation* animations;
+    s32 modelEntryId;
+    u8 modelId;
+    u8 moveMode;
+    s16 actionState;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("move", 5);
+    }
+    modelId = g_EntityToModel[g_CurrentEntity];
+    if (modelId == 0xFF) {
+        PC_INC(6);
+        return 0;
+    }
+    g_FieldModels[modelId].ActionArg = 0;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].DirLock = 0;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndX = FieldEventReadMemoryS16(1, 2) << 12;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndY = FieldEventReadMemoryS16(2, 4) << 12;
+    entity = &g_FieldModels[g_EntityToModel[g_CurrentEntity]];
+    if (g_pFieldState->currentFieldScale * 3 < entity->MoveSpeed) {
+        if (entity->activeAnimId != 2) {
+            entity->activeAnimId = 2;
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].animSpeed = 16;
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
+            modelId = g_EntityToModel[g_CurrentEntity];
+            modelEntryId = g_FieldModelLoaderData[modelId].modelEntryIndex;
+            model = &g_FieldModelData->modelEntries[modelEntryId];
+            animations = (FieldModelAnimation*)(model->modelData + model->animationOffset);
+            g_FieldModels[modelId].animLastFrame = animations[g_FieldEntity[modelId].activeAnimId].frameCount - 1;
+        }
+    } else {
+        if (entity->activeAnimId != 1) {
+            entity->activeAnimId = 1;
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].animSpeed = 16;
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
+            modelId = g_EntityToModel[g_CurrentEntity];
+            modelEntryId = g_FieldModelLoaderData[modelId].modelEntryIndex;
+            model = &g_FieldModelData->modelEntries[modelEntryId];
+            animations = (FieldModelAnimation*)(model->modelData + model->animationOffset);
+            g_FieldModels[modelId].animLastFrame = animations[g_FieldEntity[modelId].activeAnimId].frameCount - 1;
+        }
+    }
+    g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = ANIMSTATUS_SCRIPTED_LOOP;
+    moveMode = g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode;
+    if (moveMode == 1) {
+        actionState = g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState;
+        switch (actionState) {
+        case 1:
+            return 1;
+        case 2:
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = 0;
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState = 0;
+            g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = ANIMSTATUS_DEFAULT_LOOP;
+            PC_INC(6);
+            return 0;
+        }
+    }
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState = 0;
+    return 1;
+}
+
+static s32 OpcodeFuncFmove(void) {
+    FieldEntity* model;
+    u8 moveMode;
+    s16 actionState;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("fmove", 5);
+    }
+    if (g_EntityToModel[g_CurrentEntity] == 0xFF) {
+        PC_INC(6);
+        return 0;
+    }
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionArg = 0;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].DirLock = 0;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndX = FieldEventReadMemoryS16(1, 2) << 12;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndY = FieldEventReadMemoryS16(2, 4) << 12;
+    model = &g_FieldModels[g_EntityToModel[g_CurrentEntity]];
+    moveMode = model->scriptedMoveMode;
+    if (moveMode == 1) {
+        actionState = model->ActionState;
+        switch (actionState) {
+        case 1:
+            return 1;
+        case 2:
+            model->scriptedMoveMode = 0;
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState = 0;
+            PC_INC(6);
+            return 0;
+        }
+    }
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState = 0;
+    return 1;
+}
+
+static s32 OpcodeFuncCmove(void) {
+    FieldEntity* model;
+    u8 moveMode;
+    s16 actionState;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("cmove", 5);
+    }
+    if (g_EntityToModel[g_CurrentEntity] == 0xFF) {
+        PC_INC(6);
+        return 0;
+    }
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionArg = 0;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].DirLock = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndX = FieldEventReadMemoryS16(1, 2) << 12;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndY = FieldEventReadMemoryS16(2, 4) << 12;
+    model = &g_FieldModels[g_EntityToModel[g_CurrentEntity]];
+    moveMode = model->scriptedMoveMode;
+    if (moveMode == 1) {
+        actionState = model->ActionState;
+        switch (actionState) {
+        case 1:
+            return 1;
+        case 2:
+            model->DirLock = 0;
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = 0;
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState = 0;
+            PC_INC(6);
+            return 0;
+        }
+    }
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState = 0;
+    return 1;
+}
+
+static s32 OpcodeFuncFcfix(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("fcfix", 1);
+    }
+    if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].DirLock = GET_PARAM_U8(1);
+    }
+    PC_INC(2);
+    return 0;
+}
+
+static s32 OpcodeFuncJump(void) {
+    FieldEntity* model;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("jump", 8);
+    }
+    if (g_EntityToModel[g_CurrentEntity] == 0xFF) {
+        PC_INC(11);
+        return 0;
+    }
+    model = &g_FieldModels[g_EntityToModel[g_CurrentEntity]];
+    if (model->scriptedMoveMode == 3) {
+        switch (model->ActionState) {
+        case 1:
+            return 1;
+        case 2:
+            model->scriptedMoveMode = 0;
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState = 0;
+            PC_INC(11);
+            return 0;
+        }
+    }
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = 3;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState = 0;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndX = FieldEventReadMemoryS16(1, 3) << 12;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndY = FieldEventReadMemoryS16(2, 5) << 12;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndI = FieldEventReadMemoryS16(3, 7);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveSteps = FieldEventReadMemoryS16(4, 9);
+    return 1;
+}
 
 static s32 OpcodeFuncLader(void) {
     u8 modelId;
