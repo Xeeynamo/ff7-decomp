@@ -15,7 +15,7 @@ overlays:
       field, world, dschange, ending,
       battle, brom,
       savemenu, bginmenu, cnfgmenu, itemmenu,
-      chocobo, jet
+      chocobo, jet, condor
     ]
     symbol_addrs_path:
     - config/symbols.main.us.txt
@@ -583,6 +583,19 @@ overlays:
       - [0x8010, c, jet_node]
       - [0x8310, .data, jet]
       - [0x83F0, hasm, jet_gte]
+  - name: condor
+    disk_path: disks/us/MINI/CONDOR.BIN.dec
+    sha1: c4fe080886805df17712d160375eb9660eb5a2f8
+    base_path: mini/condor
+    imports: [main]
+    symbol_addrs_path:
+      - config/symbols.condor.us.txt
+    migrate_rodata_to_functions: false
+    vram_start: 0x800A0000
+    segments:
+      - [0x0, rodata, condor]
+      - [0x37C, c, condor]
+      - [0x1E7D8, data, condor]
   - name: barrier
     disk_path: disks/us/MAGIC/BARRIER.BIN
     sha1: e93c458117a937879f1a6d8c956dfbdacd6286e0
