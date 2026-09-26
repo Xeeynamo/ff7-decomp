@@ -2,8 +2,11 @@
 
 #include "common.h"
 #include "magic.h"
+#include "magic_private.h"
 #include "../battle/battle.h"
 #include <libc.h>
+
+// Fire (ファイア / Fire), tier 1.
 
 typedef struct {
     /* 0x00 */ s16 StartFrame;
@@ -91,7 +94,7 @@ void MAGIC_Fire(s32 targetMask, s32 callbackArg) {
     BattleSetLoadTimToVram(g_FireTexture, 0, 0, 0);
     MagicAnimationRegister(targetMask, callbackArg, 0, FireAttachToTarget);
     BattleEffectRegister(FireDoubleBufferFlip);
-    BattleCommandSend(0x20, BattleEntityGetStereoPan(D_80151774), 9);
+    BattleAkaoCommand(AKAO_PLAY_SOUND, BattleEntityGetStereoPan(g_BattleCurrentTargetMask), SFX_FIRE);
 }
 
 void func_801B037C(void) { func_8001C3C4(); }

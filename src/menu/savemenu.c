@@ -7,7 +7,7 @@
 #include <libetc.h>
 
 static void PlaySfx(u16 arg0) {
-    g_AkaoCmd.opcode = 0x30;
+    g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
     g_AkaoCmd.params[0] = arg0;
     g_AkaoCmd.params[1] = arg0;
     AkaoExec();
@@ -229,7 +229,7 @@ int SAVEMENU_HandleSave(s32 counter) {
     case 0:
         if (g_Pad1KeysPressed & PADRright) {
             if (D_801E8F38[menus.D_801E379C[0].row][0]) {
-                PlaySfx(1);
+                PlaySfx(SFX_MENU_CURSOR_MOVE);
                 if (D_801E8F38[menus.D_801E379C[0].row][2]) {
                     D_801E3850 = 6;
                     SysMenuSetCursorMovement(&menus.D_801E3808[0], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
@@ -243,18 +243,18 @@ int SAVEMENU_HandleSave(s32 counter) {
                     SysMenuSetCursorMovement(&menus.D_801E379C[1], 0, 0, 1, 3, 0, 0, 1, 15, 0, 0, 0, 0, 0);
                 }
             } else {
-                PlaySfx(3);
+                PlaySfx(SFX_MENU_BAD);
                 SysMenuRequestAddWindow(!D_801E3860 ? D_801E33B0[0] : D_801E3260[6], 7);
             }
         } else {
             SysMenuHandleButtons(&menus.D_801E379C[0]);
             if (D_801E36B8 != 0) {
                 if (g_Pad1KeysPressed & PADRdown) {
-                    PlaySfx(4);
+                    PlaySfx(SFX_MENU_BACK);
                     D_801E36B0 = 2;
                 }
             } else if (g_Pad1KeysPressed & PADRdown) {
-                PlaySfx(4);
+                PlaySfx(SFX_MENU_BACK);
                 func_801D0670();
                 SysMenuSetMenuListAnimation(5, 0);
                 SysMenuLoadMenuFileById(0);
@@ -268,9 +268,9 @@ int SAVEMENU_HandleSave(s32 counter) {
             if (g_Pad1KeysPressed & PADRright) {
                 D_801E3850 = 7;
                 SysMenuSetCursorMovement(&menus.D_801E3808[1], 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
-                PlaySfx(1);
+                PlaySfx(SFX_MENU_CURSOR_MOVE);
             } else if (g_Pad1KeysPressed & PADRdown) {
-                PlaySfx(4);
+                PlaySfx(SFX_MENU_BACK);
                 D_801E3850 = 0;
             }
         }
@@ -295,7 +295,7 @@ int SAVEMENU_HandleSave(s32 counter) {
                     D_801E36AC = 0xE;
                     D_801E3850 = 3;
                     D_801E36A4 = 0xA;
-                    PlaySfx(2);
+                    PlaySfx(SFX_MENU_CONFIRMED);
                 }
             }
         } else {
@@ -319,11 +319,11 @@ int SAVEMENU_HandleSave(s32 counter) {
             var_v0_6 |= 0x10;
         }
         if (!func_801D2A34(var_v0_6)) {
-            PlaySfx(0xD0);
+            PlaySfx(SFX_MEMCARD_LOADED);
             SysMenuRequestAddWindow(D_801E2CFC[28], 7);
             D_80062F3C |= 1 << (menus.D_801E379C[1].row + menus.D_801E379C[1].rowOffset);
         } else {
-            PlaySfx(3);
+            PlaySfx(SFX_MENU_BAD);
             SysMenuRequestAddWindow(D_801E33B0[3], 7);
         }
         break;
@@ -332,7 +332,7 @@ int SAVEMENU_HandleSave(s32 counter) {
         if (g_Pad1KeysPressed & PADRright) {
             if (menus.D_801E3808[0].row) {
                 D_801E3850 = 0;
-                PlaySfx(4);
+                PlaySfx(SFX_MENU_BACK);
             } else {
                 if (menus.D_801E379C[0].row) {
                     temp_v1 = format("bu10:");
@@ -343,15 +343,15 @@ int SAVEMENU_HandleSave(s32 counter) {
                 if (temp_v1 == 1) {
                     D_801E8F38[menus.D_801E379C[0].row][2] = 0;
                     SysMenuRequestAddWindow(D_801E2CFC[41], 7);
-                    PlaySfx(0xD0);
+                    PlaySfx(SFX_MEMCARD_LOADED);
                 } else {
                     SysMenuRequestAddWindow(D_801E3260[3], 7);
-                    PlaySfx(3);
+                    PlaySfx(SFX_MENU_BAD);
                 }
             }
         } else if (g_Pad1KeysPressed & PADRdown) {
             D_801E3850 = 0;
-            PlaySfx(4);
+            PlaySfx(SFX_MENU_BACK);
         }
         break;
     case 7:
@@ -359,18 +359,18 @@ int SAVEMENU_HandleSave(s32 counter) {
             temp_s0_2 = menus.D_801E3808[1].row;
             switch (menus.D_801E3808[1].row) {
             case 0:
-                PlaySfx(1);
+                PlaySfx(SFX_MENU_CURSOR_MOVE);
                 D_801E3850 = 4;
                 D_801E36A4 = 0xA;
                 break;
             case 1:
-                PlaySfx(4);
+                PlaySfx(SFX_MENU_BACK);
                 D_801E3850 = temp_s0_2;
                 break;
             }
         } else if (g_Pad1KeysPressed & PADRdown) {
             D_801E3850 = 1;
-            PlaySfx(4);
+            PlaySfx(SFX_MENU_BACK);
         } else {
             SysMenuHandleButtons(&menus.D_801E3808[1]);
         }
