@@ -9,13 +9,22 @@ typedef struct {
     u32 unk4;
 } UnkRectData;
 
+extern RECT D_800A0018;
 extern UnkRectData D_800A0020;
 extern UnkRectData D_800A0028;
-
 extern VECTOR D_800A00A8;
 extern SVECTOR D_800A00B8;
+extern POLY_FT4 D_800B1298;
+extern POLY_FT4 D_800B12C0;
+extern s32 D_800F5030;
+extern s16 D_800F5038;
+extern s16 D_800F503A;
+extern s16 D_800F503C;
 
-inline s32 ChocoboCalcAngle(s16 x, s16 y);
+void func_800A272C(s32 arg0, s32 arg1);
+void func_800A28D8(void);
+static inline s32 ChocoboCalcAngle(s16 x, s16 y);
+void func_800A9828(void);
 
 void ChocoboResetRacerColors(void) {
     Unk800B1254* table;
@@ -102,7 +111,94 @@ void ChocoboInitMusic(void) {
     AkaoExec();
 }
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A18BC);
+void func_800A18BC(void) {
+    RECT rect;
+    s32* ptr;
+    POLY_F4* p0;
+    POLY_F4* p1;
+    s32 i;
+
+    rect = D_800A0018;
+    ptr = (s32*)&D_800B7530;
+    for (;;) {
+        if (ptr == &D_800F5030) {
+            break;
+        }
+        *ptr = 0;
+        ptr++;
+    }
+    SetGeomOffset(160, 120);
+    SetGeomScreen(270);
+    SetDispMask(1);
+    SetDefDrawEnv(&D_800B7A68[0].draw, 0, 0, 320, 232);
+    SetDefDrawEnv(&D_800B7A68[1].draw, 0, 240, 320, 232);
+    D_800B7A68[1].draw.tpage = D_800B7A68[0].draw.tpage = GetTPage(0, 1, 0, 0);
+    D_800B7A68[1].draw.isbg = D_800B7A68[0].draw.isbg = 0;
+    SetDefDispEnv(&D_800B7A68[0].disp, 0, 240, 320, 232);
+    SetDefDispEnv(&D_800B7A68[1].disp, 0, 0, 320, 232);
+    D_800B7A68[0].draw.dfe = D_800B7A68[1].draw.dfe = 1;
+    ClearOTagR(D_800B7A68[0].ot, LEN(D_800B7A68[0].ot));
+    ClearOTagR(D_800B7A68[1].ot, LEN(D_800B7A68[1].ot));
+    ClearOTag(D_800B7A68[0].ot2, LEN(D_800B7A68[0].ot2));
+    ClearOTag(D_800B7A68[1].ot2, LEN(D_800B7A68[1].ot2));
+    ClearImage(&rect, 0, 0, 0);
+    SetBackColor(64, 64, 64);
+    SetDispMask(1);
+    PutDispEnv(&D_800B7A68[0].disp);
+    PutDrawEnv(&D_800B7A68[1].draw);
+    srand(VSync(-1));
+    func_800A1630();
+    D_800F5038 = 0;
+    D_800F503A = 0;
+    D_800F503C = 0;
+    func_800A28D8();
+    func_800A272C(Savemap.memory_bank_3[7], Savemap.memory_bank_3[0x17]);
+    D_800F5040.event = *D_800F5078.track->events;
+    if (D_800B7A48.unk0) {
+        D_800F5040.event.type = -1;
+    }
+    D_800F5040.event.type = -1;
+    p0 = D_800B7A68[0].unk1C6B0;
+    p1 = D_800B7A68[1].unk1C6B0;
+    for (i = 0; i < NUM_CHOCOBO; i++) {
+        SetPolyF4(&p0[i]);
+        SetPolyF4(&p1[i]);
+        p0[i].r0 = (i & 2) ? 255 : 0;
+        p0[i].g0 = (i & 4) ? 255 : 0;
+        p0[i].b0 = (i & 1) ? 255 : 0;
+        p1[i].r0 = (i & 2) ? 255 : 0;
+        p1[i].g0 = (i & 4) ? 255 : 0;
+        p1[i].b0 = (i & 1) ? 255 : 0;
+    }
+    D_800B7A68[0].bg.x0 = D_800B7A68[0].bg.x2 = D_800B7A68[0].bg.y0 = D_800B7A68[0].bg.y1 = 0;
+    D_800B7A68[0].bg.x1 = D_800B7A68[0].bg.x3 = 320;
+    D_800B7A68[0].bg.y2 = D_800B7A68[0].bg.y3 = 232;
+    SetPolyF4(&D_800B7A68[0].bg);
+    SetSemiTrans(&D_800B7A68[0].bg, 1);
+    D_800B7A68[1].bg = D_800B7A68[0].bg;
+
+    D_800B7A68[0].unk1C740 = D_800B1298;
+    SetPolyFT4(&D_800B7A68[0].unk1C740);
+    SetSemiTrans(&D_800B7A68[0].unk1C740, 1);
+    D_800B7A68[0].unk1C740.clut = GetClut(576, 128);
+    D_800B7A68[0].unk1C740.tpage = GetTPage(0, 0, 384, 0);
+    D_800B7A68[1].unk1C740 = D_800B7A68[0].unk1C740;
+
+    D_800B7A68[0].unk1C7C0 = D_800B12C0;
+    SetPolyFT4(&D_800B7A68[0].unk1C7C0);
+    SetSemiTrans(&D_800B7A68[0].unk1C7C0, 1);
+    D_800B7A68[0].unk1C7C0.clut = GetClut(576, 129);
+    D_800B7A68[0].unk1C7C0.tpage = GetTPage(0, 0, 384, 0);
+    D_800B7A68[1].unk1C7C0 = D_800B7A68[0].unk1C7C0;
+
+    SetPolyF4(&D_800B7A68[0].unk1C780);
+    D_800B7A68[0].unk1C780.x0 = D_800B7A68[0].unk1C780.x2 = 25;
+    D_800B7A68[0].unk1C780.x1 = D_800B7A68[0].unk1C780.x3 = 30;
+    D_800B7A68[0].unk1C780.y2 = D_800B7A68[0].unk1C780.y3 = 209;
+    D_800B7A68[1].unk1C780 = D_800B7A68[0].unk1C780;
+    func_800A1F40(D_800B1254.unk0, Savemap.memory_bank_3[7]);
+    func_800A9828();
+}
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A1F40);
 
@@ -627,7 +723,7 @@ void ChocoboSetNodeStep(s16 node) {
 
 #include "acos.h"
 
-inline s32 ChocoboCalcAngle(s16 x, s16 y) {
+static inline s32 ChocoboCalcAngle(s16 x, s16 y) {
     s32 i;
 
     if (x >= 0x1000) {

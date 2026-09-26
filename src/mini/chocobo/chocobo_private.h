@@ -135,12 +135,16 @@ typedef struct {
 typedef struct {
     /* 0x00000 */ OT_TYPE ot[0x1000];
     /* 0x04000 */ u8 unk4000[0x10];
-    /* 0x04010 */ POLY_FT4 prims[2507];
-    /* 0x1C7C8 */ u8 unk1C7C8[0x20];
+    /* 0x04010 */ POLY_FT4 prims[2500];
+    /* 0x1C6B0 */ POLY_F4 unk1C6B0[NUM_CHOCOBO]; // I think size is NUM_CHOCOBO??
+    /* 0x1C740 */ POLY_FT4 unk1C740;
+    /* 0x1C768 */ u8 unk1C768[0x18];
+    /* 0x1C780 */ POLY_F4 unk1C780;
+    /* 0x1C798 */ u8 unk1C798[0x28];
+    /* 0x1C7C0 */ POLY_FT4 unk1C7C0;
     /* 0x1C7E8 */ OT_TYPE ot2[4];
     /* 0x1C7F8 */ POLY_G3 polys[250];
-    /* 0x1E350 */ TILE bg;
-    /* 0x1E360 */ u8 unk1E360[0x8];
+    /* 0x1E350 */ POLY_F4 bg;
     /* 0x1E368 */ POLY_FT4 unk1E368[5][3];
     /* 0x1E5C0 */ POLY_FT4 unk1E5C0[5][3];
     /* 0x1E818 */ POLY_FT4 unk1E818[5][3];
@@ -289,6 +293,7 @@ void ChocoboResetRacerColors(void);
 void ChocoboRaceInit(void);
 void ChocoboInitMusic(void);
 void func_800A18BC(void);
+void func_800A1F40(ChocoboModels* models, s32 arg1);
 void ChocoboDrawTrackTris(void);
 void ChocoboDrawTrackSegments(void);
 void func_800A2BD4(s32 start, s32 end);
