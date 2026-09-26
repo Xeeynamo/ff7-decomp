@@ -29,7 +29,6 @@ set(FF7_SOURCES
     src/main/input.c
     src/main/menutable.c
     src/main/ovl.c
-    src/main/psxsdk.c
     src/main/psxsdk/card_data.c
     src/main/unzip.c
 

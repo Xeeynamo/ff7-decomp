@@ -327,7 +327,7 @@ void SystemLzsDecompress(u8* src, u8* dst) {
 #undef THRESHOLD
 
 void func_80034CAC(u32 arg0) {
-    g_AkaoCmd.opcode = 48;
+    g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
     g_AkaoCmd.params[0] = arg0;
     g_AkaoCmd.params[1] = arg0;
     AkaoExec();

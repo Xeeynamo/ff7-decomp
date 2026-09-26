@@ -758,7 +758,7 @@ void ENDING_Loop(s32 arg0) {
     }
 
 fade_out:
-    g_AkaoCmd.opcode = 0xC1;
+    g_AkaoCmd.opcode = AKAO_VOL_SLIDE_FROM_CURR;
     g_AkaoCmd.params[0] = 0x3C;
     g_AkaoCmd.params[1] = 0;
     AkaoExec();
@@ -1144,7 +1144,7 @@ s32 func_800A22E4(void) {
 }
 
 s32 func_800A2328(void) {
-    g_AkaoCmd.opcode = 0x10;
+    g_AkaoCmd.opcode = AKAO_PLAY_MUSIC;
     g_AkaoCmd.params[0] = (u32)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
     AkaoExec();
 
@@ -1175,7 +1175,7 @@ static void func_800A2458(void) {
     ResetGraph(0);
     PadInit(0);
     InitGeom();
-    func_80036298();
+    SpuInit();
     SysCdromInit();
 }
 

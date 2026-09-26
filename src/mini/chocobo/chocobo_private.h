@@ -135,12 +135,16 @@ typedef struct {
 typedef struct {
     /* 0x00000 */ OT_TYPE ot[0x1000];
     /* 0x04000 */ u8 unk4000[0x10];
-    /* 0x04010 */ POLY_FT4 prims[2507];
-    /* 0x1C7C8 */ u8 unk1C7C8[0x20];
+    /* 0x04010 */ POLY_FT4 prims[2500];
+    /* 0x1C6B0 */ POLY_F4 unk1C6B0[NUM_CHOCOBO]; // I think size is NUM_CHOCOBO??
+    /* 0x1C740 */ POLY_FT4 unk1C740;
+    /* 0x1C768 */ u8 unk1C768[0x18];
+    /* 0x1C780 */ POLY_F4 unk1C780;
+    /* 0x1C798 */ u8 unk1C798[0x28];
+    /* 0x1C7C0 */ POLY_FT4 unk1C7C0;
     /* 0x1C7E8 */ OT_TYPE ot2[4];
     /* 0x1C7F8 */ POLY_G3 polys[250];
-    /* 0x1E350 */ TILE bg;
-    /* 0x1E360 */ u8 unk1E360[0x8];
+    /* 0x1E350 */ POLY_F4 bg;
     /* 0x1E368 */ POLY_FT4 unk1E368[5][3];
     /* 0x1E5C0 */ POLY_FT4 unk1E5C0[5][3];
     /* 0x1E818 */ POLY_FT4 unk1E818[5][3];
@@ -285,33 +289,34 @@ extern s16 D_800F5028;
 extern s32 D_800B1358;
 extern POLY_F4 D_800B14B4;
 
-void func_800A157C(void);
-void func_800A1630(void);
-void func_800A17F0(void);
+void ChocoboResetRacerColors(void);
+void ChocoboRaceInit(void);
+void ChocoboInitMusic(void);
 void func_800A18BC(void);
-void func_800A2984(void);
-void func_800A2AFC(void);
+void func_800A1F40(ChocoboModels* models, s32 arg1);
+void ChocoboDrawTrackTris(void);
+void ChocoboDrawTrackSegments(void);
 void func_800A2BD4(s32 start, s32 end);
 void func_800A34A8(void);
-void func_800A44E4(void);
-void func_800A68D4(s32);
+void ChocoboUpdateRanking(void);
+void ChocoboSelectRacer(s32);
 void func_800A4888(s32 id);
-void func_800A6B9C(s32 id, s32 speed, s32 seg);
+void ChocoboSelectRacerAtSegment(s32 id, s32 speed, s32 seg);
 void func_800A6E50(s32);
 void func_800A7CA4(void);
 void func_800A8AE8(void);
 void func_800A9D94(void);
 void func_800AC554(void);
-void func_800AD7B8(const char* str, s32 len, s32 x, s32 y);
-void func_800AD7E8(void);
-u8* func_800AD91C(ChocoboModel* model, u8* buf, s32 arg2);
+void ChocoboDrawText(const char* str, s32 len, s32 x, s32 y);
+void ChocoboDrawFade(void);
+u8* ChocoboModelSetupParts(ChocoboModel* model, u8* buf, s32 arg2);
 u8* func_800AD9D8(ChocoboModelPart*, u8*, s32, s32);
 void func_800AE534(ChocoboModel*);
 void func_800AF11C(ChocoboModel*, MATRIX*, s32, s32);
 void func_800AF9E4(ChocoboModel* model, s16 scale, s32 force);
-void func_800AFC64(ChocoboModelPart* part, s16 scale, s32 force);
+void ChocoboScalePartVerts(ChocoboModelPart* part, s16 scale, s32 force);
 void func_800AFDBC(ChocoboModelAnim* anim, s16 scale, s32 force);
-s32 func_800B00DC(ChocoboModel* model, u8* data);
+s32 ChocoboModelApplyPartRotation(ChocoboModel* model, u8* data);
 void func_800B01B0(ChocoboModelPart*, s32, s32, s32);
 
 #endif

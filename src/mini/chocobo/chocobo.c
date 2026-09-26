@@ -24,8 +24,8 @@
 #define ResetSpadStack()
 #endif
 
-static void func_800A1260(void);
-static void func_800A1354(s32 start, s32 end);
+static void ChocoboDrawTrackProps(void);
+static void ChocoboDrawTrackPropRange(s32 start, s32 end);
 
 void MINI_Chocobo(void) {
     SVECTOR rot1 = D_800A0000;
@@ -43,7 +43,7 @@ void MINI_Chocobo(void) {
     Unk800B1254* modelTable;
     s32* flags;
     Chocobo* model;
-    TILE* tile;
+    POLY_F4* tile;
     ChocoboModels* models;
     s32 i;
     s32 j;
@@ -62,18 +62,18 @@ void MINI_Chocobo(void) {
     func_800A18BC();
     D_800F5074 = &D_800B7A68[0];
     DrawSync(0);
-    func_800A1630();
+    ChocoboRaceInit();
     func_800A34A8();
-    func_800A6B9C(0, 0, 0);
-    func_800A17F0();
-    g_AkaoCmd.opcode = 0xC0;
-    g_AkaoCmd.params[0] = 0x7F;
+    ChocoboSelectRacerAtSegment(0, 0, 0);
+    ChocoboInitMusic();
+    g_AkaoCmd.opcode = AKAO_VOLUME_SET;
+    g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
     frames = 0;
     if (!Savemap.memory_bank_3[8]) {
         func_800A9D94();
     }
-    func_800A157C();
+    ChocoboResetRacerColors();
     D_800B7514 = 0xFF;
     D_800B7530.unkC = 0;
     D_800F5040.fadeSpeed = -0x10;
@@ -83,7 +83,7 @@ void MINI_Chocobo(void) {
             chocobos[k].unk6C *= 2;
         }
     }
-    g_AkaoCmd.opcode = 0x10;
+    g_AkaoCmd.opcode = AKAO_PLAY_MUSIC;
     g_AkaoCmd.params[0] = (u_long)&D_80077F64[0][0x2000];
     AkaoExec();
     maxVSync2 = 0;
@@ -93,7 +93,7 @@ void MINI_Chocobo(void) {
     while (1) {
         if (D_800F5040.unk8 > 3000) {
             D_800F5040.fadeSpeed = 0x10;
-            g_AkaoCmd.opcode = 0xC1;
+            g_AkaoCmd.opcode = AKAO_VOL_SLIDE_FROM_CURR;
             g_AkaoCmd.params[0] = 0x3C;
             g_AkaoCmd.params[1] = 0;
             AkaoExec();
@@ -114,7 +114,7 @@ void MINI_Chocobo(void) {
         if (segment->flags & 1) {
             ClearOTag(D_800F5074->ot2, LEN(D_800F5074->ot2));
             SetSpadStack(getScratchAddr(0xFF));
-            func_800A2984();
+            ChocoboDrawTrackTris();
             ResetSpadStack();
         }
         if (segment->flags & 2) {
@@ -125,10 +125,10 @@ void MINI_Chocobo(void) {
             addPrim(&D_800F5074->ot[10], tile);
         }
         SetSpadStack(getScratchAddr(0xFF));
-        func_800A44E4();
-        func_800A2AFC();
+        ChocoboUpdateRanking();
+        ChocoboDrawTrackSegments();
         ResetSpadStack();
-        func_800A1260();
+        ChocoboDrawTrackProps();
         for (i = 0, mode = 3, modelTable = &D_800B1254, flags = D_800B7564; i < NUM_CHOCOBO; i++) {
             if (!flags[i]) {
                 continue;
@@ -169,7 +169,7 @@ void MINI_Chocobo(void) {
         D_800F5078.unk8 = D_800B7530.pressed;
         if ((D_800B7530.pressed & 0x800) && D_800B7478) {
             D_800F5040.fadeSpeed = 0x10;
-            g_AkaoCmd.opcode = 0xC1;
+            g_AkaoCmd.opcode = AKAO_VOL_SLIDE_FROM_CURR;
             g_AkaoCmd.params[0] = 0x3C;
             g_AkaoCmd.params[1] = 0;
             AkaoExec();
@@ -222,7 +222,7 @@ void MINI_Chocobo(void) {
         func_800A8AE8();
         ResetSpadStack();
         DrawOTag(&D_800F5074->ot[LEN(D_800F5074->ot) - 1]);
-        func_800AD7E8();
+        ChocoboDrawFade();
     }
 
     n = 0;
@@ -255,8 +255,8 @@ void MINI_Chocobo(void) {
     for (k = 0; k < n; k++) {
         (&D_800B75CC[ids[k]])->unk70 = rank++;
     }
-    g_AkaoCmd.opcode = 0xE4;
-    g_AkaoCmd.params[0] = 0x40;
+    g_AkaoCmd.opcode = AKAO_SET_REVERB_MUL;
+    g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
     AkaoExec();
     if (!Savemap.memory_bank_3[8]) {
         func_800AC554();
@@ -264,7 +264,7 @@ void MINI_Chocobo(void) {
     Savemap.memory_bank_3[25] = D_800B75CC[0].unk70 - 1;
 }
 
-static void func_800A1260(void) {
+static void ChocoboDrawTrackProps(void) {
     s32 count;
     s32 end;
     s32 start;
@@ -274,16 +274,16 @@ static void func_800A1260(void) {
     end = (D_800F5078.unk4 + count) % count;
     PushMatrix();
     if (end < start) {
-        func_800A1354(0, end);
-        func_800A1354(start, count);
+        ChocoboDrawTrackPropRange(0, end);
+        ChocoboDrawTrackPropRange(start, count);
     } else {
-        func_800A1354(start, end);
+        ChocoboDrawTrackPropRange(start, end);
     }
 
     PopMatrix();
 }
 
-static void func_800A1354(s32 start, s32 end) {
+static void ChocoboDrawTrackPropRange(s32 start, s32 end) {
     ChocoboTrackNode* prop;
     ChocoboModel* model;
     u16* anim;

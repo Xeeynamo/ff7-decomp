@@ -9,15 +9,24 @@ typedef struct {
     u32 unk4;
 } UnkRectData;
 
+extern RECT D_800A0018;
 extern UnkRectData D_800A0020;
 extern UnkRectData D_800A0028;
-
 extern VECTOR D_800A00A8;
 extern SVECTOR D_800A00B8;
+extern POLY_FT4 D_800B1298;
+extern POLY_FT4 D_800B12C0;
+extern s32 D_800F5030;
+extern s16 D_800F5038;
+extern s16 D_800F503A;
+extern s16 D_800F503C;
 
-inline s32 func_800A89A0(s16 x, s16 y);
+void func_800A272C(s32 arg0, s32 arg1);
+void func_800A28D8(void);
+static inline s32 ChocoboCalcAngle(s16 x, s16 y);
+void func_800A9828(void);
 
-void func_800A157C(void) {
+void ChocoboResetRacerColors(void) {
     Unk800B1254* table;
     ChocoboModel* model;
     Chocobo* chocobo;
@@ -32,7 +41,7 @@ void func_800A157C(void) {
     }
 }
 
-void func_800A1630(void) {
+void ChocoboRaceInit(void) {
     ChocoboTrack* track;
     u32 pad;
 
@@ -80,33 +89,120 @@ void func_800A1630(void) {
     D_800B7530.unkC = 0;
 }
 
-void func_800A17F0(void) {
-    g_AkaoCmd.opcode = 0x23;
-    g_AkaoCmd.params[0] = 0x40;
+void ChocoboInitMusic(void) {
+    g_AkaoCmd.opcode = AKAO_PLAY_FOUR_SOUNDS;
+    g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
     g_AkaoCmd.params[4] = 0;
     g_AkaoCmd.params[3] = 0;
     g_AkaoCmd.params[2] = 0;
     g_AkaoCmd.params[1] = 0;
     AkaoExec();
-    g_AkaoCmd.opcode = 0xA0;
-    g_AkaoCmd.params[0] = 127;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT2;
+    g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
-    g_AkaoCmd.opcode = 0xA1;
-    g_AkaoCmd.params[0] = 127;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT1;
+    g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
-    g_AkaoCmd.opcode = 0xA2;
-    g_AkaoCmd.params[0] = 127;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT0;
+    g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
-    g_AkaoCmd.opcode = 0xA3;
-    g_AkaoCmd.params[0] = 127;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT3;
+    g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
 }
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A18BC);
+void func_800A18BC(void) {
+    RECT rect;
+    s32* ptr;
+    POLY_F4* p0;
+    POLY_F4* p1;
+    s32 i;
+
+    rect = D_800A0018;
+    ptr = (s32*)&D_800B7530;
+    for (;;) {
+        if (ptr == &D_800F5030) {
+            break;
+        }
+        *ptr = 0;
+        ptr++;
+    }
+    SetGeomOffset(160, 120);
+    SetGeomScreen(270);
+    SetDispMask(1);
+    SetDefDrawEnv(&D_800B7A68[0].draw, 0, 0, 320, 232);
+    SetDefDrawEnv(&D_800B7A68[1].draw, 0, 240, 320, 232);
+    D_800B7A68[1].draw.tpage = D_800B7A68[0].draw.tpage = GetTPage(0, 1, 0, 0);
+    D_800B7A68[1].draw.isbg = D_800B7A68[0].draw.isbg = 0;
+    SetDefDispEnv(&D_800B7A68[0].disp, 0, 240, 320, 232);
+    SetDefDispEnv(&D_800B7A68[1].disp, 0, 0, 320, 232);
+    D_800B7A68[0].draw.dfe = D_800B7A68[1].draw.dfe = 1;
+    ClearOTagR(D_800B7A68[0].ot, LEN(D_800B7A68[0].ot));
+    ClearOTagR(D_800B7A68[1].ot, LEN(D_800B7A68[1].ot));
+    ClearOTag(D_800B7A68[0].ot2, LEN(D_800B7A68[0].ot2));
+    ClearOTag(D_800B7A68[1].ot2, LEN(D_800B7A68[1].ot2));
+    ClearImage(&rect, 0, 0, 0);
+    SetBackColor(64, 64, 64);
+    SetDispMask(1);
+    PutDispEnv(&D_800B7A68[0].disp);
+    PutDrawEnv(&D_800B7A68[1].draw);
+    srand(VSync(-1));
+    func_800A1630();
+    D_800F5038 = 0;
+    D_800F503A = 0;
+    D_800F503C = 0;
+    func_800A28D8();
+    func_800A272C(Savemap.memory_bank_3[7], Savemap.memory_bank_3[0x17]);
+    D_800F5040.event = *D_800F5078.track->events;
+    if (D_800B7A48.unk0) {
+        D_800F5040.event.type = -1;
+    }
+    D_800F5040.event.type = -1;
+    p0 = D_800B7A68[0].unk1C6B0;
+    p1 = D_800B7A68[1].unk1C6B0;
+    for (i = 0; i < NUM_CHOCOBO; i++) {
+        SetPolyF4(&p0[i]);
+        SetPolyF4(&p1[i]);
+        p0[i].r0 = (i & 2) ? 255 : 0;
+        p0[i].g0 = (i & 4) ? 255 : 0;
+        p0[i].b0 = (i & 1) ? 255 : 0;
+        p1[i].r0 = (i & 2) ? 255 : 0;
+        p1[i].g0 = (i & 4) ? 255 : 0;
+        p1[i].b0 = (i & 1) ? 255 : 0;
+    }
+    D_800B7A68[0].bg.x0 = D_800B7A68[0].bg.x2 = D_800B7A68[0].bg.y0 = D_800B7A68[0].bg.y1 = 0;
+    D_800B7A68[0].bg.x1 = D_800B7A68[0].bg.x3 = 320;
+    D_800B7A68[0].bg.y2 = D_800B7A68[0].bg.y3 = 232;
+    SetPolyF4(&D_800B7A68[0].bg);
+    SetSemiTrans(&D_800B7A68[0].bg, 1);
+    D_800B7A68[1].bg = D_800B7A68[0].bg;
+
+    D_800B7A68[0].unk1C740 = D_800B1298;
+    SetPolyFT4(&D_800B7A68[0].unk1C740);
+    SetSemiTrans(&D_800B7A68[0].unk1C740, 1);
+    D_800B7A68[0].unk1C740.clut = GetClut(576, 128);
+    D_800B7A68[0].unk1C740.tpage = GetTPage(0, 0, 384, 0);
+    D_800B7A68[1].unk1C740 = D_800B7A68[0].unk1C740;
+
+    D_800B7A68[0].unk1C7C0 = D_800B12C0;
+    SetPolyFT4(&D_800B7A68[0].unk1C7C0);
+    SetSemiTrans(&D_800B7A68[0].unk1C7C0, 1);
+    D_800B7A68[0].unk1C7C0.clut = GetClut(576, 129);
+    D_800B7A68[0].unk1C7C0.tpage = GetTPage(0, 0, 384, 0);
+    D_800B7A68[1].unk1C7C0 = D_800B7A68[0].unk1C7C0;
+
+    SetPolyF4(&D_800B7A68[0].unk1C780);
+    D_800B7A68[0].unk1C780.x0 = D_800B7A68[0].unk1C780.x2 = 25;
+    D_800B7A68[0].unk1C780.x1 = D_800B7A68[0].unk1C780.x3 = 30;
+    D_800B7A68[0].unk1C780.y2 = D_800B7A68[0].unk1C780.y3 = 209;
+    D_800B7A68[1].unk1C780 = D_800B7A68[0].unk1C780;
+    func_800A1F40(D_800B1254.unk0, Savemap.memory_bank_3[7]);
+    func_800A9828();
+}
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A1F40);
 
-static void func_800A272C(s32 arg0, s32 arg1) {
+static void ChocoboLoadTrackData(s32 arg0, s32 arg1) {
     RECT sp10;
     RECT sp18;
     s32 var_a0;
@@ -167,7 +263,7 @@ static void func_800A272C(s32 arg0, s32 arg1) {
     }
 }
 
-static void func_800A28D8(void) {
+static void ChocoboLoadTextures(void) {
     SysCdromStartLoadLzs(0x4C9, 0x1000, (u_long*)&D_80077F64[0][0x2000], NULL);
     do {
 
@@ -186,7 +282,7 @@ static void func_800A28D8(void) {
     } while (SystemCdromReadChain());
 }
 
-void func_800A2984(void) {
+void ChocoboDrawTrackTris(void) {
     ChocoboTri* tri;
     POLY_G3* p;
     OT_TYPE* ot;
@@ -227,7 +323,7 @@ void func_800A2984(void) {
     }
 }
 
-void func_800A2AFC(void) {
+void ChocoboDrawTrackSegments(void) {
     s32 count;
     s32 start;
     s32 end;
@@ -409,7 +505,7 @@ u8 D_800B256C[][8] = {
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A34A8);
 
-void func_800A44E4(void) {
+void ChocoboUpdateRanking(void) {
     s32 keys[NUM_CHOCOBO];
     s32 ids[16]; // only the first NUM_CHOCOBO are used
     s32 i;
@@ -452,7 +548,7 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A4888);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A500C);
 
-void func_800A68D4(s32 id) {
+void ChocoboSelectRacer(s32 id) {
     VECTOR dir;
     Chocobo* c;
     s32 w;
@@ -473,11 +569,11 @@ void func_800A68D4(s32 id) {
         dir.vy = 0;
         dir.vz = c->unk2C - c->unk14;
         VectorNormal(&dir, &dir);
-        c->unk3A = func_800A89A0(dir.vx, dir.vz);
+        c->unk3A = ChocoboCalcAngle(dir.vx, dir.vz);
     }
 }
 
-void func_800A6B9C(s32 chocoboId, s32 speed, s32 seg) {
+void ChocoboSelectRacerAtSegment(s32 chocoboId, s32 speed, s32 seg) {
     VECTOR dir;
     Chocobo* c;
     s32 next;
@@ -502,12 +598,12 @@ void func_800A6B9C(s32 chocoboId, s32 speed, s32 seg) {
     dir.vy = 0;
     dir.vz = c->unk2C - c->unk14;
     VectorNormal(&dir, &dir);
-    c->unk3A = func_800A89A0(dir.vx, dir.vz);
+    c->unk3A = ChocoboCalcAngle(dir.vx, dir.vz);
 }
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A6E50);
 
-void func_800A7840(s16 id, s16 arg1) {
+void ChocoboQueueEvent(s16 id, s16 arg1) {
     if (D_800B7A48.unk0 == -1) {
         D_800F5040.event.type = -1;
         D_800F5028 = arg1;
@@ -522,7 +618,7 @@ void func_800A7840(s16 id, s16 arg1) {
     }
 }
 
-void func_800A7924(MATRIX* m, SVECTOR* eye, SVECTOR* at) {
+void ChocoboLookAt(MATRIX* m, SVECTOR* eye, SVECTOR* at) {
     VECTOR dir;
     VECTOR side;
     VECTOR fwd;
@@ -551,7 +647,7 @@ void func_800A7924(MATRIX* m, SVECTOR* eye, SVECTOR* at) {
     m->t[2] = -dir.vz;
 }
 
-void func_800A7AB8(void) {
+void ChocoboUpdateEventSpeed(void) {
     s32 speed;
     s32* pending;
 
@@ -572,11 +668,11 @@ void func_800A7AB8(void) {
         }
         pending = &D_800B1358;
         if (*pending) {
-            func_800A6B9C(D_800B7530.unkC, speed, D_800F5040.event.unkA);
+            ChocoboSelectRacerAtSegment(D_800B7530.unkC, speed, D_800F5040.event.unkA);
             *pending = 0;
         }
     } else {
-        func_800A68D4(D_800B7530.unkC);
+        ChocoboSelectRacer(D_800B7530.unkC);
     }
     if ((D_800F5040.unk8 && !D_800B7A48.unk0) || (D_800B7A48.unk0 && D_800B75CC[0].unk7E)) {
         D_800F5040.event.type = 10;
@@ -587,7 +683,7 @@ void func_800A7AB8(void) {
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A7CA4);
 
-void func_800A869C(void) {
+void ChocoboUpdateCamera(void) {
     VECTOR pos = D_800A00A8;
     MATRIX m;
     SVECTOR rot = D_800A00B8;
@@ -606,7 +702,7 @@ void func_800A869C(void) {
     D_800B7340.vx = (D_800B7340.vx * 3 + D_800B1348.vx) / 4;
     D_800B7340.vy = (D_800B7340.vy * 7 + D_800B1348.vy) / 8;
     D_800B7340.vz = (D_800B7340.vz * 3 + D_800B1348.vz) / 4;
-    func_800A7924(&m, &D_800B7340, &D_800B7348);
+    ChocoboLookAt(&m, &D_800B7340, &D_800B7348);
     RotMatrixYXZ(&rot, &D_800B7544);
     TransMatrix(&D_800B7544, &pos);
     MulMatrix2(&m, &D_800B7544);
@@ -617,7 +713,7 @@ void func_800A869C(void) {
     SetTransMatrix(&D_800B7544);
 }
 
-void func_800A8940(s16 node) {
+void ChocoboSetNodeStep(s16 node) {
     if (node > 0x80) {
         D_800F5078.track->nodes[node - 0x80].step = -1;
     } else {
@@ -627,7 +723,7 @@ void func_800A8940(s16 node) {
 
 #include "acos.h"
 
-inline s32 func_800A89A0(s16 x, s16 y) {
+static inline s32 ChocoboCalcAngle(s16 x, s16 y) {
     s32 i;
 
     if (x >= 0x1000) {
@@ -643,14 +739,14 @@ inline s32 func_800A89A0(s16 x, s16 y) {
     return (D_800B26CC[0x2000 - i] + 0xC00) & 0xFFF;
 }
 
-s32 func_800A8A18(SVECTOR* from, SVECTOR* to) {
+s32 ChocoboCalcAngleToPoint(SVECTOR* from, SVECTOR* to) {
     VECTOR dir;
 
     dir.vx = to->vx - from->vx;
     dir.vy = to->vy - from->vy;
     dir.vz = to->vz - from->vz;
     VectorNormal(&dir, &dir);
-    return func_800A89A0(dir.vx, dir.vz);
+    return ChocoboCalcAngle(dir.vx, dir.vz);
 }
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800A8AE8);
@@ -669,7 +765,7 @@ extern ChocoboPrizePtr D_800B7458[1];
 extern Unk800B7480 D_800B7480[5][3];
 extern u8* D_800F502C;
 
-void func_800AB410(void) {
+void ChocoboSetPrizeTable(void) {
     s32 ids[16];
     s32 groups[16];
     ChocoboPrizePtr* table;
@@ -809,9 +905,9 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800AC554);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo2", func_800AD52C);
 
-void func_800AD7B8(const char* str, s32 len, s32 x, s32 y) { SysMenuDrawString(x, y, str, 7); }
+void ChocoboDrawText(const char* str, s32 len, s32 x, s32 y) { SysMenuDrawString(x, y, str, 7); }
 
-void func_800AD7E8(void) {
+void ChocoboDrawFade(void) {
     DRAWENV env;
     DR_ENV dr;
     DRAWENV* src;

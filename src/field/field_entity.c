@@ -332,7 +332,37 @@ s32 FieldEntityLineCheck(FieldEntity* entity, FieldLine* lines, VECTOR* pos) {
     return result;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_entity", FieldEntityLineInteract);
+void FieldEntityLineInteract(FieldEntity* entity, FieldLine* lines) {
+    VECTOR* from = (VECTOR*)getScratchAddr(0);
+    VECTOR* nearest = (VECTOR*)getScratchAddr(sizeof(VECTOR) / 4);
+    s32 distanceSq;
+    s32 i;
+
+    from->vx = entity->PosX >> 12;
+    from->vy = entity->PosY >> 12;
+    from->vz = entity->PosZ >> 12;
+
+    for (i = 0; i < LEN(g_FieldLines); i++, lines++) {
+        if (lines->isActive == 1 && entity->scriptedMoveMode == SMODE_NONE) {
+            distanceSq = FieldEntitySqrDistToLine(&lines->pos, from, nearest);
+            if (distanceSq != -1 && distanceSq < entity->SolidRange * entity->SolidRange) {
+                if (!lines->touch) {
+                    lines->touchOn = 1;
+                }
+                lines->touch = 1;
+            } else {
+                if (lines->touch == 1) {
+                    lines->touchOff = 1;
+                }
+                lines->touch = 0;
+            }
+            if (lines->isOnLine == 1 && ((lines->proximityAngle - entity->MoveDir + 32) & 0xFF) < 64 &&
+                (g_FieldState.activeKeys & PADRright) && !(g_FieldState.activeKeysPrev & PADRright)) {
+                lines->requestTalkScript = 1;
+            }
+        }
+    }
+}
 
 void FieldEntityLineClear(FieldLine* lines) {
     s32 i;

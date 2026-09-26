@@ -2,7 +2,10 @@
 
 #include "common.h"
 #include "magic.h"
+#include "magic_private.h"
 #include "../battle/battle.h"
+
+// Lv5 Death (レベル5デス / Level 5 Death).
 
 // Battle far colour; func_800B9568 feeds r/g/b straight to SetFarColor.
 extern CVECTOR D_800F5B70;
@@ -18,7 +21,7 @@ extern CVECTOR D_800F5B70;
 
 // Only StartFrame/AnimationFrame are common to every magic overlay; the
 // remaining 0x1C bytes are payload each effect lays out for itself.
-typedef struct Lv5DeathEffect {
+typedef struct {
     /* 0x00 */ s16 StartFrame;
     /* 0x02 */ s16 AnimationFrame;
     /* 0x04 */ SVECTOR Pos;
@@ -29,15 +32,15 @@ typedef struct Lv5DeathEffect {
         s16 FadeOutStartFrame; // screen-fade effect only
     } u;
     /* 0x10 */ char pad10[0x10];
-} Lv5DeathEffect; // size:0x20
+} Lv5DeathData; // size:0x20
 
-extern Lv5DeathEffect g_BattleEffectSlots[];
+extern Lv5DeathData g_BattleEffectSlots[];
 
 // Primitive buffer, one 0xC000 page per double-buffered frame.
 extern char g_Lv5DeathPrimBuffer0[];
 extern char g_Lv5DeathPrimBuffer1[];
 extern void* g_Lv5DeathBufferPtr;
-extern Lv5DeathEffect* g_Lv5DeathFlipEffect; // slot running Lv5DeathBufferFlip
+extern Lv5DeathData* g_Lv5DeathFlipEffect; // slot running Lv5DeathBufferFlip
 extern s32 g_Lv5DeathTargetsRemaining;
 extern u_long g_Lv5DeathTexture[]; // 8bpp TIM + 256-colour CLUT, uploaded on setup
 
@@ -63,7 +66,7 @@ void MAGIC_Lv5Death(s32 targetMask, s32 callbackArg) { Lv5DeathMainSetup(targetM
 static void Lv5DeathRenderRing(void) {
     // Unused; gives the function its 0x58 stack frame.
     char pad[0x34];
-    Lv5DeathEffect* effect;
+    Lv5DeathData* effect;
     s32 scale;
     s32 frame;
     ModelRenderDesc* desc;
@@ -102,7 +105,7 @@ static void Lv5DeathRenderRing(void) {
 }
 
 static void Lv5DeathRenderTargetSprite(void) {
-    Lv5DeathEffect* effect;
+    Lv5DeathData* effect;
     s32 frame;
     u8 intensity;
 
@@ -135,7 +138,7 @@ static void Lv5DeathRenderTargetSprite(void) {
 }
 
 static void Lv5DeathScreenFade(void) {
-    Lv5DeathEffect* effect;
+    Lv5DeathData* effect;
     s32 farDepth;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -163,8 +166,8 @@ static void Lv5DeathScreenFade(void) {
 }
 
 static void Lv5DeathAttachToTarget(s32 target, s32 callbackArg) {
-    Lv5DeathEffect* effect;
-    Lv5DeathEffect* ring;
+    Lv5DeathData* effect;
+    Lv5DeathData* ring;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(Lv5DeathRenderTargetSprite)];
     BattleGetPartPosition(target, g_BattleModels[target].battleModelRootBone, &effect->Pos);
@@ -175,11 +178,11 @@ static void Lv5DeathAttachToTarget(s32 target, s32 callbackArg) {
     ring->Pos = effect->Pos;
     ring->Scale = 0x13DC;
 
-    BattleCommandSend(0x20, BattlePositionToStereoPan(&effect->Pos), 0xAA);
+    BattleAkaoCommand(AKAO_PLAY_SOUND, BattlePositionToStereoPan(&effect->Pos), SFX_LV5DETH);
 }
 
 static void Lv5DeathMainSetup(s32 targetMask, s32 callbackArg) {
-    Lv5DeathEffect* effect;
+    Lv5DeathData* effect;
     s32 count;
     s32 i;
 

@@ -508,7 +508,7 @@ extern s16 D_800F3110;
 extern u8 D_800F3150; // btlmenu_prevLimitReadyMask
 extern u8 D_800F3163[];
 extern ModelScreenPos g_modelScreenPos[10];
-extern s16 D_80151774;
+extern s16 g_BattleCurrentTargetMask;
 extern u8 D_801517BC;
 extern u8 D_801517C4;
 extern s16 D_80158D00;
