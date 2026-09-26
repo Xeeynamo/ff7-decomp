@@ -1,34 +1,90 @@
 //! PSYQ=3.3 FORCE_MEM=true
 
 #include "jet_private.h"
+#include <libc.h>
 
-s32 D_800A8310 = 0x9D8;
-u32 D_800A8314 = 0x28;
-s32 D_800A8318 = 0x9D9;
-u32 D_800A831C = 0x4DE8;
-s32 D_800A8320 = 0x9E3;
-u32 D_800A8324 = 0x44;
-s32 D_800A8328 = 0x9E4;
-u32 D_800A832C = 0xA7958;
-s32 D_800A8330 = 0x7F;
-s32 D_800A8334 = 0x7F;
-s32 D_800A8338 = 0;
-s32 D_800A833C = 0;
-MATRIX D_800A8340 = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}};
-MATRIX D_800A8360 = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}};
-MATRIX D_800A8380 = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}};
-SVECTOR D_800A83A0 = {0, 0, 0, 0}; // world rotation
-VECTOR g_JetCameraPos = {0, 0, 0, 0};
-VECTOR D_800A83B8 = {0, 0, 0, 0};
-VECTOR D_800A83C8 = {0, 0, 0, 0};
-VECTOR D_800A83D8 = {0, 0, 0, 0};
-s32 D_800A83E8[2] = {0, 0};
+// Argument block for the GTE renderers in jet_gte.s.
+typedef struct {
+    /* 0x0 */ JetTriangle* tris;
+    /* 0x4 */ POLY_G3* prim;
+    /* 0x8 */ OT_TYPE* ot;
+    /* 0xC */ JetModel* model;
+} JetModelDrawArgs; // size: 0x10
+
+#define JET_LIST_END 0xFFFF
+
+typedef struct {
+    /* 0x0 */ u16 prev;
+    /* 0x2 */ u16 next;
+} JetListLink; // size: 0x4
+
+extern struct {
+    s32 near;
+    s32 far;
+} g_JetFog;
+extern u16 g_JetTrackListHead;
+extern u16 g_JetTriangleListHead;
+extern JetNode* g_JetPopupNode[1];
+extern MATRIX* g_JetViewMatrix;
+extern MATRIX* g_JetWorldMatrix;
+extern SVECTOR* g_JetTrackLeft;
+extern u16 g_JetTriangleListCount;
+extern JetListLink g_JetTrackLinks[9000];
+extern JetListLink g_JetTriangleLinks[12000];
+extern SVECTOR* g_JetTrackRight;
+extern MATRIX g_JetCameraRot;
+extern SVECTOR* g_JetTrackRot;
+void* JetDrawModelTris(JetModelDrawArgs* args);
+void JetProject6Points(SVECTOR* points, u_long* screen);
+void* JetDrawModelTrisUI(JetModelDrawArgs* args);
+POLY_G3* JetDrawTriangle(JetTriangle* arg0, POLY_G3* arg1, OT_TYPE* arg2, JetTriangle* arg3);
+POLY_FT4* JetDrawTrackQuad(SVECTOR* arg0, POLY_FT4* arg1, OT_TYPE* arg2, SVECTOR* arg3);
+
+static void JetDrawEnergyGauge();
+void JetDrawNumber(s32 value, s32 x, s32 y, s16 zeroPad, u16 textureV);
+static void JetDrawScorePopup(JetBuffer* db, s16 modelId, s32 rotationX, s32 rotationY, s32 rotationZ);
+static void JetDrawSprite(
+    s16 spriteId, s16 x, s16 y, s16 w, s16 h, u8 u, u8 v, u8 textureWidth, u8 textureHeight, u8 semiTrans);
+static void JetDrawTrack(void);
+static void JetDrawTriangleList(void);
+static void JetSetWorldMatrix();
+static void JetQueueTPageResets();
+
+static const RECT D_800A0000 = {0, 0, 320, 200};
+
+enum JetLba {
+    LBA_MINI_TEXADR = 2520,  // MINI/TEXADR.BIN
+    LBA_MINI_TEX = 2521,     // MINI/TEX.BIN
+    LBA_MINI_XBINADR = 2531, // MINI/XBINADR.BIN
+    LBA_MINI_XBIN2 = 2532,   // MINI/XBIN2.BIN
+};
+
+// MINI/ files read by JetLoadAssets.
+static Yamada g_JetAssetFiles[4] = {
+    {LBA_MINI_TEXADR, 0x28},
+    {LBA_MINI_TEX, 0x4DE8},
+    {LBA_MINI_XBINADR, 0x44},
+    {LBA_MINI_XBIN2, 0xA7958},
+};
+static s32 D_800A8330 = 0x7F;
+static s32 D_800A8334 = 0x7F;
+static s32 D_800A8338 = 0;
+static s32 g_JetLaserVolume = 0;
+static MATRIX D_800A8340 = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}};
+static MATRIX D_800A8360 = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}};
+static MATRIX g_JetCameraRollMatrix = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}};
+static SVECTOR g_JetCameraRoll = {0, 0, 0, 0};
+static VECTOR g_JetCameraPos = {0, 0, 0, 0};
+VECTOR g_JetCameraPosCopy = {0, 0, 0, 0};
+static VECTOR D_800A83C8 = {0, 0, 0, 0};
+static VECTOR D_800A83D8 = {0, 0, 0, 0};
+static s32 D_800A83E8[2] = {0, 0};
 
 INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", MINI_Jet);
 
 // Draw one object's model, project its bounding box and flag a cursor hit.
-void func_800A0874(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, Unk800A4390* obj) {
-    Unk800A8604 args;
+void JetDrawObjectAndCheckHit(JetBuffer* db, JetNode* node, s16 otIndex, s32 unusedArg, JetObject* object) {
+    JetModelDrawArgs args;
     s16 xs[6];
     s16 ys[6];
     MATRIX** world;
@@ -84,16 +140,16 @@ void func_800A0874(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, Unk800A4
     args.ot = &db->ot[otIndex];
     args.model = node->model;
     db->prims.g3Cursor = JetDrawModelTris(&args);
-    JetProject6Points(obj->unkDC, obj->unk11C);
-    ys[0] = obj->unk11C[0] >> 16;
+    JetProject6Points(object->unkDC, object->unk11C);
+    ys[0] = object->unk11C[0] >> 16;
     minY = ys[0];
     maxY = minY;
-    xs[0] = obj->unk11C[0];
+    xs[0] = object->unk11C[0];
     minX = xs[0];
     maxX = minX;
-    for (i = 1; i < 6; i++) {
-        ys[i] = (obj->unk11C[i] & 0xFFFF0000) >> 16;
-        xs[i] = obj->unk11C[i];
+    for (i = 1; i < LEN(object->unk11C); i++) {
+        ys[i] = (object->unk11C[i] & 0xFFFF0000) >> 16;
+        xs[i] = object->unk11C[i];
         if (minX > xs[i]) {
             minX = xs[i];
         }
@@ -108,18 +164,19 @@ void func_800A0874(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, Unk800A4
         }
     }
     if (JetVectorInsidePlanes((VECTOR*)g_JetWorldMatrix->t)) {
-        obj->unk28.hit = 0;
+        object->state.hit = 0;
         if (g_JetCursorX < maxX && minX < g_JetCursorX && g_JetCursorY < maxY && minY < g_JetCursorY &&
             g_JetFiring == 1) {
-            obj->unk28.hit = g_JetFiring;
+            object->state.hit = g_JetFiring;
         }
     }
 }
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A0D78);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetDrawCartAndProjectBeams);
 
-void JetDrawNodeUI(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, s32 arg4) {
-    Unk800A8604 args;
+// Load a node's matrix into the GTE and draw its model's triangles.
+static void JetDrawNodeUI(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, s32 arg4) {
+    JetModelDrawArgs args;
     MATRIX** world;
     MATRIX* m;
 
@@ -146,26 +203,28 @@ void JetDrawNodeUI(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, s32 arg4
     db->prims.g3Cursor = JetDrawModelTrisUI(&args);
 }
 
-void JetDrawTriangleList(void) {
+// Draw every background triangle on the draw list, front to back.
+static void JetDrawTriangleList(void) {
     JetListLink* list;
     JetTriangle* tris;
     u16 triId;
     POLY_G3* prim;
 
     prim = g_JetBufferPtr[0]->prims.g3Cursor;
-    tris = g_JetTrianglesBase;
+    tris = g_JetXbinAdr.triangles;
     if (g_JetTriangleListCount) {
         triId = g_JetTriangleListHead;
-        list = &g_JetTriangleLinks;
+        list = g_JetTriangleLinks;
         do {
             prim = JetDrawTriangle(&tris[triId], prim, g_JetBufferPtr[0]->ot, &tris[triId]);
             triId = list[triId].next;
-        } while (triId != 0xFFFF);
+        } while (triId != JET_LIST_END);
     }
     g_JetBufferPtr[0]->prims.g3Cursor = prim;
 }
 
-void JetDrawTrack(void) {
+// Draw every track element on the draw list, front to back.
+static void JetDrawTrack(void) {
     JetListLink* list;
     SVECTOR* left;
     SVECTOR* right;
@@ -180,13 +239,14 @@ loop:
     right = g_JetTrackRight;
     prim = JetDrawTrackQuad(&left[trackId], prim, g_JetBufferPtr[0]->ot, &right[trackId]);
     trackId = list[trackId].next;
-    if (trackId != 0xFFFF) {
+    if (trackId != JET_LIST_END) {
         goto loop;
     }
     g_JetBufferPtr[0]->prims.ft4Cursor = prim;
 }
 
-void JetSetWorldMatrix(void) {
+// Build the world matrix from the camera rotation and the view position.
+static void JetSetWorldMatrix(void) {
     MATRIX** view;
     MATRIX** world;
     MATRIX* cam;
@@ -215,7 +275,7 @@ void JetSetWorldMatrix(void) {
     gte_SetTransMatrix(world[0]);
 }
 
-void JetTrackSample(u32 at, s32 lift, VECTOR* pos, SVECTOR* rot) {
+void JetTrackSample(u32 trackPosition, s32 heightOffset, VECTOR* position, SVECTOR* rotation) {
     VECTOR left;
     VECTOR right;
     VECTOR mid;
@@ -239,8 +299,8 @@ void JetTrackSample(u32 at, s32 lift, VECTOR* pos, SVECTOR* rot) {
     s32 dy;
     s32 dz;
 
-    seg = at >> 16;
-    frac = at & 0xFFFF;
+    seg = trackPosition >> 16;
+    frac = trackPosition & 0xFFFF;
     rotCur = &g_JetTrackRot[seg];
     rotNext = &g_JetTrackRot[seg + 1];
     dx = rotNext->vx - rotCur->vx;
@@ -312,16 +372,16 @@ void JetTrackSample(u32 at, s32 lift, VECTOR* pos, SVECTOR* rot) {
     OuterProduct0(&along, &across, &normal);
     VectorNormal(&normal, &unit);
 
-    pos->vx = (s16)mid.vx + ((unit.vx * lift) >> 12);
-    pos->vy = (s16)mid.vy + ((unit.vy * lift) >> 12);
-    pos->vz = (s16)mid.vz + ((unit.vz * lift) >> 12);
+    position->vx = (s16)mid.vx + ((unit.vx * heightOffset) >> 12);
+    position->vy = (s16)mid.vy + ((unit.vy * heightOffset) >> 12);
+    position->vz = (s16)mid.vz + ((unit.vz * heightOffset) >> 12);
 
-    rot->vx = rotCur->vx + dx;
-    rot->vy = dy - rotCur->vy;
-    rot->vz = rotCur->vz + dz;
+    rotation->vx = rotCur->vx + dx;
+    rotation->vy = dy - rotCur->vy;
+    rotation->vz = rotCur->vz + dz;
 }
 
-void JetDrawEnergyGauge(void) {
+static void JetDrawEnergyGauge(void) {
     JetBuffer** db;
     POLY_G4* poly;
     s16 power;
@@ -342,27 +402,28 @@ void JetDrawEnergyGauge(void) {
     db[0]->prims.g4Cursor = poly;
 }
 
-void JetDrawScorePopup(JetBuffer* arg0, s16 arg1, s32 arg2, s32 arg3, s32 arg4) {
+// Spin and draw the score model, alternating it with the title every so often.
+static void JetDrawScorePopup(JetBuffer* db, s16 modelId, s32 rotationX, s32 rotationY, s32 rotationZ) {
     JetNode* node;
     u8* alternate;
     s16* counter;
     s32 index;
     s32 unused;
 
-    if (arg1 == 0 || arg1 == 0x5B) {
+    if (modelId == 0 || modelId == 0x5B) {
         return;
     }
-    alternate = &D_800E25E8;
+    alternate = &g_JetScorePopupAlternate;
     index = 0;
-    node = D_800A8A74[index];
-    node->model = g_JetModelTable[arg1];
-    g_JetPopupRot.vx += arg2;
-    g_JetPopupRot.vy += arg3;
-    g_JetPopupRot.vz += arg4;
+    node = g_JetPopupNode[index];
+    node->model = g_JetModelTable[modelId];
+    g_JetPopupRot.vx += rotationX;
+    g_JetPopupRot.vy += rotationY;
+    g_JetPopupRot.vz += rotationZ;
     if (alternate[0] == 1) {
-        RotMatrix(&g_JetPopupRot, &D_800A8A74[index]->m);
-        JetDrawNodeUI(arg0, D_800A8A74[index], 0, 0, unused);
-        func_800A1CD8(g_JetPopupPoints, 220, 160, 0, 0x18);
+        RotMatrix(&g_JetPopupRot, &g_JetPopupNode[index]->m);
+        JetDrawNodeUI(db, g_JetPopupNode[index], 0, 0, unused);
+        JetDrawNumber(g_JetPopupPoints, 220, 160, 0, 0x18);
     }
     counter = &g_JetPopupTimer;
     (*counter)--;
@@ -378,9 +439,11 @@ void JetDrawScorePopup(JetBuffer* arg0, s16 arg1, s32 arg2, s32 arg3, s32 arg4) 
     }
 }
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A1CD8);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetDrawNumber);
 
-void JetDrawSprite(s16 spriteId, s16 x, s16 y, s16 w, s16 h, u8 u, u8 v, u8 uw, u8 vh, u8 semiTrans) {
+// Draw one sprite from the HUD sprite table.
+static void JetDrawSprite(
+    s16 spriteId, s16 x, s16 y, s16 w, s16 h, u8 u, u8 v, u8 textureWidth, u8 textureHeight, u8 semiTrans) {
     JetBuffer** db;
     POLY_FT4* poly;
 
@@ -388,7 +451,7 @@ void JetDrawSprite(s16 spriteId, s16 x, s16 y, s16 w, s16 h, u8 u, u8 v, u8 uw, 
     poly = db[0]->prims.ft4Cursor;
     setXYWH(poly, x, y, w, h);
     setRGB0(poly, 0x80, 0x80, 0x80);
-    setUVWH(poly, u, v, uw, vh);
+    setUVWH(poly, u, v, textureWidth, textureHeight);
     poly->tpage = g_JetSpriteTPage[spriteId];
     poly->clut = g_JetSpriteClut[spriteId];
     SetSemiTrans(poly, semiTrans);
@@ -397,8 +460,7 @@ void JetDrawSprite(s16 spriteId, s16 x, s16 y, s16 w, s16 h, u8 u, u8 v, u8 uw, 
     db[0]->prims.ft4Cursor = poly;
 }
 
-// Queue two blank textured quads, one at each end of the background OT.
-void func_800A2058(void) {
+static void JetQueueTPageResets(void) {
     JetBuffer** db;
     POLY_FT4* poly;
 
@@ -410,7 +472,7 @@ void func_800A2058(void) {
     poly->tpage = g_JetSpriteTPage[5];
     poly->clut = g_JetSpriteClut[5];
     SetSemiTrans(poly, 0);
-    addPrim(&db[0]->ot[0xFFF], poly);
+    addPrim(&db[0]->ot[LEN(db[0]->ot) - 1], poly);
     poly++;
     setXY4(poly, 0, 0, 0, 0, 0, 0, 0, 0);
     setRGB0(poly, 0x80, 0x80, 0x80);
@@ -423,46 +485,53 @@ void func_800A2058(void) {
     db[0]->prims.ft4Cursor = poly;
 }
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2214);
+// Point every matrix and vector at scratchpad, then build the world.
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetInitialize);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2420);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetLoadAssets);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2518);
+// Upload the nine loaded TIMs and build the sprite tpage/clut tables.
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetSpriteTablesInit);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A27F0);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetLoadTim);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2860);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetAudioInit);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2938);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetAudioFadeOut);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A29AC);
+// Alternate the two laser channels on each shot.
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetPlaySfx);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2AA0);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetSetLaserVolume);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2B78);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetAudioUpdateVolumes);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2BE0);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetTrackInit);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2C50);
+// Advance the camera along its path and rebuild the view matrices.
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetCameraUpdate);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2DE4);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetTrackPathLoad);
 
-void func_800A2E30(void) {}
+static void func_800A2E30(void) {}
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A2E38);
+// Read the pad and drive the cursor, the camera tweaks and the pause toggle.
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetInputUpdate);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A334C);
+// Reset both draw lists and the object streams for a new run.
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetDrawListsInit);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A3414);
+// Unused: JetTrackListsAdvance and JetTrackListsClean in one pass.
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetTrackListsAdvanceAndClean);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A35DC);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetTrackListsAdvance);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A372C);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetTrackListsClean);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A385C);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetTriangleListAppend);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A38D4);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetTriangleListRemove);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A3980);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetTrackListAppend);
 
-INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", func_800A3A20);
+INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", JetTrackListRemove);

@@ -53,9 +53,9 @@ JetProject6Points:
     nop
 .size JetProject6Points, . - JetProject6Points
 
-.globl func_800A84A4
-.type func_800A84A4, @function
-func_800A84A4:
+.globl JetProject3Points
+.type JetProject3Points, @function
+JetProject3Points:
     lwc2 $0, 0x0($a0)
     lwc2 $1, 0x4($a0)
     lwc2 $2, 0x8($a0)
@@ -68,7 +68,7 @@ func_800A84A4:
     swc2 $14, 0x8($a1)
     jr $ra
     nop
-.size func_800A84A4, . - func_800A84A4
+.size JetProject3Points, . - JetProject3Points
 
 .globl JetDrawModelTris
 .type JetDrawModelTris, @function

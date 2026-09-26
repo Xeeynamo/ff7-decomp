@@ -2,6 +2,18 @@
 
 #include "jet_private.h"
 
+extern JetNode g_JetNodeListHeads[10];
+extern JetNode g_JetNodePool[0xC8];
+extern s16 g_JetNodeFreeList[0xC8];
+extern s16 g_JetNextFreeNode;
+extern JetNode g_JetNodeListTails[10];
+
+static s16 JetNodeIndexAlloc(void);
+static void JetNodeIndexFree(s16 index);
+static void JetNodeInit(JetNode* node, s16 index);
+static void JetNodeLink(JetNode* node, JetNode* parent);
+static void JetNodeUnlink(JetNode* node);
+
 void JetNodesInit(void) {
     JetNode* head;
     JetNode* tail;
@@ -23,7 +35,7 @@ void JetNodesInit(void) {
     }
 }
 
-void JetNodeInit(JetNode* node, s16 index) {
+static void JetNodeInit(JetNode* node, s16 index) {
     node->m.m[0][0] = 0x1000;
     node->m.m[1][1] = 0x1000;
     node->m.m[2][2] = 0x1000;
@@ -69,18 +81,18 @@ void JetNodeFree(JetNode* node) {
     JetNodeIndexFree(node->index);
 }
 
-s16 JetNodeIndexAlloc(void) {
+static s16 JetNodeIndexAlloc(void) {
     s16* head;
-    s16 result;
+    s16 index;
 
     head = &g_JetNextFreeNode;
-    result = *head;
-    *head = g_JetNodeFreeList[result];
+    index = *head;
+    *head = g_JetNodeFreeList[index];
 
-    return result;
+    return index;
 }
 
-void JetNodeIndexFree(s16 index) {
+static void JetNodeIndexFree(s16 index) {
     s16* head;
     s16* slot;
 
@@ -90,7 +102,7 @@ void JetNodeIndexFree(s16 index) {
     *head = index;
 }
 
-void JetNodeLink(JetNode* node, JetNode* parent) {
+static void JetNodeLink(JetNode* node, JetNode* parent) {
     JetNode* last;
     JetNode* tail;
     s16 depth;
@@ -106,7 +118,7 @@ void JetNodeLink(JetNode* node, JetNode* parent) {
     tail->prev = node;
 }
 
-void JetNodeUnlink(JetNode* node) {
+static void JetNodeUnlink(JetNode* node) {
     node->prev->next = node->next;
     node->next->prev = node->prev;
 }
