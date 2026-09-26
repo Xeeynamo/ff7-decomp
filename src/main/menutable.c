@@ -17,21 +17,21 @@ static void func_80026408(u16 arg0) {
     AkaoExec();
 }
 
-void SysMenuSetCursorMovement(
-    MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage, s32 unk0, s32 rowOffset, s32 unk4,
-    s32 numTotalRows, s32 unkE, s32 unkF, s32 unk10, s32 unk11, u16 scrolling) {
+void SysMenuSetCursorMovement(MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage, s32 colOffset,
+                              s32 rowOffset, s32 numTotalColumns, s32 numTotalRows, s32 scrollAnimX, s32 scrollAnimY,
+                              s32 wrapModeX, s32 wrapModeY, u16 scrolling) {
     table->column = column;
     table->row = row;
     table->numColumns = numColumns;
     table->numRowsPerPage = numRowsPerPage;
-    table->unk0 = unk0;
+    table->colOffset = colOffset;
     table->rowOffset = rowOffset;
-    table->unk4 = unk4;
+    table->numTotalColumns = numTotalColumns;
     table->numTotalRows = numTotalRows;
-    table->unkE = unkE;
-    table->unkF = unkF;
-    table->unk10 = unk10;
-    table->unk11 = unk11;
+    table->scrollAnimX = scrollAnimX;
+    table->scrollAnimY = scrollAnimY;
+    table->wrapModeX = wrapModeX;
+    table->wrapModeY = wrapModeY;
     table->scrolling = scrolling;
 }
 

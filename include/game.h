@@ -263,20 +263,20 @@ typedef struct {
 } LinePos;
 
 typedef struct {
-    s16 unk0;
-    s16 rowOffset; // Top visible row on the page of a scrollable table.
-    s16 unk4;
-    s16 numTotalRows; // Total rows in table.
-    s16 scrolling;
-    s8 column; // Selected column.
-    s8 row;    // Selected row.
-    s8 numColumns;
-    s8 numRowsPerPage; // Visible rows per page of table.
-    s8 unkE;           // Scrolling offset?
-    s8 unkF;           // Horizontal wrap behaviour?
-    s8 unk10;          // Vertical wrap behaviour?
-    s8 unk11;          // scroll type: 0=no wrap, 1/2:wrap, 3>:infinite
-} MenuTable;           // size: 0x12
+    s16 colOffset;       // Horizontal scroll offset (left visible column).
+    s16 rowOffset;       // Vertical scroll offset (top visible row).
+    s16 numTotalColumns; // Total columns in table.
+    s16 numTotalRows;    // Total rows in table.
+    s16 scrolling;       // Scroll animation direction / active state (0=idle).
+    s8 column;           // Selected column index.
+    s8 row;              // Selected row index.
+    s8 numColumns;       // Visible columns per page.
+    s8 numRowsPerPage;   // Visible rows per page.
+    s8 scrollAnimX;      // Horizontal scroll animation pixel offset.
+    s8 scrollAnimY;      // Vertical smooth-scroll animation pixel offset.
+    s8 wrapModeX;        // Horizontal wrap mode (0=clamp, 1=wrap column, 2=wrap row).
+    s8 wrapModeY;        // Vertical scroll/wrap mode (0=scroll, 1/2=wrap, 3+=infinite).
+} MenuTable;             // size: 0x12
 
 typedef struct {
     /* 0x0 */ s16 visibleRows; // rows shown at once, sets slider length
@@ -1260,11 +1260,11 @@ extern u8 _D_80062DFD;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
 extern u8 D_80062F1A;
 extern u8 D_80062F1B;
-extern Gpu D_80062F24;
-extern u16 D_80062F3C;
+extern Gpu g_GpuPacketPtr;
+extern u16 g_SaveSlotMask;
 extern s32 g_MenuRenderBufferIndex;
 extern s32 D_80062F88;
-extern OT_TYPE* D_80062FC4;
+extern OT_TYPE* g_CurrentOT;
 extern Unk800A8D04* g_CurrentAction;
 extern DRAWENV D_800706A4[2];
 extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
@@ -1297,7 +1297,7 @@ extern ArmorRecord g_ArmorTable[];         // 0x80071E44, by armor id
 extern KernelLimitRecord D_80082290[];     // 0x80082290, by character id
 extern FieldEntity g_FieldEntity[];
 extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
-extern s32 D_800756F8[];
+extern s32 g_PartyPortraitClut[];
 extern Unk80075D00* D_80075D00;
 extern s32 D_80075D04;
 extern s32 D_80075D08[];
@@ -1339,7 +1339,7 @@ extern s16 g_IsFieldLoading;
 extern volatile s16 g_PrevGameState;
 extern u8 D_80099FFC;
 extern AkaoCmd g_AkaoCmd;
-extern s32 D_8009A024[8];
+extern s32 g_MemcardEvents[8];
 extern u8 g_FieldCurrentOpcode;
 extern s16 g_CurrentFieldIndex;
 extern s32 D_8009A064;
@@ -1386,11 +1386,20 @@ s32 SysMenuGetMenuListState(void);
 void SysMenuSetMenuListAnimation(s32 state, s32 menuId);
 u8* GetCharacterName(s32 battleCharId);
 void func_800262D8();
-void SysMenuSetCursorMovement(
-    MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage, s32 unk0, s32 rowOffset, s32 unk4,
-    s32 numTotalRows, s32 unkE, s32 unkF, s32 unk10, s32 unk11, u16 scrolling);
+void SysMenuSetCursorMovement(MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage, s32 colOffset,
+                              s32 rowOffset, s32 numTotalColumns, s32 numTotalRows, s32 scrollAnimX, s32 scrollAnimY,
+                              s32 wrapModeX, s32 wrapModeY, u16 scrolling);
 void SysMenuSetPoly(void* poly);
+void SysMenuSavePoly(void);
+void SysMenuRestorePoly(void);
 void SysMenuSetOtag(OT_TYPE* otag);
+u8 SysMenuIsWindowActive(void);
+void SysMenuStoreAvatarVram(u_long* image);
+void SysMenuRestoreAvatarVram(u_long* image);
+void SysMenuStoreFontVram(u_long* image);
+void SysMenuRestoreFontVram(u_long* image);
+void SysMenuLoadPartyPortraits(void);
+void SysMenuDrawNoop(s32 arg0);
 void SysMenuDrawDigitsWithoutLeadingZeroes(s32 x, s32 y, s32 value, s32 digits, s32 color);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string

@@ -346,17 +346,17 @@ void BattleMenuWidgetCommandReset(void) {
     if (D_800F57CC == 0) {
         s->column = 0;
         s->row = 0;
-        s->unk0 = 0;
+        s->colOffset = 0;
         s->rowOffset = 0;
     }
     s->numRowsPerPage = 4;
     s->numTotalRows = 4;
     s->numColumns = rows;
-    s->unk4 = rows;
-    s->unk10 = 0;
-    s->unk11 = 1;
-    s->unkE = 0;
-    s->unkF = 0;
+    s->numTotalColumns = rows;
+    s->wrapModeX = 0;
+    s->wrapModeY = 1;
+    s->scrollAnimX = 0;
+    s->scrollAnimY = 0;
     s->scrolling = 0;
 }
 
@@ -396,17 +396,17 @@ void BattleMenuWidgetSubReset(void) {
     if (D_800F57CC == 0) {
         s->column = 0;
         s->row = 0;
-        s->unk0 = 0;
+        s->colOffset = 0;
         s->rowOffset = 0;
     }
     s->numColumns = 3;
     s->numRowsPerPage = 3;
-    s->unk4 = 3;
+    s->numTotalColumns = 3;
     s->numTotalRows = 0x12;
-    s->unk10 = 2;
-    s->unk11 = 0;
-    s->unkE = 0;
-    s->unkF = 0;
+    s->wrapModeX = 2;
+    s->wrapModeY = 0;
+    s->scrollAnimX = 0;
+    s->scrollAnimY = 0;
     s->scrolling = 0;
     func_800A4F60(D_800F38A0, 1);
 }
@@ -452,17 +452,17 @@ void BattleMenuWidgetSub2Reset(void) {
     if (D_800F57CC == 0) {
         s->column = 0;
         s->row = 0;
-        s->unk0 = 0;
+        s->colOffset = 0;
         s->rowOffset = 0;
     }
     s->numColumns = 1;
     s->numRowsPerPage = 3;
-    s->unk4 = 1;
+    s->numTotalColumns = 1;
     s->numTotalRows = 0x10;
-    s->unk10 = 2;
-    s->unk11 = 0;
-    s->unkE = 0;
-    s->unkF = 0;
+    s->wrapModeX = 2;
+    s->wrapModeY = 0;
+    s->scrollAnimX = 0;
+    s->scrollAnimY = 0;
     s->scrolling = 0;
     func_800A4F60(D_800F38A0, 2);
 }

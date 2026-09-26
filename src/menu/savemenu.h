@@ -1,5 +1,7 @@
 #include <game.h>
 
+typedef enum { MONO = 0, STEREO = 1, VOL_RESET = 2 } MenuAudioMode;
+
 typedef enum {
     START_MENU_MODE_SELECT_SLOT = 0,
     START_MENU_MODE_SELECT_FILE = 1,
@@ -9,6 +11,89 @@ typedef enum {
     START_MENU_MODE_FORMAT_PROMPT = 6,
     START_MENU_MODE_TITLE = 7,
 } StartMenuMode;
+
+typedef enum {
+    TITLE_FADE_DONE = -1,
+    TITLE_FADE_IN = 0,
+    TITLE_FADE_ACTIVE = 1,
+    TITLE_FADE_OUT = 2,
+} TitleFadeState;
+
+typedef enum {
+    TITLE_OPTION_NEW_GAME = 0,
+    TITLE_OPTION_CONTINUE = 1,
+} TitleMenuOption;
+
+typedef enum {
+    FORMAT_OPTION_YES = 0,
+    FORMAT_OPTION_NO = 1,
+} FormatMenuOption;
+
+typedef enum {
+    TITLE_RESULT_CONTINUE = 0,
+    TITLE_RESULT_NEW_GAME = 1,
+} TitleResult;
+
+typedef enum {
+    CARD_STATUS_INSERTED = 0,
+    CARD_STATUS_ERROR = 1,
+    CARD_STATUS_UNFORMATTED = 2,
+} CardStatusFlag;
+
+typedef enum {
+    CARD_EVENT_SUCCESS = 0,
+    CARD_EVENT_ERROR = 1,
+    CARD_EVENT_TIMEOUT = 2,
+    CARD_EVENT_NEW_CARD = 3,
+} CardEventCode;
+
+typedef enum {
+    TITLE_TABLE_SLOTS = 0,
+    TITLE_TABLE_FILES = 1,
+    TITLE_TABLE_FORMAT = 6,
+    TITLE_TABLE_TITLE = 7,
+} TitleMenuTableIndex;
+
+typedef enum {
+    TITLE_BTN_FORMAT = 0,
+    TITLE_BTN_TITLE = 1,
+} TitleButtonTableIndex;
+
+#define NUM_CARD_SLOTS 2
+#define CARD_SLOT_1 0
+#define CARD_SLOT_2 1
+#define CARD_PORT_STRIDE 0x10
+#define NUM_SAVE_FILES_PER_CARD 15
+#define SAVE_HEADER_MAX_RETRIES 20
+#define TITLE_TRANSITION_DELAY 10
+#define TITLE_FADE_STEP 15
+
+typedef enum {
+    SAVE_STR_LOAD = 0,
+    SAVE_STR_SELECT_SLOT = 1,
+    SAVE_STR_SELECT_FILE = 2,
+    SAVE_STR_SLOT_1 = 3,
+    SAVE_STR_SLOT_2 = 4,
+    SAVE_STR_ARE_YOU_SURE = 5,
+    SAVE_STR_LOADING = 6,
+    SAVE_STR_SAVING = 7,
+    SAVE_STR_EMPTY = 8,
+    SAVE_STR_FILE = 9,
+    SAVE_STR_CONTINUE = 10,
+    SAVE_STR_COULD_NOT_LOAD = 11,
+    SAVE_STR_CHECKING_CARD = 12,
+    SAVE_STR_FILE_RUINED = 31,
+    SAVE_STR_NEW_GAME = 32,
+    SAVE_STR_YES = 34,
+    SAVE_STR_NO = 35,
+    SAVE_STR_COMPLETED = 41,
+} SaveMenuStringId;
+
+typedef enum {
+    SAVE_FORMAT_STR_FAILED = 3,
+    SAVE_FORMAT_STR_UNFORMATTED = 4,
+    SAVE_FORMAT_STR_PROMPT = 5,
+} SaveFormatStringId;
 
 typedef struct {
     // this whole thing might be a D_801E379C[6]
@@ -54,14 +139,14 @@ extern u8 D_801E2EAC[];
 extern StartMenuMode g_MenuStartMode;
 extern s32 D_801E3440;
 extern s32 D_801E3530;
-extern RECT D_801E3650[3];
+extern RECT g_SaveSlotWindowRects[3];
 extern s32 D_801E36A0;
 extern s32 D_801E36A4;
 extern s32 D_801E36A8;
 extern s32 D_801E36AC;
-extern u8 D_801E368C[NUM_MENU_COLOR]; // 4 corners x RGB
-extern u8 D_801E3684[];               // "Level" label
-extern s32 D_801E3698;
+extern u8 g_TitleDefaultWindowColors[NUM_MENU_COLOR]; // 4 corners x RGB
+extern u8 g_SaveLevelLabel[];                         // "Level" label
+extern s32 g_TitleResult;
 extern s32 D_801E36B0;
 extern s32 D_801E36B8;
 extern s32 D_801E36B4;
@@ -72,15 +157,16 @@ extern OT_TYPE* D_801E3854;
 extern OT_TYPE* D_801E3858[2][1];
 extern SaveHeader D_801E3864[];
 extern s32 g_SaveSlot;
-extern s32 D_801E3D54;
-extern s32 D_801E3D58; // backbuffer id?
-extern OT_TYPE* D_801E3D5C;
-extern OT_TYPE* D_801E3D60[2][4];
-extern MenuTable D_801E3DEC[2];
-extern DRAWENV D_801E3E34[2];
-extern DISPENV D_801E3EEC[2];
-extern s32 D_801E3F2C[];
-extern s32 D_801E4538[];
+extern s32 g_TitleFadeBrightness;
+extern s32 g_TitleFadeState;
+extern s32 g_TitleBufferIndex;
+extern OT_TYPE* g_TitleActiveOT;
+extern OT_TYPE* g_TitleOrderingTable[2][4];
+extern MenuTable g_TitleButtonTables[2];
+extern DRAWENV g_TitleDrawEnv[2];
+extern DISPENV g_TitleDispEnv[2];
+extern s32 g_SaveCharClutBackup[];
+extern s32 g_SaveFontVramBackup[];
 // FF7 char code -> 2-byte Shift-JIS, byte-indexed; digits start at 0x20
 extern u8 g_ShiftJisTable[];
 // Card icons, SAVE_ICON_SIZE each: CLUT at 0x00, bitmap at 0x2C
@@ -93,29 +179,35 @@ extern MemcardSaveFile g_SaveFile;
 extern u8 g_SaveFileData[];
 // bytes still to write
 extern s32 g_SaveWriteRemaining;
-extern u8 D_801E8F38[2][3];
+extern u8 g_SaveCardSlotStatus[2][3];
 extern s32 D_801E3850;
 extern s32 D_801E3860;
-extern s32 D_801E8F44[];
+extern s32 g_SaveAvatarVramBackup[];
 extern u8 D_801E2E88;
 extern u8 D_801E3158;
-extern MenuRect D_801E3668;
-extern MenuTable D_801E3D80[2];
-extern s32 D_801E3F14;
-extern s32 D_801E3F18;
-extern s32 D_801E3F1C;
-extern s32 D_801E3F20;
+extern MenuRect g_TitleWindowRect;
+extern MenuTable g_TitleMenuTables[];
+extern s32 g_TitleScanUnk;
+extern s32 g_TitleTimer;
+extern s32 g_TitleScanInitial;
+extern s32 g_TitleScanFileIndex;
 
-extern unsigned char D_801E2CFC[][0x24];
-extern unsigned char D_801E3260[][0x30];
-extern unsigned char D_801E33B0[][0x30];
+extern unsigned char g_SaveMenuStrings[][0x24];
+extern unsigned char g_SaveFormatStrings[][0x30];
+extern unsigned char g_SaveErrorStrings[][0x30];
 
 s32 SysGetHoursFromSeconds(s32 seconds);
 s32 SysGetMinutesFromSeconds(s32 seconds);
-void func_801D19C4(void);
-void func_801D1BA4(void);
+s32 TitleMain(void);
+s32 SaveMain(void);
+int SaveUpdate(s32 counter);
+void SaveInitCardEvents(void);
+void SaveCleanupCardEvents(void);
 u16 GetSaveSlotMask(s32 cardSlot);
-SaveHeader* func_801D1D1C(s32 arg0);
-static s16 func_801D2A34(s32 save_id);
-void SaveMenuFetchAllMemCardStatus(s32 arg0);
-void func_801D370C(s32 x, s32 y, s32 slot_no);
+SaveHeader* SaveGetHeader(s32 arg0);
+u16 SaveCalcChecksum(u16 len, u8* data);
+static s16 SaveCheckFile(s32 save_id);
+void SaveFetchAllCardStatus(s32 arg0);
+s32 SaveFetchHeader(s32 cardId, s32 slotId);
+void SaveDrawSlot(s32 x, s32 y, s32 slotIndex);
+void SaveHandleScrollCursor(MenuTable* table);

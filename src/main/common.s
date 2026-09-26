@@ -29,7 +29,7 @@
 /* 80062F1C */ glabel D_80062F1C;                           .space 2   
 /* 80062F1E */ glabel g_AkaoStreamPitch;                       .space 2   
 /* 80062F20 */ glabel g_PartyMenuListTransitionFactor;      .space 4     # !!GP!! 1F6B4.c
-/* 80062F24 */ glabel D_80062F24;                           .space 4   
+/* 80062F24 */ glabel g_GpuPacketPtr;                       .space 4   
 /* 80062F28 */ glabel g_AkaoPitchMulMusicSlideStep;         .space 4   
 /* 80062F2C */ glabel g_AkaoVolMulMusicSlideStep;           .space 4   
 /* 80062F30 */ glabel g_AkaoTempoMulMusicSlideStep;         .space 4   
@@ -65,7 +65,7 @@
 /* 80062FB8 */ glabel g_AkaoReverbMul;                           .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062FBC */ glabel D_80062FBC;                           .space 4     # !!GP!! 17238.c
 /* 80062FC0 */ glabel D_80062FC0;                           .space 4     # !!GP!! 1F6B4.c
-/* 80062FC4 */ glabel D_80062FC4;                           .space 4     # !!GP!! 26B70.c (SysMenuSetOtag, SysMenuSetDrawenv, ...)
+/* 80062FC4 */ glabel g_CurrentOT;                          .space 4     # !!GP!! 26B70.c (SysMenuSetOtag, SysMenuSetDrawenv, ...)
 /* 80062FC8 */ glabel g_AkaoMusicFadeSteps;                    .space 4     # akao.c (AkaoCmd_18_FadePlayMusic, AkaoCmd_19_FadePlayMusicSaveCurrent)
 /* 80062FCC */ glabel g_AkaoCdVolSlideSteps;                .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062FD0 */ glabel D_80062FD0;                           .space 4
