@@ -11,7 +11,7 @@
 // propagating this same int-return pattern to those sibling wrappers may be a
 // good change.
 static void func_80026408(u16 arg0) {
-    g_AkaoCmd.opcode = 0x30;
+    g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
     g_AkaoCmd.params[0] = arg0;
     g_AkaoCmd.params[1] = arg0;
     AkaoExec();

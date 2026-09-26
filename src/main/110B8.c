@@ -38,10 +38,10 @@ INCLUDE_ASM("asm/us/main/nonmatchings/110B8", __SN_ENTRY_POINT);
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_8001117C);
 
 static void func_800111E4(void) {
-    g_AkaoCmd.opcode = 0xF4;
+    g_AkaoCmd.opcode = AKAO_SAVE_STATE;
     AkaoExec();
     if (!(Savemap.memory_bank_4[97] & 0x30)) {
-        func_8001117C(0x2B);
+        func_8001117C(SFX_BATTLE_SWIRL);
     }
     D_800707BC.battleId = g_FieldState.eventCmdParam;
     D_800707BC.mode = g_FieldState.battleMode2;
@@ -247,8 +247,8 @@ void main(void) {
         ENDING_Loop(0);
         {
             AkaoCmd* cmd = &g_AkaoCmd;
-            cmd->opcode = 192;
-            cmd->params[0] = 127;
+            cmd->opcode = AKAO_VOLUME_SET;
+            cmd->params[0] = AKAO_VOL_MAX;
             AkaoExec();
         }
         ClearImage(&rect, 0, 0, 0);
@@ -298,7 +298,7 @@ void main(void) {
                         if (!D_80071E30) {
                             if (g_FieldState.nextBattleMusic) {
                                 AkaoCmd* cmd = &g_AkaoCmd;
-                                cmd->opcode = 20;
+                                cmd->opcode = AKAO_PLAY_MUSIC_SAVE_CURR;
                                 cmd->params[0] = (s32)g_FieldState.nextBattleMusic;
                                 AkaoExec();
                             }
@@ -560,8 +560,8 @@ void main(void) {
                 func_800A0C58();
                 {
                     AkaoCmd* cmd = &g_AkaoCmd;
-                    cmd->opcode = 192;
-                    cmd->params[0] = 127;
+                    cmd->opcode = AKAO_VOLUME_SET;
+                    cmd->params[0] = AKAO_VOL_MAX;
                     AkaoExec();
                 }
                 func_80033BE0();

@@ -244,9 +244,9 @@ void FIELD_Main(void) {
             FieldLoadMimToVram(0, (void*)0x80128000);
         }
         if (g_PrevGameState == GAMESTATE_BATTLE) {
-            g_AkaoCmd.opcode = 0xF5;
+            g_AkaoCmd.opcode = AKAO_RESTORE_STATE;
             AkaoExec();
-            g_AkaoCmd.opcode = 0x18;
+            g_AkaoCmd.opcode = AKAO_FADE_PLAY_MUSIC;
             g_AkaoCmd.params[1] = 4;
             g_AkaoCmd.params[0] = g_FieldState.nextFieldMusic;
             AkaoExec();

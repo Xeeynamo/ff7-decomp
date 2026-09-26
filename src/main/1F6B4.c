@@ -108,7 +108,7 @@ void SysMenuSetPosAddWindow(s16 arg0, s16 arg1, s16 arg2) {
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawAddWindow);
 
 static void SysMenuSound(u16 arg0) {
-    g_AkaoCmd.opcode = 0x30;
+    g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
     g_AkaoCmd.params[0] = arg0;
     g_AkaoCmd.params[1] = arg0;
     AkaoExec();
@@ -116,14 +116,14 @@ static void SysMenuSound(u16 arg0) {
 
 static void func_8001FA68(u16 arg0) {
     g_AkaoCmd.opcode = 0x28;
-    g_AkaoCmd.params[0] = 0x40;
+    g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
     g_AkaoCmd.params[1] = arg0;
     AkaoExec();
 }
 
 static void func_8001FAAC(u16 arg0) {
-    g_AkaoCmd.opcode = 0x29;
-    g_AkaoCmd.params[0] = 0x40;
+    g_AkaoCmd.opcode = AKAO_PLAY_SLOT1;
+    g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
     g_AkaoCmd.params[1] = arg0;
     AkaoExec();
 }
@@ -563,7 +563,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuRemoveItem);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuSearchItem);
 
-static void func_80025360() { SysMenuSound(0x19F); }
+static void func_80025360() { SysMenuSound(SFX_19F); }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuAddItem);
 

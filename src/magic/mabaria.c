@@ -5,6 +5,8 @@
 #include "magic_private.h"
 #include "../battle/battle.h"
 
+// MBarrier (マバリア / MBarrier).
+
 // Frame 16 would land on 0x7FFE, just under ScaleMatrix's 0x7FFF s16 ceiling.
 #define GROWTH_TOTAL 0x3BFF
 #define SCALE_BASE 0x400
@@ -137,5 +139,5 @@ static void MabariaMainSetup(s32 targetMask, s32 callbackArg) {
     D_801B0CA4 = 0;
     BattleEffectRegister(MabariaDoubleBufferFlip);
     MagicAnimationRegister(targetMask, callbackArg, 0, MabariaAttachToTarget);
-    BattleCommandSend(0x20, 0x40, 0x43);
+    BattleAkaoCommand(AKAO_PLAY_SOUND, AKAO_PAN_CENTER, SFX_MBARIA);
 }

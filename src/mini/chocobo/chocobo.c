@@ -66,8 +66,8 @@ void MINI_Chocobo(void) {
     func_800A34A8();
     func_800A6B9C(0, 0, 0);
     func_800A17F0();
-    g_AkaoCmd.opcode = 0xC0;
-    g_AkaoCmd.params[0] = 0x7F;
+    g_AkaoCmd.opcode = AKAO_VOLUME_SET;
+    g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
     frames = 0;
     if (!Savemap.memory_bank_3[8]) {
@@ -83,7 +83,7 @@ void MINI_Chocobo(void) {
             chocobos[k].unk6C *= 2;
         }
     }
-    g_AkaoCmd.opcode = 0x10;
+    g_AkaoCmd.opcode = AKAO_PLAY_MUSIC;
     g_AkaoCmd.params[0] = (u_long)&D_80077F64[0][0x2000];
     AkaoExec();
     maxVSync2 = 0;
@@ -93,7 +93,7 @@ void MINI_Chocobo(void) {
     while (1) {
         if (D_800F5040.unk8 > 3000) {
             D_800F5040.fadeSpeed = 0x10;
-            g_AkaoCmd.opcode = 0xC1;
+            g_AkaoCmd.opcode = AKAO_VOL_SLIDE_FROM_CURR;
             g_AkaoCmd.params[0] = 0x3C;
             g_AkaoCmd.params[1] = 0;
             AkaoExec();
@@ -169,7 +169,7 @@ void MINI_Chocobo(void) {
         D_800F5078.unk8 = D_800B7530.pressed;
         if ((D_800B7530.pressed & 0x800) && D_800B7478) {
             D_800F5040.fadeSpeed = 0x10;
-            g_AkaoCmd.opcode = 0xC1;
+            g_AkaoCmd.opcode = AKAO_VOL_SLIDE_FROM_CURR;
             g_AkaoCmd.params[0] = 0x3C;
             g_AkaoCmd.params[1] = 0;
             AkaoExec();
@@ -255,8 +255,8 @@ void MINI_Chocobo(void) {
     for (k = 0; k < n; k++) {
         (&D_800B75CC[ids[k]])->unk70 = rank++;
     }
-    g_AkaoCmd.opcode = 0xE4;
-    g_AkaoCmd.params[0] = 0x40;
+    g_AkaoCmd.opcode = AKAO_SET_REVERB_MUL;
+    g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
     AkaoExec();
     if (!Savemap.memory_bank_3[8]) {
         func_800AC554();

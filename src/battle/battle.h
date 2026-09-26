@@ -560,7 +560,7 @@ extern Unk800BB75C D_800FA63C;
 extern DB* g_cDb;
 extern s32 g_dbIndex;
 extern short g_BattleEffectCursor;
-extern s16 D_80151774;
+extern s16 g_BattleCurrentTargetMask;
 extern BattleModel g_BattleModels[NUM_BATTLE_ACTOR];
 extern short g_BattleEffectCount;
 extern s32 D_801620A8;
@@ -585,7 +585,7 @@ void* func_800D4D90(SpriteRenderDesc* desc, u_long** ot, int otLen, void* prim);
 void func_800D5444(int, int, int, void (*func)(int));
 // Returns a scale derived from the target's model size.
 s32 func_800D55A4(s32 target);
-void BattleCommandSend(s32 cmdId, ...);
+void BattleAkaoCommand(s32 cmdId, ...);
 void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
 // Runs `func` once per set bit in targetMask, frameStep frames apart.
 void MagicAnimationRegister(s32 targetMask, s32 callbackArg, s32 frameStep, void (*func)(s32, s32));

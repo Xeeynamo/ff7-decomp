@@ -81,24 +81,24 @@ void func_800A1630(void) {
 }
 
 void func_800A17F0(void) {
-    g_AkaoCmd.opcode = 0x23;
-    g_AkaoCmd.params[0] = 0x40;
+    g_AkaoCmd.opcode = AKAO_PLAY_FOUR_SOUNDS;
+    g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
     g_AkaoCmd.params[4] = 0;
     g_AkaoCmd.params[3] = 0;
     g_AkaoCmd.params[2] = 0;
     g_AkaoCmd.params[1] = 0;
     AkaoExec();
-    g_AkaoCmd.opcode = 0xA0;
-    g_AkaoCmd.params[0] = 127;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT2;
+    g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
-    g_AkaoCmd.opcode = 0xA1;
-    g_AkaoCmd.params[0] = 127;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT1;
+    g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
-    g_AkaoCmd.opcode = 0xA2;
-    g_AkaoCmd.params[0] = 127;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT0;
+    g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
-    g_AkaoCmd.opcode = 0xA3;
-    g_AkaoCmd.params[0] = 127;
+    g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT3;
+    g_AkaoCmd.params[0] = AKAO_VOL_MAX;
     AkaoExec();
 }
 

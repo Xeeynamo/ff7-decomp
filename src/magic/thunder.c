@@ -21,11 +21,11 @@ typedef struct {
     /* 0x02 */ s16 AnimationFrame;
     /* 0x04 */ SVECTOR Pos;
     /* 0x0C */ SVECTOR unk0C;
-    /* 0x14 */ s16 unk14;
+    /* 0x14 */ s16 TargetIndex;
     /* 0x16 */ s16 Scale;     // 0x1000 == 1.0
     /* 0x18 */ u16 ScaleStep; // seeded 0x200
-    /* 0x1A */ u16 unk1A;
-    /* 0x1C */ s16 unk1C;
+    /* 0x1A */ u16 Flags;
+    /* 0x1C */ s16 DepthBias;
     /* 0x1E */ char pad1E[2];
 } ThunderData; // size:0x20
 
@@ -77,11 +77,11 @@ static void ThunderRenderModel(void) {
     }
 }
 
-static void func_801B0180(void) {
+static void ThunderRenderImpact(void) {
     ThunderData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    func_800D4368(&effect->Pos, 0x2000, effect->unk1C);
+    func_800D4368(&effect->Pos, 0x2000, effect->DepthBias);
     thunder_render_desc0.frameIndex = effect->AnimationFrame >> 1;
     g_ThunderBufferPtr = func_800D4D90(&thunder_render_desc0, g_cDb->unk70, 0xC, g_ThunderBufferPtr);
     if (D_80062D98 == 0) {
@@ -92,16 +92,16 @@ static void func_801B0180(void) {
     }
 }
 
-static void func_801B023C(void) {
+static void ThunderRenderSpark(void) {
     MATRIX* matrix;
     ThunderData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    matrix = func_800D4368(&effect->Pos, 0x2000, effect->unk1C);
-    if (effect->unk1A & 1) {
+    matrix = func_800D4368(&effect->Pos, 0x2000, effect->DepthBias);
+    if (effect->Flags & 1) {
         matrix->m[0][0] = -matrix->m[0][0];
     }
-    if (effect->unk1A & 2) {
+    if (effect->Flags & 2) {
         matrix->m[1][1] = -matrix->m[1][1];
     }
     SetRotMatrix(matrix);
@@ -123,27 +123,27 @@ static void ThunderSpawnBolt(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == 0) {
-            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B0180)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(ThunderRenderImpact)];
             next->Pos = effect->Pos;
             next->Pos.vy = 0;
-            next->unk1C = effect->unk1C;
-            func_800D5774(effect->unk14);
+            next->DepthBias = effect->DepthBias;
+            func_800D5774(effect->TargetIndex);
             if (effect->AnimationFrame == 0) {
                 next = &g_BattleEffectSlots[BattleEffectRegister(ThunderRenderModel)];
                 next->Pos = effect->Pos;
                 next->Scale = 4096;
                 next->Pos.vy = 0;
                 next->ScaleStep = 0x200;
-                next->unk1C = effect->unk1C;
+                next->DepthBias = effect->DepthBias;
             }
         }
         if (effect->AnimationFrame >= SPARK_START_FRAME) {
-            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B023C)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(ThunderRenderSpark)];
             next->Pos.vx = (effect->Pos.vx + rand() % 1000) - 500;
             next->Pos.vy = (effect->Pos.vy + rand() % 1000) - 500;
             next->Pos.vz = (effect->Pos.vz + rand() % 1000) - 500;
-            next->unk1A = rand() & 3;
-            next->unk1C = effect->unk1C;
+            next->Flags = rand() & 3;
+            next->DepthBias = effect->DepthBias;
         }
         effect->AnimationFrame++;
         if (effect->AnimationFrame == BOLT_LIFETIME) {
@@ -157,9 +157,9 @@ static void ThunderAttachToTarget(s32 target, s32 callbackArg) {
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(ThunderSpawnBolt)];
     BattleGetPartPosition(target, g_BattleModels[target].battleModelRootBone, &effect->Pos);
-    effect->unk14 = target;
-    effect->unk1C = -g_BattleModels[target].collisionRadius;
-    BattleCommandSend(0x20, BattlePositionToStereoPan(&effect->Pos), 0xB);
+    effect->TargetIndex = target;
+    effect->DepthBias = -g_BattleModels[target].collisionRadius;
+    BattleAkaoCommand(AKAO_PLAY_SOUND, BattlePositionToStereoPan(&effect->Pos), SFX_THUNDER);
 }
 
 static void ThunderDoubleBufferFlip(void) {

@@ -45,7 +45,7 @@ static void BattleTriggerSoundCommand(u16 arg0) {
 
 void BattlePlaySavemapDoneSound(void) {
     if (g_SavemapBusy) {
-        BattleTriggerSoundCommand(0x98);
+        BattleTriggerSoundCommand(AKAO_FLUSH_ALL_PENDING_UPDATES);
     }
     g_SavemapBusy = 0;
 }

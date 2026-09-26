@@ -375,9 +375,9 @@ s32 FieldDialogAskUpdateStates(u8 window, u8 message, u8 first, u8 last, s16* se
 
 static void PlayWindowPointerClickSound(void) {
     FieldEventClearAkaoStruct();
-    g_AkaoCmd.opcode = 0x30;
-    g_AkaoCmd.params[0] = 1;
-    g_AkaoCmd.params[1] = 0x40;
+    g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
+    g_AkaoCmd.params[0] = SFX_MENU_CURSOR_MOVE;
+    g_AkaoCmd.params[1] = AKAO_PAN_CENTER;
     AkaoExec();
 }
 

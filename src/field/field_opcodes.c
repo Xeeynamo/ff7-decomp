@@ -2416,7 +2416,7 @@ s32 OpcodeFuncSe(void) {
         DebugPrintOpcode("se", 3);
     }
     FieldEventClearAkaoStruct();
-    g_AkaoCmd.opcode = 0x20;
+    g_AkaoCmd.opcode = AKAO_PLAY_SOUND;
     g_AkaoCmd.params[0] = FieldEventReadMemoryU8(2, 4);
     g_AkaoCmd.params[1] = FieldEventReadMemoryS16(1, 2);
     AkaoExec();
@@ -2429,7 +2429,7 @@ static s32 OpcodeFuncMusic(void) {
         DebugPrintOpcode("music", 1);
     }
     FieldEventClearAkaoStruct();
-    g_AkaoCmd.opcode = 0x10;
+    g_AkaoCmd.opcode = AKAO_PLAY_MUSIC;
     return SetAndApplyAkao();
 }
 
@@ -2438,7 +2438,7 @@ static s32 OpcodeFuncMusvt(void) {
         DebugPrintOpcode("musvt", 1);
     }
     FieldEventClearAkaoStruct();
-    g_AkaoCmd.opcode = 0x14;
+    g_AkaoCmd.opcode = AKAO_PLAY_MUSIC_SAVE_CURR;
     return SetAndApplyAkao();
 }
 
@@ -2447,7 +2447,7 @@ static s32 OpcodeFuncMusvm(void) {
         DebugPrintOpcode("musvm", 1);
     }
     FieldEventClearAkaoStruct();
-    g_AkaoCmd.opcode = 0x15;
+    g_AkaoCmd.opcode = AKAO_PLAY_MUSIC_SWAP_SAVED;
     return SetAndApplyAkao();
 }
 
