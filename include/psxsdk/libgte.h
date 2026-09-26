@@ -76,6 +76,7 @@ void SetLightMatrix(MATRIX* m);
 void SetTransMatrix(MATRIX* m);
 void SetFarColor(long rfc, long gfc, long bfc); // Color values (input)
 void SetFogNear(long a, long h); // Distance between visual point and screen
+void SetFogNearFar(long a, long b, long h);
 
 extern long SquareRoot0(long a);
 extern void OuterProduct0(VECTOR* v0, VECTOR* v1, VECTOR* v2);
