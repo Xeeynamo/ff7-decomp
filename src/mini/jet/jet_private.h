@@ -91,12 +91,42 @@ typedef union {
     s32 raw[0x14];
     struct {
         /* 0x00 */ s32 points;
-        /* 0x04 */ s32 unk4[12];
+        /* 0x04 */ s32 loopPath;
+        /* 0x08 */ s32 endSegment; // freed once the ride passes this track segment
+        /* 0x0C */ s32 unkC[10];
         /* 0x34 */ s32 health;
-        /* 0x38 */ s32 unk38[4];
+        /* 0x38 */ s32 unk38[3];
+        /* 0x44 */ s32 spawnSfx;
         /* 0x48 */ s32 deathSfx;
         /* 0x4C */ s32 unk4C;
-    } shootable;
+    } common;
+    struct {
+        /* 0x00 */ s32 unk0[3];
+        /* 0x0C */ s32 tiltRange;
+        /* 0x10 */ s32 yawStep;
+    } balloon;
+    struct {
+        /* 0x0 */ s32 unk0[3];
+        /* 0xC */ s32 fallSegment;
+    } stalactite;
+    struct {
+        /* 0x00 */ s32 unk0[3];
+        /* 0x0C */ s32 startRot[3];
+        /* 0x18 */ s32 rotStep[3];
+    } spinner;
+    struct {
+        /* 0x00 */ s32 unk0[3];
+        /* 0x0C */ s32 riseSpeed;
+        /* 0x10 */ s32 riseDecel;
+    } firework;
+    struct {
+        /* 0x0 */ s32 unk0[3];
+        /* 0xC */ s32 debrisCount;
+    } explosion;
+    struct {
+        /* 0x0 */ s32 unk0[3];
+        /* 0xC */ s32 debrisCount;
+    } eruption;
     struct {
         /* 0x0 */ s32 minScore;
     } scoreCheck;
