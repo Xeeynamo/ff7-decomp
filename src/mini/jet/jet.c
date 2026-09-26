@@ -42,7 +42,7 @@ POLY_FT4* JetDrawTrackQuad(SVECTOR* arg0, POLY_FT4* arg1, OT_TYPE* arg2, SVECTOR
 
 static void JetDrawEnergyGauge();
 void JetDrawNumber(s32 value, s32 x, s32 y, s16 zeroPad, u16 textureV);
-static void JetDrawScorePopup(JetBuffer* buffer, s16 modelId, s32 rotationX, s32 rotationY, s32 rotationZ);
+static void JetDrawScorePopup(JetBuffer* db, s16 modelId, s32 rotationX, s32 rotationY, s32 rotationZ);
 static void JetDrawSprite(
     s16 spriteId, s16 x, s16 y, s16 w, s16 h, u8 u, u8 v, u8 textureWidth, u8 textureHeight, u8 semiTrans);
 static void JetDrawTrack(void);
@@ -52,17 +52,19 @@ static void JetQueueTPageResets();
 
 static const RECT D_800A0000 = {0, 0, 320, 200};
 
-typedef struct {
-    s32 sector;
-    u32 size;
-} JetDiscFile;
+enum JetLba {
+    LBA_MINI_TEXADR = 2520,  // MINI/TEXADR.BIN
+    LBA_MINI_TEX = 2521,     // MINI/TEX.BIN
+    LBA_MINI_XBINADR = 2531, // MINI/XBINADR.BIN
+    LBA_MINI_XBIN2 = 2532,   // MINI/XBIN2.BIN
+};
 
 // MINI/ files read by JetLoadAssets.
-static JetDiscFile g_JetAssetFiles[4] = {
-    {0x9D8, 0x28},    // TEXADR.BIN
-    {0x9D9, 0x4DE8},  // TEX.BIN
-    {0x9E3, 0x44},    // XBINADR.BIN
-    {0x9E4, 0xA7958}, // XBIN2.BIN
+static Yamada g_JetAssetFiles[4] = {
+    {LBA_MINI_TEXADR, 0x28},
+    {LBA_MINI_TEX, 0x4DE8},
+    {LBA_MINI_XBINADR, 0x44},
+    {LBA_MINI_XBIN2, 0xA7958},
 };
 static s32 D_800A8330 = 0x7F;
 static s32 D_800A8334 = 0x7F;
@@ -81,7 +83,7 @@ static s32 D_800A83E8[2] = {0, 0};
 INCLUDE_ASM("asm/us/mini/jet/nonmatchings/jet", MINI_Jet);
 
 // Draw one object's model, project its bounding box and flag a cursor hit.
-void JetDrawObjectAndCheckHit(JetBuffer* drawBuffer, JetNode* node, s16 otIndex, s32 unusedArg, JetObject* object) {
+void JetDrawObjectAndCheckHit(JetBuffer* db, JetNode* node, s16 otIndex, s32 unusedArg, JetObject* object) {
     JetModelDrawArgs args;
     s16 xs[6];
     s16 ys[6];
@@ -134,10 +136,10 @@ void JetDrawObjectAndCheckHit(JetBuffer* drawBuffer, JetNode* node, s16 otIndex,
     gte_SetRotMatrix(world[0]);
     gte_SetTransMatrix(world[0]);
     args.tris = node->model->tris;
-    args.prim = drawBuffer->prims.g3Cursor;
-    args.ot = &drawBuffer->ot[otIndex];
+    args.prim = db->prims.g3Cursor;
+    args.ot = &db->ot[otIndex];
     args.model = node->model;
-    drawBuffer->prims.g3Cursor = JetDrawModelTris(&args);
+    db->prims.g3Cursor = JetDrawModelTris(&args);
     JetProject6Points(object->unkDC, object->unk11C);
     ys[0] = object->unk11C[0] >> 16;
     minY = ys[0];
@@ -162,10 +164,10 @@ void JetDrawObjectAndCheckHit(JetBuffer* drawBuffer, JetNode* node, s16 otIndex,
         }
     }
     if (JetVectorInsidePlanes((VECTOR*)g_JetWorldMatrix->t)) {
-        object->unk28.hit = 0;
+        object->state.hit = 0;
         if (g_JetCursorX < maxX && minX < g_JetCursorX && g_JetCursorY < maxY && minY < g_JetCursorY &&
             g_JetFiring == 1) {
-            object->unk28.hit = g_JetFiring;
+            object->state.hit = g_JetFiring;
         }
     }
 }
@@ -401,7 +403,7 @@ static void JetDrawEnergyGauge(void) {
 }
 
 // Spin and draw the score model, alternating it with the title every so often.
-static void JetDrawScorePopup(JetBuffer* buffer, s16 modelId, s32 rotationX, s32 rotationY, s32 rotationZ) {
+static void JetDrawScorePopup(JetBuffer* db, s16 modelId, s32 rotationX, s32 rotationY, s32 rotationZ) {
     JetNode* node;
     u8* alternate;
     s16* counter;
@@ -420,7 +422,7 @@ static void JetDrawScorePopup(JetBuffer* buffer, s16 modelId, s32 rotationX, s32
     g_JetPopupRot.vz += rotationZ;
     if (alternate[0] == 1) {
         RotMatrix(&g_JetPopupRot, &g_JetPopupNode[index]->m);
-        JetDrawNodeUI(buffer, g_JetPopupNode[index], 0, 0, unused);
+        JetDrawNodeUI(db, g_JetPopupNode[index], 0, 0, unused);
         JetDrawNumber(g_JetPopupPoints, 220, 160, 0, 0x18);
     }
     counter = &g_JetPopupTimer;

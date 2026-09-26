@@ -13,8 +13,11 @@ enum JetObjectType {
     JET_OBJ_EXPLOSION = 11,     // spawns a burst of debris, then frees itself
     JET_OBJ_DEBRIS = 12,        // flies out and falls for 100 frames
     JET_OBJ_IMPACT = 202,       // spawned where a shot lands
+    JET_OBJ_SCORE_CHECK = 250,  // ends the ride below a score threshold
+    JET_OBJ_RIDE_START = 252,   // enables drawing and fades in
     JET_OBJ_RIDE_END = 253,     // fades the screen, then sets g_JetExit
     JET_OBJ_STOP = 254,         // holds g_JetSpeed at 0 for a while, then accelerates
+    JET_OBJ_SPEED_CHANGE = 255, // ends the ride if g_JetSpeed drops below 0
 };
 
 extern SVECTOR* D_800A8954;
@@ -42,8 +45,8 @@ void JetObjectsInit(void) {
 
     obj = g_JetObjects;
     for (i = 0; i < LEN(g_JetObjects); i++) {
-        obj[i].unkD8 = -1;
-        obj[i].unkDA = 0;
+        obj[i].index = -1;
+        obj[i].active = 0;
     }
     g_JetNextFreeObject = 0;
     for (i = 0; i < LEN(g_JetObjectFreeList); i++) {
@@ -122,10 +125,10 @@ static void JetPathSample(u32 pathPosition, SVECTOR* path, VECTOR* position, u8 
 }
 
 // Draw the aiming cursor sprite.
-static void JetDrawCursor(JetBuffer* buffer) {
+static void JetDrawCursor(JetBuffer* db) {
     POLY_FT4* poly;
 
-    poly = buffer->prims.ft4Cursor;
+    poly = db->prims.ft4Cursor;
     setXY4(poly, g_JetCursorX - 16, g_JetCursorY - 16, g_JetCursorX + 16, g_JetCursorY - 16, g_JetCursorX - 16,
            g_JetCursorY + 16, g_JetCursorX + 16, g_JetCursorY + 16);
     setRGB0(poly, 0x80, 0x80, 0x80);
@@ -133,9 +136,9 @@ static void JetDrawCursor(JetBuffer* buffer) {
     poly->tpage = g_JetSpriteTPage[0];
     poly->clut = g_JetSpriteClut[0];
     SetSemiTrans(poly, 0);
-    addPrim(&buffer->ot[1], poly);
+    addPrim(&db->ot[1], poly);
     poly++;
-    buffer->prims.ft4Cursor = poly;
+    db->prims.ft4Cursor = poly;
 }
 
 // Draw the two laser beams, from each gun muzzle to the aiming cursor.
@@ -147,33 +150,34 @@ static void JetDrawBeams(void) {
     s16* cursorX;
     s16* cursorY;
 
-    if (g_JetFiring == 1) {
-        cursorX = &g_JetCursorX;
-        cursorY = &g_JetCursorY;
-        db = g_JetBufferPtr;
-        scroll = &g_JetBeamScroll;
-        spread = g_JetShotPower >> 3;
-        poly = db[0]->prims.ft4Cursor;
-        setXY4(poly, g_JetBeam0OriginX + spread, g_JetBeam0OriginY, *cursorX, *cursorY, g_JetBeam0OriginX - spread,
-               g_JetBeam0OriginY, *cursorX, *cursorY);
-        setRGB0(poly, 0x80, 0x80, 0x80);
-        setUV4(poly, 0x20 - *scroll, 0, 0x20 - *scroll, 0x40, 0x10 - *scroll, 0, 0x10 - *scroll, 0x40);
-        poly->tpage = g_JetSpriteTPage[1];
-        poly->clut = g_JetSpriteClut[1];
-        SetSemiTrans(poly, 1);
-        addPrim(&db[0]->ot[1], poly);
-        poly++;
-        setXY4(poly, g_JetBeam1OriginX + spread, g_JetBeam1OriginY, *cursorX, *cursorY, g_JetBeam1OriginX - spread,
-               g_JetBeam1OriginY, *cursorX, *cursorY);
-        setRGB0(poly, 0x80, 0x80, 0x80);
-        setUV4(poly, 0x20 - *scroll, 0, 0x20 - *scroll, 0x40, 0x10 - *scroll, 0, 0x10 - *scroll, 0x40);
-        poly->tpage = g_JetSpriteTPage[1];
-        poly->clut = g_JetSpriteClut[1];
-        SetSemiTrans(poly, 1);
-        addPrim(&db[0]->ot[1], poly);
-        poly++;
-        db[0]->prims.ft4Cursor = poly;
+    if (g_JetFiring != 1) {
+        return;
     }
+    cursorX = &g_JetCursorX;
+    cursorY = &g_JetCursorY;
+    db = g_JetBufferPtr;
+    scroll = &g_JetBeamScroll;
+    spread = g_JetShotPower >> 3;
+    poly = db[0]->prims.ft4Cursor;
+    setXY4(poly, g_JetBeam0OriginX + spread, g_JetBeam0OriginY, *cursorX, *cursorY, g_JetBeam0OriginX - spread,
+           g_JetBeam0OriginY, *cursorX, *cursorY);
+    setRGB0(poly, 0x80, 0x80, 0x80);
+    setUV4(poly, 0x20 - *scroll, 0, 0x20 - *scroll, 0x40, 0x10 - *scroll, 0, 0x10 - *scroll, 0x40);
+    poly->tpage = g_JetSpriteTPage[1];
+    poly->clut = g_JetSpriteClut[1];
+    SetSemiTrans(poly, 1);
+    addPrim(&db[0]->ot[1], poly);
+    poly++;
+    setXY4(poly, g_JetBeam1OriginX + spread, g_JetBeam1OriginY, *cursorX, *cursorY, g_JetBeam1OriginX - spread,
+           g_JetBeam1OriginY, *cursorX, *cursorY);
+    setRGB0(poly, 0x80, 0x80, 0x80);
+    setUV4(poly, 0x20 - *scroll, 0, 0x20 - *scroll, 0x40, 0x10 - *scroll, 0, 0x10 - *scroll, 0x40);
+    poly->tpage = g_JetSpriteTPage[1];
+    poly->clut = g_JetSpriteClut[1];
+    SetSemiTrans(poly, 1);
+    addPrim(&db[0]->ot[1], poly);
+    poly++;
+    db[0]->prims.ft4Cursor = poly;
 }
 
 // Allocate an object and its scene node, then initialise its six bounding box face centres.
@@ -195,23 +199,23 @@ static s16 JetObjectAlloc(JetObject* spawn, s16 parentIndex) {
     s16 maxZ;
 
     count = &g_JetObjectCount;
-    if (*count < 0x63) {
+    if (*count < 99) {
         *count = *count + 1;
         index = JetObjectIndexAlloc();
         g_JetObjects[index] = *spawn;
         pool = g_JetObjects;
         obj = &pool[index];
-        rawId = spawn->unk28.unk8;
+        rawId = spawn->state.modelId;
         modelId = rawId;
-        obj->unkDA = 1;
-        obj->unkD8 = index;
+        obj->active = 1;
+        obj->index = index;
         if (parentIndex == 0) {
-            obj->unkD4 = JetNodeAlloc(rawId, 0, 0, 1, &g_JetRootNode, spawn->position.vx, spawn->position.vy,
-                                      spawn->position.vz, spawn->rotation.vx, spawn->rotation.vy, spawn->rotation.vz);
+            obj->node = JetNodeAlloc(rawId, 0, 0, 1, &g_JetRootNode, spawn->position.vx, spawn->position.vy,
+                                     spawn->position.vz, spawn->rotation.vx, spawn->rotation.vy, spawn->rotation.vz);
         } else {
             parentObj = &pool[parentIndex];
-            obj->unkD4 = JetNodeAlloc(rawId, 0, 0, 1, parentObj->unkD4, spawn->position.vx, spawn->position.vy,
-                                      spawn->position.vz, spawn->rotation.vx, spawn->rotation.vy, spawn->rotation.vz);
+            obj->node = JetNodeAlloc(rawId, 0, 0, 1, parentObj->node, spawn->position.vx, spawn->position.vy,
+                                     spawn->position.vz, spawn->rotation.vx, spawn->rotation.vy, spawn->rotation.vz);
         }
         minX = g_JetModelInfo[modelId].boundsMin.vx;
         maxX = g_JetModelInfo[modelId].boundsMax.vx;
@@ -234,13 +238,13 @@ static s16 JetObjectAlloc(JetObject* spawn, s16 parentIndex) {
 static void JetObjectRelease(JetObject* object) {
     s16* count;
 
-    if (object->unkD8 != -1) {
+    if (object->index != -1) {
         count = &g_JetObjectCount;
         *count -= 1;
-        JetNodeFree(object->unkD4);
-        JetObjectIndexFree(object->unkD8);
-        object->unkD8 = -1;
-        object->unkDA = 0;
+        JetNodeFree(object->node);
+        JetObjectIndexFree(object->index);
+        object->index = -1;
+        object->active = 0;
     }
 }
 
@@ -280,14 +284,14 @@ static void JetObjectsSpawnScheduled(void) {
         count = counts + segment;
         for (i = 0; i < *count; i++) {
             spawns = g_JetXbinAdr.spawns;
-            for (j = 0; j < LEN(g_JetSpawnTemplate.unk28.unk50); j++) {
-                g_JetSpawnTemplate.unk28.unk50[j] = spawns[*(s32*)(u32)&g_JetSpawnIndex].params[j];
+            for (j = 0; j < LEN(g_JetSpawnTemplate.state.params.raw); j++) {
+                g_JetSpawnTemplate.state.params.raw[j] = spawns[*(s32*)(u_long)&g_JetSpawnIndex].params[j];
             }
-            index = *(s32*)(u32)&g_JetSpawnIndex;
-            g_JetSpawnTemplate.unk28.unk18 = spawns[index].pathIndex;
-            g_JetSpawnTemplate.unk28.unk1C = spawns[index].speed;
+            index = *(s32*)(u_long)&g_JetSpawnIndex;
+            g_JetSpawnTemplate.state.pathIndex = spawns[index].pathIndex;
+            g_JetSpawnTemplate.state.speed = spawns[index].speed;
             JetObjectCreate(0, 0, 0, spawns[index].type, spawns[index].modelId);
-            (*(s32*)(u32)&g_JetSpawnIndex)++;
+            (*(s32*)(u_long)&g_JetSpawnIndex)++;
         }
     }
     g_JetNextSpawnSegment = g_JetTrackSegment;
@@ -297,10 +301,10 @@ static void JetObjectCreate(s16 x, s16 y, s16 z, s16 type, s16 modelId) {
     g_JetSpawnTemplate.position.vx = x;
     g_JetSpawnTemplate.position.vy = y;
     g_JetSpawnTemplate.position.vz = z;
-    g_JetSpawnTemplate.unk28.type = type;
-    g_JetSpawnTemplate.unk28.unk10 = 1;
-    g_JetSpawnTemplate.unk28.unk8 = modelId;
-    g_JetSpawnTemplate.unk28.hit = 0;
+    g_JetSpawnTemplate.state.type = type;
+    g_JetSpawnTemplate.state.needsInit = 1;
+    g_JetSpawnTemplate.state.modelId = modelId;
+    g_JetSpawnTemplate.state.hit = 0;
     JetObjectAlloc(&g_JetSpawnTemplate, 0);
 }
 
@@ -308,21 +312,21 @@ inline void func_800A4650(s16 x, s16 y, s16 z, s16 type, s16 modelId) {
     g_JetSpawnTemplate.position.vx = x;
     g_JetSpawnTemplate.position.vy = y;
     g_JetSpawnTemplate.position.vz = z;
-    g_JetSpawnTemplate.unk28.type = type;
-    g_JetSpawnTemplate.unk28.unk10 = 1;
-    g_JetSpawnTemplate.unk28.unk8 = modelId;
-    g_JetSpawnTemplate.unk28.hit = 0;
-    g_JetSpawnTemplate.unk28.unk50[0xC] = 0;
+    g_JetSpawnTemplate.state.type = type;
+    g_JetSpawnTemplate.state.needsInit = 1;
+    g_JetSpawnTemplate.state.modelId = modelId;
+    g_JetSpawnTemplate.state.hit = 0;
+    g_JetSpawnTemplate.state.params.raw[0xC] = 0;
     JetObjectAlloc(&g_JetSpawnTemplate, 0);
 }
 
 static inline void JetObjectFree(JetObject* object) {
-    if (object->unkD8 != -1) {
+    if (object->index != -1) {
         g_JetObjectCount--;
-        JetNodeFree(object->unkD4);
-        JetObjectIndexFree(object->unkD8);
-        object->unkD8 = -1;
-        object->unkDA = 0;
+        JetNodeFree(object->node);
+        JetObjectIndexFree(object->index);
+        object->index = -1;
+        object->active = 0;
     }
 }
 
@@ -359,43 +363,43 @@ void JetObjectsUpdate(JetBuffer* db) {
         otIndex = 0;
         pool = g_JetObjects;
         obj = &pool[i];
-        st = &obj->unk28;
-        if (obj->unkDA == 0) {
+        st = &obj->state;
+        if (obj->active == 0) {
             continue;
         }
         drawMode = 0;
         do {
         } while (0);
-        switch (obj->unk28.type) {
+        switch (obj->state.type) {
         case 100:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 SVECTOR* path;
                 s32 pathLen;
                 s32 offset;
 
-                pathIndex = st->unk18 & 0xFF;
+                pathIndex = st->pathIndex & 0xFF;
                 pathLen = g_JetXbinAdr.objectPathLengths[pathIndex];
                 offset = g_JetXbinAdr.objectPathOffsets[pathIndex];
                 path = (SVECTOR*)(g_JetXbinAdr.objectPaths + offset);
                 obj->path = path;
                 obj->pathLen = pathLen;
-                st->unk10 = 0;
-                st->unkC = 1;
-                st->unk14 = 0;
+                st->needsInit = 0;
+                st->life = 1;
+                st->age = 0;
                 st->hit = 0;
-                st->unk50[10] = 1;
+                st->params.raw[10] = 1;
                 st->unk28 = 0;
                 st->unk2C = obj->position.vx;
                 st->unk30 = obj->position.vy;
                 D_800A8984 = pathLen;
                 D_800A8954 = path;
                 st->unk34 = obj->position.vz;
-                st->unk50[0] = 0;
+                st->params.raw[0] = 0;
             } else {
-                st->unk14++;
+                st->age++;
                 st->unk28++;
             }
-            if (st->unkC == 0) {
+            if (st->life == 0) {
                 JetObjectFree(obj);
                 break;
             }
@@ -424,54 +428,54 @@ void JetObjectsUpdate(JetBuffer* db) {
             dy = obj->position.vy - pos.vy;
             dz = obj->position.vz - pos.vz;
             SquareRoot0(dx * dx + dy * dy + dz * dz);
-            if (st->unk14 >= 0x81) {
+            if (st->age >= 0x81) {
                 score = &g_JetScore;
                 if (*score > 5) {
                     *score -= 5;
                 } else {
                     *score = 0;
                 }
-                st->unkC = 0;
+                st->life = 0;
             }
             if (st->hit) {
                 JetObjectDamage(obj);
             }
             break;
         case 17:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 SVECTOR* path;
                 s32 pathLen;
                 s32 offset;
 
-                sound = st->unk50[17];
+                sound = st->params.raw[17];
                 if (sound) {
                     JetPlaySfx(sound);
                 }
-                pathIndex = st->unk18 & 0xFF;
+                pathIndex = st->pathIndex & 0xFF;
                 pathLen = g_JetXbinAdr.objectPathLengths[pathIndex];
                 offset = g_JetXbinAdr.objectPathOffsets[pathIndex];
                 path = (SVECTOR*)(g_JetXbinAdr.objectPaths + offset);
                 obj->path = path;
                 obj->pathLen = pathLen;
-                st->unk10 = 0;
-                st->unkC = 1;
-                st->unk14 = 0;
+                st->needsInit = 0;
+                st->life = 1;
+                st->age = 0;
                 st->hit = 0;
                 st->unk28 = 0;
                 D_800A8984 = pathLen;
                 D_800A8954 = path;
                 st->unk2C = (obj->pathLen - 2) << 16;
             } else {
-                st->unk14++;
+                st->age++;
             }
             segment = &g_JetTrackSegment;
-            if (st->unk50[3] < *segment) {
-                st->unk28 += st->unk1C;
+            if (st->params.raw[3] < *segment) {
+                st->unk28 += st->speed;
             }
-            if (st->unk50[2] < *segment) {
-                st->unkC = 0;
+            if (st->params.raw[2] < *segment) {
+                st->life = 0;
             }
-            if (st->unkC == 0) {
+            if (st->life == 0) {
                 JetObjectFree(obj);
                 break;
             }
@@ -486,92 +490,92 @@ void JetObjectsUpdate(JetBuffer* db) {
             }
             break;
         case 0:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 SVECTOR* path;
                 s32 pathLen;
                 s32 offset;
 
-                sound = st->unk50[17];
+                sound = st->params.raw[17];
                 if (sound) {
                     JetPlaySfx(sound);
                 }
-                pathIndex = st->unk18 & 0xFF;
+                pathIndex = st->pathIndex & 0xFF;
                 pathLen = g_JetXbinAdr.objectPathLengths[pathIndex];
                 offset = g_JetXbinAdr.objectPathOffsets[pathIndex];
                 path = (SVECTOR*)(g_JetXbinAdr.objectPaths + offset);
                 obj->path = path;
                 obj->pathLen = pathLen;
-                st->unk10 = 0;
-                st->unkC = 1;
-                st->unk14 = 0;
+                st->needsInit = 0;
+                st->life = 1;
+                st->age = 0;
                 st->hit = 0;
                 st->unk28 = 0;
                 D_800A8984 = pathLen;
                 D_800A8954 = path;
                 st->unk2C = (obj->pathLen - 1) << 16;
             } else {
-                st->unk14++;
+                st->age++;
             }
-            st->unk28 += st->unk1C;
-            if (st->unk50[1] == 1) {
+            st->unk28 += st->speed;
+            if (st->params.raw[1] == 1) {
                 st->unk28 %= st->unk2C;
             }
             if (st->unk28 > st->unk2C) {
-                st->unkC = 0;
+                st->life = 0;
             }
-            if (st->unk50[2] < g_JetTrackSegment) {
-                st->unkC = 0;
+            if (st->params.raw[2] < g_JetTrackSegment) {
+                st->life = 0;
             }
-            if (st->unkC == 0) {
+            if (st->life == 0) {
                 JetObjectFree(obj);
                 break;
             }
             JetPathSample(st->unk28, obj->path, &obj->position, 0);
-            obj->rotation.vx += st->unk50[3];
-            obj->rotation.vy += st->unk50[4];
-            obj->rotation.vz += st->unk50[5];
+            obj->rotation.vx += st->params.raw[3];
+            obj->rotation.vy += st->params.raw[4];
+            obj->rotation.vz += st->params.raw[5];
             if (st->hit) {
                 JetObjectDamage(obj);
             }
             break;
         case JET_OBJ_FLYER:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 SVECTOR* path;
                 s32 pathLen;
                 s32 offset;
 
-                sound = st->unk50[17];
+                sound = st->params.raw[17];
                 if (sound) {
                     JetPlaySfx(sound);
                 }
-                pathIndex = st->unk18 & 0xFF;
+                pathIndex = st->pathIndex & 0xFF;
                 pathLen = g_JetXbinAdr.objectPathLengths[pathIndex];
                 offset = g_JetXbinAdr.objectPathOffsets[pathIndex];
                 path = (SVECTOR*)(g_JetXbinAdr.objectPaths + offset);
                 obj->path = path;
                 obj->pathLen = pathLen;
-                st->unk10 = 0;
-                st->unkC = 1;
-                st->unk14 = 0;
+                st->needsInit = 0;
+                st->life = 1;
+                st->age = 0;
                 st->hit = 0;
                 st->unk28 = 0;
                 D_800A8984 = pathLen;
                 D_800A8954 = path;
                 st->unk2C = (obj->pathLen - 1) << 16;
             } else {
-                st->unk14++;
+                st->age++;
             }
-            st->unk28 += st->unk1C;
-            if (st->unk50[1] == 1) {
+            st->unk28 += st->speed;
+            if (st->params.raw[1] == 1) {
                 st->unk28 %= st->unk2C;
             }
             if (st->unk28 > st->unk2C) {
-                st->unkC = 0;
+                st->life = 0;
             }
-            if (st->unk50[2] < g_JetTrackSegment) {
-                st->unkC = 0;
+            if (st->params.raw[2] < g_JetTrackSegment) {
+                st->life = 0;
             }
-            if (st->unkC == 0) {
+            if (st->life == 0) {
                 JetObjectFree(obj);
                 break;
             }
@@ -588,12 +592,12 @@ void JetObjectsUpdate(JetBuffer* db) {
             }
             break;
         case JET_OBJ_CART:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 SVECTOR* path;
                 s32 pathLen;
                 s32 offset;
 
-                sound = st->unk50[17];
+                sound = st->params.raw[17];
                 if (sound) {
                     JetPlaySfx(sound);
                 }
@@ -602,28 +606,28 @@ void JetObjectsUpdate(JetBuffer* db) {
                 path = (SVECTOR*)(g_JetXbinAdr.trackPaths + offset);
                 obj->path = path;
                 obj->pathLen = pathLen;
-                st->unk10 = 0;
-                st->unkC = 1;
-                st->unk14 = 0;
+                st->needsInit = 0;
+                st->life = 1;
+                st->age = 0;
                 st->hit = 0;
                 st->unk28 = 0;
                 D_800A8984 = pathLen;
                 D_800A8954 = path;
                 st->unk2C = (obj->pathLen - 1) << 16;
             } else {
-                st->unk14++;
+                st->age++;
             }
-            st->unk28 += st->unk1C;
-            if (st->unk50[1] == 1) {
+            st->unk28 += st->speed;
+            if (st->params.raw[1] == 1) {
                 st->unk28 %= st->unk2C;
             }
             if (st->unk28 > st->unk2C) {
-                st->unkC = 0;
+                st->life = 0;
             }
-            if (st->unk50[2] < g_JetTrackSegment) {
-                st->unkC = 0;
+            if (st->params.raw[2] < g_JetTrackSegment) {
+                st->life = 0;
             }
-            if (st->unkC == 0) {
+            if (st->life == 0) {
                 JetObjectFree(obj);
                 break;
             }
@@ -634,101 +638,101 @@ void JetObjectsUpdate(JetBuffer* db) {
             }
             break;
         case 4:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 SVECTOR* path;
                 s32 pathLen;
                 s32 offset;
 
-                sound = st->unk50[17];
+                sound = st->params.raw[17];
                 if (sound) {
                     JetPlaySfx(sound);
                 }
-                pathIndex = st->unk18 & 0xFF;
+                pathIndex = st->pathIndex & 0xFF;
                 pathLen = g_JetXbinAdr.objectPathLengths[pathIndex];
                 offset = g_JetXbinAdr.objectPathOffsets[pathIndex];
                 path = (SVECTOR*)(g_JetXbinAdr.objectPaths + offset);
                 obj->path = path;
                 obj->pathLen = pathLen;
-                st->unk10 = 0;
-                st->unkC = 1;
+                st->needsInit = 0;
+                st->life = 1;
                 st->hit = 0;
                 D_800A8984 = pathLen;
                 D_800A8954 = path;
                 JetPathSample(0, obj->path, &obj->position, 0);
             }
             segment = &g_JetTrackSegment;
-            if (st->unk50[2] < *segment) {
-                st->unkC = 0;
+            if (st->params.raw[2] < *segment) {
+                st->life = 0;
             }
-            if (st->unk50[3] < *segment) {
+            if (st->params.raw[3] < *segment) {
                 st->unk2C += 4;
             }
-            if (st->unkC == 0) {
+            if (st->life == 0) {
                 JetObjectFree(obj);
                 break;
             }
             obj->position.vy += st->unk2C;
             if (obj->position.vy > 0) {
-                st->unkC = 0;
+                st->life = 0;
             }
             if (st->hit) {
                 JetObjectDamage(obj);
             }
             break;
         case JET_OBJ_SPINNER:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 SVECTOR* path;
                 s32 pathLen;
                 s32 offset;
 
-                sound = st->unk50[17];
+                sound = st->params.raw[17];
                 if (sound) {
                     JetPlaySfx(sound);
                 }
-                pathIndex = st->unk18 & 0xFF;
+                pathIndex = st->pathIndex & 0xFF;
                 pathLen = g_JetXbinAdr.objectPathLengths[pathIndex];
                 offset = g_JetXbinAdr.objectPathOffsets[pathIndex];
                 path = (SVECTOR*)(g_JetXbinAdr.objectPaths + offset);
                 obj->path = path;
                 obj->pathLen = pathLen;
-                st->unk10 = 0;
-                st->unkC = 1;
+                st->needsInit = 0;
+                st->life = 1;
                 st->hit = 0;
                 st->unk28 = 0;
                 st->unk2C = (obj->pathLen - 1) << 16;
-                obj->rotation.vx = st->unk50[3];
-                obj->rotation.vy = st->unk50[4];
+                obj->rotation.vx = st->params.raw[3];
+                obj->rotation.vy = st->params.raw[4];
                 D_800A8984 = pathLen;
                 D_800A8954 = path;
-                obj->rotation.vz = st->unk50[5];
+                obj->rotation.vz = st->params.raw[5];
             }
-            st->unk28 += st->unk1C;
-            if (st->unk50[1] == 1) {
+            st->unk28 += st->speed;
+            if (st->params.raw[1] == 1) {
                 st->unk28 %= st->unk2C;
             }
             if (st->unk28 > st->unk2C) {
-                st->unkC = 0;
+                st->life = 0;
             }
-            if (st->unk50[2] < g_JetTrackSegment) {
-                st->unkC = 0;
+            if (st->params.raw[2] < g_JetTrackSegment) {
+                st->life = 0;
             }
-            obj->rotation.vx += st->unk50[6];
-            obj->rotation.vy += st->unk50[7];
-            obj->rotation.vz += st->unk50[8];
-            if (st->unk50[10] == 5) {
-                obj->unkD4->model = g_JetModelTable[91 + st->unk50[14]];
+            obj->rotation.vx += st->params.raw[6];
+            obj->rotation.vy += st->params.raw[7];
+            obj->rotation.vz += st->params.raw[8];
+            if (st->params.raw[10] == 5) {
+                obj->node->model = g_JetModelTable[91 + st->params.raw[14]];
             }
-            if (st->unk50[14] == 1) {
-                st->unk50[14] = 0;
+            if (st->params.raw[14] == 1) {
+                st->params.raw[14] = 0;
             }
-            if (st->unkC) {
+            if (st->life) {
                 JetPathSample(st->unk28, obj->path, &obj->position, 0);
                 if (st->hit) {
-                    if (st->unk50[10] != 5 || g_JetSpeed < 16405) {
+                    if (st->params.raw[10] != 5 || g_JetSpeed < 16405) {
                         JetObjectDamage(obj);
                     }
-                    if (st->unk50[10] == 5) {
-                        st->unk50[14] = 1;
+                    if (st->params.raw[10] == 5) {
+                        st->params.raw[14] = 1;
                     }
                 }
             } else {
@@ -736,16 +740,16 @@ void JetObjectsUpdate(JetBuffer* db) {
             }
             break;
         case 2:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 SVECTOR* path;
                 s32 pathLen;
                 s32 offset;
 
-                sound = st->unk50[17];
+                sound = st->params.raw[17];
                 if (sound) {
                     JetPlaySfx(sound);
                 }
-                pathIndex = st->unk18 & 0xFF;
+                pathIndex = st->pathIndex & 0xFF;
                 pathLen = g_JetXbinAdr.objectPathLengths[pathIndex];
                 offset = g_JetXbinAdr.objectPathOffsets[pathIndex];
                 path = (SVECTOR*)(g_JetXbinAdr.objectPaths + offset);
@@ -753,10 +757,10 @@ void JetObjectsUpdate(JetBuffer* db) {
                 D_800A8954 = path;
                 obj->path = path;
                 obj->pathLen = pathLen;
-                st->unk10 = 0;
-                st->unkC = 1;
+                st->needsInit = 0;
+                st->life = 1;
                 st->hit = 0;
-                st->unk28 = (rand() % st->unk50[3]) * 2 - st->unk50[3] - 1;
+                st->unk28 = (rand() % st->params.raw[3]) * 2 - st->params.raw[3] - 1;
                 st->unk2C = 0;
                 st->unk30 = 0;
                 st->unk34 = (obj->pathLen - 1) << 16;
@@ -765,12 +769,12 @@ void JetObjectsUpdate(JetBuffer* db) {
                 obj->rotation.vz = 0;
                 JetPathSample(0, obj->path, &obj->position, 0);
             }
-            st->unk30 += st->unk1C;
+            st->unk30 += st->speed;
             if (st->unk34 < st->unk30) {
-                st->unkC = 0;
+                st->life = 0;
             }
-            if (st->unk50[2] < g_JetTrackSegment) {
-                st->unkC = 0;
+            if (st->params.raw[2] < g_JetTrackSegment) {
+                st->life = 0;
             }
             if (st->unk2C > st->unk28) {
                 st->unk2C -= 5;
@@ -779,8 +783,8 @@ void JetObjectsUpdate(JetBuffer* db) {
                 st->unk2C += 5;
             }
             obj->rotation.vx = st->unk2C;
-            obj->rotation.vy += st->unk50[4];
-            if (st->unkC == 0) {
+            obj->rotation.vy += st->params.raw[4];
+            if (st->life == 0) {
                 JetObjectFree(obj);
                 break;
             }
@@ -790,15 +794,15 @@ void JetObjectsUpdate(JetBuffer* db) {
             }
             break;
         case 230:
-            if (st->unk10 == 1) {
-                st->unk10 = 0;
-                st->unkC = 1;
+            if (st->needsInit == 1) {
+                st->needsInit = 0;
+                st->life = 1;
                 st->hit = 0;
             }
-            if (st->unk50[2] < g_JetTrackSegment) {
-                st->unkC = 0;
+            if (st->params.raw[2] < g_JetTrackSegment) {
+                st->life = 0;
             }
-            if (st->unkC) {
+            if (st->life) {
                 if (st->hit) {
                     JetObjectDamage(obj);
                 }
@@ -808,22 +812,22 @@ void JetObjectsUpdate(JetBuffer* db) {
             break;
         case 7:
         case 13:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 SVECTOR* path;
                 s32 pathLen;
                 s32 offset;
 
-                pathIndex = st->unk18 & 0xFF;
+                pathIndex = st->pathIndex & 0xFF;
                 pathLen = g_JetXbinAdr.objectPathLengths[pathIndex];
                 offset = g_JetXbinAdr.objectPathOffsets[pathIndex];
                 path = (SVECTOR*)(g_JetXbinAdr.objectPaths + offset);
                 obj->path = path;
                 obj->pathLen = pathLen;
-                st->unk10 = 0;
-                st->unkC = 1;
+                st->needsInit = 0;
+                st->life = 1;
                 st->hit = 0;
-                obj->rotation.vx = st->unk50[3];
-                obj->rotation.vy = st->unk50[4];
+                obj->rotation.vx = st->params.raw[3];
+                obj->rotation.vy = st->params.raw[4];
                 obj->rotation.vz = 0;
                 D_800A8984 = pathLen;
                 D_800A8954 = path;
@@ -831,17 +835,17 @@ void JetObjectsUpdate(JetBuffer* db) {
                 st->unk28 = 0;
             }
             segment = &g_JetTrackSegment;
-            if (st->unk50[2] < *segment) {
-                st->unkC = 0;
+            if (st->params.raw[2] < *segment) {
+                st->life = 0;
             }
-            if (st->unk50[5] < *segment) {
+            if (st->params.raw[5] < *segment) {
                 count = st->unk28;
                 st->unk28 = count + 1;
-                if (count < st->unk50[7]) {
-                    obj->rotation.vx += st->unk50[6];
+                if (count < st->params.raw[7]) {
+                    obj->rotation.vx += st->params.raw[6];
                 }
             }
-            if (st->unkC) {
+            if (st->life) {
                 if (st->hit) {
                     JetObjectDamage(obj);
                 }
@@ -851,22 +855,22 @@ void JetObjectsUpdate(JetBuffer* db) {
             break;
         case JET_OBJ_EXPLOSION:
             JetPlaySfx(0x8E);
-            for (j = 0; j < st->unk50[3]; j++) {
+            for (j = 0; j < st->params.raw[3]; j++) {
                 func_800A4650(0x3446, -0x2710, 0x20CB, JET_OBJ_DEBRIS, 0x2A);
             }
             JetObjectFree(obj);
             // falls through into the debris behaviour below
         case JET_OBJ_DEBRIS:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 st->hit = 0;
-                st->unkC = 100;
-                st->unk10 = 0;
-                st->unk14 = 0;
+                st->life = 100;
+                st->needsInit = 0;
+                st->age = 0;
                 st->unk28 = rand() % 60 - 30;
                 st->unk2C = -rand() % 200;
                 st->unk30 = rand() % 60 - 30;
             } else {
-                st->unk14++;
+                st->age++;
             }
             st->unk2C++;
             obj->position.vx += st->unk28;
@@ -875,41 +879,41 @@ void JetObjectsUpdate(JetBuffer* db) {
             obj->rotation.vx += 10;
             obj->rotation.vy += 400;
             obj->rotation.vz += 200;
-            st->unkC--;
-            if (st->unkC == 0) {
+            st->life--;
+            if (st->life == 0) {
                 JetObjectFree(obj);
             }
             break;
         case JET_OBJ_FIREWORK:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 SVECTOR* path;
                 s32 pathLen;
                 s32 offset;
 
-                pathIndex = st->unk18 & 0xFF;
+                pathIndex = st->pathIndex & 0xFF;
                 pathLen = g_JetXbinAdr.objectPathLengths[pathIndex];
                 offset = g_JetXbinAdr.objectPathOffsets[pathIndex];
                 path = (SVECTOR*)(g_JetXbinAdr.objectPaths + offset);
                 obj->path = path;
                 obj->pathLen = pathLen;
-                st->unk10 = 0;
-                st->unkC = 1;
+                st->needsInit = 0;
+                st->life = 1;
                 st->hit = 0;
                 st->unk28 = 0;
                 D_800A8984 = pathLen;
                 D_800A8954 = path;
                 JetPathSample(0, obj->path, &obj->position, 0);
             }
-            if (st->unk50[2] < g_JetTrackSegment) {
-                st->unkC = 0;
+            if (st->params.raw[2] < g_JetTrackSegment) {
+                st->life = 0;
             }
-            if (st->unkC == 0) {
+            if (st->life == 0) {
                 JetObjectFree(obj);
                 break;
             }
-            obj->position.vy -= st->unk50[3];
-            st->unk50[3] -= st->unk50[4];
-            if (st->unk50[3] < 0) {
+            obj->position.vy -= st->params.raw[3];
+            st->params.raw[3] -= st->params.raw[4];
+            if (st->params.raw[3] < 0) {
                 JetPlaySfx(0x98);
                 for (j = 0; j < 20; j++) {
                     s32 x;
@@ -921,20 +925,20 @@ void JetObjectsUpdate(JetBuffer* db) {
                     z = obj->position.vz;
                     func_800A4650(x, y, z, JET_OBJ_FIREWORK_SPARK, rand() % 3 + 0x44);
                 }
-                st->unkC = 0;
+                st->life = 0;
             }
             break;
         case JET_OBJ_FIREWORK_SPARK:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 st->hit = 0;
-                st->unkC = 100;
-                st->unk10 = 0;
-                st->unk14 = 0;
+                st->life = 100;
+                st->needsInit = 0;
+                st->age = 0;
                 st->unk28 = rand() % 60 - 30;
                 st->unk2C = rand() % 60 - 30;
                 st->unk30 = rand() % 60 - 30;
             } else {
-                st->unk14++;
+                st->age++;
             }
             obj->position.vx += st->unk28;
             obj->position.vy += st->unk2C;
@@ -942,37 +946,37 @@ void JetObjectsUpdate(JetBuffer* db) {
             obj->rotation.vx += 10;
             obj->rotation.vy += 400;
             obj->rotation.vz += 200;
-            st->unkC--;
-            if (st->unkC == 0) {
+            st->life--;
+            if (st->life == 0) {
                 JetObjectFree(obj);
             }
             break;
         case 14:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 SVECTOR* path;
                 s32 pathLen;
                 s32 offset;
 
                 JetPlaySfx(0xA);
-                pathIndex = st->unk18 & 0xFF;
+                pathIndex = st->pathIndex & 0xFF;
                 pathLen = g_JetXbinAdr.objectPathLengths[pathIndex];
                 offset = g_JetXbinAdr.objectPathOffsets[pathIndex];
                 path = (SVECTOR*)(g_JetXbinAdr.objectPaths + offset);
                 obj->path = path;
                 obj->pathLen = pathLen;
-                st->unk10 = 0;
-                st->unkC = 1;
+                st->needsInit = 0;
+                st->life = 1;
                 st->hit = 0;
-                st->unk14 = 0;
+                st->age = 0;
                 st->unk28 = -0x46;
                 D_800A8984 = pathLen;
                 D_800A8954 = path;
                 JetPathSample(0, obj->path, &obj->position, 0);
             }
             st->unk28++;
-            st->unk14++;
-            if (st->unk14 == 5) {
-                for (j = 0; j < st->unk50[3]; j++) {
+            st->age++;
+            if (st->age == 5) {
+                for (j = 0; j < st->params.raw[3]; j++) {
                     s32 x;
                     s32 y;
                     s32 z;
@@ -997,13 +1001,13 @@ void JetObjectsUpdate(JetBuffer* db) {
                 obj->rotation.vy += 20;
             }
             if (st->unk28 == 0x50) {
-                st->unkC = 0;
+                st->life = 0;
             }
             obj->position.vy += st->unk28;
-            if (st->unk50[2] < g_JetTrackSegment) {
-                st->unkC = 0;
+            if (st->params.raw[2] < g_JetTrackSegment) {
+                st->life = 0;
             }
-            if (st->unkC) {
+            if (st->life) {
                 if (st->hit) {
                     JetObjectDamage(obj);
                 }
@@ -1012,16 +1016,16 @@ void JetObjectsUpdate(JetBuffer* db) {
             }
             break;
         case 15:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 st->hit = 0;
-                st->unkC = 200;
-                st->unk10 = 0;
-                st->unk14 = 0;
+                st->life = 200;
+                st->needsInit = 0;
+                st->age = 0;
                 st->unk28 = rand() % 80 - 40;
                 st->unk2C = rand() % 80 - 40;
                 st->unk30 = -(rand() % 40 + 40);
             } else {
-                st->unk14++;
+                st->age++;
             }
             st->unk30++;
             obj->rotation.vx += 480;
@@ -1030,27 +1034,27 @@ void JetObjectsUpdate(JetBuffer* db) {
             obj->position.vx += st->unk28;
             obj->position.vy += st->unk30;
             obj->position.vz += st->unk2C;
-            st->unkC--;
-            if (st->unkC == 0) {
+            st->life--;
+            if (st->life == 0) {
                 JetObjectFree(obj);
             }
             break;
         case 16:
-            if (st->unk10 == 1) {
-                st->unkC = 200;
+            if (st->needsInit == 1) {
+                st->life = 200;
                 st->hit = 0;
-                st->unk10 = 0;
-                st->unk14 = 0;
+                st->needsInit = 0;
+                st->age = 0;
                 st->unk28 = -0x3C;
             } else {
-                st->unk14++;
+                st->age++;
             }
-            if (st->unk14 >= 0x15) {
+            if (st->age >= 0x15) {
                 obj->position.vy += st->unk28;
                 st->unk28++;
             }
-            st->unkC--;
-            if (st->unkC == 0) {
+            st->life--;
+            if (st->life == 0) {
                 JetObjectFree(obj);
             }
             break;
@@ -1064,13 +1068,13 @@ void JetObjectsUpdate(JetBuffer* db) {
             obj->rotation.vz = 0;
             break;
         case 201:
-            if (st->unk10 == 1) {
-                st->unkC = 0x14;
-                st->unk10 = 0;
-                st->unk14 = 0;
+            if (st->needsInit == 1) {
+                st->life = 0x14;
+                st->needsInit = 0;
+                st->age = 0;
                 st->hit = 0;
             } else {
-                st->unk14++;
+                st->age++;
             }
             {
                 s32 x;
@@ -1082,22 +1086,22 @@ void JetObjectsUpdate(JetBuffer* db) {
                 z = obj->position.vz;
                 func_800A4650(x, y, z, JET_OBJ_IMPACT, 0x2A);
             }
-            st->unkC--;
-            if (st->unkC == 0) {
+            st->life--;
+            if (st->life == 0) {
                 JetObjectFree(obj);
             }
             break;
         case JET_OBJ_IMPACT:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 st->hit = 0;
-                st->unkC = 0x32;
-                st->unk10 = 0;
-                st->unk14 = 0;
+                st->life = 0x32;
+                st->needsInit = 0;
+                st->age = 0;
                 st->unk28 = rand() % 20 - 10;
                 st->unk2C = rand() % 40 - 20;
                 st->unk30 = rand() % 20 - 10;
             } else {
-                st->unk14++;
+                st->age++;
             }
             obj->position.vx += st->unk28;
             obj->position.vy += st->unk2C;
@@ -1105,22 +1109,22 @@ void JetObjectsUpdate(JetBuffer* db) {
             obj->rotation.vx += 10;
             obj->rotation.vy += 100;
             obj->rotation.vz += 20;
-            st->unkC--;
-            if (st->unkC == 0) {
+            st->life--;
+            if (st->life == 0) {
                 JetObjectFree(obj);
             }
             break;
         case 203:
-            if (st->unk10 == 1) {
+            if (st->needsInit == 1) {
                 st->hit = 0;
-                st->unkC = 0x32;
-                st->unk10 = 0;
-                st->unk14 = 0;
+                st->life = 0x32;
+                st->needsInit = 0;
+                st->age = 0;
                 st->unk28 = rand() % 200 - 100;
                 st->unk2C = rand() % 200 - 100;
                 st->unk30 = rand() % 200 - 100;
             } else {
-                st->unk14++;
+                st->age++;
             }
             obj->position.vx += st->unk28;
             obj->position.vy += st->unk2C;
@@ -1128,43 +1132,43 @@ void JetObjectsUpdate(JetBuffer* db) {
             obj->rotation.vx += 0;
             obj->rotation.vy += 300;
             obj->rotation.vz += 0;
-            st->unkC--;
-            if (st->unkC == 0) {
+            st->life--;
+            if (st->life == 0) {
                 JetObjectFree(obj);
             }
             break;
-        case 255:
-            if (st->unk10 == 1) {
-                st->unk10 = 0;
-                st->unk14 = 0;
+        case JET_OBJ_SPEED_CHANGE:
+            if (st->needsInit == 1) {
+                st->needsInit = 0;
+                st->age = 0;
             } else {
-                st->unk14++;
+                st->age++;
             }
             {
                 s32* speed;
 
                 speed = &g_JetSpeed;
-                if (*speed > st->unk50[2]) {
-                    *speed -= st->unk50[0];
+                if (*speed > st->params.speedChange.minSpeed) {
+                    *speed -= st->params.speedChange.step;
                 }
                 if (*speed < 0) {
                     *speed = 0;
-                    func_800A4650(0, 0, 0, 0xFD, 0x1D);
+                    func_800A4650(0, 0, 0, JET_OBJ_RIDE_END, 0x1D);
                 }
             }
-            if (st->unk14 > st->unk50[1]) {
+            if (st->age > st->params.speedChange.frames) {
                 JetObjectFree(obj);
             }
             break;
         case JET_OBJ_STOP:
-            if (st->unk10 == 1) {
-                st->unk10 = 0;
-                st->unk14 = 0;
+            if (st->needsInit == 1) {
+                st->needsInit = 0;
+                st->age = 0;
                 st->unk28 = 0;
                 st->unk2C = VSync(-1);
                 st->unk30 = 0;
             } else {
-                st->unk14++;
+                st->age++;
             }
             if (st->unk28 == 0) {
                 g_JetSpeed = 0;
@@ -1173,27 +1177,27 @@ void JetObjectsUpdate(JetBuffer* db) {
                 s32* speed;
 
                 speed = &g_JetSpeed;
-                *speed += st->unk50[1];
+                *speed += st->params.stop.accel;
                 st->unk30++;
             }
-            if (st->unk50[0] < VSync(-1) - st->unk2C) {
+            if (st->params.stop.delay < VSync(-1) - st->unk2C) {
                 st->unk28 = 1;
             }
-            if (st->unk30 > st->unk50[2]) {
+            if (st->unk30 > st->params.stop.accelFrames) {
                 JetObjectFree(obj);
             }
             break;
-        case 252:
-            if (st->unk10 == 1) {
-                st->unk10 = 0;
-                st->unk14 = 0;
+        case JET_OBJ_RIDE_START:
+            if (st->needsInit == 1) {
+                st->needsInit = 0;
+                st->age = 0;
                 g_JetSpeed = 0;
-                g_JetTransitionDrawEnabled = 1;
+                g_JetDrawEnabled = 1;
                 func_800A4650(0, 0, 0, 3, 0x3B);
             } else {
-                st->unk14++;
+                st->age++;
             }
-            shade = ~(st->unk14 * 2);
+            shade = ~(st->age * 2);
             fade = db->prims.g4Cursor;
             setXY4(fade, 0, 0, 320, 0, 0, 240, 320, 240);
             setRGB0(fade, shade, shade, shade);
@@ -1213,21 +1217,21 @@ void JetObjectsUpdate(JetBuffer* db) {
             addPrim(&db->ot2[1], tpagePrim);
             tpagePrim++;
             db->prims.ft4Cursor = tpagePrim;
-            if (st->unk14 >= 0x7E) {
+            if (st->age >= 0x7E) {
                 JetObjectFree(obj);
-                g_JetSpeed = 0x4000;
+                g_JetSpeed = 16384;
             }
             break;
         case JET_OBJ_RIDE_END:
-            if (st->unk10 == 1) {
-                st->unk10 = 0;
-                st->unk14 = 0;
+            if (st->needsInit == 1) {
+                st->needsInit = 0;
+                st->age = 0;
                 g_JetSpeed = 0;
                 JetAudioFadeOut();
             } else {
-                st->unk14++;
+                st->age++;
             }
-            shade = st->unk14 * 2;
+            shade = st->age * 2;
             fade = db->prims.g4Cursor;
             setXY4(fade, 0, 0, 320, 0, 0, 240, 320, 240);
             setRGB0(fade, shade, shade, shade);
@@ -1247,21 +1251,21 @@ void JetObjectsUpdate(JetBuffer* db) {
             addPrim(&db->ot2[1], tpagePrim);
             tpagePrim++;
             db->prims.ft4Cursor = tpagePrim;
-            if (st->unk14 >= 0x80) {
+            if (st->age >= 0x80) {
                 JetObjectFree(obj);
-                g_JetSpeed = 0x4000;
-                g_JetTransitionDrawEnabled = 0;
+                g_JetSpeed = 16384;
+                g_JetDrawEnabled = 0;
                 g_JetExit = 1;
             }
             break;
-        case 250:
-            if (g_JetScore < st->unk50[0]) {
+        case JET_OBJ_SCORE_CHECK:
+            if (g_JetScore < st->params.scoreCheck.minScore) {
                 JetObject* spawn;
 
                 spawn = &g_JetSpawnTemplate;
-                spawn->unk28.unk50[0] = 0x12C;
-                spawn->unk28.unk50[1] = 0x190;
-                spawn->unk28.unk50[2] = 0;
+                spawn->state.params.speedChange.step = 300;
+                spawn->state.params.speedChange.frames = 400;
+                spawn->state.params.speedChange.minSpeed = 0;
                 {
                     s32 x;
                     s32 y;
@@ -1270,38 +1274,36 @@ void JetObjectsUpdate(JetBuffer* db) {
                     x = obj->position.vx;
                     y = obj->position.vy;
                     z = obj->position.vz;
-                    func_800A4650(x, y, z, 0xFF, 0x1E);
+                    func_800A4650(x, y, z, JET_OBJ_SPEED_CHANGE, 0x1E);
                 }
             }
             JetObjectFree(obj);
             break;
-        default:
-            break;
         }
-        obj->unkD4->m.t[0] = obj->position.vx;
-        obj->unkD4->m.t[1] = obj->position.vy;
-        obj->unkD4->m.t[2] = obj->position.vz;
+        obj->node->m.t[0] = obj->position.vx;
+        obj->node->m.t[1] = obj->position.vy;
+        obj->node->m.t[2] = obj->position.vz;
         order = g_JetObjectRotOrder;
         if (order == 0) {
-            RotMatrixYXZ(&obj->rotation, &obj->unkD4->m);
+            RotMatrixYXZ(&obj->rotation, &obj->node->m);
         }
         if (order == 1) {
-            RotMatrixZYX(&obj->rotation, &obj->unkD4->m);
+            RotMatrixZYX(&obj->rotation, &obj->node->m);
         }
         if (order == 2) {
-            RotMatrix(&obj->rotation, &obj->unkD4->m);
+            RotMatrix(&obj->rotation, &obj->node->m);
         }
         if (drawMode == 0) {
-            JetDrawObjectAndCheckHit(db, obj->unkD4, otIndex, 0, obj);
+            JetDrawObjectAndCheckHit(db, obj->node, otIndex, 0, obj);
         }
         if (drawMode == 1) {
-            JetDrawCartAndProjectBeams(db, obj->unkD4, otIndex, 0, obj);
+            JetDrawCartAndProjectBeams(db, obj->node, otIndex, 0, obj);
         }
     }
 }
 
 static void JetObjectDamage(JetObject* object) {
-    JetObjectState* state = &object->unk28;
+    JetObjectState* state = &object->state;
     u8 amount;
     s32 x;
     s32 y;
@@ -1311,8 +1313,8 @@ static void JetObjectDamage(JetObject* object) {
     if (amount == 0) {
         amount = 1;
     }
-    state->unk50[0xD] -= amount;
-    if (state->unk50[0xD] < 0) {
+    state->params.shootable.health -= amount;
+    if (state->params.shootable.health < 0) {
         JetObjectAwardPoints(object);
     } else {
         x = object->position.vx;
@@ -1324,7 +1326,7 @@ static void JetObjectDamage(JetObject* object) {
 
 // Award the score for a hit object and scatter its debris.
 static void JetObjectAwardPoints(JetObject* obj) {
-    JetObjectState* st = &obj->unk28;
+    JetObjectState* st = &obj->state;
     s32* score;
     s32* frame;
     SVECTOR* path;
@@ -1333,7 +1335,7 @@ static void JetObjectAwardPoints(JetObject* obj) {
     s32 i;
     s16 modelId;
 
-    if (st->unk50[10] == 1) {
+    if (st->params.raw[10] == 1) {
         s32* score;
         s32 points;
         s32 x;
@@ -1341,23 +1343,23 @@ static void JetObjectAwardPoints(JetObject* obj) {
         s32 z;
 
         score = &g_JetScore;
-        *score += st->unk50[0];
-        JetPlaySfx(st->unk50[18]);
-        st->unkC = 0;
+        *score += st->params.shootable.points;
+        JetPlaySfx(st->params.shootable.deathSfx);
+        st->life = 0;
         for (i = 0; i < 3; i++) {
             x = obj->position.vx;
             y = obj->position.vy;
             z = obj->position.vz;
             func_800A4650(x, y, z, JET_OBJ_IMPACT, rand() % 3 + 0x3F);
         }
-        g_JetPopupModelId = obj->unkD4->modelId;
-        points = st->unk50[0];
+        g_JetPopupModelId = obj->node->modelId;
+        points = st->params.shootable.points;
         g_JetPopupPoints = points;
         g_JetPopupTimer = 100;
         g_JetScorePopupAlternate = 1;
         setVector(&g_JetPopupRot, 0, 0, 0);
     }
-    if (st->unk50[10] == 2) {
+    if (st->params.raw[10] == 2) {
         s32* score;
         s32 points;
         s32 x;
@@ -1365,46 +1367,46 @@ static void JetObjectAwardPoints(JetObject* obj) {
         s32 z;
 
         score = &g_JetScore;
-        *score += st->unk50[0];
-        JetPlaySfx(st->unk50[18]);
-        st->unkC = 0;
+        *score += st->params.shootable.points;
+        JetPlaySfx(st->params.shootable.deathSfx);
+        st->life = 0;
         for (i = 0; i < 3; i++) {
             x = obj->position.vx;
             y = obj->position.vy;
             z = obj->position.vz;
             func_800A4650(x, y, z, 0xCB, rand() % 3 + 0x3C);
         }
-        g_JetPopupModelId = obj->unkD4->modelId;
-        points = st->unk50[0];
+        g_JetPopupModelId = obj->node->modelId;
+        points = st->params.shootable.points;
         g_JetPopupPoints = points;
         g_JetPopupTimer = 100;
         g_JetScorePopupAlternate = 1;
         setVector(&g_JetPopupRot, 0, 0, 0);
     }
-    if (st->unk50[10] == 3) {
+    if (st->params.raw[10] == 3) {
         s32* score;
         s32 points;
 
         score = &g_JetScore;
-        *score += st->unk50[0];
-        points = st->unk50[11];
+        *score += st->params.shootable.points;
+        points = st->params.raw[11];
         obj->rotation.vx += points;
     }
-    if (st->unk50[10] == 4) {
+    if (st->params.raw[10] == 4) {
         s32* score;
         s32 points;
         score = &g_JetScore;
-        *score += st->unk50[0];
-        JetPlaySfx(st->unk50[18]);
-        st->unkC = 0;
-        g_JetPopupModelId = obj->unkD4->modelId;
-        points = st->unk50[0];
+        *score += st->params.shootable.points;
+        JetPlaySfx(st->params.shootable.deathSfx);
+        st->life = 0;
+        g_JetPopupModelId = obj->node->modelId;
+        points = st->params.shootable.points;
         g_JetPopupPoints = points;
         g_JetPopupTimer = 100;
         g_JetScorePopupAlternate = 1;
         setVector(&g_JetPopupRot, 0, 0, 0);
     }
-    if (st->unk50[10] == 5) {
+    if (st->params.raw[10] == 5) {
         s32* score;
         s32 points;
         s32 x;
@@ -1412,17 +1414,17 @@ static void JetObjectAwardPoints(JetObject* obj) {
         s32 z;
 
         score = &g_JetScore;
-        *score += st->unk50[0];
-        JetPlaySfx(st->unk50[18]);
-        st->unkC = 0;
+        *score += st->params.shootable.points;
+        JetPlaySfx(st->params.shootable.deathSfx);
+        st->life = 0;
         for (i = 0; i < 100; i++) {
             x = obj->position.vx;
             y = obj->position.vy;
             z = obj->position.vz;
             func_800A4650(x, y, z, 0xCB, rand() % 3 + 0x3F);
         }
-        g_JetPopupModelId = obj->unkD4->modelId;
-        points = st->unk50[0];
+        g_JetPopupModelId = obj->node->modelId;
+        points = st->params.shootable.points;
         g_JetPopupPoints = points;
         g_JetPopupTimer = 100;
         g_JetScorePopupAlternate = 1;
