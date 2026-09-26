@@ -266,8 +266,7 @@ INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800B6CF8);
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800B70C8);
 
-void func_800B7630(void) {
-}
+void func_800B7630(void) {}
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800B7638);
 

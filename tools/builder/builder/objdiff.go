@@ -98,6 +98,7 @@ var metaOverlays = map[string]metaOverlay{
 
 	"chocobo": {"chocobo", "mini", "Chocobo racing"},
 	"condor":  {"condor", "mini", "Fort Condor"},
+	"highway": {"highway", "mini", "Midgar Highway"},
 	"jet":     {"jet", "mini", "jet"},
 
 	"fire":     {"fire", "magic", "Fire"},
