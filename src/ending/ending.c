@@ -53,7 +53,7 @@ typedef struct {
     /* 0x78 */ VECTOR unk78;
 } EndingSprite; // size:0x88
 
-static u16 D_800A3934[] = {
+static u16 g_endingScriptIntro[] = {
     0x0008, 0x0140, 0x00F0, 0x0200, 0x0000, 0x0000, 0x0040, 0x0010, 0x0002, 0x000A, 0x001E, 0x0009, 0x0001, 0x001A,
     0x00C0, 0x007F, 0x0000, 0x0001, 0x0002, 0x0003, 0x0014, 0x0005, 0x0015, 0x0015, 0x0000, 0xA001, 0x0016, 0x0000,
     0x0044, 0x006C, 0x0000, 0x0000, 0x0000, 0x0000, 0x000F, 0x0000, 0x0020, 0x0080, 0x000A, 0x0098, 0x000F, 0x0000,
@@ -265,7 +265,7 @@ static u16 D_800A3934[] = {
     0x0007, 0x0010, 0x0000, 0x000A, 0x003C, 0x0015, 0x0001, 0xA001, 0x0016, 0x0002, 0x0058, 0x00BE, 0x0000, 0x0000,
     0x0000, 0x0000, 0x000F, 0x0001, 0x0020, 0x0080, 0x000A, 0x0258, 0x000F, 0x0000, 0x0020, 0x0000, 0x000F, 0x0001,
     0x0020, 0x0000, 0x001A, 0x00C1, 0x003C, 0x0000, 0x000A, 0x003C, 0x000C, 0x001A, 0x00F0, 0x0000, 0x0000, 0x0013};
-static u16 D_800A5048[] = {
+static u16 g_endingScriptOutro[] = {
     0x001A, 0x00C0, 0x007F, 0x0000, 0x0001, 0x0001, 0x0008, 0x0280, 0x00F0, 0x0200, 0x0000, 0x0000, 0x0000, 0x0010,
     0x0003, 0x0003, 0x0009, 0x0001, 0x0006, 0x001D, 0x001B, 0x0267, 0x0018, 0x002A, 0x0007, 0x0010, 0x0000, 0x0008,
     0x0140, 0x00F0, 0x0200, 0x0000, 0x0000, 0x0000, 0x0009, 0x0001, 0x0005, 0x0000, 0x0005, 0x0001, 0x0005, 0x0002,
@@ -444,7 +444,7 @@ static u16 D_800A5048[] = {
     0x000A, 0x012C, 0x0018, 0x002E, 0x0008, 0x0280, 0x00F0, 0x0200, 0x0000, 0x0000, 0x0000, 0x0010, 0x0002, 0x0009,
     0x0001, 0x001C, 0x001D, 0x0000};
 static s32 D_800A6390 = 1;
-static s32 D_800A6394 = 0;
+static s32 g_endingScriptFrameFinished = 0;
 static u32 D_800A6398[] = {0x0001F739, 0x0006906C, 0x0001F80C, 0x000470DC, 0x0001F89B, 0x0002477C};
 static s32 D_800A63B0 = 0;
 static u32 D_800A63B4[] = {0, 0, 0, 0x0000FE00, 0, 0};
@@ -453,55 +453,55 @@ static u32 D_800A63D0 = 0x400;
 static s32 D_800A63D4 = -0x600;
 static u32 D_800A63D8 = 0x600;
 
-s32 func_800A1EE4(void);
-s32 func_800A1EEC(void);
-s32 func_800A1F48(void);
-s32 func_800A1FA4(void);
-s32 func_800A1FC8(void);
-s32 func_800A2014(void);
-s32 func_800A208C(void);
-s32 func_800A20D4(void);
-s32 func_800A20F8(void);
-s32 func_800A2190(void);
-s32 func_800A21CC(void);
-s32 func_800A0AB8(void);
-s32 func_800A2248(void);
-s32 func_800A0BA8(void);
-s32 func_800A2274(void);
-s32 func_800A0CAC(void);
-s32 func_800A22A4(void);
-s32 func_800A0F90(void);
-s32 func_800A11B4(void);
-s32 func_800A22D4(void);
-s32 func_800A139C(void);
-s32 func_800A14BC(void);
-s32 func_800A22E4(void);
-s32 func_800A16E4(void);
-s32 func_800A2328(void);
-s32 func_800A23F8(void);
-s32 func_800A2380(void);
-s32 func_800A2420(void);
-s32 func_800A17C0(void);
-s32 func_800A19A4(void);
-static s32 (*D_800A63DC[])(void) = {
-    func_800A1EE4, func_800A1EEC, func_800A1F48, func_800A1FA4, func_800A1FC8, func_800A2014,
-    func_800A208C, func_800A20D4, func_800A20F8, func_800A2190, func_800A21CC, func_800A0AB8,
-    func_800A2248, func_800A0BA8, func_800A2274, func_800A0CAC, func_800A22A4, func_800A0F90,
-    func_800A11B4, func_800A22D4, func_800A139C, func_800A14BC, func_800A22E4, func_800A16E4,
-    func_800A2328, func_800A23F8, func_800A2380, func_800A2420, func_800A17C0, func_800A19A4};
+s32 EndingOpcode00(void);
+s32 EndingOpcode01(void);
+s32 EndingOpcode02(void);
+s32 EndingOpcode03(void);
+s32 EndingOpcode04(void);
+s32 EndingOpcode05(void);
+s32 EndingOpcode06(void);
+s32 EndingOpcode07(void);
+s32 EndingOpcode08(void);
+s32 EndingOpcode09(void);
+s32 EndingOpcode0A(void);
+s32 EndingOpcode0B(void);
+s32 EndingOpcode0C(void);
+s32 EndingOpcode0D(void);
+s32 EndingOpcode0E(void);
+s32 EndingOpcode0F(void);
+s32 EndingOpcode10(void);
+s32 EndingOpcode11(void);
+s32 EndingOpcode12(void);
+s32 EndingOpcode13(void);
+s32 EndingOpcode14(void);
+s32 EndingOpcode15(void);
+s32 EndingOpcode16(void);
+s32 EndingOpcode17(void);
+s32 EndingOpcode18(void);
+s32 EndingOpcode19(void);
+s32 EndingOpcode1A(void);
+s32 EndingOpcode1B(void);
+s32 EndingOpcode1C(void);
+s32 EndingOpcode1D(void);
+static s32 (*g_endingOpcodeHandlers[])(void) = {
+    EndingOpcode00, EndingOpcode01, EndingOpcode02, EndingOpcode03, EndingOpcode04, EndingOpcode05,
+    EndingOpcode06, EndingOpcode07, EndingOpcode08, EndingOpcode09, EndingOpcode0A, EndingOpcode0B,
+    EndingOpcode0C, EndingOpcode0D, EndingOpcode0E, EndingOpcode0F, EndingOpcode10, EndingOpcode11,
+    EndingOpcode12, EndingOpcode13, EndingOpcode14, EndingOpcode15, EndingOpcode16, EndingOpcode17,
+    EndingOpcode18, EndingOpcode19, EndingOpcode1A, EndingOpcode1B, EndingOpcode1C, EndingOpcode1D};
 static OT_TYPE D_800A6454[2] = {NULL, NULL};
-static TILE D_800A645C[2] = {{0}, {0}};
+static TILE g_endingFadeOutTile[2] = {{0}, {0}};
 static DR_MODE D_800A647C[2] = {{0}, {0}};
 static u32 D_800A6494[20] = {0};
-static OT_TYPE D_800A64E4[1] = {NULL};
+static OT_TYPE g_sceaTextOT[1] = {NULL};
 static u32 D_800A64E8 = 0;
-static DR_MODE D_800A64EC[2] = {{0}, {0}};
-static TILE D_800A6504[2] = {{0}, {0}};
+static DR_MODE g_sceaTextDrMode[2] = {{0}, {0}};
+static TILE g_sceaTextFadeTile[2] = {{0}, {0}};
 
 static void* D_800A6524;
-static s16* D_800A6528;
-static EndingSprite D_800A652C[32];
-static EndingNode D_800A762C;
+static s16* g_endingScriptPc;
+static EndingSprite g_endingSprites[32];
+static EndingNode g_endingNode4;
 static TILE g_endingClearTile1[2];
 static TILE g_endingClearTile2[2];
 static u8 D_800A767C[0x8];
@@ -523,8 +523,8 @@ static DRAWENV g_endingDrawEnvs[2];
 static DISPENV g_endingDispEnvs[2];
 static u32 D_800AF3C0;
 static u32 D_800AF3C4;
-static EndingNode D_800AF3C8;
-static EndingNode D_800AF3D8;
+static EndingNode g_endingNode0;
+static EndingNode g_endingNode1;
 static void* D_800AF3E8;
 static u32 g_endingPad1KeysPressed;
 static u32 g_endingPad2KeysPressed;
@@ -534,25 +534,25 @@ static void* D_800AF3FC;
 static OT_TYPE g_endingOT[2];
 static s32 g_endingDbIndex;
 static s32 D_800AF40C;
-static s32 D_800AF410;
+static s32 g_endingInProgress;
 
-static void func_800A2888(void*, s16*, s16*);
+static void EndingLoadTim(void*, s16*, s16*);
 static s32 func_800A379C(EndingObj*, VECTOR*, VECTOR*, s32);
-void func_800A3178(EndingNode*, s16, u8, void (*)());
+void EndingInsertNode(EndingNode*, s16, u8, void (*)());
 static void func_800A09DC(void);
 static void SetGameResolution(s32, s32, s32, u8, u8, u8);
 static s32 StartFrame(s32 sync);
-static void func_800A310C(void);
-static void func_800A1ED4(s16*);
-static void func_800A1E20(void);
+static void EndingInitNodes(void);
+static void EndingInitScriptPc(s16*);
+static void EndingExecuteScript(void);
 static void func_800A3210(void);
 static void func_800A3368(EndingSprite*);
 static void func_800A343C(EndingSprite*);
 void* func_800A358C(void*, s32, void*, void*);
 static void func_800A0E68(void);
 static void func_800A34C4(EndingSprite* spr);
-static void func_800A32D8(EndingNode*);
-static EndingNode* func_800A3314(s16);
+static void EndingRemoveNodeFromList(EndingNode*);
+static EndingNode* EndingFindNodeById(s16);
 
 static const char cd_msg_err[] = "scea file read error\n";
 void ENDING_SceaLoop(void) {
@@ -611,21 +611,21 @@ void ENDING_SceaLoop(void) {
             src += 0xA00;
         }
 
-        ClearOTagR(&D_800A64E4[buf], LEN(D_800A64E4));
-        SetTile(&D_800A6504[buf]);
-        SetSemiTrans(&D_800A6504[buf], 1);
-        (&D_800A6504[buf])->x0 = 0x1E;
-        (&D_800A6504[buf])->y0 = 0xC8;
-        (&D_800A6504[buf])->w = 0x244;
-        (&D_800A6504[buf])->h = 0x4A;
-        (&D_800A6504[buf])->r0 = r;
-        (&D_800A6504[buf])->g0 = g;
-        (&D_800A6504[buf])->b0 = b;
-        AddPrim(&D_800A64E4[buf], &D_800A6504[buf]);
+        ClearOTagR(&g_sceaTextOT[buf], LEN(g_sceaTextOT));
+        SetTile(&g_sceaTextFadeTile[buf]);
+        SetSemiTrans(&g_sceaTextFadeTile[buf], 1);
+        (&g_sceaTextFadeTile[buf])->x0 = 0x1E;
+        (&g_sceaTextFadeTile[buf])->y0 = 0xC8;
+        (&g_sceaTextFadeTile[buf])->w = 0x244;
+        (&g_sceaTextFadeTile[buf])->h = 0x4A;
+        (&g_sceaTextFadeTile[buf])->r0 = r;
+        (&g_sceaTextFadeTile[buf])->g0 = g;
+        (&g_sceaTextFadeTile[buf])->b0 = b;
+        AddPrim(&g_sceaTextOT[buf], &g_sceaTextFadeTile[buf]);
         tp = GetTPage(2, 2, 0, 0);
-        SetDrawMode(&D_800A64EC[buf], 1, 1, tp, NULL);
-        AddPrim(&D_800A64E4[buf], &D_800A64EC[buf]);
-        DrawOTag(&D_800A64E4[buf]);
+        SetDrawMode(&g_sceaTextDrMode[buf], 1, 1, tp, NULL);
+        AddPrim(&g_sceaTextOT[buf], &g_sceaTextDrMode[buf]);
+        DrawOTag(&g_sceaTextOT[buf]);
         r -= 2;
         g -= 2;
         b -= 2;
@@ -668,21 +668,21 @@ void ENDING_SceaLoop(void) {
             src += 0xA00;
         }
 
-        ClearOTagR(&D_800A64E4[buf], LEN(D_800A64E4));
-        SetTile(&D_800A6504[buf]);
-        SetSemiTrans(&D_800A6504[buf], 1);
-        (&D_800A6504[buf])->x0 = 0x1E;
-        (&D_800A6504[buf])->y0 = 0xC8;
-        (&D_800A6504[buf])->w = 0x244;
-        (&D_800A6504[buf])->h = 0x4A;
-        (&D_800A6504[buf])->r0 = r;
-        (&D_800A6504[buf])->g0 = g;
-        (&D_800A6504[buf])->b0 = b;
-        AddPrim(&D_800A64E4[buf], &D_800A6504[buf]);
+        ClearOTagR(&g_sceaTextOT[buf], LEN(g_sceaTextOT));
+        SetTile(&g_sceaTextFadeTile[buf]);
+        SetSemiTrans(&g_sceaTextFadeTile[buf], 1);
+        (&g_sceaTextFadeTile[buf])->x0 = 0x1E;
+        (&g_sceaTextFadeTile[buf])->y0 = 0xC8;
+        (&g_sceaTextFadeTile[buf])->w = 0x244;
+        (&g_sceaTextFadeTile[buf])->h = 0x4A;
+        (&g_sceaTextFadeTile[buf])->r0 = r;
+        (&g_sceaTextFadeTile[buf])->g0 = g;
+        (&g_sceaTextFadeTile[buf])->b0 = b;
+        AddPrim(&g_sceaTextOT[buf], &g_sceaTextFadeTile[buf]);
         tp = GetTPage(2, 2, 0, 0);
-        SetDrawMode(&D_800A64EC[buf], 1, 1, tp, NULL);
-        AddPrim(&D_800A64E4[buf], &D_800A64EC[buf]);
-        DrawOTag(&D_800A64E4[buf]);
+        SetDrawMode(&g_sceaTextDrMode[buf], 1, 1, tp, NULL);
+        AddPrim(&g_sceaTextOT[buf], &g_sceaTextDrMode[buf]);
+        DrawOTag(&g_sceaTextOT[buf]);
         r += 2;
         g += 2;
         b += 2;
@@ -691,7 +691,7 @@ void ENDING_SceaLoop(void) {
     SetDispMask(0);
 }
 
-void ENDING_Loop(s32 arg0) {
+void ENDING_Loop(s32 isOutro) {
     u8 unused[0x100];
     RECT rect;
     s16 col;
@@ -700,7 +700,7 @@ void ENDING_Loop(s32 arg0) {
 
     while (1) {
         SetGameResolution(320, 240, 0x200, 0, 0, 0);
-        if (arg0 != 0) {
+        if (isOutro != 0) {
             rect.x = 0;
             rect.y = 0;
             rect.w = 0x3C0;
@@ -714,16 +714,16 @@ void ENDING_Loop(s32 arg0) {
         ClearImage(&rect, 0, 0, 0);
         while (DrawSync(1) != 0) {
         }
-        func_800A310C();
+        EndingInitNodes();
         D_800AF40C = 0;
         D_800AF3FC = (void*)0x801F0000;
-        if (arg0 != 0) {
-            func_800A1ED4((s16*)D_800A5048);
+        if (isOutro != 0) {
+            EndingInitScriptPc((s16*)g_endingScriptOutro);
         } else {
-            func_800A1ED4((s16*)D_800A3934);
+            EndingInitScriptPc((s16*)g_endingScriptIntro);
         }
-        D_800AF410 = 1;
-        while (D_800AF410) {
+        g_endingInProgress = 1;
+        while (g_endingInProgress) {
             VSync(1);
             DrawSync(0);
             VSync(1);
@@ -747,11 +747,11 @@ void ENDING_Loop(s32 arg0) {
             }
             ClearOTagR(&g_endingOT[g_endingDbIndex], 1);
             D_800AF3E8 = &g_endingOT[g_endingDbIndex];
-            func_800A1E20();
+            EndingExecuteScript();
             func_800A3210();
             DrawOTag(&g_endingOT[g_endingDbIndex]);
             VSync(1);
-            if (arg0 == 0 && (g_endingPad1KeysPressed & 0x9F0)) {
+            if (isOutro == 0 && (g_endingPad1KeysPressed & 0x9F0)) {
                 goto fade_out;
             }
         }
@@ -778,10 +778,10 @@ fade_out:
         func_800A3210();
         DrawOTag(&g_endingOT[g_endingDbIndex]);
         ClearOTagR(&D_800A6454[g_endingDbIndex], 1);
-        SetTile(&D_800A645C[g_endingDbIndex]);
-        SetSemiTrans(&D_800A645C[g_endingDbIndex], 1);
-        setRGB0(&D_800A645C[g_endingDbIndex], col, col, col);
-        tile = &D_800A645C[g_endingDbIndex];
+        SetTile(&g_endingFadeOutTile[g_endingDbIndex]);
+        SetSemiTrans(&g_endingFadeOutTile[g_endingDbIndex], 1);
+        setRGB0(&g_endingFadeOutTile[g_endingDbIndex], col, col, col);
+        tile = &g_endingFadeOutTile[g_endingDbIndex];
         setXY0(tile, 0, 0);
         setWH(tile, 0x140, 0xF0);
         AddPrim(&D_800A6454[g_endingDbIndex], tile);
@@ -798,12 +798,12 @@ static void func_800A09DC(void) {
     s32 i;
 
     for (i = 0; i < 0x20; i++) {
-        if (D_800A652C[i].flags & 1) {
-            EndingSprite* e = &D_800A652C[i];
+        if (g_endingSprites[i].flags & 1) {
+            EndingSprite* e = &g_endingSprites[i];
 
-            D_800A652C[i].unk5C = 0x28;
-            D_800A652C[i].unk5E = 0x20;
-            D_800A652C[i].unk60 = 0;
+            g_endingSprites[i].unk5C = 0x28;
+            g_endingSprites[i].unk5E = 0x20;
+            g_endingSprites[i].unk60 = 0;
 
             func_800A34C4(e);
             func_800A343C(e);
@@ -812,63 +812,63 @@ static void func_800A09DC(void) {
     }
 }
 
-s32 func_800A0AB8(void) {
+s32 EndingOpcode0B(void) {
     s32 i;
 
     for (i = 0; i < 0x20; i++) {
-        D_800A652C[i].flags = 0;
-        D_800A652C[i].delay = 0;
-        D_800A652C[i].frame = 0;
-        D_800A652C[i].anim = NULL;
-        D_800A652C[i].unk5C = 0;
-        D_800A652C[i].unk5E = 0;
-        D_800A652C[i].unk60 = 0;
-        D_800A652C[i].r = 0;
-        D_800A652C[i].g = 0;
-        D_800A652C[i].b = 0;
+        g_endingSprites[i].flags = 0;
+        g_endingSprites[i].delay = 0;
+        g_endingSprites[i].frame = 0;
+        g_endingSprites[i].anim = NULL;
+        g_endingSprites[i].unk5C = 0;
+        g_endingSprites[i].unk5E = 0;
+        g_endingSprites[i].unk60 = 0;
+        g_endingSprites[i].r = 0;
+        g_endingSprites[i].g = 0;
+        g_endingSprites[i].b = 0;
     }
 
-    func_800A3178(&D_800A762C, 4, 0x80, func_800A09DC);
+    EndingInsertNode(&g_endingNode4, 4, 0x80, func_800A09DC);
 
     return 1;
 }
 
-s32 func_800A0BA8(void) {
-    s32 id = *D_800A6528++;
-    s32 arg = *D_800A6528++;
+s32 EndingOpcode0D(void) {
+    s32 id = *g_endingScriptPc++;
+    s32 arg = *g_endingScriptPc++;
 
-    D_800A652C[id].flags = 7;
-    D_800A652C[id].delay = 0;
-    D_800A652C[id].frame = 0;
-    D_800A652C[id].anim = SysCdromGetPackPointer((void*)0x800D0000, arg);
-    D_800A652C[id].unk5C = 0;
-    D_800A652C[id].unk5E = 0;
-    D_800A652C[id].unk60 = 0;
-    D_800A652C[id].r = 0;
-    D_800A652C[id].g = 0;
-    D_800A652C[id].b = 0;
+    g_endingSprites[id].flags = 7;
+    g_endingSprites[id].delay = 0;
+    g_endingSprites[id].frame = 0;
+    g_endingSprites[id].anim = SysCdromGetPackPointer((void*)0x800D0000, arg);
+    g_endingSprites[id].unk5C = 0;
+    g_endingSprites[id].unk5E = 0;
+    g_endingSprites[id].unk60 = 0;
+    g_endingSprites[id].r = 0;
+    g_endingSprites[id].g = 0;
+    g_endingSprites[id].b = 0;
 
     return 1;
 }
 
-s32 func_800A0CAC(void) {
-    s32 id = *D_800A6528++;
-    s32 steps = *D_800A6528++;
-    s32 target = *D_800A6528++;
+s32 EndingOpcode0F(void) {
+    s32 id = *g_endingScriptPc++;
+    s32 steps = *g_endingScriptPc++;
+    s32 target = *g_endingScriptPc++;
     s32 off = id * 136;
-    s32 dr = (target - D_800A652C[id].r) / steps;
-    s32 dg = (target - D_800A652C[id].g) / steps;
-    s32 db = (target - D_800A652C[id].b) / steps;
+    s32 dr = (target - g_endingSprites[id].r) / steps;
+    s32 dg = (target - g_endingSprites[id].g) / steps;
+    s32 db = (target - g_endingSprites[id].b) / steps;
 
-    D_800A652C[id].timer = steps;
-    D_800A652C[id].r0 = target;
-    D_800A652C[id].g0 = target;
-    D_800A652C[id].b0 = target;
-    D_800A652C[id].flags |= 8;
-    D_800A652C[id].dr = dr;
-    D_800A652C[id].dg = dg;
-    D_800A652C[id].db = db;
-    D_800A6394 = 1;
+    g_endingSprites[id].timer = steps;
+    g_endingSprites[id].r0 = target;
+    g_endingSprites[id].g0 = target;
+    g_endingSprites[id].b0 = target;
+    g_endingSprites[id].flags |= 8;
+    g_endingSprites[id].dr = dr;
+    g_endingSprites[id].dg = dg;
+    g_endingSprites[id].db = db;
+    g_endingScriptFrameFinished = 1;
 
     return 1;
 }
@@ -880,13 +880,13 @@ static void func_800A0E68(void) {
     AddPrim(D_800AF3E8, &g_endingClearTile2[g_endingDbIndex]);
 
     for (i = 0; i < 0x20; i++) {
-        if (D_800A652C[i].flags & 1) {
-            EndingSprite* e = &D_800A652C[i];
+        if (g_endingSprites[i].flags & 1) {
+            EndingSprite* e = &g_endingSprites[i];
 
-            D_800A652C[i].unk5E--;
+            g_endingSprites[i].unk5E--;
 
-            if (D_800A652C[i].unk5E == -0x10) {
-                D_800A652C[i].flags = 0;
+            if (g_endingSprites[i].unk5E == -0x10) {
+                g_endingSprites[i].flags = 0;
             }
 
             func_800A34C4(e);
@@ -896,26 +896,26 @@ static void func_800A0E68(void) {
     }
 }
 
-s32 func_800A0F90(void) {
+s32 EndingOpcode11(void) {
     s32 i;
     s32 w;
     s32 h;
     s32 k;
 
     for (i = 0; i < 0x20; i++) {
-        D_800A652C[i].flags = 0;
-        D_800A652C[i].delay = 0;
-        D_800A652C[i].frame = 0;
-        D_800A652C[i].anim = NULL;
-        D_800A652C[i].unk5C = 0;
-        D_800A652C[i].unk5E = 0;
-        D_800A652C[i].unk60 = 0;
-        D_800A652C[i].r = 0;
-        D_800A652C[i].g = 0;
-        D_800A652C[i].b = 0;
+        g_endingSprites[i].flags = 0;
+        g_endingSprites[i].delay = 0;
+        g_endingSprites[i].frame = 0;
+        g_endingSprites[i].anim = NULL;
+        g_endingSprites[i].unk5C = 0;
+        g_endingSprites[i].unk5E = 0;
+        g_endingSprites[i].unk60 = 0;
+        g_endingSprites[i].r = 0;
+        g_endingSprites[i].g = 0;
+        g_endingSprites[i].b = 0;
     }
 
-    func_800A3178(&D_800A762C, 4, 0x80, func_800A0E68);
+    EndingInsertNode(&g_endingNode4, 4, 0x80, func_800A0E68);
 
     w = 0x140;
     h = 0x28;
@@ -942,27 +942,27 @@ s32 func_800A0F90(void) {
     return 1;
 }
 
-s32 func_800A11B4(void) {
+s32 EndingOpcode12(void) {
     s32 i = 0;
     s32 c = 0x80;
-    s32 arg = *D_800A6528++;
-    s32 v = *D_800A6528++;
+    s32 arg = *g_endingScriptPc++;
+    s32 v = *g_endingScriptPc++;
 
     for (; i < 0x20; i++) {
-        if (D_800A652C[i].flags & 1) {
+        if (g_endingSprites[i].flags & 1) {
             continue;
         }
 
-        D_800A652C[i].flags = 1;
-        D_800A652C[i].delay = 0;
-        D_800A652C[i].frame = v;
-        D_800A652C[i].anim = SysCdromGetPackPointer((void*)0x800D0000, arg);
-        D_800A652C[i].unk5C = 0x18;
-        D_800A652C[i].unk5E = 0xC8;
-        D_800A652C[i].unk60 = 0;
-        D_800A652C[i].r = c;
-        D_800A652C[i].g = c;
-        D_800A652C[i].b = c;
+        g_endingSprites[i].flags = 1;
+        g_endingSprites[i].delay = 0;
+        g_endingSprites[i].frame = v;
+        g_endingSprites[i].anim = SysCdromGetPackPointer((void*)0x800D0000, arg);
+        g_endingSprites[i].unk5C = 0x18;
+        g_endingSprites[i].unk5E = 0xC8;
+        g_endingSprites[i].unk60 = 0;
+        g_endingSprites[i].r = c;
+        g_endingSprites[i].g = c;
+        g_endingSprites[i].b = c;
 
         return 1;
     }
@@ -974,8 +974,8 @@ static void func_800A12F0(void) {
     s32 i;
 
     for (i = 0; i < 0x20; i++) {
-        if (D_800A652C[i].flags & 1) {
-            EndingSprite* e = &D_800A652C[i];
+        if (g_endingSprites[i].flags & 1) {
+            EndingSprite* e = &g_endingSprites[i];
 
             func_800A3368(e);
             func_800A34C4(e);
@@ -985,88 +985,87 @@ static void func_800A12F0(void) {
     }
 }
 
-s32 func_800A139C(void) {
+s32 EndingOpcode14(void) {
     s32 i;
 
     for (i = 0; i < 0x20; i++) {
-        D_800A652C[i].flags = 0;
-        D_800A652C[i].delay = 0;
-        D_800A652C[i].frame = 0;
-        D_800A652C[i].anim = NULL;
-        D_800A652C[i].unk5C = 0;
-        D_800A652C[i].unk5E = 0;
-        D_800A652C[i].unk60 = 0;
-        D_800A652C[i].unk68 = 0;
-        D_800A652C[i].unk6C = 0;
-        D_800A652C[i].unk70 = 0;
-        D_800A652C[i].r = 0;
-        D_800A652C[i].g = 0;
-        D_800A652C[i].b = 0;
+        g_endingSprites[i].flags = 0;
+        g_endingSprites[i].delay = 0;
+        g_endingSprites[i].frame = 0;
+        g_endingSprites[i].anim = NULL;
+        g_endingSprites[i].unk5C = 0;
+        g_endingSprites[i].unk5E = 0;
+        g_endingSprites[i].unk60 = 0;
+        g_endingSprites[i].unk68 = 0;
+        g_endingSprites[i].unk6C = 0;
+        g_endingSprites[i].unk70 = 0;
+        g_endingSprites[i].r = 0;
+        g_endingSprites[i].g = 0;
+        g_endingSprites[i].b = 0;
     }
 
-    func_800A3178(&D_800A762C, 4, 0x80, func_800A12F0);
+    EndingInsertNode(&g_endingNode4, 4, 0x80, func_800A12F0);
 
     return 1;
 }
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A14BC);
+INCLUDE_ASM("asm/us/ending/nonmatchings/ending", EndingOpcode15);
 
-s32 func_800A16E4(void) {
-    s32 id = *D_800A6528++;
+s32 EndingOpcode17(void) {
+    s32 id = *g_endingScriptPc++;
 
-    D_800A652C[id].flags |= 0x10;
-    D_800A652C[id].unk78.vx = *D_800A6528++;
-    D_800A652C[id].unk78.vy = *D_800A6528++;
-    D_800A652C[id].unk78.vz = *D_800A6528++;
-    D_800A652C[id].unk4 = *D_800A6528++;
+    g_endingSprites[id].flags |= 0x10;
+    g_endingSprites[id].unk78.vx = *g_endingScriptPc++;
+    g_endingSprites[id].unk78.vy = *g_endingScriptPc++;
+    g_endingSprites[id].unk78.vz = *g_endingScriptPc++;
+    g_endingSprites[id].unk4 = *g_endingScriptPc++;
 
     return 1;
 }
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A17C0);
+INCLUDE_ASM("asm/us/ending/nonmatchings/ending", EndingOpcode1C);
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A19A4);
+INCLUDE_ASM("asm/us/ending/nonmatchings/ending", EndingOpcode1D);
 
-static void func_800A1E20(void) {
+static void EndingExecuteScript(void) {
     s16* pc;
 
     do {
-        pc = D_800A6528;
-        D_800A6394 = 0;
-        D_800A6528 = pc + 1;
+        pc = g_endingScriptPc++;
+        g_endingScriptFrameFinished = 0;
 
-        if (D_800A63DC[*pc]() == 0) {
-            D_800A6528 = pc;
+        if (g_endingOpcodeHandlers[*pc]() == 0) {
+            g_endingScriptPc = pc;
             D_800A6390 = 0;
         } else {
             D_800A6390 = 1;
         }
-    } while (D_800A6394 != 0);
+    } while (g_endingScriptFrameFinished != 0);
 }
 
-static void func_800A1ED4(s16* arg0) { D_800A6528 = arg0; }
+static void EndingInitScriptPc(s16* arg0) { g_endingScriptPc = arg0; }
 
-s32 func_800A1EE4(void) { return 0; }
+s32 EndingOpcode00(void) { return 0; }
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1EEC);
+INCLUDE_ASM("asm/us/ending/nonmatchings/ending", EndingOpcode01);
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A1F48);
+INCLUDE_ASM("asm/us/ending/nonmatchings/ending", EndingOpcode02);
 
-s32 func_800A1FA4(void) { return func_80034410() == 0; }
+s32 EndingOpcode03(void) { return func_80034410() == 0; }
 
-s32 func_800A1FC8(void) {
+s32 EndingOpcode04(void) {
     s16 sp10;
     s16 sp12;
 
-    func_800A2888(SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++), &sp10, &sp12);
+    EndingLoadTim(SysCdromGetPackPointer((void*)0x800D0000, *g_endingScriptPc++), &sp10, &sp12);
 
     return 1;
 }
 
-s32 func_800A2014(void) {
+s32 EndingOpcode05(void) {
     s16 sp10;
     s16 sp12;
-    s32 id = *D_800A6528++;
+    s32 id = *g_endingScriptPc++;
 
     if (D_800A6390 != 0) {
         SysCdromSetLzsExtract(SysCdromGetPackPointer((void*)0x800D0000, id), (void*)0x80120000);
@@ -1076,94 +1075,94 @@ s32 func_800A2014(void) {
         return 0;
     }
 
-    func_800A2888((void*)0x80120000, &sp10, &sp12);
+    EndingLoadTim((void*)0x80120000, &sp10, &sp12);
 
     return 1;
 }
 
-s32 func_800A208C(void) {
+s32 EndingOpcode06(void) {
     D_800A6524 = (void*)0x801A0000;
-    SysMoviePlay((void*)0x801A0000, *D_800A6528++);
+    SysMoviePlay((void*)0x801A0000, *g_endingScriptPc++);
     return 1;
 }
 
-s32 func_800A20D4(void) { return func_80034410() == 0; }
+s32 EndingOpcode07(void) { return func_80034410() == 0; }
 
-s32 func_800A20F8(void) {
+s32 EndingOpcode08(void) {
     u8 unused[8]; /* retail reserves it, nothing reads it */
 
-    SetGameResolution(
-        *D_800A6528++, *D_800A6528++, *D_800A6528++, *(u8*)D_800A6528++, *(u8*)D_800A6528++, *(u8*)D_800A6528++);
+    SetGameResolution(*g_endingScriptPc++, *g_endingScriptPc++, *g_endingScriptPc++, *(u8*)g_endingScriptPc++,
+                      *(u8*)g_endingScriptPc++, *(u8*)g_endingScriptPc++);
     StartFrame(0);
 
     return 1;
 }
 
-s32 func_800A2190(void) {
-    SetDispMask(*D_800A6528++);
+s32 EndingOpcode09(void) {
+    SetDispMask(*g_endingScriptPc++);
     return 1;
 }
 
-s32 func_800A21CC(void) {
+s32 EndingOpcode0A(void) {
     if (D_800A6390 != 0) {
-        D_800A63B0 = *D_800A6528++;
+        D_800A63B0 = *g_endingScriptPc++;
     } else {
-        D_800A6528++;
+        g_endingScriptPc++;
     }
 
     return --D_800A63B0 == 0;
 }
 
-s32 func_800A2248(void) {
-    func_800A32D8(func_800A3314(4));
+s32 EndingOpcode0C(void) {
+    EndingRemoveNodeFromList(EndingFindNodeById(4));
 
     return 1;
 }
 
-s32 func_800A2274(void) {
-    s32 count = *D_800A6528 + 1;
+s32 EndingOpcode0E(void) {
+    s32 count = *g_endingScriptPc + 1;
 
-    D_800A6528 -= count;
+    g_endingScriptPc -= count;
 
     return 1;
 }
 
-s32 func_800A22A4(void) {
-    D_800AF40C = *D_800A6528++;
+s32 EndingOpcode10(void) {
+    D_800AF40C = *g_endingScriptPc++;
     return 1;
 }
 
-s32 func_800A22D4(void) {
-    D_800AF410 = 0;
+s32 EndingOpcode13(void) {
+    g_endingInProgress = 0;
     return 1;
 }
 
-s32 func_800A22E4(void) {
-    *(s16*)((u8*)D_800A652C + (*D_800A6528++ * 136)) = 0;
+s32 EndingOpcode16(void) {
+    *(s16*)((u8*)g_endingSprites + (*g_endingScriptPc++ * 136)) = 0;
     return 1;
 }
 
-s32 func_800A2328(void) {
+s32 EndingOpcode18(void) {
     g_AkaoCmd.opcode = AKAO_PLAY_MUSIC;
-    g_AkaoCmd.params[0] = (u32)SysCdromGetPackPointer((void*)0x800D0000, *D_800A6528++);
+    g_AkaoCmd.params[0] = (u32)SysCdromGetPackPointer((void*)0x800D0000, *g_endingScriptPc++);
     AkaoExec();
 
     return 1;
 }
 
-s32 func_800A2380(void) {
-    g_AkaoCmd.opcode = *D_800A6528++;
-    g_AkaoCmd.params[0] = *D_800A6528++;
-    g_AkaoCmd.params[1] = *D_800A6528++;
+s32 EndingOpcode1A(void) {
+    g_AkaoCmd.opcode = *g_endingScriptPc++;
+    g_AkaoCmd.params[0] = *g_endingScriptPc++;
+    g_AkaoCmd.params[1] = *g_endingScriptPc++;
     AkaoExec();
 
     return 1;
 }
 
-s32 func_800A23F8(void) { return func_80034410() == 8; }
+s32 EndingOpcode19(void) { return func_80034410() == 8; }
 
-s32 func_800A2420(void) {
-    if (D_80075D00->unk8 >= *D_800A6528++) {
+s32 EndingOpcode1B(void) {
+    if (D_80075D00->unk8 >= *g_endingScriptPc++) {
         return 1;
     }
     return 0;
@@ -1274,7 +1273,7 @@ static s32 StartFrame(s32 sync) {
     return g_endingDbIndex;
 }
 
-static void func_800A2888(void* addr, s16* tpage, s16* clut) {
+static void EndingLoadTim(void* addr, s16* tpage, s16* clut) {
     TIM_IMAGE tim;
 
     OpenTIM(addr);
@@ -1374,24 +1373,24 @@ static s32 func_800A2FB8(EndingObj* obj, VECTOR* target, VECTOR* out, s32 scale)
     return 0;
 }
 
-static void func_800A310C(void) {
-    D_800AF3C8.id = 0;
-    D_800AF3C8.state = 1;
-    D_800AF3C8.prio = 0xFF;
-    D_800AF3C8.prev = NULL;
-    D_800AF3C8.next = &D_800AF3D8;
+static void EndingInitNodes(void) {
+    g_endingNode0.id = 0;
+    g_endingNode0.state = 1;
+    g_endingNode0.prio = 0xFF;
+    g_endingNode0.prev = NULL;
+    g_endingNode0.next = &g_endingNode1;
 
-    D_800AF3D8.id = 1;
-    D_800AF3D8.state = 1;
-    D_800AF3D8.prio = 0;
-    D_800AF3D8.prev = &D_800AF3C8;
-    D_800AF3D8.next = NULL;
+    g_endingNode1.id = 1;
+    g_endingNode1.state = 1;
+    g_endingNode1.prio = 0;
+    g_endingNode1.prev = &g_endingNode0;
+    g_endingNode1.next = NULL;
 }
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A3178);
+INCLUDE_ASM("asm/us/ending/nonmatchings/ending", EndingInsertNode);
 
 static void func_800A3210(void) {
-    EndingNode* node = D_800AF3C8.next;
+    EndingNode* node = g_endingNode0.next;
 
     while (node->next != NULL) {
         if (node->state == 4) {
@@ -1400,7 +1399,7 @@ static void func_800A3210(void) {
         node = node->next;
     }
 
-    node = D_800AF3C8.next;
+    node = g_endingNode0.next;
 
     while (node->next != NULL) {
         if (node->state == 2) {
@@ -1410,7 +1409,7 @@ static void func_800A3210(void) {
     }
 }
 
-static void func_800A32D8(EndingNode* node) {
+static void EndingRemoveNodeFromList(EndingNode* node) {
     EndingNode* prev = node->prev;
     EndingNode* next = node->next;
 
@@ -1424,8 +1423,8 @@ static void func_800A32FC(u8* arg0) { arg0[0xE] = 4; }
 
 void func_800A3308(u8* arg0) { arg0[0xE] = 0x10; }
 
-static EndingNode* func_800A3314(s16 id) {
-    EndingNode* node = D_800AF3C8.next;
+static EndingNode* EndingFindNodeById(s16 id) {
+    EndingNode* node = g_endingNode0.next;
 
     while (node->next != NULL) {
         if (node->id == id) {

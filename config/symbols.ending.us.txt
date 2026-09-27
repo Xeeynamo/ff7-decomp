@@ -1,4 +1,10 @@
 func_8003A08C = 0x8003A08C; // ignore:true
 ENDING_SceaLoop = 0x800A0030;
 ENDING_Loop = 0x800A04C4;
+EndingOpcode15 = 0x800A14BC; // type:func
+EndingOpcode1C = 0x800A17C0; // type:func
+EndingOpcode1D = 0x800A19A4; // type:func
+EndingOpcode01 = 0x800A1EEC; // type:func
+EndingOpcode02 = 0x800A1F48; // type:func
+EndingInsertNode = 0x800A3178; // type:func
 D_800A652C = 0x800A652C; // size:0x1100
