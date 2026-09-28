@@ -49,7 +49,57 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmUpdatePacketForModelPartWithou
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmCalculateBoneMatrixes);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmScaleModelAll);
+void WmScaleModelAll(FieldModelEntry* model, s16 scale, s32 force) {
+    MATRIX* m;
+    SVECTOR* tmp;
+    VECTOR* out;
+    FieldModelPart* parts;
+    FieldModelAnimation* anims;
+    s32* raw;
+    u8* data;
+    u32 i;
+    s32 count;
+
+    tmp = (SVECTOR*)0x1F800020;
+    out = (VECTOR*)0x1F800028;
+    m = (MATRIX*)0x1F800000;
+    parts = (FieldModelPart*)(model->partsOffset + (s32)model->modelData);
+    count = model->partCount;
+    for (i = 0; i < count; i++) {
+        WmScaleModelVertexes(&parts[i], scale, force);
+    }
+    m->m[2][2] = m->m[1][1] = m->m[0][0] = scale;
+    m->t[0] = m->t[1] = m->t[2] = 0;
+    m->m[0][1] = m->m[0][2] = m->m[1][0] = m->m[1][2] = m->m[2][0] = m->m[2][1] = 0;
+    gte_SetRotMatrix(m);
+    gte_SetTransMatrix(m);
+    data = model->modelData;
+    count = (u8)(model->boneCount / 3);
+    raw = (s32*)data;
+    for (i = 0; i < count; i++) {
+        tmp->vx = *(u16*)&raw[i * 3];
+        tmp->vy = *(u16*)&raw[i * 3 + 1];
+        tmp->vz = *(u16*)&raw[i * 3 + 2];
+        gte_ldv0(tmp);
+        gte_rt();
+        gte_stlvnl(out);
+        *(s16*)&raw[i * 3] = *(u16*)&out->vx;
+        *(s16*)&raw[i * 3 + 1] = *(u16*)&out->vy;
+        *(s16*)&raw[i * 3 + 2] = *(u16*)&out->vz;
+    }
+    for (i = count * 3; i < model->boneCount; i++) {
+        tmp->vx = *(u16*)&raw[i];
+        gte_ldv0(tmp);
+        gte_rt();
+        gte_stlvnl(out);
+        *(s16*)&raw[i] = *(u16*)&out->vx;
+    }
+    anims = (FieldModelAnimation*)(model->animationOffset + (s32)model->modelData);
+    count = model->animationCount;
+    for (i = 0; i < count; i++) {
+        WmScaleModelAnimations(&anims[i], scale, force);
+    }
+}
 
 void WmScaleModelVertexes(FieldModelPart* part, s16 scale, s32 force) {
     MATRIX* m;
