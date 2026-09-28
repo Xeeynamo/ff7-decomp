@@ -230,12 +230,12 @@ static s16 JetObjectAlloc(JetObject* spawn, s16 parentIndex) {
         maxZ = g_JetModelInfo[modelId].boundsMax.vz;
         boxPool = g_JetObjects;
         box = &boxPool[index];
-        setVector(&box->unkDC[0], (maxX + minX) >> 1, (maxY + minY) >> 1, maxZ);
-        setVector(&box->unkDC[1], (maxX + minX) >> 1, (maxY + minY) >> 1, minZ);
-        setVector(&box->unkDC[2], (maxX + minX) >> 1, maxY, (maxZ + minZ) >> 1);
-        setVector(&box->unkDC[3], (maxX + minX) >> 1, minY, (maxZ + minZ) >> 1);
-        setVector(&box->unkDC[4], maxX, (maxY + minY) >> 1, (maxZ + minZ) >> 1);
-        setVector(&box->unkDC[5], minX, (maxY + minY) >> 1, (maxZ + minZ) >> 1);
+        setVector(&box->boxFaceCentres[0], (maxX + minX) >> 1, (maxY + minY) >> 1, maxZ);
+        setVector(&box->boxFaceCentres[1], (maxX + minX) >> 1, (maxY + minY) >> 1, minZ);
+        setVector(&box->boxFaceCentres[2], (maxX + minX) >> 1, maxY, (maxZ + minZ) >> 1);
+        setVector(&box->boxFaceCentres[3], (maxX + minX) >> 1, minY, (maxZ + minZ) >> 1);
+        setVector(&box->boxFaceCentres[4], maxX, (maxY + minY) >> 1, (maxZ + minZ) >> 1);
+        setVector(&box->boxFaceCentres[5], minX, (maxY + minY) >> 1, (maxZ + minZ) >> 1);
     }
     return index;
 }

@@ -1,4 +1,4 @@
-//! PSYQ=3.3 FORCE_MEM=true
+//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true
 
 #include "jet_private.h"
 #include <libc.h>
@@ -22,19 +22,17 @@ typedef struct {
 } JetListLink; // size: 0x4
 
 extern u8 g_JetSfxChannel;
-extern s32 D_800A8A84;
+extern volatile s32 D_800A8A84;
 extern void* D_800A891C;
 extern void* D_800A8920;
 extern s32 g_JetTrackSegmentsCrossed;
-extern s16 D_800A8960;
-extern s16 D_800A896C;
-extern s16 D_800A8974;
-extern s16 D_800A8980;
+extern s16 g_JetBeam0Vertex2X;
+extern s16 g_JetBeam0Vertex2Y;
+extern s16 g_JetBeam1Vertex2X;
+extern s16 g_JetBeam1Vertex2Y;
 extern SVECTOR* g_JetTrackPath;
-extern struct {
-    s32 near;
-    s32 far;
-} g_JetFog;
+extern s32 g_JetFogNear;
+extern s32 g_JetFogFar;
 extern u16 g_JetTrackListHead;
 extern s32 g_JetLaserPitch;
 extern u_long* g_JetTexAdr[10]; // TEXADR.BIN: TIM pointers into TEX.BIN
@@ -64,7 +62,7 @@ extern u16 g_JetTriangleListTail;
 extern DR_MODE D_800D9934;
 extern JetListLink g_JetTrackLinks[9000];
 extern u8 g_JetInitialTrackSegmentPending;
-extern s32 D_800E25FC;
+extern volatile s32 D_800E25FC;
 extern s32* g_JetTrackPathLengths;
 extern JetListLink g_JetTriangleLinks[12000];
 extern u16* g_JetTrackRemoveCursor;
@@ -141,41 +139,36 @@ u16 MINI_Jet(void) {
     s32 unused[2];
     JetBuffer* next;
     JetBuffer* current;
-    s32* speed;
-    volatile s32* ptr;
-    SVECTOR** path;
 
     JetInitialize();
     SetDrawMode(&D_800D9934, 0, 1, GetTPage(1, 1, 768, 0) & 0xFFFF, NULL);
     g_JetTrackRot = g_JetXbinAdr.trackRotations;
     JetTrackPathLoad(0, 0);
-    path = &g_JetTrackPath;
-    g_JetTrackLeft = *path;
+    g_JetTrackLeft = g_JetTrackPath;
     JetTrackPathLoad(1, 0);
-    g_JetTrackRight = *path;
+    g_JetTrackRight = g_JetTrackPath;
     JetAudioInit();
-    SetFogNearFar(g_JetFog.near, g_JetFog.far, 256);
+    SetFogNearFar(g_JetFogNear, g_JetFogFar, 256);
     g_JetPopupNode[0] = JetNodeAlloc(30, 0, 0, 1, &g_JetRootNode, 1200, 50, 3000, 0, 1000, 0);
     for (;;) {
-        speed = &g_JetSpeed;
         if ((g_JetTrackSegment * 4) > (g_JetTrackPathLength - 0x10) || g_JetExit == 1) {
             break;
         }
         JetInputUpdate();
         if (g_JetPaused == 0) {
             JetCameraUpdate();
-            JetTrackListsAdvance(*speed);
+            JetTrackListsAdvance(g_JetSpeed);
             JetSetWorldMatrix();
             JetDrawTrack();
             JetDrawTriangleList();
             JetDrawScorePopup(g_JetBufferPtr[0], g_JetPopupModelId, 5, 40, 0);
-            JetTrackListsClean(*speed);
+            JetTrackListsClean(g_JetSpeed);
             JetObjectsUpdate(g_JetBufferPtr[0]);
             JetDrawNumber(g_JetScore, 244, 200, 0, 0);
             JetDrawSprite(7, 204, 200, 39, 17, 0, 0, 0x27, 0x11, 0);
             JetDrawSprite(11, 18, 86, 12, 140, 0, 0x70, 0xC, 0x8C, 0);
             JetDrawEnergyGauge();
-            if (*speed < 16384) {
+            if (g_JetSpeed < 16384) {
                 D_800A8338 = 0;
             } else {
                 D_800A8338 = AKAO_VOL_MAX;
@@ -200,8 +193,7 @@ u16 MINI_Jet(void) {
         }
         next = g_JetBuffers;
         current = g_JetBufferPtr[0];
-        ptr = &D_800E25FC;
-        *ptr = 0;
+        D_800E25FC = 0;
         if (current == next) {
             next++;
         }
@@ -221,18 +213,14 @@ void JetDrawObjectAndCheckHit(JetBuffer* db, JetNode* node, s16 otIndex, s32 unu
     JetModelDrawArgs args;
     s16 xs[6];
     s16 ys[6];
-    MATRIX** world;
     MATRIX* m;
-    MATRIX* wm;
-    MATRIX* cam;
     s16 minX;
     s16 maxX;
     s16 minY;
     s16 maxY;
     s16 i;
 
-    world = &g_JetWorldMatrix;
-    m = world[0];
+    m = g_JetWorldMatrix;
     m->m[0][0] = node->m.m[0][0];
     m->m[0][1] = node->m.m[0][1];
     m->m[0][2] = node->m.m[0][2];
@@ -248,42 +236,40 @@ void JetDrawObjectAndCheckHit(JetBuffer* db, JetNode* node, s16 otIndex, s32 unu
     if (node->parent != &g_JetRootNode) {
         CompMatrix(&node->parent->m, m, m);
     }
-    wm = world[0];
-    wm->t[0] -= g_JetCameraPos.vx;
-    wm->t[1] -= g_JetCameraPos.vy;
-    wm->t[2] -= g_JetCameraPos.vz;
-    cam = &g_JetCameraRot;
-    gte_SetRotMatrix(cam);
-    gte_ldclmv(&world[0]->m[0][0]);
+    g_JetWorldMatrix->t[0] -= g_JetCameraPos.vx;
+    g_JetWorldMatrix->t[1] -= g_JetCameraPos.vy;
+    g_JetWorldMatrix->t[2] -= g_JetCameraPos.vz;
+    gte_SetRotMatrix(&g_JetCameraRot);
+    gte_ldclmv(&g_JetWorldMatrix->m[0][0]);
     gte_rtir();
-    gte_stclmv(&world[0]->m[0][0]);
-    gte_ldclmv(&world[0]->m[0][1]);
+    gte_stclmv(&g_JetWorldMatrix->m[0][0]);
+    gte_ldclmv(&g_JetWorldMatrix->m[0][1]);
     gte_rtir();
-    gte_stclmv(&world[0]->m[0][1]);
-    gte_ldclmv(&world[0]->m[0][2]);
+    gte_stclmv(&g_JetWorldMatrix->m[0][1]);
+    gte_ldclmv(&g_JetWorldMatrix->m[0][2]);
     gte_rtir();
-    gte_stclmv(&world[0]->m[0][2]);
-    gte_SetTransMatrix(cam);
-    gte_ldlv0(&world[0]->t[0]);
+    gte_stclmv(&g_JetWorldMatrix->m[0][2]);
+    gte_SetTransMatrix(&g_JetCameraRot);
+    gte_ldlv0(&g_JetWorldMatrix->t[0]);
     gte_rt();
-    gte_stlvl(&world[0]->t[0]);
-    gte_SetRotMatrix(world[0]);
-    gte_SetTransMatrix(world[0]);
+    gte_stlvl(&g_JetWorldMatrix->t[0]);
+    gte_SetRotMatrix(g_JetWorldMatrix);
+    gte_SetTransMatrix(g_JetWorldMatrix);
     args.tris = node->model->tris;
     args.prim = db->prims.g3Cursor;
     args.ot = &db->ot[otIndex];
     args.model = node->model;
     db->prims.g3Cursor = JetDrawModelTris(&args);
-    JetProject6Points(object->unkDC, object->unk11C);
-    ys[0] = object->unk11C[0] >> 16;
+    JetProject6Points(object->boxFaceCentres, object->boxFaceScreenXY);
+    ys[0] = object->boxFaceScreenXY[0] >> 16;
     minY = ys[0];
     maxY = minY;
-    xs[0] = object->unk11C[0];
+    xs[0] = object->boxFaceScreenXY[0];
     minX = xs[0];
     maxX = minX;
-    for (i = 1; i < LEN(object->unk11C); i++) {
-        ys[i] = (object->unk11C[i] & 0xFFFF0000) >> 16;
-        xs[i] = object->unk11C[i];
+    for (i = 1; i < LEN(object->boxFaceScreenXY); i++) {
+        ys[i] = (object->boxFaceScreenXY[i] & 0xFFFF0000) >> 16;
+        xs[i] = object->boxFaceScreenXY[i];
         if (minX > xs[i]) {
             minX = xs[i];
         }
@@ -310,82 +296,9 @@ void JetDrawCartAndProjectBeams(JetBuffer* db, JetNode* node, s16 otIndex, s32 u
     JetModelDrawArgs args;
     MATRIX unused;
     u_long screen[12];
-    MATRIX** world;
-    MATRIX* m;
-    MATRIX* wm;
-    MATRIX* cam;
-    JetModel** shadow;
-    u_long xy1;
-    u_long xy2;
-    s32 index;
-
-    world = &g_JetWorldMatrix;
-    m = world[0];
-    index = 0;
-    m->m[0][0] = node->m.m[index][index];
-    m->m[index][1] = node->m.m[index][1];
-    m->m[index][2] = node->m.m[index][2];
-    m->m[1][index] = node->m.m[1][index];
-    m->m[1][1] = node->m.m[1][1];
-    m->m[1][2] = node->m.m[1][2];
-    m->m[2][index] = node->m.m[2][index];
-    m->m[2][1] = node->m.m[2][1];
-    m->m[2][2] = node->m.m[2][2];
-    m->t[index] = node->m.t[index];
-    m->t[1] = node->m.t[1];
-    m->t[2] = node->m.t[2];
-    if (node->parent != &g_JetRootNode) {
-        CompMatrix(&node->parent->m, m, m);
-    }
-    wm = world[index];
-    wm->t[index] -= g_JetCameraPos.vx;
-    wm->t[1] -= g_JetCameraPos.vy;
-    wm->t[2] -= g_JetCameraPos.vz;
-    cam = &g_JetCameraRot;
-    gte_SetRotMatrix(cam);
-    gte_ldclmv(&world[0]->m[0][0]);
-    gte_rtir();
-    gte_stclmv(&world[0]->m[0][0]);
-    gte_ldclmv(&world[0]->m[0][1]);
-    gte_rtir();
-    gte_stclmv(&world[0]->m[0][1]);
-    gte_ldclmv(&world[0]->m[0][2]);
-    gte_rtir();
-    gte_stclmv(&world[0]->m[0][2]);
-    gte_SetTransMatrix(cam);
-    gte_ldlv0(&world[0]->t[0]);
-    gte_rt();
-    gte_stlvl(&world[0]->t[0]);
-    gte_SetRotMatrix(world[0]);
-    gte_SetTransMatrix(world[0]);
-    args.tris = node->model->tris;
-    args.prim = db->prims.g3Cursor;
-    args.ot = &db->ot2[otIndex];
-    args.model = node->model;
-    db->prims.g3Cursor = JetDrawModelTris(&args);
-    shadow = &g_JetModelTable[79];
-    JetProject3Points(&shadow[index]->tris[0].v0, screen);
-    g_JetBeam0OriginY = screen[1] >> 16;
-    g_JetBeam0OriginX = screen[1];
-    D_800A896C = screen[2] >> 16;
-    D_800A8960 = screen[2];
-    JetProject3Points(&shadow[index]->tris[1].v0, screen);
-    xy1 = screen[1];
-    xy2 = screen[2];
-    g_JetBeam1OriginY = xy1 >> 16;
-    g_JetBeam1OriginX = xy1;
-    D_800A8980 = xy2 >> 16;
-    D_800A8974 = xy2;
-}
-
-// Load a node's matrix into the GTE and draw its model's triangles.
-static void JetDrawNodeUI(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, s32 arg4) {
-    JetModelDrawArgs args;
-    MATRIX** world;
     MATRIX* m;
 
-    world = &g_JetWorldMatrix;
-    m = world[0];
+    m = g_JetWorldMatrix;
     m->m[0][0] = node->m.m[0][0];
     m->m[0][1] = node->m.m[0][1];
     m->m[0][2] = node->m.m[0][2];
@@ -398,8 +311,65 @@ static void JetDrawNodeUI(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, s
     m->t[0] = node->m.t[0];
     m->t[1] = node->m.t[1];
     m->t[2] = node->m.t[2];
-    gte_SetRotMatrix(world[0]);
-    gte_SetTransMatrix(world[0]);
+    if (node->parent != &g_JetRootNode) {
+        CompMatrix(&node->parent->m, m, m);
+    }
+    g_JetWorldMatrix->t[0] -= g_JetCameraPos.vx;
+    g_JetWorldMatrix->t[1] -= g_JetCameraPos.vy;
+    g_JetWorldMatrix->t[2] -= g_JetCameraPos.vz;
+    gte_SetRotMatrix(&g_JetCameraRot);
+    gte_ldclmv(&g_JetWorldMatrix->m[0][0]);
+    gte_rtir();
+    gte_stclmv(&g_JetWorldMatrix->m[0][0]);
+    gte_ldclmv(&g_JetWorldMatrix->m[0][1]);
+    gte_rtir();
+    gte_stclmv(&g_JetWorldMatrix->m[0][1]);
+    gte_ldclmv(&g_JetWorldMatrix->m[0][2]);
+    gte_rtir();
+    gte_stclmv(&g_JetWorldMatrix->m[0][2]);
+    gte_SetTransMatrix(&g_JetCameraRot);
+    gte_ldlv0(&g_JetWorldMatrix->t[0]);
+    gte_rt();
+    gte_stlvl(&g_JetWorldMatrix->t[0]);
+    gte_SetRotMatrix(g_JetWorldMatrix);
+    gte_SetTransMatrix(g_JetWorldMatrix);
+    args.tris = node->model->tris;
+    args.prim = db->prims.g3Cursor;
+    args.ot = &db->ot2[otIndex];
+    args.model = node->model;
+    db->prims.g3Cursor = JetDrawModelTris(&args);
+    JetProject3Points(&g_JetModelTable[79]->tris[0].v0, screen);
+    g_JetBeam0OriginY = screen[1] >> 16;
+    g_JetBeam0OriginX = screen[1];
+    g_JetBeam0Vertex2Y = screen[2] >> 16;
+    g_JetBeam0Vertex2X = screen[2];
+    JetProject3Points(&g_JetModelTable[79]->tris[1].v0, screen);
+    g_JetBeam1OriginY = screen[1] >> 16;
+    g_JetBeam1OriginX = screen[1];
+    g_JetBeam1Vertex2Y = screen[2] >> 16;
+    g_JetBeam1Vertex2X = screen[2];
+}
+
+// Load a node's matrix into the GTE and draw its model's triangles.
+static void JetDrawNodeUI(JetBuffer* db, JetNode* node, s16 otIndex, s32 arg3, s32 arg4) {
+    JetModelDrawArgs args;
+    MATRIX* m;
+
+    m = g_JetWorldMatrix;
+    m->m[0][0] = node->m.m[0][0];
+    m->m[0][1] = node->m.m[0][1];
+    m->m[0][2] = node->m.m[0][2];
+    m->m[1][0] = node->m.m[1][0];
+    m->m[1][1] = node->m.m[1][1];
+    m->m[1][2] = node->m.m[1][2];
+    m->m[2][0] = node->m.m[2][0];
+    m->m[2][1] = node->m.m[2][1];
+    m->m[2][2] = node->m.m[2][2];
+    m->t[0] = node->m.t[0];
+    m->t[1] = node->m.t[1];
+    m->t[2] = node->m.t[2];
+    gte_SetRotMatrix(g_JetWorldMatrix);
+    gte_SetTransMatrix(g_JetWorldMatrix);
     args.tris = node->model->tris;
     args.prim = db->prims.g3Cursor;
     args.ot = &db->ot2[otIndex];
@@ -429,54 +399,40 @@ static void JetDrawTriangleList(void) {
 
 // Draw every track element on the draw list, front to back.
 static void JetDrawTrack(void) {
-    JetListLink* list;
-    SVECTOR* left;
-    SVECTOR* right;
     u16 trackId;
     POLY_FT4* prim;
 
     trackId = g_JetTrackListHead;
     prim = g_JetBufferPtr[0]->prims.ft4Cursor;
-    list = g_JetTrackLinks;
-loop:
-    left = g_JetTrackLeft;
-    right = g_JetTrackRight;
-    prim = JetDrawTrackQuad(&left[trackId], prim, g_JetBufferPtr[0]->ot, &right[trackId]);
-    trackId = list[trackId].next;
-    if (trackId != JET_LIST_END) {
-        goto loop;
-    }
+    do {
+        prim = JetDrawTrackQuad(&g_JetTrackLeft[trackId], prim, g_JetBufferPtr[0]->ot, &g_JetTrackRight[trackId]);
+        trackId = g_JetTrackLinks[trackId].next;
+    } while (trackId != JET_LIST_END);
     g_JetBufferPtr[0]->prims.ft4Cursor = prim;
 }
 
 // Build the world matrix from the camera rotation and the view position.
 static void JetSetWorldMatrix(void) {
-    MATRIX** view;
-    MATRIX** world;
-    MATRIX* cam;
 
-    view = &g_JetViewMatrix;
-    view[0]->t[0] = -g_JetCameraPos.vx;
-    view[0]->t[1] = -g_JetCameraPos.vy;
-    view[0]->t[2] = -g_JetCameraPos.vz;
-    cam = &g_JetCameraRot;
-    gte_SetRotMatrix(cam);
-    gte_ldclmv(&view[0]->m[0][0]);
+    g_JetViewMatrix->t[0] = -g_JetCameraPos.vx;
+    g_JetViewMatrix->t[1] = -g_JetCameraPos.vy;
+    g_JetViewMatrix->t[2] = -g_JetCameraPos.vz;
+    gte_SetRotMatrix(&g_JetCameraRot);
+    gte_ldclmv(&g_JetViewMatrix->m[0][0]);
     gte_rtir();
-    world = &g_JetWorldMatrix;
-    gte_stclmv(&world[0]->m[0][0]);
-    gte_ldclmv(&view[0]->m[0][1]);
+    gte_stclmv(&g_JetWorldMatrix->m[0][0]);
+    gte_ldclmv(&g_JetViewMatrix->m[0][1]);
     gte_rtir();
-    gte_stclmv(&world[0]->m[0][1]);
-    gte_ldclmv(&view[0]->m[0][2]);
+    gte_stclmv(&g_JetWorldMatrix->m[0][1]);
+    gte_ldclmv(&g_JetViewMatrix->m[0][2]);
     gte_rtir();
-    gte_stclmv(&world[0]->m[0][2]);
-    gte_SetTransMatrix(cam);
-    gte_ldlv0(&view[0]->t[0]);
+    gte_stclmv(&g_JetWorldMatrix->m[0][2]);
+    gte_SetTransMatrix(&g_JetCameraRot);
+    gte_ldlv0(&g_JetViewMatrix->t[0]);
     gte_rt();
-    gte_stlvl(&world[0]->t[0]);
-    gte_SetRotMatrix(world[0]);
-    gte_SetTransMatrix(world[0]);
+    gte_stlvl(&g_JetWorldMatrix->t[0]);
+    gte_SetRotMatrix(g_JetWorldMatrix);
+    gte_SetTransMatrix(g_JetWorldMatrix);
 }
 
 void JetTrackSample(u32 trackPosition, s32 heightOffset, VECTOR* position, SVECTOR* rotation) {
@@ -608,34 +564,26 @@ static void JetDrawEnergyGauge(void) {
 
 // Spin and draw the score model, alternating it with the title every so often.
 static void JetDrawScorePopup(JetBuffer* db, s16 modelId, s32 rotationX, s32 rotationY, s32 rotationZ) {
-    JetNode* node;
-    u8* alternate;
-    s16* counter;
-    s32 index;
     s32 unused;
 
-    if (modelId == 0 || modelId == 0x5B) {
+    if (modelId == 0 || modelId == 91) {
         return;
     }
-    alternate = &g_JetScorePopupAlternate;
-    index = 0;
-    node = g_JetPopupNode[index];
-    node->model = g_JetModelTable[modelId];
+    g_JetPopupNode[0]->model = g_JetModelTable[modelId];
     g_JetPopupRot.vx += rotationX;
     g_JetPopupRot.vy += rotationY;
     g_JetPopupRot.vz += rotationZ;
-    if (alternate[0] == 1) {
-        RotMatrix(&g_JetPopupRot, &g_JetPopupNode[index]->m);
-        JetDrawNodeUI(db, g_JetPopupNode[index], 0, 0, unused);
+    if (g_JetScorePopupAlternate == 1) {
+        RotMatrix(&g_JetPopupRot, &g_JetPopupNode[0]->m);
+        JetDrawNodeUI(db, g_JetPopupNode[0], 0, 0, unused);
         JetDrawNumber(g_JetPopupPoints, 220, 160, 0, 0x18);
     }
-    counter = &g_JetPopupTimer;
-    (*counter)--;
-    if (*counter < 50) {
-        if (alternate[0] == 0) {
-            alternate[0] = 1;
+    g_JetPopupTimer--;
+    if (g_JetPopupTimer < 50) {
+        if (g_JetScorePopupAlternate == 0) {
+            g_JetScorePopupAlternate = 1;
         } else {
-            alternate[0] = 0;
+            g_JetScorePopupAlternate = 0;
         }
     }
     if (g_JetPopupTimer == 0) {
@@ -736,11 +684,9 @@ static void JetQueueTPageResets(void) {
 
 // Point every matrix and vector at scratchpad, then build the world.
 static void JetInitialize(void) {
-    volatile s32* state;
     s32 i;
 
-    state = &D_800A8A84;
-    *state = 0;
+    D_800A8A84 = 0;
     D_80110BB8 = (void*)0x1F800000;
     D_800D16D4 = (void*)0x1F800000;
     g_JetPaused = 0;
@@ -761,7 +707,7 @@ static void JetInitialize(void) {
     g_JetViewMatrix->m[2][2] = 0x1000;
     JetBuffersInit();
     JetLoadAssets();
-    *state = 0x99;
+    D_800A8A84 = 0x99;
     JetDrawListsInit();
     JetNodesInit();
     JetModelsReset();
@@ -772,8 +718,8 @@ static void JetInitialize(void) {
         g_JetModelTable[i] = JetModelBuild(i);
     }
     g_JetSpeed = 10000;
-    g_JetFog.near = 10410;
-    g_JetFog.far = 14300;
+    g_JetFogNear = 10410;
+    g_JetFogFar = 14300;
     g_JetTrackSegment = 0;
     g_JetCameraPathPos = 0;
     g_JetScore = 0;
@@ -908,13 +854,8 @@ void JetAudioFadeOut(void) {
 
 // Alternate the two laser channels on each shot.
 void JetPlaySfx(s16 soundId) {
-    u8* pChannel;
-    s32 channel;
-
-    pChannel = &g_JetSfxChannel;
-    channel = (*pChannel + 1) & 1;
-    *pChannel = channel;
-    if (channel == 0) {
+    g_JetSfxChannel = (g_JetSfxChannel + 1) & 1;
+    if (g_JetSfxChannel == 0) {
         g_AkaoCmd.opcode = AKAO_SET_PITCH_SLOT2;
         g_AkaoCmd.params[0] = 0;
         AkaoExec();
@@ -923,7 +864,7 @@ void JetPlaySfx(s16 soundId) {
         g_AkaoCmd.params[1] = soundId;
         AkaoExec();
     }
-    if (*pChannel == 1) {
+    if (g_JetSfxChannel == 1) {
         g_AkaoCmd.opcode = AKAO_SET_PITCH_SLOT1;
         g_AkaoCmd.params[0] = 0;
         AkaoExec();
@@ -935,32 +876,18 @@ void JetPlaySfx(s16 soundId) {
 }
 
 static void JetUpdateLaserSfx(s32 power) {
-    s32* lastPitch;
-    s32 param;
-
-    lastPitch = &g_JetLaserPitch;
-    if (*lastPitch == 0) {
-        if (power & 0xFF) {
-            g_AkaoCmd.opcode = AKAO_PLAY_SLOT3;
-            g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
-            g_AkaoCmd.params[1] = SFX_22B;
-            AkaoExec();
-        } else {
-            g_AkaoCmd.opcode = AKAO_PLAY_SLOT3;
-            g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
-            g_AkaoCmd.params[1] = SFX_NULL;
-            AkaoExec();
-            g_JetLaserPitch = 0;
-            return;
-        }
-    }
-    param = power & 0xFF;
-    if (param) {
-        g_JetLaserVolume = param;
-        g_AkaoCmd.opcode = AKAO_SET_PITCH_SLOT3;
-        g_AkaoCmd.params[0] = param;
+    if (g_JetLaserPitch == 0 && (power & 0xFF)) {
+        g_AkaoCmd.opcode = AKAO_PLAY_SLOT3;
+        g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
+        g_AkaoCmd.params[1] = SFX_22B;
         AkaoExec();
-        *lastPitch = param;
+    }
+    if (power & 0xFF) {
+        g_JetLaserVolume = power & 0xFF;
+        g_AkaoCmd.opcode = AKAO_SET_PITCH_SLOT3;
+        g_AkaoCmd.params[0] = power & 0xFF;
+        AkaoExec();
+        g_JetLaserPitch = power & 0xFF;
     } else {
         g_AkaoCmd.opcode = AKAO_PLAY_SLOT3;
         g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
@@ -994,15 +921,10 @@ static void JetCameraUpdate(void) {
     VECTOR pos;
     SVECTOR rot;
     SVECTOR camRot;
-    s32* pathPos;
-    s32* speed;
-    s32* limit;
     s32 step;
 
-    pathPos = &g_JetCameraPathPos;
-    JetTrackSample(pathPos[0], -0x64, &pos, &rot);
-    speed = &g_JetSpeed;
-    pathPos[0] += speed[0];
+    JetTrackSample(g_JetCameraPathPos, -0x64, &pos, &rot);
+    g_JetCameraPathPos += g_JetSpeed;
     g_JetCameraPosCopy.vx = pos.vx;
     g_JetCameraPosCopy.vy = pos.vy;
     g_JetCameraPosCopy.vz = pos.vz;
@@ -1012,14 +934,13 @@ static void JetCameraUpdate(void) {
     g_JetCameraRoll.vz = -rot.vz;
     step = rsin(rot.vx) / 15;
     if (step > 0) {
-        if (speed[0] > 43000) {
-            speed[0] -= step;
+        if (g_JetSpeed > 43000) {
+            g_JetSpeed -= step;
         }
     }
     if (step < 0) {
-        limit = &g_JetSpeed;
-        if (limit[0] <= 119999) {
-            limit[0] -= step;
+        if (g_JetSpeed <= 119999) {
+            g_JetSpeed -= step;
         }
     }
     g_JetCameraPos.vx = pos.vx;
@@ -1048,130 +969,98 @@ static void func_800A2E30(void) {}
 // Read the pad and drive the cursor, the camera tweaks and the pause toggle.
 static void JetInputUpdate(void) {
     u32 pad;
-    s32* dir;
-    s16* cursorX;
-    s16* cursorY;
-    u8* shoot;
-    s16* power;
-    s16* powerRegen;
-    u8* repeat;
-    u8* scroll;
-    s32* speed;
-    s32* brake;
-    s32* held;
-    u8* paused;
-    u8 next;
-    VECTOR* cam;
-    s32 count;
 
     pad = InputReadPadsRaw(1);
     if (g_JetPaused == 0) {
-        dir = &g_JetPadDir;
-        *dir = 0;
+        g_JetPadDir = 0;
         D_800A8A7C = 0;
         if (pad & PADLleft) {
-            *dir = 4;
+            g_JetPadDir = 4;
         }
         if (pad & PADLright) {
-            *dir = 6;
+            g_JetPadDir = 6;
         }
         if (pad & PADLup) {
-            *dir = 8;
+            g_JetPadDir = 8;
             if (pad & PADLleft) {
-                *dir = 7;
+                g_JetPadDir = 7;
             }
             if (pad & PADLright) {
-                *dir = 9;
+                g_JetPadDir = 9;
             }
         }
         if (pad & PADLdown) {
-            dir = &g_JetPadDir;
-            *dir = 2;
+            g_JetPadDir = 2;
             if (pad & PADLleft) {
-                *dir = 1;
+                g_JetPadDir = 1;
             }
             if (pad & PADLright) {
-                *dir = 3;
+                g_JetPadDir = 3;
             }
         }
         if (g_JetAimMode == 1) {
             if (pad & PADLdown) {
-                cursorY = &g_JetCursorY;
-                *cursorY += 5;
+                g_JetCursorY += 5;
             }
             if (pad & PADLup) {
-                cursorY = &g_JetCursorY;
-                *cursorY -= 5;
+                g_JetCursorY -= 5;
             }
             if (pad & PADLleft) {
-                cursorX = &g_JetCursorX;
-                *cursorX -= 5;
+                g_JetCursorX -= 5;
             }
             if (pad & PADLright) {
-                cursorX = &g_JetCursorX;
-                *cursorX += 5;
+                g_JetCursorX += 5;
             }
-            shoot = &g_JetFiring;
-            *shoot = 0;
+            g_JetFiring = 0;
             if (pad & PADRright) {
-                power = &g_JetShotPower;
-                JetUpdateLaserSfx(*power & 0xFF);
-                if (*power >= 9) {
-                    (*power)--;
+                JetUpdateLaserSfx(g_JetShotPower & 0xFF);
+                if (g_JetShotPower >= 9) {
+                    g_JetShotPower--;
                 }
-                repeat = &g_JetShotRepeatCounter;
-                count = *repeat;
-                if (count == 0) {
-                    scroll = &g_JetBeamScroll;
-                    next = *scroll + 3;
-                    *repeat = 1;
-                    *shoot = 1;
-                    *scroll = next % 15;
+                if (g_JetShotRepeatCounter == 0) {
+                    g_JetShotRepeatCounter = 1;
+                    g_JetFiring = 1;
+                    g_JetBeamScroll = (u8)(g_JetBeamScroll + 3) % 15;
                 } else {
-                    *repeat = count - 1;
+                    g_JetShotRepeatCounter--;
                 }
             } else {
                 JetUpdateLaserSfx(0);
-                powerRegen = &g_JetShotPower;
-                if (*powerRegen < 128) {
-                    (*powerRegen)++;
+                if (g_JetShotPower < 128) {
+                    g_JetShotPower++;
                 }
             }
-            cursorX = &g_JetCursorX;
-            if (*cursorX > 320) {
-                *cursorX = 320;
+            if (g_JetCursorX > 320) {
+                g_JetCursorX = 320;
             }
-            if (*cursorX < 0) {
-                *cursorX = 0;
+            if (g_JetCursorX < 0) {
+                g_JetCursorX = 0;
             }
-            cursorY = &g_JetCursorY;
-            if (*cursorY > 240) {
-                *cursorY = 240;
+            if (g_JetCursorY > 240) {
+                g_JetCursorY = 240;
             }
-            if (*cursorY < 0) {
-                *cursorY = 0;
+            if (g_JetCursorY < 0) {
+                g_JetCursorY = 0;
             }
         }
         if (g_JetAimMode == 0) {
             if (pad & PADLdown) {
-                g_JetFog.far -= 10;
+                g_JetFogFar -= 10;
             }
             if (pad & PADLup) {
-                g_JetFog.far += 10;
+                g_JetFogFar += 10;
             }
             if (pad & PADLleft) {
-                g_JetFog.near -= 10;
+                g_JetFogNear -= 10;
             }
             if (pad & PADLright) {
-                g_JetFog.near += 10;
+                g_JetFogNear += 10;
             }
             if (pad & PADRdown) {
-                cam = &D_800A83D8;
-                cam->vz -= 100;
+                D_800A83D8.vz -= 100;
             }
             if (pad & PADRup) {
-                cam = &D_800A83D8;
-                cam->vz += 100;
+                D_800A83D8.vz += 100;
             }
             if (pad & PADRleft) {
                 D_800A83D8.vx -= 100;
@@ -1180,21 +1069,17 @@ static void JetInputUpdate(void) {
                 D_800A83D8.vx += 100;
             }
             if (pad & PADR1) {
-                cam = &D_800A83D8;
-                cam->vy -= 100;
+                D_800A83D8.vy -= 100;
             }
             if (pad & PADR2) {
-                cam = &D_800A83D8;
-                cam->vy += 100;
+                D_800A83D8.vy += 100;
             }
             if (pad & PADL1) {
-                speed = &g_JetSpeed;
-                *speed += 1024;
+                g_JetSpeed += 1024;
             }
             if (pad & PADL2) {
-                brake = &g_JetSpeed;
-                if (*brake >= 1024) {
-                    *brake -= 1024;
+                if (g_JetSpeed >= 1024) {
+                    g_JetSpeed -= 1024;
                 }
             }
             if (pad & PADstart) {
@@ -1203,17 +1088,15 @@ static void JetInputUpdate(void) {
         }
     }
     if (pad & PADstart) {
-        held = &g_JetStartHeldFrames;
-        *held = *held + 1;
+        g_JetStartHeldFrames++;
     } else {
         g_JetStartHeldFrames = 0;
     }
     if (g_JetStartHeldFrames == 1) {
-        paused = &g_JetPaused;
-        if (*paused == 1) {
-            *paused = 0;
+        if (g_JetPaused == 1) {
+            g_JetPaused = 0;
         } else {
-            *paused = 1;
+            g_JetPaused = 1;
         }
         JetPlaySfx(SFX_BUTTON);
     }
@@ -1247,98 +1130,71 @@ static void JetDrawListsInit(void) {
 
 // Unused: JetTrackListsAdvance and JetTrackListsClean in one pass.
 static void JetTrackListsAdvanceAndClean(s32 advance) {
-    u32* pos;
-    s32* segment;
     u32 prev;
     u32 next;
     u32 steps;
     u32 i;
     u32 id;
-    u8* first;
 
-    pos = &g_JetTrackListsPos;
-    g_JetTrackListsPrevPos = pos[0];
-    pos[0] = g_JetTrackListsPrevPos + advance;
+    g_JetTrackListsPrevPos = g_JetTrackListsPos;
+    g_JetTrackListsPos = g_JetTrackListsPrevPos + advance;
     prev = g_JetTrackListsPrevPos >> 18;
-    next = pos[0] >> 18;
+    next = g_JetTrackListsPos >> 18;
     steps = next - prev;
-    segment = &g_JetTrackSegment;
-    segment[0] = segment[0] + steps;
+    g_JetTrackSegment = g_JetTrackSegment + steps;
     for (i = 0; i < steps + g_JetInitialTrackSegmentPending; i++) {
-        u16** add;
-        u16** remove;
-        u32 end;
-
-        add = &g_JetTriangleAddCursor;
-        end = JET_LIST_END;
-        remove = &g_JetTriangleRemoveCursor;
         while (1) {
-            id = *add[0]++;
-            if (id == end) {
+            id = *g_JetTriangleAddCursor++;
+            if (id == JET_LIST_END) {
                 break;
             }
             JetTriangleListAppend(id);
         }
         while (1) {
-            id = *remove[0]++;
-            if (id == end) {
+            id = *g_JetTriangleRemoveCursor++;
+            if (id == JET_LIST_END) {
                 break;
             }
             JetTriangleListRemove(id);
         }
     }
     for (i = 0; i < steps; i++) {
-        u16** add;
-        u16** remove;
-        u32 end;
-
-        add = &g_JetTrackAddCursor;
-        end = JET_LIST_END;
-        remove = &g_JetTrackRemoveCursor;
         while (1) {
-            id = *add[0]++;
-            if (id == end) {
+            id = *g_JetTrackAddCursor++;
+            if (id == JET_LIST_END) {
                 break;
             }
             JetTrackListAppend(id);
         }
         while (1) {
-            id = *remove[0]++;
-            if (id == end) {
+            id = *g_JetTrackRemoveCursor++;
+            if (id == JET_LIST_END) {
                 break;
             }
             JetTrackListRemove(id);
         }
     }
-    first = &g_JetInitialTrackSegmentPending;
-    if (*first == 1) {
-        *first = 0;
+    if (g_JetInitialTrackSegmentPending == 1) {
+        g_JetInitialTrackSegmentPending = 0;
     }
 }
 
 static void JetTrackListsAdvance(s32 speed) {
-    u32* pos;
-    s32* segment;
     u32 prev;
     u32 next;
     u32 i;
-    u16** tri;
-    u16** track;
     u32 id;
     u8* first;
 
-    pos = &g_JetTrackListsPos;
-    g_JetTrackListsPrevPos = pos[0];
-    pos[0] = g_JetTrackListsPrevPos + speed;
+    g_JetTrackListsPrevPos = g_JetTrackListsPos;
+    g_JetTrackListsPos = g_JetTrackListsPrevPos + speed;
     prev = g_JetTrackListsPrevPos >> 18;
-    next = pos[0] >> 18;
+    next = g_JetTrackListsPos >> 18;
     g_JetTrackSegmentsCrossed = next - prev;
-    segment = &g_JetTrackSegment;
-    segment[0] = segment[0] + g_JetTrackSegmentsCrossed;
+    g_JetTrackSegment = g_JetTrackSegment + g_JetTrackSegmentsCrossed;
     for (i = 0; i < g_JetTrackSegmentsCrossed + g_JetInitialTrackSegmentPending; i++) {
-        tri = &g_JetTriangleAddCursor;
         while (1) {
-            id = *tri[0]++;
+            id = *g_JetTriangleAddCursor++;
             if (id == JET_LIST_END) {
                 break;
             }
@@ -1346,9 +1202,8 @@ static void JetTrackListsAdvance(s32 speed) {
         }
     }
     for (i = 0; i < g_JetTrackSegmentsCrossed; i++) {
-        track = &g_JetTrackAddCursor;
         while (1) {
-            id = *track[0]++;
+            id = *g_JetTrackAddCursor++;
             if (id == JET_LIST_END) {
                 break;
             }
@@ -1359,15 +1214,11 @@ static void JetTrackListsAdvance(s32 speed) {
 
 static void JetTrackListsClean(s32 unusedArg) {
     u32 i;
-    u16** tri;
-    u16** track;
     u32 id;
-    u8* first;
 
     for (i = 0; i < g_JetTrackSegmentsCrossed + g_JetInitialTrackSegmentPending; i++) {
-        tri = &g_JetTriangleRemoveCursor;
         while (1) {
-            id = *tri[0]++;
+            id = *g_JetTriangleRemoveCursor++;
             if (id == JET_LIST_END) {
                 break;
             }
@@ -1375,60 +1226,45 @@ static void JetTrackListsClean(s32 unusedArg) {
         }
     }
     for (i = 0; i < g_JetTrackSegmentsCrossed; i++) {
-        track = &g_JetTrackRemoveCursor;
         while (1) {
-            id = *track[0]++;
+            id = *g_JetTrackRemoveCursor++;
             if (id == JET_LIST_END) {
                 break;
             }
             JetTrackListRemove(id);
         }
     }
-    first = &g_JetInitialTrackSegmentPending;
-    if (*first == 1) {
-        *first = 0;
+    if (g_JetInitialTrackSegmentPending == 1) {
+        g_JetInitialTrackSegmentPending = 0;
     }
 }
 
 static void JetTriangleListAppend(u16 triangleId) {
-    JetListLink* node;
-    u16* pCount;
-    u16* pTail;
-    u16 newCount;
-    u16 count;
-    u16 tail;
+    u16 prev;
+    u16 next;
 
-    node = &g_JetTriangleLinks[triangleId];
-    pCount = &g_JetTriangleListCount;
-    count = *pCount;
-    if (count == 0) {
+    prev = g_JetTriangleLinks[triangleId].prev;
+    next = g_JetTriangleLinks[triangleId].next;
+    if (g_JetTriangleListCount == 0) {
         g_JetTriangleListHead = triangleId;
         g_JetTriangleListTail = triangleId;
-        *pCount = 1;
+        g_JetTriangleListCount = 1;
     } else {
-        pTail = &g_JetTriangleListTail;
-        tail = *pTail;
-        newCount = count + 1;
-        node->prev = tail;
-        (g_JetTriangleLinks + tail)->next = triangleId;
-        *pTail = triangleId;
-        *pCount = newCount;
+        g_JetTriangleLinks[triangleId].prev = g_JetTriangleListTail;
+        g_JetTriangleLinks[g_JetTriangleListTail].next = triangleId;
+        g_JetTriangleListTail = triangleId;
+        g_JetTriangleListCount++;
     }
 }
 
 static void JetTriangleListRemove(u16 triangleId) {
-    JetListLink* list;
-    JetListLink* node;
-    u16* pCount;
     u16 prev;
     u16 next;
 
-    node = &g_JetTriangleLinks[triangleId];
-    prev = node->prev;
-    next = node->next;
-    list = g_JetTriangleLinks;
+    prev = g_JetTriangleLinks[triangleId].prev;
+    next = g_JetTriangleLinks[triangleId].next;
     if (prev != JET_LIST_END) {
-        list[prev].next = next;
+        g_JetTriangleLinks[prev].next = next;
     } else {
         g_JetTriangleListHead = next;
     }
@@ -1437,67 +1273,35 @@ static void JetTriangleListRemove(u16 triangleId) {
     } else {
         g_JetTriangleListTail = prev;
     }
-    {
-        JetListLink* links;
-
-        links = g_JetTriangleLinks;
-        links[triangleId].prev = JET_LIST_END;
-        links[triangleId].next = JET_LIST_END;
-    }
-    pCount = &g_JetTriangleListCount;
-    *pCount = *pCount - 1;
+    g_JetTriangleLinks[triangleId].prev = JET_LIST_END;
+    g_JetTriangleLinks[triangleId].next = JET_LIST_END;
+    g_JetTriangleListCount--;
 }
 
 static void JetTrackListAppend(u16 trackId) {
-    u16* pCount;
-    u16 count;
-
-    pCount = &g_JetTrackListCount;
-    count = *pCount;
-    if (count == 0) {
-        JetListLink* list;
-        JetListLink* node;
-
-        list = g_JetTrackLinks;
-        node = &list[trackId];
-        node->prev = JET_LIST_END;
-        node->next = JET_LIST_END;
+    if (g_JetTrackListCount == 0) {
+        g_JetTrackLinks[trackId].prev = JET_LIST_END;
+        g_JetTrackLinks[trackId].next = JET_LIST_END;
         g_JetTrackListHead = trackId;
         g_JetTrackListTail = trackId;
-        *pCount = 1;
+        g_JetTrackListCount = 1;
     } else {
-        JetListLink* list;
-        JetListLink* node;
-        u16* pTail;
-        u16 newCount;
-        u16 tail;
-
-        newCount = count + 1;
-        list = g_JetTrackLinks;
-        node = &list[trackId];
-        pTail = &g_JetTrackListTail;
-        tail = *pTail;
-        node->prev = tail;
-        node->next = JET_LIST_END;
-        list[tail].next = trackId;
-        *pTail = trackId;
-        *pCount = newCount;
+        g_JetTrackLinks[trackId].prev = g_JetTrackListTail;
+        g_JetTrackLinks[trackId].next = JET_LIST_END;
+        g_JetTrackLinks[g_JetTrackListTail].next = trackId;
+        g_JetTrackListTail = trackId;
+        g_JetTrackListCount++;
     }
 }
 
 static void JetTrackListRemove(u16 trackId) {
-    JetListLink* list;
-    JetListLink* node;
-    u16* pCount;
     u16 prev;
     u16 next;
 
-    node = &g_JetTrackLinks[trackId];
-    prev = node->prev;
-    next = node->next;
-    list = g_JetTrackLinks;
+    prev = g_JetTrackLinks[trackId].prev;
+    next = g_JetTrackLinks[trackId].next;
     if (prev != JET_LIST_END) {
-        list[prev].next = next;
+        g_JetTrackLinks[prev].next = next;
     } else {
         g_JetTrackListHead = next;
     }
@@ -1506,6 +1310,5 @@ static void JetTrackListRemove(u16 trackId) {
     } else {
         g_JetTrackListTail = prev;
     }
-    pCount = &g_JetTrackListCount;
-    *pCount = *pCount - 1;
+    g_JetTrackListCount--;
 }

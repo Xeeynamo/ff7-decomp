@@ -173,9 +173,9 @@ typedef struct {
     /* 0xD4 */ JetNode* node;
     /* 0xD8 */ s16 index; // -1 when free
     /* 0xDA */ s16 active;
-    /* 0xDC */ SVECTOR unkDC[6]; // the model bounding box's six face centres
+    /* 0xDC */ SVECTOR boxFaceCentres[6];
     /* 0x10C */ char pad10C[0x10];
-    /* 0x11C */ u_long unk11C[6]; // the same six points projected to the screen
+    /* 0x11C */ u_long boxFaceScreenXY[6];
     /* 0x134 */ char pad134[8];
 } JetObject; // size: 0x13C
 
