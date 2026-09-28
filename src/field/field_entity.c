@@ -13,6 +13,8 @@ static s16 D_800DEF88[130] = {
     32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
 };
 
+u8 FieldEntityDirByVec(VECTOR* start, VECTOR* target, s32* distance);
+
 INCLUDE_ASM("asm/us/field/nonmatchings/field_entity", FieldEntityInitPos);
 
 void FieldEntityAddRotate(u32 activeInputs, s16 modelId) {
@@ -371,7 +373,38 @@ void FieldEntityLineClear(FieldLine* lines) {
     }
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_entity", FieldEntityGatewayCheck);
+static void FieldEntityGatewayCheck(FieldEntity* entity, FieldGateway* gateways, VECTOR* pos) {
+    VECTOR* from = (VECTOR*)getScratchAddr(0);
+    VECTOR* to = (VECTOR*)getScratchAddr(sizeof(VECTOR) / 4);
+    VECTOR* nearest = (VECTOR*)getScratchAddr(sizeof(VECTOR) / 4 * 2);
+    s32 distanceSq;
+    s32 sideFrom;
+    s32 sideTo;
+    s32 i;
+
+    from->vx = entity->PosX >> 12;
+    from->vy = entity->PosY >> 12;
+    from->vz = entity->PosZ >> 12;
+    to->vx = pos->vx >> 12;
+    to->vy = pos->vy >> 12;
+    to->vz = entity->PosZ >> 12;
+
+    for (i = 0; i < LEN(g_FieldTriggers->gateways); i++, gateways++) {
+        if (gateways->fieldId != 0x7FFF) {
+            distanceSq = FieldEntitySqrDistToLine(&gateways->pos, from, nearest);
+            if (distanceSq != -1 && distanceSq < entity->SolidRange * entity->SolidRange) {
+                sideFrom = (gateways->pos.x2 - gateways->pos.x1) * (from->vy - gateways->pos.y1) -
+                           (from->vx - gateways->pos.x1) * (gateways->pos.y2 - gateways->pos.y1);
+                sideTo = (gateways->pos.x2 - gateways->pos.x1) * (to->vy - gateways->pos.y1) -
+                         (to->vx - gateways->pos.x1) * (gateways->pos.y2 - gateways->pos.y1);
+                if ((sideFrom >= 0 && sideTo < 0) || (sideTo >= 0 && sideFrom < 0) || (sideFrom > 0 && sideTo <= 0) ||
+                    (sideTo > 0 && sideFrom <= 0)) {
+                    FieldEntityGatewayMapLoad(gateways);
+                }
+            }
+        }
+    }
+}
 
 s16 FieldEntityBgTriggerActivate(FieldBgTrigger* trigger, u8 behaviour) {
     u8 frameBit;
@@ -401,8 +434,47 @@ s16 FieldEntityBgTriggerActivate(FieldBgTrigger* trigger, u8 behaviour) {
     return changed;
 }
 
-const u16 D_800A00BC[4] = {0, 54, 122, 298};
-INCLUDE_ASM("asm/us/field/nonmatchings/field_entity", FieldEntityTriggerCheck);
+static void FieldEntityTriggerCheck(FieldEntity* entity, FieldBgTrigger* triggers, VECTOR* pos) {
+    VECTOR* from = (VECTOR*)getScratchAddr(0);
+    VECTOR* nearest = (VECTOR*)getScratchAddr(sizeof(VECTOR) / 4 * 2);
+    s32 distanceSq;
+    u16 soundIds[4] = {SFX_NULL, SFX_METAL_DOOR, SFX_WOOD_DOOR, SFX_QUICK_SWIPE};
+    s32 i;
+
+    from->vx = entity->PosX >> 12;
+    from->vy = entity->PosY >> 12;
+    from->vz = entity->PosZ >> 12;
+
+    for (i = 0; i < LEN(g_FieldTriggers->triggers); i++, triggers++) {
+        if (triggers->backgroundGroupId != 0xFF) {
+            distanceSq = FieldEntitySqrDistToLine(&triggers->pos, from, nearest);
+            if (distanceSq != -1 && distanceSq < entity->SolidRange * entity->SolidRange) {
+                if (from->vx == nearest->vx && from->vy == nearest->vy) {
+                    if (FieldEntityBgTriggerActivate(triggers, triggers->behaviour) == 1) {
+                        AkaoPlaySoundEffect(soundIds[triggers->soundId]);
+                    }
+                } else if (((FieldEntityDirByVec(from, nearest, &distanceSq) - entity->MoveDir + 64) & 0xFF) < 128) {
+                    if (FieldEntityBgTriggerActivate(triggers, triggers->behaviour) == 1) {
+                        AkaoPlaySoundEffect(soundIds[triggers->soundId]);
+                    }
+                }
+            } else if (triggers->behaviour < 4 || // 0/1 persistent, no revert on leaving
+                       (triggers->pos.x2 - triggers->pos.x1) * (from->vy - triggers->pos.y1) -
+                               (triggers->pos.y2 - triggers->pos.y1) * (from->vx - triggers->pos.x1) <=
+                           0) { // 4/5: only revert leaving from the trigger's facing side
+                if ((triggers->behaviour == 2 || triggers->behaviour == 4) && // momentary show, revert to hide
+                    FieldEntityBgTriggerActivate(triggers, 1) == 1) {
+                    AkaoPlaySoundEffect(soundIds[triggers->soundId]);
+                }
+                if (triggers->behaviour == 3 || triggers->behaviour == 5) { // momentary hide, revert to show
+                    if (FieldEntityBgTriggerActivate(triggers, 0) == 1) {
+                        AkaoPlaySoundEffect(soundIds[triggers->soundId]);
+                    }
+                }
+            }
+        }
+    }
+}
 
 void FieldEntityBgTriggerInit(FieldBgTrigger* triggers) {
     s32 i;

@@ -31,13 +31,20 @@ extern s32 SYS_GetDiskNo(void);
 extern s32 SysMenuShow(u8*);
 extern volatile s16 g_GameState;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_8001117C);
+void AkaoPlaySoundEffect(u16 soundId) {
+    g_AkaoCmd.opcode = AKAO_STOP_ALL_SOUNDS;
+    AkaoExec();
+    g_AkaoCmd.opcode = AKAO_PLAY_SOUND;
+    g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
+    g_AkaoCmd.params[1] = soundId;
+    AkaoExec();
+}
 
 static void func_800111E4(void) {
     g_AkaoCmd.opcode = AKAO_SAVE_STATE;
     AkaoExec();
     if (!(Savemap.memory_bank_4[97] & 0x30)) {
-        func_8001117C(SFX_BATTLE_SWIRL);
+        AkaoPlaySoundEffect(SFX_BATTLE_SWIRL);
     }
     D_800707BC.battleId = g_FieldState.eventCmdParam;
     D_800707BC.mode = g_FieldState.battleMode2;
