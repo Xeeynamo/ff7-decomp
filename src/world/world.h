@@ -204,7 +204,22 @@ void func_800B0810(void);
 void func_800B271C(s32);
 void func_800B29CC(void);
 void SysCdromInit(void);
-void WmLoadTexturesToVram(s32);
+typedef struct {
+    /* 0x00 */ u16 w;
+    /* 0x02 */ u16 h;
+    /* 0x04 */ u16 x;
+    /* 0x06 */ u16 y;
+    /* 0x08 */ s32 dataOffset;
+} WorldTexture; // size: 0xC
+
+typedef struct {
+    /* 0x00 */ u8 unk0[4];
+    /* 0x04 */ u8 textureCount;
+    /* 0x05 */ u8 unk5[3];
+    /* 0x08 */ WorldTexture textures[1];
+} WorldTextureBlock;
+
+void WmLoadTexturesToVram(WorldTextureBlock*);
 s32 WmLoadModelPacketAndScale(FieldModelEntry*, s32, s32);
 void WmCalculateBonesAndLighting(FieldModelEntry*);
 void WmPcCharModelLoadFileCallback(void);
@@ -218,15 +233,11 @@ void func_800B5C7C(WorldActor*);
 void* WmGetModelDataByModelId(s16);
 s32 WmGetModelTotalRenderPacketSize(FieldModelEntry*);
 void WmLoadPcCharModelFile(s16);
-void WmApplyModelLightingToPacket(void*, u8*);
+s32 WmApplyModelLightingToPacket(FieldModelEntry*, u8*);
 void WmApplyModelLightingById(s16, s16);
 void PlayMusicTrack(s32);
 void ToggleAmbientSound(s32);
-typedef struct {
-    /* 0x00 */ u8 unk0[0x20];
-} WorldModelPart; // size: 0x20
-
-void WmUpdatePartTransparency(WorldModelPart*, s32);
+void WmUpdatePartTransparency(FieldModelPart*, s32);
 void WmLoadModelPacketsForSet(s16);
 void func_800B6E08();
 s32 func_800B7200();

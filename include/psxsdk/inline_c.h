@@ -42,6 +42,17 @@
 	:							\
 	: "r"( r0 ) )
 
+#define gte_ldrgb( r0 ) __asm__ volatile (			\
+	"lwc2	$6, 0( %0 )"					\
+	:							\
+	: "r"( r0 ) )
+
+#define gte_strgb( r0 ) __asm__ volatile (			\
+	"swc2	$22, 0( %0 )"					\
+	:							\
+	: "r"( r0 )						\
+	: "memory" )
+
 #define gte_ldv3( r0, r1, r2 ) __asm__ volatile (		\
 	"lwc2	$0, 0( %0 );"					\
 	"lwc2	$1, 4( %0 );"					\
@@ -93,6 +104,43 @@
 	: "r"( r0 )						\
 	: "$12", "$13", "$14" )
 
+#define gte_SetLightMatrix( r0 ) __asm__ volatile (		\
+	"lw	$12, 0( %0 );"					\
+	"lw	$13, 4( %0 );"					\
+	"ctc2	$12, $8;"					\
+	"ctc2	$13, $9;"					\
+	"lw	$12, 8( %0 );"					\
+	"lw	$13, 12( %0 );"					\
+	"lw	$14, 16( %0 );"					\
+	"ctc2	$12, $10;"					\
+	"ctc2	$13, $11;\n\t"					\
+	"ctc2	$14, $12"					\
+	:							\
+	: "r"( r0 )						\
+	: "$12", "$13", "$14" )
+
+#define gte_SetColorMatrix( r0 ) __asm__ volatile (		\
+	"lw	$12, 0( %0 );"					\
+	"lw	$13, 4( %0 );"					\
+	"ctc2	$12, $16;"					\
+	"ctc2	$13, $17;"					\
+	"lw	$12, 8( %0 );"					\
+	"lw	$13, 12( %0 );"					\
+	"lw	$14, 16( %0 );"					\
+	"ctc2	$12, $18;"					\
+	"ctc2	$13, $19;\n\t"					\
+	"ctc2	$14, $20"					\
+	:							\
+	: "r"( r0 )						\
+	: "$12", "$13", "$14" )
+
+#define gte_SetBackColor( r0, r1, r2 ) __asm__ volatile (	\
+	"ctc2	%0, $13;"					\
+	"ctc2	%1, $14;\n\t"					\
+	"ctc2	%2, $15"					\
+	:							\
+	: "r"( r0 ), "r"( r1 ), "r"( r2 ) )
+
 /*
  * Type 2 functions
  */
@@ -121,6 +169,11 @@
 	"nop;"							\
 	"nop;"							\
 	".word 0x4B400006" )
+
+#define gte_nccs() __asm__ volatile (				\
+	"nop;"							\
+	"nop;"							\
+	".word 0x4B08041B" )
 
 /*
  * Type 3 functions

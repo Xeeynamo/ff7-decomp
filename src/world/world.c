@@ -4807,7 +4807,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", WmLoadPcCharModelFile);
 void WmLoadPcCharModelIntoMemory(void) {
     FieldModelEntry* model;
 
-    WmLoadTexturesToVram(((D_8014A608 >> 2) << 2) + 0x8014A604);
+    WmLoadTexturesToVram((WorldTextureBlock*)(((D_8014A608 >> 2) << 2) + 0x8014A604));
     model = D_8014A610;
     WmLoadModelPacketAndScale(model, 0x8014FC00, 0);
     WmCalculateBonesAndLighting(model);
@@ -4830,7 +4830,7 @@ void WmLoadModelPacketsForSet(s16 arg0) {
     s32 j;
     s8 id;
     FieldModelEntry* model;
-    WorldModelPart* parts;
+    FieldModelPart* parts;
 
     dst = 0x80117000;
     for (i = 0; i < D_8013A800; i++) {
@@ -4841,7 +4841,7 @@ void WmLoadModelPacketsForSet(s16 arg0) {
         D_801159E8[i] = id;
         if (id >= 0 && i == 24) {
             model = &D_8013A804[D_801159E8[24] - 1];
-            parts = (WorldModelPart*)(model->partsOffset + model->modelData);
+            parts = (FieldModelPart*)(model->partsOffset + model->modelData);
             for (j = 0; j < model->partCount; j++) {
                 WmUpdatePartTransparency(&parts[j], 1);
             }
