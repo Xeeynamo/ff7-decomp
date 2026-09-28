@@ -1354,7 +1354,21 @@ void func_800A85B4(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType15);
+void BattleActionType15(void) {
+    u16 allowedTargetsMask;
+
+    // Don't continue if this actor is a party member
+    if (g_CurrentAction->actorId < NUM_PARTY) {
+        g_CurrentAction->unk20 = -1;
+    } else {
+        g_CurrentAction->unkC = 1;
+        g_CurrentAction->targetFlags = 0;
+        allowedTargetsMask = BattleOpcodeGetRndBit((u16)g_CurrentAction->allowedTargetsMask);
+        g_CurrentAction->allowedTargetsMask = allowedTargetsMask;
+        g_CurrentAction->actorId = SysGetLsbNumber(allowedTargetsMask);
+        g_CurrentAction->unk20 = 0x2F;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType16);
 
