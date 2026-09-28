@@ -14,11 +14,11 @@ OT_TYPE* g_CurrentOT;
 void* D_80063008;
 OT_TYPE* D_8006300C;
 
-void SysMenuSetPoly(void* arg0) { g_GpuPacketPtr.poly = arg0; }
+void SysMenuSetPoly(void* arg0) { g_PolyPtr.poly = arg0; }
 
-void SysMenuSavePoly(void) { D_80063008 = g_GpuPacketPtr.poly; }
+void SysMenuSavePoly(void) { D_80063008 = g_PolyPtr.poly; }
 
-void SysMenuRestorePoly(void) { g_GpuPacketPtr.poly = D_80063008; }
+void SysMenuRestorePoly(void) { g_PolyPtr.poly = D_80063008; }
 
 void SysMenuSetOtag(OT_TYPE* otag) { g_CurrentOT = otag; }
 
@@ -27,8 +27,8 @@ void func_80026A0C(void) { D_8006300C = g_CurrentOT; }
 void func_80026A20(void) { g_CurrentOT = D_8006300C; }
 
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, s32 tpage, RECT* tw) {
-    SetDrawMode(g_GpuPacketPtr.poly, dfe, dtd, tpage, tw);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.dr_mode++);
+    SetDrawMode(g_PolyPtr.poly, dfe, dtd, tpage, tw);
+    AddPrim(g_CurrentOT, g_PolyPtr.dr_mode++);
 }
 
 void SysMenuSetDrawenv(DRAWENV* src, RECT* rect) {
@@ -42,12 +42,12 @@ void SysMenuSetDrawenv(DRAWENV* src, RECT* rect) {
     env.clip.w = rect->w;
     env.clip.h = rect->h;
     env.tpage = 0x1F | 0x20; // 0x1F:last tpage, 0x20:8bpp
-    SetDrawEnv(g_GpuPacketPtr.poly, &env);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.poly);
-    g_GpuPacketPtr.poly = (u8*)g_GpuPacketPtr.poly + 0x40;
+    SetDrawEnv(g_PolyPtr.poly, &env);
+    AddPrim(g_CurrentOT, g_PolyPtr.poly);
+    g_PolyPtr.poly = (u8*)g_PolyPtr.poly + 0x40;
 }
 
-void SysMenuDrawNoop(s32 arg0) {}
+void SysMenuUnkNoop(s32 arg0) {}
 
 void func_80026B64(u8 arg0) { D_80062DFC = arg0; }
 
@@ -164,24 +164,24 @@ s32 SysMenuDrawSingleLetter(s32 x, s32 y, s32 color, s32 character) {
     clutY = color;
     clutX = 0x100;
     x += D_800707C0[sp20 + base] >> 5;
-    setSprt(g_GpuPacketPtr.sprt);
-    SetShadeTex(g_GpuPacketPtr.sprt, 1);
-    g_GpuPacketPtr.sprt->x0 = x;
-    g_GpuPacketPtr.sprt->y0 = y;
-    g_GpuPacketPtr.sprt->u0 = tu;
-    g_GpuPacketPtr.sprt->v0 = tv;
-    g_GpuPacketPtr.sprt->w = 12;
-    g_GpuPacketPtr.sprt->h = 12;
-    g_GpuPacketPtr.sprt->clut = GetClut(palette | clutX, clutY + 0x1F0);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.sprt++);
+    setSprt(g_PolyPtr.sprt);
+    SetShadeTex(g_PolyPtr.sprt, 1);
+    g_PolyPtr.sprt->x0 = x;
+    g_PolyPtr.sprt->y0 = y;
+    g_PolyPtr.sprt->u0 = tu;
+    g_PolyPtr.sprt->v0 = tv;
+    g_PolyPtr.sprt->w = 12;
+    g_PolyPtr.sprt->h = 12;
+    g_PolyPtr.sprt->clut = GetClut(palette | clutX, clutY + 0x1F0);
+    AddPrim(g_CurrentOT, g_PolyPtr.sprt++);
     x += D_800707C0[sp20 + base] & 0x1F;
     if (_D_80062DFD == 0) {
         sp18.w = 0xFF;
         sp18.h = 0xFF;
         sp18.x = 0;
         sp18.y = 0;
-        SetDrawMode(g_GpuPacketPtr.dr_mode, 0, 1, (((var_s5 + 0x380) & 0x3FF) >> 6) | 0x30, &sp18);
-        AddPrim(g_CurrentOT, g_GpuPacketPtr.dr_mode++);
+        SetDrawMode(g_PolyPtr.dr_mode, 0, 1, (((var_s5 + 0x380) & 0x3FF) >> 6) | 0x30, &sp18);
+        AddPrim(g_CurrentOT, g_PolyPtr.dr_mode++);
     }
     return x;
 }
@@ -212,8 +212,8 @@ void SysMenuDrawString(s32 x, s32 y, const char* str, s32 color) {
         rect.h = 0xFF;
         rect.x = 0;
         rect.y = 0;
-        SetDrawMode(g_GpuPacketPtr.dr_mode, 0, 1, 0x3E, &rect);
-        AddPrim(g_CurrentOT, g_GpuPacketPtr.dr_mode++);
+        SetDrawMode(g_PolyPtr.dr_mode, 0, 1, 0x3E, &rect);
+        AddPrim(g_CurrentOT, g_PolyPtr.dr_mode++);
     }
 }
 
@@ -225,28 +225,28 @@ void SysMenuDrawSingleFontLetter(s16 x, s16 y, s32 ch, u8 color) {
 
     c = ch & 0xFF;
     if (c < 0x29) {
-        setSprt8(g_GpuPacketPtr.sprt8);
-        SetShadeTex(g_GpuPacketPtr.sprt8, 1);
-        g_GpuPacketPtr.sprt8->x0 = x;
-        g_GpuPacketPtr.sprt8->y0 = y - 8;
-        g_GpuPacketPtr.sprt8->u0 = 0x88;
-        g_GpuPacketPtr.sprt8->v0 = 0x98;
-        g_GpuPacketPtr.sprt8->clut = GetClut(0x100, (color & 0xFF) + 0x1E0);
-        AddPrim(g_CurrentOT, g_GpuPacketPtr.sprt8++);
+        setSprt8(g_PolyPtr.sprt8);
+        SetShadeTex(g_PolyPtr.sprt8, 1);
+        g_PolyPtr.sprt8->x0 = x;
+        g_PolyPtr.sprt8->y0 = y - 8;
+        g_PolyPtr.sprt8->u0 = 0x88;
+        g_PolyPtr.sprt8->v0 = 0x98;
+        g_PolyPtr.sprt8->clut = GetClut(0x100, (color & 0xFF) + 0x1E0);
+        AddPrim(g_CurrentOT, g_PolyPtr.sprt8++);
         index = c + 0x40;
         u = ((index & 0xF) * 8) | 0x80;
         index >>= 4;
         index *= 8;
         v = index + 0x80;
     } else if ((u8)(ch - 0xB4) >= 0x1A && (u8)(ch - 0x29) < 0xA) {
-        setSprt8(g_GpuPacketPtr.sprt8);
-        SetShadeTex(g_GpuPacketPtr.sprt8, 1);
-        g_GpuPacketPtr.sprt8->x0 = x;
-        g_GpuPacketPtr.sprt8->y0 = y - 8;
-        g_GpuPacketPtr.sprt8->u0 = 0x90;
-        g_GpuPacketPtr.sprt8->v0 = 0x98;
-        g_GpuPacketPtr.sprt8->clut = GetClut(0x100, (color & 0xFF) + 0x1E0);
-        AddPrim(g_CurrentOT, g_GpuPacketPtr.sprt8++);
+        setSprt8(g_PolyPtr.sprt8);
+        SetShadeTex(g_PolyPtr.sprt8, 1);
+        g_PolyPtr.sprt8->x0 = x;
+        g_PolyPtr.sprt8->y0 = y - 8;
+        g_PolyPtr.sprt8->u0 = 0x90;
+        g_PolyPtr.sprt8->v0 = 0x98;
+        g_PolyPtr.sprt8->clut = GetClut(0x100, (color & 0xFF) + 0x1E0);
+        AddPrim(g_CurrentOT, g_PolyPtr.sprt8++);
         index = c + 0x17;
         u = ((index & 0xF) * 8) | 0x80;
         index >>= 4;
@@ -257,14 +257,14 @@ void SysMenuDrawSingleFontLetter(s16 x, s16 y, s32 ch, u8 color) {
         v = ((c >> 4) * 8) | 0x80;
     }
 
-    setSprt8(g_GpuPacketPtr.sprt8);
-    SetShadeTex(g_GpuPacketPtr.sprt8, 1);
-    g_GpuPacketPtr.sprt8->x0 = x;
-    g_GpuPacketPtr.sprt8->y0 = y;
-    g_GpuPacketPtr.sprt8->u0 = u;
-    g_GpuPacketPtr.sprt8->v0 = v;
-    g_GpuPacketPtr.sprt8->clut = GetClut(0x100, (color & 0xFF) + 0x1E0);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.sprt8++);
+    setSprt8(g_PolyPtr.sprt8);
+    SetShadeTex(g_PolyPtr.sprt8, 1);
+    g_PolyPtr.sprt8->x0 = x;
+    g_PolyPtr.sprt8->y0 = y;
+    g_PolyPtr.sprt8->u0 = u;
+    g_PolyPtr.sprt8->v0 = v;
+    g_PolyPtr.sprt8->clut = GetClut(0x100, (color & 0xFF) + 0x1E0);
+    AddPrim(g_CurrentOT, g_PolyPtr.sprt8++);
 }
 
 void SysMenuDraw8widthFont(s16 x, s16 y, u8* str, u8 color) {
@@ -303,16 +303,16 @@ void SysMenuDrawHpMpBar(MenuHpMpBar* bar) {
     y = bar->y;
     h = bar->h;
 
-    SetPolyG4(g_GpuPacketPtr.polyg4);
-    setXYWH(g_GpuPacketPtr.polyg4, x, y, barWidth, h);
+    SetPolyG4(g_PolyPtr.polyg4);
+    setXYWH(g_PolyPtr.polyg4, x, y, barWidth, h);
     r = bar->r;
     g = bar->g;
     b = bar->b;
-    setRGB0(g_GpuPacketPtr.polyg4, r, g, b);
-    setRGB1(g_GpuPacketPtr.polyg4, 0xC8, 0xC8, 0xC8);
-    setRGB2(g_GpuPacketPtr.polyg4, r, g, b);
-    setRGB3(g_GpuPacketPtr.polyg4, 0xC8, 0xC8, 0xC8);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.polyg4++);
+    setRGB0(g_PolyPtr.polyg4, r, g, b);
+    setRGB1(g_PolyPtr.polyg4, 0xC8, 0xC8, 0xC8);
+    setRGB2(g_PolyPtr.polyg4, r, g, b);
+    setRGB3(g_PolyPtr.polyg4, 0xC8, 0xC8, 0xC8);
+    AddPrim(g_CurrentOT, g_PolyPtr.polyg4++);
 
     if (bar->barMode != 0) {
         if (bar->barMode == 1) {
@@ -324,96 +324,96 @@ void SysMenuDrawHpMpBar(MenuHpMpBar* bar) {
             g = 0;
             b = 0;
         }
-        SetPolyG4(g_GpuPacketPtr.polyg4);
-        setXYWH(g_GpuPacketPtr.polyg4, x, y, fillWidth, h);
-        setRGB0(g_GpuPacketPtr.polyg4, r, g, b);
-        setRGB1(g_GpuPacketPtr.polyg4, r, g, b);
-        setRGB2(g_GpuPacketPtr.polyg4, r, g, b);
-        setRGB3(g_GpuPacketPtr.polyg4, r, g, b);
-        AddPrim(g_CurrentOT, g_GpuPacketPtr.polyg4++);
+        SetPolyG4(g_PolyPtr.polyg4);
+        setXYWH(g_PolyPtr.polyg4, x, y, fillWidth, h);
+        setRGB0(g_PolyPtr.polyg4, r, g, b);
+        setRGB1(g_PolyPtr.polyg4, r, g, b);
+        setRGB2(g_PolyPtr.polyg4, r, g, b);
+        setRGB3(g_PolyPtr.polyg4, r, g, b);
+        AddPrim(g_CurrentOT, g_PolyPtr.polyg4++);
     }
 
-    SetPolyG4(g_GpuPacketPtr.polyg4);
-    setXY4(g_GpuPacketPtr.polyg4, x, y, x + w, y, x, y + h + 1, x + w, y + h + 1);
-    setRGB0(g_GpuPacketPtr.polyg4, 0x50, 0, 0);
-    setRGB1(g_GpuPacketPtr.polyg4, 0x50, 0, 0);
-    setRGB2(g_GpuPacketPtr.polyg4, 0, 0, 0);
-    setRGB3(g_GpuPacketPtr.polyg4, 0, 0, 0);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.polyg4++);
+    SetPolyG4(g_PolyPtr.polyg4);
+    setXY4(g_PolyPtr.polyg4, x, y, x + w, y, x, y + h + 1, x + w, y + h + 1);
+    setRGB0(g_PolyPtr.polyg4, 0x50, 0, 0);
+    setRGB1(g_PolyPtr.polyg4, 0x50, 0, 0);
+    setRGB2(g_PolyPtr.polyg4, 0, 0, 0);
+    setRGB3(g_PolyPtr.polyg4, 0, 0, 0);
+    AddPrim(g_CurrentOT, g_PolyPtr.polyg4++);
 }
 
 // unused?
 void MENU_OutlineRect(s32 x, s32 y, s32 w, s32 h, s32 color) {
-    setLineF4(g_GpuPacketPtr.linef4);
-    setXY4(g_GpuPacketPtr.linef4, x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1);
-    setRGB0(g_GpuPacketPtr.linef4, color, color, color);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.linef4++);
+    setLineF4(g_PolyPtr.linef4);
+    setXY4(g_PolyPtr.linef4, x, y, x + w - 1, y, x + w - 1, y + h - 1, x, y + h - 1);
+    setRGB0(g_PolyPtr.linef4, color, color, color);
+    AddPrim(g_CurrentOT, g_PolyPtr.linef4++);
 
-    setLineF2(g_GpuPacketPtr.linef2);
-    setXY2(g_GpuPacketPtr.linef2, x, y, x, y + h - 1);
-    setRGB0(g_GpuPacketPtr.linef2, color, color, color);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.linef2++);
+    setLineF2(g_PolyPtr.linef2);
+    setXY2(g_PolyPtr.linef2, x, y, x, y + h - 1);
+    setRGB0(g_PolyPtr.linef2, color, color, color);
+    AddPrim(g_CurrentOT, g_PolyPtr.linef2++);
 }
 
 void SysMenuDrawScrollbarTrack(RECT* rect) {
-    setLineF2(g_GpuPacketPtr.linef2);
-    SetSemiTrans(g_GpuPacketPtr.linef2, 1);
-    setXY2(g_GpuPacketPtr.linef2, rect->x, rect->y, rect->x + rect->w - 1, rect->y);
-    setRGB0(g_GpuPacketPtr.linef2, 0x10, 0x10, 0x10);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.linef2++);
+    setLineF2(g_PolyPtr.linef2);
+    SetSemiTrans(g_PolyPtr.linef2, 1);
+    setXY2(g_PolyPtr.linef2, rect->x, rect->y, rect->x + rect->w - 1, rect->y);
+    setRGB0(g_PolyPtr.linef2, 0x10, 0x10, 0x10);
+    AddPrim(g_CurrentOT, g_PolyPtr.linef2++);
 
-    setLineF2(g_GpuPacketPtr.linef2);
-    SetSemiTrans(g_GpuPacketPtr.linef2, 1);
-    setXY2(g_GpuPacketPtr.linef2, rect->x, rect->y + rect->h - 1, rect->x + rect->w - 1, rect->y + rect->h - 1);
-    setRGB0(g_GpuPacketPtr.linef2, 0x70, 0x70, 0x70);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.linef2++);
+    setLineF2(g_PolyPtr.linef2);
+    SetSemiTrans(g_PolyPtr.linef2, 1);
+    setXY2(g_PolyPtr.linef2, rect->x, rect->y + rect->h - 1, rect->x + rect->w - 1, rect->y + rect->h - 1);
+    setRGB0(g_PolyPtr.linef2, 0x70, 0x70, 0x70);
+    AddPrim(g_CurrentOT, g_PolyPtr.linef2++);
 
-    setLineF2(g_GpuPacketPtr.linef2);
-    SetSemiTrans(g_GpuPacketPtr.linef2, 1);
-    setXY2(g_GpuPacketPtr.linef2, rect->x, rect->y, rect->x, rect->y + rect->h - 1);
-    setRGB0(g_GpuPacketPtr.linef2, 0x20, 0x20, 0x20);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.linef2++);
+    setLineF2(g_PolyPtr.linef2);
+    SetSemiTrans(g_PolyPtr.linef2, 1);
+    setXY2(g_PolyPtr.linef2, rect->x, rect->y, rect->x, rect->y + rect->h - 1);
+    setRGB0(g_PolyPtr.linef2, 0x20, 0x20, 0x20);
+    AddPrim(g_CurrentOT, g_PolyPtr.linef2++);
 
-    setLineF2(g_GpuPacketPtr.linef2);
-    SetSemiTrans(g_GpuPacketPtr.linef2, 1);
-    setXY2(g_GpuPacketPtr.linef2, rect->x + rect->w - 1, rect->y, rect->x + rect->w - 1, rect->y + rect->h - 1);
-    setRGB0(g_GpuPacketPtr.linef2, 0x70, 0x70, 0x70);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.linef2++);
+    setLineF2(g_PolyPtr.linef2);
+    SetSemiTrans(g_PolyPtr.linef2, 1);
+    setXY2(g_PolyPtr.linef2, rect->x + rect->w - 1, rect->y, rect->x + rect->w - 1, rect->y + rect->h - 1);
+    setRGB0(g_PolyPtr.linef2, 0x70, 0x70, 0x70);
+    AddPrim(g_CurrentOT, g_PolyPtr.linef2++);
 
-    setTile(g_GpuPacketPtr.tile);
-    SetSemiTrans(g_GpuPacketPtr.tile, 1);
-    setXY0(g_GpuPacketPtr.tile, rect->x, rect->y);
-    setWH(g_GpuPacketPtr.tile, rect->w, rect->h);
-    setRGB0(g_GpuPacketPtr.tile, 0x50, 0x50, 0x50);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.tile++);
+    setTile(g_PolyPtr.tile);
+    SetSemiTrans(g_PolyPtr.tile, 1);
+    setXY0(g_PolyPtr.tile, rect->x, rect->y);
+    setWH(g_PolyPtr.tile, rect->w, rect->h);
+    setRGB0(g_PolyPtr.tile, 0x50, 0x50, 0x50);
+    AddPrim(g_CurrentOT, g_PolyPtr.tile++);
 }
 
 void SysMenuDrawScrollbarSlider(RECT* rect) {
-    setLineF2(g_GpuPacketPtr.linef2);
-    setXY2(g_GpuPacketPtr.linef2, rect->x, rect->y, rect->x + rect->w - 1, rect->y);
-    setRGB0(g_GpuPacketPtr.linef2, 0xF0, 0xF0, 0xF0);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.linef2++);
+    setLineF2(g_PolyPtr.linef2);
+    setXY2(g_PolyPtr.linef2, rect->x, rect->y, rect->x + rect->w - 1, rect->y);
+    setRGB0(g_PolyPtr.linef2, 0xF0, 0xF0, 0xF0);
+    AddPrim(g_CurrentOT, g_PolyPtr.linef2++);
 
-    setLineF2(g_GpuPacketPtr.linef2);
-    setXY2(g_GpuPacketPtr.linef2, rect->x, rect->y + rect->h - 1, rect->x + rect->w - 1, rect->y + rect->h - 1);
-    setRGB0(g_GpuPacketPtr.linef2, 0x40, 0x40, 0x40);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.linef2++);
+    setLineF2(g_PolyPtr.linef2);
+    setXY2(g_PolyPtr.linef2, rect->x, rect->y + rect->h - 1, rect->x + rect->w - 1, rect->y + rect->h - 1);
+    setRGB0(g_PolyPtr.linef2, 0x40, 0x40, 0x40);
+    AddPrim(g_CurrentOT, g_PolyPtr.linef2++);
 
-    setLineF2(g_GpuPacketPtr.linef2);
-    setXY2(g_GpuPacketPtr.linef2, rect->x, rect->y, rect->x, rect->y + rect->h - 1);
-    setRGB0(g_GpuPacketPtr.linef2, 0xC8, 0xC8, 0xC8);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.linef2++);
+    setLineF2(g_PolyPtr.linef2);
+    setXY2(g_PolyPtr.linef2, rect->x, rect->y, rect->x, rect->y + rect->h - 1);
+    setRGB0(g_PolyPtr.linef2, 0xC8, 0xC8, 0xC8);
+    AddPrim(g_CurrentOT, g_PolyPtr.linef2++);
 
-    setLineF2(g_GpuPacketPtr.linef2);
-    setXY2(g_GpuPacketPtr.linef2, rect->x + rect->w - 1, rect->y, rect->x + rect->w - 1, rect->y + rect->h - 1);
-    setRGB0(g_GpuPacketPtr.linef2, 0x70, 0x70, 0x70);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.linef2++);
+    setLineF2(g_PolyPtr.linef2);
+    setXY2(g_PolyPtr.linef2, rect->x + rect->w - 1, rect->y, rect->x + rect->w - 1, rect->y + rect->h - 1);
+    setRGB0(g_PolyPtr.linef2, 0x70, 0x70, 0x70);
+    AddPrim(g_CurrentOT, g_PolyPtr.linef2++);
 
-    setTile(g_GpuPacketPtr.tile);
-    setXY0(g_GpuPacketPtr.tile, rect->x, rect->y);
-    setWH(g_GpuPacketPtr.tile, rect->w, rect->h);
-    setRGB0(g_GpuPacketPtr.tile, 0xA0, 0xA0, 0xA0);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.tile++);
+    setTile(g_PolyPtr.tile);
+    setXY0(g_PolyPtr.tile, rect->x, rect->y);
+    setWH(g_PolyPtr.tile, rect->w, rect->h);
+    setRGB0(g_PolyPtr.tile, 0xA0, 0xA0, 0xA0);
+    AddPrim(g_CurrentOT, g_PolyPtr.tile++);
 }
 
 void SysMenuDrawScrollbar(MenuScrollbar* bar) {
@@ -440,39 +440,39 @@ void SysMenuDrawScrollbar(MenuScrollbar* bar) {
 }
 
 void SysMenuDrawProgressBar(s16 x, s16 y, s16 w, s16 h, u8 r, u8 g, u8 b) {
-    SetPolyG4(g_GpuPacketPtr.polyg4);
-    SetSemiTrans(g_GpuPacketPtr.polyg4, 1);
-    setXY4(g_GpuPacketPtr.polyg4, x, y, x + w, y, x, y + h / 2, x + w, y + h / 2);
-    setRGB0(g_GpuPacketPtr.polyg4, r, g, b);
-    setRGB1(g_GpuPacketPtr.polyg4, r, g, b);
-    setRGB2(g_GpuPacketPtr.polyg4, 0x80, 0x80, 0x80);
-    setRGB3(g_GpuPacketPtr.polyg4, 0x80, 0x80, 0x80);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.polyg4++);
+    SetPolyG4(g_PolyPtr.polyg4);
+    SetSemiTrans(g_PolyPtr.polyg4, 1);
+    setXY4(g_PolyPtr.polyg4, x, y, x + w, y, x, y + h / 2, x + w, y + h / 2);
+    setRGB0(g_PolyPtr.polyg4, r, g, b);
+    setRGB1(g_PolyPtr.polyg4, r, g, b);
+    setRGB2(g_PolyPtr.polyg4, 0x80, 0x80, 0x80);
+    setRGB3(g_PolyPtr.polyg4, 0x80, 0x80, 0x80);
+    AddPrim(g_CurrentOT, g_PolyPtr.polyg4++);
 
-    SetPolyG4(g_GpuPacketPtr.polyg4);
-    SetSemiTrans(g_GpuPacketPtr.polyg4, 1);
-    setXY4(g_GpuPacketPtr.polyg4, x, y + h / 2, x + w, y + h / 2, x, y + h, x + w, y + h);
-    setRGB0(g_GpuPacketPtr.polyg4, r, g, b);
-    setRGB1(g_GpuPacketPtr.polyg4, r, g, b);
-    setRGB2(g_GpuPacketPtr.polyg4, 0, 0, 0);
-    setRGB3(g_GpuPacketPtr.polyg4, 0, 0, 0);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.polyg4++);
+    SetPolyG4(g_PolyPtr.polyg4);
+    SetSemiTrans(g_PolyPtr.polyg4, 1);
+    setXY4(g_PolyPtr.polyg4, x, y + h / 2, x + w, y + h / 2, x, y + h, x + w, y + h);
+    setRGB0(g_PolyPtr.polyg4, r, g, b);
+    setRGB1(g_PolyPtr.polyg4, r, g, b);
+    setRGB2(g_PolyPtr.polyg4, 0, 0, 0);
+    setRGB3(g_PolyPtr.polyg4, 0, 0, 0);
+    AddPrim(g_CurrentOT, g_PolyPtr.polyg4++);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80028930);
 
 void SysMenuDrawTexturedRect(s16 x, s16 y, u8 u, u8 v, s16 w, s16 h, s16 clutY, s16 semiTrans) {
-    setSprt(g_GpuPacketPtr.sprt);
-    SetShadeTex(g_GpuPacketPtr.sprt, 1);
+    setSprt(g_PolyPtr.sprt);
+    SetShadeTex(g_PolyPtr.sprt, 1);
     if (semiTrans) {
-        SetSemiTrans(g_GpuPacketPtr.sprt, 1);
+        SetSemiTrans(g_PolyPtr.sprt, 1);
     }
-    setXY0(g_GpuPacketPtr.sprt, x, y);
-    setUV0(g_GpuPacketPtr.sprt, u, v);
-    setWH(g_GpuPacketPtr.sprt, w, h);
-    g_GpuPacketPtr.sprt->clut = GetClut(0x100, clutY + 0x1E0);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.sprt);
-    g_GpuPacketPtr.sprt++;
+    setXY0(g_PolyPtr.sprt, x, y);
+    setUV0(g_PolyPtr.sprt, u, v);
+    setWH(g_PolyPtr.sprt, w, h);
+    g_PolyPtr.sprt->clut = GetClut(0x100, clutY + 0x1E0);
+    AddPrim(g_CurrentOT, g_PolyPtr.sprt);
+    g_PolyPtr.sprt++;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawDigitsWithoutLeadingZeroes);

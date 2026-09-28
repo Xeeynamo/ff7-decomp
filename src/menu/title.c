@@ -13,14 +13,14 @@ static void TitlePlaySfx(u16 soundId) {
 static s32 TitleDoFade(s32 fadeDirection) {
     RECT clipRect;
 
-    setTile(g_GpuPacketPtr.tile);
-    SetSemiTrans(g_GpuPacketPtr.tile, 1);
-    g_GpuPacketPtr.tile->x0 = 0;
-    g_GpuPacketPtr.tile->y0 = 0;
-    g_GpuPacketPtr.tile->w = 384;
-    g_GpuPacketPtr.tile->h = 232;
-    setRGB0(g_GpuPacketPtr.tile, g_TitleFadeBrightness, g_TitleFadeBrightness, g_TitleFadeBrightness);
-    AddPrim(g_CurrentOT, g_GpuPacketPtr.tile++);
+    setTile(g_PolyPtr.tile);
+    SetSemiTrans(g_PolyPtr.tile, 1);
+    g_PolyPtr.tile->x0 = 0;
+    g_PolyPtr.tile->y0 = 0;
+    g_PolyPtr.tile->w = 384;
+    g_PolyPtr.tile->h = 232;
+    setRGB0(g_PolyPtr.tile, g_TitleFadeBrightness, g_TitleFadeBrightness, g_TitleFadeBrightness);
+    AddPrim(g_CurrentOT, g_PolyPtr.tile++);
     setRECT(&clipRect, 0, 0, 255, 255);
     SysMenuSetDrawMode(0, 1, 0x1F | 0x40, &clipRect);
     g_TitleFadeBrightness += fadeDirection;
@@ -56,7 +56,7 @@ static void TitleApplySoundMode(s32 mode) {
 
 INCLUDE_ASM("asm/us/menu/nonmatchings/title", SaveHandleScrollCursor);
 
-static void SavePeekSwCardStatus(void) {
+static void PeekSwCardStatus(void) {
     TestEvent(g_MemcardEvents[0]);
     TestEvent(g_MemcardEvents[1]);
     TestEvent(g_MemcardEvents[2]);
@@ -115,18 +115,18 @@ static s32 SaveFetchCardStatus(s32 cardId) {
     _card_info(chan);
     switch (SaveWaitSwCardStatus()) {
     case CARD_EVENT_ERROR:
-        g_SaveCardSlotStatus[cardId][CARD_STATUS_ERROR] = 1;
+        g_MemCardSlotStatus[cardId][CARD_STATUS_ERROR] = 1;
         return;
     case CARD_EVENT_SUCCESS:
-        if (g_SaveCardSlotStatus[cardId][CARD_STATUS_INSERTED]) {
+        if (g_MemCardSlotStatus[cardId][CARD_STATUS_INSERTED]) {
             return;
         }
-        g_SaveCardSlotStatus[cardId][CARD_STATUS_INSERTED] = 1;
+        g_MemCardSlotStatus[cardId][CARD_STATUS_INSERTED] = 1;
         break;
     case CARD_EVENT_TIMEOUT:
-        g_SaveCardSlotStatus[cardId][CARD_STATUS_INSERTED] = 0;
-        g_SaveCardSlotStatus[cardId][CARD_STATUS_ERROR] = 0;
-        g_SaveCardSlotStatus[cardId][CARD_STATUS_UNFORMATTED] = 0;
+        g_MemCardSlotStatus[cardId][CARD_STATUS_INSERTED] = 0;
+        g_MemCardSlotStatus[cardId][CARD_STATUS_ERROR] = 0;
+        g_MemCardSlotStatus[cardId][CARD_STATUS_UNFORMATTED] = 0;
         return;
     case CARD_EVENT_NEW_CARD:
         SavePeekHwCardStatus();
@@ -134,27 +134,27 @@ static s32 SaveFetchCardStatus(s32 cardId) {
         SaveWaitHwCardStatus();
         break;
     default:
-        g_SaveCardSlotStatus[cardId][CARD_STATUS_ERROR] = 1;
+        g_MemCardSlotStatus[cardId][CARD_STATUS_ERROR] = 1;
         return;
     }
 
-    SavePeekSwCardStatus();
+    PeekSwCardStatus();
     _card_load(chan);
     switch (SaveWaitSwCardStatus()) {
     case CARD_EVENT_SUCCESS:
-        g_SaveCardSlotStatus[cardId][CARD_STATUS_UNFORMATTED] = 0;
+        g_MemCardSlotStatus[cardId][CARD_STATUS_UNFORMATTED] = 0;
         break;
     case CARD_EVENT_TIMEOUT:
-        g_SaveCardSlotStatus[cardId][CARD_STATUS_INSERTED] = 0;
+        g_MemCardSlotStatus[cardId][CARD_STATUS_INSERTED] = 0;
         break;
     case CARD_EVENT_ERROR:
-        g_SaveCardSlotStatus[cardId][CARD_STATUS_ERROR] = 1;
+        g_MemCardSlotStatus[cardId][CARD_STATUS_ERROR] = 1;
         break;
     case CARD_EVENT_NEW_CARD:
-        g_SaveCardSlotStatus[cardId][CARD_STATUS_UNFORMATTED] = 1;
+        g_MemCardSlotStatus[cardId][CARD_STATUS_UNFORMATTED] = 1;
         break;
     default:
-        g_SaveCardSlotStatus[cardId][CARD_STATUS_ERROR] = 1;
+        g_MemCardSlotStatus[cardId][CARD_STATUS_ERROR] = 1;
         break;
     }
 }
@@ -252,6 +252,7 @@ static s32 TitleUpdate(s32 counter) {
     RECT windowRect;
     RECT clipRect;
     s32 slotIndex;
+    s32 formatStatus;
     s32 fileSlotId;
     s32 rowIdx;
     s32 blue;
@@ -265,7 +266,7 @@ static s32 TitleUpdate(s32 counter) {
         g_TitleFadeState != TITLE_FADE_OUT && g_TitleFadeState != TITLE_FADE_IN) {
         SaveFetchAllCardStatus(counter);
     }
-    SysMenuDrawNoop(0x80);
+    SysMenuUnkNoop(0x80);
     if (g_TitleFadeState == TITLE_FADE_IN) {
         if (TitleDoFade(-TITLE_FADE_STEP) == 0) {
             g_TitleFadeState = TITLE_FADE_ACTIVE;
@@ -280,11 +281,11 @@ static s32 TitleUpdate(s32 counter) {
     case START_MENU_MODE_SELECT_SLOT:
         SysMenuDrawCursor(
             g_TitleWindowRect.x - 18, g_TitleWindowRect.y + 6 + g_TitleMenuTables[TITLE_TABLE_SLOTS].row * 12);
-        SysMenuDrawString(10, 11, g_SaveMenuStrings[SAVE_STR_SELECT_SLOT], 7);
-        SysMenuDrawString(g_TitleWindowRect.x + 12, g_TitleWindowRect.y + 5, g_SaveMenuStrings[SAVE_STR_SLOT_1],
-                          -(g_SaveCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] != 0) & 7);
-        SysMenuDrawString(g_TitleWindowRect.x + 12, g_TitleWindowRect.y + 0x11, g_SaveMenuStrings[SAVE_STR_SLOT_2],
-                          -(g_SaveCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED] != 0) & 7);
+        SysMenuDrawString(10, 11, g_SaveLabels[SAVE_STR_SELECT_SLOT], 7);
+        SysMenuDrawString(g_TitleWindowRect.x + 12, g_TitleWindowRect.y + 5, g_SaveLabels[SAVE_STR_SLOT_1],
+                          -(g_MemCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] != 0) & 7);
+        SysMenuDrawString(g_TitleWindowRect.x + 12, g_TitleWindowRect.y + 0x11, g_SaveLabels[SAVE_STR_SLOT_2],
+                          -(g_MemCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED] != 0) & 7);
         clipRect.x = 0;
         clipRect.y = 0;
         clipRect.w = 0x100;
@@ -293,7 +294,7 @@ static s32 TitleUpdate(s32 counter) {
         SysMenuDrawWindow(&g_TitleWindowRect);
         break;
     case START_MENU_MODE_SELECT_FILE:
-        if (!g_SaveCardSlotStatus[g_TitleMenuTables[TITLE_TABLE_SLOTS].row][CARD_STATUS_INSERTED]) {
+        if (!g_MemCardSlotStatus[g_TitleMenuTables[TITLE_TABLE_SLOTS].row][CARD_STATUS_INSERTED]) {
             g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
         } else {
             SysMenuSavePoly();
@@ -308,26 +309,26 @@ static s32 TitleUpdate(s32 counter) {
                     SysMenuRestoreWindowColor();
                 } else {
                     SysMenuDrawString(0x32, rowIdx * 64 + 55 + g_TitleMenuTables[TITLE_TABLE_FILES].scrollAnimY * 8,
-                                      g_SaveMenuStrings[SAVE_STR_EMPTY], 6);
+                                      g_SaveLabels[SAVE_STR_EMPTY], 6);
                     SysMenuCopyWindowRect(&windowRect, &g_SaveSlotWindowRects[2]);
                     SysMenuMoveWindowRect(
                         &windowRect, 0, rowIdx * 64 + 0x1D + g_TitleMenuTables[TITLE_TABLE_FILES].scrollAnimY * 8);
                     SysMenuDrawWindow(&windowRect);
                 }
             }
-            SysMenuDrawNoop(0x80);
+            SysMenuUnkNoop(0x80);
             clipRect.y = 0x1D;
             clipRect.w = 0x16C;
             clipRect.h = 0xC3;
             clipRect.x = 0;
             SysMenuSetDrawenv(&g_TitleDrawEnv[g_TitleBufferIndex], &clipRect);
-            SysMenuDrawString(10, 11, g_SaveMenuStrings[SAVE_STR_SELECT_FILE], 7);
-            SysMenuDrawString(0xCE, 11, g_SaveMenuStrings[SAVE_STR_FILE], 6);
+            SysMenuDrawString(10, 11, g_SaveLabels[SAVE_STR_SELECT_FILE], 7);
+            SysMenuDrawString(0xCE, 11, g_SaveLabels[SAVE_STR_FILE], 6);
             SysMenuDrawString(
-                SysGetSingleStringWidth(g_SaveMenuStrings[SAVE_STR_FILE]) + 0xD0, 11,
+                SysGetSingleStringWidth(g_SaveLabels[SAVE_STR_FILE]) + 0xD0, 11,
                 ((13 + g_TitleMenuTables[TITLE_TABLE_FILES].row + g_TitleMenuTables[TITLE_TABLE_FILES].rowOffset) *
                  36) +
-                    (g_SaveMenuStrings[SAVE_STR_LOAD]),
+                    (g_SaveLabels[LABEL_LOAD]),
                 7);
             SysMenuSetWindowRect(&windowRect, 200, 5, 0x4E, 0x18);
             SysMenuDrawWindow(&windowRect);
@@ -345,7 +346,7 @@ static s32 TitleUpdate(s32 counter) {
             status = 0x80;
             blue = 0;
         }
-        SysMenuDrawString(10, 11, g_SaveMenuStrings[SAVE_STR_CHECKING_CARD], 7);
+        SysMenuDrawString(10, 11, g_SaveLabels[SAVE_STR_CHECKING_CARD], 7);
         if (g_TitleScanInitial == 0) {
             SysMenuDrawProgressBar(122, 117, (g_TitleScanFileIndex + 1) * 8, 8, red, status, blue);
             clipRect.x = 0;
@@ -359,8 +360,8 @@ static s32 TitleUpdate(s32 counter) {
         break;
     case START_MENU_MODE_LOADING:
         if (g_TitleFadeState != TITLE_FADE_OUT) {
-            loadingWidth = SysGetSingleStringWidth(g_SaveMenuStrings[SAVE_STR_LOADING]) + 0x10;
-            SysMenuDrawString(190 - loadingWidth / 2, 0x73, g_SaveMenuStrings[SAVE_STR_LOADING], 7);
+            loadingWidth = SysGetSingleStringWidth(g_SaveLabels[LABEL_LOADING]) + 0x10;
+            SysMenuDrawString(190 - loadingWidth / 2, 0x73, g_SaveLabels[LABEL_LOADING], 7);
             SysMenuSetWindowRect(&windowRect, 0xB6 - loadingWidth / 2, 0x6D, loadingWidth, 24);
             SysMenuDrawWindow(&windowRect);
         }
@@ -370,10 +371,10 @@ static s32 TitleUpdate(s32 counter) {
             SysMenuDrawCursor(
                 g_TitleWindowRect.x - 0x12, g_TitleWindowRect.y + 6 + g_TitleMenuTables[TITLE_TABLE_SLOTS].row * 12);
         }
-        SysMenuDrawString(g_TitleWindowRect.x + 12, g_TitleWindowRect.y + 5, g_SaveMenuStrings[SAVE_STR_SLOT_1],
-                          -(g_SaveCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] != 0) & 7);
-        SysMenuDrawString(g_TitleWindowRect.x + 12, g_TitleWindowRect.y + 0x11, g_SaveMenuStrings[SAVE_STR_SLOT_2],
-                          -(g_SaveCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED] != 0) & 7);
+        SysMenuDrawString(g_TitleWindowRect.x + 12, g_TitleWindowRect.y + 5, g_SaveLabels[SAVE_STR_SLOT_1],
+                          -(g_MemCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] != 0) & 7);
+        SysMenuDrawString(g_TitleWindowRect.x + 12, g_TitleWindowRect.y + 0x11, g_SaveLabels[SAVE_STR_SLOT_2],
+                          -(g_MemCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED] != 0) & 7);
         clipRect.x = 0;
         clipRect.y = 0;
         clipRect.w = 0x100;
@@ -384,8 +385,8 @@ static s32 TitleUpdate(s32 counter) {
         promptWidth = SysGetSingleStringWidth(g_SaveFormatStrings[SAVE_FORMAT_STR_PROMPT]) + 0x10;
         SysMenuDrawString(
             190 - promptWidth / 2, g_TitleWindowRect.h + 99, g_SaveFormatStrings[SAVE_FORMAT_STR_PROMPT], 7);
-        SysMenuDrawString(228 - promptWidth / 2, g_TitleWindowRect.h + 112, g_SaveMenuStrings[SAVE_STR_YES], 7);
-        SysMenuDrawString(228 - promptWidth / 2, g_TitleWindowRect.h + 124, g_SaveMenuStrings[SAVE_STR_NO], 7);
+        SysMenuDrawString(228 - promptWidth / 2, g_TitleWindowRect.h + 112, g_SaveLabels[SAVE_STR_YES], 7);
+        SysMenuDrawString(228 - promptWidth / 2, g_TitleWindowRect.h + 124, g_SaveLabels[SAVE_STR_NO], 7);
         SysMenuDrawCursor(
             200 - promptWidth / 2, 0x73 + g_TitleButtonTables[TITLE_BTN_FORMAT].row * 12 + g_TitleWindowRect.h);
         SysMenuSetWindowRect(&windowRect, 0xB6 - promptWidth / 2, g_TitleWindowRect.h + 0x5D, promptWidth, 0x30);
@@ -395,10 +396,10 @@ static s32 TitleUpdate(s32 counter) {
         SysMenuDrawCursor(
             g_TitleWindowRect.x - 0x12, g_TitleWindowRect.y + 6 + g_TitleButtonTables[TITLE_BTN_TITLE].row * 12);
         SysMenuDrawString(
-            g_TitleWindowRect.x + 8, g_TitleWindowRect.y + 6, g_SaveMenuStrings[SAVE_STR_NEW_GAME], 7); // new game
-        SysMenuDrawString(g_TitleWindowRect.x + 8, g_TitleWindowRect.y + 18, g_SaveMenuStrings[SAVE_STR_CONTINUE],
-                          g_SaveCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] ||
-                                  g_SaveCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED]
+            g_TitleWindowRect.x + 8, g_TitleWindowRect.y + 6, g_SaveLabels[SAVE_STR_NEW_GAME], 7); // new game
+        SysMenuDrawString(g_TitleWindowRect.x + 8, g_TitleWindowRect.y + 18, g_SaveLabels[SAVE_STR_CONTINUE],
+                          g_MemCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] ||
+                                  g_MemCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED]
                               ? 7
                               : 0); // continue?
         clipRect.x = 0;
@@ -406,34 +407,34 @@ static s32 TitleUpdate(s32 counter) {
         clipRect.w = 0x100;
         clipRect.h = 0x100;
         SysMenuSetDrawMode(0, 1, 0x7F, &clipRect);
-        SetPolyFT4(g_GpuPacketPtr.ft4);
-        g_GpuPacketPtr.ft4->r0 = 0x60;
-        g_GpuPacketPtr.ft4->g0 = 0x60;
-        g_GpuPacketPtr.ft4->b0 = 0x60;
-        g_GpuPacketPtr.ft4->x0 = 0x6F;
-        g_GpuPacketPtr.ft4->y0 = 0x54;
-        g_GpuPacketPtr.ft4->x1 = 0x119;
-        g_GpuPacketPtr.ft4->y1 = 0x54;
-        g_GpuPacketPtr.ft4->x2 = 0x6F;
-        g_GpuPacketPtr.ft4->y2 = 0xEA;
-        g_GpuPacketPtr.ft4->x3 = 0x119;
-        g_GpuPacketPtr.ft4->y3 = 0xEA;
-        g_GpuPacketPtr.ft4->u0 = 0;
-        g_GpuPacketPtr.ft4->v0 = 0;
-        g_GpuPacketPtr.ft4->u1 = 0x96;
-        g_GpuPacketPtr.ft4->v1 = 0;
-        g_GpuPacketPtr.ft4->u2 = 0;
-        g_GpuPacketPtr.ft4->v2 = 0x96;
-        g_GpuPacketPtr.ft4->u3 = 0x96;
-        g_GpuPacketPtr.ft4->v3 = 0x96;
-        g_GpuPacketPtr.ft4->clut = GetClut(0, 0x1E0);
-        g_GpuPacketPtr.ft4->tpage = GetTPage(1, 0, 0x380, 0);
-        AddPrim(g_CurrentOT, g_GpuPacketPtr.ft4);
-        g_GpuPacketPtr.ft4++;
+        SetPolyFT4(g_PolyPtr.ft4);
+        g_PolyPtr.ft4->r0 = 0x60;
+        g_PolyPtr.ft4->g0 = 0x60;
+        g_PolyPtr.ft4->b0 = 0x60;
+        g_PolyPtr.ft4->x0 = 0x6F;
+        g_PolyPtr.ft4->y0 = 0x54;
+        g_PolyPtr.ft4->x1 = 0x119;
+        g_PolyPtr.ft4->y1 = 0x54;
+        g_PolyPtr.ft4->x2 = 0x6F;
+        g_PolyPtr.ft4->y2 = 0xEA;
+        g_PolyPtr.ft4->x3 = 0x119;
+        g_PolyPtr.ft4->y3 = 0xEA;
+        g_PolyPtr.ft4->u0 = 0;
+        g_PolyPtr.ft4->v0 = 0;
+        g_PolyPtr.ft4->u1 = 0x96;
+        g_PolyPtr.ft4->v1 = 0;
+        g_PolyPtr.ft4->u2 = 0;
+        g_PolyPtr.ft4->v2 = 0x96;
+        g_PolyPtr.ft4->u3 = 0x96;
+        g_PolyPtr.ft4->v3 = 0x96;
+        g_PolyPtr.ft4->clut = GetClut(0, 0x1E0);
+        g_PolyPtr.ft4->tpage = GetTPage(1, 0, 0x380, 0);
+        AddPrim(g_CurrentOT, g_PolyPtr.ft4);
+        g_PolyPtr.ft4++;
         break;
     }
     if (g_MenuStartMode != START_MENU_MODE_TITLE) {
-        SysMenuDrawString(0x126, 11, g_SaveMenuStrings[SAVE_STR_LOAD], 7);
+        SysMenuDrawString(0x126, 11, g_SaveLabels[LABEL_LOAD], 7);
         SysMenuSetWindowRect(&windowRect, 0x116, 5, 0x56, 0x18);
         SysMenuDrawWindow(&windowRect);
         SysMenuSetWindowRect(&windowRect, 0, 5, 0x16C, 0x18);
@@ -450,9 +451,9 @@ static s32 TitleUpdate(s32 counter) {
                 if (slotIndex < 0) {
                     break;
                 }
-                if (g_SaveCardSlotStatus[slotIndex][CARD_STATUS_INSERTED]) {
+                if (g_MemCardSlotStatus[slotIndex][CARD_STATUS_INSERTED]) {
                     TitlePlaySfx(SFX_MENU_CURSOR_MOVE);
-                    if (g_SaveCardSlotStatus[g_TitleMenuTables[TITLE_TABLE_SLOTS].row][CARD_STATUS_UNFORMATTED]) {
+                    if (g_MemCardSlotStatus[g_TitleMenuTables[TITLE_TABLE_SLOTS].row][CARD_STATUS_UNFORMATTED]) {
                         g_MenuStartMode = START_MENU_MODE_FORMAT_PROMPT;
                         SysMenuSetCursorMovement(
                             &g_TitleMenuTables[TITLE_TABLE_FORMAT], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
@@ -547,7 +548,7 @@ static s32 TitleUpdate(s32 counter) {
                     (u16)SaveCalcChecksum(sizeof(SaveWork) - 4, &Savemap.header.leader_level)) {
                     g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
                     TitlePlaySfx(SFX_MENU_BAD);
-                    SysMenuRequestAddWindow(g_SaveMenuStrings[SAVE_STR_FILE_RUINED], 0);
+                    SysMenuRequestAddWindow(g_SaveLabels[SAVE_STR_FILE_RUINED], 0);
                 } else {
                     TitlePlaySfx(SFX_MEMCARD_LOADED);
                     g_TitleFadeState = TITLE_FADE_OUT;
@@ -556,7 +557,7 @@ static s32 TitleUpdate(s32 counter) {
             } else {
                 g_MenuStartMode = START_MENU_MODE_SELECT_FILE;
                 TitlePlaySfx(SFX_MENU_BAD);
-                SysMenuRequestAddWindow(g_SaveMenuStrings[SAVE_STR_COULD_NOT_LOAD], status);
+                SysMenuRequestAddWindow(g_SaveLabels[SAVE_STR_COULD_NOT_LOAD], status);
             }
             g_SavemapBusy = 0;
             break;
@@ -565,14 +566,14 @@ static s32 TitleUpdate(s32 counter) {
             if (g_Pad1KeysPressed & PADRright) {
                 if (g_TitleButtonTables[TITLE_BTN_FORMAT].row == FORMAT_OPTION_YES) {
                     if (g_TitleMenuTables[TITLE_TABLE_SLOTS].row) {
-                        slotIndex = format("bu10:");
+                        formatStatus = format("bu10:");
                     } else {
-                        slotIndex = format("bu00:");
+                        formatStatus = format("bu00:");
                     }
                     g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
-                    if (slotIndex == 1) {
-                        g_SaveCardSlotStatus[g_TitleMenuTables[TITLE_TABLE_SLOTS].row][CARD_STATUS_UNFORMATTED] = 0;
-                        SysMenuRequestAddWindow(g_SaveMenuStrings[SAVE_STR_COMPLETED], 7);
+                    if (formatStatus == 1) {
+                        g_MemCardSlotStatus[g_TitleMenuTables[TITLE_TABLE_SLOTS].row][CARD_STATUS_UNFORMATTED] = 0;
+                        SysMenuRequestAddWindow(g_SaveLabels[SAVE_STR_COMPLETED], 7);
                         TitlePlaySfx(SFX_MEMCARD_LOADED);
                     } else {
                         SysMenuRequestAddWindow(g_SaveFormatStrings[SAVE_FORMAT_STR_FAILED], 7);
@@ -596,8 +597,8 @@ static s32 TitleUpdate(s32 counter) {
                     g_TitleFadeState = TITLE_FADE_OUT;
                     break;
                 case TITLE_OPTION_CONTINUE:
-                    if (g_SaveCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] ||
-                        g_SaveCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED]) {
+                    if (g_MemCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] ||
+                        g_MemCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED]) {
                         TitlePlaySfx(SFX_MENU_CURSOR_MOVE);
                         SysMenuSetCursorMovement(
                             &g_TitleMenuTables[TITLE_TABLE_SLOTS], 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
@@ -627,7 +628,7 @@ static void TitleCleanup(void) {
     PutDrawEnv(g_TitleDrawEnv);
 }
 
-s32 TitleMain(void) {
+s32 SAVEMENU_Title(void) {
     s32 i;
     s32 ret;
 

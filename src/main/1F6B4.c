@@ -466,14 +466,14 @@ int HandleTitle(void) {
     func_800211C4(YAMA_SAVEMENU);
     do {
     } while (SystemCdromReadChain());
-    TitleMain();
+    SAVEMENU_Title();
 }
 
 void HandleSaveMenu(void) {
     func_800211C4(YAMA_10);
     do {
     } while (SystemCdromReadChain());
-    SaveMain();
+    SAVEMENU_Main();
 }
 
 void func_80024ECC(void) {

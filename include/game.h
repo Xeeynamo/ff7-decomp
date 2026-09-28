@@ -1260,7 +1260,7 @@ extern u8 _D_80062DFD;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
 extern u8 D_80062F1A;
 extern u8 D_80062F1B;
-extern Gpu g_GpuPacketPtr;
+extern Gpu g_PolyPtr;
 extern u16 g_SaveSlotMask;
 extern s32 g_MenuRenderBufferIndex;
 extern s32 D_80062F88;
@@ -1399,7 +1399,7 @@ void SysMenuRestoreAvatarVram(u_long* image);
 void SysMenuStoreFontVram(u_long* image);
 void SysMenuRestoreFontVram(u_long* image);
 void SysMenuLoadPartyPortraits(void);
-void SysMenuDrawNoop(s32 arg0);
+void SysMenuUnkNoop(s32 arg0);
 void SysMenuDrawDigitsWithoutLeadingZeroes(s32 x, s32 y, s32 value, s32 digits, s32 color);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string

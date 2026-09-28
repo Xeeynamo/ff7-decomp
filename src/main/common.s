@@ -29,7 +29,7 @@
 /* 80062F1C */ glabel D_80062F1C;                           .space 2   
 /* 80062F1E */ glabel g_AkaoStreamPitch;                       .space 2   
 /* 80062F20 */ glabel g_PartyMenuListTransitionFactor;      .space 4     # !!GP!! 1F6B4.c
-/* 80062F24 */ glabel g_GpuPacketPtr;                       .space 4   
+/* 80062F24 */ glabel g_PolyPtr;                       .space 4   
 /* 80062F28 */ glabel g_AkaoPitchMulMusicSlideStep;         .space 4   
 /* 80062F2C */ glabel g_AkaoVolMulMusicSlideStep;           .space 4   
 /* 80062F30 */ glabel g_AkaoTempoMulMusicSlideStep;         .space 4   

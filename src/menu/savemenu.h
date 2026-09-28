@@ -69,13 +69,13 @@ typedef enum {
 #define TITLE_FADE_STEP 15
 
 typedef enum {
-    SAVE_STR_LOAD = 0,
+    LABEL_LOAD = 0,
     SAVE_STR_SELECT_SLOT = 1,
     SAVE_STR_SELECT_FILE = 2,
     SAVE_STR_SLOT_1 = 3,
     SAVE_STR_SLOT_2 = 4,
     SAVE_STR_ARE_YOU_SURE = 5,
-    SAVE_STR_LOADING = 6,
+    LABEL_LOADING = 6,
     SAVE_STR_SAVING = 7,
     SAVE_STR_EMPTY = 8,
     SAVE_STR_FILE = 9,
@@ -179,7 +179,7 @@ extern MemcardSaveFile g_SaveFile;
 extern u8 g_SaveFileData[];
 // bytes still to write
 extern s32 g_SaveWriteRemaining;
-extern u8 g_SaveCardSlotStatus[2][3];
+extern u8 g_MemCardSlotStatus[2][3];
 extern s32 D_801E3850;
 extern s32 D_801E3860;
 extern s32 g_SaveAvatarVramBackup[];
@@ -192,15 +192,15 @@ extern s32 g_TitleTimer;
 extern s32 g_TitleScanInitial;
 extern s32 g_TitleScanFileIndex;
 
-extern unsigned char g_SaveMenuStrings[][0x24];
+extern unsigned char g_SaveLabels[][0x24];
 extern unsigned char g_SaveFormatStrings[][0x30];
 extern unsigned char g_SaveErrorStrings[][0x30];
 
 s32 SysGetHoursFromSeconds(s32 seconds);
 s32 SysGetMinutesFromSeconds(s32 seconds);
-s32 TitleMain(void);
-s32 SaveMain(void);
-int SaveUpdate(s32 counter);
+s32 SAVEMENU_Title(void);
+s32 SAVEMENU_Main(void);
+int SAVEMENU_HandleSave(s32 counter);
 void SaveInitCardEvents(void);
 void SaveCleanupCardEvents(void);
 u16 GetSaveSlotMask(s32 cardSlot);
