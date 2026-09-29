@@ -502,8 +502,8 @@ static void* D_800A6524;
 static s16* D_800A6528;
 static EndingSprite D_800A652C[32];
 static EndingNode D_800A762C;
-static TILE D_800A763C[2];
-static TILE D_800A765C[2];
+static TILE g_endingClearTile1[2];
+static TILE g_endingClearTile2[2];
 static u8 D_800A767C[0x8];
 static u8 D_800A7684[0x38];
 static u8 D_800A76BC[0x4];
@@ -519,20 +519,20 @@ static u8 D_800AEAD0[0x8];
 static u8 D_800AEAD8[0x4];
 static u8 D_800AEADC[0x4];
 static u8 D_800AEAE0[0x800];
-static DRAWENV D_800AF2E0[2];
-static DISPENV D_800AF398[2];
+static DRAWENV g_endingDrawEnvs[2];
+static DISPENV g_endingDispEnvs[2];
 static u32 D_800AF3C0;
 static u32 D_800AF3C4;
 static EndingNode D_800AF3C8;
 static EndingNode D_800AF3D8;
 static void* D_800AF3E8;
-static u32 D_800AF3EC;
-static u32 D_800AF3F0;
-static u32 D_800AF3F4;
-static u32 D_800AF3F8;
+static u32 g_endingPad1KeysPressed;
+static u32 g_endingPad2KeysPressed;
+static u32 g_endingPad1Keys;
+static u32 g_endingPad2Keys;
 static void* D_800AF3FC;
-static OT_TYPE D_800AF400[2];
-static s32 D_800AF408;
+static OT_TYPE g_endingOT[2];
+static s32 g_endingDbIndex;
 static s32 D_800AF40C;
 static s32 D_800AF410;
 
@@ -727,8 +727,8 @@ void ENDING_Loop(s32 arg0) {
             VSync(1);
             DrawSync(0);
             VSync(1);
-            D_800AF408 = StartFrame(D_800AF40C);
-            if (D_800AF408 != 0) {
+            g_endingDbIndex = StartFrame(D_800AF40C);
+            if (g_endingDbIndex != 0) {
                 D_800AF3FC = (void*)0x801F0000;
             }
             rect.x = D_8007EBD0->clip.x;
@@ -745,13 +745,13 @@ void ENDING_Loop(s32 arg0) {
             if (SystemCdromReadChain() == 10) {
                 func_800354CC();
             }
-            ClearOTagR(&D_800AF400[D_800AF408], 1);
-            D_800AF3E8 = &D_800AF400[D_800AF408];
+            ClearOTagR(&g_endingOT[g_endingDbIndex], 1);
+            D_800AF3E8 = &g_endingOT[g_endingDbIndex];
             func_800A1E20();
             func_800A3210();
-            DrawOTag(&D_800AF400[D_800AF408]);
+            DrawOTag(&g_endingOT[g_endingDbIndex]);
             VSync(1);
-            if (arg0 == 0 && (D_800AF3EC & 0x9F0)) {
+            if (arg0 == 0 && (g_endingPad1KeysPressed & 0x9F0)) {
                 goto fade_out;
             }
         }
@@ -763,7 +763,7 @@ fade_out:
     g_AkaoCmd.params[1] = 0;
     AkaoExec();
     for (col = 0; col < 0xFF; col += 4) {
-        D_800AF408 = StartFrame(D_800AF40C);
+        g_endingDbIndex = StartFrame(D_800AF40C);
         rect.x = D_8007EBD0->clip.x;
         rect.y = D_8007EBD0->clip.y;
         rect.w = D_8007EBD0->clip.w;
@@ -773,21 +773,21 @@ fade_out:
         if (SystemCdromReadChain() == 10) {
             func_800354CC();
         }
-        ClearOTagR(&D_800AF400[D_800AF408], 1);
-        D_800AF3E8 = &D_800AF400[D_800AF408];
+        ClearOTagR(&g_endingOT[g_endingDbIndex], 1);
+        D_800AF3E8 = &g_endingOT[g_endingDbIndex];
         func_800A3210();
-        DrawOTag(&D_800AF400[D_800AF408]);
-        ClearOTagR(&D_800A6454[D_800AF408], 1);
-        SetTile(&D_800A645C[D_800AF408]);
-        SetSemiTrans(&D_800A645C[D_800AF408], 1);
-        setRGB0(&D_800A645C[D_800AF408], col, col, col);
-        tile = &D_800A645C[D_800AF408];
+        DrawOTag(&g_endingOT[g_endingDbIndex]);
+        ClearOTagR(&D_800A6454[g_endingDbIndex], 1);
+        SetTile(&D_800A645C[g_endingDbIndex]);
+        SetSemiTrans(&D_800A645C[g_endingDbIndex], 1);
+        setRGB0(&D_800A645C[g_endingDbIndex], col, col, col);
+        tile = &D_800A645C[g_endingDbIndex];
         setXY0(tile, 0, 0);
         setWH(tile, 0x140, 0xF0);
-        AddPrim(&D_800A6454[D_800AF408], tile);
-        SetDrawMode(&D_800A647C[D_800AF408], 0, 0, GetTPage(2, 2, 0, 0), NULL);
-        AddPrim(&D_800A6454[D_800AF408], &D_800A647C[D_800AF408]);
-        DrawOTag(&D_800A6454[D_800AF408]);
+        AddPrim(&D_800A6454[g_endingDbIndex], tile);
+        SetDrawMode(&D_800A647C[g_endingDbIndex], 0, 0, GetTPage(2, 2, 0, 0), NULL);
+        AddPrim(&D_800A6454[g_endingDbIndex], &D_800A647C[g_endingDbIndex]);
+        DrawOTag(&D_800A6454[g_endingDbIndex]);
     }
     VSync(4);
     ResetGraph(1);
@@ -876,8 +876,8 @@ s32 func_800A0CAC(void) {
 static void func_800A0E68(void) {
     s32 i;
 
-    AddPrim(D_800AF3E8, &D_800A763C[D_800AF408]);
-    AddPrim(D_800AF3E8, &D_800A765C[D_800AF408]);
+    AddPrim(D_800AF3E8, &g_endingClearTile1[g_endingDbIndex]);
+    AddPrim(D_800AF3E8, &g_endingClearTile2[g_endingDbIndex]);
 
     for (i = 0; i < 0x20; i++) {
         if (D_800A652C[i].flags & 1) {
@@ -921,22 +921,22 @@ s32 func_800A0F90(void) {
     h = 0x28;
 
     for (k = 0; k < 2; k++) {
-        SetTile(&D_800A763C[k]);
-        SetTile(&D_800A765C[k]);
-        D_800A763C[k].x0 = 0;
-        D_800A763C[k].y0 = 0;
-        D_800A763C[k].w = w;
-        D_800A763C[k].h = h;
-        D_800A765C[k].x0 = 0;
-        D_800A765C[k].y0 = 0xC8;
-        D_800A765C[k].w = w;
-        D_800A765C[k].h = h;
-        D_800A763C[k].r0 = 0;
-        D_800A763C[k].g0 = 0;
-        D_800A763C[k].b0 = 0;
-        D_800A765C[k].r0 = 0;
-        D_800A765C[k].g0 = 0;
-        D_800A765C[k].b0 = 0;
+        SetTile(&g_endingClearTile1[k]);
+        SetTile(&g_endingClearTile2[k]);
+        g_endingClearTile1[k].x0 = 0;
+        g_endingClearTile1[k].y0 = 0;
+        g_endingClearTile1[k].w = w;
+        g_endingClearTile1[k].h = h;
+        g_endingClearTile2[k].x0 = 0;
+        g_endingClearTile2[k].y0 = 0xC8;
+        g_endingClearTile2[k].w = w;
+        g_endingClearTile2[k].h = h;
+        g_endingClearTile1[k].r0 = 0;
+        g_endingClearTile1[k].g0 = 0;
+        g_endingClearTile1[k].b0 = 0;
+        g_endingClearTile2[k].r0 = 0;
+        g_endingClearTile2[k].g0 = 0;
+        g_endingClearTile2[k].b0 = 0;
     }
 
     return 1;
@@ -1213,30 +1213,30 @@ static void SetGameResolution(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
     SetGraphDebug(0);
     SetGeomOffset(w / 2, h / 2);
     SetGeomScreen(dist);
-    SetDefDrawEnv(&D_800AF2E0[0], 0, 0, w, h);
-    SetDefDispEnv(&D_800AF398[0], 0, y, w, h);
-    SetDefDrawEnv(&D_800AF2E0[1], 0, y, w, h);
-    SetDefDispEnv(&D_800AF398[1], 0, 0, w, h);
-    D_800AF408 = 1;
+    SetDefDrawEnv(&g_endingDrawEnvs[0], 0, 0, w, h);
+    SetDefDispEnv(&g_endingDispEnvs[0], 0, y, w, h);
+    SetDefDrawEnv(&g_endingDrawEnvs[1], 0, y, w, h);
+    SetDefDispEnv(&g_endingDispEnvs[1], 0, 0, w, h);
+    g_endingDbIndex = 1;
 
     rect.w = w * 3 / 2;
 
-    D_800AF398[1].isrgb24 = 0;
-    D_800AF398[0].isrgb24 = 0;
-    D_800AF2E0[1].isbg = 0;
-    D_800AF2E0[0].isbg = 0;
-    D_800AF2E0[1].dfe = 0;
-    D_800AF2E0[0].dfe = 0;
-    D_800AF2E0[1].dtd = 0;
-    D_800AF2E0[0].dtd = 0;
-    D_800AF2E0[1].tpage = 0;
-    D_800AF2E0[0].tpage = 0;
-    D_800AF2E0[0].r0 = r;
-    D_800AF2E0[0].g0 = g;
-    D_800AF2E0[0].b0 = b;
-    D_800AF2E0[1].r0 = r;
-    D_800AF2E0[1].g0 = g;
-    D_800AF2E0[1].b0 = b;
+    g_endingDispEnvs[1].isrgb24 = 0;
+    g_endingDispEnvs[0].isrgb24 = 0;
+    g_endingDrawEnvs[1].isbg = 0;
+    g_endingDrawEnvs[0].isbg = 0;
+    g_endingDrawEnvs[1].dfe = 0;
+    g_endingDrawEnvs[0].dfe = 0;
+    g_endingDrawEnvs[1].dtd = 0;
+    g_endingDrawEnvs[0].dtd = 0;
+    g_endingDrawEnvs[1].tpage = 0;
+    g_endingDrawEnvs[0].tpage = 0;
+    g_endingDrawEnvs[0].r0 = r;
+    g_endingDrawEnvs[0].g0 = g;
+    g_endingDrawEnvs[0].b0 = b;
+    g_endingDrawEnvs[1].r0 = r;
+    g_endingDrawEnvs[1].g0 = g;
+    g_endingDrawEnvs[1].b0 = b;
 
     rect.x = 0;
     rect.y = 0;
@@ -1246,32 +1246,32 @@ static void SetGameResolution(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
 }
 
 static s32 StartFrame(s32 sync) {
-    u32 pad0;
     u32 pad1;
-    u32 old0;
+    u32 pad2;
     u32 old1;
+    u32 old2;
 
-    D_800AF408 ^= 1;
+    g_endingDbIndex ^= 1;
     DrawSync(0);
     VSync(sync);
-    PutDispEnv(&D_800AF398[D_800AF408]);
-    PutDrawEnv(&D_800AF2E0[D_800AF408]);
-    D_8007EBD8 = &D_800AF398[D_800AF408];
-    D_8007EBD0 = &D_800AF2E0[D_800AF408];
+    PutDispEnv(&g_endingDispEnvs[g_endingDbIndex]);
+    PutDrawEnv(&g_endingDrawEnvs[g_endingDbIndex]);
+    D_8007EBD8 = &g_endingDispEnvs[g_endingDbIndex];
+    D_8007EBD0 = &g_endingDrawEnvs[g_endingDbIndex];
 
-    pad0 = InputReadPadsRaw();
-    old0 = D_800AF3C0;
-    old1 = D_800AF3C4;
-    pad1 = pad0 >> 16;
+    pad1 = InputReadPadsRaw();
+    old1 = D_800AF3C0;
+    old2 = D_800AF3C4;
+    pad2 = pad1 >> 16;
 
-    D_800AF3F4 = pad0;
-    D_800AF3F8 = pad1;
-    D_800AF3C0 = ~pad0;
-    D_800AF3C4 = ~pad1;
-    D_800AF3EC = old0 & pad0;
-    D_800AF3F0 = old1 & pad1;
+    g_endingPad1Keys = pad1;
+    g_endingPad2Keys = pad2;
+    D_800AF3C0 = ~pad1;
+    D_800AF3C4 = ~pad2;
+    g_endingPad1KeysPressed = old1 & pad1;
+    g_endingPad2KeysPressed = old2 & pad2;
 
-    return D_800AF408;
+    return g_endingDbIndex;
 }
 
 static void func_800A2888(void* addr, s16* tpage, s16* clut) {
