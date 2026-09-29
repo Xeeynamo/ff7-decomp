@@ -2891,7 +2891,31 @@ static void BattleOpcodePushToStack(s32 size, u32 value) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeStoreVal);
+void BattleOpcodeStoreVal(s32 arg0) {
+    s32 msb = arg0 >> 4;
+    s32 size = arg0 & 0xF;
+    s32 i;
+
+    switch (msb) {
+    case 0:
+        BattleOpcodePushToStack(size, D_800F4AC4->var[0][0]);
+        break;
+    case 1:
+        BattleOpcodePushToStack(2, D_800F4AC4->var[0][0]);
+        break;
+    case 2:
+        for (i = 0xA; i > 0; --i) {
+            if ((D_800F4AC4->unk28[0] >> i - 1) & 1) {
+                BattleOpcodePushToStack(size, D_800F4AC4->var[0][i - 1]);
+            }
+        }
+        BattleOpcodePushToStack(2, D_800F4AC4->unk28[0]);
+        break;
+    }
+
+    D_800F4AC4->sp--;
+    D_800F4AC4->stack[D_800F4AC4->sp] = arg0;
+}
 
 // Pop a `size`-byte big-endian value off the operand stack. The inverse of
 // BattleOpcodePushToStack, and likewise falls through so each case consumes one byte.
