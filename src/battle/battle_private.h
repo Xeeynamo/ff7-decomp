@@ -593,7 +593,7 @@ void func_800AD324(s32, s32, s32, s32);
 static void BattleApplyDefaultAbsorbEffect(void);
 void BattleDmgFormulaRun(void);
 void func_800AE82C(void);
-s32 BattleOpcodeGetRndBit(s32);
+s32 BattleOpcodeGetRndBit(u16);
 void BattlePlayerModelsUpdateBonesPos(void);
 s32 BattleLoadEnemyModel(s32);
 void BattleLoadEnemyTexture(s32);
