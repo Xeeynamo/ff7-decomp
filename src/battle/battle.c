@@ -2892,11 +2892,13 @@ static void BattleOpcodePushToStack(s32 size, u32 value) {
 }
 
 void BattleOpcodeStoreVal(s32 arg0) {
-    s32 msb = arg0 >> 4;
+    // arg0 >> 4 seems to represent the type of payload layout,
+    // while the lower nibble represents the size of the payload (if applicable).
+    s32 upper = arg0 >> 4;
     s32 size = arg0 & 0xF;
     s32 i;
 
-    switch (msb) {
+    switch (upper) {
     case 0:
         BattleOpcodePushToStack(size, D_800F4AC4->var[0][0]);
         break;
@@ -2904,7 +2906,7 @@ void BattleOpcodeStoreVal(s32 arg0) {
         BattleOpcodePushToStack(2, D_800F4AC4->var[0][0]);
         break;
     case 2:
-        for (i = 0xA; i > 0; --i) {
+        for (i = LEN(D_800F4AC4->var[0]); i > 0; --i) {
             if ((D_800F4AC4->unk28[0] >> i - 1) & 1) {
                 BattleOpcodePushToStack(size, D_800F4AC4->var[0][i - 1]);
             }
@@ -2939,7 +2941,43 @@ static s32 BattleOpcodePopFromStack(s32 size) {
     return value;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeLoadVal);
+s32 BattleOpcodeLoadVal(s32 arg0) {
+    s32 header = D_800F4AC4->stack[D_800F4AC4->sp++];
+    s32 payload;
+    s32 size;
+    s32 upper;
+    s32 i;
+
+    // Header byte: upper nibble seems to represent the type of payload stored,
+    // while the lower nibble represents the size of the payload (if applicable).
+    upper = header >> 4;
+    size = header & 0xF;
+
+    D_800F4AC4->unk18[arg0] = upper;
+    D_800F4AC4->unk20[arg0] = size;
+
+    switch (upper) {
+    case 0:
+        D_800F4AC4->unk28[arg0] = 0x3FF;
+        payload = BattleOpcodePopFromStack(size);
+        for (i = LEN(D_800F4AC4->var[arg0]) - 1; i >= 0; i--) {
+            D_800F4AC4->var[arg0][i] = payload;
+        }
+        break;
+    case 1:
+        D_800F4AC4->var[arg0][0] = BattleOpcodePopFromStack(2);
+        break;
+    case 2:
+        D_800F4AC4->unk28[arg0] = BattleOpcodePopFromStack(2);
+        for (i = 0; i < LEN(D_800F4AC4->var[arg0]); i++) {
+            if ((D_800F4AC4->unk28[arg0] >> i) & 1) {
+                D_800F4AC4->var[arg0][i] = BattleOpcodePopFromStack(size);
+            }
+        }
+        break;
+    }
+    return header;
+}
 
 // Evaluate the operand at the script cursor without consuming it: run the
 // normal operand fetch, then rewind the stack pointer to where it started so
