@@ -2870,63 +2870,54 @@ static s32 BattleOpcodeValOffs(s32 arg0, s32 arg1, void** arg2) {
     return var_a1;
 }
 
-// void BattleOpcodeWriteVal(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
-// {
-//     void* sp10;
-//     s32 temp_a1;
-//     s32 temp_v1;
-//     s32 var_v0;
-//     s32 var_v0_2;
-//     s32 var_v0_3;
-//     s32* temp_v1_2;
-//     u8 temp_v0;
-//     u8* temp_a0;
-
-// temp_v1 = BattleOpcodeValOffs(arg0, arg2, &sp10);
-// switch (arg1) {                                 // irregular
-//     default:
-//         var_v0 = temp_v1;
-//         if (arg1 != 3) {
-//             return;
-//         }
-//         if (var_v0 < 0) {
-//             var_v0 += 0x1F;
-//         }
-//         temp_v1_2 = sp10 + ((var_v0 >> 5) * 4);
-//         sp10 = temp_v1_2;
-//         *temp_v1_2 = arg3;
-//         return;
-//     case 0:
-//         temp_a0 = sp10 + (temp_v1 >> 3);
-//         temp_a1 = 1 << (temp_v1 & 7);
-//         temp_v0 = *temp_a0 & ~temp_a1;
-//         *temp_a0 = temp_v0;
-//         if (arg3 != 0) {
-//             *temp_a0 = temp_v0 | temp_a1;
-//             return;
-//         }
-//         break;
-//     case 1:
-//         var_v0_2 = temp_v1;
-//         if (temp_v1 < 0) {
-//             var_v0_2 = temp_v1 + 7;
-//         }
-//         *(sp10 + (var_v0_2 >> 3)) = (s8) arg3;
-//         return;
-//     case 2:
-//         var_v0_3 = temp_v1;
-//         if (temp_v1 < 0) {
-//             var_v0_3 = temp_v1 + 0xF;
-//         }
-//         *(sp10 + ((var_v0_3 >> 4) * 2)) = (s16) arg3;
-//         return;
-// }
-// }
-
-void BattleOpcodeWriteVal(s32 arg0, s32 widthType, s32 arg2, s32 arg3) {
+// Writes `value` to the battle-script VM's variable storage at the
+// specified bit offset with the specified access width type.
+// A width type outside of the 0-3 range is undefined behaviour.
+void BattleOpcodeWriteVal(s32 arg0, s32 widthType, s32 arg2, s32 value) {
     void* buffer;
     s32 bitOffset;
-    u8 mask;
+    u8 bitmask;
+    u8* u8buffer;
+    u16* u16buffer;
+
+    bitOffset = BattleOpcodeValOffs(arg0, arg2, &buffer);
+    switch (widthType) {
+    case WIDTH_BIT:
+        u8buffer = (u8*)buffer;
+        u8buffer += bitOffset >> 3;
+        bitmask = 1 << (bitOffset & 7);
+
+        // Clear the bit before setting it
+        *u8buffer = *u8buffer & ~bitmask;
+        if (value != 0) {
+            *u8buffer |= bitmask;
+        }
+        break;
+    case WIDTH_BYTE:
+        u8buffer = (u8*)buffer;
+        u8buffer += bitOffset / 8;
+        *u8buffer = value;
+        break;
+    case WIDTH_HALF:
+        u16buffer = (u16*)buffer;
+        u16buffer += bitOffset / 16;
+        *u16buffer = value;
+        break;
+    case WIDTH_WORD:
+        // Advances buffer itself (the target stores the pointer back to the stack)
+        buffer = (u32*)buffer + (bitOffset / 32);
+        *((u32*)buffer) = value;
+        break;
+    }
+}
+
+// Reads a value from the battle-script VM's variable storage at the
+// specified bit offset with the specified access width type.
+// A width type outside of the 0-3 range is undefined behaviour.
+s32 BattleOpcodeReadVal(s32 arg0, s32 widthType, s32 arg2) {
+    s32 result;
+    void* buffer;
+    s32 bitOffset;
 
     // Casting buffer directly in the byte cases doesn't match;
     // the original likely used typed pointers per width
@@ -2938,45 +2929,7 @@ void BattleOpcodeWriteVal(s32 arg0, s32 widthType, s32 arg2, s32 arg3) {
     switch (widthType) {
     case WIDTH_BIT:
         u8buffer = (u8*)buffer;
-        u8buffer = u8buffer + (bitOffset >> 3);
-        mask = 1 << (bitOffset & 7);
-        *u8buffer = *u8buffer & ~mask;
-        if (arg3 != 0) {
-            *u8buffer |= mask;
-        }
-        break;
-    case WIDTH_BYTE:
-        u8buffer = (u8*)buffer;
-        u8buffer += bitOffset / 8;
-        *u8buffer = arg3;
-        break;
-    case WIDTH_HALF:
-        u16buffer = (u16*)buffer;
-        u16buffer += bitOffset / 16;
-        *u16buffer = arg3;
-        break;
-    case WIDTH_WORD:
-        buffer = (u32*)buffer + (bitOffset / 32);
-        *((u32*)buffer) = arg3;
-        break;
-    }
-}
-
-s32 BattleOpcodeReadVal(s32 arg0, s32 widthType, s32 arg2) {
-    s32 result;
-    void* buffer;
-    s32 bitOffset = BattleOpcodeValOffs(arg0, arg2, &buffer);
-
-    // Casting buffer directly in the byte cases doesn't match;
-    // the original likely used typed pointers per width
-    u8* u8buffer;
-    u16* u16buffer;
-    u32* u32buffer;
-
-    switch (widthType) {
-    case WIDTH_BIT:
-        u8buffer = (u8*)buffer;
-        result = u8buffer[bitOffset >> 3] >> (bitOffset & 7) & 1;
+        result = (u8buffer[bitOffset >> 3] >> (bitOffset & 7)) & 1;
         break;
     case WIDTH_BYTE:
         u8buffer = (u8*)buffer;
@@ -3011,14 +2964,16 @@ static void BattleOpcodePushToStack(s32 size, u32 value) {
     }
 }
 
+// Stores a value to the battle-script VM's variable storage based on `arg0`. This
+// seems to be a "header" that encodes the type and size of the payload to be stored.
 void BattleOpcodeStoreVal(s32 arg0) {
     // arg0 >> 4 seems to represent the type of payload layout,
     // while the lower nibble represents the size of the payload (if applicable).
-    s32 upper = arg0 >> 4;
+    s32 selector = arg0 >> 4;
     s32 size = arg0 & 0xF;
     s32 i;
 
-    switch (upper) {
+    switch (selector) {
     case 0:
         BattleOpcodePushToStack(size, D_800F4AC4->var[0][0]);
         break;
@@ -3061,22 +3016,24 @@ static s32 BattleOpcodePopFromStack(s32 size) {
     return value;
 }
 
+// Loads a value from the battle-script VM's operand stack into the specified variable slot.
+// Returns the header byte that was popped from the stack.
 s32 BattleOpcodeLoadVal(s32 arg0) {
     s32 header = D_800F4AC4->stack[D_800F4AC4->sp++];
     s32 payload;
+    s32 selector;
     s32 size;
-    s32 upper;
     s32 i;
 
     // Header byte: upper nibble seems to represent the type of payload stored,
     // while the lower nibble represents the size of the payload (if applicable).
-    upper = header >> 4;
+    selector = header >> 4;
     size = header & 0xF;
 
-    D_800F4AC4->unk18[arg0] = upper;
+    D_800F4AC4->unk18[arg0] = selector;
     D_800F4AC4->unk20[arg0] = size;
 
-    switch (upper) {
+    switch (selector) {
     case 0:
         D_800F4AC4->unk28[arg0] = 0x3FF;
         payload = BattleOpcodePopFromStack(size);
