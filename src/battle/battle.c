@@ -2870,14 +2870,104 @@ static s32 BattleOpcodeValOffs(s32 arg0, s32 arg1, void** arg2) {
     return var_a1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeWriteVal);
+// void BattleOpcodeWriteVal(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+// {
+//     void* sp10;
+//     s32 temp_a1;
+//     s32 temp_v1;
+//     s32 var_v0;
+//     s32 var_v0_2;
+//     s32 var_v0_3;
+//     s32* temp_v1_2;
+//     u8 temp_v0;
+//     u8* temp_a0;
+
+// temp_v1 = BattleOpcodeValOffs(arg0, arg2, &sp10);
+// switch (arg1) {                                 // irregular
+//     default:
+//         var_v0 = temp_v1;
+//         if (arg1 != 3) {
+//             return;
+//         }
+//         if (var_v0 < 0) {
+//             var_v0 += 0x1F;
+//         }
+//         temp_v1_2 = sp10 + ((var_v0 >> 5) * 4);
+//         sp10 = temp_v1_2;
+//         *temp_v1_2 = arg3;
+//         return;
+//     case 0:
+//         temp_a0 = sp10 + (temp_v1 >> 3);
+//         temp_a1 = 1 << (temp_v1 & 7);
+//         temp_v0 = *temp_a0 & ~temp_a1;
+//         *temp_a0 = temp_v0;
+//         if (arg3 != 0) {
+//             *temp_a0 = temp_v0 | temp_a1;
+//             return;
+//         }
+//         break;
+//     case 1:
+//         var_v0_2 = temp_v1;
+//         if (temp_v1 < 0) {
+//             var_v0_2 = temp_v1 + 7;
+//         }
+//         *(sp10 + (var_v0_2 >> 3)) = (s8) arg3;
+//         return;
+//     case 2:
+//         var_v0_3 = temp_v1;
+//         if (temp_v1 < 0) {
+//             var_v0_3 = temp_v1 + 0xF;
+//         }
+//         *(sp10 + ((var_v0_3 >> 4) * 2)) = (s16) arg3;
+//         return;
+// }
+// }
+
+void BattleOpcodeWriteVal(s32 arg0, s32 widthType, s32 arg2, s32 arg3) {
+    void* buffer;
+    s32 bitOffset;
+    u8 mask;
+
+    // Casting buffer directly in the byte cases doesn't match;
+    // the original likely used typed pointers per width
+    u8* u8buffer;
+    u16* u16buffer;
+    u32* u32buffer;
+
+    bitOffset = BattleOpcodeValOffs(arg0, arg2, &buffer);
+    switch (widthType) {
+    case WIDTH_BIT:
+        u8buffer = (u8*)buffer;
+        u8buffer = u8buffer + (bitOffset >> 3);
+        mask = 1 << (bitOffset & 7);
+        *u8buffer = *u8buffer & ~mask;
+        if (arg3 != 0) {
+            *u8buffer |= mask;
+        }
+        break;
+    case WIDTH_BYTE:
+        u8buffer = (u8*)buffer;
+        u8buffer += bitOffset / 8;
+        *u8buffer = arg3;
+        break;
+    case WIDTH_HALF:
+        u16buffer = (u16*)buffer;
+        u16buffer += bitOffset / 16;
+        *u16buffer = arg3;
+        break;
+    case WIDTH_WORD:
+        buffer = (u32*)buffer + (bitOffset / 32);
+        *((u32*)buffer) = arg3;
+        break;
+    }
+}
 
 s32 BattleOpcodeReadVal(s32 arg0, s32 widthType, s32 arg2) {
     s32 result;
     void* buffer;
     s32 bitOffset = BattleOpcodeValOffs(arg0, arg2, &buffer);
 
-    // Casting buffer directly in the byte cases doesn't match; 
+    // Casting buffer directly in the byte cases doesn't match;
     // the original likely used typed pointers per width
     u8* u8buffer;
     u16* u16buffer;
