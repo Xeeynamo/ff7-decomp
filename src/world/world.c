@@ -1972,7 +1972,29 @@ static void func_800A8898(VECTOR* out) {
     out->vz = a->vz + b->vz + c->vz;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmInitAllEntityStructs);
+void WmInitAllEntityStructs(u8* savemap) {
+    WorldActor* next;
+    s32 off;
+
+    next = &D_8010AC54;
+    for (off = 14 * sizeof(WorldActor); off >= 0; off -= sizeof(WorldActor)) {
+        *(WorldActor**)((u8*)D_80109F34 + off) = next;
+        next--;
+    }
+    D_8010AC54.next = NULL;
+    D_8010AD34 = D_80109F34;
+    D_8010AD38 = D_8010AD3C = D_8010AD40 = NULL;
+
+    WmCleanEntityStruct(&D_80109D74);
+    WmCleanEntityStruct(&D_80109E54);
+    D_80109E54.actorType = 9;
+    D_80109D74.next = NULL;
+    D_80109E54.next = NULL;
+    func_800AA8D8(0, 0, 0);
+    D_8010AD50 = savemap;
+    D_8010AD54 = D_8010AD58 = 0;
+    D_8010AD5C = D_8010AD60 = D_8010AD64 = 0;
+}
 
 static WorldActor* WmInsertInEntityStructList(void) {
     WorldActor* temp_s0;
@@ -2259,7 +2281,7 @@ static void WmInitActiveEntityStruct(s32 arg0) {
             break;
         case 3:
             if (func_800B716C() == 0)
-                D_8010AD3C->riding = &D_80109D74[1];
+                D_8010AD3C->riding = &D_80109E54;
 
             rect.x = 0x18;
             rect.y = 0x48;
@@ -2895,7 +2917,7 @@ void func_800ABA18(s32 arg0) {
     s32 var_a1;
     s32 var_a0;
 
-    D_8010AD3C = D_80109D74;
+    D_8010AD3C = &D_80109D74;
     if (arg0 == 1)
         D_8010ADEC = arg0;
     var_a1 = arg0 - 2;
@@ -2913,7 +2935,7 @@ static void func_800ABA78(s16 arg0, s16 arg1) {
     s32 tmp0;
     s32 tmp1;
 
-    D_8010AD3C = D_80109D74;
+    D_8010AD3C = &D_80109D74;
     WmExtractLoopCoordsTopBottomParts(&D_8010AD40->pos, NULL, &sp10, &sp12);
     tmp0 = ((((sp12 * 0x24) + sp10) * 0x10) & 0x3FF0);
     tmp1 = (((arg0 + (arg1 * 5)) & 0xF) | 0x8000);
@@ -3226,13 +3248,13 @@ s32 WmScriptOpcode200Handle(u16 arg0) {
         }
         D_8010ADE4->scriptIdx = D_8010ADE4->scriptPriority = 0;
         if (D_8010ADEC != 0) {
-            if (D_8010ADE4 == D_80109D74) {
+            if (D_8010ADE4 == &D_80109D74) {
                 for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next) {
                     func_800AB988(var_s0->actorType, 1);
                 }
             }
         } else {
-            if (D_8010ADE4 == D_80109D74) {
+            if (D_8010ADE4 == &D_80109D74) {
                 func_800ABA18(2);
             } else {
                 func_800AB988(D_8010ADE4->actorType, 2);
@@ -3286,7 +3308,7 @@ void WmScriptRunOne(WorldActor* arg0) {
 static void WmScriptRunAll(void) {
     WorldActor* var_s0;
 
-    WmScriptRunOne(D_8010AD3C = D_8010ADE4 = D_80109D74);
+    WmScriptRunOne(D_8010AD3C = D_8010ADE4 = &D_80109D74);
     for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next)
         WmScriptRunOne(D_8010ADE4 = D_8010AD3C = var_s0);
 }
@@ -3322,7 +3344,7 @@ static s32 WmScriptIsAnyScriptRuns(void) {
     WorldActor* a;
     s32 flag;
 
-    flag = D_80109D74[0].scriptIdx != 0;
+    flag = D_80109D74.scriptIdx != 0;
     a = D_8010AD38;
     while (a != NULL && flag == 0) {
         flag |= a->scriptIdx != 0;

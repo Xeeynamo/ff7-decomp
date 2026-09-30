@@ -329,7 +329,10 @@ extern s32 D_80109D54;
 extern s32 D_80109D58;
 extern s32 D_80109D6C;
 extern s32 D_80109D70;
-extern WorldActor D_80109D74[0x10]; // World map actor heap, TODO: Confirm size
+extern WorldActor D_80109D74;     // the player actor
+extern WorldActor D_80109E54;     // the actor the player is riding
+extern WorldActor D_80109F34[15]; // the free actor pool
+extern WorldActor D_8010AC54;     // the last node of the free actor pool
 extern WorldActor* D_8010AD34;
 extern WorldActor* D_8010AD38;
 extern WorldActor* D_8010AD3C; // Active Actor
@@ -341,9 +344,10 @@ extern s32 D_8010ADE8;
 extern s16 D_8010AD44;
 extern s16 D_8010AD48;
 extern s16 D_8010AD4C;
-extern u16 D_8010AD54; // possibly a svec?
-extern u16 D_8010AD58;
+extern s32 D_8010AD54;
+extern s32 D_8010AD58;
 extern s32 D_8010AD5C;
+extern s32 D_8010AD60;
 extern s32 D_8010AD64;
 extern WorldScriptData* D_8010AD68;
 extern u16* D_8010AD6C;
@@ -498,7 +502,7 @@ extern u8 D_800C6940;
 extern u8 D_800C6A10[];
 extern s32 D_800C74C4[][2];
 extern u8* D_800C80BC;
-extern s32 D_8010AD50;
+extern u8* D_8010AD50;
 extern s32 D_8010CB20;
 extern u8 D_8010CB24[];
 extern s32 D_8010D930;
