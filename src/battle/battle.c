@@ -3067,7 +3067,39 @@ static s32 BattleOpcodeLoadValWithoutPop(s32 arg0) {
     return result;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeMakeMath);
+u32 BattleOpcodeMakeMath(s32 lhs, s32 rhs) {
+    s32 a = D_800F4AC4->var[0][lhs];
+    s32 b = D_800F4AC4->var[1][rhs];
+    u32 result = 0;
+
+    switch (D_800F4AC4->opcode) {
+    case 0x30:
+        result = a + b;
+        break;
+    case 0x31:
+        result = a - b;
+        break;
+    case 0x32:
+        result = a * b;
+        break;
+    case 0x33:
+        result = (u32)a / (u32)b;
+        break;
+    case 0x34:
+        result = (u32)a % (u32)b;
+        break;
+    case 0x35:
+        result = a & b;
+        break;
+    case 0x36:
+        result = a | b;
+        break;
+    case 0x37:
+        result = ~a;
+        break;
+    }
+    return result;
+}
 
 static s32 BattleScriptCompare(s32 lhs, s32 rhs) {
     u32 a = D_800F4AC4->var[0][lhs];
