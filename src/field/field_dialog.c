@@ -129,7 +129,7 @@ s32 FieldWindowSetStateToClose(s16 window) {
     return 1;
 }
 
-void FieldDialogSetWindowStyleCbc(s16 window, s8 style, s16 preventClose) {
+void FieldDialogSetWindowStyleCbc(s16 window, u8 style, s16 preventClose) {
     g_WindowData[window].style = style;
     g_WindowData[window].preventClose = preventClose;
 }
