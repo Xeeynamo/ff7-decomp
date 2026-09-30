@@ -433,6 +433,11 @@ typedef struct WorldListNode {
 } WorldListNode;
 
 typedef struct {
+    /* 0x0 */ s32 flags;
+    /* 0x4 */ SVECTOR verts[1];
+} WorldPartData;
+
+typedef struct {
     /* 0x00 */ u8 unk0[6];
     /* 0x06 */ s16 timer;
     /* 0x08 */ u8 unk8[0xC];
