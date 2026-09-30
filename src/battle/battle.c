@@ -2870,9 +2870,82 @@ static s32 BattleOpcodeValOffs(s32 arg0, s32 arg1, void** arg2) {
     return var_a1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeWriteVal);
+// Writes `value` to the battle-script VM's variable storage at the
+// specified bit offset with the specified access width type.
+// A width type outside of the 0-3 range is undefined behaviour.
+void BattleOpcodeWriteVal(s32 arg0, s32 widthType, s32 arg2, s32 value) {
+    void* buffer;
+    s32 bitOffset;
+    u8 bitmask;
+    u8* u8buffer;
+    u16* u16buffer;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeReadVal);
+    bitOffset = BattleOpcodeValOffs(arg0, arg2, &buffer);
+    switch (widthType) {
+    case WIDTH_BIT:
+        u8buffer = (u8*)buffer;
+        u8buffer += bitOffset >> 3;
+        bitmask = 1 << (bitOffset & 7);
+
+        // Clear the bit before setting it
+        *u8buffer = *u8buffer & ~bitmask;
+        if (value != 0) {
+            *u8buffer |= bitmask;
+        }
+        break;
+    case WIDTH_BYTE:
+        u8buffer = (u8*)buffer;
+        u8buffer += bitOffset / 8;
+        *u8buffer = value;
+        break;
+    case WIDTH_HALF:
+        u16buffer = (u16*)buffer;
+        u16buffer += bitOffset / 16;
+        *u16buffer = value;
+        break;
+    case WIDTH_WORD:
+        // Advances buffer itself (the target stores the pointer back to the stack)
+        buffer = (u32*)buffer + (bitOffset / 32);
+        *((u32*)buffer) = value;
+        break;
+    }
+}
+
+// Reads a value from the battle-script VM's variable storage at the
+// specified bit offset with the specified access width type.
+// A width type outside of the 0-3 range is undefined behaviour.
+s32 BattleOpcodeReadVal(s32 arg0, s32 widthType, s32 arg2) {
+    s32 result;
+    void* buffer;
+    s32 bitOffset;
+
+    // Casting buffer directly in the byte cases doesn't match;
+    // the original likely used typed pointers per width
+    u8* u8buffer;
+    u16* u16buffer;
+    u32* u32buffer;
+
+    bitOffset = BattleOpcodeValOffs(arg0, arg2, &buffer);
+    switch (widthType) {
+    case WIDTH_BIT:
+        u8buffer = (u8*)buffer;
+        result = (u8buffer[bitOffset >> 3] >> (bitOffset & 7)) & 1;
+        break;
+    case WIDTH_BYTE:
+        u8buffer = (u8*)buffer;
+        result = u8buffer[bitOffset >> 3];
+        break;
+    case WIDTH_HALF:
+        u16buffer = (u16*)buffer;
+        result = u16buffer[bitOffset >> 4];
+        break;
+    case WIDTH_WORD:
+        u32buffer = (u32*)buffer;
+        result = u32buffer[bitOffset >> 5];
+        break;
+    }
+    return result;
+}
 
 // Push `value` onto the operand stack as `size` bytes, most significant byte
 // first. Sizes above 3 (or negative) push nothing; the cases deliberately fall
@@ -2891,7 +2964,35 @@ static void BattleOpcodePushToStack(s32 size, u32 value) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeStoreVal);
+// Stores a value to the battle-script VM's variable storage based on `arg0`. This
+// seems to be a "header" that encodes the type and size of the payload to be stored.
+void BattleOpcodeStoreVal(s32 arg0) {
+    // arg0 >> 4 seems to represent the type of payload layout,
+    // while the lower nibble represents the size of the payload (if applicable).
+    s32 selector = arg0 >> 4;
+    s32 size = arg0 & 0xF;
+    s32 i;
+
+    switch (selector) {
+    case 0:
+        BattleOpcodePushToStack(size, D_800F4AC4->var[0][0]);
+        break;
+    case 1:
+        BattleOpcodePushToStack(2, D_800F4AC4->var[0][0]);
+        break;
+    case 2:
+        for (i = LEN(D_800F4AC4->var[0]); i > 0; --i) {
+            if ((D_800F4AC4->unk28[0] >> i - 1) & 1) {
+                BattleOpcodePushToStack(size, D_800F4AC4->var[0][i - 1]);
+            }
+        }
+        BattleOpcodePushToStack(2, D_800F4AC4->unk28[0]);
+        break;
+    }
+
+    D_800F4AC4->sp--;
+    D_800F4AC4->stack[D_800F4AC4->sp] = arg0;
+}
 
 // Pop a `size`-byte big-endian value off the operand stack. The inverse of
 // BattleOpcodePushToStack, and likewise falls through so each case consumes one byte.
@@ -2915,7 +3016,45 @@ static s32 BattleOpcodePopFromStack(s32 size) {
     return value;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeLoadVal);
+// Loads a value from the battle-script VM's operand stack into the specified variable slot.
+// Returns the header byte that was popped from the stack.
+s32 BattleOpcodeLoadVal(s32 arg0) {
+    s32 header = D_800F4AC4->stack[D_800F4AC4->sp++];
+    s32 payload;
+    s32 selector;
+    s32 size;
+    s32 i;
+
+    // Header byte: upper nibble seems to represent the type of payload stored,
+    // while the lower nibble represents the size of the payload (if applicable).
+    selector = header >> 4;
+    size = header & 0xF;
+
+    D_800F4AC4->unk18[arg0] = selector;
+    D_800F4AC4->unk20[arg0] = size;
+
+    switch (selector) {
+    case 0:
+        D_800F4AC4->unk28[arg0] = 0x3FF;
+        payload = BattleOpcodePopFromStack(size);
+        for (i = LEN(D_800F4AC4->var[arg0]) - 1; i >= 0; i--) {
+            D_800F4AC4->var[arg0][i] = payload;
+        }
+        break;
+    case 1:
+        D_800F4AC4->var[arg0][0] = BattleOpcodePopFromStack(2);
+        break;
+    case 2:
+        D_800F4AC4->unk28[arg0] = BattleOpcodePopFromStack(2);
+        for (i = 0; i < LEN(D_800F4AC4->var[arg0]); i++) {
+            if ((D_800F4AC4->unk28[arg0] >> i) & 1) {
+                D_800F4AC4->var[arg0][i] = BattleOpcodePopFromStack(size);
+            }
+        }
+        break;
+    }
+    return header;
+}
 
 // Evaluate the operand at the script cursor without consuming it: run the
 // normal operand fetch, then rewind the stack pointer to where it started so

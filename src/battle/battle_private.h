@@ -12,6 +12,8 @@ enum QueueMethod {
     QUEUE_CLEAR_IMAGE,
 };
 
+enum AccessWidthType { WIDTH_BIT, WIDTH_BYTE, WIDTH_HALF, WIDTH_WORD };
+
 typedef struct {
     u8 unk[0x30];
     s32 unk30;
