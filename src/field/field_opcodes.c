@@ -48,10 +48,6 @@ extern s8 D_800716C8;
 extern u8* g_MenuTutorial;
 extern s16 g_FieldPreloadMapId;
 extern s16 D_801144D4;
-extern u8 D_8009A15C;
-extern s16 D_8009A162;
-extern u16 D_800E42A8[];
-extern u8 D_80074F02[];
 extern u8 g_EntityForSplitJoin;
 
 void SystemMenuAddHpByPartyId(s32 partyId, u16 hp);
