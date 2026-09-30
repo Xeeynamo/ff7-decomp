@@ -70,22 +70,17 @@ static void PartyFromBank2ToSave(s32 unused);
 static void PartyRemove(u8* party, u8* toRemove);
 static void PartyAdd(u8* party, u8* toAdd);
 
+void FieldWindowReset(s16 window);
+s32 FieldWindowSetStateToClose(s16 window);
+void FieldDialogSetWindowStyleCbc(s16 window, u8 style, s16 preventClose);
 void FieldWindowResetTextAll(void);
+void FieldDialogSetSize(s16 window, s16 x, s16 y, s16 width, s16 height);
+void FieldDialogMove(s16 window, s16 dx, s16 dy);
+void FieldDialogSetWindowHeight(s16 window, s16 height);
+s32 FieldDialogMessageUpdateStates(u8 window, u8 message);
+s32 CopyDialogToMapName(s16 stringId);
 
-s32 OpcodeFuncXyzi(void);
-s32 OpcodeFuncXyz(void);
-s32 OpcodeFuncXyi(void);
-s32 OpcodeFuncMes(void);
-s32 OpcodeFuncMpnam(void);
-s32 OpcodeFuncAsk(void);
-s32 OpcodeFuncWclsEx(void);
-s32 OpcodeFuncWsizw(void);
-s32 OpcodeFuncWsize(void);
-s32 OpcodeFuncWrow(void);
-s32 OpcodeFuncWmove(void);
-s32 OpcodeFuncWrest(void);
-s32 OpcodeFuncWclse(void);
-s32 OpcodeFuncWmode(void);
+static s32 OpcodeFuncWsize(void);
 s32 OpcodeFuncBgon(void);
 s32 OpcodeFuncBgoff(void);
 s32 OpcodeFuncBgclr(void);
@@ -3869,33 +3864,184 @@ static s32 OpcodeFuncTlkon(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncXyzi);
+static s32 OpcodeFuncXyzi(void) {
+    if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("xyzi", 8);
+        }
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].PosX = FieldEventReadMemoryS16(1, 3) << 12;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].PosY = FieldEventReadMemoryS16(2, 5) << 12;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].PosZ = FieldEventReadMemoryS16(3, 7) << 12;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].PosI = FieldEventReadMemoryS16(4, 9);
+    }
+    PC_INC(11);
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncXyz);
+static s32 OpcodeFuncXyz(void) {
+    if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("xyz", 8);
+        }
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].PosX = FieldEventReadMemoryS16(1, 3) << 12;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].PosY = FieldEventReadMemoryS16(2, 5) << 12;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].PosZ = FieldEventReadMemoryS16(3, 7) << 12;
+    }
+    PC_INC(9);
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncXyi);
+static s32 OpcodeFuncXyi(void) {
+    if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("xyi", 8);
+        }
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].PosX = FieldEventReadMemoryS16(1, 3) << 12;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].PosY = FieldEventReadMemoryS16(2, 5) << 12;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].PosI = FieldEventReadMemoryS16(3, 7);
+    }
+    PC_INC(9);
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMes);
+static s32 OpcodeFuncMes(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mes", 2);
+    }
+    if (FieldDialogMessageUpdateStates(GET_PARAM_U8(1), GET_PARAM_U8(2))) {
+        PC_INC(3);
+        return 0;
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMpnam);
+static s32 OpcodeFuncMpnam(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mpnam", 1);
+    }
+    CopyDialogToMapName(GET_PARAM_U8(1));
+    PC_INC(2);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncAsk);
+static s32 OpcodeFuncAsk(void) {
+    s16 selectedLine;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncWclsEx);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("ask", 6);
+    }
+    selectedLine = FieldEventReadMemoryU8(2, 6);
+    if (FieldDialogAskUpdateStates(GET_PARAM_U8(2), GET_PARAM_U8(3), GET_PARAM_U8(4), GET_PARAM_U8(5), &selectedLine)) {
+        FieldEventWriteMemoryU8(2, 6, selectedLine);
+        g_pFieldState->characterLock = g_CharacterLock;
+        PC_INC(7);
+        return 0;
+    }
+    FieldEventWriteMemoryU8(2, 6, selectedLine);
+    g_pFieldState->characterLock = 1;
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncWsizw);
+static s32 OpcodeFuncWclsEx(void) {
+    s16 window;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncWsize);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("wcls!", 0);
+    }
+    window = GET_PARAM_U8(1);
+    if (g_WindowToEntity[window] == 0xFF) {
+        PC_INC(2);
+        return 0;
+    }
+    FieldWindowSetStateToClose(window);
+    FieldDialogMessageUpdateStates(window, 0);
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncWrow);
+static s32 OpcodeFuncWsizw(void) {
+    s16 window;
+    u8 entityId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncWmove);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("wsizw", 8);
+    }
+    window = GET_PARAM_U8(1);
+    entityId = g_WindowToEntity[window];
+    if (entityId == 0xFF) {
+        return OpcodeFuncWsize();
+    }
+    if (entityId == g_CurrentEntity) {
+        FieldWindowSetStateToClose(window);
+        FieldDialogMessageUpdateStates(window, 0);
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncWrest);
+static s32 OpcodeFuncWsize(void) {
+    s16 x;
+    s16 y;
+    s16 width;
+    s16 height;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncWclse);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("wsize", 8);
+    }
+    x = GET_PARAM_U8(2) | (GET_PARAM_U8(3) << 8);
+    y = GET_PARAM_U8(4) | (GET_PARAM_U8(5) << 8);
+    width = GET_PARAM_U8(6) | (GET_PARAM_U8(7) << 8);
+    height = GET_PARAM_U8(8) | (GET_PARAM_U8(9) << 8);
+    FieldDialogSetSize(GET_PARAM_U8(1), x, y, width, height);
+    PC_INC(10);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncWmode);
+static s32 OpcodeFuncWrow(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("wrow", 2);
+    }
+    FieldDialogSetWindowHeight(GET_PARAM_U8(1), (GET_PARAM_U8(2) << 4) | 9);
+    PC_INC(3);
+    return 0;
+}
+
+static s32 OpcodeFuncWmove(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("wmove", 8);
+    }
+    FieldDialogMove(GET_PARAM_U8(1), (s16)(GET_PARAM_U8(2) | (GET_PARAM_U8(3) << 8)),
+                    (s16)(GET_PARAM_U8(4) | (GET_PARAM_U8(5) << 8)));
+    PC_INC(6);
+    return 0;
+}
+
+static s32 OpcodeFuncWrest(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("wrest", 1);
+    }
+    FieldWindowReset(GET_PARAM_U8(1));
+    PC_INC(2);
+    return 0;
+}
+
+static s32 OpcodeFuncWclse(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("wclse", 1);
+    }
+    if (FieldWindowSetStateToClose(GET_PARAM_U8(1)) != 0) {
+        PC_INC(2);
+        return 0;
+    }
+    return 1;
+}
+
+static s32 OpcodeFuncWmode(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("wmode", 3);
+    }
+    FieldDialogSetWindowStyleCbc(GET_PARAM_U8(1), GET_PARAM_U8(2), GET_PARAM_U8(3));
+    PC_INC(4);
+    return 0;
+}
 
 /**
  * @brief Opcode 0x8F - **AND** - Bitwise AND (8-bit)
