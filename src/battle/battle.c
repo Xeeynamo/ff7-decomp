@@ -2872,7 +2872,37 @@ static s32 BattleOpcodeValOffs(s32 arg0, s32 arg1, void** arg2) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeWriteVal);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeReadVal);
+s32 BattleOpcodeReadVal(s32 arg0, s32 widthType, s32 arg2) {
+    s32 result;
+    void* buffer;
+    s32 bitOffset = BattleOpcodeValOffs(arg0, arg2, &buffer);
+
+    // Casting buffer directly in the byte cases doesn't match; 
+    // the original likely used typed pointers per width
+    u8* u8buffer;
+    u16* u16buffer;
+    u32* u32buffer;
+
+    switch (widthType) {
+    case WIDTH_BIT:
+        u8buffer = (u8*)buffer;
+        result = u8buffer[bitOffset >> 3] >> (bitOffset & 7) & 1;
+        break;
+    case WIDTH_BYTE:
+        u8buffer = (u8*)buffer;
+        result = u8buffer[bitOffset >> 3];
+        break;
+    case WIDTH_HALF:
+        u16buffer = (u16*)buffer;
+        result = u16buffer[bitOffset >> 4];
+        break;
+    case WIDTH_WORD:
+        u32buffer = (u32*)buffer;
+        result = u32buffer[bitOffset >> 5];
+        break;
+    }
+    return result;
+}
 
 // Push `value` onto the operand stack as `size` bytes, most significant byte
 // first. Sizes above 3 (or negative) push nothing; the cases deliberately fall
