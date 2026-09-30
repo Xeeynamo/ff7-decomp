@@ -5189,10 +5189,8 @@ static s32 OpcodeFuncLdpls(void) {
 static void FieldEventRectClear(RECT* rect) { rect->h = rect->w = rect->y = rect->x = 0; }
 
 static s32 OpcodeFuncCppal(void) {
-    s16 len;
-    s16 i;
-    u8 src;
-    u8 dst;
+    s16 i, len;
+    u8 src, dst;
 
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("cppal", 4);
@@ -5209,10 +5207,8 @@ static s32 OpcodeFuncCppal(void) {
 
 static s32 OpcodeFuncCppal2(void) {
     s16 len;
-    s16 srcOffs;
-    s16 dstOffs;
-    u8 src;
-    u8 dst;
+    s16 srcOffs, dstOffs;
+    u8 src, dst;
 
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("cppal", 7);
@@ -5231,12 +5227,9 @@ static s32 OpcodeFuncCppal2(void) {
 }
 
 static s32 OpcodeFuncRtpal(void) {
-    s16 end;
-    s16 rotation;
-    s16 srcIndex;
-    s16 dstIndex;
-    u8 src;
-    u8 dst;
+    s16 rotation, end;
+    s16 srcIndex, dstIndex;
+    u8 src, dst;
 
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("rtpal", 6);
@@ -5256,13 +5249,9 @@ static s32 OpcodeFuncRtpal(void) {
 }
 
 static s32 OpcodeFuncRtpal2(void) {
-    s16 end;
-    s16 start;
-    s16 rotation;
-    s16 srcIndex;
-    s16 dstIndex;
-    u8 src;
-    u8 dst;
+    s16 start, end, rotation;
+    s16 srcIndex, dstIndex;
+    u8 src, dst;
 
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("rtpal", 7);
@@ -5284,16 +5273,10 @@ static s32 OpcodeFuncRtpal2(void) {
 }
 
 static s32 OpcodeFuncAdpal(void) {
-    s16 count;
-    s16 i;
-    s16 redDelta;
-    s16 greenDelta;
-    s16 blueDelta;
-    s16 red;
-    s16 green;
-    s16 blue;
-    u8 src;
-    u8 dst;
+    s16 i, count;
+    s16 red, green, blue;
+    s16 redDelta, greenDelta, blueDelta;
+    u8 src, dst;
     u16 color;
 
     if (g_DebugLevel & 3) {
@@ -5349,17 +5332,10 @@ static s32 OpcodeFuncAdpal(void) {
 }
 
 static s32 OpcodeFuncAdpal2(void) {
-    s16 count;
-    s16 start;
-    s16 i;
-    s16 redDelta;
-    s16 greenDelta;
-    s16 blueDelta;
-    s16 red;
-    s16 green;
-    s16 blue;
-    u8 src;
-    u8 dst;
+    s16 i, start, count;
+    s16 red, green, blue;
+    s16 redDelta, greenDelta, blueDelta;
+    u8 src, dst;
     u16 color;
 
     if (g_DebugLevel & 3) {
@@ -5417,17 +5393,11 @@ static s32 OpcodeFuncAdpal2(void) {
 }
 
 static s32 OpcodeFuncMppal(void) {
-    s16 count;
-    s16 i;
-    u8 src;
-    u8 dst;
-    u16 blueScale;
-    u16 greenScale;
-    u16 redScale;
+    s16 i, count;
+    u16 red, green, blue;
+    u16 redScale, greenScale, blueScale;
+    u8 src, dst;
     u16 color;
-    u16 red;
-    u16 green;
-    u16 blue;
 
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mppal", 8);
@@ -5467,18 +5437,11 @@ static s32 OpcodeFuncMppal(void) {
 }
 
 static s32 OpcodeFuncMppal2(void) {
-    s16 count;
-    s16 start;
-    s16 i;
-    u8 src;
-    u8 dst;
-    u16 blueScale;
-    u16 greenScale;
-    u16 redScale;
+    s16 i, start, count;
+    u16 red, green, blue;
+    u16 redScale, greenScale, blueScale;
+    u8 src, dst;
     u16 color;
-    u16 red;
-    u16 green;
-    u16 blue;
 
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mppal", 8);
