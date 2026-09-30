@@ -119,8 +119,8 @@ s32 OpcodeFuncRtpal(void);
 s32 OpcodeFuncRtpal2(void);
 s32 OpcodeFuncAdpal(void);
 s32 OpcodeFuncAdpal2(void);
-s32 OpcodeFuncMppal2(void);
 s32 OpcodeFuncMppal(void);
+s32 OpcodeFuncMppal2(void);
 s32 OpcodeFuncVwoft(void);
 s32 OpcodeFuncJoin(void);
 s32 OpcodeFuncSplit(void);
@@ -5456,7 +5456,7 @@ static s32 OpcodeFuncAdpal2(void) {
     return 0;
 }
 
-static s32 OpcodeFuncMppal2(void) {
+static s32 OpcodeFuncMppal(void) {
     s16 count;
     s16 i;
     u8 src;
@@ -5480,7 +5480,7 @@ static s32 OpcodeFuncMppal2(void) {
     redScale = FieldEventReadMemoryU8(5, 8);
     for (i = 0; i < count; i++) {
         color = g_FieldPaletteBuffer[src][i];
-        if (color != 0) {
+        if (color) {
             red = (color << 1) & 0x3E;
             red = (redScale * red) >> 7;
             green = (color >> 4) & 0x3F;
@@ -5497,7 +5497,7 @@ static s32 OpcodeFuncMppal2(void) {
                 red = 31;
             }
             g_FieldPaletteBuffer[dst][i] = (blue << 10) | (green << 5) | red | (color & 0x8000);
-            if (g_FieldPaletteBuffer[dst][i] == 0) {
+            if (!g_FieldPaletteBuffer[dst][i]) {
                 g_FieldPaletteBuffer[dst][i] = 0x8000;
             }
         }
@@ -5506,7 +5506,7 @@ static s32 OpcodeFuncMppal2(void) {
     return 0;
 }
 
-static s32 OpcodeFuncMppal(void) {
+static s32 OpcodeFuncMppal2(void) {
     s16 count;
     s16 start;
     s16 i;
@@ -5533,7 +5533,7 @@ static s32 OpcodeFuncMppal(void) {
     count += start;
     for (i = start; i < count; i++) {
         color = g_FieldPaletteBuffer[src][i];
-        if (color != 0) {
+        if (color) {
             red = (color << 1) & 0x3E;
             red = (redScale * red) >> 7;
             green = (color >> 4) & 0x3F;
@@ -5550,7 +5550,7 @@ static s32 OpcodeFuncMppal(void) {
                 red = 31;
             }
             g_FieldPaletteBuffer[dst][i] = (blue << 10) | (green << 5) | red | (color & 0x8000);
-            if (g_FieldPaletteBuffer[dst][i] == 0) {
+            if (!g_FieldPaletteBuffer[dst][i]) {
                 g_FieldPaletteBuffer[dst][i] = 0x8000;
             }
         }
@@ -6483,9 +6483,9 @@ s32 (*g_FieldOpcodes[256])(void) = {
     OpcodeFuncMmbPlusMinus, OpcodeFuncMmblk,   OpcodeFuncMmbuk,    OpcodeFuncLine,      OpcodeFuncLinon,
     OpcodeFuncMpjpo,        OpcodeFuncSline,   OpcodeFuncSin,      OpcodeFuncCos,       OpcodeFuncTlkr2,
     OpcodeFuncSldr2,        OpcodeFuncPmjmp,   OpcodeFuncPmjmp2,   OpcodeFuncAkao2,     OpcodeFuncFcfix,
-    OpcodeFuncCcanm,        OpcodeFuncAnimb,   OpcodeFuncTurnw,    OpcodeFuncMppal,     OpcodeFuncBgon,
+    OpcodeFuncCcanm,        OpcodeFuncAnimb,   OpcodeFuncTurnw,    OpcodeFuncMppal2,     OpcodeFuncBgon,
     OpcodeFuncBgoff,        OpcodeFuncBgrol,   OpcodeFuncBgrol2,   OpcodeFuncBgclr,     OpcodeFuncStpal,
-    OpcodeFuncLdpal,        OpcodeFuncCppal,   OpcodeFuncRtpal,    OpcodeFuncAdpal,     OpcodeFuncMppal2,
+    OpcodeFuncLdpal,        OpcodeFuncCppal,   OpcodeFuncRtpal,    OpcodeFuncAdpal,     OpcodeFuncMppal,
     OpcodeFuncStpls,        OpcodeFuncLdpls,   OpcodeFuncCppal2,   OpcodeFuncRtpal2,    OpcodeFuncAdpal2,
     OpcodeFuncMusic,        OpcodeFuncSe,      OpcodeFuncAkao,     OpcodeFuncMusvt,     OpcodeFuncMusvm,
     OpcodeFuncMulck,        OpcodeFuncBmusc,   OpcodeFuncChmph,    OpcodeFuncPmvie,     OpcodeFuncMovie,
