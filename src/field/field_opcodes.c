@@ -3261,7 +3261,7 @@ static s32 FieldMoveToEntityUpdate(u8 entityId) {
                     g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId = 2;
                     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animSpeed = 16;
                     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
- 
+
                     modelId = g_EntityToModel[g_CurrentEntity];
                     entryId = g_FieldModelLoaderData[modelId].modelEntryIndex;
                     entry = &g_FieldModelData->modelEntries[entryId];
@@ -3380,7 +3380,8 @@ static s32 FieldEntityTurnToEntity(s16 entityId) {
         PC_INC(4);
         return 0;
     }
-    if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStep == 0 || g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnType != 2 ||
+    if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStep == 0 ||
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnType != 2 ||
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnSteps != GET_PARAM_U8(2)) {
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStart = g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir;
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnType = 2;
@@ -3413,12 +3414,14 @@ static s32 FieldEntityTurnToEntity(s16 entityId) {
             }
             break;
         case 1:
-            if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir < g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd) {
+            if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir <
+                g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd) {
                 g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd -= 256;
             }
             break;
         case 0:
-            if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd < g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir) {
+            if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd <
+                g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir) {
                 g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd += 256;
             }
             break;
@@ -3477,7 +3480,8 @@ static s32 OpcodeFuncOfstw(void) {
         PC_INC(1);
         return 0;
     }
-    if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].OfsType == 0 || g_FieldModels[g_EntityToModel[g_CurrentEntity]].OfsType == 3) {
+    if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].OfsType == 0 ||
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].OfsType == 3) {
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].OfsType = 0;
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].OffsetStep = 0;
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].OffsetSteps = 0;
@@ -3533,7 +3537,9 @@ static s32 OpcodeFuncTurn(void) {
             return 0;
         }
         end = FieldEventReadMemoryS16(2, 2);
-        if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStep != 0 && end == g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd && g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnType == GET_PARAM_U8(5) &&
+        if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStep != 0 &&
+            end == g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd &&
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnType == GET_PARAM_U8(5) &&
             g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnSteps == GET_PARAM_U8(4)) {
             return 1;
         }
@@ -3577,43 +3583,43 @@ static s32 OpcodeFuncTurnr(void) {
             g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnSteps = 0;
             PC_INC(6);
             return 0;
-        } else {
-            if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStep == 0 || g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnType != GET_PARAM_U8(5) || g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnSteps != GET_PARAM_U8(4)) {
-                g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStart =
-                    g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir;
-                g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnType = GET_PARAM_U8(5);
-                g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnSteps = GET_PARAM_U8(4);
-                g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd = FieldEventReadMemoryU8(2, 2);
-                switch (GET_PARAM_U8(3)) {
-                case 2:
-                    diff = g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd -
-                           g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStart;
-                    if (diff < 0) {
-                        diff = ~diff + 1;
-                    }
-                    if (diff >= 129) {
-                        if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd >
-                            g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStart) {
-                            g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd -= 256;
-                            return 1;
-                        } else {
-                            g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd += 256;
-                        }
-                    }
-                    break;
-                case 1:
-                    if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir <
-                        g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd) {
+        } else if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStep == 0 ||
+                   g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnType != GET_PARAM_U8(5) ||
+                   g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnSteps != GET_PARAM_U8(4)) {
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStart =
+                g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir;
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnType = GET_PARAM_U8(5);
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnSteps = GET_PARAM_U8(4);
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd = FieldEventReadMemoryU8(2, 2);
+            switch (GET_PARAM_U8(3)) {
+            case 2:
+                diff = g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd -
+                       g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStart;
+                if (diff < 0) {
+                    diff = ~diff + 1;
+                }
+                if (diff >= 129) {
+                    if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd >
+                        g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStart) {
                         g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd -= 256;
-                    }
-                    break;
-                case 0:
-                    if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd <
-                        g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir) {
+                        return 1;
+                    } else {
                         g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd += 256;
                     }
-                    break;
                 }
+                break;
+            case 1:
+                if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir <
+                    g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd) {
+                    g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd -= 256;
+                }
+                break;
+            case 0:
+                if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd <
+                    g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir) {
+                    g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd += 256;
+                }
+                break;
             }
         }
     } else {
@@ -3643,7 +3649,8 @@ static s32 OpcodeFuncSlidr(void) {
         if (g_DebugLevel & 3) {
             DebugPrintOpcode("slidR", 2);
         }
-        g_FieldModels[g_EntityToModel[g_CurrentEntity]].SolidRange = FieldEventReadMemoryU8(2, 2) * g_pFieldState->currentFieldScale / 512;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].SolidRange =
+            FieldEventReadMemoryU8(2, 2) * g_pFieldState->currentFieldScale / 512;
     }
     PC_INC(3);
     return 0;
@@ -3654,7 +3661,8 @@ static s32 OpcodeFuncSldr2(void) {
         if (g_DebugLevel & 3) {
             DebugPrintOpcode("sldR2", 3);
         }
-        g_FieldModels[g_EntityToModel[g_CurrentEntity]].SolidRange = FieldEventReadMemoryS16(2, 2) * g_pFieldState->currentFieldScale / 512;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].SolidRange =
+            FieldEventReadMemoryS16(2, 2) * g_pFieldState->currentFieldScale / 512;
     }
     PC_INC(4);
     return 0;
@@ -3665,7 +3673,8 @@ static s32 OpcodeFuncTalkr(void) {
         if (g_DebugLevel & 3) {
             DebugPrintOpcode("talkR", 2);
         }
-        g_FieldModels[g_EntityToModel[g_CurrentEntity]].TalkRange = FieldEventReadMemoryU8(2, 2) * g_pFieldState->currentFieldScale / 512;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].TalkRange =
+            FieldEventReadMemoryU8(2, 2) * g_pFieldState->currentFieldScale / 512;
     }
     PC_INC(3);
     return 0;
@@ -3676,7 +3685,8 @@ static s32 OpcodeFuncTlkr2(void) {
         if (g_DebugLevel & 3) {
             DebugPrintOpcode("tlkR2", 3);
         }
-        g_FieldModels[g_EntityToModel[g_CurrentEntity]].TalkRange = FieldEventReadMemoryS16(2, 2) * g_pFieldState->currentFieldScale / 512;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].TalkRange =
+            FieldEventReadMemoryS16(2, 2) * g_pFieldState->currentFieldScale / 512;
     }
     PC_INC(4);
     return 0;
@@ -3687,7 +3697,8 @@ static s32 OpcodeFuncMsped(void) {
         if (g_DebugLevel & 3) {
             DebugPrintOpcode("msped", 3);
         }
-        g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveSpeed = FieldEventReadMemoryS16(2, 2) * g_pFieldState->currentFieldScale / 512;
+        g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveSpeed =
+            FieldEventReadMemoryS16(2, 2) * g_pFieldState->currentFieldScale / 512;
     }
     PC_INC(4);
     return 0;
