@@ -428,7 +428,7 @@ with open("build.ninja", "w") as f:
             " | bin/str"  # convert C-style strings _S("FOO") into FF7-style strings "\x26\x2F\x2F\xFF"
             " | iconv --from-code=UTF-8 --to-code=Shift-JIS"
             " | bin/$cc1 -quiet -mcpu=3000 -mgas $cc_flags"
-            " | python3 tools/maspsx/maspsx.py $as_flags"
+            " | python3 tools/maspsx_wrapper.py $as_flags"
             " | mipsel-linux-gnu-as -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 -o $out"
         ),
         depfile="$out.d",
