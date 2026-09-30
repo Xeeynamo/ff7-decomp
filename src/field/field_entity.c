@@ -13,8 +13,6 @@ static s16 D_800DEF88[130] = {
     32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
 };
 
-u8 FieldEntityDirByVec(VECTOR* start, VECTOR* target, s32* distance);
-
 INCLUDE_ASM("asm/us/field/nonmatchings/field_entity", FieldEntityInitPos);
 
 void FieldEntityAddRotate(u32 activeInputs, s16 modelId) {
