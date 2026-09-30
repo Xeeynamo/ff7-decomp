@@ -176,15 +176,14 @@ void WmSetActiveEntityAsPcEntity();
 s32 WmGetModelIdFromActiveEntity();
 s32 WmGetModelIdFromPcEntity();
 s32 func_800A929C();
-s16 func_800A97A8(void);
+s16 WmGetActiveEntityTotalRot(void);
 void func_800A98A4(s32);
 s32 WmIsPcEntityPosNeedRecalculation(void);
-s32 func_800A99BC();
+s32 WmIsActiveEntitySeparateFromPcEntity();
 s32 func_800A9B04(s16, u8);
 s32 func_800AA304(WorldActor*, WorldActor*);
 static WorldActor* FindCollidingActor(WorldActor*);
 void func_800AAB18(WorldActor*);
-void func_800ADB30(s32, s32);
 void func_800AB398(WorldActor*);
 void func_800AB48C(WorldActor*);
 void WmScriptDisableForPcEntity(s32);
@@ -204,7 +203,22 @@ void func_800B0810(void);
 void func_800B271C(s32);
 void func_800B29CC(void);
 void SysCdromInit(void);
-void WmLoadTexturesToVram(s32);
+typedef struct {
+    /* 0x00 */ u16 w;
+    /* 0x02 */ u16 h;
+    /* 0x04 */ u16 x;
+    /* 0x06 */ u16 y;
+    /* 0x08 */ s32 dataOffset;
+} WorldTexture; // size: 0xC
+
+typedef struct {
+    /* 0x00 */ u8 unk0[4];
+    /* 0x04 */ u8 textureCount;
+    /* 0x05 */ u8 unk5[3];
+    /* 0x08 */ WorldTexture textures[1];
+} WorldTextureBlock;
+
+void WmLoadTexturesToVram(WorldTextureBlock*);
 s32 WmLoadModelPacketAndScale(FieldModelEntry*, s32, s32);
 void WmCalculateBonesAndLighting(FieldModelEntry*);
 void WmPcCharModelLoadFileCallback(void);
@@ -218,15 +232,11 @@ void func_800B5C7C(WorldActor*);
 void* WmGetModelDataByModelId(s16);
 s32 WmGetModelTotalRenderPacketSize(FieldModelEntry*);
 void WmLoadPcCharModelFile(s16);
-void WmApplyModelLightingToPacket(void*, u8*);
+s32 WmApplyModelLightingToPacket(FieldModelEntry*, u8*);
 void WmApplyModelLightingById(s16, s16);
 void PlayMusicTrack(s32);
 void ToggleAmbientSound(s32);
-typedef struct {
-    /* 0x00 */ u8 unk0[0x20];
-} WorldModelPart; // size: 0x20
-
-void WmUpdatePartTransparency(WorldModelPart*, s32);
+void WmUpdatePartTransparency(FieldModelPart*, s32);
 void WmLoadModelPacketsForSet(s16);
 void func_800B6E08();
 s32 func_800B7200();
@@ -318,7 +328,10 @@ extern s32 D_80109D54;
 extern s32 D_80109D58;
 extern s32 D_80109D6C;
 extern s32 D_80109D70;
-extern WorldActor D_80109D74[0x10]; // World map actor heap, TODO: Confirm size
+extern WorldActor D_80109D74;     // the player actor
+extern WorldActor D_80109E54;     // the actor the player is riding
+extern WorldActor D_80109F34[15]; // the free actor pool
+extern WorldActor D_8010AC54;     // the last node of the free actor pool
 extern WorldActor* D_8010AD34;
 extern WorldActor* D_8010AD38;
 extern WorldActor* D_8010AD3C; // Active Actor
@@ -330,9 +343,10 @@ extern s32 D_8010ADE8;
 extern s16 D_8010AD44;
 extern s16 D_8010AD48;
 extern s16 D_8010AD4C;
-extern u16 D_8010AD54; // possibly a svec?
-extern u16 D_8010AD58;
+extern s32 D_8010AD54;
+extern s32 D_8010AD58;
 extern s32 D_8010AD5C;
+extern s32 D_8010AD60;
 extern s32 D_8010AD64;
 extern WorldScriptData* D_8010AD68;
 extern u16* D_8010AD6C;
@@ -342,10 +356,8 @@ extern u8* D_8010AD94[4];
 extern u8 D_8010ADA4[64];
 extern s32 D_8010ADEC;
 extern s16 D_8010ADF0;
-extern s32 D_8010AE24;
-extern s32 D_8010AE28;
-extern s32 D_8010AE2C;
-extern s32 D_8010AE30;
+extern s32 D_8010AE24[2]; // party members that joined, as script event values
+extern s32 D_8010AE2C[2]; // party members that left
 extern s32 D_8010AE4C;
 extern s32 D_8010AE50;
 extern VECTOR D_8010AE34;
@@ -422,6 +434,11 @@ typedef struct WorldListNode {
 } WorldListNode;
 
 typedef struct {
+    /* 0x0 */ s32 flags;
+    /* 0x4 */ SVECTOR verts[1];
+} WorldPartData;
+
+typedef struct {
     /* 0x00 */ u8 unk0[6];
     /* 0x06 */ s16 timer;
     /* 0x08 */ u8 unk8[0xC];
@@ -482,7 +499,7 @@ extern u8 D_800C6940;
 extern u8 D_800C6A10[];
 extern s32 D_800C74C4[][2];
 extern u8* D_800C80BC;
-extern s32 D_8010AD50;
+extern u8* D_8010AD50;
 extern s32 D_8010CB20;
 extern u8 D_8010CB24[];
 extern s32 D_8010D930;

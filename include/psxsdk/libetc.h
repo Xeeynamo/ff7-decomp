@@ -36,7 +36,7 @@ extern int PadIdentifier;
 #define MOUSEright (1 << 2)
 
 // scratch pad address 0x1f800000 - 0x1f800400
-#define getScratchAddr(offset) ((u_long*)(0x1f800000 + offset * 4))
+#define getScratchAddr(offset) ((u_long*)(0x1f800000 + (offset) * 4))
 
 #define MODE_NTSC 0
 #define MODE_PAL 1
