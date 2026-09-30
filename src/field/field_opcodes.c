@@ -92,35 +92,6 @@ s32 FieldDialogMessageUpdateStates(u8 window, u8 message);
 s32 CopyDialogToMapName(s16 stringId);
 
 static s32 OpcodeFuncWsize(void);
-s32 OpcodeFuncBgon(void);
-s32 OpcodeFuncBgoff(void);
-s32 OpcodeFuncBgclr(void);
-s32 OpcodeFuncBgrol(void);
-s32 OpcodeFuncBgrol2(void);
-s32 OpcodeFuncPmvie(void);
-s32 OpcodeFuncMovie(void);
-s32 OpcodeFuncMvief(void);
-s32 OpcodeFuncMpjpo(void);
-s32 OpcodeFuncScr2d(void);
-s32 OpcodeFuncScrlc(void);
-s32 OpcodeFuncScrla(void);
-s32 OpcodeFuncScrlp(void);
-s32 OpcodeFuncScrcc(void);
-s32 OpcodeFuncScr2dc(void);
-s32 OpcodeFuncScr2dl(void);
-s32 OpcodeFuncScrlw(void);
-s32 OpcodeFuncStpal(void);
-s32 OpcodeFuncStpls(void);
-s32 OpcodeFuncLdpal(void);
-s32 OpcodeFuncLdpls(void);
-s32 OpcodeFuncCppal(void);
-s32 OpcodeFuncCppal2(void);
-s32 OpcodeFuncRtpal(void);
-s32 OpcodeFuncRtpal2(void);
-s32 OpcodeFuncAdpal(void);
-s32 OpcodeFuncAdpal2(void);
-s32 OpcodeFuncMppal(void);
-s32 OpcodeFuncMppal2(void);
 s32 OpcodeFuncVwoft(void);
 s32 OpcodeFuncJoin(void);
 s32 OpcodeFuncSplit(void);
@@ -2755,7 +2726,6 @@ static s32 OpcodeFuncCcanm(void) {
  * the animation header of the model's file.
  */
 static void StartModelAnimation(void) {
-    u8 modelIdx;
     FieldModelAnimation* anims;
     FieldModelEntry* model;
 
@@ -2765,7 +2735,7 @@ static void StartModelAnimation(void) {
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
 
     model = &g_FieldModelData->modelEntries[g_FieldModelLoaderData[g_EntityToModel[g_CurrentEntity]].modelEntryIndex];
-    anims = model->modelData + model->animationOffset;
+    anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animLastFrame =
         anims[g_FieldEntity[g_EntityToModel[g_CurrentEntity]].activeAnimId].frameCount - 1;
 }
@@ -5224,9 +5194,7 @@ static s32 OpcodeFuncLdpls(void) {
     return 0;
 }
 
-static void FieldEventRectClear(RECT* rect) {
-    rect->h = rect->w = rect->y = rect->x = 0;   
-}
+static void FieldEventRectClear(RECT* rect) { rect->h = rect->w = rect->y = rect->x = 0; }
 
 static s32 OpcodeFuncCppal(void) {
     s16 len;
@@ -6483,7 +6451,7 @@ s32 (*g_FieldOpcodes[256])(void) = {
     OpcodeFuncMmbPlusMinus, OpcodeFuncMmblk,   OpcodeFuncMmbuk,    OpcodeFuncLine,      OpcodeFuncLinon,
     OpcodeFuncMpjpo,        OpcodeFuncSline,   OpcodeFuncSin,      OpcodeFuncCos,       OpcodeFuncTlkr2,
     OpcodeFuncSldr2,        OpcodeFuncPmjmp,   OpcodeFuncPmjmp2,   OpcodeFuncAkao2,     OpcodeFuncFcfix,
-    OpcodeFuncCcanm,        OpcodeFuncAnimb,   OpcodeFuncTurnw,    OpcodeFuncMppal2,     OpcodeFuncBgon,
+    OpcodeFuncCcanm,        OpcodeFuncAnimb,   OpcodeFuncTurnw,    OpcodeFuncMppal2,    OpcodeFuncBgon,
     OpcodeFuncBgoff,        OpcodeFuncBgrol,   OpcodeFuncBgrol2,   OpcodeFuncBgclr,     OpcodeFuncStpal,
     OpcodeFuncLdpal,        OpcodeFuncCppal,   OpcodeFuncRtpal,    OpcodeFuncAdpal,     OpcodeFuncMppal,
     OpcodeFuncStpls,        OpcodeFuncLdpls,   OpcodeFuncCppal2,   OpcodeFuncRtpal2,    OpcodeFuncAdpal2,
