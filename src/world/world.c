@@ -9,6 +9,7 @@ static void WmGetPos2FromPcEntity(VECTOR*);
 static void WmSetPcEntityAsActiveEntity(void);
 static void func_800B7820(void);
 static s32 func_800BC1AC(void);
+static void func_800AA8D8(s16, s16, s16);
 WorldListNode* WmAssignRegionToNode(WorldListNode*);
 static s32 WmGetPcEntityWalkmeshRegion(void);
 static void CopyAreaName(s16);
