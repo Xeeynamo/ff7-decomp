@@ -4930,16 +4930,12 @@ static s32 OpcodeFuncPmvie(void) {
             g_pFieldState->movieCommandState = MOVCMD_IDLE;
             PC_INC(2);
             return 0;
-        default:
-            break;
         }
         break;
     case EVTCMD_NONE:
         g_pFieldState->eventCmd = EVTCMD_LOAD_MOVIE;
         g_pFieldState->eventCmdParam = GET_PARAM_U8(1);
         g_pFieldState->movieCommandState = MOVCMD_IDLE;
-        break;
-    default:
         break;
     }
     return 1;
@@ -4965,8 +4961,6 @@ static s32 OpcodeFuncMovie(void) {
             g_pFieldState->movieCommandState = MOVCMD_IDLE;
             PC_INC(1);
             return 0;
-        default:
-            break;
         }
         break;
     case EVTCMD_UNK14:
@@ -4975,8 +4969,6 @@ static s32 OpcodeFuncMovie(void) {
     case EVTCMD_NONE:
         g_pFieldState->eventCmd = EVTCMD_PLAY_MOVIE;
         g_pFieldState->movieCommandState = MOVCMD_IDLE;
-        break;
-    default:
         break;
     }
     return 1;
