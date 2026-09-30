@@ -1,34 +1,26 @@
-//! PSYQ=3.3 FORCE_MEM=true
+//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true
 
 #include "jet_private.h"
 
 static void JetPrimsInit(JetPrimBuffer* prims);
 
 void JetBuffersInit(void) {
-    JetPrimBuffer* prims;
-    JetBuffer* db;
-    u_char* isbg;
-
     SetDefDrawEnv(&g_JetBuffers[0].draw, 0, 0, 320, 240);
     SetDefDispEnv(&g_JetBuffers[0].disp, 0, 240, 320, 240);
     SetDefDrawEnv(&g_JetBuffers[1].draw, 0, 240, 320, 240);
     SetDefDispEnv(&g_JetBuffers[1].disp, 0, 0, 320, 240);
-    db = g_JetBuffers;
     g_JetBuffers[0].draw.isbg = 0;
-    // do not fold into a direct store; it stops matching.
-    isbg = &db[1].draw.isbg;
-    *isbg = 0;
+    g_JetBuffers[1].draw.isbg = 0;
     setRGB0(&g_JetBuffers[0].draw, 0, 0, 8);
     setRGB0(&g_JetBuffers[1].draw, 0, 0, 8);
     SetGeomOffset(160, 160);
-    SetGeomScreen(0x100);
+    SetGeomScreen(256);
     SetDispMask(1);
     SetBackColor(0x80, 0x80, 0x80);
     SetFarColor(0, 0, 8);
-    prims = &g_JetBuffers[0].prims;
-    JetPrimsInit(prims);
+    JetPrimsInit(&g_JetBuffers[0].prims);
     JetPrimsInit(&g_JetBuffers[1].prims);
-    JetPrimCursorsReset(prims);
+    JetPrimCursorsReset(&g_JetBuffers[0].prims);
     JetPrimCursorsReset(&g_JetBuffers[1].prims);
     ClearOTagR(g_JetBuffers[0].ot, LEN(g_JetBuffers[0].ot));
     ClearOTagR(g_JetBuffers[1].ot, LEN(g_JetBuffers[1].ot));

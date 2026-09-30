@@ -1,11 +1,11 @@
-//! PSYQ=3.3 FORCE_MEM=true
+//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true
 
 #include "jet_private.h"
 
 extern s32 g_JetTriangleCursor;
 extern u32 g_JetModelCount;
 extern JetTriangle* g_JetTriangles;
-extern JetModel g_JetModelPool[];
+extern JetModel g_JetModelPool[140];
 extern s32 g_JetQuadCursor;
 extern JetQuad* g_JetQuads;
 
@@ -45,37 +45,31 @@ JetModel* JetModelBuild(s32 infoIndex) {
 }
 
 static JetModel* JetModelAlloc(void) {
-    u32* counter;
     JetModel* base;
     s32 index;
 
-    counter = &g_JetModelCount;
-    index = *counter;
+    index = g_JetModelCount;
     base = g_JetModelPool;
-    *counter = index + 1;
+    g_JetModelCount = index + 1;
     return &base[index];
 }
 
 static JetTriangle* JetTrianglesAlloc(s32 count) {
-    s32* cursor;
     JetTriangle* base;
     s32 index;
 
-    cursor = &g_JetTriangleCursor;
-    index = *cursor;
-    *cursor = index + count;
+    index = g_JetTriangleCursor;
+    g_JetTriangleCursor = index + count;
     base = g_JetTriangles;
     return &base[index];
 }
 
 static JetQuad* JetQuadsAlloc(s32 count) {
-    s32* cursor;
     JetQuad* base;
     s32 index;
 
-    cursor = &g_JetQuadCursor;
-    index = *cursor;
-    *cursor = index + count;
+    index = g_JetQuadCursor;
+    g_JetQuadCursor = index + count;
     base = g_JetQuads;
     return &base[index];
 }

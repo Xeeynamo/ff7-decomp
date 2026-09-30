@@ -73,6 +73,21 @@ typedef struct {
     /* 0x1C */ s32 : 32;
 } JetModel; // size: 0x20
 
+// Indices into g_JetModelTable.
+enum JetModelId {
+    JET_MODEL_PLACEHOLDER = 29,
+    JET_MODEL_BLUE_PLANE = 30,
+    JET_MODEL_FLAME = 41,
+    JET_MODEL_DEBRIS = 42,
+    JET_MODEL_STARFIELD = 59,
+    JET_MODEL_SHARD = 60,    // first of three variants
+    JET_MODEL_SPARKLE = 63,  // first of three variants
+    JET_MODEL_CONFETTI = 68, // first of three: red, blue, yellow
+    JET_MODEL_BEAM_ORIGINS = 79,
+    JET_MODEL_UFO = 91,
+    JET_MODEL_UFO_HIT = 92,
+};
+
 // Doubly linked list node, chained by JetNodesInit with a 0x38 stride.
 typedef struct JetNode {
     /* 0x00 */ JetModel* model;
@@ -87,13 +102,24 @@ typedef struct JetNode {
 } JetNode; // size: 0x38
 
 // Per-type parameters, copied from the spawn record.
+enum JetObjectAwardMode {
+    JET_AWARD_SPARKLE_BURST = 1,  // Spawns three sparkle impacts.
+    JET_AWARD_SHARD_BURST = 2,    // Spawns three shard fragments.
+    JET_AWARD_TILT = 3,           // Adds points and tilts the surviving target.
+    JET_AWARD_NO_DEBRIS = 4,      // Removes the target without spawning debris.
+    JET_AWARD_SPARKLE_SHOWER = 5, // Spawns 100 sparkles; also flashes the UFO.
+};
+
 typedef union {
     s32 raw[0x14];
     struct {
         /* 0x00 */ s32 points;
         /* 0x04 */ s32 loopPath;
         /* 0x08 */ s32 endSegment; // freed once the ride passes this track segment
-        /* 0x0C */ s32 unkC[10];
+        /* 0x0C */ s32 unkC[7];
+        /* 0x28 */ enum JetObjectAwardMode awardMode;
+        /* 0x2C */ s32 awardTilt;
+        /* 0x30 */ s32 unk30;
         /* 0x34 */ s32 health;
         /* 0x38 */ s32 unk38[3];
         /* 0x44 */ s32 spawnSfx;
@@ -110,9 +136,26 @@ typedef union {
         /* 0xC */ s32 fallSegment;
     } stalactite;
     struct {
+        /* 0x0 */ s32 unk0[3];
+        /* 0xC */ s32 startSegment;
+    } triggered;
+    struct {
+        /* 0x0 */ s32 unk0[3];
+        /* 0xC */ s32 rotStep[3];
+    } rotator;
+    struct {
+        /* 0x00 */ s32 unk0[3];
+        /* 0x0C */ s32 startRot[2];
+        /* 0x14 */ s32 flipSegment;
+        /* 0x18 */ s32 flipStep;
+        /* 0x1C */ s32 flipFrames;
+    } flip;
+    struct {
         /* 0x00 */ s32 unk0[3];
         /* 0x0C */ s32 startRot[3];
         /* 0x18 */ s32 rotStep[3];
+        /* 0x24 */ s32 unk24[5];
+        /* 0x38 */ s32 wasHit;
     } spinner;
     struct {
         /* 0x00 */ s32 unk0[3];
@@ -153,10 +196,50 @@ typedef struct {
     /* 0x18 */ s32 pathIndex;
     /* 0x1C */ s32 speed;
     /* 0x20 */ char pad20[8];
-    /* 0x28 */ s32 unk28;
-    /* 0x2C */ s32 unk2C;
-    /* 0x30 */ s32 unk30;
-    /* 0x34 */ s32 unk34;
+    /* 0x28 */ union {
+        s32 raw[4];
+        struct {
+            /* 0x0 */ s32 pathPos; // 16.16: path point index and fraction
+            /* 0x4 */ s32 pathEnd;
+        } path;
+        struct {
+            /* 0x0 */ s32 targetTilt;
+            /* 0x4 */ s32 tilt;
+            /* 0x8 */ s32 pathPos;
+            /* 0xC */ s32 pathEnd;
+        } balloon;
+        struct {
+            /* 0x0 */ s32 unk0;
+            /* 0x4 */ s32 fallSpeed;
+        } stalactite;
+        struct {
+            /* 0x0 */ s32 step;
+            /* 0x4 */ s32 startX;
+            /* 0x8 */ s32 startY;
+            /* 0xC */ s32 startZ;
+        } incoming;
+        struct {
+            /* 0x0 */ s32 frame;
+        } flip;
+        struct {
+            /* 0x0 */ s32 x;
+            /* 0x4 */ s32 y;
+            /* 0x8 */ s32 z;
+        } velocity;
+        struct {
+            /* 0x0 */ s32 velX;
+            /* 0x4 */ s32 velZ;
+            /* 0x8 */ s32 velY;
+        } eruptionDebris;
+        struct {
+            /* 0x0 */ s32 accelerating;
+            /* 0x4 */ s32 startVsync;
+            /* 0x8 */ s32 accelFrame;
+        } stop;
+        struct {
+            /* 0x0 */ s32 velY;
+        } jump;
+    } vars;
     /* 0x38 */ char pad38[0x18];
     /* 0x50 */ JetObjectParams params;
 } JetObjectState; // size: 0xA0
@@ -192,7 +275,7 @@ typedef struct {
 
 // XBINADR.BIN: pointers to the xbin streams in the decompressed XBIN2.BIN.
 typedef struct {
-    /* 0x00 */ u_long unk0; // sound data, handed to Akao opcode 0x10
+    /* 0x00 */ u_long musicData;
     /* 0x04 */ JetModelInfo* modelInfo;
     /* 0x08 */ u16* trackAdds;
     /* 0x0C */ u16* trackRemoves;
@@ -217,7 +300,7 @@ extern s16 g_JetBeam0OriginY;
 extern s16 g_JetBeam1OriginX;
 extern s16 g_JetBeam1OriginY;
 extern s32 g_JetSpeed;
-extern u16 g_JetSpriteTPage[];
+extern u16 g_JetSpriteTPage[12];
 extern JetModelInfo* g_JetModelInfo;
 extern u16 g_JetFadeClut;
 extern s16 g_JetPopupTimer;
@@ -242,7 +325,7 @@ extern u8 g_JetScorePopupAlternate;
 extern u8 g_JetDrawEnabled;
 extern u8 g_JetExit;
 extern SVECTOR g_JetPopupRot;
-extern u16 g_JetSpriteClut[];
+extern u16 g_JetSpriteClut[12];
 
 void JetPrimCursorsReset(JetPrimBuffer* prims);
 void JetNodeFree(JetNode* node);
