@@ -4890,70 +4890,689 @@ static s32 OpcodeFuncRdmsd(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncBgon);
+static s32 OpcodeFuncBgon(void) {
+    u8 group;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncBgoff);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncBgclr);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncBgrol);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncBgrol2);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncPmvie);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMovie);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMvief);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMpjpo);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncScr2d);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncScrlc);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncScrla);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncScrlp);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncScrcc);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncScr2dc);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncScr2dl);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncScrlw);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncStpal);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncStpls);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncLdpal);
-
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncLdpls);
-
-static void FieldEventRectClear(s16* arg0) {
-    arg0[0] = 0;
-    arg0[1] = 0;
-    arg0[2] = 0;
-    arg0[3] = 0;
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("bgon", 3);
+    }
+    group = FieldEventReadMemoryU8(1, 2);
+    g_pFieldState->backgroundLayerVisibility[group] |= 1 << FieldEventReadMemoryU8(2, 3);
+    PC_INC(4);
+    return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncCppal);
+static s32 OpcodeFuncBgoff(void) {
+    u8 group;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncCppal2);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("bgoff", 3);
+    }
+    group = FieldEventReadMemoryU8(1, 2);
+    g_pFieldState->backgroundLayerVisibility[group] &= ~(1 << FieldEventReadMemoryU8(2, 3));
+    PC_INC(4);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncRtpal);
+static s32 OpcodeFuncBgclr(void) {
+    u8 group;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncRtpal2);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("bgclr", 3);
+    }
+    group = FieldEventReadMemoryU8(2, 2);
+    g_pFieldState->backgroundLayerVisibility[group] = 0;
+    PC_INC(3);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncAdpal);
+static s32 OpcodeFuncBgrol(void) {
+    u8 group;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncAdpal2);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("bgrol", 3);
+    }
+    group = FieldEventReadMemoryU8(2, 2);
+    g_pFieldState->backgroundLayerVisibility[group] *= 2;
+    PC_INC(3);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMppal2);
+static s32 OpcodeFuncBgrol2(void) {
+    u8 group;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMppal);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("bgrol", 3);
+    }
+    group = FieldEventReadMemoryU8(2, 2);
+    g_pFieldState->backgroundLayerVisibility[group] >>= 1;
+    PC_INC(3);
+    return 0;
+}
+
+static s32 OpcodeFuncPmvie(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("pmvie", 1);
+    }
+    if (D_800716CC != 0) {
+        PC_INC(2);
+        return 0;
+    }
+    switch (g_pFieldState->eventCmd) {
+    case EVTCMD_LOAD_MOVIE:
+        switch (g_pFieldState->movieCommandState) {
+        case MOVCMD_ACTIVE:
+            break;
+        case MOVCMD_DONE:
+            g_pFieldState->eventCmd = EVTCMD_NONE;
+            g_pFieldState->movieCommandState = MOVCMD_IDLE;
+            PC_INC(2);
+            return 0;
+        default:
+            break;
+        }
+        break;
+    case EVTCMD_NONE:
+        g_pFieldState->eventCmd = EVTCMD_LOAD_MOVIE;
+        g_pFieldState->eventCmdParam = GET_PARAM_U8(1);
+        g_pFieldState->movieCommandState = MOVCMD_IDLE;
+        break;
+    default:
+        break;
+    }
+    return 1;
+}
+
+static s32 OpcodeFuncMovie(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("movie", 0);
+    }
+    g_PosCursorDisabled = 1;
+    if (D_800716CC) {
+        D_801144D4 = 0;
+        PC_INC(1);
+        return 0;
+    }
+    switch (g_pFieldState->eventCmd) {
+    case EVTCMD_PLAY_MOVIE:
+        switch (g_pFieldState->movieCommandState) {
+        case MOVCMD_ACTIVE:
+            return 1;
+        case MOVCMD_DONE:
+            g_pFieldState->eventCmd = EVTCMD_NONE;
+            g_pFieldState->movieCommandState = MOVCMD_IDLE;
+            PC_INC(1);
+            return 0;
+        default:
+            break;
+        }
+        break;
+    case EVTCMD_UNK14:
+        PC_INC(1);
+        return 0;
+    case EVTCMD_NONE:
+        g_pFieldState->eventCmd = EVTCMD_PLAY_MOVIE;
+        g_pFieldState->movieCommandState = MOVCMD_IDLE;
+        break;
+    default:
+        break;
+    }
+    return 1;
+}
+
+static s32 OpcodeFuncMvief(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mvief", 2);
+    }
+    if (D_800716CC) {
+        FieldEventWriteMemoryS16(2, 2, D_801144D4);
+        D_801144D4++;
+        PC_INC(3);
+        return 0;
+    }
+    FieldEventWriteMemoryS16(2, 2, g_pFieldState->currentMovieFrame);
+    PC_INC(3);
+    return 0;
+}
+
+static s32 OpcodeFuncMpjpo(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mpjpo", 0);
+    }
+    g_pFieldState->mapJumpDisabled = GET_PARAM_U8(1);
+    PC_INC(2);
+    return 0;
+}
+
+static s32 OpcodeFuncScr2d(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("scr2d", 5);
+    }
+    g_pFieldState->cameraScrollMode = SCRL_TO_COORDS_INSTANT;
+    g_pFieldState->cameraScrollTargetX = FieldEventReadMemoryS16(1, 2);
+    g_pFieldState->cameraScrollTargetY = FieldEventReadMemoryS16(2, 4);
+    g_pFieldState->cameraScrollState = SCRLST_INIT;
+    PC_INC(6);
+    return 0;
+}
+
+static s32 OpcodeFuncScrlc(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("scrlc", 0);
+    }
+    g_pFieldState->cameraScrollMode = GET_PARAM_U8(4);
+    g_pFieldState->cameraScrollTargetId = g_pFieldState->pcModelId;
+    g_pFieldState->cameraScrollNumSteps = FieldEventReadMemoryS16(2, 2);
+    g_pFieldState->cameraScrollState = SCRLST_INIT;
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncScrla(void) {
+    u8 entityId;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("scrla", 0);
+    }
+    entityId = GET_PARAM_U8(4);
+    if (g_EntityToModel[entityId] != 0xFF) {
+        g_pFieldState->cameraScrollMode = GET_PARAM_U8(5);
+        g_pFieldState->cameraScrollTargetId = g_EntityToModel[entityId];
+        g_pFieldState->cameraScrollNumSteps = FieldEventReadMemoryS16(2, 2);
+        g_pFieldState->cameraScrollState = SCRLST_INIT;
+    }
+    PC_INC(6);
+    return 0;
+}
+
+static s32 OpcodeFuncScrlp(void) {
+    s32 charId;
+    s16 entityId;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("scrlp", 0);
+    }
+    charId = Savemap.memory_bank_2[9 + GET_PARAM_U8(4)];
+    if (charId == 0xFF) {
+        entityId = 0xFF;
+    } else {
+        entityId = g_CharIdToEntity[charId];
+    }
+    if (g_EntityToModel[entityId] != 0xFF) {
+        g_pFieldState->cameraScrollMode = GET_PARAM_U8(5);
+        g_pFieldState->cameraScrollTargetId = g_EntityToModel[entityId];
+        g_pFieldState->cameraScrollNumSteps = FieldEventReadMemoryS16(2, 2);
+        g_pFieldState->cameraScrollState = SCRLST_INIT;
+    }
+    PC_INC(6);
+    return 0;
+}
+
+static s32 OpcodeFuncScrcc(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("scrcc", 0);
+    }
+    g_pFieldState->cameraScrollMode = SCRL_OFF;
+    g_pFieldState->cameraScrollTargetId = g_pFieldState->pcModelId;
+    g_pFieldState->cameraScrollState = SCRLST_INIT;
+    PC_INC(1);
+    return 0;
+}
+
+static s32 OpcodeFuncScr2dc(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("scr2dc", 8);
+    }
+    g_pFieldState->cameraScrollMode = SCRL_TO_COORDS_SMOOTH;
+    g_pFieldState->cameraScrollTargetX = FieldEventReadMemoryS16(1, 3);
+    g_pFieldState->cameraScrollTargetY = FieldEventReadMemoryS16(2, 5);
+    g_pFieldState->cameraScrollNumSteps = FieldEventReadMemoryS16(4, 7);
+    g_pFieldState->cameraScrollState = SCRLST_INIT;
+    PC_INC(9);
+    return 0;
+}
+
+static s32 OpcodeFuncScr2dl(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("scr2dl", 8);
+    }
+    g_pFieldState->cameraScrollMode = SCRL_TO_COORDS_LINEAR;
+    g_pFieldState->cameraScrollTargetX = FieldEventReadMemoryS16(1, 3);
+    g_pFieldState->cameraScrollTargetY = FieldEventReadMemoryS16(2, 5);
+    g_pFieldState->cameraScrollNumSteps = FieldEventReadMemoryS16(4, 7);
+    g_pFieldState->cameraScrollState = SCRLST_INIT;
+    PC_INC(9);
+    return 0;
+}
+
+static s32 OpcodeFuncScrlw(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("scrlw", 0);
+    }
+    if (g_pFieldState->cameraScrollState == SCRLST_DONE) {
+        switch (g_pFieldState->cameraScrollMode) {
+        case SCRL_TO_ENTITY_INSTANT:
+        case SCRL_TO_ENTITY_LINEAR:
+        case SCRL_TO_ENTITY_SMOOTH:
+            g_pFieldState->cameraScrollMode = SCRL_TO_ENTITY_INSTANT;
+            break;
+        case SCRL_TO_COORDS_LINEAR:
+        case SCRL_TO_COORDS_SMOOTH:
+            g_pFieldState->cameraScrollMode = SCRL_TO_COORDS_INSTANT;
+            break;
+        }
+        g_pFieldState->cameraScrollState = SCRLST_INIT;
+        PC_INC(1);
+        return 0;
+    }
+    return 1;
+}
+
+static s32 OpcodeFuncStpal(void) {
+    RECT rect;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("stpal", 4);
+    }
+    FieldEventRectClear(&rect);
+    rect.y = FieldEventReadMemoryU8(1, 2) + 480;
+    rect.x = 0;
+    rect.w = GET_PARAM_U8(4) + 1;
+    rect.h = 1;
+    StoreImage(&rect, (u_long*)g_FieldPaletteBuffer[FieldEventReadMemoryU8(2, 3) & 0xFF]);
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncStpls(void) {
+    RECT rect;
+    u8 column;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("stpls", 4);
+    }
+    FieldEventRectClear(&rect);
+    rect.y = GET_PARAM_U8(1) + 480;
+    column = GET_PARAM_U8(3);
+    rect.x = column;
+    rect.w = GET_PARAM_U8(4) + 1;
+    rect.h = 1;
+    StoreImage(&rect, (u_long*)&g_FieldPaletteBuffer[GET_PARAM_U8(2)][column]);
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncLdpal(void) {
+    RECT rect;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("ldpal", 4);
+    }
+    FieldEventRectClear(&rect);
+    rect.y = FieldEventReadMemoryU8(2, 3) + 480;
+    rect.x = 0;
+    rect.w = GET_PARAM_U8(4) + 1;
+    rect.h = 1;
+    LoadImage(&rect, (u_long*)g_FieldPaletteBuffer[FieldEventReadMemoryU8(1, 2) & 0xFF]);
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncLdpls(void) {
+    RECT rect;
+    u8 column;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("ldpls", 4);
+    }
+    FieldEventRectClear(&rect);
+    rect.y = GET_PARAM_U8(2) + 480;
+    column = GET_PARAM_U8(3);
+    rect.x = column;
+    rect.w = GET_PARAM_U8(4) + 1;
+    rect.h = 1;
+    LoadImage(&rect, (u_long*)&g_FieldPaletteBuffer[GET_PARAM_U8(1)][column]);
+    PC_INC(5);
+    return 0;
+}
+
+static void FieldEventRectClear(RECT* rect) {
+    rect->x = 0;
+    rect->y = 0;
+    rect->w = 0;
+    rect->h = 0;
+}
+
+static s32 OpcodeFuncCppal(void) {
+    s16 length;
+    s16 i;
+    u8 src;
+    u8 dst;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("cppal", 4);
+    }
+    length = GET_PARAM_U8(4) + 1;
+    src = FieldEventReadMemoryU8(1, 2);
+    dst = FieldEventReadMemoryU8(2, 3);
+    for (i = 0; i < length; i++) {
+        g_FieldPaletteBuffer[dst][i] = g_FieldPaletteBuffer[src][i];
+    }
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncCppal2(void) {
+    s16 length;
+    s16 srcStart;
+    s16 dstStart;
+    u8 src;
+    u8 dst;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("cppal", 7);
+    }
+    length = FieldEventReadMemoryU8(4, 7) + 1;
+    src = GET_PARAM_U8(3);
+    dst = GET_PARAM_U8(4);
+    srcStart = FieldEventReadMemoryU8(1, 5);
+    dstStart = FieldEventReadMemoryU8(2, 6);
+    length += srcStart;
+    for (; srcStart < length; srcStart++, dstStart++) {
+        g_FieldPaletteBuffer[dst][dstStart] = g_FieldPaletteBuffer[src][srcStart];
+    }
+    PC_INC(8);
+    return 0;
+}
+
+static s32 OpcodeFuncRtpal(void) {
+    s16 end;
+    s16 rotation;
+    s16 srcIndex;
+    s16 dstIndex;
+    u8 src;
+    u8 dst;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("rtpal", 6);
+    }
+    end = GET_PARAM_U8(6) + 1;
+    src = FieldEventReadMemoryU8(1, 3);
+    dst = FieldEventReadMemoryU8(2, 4);
+    rotation = FieldEventReadMemoryU8(4, 5);
+    for (srcIndex = 0, dstIndex = rotation; dstIndex <= end; srcIndex++, dstIndex++) {
+        g_FieldPaletteBuffer[dst][dstIndex] = g_FieldPaletteBuffer[src][srcIndex];
+    }
+    for (srcIndex = end - rotation, dstIndex = 0; srcIndex <= end; srcIndex++, dstIndex++) {
+        g_FieldPaletteBuffer[dst][dstIndex] = g_FieldPaletteBuffer[src][srcIndex];
+    }
+    PC_INC(7);
+    return 0;
+}
+
+static s32 OpcodeFuncRtpal2(void) {
+    s16 end;
+    s16 start;
+    s16 rotation;
+    s16 srcIndex;
+    s16 dstIndex;
+    u8 src;
+    u8 dst;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("rtpal", 7);
+    }
+    end = FieldEventReadMemoryU8(4, 7) + 1;
+    src = GET_PARAM_U8(3);
+    dst = GET_PARAM_U8(4);
+    start = FieldEventReadMemoryU8(1, 5);
+    rotation = FieldEventReadMemoryU8(2, 6);
+    end += start;
+    for (srcIndex = start, dstIndex = rotation; dstIndex <= end; srcIndex++, dstIndex++) {
+        g_FieldPaletteBuffer[dst][dstIndex] = g_FieldPaletteBuffer[src][srcIndex];
+    }
+    for (srcIndex = end - rotation, dstIndex = start; srcIndex <= end; srcIndex++, dstIndex++) {
+        g_FieldPaletteBuffer[dst][dstIndex] = g_FieldPaletteBuffer[src][srcIndex];
+    }
+    PC_INC(8);
+    return 0;
+}
+
+static s32 OpcodeFuncAdpal(void) {
+    s16 count;
+    s16 i;
+    s16 redDelta;
+    s16 greenDelta;
+    s16 blueDelta;
+    s16 red;
+    s16 green;
+    s16 blue;
+    u8 src;
+    u8 dst;
+    u16 color;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("adpal", 8);
+    }
+    count = GET_PARAM_U8(9) + 1;
+    src = FieldEventReadMemoryU8(1, 4);
+    dst = FieldEventReadMemoryU8(2, 5);
+    blueDelta = FieldEventReadMemoryU8(3, 6);
+    greenDelta = FieldEventReadMemoryU8(4, 7);
+    redDelta = FieldEventReadMemoryU8(5, 8);
+    if (blueDelta & 0x80) {
+        blueDelta ^= 0xFF00;
+    }
+    if (greenDelta & 0x80) {
+        greenDelta ^= 0xFF00;
+    }
+    if (redDelta & 0x80) {
+        redDelta ^= 0xFF00;
+    }
+    for (i = 0; i < count; i++) {
+        color = g_FieldPaletteBuffer[src][i];
+        red = (color & 0x1F) + redDelta;
+        if (red > 31) {
+            red = 31;
+        }
+        if (red < 0) {
+            red = 0;
+        }
+        green = ((color >> 5) & 0x1F) + greenDelta;
+        if (green > 31) {
+            green = 31;
+        }
+        if (green < 0) {
+            green = 0;
+        }
+        blue = ((color >> 10) & 0x1F) + blueDelta;
+        if (blue > 31) {
+            blue = 31;
+        }
+        if (blue < 0) {
+            blue = 0;
+        }
+        g_FieldPaletteBuffer[dst][i] = (blue << 10) | (green << 5) | red | (color & 0x8000);
+        if (g_FieldPaletteBuffer[dst][i] == 0) {
+            if (color != 0) {
+                g_FieldPaletteBuffer[dst][i] = 0x8000;
+            }
+        }
+    }
+    PC_INC(10);
+    return 0;
+}
+
+static s32 OpcodeFuncAdpal2(void) {
+    s16 count;
+    s16 start;
+    s16 i;
+    s16 redDelta;
+    s16 greenDelta;
+    s16 blueDelta;
+    s16 red;
+    s16 green;
+    s16 blue;
+    u8 src;
+    u8 dst;
+    u16 color;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("adpal", 8);
+    }
+    count = FieldEventReadMemoryU8(6, 10) + 1;
+    src = GET_PARAM_U8(4);
+    dst = GET_PARAM_U8(5);
+    start = FieldEventReadMemoryU8(1, 6);
+    blueDelta = FieldEventReadMemoryU8(2, 7);
+    greenDelta = FieldEventReadMemoryU8(3, 8);
+    redDelta = FieldEventReadMemoryU8(4, 9);
+    if (blueDelta & 0x80) {
+        blueDelta ^= 0xFF00;
+    }
+    if (greenDelta & 0x80) {
+        greenDelta ^= 0xFF00;
+    }
+    if (redDelta & 0x80) {
+        redDelta ^= 0xFF00;
+    }
+    count += start;
+    for (i = start; i < count; i++) {
+        color = g_FieldPaletteBuffer[src][i];
+        red = (color & 0x1F) + redDelta;
+        if (red > 31) {
+            red = 31;
+        }
+        if (red < 0) {
+            red = 0;
+        }
+        green = ((color >> 5) & 0x1F) + greenDelta;
+        if (green > 31) {
+            green = 31;
+        }
+        if (green < 0) {
+            green = 0;
+        }
+        blue = ((color >> 10) & 0x1F) + blueDelta;
+        if (blue > 31) {
+            blue = 31;
+        }
+        if (blue < 0) {
+            blue = 0;
+        }
+        g_FieldPaletteBuffer[dst][i] = (blue << 10) | (green << 5) | red | (color & 0x8000);
+        if (g_FieldPaletteBuffer[dst][i] == 0) {
+            if (color != 0) {
+                g_FieldPaletteBuffer[dst][i] = 0x8000;
+            }
+        }
+    }
+    PC_INC(11);
+    return 0;
+}
+
+static s32 OpcodeFuncMppal2(void) {
+    s16 count;
+    s16 i;
+    u8 src;
+    u8 dst;
+    u16 blueScale;
+    u16 greenScale;
+    u16 redScale;
+    u16 color;
+    u16 red;
+    u16 green;
+    u16 blue;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mppal", 8);
+    }
+    count = GET_PARAM_U8(9) + 1;
+    src = FieldEventReadMemoryU8(1, 4);
+    dst = FieldEventReadMemoryU8(2, 5);
+    blueScale = FieldEventReadMemoryU8(3, 6);
+    greenScale = FieldEventReadMemoryU8(4, 7);
+    redScale = FieldEventReadMemoryU8(5, 8);
+    for (i = 0; i < count; i++) {
+        color = g_FieldPaletteBuffer[src][i];
+        if (color != 0) {
+            red = (color << 1) & 0x3E;
+            red = (redScale * red) >> 7;
+            green = (color >> 4) & 0x3F;
+            green = (greenScale * green) >> 7;
+            blue = (color >> 9) & 0x3F;
+            blue = (blueScale * blue) >> 7;
+            if (blue >= 32) {
+                blue = 31;
+            }
+            if (green >= 32) {
+                green = 31;
+            }
+            if (red >= 32) {
+                red = 31;
+            }
+            g_FieldPaletteBuffer[dst][i] = (blue << 10) | (green << 5) | red | (color & 0x8000);
+            if (g_FieldPaletteBuffer[dst][i] == 0) {
+                g_FieldPaletteBuffer[dst][i] = 0x8000;
+            }
+        }
+    }
+    PC_INC(10);
+    return 0;
+}
+
+static s32 OpcodeFuncMppal(void) {
+    s16 count;
+    s16 start;
+    s16 i;
+    u8 src;
+    u8 dst;
+    u16 blueScale;
+    u16 greenScale;
+    u16 redScale;
+    u16 color;
+    u16 red;
+    u16 green;
+    u16 blue;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mppal", 8);
+    }
+    count = FieldEventReadMemoryU8(6, 10) + 1;
+    src = GET_PARAM_U8(4);
+    dst = GET_PARAM_U8(5);
+    start = FieldEventReadMemoryU8(1, 6);
+    blueScale = FieldEventReadMemoryU8(2, 7);
+    greenScale = FieldEventReadMemoryU8(3, 8);
+    redScale = FieldEventReadMemoryU8(4, 9);
+    count += start;
+    for (i = start; i < count; i++) {
+        color = g_FieldPaletteBuffer[src][i];
+        if (color != 0) {
+            red = (color << 1) & 0x3E;
+            red = (redScale * red) >> 7;
+            green = (color >> 4) & 0x3F;
+            green = (greenScale * green) >> 7;
+            blue = (color >> 9) & 0x3F;
+            blue = (blueScale * blue) >> 7;
+            if (blue >= 32) {
+                blue = 31;
+            }
+            if (green >= 32) {
+                green = 31;
+            }
+            if (red >= 32) {
+                red = 31;
+            }
+            g_FieldPaletteBuffer[dst][i] = (blue << 10) | (green << 5) | red | (color & 0x8000);
+            if (g_FieldPaletteBuffer[dst][i] == 0) {
+                g_FieldPaletteBuffer[dst][i] = 0x8000;
+            }
+        }
+    }
+    PC_INC(11);
+    return 0;
+}
 
 static void SetPcModel(void) {
     if (Savemap.memory_bank_2[9] != 0xFF && g_CharIdToEntity[Savemap.memory_bank_2[9]] != 0xFF &&
