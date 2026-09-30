@@ -47,6 +47,12 @@ extern u8 g_RandomTableIndex;
 extern s8 D_800716C8;
 extern u8* g_MenuTutorial;
 extern s16 g_FieldPreloadMapId;
+extern s16 D_801144D4;
+extern u8 D_8009A15C;
+extern s16 D_8009A162;
+extern u16 D_800E42A8[];
+extern u8 D_80074F02[];
+extern u8 g_EntityForSplitJoin;
 
 void SystemMenuAddHpByPartyId(s32 partyId, u16 hp);
 void SystemMenuAddMpByPartyId(s32 partyId, u16 mp);
@@ -58,6 +64,7 @@ static s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId);
 static s32 FieldMoveToEntityUpdate(u8 entityId);
 static s32 FieldEventSetDirByEntityId(s16 entityId);
 static s32 FieldEntityTurnToEntity(s16 entityId);
+static void FieldEventRectClear(RECT* rect);
 
 void FieldEventDebugError(const char* errmsg);
 void FieldDebugStringU8hex(s32 val, char* msg_out);
@@ -4891,61 +4898,46 @@ static s32 OpcodeFuncRdmsd(void) {
 }
 
 static s32 OpcodeFuncBgon(void) {
-    u8 group;
-
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("bgon", 3);
     }
-    group = FieldEventReadMemoryU8(1, 2);
-    g_pFieldState->backgroundLayerVisibility[group] |= 1 << FieldEventReadMemoryU8(2, 3);
+    g_pFieldState->backgroundLayerVisibility[FieldEventReadMemoryU8(1, 2)] |= 1 << FieldEventReadMemoryU8(2, 3);
     PC_INC(4);
     return 0;
 }
 
 static s32 OpcodeFuncBgoff(void) {
-    u8 group;
-
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("bgoff", 3);
     }
-    group = FieldEventReadMemoryU8(1, 2);
-    g_pFieldState->backgroundLayerVisibility[group] &= ~(1 << FieldEventReadMemoryU8(2, 3));
+    g_pFieldState->backgroundLayerVisibility[FieldEventReadMemoryU8(1, 2)] &= ~(1 << FieldEventReadMemoryU8(2, 3));
     PC_INC(4);
     return 0;
 }
 
 static s32 OpcodeFuncBgclr(void) {
-    u8 group;
-
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("bgclr", 3);
     }
-    group = FieldEventReadMemoryU8(2, 2);
-    g_pFieldState->backgroundLayerVisibility[group] = 0;
+    g_pFieldState->backgroundLayerVisibility[FieldEventReadMemoryU8(2, 2)] = 0;
     PC_INC(3);
     return 0;
 }
 
 static s32 OpcodeFuncBgrol(void) {
-    u8 group;
-
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("bgrol", 3);
     }
-    group = FieldEventReadMemoryU8(2, 2);
-    g_pFieldState->backgroundLayerVisibility[group] *= 2;
+    g_pFieldState->backgroundLayerVisibility[FieldEventReadMemoryU8(2, 2)] <<= 1;
     PC_INC(3);
     return 0;
 }
 
 static s32 OpcodeFuncBgrol2(void) {
-    u8 group;
-
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("bgrol", 3);
     }
-    group = FieldEventReadMemoryU8(2, 2);
-    g_pFieldState->backgroundLayerVisibility[group] >>= 1;
+    g_pFieldState->backgroundLayerVisibility[FieldEventReadMemoryU8(2, 2)] >>= 1;
     PC_INC(3);
     return 0;
 }
@@ -4954,7 +4946,7 @@ static s32 OpcodeFuncPmvie(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("pmvie", 1);
     }
-    if (D_800716CC != 0) {
+    if (D_800716CC) {
         PC_INC(2);
         return 0;
     }
@@ -5179,25 +5171,23 @@ static s32 OpcodeFuncStpal(void) {
     rect.x = 0;
     rect.w = GET_PARAM_U8(4) + 1;
     rect.h = 1;
-    StoreImage(&rect, (u_long*)g_FieldPaletteBuffer[FieldEventReadMemoryU8(2, 3) & 0xFF]);
+    StoreImage(&rect, (u_long*)&g_FieldPaletteBuffer[FieldEventReadMemoryU8(2, 3)][0]);
     PC_INC(5);
     return 0;
 }
 
 static s32 OpcodeFuncStpls(void) {
     RECT rect;
-    u8 column;
 
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("stpls", 4);
     }
     FieldEventRectClear(&rect);
     rect.y = GET_PARAM_U8(1) + 480;
-    column = GET_PARAM_U8(3);
-    rect.x = column;
+    rect.x = GET_PARAM_U8(3);
     rect.w = GET_PARAM_U8(4) + 1;
     rect.h = 1;
-    StoreImage(&rect, (u_long*)&g_FieldPaletteBuffer[GET_PARAM_U8(2)][column]);
+    StoreImage(&rect, (u_long*)&g_FieldPaletteBuffer[GET_PARAM_U8(2)][rect.x]);
     PC_INC(5);
     return 0;
 }
@@ -5213,38 +5203,33 @@ static s32 OpcodeFuncLdpal(void) {
     rect.x = 0;
     rect.w = GET_PARAM_U8(4) + 1;
     rect.h = 1;
-    LoadImage(&rect, (u_long*)g_FieldPaletteBuffer[FieldEventReadMemoryU8(1, 2) & 0xFF]);
+    LoadImage(&rect, (u_long*)&g_FieldPaletteBuffer[FieldEventReadMemoryU8(1, 2)][0]);
     PC_INC(5);
     return 0;
 }
 
 static s32 OpcodeFuncLdpls(void) {
     RECT rect;
-    u8 column;
 
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("ldpls", 4);
     }
     FieldEventRectClear(&rect);
     rect.y = GET_PARAM_U8(2) + 480;
-    column = GET_PARAM_U8(3);
-    rect.x = column;
+    rect.x = GET_PARAM_U8(3);
     rect.w = GET_PARAM_U8(4) + 1;
     rect.h = 1;
-    LoadImage(&rect, (u_long*)&g_FieldPaletteBuffer[GET_PARAM_U8(1)][column]);
+    LoadImage(&rect, (u_long*)&g_FieldPaletteBuffer[GET_PARAM_U8(1)][rect.x]);
     PC_INC(5);
     return 0;
 }
 
 static void FieldEventRectClear(RECT* rect) {
-    rect->x = 0;
-    rect->y = 0;
-    rect->w = 0;
-    rect->h = 0;
+    rect->h = rect->w = rect->y = rect->x = 0;   
 }
 
 static s32 OpcodeFuncCppal(void) {
-    s16 length;
+    s16 len;
     s16 i;
     u8 src;
     u8 dst;
@@ -5252,10 +5237,10 @@ static s32 OpcodeFuncCppal(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("cppal", 4);
     }
-    length = GET_PARAM_U8(4) + 1;
+    len = GET_PARAM_U8(4) + 1;
     src = FieldEventReadMemoryU8(1, 2);
     dst = FieldEventReadMemoryU8(2, 3);
-    for (i = 0; i < length; i++) {
+    for (i = 0; i < len; i++) {
         g_FieldPaletteBuffer[dst][i] = g_FieldPaletteBuffer[src][i];
     }
     PC_INC(5);
@@ -5263,23 +5248,23 @@ static s32 OpcodeFuncCppal(void) {
 }
 
 static s32 OpcodeFuncCppal2(void) {
-    s16 length;
-    s16 srcStart;
-    s16 dstStart;
+    s16 len;
+    s16 srcOffs;
+    s16 dstOffs;
     u8 src;
     u8 dst;
 
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("cppal", 7);
     }
-    length = FieldEventReadMemoryU8(4, 7) + 1;
+    len = FieldEventReadMemoryU8(4, 7) + 1;
     src = GET_PARAM_U8(3);
     dst = GET_PARAM_U8(4);
-    srcStart = FieldEventReadMemoryU8(1, 5);
-    dstStart = FieldEventReadMemoryU8(2, 6);
-    length += srcStart;
-    for (; srcStart < length; srcStart++, dstStart++) {
-        g_FieldPaletteBuffer[dst][dstStart] = g_FieldPaletteBuffer[src][srcStart];
+    srcOffs = FieldEventReadMemoryU8(1, 5);
+    dstOffs = FieldEventReadMemoryU8(2, 6);
+    len += srcOffs;
+    for (; srcOffs < len; srcOffs++, dstOffs++) {
+        g_FieldPaletteBuffer[dst][dstOffs] = g_FieldPaletteBuffer[src][srcOffs];
     }
     PC_INC(8);
     return 0;
@@ -5394,7 +5379,7 @@ static s32 OpcodeFuncAdpal(void) {
         }
         g_FieldPaletteBuffer[dst][i] = (blue << 10) | (green << 5) | red | (color & 0x8000);
         if (g_FieldPaletteBuffer[dst][i] == 0) {
-            if (color != 0) {
+            if (color) {
                 g_FieldPaletteBuffer[dst][i] = 0x8000;
             }
         }
@@ -5462,7 +5447,7 @@ static s32 OpcodeFuncAdpal2(void) {
         }
         g_FieldPaletteBuffer[dst][i] = (blue << 10) | (green << 5) | red | (color & 0x8000);
         if (g_FieldPaletteBuffer[dst][i] == 0) {
-            if (color != 0) {
+            if (color) {
                 g_FieldPaletteBuffer[dst][i] = 0x8000;
             }
         }
