@@ -59,7 +59,7 @@ extern u16* g_JetTriangleAddCursor;
 extern u16 g_JetTriangleListCount;
 extern u16 g_JetTrackListTail;
 extern u16 g_JetTriangleListTail;
-extern DR_MODE D_800D9934;
+extern DR_MODE g_JetDrawMode;
 extern JetListLink g_JetTrackLinks[9000];
 extern u8 g_JetInitialTrackSegmentPending;
 extern volatile s32 D_800E25FC;
@@ -123,7 +123,7 @@ static Yamada g_JetAssetFiles[4] = {
 };
 static s32 D_800A8330 = 0x7F;
 static s32 D_800A8334 = 0x7F;
-static s32 D_800A8338 = 0;
+static s32 g_JetSlot0Volume = 0;
 static s32 g_JetLaserVolume = 0;
 static MATRIX D_800A8340 = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}};
 static MATRIX D_800A8360 = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}};
@@ -141,7 +141,7 @@ u16 MINI_Jet(void) {
     JetBuffer* current;
 
     JetInitialize();
-    SetDrawMode(&D_800D9934, 0, 1, GetTPage(1, 1, 768, 0), NULL);
+    SetDrawMode(&g_JetDrawMode, 0, 1, GetTPage(1, 1, 768, 0), NULL);
     g_JetTrackRot = g_JetXbinAdr.trackRotations;
     JetTrackPathLoad(0, 0);
     g_JetTrackLeft = g_JetTrackPath;
@@ -149,7 +149,7 @@ u16 MINI_Jet(void) {
     g_JetTrackRight = g_JetTrackPath;
     JetAudioInit();
     SetFogNearFar(g_JetFogNear, g_JetFogFar, 256);
-    g_JetPopupNode[0] = JetNodeAlloc(30, 0, 0, 1, &g_JetRootNode, 1200, 50, 3000, 0, 1000, 0);
+    g_JetPopupNode[0] = JetNodeAlloc(JET_MODEL_BLUE_PLANE, 0, 0, 1, &g_JetRootNode, 1200, 50, 3000, 0, 1000, 0);
     while (1) {
         if ((g_JetTrackSegment * 4) > (g_JetTrackPathLength - 0x10) || g_JetExit == 1) {
             break;
@@ -169,13 +169,13 @@ u16 MINI_Jet(void) {
             JetDrawSprite(11, 18, 86, 12, 140, 0, 0x70, 0xC, 0x8C, 0);
             JetDrawEnergyGauge();
             if (g_JetSpeed < 16384) {
-                D_800A8338 = 0;
+                g_JetSlot0Volume = 0;
             } else {
-                D_800A8338 = AKAO_VOL_MAX;
+                g_JetSlot0Volume = AKAO_VOL_MAX;
             }
         } else {
             JetDrawSprite(9, 202, 192, 96, 32, 0, 0x50, 0x60, 0x20, 0);
-            D_800A8338 = 0;
+            g_JetSlot0Volume = 0;
             g_JetLaserVolume = 0;
         }
         JetAudioUpdateVolumes();
@@ -338,12 +338,12 @@ void JetDrawCartAndProjectBeams(JetBuffer* db, JetNode* node, s16 otIndex, s32 u
     args.ot = &db->ot2[otIndex];
     args.model = node->model;
     db->prims.g3Cursor = JetDrawModelTris(&args);
-    JetProject3Points(&g_JetModelTable[79]->tris[0].v0, screen);
+    JetProject3Points(&g_JetModelTable[JET_MODEL_BEAM_ORIGINS]->tris[0].v0, screen);
     g_JetBeam0OriginY = screen[1] >> 16;
     g_JetBeam0OriginX = screen[1];
     g_JetBeam0Vertex2Y = screen[2] >> 16;
     g_JetBeam0Vertex2X = screen[2];
-    JetProject3Points(&g_JetModelTable[79]->tris[1].v0, screen);
+    JetProject3Points(&g_JetModelTable[JET_MODEL_BEAM_ORIGINS]->tris[1].v0, screen);
     g_JetBeam1OriginY = screen[1] >> 16;
     g_JetBeam1OriginX = screen[1];
     g_JetBeam1Vertex2Y = screen[2] >> 16;
@@ -566,7 +566,7 @@ static void JetDrawEnergyGauge(void) {
 static void JetDrawScorePopup(JetBuffer* db, s16 modelId, s32 rotationX, s32 rotationY, s32 rotationZ) {
     s32 unused;
 
-    if (modelId == 0 || modelId == 91) {
+    if (modelId == 0 || modelId == JET_MODEL_UFO) {
         return;
     }
     g_JetPopupNode[0]->model = g_JetModelTable[modelId];
@@ -733,7 +733,7 @@ static void JetInitialize(void) {
     g_JetSfxChannel = 0;
     D_800A8330 = 0x7F;
     D_800A8334 = 0x7F;
-    D_800A8338 = 0;
+    g_JetSlot0Volume = 0;
     g_JetLaserVolume = 0;
     g_JetPopupTimer = 0;
 }
@@ -752,7 +752,7 @@ static void JetLoadAssets(void) {
 
     JetSpriteTablesInit();
 
-    SystemLoadFileBySector(g_JetAssetFiles[2].loc, g_JetAssetFiles[2].len, &g_JetXbinAdr.unk0, NULL);
+    SystemLoadFileBySector(g_JetAssetFiles[2].loc, g_JetAssetFiles[2].len, &g_JetXbinAdr.musicData, NULL);
     while (SystemCdromReadChain())
         ;
     SysCdromStartLoadLzs(g_JetAssetFiles[3].loc, g_JetAssetFiles[3].len, JET_ASSET_ADDR, NULL);
@@ -821,7 +821,7 @@ static void JetLoadTim(u_long* tim) {
 
 static void JetAudioInit(void) {
     g_AkaoCmd.opcode = AKAO_PLAY_MUSIC;
-    g_AkaoCmd.params[0] = g_JetXbinAdr.unk0;
+    g_AkaoCmd.params[0] = g_JetXbinAdr.musicData;
     AkaoExec();
     g_AkaoCmd.opcode = AKAO_VOLUME_SET;
     g_AkaoCmd.params[0] = AKAO_VOL_MAX;
@@ -899,7 +899,7 @@ static void JetUpdateLaserSfx(s32 power) {
 
 static void JetAudioUpdateVolumes(void) {
     g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT0;
-    g_AkaoCmd.params[0] = D_800A8338;
+    g_AkaoCmd.params[0] = g_JetSlot0Volume;
     AkaoExec();
     g_AkaoCmd.opcode = AKAO_SET_VOL_BALANCE_SLOT3;
     g_AkaoCmd.params[0] = g_JetLaserVolume;

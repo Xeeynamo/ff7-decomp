@@ -1,4 +1,4 @@
-//! PSYQ=3.3 FORCE_MEM=true
+//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true
 
 #include "jet_private.h"
 
@@ -27,8 +27,6 @@ void JetFrustumInit(void) {
     VECTOR brCorner;
     VECTOR tlCorner;
     VECTOR trCorner;
-    VECTOR* ln;
-    VECTOR* rn;
     s32 lx;
     s32 ly;
     s32 lz;
@@ -36,8 +34,6 @@ void JetFrustumInit(void) {
     s32 ry;
     s32 rz;
 
-    ln = &g_JetLeftPlaneNormal;
-    rn = &g_JetRightPlaneNormal;
     blCorner = g_JetFrustumBottomLeft;
     brCorner = g_JetFrustumBottomRight;
     tlCorner = g_JetFrustumTopLeft;
@@ -55,15 +51,15 @@ void JetFrustumInit(void) {
     br.vx = brCorner.vx >> 2;
     br.vy = brCorner.vy >> 2;
     br.vz = brCorner.vz >> 2;
-    OuterProduct0(&tl, &bl, ln);
-    OuterProduct0(&tr, &br, rn);
+    OuterProduct0(&tl, &bl, &g_JetLeftPlaneNormal);
+    OuterProduct0(&tr, &br, &g_JetRightPlaneNormal);
 
-    lx = ln->vx;
-    ly = ln->vy;
-    lz = ln->vz;
-    rx = rn->vx;
-    ry = rn->vy;
-    rz = rn->vz;
+    lx = g_JetLeftPlaneNormal.vx;
+    ly = g_JetLeftPlaneNormal.vy;
+    lz = g_JetLeftPlaneNormal.vz;
+    rx = g_JetRightPlaneNormal.vx;
+    ry = g_JetRightPlaneNormal.vy;
+    rz = g_JetRightPlaneNormal.vz;
     g_JetLeftPlaneDistance = -(lx * (tlCorner.vx >> 2)) - (ly * (tlCorner.vy >> 2)) - (lz * (tlCorner.vz >> 2));
     g_JetRightPlaneDistance = -(rx * (trCorner.vx >> 2)) - (ry * (trCorner.vy >> 2)) - (rz * (trCorner.vz >> 2));
     g_JetLeftPlaneInsideRef =
@@ -71,7 +67,9 @@ void JetFrustumInit(void) {
     g_JetRightPlaneInsideRef =
         (rx * (tlCorner.vx >> 2)) + (ry * (tlCorner.vy >> 2)) + (rz * (tlCorner.vz >> 2)) + g_JetRightPlaneDistance;
     g_JetLeftNormalLength = SquareRoot0((lx * lx) + (ly * ly) + (lz * lz));
-    g_JetRightNormalLength = SquareRoot0((rn->vx * rn->vx) + (rn->vy * rn->vy) + (rn->vz * rn->vz));
+    g_JetRightNormalLength = SquareRoot0(
+        (g_JetRightPlaneNormal.vx * g_JetRightPlaneNormal.vx) + (g_JetRightPlaneNormal.vy * g_JetRightPlaneNormal.vy) +
+        (g_JetRightPlaneNormal.vz * g_JetRightPlaneNormal.vz));
 }
 
 s32 JetVectorInsidePlanes(VECTOR* point) {
