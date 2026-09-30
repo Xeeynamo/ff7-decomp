@@ -55,6 +55,10 @@ static u32 IfCheck(void);
 static u32 If2CheckSigned(void);
 static u32 If2CheckUnsigned(void);
 static s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId);
+static s32 FieldMoveToEntityUpdate(u8 entityId);
+static s32 FieldEventSetDirByEntityId(s16 entityId);
+static s32 FieldEntityTurnToEntity(s16 entityId);
+
 void FieldEventDebugError(const char* errmsg);
 void FieldDebugStringU8hex(s32 val, char* msg_out);
 void FieldDebugStringU16hex(s32 val, char* msg_out);
