@@ -184,7 +184,6 @@ s32 func_800A9B04(s16, u8);
 s32 func_800AA304(WorldActor*, WorldActor*);
 static WorldActor* FindCollidingActor(WorldActor*);
 void func_800AAB18(WorldActor*);
-void func_800ADB30(s32, s32);
 void func_800AB398(WorldActor*);
 void func_800AB48C(WorldActor*);
 void WmScriptDisableForPcEntity(s32);
@@ -357,10 +356,8 @@ extern u8* D_8010AD94[4];
 extern u8 D_8010ADA4[64];
 extern s32 D_8010ADEC;
 extern s16 D_8010ADF0;
-extern s32 D_8010AE24;
-extern s32 D_8010AE28;
-extern s32 D_8010AE2C;
-extern s32 D_8010AE30;
+extern s32 D_8010AE24[2]; // party members that joined, as script event values
+extern s32 D_8010AE2C[2]; // party members that left
 extern s32 D_8010AE4C;
 extern s32 D_8010AE50;
 extern VECTOR D_8010AE34;

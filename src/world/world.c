@@ -2815,8 +2815,8 @@ void WmScriptInitVariables(WorldScriptData* data) {
     for (i = 0; i < 3; i++) {
         D_8010ADF4[i].vx = D_8010ADF4[i].vy = D_8010ADF4[i].vz = 0;
     }
-    D_8010AE24 = D_8010AE28 = 0;
-    D_8010AE2C = D_8010AE30 = 0;
+    D_8010AE24[0] = D_8010AE24[1] = 0;
+    D_8010AE2C[0] = D_8010AE2C[1] = 0;
     D_8010AE34.vx = D_8010AE34.vy = D_8010AE34.vz = 0;
 }
 
@@ -3027,16 +3027,16 @@ static s32 WmScriptPopStack(void) {
             var_s0 = func_800ADFC0();
             break;
         case 17:
-            var_s0 = D_8010AE24;
+            var_s0 = D_8010AE24[0];
             break;
         case 18:
-            var_s0 = D_8010AE28;
+            var_s0 = D_8010AE24[1];
             break;
         case 19:
-            var_s0 = D_8010AE2C;
+            var_s0 = D_8010AE2C[0];
             break;
         case 20:
-            var_s0 = D_8010AE30;
+            var_s0 = D_8010AE2C[1];
         }
     }
     return var_s0;
@@ -3412,7 +3412,55 @@ static void WmRestoreEntityPosAndDirFromSavemap(WorldActor* arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800ADB30);
+static void WmBuildPartyChangeLists(u32 oldMask, u32 newMask) {
+    u32 bits;
+    u32 n;
+    s32 i;
+    s32 mask;
+
+    bits = oldMask & ~newMask;
+    n = 0;
+    mask = 0x40;
+    D_8010AE24[0] = D_8010AE24[1] = 0;
+    D_8010AE2C[0] = D_8010AE2C[1] = 0;
+    if (bits & mask) {
+        D_8010AE2C[0] = 0x26;
+        n = 1;
+        bits &= ~0x40;
+    }
+    i = 0;
+    while (n < 2) {
+        if (bits == 0) {
+            break;
+        }
+        if (bits & 1) {
+            D_8010AE2C[n] = i + 0x20;
+            n++;
+        }
+        bits >>= 1;
+        i++;
+    }
+
+    bits = ~oldMask & newMask;
+    n = 0;
+    if (bits & mask) {
+        D_8010AE24[0] = 0x26;
+        n = 1;
+        bits &= ~mask;
+    }
+    i = 0;
+    while (n < 2) {
+        if (bits == 0) {
+            break;
+        }
+        if (bits & 1) {
+            D_8010AE24[n] = i + 0x20;
+            n++;
+        }
+        bits >>= 1;
+        i++;
+    }
+}
 
 static void func_800ADC3C(VECTOR* arg0) { D_8010AE34 = *arg0; }
 
@@ -5178,7 +5226,7 @@ void WmSyncPartyMembers(u8* slots, u8* next, s32 notify) {
     oldMask = (1 << slots[0]) | (1 << slots[1]) | (1 << slots[2]);
     newMask = (1 << next[0]) | (1 << next[1]) | (1 << next[2]);
     if (notify != 0) {
-        func_800ADB30(oldMask, newMask);
+        WmBuildPartyChangeLists(oldMask, newMask);
     }
     bits = oldMask & ~newMask;
     for (i = 0; i < 3; i++) {
