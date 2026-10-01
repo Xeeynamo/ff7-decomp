@@ -72,6 +72,36 @@ typedef enum {
     STATUS_IMPRISONED = 0x80000000,
 } BattleStatusFlags;
 
+// Used to index BattleTurnWork.statusTimers; g_StatusBitTable[index] is the bit
+// number (0-31) of the BattleUnit.status flag that timer belongs to, and also
+// used to index g_StatusTimerInitValues
+typedef enum {
+    TIMER_STOP,
+    TIMER_PARALYSIS,
+    TIMER_D_SENTENCE,
+    TIMER_SLOW_NUMB,
+    TIMER_BARRIER,
+    TIMER_M_BARRIER,
+    TIMER_POISON,
+    TIMER_SLEEP,
+    TIMER_REGEN,
+    TIMER_DUAL_DRAIN,
+    TIMER_SHIELD,
+    TIMER_PEERLESS,
+    NUM_STATUS_TIMERS = 16,
+} BattleStatusTimerIndex;
+
+// Used to index BattleTurnWork.statMults
+typedef enum {
+    STAT_MULT_PHYS_ATTACK,
+    STAT_MULT_MAG_ATTACK,
+    STAT_MULT_PHYS_DEFENCE,
+    STAT_MULT_MAG_DEFENCE,
+    STAT_MULT_PHYS_EVADE,
+    STAT_MULT_DEXTERITY,
+    NUM_STAT_MULTS = 8,
+} BattleStatMultIndex;
+
 typedef struct {
     /* 0x0 */ u16 isMultiBattle;
     /* 0x2 */ u16 characterMask[NUM_PARTY];
@@ -442,29 +472,8 @@ typedef struct {
     /* 0x0D */ u8 accessoryEffectId;
     /* 0x0E */ u8 hasLimitBreak;
     /* 0x0F */ u8 formationIndex;
-    /* 0x10 */ u8 stopTimer;
-    /* 0x11 */ u8 paralyzeTimer;
-    /* 0x12 */ u8 curseRingDoom;
-    /* 0x13 */ u8 slowNumbTimer;
-    /* 0x14 */ u8 barrierTimer;
-    /* 0x15 */ u8 mbarrierTimer;
-    /* 0x16 */ u8 poisonTimer;
-    /* 0x17 */ u8 sleepTimer;
-    /* 0x18 */ u8 regenTimer;
-    /* 0x19 */ u8 dualTimer;
-    /* 0x1A */ u8 shieldTimer;
-    /* 0x1B */ u8 peerlessTimer;
-    /* 0x1C */ u8 unk1C;
-    /* 0x1D */ u8 unk1D;
-    /* 0x1E */ u8 unk1E;
-    /* 0x1F */ u8 unk1F;
-    /* 0x20 */ u8 physAtkMult;
-    /* 0x21 */ u8 magAtkMult;
-    /* 0x22 */ u8 physDefMult;
-    /* 0x23 */ u8 magDefMult;
-    /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 dexterityMult;
-    /* 0x26 */ u8 unk26[2];
+    /* 0x10 */ u8 statusTimers[NUM_STATUS_TIMERS];
+    /* 0x20 */ s8 statMults[NUM_STAT_MULTS];
     /* 0x28 */ u8 unk28;
     /* 0x29 */ u8 turnFlags;
     /* 0x2A */ u8 unk2A;
