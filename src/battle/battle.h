@@ -121,12 +121,12 @@ typedef struct {
     /* 0x0C */ s8 formationIndex;
     /* 0x0D */ u8 physAttack;
     /* 0x0E */ s8 magAttack;
-    /* 0x0F */ s8 physEvade;
+    /* 0x0F */ u8 physEvade;
     /* 0x10 */ s8 idleActionId;
     /* 0x11 */ u8 hurtActionId;
     /* 0x12 */ u8 backDamageMult;
     /* 0x13 */ u8 rowFlags;
-    /* 0x14 */ s8 dexterity;
+    /* 0x14 */ u8 dexterity;
     /* 0x15 */ u8 luck;
     /* 0x16 */ s8 unk16;
     /* 0x17 */ u8 coverTargetSlot;

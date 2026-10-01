@@ -2685,7 +2685,16 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpperFunc06);
 
 static int BattleUpperFunc03(void) {}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0B94);
+void func_800B0B94(s32 arg0) {
+    s32 evade;
+
+    if (arg0 < 4) {
+        evade = g_BattleState.combatant[arg0].dexterity / 4 + g_BattleState.combatant[arg0].physEvade;
+    } else {
+        evade = g_BattleState.combatant[arg0].physEvade;
+    }
+    func_800B1218(arg0, evade, 4);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0C14);
 
