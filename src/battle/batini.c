@@ -666,7 +666,7 @@ static void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
             battleUnit->status |= STATUS_D_SENTENCE;
             turn->statusProtectionMask |= STATUS_D_SENTENCE;
             party->accessoryStatusMask |= STATUS_D_SENTENCE;
-            turn->curseRingDoom = 0xFF;
+            turn->statusTimers[TIMER_D_SENTENCE] = 0xFF;
             break;
         case 3:
             battleUnit->status |= STATUS_REFLECT;
