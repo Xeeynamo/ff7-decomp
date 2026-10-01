@@ -1,4 +1,4 @@
-//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true
+//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true COMM=true
 
 #include "jet_private.h"
 #include <libc.h>
@@ -41,15 +41,16 @@ enum JetPathType {
     JET_PATH_TRACK,
 };
 
-extern SVECTOR* g_JetLastPath;
-extern s32 g_JetLastPathLen;
-extern s32 g_JetNextSpawnSegment;
-extern s32 g_JetSpawnIndex;
-extern u16 g_JetNextFreeObject;
-extern u16 g_JetObjectFreeList[100];
-extern JetObject g_JetSpawnTemplate;
-extern JetObject g_JetObjects[100];
-extern s16 g_JetObjectCount;
+SVECTOR* g_JetLastPath;
+s32 g_JetLastPathLen;
+s32 g_JetNextSpawnSegment;
+s32 g_JetSpawnIndex;
+u16 g_JetNextFreeObject;
+u16 g_JetObjectFreeList[100];
+JetObject g_JetSpawnTemplate;
+JetObject g_JetObjects[100];
+s16 g_JetObjectCount;
+s16 g_JetPopupPoints;
 
 static s16 JetObjectIndexAlloc(void);
 static void JetObjectIndexFree(s16 index);

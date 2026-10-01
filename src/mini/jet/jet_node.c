@@ -1,12 +1,13 @@
-//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true
+//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true COMM=true
 
 #include "jet_private.h"
 
-extern JetNode g_JetNodeListHeads[10];
-extern JetNode g_JetNodePool[200];
-extern s16 g_JetNodeFreeList[200];
-extern s16 g_JetNextFreeNode;
-extern JetNode g_JetNodeListTails[10];
+JetNode g_JetNodeListHeads[10];
+JetNode g_JetNodePool[200];
+s16 g_JetNodeFreeList[200];
+s16 g_JetNextFreeNode;
+JetNode g_JetNodeListTails[10];
+JetNode g_JetRootNode;
 
 static s16 JetNodeIndexAlloc(void);
 static void JetNodeIndexFree(s16 index);

@@ -570,6 +570,7 @@ overlays:
       - config/symbols.jet.us.txt
     migrate_rodata_to_functions: false
     vram_start: 0x800A0000
+    bss_size: 0x45B18
     segments:
       - [0x0, .rodata, jet]
       - [0x8, .rodata, jet_object]
@@ -582,6 +583,7 @@ overlays:
       - [0x8010, c, jet_node]
       - [0x8310, .data, jet]
       - [0x83F0, hasm, jet_gte]
+      - [0x8918, bss]
   - name: condor
     disk_path: disks/us/MINI/CONDOR.BIN.dec
     sha1: c4fe080886805df17712d160375eb9660eb5a2f8

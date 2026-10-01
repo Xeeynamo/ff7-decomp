@@ -1,15 +1,15 @@
-//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true
+//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true COMM=true
 
 #include "jet_private.h"
 
-extern VECTOR g_JetLeftPlaneNormal;
-extern VECTOR g_JetRightPlaneNormal;
-extern s32 g_JetLeftPlaneInsideRef;
-extern s32 g_JetRightPlaneInsideRef;
-extern s32 g_JetLeftPlaneDistance;
-extern s32 g_JetRightPlaneDistance;
-extern s32 g_JetLeftNormalLength;
-extern s32 g_JetRightNormalLength;
+VECTOR g_JetLeftPlaneNormal;
+VECTOR g_JetRightPlaneNormal;
+s32 g_JetLeftPlaneInsideRef;
+s32 g_JetRightPlaneInsideRef;
+s32 g_JetLeftPlaneDistance;
+s32 g_JetRightPlaneDistance;
+s32 g_JetLeftNormalLength;
+s32 g_JetRightNormalLength;
 
 // The four view frustum corner rays at the projection distance, screen order.
 const VECTOR g_JetFrustumBottomLeft = {-160, 120, 256, 0};
