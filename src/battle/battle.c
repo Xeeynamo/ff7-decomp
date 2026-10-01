@@ -3207,7 +3207,40 @@ static void func_800B2CAC(s32 arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B2CFC);
+void func_800B2CFC(s32 arg0, s32 arg1) {
+    u8* src;
+    u8* dst;
+    s32 i;
+
+    g_BattleWork.turn[arg1].senseTargetMask = arg0;
+    g_BattleWork.turn[arg1].statusProtectionMask |= 1;
+
+    g_BattleState.combatant[arg0].curHP = g_BattleState.combatant[arg1].curHP;
+    g_BattleState.combatant[arg0].curMP = g_BattleState.combatant[arg1].curMP;
+    g_BattleState.combatant[arg0].status = g_BattleState.combatant[arg1].status;
+    g_BattleState.combatant[arg0].prevStatus = g_BattleState.combatant[arg1].prevStatus;
+
+    g_BattleWork.turn[arg0].unk6 = g_BattleWork.turn[arg1].unk6;
+    g_BattleWork.turn[arg0].unk28 = g_BattleWork.turn[arg1].unk28;
+    g_BattleWork.turn[arg0].turnFlags = g_BattleWork.turn[arg1].turnFlags;
+
+    // Copy 16 various 1 byte status timers starting with stopTimer
+    dst = &g_BattleWork.turn[arg0].stopTimer;
+    src = &g_BattleWork.turn[arg1].stopTimer;
+    for (i = 0; i < 16; ++i) {
+        dst[i] = src[i];
+    }
+
+    // Copy 8 various 1 byte attributes starting with physAtkMult
+    dst = &g_BattleWork.turn[arg0].physAtkMult;
+    src = &g_BattleWork.turn[arg1].physAtkMult;
+    for (i = 0; i < 8; ++i) {
+        dst[i] = src[i];
+    }
+
+    BattleRecalcUnitSpeed(arg0);
+    BattleInitUnitAction(arg0);
+}
 
 // ids below 256 index the kernel table; higher ones are the scene's own
 static AttackData* BattleGetAttackData(s32 id) {
