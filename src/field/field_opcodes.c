@@ -6262,7 +6262,7 @@ static s32 OpcodeFuncFadew(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("fadew", 0);
     }
-    switch ((s16)g_pFieldState->fadeType) {
+    switch (g_pFieldState->fadeType) {
     case FFT_INSTANT:
     case FFT_INSTANT_BLACK:
         PC_INC(1);
