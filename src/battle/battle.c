@@ -2463,8 +2463,12 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE82C);
 void BattleRecalcUnitSpeed(int index);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRecalcUnitSpeed);
 
-const u8 g_StatusTimerInitValues[] = {0x1E, 0x14, 0x3C, 0x1E, 0x7F, 0x7F, 0x0A, 0x64, 0x7F, 0x7F,
-                                      0x40, 0x40, 0x00, 0x00, 0x00, 0x00, 0x8B, 0x0D, 0x00, 0x00};
+const u8 g_StatusTimerInitValues[] = {
+    0x1E, 0x14, 0x3C, 0x1E, 0x7F, 0x7F, 0x0A, 0x64, 0x7F, 0x7F, 0x40, 0x40, 0x00, 0x00, 0x00, 0x00};
+
+static const s32 UnkStatusTimerMask = 1 << TIMER_STOP | 1 << TIMER_PARALYSIS | 1 << TIMER_SLOW_NUMB | 1 << TIMER_SLEEP |
+                                      1 << TIMER_REGEN | 1 << TIMER_SHIELD | 1 << TIMER_PEERLESS;
+
 static s32 BattleStatusBitToTimerIndex(s32 statusBit);
 
 void BattleUnitInitStatusTimer(s32 arg0, s32 statusBit, s32 arg2) {
@@ -2495,9 +2499,7 @@ void func_800AEB80(s32 arg0, s32 statusBit, s32 arg2) {
     s32 index = BattleStatusBitToTimerIndex(statusBit);
     if (index >= 0) {
         g_BattleWork.turn[arg0].statusTimers[index] = 0;
-        // 0xD8B might be a bitmask for certain status timers, likely defined const or with a macro:
-        // TIMER_STOP, TIMER_PARALYSIS, TIMER_SLOW_NUMB, TIMER_SLEEP, TIMER_REGEN, TIMER_SHIELD, TIMER_PEERLESS
-        if ((0xD8B >> index) & 1) {
+        if ((UnkStatusTimerMask >> index) & 1) {
             BattleInitUnitAction(arg0);
         }
     }
