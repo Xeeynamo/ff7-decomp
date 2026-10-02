@@ -6683,11 +6683,50 @@ static s32 OpcodeFuncMenu2(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncGetpc);
+static s32 OpcodeFuncGetpc(void) {
+    s32 partyId;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMpara);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("getpc", 3);
+    }
+    partyId = GET_PARAM_U8(2);
+    if (partyId < 3) {
+        FieldEventWriteMemoryU8(2, 3, Savemap.partyID[partyId]);
+    }
+    PC_INC(4);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMpra2);
+static s32 OpcodeFuncMpara(void) {
+    s32 window;
+    s32 id;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mpara", 4);
+    }
+    window = GET_PARAM_U8(2);
+    id = FieldEventReadMemoryU8(1, 3);
+    g_WindowReplaceBank[window][id] = GET_PARAM_U8(1) & 0xF;
+    g_WindowReplaceBankAddr[window][id] = GET_PARAM_U8(4);
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncMpra2(void) {
+    s32 window;
+    s32 id;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mpra2", 5);
+    }
+    window = GET_PARAM_U8(2);
+    id = FieldEventReadMemoryU8(1, 3);
+    g_WindowReplaceBank[window][id] = GET_PARAM_U8(1) & 0xF;
+    g_WindowReplaceBankAddr[window][id] = GET_PARAM_U8(4);
+    g_WindowReplaceBankAddr[window][id] |= GET_PARAM_U8(5) << 8;
+    PC_INC(6);
+    return 0;
+}
 
 /**
  * @brief Opcode 0xD4 - **SIN** - sine
