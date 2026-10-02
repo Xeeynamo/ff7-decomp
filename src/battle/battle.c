@@ -1982,7 +1982,46 @@ void func_800ACA24(void) {
     g_CurrentAction->tmpDamage = 0;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACA4C);
+void func_800ACA4C(s32 arg0) {
+    u16 strArgs[2];
+    s32 animId = 3;
+    u8 formationIndex;
+
+    // Pick the animation ID based on the current command; default is a two part effect (3 -> 4)
+    switch (g_CurrentAction->cmdIndex) {
+    case CMD_MAGIC:
+        animId = 0x38;
+        break;
+    case CMD_SUMMON:
+        animId = 0x36;
+        break;
+    case CMD_ENEMY_SKILL:
+        animId = 0x37;
+        break;
+    case CMD_LIMIT:
+        animId = 0x35;
+        break;
+    }
+
+    if (g_CurrentAction->actorId < NUM_PARTY) {
+        func_800A2CC4(animId);
+        if (arg0 != -1) {
+            BattleQueueIntroCamera(arg0);
+            func_800A2CC4(0x3B);
+        }
+        if (animId == 3) {
+            func_800A2CC4(4);
+        }
+    } else if (arg0 != -1) {
+        strArgs[0] = g_CurrentAction->actorId;
+        strArgs[1] = -1;
+        formationIndex = g_BattleWork.turn[g_CurrentAction->actorId].formationIndex;
+        if (formationIndex != 0xFF) {
+            strArgs[1] = formationIndex;
+        }
+        BattleAddStringToDisplay(g_CurrentAction->actorId, arg0, 1, (s16*)strArgs);
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACB98);
 
