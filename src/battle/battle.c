@@ -1982,7 +1982,46 @@ void func_800ACA24(void) {
     g_CurrentAction->tmpDamage = 0;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACA4C);
+void func_800ACA4C(s32 arg0) {
+    u16 strArgs[2];
+    s32 animId = 3;
+    u8 formationIndex;
+
+    // Pick the animation ID based on the current command; default is a two part effect (3 -> 4)
+    switch (g_CurrentAction->cmdIndex) {
+    case CMD_MAGIC:
+        animId = 0x38;
+        break;
+    case CMD_SUMMON:
+        animId = 0x36;
+        break;
+    case CMD_ENEMY_SKILL:
+        animId = 0x37;
+        break;
+    case CMD_LIMIT:
+        animId = 0x35;
+        break;
+    }
+
+    if (g_CurrentAction->actorId < NUM_PARTY) {
+        func_800A2CC4(animId);
+        if (arg0 != -1) {
+            BattleQueueIntroCamera(arg0);
+            func_800A2CC4(0x3B);
+        }
+        if (animId == 3) {
+            func_800A2CC4(4);
+        }
+    } else if (arg0 != -1) {
+        strArgs[0] = g_CurrentAction->actorId;
+        strArgs[1] = -1;
+        formationIndex = g_BattleWork.turn[g_CurrentAction->actorId].formationIndex;
+        if (formationIndex != 0xFF) {
+            strArgs[1] = formationIndex;
+        }
+        BattleAddStringToDisplay(g_CurrentAction->actorId, arg0, 1, (s16*)strArgs);
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACB98);
 
@@ -2590,7 +2629,25 @@ void BattleApplyRegenPoisonTick(s32 arg0, s32 arg1, s32 arg2) {
 
 void func_800AF470(s32 arg0) { g_BattleWork.turn[arg0].unk28 = 3; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF494);
+void func_800AF494(s32 arg0, s32 arg1, s32 arg2) {
+    switch (g_BattleSceneContext.imprisonedType) {
+    case 1:
+        BattleApplyRegenPoisonTick(arg0, arg1, arg2);
+        /* fallthrough */
+    case 0:
+    case 3:
+        if (arg2 != 0) {
+            func_800AF264(arg0, arg1, arg2);
+        } else {
+            func_800AF320(arg0, arg1, 0);
+        }
+        break;
+    }
+
+    if (g_BattleSceneContext.imprisonedType == 3) {
+        g_BattleState.combatant[arg0].unk16 = arg2 ? 0x13 : 0;
+    }
+}
 
 void BattleClearActorSlotReferences(s32 arg0, s32 arg1, s32 arg2) {
     s32 i;
@@ -2685,9 +2742,87 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpperFunc06);
 
 static int BattleUpperFunc03(void) {}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0B94);
+void func_800B0B94(s32 arg0) {
+    s32 evade;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0C14);
+    if (arg0 < 4) {
+        evade = g_BattleState.combatant[arg0].dexterity / 4 + g_BattleState.combatant[arg0].physEvade;
+    } else {
+        evade = g_BattleState.combatant[arg0].physEvade;
+    }
+    func_800B1218(arg0, evade, 4);
+}
+
+void func_800B0C14(void) {
+    s32 actorGroup = 0;
+    s32 targetGroup = 0;
+    s32 flagsDiffer = 0;
+    s32 actorId = g_CurrentAction->actorId;
+    s32 actorBitMask = 1 << actorId;
+    s32 targetId = g_CurrentAction->targetId;
+    s32 targetBitMask = 1 << targetId;
+    s32 prevStateMask;
+    s32 stateMask;
+    s32 flipActor;
+    s32 i;
+
+    // Branchless calculation of a mask if the actor is in a specific state, 0 otherwise
+    stateMask = actorBitMask & -((g_BattleState.combatant[actorId].stateFlags & 0x80) != 0);
+    if (g_BattleState.combatant[targetId].stateFlags & 0x80) {
+        stateMask |= targetBitMask;
+    }
+    prevStateMask = stateMask;
+
+    // Note that this 3 likely refers to the number of possible groups
+    // in battle and not NUM_PARTY (see: BattleInitFormation)
+    for (i = 0; i < 3; i++) {
+        if (g_BattleMultiInfo.characterMask[i] & actorBitMask) {
+            actorGroup = i;
+        }
+        if (g_BattleMultiInfo.characterMask[i] & targetBitMask) {
+            targetGroup = i;
+        }
+    }
+
+    if (actorGroup == 1) {
+        flipActor = 0;
+
+        switch (targetGroup) {
+        case 0:
+            flipActor = 1;
+            /* fallthrough */
+        case 2:
+            if (stateMask & actorBitMask) {
+                flipActor ^= 1;
+            }
+            if (flipActor) {
+                stateMask ^= actorBitMask;
+            }
+            break;
+        }
+    }
+
+    if (actorBitMask & stateMask) {
+        flagsDiffer ^= 1;
+    }
+    if (targetBitMask & stateMask) {
+        flagsDiffer ^= 1;
+    }
+
+    if ((actorGroup != targetGroup) && (flagsDiffer == 0)) {
+        stateMask ^= targetBitMask;
+        g_CurrentAction->unk234 |= 1;
+    }
+
+    // Store only the changed bits back to stateMask
+    stateMask ^= prevStateMask;
+    if (stateMask & actorBitMask) {
+        g_BattleState.combatant[g_CurrentAction->actorId].stateFlags ^= 0x80;
+    }
+    if (stateMask & targetBitMask) {
+        g_CurrentAction->unk234 |= 2;
+    }
+}
 
 static void func_800B0DF8(void) {
     if (g_CurrentAction->unk234 & 2) {

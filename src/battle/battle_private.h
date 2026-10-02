@@ -601,6 +601,7 @@ s32 BattleLoadEnemyModel(s32);
 void BattleLoadEnemyTexture(s32);
 void BattleInitModelsAnimAndColor(s32, s32);
 void BattleCdromReadChain(void);
+static s32 func_800B1218(s32 arg0, s32 arg1, s32 arg2);
 s16 func_800B888C(s32);
 void func_800B8438(void);
 void func_800B8A34(s16, s32);
