@@ -139,13 +139,10 @@ extern u8 D_801E2EAC[];
 extern StartMenuMode g_MenuStartMode;
 extern s32 D_801E3440;
 extern s32 D_801E3530;
-extern RECT g_SaveSlotWindowRects[3];
 extern s32 D_801E36A0;
 extern s32 D_801E36A4;
 extern s32 D_801E36A8;
 extern s32 D_801E36AC;
-extern u8 g_TitleDefaultWindowColors[NUM_MENU_COLOR]; // 4 corners x RGB
-extern u8 g_SaveLevelLabel[];                         // "Level" label
 extern s32 g_TitleResult;
 extern s32 D_801E36B0;
 extern s32 D_801E36B8;
@@ -185,7 +182,6 @@ extern s32 D_801E3860;
 extern s32 g_SaveAvatarVramBackup[];
 extern u8 D_801E2E88;
 extern u8 D_801E3158;
-extern MenuRect g_TitleWindowRect;
 extern MenuTable g_TitleMenuTables[];
 extern s32 g_TitleScanUnk;
 extern s32 g_TitleTimer;

@@ -507,7 +507,7 @@ overlays:
       - [0xEEDC, data]
       - [0xF10C, saveicons, 15]
       - [0x12C78, .data, savemenu]
-      - [0x13650, data]
+      - [0x13650, .data, title]
       - [0x13698, bss]
   - name: itemmenu
     disk_path: disks/us/MENU/ITEMMENU.MNU

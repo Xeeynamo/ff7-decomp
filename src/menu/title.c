@@ -4,6 +4,21 @@
 #include "savemenu.h"
 #include <libetc.h>
 
+static RECT wnd_slot_window_rect[3] = {
+    {0x116, 0x04, 0x56, 0x24},
+    {0x0B8, 0x28, 0xB4, 0x18},
+    {0x000, 0x00, 0x16C, 0x40},
+};
+static MenuRect wnd_select_slot_rect = {0x96, 0x5D, 0x40, 0x20};
+static s16 unused_data[10] = {0, 0, 0, 0, -2, -1, -1, -1, -2, -1};
+static char save_level_label[] = _S("Level");
+static u8 default_window_colors[NUM_MENU_COLOR] = {
+    0x00, 0x00, 0xB0, // top left
+    0x00, 0x00, 0x80, // top right
+    0x00, 0x00, 0x50, // bottom left
+    0x00, 0x00, 0x20, // bottom right
+};
+
 static void TitlePlaySfx(u16 soundId) {
     g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
     g_AkaoCmd.params[0] = soundId;
@@ -376,7 +391,7 @@ void SaveDrawSlot(s32 x, s32 y, s32 slotIndex) {
     clipRect.h = 0xFF;
     SysMenuSetDrawMode(0, 1, 127, &clipRect);
     SysMenuDrawDigitsWithoutLeadingZeroes(
-        SysGetSingleStringWidth(g_SaveLevelLabel) + 194, y + 28, save->leader_level, 2, 7);
+        SysGetSingleStringWidth(save_level_label) + 194, y + 28, save->leader_level, 2, 7);
     SysMenuDrawSingleFontLetter(338, y + 12, 213, 7); // prints the ':' symbol maybe?
     SysMenuDrawDigitsWithLeadingZeroes(324, y + 11, SysGetHoursFromSeconds(save->time), 2, 7);
     SysMenuDrawDigitsWithLeadingZeroes(345, y + 11, SysGetMinutesFromSeconds(save->time), 2, 7);
@@ -387,14 +402,14 @@ void SaveDrawSlot(s32 x, s32 y, s32 slotIndex) {
     clipRect.w = 0x100;
     clipRect.h = 0x100;
     SysMenuSetDrawMode(0, 1, 127, &clipRect);
-    SysMenuDrawString(189, y + 26, g_SaveLevelLabel, 5);
+    SysMenuDrawString(189, y + 26, save_level_label, 5);
     SysMenuDrawString(184, y + 8, save->leader_name, 7);
     SysMenuDrawString(284, y + 9, g_Labels.labels[LABEL_TIME], 7);
     SysMenuDrawString(284, y + 23, g_Labels.labels[LABEL_GIL], 7);
     MENU_SetWindowColors(save->menu_color);
 
     for (j = 0; j < 3; j++) {
-        SysMenuCopyWindowRect(&slotRect, &g_SaveSlotWindowRects[j]);
+        SysMenuCopyWindowRect(&slotRect, &wnd_slot_window_rect[j]);
         SysMenuMoveWindowRect(&slotRect, 0, y);
         SysMenuDrawWindow(&slotRect);
     }
@@ -403,7 +418,7 @@ void SaveDrawSlot(s32 x, s32 y, s32 slotIndex) {
 static void TitleInit(void) {
     g_TitleResult = TITLE_RESULT_CONTINUE;
     g_MenuStartMode = START_MENU_MODE_TITLE;
-    MENU_SetWindowColors(g_TitleDefaultWindowColors);
+    MENU_SetWindowColors(default_window_colors);
     MENU_LoadTim(buster_tim, 0x380, 0, 0, 0x1E0);
     DrawSync(0);
     SysMenuSetCursorMovement(&g_TitleButtonTables[TITLE_BTN_TITLE], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
@@ -447,18 +462,18 @@ static s32 TitleUpdate(s32 counter) {
     switch (g_MenuStartMode) {
     case START_MENU_MODE_SELECT_SLOT:
         SysMenuDrawCursor(
-            g_TitleWindowRect.x - 18, g_TitleWindowRect.y + 6 + g_TitleMenuTables[TITLE_TABLE_SLOTS].row * 12);
+            wnd_select_slot_rect.x - 18, wnd_select_slot_rect.y + 6 + g_TitleMenuTables[TITLE_TABLE_SLOTS].row * 12);
         SysMenuDrawString(10, 11, g_SaveLabels[SAVE_STR_SELECT_SLOT], 7);
-        SysMenuDrawString(g_TitleWindowRect.x + 12, g_TitleWindowRect.y + 5, g_SaveLabels[SAVE_STR_SLOT_1],
+        SysMenuDrawString(wnd_select_slot_rect.x + 12, wnd_select_slot_rect.y + 5, g_SaveLabels[SAVE_STR_SLOT_1],
                           -(g_MemCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] != 0) & 7);
-        SysMenuDrawString(g_TitleWindowRect.x + 12, g_TitleWindowRect.y + 0x11, g_SaveLabels[SAVE_STR_SLOT_2],
+        SysMenuDrawString(wnd_select_slot_rect.x + 12, wnd_select_slot_rect.y + 0x11, g_SaveLabels[SAVE_STR_SLOT_2],
                           -(g_MemCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED] != 0) & 7);
         clipRect.x = 0;
         clipRect.y = 0;
         clipRect.w = 0x100;
         clipRect.h = 0x100;
         SysMenuSetDrawMode(0, 1, 0x7F, &clipRect);
-        SysMenuDrawWindow(&g_TitleWindowRect);
+        SysMenuDrawWindow(&wnd_select_slot_rect);
         break;
     case START_MENU_MODE_SELECT_FILE:
         if (!g_MemCardSlotStatus[g_TitleMenuTables[TITLE_TABLE_SLOTS].row][CARD_STATUS_INSERTED]) {
@@ -477,7 +492,7 @@ static s32 TitleUpdate(s32 counter) {
                 } else {
                     SysMenuDrawString(0x32, rowIdx * 64 + 55 + g_TitleMenuTables[TITLE_TABLE_FILES].scrollAnimY * 8,
                                       g_SaveLabels[SAVE_STR_EMPTY], 6);
-                    SysMenuCopyWindowRect(&windowRect, &g_SaveSlotWindowRects[2]);
+                    SysMenuCopyWindowRect(&windowRect, &wnd_slot_window_rect[2]);
                     SysMenuMoveWindowRect(
                         &windowRect, 0, rowIdx * 64 + 0x1D + g_TitleMenuTables[TITLE_TABLE_FILES].scrollAnimY * 8);
                     SysMenuDrawWindow(&windowRect);
@@ -535,36 +550,36 @@ static s32 TitleUpdate(s32 counter) {
         break;
     case START_MENU_MODE_FORMAT_PROMPT:
         if (counter & 2) {
-            SysMenuDrawCursor(
-                g_TitleWindowRect.x - 0x12, g_TitleWindowRect.y + 6 + g_TitleMenuTables[TITLE_TABLE_SLOTS].row * 12);
+            SysMenuDrawCursor(wnd_select_slot_rect.x - 0x12,
+                              wnd_select_slot_rect.y + 6 + g_TitleMenuTables[TITLE_TABLE_SLOTS].row * 12);
         }
-        SysMenuDrawString(g_TitleWindowRect.x + 12, g_TitleWindowRect.y + 5, g_SaveLabels[SAVE_STR_SLOT_1],
+        SysMenuDrawString(wnd_select_slot_rect.x + 12, wnd_select_slot_rect.y + 5, g_SaveLabels[SAVE_STR_SLOT_1],
                           -(g_MemCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] != 0) & 7);
-        SysMenuDrawString(g_TitleWindowRect.x + 12, g_TitleWindowRect.y + 0x11, g_SaveLabels[SAVE_STR_SLOT_2],
+        SysMenuDrawString(wnd_select_slot_rect.x + 12, wnd_select_slot_rect.y + 0x11, g_SaveLabels[SAVE_STR_SLOT_2],
                           -(g_MemCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED] != 0) & 7);
         clipRect.x = 0;
         clipRect.y = 0;
         clipRect.w = 0x100;
         clipRect.h = 0x100;
         SysMenuSetDrawMode(0, 1, 0x7F, &clipRect);
-        SysMenuDrawWindow(&g_TitleWindowRect);
+        SysMenuDrawWindow(&wnd_select_slot_rect);
         SysMenuDrawString(10, 11, g_SaveFormatStrings[SAVE_FORMAT_STR_UNFORMATTED], 7);
         promptWidth = SysGetSingleStringWidth(g_SaveFormatStrings[SAVE_FORMAT_STR_PROMPT]) + 0x10;
         SysMenuDrawString(
-            190 - promptWidth / 2, g_TitleWindowRect.h + 99, g_SaveFormatStrings[SAVE_FORMAT_STR_PROMPT], 7);
-        SysMenuDrawString(228 - promptWidth / 2, g_TitleWindowRect.h + 112, g_SaveLabels[SAVE_STR_YES], 7);
-        SysMenuDrawString(228 - promptWidth / 2, g_TitleWindowRect.h + 124, g_SaveLabels[SAVE_STR_NO], 7);
+            190 - promptWidth / 2, wnd_select_slot_rect.h + 99, g_SaveFormatStrings[SAVE_FORMAT_STR_PROMPT], 7);
+        SysMenuDrawString(228 - promptWidth / 2, wnd_select_slot_rect.h + 112, g_SaveLabels[SAVE_STR_YES], 7);
+        SysMenuDrawString(228 - promptWidth / 2, wnd_select_slot_rect.h + 124, g_SaveLabels[SAVE_STR_NO], 7);
         SysMenuDrawCursor(
-            200 - promptWidth / 2, 0x73 + g_TitleButtonTables[TITLE_BTN_FORMAT].row * 12 + g_TitleWindowRect.h);
-        SysMenuSetWindowRect(&windowRect, 0xB6 - promptWidth / 2, g_TitleWindowRect.h + 0x5D, promptWidth, 0x30);
+            200 - promptWidth / 2, 0x73 + g_TitleButtonTables[TITLE_BTN_FORMAT].row * 12 + wnd_select_slot_rect.h);
+        SysMenuSetWindowRect(&windowRect, 0xB6 - promptWidth / 2, wnd_select_slot_rect.h + 0x5D, promptWidth, 0x30);
         SysMenuDrawWindow(&windowRect);
         break;
     case START_MENU_MODE_TITLE:
         SysMenuDrawCursor(
-            g_TitleWindowRect.x - 0x12, g_TitleWindowRect.y + 6 + g_TitleButtonTables[TITLE_BTN_TITLE].row * 12);
+            wnd_select_slot_rect.x - 0x12, wnd_select_slot_rect.y + 6 + g_TitleButtonTables[TITLE_BTN_TITLE].row * 12);
         SysMenuDrawString(
-            g_TitleWindowRect.x + 8, g_TitleWindowRect.y + 6, g_SaveLabels[SAVE_STR_NEW_GAME], 7); // new game
-        SysMenuDrawString(g_TitleWindowRect.x + 8, g_TitleWindowRect.y + 18, g_SaveLabels[SAVE_STR_CONTINUE],
+            wnd_select_slot_rect.x + 8, wnd_select_slot_rect.y + 6, g_SaveLabels[SAVE_STR_NEW_GAME], 7); // new game
+        SysMenuDrawString(wnd_select_slot_rect.x + 8, wnd_select_slot_rect.y + 18, g_SaveLabels[SAVE_STR_CONTINUE],
                           g_MemCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] ||
                                   g_MemCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED]
                               ? 7
