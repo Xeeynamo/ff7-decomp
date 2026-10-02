@@ -51,8 +51,10 @@ extern s16 D_801144D4;
 extern u8 g_EntityForSplitJoin;
 extern u16 g_SplitJoinOrigMoveSpeed[24];
 
-void SystemMenuAddHpByPartyId(s32 partyId, u16 hp);
-void SystemMenuAddMpByPartyId(s32 partyId, u16 mp);
+void SystemMenuAddHpByPartyId(s32 partyId, s32 hp);
+void SysMenuRemoveHpByPartyId(s32 partyId, s32 hp);
+void SystemMenuAddMpByPartyId(s32 partyId, s32 mp);
+void SysMenuRemoveMpByPartyId(s32 partyId, s32 mp);
 void SysMenuAddItem(u16 item);
 void SysMenuRemoveItem(u16 item);
 u16 SysMenuSearchItem(u16 item);
@@ -6835,17 +6837,134 @@ static void SystemRestoreParty(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMhmmx);
+static s32 OpcodeFuncMhmmx(void) {
+    u8 party[3];
+    s32 i;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncHmpmx);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mhmmx", 0);
+    }
+    for (i = 0; i < 3; i++) {
+        party[i] = Savemap.partyID[i];
+    }
+    for (i = 0; i < 3; i++) {
+        Savemap.partyID[i] = i;
+    }
+    SystemRestoreParty();
+    for (i = 0; i < 3; i++) {
+        Savemap.partyID[i] = i + 3;
+    }
+    SystemRestoreParty();
+    for (i = 0; i < 3; i++) {
+        Savemap.partyID[i] = i + 6;
+    }
+    SystemRestoreParty();
+    for (i = 0; i < 3; i++) {
+        Savemap.partyID[i] = party[i];
+    }
+    SystemRestoreParty();
+    PC_INC(1);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMpPlus);
+static s32 OpcodeFuncHmpmx(void) {
+    s32 i;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncMpMinus);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("hmpmx", 0);
+    }
+    SystemRefreshParty();
+    for (i = 0; i < 3; i++) {
+        SystemMenuAddHpByPartyId(i, 10000);
+        SystemMenuAddMpByPartyId(i, 10000);
+    }
+    PC_INC(1);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncHpPlus);
+static s32 OpcodeFuncMpPlus(void) {
+    s32 partyId;
+    s32 i;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncHpMinus);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mp+", 4);
+    }
+    SystemRefreshParty();
+    partyId = GET_PARAM_U8(2);
+    if (Savemap.memory_bank_2[9 + partyId] != 0xFF) {
+        partyId = Savemap.memory_bank_2[9 + partyId];
+        for (i = 0; i < 3; i++) {
+            if (Savemap.partyID[i] == partyId) {
+                SystemMenuAddMpByPartyId(i, FieldEventReadMemoryS16(2, 3));
+            }
+        }
+    }
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncMpMinus(void) {
+    s32 partyId;
+    s32 i;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("mp-", 4);
+    }
+    SystemRefreshParty();
+    partyId = GET_PARAM_U8(2);
+    if (Savemap.memory_bank_2[9 + partyId] != 0xFF) {
+        partyId = Savemap.memory_bank_2[9 + partyId];
+        for (i = 0; i < 3; i++) {
+            if (Savemap.partyID[i] == partyId) {
+                SysMenuRemoveMpByPartyId(i, FieldEventReadMemoryS16(2, 3));
+            }
+        }
+    }
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncHpPlus(void) {
+    s32 partyId;
+    s32 i;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("hp+", 4);
+    }
+    SystemRefreshParty();
+    partyId = GET_PARAM_U8(2);
+    if (Savemap.memory_bank_2[9 + partyId] != 0xFF) {
+        partyId = Savemap.memory_bank_2[9 + partyId];
+        for (i = 0; i < 3; i++) {
+            if (Savemap.partyID[i] == partyId) {
+                SystemMenuAddHpByPartyId(i, FieldEventReadMemoryS16(2, 3));
+            }
+        }
+    }
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncHpMinus(void) {
+    s32 partyId;
+    s32 i;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("hp-", 4);
+    }
+    SystemRefreshParty();
+    partyId = GET_PARAM_U8(2);
+    if (Savemap.memory_bank_2[9 + partyId] != 0xFF) {
+        partyId = Savemap.memory_bank_2[9 + partyId];
+        for (i = 0; i < 3; i++) {
+            if (Savemap.partyID[i] == partyId) {
+                SysMenuRemoveHpByPartyId(i, FieldEventReadMemoryS16(2, 3));
+            }
+        }
+    }
+    PC_INC(5);
+    return 0;
+}
 
 /**
  * @brief Opcode 0x39 - **GOLDU** - Gold Up
