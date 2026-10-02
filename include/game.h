@@ -1135,9 +1135,9 @@ typedef struct {
     u8* nextBattleMusic;
     s32 nextFieldMusic;
     // Set by FADE or NFADE to start fades.
-    volatile u16 fadeType; // enum FieldFadeType.
-    s16 fadeAdjust;
-    s16 fadeSpeed;
+    volatile s16 fadeType; // enum FieldFadeType.
+    volatile s16 fadeAdjust;
+    volatile s16 fadeSpeed;
     s16 fadeRed;
     s16 fadeGreen;
     s16 fadeBlue;
@@ -1270,7 +1270,7 @@ extern DRAWENV D_800706A4[2];
 extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
                             // (set by the MULCK opcode)
 extern u8 D_80070788;
-extern u8 D_800716CC;
+extern u8 g_MovieLock;
 extern u8 g_EntityToLine[48];
 extern u16 g_BattleMode;
 extern u16 g_FieldWaitCounter[48];      // Used by WAIT opcode to pause script
@@ -1280,7 +1280,7 @@ extern u8 g_FieldScriptSyncWaitEntity[48][8];
 extern s8 g_FieldDebugCurPage;
 extern u8 D_80071E24;
 extern u8 g_WindowCount;
-extern u8 D_80071E30;
+extern u8 g_BattleLock;
 extern MATRIX* D_80071E40;
 extern u8 g_PartyUpdatedByFieldScript;
 extern u8 g_CurrentEntity; // entity owning the currently executing script
@@ -1404,6 +1404,7 @@ void SysMenuDrawDigitsWithoutLeadingZeroes(s32 x, s32 y, s32 value, s32 digits, 
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
 s32 AkaoExec(void);
+void AkaoPlaySoundEffect(u16 soundId);
 void SysInitRndTablePos(s32 seed);
 void SysInitPlayerStatFromEquip(s32 arg0);
 void SysInitPlayerStatFromMateria(s32 arg0);

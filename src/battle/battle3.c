@@ -1046,8 +1046,8 @@ void BattleMenuResetSelectorStateAlt(void) {
     s32 count;
     u8* p;
 
-    for (i = 6, p = &D_800F33A0[6]; i >= 0; i--) {
-        *p-- = 0;
+    for (i = 0; i < 7; i++) {
+        D_800F33A0[i] = 0;
     }
     D_800F5760 = 10;
     D_800F5764 = 2;

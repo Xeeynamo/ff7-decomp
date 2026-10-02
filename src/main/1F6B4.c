@@ -592,7 +592,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025514);
 
 void SysMenuRemoveMateria(void) {}
 
-void func_80025650(void) {}
+u8 func_80025650(s32 arg0, u8 arg1) {}
 
 // get party leader (Cloud) level
 s32 func_80025658() { return Savemap.party[0].level; }

@@ -7,7 +7,6 @@ char g_FieldDebugDigits[16] = "0123456789ABCDEF";
 char g_FieldDebugDigitsLower[16] = "0123456789abcdef";
 
 extern u8 g_EntityForSplitJoin;
-extern u8 g_PosCursorDisabled;
 extern POLY_FT4 g_PosCursorPrims[2];
 extern s16 g_PosCursorX;
 extern s16 g_PosCursorY;

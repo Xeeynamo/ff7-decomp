@@ -42,8 +42,8 @@ void SysSavemapReset(void) {
 
     Savemap.phs_visibility_mask = 1; // Only Cloud is visible.
     g_FieldMusicLock = 0;
-    D_800716CC = 0;
-    D_80071E30 = 0;
+    g_MovieLock = 0;
+    g_BattleLock = 0;
     Savemap.partyID[0] = 0;
     Savemap.memory_bank_2[9] = 0;
     Savemap.memory_bank_4[0x68] = 0xFF; // Start of location name.
