@@ -1,5 +1,6 @@
 //! PSYQ=3.3 CC1=2.7.2
 #include <libapi.h>
+#include "game.h"
 #include "savemenu.h"
 #include <libetc.h>
 
@@ -54,7 +55,173 @@ static void TitleApplySoundMode(s32 mode) {
     AkaoExec();
 }
 
-INCLUDE_ASM("asm/us/menu/nonmatchings/title", SaveHandleScrollCursor);
+void SaveHandleScrollCursor(MenuTable* menu) {
+    s16 unk6;
+    s16 unk2;
+    u8 a2_val;
+    // #define a2_val arg3
+    s32 v1_val;
+    if (menu->scrolling == 0) {
+        if (g_Pad1KeysRepeat & PADLup) {
+            menu->row--;
+            switch (menu->wrapModeY) {
+            case 0:
+                if (menu->row < 0) {
+                    menu->row = 0;
+                    if (menu->rowOffset > 0) {
+                        menu->rowOffset--;
+                        menu->scrollAnimY = -7;
+                        menu->scrolling = 1;
+                        TitlePlaySfx(SFX_MENU_CURSOR_MOVE);
+                    }
+                    return;
+                }
+                break;
+            default:
+                menu = 0;
+                return;
+            case 1:
+            case 2:
+                if (menu->row < 0) {
+                    menu->row = menu->numRowsPerPage - 1;
+                }
+                break;
+            }
+        } else if (g_Pad1KeysRepeat & PADLdown) {
+            menu->row++;
+            switch (menu->wrapModeY) {
+            case 0:
+                if (menu->row >= menu->numRowsPerPage) {
+                    menu->row = menu->numRowsPerPage - 1;
+                    if (menu->rowOffset < (menu->numTotalRows - menu->numRowsPerPage)) {
+                        menu->scrollAnimY = -1;
+                        menu->scrolling = 2;
+                        TitlePlaySfx(SFX_MENU_CURSOR_MOVE);
+                    }
+                    return;
+                }
+                break;
+            default:
+                menu = 0;
+                return;
+            case 1:
+            case 2:
+                if (menu->row >= menu->numRowsPerPage) {
+                    menu->row = 0;
+                }
+                break;
+            }
+        } else if (g_Pad1KeysRepeat & PADLleft) {
+            switch (menu->wrapModeX) {
+            case 0:
+                menu->column--;
+                if (menu->column < 0) {
+                    menu->column = 0;
+                    return;
+                }
+                break;
+            case 1:
+                menu->column--;
+                if (menu->column < 0) {
+                    menu->column = menu->numColumns - 1;
+                }
+                break;
+            case 2:
+                if (menu->column == 0 && menu->row == 0 && menu->rowOffset == 0)
+                    return;
+                menu->column--;
+                if (menu->column < 0) {
+                    menu->column = menu->numColumns - 1;
+                    menu->row--;
+                    if (menu->row < 0) {
+                        menu->row = 0;
+                        if (menu->rowOffset > 0) {
+                            menu->rowOffset--;
+                            menu->scrollAnimY = -7;
+                            menu->scrolling = 1;
+                        }
+                    }
+                }
+                break;
+            default:
+                return;
+            }
+        } else if (g_Pad1KeysRepeat & PADLright) {
+            switch (menu->wrapModeX) {
+            case 0:
+                menu->column++;
+                if (menu->column >= menu->numColumns) {
+                    menu->column = menu->numColumns - 1;
+                    return;
+                }
+                break;
+            case 1:
+                menu->column++;
+                if (menu->column >= menu->numColumns) {
+                    menu->column = 0;
+                }
+                break;
+            case 2:
+                if (menu->column == menu->numColumns - 1 && menu->row == menu->numRowsPerPage - 1 &&
+                    menu->rowOffset == (menu->numTotalRows - menu->numRowsPerPage))
+                    return;
+                menu->column++;
+                if (menu->column >= menu->numColumns) {
+                    menu->column = 0;
+                    if (menu->row >= menu->numColumns) {
+                        menu->column = 0;
+                    }
+                    menu->row++;
+                    if (menu->row >= menu->numRowsPerPage) {
+                        menu->row = menu->numRowsPerPage - 1;
+                        if (menu->rowOffset < (menu->numTotalRows - menu->numRowsPerPage)) {
+                            menu->scrollAnimY = -1;
+                            menu->scrolling = 2;
+                        }
+                    }
+                }
+                break;
+            default:
+                return;
+            }
+        } else {
+            if (g_Pad1KeysRepeat & PADl) {
+                menu->rowOffset += menu->numRowsPerPage;
+                unk6 = menu->numTotalRows;
+                if ((unk6 - menu->numRowsPerPage) < menu->rowOffset) {
+                    menu->rowOffset = unk6 - menu->numRowsPerPage;
+                    return;
+                }
+            } else if (g_Pad1KeysRepeat & PADn) {
+                menu->rowOffset -= menu->numRowsPerPage;
+                if (menu->rowOffset < 0) {
+                    menu->rowOffset = 0;
+                    return;
+                }
+            } else
+                return;
+        }
+        TitlePlaySfx(SFX_MENU_CURSOR_MOVE);
+    } else {
+        switch (menu->scrolling) {
+        case 1:
+            menu->scrollAnimY++;
+            if (menu->scrollAnimY == 0) {
+                menu->scrolling = 0;
+                menu->scrollAnimY = 0;
+            }
+            break;
+        case 2:
+            menu->scrollAnimY--;
+            if (menu->scrollAnimY == -8) {
+                menu->scrolling = 0;
+                menu->scrollAnimY = 0;
+                menu->rowOffset++;
+            }
+            break;
+        }
+    }
+}
 
 static void PeekSwCardStatus(void) {
     TestEvent(g_MemcardEvents[0]);

@@ -210,4 +210,4 @@ static s16 SaveCheckFile(s32 save_id);
 void SaveFetchAllCardStatus(s32 arg0);
 s32 SaveFetchHeader(s32 cardId, s32 slotId);
 void SaveDrawSlot(s32 x, s32 y, s32 slotIndex);
-void SaveHandleScrollCursor(MenuTable* table);
+void SaveHandleScrollCursor(MenuTable* menu);
