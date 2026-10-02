@@ -2696,7 +2696,76 @@ void func_800B0B94(s32 arg0) {
     func_800B1218(arg0, evade, 4);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0C14);
+void func_800B0C14(void) {
+    s32 actorGroup = 0;
+    s32 targetGroup = 0;
+    s32 flagsDiffer = 0;
+    s32 actorId = g_CurrentAction->actorId;
+    s32 actorBitMask = 1 << actorId;
+    s32 targetId = g_CurrentAction->targetId;
+    s32 targetBitMask = 1 << targetId;
+    s32 prevStateMask;
+    s32 stateMask;
+    s32 flipActor;
+    s32 i;
+
+    // Branchless calculation of a mask if the actor is in a specific state, 0 otherwise
+    stateMask = actorBitMask & -((g_BattleState.combatant[actorId].stateFlags & 0x80) != 0);
+    if (g_BattleState.combatant[targetId].stateFlags & 0x80) {
+        stateMask |= targetBitMask;
+    }
+    prevStateMask = stateMask;
+
+    // Note that this 3 likely refers to the number of possible groups
+    // in battle and not NUM_PARTY (see: BattleInitFormation)
+    for (i = 0; i < 3; i++) {
+        if (g_BattleMultiInfo.characterMask[i] & actorBitMask) {
+            actorGroup = i;
+        }
+        if (g_BattleMultiInfo.characterMask[i] & targetBitMask) {
+            targetGroup = i;
+        }
+    }
+
+    if (actorGroup == 1) {
+        flipActor = 0;
+
+        switch (targetGroup) {
+        case 0:
+            flipActor = 1;
+            /* fallthrough */
+        case 2:
+            if (stateMask & actorBitMask) {
+                flipActor ^= 1;
+            }
+            if (flipActor) {
+                stateMask ^= actorBitMask;
+            }
+            break;
+        }
+    }
+
+    if (actorBitMask & stateMask) {
+        flagsDiffer ^= 1;
+    }
+    if (targetBitMask & stateMask) {
+        flagsDiffer ^= 1;
+    }
+
+    if ((actorGroup != targetGroup) && (flagsDiffer == 0)) {
+        stateMask ^= targetBitMask;
+        g_CurrentAction->unk234 |= 1;
+    }
+
+    // Store only the changed bits back to stateMask
+    stateMask ^= prevStateMask;
+    if (stateMask & actorBitMask) {
+        g_BattleState.combatant[g_CurrentAction->actorId].stateFlags ^= 0x80;
+    }
+    if (stateMask & targetBitMask) {
+        g_CurrentAction->unk234 |= 2;
+    }
+}
 
 static void func_800B0DF8(void) {
     if (g_CurrentAction->unk234 & 2) {
