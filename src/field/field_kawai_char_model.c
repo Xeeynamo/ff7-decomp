@@ -219,7 +219,26 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetCustomLi
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetVertexColorFromLighting);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetColorToModelPkts);
+s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params) {
+    FieldModelPart* parts;
+    u32 i;
+    u32 count;
+    s16 r;
+    s16 g;
+    s16 b;
+    u8 unused[8]; // Never read; only here to pad the stack frame out to 0x40.
+
+    count = model->partCount;
+    parts = (FieldModelPart*)(model->partsOffset + (u_long)model->modelData);
+    r = (params[1] << 8) | params[0];
+    g = (params[3] << 8) | params[2];
+    b = (params[5] << 8) | params[4];
+    *(s32*)0x1F800200 = params[6];
+    for (i = 0; i < count; i++) {
+        KawaiSetColorToPartPkts(&parts[i], r, g, b);
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetColorToPartPkts);
 
@@ -278,7 +297,85 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetLighting
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetSplashToPktsBelowLvl);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiInitSplashPkts);
+// One splash slot inside a model's effect workspace. Fields only appear in mirrored pairs 0x28 apart.
+typedef struct {
+    /* 0x00 */ u8 unk00[3];
+    /* 0x03 */ u8 unk03;
+    /* 0x04 */ u8 unk04;
+    /* 0x05 */ u8 unk05;
+    /* 0x06 */ u8 unk06;
+    /* 0x07 */ u8 unk07;
+    /* 0x08 */ u8 unk08[6];
+    /* 0x0E */ u16 unk0E;
+    /* 0x10 */ u8 unk10[6];
+    /* 0x16 */ u16 unk16;
+    /* 0x18 */ u8 unk18[0x13];
+    /* 0x2B */ u8 unk2B;
+    /* 0x2C */ u8 unk2C;
+    /* 0x2D */ u8 unk2D;
+    /* 0x2E */ u8 unk2E;
+    /* 0x2F */ u8 unk2F;
+    /* 0x30 */ u8 unk30[6];
+    /* 0x36 */ u16 unk36;
+    /* 0x38 */ u8 unk38[6];
+    /* 0x3E */ u16 unk3E;
+    /* 0x40 */ u8 unk40[0x10];
+    /* 0x50 */ u16 unk50;
+    /* 0x52 */ u16 unk52;
+    /* 0x54 */ u16 unk54;
+    /* 0x56 */ u8 unk56[2];
+    /* 0x58 */ u16 unk58;
+    /* 0x5A */ u16 unk5A;
+} FieldSplashEntry; // size:0x5C
+
+// Thirty slots of scratch per model, pointed at by D_800E0200.
+#define FIELD_SPLASH_SLOTS 30
+
+void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
+    FieldSplashEntry* entries;
+    FieldModelBone* bones;
+    s16 tmp0;
+    s16 tmp1;
+    s32 last; // Named so gcc keeps the bound in a register (slt) rather than folding it to a slti.
+    s32 i;
+
+    entries = (FieldSplashEntry*)((u8*)D_800E0200 + slot * FIELD_SPLASH_SLOTS * sizeof(FieldSplashEntry));
+    tmp0 = 0x6C2C;
+    if (GetGraphType() == 1) {
+        tmp1 = 0x22B;
+    } else if (GetGraphType() == 2) {
+        tmp1 = 0x22B;
+    } else {
+        tmp1 = 0x9B;
+    }
+    bones = (FieldModelBone*)model->modelData;
+    last = FIELD_SPLASH_SLOTS + 1;
+    for (i = 1; i < last; i++) {
+        FieldSplashEntry* entry = &entries[i];
+
+        entry->unk03 = 9;
+        entry->unk2B = 9;
+        entry->unk07 = 0x2C;
+        entry->unk2F = 0x2C;
+        entry->unk2E = 0x80;
+        entry->unk06 = 0x80;
+        entry->unk2D = 0x80;
+        entry->unk05 = 0x80;
+        entry->unk2C = 0x80;
+        entry->unk04 = 0x80;
+        entry->unk36 = tmp0;
+        entry->unk0E = tmp0;
+        entry->unk3E = tmp1;
+        entry->unk16 = tmp1;
+        entry->unk50 = 0;
+        entry->unk52 = 0;
+        entry->unk54 = 0;
+        entry->unk07 |= 2;
+        entry->unk2F |= 2;
+        entry->unk58 = -bones[i].length;
+        entry->unk5A = 0;
+    }
+}
 
 s32 KawaiSetPartAttribute(FieldModelEntry* model, u8* params) {
     s32 count = params[0];
