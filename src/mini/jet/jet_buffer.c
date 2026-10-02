@@ -1,6 +1,9 @@
-//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true
+//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true COMM=true
 
 #include "jet_private.h"
+
+JetBuffer g_JetBuffers[2];
+JetBuffer* g_JetBufferPtr[1];
 
 static void JetPrimsInit(JetPrimBuffer* prims);
 

@@ -1,4 +1,4 @@
-//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true
+//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true COMM=true
 
 #include "jet_private.h"
 #include <libc.h>
@@ -21,55 +21,81 @@ typedef struct {
     /* 0x2 */ u16 next;
 } JetListLink; // size: 0x4
 
-extern u8 g_JetSfxChannel;
-extern volatile s32 D_800A8A84;
-extern void* D_800A891C;
-extern void* D_800A8920;
-extern s32 g_JetTrackSegmentsCrossed;
-extern s16 g_JetBeam0Vertex2X;
-extern s16 g_JetBeam0Vertex2Y;
-extern s16 g_JetBeam1Vertex2X;
-extern s16 g_JetBeam1Vertex2Y;
-extern SVECTOR* g_JetTrackPath;
-extern s32 g_JetFogNear;
-extern s32 g_JetFogFar;
-extern u16 g_JetTrackListHead;
-extern s32 g_JetLaserPitch;
-extern u_long* g_JetTexAdr[10]; // TEXADR.BIN: TIM pointers into TEX.BIN
-extern u16 g_JetTriangleListHead;
-extern s32 g_JetPadDir; // 1..9 keypad layout, 0 = none
-extern s32 D_800A8A7C;
-extern s32 g_JetStartHeldFrames;
-extern JetNode* g_JetPopupNode[1];
-extern s32* g_JetTrackPathOffsets;
-extern u32 g_JetTrackListsPrevPos;
-extern u8 g_JetPaused;
-extern void* D_800D16D4;
-extern s32 g_JetTrackPathLength;
-extern u32 g_JetTrackListsPos;
-extern u8 g_JetAimMode;
-extern u16* g_JetTrackAddCursor;
-extern void* D_800D1A38;
-extern void* D_800D1A3C;
-extern MATRIX* g_JetViewMatrix;
-extern MATRIX* g_JetWorldMatrix;
-extern u16 g_JetTrackListCount;
-extern SVECTOR* g_JetTrackLeft;
-extern u16* g_JetTriangleAddCursor;
-extern u16 g_JetTriangleListCount;
-extern u16 g_JetTrackListTail;
-extern u16 g_JetTriangleListTail;
-extern DR_MODE g_JetDrawMode;
-extern JetListLink g_JetTrackLinks[9000];
-extern u8 g_JetInitialTrackSegmentPending;
-extern volatile s32 D_800E25FC;
-extern s32* g_JetTrackPathLengths;
-extern JetListLink g_JetTriangleLinks[12000];
-extern u16* g_JetTrackRemoveCursor;
-extern SVECTOR* g_JetTrackRight;
-extern MATRIX g_JetCameraRot;
-extern SVECTOR* g_JetTrackRot;
-extern u16* g_JetTriangleRemoveCursor;
+u8 g_JetSfxChannel;
+volatile s32 D_800A8A84;
+void* D_800A891C;
+void* D_800A8920;
+s32 g_JetTrackSegmentsCrossed;
+s16 g_JetBeam0Vertex2X;
+s16 g_JetBeam0Vertex2Y;
+s16 g_JetBeam1Vertex2X;
+s16 g_JetBeam1Vertex2Y;
+SVECTOR* g_JetTrackPath;
+s32 g_JetFogNear;
+s32 g_JetFogFar;
+u16 g_JetTrackListHead;
+s32 g_JetLaserPitch;
+u_long* g_JetTexAdr[10]; // TEXADR.BIN: TIM pointers into TEX.BIN
+u16 g_JetTriangleListHead;
+s32 g_JetPadDir; // 1..9 keypad layout, 0 = none
+s32 D_800A8A7C;
+s32 g_JetStartHeldFrames;
+JetNode* g_JetPopupNode[1];
+s32* g_JetTrackPathOffsets;
+u32 g_JetTrackListsPrevPos;
+u8 g_JetPaused;
+void* D_800D16D4;
+s32 g_JetTrackPathLength;
+u32 g_JetTrackListsPos;
+u8 g_JetAimMode;
+u16* g_JetTrackAddCursor;
+void* D_800D1A38;
+void* D_800D1A3C;
+MATRIX* g_JetViewMatrix;
+MATRIX* g_JetWorldMatrix;
+u16 g_JetTrackListCount;
+SVECTOR* g_JetTrackLeft;
+u16* g_JetTriangleAddCursor;
+u16 g_JetTriangleListCount;
+u16 g_JetTrackListTail;
+u16 g_JetTriangleListTail;
+DR_MODE g_JetDrawMode;
+JetListLink g_JetTrackLinks[9000];
+u8 g_JetInitialTrackSegmentPending;
+volatile s32 D_800E25FC;
+s32* g_JetTrackPathLengths;
+JetListLink g_JetTriangleLinks[12000];
+u16* g_JetTrackRemoveCursor;
+SVECTOR* g_JetTrackRight;
+MATRIX g_JetCameraRot;
+SVECTOR* g_JetTrackRot;
+u16* g_JetTriangleRemoveCursor;
+s16 g_JetBeam0OriginX;
+s16 g_JetBeam0OriginY;
+s16 g_JetBeam1OriginX;
+s16 g_JetBeam1OriginY;
+s32 g_JetSpeed;
+u16 g_JetSpriteTPage[12];
+u16 g_JetFadeClut;
+s16 g_JetPopupTimer;
+s16 g_JetPopupModelId;
+u16 g_JetFadeTPage;
+s32 g_JetScore;
+s32 g_JetTrackSegment;
+u8 g_JetBeamScroll;
+JetModel* g_JetModelTable[100];
+JetXbinAdr g_JetXbinAdr;
+u8 g_JetFiring;
+s32 g_JetCameraPathPos;
+s16 g_JetShotPower;
+u8 g_JetShotRepeatCounter;
+s16 g_JetCursorX;
+s16 g_JetCursorY;
+u8 g_JetScorePopupAlternate;
+u8 g_JetDrawEnabled;
+u8 g_JetExit;
+SVECTOR g_JetPopupRot;
+u16 g_JetSpriteClut[12];
 extern void* D_80110BB8;
 void* JetDrawModelTris(JetModelDrawArgs* args);
 void JetProject3Points(SVECTOR* points, u_long* screen);

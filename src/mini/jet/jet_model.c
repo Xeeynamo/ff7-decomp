@@ -1,13 +1,14 @@
-//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true
+//! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true COMM=true
 
 #include "jet_private.h"
 
-extern s32 g_JetTriangleCursor;
-extern u32 g_JetModelCount;
-extern JetTriangle* g_JetTriangles;
-extern JetModel g_JetModelPool[140];
-extern s32 g_JetQuadCursor;
-extern JetQuad* g_JetQuads;
+s32 g_JetTriangleCursor;
+u32 g_JetModelCount;
+JetTriangle* g_JetTriangles;
+JetModel g_JetModelPool[140];
+s32 g_JetQuadCursor;
+JetQuad* g_JetQuads;
+JetModelInfo* g_JetModelInfo;
 
 static JetModel* JetModelAlloc(void);
 static JetQuad* JetQuadsAlloc(s32 count);
