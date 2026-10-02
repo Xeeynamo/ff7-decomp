@@ -210,11 +210,11 @@ static void BattleDropSupersededQueuedActions(void) {
     }
 }
 
-static BattleImpactData* func_800A311C(BattleQueueTargetEntry* arg0) {
+static BattleImpactData* BattleAllocImpactData(BattleQueueTargetEntry* entry) {
     BattleImpactData* ptr = &D_800F9F3C[D_800F394C];
 
-    arg0->extraDataIndex = D_800F394C;
-    ptr->targetId = arg0->targetId;
+    entry->extraDataIndex = D_800F394C;
+    ptr->targetId = entry->targetId;
     ptr->currentHp = -1;
     ptr->currentMp = -1;
     D_800F394C = (D_800F394C + 1) & 0x7F;
@@ -1680,7 +1680,18 @@ static void func_800AB9C4(s32 arg0, s32 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ABA68);
+void BattleCreateImpactData(
+    BattleQueueTargetEntry* entry, s16 damage, u16 damageFlags, s16 impactSfxId, s16 impactEffectId) {
+    s32 targetId = entry->targetId;
+
+    BattleImpactData* impactData = BattleAllocImpactData(entry);
+    impactData->damage = damage;
+    impactData->damageFlags = damageFlags;
+    impactData->impactSfxId = impactSfxId;
+    impactData->impactEffectId = impactEffectId;
+    impactData->currentHp = g_BattleState.combatant[targetId].curHP;
+    impactData->currentMp = g_BattleState.combatant[targetId].curMP;
+}
 
 // mutually exclusive status pairs -- row 0 Slow/Haste, row 1 Sadness/Fury.
 // BattleMainDmgCalculation queues the partner for removal when one is applied; for
@@ -1910,8 +1921,8 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     }
     if (!(g_CurrentAction->unk218 & 2)) {
         // queue the hit's damage/message display
-        func_800ABA68(act, g_CurrentAction->unk250, g_CurrentAction->damageFlags, g_CurrentAction->unk248,
-                      g_CurrentAction->unk24C);
+        BattleCreateImpactData(act, g_CurrentAction->unk250, g_CurrentAction->damageFlags, g_CurrentAction->unk248,
+                               g_CurrentAction->unk24C);
     } else if (g_CurrentAction->unk218 & 0x800000) {
         BattleQueueUnassignedResultDisplay(act);
     }
@@ -1947,7 +1958,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
             if (D_801636B8[arg1].D_801636BC < 0x11) {
                 D_801636B8[arg1].D_801636BC = 8;
             }
-            func_800ABA68(act, -2, 0, g_CurrentAction->unk248, g_CurrentAction->unk68);
+            BattleCreateImpactData(act, -2, 0, g_CurrentAction->unk248, g_CurrentAction->unk68);
         }
     }
 }
@@ -2046,17 +2057,17 @@ static s32 BattleIsDamageNullified(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACE88);
 
-// arg0 never got a ring slot from func_800A311C (still unassigned) --
-// queue a placeholder display entry via func_800ABA68 anyway. unk22C here
+// arg0 never got a ring slot from BattleAllocImpactData (still unassigned) --
+// queue a placeholder display entry via BattleCreateImpactData anyway. unk22C here
 // is the same status-immunity mask BattleMainDmgCalculation (this function's only
 // caller) uses earlier.
-static void BattleQueueUnassignedResultDisplay(BattleQueueTargetEntry* arg0) {
-    s8 temp_v1;
+static void BattleQueueUnassignedResultDisplay(BattleQueueTargetEntry* entry) {
+    s8 impactEffectId;
 
     if ((g_CurrentAction->unk80 | g_CurrentAction->unk84 | g_CurrentAction->unk88) & ~g_CurrentAction->unk22C) {
-        temp_v1 = arg0->extraDataIndex;
-        if (temp_v1 == -1) {
-            func_800ABA68(arg0, -1, 0, -1, temp_v1);
+        impactEffectId = entry->extraDataIndex;
+        if (impactEffectId == -1) {
+            BattleCreateImpactData(entry, -1, 0, -1, impactEffectId);
         }
     }
 }

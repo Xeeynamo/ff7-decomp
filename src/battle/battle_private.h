@@ -457,11 +457,11 @@ extern s32 D_8015187C[10];
 extern BattleQueue1CamCursor g_BattleQueue1CamWriteCursor[4]; // write cursor per category
 // queued-action-ish record, allocated by BattleQueue2GetPtr (unk3 set to -1,
 // marking it unassigned) and searched by func_800A34CC. Traced through
-// func_800ABA68's callers (func_800AB830/BattleMainDmgCalculation, still undecompiled):
+// BattleCreateImpactData's callers (func_800AB830/BattleMainDmgCalculation):
 // unk0 is very likely an actorId (0-2) -- its source value independently
 // indexes D_800F83E0 with the same 0x68 stride confirmed elsewhere, in both
 // callers. unk1 is a second actor-related value (not always equal to unk0).
-// unk3 becomes a real D_800F9F3C slot index (0-0x7F) once func_800A311C
+// unk3 becomes a real D_800F9F3C slot index (0-0x7F) once BattleAllocImpactData
 // activates the record. unk4's bit 0x4 is checked by func_800A34CC.
 typedef struct {
     /* 0x0 */ s8 targetId;
@@ -583,7 +583,7 @@ void func_800AA950(BattleQueueTargetEntry*);
 void func_800AB308(void);
 void func_800AB480(void);
 static void BattleLearnEnemySkill(void);
-void func_800ABA68(BattleQueueTargetEntry*, s16, u16, s16, s16);
+void BattleCreateImpactData(BattleQueueTargetEntry*, s16, u16, s16, s16);
 void func_800AC6B4(s32);
 void BattleCalcTargStats(s32);
 void func_800ACA24(void);
