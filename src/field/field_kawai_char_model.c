@@ -233,7 +233,7 @@ s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params) {
     r = (params[1] << 8) | params[0];
     g = (params[3] << 8) | params[2];
     b = (params[5] << 8) | params[4];
-    *(s32*)0x1F800200 = params[6];
+    *(s32*)getScratchAddr(0x80) = params[6];
     for (i = 0; i < count; i++) {
         KawaiSetColorToPartPkts(&parts[i], r, g, b);
     }
@@ -342,7 +342,7 @@ void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
     entries = (FieldSplashEntry*)((u8*)D_800E0200 + slot * FIELD_SPLASH_SLOTS * sizeof(FieldSplashEntry));
     tmp0 = 0x6C2C;
     // GetGraphType is deliberately called twice cache drops jal
-    tmp1 = (GetGraphType() == 1 || GetGraphType() == 2) ? 0x22B : 0x9B;
+    tmp1 = getTPage(1, 0, 0x2C0, 0x100);
     bones = (FieldModelBone*)model->modelData;
     last = FIELD_SPLASH_SLOTS + 1;
     for (i = 1; i < last; i++) {
