@@ -341,13 +341,8 @@ void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
 
     entries = (FieldSplashEntry*)((u8*)D_800E0200 + slot * FIELD_SPLASH_SLOTS * sizeof(FieldSplashEntry));
     tmp0 = 0x6C2C;
-    if (GetGraphType() == 1) {
-        tmp1 = 0x22B;
-    } else if (GetGraphType() == 2) {
-        tmp1 = 0x22B;
-    } else {
-        tmp1 = 0x9B;
-    }
+    // GetGraphType is deliberately called twice cache drops jal
+    tmp1 = (GetGraphType() == 1 || GetGraphType() == 2) ? 0x22B : 0x9B;
     bones = (FieldModelBone*)model->modelData;
     last = FIELD_SPLASH_SLOTS + 1;
     for (i = 1; i < last; i++) {
