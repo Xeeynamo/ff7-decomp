@@ -5,6 +5,7 @@ D_80010120 = 0x80010120;
 D_80010124 = 0x80010124;
 __main = 0x800110B8;
 __SN_ENTRY_POINT = 0x800110C0;
+AkaoPlaySoundEffect = 0x8001117C;
 SysBgFadeRender = 0x8001146C;
 SysBgRender = 0x8001155C;
 SysInitBase = 0x8001171C;
