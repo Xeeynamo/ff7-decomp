@@ -144,7 +144,7 @@ def parse_compiler_params(line: str) -> CompilerParams:
                 raise Exception(f"{key} value {value} is not a valid integer")
         elif key == "COMM":
             if value == "true":
-                c.as_flags += " --use-comm-section"
+                c.as_flags += " --use-comm-section --max-comm-alignment 4"
             elif value != "false":
                 raise Exception(f"{key} value {value} is not a valid boolean")
         elif key == "O":
