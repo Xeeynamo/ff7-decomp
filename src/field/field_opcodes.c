@@ -49,9 +49,18 @@ extern u8* g_MenuTutorial;
 extern s16 g_FieldPreloadMapId;
 extern s16 D_801144D4;
 extern u8 g_EntityForSplitJoin;
+extern u16 g_SplitJoinOrigMoveSpeed[24];
 
 void SystemMenuAddHpByPartyId(s32 partyId, u16 hp);
 void SystemMenuAddMpByPartyId(s32 partyId, u16 mp);
+void SysMenuAddItem(u16 item);
+void SysMenuRemoveItem(u16 item);
+u16 SysMenuSearchItem(u16 item);
+void SysSavemapReset(void);
+void SystemMessageSetCharName(s16 battleCharId, s16 stringId);
+s32 SysMenuAddMateria(s32 materia);
+
+u8 func_80025650(s32 arg0, u8 arg1);
 
 static u32 IfCheck(void);
 static u32 If2CheckSigned(void);
@@ -77,6 +86,13 @@ static void PartyFromBank2ToSave(s32 unused);
 static void PartyRemove(u8* party, u8* toRemove);
 static void PartyAdd(u8* party, u8* toAdd);
 
+static s32 FieldEventJoinSet(s16 entityId, s16 speed);
+static s32 FieldEventSplitSet(s16 entityId, s16 x, s16 y, u8 direction, s16 speed);
+static s32 FieldEventSplitJoinEndMove(s16 entityId);
+static void FieldEventSplitJoinSetTurn(s16 entityId, u8 startDirection, u8 endDirection);
+static s32 FieldEventSplitJoinEndTurn(s16 entityId);
+static void FieldEventSplitJoinSetMove(s16 entityId, s16 x, s16 y, s16 speed, s16 copyPcPos);
+
 void FieldWindowReset(s16 window);
 s32 FieldWindowSetStateToClose(s16 window);
 void FieldDialogSetWindowStyleCbc(s16 window, u8 style, s16 preventClose);
@@ -88,26 +104,6 @@ s32 FieldDialogMessageUpdateStates(u8 window, u8 message);
 s32 CopyDialogToMapName(s16 stringId);
 
 static s32 OpcodeFuncWsize(void);
-s32 OpcodeFuncVwoft(void);
-s32 OpcodeFuncJoin(void);
-s32 OpcodeFuncSplit(void);
-s32 OpcodeFuncFade(void);
-s32 OpcodeFuncNfade(void);
-s32 OpcodeFuncFadew(void);
-s32 OpcodeFuncIdlck(void);
-s32 OpcodeFuncGwcol(void);
-s32 OpcodeFuncSwcol(void);
-s32 OpcodeFuncLstmp(void);
-s32 OpcodeFuncShake(void);
-s32 OpcodeFuncStitm(void);
-s32 OpcodeFuncDlitm(void);
-s32 OpcodeFuncCkitm(void);
-s32 OpcodeFuncSpcal(void);
-s32 OpcodeFuncBgscr(void);
-s32 OpcodeFuncBgdph(void);
-s32 OpcodeFuncSmtra(void);
-s32 OpcodeFuncDmtra(void);
-s32 OpcodeFuncCmtra(void);
 s32 OpcodeFuncGetpc(void);
 s32 OpcodeFuncMpara(void);
 s32 OpcodeFuncMpra2(void);
@@ -3133,7 +3129,7 @@ static s32 OpcodeFuncLader(void) {
 
     modelId = g_EntityToModel[g_CurrentEntity];
     if (modelId == 0xFF) {
-        PC_INC(0xF);
+        PC_INC(15);
         return 0;
     }
 
@@ -3146,13 +3142,13 @@ static s32 OpcodeFuncLader(void) {
         case 2:
             g_FieldModels[modelId].scriptedMoveMode = SMODE_NONE;
             g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState = 0;
-            PC_INC(0xF);
+            PC_INC(15);
             return 0;
         }
         break;
     }
 
-    switch (GET_PARAM_U8(0xB)) {
+    switch (GET_PARAM_U8(11)) {
     case 0:
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = SMODE_LADDER_V;
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionArg = 0;
@@ -3175,9 +3171,9 @@ static s32 OpcodeFuncLader(void) {
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndY = FieldEventReadMemoryS16(2, 5) << 12;
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndZ = FieldEventReadMemoryS16(3, 7) << 12;
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].MoveEndI = FieldEventReadMemoryS16(4, 9);
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(0xC);
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(12);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animSpeed =
-        g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(0xE);
+        g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(14);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
     {
         FieldModelEntry* entry =
@@ -3186,8 +3182,8 @@ static s32 OpcodeFuncLader(void) {
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].animLastFrame =
             anims[g_FieldEntity[g_EntityToModel[g_CurrentEntity]].activeAnimId].frameCount - 1;
     }
-    g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = 0;
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir = GET_PARAM_U8(0xD);
+    g_FieldModelAnimStatus[g_EntityToModel[g_CurrentEntity]] = ANIMSTATUS_DEFAULT_LOOP;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir = GET_PARAM_U8(13);
     return 1;
 }
 
@@ -3265,7 +3261,7 @@ static s32 FieldMoveToEntityUpdate(u8 entityId) {
             return 0;
         }
     }
-    g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = 1;
+    g_FieldModels[g_EntityToModel[g_CurrentEntity]].scriptedMoveMode = SMODE_WALK;
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].ActionState = 0;
     return 1;
 }
@@ -3407,7 +3403,7 @@ static s32 FieldEntityTurnToEntity(s16 entityId) {
     return 1;
 }
 
-s32 OpcodeFuncOfst(void) {
+static s32 OpcodeFuncOfst(void) {
     if (g_EntityToModel[g_CurrentEntity] != 0xFF) {
         if (g_DebugLevel & 3) {
             switch (GET_PARAM_U8(3)) {
@@ -4912,7 +4908,7 @@ static s32 OpcodeFuncPmvie(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("pmvie", 1);
     }
-    if (D_800716CC) {
+    if (g_MovieLock) {
         PC_INC(2);
         return 0;
     }
@@ -4942,7 +4938,7 @@ static s32 OpcodeFuncMovie(void) {
         DebugPrintOpcode("movie", 0);
     }
     g_PosCursorDisabled = 1;
-    if (D_800716CC) {
+    if (g_MovieLock) {
         D_801144D4 = 0;
         PC_INC(1);
         return 0;
@@ -4974,7 +4970,7 @@ static s32 OpcodeFuncMvief(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mvief", 2);
     }
-    if (D_800716CC) {
+    if (g_MovieLock) {
         FieldEventWriteMemoryS16(2, 2, D_801144D4);
         D_801144D4++;
         PC_INC(3);
@@ -5866,57 +5862,780 @@ static s32 OpcodeFuncSolid(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncVwoft);
+static s32 OpcodeFuncVwoft(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("vwoft", 6);
+    }
+    if (!GET_PARAM_U8(6)) {
+        g_pFieldState->viewOffset = FieldEventReadMemoryS16(1, 2);
+        g_pFieldState->viewOffsetNumSteps = 0;
+        g_pFieldState->viewOffsetCurrentStep = 0;
+        g_pFieldState->viewOffsetMode = OMODE_INSTANT;
+        g_pFieldState->viewOffsetStart = 0;
+        g_pFieldState->viewOffsetTarget = 0;
+        PC_INC(7);
+        return 0;
+    }
+    g_pFieldState->viewOffsetStart = g_pFieldState->viewOffset;
+    g_pFieldState->viewOffsetTarget = FieldEventReadMemoryS16(1, 2);
+    g_pFieldState->viewOffsetNumSteps = FieldEventReadMemoryS16(2, 4);
+    g_pFieldState->viewOffsetMode = GET_PARAM_U8(6);
+    g_pFieldState->viewOffsetCurrentStep = 0;
+    PC_INC(7);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncJoin);
+static s32 OpcodeFuncJoin(void) {
+    s16 i;
+    s16 partyChar2, partyChar3;
+    s16 charId;
+    s16 pcEntity;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncSplit);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("join", 1);
+    }
+    g_EntityForSplitJoin = g_CurrentEntity;
+    partyChar2 = Savemap.memory_bank_2[10];
+    if (partyChar2 != 0xFF) {
+        partyChar2 = FieldEventJoinSet(g_CharIdToEntity[partyChar2], GET_PARAM_U8(1));
+    } else {
+        partyChar2 = 1;
+    }
+    partyChar3 = Savemap.memory_bank_2[11];
+    if (partyChar3 != 0xFF) {
+        partyChar3 = FieldEventJoinSet(g_CharIdToEntity[partyChar3], GET_PARAM_U8(1));
+    } else {
+        partyChar3 = 1;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventJoinSet);
+    if (partyChar2 && partyChar3) {
+        for (i = 0; i < 3; i++) {
+            charId = Savemap.memory_bank_2[9 + i];
+            if (charId == 0xFF) {
+                continue;
+            }
+            g_EntitySplitJoinState[g_CharIdToEntity[charId]] = 0;
+            if (i == 0 && g_CharIdToEntity[charId] != 0xFF) {
+                g_FieldModels[g_EntityToModel[g_CharIdToEntity[charId]]].SolidOff = 0;
+            }
+        }
+        g_pFieldState->characterLock = g_CharacterLock;
+        g_EntityForSplitJoin = 0xFF;
+        PC_INC(2);
+        return 0;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventSplitSet);
+    g_pFieldState->characterLock = 1;
+    if (Savemap.memory_bank_2[9] != 0xFF) {
+        pcEntity = g_CharIdToEntity[Savemap.memory_bank_2[9]];
+        if (pcEntity != 0xFF) {
+            g_EntitySplitJoinState[pcEntity] = 1;
+            g_FieldModels[g_EntityToModel[pcEntity]].scriptedMoveMode = SMODE_NONE;
+            g_FieldModels[g_EntityToModel[pcEntity]].ActionState = 0;
+            g_FieldModels[g_EntityToModel[pcEntity]].SolidOff = 1;
+        }
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventSplitJoinSetMove);
+static s32 OpcodeFuncSplit(void) {
+    s16 i;
+    s16 partyChar2, partyChar3;
+    s16 charId;
+    s16 pcEntity;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventSplitJoinEndMove);
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("split", 8);
+    }
+    g_EntityForSplitJoin = g_CurrentEntity;
+    partyChar2 = Savemap.memory_bank_2[10];
+    if (partyChar2 == 0xFF) {
+        partyChar2 = 1;
+    } else {
+        partyChar2 = FieldEventSplitSet(g_CharIdToEntity[partyChar2], FieldEventReadMemoryS16(1, 4),
+                                        FieldEventReadMemoryS16(2, 6), FieldEventReadMemoryU8(3, 8), GET_PARAM_U8(14));
+    }
+    partyChar3 = Savemap.memory_bank_2[11];
+    if (partyChar3 == 0xFF) {
+        partyChar3 = 1;
+    } else {
+        partyChar3 = FieldEventSplitSet(
+            g_CharIdToEntity[partyChar3], FieldEventReadMemoryS16(4, 9), FieldEventReadMemoryS16(5, 11),
+            FieldEventReadMemoryU8(6, 13), GET_PARAM_U8(14));
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventSplitJoinSetTurn);
+    if (partyChar2 && partyChar3) {
+        for (i = 0; i < 3; i++) {
+            charId = Savemap.memory_bank_2[9 + i];
+            if (charId == 0xFF) {
+                continue;
+            }
+            g_EntitySplitJoinState[g_CharIdToEntity[charId]] = 0;
+            if (i == 0 && g_CharIdToEntity[charId] != 0xFF) {
+                g_FieldModels[g_EntityToModel[g_CharIdToEntity[charId]]].SolidOff = 0;
+            }
+        }
+        g_pFieldState->characterLock = g_CharacterLock;
+        g_EntityForSplitJoin = 0xFF;
+        PC_INC(15);
+        return 0;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", FieldEventSplitJoinEndTurn);
+    g_pFieldState->characterLock = 1;
+    if (Savemap.memory_bank_2[9] != 0xFF) {
+        pcEntity = g_CharIdToEntity[Savemap.memory_bank_2[9]];
+        if (pcEntity != 0xFF) {
+            g_EntitySplitJoinState[pcEntity] = 1;
+            g_FieldModels[g_EntityToModel[pcEntity]].scriptedMoveMode = SMODE_NONE;
+            g_FieldModels[g_EntityToModel[pcEntity]].ActionState = 0;
+            g_FieldModels[g_EntityToModel[pcEntity]].SolidOff = 1;
+        }
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncFade);
+static s32 FieldEventJoinSet(s16 entityId, s16 speed) {
+    VECTOR start, target;
+    s32 distance;
+    s16 pcEntity;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncNfade);
+    if (Savemap.memory_bank_2[9] == 0xFF) {
+        return 1;
+    }
+    pcEntity = g_CharIdToEntity[Savemap.memory_bank_2[9]];
+    if (g_DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("join p0=", pcEntity, 2);
+    }
+    if (g_DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("join p1=", entityId, 2);
+    }
+    if (pcEntity == 0xFF || entityId == 0xFF) {
+        return 1;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncFadew);
+    switch (g_EntitySplitJoinState[entityId]) {
+    case 0:
+        start.vx = g_FieldModels[g_EntityToModel[entityId]].PosX >> 12;
+        start.vy = g_FieldModels[g_EntityToModel[entityId]].PosY >> 12;
+        start.vz = g_FieldModels[g_EntityToModel[entityId]].PosZ >> 12;
+        target.vx = g_FieldModels[g_EntityToModel[pcEntity]].PosX >> 12;
+        target.vy = g_FieldModels[g_EntityToModel[pcEntity]].PosY >> 12;
+        target.vz = g_FieldModels[g_EntityToModel[pcEntity]].PosZ >> 12;
+        FieldEventSplitJoinSetTurn(
+            entityId, g_FieldModels[g_EntityToModel[entityId]].Dir, FieldEntityDirByVec(&start, &target, &distance));
+        g_EntitySplitJoinState[entityId] = 2;
+        break;
+    case 1:
+        if (FieldEventSplitJoinEndMove(entityId)) {
+            g_FieldModels[g_EntityToModel[entityId]].SolidOff = 1;
+            g_FieldModels[g_EntityToModel[entityId]].TalkOff = 1;
+            g_FieldModels[g_EntityToModel[entityId]].visible = 0;
+            g_EntitySplitJoinState[entityId] = 3;
+            return 1;
+        }
+        break;
+    case 2:
+        if (FieldEventSplitJoinEndTurn(entityId)) {
+            FieldEventSplitJoinSetMove(entityId, g_FieldModels[g_EntityToModel[pcEntity]].PosX >> 12,
+                                       g_FieldModels[g_EntityToModel[pcEntity]].PosY >> 12, speed, 0);
+            g_EntitySplitJoinState[entityId] = 1;
+            if (g_DebugLevel & 3) {
+                FieldDebugAddParseValueToPage2("end setmove", 0, 0);
+            }
+        }
+        break;
+    case 3:
+        return 1;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncIdlck);
+static s32 FieldEventSplitSet(s16 entityId, s16 x, s16 y, u8 direction, s16 speed) {
+    if (g_DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("split p1=", entityId, 2);
+    }
+    if (entityId == 0xFF) {
+        return 1;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncGwcol);
+    switch (g_EntitySplitJoinState[entityId]) {
+    case 0:
+        FieldEventSplitJoinSetMove(entityId, x, y, speed, 1);
+        g_EntitySplitJoinState[entityId] = 1;
+        break;
+    case 1:
+        if (FieldEventSplitJoinEndMove(entityId)) {
+            g_FieldModels[g_EntityToModel[entityId]].SolidOff = 0;
+            g_FieldModels[g_EntityToModel[entityId]].TalkOff = 0;
+            FieldEventSplitJoinSetTurn(entityId, g_FieldModels[g_EntityToModel[entityId]].Dir, direction);
+            g_EntitySplitJoinState[entityId] = 2;
+        }
+        break;
+    case 2:
+        if (FieldEventSplitJoinEndTurn(entityId)) {
+            g_EntitySplitJoinState[entityId] = 3;
+            return 1;
+        }
+        break;
+    case 3:
+        return 1;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncSwcol);
+static void FieldEventSplitJoinSetMove(s16 entityId, s16 x, s16 y, s16 speed, s16 copyPcPos) {
+    VECTOR start, target;
+    s32 distance;
+    FieldModelEntry* model;
+    s32 modelEntryId;
+    FieldModelAnimation* anims;
+    s16 pcEntity;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncLstmp);
+    if (Savemap.memory_bank_2[9] == 0xFF) {
+        return;
+    }
+    pcEntity = g_CharIdToEntity[Savemap.memory_bank_2[9]];
+    if (pcEntity == 0xFF) {
+        return;
+    }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncShake);
+    if (g_DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("set move x=", x, 4);
+        if (g_DebugLevel & 3) {
+            FieldDebugAddParseValueToPage2("set move y=", y, 4);
+        }
+    }
+    g_FieldModels[g_EntityToModel[entityId]].visible = 1;
+    g_FieldModels[g_EntityToModel[entityId]].SolidOff = 1;
+    g_FieldModels[g_EntityToModel[entityId]].TalkOff = 1;
+    if (copyPcPos) {
+        g_FieldModels[g_EntityToModel[entityId]].PosX = g_FieldModels[g_EntityToModel[pcEntity]].PosX;
+        g_FieldModels[g_EntityToModel[entityId]].PosY = g_FieldModels[g_EntityToModel[pcEntity]].PosY;
+        g_FieldModels[g_EntityToModel[entityId]].PosZ = g_FieldModels[g_EntityToModel[pcEntity]].PosZ;
+        g_FieldModels[g_EntityToModel[entityId]].PosI = g_FieldModels[g_EntityToModel[pcEntity]].PosI;
+    }
+    g_FieldModels[g_EntityToModel[entityId]].ActionArg = 0;
+    g_FieldModels[g_EntityToModel[entityId]].DirLock = 0;
+    g_FieldModels[g_EntityToModel[entityId]].MoveEndX = x << 12;
+    g_FieldModels[g_EntityToModel[entityId]].MoveEndY = y << 12;
+    g_SplitJoinOrigMoveSpeed[g_EntityToModel[entityId]] = g_FieldModels[g_EntityToModel[entityId]].MoveSpeed;
+    start.vx = g_FieldModels[g_EntityToModel[entityId]].PosX >> 12;
+    start.vy = g_FieldModels[g_EntityToModel[entityId]].PosY >> 12;
+    start.vz = g_FieldModels[g_EntityToModel[entityId]].PosZ >> 12;
+    target.vx = x;
+    target.vy = y;
+    target.vz = g_FieldModels[g_EntityToModel[entityId]].PosZ >> 12;
+    FieldEntityDirByVec(&start, &target, &distance);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncStitm);
+    g_FieldModels[g_EntityToModel[entityId]].MoveSpeed = (distance << 8) / speed;
+    if (g_FieldModels[g_EntityToModel[entityId]].MoveSpeed > 1536) {
+        if (g_FieldModels[g_EntityToModel[entityId]].activeAnimId != 2) {
+            g_FieldModels[g_EntityToModel[entityId]].activeAnimId = 2;
+            g_FieldModels[g_EntityToModel[entityId]].animSpeed = 16;
+            g_FieldModels[g_EntityToModel[entityId]].animCurrentFrame = 0;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncDlitm);
+            modelEntryId = g_FieldModelLoaderData[g_EntityToModel[entityId]].modelEntryIndex;
+            model = &g_FieldModelData->modelEntries[modelEntryId];
+            anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
+            g_FieldModels[g_EntityToModel[entityId]].animLastFrame =
+                anims[g_FieldEntity[g_EntityToModel[entityId]].activeAnimId].frameCount - 1;
+        }
+    } else if (g_FieldModels[g_EntityToModel[entityId]].activeAnimId != 1) {
+        g_FieldModels[g_EntityToModel[entityId]].activeAnimId = 1;
+        g_FieldModels[g_EntityToModel[entityId]].animSpeed = 16;
+        g_FieldModels[g_EntityToModel[entityId]].animCurrentFrame = 0;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncCkitm);
+        modelEntryId = g_FieldModelLoaderData[g_EntityToModel[entityId]].modelEntryIndex;
+        model = &g_FieldModelData->modelEntries[modelEntryId];
+        anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
+        g_FieldModels[g_EntityToModel[entityId]].animLastFrame =
+            anims[g_FieldEntity[g_EntityToModel[entityId]].activeAnimId].frameCount - 1;
+    }
+    g_FieldModelAnimStatus[g_EntityToModel[entityId]] = ANIMSTATUS_SCRIPTED_LOOP;
+    g_FieldModels[g_EntityToModel[entityId]].scriptedMoveMode = SMODE_WALK;
+    g_FieldModels[g_EntityToModel[entityId]].ActionState = 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncSpcal);
+static s32 FieldEventSplitJoinEndMove(s16 entityId) {
+    if (g_FieldModels[g_EntityToModel[entityId]].ActionState != 2) {
+        return 0;
+    }
+    if (g_DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("end move", 0, 0);
+    }
+    g_FieldModels[g_EntityToModel[entityId]].scriptedMoveMode = SMODE_NONE;
+    g_FieldModels[g_EntityToModel[entityId]].ActionState = 0;
+    g_FieldModelAnimStatus[g_EntityToModel[entityId]] = ANIMSTATUS_DEFAULT_LOOP;
+    g_FieldModels[g_EntityToModel[entityId]].MoveSpeed = g_SplitJoinOrigMoveSpeed[g_EntityToModel[entityId]];
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncBgscr);
+static void FieldEventSplitJoinSetTurn(s16 entityId, u8 startDirection, u8 endDirection) {
+    s16 start, end, diff;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncBgdph);
+    if (g_DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("set turn=", endDirection, 2);
+    }
+    if (g_EntityToModel[entityId] == 0xFF) {
+        return;
+    }
+    g_FieldModels[g_EntityToModel[entityId]].TurnStart = startDirection;
+    g_FieldModels[g_EntityToModel[entityId]].TurnType = 2;
+    g_FieldModels[g_EntityToModel[entityId]].TurnStep = 0;
+    g_FieldModels[g_EntityToModel[entityId]].TurnSteps = 16;
+    g_FieldModels[g_EntityToModel[entityId]].TurnEnd = endDirection;
+    end = g_FieldModels[g_EntityToModel[entityId]].TurnEnd;
+    start = g_FieldModels[g_EntityToModel[entityId]].TurnStart;
+    diff = end - start;
+    if (diff < 0) {
+        diff = ~diff + 1;
+    }
+    if (diff >= 129) {
+        if (end > start) {
+            g_FieldModels[g_EntityToModel[entityId]].TurnEnd = end - 256;
+        } else {
+            g_FieldModels[g_EntityToModel[entityId]].TurnEnd = end + 256;
+        }
+    }
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncSmtra);
+static s32 FieldEventSplitJoinEndTurn(s16 entityId) {
+    if (g_EntityToModel[entityId] == 0xFF) {
+        return 1;
+    }
+    if (g_FieldModels[g_EntityToModel[entityId]].TurnType == 3) {
+        if (g_DebugLevel & 3) {
+            FieldDebugAddParseValueToPage2("end turn", 0, 0);
+        }
+        g_FieldModels[g_EntityToModel[entityId]].TurnType = 0;
+        g_FieldModels[g_EntityToModel[entityId]].TurnStep = 0;
+        g_FieldModels[g_EntityToModel[entityId]].TurnSteps = 0;
+        return 1;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncDmtra);
+static s32 OpcodeFuncFade(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("fade", 8);
+    }
+    g_pFieldState->fadeType = GET_PARAM_U8(7);
+    switch (g_pFieldState->fadeType) {
+    case FFT_INSTANT:
+        break;
+    case FFT_INV4_TO_FIELD_SUB:
+    case FFT_STANDARD_TO_FIELD_ADD:
+    case FFT_INSTANT_INV1_SUB_HOLD_FIELD:
+    case FFT_INSTANT_STANDARD_ADD_HOLD_FIELD:
+        g_pFieldState->fadeAdjust = GET_PARAM_U8(8) + 1;
+        break;
+    case FFT_FIELD_TO_INV4_SUB:
+    case FFT_FIELD_TO_STANDARD_ADD:
+    case FFT_INSTANT_INV1_SUB_HOLD_COLOR:
+    case FFT_INSTANT_STANDARD_ADD_HOLD_COLOR:
+        g_pFieldState->fadeAdjust = GET_PARAM_U8(8);
+        break;
+    }
+    g_pFieldState->fadeSpeed = GET_PARAM_U8(6);
+    g_pFieldState->fadeRed = FieldEventReadMemoryU8(1, 3);
+    g_pFieldState->fadeGreen = FieldEventReadMemoryU8(2, 4);
+    g_pFieldState->fadeBlue = FieldEventReadMemoryU8(4, 5);
+    PC_INC(9);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncCmtra);
+static s32 OpcodeFuncNfade(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("nfade", 8);
+    }
+    g_pFieldState->fadeType = GET_PARAM_U8(3);
+    g_pFieldState->nFadeRedTarget = FieldEventReadMemoryU8(1, 4);
+    g_pFieldState->nFadeGreenTarget = FieldEventReadMemoryU8(2, 5);
+    g_pFieldState->nFadeBlueTarget = FieldEventReadMemoryU8(3, 6);
+    g_pFieldState->fadeAdjust = 0;
+    g_pFieldState->fadeSpeed = FieldEventReadMemoryS16(4, 7);
+    PC_INC(9);
+    return 0;
+}
+
+static s32 OpcodeFuncFadew(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("fadew", 0);
+    }
+    switch (g_pFieldState->fadeType) {
+    case FFT_INSTANT:
+    case FFT_INSTANT_BLACK:
+        PC_INC(1);
+        return 0;
+    case FFT_INV4_TO_FIELD_SUB:
+    case FFT_STANDARD_TO_FIELD_ADD:
+    case FFT_INSTANT_INV1_SUB_HOLD_FIELD:
+    case FFT_INSTANT_STANDARD_ADD_HOLD_FIELD:
+        if (g_pFieldState->fadeAdjust == 0) {
+            PC_INC(1);
+            return 0;
+        }
+        return 1;
+    case FFT_FIELD_TO_INV4_SUB:
+    case FFT_FIELD_TO_STANDARD_ADD:
+    case FFT_INSTANT_INV1_SUB_HOLD_COLOR:
+    case FFT_INSTANT_STANDARD_ADD_HOLD_COLOR:
+        if (g_pFieldState->fadeAdjust >= 255) {
+            PC_INC(1);
+            return 0;
+        }
+        return 1;
+    }
+
+    if (g_pFieldState->fadeAdjust == g_pFieldState->fadeSpeed) {
+        PC_INC(1);
+        return 0;
+    }
+    return 1;
+}
+
+static s32 OpcodeFuncIdlck(void) {
+    s16 lockId;
+    s16 byteIndex;
+    s16 bitIndex;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("idlck", 3);
+    }
+    lockId = GET_PARAM_U8(1);
+    lockId |= GET_PARAM_U8(2) << 8;
+    byteIndex = lockId / 8;
+    bitIndex = lockId % 8;
+    if (GET_PARAM_U8(3)) {
+        g_pFieldState->blockedAccesses[byteIndex] |= 1 << bitIndex;
+    } else {
+        g_pFieldState->blockedAccesses[byteIndex] &= ~(1 << bitIndex);
+    }
+    PC_INC(4);
+    return 0;
+}
+
+static s32 OpcodeFuncGwcol(void) {
+    s16 color;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("gwcol", 6);
+    }
+    color = FieldEventReadMemoryU8(1, 3);
+    color *= 3;
+    FieldEventWriteMemoryU8(2, 4, g_MenuColors[color]);
+    FieldEventWriteMemoryU8(3, 5, g_MenuColors[color + 1]);
+    FieldEventWriteMemoryU8(4, 6, g_MenuColors[color + 2]);
+    PC_INC(7);
+    return 0;
+}
+
+static s32 OpcodeFuncSwcol(void) {
+    s16 color;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("swcol", 6);
+    }
+    color = FieldEventReadMemoryU8(1, 3);
+    color *= 3;
+    g_MenuColors[color] = FieldEventReadMemoryU8(2, 4);
+    g_MenuColors[color + 1] = FieldEventReadMemoryU8(3, 5);
+    g_MenuColors[color + 2] = FieldEventReadMemoryU8(4, 6);
+    PC_INC(7);
+    return 0;
+}
+
+static s32 OpcodeFuncLstmp(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("lstmp", 2);
+    }
+    FieldEventWriteMemoryS16(2, 2, g_pFieldState->prevFieldId);
+    PC_INC(3);
+    return 0;
+}
+
+static s32 OpcodeFuncShake(void) {
+    u8 axisMask;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("shake", 7);
+    }
+    axisMask = GET_PARAM_U8(3);
+    if (axisMask & 1) {
+        g_pFieldState->shakeX.enabled = 1;
+        g_pFieldState->shakeX.amplitude = FieldEventReadMemoryU8(1, 4);
+        g_pFieldState->shakeX.numStepsPerSegment = FieldEventReadMemoryU8(2, 5);
+    } else {
+        g_pFieldState->shakeX.enabled = 0;
+    }
+    if (axisMask & 2) {
+        g_pFieldState->shakeY.enabled = 1;
+        g_pFieldState->shakeY.amplitude = FieldEventReadMemoryU8(3, 6);
+        g_pFieldState->shakeY.numStepsPerSegment = FieldEventReadMemoryU8(4, 7);
+    } else {
+        g_pFieldState->shakeY.enabled = 0;
+    }
+    PC_INC(8);
+    return 0;
+}
+
+static s32 OpcodeFuncStitm(void) {
+    u16 item;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("stitm", 4);
+    }
+    item = (FieldEventReadMemoryU8(2, 4)) << 9;
+    item |= FieldEventReadMemoryS16(1, 2);
+    if (g_DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("S item=", item, 4);
+    }
+    SysMenuAddItem(item);
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncDlitm(void) {
+    u16 item;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("dlitm", 4);
+    }
+    item = (FieldEventReadMemoryU8(2, 4)) << 9;
+    item |= FieldEventReadMemoryS16(1, 2);
+    if (g_DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("G item=", item, 4);
+    }
+    SysMenuRemoveItem(item);
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncCkitm(void) {
+    u16 item;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("ckitm", 4);
+    }
+    item = SysMenuSearchItem(FieldEventReadMemoryS16(1, 2));
+    if (g_DebugLevel & 3) {
+        FieldDebugAddParseValueToPage2("C item=", item, 4);
+    }
+    if (item == 0xFFFF) {
+        item = 0;
+    }
+    FieldEventWriteMemoryU8(2, 4, item >> 9);
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncSpcal(void) {
+    s32 i;
+    u16 bankOffset;
+    u16 nameLength;
+    u8* name;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("spcal", 8);
+    }
+
+    switch (GET_PARAM_U8(1)) {
+    case 0xFF:
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("clitm", 8);
+        }
+        for (i = 0; i < 512; i++) {
+            SysMenuRemoveItem((u16)i | (99 << 9));
+        }
+        PC_INC(2);
+        return 0;
+    case 0xFE:
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("rsglb", 8);
+        }
+        SysSavemapReset();
+        PC_INC(2);
+        return 0;
+    case 0xFD:
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("spcnm", 8);
+        }
+        SystemMessageSetCharName(GET_PARAM_U8(2), GET_PARAM_U8(3));
+        PC_INC(4);
+        return 0;
+    case 0xFC:
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("mvlck", 2);
+        }
+        g_MovieLock = GET_PARAM_U8(2);
+        PC_INC(3);
+        return 0;
+    case 0xFB:
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("btlck", 2);
+        }
+        g_BattleLock = GET_PARAM_U8(2);
+        PC_INC(3);
+        return 0;
+    case 0xFA:
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("flitm", 8);
+        }
+        for (i = 0; i < 512; i++) {
+            SysMenuAddItem((u16)i | (99 << 9));
+        }
+        PC_INC(2);
+        return 0;
+    case 0xF9:
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("flmat", 8);
+        }
+        for (i = 0; i < 80; i++) {
+            SysMenuAddMateria(i);
+        }
+        PC_INC(2);
+        return 0;
+    case 0xF8:
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("smspd", 3);
+        }
+        Savemap.field_msg_speed = 255 - FieldEventReadMemoryU8(4, 3);
+        PC_INC(4);
+        return 0;
+    case 0xF7:
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("gmspd", 3);
+        }
+        FieldEventWriteMemoryU8(4, 3, 255 - Savemap.field_msg_speed);
+        PC_INC(4);
+        return 0;
+    case 0xF6:
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("pname", 8);
+        }
+        name = GetCharacterName(FieldEventReadMemoryU8(3, 3));
+        nameLength = GET_PARAM_U8(5);
+        bankOffset = 0;
+        switch (GET_PARAM_U8(2) & 0xF) {
+        case 15:
+            bankOffset += 256;
+        case 13:
+            bankOffset += 256;
+        case 11:
+            bankOffset += 256;
+        case 3:
+            bankOffset += 256;
+        }
+        for (i = 0; i < nameLength; i++) {
+            Savemap.memory_bank_1[bankOffset + i] = *name++;
+        }
+        Savemap.memory_bank_1[bankOffset + i] = 0xFF;
+        PC_INC(6);
+        return 0;
+    case 0xF5:
+        if (g_DebugLevel & 3) {
+            DebugPrintOpcode("arrow", 8);
+        }
+        g_PosCursorDisabled = GET_PARAM_U8(2);
+        PC_INC(3);
+        return 0;
+    }
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("?????", 8);
+    }
+    PC_INC(2);
+    return 0;
+}
+
+static s32 OpcodeFuncBgscr(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("bgscr", 8);
+    }
+    switch (GET_PARAM_U8(2)) {
+    case 2:
+        g_pFieldState->layer2_bgScrollXSpeed = FieldEventReadMemoryS16(1, 3);
+        g_pFieldState->layer2_bgScrollYSpeed = FieldEventReadMemoryS16(2, 5);
+        break;
+    case 3:
+        g_pFieldState->layer3_bgScrollXSpeed = FieldEventReadMemoryS16(1, 3);
+        g_pFieldState->layer3_bgScrollYSpeed = FieldEventReadMemoryS16(2, 5);
+        break;
+    default:
+        break;
+    }
+
+    PC_INC(7);
+    return 0;
+}
+
+static s32 OpcodeFuncBgdph(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("bgdph", 8);
+    }
+    switch (GET_PARAM_U8(2)) {
+    case 2:
+        g_pFieldState->layer2_depth = FieldEventReadMemoryS16(1, 3);
+        break;
+    case 3:
+        g_pFieldState->layer3_depth = FieldEventReadMemoryS16(1, 3);
+        break;
+    default:
+        break;
+    }
+
+    PC_INC(5);
+    return 0;
+}
+
+static s32 OpcodeFuncSmtra(void) {
+    s32 materia;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("smtra", 6);
+    }
+    materia = FieldEventReadMemoryU8(1, 3);
+    materia |= (FieldEventReadMemoryU8(2, 4)) << 8;
+    materia |= (FieldEventReadMemoryU8(3, 5)) << 16;
+    materia |= FieldEventReadMemoryU8(4, 6) << 24;
+    if (SysMenuAddMateria(materia) == -1) {
+        Savemap.memory_bank_4[31] = 0;
+    } else {
+        Savemap.memory_bank_4[31] = 1;
+    }
+    PC_INC(7);
+    return 0;
+}
+
+static s32 OpcodeFuncDmtra(void) {
+    s32 materia;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("dmtra", 7);
+    }
+    materia = FieldEventReadMemoryU8(1, 3);
+    materia |= (FieldEventReadMemoryU8(2, 4)) << 8;
+    materia |= (FieldEventReadMemoryU8(3, 5)) << 16;
+    materia |= FieldEventReadMemoryU8(4, 6) << 24;
+    SysMenuRemoveMateria(materia, GET_PARAM_U8(7));
+    PC_INC(8);
+    return 0;
+}
+
+static s32 OpcodeFuncCmtra(void) {
+    s32 materia;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("cmtra", 8);
+    }
+    materia = FieldEventReadMemoryU8(1, 4);
+    materia |= (FieldEventReadMemoryU8(2, 5)) << 8;
+    materia |= (FieldEventReadMemoryU8(3, 6)) << 16;
+    materia |= FieldEventReadMemoryU8(4, 7) << 24;
+    FieldEventWriteMemoryU8(6, 9, func_80025650(materia, GET_PARAM_U8(8)));
+    PC_INC(10);
+    return 0;
+}
 
 static s32 OpcodeFuncMenu(void) {
     if (g_DebugLevel & 3) {

@@ -298,7 +298,7 @@ void main(void) {
                         g_PartyUpdatedByFieldScript = 0;
                     }
                     if (g_PrevGameState == GAMESTATE_FIELD) {
-                        if (!D_80071E30) {
+                        if (!g_BattleLock) {
                             if (g_FieldState.nextBattleMusic) {
                                 AkaoCmd* cmd = &g_AkaoCmd;
                                 cmd->opcode = AKAO_PLAY_MUSIC_SAVE_CURR;
