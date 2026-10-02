@@ -2629,7 +2629,25 @@ void BattleApplyRegenPoisonTick(s32 arg0, s32 arg1, s32 arg2) {
 
 void func_800AF470(s32 arg0) { g_BattleWork.turn[arg0].unk28 = 3; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF494);
+void func_800AF494(s32 arg0, s32 arg1, s32 arg2) {
+    switch (g_BattleSceneContext.imprisonedType) {
+    case 1:
+        BattleApplyRegenPoisonTick(arg0, arg1, arg2);
+        /* fallthrough */
+    case 0:
+    case 3:
+        if (arg2 != 0) {
+            func_800AF264(arg0, arg1, arg2);
+        } else {
+            func_800AF320(arg0, arg1, 0);
+        }
+        break;
+    }
+
+    if (g_BattleSceneContext.imprisonedType == 3) {
+        g_BattleState.combatant[arg0].unk16 = arg2 ? 0x13 : 0;
+    }
+}
 
 void BattleClearActorSlotReferences(s32 arg0, s32 arg1, s32 arg2) {
     s32 i;
