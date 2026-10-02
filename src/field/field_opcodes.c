@@ -110,17 +110,6 @@ s32 FieldDialogMessageUpdateStates(u8 window, u8 message);
 s32 CopyDialogToMapName(s16 stringId);
 
 static s32 OpcodeFuncWsize(void);
-s32 OpcodeFuncGetpc(void);
-s32 OpcodeFuncMpara(void);
-s32 OpcodeFuncMpra2(void);
-s32 OpcodeFuncMhmmx(void);
-s32 OpcodeFuncHmpmx(void);
-s32 OpcodeFuncMpPlus(void);
-s32 OpcodeFuncMpMinus(void);
-s32 OpcodeFuncHpPlus(void);
-s32 OpcodeFuncHpMinus(void);
-s32 OpcodeFuncChmph(void);
-s32 OpcodeFuncChmst(void);
 
 void DebugUpdateActor(s16 arg0, s16 entityId) {
     if (arg0 == 4) {
