@@ -50,6 +50,10 @@ extern s16 g_FieldPreloadMapId;
 extern s16 D_801144D4;
 extern u8 g_EntityForSplitJoin;
 extern u16 g_SplitJoinOrigMoveSpeed[24];
+extern u8 D_8009A15C;
+extern s16 D_8009A162;
+extern s32 g_AkaoMusicActiveMask;
+extern s32 g_Channel3ActiveMask;
 
 void SystemMenuAddHpByPartyId(s32 partyId, s32 hp);
 void SysMenuRemoveHpByPartyId(s32 partyId, s32 hp);
@@ -7062,9 +7066,30 @@ static s32 OpcodeFuncChgld(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncChmph);
+s32 OpcodeFuncChmph(void) {
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("chmph", 3);
+    }
+    FieldEventWriteMemoryS16(1, 2, D_8009A162);
+    FieldEventWriteMemoryU8(2, 3, D_8009A15C);
+    PC_INC(4);
+    return 0;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_opcodes", OpcodeFuncChmst);
+s32 OpcodeFuncChmst(void) {
+    u8 mask;
+
+    if (g_DebugLevel & 3) {
+        DebugPrintOpcode("chmst", 2);
+    }
+    mask = g_AkaoMusicActiveMask != 0;
+    if (g_Channel3ActiveMask) {
+        mask |= 2;
+    }
+    FieldEventWriteMemoryU8(2, 2, mask);
+    PC_INC(3);
+    return 0;
+}
 
 static s32 OpcodeFuncSttim(void) {
     s32 time;
