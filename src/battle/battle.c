@@ -663,7 +663,16 @@ void func_800A4E40(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleEnableLimitToPlayerWithSpeed);
+void BattleEnableLimitToPlayerWithSpeed(s32 index) {
+    u16* p;
+
+    if (g_BattleWork.party[index].limitLevel != 0xFF) {
+        p = &D_80163762; // Suggests this is part of a larger undiscovered struct (BattleSceneData?)
+        *p |= (1 << index);
+        g_BattleWork.turn[index].limitSpeedFlag |= 1;
+        g_BattleWork.turn[index].hasLimitBreak |= 1;
+    }
+}
 
 static void BattleEnableLimitToPlayerWithoutSpeed(s32 turnIdx) {
     g_BattleWork.turn[turnIdx].limitSpeedFlag &= ~1;
