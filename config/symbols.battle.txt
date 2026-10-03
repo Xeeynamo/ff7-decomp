@@ -449,6 +449,7 @@ g_BattleCallbackEvent = 0x800F4308;
 g_BattlePartyEventReadIdx = 0x800F4908;
 g_BattlePartyEventWriteIdx = 0x800F4914;
 g_BattleHitFormulaOffs = 0x800F495C;
+g_BattleModelClutRect = 0x800F4B24; // size:0x8
 g_BattleWork = 0x800F5BB8; // size:0x38C
 g_BattleSceneContext = 0x800F5F44;
 g_BattleCameraSlots = 0x800F7ED8;

@@ -360,7 +360,7 @@ extern s32 D_800F4AD4;
 extern s32 D_800F4AD8;
 extern DR_MODE* D_800F4AF4;
 extern DR_MODE* D_800F4AF8;
-extern RECT D_800F4B24;
+extern RECT g_BattleModelClutRect;
 extern RECT D_800F4B2C[];
 extern RECT D_800F4B6C[];
 extern Unk800F01DC D_800F4BAC[];

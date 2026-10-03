@@ -1622,14 +1622,14 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C61C0);
 static void func_800C627C(void) {
     s32 i;
 
-    for (i = 0; i < 0xA; i++) {
+    for (i = 0; i < 10; i++) {
         func_800C62F4(i & 0xFF);
     }
-    D_800F4B24.x = 0;
-    D_800F4B24.y = 0x1E0;
-    D_800F4B24.w = 0x10;
-    D_800F4B24.h = 0x1E;
-    BattleEnqueueLoadImage(&D_800F4B24, D_80158D0C);
+    g_BattleModelClutRect.x = 0;
+    g_BattleModelClutRect.y = 480;
+    g_BattleModelClutRect.w = 16;
+    g_BattleModelClutRect.h = 30;
+    BattleEnqueueLoadImage(&g_BattleModelClutRect, D_80158D0C);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C62F4);
