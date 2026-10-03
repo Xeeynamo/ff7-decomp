@@ -1419,6 +1419,7 @@ void SysMenuSavePoly(void);
 void SysMenuRestorePoly(void);
 void SysMenuSetOtag(OT_TYPE* otag);
 u8 SysMenuIsWindowActive(void);
+void SysMenuDrawAddWindow(void);
 void SysMenuStoreAvatarVram(u_long* image);
 void SysMenuRestoreAvatarVram(u_long* image);
 void SysMenuStoreFontVram(u_long* image);
