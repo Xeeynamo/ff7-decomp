@@ -150,7 +150,6 @@ Unk800F57D0* MAGIC_Choco0(s32 targetMask, s32 callbackArg) {
     return &D_801D267C;
 }
 
-// A negative word -n reads script variable n - 1.
 static s32 Choco0ReadScriptValue(s16** script) {
     s32 word;
     s16* cursor;
