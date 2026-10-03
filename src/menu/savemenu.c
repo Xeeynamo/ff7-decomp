@@ -6,6 +6,11 @@
 #include "savemenu.h"
 #include <libetc.h>
 
+static s32 D_801D4EC4 = 0xFF;
+static MenuRect D_801D4EC8 = {150, 93, 64, 32};
+static MenuRect D_801D4ED0 = {82, 86, 201, 47};
+static u32 D_801D4ED8 = 0;
+INCLUDE_DATA("menu/data/buster_tim");
 static char D_801DEEDC[8] = _S("Save");
 static RECT D_801DEEE4[3] = {
     {0x116, 0x04, 0x56, 0x24},

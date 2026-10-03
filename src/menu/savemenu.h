@@ -126,9 +126,6 @@ typedef struct {
 
 #define SAVE_ICON_SIZE 0x3F6
 
-extern s32 D_801D4EC4;
-extern MenuRect D_801D4EC8;
-extern MenuRect D_801D4ED0;
 extern u8 buster_tim[];
 extern u8 D_801E2DF8;
 extern u8 D_801E2E1C;
