@@ -297,33 +297,13 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetLighting
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetSplashToPktsBelowLvl);
 
-// One splash slot inside a model's effect workspace. Fields only appear in mirrored pairs 0x28 apart.
+// One splash slot: a pair of textured quads plus per-part state.
 typedef struct {
-    /* 0x00 */ u8 unk00[3];
-    /* 0x03 */ u8 unk03;
-    /* 0x04 */ u8 unk04;
-    /* 0x05 */ u8 unk05;
-    /* 0x06 */ u8 unk06;
-    /* 0x07 */ u8 unk07;
-    /* 0x08 */ u8 unk08[6];
-    /* 0x0E */ u16 unk0E;
-    /* 0x10 */ u8 unk10[6];
-    /* 0x16 */ u16 unk16;
-    /* 0x18 */ u8 unk18[0x13];
-    /* 0x2B */ u8 unk2B;
-    /* 0x2C */ u8 unk2C;
-    /* 0x2D */ u8 unk2D;
-    /* 0x2E */ u8 unk2E;
-    /* 0x2F */ u8 unk2F;
-    /* 0x30 */ u8 unk30[6];
-    /* 0x36 */ u16 unk36;
-    /* 0x38 */ u8 unk38[6];
-    /* 0x3E */ u16 unk3E;
-    /* 0x40 */ u8 unk40[0x10];
+    /* 0x00 */ POLY_FT4 poly[2];
     /* 0x50 */ u16 unk50;
     /* 0x52 */ u16 unk52;
     /* 0x54 */ u16 unk54;
-    /* 0x56 */ u8 unk56[2];
+    /* 0x56 */ u16 unk56;
     /* 0x58 */ u16 unk58;
     /* 0x5A */ u16 unk5A;
 } FieldSplashEntry; // size:0x5C
@@ -334,8 +314,8 @@ typedef struct {
 void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
     FieldSplashEntry* entries;
     FieldModelBone* bones;
-    s16 tmp0;
-    s16 tmp1;
+    s16 clut;
+    s16 tpage;
     s32 last; // Named so gcc keeps the bound in a register (slt) rather than folding it to a slti.
     s32 i;
 
@@ -348,25 +328,23 @@ void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
     for (i = 1; i < last; i++) {
         FieldSplashEntry* entry = &entries[i];
 
-        entry->unk03 = 9;
-        entry->unk2B = 9;
-        entry->unk07 = 0x2C;
-        entry->unk2F = 0x2C;
-        entry->unk2E = 0x80;
-        entry->unk06 = 0x80;
-        entry->unk2D = 0x80;
-        entry->unk05 = 0x80;
-        entry->unk2C = 0x80;
-        entry->unk04 = 0x80;
-        entry->unk36 = tmp0;
-        entry->unk0E = tmp0;
-        entry->unk3E = tmp1;
-        entry->unk16 = tmp1;
+        setPolyFT4(&entry->poly[0]);
+        setPolyFT4(&entry->poly[1]);
+        entry->poly[1].b0 = 0x80;
+        entry->poly[0].b0 = 0x80;
+        entry->poly[1].g0 = 0x80;
+        entry->poly[0].g0 = 0x80;
+        entry->poly[1].r0 = 0x80;
+        entry->poly[0].r0 = 0x80;
+        entry->poly[1].clut = clut;
+        entry->poly[0].clut = clut;
+        entry->poly[1].tpage = tpage;
+        entry->poly[0].tpage = tpage;
         entry->unk50 = 0;
         entry->unk52 = 0;
         entry->unk54 = 0;
-        entry->unk07 |= 2;
-        entry->unk2F |= 2;
+        entry->poly[0].code |= 2;
+        entry->poly[1].code |= 2;
         entry->unk58 = -bones[i].length;
         entry->unk5A = 0;
     }
