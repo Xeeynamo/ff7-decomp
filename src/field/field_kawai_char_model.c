@@ -193,7 +193,7 @@ u8 g_FieldMouthTextureIndices[34][3] = {
 
 FieldKawaiState g_FieldKawaiState = {0};
 u8 g_FieldKawaiParams[32] = {0};
-// Sixteen shared effect slots, each handler interpret each 60-byte slot differently.
+// Sixteen shared effect slots; each handler interprets each 60-byte slot differently.
 u32 D_800DFE3C[16][15] = {0};
 void* D_800E01FC = (void*)0x801AF800;
 u8* D_800E0200 = NULL;
@@ -297,16 +297,17 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetLighting
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetSplashToPktsBelowLvl);
 
-// One splash slot: a pair of textured quads plus per-part state.
+// One per-bone slot for the waterline effect: a pair of blending textured quads plus the
+// per-bone vector and scale used to displace them.
 typedef struct {
     /* 0x00 */ POLY_FT4 poly[2];
-    /* 0x50 */ u16 unk50;
-    /* 0x52 */ u16 unk52;
-    /* 0x54 */ u16 unk54;
-    /* 0x56 */ u16 unk56;
-    /* 0x58 */ u16 unk58;
-    /* 0x5A */ u16 unk5A;
-} FieldSplashEntry; // size:0x5C
+    /* 0x50 */ s16 unk50;       // x, loaded into the GTE as the per-bone vertex
+    /* 0x52 */ s16 unk52;       // y
+    /* 0x54 */ s16 unk54;       // z
+    /* 0x56 */ u16 unk56;       // never read or written by this module
+    /* 0x58 */ s16 effectScale; // abs() divisor, negated bone length
+    /* 0x5A */ u16 flags;       // bitmask
+} FieldSplashEntry;             // size:0x5C
 
 // Thirty slots of scratch per model, pointed at by D_800E0200.
 #define FIELD_SPLASH_SLOTS 30
@@ -314,8 +315,8 @@ typedef struct {
 void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
     FieldSplashEntry* entries;
     FieldModelBone* bones;
-    s16 clut;
-    s16 tpage;
+    u16 clut;
+    u16 tpage;
     s32 last; // Named so gcc keeps the bound in a register (slt) rather than folding it to a slti.
     s32 i;
 
@@ -343,10 +344,10 @@ void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
         entry->unk50 = 0;
         entry->unk52 = 0;
         entry->unk54 = 0;
-        entry->poly[0].code |= 2;
-        entry->poly[1].code |= 2;
-        entry->unk58 = -bones[i].length;
-        entry->unk5A = 0;
+        setSemiTrans(&entry->poly[0], 1);
+        setSemiTrans(&entry->poly[1], 1);
+        entry->effectScale = -bones[i].length;
+        entry->flags = 0;
     }
 }
 
