@@ -22,7 +22,7 @@ typedef enum {
     CDOP_UNUSED_15,      // never set, handler does nothing
     CDOP_CALLBACK,       // go IDLE and invoke the user callback
     CDOP_COMPLETE,       // request finished, CALLBACK on the next tick
-    CDOP_UNUSED_18,      // never set, handler does nothing; a new request pauses the drive
+    CDOP_PAUSE_SYNC,     // pauses the drive
     CDOP_PAUSE,          // send Pause to abort the current request
     CDOP_PAUSE_WAIT,     // wait for the pause, then go IDLE and invoke the callback
 } CdOp;
@@ -143,7 +143,7 @@ static void SysCdromSetChainParam(int op, int sector, size_t len, u_long* dst, v
         case CDOP_MOVIE_READY:
             SysMovieAbortPlay();
             break;
-        case CDOP_UNUSED_18:
+        case CDOP_PAUSE_SYNC:
             CdControl(CdlPause, NULL, NULL);
             break;
         }
@@ -241,7 +241,7 @@ void SystemCdromAbortLoading(void) {
     case CDOP_UNUSED_15:
     case CDOP_CALLBACK:
     case CDOP_COMPLETE:
-    case CDOP_UNUSED_18:
+    case CDOP_PAUSE_SYNC:
         break;
     }
     func_80034048();
@@ -604,7 +604,7 @@ static void (*cd_op_handlers[])(void) = {
     CdOpNop,          // CDOP_UNUSED_15
     CdOpCallback,     // CDOP_CALLBACK
     CdOpComplete,     // CDOP_COMPLETE
-    CdOpNop,          // CDOP_UNUSED_18
+    CdOpNop,          // CDOP_PAUSE_SYNC
     CdOpPause,        // CDOP_PAUSE
     CdOpPauseWait,    // CDOP_PAUSE_WAIT
 };
