@@ -7055,7 +7055,7 @@ static s32 OpcodeFuncChgld(void) {
     return 0;
 }
 
-s32 OpcodeFuncChmph(void) {
+static s32 OpcodeFuncChmph(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("chmph", 3);
     }
@@ -7065,7 +7065,7 @@ s32 OpcodeFuncChmph(void) {
     return 0;
 }
 
-s32 OpcodeFuncChmst(void) {
+static s32 OpcodeFuncChmst(void) {
     u8 mask;
 
     if (g_DebugLevel & 3) {
