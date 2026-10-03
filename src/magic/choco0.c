@@ -13,11 +13,15 @@ typedef struct {
     /* 0x02 */ s16 AnimationFrame;
     /* 0x04 */ SVECTOR Pos;
     /* 0x0C */ union {
-        SVECTOR vec;
+        SVECTOR velocity; // dust, smoke
+        struct {
+            /* 0x0C */ s16 unk0C;
+            /* 0x0E */ s16 Angle;
+        } stars;
         struct {
             /* 0x0C */ s16* Script;
-            /* 0x10 */ MATRIX* unk10;
-        } ptr;
+            /* 0x10 */ MATRIX* SceneMatrix;
+        } camera;
     } u;
     /* 0x14 */ s16 Scale; // the camera effect keeps the caster index here
     /* 0x16 */ s16 unk16;
@@ -28,8 +32,16 @@ typedef struct {
 typedef struct {
     /* 0x00 */ s16 Opcode;
     /* 0x02 */ s16 FramesLeft;
-    /* 0x04 */ s32 unk4; // distance to the other path, or ease progress
-    /* 0x08 */ s32 unk8; // per-frame change of unk4
+    /* 0x04 */ union {
+        struct {
+            /* 0x04 */ s32 Distance; // to the other path
+            /* 0x08 */ s32 DistanceStep;
+        } dolly;
+        struct {
+            /* 0x04 */ s32 Progress; // 0 to 0x1000
+            /* 0x08 */ s32 ProgressStep;
+        } ease;
+    } u;
     /* 0x0C */ s16 ActorIndex;
     /* 0x0E */ s16 PartIndex;
     /* 0x10 */ SVECTOR Pos;
@@ -158,7 +170,7 @@ static void Choco0UpdateCamera(void) {
     SVECTOR* otherEnd;
     VECTOR* worldPos;
     s32 i;
-    u16 op;
+    u16 command;
     s32 t;
     u8 unused[0x100];
     s32 flag;
@@ -176,44 +188,44 @@ static void Choco0UpdateCamera(void) {
             effect->AnimationFrame = 1;
         }
         while (choco0_camera_eye_path.FramesLeft == 0 || choco0_camera_target_path.FramesLeft == 0) {
-            op = *effect->u.ptr.Script++;
-            if (op & CAM_EYE) {
+            command = *effect->u.camera.Script++;
+            if (command & CAM_EYE) {
                 choco0_camera_path_cur = &choco0_camera_eye_path;
                 choco0_camera_path_other = &choco0_camera_target_path;
             } else {
                 choco0_camera_path_cur = &choco0_camera_target_path;
                 choco0_camera_path_other = &choco0_camera_eye_path;
             }
-            choco0_camera_path_cur->Opcode = op & ~(CAM_EYE | CAM_TARGET);
+            choco0_camera_path_cur->Opcode = command & ~(CAM_EYE | CAM_TARGET);
             switch (choco0_camera_path_cur->Opcode) {
             case CAM_OP_HOLD:
-                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.ptr.Script);
+                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.camera.Script);
                 break;
             case CAM_OP_SET_POS:
-                choco0_camera_path_cur->Pos.vx = *effect->u.ptr.Script++;
-                choco0_camera_path_cur->Pos.vy = *effect->u.ptr.Script++;
-                choco0_camera_path_cur->Pos.vz = *effect->u.ptr.Script++;
+                choco0_camera_path_cur->Pos.vx = *effect->u.camera.Script++;
+                choco0_camera_path_cur->Pos.vy = *effect->u.camera.Script++;
+                choco0_camera_path_cur->Pos.vz = *effect->u.camera.Script++;
                 break;
             case CAM_OP_MOVE_TO:
-                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.ptr.Script);
+                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.camera.Script);
                 choco0_camera_path_cur->Step.vx =
-                    (*effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vx) / choco0_camera_path_cur->FramesLeft;
+                    (*effect->u.camera.Script++ - choco0_camera_path_cur->Pos.vx) / choco0_camera_path_cur->FramesLeft;
                 choco0_camera_path_cur->Step.vy =
-                    (*effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vy) / choco0_camera_path_cur->FramesLeft;
+                    (*effect->u.camera.Script++ - choco0_camera_path_cur->Pos.vy) / choco0_camera_path_cur->FramesLeft;
                 choco0_camera_path_cur->Step.vz =
-                    (*effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vz) / choco0_camera_path_cur->FramesLeft;
+                    (*effect->u.camera.Script++ - choco0_camera_path_cur->Pos.vz) / choco0_camera_path_cur->FramesLeft;
                 break;
             case CAM_OP_DOLLY_TO:
                 delta->vx = choco0_camera_path_other->Pos.vx - choco0_camera_path_cur->Pos.vx;
                 delta->vy = choco0_camera_path_other->Pos.vy - choco0_camera_path_cur->Pos.vy;
                 delta->vz = choco0_camera_path_other->Pos.vz - choco0_camera_path_cur->Pos.vz;
-                choco0_camera_path_cur->unk4 =
+                choco0_camera_path_cur->u.dolly.Distance =
                     SquareRoot0(delta->vx * delta->vx + delta->vy * delta->vy + delta->vz * delta->vz);
                 choco0_camera_path_cur->StartPos = choco0_camera_path_cur->Pos;
-                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.ptr.Script);
-                delta->vx = *effect->u.ptr.Script++;
-                delta->vy = *effect->u.ptr.Script++;
-                delta->vz = *effect->u.ptr.Script++;
+                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.camera.Script);
+                delta->vx = *effect->u.camera.Script++;
+                delta->vy = *effect->u.camera.Script++;
+                delta->vz = *effect->u.camera.Script++;
                 choco0_camera_path_cur->Step.vx =
                     (delta->vx - choco0_camera_path_cur->Pos.vx) / choco0_camera_path_cur->FramesLeft;
                 choco0_camera_path_cur->Step.vy =
@@ -235,16 +247,16 @@ static void Choco0UpdateCamera(void) {
                 delta->vx -= otherEnd->vx;
                 delta->vy -= otherEnd->vy;
                 delta->vz -= otherEnd->vz;
-                choco0_camera_path_cur->unk8 =
+                choco0_camera_path_cur->u.dolly.DistanceStep =
                     (SquareRoot0(delta->vx * delta->vx + delta->vy * delta->vy + delta->vz * delta->vz) -
-                     choco0_camera_path_cur->unk4) /
+                     choco0_camera_path_cur->u.dolly.Distance) /
                     choco0_camera_path_cur->FramesLeft;
                 break;
             case CAM_OP_ACCEL_TO:
-                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.ptr.Script);
-                delta->vx = *effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vx;
-                delta->vy = *effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vy;
-                delta->vz = *effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vz;
+                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.camera.Script);
+                delta->vx = *effect->u.camera.Script++ - choco0_camera_path_cur->Pos.vx;
+                delta->vy = *effect->u.camera.Script++ - choco0_camera_path_cur->Pos.vy;
+                delta->vz = *effect->u.camera.Script++ - choco0_camera_path_cur->Pos.vz;
                 choco0_camera_path_cur->StartPos.vx =
                     ((delta->vx - choco0_camera_path_cur->Step.vx * choco0_camera_path_cur->FramesLeft) * 2) /
                     (choco0_camera_path_cur->FramesLeft * choco0_camera_path_cur->FramesLeft);
@@ -256,22 +268,22 @@ static void Choco0UpdateCamera(void) {
                     (choco0_camera_path_cur->FramesLeft * choco0_camera_path_cur->FramesLeft);
                 break;
             case CAM_OP_EASE_TO:
-                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.ptr.Script);
-                choco0_camera_path_cur->unk4 = 0;
+                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.camera.Script);
+                choco0_camera_path_cur->u.ease.Progress = 0;
                 choco0_camera_path_cur->StartPos.vx = choco0_camera_path_cur->Pos.vx;
                 choco0_camera_path_cur->StartPos.vy = choco0_camera_path_cur->Pos.vy;
                 choco0_camera_path_cur->StartPos.vz = choco0_camera_path_cur->Pos.vz;
-                choco0_camera_path_cur->unk8 = 0x1000 / choco0_camera_path_cur->FramesLeft;
-                choco0_camera_path_cur->Step.vx = *effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vx;
-                choco0_camera_path_cur->Step.vy = *effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vy;
-                choco0_camera_path_cur->Step.vz = *effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vz;
+                choco0_camera_path_cur->u.ease.ProgressStep = 0x1000 / choco0_camera_path_cur->FramesLeft;
+                choco0_camera_path_cur->Step.vx = *effect->u.camera.Script++ - choco0_camera_path_cur->Pos.vx;
+                choco0_camera_path_cur->Step.vy = *effect->u.camera.Script++ - choco0_camera_path_cur->Pos.vy;
+                choco0_camera_path_cur->Step.vz = *effect->u.camera.Script++ - choco0_camera_path_cur->Pos.vz;
                 break;
             case CAM_OP_ATTACH:
-                choco0_camera_path_cur->ActorIndex = *effect->u.ptr.Script++;
+                choco0_camera_path_cur->ActorIndex = *effect->u.camera.Script++;
                 if (choco0_camera_path_cur->ActorIndex == 0) {
                     choco0_camera_path_cur->ActorIndex = effect->Scale;
                 }
-                choco0_camera_path_cur->PartIndex = *effect->u.ptr.Script++;
+                choco0_camera_path_cur->PartIndex = *effect->u.camera.Script++;
                 break;
             case CAM_OP_DETACH:
                 choco0_camera_path_cur->ActorIndex = -1;
@@ -301,20 +313,20 @@ static void Choco0UpdateCamera(void) {
                 choco0_camera_path_cur->StartPos.vx += choco0_camera_path_cur->Step.vx;
                 choco0_camera_path_cur->StartPos.vy += choco0_camera_path_cur->Step.vy;
                 choco0_camera_path_cur->StartPos.vz += choco0_camera_path_cur->Step.vz;
-                choco0_camera_path_cur->unk4 += choco0_camera_path_cur->unk8;
+                choco0_camera_path_cur->u.dolly.Distance += choco0_camera_path_cur->u.dolly.DistanceStep;
                 worldPos->vx = choco0_camera_path_other->Pos.vx - choco0_camera_path_cur->StartPos.vx;
                 worldPos->vy = choco0_camera_path_other->Pos.vy - choco0_camera_path_cur->StartPos.vy;
                 worldPos->vz = choco0_camera_path_other->Pos.vz - choco0_camera_path_cur->StartPos.vz;
                 VectorNormalS(worldPos, delta);
                 choco0_camera_path_cur->Pos.vx =
-                    choco0_camera_path_other->Pos.vx - ((delta->vx * choco0_camera_path_cur->unk4) >> 12);
+                    choco0_camera_path_other->Pos.vx - ((delta->vx * choco0_camera_path_cur->u.dolly.Distance) >> 12);
                 choco0_camera_path_cur->Pos.vy =
-                    choco0_camera_path_other->Pos.vy - ((delta->vy * choco0_camera_path_cur->unk4) >> 12);
+                    choco0_camera_path_other->Pos.vy - ((delta->vy * choco0_camera_path_cur->u.dolly.Distance) >> 12);
                 choco0_camera_path_cur->Pos.vz =
-                    choco0_camera_path_other->Pos.vz - ((delta->vz * choco0_camera_path_cur->unk4) >> 12);
+                    choco0_camera_path_other->Pos.vz - ((delta->vz * choco0_camera_path_cur->u.dolly.Distance) >> 12);
                 break;
             case CAM_OP_EASE_TO:
-                t = choco0_camera_path_cur->unk4 += choco0_camera_path_cur->unk8;
+                t = choco0_camera_path_cur->u.ease.Progress += choco0_camera_path_cur->u.ease.ProgressStep;
                 t = rsin(rsin(t / 4) / 4);
                 choco0_camera_path_cur->Pos.vx =
                     choco0_camera_path_cur->StartPos.vx + ((choco0_camera_path_cur->Step.vx * t) >> 12);
@@ -329,9 +341,9 @@ static void Choco0UpdateCamera(void) {
             choco0_camera_path_other = &choco0_camera_eye_path;
         }
     }
-    if (effect->u.ptr.unk10) {
-        SetRotMatrix(effect->u.ptr.unk10);
-        SetTransMatrix(effect->u.ptr.unk10);
+    if (effect->u.camera.SceneMatrix) {
+        SetRotMatrix(effect->u.camera.SceneMatrix);
+        SetTransMatrix(effect->u.camera.SceneMatrix);
         if (choco0_camera_eye_path.ActorIndex == -1) {
             RotTrans(&choco0_camera_eye_path.Pos, worldPos, &flag);
             g_BattleCameraPos.vx = worldPos->vx;
@@ -349,8 +361,8 @@ static void Choco0UpdateCamera(void) {
             g_BattleCameraPos.vx = worldPos->vx + delta->vx;
             g_BattleCameraPos.vy = worldPos->vy + delta->vy;
             g_BattleCameraPos.vz = worldPos->vz + delta->vz;
-            SetRotMatrix(effect->u.ptr.unk10);
-            SetTransMatrix(effect->u.ptr.unk10);
+            SetRotMatrix(effect->u.camera.SceneMatrix);
+            SetTransMatrix(effect->u.camera.SceneMatrix);
         }
         if (choco0_camera_target_path.ActorIndex == -1) {
             RotTrans(&choco0_camera_target_path.Pos, worldPos, &flag);
@@ -380,8 +392,8 @@ static void Choco0SpawnCamera(s16* script, MATRIX* sceneMatrix, s32 callbackArg)
     Choco0Data* effect;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(Choco0UpdateCamera)];
-    effect->u.ptr.Script = script;
-    effect->u.ptr.unk10 = sceneMatrix;
+    effect->u.camera.Script = script;
+    effect->u.camera.SceneMatrix = sceneMatrix;
     effect->Scale = callbackArg;
 }
 
@@ -414,13 +426,13 @@ static void Choco0RenderDust(void) {
     if (D_80062D98 == 0) {
         if (++effect->AnimationFrame >= 16) {
             effect->StartFrame = -1;
-            return;
+        } else {
+            effect->Pos.vx += effect->u.velocity.vx;
+            effect->Pos.vy += effect->u.velocity.vy;
+            effect->Pos.vz += effect->u.velocity.vz;
+            effect->u.velocity.vx = (effect->u.velocity.vx * 7) >> 3;
+            effect->u.velocity.vz = (effect->u.velocity.vz * 7) >> 3;
         }
-        effect->Pos.vx += effect->u.vec.vx;
-        effect->Pos.vy += effect->u.vec.vy;
-        effect->Pos.vz += effect->u.vec.vz;
-        effect->u.vec.vx = (effect->u.vec.vx * 7) >> 3;
-        effect->u.vec.vz = (effect->u.vec.vz * 7) >> 3;
     }
 }
 
@@ -432,7 +444,7 @@ static void Choco0SpawnDust(void) {
     s32 angle;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    if (D_80062D98 != 0) {
+    if (D_80062D98) {
         return;
     }
     for (i = 0; i < 3; i++) {
@@ -442,9 +454,9 @@ static void Choco0SpawnDust(void) {
         child->Pos.vz = choco0_unit_pos.vz;
         speed = rand() % 100 + 100;
         angle = rand() & 0x7FF;
-        child->u.vec.vx = (rcos(angle) * speed) >> 12;
-        child->u.vec.vy = -(rand() % 30 + 20);
-        child->u.vec.vz = (-rsin(angle) * speed) >> 12;
+        child->u.velocity.vx = (rcos(angle) * speed) >> 12;
+        child->u.velocity.vy = -(rand() % 30 + 20);
+        child->u.velocity.vz = (-rsin(angle) * speed) >> 12;
         child->Scale = rand() % 0x800 + 0x1000;
     }
     if (++effect->AnimationFrame >= 60) {
@@ -485,7 +497,7 @@ static void Choco0MoveModel(void) {
     s32 frame;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    if (D_80062D98 != 0) {
+    if (D_80062D98) {
         return;
     }
     frame = effect->AnimationFrame;
@@ -516,7 +528,7 @@ static void Choco0RenderStars(void) {
     s32 angle;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    angle = effect->u.vec.vy;
+    angle = effect->u.stars.Angle;
     for (i = 0; i < 4; i++) {
         choco0_scratch_svec->vx = effect->Pos.vx + ((rsin(angle) * 150) >> 12);
         choco0_scratch_svec->vy = effect->Pos.vy;
@@ -528,9 +540,9 @@ static void Choco0RenderStars(void) {
     if (D_80062D98 == 0) {
         if (++effect->AnimationFrame >= 35) {
             effect->StartFrame = -1;
-            return;
+        } else {
+            effect->u.stars.Angle += 0x40;
         }
-        effect->u.vec.vy += 0x40;
     }
 }
 
@@ -544,9 +556,9 @@ static void Choco0RenderSmoke(void) {
     if (D_80062D98 == 0) {
         if (++effect->AnimationFrame >= 16) {
             effect->StartFrame = -1;
-            return;
+        } else {
+            effect->Pos.vy += effect->u.velocity.vy;
         }
-        effect->Pos.vy += effect->u.vec.vy;
     }
 }
 
@@ -556,7 +568,7 @@ static void Choco0SpawnSmoke(void) {
     s32 i;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    if (D_80062D98 != 0) {
+    if (D_80062D98) {
         return;
     }
     for (i = 0; i < 3; i++) {
@@ -564,9 +576,9 @@ static void Choco0SpawnSmoke(void) {
         child->Pos.vx = rand() % 4000 - 2000;
         child->Pos.vy = 0;
         child->Pos.vz = rand() % 3000 - 3000;
-        child->u.vec.vx = 0;
-        child->u.vec.vy = -(rand() % 30 + 20);
-        child->u.vec.vz = 0;
+        child->u.velocity.vx = 0;
+        child->u.velocity.vy = -(rand() % 30 + 20);
+        child->u.velocity.vz = 0;
         child->Scale = rand() % 0x2000 + 0x1000;
     }
     if (++effect->AnimationFrame >= 50) {
@@ -606,7 +618,7 @@ static void Choco0AnimationUpdate(void) {
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     CompMatrix(&D_800FA63C.m, &choco0_scene_matrix, &choco0_view_matrix);
-    if (D_80062D98 != 0) {
+    if (D_80062D98) {
         return;
     }
     frame = effect->AnimationFrame;
