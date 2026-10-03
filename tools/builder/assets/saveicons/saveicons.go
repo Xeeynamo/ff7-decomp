@@ -58,6 +58,14 @@ func count(m assets.Metadata) (int, error) {
 	return 0, fmt.Errorf("icon count %v is not an integer", m.Args[0])
 }
 
+func owner(m assets.Metadata) (string, bool) {
+	if len(m.Args) < 2 {
+		return "", false
+	}
+	name, ok := m.Args[1].(string)
+	return name, ok
+}
+
 func timPath(m assets.Metadata, i int) string {
 	return filepath.Join(m.AssetDir, m.Name, fmt.Sprintf("%02d.tim", i))
 }
@@ -152,6 +160,13 @@ func (SaveIcons) Timestamp(m assets.Metadata) time.Time {
 }
 
 func (SaveIcons) SplatEntry(m assets.Metadata) map[string]any {
+	if name, ok := owner(m); ok {
+		return map[string]any{
+			"start": m.Start,
+			"type":  ".data",
+			"name":  name,
+		}
+	}
 	return map[string]any{
 		"start":   m.Start,
 		"type":    "databin",

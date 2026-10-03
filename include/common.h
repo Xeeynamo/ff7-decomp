@@ -21,8 +21,10 @@ __asm__(".include \"macro.inc\"\n");
                 "\t.set reorder # maspsx-keep\n"                                                                       \
                 "\t.set at # maspsx-keep\n");                                                                          \
     }
+#define INCLUDE_DATA(PATH) __asm__(".include \"asm/us/" PATH ".s\"\n")
 #else
 #define INCLUDE_ASM(FOLDER, NAME)
+#define INCLUDE_DATA(PATH)
 #endif
 
 typedef signed char s8;

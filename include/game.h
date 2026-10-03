@@ -263,20 +263,20 @@ typedef struct {
 } LinePos;
 
 typedef struct {
-    s16 colOffset;       // Horizontal scroll offset (left visible column).
-    s16 rowOffset;       // Vertical scroll offset (top visible row).
-    s16 numTotalColumns; // Total columns in table.
-    s16 numTotalRows;    // Total rows in table.
-    s16 scrolling;       // Scroll animation direction / active state (0=idle).
-    s8 column;           // Selected column index.
-    s8 row;              // Selected row index.
-    s8 numColumns;       // Visible columns per page.
-    s8 numRowsPerPage;   // Visible rows per page.
-    s8 scrollAnimX;      // Horizontal scroll animation pixel offset.
-    s8 scrollAnimY;      // Vertical smooth-scroll animation pixel offset.
-    s8 wrapModeX;        // Horizontal wrap mode (0=clamp, 1=wrap column, 2=wrap row).
-    s8 wrapModeY;        // Vertical scroll/wrap mode (0=scroll, 1/2=wrap, 3+=infinite).
-} MenuTable;             // size: 0x12
+    /* 0x00 */ s16 colOffset;       // Horizontal scroll offset (left visible column).
+    /* 0x02 */ s16 rowOffset;       // Vertical scroll offset (top visible row).
+    /* 0x04 */ s16 numTotalColumns; // Total columns in table.
+    /* 0x06 */ s16 numTotalRows;    // Total rows in table.
+    /* 0x08 */ s16 scrolling;       // Scroll animation direction / active state (0=idle).
+    /* 0x0A */ s8 column;           // Selected column index.
+    /* 0x0B */ s8 row;              // Selected row index.
+    /* 0x0C */ s8 numColumns;       // Visible columns per page.
+    /* 0x0D */ s8 numRowsPerPage;   // Visible rows per page.
+    /* 0x0E */ s8 scrollAnimX;      // Horizontal scroll animation pixel offset.
+    /* 0x0F */ s8 scrollAnimY;      // Vertical smooth-scroll animation pixel offset.
+    /* 0x10 */ s8 wrapModeX;        // Horizontal wrap mode (0=clamp, 1=wrap column, 2=wrap row).
+    /* 0x11 */ s8 wrapModeY;        // Vertical scroll/wrap mode (0=scroll, 1/2=wrap, 3+=infinite).
+} MenuTable;                        // size: 0x12
 
 typedef struct {
     /* 0x0 */ s16 visibleRows; // rows shown at once, sets slider length

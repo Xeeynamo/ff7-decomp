@@ -109,6 +109,9 @@ void rewrite_line(FILE* out, const char* line) {
                 line = remap_string(out, padding, fill, next);
                 continue; // catch more macro at the same line
             }
+            fwrite(line, 1, begin + 2 - line, out);
+            line = begin + 2;
+            continue;
         }
         // write the rest of the string and returns
         fputs(line, out);
@@ -185,6 +188,7 @@ int test() {
                                                      "0x26, 0x26, 0x17, 0xFF};");
     r |= test_str("char str[] = _SL(10, \"test\");", "char str[] = {0x54, 0x45, 0x53, 0x54, 0xFF, 0, 0, 0, 0, 0};");
     r |= test_str("char str[] = _SL(0xA, \"test\");", "char str[] = {0x54, 0x45, 0x53, 0x54, 0xFF, 0, 0, 0, 0, 0};");
+    r |= test_str("u8 g_SaveLevel[] = _S(\"Level\");", "u8 g_SaveLevel[] = {0x2C, 0x45, 0x56, 0x45, 0x4C, 0xFF};");
     r |= test_str("_S(99, \"invalid\")", "_S(99, \"invalid\")");
     r |= test_str("_SL(0, \"invalid\")", "_SL(0, \"invalid\")");
     r |= test_str("_SL(\"invalid\")", "_SL(\"invalid\")");

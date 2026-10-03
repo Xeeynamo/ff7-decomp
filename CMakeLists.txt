@@ -109,6 +109,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE psyz m ZLIB::ZLIB)
 target_include_directories(${PROJECT_NAME} PRIVATE include src/pc)
 target_compile_definitions(${PROJECT_NAME} PRIVATE SKIP_ASM=1 NON_MATCHINGS FF7_STR VERSION_PC)
 target_compile_options(${PROJECT_NAME} PRIVATE
+    -Wa,-I${CMAKE_CURRENT_SOURCE_DIR}
     -Wno-implicit-function-declaration
     -Wno-int-conversion
     -Wno-return-mismatch

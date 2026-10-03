@@ -126,75 +126,40 @@ typedef struct {
 
 #define SAVE_ICON_SIZE 0x3F6
 
-extern s32 D_801D4EC4;
-extern MenuRect D_801D4EC8;
-extern MenuRect D_801D4ED0;
 extern u8 buster_tim[];
-extern u8 D_801E2DF8;
-extern u8 D_801E2E1C;
-extern u8 D_801DEEDC;
-extern s32 D_801DEEF4;
-extern RECT D_801DEEFC;
-extern u8 D_801E2EAC[];
 extern StartMenuMode g_MenuStartMode;
-extern s32 D_801E3440;
-extern s32 D_801E3530;
-extern RECT g_SaveSlotWindowRects[3];
+extern s32 g_TitleFadeBrightness;
+extern unsigned char g_SaveLabels[][0x24];
+extern unsigned char g_SaveFormatStrings[][0x30];
+extern unsigned char g_SaveErrorStrings[][0x30];
+
+extern s32 g_TitleResult;
+extern u8 D_801E369C[4];
 extern s32 D_801E36A0;
 extern s32 D_801E36A4;
 extern s32 D_801E36A8;
 extern s32 D_801E36AC;
-extern u8 g_TitleDefaultWindowColors[NUM_MENU_COLOR]; // 4 corners x RGB
-extern u8 g_SaveLevelLabel[];                         // "Level" label
-extern s32 g_TitleResult;
 extern s32 D_801E36B0;
-extern s32 D_801E36B8;
 extern s32 D_801E36B4;
+extern s32 D_801E36B8;
 extern DRAWENV D_801E36BC[2];
 extern DISPENV D_801E3774[2];
 extern Menus menus;
+extern u8 D_801E382C[0x24];
+extern s32 D_801E3850;
 extern OT_TYPE* D_801E3854;
 extern OT_TYPE* D_801E3858[2][1];
-extern SaveHeader D_801E3864[];
-extern s32 g_SaveSlot;
-extern s32 g_TitleFadeBrightness;
-extern s32 g_TitleFadeState;
-extern s32 g_TitleBufferIndex;
-extern OT_TYPE* g_TitleActiveOT;
-extern OT_TYPE* g_TitleOrderingTable[2][4];
-extern MenuTable g_TitleButtonTables[2];
-extern DRAWENV g_TitleDrawEnv[2];
-extern DISPENV g_TitleDispEnv[2];
-extern s32 g_SaveCharClutBackup[];
-extern s32 g_SaveFontVramBackup[];
-// FF7 char code -> 2-byte Shift-JIS, byte-indexed; digits start at 0x20
-extern u8 g_ShiftJisTable[];
-// Card icons, SAVE_ICON_SIZE each: CLUT at 0x00, bitmap at 0x2C
-extern u8 g_SaveIcons[];
-
-// staged, then copied into g_SaveFile
-extern MemcardFileHeader g_SaveFileHeader;
-// the 8 KiB block written to the card
-extern MemcardSaveFile g_SaveFile;
-extern u8 g_SaveFileData[];
-// bytes still to write
-extern s32 g_SaveWriteRemaining;
-extern u8 g_MemCardSlotStatus[2][3];
-extern s32 D_801E3850;
 extern s32 D_801E3860;
-extern s32 g_SaveAvatarVramBackup[];
-extern u8 D_801E2E88;
-extern u8 D_801E3158;
-extern MenuRect g_TitleWindowRect;
-extern MenuTable g_TitleMenuTables[];
-extern s32 g_TitleScanUnk;
-extern s32 g_TitleTimer;
-extern s32 g_TitleScanInitial;
-extern s32 g_TitleScanFileIndex;
-
-extern unsigned char g_SaveLabels[][0x24];
-extern unsigned char g_SaveFormatStrings[][0x30];
-extern unsigned char g_SaveErrorStrings[][0x30];
+extern SaveHeader D_801E3864[15];
+extern s32 g_SaveSlot;
+extern u_long g_SaveCharClutBackup[0x183];
+extern u_long g_SaveFontVramBackup[0xA00];
+extern MemcardFileHeader g_SaveFileHeader;
+extern MemcardSaveFile g_SaveFile;
+extern u8 g_MemCardSlotStatus[2][3];
+extern u8 D_801E8F3E[2];
+extern s32 g_SaveWriteRemaining;
+extern u_long g_SaveAvatarVramBackup[0xB40];
 
 s32 SysGetHoursFromSeconds(s32 seconds);
 s32 SysGetMinutesFromSeconds(s32 seconds);
@@ -210,4 +175,4 @@ static s16 SaveCheckFile(s32 save_id);
 void SaveFetchAllCardStatus(s32 arg0);
 s32 SaveFetchHeader(s32 cardId, s32 slotId);
 void SaveDrawSlot(s32 x, s32 y, s32 slotIndex);
-void SaveHandleScrollCursor(MenuTable* table);
+void SaveHandleScrollCursor(MenuTable* menu);
