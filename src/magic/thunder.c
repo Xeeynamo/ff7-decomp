@@ -34,13 +34,13 @@ extern ThunderData g_BattleEffectSlots[];
 extern u8 g_ThunderPrimBuffer[2][MAGIC_PAGE_SIZE];
 extern u_long g_ThunderTexture[]; // 8bpp TIM + CLUT, uploaded on setup
 extern s32 g_ThunderModel[];
-extern s32 g_ThunderRenderData0[];
-extern s32 g_ThunderRenderData1[];
+extern SpriteAnim g_ThunderRenderData0;
+extern SpriteAnim g_ThunderRenderData1;
 
 static MATRIX thunder_model_matrix = {0};
 static ModelRenderDesc thunder_model_desc = {g_ThunderModel, MODEL_SEMI_TRANS, 0, GREY_FULL, 0x20};
-static SpriteRenderDesc thunder_render_desc0 = {g_ThunderRenderData0, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
-static SpriteRenderDesc thunder_render_desc1 = {g_ThunderRenderData1, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
+static SpriteRenderDesc thunder_render_desc0 = {&g_ThunderRenderData0, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
+static SpriteRenderDesc thunder_render_desc1 = {&g_ThunderRenderData1, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
 
 static void ThunderMainSetup(s32 targetMask, s32 callbackArg);
 
@@ -70,7 +70,7 @@ static void ThunderRenderModel(void) {
     CompMatrix(&D_800FA63C.m, &thunder_model_matrix, &matrix);
     SetRotMatrix(&matrix);
     SetTransMatrix(&matrix);
-    g_ThunderBufferPtr = func_800D29D4(&thunder_model_desc, g_cDb->unk70, 0xC, g_ThunderBufferPtr);
+    g_ThunderBufferPtr = func_800D29D4(&thunder_model_desc, g_cDb->unk70, 12, g_ThunderBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         effect->Scale += effect->ScaleStep;
@@ -83,7 +83,7 @@ static void ThunderRenderImpact(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     func_800D4368(&effect->Pos, 0x2000, effect->DepthBias);
     thunder_render_desc0.frameIndex = effect->AnimationFrame >> 1;
-    g_ThunderBufferPtr = func_800D4D90(&thunder_render_desc0, g_cDb->unk70, 0xC, g_ThunderBufferPtr);
+    g_ThunderBufferPtr = func_800D4D90(&thunder_render_desc0, g_cDb->unk70, 12, g_ThunderBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame == 9) {
@@ -107,7 +107,7 @@ static void ThunderRenderSpark(void) {
     SetRotMatrix(matrix);
     SetTransMatrix(matrix);
     thunder_render_desc1.frameIndex = effect->AnimationFrame;
-    g_ThunderBufferPtr = func_800D4D90(&thunder_render_desc1, g_cDb->unk70, 0xC, g_ThunderBufferPtr);
+    g_ThunderBufferPtr = func_800D4D90(&thunder_render_desc1, g_cDb->unk70, 12, g_ThunderBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame == 8) {

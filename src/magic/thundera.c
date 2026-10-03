@@ -25,12 +25,12 @@ extern ThunderaData g_BattleEffectSlots[];
 extern u8 g_ThunderaPrimBuffer[2][MAGIC_PAGE_SIZE];
 extern u_long g_ThunderaTexture[];
 extern s32 g_ThunderaModel[];
-extern s32 g_ThunderaRenderData0[];
-extern s32 g_ThunderaRenderData1[];
-extern s32 g_ThunderaRenderData2[];
-extern s32 g_ThunderaRenderData3[];
+extern SpriteAnim g_ThunderaRenderData0;
+extern SpriteAnim g_ThunderaRenderData1;
+extern SpriteAnim g_ThunderaRenderData2;
+extern SpriteAnim g_ThunderaRenderData3;
 
-static SpriteRenderDesc thundera_render_desc = {g_ThunderaRenderData3, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
+static SpriteRenderDesc thundera_render_desc = {&g_ThunderaRenderData3, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
 static MATRIX thundera_matrix = {{{0x2000, 0, 0}, {0, 0x2000, 0}, {0, 0, 0x2000}}, {0, 0, 0}};
 
 static void ThunderaMainSetup(s32 targetMask, s32 callbackArg);
@@ -64,7 +64,7 @@ static void ThunderaRenderModel(void) {
     desc->color = grey;
     desc->tpage = 0x20;
     desc->clut = 0;
-    g_ThunderaBufferPtr = func_800D29D4(desc, g_cDb->unk70, 0xC, g_ThunderaBufferPtr);
+    g_ThunderaBufferPtr = func_800D29D4(desc, g_cDb->unk70, 12, g_ThunderaBufferPtr);
     if (D_80062D98 == 0) {
         effect->Scale += effect->ScaleStep;
         effect->ScaleStep -= effect->ScaleStep >> 2;
@@ -82,7 +82,7 @@ static void ThunderaRenderFlash(void) {
     s32 shade;
 
     desc = (SpriteRenderDesc*)0x1F800000;
-    desc->frames = g_ThunderaRenderData0;
+    desc->frames = &g_ThunderaRenderData0;
     desc->frameIndex = 0;
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     frame = effect->AnimationFrame;
@@ -90,7 +90,7 @@ static void ThunderaRenderFlash(void) {
     desc->color.cd = 0x2C;
     desc->color.r = desc->color.g = desc->color.b = shade;
     func_800D4368(&effect->Pos, 0x2000, effect->DepthBias);
-    g_ThunderaBufferPtr = func_800D4D90(desc, g_cDb->unk70, 0xC, g_ThunderaBufferPtr);
+    g_ThunderaBufferPtr = func_800D4D90(desc, g_cDb->unk70, 12, g_ThunderaBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame == 4) {
@@ -105,7 +105,7 @@ static void ThunderaRenderImpact(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     func_800D4368(&effect->Pos, 0x3000, effect->DepthBias);
     thundera_render_desc.frameIndex = effect->AnimationFrame >> 1;
-    g_ThunderaBufferPtr = func_800D4D90(&thundera_render_desc, g_cDb->unk70, 0xC, g_ThunderaBufferPtr);
+    g_ThunderaBufferPtr = func_800D4D90(&thundera_render_desc, g_cDb->unk70, 12, g_ThunderaBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame == 16) {
@@ -138,14 +138,14 @@ static void ThunderaRenderSpark(void) {
     SetRotMatrix(&thundera_matrix);
     SetTransMatrix(&thundera_matrix);
     if (effect->Flags & 4) {
-        desc->frames = g_ThunderaRenderData1;
+        desc->frames = &g_ThunderaRenderData1;
     } else {
-        desc->frames = g_ThunderaRenderData2;
+        desc->frames = &g_ThunderaRenderData2;
     }
     // written as one word; four byte stores do not match
     *(u32*)&desc->color = 0x2C808080;
     desc->frameIndex = effect->AnimationFrame;
-    g_ThunderaBufferPtr = func_800D4D90(desc, g_cDb->unk70, 0xC, g_ThunderaBufferPtr);
+    g_ThunderaBufferPtr = func_800D4D90(desc, g_cDb->unk70, 12, g_ThunderaBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame == 8) {

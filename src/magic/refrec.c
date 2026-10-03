@@ -68,7 +68,7 @@ static void RefrecRenderModel(void) {
     SetTransMatrix(&matrix);
     SetFarColor(0, 0, 0);
     refrec_render_desc.color = fade;
-    g_RefrecBufferPtr = func_800D29D4(&refrec_render_desc, g_cDb->unk70, 0xC, g_RefrecBufferPtr);
+    g_RefrecBufferPtr = func_800D29D4(&refrec_render_desc, g_cDb->unk70, 12, g_RefrecBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame >= RING_LIFETIME) {

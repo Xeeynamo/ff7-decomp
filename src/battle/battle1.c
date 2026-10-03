@@ -44,6 +44,28 @@ void func_800C62F4(s32);
 static void func_800BC81C(s16 arg0, s16 arg1);
 static void BattleLoadSecondEnemy(void);
 static void func_800B950C(void);
+void func_800C64D4(void);
+void func_800C679C(void);
+void func_800C74E4(void);
+
+// MAGIC/ summon entrypoints that are not named yet
+Unk800F57D0* func_801B0038(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040_2(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040_3(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040_4(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040_5(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040_6(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040_7(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040_8(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040_9(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040_10(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040_11(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040_12(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0040_13(s32 targetMask, s32 callbackArg);
+void func_801B0050(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0054(s32 targetMask, s32 callbackArg);
+Unk800F57D0* func_801B0060(s32 targetMask, s32 callbackArg);
 
 void BattleNormalStartSeq(void) {
     s32 i;
@@ -544,7 +566,7 @@ void func_800B8438(void) {
     SetFarColor(0, 0, 0);
     func_800BC538();
     func_800BC348();
-    func_800BB75C(&D_800FA63C, &D_800FA958, &D_80158D00, &D_801031E8);
+    func_800BB75C(&D_800FA63C, &D_800FA958, &g_BattleCameraPos, &g_BattleCameraTarget);
     func_800C627C();
 }
 
@@ -1172,7 +1194,6 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BFF88);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0088);
 
-void BattleEntityGetCenter(s16, s16*);
 void func_800C0DD8(s16, s32, s32);
 s32 func_800C0314(s32, s32);
 
@@ -1613,15 +1634,102 @@ static void func_800C627C(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C62F4);
 
-void func_800C679C(void);
-
 void func_800C64AC(void) { BattleEffectRegister(func_800C679C); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C64D4);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C6628);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C679C);
+void func_800C679C(void) {
+    s32 i;
+
+    D_80162098 = 0;
+    switch (g_BattleEffectSlots[g_BattleEffectCursor].D_8016297A) {
+    case 0:
+        g_BattleEffectSlots[g_BattleEffectCursor].D_8016297A++;
+        g_BattleEffectSlots[g_BattleEffectCursor].D_8016297C = 14;
+        D_800F8374 = 14;
+        func_800BBA40(0x29);
+        for (i = 0; i < NUM_PARTY; i++) {
+            g_BattleModels[i].animControlFlags |= 2;
+        }
+        if (D_800FA6D0 == 4) {
+            func_800C64D4();
+        }
+        break;
+    case 1:
+        if (g_BattleEffectSlots[g_BattleEffectCursor].D_8016297C == 0) {
+            D_800FAFDC = 1;
+            g_BattleModels[0].specialFlags |= 2;
+            g_BattleModels[1].specialFlags |= 2;
+            g_BattleModels[2].specialFlags |= 2;
+            g_BattleEffectSlots[g_BattleEffectCursor].D_8016297C = 45;
+            g_BattleEffectSlots[g_BattleEffectCursor].D_8016297A++;
+            switch (g_BattleModels[D_801590CC].attackEffectId) {
+            case SUMMON_VAHAMUT:
+                D_800F57D0 = func_801B0040_5(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_ODIN2:
+                D_800F57D0 = func_801B0040_3(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_ODIN1:
+                D_800F57D0 = func_801B0040_13(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_HADES:
+                D_800F57D0 = func_801B0040_10(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_CHOCO0:
+                D_800F57D0 = MAGIC_Choco0(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_TITAN:
+                D_800F57D0 = func_801B0040_2(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_RIVA:
+                D_800F57D0 = func_801B0040_4(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_SIVA:
+                D_800F57D0 = func_801B0054(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_IFLEET:
+                D_800F57D0 = func_801B0040(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_LAMU:
+                D_800F57D0 = func_801B0038(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_PHOENIX:
+                D_800F57D0 = func_801B0040_8(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_KUJATA:
+                D_800F57D0 = func_801B0040_6(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_TUPON:
+                D_800F57D0 = func_801B0040_11(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_ALEX:
+                D_800F57D0 = func_801B0040_7(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_VAHAMUT2:
+                D_800F57D0 = func_801B0040_9(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_VAHAMUT0:
+                D_800F57D0 = func_801B0060(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_DEBUCHO:
+                D_800F57D0 = func_801B0040_12(g_BattleCurrentTargetMask, D_801590CC);
+                break;
+            case SUMMON_KNIGHTS:
+                func_801B0050(g_BattleCurrentTargetMask, D_801590CC);
+                g_BattleEffectSlots[g_BattleEffectCursor].D_80162978 = -1;
+                return;
+            }
+            func_800C74E4();
+            g_BattleModels[3].specialFlags |= 0x10;
+            g_BattleEffectSlots[g_BattleEffectCursor].D_80162978 = -1;
+        } else {
+            g_BattleEffectSlots[g_BattleEffectCursor].D_8016297C--;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C6CB8);
 

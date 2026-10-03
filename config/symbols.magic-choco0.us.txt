@@ -1,0 +1,4 @@
+MAGIC_Choco0 = 0x801B0038;
+g_Choco0StarFrames = 0x801D2554; // size:0x20
+g_Choco0PuffFrames = 0x801D2574; // size:0x40
+g_Choco0SwirlEyeFrames = 0x801D25B4; // size:0xC8
