@@ -161,7 +161,7 @@ s32 g_TutorialActive;
 WeaponRecord g_WeaponTable[256];
 u8 menus[0x90];
 
-int delete () { return 0; }
+int delete() { return 0; }
 int func_801D131C() {
     NOT_IMPLEMENTED;
     return 0;
