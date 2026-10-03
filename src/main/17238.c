@@ -551,13 +551,39 @@ s32 SysGetMateriaActivatedStars(u8 arg0, s32 arg1) {
     return found;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", func_8001AE08);
+void func_8001AE08(void) {
+    if (D_80062E6C[0] > 32) {
+        D_80062E6C[0] = 32;
+    }
+    if (D_80062E6C[2] > 32) {
+        D_80062E6C[2] = 32;
+    }
+    if (D_80062E6C[1] > 255) {
+        D_80062E6C[1] = 255;
+    }
+    if (D_80062E74 > 255) {
+        D_80062E74 = 255;
+    }
+    D_80062E60->gilBonus += D_80062E6C[0];
+    D_80062E60->encounterRate += D_80062E6C[1];
+    D_80062E60->encounterDownRate += D_80062E74;
+    D_80062E60->chocoboChance += D_80062E6C[2];
+    D_80062E60->preemptiveChance += D_80062E6C[3];
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysCopyBoostedStatToUnitStructure);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaXb);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysCopySummonToUnitStructure);
+void SysCopySummonToUnitStructure(void) {
+    s32 i;
+
+    for (i = 0; i < 16; i++) {
+        D_80062E60->enabledMagic[56 + i].quadraAttacksLeft = D_800694B4[i];
+        D_80062E60->enabledMagic[56 + i].quadEnabled = D_800694C4[i];
+        D_80062E60->enabledMagic[56 + i].allAttacksLeft = D_800694D4[i];
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX9);
 
@@ -567,7 +593,26 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddCommandToTemp);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysRemoveStealIfMug);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysCopyAndSortCommand);
+void SysCopyAndSortCommand(void) {
+    s32 i;
+
+    D_80062E7C = 0;
+    D_80062E80 = 0;
+    SysRemoveStealIfMug();
+    for (i = 0; i < 16; i++) {
+        if (D_80069508[i].id != 0xFF) {
+            if (D_80069508[i].id == 2 && (u8)D_80062E8C == 2) {
+                D_80069508[i].id = 21;
+            }
+            if (D_80069508[i].id == 3 && (u8)D_80062E90 == 2) {
+                D_80069508[i].id = 22;
+            }
+            SysCopyCommandToUnitStructure(D_80069508[i].id, SysGetCommandOrder(D_80069508[i].id));
+            D_80062E7C++;
+        }
+    }
+    D_80062E60->unk21 = (D_80062E7C - 1) / 4 + 1;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysGetCommandOrder);
 
