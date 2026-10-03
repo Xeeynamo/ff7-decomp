@@ -622,6 +622,7 @@ static s32 inflate() {
     return 0;
 }
 
+#ifndef PLATFORM_PSYZ
 s32 Unzip(u8* src, u8* dst) {
     u8 buf[8];
     s32 cache[INFLATE_MEM_SIZE];
@@ -681,3 +682,4 @@ s32 Unzip(u8* src, u8* dst) {
     // than 2^31 - 1.
     return size;
 }
+#endif

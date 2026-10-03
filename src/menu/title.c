@@ -318,11 +318,7 @@ static s32 SaveWaitHwCardStatus(void) {
     }
 }
 
-#ifdef VERSION_PC
-static void SaveFetchCardStatus(s32 cardId) {
-#else
 static s32 SaveFetchCardStatus(s32 cardId) {
-#endif
     s32 chan;
 
     chan = (cardId != 0) * CARD_PORT_STRIDE;

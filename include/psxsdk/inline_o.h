@@ -1,9 +1,9 @@
 #ifndef INLINE_O_H
 #define INLINE_O_H
 
+#ifdef PLATFORM_PSYZ
 #include <libgte.h>
-
-#ifndef VERSION_PC
+#else
 /*
  * Type 1 functions
  */
