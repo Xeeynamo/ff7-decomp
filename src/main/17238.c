@@ -1,4 +1,5 @@
 //! PSYQ=3.3 CC1=2.6.3 G=8 COMM=true
+#include "game.h"
 #include "main_private.h"
 
 static u8 D_80062E54[8];
@@ -7,7 +8,7 @@ static ActiveCharacterData* D_80062E60; // Current active character.
 static u32 D_80062E64;
 static u32 D_80062E68;
 static s16 D_80062E6C[4];
-static u32 D_80062E74;
+static s16 D_80062E74;
 static u32 D_80062E78;
 static s32 D_80062E7C;
 static s32 D_80062E80;
@@ -35,6 +36,29 @@ s32 g_BattleCharIdToCharId[14] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 6, 7, 0, 0, 0};
 
 s32 SysGetMateriaActivatedStars(u8 arg0, s32 arg1);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
+void SysRemoveStealIfMug(void);
+void SysAddMateriaEquipStatBonus(u8 materiaId);
+static void SysAddMateriaX0(u8 materiaSubType, u8 materiaId, s32 materiaAp);
+void SysAddMateriaX1(u8 materiaSubType, u8 materiaId, s32 materiaAp);
+void SysAddMateriaX2(u8 materiaSubType, u8 materiaId, s32 materiaAp);
+void SysAddMateriaX3(u8 materiaSubType, u8 materiaId, s32 materiaAp);
+void SysAddMateriaX4(u8 arg0, s32 arg1);
+void SysAddMateriaX5(u8 materiaSubType, u8 materiaId, s32 materiaAp);
+void SysAddMateriaX6(u8 materiaId, s32 materiaAp);
+void SysAddMateriaX7(s32 arg0, s32 arg1, s32 arg2);
+void SysAddMateriaX8(void);
+void SysAddMateriaX9(u8 materiaId, s32 materiaAp);
+void SysAddMateriaXa(void);
+void SysAddMateriaXb(u8 materiaId, s32 materiaAp);
+void SysAddMateriaXc(void);
+u8 SysGetCommandOrder(u8 commandId);
+void SysCopyCommandToUnitStructure(u8 commandId, u8 order);
+void SysAddPairMateriaUnordered(u32 materia1, u32 materia2, u8 arg2, u8 arg3, u8 arg4);
+u8* GetPartySlotArmorMateriaSlots(s32 arg0);
+ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId);
+extern s16 D_80069548[];
+extern s16 D_80069538[];
+u8 D_80063020; // %gp_rel
 
 static s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
     *arg2 = arg0;
@@ -44,11 +68,184 @@ static s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", func_8001726C);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysCalcTotalLureGilPreempVal);
+void SysCalcTotalLureGilPreempVal(void) {
+    s32 i;
+    s32 encounterDown;
+    s32 encounterUp;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysInitPlayerStatFromMateria);
+    encounterUp = 0;
+    encounterDown = 0;
+    D_80062F18 = 16;
+    D_80062F19 = 16;
+    D_80062F1A = 0;
+    D_80062F1B = 16;
+    Savemap.memory_bank_1[0x7A] &= ~0x80;
+    for (i = 0; i < NUM_PARTY; i++) {
+        if (Savemap.partyID[i] != 0xFF) {
+            D_80062E60 = SysGetPartyPlayerStructureAddressByPartyId(i);
+            D_80062F18 += D_80062E60->gilBonus;
+            encounterUp += D_80062E60->encounterRate;
+            encounterDown += D_80062E60->encounterDownRate;
+            D_80062F1A += D_80062E60->chocoboChance;
+            D_80062F1B += D_80062E60->preemptiveChance;
+            if (D_80062E60->characterFlags & 1) {
+                Savemap.memory_bank_1[0x7A] |= 0x80;
+            }
+        }
+    }
+    if (encounterUp + 16 < encounterDown) {
+        D_80062F19 = 2;
+    } else {
+        D_80062F19 = encounterUp + 16 - encounterDown;
+    }
+    if (D_80062F18 > 32) {
+        D_80062F18 = 32;
+    }
+    if (D_80062F19 > 32) {
+        D_80062F19 = 32;
+    }
+    if (D_80062F1A > 32) {
+        D_80062F1A = 32;
+    }
+    if (D_80062F1B > 85) {
+        D_80062F1B = 85;
+    }
+    if (D_80062E5C) {
+        D_80062F1B |= 0x80;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMateriaWithSlotCheck);
+void SysInitPlayerStatFromMateria(s32 arg0) {
+    u32 materia1;
+    u32 materia2;
+    s32 mpCost;
+    s32 i;
+    u8 slot2;
+    u32* materia;
+    u8 slot1;
+    u8* armorSlots;
+    u8* slots;
+    u8 partyId;
+
+    partyId = arg0;
+    if (Savemap.partyID[partyId] == 0xFF) {
+        return;
+    }
+    slots = GetPartySlotArmorMateriaSlots(partyId);
+    D_80062E60 = SysGetPartyPlayerStructureAddressByPartyId(partyId);
+    SysInitPlayerTempStat(partyId, D_80062E60);
+    D_80063020 = 0;
+    materia = Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[partyId]]].materia_weapon;
+    for (i = 0; i < 8; i++) {
+        D_8006966C[i] = *materia++;
+    }
+    materia = Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[partyId]]].materia_armor;
+    for (i = 8; i < 16; i++) {
+        D_8006966C[i] = *materia++;
+    }
+    for (i = 0; i < 16; i++) {
+        SysParseMateriaEquip(D_8006966C[i]);
+    }
+    armorSlots = slots;
+    materia = D_8006966C;
+    for (i = 0; i < 4; i++) {
+        materia1 = *materia++;
+        materia2 = *materia++;
+        SysAddPairMateriaWithSlotCheck(D_80062E60->weapon.materiaSlot[i * 2], D_80062E60->weapon.materiaSlot[i * 2 + 1],
+                                       materia1, materia2, 0, 0, 0);
+    }
+    materia = &D_8006966C[8];
+    for (i = 0; i < 4; i++) {
+        slot1 = *armorSlots++;
+        slot2 = *armorSlots++;
+        materia1 = *materia++;
+        materia2 = *materia++;
+        SysAddPairMateriaWithSlotCheck(slot1, slot2, materia1, materia2, 0, 0, 1);
+    }
+    SysCopyTempMagicToUnitStructure();
+    SysCopyAndSortCommand();
+    SysCopySummonToUnitStructure();
+    SysCopyBoostedStatToUnitStructure();
+    D_80069548[0] += D_80062E60->strength;
+    D_80069548[1] += D_80062E60->vitality;
+    D_80069548[2] += D_80062E60->magic;
+    D_80069548[3] += D_80062E60->spirit;
+    if (D_80069548[0] > 255) {
+        D_80069548[0] = 255;
+    }
+    if (D_80069548[1] > 255) {
+        D_80069548[1] = 255;
+    }
+    if (D_80069548[2] > 255) {
+        D_80069548[2] = 255;
+    }
+    if (D_80069548[3] > 255) {
+        D_80069548[3] = 255;
+    }
+    if (D_80069548[0] < 0) {
+        D_80069548[0] = 0;
+    }
+    if (D_80069548[1] < 0) {
+        D_80069548[1] = 0;
+    }
+    if (D_80069548[2] < 0) {
+        D_80069548[2] = 0;
+    }
+    if (D_80069548[3] < 0) {
+        D_80069548[3] = 0;
+    }
+    D_80062E60->physAttack = D_80069548[0];
+    D_80062E60->physDefence = D_80069548[1];
+    D_80062E60->magAttack = D_80069548[2];
+    D_80062E60->magDefence = D_80069548[3];
+    func_8001AE08();
+    for (i = 0; i < 16; i++) {
+        SysParseMegaallMateria(D_8006966C[i]);
+    }
+    SysSortMagicInUnitStructure(partyId);
+    for (i = 0; i < 72; i++) {
+        if (D_80062E60->enabledMagic[i].costModifier & 0xE0) {
+            mpCost =
+                D_80062E60->enabledMagic[i].mpCost +
+                (D_80062E60->enabledMagic[i].mpCost * ((D_80062E60->enabledMagic[i].costModifier & 0xE0) >> 5) / 10 +
+                 1);
+            if (mpCost > 255) {
+                mpCost = 255;
+            }
+            D_80062E60->enabledMagic[i].mpCost = mpCost;
+        }
+    }
+    if (D_80062E60->characterFlags & 8) {
+        i = D_80062E60->baseHp;
+        D_80062E60->baseHp = D_80062E60->baseMp;
+        D_80062E60->baseMp = i;
+    }
+    if (D_80062E60->baseHp < 10) {
+        D_80062E60->baseHp = 10;
+    }
+    if (D_80062E60->baseMp < 10) {
+        D_80062E60->baseMp = 10;
+    }
+    if (D_80062E60->baseHp < D_80062E60->hp) {
+        D_80062E60->hp = D_80062E60->baseHp;
+        Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[partyId]]].curHP = D_80062E60->hp;
+    }
+    if (D_80062E60->baseMp < D_80062E60->mp) {
+        D_80062E60->mp = D_80062E60->baseMp;
+        Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[partyId]]].curMP = D_80062E60->mp;
+    }
+    Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[partyId]]].hp_max = D_80062E60->baseHp;
+    Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[partyId]]].mp_max = D_80062E60->baseMp;
+}
+
+void SysAddPairMateriaWithSlotCheck(u8 slot1, u8 slot2, u32 materia1, u32 materia2, u8 arg4, u8 arg5, u8 arg6) {
+    if (slot1 == 2 && slot2 == 3) {
+        SysAddPairMateriaUnordered(materia1, materia2, arg4, arg5, arg6);
+    }
+    if (slot1 == 6 && slot2 == 7) {
+        SysAddPairMateriaUnordered(materia1, materia2, arg4, arg5, arg6);
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMateriaUnordered);
 
