@@ -735,6 +735,23 @@ overlays:
       - [0x7a4, data, brizara_model]
       - [0x8F78, .data, brizara]
       - [0x8F98, .bss, brizara]
+  # CHOCO0.BIN -- "Choco/Mog", the chocobo-and-moogle summon
+  - name: choco0
+    disk_path: disks/us/MAGIC/CHOCO0.BIN
+    sha1: 95578b626039a74f898479045a7ab394cc14c5ff
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    bss_size: 0xA0
+    migrate_rodata_to_functions: true
+    symbol_addrs_path:
+      - config/symbols.magic-choco0.us.txt
+    segments:
+      - [0, .rodata, choco0]
+      - [0x38, c, choco0]
+      - [0x2074, data, choco0_model]
+      - [0x35754, data, choco0_data]
+      - [0x35978, bss, choco0]
   # THUNDERA.BIN -- "Bolt2", the tier-2 lightning spell
   - name: thundera
     disk_path: disks/us/MAGIC/THUNDERA.BIN
