@@ -6,7 +6,7 @@
 #include "../battle/battle.h"
 #include <libc.h>
 
-// Choco/Mog, the chocobo-and-moogle summon.
+// Choco/Mog (チョコモグ), the chocobo-and-moogle summon.
 
 typedef struct {
     /* 0x00 */ s16 StartFrame;
@@ -37,7 +37,7 @@ typedef struct {
     /* 0x20 */ SVECTOR Step;     // the whole displacement for CAM_OP_EASE_TO
 } Choco0CameraPath;              // size:0x28
 
-extern s32* D_801D2574[];
+extern s32* g_Choco0PuffFrames[];
 extern Unk800F57D0 D_801D267C;
 extern u_long g_Choco0Texture[];
 extern s32 g_Choco0StarFrames[];
@@ -376,16 +376,16 @@ static void Choco0UpdateCamera(void) {
     }
 }
 
-static void func_801B103C(s16* script, MATRIX* arg1, s32 callbackArg) {
+static void Choco0SpawnCamera(s16* script, MATRIX* sceneMatrix, s32 callbackArg) {
     Choco0Data* effect;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(Choco0UpdateCamera)];
     effect->u.ptr.Script = script;
-    effect->u.ptr.unk10 = arg1;
+    effect->u.ptr.unk10 = sceneMatrix;
     effect->Scale = callbackArg;
 }
 
-static MATRIX* func_801B10A0(SVECTOR* pos, s32 scale, s32 depthBias) {
+static MATRIX* Choco0SetSpriteMatrix(SVECTOR* pos, s32 scale, s32 depthBias) {
     VECTOR dir;
     s32 flag;
 
@@ -404,12 +404,12 @@ static MATRIX* func_801B10A0(SVECTOR* pos, s32 scale, s32 depthBias) {
     return &choco0_sprite_matrix;
 }
 
-static void func_801B11BC(void) {
+static void Choco0RenderDust(void) {
     Choco0Data* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    func_801B10A0(&effect->Pos, effect->Scale, 0);
-    choco0_render_desc0.frames = D_801D2574[effect->AnimationFrame];
+    Choco0SetSpriteMatrix(&effect->Pos, effect->Scale, 0);
+    choco0_render_desc0.frames = g_Choco0PuffFrames[effect->AnimationFrame];
     D_80163C74 = func_800D4D90(&choco0_render_desc0, g_cDb->unk70, 12, D_80163C74);
     if (D_80062D98 == 0) {
         if (++effect->AnimationFrame >= 16) {
@@ -424,7 +424,7 @@ static void func_801B11BC(void) {
     }
 }
 
-static void func_801B12DC(void) {
+static void Choco0SpawnDust(void) {
     Choco0Data* effect;
     Choco0Data* child;
     s32 i;
@@ -432,22 +432,23 @@ static void func_801B12DC(void) {
     s32 angle;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    if (D_80062D98 == 0) {
-        for (i = 0; i < 3; i++) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B11BC)];
-            child->Pos.vx = choco0_unit_pos.vx;
-            child->Pos.vy = choco0_unit_pos.vy;
-            child->Pos.vz = choco0_unit_pos.vz;
-            speed = rand() % 100 + 100;
-            angle = rand() & 0x7FF;
-            child->u.vec.vx = (rcos(angle) * speed) >> 12;
-            child->u.vec.vy = -(rand() % 30 + 20);
-            child->u.vec.vz = (-rsin(angle) * speed) >> 12;
-            child->Scale = rand() % 0x800 + 0x1000;
-        }
-        if (++effect->AnimationFrame >= 60) {
-            effect->StartFrame = -1;
-        }
+    if (D_80062D98 != 0) {
+        return;
+    }
+    for (i = 0; i < 3; i++) {
+        child = &g_BattleEffectSlots[BattleEffectRegister(Choco0RenderDust)];
+        child->Pos.vx = choco0_unit_pos.vx;
+        child->Pos.vy = choco0_unit_pos.vy;
+        child->Pos.vz = choco0_unit_pos.vz;
+        speed = rand() % 100 + 100;
+        angle = rand() & 0x7FF;
+        child->u.vec.vx = (rcos(angle) * speed) >> 12;
+        child->u.vec.vy = -(rand() % 30 + 20);
+        child->u.vec.vz = (-rsin(angle) * speed) >> 12;
+        child->Scale = rand() % 0x800 + 0x1000;
+    }
+    if (++effect->AnimationFrame >= 60) {
+        effect->StartFrame = -1;
     }
 }
 
@@ -484,28 +485,29 @@ static void Choco0MoveModel(void) {
     s32 frame;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    if (D_80062D98 == 0) {
-        frame = effect->AnimationFrame;
-        if (frame < 60) {
-            choco0_unit_pos.vz = frame * 250 - 15000;
-        } else if ((frame -= 60) < 20) {
-            if (frame == 19) {
-                choco0_unit_pos.vz = -5000;
-                choco0_unit_pos.vx = -750;
-                g_BattleModels[3].rootRot.vy += 0x400;
-            }
-        } else if ((frame -= 20) >= 50) {
-            effect->StartFrame = -1;
-            return;
-        }
-        SetRotMatrix(&choco0_scene_matrix);
-        SetTransMatrix(&choco0_scene_matrix);
-        RotTrans(&choco0_unit_pos, choco0_scratch_vec, (s32*)(choco0_scratch_vec + 1));
-        g_BattleModels[3].rootTrans.vx = choco0_scratch_vec->vx;
-        g_BattleModels[3].rootTrans.vy = choco0_scratch_vec->vy;
-        g_BattleModels[3].rootTrans.vz = choco0_scratch_vec->vz;
-        effect->AnimationFrame++;
+    if (D_80062D98 != 0) {
+        return;
     }
+    frame = effect->AnimationFrame;
+    if (frame < 60) {
+        choco0_unit_pos.vz = frame * 250 - 15000;
+    } else if ((frame -= 60) < 20) {
+        if (frame == 19) {
+            choco0_unit_pos.vz = -5000;
+            choco0_unit_pos.vx = -750;
+            g_BattleModels[3].rootRot.vy += 0x400;
+        }
+    } else if ((frame -= 20) >= 50) {
+        effect->StartFrame = -1;
+        return;
+    }
+    SetRotMatrix(&choco0_scene_matrix);
+    SetTransMatrix(&choco0_scene_matrix);
+    RotTrans(&choco0_unit_pos, choco0_scratch_vec, (s32*)(choco0_scratch_vec + 1));
+    g_BattleModels[3].rootTrans.vx = choco0_scratch_vec->vx;
+    g_BattleModels[3].rootTrans.vy = choco0_scratch_vec->vy;
+    g_BattleModels[3].rootTrans.vz = choco0_scratch_vec->vz;
+    effect->AnimationFrame++;
 }
 
 static void Choco0RenderStars(void) {
@@ -520,7 +522,7 @@ static void Choco0RenderStars(void) {
         choco0_scratch_svec->vy = effect->Pos.vy;
         choco0_scratch_svec->vz = effect->Pos.vz + ((rcos(angle) * 150) >> 12);
         angle += 0x400;
-        func_801B10A0(choco0_scratch_svec, 0x500, 0);
+        Choco0SetSpriteMatrix(choco0_scratch_svec, 0x500, 0);
         D_80163C74 = func_800D4D90(&choco0_star_desc, g_cDb->unk70, 12, D_80163C74);
     }
     if (D_80062D98 == 0) {
@@ -532,12 +534,12 @@ static void Choco0RenderStars(void) {
     }
 }
 
-static void func_801B18BC(void) {
+static void Choco0RenderSmoke(void) {
     Choco0Data* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    func_801B10A0(&effect->Pos, effect->Scale, 0);
-    choco0_render_desc1.frames = D_801D2574[effect->AnimationFrame];
+    Choco0SetSpriteMatrix(&effect->Pos, effect->Scale, 0);
+    choco0_render_desc1.frames = g_Choco0PuffFrames[effect->AnimationFrame];
     D_80163C74 = func_800D4D90(&choco0_render_desc1, g_cDb->unk70, 12, D_80163C74);
     if (D_80062D98 == 0) {
         if (++effect->AnimationFrame >= 16) {
@@ -548,26 +550,27 @@ static void func_801B18BC(void) {
     }
 }
 
-static void func_801B1998(void) {
+static void Choco0SpawnSmoke(void) {
     Choco0Data* effect;
     Choco0Data* child;
     s32 i;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    if (D_80062D98 == 0) {
-        for (i = 0; i < 3; i++) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B18BC)];
-            child->Pos.vx = rand() % 4000 - 2000;
-            child->Pos.vy = 0;
-            child->Pos.vz = rand() % 3000 - 3000;
-            child->u.vec.vx = 0;
-            child->u.vec.vy = -(rand() % 30 + 20);
-            child->u.vec.vz = 0;
-            child->Scale = rand() % 0x2000 + 0x1000;
-        }
-        if (++effect->AnimationFrame >= 50) {
-            effect->StartFrame = -1;
-        }
+    if (D_80062D98 != 0) {
+        return;
+    }
+    for (i = 0; i < 3; i++) {
+        child = &g_BattleEffectSlots[BattleEffectRegister(Choco0RenderSmoke)];
+        child->Pos.vx = rand() % 4000 - 2000;
+        child->Pos.vy = 0;
+        child->Pos.vz = rand() % 3000 - 3000;
+        child->u.vec.vx = 0;
+        child->u.vec.vy = -(rand() % 30 + 20);
+        child->u.vec.vz = 0;
+        child->Scale = rand() % 0x2000 + 0x1000;
+    }
+    if (++effect->AnimationFrame >= 50) {
+        effect->StartFrame = -1;
     }
 }
 
@@ -603,61 +606,62 @@ static void Choco0AnimationUpdate(void) {
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     CompMatrix(&D_800FA63C.m, &choco0_scene_matrix, &choco0_view_matrix);
-    if (D_80062D98 == 0) {
-        frame = effect->AnimationFrame;
-        if (frame < 5) {
-            if (frame == 4) {
-                event = BattleEventQueuePush(1);
-                event[2] = 0;
-                event[3] = 0;
-                event[4] = choco0_scene_matrix.t[2] - 15000;
-                event[8] = choco0_scene_rot.vy + 0x800;
-            }
-        } else if ((frame -= 5) < 20) {
-            if (frame == 0) {
-                BattleEffectRegister(func_801B12DC);
-                BattleEffectRegister(Choco0MoveModel);
-                BattleAkaoCommand(AKAO_PLAY_THREE_SOUNDS, AKAO_PAN_CENTER, SFX_24D, SFX_24E, SFX_24F);
-            }
-        } else if ((frame -= 20) < 20) {
-        } else if ((frame -= 20) < 20) {
-        } else if ((frame -= 20) < 20) {
-            if (frame == 0) {
-                BattleEffectRegister(Choco0RenderBoom);
-                BattleEffectRegister(func_801B1998);
-            }
-            if (frame == 19) {
-                BattleEnqueueClearImage(&choco0_clear_rect, 0, 0, 0);
-            }
-            if (frame == 0) {
-                BattleAkaoCommand(AKAO_PLAY_THREE_SOUNDS, AKAO_PAN_CENTER, SFX_250, SFX_251, SFX_252);
-            }
-        } else if ((frame -= 20) < 25) {
-            if (frame == 0) {
-                child = &g_BattleEffectSlots[BattleEffectRegister(Choco0RenderStars)];
-                child->Pos.vx = 50;
-                child->Pos.vy = -500;
-                child->Pos.vz = -5000;
-                BattleEffectRegister(Choco0RenderSwirlEyes);
-            }
-        } else if ((frame -= 25) < 5) {
-        } else if ((frame -= 5) < 20) {
-            if (frame == 18) {
-                BattleEventQueuePush(2);
-            }
-        } else if ((frame -= 20) < 15) {
-            if (frame == 0) {
-                for (i = 0; i < 10; i++) {
-                    if ((choco0_target_mask >> i) & 1) {
-                        func_800D5774(i);
-                    }
+    if (D_80062D98 != 0) {
+        return;
+    }
+    frame = effect->AnimationFrame;
+    if (frame < 5) {
+        if (frame == 4) {
+            event = BattleEventQueuePush(1);
+            event[2] = 0;
+            event[3] = 0;
+            event[4] = choco0_scene_matrix.t[2] - 15000;
+            event[8] = choco0_scene_rot.vy + 0x800;
+        }
+    } else if ((frame -= 5) < 20) {
+        if (frame == 0) {
+            BattleEffectRegister(Choco0SpawnDust);
+            BattleEffectRegister(Choco0MoveModel);
+            BattleAkaoCommand(AKAO_PLAY_THREE_SOUNDS, AKAO_PAN_CENTER, SFX_24D, SFX_24E, SFX_24F);
+        }
+    } else if ((frame -= 20) < 20) {
+    } else if ((frame -= 20) < 20) {
+    } else if ((frame -= 20) < 20) {
+        if (frame == 0) {
+            BattleEffectRegister(Choco0RenderBoom);
+            BattleEffectRegister(Choco0SpawnSmoke);
+        }
+        if (frame == 19) {
+            BattleEnqueueClearImage(&choco0_clear_rect, 0, 0, 0);
+        }
+        if (frame == 0) {
+            BattleAkaoCommand(AKAO_PLAY_THREE_SOUNDS, AKAO_PAN_CENTER, SFX_250, SFX_251, SFX_252);
+        }
+    } else if ((frame -= 20) < 25) {
+        if (frame == 0) {
+            child = &g_BattleEffectSlots[BattleEffectRegister(Choco0RenderStars)];
+            child->Pos.vx = 50;
+            child->Pos.vy = -500;
+            child->Pos.vz = -5000;
+            BattleEffectRegister(Choco0RenderSwirlEyes);
+        }
+    } else if ((frame -= 25) < 5) {
+    } else if ((frame -= 5) < 20) {
+        if (frame == 18) {
+            BattleEventQueuePush(2);
+        }
+    } else if ((frame -= 20) < 15) {
+        if (frame == 0) {
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                if ((choco0_target_mask >> i) & 1) {
+                    func_800D5774(i);
                 }
             }
-        } else {
-            effect->StartFrame = -1;
         }
-        effect->AnimationFrame++;
+    } else {
+        effect->StartFrame = -1;
     }
+    effect->AnimationFrame++;
 }
 
 static void Choco0MainSetup(s32 targetMask, s32 callbackArg) {
@@ -674,8 +678,8 @@ static void Choco0MainSetup(s32 targetMask, s32 callbackArg) {
     RotMatrixYXZ(&choco0_scene_rot, &choco0_scene_matrix);
     BattleEffectRegister(Choco0AnimationUpdate);
     if (rand() & 0x100) {
-        func_801B103C(choco0_camera_script_a, &choco0_scene_matrix, callbackArg);
+        Choco0SpawnCamera(choco0_camera_script_a, &choco0_scene_matrix, callbackArg);
     } else {
-        func_801B103C(choco0_camera_script_b, &choco0_scene_matrix, callbackArg);
+        Choco0SpawnCamera(choco0_camera_script_b, &choco0_scene_matrix, callbackArg);
     }
 }
