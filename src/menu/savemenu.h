@@ -132,9 +132,6 @@ extern MenuRect D_801D4ED0;
 extern u8 buster_tim[];
 extern u8 D_801E2DF8;
 extern u8 D_801E2E1C;
-extern u8 D_801DEEDC;
-extern s32 D_801DEEF4;
-extern RECT D_801DEEFC;
 extern u8 D_801E2EAC[];
 extern StartMenuMode g_MenuStartMode;
 extern s32 D_801E3440;
@@ -164,8 +161,6 @@ extern DRAWENV g_TitleDrawEnv[2];
 extern DISPENV g_TitleDispEnv[2];
 extern s32 g_SaveCharClutBackup[];
 extern s32 g_SaveFontVramBackup[];
-// FF7 char code -> 2-byte Shift-JIS, byte-indexed; digits start at 0x20
-extern u8 g_ShiftJisTable[];
 // Card icons, SAVE_ICON_SIZE each: CLUT at 0x00, bitmap at 0x2C
 extern u8 g_SaveIcons[];
 
