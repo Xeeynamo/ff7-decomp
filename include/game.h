@@ -129,6 +129,9 @@ typedef enum {
     LBA_FIELD_FIELD = 55000,     // FIELD/FIELD.BIN
     LBA_FIELD_DSCHANGE = 126886, // FIELD/DSCHANGE.X
     LBA_FIELD_ENDING = 126889,   // FIELD/ENDING.X
+    LBA_MOVIE_STAFF = 128825,    // MOVIE/STAFF.BIN
+    LBA_MOVIE_STAFF2 = 129036,   // MOVIE/STAFF2.BIN
+    LBA_MOVIE_OPENING = 129179,  // MOVIE/OPENING.BIN
 } Lba;
 
 typedef enum {
@@ -1259,6 +1262,7 @@ typedef struct {
 } AkaoCmd;
 
 extern u8* D_8003623C;
+extern u8* D_80036240;
 extern u16 g_Pad0Keys;
 extern u16 g_Pad0KeysPressed;
 extern u16 g_Pad0KeysRepeat;
@@ -1439,7 +1443,7 @@ void SysMoviePlay(void* ptr, s16);
 void* SysCdromGetPackPointer(void* ptr, s32);
 void SysCdromSetLzsExtract(void* src, void* dst);
 s32 func_80034D5C(void);
-void func_80036244(void* anim, u16 frame);
+s32 func_80036244(void* anim, u16 frame);
 void func_800354CC(void);
 void MENU_LoadTim(u_long* addr, s32 px, s32 py, s32 cx, s32 cy);
 void MENU_SetWindowColors(u8* menuColors);
