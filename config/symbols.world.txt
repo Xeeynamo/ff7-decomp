@@ -271,3 +271,4 @@ WmGetModelTotalRenderPacketSize = 0x800C6598;
 D_800C6768 = 0x800C6768; // size:0x4
 D_800C676C = 0x800C676C; // size:0x4
 D_8010B434 = 0x8010B434; // size:0x48
+D_800C84F4 = 0x800C84F4; // size:0x80E8
