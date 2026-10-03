@@ -753,8 +753,8 @@ overlays:
       - [0, .rodata, choco0]
       - [0x38, c, choco0]
       - [0x2074, data, choco0_model]
-      - [0x35754, data, choco0_data]
-      - [0x35978, bss, choco0]
+      - [0x35754, .data, choco0]
+      - [0x35978, .bss, choco0]
   # THUNDERA.BIN -- "Bolt2", the tier-2 lightning spell
   - name: thundera
     disk_path: disks/us/MAGIC/THUNDERA.BIN

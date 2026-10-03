@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "magic.h"
+#include "magic_private.h"
 #include "../battle/battle.h"
 #include <libc.h>
 
@@ -18,7 +19,7 @@ typedef struct {
             /* 0x10 */ MATRIX* unk10;
         } ptr;
     } u;
-    /* 0x14 */ s16 unk14;
+    /* 0x14 */ s16 Scale; // the camera effect keeps the caster index here
     /* 0x16 */ s16 unk16;
     /* 0x18 */ s32 unk18;
     /* 0x1C */ s32 unk1C;
@@ -27,49 +28,108 @@ typedef struct {
 typedef struct {
     /* 0x00 */ s16 Opcode;
     /* 0x02 */ s16 FramesLeft;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
+    /* 0x04 */ s32 unk4; // distance to the other path, or ease progress
+    /* 0x08 */ s32 unk8; // per-frame change of unk4
     /* 0x0C */ s16 ActorIndex;
     /* 0x0E */ s16 PartIndex;
     /* 0x10 */ SVECTOR Pos;
-    /* 0x18 */ SVECTOR unk18;
-    /* 0x20 */ SVECTOR unk20;
-} Choco0CameraPath; // size:0x28
+    /* 0x18 */ SVECTOR StartPos; // the acceleration for CAM_OP_ACCEL_TO
+    /* 0x20 */ SVECTOR Step;     // the whole displacement for CAM_OP_EASE_TO
+} Choco0CameraPath;              // size:0x28
 
 extern s32* D_801D2574[];
 extern Unk800F57D0 D_801D267C;
 extern u_long g_Choco0Texture[];
-extern SVECTOR D_801E5754;
-extern SVECTOR D_801E575C;
-extern s16 D_801E5764[];
-extern s16 D_801E5804[];
-extern MATRIX D_801E5898;
-extern SpriteRenderDesc D_801E58B8;
-extern BattleSpriteDesc D_801E58C4;
-extern MATRIX D_801E58D4;
-extern VECTOR* D_801E58F4;
-extern SpriteRenderDesc D_801E58F8;
-extern SVECTOR* D_801E5904;
-extern SpriteRenderDesc D_801E5908;
-extern SVECTOR D_801E5914;
-extern SVECTOR D_801E591C;
-extern MATRIX D_801E5924;
-extern MATRIX D_801E5944;
-extern SpriteRenderDesc D_801E5964;
-extern RECT D_801E5970;
-extern Choco0CameraPath g_Choco0CameraEyePath;
-extern Choco0CameraPath g_Choco0CameraTargetPath;
-extern Choco0CameraPath* g_Choco0CameraPathCur;
-extern Choco0CameraPath* g_Choco0CameraPathOther;
-extern MATRIX D_801E59D0;
-extern MATRIX D_801E59F0;
-extern s32 g_Choco0TargetMask;
-extern s16 D_801E5A12[];
-
+extern s32 g_Choco0StarFrames[];
+extern s32 g_Choco0SwirlEyeFrames[];
 extern Choco0Data g_BattleEffectSlots[];
 extern void* D_80163C74;
 extern SVECTOR g_BattleCameraTarget;
 extern SVECTOR g_BattleCameraPos;
+
+static SVECTOR choco0_scene_rot = {0};
+static SVECTOR choco0_unit_pos = {0, 0, -15000, 0};
+static s16 choco0_camera_script_a[] = {
+    CAM_SET_POS(CAM_TARGET, 0, 0, -15000),
+    CAM_SET_POS(CAM_EYE, 0, -500, 5000),
+    CAM_HOLD(CAM_TARGET, 24),
+    CAM_HOLD(CAM_EYE, 24),
+    CAM_ATTACH(CAM_TARGET, 3, 0),
+    CAM_ATTACH(CAM_EYE, 3, 0),
+    CAM_SET_POS(CAM_TARGET, 0, 0, 0),
+    CAM_SET_POS(CAM_EYE, -500, -1000, 1000),
+    CAM_MOVE_TO(CAM_EYE, 20, -800, -1200, 3000),
+    CAM_MOVE_TO(CAM_EYE, 20, -2000, -1500, 5000),
+    CAM_HOLD(CAM_TARGET, 20),
+    CAM_HOLD(CAM_EYE, 20),
+    CAM_DETACH(CAM_TARGET),
+    CAM_DETACH(CAM_EYE),
+    CAM_SET_POS(CAM_TARGET, 0, 0, 0),
+    CAM_SET_POS(CAM_EYE, -5000, -5000, -5000),
+    CAM_HOLD(CAM_TARGET, 40),
+    CAM_HOLD(CAM_EYE, 40),
+    CAM_SET_POS(CAM_TARGET, 0, -200, -5000),
+    CAM_SET_POS(CAM_EYE, 0, -300, -7000),
+    CAM_HOLD(CAM_TARGET, 50),
+    CAM_HOLD(CAM_EYE, 50),
+    CAM_SET_POS(CAM_TARGET, 0, 0, 0),
+    CAM_SET_POS(CAM_EYE, -10000, -5000, -5000),
+    CAM_HOLD(CAM_TARGET, 15),
+    CAM_HOLD(CAM_EYE, 15),
+    CAM_END,
+    0, // pad
+};
+static s16 choco0_camera_script_b[] = {
+    CAM_SET_POS(CAM_TARGET, 0, 0, -15000),
+    CAM_SET_POS(CAM_EYE, 0, -1000, 5000),
+    CAM_HOLD(CAM_TARGET, 24),
+    CAM_HOLD(CAM_EYE, 24),
+    CAM_ATTACH(CAM_TARGET, 3, 0),
+    CAM_ATTACH(CAM_EYE, 3, 0),
+    CAM_SET_POS(CAM_TARGET, 0, 0, 1000),
+    CAM_SET_POS(CAM_EYE, -800, -500, 1000),
+    CAM_MOVE_TO(CAM_EYE, 20, -6000, -500, 2000),
+    CAM_HOLD(CAM_TARGET, 20),
+    CAM_HOLD(CAM_EYE, 20),
+    CAM_DETACH(CAM_TARGET),
+    CAM_DETACH(CAM_EYE),
+    CAM_SET_POS(CAM_TARGET, 0, 0, 0),
+    CAM_SET_POS(CAM_EYE, -2000, -2000, -7000),
+    CAM_HOLD(CAM_TARGET, 40),
+    CAM_HOLD(CAM_EYE, 40),
+    CAM_SET_POS(CAM_TARGET, 0, -200, -5000),
+    CAM_SET_POS(CAM_EYE, 0, -300, -7000),
+    CAM_HOLD(CAM_TARGET, 50),
+    CAM_HOLD(CAM_EYE, 50),
+    CAM_SET_POS(CAM_TARGET, 0, 0, 0),
+    CAM_SET_POS(CAM_EYE, -10000, -5000, -5000),
+    CAM_HOLD(CAM_TARGET, 15),
+    CAM_HOLD(CAM_EYE, 15),
+    CAM_END,
+};
+static MATRIX choco0_sprite_matrix = {0};
+static SpriteRenderDesc choco0_render_desc0 = {NULL, {0x80, 0x80, 0x80, 0x2E}, 0, 0};
+static BattleSpriteDesc choco0_screen_quad = {-128, -96, 0, 0, 255, 191, 0x80, 0x80, 0x80, 0x2C, 0x8D, 0x3FF0};
+static MATRIX choco0_screen_matrix = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}};
+static VECTOR* choco0_scratch_vec = (VECTOR*)0x1F800000;
+static SpriteRenderDesc choco0_star_desc = {g_Choco0StarFrames, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
+static SVECTOR* choco0_scratch_svec = (SVECTOR*)0x1F800000;
+static SpriteRenderDesc choco0_render_desc1 = {NULL, {0x80, 0x80, 0x80, 0x2E}, 0, 0};
+static SVECTOR choco0_left_eye_offset = {-50, 80, -90, 0};
+static SVECTOR choco0_right_eye_offset = {50, 80, -90, 0};
+static MATRIX choco0_left_eye_matrix = {{{0x200, 0, 0}, {0, 0x200, 0}, {0, 0, 0x200}}, {0, 0, 0}};
+static MATRIX choco0_right_eye_matrix = {{{0x200, 0, 0}, {0, 0x200, 0}, {0, 0, 0x200}}, {0, 0, 0}};
+static SpriteRenderDesc choco0_swirl_eye_desc = {g_Choco0SwirlEyeFrames, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
+static RECT choco0_clear_rect = {960, 0, 32, 64};
+
+static Choco0CameraPath choco0_camera_eye_path;
+static Choco0CameraPath choco0_camera_target_path;
+static Choco0CameraPath* choco0_camera_path_cur;
+static Choco0CameraPath* choco0_camera_path_other;
+static MATRIX choco0_scene_matrix;
+static MATRIX choco0_view_matrix;
+static s32 choco0_target_mask;
+static s16 choco0_camera_script_vars[2];
 
 static void Choco0MainSetup(s32 targetMask, s32 callbackArg);
 
@@ -78,239 +138,241 @@ Unk800F57D0* MAGIC_Choco0(s32 targetMask, s32 callbackArg) {
     return &D_801D267C;
 }
 
-static s32 func_801B0060(s16** arg0) {
-    s32 value;
-    s16* ptr;
+// A negative word -n reads script variable n - 1.
+static s32 Choco0ReadScriptValue(s16** script) {
+    s32 word;
+    s16* cursor;
 
-    ptr = *arg0;
-    *arg0 = ptr + 1;
-    value = *ptr;
-    if (value < 0) {
-        value = D_801E5A12[-value];
+    cursor = *script;
+    *script = cursor + 1;
+    word = *cursor;
+    if (word < 0) {
+        word = choco0_camera_script_vars[-word - 1];
     }
-    return value;
+    return word;
 }
 
 static void Choco0UpdateCamera(void) {
     Choco0Data* effect;
-    SVECTOR* sv0;
-    SVECTOR* sv8;
-    VECTOR* vec;
+    SVECTOR* delta;
+    SVECTOR* otherEnd;
+    VECTOR* worldPos;
     s32 i;
     u16 op;
     s32 t;
     u8 unused[0x100];
     s32 flag;
 
-    sv8 = (SVECTOR*)0x1F800008;
-    vec = (VECTOR*)0x1F800010;
+    otherEnd = (SVECTOR*)0x1F800008;
+    worldPos = (VECTOR*)0x1F800010;
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    sv0 = (SVECTOR*)0x1F800000;
+    delta = (SVECTOR*)0x1F800000;
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == 0) {
-            g_Choco0CameraEyePath.ActorIndex = -1;
-            g_Choco0CameraTargetPath.ActorIndex = -1;
-            g_Choco0CameraEyePath.FramesLeft = 0;
-            g_Choco0CameraTargetPath.FramesLeft = 0;
+            choco0_camera_eye_path.ActorIndex = -1;
+            choco0_camera_target_path.ActorIndex = -1;
+            choco0_camera_eye_path.FramesLeft = 0;
+            choco0_camera_target_path.FramesLeft = 0;
             effect->AnimationFrame = 1;
         }
-        while (g_Choco0CameraEyePath.FramesLeft == 0 || g_Choco0CameraTargetPath.FramesLeft == 0) {
+        while (choco0_camera_eye_path.FramesLeft == 0 || choco0_camera_target_path.FramesLeft == 0) {
             op = *effect->u.ptr.Script++;
-            if (op & 0x40) {
-                g_Choco0CameraPathCur = &g_Choco0CameraEyePath;
-                g_Choco0CameraPathOther = &g_Choco0CameraTargetPath;
+            if (op & CAM_EYE) {
+                choco0_camera_path_cur = &choco0_camera_eye_path;
+                choco0_camera_path_other = &choco0_camera_target_path;
             } else {
-                g_Choco0CameraPathCur = &g_Choco0CameraTargetPath;
-                g_Choco0CameraPathOther = &g_Choco0CameraEyePath;
+                choco0_camera_path_cur = &choco0_camera_target_path;
+                choco0_camera_path_other = &choco0_camera_eye_path;
             }
-            g_Choco0CameraPathCur->Opcode = op & 0xFF3F;
-            switch (g_Choco0CameraPathCur->Opcode) {
-            case 0:
-                g_Choco0CameraPathCur->FramesLeft = func_801B0060(&effect->u.ptr.Script);
+            choco0_camera_path_cur->Opcode = op & ~(CAM_EYE | CAM_TARGET);
+            switch (choco0_camera_path_cur->Opcode) {
+            case CAM_OP_HOLD:
+                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.ptr.Script);
                 break;
-            case 1:
-                g_Choco0CameraPathCur->Pos.vx = *effect->u.ptr.Script++;
-                g_Choco0CameraPathCur->Pos.vy = *effect->u.ptr.Script++;
-                g_Choco0CameraPathCur->Pos.vz = *effect->u.ptr.Script++;
+            case CAM_OP_SET_POS:
+                choco0_camera_path_cur->Pos.vx = *effect->u.ptr.Script++;
+                choco0_camera_path_cur->Pos.vy = *effect->u.ptr.Script++;
+                choco0_camera_path_cur->Pos.vz = *effect->u.ptr.Script++;
                 break;
-            case 2:
-                g_Choco0CameraPathCur->FramesLeft = func_801B0060(&effect->u.ptr.Script);
-                g_Choco0CameraPathCur->unk20.vx =
-                    (*effect->u.ptr.Script++ - g_Choco0CameraPathCur->Pos.vx) / g_Choco0CameraPathCur->FramesLeft;
-                g_Choco0CameraPathCur->unk20.vy =
-                    (*effect->u.ptr.Script++ - g_Choco0CameraPathCur->Pos.vy) / g_Choco0CameraPathCur->FramesLeft;
-                g_Choco0CameraPathCur->unk20.vz =
-                    (*effect->u.ptr.Script++ - g_Choco0CameraPathCur->Pos.vz) / g_Choco0CameraPathCur->FramesLeft;
+            case CAM_OP_MOVE_TO:
+                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.ptr.Script);
+                choco0_camera_path_cur->Step.vx =
+                    (*effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vx) / choco0_camera_path_cur->FramesLeft;
+                choco0_camera_path_cur->Step.vy =
+                    (*effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vy) / choco0_camera_path_cur->FramesLeft;
+                choco0_camera_path_cur->Step.vz =
+                    (*effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vz) / choco0_camera_path_cur->FramesLeft;
                 break;
-            case 3:
-                sv0->vx = g_Choco0CameraPathOther->Pos.vx - g_Choco0CameraPathCur->Pos.vx;
-                sv0->vy = g_Choco0CameraPathOther->Pos.vy - g_Choco0CameraPathCur->Pos.vy;
-                sv0->vz = g_Choco0CameraPathOther->Pos.vz - g_Choco0CameraPathCur->Pos.vz;
-                g_Choco0CameraPathCur->unk4 = SquareRoot0(sv0->vx * sv0->vx + sv0->vy * sv0->vy + sv0->vz * sv0->vz);
-                g_Choco0CameraPathCur->unk18 = g_Choco0CameraPathCur->Pos;
-                g_Choco0CameraPathCur->FramesLeft = func_801B0060(&effect->u.ptr.Script);
-                sv0->vx = *effect->u.ptr.Script++;
-                sv0->vy = *effect->u.ptr.Script++;
-                sv0->vz = *effect->u.ptr.Script++;
-                g_Choco0CameraPathCur->unk20.vx =
-                    (sv0->vx - g_Choco0CameraPathCur->Pos.vx) / g_Choco0CameraPathCur->FramesLeft;
-                g_Choco0CameraPathCur->unk20.vy =
-                    (sv0->vy - g_Choco0CameraPathCur->Pos.vy) / g_Choco0CameraPathCur->FramesLeft;
-                g_Choco0CameraPathCur->unk20.vz =
-                    (sv0->vz - g_Choco0CameraPathCur->Pos.vz) / g_Choco0CameraPathCur->FramesLeft;
-                if (g_Choco0CameraPathOther->Opcode == 2) {
-                    sv8->vx = g_Choco0CameraPathOther->Pos.vx +
-                              g_Choco0CameraPathOther->unk20.vx * g_Choco0CameraPathOther->FramesLeft;
-                    sv8->vy = g_Choco0CameraPathOther->Pos.vy +
-                              g_Choco0CameraPathOther->unk20.vy * g_Choco0CameraPathOther->FramesLeft;
-                    sv8->vz = g_Choco0CameraPathOther->Pos.vz +
-                              g_Choco0CameraPathOther->unk20.vz * g_Choco0CameraPathOther->FramesLeft;
+            case CAM_OP_DOLLY_TO:
+                delta->vx = choco0_camera_path_other->Pos.vx - choco0_camera_path_cur->Pos.vx;
+                delta->vy = choco0_camera_path_other->Pos.vy - choco0_camera_path_cur->Pos.vy;
+                delta->vz = choco0_camera_path_other->Pos.vz - choco0_camera_path_cur->Pos.vz;
+                choco0_camera_path_cur->unk4 =
+                    SquareRoot0(delta->vx * delta->vx + delta->vy * delta->vy + delta->vz * delta->vz);
+                choco0_camera_path_cur->StartPos = choco0_camera_path_cur->Pos;
+                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.ptr.Script);
+                delta->vx = *effect->u.ptr.Script++;
+                delta->vy = *effect->u.ptr.Script++;
+                delta->vz = *effect->u.ptr.Script++;
+                choco0_camera_path_cur->Step.vx =
+                    (delta->vx - choco0_camera_path_cur->Pos.vx) / choco0_camera_path_cur->FramesLeft;
+                choco0_camera_path_cur->Step.vy =
+                    (delta->vy - choco0_camera_path_cur->Pos.vy) / choco0_camera_path_cur->FramesLeft;
+                choco0_camera_path_cur->Step.vz =
+                    (delta->vz - choco0_camera_path_cur->Pos.vz) / choco0_camera_path_cur->FramesLeft;
+                if (choco0_camera_path_other->Opcode == CAM_OP_MOVE_TO) {
+                    otherEnd->vx = choco0_camera_path_other->Pos.vx +
+                                   choco0_camera_path_other->Step.vx * choco0_camera_path_other->FramesLeft;
+                    otherEnd->vy = choco0_camera_path_other->Pos.vy +
+                                   choco0_camera_path_other->Step.vy * choco0_camera_path_other->FramesLeft;
+                    otherEnd->vz = choco0_camera_path_other->Pos.vz +
+                                   choco0_camera_path_other->Step.vz * choco0_camera_path_other->FramesLeft;
                 } else {
-                    sv8->vx = g_Choco0CameraPathOther->Pos.vx;
-                    sv8->vy = g_Choco0CameraPathOther->Pos.vy;
-                    sv8->vz = g_Choco0CameraPathOther->Pos.vz;
+                    otherEnd->vx = choco0_camera_path_other->Pos.vx;
+                    otherEnd->vy = choco0_camera_path_other->Pos.vy;
+                    otherEnd->vz = choco0_camera_path_other->Pos.vz;
                 }
-                sv0->vx -= sv8->vx;
-                sv0->vy -= sv8->vy;
-                sv0->vz -= sv8->vz;
-                g_Choco0CameraPathCur->unk8 =
-                    (SquareRoot0(sv0->vx * sv0->vx + sv0->vy * sv0->vy + sv0->vz * sv0->vz) -
-                     g_Choco0CameraPathCur->unk4) /
-                    g_Choco0CameraPathCur->FramesLeft;
+                delta->vx -= otherEnd->vx;
+                delta->vy -= otherEnd->vy;
+                delta->vz -= otherEnd->vz;
+                choco0_camera_path_cur->unk8 =
+                    (SquareRoot0(delta->vx * delta->vx + delta->vy * delta->vy + delta->vz * delta->vz) -
+                     choco0_camera_path_cur->unk4) /
+                    choco0_camera_path_cur->FramesLeft;
                 break;
-            case 4:
-                g_Choco0CameraPathCur->FramesLeft = func_801B0060(&effect->u.ptr.Script);
-                sv0->vx = *effect->u.ptr.Script++ - g_Choco0CameraPathCur->Pos.vx;
-                sv0->vy = *effect->u.ptr.Script++ - g_Choco0CameraPathCur->Pos.vy;
-                sv0->vz = *effect->u.ptr.Script++ - g_Choco0CameraPathCur->Pos.vz;
-                g_Choco0CameraPathCur->unk18.vx =
-                    ((sv0->vx - g_Choco0CameraPathCur->unk20.vx * g_Choco0CameraPathCur->FramesLeft) * 2) /
-                    (g_Choco0CameraPathCur->FramesLeft * g_Choco0CameraPathCur->FramesLeft);
-                g_Choco0CameraPathCur->unk18.vy =
-                    ((sv0->vy - g_Choco0CameraPathCur->unk20.vy * g_Choco0CameraPathCur->FramesLeft) * 2) /
-                    (g_Choco0CameraPathCur->FramesLeft * g_Choco0CameraPathCur->FramesLeft);
-                g_Choco0CameraPathCur->unk18.vz =
-                    ((sv0->vz - g_Choco0CameraPathCur->unk20.vz * g_Choco0CameraPathCur->FramesLeft) * 2) /
-                    (g_Choco0CameraPathCur->FramesLeft * g_Choco0CameraPathCur->FramesLeft);
+            case CAM_OP_ACCEL_TO:
+                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.ptr.Script);
+                delta->vx = *effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vx;
+                delta->vy = *effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vy;
+                delta->vz = *effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vz;
+                choco0_camera_path_cur->StartPos.vx =
+                    ((delta->vx - choco0_camera_path_cur->Step.vx * choco0_camera_path_cur->FramesLeft) * 2) /
+                    (choco0_camera_path_cur->FramesLeft * choco0_camera_path_cur->FramesLeft);
+                choco0_camera_path_cur->StartPos.vy =
+                    ((delta->vy - choco0_camera_path_cur->Step.vy * choco0_camera_path_cur->FramesLeft) * 2) /
+                    (choco0_camera_path_cur->FramesLeft * choco0_camera_path_cur->FramesLeft);
+                choco0_camera_path_cur->StartPos.vz =
+                    ((delta->vz - choco0_camera_path_cur->Step.vz * choco0_camera_path_cur->FramesLeft) * 2) /
+                    (choco0_camera_path_cur->FramesLeft * choco0_camera_path_cur->FramesLeft);
                 break;
-            case 5:
-                g_Choco0CameraPathCur->FramesLeft = func_801B0060(&effect->u.ptr.Script);
-                g_Choco0CameraPathCur->unk4 = 0;
-                g_Choco0CameraPathCur->unk18.vx = g_Choco0CameraPathCur->Pos.vx;
-                g_Choco0CameraPathCur->unk18.vy = g_Choco0CameraPathCur->Pos.vy;
-                g_Choco0CameraPathCur->unk18.vz = g_Choco0CameraPathCur->Pos.vz;
-                g_Choco0CameraPathCur->unk8 = 0x1000 / g_Choco0CameraPathCur->FramesLeft;
-                g_Choco0CameraPathCur->unk20.vx = *effect->u.ptr.Script++ - g_Choco0CameraPathCur->Pos.vx;
-                g_Choco0CameraPathCur->unk20.vy = *effect->u.ptr.Script++ - g_Choco0CameraPathCur->Pos.vy;
-                g_Choco0CameraPathCur->unk20.vz = *effect->u.ptr.Script++ - g_Choco0CameraPathCur->Pos.vz;
+            case CAM_OP_EASE_TO:
+                choco0_camera_path_cur->FramesLeft = Choco0ReadScriptValue(&effect->u.ptr.Script);
+                choco0_camera_path_cur->unk4 = 0;
+                choco0_camera_path_cur->StartPos.vx = choco0_camera_path_cur->Pos.vx;
+                choco0_camera_path_cur->StartPos.vy = choco0_camera_path_cur->Pos.vy;
+                choco0_camera_path_cur->StartPos.vz = choco0_camera_path_cur->Pos.vz;
+                choco0_camera_path_cur->unk8 = 0x1000 / choco0_camera_path_cur->FramesLeft;
+                choco0_camera_path_cur->Step.vx = *effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vx;
+                choco0_camera_path_cur->Step.vy = *effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vy;
+                choco0_camera_path_cur->Step.vz = *effect->u.ptr.Script++ - choco0_camera_path_cur->Pos.vz;
                 break;
-            case 6:
-                g_Choco0CameraPathCur->ActorIndex = *effect->u.ptr.Script++;
-                if (g_Choco0CameraPathCur->ActorIndex == 0) {
-                    g_Choco0CameraPathCur->ActorIndex = effect->unk14;
+            case CAM_OP_ATTACH:
+                choco0_camera_path_cur->ActorIndex = *effect->u.ptr.Script++;
+                if (choco0_camera_path_cur->ActorIndex == 0) {
+                    choco0_camera_path_cur->ActorIndex = effect->Scale;
                 }
-                g_Choco0CameraPathCur->PartIndex = *effect->u.ptr.Script++;
+                choco0_camera_path_cur->PartIndex = *effect->u.ptr.Script++;
                 break;
-            case 7:
-                g_Choco0CameraPathCur->ActorIndex = -1;
+            case CAM_OP_DETACH:
+                choco0_camera_path_cur->ActorIndex = -1;
                 break;
             default:
                 effect->StartFrame = -1;
                 return;
             }
         }
-        g_Choco0CameraPathCur = &g_Choco0CameraEyePath;
-        g_Choco0CameraPathOther = &g_Choco0CameraTargetPath;
+        choco0_camera_path_cur = &choco0_camera_eye_path;
+        choco0_camera_path_other = &choco0_camera_target_path;
         for (i = 0; i < 2; i++) {
-            switch (g_Choco0CameraPathCur->Opcode) {
-            case 0:
-            case 1:
+            switch (choco0_camera_path_cur->Opcode) {
+            case CAM_OP_HOLD:
+            case CAM_OP_SET_POS:
                 break;
-            case 4:
-                g_Choco0CameraPathCur->unk20.vx += g_Choco0CameraPathCur->unk18.vx;
-                g_Choco0CameraPathCur->unk20.vy += g_Choco0CameraPathCur->unk18.vy;
-                g_Choco0CameraPathCur->unk20.vz += g_Choco0CameraPathCur->unk18.vz;
-            case 2:
-                g_Choco0CameraPathCur->Pos.vx += g_Choco0CameraPathCur->unk20.vx;
-                g_Choco0CameraPathCur->Pos.vy += g_Choco0CameraPathCur->unk20.vy;
-                g_Choco0CameraPathCur->Pos.vz += g_Choco0CameraPathCur->unk20.vz;
+            case CAM_OP_ACCEL_TO:
+                choco0_camera_path_cur->Step.vx += choco0_camera_path_cur->StartPos.vx;
+                choco0_camera_path_cur->Step.vy += choco0_camera_path_cur->StartPos.vy;
+                choco0_camera_path_cur->Step.vz += choco0_camera_path_cur->StartPos.vz;
+            case CAM_OP_MOVE_TO:
+                choco0_camera_path_cur->Pos.vx += choco0_camera_path_cur->Step.vx;
+                choco0_camera_path_cur->Pos.vy += choco0_camera_path_cur->Step.vy;
+                choco0_camera_path_cur->Pos.vz += choco0_camera_path_cur->Step.vz;
                 break;
-            case 3:
-                g_Choco0CameraPathCur->unk18.vx += g_Choco0CameraPathCur->unk20.vx;
-                g_Choco0CameraPathCur->unk18.vy += g_Choco0CameraPathCur->unk20.vy;
-                g_Choco0CameraPathCur->unk18.vz += g_Choco0CameraPathCur->unk20.vz;
-                g_Choco0CameraPathCur->unk4 += g_Choco0CameraPathCur->unk8;
-                vec->vx = g_Choco0CameraPathOther->Pos.vx - g_Choco0CameraPathCur->unk18.vx;
-                vec->vy = g_Choco0CameraPathOther->Pos.vy - g_Choco0CameraPathCur->unk18.vy;
-                vec->vz = g_Choco0CameraPathOther->Pos.vz - g_Choco0CameraPathCur->unk18.vz;
-                VectorNormalS(vec, sv0);
-                g_Choco0CameraPathCur->Pos.vx =
-                    g_Choco0CameraPathOther->Pos.vx - ((sv0->vx * g_Choco0CameraPathCur->unk4) >> 12);
-                g_Choco0CameraPathCur->Pos.vy =
-                    g_Choco0CameraPathOther->Pos.vy - ((sv0->vy * g_Choco0CameraPathCur->unk4) >> 12);
-                g_Choco0CameraPathCur->Pos.vz =
-                    g_Choco0CameraPathOther->Pos.vz - ((sv0->vz * g_Choco0CameraPathCur->unk4) >> 12);
+            case CAM_OP_DOLLY_TO:
+                choco0_camera_path_cur->StartPos.vx += choco0_camera_path_cur->Step.vx;
+                choco0_camera_path_cur->StartPos.vy += choco0_camera_path_cur->Step.vy;
+                choco0_camera_path_cur->StartPos.vz += choco0_camera_path_cur->Step.vz;
+                choco0_camera_path_cur->unk4 += choco0_camera_path_cur->unk8;
+                worldPos->vx = choco0_camera_path_other->Pos.vx - choco0_camera_path_cur->StartPos.vx;
+                worldPos->vy = choco0_camera_path_other->Pos.vy - choco0_camera_path_cur->StartPos.vy;
+                worldPos->vz = choco0_camera_path_other->Pos.vz - choco0_camera_path_cur->StartPos.vz;
+                VectorNormalS(worldPos, delta);
+                choco0_camera_path_cur->Pos.vx =
+                    choco0_camera_path_other->Pos.vx - ((delta->vx * choco0_camera_path_cur->unk4) >> 12);
+                choco0_camera_path_cur->Pos.vy =
+                    choco0_camera_path_other->Pos.vy - ((delta->vy * choco0_camera_path_cur->unk4) >> 12);
+                choco0_camera_path_cur->Pos.vz =
+                    choco0_camera_path_other->Pos.vz - ((delta->vz * choco0_camera_path_cur->unk4) >> 12);
                 break;
-            case 5:
-                t = g_Choco0CameraPathCur->unk4 += g_Choco0CameraPathCur->unk8;
+            case CAM_OP_EASE_TO:
+                t = choco0_camera_path_cur->unk4 += choco0_camera_path_cur->unk8;
                 t = rsin(rsin(t / 4) / 4);
-                g_Choco0CameraPathCur->Pos.vx =
-                    g_Choco0CameraPathCur->unk18.vx + ((g_Choco0CameraPathCur->unk20.vx * t) >> 12);
-                g_Choco0CameraPathCur->Pos.vy =
-                    g_Choco0CameraPathCur->unk18.vy + ((g_Choco0CameraPathCur->unk20.vy * t) >> 12);
-                g_Choco0CameraPathCur->Pos.vz =
-                    g_Choco0CameraPathCur->unk18.vz + ((g_Choco0CameraPathCur->unk20.vz * t) >> 12);
+                choco0_camera_path_cur->Pos.vx =
+                    choco0_camera_path_cur->StartPos.vx + ((choco0_camera_path_cur->Step.vx * t) >> 12);
+                choco0_camera_path_cur->Pos.vy =
+                    choco0_camera_path_cur->StartPos.vy + ((choco0_camera_path_cur->Step.vy * t) >> 12);
+                choco0_camera_path_cur->Pos.vz =
+                    choco0_camera_path_cur->StartPos.vz + ((choco0_camera_path_cur->Step.vz * t) >> 12);
                 break;
             }
-            g_Choco0CameraPathCur->FramesLeft--;
-            g_Choco0CameraPathCur = &g_Choco0CameraTargetPath;
-            g_Choco0CameraPathOther = &g_Choco0CameraEyePath;
+            choco0_camera_path_cur->FramesLeft--;
+            choco0_camera_path_cur = &choco0_camera_target_path;
+            choco0_camera_path_other = &choco0_camera_eye_path;
         }
     }
     if (effect->u.ptr.unk10) {
         SetRotMatrix(effect->u.ptr.unk10);
         SetTransMatrix(effect->u.ptr.unk10);
-        if (g_Choco0CameraEyePath.ActorIndex == -1) {
-            RotTrans(&g_Choco0CameraEyePath.Pos, vec, &flag);
-            g_BattleCameraPos.vx = vec->vx;
-            g_BattleCameraPos.vy = vec->vy;
-            g_BattleCameraPos.vz = vec->vz;
+        if (choco0_camera_eye_path.ActorIndex == -1) {
+            RotTrans(&choco0_camera_eye_path.Pos, worldPos, &flag);
+            g_BattleCameraPos.vx = worldPos->vx;
+            g_BattleCameraPos.vy = worldPos->vy;
+            g_BattleCameraPos.vz = worldPos->vz;
         } else {
-            ApplyRotMatrix(&g_Choco0CameraEyePath.Pos, vec);
-            if (g_Choco0CameraEyePath.PartIndex != -1) {
-                BattleGetPartPosition(g_Choco0CameraEyePath.ActorIndex, g_Choco0CameraEyePath.PartIndex, sv0);
+            ApplyRotMatrix(&choco0_camera_eye_path.Pos, worldPos);
+            if (choco0_camera_eye_path.PartIndex != -1) {
+                BattleGetPartPosition(choco0_camera_eye_path.ActorIndex, choco0_camera_eye_path.PartIndex, delta);
             } else {
-                sv0->vx = g_BattleModels[g_Choco0CameraEyePath.ActorIndex].rootTrans.vx;
-                sv0->vy = g_BattleModels[g_Choco0CameraEyePath.ActorIndex].rootTrans.vy;
-                sv0->vz = g_BattleModels[g_Choco0CameraEyePath.ActorIndex].rootTrans.vz;
+                delta->vx = g_BattleModels[choco0_camera_eye_path.ActorIndex].rootTrans.vx;
+                delta->vy = g_BattleModels[choco0_camera_eye_path.ActorIndex].rootTrans.vy;
+                delta->vz = g_BattleModels[choco0_camera_eye_path.ActorIndex].rootTrans.vz;
             }
-            g_BattleCameraPos.vx = vec->vx + sv0->vx;
-            g_BattleCameraPos.vy = vec->vy + sv0->vy;
-            g_BattleCameraPos.vz = vec->vz + sv0->vz;
+            g_BattleCameraPos.vx = worldPos->vx + delta->vx;
+            g_BattleCameraPos.vy = worldPos->vy + delta->vy;
+            g_BattleCameraPos.vz = worldPos->vz + delta->vz;
             SetRotMatrix(effect->u.ptr.unk10);
             SetTransMatrix(effect->u.ptr.unk10);
         }
-        if (g_Choco0CameraTargetPath.ActorIndex == -1) {
-            RotTrans(&g_Choco0CameraTargetPath.Pos, vec, &flag);
-            g_BattleCameraTarget.vx = vec->vx;
-            g_BattleCameraTarget.vy = vec->vy;
-            g_BattleCameraTarget.vz = vec->vz;
+        if (choco0_camera_target_path.ActorIndex == -1) {
+            RotTrans(&choco0_camera_target_path.Pos, worldPos, &flag);
+            g_BattleCameraTarget.vx = worldPos->vx;
+            g_BattleCameraTarget.vy = worldPos->vy;
+            g_BattleCameraTarget.vz = worldPos->vz;
         } else {
-            ApplyRotMatrix(&g_Choco0CameraTargetPath.Pos, vec);
-            if (g_Choco0CameraTargetPath.PartIndex != -1) {
-                BattleGetPartPosition(g_Choco0CameraTargetPath.ActorIndex, g_Choco0CameraTargetPath.PartIndex, sv0);
+            ApplyRotMatrix(&choco0_camera_target_path.Pos, worldPos);
+            if (choco0_camera_target_path.PartIndex != -1) {
+                BattleGetPartPosition(choco0_camera_target_path.ActorIndex, choco0_camera_target_path.PartIndex, delta);
             } else {
-                sv0->vx = g_BattleModels[g_Choco0CameraTargetPath.ActorIndex].rootTrans.vx;
-                sv0->vy = g_BattleModels[g_Choco0CameraTargetPath.ActorIndex].rootTrans.vy;
-                sv0->vz = g_BattleModels[g_Choco0CameraTargetPath.ActorIndex].rootTrans.vz;
+                delta->vx = g_BattleModels[choco0_camera_target_path.ActorIndex].rootTrans.vx;
+                delta->vy = g_BattleModels[choco0_camera_target_path.ActorIndex].rootTrans.vy;
+                delta->vz = g_BattleModels[choco0_camera_target_path.ActorIndex].rootTrans.vz;
             }
-            g_BattleCameraTarget.vx = vec->vx + sv0->vx;
-            g_BattleCameraTarget.vy = vec->vy + sv0->vy;
-            g_BattleCameraTarget.vz = vec->vz + sv0->vz;
+            g_BattleCameraTarget.vx = worldPos->vx + delta->vx;
+            g_BattleCameraTarget.vy = worldPos->vy + delta->vy;
+            g_BattleCameraTarget.vz = worldPos->vz + delta->vz;
         }
     } else {
-        g_BattleCameraPos = g_Choco0CameraEyePath.Pos;
-        g_BattleCameraTarget = g_Choco0CameraTargetPath.Pos;
+        g_BattleCameraPos = choco0_camera_eye_path.Pos;
+        g_BattleCameraTarget = choco0_camera_target_path.Pos;
     }
 }
 
@@ -320,35 +382,35 @@ static void func_801B103C(s16* script, MATRIX* arg1, s32 callbackArg) {
     effect = &g_BattleEffectSlots[BattleEffectRegister(Choco0UpdateCamera)];
     effect->u.ptr.Script = script;
     effect->u.ptr.unk10 = arg1;
-    effect->unk14 = callbackArg;
+    effect->Scale = callbackArg;
 }
 
 static MATRIX* func_801B10A0(SVECTOR* pos, s32 scale, s32 depthBias) {
     VECTOR dir;
     s32 flag;
 
-    D_801E5898.m[0][0] = D_801E5898.m[1][1] = D_801E5898.m[2][2] = scale;
-    SetRotMatrix(&D_801E59F0);
-    SetTransMatrix(&D_801E59F0);
-    RotTrans(pos, (VECTOR*)D_801E5898.t, &flag);
+    choco0_sprite_matrix.m[0][0] = choco0_sprite_matrix.m[1][1] = choco0_sprite_matrix.m[2][2] = scale;
+    SetRotMatrix(&choco0_view_matrix);
+    SetTransMatrix(&choco0_view_matrix);
+    RotTrans(pos, (VECTOR*)choco0_sprite_matrix.t, &flag);
     if (depthBias) {
-        VectorNormal((VECTOR*)D_801E5898.t, &dir);
-        D_801E5898.t[0] += (depthBias * dir.vx) >> 12;
-        D_801E5898.t[1] += (depthBias * dir.vy) >> 12;
-        D_801E5898.t[2] += (depthBias * dir.vz) >> 12;
+        VectorNormal((VECTOR*)choco0_sprite_matrix.t, &dir);
+        choco0_sprite_matrix.t[0] += (depthBias * dir.vx) >> 12;
+        choco0_sprite_matrix.t[1] += (depthBias * dir.vy) >> 12;
+        choco0_sprite_matrix.t[2] += (depthBias * dir.vz) >> 12;
     }
-    SetRotMatrix(&D_801E5898);
-    SetTransMatrix(&D_801E5898);
-    return &D_801E5898;
+    SetRotMatrix(&choco0_sprite_matrix);
+    SetTransMatrix(&choco0_sprite_matrix);
+    return &choco0_sprite_matrix;
 }
 
 static void func_801B11BC(void) {
     Choco0Data* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    func_801B10A0(&effect->Pos, effect->unk14, 0);
-    D_801E58B8.frames = D_801D2574[effect->AnimationFrame];
-    D_80163C74 = func_800D4D90(&D_801E58B8, g_cDb->unk70, 12, D_80163C74);
+    func_801B10A0(&effect->Pos, effect->Scale, 0);
+    choco0_render_desc0.frames = D_801D2574[effect->AnimationFrame];
+    D_80163C74 = func_800D4D90(&choco0_render_desc0, g_cDb->unk70, 12, D_80163C74);
     if (D_80062D98 == 0) {
         if (++effect->AnimationFrame >= 16) {
             effect->StartFrame = -1;
@@ -373,15 +435,15 @@ static void func_801B12DC(void) {
     if (D_80062D98 == 0) {
         for (i = 0; i < 3; i++) {
             child = &g_BattleEffectSlots[BattleEffectRegister(func_801B11BC)];
-            child->Pos.vx = D_801E575C.vx;
-            child->Pos.vy = D_801E575C.vy;
-            child->Pos.vz = D_801E575C.vz;
+            child->Pos.vx = choco0_unit_pos.vx;
+            child->Pos.vy = choco0_unit_pos.vy;
+            child->Pos.vz = choco0_unit_pos.vz;
             speed = rand() % 100 + 100;
             angle = rand() & 0x7FF;
             child->u.vec.vx = (rcos(angle) * speed) >> 12;
             child->u.vec.vy = -(rand() % 30 + 20);
             child->u.vec.vz = (-rsin(angle) * speed) >> 12;
-            child->unk14 = rand() % 0x800 + 0x1000;
+            child->Scale = rand() % 0x800 + 0x1000;
         }
         if (++effect->AnimationFrame >= 60) {
             effect->StartFrame = -1;
@@ -398,18 +460,18 @@ static void Choco0RenderBoom(void) {
     phase = effect->AnimationFrame % 7;
     if (phase < 3) {
         scale = (phase << 12) / 3 + 0x1000;
-        D_801E58D4.m[1][1] = scale;
-        D_801E58D4.m[0][0] = scale;
+        choco0_screen_matrix.m[1][1] = scale;
+        choco0_screen_matrix.m[0][0] = scale;
     } else {
         phase -= 3;
         scale = -(phase << 12) / 4 + 0x2000;
-        D_801E58D4.m[1][1] = scale;
-        D_801E58D4.m[0][0] = scale;
+        choco0_screen_matrix.m[1][1] = scale;
+        choco0_screen_matrix.m[0][0] = scale;
     }
-    D_801E58D4.t[2] = ReadGeomScreen() * 8;
-    SetRotMatrix(&D_801E58D4);
-    SetTransMatrix(&D_801E58D4);
-    D_80163C74 = BattleEffectSpriteAdd(&D_801E58C4, &g_cDb->unk4080[1], 0, D_80163C74);
+    choco0_screen_matrix.t[2] = ReadGeomScreen() * 8;
+    SetRotMatrix(&choco0_screen_matrix);
+    SetTransMatrix(&choco0_screen_matrix);
+    D_80163C74 = BattleEffectSpriteAdd(&choco0_screen_quad, &g_cDb->unk4080[1], 0, D_80163C74);
     if (D_80062D98 == 0) {
         if (++effect->AnimationFrame >= 20) {
             effect->StartFrame = -1;
@@ -425,23 +487,23 @@ static void Choco0MoveModel(void) {
     if (D_80062D98 == 0) {
         frame = effect->AnimationFrame;
         if (frame < 60) {
-            D_801E575C.vz = frame * 250 - 15000;
+            choco0_unit_pos.vz = frame * 250 - 15000;
         } else if ((frame -= 60) < 20) {
             if (frame == 19) {
-                D_801E575C.vz = -5000;
-                D_801E575C.vx = -750;
+                choco0_unit_pos.vz = -5000;
+                choco0_unit_pos.vx = -750;
                 g_BattleModels[3].rootRot.vy += 0x400;
             }
         } else if ((frame -= 20) >= 50) {
             effect->StartFrame = -1;
             return;
         }
-        SetRotMatrix(&D_801E59D0);
-        SetTransMatrix(&D_801E59D0);
-        RotTrans(&D_801E575C, D_801E58F4, (s32*)(D_801E58F4 + 1));
-        g_BattleModels[3].rootTrans.vx = D_801E58F4->vx;
-        g_BattleModels[3].rootTrans.vy = D_801E58F4->vy;
-        g_BattleModels[3].rootTrans.vz = D_801E58F4->vz;
+        SetRotMatrix(&choco0_scene_matrix);
+        SetTransMatrix(&choco0_scene_matrix);
+        RotTrans(&choco0_unit_pos, choco0_scratch_vec, (s32*)(choco0_scratch_vec + 1));
+        g_BattleModels[3].rootTrans.vx = choco0_scratch_vec->vx;
+        g_BattleModels[3].rootTrans.vy = choco0_scratch_vec->vy;
+        g_BattleModels[3].rootTrans.vz = choco0_scratch_vec->vz;
         effect->AnimationFrame++;
     }
 }
@@ -454,12 +516,12 @@ static void Choco0RenderStars(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     angle = effect->u.vec.vy;
     for (i = 0; i < 4; i++) {
-        D_801E5904->vx = effect->Pos.vx + ((rsin(angle) * 150) >> 12);
-        D_801E5904->vy = effect->Pos.vy;
-        D_801E5904->vz = effect->Pos.vz + ((rcos(angle) * 150) >> 12);
+        choco0_scratch_svec->vx = effect->Pos.vx + ((rsin(angle) * 150) >> 12);
+        choco0_scratch_svec->vy = effect->Pos.vy;
+        choco0_scratch_svec->vz = effect->Pos.vz + ((rcos(angle) * 150) >> 12);
         angle += 0x400;
-        func_801B10A0(D_801E5904, 0x500, 0);
-        D_80163C74 = func_800D4D90(&D_801E58F8, g_cDb->unk70, 12, D_80163C74);
+        func_801B10A0(choco0_scratch_svec, 0x500, 0);
+        D_80163C74 = func_800D4D90(&choco0_star_desc, g_cDb->unk70, 12, D_80163C74);
     }
     if (D_80062D98 == 0) {
         if (++effect->AnimationFrame >= 35) {
@@ -474,9 +536,9 @@ static void func_801B18BC(void) {
     Choco0Data* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    func_801B10A0(&effect->Pos, effect->unk14, 0);
-    D_801E5908.frames = D_801D2574[effect->AnimationFrame];
-    D_80163C74 = func_800D4D90(&D_801E5908, g_cDb->unk70, 12, D_80163C74);
+    func_801B10A0(&effect->Pos, effect->Scale, 0);
+    choco0_render_desc1.frames = D_801D2574[effect->AnimationFrame];
+    D_80163C74 = func_800D4D90(&choco0_render_desc1, g_cDb->unk70, 12, D_80163C74);
     if (D_80062D98 == 0) {
         if (++effect->AnimationFrame >= 16) {
             effect->StartFrame = -1;
@@ -501,7 +563,7 @@ static void func_801B1998(void) {
             child->u.vec.vx = 0;
             child->u.vec.vy = -(rand() % 30 + 20);
             child->u.vec.vz = 0;
-            child->unk14 = rand() % 0x2000 + 0x1000;
+            child->Scale = rand() % 0x2000 + 0x1000;
         }
         if (++effect->AnimationFrame >= 50) {
             effect->StartFrame = -1;
@@ -516,15 +578,15 @@ static void Choco0RenderSwirlEyes(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     SetRotMatrix(&g_BattleModels[3].boneTransforms[13].m);
     SetTransMatrix(&g_BattleModels[3].boneTransforms[13].m);
-    RotTrans(&D_801E5914, (VECTOR*)D_801E5924.t, &flag);
-    RotTrans(&D_801E591C, (VECTOR*)D_801E5944.t, &flag);
-    D_801E5964.frameIndex = effect->AnimationFrame & 7;
-    SetRotMatrix(&D_801E5924);
-    SetTransMatrix(&D_801E5924);
-    D_80163C74 = func_800D4D90(&D_801E5964, &g_cDb->unk4080[1], 0, D_80163C74);
-    SetRotMatrix(&D_801E5944);
-    SetTransMatrix(&D_801E5944);
-    D_80163C74 = func_800D4D90(&D_801E5964, &g_cDb->unk4080[1], 0, D_80163C74);
+    RotTrans(&choco0_left_eye_offset, (VECTOR*)choco0_left_eye_matrix.t, &flag);
+    RotTrans(&choco0_right_eye_offset, (VECTOR*)choco0_right_eye_matrix.t, &flag);
+    choco0_swirl_eye_desc.frameIndex = effect->AnimationFrame & 7;
+    SetRotMatrix(&choco0_left_eye_matrix);
+    SetTransMatrix(&choco0_left_eye_matrix);
+    D_80163C74 = func_800D4D90(&choco0_swirl_eye_desc, &g_cDb->unk4080[1], 0, D_80163C74);
+    SetRotMatrix(&choco0_right_eye_matrix);
+    SetTransMatrix(&choco0_right_eye_matrix);
+    D_80163C74 = func_800D4D90(&choco0_swirl_eye_desc, &g_cDb->unk4080[1], 0, D_80163C74);
     if (D_80062D98 == 0) {
         if (++effect->AnimationFrame >= 50) {
             effect->StartFrame = -1;
@@ -540,7 +602,7 @@ static void Choco0AnimationUpdate(void) {
     s32 i;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    CompMatrix(&D_800FA63C.m, &D_801E59D0, &D_801E59F0);
+    CompMatrix(&D_800FA63C.m, &choco0_scene_matrix, &choco0_view_matrix);
     if (D_80062D98 == 0) {
         frame = effect->AnimationFrame;
         if (frame < 5) {
@@ -548,8 +610,8 @@ static void Choco0AnimationUpdate(void) {
                 event = BattleEventQueuePush(1);
                 event[2] = 0;
                 event[3] = 0;
-                event[4] = D_801E59D0.t[2] - 15000;
-                event[8] = D_801E5754.vy + 0x800;
+                event[4] = choco0_scene_matrix.t[2] - 15000;
+                event[8] = choco0_scene_rot.vy + 0x800;
             }
         } else if ((frame -= 5) < 20) {
             if (frame == 0) {
@@ -565,7 +627,7 @@ static void Choco0AnimationUpdate(void) {
                 BattleEffectRegister(func_801B1998);
             }
             if (frame == 19) {
-                BattleEnqueueClearImage(&D_801E5970, 0, 0, 0);
+                BattleEnqueueClearImage(&choco0_clear_rect, 0, 0, 0);
             }
             if (frame == 0) {
                 BattleAkaoCommand(AKAO_PLAY_THREE_SOUNDS, AKAO_PAN_CENTER, SFX_250, SFX_251, SFX_252);
@@ -586,7 +648,7 @@ static void Choco0AnimationUpdate(void) {
         } else if ((frame -= 20) < 15) {
             if (frame == 0) {
                 for (i = 0; i < 10; i++) {
-                    if ((g_Choco0TargetMask >> i) & 1) {
+                    if ((choco0_target_mask >> i) & 1) {
                         func_800D5774(i);
                     }
                 }
@@ -602,18 +664,18 @@ static void Choco0MainSetup(s32 targetMask, s32 callbackArg) {
     SVECTOR center;
 
     BattleSetLoadTimToVram(g_Choco0Texture, 0, 0, 0);
-    g_Choco0TargetMask = targetMask;
+    choco0_target_mask = targetMask;
     BattleEntityGetCenter(targetMask, &center);
-    D_801E59D0.t[0] = D_801E59D0.t[1] = 0;
-    D_801E59D0.t[2] = center.vz;
+    choco0_scene_matrix.t[0] = choco0_scene_matrix.t[1] = 0;
+    choco0_scene_matrix.t[2] = center.vz;
     if (center.vz < g_BattleModels[callbackArg].rootTrans.vz) {
-        D_801E5754.vy = 0x800;
+        choco0_scene_rot.vy = 0x800;
     }
-    RotMatrixYXZ(&D_801E5754, &D_801E59D0);
+    RotMatrixYXZ(&choco0_scene_rot, &choco0_scene_matrix);
     BattleEffectRegister(Choco0AnimationUpdate);
     if (rand() & 0x100) {
-        func_801B103C(D_801E5764, &D_801E59D0, callbackArg);
+        func_801B103C(choco0_camera_script_a, &choco0_scene_matrix, callbackArg);
     } else {
-        func_801B103C(D_801E5804, &D_801E59D0, callbackArg);
+        func_801B103C(choco0_camera_script_b, &choco0_scene_matrix, callbackArg);
     }
 }
