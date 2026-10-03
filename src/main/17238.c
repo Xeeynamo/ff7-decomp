@@ -313,9 +313,105 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysSearchExistedCommand);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysSearchExistedMagic);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysParseMegaallMateria);
+void SysParseMegaallMateria(u32 materia) {
+    s32 i;
+    s32 stars;
+    u8 id;
+    s32 ap;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysParseMateriaEquip);
+    id = materia;
+    ap = materia >> 8;
+    if ((g_MateriaData[id].materiaType & 0xF) != 4) {
+        return;
+    }
+    stars = SysGetMateriaActivatedStars(id, ap);
+    for (i = 0; i < NUM_MAGICS; i++) {
+        if (D_80062E60->enabledMagic[i].id != 0xFF) {
+            D_80062E60->enabledMagic[i].quadraAttacksLeft += stars;
+        }
+    }
+    for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
+        if (D_80062E60->commandMenu[i].id != 0xFF) {
+            switch (D_80062E60->commandMenu[i].id) {
+            case 5:
+            case 6:
+            case 9:
+            case 10:
+            case 11:
+            case 17:
+                D_80062E60->commandMenu[i].allCount += stars;
+                break;
+            }
+        }
+    }
+    if (D_80062E60->commandMenu[0].id != 26) {
+        SysCopyCommandToUnitStructure(24, 0);
+    }
+}
+
+void SysParseMateriaEquip(u32 materia) {
+    Unk80062F7C* attr;
+    u8 i;
+    u32 m;
+    u8 materiaId;
+    u8 subType;
+    s32 materiaAp;
+
+    if (D_80063020) {
+        attr = D_80062F7C;
+        for (i = 0; i < 8; i++) {
+            attr->unkA[i] = 0;
+        }
+    }
+    materiaId = materia & 0xFF;
+    materiaAp = materia >> 8;
+    if (materiaId == 0xFF) {
+        return;
+    }
+    SysAddMateriaEquipStatBonus(materiaId);
+    subType = g_MateriaData[materiaId].materiaType >> 4;
+    switch (g_MateriaData[materiaId].materiaType & 0xF) {
+    case 0:
+        SysAddMateriaX0(subType, materiaId, materiaAp);
+        break;
+    case 1:
+        SysAddMateriaX1(subType, materiaId, materiaAp);
+        break;
+    case 2:
+        SysAddMateriaX2(subType, materiaId, materiaAp);
+        break;
+    case 3:
+        SysAddMateriaX3(subType, materiaId, materiaAp);
+        break;
+    case 4:
+        SysAddMateriaX4(materiaId, materiaAp);
+        break;
+    case 5:
+        SysAddMateriaX5(subType, materiaId, materiaAp);
+        break;
+    case 6:
+        SysAddMateriaX6(materiaId, materiaAp);
+        break;
+    case 7:
+        SysAddMateriaX7(subType, materiaId, materiaAp);
+        break;
+    case 8:
+        SysAddMateriaX8();
+        break;
+    case 9:
+        SysAddMateriaX9(materiaId, materiaAp);
+        break;
+    case 10:
+        SysAddMateriaXa();
+        break;
+    case 11:
+        SysAddMateriaXb(materiaId, materiaAp);
+        break;
+    case 12:
+        SysAddMateriaXc();
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaEquipStatBonus);
 
@@ -342,7 +438,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria35);
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria25);
 
 s8 D_80062FFC; // %gp_rel
-u8 D_80063020; // %gp_rel
 void SysAddMateriaX4(u8 arg0, s32 arg1) {
     SysGetMateriaActivatedStars(arg0, arg1);
     if (D_80063020) {
