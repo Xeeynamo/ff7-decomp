@@ -1,6 +1,7 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#include "libgpu.h"
 #include <game.h>
 
 #define ABS(x) ((x <= 0) ? -(x) : (x))
@@ -46,6 +47,54 @@ typedef struct WorldChunkNode {
     /* 0x0 */ struct WorldChunkNode* next;
     /* 0x4 */ WorldChunkHeader* chunk;
 } WorldChunkNode; // size: 0x8
+
+// Every entry stores a battle scene id in bits 0-9 and its pick chance above it
+typedef struct {
+    /* 0x00 */ u16 info; // bit 0 enables encounters, bits 8-15 hold the density
+    /* 0x02 */ u16 normal[6];
+    /* 0x0E */ u16 backAttack[2];
+    /* 0x12 */ u16 sideAttack;
+    /* 0x14 */ u16 pincer;
+    /* 0x16 */ u16 chocobo[4];
+    /* 0x1E */ u16 unk1E;
+} WmEncounterSet; // size: 0x20
+
+typedef struct {
+    /* 0x0 */ u16 level; // highest party leader level for this scene
+    /* 0x2 */ u16 scene;
+} WmYuffieEncounter; // size: 0x4
+
+typedef struct {
+    /* 0x0 */ u16 scene;
+    /* 0x2 */ u16 rating;
+} WmChocoboRating; // size: 0x4
+
+// Header of the WORLD map data file: each word is a byte offset from the header start
+typedef struct {
+    /* 0x00 */ u32 resumeData; // only in the copy loaded when resuming a saved world map
+    /* 0x04 */ u32 textures;
+    /* 0x08 */ u32 unk8; // 0x800 bytes, then a list of TIM images
+    /* 0x0C */ u32 unkC; // 0xE000 bytes
+    /* 0x10 */ u32 scripts;
+    /* 0x14 */ u32 music[7]; // start of tracks 1 to 7; the music copy begins at track 1
+} WmDataHeader;
+
+// Pack model file streamed from disc for model ids 32 to 42
+typedef struct {
+    /* 0x00 */ u32 unk0;
+    /* 0x04 */ u32 unk4;
+    /* 0x08 */ u32 packets; // the render packet area starts 4 bytes after this offset
+    /* 0x0C */ u32 unkC;
+    /* 0x10 */ FieldModelEntry* models;
+} WmPackModels;
+
+// One half of the world map double buffer
+typedef struct {
+    /* 0x0000 */ DRAWENV draw;
+    /* 0x005C */ DISPENV disp;
+    /* 0x0070 */ OT_TYPE ot[0x1000];
+    /* 0x4070 */ POLY_GT3* gt3; // terrain primitives
+} WmDb;                         // size: 0x4074
 
 typedef struct {
     /* 0x00 */ VECTOR pos;
@@ -235,6 +284,7 @@ void WmLoadPcCharModelFile(s16);
 s32 WmApplyModelLightingToPacket(FieldModelEntry*, u8*);
 void WmApplyModelLightingById(s16, s16);
 void PlayMusicTrack(s32);
+s32 func_80025658(s32 partySlot);
 void ToggleAmbientSound(s32);
 void WmUpdatePartTransparency(FieldModelPart*, s32);
 void WmLoadModelPacketsForSet(s16);
@@ -253,11 +303,13 @@ static void func_800BBA5C(void);
 s32 func_800BBBB0(void);
 static void func_800BBD0C(void);
 
-extern u32* D_800BD130;
+extern OT_TYPE* D_800BD130;
 extern s32 D_800BD134;
 extern s32 D_800BD138;
 extern s32 D_800BD144;
-extern u16 D_800BD9E8[16][4][16]; // world map encounter data, size: 0x800
+extern WmYuffieEncounter D_800BD948[8];
+extern WmChocoboRating D_800BD968[32];
+extern WmEncounterSet D_800BD9E8[16][4]; // world map encounter data, size: 0x800
 extern u16 D_800BE1E8[512];
 extern s32 D_800C65EC;
 extern s32 D_800C6628[];
@@ -272,7 +324,7 @@ extern u8 D_800C72F4[16];    // yuffie spawn chances per area, size: 0x10
 extern u8 D_800C7304[16];
 extern s32 D_800C74E4[][2];
 extern s8 D_800C752D;
-extern u32* D_800C7530;
+extern OT_TYPE* D_800C7530;
 extern s32 D_800D05E8;
 extern WorldScriptData D_800D05EC;
 extern s32 D_800E55EC;
@@ -414,14 +466,14 @@ extern u32 D_8010CB14;
 extern s32 D_8010CB18;
 extern s32 D_8010CB1C;
 extern s32 D_8010D9C0[0x2000];
-extern s32 D_801159BC[];
+extern s32 D_801159C0[7]; // music data pointers of tracks 1 to 7, right after D_8010D9C0
 extern s32 D_801159DC;
 extern s32 D_801159E0;
 extern s32 D_80116508;
 extern s32 D_80116510;
 extern s32 D_800C74DC;
 extern s32 D_800C74E0;
-extern u_long* D_80115A40;
+extern WmPackModels* D_80115A40;
 extern s32 D_80115A50;
 extern s32 D_80115A58;
 extern s32 D_80115A60;
@@ -464,9 +516,11 @@ extern s16 D_800BE5F0[];
 extern s32 D_8010B488[];
 extern s32 D_8010B494[];
 extern s32 D_8010B4A0[];
-extern u8 D_800C8564[];
-extern u8 D_800CC564[];
-extern u8* D_800D05E4;
+extern u32 D_800BD148[0x200];
+extern u32 D_800D75EC[0x3800];
+extern Yamada D_800C73E4[]; // WORLD map data files
+extern Yamada D_800C744C[]; // WORLD map data files used when resuming
+extern WmDb* D_800D05E4;
 extern u32* D_800D05DC;
 extern u32* D_800D05E0;
 extern u8 D_800C752C;
@@ -476,6 +530,7 @@ extern u8 D_800BF5F0[];
 extern SPRT D_800C6648[];
 extern s32 D_800C84D4;
 extern s32 D_800C84F0;
+extern WmDb D_800C84F4[2]; // world map double buffer
 extern WorldListNode* D_800E5810;
 extern WorldListNode* D_800E580C;
 extern s8 D_80115A14[];
@@ -530,7 +585,7 @@ extern s32 D_80115A54;
 extern s32 D_80115A5C;
 extern u8 D_80115A6C[];
 extern s16 D_80116290;
-extern u8 D_8013A800;
+extern u8 D_8013A800; // model count of the map data file
 extern FieldModelEntry* D_8013A804;
 extern u32 D_8014A608;
 extern FieldModelEntry* D_8014A610;

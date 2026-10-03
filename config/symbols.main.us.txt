@@ -1401,6 +1401,7 @@ g_CameraScrollY = 0x80071E3C; // size:0x4
 g_ArmorTable = 0x80071E44; // size:0x480
 g_CurrentEntity = 0x800722C4;
 D_800722CC = 0x800722CC; // size:0x15D4
+D_800730CC = 0x800730CC;
 g_MateriaData = 0x800730D0; // size:0x7D0
 g_WeaponTable = 0x800738A0; // size:0x1600
 StFunc1 = 0x80074EA0; // size:0x4

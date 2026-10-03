@@ -26,6 +26,7 @@ extern u8 D_8009C6D8;
 extern u16 D_8007173C;
 extern s32 D_80095DDC; // Battle mode flags from world map
 extern s32 D_80071E28; // Which module to transition to from world map
+extern s32 D_800730CC; // Field the world map was entered from
 extern u8* g_MenuTutorial;
 extern s32 SYS_GetDiskNo(void);
 extern s32 SysMenuShow(u8*);
@@ -73,7 +74,37 @@ static void func_80011274(void) {
     AkaoLoadInstr2((u32*)0x800A0000, (u32*)0x800E0000);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", func_800112E8);
+s32 WORLD_Main(s32* exitAction, s32* fieldId, s32* battleFlags, s32 resume);
+void func_800112E8(void) {
+    if (g_PrevGameState == GAMESTATE_BATTLE) {
+        while (SystemCdromReadChain()) {
+        }
+        SysGzipBinDecompress((GzHeader*)0x801C0000, (u8*)0x800A0000);
+    } else {
+        while (SystemCdromReadChain()) {
+        }
+        SystemLoadFileBySector(yama_world_world.loc, yama_world_world.len, (u_long*)0x80180000, NULL);
+        while (SystemCdromReadChain()) {
+        }
+        SysGzipBinDecompress((GzHeader*)0x80180000, (u8*)0x800A0000);
+    }
+    if (D_80071E28 != 2) {
+        if (g_PrevGameState == GAMESTATE_BATTLE) {
+            D_80071E28 = 1;
+        } else {
+            D_80071E28 = 0;
+        }
+        D_800730CC = g_CurrentFieldIndex;
+    }
+    if (g_CurrentFieldIndex != D_80071A5C || g_CurrentFieldIndex == 0) {
+        D_80075DEC = WORLD_Main(&D_80071E28, &D_800730CC, &D_80095DDC, 0);
+    } else {
+        D_80075DEC = WORLD_Main(&D_80071E28, &D_800730CC, &D_80095DDC, 0x801B0000);
+        D_80071A5C = 0;
+        g_IsFieldLoading = 0;
+    }
+    g_CurrentFieldIndex = g_FieldState.eventCmdParam;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBgFadeRender);
 
