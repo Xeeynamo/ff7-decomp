@@ -71,14 +71,14 @@ extern void* D_80163C74;
 extern SVECTOR g_BattleCameraTarget;
 extern SVECTOR g_BattleCameraPos;
 
-void Choco0MainSetup(s32 targetMask, s32 callbackArg);
+static void Choco0MainSetup(s32 targetMask, s32 callbackArg);
 
 Unk800F57D0* MAGIC_Choco0(s32 targetMask, s32 callbackArg) {
     Choco0MainSetup(targetMask, callbackArg);
     return &D_801D267C;
 }
 
-s32 func_801B0060(s16** arg0) {
+static s32 func_801B0060(s16** arg0) {
     s32 value;
     s16* ptr;
 
@@ -91,7 +91,7 @@ s32 func_801B0060(s16** arg0) {
     return value;
 }
 
-void Choco0UpdateCamera(void) {
+static void Choco0UpdateCamera(void) {
     Choco0Data* effect;
     SVECTOR* sv0;
     SVECTOR* sv8;
@@ -99,7 +99,7 @@ void Choco0UpdateCamera(void) {
     s32 i;
     u16 op;
     s32 t;
-    u8 unused[0x100]; // unreferenced, but part of the stack frame
+    u8 unused[0x100];
     s32 flag;
 
     sv8 = (SVECTOR*)0x1F800008;
@@ -314,7 +314,7 @@ void Choco0UpdateCamera(void) {
     }
 }
 
-void func_801B103C(s16* script, MATRIX* arg1, s32 callbackArg) {
+static void func_801B103C(s16* script, MATRIX* arg1, s32 callbackArg) {
     Choco0Data* effect;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(Choco0UpdateCamera)];
@@ -323,7 +323,7 @@ void func_801B103C(s16* script, MATRIX* arg1, s32 callbackArg) {
     effect->unk14 = callbackArg;
 }
 
-MATRIX* func_801B10A0(SVECTOR* pos, s32 scale, s32 depthBias) {
+static MATRIX* func_801B10A0(SVECTOR* pos, s32 scale, s32 depthBias) {
     VECTOR dir;
     s32 flag;
 
@@ -342,7 +342,7 @@ MATRIX* func_801B10A0(SVECTOR* pos, s32 scale, s32 depthBias) {
     return &D_801E5898;
 }
 
-void func_801B11BC(void) {
+static void func_801B11BC(void) {
     Choco0Data* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -362,7 +362,7 @@ void func_801B11BC(void) {
     }
 }
 
-void func_801B12DC(void) {
+static void func_801B12DC(void) {
     Choco0Data* effect;
     Choco0Data* child;
     s32 i;
@@ -389,7 +389,7 @@ void func_801B12DC(void) {
     }
 }
 
-void Choco0RenderBoom(void) {
+static void Choco0RenderBoom(void) {
     Choco0Data* effect;
     s32 phase;
     s16 scale;
@@ -417,7 +417,7 @@ void Choco0RenderBoom(void) {
     }
 }
 
-void Choco0MoveModel(void) {
+static void Choco0MoveModel(void) {
     Choco0Data* effect;
     s32 frame;
 
@@ -446,7 +446,7 @@ void Choco0MoveModel(void) {
     }
 }
 
-void Choco0RenderStars(void) {
+static void Choco0RenderStars(void) {
     Choco0Data* effect;
     s32 i;
     s32 angle;
@@ -470,7 +470,7 @@ void Choco0RenderStars(void) {
     }
 }
 
-void func_801B18BC(void) {
+static void func_801B18BC(void) {
     Choco0Data* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -486,7 +486,7 @@ void func_801B18BC(void) {
     }
 }
 
-void func_801B1998(void) {
+static void func_801B1998(void) {
     Choco0Data* effect;
     Choco0Data* child;
     s32 i;
@@ -509,7 +509,7 @@ void func_801B1998(void) {
     }
 }
 
-void Choco0RenderSwirlEyes(void) {
+static void Choco0RenderSwirlEyes(void) {
     Choco0Data* effect;
     s32 flag;
 
@@ -532,7 +532,7 @@ void Choco0RenderSwirlEyes(void) {
     }
 }
 
-void Choco0AnimationUpdate(void) {
+static void Choco0AnimationUpdate(void) {
     Choco0Data* effect;
     Choco0Data* child;
     s16* event;
@@ -598,7 +598,7 @@ void Choco0AnimationUpdate(void) {
     }
 }
 
-void Choco0MainSetup(s32 targetMask, s32 callbackArg) {
+static void Choco0MainSetup(s32 targetMask, s32 callbackArg) {
     SVECTOR center;
 
     BattleSetLoadTimToVram(g_Choco0Texture, 0, 0, 0);
