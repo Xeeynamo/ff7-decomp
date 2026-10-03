@@ -9,13 +9,13 @@ INCLUDE_ASM("asm/us/main/nonmatchings/34F3C", SysMovieLoadMovieSettings);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/34F3C", SysMoviePlay);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/34F3C", func_80035430);
+INCLUDE_ASM("asm/us/main/nonmatchings/34F3C", CdOp_MovieBuffer);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/34F3C", func_800354CC);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/34F3C", SysMovieAbortPlay);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/34F3C", func_80035744);
+INCLUDE_ASM("asm/us/main/nonmatchings/34F3C", CdOp_MoviePlay);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/34F3C", func_80035CF0);
 
