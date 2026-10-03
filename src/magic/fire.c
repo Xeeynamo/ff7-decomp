@@ -23,9 +23,9 @@ extern FireData g_BattleEffectSlots[];
 static u8 fire_prim_buffer[2][0x4000];
 static void* fire_buffer_ptr;
 extern u_long g_FireTexture[]; // 4bpp TIM + four 16-colour CLUTs, uploaded on setup
-extern s32 D_801C043C[];
+extern SpriteAnim D_801C043C;
 
-static SpriteRenderDesc fire_render_desc = {D_801C043C, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
+static SpriteRenderDesc fire_render_desc = {&D_801C043C, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
 
 static void FireRenderSprite(void) {
     FireData* effect;

@@ -34,13 +34,13 @@ extern ThunderData g_BattleEffectSlots[];
 extern u8 g_ThunderPrimBuffer[2][MAGIC_PAGE_SIZE];
 extern u_long g_ThunderTexture[]; // 8bpp TIM + CLUT, uploaded on setup
 extern s32 g_ThunderModel[];
-extern s32 g_ThunderRenderData0[];
-extern s32 g_ThunderRenderData1[];
+extern SpriteAnim g_ThunderRenderData0;
+extern SpriteAnim g_ThunderRenderData1;
 
 static MATRIX thunder_model_matrix = {0};
 static ModelRenderDesc thunder_model_desc = {g_ThunderModel, MODEL_SEMI_TRANS, 0, GREY_FULL, 0x20};
-static SpriteRenderDesc thunder_render_desc0 = {g_ThunderRenderData0, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
-static SpriteRenderDesc thunder_render_desc1 = {g_ThunderRenderData1, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
+static SpriteRenderDesc thunder_render_desc0 = {&g_ThunderRenderData0, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
+static SpriteRenderDesc thunder_render_desc1 = {&g_ThunderRenderData1, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
 
 static void ThunderMainSetup(s32 targetMask, s32 callbackArg);
 

@@ -124,6 +124,13 @@ typedef enum {
     NUM_STAT_MULTS = 8,
 } BattleStatMultIndex;
 
+typedef enum {
+    SPRITE_QUAD_FLIP_U = 0x1,
+    SPRITE_QUAD_FLIP_V = 0x2,
+    SPRITE_QUAD_SEMI_TRANS = 0x100,
+    SPRITE_QUAD_TEX_SIZE = 0x200,
+} SpriteQuadFlags;
+
 typedef struct {
     /* 0x0 */ u16 isMultiBattle;
     /* 0x2 */ u16 characterMask[NUM_PARTY];
@@ -474,10 +481,36 @@ typedef struct {
     /* 0xE */ s16 clut;     // packet clut halfword
 } ModelRenderDesc;          // size:0x10
 
+typedef struct {
+    /* 0x00 */ u32 flags;
+    /* 0x04 */ s16 x;
+    /* 0x06 */ s16 y;
+    /* 0x08 */ u16 u;
+    /* 0x0A */ u16 v;
+    /* 0x0C */ u16 tpage;
+    /* 0x0E */ u16 clut;
+    /* 0x10 */ u8 w;
+    /* 0x11 */ u8 uw;
+    /* 0x12 */ u8 h;
+    /* 0x13 */ u8 vh;
+} SpriteQuad; // size:0x14
+
+typedef struct {
+    /* 0x0 */ s16 unk0;
+    /* 0x2 */ s16 quadCount;
+    /* 0x4 */ SpriteQuad quads[1];
+} SpriteFrame;
+
+typedef struct {
+    /* 0x0 */ s32 unk0;
+    /* 0x4 */ s32 frameCount;
+    /* 0x8 */ SpriteFrame frames[1];
+} SpriteAnim;
+
 // Textured-quad descriptor read by func_800D4D90; ROM instances are packed
 // 0xC apart. Akari: BATTLE.X_units_functions.cpp, "funcd4d90".
 typedef struct {
-    /* 0x0 */ s32* frames;    // per-frame quad blocks, count in each header
+    /* 0x0 */ SpriteAnim* frames;
     /* 0x4 */ CVECTOR color;  // packet colour word; cd is 0x2C or 0x2E (POLY_FT4)
     /* 0x8 */ u16 frameIndex; // blocks skipped; bit 15 enables clutBias
     /* 0xA */ s16 clutBias;   // added to each quad's clut halfword

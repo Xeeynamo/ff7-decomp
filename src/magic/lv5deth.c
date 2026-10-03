@@ -47,10 +47,10 @@ extern u_long g_Lv5DeathTexture[]; // 8bpp TIM + 256-colour CLUT, uploaded on se
 // Flat 16-point ring of radius 976 lying in the XY plane at z = -21.
 extern s32 g_Lv5DeathRingModel[];
 
-extern s32 g_Lv5DeathSpriteModel[];
+extern SpriteAnim g_Lv5DeathSpriteModel;
 
 // .color.cd holds the GPU primitive code (0x2E).
-static SpriteRenderDesc lv5deth_sprite_desc = {g_Lv5DeathSpriteModel, {0x80, 0x80, 0x80, 0x2E}, 0, 0};
+static SpriteRenderDesc lv5deth_sprite_desc = {&g_Lv5DeathSpriteModel, {0x80, 0x80, 0x80, 0x2E}, 0, 0};
 
 static void Lv5DeathBufferFlip(void) {
     g_Lv5DeathBufferPtr = g_dbIndex == 0 ? g_Lv5DeathPrimBuffer0 : g_Lv5DeathPrimBuffer1;

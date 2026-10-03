@@ -49,11 +49,11 @@ typedef struct {
     /* 0x20 */ SVECTOR Step;     // the whole displacement for CAM_OP_EASE_TO
 } Choco0CameraPath;              // size:0x28
 
-extern s32* g_Choco0PuffFrames[];
+extern SpriteAnim* g_Choco0PuffFrames[];
 extern Unk800F57D0 D_801D267C;
-extern u_long g_Choco0Texture[];
-extern s32 g_Choco0StarFrames[];
-extern s32 g_Choco0SwirlEyeFrames[];
+extern u_long choco0_texture_tim[];
+extern SpriteAnim g_Choco0StarFrames;
+extern SpriteAnim g_Choco0SwirlEyeFrames;
 extern Choco0Data g_BattleEffectSlots[];
 extern void* D_80163C74;
 extern SVECTOR g_BattleCameraTarget;
@@ -124,14 +124,14 @@ static SpriteRenderDesc choco0_render_desc0 = {NULL, {0x80, 0x80, 0x80, 0x2E}, 0
 static BattleSpriteDesc choco0_screen_quad = {-128, -96, 0, 0, 255, 191, 0x80, 0x80, 0x80, 0x2C, 0x8D, 0x3FF0};
 static MATRIX choco0_screen_matrix = {{{0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000}}, {0, 0, 0}};
 static VECTOR* choco0_scratch_vec = (VECTOR*)0x1F800000;
-static SpriteRenderDesc choco0_star_desc = {g_Choco0StarFrames, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
+static SpriteRenderDesc choco0_star_desc = {&g_Choco0StarFrames, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
 static SVECTOR* choco0_scratch_svec = (SVECTOR*)0x1F800000;
 static SpriteRenderDesc choco0_render_desc1 = {NULL, {0x80, 0x80, 0x80, 0x2E}, 0, 0};
 static SVECTOR choco0_left_eye_offset = {-50, 80, -90, 0};
 static SVECTOR choco0_right_eye_offset = {50, 80, -90, 0};
 static MATRIX choco0_left_eye_matrix = {{{0x200, 0, 0}, {0, 0x200, 0}, {0, 0, 0x200}}, {0, 0, 0}};
 static MATRIX choco0_right_eye_matrix = {{{0x200, 0, 0}, {0, 0x200, 0}, {0, 0, 0x200}}, {0, 0, 0}};
-static SpriteRenderDesc choco0_swirl_eye_desc = {g_Choco0SwirlEyeFrames, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
+static SpriteRenderDesc choco0_swirl_eye_desc = {&g_Choco0SwirlEyeFrames, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
 static RECT choco0_clear_rect = {960, 0, 32, 64};
 
 static Choco0CameraPath choco0_camera_eye_path;
@@ -678,7 +678,7 @@ static void Choco0AnimationUpdate(void) {
 static void Choco0MainSetup(s32 targetMask, s32 callbackArg) {
     SVECTOR center;
 
-    BattleSetLoadTimToVram(g_Choco0Texture, 0, 0, 0);
+    BattleSetLoadTimToVram(choco0_texture_tim, 0, 0, 0);
     choco0_target_mask = targetMask;
     BattleEntityGetCenter(targetMask, &center);
     choco0_scene_matrix.t[0] = choco0_scene_matrix.t[1] = 0;

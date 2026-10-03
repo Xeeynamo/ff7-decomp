@@ -752,7 +752,9 @@ overlays:
     segments:
       - [0, .rodata, choco0]
       - [0x38, c, choco0]
-      - [0x2074, data, choco0_model]
+      - [0x2074, tim, choco0_texture]
+      - [0x22354, .data, choco0_frames]
+      - [0x2267C, data, choco0_model]
       - [0x35754, .data, choco0]
       - [0x35978, .bss, choco0]
   # THUNDERA.BIN -- "Bolt2", the tier-2 lightning spell
