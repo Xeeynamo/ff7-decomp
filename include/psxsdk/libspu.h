@@ -42,8 +42,28 @@
 
 #define SPU_REV_MODE_CLEAR_WA	0x100
 
+#define SPU_COMMON_MVOLL (0x01 << 0)     // master volume (left)
+#define SPU_COMMON_MVOLR (0x01 << 1)     // master volume (right)
+#define SPU_COMMON_MVOLMODEL (0x01 << 2) // master volume mode (left)
+#define SPU_COMMON_MVOLMODER (0x01 << 3) // master volume mode (right)
+#define SPU_COMMON_RVOLL (0x01 << 4)     // reverb volume (left)
+#define SPU_COMMON_RVOLR (0x01 << 5)     // reverb volume (right)
+#define SPU_COMMON_CDVOLL (0x01 << 6)    // CD input volume (left)
+#define SPU_COMMON_CDVOLR (0x01 << 7)    // CD input volume (right)
+#define SPU_COMMON_CDREV (0x01 << 8)     // CD input reverb on/off
+#define SPU_COMMON_CDMIX (0x01 << 9)     // CD input on/off
+#define SPU_COMMON_EXTVOLL (0x01 << 10)  // external digital input volume (left)
+#define SPU_COMMON_EXTVOLR (0x01 << 11)  // external digital input volume (right)
+#define SPU_COMMON_EXTREV (0x01 << 12)   // external digital input reverb on/off
+#define SPU_COMMON_EXTMIX (0x01 << 13)   // external digital input on/off
+
 #define SPU_OFF 0
 #define SPU_ON 1
+
+#define SPU_TRANSFER_BY_DMA 0L
+#define SPU_TRANSFER_BY_IO 1L
+
+#define SPU_MALLOC_RECSIZ 8
 
 #ifndef __SPU_IRQCALLBACK_PROC
 #define __SPU_IRQCALLBACK_PROC
@@ -92,12 +112,29 @@ extern unsigned long SpuSetTransferStartAddr(unsigned long addr);
 extern unsigned long SpuWrite(unsigned char* addr, unsigned long size);
 
 extern long SpuSetReverbModeParam(SpuReverbAttr* attr);
+extern long SpuSetReverbDepth(SpuReverbAttr* attr);
+extern long SpuSetNoiseClock(long n_clock);
 
 extern void SpuSetVoiceAttr(SpuVoiceAttr* arg);
 extern void SpuSetVoiceVolumeAttr(int voice_bit, short voll, short volr, short volmode_l, short volmode_r);
 extern void SpuSetKey(long on_off, unsigned long voice_bit);
+extern void SpuSetVoiceVolume(int voiceNum, short volumeL, short volumeR);
+extern void SpuSetVoicePitch(int voiceNum, unsigned short pitch);
+extern void SpuSetVoiceStartAddr(int voiceNum, unsigned long startAddr);
+extern void SpuSetVoiceLoopStartAddr(int voiceNum, unsigned long loopStartAddr);
+extern void SpuSetVoiceARAttr(int voiceNum, unsigned short AR, long ARmode);
+extern void SpuSetVoiceDR(int voiceNum, unsigned short DR);
+extern void SpuSetVoiceSRAttr(int voiceNum, unsigned short SR, long SRmode);
+extern void SpuSetVoiceSL(int voiceNum, unsigned short SL);
+extern void SpuSetVoiceRRAttr(int voiceNum, unsigned short RR, long RRmode);
 
+extern long SpuInitMalloc(long num, char* top);
 extern long SpuMallocWithStartAddr(unsigned long addr, long size);
+extern long SpuSetIRQ(long on_off);
+extern long SpuGetKeyStatus(unsigned long voice_bit);
+extern unsigned long SpuSetReverbVoice(long on_off, unsigned long voice_bit);
+extern unsigned long SpuSetNoiseVoice(long on_off, unsigned long voice_bit);
+extern unsigned long SpuSetPitchLFOVoice(long on_off, unsigned long voice_bit);
 #ifndef __SPU_TRANSFERCALLBACK_PROC
 #define __SPU_TRANSFERCALLBACK_PROC
 typedef void (*SpuTransferCallbackProc)(void);

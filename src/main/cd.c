@@ -28,9 +28,8 @@ typedef enum {
 } CdOp;
 
 extern CdlATV D_800698E4; // CD audio volume
-extern s32 g_Channel1Config;
-extern u8* D_80034CF0; // lzs extract source
-extern int D_800698E8; // sector_no
+extern u8* D_80034CF0;    // lzs extract source
+extern int D_800698E8;    // sector_no
 extern s32 D_800698EC;
 extern u8 D_800698F0[0x4800]; // disc buffer
 extern int D_8006E0F0;
@@ -121,7 +120,7 @@ void func_80033BE0(void) {
 }
 
 void func_80033C20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    if (g_Channel1Config & 1) {
+    if (g_AkaoBgmLanes[0].stereoMono & 1) {
         D_800698E4.val0 = arg0;
         D_800698E4.val1 = arg1;
         D_800698E4.val2 = arg2;
