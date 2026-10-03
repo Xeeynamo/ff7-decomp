@@ -7,7 +7,7 @@ set(CMAKE_C_STANDARD 11)
 set(FF7_SOURCES
     # Engine
     src/main/110B8.c
-    src/main/33B70.c
+    src/main/cdrom.c
     src/main/1F6B4.c
     src/main/ovl.c
     src/main/1CDA4.c
