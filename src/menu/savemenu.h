@@ -54,11 +54,6 @@ typedef enum {
     TITLE_TABLE_TITLE = 7,
 } TitleMenuTableIndex;
 
-typedef enum {
-    TITLE_BTN_FORMAT = 0,
-    TITLE_BTN_TITLE = 1,
-} TitleButtonTableIndex;
-
 #define NUM_CARD_SLOTS 2
 #define CARD_SLOT_1 0
 #define CARD_SLOT_2 1
