@@ -52,8 +52,6 @@ static u8 shiftJis_table[0x200] = {
 static u32 D_801DF108 = 0;
 // Card icons, SAVE_ICON_SIZE each: CLUT at 0x00, bitmap at 0x2C
 extern u8 g_SaveIcons[];
-// inside g_SaveFile, right after its header
-extern u8 g_SaveFileData[];
 INCLUDE_DATA("menu/data/saveicons");
 
 // bss starts at g_SaveCharClutBackup; the earlier part lives in title.c, both ordered by savemenu.h
@@ -629,6 +627,9 @@ s32 LoadSaveHeader(s32 save_id) {
             g_SaveWriteRemaining -= readCount;
         }
     } while (readRetry != 0);
+    if (readRetry != 0) {
+        goto read_ok;
+    }
     close(fd);
     return 2;
 read_ok:
@@ -636,7 +637,7 @@ read_ok:
     slot = save_id & 15;
     headers = D_801E3864;
     headerDst = (u8*)&headers[slot];
-    headerSrc = g_SaveFileData;
+    headerSrc = (u8*)&g_SaveFile.save;
     memcpy(headerDst, headerSrc, sizeof(SaveHeader));
     return 0;
 }
@@ -681,12 +682,15 @@ s32 LoadSaveFile(s32 save_id) {
             g_SaveWriteRemaining -= readCount;
         }
     } while (readRetry != 0);
+    if (readRetry != 0) {
+        goto read_ok;
+    }
     close(fd);
     return 2;
 read_ok:
     close(fd);
     saveDst = (u8*)&Savemap;
-    saveSrc = g_SaveFileData;
+    saveSrc = (u8*)&g_SaveFile.save;
     memcpy(saveDst, saveSrc, sizeof(SaveWork));
     for (i = 0; i < NUM_MENU_COLOR; i++) {
         g_MenuColors[i] = Savemap.header.menu_color[i];
