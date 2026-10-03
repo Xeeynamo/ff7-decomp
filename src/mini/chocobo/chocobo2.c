@@ -56,7 +56,8 @@ void ChocoboRaceInit(void) {
     D_800B7500 = track->segments;
     D_800B747C = -((Savemap.memory_bank_1[0] + (Savemap.memory_bank_1[1] << 8)) >= 1000);
     pad = InputReadPadsRaw() >> 16;
-    if ((pad & (PAD_TRIANGLE | PAD_CROSS | PAD_SQUARE | PAD_CIRCLE)) == (PAD_TRIANGLE | PAD_CROSS | PAD_SQUARE | PAD_CIRCLE)) {
+    if ((pad & (PAD_TRIANGLE | PAD_CROSS | PAD_SQUARE | PAD_CIRCLE)) ==
+        (PAD_TRIANGLE | PAD_CROSS | PAD_SQUARE | PAD_CIRCLE)) {
         if (pad & PAD_R1) {
             Savemap.memory_bank_3[6] = 1;
         }

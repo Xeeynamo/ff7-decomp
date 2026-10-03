@@ -800,7 +800,7 @@ static void BattleMenuUpdate(void) {
                     }
                 }
                 func_800DDFEC();
-            } else if (g_Pad0KeysRepeat & PAD_CROSS) {           // pressed Cancel/Back
+            } else if (g_Pad0KeysRepeat & PAD_CROSS) {          // pressed Cancel/Back
                 if ((D_800F38A4 == 2) && (D_800F389D == 0xA)) { // in the item menu?
                     if (list[D_800F562C].count == 0) {
                         list[D_800F562C].id = D_800F314E;
