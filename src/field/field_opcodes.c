@@ -3707,7 +3707,7 @@ static s32 OpcodeFuncPgtdr(void) {
     u8 charId;
     u8 entityId;
 
-    if (partyId < 3) {
+    if (partyId < NUM_PARTY) {
         charId = Savemap.memory_bank_2[9 + partyId];
         if (charId != 0xFF) {
             entityId = g_CharIdToEntity[charId];
@@ -3774,9 +3774,9 @@ static s32 OpcodeFuncPxyzi(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("pxyzi", 7);
     }
-    if (partyId < 3) {
+    if (partyId < NUM_PARTY) {
         charId = Savemap.memory_bank_2[9 + partyId];
-        if (charId < 9) {
+        if (charId < NUM_CHARACTERS) {
             entityId = g_CharIdToEntity[charId];
             if (g_EntityToModel[entityId] != 0xFF) {
                 FieldEventWriteMemoryS16(1, 4, (g_FieldModels[g_EntityToModel[entityId]].PosX << 4) >> 16);
@@ -5487,7 +5487,7 @@ static s32 OpcodeFuncPc(void) {
     charId = GET_PARAM_U8(1);
     g_CharIdToEntity[charId] = g_CurrentEntity;
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         if (Savemap.memory_bank_2[9 + i] == charId) {
             if (i != 0) {
                 g_FieldModels[g_EntityToModel[g_CurrentEntity]].visible = 0;
@@ -5521,7 +5521,7 @@ static s32 OpcodeFuncPrtyp(void) {
     }
 
     charId = GET_PARAM_U8(1);
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         if (Savemap.memory_bank_2[9 + i] == charId) {
             PC_INC(2);
             SetPcModel();
@@ -5530,7 +5530,7 @@ static s32 OpcodeFuncPrtyp(void) {
         }
     }
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         if (Savemap.memory_bank_2[9 + i] == 0xFF) {
             ADD_PARTY_MEMBER(i, charId);
 
@@ -5564,7 +5564,7 @@ static s32 OpcodeFuncPrtym(void) {
 
     charId = GET_PARAM_U8(1);
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         if (Savemap.memory_bank_2[9 + i] == charId) {
             Savemap.memory_bank_2[9 + i] = 0xFF;
             PartyFromBank2ToSave(1);
@@ -5581,14 +5581,14 @@ static s32 OpcodeFuncPrtym(void) {
 }
 
 static s32 OpcodeFuncPrtye(void) {
-    u8 newParty[3];
+    u8 newParty[NUM_PARTY];
     s32 i;
 
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("prtye", 3);
     }
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         newParty[i] = (&GET_PARAM_U8(1))[i];
     }
 
@@ -5598,14 +5598,14 @@ static s32 OpcodeFuncPrtye(void) {
 }
 
 static s32 OpcodeFuncSptye(void) {
-    u8 newParty[3];
+    u8 newParty[NUM_PARTY];
     s32 i;
 
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("sptye", 5);
     }
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         newParty[i] = FieldEventReadMemoryU8(1 + i, 3 + i);
     }
 
@@ -5621,7 +5621,7 @@ static s32 OpcodeFuncGptye(void) {
         DebugPrintOpcode("gptye", 5);
     }
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         FieldEventWriteMemoryU8(1 + i, 3 + i, Savemap.memory_bank_2[9 + i]);
     }
     PC_INC(6);
@@ -5635,9 +5635,9 @@ static void PartyReplace(u8* newParty) {
     s32 i, j;
 
     // Remove requested members from old party.
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         if (newParty[i] != 0xFF) {
-            for (j = 0; j < 3; j++) {
+            for (j = 0; j < NUM_PARTY; j++) {
                 if (newParty[i] == Savemap.memory_bank_2[9 + j]) {
                     Savemap.memory_bank_2[9 + j] = 0xFF;
                 }
@@ -5646,19 +5646,19 @@ static void PartyReplace(u8* newParty) {
     }
 
     // Add remaining members of old party to empty slots in new party.
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         if (Savemap.memory_bank_2[9 + i] != 0xFF) {
-            for (j = 0; j < 3; j++) {
+            for (j = 0; j < NUM_PARTY; j++) {
                 if (newParty[j] == 0xFF) {
                     newParty[j] = Savemap.memory_bank_2[9 + i];
-                    j = 3;
+                    j = NUM_PARTY;
                 }
             }
         }
     }
 
     // Overwrite old party with new party.
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         // Convert forced empty slots to regular empty slots.
         if (newParty[i] == 0xFE) {
             newParty[i] = 0xFF;
@@ -5675,14 +5675,14 @@ static void PartyReplace(u8* newParty) {
 static void PartyCompare(u8* party1, u8* party2, u8* party2Only, u8* party1Only) {
     s32 i, j, k;
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         party2Only[i] = 0xFF;
         party1Only[i] = 0xFF;
     }
 
     k = 0;
-    for (i = 0; i < 3; i++) {
-        for (j = 0; j < 3; j++) {
+    for (i = 0; i < NUM_PARTY; i++) {
+        for (j = 0; j < NUM_PARTY; j++) {
             if (party2[i] == party1[j]) {
                 goto foundInParty1;
             }
@@ -5692,8 +5692,8 @@ static void PartyCompare(u8* party1, u8* party2, u8* party2Only, u8* party1Only)
     }
 
     k = 0;
-    for (i = 0; i < 3; i++) {
-        for (j = 0; j < 3; j++) {
+    for (i = 0; i < NUM_PARTY; i++) {
+        for (j = 0; j < NUM_PARTY; j++) {
             if (party1[i] == party2[j]) {
                 goto foundInParty2;
             }
@@ -5706,8 +5706,8 @@ static void PartyCompare(u8* party1, u8* party2, u8* party2Only, u8* party1Only)
 // Transfers party from bank 2 to save while preserving order in save of
 // characters existing in both parties.
 static void PartyFromBank2ToSave(s32 unused) {
-    u8 notInSave[3];
-    u8 notInBank2[3];
+    u8 notInSave[NUM_PARTY];
+    u8 notInBank2[NUM_PARTY];
 
     PartyCompare(Savemap.partyID, &Savemap.memory_bank_2[9], notInSave, notInBank2);
     PartyRemove(Savemap.partyID, notInBank2);
@@ -5718,8 +5718,8 @@ static void PartyFromBank2ToSave(s32 unused) {
 // Transfers party from save to bank 2 while preserving order in bank 2 of
 // characters existing in both parties.
 void FIELD_Init(void) {
-    u8 notInBank2[3];
-    u8 notInSave[3];
+    u8 notInBank2[NUM_PARTY];
+    u8 notInSave[NUM_PARTY];
 
     PartyCompare(&Savemap.memory_bank_2[9], Savemap.partyID, notInBank2, notInSave);
     PartyRemove(&Savemap.memory_bank_2[9], notInSave);
@@ -5729,8 +5729,8 @@ void FIELD_Init(void) {
 static void PartyRemove(u8* party, u8* toRemove) {
     s32 i, j;
 
-    for (i = 0; i < 3; i++) {
-        for (j = 0; j < 3; j++) {
+    for (i = 0; i < NUM_PARTY; i++) {
+        for (j = 0; j < NUM_PARTY; j++) {
             if (toRemove[i] == party[j]) {
                 party[j] = 0xFF;
             }
@@ -5743,8 +5743,8 @@ static void PartyRemove(u8* party, u8* toRemove) {
 static void PartyAdd(u8* party, u8* toAdd) {
     s32 i, j;
 
-    for (i = 0; i < 3; i++) {
-        for (j = 0; j < 3; j++) {
+    for (i = 0; i < NUM_PARTY; i++) {
+        for (j = 0; j < NUM_PARTY; j++) {
             if (party[j] == 0xFF) {
                 party[j] = toAdd[i];
                 break;
@@ -5763,7 +5763,7 @@ static s32 OpcodeFuncPrtyq(void) {
 
     charId = GET_PARAM_U8(1);
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         if (Savemap.memory_bank_2[9 + i] == charId) {
             if (g_DebugLevel & 3) {
                 FieldDebugAddParseValueToPage2("prty=TRUE", 0, 0);
@@ -5814,7 +5814,7 @@ static s32 OpcodeFuncMmbPlusMinus(void) {
         Savemap.phs_visibility_mask |= 1 << charId;
     } else {
         Savemap.phs_visibility_mask &= ~(1 << charId);
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < NUM_PARTY; i++) {
             if (Savemap.memory_bank_2[9 + i] == charId) {
                 Savemap.memory_bank_2[9 + i] = 0xFF;
             }
@@ -5904,7 +5904,7 @@ static s32 OpcodeFuncJoin(void) {
     }
 
     if (partyChar2 && partyChar3) {
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < NUM_PARTY; i++) {
             charId = Savemap.memory_bank_2[9 + i];
             if (charId == 0xFF) {
                 continue;
@@ -5960,7 +5960,7 @@ static s32 OpcodeFuncSplit(void) {
     }
 
     if (partyChar2 && partyChar3) {
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < NUM_PARTY; i++) {
             charId = Savemap.memory_bank_2[9 + i];
             if (charId == 0xFF) {
                 continue;
@@ -6685,7 +6685,7 @@ static s32 OpcodeFuncGetpc(void) {
         DebugPrintOpcode("getpc", 3);
     }
     partyId = GET_PARAM_U8(2);
-    if (partyId < 3) {
+    if (partyId < NUM_PARTY) {
         FieldEventWriteMemoryU8(2, 3, Savemap.partyID[partyId]);
     }
     PC_INC(4);
@@ -6808,7 +6808,7 @@ static s32 OpcodeFuncCos(void) {
 static void SystemRefreshParty(void) {
     s16 i;
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         if (Savemap.partyID[i] != 0xFF) {
             SysInitPlayerStatFromEquip(i);
             SysInitPlayerStatFromMateria(i);
@@ -6821,7 +6821,7 @@ static void SystemRestoreParty(void) {
     s32 i;
 
     SystemRefreshParty();
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         SystemMenuAddHpByPartyId(i, 10000);
         SystemMenuAddMpByPartyId(i, 10000);
         if (Savemap.partyID[i] != 0xFF && g_BattleCharIdToCharId[Savemap.partyID[i]] <= 8) {
@@ -6831,28 +6831,28 @@ static void SystemRestoreParty(void) {
 }
 
 static s32 OpcodeFuncMhmmx(void) {
-    u8 party[3];
+    u8 party[NUM_PARTY];
     s32 i;
 
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("mhmmx", 0);
     }
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         party[i] = Savemap.partyID[i];
     }
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         Savemap.partyID[i] = i;
     }
     SystemRestoreParty();
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         Savemap.partyID[i] = i + 3;
     }
     SystemRestoreParty();
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         Savemap.partyID[i] = i + 6;
     }
     SystemRestoreParty();
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         Savemap.partyID[i] = party[i];
     }
     SystemRestoreParty();
@@ -6867,7 +6867,7 @@ static s32 OpcodeFuncHmpmx(void) {
         DebugPrintOpcode("hmpmx", 0);
     }
     SystemRefreshParty();
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         SystemMenuAddHpByPartyId(i, 10000);
         SystemMenuAddMpByPartyId(i, 10000);
     }
@@ -6886,7 +6886,7 @@ static s32 OpcodeFuncMpPlus(void) {
     partyId = GET_PARAM_U8(2);
     if (Savemap.memory_bank_2[9 + partyId] != 0xFF) {
         partyId = Savemap.memory_bank_2[9 + partyId];
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < NUM_PARTY; i++) {
             if (Savemap.partyID[i] == partyId) {
                 SystemMenuAddMpByPartyId(i, FieldEventReadMemoryS16(2, 3));
             }
@@ -6907,7 +6907,7 @@ static s32 OpcodeFuncMpMinus(void) {
     partyId = GET_PARAM_U8(2);
     if (Savemap.memory_bank_2[9 + partyId] != 0xFF) {
         partyId = Savemap.memory_bank_2[9 + partyId];
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < NUM_PARTY; i++) {
             if (Savemap.partyID[i] == partyId) {
                 SysMenuRemoveMpByPartyId(i, FieldEventReadMemoryS16(2, 3));
             }
@@ -6928,7 +6928,7 @@ static s32 OpcodeFuncHpPlus(void) {
     partyId = GET_PARAM_U8(2);
     if (Savemap.memory_bank_2[9 + partyId] != 0xFF) {
         partyId = Savemap.memory_bank_2[9 + partyId];
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < NUM_PARTY; i++) {
             if (Savemap.partyID[i] == partyId) {
                 SystemMenuAddHpByPartyId(i, FieldEventReadMemoryS16(2, 3));
             }
@@ -6949,7 +6949,7 @@ static s32 OpcodeFuncHpMinus(void) {
     partyId = GET_PARAM_U8(2);
     if (Savemap.memory_bank_2[9 + partyId] != 0xFF) {
         partyId = Savemap.memory_bank_2[9 + partyId];
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < NUM_PARTY; i++) {
             if (Savemap.partyID[i] == partyId) {
                 SysMenuRemoveHpByPartyId(i, FieldEventReadMemoryS16(2, 3));
             }
