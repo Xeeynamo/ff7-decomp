@@ -193,7 +193,7 @@ u8 g_FieldMouthTextureIndices[34][3] = {
 
 FieldKawaiState g_FieldKawaiState = {0};
 u8 g_FieldKawaiParams[32] = {0};
-// Sixteen shared effect slots, each handler interpret each 60-byte slot differently.
+// Sixteen shared effect slots; each handler interprets each 60-byte slot differently.
 u32 D_800DFE3C[16][15] = {0};
 void* D_800E01FC = (void*)0x801AF800;
 u8* D_800E0200 = NULL;
@@ -219,7 +219,26 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetCustomLi
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetVertexColorFromLighting);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetColorToModelPkts);
+s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params) {
+    FieldModelPart* parts;
+    u32 i;
+    u32 count;
+    s16 r;
+    s16 g;
+    s16 b;
+    u8 unused[8]; // Never read; only here to pad the stack frame out to 0x40.
+
+    count = model->partCount;
+    parts = (FieldModelPart*)(model->partsOffset + (u_long)model->modelData);
+    r = (params[1] << 8) | params[0];
+    g = (params[3] << 8) | params[2];
+    b = (params[5] << 8) | params[4];
+    *(s32*)getScratchAddr(0x80) = params[6];
+    for (i = 0; i < count; i++) {
+        KawaiSetColorToPartPkts(&parts[i], r, g, b);
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetColorToPartPkts);
 
@@ -278,7 +297,59 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetLighting
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetSplashToPktsBelowLvl);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiInitSplashPkts);
+// One per-bone slot for the waterline effect: a pair of blending textured quads plus the
+// per-bone vector and scale used to displace them.
+typedef struct {
+    /* 0x00 */ POLY_FT4 poly[2];
+    /* 0x50 */ s16 unk50;       // x, loaded into the GTE as the per-bone vertex
+    /* 0x52 */ s16 unk52;       // y
+    /* 0x54 */ s16 unk54;       // z
+    /* 0x56 */ u16 unk56;       // never read or written by this module
+    /* 0x58 */ s16 effectScale; // abs() divisor, negated bone length
+    /* 0x5A */ u16 flags;       // bitmask
+} FieldSplashEntry;             // size:0x5C
+
+// Thirty slots of scratch per model, pointed at by D_800E0200.
+#define FIELD_SPLASH_SLOTS 30
+
+void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
+    FieldSplashEntry* entries;
+    FieldModelBone* bones;
+    u16 clut;
+    u16 tpage;
+    s32 last; // Named so gcc keeps the bound in a register (slt) rather than folding it to a slti.
+    s32 i;
+
+    entries = (FieldSplashEntry*)((u8*)D_800E0200 + slot * FIELD_SPLASH_SLOTS * sizeof(FieldSplashEntry));
+    clut = 0x6C2C;
+    // GetGraphType is deliberately called twice cache drops jal
+    tpage = getTPage(1, 0, 0x2C0, 0x100);
+    bones = (FieldModelBone*)model->modelData;
+    last = FIELD_SPLASH_SLOTS + 1;
+    for (i = 1; i < last; i++) {
+        FieldSplashEntry* entry = &entries[i];
+
+        setPolyFT4(&entry->poly[0]);
+        setPolyFT4(&entry->poly[1]);
+        entry->poly[1].b0 = 0x80;
+        entry->poly[0].b0 = 0x80;
+        entry->poly[1].g0 = 0x80;
+        entry->poly[0].g0 = 0x80;
+        entry->poly[1].r0 = 0x80;
+        entry->poly[0].r0 = 0x80;
+        entry->poly[1].clut = clut;
+        entry->poly[0].clut = clut;
+        entry->poly[1].tpage = tpage;
+        entry->poly[0].tpage = tpage;
+        entry->unk50 = 0;
+        entry->unk52 = 0;
+        entry->unk54 = 0;
+        setSemiTrans(&entry->poly[0], 1);
+        setSemiTrans(&entry->poly[1], 1);
+        entry->effectScale = -bones[i].length;
+        entry->flags = 0;
+    }
+}
 
 s32 KawaiSetPartAttribute(FieldModelEntry* model, u8* params) {
     s32 count = params[0];
