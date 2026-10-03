@@ -538,7 +538,7 @@ static s32 g_endingInProgress;
 
 static void EndingLoadTim(void*, s16*, s16*);
 static s32 func_800A379C(EndingObj*, VECTOR*, VECTOR*, s32);
-void EndingInsertNode(EndingNode*, s16, u8, void (*)());
+static void EndingInsertNode(EndingNode*, s16, u8, void (*)());
 static void func_800A09DC(void);
 static void SetGameResolution(s32, s32, s32, u8, u8, u8);
 static s32 StartFrame(s32 sync);
@@ -1047,9 +1047,19 @@ static void EndingInitScriptPc(s16* arg0) { g_endingScriptPc = arg0; }
 
 s32 EndingOpcode00(void) { return 0; }
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", EndingOpcode01);
+s32 EndingOpcode01(void) {
+    s32 idx = *g_endingScriptPc++;
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", EndingOpcode02);
+    SystemLoadFileBySector(D_800A6398[idx * 2], D_800A6398[idx * 2 + 1], (u_long*)0x800D0000, NULL);
+    return 1;
+}
+
+s32 EndingOpcode02(void) {
+    s32 idx = *g_endingScriptPc++;
+
+    SysCdromStartLoadLzs(D_800A6398[idx * 2], D_800A6398[idx * 2 + 1], (u_long*)0x800D0000, NULL);
+    return 1;
+}
 
 s32 EndingOpcode03(void) { return func_80034410() == 0; }
 
@@ -1387,7 +1397,39 @@ static void EndingInitNodes(void) {
     g_endingNode1.next = NULL;
 }
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", EndingInsertNode);
+static void EndingInsertNode(EndingNode* newNode, s16 id, u8 prio, void (*fn)(EndingNode*)) {
+    EndingNode* node = &g_endingNode0;
+
+    do {
+        if (prio > node->prio) {
+            newNode->id = id;
+            newNode->fn = fn;
+            newNode->state = 2;
+            newNode->prio = prio;
+
+            newNode->next = node;
+            newNode->prev = node->prev;
+            node->prev = newNode;
+            node = newNode->prev;
+            node->next = newNode;
+            return;
+        }
+        node = node->next;
+    } while (node->next);
+
+    if (prio > node->prio) {
+        newNode->id = id;
+        newNode->fn = fn;
+        newNode->state = 2;
+        newNode->prio = prio;
+
+        newNode->next = node;
+        newNode->prev = node->prev;
+        node->prev = newNode;
+        node = newNode->prev;
+        node->next = newNode;
+    }
+}
 
 static void func_800A3210(void) {
     EndingNode* node = g_endingNode0.next;
