@@ -32,7 +32,7 @@ void FieldEventInit(FieldState* fieldState, FieldEntity* fieldModels, FieldScrip
     D_80095DCC = 0;
     D_8007EBE0 = 1;
     D_8009FE8C = 0;
-    if ((fieldState->activeKeysRaw >> 16) & PADselect) {
+    if ((fieldState->activeKeysRaw >> 16) & PAD_SELECT) {
         D_80095DCC = 1;
         D_80099FFC = 4;
     }
@@ -612,7 +612,7 @@ static void ResetPositionCursorPrimitives(void) {
 }
 
 static void UpdatePositionCursor(OT_TYPE* ot) {
-    if (g_pFieldState->pressedKeys & PADselect) {
+    if (g_pFieldState->pressedKeys & PAD_SELECT) {
         Savemap.memory_bank_4[30] ^= 1;
     }
     if (((Savemap.memory_bank_4[30] == 1) && (!g_pFieldState->characterLock)) || Savemap.memory_bank_4[30] & 2) {

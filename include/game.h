@@ -22,6 +22,26 @@
 #define NUM_MENU_COLOR 12
 #define LABEL_SIZE 12
 
+enum PadButtons {
+    PAD_NONE = 0x0000,
+    PAD_L2 = 0x0001,
+    PAD_R2 = 0x0002,
+    PAD_L1 = 0x0004,
+    PAD_R1 = 0x0008,
+    PAD_TRIANGLE = 0x0010,
+    PAD_CIRCLE = 0x0020,
+    PAD_CROSS = 0x0040,
+    PAD_SQUARE = 0x0080,
+    PAD_SELECT = 0x0100,
+    PAD_L3 = 0x0200,
+    PAD_R3 = 0x0400,
+    PAD_START = 0x0800,
+    PAD_UP = 0x1000,
+    PAD_RIGHT = 0x2000,
+    PAD_DOWN = 0x4000,
+    PAD_LEFT = 0x8000,
+};
+
 typedef unsigned char ff7s[];
 
 typedef enum {
@@ -1151,7 +1171,6 @@ typedef struct {
     u16 prevFieldId;
     u8 unk66;
     u8 unk67;
-    // Uses PADx macros in libetc.h
     // Raw states ignore custom key mapping set by player.
     s32 activeKeysRaw;     // Currently active keys.
     s32 activeKeysPrevRaw; // activeKeysRaw from last frame.
@@ -1240,9 +1259,9 @@ typedef struct {
 } AkaoCmd;
 
 extern u8* D_8003623C;
-extern u16 g_Pad1Keys;
-extern u16 g_Pad1KeysPressed;
-extern u16 g_Pad1KeysRepeat;
+extern u16 g_Pad0Keys;
+extern u16 g_Pad0KeysPressed;
+extern u16 g_Pad0KeysRepeat;
 
 // Map between battle character IDs and index into character record array.
 // Battle characters have IDs 0-10. 9 and 10 are young Cloud and Sephiroth from

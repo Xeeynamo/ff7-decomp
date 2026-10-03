@@ -40,7 +40,7 @@ void func_801D00C4(void) {
         SysMenuDrawWindow(&D_801D07F4[i]);
     }
     SysMenuHandleButtons(&D_801D0860[D_801D07F0]);
-    if (g_Pad1KeysRepeat & PADRdown) {
+    if (g_Pad0KeysRepeat & PAD_CROSS) {
         SysMenuSetMenuListAnimation(5, 0);
         SysMenuLoadMenuFileById(0);
     }

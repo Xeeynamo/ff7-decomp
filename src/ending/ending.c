@@ -526,10 +526,10 @@ static u32 D_800AF3C4;
 static EndingNode g_endingNode0;
 static EndingNode g_endingNode1;
 static void* D_800AF3E8;
+static u32 g_endingPad0KeysPressed;
 static u32 g_endingPad1KeysPressed;
-static u32 g_endingPad2KeysPressed;
+static u32 g_endingPad0Keys;
 static u32 g_endingPad1Keys;
-static u32 g_endingPad2Keys;
 static void* D_800AF3FC;
 static OT_TYPE g_endingOT[2];
 static s32 g_endingDbIndex;
@@ -751,7 +751,7 @@ void ENDING_Loop(s32 isOutro) {
             func_800A3210();
             DrawOTag(&g_endingOT[g_endingDbIndex]);
             VSync(1);
-            if (isOutro == 0 && (g_endingPad1KeysPressed & 0x9F0)) {
+            if (isOutro == 0 && (g_endingPad0KeysPressed & 0x9F0)) {
                 goto fade_out;
             }
         }
@@ -1255,8 +1255,8 @@ static void SetGameResolution(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
 }
 
 static s32 StartFrame(s32 sync) {
+    u32 pad0;
     u32 pad1;
-    u32 pad2;
     u32 old1;
     u32 old2;
 
@@ -1268,17 +1268,17 @@ static s32 StartFrame(s32 sync) {
     D_8007EBD8 = &g_endingDispEnvs[g_endingDbIndex];
     D_8007EBD0 = &g_endingDrawEnvs[g_endingDbIndex];
 
-    pad1 = InputReadPadsRaw();
+    pad0 = InputReadPadsRaw();
     old1 = D_800AF3C0;
     old2 = D_800AF3C4;
-    pad2 = pad1 >> 16;
+    pad1 = pad0 >> 16;
 
+    g_endingPad0Keys = pad0;
     g_endingPad1Keys = pad1;
-    g_endingPad2Keys = pad2;
-    D_800AF3C0 = ~pad1;
-    D_800AF3C4 = ~pad2;
-    g_endingPad1KeysPressed = old1 & pad1;
-    g_endingPad2KeysPressed = old2 & pad2;
+    D_800AF3C0 = ~pad0;
+    D_800AF3C4 = ~pad1;
+    g_endingPad0KeysPressed = old1 & pad0;
+    g_endingPad1KeysPressed = old2 & pad1;
 
     return g_endingDbIndex;
 }

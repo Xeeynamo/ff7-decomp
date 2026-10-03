@@ -109,8 +109,8 @@ s32 FieldMainLoop(void) {
         FieldBGShakeUpdate(&g_FieldState.shakeY);
         FieldBGUpdateDrawenv(renderData);
         PreloadNextFieldMap(&g_FieldEntity[g_PlayerModelId], g_FieldTriggers->gateways);
-        if ((g_FieldState.activeKeysRaw & (PADstart | PADselect | PADR1 | PADR2 | PADL1 | PADL2)) ==
-            (PADstart | PADselect | PADR1 | PADR2 | PADL1 | PADL2)) {
+        if ((g_FieldState.activeKeysRaw & (PAD_START | PAD_SELECT | PAD_R1 | PAD_R2 | PAD_L1 | PAD_L2)) ==
+            (PAD_START | PAD_SELECT | PAD_R1 | PAD_R2 | PAD_L1 | PAD_L2)) {
             g_FieldState.eventCmd = EVTCMD_TITLE_SCREEN;
             SysMovieAbortPlay();
             StopFieldMapPreload();
@@ -151,7 +151,7 @@ s32 FieldMainLoop(void) {
             StopFieldMapPreload();
             return;
         }
-        if ((g_FieldKeyState & PADRup) && !g_FieldState.menuDisabled && !g_FieldMoviePlayed &&
+        if ((g_FieldKeyState & PAD_TRIANGLE) && !g_FieldState.menuDisabled && !g_FieldMoviePlayed &&
             !g_FieldMovieJustStarted) {
             g_GameState = GAMESTATE_MENU;
             g_FieldState.eventCmd = EVTCMD_PARTY_MENU;

@@ -1,4 +1,5 @@
 //! PSYQ=4.0 CC1=2.7.2 UNROLL=true
+#include <game.h>
 #include <libetc.h>
 #include <libgte.h>
 #include <psxsdk/inline_c.h>
@@ -175,7 +176,7 @@ void MINI_Chocobo(void) {
             AkaoExec();
         }
         D_800B7530.pressed = InputReadPadsRaw();
-        if (D_800F5078.unk8 != D_800B7530.pressed && D_800B7A48.unk0 && (D_800B7530.pressed & PADk)) {
+        if (D_800F5078.unk8 != D_800B7530.pressed && D_800B7A48.unk0 && (D_800B7530.pressed & PAD_SELECT)) {
             chocobos->unk60 = !chocobos->unk60;
         }
         D_800F5078.unk18 = VSync(1);
@@ -188,11 +189,11 @@ void MINI_Chocobo(void) {
             maxVSync2 = D_800F5078.unk1C;
         }
         if (paused) {
-            if (D_800B7530.pressed & PADl) {
+            if (D_800B7530.pressed & PAD_R1) {
                 paused = !paused;
                 frames++;
             }
-        } else if (D_800B7530.pressed & PADm) {
+        } else if (D_800B7530.pressed & PAD_R2) {
             paused = !paused;
             frames++;
         }

@@ -110,7 +110,7 @@ void SaveHandleScrollCursor(MenuTable* menu) {
     // #define a2_val arg3
     s32 v1_val;
     if (menu->scrolling == 0) {
-        if (g_Pad1KeysRepeat & PADLup) {
+        if (g_Pad0KeysRepeat & PAD_UP) {
             menu->row--;
             switch (menu->wrapModeY) {
             case 0:
@@ -135,7 +135,7 @@ void SaveHandleScrollCursor(MenuTable* menu) {
                 }
                 break;
             }
-        } else if (g_Pad1KeysRepeat & PADLdown) {
+        } else if (g_Pad0KeysRepeat & PAD_DOWN) {
             menu->row++;
             switch (menu->wrapModeY) {
             case 0:
@@ -159,7 +159,7 @@ void SaveHandleScrollCursor(MenuTable* menu) {
                 }
                 break;
             }
-        } else if (g_Pad1KeysRepeat & PADLleft) {
+        } else if (g_Pad0KeysRepeat & PAD_LEFT) {
             switch (menu->wrapModeX) {
             case 0:
                 menu->column--;
@@ -194,7 +194,7 @@ void SaveHandleScrollCursor(MenuTable* menu) {
             default:
                 return;
             }
-        } else if (g_Pad1KeysRepeat & PADLright) {
+        } else if (g_Pad0KeysRepeat & PAD_RIGHT) {
             switch (menu->wrapModeX) {
             case 0:
                 menu->column++;
@@ -233,14 +233,14 @@ void SaveHandleScrollCursor(MenuTable* menu) {
                 return;
             }
         } else {
-            if (g_Pad1KeysRepeat & PADl) {
+            if (g_Pad0KeysRepeat & PAD_R1) {
                 menu->rowOffset += menu->numRowsPerPage;
                 unk6 = menu->numTotalRows;
                 if ((unk6 - menu->numRowsPerPage) < menu->rowOffset) {
                     menu->rowOffset = unk6 - menu->numRowsPerPage;
                     return;
                 }
-            } else if (g_Pad1KeysRepeat & PADn) {
+            } else if (g_Pad0KeysRepeat & PAD_L1) {
                 menu->rowOffset -= menu->numRowsPerPage;
                 if (menu->rowOffset < 0) {
                     menu->rowOffset = 0;
@@ -658,7 +658,7 @@ static s32 TitleUpdate(s32 counter) {
     if (!(SysMenuIsWindowActive() & 0xFF) && g_TitleFadeState == TITLE_FADE_ACTIVE) {
         switch (g_MenuStartMode) {
         case START_MENU_MODE_SELECT_SLOT:
-            if (g_Pad1KeysPressed & PADRright) {
+            if (g_Pad0KeysPressed & PAD_CIRCLE) {
                 slotIndex = g_TitleMenuTables[TITLE_TABLE_SLOTS].row;
                 if (slotIndex >= NUM_CARD_SLOTS) {
                     break;
@@ -686,7 +686,7 @@ static s32 TitleUpdate(s32 counter) {
                     TitlePlaySfx(SFX_MENU_BAD);
                     SysMenuRequestAddWindow(g_SaveErrorStrings, 7);
                 }
-            } else if (g_Pad1KeysPressed & PADRdown) {
+            } else if (g_Pad0KeysPressed & PAD_CROSS) {
                 TitlePlaySfx(SFX_MENU_BACK);
                 g_MenuStartMode = START_MENU_MODE_TITLE;
             } else {
@@ -697,7 +697,7 @@ static s32 TitleUpdate(s32 counter) {
             status = g_TitleMenuTables[TITLE_TABLE_FILES].scrollAnimY;
             SaveHandleScrollCursor(&g_TitleMenuTables[TITLE_TABLE_FILES]);
             if (!g_TitleMenuTables[TITLE_TABLE_FILES].scrollAnimY && !status) {
-                if (g_Pad1KeysPressed & PADRright) {
+                if (g_Pad0KeysPressed & PAD_CIRCLE) {
                     if (((s32)g_SaveSlotMask >>
                          (g_TitleMenuTables[TITLE_TABLE_FILES].row + g_TitleMenuTables[TITLE_TABLE_FILES].rowOffset)) &
                         1) {
@@ -707,7 +707,7 @@ static s32 TitleUpdate(s32 counter) {
                     } else {
                         TitlePlaySfx(SFX_MENU_BAD);
                     }
-                } else if (g_Pad1KeysPressed & PADRdown) {
+                } else if (g_Pad0KeysPressed & PAD_CROSS) {
                     TitlePlaySfx(SFX_MENU_BACK);
                     g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                 }
@@ -778,7 +778,7 @@ static s32 TitleUpdate(s32 counter) {
             break;
         case START_MENU_MODE_FORMAT_PROMPT:
             SysMenuHandleButtons(&g_TitleButtonTables[TITLE_BTN_FORMAT]);
-            if (g_Pad1KeysPressed & PADRright) {
+            if (g_Pad0KeysPressed & PAD_CIRCLE) {
                 if (g_TitleButtonTables[TITLE_BTN_FORMAT].row == FORMAT_OPTION_YES) {
                     if (g_TitleMenuTables[TITLE_TABLE_SLOTS].row) {
                         formatStatus = format("bu10:");
@@ -798,13 +798,13 @@ static s32 TitleUpdate(s32 counter) {
                     g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                     TitlePlaySfx(SFX_MENU_BACK);
                 }
-            } else if (g_Pad1KeysPressed & PADRdown) {
+            } else if (g_Pad0KeysPressed & PAD_CROSS) {
                 g_MenuStartMode = START_MENU_MODE_SELECT_SLOT;
                 TitlePlaySfx(SFX_MENU_BACK);
             }
             break;
         case START_MENU_MODE_TITLE:
-            if (g_Pad1KeysPressed & PADRright) {
+            if (g_Pad0KeysPressed & PAD_CIRCLE) {
                 switch (g_TitleMenuTables[TITLE_TABLE_TITLE].row) {
                 case TITLE_OPTION_NEW_GAME:
                     TitlePlaySfx(SFX_MEMCARD_LOADED);

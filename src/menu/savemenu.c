@@ -1,4 +1,5 @@
 //! PSYQ=3.3 CC1=2.7.2
+#include <game.h>
 #include <libapi.h>
 #include <libgpu.h>
 #include <kernel.h>
@@ -287,7 +288,7 @@ int SAVEMENU_HandleSave(s32 counter) {
     }
     switch (D_801E3850) {
     case 0:
-        if (g_Pad1KeysPressed & PADRright) {
+        if (g_Pad0KeysPressed & PAD_CIRCLE) {
             if (g_MemCardSlotStatus[menus.D_801E379C[0].row][0]) {
                 PlaySfx(SFX_MENU_CURSOR_MOVE);
                 if (g_MemCardSlotStatus[menus.D_801E379C[0].row][2]) {
@@ -309,11 +310,11 @@ int SAVEMENU_HandleSave(s32 counter) {
         } else {
             SysMenuHandleButtons(&menus.D_801E379C[0]);
             if (D_801E36B8 != 0) {
-                if (g_Pad1KeysPressed & PADRdown) {
+                if (g_Pad0KeysPressed & PAD_CROSS) {
                     PlaySfx(SFX_MENU_BACK);
                     D_801E36B0 = 2;
                 }
-            } else if (g_Pad1KeysPressed & PADRdown) {
+            } else if (g_Pad0KeysPressed & PAD_CROSS) {
                 PlaySfx(SFX_MENU_BACK);
                 func_801D0670();
                 SysMenuSetMenuListAnimation(5, 0);
@@ -325,11 +326,11 @@ int SAVEMENU_HandleSave(s32 counter) {
         var_s0 = menus.D_801E379C[1].scrollAnimY;
         SaveHandleScrollCursor(&menus.D_801E379C[1]);
         if ((menus.D_801E379C[1].scrollAnimY == 0) && (var_s0 == 0)) {
-            if (g_Pad1KeysPressed & PADRright) {
+            if (g_Pad0KeysPressed & PAD_CIRCLE) {
                 D_801E3850 = 7;
                 SysMenuSetCursorMovement(&menus.D_801E3808[1], 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
                 PlaySfx(SFX_MENU_CURSOR_MOVE);
-            } else if (g_Pad1KeysPressed & PADRdown) {
+            } else if (g_Pad0KeysPressed & PAD_CROSS) {
                 PlaySfx(SFX_MENU_BACK);
                 D_801E3850 = 0;
             }
@@ -389,7 +390,7 @@ int SAVEMENU_HandleSave(s32 counter) {
         break;
     case 6:
         SysMenuHandleButtons(&menus.D_801E3808[0]);
-        if (g_Pad1KeysPressed & PADRright) {
+        if (g_Pad0KeysPressed & PAD_CIRCLE) {
             if (menus.D_801E3808[0].row) {
                 D_801E3850 = 0;
                 PlaySfx(SFX_MENU_BACK);
@@ -409,13 +410,13 @@ int SAVEMENU_HandleSave(s32 counter) {
                     PlaySfx(SFX_MENU_BAD);
                 }
             }
-        } else if (g_Pad1KeysPressed & PADRdown) {
+        } else if (g_Pad0KeysPressed & PAD_CROSS) {
             D_801E3850 = 0;
             PlaySfx(SFX_MENU_BACK);
         }
         break;
     case 7:
-        if (g_Pad1KeysPressed & PADRright) {
+        if (g_Pad0KeysPressed & PAD_CIRCLE) {
             temp_s0_2 = menus.D_801E3808[1].row;
             switch (menus.D_801E3808[1].row) {
             case 0:
@@ -428,7 +429,7 @@ int SAVEMENU_HandleSave(s32 counter) {
                 D_801E3850 = temp_s0_2;
                 break;
             }
-        } else if (g_Pad1KeysPressed & PADRdown) {
+        } else if (g_Pad0KeysPressed & PAD_CROSS) {
             D_801E3850 = 1;
             PlaySfx(SFX_MENU_BACK);
         } else {

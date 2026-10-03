@@ -257,7 +257,7 @@ void BattleMenuDrawActiveWidgets(OT_TYPE* ot) {
     }
     D_800F5628 = 0;
     for (i = 0; i < 32; i++) {
-        if (i == 0 || (D_800F514C[i] != 0 && !(g_Pad1Keys & PADRleft))) {
+        if (i == 0 || (D_800F514C[i] != 0 && !(g_Pad0Keys & PAD_SQUARE))) {
             if (D_800F514C[i] != 0) {
                 BattleAppendSetupInfoRow(ot, i);
             }
@@ -427,15 +427,15 @@ void BattleMenuInputState3(void) {
     u16* tapped;
 
     if (D_800F3896 == 3 && D_800F99E4 == 0) {
-        tapped = &g_Pad1KeysRepeat;
-        if (*tapped & PADRright) {
+        tapped = &g_Pad0KeysRepeat;
+        if (*tapped & PAD_CIRCLE) {
             func_800BB9B8(1);
             D_800F99E4 = 1;
             D_800F3896 = -1;
             func_800A4350(D_800F38A0, D_800F389C, D_800F389E, D_801516F8);
             BattleSetStatusFlashState(3);
             BattleSetStatusFlashState(1);
-        } else if (g_Pad1KeysRepeat & (PADLleft | PADRdown)) {
+        } else if (g_Pad0KeysRepeat & (PAD_LEFT | PAD_CROSS)) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
             D_800F3896 = 1;
@@ -478,7 +478,7 @@ void BattleMenuInputState7(void) {
     if (D_800F3896 == 7 && D_800F99E4 == 0) {
         SysMenuHandleButtons(menu);
         if (menu->scrolling == 0) {
-            if (g_Pad1KeysRepeat & PADRright) {
+            if (g_Pad0KeysRepeat & PAD_CIRCLE) {
                 D_800F99E4 = 1;
                 index = menu->column + menu->row + menu->rowOffset;
                 summon = (MagicRecord*)((index * sizeof(MagicRecord)) + (s32)summons);
@@ -494,7 +494,7 @@ void BattleMenuInputState7(void) {
                 } else {
                     func_800BB9B8(3);
                 }
-            } else if (g_Pad1KeysRepeat & PADRdown) {
+            } else if (g_Pad0KeysRepeat & PAD_CROSS) {
                 func_800BB9B8(4);
                 D_800F99E4 = 1;
                 D_800F3896 = 1;
@@ -520,7 +520,7 @@ void BattleMenuInputState18(void) {
 
     if (D_800F3896 == 0x18 && D_800F99E4 == 0) {
         SysMenuHandleButtons(menu);
-        if (g_Pad1KeysRepeat & PADRright) {
+        if (g_Pad0KeysRepeat & PAD_CIRCLE) {
             func_800BB9B8(1);
             D_800F38A2 = limits->unk3[menu->row];
             D_800F389E = limits->limitId[menu->row];
@@ -529,7 +529,7 @@ void BattleMenuInputState18(void) {
             D_800F3894 = 0x18;
             D_800F3896 = 0;
             D_800F99E4 = 1;
-        } else if (g_Pad1KeysRepeat & PADRdown) {
+        } else if (g_Pad0KeysRepeat & PAD_CROSS) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
             D_800F3896 = 1;
@@ -548,7 +548,7 @@ void BattleMenuInputState1B(void) {
 
     temp_s0 = &g_ActiveCharacters[D_800F38A1].limits;
     if (D_800F3896 == 0x1B && D_800F99E4 == 0) {
-        if (g_Pad1KeysRepeat & PADRright) {
+        if (g_Pad0KeysRepeat & PAD_CIRCLE) {
             if (BattleMenuGetSelectorStatusAlt() == 2) {
                 D_800F99E4 = 1;
                 func_800BB9B8(1);
@@ -561,7 +561,7 @@ void BattleMenuInputState1B(void) {
                 BattleSetStatusFlashState(0x1B);
                 BattleSetStatusFlashState(1);
             }
-        } else if ((g_Pad1KeysRepeat & PADRdown) && (BattleMenuGetSelectorStatusAlt() == 0)) {
+        } else if ((g_Pad0KeysRepeat & PAD_CROSS) && (BattleMenuGetSelectorStatusAlt() == 0)) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
             D_800F3896 = 1;
@@ -579,7 +579,7 @@ void BattleMenuInputState1A(void) {
 
     temp_s0 = &g_ActiveCharacters[D_800F38A1].limits;
     if ((D_800F3896 == 0x1A) && (D_800F99E4 == 0)) {
-        if (g_Pad1KeysRepeat & PADRright) {
+        if (g_Pad0KeysRepeat & PAD_CIRCLE) {
             D_800F99E4 = 1;
             if (BattleMenuGetSelectorStatus() == 2) {
                 func_800BB9B8(1);
@@ -592,7 +592,7 @@ void BattleMenuInputState1A(void) {
                 BattleSetStatusFlashState(0x1A);
                 BattleSetStatusFlashState(1);
             }
-        } else if ((g_Pad1KeysRepeat & PADRdown) && (BattleMenuGetSelectorStatus() == 0)) {
+        } else if ((g_Pad0KeysRepeat & PAD_CROSS) && (BattleMenuGetSelectorStatus() == 0)) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
             D_800F3896 = 1;
@@ -636,7 +636,7 @@ void BattleMenuFlagTableReset(void) {
 void BattleMenuInputState9(void) {
     if (D_800F3896 == 9) {
         SysMenuHandleButtons(&D_800F90B4[0].table90);
-        if (g_Pad1KeysPressed & PADRright) {
+        if (g_Pad0KeysPressed & PAD_CIRCLE) {
             if (D_800F90B4[0].table90.column == 0) {
                 func_800A4844(1);
             } else {
@@ -688,14 +688,14 @@ static void BattleMenuUpdate(void) {
     }
     menu = &D_800F90B4[D_800F38A0].widget;
     list = D_801671B8;
-    if (g_Pad1Keys & PADRleft) {
+    if (g_Pad0Keys & PAD_SQUARE) {
         D_800F99E4 = 1;
     } else {
         D_800F99E4 = 0;
     }
     if ((D_800F99E4 == 0) && ((D_800F514D == 2) || (D_800F515F == 2))) {
         if ((D_800F5166 != 2) && (D_800F5167 != 2)) {
-            if (g_Pad1KeysPressed & PADRup) {
+            if (g_Pad0KeysPressed & PAD_TRIANGLE) {
                 func_800BB9B8(1);
                 func_800A4E40();
                 D_800F99E4 = 1;
@@ -753,7 +753,7 @@ static void BattleMenuUpdate(void) {
             return;
         }
         if (D_800F99E4 == 0) {
-            if ((g_Pad1KeysRepeat & PADRright) != 0) { // pressed Confirm/OK
+            if ((g_Pad0KeysRepeat & PAD_CIRCLE) != 0) { // pressed Confirm/OK
                 if ((D_800FAFDC != 0) || (D_800F310E != 0)) {
                     func_800BB9B8(3);
                     D_800F99E4 = 1;
@@ -800,7 +800,7 @@ static void BattleMenuUpdate(void) {
                     }
                 }
                 func_800DDFEC();
-            } else if (g_Pad1KeysRepeat & PADRdown) {           // pressed Cancel/Back
+            } else if (g_Pad0KeysRepeat & PAD_CROSS) {          // pressed Cancel/Back
                 if ((D_800F38A4 == 2) && (D_800F389D == 0xA)) { // in the item menu?
                     if (list[D_800F562C].count == 0) {
                         list[D_800F562C].id = D_800F314E;
