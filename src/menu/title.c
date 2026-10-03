@@ -27,8 +27,7 @@ static s32 g_TitleFadeState;
 static s32 g_TitleBufferIndex;
 static OT_TYPE* g_TitleActiveOT;
 static OT_TYPE* g_TitleOrderingTable[2][4];
-static MenuTable g_TitleMenuTables[6];
-static MenuTable g_TitleButtonTables[4];
+static MenuTable g_TitleMenuTables[10];
 static DRAWENV g_TitleDrawEnv[2];
 static DISPENV g_TitleDispEnv[2];
 static s32 g_TitleScanUnk;
@@ -454,7 +453,7 @@ static void TitleInit(void) {
     MENU_SetWindowColors(default_window_colors);
     MENU_LoadTim((u_long*)buster_tim, 0x380, 0, 0, 0x1E0);
     DrawSync(0);
-    SysMenuSetCursorMovement(&g_TitleButtonTables[TITLE_BTN_TITLE], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
+    SysMenuSetCursorMovement(&g_TitleMenuTables[TITLE_TABLE_TITLE], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
     SysMenuStoreCharacterClutToRam(g_SaveCharClutBackup);
     SysMenuStoreAvatarVram(g_SaveAvatarVramBackup);
     SysMenuStoreFontVram(g_SaveFontVramBackup);
@@ -603,13 +602,13 @@ static s32 TitleUpdate(s32 counter) {
         SysMenuDrawString(228 - promptWidth / 2, wnd_select_slot_rect.h + 112, g_SaveLabels[SAVE_STR_YES], 7);
         SysMenuDrawString(228 - promptWidth / 2, wnd_select_slot_rect.h + 124, g_SaveLabels[SAVE_STR_NO], 7);
         SysMenuDrawCursor(
-            200 - promptWidth / 2, 0x73 + g_TitleButtonTables[TITLE_BTN_FORMAT].row * 12 + wnd_select_slot_rect.h);
+            200 - promptWidth / 2, 0x73 + g_TitleMenuTables[TITLE_TABLE_FORMAT].row * 12 + wnd_select_slot_rect.h);
         SysMenuSetWindowRect(&windowRect, 0xB6 - promptWidth / 2, wnd_select_slot_rect.h + 0x5D, promptWidth, 0x30);
         SysMenuDrawWindow(&windowRect);
         break;
     case START_MENU_MODE_TITLE:
         SysMenuDrawCursor(
-            wnd_select_slot_rect.x - 0x12, wnd_select_slot_rect.y + 6 + g_TitleButtonTables[TITLE_BTN_TITLE].row * 12);
+            wnd_select_slot_rect.x - 0x12, wnd_select_slot_rect.y + 6 + g_TitleMenuTables[TITLE_TABLE_TITLE].row * 12);
         SysMenuDrawString(
             wnd_select_slot_rect.x + 8, wnd_select_slot_rect.y + 6, g_SaveLabels[SAVE_STR_NEW_GAME], 7); // new game
         SysMenuDrawString(wnd_select_slot_rect.x + 8, wnd_select_slot_rect.y + 18, g_SaveLabels[SAVE_STR_CONTINUE],
@@ -777,9 +776,9 @@ static s32 TitleUpdate(s32 counter) {
             g_SavemapBusy = 0;
             break;
         case START_MENU_MODE_FORMAT_PROMPT:
-            SysMenuHandleButtons(&g_TitleButtonTables[TITLE_BTN_FORMAT]);
+            SysMenuHandleButtons(&g_TitleMenuTables[TITLE_TABLE_FORMAT]);
             if (g_Pad0KeysPressed & PAD_CIRCLE) {
-                if (g_TitleButtonTables[TITLE_BTN_FORMAT].row == FORMAT_OPTION_YES) {
+                if (g_TitleMenuTables[TITLE_TABLE_FORMAT].row == FORMAT_OPTION_YES) {
                     if (g_TitleMenuTables[TITLE_TABLE_SLOTS].row) {
                         formatStatus = format("bu10:");
                     } else {
@@ -824,7 +823,7 @@ static s32 TitleUpdate(s32 counter) {
                     break;
                 }
             } else {
-                SysMenuHandleButtons(&g_TitleButtonTables[TITLE_BTN_TITLE]);
+                SysMenuHandleButtons(&g_TitleMenuTables[TITLE_TABLE_TITLE]);
             }
             break;
         }

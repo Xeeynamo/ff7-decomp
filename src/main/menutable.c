@@ -35,4 +35,162 @@ void SysMenuSetCursorMovement(MenuTable* table, s32 column, s32 row, s32 numColu
     table->scrolling = scrolling;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/menutable", SysMenuHandleButtons);
+void SysMenuHandleButtons(MenuTable* table) {
+    if (table->scrolling == 0) {
+        if (g_Pad0KeysRepeat & PAD_UP) {
+            table->row--;
+            switch (table->wrapModeY) {
+            case 0:
+                if (table->row < 0) {
+                    table->row = 0;
+                    if (table->rowOffset > 0) {
+                        table->rowOffset--;
+                        table->scrollAnimY = -3;
+                        table->scrolling = 1;
+                        func_80026408(1);
+                    }
+                } else {
+                    func_80026408(1);
+                }
+                break;
+            case 1:
+            case 2:
+                if (table->row < 0) {
+                    table->row = table->numRowsPerPage - 1;
+                }
+                func_80026408(1);
+                break;
+            }
+        } else if (g_Pad0KeysRepeat & PAD_DOWN) {
+            table->row++;
+            switch (table->wrapModeY) {
+            case 0:
+                if (table->row >= table->numRowsPerPage) {
+                    table->row = table->numRowsPerPage - 1;
+                    if (table->rowOffset < table->numTotalRows - table->numRowsPerPage) {
+                        table->scrollAnimY = -1;
+                        table->scrolling = 2;
+                        func_80026408(1);
+                    }
+                } else {
+                    func_80026408(1);
+                }
+                break;
+            case 1:
+            case 2:
+                if (table->row >= table->numRowsPerPage) {
+                    table->row = 0;
+                }
+                func_80026408(1);
+                break;
+            }
+        } else if (g_Pad0KeysRepeat & PAD_LEFT) {
+            switch (table->wrapModeX) {
+            case 0:
+                table->column--;
+                if (table->column < 0) {
+                    table->column = 0;
+                } else {
+                    func_80026408(1);
+                }
+                break;
+            case 1:
+                table->column--;
+                if (table->column < 0) {
+                    table->column = table->numColumns - 1;
+                }
+                func_80026408(1);
+                break;
+            case 2:
+                if (table->column != 0 || table->row != 0 || table->rowOffset != 0) {
+                    table->column--;
+                    if (table->column < 0) {
+                        table->column = table->numColumns - 1;
+                        table->row--;
+                        if (table->row < 0) {
+                            table->row = 0;
+                            if (table->rowOffset > 0) {
+                                table->rowOffset--;
+                                table->scrollAnimY = -3;
+                                table->scrolling = 1;
+                            }
+                        }
+                    }
+                    func_80026408(1);
+                }
+                break;
+            }
+        } else if (g_Pad0KeysRepeat & PAD_RIGHT) {
+            switch (table->wrapModeX) {
+            case 0:
+                table->column++;
+                if (table->column >= table->numColumns) {
+                    table->column = table->numColumns - 1;
+                } else {
+                    func_80026408(1);
+                }
+                break;
+            case 1:
+                table->column++;
+                if (table->column >= table->numColumns) {
+                    table->column = 0;
+                }
+                func_80026408(1);
+                break;
+            case 2:
+                if (table->column != table->numColumns - 1 || table->row != table->numRowsPerPage - 1 ||
+                    table->rowOffset != table->numTotalRows - table->numRowsPerPage) {
+                    table->column++;
+                    if (table->column >= table->numColumns) {
+                        table->column = 0;
+                        if (table->row >= table->numColumns) {
+                            table->column = 0;
+                        }
+                        table->row++;
+                        if (table->row >= table->numRowsPerPage) {
+                            table->row = table->numRowsPerPage - 1;
+                            if (table->rowOffset < table->numTotalRows - table->numRowsPerPage) {
+                                table->scrollAnimY = -1;
+                                table->scrolling = 2;
+                            }
+                        }
+                    }
+                    func_80026408(1);
+                }
+                break;
+            }
+        } else if (g_Pad0KeysRepeat & PAD_R1) {
+            table->rowOffset += table->numRowsPerPage;
+            if (table->rowOffset > table->numTotalRows - table->numRowsPerPage) {
+                table->rowOffset = table->numTotalRows - table->numRowsPerPage;
+            } else {
+                func_80026408(1);
+            }
+        } else if (g_Pad0KeysRepeat & PAD_L1) {
+            table->rowOffset -= table->numRowsPerPage;
+            if (table->rowOffset < 0) {
+                table->rowOffset = 0;
+            } else {
+                func_80026408(1);
+            }
+        }
+    } else {
+        switch (table->scrolling) {
+        case 1:
+            table->scrollAnimY++;
+            if (table->scrollAnimY == 0) {
+                table->scrolling = 0;
+                table->scrollAnimY = 0;
+            }
+            break;
+        case 2:
+            table->scrollAnimY--;
+            if (table->scrollAnimY == -4) {
+                table->scrolling = 0;
+                table->scrollAnimY = 0;
+                table->rowOffset++;
+            }
+            break;
+        }
+    }
+}

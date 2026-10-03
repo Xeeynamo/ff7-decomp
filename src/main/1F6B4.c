@@ -105,7 +105,80 @@ void SysMenuSetPosAddWindow(s16 arg0, s16 arg1, s16 arg2) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawAddWindow);
+void SysMenuDrawAddWindow(void) {
+    MenuRect rect;
+    s32 x;
+    s32 y;
+    s32 textWidth;
+    s32 w;
+    u32 h;
+
+    if (D_80062DDB == 0) {
+        return;
+    }
+    textWidth = SysGetSingleStringWidth(D_80062EB8);
+    switch (D_80062DDB) {
+    case 1:
+        w = textWidth / 3 * D_80062DE5;
+        h = D_80062DE5 * 8;
+        if (D_80062DE4 == 0) {
+            x = 180;
+            y = 104;
+            SysMenuSetWindowRect(&rect, x - w / 2, y - h / 2, w, h);
+        } else {
+            x = D_80062DE6;
+            y = D_80062DE8;
+            SysMenuSetWindowRect(&rect, x + (textWidth + 16) / 2 - w / 2, y + 12 - h / 2, w, h);
+        }
+        D_80062DE5++;
+        if (D_80062DE5 == 3) {
+            D_80062DE5 = 2;
+            D_80062DDB = 2;
+        }
+        break;
+    case 2:
+        if (D_80062DE4 == 0) {
+            x = 180;
+            SysMenuDrawString(x - textWidth / 2, 98, D_80062EB8, D_80062DDC);
+            SysMenuSetWindowRect(&rect, x - textWidth / 2 - 8, 92, textWidth + 16, 24);
+        } else {
+            x = D_80062DE6;
+            y = D_80062DE8;
+            SysMenuDrawString(x + 8, y + 6, D_80062EB8, D_80062DDC);
+            SysMenuSetWindowRect(&rect, x, y, textWidth + 16, 24);
+        }
+        if (D_80062DE0 != 0) {
+            D_80062DE0--;
+        }
+        if (D_80062DE0 < 20 && SystemCdromReadChain() == 0) {
+            if ((D_80062DE4 == 0 && D_80062DE0 == 0) || InputReadPad0Raw() != 0) {
+                D_80062DDB = 3;
+            }
+        }
+        break;
+    case 3:
+        w = textWidth / 3 * D_80062DE5;
+        h = D_80062DE5 * 8;
+        if (D_80062DE4 == 0) {
+            x = 180;
+            y = 104;
+            SysMenuSetWindowRect(&rect, x - w / 2, y - h / 2, w, h);
+        } else {
+            x = D_80062DE6;
+            y = D_80062DE8;
+            SysMenuSetWindowRect(&rect, x + (textWidth + 16) / 2 - w / 2, y + 12 - h / 2, w, h);
+        }
+        D_80062DE5--;
+        if (D_80062DE5 == 0) {
+            D_80062DDB = 0;
+        }
+        break;
+    }
+    SysMenuStoreWindowColor();
+    MENU_SetWindowColors(D_80049384);
+    SysMenuDrawWindow(&rect);
+    SysMenuRestoreWindowColor();
+}
 
 static void SysMenuSound(u16 arg0) {
     g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
