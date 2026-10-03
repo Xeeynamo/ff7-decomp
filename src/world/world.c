@@ -5303,7 +5303,7 @@ static void CopyAreaName(s16 arg0) {
     } while (c != term && (s32)dst < (s32)end);
 }
 
-static void func_800B7B1C(u8 arg0) { Savemap.memory_bank_4[0xFC] = arg0; }
+static void func_800B7B1C(s32 arg0) { Savemap.memory_bank_4[0xFC] = arg0; }
 
 static s32 func_800B7B2C(void) { return Savemap.memory_bank_4[0xFC]; }
 
@@ -5328,11 +5328,11 @@ static s32 func_800B7B78(void) {
     return var_v1;
 }
 
-static u8 func_800B7BA0(void) { return D_80062F1B >> 7; }
+static s32 func_800B7BA0(void) { return D_80062F1B >> 7; }
 
-static u8 func_800B7BB0(void) { return D_80062F1A; }
+static s32 func_800B7BB0(void) { return D_80062F1A; }
 
-static u8 func_800B7BC0(void) { return Savemap.memory_bank_2[0x85] & 1; }
+static s32 func_800B7BC0(void) { return Savemap.memory_bank_2[0x85] & 1; }
 
 static s32 func_800B7BD0(void) { return 1; }
 
@@ -5361,7 +5361,156 @@ static void func_800B7C58(void) { D_8011627C = -0x1E; }
 static void func_800B7C6C(s32 arg0) { D_80116280 = arg0; }
 
 // World encounter check
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B7C7C);
+// Returns the battle scene in bits 0-9, bit 31 for a preemptive strike and bit 30
+// for the Yuffie fight; -1 when no battle starts
+s32 func_800B7C7C(void) {
+    WmEncounterSet* set;
+    s32 terrain;
+    s32 region;
+    s32 density;
+    s32 level;
+    s32 roll;
+    s32 sum;
+    s32 i;
+    s32 retry;
+    s32 scene;
+    s32 preemptive;
+    s32 chocobo;
+    s32 yuffie;
+
+    preemptive = 0;
+    chocobo = 0;
+    yuffie = 0;
+    scene = -1;
+    terrain = WmGetPcEntityTerrainId();
+    region = WmGetPcEntityWalkmeshRegion();
+    if (func_800B7B54()) {
+        if (region < 0) {
+            region = 0;
+        } else if (region >= 16) {
+            region = 15;
+        }
+        if (terrain == 16) {
+            terrain = 0;
+        }
+        if (terrain == 24) {
+            terrain = 8;
+        }
+        // terrain now becomes the index of the encounter set for this terrain
+        if (D_800C72B4[region][0] == terrain) {
+            terrain = 0;
+        } else if (D_800C72B4[region][1] == terrain) {
+            terrain = 1;
+        } else if (D_800C72B4[region][2] == terrain) {
+            terrain = 2;
+        } else if (D_800C72B4[region][3] == terrain) {
+            terrain = 3;
+        } else {
+            terrain = 0;
+        }
+        set = &D_800BD9E8[region][terrain];
+        density = set->info >> 8;
+        if (density) {
+            D_80116284 += (func_800B7B54() << 10) / density;
+        } else {
+            D_80116284 += 0x7FFF;
+        }
+        if (func_800ADFC0() < D_80116284 >> 8 && (set->info & 1)) {
+            if (func_800ADFC0() < D_800C72F4[region] &&
+                (WmGetPcEntityTerrainId() == 1 || WmGetPcEntityTerrainId() == 25) && func_800B7BC0()) {
+                level = func_80025658(0);
+                for (i = 0; i < LEN(D_800BD948); i++) {
+                    if (level <= D_800BD948[i].level) {
+                        break;
+                    }
+                }
+                if (i > 7) {
+                    i = 7;
+                }
+                roll = D_800BD948[i].scene;
+                roll &= 0x3FF;
+                if (WmGetPcEntityTerrainId() == 25) {
+                    scene = roll + 1;
+                } else {
+                    scene = roll;
+                }
+                yuffie = 1;
+            } else {
+                D_80116284 = 0;
+                if (WmGetPcEntityWalkmeshFlag() && func_800B7BB0() && WmIsPcEntityModelInMask(7)) {
+                    roll = (func_800ADFC0() << 12) / func_800B7BB0();
+                    sum = set->chocobo[0];
+                    if (roll < sum) {
+                        scene = set->chocobo[0] & 0x3FF;
+                    } else if (roll < (sum += set->chocobo[1])) {
+                        scene = set->chocobo[1] & 0x3FF;
+                    } else if (roll < (sum += set->chocobo[2])) {
+                        scene = set->chocobo[2] & 0x3FF;
+                    } else if (roll < (sum += set->chocobo[3])) {
+                        scene = set->chocobo[3] & 0x3FF;
+                    }
+                    for (i = 0; i < LEN(D_800BD968); i++) {
+                        if (D_800BD968[i].scene == scene) {
+                            break;
+                        }
+                    }
+                    if (i < 32) {
+                        func_800B7B1C(D_800BD968[i].rating);
+                    }
+                    chocobo = scene != -1;
+                }
+                preemptive = func_800ADFC0() < func_800B7B78();
+                if (!preemptive) {
+                    if (func_800B7BD0() && scene < 0) {
+                        roll = func_800ADFC0() << (func_800B7BA0() + 8);
+                        sum = set->backAttack[0];
+                        if (roll < sum) {
+                            scene = set->backAttack[0] & 0x3FF;
+                        } else if (roll < (sum += set->backAttack[1])) {
+                            scene = set->backAttack[1] & 0x3FF;
+                        }
+                    }
+                    if (func_800B7BD8() && scene < 0 && (roll = func_800ADFC0() << 8) < (sum = set->sideAttack)) {
+                        scene = set->sideAttack & 0x3FF;
+                    }
+                    if (func_800B7C14() && scene < 0) {
+                        roll = func_800ADFC0() << (func_800B7BA0() + 8);
+                        sum = set->pincer;
+                        if (roll < sum) {
+                            scene = set->pincer & 0x3FF;
+                        }
+                    }
+                }
+                if (scene < 0) {
+                    retry = 0;
+                    do {
+                        roll = func_800ADFC0() << 8;
+                        sum = set->normal[0];
+                        if (roll < sum) {
+                            scene = set->normal[0] & 0x3FF;
+                        } else if (roll < (sum += set->normal[1])) {
+                            scene = set->normal[1] & 0x3FF;
+                        } else if (roll < (sum += set->normal[2])) {
+                            scene = set->normal[2] & 0x3FF;
+                        } else if (roll < (sum += set->normal[3])) {
+                            scene = set->normal[3] & 0x3FF;
+                        } else if (roll < (sum += set->normal[4])) {
+                            scene = set->normal[4] & 0x3FF;
+                        } else if (roll < (sum += set->normal[5])) {
+                            scene = set->normal[5] & 0x3FF;
+                        }
+                    } while (retry++ < 1 && scene == D_8009D63C);
+                }
+            }
+        }
+    }
+    if (scene != -1) {
+        D_8009D63C = scene;
+        func_800B63E0(1);
+        PlayMusicTrack(chocobo ? 5 : 4);
+    }
+    return scene | (preemptive << 31) | (yuffie << 30);
+}
 
 static void func_800B832C(void) {
     VECTOR sp10;
@@ -5369,7 +5518,7 @@ static void func_800B832C(void) {
     s32 temp_a0;
     s32 temp_s0;
     s32 temp_v0;
-    s32 temp_v0_2;
+    s32 battleEncounterProps;
 
     temp_a0 = WmGetWmId();
     if (g_FieldState.battlesDisabled == 0 && temp_a0 != 2 && !func_800B2FD0() && func_800A21A4()) {
@@ -5384,10 +5533,10 @@ static void func_800B832C(void) {
                 D_8011627C += 1;
                 if (temp_v0 == 0) {
                     D_8011627C = 0;
-                    temp_v0_2 = func_800B7C7C();
-                    if (temp_v0_2 != -1) {
+                    battleEncounterProps = func_800B7C7C();
+                    if (battleEncounterProps != -1) {
                         WmSetPcEntityPos(&sp20);
-                        func_800A3F4C(temp_v0_2);
+                        func_800A3F4C(battleEncounterProps);
                     }
                 }
             }

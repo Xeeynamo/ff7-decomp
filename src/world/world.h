@@ -47,6 +47,27 @@ typedef struct WorldChunkNode {
     /* 0x4 */ WorldChunkHeader* chunk;
 } WorldChunkNode; // size: 0x8
 
+// Every entry stores a battle scene id in bits 0-9 and its pick chance above it
+typedef struct {
+    /* 0x00 */ u16 info; // bit 0 enables encounters, bits 8-15 hold the density
+    /* 0x02 */ u16 normal[6];
+    /* 0x0E */ u16 backAttack[2];
+    /* 0x12 */ u16 sideAttack;
+    /* 0x14 */ u16 pincer;
+    /* 0x16 */ u16 chocobo[4];
+    /* 0x1E */ u16 unk1E;
+} WmEncounterSet; // size: 0x20
+
+typedef struct {
+    /* 0x0 */ u16 level; // highest party leader level for this scene
+    /* 0x2 */ u16 scene;
+} WmYuffieEncounter; // size: 0x4
+
+typedef struct {
+    /* 0x0 */ u16 scene;
+    /* 0x2 */ u16 rating;
+} WmChocoboRating; // size: 0x4
+
 typedef struct {
     /* 0x00 */ VECTOR pos;
     /* 0x10 */ SVECTOR offset;
@@ -235,6 +256,7 @@ void WmLoadPcCharModelFile(s16);
 s32 WmApplyModelLightingToPacket(FieldModelEntry*, u8*);
 void WmApplyModelLightingById(s16, s16);
 void PlayMusicTrack(s32);
+s32 func_80025658(s32 partySlot);
 void ToggleAmbientSound(s32);
 void WmUpdatePartTransparency(FieldModelPart*, s32);
 void WmLoadModelPacketsForSet(s16);
@@ -253,11 +275,14 @@ static void func_800BBA5C(void);
 s32 func_800BBBB0(void);
 static void func_800BBD0C(void);
 
+extern u16 D_8009D63C; // last world map battle scene
 extern u32* D_800BD130;
 extern s32 D_800BD134;
 extern s32 D_800BD138;
 extern s32 D_800BD144;
-extern u16 D_800BD9E8[16][4][16]; // world map encounter data, size: 0x800
+extern WmYuffieEncounter D_800BD948[8];
+extern WmChocoboRating D_800BD968[32];
+extern WmEncounterSet D_800BD9E8[16][4]; // world map encounter data, size: 0x800
 extern u16 D_800BE1E8[512];
 extern s32 D_800C65EC;
 extern s32 D_800C6628[];
