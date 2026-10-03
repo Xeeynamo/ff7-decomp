@@ -647,6 +647,7 @@ extern s32 D_801620A8;
 extern ActiveEncounterData g_ActiveEncounter;
 extern Unk801636B8 D_801636B8[NUM_BATTLE_ACTOR];
 extern u16 D_8016376A;
+extern u16 g_BattleUnitPresentMask;
 
 extern BattleMultiInfo g_BattleMultiInfo;
 
