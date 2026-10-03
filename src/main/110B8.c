@@ -258,7 +258,18 @@ static void InitFieldFromSavemap(void) {
     D_8009AD2C = Savemap.step_offset;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysInitNewGame);
+void SysInitNewGame(void) {
+    Savemap.memory_bank_4[0] = 1;
+    Savemap.worldmap_exit_action = 0;
+    Savemap.current_module = 1;
+    Savemap.current_location_id = 0x74;
+    Savemap.field_x = 0;
+    Savemap.field_y = 0;
+    Savemap.field_triangle = 0;
+    Savemap.field_direction = 0;
+    Savemap.step_id = 0;
+    Savemap.step_offset = 0;
+}
 
 void main(void) {
     char name[9] = "battle.x";

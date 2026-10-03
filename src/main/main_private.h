@@ -81,6 +81,7 @@ extern u_long* g_CurrentMenuOrderingTable;
 extern s32 g_PartyMenuListState;
 extern s32 g_PartyMenuPreviousMenuId;
 extern s32 g_PartyMenuListTransitionFactor;
+extern s32 D_80062F90;
 extern s32 g_PartyMenuSelectedMenuId;
 extern u32 D_8006966C[16];
 extern s16 g_RewardMenuState;

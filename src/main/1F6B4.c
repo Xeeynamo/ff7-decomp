@@ -435,7 +435,10 @@ void SysMenuCreateDrawenvDispenv(DRAWENV* draw_env, DISPENV* disp_env) {
 
 static void func_800211B8(s32 arg0) { D_80062DEC = arg0; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_800211C4);
+void func_800211C4(s32 yamaOvlId) {
+    SystemLoadFileBySector(*&D_80048F60[yamaOvlId].loc, *&D_80048F60[yamaOvlId].len, (u_long*)D_80062DEC, NULL);
+    SystemCdromReadChain();
+}
 
 void SysMenuLoadMenuFileById(s32 yamaOvlId) {
     s32 prev;
@@ -505,6 +508,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuShow);
 
 typedef enum {
     YAMA_1 = 1,
+    YAMA_7 = 7,
     YAMA_10 = 10,
     YAMA_12 = 12,
     YAMA_13,
@@ -869,7 +873,20 @@ s32 SysMenuGetMateriaColorByType(s32 materiaId) {
     return D_80049520[D_80049528[g_MateriaData[materiaId & 0xFF].materiaType & 0xF]];
 }
 
+// matches once D_80062F90 can be defined here as a gp-relative variable
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80026090);
+#else
+void func_80026090(void) {
+    do {
+    } while (SystemCdromReadChain());
+    func_800211C4(YAMA_7);
+    do {
+    } while (SystemCdromReadChain());
+    func_801D11A8();
+    D_80062F90 = 0;
+}
+#endif
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_800260DC);
 

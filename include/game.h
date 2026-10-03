@@ -17,6 +17,9 @@
 #define NUM_PARTY 3
 #define NUM_CHARACTERS 9
 #define NUM_MATERIA_ROW 8 // maximum amount of materia per row (weapon or armor)
+#define NUM_BATTLE_COMMANDS 16
+#define NUM_MAGICS 56
+#define NUM_MAGICS_ALL (NUM_MAGICS + 40)
 #define MAX_INVENTORY_COUNT 320
 #define MAX_MATERIA_COUNT 200
 #define NUM_MENU_COLOR 12
@@ -599,6 +602,23 @@ typedef struct {
 } CurrentCharMagicCommand; // size: 0x5
 
 typedef struct {
+    /* 0x00 */ s16 id;
+    /* 0x02 */ s16 coverChance;
+    /* 0x04 */ s16 strength;
+    /* 0x06 */ s16 vitality;
+    /* 0x08 */ s16 magic;
+    /* 0x0A */ s16 spirit;
+    /* 0x0C */ s16 dexterity;
+    /* 0x0E */ s16 luck;
+    /* 0x10 */ s16 physAttack;
+    /* 0x12 */ s16 physDefence;
+    /* 0x14 */ s16 magAttack;
+    /* 0x16 */ s16 magDefence;
+    /* 0x18 */ s16 baseHp;
+    /* 0x1A */ s16 baseMp;
+} CurrentCharStats; // size: 0x1C
+
+typedef struct {
     u8 id;
     u8 allCount;
     u8 materiaEffectFlags;
@@ -815,9 +835,9 @@ typedef struct {
     u16 absorbedElements;
     u32 physicalAttackStatuses;
     u32 immuneStatuses;
-    ActiveCharCommandMenu commandMenu[16];
+    ActiveCharCommandMenu commandMenu[NUM_BATTLE_COMMANDS];
     BattleLimitData limits;
-    MagicRecord enabledMagic[96];
+    MagicRecord enabledMagic[NUM_MAGICS_ALL];
     WeaponRecord weapon;
     s16 unk434;
     u8 unk436;
@@ -1281,6 +1301,7 @@ extern u8 D_80062D98; // battle_clearRenderList
 extern volatile u8 g_SavemapBusy;
 extern s32 D_80062DCC;
 extern u8 _D_80062DFD;
+extern u8 D_80062F18;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
 extern u8 D_80062F1A;
 extern u8 D_80062F1B;
@@ -1309,8 +1330,9 @@ extern MATRIX* D_80071E40;
 extern u8 g_PartyUpdatedByFieldScript;
 extern u8 g_CurrentEntity; // entity owning the currently executing script
 extern MateriaData g_MateriaData[100];
-extern CurrentCharBattleMenuCommand D_80069508[16];
-extern CurrentCharMagicCommand D_80069554[56];
+extern CurrentCharBattleMenuCommand D_80069508[NUM_BATTLE_COMMANDS];
+extern CurrentCharStats D_80069538;
+extern CurrentCharMagicCommand D_80069554[NUM_MAGICS];
 extern u8* D_800707C0;
 extern BattleCommandData D_800707C4[32];
 extern AttackData D_800708C4[];
