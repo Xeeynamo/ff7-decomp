@@ -2,6 +2,25 @@
 #include "libgpu.h"
 #include <game.h>
 #include <libcd.h>
+#include <psxsdk/inline_o.h>
+
+#define NUM_STARS 0x100
+
+enum {
+    ENDING_NODE_SENTINEL = 1,
+    ENDING_NODE_NEW = 2,
+    ENDING_NODE_RUNNING = 4,
+};
+
+enum {
+    ENDING_SPR_ACTIVE = 1,
+    ENDING_SPR_ANIMATED = 2,
+    ENDING_SPR_LOOPING = 4,
+    ENDING_SPR_FADING = 8,
+    ENDING_SPR_MOVING = 0x10,
+    ENDING_SPR_BLEND_MASK = 0x6000,
+    ENDING_SPR_SEMITRANS = 0x8000,
+};
 
 typedef struct EndingNode {
     struct EndingNode* prev;
@@ -14,7 +33,7 @@ typedef struct EndingNode {
 
 typedef struct EndingObj {
     struct EndingObj* parent;
-    s32 unk4;
+    u_long unk4;
     MATRIX mtx;
     VECTOR scale;
     SVECTOR rot;
@@ -22,9 +41,14 @@ typedef struct EndingObj {
 } EndingObj; // size:0x48
 
 typedef struct {
+    EndingObj obj;
+    s32 unk48;
+} EndingBody; // size:0x4C
+
+typedef struct {
     /* 0x0 */ u16 flags;
     /* 0x2 */ s16 timer;
-    /* 0x4 */ s16 unk4;
+    /* 0x4 */ s16 speed;
     /* 0x6 */ u16 delay;
     /* 0x8 */ u16 frame;
     /* 0xA */ u16 unkA;
@@ -41,19 +65,46 @@ typedef struct {
     /* 0x19 */ u8 g0;
     /* 0x1A */ u8 b0;
     /* 0x1B */ u8 unk1B;
-    /* 0x1C */ u8 unk1C[0x40];
-    /* 0x5C */ s16 unk5C;
-    /* 0x5E */ s16 unk5E;
-    /* 0x60 */ s16 unk60;
-    /* 0x62 */ u8 unk62[6];
-    /* 0x68 */ s32 unk68;
-    /* 0x6C */ s32 unk6C;
-    /* 0x70 */ s32 unk70;
+    /* 0x1C */ EndingBody body;
+    /* 0x68 */ s32 fixedX;
+    /* 0x6C */ s32 fixedY;
+    /* 0x70 */ s32 fixedZ;
     /* 0x74 */ u8 unk74[4];
-    /* 0x78 */ VECTOR unk78;
+    /* 0x78 */ VECTOR target;
 } EndingSprite; // size:0x88
 
-static u16 g_endingScriptIntro[] = {
+typedef struct {
+    /* 0x0 */ u8 unk0;
+    /* 0x1 */ u8 delay;
+    /* 0x2 */ u16 unk2;
+    /* 0x4 */ u16 originY;
+    /* 0x6 */ u16 originX;
+} EndingFrameHeader;
+
+typedef struct {
+    /* 0x0 */ u8 x;
+    /* 0x1 */ u8 y;
+    /* 0x2 */ u8 u;
+    /* 0x3 */ u8 v;
+    /* 0x4 */ u16 w;
+    /* 0x6 */ u16 h;
+    /* 0x8 */ u16 tpage;
+    /* 0xA */ u16 clut;
+} EndingFramePart; // size:0xC
+
+#ifdef PLATFORM_PSYZ
+#define ENDING_OUTER_PRODUCT(a, b, out) OuterProduct12(a, b, out)
+#else
+#define ENDING_OUTER_PRODUCT(a, b, out)                                                                                \
+    {                                                                                                                  \
+        gte_ldopv1(a);                                                                                                 \
+        gte_ldopv2(b);                                                                                                 \
+        gte_op12();                                                                                                    \
+        gte_stlvnl(out);                                                                                               \
+    }
+#endif
+
+static s16 script_intro_credits[] = {
     0x0008, 0x0140, 0x00F0, 0x0200, 0x0000, 0x0000, 0x0040, 0x0010, 0x0002, 0x000A, 0x001E, 0x0009, 0x0001, 0x001A,
     0x00C0, 0x007F, 0x0000, 0x0001, 0x0002, 0x0003, 0x0014, 0x0005, 0x0015, 0x0015, 0x0000, 0xA001, 0x0016, 0x0000,
     0x0044, 0x006C, 0x0000, 0x0000, 0x0000, 0x0000, 0x000F, 0x0000, 0x0020, 0x0080, 0x000A, 0x0098, 0x000F, 0x0000,
@@ -265,7 +316,7 @@ static u16 g_endingScriptIntro[] = {
     0x0007, 0x0010, 0x0000, 0x000A, 0x003C, 0x0015, 0x0001, 0xA001, 0x0016, 0x0002, 0x0058, 0x00BE, 0x0000, 0x0000,
     0x0000, 0x0000, 0x000F, 0x0001, 0x0020, 0x0080, 0x000A, 0x0258, 0x000F, 0x0000, 0x0020, 0x0000, 0x000F, 0x0001,
     0x0020, 0x0000, 0x001A, 0x00C1, 0x003C, 0x0000, 0x000A, 0x003C, 0x000C, 0x001A, 0x00F0, 0x0000, 0x0000, 0x0013};
-static u16 g_endingScriptOutro[] = {
+static s16 script_ending_credits[] = {
     0x001A, 0x00C0, 0x007F, 0x0000, 0x0001, 0x0001, 0x0008, 0x0280, 0x00F0, 0x0200, 0x0000, 0x0000, 0x0000, 0x0010,
     0x0003, 0x0003, 0x0009, 0x0001, 0x0006, 0x001D, 0x001B, 0x0267, 0x0018, 0x002A, 0x0007, 0x0010, 0x0000, 0x0008,
     0x0140, 0x00F0, 0x0200, 0x0000, 0x0000, 0x0000, 0x0009, 0x0001, 0x0005, 0x0000, 0x0005, 0x0001, 0x0005, 0x0002,
@@ -443,55 +494,86 @@ static u16 g_endingScriptOutro[] = {
     0x00F0, 0x0200, 0x0000, 0x0000, 0x0000, 0x0010, 0x0003, 0x0009, 0x0001, 0x0006, 0x001A, 0x0007, 0x0010, 0x0000,
     0x000A, 0x012C, 0x0018, 0x002E, 0x0008, 0x0280, 0x00F0, 0x0200, 0x0000, 0x0000, 0x0000, 0x0010, 0x0002, 0x0009,
     0x0001, 0x001C, 0x001D, 0x0000};
-static s32 D_800A6390 = 1;
+static s32 g_endingOpcodeFirstRun = 1;
 static s32 g_endingScriptFrameFinished = 0;
-static u32 D_800A6398[] = {0x0001F739, 0x0006906C, 0x0001F80C, 0x000470DC, 0x0001F89B, 0x0002477C};
-static s32 D_800A63B0 = 0;
-static u32 D_800A63B4[] = {0, 0, 0, 0x0000FE00, 0, 0};
-static u32 D_800A63CC = 0;
+static Yamada g_endingFiles[] = {
+    {LBA_MOVIE_STAFF, 430188},   // MOVIE/STAFF.BIN
+    {LBA_MOVIE_STAFF2, 291036},  // MOVIE/STAFF2.BIN
+    {LBA_MOVIE_OPENING, 149372}, // MOVIE/OPENING.BIN
+};
+static s32 g_endingWaitFrames = 0;
+static SVECTOR g_endingStarVerts[] = {{0, 0, 0, 0}, {0, 0, -0x200, 0}, {0, 0, 0, 0}};
+static u32 g_endingStarBuf = 0;
 static u32 D_800A63D0 = 0x400;
 static s32 D_800A63D4 = -0x600;
 static u32 D_800A63D8 = 0x600;
 
-s32 EndingOpcode00(void);
-s32 EndingOpcode01(void);
-s32 EndingOpcode02(void);
-s32 EndingOpcode03(void);
-s32 EndingOpcode04(void);
-s32 EndingOpcode05(void);
-s32 EndingOpcode06(void);
-s32 EndingOpcode07(void);
-s32 EndingOpcode08(void);
-s32 EndingOpcode09(void);
-s32 EndingOpcode0A(void);
-s32 EndingOpcode0B(void);
-s32 EndingOpcode0C(void);
-s32 EndingOpcode0D(void);
-s32 EndingOpcode0E(void);
-s32 EndingOpcode0F(void);
-s32 EndingOpcode10(void);
-s32 EndingOpcode11(void);
-s32 EndingOpcode12(void);
-s32 EndingOpcode13(void);
-s32 EndingOpcode14(void);
-s32 EndingOpcode15(void);
-s32 EndingOpcode16(void);
-s32 EndingOpcode17(void);
-s32 EndingOpcode18(void);
-s32 EndingOpcode19(void);
-s32 EndingOpcode1A(void);
-s32 EndingOpcode1B(void);
-s32 EndingOpcode1C(void);
-s32 EndingOpcode1D(void);
+s32 EndingOpHalt(void);
+s32 EndingOpLoadFile(void);
+s32 EndingOpLoadFileLzsAsync(void);
+s32 EndingOpWaitCdIdle(void);
+s32 EndingOpLoadTim(void);
+s32 EndingOpLoadTimLzs(void);
+s32 EndingOpPlayMovie(void);
+s32 EndingOpWaitCdIdle2(void);
+s32 EndingOpSetResolution(void);
+s32 EndingOpSetDispMask(void);
+s32 EndingOpWaitFrames(void);
+s32 EndingOpStartFixedSprites(void);
+s32 EndingOpStopSpriteTask(void);
+s32 EndingOpSetLoopingSprite(void);
+s32 EndingOpJumpBack(void);
+s32 EndingOpFadeSprite(void);
+s32 EndingOpSetVSyncMode(void);
+s32 EndingOpStartStaffRoll(void);
+s32 EndingOpAddStaffRollLine(void);
+s32 EndingOpEnd(void);
+s32 EndingOpStartMovingSprites(void);
+s32 EndingOpSetSprite(void);
+s32 EndingOpHideSprite(void);
+s32 EndingOpMoveSprite(void);
+s32 EndingOpPlayMusic(void);
+s32 EndingOpWaitCdState8(void);
+s32 EndingOpAkaoCommand(void);
+s32 EndingOpWaitMovieFrame(void);
+s32 EndingOpInitStarfield(void);
+s32 EndingOpDrawStarfield(void);
+// A handler returns 1 when done, or 0 to be run again on the next frame.
 static s32 (*g_endingOpcodeHandlers[])(void) = {
-    EndingOpcode00, EndingOpcode01, EndingOpcode02, EndingOpcode03, EndingOpcode04, EndingOpcode05,
-    EndingOpcode06, EndingOpcode07, EndingOpcode08, EndingOpcode09, EndingOpcode0A, EndingOpcode0B,
-    EndingOpcode0C, EndingOpcode0D, EndingOpcode0E, EndingOpcode0F, EndingOpcode10, EndingOpcode11,
-    EndingOpcode12, EndingOpcode13, EndingOpcode14, EndingOpcode15, EndingOpcode16, EndingOpcode17,
-    EndingOpcode18, EndingOpcode19, EndingOpcode1A, EndingOpcode1B, EndingOpcode1C, EndingOpcode1D};
-static OT_TYPE D_800A6454[2] = {NULL, NULL};
+    /* 0x00 */ EndingOpHalt,
+    /* 0x01 */ EndingOpLoadFile,
+    /* 0x02 */ EndingOpLoadFileLzsAsync,
+    /* 0x03 */ EndingOpWaitCdIdle,
+    /* 0x04 */ EndingOpLoadTim,
+    /* 0x05 */ EndingOpLoadTimLzs,
+    /* 0x06 */ EndingOpPlayMovie,
+    /* 0x07 */ EndingOpWaitCdIdle2,
+    /* 0x08 */ EndingOpSetResolution,
+    /* 0x09 */ EndingOpSetDispMask,
+    /* 0x0A */ EndingOpWaitFrames,
+    /* 0x0B */ EndingOpStartFixedSprites,
+    /* 0x0C */ EndingOpStopSpriteTask,
+    /* 0x0D */ EndingOpSetLoopingSprite,
+    /* 0x0E */ EndingOpJumpBack,
+    /* 0x0F */ EndingOpFadeSprite,
+    /* 0x10 */ EndingOpSetVSyncMode,
+    /* 0x11 */ EndingOpStartStaffRoll,
+    /* 0x12 */ EndingOpAddStaffRollLine,
+    /* 0x13 */ EndingOpEnd,
+    /* 0x14 */ EndingOpStartMovingSprites,
+    /* 0x15 */ EndingOpSetSprite,
+    /* 0x16 */ EndingOpHideSprite,
+    /* 0x17 */ EndingOpMoveSprite,
+    /* 0x18 */ EndingOpPlayMusic,
+    /* 0x19 */ EndingOpWaitCdState8,
+    /* 0x1A */ EndingOpAkaoCommand,
+    /* 0x1B */ EndingOpWaitMovieFrame,
+    /* 0x1C */ EndingOpInitStarfield,
+    /* 0x1D */ EndingOpDrawStarfield,
+};
+static OT_TYPE g_endingFadeOutOT[2] = {NULL, NULL};
 static TILE g_endingFadeOutTile[2] = {{0}, {0}};
-static DR_MODE D_800A647C[2] = {{0}, {0}};
+static DR_MODE g_endingFadeOutDrMode[2] = {{0}, {0}};
 static u32 D_800A6494[20] = {0};
 static OT_TYPE g_sceaTextOT[1] = {NULL};
 static u32 D_800A64E8 = 0;
@@ -504,53 +586,47 @@ static EndingSprite g_endingSprites[32];
 static EndingNode g_endingNode4;
 static TILE g_endingClearTile1[2];
 static TILE g_endingClearTile2[2];
-static u8 D_800A767C[0x8];
-static u8 D_800A7684[0x38];
-static u8 D_800A76BC[0x4];
-static u8 D_800A76C0[0x8];
-static u8 D_800A76C8[0x44];
-static u8 D_800A770C[0x4BBC];
-static u8 D_800AC2C8[0x4];
-static u8 D_800AC2CC[0x8];
-static u8 D_800AC2D4[0x27F4];
-static u8 D_800AEAC8[0x4];
-static u8 D_800AEACC[0x4];
-static u8 D_800AEAD0[0x8];
-static u8 D_800AEAD8[0x4];
-static u8 D_800AEADC[0x4];
-static u8 D_800AEAE0[0x800];
+static EndingBody g_endingCamera;
+static EndingBody g_endingStars[NUM_STARS];
+static LINE_G2 g_endingStarLines[2][NUM_STARS];
+static VECTOR g_endingCamUp;
+static SVECTOR g_endingCamTarget;
+static OT_TYPE g_endingStarOT[2][NUM_STARS];
 static DRAWENV g_endingDrawEnvs[2];
 static DISPENV g_endingDispEnvs[2];
-static u32 D_800AF3C0;
-static u32 D_800AF3C4;
+static u32 g_endingPad0KeysReleased;
+static u32 g_endingPad1KeysReleased;
 static EndingNode g_endingNode0;
 static EndingNode g_endingNode1;
-static void* D_800AF3E8;
+static OT_TYPE* g_endingCurOT;
 static u32 g_endingPad0KeysPressed;
 static u32 g_endingPad1KeysPressed;
 static u32 g_endingPad0Keys;
 static u32 g_endingPad1Keys;
-static void* D_800AF3FC;
+static void* g_endingNextPrim;
 static OT_TYPE g_endingOT[2];
 static s32 g_endingDbIndex;
-static s32 D_800AF40C;
+static s32 g_endingVSyncMode;
 static s32 g_endingInProgress;
 
 static void EndingLoadTim(void*, s16*, s16*);
-static s32 func_800A379C(EndingObj*, VECTOR*, VECTOR*, s32);
+static s32 EndingSpriteStepToward(EndingObj*, VECTOR*, VECTOR*, s32);
 static void EndingInsertNode(EndingNode*, s16, u8, void (*)());
-static void func_800A09DC(void);
+static void EndingTaskFixedSprites(void);
 static void SetGameResolution(s32, s32, s32, u8, u8, u8);
 static s32 StartFrame(s32 sync);
 static void EndingInitNodes(void);
 static void EndingInitScriptPc(s16*);
 static void EndingExecuteScript(void);
-static void func_800A3210(void);
-static void func_800A3368(EndingSprite*);
-static void func_800A343C(EndingSprite*);
-void* func_800A358C(void*, s32, void*, void*);
-static void func_800A0E68(void);
-static void func_800A34C4(EndingSprite* spr);
+static void EndingRunNodes(void);
+static void EndingSpriteMove(EndingSprite*);
+static void EndingSpriteFade(EndingSprite*);
+static POLY_FT4* EndingSpriteDraw(void*, s32, POLY_FT4*, EndingSprite*);
+static void EndingObjInit(EndingObj*, EndingObj*);
+static s32 EndingObjUpdateMatrixYXZ(EndingObj*);
+static void EndingLookAt(MATRIX*, SVECTOR*, SVECTOR*, VECTOR*);
+static void EndingTaskStaffRoll(void);
+static void EndingSpriteAnimate(EndingSprite* spr);
 static void EndingRemoveNodeFromList(EndingNode*);
 static EndingNode* EndingFindNodeById(s16);
 
@@ -603,7 +679,6 @@ void ENDING_SceaLoop(void) {
         rect.w = 0x280;
         rect.h = 1;
         rect.y = ode;
-
         while (rect.y < 0x1E0) {
             LoadImage(&rect, (u_long*)src);
             DrawSync(0);
@@ -641,7 +716,6 @@ void ENDING_SceaLoop(void) {
         rect.w = 0x280;
         rect.h = 1;
         rect.y = ode;
-
         while (rect.y < 0x1E0) {
             LoadImage(&rect, (u_long*)src);
             DrawSync(0);
@@ -660,7 +734,6 @@ void ENDING_SceaLoop(void) {
         rect.w = 0x280;
         rect.h = 1;
         rect.y = ode;
-
         while (rect.y < 0x1E0) {
             LoadImage(&rect, (u_long*)src);
             DrawSync(0);
@@ -691,7 +764,7 @@ void ENDING_SceaLoop(void) {
     SetDispMask(0);
 }
 
-void ENDING_Loop(s32 isOutro) {
+void ENDING_Loop(s32 isEndCredits) {
     u8 unused[0x100];
     RECT rect;
     s16 col;
@@ -700,10 +773,10 @@ void ENDING_Loop(s32 isOutro) {
 
     while (1) {
         SetGameResolution(320, 240, 0x200, 0, 0, 0);
-        if (isOutro != 0) {
+        if (isEndCredits) {
             rect.x = 0;
             rect.y = 0;
-            rect.w = 0x3C0;
+            rect.w = 960;
             rect.h = h;
         } else {
             rect.x = 0;
@@ -712,24 +785,24 @@ void ENDING_Loop(s32 isOutro) {
             rect.h = h;
         }
         ClearImage(&rect, 0, 0, 0);
-        while (DrawSync(1) != 0) {
+        while (DrawSync(1)) {
         }
         EndingInitNodes();
-        D_800AF40C = 0;
-        D_800AF3FC = (void*)0x801F0000;
-        if (isOutro != 0) {
-            EndingInitScriptPc((s16*)g_endingScriptOutro);
+        g_endingVSyncMode = 0;
+        g_endingNextPrim = (void*)0x801F0000;
+        if (isEndCredits) {
+            EndingInitScriptPc(script_ending_credits);
         } else {
-            EndingInitScriptPc((s16*)g_endingScriptIntro);
+            EndingInitScriptPc(script_intro_credits);
         }
         g_endingInProgress = 1;
         while (g_endingInProgress) {
             VSync(1);
             DrawSync(0);
             VSync(1);
-            g_endingDbIndex = StartFrame(D_800AF40C);
+            g_endingDbIndex = StartFrame(g_endingVSyncMode);
             if (g_endingDbIndex != 0) {
-                D_800AF3FC = (void*)0x801F0000;
+                g_endingNextPrim = (void*)0x801F0000;
             }
             rect.x = D_8007EBD0->clip.x;
             rect.y = D_8007EBD0->clip.y;
@@ -746,13 +819,16 @@ void ENDING_Loop(s32 isOutro) {
                 func_800354CC();
             }
             ClearOTagR(&g_endingOT[g_endingDbIndex], 1);
-            D_800AF3E8 = &g_endingOT[g_endingDbIndex];
+            g_endingCurOT = &g_endingOT[g_endingDbIndex];
             EndingExecuteScript();
-            func_800A3210();
+            EndingRunNodes();
             DrawOTag(&g_endingOT[g_endingDbIndex]);
             VSync(1);
-            if (isOutro == 0 && (g_endingPad0KeysPressed & 0x9F0)) {
-                goto fade_out;
+            if (!isEndCredits) {
+                if (g_endingPad0KeysPressed &
+                    (PAD_START | PAD_SELECT | PAD_TRIANGLE | PAD_CIRCLE | PAD_CROSS | PAD_SQUARE)) {
+                    goto fade_out;
+                }
             }
         }
     }
@@ -763,7 +839,7 @@ fade_out:
     g_AkaoCmd.params[1] = 0;
     AkaoExec();
     for (col = 0; col < 0xFF; col += 4) {
-        g_endingDbIndex = StartFrame(D_800AF40C);
+        g_endingDbIndex = StartFrame(g_endingVSyncMode);
         rect.x = D_8007EBD0->clip.x;
         rect.y = D_8007EBD0->clip.y;
         rect.w = D_8007EBD0->clip.w;
@@ -774,88 +850,85 @@ fade_out:
             func_800354CC();
         }
         ClearOTagR(&g_endingOT[g_endingDbIndex], 1);
-        D_800AF3E8 = &g_endingOT[g_endingDbIndex];
-        func_800A3210();
+        g_endingCurOT = &g_endingOT[g_endingDbIndex];
+        EndingRunNodes();
         DrawOTag(&g_endingOT[g_endingDbIndex]);
-        ClearOTagR(&D_800A6454[g_endingDbIndex], 1);
+        ClearOTagR(&g_endingFadeOutOT[g_endingDbIndex], 1);
         SetTile(&g_endingFadeOutTile[g_endingDbIndex]);
         SetSemiTrans(&g_endingFadeOutTile[g_endingDbIndex], 1);
         setRGB0(&g_endingFadeOutTile[g_endingDbIndex], col, col, col);
         tile = &g_endingFadeOutTile[g_endingDbIndex];
         setXY0(tile, 0, 0);
-        setWH(tile, 0x140, 0xF0);
-        AddPrim(&D_800A6454[g_endingDbIndex], tile);
-        SetDrawMode(&D_800A647C[g_endingDbIndex], 0, 0, GetTPage(2, 2, 0, 0), NULL);
-        AddPrim(&D_800A6454[g_endingDbIndex], &D_800A647C[g_endingDbIndex]);
-        DrawOTag(&D_800A6454[g_endingDbIndex]);
+        setWH(tile, 320, 240);
+        AddPrim(&g_endingFadeOutOT[g_endingDbIndex], tile);
+        SetDrawMode(&g_endingFadeOutDrMode[g_endingDbIndex], 0, 0, GetTPage(2, 2, 0, 0), NULL);
+        AddPrim(&g_endingFadeOutOT[g_endingDbIndex], &g_endingFadeOutDrMode[g_endingDbIndex]);
+        DrawOTag(&g_endingFadeOutOT[g_endingDbIndex]);
     }
     VSync(4);
     ResetGraph(1);
 }
 
-static void func_800A09DC(void) {
+static void EndingTaskFixedSprites(void) {
     u8 unused[0x100];
     s32 i;
 
-    for (i = 0; i < 0x20; i++) {
-        if (g_endingSprites[i].flags & 1) {
+    for (i = 0; i < LEN(g_endingSprites); i++) {
+        if (g_endingSprites[i].flags & ENDING_SPR_ACTIVE) {
             EndingSprite* e = &g_endingSprites[i];
 
-            g_endingSprites[i].unk5C = 0x28;
-            g_endingSprites[i].unk5E = 0x20;
-            g_endingSprites[i].unk60 = 0;
+            g_endingSprites[i].body.obj.pos.vx = 0x28;
+            g_endingSprites[i].body.obj.pos.vy = 0x20;
+            g_endingSprites[i].body.obj.pos.vz = 0;
 
-            func_800A34C4(e);
-            func_800A343C(e);
-            D_800AF3FC = func_800A358C(D_800AF3E8, 0, D_800AF3FC, e);
+            EndingSpriteAnimate(e);
+            EndingSpriteFade(e);
+            g_endingNextPrim = EndingSpriteDraw(g_endingCurOT, 0, g_endingNextPrim, e);
         }
     }
 }
 
-s32 EndingOpcode0B(void) {
+s32 EndingOpStartFixedSprites(void) {
     s32 i;
 
-    for (i = 0; i < 0x20; i++) {
+    for (i = 0; i < LEN(g_endingSprites); i++) {
         g_endingSprites[i].flags = 0;
         g_endingSprites[i].delay = 0;
         g_endingSprites[i].frame = 0;
         g_endingSprites[i].anim = NULL;
-        g_endingSprites[i].unk5C = 0;
-        g_endingSprites[i].unk5E = 0;
-        g_endingSprites[i].unk60 = 0;
+        g_endingSprites[i].body.obj.pos.vx = 0;
+        g_endingSprites[i].body.obj.pos.vy = 0;
+        g_endingSprites[i].body.obj.pos.vz = 0;
         g_endingSprites[i].r = 0;
         g_endingSprites[i].g = 0;
         g_endingSprites[i].b = 0;
     }
 
-    EndingInsertNode(&g_endingNode4, 4, 0x80, func_800A09DC);
-
+    EndingInsertNode(&g_endingNode4, 4, 0x80, EndingTaskFixedSprites);
     return 1;
 }
 
-s32 EndingOpcode0D(void) {
+s32 EndingOpSetLoopingSprite(void) {
     s32 id = *g_endingScriptPc++;
-    s32 arg = *g_endingScriptPc++;
+    s32 pack = *g_endingScriptPc++;
 
-    g_endingSprites[id].flags = 7;
+    g_endingSprites[id].flags = ENDING_SPR_ACTIVE | ENDING_SPR_ANIMATED | ENDING_SPR_LOOPING;
     g_endingSprites[id].delay = 0;
     g_endingSprites[id].frame = 0;
-    g_endingSprites[id].anim = SysCdromGetPackPointer((void*)0x800D0000, arg);
-    g_endingSprites[id].unk5C = 0;
-    g_endingSprites[id].unk5E = 0;
-    g_endingSprites[id].unk60 = 0;
+    g_endingSprites[id].anim = SysCdromGetPackPointer((void*)0x800D0000, pack);
+    g_endingSprites[id].body.obj.pos.vx = 0;
+    g_endingSprites[id].body.obj.pos.vy = 0;
+    g_endingSprites[id].body.obj.pos.vz = 0;
     g_endingSprites[id].r = 0;
     g_endingSprites[id].g = 0;
     g_endingSprites[id].b = 0;
-
     return 1;
 }
 
-s32 EndingOpcode0F(void) {
+s32 EndingOpFadeSprite(void) {
     s32 id = *g_endingScriptPc++;
     s32 steps = *g_endingScriptPc++;
     s32 target = *g_endingScriptPc++;
-    s32 off = id * 136;
     s32 dr = (target - g_endingSprites[id].r) / steps;
     s32 dg = (target - g_endingSprites[id].g) / steps;
     s32 db = (target - g_endingSprites[id].b) / steps;
@@ -864,62 +937,56 @@ s32 EndingOpcode0F(void) {
     g_endingSprites[id].r0 = target;
     g_endingSprites[id].g0 = target;
     g_endingSprites[id].b0 = target;
-    g_endingSprites[id].flags |= 8;
+    g_endingSprites[id].flags |= ENDING_SPR_FADING;
     g_endingSprites[id].dr = dr;
     g_endingSprites[id].dg = dg;
     g_endingSprites[id].db = db;
     g_endingScriptFrameFinished = 1;
-
     return 1;
 }
 
-static void func_800A0E68(void) {
+static void EndingTaskStaffRoll(void) {
     s32 i;
 
-    AddPrim(D_800AF3E8, &g_endingClearTile1[g_endingDbIndex]);
-    AddPrim(D_800AF3E8, &g_endingClearTile2[g_endingDbIndex]);
-
-    for (i = 0; i < 0x20; i++) {
-        if (g_endingSprites[i].flags & 1) {
+    AddPrim(g_endingCurOT, &g_endingClearTile1[g_endingDbIndex]);
+    AddPrim(g_endingCurOT, &g_endingClearTile2[g_endingDbIndex]);
+    for (i = 0; i < LEN(g_endingSprites); i++) {
+        if (g_endingSprites[i].flags & ENDING_SPR_ACTIVE) {
             EndingSprite* e = &g_endingSprites[i];
 
-            g_endingSprites[i].unk5E--;
-
-            if (g_endingSprites[i].unk5E == -0x10) {
+            g_endingSprites[i].body.obj.pos.vy--;
+            if (g_endingSprites[i].body.obj.pos.vy == -0x10) {
                 g_endingSprites[i].flags = 0;
             }
-
-            func_800A34C4(e);
-            func_800A343C(e);
-            D_800AF3FC = func_800A358C(D_800AF3E8, 0, D_800AF3FC, e);
+            EndingSpriteAnimate(e);
+            EndingSpriteFade(e);
+            g_endingNextPrim = EndingSpriteDraw(g_endingCurOT, 0, g_endingNextPrim, e);
         }
     }
 }
 
-s32 EndingOpcode11(void) {
+s32 EndingOpStartStaffRoll(void) {
     s32 i;
     s32 w;
     s32 h;
     s32 k;
 
-    for (i = 0; i < 0x20; i++) {
+    for (i = 0; i < LEN(g_endingSprites); i++) {
         g_endingSprites[i].flags = 0;
         g_endingSprites[i].delay = 0;
         g_endingSprites[i].frame = 0;
         g_endingSprites[i].anim = NULL;
-        g_endingSprites[i].unk5C = 0;
-        g_endingSprites[i].unk5E = 0;
-        g_endingSprites[i].unk60 = 0;
+        g_endingSprites[i].body.obj.pos.vx = 0;
+        g_endingSprites[i].body.obj.pos.vy = 0;
+        g_endingSprites[i].body.obj.pos.vz = 0;
         g_endingSprites[i].r = 0;
         g_endingSprites[i].g = 0;
         g_endingSprites[i].b = 0;
     }
+    EndingInsertNode(&g_endingNode4, 4, 0x80, EndingTaskStaffRoll);
 
-    EndingInsertNode(&g_endingNode4, 4, 0x80, func_800A0E68);
-
-    w = 0x140;
-    h = 0x28;
-
+    w = 320;
+    h = 40;
     for (k = 0; k < 2; k++) {
         SetTile(&g_endingClearTile1[k]);
         SetTile(&g_endingClearTile2[k]);
@@ -938,94 +1005,232 @@ s32 EndingOpcode11(void) {
         g_endingClearTile2[k].g0 = 0;
         g_endingClearTile2[k].b0 = 0;
     }
-
     return 1;
 }
 
-s32 EndingOpcode12(void) {
+s32 EndingOpAddStaffRollLine(void) {
     s32 i = 0;
     s32 c = 0x80;
-    s32 arg = *g_endingScriptPc++;
+    s32 pack = *g_endingScriptPc++;
     s32 v = *g_endingScriptPc++;
 
-    for (; i < 0x20; i++) {
-        if (g_endingSprites[i].flags & 1) {
+    for (; i < LEN(g_endingSprites); i++) {
+        if (g_endingSprites[i].flags & ENDING_SPR_ACTIVE) {
             continue;
         }
-
-        g_endingSprites[i].flags = 1;
+        g_endingSprites[i].flags = ENDING_SPR_ACTIVE;
         g_endingSprites[i].delay = 0;
         g_endingSprites[i].frame = v;
-        g_endingSprites[i].anim = SysCdromGetPackPointer((void*)0x800D0000, arg);
-        g_endingSprites[i].unk5C = 0x18;
-        g_endingSprites[i].unk5E = 0xC8;
-        g_endingSprites[i].unk60 = 0;
+        g_endingSprites[i].anim = SysCdromGetPackPointer((void*)0x800D0000, pack);
+        g_endingSprites[i].body.obj.pos.vx = 0x18;
+        g_endingSprites[i].body.obj.pos.vy = 0xC8;
+        g_endingSprites[i].body.obj.pos.vz = 0;
         g_endingSprites[i].r = c;
         g_endingSprites[i].g = c;
         g_endingSprites[i].b = c;
-
         return 1;
     }
-
     return 0;
 }
 
-static void func_800A12F0(void) {
+static void EndingTaskMovingSprites(void) {
     s32 i;
 
-    for (i = 0; i < 0x20; i++) {
-        if (g_endingSprites[i].flags & 1) {
+    for (i = 0; i < LEN(g_endingSprites); i++) {
+        if (g_endingSprites[i].flags & ENDING_SPR_ACTIVE) {
             EndingSprite* e = &g_endingSprites[i];
 
-            func_800A3368(e);
-            func_800A34C4(e);
-            func_800A343C(e);
-            D_800AF3FC = func_800A358C(D_800AF3E8, 0, D_800AF3FC, e);
+            EndingSpriteMove(e);
+            EndingSpriteAnimate(e);
+            EndingSpriteFade(e);
+            g_endingNextPrim = EndingSpriteDraw(g_endingCurOT, 0, g_endingNextPrim, e);
         }
     }
 }
 
-s32 EndingOpcode14(void) {
+s32 EndingOpStartMovingSprites(void) {
     s32 i;
 
-    for (i = 0; i < 0x20; i++) {
+    for (i = 0; i < LEN(g_endingSprites); i++) {
         g_endingSprites[i].flags = 0;
         g_endingSprites[i].delay = 0;
         g_endingSprites[i].frame = 0;
         g_endingSprites[i].anim = NULL;
-        g_endingSprites[i].unk5C = 0;
-        g_endingSprites[i].unk5E = 0;
-        g_endingSprites[i].unk60 = 0;
-        g_endingSprites[i].unk68 = 0;
-        g_endingSprites[i].unk6C = 0;
-        g_endingSprites[i].unk70 = 0;
+        g_endingSprites[i].body.obj.pos.vx = 0;
+        g_endingSprites[i].body.obj.pos.vy = 0;
+        g_endingSprites[i].body.obj.pos.vz = 0;
+        g_endingSprites[i].fixedX = 0;
+        g_endingSprites[i].fixedY = 0;
+        g_endingSprites[i].fixedZ = 0;
         g_endingSprites[i].r = 0;
         g_endingSprites[i].g = 0;
         g_endingSprites[i].b = 0;
     }
-
-    EndingInsertNode(&g_endingNode4, 4, 0x80, func_800A12F0);
-
+    EndingInsertNode(&g_endingNode4, 4, 0x80, EndingTaskMovingSprites);
     return 1;
 }
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", EndingOpcode15);
+s32 EndingOpSetSprite(void) {
+    s32 id = *g_endingScriptPc++;
+    s32 pack;
+    s32 frame;
 
-s32 EndingOpcode17(void) {
+    g_endingSprites[id].flags = *g_endingScriptPc++;
+    pack = *g_endingScriptPc++;
+    frame = *g_endingScriptPc++;
+    g_endingSprites[id].delay = 0;
+    g_endingSprites[id].frame = frame;
+    g_endingSprites[id].anim = SysCdromGetPackPointer((void*)0x800D0000, pack);
+    g_endingSprites[id].body.obj.pos.vx = g_endingSprites[id].fixedX = *g_endingScriptPc++;
+    g_endingSprites[id].body.obj.pos.vy = g_endingSprites[id].fixedY = *g_endingScriptPc++;
+    g_endingSprites[id].body.obj.pos.vz = g_endingSprites[id].fixedZ = *g_endingScriptPc++;
+    g_endingSprites[id].r = *(u8*)g_endingScriptPc++;
+    g_endingSprites[id].g = *(u8*)g_endingScriptPc++;
+    g_endingSprites[id].b = *(u8*)g_endingScriptPc++;
+    g_endingSprites[id].fixedX <<= 12;
+    g_endingSprites[id].fixedY <<= 12;
+    g_endingSprites[id].fixedZ <<= 12;
+    return 1;
+}
+
+s32 EndingOpMoveSprite(void) {
     s32 id = *g_endingScriptPc++;
 
-    g_endingSprites[id].flags |= 0x10;
-    g_endingSprites[id].unk78.vx = *g_endingScriptPc++;
-    g_endingSprites[id].unk78.vy = *g_endingScriptPc++;
-    g_endingSprites[id].unk78.vz = *g_endingScriptPc++;
-    g_endingSprites[id].unk4 = *g_endingScriptPc++;
-
+    g_endingSprites[id].flags |= ENDING_SPR_MOVING;
+    g_endingSprites[id].target.vx = *g_endingScriptPc++;
+    g_endingSprites[id].target.vy = *g_endingScriptPc++;
+    g_endingSprites[id].target.vz = *g_endingScriptPc++;
+    g_endingSprites[id].speed = *g_endingScriptPc++;
     return 1;
 }
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", EndingOpcode1C);
+s32 EndingOpInitStarfield(void) {
+    s32 i;
+    s32 x;
+    s32 y;
+    s32 r;
+    SVECTOR* pos;
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", EndingOpcode1D);
+    srand(VSync(1));
+    EndingObjInit(NULL, &g_endingCamera.obj);
+    g_endingCamera.obj.pos.vx = 0;
+    g_endingCamera.obj.pos.vy = 0;
+    g_endingCamera.obj.pos.vz = -0x400;
+
+    i = 0;
+    x = -0x2000;
+    y = -0x3ED;
+    for (; i < NUM_STARS; i++) {
+        EndingObjInit(&g_endingCamera.obj, &g_endingStars[i].obj);
+        r = rand();
+        pos = &g_endingStars[i].obj.pos;
+        pos->vx = x;
+        x += 0x400;
+        pos->vy = y;
+        pos->vz = r / 2 + 0x4000;
+        if (x >= 0x2000) {
+            x = -0x2000;
+            y += 0x100;
+        }
+    }
+    for (x = 0; x < LEN(g_endingStarLines); x++) {
+        for (i = 0; i < NUM_STARS; i++) {
+            g_endingStarLines[x][i].r1 = 0xA0;
+            g_endingStarLines[x][i].g1 = 0xDC;
+            g_endingStarLines[x][i].b1 = 0xFA;
+            g_endingStarLines[x][i].r0 = 0x10;
+            g_endingStarLines[x][i].g0 = 0x10;
+            g_endingStarLines[x][i].b0 = 0x10;
+            g_endingStarLines[x][i].r0 = g_endingStarLines[x][i].g0 = g_endingStarLines[x][i].b0 = 0;
+            SetLineG2(&g_endingStarLines[x][i]);
+        }
+    }
+    SetDispMask(1);
+    return 1;
+}
+
+s32 EndingOpDrawStarfield(void) {
+    s32 depth;
+    s32 p;
+    s32 flag;
+    OT_TYPE* ot;
+    s32 i;
+    u32 otz;
+    s32 r;
+    s32 g;
+    s32 b;
+
+    g_endingStarBuf ^= 1;
+    if (g_endingPad0Keys & PAD_UP) {
+        D_800A63D8 -= 8;
+    } else if (g_endingPad0Keys & PAD_DOWN) {
+        D_800A63D8 += 8;
+    } else if (g_endingPad0Keys & PAD_RIGHT) {
+        D_800A63D4 += 8;
+    } else if (g_endingPad0Keys & PAD_LEFT) {
+        D_800A63D4 -= 8;
+    } else if (g_endingPad0Keys & PAD_L1) {
+        D_800A63D0 -= 0x10;
+    } else if (g_endingPad0Keys & PAD_R1) {
+        D_800A63D0 += 0x10;
+    }
+
+    g_endingCamTarget.vx = g_endingCamTarget.vz = 0;
+    g_endingCamTarget.vy = 0;
+    g_endingCamTarget.vz = 0;
+    g_endingCamUp.vx = 0;
+    g_endingCamUp.vy = -0x1000;
+    g_endingCamUp.vz = 0;
+    EndingLookAt(&g_endingCamera.obj.mtx, &g_endingCamera.obj.pos, &g_endingCamTarget, &g_endingCamUp);
+
+    ot = g_endingStarOT[g_endingStarBuf];
+    ClearOTag(ot, NUM_STARS);
+
+    for (i = 0; i < NUM_STARS; i++) {
+        if (g_endingStarBuf != 0) {
+            g_endingStars[i].obj.pos.vz -= 0x20;
+        } else {
+            g_endingStars[i].obj.pos.vz -= 0x80;
+        }
+
+        if (g_endingStars[i].obj.pos.vz < 0) {
+            g_endingStars[i].obj.pos.vz = 0x4000;
+        }
+
+        EndingObjUpdateMatrixYXZ(&g_endingStars[i].obj);
+        SetRotMatrix(&g_endingStars[i].obj.mtx);
+        SetTransMatrix(&g_endingStars[i].obj.mtx);
+        otz = RotTransPers3(&g_endingStarVerts[0], &g_endingStarVerts[1], &g_endingStarVerts[2],
+                            (void*)&g_endingStarLines[g_endingStarBuf][i].x0,
+                            (void*)&g_endingStarLines[g_endingStarBuf][i].x1, (void*)&depth, (void*)&p, (void*)&flag);
+
+        depth = g_endingStars[i].obj.pos.vz >> 6;
+
+        r = 0xA0 - depth;
+        if (r < 0) {
+            g_endingStarLines[g_endingStarBuf][i].r1 = 0;
+        } else {
+            g_endingStarLines[g_endingStarBuf][i].r1 = r;
+        }
+
+        g = 0xDC - depth;
+        if (g < 0) {
+            g_endingStarLines[g_endingStarBuf][i].g1 = 0;
+        } else {
+            g_endingStarLines[g_endingStarBuf][i].g1 = g;
+        }
+
+        b = 0xFA - depth;
+        if (b < 0) {
+            g_endingStarLines[g_endingStarBuf][i].b1 = 0;
+        } else {
+            g_endingStarLines[g_endingStarBuf][i].b1 = b;
+        }
+        AddPrim(&ot[otz >> 6], &g_endingStarLines[g_endingStarBuf][i]);
+    }
+    DrawOTag(ot);
+    return 0;
+}
 
 static void EndingExecuteScript(void) {
     s16* pc;
@@ -1033,126 +1238,122 @@ static void EndingExecuteScript(void) {
     do {
         pc = g_endingScriptPc++;
         g_endingScriptFrameFinished = 0;
-
         if (g_endingOpcodeHandlers[*pc]() == 0) {
             g_endingScriptPc = pc;
-            D_800A6390 = 0;
+            g_endingOpcodeFirstRun = 0;
         } else {
-            D_800A6390 = 1;
+            g_endingOpcodeFirstRun = 1;
         }
     } while (g_endingScriptFrameFinished != 0);
 }
 
-static void EndingInitScriptPc(s16* arg0) { g_endingScriptPc = arg0; }
+static void EndingInitScriptPc(s16* script) { g_endingScriptPc = script; }
 
-s32 EndingOpcode00(void) { return 0; }
+s32 EndingOpHalt(void) { return 0; }
 
-s32 EndingOpcode01(void) {
+s32 EndingOpLoadFile(void) {
     s32 idx = *g_endingScriptPc++;
 
-    SystemLoadFileBySector(D_800A6398[idx * 2], D_800A6398[idx * 2 + 1], (u_long*)0x800D0000, NULL);
+    SystemLoadFileBySector(*&g_endingFiles[idx].loc, *&g_endingFiles[idx].len, (u_long*)0x800D0000, NULL);
     return 1;
 }
 
-s32 EndingOpcode02(void) {
+s32 EndingOpLoadFileLzsAsync(void) {
     s32 idx = *g_endingScriptPc++;
 
-    SysCdromStartLoadLzs(D_800A6398[idx * 2], D_800A6398[idx * 2 + 1], (u_long*)0x800D0000, NULL);
+    SysCdromStartLoadLzs(*&g_endingFiles[idx].loc, *&g_endingFiles[idx].len, (u_long*)0x800D0000, NULL);
     return 1;
 }
 
-s32 EndingOpcode03(void) { return func_80034410() == 0; }
+s32 EndingOpWaitCdIdle(void) { return func_80034410() == 0; }
 
-s32 EndingOpcode04(void) {
-    s16 sp10;
-    s16 sp12;
+s32 EndingOpLoadTim(void) {
+    s16 tpage;
+    s16 clut;
 
-    EndingLoadTim(SysCdromGetPackPointer((void*)0x800D0000, *g_endingScriptPc++), &sp10, &sp12);
+    EndingLoadTim(SysCdromGetPackPointer((void*)0x800D0000, *g_endingScriptPc++), &tpage, &clut);
 
     return 1;
 }
 
-s32 EndingOpcode05(void) {
-    s16 sp10;
-    s16 sp12;
+s32 EndingOpLoadTimLzs(void) {
+    s16 tpage;
+    s16 clut;
     s32 id = *g_endingScriptPc++;
 
-    if (D_800A6390 != 0) {
+    if (g_endingOpcodeFirstRun) {
         SysCdromSetLzsExtract(SysCdromGetPackPointer((void*)0x800D0000, id), (void*)0x80120000);
     }
-
-    if (func_80034D5C() != 0) {
+    if (func_80034D5C()) {
         return 0;
     }
-
-    EndingLoadTim((void*)0x80120000, &sp10, &sp12);
-
+    EndingLoadTim((void*)0x80120000, &tpage, &clut);
     return 1;
 }
 
-s32 EndingOpcode06(void) {
+s32 EndingOpPlayMovie(void) {
     D_800A6524 = (void*)0x801A0000;
     SysMoviePlay((void*)0x801A0000, *g_endingScriptPc++);
     return 1;
 }
 
-s32 EndingOpcode07(void) { return func_80034410() == 0; }
+s32 EndingOpWaitCdIdle2(void) { return func_80034410() == 0; }
 
-s32 EndingOpcode08(void) {
+s32 EndingOpSetResolution(void) {
     u8 unused[8]; /* retail reserves it, nothing reads it */
+    s32 w = *g_endingScriptPc++;
+    s32 h = *g_endingScriptPc++;
+    s32 dist = *g_endingScriptPc++;
+    s32 r = *(u8*)g_endingScriptPc++;
+    s32 g = *(u8*)g_endingScriptPc++;
 
-    SetGameResolution(*g_endingScriptPc++, *g_endingScriptPc++, *g_endingScriptPc++, *(u8*)g_endingScriptPc++,
-                      *(u8*)g_endingScriptPc++, *(u8*)g_endingScriptPc++);
+    SetGameResolution(w, h, dist, r, g, *(u8*)g_endingScriptPc++);
     StartFrame(0);
-
     return 1;
 }
 
-s32 EndingOpcode09(void) {
+s32 EndingOpSetDispMask(void) {
     SetDispMask(*g_endingScriptPc++);
     return 1;
 }
 
-s32 EndingOpcode0A(void) {
-    if (D_800A6390 != 0) {
-        D_800A63B0 = *g_endingScriptPc++;
+s32 EndingOpWaitFrames(void) {
+    if (g_endingOpcodeFirstRun != 0) {
+        g_endingWaitFrames = *g_endingScriptPc++;
     } else {
         g_endingScriptPc++;
     }
-
-    return --D_800A63B0 == 0;
+    return --g_endingWaitFrames == 0;
 }
 
-s32 EndingOpcode0C(void) {
+s32 EndingOpStopSpriteTask(void) {
     EndingRemoveNodeFromList(EndingFindNodeById(4));
-
     return 1;
 }
 
-s32 EndingOpcode0E(void) {
+s32 EndingOpJumpBack(void) {
     s32 count = *g_endingScriptPc + 1;
 
     g_endingScriptPc -= count;
-
     return 1;
 }
 
-s32 EndingOpcode10(void) {
-    D_800AF40C = *g_endingScriptPc++;
+s32 EndingOpSetVSyncMode(void) {
+    g_endingVSyncMode = *g_endingScriptPc++;
     return 1;
 }
 
-s32 EndingOpcode13(void) {
+s32 EndingOpEnd(void) {
     g_endingInProgress = 0;
     return 1;
 }
 
-s32 EndingOpcode16(void) {
-    *(s16*)((u8*)g_endingSprites + (*g_endingScriptPc++ * 136)) = 0;
+s32 EndingOpHideSprite(void) {
+    g_endingSprites[*g_endingScriptPc++].flags = 0;
     return 1;
 }
 
-s32 EndingOpcode18(void) {
+s32 EndingOpPlayMusic(void) {
     g_AkaoCmd.opcode = AKAO_PLAY_MUSIC;
     g_AkaoCmd.params[0] = (u32)SysCdromGetPackPointer((void*)0x800D0000, *g_endingScriptPc++);
     AkaoExec();
@@ -1160,7 +1361,7 @@ s32 EndingOpcode18(void) {
     return 1;
 }
 
-s32 EndingOpcode1A(void) {
+s32 EndingOpAkaoCommand(void) {
     g_AkaoCmd.opcode = *g_endingScriptPc++;
     g_AkaoCmd.params[0] = *g_endingScriptPc++;
     g_AkaoCmd.params[1] = *g_endingScriptPc++;
@@ -1169,16 +1370,16 @@ s32 EndingOpcode1A(void) {
     return 1;
 }
 
-s32 EndingOpcode19(void) { return func_80034410() == 8; }
+s32 EndingOpWaitCdState8(void) { return func_80034410() == 8; }
 
-s32 EndingOpcode1B(void) {
+s32 EndingOpWaitMovieFrame(void) {
     if (D_80075D00->unk8 >= *g_endingScriptPc++) {
         return 1;
     }
     return 0;
 }
 
-static void func_800A2458(void) {
+static void EndingResetSystem(void) {
     StopCallback();
     ResetCallback();
     ResetGraph(0);
@@ -1188,9 +1389,9 @@ static void func_800A2458(void) {
     SysCdromInit();
 }
 
-static void func_800A24A8(void) {
+static void EndingStopDrawing(void) {
     s32 res;
-
+#ifndef PLATFORM_PSYZ
     while ((res = BreakDraw()) == -1) {
         VSync(0);
     }
@@ -1199,6 +1400,7 @@ static void func_800A24A8(void) {
         do {
         } while (IsIdleGPU(1) != 0);
     }
+#endif
 }
 
 static void SetGameResolution(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
@@ -1208,6 +1410,7 @@ static void SetGameResolution(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
 
     y = (h != 480) ? 240 : 0;
 
+#ifndef PLATFORM_PSYZ
     while ((res = BreakDraw()) == -1) {
         VSync(0);
     }
@@ -1216,6 +1419,7 @@ static void SetGameResolution(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
         do {
         } while (IsIdleGPU(1) != 0);
     }
+#endif
 
     ResetGraph(1);
     SetDispMask(0);
@@ -1269,14 +1473,14 @@ static s32 StartFrame(s32 sync) {
     D_8007EBD0 = &g_endingDrawEnvs[g_endingDbIndex];
 
     pad0 = InputReadPadsRaw();
-    old1 = D_800AF3C0;
-    old2 = D_800AF3C4;
+    old1 = g_endingPad0KeysReleased;
+    old2 = g_endingPad1KeysReleased;
     pad1 = pad0 >> 16;
 
     g_endingPad0Keys = pad0;
     g_endingPad1Keys = pad1;
-    D_800AF3C0 = ~pad0;
-    D_800AF3C4 = ~pad1;
+    g_endingPad0KeysReleased = ~pad0;
+    g_endingPad1KeysReleased = ~pad1;
     g_endingPad0KeysPressed = old1 & pad0;
     g_endingPad1KeysPressed = old2 & pad1;
 
@@ -1300,8 +1504,12 @@ static void EndingLoadTim(void* addr, s16* tpage, s16* clut) {
     }
 }
 
-static void func_800A2934(EndingObj* parent, EndingObj* child) {
-    parent->unk4 = (s32)child;
+static void EndingObjInit(EndingObj* parent, EndingObj* child) {
+#ifdef PLATFORM_PSYZ
+    // BUG! On PS1 it writes to NULL
+    if (parent != NULL)
+#endif
+        parent->unk4 = (u_long)child;
     child->parent = parent;
     child->scale.pad = 0x1000;
     child->scale.vz = 0x1000;
@@ -1317,13 +1525,97 @@ static void func_800A2934(EndingObj* parent, EndingObj* child) {
     child->rot.vx = 0;
 }
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A2974);
+static void EndingSetViewMatrix(MATRIX* m, SVECTOR* pos, SVECTOR* rot) {
+    VECTOR unused;
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A2A2C);
+    RotMatrix(rot, m);
+    gte_SetRotMatrix(m);
+    gte_ldv0(pos);
+    gte_rtv0();
+    gte_stlvnl(m->t);
+    m->t[0] = -m->t[0];
+    m->t[1] = -m->t[1];
+    m->t[2] = -m->t[2];
+}
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A2C68);
+static void EndingLookAt(MATRIX* m, SVECTOR* eye, SVECTOR* target, VECTOR* up) {
+    VECTOR d;
+    VECTOR x;
+    VECTOR y;
+    VECTOR z;
 
-static s32 func_800A2E80(EndingObj* obj) {
+    d.vx = target->vx - eye->vx;
+    d.vy = target->vy - eye->vy;
+    d.vz = target->vz - eye->vz;
+    VectorNormal(&d, &z);
+
+    if (z.vz == up->vz) {
+        z.vz++;
+    }
+
+    ENDING_OUTER_PRODUCT(&z, up, &d);
+    VectorNormal(&d, &x);
+
+    ENDING_OUTER_PRODUCT(&z, &x, &d);
+    VectorNormal(&d, &y);
+
+    m->m[0][0] = x.vx;
+    m->m[0][1] = x.vy;
+    m->m[0][2] = x.vz;
+    m->m[1][0] = y.vx;
+    m->m[1][1] = y.vy;
+    m->m[1][2] = y.vz;
+    m->m[2][0] = z.vx;
+    m->m[2][1] = z.vy;
+    m->m[2][2] = z.vz;
+
+    gte_SetRotMatrix(m);
+    gte_ldv0(eye);
+    gte_rtv0();
+    gte_stlvnl(m->t);
+    m->t[0] = -m->t[0];
+    m->t[1] = -m->t[1];
+    m->t[2] = -m->t[2];
+}
+
+static void EndingLookAtNoNegate(MATRIX* m, SVECTOR* eye, SVECTOR* target, VECTOR* up) {
+    VECTOR d;
+    VECTOR x;
+    VECTOR y;
+    VECTOR z;
+
+    d.vx = target->vx - eye->vx;
+    d.vy = target->vy - eye->vy;
+    d.vz = target->vz - eye->vz;
+    VectorNormal(&d, &z);
+
+    if (z.vz == up->vz) {
+        z.vz++;
+    }
+
+    ENDING_OUTER_PRODUCT(&z, up, &d);
+    VectorNormal(&d, &x);
+
+    ENDING_OUTER_PRODUCT(&z, &x, &d);
+    VectorNormal(&d, &y);
+
+    m->m[0][0] = x.vx;
+    m->m[0][1] = x.vy;
+    m->m[0][2] = x.vz;
+    m->m[1][0] = y.vx;
+    m->m[1][1] = y.vy;
+    m->m[1][2] = y.vz;
+    m->m[2][0] = z.vx;
+    m->m[2][1] = z.vy;
+    m->m[2][2] = z.vz;
+
+    gte_SetRotMatrix(m);
+    gte_ldv0(eye);
+    gte_rtv0();
+    gte_stlvnl(m->t);
+}
+
+static s32 EndingObjUpdateMatrix(EndingObj* obj) {
     s32 flag;
 
     RotMatrix(&obj->rot, &obj->mtx);
@@ -1339,7 +1631,7 @@ static s32 func_800A2E80(EndingObj* obj) {
     return flag;
 }
 
-static s32 func_800A2F1C(EndingObj* obj) {
+static s32 EndingObjUpdateMatrixYXZ(EndingObj* obj) {
     s32 flag;
 
     RotMatrixYXZ(&obj->rot, &obj->mtx);
@@ -1355,7 +1647,9 @@ static s32 func_800A2F1C(EndingObj* obj) {
     return flag;
 }
 
-static s32 func_800A2FB8(EndingObj* obj, VECTOR* target, VECTOR* out, s32 scale) {
+// Writes to `out` the 20.12 step from `obj` toward `target` at `speed`. Returns 1 on the last step (2 units or
+// closer).
+static s32 EndingObjStepToward(EndingObj* obj, VECTOR* target, VECTOR* out, s32 speed) {
     VECTOR d;
 
     d.vx = target->vx - obj->pos.vx;
@@ -1372,26 +1666,26 @@ static s32 func_800A2FB8(EndingObj* obj, VECTOR* target, VECTOR* out, s32 scale)
         return 1;
     }
 
-    if (scale == 0x1000) {
+    if (speed == 0x1000) {
         return 0;
     }
 
-    out->vx = (out->vx * scale) / 4096;
-    out->vy = (out->vy * scale) / 4096;
-    out->vz = (out->vz * scale) / 4096;
+    out->vx = (out->vx * speed) / 4096;
+    out->vy = (out->vy * speed) / 4096;
+    out->vz = (out->vz * speed) / 4096;
 
     return 0;
 }
 
 static void EndingInitNodes(void) {
     g_endingNode0.id = 0;
-    g_endingNode0.state = 1;
+    g_endingNode0.state = ENDING_NODE_SENTINEL;
     g_endingNode0.prio = 0xFF;
     g_endingNode0.prev = NULL;
     g_endingNode0.next = &g_endingNode1;
 
     g_endingNode1.id = 1;
-    g_endingNode1.state = 1;
+    g_endingNode1.state = ENDING_NODE_SENTINEL;
     g_endingNode1.prio = 0;
     g_endingNode1.prev = &g_endingNode0;
     g_endingNode1.next = NULL;
@@ -1404,7 +1698,7 @@ static void EndingInsertNode(EndingNode* newNode, s16 id, u8 prio, void (*fn)(En
         if (prio > node->prio) {
             newNode->id = id;
             newNode->fn = fn;
-            newNode->state = 2;
+            newNode->state = ENDING_NODE_NEW;
             newNode->prio = prio;
 
             newNode->next = node;
@@ -1420,7 +1714,7 @@ static void EndingInsertNode(EndingNode* newNode, s16 id, u8 prio, void (*fn)(En
     if (prio > node->prio) {
         newNode->id = id;
         newNode->fn = fn;
-        newNode->state = 2;
+        newNode->state = ENDING_NODE_NEW;
         newNode->prio = prio;
 
         newNode->next = node;
@@ -1431,11 +1725,11 @@ static void EndingInsertNode(EndingNode* newNode, s16 id, u8 prio, void (*fn)(En
     }
 }
 
-static void func_800A3210(void) {
+static void EndingRunNodes(void) {
     EndingNode* node = g_endingNode0.next;
 
     while (node->next != NULL) {
-        if (node->state == 4) {
+        if (node->state == ENDING_NODE_RUNNING) {
             node->fn(node);
         }
         node = node->next;
@@ -1444,8 +1738,8 @@ static void func_800A3210(void) {
     node = g_endingNode0.next;
 
     while (node->next != NULL) {
-        if (node->state == 2) {
-            node->state = 4;
+        if (node->state == ENDING_NODE_NEW) {
+            node->state = ENDING_NODE_RUNNING;
         }
         node = node->next;
     }
@@ -1459,11 +1753,11 @@ static void EndingRemoveNodeFromList(EndingNode* node) {
     next->prev = prev;
 }
 
-static void func_800A32F0(u8* arg0) { arg0[0xE] = 8; }
+static void EndingNodeSetState8(u8* arg0) { arg0[0xE] = 8; }
 
-static void func_800A32FC(u8* arg0) { arg0[0xE] = 4; }
+static void EndingNodeSetRunning(u8* arg0) { arg0[0xE] = 4; }
 
-void func_800A3308(u8* arg0) { arg0[0xE] = 0x10; }
+void EndingNodeSetState10(u8* arg0) { arg0[0xE] = 0x10; }
 
 static EndingNode* EndingFindNodeById(s16 id) {
     EndingNode* node = g_endingNode0.next;
@@ -1478,34 +1772,34 @@ static EndingNode* EndingFindNodeById(s16 id) {
     return NULL;
 }
 
-static void func_800A3368(EndingSprite* spr) {
+static void EndingSpriteMove(EndingSprite* spr) {
     VECTOR d;
 
-    if (!(spr->flags & 0x10)) {
+    if (!(spr->flags & ENDING_SPR_MOVING)) {
         return;
     }
 
-    if (func_800A379C((EndingObj*)spr->unk1C, &spr->unk78, &d, spr->unk4) != 0) {
-        spr->flags ^= 0x10;
+    if (EndingSpriteStepToward(&spr->body.obj, &spr->target, &d, spr->speed) != 0) {
+        spr->flags ^= ENDING_SPR_MOVING;
     }
 
-    spr->unk68 += d.vx;
-    spr->unk6C += d.vy;
-    spr->unk70 += d.vz;
+    spr->fixedX += d.vx;
+    spr->fixedY += d.vy;
+    spr->fixedZ += d.vz;
 
-    spr->unk5C = spr->unk68 / 4096;
-    spr->unk5E = spr->unk6C / 4096;
-    spr->unk60 = spr->unk70 / 4096;
+    spr->body.obj.pos.vx = spr->fixedX / 4096;
+    spr->body.obj.pos.vy = spr->fixedY / 4096;
+    spr->body.obj.pos.vz = spr->fixedZ / 4096;
 }
 
-static void func_800A343C(EndingSprite* spr) {
-    if (spr->flags & 8) {
+static void EndingSpriteFade(EndingSprite* spr) {
+    if (spr->flags & ENDING_SPR_FADING) {
         spr->r += spr->dr;
         spr->g += spr->dg;
         spr->b += spr->db;
 
         if (--spr->timer == 0) {
-            spr->flags ^= 8;
+            spr->flags ^= ENDING_SPR_FADING;
             spr->r = spr->r0;
             spr->g = spr->g0;
             spr->b = spr->b0;
@@ -1513,10 +1807,10 @@ static void func_800A343C(EndingSprite* spr) {
     }
 }
 
-static void func_800A34C4(EndingSprite* spr) {
+static void EndingSpriteAnimate(EndingSprite* spr) {
     u16 count;
 
-    if (!(spr->flags & 2)) {
+    if (!(spr->flags & ENDING_SPR_ANIMATED)) {
         return;
     }
 
@@ -1526,7 +1820,7 @@ static void func_800A34C4(EndingSprite* spr) {
         spr->frame++;
 
         if (spr->frame >= count) {
-            if (spr->flags & 4) {
+            if (spr->flags & ENDING_SPR_LOOPING) {
                 spr->frame = 0;
             } else {
                 spr->frame--;
@@ -1540,16 +1834,74 @@ static void func_800A34C4(EndingSprite* spr) {
     spr->delay--;
 }
 
-INCLUDE_ASM("asm/us/ending/nonmatchings/ending", func_800A358C);
+static POLY_FT4* EndingSpriteDraw(void* ot, s32 unused, POLY_FT4* prim, EndingSprite* spr) {
+    u32 count;
+    u32 i;
+    EndingFramePart* part;
+    EndingFrameHeader* hdr;
+    s16 x;
+    s16 y;
+    s16 w;
+    s16 h;
 
-static s32 func_800A379C(EndingObj* obj, VECTOR* target, VECTOR* out, s32 scale) {
+    count = func_80036244(spr->anim, spr->frame);
+    part = (EndingFramePart*)D_80036240;
+    hdr = (EndingFrameHeader*)D_8003623C;
+
+    for (i = 0; i < count; i++) {
+        x = part->x - hdr->originX + spr->body.obj.pos.vx;
+        y = part->y - hdr->originY + spr->body.obj.pos.vy;
+        w = part->w + 0xFFFF;
+        h = part->h + 0xFFFF;
+
+        prim->r0 = spr->r;
+        prim->g0 = spr->g;
+        prim->b0 = spr->b;
+
+        prim->x0 = x;
+        prim->y0 = y;
+        prim->x1 = x + w;
+        prim->y1 = y;
+        prim->x2 = x;
+        prim->y2 = y + h;
+        prim->x3 = x + w;
+        prim->y3 = y + h;
+
+        prim->u0 = part->u;
+        prim->v0 = part->v;
+        prim->u1 = part->u + w;
+        prim->v1 = part->v;
+        prim->u2 = part->u;
+        prim->v2 = part->v + h;
+        prim->u3 = part->u + w;
+        prim->v3 = part->v + h;
+
+        prim->tpage = part->tpage;
+        prim->clut = part->clut;
+
+        SetPolyFT4(prim);
+
+        if (spr->flags & ENDING_SPR_SEMITRANS) {
+            SetSemiTrans(prim, 1);
+            prim->tpage |= (spr->flags & ENDING_SPR_BLEND_MASK) >> 8;
+        }
+
+        AddPrim(ot, prim);
+        prim++;
+        part++;
+    }
+
+    return prim;
+}
+
+// Same as EndingObjStepToward, but skips VectorNormal when the delta has no x or no y component.
+static s32 EndingSpriteStepToward(EndingObj* obj, VECTOR* target, VECTOR* out, s32 speed) {
     VECTOR d;
     s32 v;
 
     d.vx = target->vx - obj->pos.vx;
     d.vy = target->vy - obj->pos.vy;
     d.vz = target->vz - obj->pos.vz;
-
     if (d.vx == 0) {
         v = (d.vy < 0) ? -0x1000 : 0x1000;
         out->vx = 0;
@@ -1563,22 +1915,17 @@ static s32 func_800A379C(EndingObj* obj, VECTOR* target, VECTOR* out, s32 scale)
     } else {
         VectorNormal(&d, out);
     }
-
-    if ((u32)(d.vx + 2) < 4 && (u32)(d.vy + 2) < 4 && (u32)(d.vz + 2) < 4) {
+    if (d.vx >= -2 && d.vx < 2 && d.vy >= -2 && d.vy < 2 && d.vz >= -2 && d.vz < 2) {
         out->vx = d.vx << 12;
         out->vy = d.vy << 12;
         out->vz = d.vz << 12;
-
         return 1;
     }
-
-    if (scale == 0x1000) {
+    if (speed == 0x1000) {
         return 0;
     }
-
-    out->vx = (out->vx * scale) / 4096;
-    out->vy = (out->vy * scale) / 4096;
-    out->vz = (out->vz * scale) / 4096;
-
+    out->vx = (out->vx * speed) / 4096;
+    out->vy = (out->vy * speed) / 4096;
+    out->vz = (out->vz * speed) / 4096;
     return 0;
 }
