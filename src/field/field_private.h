@@ -82,6 +82,8 @@ extern DRAWENV D_80113F2C[2];
 extern s16 D_801142C8;
 extern u8 D_80114498[48];
 extern u8 g_PosCursorDisabled;
+extern u8 g_WindowReplaceBank[4][8];
+extern u16 g_WindowReplaceBankAddr[4][8];
 
 extern char g_FieldDebugActorLabel[8];
 extern char g_FieldDebugWordLabel[8];
