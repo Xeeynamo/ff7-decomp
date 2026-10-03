@@ -11,6 +11,28 @@ typedef enum {
     SETUP_NO_PREEMPTIVE_STRIKE = 0x10,
 } BattleSetupFlags;
 
+// attackEffectId of a summon (currentActionId 3), named after its MAGIC/*.BIN.
+typedef enum {
+    SUMMON_CHOCO0,   // Choco/Mog
+    SUMMON_SIVA,     // Shiva
+    SUMMON_IFLEET,   // Ifrit
+    SUMMON_LAMU,     // Ramuh
+    SUMMON_TITAN,    // Titan
+    SUMMON_ODIN2,    // Odin
+    SUMMON_RIVA,     // Leviathan
+    SUMMON_VAHAMUT,  // Bahamut
+    SUMMON_KUJATA,   // Kujata
+    SUMMON_ALEX,     // Alexander
+    SUMMON_PHOENIX,  // Phoenix
+    SUMMON_VAHAMUT2, // Neo Bahamut
+    SUMMON_HADES,    // Hades
+    SUMMON_TUPON,    // Typhon
+    SUMMON_VAHAMUT0, // Bahamut ZERO
+    SUMMON_KNIGHTS,  // Knights of the Round
+    SUMMON_DEBUCHO,  // Fat Chocobo
+    SUMMON_ODIN1,    // Odin
+} Summon;
+
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleType.cs#L3
 typedef enum {
     SETUP_DEFAULT,
@@ -461,6 +483,22 @@ typedef struct {
     /* 0xA */ s16 clutBias;   // added to each quad's clut halfword
 } SpriteRenderDesc;           // size:0xC
 
+// Sprite descriptor read by BattleEffectSpriteAdd.
+typedef struct {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ u8 u;
+    /* 0x5 */ u8 v;
+    /* 0x6 */ u8 w;
+    /* 0x7 */ u8 h;
+    /* 0x8 */ u8 r;
+    /* 0x9 */ u8 g;
+    /* 0xA */ u8 b;
+    /* 0xB */ u8 code;
+    /* 0xC */ u16 tpage; // POLY_FT4 tpage halfword
+    /* 0xE */ u16 clut;  // POLY_FT4 clut halfword
+} BattleSpriteDesc;      // size:0x10
+
 typedef struct {
     /* 0x00 */ s16 unitSpeed;
     /* 0x02 */ s16 atbIncrement;
@@ -584,6 +622,7 @@ extern SavePartyMember D_80167938;
 
 s32 BattleEffectRegister(void (*func)(void));
 void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
+void BattleEnqueueClearImage(RECT* rect, s32 arg1, s32 arg2, s32 arg3);
 void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);
 // Build the model matrix for a battle effect: `scale` goes on the matrix
 // diagonal, `pos` is transformed into view space to become the translation,
@@ -591,11 +630,14 @@ void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);
 // the camera). Leaves the result installed as the rot/trans matrix.
 MATRIX* func_800D4368(SVECTOR* pos, s32 scale, s32 depthBias);
 void* func_800D4D90(SpriteRenderDesc* desc, u_long** ot, int otLen, void* prim);
+void* BattleEffectSpriteAdd(BattleSpriteDesc* desc, u_long** ot, int otLen, void* prim);
 void func_800D5444(int, int, int, void (*func)(int));
 // Returns a scale derived from the target's model size.
 s32 func_800D55A4(s32 target);
 void BattleAkaoCommand(s32 cmdId, ...);
 void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
+void BattleEntityGetCenter(s32 targetMask, void* center);
+s16* BattleEventQueuePush(s32 type);
 // Runs `func` once per set bit in targetMask, frameStep frames apart.
 void MagicAnimationRegister(s32 targetMask, s32 callbackArg, s32 frameStep, void (*func)(s32, s32));
 s32 BattlePositionToStereoPan(SVECTOR* sv);

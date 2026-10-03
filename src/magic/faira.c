@@ -70,7 +70,7 @@ static void FairaRenderModel(void) {
 
     desc->tpage = ((effect->AnimationFrame >> 3) & 1) | 0x20;
     desc->clut = 0;
-    faira_buffer_ptr = func_800D29D4(desc, g_cDb->unk70, 0xC, faira_buffer_ptr);
+    faira_buffer_ptr = func_800D29D4(desc, g_cDb->unk70, 12, faira_buffer_ptr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
     }

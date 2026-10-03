@@ -33,7 +33,7 @@ static void FireRenderSprite(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     func_800D4368(&effect->Pos, 0x1000, effect->unk12);
     fire_render_desc.frameIndex = effect->AnimationFrame;
-    fire_buffer_ptr = func_800D4D90(&fire_render_desc, g_cDb->unk70, 0xC, fire_buffer_ptr);
+    fire_buffer_ptr = func_800D4D90(&fire_render_desc, g_cDb->unk70, 12, fire_buffer_ptr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame >= 14) {

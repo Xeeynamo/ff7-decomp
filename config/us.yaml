@@ -362,7 +362,10 @@ overlays:
     disk_path: disks/us/BATTLE/BATTLE.X.dec
     sha1: c82690f814b18664c3b2d024f4edeea5743995d9
     base_path: battle
-    imports: [main, batini, batres, barrier, brizad, lv5deth, thunder, mabaria, refrec, fire, faira, brizara, thundera]
+    imports: [
+      main, batini, batres,
+      barrier, brizad, lv5deth, thunder, mabaria, refrec, fire, faira, brizara, thundera, choco0
+    ]
     symbol_addrs_path:
       - config/symbols.battle.txt
     migrate_rodata_to_functions: true

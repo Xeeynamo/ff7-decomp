@@ -1,5 +1,6 @@
 // should be imported only by the BATTLE overlay, not BATINI or similar
 #include "battle.h"
+#include "../magic/magic.h"
 
 #define CMD_OPCODE_DELIM 0x1F
 #define HIT_OPCODE_DELIM 0x08
@@ -241,12 +242,6 @@ typedef struct {
     /* 0x6 */ u16 targetMask;
 } QueuedAction; // size:0x8
 
-typedef struct {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
-} Unk800F57D0;
-
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern u8 D_800E7A58[];
@@ -429,6 +424,7 @@ extern Unk800BB75C D_800FA63C;
 extern s16 D_800FA69C;
 extern u8 D_800FA6A0;
 extern u16 D_800FA6B8;
+extern u8 D_800FA6D0;
 extern u8 D_800FA6D4;
 extern Unk800FA6D8 D_800FA6D8[];
 extern MATRIX D_800FA958;
@@ -481,7 +477,7 @@ extern s32 D_800FAFF0;
 extern DB g_db;
 extern u8 D_801031E0;
 extern s32 D_801031E4;
-extern s16 D_801031E8;
+extern s16 g_BattleCameraTarget;
 extern u8 D_801031F0;
 extern u8 D_80103200[];
 extern u8 D_80130200[];
@@ -513,7 +509,7 @@ extern ModelScreenPos g_modelScreenPos[10];
 extern s16 g_BattleCurrentTargetMask;
 extern u8 D_801517BC;
 extern u8 D_801517C4;
-extern s16 D_80158D00;
+extern s16 g_BattleCameraPos;
 extern s32 D_80158D08;
 extern u_long D_80158D0C[];
 extern u8 D_801518DC;
@@ -530,6 +526,7 @@ extern void (*g_BattleEffectCallbacks[100])(void);
 extern s16 g_BattleEffectCount;
 extern s16 D_80162084;
 extern s8 D_80162094;
+extern u8 D_80162098;
 extern u8 D_801620A0;
 extern u8 D_801620A4;
 extern Unk801620AC g_BattleMovementSlots[10];

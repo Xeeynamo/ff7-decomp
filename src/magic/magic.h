@@ -11,6 +11,13 @@
 typedef void (*MagicEntry)(s32 targetMask, s32 callbackArg);
 typedef s32 (*MagicEntryResult)(s32 targetMask, s32 callbackArg);
 
+// What a summon entrypoint returns; battle keeps it in D_800F57D0.
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s32 unk8;
+} Unk800F57D0;
+
 void MAGIC_Fire(s32 targetMask, s32 callbackArg);
 void MAGIC_Faira(s32 targetMask, s32 callbackArg);
 void MAGIC_Brizad(s32 targetMask, s32 callbackArg);
@@ -21,5 +28,6 @@ void MAGIC_Barrier(s32 targetMask, s32 callbackArg);
 void MAGIC_MBarrier(s32 targetMask, s32 callbackArg);
 void MAGIC_Refrec(s32 targetMask, s32 callbackArg);
 void MAGIC_Lv5Death(s32 targetMask, s32 callbackArg);
+Unk800F57D0* MAGIC_Choco0(s32 targetMask, s32 callbackArg);
 
 #endif

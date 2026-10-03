@@ -35,7 +35,7 @@ static void BattleSpawnFloatingIcon(s32 arg0, s32 arg1);
 void BattleQueueImpactEffect(s32 arg0, s16 arg1);
 void BattleInitMagicCastEffect(void);
 
-// MAGIC/ entrypoints of overlays that are not split yet
+// MAGIC/ entrypoints that are not named yet
 void func_801B037C(s16, u8);
 void func_801B0000(s16, u8);
 void func_801B0000_2(s16, u8);
@@ -207,7 +207,7 @@ s16 D_800EF6A8[] = {
     82  //  23 NANNTOKA.BIN
 };
 
-// currentActionId 3 -- summons: overlay file id per slot.
+// currentActionId 3 -- summons: overlay file id per slot, indexed by Summon.
 s16 D_800EF6D8[] = {
     189, //   0 CHOCO0.BIN
     42,  //   1 SIVA.BIN
@@ -1951,7 +1951,7 @@ static void BattleEnqueueMoveImage(RECT* rect, s32 x, s32 y) {
     D_800F01DC++;
 }
 
-static void BattleEnqueueClearImage(RECT* rect) {
+void BattleEnqueueClearImage(RECT* rect, s32 arg1, s32 arg2, s32 arg3) {
     D_800F01DC->method = QUEUE_CLEAR_IMAGE;
     D_800F01DC->rect = rect;
     D_800F01DC++;
@@ -2102,20 +2102,7 @@ static void BattleTransformToCameraSpace(MATRIX* arg0, SVECTOR* arg1) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D3AF0);
 
 const MATRIX D_800A0D98 = {{{0, 0, 0}, {0, 0, 0}, {0, 0, 4096}}, {0, 0, 0}};
-typedef struct {
-    s16 x;
-    s16 y;
-    u8 u;
-    u8 v;
-    u8 w;
-    u8 h;
-    u8 r;
-    u8 g;
-    u8 b;
-    u8 code;
-} BattleSpriteDesc;
 extern BattleSpriteDesc D_800F0218;
-void* func_800D6260(BattleSpriteDesc* desc, u_long** ot, int otLen, void* prim);
 
 void BattleEffectSingleDustCloud(void) {
     MATRIX m = D_800A0D98;
@@ -2360,7 +2347,7 @@ extern s16 D_800F4D2C[16][10];
 
 // Enqueue a value into the 16-entry circular battle queue and return
 // the associated data slot for the newly queued entry.
-static s16* BattleEventQueuePush(s32 arg0) {
+s16* BattleEventQueuePush(s32 arg0) {
     s32 idx = D_800F10D8;
     s32 next = (idx + 1) & 0xF;
 
@@ -2667,18 +2654,18 @@ static void BattleDrawSelectionMarker(s32* arg0, s16 arg1) {
     D_800F14D0.color = arg1;
     SetFarColor(0, 0, 0);
     PushMatrix();
-    D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
+    D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 12, D_80163C74);
     PopMatrix();
     PushMatrix();
     D_800F14D0.flags |= MODEL_MIRROR_X;
-    D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
+    D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 12, D_80163C74);
     PopMatrix();
     PushMatrix();
     D_800F14D0.flags |= MODEL_MIRROR_Y;
-    D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
+    D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 12, D_80163C74);
     PopMatrix();
     D_800F14D0.flags &= ~MODEL_MIRROR_X;
-    D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 0xC, D_80163C74);
+    D_80163C74 = func_800D29D4(&D_800F14D0, g_cDb->unk70, 12, D_80163C74);
     D_800F14D0.flags &= ~MODEL_MIRROR_Y;
 }
 
@@ -2712,16 +2699,16 @@ void BattleDrawHitFlashModel(MATRIX* m) {
     SetRotMatrix(m);
     SetTransMatrix(m);
     D_800F1698.flags &= ~(MODEL_MIRROR_X | MODEL_MIRROR_Z);
-    D_80163C74 = func_800D29D4(&D_800F1698, g_cDb->unk70, 0xC, D_80163C74);
+    D_80163C74 = func_800D29D4(&D_800F1698, g_cDb->unk70, 12, D_80163C74);
     SetRotMatrix(m);
     D_800F1698.flags |= MODEL_MIRROR_X;
-    D_80163C74 = func_800D29D4(&D_800F1698, g_cDb->unk70, 0xC, D_80163C74);
+    D_80163C74 = func_800D29D4(&D_800F1698, g_cDb->unk70, 12, D_80163C74);
     SetRotMatrix(m);
     D_800F1698.flags |= MODEL_MIRROR_Z;
-    D_80163C74 = func_800D29D4(&D_800F1698, g_cDb->unk70, 0xC, D_80163C74);
+    D_80163C74 = func_800D29D4(&D_800F1698, g_cDb->unk70, 12, D_80163C74);
     SetRotMatrix(m);
     D_800F1698.flags &= ~MODEL_MIRROR_X;
-    D_80163C74 = func_800D29D4(&D_800F1698, g_cDb->unk70, 0xC, D_80163C74);
+    D_80163C74 = func_800D29D4(&D_800F1698, g_cDb->unk70, 12, D_80163C74);
     D_800F1698.uvOffset = 0;
     D_800F1698.clut = 0;
 }
