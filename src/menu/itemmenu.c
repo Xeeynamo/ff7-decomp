@@ -833,5 +833,3 @@ static void RestoreCharacterMateria(s32 charIdx) {
 // texture stays resident so the battle UI can scroll it as the animated
 // backdrop behind the coin-throw amount prompt.
 void func_801D3228(void) { MENU_LoadTim((u_long*)D_801D3890, 0x3F0, 0x120, 0x110, 0x1E0); }
-
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", func_801D3260);

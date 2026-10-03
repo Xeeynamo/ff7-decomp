@@ -522,7 +522,7 @@ overlays:
     segments:
       - [0x0, .rodata, itemmenu]
       - [0x1E8, c, itemmenu]
-      - [0x3834, data, itemmenu]
+      - [0x3260, data, itemmenu]
       - [0x4020, bss]
   - name: world
     disk_path: disks/us/WORLD/WORLD.BIN.dec
