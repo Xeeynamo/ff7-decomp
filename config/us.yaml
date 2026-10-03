@@ -267,7 +267,7 @@ overlays:
       - [0x39BA8, .data, ovl]
       - [0x39D38, .data, akao]
       - [0x3AE2C, data, 3AE2C]
-      - [0x3AE34, data, 34F3C]
+      - [0x3AE34, .data, 33B70]
       - [0x3AE88, data, psxsdk/libspu/s_ini]
       - [0x3B2F4, data, psxsdk/libspu/spu]
       - [0x3B350, data, psxsdk/libspu/s_m]

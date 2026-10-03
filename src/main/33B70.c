@@ -16,7 +16,6 @@ typedef enum {
     CDOP_20,
 } CdOp;
 
-extern void (*D_8004A634[21])(void);
 extern int D_800698E8;        // sector_no
 extern u8 D_800698F0[0x4800]; // disc buffer
 extern int D_8006E0F0;
@@ -29,6 +28,20 @@ extern u_long* D_80071A80;   // read content destination
 extern void (*D_80071A84)(); // callback
 
 void func_80034CAC(u32 arg0);
+void func_80034430(void);
+void func_80034444(void);
+void func_8003447C(void);
+void func_800344C0(void);
+void func_800345BC(void);
+void func_80034600(void);
+void func_800346F8(void);
+void func_80034754(void);
+void func_800347B4(void);
+void func_800347F8(void);
+void func_800348F4(void);
+void func_80034974(void);
+void func_80035430(void);
+void func_80035744(void);
 static s32 ReadDiskNo(void);
 
 void SysSavemapReset(void) {
@@ -285,6 +298,12 @@ static void func_80034A90(void) {
         return;
     }
 }
+
+static void (*D_8004A634[21])(void) = {
+    func_80034420, func_8003447C, func_800344C0, func_800345BC, func_80034600, func_800346F8, func_80034754,
+    func_80034428, func_80035744, func_80035430, func_80034420, func_800347B4, func_800347F8, func_800348F4,
+    func_80034974, func_80034420, func_80034444, func_80034430, func_80034420, func_80034A58, func_80034A90,
+};
 
 u32 SystemCdromReadChain(void) {
     u32* op;

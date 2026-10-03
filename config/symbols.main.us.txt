@@ -1056,6 +1056,7 @@ g_AkaoWaveTableKey = 0x8004A5CC;
 g_AkaoDefaultSound = 0x8004A60C;
 g_FieldModelData = 0x8004A62C; // size:0x4
 g_RandomTableStep = 0x8004A630; // size:0x4
+D_8004A654 = 0x8004A654;
 LIBSPU_S_INI__spu_EVdma = 0x8004A688; // size:0x4
 LIBSPU_S_INI__spu_keystat = 0x8004A68C; // size:0x4
 LIBSPU_S_INI__spu_trans_mode = 0x8004A690; // size:0x4
