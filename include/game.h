@@ -1413,6 +1413,7 @@ void func_800262D8();
 void SysMenuSetCursorMovement(MenuTable* table, s32 column, s32 row, s32 numColumns, s32 numRowsPerPage, s32 colOffset,
                               s32 rowOffset, s32 numTotalColumns, s32 numTotalRows, s32 scrollAnimX, s32 scrollAnimY,
                               s32 wrapModeX, s32 wrapModeY, u16 scrolling);
+void SysMenuHandleButtons(MenuTable* table);
 void SysMenuSetPoly(void* poly);
 void SysMenuSavePoly(void);
 void SysMenuRestorePoly(void);
