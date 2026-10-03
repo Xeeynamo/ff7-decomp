@@ -602,6 +602,23 @@ typedef struct {
 } CurrentCharMagicCommand; // size: 0x5
 
 typedef struct {
+    /* 0x00 */ s16 id;
+    /* 0x02 */ s16 coverChance;
+    /* 0x04 */ s16 strength;
+    /* 0x06 */ s16 vitality;
+    /* 0x08 */ s16 magic;
+    /* 0x0A */ s16 spirit;
+    /* 0x0C */ s16 dexterity;
+    /* 0x0E */ s16 luck;
+    /* 0x10 */ s16 physAttack;
+    /* 0x12 */ s16 physDefence;
+    /* 0x14 */ s16 magAttack;
+    /* 0x16 */ s16 magDefence;
+    /* 0x18 */ s16 baseHp;
+    /* 0x1A */ s16 baseMp;
+} CurrentCharStats; // size: 0x1C
+
+typedef struct {
     u8 id;
     u8 allCount;
     u8 materiaEffectFlags;
@@ -1314,6 +1331,7 @@ extern u8 g_PartyUpdatedByFieldScript;
 extern u8 g_CurrentEntity; // entity owning the currently executing script
 extern MateriaData g_MateriaData[100];
 extern CurrentCharBattleMenuCommand D_80069508[NUM_BATTLE_COMMANDS];
+extern CurrentCharStats D_80069538;
 extern CurrentCharMagicCommand D_80069554[NUM_MAGICS];
 extern u8* D_800707C0;
 extern BattleCommandData D_800707C4[32];

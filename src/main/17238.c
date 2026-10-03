@@ -56,8 +56,6 @@ void SysCopyCommandToUnitStructure(u8 commandId, u8 order);
 void SysAddPairMateriaUnordered(u32 materia1, u32 materia2, u8 arg2, u8 arg3, u8 arg4);
 u8* GetPartySlotArmorMateriaSlots(s32 arg0);
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId);
-extern s16 D_80069548[];
-extern s16 D_80069538[];
 u8 D_80063020; // %gp_rel
 
 static s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
@@ -166,38 +164,38 @@ void SysInitPlayerStatFromMateria(s32 arg0) {
     SysCopyAndSortCommand();
     SysCopySummonToUnitStructure();
     SysCopyBoostedStatToUnitStructure();
-    D_80069548[0] += D_80062E60->strength;
-    D_80069548[1] += D_80062E60->vitality;
-    D_80069548[2] += D_80062E60->magic;
-    D_80069548[3] += D_80062E60->spirit;
-    if (D_80069548[0] > 255) {
-        D_80069548[0] = 255;
+    D_80069538.physAttack += D_80062E60->strength;
+    D_80069538.physDefence += D_80062E60->vitality;
+    D_80069538.magAttack += D_80062E60->magic;
+    D_80069538.magDefence += D_80062E60->spirit;
+    if (D_80069538.physAttack > 255) {
+        D_80069538.physAttack = 255;
     }
-    if (D_80069548[1] > 255) {
-        D_80069548[1] = 255;
+    if (D_80069538.physDefence > 255) {
+        D_80069538.physDefence = 255;
     }
-    if (D_80069548[2] > 255) {
-        D_80069548[2] = 255;
+    if (D_80069538.magAttack > 255) {
+        D_80069538.magAttack = 255;
     }
-    if (D_80069548[3] > 255) {
-        D_80069548[3] = 255;
+    if (D_80069538.magDefence > 255) {
+        D_80069538.magDefence = 255;
     }
-    if (D_80069548[0] < 0) {
-        D_80069548[0] = 0;
+    if (D_80069538.physAttack < 0) {
+        D_80069538.physAttack = 0;
     }
-    if (D_80069548[1] < 0) {
-        D_80069548[1] = 0;
+    if (D_80069538.physDefence < 0) {
+        D_80069538.physDefence = 0;
     }
-    if (D_80069548[2] < 0) {
-        D_80069548[2] = 0;
+    if (D_80069538.magAttack < 0) {
+        D_80069538.magAttack = 0;
     }
-    if (D_80069548[3] < 0) {
-        D_80069548[3] = 0;
+    if (D_80069538.magDefence < 0) {
+        D_80069538.magDefence = 0;
     }
-    D_80062E60->physAttack = D_80069548[0];
-    D_80062E60->physDefence = D_80069548[1];
-    D_80062E60->magAttack = D_80069548[2];
-    D_80062E60->magDefence = D_80069548[3];
+    D_80062E60->physAttack = D_80069538.physAttack;
+    D_80062E60->physDefence = D_80069538.physDefence;
+    D_80062E60->magAttack = D_80069538.magAttack;
+    D_80062E60->magDefence = D_80069538.magDefence;
     func_8001AE08();
     for (i = 0; i < 16; i++) {
         SysParseMegaallMateria(D_8006966C[i]);
@@ -618,10 +616,98 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysGetCommandOrder);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysCopyCommandToUnitStructure);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysCopyTempMagicToUnitStructure);
+void SysCopyTempMagicToUnitStructure(void) {
+    s32 i;
+
+    for (i = 0; i < NUM_MAGICS; i++) {
+        SysAddMagicSummonSkillToUnitStructure(D_80069554[i].id, i, D_80069554[i].id);
+        D_80062E60->enabledMagic[i].quadraAttacksLeft = D_80069554[i].quadCount;
+        D_80062E60->enabledMagic[i].quadEnabled = D_80069554[i].quadEnabled;
+        D_80062E60->enabledMagic[i].allAttacksLeft = D_80069554[i].allCount;
+        D_80062E60->enabledMagic[i].costModifier = D_80069554[i].costModifier;
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMagicToTemp);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMagicSummonSkillToUnitStructure);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysInitPlayerTempStat);
+void SysInitPlayerTempStat(u8 partyId, ActiveCharacterData* chr) {
+    s32 i;
+    ActiveCharacterData* unit;
+    CurrentCharMagicCommand* magic;
+
+    *(u8*)&D_80062E64 = 0; // HACK: part of array?
+    *(u8*)&D_80062E68 = 0; // HACK: part of array?
+    *(u8*)&D_80062E90 = 0; // HACK: part of array?
+    *(u8*)&D_80062E8C = 0; // HACK: part of array?
+    for (i = 0; i < NUM_MAGICS; i++) {
+        D_80069554[i].id = 0xFF;
+        magic = &D_80069554[i];
+        magic->allCount = 0;
+        magic->quadEnabled = 0;
+        D_80069554[i].quadCount = 0;
+        D_80069554[i].costModifier = 0;
+    }
+    for (i = 0; i < NUM_MAGICS_ALL; i++) {
+        chr->enabledMagic[i].id = 0xFF;
+        chr->enabledMagic[i].allAttacksLeft = 0;
+        chr->enabledMagic[i].quadEnabled = 0;
+        chr->enabledMagic[i].quadraAttacksLeft = 0;
+        chr->enabledMagic[i].costModifier = 0;
+    }
+    for (i = 0; i < 16; i++) {
+        D_800694D4[i] = 0;
+        D_800694C4[i] = 0;
+        D_800694B4[i] = 0;
+    }
+    for (i = 0; i < 12; i++) {
+        D_800694E4[i] = 0;
+    }
+    for (i = 0; i < 6; i++) {
+        D_800694FC[i] = 0;
+    }
+    for (i = 0; i < 16; i++) {
+        D_80069508[i].id = 0xFF;
+        D_80069508[i].allCount = 0;
+        D_80069508[i].materiaEffectFlags = 0;
+    }
+    for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
+        chr->commandMenu[i].id = 0xFF;
+        chr->commandMenu[i].unk4 = 1;
+        chr->commandMenu[i].materiaEffectFlags = 0;
+    }
+    for (i = 0; i < 8; i++) {
+        unit = D_80062E60;
+        unit->enabledCounters[i].materiaAttribute = 0;
+        unit->enabledCounters[i].battleCommand = 0;
+        unit->enabledCounters[i].counterType = 0;
+    }
+    D_80069538.strength = D_80062E60->strength;
+    D_80069538.vitality = D_80062E60->vitality;
+    D_80069538.magic = D_80062E60->magic;
+    D_80069538.spirit = D_80062E60->spirit;
+    D_80069538.dexterity = D_80062E60->dexterity;
+    D_80069538.luck = D_80062E60->luck;
+    D_80069538.baseHp = D_80062E60->baseHp;
+    D_80069538.baseMp = D_80062E60->baseMp;
+    D_80069538.id = D_80062E60->id;
+    D_80069538.coverChance = D_80062E60->coverChance;
+    D_80062E60->characterFlags = 0;
+    D_80069538.physAttack = SysGetPlayerBaseAttackDefense(partyId, 0);
+    D_80069538.physDefence = SysGetPlayerBaseAttackDefense(partyId, 1);
+    D_80069538.magAttack = SysGetPlayerBaseAttackDefense(partyId, 2);
+    D_80069538.magDefence = SysGetPlayerBaseAttackDefense(partyId, 3);
+    SysAddCommandToTemp(1);
+    SysAddCommandToTemp(4);
+    for (i = 0; i < 4; i++) {
+        D_80062E6C[i] = 0;
+    }
+    D_80062E74 = 0;
+    D_80062E60->gilBonus = 0;
+    D_80062E60->encounterRate = 0;
+    D_80062E60->encounterDownRate = 0;
+    D_80062E60->chocoboChance = 0;
+    D_80062E60->preemptiveChance = 0;
+    D_80062E5C = 0;
+}
