@@ -57,14 +57,14 @@ extern u8 g_SaveFileData[];
 INCLUDE_DATA("menu/data/saveicons");
 
 // bss starts at g_SaveCharClutBackup; the earlier part lives in title.c, both ordered by savemenu.h
-static u_long g_SaveCharClutBackup[0x183];
-static u_long g_SaveFontVramBackup[0xA00];
-static MemcardFileHeader g_SaveFileHeader;
-static MemcardSaveFile g_SaveFile;
-static u8 g_MemCardSlotStatus[2][3];
-static u8 D_801E8F3E[2];
-static s32 g_SaveWriteRemaining;
-static u_long g_SaveAvatarVramBackup[0xB40];
+u_long g_SaveCharClutBackup[0x183];
+u_long g_SaveFontVramBackup[0xA00];
+MemcardFileHeader g_SaveFileHeader;
+MemcardSaveFile g_SaveFile;
+u8 g_MemCardSlotStatus[2][3];
+u8 D_801E8F3E[2];
+s32 g_SaveWriteRemaining;
+u_long g_SaveAvatarVramBackup[0xB40];
 
 static void PlaySfx(u16 arg0) {
     g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;

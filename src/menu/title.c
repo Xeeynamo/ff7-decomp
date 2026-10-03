@@ -4,25 +4,25 @@
 #include "savemenu.h"
 #include <libetc.h>
 
-static s32 g_TitleResult;
-static u8 D_801E369C[4];
-static s32 D_801E36A0;
-static s32 D_801E36A4;
-static s32 D_801E36A8;
-static s32 D_801E36AC;
-static s32 D_801E36B0;
-static s32 D_801E36B4;
-static s32 D_801E36B8;
-static DRAWENV D_801E36BC[2];
-static DISPENV D_801E3774[2];
-static Menus menus;
-static u8 D_801E382C[0x24];
-static s32 D_801E3850;
-static OT_TYPE* D_801E3854;
-static OT_TYPE* D_801E3858[2][1];
-static s32 D_801E3860;
-static SaveHeader D_801E3864[15];
-static s32 g_SaveSlot;
+s32 g_TitleResult;
+u8 D_801E369C[4];
+s32 D_801E36A0;
+s32 D_801E36A4;
+s32 D_801E36A8;
+s32 D_801E36AC;
+s32 D_801E36B0;
+s32 D_801E36B4;
+s32 D_801E36B8;
+DRAWENV D_801E36BC[2];
+DISPENV D_801E3774[2];
+Menus menus;
+u8 D_801E382C[0x24];
+s32 D_801E3850;
+OT_TYPE* D_801E3854;
+OT_TYPE* D_801E3858[2][1];
+s32 D_801E3860;
+SaveHeader D_801E3864[15];
+s32 g_SaveSlot;
 static s32 g_TitleFadeState;
 static s32 g_TitleBufferIndex;
 static OT_TYPE* g_TitleActiveOT;
