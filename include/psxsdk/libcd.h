@@ -100,6 +100,13 @@ typedef struct {
 #define CdlStatError 0x01     /* command error detected */
 
 /*
+ * Macros for CdGetDiskType()
+ */
+#define CdlStatNoDisk 0
+#define CdlOtherFormat 1
+#define CdlCdromFormat 2
+
+/*
  * Interrupts
  */
 #define CdlNoIntr 0x00      /* No interrupt */
@@ -132,6 +139,8 @@ char* CdComstr(u_char com);
 char* CdIntstr(u_char intr);
 int CdSync(int mode, u_char* result);
 int CdReady(int mode, u_char* result);
+int CdDiskReady(int mode);
+int CdGetDiskType(void);
 CdlCB CdSyncCallback(CdlCB func);
 CdlCB CdReadyCallback(CdlCB func);
 
@@ -158,8 +167,7 @@ CdlCB CdReadCallback(CdlCB func);
 int CdRead2(long mode);
 
 void StClearRing(void);
-void StSetStream(u_long mode, u_long start_frame, u_long end_frame,
-                 void (*func1)(), void (*func2)());
+void StSetStream(u_long mode, u_long start_frame, u_long end_frame, void (*func1)(), void (*func2)());
 
 void StSetMask(u_long mask, u_long start, u_long end);
 u_long StGetNext(u_long** addr, u_long** header);
