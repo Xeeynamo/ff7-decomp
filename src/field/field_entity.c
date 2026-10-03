@@ -19,9 +19,9 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_entity", FieldEntityInitPos);
 
 void FieldEntityAddRotate(u32 activeInputs, s16 modelId) {
     if (!g_FieldState.characterLock) {
-        if (g_FieldState.activeKeys & PADR1) {
+        if (g_FieldState.activeKeys & PAD_R1) {
             g_FieldEntity[modelId].MoveDirAdd = 224;
-        } else if (g_FieldState.activeKeys & PADL1) {
+        } else if (g_FieldState.activeKeys & PAD_L1) {
             g_FieldEntity[modelId].MoveDirAdd = 32;
         } else {
             g_FieldEntity[modelId].MoveDirAdd = 0;
@@ -74,7 +74,7 @@ void FieldEntityCheckTalk(void) {
     s16 modelId;
     s16 bestDiff;
 
-    if ((g_FieldState.activeKeys & PADRright) && !(g_FieldState.activeKeysPrev & PADRright)) {
+    if ((g_FieldState.activeKeys & PAD_CIRCLE) && !(g_FieldState.activeKeysPrev & PAD_CIRCLE)) {
         start.vx = g_FieldEntity[g_PlayerModelId].PosX >> 12;
         start.vy = g_FieldEntity[g_PlayerModelId].PosY >> 12;
         start.vz = g_FieldEntity[g_PlayerModelId].PosZ >> 12;
@@ -357,7 +357,7 @@ void FieldEntityLineInteract(FieldEntity* entity, FieldLine* lines) {
                 lines->touch = 0;
             }
             if (lines->isOnLine == 1 && ((lines->proximityAngle - entity->MoveDir + 32) & 0xFF) < 64 &&
-                (g_FieldState.activeKeys & PADRright) && !(g_FieldState.activeKeysPrev & PADRright)) {
+                (g_FieldState.activeKeys & PAD_CIRCLE) && !(g_FieldState.activeKeysPrev & PAD_CIRCLE)) {
                 lines->requestTalkScript = 1;
             }
         }

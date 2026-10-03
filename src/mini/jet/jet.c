@@ -1,5 +1,6 @@
 //! PSYQ=3.3 FORCE_MEM=true FORCE_ADDR=true COMM=true
 
+#include <game.h>
 #include "jet_private.h"
 #include <libc.h>
 
@@ -1000,45 +1001,45 @@ static void JetInputUpdate(void) {
     if (g_JetPaused == 0) {
         g_JetPadDir = 0;
         D_800A8A7C = 0;
-        if (pad & PADLleft) {
+        if (pad & PAD_LEFT) {
             g_JetPadDir = 4;
         }
-        if (pad & PADLright) {
+        if (pad & PAD_RIGHT) {
             g_JetPadDir = 6;
         }
-        if (pad & PADLup) {
+        if (pad & PAD_UP) {
             g_JetPadDir = 8;
-            if (pad & PADLleft) {
+            if (pad & PAD_LEFT) {
                 g_JetPadDir = 7;
             }
-            if (pad & PADLright) {
+            if (pad & PAD_RIGHT) {
                 g_JetPadDir = 9;
             }
         }
-        if (pad & PADLdown) {
+        if (pad & PAD_DOWN) {
             g_JetPadDir = 2;
-            if (pad & PADLleft) {
+            if (pad & PAD_LEFT) {
                 g_JetPadDir = 1;
             }
-            if (pad & PADLright) {
+            if (pad & PAD_RIGHT) {
                 g_JetPadDir = 3;
             }
         }
         if (g_JetAimMode == 1) {
-            if (pad & PADLdown) {
+            if (pad & PAD_DOWN) {
                 g_JetCursorY += 5;
             }
-            if (pad & PADLup) {
+            if (pad & PAD_UP) {
                 g_JetCursorY -= 5;
             }
-            if (pad & PADLleft) {
+            if (pad & PAD_LEFT) {
                 g_JetCursorX -= 5;
             }
-            if (pad & PADLright) {
+            if (pad & PAD_RIGHT) {
                 g_JetCursorX += 5;
             }
             g_JetFiring = 0;
-            if (pad & PADRright) {
+            if (pad & PAD_CIRCLE) {
                 JetUpdateLaserSfx(g_JetShotPower & 0xFF);
                 if (g_JetShotPower >= 9) {
                     g_JetShotPower--;
@@ -1070,50 +1071,50 @@ static void JetInputUpdate(void) {
             }
         }
         if (g_JetAimMode == 0) {
-            if (pad & PADLdown) {
+            if (pad & PAD_DOWN) {
                 g_JetFogFar -= 10;
             }
-            if (pad & PADLup) {
+            if (pad & PAD_UP) {
                 g_JetFogFar += 10;
             }
-            if (pad & PADLleft) {
+            if (pad & PAD_LEFT) {
                 g_JetFogNear -= 10;
             }
-            if (pad & PADLright) {
+            if (pad & PAD_RIGHT) {
                 g_JetFogNear += 10;
             }
-            if (pad & PADRdown) {
+            if (pad & PAD_CROSS) {
                 D_800A83D8.vz -= 100;
             }
-            if (pad & PADRup) {
+            if (pad & PAD_TRIANGLE) {
                 D_800A83D8.vz += 100;
             }
-            if (pad & PADRleft) {
+            if (pad & PAD_SQUARE) {
                 D_800A83D8.vx -= 100;
             }
-            if (pad & PADRright) {
+            if (pad & PAD_CIRCLE) {
                 D_800A83D8.vx += 100;
             }
-            if (pad & PADR1) {
+            if (pad & PAD_R1) {
                 D_800A83D8.vy -= 100;
             }
-            if (pad & PADR2) {
+            if (pad & PAD_R2) {
                 D_800A83D8.vy += 100;
             }
-            if (pad & PADL1) {
+            if (pad & PAD_L1) {
                 g_JetSpeed += 1024;
             }
-            if (pad & PADL2) {
+            if (pad & PAD_L2) {
                 if (g_JetSpeed >= 1024) {
                     g_JetSpeed -= 1024;
                 }
             }
-            if (pad & PADstart) {
+            if (pad & PAD_START) {
                 g_JetSpeed = 0;
             }
         }
     }
-    if (pad & PADstart) {
+    if (pad & PAD_START) {
         g_JetStartHeldFrames++;
     } else {
         g_JetStartHeldFrames = 0;

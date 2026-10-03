@@ -1,4 +1,5 @@
 //! PSYQ=3.3 CC1=2.6.3 g=false gcoff=false
+#include <game.h>
 #include "world.h"
 #include <libetc.h>
 #include <psxsdk/inline_o.h>
@@ -3444,7 +3445,7 @@ void WmScriptRunOne(WorldActor* arg0) {
     }
     WmMoveActiveEntityByDistance(arg0->direction);
     if (arg0->collide != NULL && D_8010ADEC == 0 && func_800A21A4() != 0)
-        func_800AB988(arg0->collide->actorType, (InputReadPads() & PADRright) ? 4 : 3);
+        func_800AB988(arg0->collide->actorType, (InputReadPads() & PAD_CIRCLE) ? 4 : 3);
 }
 
 static void WmScriptRunAll(void) {
@@ -4556,7 +4557,7 @@ void WmUpdateAmbientSoundTimers(void) {
     WorldSoundArea* area;
     WorldSoundArea* it;
 
-    if (WmGetPcEntityTerrainId() == 14 && (InputReadPads() & (PADLup | PADLdown | PADLleft | PADLright))) {
+    if (WmGetPcEntityTerrainId() == 14 && (InputReadPads() & (PAD_UP | PAD_DOWN | PAD_LEFT | PAD_RIGHT))) {
         WmGetPosFromPcEntity(&pos);
         WmExtractLoopCoordsTopBottomParts(&pos, NULL, &x, &z);
         area = func_800B338C(x, z);
@@ -5945,7 +5946,7 @@ static s32 WmDialogSetMessageToShow(u8 window, u8 message) {
         WmDialogTextScrollDuringOk(window);
         break;
     case WSTATE_PAUSE_TXT_UNTIL_OK:
-        if (g_pFieldState->pressedKeys & PADRright) {
+        if (g_pFieldState->pressedKeys & PAD_CIRCLE) {
             g_WindowData[window].state = WSTATE_TXT;
         }
         break;
@@ -5957,7 +5958,7 @@ static s32 WmDialogSetMessageToShow(u8 window, u8 message) {
         }
         break;
     case WSTATE_WAIT_ROW:
-        if (g_pFieldState->pressedKeys & PADRright) {
+        if (g_pFieldState->pressedKeys & PAD_CIRCLE) {
             if (g_WindowData[window].currentRow == (g_WindowData[window].height - 9) / 16 - 1 + D_801162A4[window]) {
                 g_WindowData[window].state = WSTATE_SCROLL_ROW;
                 g_WindowData[window].textScrolling -= 2;
@@ -5966,18 +5967,18 @@ static s32 WmDialogSetMessageToShow(u8 window, u8 message) {
         }
         break;
     case WSTATE_TXT_DONE:
-        if (!(g_WindowData[window].preventClose & 1) && (g_pFieldState->pressedKeys & PADRright)) {
+        if (!(g_WindowData[window].preventClose & 1) && (g_pFieldState->pressedKeys & PAD_CIRCLE)) {
             g_WindowData[window].state = WSTATE_CLOSING;
             WmDialogDiscreaseWindow(window);
         }
         break;
     case WSTATE_WAIT_NEXT_WINDOW:
-        if (g_pFieldState->pressedKeys & PADRright) {
+        if (g_pFieldState->pressedKeys & PAD_CIRCLE) {
             WmDialogStartText(window);
         }
         break;
     case WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK:
-        if (g_pFieldState->pressedKeys & PADRright) {
+        if (g_pFieldState->pressedKeys & PAD_CIRCLE) {
             g_WindowData[window].state = WSTATE_SCROLL_TXT_WHILE_OK;
             D_801162A8[window] = g_WindowData[window].currentRow * 16 + 17;
             g_WindowData[window].textScrolling -= 2;
@@ -6017,7 +6018,7 @@ s32 WmDialogSetAskToShow(u8 window, u8 message, u8 first, u8 last, s16* selected
         WmDialogTextScrollDuringOk(window);
         break;
     case WSTATE_PAUSE_TXT_UNTIL_OK:
-        if (g_pFieldState->pressedKeys & PADRright) {
+        if (g_pFieldState->pressedKeys & PAD_CIRCLE) {
             g_WindowData[window].state = WSTATE_TXT;
         }
         break;
@@ -6029,7 +6030,7 @@ s32 WmDialogSetAskToShow(u8 window, u8 message, u8 first, u8 last, s16* selected
         }
         break;
     case WSTATE_WAIT_ROW:
-        if (g_pFieldState->pressedKeys & PADRright) {
+        if (g_pFieldState->pressedKeys & PAD_CIRCLE) {
             if (g_WindowData[window].currentRow == (g_WindowData[window].height - 9) / 16 - 1 + D_801162A4[window]) {
                 g_WindowData[window].state = WSTATE_SCROLL_ROW;
                 g_WindowData[window].textScrolling -= 2;
@@ -6041,13 +6042,13 @@ s32 WmDialogSetAskToShow(u8 window, u8 message, u8 first, u8 last, s16* selected
         if (!(g_WindowData[window].preventClose & 1)) {
             g_WindowData[window].pointerEnabled = 1;
 
-            if (g_pFieldState->pressedKeysRaw & PADLup) {
+            if (g_pFieldState->pressedKeysRaw & PAD_UP) {
                 if (first < *selectedLine) {
                     WmDialogPlaySound();
                 }
                 (*selectedLine)--;
             }
-            if (g_pFieldState->pressedKeysRaw & PADLdown) {
+            if (g_pFieldState->pressedKeysRaw & PAD_DOWN) {
                 if (*selectedLine < last) {
                     WmDialogPlaySound();
                 }
@@ -6063,7 +6064,7 @@ s32 WmDialogSetAskToShow(u8 window, u8 message, u8 first, u8 last, s16* selected
             g_WindowData[window].pointerX = 5;
             g_WindowData[window].pointerY = *selectedLine * 16 + 6;
 
-            if (g_pFieldState->pressedKeys & PADRright) {
+            if (g_pFieldState->pressedKeys & PAD_CIRCLE) {
                 WmDialogPlaySound();
                 g_WindowData[window].state = WSTATE_CLOSING;
                 WmDialogDiscreaseWindow(window);
@@ -6071,12 +6072,12 @@ s32 WmDialogSetAskToShow(u8 window, u8 message, u8 first, u8 last, s16* selected
         }
         break;
     case WSTATE_WAIT_NEXT_WINDOW:
-        if (g_pFieldState->pressedKeys & PADRright) {
+        if (g_pFieldState->pressedKeys & PAD_CIRCLE) {
             WmDialogStartText(window);
         }
         break;
     case WSTATE_PAUSE_TXT_SCROLL_UNTIL_OK:
-        if (g_pFieldState->pressedKeys & PADRright) {
+        if (g_pFieldState->pressedKeys & PAD_CIRCLE) {
             g_WindowData[window].state = WSTATE_SCROLL_TXT_WHILE_OK;
             D_801162A8[window] = g_WindowData[window].currentRow * 16 + 17;
             g_WindowData[window].textScrolling -= 2;
@@ -6220,7 +6221,7 @@ static void WmDialogStringOutput(s16 window) {
     } else {
         SaveWork* save;
 
-        if (g_pFieldState->activeKeys & PADRright) {
+        if (g_pFieldState->activeKeys & PAD_CIRCLE) {
             D_8011629C[window]++;
             if (D_8011629C[window] > 128) {
                 D_8011629C[window] = 128;
@@ -6520,7 +6521,7 @@ static void WmDialogTextScrollDuringOk(s16 window) {
 
     if (g_WindowData[window].textScrolling + D_801162A8[window] > 0) {
         g_WindowData[window].textScrolling -= D_8011629C[window] >> 2;
-        if (g_pFieldState->activeKeys & PADRright) {
+        if (g_pFieldState->activeKeys & PAD_CIRCLE) {
             D_8011629C[window]++;
             if (D_8011629C[window] > 128) {
                 D_8011629C[window] = 128;
@@ -6962,8 +6963,8 @@ static void func_800BBD20(s32 arg0) {
         if ((D_801163D4 == 0) && (arg0 == 1)) {
             func_800BBA5C();
         } else if (func_800A21A4() != 0) {
-            var_v0 = func_800A9240() == 0 ? temp_s4 & PADRdown
-                                          : temp_s4 & (PADLup | PADLdown | PADLleft | PADLright | PADRdown);
+            var_v0 = func_800A9240() == 0 ? temp_s4 & PAD_CROSS
+                                          : temp_s4 & (PAD_UP | PAD_DOWN | PAD_LEFT | PAD_RIGHT | PAD_CROSS);
             if ((var_v0 == 0) && D_801163DC > 0 && D_801163DC < 15 &&
                 ((WmIsPcEntityModelInMask(0x2000) == 0) || (WmGetPcEntityTerrainId() == 0x12)))
                 func_800BBC4C();
@@ -7056,7 +7057,7 @@ static void func_800BBD20(s32 arg0) {
                 }
             }
         }
-        if ((temp_s4 & PADRdown) != 0) {
+        if ((temp_s4 & PAD_CROSS) != 0) {
             D_801163DC += 1;
             return;
         }

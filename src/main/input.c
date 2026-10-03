@@ -1,4 +1,5 @@
 //! PSYQ=3.3 CC1=2.7.2 G=8
+#include <game.h>
 #include "main_private.h"
 #include <libetc.h>
 
@@ -53,7 +54,7 @@ void TutorialInit(u8* tutorial) {
 
 // Returns key states as read directly from pad 1.
 // Tutorial override and player-configured remapping are ignored.
-u16 InputReadPad1Raw(void) {
+u16 InputReadPad0Raw(void) {
     u16 input;
 
     if (GOOD_DATA(s_PadBuffers[0]) && GOOD_FORMAT(s_PadBuffers[0])) {
@@ -109,51 +110,51 @@ static u16 TutorialDoNextEvent(void) {
             s_Tutorial++;
             break;
         case 2:
-            key = PADLup;
+            key = PAD_UP;
             s_TutorialDelay = 20;
             break;
         case 3:
-            key = PADLdown;
+            key = PAD_DOWN;
             s_TutorialDelay = 20;
             break;
         case 4:
-            key = PADLleft;
+            key = PAD_LEFT;
             s_TutorialDelay = 20;
             break;
         case 5:
-            key = PADLright;
+            key = PAD_RIGHT;
             s_TutorialDelay = 20;
             break;
         case 8:
-            key = PADRleft;
+            key = PAD_SQUARE;
             s_TutorialDelay = 20;
             break;
         case 9:
-            key = PADRright;
+            key = PAD_CIRCLE;
             s_TutorialDelay = 20;
             break;
         case 6:
-            key = PADRup;
+            key = PAD_TRIANGLE;
             s_TutorialDelay = 20;
             break;
         case 7:
-            key = PADRdown;
+            key = PAD_CROSS;
             s_TutorialDelay = 20;
             break;
         case 10:
-            key = PADR1;
+            key = PAD_R1;
             s_TutorialDelay = 20;
             break;
         case 11:
-            key = PADR2;
+            key = PAD_R2;
             s_TutorialDelay = 20;
             break;
         case 12:
-            key = PADL1;
+            key = PAD_L1;
             s_TutorialDelay = 20;
             break;
         case 13:
-            key = PADL2;
+            key = PAD_L2;
             s_TutorialDelay = 20;
             break;
         case 16:
@@ -237,26 +238,26 @@ u32 InputReadPads(void) {
 // Called by battle to update key states at 15 fps.
 // Uses states previously read from pads by InputUpdateKeyStates.
 void InputUpdateBattleKeyStates(void) {
-    g_Pad2BattleKeys = g_Pad2Keys;
     g_Pad1BattleKeys = g_Pad1Keys;
+    g_Pad0BattleKeys = g_Pad0Keys;
 
-    g_Pad1BattleKeysPressed = g_Pad1BattleKeys ^ g_Pad1BattleKeysPrev;
-    g_Pad1BattleKeysPressed &= g_Pad1BattleKeys;
+    g_Pad0BattleKeysPressed = g_Pad0BattleKeys ^ g_Pad0BattleKeysPrev;
+    g_Pad0BattleKeysPressed &= g_Pad0BattleKeys;
 
     // State machine for repeating keys.
     // First repeat is triggered 10 frames (~667 ms) after key press, then every 2 frames (~133 ms) after that.
-    // g_Pad1BattleKeysRepeat is not cleared per call so if a release immediately follows a repeat, that repeat state
+    // g_Pad0BattleKeysRepeat is not cleared per call so if a release immediately follows a repeat, that repeat state
     // can survive through the next call to this function.
-    if (g_Pad1BattleKeys != g_Pad1BattleKeysPrev) {
+    if (g_Pad0BattleKeys != g_Pad0BattleKeysPrev) {
         s_PadFastRepeatState.enabled[0] = 0;
         s_PadFastRepeatState.counter[0] = 0;
     } else if (s_PadFastRepeatState.enabled[0]) {
         if (s_PadFastRepeatState.counter[0] == 1) {
-            g_Pad1BattleKeysRepeat = g_Pad1BattleKeys;
+            g_Pad0BattleKeysRepeat = g_Pad0BattleKeys;
             s_PadFastRepeatState.counter[0] = 0;
         } else {
             s_PadFastRepeatState.counter[0]++;
-            g_Pad1BattleKeysRepeat = 0;
+            g_Pad0BattleKeysRepeat = 0;
         }
     } else {
         if (s_PadFastRepeatState.counter[0] == 7) {
@@ -265,21 +266,21 @@ void InputUpdateBattleKeyStates(void) {
         } else {
             s_PadFastRepeatState.counter[0]++;
         }
-        g_Pad1BattleKeysRepeat = 0;
+        g_Pad0BattleKeysRepeat = 0;
     }
 
-    g_Pad2BattleKeysPressed = g_Pad2BattleKeys ^ g_Pad2BattleKeysPrev;
-    g_Pad2BattleKeysPressed &= g_Pad2BattleKeys;
-    if (g_Pad2BattleKeys != g_Pad2BattleKeysPrev) {
+    g_Pad1BattleKeysPressed = g_Pad1BattleKeys ^ g_Pad1BattleKeysPrev;
+    g_Pad1BattleKeysPressed &= g_Pad1BattleKeys;
+    if (g_Pad1BattleKeys != g_Pad1BattleKeysPrev) {
         s_PadFastRepeatState.enabled[1] = 0;
         s_PadFastRepeatState.counter[1] = 0;
     } else if (s_PadFastRepeatState.enabled[1]) {
         if (s_PadFastRepeatState.counter[1] == 1) {
-            g_Pad2BattleKeysRepeat = g_Pad2BattleKeys;
+            g_Pad1BattleKeysRepeat = g_Pad1BattleKeys;
             s_PadFastRepeatState.counter[1] = 0;
         } else {
             s_PadFastRepeatState.counter[1]++;
-            g_Pad2BattleKeysRepeat = 0;
+            g_Pad1BattleKeysRepeat = 0;
         }
     } else {
         if (s_PadFastRepeatState.counter[1] == 7) {
@@ -288,12 +289,12 @@ void InputUpdateBattleKeyStates(void) {
         } else {
             s_PadFastRepeatState.counter[1]++;
         }
-        g_Pad2BattleKeysRepeat = 0;
+        g_Pad1BattleKeysRepeat = 0;
     }
+    g_Pad0BattleKeysRepeat |= g_Pad0BattleKeysPressed;
     g_Pad1BattleKeysRepeat |= g_Pad1BattleKeysPressed;
-    g_Pad2BattleKeysRepeat |= g_Pad2BattleKeysPressed;
+    g_Pad0BattleKeysPrev = g_Pad0BattleKeys;
     g_Pad1BattleKeysPrev = g_Pad1BattleKeys;
-    g_Pad2BattleKeysPrev = g_Pad2BattleKeys;
 }
 
 // The main key state update function. Called normally at each v-sync.
@@ -303,35 +304,35 @@ void InputUpdateKeyStates(void) {
     u32 inputs;
 
     inputs = InputReadPadsRaw();
-    g_Pad2Keys = inputs >> 16;
+    g_Pad1Keys = inputs >> 16;
     if (((Savemap.config >> 2) & 3) && !g_TutorialActive) {
-        g_Pad1Keys = 0;
+        g_Pad0Keys = 0;
         i = 0;
         do {
             if (inputs & (1 << i)) {
-                g_Pad1Keys |= 1 << Savemap.button_config[i];
+                g_Pad0Keys |= 1 << Savemap.button_config[i];
             }
             i++;
         } while (i < 16);
     } else {
-        g_Pad1Keys = inputs;
+        g_Pad0Keys = inputs;
     }
 
-    g_Pad1KeysRepeat = 0;
-    g_Pad1KeysPressed = g_Pad1Keys ^ g_Pad1KeysPrev;
-    g_Pad1KeysPressed &= g_Pad1Keys;
+    g_Pad0KeysRepeat = 0;
+    g_Pad0KeysPressed = g_Pad0Keys ^ g_Pad0KeysPrev;
+    g_Pad0KeysPressed &= g_Pad0Keys;
 
     // State machine for repeating keys.
     // First repeat is triggered 20 frames (~330 ms) after key press, then every 4 frames (~67 ms) after that.
     // State machine works on the entire key state so pressing or releasing any key will reset repeat state for all
     // keys.
-    if (g_Pad1Keys != g_Pad1KeysPrev) {
+    if (g_Pad0Keys != g_Pad0KeysPrev) {
         s_PadRepeatState.counter[0] = 0;
         s_PadRepeatState.enabled[0] = 0;
     } else if (s_PadRepeatState.enabled[0]) {
 
         if (s_PadRepeatState.counter[0] == 3) {
-            g_Pad1KeysRepeat = g_Pad1Keys;
+            g_Pad0KeysRepeat = g_Pad0Keys;
             s_PadRepeatState.counter[0] = 0;
         } else {
             s_PadRepeatState.counter[0]++;
@@ -346,18 +347,18 @@ void InputUpdateKeyStates(void) {
         }
     }
 
-    g_Pad2KeysPressed = g_Pad2Keys ^ g_Pad2KeysPrev;
-    g_Pad2KeysPressed &= g_Pad2Keys;
-    if (g_Pad2Keys != g_Pad2KeysPrev) {
+    g_Pad1KeysPressed = g_Pad1Keys ^ g_Pad1KeysPrev;
+    g_Pad1KeysPressed &= g_Pad1Keys;
+    if (g_Pad1Keys != g_Pad1KeysPrev) {
         s_PadRepeatState.enabled[1] = 0;
         s_PadRepeatState.counter[1] = 0;
     } else if (s_PadRepeatState.enabled[1]) {
         if (s_PadRepeatState.counter[1] == 3) {
-            g_Pad2KeysRepeat = g_Pad2Keys;
+            g_Pad1KeysRepeat = g_Pad1Keys;
             s_PadRepeatState.counter[1] = 0;
         } else {
             s_PadRepeatState.counter[1]++;
-            g_Pad2KeysRepeat = 0;
+            g_Pad1KeysRepeat = 0;
         }
     } else {
         if (s_PadRepeatState.counter[1] == 15) {
@@ -366,12 +367,12 @@ void InputUpdateKeyStates(void) {
         } else {
             s_PadRepeatState.counter[1]++;
         }
-        g_Pad2KeysRepeat = 0;
+        g_Pad1KeysRepeat = 0;
     }
 
     // Pressed keys are added to repeat globals so they can be used to detect both new key presses and repeats.
+    g_Pad0KeysRepeat |= g_Pad0KeysPressed;
     g_Pad1KeysRepeat |= g_Pad1KeysPressed;
-    g_Pad2KeysRepeat |= g_Pad2KeysPressed;
+    g_Pad0KeysPrev = g_Pad0Keys;
     g_Pad1KeysPrev = g_Pad1Keys;
-    g_Pad2KeysPrev = g_Pad2Keys;
 }
