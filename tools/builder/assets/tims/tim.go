@@ -60,8 +60,8 @@ func (Tim) Build(m assets.Metadata) []assets.BuildStep {
 }
 
 func (Tim) SplatEntry(m assets.Metadata) map[string]any {
-	if len(m.Args) > 0 {
-		if name, ok := m.Args[0].(string); ok {
+	if len(m.Args) > 1 {
+		if name, ok := m.Args[1].(string); ok {
 			return map[string]any{
 				"start": m.Start,
 				"type":  ".data",
