@@ -50,7 +50,21 @@ static u8 shiftJis_table[0x200] = {
     0x81, 0xA6, 0x81, 0xA6, 0x81, 0x63, 0x81, 0xA6, 0x81, 0xA6, 0x81, 0xA6, 0x81, 0xA6, 0x81, 0xA6, 0x81, 0xA6,
 };
 static u32 D_801DF108 = 0;
+// Card icons, SAVE_ICON_SIZE each: CLUT at 0x00, bitmap at 0x2C
+extern u8 g_SaveIcons[];
+// inside g_SaveFile, right after its header
+extern u8 g_SaveFileData[];
 INCLUDE_DATA("menu/data/saveicons");
+
+// bss starts at g_SaveCharClutBackup; the earlier part lives in title.c, both ordered by savemenu.h
+static u_long g_SaveCharClutBackup[0x183];
+static u_long g_SaveFontVramBackup[0xA00];
+static MemcardFileHeader g_SaveFileHeader;
+static MemcardSaveFile g_SaveFile;
+static u8 g_MemCardSlotStatus[2][3];
+static u8 D_801E8F3E[2];
+static s32 g_SaveWriteRemaining;
+static u_long g_SaveAvatarVramBackup[0xB40];
 
 static void PlaySfx(u16 arg0) {
     g_AkaoCmd.opcode = AKAO_PLAY_MENU_SOUND;
@@ -89,8 +103,8 @@ void func_801D05C0(u8 arg0) {
     D_801E36B8 = arg0;
     D_801E3850 = 0;
     SysMenuSetCursorMovement(menus.D_801E379C, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
-    SysMenuStoreAvatarVram(&g_SaveAvatarVramBackup);
-    SysMenuStoreFontVram(&g_SaveFontVramBackup);
+    SysMenuStoreAvatarVram(g_SaveAvatarVramBackup);
+    SysMenuStoreFontVram(g_SaveFontVramBackup);
     SysMenuLoadAvatars();
     SaveInitCardEvents();
 }
@@ -262,7 +276,7 @@ int SAVEMENU_HandleSave(s32 counter) {
     }
     if (D_801E36B8 != 0) {
         SysMenuUnkNoop(0x80);
-        SysMenuDrawString(294, 11, &D_801DEEDC, 7);
+        SysMenuDrawString(294, 11, D_801DEEDC, 7);
         SysMenuDrawWindow(&D_801DEEFC);
     }
     SysMenuSetWindowRect(&sp38, 0, 5, 364, 24);

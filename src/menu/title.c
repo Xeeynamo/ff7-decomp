@@ -4,6 +4,39 @@
 #include "savemenu.h"
 #include <libetc.h>
 
+static s32 g_TitleResult;
+static u8 D_801E369C[4];
+static s32 D_801E36A0;
+static s32 D_801E36A4;
+static s32 D_801E36A8;
+static s32 D_801E36AC;
+static s32 D_801E36B0;
+static s32 D_801E36B4;
+static s32 D_801E36B8;
+static DRAWENV D_801E36BC[2];
+static DISPENV D_801E3774[2];
+static Menus menus;
+static u8 D_801E382C[0x24];
+static s32 D_801E3850;
+static OT_TYPE* D_801E3854;
+static OT_TYPE* D_801E3858[2][1];
+static s32 D_801E3860;
+static SaveHeader D_801E3864[15];
+static s32 g_SaveSlot;
+static s32 g_TitleFadeState;
+static s32 g_TitleBufferIndex;
+static OT_TYPE* g_TitleActiveOT;
+static OT_TYPE* g_TitleOrderingTable[2][4];
+static MenuTable g_TitleMenuTables[6];
+static MenuTable g_TitleButtonTables[4];
+static DRAWENV g_TitleDrawEnv[2];
+static DISPENV g_TitleDispEnv[2];
+static s32 g_TitleScanUnk;
+static s32 g_TitleTimer;
+static s32 g_TitleScanInitial;
+static s32 g_TitleScanFileIndex;
+static u8 D_801E3F24[8];
+
 static RECT wnd_slot_window_rect[3] = {
     {0x116, 0x04, 0x56, 0x24},
     {0x0B8, 0x28, 0xB4, 0x18},
@@ -419,7 +452,7 @@ static void TitleInit(void) {
     g_TitleResult = TITLE_RESULT_CONTINUE;
     g_MenuStartMode = START_MENU_MODE_TITLE;
     MENU_SetWindowColors(default_window_colors);
-    MENU_LoadTim(buster_tim, 0x380, 0, 0, 0x1E0);
+    MENU_LoadTim((u_long*)buster_tim, 0x380, 0, 0, 0x1E0);
     DrawSync(0);
     SysMenuSetCursorMovement(&g_TitleButtonTables[TITLE_BTN_TITLE], 0, 1, 1, 2, 0, 0, 1, 2, 0, 0, 0, 1, 0);
     SysMenuStoreCharacterClutToRam(g_SaveCharClutBackup);
