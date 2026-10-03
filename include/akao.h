@@ -25,6 +25,7 @@
 
 #define AKAO_CONTROL_PAUSE_MUSIC_UPDATE 0x001
 #define AKAO_CONTROL_PAUSE_UPDATE 0x002
+#define AKAO_CONTROL_DOUBLE_SPEED 0x004
 #define AKAO_CONTROL_REVERB_ENABLE 0x010
 #define AKAO_CONTROL_STATE_SAVED 0x100
 
@@ -146,5 +147,60 @@ typedef enum {
     AKAO_STREAM_REVERB_MASK_RESTORE = 0xF9,
     AKAO_STOP_STREAM = 0xFA,
 } AkaoCommands;
+
+typedef struct {
+    /* 0x00 */ u32 stereoMono;
+    /* 0x04 */ u32 activeMask;
+    /* 0x08 */ u32 onMask;
+    /* 0x0C */ u32 keyedMask;
+    /* 0x10 */ u32 offMask;
+    /* 0x14 */ u32 activeMaskStored;
+    /* 0x18 */ s32 tempo;
+    /* 0x1C */ s32 tempoSlideStep;
+    /* 0x20 */ u32 tempoUpdate;
+    /* 0x24 */ u32 overMask;
+    /* 0x28 */ u32 altMask;
+    /* 0x2C */ u32 noiseMask;
+    /* 0x30 */ u32 reverbMask;
+    /* 0x34 */ u32 pitchLfoMask;
+    /* 0x38 */ u32 updateFlags;
+    /* 0x3C */ s32 reverbMode;
+    /* 0x40 */ s32 reverbDepth;
+    /* 0x44 */ s32 reverbDepthSlideStep;
+    /* 0x48 */ u16 tempoSlideSteps;
+    /* 0x4A */ u16 musicId;
+    /* 0x4C */ u16 conditionStored;
+    /* 0x4E */ u16 condition;
+    /* 0x50 */ u16 reverbDepthSlideSteps;
+    /* 0x52 */ u16 noiseClock;
+    /* 0x54 */ u16 muteMusic;
+    /* 0x56 */ u16 timerUpper;
+    /* 0x58 */ u16 timerUpperCur;
+    /* 0x5A */ u16 timerLower;
+    /* 0x5C */ u16 timerLowerCur;
+    /* 0x5E */ u16 timerTopCur;
+} AkaoChannelConfig; // size:0x60
+
+typedef struct {
+    /* 0x00 */ u32 activeMask;
+    /* 0x04 */ u32 onMask;
+    /* 0x08 */ u32 keyedMask;
+    /* 0x0C */ u32 offMask;
+    /* 0x10 */ u32 activeMaskStored;
+    /* 0x14 */ u32 tempo;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ u32 tempoUpdate;
+    /* 0x20 */ u32 noiseMask;
+    /* 0x24 */ u32 reverbMask;
+    /* 0x28 */ u32 pitchLfoMask;
+    /* 0x2C */ u16 unk2C;
+    /* 0x2E */ u16 noiseClock;
+} AkaoSoundConfig; // size:0x30
+
+// Arrays on purpose: `cfg->field` addresses the field directly, `cfg[0].field` keeps its address in a register.
+// Functions need one or the other to match.
+extern AkaoChannelConfig g_AkaoBgmLanes[2];
+extern AkaoChannelConfig g_AkaoPrevBgmLanes[2];
+extern AkaoSoundConfig g_AkaoSfxLanes[1];
 
 #endif // AKAO_H

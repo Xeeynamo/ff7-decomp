@@ -22,6 +22,7 @@ set(FF7_MAIN
     src/main/1F6B4.c
     src/main/26B70.c
     src/main/48F60.c
+    src/main/akao_init.c
     src/main/akao.c
     src/main/btlinit.c
     src/main/btlrand.c
