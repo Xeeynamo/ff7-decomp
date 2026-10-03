@@ -57,6 +57,11 @@ void SysAddPairMateriaUnordered(u32 materia1, u32 materia2, u8 arg2, u8 arg3, u8
 u8* GetPartySlotArmorMateriaSlots(s32 arg0);
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId);
 u8 D_80063020; // %gp_rel
+s32 SysSearchExistedMagic(u8);
+void SysAddPairMagicWithQuadraMagic(u8, u8, s32);
+void SysAddPairMasterMagicWithQuadraMagic(u8);
+void SysAddPairSummonWithQuadraMagic(u8, u8);
+void SysAddPairMasterSummonWithQuadraMagic(u8);
 
 static s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
     *arg2 = arg0;
@@ -291,15 +296,75 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToAllMagics);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToMagic);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithQuadraMagic);
+typedef struct {
+    u32 materiaId : 8;
+    u32 ap : 24;
+} Materia;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMagicWithQuadraMagic);
+void SysAddPairWithQuadraMagic(s32 arg0, s32 allCount, Materia materia) {
+    s32 materiaId;
+    s32 ap;
+    s32 type;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMasterMagicWithQuadraMagic);
+    materiaId = materia.materiaId;
+    ap = materia.ap;
+    type = g_MateriaData[materiaId].materiaType & 0xF;
+    switch (type) {
+    case 9:
+        SysAddPairMagicWithQuadraMagic(allCount & 0xFF, materiaId, ap);
+        break;
+    case 0xA:
+        SysAddPairMasterMagicWithQuadraMagic(allCount & 0xFF);
+        break;
+    case 0xB:
+        SysAddPairSummonWithQuadraMagic(allCount & 0xFF, materiaId);
+        break;
+    case 0xC:
+        SysAddPairMasterSummonWithQuadraMagic(allCount & 0xFF);
+        break;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairSummonWithQuadraMagic);
+void SysAddPairMagicWithQuadraMagic(u8 allCount, u8 materiaId, s32 ap) {
+    s32 i;
+    s32 stars;
+    s32 foundIdx;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMasterSummonWithQuadraMagic);
+    stars = SysGetMateriaActivatedStars(materiaId, ap);
+    for (i = stars; i > 0; i--) {
+        foundIdx = SysSearchExistedMagic(g_MateriaData[materiaId].materiaAttributes[i - 1]);
+        if (foundIdx != -1) {
+            D_80069554[foundIdx].quadEnabled++;
+            D_80069554[foundIdx].allCount += allCount;
+        }
+    }
+}
+
+void SysAddPairMasterMagicWithQuadraMagic(u8 allCount) {
+    s32 i;
+
+    for (i = 0; i < LEN(D_80069554); i++) {
+        D_80069554[i].quadEnabled = D_80069554[i].quadEnabled + 1;
+        D_80069554[i].allCount = allCount + D_80069554[i].allCount;
+    }
+}
+
+void SysAddPairSummonWithQuadraMagic(u8 allCount, u8 materiaId) {
+    s32 idx;
+
+    idx = g_MateriaData[materiaId].materiaAttributes[0] - 0x38;
+    D_800694C4[idx] = D_800694C4[idx] + 1;
+    D_800694D4[idx] = D_800694D4[idx] + allCount;
+}
+
+void SysAddPairMasterSummonWithQuadraMagic(u8 allCount) {
+    s32 i;
+
+    for (i = 0; i < LEN(D_800694C4); i++) {
+        D_800694C4[i]++;
+        D_800694D4[i] += allCount;
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithAll);
 
