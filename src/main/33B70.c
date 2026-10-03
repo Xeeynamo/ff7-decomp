@@ -6,20 +6,36 @@
 typedef enum {
     CDOP_0,
     CDOP_1,
-    CDOP_3 = 3,
-    CDOP_8 = 8,
+    CDOP_2,
+    CDOP_3,
+    CDOP_4,
+    CDOP_5,
+    CDOP_6,
+    CDOP_7,
+    CDOP_8,
     CDOP_9,
     CDOP_10,
     CDOP_11,
-    CDOP_18 = 0x12,
+    CDOP_12,
+    CDOP_13,
+    CDOP_14,
+    CDOP_15,
+    CDOP_16,
+    CDOP_17,
+    CDOP_18,
     CDOP_19,
     CDOP_20,
 } CdOp;
 
-extern int D_800698E8;        // sector_no
+extern CdlATV D_800698E4; // CD audio volume
+extern s32 g_Channel1Config;
+extern u8* D_80034CF0; // lzs extract source
+extern int D_800698E8; // sector_no
+extern s32 D_800698EC;
 extern u8 D_800698F0[0x4800]; // disc buffer
 extern int D_8006E0F0;
 extern int D_8006E0F4;
+extern u32 D_8006E0F8;       // sectors in the current lzs chunk read
 extern CdOp D_80071A60;      // some kind of operation?
 extern int D_80071A64;       //
 extern CdlLOC D_80071A68;    // cd sector
@@ -27,7 +43,11 @@ extern size_t D_80071A6C;    // amount of sectors to read
 extern u_long* D_80071A80;   // read content destination
 extern void (*D_80071A84)(); // callback
 
+void SystemCdromAbortLoading(void);
 void func_80034CAC(u32 arg0);
+s32 func_80034D5C(void);
+s32 func_80034150(void);
+void func_80034104(void);
 void func_80034430(void);
 void func_80034444(void);
 void func_8003447C(void);
@@ -43,6 +63,7 @@ void func_80034974(void);
 void func_80035430(void);
 void func_80035744(void);
 static s32 ReadDiskNo(void);
+void SysMovieLoadMovieSettings(void);
 
 void SysSavemapReset(void) {
     s32 i;
@@ -87,9 +108,29 @@ void SysCdromInit(void) {
     SysMovieLoadMovieSettings();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80033BE0);
+void func_80033BE0(void) {
+    SystemCdromAbortLoading();
+    do {
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80033C20);
+    } while (SystemCdromReadChain() != 0);
+    CdFlush();
+    CdReset(0);
+}
+
+void func_80033C20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    if (g_Channel1Config & 1) {
+        D_800698E4.val0 = arg0;
+        D_800698E4.val1 = arg1;
+        D_800698E4.val2 = arg2;
+        D_800698E4.val3 = arg3;
+    } else {
+        D_800698E4.val0 = arg0 / 2;
+        D_800698E4.val1 = arg0 / 2;
+        D_800698E4.val2 = arg2 / 2;
+        D_800698E4.val3 = arg2 / 2;
+    }
+    CdMix(&D_800698E4);
+}
 
 void SysCdromSetChainParam(int op, int sector, size_t len, u_long* dst, void (*cb)()) {
     s32 nextOp;
@@ -206,9 +247,80 @@ void SystemCdromAbortLoading(void) {
     func_80034048();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80034104);
+void func_80034104(void) {
+    CdControlB(CdlSetmode, NULL, NULL);
+    VSync(3);
+    CdControlB(CdlStop, NULL, NULL);
+    D_80071A60 = CDOP_7;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80034150);
+s32 func_80034150(void) {
+    u8 result[8];
+    CdlLOC loc;
+    s32 i;
+
+    if (D_80071A60 == CDOP_7) {
+        CdControlB(CdlNop, NULL, result);
+        if (result[0] & CdlStatShellOpen) {
+            return 3;
+        }
+        i = 600;
+        CdControlB(CdlStandby, NULL, NULL);
+        do {
+            VSync(0);
+            if (--i == 0) {
+                return 5;
+            }
+            CdControlB(CdlNop, NULL, result);
+        } while (!(result[0] & CdlStatStandby));
+        switch (CdDiskReady(0)) {
+        case CdlDiskError:
+            return 2;
+        case CdlComplete:
+            break;
+        case CdlStatShellOpen:
+            return 3;
+        default:
+            return 1;
+        }
+        switch (CdGetDiskType()) {
+        case CdlOtherFormat:
+            return 4;
+        case CdlStatNoDisk:
+            return 5;
+        case CdlCdromFormat:
+            break;
+        case CdlStatShellOpen:
+            return 3;
+        default:
+            return 1;
+        }
+        CdIntToPos(LBA_SYSTEM_CNF, &loc);
+        CdControlB(CdlSeekL, (u8*)&loc, result);
+        if (result[0] & CdlStatError) {
+            return 1;
+        }
+        if (result[1] & 0x40) {
+            return 1;
+        }
+        CdControlB(CdlSetmode, (u8*)CdlModeSpeed, result);
+        VSync(3);
+        D_80071A60 = CDOP_0;
+        D_80071A64 = ReadDiskNo();
+        switch (D_80071A64) {
+        case 0:
+            func_80034104();
+            return 6;
+        case -1:
+            func_80034104();
+            return 1;
+        default:
+            SysMovieLoadMovieSettings();
+            break;
+        }
+    }
+    return 0;
+}
 
 static s32 ReadDiskNo(void) {
     CdlFILE file;
@@ -237,35 +349,209 @@ static s32 ReadDiskNo(void) {
 
 s32 SYS_GetDiskNo(void) { return ReadDiskNo(); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80034410);
+s32 func_80034410(void) { return D_80071A60; }
 
 void func_80034420(void) {}
 
 void func_80034428(void) {}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80034430);
+void func_80034430(void) { D_80071A60 = CDOP_16; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80034444);
+void func_80034444(void) {
+    D_80071A60 = CDOP_0;
+    if (D_80071A84 != NULL) {
+        D_80071A84();
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_8003447C);
+void func_8003447C(void) {
+    CdControlF(CdlSetloc, (u_char*)&D_80071A68);
+    D_80071A60 = CDOP_2;
+    D_8006E0F4 = 0;
+    D_800698EC = 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_800344C0);
+void func_800344C0(void) {
+    s32 temp_v0;
+    s32* var_a1;
+    s32* retries;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_800345BC);
+    switch (CdSync(1, 0)) {
+    case 2:
+        D_80071A60 = CDOP_17;
+        break;
+    case 5:
+        retries = &D_800698EC;
+        (*retries)++;
+        if (*retries >= 16) {
+            *retries = 0;
+            func_80034104();
+            do {
+                func_80034CAC(3);
+            } while (func_80034150());
+        }
+        D_80071A60 = CDOP_1;
+        break;
+    default:
+        temp_v0 = VSync(-1);
+        var_a1 = &D_8006E0F0;
+        if (*var_a1 != temp_v0) {
+            *var_a1 = temp_v0;
+            D_8006E0F4++;
+            if (D_8006E0F4 == 3600) {
+                D_80071A60 = CDOP_1;
+                func_80034CAC(3);
+            }
+        }
+        break;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80034600);
+void func_800345BC(void) {
+    CdControlF(CdlSetloc, (u_char*)&D_80071A68);
+    D_80071A60 = CDOP_4;
+    D_8006E0F4 = 0;
+    D_800698EC = 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_800346F8);
+void func_80034600(void) {
+    s32 temp_v0;
+    s32* var_a1;
+    s32* retries;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80034754);
+    switch (CdSync(1, 0)) {
+    case 2:
+        D_80071A60 = CDOP_5;
+        break;
+    case 5:
+        retries = &D_800698EC;
+        (*retries)++;
+        if (*retries >= 16) {
+            *retries = 0;
+            func_80034104();
+            do {
+                func_80034CAC(3);
+            } while (func_80034150());
+        }
+        D_80071A60 = CDOP_3;
+        break;
+    default:
+        temp_v0 = VSync(-1);
+        var_a1 = &D_8006E0F0;
+        if (*var_a1 != temp_v0) {
+            *var_a1 = temp_v0;
+            D_8006E0F4++;
+            if (D_8006E0F4 == 3600) {
+                D_80071A60 = CDOP_3;
+                func_80034CAC(3);
+            }
+        }
+        break;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_800347B4);
+void func_800346F8(void) {
+    if (CdRead(D_80071A6C, D_80071A80, CdlModeSpeed) == 0) {
+        D_80071A60 = CDOP_3;
+        func_80034CAC(0x10);
+        return;
+    }
+    D_80071A60 = CDOP_6;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_800347F8);
+void func_80034754(void) {
+    switch (CdReadSync(1, NULL)) {
+    case 0:
+        D_80071A60 = CDOP_17;
+        break;
+    case -1:
+        D_80071A60 = CDOP_3;
+        func_80034CAC(3);
+        break;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_800348F4);
+void func_800347B4(void) {
+    CdControlF(CdlSetloc, (u_char*)&D_80071A68);
+    D_80071A60 = CDOP_12;
+    D_8006E0F4 = 0;
+    D_800698EC = 0;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80034974);
+void func_800347F8(void) {
+    s32 temp_v0;
+    s32* var_a1;
+    s32* retries;
+
+    switch (CdSync(1, 0)) {
+    case 2:
+        D_80071A60 = CDOP_13;
+        break;
+    case 5:
+        retries = &D_800698EC;
+        (*retries)++;
+        if (*retries >= 16) {
+            *retries = 0;
+            func_80034104();
+            do {
+                func_80034CAC(3);
+            } while (func_80034150());
+        }
+        D_80071A60 = CDOP_11;
+        break;
+    default:
+        temp_v0 = VSync(-1);
+        var_a1 = &D_8006E0F0;
+        if (*var_a1 != temp_v0) {
+            *var_a1 = temp_v0;
+            D_8006E0F4++;
+            if (D_8006E0F4 == 3600) {
+                D_80071A60 = CDOP_11;
+                func_80034CAC(3);
+            }
+        }
+        break;
+    }
+}
+
+void func_800348F4(void) {
+    D_8006E0F8 = D_80071A6C;
+    if (D_8006E0F8 > 8) {
+        D_8006E0F8 = 9;
+    }
+    if (CdRead(D_8006E0F8, (u_long*)D_800698F0, CdlModeSpeed) == 0) {
+        D_80071A60 = CDOP_11;
+        func_80034CAC(3);
+        return;
+    }
+    D_80071A60 = CDOP_14;
+}
+
+void func_80034974(void) {
+    s32* sector;
+    CdOp* op;
+
+    switch (CdReadSync(1, NULL)) {
+    case 0:
+        sector = &D_800698E8;
+        op = &D_80071A60;
+        D_80034CF0 = D_800698F0;
+        D_80071A6C -= 9;
+        *sector += 9;
+        if (func_80034D5C() == 0) {
+            *op = CDOP_17;
+            return;
+        }
+        CdIntToPos(*sector, (CdlLOC*)(op + 2));
+        *op = CDOP_11;
+        break;
+    case -1:
+        CdIntToPos(D_800698E8, &D_80071A68);
+        D_80071A60 = CDOP_11;
+        func_80034CAC(3);
+        break;
+    }
+}
 
 static void func_80034A58(void) {
     CdControlF(CdlPause, NULL);

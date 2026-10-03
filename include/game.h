@@ -88,6 +88,7 @@ typedef struct {
 } Yamada;
 
 typedef enum {
+    LBA_SYSTEM_CNF = 23,         // SYSTEM.CNF
     LBA_SOUND_INSTR_ALL = 219,   // SOUND/INSTR.ALL
     LBA_SOUND_EFFECT = 455,      // SOUND/EFFECT.ALL
     LBA_SOUND_INSTR_DAT = 480,   // SOUND/INSTR.DAT
