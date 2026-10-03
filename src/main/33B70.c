@@ -7,9 +7,13 @@ typedef enum {
     CDOP_0,
     CDOP_1,
     CDOP_3 = 3,
-    CDOP_11 = 11,
-    CDOP_19 = 0x13,
-    CDOP_20 = 0x14,
+    CDOP_8 = 8,
+    CDOP_9,
+    CDOP_10,
+    CDOP_11,
+    CDOP_18 = 0x12,
+    CDOP_19,
+    CDOP_20,
 } CdOp;
 
 extern void (*D_8004A634[21])(void);
@@ -74,8 +78,28 @@ INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80033BE0);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/33B70", func_80033C20);
 
-void SysCdromSetChainParam(int op, int sector, size_t len, u_long* dst, void (*cb)());
-INCLUDE_ASM("asm/us/main/nonmatchings/33B70", SysCdromSetChainParam);
+void SysCdromSetChainParam(int op, int sector, size_t len, u_long* dst, void (*cb)()) {
+    s32 nextOp;
+
+    do {
+        nextOp = SystemCdromReadChain();
+        switch (nextOp) {
+        case CDOP_8:
+        case CDOP_9:
+        case CDOP_10:
+            SysMovieAbortPlay();
+            break;
+        case CDOP_18:
+            CdControl(CdlPause, NULL, NULL);
+            break;
+        }
+    } while (nextOp);
+    CdIntToPos(sector, &D_80071A68);
+    D_80071A6C = (len + 0x7FF) / 0x800;
+    D_80071A80 = dst;
+    D_80071A84 = cb;
+    D_80071A60 = op;
+}
 
 int func_80033DAC(int sector_no, void (*cb)()) {
     SysCdromSetChainParam(CDOP_1, sector_no, 0, NULL, cb);
