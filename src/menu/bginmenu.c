@@ -82,7 +82,7 @@ static void BankWrite16(Unk801D026C* arg0, u16 arg1) {
 // Scales each party member's current HP by a per-member ratio out of 65535
 // held in memory_bank_2[116..125], never dropping below 1. The bank values are
 // byte-packed, hence the BankRead16 unaligned 16-bit read.
-void ScalePartyHp(void) {
+void BGINMENU_ScalePartyHp(void) {
     s32 i;
     s32 scaled;
 
@@ -202,7 +202,7 @@ static s32 PartyHasMateria(s32 materiaId) {
 
 // Validates party conditions by category (0..3) and sets authorization flag in
 // Savemap.memory_bank_5[111].
-void func_801D05C4(s32 arg0) {
+void BGINMENU_CheckMasterMateria(s32 arg0) {
     s32 i;
 
     Savemap.memory_bank_5[111] = 0;
@@ -240,7 +240,7 @@ void func_801D05C4(s32 arg0) {
 }
 
 // Applies member removal/confirmation and plays corresponding sound effects.
-void func_801D0704(s32 arg0) {
+void BGINMENU_AddMasterMateria(s32 arg0) {
     s32 i;
     switch (arg0) {
     case 0:

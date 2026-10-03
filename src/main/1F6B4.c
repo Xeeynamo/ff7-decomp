@@ -435,7 +435,7 @@ void SysMenuCreateDrawenvDispenv(DRAWENV* draw_env, DISPENV* disp_env) {
 
 static void func_800211B8(s32 arg0) { D_80062DEC = arg0; }
 
-void func_800211C4(s32 yamaOvlId) {
+static void LoadMenuOvl(s32 yamaOvlId) {
     SystemLoadFileBySector(*&D_80048F60[yamaOvlId].loc, *&D_80048F60[yamaOvlId].len, (u_long*)D_80062DEC, NULL);
     SystemCdromReadChain();
 }
@@ -447,7 +447,7 @@ void SysMenuLoadMenuFileById(s32 yamaOvlId) {
     D_80062DD4 = yamaOvlId;
     D_80062DD0 = prev;
     if (yamaOvlId != 0 && (prev < 3 || prev > 4 || yamaOvlId < 3 || yamaOvlId > 4)) {
-        func_800211C4(yamaOvlId);
+        LoadMenuOvl(yamaOvlId);
     }
 }
 
@@ -506,93 +506,103 @@ static void func_80024A04(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuShow);
 
+// Index into D_80048F60. Ids 1 to 10 follow the order of the main menu entries.
 typedef enum {
-    YAMA_1 = 1,
-    YAMA_7 = 7,
-    YAMA_10 = 10,
-    YAMA_12 = 12,
-    YAMA_13,
-    YAMA_14,
-    YAMA_15,
+    YAMA_NONE,
+    YAMA_ITEMMENU,
+    YAMA_MGICMENU,
+    YAMA_EQIPMENU_MATERIA,
+    YAMA_EQIPMENU_EQUIP,
+    YAMA_STATMENU,
+    YAMA_CHNGMENU,
+    YAMA_LIMTMENU,
+    YAMA_CNFGMENU,
+    YAMA_FORMMENU,
     YAMA_SAVEMENU,
+    YAMA_PATYMENU,
+    YAMA_BGINMENU,
+    YAMA_NAMEMENU,
+    YAMA_FORMMENU_EVENT,
+    YAMA_SHOPMENU,
+    YAMA_SAVEMENU_TITLE,
 } YamadaOvl;
 
-void func_80024D88(s32 arg0) {
-    func_800211C4(YAMA_13);
+void HandleNameMenu(s32 arg0) {
+    LoadMenuOvl(YAMA_NAMEMENU);
     do {
     } while (SystemCdromReadChain());
     VSync(30);
-    func_801D131C(arg0);
+    NAMEMENU_Main(arg0);
 }
 
-void func_80024DD4(s32 arg0) {
-    func_800211C4(YAMA_14);
+void HandlePartySelectMenu(s32 arg0) {
+    LoadMenuOvl(YAMA_FORMMENU_EVENT);
     do {
     } while (SystemCdromReadChain());
-    func_801D1A6C(arg0);
+    FORMMENU_Main(arg0);
 }
 
-void func_80024E18(s32 arg0) {
-    func_800211C4(YAMA_15);
+void HandleShopMenu(s32 arg0) {
+    LoadMenuOvl(YAMA_SHOPMENU);
     do {
     } while (SystemCdromReadChain());
-    func_801D4118(arg0);
+    SHOPMENU_Main(arg0);
 }
 
 int HandleTitle(void) {
-    func_800211C4(YAMA_SAVEMENU);
+    LoadMenuOvl(YAMA_SAVEMENU_TITLE);
     do {
     } while (SystemCdromReadChain());
     SAVEMENU_Title();
 }
 
 void HandleSaveMenu(void) {
-    func_800211C4(YAMA_10);
+    LoadMenuOvl(YAMA_SAVEMENU);
     do {
     } while (SystemCdromReadChain());
     SAVEMENU_Main();
 }
 
-void func_80024ECC(void) {
-    func_800211C4(YAMA_1);
+void HandleStealAllMateria(void) {
+    LoadMenuOvl(YAMA_ITEMMENU);
     do {
     } while (SystemCdromReadChain());
-    func_801D2D74();
+    ITEMMENU_StealAllMateria();
 }
 
-void func_80024F04(void) {
-    func_800211C4(YAMA_1);
+void HandleReturnStolenMateria(void) {
+    LoadMenuOvl(YAMA_ITEMMENU);
     do {
     } while (SystemCdromReadChain());
-    func_801D2E84();
+    ITEMMENU_ReturnStolenMateria();
 }
 
-void func_80024F3C(s32 arg0) {
-    func_800211C4(YAMA_1);
+void HandleUnequipCharacterMateria(s32 arg0) {
+    LoadMenuOvl(YAMA_ITEMMENU);
     do {
     } while (SystemCdromReadChain());
-    func_801D2F00(arg0);
+    ITEMMENU_UnequipCharacterMateria(arg0);
 }
 
-void func_80024F80(s32 arg0) {
-    func_800211C4(YAMA_1);
+void HandleRestoreCharacterMateria(s32 arg0) {
+    LoadMenuOvl(YAMA_ITEMMENU);
     do {
     } while (SystemCdromReadChain());
-    func_801D3138(arg0);
+    ITEMMENU_RestoreCharacterMateria(arg0);
 }
 
-void func_80024FC4(s32 arg0) {
-    func_800211C4(YAMA_1);
+void HandleBackupCharacterMateria(s32 arg0) {
+    LoadMenuOvl(YAMA_ITEMMENU);
     do {
     } while (SystemCdromReadChain());
-    func_801D3018(arg0);
+    ITEMMENU_BackupCharacterMateria(arg0);
 }
 
-static void func_80025008(void) {
-    func_800211C4(YAMA_1);
+void HandleLoadCoinTexture(void) {
+    LoadMenuOvl(YAMA_ITEMMENU);
     do {
     } while (SystemCdromReadChain());
-    func_801D3228();
+    ITEMMENU_LoadCoinTexture();
 }
 
 // MENU event 0x18: snapshot each present party member's level into
@@ -613,25 +623,25 @@ void SnapshotPartyLevels(void) {
 }
 #endif
 
-void func_800250B4(void) {
-    func_800211C4(YAMA_12);
+void HandleScalePartyHp(void) {
+    LoadMenuOvl(YAMA_BGINMENU);
     do {
     } while (SystemCdromReadChain());
-    ScalePartyHp();
+    BGINMENU_ScalePartyHp();
 }
 
-void func_800250EC(s32 arg0) {
-    func_800211C4(YAMA_12);
+void HandleMasterMateriaCheck(s32 arg0) {
+    LoadMenuOvl(YAMA_BGINMENU);
     do {
     } while (SystemCdromReadChain());
-    func_801D05C4(arg0);
+    BGINMENU_CheckMasterMateria(arg0);
 }
 
-void func_80025130(s32 arg0) {
-    func_800211C4(YAMA_12);
+void HandleAddMasterMateria(s32 arg0) {
+    LoadMenuOvl(YAMA_BGINMENU);
     do {
     } while (SystemCdromReadChain());
-    func_801D0704(arg0);
+    BGINMENU_AddMasterMateria(arg0);
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025174);
@@ -880,7 +890,7 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80026090);
 void func_80026090(void) {
     do {
     } while (SystemCdromReadChain());
-    func_800211C4(YAMA_7);
+    LoadMenuOvl(YAMA_LIMTMENU);
     do {
     } while (SystemCdromReadChain());
     func_801D11A8();
