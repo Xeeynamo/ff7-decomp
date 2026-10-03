@@ -1,23 +1,23 @@
 #include "main_private.h"
 
 Yamada D_80048F60[17] = {
-    {0x0, 0x0},        // ??
-    {0xD2D9, 0x4800},  // ??
-    {0xD2E2, 0x3000},  // ??
-    {0xD2E8, 0x17800}, // ??
-    {0xD2E8, 0x17800}, // ??
-    {0xD317, 0x6000},  // ??
-    {0xD323, 0x800},   // ??
-    {0xD324, 0x2800},  // ??
-    {0xD329, 0x2800},  // ??
-    {0xD377, 0xF000},  // ??
-    {0xD395, 0x1C000}, // ??
-    {0xD34F, 0x7800},  // ??
-    {0xD32E, 0x1000},  // ??
-    {0xD35E, 0xC800},  // ??
-    {0xD377, 0xF000},  // ??
-    {0xD330, 0xF800},  // ??
-    {0xD395, 0x1C000}, // ??
+    {0, 0},
+    {LBA_MENU_ITEMMENU, 0x4800},
+    {LBA_MENU_MGICMENU, 0x3000},
+    {LBA_MENU_EQIPMENU, 0x17800},
+    {LBA_MENU_EQIPMENU, 0x17800},
+    {LBA_MENU_STATMENU, 0x6000},
+    {LBA_MENU_CHNGMENU, 0x800},
+    {LBA_MENU_LIMTMENU, 0x2800},
+    {LBA_MENU_CNFGMENU, 0x2800},
+    {LBA_MENU_FORMMENU, 0xF000},
+    {LBA_MENU_SAVEMENU, 0x1C000},
+    {LBA_MENU_PATYMENU, 0x7800},
+    {LBA_MENU_BGINMENU, 0x1000},
+    {LBA_MENU_NAMEMENU, 0xC800},
+    {LBA_MENU_FORMMENU, 0xF000},
+    {LBA_MENU_SHOPMENU, 0xF800},
+    {LBA_MENU_SAVEMENU, 0x1C000},
 };
 
 Yamada D_80048FE8[15] = {

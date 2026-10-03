@@ -436,15 +436,15 @@ void main(void) {
                     }
                     switch (g_FieldState.eventCmd) {
                     case EVTCMD_CHAR_NAME_ENTRY:
-                        func_80024D88(g_FieldState.eventCmdParam);
+                        HandleNameMenu(g_FieldState.eventCmdParam);
                         break;
                     case EVTCMD_PARTY_SELECT:
-                        func_80024DD4(g_FieldState.eventCmdParam);
+                        HandlePartySelectMenu(g_FieldState.eventCmdParam);
                         func_800260DC();
                         func_80026090();
                         break;
                     case EVTCMD_SHOP:
-                        func_80024E18(g_FieldState.eventCmdParam);
+                        HandleShopMenu(g_FieldState.eventCmdParam);
                         break;
                     case EVTCMD_PARTY_MENU:
                         if (g_FieldState.eventCmdParam == 1) {
@@ -458,10 +458,10 @@ void main(void) {
                         HandleSaveMenu();
                         break;
                     case EVTCMD_UNK12:
-                        func_80024FC4(g_FieldState.eventCmdParam);
+                        HandleBackupCharacterMateria(g_FieldState.eventCmdParam);
                         break;
                     case EVTCMD_UNK13:
-                        func_80024F80(g_FieldState.eventCmdParam);
+                        HandleRestoreCharacterMateria(g_FieldState.eventCmdParam);
                         break;
                     }
                     FIELD_Init();
@@ -473,22 +473,22 @@ void main(void) {
                     InitWorldFromSavemap();
                     switch (g_FieldState.eventCmd) {
                     case EVTCMD_YUFFIE_STEALS_MATERIA:
-                        func_80024ECC();
+                        HandleStealAllMateria();
                         break;
                     case EVTCMD_YUFFIE_RETURNS_MATERIA:
-                        func_80024F04();
+                        HandleReturnStolenMateria();
                         break;
                     case EVTCMD_REMOVE_CHARS_MATERIA_ACCESSORY:
-                        func_80024F3C(g_FieldState.eventCmdParam);
+                        HandleUnequipCharacterMateria(g_FieldState.eventCmdParam);
                         break;
                     case EVTCMD_UNK15:
-                        func_800250B4();
+                        HandleScalePartyHp();
                         break;
                     case EVTCMD_MASTER_MATERIA_CHECK:
-                        func_800250EC(g_FieldState.eventCmdParam);
+                        HandleMasterMateriaCheck(g_FieldState.eventCmdParam);
                         break;
                     case EVTCMD_ADD_MASTER_MATERIA:
-                        func_80025130(g_FieldState.eventCmdParam);
+                        HandleAddMasterMateria(g_FieldState.eventCmdParam);
                         break;
                     case EVTCMD_JENOVA_SYNTH_COPY_LEVELS:
                         SnapshotPartyLevels();

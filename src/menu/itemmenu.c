@@ -623,7 +623,7 @@ static void FinalizeMateriaSteal(void) {
     }
 }
 
-static void StealAllMateria(void) {
+void ITEMMENU_StealAllMateria(void) {
     s32 i;
     s32 c;
     s32 slot;
@@ -651,7 +651,7 @@ static void StealAllMateria(void) {
 
 // Give back every materia that was stolen: try to re-equip each one, and if no
 // equip slot is free, return it to the materia inventory instead.
-static void ReturnStolenMateria(void) {
+void ITEMMENU_ReturnStolenMateria(void) {
     s32 i;
 
     for (i = 0; i < 0x30; i++) {
@@ -666,7 +666,7 @@ static void ReturnStolenMateria(void) {
 
 // Unequip a party member: move their 16 equipped materia into the materia
 // inventory and their accessory into the item inventory.
-static void UnequipCharacterMateria(s32 charIdx) {
+void ITEMMENU_UnequipCharacterMateria(s32 charIdx) {
     u8 v;
     {
         s32 i = 0;
@@ -704,7 +704,7 @@ static void UnequipCharacterMateria(s32 charIdx) {
 // Save the current party lineup, a party member's weapon/armor ids, the first
 // three materia inventory slots and the member's 16 equipped materia into the
 // stolen-materia buffer (reused as scratch space), clearing each source slot.
-static void BackupCharacterMateria(s32 charIdx) {
+void ITEMMENU_BackupCharacterMateria(s32 charIdx) {
     s32 i = 0;
     u8* base = (u8*)Savemap.yuffie_stolen_materia;
     {
@@ -768,10 +768,10 @@ static void BackupCharacterMateria(s32 charIdx) {
     Savemap.party[charIdx].weapon = 0;
 }
 
-// Restore everything saved by BackupCharacterMateria: party lineup, the
+// Restore everything saved by ITEMMENU_BackupCharacterMateria: party lineup, the
 // member's weapon/armor ids, the first three materia inventory slots and
 // their 16 equipped materia.
-static void RestoreCharacterMateria(s32 charIdx) {
+void ITEMMENU_RestoreCharacterMateria(s32 charIdx) {
     s32 i = 0;
     u8* base = (u8*)Savemap.yuffie_stolen_materia;
     {
@@ -829,7 +829,7 @@ static void RestoreCharacterMateria(s32 charIdx) {
 
 // Uploads the coin-pattern texture at D_801D3890 (64x32, 4bpp, seamlessly
 // tileable) into VRAM: pixel data to (0x3F0, 0x120), CLUT to (0x110, 0x1E0).
-// Runs once at boot/menu init (main -> func_80026258 -> func_80025008); the
+// Runs once at boot/menu init (main -> func_80026258 -> HandleLoadCoinTexture); the
 // texture stays resident so the battle UI can scroll it as the animated
 // backdrop behind the coin-throw amount prompt.
-void func_801D3228(void) { MENU_LoadTim((u_long*)D_801D3890, 0x3F0, 0x120, 0x110, 0x1E0); }
+void ITEMMENU_LoadCoinTexture(void) { MENU_LoadTim((u_long*)D_801D3890, 0x3F0, 0x120, 0x110, 0x1E0); }
