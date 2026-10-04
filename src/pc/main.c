@@ -1,4 +1,5 @@
 #include <game.h>
+#include <psyz/audio.h>
 #include <psyz/dbgserver.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -118,6 +119,9 @@ int main(int argc, char* argv[]) {
     if (Psyz_CdSetDiskPath(DEFAULT_DISK_CUE) < 0) {
         ERRORF("failed to open disk image '%s'", DEFAULT_DISK_CUE);
         return 1;
+    }
+    if (Psyz_AudioInit() < 0) {
+        ERRORF("failed to open the audio device");
     }
     GameMain();
     return 0;
