@@ -1143,9 +1143,98 @@ void AkaoSoundSyncKeyStatus(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicRestoreChannelsAndConfig);
+void AkaoMusicRestoreChannelsAndConfig(u16 slot) {
+    u32* src;
+    u32* dst;
+    AkaoChannel* channel;
+    u32 active;
+    s32 bit;
+    u16 i;
+    u16 j;
+    s32 stored;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicCopyChannels1Into2);
+    g_AkaoBgmLanes->activeMask = g_AkaoPrevBgmLanes[slot].activeMask;
+    g_AkaoBgmLanes->onMask = g_AkaoPrevBgmLanes[slot].onMask;
+    g_AkaoBgmLanes->keyedMask = g_AkaoPrevBgmLanes[slot].keyedMask;
+    g_AkaoBgmLanes->tempo = g_AkaoPrevBgmLanes[slot].tempo;
+    g_AkaoBgmLanes->tempoSlideStep = g_AkaoPrevBgmLanes[slot].tempoSlideStep;
+    g_AkaoBgmLanes->tempoSlideSteps = g_AkaoPrevBgmLanes[slot].tempoSlideSteps;
+    g_AkaoBgmLanes->tempoUpdate = g_AkaoPrevBgmLanes[slot].tempoUpdate;
+    g_AkaoBgmLanes->overMask = g_AkaoPrevBgmLanes[slot].overMask;
+    g_AkaoBgmLanes->altMask = g_AkaoPrevBgmLanes[slot].altMask;
+    g_AkaoBgmLanes->musicId = g_AkaoPrevBgmLanes[slot].musicId;
+    g_AkaoBgmLanes->conditionStored = g_AkaoPrevBgmLanes[slot].conditionStored;
+    g_AkaoBgmLanes->condition = g_AkaoPrevBgmLanes[slot].condition;
+    g_AkaoBgmLanes->reverbDepth = g_AkaoPrevBgmLanes[slot].reverbDepth;
+    g_AkaoBgmLanes->reverbDepthSlideStep = g_AkaoPrevBgmLanes[slot].reverbDepthSlideStep;
+    g_AkaoBgmLanes->reverbDepthSlideSteps = g_AkaoPrevBgmLanes[slot].reverbDepthSlideSteps;
+    g_AkaoBgmLanes->noiseClock = g_AkaoPrevBgmLanes[slot].noiseClock;
+    g_AkaoBgmLanes->noiseMask = g_AkaoPrevBgmLanes[slot].noiseMask;
+    g_AkaoBgmLanes->reverbMask = g_AkaoPrevBgmLanes[slot].reverbMask;
+    g_AkaoBgmLanes->pitchLfoMask = g_AkaoPrevBgmLanes[slot].pitchLfoMask;
+    g_AkaoBgmLanes->muteMusic = g_AkaoPrevBgmLanes[slot].muteMusic;
+    g_AkaoBgmLanes->updateFlags = g_AkaoPrevBgmLanes[slot].updateFlags;
+    g_AkaoBgmLanes->timerUpper = g_AkaoPrevBgmLanes[slot].timerUpper;
+    g_AkaoBgmLanes->timerUpperCur = g_AkaoPrevBgmLanes[slot].timerUpperCur;
+    g_AkaoBgmLanes->timerLower = g_AkaoPrevBgmLanes[slot].timerLower;
+    g_AkaoBgmLanes->timerLowerCur = g_AkaoPrevBgmLanes[slot].timerLowerCur - 2;
+    g_AkaoBgmLanes->timerTopCur = g_AkaoPrevBgmLanes[slot].timerTopCur;
+    g_AkaoBgmLanes->updateFlags |= AKAO_UPDATE_REVERB;
+    src = (u32*)g_AkaoSavedChannels1;
+    if (!slot) {
+        src = (u32*)(g_AkaoSavedChannels1 - AKAO_NUM_VOICES);
+    }
+    dst = (u32*)g_Channel1;
+    i = sizeof(AkaoChannel) * AKAO_NUM_VOICES / 4;
+    while (i) {
+        i--;
+        *dst++ = *src++;
+    }
+    j = AKAO_NUM_VOICES;
+    active = g_AkaoBgmLanes->activeMask;
+    if (active) {
+        channel = g_Channel1;
+        bit = 1;
+        do {
+            if (!(active & bit)) {
+                *(u16*)&channel->length1 = 0x204;
+                channel->akaoSequencePointer = g_AkaoDummyStopSequence;
+            }
+            j--;
+            channel++;
+            bit <<= 1;
+        } while (j);
+    }
+    active |= g_AkaoBgmLanes->overMask;
+    g_AkaoBgmLanes->offMask = ~g_AkaoBgmLanes->onMask & 0xFFFFFF;
+    channel = g_Channel1;
+    bit = 1;
+    if (active) {
+        do {
+            if (active & bit) {
+                active ^= bit;
+                *(u16*)&channel->length1 += 0x202;
+                channel->voiceAttr.mask |= AKAO_UPDATE_SPU_ALL;
+            }
+            channel++;
+            bit <<= 1;
+        } while (active);
+    }
+    AkaoUpdateNoiseVoices();
+    AkaoUpdateReverbVoices();
+    AkaoUpdatePitchLfoVoices();
+    if (g_AkaoVolMulMusicSlideSteps == 0 && g_AkaoVoiceWork->currentKey == 0) {
+        g_AkaoVolMulMusicSlideSteps = 60;
+        g_AkaoVolMulMusicSlideStep = (g_AkaoVolMulMusic - 0xA0000) / 60;
+        g_AkaoVolMulMusic = 0xA0000;
+    }
+    g_AkaoPrevBgmLanes[slot].musicId = 0;
+    if (g_AkaoControlFlags & AKAO_CONTROL_PAUSE_MUSIC_UPDATE) {
+        stored = g_AkaoBgmLanes->activeMask;
+        g_AkaoBgmLanes->activeMask = 0;
+        g_AkaoBgmLanes->activeMaskStored = stored;
+    }
+}
 
 // Copies 24 audio channels (0x18C0 bytes) and channel configuration (0x60 bytes)
 // from source to destination buffers.
