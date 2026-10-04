@@ -1236,6 +1236,56 @@ void AkaoMusicRestoreChannelsAndConfig(u16 slot) {
     }
 }
 
+void AkaoMusicCopyChannels1Into2(void) {
+    u32* src;
+    u32* dst;
+    u16 i;
+    AkaoChannel* channel;
+    u16 remaining;
+
+    i = sizeof(AkaoChannel) * AKAO_NUM_VOICES / 4;
+    src = (u32*)g_Channel1;
+    dst = (u32*)(g_Channel1 + AKAO_NUM_VOICES);
+    while (i) {
+        i--;
+        *dst++ = *src++;
+    }
+    i = sizeof(AkaoChannelConfig) / 4;
+    src = (u32*)&g_AkaoBgmLanes[0];
+    dst = (u32*)&g_AkaoBgmLanes[1];
+    while (i) {
+        i--;
+        *dst++ = *src++;
+    }
+    src = (u32*)g_AkaoMusicBuffer;
+    dst = (u32*)g_AkaoMusicBuffer + 0xC00;
+    i = 0xC00;
+    while (i) {
+        i--;
+        *dst++ = *src++;
+    }
+    channel = g_Channel2;
+    i = AKAO_NUM_VOICES;
+    while (i) {
+        i--;
+        channel->akaoSequencePointer += 0x3000;
+        channel->drumOffset += 0x3000;
+        channel->loopPoint[0] += 0x3000;
+        channel->loopPoint[1] += 0x3000;
+        channel->loopPoint[2] += 0x3000;
+        channel->loopPoint[3] += 0x3000;
+        channel->overlayChannelId += AKAO_NUM_VOICES;
+        channel++;
+    }
+    for (i = 0, remaining = AKAO_NUM_VOICES; i < AKAO_NUM_VOICES; i++, remaining--) {
+        g_AkaoVoiceWork[i].pitchSlide = 0x7F8000;
+        g_AkaoVoiceWork[i].volSlide = -(0x7F8000 / (g_AkaoMusicFadeSteps * remaining));
+        g_AkaoVoiceWork[i].currentKey = remaining * g_AkaoMusicFadeSteps;
+    }
+    g_Channel2VoiceMask = 0xFFFFFF;
+    g_AkaoControlFlags &= ~AKAO_CONTROL_STATE_SAVED;
+}
+
 // Copies 24 audio channels (0x18C0 bytes) and channel configuration (0x60 bytes)
 // from source to destination buffers.
 void AkaoMusicCopyChannelsAndConfig(
