@@ -941,6 +941,64 @@ void AkaoMusicStopChannels12(void) {
         } while (mask);
     }
 }
+
+void AkaoSoundChannelsInit(u16 volPan, s32 channelId, s32 seq1, s32 seq2) {
+    AkaoChannel* channel;
+    u32 active;
+    u32 all;
+    u16 id;
+
+    active = 0;
+    volPan = (volPan & 0x7F) << 8;
+    id = channelId;
+    channel = &g_Channel1[id];
+    *(u16*)&channel[0].length1 = 0x101;
+    *(u16*)&channel[1].length1 = 0x101;
+    channel[0].akaoSequencePointer = g_AkaoDummyStopSequence;
+    channel[1].akaoSequencePointer = g_AkaoDummyStopSequence;
+    channel[0].playingType = AKAO_SOUND;
+    channel[1].playingType = AKAO_SOUND;
+    channel[0].setToMinusOne = -1;
+    channel[1].setToMinusOne = -1;
+    if (seq1) {
+        active = 1;
+        SoundChannelInit(channel, (u8*)seq1);
+        channel->volPan = volPan;
+        channel->volPanSlideSteps = 0;
+    }
+    channel++;
+    if (seq2) {
+        active |= 2;
+        SoundChannelInit(channel, (u8*)seq2);
+        channel->volPan = volPan;
+        channel->volPanSlideSteps = 0;
+    }
+    active <<= id - 0x20;
+    all = active | g_AkaoSfxLanes[0].activeMask;
+    active = (3 << (id - 0x20)) & all;
+    g_AkaoSfxLanes[0].activeMask = all;
+    g_AkaoSfxLanes->offMask |= active;
+    active = ~active;
+    g_AkaoSfxLanes->onMask &= active;
+    g_AkaoSfxLanes->keyedMask &= active;
+    g_AkaoSfxLanes->noiseMask &= active;
+    g_AkaoSfxLanes->reverbMask &= active;
+    g_AkaoSfxLanes->pitchLfoMask &= active;
+    if (g_AkaoControlFlags & AKAO_CONTROL_PAUSE_UPDATE) {
+        active = all;
+        if (g_AkaoSoundChannelsMode == AKAO_MONO) {
+            g_AkaoSfxLanes[0].activeMask = active & 0xC00000;
+            active &= ~0xC00000;
+        } else {
+            g_AkaoSfxLanes[0].activeMask = 0;
+        }
+        g_AkaoSfxLanes->activeMaskStored |= active;
+    }
+    AkaoUpdateNoiseVoices();
+    AkaoUpdateReverbVoices();
+    AkaoUpdatePitchLfoVoices();
+}
+
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundMenuChannelsInit);
 
 void AkaoSoundChannelsStop(void) {
