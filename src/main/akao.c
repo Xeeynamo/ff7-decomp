@@ -2423,7 +2423,57 @@ s32 AkaoExec(void) {
     return result;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoDispatchCommand);
+s32 AkaoDispatchCommand(AkaoQueuedCommand* cmd) {
+    switch (cmd->opcode) {
+    case AKAO_PLAY_MUSIC:
+    case AKAO_PLAY_MUSIC_SAVE_CURR:
+    case AKAO_PLAY_MUSIC_SWAP_SAVED:
+    case AKAO_FADE_PLAY_MUSIC:
+    case AKAO_FADE_PLAY_MUSIC_SAVE_CURR:
+        cmd->opcode = 0;
+        break;
+    case AKAO_PLAY_ONE_CONSECUTIVE_SOUND:
+        cmd->opcode = AKAO_PLAY_SOUND;
+        break;
+    case AKAO_PLAY_TWO_CONSECUTIVE_SOUNDS:
+        cmd->opcode = AKAO_PLAY_TWO_SOUNDS;
+        cmd->param2 = cmd->param1 + 1;
+        break;
+    case AKAO_PLAY_THREE_CONSECUTIVE_SOUNDS:
+        cmd->opcode = AKAO_PLAY_THREE_SOUNDS;
+        cmd->param2 = cmd->param1 + 1;
+        cmd->param3 = cmd->param1 + 2;
+        break;
+    case AKAO_PLAY_FOUR_CONSECUTIVE_SOUNDS:
+        cmd->opcode = AKAO_PLAY_FOUR_SOUNDS;
+        cmd->param2 = cmd->param1 + 1;
+        cmd->param3 = cmd->param1 + 2;
+        cmd->param4 = cmd->param1 + 3;
+        break;
+    case AKAO_SET_TEMPO_AND_PITCH:
+        g_AkaoCommandHandler[AKAO_SET_TEMPO](cmd);
+        cmd->opcode = AKAO_SET_PITCH;
+        break;
+    case AKAO_TEMPO_AND_PITCH_SLIDE_FROM_CURR:
+        g_AkaoCommandHandler[AKAO_TEMPO_SLIDE_FROM_CURR](cmd);
+        cmd->opcode = AKAO_PITCH_SLIDE_FROM_CURR;
+        break;
+    case AKAO_TEMPO_AND_PITCH_SLIDE_BETWEEN_TARGETS:
+        g_AkaoCommandHandler[AKAO_TEMPO_SLIDE_BETWEEN_TARGETS](cmd);
+        cmd->opcode = AKAO_PITCH_SLIDE_BETWEEN_TARGETS;
+        break;
+    case AKAO_APPLY_ALL_PENDING_UPDATES:
+        g_AkaoCommandHandler[AKAO_APPLY_PENDING_MUSIC_UPDATES](cmd);
+        cmd->opcode = AKAO_APPLY_PENDING_SFX_UPDATES;
+        break;
+    case AKAO_FLUSH_ALL_PENDING_UPDATES:
+        g_AkaoCommandHandler[AKAO_FLUSH_PENDING_MUSIC_UPDATES](cmd);
+        cmd->opcode = AKAO_FLUSH_PENDING_SFX_UPDATES;
+        break;
+    }
+    g_AkaoCommandHandler[(u8)cmd->opcode](cmd);
+    return 0;
+}
 
 static void AkaoExecuteCommandsQueue(void) {
     AkaoQueuedCommand* cmd;
