@@ -74,39 +74,39 @@ static u_long* func_800C5040(u8 r, u8 g, u8 b, s32 tpage, u_long* ot);
 static void func_800C55B8(void);
 
 // MAGIC/ summon entrypoints that are not named yet
-Unk800F57D0* func_801B0038(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040_2(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040_3(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040_4(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040_5(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040_6(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040_7(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040_8(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040_9(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040_10(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040_11(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040_12(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0040_13(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0038(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040_2(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040_3(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040_4(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040_5(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040_6(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040_7(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040_8(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040_9(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040_10(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040_11(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040_12(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0040_13(s32 targetMask, s32 callbackArg);
 void func_801B0050(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0054(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0060(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0054(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0060(s32 targetMask, s32 callbackArg);
 
 // MAGIC/ entrypoints of other effects with a model, not named yet
-Unk800F57D0* func_801B0054_9(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0054_2(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0054_3(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0054_4(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0054_5(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0054_6(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0054_7(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0054_8(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0084(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0084_2(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B00B4(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B00E8(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B04C0(s32 targetMask, s32 callbackArg);
-Unk800F57D0* func_801B0498(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0054_9(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0054_2(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0054_3(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0054_4(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0054_5(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0054_6(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0054_7(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0054_8(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0084(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0084_2(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B00B4(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B00E8(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B04C0(s32 targetMask, s32 callbackArg);
+EffectModelHeader* func_801B0498(s32 targetMask, s32 callbackArg);
 
 void BattleNormalStartSeq(void) {
     s32 i;
@@ -1978,24 +1978,24 @@ void BattleEffectModelTick(void) {
 
 static void func_800C74A4(void) {
     if (!(g_BattleModels[EFFECT_MODEL_SLOT].specialFlags & BATTLE_MODEL_INACTIVE)) {
-        BattleExecuteUnitAnimScript(EFFECT_MODEL_SLOT, D_800F57D0->unk8, D_800F57D0 + 1, D_800F57D0);
+        BattleExecuteUnitAnimScript(EFFECT_MODEL_SLOT, D_800F57D0->offsets[1], &D_800F57D0->offsets[2], D_800F57D0);
     }
 }
 
 void BattleLoadEffectModel(void) {
-    Unk800F57D0* header;
+    EffectModelHeader* header;
     s32* offsets;
     u8* bones;
-    s32 timOffset;
     s32 i;
 
     header = D_800F57D0;
     if (D_801517BC == 0) {
-        offsets = (s32*)(header->unk8 += (s32)D_800F57D0);
+        header->offsets[1] += (s32)D_800F57D0;
+        offsets = (s32*)header->offsets[1];
         for (i = 0; i < 8; i++) {
-            *offsets++ += header->unk8;
+            *offsets++ += header->offsets[1];
         }
-        BattleUnitInitBonesAndMatrixes(EFFECT_MODEL_SLOT, (u8*)D_800F57D0 + header->skeletonOffset, 0);
+        BattleUnitInitBonesAndMatrixes(EFFECT_MODEL_SLOT, (u8*)D_800F57D0 + header->offsets[EFFECT_MODEL_SKELETON], 0);
         g_BattleModels[EFFECT_MODEL_SLOT].modelSetting1 = 0;
         g_BattleModels[EFFECT_MODEL_SLOT].modelSetting2 = 0;
         g_BattleModels[EFFECT_MODEL_SLOT].deathType = 0;
@@ -2023,8 +2023,7 @@ void BattleLoadEffectModel(void) {
         for (i = LEN(g_BattleModels[EFFECT_MODEL_SLOT].boneIndices) - 1; i >= 0; i--) {
             bones[i] = 0;
         }
-        timOffset = header->numOffsets * 4;
-        BattleSetLoadTimToVram((u_long*)((u8*)D_800F57D0 + *(s32*)((u8*)header + timOffset)), 0, 0, 0);
+        BattleSetLoadTimToVram((u_long*)((u8*)D_800F57D0 + header->offsets[header->numOffsets - 1]), 0, 0, 0);
     }
     g_BattleModels[EFFECT_MODEL_SLOT].specialFlags = 0x80;
     g_BattleModels[EFFECT_MODEL_SLOT].animControlFlags = 1;
