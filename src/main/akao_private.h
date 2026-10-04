@@ -51,13 +51,20 @@ typedef struct {
     /* 0x08 */ u8 ar;
     /* 0x09 */ u8 dr;
     /* 0x0A */ u8 sl;
-    /* 0x0B */ s8 sr;
+    /* 0x0B */ u8 sr;
     /* 0x0C */ u8 rr;
     /* 0x0D */ u8 aMode;
     /* 0x0E */ u8 sMode;
     /* 0x0F */ u8 rMode;
     /* 0x10 */ s32 pitch[12];
 } AkaoInstrument; // size: 0x40
+
+typedef struct {
+    /* 0x0 */ u8 instrument;
+    /* 0x1 */ u8 key;
+    /* 0x2 */ u8 volume[2]; // little endian, unaligned
+    /* 0x4 */ u8 pan;
+} AkaoDrumKey; // size: 0x5
 
 // Field names cross-checked against the independent qgears reverse-engineering
 // project's AkaoChannel struct (same source as the g_Akao*SlideStep/Steps
@@ -84,8 +91,7 @@ typedef struct {
     /* 0x4C */ s32 pitchSlideStep;
     /* 0x50 */ u32 setToMinusOne;
     /* 0x54 */ u16 playingType;
-    /* 0x56 */ u8 length1;
-    /* 0x57 */ u8 length2;
+    /* 0x56 */ u16 length; // low 8bit: ticks to next note, high: ticks to key off
     /* 0x58 */ u16 currentInstrument;
     /* 0x5A */ u16 pitchMulSoundSlideSteps;
     /* 0x5C */ u16 volSlideSteps;
@@ -217,8 +223,8 @@ extern AkaoCommandHandler g_AkaoCommandHandler[0x100];
 extern u8 g_AkaoOpcodeParamLength[0x60];
 extern u8 g_AkaoOpcodeSize[0x100]; // opcode lengths
 extern void (*g_AkaoOpcodeHandler[96])();
-extern u16 g_AkaoLengthTable[14];
-#define g_AkaoDummyStopSequence ((u8*)&g_AkaoLengthTable[12])
+extern u16 g_AkaoLengthTable[11];
+extern u8 g_AkaoDummyStopSequence[];
 extern s16 g_AkaoLeftVolumeTable[0x100];
 extern s16 g_AkaoRightVolumeTable[0x100];
 extern s16 g_AkaoWaveTable[0x2C4];
@@ -228,7 +234,11 @@ extern u8 g_AkaoDefaultSound[0x20];
 extern u32 g_AkaoSoundEvent;
 extern s32 g_AkaoStreamMask;
 extern u32 g_AkaoStreamLoopSize;
-extern u16 g_AkaoStreamPitch;
+typedef struct {
+    u16 flags;
+    u16 pitch;
+} AkaoStreamFormat;
+extern AkaoStreamFormat g_AkaoStreamFormat;
 // Music-driver slide state: each MulMusic value is a fixed-point scalar for
 // pitch/volume/tempo (current value in the upper 16 bits, lower 16 bits are
 // fractional precision the driver accumulates every tick for a smooth
@@ -273,7 +283,6 @@ extern AkaoChannel g_Channel2[];
 extern s32 g_AkaoStreamVoice16UpdateMask;
 extern s32 g_AkaoStreamVoice17UpdateMask;
 extern AkaoSoundSlot g_AkaoSoundSlots[];
-extern u16 g_AkaoSoundChannelsMode;
 extern s32 g_AkaoMusicSlot; // 0 while g_Channel1 is being sequenced, 1 for g_Channel2
 
 // Integer part of a 16.16 fixed point global, and the low byte of it.
@@ -285,7 +294,7 @@ extern SpuCommonAttr g_SpuCommonAttr;
 typedef struct {
     s32 pitchSlide;
     s32 volSlide;
-    s16 currentKey;
+    u16 currentKey;
     s16 padA;
 } AkaoVoiceWork;
 extern AkaoVoiceWork g_AkaoVoiceWork[AKAO_NUM_VOICES];

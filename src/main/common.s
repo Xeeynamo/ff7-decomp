@@ -26,8 +26,7 @@
 /* 80062F10 */ glabel D_80062F10;                           .space 4     # !!GP!! 17238.c (SysGetMateriaActivatedStars)
 /* 80062F14 */ glabel D_80062F14;                           .space 4     # !!GP!! 14C70.c (func_800155A4, func_800155B0)
 /* 80062F18 */ glabel D_80062F18;                           .space 4   
-/* 80062F1C */ glabel D_80062F1C;                           .space 2   
-/* 80062F1E */ glabel g_AkaoStreamPitch;                       .space 2   
+/* 80062F1C */ glabel g_AkaoStreamFormat;                     .space 4   
 /* 80062F20 */ glabel g_PartyMenuListTransitionFactor;      .space 4     # !!GP!! 1F6B4.c
 /* 80062F24 */ glabel g_PolyPtr;                       .space 4   
 /* 80062F28 */ glabel g_AkaoPitchMulMusicSlideStep;         .space 4   
