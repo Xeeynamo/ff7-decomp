@@ -46,16 +46,6 @@ MATRIX* MulMatrix2(MATRIX* m0, MATRIX* m1) { return m0; }
 void SysMovieAbortPlay(void) { NOT_IMPLEMENTED; }
 void SysMoviePlay(void* ptr, s16 a) { NOT_IMPLEMENTED; }
 void SystemAkaoExecute(void) { NOT_IMPLEMENTED; }
-void AkaoSoundUpdatePitchAndVol(void* channel, u32 mask) { NOT_IMPLEMENTED; }
-void AkaoCmd_F4_SaveState(void* cmd) { NOT_IMPLEMENTED; }
-void AkaoCmd_F5_RestoreState(void* cmd) { NOT_IMPLEMENTED; }
-u8 AkaoGetNextNote(void* channel) { return 0; }
-void AkaoSoundMenuChannelsInit(s32 seq0, s32 seq1) { NOT_IMPLEMENTED; }
-void AkaoLoadInstr(u32* instrAll, u32* instrDat) { NOT_IMPLEMENTED; }
-void AkaoLoadInstr2(u32* instrAll, u32* instrDat) { NOT_IMPLEMENTED; }
-void AkaoMusicUpdatePitchAndVol(void* channel, u32 mask, u32 voice) { NOT_IMPLEMENTED; }
-void AkaoOp_F4_OverlayVoiceOn(void* track, void* config, u32 mask) { NOT_IMPLEMENTED; }
-void AkaoOp_F8_AltVoiceOn(void* track, void* config, u32 mask) { NOT_IMPLEMENTED; }
 s32 EndingOpcode15(void) { return 0; }
 void FIELD_Main(void) { NOT_IMPLEMENTED; }
 s32 EndingOpcode1C(void) { return 0; }
@@ -368,85 +358,8 @@ void ITEMMENU_RestoreCharacterMateria(s32 charIdx) { NOT_IMPLEMENTED; }
 void ITEMMENU_BackupCharacterMateria(s32 charIdx) { NOT_IMPLEMENTED; }
 void ITEMMENU_LoadCoinTexture(void) { NOT_IMPLEMENTED; }
 
-// Unported pieces of src/main/akao.c: its still-assembly helpers plus the
-// data they own. Array sizes come from the gaps in build/us/main.map.
-typedef struct {
-    u8 pad[0x108];
-} AkaoVoiceSlot;
-typedef struct {
-    u8 pad[0x210];
-} AkaoChannelPair;
-typedef struct {
-    u8 pad[0x24];
-} AkaoSoundMessage;
-
-void (*D_80049548[0x43])(AkaoSoundMessage*);
-u8 D_800499A8[0x280];
-u8 D_80049C40[4];
-s32 D_80063010;
-u8 g_AkaoVoiceAttr[0x2C] __attribute__((aligned(4)));
-s32 D_8007EBEC;
-s32 D_8007EBF0;
-s32 D_8007EBF4;
-s32 D_8007EBF8;
-s32 D_8007EBFC;
-u16 D_8007EC00;
-u16 D_8007EC02;
-u16 D_8007EC04;
-u16 D_8007EC06;
-u16 D_8007EC08;
-u16 D_8007EC0A;
-s16 D_8007EC0C;
-s16 D_8007EC0E;
-s32 D_8007EC10;
-u16 D_80062FC8;
-s32 D_80062FE0;
-s32 D_80062FF8;
-s32 D_80063000;
-u32 D_80063004;
 u8 g_MovieLock;
-AkaoSoundMessage D_80081DC8[32];
-s32 D_80083334;
-u16 D_8008337E;
-s32 D_80083394;
-u16 D_800833DE;
-s32 D_80083580[0x4961];
-s32 D_800804D0;
-AkaoVoiceSlot D_80096608[48];
-s32 D_80097768;
-s32 D_80097870;
-AkaoChannelPair D_80099788[4];
-u16 D_80099E0C;
-s32 D_80099FCC[4];
-s32 D_80099FD8;
-s32 D_8009A104;
-s32 D_8009A10C;
-s32 D_8009A110;
-s32 D_8009A114;
-s32 D_8009A13C;
-u16 D_8009A14E;
-SpuCommonAttr D_8009C578;
-SpuReverbAttr g_ReverbAttr;
 u8 g_FieldMusicLock;
-s32 g_AkaoCdVol;
-s32 g_AkaoPitchMulMusic;
-s32 g_AkaoTempoMulMusic;
-
-void SpuGetReverbModeParam(SpuReverbAttr* attr) { NOT_IMPLEMENTED; }
-long SpuSetIRQ(long on_off) { return 0; }
-u_long SpuSetIRQAddr(u_long addr) { return 0; }
-// No DMA interrupt on PC: report the transfer as done right away so AkaoSpuTransferSync does not spin forever.
-SpuTransferCallbackProc SpuSetTransferCallback(SpuTransferCallbackProc func) {
-    if (func) {
-        func();
-    }
-    return 0;
-}
-void SpuSetVoiceLoopStartAddr(int voiceNum, u_long addr) { NOT_IMPLEMENTED; }
-void SpuSetVoiceVolumeAttr(int voice_bit, short voll, short volr, short volmode_l, short volmode_r) { NOT_IMPLEMENTED; }
-long GetRCnt(unsigned long spec) { return 0; }
-long StartRCnt(unsigned long spec) { return 1; }
-long StopRCnt(unsigned long spec) { return 1; }
 
 void func_800293F4() { NOT_IMPLEMENTED; }
 void func_80029C48() { NOT_IMPLEMENTED; }
@@ -488,69 +401,11 @@ DRAWENV D_8007EAAC[2];
 DISPENV D_8007EB68[2];
 u8 D_8009AD2C;
 u8 D_8009C540;
-u8 g_AkaoCdVolSlideStep[0x4] __attribute__((aligned(4)));
-u8 g_AkaoCdVolSlideSteps[0x2] __attribute__((aligned(2)));
 AkaoCmd g_AkaoCmd;
-u8 g_AkaoCommandQueue[0x480] __attribute__((aligned(4)));
-u8 g_AkaoCommandQueueId[0x4] __attribute__((aligned(4)));
-u8 g_AkaoControlFlags[0x4] __attribute__((aligned(4)));
-u_long g_AkaoEffectsAll;
-u_long g_AkaoEffectsAllSeq;
-u8 g_AkaoEffectsBuffer[0xC800] __attribute__((aligned(8)));
-u8 g_AkaoInstrument[0x2000] __attribute__((aligned(8)));
-u8 g_AkaoLastHcount[0x2] __attribute__((aligned(2)));
-u8 g_AkaoMusicBuffer[0x12804] __attribute__((aligned(8)));
-u8 g_AkaoMusicFadeSteps[0x2] __attribute__((aligned(2)));
-u8 g_AkaoMusicSlot[0x4] __attribute__((aligned(4)));
-u8 g_AkaoMuteMusicMask[0x8] __attribute__((aligned(4)));
-u8 g_AkaoMutex[0x4] __attribute__((aligned(4)));
-u8 g_AkaoPitchMulMusicSlideStep[0x4] __attribute__((aligned(4)));
-u8 g_AkaoPitchMulMusicSlideSteps[0x2] __attribute__((aligned(2)));
-u8 g_AkaoReverbMul[0x2] __attribute__((aligned(2)));
-u8 g_AkaoReverbPan[0x2] __attribute__((aligned(2)));
-u8 g_AkaoSavedChannels0[0x1c80] __attribute__((aligned(8)));
-u8 g_AkaoSavedChannels1[0x1c80] __attribute__((aligned(8)));
-u8 g_AkaoSoundSlots[0xd08] __attribute__((aligned(8)));
-u8 g_AkaoSpuMallocRec[0x28] __attribute__((aligned(4)));
-u8 g_AkaoStreamLoopSize[0x4] __attribute__((aligned(4)));
-u8 g_AkaoStreamLoopSrc[0x8] __attribute__((aligned(8)));
-u8 g_AkaoStreamMask[0x4] __attribute__((aligned(4)));
-u8 g_AkaoStreamPan[0x4] __attribute__((aligned(4)));
-u8 g_AkaoStreamFormat[0x4] __attribute__((aligned(4)));
-u8 g_AkaoStreamRemainingBytes[0x4] __attribute__((aligned(4)));
-u8 g_AkaoStreamSrc[0x8] __attribute__((aligned(8)));
-u8 g_AkaoStreamVoice16UpdateMask[0x4] __attribute__((aligned(4)));
-u8 g_AkaoStreamVoice17UpdateMask[0x4] __attribute__((aligned(4)));
-u8 g_AkaoStreamVol[0x4] __attribute__((aligned(4)));
-u8 g_AkaoTempoMulMusicSlideStep[0x4] __attribute__((aligned(4)));
-u8 g_AkaoTempoMulMusicSlideSteps[0x2] __attribute__((aligned(2)));
-u8 g_AkaoVoiceWork[0x120] __attribute__((aligned(4)));
-u8 g_AkaoVolMulMusic[0x4] __attribute__((aligned(4)));
-u8 g_AkaoVolMulMusicSlideStep[0x4] __attribute__((aligned(4)));
-u8 g_AkaoVolMulMusicSlideSteps[0x2] __attribute__((aligned(2)));
-u8 g_Channel1[0x22c0] __attribute__((aligned(8)));
-u8 g_Channel2VoiceMask[0x4] __attribute__((aligned(4)));
-u8 g_Channel2[0x18c0] __attribute__((aligned(8)));
 s16 g_CurrentFieldIndex;
 FieldEntity g_FieldEntity[0x100];
 s16 g_PlayerModelId;
-AkaoChannelConfig g_AkaoBgmLanes[2];
-AkaoChannelConfig g_AkaoPrevBgmLanes[2];
-AkaoSoundConfig g_AkaoSfxLanes[1];
-u8 g_SpuCommonAttr[0x30] __attribute__((aligned(8)));
 
-s32 AkaoMusicUpdateSlideAndDelay() {
-    NOT_IMPLEMENTED;
-    return 0;
-}
-s32 AkaoSoundUpdateSlideAndDelay() {
-    NOT_IMPLEMENTED;
-    return 0;
-}
-s32 AkaoUpdateGlobalSlides() {
-    NOT_IMPLEMENTED;
-    return 0;
-}
 u_long* BreakDraw(void) {
     NOT_IMPLEMENTED;
     return 0;

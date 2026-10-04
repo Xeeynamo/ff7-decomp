@@ -8,6 +8,7 @@ set(FF7_PSYZ
     src/pc/main.c
     src/pc/unzip.c
     src/pc/stubs.c
+    src/pc/stubs_akao.c
     src/pc/lzs.c
 )
 
