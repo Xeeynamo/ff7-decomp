@@ -964,7 +964,43 @@ void AkaoSoundChannelsStop(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundChannelsClear);
+void AkaoSoundChannelsClear(u16 voice, s32 slots) {
+    AkaoChannel* channel;
+    u32 mask;
+    u16 i;
+
+    channel = &g_AkaoSoundSlots[0].voices[voice + 1];
+    i = slots * 2;
+    switch (slots & 0xFFFF) {
+    case 1:
+        mask = 3 << (voice + 0x10);
+        g_AkaoSfxLanes->onMask &= ~mask;
+        g_AkaoSfxLanes->keyedMask &= ~mask;
+        g_AkaoSfxLanes->offMask |= mask;
+        break;
+    case 2:
+        g_AkaoSfxLanes->onMask &= ~0x3C0000;
+        g_AkaoSfxLanes->keyedMask &= ~0x3C0000;
+        g_AkaoSfxLanes->offMask |= 0x3C0000;
+        break;
+    case 3:
+        g_AkaoSfxLanes->onMask &= ~0x3F0000;
+        g_AkaoSfxLanes->keyedMask &= ~0x3F0000;
+        g_AkaoSfxLanes->offMask |= 0x3F0000;
+        break;
+    case 4:
+        g_AkaoSfxLanes->onMask &= ~0xFF0000;
+        g_AkaoSfxLanes->keyedMask &= ~0xFF0000;
+        g_AkaoSfxLanes->offMask |= 0xFF0000;
+        break;
+    }
+    while (i) {
+        *(u16*)&channel->length1 = 0x204;
+        channel->akaoSequencePointer = g_AkaoDummyStopSequence;
+        i--;
+        channel--;
+    }
+}
 
 // Resolves a 10-bit sound effect ID into a pair of sequence pointers: looks up
 // g_AkaoEffectsAll[index] and g_AkaoEffectsAll[index+1] (u16 offsets), adding
