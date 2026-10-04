@@ -16,7 +16,7 @@ typedef struct {
     /* 0x4 */ s32 offsets[1]; // numOffsets byte offsets from the start of the file
 } EffectModelHeader;
 
-// A model file as loaded in RAM; the header's offsets index bytes.
+// A variable-length model file; header.offsets are byte offsets into bytes.
 typedef union {
     EffectModelHeader header;
     u8 bytes[1];
