@@ -505,7 +505,6 @@ u8 g_AkaoReverbMul[0x2] __attribute__((aligned(2)));
 u8 g_AkaoReverbPan[0x2] __attribute__((aligned(2)));
 u8 g_AkaoSavedChannels0[0x1c80] __attribute__((aligned(8)));
 u8 g_AkaoSavedChannels1[0x1c80] __attribute__((aligned(8)));
-u8 g_AkaoSoundChannelsMode[0x2] __attribute__((aligned(2)));
 u8 g_AkaoSoundSlots[0xd08] __attribute__((aligned(8)));
 u8 g_AkaoSpuMallocRec[0x28] __attribute__((aligned(4)));
 u8 g_AkaoStreamLoopSize[0x4] __attribute__((aligned(4)));

@@ -216,8 +216,8 @@ extern AkaoCommandHandler g_AkaoCommandHandler[0x100];
 extern u8 g_AkaoOpcodeParamLength[0x60];
 extern u8 g_AkaoOpcodeSize[0x100]; // opcode lengths
 extern void (*g_AkaoOpcodeHandler[96])();
-extern u16 g_AkaoLengthTable[14];
-#define g_AkaoDummyStopSequence ((u8*)&g_AkaoLengthTable[12])
+extern u16 g_AkaoLengthTable[11];
+extern u8 g_AkaoDummyStopSequence[];
 extern s16 g_AkaoLeftVolumeTable[0x100];
 extern s16 g_AkaoRightVolumeTable[0x100];
 extern s16 g_AkaoWaveTable[0x2C4];
@@ -276,7 +276,6 @@ extern AkaoChannel g_Channel2[];
 extern s32 g_AkaoStreamVoice16UpdateMask;
 extern s32 g_AkaoStreamVoice17UpdateMask;
 extern AkaoSoundSlot g_AkaoSoundSlots[];
-extern u16 g_AkaoSoundChannelsMode;
 extern s32 g_AkaoMusicSlot; // 0 while g_Channel1 is being sequenced, 1 for g_Channel2
 
 // Integer part of a 16.16 fixed point global, and the low byte of it.

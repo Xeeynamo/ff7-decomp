@@ -564,9 +564,11 @@ void (*g_AkaoOpcodeHandler[96])() = {
     AkaoOp_Null,
 };
 
-u16 g_AkaoLengthTable[14] = {
-    0xC0C0, 0x6060, 0x3030, 0x1818, 0x0C0C, 0x0606, 0x0303, 0x2020, 0x1010, 0x0808, 0x0404, 0x0000, 0x00A0, 0x0000,
+u16 g_AkaoLengthTable[11] = {
+    0xC0C0, 0x6060, 0x3030, 0x1818, 0x0C0C, 0x0606, 0x0303, 0x2020, 0x1010, 0x0808, 0x0404,
 };
+
+u8 g_AkaoDummyStopSequence[] = {0xA0};
 
 s16 g_AkaoLeftVolumeTable[0x100] = {
     0x7F80, 0x7E80, 0x7D80, 0x7C80, 0x7B80, 0x7A80, 0x7980, 0x7880, 0x7780, 0x7680, 0x7580, 0x7480, 0x7380, 0x7280,
@@ -984,7 +986,7 @@ void AkaoSoundChannelsInit(u16 volPan, s32 channelId, s32 seq1, s32 seq2) {
     g_AkaoSfxLanes->pitchLfoMask &= active;
     if (g_AkaoControlFlags & AKAO_CONTROL_PAUSE_UPDATE) {
         active = all;
-        if (g_AkaoSoundChannelsMode == AKAO_MONO) {
+        if (g_AkaoSoundSlots[3].voices[0].playingType == AKAO_MENU) {
             g_AkaoSfxLanes[0].activeMask = active & 0xC00000;
             active &= ~0xC00000;
         } else {
@@ -1009,7 +1011,7 @@ void AkaoSoundChannelsStop(void) {
             channel->akaoSequencePointer = g_AkaoDummyStopSequence;
         }
     }
-    if (g_AkaoSoundChannelsMode == AKAO_MONO) {
+    if (g_AkaoSoundSlots[3].voices[0].playingType == AKAO_MENU) {
         g_AkaoSfxLanes->onMask &= 0xC00000;
         g_AkaoSfxLanes->keyedMask &= 0xC00000;
         g_AkaoSfxLanes->offMask = g_AkaoSfxLanes->offMask & (~0xC00000 & g_AkaoSfxLanes->activeMask);
@@ -2025,8 +2027,6 @@ void AkaoCmd_9A_FlushPendingMusicUpdates(void) {
     g_AkaoControlFlags &= ~AKAO_CONTROL_PAUSE_MUSIC_UPDATE;
 }
 
-// channels_3 counterpart to AkaoCmd_9B_ApplyPendingMusicUpdates; also masks off
-// the top two voices in mono mode.
 void AkaoCmd_9D_ApplyPendingSfxUpdates(void) {
     s32 savedMask;
     short cleared;
@@ -2038,7 +2038,7 @@ void AkaoCmd_9D_ApplyPendingSfxUpdates(void) {
     savedMask = newMask;
     if (newMask) {
         bit = 0x10000;
-        if (g_AkaoSoundChannelsMode == AKAO_MONO) {
+        if (g_AkaoSoundSlots[3].voices[0].playingType == AKAO_MENU) {
             newMask &= ~((1 << 22) | (1 << 23));
         }
         g_AkaoSfxLanes->activeMaskStored = newMask;
