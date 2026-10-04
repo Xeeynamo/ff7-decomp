@@ -93,7 +93,7 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
             }
         }
     }
-    if (D_8016376A & 0x40) {
+    if (g_BattleData.flags & 0x40) {
         leader = D_80167938.char_id;
         for (j = 0; j < 9; j++) {
             if (leader == Savemap.party[j].char_id) {

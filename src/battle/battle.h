@@ -4,6 +4,7 @@
 #define START_ENEMY (NUM_PARTY + 1)
 #define NUM_ENEMY (6)
 #define NUM_BATTLE_ACTOR (START_ENEMY + NUM_ENEMY) // 10
+#define NUM_ZONES (3)                              // battlefield zones, see BattleData.unitZoneMask
 
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleFlags.cs#L4
 typedef enum {
@@ -131,11 +132,6 @@ typedef enum {
     SPRITE_QUAD_SEMI_TRANS = 0x100,
     SPRITE_QUAD_TEX_SIZE = 0x200,
 } SpriteQuadFlags;
-
-typedef struct {
-    /* 0x0 */ u16 isMultiBattle;
-    /* 0x2 */ u16 characterMask[NUM_PARTY];
-} BattleMultiInfo; /* size = 0x8 */
 
 enum CombatantStateFlags {
     COMBATANT_DEFENDING = 0x20,
@@ -315,6 +311,43 @@ typedef struct {
     /* 0x1C */ CameraPlacement camera[4];
     /* 0x4C */ FormationEntry formation[NUM_ENEMY];
 } ActiveEncounterData; // size:0xAC
+
+typedef struct {
+    /* 0x00 */ s8 charId;
+    /* 0x01 */ u8 idleActionId;
+    /* 0x02 */ s8 D_801636BA;
+    /* 0x03 */ s8 D_801636BB;
+    /* 0x04 */ u8 D_801636BC;
+    /* 0x05 */ s8 D_801636BD;
+    /* 0x06 */ s16 D_801636BE;
+    /* 0x08 */ s32 D_801636C0;
+    /* 0x0C */ s32 D_801636C4;
+} BattleActor; // size:0x10
+
+// Layout follows a 0x178-byte struct found in the PC port via memset; no such
+// evidence exists yet for PSX but so far everything in the PSX version lines up
+// Treat the size as probable but unconfirmed
+typedef struct {
+    /* 0x000 */ ActiveEncounterData activeEncounter;
+    /* 0x0AC */ BattleActor actors[NUM_BATTLE_ACTOR];
+    /* 0x14C */ u16 unk14C;
+    /* 0x14E */ u16 unitPresentMask;
+    /* 0x150 */ u16 unk150;
+    /* 0x152 */ u16 unk152;
+    /* 0x154 */ u16 unk154;
+    /* 0x156 */ u16 limitReadyMask;
+    /* 0x158 */ u16 unk158;
+    /* 0x15A */ u16 downedActors;
+    /* 0x15C */ u16 unk15C;
+    /* 0x15E */ u16 flags;
+    /* 0x160 */ u16 isMultiBattle;
+    /* 0x162 */ u16 unitZoneMask[NUM_ZONES]; // set by BattleInitFormation; [1] is the middle in pincer/side attacks
+    /* 0x168 */ u8 caitSithRolls[4];         // Dice: packed die values, 2 per byte; Slots: the 3 landed reel symbols
+    /* 0x16C */ u8 unk16C[7];
+    /* 0x173 */ u8 unk173;
+    /* 0x174 */ u16 unk174;
+    /* 0x176 */ u16 unk176;
+} BattleData; // size:0x178
 
 typedef struct {
     u8 priority;
@@ -608,18 +641,6 @@ typedef struct {
 } BattlePartyWork; // size:0x34
 
 typedef struct {
-    /* 0x00 */ s8 charId;
-    /* 0x01 */ u8 idleActionId;
-    /* 0x02 */ s8 D_801636BA;
-    /* 0x03 */ s8 D_801636BB;
-    /* 0x04 */ u8 D_801636BC;
-    /* 0x05 */ s8 D_801636BD;
-    /* 0x06 */ s16 D_801636BE;
-    /* 0x08 */ s32 D_801636C0;
-    /* 0x0C */ s32 D_801636C4;
-} Unk801636B8; // size:0x10
-
-typedef struct {
     /* 0x00 */ u8 targetFlags;
     /* 0x01 */ u8 attackEffectId;
     /* 0x02 */ u8 damageFormulaId;
@@ -655,14 +676,9 @@ extern s16 g_BattleCurrentTargetMask;
 extern BattleModel g_BattleModels[NUM_BATTLE_ACTOR];
 extern short g_BattleEffectCount;
 extern s32 D_801620A8;
-extern ActiveEncounterData g_ActiveEncounter;
-extern Unk801636B8 D_801636B8[NUM_BATTLE_ACTOR];
-extern u16 D_8016376A;
-extern u16 g_BattleUnitPresentMask;
+extern BattleData g_BattleData;
 
-extern BattleMultiInfo g_BattleMultiInfo;
-
-// Scratch copy of a party member's save record, taken when D_8016376A bit 0x40 is set.
+// Scratch copy of a party member's save record, taken when g_BattleData.flags bit EVENT_BATTLE_SQUARE is set.
 extern SavePartyMember D_80167938;
 
 s32 BattleEffectRegister(void (*func)(void));

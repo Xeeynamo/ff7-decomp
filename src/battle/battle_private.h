@@ -257,7 +257,7 @@ extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern u8 D_800E7A58[];
 // Cait Sith's "Slots" limit: 7 three-symbol combos (one row per combo)
-// checked in order against the 3 landed reel symbols (D_80163774) -- see
+// checked in order against the 3 landed reel symbols (g_BattleData.caitSithRolls) -- see
 // BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
 extern void (*g_BattleDmgFormulaJmpTbl[])(void); // per-action epilogue hook
@@ -562,15 +562,6 @@ extern u8 D_801635FC;
 extern u8 D_80163600;
 extern u8 D_80163604;
 extern s16 D_80163608;
-extern u16 D_80163758[]; // part of a struct
-extern u16 D_8016375C;
-extern u16 D_8016375E;
-extern u16 D_80163762; // part of a struct
-extern u16 D_80163766;
-// Cait Sith's 3 landed Slots reel symbols (see BattleMenuUpdateSelectorIcons, and
-// BattleResolveCaitSithSlotsResult in battle.c)
-extern u8 D_80163774[4];
-extern u8 D_80163778[];
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct
 extern u8 D_8016378C[];

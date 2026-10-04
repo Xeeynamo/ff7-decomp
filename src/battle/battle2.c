@@ -1288,7 +1288,7 @@ static void BattleReapplyEffectFromState(s16 arg0, u8 arg1) {
     s32 ret;
 
     BattleResetModelScale(arg0);
-    switch (D_801636B8[arg0].D_801636BC) {
+    switch (g_BattleData.actors[arg0].D_801636BC) {
     case 0:
         ret = BattleEffectRegister(func_800C3578);
         g_BattleEffectSlots[ret].D_80162980 = arg0;
