@@ -332,6 +332,10 @@ u8 SysGetCommandOrder(u8 commandId) {
 }
 void SysCopyCommandToUnitStructure(u8 commandId, u8 order) { NOT_IMPLEMENTED; }
 void SysAddPairMateriaUnordered(u32 materia1, u32 materia2, u8 arg2, u8 arg3, u8 arg4) { NOT_IMPLEMENTED; }
+s32 SysSearchExistedMagic(u8 arg0) {
+    NOT_IMPLEMENTED;
+    return -1;
+}
 
 // Per-character scratch tables filled by src/main/17238.c while it parses equipped materia.
 u8 D_800694B4[16];

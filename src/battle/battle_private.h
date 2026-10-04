@@ -355,6 +355,7 @@ extern u16 D_800F4938[];
 extern s8 D_800F494C[];
 extern u16 D_800F4958;
 extern s32 D_800F4AC8;
+extern s32 D_800F4ACC;
 extern s16 D_800F4AD0;
 extern s32 D_800F4AD4;
 extern s32 D_800F4AD8;
@@ -542,6 +543,7 @@ extern u16 D_80163758[]; // part of a struct
 extern u16 D_8016375C;
 extern u16 D_8016375E;
 extern u16 D_80163762; // part of a struct
+extern u16 D_80163766;
 // Cait Sith's 3 landed Slots reel symbols (see BattleMenuUpdateSelectorIcons, and
 // BattleResolveCaitSithSlotsResult in battle.c)
 extern u8 D_80163774[4];
@@ -599,6 +601,8 @@ void BattleLoadEnemyTexture(s32);
 void BattleInitModelsAnimAndColor(s32, s32);
 void BattleCdromReadChain(void);
 static s32 func_800B1218(s32 arg0, s32 arg1, s32 arg2);
+// definition takes 3 args (a2 -> D_800F4ACC), but existing callers only pass 2
+void BattleInitScriptContext(/*s32, s32, s32*/);
 s16 func_800B888C(s32);
 void func_800B8438(void);
 void func_800B8A34(s16, s32);

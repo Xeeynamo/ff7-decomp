@@ -853,7 +853,6 @@ static s32 GetEnemyAiScriptOffs(u16* arg0, s32 arg1, s32 arg2) {
 extern u16 D_80082884[];
 
 void BattleOpcodeCycle(s32, s32, s32);
-void func_800B2A2C(s32, s32);
 
 void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 arg2) {
     s32 scriptOffset = 0;
@@ -891,7 +890,7 @@ void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 arg2) {
             snapshot[i].idleActionId = g_BattleState.combatant[i].idleActionId;
             snapshot[i].hurtActionId = g_BattleState.combatant[i].hurtActionId;
         }
-        func_800B2A2C(actorId, arg2);
+        BattleInitScriptContext(actorId, arg2);
         BattleOpcodeCycle(actorId, scriptOffset, presetIdx);
         for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
             if (snapshot[i].rowFlags != g_BattleState.combatant[i].rowFlags) {
@@ -908,7 +907,7 @@ void BattleExecFormationAIScripts(void) {
     s32 scriptOffset;
     s32 i;
 
-    func_800B2A2C(-1, 0);
+    BattleInitScriptContext(-1, 0);
     for (i = 0; i < 8; i++) {
         if ((g_BattleSceneContext.activeScriptMask >> i) & 1) {
             g_BattleSceneContext.activeScriptMask &= ~(1 << i);
@@ -2861,14 +2860,14 @@ static s32 BattleApplyConditionalReduction(s32 arg0) {
     return arg0;
 }
 
-static s32 func_800B0EB4(s32 arg0) {
+static s32 BattleUnitIsOnPartyTeam(s32 arg0) {
     s32 status = g_BattleState.combatant[arg0].status;
     s32 count = arg0 < START_ENEMY;
 
-    if (status & 0x40) {
+    if (status & STATUS_CONFU) {
         count++;
     }
-    if (status & 0x400000) {
+    if (status & STATUS_MANIPULATE) {
         count++;
     }
 
@@ -3333,7 +3332,54 @@ static s32 BattleScriptCollapseVarBank(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeCycle);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B2A2C);
+void BattleInitScriptContext(s32 arg0, s32 arg1, s32 arg2) {
+    s32 opponentAliveMask;
+    s32 opponentDeadMask;
+    s32 allyAliveMask;
+    s32 allyDeadMask;
+    s32 activeOpponents;
+    s32 activeAllies;
+    s32 swapTmp;
+
+    D_800F4AC8 = arg1;
+    D_800F4ACC = arg2;
+
+    if (arg0 < 0) {
+        return;
+    }
+
+    // Masks default to the enemy's perspective (opponents = party, allies = enemies)
+    activeOpponents = g_BattleState.playerUnitMask & D_8016375E;
+    activeAllies = g_BattleState.enemyUnitMask & D_8016375E;
+
+    opponentAliveMask = activeOpponents & ~D_80163766;
+    opponentDeadMask = activeOpponents & D_80163766;
+    allyAliveMask = activeAllies & ~D_80163766;
+    allyDeadMask = activeAllies & D_80163766;
+
+    // Swap to the party's perspective when the actor is on the party team
+    if (BattleUnitIsOnPartyTeam(arg0)) {
+        swapTmp = opponentAliveMask;
+        opponentAliveMask = allyAliveMask;
+        allyAliveMask = swapTmp;
+
+        swapTmp = opponentDeadMask;
+        opponentDeadMask = allyDeadMask;
+        allyDeadMask = swapTmp;
+    }
+
+    opponentAliveMask &= ~g_BattleSceneContext.petrifiedMask;
+
+    g_BattleState.scriptSelfMask = 1 << arg0;
+    g_BattleState.scriptAllyAliveMask = allyAliveMask;
+    g_BattleState.scriptAllyDeadMask = allyDeadMask;
+    g_BattleState.scriptOpponentDeadMask = opponentDeadMask;
+    g_BattleState.scriptOpponentAliveMask = opponentAliveMask;
+    g_BattleState.scriptOpponentNonPetrifiedMask = opponentAliveMask;
+
+    g_BattleState.allUnitsMask = g_BattleUnitPresentMask & g_BattleState.presentMask;
+    g_BattleState.partyGil = Savemap.gil;
+}
 
 static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex) {
     BattleActionEntry action;
