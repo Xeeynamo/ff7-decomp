@@ -1040,14 +1040,14 @@ void AkaoMusicVolReset(void) {
     channel = g_Channel1;
     if (active) {
         mask = 1;
-        do {
+        while (active) {
             if (active & mask) {
                 active ^= mask;
                 channel->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE;
             }
             channel++;
             mask <<= 1;
-        } while (active);
+        }
     }
 }
 
@@ -1060,14 +1060,14 @@ void AkaoSoundVolReset(void) {
     channel = g_AkaoSoundSlots[0].voices;
     if (active) {
         mask = 0x10000;
-        do {
+        while (active) {
             if (active & mask) {
                 active ^= mask;
                 channel->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE;
             }
             channel++;
             mask <<= 1;
-        } while (active);
+        }
     }
 }
 
@@ -1083,7 +1083,7 @@ void AkaoMusicSyncKeyStatus(void) {
         bit = 1;
         channel = g_Channel1;
         g_AkaoBgmLanes->onMask = g_AkaoBgmLanes->keyedMask;
-        do {
+        while (active) {
             if (active & bit) {
                 if (SpuGetKeyStatus(bit) == SPU_ON) {
                     if (channel->updateFlags & AKAO_UPDATE_ALTERNATIVE) {
@@ -1103,7 +1103,7 @@ void AkaoMusicSyncKeyStatus(void) {
             }
             channel++;
             bit <<= 1;
-        } while (active);
+        }
     }
 }
 
@@ -1120,7 +1120,7 @@ void AkaoSoundSyncKeyStatus(void) {
     if (active) {
         channel = g_AkaoSoundSlots[0].voices;
         g_AkaoSfxLanes->onMask = g_AkaoSfxLanes->keyedMask;
-        do {
+        while (active) {
             if (active & bit) {
                 if (AkaoScanSequenceTerminator(&channel->akaoSequencePointer) == AKAO_OP_LOOP_RETURN) {
                     if (SpuGetKeyStatus(bit) == SPU_ON) {
@@ -1139,7 +1139,7 @@ void AkaoSoundSyncKeyStatus(void) {
             }
             channel++;
             bit <<= 1;
-        } while (active);
+        }
     }
 }
 
@@ -1184,41 +1184,30 @@ void AkaoMusicRestoreChannelsAndConfig(u16 slot) {
     if (!slot) {
         src = (u32*)(g_AkaoSavedChannels1 - AKAO_NUM_VOICES);
     }
-    dst = (u32*)g_Channel1;
-    i = sizeof(AkaoChannel) * AKAO_NUM_VOICES / 4;
-    while (i) {
-        i--;
-        *dst++ = *src++;
+    for (dst = (u32*)g_Channel1, i = sizeof(AkaoChannel) * AKAO_NUM_VOICES / 4; i; i--, src++, dst++) {
+        *dst = *src;
     }
-    j = AKAO_NUM_VOICES;
     active = g_AkaoBgmLanes->activeMask;
     if (active) {
-        channel = g_Channel1;
-        bit = 1;
-        do {
+        for (j = AKAO_NUM_VOICES, channel = g_Channel1, bit = 1; j; j--, channel++, bit <<= 1) {
             if (!(active & bit)) {
                 *(u16*)&channel->length1 = 0x204;
                 channel->akaoSequencePointer = g_AkaoDummyStopSequence;
             }
-            j--;
-            channel++;
-            bit <<= 1;
-        } while (j);
+        }
     }
     active |= g_AkaoBgmLanes->overMask;
     g_AkaoBgmLanes->offMask = ~g_AkaoBgmLanes->onMask & 0xFFFFFF;
     channel = g_Channel1;
     bit = 1;
-    if (active) {
-        do {
-            if (active & bit) {
-                active ^= bit;
-                *(u16*)&channel->length1 += 0x202;
-                channel->voiceAttr.mask |= AKAO_UPDATE_SPU_ALL;
-            }
-            channel++;
-            bit <<= 1;
-        } while (active);
+    while (active) {
+        if (active & bit) {
+            active ^= bit;
+            *(u16*)&channel->length1 += 0x202;
+            channel->voiceAttr.mask |= AKAO_UPDATE_SPU_ALL;
+        }
+        channel++;
+        bit <<= 1;
     }
     AkaoUpdateNoiseVoices();
     AkaoUpdateReverbVoices();
@@ -1243,31 +1232,19 @@ void AkaoMusicCopyChannels1Into2(void) {
     AkaoChannel* channel;
     u16 remaining;
 
-    i = sizeof(AkaoChannel) * AKAO_NUM_VOICES / 4;
-    src = (u32*)g_Channel1;
-    dst = (u32*)(g_Channel1 + AKAO_NUM_VOICES);
-    while (i) {
-        i--;
-        *dst++ = *src++;
+    for (i = sizeof(AkaoChannel) * AKAO_NUM_VOICES / 4, src = (u32*)g_Channel1,
+        dst = (u32*)(g_Channel1 + AKAO_NUM_VOICES);
+         i; i--, src++, dst++) {
+        *dst = *src;
     }
-    i = sizeof(AkaoChannelConfig) / 4;
-    src = (u32*)&g_AkaoBgmLanes[0];
-    dst = (u32*)&g_AkaoBgmLanes[1];
-    while (i) {
-        i--;
-        *dst++ = *src++;
+    for (i = sizeof(AkaoChannelConfig) / 4, src = (u32*)&g_AkaoBgmLanes[0], dst = (u32*)&g_AkaoBgmLanes[1]; i; i--,
+        src++, dst++) {
+        *dst = *src;
     }
-    src = (u32*)g_AkaoMusicBuffer;
-    dst = (u32*)g_AkaoMusicBuffer + 0xC00;
-    i = 0xC00;
-    while (i) {
-        i--;
-        *dst++ = *src++;
+    for (src = (u32*)g_AkaoMusicBuffer, dst = (u32*)g_AkaoMusicBuffer + 0xC00, i = 0xC00; i; i--, src++, dst++) {
+        *dst = *src;
     }
-    channel = g_Channel2;
-    i = AKAO_NUM_VOICES;
-    while (i) {
-        i--;
+    for (channel = g_Channel2, i = AKAO_NUM_VOICES; i; i--, channel++) {
         channel->akaoSequencePointer += 0x3000;
         channel->drumOffset += 0x3000;
         channel->loopPoint[0] += 0x3000;
@@ -1275,7 +1252,6 @@ void AkaoMusicCopyChannels1Into2(void) {
         channel->loopPoint[2] += 0x3000;
         channel->loopPoint[3] += 0x3000;
         channel->overlayChannelId += AKAO_NUM_VOICES;
-        channel++;
     }
     for (i = 0, remaining = AKAO_NUM_VOICES; i < AKAO_NUM_VOICES; i++, remaining--) {
         g_AkaoVoiceWork[i].pitchSlide = 0x7F8000;
@@ -1292,17 +1268,13 @@ void AkaoMusicCopyChannelsAndConfig(
     AkaoChannel* srcChannels, AkaoChannel* dstChannels, AkaoChannelConfig* srcConfig, AkaoChannelConfig* dstConfig) {
     u16 i;
 
-    for (i = sizeof(AkaoChannel) * AKAO_NUM_VOICES / 4; i > 0;) {
-        i--;
+    for (i = sizeof(AkaoChannel) * AKAO_NUM_VOICES / 4; i; i--, srcChannels = (AkaoChannel*)((u32*)srcChannels + 1),
+        dstChannels = (AkaoChannel*)((u32*)dstChannels + 1)) {
         *(u32*)dstChannels = *(u32*)srcChannels;
-        dstChannels = (AkaoChannel*)((u32*)dstChannels + 1);
-        srcChannels = (AkaoChannel*)((u32*)srcChannels + 1);
     }
-    for (i = sizeof(AkaoChannelConfig) / 4; i != 0;) {
-        i--;
+    for (i = sizeof(AkaoChannelConfig) / 4; i; i--, srcConfig = (AkaoChannelConfig*)((u32*)srcConfig + 1),
+        dstConfig = (AkaoChannelConfig*)((u32*)dstConfig + 1)) {
         *(u32*)dstConfig = *(u32*)srcConfig;
-        dstConfig = (AkaoChannelConfig*)((u32*)dstConfig + 1);
-        srcConfig = (AkaoChannelConfig*)((u32*)srcConfig + 1);
     }
 }
 
@@ -2911,7 +2883,7 @@ void AkaoMainUpdate(void) {
             g_AkaoSfxLanes->tempoUpdate &= 0xFFFF;
             mask = 0x10000;
             channel = g_AkaoSoundSlots[0].voices;
-            do {
+            while (active) {
                 if (active & mask) {
                     if (!(g_AkaoControlFlags & AKAO_CONTROL_PAUSE_UPDATE) || channel->playingType == AKAO_MENU) {
                         channel->setToMinusOne++;
@@ -2930,7 +2902,7 @@ void AkaoMainUpdate(void) {
                 }
                 channel++;
                 mask <<= 1;
-            } while (active);
+            }
         }
     }
 
@@ -3199,7 +3171,32 @@ void AkaoOp_F2_LoadInstrument(AkaoChannel* track, AkaoChannelConfig* config, u32
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_B3_ResetAdsr);
+void AkaoOp_B3_ResetAdsr(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
+    AkaoInstrument* instr;
+    AkaoChannel* overlay;
+
+    instr = &g_AkaoInstrument[track->currentInstrument];
+    track->voiceAttr.ar = instr->ar;
+    track->voiceAttr.dr = instr->dr;
+    track->voiceAttr.sl = instr->sl;
+    track->voiceAttr.sr = (u8)instr->sr;
+    track->voiceAttr.rr = instr->rr;
+    track->voiceAttr.a_mode = instr->aMode;
+    track->voiceAttr.s_mode = instr->sMode;
+    track->voiceAttr.r_mode = instr->rMode;
+    track->voiceAttr.mask |= AKAO_UPDATE_SPU_ADSR;
+    if (track->updateFlags & AKAO_UPDATE_OVERLAY) {
+        overlay = &g_Channel1[track->overlayChannelId];
+        overlay->voiceAttr.ar = track->voiceAttr.ar;
+        overlay->voiceAttr.dr = track->voiceAttr.dr;
+        overlay->voiceAttr.sl = track->voiceAttr.sl;
+        overlay->voiceAttr.sr = track->voiceAttr.sr;
+        overlay->voiceAttr.rr = track->voiceAttr.rr;
+        overlay->voiceAttr.a_mode = track->voiceAttr.a_mode;
+        overlay->voiceAttr.s_mode = track->voiceAttr.s_mode;
+        overlay->voiceAttr.r_mode = track->voiceAttr.r_mode;
+    }
+}
 
 static void AkaoOp_C0_TransposeAbsolute(AkaoChannel* track) { track->transpose = (s8)*track->akaoSequencePointer++; }
 
