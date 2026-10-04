@@ -16,6 +16,12 @@ typedef struct {
     /* 0x4 */ s32 offsets[1]; // numOffsets byte offsets from the start of the file
 } EffectModelHeader;
 
+// A model file as loaded in RAM; the header's offsets index bytes.
+typedef union {
+    EffectModelHeader header;
+    u8 bytes[1];
+} EffectModel;
+
 #define EFFECT_MODEL_SKELETON 0 // index into EffectModelHeader.offsets
 
 void MAGIC_Fire(s32 targetMask, s32 callbackArg);
@@ -28,6 +34,6 @@ void MAGIC_Barrier(s32 targetMask, s32 callbackArg);
 void MAGIC_MBarrier(s32 targetMask, s32 callbackArg);
 void MAGIC_Refrec(s32 targetMask, s32 callbackArg);
 void MAGIC_Lv5Death(s32 targetMask, s32 callbackArg);
-EffectModelHeader* MAGIC_Choco0(s32 targetMask, s32 callbackArg);
+EffectModel* MAGIC_Choco0(s32 targetMask, s32 callbackArg);
 
 #endif

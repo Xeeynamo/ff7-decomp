@@ -50,7 +50,7 @@ typedef struct {
     /* 0x20 */ SVECTOR Step;     // the whole displacement for CAM_OP_EASE_TO
 } Choco0CameraPath;              // size:0x28
 
-extern EffectModelHeader D_801D267C;
+extern EffectModel D_801D267C;
 extern u_long choco0_texture_tim[];
 extern Choco0Data g_BattleEffectSlots[];
 extern void* D_80163C74;
@@ -143,7 +143,7 @@ static s16 choco0_camera_script_vars[2];
 
 static void Choco0MainSetup(s32 targetMask, s32 callbackArg);
 
-EffectModelHeader* MAGIC_Choco0(s32 targetMask, s32 callbackArg) {
+EffectModel* MAGIC_Choco0(s32 targetMask, s32 callbackArg) {
     Choco0MainSetup(targetMask, callbackArg);
     return &D_801D267C;
 }
