@@ -87,10 +87,11 @@ static void AkaoCmd_F2_ClearSavedMusic0(void);
 static void AkaoCmd_F3_ClearSavedMusic1(void);
 void AkaoCmd_F4_SaveState(AkaoQueuedCommand* cmd);
 void AkaoCmd_F5_RestoreState(AkaoQueuedCommand* cmd);
-static void AkaoCmd_F8_StreamReverbMaskClear(void);
-static void AkaoCmd_F9_StreamReverbMaskRestore(void);
+static void AkaoCmd_F8_StreamReverbMaskClear(AkaoQueuedCommand* cmd);
+static void AkaoCmd_F9_StreamReverbMaskRestore(AkaoQueuedCommand* cmd);
 static void AkaoCmd_FA_StopStream(void);
 void AkaoCmd_Null(AkaoQueuedCommand* cmd);
+void AkaoStreamInit(AkaoQueuedCommand* cmd);
 void AkaoOp_A0_FinishChannel(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 void AkaoOp_A1_LoadInstrument(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 static void AkaoOp_A2_NextNoteLength(AkaoChannel* track);
@@ -880,11 +881,68 @@ static void AkaoMusicStopChannels1(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicStopChannels12);
+void AkaoMusicStopChannels12(void) {
+    s32 mask;
 
-void AkaoSoundChannelsInit(u16 volPan, s32 channelId, s32 seq1, s32 seq2);
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundChannelsInit);
+    mask = g_AkaoBgmLanes->activeMask;
+    if (mask) {
+        AkaoChannel* channel;
+        s32 bit;
+        s32 overMask;
+        s32 altMask;
 
+        channel = g_Channel1;
+        bit = 1;
+        overMask = g_AkaoBgmLanes->overMask;
+        altMask = g_AkaoBgmLanes->altMask;
+        g_AkaoBgmLanes->altMask = 0;
+        g_AkaoBgmLanes->overMask = 0;
+        g_AkaoBgmLanes->keyedMask = 0;
+        g_AkaoBgmLanes->onMask = 0;
+        overMask |= altMask;
+        mask |= overMask;
+        g_AkaoBgmLanes->activeMask = mask;
+        g_AkaoBgmLanes->offMask |= mask;
+        do {
+            if (mask & bit) {
+                mask ^= bit;
+                *(u16*)&channel->length1 = 0x204;
+                channel->akaoSequencePointer = g_AkaoDummyStopSequence;
+            }
+            bit <<= 1;
+            channel++;
+        } while (mask);
+    }
+    mask = g_AkaoBgmLanes[1].activeMask;
+    if (mask) {
+        AkaoChannel* channel;
+        s32 bit;
+        s32 overMask;
+        s32 altMask;
+
+        channel = g_Channel2;
+        bit = 1;
+        overMask = g_AkaoBgmLanes[1].overMask;
+        altMask = g_AkaoBgmLanes[1].altMask;
+        g_AkaoBgmLanes[1].altMask = 0;
+        g_AkaoBgmLanes[1].overMask = 0;
+        g_AkaoBgmLanes[1].keyedMask = 0;
+        g_AkaoBgmLanes[1].onMask = 0;
+        overMask |= altMask;
+        mask |= overMask;
+        g_AkaoBgmLanes[1].activeMask = mask;
+        g_AkaoBgmLanes[1].offMask |= mask;
+        do {
+            if (mask & bit) {
+                mask ^= bit;
+                *(u16*)&channel->length1 = 0x204;
+                channel->akaoSequencePointer = g_AkaoDummyStopSequence;
+            }
+            bit <<= 1;
+            channel++;
+        } while (mask);
+    }
+}
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundMenuChannelsInit);
 
 void AkaoSoundChannelsStop(void) {

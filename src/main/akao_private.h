@@ -228,7 +228,11 @@ extern u8 g_AkaoDefaultSound[0x20];
 extern u32 g_AkaoSoundEvent;
 extern s32 g_AkaoStreamMask;
 extern u32 g_AkaoStreamLoopSize;
-extern u16 g_AkaoStreamPitch;
+typedef struct {
+    u16 flags;
+    u16 pitch;
+} AkaoStreamFormat;
+extern AkaoStreamFormat g_AkaoStreamFormat;
 // Music-driver slide state: each MulMusic value is a fixed-point scalar for
 // pitch/volume/tempo (current value in the upper 16 bits, lower 16 bits are
 // fractional precision the driver accumulates every tick for a smooth

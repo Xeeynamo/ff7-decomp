@@ -52,18 +52,9 @@ void AkaoCmd_F5_RestoreState(void* cmd) { NOT_IMPLEMENTED; }
 void AkaoExecuteSequence(void* channel, void* config, u32 mask) { NOT_IMPLEMENTED; }
 void AkaoLoadInstr(u32* instrAll, u32* instrDat) { NOT_IMPLEMENTED; }
 void AkaoLoadInstr2(u32* instrAll, u32* instrDat) { NOT_IMPLEMENTED; }
-void AkaoMusicStopChannels12(void) { NOT_IMPLEMENTED; }
 void AkaoMusicUpdatePitchAndVol(void* channel, u32 mask, u32 voice) { NOT_IMPLEMENTED; }
-void AkaoOp_A0_FinishChannel(void* track, void* config, u32 mask) { NOT_IMPLEMENTED; }
-void AkaoOp_B3_ResetAdsr(void* track, void* config, u32 mask) { NOT_IMPLEMENTED; }
-void AkaoOp_B4_Vibrato(void* track, void* config, u32 mask) { NOT_IMPLEMENTED; }
 void AkaoOp_F4_OverlayVoiceOn(void* track, void* config, u32 mask) { NOT_IMPLEMENTED; }
 void AkaoOp_F8_AltVoiceOn(void* track, void* config, u32 mask) { NOT_IMPLEMENTED; }
-void AkaoSoundChannelsInit(u16 volPan, s32 channelId, s32 seq1, s32 seq2) { NOT_IMPLEMENTED; }
-void AkaoUpdateKeysOff(void) { NOT_IMPLEMENTED; }
-void AkaoUpdateNoiseVoices(void) { NOT_IMPLEMENTED; }
-void AkaoUpdatePitchLfoVoices(void) { NOT_IMPLEMENTED; }
-void AkaoUpdateReverbVoices(void) { NOT_IMPLEMENTED; }
 s32 EndingOpcode15(void) { return 0; }
 void FIELD_Main(void) { NOT_IMPLEMENTED; }
 s32 EndingOpcode1C(void) { return 0; }
@@ -521,7 +512,7 @@ u8 g_AkaoStreamLoopSize[0x4] __attribute__((aligned(4)));
 u8 g_AkaoStreamLoopSrc[0x8] __attribute__((aligned(8)));
 u8 g_AkaoStreamMask[0x4] __attribute__((aligned(4)));
 u8 g_AkaoStreamPan[0x4] __attribute__((aligned(4)));
-u8 g_AkaoStreamPitch[0x2] __attribute__((aligned(2)));
+u8 g_AkaoStreamFormat[0x4] __attribute__((aligned(4)));
 u8 g_AkaoStreamRemainingBytes[0x4] __attribute__((aligned(4)));
 u8 g_AkaoStreamSrc[0x8] __attribute__((aligned(8)));
 u8 g_AkaoStreamVoice16UpdateMask[0x4] __attribute__((aligned(4)));
@@ -544,10 +535,6 @@ AkaoChannelConfig g_AkaoPrevBgmLanes[2];
 AkaoSoundConfig g_AkaoSfxLanes[1];
 u8 g_SpuCommonAttr[0x30] __attribute__((aligned(8)));
 
-s32 AkaoCmd_15_PlayMusicSwapSaved() {
-    NOT_IMPLEMENTED;
-    return 0;
-}
 s32 AkaoMusicUpdateSlideAndDelay() {
     NOT_IMPLEMENTED;
     return 0;
@@ -557,26 +544,6 @@ s32 AkaoSoundUpdateSlideAndDelay() {
     return 0;
 }
 s32 AkaoUpdateGlobalSlides() {
-    NOT_IMPLEMENTED;
-    return 0;
-}
-s32 AkaoMusicCopyChannels1Into2() {
-    NOT_IMPLEMENTED;
-    return 0;
-}
-s32 AkaoMusicRestoreChannelsAndConfig() {
-    NOT_IMPLEMENTED;
-    return 0;
-}
-s32 AkaoSoundChannelsClear() {
-    NOT_IMPLEMENTED;
-    return 0;
-}
-s32 AkaoSoundMenuChannelsInit() {
-    NOT_IMPLEMENTED;
-    return 0;
-}
-s32 AkaoStreamInit() {
     NOT_IMPLEMENTED;
     return 0;
 }
