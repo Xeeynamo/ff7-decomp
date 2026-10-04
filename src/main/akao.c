@@ -999,7 +999,48 @@ void AkaoSoundChannelsInit(u16 volPan, s32 channelId, s32 seq1, s32 seq2) {
     AkaoUpdatePitchLfoVoices();
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundMenuChannelsInit);
+void AkaoSoundMenuChannelsInit(s32 seq0, s32 seq1) {
+    AkaoChannel* channel;
+    u32 active;
+
+    active = 0;
+    channel = g_AkaoSoundSlots[3].voices;
+    channel[1].length = channel[active].length = 0x101;
+    channel[active].akaoSequencePointer = g_AkaoDummyStopSequence;
+    channel[1].akaoSequencePointer = g_AkaoDummyStopSequence;
+    channel[0].playingType = AKAO_MENU;
+    channel[1].playingType = AKAO_MENU;
+    channel[0].setToMinusOne = -1;
+    channel[1].setToMinusOne = -1;
+    active = 0;
+    if (seq0) {
+        active = 1;
+        SoundChannelInit(channel, (u8*)seq0);
+        channel->volPan = AKAO_PAN_CENTER << 8;
+        channel->volPanSlideSteps = 0;
+    }
+    if (seq1) {
+        channel = &channel[1];
+        active |= 2;
+        SoundChannelInit(channel, (u8*)seq1);
+        channel->volPan = AKAO_PAN_CENTER << 8;
+        channel->volPanSlideSteps = 0;
+    }
+    active <<= 22;
+    g_AkaoSfxLanes[0].activeMask |= active;
+    active = 0xC00000;
+    g_AkaoSfxLanes->offMask |= active;
+    active = ~active;
+    g_AkaoSfxLanes->onMask &= active;
+    g_AkaoSfxLanes->keyedMask &= active;
+    g_AkaoSfxLanes->noiseMask &= active;
+    g_AkaoSfxLanes->reverbMask &= active;
+    g_AkaoSfxLanes->pitchLfoMask &= active;
+    AkaoUpdateNoiseVoices();
+    AkaoUpdateReverbVoices();
+    AkaoUpdatePitchLfoVoices();
+    g_AkaoSfxLanes->activeMaskStored &= active;
+}
 
 void AkaoSoundChannelsStop(void) {
     AkaoChannel* channel;
