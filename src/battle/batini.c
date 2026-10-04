@@ -331,7 +331,7 @@ static void BattleInitPlayer(void) {
             party->partyMember = member;
             g_BattleState.playerUnitMask |= bit << i;
             if (!(member->order & 1)) {
-                unit->stateFlags |= 0x40;
+                unit->stateFlags |= COMBATANT_BACK_ROW;
             }
             unit->curHP = character->hp;
             unit->curMP = character->mp;
@@ -828,11 +828,11 @@ static void BattleInitFormation(void) {
             break;
         case 2:
             back = !back;
-            g_BattleState.combatant[i].stateFlags ^= 0x40;
+            g_BattleState.combatant[i].stateFlags ^= COMBATANT_BACK_ROW;
             break;
         default:
             back = 0;
-            g_BattleState.combatant[i].stateFlags &= ~0x40;
+            g_BattleState.combatant[i].stateFlags &= ~COMBATANT_BACK_ROW;
             break;
         }
         D_801636B8[i].D_801636BE = back;

@@ -1,5 +1,6 @@
 #include <game.h>
 
+#define EFFECT_MODEL_SLOT (NUM_PARTY) // holds the model an effect overlay supplies
 #define START_ENEMY (NUM_PARTY + 1)
 #define NUM_ENEMY (6)
 #define NUM_BATTLE_ACTOR (START_ENEMY + NUM_ENEMY) // 10
@@ -136,12 +137,17 @@ typedef struct {
     /* 0x2 */ u16 characterMask[NUM_PARTY];
 } BattleMultiInfo; /* size = 0x8 */
 
+enum CombatantStateFlags {
+    COMBATANT_DEFENDING = 0x20,
+    COMBATANT_BACK_ROW = 0x40,
+};
+
 typedef struct {
     // condition/status bitmask; see BattleStatusFlags above for the bits
     // confirmed live here
     /* 0x00 */ s32 status;
-    // 0x10 = Limit transformation active (set by BattleApplyVincentLimitTransform),
-    // 0x20 = defending, 0x40 = back row
+    // CombatantStateFlags; also 0x10 = Limit transformation active (set by
+    // BattleApplyVincentLimitTransform)
     /* 0x04 */ u32 stateFlags;
     /* 0x08 */ s8 actorId;
     /* 0x09 */ u8 level;
@@ -373,8 +379,19 @@ typedef struct {
     MATRIX m;
     SVECTOR sv1;
     SVECTOR sv2;
-    MATRIX* pm;
+    MATRIX* parentMatrix;
 } BattleModelSub; // size:0x34
+
+enum BattleModelSpecialFlags {
+    BATTLE_MODEL_INACTIVE = 0x2,
+    BATTLE_MODEL_HIDDEN = 0x4,
+    BATTLE_MODEL_NO_SHADOW = 0x10,
+};
+
+enum BattleModelAnimControlFlags {
+    ANIM_CTRL_FADE_OUT = 0x2,
+    ANIM_CTRL_FADE_IN = 0x4,
+};
 
 typedef struct {
     /* 0x000 */ s16 animDescOffset;
@@ -403,18 +420,12 @@ typedef struct {
     /* 0x028 */ u8 colorR;
     /* 0x029 */ u8 colorG;
     /* 0x02A */ u8 colorB;
-
-    // This is an ugly hack and this
-    // needs to be in it's own bone struct
-    /* 0x02B */ u8 battleModelRootBone;
-    /* 0x02C */ u8 joints1[10];
-    /* 0x036 */ s16 battleModelFeet; // for BattleEffectDustClouds
-    /* 0x038 */ u8 joints2[3];
+    /* 0x02B */ u8 boneIndices[16]; // [0] root, [11] and [12] feet
 
     /* 0x03B */ s8 scriptEnabled;
     /* 0x03C */ u8 scriptPc;
     /* 0x03D */ s8 scriptWaitFrames;
-    /* 0x03E */ s8 animControlFlags;
+    /* 0x03E */ u8 animControlFlags;
     /* 0x03F */ u8 boneFlags[53];
     /* 0x074 */ s32 animInProgress;
     /* 0x078 */ u8 unk5C[0xC8];
@@ -671,6 +682,10 @@ s32 func_800D55A4(s32 target);
 void BattleAkaoCommand(s32 cmdId, ...);
 void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
 void BattleEntityGetCenter(s32 targetMask, void* center);
+enum BattleEventType {
+    BATTLE_EVENT_EFFECT_MODEL_START = 1,
+    BATTLE_EVENT_EFFECT_MODEL_END = 2,
+};
 s16* BattleEventQueuePush(s32 type);
 // Runs `func` once per set bit in targetMask, frameStep frames apart.
 void MagicAnimationRegister(s32 targetMask, s32 callbackArg, s32 frameStep, void (*func)(s32, s32));

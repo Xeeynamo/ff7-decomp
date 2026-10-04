@@ -1,11 +1,6 @@
 #include "common.h"
 #include "../battle/battle.h"
-
-typedef struct {
-    s32 unk0;
-    s32 frameCount;
-    SpriteFrame frames[8];
-} Choco0SwirlEyeAnim;
+#include "choco0.h"
 
 static SpriteAnim choco0_puff_anims[16] = {
     {0x2023, 1, {{0, 1, {{SPRITE_QUAD_TEX_SIZE, -32, -32, 0, 0, 0x2C, 0x7808, 64, 63, 64, 63}}}}},
@@ -35,10 +30,8 @@ SpriteAnim* g_Choco0PuffFrames[] = {
     &choco0_puff_anims[12], &choco0_puff_anims[13], &choco0_puff_anims[14], &choco0_puff_anims[15]};
 
 Choco0SwirlEyeAnim g_Choco0SwirlEyeFrames = {
-    0x2023,
-    8,
-    {{0, 1, {{0, -32, -32, 0, 128, 0x2F, 0x7D48, 64, 64, 64, 64}}},
-     {0, 1, {{0, -32, -32, 64, 128, 0x2F, 0x7D48, 64, 64, 64, 64}}},
+    {0x2023, 8, {{0, 1, {{0, -32, -32, 0, 128, 0x2F, 0x7D48, 64, 64, 64, 64}}}}},
+    {{0, 1, {{0, -32, -32, 64, 128, 0x2F, 0x7D48, 64, 64, 64, 64}}},
      {0, 1, {{0, -32, -32, 128, 128, 0x2F, 0x7D48, 64, 64, 64, 64}}},
      {0, 1, {{SPRITE_QUAD_TEX_SIZE, -32, -32, 192, 128, 0x2F, 0x7D48, 64, 63, 64, 64}}},
      {0, 1, {{SPRITE_QUAD_TEX_SIZE, -32, -32, 0, 192, 0x2F, 0x7D48, 64, 64, 64, 63}}},

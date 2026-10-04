@@ -4,6 +4,7 @@
 #include "magic.h"
 #include "magic_private.h"
 #include "../battle/battle.h"
+#include "choco0.h"
 #include <libc.h>
 
 // Choco/Mog (チョコモグ), the chocobo-and-moogle summon.
@@ -49,11 +50,8 @@ typedef struct {
     /* 0x20 */ SVECTOR Step;     // the whole displacement for CAM_OP_EASE_TO
 } Choco0CameraPath;              // size:0x28
 
-extern SpriteAnim* g_Choco0PuffFrames[];
-extern Unk800F57D0 D_801D267C;
+extern EffectModel D_801D267C;
 extern u_long choco0_texture_tim[];
-extern SpriteAnim g_Choco0StarFrames;
-extern SpriteAnim g_Choco0SwirlEyeFrames;
 extern Choco0Data g_BattleEffectSlots[];
 extern void* D_80163C74;
 extern SVECTOR g_BattleCameraTarget;
@@ -131,7 +129,7 @@ static SVECTOR choco0_left_eye_offset = {-50, 80, -90, 0};
 static SVECTOR choco0_right_eye_offset = {50, 80, -90, 0};
 static MATRIX choco0_left_eye_matrix = {{{0x200, 0, 0}, {0, 0x200, 0}, {0, 0, 0x200}}, {0, 0, 0}};
 static MATRIX choco0_right_eye_matrix = {{{0x200, 0, 0}, {0, 0x200, 0}, {0, 0, 0x200}}, {0, 0, 0}};
-static SpriteRenderDesc choco0_swirl_eye_desc = {&g_Choco0SwirlEyeFrames, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
+static SpriteRenderDesc choco0_swirl_eye_desc = {&g_Choco0SwirlEyeFrames.anim, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
 static RECT choco0_clear_rect = {960, 0, 32, 64};
 
 static Choco0CameraPath choco0_camera_eye_path;
@@ -145,7 +143,7 @@ static s16 choco0_camera_script_vars[2];
 
 static void Choco0MainSetup(s32 targetMask, s32 callbackArg);
 
-Unk800F57D0* MAGIC_Choco0(s32 targetMask, s32 callbackArg) {
+EffectModel* MAGIC_Choco0(s32 targetMask, s32 callbackArg) {
     Choco0MainSetup(targetMask, callbackArg);
     return &D_801D267C;
 }
@@ -506,7 +504,7 @@ static void Choco0MoveModel(void) {
         if (frame == 19) {
             choco0_unit_pos.vz = -5000;
             choco0_unit_pos.vx = -750;
-            g_BattleModels[3].rootRot.vy += 0x400;
+            g_BattleModels[EFFECT_MODEL_SLOT].rootRot.vy += 0x400;
         }
     } else if ((frame -= 20) >= 50) {
         effect->StartFrame = -1;
@@ -515,9 +513,9 @@ static void Choco0MoveModel(void) {
     SetRotMatrix(&choco0_scene_matrix);
     SetTransMatrix(&choco0_scene_matrix);
     RotTrans(&choco0_unit_pos, choco0_scratch_vec, (s32*)(choco0_scratch_vec + 1));
-    g_BattleModels[3].rootTrans.vx = choco0_scratch_vec->vx;
-    g_BattleModels[3].rootTrans.vy = choco0_scratch_vec->vy;
-    g_BattleModels[3].rootTrans.vz = choco0_scratch_vec->vz;
+    g_BattleModels[EFFECT_MODEL_SLOT].rootTrans.vx = choco0_scratch_vec->vx;
+    g_BattleModels[EFFECT_MODEL_SLOT].rootTrans.vy = choco0_scratch_vec->vy;
+    g_BattleModels[EFFECT_MODEL_SLOT].rootTrans.vz = choco0_scratch_vec->vz;
     effect->AnimationFrame++;
 }
 
@@ -590,8 +588,8 @@ static void Choco0RenderSwirlEyes(void) {
     s32 flag;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    SetRotMatrix(&g_BattleModels[3].boneTransforms[13].m);
-    SetTransMatrix(&g_BattleModels[3].boneTransforms[13].m);
+    SetRotMatrix(&g_BattleModels[EFFECT_MODEL_SLOT].boneTransforms[13].m);
+    SetTransMatrix(&g_BattleModels[EFFECT_MODEL_SLOT].boneTransforms[13].m);
     RotTrans(&choco0_left_eye_offset, (VECTOR*)choco0_left_eye_matrix.t, &flag);
     RotTrans(&choco0_right_eye_offset, (VECTOR*)choco0_right_eye_matrix.t, &flag);
     choco0_swirl_eye_desc.frameIndex = effect->AnimationFrame & 7;
@@ -623,7 +621,7 @@ static void Choco0AnimationUpdate(void) {
     frame = effect->AnimationFrame;
     if (frame < 5) {
         if (frame == 4) {
-            event = BattleEventQueuePush(1);
+            event = BattleEventQueuePush(BATTLE_EVENT_EFFECT_MODEL_START);
             event[2] = 0;
             event[3] = 0;
             event[4] = choco0_scene_matrix.t[2] - 15000;
@@ -659,7 +657,7 @@ static void Choco0AnimationUpdate(void) {
     } else if ((frame -= 25) < 5) {
     } else if ((frame -= 5) < 20) {
         if (frame == 18) {
-            BattleEventQueuePush(2);
+            BattleEventQueuePush(BATTLE_EVENT_EFFECT_MODEL_END);
         }
     } else if ((frame -= 20) < 15) {
         if (frame == 0) {

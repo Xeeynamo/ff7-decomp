@@ -11,12 +11,18 @@
 typedef void (*MagicEntry)(s32 targetMask, s32 callbackArg);
 typedef s32 (*MagicEntryResult)(s32 targetMask, s32 callbackArg);
 
-// What a summon entrypoint returns; battle keeps it in D_800F57D0.
 typedef struct {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
-} Unk800F57D0;
+    /* 0x0 */ s32 numOffsets;
+    /* 0x4 */ s32 offsets[1]; // numOffsets byte offsets from the start of the file
+} EffectModelHeader;
+
+// A variable-length model file; header.offsets are byte offsets into bytes.
+typedef union {
+    EffectModelHeader header;
+    u8 bytes[1];
+} EffectModel;
+
+#define EFFECT_MODEL_SKELETON 0 // index into EffectModelHeader.offsets
 
 void MAGIC_Fire(s32 targetMask, s32 callbackArg);
 void MAGIC_Faira(s32 targetMask, s32 callbackArg);
@@ -28,6 +34,6 @@ void MAGIC_Barrier(s32 targetMask, s32 callbackArg);
 void MAGIC_MBarrier(s32 targetMask, s32 callbackArg);
 void MAGIC_Refrec(s32 targetMask, s32 callbackArg);
 void MAGIC_Lv5Death(s32 targetMask, s32 callbackArg);
-Unk800F57D0* MAGIC_Choco0(s32 targetMask, s32 callbackArg);
+EffectModel* MAGIC_Choco0(s32 targetMask, s32 callbackArg);
 
 #endif

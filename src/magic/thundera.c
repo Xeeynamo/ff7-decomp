@@ -203,7 +203,7 @@ static void ThunderaAttachToTarget(s32 target, s32 callbackArg) {
     ThunderaData* effect;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(ThunderaSpawnBolt)];
-    BattleGetPartPosition(target, g_BattleModels[target].battleModelRootBone, &effect->Pos);
+    BattleGetPartPosition(target, g_BattleModels[target].boneIndices[0], &effect->Pos);
     effect->DepthBias = -g_BattleModels[target].collisionRadius;
     effect->TargetIndex = target;
 }

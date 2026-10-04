@@ -168,7 +168,7 @@ static void BrizaraAttachToTarget(s32 target, s32 callbackArg) {
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(BrizaraAnimationUpdate)];
     effect->TargetIndex = target;
-    BattleGetPartPosition(target, g_BattleModels[target].battleModelRootBone, &effect->Pos);
+    BattleGetPartPosition(target, g_BattleModels[target].boneIndices[0], &effect->Pos);
 }
 
 static void BrizaraDoubleBufferFlip(void) {
