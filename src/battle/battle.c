@@ -3344,39 +3344,41 @@ void BattleInitScriptContext(s32 arg0, s32 arg1, s32 arg2) {
     D_800F4AC8 = arg1;
     D_800F4ACC = arg2;
 
-    if (arg0 >= 0) {
-        // Masks default to the enemy's perspective (opponents = party, allies = enemies)
-        activeOpponents = g_BattleState.playerUnitMask & D_8016375E;
-        activeAllies = g_BattleState.enemyUnitMask & D_8016375E;
-
-        opponentAliveMask = activeOpponents & ~D_80163766;
-        opponentDeadMask = activeOpponents & D_80163766;
-        allyAliveMask = activeAllies & ~D_80163766;
-        allyDeadMask = activeAllies & D_80163766;
-
-        // Swap to the party's perspective when the actor is on the party team
-        if (BattleUnitIsOnPartyTeam(arg0)) {
-            swapTmp = opponentAliveMask;
-            opponentAliveMask = allyAliveMask;
-            allyAliveMask = swapTmp;
-
-            swapTmp = opponentDeadMask;
-            opponentDeadMask = allyDeadMask;
-            allyDeadMask = swapTmp;
-        }
-
-        opponentAliveMask &= ~g_BattleSceneContext.petrifiedMask;
-
-        g_BattleState.scriptSelfMask = 1 << arg0;
-        g_BattleState.scriptAllyAliveMask = allyAliveMask;
-        g_BattleState.scriptAllyDeadMask = allyDeadMask;
-        g_BattleState.scriptOpponentDeadMask = opponentDeadMask;
-        g_BattleState.scriptOpponentAliveMask = opponentAliveMask;
-        g_BattleState.scriptOpponentNonPetrifiedMask = opponentAliveMask;
-
-        g_BattleState.allUnitsMask = g_BattleUnitPresentMask & g_BattleState.presentMask;
-        g_BattleState.partyGil = Savemap.gil;
+    if (arg0 < 0) {
+        return;
     }
+
+    // Masks default to the enemy's perspective (opponents = party, allies = enemies)
+    activeOpponents = g_BattleState.playerUnitMask & D_8016375E;
+    activeAllies = g_BattleState.enemyUnitMask & D_8016375E;
+
+    opponentAliveMask = activeOpponents & ~D_80163766;
+    opponentDeadMask = activeOpponents & D_80163766;
+    allyAliveMask = activeAllies & ~D_80163766;
+    allyDeadMask = activeAllies & D_80163766;
+
+    // Swap to the party's perspective when the actor is on the party team
+    if (BattleUnitIsOnPartyTeam(arg0)) {
+        swapTmp = opponentAliveMask;
+        opponentAliveMask = allyAliveMask;
+        allyAliveMask = swapTmp;
+
+        swapTmp = opponentDeadMask;
+        opponentDeadMask = allyDeadMask;
+        allyDeadMask = swapTmp;
+    }
+
+    opponentAliveMask &= ~g_BattleSceneContext.petrifiedMask;
+
+    g_BattleState.scriptSelfMask = 1 << arg0;
+    g_BattleState.scriptAllyAliveMask = allyAliveMask;
+    g_BattleState.scriptAllyDeadMask = allyDeadMask;
+    g_BattleState.scriptOpponentDeadMask = opponentDeadMask;
+    g_BattleState.scriptOpponentAliveMask = opponentAliveMask;
+    g_BattleState.scriptOpponentNonPetrifiedMask = opponentAliveMask;
+
+    g_BattleState.allUnitsMask = g_BattleUnitPresentMask & g_BattleState.presentMask;
+    g_BattleState.partyGil = Savemap.gil;
 }
 
 static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex) {
