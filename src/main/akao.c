@@ -2091,7 +2091,65 @@ void AkaoCmd_Null(AkaoQueuedCommand* cmd) {}
 
 static void AkaoClearTransferCallback(void) { SpuSetTransferCallback(0); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoStreamInit);
+static void AkaoStreamVoiceAttrMono(void);
+static void AkaoStreamVoiceAttrSplit(void);
+static void AkaoStreamTransferCallbackMono(void);
+static void AkaoStreamTransferCallbackSplit(void);
+
+void AkaoStreamInit(AkaoQueuedCommand* cmd) {
+    u32 flags;
+    u32 loopOffset;
+
+    g_AkaoSfxLanes->offMask |= g_AkaoStreamMask;
+    SpuSetTransferCallback(NULL);
+    SpuSetIRQ(SPU_OFF);
+    SpuSetIRQCallback(NULL);
+    g_AkaoStreamSrc = (u8*)cmd->param0;
+    g_AkaoStreamPan = cmd->param1;
+    g_AkaoStreamVol = cmd->param2 << 7;
+    g_AkaoStreamRemainingBytes = *(u32*)g_AkaoStreamSrc;
+    if (g_AkaoStreamRemainingBytes) {
+        g_AkaoStreamSrc += 4;
+        flags = *(u32*)g_AkaoStreamSrc;
+        g_AkaoStreamSrc += 4;
+        *(u32*)&g_AkaoStreamFormat = flags;
+        loopOffset = *(u32*)g_AkaoStreamSrc;
+        g_AkaoStreamSrc += 8;
+        if (flags & 2) {
+            g_AkaoStreamLoopSrc = g_AkaoStreamSrc + loopOffset;
+        } else {
+            g_AkaoStreamLoopSrc = NULL;
+        }
+        if (flags & 2) {
+            g_AkaoStreamLoopSize = g_AkaoStreamRemainingBytes - loopOffset;
+        } else {
+            g_AkaoStreamLoopSize = 0;
+        }
+        if (flags & 1) {
+            AkaoStreamVoiceAttrSplit();
+            SpuSetTransferCallback(AkaoStreamTransferCallbackSplit);
+            g_AkaoStreamMask = 0x30000;
+        } else {
+            AkaoStreamVoiceAttrMono();
+            SpuSetTransferCallback(AkaoStreamTransferCallbackMono);
+            g_AkaoStreamMask = 0x10000;
+        }
+        SpuSetTransferMode(SPU_TRANSFER_BY_DMA);
+        SpuSetTransferStartAddr(0x77000);
+        SpuWrite(g_AkaoStreamSrc, 0x2000);
+        if (g_AkaoStreamRemainingBytes > 0x2000) {
+            g_AkaoStreamRemainingBytes -= 0x2000;
+            g_AkaoStreamSrc += 0x2000;
+        } else {
+            g_AkaoStreamRemainingBytes = 0;
+        }
+    }
+    g_AkaoSfxLanes->pitchLfoMask &= ~g_AkaoStreamMask;
+    g_AkaoSfxLanes->noiseMask &= ~g_AkaoStreamMask;
+    AkaoUpdatePitchLfoVoices();
+    AkaoUpdateNoiseVoices();
+    AkaoSoundChannelsClear(0, 1);
+}
 
 // Configures the voice-attribute block for a mono CD-stream voice (ADSR
 // envelope, pan, reverb-echo work area) and applies it via AkaoUpdateChannelParamsToSpu.

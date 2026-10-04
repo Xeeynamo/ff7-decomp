@@ -289,7 +289,7 @@ extern SpuCommonAttr g_SpuCommonAttr;
 typedef struct {
     s32 pitchSlide;
     s32 volSlide;
-    s16 currentKey;
+    u16 currentKey;
     s16 padA;
 } AkaoVoiceWork;
 extern AkaoVoiceWork g_AkaoVoiceWork[AKAO_NUM_VOICES];
