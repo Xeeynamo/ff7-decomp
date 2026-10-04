@@ -51,13 +51,20 @@ typedef struct {
     /* 0x08 */ u8 ar;
     /* 0x09 */ u8 dr;
     /* 0x0A */ u8 sl;
-    /* 0x0B */ s8 sr;
+    /* 0x0B */ u8 sr;
     /* 0x0C */ u8 rr;
     /* 0x0D */ u8 aMode;
     /* 0x0E */ u8 sMode;
     /* 0x0F */ u8 rMode;
     /* 0x10 */ s32 pitch[12];
 } AkaoInstrument; // size: 0x40
+
+typedef struct {
+    /* 0x0 */ u8 instrument;
+    /* 0x1 */ u8 key;
+    /* 0x2 */ u8 volume[2]; // little endian, unaligned
+    /* 0x4 */ u8 pan;
+} AkaoDrumKey; // size: 0x5
 
 // Field names cross-checked against the independent qgears reverse-engineering
 // project's AkaoChannel struct (same source as the g_Akao*SlideStep/Steps

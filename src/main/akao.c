@@ -3168,7 +3168,204 @@ void AkaoMainUpdate(void) {
 }
 
 u8 AkaoGetNextNote(AkaoChannel* channel);
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoExecuteSequence);
+void AkaoExecuteSequence(AkaoChannel* channel, AkaoChannelConfig* config, u32 mask) {
+    AkaoDrumKey* drum;
+    u32 opcode;
+    u32 value;
+    u32 amplitude;
+    u32 base;
+    u32 target;
+    u16 length;
+    u16 octave;
+    u16 id;
+    u8 key;
+
+    do {
+        key = *channel->akaoSequencePointer++;
+        opcode = key;
+        if (opcode >= AKAO_OP_FINISH_CHANNEL) {
+            g_AkaoOpcodeHandler[opcode - AKAO_OP_FINISH_CHANNEL](channel, config, mask);
+        } else {
+            break;
+        }
+    } while (opcode != AKAO_OP_FINISH_CHANNEL);
+    if (opcode == AKAO_OP_FINISH_CHANNEL) {
+        return;
+    }
+
+    value = AkaoGetNextNote(channel);
+    if (channel->lengthFixed) {
+        channel->length = (channel->lengthFixed << 8) + channel->lengthFixed;
+    }
+    length = channel->length;
+    if (length & 0xFF) {
+        if (value >= AKAO_OP_REST ||
+            (value < AKAO_OP_TIE && !(channel->sfxMask & (AKAO_SFX_LEGATO | AKAO_SFX_FULL_LENGTH)))) {
+            channel->length = length - 0x200;
+        }
+    } else {
+        length = g_AkaoLengthTable[(u8)(opcode % 11)];
+        if ((value < AKAO_OP_TIE || value >= AKAO_OP_REST) &&
+            !(channel->sfxMask & (AKAO_SFX_LEGATO | AKAO_SFX_FULL_LENGTH))) {
+            length -= 0x200;
+        }
+        channel->length = length;
+    }
+    channel->lengthStored = channel->length & 0xFF;
+
+    if (key >= AKAO_OP_REST) {
+        channel->portamentoSteps = 0;
+        channel->vibratoPitch = 0;
+        channel->tremoloVol = 0;
+        channel->sfxMask &= ~AKAO_SFX_LEGATO_PREV;
+        return;
+    }
+    if (key < AKAO_OP_TIE) {
+        key /= 11;
+        if (channel->updateFlags & AKAO_UPDATE_DRUM_MODE) {
+            if (channel->playingType == AKAO_MUSIC) {
+                config->onMask |= mask;
+            } else {
+                g_AkaoSfxLanes->onMask |= mask;
+            }
+            drum = (AkaoDrumKey*)channel->drumOffset;
+            drum += (u8)(key % 12);
+            if (drum->instrument != channel->currentInstrument) {
+                channel->currentInstrument = drum->instrument;
+                channel->voiceAttr.addr = g_AkaoInstrument[drum->instrument].addr;
+                channel->voiceAttr.loop_addr = g_AkaoInstrument[drum->instrument].loopAddr;
+                channel->voiceAttr.ar = g_AkaoInstrument[drum->instrument].ar;
+                channel->voiceAttr.dr = g_AkaoInstrument[drum->instrument].dr;
+                channel->voiceAttr.sl = g_AkaoInstrument[drum->instrument].sl;
+                channel->voiceAttr.sr = g_AkaoInstrument[drum->instrument].sr;
+                channel->voiceAttr.a_mode = g_AkaoInstrument[drum->instrument].aMode;
+                channel->voiceAttr.s_mode = g_AkaoInstrument[drum->instrument].sMode;
+                if (!(channel->updateFlags & AKAO_UPDATE_ALTERNATIVE)) {
+                    channel->voiceAttr.rr = g_AkaoInstrument[drum->instrument].rr;
+                    channel->voiceAttr.r_mode = g_AkaoInstrument[drum->instrument].rMode;
+                    channel->voiceAttr.mask |= AKAO_UPDATE_SPU_BASE;
+                } else {
+                    channel->voiceAttr.mask |= AKAO_UPDATE_SPU_BASE_WOR;
+                }
+            }
+            value = g_AkaoInstrument[drum->instrument].pitch[(u8)(drum->key % 12)];
+            octave = (u8)(drum->key / 12);
+            if (octave >= 7) {
+                value <<= octave - 6;
+            } else if (octave < 6) {
+                value >>= 6 - octave;
+            }
+            channel->volumeLevel = (drum->volume[0] + (drum->volume[1] << 8)) << 16;
+            channel->volPan = drum->pan << 8;
+        } else {
+            key += channel->octave * 12;
+            if (channel->portamentoSteps && channel->keyStored) {
+                target = key + channel->transpose;
+                key = channel->keyStored + channel->transposeStored;
+                channel->pitchSlideSteps = channel->portamentoSteps;
+                channel->keyAdd = target - channel->keyStored - channel->transposeStored;
+                channel->key = channel->keyStored - (channel->transpose - channel->transposeStored);
+            } else {
+                channel->key = key;
+                key += channel->transpose;
+            }
+            octave = (u8)(key / 12);
+            key %= 12;
+            if (!(channel->sfxMask & AKAO_SFX_LEGATO_PREV)) {
+                if (channel->playingType == AKAO_MUSIC) {
+                    config->onMask |= mask;
+                    if (channel->updateFlags & AKAO_UPDATE_OVERLAY) {
+                        id = channel->overlayChannelId;
+                        if (channel->overlayChannelId >= AKAO_NUM_VOICES) {
+                            id -= AKAO_NUM_VOICES;
+                        }
+                        config->onMask |= 1 << id;
+                    }
+                } else {
+                    g_AkaoSfxLanes->onMask |= mask;
+                }
+                channel->pitchSlideStepsCur = 0;
+            }
+            value = g_AkaoInstrument[channel->currentInstrument].pitch[key];
+            if (octave >= 7) {
+                value <<= octave - 6;
+            } else if (octave < 6) {
+                value >>= 6 - octave;
+            }
+        }
+        if (channel->playingType == AKAO_MUSIC) {
+            config->keyedMask |= mask;
+        } else {
+            g_AkaoSfxLanes->keyedMask |= mask;
+        }
+        channel->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE | SPU_VOICE_PITCH;
+        if (channel->fineTuning) {
+            if (channel->fineTuning > 0) {
+                value += (value * channel->fineTuning) >> 7;
+            } else {
+                value += (value * channel->fineTuning) >> 8;
+            }
+            value &= 0xFFFF;
+        }
+        channel->basePitch = value;
+        if (channel->updateFlags & AKAO_UPDATE_VIBRATO) {
+            amplitude = (channel->vibratoDepth & 0x7F00) >> 8;
+            if (channel->vibratoDepth & 0x8000) {
+                base = (amplitude * value) >> 7;
+            } else {
+                base = (amplitude * ((value * 15) >> 8)) >> 7;
+            }
+            channel->vibratoBase = base;
+            channel->vibratoWave = g_AkaoWaveTableKey[channel->vibratoType];
+            channel->vibratoDelayCur = channel->vibratoDelay;
+            channel->vibratoRateCur = 1;
+        }
+        if (channel->updateFlags & AKAO_UPDATE_TREMOLO) {
+            channel->tremoloWave = g_AkaoWaveTableKey[channel->tremoloType];
+            channel->tremoloDelayCur = channel->tremoloDelay;
+            channel->tremoloRateCur = 1;
+        }
+        if (channel->updateFlags & AKAO_UPDATE_PAN_LFO) {
+            channel->panLfoWave = g_AkaoWaveTableKey[channel->panLfoType];
+            channel->panLfoRateCur = 1;
+        }
+        channel->vibratoPitch = 0;
+        channel->tremoloVol = 0;
+        channel->pitchSlide = 0;
+    }
+
+    channel->sfxMask = (channel->sfxMask & ~AKAO_SFX_LEGATO_PREV) | ((channel->sfxMask & AKAO_SFX_LEGATO) << 1);
+    if (channel->keyAdd) {
+        channel->key += channel->keyAdd;
+        key = channel->key + channel->transpose;
+        if (channel->playingType == AKAO_MUSIC) {
+            value = g_AkaoInstrument[channel->currentInstrument].pitch[(u8)(key % 12)];
+            if (channel->fineTuning) {
+                if (channel->fineTuning > 0) {
+                    value += (value * channel->fineTuning) >> 7;
+                } else {
+                    value += (value * channel->fineTuning) >> 8;
+                }
+                value &= 0xFFFF;
+            }
+            value <<= 16;
+        } else {
+            value = g_AkaoInstrument[channel->currentInstrument].pitch[(u8)(key % 12)] << 16;
+        }
+        key /= 12;
+        if (key > 6) {
+            value <<= key - 6;
+        } else if (key < 6) {
+            value >>= 6 - key;
+        }
+        channel->pitchSlideStepsCur = channel->pitchSlideSteps;
+        channel->pitchSlideStep =
+            (s32)(value - ((channel->basePitch << 16) + channel->pitchSlide)) / channel->pitchSlideStepsCur;
+        channel->keyAdd = 0;
+    }
+    channel->keyStored = channel->key;
+    channel->transposeStored = channel->transpose;
+}
 
 void AkaoInstrInit(AkaoChannel* channel, u16 instrument) {
     AkaoInstrument* instr;
@@ -3183,7 +3380,7 @@ void AkaoInstrInit(AkaoChannel* channel, u16 instrument) {
     channel->voiceAttr.ar = instr->ar;
     channel->voiceAttr.dr = instr->dr;
     channel->voiceAttr.sl = instr->sl;
-    channel->voiceAttr.sr = (u8)instr->sr;
+    channel->voiceAttr.sr = instr->sr;
     channel->voiceAttr.rr = instr->rr;
     channel->voiceAttr.mask |= AKAO_UPDATE_SPU_BASE;
 }
@@ -3385,7 +3582,7 @@ void AkaoOp_A1_LoadInstrument(AkaoChannel* track, AkaoChannelConfig* config, u32
         track->voiceAttr.ar = instr->ar;
         track->voiceAttr.dr = instr->dr;
         track->voiceAttr.sl = instr->sl;
-        track->voiceAttr.sr = (u8)instr->sr;
+        track->voiceAttr.sr = instr->sr;
         track->voiceAttr.a_mode = instr->aMode;
         track->voiceAttr.s_mode = instr->sMode;
         track->voiceAttr.mask |= AKAO_UPDATE_SPU_BASE_WOR;
@@ -3411,7 +3608,7 @@ void AkaoOp_F2_LoadInstrument(AkaoChannel* track, AkaoChannelConfig* config, u32
     track->voiceAttr.ar = instr->ar;
     track->voiceAttr.dr = instr->dr;
     track->voiceAttr.sl = instr->sl;
-    track->voiceAttr.sr = (u8)instr->sr;
+    track->voiceAttr.sr = instr->sr;
     track->voiceAttr.a_mode = instr->aMode;
     track->voiceAttr.s_mode = instr->sMode;
     if (track->updateFlags & AKAO_UPDATE_ALTERNATIVE) {
@@ -3431,7 +3628,7 @@ void AkaoOp_B3_ResetAdsr(AkaoChannel* track, AkaoChannelConfig* config, u32 mask
     track->voiceAttr.ar = instr->ar;
     track->voiceAttr.dr = instr->dr;
     track->voiceAttr.sl = instr->sl;
-    track->voiceAttr.sr = (u8)instr->sr;
+    track->voiceAttr.sr = instr->sr;
     track->voiceAttr.rr = instr->rr;
     track->voiceAttr.a_mode = instr->aMode;
     track->voiceAttr.s_mode = instr->sMode;

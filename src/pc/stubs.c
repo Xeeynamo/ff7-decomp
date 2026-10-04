@@ -49,7 +49,8 @@ void SystemAkaoExecute(void) { NOT_IMPLEMENTED; }
 void AkaoSoundUpdatePitchAndVol(void* channel, u32 mask) { NOT_IMPLEMENTED; }
 void AkaoCmd_F4_SaveState(void* cmd) { NOT_IMPLEMENTED; }
 void AkaoCmd_F5_RestoreState(void* cmd) { NOT_IMPLEMENTED; }
-void AkaoExecuteSequence(void* channel, void* config, u32 mask) { NOT_IMPLEMENTED; }
+u8 AkaoGetNextNote(void* channel) { return 0; }
+void AkaoSoundMenuChannelsInit(s32 seq0, s32 seq1) { NOT_IMPLEMENTED; }
 void AkaoLoadInstr(u32* instrAll, u32* instrDat) { NOT_IMPLEMENTED; }
 void AkaoLoadInstr2(u32* instrAll, u32* instrDat) { NOT_IMPLEMENTED; }
 void AkaoMusicUpdatePitchAndVol(void* channel, u32 mask, u32 voice) { NOT_IMPLEMENTED; }
