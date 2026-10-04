@@ -1355,8 +1355,49 @@ void AkaoCmd_14_PlayMusicSaveCurrent(AkaoQueuedCommand* cmd) {
 // music (channel 1) is moved to channel 2 (transition) and saved back into the backup slot,
 // while the target music is restored into active channel 1. If not saved in a slot, the
 // current music is backed up and new channels are initialized fresh.
-void AkaoCmd_15_PlayMusicSwapSaved(AkaoQueuedCommand* cmd);
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoCmd_15_PlayMusicSwapSaved);
+void AkaoCmd_15_PlayMusicSwapSaved(AkaoQueuedCommand* cmd) {
+    g_AkaoControlFlags &= ~AKAO_CONTROL_STATE_SAVED;
+    AkaoCopyMusic((s32*)(u_long)(u32)cmd->param0, cmd->param1);
+    AkaoMusicSyncKeyStatus();
+    if (g_AkaoPrevBgmLanes[0].musicId == (u16)cmd->param2) {
+        AkaoMusicCopyChannelsAndConfig(g_Channel1, g_Channel1 + AKAO_NUM_VOICES, g_AkaoBgmLanes, &g_AkaoBgmLanes[1]);
+        AkaoMusicStopChannels1();
+        AkaoMusicRestoreChannelsAndConfig(0);
+        if (g_AkaoBgmLanes[1].musicId == BGM_TA) {
+            AkaoMusicCopyChannelsAndConfig(
+                g_Channel1 + AKAO_NUM_VOICES, g_AkaoSavedChannels1, &g_AkaoBgmLanes[1], &g_AkaoPrevBgmLanes[1]);
+        } else {
+            AkaoMusicCopyChannelsAndConfig(
+                g_Channel1 + AKAO_NUM_VOICES, g_AkaoSavedChannels0, &g_AkaoBgmLanes[1], g_AkaoPrevBgmLanes);
+        }
+    } else if (g_AkaoPrevBgmLanes[1].musicId == (u16)cmd->param2) {
+        AkaoMusicCopyChannelsAndConfig(g_Channel1, g_Channel1 + AKAO_NUM_VOICES, g_AkaoBgmLanes, &g_AkaoBgmLanes[1]);
+        AkaoMusicStopChannels1();
+        AkaoMusicRestoreChannelsAndConfig(1);
+        if (g_AkaoBgmLanes[1].musicId == BGM_TA) {
+            AkaoMusicCopyChannelsAndConfig(
+                g_Channel1 + AKAO_NUM_VOICES, g_AkaoSavedChannels1, &g_AkaoBgmLanes[1], &g_AkaoPrevBgmLanes[1]);
+        } else {
+            AkaoMusicCopyChannelsAndConfig(
+                g_Channel1 + AKAO_NUM_VOICES, g_AkaoSavedChannels0, &g_AkaoBgmLanes[1], g_AkaoPrevBgmLanes);
+        }
+    } else {
+        if (g_AkaoBgmLanes->musicId) {
+            if (g_AkaoBgmLanes->musicId == BGM_TA) {
+                AkaoMusicCopyChannelsAndConfig(
+                    g_Channel1, g_AkaoSavedChannels1, g_AkaoBgmLanes, &g_AkaoPrevBgmLanes[1]);
+            } else {
+                AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels0, g_AkaoBgmLanes, g_AkaoPrevBgmLanes);
+            }
+        }
+        AkaoMusicStopChannels1();
+        AkaoMusicChannelsInit();
+    }
+    g_AkaoBgmLanes[1].altMask = 0;
+    g_AkaoBgmLanes[1].overMask = 0;
+    g_AkaoBgmLanes[1].activeMask = 0;
+    g_AkaoBgmLanes->musicId = cmd->param2;
+}
 
 // Fades out the currently playing music (if any) over cmd->param3 ticks (default 0x10)
 // and plays new music via AkaoCmd_10_PlayMusic (resuming from backup if previously saved).
