@@ -201,8 +201,6 @@ static void BattleInitSetup(s32 sceneID) {
     }
 }
 
-extern u16 g_BattleUnitPresentMask;
-
 u16 BattleGetRndU16(void);
 
 // Rolls the initial ATB timer of every present combatant and writes it into
