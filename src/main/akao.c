@@ -3235,7 +3235,41 @@ static void AkaoOp_D9_FineTuningRelative(AkaoChannel* track) {
     track->fineTuning = (s8)*track->akaoSequencePointer++ + track->fineTuning;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_B4_Vibrato);
+void AkaoOp_B4_Vibrato(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
+    u8 depth;
+    u8 rate;
+    s32 pitch;
+    u32 amplitude;
+    s32 base;
+
+    track->updateFlags |= AKAO_UPDATE_VIBRATO;
+    if (track->playingType != AKAO_MUSIC) {
+        track->vibratoDelay = 0;
+        depth = *track->akaoSequencePointer++;
+        if (depth) {
+            track->vibratoDepth = depth << 8;
+        }
+    } else {
+        track->vibratoDelay = *track->akaoSequencePointer++;
+    }
+    rate = *track->akaoSequencePointer++;
+    track->vibratoRate = rate;
+    if (rate == 0) {
+        track->vibratoRate = 0x100;
+    }
+    pitch = (u16)track->basePitch;
+    track->vibratoType = *track->akaoSequencePointer++;
+    amplitude = (track->vibratoDepth & 0x7F00) >> 8;
+    if (track->vibratoDepth & 0x8000) {
+        base = (s32)(amplitude * pitch) >> 7;
+    } else {
+        base = (s32)(amplitude * ((pitch * 15) >> 8)) >> 7;
+    }
+    track->vibratoBase = base;
+    track->vibratoWave = g_AkaoWaveTableKey[track->vibratoType];
+    track->vibratoDelayCur = track->vibratoDelay;
+    track->vibratoRateCur = 1;
+}
 
 void AkaoOp_B5_VibratoDepth(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
     s32 pitch;
