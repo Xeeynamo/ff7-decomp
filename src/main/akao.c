@@ -2763,12 +2763,51 @@ void AkaoUpdateNoiseVoices(void) {
     SpuSetNoiseVoice(SPU_OFF, voices);
 }
 
+void AkaoUpdateReverbVoices(void) {
+    u32 voices;
+    u32 free;
+    u32 active;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoUpdateNoiseVoices);
+    voices = 0;
+    active = g_AkaoBgmLanes[1].reverbMask & g_Channel2VoiceMask & ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask);
+    if (active) {
+        AkaoCollectChannelsVoicesMask(g_Channel2, &voices, active, ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask));
+    }
+    if (g_AkaoControlFlags & AKAO_CONTROL_REVERB_ENABLE) {
+        voices = 0xFFFFFF;
+    } else {
+        free = ~(g_Channel2VoiceMask | g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask);
+        active = free & g_AkaoBgmLanes->reverbMask;
+        if (active) {
+            AkaoCollectChannelsVoicesMask(g_Channel1, &voices, active, free);
+        }
+    }
+    voices |= g_AkaoSfxLanes->reverbMask;
+    SpuSetReverbVoice(SPU_ON, voices);
+    voices ^= 0xFFFFFF;
+    SpuSetReverbVoice(SPU_OFF, voices);
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoUpdateReverbVoices);
+void AkaoUpdatePitchLfoVoices(void) {
+    u32 voices;
+    u32 free;
+    u32 active;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoUpdatePitchLfoVoices);
+    voices = 0;
+    active = g_AkaoBgmLanes[1].pitchLfoMask & g_Channel2VoiceMask & ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask);
+    if (active) {
+        AkaoCollectChannelsVoicesMask(g_Channel2, &voices, active, ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask));
+    }
+    free = ~(g_Channel2VoiceMask | g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask);
+    active = free & g_AkaoBgmLanes->pitchLfoMask;
+    if (active) {
+        AkaoCollectChannelsVoicesMask(g_Channel1, &voices, active, free);
+    }
+    voices |= g_AkaoSfxLanes->pitchLfoMask;
+    SpuSetPitchLFOVoice(SPU_ON, voices);
+    voices ^= 0xFFFFFF;
+    SpuSetPitchLFOVoice(SPU_OFF, voices);
+}
 
 void AkaoMainUpdate(void);
 extern s32 g_AkaoFrameTimeTotal;
