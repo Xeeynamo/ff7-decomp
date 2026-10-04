@@ -84,8 +84,7 @@ typedef struct {
     /* 0x4C */ s32 pitchSlideStep;
     /* 0x50 */ u32 setToMinusOne;
     /* 0x54 */ u16 playingType;
-    /* 0x56 */ u8 length1; // TODO: sometimes accessed as *(u16*), check if type is real!
-    /* 0x57 */ u8 length2;
+    /* 0x56 */ u16 length; // low 8bit: ticks to next note, high: ticks to key off
     /* 0x58 */ u16 currentInstrument;
     /* 0x5A */ u16 pitchMulSoundSlideSteps;
     /* 0x5C */ u16 volSlideSteps;

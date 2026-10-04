@@ -778,7 +778,7 @@ void AkaoMusicChannelsInit(void) {
             offset = *offsets++;
             active ^= bit;
             channel->akaoSequencePointer = (u8*)offsets + offset;
-            *(u16*)&channel->length1 = 0x103;
+            channel->length = 0x103;
             channel->volumeMultiplier = 0x7F;
             AkaoInstrInit(channel, 0x14);
             channel->volumeLevel = 0x3FFF0000;
@@ -844,8 +844,6 @@ void AkaoMusicChannelsInit(void) {
     AkaoUpdatePitchLfoVoices();
 }
 
-// g_Channel1 channel at the stop sequence g_AkaoDummyStopSequence and sets length1/2 to
-// 0x204, clearing the request bits as it goes.
 static void AkaoMusicStopChannels1(void) {
     s32 mask;
     s32 bit;
@@ -870,7 +868,7 @@ static void AkaoMusicStopChannels1(void) {
         do {
             if (mask & bit) {
                 mask ^= bit;
-                *(u16*)&channel->length1 = 0x204;
+                channel->length = 0x204;
                 channel->akaoSequencePointer = g_AkaoDummyStopSequence;
             }
             bit <<= 1;
@@ -904,7 +902,7 @@ void AkaoMusicStopChannels12(void) {
         do {
             if (mask & bit) {
                 mask ^= bit;
-                *(u16*)&channel->length1 = 0x204;
+                channel->length = 0x204;
                 channel->akaoSequencePointer = g_AkaoDummyStopSequence;
             }
             bit <<= 1;
@@ -933,7 +931,7 @@ void AkaoMusicStopChannels12(void) {
         do {
             if (mask & bit) {
                 mask ^= bit;
-                *(u16*)&channel->length1 = 0x204;
+                channel->length = 0x204;
                 channel->akaoSequencePointer = g_AkaoDummyStopSequence;
             }
             bit <<= 1;
@@ -952,8 +950,8 @@ void AkaoSoundChannelsInit(u16 volPan, s32 channelId, s32 seq1, s32 seq2) {
     volPan = (volPan & 0x7F) << 8;
     id = channelId;
     channel = &g_Channel1[id];
-    *(u16*)&channel[0].length1 = 0x101;
-    *(u16*)&channel[1].length1 = 0x101;
+    channel[0].length = 0x101;
+    channel[1].length = 0x101;
     channel[0].akaoSequencePointer = g_AkaoDummyStopSequence;
     channel[1].akaoSequencePointer = g_AkaoDummyStopSequence;
     channel[0].playingType = AKAO_SOUND;
@@ -1007,7 +1005,7 @@ void AkaoSoundChannelsStop(void) {
 
     for (channel = g_AkaoSoundSlots[0].voices, i = 0x30; i < 0x38; i++, channel++) {
         if (channel->playingType != AKAO_MENU) {
-            *(u16*)&channel->length1 = 0x204;
+            channel->length = 0x204;
             channel->akaoSequencePointer = g_AkaoDummyStopSequence;
         }
     }
@@ -1053,7 +1051,7 @@ void AkaoSoundChannelsClear(u16 voice, s32 slots) {
         break;
     }
     while (i) {
-        *(u16*)&channel->length1 = 0x204;
+        channel->length = 0x204;
         channel->akaoSequencePointer = g_AkaoDummyStopSequence;
         i--;
         channel--;
@@ -1249,7 +1247,7 @@ void AkaoMusicRestoreChannelsAndConfig(u16 slot) {
     if (active) {
         for (j = AKAO_NUM_VOICES, channel = g_Channel1, bit = 1; j; j--, channel++, bit <<= 1) {
             if (!(active & bit)) {
-                *(u16*)&channel->length1 = 0x204;
+                channel->length = 0x204;
                 channel->akaoSequencePointer = g_AkaoDummyStopSequence;
             }
         }
@@ -1261,7 +1259,7 @@ void AkaoMusicRestoreChannelsAndConfig(u16 slot) {
     while (active) {
         if (active & bit) {
             active ^= bit;
-            *(u16*)&channel->length1 += 0x202;
+            channel->length += 0x202;
             channel->voiceAttr.mask |= AKAO_UPDATE_SPU_ALL;
         }
         channel++;
@@ -3053,12 +3051,12 @@ void AkaoMainUpdate(void) {
             g_AkaoMusicSlot = 0;
             do {
                 if (active & mask) {
-                    length = *(u16*)&channel->length1 - 0x101;
-                    *(u16*)&channel->length1 = length;
-                    if ((length & 0xFF) == 0) {
+                    length = channel->length - 0x101;
+                    channel->length = length;
+                    if (!(length & 0xFF)) {
                         AkaoExecuteSequence(channel, g_AkaoBgmLanes, mask);
-                    } else if ((length & 0xFF00) == 0) {
-                        *(u16*)&channel->length1 = length | 0x100;
+                    } else if (!(length & 0xFF00)) {
+                        channel->length = length | 0x100;
                         g_AkaoBgmLanes->offMask |= mask;
                         g_AkaoBgmLanes->keyedMask &= ~mask;
                     }
@@ -3108,12 +3106,12 @@ void AkaoMainUpdate(void) {
             channel = g_Channel2;
             do {
                 if (active & mask) {
-                    length = *(u16*)&channel->length1 - 0x101;
-                    *(u16*)&channel->length1 = length;
+                    length = channel->length - 0x101;
+                    channel->length = length;
                     if ((length & 0xFF) == 0) {
                         AkaoExecuteSequence(channel, &g_AkaoBgmLanes[1], mask);
                     } else if ((length & 0xFF00) == 0) {
-                        *(u16*)&channel->length1 = length | 0x100;
+                        channel->length = length | 0x100;
                         g_AkaoBgmLanes[1].offMask |= mask;
                         g_AkaoBgmLanes[1].keyedMask &= ~mask;
                     }
@@ -3141,12 +3139,12 @@ void AkaoMainUpdate(void) {
                 if (active & mask) {
                     if (!(g_AkaoControlFlags & AKAO_CONTROL_PAUSE_UPDATE) || channel->playingType == AKAO_MENU) {
                         channel->setToMinusOne++;
-                        length = *(u16*)&channel->length1 - 0x101;
-                        *(u16*)&channel->length1 = length;
+                        length = channel->length - 0x101;
+                        channel->length = length;
                         if ((length & 0xFF) == 0) {
                             AkaoExecuteSequence(channel, g_AkaoBgmLanes, mask);
                         } else if ((length & 0xFF00) == 0) {
-                            *(u16*)&channel->length1 = length | 0x100;
+                            channel->length = length | 0x100;
                             g_AkaoSfxLanes->offMask |= mask;
                             g_AkaoSfxLanes->keyedMask &= ~mask;
                         }
@@ -3874,9 +3872,7 @@ static void AkaoOp_A2_NextNoteLength(AkaoChannel* track) {
     u16 val = *track->akaoSequencePointer++;
 
     track->lengthFixed = 0;
-    /* sets length_1 and length_2 to the same byte in one halfword store;
-       writing them as two separate field assignments regresses the gate. */
-    *(s16*)&track->length1 = (val << 8) | val;
+    track->length = (val << 8) | val;
     track->lengthStored = val;
 }
 
