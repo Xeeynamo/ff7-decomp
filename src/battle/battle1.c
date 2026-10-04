@@ -913,8 +913,9 @@ static void func_800BB864(void) {
 static void func_800BB89C(void) {
     D_80163B80 = 0;
     D_800FA6B8 = 0;
-    g_AkaoCmd.opcode =
-        !(!(g_BattleData.flags & 0x10) && !g_AkaoPrevBgmLanes[0].activeMask) ? AKAO_PLAY_MUSIC : AKAO_PLAY_MUSIC_SAVE_CURR;
+    g_AkaoCmd.opcode = !(!(g_BattleData.flags & 0x10) && !g_AkaoPrevBgmLanes[0].activeMask)
+                           ? AKAO_PLAY_MUSIC
+                           : AKAO_PLAY_MUSIC_SAVE_CURR;
     g_AkaoCmd.params[0] = 0x801D0000;
     AkaoExec();
 }
