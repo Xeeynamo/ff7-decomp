@@ -3941,7 +3941,48 @@ static void AkaoOp_EF_JumpConditional(AkaoChannel* track, AkaoChannelConfig* con
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_A0_FinishChannel);
+void AkaoOp_A0_FinishChannel(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
+    AkaoChannel* channel;
+    u32 keep;
+    u16 id;
+
+    if (track->playingType == AKAO_MUSIC) {
+        keep = mask ^ 0xFFFFFF;
+        config->activeMask &= keep;
+        if (config->activeMask == 0) {
+            config->musicId = 0;
+        }
+        config->noiseMask &= keep;
+        config->reverbMask &= keep;
+        config->pitchLfoMask &= keep;
+        if (track->updateFlags & AKAO_UPDATE_OVERLAY) {
+            id = track->overlayChannelId;
+            if (g_AkaoMusicSlot) {
+                id -= AKAO_NUM_VOICES;
+            }
+            config->overMask &= ~(1 << id);
+        }
+        if (track->updateFlags & AKAO_UPDATE_ALTERNATIVE) {
+            config->altMask &= ~(1 << track->alternativeChannelId);
+        }
+    } else {
+        keep = mask ^ 0xFF0000;
+        g_AkaoSfxLanes[0].activeMask &= keep;
+        g_AkaoSfxLanes->noiseMask &= keep;
+        g_AkaoSfxLanes->reverbMask &= keep;
+        g_AkaoSfxLanes->pitchLfoMask &= keep;
+        g_AkaoBgmLanes->onMask &= ~mask;
+        g_AkaoBgmLanes->keyedMask &= ~mask;
+        g_AkaoBgmLanes->offMask &= ~mask;
+        channel = &g_Channel1[track->alternativeChannelId];
+        channel->voiceAttr.mask |= AKAO_UPDATE_SPU_BASE;
+    }
+    track->updateFlags = 0;
+    g_AkaoBgmLanes->updateFlags |= AKAO_UPDATE_NOISE_CLOCK;
+    AkaoUpdateNoiseVoices();
+    AkaoUpdateReverbVoices();
+    AkaoUpdatePitchLfoVoices();
+}
 
 static void AkaoOp_Null(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
     AkaoOp_A0_FinishChannel(track, config, mask);
