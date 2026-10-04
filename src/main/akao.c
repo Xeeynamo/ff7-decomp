@@ -2146,6 +2146,35 @@ void AkaoCmd_F4_SaveState(AkaoQueuedCommand* cmd) {
     AkaoCmd_BC_SetAllPitch(cmd);
 }
 
+void AkaoCmd_F5_RestoreState(AkaoQueuedCommand* cmd) {
+    u32* src;
+    u32* dst;
+    u32 active;
+    u16 i;
+
+    if (g_AkaoControlFlags & AKAO_CONTROL_STATE_SAVED) {
+        src = (u32*)g_Channel2;
+        dst = (u32*)((AkaoChannel*)src + AKAO_NUM_VOICES);
+        i = sizeof(AkaoSoundSlot) * 4 / sizeof(u32);
+        do {
+            i--;
+            *dst++ = *src++;
+        } while (i);
+        active = g_AkaoSfxLanes[0].activeMask;
+        i = sizeof(AkaoSoundConfig) / sizeof(u32);
+        dst = (u32*)g_AkaoSfxLanes;
+        do {
+            i--;
+            *dst++ = *src++;
+        } while (i);
+        g_AkaoSfxLanes->offMask = active & ~g_AkaoSfxLanes->activeMask;
+        g_AkaoControlFlags &= ~AKAO_CONTROL_STATE_SAVED;
+        AkaoUpdateNoiseVoices();
+        AkaoUpdateReverbVoices();
+        AkaoUpdatePitchLfoVoices();
+        g_AkaoBgmLanes->updateFlags |= AKAO_UPDATE_NOISE_CLOCK;
+    }
+}
 
 static void AkaoCmd_F8_StreamReverbMaskClear(AkaoQueuedCommand* cmd) {
     u32* addr;
