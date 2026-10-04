@@ -81,7 +81,7 @@ static void FairaAttachToTarget(s32 target, s32 callbackArg) {
     s32 scale;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(FairaRenderModel)];
-    BattleGetPartPosition(target, g_BattleModels[target].battleModelRootBone, &effect->Pos);
+    BattleGetPartPosition(target, g_BattleModels[target].boneIndices[0], &effect->Pos);
     effect->Pos.vy = 0;
     scale = func_800D55A4(target);
     if (scale > SCALE_MAX) {

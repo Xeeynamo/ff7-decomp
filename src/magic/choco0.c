@@ -504,7 +504,7 @@ static void Choco0MoveModel(void) {
         if (frame == 19) {
             choco0_unit_pos.vz = -5000;
             choco0_unit_pos.vx = -750;
-            g_BattleModels[3].rootRot.vy += 0x400;
+            g_BattleModels[EFFECT_MODEL_SLOT].rootRot.vy += 0x400;
         }
     } else if ((frame -= 20) >= 50) {
         effect->StartFrame = -1;
@@ -513,9 +513,9 @@ static void Choco0MoveModel(void) {
     SetRotMatrix(&choco0_scene_matrix);
     SetTransMatrix(&choco0_scene_matrix);
     RotTrans(&choco0_unit_pos, choco0_scratch_vec, (s32*)(choco0_scratch_vec + 1));
-    g_BattleModels[3].rootTrans.vx = choco0_scratch_vec->vx;
-    g_BattleModels[3].rootTrans.vy = choco0_scratch_vec->vy;
-    g_BattleModels[3].rootTrans.vz = choco0_scratch_vec->vz;
+    g_BattleModels[EFFECT_MODEL_SLOT].rootTrans.vx = choco0_scratch_vec->vx;
+    g_BattleModels[EFFECT_MODEL_SLOT].rootTrans.vy = choco0_scratch_vec->vy;
+    g_BattleModels[EFFECT_MODEL_SLOT].rootTrans.vz = choco0_scratch_vec->vz;
     effect->AnimationFrame++;
 }
 
@@ -588,8 +588,8 @@ static void Choco0RenderSwirlEyes(void) {
     s32 flag;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    SetRotMatrix(&g_BattleModels[3].boneTransforms[13].m);
-    SetTransMatrix(&g_BattleModels[3].boneTransforms[13].m);
+    SetRotMatrix(&g_BattleModels[EFFECT_MODEL_SLOT].boneTransforms[13].m);
+    SetTransMatrix(&g_BattleModels[EFFECT_MODEL_SLOT].boneTransforms[13].m);
     RotTrans(&choco0_left_eye_offset, (VECTOR*)choco0_left_eye_matrix.t, &flag);
     RotTrans(&choco0_right_eye_offset, (VECTOR*)choco0_right_eye_matrix.t, &flag);
     choco0_swirl_eye_desc.frameIndex = effect->AnimationFrame & 7;
@@ -621,7 +621,7 @@ static void Choco0AnimationUpdate(void) {
     frame = effect->AnimationFrame;
     if (frame < 5) {
         if (frame == 4) {
-            event = BattleEventQueuePush(1);
+            event = BattleEventQueuePush(BATTLE_EVENT_EFFECT_MODEL_START);
             event[2] = 0;
             event[3] = 0;
             event[4] = choco0_scene_matrix.t[2] - 15000;
@@ -657,7 +657,7 @@ static void Choco0AnimationUpdate(void) {
     } else if ((frame -= 25) < 5) {
     } else if ((frame -= 5) < 20) {
         if (frame == 18) {
-            BattleEventQueuePush(2);
+            BattleEventQueuePush(BATTLE_EVENT_EFFECT_MODEL_END);
         }
     } else if ((frame -= 20) < 15) {
         if (frame == 0) {

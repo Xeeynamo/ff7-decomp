@@ -398,9 +398,9 @@ static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* action) {
             g_BattleSceneContext.enemySlotMap[priorityTier] += 1;
             g_BattleSceneContext.pendingActionPriority = priorityTier;
             if (action->priority >= 2) {
-                g_BattleState.combatant[action->unitID].stateFlags &= ~0x20;
+                g_BattleState.combatant[action->unitID].stateFlags &= ~COMBATANT_DEFENDING;
                 if ((action->actionType & 0x3F) == 0x13) {
-                    g_BattleState.combatant[action->unitID].stateFlags |= 0x20;
+                    g_BattleState.combatant[action->unitID].stateFlags |= COMBATANT_DEFENDING;
                 }
             }
             return;
@@ -584,9 +584,9 @@ void BattleActionType14(void) {
 
 static u8 func_800A4B3C(s32 index, s32 arg1) {
     if (arg1 != -1) {
-        g_BattleModels[index].battleModelRootBone = arg1;
+        g_BattleModels[index].boneIndices[0] = arg1;
     }
-    return g_BattleModels[index].battleModelRootBone;
+    return g_BattleModels[index].boneIndices[0];
 }
 
 static void func_800A4B9C(void) {}
@@ -1227,11 +1227,11 @@ void BattleActionType04(void) {
     g_CurrentAction->unk20 = -1;
     if (func_800B12DC() != 0) {
         val = 4;
-        if (g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & 0x40) {
+        if (g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & COMBATANT_BACK_ROW) {
             val = 3;
         }
         g_CurrentAction->unk20 = val;
-        g_BattleState.combatant[g_CurrentAction->actorId].stateFlags ^= 0x40;
+        g_BattleState.combatant[g_CurrentAction->actorId].stateFlags ^= COMBATANT_BACK_ROW;
     }
 }
 
@@ -2256,10 +2256,10 @@ void BattleSetTmpDmgAsPhysical(void) {
         damage *= 3;
         damage >>= 1;
     }
-    isBackRow = g_BattleState.combatant[g_CurrentAction->targetId].stateFlags & 0x40;
+    isBackRow = g_BattleState.combatant[g_CurrentAction->targetId].stateFlags & COMBATANT_BACK_ROW;
     halve = isBackRow != 0;
-    if ((g_CurrentAction->targetFlags & 0x20) || (g_CurrentAction->cmdIndex == 0x20)) {
-        if (g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & 0x40) {
+    if ((g_CurrentAction->targetFlags & TARGET_SHORT_RANGE) || (g_CurrentAction->cmdIndex == CMD_ENEMY_ATTACK)) {
+        if (g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & COMBATANT_BACK_ROW) {
             halve = 1;
         }
     } else {
@@ -2269,7 +2269,7 @@ void BattleSetTmpDmgAsPhysical(void) {
         damage = damage / 2;
     }
     target = g_CurrentAction->targetId;
-    if (g_BattleState.combatant[target].stateFlags & 0x20) {
+    if (g_BattleState.combatant[target].stateFlags & COMBATANT_DEFENDING) {
         damage = damage / 2;
     }
     if (g_CurrentAction->unk234 & 1) {

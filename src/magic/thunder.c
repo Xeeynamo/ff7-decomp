@@ -156,7 +156,7 @@ static void ThunderAttachToTarget(s32 target, s32 callbackArg) {
     ThunderData* effect;
 
     effect = &g_BattleEffectSlots[BattleEffectRegister(ThunderSpawnBolt)];
-    BattleGetPartPosition(target, g_BattleModels[target].battleModelRootBone, &effect->Pos);
+    BattleGetPartPosition(target, g_BattleModels[target].boneIndices[0], &effect->Pos);
     effect->TargetIndex = target;
     effect->DepthBias = -g_BattleModels[target].collisionRadius;
     BattleAkaoCommand(AKAO_PLAY_SOUND, BattlePositionToStereoPan(&effect->Pos), SFX_THUNDER);

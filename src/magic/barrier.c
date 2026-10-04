@@ -282,7 +282,7 @@ static void BarrierAttachToTarget(s32 target, s32 callbackArg) {
     BarrierData* barrier;
 
     barrier = &g_BattleEffectSlots[BattleEffectRegister(BarrierAnimationUpdate)];
-    BattleGetPartPosition(target, g_BattleModels[target].battleModelRootBone, &barrier->Pos);
+    BattleGetPartPosition(target, g_BattleModels[target].boneIndices[0], &barrier->Pos);
     barrier->Pos.vx -= (rsin(g_BattleModels[target].rootRot.vy) * g_BattleModels[target].collisionRadius) >> 12;
     barrier->Pos.vz -= (rcos(g_BattleModels[target].rootRot.vy) * g_BattleModels[target].collisionRadius) >> 12;
     barrier->Rot = g_BattleModels[target].rootRot;

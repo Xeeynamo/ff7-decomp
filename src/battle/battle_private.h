@@ -16,11 +16,6 @@ enum QueueMethod {
 enum AccessWidthType { WIDTH_BIT, WIDTH_BYTE, WIDTH_HALF, WIDTH_WORD };
 
 typedef struct {
-    u8 unk[0x30];
-    s32 unk30;
-} Unk800BB67C;
-
-typedef struct {
     s8 actionId;
     s8 unk1;
     s8 unk2;
@@ -182,6 +177,21 @@ typedef struct {
     /* 0x70 */ s32 D_80151270;
 } Unk80151200; // size:0x74
 
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA[6];
+    /* 0x16 */ s16 unk16[6];
+    /* 0x22 */ u8 pad22[8];
+    /* 0x2A */ s16 unk2A;
+    /* 0x2C */ s16 unk2C;
+    /* 0x2E */ u8 unk2E;
+    /* 0x2F */ u8 unk2F;
+} Unk80151360; // size:0x30
+
 // Confirmed live via PCSX-Redux (exec breakpoint on func_800A4350, one command
 // at a time, plus direct cmdIndex injection for the remaining gaps). "All"-
 // linked materia (Steal-All, Sense-All, etc) reuse their base command's
@@ -216,7 +226,8 @@ typedef enum {
     CMD_2X_CUT = 0x19,    // materia-granted Attack-command replacement
     CMD_FLASH = 0x1A,     // materia-granted Attack-command replacement
     CMD_4X_CUT = 0x1B,    // materia-granted Attack-command replacement
-    CMD_NONE = 0xFF,      // enemy attack / not a player-menu command
+    CMD_ENEMY_ATTACK = 0x20,
+    CMD_NONE = 0xFF, // queued for an enemy turn; its real command is chosen later
 } BattleCommand;
 
 // Queued-action entry, matches
@@ -258,6 +269,7 @@ extern u8 D_800EA19C[][4];
 extern s32 D_800EA258;
 extern s32 D_800EA25C;
 extern s32 D_800EA260;
+extern s16 D_800EA4F4[12];
 extern s32 D_800EA50C[];
 extern short D_800EEB28[9][8];
 extern Unk800F01DC* D_800F01DC;
@@ -387,7 +399,14 @@ extern s16 g_BattleCameraCursor;
 extern s32 g_dbIndex;
 extern s16 D_800F836C;
 extern s16 D_800F8370;
-extern u8 D_800F8374;
+enum BattleEffectModelState {
+    EFFECT_MODEL_STARTING = 0,
+    EFFECT_MODEL_RUNNING = 1,
+    EFFECT_MODEL_ENDING = 0xFF,
+};
+extern u8 g_BattleEffectModelState;
+extern u8 g_BattleModelFadeFrames;
+extern s32 D_800F7E10[16][3];
 extern u8 D_800F837C;
 extern u8 D_800F8380;
 extern u8* D_800F8384[3];
@@ -436,6 +455,7 @@ extern s16 D_800FA9C6;
 extern s16 D_800FA9C8;
 extern u8 D_801031F4[12];
 extern u8 D_80151688[12];
+extern u8 g_BattleSavedSpecialFlags[10];
 extern s32 D_801516A4[10];
 extern s32 D_801516CC[10];
 extern s32 D_8015174C[10];
@@ -471,6 +491,7 @@ typedef struct {
 
 extern BattleQueueTargetEntry g_BattleQueueTargets[0x80];
 extern u8 D_800FAFDC;
+extern s16 g_BattleEffectModelStartRotY;
 extern s16 D_800FAFD4;
 extern s32 D_800FAFEC;
 extern s32 D_800FAFF0;
@@ -482,6 +503,7 @@ extern u8 D_801031F0;
 extern u8 D_80103200[];
 extern u8 D_80130200[];
 extern Unk80151200 D_80151200[3];
+extern Unk80151360 D_80151360;
 extern u16 D_80151694;
 extern s16 g_BattleEffectCursor;
 extern u16 D_801516A0;
@@ -514,6 +536,7 @@ extern s32 D_80158D08;
 extern u_long D_80158D0C[];
 extern u8 D_801518DC;
 extern s32 D_800F9780[];
+extern s16 D_80153BCE; // g_BattleModels[EFFECT_MODEL_SLOT].clutOffset under its own symbol
 extern u8 D_80153BDD;
 extern u32 D_80151840;
 extern u8 D_801590CC;
@@ -526,7 +549,7 @@ extern void (*g_BattleEffectCallbacks[100])(void);
 extern s16 g_BattleEffectCount;
 extern s16 D_80162084;
 extern s8 D_80162094;
-extern u8 D_80162098;
+extern u8 g_BattleEffectModelNotSummon;
 extern u8 D_801620A0;
 extern u8 D_801620A4;
 extern Unk801620AC g_BattleMovementSlots[10];
@@ -561,6 +584,7 @@ extern void (*D_80163B84[60])(void);
 extern DR_MODE* D_80163C74; // TODO might be a generic u_long*, not DR_MODE*
 extern s16 D_80163C78;
 extern u8 D_80163C7C;
+extern ShortVectorXYZ g_BattleEffectModelStartPos;
 extern ShortVectorXYZ D_80163C80[];
 typedef struct {
     /* 0x00 */ u8 D_80163CC0;

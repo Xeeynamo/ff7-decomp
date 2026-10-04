@@ -34,6 +34,7 @@ void func_800D3AF0();
 static void BattleSpawnFloatingIcon(s32 arg0, s32 arg1);
 void BattleQueueImpactEffect(s32 arg0, s16 arg1);
 void BattleInitMagicCastEffect(void);
+void BattleStartEffectWithModel(s32 targetMask, s32 callbackArg);
 
 // MAGIC/ entrypoints that are not named yet
 void func_801B037C(s16, u8);
@@ -633,12 +634,12 @@ MagicEntry D_800EF9D8[] = {
     (MagicEntry)0x801B0054,              //  21 RENBAKU.BIN
     (MagicEntry)0x801B0054,              //  22 ZENBAKU.BIN
     (MagicEntry)0x801B0054,              //  23 STOP.BIN
-    (MagicEntry)func_800C6CB8,           //  24 DEATH.BIN
+    BattleStartEffectWithModel,           //  24 DEATH.BIN
     (MagicEntry)0x801B0000,              //  25 SLOW.BIN
     (MagicEntry)0x801B0054,              //  26 SLIPL.BIN
     (MagicEntry)0x801B0054,              //  27 SAILESS.BIN
     (MagicEntry)0x801B07D0,              //  28 BERSERK.BIN
-    (MagicEntry)func_800C6CB8,           //  29 CONF.BIN
+    BattleStartEffectWithModel,           //  29 CONF.BIN
     MAGIC_Faira,                         //  30 FAIRA.BIN
     (MagicEntry)0x801B0084,              //  31 FAIGA2.BIN
     MAGIC_Brizara,                       //  32 BRIZARA.BIN
@@ -690,12 +691,12 @@ MagicEntry D_800EFAF0[] = {
     (MagicEntry)0x801B0B60,    //   4 CAREL.BIN
     (MagicEntry)0x801B0000,    //   5 ESNA.BIN
     (MagicEntry)0x801B0564,    //   6 RESIST.BIN
-    (MagicEntry)func_800C6CB8, //   7 RAISE.BIN
-    (MagicEntry)func_800C6CB8, //   8 RAISE.BIN
+    BattleStartEffectWithModel, //   7 RAISE.BIN
+    BattleStartEffectWithModel, //   8 RAISE.BIN
     (MagicEntry)0x801B0054,    //   9 MINIMAM.BIN
     (MagicEntry)0x801B0054,    //  10 TODO.BIN
     (MagicEntry)0x801B0054,    //  11 SLIPL.BIN
-    (MagicEntry)func_800C6CB8, //  12 CONF.BIN
+    BattleStartEffectWithModel, //  12 CONF.BIN
     (MagicEntry)0x801B0054,    //  13 SAILESS.BIN
     (MagicEntry)0x801B07D0,    //  14 BERSERK.BIN
     MAGIC_Barrier,             //  15 BARRIER.BIN
@@ -707,7 +708,7 @@ MagicEntry D_800EFAF0[] = {
     (MagicEntry)0x801B0054,    //  21 STOP.BIN
     (MagicEntry)0x801B0D4C,    //  22 DEBARIA.BIN
     (MagicEntry)0x801B0054,    //  23 DETHPER.BIN
-    (MagicEntry)func_800C6CB8, //  24 DEATH.BIN
+    BattleStartEffectWithModel, //  24 DEATH.BIN
     (MagicEntry)0x801B0000,    //  25 ESCAPE.BIN
     (MagicEntry)0x801B0000,    //  26 DEJON.BIN
     MAGIC_Fire,                //  27 FIRE.BIN
@@ -746,7 +747,7 @@ MagicEntry D_800EFBC8[] = {
     (MagicEntry)0x801B0054,    //   2 HANMMER.BIN
     (MagicEntry)0x801B04C0,    //   3 W_WIND.BIN
     (MagicEntry)0x801B0054,    //   4 MYTYG.BIN
-    (MagicEntry)func_800C6CB8, //   5 RAISE.BIN
+    BattleStartEffectWithModel, //   5 RAISE.BIN
     (MagicEntry)0x801B0054,    //   6 DRAGONN.BIN
     (MagicEntry)0x801B0054,    //   7 DETHFO.BIN
     (MagicEntry)0x801B0000,    //   8 FLAME.BIN
@@ -759,10 +760,10 @@ MagicEntry D_800EFBC8[] = {
     (MagicEntry)0x801B0054,    //  15 MAGIKAL.BIN
     (MagicEntry)0x801B0054,    //  16 HATENA.BIN
     (MagicEntry)0x801B0054,    //  17 GOBLINP.BIN
-    (MagicEntry)func_800C6CB8, //  18 CONF.BIN
+    BattleStartEffectWithModel, //  18 CONF.BIN
     MAGIC_Lv5Death,            //  19 LV5DETH.BIN
-    (MagicEntry)func_800C6CB8, //  20 SENNKOKU.BIN
-    (MagicEntry)func_800C6CB8, //  21 SENNKOKU.BIN
+    BattleStartEffectWithModel, //  20 SENNKOKU.BIN
+    BattleStartEffectWithModel, //  21 SENNKOKU.BIN
     (MagicEntry)0x801B0054,    //  22 SFLEA.BIN
     (MagicEntry)0x801B006C     //  23 NANNTOKA.BIN
 };
@@ -819,7 +820,7 @@ MagicEntry D_800EFC28[] = {
     (MagicEntry)0x801B0054,                //  47 HEART1.BIN
     (MagicEntry)0x801B0054,                //  48 CLUB1.BIN
     (MagicEntry)0x801B0054,                //  49 DIA1.BIN
-    (MagicEntry)func_800C6CB8,             //  50 JOKER1.BIN
+    BattleStartEffectWithModel,             //  50 JOKER1.BIN
     (MagicEntry)0x801B0054,                //  51 SPADE2.BIN
     (MagicEntry)0x801B0054,                //  52 HEART2.BIN
     (MagicEntry)0x801B0054,                //  53 CLUB2.BIN
@@ -913,7 +914,7 @@ MagicEntry D_800EFC28[] = {
     (MagicEntry)0x801B0000,                // 141 CHO_KYU.BIN
     (MagicEntry)0x801B0040,                // 142 LASBOSS.BIN
     (MagicEntry)0x801B0040,                // 143 file id 318
-    (MagicEntry)func_800C6CB8,             // 144 RAISE.BIN
+    BattleStartEffectWithModel,             // 144 RAISE.BIN
     (MagicEntry)0x801B0000,                // 145 MAGEND.BIN
     (MagicEntry)0x801B0000,                // 146 TO_SEKI.BIN
     (MagicEntry)BattleInitMagicCastEffect, // 147 DEADSEF.BIN
@@ -988,11 +989,11 @@ MagicEntryResult D_800EFEA0[] = {
     (MagicEntryResult)0x801B0000,    //  54 SEIJA.BIN
     (MagicEntryResult)0x801B0000,    //  55 SHINRA.BIN
     (MagicEntryResult)0x801B007C,    //  56 GATTAI.BIN
-    (MagicEntryResult)func_800C6CB8, //  57 MDANCE.BIN
-    (MagicEntryResult)func_800C6CB8, //  58 TSOL.BIN
+    (MagicEntryResult)BattleStartEffectWithModel, //  57 MDANCE.BIN
+    (MagicEntryResult)BattleStartEffectWithModel, //  58 TSOL.BIN
     (MagicEntryResult)0x801B0054,    //  59 LGIRL.BIN
     (MagicEntryResult)MAGIC_Lv5Death,//  60 LV5DETH.BIN
-    (MagicEntryResult)func_800C6CB8, //  61 DEATH.BIN
+    (MagicEntryResult)BattleStartEffectWithModel, //  61 DEATH.BIN
     (MagicEntryResult)0x801B0054,    //  62 BEAST.BIN
     (MagicEntryResult)0x801B0054,    //  63 BEAST.BIN
     (MagicEntryResult)0x801B0054,    //  64 BEAST.BIN
@@ -1754,14 +1755,14 @@ static void BattleDispatchModelRunScript(u8 arg0) {
     D_800F8CF0 = 0;
     func_800D1530();
     switch (g_BattleModels[arg0].currentActionId) {
-    case 4:
+    case CMD_ITEM:
         D_800EF9D8[g_BattleModels[arg0].attackEffectId](g_BattleCurrentTargetMask, D_801590CC);
         break;
-    case 7:
+    case CMD_COIN:
         // Coin: always WPYU.BIN, via the loader's fixed D_800EEBB8[221].
         func_801B037C(g_BattleCurrentTargetMask, D_801590CC);
         break;
-    case 8:
+    case CMD_THROW:
         D_800EFFE0[g_BattleModels[arg0].attackEffectId](g_BattleCurrentTargetMask, D_801590CC);
         break;
     }
@@ -1771,7 +1772,7 @@ void func_800D0C80(u8 arg0) {
     D_800F8CF0 = 0;
     func_800D1530();
     switch (g_BattleModels[arg0].currentActionId) {
-    case 2:
+    case CMD_MAGIC:
         if (D_801031F0 == 0) {
             if (g_BattleModels[arg0].attackEffectId == 25) {
                 g_BattleModels[0].unk26 = 1;
@@ -1807,10 +1808,10 @@ void func_800D0C80(u8 arg0) {
             break;
         }
         break;
-    case 13:
+    case CMD_ENEMY_SKILL:
         D_800EFBC8[g_BattleModels[arg0].attackEffectId](g_BattleCurrentTargetMask, D_801590CC);
         break;
-    case 20:
+    case CMD_LIMIT:
         if (g_BattleModels[arg0].attackEffectId == 2) {
             if (D_801590CC == g_BattleQueueTargets[2].targetId) {
                 D_80163A98 = 0;
@@ -1852,10 +1853,10 @@ void func_800D0C80(u8 arg0) {
         }
         func_800D08B8(arg0, *(s32*)0x1F800000);
         break;
-    case 32:
+    case CMD_ENEMY_ATTACK:
         D_800EFC28[g_BattleModels[arg0].attackEffectId](g_BattleCurrentTargetMask, D_801590CC);
         break;
-    case 3:
+    case CMD_SUMMON:
         func_800C64AC();
         break;
     }
@@ -1867,7 +1868,7 @@ static void BattleDispatchModelLoadImage(u8 arg0) {
     s32 id;
 
     switch (g_BattleModels[arg0].currentActionId) {
-    case 2:
+    case CMD_MAGIC:
         if (D_801031F0 == 0) {
             id = D_800EF63C[g_BattleModels[arg0].attackEffectId];
             BattleLoadOverlaySector(D_800EEBB8[id].loc, D_800EEBB8[id].len);
@@ -1897,30 +1898,30 @@ static void BattleDispatchModelLoadImage(u8 arg0) {
             }
         }
         break;
-    case 7:
+    case CMD_COIN:
         BattleLoadOverlaySector(D_800EEBB8[221].loc, D_800EEBB8[221].len);
         break;
-    case 8:
+    case CMD_THROW:
         id = D_800EF8D8[g_BattleModels[arg0].attackEffectId];
         BattleLoadOverlaySector(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         break;
-    case 13:
+    case CMD_ENEMY_SKILL:
         id = D_800EF6A8[g_BattleModels[arg0].attackEffectId];
         BattleLoadOverlaySector(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         break;
-    case 20:
+    case CMD_LIMIT:
         id = D_800EF838[g_BattleModels[arg0].attackEffectId];
         BattleLoadOverlaySector(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         break;
-    case 4:
+    case CMD_ITEM:
         id = D_800EF5B0[g_BattleModels[arg0].attackEffectId];
         BattleLoadOverlaySector(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         break;
-    case 32:
+    case CMD_ENEMY_ATTACK:
         id = D_800EF6FC[g_BattleModels[arg0].attackEffectId];
         BattleLoadOverlaySector(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         break;
-    case 3:
+    case CMD_SUMMON:
         id = D_800EF6D8[g_BattleModels[arg0].attackEffectId];
         BattleLoadOverlaySector(D_800EEBB8[id].loc, D_800EEBB8[id].len);
         break;
@@ -2135,7 +2136,7 @@ static void BattleEffectDustClouds(void) {
 
     temp_s1 = &D_801621F0[D_801590D4];
     temp_s0 = temp_s1->D_801621F0;
-    temp_s2 = ((u8*)&g_BattleModels[temp_s0].battleModelFeet)[temp_s1->D_801621F2 & 1];
+    temp_s2 = (&g_BattleModels[temp_s0].boneIndices[11])[temp_s1->D_801621F2 & 1];
     temp_s0++; // !FAKE
     temp_s0--; // !FAKE
     if (temp_s2 != 0xFF) {
@@ -2331,7 +2332,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4C08);
 static void BattleSpawnFloatingIconAtPart(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp10;
 
-    BattleGetPartPosition(arg0, g_BattleModels[arg0].battleModelRootBone, &sp10);
+    BattleGetPartPosition(arg0, g_BattleModels[arg0].boneIndices[0], &sp10);
     func_800D4C08(&sp10, arg1, arg2, -g_BattleModels[arg0].collisionRadius);
 }
 
@@ -2770,7 +2771,7 @@ void BattleSpawnPartEffect(s32 arg0, s32 arg1) {
     Unk801621F0* dst = &D_801621F0[func_800BC04C(BattleSpawnTrailEffect)];
     Unk801621F0* dst2;
 
-    BattleGetPartPosition(arg0, g_BattleModels[arg0].battleModelRootBone, (u8*)dst + 4);
+    BattleGetPartPosition(arg0, g_BattleModels[arg0].boneIndices[0], (u8*)dst + 4);
     switch (arg1) {
     case 0:
         dst->unk1C = BattleHitFlashGrowTick;
@@ -2835,19 +2836,19 @@ void BattleSpawnSpriteEffect(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s32 arg4, s
 }
 
 void BattleSpawnSpriteEffectAtSubModel(s32 arg0, s32 idx, s32 arg2, s32 arg3) {
-    BattleSpawnSpriteEffect(arg0, idx, &g_BattleModels[idx].boneTransforms[g_BattleModels[idx].joints1[5]],
+    BattleSpawnSpriteEffect(arg0, idx, &g_BattleModels[idx].boneTransforms[g_BattleModels[idx].boneIndices[6]],
                             g_BattleModels[idx].defaultRotY, arg2, arg3);
 }
 
 void BattleSpawnSpriteEffectAtSubModel2(s32 arg0, s32 idx, s32 arg2, s32 arg3) {
-    BattleSpawnSpriteEffect(arg0, idx, &g_BattleModels[idx].boneTransforms[g_BattleModels[idx].joints1[6]],
+    BattleSpawnSpriteEffect(arg0, idx, &g_BattleModels[idx].boneTransforms[g_BattleModels[idx].boneIndices[7]],
                             g_BattleModels[idx].defaultRotZ, arg2, arg3);
 }
 
 void BattleSpawnSpriteEffectAtBothSubModels(s32 arg0, s32 idx, s32 arg2, s32 arg3) {
-    BattleSpawnSpriteEffect(arg0, idx, &g_BattleModels[idx].boneTransforms[g_BattleModels[idx].joints1[5]],
+    BattleSpawnSpriteEffect(arg0, idx, &g_BattleModels[idx].boneTransforms[g_BattleModels[idx].boneIndices[6]],
                             g_BattleModels[idx].defaultRotY, arg2, arg3);
-    BattleSpawnSpriteEffect(arg0, idx, &g_BattleModels[idx].boneTransforms[g_BattleModels[idx].joints1[6]],
+    BattleSpawnSpriteEffect(arg0, idx, &g_BattleModels[idx].boneTransforms[g_BattleModels[idx].boneIndices[7]],
                             g_BattleModels[idx].defaultRotZ, arg2, arg3);
 }
 
