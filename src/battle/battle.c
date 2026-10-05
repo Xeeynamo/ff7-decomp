@@ -488,7 +488,100 @@ end:
     return enemyId;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpdateUnitMasks);
+void BattleUpdateUnitMasks(void) {
+    u16 var_t3 = 0;
+    s16 coveredEnemies = 0;
+    u16 var_s1 = 0;
+    u16 petrifiedActors = 0;
+    u16 downedActors = 0;
+    s32 frontCoverFlags;
+    s32 enemyFrontRow;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 actorMask;
+    u16 enemyMask;
+    u32 stateFlags;
+    s32 status;
+    u16 row;
+
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        actorMask = 1 << i;
+        stateFlags = g_BattleState.combatant[i].stateFlags;
+        status = g_BattleState.combatant[i].status;
+
+        if (stateFlags & 8) {
+            var_t3 |= actorMask;
+        }
+        if (stateFlags & 0x10) {
+            var_s1 |= actorMask;
+        }
+        if (status & STATUS_PETRIFY) {
+            petrifiedActors |= actorMask;
+        }
+        if (status & STATUS_DEATH) {
+            downedActors |= actorMask;
+        }
+        if (status & STATUS_IMPRISONED &&
+            (g_BattleSceneContext.imprisonedType == 0 || g_BattleSceneContext.imprisonedType == 3)) {
+            downedActors |= actorMask;
+        }
+    }
+
+    enemyFrontRow = 0xffff; // This was probably defined as a constant somewhere (eg: INVALID_INDEX)
+    g_BattleSceneContext.petrifiedMask = petrifiedActors;
+    g_BattleData.unk14C = var_t3;
+    g_BattleData.unk15C = var_s1;
+    g_BattleData.downedActors = downedActors;
+
+    for (j = 0; j < NUM_ENEMY; j++) {
+        frontCoverFlags = 0;
+        enemyMask = 1 << j + START_ENEMY;
+        if (var_t3 & enemyMask) {
+            row = g_BattleState.combatant[j + START_ENEMY].formationRow;
+            g_BattleState.combatant[j + START_ENEMY].stateFlags &= ~0x840;
+            for (k = 0; k < NUM_ENEMY; k++) {
+                if (((var_t3 >> (k + START_ENEMY)) & 1) &&
+                    g_BattleState.combatant[k + START_ENEMY].formationRow < row) {
+                    frontCoverFlags |= g_BattleData.activeEncounter.formation[k].coverFlags;
+                }
+            }
+
+            if (g_BattleData.activeEncounter.formation[j].coverFlags & frontCoverFlags) {
+                coveredEnemies |= enemyMask;
+                g_BattleState.combatant[j + START_ENEMY].stateFlags |= 0x800;
+            }
+
+            if (row < enemyFrontRow) {
+                enemyFrontRow = row;
+            }
+        }
+    }
+
+    for (i = 0; i < NUM_ENEMY; i++) {
+        if ((var_t3 >> (i + START_ENEMY)) & 1 &&
+            g_BattleState.combatant[i + START_ENEMY].formationRow != enemyFrontRow) {
+            g_BattleState.combatant[i + START_ENEMY].stateFlags |= 0x40;
+        }
+    }
+
+    g_BattleData.unk150 = var_t3 ^ coveredEnemies;
+    g_BattleData.unk152 = var_t3;
+    actorMask = g_BattleState.presentMask & ((~downedActors & 0xF) | ((var_s1 | var_t3) & 0x3F0));
+    g_BattleData.unitPresentMask = actorMask;
+
+    if (g_BattleSceneContext.encounterType == SETUP_PINCER) {
+        actorMask &= 0x3F0;
+        // Odd loop, looks like it indexes out of bounds at first glance but checks
+        // [0] and [2]; i represents the index of the first zone without an actor
+        for (i = 0; i < 2; i++) {
+            if (!(actorMask & g_BattleData.unitZoneMask[i * 2])) {
+                break;
+            }
+        }
+        g_BattleData.unk174 = i;
+    }
+}
 
 void func_800A4844(s32 arg0) {
     s32 var_v0 = arg0 ? 3 : 1;
