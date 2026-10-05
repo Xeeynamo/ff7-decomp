@@ -158,7 +158,7 @@ static void AkaoOp_DE_TremoloDepthSlideFromCurr(AkaoChannel* track);
 static void AkaoOp_DF_PanLfoDepthSlideFromCurr(AkaoChannel* track);
 void AkaoOp_E8_Tempo(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 void AkaoOp_E9_TempoSlide(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
-static void AkaoOp_EA_ReverbDepth(u8** cursor, AkaoChannel* track);
+static void AkaoOp_EA_ReverbDepth(AkaoChannel* track, AkaoChannelConfig* config);
 void AkaoOp_EB_ReverbDepthSlide(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 static void AkaoOp_EC_DrumModeOn(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
 static void AkaoOp_ED_DrumModeOff(AkaoChannel* track, AkaoChannelConfig* config, u32 mask);
@@ -3508,59 +3508,48 @@ static u8 AkaoScanSequenceTerminator(u8** seqPtr) {
 /////////////////////////
 
 void AkaoOp_E8_Tempo(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
-    config->tempo = *track->akaoSequencePointer++ << 0x10;
-    config->tempo |= *track->akaoSequencePointer++ << 0x18;
+    config->tempo = *track->akaoSequencePointer++ << 16;
+    config->tempo |= *track->akaoSequencePointer++ << 24;
     config->tempoSlideSteps = 0;
 }
 
 void AkaoOp_E9_TempoSlide(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
-    u8 steps;
-    u8 lo;
-    u8 hi;
+    s32 steps, depth;
 
     steps = *track->akaoSequencePointer++;
     config->tempoSlideSteps = steps;
     if (steps == 0) {
-        config->tempoSlideSteps = 0x100;
+        config->tempoSlideSteps = 256;
     }
-    lo = *track->akaoSequencePointer++;
-    hi = *track->akaoSequencePointer++;
-    config->tempoSlideStep = (((lo << 0x10) | (hi << 0x18)) - (config->tempo &= 0xFFFF0000)) / config->tempoSlideSteps;
+    depth = *track->akaoSequencePointer++ << 16;
+    depth |= *track->akaoSequencePointer++ << 24;
+    config->tempo &= 0xFFFF0000;
+    config->tempoSlideStep = (depth - config->tempo) / config->tempoSlideSteps;
 }
 
-static void AkaoOp_EA_ReverbDepth(u8** cursor, AkaoChannel* track) {
-    u8* p = *cursor;
-    u8 v0;
-    u8 v1;
-    u32 combined;
+static void AkaoOp_EA_ReverbDepth(AkaoChannel* track, AkaoChannelConfig* config) {
 
-    /* cc1-psx writes the cursor back after each byte, not once at the end --
-       tested; a single trailing writeback regresses the gate. */
-    *cursor = p + 1;
-    v0 = p[0];
-    *cursor = p + 2;
-    v1 = p[1];
-    combined = (u32)v0 << 0x10;
-    combined |= (u32)v1 << 0x18;
-    *(u16*)&track->setToMinusOne = 0; // only the first half of this 4-byte unknown field
-    track->updateFlags |= AKAO_UPDATE_REVERB_DEPTH;
-    track->pitchMulSoundSlideStep = combined;
+    s32 depth;
+
+    depth = *track->akaoSequencePointer++ << 16;
+    depth |= *track->akaoSequencePointer++ << 24;
+    config->updateFlags |= AKAO_UPDATE_REVERB_DEPTH;
+    config->reverbDepth = depth;
+    config->reverbDepthSlideSteps = 0;
 }
 
 void AkaoOp_EB_ReverbDepthSlide(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
-    u8 steps;
-    u8 lo;
-    u8 hi;
+    s32 steps, depth;
 
     steps = *track->akaoSequencePointer++;
     config->reverbDepthSlideSteps = steps;
     if (steps == 0) {
-        config->reverbDepthSlideSteps = 0x100;
+        config->reverbDepthSlideSteps = 256;
     }
-    lo = *track->akaoSequencePointer++;
-    hi = *track->akaoSequencePointer++;
-    config->reverbDepthSlideStep =
-        (((lo << 0x10) | (hi << 0x18)) - (config->reverbDepth &= 0xFFFF0000)) / config->reverbDepthSlideSteps;
+    depth = *track->akaoSequencePointer++ << 16;
+    depth |= *track->akaoSequencePointer++ << 24;
+    config->reverbDepth &= 0xFFFF0000;
+    config->reverbDepthSlideStep = (depth - config->reverbDepth) / config->reverbDepthSlideSteps;
 }
 
 static void AkaoOp_A3_MasterVol(AkaoChannel* track) {
@@ -3577,18 +3566,61 @@ static void AkaoOp_A8_SetVol(AkaoChannel* track) {
 }
 
 void AkaoOp_A9_SetVolSlide(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
-    u8 steps;
+    s32 steps, slide;
 
     steps = *track->akaoSequencePointer++;
     track->volSlideSteps = steps;
     if (steps == 0) {
-        track->volSlideSteps = 0x100;
+        track->volSlideSteps = 256;
     }
-    track->volSlideStep =
-        ((*(s8*)track->akaoSequencePointer++ << 0x17) - (track->volumeLevel &= 0xFFFF0000)) / track->volSlideSteps;
+    slide = *(s8*)track->akaoSequencePointer++ << 23;
+    track->volumeLevel &= 0xFFFF0000;
+    track->volSlideStep = (slide - track->volumeLevel) / track->volSlideSteps;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F4_OverlayVoiceOn);
+void AkaoOp_F4_OverlayVoiceOn(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
+    s32 used, index, inst1, inst2;
+    u16 voice;
+
+    if (!(track->updateFlags & AKAO_UPDATE_OVERLAY)) {
+        used = config->activeMask | config->overMask | config->altMask;
+        voice = g_AkaoMusicSlot ? 24 : 0;
+        index = 1;
+
+        while (1) {
+            if ((used & index) == 0) {
+                break;
+            }
+
+            voice++;
+            index <<= 1;
+
+            if ((index & 0xFFFFFF) == 0) {
+                return;
+            }
+        }
+    } else {
+        voice = track->overlayChannelId;
+
+        if (track->overlayChannelId >= 24) {
+            index = 1 << (track->overlayChannelId - 24);
+        } else {
+            index = 1 << track->overlayChannelId;
+        }
+    }
+
+    if (index & 0xFFFFFF) {
+        config->overMask |= index;
+        track->overlayChannelId = voice;
+        track->updateFlags |= AKAO_UPDATE_OVERLAY;
+
+        inst1 = *track->akaoSequencePointer++;
+        inst2 = *track->akaoSequencePointer++;
+
+        AkaoInstrInit(track, inst1);
+        AkaoInstrInit(&g_Channel1[voice], inst2);
+    }
+}
 
 void AkaoOp_F5_OverlayVoiceOff(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
     u16 channelId;
@@ -4102,7 +4134,27 @@ void AkaoOp_BF_ReleaseMode(AkaoChannel* track, AkaoChannelConfig* config, u32 ma
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoOp_F8_AltVoiceOn);
+void AkaoOp_F8_AltVoiceOn(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
+    s32 used, i, bit;
+
+    track->voiceAttr.rr = *track->akaoSequencePointer++;
+    if (track->updateFlags & AKAO_UPDATE_ALTERNATIVE) {
+        return;
+    }
+
+    used = config->activeMask | config->overMask | config->altMask;
+    for (i = 0, bit = 1; bit & 0xFFFFFF; i++, bit <<= 1) {
+        if ((used & bit) == 0) {
+            break;
+        }
+    }
+
+    if (bit & 0xFFFFFF) {
+        config->altMask |= bit;
+        track->alternativeChannelId = i & 0xFFFF;
+        track->updateFlags |= AKAO_UPDATE_ALTERNATIVE;
+    }
+}
 
 void AkaoOp_F9_AltVoiceOff(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
     config->altMask &= ~(1 << track->alternativeChannelId);
