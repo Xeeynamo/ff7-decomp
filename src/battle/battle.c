@@ -2999,7 +2999,7 @@ static s32 BattleOpcodeValOffs(s32 arg0, s32 arg1, void** arg2) {
 
     var_a1 = arg1;
     if (var_a1 < 0x2000) {
-        *arg2 = &D_800F87F0[arg0 * 0x80];
+        *arg2 = &D_800F87F0[arg0];
     } else if (var_a1 < 0x4000) {
         *arg2 = D_800F83A4;
         var_a1 -= 0x2000;

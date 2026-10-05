@@ -897,7 +897,144 @@ static void BattleInitItemList(void) {
     D_80166F74 = rows;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/batini", BattleInitEnemyUnits);
+void BattleInitEnemyUnits(void) {
+    BattleTurnWork* turnWork;
+    BattleUnit* combatant;
+    SceneEnemy* enemy;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 manipSlotEnd;
+    s16 id;
+    u16 attack;
+    u8 targetFlags;
+
+    g_BattleState.enemyUnitMask = 0;
+    for (i = 0; i < LEN(g_BattleSceneContext.enemyTypeCount); i++) {
+        g_BattleSceneContext.enemyTypeCount[i] = 0;
+    }
+
+    for (i = 0; i < NUM_ENEMY; i++) {
+        for (j = 0; j < LEN(D_800F87F0[0]); j++) {
+            D_800F87F0[i + START_ENEMY][j] = 0;
+        }
+    }
+
+    for (i = 0; i < NUM_ENEMY; i++) {
+        turnWork = &g_BattleWork.turn[i + START_ENEMY];
+        combatant = &g_BattleState.combatant[i + START_ENEMY];
+
+        id = g_BattleData.activeEncounter.formation[i].enemyID;
+        combatant->actorId = -1;
+        combatant->enemyId = -1;
+        combatant->stateFlags = 0;
+        combatant->status = 0;
+        combatant->unk4F = 0xFF;
+        g_BattleSceneContext.subActionSlots[i + START_ENEMY].priority = 0xFF;
+
+        for (j = 0; j < NUM_STATUS_TIMERS; ++j) {
+            turnWork->statusTimers[j] = 0;
+        }
+
+        for (j = 0; j < NUM_STAT_MULTS; ++j) {
+            turnWork->statMults[j] = 0;
+        }
+
+        if (id != -1) {
+            combatant->enemyId = id;
+
+            for (j = 0; j < LEN(g_BattleSceneContext.enemyTypeCount); j++) {
+                if (g_BattleData.activeEncounter.enemyModelIDs[j] == id) {
+                    break;
+                }
+            }
+
+            g_BattleSceneContext.enemyTypeCount[j]++;
+
+            id = j;
+            g_BattleData.activeEncounter.formation[i].enemyID = id;
+            enemy = &g_BattleSceneContext.enemy[id];
+            combatant->actorId = id;
+            combatant->curHP = combatant->maxHP = enemy->hp;
+            combatant->curMP = combatant->maxMP = enemy->mp;
+            combatant->physAttack = enemy->strength;
+            combatant->magAttack = enemy->magic;
+            combatant->physDefence = enemy->defense * 2;
+            combatant->magDefence = enemy->magicDef * 2;
+            combatant->physEvade = enemy->evade;
+            combatant->dexterity = enemy->speed;
+            combatant->luck = enemy->luck;
+            combatant->level = enemy->level;
+            combatant->backDamageMult = enemy->backAttackMultiplier;
+            combatant->gil = enemy->gil;
+            combatant->exp = enemy->exp;
+            combatant->hurtActionId = 1;
+            combatant->unk4C = 1;
+            combatant->unk56 = 2;
+            combatant->idleActionId = 0;
+            combatant->status = 0;
+            combatant->prevStatus = 0;
+            combatant->unk50 = 0;
+            combatant->unk52 = 0xFFFF;
+            combatant->stateFlags = g_BattleData.activeEncounter.formation[i].flags & 0x1F;
+            combatant->formationRow = g_BattleData.activeEncounter.formation[i].row;
+
+            turnWork->enemyNamePtr = enemy->name;
+            turnWork->accessoryEffectId = -1;
+            turnWork->senseTargetMask = -1;
+            turnWork->formationIndex = -1;
+            turnWork->statusProtectionMask = ~enemy->statusImmunities;
+
+            g_BattleState.enemyUnitMask |= 1 << (i + START_ENEMY);
+
+            combatant->formationIndex = 0;
+            for (j = 0; j < i; j++) {
+                if (g_BattleState.combatant[j + START_ENEMY].enemyId == combatant->enemyId) {
+                    combatant->formationIndex++;
+                }
+            }
+
+            manipSlotEnd = LEN(enemy->manipAttackIDs);
+            for (j = 0; j < manipSlotEnd; j++) {
+                Unk80166F78* unk = &D_80166F78[i][j];
+                attack = enemy->manipAttackIDs[j];
+                unk->attackIndex = -1;
+                unk->unk1 = 0;
+                unk->targetFlags = 0;
+                unk->unk3 = 3;
+                if (attack != 0xFFFF) {
+                    for (k = 0; k < LEN(g_BattleSceneContext.attackIDs); k++) {
+                        if (g_BattleSceneContext.attackIDs[k] == attack) {
+                            targetFlags = g_BattleSceneContext.attacks[k].targetFlags;
+                            if (targetFlags != 0) {
+                                targetFlags ^= 2;
+                            }
+                            unk->attackIndex = k;
+                            unk->targetFlags = targetFlags;
+                            unk->unk3 = 0;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            for (j = manipSlotEnd; j < LEN(D_80166F78[0]); j++) {
+                Unk80166F78* unk = &D_80166F78[i][j];
+                unk->attackIndex = -1;
+                unk->unk1 = 0;
+                unk->targetFlags = 0;
+                unk->unk3 = 3;
+            }
+            turnWork->turnFlags = 0;
+        }
+    }
+
+    for (i = 0; i < NUM_ENEMY; i++) {
+        if (g_BattleSceneContext.enemyTypeCount[g_BattleData.activeEncounter.formation[i].enemyID] >= 2) {
+            g_BattleWork.turn[i + START_ENEMY].formationIndex = g_BattleState.combatant[i + START_ENEMY].formationIndex;
+        }
+    }
+}
 
 static void BattleInitEnemyAI(void) {
     s32 i;

@@ -166,7 +166,7 @@ typedef struct {
     /* 0x1C */ s32 statusAppliedMask;
     /* 0x20 */ s16 physDefence;
     /* 0x22 */ s16 magDefence;
-    /* 0x24 */ s16 enemyId;
+    /* 0x24 */ u16 enemyId;
     /* 0x26 */ u16 elemAbsorbExtra;
     /* 0x28 */ s16 curMP;
     /* 0x2A */ s16 maxMP;
@@ -293,7 +293,7 @@ typedef struct {
 
 // an uncompressed chunk from SCENE.BIN
 typedef struct {
-    /* 0x000 */ u16 enemyModelIDs[4];
+    /* 0x000 */ s16 enemyModelIDs[4];
     /* 0x008 */ BattleSetup setup[4];
     /* 0x058 */ CameraPlacement camera[4][4];
     /* 0x118 */ FormationEntry formation[4][6];
@@ -306,7 +306,7 @@ typedef struct {
 } SceneContainer; // 0x1E80
 
 typedef struct {
-    /* 0x00 */ u16 enemyModelIDs[4];
+    /* 0x00 */ s16 enemyModelIDs[4];
     /* 0x08 */ BattleSetup setup;
     /* 0x1C */ CameraPlacement camera[4];
     /* 0x4C */ FormationEntry formation[NUM_ENEMY];
@@ -612,6 +612,15 @@ typedef struct {
     /* 0x5 */ u8 unk5;
 } BattleItemEntry; /* size: 0x6 */
 
+// Written by BattleInitEnemyUnits, seems to track attacks usable by enemies under manipulation
+typedef struct {
+    /* 0x0 */ u8 attackIndex;
+    /* 0x1 */ u8 unk1;
+    /* 0x2 */ u8 targetFlags;
+    /* 0x3 */ u8 unk3;
+    /* 0x4 */ u8 unk4[2];
+} Unk80166F78; // size: 0x6
+
 typedef struct {
     /* 0x00 */ SavePartyMember* partyMember;
     /* 0x04 */ u8 limitCount; // inferred: bumped when a Limit Break executes
@@ -677,6 +686,9 @@ extern BattleModel g_BattleModels[NUM_BATTLE_ACTOR];
 extern short g_BattleEffectCount;
 extern s32 D_801620A8;
 extern BattleData g_BattleData;
+extern s32 D_800F87F0[NUM_BATTLE_ACTOR][32]; // per-combatant battle-script variable bank, 0x80 B
+                                             // each (BattleOpcodeValOffs)
+extern Unk80166F78 D_80166F78[NUM_ENEMY][16];
 
 // Scratch copy of a party member's save record, taken when g_BattleData.flags bit EVENT_BATTLE_SQUARE is set.
 extern SavePartyMember D_80167938;
