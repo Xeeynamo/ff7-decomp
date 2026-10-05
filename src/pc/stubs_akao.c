@@ -73,5 +73,3 @@ u8 AkaoGetNextNote(AkaoChannel* channel) {
     NOT_IMPLEMENTED;
     return 0;
 }
-void AkaoOp_F4_OverlayVoiceOn(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) { NOT_IMPLEMENTED; }
-void AkaoOp_F8_AltVoiceOn(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) { NOT_IMPLEMENTED; }
