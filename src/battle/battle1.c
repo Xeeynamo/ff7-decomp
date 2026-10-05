@@ -306,7 +306,7 @@ static void BattlePlayersInitBonesAndAnims(void) {
     BattlePlayerModelsUpdateBonesPos();
     BattleInitModelsAnimAndColor(0, 3);
     BattleInitModelsAnimAndColor(3, 3);
-    if (g_ActiveEncounter.setup.stageID == 57) {
+    if (g_BattleData.activeEncounter.setup.stageID == 57) {
         for (i = 0; i < 10; i++) {
             g_BattleModels[i].specialFlags |= BATTLE_MODEL_NO_SHADOW;
         }
@@ -358,8 +358,8 @@ static s32 func_800B3FAC(s32 arg0) {
     s32 i;
     u8* p = &D_800F7DF4;
 
-    for (i = 0; i < (s32)sizeof(g_ActiveEncounter.formation); i += sizeof(FormationEntry)) {
-        if (((FormationEntry*)((u8*)g_ActiveEncounter.formation + i))->enemyID == arg0) {
+    for (i = 0; i < (s32)sizeof(g_BattleData.activeEncounter.formation); i += sizeof(FormationEntry)) {
+        if (((FormationEntry*)((u8*)g_BattleData.activeEncounter.formation + i))->enemyID == arg0) {
             *p += 1;
             return 0;
         }
@@ -532,7 +532,7 @@ static void BattleUpdateRender(void) {
         ResetGraph(1);
         D_800F9D94 = 1;
     }
-    if (D_8016376A & 2) {
+    if (g_BattleData.flags & 2) {
         func_800E16B8(g_cDb->unk40E4, 0x10, 0x10, Savemap.countdown_timer_seconds);
     }
     D_800FA9B8 = VSync(1);
@@ -562,7 +562,7 @@ static void func_800B8268(void) {
     var_t1 = 1;
     var_a1 = D_80163784;
     while (i < 10) {
-        *var_a1 = D_801636B8[i].idleActionId;
+        *var_a1 = g_BattleData.actors[i].idleActionId;
         if (!(D_80151200[i].D_8015120C & 8) && g_BattleModels[i].animId != *var_a1 &&
             g_BattleModels[i].unk26 == var_t1) {
             g_BattleModels[i].animControlFlags |= 1;
@@ -624,7 +624,7 @@ void func_800B8438(void) {
     }
     BattleCdromReadChain();
     func_800B91CC();
-    D_80151694 = D_80163758[1];
+    D_80151694 = g_BattleData.unitPresentMask;
     func_800B85E0();
     func_800BC81C(D_800F8370, g_BattleModels[D_801590CC].attackEffectId);
     func_800BC8B0(D_800F8370);
@@ -648,7 +648,7 @@ static void func_800B85E0() {
         BattleQueue1CameraInit();
         for (i = 0; i < 3; i++) {
             g_BattleModels[i].animControlFlags |= 0x20;
-            D_80151200[i].D_80151200 = D_801636B8[i].D_801636C0;
+            D_80151200[i].D_80151200 = g_BattleData.actors[i].D_801636C0;
         }
     }
     if (D_800F9D98 != 100 && (g_BattleMode & 1)) {
@@ -667,9 +667,9 @@ static void func_800B85E0() {
         if (g_BattleMode & 8) {
             for (; i < 3; i++) {
                 g_BattleModels[i].animControlFlags |= 1;
-                g_BattleModels[i].animId = D_801636B8[i].idleActionId;
+                g_BattleModels[i].animId = g_BattleData.actors[i].idleActionId;
                 g_BattleModels[i].animControlFlags |= 0x20;
-                D_80151200[i].D_80151200 = D_801636B8[i].D_801636C0;
+                D_80151200[i].D_80151200 = g_BattleData.actors[i].D_801636C0;
             }
             D_800F9D9C = 100;
             D_80163C7C = 5;
@@ -896,7 +896,7 @@ static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3) {
 }
 
 static void func_800BB804(void) {
-    if (!(D_8016376A & 0x20)) {
+    if (!(g_BattleData.flags & 0x20)) {
         SystemLoadFileBySector(LBA_ENEMY6_FAN2, 0x1000, (u_long*)0x801D0000, func_800BB89C);
         BattleCdromReadChain();
         return;
@@ -913,8 +913,9 @@ static void func_800BB864(void) {
 static void func_800BB89C(void) {
     D_80163B80 = 0;
     D_800FA6B8 = 0;
-    g_AkaoCmd.opcode =
-        !(!(D_8016376A & 0x10) && !g_AkaoPrevBgmLanes[0].activeMask) ? AKAO_PLAY_MUSIC : AKAO_PLAY_MUSIC_SAVE_CURR;
+    g_AkaoCmd.opcode = !(!(g_BattleData.flags & 0x10) && !g_AkaoPrevBgmLanes[0].activeMask)
+                           ? AKAO_PLAY_MUSIC
+                           : AKAO_PLAY_MUSIC_SAVE_CURR;
     g_AkaoCmd.params[0] = 0x801D0000;
     AkaoExec();
 }
@@ -1406,7 +1407,7 @@ static void func_800C1908(u8 arg0) {
     temp_s0 = arg0;
     if (g_BattleModels[temp_s0].animControlFlags & 0x20) {
         if (temp_s0 < 4) {
-            D_800F9F28[temp_s0] = D_801636B8[temp_s0].D_801636C0;
+            D_800F9F28[temp_s0] = g_BattleData.actors[temp_s0].D_801636C0;
         }
         func_800C5170(temp_s0);
         func_800C5468(temp_s0);

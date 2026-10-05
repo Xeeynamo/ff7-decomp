@@ -190,7 +190,7 @@ static void BattleDrawSetupTypeInfo(OT_TYPE* ot, s16 arg1) {
         break;
     case 2:
         setupType = SETUP_SIDE_ATTACK_3;
-        temp_v1 = g_ActiveEncounter.setup.type;
+        temp_v1 = g_BattleData.activeEncounter.setup.type;
         if (temp_v1 < NUM_SETUP) {
             setupType = -(temp_v1 <= SETUP_BACK_ATTACK) & 7;
         }
@@ -822,20 +822,13 @@ static void BattleMenuUpdate(void) {
     }
 }
 
-typedef struct {
-    /* 0x156 */ u16 limitReadyMask;
-} BattleSceneData; // size:0x178
-
 void BattleMenuInit(void) {
-    BattleSceneData* battleSceneData;
-
     _D_80062DFD = 1;
     D_80163604 = 0;
     D_801635F8 = 0;
     D_80163600 = Savemap.time & 0x7F;
     BattleMenuUpdateHpMpBars();
-    battleSceneData = (BattleSceneData*)&D_80163762;
-    D_800F3150 = battleSceneData->limitReadyMask;
+    D_800F3150 = g_BattleData.limitReadyMask;
     D_800F3110 = 1;
     D_800F3896 = -1;
     BattleMenuClearWidgetFlags();
@@ -844,7 +837,7 @@ void BattleMenuInit(void) {
     }
     D_80062D98 = 0;
     g_SavemapBusy = 0;
-    D_800F198C = battleSceneData->limitReadyMask;
+    D_800F198C = g_BattleData.limitReadyMask;
     D_800F57CC = (Savemap.config >> 4) & 3;
 }
 
@@ -1036,7 +1029,7 @@ static void BattleMenuUpdateSelectorIcons(void) {
 
     for (i = 0; i < 3; i++) {
         index = (1 - ((D_800F338C[i] >> (D_800F5764 + 1)) & 0xF)) & 0xF;
-        D_80163774[i] = D_800F332C[i][index];
+        g_BattleData.caitSithRolls[i] = D_800F332C[i][index];
     }
 }
 
@@ -1091,7 +1084,7 @@ void BattleMenuUpdateSelectorIconsAlt(void) {
     s32 i;
 
     for (i = 0; i < D_800F5774; i++) {
-        D_80163778[i] = D_800F33B0[D_80163B70[i]][(2 - D_800F338C[i] / 4) & 0xF];
+        g_BattleData.unk16C[i] = D_800F33B0[D_80163B70[i]][(2 - D_800F338C[i] / 4) & 0xF];
     }
 }
 
@@ -1207,10 +1200,10 @@ static void BattleMenuDrawItemDescription(void) {
 static void BattleMenuSetTargetMask(void) {
     switch (D_800F38A5) {
     case 0:
-        D_801516F8 = D_8016375C;
+        D_801516F8 = g_BattleData.unk150;
         break;
     case 1:
-        D_801516F8 = D_8016375E;
+        D_801516F8 = g_BattleData.unk152;
         break;
     }
 }
@@ -1221,8 +1214,8 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800E6904);
 static s32 BattleMenuFindTargetCharacterIndex(void) {
     s32 i;
 
-    for (i = 0; i < 3; i++) {
-        if ((1 << D_800F38A7) & D_801516F8 & g_BattleMultiInfo.characterMask[i]) {
+    for (i = 0; i < NUM_ZONES; i++) {
+        if ((1 << D_800F38A7) & D_801516F8 & g_BattleData.unitZoneMask[i]) {
             return i;
         }
     }
