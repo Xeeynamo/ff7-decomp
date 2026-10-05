@@ -886,16 +886,56 @@ const u8 D_800A0240[] = {
     0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0x54, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A,
     0x80, 0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0x94, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54,
     0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0x14, 0x54, 0x0A, 0x80, 0x34, 0x54, 0x0A, 0x80, 0x74, 0x54, 0x0A, 0x80};
-const u8 D_800A0278[] = {0x05, 0x06, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x00, 0x5C, 0x5A,
-                         0x0A, 0x80, 0x88, 0x5A, 0x0A, 0x80, 0xA8, 0x5A, 0x0A, 0x80};
-static u8 func_800A5A5C(void) { return D_800A0278[SysGetRandomByteRange(7)]; }
 
-static s32 func_800A5A88(void) { return SysGetRandomByteRange(54); }
+static s32 BattleGetRndMasterCommand(s32 _) {
+    static const u8 masterCommands[] = {
+        CMD_STEAL, CMD_SENSE, CMD_THROW, CMD_MORPH, CMD_DEATHBLOW, CMD_MANIPULATE, CMD_MIME};
+    return masterCommands[SysGetRandomByteRange(LEN(masterCommands))];
+}
 
-static s32 func_800A5AA8(void) { return SysGetRandomByteRange(16) + 56; }
+static s32 BattleGetRndMasterMagic(s32 _) {
+    return SysGetRandomByteRange(NUM_MAGICS - 2); // Ignore last two magic entries, they are empty
+}
 
-const u8 D_800A028C[] = {0x02, 0xFF, 0x01, 0x86};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleGetRndAutoBattleAction);
+static s32 BattleGetRndMasterSummon(s32 _) { return SysGetRandomByteRange(NUM_SUMMONS) + NUM_MAGICS; }
+
+u8 BattleGetRndAutoBattleAction(s32 arg0, s32 arg1, s32 arg2, BattleAutoAction* autoAction) {
+    static s32 (* const fnRndJmpTbl[])(s32) = {
+        BattleGetRndMasterCommand,
+        BattleGetRndMasterMagic,
+        BattleGetRndMasterSummon,
+    };
+    static const u8 D_800A028C[] = {0x02, 0xFF, 0x01, 0x86};
+
+    u8 result;
+
+    autoAction->cmdIndex = D_800A028C[arg1];
+    autoAction->attackIndex = -1;
+
+    result = 3;
+    if (autoAction->cmdIndex != CMD_ATTACK) {
+        autoAction->attackIndex = arg2;
+
+        // Values of 0xFD, 0xFE, and 0xFF seem to be reserved for "pick a random command/magic/summon"
+        if (arg2 >= 0xFD) {
+            autoAction->attackIndex = fnRndJmpTbl[arg2 - 0xFD](arg0);
+        }
+
+        if (autoAction->cmdIndex == CMD_MAGIC) {
+            // If the action index is out of the magic range, switch to a summon instead
+            result = D_800708C4[autoAction->attackIndex].targetFlags;
+            if (autoAction->attackIndex >= NUM_MAGICS) {
+                autoAction->cmdIndex = CMD_SUMMON;
+                autoAction->attackIndex -= NUM_MAGICS;
+            }
+        } else {
+            autoAction->cmdIndex = autoAction->attackIndex;
+            autoAction->attackIndex = -1;
+            result = D_800707C4[autoAction->cmdIndex].targetFlags;
+        }
+    }
+    return result;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleAddAutoBattleActionByChance);
 

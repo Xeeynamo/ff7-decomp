@@ -696,6 +696,12 @@ typedef struct {
     /* 0x7C */ u8 stack[1];
 } BattleScriptVm;
 
+// Used for selecting an action with auto-battle units
+typedef struct {
+    /* 0x0 */ s32 cmdIndex;
+    /* 0x4 */ s32 attackIndex;
+} BattleAutoAction; // size:0x8
+
 extern u8* D_800F4AC0;
 extern BattleScriptVm* D_800F4AC4;
 
