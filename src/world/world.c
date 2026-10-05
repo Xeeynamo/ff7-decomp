@@ -4899,7 +4899,18 @@ static void func_800B64D8(u32 arg0) {
     AkaoExec();
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B650C);
+void func_800B650C(void) {
+    g_AkaoCmd.opcode = AKAO_STOP_ALL_SOUNDS;
+    AkaoExec();
+
+    g_AkaoCmd.opcode = AKAO_SET_REVERB_MUL;
+    g_AkaoCmd.params[0] = 0;
+    AkaoExec();
+
+    g_AkaoCmd.opcode = AKAO_SET_ALL_PITCH;
+    g_AkaoCmd.params[0] = 0;
+    AkaoExec();
+}
 
 static void WmSetMusicVolume(u32 arg0) {
     g_AkaoCmd.opcode = AKAO_VOLUME_SET;
