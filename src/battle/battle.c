@@ -2803,7 +2803,30 @@ void func_800AEBF0(int index) { BattleRecalcUnitSpeed(index); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattlePostAddDeath);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattlePostRemoveDeath);
+void BattlePostRemoveDeath(s32 arg0) {
+    if (g_BattleState.combatant[arg0].curHP == 0) {
+        g_BattleState.combatant[arg0].curHP = g_BattleState.combatant[arg0].maxHP;
+    }
+
+    if (arg0 >= NUM_PARTY) {
+        g_BattleState.combatant[arg0].stateFlags |= 0x18;
+    }
+
+    g_BattleState.combatant[arg0].stateFlags &= ~0x2000;
+    g_BattleData.actors[arg0].D_801636BC = g_BattleWork.turn[arg0].deathEffectState;
+
+    func_800AEBF0(arg0);
+
+    if (g_BattleState.combatant[arg0].status & STATUS_D_SENTENCE) {
+        BattleUnitInitStatusTimer(arg0, 0x15, 1); // 0x15 = index of STATUS_D_SENTENCE
+    }
+
+    if (g_BattleState.combatant[arg0].status & STATUS_BERSERK) {
+        BattleQueueEvent(0, arg0, 8, 0);
+    }
+
+    D_800F7DE0[0] &= ~(1 << arg0);
+}
 
 void BattleRestoreBattleActionIfCan(s32 arg0, s32 arg1, s32 arg2) {
     if (!(g_BattleState.combatant[arg0].status & 0x2804444)) {

@@ -743,6 +743,7 @@ extern u8 D_800F5630;
 extern u16 D_800F5634;
 extern u8 D_800F5638;
 extern u8 D_800F563C;
+extern u16 D_800F7DE0[];
 extern BattleMenuSlot D_800F90B4[];
 extern MenuTable D_800F9144;
 extern u8 D_800F977C;
