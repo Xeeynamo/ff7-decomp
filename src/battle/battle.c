@@ -937,7 +937,66 @@ u8 BattleGetRndAutoBattleAction(s32 arg0, s32 arg1, s32 arg2, BattleAutoAction* 
     return result;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleAddAutoBattleActionByChance);
+void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
+    s32 chance;
+    s32 target;
+    s32 priority;
+    s32 i;
+    s32 j;
+
+    const s32 inactionStatuses = STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_FROG | STATUS_PETRIFY |
+                                 STATUS_BERSERK | STATUS_PARALYSIS | STATUS_IMPRISONED;
+
+    if (((mode == 0) || !(g_BattleState.combatant[arg0].status & inactionStatuses)) && (arg0 < NUM_PARTY)) {
+        if (!(g_BattleState.combatant[arg0].stateFlags & 0x10)) {
+            ActiveCharEnabledCounter* counters = g_ActiveCharacters[arg0].enabledCounters;
+            for (i = 0; i < 8; i++) {
+                // Takes the mode and turns it into an offset (1, 4, 7) which suggests
+                // there are three "groups" of counter types depending on the mode
+                s32 counterGroupStart = mode * 3 + 1;
+                for (j = 0; j < 3; j++) {
+                    if (counters[i].counterType == counterGroupStart + j) {
+                        chance = counters[i].materiaAttribute;
+                        if (chance != 0) {
+                            if (mode == 0) {
+                                chance = 100;
+                                counters[i].materiaAttribute--;
+                            }
+
+                            if (SysGetRandomByteRange(100) < chance) {
+                                BattleAutoAction autoAction;
+                                if (BattleGetRndAutoBattleAction(arg0, j, counters[i].battleCommand, &autoAction) &
+                                    TARGET_START_ENEMY_ROW) {
+                                    target = g_BattleState.combatant[arg0].attackerMask;
+                                } else {
+                                    target = 1 << arg0;
+                                }
+
+                                switch (mode) {
+                                case 0:
+                                    priority = 0;
+                                    target &= 0xF; // Party side only
+                                    break;
+                                case 1:
+                                    priority = 1;
+                                    g_BattleWork.turn[arg0].turnFlags |= 4;
+                                    target = 0;
+                                    break;
+                                case 2:
+                                    priority = 1;
+                                    break;
+                                }
+
+                                BattleAddBattleActionToBattleQueue(
+                                    arg0, priority, autoAction.cmdIndex, autoAction.attackIndex, target);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleCopyStringAndSetNamesFromVar);
 
