@@ -2770,9 +2770,115 @@ static void AkaoUpdateCdVolume(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicUpdateSlideAndDelay);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoSoundUpdateSlideAndDelay);
+void AkaoSoundUpdateSlideAndDelay(AkaoChannel* channel, u32 mask) {
+    s32 vol, slide, tmp;
+    u32 depth, base;
+    s16* wave;
 
-void AkaoMusicUpdatePitchAndVol(AkaoChannel* channel, u32 mask, u32 voice);
+    if (channel->volSlideSteps != 0) {
+        channel->volSlideSteps--;
+        vol = channel->volumeLevel + channel->volSlideStep;
+
+        if ((vol & 0xFFE00000) != (channel->volumeLevel & 0xFFE00000)) {
+            channel->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE;
+        }
+
+        channel->volumeLevel = vol;
+    }
+
+    if (channel->noiseSwitchDelay != 0 && --channel->noiseSwitchDelay == 0) {
+        g_AkaoSfxLanes->noiseMask ^= mask;
+        g_AkaoBgmLanes->updateFlags |= AKAO_UPDATE_SIDE_CHAIN_PITCH;
+        AkaoUpdateNoiseVoices();
+    }
+
+    if (channel->pitchLfoSwitchDelay != 0 && --channel->pitchLfoSwitchDelay == 0) {
+        g_AkaoSfxLanes->pitchLfoMask ^= mask;
+        AkaoUpdatePitchLfoVoices();
+    }
+
+    if (channel->vibratoDepthSlideSteps != 0) {
+        channel->vibratoDepthSlideSteps--;
+        channel->vibratoDepth += channel->vibratoDepthSlideStep;
+
+        depth = (channel->vibratoDepth & 0x7F00) >> 8;
+        if (channel->vibratoDepth & 0x8000) {
+            base = (depth * channel->basePitch) >> 7;
+        } else {
+            base = (depth * ((channel->basePitch * 15) >> 8)) >> 7;
+        }
+
+        channel->vibratoBase = base;
+
+        if (channel->vibratoRateCur != 1) {
+            wave = channel->vibratoWave;
+            if (wave[0] == 0 && wave[1] == 0) {
+                wave += wave[2];
+            }
+
+            vol = (channel->vibratoBase * wave[0]) >> 16;
+            if (vol != channel->vibratoPitch) {
+                channel->vibratoPitch = vol;
+                channel->voiceAttr.mask |= SPU_VOICE_PITCH;
+
+                if (vol >= 0) {
+                    channel->vibratoPitch = vol * 2;
+                }
+            }
+        }
+    }
+
+    if (channel->tremoloDepthSlideSteps != 0) {
+        channel->tremoloDepthSlideSteps--;
+        channel->tremoloDepth += channel->tremoloDepthSlideStep;
+
+        if (channel->tremoloRateCur != 1) {
+            wave = channel->tremoloWave;
+            if (wave[0] == 0 && wave[1] == 0) {
+                wave += wave[2];
+            }
+
+            tmp = ((channel->volumeLevel >> 16) * channel->volumeMultiplier) >> 7;
+            vol = ((tmp * (channel->tremoloDepth >> 8)) << 9) >> 16;
+            vol = (vol * wave[0]) >> 15;
+            if (vol != channel->tremoloVol) {
+                channel->tremoloVol = vol;
+                channel->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE;
+            }
+        }
+    }
+
+    if (channel->panLfoDepthSlideSteps != 0) {
+        channel->panLfoDepthSlideSteps--;
+        channel->panLfoDepth += channel->panLfoDepthSlideStep;
+
+        if (channel->panLfoRateCur != 1) {
+            wave = channel->panLfoWave;
+            if (wave[0] == 0 && wave[1] == 0) {
+                wave += channel->panLfoWave[2];
+            }
+
+            vol = ((channel->panLfoDepth >> 8) * wave[0]) >> 15;
+            if (vol != channel->panLfoVol) {
+                channel->panLfoVol = vol;
+                channel->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE;
+            }
+        }
+    }
+
+    if (channel->pitchSlideStepsCur != 0) {
+        channel->pitchSlideStepsCur--;
+        slide = channel->pitchSlide + channel->pitchSlideStep;
+
+        if ((slide & 0xFFFF0000) != (channel->pitchSlide & 0xFFFF0000)) {
+            channel->voiceAttr.mask |= SPU_VOICE_PITCH;
+        }
+
+        channel->pitchSlide = slide;
+    }
+}
+
+void AkaoMusicUpdatePitchAndVol(AkaoChannel* channel, u32 mask, u16 voice);
 INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoMusicUpdatePitchAndVol);
 
 void AkaoSoundUpdatePitchAndVol(AkaoChannel* channel, u32 mask);
@@ -3116,7 +3222,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/akao", AkaoUpdateGlobalSlides);
 
 void AkaoExecuteSequence(AkaoChannel* channel, AkaoChannelConfig* config, u32 mask);
 void AkaoMusicUpdateSlideAndDelay(AkaoChannel* channel, AkaoChannelConfig* config, u32 mask);
-void AkaoSoundUpdateSlideAndDelay(AkaoChannel* channel, u32 mask);
 void AkaoUpdateGlobalSlides(void);
 void AkaoUpdateKeysOn(void);
 void AkaoUpdateKeysOff(void);
@@ -3703,8 +3808,8 @@ void AkaoOp_A1_LoadInstrument(AkaoChannel* track, AkaoChannelConfig* config, u32
     }
     if (track->playingType != AKAO_MUSIC || !(mask & config->keyedMask & g_AkaoSfxLanes->activeMask)) {
         track->voiceAttr.mask |= SPU_VOICE_PITCH;
-        track->basePitch = (u32)(track->basePitch * g_AkaoInstrument[id].pitch[0]) /
-                           g_AkaoInstrument[track->currentInstrument].pitch[0];
+        track->basePitch =
+            (track->basePitch * g_AkaoInstrument[id].pitch[0]) / g_AkaoInstrument[track->currentInstrument].pitch[0];
     }
     if (track->updateFlags & AKAO_UPDATE_ALTERNATIVE) {
         instr = &g_AkaoInstrument[id];
@@ -3731,8 +3836,7 @@ void AkaoOp_F2_LoadInstrument(AkaoChannel* track, AkaoChannelConfig* config, u32
     instr = &g_AkaoInstrument[id];
     if (track->playingType != AKAO_MUSIC || !(mask & config->keyedMask & g_AkaoSfxLanes->activeMask)) {
         track->voiceAttr.mask |= SPU_VOICE_PITCH;
-        track->basePitch =
-            (u32)(track->basePitch * instr->pitch[0]) / g_AkaoInstrument[track->currentInstrument].pitch[0];
+        track->basePitch = (track->basePitch * instr->pitch[0]) / g_AkaoInstrument[track->currentInstrument].pitch[0];
     }
     track->currentInstrument = id;
     track->voiceAttr.addr = 0x76FE0;
@@ -3838,7 +3942,7 @@ void AkaoOp_B4_Vibrato(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) 
     if (rate == 0) {
         track->vibratoRate = 0x100;
     }
-    pitch = (u16)track->basePitch;
+    pitch = track->basePitch & 0xFFFF;
     track->vibratoType = *track->akaoSequencePointer++;
     amplitude = (track->vibratoDepth & 0x7F00) >> 8;
     if (track->vibratoDepth & 0x8000) {

@@ -67,7 +67,6 @@ void AkaoLoadInstr2(u32* arg0, u32* arg1) { NOT_IMPLEMENTED; }
 void AkaoMusicUpdatePitchAndVol(AkaoChannel* channel, u32 mask, u32 voice) { NOT_IMPLEMENTED; }
 void AkaoSoundUpdatePitchAndVol(AkaoChannel* channel, u32 mask) { NOT_IMPLEMENTED; }
 void AkaoMusicUpdateSlideAndDelay(AkaoChannel* channel, AkaoChannelConfig* config, u32 mask) { NOT_IMPLEMENTED; }
-void AkaoSoundUpdateSlideAndDelay(AkaoChannel* channel, u32 mask) { NOT_IMPLEMENTED; }
 void AkaoUpdateGlobalSlides(void) { NOT_IMPLEMENTED; }
 u8 AkaoGetNextNote(AkaoChannel* channel) {
     NOT_IMPLEMENTED;
