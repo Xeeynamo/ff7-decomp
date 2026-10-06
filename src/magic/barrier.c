@@ -125,7 +125,7 @@ static void BarrierRenderBorder(void) {
     matrix->t[1] += barrier->Pos.vy;
     matrix->t[2] += barrier->Pos.vz;
 
-    CompMatrix(&D_800FA63C.m, matrix, matrix);
+    CompMatrix(&g_BattleWorldView.m, matrix, matrix);
     SetRotMatrix(matrix);
     SetTransMatrix(matrix);
 
@@ -184,7 +184,7 @@ static void BarrierRenderShield(void) {
     matrix1->t[0] += barrier->Pos.vx;
     matrix1->t[1] += barrier->Pos.vy;
     matrix1->t[2] += barrier->Pos.vz;
-    CompMatrix(&D_800FA63C.m, matrix1, matrix1);
+    CompMatrix(&g_BattleWorldView.m, matrix1, matrix1);
     SetRotMatrix(matrix1);
     SetTransMatrix(matrix1);
 

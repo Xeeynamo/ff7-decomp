@@ -48,6 +48,8 @@ long RotTransPers4(
     long* p,   // Pointer to interpolated value for depth cueing
     long* flag // Pointer to flag
 );
+long RotAverage4(SVECTOR* v0, SVECTOR* v1, SVECTOR* v2, SVECTOR* v3, long* sxy0, long* sxy1, long* sxy2,
+                 long* sxy3, long* p, long* flag);
 long RotAverageNclip4(
     SVECTOR* v0, SVECTOR* v1, SVECTOR* v2,
     SVECTOR* v3, // Pointer to vectors (input)
@@ -64,6 +66,7 @@ void NormalColorCol(SVECTOR* v0, // Pointer to normal vector (input)
 MATRIX* RotMatrixY(long r,   // Rotation angle(input)
                    MATRIX* m // Pointer to rotation matrix (input/output)
 );
+MATRIX* RotMatrixZ(long r, MATRIX* m);
 MATRIX* MulMatrix(MATRIX* m0, MATRIX* m1);
 MATRIX* MulMatrix2(MATRIX* m0, MATRIX* m1);
 VECTOR* ApplyMatrix(MATRIX* m, SVECTOR* v0, VECTOR* v1);

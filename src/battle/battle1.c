@@ -22,7 +22,7 @@ static void func_800BA4C8(void);
 void func_800BA598(s16);
 static void func_800BB030(s16);
 void BattleQueue1CameraInit(void);
-static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3);
+static void func_800BB75C(BattleWorldView* view, MATRIX* camera, s16* cameraPos, s16* cameraTarget);
 static void func_800BB804(void);
 static void func_800BB864(void);
 s32 func_800BC04C(void (*callback)(void));
@@ -120,7 +120,7 @@ void BattleNormalStartSeq(void) {
     VSync(0);
     SetDispMask(0);
     D_800F9F34 = 0;
-    *(s8*)&D_800FA63C.u.sub.unk34 = 0;
+    *(s8*)&g_BattleWorldView.u.sub.unk34 = 0;
     D_800FA6A0 = 0;
     func_800B37A0();
     func_800B3E2C();
@@ -185,7 +185,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEnemyPlayInitAnims);
 
 // one-shot setup call centered on the 320x240 screen
 static void func_800B37A0(void) {
-    func_800D91DC(0x140, 0xF0, D_80162084, D_800FA6A0, D_800FA63C.u.sub.unk34, D_800F9F34);
+    func_800D91DC(0x140, 0xF0, D_80162084, D_800FA6A0, g_BattleWorldView.u.sub.unk34, D_800F9F34);
 }
 
 static void func_800B37EC(void) {
@@ -576,8 +576,12 @@ static void func_800B8268(void) {
 
 // build a draw-mode prim (texture page selected by arg0) and add it to the OT
 static void func_800B8360(s32 arg0) {
+    DR_MODE* drMode;
+
     SetDrawMode(D_80163C74, 1, 1, (arg0 & 3) << 5, 0);
-    AddPrim(g_cDb->unk4078, D_80163C74++);
+    drMode = D_80163C74;
+    D_80163C74 = drMode + 1;
+    AddPrim(g_cDb->unk4078, drMode);
 }
 
 static void func_800B83C4() {
@@ -632,7 +636,7 @@ void func_800B8438(void) {
     SetFarColor(0, 0, 0);
     func_800BC538();
     func_800BC348();
-    func_800BB75C(&D_800FA63C, &D_800FA958, &g_BattleCameraPos, &g_BattleCameraTarget);
+    func_800BB75C(&g_BattleWorldView, &D_800FA958, &g_BattleCameraPos, &g_BattleCameraTarget);
     func_800C627C();
 }
 
@@ -806,7 +810,7 @@ static void BattleUpdateMatrixWithSelfAndParentAndSetToGte(BattleModelSub* model
     MulMatrix2((MATRIX*)0x1F800024, &modelSub->m);
     SetRotMatrix((MATRIX*)0x1F800024);
     SetTransMatrix((MATRIX*)0x1F800024);
-    RotTrans(&modelSub->sv2, (VECTOR*)modelSub->m.t, &flag);
+    RotTrans(&modelSub->trans, (VECTOR*)modelSub->m.t, &flag);
     SetRotMatrix(&modelSub->m);
     SetTransMatrix(&modelSub->m);
 }
@@ -826,7 +830,7 @@ static void func_800BB030(s16 arg0) {
     SetRotMatrix(&g_BattleModels[arg0].stageMatrix);
     SetTransMatrix(&g_BattleModels[arg0].stageMatrix);
     for (i = 0; i < D_800FA6D8[arg0].unk3C; i++) {
-        RotMatrixYXZ(&D_800FA6D8[arg0].unk8[i].sv1, &D_800FA6D8[arg0].unk8[i].m);
+        RotMatrixYXZ(&D_800FA6D8[arg0].unk8[i].rot, &D_800FA6D8[arg0].unk8[i].m);
     }
 
     for (i = 0; i < D_800FA6D8[arg0].unk3C; i++) {
@@ -882,17 +886,17 @@ void BattleQueue1CameraInit(void) {
     }
 }
 
-static void func_800BB75C(Unk800BB75C* arg0, MATRIX* m, s16* arg2, s16* arg3) {
-    int flag;
+static void func_800BB75C(BattleWorldView* view, MATRIX* camera, s16* cameraPos, s16* cameraTarget) {
+    s32 flag;
 
-    func_800D85B0(m, arg2, arg3, &D_800E7D10);
-    RotMatrixYXZ(&arg0->sv, &arg0->m);
-    TransMatrix(&arg0->m, &arg0->u.v);
-    MulMatrix2(m, &arg0->m);
-    SetRotMatrix(m);
-    SetTransMatrix(m);
-    RotTrans(&arg0->u.sub.sv2, (VECTOR*)&arg0->m.t, &flag);
-    BattleUpdateMatrixWithScaleAndSetToGte(&arg0->m, &D_800E7D20);
+    func_800D85B0(camera, cameraPos, cameraTarget, &D_800E7D10);
+    RotMatrixYXZ(&view->rot, &view->m);
+    TransMatrix(&view->m, &view->u.v);
+    MulMatrix2(camera, &view->m);
+    SetRotMatrix(camera);
+    SetTransMatrix(camera);
+    RotTrans(&view->u.sub.trans, (VECTOR*)&view->m.t, &flag);
+    BattleUpdateMatrixWithScaleAndSetToGte(&view->m, &D_800E7D20);
 }
 
 static void func_800BB804(void) {
@@ -1256,33 +1260,33 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BFF88);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0088);
 
-// Sample sp[3], then accumulate it into the scratchpad totals at 0x1F800000.
+// Sample sp, then accumulate it into the scratchpad totals at 0x1F800000.
 static void func_800C018C(s16 arg0, s16 arg1, s32 arg2, s32 arg3) {
-    s16 sp[3];
+    SVECTOR sp;
 
     if (arg0 == 0xF) {
-        BattleEntityGetCenter(g_BattleCurrentTargetMask, sp);
+        BattleEntityGetCenter(g_BattleCurrentTargetMask, &sp);
     } else {
-        BattleGetPartPosition(arg0, arg1, sp);
+        BattleGetPartPosition(arg0, arg1, &sp);
         func_800C0DD8(arg0, arg2 & 0xFF, arg3 & 0xFF);
     }
-    *(s32*)0x1F800000 += sp[0];
-    *(s32*)0x1F800004 += sp[1];
-    *(s32*)0x1F800008 += sp[2];
+    *(s32*)0x1F800000 += sp.vx;
+    *(s32*)0x1F800004 += sp.vy;
+    *(s32*)0x1F800008 += sp.vz;
 }
 
 static void func_800C0254(s16 arg0, s16 arg1) {
-    s16 sp[3];
+    SVECTOR sp;
 
     if (arg0 == 0xF) {
-        BattleEntityGetCenter(g_BattleCurrentTargetMask, sp);
+        BattleEntityGetCenter(g_BattleCurrentTargetMask, &sp);
     } else {
-        BattleGetPartPosition(arg0, arg1, sp);
+        BattleGetPartPosition(arg0, arg1, &sp);
         *(s32*)0x1F800004 = func_800C0314(*(s32*)0x1F800004, (u8)arg0);
     }
-    *(s32*)0x1F800000 += sp[0];
-    *(s32*)0x1F800004 += sp[1];
-    *(s32*)0x1F800008 += sp[2];
+    *(s32*)0x1F800000 += sp.vx;
+    *(s32*)0x1F800004 += sp.vy;
+    *(s32*)0x1F800008 += sp.vz;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0314);

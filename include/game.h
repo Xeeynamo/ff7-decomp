@@ -1323,7 +1323,7 @@ extern s32 g_BattleCharIdToCharId[14];
 extern MainMenuColorLabels g_Labels;    // labels indexed by Labels enum
 extern u8 g_MenuColors[NUM_MENU_COLOR]; // 4 corners x RGB
 extern FieldModelData* g_FieldModelData;
-extern u8 D_80062D98; // battle_clearRenderList
+extern u8 D_80062D98;
 // Set while a memory-card transfer is in flight and the savemap must not be
 // touched; battle code spin-waits on it.
 extern volatile u8 g_SavemapBusy;
@@ -1453,6 +1453,7 @@ s32 SysGetKernBattleTextById(s32);
 const char* SysKernGetString(s32 arg0, s32 arg1, s32 arg2);
 void SysSetEngineErrorCode(s32, ...);
 void func_8001726C(s16, u16);
+void func_8001C3C4(void);
 u32 InputReadPadsRaw(); // jet passes a pad id the main exe ignores
 u32 InputReadPads(void);
 void SysMenuCreateDrawenvDispenv(DRAWENV* draw_env, DISPENV* disp_env);

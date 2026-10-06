@@ -15,7 +15,7 @@ typedef struct {
     /* 0x06 */ s16 unk6;
     /* 0x08 */ SVECTOR Pos;
     /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
+    /* 0x12 */ s16 DepthBias;
     /* 0x14 */ char pad14[0xC];
 } FireData; // size:0x20
 
@@ -31,7 +31,7 @@ static void FireRenderSprite(void) {
     FireData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    func_800D4368(&effect->Pos, 0x1000, effect->unk12);
+    BattleSetBillboardMatrix(&effect->Pos, 0x1000, effect->DepthBias);
     fire_render_desc.frameIndex = effect->AnimationFrame;
     fire_buffer_ptr = func_800D4D90(&fire_render_desc, g_cDb->unk70, 12, fire_buffer_ptr);
     if (D_80062D98 == 0) {
@@ -56,7 +56,7 @@ static void FireAnimationUpdate(void) {
             next = &g_BattleEffectSlots[BattleEffectRegister(FireRenderSprite)];
             effect->unk6 = (effect->unk6 + (rand() & 0xF) + 1) % g_BattleModels[effect->TargetIndex].numBones;
             BattleGetPartPosition(effect->TargetIndex, effect->unk6, &next->Pos);
-            next->unk12 = effect->unk12;
+            next->DepthBias = effect->DepthBias;
         }
         effect->AnimationFrame++;
         if (effect->AnimationFrame >= 5) {
@@ -71,7 +71,7 @@ static void FireAttachToTarget(s32 target, s32 callbackArg) {
     effect = &g_BattleEffectSlots[BattleEffectRegister(FireAnimationUpdate)];
     effect->TargetIndex = target;
     effect->unk6 = 0;
-    effect->unk12 = -g_BattleModels[target].collisionRadius;
+    effect->DepthBias = -g_BattleModels[target].collisionRadius;
 }
 
 static void FireDoubleBufferFlip(void) {

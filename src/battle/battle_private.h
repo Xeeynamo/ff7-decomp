@@ -113,8 +113,97 @@ typedef struct {
     u8 unk18;
     s8 unk19;
     s16 unk1A;
-    s32 unk1C;
+    void* unk1C;
 } Unk801621F0; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 frame;
+    /* 0x04 */ SVECTOR pos;
+    /* 0x0C */ u8 unkC[0x14];
+} BattleHitFlashSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 frame;
+    /* 0x04 */ SVECTOR pos;
+    /* 0x0C */ u8 unkC[0x10];
+    /* 0x1C */ void (*spawnCallback)(void);
+} BattleTrailSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 frame;
+    /* 0x04 */ SVECTOR pos;
+    /* 0x0C */ u8 unkC[0x14];
+} Unk800D6F78Slot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 palette;
+    /* 0x02 */ s16 frame;
+    /* 0x04 */ SVECTOR pos;
+    /* 0x0C */ s16 dirX;
+    /* 0x0E */ s16 dirY;
+    /* 0x10 */ u8 unk10[4];
+    /* 0x14 */ s16 perpX;
+    /* 0x16 */ s16 perpY;
+    /* 0x18 */ u8 unk18[8];
+} Unk800D6D8CSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 flags;
+    /* 0x02 */ s16 frame;
+    /* 0x04 */ SVECTOR pos;
+    /* 0x0C */ s8* script;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 scale;
+    /* 0x14 */ u8 unk14[4];
+    /* 0x18 */ s16 depthBias;
+    /* 0x1A */ u8 unk1A[6];
+} BattleKeyframeEffectSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 flags;
+    /* 0x02 */ s16 frame;
+    /* 0x04 */ SVECTOR pos;
+    /* 0x0C */ u8 unk0C[6];
+    /* 0x12 */ s16 scale;
+    /* 0x14 */ s16 offsetX;
+    /* 0x16 */ s16 offsetY;
+    /* 0x18 */ s16 depthBias;
+    /* 0x1A */ s16 clutBias;
+    /* 0x1C */ u8 unk1C[4];
+} BattleKeyframeParticleSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 frame;
+    /* 0x04 */ SVECTOR pos;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 scaleX;
+    /* 0x10 */ s16 scaleY;
+    /* 0x12 */ u8 unk12[0xE];
+} BattleSparkleSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ SVECTOR pos;
+    /* 0x10 */ u8 unk10[0x10];
+} BattleStreakSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 bounces;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 actor;
+    /* 0x08 */ SVECTOR pos;
+    /* 0x10 */ SVECTOR velocity;
+    /* 0x18 */ s16 facing;
+    /* 0x1A */ u8 unk1A[6];
+} BattleBounceParticle; // size:0x20
 
 typedef struct {
     s32 method; // enum QueueMethod
@@ -275,12 +364,34 @@ extern short D_800EEB28[9][8];
 extern Unk800F01DC* D_800F01DC;
 extern s32 D_800F01E0;
 extern s32 D_800F01E4;
+extern BattleSpriteDesc D_800F01E8;
+extern MATRIX D_800F01F8;
+extern MATRIX g_BattleBillboardMatrix;
 extern s8* D_800F0C44[];
+extern SpriteAnim* D_800F0B14[8];
+extern s8* D_800F0F98[72];
+extern MATRIX D_800F10B8;
 extern s32 D_800F10DC;
 extern s32 D_800F14E0[];
+extern s32 D_800F15AC[];
 extern ModelRenderDesc D_800F1698;
+extern ModelRenderDesc D_800F1904;
+extern SVECTOR D_800F1914;
+extern SVECTOR D_800F191C;
+extern SVECTOR D_800F1924;
+extern SVECTOR D_800F192C;
+extern MATRIX D_800F1934;
+extern SVECTOR D_800F1954;
+extern MATRIX D_800F195C;
+extern ModelRenderDesc D_800F197C;
+extern MATRIX D_800F16A8;
+extern SpriteRenderDesc D_800F1714;
+extern s16 D_800F1720[6];
+extern MATRIX* D_800F16C8;
 extern MATRIX D_800F16CC;
 extern MATRIX* D_800F16EC;
+extern MATRIX D_800F16F0;
+extern MATRIX* D_800F1710;
 extern u16 D_800F198C; // btlmenu_limitReadyMask
 extern s32 D_800F199C;
 extern u8 D_800F19A4;
@@ -397,7 +508,6 @@ typedef struct {
 extern Unk800F7ED8 g_BattleCameraSlots[];
 extern s16 D_800F8182[];
 extern s16 g_BattleCameraCursor;
-extern s32 g_dbIndex;
 extern s16 D_800F836C;
 extern s16 D_800F8370;
 enum BattleEffectModelState {
@@ -438,7 +548,7 @@ extern u8 D_800F9D98;
 extern u8 D_800F9D9C;
 extern u16 D_800F9DA4;
 extern u8 D_800F9DA8[];
-extern Unk800BB75C D_800FA63C;
+extern BattleWorldView g_BattleWorldView;
 extern s16 D_800FA69C;
 extern u8 D_800FA6A0;
 extern u16 D_800FA6B8;
@@ -527,7 +637,6 @@ extern s16 D_800F3110;
 extern u8 D_800F3150; // btlmenu_prevLimitReadyMask
 extern u8 D_800F3163[];
 extern ModelScreenPos g_modelScreenPos[10];
-extern s16 g_BattleCurrentTargetMask;
 extern u8 D_801517BC;
 extern u8 D_801517C4;
 extern s16 g_BattleCameraPos;
@@ -572,7 +681,7 @@ extern void (*g_BattleMovementCallbacks[10])(void);
 extern s16 g_BattleMovementCount;
 extern u16 D_80163B80;
 extern void (*D_80163B84[60])(void);
-extern DR_MODE* D_80163C74; // TODO might be a generic u_long*, not DR_MODE*
+extern void* D_80163C74;
 extern s16 D_80163C78;
 extern u8 D_80163C7C;
 extern ShortVectorXYZ g_BattleEffectModelStartPos;

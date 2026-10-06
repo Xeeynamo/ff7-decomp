@@ -50,7 +50,7 @@ static void FairaRenderModel(void) {
     faira_matrix.t[0] = effect->Pos.vx;
     faira_matrix.t[1] = effect->Pos.vy;
     faira_matrix.t[2] = effect->Pos.vz;
-    CompMatrix(&D_800FA63C.m, &faira_matrix, &composedMatrix);
+    CompMatrix(&g_BattleWorldView.m, &faira_matrix, &composedMatrix);
     SetRotMatrix(&composedMatrix);
     SetTransMatrix(&composedMatrix);
 
