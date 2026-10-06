@@ -614,6 +614,18 @@ overlays:
     segments:
       - [0x0, rodata, highway]
       - [0xD0, c, highway]
+      - [0x3BC8, c, highway_node]
+      - [0x4144, c, highway_track]
+      - [0x7050, c, highway_rider]
+      - [0xC680, c, highway_collide]
+      - [0xD0A4, c, highway_race]
+      - [0xE6B4, c, highway_hud]
+      - [0xECE4, c, highway_draw]
+      - [0xFE98, c, highway_object]
+      - [0x10698, c, highway_model]
+      - [0x112B0, hasm, highway_model_gte]
+      - [0x12760, c, highway_model2]
+      - [0x13BF8, hasm, highway_gte]
       - [0x141C8, data, highway]
   - name: barrier
     disk_path: disks/us/MAGIC/BARRIER.BIN
