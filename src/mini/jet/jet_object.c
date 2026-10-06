@@ -3,7 +3,7 @@
 #include "jet_private.h"
 #include <libc.h>
 
-#define JET_TRACK_SEGMENT 0xFFFF
+#define SFX_JET_TRACK_SEGMENT 0xFFFF
 
 // JetObjectState.type selects behaviour; the model sets the look.
 enum JetObjectType {
@@ -402,7 +402,7 @@ void JetObjectsUpdate(JetBuffer* db) {
                 break;
             }
             step = objState->vars.incoming.step;
-            JetTrackSample(g_JetCameraPathPos + 3 * JET_TRACK_SEGMENT, -100, &pos, &rot);
+            JetTrackSample(g_JetCameraPathPos + 3 * SFX_JET_TRACK_SEGMENT, -100, &pos, &rot);
             x = objState->vars.incoming.startX;
             x += (step * (pos.vx - x)) >> 7;
             y = objState->vars.incoming.startY;
@@ -412,7 +412,7 @@ void JetObjectsUpdate(JetBuffer* db) {
             obj->position.vx = x;
             obj->position.vy = y;
             obj->position.vz = z;
-            JetTrackSample(g_JetCameraPathPos + 4 * JET_TRACK_SEGMENT, -100, &pos, &rot);
+            JetTrackSample(g_JetCameraPathPos + 4 * SFX_JET_TRACK_SEGMENT, -100, &pos, &rot);
             dx = obj->position.vx - pos.vx;
             dy = obj->position.vy - pos.vy;
             dz = obj->position.vz - pos.vz;
@@ -583,7 +583,7 @@ void JetObjectsUpdate(JetBuffer* db) {
                 JetObjectFree(obj);
                 break;
             }
-            JetTrackSample(g_JetCameraPathPos + 4 * JET_TRACK_SEGMENT, 10, &obj->position, &obj->rotation);
+            JetTrackSample(g_JetCameraPathPos + 4 * SFX_JET_TRACK_SEGMENT, 10, &obj->position, &obj->rotation);
             drawMode = 1;
             if (objState->hit) {
                 JetObjectDamage(obj);
