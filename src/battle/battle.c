@@ -2892,7 +2892,52 @@ static s32 BattleStatusBitToTimerIndex(s32 statusBit) {
     return result;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF874);
+// Returns a new status protection mask for a unit based on the current status and stateFlags
+s32 BattleGetStatusProtectionMask(s32 arg0, s32 arg1, s32 arg2) {
+    s32 statusProtectionMask;
+
+    statusProtectionMask = g_BattleWork.turn[arg0].statusProtectionMask;
+    if (g_BattleWork.turn[arg0].turnFlags & 8) {
+        statusProtectionMask |= (STATUS_BERSERK | STATUS_FROG | STATUS_CONFU);
+    }
+
+    if (arg1 != 0) {
+        if (g_BattleState.combatant[arg0].status & STATUS_RESIST) {
+            statusProtectionMask |= ~(STATUS_RESIST | STATUS_IMPRISONED);
+        }
+        if (g_BattleState.combatant[arg0].status & STATUS_DEATH_FORCE) {
+            statusProtectionMask |= STATUS_DEATH;
+        }
+    }
+
+    if (g_BattleState.combatant[arg0].status & STATUS_PEERLESS) {
+        statusProtectionMask |= ~STATUS_IMPRISONED;
+    }
+
+    // Haste and Slow cancel each other, so locking one locks both
+    if (statusProtectionMask & (STATUS_HASTE | STATUS_SLOW)) {
+        statusProtectionMask |= (STATUS_HASTE | STATUS_SLOW);
+    }
+
+    if ((arg0 < NUM_PARTY) && (arg2 != 0)) {
+        statusProtectionMask &= ~STATUS_DEATH;
+    }
+
+    if (g_BattleState.combatant[arg0].stateFlags & 0x1000) {
+        statusProtectionMask |= STATUS_DEATH;
+    }
+
+    // Protection against death is also protection against D.Sentence
+    if (statusProtectionMask & STATUS_DEATH) {
+        statusProtectionMask |= STATUS_D_SENTENCE;
+    }
+
+    if (!(g_CurrentAction->unk6C & 0x80)) {
+        statusProtectionMask = 0;
+    }
+
+    return statusProtectionMask;
+}
 
 void func_800AF9C8();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF9C8);
