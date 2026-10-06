@@ -2799,11 +2799,78 @@ void func_800AEB80(s32 arg0, s32 statusBit, s32 arg2) {
     }
 }
 
-void func_800AEBF0(int index) { BattleRecalcUnitSpeed(index); }
+void func_800AEBF0(int index, s32 arg1, s32 arg2) { BattleRecalcUnitSpeed(index); }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattlePostAddDeath);
+#ifndef PLATFORM_PSYZ
+// Original call in BattlePostAddDeath had no prototype in scope, but signature is correct according to other callers
+void BattleReqReturnReservedItems();
+#endif
 
-void BattlePostRemoveDeath(s32 arg0) {
+void BattlePostAddDeath(s32 arg0, s32 arg1, s32 arg2) {
+    u16 unk50;
+    u16 unk52;
+    s32 target;
+    s32 i;
+
+    if (arg0 >= NUM_PARTY) {
+        g_BattleState.combatant[arg0].stateFlags &= ~0x18;
+    } else {
+        g_BattleWork.party[arg0].limitBar = 0;
+        if (g_BattleWork.turn[arg0].turnFlags & 8) {
+            g_BattleWork.turn[arg0].turnFlags &= ~8;
+            g_BattleState.combatant[arg0].stateFlags &= ~0x10;
+            BattleQueueEffect(arg0, 3, 0, 0, 0, 0, 0);
+        }
+        g_BattleState.combatant[arg0].maxHP = g_BattleWork.party[arg0].maxHP;
+        BattleQueueEvent(2, arg0, 0x18, 0);
+    }
+
+    target = g_BattleWork.party[arg0].unk6;
+    if (target >= START_ENEMY) {
+        g_BattleState.combatant[target].status &= ~STATUS_MANIPULATE;
+    }
+
+    g_BattleState.combatant[arg0].curHP = 0;
+    func_800AEBF0(arg0, arg1, arg2);
+
+    g_BattleWork.turn[arg0].unk6 = 0;
+    g_BattleSceneContext.subActionSlots[arg0].priority = 0xFF;
+    BattleReqReturnReservedItems(arg0);
+
+    for (i = 0; i < NUM_STATUS_TIMERS; ++i) {
+        g_BattleWork.turn[arg0].statusTimers[i] = 0;
+    }
+
+    for (i = 0; i < NUM_STAT_MULTS; ++i) {
+        g_BattleWork.turn[arg0].statMults[i] = 0;
+    }
+
+    if (!((g_BattleSceneContext.unk1E88 >> arg0) & 1)) {
+        // This is probably stolen gil being returned on kill
+        unk50 = g_BattleState.combatant[arg0].unk50;
+        if (unk50 != 0) {
+            s16 strArg = unk50;
+            g_BattleState.combatant[arg0].unk50 = 0;
+            Savemap.gil += unk50;
+            BattleAddStringToDisplay(0xA, 0x54, 1, &strArg);
+        }
+
+        // This is probably stolen items being returned on kill
+        unk52 = g_BattleState.combatant[arg0].unk52;
+        if (unk52 != 0xFFFF) {
+            s16 strArg = unk52;
+            g_BattleState.combatant[arg0].unk52 = 0xFFFF;
+            BattleQueueEvent(0, g_CurrentAction->actorId, 3, unk52);
+            BattleAddStringToDisplay(0xA, 0x52, 1, &strArg);
+        }
+    }
+
+    BattleQueueEvent(0, arg0, 2, 0);
+    BattleInitUnitAction(arg0);
+    BattleInvalidateQueuedMessages(arg0, 1);
+}
+
+void BattlePostRemoveDeath(s32 arg0, s32 arg1, s32 arg2) {
     if (g_BattleState.combatant[arg0].curHP == 0) {
         g_BattleState.combatant[arg0].curHP = g_BattleState.combatant[arg0].maxHP;
     }
@@ -2815,7 +2882,7 @@ void BattlePostRemoveDeath(s32 arg0) {
     g_BattleState.combatant[arg0].stateFlags &= ~0x2000;
     g_BattleData.actors[arg0].D_801636BC = g_BattleWork.turn[arg0].deathEffectState;
 
-    func_800AEBF0(arg0);
+    func_800AEBF0(arg0, arg1, arg2);
 
     if (g_BattleState.combatant[arg0].status & STATUS_D_SENTENCE) {
         BattleUnitInitStatusTimer(arg0, 0x15, 1); // 0x15 = index of STATUS_D_SENTENCE
@@ -2858,7 +2925,7 @@ void BattleTryApplyHitEffect(s32 arg0, s32 arg1, s32 arg2) {
 void func_800AF264(s32 arg0, s32 arg1, s32 arg2) {
     s32 status;
 
-    func_800AEBF0(arg0);
+    func_800AEBF0(arg0, arg1, arg2);
     BattleUnitInitStatusTimer(arg0, arg1, arg2);
     BattleQueueEvent(0, arg0, 4, 0);
 
@@ -2871,7 +2938,7 @@ void func_800AF264(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 void func_800AF320(s32 arg0, s32 arg1, s32 arg2) {
-    func_800AEBF0(arg0);
+    func_800AEBF0(arg0, arg1, arg2);
     func_800AEB80(arg0, arg1, arg2);
     BattleRestoreBattleActionIfCan(arg0, arg1, arg2);
 }
