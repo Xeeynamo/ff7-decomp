@@ -6,14 +6,6 @@
 
 #define JET_ASSET_ADDR ((u_long*)0x800F0000)
 
-// Argument block for the GTE renderers in jet_gte.s.
-typedef struct {
-    /* 0x0 */ JetTriangle* tris;
-    /* 0x4 */ POLY_G3* prim;
-    /* 0x8 */ OT_TYPE* ot;
-    /* 0xC */ JetModel* model;
-} JetModelDrawArgs; // size: 0x10
-
 #define JET_LIST_END 0xFFFF
 
 // prev and next index the array the draw list orders.
