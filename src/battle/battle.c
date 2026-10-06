@@ -1109,7 +1109,54 @@ void BattleExecFormationAIScripts(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6278);
+// Seems to be a KO handler when a unit is killed on the battlefield
+// arg0 is the killer, arg1 is the victim, arg2 seems to be some sort of force or override flag
+void func_800A6278(s32 arg0, s32 arg1, s32 arg2) {
+    s32 var_s3;
+    u8 prevSlotMap0;
+
+    var_s3 = 0;
+    if (arg1 >= START_ENEMY) {
+        if (!(g_BattleWork.turn[arg1].turnFlags & 0x20)) {
+            g_BattleWork.turn[arg1].turnFlags |= 0x20;
+            if (arg0 < NUM_PARTY) {
+                g_BattleWork.party[arg0].killCount++;
+            }
+        }
+    }
+
+    if (!(g_BattleState.combatant[arg1].stateFlags & 0x2000)) {
+        prevSlotMap0 = g_BattleSceneContext.enemySlotMap[0];
+        g_BattleState.combatant[arg1].stateFlags |= 0x2000;
+
+        if (arg0 >= START_ENEMY) {
+            BattleAddAutoBattleActionByChance(arg1, 0);
+        }
+
+        if (arg0 != arg1) {
+            g_BattleState.combatant[arg1].attackerMask = 1 << arg0;
+        } else {
+            g_BattleState.combatant[arg1].attackerMask = 0;
+        }
+
+        BattleRunUnitScript(arg1, 3, 0);
+
+        if ((g_BattleSceneContext.enemySlotMap[0] != prevSlotMap0) || (arg2 != 0)) {
+            if (!(g_BattleState.combatant[arg1].stateFlags & 0x1000)) {
+                g_BattleState.scriptOpponentNonPetrifiedMask = 1 << arg1;
+                BattleQueueOpcodeAction(arg1, 0x25, 0);
+            }
+            var_s3 = 1;
+        }
+    }
+    if (g_BattleState.combatant[arg1].stateFlags & 0x1000) {
+        var_s3 = 1;
+    }
+
+    if (var_s3 != 0 && arg2 == 0) {
+        func_800A3488(arg1);
+    }
+}
 
 static void func_800A64A0(s32 arg0, s8 arg1) { D_800E7A58[arg0] = arg1; }
 

@@ -170,6 +170,7 @@ BattleOpcodeValueConvertToBool = 0x800B1C1C;
 BattleScriptCollapseVarBank = 0x800B1C94;
 BattleOpcodeCycle = 0x800B1D48;
 BattleInitScriptContext = 0x800B2A2C;
+BattleQueueOpcodeAction = 0x800B2B5C;
 BattleGetAttackEntry = 0x800B2EBC;
 BattleGetRndU16 = 0x800B2F50;
 BattleGetRnd164 = 0x800B2F70;

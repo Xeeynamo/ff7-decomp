@@ -644,6 +644,12 @@ void BattleEnqueueLoadImage(RECT* rect, u_long* ptr);
 void BattleReqReturnReservedItems(s16 arg0);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
+// func_800A6278 does not match if this is forward declared because the types do not agree
+// but the modern build fails if it is not declared
+#ifdef PLATFORM_PSYZ
+static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex);
+#endif
+
 /* battle menu widget block (one per widget id, 0x240 apart) -- partial */
 typedef struct {
     /* 0x0 */ u16 unk0;
