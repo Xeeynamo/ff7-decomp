@@ -2276,7 +2276,75 @@ void func_800ACA4C(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACB98);
+// Checks if an action can be performed for a unit, and deducts the required MP cost
+// stateFlags & 0x400 skips the MP cost and various checks
+// Returns 1 if the action is cancelled due to status effects or insufficient MP, 0 otherwise
+s32 func_800ACB98(void) {
+    s32 blocked;
+    s32 result;
+    s32 msg;
+
+    result = 0;
+    if (!(g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & 0x400) && (g_CurrentAction->unk20 != 0x34)) {
+        blocked = 0;
+
+        if (g_CurrentAction->attackerStatus & STATUS_SILENCE) {
+            switch (g_CurrentAction->cmdIndex) {
+            case CMD_MAGIC:
+            case CMD_SUMMON:
+            case CMD_ENEMY_SKILL:
+            case CMD_W_MAGIC:
+            case CMD_W_SUMMON:
+                blocked = 1;
+                break;
+            case CMD_ENEMY_ATTACK:
+                if (g_CurrentAction->unk38 != 0) {
+                    blocked = 1;
+                }
+                break;
+            }
+        }
+
+        if (g_CurrentAction->attackerStatus & STATUS_FROG) {
+            switch (g_CurrentAction->cmdIndex) {
+            case CMD_ATTACK:
+            case CMD_ITEM:
+                break;
+            case CMD_MAGIC:
+            case CMD_W_MAGIC:
+                // Toad can still be cast while a frog
+                if (g_CurrentAction->absoluteActionIndex != 0xA) {
+                    blocked = 1;
+                }
+                break;
+            case CMD_ENEMY_ATTACK:
+                if (g_CurrentAction->unk38 != 0) {
+                    blocked = 1;
+                }
+                break;
+            default:
+                blocked = 1;
+                break;
+            }
+        }
+
+        msg = -1;
+        if (blocked == 0) {
+            if ((u16)g_BattleState.combatant[g_CurrentAction->actorId].curMP >= g_CurrentAction->unk38) {
+                g_BattleState.combatant[g_CurrentAction->actorId].curMP -= g_CurrentAction->unk38;
+            } else {
+                msg = (g_CurrentAction->actorId < NUM_PARTY) ? 0x5B : 0x5C;
+                func_800ACA4C(msg);
+                result = 1;
+            }
+        } else {
+            func_800ACA4C(msg);
+            result = 1;
+        }
+    }
+    g_CurrentAction->unk38 = 0;
+    return result;
+}
 
 s32 func_800ACD88(s32 arg0) {
     s32 result;
