@@ -21,8 +21,8 @@ s16 HighwayObjectAlloc(HighwayObject* spawn, s16 parentIndex) {
     s16 index;
     s16 modelId;
 
-    if (g_HighwayObjectCount < 99) {
-        g_HighwayObjectCount = g_HighwayObjectCount + 1;
+    if (g_HighwayObjectCount < LEN(g_HighwayObjects) - 1) {
+        g_HighwayObjectCount++;
         index = HighwayObjectIndexAlloc();
         g_HighwayObjects[index] = *spawn;
         modelId = spawn->unk2C;

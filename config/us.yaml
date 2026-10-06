@@ -625,7 +625,7 @@ overlays:
       - [0x10698, c, highway_model]
       - [0x112B0, c, highway_model_gte]
       - [0x12760, c, highway_model2]
-      - [0x13BF8, hasm, highway_gte]
+      - [0x13BF8, asm, highway_gte]
       - [0x141C8, data, highway]
   - name: barrier
     disk_path: disks/us/MAGIC/BARRIER.BIN

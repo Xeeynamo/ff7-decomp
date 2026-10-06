@@ -35,7 +35,7 @@ void HighwayNodesInit(void) {
     HighwayNodeInit(&g_HighwayRootNode, 0);
     g_HighwayRootNode.depth = 0;
     g_HighwayNextFreeNode = 0;
-    for (i = 0; i < 400; i++) {
+    for (i = 0; i < LEN(g_HighwayNodeFreeList); i++) {
         g_HighwayNodeFreeList[i] = i + 1;
     }
     for (i = 0; i < LEN(g_HighwayNodeListHeads); i++) {
