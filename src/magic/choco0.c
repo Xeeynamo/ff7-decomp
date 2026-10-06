@@ -631,7 +631,8 @@ static void Choco0AnimationUpdate(void) {
         if (frame == 0) {
             BattleEffectRegister(Choco0SpawnDust);
             BattleEffectRegister(Choco0MoveModel);
-            BattleAkaoCommand(AKAO_PLAY_THREE_SOUNDS, AKAO_PAN_CENTER, SFX_24D, SFX_24E, SFX_24F);
+            BattleAkaoCommand(
+                AKAO_PLAY_THREE_SOUNDS, AKAO_PAN_CENTER, SFX_CHOCO0_RUN_1, SFX_CHOCO0_RUN_2, SFX_CHOCO0_RUN_3);
         }
     } else if ((frame -= 20) < 20) {
     } else if ((frame -= 20) < 20) {
@@ -644,7 +645,8 @@ static void Choco0AnimationUpdate(void) {
             BattleEnqueueClearImage(&choco0_clear_rect, 0, 0, 0);
         }
         if (frame == 0) {
-            BattleAkaoCommand(AKAO_PLAY_THREE_SOUNDS, AKAO_PAN_CENTER, SFX_250, SFX_251, SFX_252);
+            BattleAkaoCommand(
+                AKAO_PLAY_THREE_SOUNDS, AKAO_PAN_CENTER, SFX_CHOCO0_BOOM_1, SFX_CHOCO0_BOOM_2, SFX_CHOCO0_BOOM_3);
         }
     } else if ((frame -= 20) < 25) {
         if (frame == 0) {
