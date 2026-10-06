@@ -28,4 +28,20 @@ INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway", func_800A39E0);
 
 INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway", func_800A3AA0);
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway", func_800A3AF8);
+// Same as JetNodesInit.
+void HighwayNodesInit(void) {
+    s32 i;
+
+    HighwayNodeInit(&g_HighwayRootNode, 0);
+    g_HighwayRootNode.depth = 0;
+    g_HighwayNextFreeNode = 0;
+    for (i = 0; i < 400; i++) {
+        g_HighwayNodeFreeList[i] = i + 1;
+    }
+    for (i = 0; i < LEN(g_HighwayNodeListHeads); i++) {
+        g_HighwayNodeListHeads[i].next = &g_HighwayNodeListTails[i];
+        g_HighwayNodeListTails[i].prev = &g_HighwayNodeListHeads[i];
+        g_HighwayNodeListHeads[i].prev = NULL;
+        g_HighwayNodeListTails[i].next = NULL;
+    }
+}
