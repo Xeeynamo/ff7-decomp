@@ -899,31 +899,34 @@ static s32 BattleGetRndMasterMagic(s32 _) {
 
 static s32 BattleGetRndMasterSummon(s32 _) { return SysGetRandomByteRange(NUM_SUMMONS) + NUM_MAGICS; }
 
-u8 BattleGetRndAutoBattleAction(s32 arg0, s32 arg1, s32 arg2, BattleAutoAction* autoAction) {
-    static s32 (* const fnRndJmpTbl[])(s32) = {
-        BattleGetRndMasterCommand,
-        BattleGetRndMasterMagic,
-        BattleGetRndMasterSummon,
-    };
-    static const u8 D_800A028C[] = {0x02, 0xFF, 0x01, 0x86};
+s32 (* const g_BattleRndMasterJmpTbl[])(s32) = {
+    BattleGetRndMasterCommand,
+    BattleGetRndMasterMagic,
+    BattleGetRndMasterSummon,
+};
 
-    u8 result;
+// 0xFF: the id passed in is used as the command itself
+const u8 g_BattleAutoActionKindTable[] = {CMD_MAGIC, 0xFF, CMD_ATTACK};
 
-    autoAction->cmdIndex = D_800A028C[arg1];
+// Updates the auto battle action based on the kind and returns the targetFlags
+u8 BattleGetRndAutoBattleAction(s32 arg0, s32 kind, s32 actionId, BattleAutoAction* autoAction) {
+    u8 targetFlags;
+
+    autoAction->cmdIndex = g_BattleAutoActionKindTable[kind];
     autoAction->attackIndex = -1;
 
-    result = 3;
+    targetFlags = (TARGET_ENABLE_SELECTION | TARGET_START_ENEMY_ROW);
     if (autoAction->cmdIndex != CMD_ATTACK) {
-        autoAction->attackIndex = arg2;
+        autoAction->attackIndex = actionId;
 
         // Values of 0xFD, 0xFE, and 0xFF seem to be reserved for "pick a random command/magic/summon"
-        if (arg2 >= 0xFD) {
-            autoAction->attackIndex = fnRndJmpTbl[arg2 - 0xFD](arg0);
+        if (actionId >= 0xFD) {
+            autoAction->attackIndex = g_BattleRndMasterJmpTbl[actionId - 0xFD](arg0);
         }
 
         if (autoAction->cmdIndex == CMD_MAGIC) {
             // If the action index is out of the magic range, switch to a summon instead
-            result = D_800708C4[autoAction->attackIndex].targetFlags;
+            targetFlags = D_800708C4[autoAction->attackIndex].targetFlags;
             if (autoAction->attackIndex >= NUM_MAGICS) {
                 autoAction->cmdIndex = CMD_SUMMON;
                 autoAction->attackIndex -= NUM_MAGICS;
@@ -931,18 +934,21 @@ u8 BattleGetRndAutoBattleAction(s32 arg0, s32 arg1, s32 arg2, BattleAutoAction* 
         } else {
             autoAction->cmdIndex = autoAction->attackIndex;
             autoAction->attackIndex = -1;
-            result = D_800707C4[autoAction->cmdIndex].targetFlags;
+            targetFlags = D_800707C4[autoAction->cmdIndex].targetFlags;
         }
     }
-    return result;
+    return targetFlags;
 }
+
+// Unreferenced byte between g_BattleAutoActionKindTable above and D_800A0290; owner unknown
+const u8 D_800A028F = 0x86;
 
 void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
     s32 chance;
     s32 target;
     s32 priority;
     s32 i;
-    s32 j;
+    s32 kind;
 
     const s32 inactionStatuses = STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_FROG | STATUS_PETRIFY |
                                  STATUS_BERSERK | STATUS_PARALYSIS | STATUS_IMPRISONED;
@@ -950,12 +956,12 @@ void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
     if (((mode == 0) || !(g_BattleState.combatant[arg0].status & inactionStatuses)) && (arg0 < NUM_PARTY)) {
         if (!(g_BattleState.combatant[arg0].stateFlags & 0x10)) {
             ActiveCharEnabledCounter* counters = g_ActiveCharacters[arg0].enabledCounters;
-            for (i = 0; i < 8; i++) {
+            for (i = 0; i < LEN(g_ActiveCharacters[arg0].enabledCounters); i++) {
                 // Takes the mode and turns it into an offset (1, 4, 7) which suggests
                 // there are three "groups" of counter types depending on the mode
-                s32 counterGroupStart = mode * 3 + 1;
-                for (j = 0; j < 3; j++) {
-                    if (counters[i].counterType == counterGroupStart + j) {
+                s32 counterGroupStart = mode * LEN(g_BattleAutoActionKindTable) + 1;
+                for (kind = 0; kind < LEN(g_BattleAutoActionKindTable); kind++) {
+                    if (counters[i].counterType == counterGroupStart + kind) {
                         chance = counters[i].materiaAttribute;
                         if (chance != 0) {
                             if (mode == 0) {
@@ -965,7 +971,7 @@ void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
 
                             if (SysGetRandomByteRange(100) < chance) {
                                 BattleAutoAction autoAction;
-                                if (BattleGetRndAutoBattleAction(arg0, j, counters[i].battleCommand, &autoAction) &
+                                if (BattleGetRndAutoBattleAction(arg0, kind, counters[i].battleCommand, &autoAction) &
                                     TARGET_START_ENEMY_ROW) {
                                     target = g_BattleState.combatant[arg0].attackerMask;
                                 } else {
@@ -1043,6 +1049,8 @@ extern u16 D_80082884[];
 
 void BattleOpcodeCycle(s32, s32, s32);
 
+// scriptType 0 is run when the battle starts (see BattleInitPartyScripts/BattleInitEnemyAI)
+// scriptType 3 is run when a unit is KO'd (see func_800A6278)
 void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 arg2) {
     s32 scriptOffset = 0;
     s32 presetIdx = -1;
@@ -1110,13 +1118,14 @@ void BattleExecFormationAIScripts(void) {
 }
 
 // Seems to be a KO handler when a unit is killed on the battlefield
-// arg0 is the killer, arg1 is the victim, arg2 seems to be some sort of force or override flag
+// arg0 is the killer, arg1 is the victim, arg2: 1 from func_800AFECC, 0 from BattleCmdScriptDispatch
 void func_800A6278(s32 arg0, s32 arg1, s32 arg2) {
     s32 var_s3;
     u8 prevSlotMap0;
 
     var_s3 = 0;
     if (arg1 >= START_ENEMY) {
+        // Enemy's kill not already counted
         if (!(g_BattleWork.turn[arg1].turnFlags & 0x20)) {
             g_BattleWork.turn[arg1].turnFlags |= 0x20;
             if (arg0 < NUM_PARTY) {
@@ -2277,7 +2286,7 @@ void func_800ACA4C(s32 arg0) {
 }
 
 // Checks if an action can be performed for a unit, and deducts the required MP cost
-// stateFlags & 0x400 skips the MP cost and various checks
+// stateFlags & 0x400 skips the MP cost and various checks (also skipped when unk20 == 0x34)
 // Returns 1 if the action is cancelled due to status effects or insufficient MP, 0 otherwise
 s32 func_800ACB98(void) {
     s32 blocked;
@@ -2867,7 +2876,7 @@ void func_800AEB80(s32 arg0, s32 statusBit, s32 arg2) {
     }
 }
 
-void func_800AEBF0(int index, s32 arg1, s32 arg2) { BattleRecalcUnitSpeed(index); }
+void func_800AEBF0(s32 index, s32 arg1, s32 arg2) { BattleRecalcUnitSpeed(index); }
 
 #ifndef PLATFORM_PSYZ
 // Original call in BattlePostAddDeath had no prototype in scope, but signature is correct according to other callers
@@ -2905,11 +2914,11 @@ void BattlePostAddDeath(s32 arg0, s32 arg1, s32 arg2) {
     g_BattleSceneContext.subActionSlots[arg0].priority = 0xFF;
     BattleReqReturnReservedItems(arg0);
 
-    for (i = 0; i < NUM_STATUS_TIMERS; ++i) {
+    for (i = 0; i < NUM_STATUS_TIMERS; i++) {
         g_BattleWork.turn[arg0].statusTimers[i] = 0;
     }
 
-    for (i = 0; i < NUM_STAT_MULTS; ++i) {
+    for (i = 0; i < NUM_STAT_MULTS; i++) {
         g_BattleWork.turn[arg0].statMults[i] = 0;
     }
 
