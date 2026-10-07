@@ -2795,8 +2795,8 @@ void AkaoMusicUpdateSlideAndDelay(AkaoChannel* channel, AkaoChannelConfig* confi
         }
         channel->volBalance = vol;
     }
-    if (*(u16*)&channel->volPanSlideSteps) {
-        (*(u16*)&channel->volPanSlideSteps)--;
+    if (channel->volPanSlideSteps) {
+        channel->volPanSlideSteps--;
         vol = channel->volPan + channel->volPanSlideStep;
         if ((vol & 0xFF00) != (channel->volPan & 0xFF00)) {
             channel->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE;
@@ -2862,7 +2862,7 @@ void AkaoMusicUpdateSlideAndDelay(AkaoChannel* channel, AkaoChannelConfig* confi
                 wave += wave[2];
             }
 
-            tmp = (u32)(*((s16*)&channel->volumeLevel + 1) * channel->volumeMultiplier) >> 7;
+            tmp = (u32)((channel->volumeLevel >> 16) * channel->volumeMultiplier) >> 7;
             vol = (s32)((tmp * (channel->tremoloDepth >> 8)) << 9) >> 16;
             vol = (vol * wave[0]) >> 15;
             if (vol != channel->tremoloVol) {
@@ -4210,17 +4210,19 @@ static void AkaoOp_AA_SetPan(AkaoChannel* track) {
 }
 
 static void AkaoOp_AB_SetPanSlide(AkaoChannel* track) {
+    u8 steps;
     u8 targetPan;
     u16 currPan;
 
-    track->volPanSlideSteps = *track->akaoSequencePointer++;
-    if (track->volPanSlideSteps == 0) {
+    steps = *track->akaoSequencePointer++;
+    track->volPanSlideSteps = steps;
+    if (steps == 0) {
         track->volPanSlideSteps = 0x100;
     }
     targetPan = *track->akaoSequencePointer++;
     track->volPan &= 0xFF00;
     currPan = track->volPan;
-    track->volPanSlideStep = ((targetPan << 8) - currPan) / (u16)track->volPanSlideSteps;
+    track->volPanSlideStep = ((targetPan << 8) - currPan) / track->volPanSlideSteps;
 }
 
 static void AkaoOp_A5_SetOctave(AkaoChannel* track) { track->octave = *track->akaoSequencePointer++; }

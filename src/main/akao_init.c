@@ -18,7 +18,7 @@ u_long g_AkaoEffectsAll;
 u_long g_AkaoEffectsAllSeq;
 s32 g_AkaoMutex;
 u16 g_AkaoReverbMul;
-s16 g_AkaoCdVolSlideSteps;
+u16 g_AkaoCdVolSlideSteps;
 AkaoCdVol g_AkaoCdVol;
 u32 g_AkaoMuteMusicMask;
 s32 g_AkaoPitchMulMusic;

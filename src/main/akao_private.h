@@ -97,7 +97,7 @@ typedef struct {
     /* 0x5C */ u16 volSlideSteps;
     /* 0x5E */ u16 volBalanceSlideSteps;
     /* 0x60 */ u16 volPan;
-    /* 0x62 */ s16 volPanSlideSteps; // signed in opcode handlers, unsigned in slide updates
+    /* 0x62 */ u16 volPanSlideSteps;
     /* 0x64 */ u16 pitchSlideStepsCur;
     /* 0x66 */ u16 octave;
     /* 0x68 */ u16 pitchSlideSteps;
@@ -261,7 +261,7 @@ extern s32 g_AkaoStreamVol;
 extern s32 g_AkaoStreamPan;
 extern s32 g_AkaoCdVolSlideStep;
 extern u16 g_AkaoReverbMul;
-extern s16 g_AkaoCdVolSlideSteps;
+extern u16 g_AkaoCdVolSlideSteps;
 
 extern AkaoCdVol g_AkaoCdVol;
 extern u32 g_AkaoMuteMusicMask;
