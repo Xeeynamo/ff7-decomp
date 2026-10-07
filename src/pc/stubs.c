@@ -347,6 +347,9 @@ CurrentCharBattleMenuCommand D_80069508[NUM_BATTLE_COMMANDS];
 CurrentCharStats D_80069538;
 CurrentCharMagicCommand D_80069554[NUM_MAGICS];
 
+u16 D_80062F34[3];
+u8 D_80069800[48];
+
 // Entry points of menu overlays that are not part of the PC build yet.
 void NAMEMENU_Main(s32 arg0) { NOT_IMPLEMENTED; }
 void FORMMENU_Main(s32 arg0) { NOT_IMPLEMENTED; }

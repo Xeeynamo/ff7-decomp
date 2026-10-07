@@ -673,9 +673,46 @@ s32 SysMenuAddMateria(s32 arg0) {
 
 void func_800254D8(void) { D_80062EBC = 0; }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_800254E4);
+void SysPushObtainedMateria(u8 materiaId) {
+    D_80069800[D_80062EBC] = materiaId;
+    D_80062EBC++;
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80025514);
+void SysAddMateriaReplacingLowest(s32 materia) {
+    s32 i;
+    s32 lowestMateria;
+    u32 lowestRank;
+    u8 materiaId;
+
+    materiaId = materia;
+    for (i = 0; i < MAX_MATERIA_COUNT; i++) {
+        if (Savemap.materia[i] == -1) {
+            Savemap.materia[i] = materia;
+            if (SysMenuGetMateriaColorByType(materiaId) == 10) {
+                Savemap.memory_bank_1[75] |= 1;
+            }
+            if (materiaId == 44) {
+                Savemap.memory_bank_1[75] |= 2;
+            }
+            SysPushObtainedMateria(materiaId);
+            return;
+        }
+    }
+    lowestMateria = -1;
+    lowestRank = 0xFF;
+    for (i = 0; i < MAX_MATERIA_COUNT; i++) {
+        if (D_800494A4[Savemap.materia[i] & 0xFF] < lowestRank) {
+            lowestRank = D_800494A4[Savemap.materia[i] & 0xFF];
+            lowestMateria = Savemap.materia[i];
+        }
+    }
+    for (i = 0; i < MAX_MATERIA_COUNT; i++) {
+        if (Savemap.materia[i] == lowestMateria) {
+            Savemap.materia[i] = materia;
+            return;
+        }
+    }
+}
 
 void SysMenuRemoveMateria(void) {}
 

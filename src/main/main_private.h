@@ -73,6 +73,7 @@ extern u16 g_Pad1BattleKeysRepeat;
 extern Yamada D_80048F60[17];
 extern Yamada D_80048FE8[15];
 extern s32 D_80049474[6]; // play-clock divisors, see ovl.c
+extern u8 D_800494A4[92];
 extern s32 D_80049500[8]; // party slot -> character id (endgame level snapshot)
 extern u8 D_80049520[];
 extern u8 D_80049528[];
@@ -104,6 +105,7 @@ extern u8 D_800694C4[16];
 extern u8 D_800694D4[16];
 extern s16 D_800694E4[12];
 extern s16 D_800694FC[6];
+extern u8 D_80069800[48];
 extern DISPENV D_8007075C[2]; // active display environments (double-buffered)
 extern struct {
     u16 battleId;
@@ -136,6 +138,7 @@ void SysAddStatusAttackBit(s32 battleCharId, s32 statusId);
 void SysAddStatusProtectBit(s32 battleCharId, s32 statusId);
 void SysAddStatusProtect(s32 battleCharId, s32 statusMask);
 ArmorRecord* SysGetArmorAddressById(s32 armorId);
+void SysAddMateriaReplacingLowest(s32 materia);
 AccessoryRecord* SysGetAccessoryAddressById(s32 accessoryId);
 void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y); // PC: menu_setNotificationWindowPosition
 void SysMenuRequestAddWindow(u8* text, s8 palette);     // PC: menu_setNotificationMessage

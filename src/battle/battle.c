@@ -655,7 +655,7 @@ static s32 func_800A4A80(void) {
     return ret;
 }
 
-void func_800A4ACC(s16 arg0, u16 arg1) { func_8001726C(arg0, arg1); }
+void func_800A4ACC(s16 arg0, u16 arg1) { SysGiveApToEquippedMateria(arg0, arg1); }
 
 // opcode 0x14 handler (g_BattleCmdOpcodeJmpTbl[0x14]): spins on BattleQueue1Execute() until
 // status bit D_800F9DA4 & 2 clears. Not itself a damage dealer -- injecting
