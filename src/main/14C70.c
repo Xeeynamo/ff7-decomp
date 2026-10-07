@@ -86,7 +86,17 @@ u8* SysGetKernTextPtr(s32 blockId, s32 entryId, s32 blockOffset) {
 
 static void func_80014DD0(s32 arg0, s32 arg1, u8* arg2) { func_80014D58(arg2, SysGetKernTextPtr(arg0, arg1, 0), -1); }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80014E0C);
+static u8* func_80014E0C(s32 charId, u8* dst) {
+    s32 i;
+
+    for (i = 0; i < NUM_CHARACTERS; i++) {
+        if (Savemap.party[i].char_id == charId) {
+            dst = func_80014D58(dst, Savemap.party[i].name, LEN(Savemap.party[i].name));
+            break;
+        }
+    }
+    return dst;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80014E74);
 
