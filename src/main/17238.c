@@ -372,9 +372,27 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMasterMagicWithAll);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMagicWithAll);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysSearchExistedCommand);
+s32 SysSearchExistedCommand(u8 commandId) {
+    s32 i;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysSearchExistedMagic);
+    for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
+        if (D_80069508[i].id == commandId) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+s32 SysSearchExistedMagic(u8 magicId) {
+    s32 i;
+
+    for (i = 0; i < NUM_MAGICS; i++) {
+        if (D_80069554[i].id == magicId) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 void SysParseMegaallMateria(u32 materia) {
     s32 i;
