@@ -2,6 +2,7 @@
 #include "battle_private.h"
 #include "../magic/magic.h"
 #include <libc.h>
+#include <libetc.h>
 
 void func_800D751C();
 void func_800D7888();
@@ -2334,7 +2335,7 @@ void func_800D4710(void) {
     u8 anim;
 
     p = (BattleKeyframeParticleSlot*)&D_801621F0[D_801590D4];
-    desc = (SpriteRenderDesc*)0x1F800000;
+    desc = (SpriteRenderDesc*)getScratchAddr(0);
     desc->frameIndex = p->frame | 0x8000;
     desc->clutBias = p->clutBias;
     *(u32*)&desc->color = 0x2C808080;
@@ -2344,7 +2345,7 @@ void func_800D4710(void) {
         m = &D_800F10B8;
         desc->frames = D_800F0B14[anim];
     } else {
-        m = (MATRIX*)0x1F80000C;
+        m = (MATRIX*)getScratchAddr(3);
         desc->frames = D_800F0B14[5];
         *m = D_800F10B8;
         RotMatrixZ(0x200, m);
@@ -2855,7 +2856,6 @@ void BattleDrawHitFlashModel(MATRIX* m) {
 
 void BattleHitFlashGrowTick(void) {
     BattleHitFlashSlot* slot;
-    u16 frame;
 
     slot = (BattleHitFlashSlot*)&D_801621F0[D_801590D4];
     D_800F16A8.m[1][1] = rsin(slot->frame << 7) + 0x1000;
@@ -2872,9 +2872,7 @@ void BattleHitFlashGrowTick(void) {
     D_800F1698.model = D_800F15AC;
     BattleDrawHitFlashModel(D_800F16C8);
     if (D_80062D98 == 0) {
-        frame = slot->frame + 1;
-        slot->frame = frame;
-        if ((s16)frame == 16) {
+        if (++slot->frame == 16) {
             slot->unk0 = -1;
         }
     }
@@ -3102,7 +3100,11 @@ void func_800D751C(void) {
     otz = RotAverage4(&D_800F1914, &D_800F191C, &D_800F1924, &D_800F192C, (long*)&quad->x0, (long*)&quad->x1,
                       (long*)&quad->x2, (long*)&quad->x3, &p, &flag);
     if (otz > 0) {
+#ifdef PLATFORM_PSYZ
+        setlen(quad, 9);
+#else
         quad->tag = 0x09000000;
+#endif
         if (slot->unk0 == 0) {
             *(u32*)&quad->r0 = 0x2E808080;
         } else {
