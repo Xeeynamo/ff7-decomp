@@ -2862,7 +2862,7 @@ void AkaoMusicUpdateSlideAndDelay(AkaoChannel* channel, AkaoChannelConfig* confi
                 wave += wave[2];
             }
 
-            tmp = (u32)((channel->volumeLevel >> 16) * channel->volumeMultiplier) >> 7;
+            tmp = ((channel->volumeLevel >> 16) * channel->volumeMultiplier) >> 7;
             vol = (s32)((tmp * (channel->tremoloDepth >> 8)) << 9) >> 16;
             vol = (vol * wave[0]) >> 15;
             if (vol != channel->tremoloVol) {
@@ -3017,7 +3017,7 @@ void AkaoMusicUpdatePitchAndVol(AkaoChannel* channel, u32 mask, u16 voice) {
     s32 sample;
     s32 rightVolume;
 
-    baseVolume = (u32)((s16)FIXED_HI(channel->volumeLevel) * channel->volumeMultiplier) >> 7;
+    baseVolume = ((s16)FIXED_HI(channel->volumeLevel) * channel->volumeMultiplier) >> 7;
     if ((channel->updateFlags & AKAO_UPDATE_VIBRATO) && !channel->vibratoDelayCur) {
         if (!--channel->vibratoRateCur) {
             channel->vibratoRateCur = channel->vibratoRate;
@@ -3066,7 +3066,7 @@ void AkaoMusicUpdatePitchAndVol(AkaoChannel* channel, u32 mask, u16 voice) {
     }
     if (channel->updateFlags & AKAO_UPDATE_SIDE_CHAIN_VOL) {
         channel->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE;
-        baseVolume = (u32)((s16)(channel[-1].voiceAttr.pitch * 2) * channel->volumeMultiplier) >> 7;
+        baseVolume = ((s16)(channel[-1].voiceAttr.pitch * 2) * channel->volumeMultiplier) >> 7;
     }
     if (channel->voiceAttr.mask & AKAO_UPDATE_SPU_VOICE) {
         baseVolume += channel->tremoloVol;
@@ -3129,7 +3129,7 @@ void AkaoSoundUpdatePitchAndVol(AkaoChannel* channel, u32 mask) {
     s32 sample;
     s32 rightVolume;
 
-    baseVolume = (u32)((s16)FIXED_HI(channel->volumeLevel) * channel->volumeMultiplier) >> 7;
+    baseVolume = ((s16)FIXED_HI(channel->volumeLevel) * channel->volumeMultiplier) >> 7;
     if (channel->updateFlags & AKAO_UPDATE_VIBRATO) {
         if (!--channel->vibratoRateCur) {
             channel->vibratoRateCur = channel->vibratoRate;
@@ -3178,7 +3178,7 @@ void AkaoSoundUpdatePitchAndVol(AkaoChannel* channel, u32 mask) {
     }
     if (channel->updateFlags & AKAO_UPDATE_SIDE_CHAIN_VOL) {
         channel->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE;
-        baseVolume = (u32)((s16)(channel[-1].voiceAttr.pitch * 2) * channel->volumeMultiplier) >> 7;
+        baseVolume = ((s16)(channel[-1].voiceAttr.pitch * 2) * channel->volumeMultiplier) >> 7;
     }
     if (channel->voiceAttr.mask & AKAO_UPDATE_SPU_VOICE) {
         baseVolume = baseVolume + channel->tremoloVol;
