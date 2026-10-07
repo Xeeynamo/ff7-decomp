@@ -18,7 +18,7 @@ u_long g_AkaoEffectsAll;
 u_long g_AkaoEffectsAllSeq;
 s32 g_AkaoMutex;
 u16 g_AkaoReverbMul;
-u16 g_AkaoCdVolSlideSteps;
+s16 g_AkaoCdVolSlideSteps;
 AkaoCdVol g_AkaoCdVol;
 u32 g_AkaoMuteMusicMask;
 s32 g_AkaoPitchMulMusic;
@@ -153,12 +153,38 @@ void AkaoInitData(void) {
 }
 
 // Uploads the samples of an INSTR*.ALL file to the SPU and copies the instrument table of the matching INSTR*.DAT file.
-void AkaoLoadInstr(u32* arg0, u32* arg1);
-INCLUDE_ASM("asm/us/main/nonmatchings/akao_init", AkaoLoadInstr);
+void AkaoLoadInstr(u32* instrAll, u32* instrDat) {
+    u32* dst;
+    u32 count;
+    SpuSetTransferStartAddr(*instrAll++);
+    count = *instrAll++;
+    instrAll += 2;
+    AkaoSpuWrite((u8*)instrAll, count);
+    dst = (u32*)&g_AkaoInstrument[0];
+    count = sizeof(g_AkaoInstrument) / sizeof(u32);
+    do {
+        count--;
+        *dst++ = *instrDat++;
+    } while (count);
+    AkaoSpuTransferSync();
+}
 
 // Same as AkaoLoadInstr, but only replaces the instruments from AKAO_INSTR2_FIRST onwards.
-void AkaoLoadInstr2(u32* arg0, u32* arg1);
-INCLUDE_ASM("asm/us/main/nonmatchings/akao_init", AkaoLoadInstr2);
+void AkaoLoadInstr2(u32* instrAll, u32* instrDat) {
+    u32* dst;
+    u32 count;
+    SpuSetTransferStartAddr(*instrAll++);
+    count = *instrAll++;
+    instrAll += 2;
+    AkaoSpuWrite((u8*)instrAll, count);
+    dst = (u32*)&g_AkaoInstrument[AKAO_INSTR2_FIRST];
+    count = (AKAO_INSTR_COUNT - AKAO_INSTR2_FIRST) * sizeof(AkaoInstrument) / sizeof(u32);
+    do {
+        count--;
+        *dst++ = *instrDat++;
+    } while (count);
+    AkaoSpuTransferSync();
+}
 
 void AkaoStart(u32* instrAll, u32* instrDat) {
     g_AkaoEffectsAll = (u_long)g_AkaoEffectsBuffer;

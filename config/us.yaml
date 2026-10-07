@@ -32,7 +32,7 @@ overlays:
       - [0xB00, .rodata, 1CDA4]
       - [0xB14, .rodata, 1F6B4]
       - [0xB60, .rodata, 26B70]
-      - [0xB94, rodata, akao_rodata]
+      - [0xB94, .rodata, akao]
       - [0xC38, .rodata, cd]
       - [0xC9C, .rodata, 34F3C]
       - [0xCB4, rodata, psxsdk/libspu/spu]
