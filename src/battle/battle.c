@@ -899,7 +899,41 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleGetRndAutoBattleAction);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleAddAutoBattleActionByChance);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleCopyStringAndSetNamesFromVar);
+s32 BattleCopyStringAndSetNamesFromVar(u8* dst, const u8* src, const u16* args) {
+    s32 len = 0;
+    u8 value;
+
+    while (1) {
+        value = *src++;
+        len++;
+        *dst++ = value;
+
+        if (value == 0xFF) {
+            break;
+        }
+
+        // The byte after F9 is copied through without being checked for some reason
+        if (value == 0xF9) {
+            *dst++ = *src++;
+            len++;
+        } else if (value >= 0xEA && value <= 0xF1) { // Argument opcodes, processed later
+            u8 curr = *src++;
+            u8 next = *src++;
+
+            // Fill in the placeholder bytes with real data from args
+            if (curr == 0xFF && next == 0xFF) {
+                u16 arg = *args++;
+                curr = arg >> 8;
+                next = arg;
+            }
+
+            *dst++ = curr;
+            *dst++ = next;
+            len += 2;
+        }
+    }
+    return len;
+}
 
 static s32 BattleExpandScriptToBuffer(u8* src, u16* patch) {
     u8 buf[0x100];
