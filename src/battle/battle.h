@@ -448,7 +448,7 @@ typedef struct {
     /* 0x023 */ u8 currentActionId;
     /* 0x024 */ u8 unk24;
     /* 0x025 */ u8 specialFlags;
-    /* 0x026 */ u8 unk26;
+    /* 0x026 */ u8 ready;
     /* 0x027 */ u8 deathType;
     /* 0x028 */ u8 colorR;
     /* 0x029 */ u8 colorG;
