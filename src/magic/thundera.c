@@ -54,7 +54,7 @@ static void ThunderaRenderModel(void) {
     matrix.t[0] = effect->Pos.vx;
     matrix.t[1] = effect->Pos.vy;
     matrix.t[2] = effect->Pos.vz;
-    CompMatrix(&D_800FA63C.m, &matrix, &matrix);
+    CompMatrix(&g_BattleWorldView.m, &matrix, &matrix);
     SetRotMatrix(&matrix);
     SetTransMatrix(&matrix);
     desc = (ModelRenderDesc*)0x1F800000;
@@ -89,7 +89,7 @@ static void ThunderaRenderFlash(void) {
     shade = ~(frame << 6);
     desc->color.cd = 0x2C;
     desc->color.r = desc->color.g = desc->color.b = shade;
-    func_800D4368(&effect->Pos, 0x2000, effect->DepthBias);
+    BattleSetBillboardMatrix(&effect->Pos, 0x2000, effect->DepthBias);
     g_ThunderaBufferPtr = func_800D4D90(desc, g_cDb->unk70, 12, g_ThunderaBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
@@ -103,7 +103,7 @@ static void ThunderaRenderImpact(void) {
     ThunderaData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    func_800D4368(&effect->Pos, 0x3000, effect->DepthBias);
+    BattleSetBillboardMatrix(&effect->Pos, 0x3000, effect->DepthBias);
     thundera_render_desc.frameIndex = effect->AnimationFrame >> 1;
     g_ThunderaBufferPtr = func_800D4D90(&thundera_render_desc, g_cDb->unk70, 12, g_ThunderaBufferPtr);
     if (D_80062D98 == 0) {
@@ -121,8 +121,8 @@ static void ThunderaRenderSpark(void) {
 
     desc = (SpriteRenderDesc*)0x1F800000;
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    SetRotMatrix(&D_800FA63C.m);
-    SetTransMatrix(&D_800FA63C.m);
+    SetRotMatrix(&g_BattleWorldView.m);
+    SetTransMatrix(&g_BattleWorldView.m);
     RotTrans(&effect->Pos, (VECTOR*)thundera_matrix.t, &flag);
     thundera_matrix.t[2] += effect->DepthBias;
     if (effect->Flags & 1) {

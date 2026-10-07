@@ -3,11 +3,6 @@
 #include <libetc.h>
 #include <psxsdk/inline_c.h>
 
-// psyz's libetc.h has no getScratchAddr yet, so the pc build needs it here
-#ifndef getScratchAddr
-#define getScratchAddr(offset) ((u_long*)(0x1f800000 + (offset) * 4))
-#endif
-
 s32 WmCreatePacketForModelPart(FieldModelPart*, s32, s32, s32);
 void WmScaleModelVertexes(FieldModelPart*, s16, s32);
 void WmScaleModelAnimations(FieldModelAnimation*, s16, s32);

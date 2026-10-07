@@ -53,7 +53,7 @@ static void BrizaraRenderModel0(void) {
     matrix->t[0] = effect->Pos.vx;
     matrix->t[1] = effect->Pos.vy;
     matrix->t[2] = effect->Pos.vz;
-    CompMatrix(&D_800FA63C.m, matrix, matrix);
+    CompMatrix(&g_BattleWorldView.m, matrix, matrix);
     SetRotMatrix(matrix);
     SetTransMatrix(matrix);
     brizara_buffer_ptr = func_800D29D4(&brizara_render_desc0, g_cDb->unk70, 12, brizara_buffer_ptr);
@@ -104,7 +104,7 @@ static void BrizaraRenderModel1(void) {
     matrix->t[0] = effect->Pos.vx;
     matrix->t[1] = effect->Pos.vy;
     matrix->t[2] = effect->Pos.vz;
-    CompMatrix(&D_800FA63C.m, matrix, matrix);
+    CompMatrix(&g_BattleWorldView.m, matrix, matrix);
     SetRotMatrix(matrix);
     SetTransMatrix(matrix);
     brizara_buffer_ptr = func_800D29D4(&brizara_render_desc1, g_cDb->unk70, 12, brizara_buffer_ptr);

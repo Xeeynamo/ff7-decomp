@@ -614,7 +614,7 @@ static void Choco0AnimationUpdate(void) {
     s32 i;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    CompMatrix(&D_800FA63C.m, &choco0_scene_matrix, &choco0_view_matrix);
+    CompMatrix(&g_BattleWorldView.m, &choco0_scene_matrix, &choco0_view_matrix);
     if (D_80062D98) {
         return;
     }

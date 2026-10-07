@@ -67,7 +67,7 @@ static void ThunderRenderModel(void) {
     thunder_model_matrix.t[0] = effect->Pos.vx;
     thunder_model_matrix.t[1] = effect->Pos.vy;
     thunder_model_matrix.t[2] = effect->Pos.vz;
-    CompMatrix(&D_800FA63C.m, &thunder_model_matrix, &matrix);
+    CompMatrix(&g_BattleWorldView.m, &thunder_model_matrix, &matrix);
     SetRotMatrix(&matrix);
     SetTransMatrix(&matrix);
     g_ThunderBufferPtr = func_800D29D4(&thunder_model_desc, g_cDb->unk70, 12, g_ThunderBufferPtr);
@@ -81,7 +81,7 @@ static void ThunderRenderImpact(void) {
     ThunderData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    func_800D4368(&effect->Pos, 0x2000, effect->DepthBias);
+    BattleSetBillboardMatrix(&effect->Pos, 0x2000, effect->DepthBias);
     thunder_render_desc0.frameIndex = effect->AnimationFrame >> 1;
     g_ThunderBufferPtr = func_800D4D90(&thunder_render_desc0, g_cDb->unk70, 12, g_ThunderBufferPtr);
     if (D_80062D98 == 0) {
@@ -97,7 +97,7 @@ static void ThunderRenderSpark(void) {
     ThunderData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    matrix = func_800D4368(&effect->Pos, 0x2000, effect->DepthBias);
+    matrix = BattleSetBillboardMatrix(&effect->Pos, 0x2000, effect->DepthBias);
     if (effect->Flags & 1) {
         matrix->m[0][0] = -matrix->m[0][0];
     }

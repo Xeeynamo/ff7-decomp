@@ -410,8 +410,8 @@ typedef struct {
 
 typedef struct {
     MATRIX m;
-    SVECTOR sv1;
-    SVECTOR sv2;
+    SVECTOR rot;
+    SVECTOR trans;
     MATRIX* parentMatrix;
 } BattleModelSub; // size:0x34
 
@@ -482,19 +482,18 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ MATRIX m;
-    /* 0x20 */ SVECTOR sv;
+    /* 0x20 */ SVECTOR rot;
     union {
         /* 0x28 */ VECTOR v;
         struct {
-            /* 0x28 */ SVECTOR sv2;
+            /* 0x28 */ SVECTOR trans;
             /* 0x30 */ s32 unk30;
             /* 0x34 */ u8 unk34;
             /* 0x35 */ s8 unk35;
             /* 0x36 */ s16 unk36;
         } sub;
     } u;
-
-} Unk800BB75C; // size:0x38
+} BattleWorldView; // size:0x38
 
 // Flag word at offset 4, as func_800D29D4 tests it. Each mirror bit negates
 // one rotation column, reversing polygon winding, so the cull test XORs their
@@ -517,7 +516,7 @@ enum ModelRenderFlags {
 typedef struct {
     /* 0x0 */ s32* model;
     /* 0x4 */ s32 flags;    // ModelRenderFlags
-    /* 0x8 */ u16 uvOffset; // added to every UV halfword; all callers pass 0
+    /* 0x8 */ u16 uvOffset; // added to every UV halfword
     /* 0xA */ s16 color;    // grey level ORed into the colour word; under
                             // MODEL_DEPTH_CUE it feeds GTE IR0 instead, so
                             // 0x1000 blends the model fully into SetFarColor
@@ -677,7 +676,7 @@ extern BattleSceneContext g_BattleSceneContext;
 extern u16 D_800F7DE8;
 extern u8 g_EncounterType;
 extern BattleState g_BattleState;
-extern Unk800BB75C D_800FA63C;
+extern BattleWorldView g_BattleWorldView;
 extern DB* g_cDb;
 extern s32 g_dbIndex;
 extern short g_BattleEffectCursor;
@@ -701,15 +700,15 @@ void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);
 // diagonal, `pos` is transformed into view space to become the translation,
 // and `depthBias` nudges it along that view vector (negative pulls it toward
 // the camera). Leaves the result installed as the rot/trans matrix.
-MATRIX* func_800D4368(SVECTOR* pos, s32 scale, s32 depthBias);
+MATRIX* BattleSetBillboardMatrix(SVECTOR* pos, s32 scale, s32 depthBias);
 void* func_800D4D90(SpriteRenderDesc* desc, u_long** ot, int otLen, void* prim);
 void* BattleEffectSpriteAdd(BattleSpriteDesc* desc, u_long** ot, int otLen, void* prim);
 void func_800D5444(int, int, int, void (*func)(int));
 // Returns a scale derived from the target's model size.
 s32 func_800D55A4(s32 target);
 void BattleAkaoCommand(s32 cmdId, ...);
-void BattleGetPartPosition(s32 arg0, s32 arg1, void* arg2);
-void BattleEntityGetCenter(s32 targetMask, void* center);
+void BattleGetPartPosition(s32 actor, s32 bone, SVECTOR* pos);
+SVECTOR* BattleEntityGetCenter(s32 targetMask, SVECTOR* center);
 enum BattleEventType {
     BATTLE_EVENT_EFFECT_MODEL_START = 1,
     BATTLE_EVENT_EFFECT_MODEL_END = 2,

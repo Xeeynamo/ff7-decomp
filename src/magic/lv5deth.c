@@ -2,7 +2,6 @@
 
 #include "common.h"
 #include "magic.h"
-#include "magic_private.h"
 #include "../battle/battle.h"
 
 // Lv5 Death (レベル5デス / Level 5 Death).
@@ -25,8 +24,7 @@ typedef struct {
     /* 0x00 */ s16 StartFrame;
     /* 0x02 */ s16 AnimationFrame;
     /* 0x04 */ SVECTOR Pos;
-    /* 0x0C */ u16 Scale; // func_800D4368 puts it on all three diagonal
-                          // entries of its matrix
+    /* 0x0C */ u16 Scale;
     /* 0x0E */ union {
         s16 TargetIndex;       // ring / sprite / attach effects
         s16 FadeOutStartFrame; // screen-fade effect only
@@ -74,7 +72,7 @@ static void Lv5DeathRenderRing(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     // The shift pair sign-extends Scale.
     scale = effect->Scale << 16;
-    func_800D4368(&effect->Pos, scale >> 16, -(scale >> 19));
+    BattleSetBillboardMatrix(&effect->Pos, scale >> 16, -(scale >> 19));
 
     // Render descriptor built in scratchpad RAM.
     desc = (ModelRenderDesc*)0x1F800000;
@@ -108,6 +106,7 @@ static void Lv5DeathRenderTargetSprite(void) {
     Lv5DeathData* effect;
     s32 frame;
     u8 intensity;
+    s16 scale;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     lv5deth_sprite_desc.frameIndex = effect->AnimationFrame & 7;
@@ -122,7 +121,8 @@ static void Lv5DeathRenderTargetSprite(void) {
     }
     lv5deth_sprite_desc.color.r = lv5deth_sprite_desc.color.g = lv5deth_sprite_desc.color.b = intensity;
 
-    func_800D4368(&effect->Pos, (s16)effect->Scale, -((s16)effect->Scale >> 2));
+    scale = effect->Scale;
+    BattleSetBillboardMatrix(&effect->Pos, scale, -(scale >> 2));
     g_Lv5DeathBufferPtr = func_800D4D90(&lv5deth_sprite_desc, g_cDb->unk70, 12, g_Lv5DeathBufferPtr);
 
     if (effect->AnimationFrame >= TARGET_LIFETIME) {
