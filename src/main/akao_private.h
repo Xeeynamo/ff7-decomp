@@ -299,14 +299,6 @@ typedef struct {
 } AkaoVoiceWork;
 extern AkaoVoiceWork g_AkaoVoiceWork[AKAO_NUM_VOICES];
 
-extern u16 D_80062E0A;
-// Existing aliases for individual lane masks.
-extern u32 g_Channel2ActiveMask;  // g_AkaoBgmLanes[1].activeMask
-extern u32 g_AkaoMusicActiveMask; // g_AkaoBgmLanes[0].activeMask
-extern u32 g_Channel3OffMask;     // g_AkaoSfxLanes[0].offMask
-extern u32 g_Channel3KeyedMask;   // g_AkaoSfxLanes[0].keyedMask
-extern u32 g_Channel3OnMask;      // g_AkaoSfxLanes[0].onMask
-
 extern s32 g_Channel2VoiceMask; // hardware voices lent to the second music slot
 extern u16 g_AkaoLastHcount;    // VSync(1) horizontal count at the previous AkaoMain
 
