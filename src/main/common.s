@@ -37,7 +37,7 @@
 /* 80062F44 */ glabel g_AkaoVolMulMusicSlideSteps;          .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062F48 */ glabel g_AkaoTempoMulMusicSlideSteps;        .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062F4C */ glabel D_80062F4C;                           .space 4     # !!GP!! 1F6B4.c
-/* 80062F50 */ glabel D_80062F50;                           .space 8     # !!GP!! 1F6B4.c
+/* 80062F50 */ glabel g_MenuLocationFlags;                   .space 8     # !!GP!! 1F6B4.c
 /* 80062F58 */ glabel g_MenuRenderBufferIndex;              .space 4     # !!GP!! 1F6B4.c
 /* 80062F5C */ glabel g_AkaoVolMulMusic;                    .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062F60 */ glabel D_80062F60;                           .space 4     # !!GP!! 14C70.c (func_800155B0)

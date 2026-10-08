@@ -1346,6 +1346,7 @@ g_SaveSlotMask = 0x80062F3C;
 g_AkaoPitchMulMusicSlideSteps = 0x80062F40; // size:0x4
 g_AkaoVolMulMusicSlideSteps = 0x80062F44; // size:0x4
 g_AkaoTempoMulMusicSlideSteps = 0x80062F48; // size:0x4
+g_MenuLocationFlags = 0x80062F50;
 g_MenuRenderBufferIndex = 0x80062F58;
 g_AkaoVolMulMusic = 0x80062F5C; // size:0x4
 g_AkaoReverbPan = 0x80062F70;
