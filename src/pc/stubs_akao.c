@@ -61,14 +61,3 @@ SpuTransferCallbackProc SpuSetTransferCallback(SpuTransferCallbackProc func) {
 long StartRCnt(unsigned long spec) { return 1; }
 long StopRCnt(unsigned long spec) { return 1; }
 long GetRCnt(unsigned long spec) { return 0; }
-
-void AkaoLoadInstr(u32* arg0, u32* arg1) { NOT_IMPLEMENTED; }
-void AkaoLoadInstr2(u32* arg0, u32* arg1) { NOT_IMPLEMENTED; }
-void AkaoMusicUpdatePitchAndVol(AkaoChannel* channel, u32 mask, u32 voice) { NOT_IMPLEMENTED; }
-void AkaoSoundUpdatePitchAndVol(AkaoChannel* channel, u32 mask) { NOT_IMPLEMENTED; }
-void AkaoMusicUpdateSlideAndDelay(AkaoChannel* channel, AkaoChannelConfig* config, u32 mask) { NOT_IMPLEMENTED; }
-void AkaoUpdateGlobalSlides(void) { NOT_IMPLEMENTED; }
-u8 AkaoGetNextNote(AkaoChannel* channel) {
-    NOT_IMPLEMENTED;
-    return 0;
-}
