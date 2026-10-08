@@ -944,6 +944,8 @@ u8 BattleGetRndAutoBattleAction(s32 arg0, s32 kind, s32 actionId, BattleAutoActi
 const u8 D_800A028F = 0x86;
 
 void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
+    ActiveCharEnabledCounter* counters;
+    BattleAutoAction autoAction;
     s32 chance;
     s32 target;
     s32 priority;
@@ -953,52 +955,64 @@ void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
     const s32 inactionStatuses = STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_FROG | STATUS_PETRIFY |
                                  STATUS_BERSERK | STATUS_PARALYSIS | STATUS_IMPRISONED;
 
-    if (((mode == 0) || !(g_BattleState.combatant[arg0].status & inactionStatuses)) && (arg0 < NUM_PARTY)) {
-        if (!(g_BattleState.combatant[arg0].stateFlags & 0x10)) {
-            ActiveCharEnabledCounter* counters = g_ActiveCharacters[arg0].enabledCounters;
-            for (i = 0; i < LEN(g_ActiveCharacters[arg0].enabledCounters); i++) {
-                // Takes the mode and turns it into an offset (1, 4, 7) which suggests
-                // there are three "groups" of counter types depending on the mode
-                s32 counterGroupStart = mode * LEN(g_BattleAutoActionKindTable) + 1;
-                for (kind = 0; kind < LEN(g_BattleAutoActionKindTable); kind++) {
-                    if (counters[i].counterType == counterGroupStart + kind) {
-                        chance = counters[i].materiaAttribute;
-                        if (chance != 0) {
-                            if (mode == 0) {
-                                chance = 100;
-                                counters[i].materiaAttribute--;
-                            }
+    if (mode != 0 && (g_BattleState.combatant[arg0].status & inactionStatuses)) {
+        return;
+    }
+    if (arg0 >= NUM_PARTY) {
+        return;
+    }
+    if (g_BattleState.combatant[arg0].stateFlags & 0x10) {
+        return;
+    }
 
-                            if (SysGetRandomByteRange(100) < chance) {
-                                BattleAutoAction autoAction;
-                                if (BattleGetRndAutoBattleAction(arg0, kind, counters[i].battleCommand, &autoAction) &
-                                    TARGET_START_ENEMY_ROW) {
-                                    target = g_BattleState.combatant[arg0].attackerMask;
-                                } else {
-                                    target = 1 << arg0;
-                                }
-
-                                switch (mode) {
-                                case 0:
-                                    priority = 0;
-                                    target &= 0xF; // Party side only
-                                    break;
-                                case 1:
-                                    priority = 1;
-                                    g_BattleWork.turn[arg0].turnFlags |= 4;
-                                    target = 0;
-                                    break;
-                                case 2:
-                                    priority = 1;
-                                    break;
-                                }
-
-                                BattleAddBattleActionToBattleQueue(
-                                    arg0, priority, autoAction.cmdIndex, autoAction.attackIndex, target);
-                            }
-                        }
-                    }
+    if (!(g_BattleState.combatant[arg0].stateFlags & 0x10)) {
+        ActiveCharEnabledCounter* counters = g_ActiveCharacters[arg0].enabledCounters;
+        for (i = 0; i < LEN(g_ActiveCharacters[arg0].enabledCounters); i++) {
+            // Takes the mode and turns it into an offset (1, 4, 7) which suggests
+            // there are three "groups" of counter types depending on the mode
+            s32 counterGroupStart = mode * LEN(g_BattleAutoActionKindTable) + 1;
+            for (kind = 0; kind < LEN(g_BattleAutoActionKindTable); kind++) {
+                if (counters[i].counterType != counterGroupStart + kind) {
+                    continue;
                 }
+
+                chance = counters[i].materiaAttribute;
+                if (!chance) {
+                    continue;
+                }
+
+                if (mode == 0) {
+                    chance = 100;
+                    counters[i].materiaAttribute--;
+                }
+
+                if (SysGetRandomByteRange(100) >= chance) {
+                    continue;
+                }
+
+                if (BattleGetRndAutoBattleAction(arg0, kind, counters[i].battleCommand, &autoAction) &
+                    TARGET_START_ENEMY_ROW) {
+                    target = g_BattleState.combatant[arg0].attackerMask;
+                } else {
+                    target = 1 << arg0;
+                }
+
+                switch (mode) {
+                case 0:
+                    priority = 0;
+                    target &= 0xF; // Party side only
+                    break;
+                case 1:
+                    priority = 1;
+                    g_BattleWork.turn[arg0].turnFlags |= 4;
+                    target = 0;
+                    break;
+                case 2:
+                    priority = 1;
+                    break;
+                }
+
+                BattleAddBattleActionToBattleQueue(arg0, priority, autoAction.cmdIndex, autoAction.attackIndex, target);
             }
         }
     }
