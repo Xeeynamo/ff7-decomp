@@ -47,6 +47,17 @@ typedef enum {
     ITEM_ICON_ACCESSORY = 0xB
 } ItemIcon;
 
+typedef enum {
+    ITEM_ARRANGE_CUSTOMIZE = 0,
+    ITEM_ARRANGE_FIELD = 1,
+    ITEM_ARRANGE_BATTLE = 2,
+    ITEM_ARRANGE_THROW = 3,
+    ITEM_ARRANGE_TYPE = 4,
+    ITEM_ARRANGE_NAME = 5,
+    ITEM_ARRANGE_MOST = 6,
+    ITEM_ARRANGE_LEAST = 7,
+} ItemArrangeMode;
+
 #define ITEM_TYPE_WEAPON_BASE 0x80
 #define ITEM_TYPE_ARMOR_BASE 0x100
 #define ITEM_TYPE_ACCESSORY_BASE 0x120
@@ -55,6 +66,27 @@ typedef enum {
 #define ITEM_ICON_SIZE 0x10
 #define ITEM_ICON_CLUT 1
 
+#define ITEM_ID_MASK 0x1FF
+#define ITEM_QTY_SHIFT 9
+#define ITEM_EMPTY_SLOT 0xFFFF
+#define SORT_KEY_EMPTY_SLOT 0x4E20
+
+#define ITEM_USAGE_FLAG_BATTLE 0x2
+#define ITEM_USAGE_FLAG_FIELD 0x4
+#define ITEM_USAGE_FLAG_THROW 0x8
+
+#define ITEM_ID_TENT 0x46
+#define ITEM_ID_SAVE_CRYSTAL 0x62
+#define MENU_LOCATION_TENT_ALLOWED 0x200
+#define SAVE_CRYSTAL_USED_FLAG 0x2
+
+#define MAX_KEY_ITEMS 0x40
+#define MAX_STOLEN_MATERIA 0x30
+#define NOTIFICATION_TEXT_SIZE 0x50
+#define EMPTY_MATERIA_SLOT (-1)
+#define EMPTY_ACCESSORY_SLOT 0xFF
+#define EMPTY_LIMIT_COMMAND 0x7F
+#define NUM_LIMIT_SLOTS 10
 
 // [0]: single-slot, non-scrolling widget (total=1, 1/page) - purpose not yet
 //      identified.
@@ -70,16 +102,14 @@ extern u8 g_CoinTextureTim[];
 extern s32 g_ItemMenuCurrentScreen;
 extern u8 g_ItemMenuNotificationText[];
 extern u8 g_KeyItemList[]; // Key Items menu list: obtained key-item IDs in
-                        // ascending order, 0xFF-padded to 64 entries.
+                           // ascending order, 0xFF-padded to 64 entries.
 
-						
 s32 SysMenuGetInventoryRestrictionMask(s32); // returns an item's usage flags (0x2 battle, 0x4 field, 0x8 throw)
 typedef s32 (*SortCmp)(s32, s32, s32*);
 typedef void (*SortSwap)(s32, s32, s32*);
 static s32 Quicksort(s32, s32, SortCmp, SortSwap);
 s32 SysGetLimitCmdId(s32, s32);
 void SysMenuDrawTexturedRect(s16, s16, s32, s32, s32, s32, s32, s32);
-
 
 // Plays a menu sound effect: uses AKAO_PLAY_MENU_SOUND to play the sound
 // id (soundEffectId) into the sound-request globals, then dispatches via
@@ -90,8 +120,6 @@ void PlayItemMenuSfx(u16 soundEffectId) {
     g_AkaoCmd.params[1] = soundEffectId;
     AkaoExec();
 }
-
-
 
 // Draws the type icon for an item at (x, y): maps the item id to
 // one of several icon cells, then blits a 16x16 sprite via
@@ -133,8 +161,6 @@ void ITEMMENU_DrawItemTypeIcon(s16 x, s16 y, s32 itemId) {
     }
 }
 
-
-
 // Builds the Key Items menu list: scans the 64-bit "key items obtained" bitmask
 // in the savemap (Savemap + 0xBE4, i.e. memory_bank_1[0x40]) and appends the ID
 // of each owned key item to g_KeyItemList in ascending order, then pads the
@@ -144,14 +170,14 @@ static void BuildKeyItemList(void) {
     u8* keyItemPtr;
     s32 keyItemId;
 
-    for (keyItemId = 0, count = 0, keyItemPtr = g_KeyItemList; keyItemId < 0x40; keyItemId++) {
+    for (keyItemId = 0, count = 0, keyItemPtr = g_KeyItemList; keyItemId < MAX_KEY_ITEMS; keyItemId++) {
         if ((Savemap.memory_bank_1[0x40 + keyItemId / 8] >> (keyItemId & 7)) & 1) {
             *keyItemPtr = keyItemId;
             keyItemPtr += 1;
             count += 1;
         }
     }
-    while (count < 0x40) {
+    while (count < MAX_KEY_ITEMS) {
         g_KeyItemList[count] = -1;
         count += 1;
     }
@@ -300,7 +326,7 @@ static s32 Sign(s32 value) {
 static s32 CompareItemsByType(s16 slotA, s16 slotB, s32* inventoryBase) {
     u16 itemA = *(u16*)(*inventoryBase + slotA * 2);
     u16 itemB = *(u16*)(*inventoryBase + slotB * 2);
-    return Sign((itemA & 0x1FF) - (itemB & 0x1FF));
+    return Sign((itemA & ITEM_ID_MASK) - (itemB & ITEM_ID_MASK));
 }
 
 // Sort comparator for the "Most" arrange option: orders inventory slots by
@@ -310,14 +336,14 @@ static s32 CompareItemsByMost(s16 slotA, s16 slotB, s32* inventoryBase) {
     s32 qtyB;
     u16 itemB;
     u16 itemA = *(u16*)(*inventoryBase + slotA * 2);
-    if (itemA == 0xFFFF) {
+    if (itemA == ITEM_EMPTY_SLOT) {
         qtyA = 0;
     } else {
-        qtyA = itemA >> 9;
+        qtyA = itemA >> ITEM_QTY_SHIFT;
     }
     itemB = *(u16*)(*inventoryBase + slotB * 2);
-    qtyB = itemB >> 9;
-    if (itemB == 0xFFFF) {
+    qtyB = itemB >> ITEM_QTY_SHIFT;
+    if (itemB == ITEM_EMPTY_SLOT) {
         qtyB = 0;
     }
     return Sign(qtyB - qtyA);
@@ -327,9 +353,9 @@ static s32 CompareItemsByMost(s16 slotA, s16 slotB, s32* inventoryBase) {
 // quantity (high 7 bits) ascending, sending empty slots (0xFFFF) to the end.
 static s32 CompareItemsByLeast(s16 slotA, s16 slotB, s32* inventoryBase) {
     u16 itemA = *(u16*)(*inventoryBase + slotA * 2);
-    s32 qtyA = (itemA == 0xFFFF) ? 0x4E20 : (itemA >> 9);
+    s32 qtyA = (itemA == ITEM_EMPTY_SLOT) ? SORT_KEY_EMPTY_SLOT : (itemA >> ITEM_QTY_SHIFT);
     u16 itemB = *(u16*)(*inventoryBase + slotB * 2);
-    s32 qtyB = (itemB == 0xFFFF) ? 0x4E20 : (itemB >> 9);
+    s32 qtyB = (itemB == ITEM_EMPTY_SLOT) ? SORT_KEY_EMPTY_SLOT : (itemB >> ITEM_QTY_SHIFT);
     return Sign(qtyA - qtyB);
 }
 
@@ -340,16 +366,16 @@ static s32 CompareItemsByName(s16 slotA, s16 slotB, s32* inventoryBase) {
     s16 sortKeyA;
     u16 itemB;
     s16 sortKeyB;
-    if (itemA == 0xFFFF) {
-        sortKeyA = 0x4E20;
+    if (itemA == ITEM_EMPTY_SLOT) {
+        sortKeyA = SORT_KEY_EMPTY_SLOT;
     } else {
-        sortKeyA = g_ItemNameSortKeys[itemA & 0x1FF];
+        sortKeyA = g_ItemNameSortKeys[itemA & ITEM_ID_MASK];
     }
     itemB = *(u16*)(*inventoryBase + slotB * 2);
-    if (itemB == 0xFFFF) {
-        sortKeyB = 0x4E20;
+    if (itemB == ITEM_EMPTY_SLOT) {
+        sortKeyB = SORT_KEY_EMPTY_SLOT;
     } else {
-        sortKeyB = g_ItemNameSortKeys[itemB & 0x1FF];
+        sortKeyB = g_ItemNameSortKeys[itemB & ITEM_ID_MASK];
     }
     return Sign(sortKeyA - sortKeyB);
 }
@@ -361,16 +387,16 @@ static s32 CompareItemsByField(s16 slotA, s16 slotB, s32* inventoryBase) {
     s32 priorityA;
     u16 itemB;
     s32 priorityB;
-    if (itemA == 0xFFFF) {
+    if (itemA == ITEM_EMPTY_SLOT) {
         priorityA = 0;
     } else {
-        priorityA = (SysMenuGetInventoryRestrictionMask(itemA & 0x1FF) & 4) ? 1 : 2;
+        priorityA = (SysMenuGetInventoryRestrictionMask(itemA & ITEM_ID_MASK) & ITEM_USAGE_FLAG_FIELD) ? 1 : 2;
     }
     itemB = *(u16*)(*inventoryBase + slotB * 2);
-    if (itemB == 0xFFFF) {
+    if (itemB == ITEM_EMPTY_SLOT) {
         priorityB = 0;
     } else {
-        priorityB = (SysMenuGetInventoryRestrictionMask(itemB & 0x1FF) & 4) ? 1 : 2;
+        priorityB = (SysMenuGetInventoryRestrictionMask(itemB & ITEM_ID_MASK) & ITEM_USAGE_FLAG_FIELD) ? 1 : 2;
     }
     return Sign(priorityB - priorityA);
 }
@@ -382,16 +408,16 @@ static s32 CompareItemsByBattle(s16 slotA, s16 slotB, s32* inventoryBase) {
     s32 priorityA;
     u16 itemB;
     s32 priorityB;
-    if (itemA == 0xFFFF) {
+    if (itemA == ITEM_EMPTY_SLOT) {
         priorityA = 0;
     } else {
-        priorityA = (SysMenuGetInventoryRestrictionMask(itemA & 0x1FF) & 2) ? 1 : 2;
+        priorityA = (SysMenuGetInventoryRestrictionMask(itemA & ITEM_ID_MASK) & ITEM_USAGE_FLAG_BATTLE) ? 1 : 2;
     }
     itemB = *(u16*)(*inventoryBase + slotB * 2);
-    if (itemB == 0xFFFF) {
+    if (itemB == ITEM_EMPTY_SLOT) {
         priorityB = 0;
     } else {
-        priorityB = (SysMenuGetInventoryRestrictionMask(itemB & 0x1FF) & 2) ? 1 : 2;
+        priorityB = (SysMenuGetInventoryRestrictionMask(itemB & ITEM_ID_MASK) & ITEM_USAGE_FLAG_BATTLE) ? 1 : 2;
     }
     return Sign(priorityB - priorityA);
 }
@@ -403,16 +429,16 @@ static s32 CompareItemsByThrow(s16 slotA, s16 slotB, s32* inventoryBase) {
     s32 priorityA;
     u16 itemB;
     s32 priorityB;
-    if (itemA == 0xFFFF) {
+    if (itemA == ITEM_EMPTY_SLOT) {
         priorityA = 0;
     } else {
-        priorityA = (SysMenuGetInventoryRestrictionMask(itemA & 0x1FF) & 8) ? 1 : 2;
+        priorityA = (SysMenuGetInventoryRestrictionMask(itemA & ITEM_ID_MASK) & ITEM_USAGE_FLAG_THROW) ? 1 : 2;
     }
     itemB = *(u16*)(*inventoryBase + slotB * 2);
-    if (itemB == 0xFFFF) {
+    if (itemB == ITEM_EMPTY_SLOT) {
         priorityB = 0;
     } else {
-        priorityB = (SysMenuGetInventoryRestrictionMask(itemB & 0x1FF) & 8) ? 1 : 2;
+        priorityB = (SysMenuGetInventoryRestrictionMask(itemB & ITEM_ID_MASK) & ITEM_USAGE_FLAG_THROW) ? 1 : 2;
     }
     return Sign(priorityB - priorityA);
 }
@@ -431,28 +457,28 @@ static void SwapItemSlots(s16 slotA, s16 slotB, s32* inventoryBase) {
 // values do nothing.
 static void ArrangeItems(s32 mode) {
     switch (mode) {
-    case 0:
+    case ITEM_ARRANGE_CUSTOMIZE:
         break;
-    case 1:
-        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByField, (SortSwap)SwapItemSlots);
+    case ITEM_ARRANGE_FIELD:
+        Quicksort((s32)Savemap.inventory, MAX_INVENTORY_COUNT, (SortCmp)CompareItemsByField, (SortSwap)SwapItemSlots);
         break;
-    case 2:
-        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByBattle, (SortSwap)SwapItemSlots);
+    case ITEM_ARRANGE_BATTLE:
+        Quicksort((s32)Savemap.inventory, MAX_INVENTORY_COUNT, (SortCmp)CompareItemsByBattle, (SortSwap)SwapItemSlots);
         break;
-    case 3:
-        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByThrow, (SortSwap)SwapItemSlots);
+    case ITEM_ARRANGE_THROW:
+        Quicksort((s32)Savemap.inventory, MAX_INVENTORY_COUNT, (SortCmp)CompareItemsByThrow, (SortSwap)SwapItemSlots);
         break;
-    case 4:
-        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByType, (SortSwap)SwapItemSlots);
+    case ITEM_ARRANGE_TYPE:
+        Quicksort((s32)Savemap.inventory, MAX_INVENTORY_COUNT, (SortCmp)CompareItemsByType, (SortSwap)SwapItemSlots);
         break;
-    case 5:
-        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByName, (SortSwap)SwapItemSlots);
+    case ITEM_ARRANGE_NAME:
+        Quicksort((s32)Savemap.inventory, MAX_INVENTORY_COUNT, (SortCmp)CompareItemsByName, (SortSwap)SwapItemSlots);
         break;
-    case 6:
-        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByMost, (SortSwap)SwapItemSlots);
+    case ITEM_ARRANGE_MOST:
+        Quicksort((s32)Savemap.inventory, MAX_INVENTORY_COUNT, (SortCmp)CompareItemsByMost, (SortSwap)SwapItemSlots);
         break;
-    case 7:
-        Quicksort((s32)Savemap.inventory, 0x140, (SortCmp)CompareItemsByLeast, (SortSwap)SwapItemSlots);
+    case ITEM_ARRANGE_LEAST:
+        Quicksort((s32)Savemap.inventory, MAX_INVENTORY_COUNT, (SortCmp)CompareItemsByLeast, (SortSwap)SwapItemSlots);
         break;
     }
 }
@@ -469,16 +495,20 @@ static void ArrangeItems(s32 mode) {
 void ITEMMENU_Init(void) {
     g_ItemMenuCurrentScreen = ITEMMENU_SCREEN_USE;
     SysMenuSetCursorMovement(&g_ItemMenuWidgets[0], 0, 0, 3, 1, 0, 0, 3, 1, 0, 0, 1, 0, 0);
-    SysMenuSetCursorMovement(&g_ItemMenuWidgets[1], 0, 0, 1, 0xA, 0, 0, 1, 0x140, 0, 0, 0, 0, 0);
+    SysMenuSetCursorMovement(&g_ItemMenuWidgets[1], 0, 0, 1, 0xA, 0, 0, 1, MAX_INVENTORY_COUNT, 0, 0, 0, 0, 0);
     SysMenuSetCursorMovement(&g_ItemMenuWidgets[2], 0, 0, 1, 3, 0, 0, 1, 3, 0, 0, 0, 1, 0);
     BuildKeyItemList();
 }
 
 // True if the two adjacent record fields for entry charIdx are equal.
-static s32 IsCharacterHpFull(s32 charIdx) { return g_ActiveCharacters[charIdx].baseHp == g_ActiveCharacters[charIdx].hp; }
+static s32 IsCharacterHpFull(s32 charIdx) {
+    return g_ActiveCharacters[charIdx].baseHp == g_ActiveCharacters[charIdx].hp;
+}
 
 // True if the two adjacent record fields for entry charIdx are equal.
-static s32 IsCharacterMpFull(s32 charIdx) { return g_ActiveCharacters[charIdx].baseMp == g_ActiveCharacters[charIdx].mp; }
+static s32 IsCharacterMpFull(s32 charIdx) {
+    return g_ActiveCharacters[charIdx].baseMp == g_ActiveCharacters[charIdx].mp;
+}
 
 // Builds a 10-bit mask of which of character charIdx's slots are occupied (slot
 // value != 0x7F), clears bit 9, and returns whether it matches the stored
@@ -486,8 +516,8 @@ static s32 IsCharacterMpFull(s32 charIdx) { return g_ActiveCharacters[charIdx].b
 static s32 HasLearnedAllLimits(s32 charIdx) {
     s32 mask;
     s32 limitIdx;
-    for (limitIdx = 0, mask = 0; limitIdx < 10; limitIdx++) {
-        if (SysGetLimitCmdId(charIdx, limitIdx) != 0x7F) {
+    for (limitIdx = 0, mask = 0; limitIdx < NUM_LIMIT_SLOTS; limitIdx++) {
+        if (SysGetLimitCmdId(charIdx, limitIdx) != EMPTY_LIMIT_COMMAND) {
             mask |= 1 << limitIdx;
         }
     }
@@ -501,15 +531,15 @@ static s32 HasLearnedAllLimits(s32 charIdx) {
 // one-time-use save flag is still clear.
 static s32 GetContextualItemUsageFlags(s32 itemId) {
     s32 flags = SysMenuGetInventoryRestrictionMask(itemId);
-    if (itemId != 0x46) {
-        if (itemId == 0x62) {
-            if (!(Savemap.memory_bank_4[0x60] & 2)) {
-                flags |= 4;
+    if (itemId != ITEM_ID_TENT) {
+        if (itemId == ITEM_ID_SAVE_CRYSTAL) {
+            if (!(Savemap.memory_bank_4[0x60] & SAVE_CRYSTAL_USED_FLAG)) {
+                flags |= ITEM_USAGE_FLAG_FIELD;
             }
         }
     } else {
-        if (g_MenuLocationFlags & 0x200) {
-            flags |= 4;
+        if (g_MenuLocationFlags & MENU_LOCATION_TENT_ALLOWED) {
+            flags |= ITEM_USAGE_FLAG_FIELD;
         }
     }
     return flags;
@@ -518,7 +548,7 @@ static s32 GetContextualItemUsageFlags(s32 itemId) {
 // Copies 0x50 bytes from text into the g_ItemMenuNotificationText buffer.
 static void SetNotificationText(u8* text) {
     s32 byteIdx;
-    for (byteIdx = 0; byteIdx < 0x50; byteIdx++) {
+    for (byteIdx = 0; byteIdx < NOTIFICATION_TEXT_SIZE; byteIdx++) {
         g_ItemMenuNotificationText[byteIdx] = *text;
         text++;
     }
@@ -541,7 +571,7 @@ static void EvictWeakestStolenMateria(s32 newMateria, s32 priority) {
         }
         slotIdx += 1;
         lootPtr += 1;
-    } while (slotIdx < 0x30);
+    } while (slotIdx < MAX_STOLEN_MATERIA);
 }
 
 static s32 GetLowestStealPriority(void) {
@@ -560,7 +590,7 @@ static s32 GetLowestStealPriority(void) {
         }
         slotIdx += 1;
         lootPtr += 4;
-    } while (slotIdx < 0x30);
+    } while (slotIdx < MAX_STOLEN_MATERIA);
     return lowestPriority;
 }
 
@@ -568,17 +598,17 @@ static void OfferMateriaToSteal(s32* materiaPtr) {
     s32 slotIdx;
     s32 lowestPriority;
 
-    if (*materiaPtr == -1) {
+    if (*materiaPtr == EMPTY_MATERIA_SLOT) {
         return;
     }
     slotIdx = 0;
     do {
-        if (g_MateriaStealLoot[slotIdx] == -1) {
+        if (g_MateriaStealLoot[slotIdx] == EMPTY_MATERIA_SLOT) {
             g_MateriaStealLoot[slotIdx] = *materiaPtr;
             return;
         }
         slotIdx += 1;
-    } while (slotIdx < 0x30);
+    } while (slotIdx < MAX_STOLEN_MATERIA);
 
     lowestPriority = GetLowestStealPriority();
     if (g_MateriaPriority[*materiaPtr & 0xFF] < lowestPriority) {
@@ -592,12 +622,12 @@ static void OfferMateriaToSteal(s32* materiaPtr) {
 static s32 ReequipReturnedMateria(s32 materia) {
     s32 charIdx;
 
-    for (charIdx = 8; charIdx != -1; charIdx--) {
+    for (charIdx = NUM_CHARACTERS - 1; charIdx != -1; charIdx--) {
         if ((Savemap.phs_visibility_mask >> charIdx) & 1) {
             {
                 s32 slotIdx;
                 for (slotIdx = 0; slotIdx < NUM_MATERIA_ROW; slotIdx++) {
-                    if (Savemap.party[charIdx].materia_weapon[slotIdx] == -1 &&
+                    if (Savemap.party[charIdx].materia_weapon[slotIdx] == EMPTY_MATERIA_SLOT &&
                         g_WeaponTable[Savemap.party[charIdx].weapon].materiaSlot[slotIdx]) {
                         Savemap.party[charIdx].materia_weapon[slotIdx] = materia;
                         return 0;
@@ -607,7 +637,7 @@ static s32 ReequipReturnedMateria(s32 materia) {
             {
                 s32 slotIdx;
                 for (slotIdx = 0; slotIdx < NUM_MATERIA_ROW; slotIdx++) {
-                    if (Savemap.party[charIdx].materia_armor[slotIdx] == -1 &&
+                    if (Savemap.party[charIdx].materia_armor[slotIdx] == EMPTY_MATERIA_SLOT &&
                         g_ArmorTable[Savemap.party[charIdx].armor].materiaSlot[slotIdx]) {
                         Savemap.party[charIdx].materia_armor[slotIdx] = materia;
                         return 0;
@@ -623,17 +653,17 @@ static void RemoveMateriaFromPlayer(s32 materia) {
     s32 charIdx;
     s32 slotIdx;
 
-    for (charIdx = 0; charIdx < 9; charIdx++) {
+    for (charIdx = 0; charIdx < NUM_CHARACTERS; charIdx++) {
         if ((Savemap.phs_visibility_mask >> charIdx) & 1) {
-            for (slotIdx = 0; slotIdx < 8; slotIdx++) {
+            for (slotIdx = 0; slotIdx < NUM_MATERIA_ROW; slotIdx++) {
                 if (Savemap.party[charIdx].materia_weapon[slotIdx] == materia) {
-                    Savemap.party[charIdx].materia_weapon[slotIdx] = -1;
+                    Savemap.party[charIdx].materia_weapon[slotIdx] = EMPTY_MATERIA_SLOT;
                     return;
                 }
             }
-            for (slotIdx = 0; slotIdx < 8; slotIdx++) {
+            for (slotIdx = 0; slotIdx < NUM_MATERIA_ROW; slotIdx++) {
                 if (Savemap.party[charIdx].materia_armor[slotIdx] == materia) {
-                    Savemap.party[charIdx].materia_armor[slotIdx] = -1;
+                    Savemap.party[charIdx].materia_armor[slotIdx] = EMPTY_MATERIA_SLOT;
                     return;
                 }
             }
@@ -641,7 +671,7 @@ static void RemoveMateriaFromPlayer(s32 materia) {
     }
     for (slotIdx = 0; slotIdx < MAX_MATERIA_COUNT; slotIdx++) {
         if (Savemap.materia[slotIdx] == materia) {
-            Savemap.materia[slotIdx] = -1;
+            Savemap.materia[slotIdx] = EMPTY_MATERIA_SLOT;
             return;
         }
     }
@@ -651,13 +681,13 @@ static void FinalizeMateriaSteal(void) {
     s32 slotIdx;
     s32 materia;
 
-    for (slotIdx = 0; slotIdx < 0x30; slotIdx++) {
+    for (slotIdx = 0; slotIdx < MAX_STOLEN_MATERIA; slotIdx++) {
         materia = g_MateriaStealLoot[slotIdx];
-        if (materia != -1) {
+        if (materia != EMPTY_MATERIA_SLOT) {
             RemoveMateriaFromPlayer(materia);
         }
     }
-    for (slotIdx = 0; slotIdx < 0x30; slotIdx++) {
+    for (slotIdx = 0; slotIdx < MAX_STOLEN_MATERIA; slotIdx++) {
         Savemap.yuffie_stolen_materia[slotIdx] = g_MateriaStealLoot[slotIdx];
     }
 }
@@ -667,17 +697,17 @@ void ITEMMENU_StealAllMateria(void) {
     s32 charIdx;
     s32 slotIdx;
 
-    for (lootIdx = 0; lootIdx < 0x30; lootIdx++) {
-        g_MateriaStealLoot[lootIdx] = -1;
+    for (lootIdx = 0; lootIdx < MAX_STOLEN_MATERIA; lootIdx++) {
+        g_MateriaStealLoot[lootIdx] = EMPTY_MATERIA_SLOT;
     }
-    for (charIdx = 0; charIdx < 9; charIdx++) {
+    for (charIdx = 0; charIdx < NUM_CHARACTERS; charIdx++) {
         if ((Savemap.phs_visibility_mask >> charIdx) & 1) {
-            for (slotIdx = 0; slotIdx < 8; slotIdx++) {
+            for (slotIdx = 0; slotIdx < NUM_MATERIA_ROW; slotIdx++) {
                 do {
                     OfferMateriaToSteal(&Savemap.party[charIdx].materia_weapon[slotIdx]);
                 } while (0);
             }
-            for (slotIdx = 0; slotIdx < 8; slotIdx++) {
+            for (slotIdx = 0; slotIdx < NUM_MATERIA_ROW; slotIdx++) {
                 OfferMateriaToSteal(&Savemap.party[charIdx].materia_armor[slotIdx]);
             }
         }
@@ -693,8 +723,8 @@ void ITEMMENU_StealAllMateria(void) {
 void ITEMMENU_ReturnStolenMateria(void) {
     s32 slotIdx;
 
-    for (slotIdx = 0; slotIdx < 0x30; slotIdx++) {
-        if (Savemap.yuffie_stolen_materia[slotIdx] != -1) {
+    for (slotIdx = 0; slotIdx < MAX_STOLEN_MATERIA; slotIdx++) {
+        if (Savemap.yuffie_stolen_materia[slotIdx] != EMPTY_MATERIA_SLOT) {
             if (ReequipReturnedMateria(Savemap.yuffie_stolen_materia[slotIdx]) != 0) {
                 // no free equip slot - add it to the materia inventory
                 SysMenuAddMateria(Savemap.yuffie_stolen_materia[slotIdx]);
@@ -709,7 +739,7 @@ void ITEMMENU_UnequipCharacterMateria(s32 charIdx) {
     u8 accessory;
     {
         s32 slotIdx = 0;
-        s32 emptySlot = -1;
+        s32 emptySlot = EMPTY_MATERIA_SLOT;
         s32* materiaSlotPtr = Savemap.party[charIdx].materia_weapon;
         do {
             if (*materiaSlotPtr != emptySlot) {
@@ -718,11 +748,11 @@ void ITEMMENU_UnequipCharacterMateria(s32 charIdx) {
             }
             slotIdx += 1;
             materiaSlotPtr += 1;
-        } while (slotIdx < 8);
+        } while (slotIdx < NUM_MATERIA_ROW);
     }
     {
         s32 slotIdx = 0;
-        s32 emptySlot = -1;
+        s32 emptySlot = EMPTY_MATERIA_SLOT;
         s32* materiaSlotPtr = Savemap.party[charIdx].materia_armor;
         do {
             if (*materiaSlotPtr != emptySlot) {
@@ -731,12 +761,12 @@ void ITEMMENU_UnequipCharacterMateria(s32 charIdx) {
             }
             slotIdx += 1;
             materiaSlotPtr += 1;
-        } while (slotIdx < 8);
+        } while (slotIdx < NUM_MATERIA_ROW);
     }
     accessory = Savemap.party[charIdx].accessory;
-    if (accessory != 0xFF) {
-        SysMenuAddItem((accessory + 0x120) | 0x200);
-        Savemap.party[charIdx].accessory = 0xFF;
+    if (accessory != EMPTY_ACCESSORY_SLOT) {
+        SysMenuAddItem((accessory + ITEM_TYPE_ACCESSORY_BASE) | (1 << ITEM_QTY_SHIFT));
+        Savemap.party[charIdx].accessory = EMPTY_ACCESSORY_SLOT;
     }
 }
 
@@ -752,14 +782,14 @@ void ITEMMENU_BackupCharacterMateria(s32 charIdx) {
             *destPtr = Savemap.partyID[i];
             i += 1;
             destPtr += 1;
-        } while (i < 3);
+        } while (i < NUM_PARTY);
     }
     {
         s32 emptySlot;
         s32* materiaInvPtr;
         u8* destPtr;
         i = 0;
-        emptySlot = -1;
+        emptySlot = EMPTY_MATERIA_SLOT;
         materiaInvPtr = Savemap.materia;
         backupBuffer[4] = Savemap.party[charIdx].weapon;
         destPtr = backupBuffer;
@@ -771,7 +801,7 @@ void ITEMMENU_BackupCharacterMateria(s32 charIdx) {
             *materiaInvPtr = emptySlot;
             materiaInvPtr += 1;
             destPtr += 4;
-        } while (i < 3);
+        } while (i < NUM_PARTY);
     }
     {
         s32 emptySlot;
@@ -782,7 +812,7 @@ void ITEMMENU_BackupCharacterMateria(s32 charIdx) {
         u8* weaponMateriaBase;
         u8* armorMateriaBase;
         i = 0;
-        emptySlot = -1;
+        emptySlot = EMPTY_MATERIA_SLOT;
         partyMemberOffset = charIdx * sizeof(SavePartyMember);
         weaponMateriaBase = (u8*)Savemap.party[0].materia_weapon;
         armorMateriaBase = weaponMateriaBase + 0x20;
@@ -802,7 +832,7 @@ void ITEMMENU_BackupCharacterMateria(s32 charIdx) {
             armorMateriaPtr += 1;
             destPtr += 2;
             destPtr += 2;
-        } while (i < 8);
+        } while (i < NUM_MATERIA_ROW);
     }
     Savemap.party[charIdx].weapon = 0;
 }
@@ -819,7 +849,7 @@ void ITEMMENU_RestoreCharacterMateria(s32 charIdx) {
             Savemap.partyID[i] = *srcPtr;
             i += 1;
             srcPtr += 1;
-        } while (i < 3);
+        } while (i < NUM_PARTY);
     }
     {
         s32* materiaInvPtr;
@@ -835,7 +865,7 @@ void ITEMMENU_RestoreCharacterMateria(s32 charIdx) {
             i += 1;
             *materiaInvPtr = materiaId;
             materiaInvPtr += 1;
-        } while (i < 3);
+        } while (i < NUM_PARTY);
     }
     {
         s32 partyMemberOffset;
@@ -862,7 +892,7 @@ void ITEMMENU_RestoreCharacterMateria(s32 charIdx) {
             armorMateriaPtr += 1;
             srcPtr += 2;
             srcPtr += 2;
-        } while (i < 8);
+        } while (i < NUM_MATERIA_ROW);
     }
 }
 
