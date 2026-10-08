@@ -24,6 +24,19 @@ INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", func_800ADBA0);
 
 INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", func_800ADC24);
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", func_800ADCB4);
+void HighwayTrackAdvance(void) {
+    s32 i;
+
+    g_HighwayDistance += g_HighwaySpeed;
+    g_HighwaySegmentFrac += g_HighwaySpeed;
+    g_HighwaySegmentsCrossed = g_HighwaySegmentFrac >> 8;
+    g_HighwaySegmentFrac &= 0xFF;
+    g_HighwayTrackSegment += g_HighwaySegmentsCrossed;
+    g_HighwayTrackPos = g_HighwayDistance + 0x2300;
+    for (i = 0; i < g_HighwaySegmentsCrossed; i++) {
+        HighwayTrackFreeSegment();
+        HighwayTrackGenerateSegment();
+    }
+}
 
 INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", func_800ADD6C);
