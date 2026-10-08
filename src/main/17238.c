@@ -57,6 +57,7 @@ void SysAddPairMateriaUnordered(u32 materia1, u32 materia2, u8 arg2, u8 arg3, u8
 u8* GetPartySlotArmorMateriaSlots(s32 arg0);
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId);
 u8 D_80063020; // %gp_rel
+extern s32 D_80062FBC;
 s32 SysSearchExistedMagic(u8);
 void SysAddPairMagicWithQuadraMagic(u8, u8, s32);
 void SysAddPairMasterMagicWithQuadraMagic(u8);
@@ -69,7 +70,84 @@ static s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
     return SysGetMateriaActivatedStars(*arg2, *arg1);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", func_8001726C);
+void SysGiveApToEquippedMateria(s16 partyId, u16 ap) {
+    ArmorRecord* armor;
+    u32* materia_weapon;
+    u32* materia_armor;
+    u32 materiaAp;
+    u8 materiaId;
+    s32 stars;
+    s32 grownStars;
+    s32 i;
+
+    D_80063020 = 0;
+    D_80062F34[partyId] = 0;
+    if (Savemap.partyID[partyId] == 0xFF) {
+        return;
+    }
+    D_80062E60 = SysGetPartyPlayerStructureAddressByPartyId(partyId);
+    materia_weapon = Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[partyId]]].materia_weapon;
+    for (i = 0; i < NUM_MATERIA_ROW; i++) {
+        stars = func_80017238(materia_weapon[i], &materiaAp, &materiaId);
+        if (materiaId == 0xFF || materiaId == 0x2C || materiaAp == 0xFFFFFF) {
+            continue;
+        }
+        switch (D_80062E60->weapon.materiaGrowth) {
+        case 0:
+            break;
+        case 1:
+        default:
+            materiaAp += ap;
+            break;
+        case 2:
+            materiaAp += ap * 2;
+            break;
+        case 3:
+            materiaAp += ap * 3;
+            break;
+        }
+        materia_weapon[i] = ((materiaAp & 0xFFFFFF) << 8) | materiaId;
+        grownStars = func_80017238(materia_weapon[i], &materiaAp, &materiaId);
+        if (stars < grownStars) {
+            D_80062F34[partyId] |= 1 << i;
+            if (grownStars == D_80062FBC) {
+                SysAddMateriaReplacingLowest(materiaId);
+                materia_weapon[i] = materiaId | 0xFFFFFF00;
+            }
+        }
+    }
+    armor = SysGetArmorAddressById(Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[partyId]]].armor);
+    materia_armor = Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[partyId]]].materia_armor;
+    for (i = 0; i < NUM_MATERIA_ROW; i++) {
+        stars = func_80017238(materia_armor[i], &materiaAp, &materiaId);
+        if (materiaId == 0xFF || materiaId == 0x2C || materiaAp == 0xFFFFFF) {
+            continue;
+        }
+        switch (armor->materiaGrowth) {
+        case 0:
+            break;
+        case 1:
+        default:
+            materiaAp += ap;
+            break;
+        case 2:
+            materiaAp += ap * 2;
+            break;
+        case 3:
+            materiaAp += ap * 3;
+            break;
+        }
+        materia_armor[i] = ((materiaAp & 0xFFFFFF) << 8) | materiaId;
+        grownStars = func_80017238(materia_armor[i], &materiaAp, &materiaId);
+        if (stars < grownStars) {
+            D_80062F34[partyId] |= 1 << (i + 8);
+            if (grownStars == D_80062FBC) {
+                SysAddMateriaReplacingLowest(materiaId);
+                materia_armor[i] = materiaId | 0xFFFFFF00;
+            }
+        }
+    }
+}
 
 void SysCalcTotalLureGilPreempVal(void) {
     s32 i;
