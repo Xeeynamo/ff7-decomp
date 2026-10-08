@@ -87,7 +87,7 @@ void SysGiveApToEquippedMateria(s16 partyId, u16 ap) {
     }
     D_80062E60 = SysGetPartyPlayerStructureAddressByPartyId(partyId);
     materia_weapon = Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[partyId]]].materia_weapon;
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < NUM_MATERIA_ROW; i++) {
         stars = func_80017238(materia_weapon[i], &materiaAp, &materiaId);
         if (materiaId == 0xFF || materiaId == 0x2C || materiaAp == 0xFFFFFF) {
             continue;
@@ -118,7 +118,7 @@ void SysGiveApToEquippedMateria(s16 partyId, u16 ap) {
     }
     armor = SysGetArmorAddressById(Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[partyId]]].armor);
     materia_armor = Savemap.party[g_BattleCharIdToCharId[Savemap.partyID[partyId]]].materia_armor;
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < NUM_MATERIA_ROW; i++) {
         stars = func_80017238(materia_armor[i], &materiaAp, &materiaId);
         if (materiaId == 0xFF || materiaId == 0x2C || materiaAp == 0xFFFFFF) {
             continue;
