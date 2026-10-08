@@ -9,6 +9,47 @@
 
 typedef struct HighwayBuffer HighwayBuffer;
 
+// Primitive write cursors and backing pools.
+typedef struct {
+    /* 0x00000 */ POLY_F3* f3Cursor;
+    /* 0x00004 */ POLY_F4* f4Cursor;
+    /* 0x00008 */ POLY_G3* g3Cursor;
+    /* 0x0000C */ POLY_G4* g4Cursor;
+    /* 0x00010 */ POLY_FT3* ft3Cursor;
+    /* 0x00014 */ POLY_FT4* ft4Cursor;
+    /* 0x00018 */ POLY_GT3* gt3Cursor;
+    /* 0x0001C */ POLY_GT4* gt4Cursor;
+    /* 0x00020 */ POLY_G3 g3[2500];
+    /* 0x11190 */ POLY_G4 g4[2];
+    /* 0x111D8 */ POLY_FT3 ft3[800];
+    /* 0x175D8 */ POLY_FT4 ft4[800];
+} HighwayPrimBuffer; // size: 0x1F2D8
+
+struct HighwayBuffer {
+    /* 0x00000 */ DRAWENV draw;
+    /* 0x0005C */ DISPENV disp;
+    /* 0x00070 */ OT_TYPE hudOt[10];
+    /* 0x00098 */ OT_TYPE ot[0x1000];
+    /* 0x04098 */ char pad4098[0xFA0];
+    /* 0x05038 */ OT_TYPE bgOt[0x14];
+    /* 0x05088 */ HighwayPrimBuffer prims;
+}; // size: 0x24360
+
+typedef struct {
+    /* 0x0 */ u16 maxHp;
+    /* 0x2 */ u16 hp;
+    /* 0x4 */ s16 unk4;
+    /* 0x6 */ s16 unk6;
+    /* 0x8 */ u8 unk8;
+    /* 0x9 */ u8 unk9;
+} HighwayGauge; // size: 0xA
+
+// Camera matrices and rotations.
+typedef struct {
+    /* 0x00 */ MATRIX m[5];
+    /* 0xA0 */ SVECTOR rot[5];
+} HighwayCameraMatrices; // size: 0xC8
+
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 
 typedef union {
@@ -220,6 +261,49 @@ typedef struct {
     /* 0x30 */ u8* unk30;
     /* 0x34 */ HighwayEvent* events;
 } HighwayCourse; // size: 0x38
+
+extern SVECTOR D_800B4220;
+extern VECTOR D_800B4228;
+extern Yamada g_HighwayAssetFiles[3];
+extern u_long g_HighwayMusicAddr;
+extern u8 g_HighwayFadeMode;
+extern u8 g_HighwayFadeLevel;
+extern s32 g_HighwayArcadeFinish;
+extern JetNode* g_HighwayOverlayNode0;
+extern JetNode* g_HighwayOverlayNode1;
+extern JetNode* g_HighwayOverlayNode2;
+extern JetNode* g_HighwayOverlayNode3;
+extern MATRIX g_HighwayOverlayMatrix;
+extern s32 D_800BD638;
+extern s32 g_HighwayFogNear;
+extern s32 D_800BD640;
+extern s32 g_HighwayEventIndex;
+extern s32 g_HighwayEndingTimer; // frames since the course ended; fades out and sets g_HighwayExit
+extern s16 g_HighwaySfxCooldown1;
+extern s16 g_HighwaySfxCooldown2;
+extern void* D_8010EA30;
+extern MATRIX* g_HighwayWorldMatrix;
+extern u8 g_HighwayCameraRolled;
+extern HighwayEvent* g_HighwayEvents;
+extern u8 D_8010EBCC;
+extern HighwayGauge g_HighwayGauges[5]; // HP bars along the screen edges
+extern u8 g_HighwayExit;
+extern s32 D_80110BC8;
+extern s32 D_80110BD8;
+extern SVECTOR* g_HighwaySubdivVerts[11];
+extern s32* g_HighwaySubdivSxy[11];
+extern u8 g_HighwayBanner; // score HUD banner set by race events, 0 = none
+extern s32 D_801163A4;
+extern u8 g_HighwayOverlayOn0;
+extern u8 g_HighwayOverlayOn1;
+extern u8 g_HighwayOverlayOn2;
+extern u8 g_HighwayOverlayOn3;
+extern HighwayCameraMatrices* g_HighwayCameraMatrices;
+extern s32 g_HighwayFogFar;
+extern s32 D_80116428;
+extern void* D_80116678;
+extern s32 g_HighwayStoryEnding;
+extern HighwayCameraMatrices D_8010EBDC;
 
 extern HighwayModelInfo* g_HighwayModelInfoAddr;
 extern JetTriangle* g_HighwayTrianglesAddr;
@@ -451,4 +535,19 @@ void HighwaySetSlotPitch(s32 pitch, s32 slot);
 void HighwaySetSlotVolume(s32 volume, u8 slot);
 void HighwayGaugeDamage(u8 index, s16 damage);
 void HighwayKawaiModelsUpdate(void);
+
+void HighwayDrawOverlayQuads(HighwayBuffer* db, JetNode* node, s16 depth);
+void HighwayDrawOverlayTris(HighwayBuffer* db, JetNode* node, s16 depth);
+void HighwayScratchpadInit(void);
+void HighwayOverlaysInit(void);
+void HighwayOverlaysDraw(HighwayBuffer* db);
+void HighwayRaceInit(void);
+void HighwayLoadAssets(void);
+void HighwayAudioFadeOut(void);
+void HighwayAudioInit(void);
+void HighwaySetSlotPan(s32 pan, u8 slot);
+void HighwayEventsUpdate(void);
+u8 HighwayDrawFade(HighwayBuffer* db, u8 mode);
+void HighwayDrawGauges(HighwayBuffer* db);
+
 #endif

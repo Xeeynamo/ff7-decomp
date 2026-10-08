@@ -10,9 +10,9 @@ INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway", func_800A057C);
 
 INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway", func_800A2ADC);
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway", func_800A2F4C);
+INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway", HighwayDrawOverlayQuads);
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway", func_800A30A0);
+INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway", HighwayDrawOverlayTris);
 
 INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway", func_800A31C8);
 

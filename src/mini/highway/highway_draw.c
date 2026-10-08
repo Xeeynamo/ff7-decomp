@@ -2,7 +2,7 @@
 
 #include "highway_private.h"
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_draw", func_800AECE4);
+INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_draw", HighwayDrawGauge);
 
 INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_draw", func_800AF41C);
 
