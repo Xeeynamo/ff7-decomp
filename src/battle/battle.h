@@ -182,8 +182,8 @@ typedef struct {
     /* 0x4D */ u8 magEvade;
     /* 0x4E */ u8 formationRow;
     /* 0x4F */ u8 unk4F;
-    /* 0x50 */ u16 unk50;
-    /* 0x52 */ u16 unk52;
+    /* 0x50 */ u16 unk50; // Stolen gil?
+    /* 0x52 */ u16 unk52; // Stolen item?
     /* 0x54 */ u16 elemImmuneExtra;
     /* 0x56 */ u8 unk56;
     /* 0x57 */ u8 unk57;

@@ -886,18 +886,137 @@ const u8 D_800A0240[] = {
     0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0x54, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A,
     0x80, 0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0x94, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54,
     0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0x14, 0x54, 0x0A, 0x80, 0x34, 0x54, 0x0A, 0x80, 0x74, 0x54, 0x0A, 0x80};
-const u8 D_800A0278[] = {0x05, 0x06, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x00, 0x5C, 0x5A,
-                         0x0A, 0x80, 0x88, 0x5A, 0x0A, 0x80, 0xA8, 0x5A, 0x0A, 0x80};
-static u8 func_800A5A5C(void) { return D_800A0278[SysGetRandomByteRange(7)]; }
 
-static s32 func_800A5A88(void) { return SysGetRandomByteRange(54); }
+static s32 BattleGetRndMasterCommand(s32 _) {
+    static const u8 masterCommands[] = {
+        CMD_STEAL, CMD_SENSE, CMD_THROW, CMD_MORPH, CMD_DEATHBLOW, CMD_MANIPULATE, CMD_MIME};
+    return masterCommands[SysGetRandomByteRange(LEN(masterCommands))];
+}
 
-static s32 func_800A5AA8(void) { return SysGetRandomByteRange(16) + 56; }
+static s32 BattleGetRndMasterMagic(s32 _) {
+    return SysGetRandomByteRange(NUM_MAGICS - 2); // Ignore last two magic entries, they are empty
+}
 
-const u8 D_800A028C[] = {0x02, 0xFF, 0x01, 0x86};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleGetRndAutoBattleAction);
+static s32 BattleGetRndMasterSummon(s32 _) { return SysGetRandomByteRange(NUM_SUMMONS) + NUM_MAGICS; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleAddAutoBattleActionByChance);
+s32 (* const g_BattleRndMasterJmpTbl[])(s32) = {
+    BattleGetRndMasterCommand,
+    BattleGetRndMasterMagic,
+    BattleGetRndMasterSummon,
+};
+
+// 0xFF: the id passed in is used as the command itself
+const u8 g_BattleAutoActionKindTable[] = {CMD_MAGIC, 0xFF, CMD_ATTACK};
+
+// Updates the auto battle action based on the kind and returns the targetFlags
+u8 BattleGetRndAutoBattleAction(s32 arg0, s32 kind, s32 actionId, BattleAutoAction* autoAction) {
+    u8 targetFlags;
+
+    autoAction->cmdIndex = g_BattleAutoActionKindTable[kind];
+    autoAction->attackIndex = -1;
+
+    targetFlags = (TARGET_ENABLE_SELECTION | TARGET_START_ENEMY_ROW);
+    if (autoAction->cmdIndex != CMD_ATTACK) {
+        autoAction->attackIndex = actionId;
+
+        // Values of 0xFD, 0xFE, and 0xFF seem to be reserved for "pick a random command/magic/summon"
+        if (actionId >= 0xFD) {
+            autoAction->attackIndex = g_BattleRndMasterJmpTbl[actionId - 0xFD](arg0);
+        }
+
+        if (autoAction->cmdIndex == CMD_MAGIC) {
+            // If the action index is out of the magic range, switch to a summon instead
+            targetFlags = D_800708C4[autoAction->attackIndex].targetFlags;
+            if (autoAction->attackIndex >= NUM_MAGICS) {
+                autoAction->cmdIndex = CMD_SUMMON;
+                autoAction->attackIndex -= NUM_MAGICS;
+            }
+        } else {
+            autoAction->cmdIndex = autoAction->attackIndex;
+            autoAction->attackIndex = -1;
+            targetFlags = D_800707C4[autoAction->cmdIndex].targetFlags;
+        }
+    }
+    return targetFlags;
+}
+
+// Unreferenced byte between g_BattleAutoActionKindTable above and D_800A0290; owner unknown
+const u8 D_800A028F = 0x86;
+
+void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
+    ActiveCharEnabledCounter* counters;
+    BattleAutoAction autoAction;
+    s32 chance;
+    s32 target;
+    s32 priority;
+    s32 i;
+    s32 kind;
+
+    const s32 inactionStatuses = STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_FROG | STATUS_PETRIFY |
+                                 STATUS_BERSERK | STATUS_PARALYSIS | STATUS_IMPRISONED;
+
+    if (mode != 0 && (g_BattleState.combatant[arg0].status & inactionStatuses)) {
+        return;
+    }
+    if (arg0 >= NUM_PARTY) {
+        return;
+    }
+    if (g_BattleState.combatant[arg0].stateFlags & 0x10) {
+        return;
+    }
+
+    if (!(g_BattleState.combatant[arg0].stateFlags & 0x10)) {
+        ActiveCharEnabledCounter* counters = g_ActiveCharacters[arg0].enabledCounters;
+        for (i = 0; i < LEN(g_ActiveCharacters[arg0].enabledCounters); i++) {
+            // Takes the mode and turns it into an offset (1, 4, 7) which suggests
+            // there are three "groups" of counter types depending on the mode
+            s32 counterGroupStart = mode * LEN(g_BattleAutoActionKindTable) + 1;
+            for (kind = 0; kind < LEN(g_BattleAutoActionKindTable); kind++) {
+                if (counters[i].counterType != counterGroupStart + kind) {
+                    continue;
+                }
+
+                chance = counters[i].materiaAttribute;
+                if (!chance) {
+                    continue;
+                }
+
+                if (mode == 0) {
+                    chance = 100;
+                    counters[i].materiaAttribute--;
+                }
+
+                if (SysGetRandomByteRange(100) >= chance) {
+                    continue;
+                }
+
+                if (BattleGetRndAutoBattleAction(arg0, kind, counters[i].battleCommand, &autoAction) &
+                    TARGET_START_ENEMY_ROW) {
+                    target = g_BattleState.combatant[arg0].attackerMask;
+                } else {
+                    target = 1 << arg0;
+                }
+
+                switch (mode) {
+                case 0:
+                    priority = 0;
+                    target &= 0xF; // Party side only
+                    break;
+                case 1:
+                    priority = 1;
+                    g_BattleWork.turn[arg0].turnFlags |= 4;
+                    target = 0;
+                    break;
+                case 2:
+                    priority = 1;
+                    break;
+                }
+
+                BattleAddBattleActionToBattleQueue(arg0, priority, autoAction.cmdIndex, autoAction.attackIndex, target);
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleCopyStringAndSetNamesFromVar);
 
@@ -944,6 +1063,8 @@ extern u16 D_80082884[];
 
 void BattleOpcodeCycle(s32, s32, s32);
 
+// scriptType 0 is run when the battle starts (see BattleInitPartyScripts/BattleInitEnemyAI)
+// scriptType 3 is run when a unit is KO'd (see func_800A6278)
 void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 arg2) {
     s32 scriptOffset = 0;
     s32 presetIdx = -1;
@@ -1010,7 +1131,55 @@ void BattleExecFormationAIScripts(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A6278);
+// Seems to be a KO handler when a unit is killed on the battlefield
+// arg0 is the killer, arg1 is the victim, arg2: 1 from func_800AFECC, 0 from BattleCmdScriptDispatch
+void func_800A6278(s32 arg0, s32 arg1, s32 arg2) {
+    s32 var_s3;
+    u8 prevSlotMap0;
+
+    var_s3 = 0;
+    if (arg1 >= START_ENEMY) {
+        // Enemy's kill not already counted
+        if (!(g_BattleWork.turn[arg1].turnFlags & 0x20)) {
+            g_BattleWork.turn[arg1].turnFlags |= 0x20;
+            if (arg0 < NUM_PARTY) {
+                g_BattleWork.party[arg0].killCount++;
+            }
+        }
+    }
+
+    if (!(g_BattleState.combatant[arg1].stateFlags & 0x2000)) {
+        prevSlotMap0 = g_BattleSceneContext.enemySlotMap[0];
+        g_BattleState.combatant[arg1].stateFlags |= 0x2000;
+
+        if (arg0 >= START_ENEMY) {
+            BattleAddAutoBattleActionByChance(arg1, 0);
+        }
+
+        if (arg0 != arg1) {
+            g_BattleState.combatant[arg1].attackerMask = 1 << arg0;
+        } else {
+            g_BattleState.combatant[arg1].attackerMask = 0;
+        }
+
+        BattleRunUnitScript(arg1, 3, 0);
+
+        if ((g_BattleSceneContext.enemySlotMap[0] != prevSlotMap0) || (arg2 != 0)) {
+            if (!(g_BattleState.combatant[arg1].stateFlags & 0x1000)) {
+                g_BattleState.scriptOpponentNonPetrifiedMask = 1 << arg1;
+                BattleQueueOpcodeAction(arg1, 0x25, 0);
+            }
+            var_s3 = 1;
+        }
+    }
+    if (g_BattleState.combatant[arg1].stateFlags & 0x1000) {
+        var_s3 = 1;
+    }
+
+    if (var_s3 != 0 && arg2 == 0) {
+        func_800A3488(arg1);
+    }
+}
 
 static void func_800A64A0(s32 arg0, s8 arg1) { D_800E7A58[arg0] = arg1; }
 
@@ -2130,7 +2299,75 @@ void func_800ACA4C(s32 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACB98);
+// Checks if an action can be performed for a unit, and deducts the required MP cost
+// stateFlags & 0x400 skips the MP cost and various checks (also skipped when unk20 == 0x34)
+// Returns 1 if the action is cancelled due to status effects or insufficient MP, 0 otherwise
+s32 func_800ACB98(void) {
+    s32 blocked;
+    s32 result;
+    s32 msg;
+
+    result = 0;
+    if (!(g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & 0x400) && (g_CurrentAction->unk20 != 0x34)) {
+        blocked = 0;
+
+        if (g_CurrentAction->attackerStatus & STATUS_SILENCE) {
+            switch (g_CurrentAction->cmdIndex) {
+            case CMD_MAGIC:
+            case CMD_SUMMON:
+            case CMD_ENEMY_SKILL:
+            case CMD_W_MAGIC:
+            case CMD_W_SUMMON:
+                blocked = 1;
+                break;
+            case CMD_ENEMY_ATTACK:
+                if (g_CurrentAction->unk38 != 0) {
+                    blocked = 1;
+                }
+                break;
+            }
+        }
+
+        if (g_CurrentAction->attackerStatus & STATUS_FROG) {
+            switch (g_CurrentAction->cmdIndex) {
+            case CMD_ATTACK:
+            case CMD_ITEM:
+                break;
+            case CMD_MAGIC:
+            case CMD_W_MAGIC:
+                // Toad can still be cast while a frog
+                if (g_CurrentAction->absoluteActionIndex != 0xA) {
+                    blocked = 1;
+                }
+                break;
+            case CMD_ENEMY_ATTACK:
+                if (g_CurrentAction->unk38 != 0) {
+                    blocked = 1;
+                }
+                break;
+            default:
+                blocked = 1;
+                break;
+            }
+        }
+
+        msg = -1;
+        if (blocked == 0) {
+            if ((u16)g_BattleState.combatant[g_CurrentAction->actorId].curMP >= g_CurrentAction->unk38) {
+                g_BattleState.combatant[g_CurrentAction->actorId].curMP -= g_CurrentAction->unk38;
+            } else {
+                msg = (g_CurrentAction->actorId < NUM_PARTY) ? 0x5B : 0x5C;
+                func_800ACA4C(msg);
+                result = 1;
+            }
+        } else {
+            func_800ACA4C(msg);
+            result = 1;
+        }
+    }
+    g_CurrentAction->unk38 = 0;
+    return result;
+}
 
 s32 func_800ACD88(s32 arg0) {
     s32 result;
@@ -2653,11 +2890,101 @@ void func_800AEB80(s32 arg0, s32 statusBit, s32 arg2) {
     }
 }
 
-void func_800AEBF0(int index) { BattleRecalcUnitSpeed(index); }
+void func_800AEBF0(s32 index, s32 arg1, s32 arg2) { BattleRecalcUnitSpeed(index); }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattlePostAddDeath);
+#ifndef PLATFORM_PSYZ
+// Original call in BattlePostAddDeath had no prototype in scope, but signature is correct according to other callers
+void BattleReqReturnReservedItems();
+#endif
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattlePostRemoveDeath);
+void BattlePostAddDeath(s32 arg0, s32 arg1, s32 arg2) {
+    u16 unk50;
+    u16 unk52;
+    s32 target;
+    s32 i;
+
+    if (arg0 >= NUM_PARTY) {
+        g_BattleState.combatant[arg0].stateFlags &= ~0x18;
+    } else {
+        g_BattleWork.party[arg0].limitBar = 0;
+        if (g_BattleWork.turn[arg0].turnFlags & 8) {
+            g_BattleWork.turn[arg0].turnFlags &= ~8;
+            g_BattleState.combatant[arg0].stateFlags &= ~0x10;
+            BattleQueueEffect(arg0, 3, 0, 0, 0, 0, 0);
+        }
+        g_BattleState.combatant[arg0].maxHP = g_BattleWork.party[arg0].maxHP;
+        BattleQueueEvent(2, arg0, 0x18, 0);
+    }
+
+    target = g_BattleWork.party[arg0].unk6;
+    if (target >= START_ENEMY) {
+        g_BattleState.combatant[target].status &= ~STATUS_MANIPULATE;
+    }
+
+    g_BattleState.combatant[arg0].curHP = 0;
+    func_800AEBF0(arg0, arg1, arg2);
+
+    g_BattleWork.turn[arg0].unk6 = 0;
+    g_BattleSceneContext.subActionSlots[arg0].priority = 0xFF;
+    BattleReqReturnReservedItems(arg0);
+
+    for (i = 0; i < NUM_STATUS_TIMERS; i++) {
+        g_BattleWork.turn[arg0].statusTimers[i] = 0;
+    }
+
+    for (i = 0; i < NUM_STAT_MULTS; i++) {
+        g_BattleWork.turn[arg0].statMults[i] = 0;
+    }
+
+    if (!((g_BattleSceneContext.unk1E88 >> arg0) & 1)) {
+        // This is probably stolen gil being returned on kill
+        unk50 = g_BattleState.combatant[arg0].unk50;
+        if (unk50 != 0) {
+            s16 strArg = unk50;
+            g_BattleState.combatant[arg0].unk50 = 0;
+            Savemap.gil += unk50;
+            BattleAddStringToDisplay(0xA, 0x54, 1, &strArg);
+        }
+
+        // This is probably stolen items being returned on kill
+        unk52 = g_BattleState.combatant[arg0].unk52;
+        if (unk52 != 0xFFFF) {
+            s16 strArg = unk52;
+            g_BattleState.combatant[arg0].unk52 = 0xFFFF;
+            BattleQueueEvent(0, g_CurrentAction->actorId, 3, unk52);
+            BattleAddStringToDisplay(0xA, 0x52, 1, &strArg);
+        }
+    }
+
+    BattleQueueEvent(0, arg0, 2, 0);
+    BattleInitUnitAction(arg0);
+    BattleInvalidateQueuedMessages(arg0, 1);
+}
+
+void BattlePostRemoveDeath(s32 arg0, s32 arg1, s32 arg2) {
+    if (g_BattleState.combatant[arg0].curHP == 0) {
+        g_BattleState.combatant[arg0].curHP = g_BattleState.combatant[arg0].maxHP;
+    }
+
+    if (arg0 >= NUM_PARTY) {
+        g_BattleState.combatant[arg0].stateFlags |= 0x18;
+    }
+
+    g_BattleState.combatant[arg0].stateFlags &= ~0x2000;
+    g_BattleData.actors[arg0].D_801636BC = g_BattleWork.turn[arg0].deathEffectState;
+
+    func_800AEBF0(arg0, arg1, arg2);
+
+    if (g_BattleState.combatant[arg0].status & STATUS_D_SENTENCE) {
+        BattleUnitInitStatusTimer(arg0, 0x15, 1); // 0x15 = index of STATUS_D_SENTENCE
+    }
+
+    if (g_BattleState.combatant[arg0].status & STATUS_BERSERK) {
+        BattleQueueEvent(0, arg0, 8, 0);
+    }
+
+    D_800F7DE0[0] &= ~(1 << arg0);
+}
 
 void BattleRestoreBattleActionIfCan(s32 arg0, s32 arg1, s32 arg2) {
     if (!(g_BattleState.combatant[arg0].status & 0x2804444)) {
@@ -2689,7 +3016,7 @@ void BattleTryApplyHitEffect(s32 arg0, s32 arg1, s32 arg2) {
 void func_800AF264(s32 arg0, s32 arg1, s32 arg2) {
     s32 status;
 
-    func_800AEBF0(arg0);
+    func_800AEBF0(arg0, arg1, arg2);
     BattleUnitInitStatusTimer(arg0, arg1, arg2);
     BattleQueueEvent(0, arg0, 4, 0);
 
@@ -2702,7 +3029,7 @@ void func_800AF264(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 void func_800AF320(s32 arg0, s32 arg1, s32 arg2) {
-    func_800AEBF0(arg0);
+    func_800AEBF0(arg0, arg1, arg2);
     func_800AEB80(arg0, arg1, arg2);
     BattleRestoreBattleActionIfCan(arg0, arg1, arg2);
 }
@@ -2793,7 +3120,52 @@ static s32 BattleStatusBitToTimerIndex(s32 statusBit) {
     return result;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF874);
+// Returns a new status protection mask for a unit based on the current status and stateFlags
+s32 BattleGetStatusProtectionMask(s32 arg0, s32 arg1, s32 arg2) {
+    s32 statusProtectionMask;
+
+    statusProtectionMask = g_BattleWork.turn[arg0].statusProtectionMask;
+    if (g_BattleWork.turn[arg0].turnFlags & 8) {
+        statusProtectionMask |= (STATUS_BERSERK | STATUS_FROG | STATUS_CONFU);
+    }
+
+    if (arg1 != 0) {
+        if (g_BattleState.combatant[arg0].status & STATUS_RESIST) {
+            statusProtectionMask |= ~(STATUS_RESIST | STATUS_IMPRISONED);
+        }
+        if (g_BattleState.combatant[arg0].status & STATUS_DEATH_FORCE) {
+            statusProtectionMask |= STATUS_DEATH;
+        }
+    }
+
+    if (g_BattleState.combatant[arg0].status & STATUS_PEERLESS) {
+        statusProtectionMask |= ~STATUS_IMPRISONED;
+    }
+
+    // Haste and Slow cancel each other, so locking one locks both
+    if (statusProtectionMask & (STATUS_HASTE | STATUS_SLOW)) {
+        statusProtectionMask |= (STATUS_HASTE | STATUS_SLOW);
+    }
+
+    if ((arg0 < NUM_PARTY) && (arg2 != 0)) {
+        statusProtectionMask &= ~STATUS_DEATH;
+    }
+
+    if (g_BattleState.combatant[arg0].stateFlags & 0x1000) {
+        statusProtectionMask |= STATUS_DEATH;
+    }
+
+    // Protection against death is also protection against D.Sentence
+    if (statusProtectionMask & STATUS_DEATH) {
+        statusProtectionMask |= STATUS_D_SENTENCE;
+    }
+
+    if (!(g_CurrentAction->unk6C & 0x80)) {
+        statusProtectionMask = 0;
+    }
+
+    return statusProtectionMask;
+}
 
 void func_800AF9C8();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF9C8);
