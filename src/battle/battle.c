@@ -1018,7 +1018,7 @@ void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
     }
 }
 
-s32 BattleCopyStringAndSetNamesFromVar(u8* dst, const u8* src, const u16* args) {
+s32 BattleCopyMessageWithArgs(u8* dst, const u8* src, const u16* args) {
     s32 len = 0;
     u8 value;
 
@@ -1035,7 +1035,7 @@ s32 BattleCopyStringAndSetNamesFromVar(u8* dst, const u8* src, const u16* args) 
         if (value == 0xF9) {
             *dst++ = *src++;
             len++;
-        } else if (value >= 0xEA && value <= 0xF1) { // Argument opcodes, processed later
+        } else if (value >= BATTLE_MSG_ARG_START && value <= BATTLE_MSG_ARG_END) { // expanded by SysExpandBattleString
             u8 curr = *src++;
             u8 next = *src++;
 
@@ -1054,13 +1054,15 @@ s32 BattleCopyStringAndSetNamesFromVar(u8* dst, const u8* src, const u16* args) 
     return len;
 }
 
-static s32 BattleExpandScriptToBuffer(u8* src, u16* patch) {
+// Prepares a battle message with args, stores it in the string buffer, and
+// returns the slot index. Some callers add 0x100 to make a string ID
+static s32 BattleAddMessageToStringBuffer(u8* src, u16* args) {
     u8 buf[0x100];
     s32 len;
     s32 slot;
     s32 i;
 
-    len = BattleCopyStringAndSetNamesFromVar(buf, src, patch);
+    len = BattleCopyMessageWithArgs(buf, src, args);
     if (D_800F4300 + len > 0x800) {
         D_800F4300 = 0;
     }
@@ -1354,10 +1356,9 @@ void BattleSearchAndRemoveItemFromSlot(s32 arg0, s32 arg1) {
 void func_800A6BFC(void) {}
 
 void BattleSetLimitBreakStringToDisplay(s32 arg0) {
-    s16 sp10;
-
-    sp10 = (s16)g_BattleData.actors[arg0].charId;
-    g_BattleSceneContext.lucky7777StringID = BattleExpandScriptToBuffer(SysGetKernBattleTextPtr(0x26), &sp10) + 0x100;
+    s16 msgArgs = (s16)g_BattleData.actors[arg0].charId;
+    g_BattleSceneContext.lucky7777StringID =
+        BattleAddMessageToStringBuffer(SysGetKernBattleTextPtr(0x26), &msgArgs) + 0x100;
     g_BattleSceneContext.lucky7777ActionParam = 0xF;
 }
 
@@ -3368,8 +3369,8 @@ static s32 BattleUnitIsOnPartyTeam(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleGetRndItemIdForSteal);
 
-static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* arg3) {
-    func_800A31A0(arg0, 2, arg2, BattleExpandScriptToBuffer((u8*)SysGetKernBattleTextById(arg1), arg3) + 0x100);
+static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* args) {
+    func_800A31A0(arg0, 2, arg2, BattleAddMessageToStringBuffer((u8*)SysGetKernBattleTextById(arg1), args) + 0x100);
 }
 
 void BattleQueueIntroCamera(s32 arg0) { func_800A31A0(10, 2, 1, arg0); }
