@@ -1,6 +1,7 @@
 #include <game.h>
 #include <libcd.h>
 #include <libspu.h>
+#include "../battle/battle.h"
 
 u16 g_BattleMode;
 s16 g_isFieldLoading;
@@ -251,6 +252,11 @@ void func_801D11A8(void) { NOT_IMPLEMENTED; }
 void SysCopyBoostedStatToUnitStructure(void) { NOT_IMPLEMENTED; }
 void SysSortMagicInUnitStructure(s32 partyId) { NOT_IMPLEMENTED; }
 void BATTLE_Main(void) { NOT_IMPLEMENTED; }
+// battle overlay globals read by main (14C70.c)
+BattleData g_BattleData;
+BattleSceneContext g_BattleSceneContext;
+s32 g_FFTextLetterOffset;
+s32 g_FFTextNumberOffset;
 
 volatile s16 g_GameState;
 volatile s16 g_PrevGameState;

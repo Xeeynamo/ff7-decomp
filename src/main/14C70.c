@@ -1,5 +1,6 @@
 //! G=8
 #include "main_private.h"
+#include "../battle/battle.h"
 
 typedef struct {
     s32 dataOffsets[3];
@@ -64,7 +65,7 @@ s32 func_80014CBC(s32 arg0, s32 arg1) {
     return var_a2;
 }
 
-static u8* func_80014D58(u8* arg0, u8* arg1, s32 arg2) {
+static u8* func_80014D58(u8* arg0, const u8* arg1, s32 arg2) {
     u8 var_a3 = *arg1;
     while (var_a3 != 0xFF) {
         *arg0 = var_a3;
@@ -84,7 +85,9 @@ u8* SysGetKernTextPtr(s32 blockId, s32 entryId, s32 blockOffset) {
     return (u8*)&sectionBase[*(u16*)&sectionBase[entryId * 2]];
 }
 
-static void func_80014DD0(s32 arg0, s32 arg1, u8* arg2) { func_80014D58(arg2, SysGetKernTextPtr(arg0, arg1, 0), -1); }
+static u8* func_80014DD0(s32 arg0, s32 arg1, u8* arg2) {
+    return func_80014D58(arg2, SysGetKernTextPtr(arg0, arg1, 0), -1);
+}
 
 static u8* func_80014E0C(s32 charId, u8* dst) {
     s32 i;
@@ -98,7 +101,85 @@ static u8* func_80014E0C(s32 charId, u8* dst) {
     return dst;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80014E74);
+#define MAX_DIGITS 16U
+u8* func_80014E74(u8* dst, const u8* src) {
+    s32 digits[MAX_DIGITS];
+    u8* buffer = dst;
+    u8 value = 0;
+    s32 j = 0;
+    s32 i;
+
+    while (value != 0xFF) {
+        value = src[j++];
+
+        if (value >= 0xEA && value <= 0xF1) {
+            u16 arg = src[j++] << 8;
+            arg |= src[j++];
+
+            switch (value) {
+            case 0xEA:
+                buffer = func_80014E0C(arg, buffer);
+                break;
+
+            case 0xEB:
+                buffer = func_80014D58(buffer, SysKernGetString(4, arg, 8), -1);
+                break;
+
+            case 0xEC:
+                // Needs to produce at least one digit, so a do-while fits here
+                i = 0;
+                do {
+                    digits[i++] = arg % 10;
+                    arg /= 10;
+                } while (arg > 0 && i < MAX_DIGITS);
+
+                if (i > 0) {
+                    do {
+                        *buffer++ = digits[i - 1] + g_FFTextNumberOffset;
+                    } while (--i > 0);
+                }
+                break;
+
+            case 0xED:
+                if (arg < NUM_PARTY) {
+                    buffer = func_80014E0C(g_BattleData.actors[arg].charId, buffer);
+                } else if (arg >= START_ENEMY) {
+                    buffer = func_80014D58(
+                        buffer,
+                        g_BattleSceneContext.enemy[g_BattleData.activeEncounter.formation[arg - START_ENEMY].enemyID]
+                            .name,
+                        0x20);
+                }
+
+                break;
+
+            case 0xEE:
+                buffer = func_80014DD0(9, arg, buffer);
+                break;
+
+            case 0xEF:
+                if (arg < 26) {
+                    *buffer++ = arg + g_FFTextLetterOffset;
+                }
+                break;
+
+            case 0xF0:
+                buffer = func_80014DD0(16, arg, buffer);
+                break;
+
+            case 0xF1:
+                buffer = func_80014DD0(arg >> 8, arg & 0xFF, buffer);
+                break;
+            }
+        } else {
+            *buffer++ = value;
+            if (value == 0xF9) {
+                *buffer++ = src[j++];
+            }
+        }
+    }
+    return dst;
+}
 
 s32 SysDecompKernStringWithF9(u16* arg0, u16* arg1);
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysDecompKernStringWithF9);
