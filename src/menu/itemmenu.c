@@ -554,13 +554,11 @@ static void SetNotificationText(u8* text) {
     }
 }
 
+//Currently sitting at 95.84% matching 
 #ifndef NON_MATCHING
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", ITEMMENU_Main);
 #else
 
-/////////////////////////////////
-// begin decomp work here
-/////////////////////////////////
 
 typedef struct {
     s16 unk0;
