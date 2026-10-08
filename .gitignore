@@ -20,3 +20,5 @@ undefined_syms_auto.*.txt
 build.ninja
 objdiff.json
 /permute*
+/src/pc/ovlrun/
+/tools/overlay_runner.cmake

@@ -183,3 +183,5 @@ add_library(${PROJECT_NAME}_lib
     ${FF7_STR_FIELD} ${FF7_STR_WORLD} ${FF7_STR_MINI} ${FF7_STR_MAGIC})
 set_target_properties(${PROJECT_NAME}_lib PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 ff7_configure(${PROJECT_NAME}_lib)
+
+include("${CMAKE_CURRENT_SOURCE_DIR}/tools/overlay_runner.cmake" OPTIONAL)
