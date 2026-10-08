@@ -16,11 +16,11 @@ INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", func_800AD854);
 
 INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", func_800AD8C8);
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", func_800AD94C);
+INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", HighwayPlaySfx);
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", func_800ADB20);
+INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", HighwaySetSlotPitch);
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", func_800ADBA0);
+INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", HighwaySetSlotVolume);
 
 INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_race", func_800ADC24);
 
