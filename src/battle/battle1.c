@@ -847,7 +847,7 @@ static void func_800BB030(s16 arg0) {
         if (g_BattleModels[arg0].specialFlags & BATTLE_MODEL_HIDDEN) {
             continue;
         }
-        D_80163C74 = func_800D29D4(unk, g_cDb->unk70, 12, D_80163C74);
+        D_80163C74 = BattleDrawModel(unk, g_cDb->unk70, 12, D_80163C74);
     }
 }
 

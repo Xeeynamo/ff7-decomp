@@ -131,7 +131,7 @@ static void BarrierRenderBorder(void) {
 
     border_render_desc.flags = faceFlags | MODEL_DEPTH_CUE;
     border_render_desc.color = fade;
-    barrier_buffer_ptr = func_800D29D4(&border_render_desc, g_cDb->unk70, 12, barrier_buffer_ptr);
+    barrier_buffer_ptr = BattleDrawModel(&border_render_desc, g_cDb->unk70, 12, barrier_buffer_ptr);
 
     if (D_80062D98 == 0) {
         barrier->AnimationFrame++;
@@ -190,7 +190,7 @@ static void BarrierRenderShield(void) {
 
     shield_render_desc.flags = faceFlags | MODEL_DEPTH_CUE;
     shield_render_desc.color = fade;
-    barrier_buffer_ptr = func_800D29D4(&shield_render_desc, g_cDb->unk70, 12, barrier_buffer_ptr);
+    barrier_buffer_ptr = BattleDrawModel(&shield_render_desc, g_cDb->unk70, 12, barrier_buffer_ptr);
 
     if (D_80062D98 == 0) {
         barrier->AnimationFrame++;

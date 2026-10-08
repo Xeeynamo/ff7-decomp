@@ -64,7 +64,7 @@ static void ThunderaRenderModel(void) {
     desc->color = grey;
     desc->tpage = 0x20;
     desc->clut = 0;
-    g_ThunderaBufferPtr = func_800D29D4(desc, g_cDb->unk70, 12, g_ThunderaBufferPtr);
+    g_ThunderaBufferPtr = BattleDrawModel(desc, g_cDb->unk70, 12, g_ThunderaBufferPtr);
     if (D_80062D98 == 0) {
         effect->Scale += effect->ScaleStep;
         effect->ScaleStep -= effect->ScaleStep >> 2;

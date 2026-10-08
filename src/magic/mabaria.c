@@ -66,7 +66,7 @@ static void MabariaRenderModel(void) {
     SetTransMatrix(&matrix);
     SetFarColor(0, 0, 0);
     mabaria_render_desc.color = fade;
-    g_MabariaBufferPtr = func_800D29D4(&mabaria_render_desc, g_cDb->unk70, 12, g_MabariaBufferPtr);
+    g_MabariaBufferPtr = BattleDrawModel(&mabaria_render_desc, g_cDb->unk70, 12, g_MabariaBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame >= MABARIA_LIFETIME) {
