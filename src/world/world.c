@@ -4537,7 +4537,12 @@ static s32 func_800B3350(void) {
     return D_800C68E8[0].timer | (D_800C68E8[1].timer << 8) | (D_800C68E8[2].timer << 0x10) | (D_8010CB14 << 0x18);
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B338C);
+WorldSoundArea* func_800B338C(s16 arg0, s16 arg1) {
+    return (arg0 == 5 && arg1 == 18)   ? D_800C68E8
+           : (arg0 == 4 && arg1 == 17) ? &D_800C68E8[1]
+           : (arg0 == 4 && arg1 == 14) ? &D_800C68E8[2]
+                                       : NULL;
+}
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B3418);
 
