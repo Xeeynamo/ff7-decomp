@@ -7,6 +7,86 @@
 #include <libetc.h>
 #include "../jet/jet_model.h"
 
+typedef struct HighwayBuffer HighwayBuffer;
+
+#define ABS(x) ((x) < 0 ? -(x) : (x))
+
+typedef union {
+    s32 raw[0x50];
+    struct {
+        /* 0x00 */ s32 status; // 0 normal, 1 hit, 2 dying, 5 inactive
+        /* 0x04 */ s32 type;   // 0 player, 1 truck, 2 enemy bike
+        /* 0x08 */ s32 unk8;
+        /* 0x0C */ s32 unkC;
+        /* 0x10 */ s32 nodeCount;
+        /* 0x14 */ s32 unk14;
+        /* 0x18 */ s32 x;
+        /* 0x1C */ s32 y;
+        /* 0x20 */ s32 z;
+        /* 0x24 */ char pad24[0x8];
+        /* 0x2C */ s32 maxZ;
+        /* 0x30 */ char pad30[0x8];
+        /* 0x38 */ s32 minZ;
+        /* 0x3C */ s32 unk3C;
+        /* 0x40 */ s32 unk40;
+        /* 0x44 */ s32 unk44;
+        /* 0x48 */ s32 unk48[6];
+        /* 0x60 */ s32 unk60;
+        /* 0x64 */ s32 unk64;
+        /* 0x68 */ s32 unk68;
+        /* 0x6C */ s32 unk6C;
+        /* 0x70 */ char pad70[0x8];
+        /* 0x78 */ s32 unk78;
+        /* 0x7C */ s32 unk7C;
+        /* 0x80 */ s32 unk80;
+        /* 0x84 */ s32 unk84;
+        /* 0x88 */ s32 hp;
+        /* 0x8C */ s32 maxHp;
+        /* 0x90 */ s32 unk90;
+        /* 0x94 */ char pad94[0xC];
+        /* 0xA0 */ s32 unkA0;
+        /* 0xA4 */ s32 velX;
+        /* 0xA8 */ s32 unkA8;
+        /* 0xAC */ s32 velZ;
+        /* 0xB0 */ s32 unkB0;
+        /* 0xB4 */ s32 unkB4;
+        /* 0xB8 */ s32 unkB8;
+        /* 0xBC */ s32 unkBC;
+        /* 0xC0 */ s32 unkC0;
+        /* 0xC4 */ s32 unkC4;
+        /* 0xC8 */ s32 unkC8;
+        /* 0xCC */ s32 onPath;
+        /* 0xD0 */ SVECTOR* path;
+        /* 0xD4 */ s32 pathEnd;
+        /* 0xD8 */ s32 pathPos;
+        /* 0xDC */ char padDC[0x14];
+        /* 0xF0 */ s32 unkF0;
+        /* 0xF4 */ s32 unkF4;
+        /* 0xF8 */ s32 unkF8;
+        /* 0xFC */ s32 unkFC;
+        /* 0x100 */ s32 unk100;
+        /* 0x104 */ s32 attackTimer;
+        /* 0x108 */ s32 unk108;
+        /* 0x10C */ s32 unk10C;
+        /* 0x110 */ s32 unk110;
+        /* 0x114 */ s32 unk114;
+        /* 0x118 */ s32 unk118;
+        /* 0x11C */ s32 unk11C;
+        /* 0x120 */ char pad120[0xC];
+        /* 0x12C */ s32 unk12C;
+    } common;
+} HighwayRiderState; // size: 0x140
+
+typedef struct {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 : 32;
+    /* 0x10 */ SVECTOR unk10;
+    /* 0x18 */ JetNode* nodes[10];
+    /* 0x40 */ HighwayRiderState state;
+} HighwayRider; // size: 0x180
+
 typedef struct {
     /* 0x00 */ VECTOR position;
     /* 0x10 */ char pad10[8];
@@ -229,6 +309,21 @@ extern u16 g_HighwayGaugeTPage;
 extern s32 g_HighwayRoadHead;
 extern u16 g_HighwayRoadClut[11];
 extern u8* g_HighwayRoadPatterns;
+typedef struct {
+    /* 0x00 */ MATRIX m;
+    /* 0x20 */ s32 lastFrame[20]; // per animation
+    /* 0x70 */ char pad70[0x28];
+    /* 0x98 */ s32 unk98;
+    /* 0x9C */ s32 unk9C;
+    /* 0xA0 */ s32 animation;
+    /* 0xA4 */ s32 frame;
+    /* 0xA8 */ s32 unkA8;
+    /* 0xAC */ s16 flash; // set to 0xFF when hit
+    /* 0xAE */ s16 unkAE;
+    /* 0xB0 */ s16 unkB0;
+    /* 0xB2 */ s16 : 16;
+} HighwayKawaiState; // size: 0xB4
+
 extern s32 D_801163EC;
 extern s32 g_HighwayTrackTurnStep;
 extern u16 g_HighwayWallClut[8];
@@ -282,4 +377,78 @@ void HighwayPropScriptStep(u8 index, u8* modelId, s16* offset, s16* height, u16*
 void HighwayPropPatternGet(u8 table, u8 index, u8* first, u8* second, u8* unused);
 void HighwayTrackAdvance(void);
 
+extern VECTOR g_HighwayCameraEye;    // listener for engine volume/pan
+extern VECTOR g_HighwayCameraTarget; // on the player; the view rotates around it
+extern VECTOR g_HighwayCameraTargetOffset;
+extern VECTOR g_HighwayCameraEyeOffset;
+extern s32* g_HighwayPathLengths;
+extern s32* g_HighwayPathOffsets;
+extern u8* g_HighwayPathData;
+extern HighwayRider g_HighwayRiders[6]; // [0] is the player
+extern s32 g_HighwayInputDisabled;
+extern s32 g_HighwayEffectModels[4];
+extern SVECTOR* g_HighwayPath;
+extern HighwayKawaiState g_HighwayKawaiStates[20];
+extern s32 g_HighwayPathLen;
+extern s32 g_HighwayOtOffset;
+extern s32 g_HighwayPadKeys;
+extern s32 g_HighwayNearestEnemy;
+extern s32 g_HighwayNearestEnemyDist;
+extern u8 g_HighwayEnemiesDisabled;
+extern FieldModelEntry* g_HighwayKawaiModels;
+extern s32 g_HighwayRidersTrackPos;
+extern SVECTOR* g_HighwayCameraPath;
+extern s32 g_HighwayPadDir;
+extern u32 g_HighwayScore;
+extern u8 g_HighwayEnemyCount;
+extern s32 g_HighwayCameraPathEnd;
+extern s32 g_HighwayPadAction;
+extern s32 g_HighwayCameraPathStep;
+extern u8 g_HighwayEnemySpawnDelay;
+extern HighwayBuffer* g_HighwayRidersBuffer;
+extern SVECTOR g_HighwayCameraFixedOffset;
+extern u32 g_HighwayCameraPathPos;
+extern VECTOR g_HighwayCameraOffset;
+extern s32* D_800BE550;
+extern s32 g_HighwayCameraLift;
+extern s32 g_HighwayNearestRiderDist;
+extern s32 g_HighwayCameraYaw;
+extern u8 g_HighwayCameraMode;
+extern s32 D_80110ABC;
+extern s32 g_HighwayEngineVolume;
+extern s32 g_HighwayEnemyEngineVolume;
+extern s32 g_HighwayCameraFixedPos;
+extern s32* D_801163F8;
+void HighwayRidersInit(void);
+void HighwayRidersUpdate(s32 trackPos, HighwayBuffer* db);
+void HighwayRidersSetup(void);
+void HighwayEnemyInit(s32 index);
+void HighwayRidersClamp(void);
+void HighwayRiderClamp(s32 index);
+void HighwayEnemiesSpawn(void);
+void HighwayEnemySpawn(s32 index);
+void HighwayRidersMove(void);
+void HighwayRiderMove(s32 index);
+void HighwayEnemyMove(s32 index);
+void HighwayRidersAction(void);
+void HighwayRiderAction(s32 index);
+void HighwayRidersDraw(void);
+void HighwayRidersDrawEffects(void);
+void HighwayRiderEndpoints(s16 index, SVECTOR* front, SVECTOR* back, s16* outDiff);
+void HighwayRidersCollide(void);
+void HighwayRiderCollision(s16 a, s16 b, s32 angle);
+void HighwayRiderDamage(s32 index, s32 damage);
+void HighwayTruckHit(s32 index, s32 angle);
+void HighwayRiderSetPath(s32 index, u8 pathIndex);
+void HighwayEnemyAi(s32 index);
+void HighwayCameraInit(void);
+void HighwayCameraSetPath(s32 pathIndex, u8 mode, s32 position);
+void HighwayPathLoad(u8 pathIndex);
+void HighwayPathSample(u32 pathPosition, SVECTOR* path, VECTOR* position, u8 flag);
+void HighwayInputReset(void);
+void HighwayPlaySfx(s32 soundId, s32 slot, s32 timer);
+void HighwaySetSlotPitch(s32 pitch, s32 slot);
+void HighwaySetSlotVolume(s32 volume, u8 slot);
+void HighwayGaugeDamage(u8 index, s16 damage);
+void HighwayKawaiModelsUpdate(void);
 #endif
