@@ -138,6 +138,19 @@ enum CombatantStateFlags {
     COMBATANT_BACK_ROW = 0x40,
 };
 
+typedef enum {
+    BATTLE_MSG_ARG_CHAR_NAME = 0xEA,
+    BATTLE_MSG_ARG_UNK_EB = 0xEB, // item name maybe? Haven't traced SysKernGetString(4, arg, 8)
+    BATTLE_MSG_ARG_NUMBER = 0xEC,
+    BATTLE_MSG_ARG_UNIT_NAME = 0xED,
+    BATTLE_MSG_ARG_MAGIC_NAME = 0xEE,
+    BATTLE_MSG_ARG_ENEMY_LETTER = 0xEF,
+    BATTLE_MSG_ARG_BATTLE_TEXT = 0xF0,
+    BATTLE_MSG_ARG_KERNEL_TEXT = 0xF1,
+    BATTLE_MSG_ARG_START = BATTLE_MSG_ARG_CHAR_NAME,
+    BATTLE_MSG_ARG_END = BATTLE_MSG_ARG_KERNEL_TEXT,
+} BattleMessageArgType;
+
 typedef struct {
     // condition/status bitmask; see BattleStatusFlags above for the bits
     // confirmed live here

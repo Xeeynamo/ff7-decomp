@@ -65,19 +65,16 @@ s32 func_80014CBC(s32 arg0, s32 arg1) {
     return var_a2;
 }
 
-static u8* func_80014D58(u8* arg0, const u8* arg1, s32 arg2) {
-    u8 var_a3 = *arg1;
-    while (var_a3 != 0xFF) {
-        *arg0 = var_a3;
-        arg1++;
-        arg2--;
-        arg0++;
-        if (arg2 == -1) {
+// Copies src to dst up to (but not including) the 0xFF terminator, stopping
+// after limit + 1 bytes (-1 = no limit). Returns the new end of dst
+static u8* SysAppendString(u8* dst, const u8* src, s32 limit) {
+    while (*src != 0xFF) {
+        *dst++ = *src++;
+        if (--limit == -1) {
             break;
         }
-        var_a3 = *arg1;
     }
-    return arg0;
+    return dst;
 }
 
 u8* SysGetKernTextPtr(s32 blockId, s32 entryId, s32 blockOffset) {
@@ -85,47 +82,47 @@ u8* SysGetKernTextPtr(s32 blockId, s32 entryId, s32 blockOffset) {
     return (u8*)&sectionBase[*(u16*)&sectionBase[entryId * 2]];
 }
 
-static u8* func_80014DD0(s32 arg0, s32 arg1, u8* arg2) {
-    return func_80014D58(arg2, SysGetKernTextPtr(arg0, arg1, 0), -1);
+static u8* SysKernAppendText(s32 blockId, s32 entryId, u8* dst) {
+    return SysAppendString(dst, SysGetKernTextPtr(blockId, entryId, 0), -1);
 }
 
-static u8* func_80014E0C(s32 charId, u8* dst) {
+static u8* SysAppendCharName(s32 charId, u8* dst) {
     s32 i;
 
     for (i = 0; i < NUM_CHARACTERS; i++) {
         if (Savemap.party[i].char_id == charId) {
-            dst = func_80014D58(dst, Savemap.party[i].name, LEN(Savemap.party[i].name));
+            dst = SysAppendString(dst, Savemap.party[i].name, LEN(Savemap.party[i].name));
             break;
         }
     }
     return dst;
 }
 
-#define MAX_DIGITS 16U
-u8* func_80014E74(u8* dst, const u8* src) {
+#define MAX_DIGITS 16U // Needs to be unsigned for loop condition
+u8* SysExpandBattleString(u8* dst, const u8* src) {
     s32 digits[MAX_DIGITS];
-    u8* buffer = dst;
+    u8* cursor = dst;
     u8 value = 0;
-    s32 j = 0;
+    s32 pos = 0;
     s32 i;
 
     while (value != 0xFF) {
-        value = src[j++];
+        value = src[pos++];
 
-        if (value >= 0xEA && value <= 0xF1) {
-            u16 arg = src[j++] << 8;
-            arg |= src[j++];
+        if (value >= BATTLE_MSG_ARG_START && value <= BATTLE_MSG_ARG_END) {
+            u16 arg = src[pos++] << 8;
+            arg |= src[pos++];
 
             switch (value) {
-            case 0xEA:
-                buffer = func_80014E0C(arg, buffer);
+            case BATTLE_MSG_ARG_CHAR_NAME:
+                cursor = SysAppendCharName(arg, cursor);
                 break;
 
-            case 0xEB:
-                buffer = func_80014D58(buffer, SysKernGetString(4, arg, 8), -1);
+            case BATTLE_MSG_ARG_UNK_EB:
+                cursor = SysAppendString(cursor, SysKernGetString(4, arg, 8), -1);
                 break;
 
-            case 0xEC:
+            case BATTLE_MSG_ARG_NUMBER:
                 // Needs to produce at least one digit, so a do-while fits here
                 i = 0;
                 do {
@@ -135,46 +132,44 @@ u8* func_80014E74(u8* dst, const u8* src) {
 
                 if (i > 0) {
                     do {
-                        *buffer++ = digits[i - 1] + g_FFTextNumberOffset;
+                        *cursor++ = digits[i - 1] + g_FFTextNumberOffset;
                     } while (--i > 0);
                 }
                 break;
 
-            case 0xED:
+            case BATTLE_MSG_ARG_UNIT_NAME:
                 if (arg < NUM_PARTY) {
-                    buffer = func_80014E0C(g_BattleData.actors[arg].charId, buffer);
+                    cursor = SysAppendCharName(g_BattleData.actors[arg].charId, cursor);
                 } else if (arg >= START_ENEMY) {
-                    buffer = func_80014D58(
-                        buffer,
-                        g_BattleSceneContext.enemy[g_BattleData.activeEncounter.formation[arg - START_ENEMY].enemyID]
-                            .name,
-                        0x20);
+                    s16 enemyId = g_BattleData.activeEncounter.formation[arg - START_ENEMY].enemyID;
+                    cursor = SysAppendString(
+                        cursor, g_BattleSceneContext.enemy[enemyId].name, LEN(g_BattleSceneContext.enemy[0].name));
                 }
 
                 break;
 
-            case 0xEE:
-                buffer = func_80014DD0(9, arg, buffer);
+            case BATTLE_MSG_ARG_MAGIC_NAME:
+                cursor = SysKernAppendText(KERNEL_TEXT_NAME_MAGIC, arg, cursor);
                 break;
 
-            case 0xEF:
-                if (arg < 26) {
-                    *buffer++ = arg + g_FFTextLetterOffset;
+            case BATTLE_MSG_ARG_ENEMY_LETTER:
+                if (arg < 26) { // A-Z
+                    *cursor++ = arg + g_FFTextLetterOffset;
                 }
                 break;
 
-            case 0xF0:
-                buffer = func_80014DD0(16, arg, buffer);
+            case BATTLE_MSG_ARG_BATTLE_TEXT:
+                cursor = SysKernAppendText(KERNEL_TEXT_BATTLE_MESSAGES, arg, cursor);
                 break;
 
-            case 0xF1:
-                buffer = func_80014DD0(arg >> 8, arg & 0xFF, buffer);
+            case BATTLE_MSG_ARG_KERNEL_TEXT:
+                cursor = SysKernAppendText(arg >> 8, arg & 0xFF, cursor);
                 break;
             }
         } else {
-            *buffer++ = value;
+            *cursor++ = value;
             if (value == 0xF9) {
-                *buffer++ = src[j++];
+                *cursor++ = src[pos++];
             }
         }
     }
