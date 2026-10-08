@@ -57,7 +57,3 @@ SpuTransferCallbackProc SpuSetTransferCallback(SpuTransferCallbackProc func) {
     }
     return 0;
 }
-
-long StartRCnt(unsigned long spec) { return 1; }
-long StopRCnt(unsigned long spec) { return 1; }
-long GetRCnt(unsigned long spec) { return 0; }
