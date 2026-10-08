@@ -140,7 +140,7 @@ enum CombatantStateFlags {
 
 typedef enum {
     BATTLE_MSG_ARG_CHAR_NAME = 0xEA,
-    BATTLE_MSG_ARG_UNK_EB = 0xEB, // item name maybe? Haven't traced SysKernGetString(4, arg, 8)
+    BATTLE_MSG_ARG_ITEM_NAME = 0xEB,
     BATTLE_MSG_ARG_NUMBER = 0xEC,
     BATTLE_MSG_ARG_UNIT_NAME = 0xED,
     BATTLE_MSG_ARG_MAGIC_NAME = 0xEE,

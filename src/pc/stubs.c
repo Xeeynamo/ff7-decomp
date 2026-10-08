@@ -356,7 +356,7 @@ CurrentCharStats D_80069538;
 CurrentCharMagicCommand D_80069554[NUM_MAGICS];
 
 u16 D_80062F34[3];
-u8 D_80063660[0x30];
+u8 D_80063660[0x30]; // size is the gap to g_KernelTextBuffer, not a known size
 u8 D_80069800[48];
 
 // Entry points of menu overlays that are not part of the PC build yet.

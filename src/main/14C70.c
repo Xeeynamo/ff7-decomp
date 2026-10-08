@@ -13,9 +13,39 @@ typedef struct {
 } KernelTextMaps;
 
 static const KernelTextMaps kernel_maps = {
-    {0, 56, 72},         {0, 128, 256, 288, 384, 65535},
-    {4, 10, 11, 12, 13}, {0, 0, 0},
-    {0, 56, 72, 128},    {1, 1, 1, 1, 2, 0, 255, 255, 255, 255, 3, 4, 5, 6, 7, 0},
+    // dataOffsets: AttackData base index used in func_80014CBC
+    {
+        /* 0x00 */ 0,                        // Magic
+        /* 0x01 */ NUM_MAGICS,               // Summons
+        /* 0x02 */ NUM_MAGICS + NUM_SUMMONS, // Enemy skill
+    },
+    {0, 128, 256, 288, 384, 65535},
+    {4, 10, 11, 12, 13},
+    {0, 0, 0},
+    // magicTypeOffsets: Attack-name base index for types 0–3
+    {
+        /* 0x00 */ 0,                        // Magic
+        /* 0x01 */ NUM_MAGICS,               // Summons
+        /* 0x02 */ NUM_MAGICS + NUM_SUMMONS, // Enemy skill
+        /* 0x03 */ 128                       // Not sure, limit breaks maybe?
+    },
+    // typeToSection: Corresponds to the type used in SysKernGetString
+    {/* 0x00 */ KERNEL_TEXT_DESC_MAGIC,
+     /* 0x01 */ KERNEL_TEXT_DESC_MAGIC,
+     /* 0x02 */ KERNEL_TEXT_DESC_MAGIC,
+     /* 0x03 */ KERNEL_TEXT_DESC_MAGIC,
+     /* 0x04 */ KERNEL_TEXT_DESC_ITEM,
+     /* 0x05 */ KERNEL_TEXT_DESC_COMMAND,
+     /* 0x06 */ KERNEL_TEXT_INVALID,
+     /* 0x07 */ KERNEL_TEXT_INVALID,
+     /* 0x08 */ KERNEL_TEXT_INVALID,
+     /* 0x09 */ KERNEL_TEXT_INVALID,
+     /* 0x0A */ KERNEL_TEXT_DESC_WEAPON,
+     /* 0x0B */ KERNEL_TEXT_DESC_ARMOR,
+     /* 0x0C */ KERNEL_TEXT_DESC_ACCESSORY,
+     /* 0x0D */ KERNEL_TEXT_DESC_MATERIA,
+     /* 0x0E */ KERNEL_TEXT_DESC_KEY_ITEM,
+     /* 0x0F */ KERNEL_TEXT_DESC_COMMAND}, // unused/padding?
     {0, 0, 0, 0},
 };
 
@@ -118,7 +148,7 @@ u8* SysExpandBattleString(u8* dst, const u8* src) {
                 cursor = SysAppendCharName(arg, cursor);
                 break;
 
-            case BATTLE_MSG_ARG_UNK_EB:
+            case BATTLE_MSG_ARG_ITEM_NAME:
                 cursor = SysAppendString(cursor, SysKernGetString(4, arg, 8), -1);
                 break;
 
@@ -188,6 +218,9 @@ s32 SysGetKernBattleTextById(s32 TextId) {
 
 extern u8 D_80063660;
 
+// Returns a pointer to an 0xFF-terminated string
+// type: Which string is returned depends on the type
+// index: Meaning changes depending on the type
 // blockOffset values when type maps to a valid section:
 //  0: Resolves the desc of the respective KERNEL_TEXT_DESC_* blockId entry
 //  8: Resolves the name of the respective KERNEL_TEXT_NAME_* blockId entry
@@ -202,7 +235,7 @@ const char* SysKernGetString(s32 type, s32 index, s32 blockOffset) {
     result = (u8*)&D_80062D50;
 
     if (type == 4) {
-        for (i = 0; i < 5U; i++) {
+        for (i = 0; i < sizeof(kernel_maps.itemToType); i++) {
             if (index < kernel_maps.itemOffsets[i + 1]) {
                 type = kernel_maps.itemToType[i];
                 index -= kernel_maps.itemOffsets[i];
@@ -220,14 +253,14 @@ const char* SysKernGetString(s32 type, s32 index, s32 blockOffset) {
             index += kernel_maps.magicTypeOffsets[type];
         }
 
-        if (kernel_maps.typeToSection[type] != 0xFF) {
+        if (kernel_maps.typeToSection[type] != KERNEL_TEXT_INVALID) {
             result = SysGetKernTextPtr(kernel_maps.typeToSection[type] + blockOffset, index, 0);
             if (blockOffset == 0) {
                 result = SysDecompKernStringWithF9(result, result);
             }
         } else {
             switch (type) {
-            case 6:
+            case 6: // index is used as an entryId here
                 blockId = KERNEL_TEXT_NAME_MAGIC;
                 if (index < NUM_SUMMONS) {
                     blockId = KERNEL_TEXT_NAME_SUMMON;
@@ -235,7 +268,7 @@ const char* SysKernGetString(s32 type, s32 index, s32 blockOffset) {
                 result = SysGetKernTextPtr(blockId, index, 0);
                 break;
 
-            case 7: // Sense command formatting
+            case 7: // Sense command formatting, index maps to unit slot here
                 if (index >= NUM_ENEMY) {
                     break;
                 }
@@ -257,6 +290,7 @@ const char* SysKernGetString(s32 type, s32 index, s32 blockOffset) {
                     u16 strArgs[2];
                     strArgs[0] = g_BattleWork.turn[slot].prevHP;
                     strArgs[1] = g_BattleState.combatant[slot].maxHP;
+
                     str = SysAppendString(str, SysGetKernBattleTextById(0x7F), -1);
                     BattleCopyMessageWithArgs(str, SysGetKernBattleTextById(0x72), strArgs);
                     SysExpandBattleString(buffer, str);
@@ -267,6 +301,7 @@ const char* SysKernGetString(s32 type, s32 index, s32 blockOffset) {
                 break;
 
             case 8:
+                // 0x100 seems to be the string buffer base
                 if (index >= 0x100) {
                     str = BattleGetStringPtrFromStringBuffer(index - 0x100);
                 } else {
