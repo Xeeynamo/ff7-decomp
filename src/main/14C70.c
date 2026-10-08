@@ -19,7 +19,7 @@ static const KernelTextMaps kernel_maps = {
     {0, 0, 0, 0},
 };
 
-s32 D_80062D50 = 0x000000FF;
+s32 D_80062D50 = 0x000000FF; // String terminator
 s32 D_80062E1C;
 s32 D_80062E20;
 s32 D_80062E24;
@@ -186,7 +186,103 @@ s32 SysGetKernBattleTextById(s32 TextId) {
     return SysDecompKernStringWithF9(tmpBuf, tmpBuf);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysKernGetString);
+extern u8 D_80063660;
+
+// blockOffset values when type maps to a valid section:
+//  0: Resolves the desc of the respective KERNEL_TEXT_DESC_* blockId entry
+//  8: Resolves the name of the respective KERNEL_TEXT_NAME_* blockId entry
+const char* SysKernGetString(s32 type, s32 index, s32 blockOffset) {
+    u8 buffer[0x100];
+    u8* result;
+    u8* str;
+    s32 blockId;
+    s32 slot;
+    s32 i;
+
+    result = (u8*)&D_80062D50;
+
+    if (type == 4) {
+        for (i = 0; i < 5U; i++) {
+            if (index < kernel_maps.itemOffsets[i + 1]) {
+                type = kernel_maps.itemToType[i];
+                index -= kernel_maps.itemOffsets[i];
+                break;
+            }
+        }
+    }
+
+    if ((type == 3) && (index == 0x7F)) {
+        index = 0xFF;
+    }
+
+    if (index != 0xFF) {
+        if (type < 4U && index + kernel_maps.magicTypeOffsets[type] < 0xE0) {
+            index += kernel_maps.magicTypeOffsets[type];
+        }
+
+        if (kernel_maps.typeToSection[type] != 0xFF) {
+            result = SysGetKernTextPtr(kernel_maps.typeToSection[type] + blockOffset, index, 0);
+            if (blockOffset == 0) {
+                result = SysDecompKernStringWithF9(result, result);
+            }
+        } else {
+            switch (type) {
+            case 6:
+                blockId = KERNEL_TEXT_NAME_MAGIC;
+                if (index < NUM_SUMMONS) {
+                    blockId = KERNEL_TEXT_NAME_SUMMON;
+                }
+                result = SysGetKernTextPtr(blockId, index, 0);
+                break;
+
+            case 7: // Sense command formatting
+                if (index >= NUM_ENEMY) {
+                    break;
+                }
+
+                slot = index + START_ENEMY;
+                str = SysAppendString(
+                    &D_80063660, g_BattleSceneContext.enemy[g_BattleData.activeEncounter.formation[index].enemyID].name,
+                    0x20);
+
+                if (g_BattleWork.turn[slot].formationIndex != 0xFF) {
+                    *str++ = g_BattleWork.turn[slot].formationIndex + g_FFTextLetterOffset;
+                }
+
+                if (g_BattleState.combatant[slot].stateFlags & COMBATANT_BACK_ROW) {
+                    str = SysAppendString(str, SysGetKernBattleTextById(0x71), -1);
+                }
+
+                if (g_BattleWork.turn[slot].turnFlags & 0x40) {
+                    u16 strArgs[2];
+                    strArgs[0] = g_BattleWork.turn[slot].prevHP;
+                    strArgs[1] = g_BattleState.combatant[slot].maxHP;
+                    str = SysAppendString(str, SysGetKernBattleTextById(0x7F), -1);
+                    BattleCopyMessageWithArgs(str, SysGetKernBattleTextById(0x72), strArgs);
+                    SysExpandBattleString(buffer, str);
+                    str = SysAppendString(str, buffer, -1);
+                }
+                *str = 0xFF;
+                result = &D_80063660;
+                break;
+
+            case 8:
+                if (index >= 0x100) {
+                    str = BattleGetStringPtrFromStringBuffer(index - 0x100);
+                } else {
+                    str = SysGetKernBattleTextPtr(index);
+                }
+                result = SysDecompKernStringWithF9(SysExpandBattleString(buffer, str), str);
+                break;
+
+            case 9:
+                result = g_BattleSceneContext.attackNames[index];
+                break;
+            }
+        }
+    }
+    return result;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysSetEngineErrorCode);
 

@@ -748,3 +748,5 @@ void BattleInitTurnWorkHPMP(void);
 void BattleAddAutoBattleActionByChance(s32 arg0, s32 arg1);
 void BattleInitUnitAction(s32 index);
 void BattleEnableLimitToPlayerWithSpeed(s32 index);
+s32 BattleCopyMessageWithArgs(u8* dst, const u8* src, const u16* args);
+s8* BattleGetStringPtrFromStringBuffer(s32 arg0);

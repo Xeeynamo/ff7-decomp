@@ -204,10 +204,6 @@ int SysGetMinutesFromSeconds() {
     NOT_IMPLEMENTED;
     return 0;
 }
-const char* SysKernGetString(s32 arg0, s32 arg1, s32 arg2) {
-    NOT_IMPLEMENTED;
-    return 0;
-}
 int SysMenuDrawDigitsWithLeadingZeroes() {
     NOT_IMPLEMENTED;
     return 0;
@@ -252,9 +248,19 @@ void func_801D11A8(void) { NOT_IMPLEMENTED; }
 void SysCopyBoostedStatToUnitStructure(void) { NOT_IMPLEMENTED; }
 void SysSortMagicInUnitStructure(s32 partyId) { NOT_IMPLEMENTED; }
 void BATTLE_Main(void) { NOT_IMPLEMENTED; }
+s32 BattleCopyMessageWithArgs(u8* dst, const u8* src, const u16* args) {
+    NOT_IMPLEMENTED;
+    return 0;
+}
+s8* BattleGetStringPtrFromStringBuffer(s32 arg0) {
+    NOT_IMPLEMENTED;
+    return 0;
+}
 // battle overlay globals read by main (14C70.c)
-BattleData g_BattleData;
+BattleWork g_BattleWork;
 BattleSceneContext g_BattleSceneContext;
+BattleState g_BattleState;
+BattleData g_BattleData;
 s32 g_FFTextLetterOffset;
 s32 g_FFTextNumberOffset;
 
@@ -350,6 +356,7 @@ CurrentCharStats D_80069538;
 CurrentCharMagicCommand D_80069554[NUM_MAGICS];
 
 u16 D_80062F34[3];
+u8 D_80063660[0x30];
 u8 D_80069800[48];
 
 // Entry points of menu overlays that are not part of the PC build yet.
