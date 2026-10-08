@@ -554,7 +554,7 @@ static void SetNotificationText(u8* text) {
     }
 }
 
-// Currently sitting at 95.84% matching
+// Currently sitting at 99.55% matching
 #ifndef NON_MATCHING
 INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", ITEMMENU_Main);
 #else
@@ -577,74 +577,65 @@ extern DRAWENV D_800706A4[];
 extern u16 g_Pad0KeysPressed;
 extern u16 g_Pad0KeysRepeat;
 
-void SysMenuSetDrawMode(s32, s32, s32, RECT*);
-void SysMenuDrawDigitsWithoutLeadingZeroes(s32, s32, s32, s32, s32);
-
-s32 SysMenuGetMenuListState(void);
-
-void SysMenuSetMenuListAnimation(s32, s32);
-void SysInitPlayerStatFromEquip(s32);
-void SysInitPlayerStatFromMateria(s32);
 void ArrangeItems(s32);
-void SysMenuUnkNoop(s32);
-
-extern void SysMenuClose(void);
-extern void SysMenuDrawAvatar(u8, s32, u8, u8, s32, s32, s32, s32, s32, s32);
-extern void SysMenuDrawCharNameLvHpMpByPartyId(u8, s32, s32);
-extern void SysMenuDrawCursor(s32, s32);
-extern void SysMenuDrawMenuList(s32);
-extern void SysMenuDrawScrollbar(s16*, u16);
-extern void SysMenuDrawSingleFontLetter(u8, s32, u8, s32);
-extern void SysMenuDrawWindow(void*);
-extern void SysMenuLoadMenuFileById(u8);
-extern void SysMenuRemoveItem(s32);
-extern void SysMenuRequestAddWindow(u8*, u8);
-extern s32 SysMenuSearchItem(u32);
-extern void SysMenuSetDrawenv(DRAWENV*, s16*);
-extern void SysMenuSetWindowRect(RECT*, u8, u8, u8, s32);
-extern void SystemMenuAddHpByPartyId(s8, s32);
-extern void SystemMenuAddMpByPartyId(s8, s32);
-extern s32 func_801D0CAC(s8);
-extern s32 func_801D0CE8(s8);
-extern s32 func_801D0D24(u8);
-extern s32 func_801D0DCC(s32);
-extern void func_801D0E4C(void*);
+const char* SysKernGetString(s32, s32, s32);
+void SysMenuDrawAvatar(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
+void SysMenuSetWindowRect(s32*, s32, s32, s32, s32);
+void SysMenuDrawWindow(s32*);
+void SysMenuDrawCursor(s32, s32);
+void SysMenuRequestAddWindow(s32*, s32);
+void SysMenuDrawCharNameLvHpMpByPartyId(s32, s32, s32);
+void SysMenuLoadMenuFileById(s32);
+s32 SysMenuGetMenuListState();
+void SysMenuDrawMenuList(s32);
+void SysMenuClose();
+void SysMenuRemoveItem(s32);
+s32 SysMenuSearchItem(u32);
+void SystemMenuAddHpByPartyId(s32, s32);
+void SystemMenuAddMpByPartyId(s32, s32);
+void SysMenuSetDrawenv(void*, s16*);
+void SysMenuDrawSingleFontLetter(s32, s32, s32, s32);
+void SysMenuDrawScrollbar();
+s32 func_801D0CAC(s32);
+s32 func_801D0CE8(s32);
+s32 func_801D0D24(u8);
+s32 func_801D0DCC(s32);
+void func_801D0E4C(s32*);
 
 extern u8 D_8009C740[];
 extern u8 D_8009C744[];
 extern u8 D_8009C757[];
-extern u8 D_8009C75A[];
+extern u16 D_8009C75A[];
 extern s8 D_8009CA50;
 extern s8 D_8009CA51;
 extern s8 D_8009CA5E;
-extern s8 D_8009CA5F;
+extern u8 D_8009CA5F;
 extern s32 D_8009CA8C;
 extern s8 D_8009CAD4;
 extern s8 D_8009CAD5;
 extern s8 D_8009CAE2;
-extern s8 D_8009CAE3;
+extern u8 D_8009CAE3;
 extern s32 D_8009CB10;
 extern u8 D_8009CBCF[];
 extern u8 D_8009CBDC[];
 extern u16 D_8009CBE0[];
 extern u8 D_8009D5E8;
-extern u8 D_8009D85C[];
-extern u8 D_8009D85E[];
-extern u8 D_801D3260[];
-extern u8 D_801D3282[];
-extern u8 D_801D3590[];
-extern s8 D_801D3CD4[];
-extern s8 D_801D3CF8[];
-extern u8 D_801D3D25[];
-extern u8 D_801D3D5C[];
-extern UnkWindowRect D_801D3D74;
+extern s16 D_8009D85C[];
+extern s16 D_8009D85E[];
+extern s32 D_801D3282;
+extern s32 D_801D3590;
+extern s32 D_801D3CD4;
+extern s32 D_801D3CF8;
+extern unsigned char D_801D3D25[];
+extern s32 D_801D3D5C;
+extern s32 D_801D3D74;
 extern s16 D_801D3D76;
 extern s32 D_801D3D84;
 extern s32 D_801D3D88;
 extern s32 D_801D3D8C;
-extern u8 D_801D3DE4[];
+extern unsigned char D_801D3DE4[];
 extern s8 D_801D3DE6;
-extern u8 D_801D3DEB[];
+extern s8 D_801D3DEB[];
 extern s16 D_801D3DF0;
 extern s16 D_801D3DF6;
 extern s8 D_801D3DF9[];
@@ -666,9 +657,9 @@ extern s16 D_801D3E54;
 extern s16 D_801D3E56;
 extern s16 D_801D3E58;
 extern s32 D_801D3E5C;
+void D_801D3260();
 
-// --- Cleaned Function Body ---
-void ITEMMENU_Main(s32 arg0) {
+char ITEMMENU_Main(s32 arg0) {
     unsigned char temp_s3;
     s16* new_var3;
     s32 sp38[2];
@@ -831,7 +822,7 @@ void ITEMMENU_Main(s32 arg0) {
             do {
                 new_var3 = w;
                 temp_a2 = (s32*)var_s2;
-                SysMenuDrawString(w[0] + 8, new_var3[1] + var_s1, (u8*)temp_a2, 7);
+                SysMenuDrawString(w[0] + 8, new_var3[1] + var_s1, temp_a2, 7);
                 var_s2 += 0xC;
                 var_s0 += 1;
                 var_s1 += 0xC;
@@ -840,7 +831,7 @@ void ITEMMENU_Main(s32 arg0) {
             sp40[1] = 0;
             sp40[2] = 0x100;
             sp40[3] = 0x100;
-            SysMenuSetDrawMode(0, 1, 0x7F, (RECT*)sp40);
+            SysMenuSetDrawMode(0, 1, 0x7F, sp40);
             SysMenuDrawWindow((s32*)(&D_801D3D74));
         }
 
@@ -867,7 +858,7 @@ void ITEMMENU_Main(s32 arg0) {
     sp40[1] = 0;
     sp40[2] = 0x100;
     sp40[3] = 0x100;
-    SysMenuSetDrawMode(0, 1, 0x7F, (RECT*)sp40);
+    SysMenuSetDrawMode(0, 1, 0x7F, sp40);
     var_s1_2 = 0xD;
     if (D_801D3DE6 != 2) {
         var_s0 = 0;
@@ -884,7 +875,7 @@ void ITEMMENU_Main(s32 arg0) {
                 sp40[1] = 0;
                 sp40[2] = var_s5;
                 sp40[3] = var_s5;
-                SysMenuSetDrawMode(0, 1, 0x7F, (RECT*)sp40);
+                SysMenuSetDrawMode(0, 1, 0x7F, sp40);
             }
             var_s1_2 = var_s1_2 + 1;
             var_s4 += 0x30;
@@ -991,7 +982,7 @@ void ITEMMENU_Main(s32 arg0) {
         var_s4 = 0x38;
         do {
         } while (0);
-        SysMenuDrawScrollbar(D_801D3E4C, D_801D3E14);
+        ((void (*)())SysMenuDrawScrollbar)(D_801D3E4C);
         SysMenuUnkNoop(9);
         var_s0 = 0;
         do {
@@ -1203,7 +1194,7 @@ void ITEMMENU_Main(s32 arg0) {
                                 return;
                             }
                             if (temp_a0_3 == 6) {
-                                var_a0_2 = (s32*)D_801D3590;
+                                var_a0_2 = &D_801D3590;
                             } else {
                                 new_var6 = 6;
                                 if (((s32)temp_a0_3) >= new_var6) {
