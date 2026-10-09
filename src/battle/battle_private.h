@@ -879,6 +879,12 @@ void BattleEnqueueLoadImage(RECT* rect, u_long* ptr);
 void BattleReqReturnReservedItems(s16 arg0);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 static void BattleInvalidateQueuedMessages(s32 arg0, s32 arg1);
+static void func_800A32C0(s32 arg0);
+static void BattleAddBattleActionToBattleQueue(s32 unitId, s32 prio, s32 type, s32 index, s32 target);
+static s32 BattleGetBerserkToadAttackTypeId(s32 arg0);
+void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 arg2);
+static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0);
+void BattleCmdScriptDispatch(BattleActionEntry*);
 
 // func_800A6278 does not match if this is forward declared because the types do not agree
 // but the modern build fails if it is not declared

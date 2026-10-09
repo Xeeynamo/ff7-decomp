@@ -979,7 +979,7 @@ void BattleInitEnemyUnits(void) {
             combatant->stateFlags = g_BattleData.activeEncounter.formation[i].flags & 0x1F;
             combatant->formationRow = g_BattleData.activeEncounter.formation[i].row;
 
-            turnWork->enemyNamePtr = enemy->name;
+            turnWork->enemy = enemy;
             turnWork->accessoryEffectId = -1;
             turnWork->senseTargetMask = -1;
             turnWork->formationIndex = -1;
