@@ -3,6 +3,11 @@
 #include <libetc.h>
 #include <libgpu.h>
 
+void BattleLoadPlayerFinish(void);
+void BattleGetModelBoneNumAndInitBones(s16* count, u16* data, s16 actor);
+void BattleGetWeaponBoneNumAndInitBones(s16* count, u16* data, s16 actor);
+void BattleBoneSetParentMatrix(MATRIX* parent, BattleModelSub* bone);
+
 static void func_800B37A0(void);
 static void func_800B37EC(void);
 static void BattleLoadFirstEnemy(void);
@@ -53,8 +58,8 @@ void BattleFadeInUntargetedEnemies(void);
 static void func_800C74A4(void);
 void BattleUnitInitBonesAndMatrixes(s32 arg0, void* arg1, s32 arg2);
 static void BattleLoadSecondPlayer(void);
-void BattleLoadPlayerModel(s16);
-void BattleLoadPlayerTexture(s16);
+void BattleLoadPlayerModel(s32);
+void BattleLoadPlayerTexture(s32);
 void BattleLoadThirdPlayer(void);
 static void func_800C5BEC(void);
 void BattleModelStartFades(s16);
@@ -143,7 +148,7 @@ void BattleNormalStartSeq(void) {
             break;
         case 1:
             BattleUpdateRender();
-            if (D_800F7DF4 == (u8)D_80166F64 && D_801518DC == 0) {
+            if (D_800F7DF4.count == (u8)D_80166F64 && D_801518DC == 0) {
                 BattleLoadSeffects();
                 BattleParseEnemyModels();
                 D_80163C7C = 6;
@@ -152,7 +157,7 @@ void BattleNormalStartSeq(void) {
         case 6:
             BattleUpdateRender();
             BattleEnemyInitBonesAndAnims();
-            for (i = 4; i < D_800F7E04[0] + 4; i++) {
+            for (i = 4; i < D_800F7DF4.enemyCount + 4; i++) {
                 g_BattleModels[i].animControlFlags |= 4;
             }
             D_80163C7C = 2;
@@ -200,9 +205,9 @@ static void func_800B37EC(void) {
 // Load stage files
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B383C);
 
-// load stage entry i (D_800F7DF8[0]) into VRAM staging via SysCdromStartLoadLzs
+// load stage entry i (D_800F7DF4.modelIds[0]) into VRAM staging via SysCdromStartLoadLzs
 static void BattleLoadFirstEnemy(void) {
-    s32 i = D_800F7DF8[0];
+    s32 i = D_800F7DF4.modelIds[0];
 
     SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, &BattleLoadSecondEnemy);
     BattleCdromReadChain();
@@ -216,7 +221,7 @@ static void BattleLoadEnemyFinish(void) {
 
 // third link of the stage-load chain (BattleLoadFirstEnemy -> BattleLoadSecondEnemy ->
 // here -> BattleLoadEnemyFinish): unpack the part just read into the staging buffer,
-// record where the next part lands (D_800F8390[n+1] = D_800F8390[n] + size),
+// record where the next part lands (D_800F8384[n + 4] = D_800F8384[n + 3] + size),
 // advance the D_80166F64 phase counter BattleNormalStartSeq waits on, and queue the
 // next part's read only while entries remain (D_800F7DF4 is the entry count)
 static void BattleLoadThirdEnemy(void) {
@@ -226,9 +231,9 @@ static void BattleLoadThirdEnemy(void) {
     BattleLoadEnemyTexture(1);
     size = BattleLoadEnemyModel(1);
     D_80166F64 = 2;
-    D_800F8390[2] = size + D_800F8390[1];
-    if (D_800F7DF4 >= 3U) {
-        i = D_800F7DF8[2];
+    D_800F8384[5] = size + D_800F8384[4];
+    if (D_800F7DF4.count >= 3U) {
+        i = D_800F7DF4.modelIds[2];
         SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, BattleLoadEnemyFinish);
         BattleCdromReadChain();
     }
@@ -240,13 +245,13 @@ static void BattleLoadSecondEnemy(void) {
     s32 size;
     s32 i;
 
-    D_800F8390[0] = D_80130200;
+    D_800F8384[3] = D_80130200;
     BattleLoadEnemyTexture(0);
     size = BattleLoadEnemyModel(0);
     D_80166F64 = 1;
-    D_800F8390[1] = size + D_800F8390[0];
-    if (D_800F7DF4 >= 2U) {
-        i = D_800F7DF8[1];
+    D_800F8384[4] = size + D_800F8384[3];
+    if (D_800F7DF4.count >= 2U) {
+        i = D_800F7DF4.modelIds[1];
         SysCdromStartLoadLzs(*&D_800E8050[i].loc, *&D_800E8050[i].len, (u_long*)0x801B0000, BattleLoadThirdEnemy);
         BattleCdromReadChain();
     }
@@ -258,13 +263,13 @@ static void BattleLoadSecondPlayer(void) {
     s16 v1;
     s16 cmp;
 
-    s0 = &D_800FA9C6;
+    s0 = &D_800FA9C4[0].actor;
     v1 = *s0;
     dst = &D_800F8384[v1];
     *dst = D_80103200 + v1 * 0xF000;
     BattleLoadPlayerTexture(*s0);
     BattleLoadPlayerModel(*s0);
-    cmp = D_800FA9C8;
+    cmp = D_800FA9C4[1].file;
     if (cmp != 0xC8) {
         SysCdromStartLoadLzs(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len, (u_long*)0x801B0000, BattleLoadThirdPlayer);
         BattleCdromReadChain();
@@ -273,9 +278,40 @@ static void BattleLoadSecondPlayer(void) {
     D_80166F64 = 3;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadThirdPlayer);
+void BattleLoadThirdPlayer(void) {
+    s16* s0;
+    u8** dst;
+    s16 v1;
+    s16 cmp;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadPlayerFinish);
+    s0 = &D_800FA9C4[1].actor;
+    v1 = *s0;
+    dst = &D_800F8384[v1];
+    *dst = D_80103200 + v1 * 0xF000;
+    BattleLoadPlayerTexture(*s0);
+    BattleLoadPlayerModel(*s0);
+    cmp = D_800FA9C4[2].file;
+    if (cmp != 0xC8) {
+        SysCdromStartLoadLzs(*&D_800E8068[cmp].loc, *&D_800E8068[cmp].len, (u_long*)0x801B0000, BattleLoadPlayerFinish);
+        BattleCdromReadChain();
+        return;
+    }
+    D_80166F64 = 3;
+}
+
+void BattleLoadPlayerFinish(void) {
+    s16* slot;
+    u8** dst;
+    s16 actor;
+
+    slot = &D_800FA9C4[2].actor;
+    actor = *slot;
+    dst = &D_800F8384[actor];
+    *dst = D_80103200 + actor * 0xF000;
+    BattleLoadPlayerTexture(*slot);
+    BattleLoadPlayerModel(*slot);
+    D_80166F64 = 3;
+}
 
 static void BattleLoadFirstPlayer(void) {
     Yamada* y;
@@ -283,14 +319,14 @@ static void BattleLoadFirstPlayer(void) {
 
     dst = (u_long*)0x801B0000;
     BattleSetLoadTimToVram(dst, 0, 0, 0);
-    y = &D_800E8068[D_800FA9C4];
-    SysCdromStartLoadLzs(y->loc, *&D_800E8068[D_800FA9C4].len, dst, BattleLoadSecondPlayer);
+    y = &D_800E8068[D_800FA9C4[0].file];
+    SysCdromStartLoadLzs(y->loc, *&D_800E8068[D_800FA9C4[0].file].len, dst, BattleLoadSecondPlayer);
     BattleCdromReadChain();
 }
 
 static void BattleLoadSeffects(void) {
     BattleSelectPlayerModelFiles();
-    D_800F839C = D_800EA50C;
+    D_800F8384[6] = (u8*)D_800EA50C;
     SysCdromStartLoadLzs(LBA_ENEMY6_SEFFECT, 0xA800, (u_long*)0x801B0000, BattleLoadFirstPlayer);
     BattleCdromReadChain();
 }
@@ -357,7 +393,7 @@ static void func_800B3E2C(void) {
 // if found, bump a counter and return 0, else return -1
 static s32 func_800B3FAC(s32 arg0) {
     s32 i;
-    u8* p = &D_800F7DF4;
+    u8* p = (u8*)&D_800F7DF4;
 
     for (i = 0; i < (s32)sizeof(g_BattleData.activeEncounter.formation); i += sizeof(FormationEntry)) {
         if (((FormationEntry*)((u8*)g_BattleData.activeEncounter.formation + i))->enemyID == arg0) {
@@ -372,33 +408,287 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3FFC);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B430C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattlePlayerModifyDefaultPosByFormation);
+extern ShortVectorXYZ D_800E8E84[9][NUM_PARTY];
+extern s16 D_800E8F94[9][NUM_PARTY];
+void BattlePlayerModifyDefaultPosByFormation(void) {
+    s32 i;
+    s32 formation;
+    i = 0;
+    formation = D_800FA6D0;
+    do {
+        if (g_BattleData.actors[i].D_801636BE & 1) {
+            if (D_800E8F94[formation][i] == 0) {
+                D_800E8E84[formation][i].vz += 0x204;
+            } else {
+                D_800E8E84[formation][i].vz -= 0x204;
+            }
+        }
+        i++;
+    } while (i < NUM_PARTY);
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattlePlayerSetDefaultRot);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattlePlayerModelsUpdateBonesPos);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattlePlayerInitModelWithSettings);
+typedef struct {
+    u32 numOffsets;
+    u32 skeletonOffset;
+    u32 settingsAddress;
+} BattleModelFileHeader;
+
+typedef struct {
+    u16 animDescOffset;
+    u8 deathType;
+    u8 unk3;
+    u16 collisionRadius;
+    u16 settings[3];
+    u16 height;
+    u16 unkE;
+    u16 unk10;
+    u8 boneIndices[16];
+    u16 unk22;
+    u32 dataOffsets[8];
+    u16 values44[4];
+    u16 values4C[6];
+    u16 values58[6];
+    u16 value64, unk66;
+} BattleModelSettings;
+
+void BattlePlayerInitModelWithSettings(u8 arg0) {
+    s16 actor;
+    u8** data;
+    BattleModelSettings* settings;
+    s32 i;
+    s32 index;
+    u16 height;
+    actor = arg0 & 0xFF;
+    if (g_BattleData.actors[actor].charId != -1) {
+        index = D_80151200[actor].D_80151232;
+        data = &D_800F8384[index];
+        BattleUnitInitBonesAndMatrixes(
+            arg0 & 0xFF, (void*)(((BattleModelFileHeader*)*data)->skeletonOffset + (u_long)*data), 0);
+        settings = (BattleModelSettings*)(u_long)(u32)((BattleModelFileHeader*)*data)->settingsAddress;
+        g_BattleModels[actor].deathType = settings->deathType;
+        g_BattleModels[actor].collisionRadius = settings->collisionRadius;
+        g_BattleModels[actor].modelSetting1 = settings->settings[0];
+        g_BattleModels[actor].modelSetting2 = settings->settings[1];
+        g_BattleModels[actor].modelSetting3 = settings->settings[2];
+        g_BattleModels[actor].animDescOffset = settings->animDescOffset;
+        D_80151200[actor].height = settings->height;
+        D_80151200[actor].unk28 = settings->unkE;
+        height = settings->unk10;
+        D_80151200[actor].D_8015122E = 0;
+        D_80151200[actor].unk2A = height;
+        D_80151200[actor].D_80151230 = settings->value64;
+        for (i = 0; i < LEN(settings->values44); i++) {
+            D_80151200[actor].values4[i] = settings->values44[i];
+        }
+        for (i = 0; i < LEN(settings->values4C); i++) {
+            D_80151200[arg0 & 0xFF].valuesE[i] = settings->values4C[i];
+            D_80151200[arg0 & 0xFF].values1A[i] = settings->values58[i];
+        }
+        actor = arg0 & 0xFF;
+        if (g_BattleModels[actor].deathType & 0x80) {
+            BattleBoneSetParentMatrix(&g_BattleModels[actor].stageMatrix, D_800FA6D8[actor].unk8);
+            BattleGetWeaponBoneNumAndInitBones(&D_800FA6D8[actor].unk3C, D_80163F34[actor], actor);
+        }
+        for (index = 0; index < LEN(settings->boneIndices); index++) {
+            g_BattleModels[actor].boneIndices[index] = settings->boneIndices[index];
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleParseEnemyModels);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEnemyInitModelWithSettings);
+typedef struct {
+    u32 numOffsets;
+    // GCC 2.6 uses a zero-length array for the variable-length offset table.
+    u32 offsets[0];
+} BattleEnemyOffsets;
+
+typedef struct {
+    s16 animDescOffset;
+    u8 deathType;
+    u8 unk3;
+    u16 collisionRadius;
+    u16 settings[3];
+    u16 height;
+    u16 unkE;
+    u16 unk10;
+    u8 boneIndices[16];
+    u16 unk22;
+    u32 dataOffsets[8];
+    u16 values44[4];
+    u16 values4C[6];
+    u16 values58[6];
+    u16 value64, unk66;
+} BattleEnemyModelSettings;
+
+void BattleEnemyInitModelWithSettings(u8 arg0) {
+    s16 actor;
+    s32 model;
+    u8** data;
+    BattleEnemyModelSettings* settings;
+    s32 i;
+    u8* flags;
+    BattleModel* modelState;
+    actor = arg0 & 0xFF;
+    if (D_80151200[actor].D_80151232 == 6) {
+        model = 6;
+    } else {
+        model = D_800F7DF4.enemies[actor - START_ENEMY].modelIndex;
+    }
+    data = D_800F8384;
+    data += model;
+    BattleUnitInitBonesAndMatrixes(
+        arg0 & 0xFF, (void*)(((BattleModelFileHeader*)*data)->skeletonOffset + (u_long)*data), 1);
+    arg0 &= 0xFF;
+    actor = arg0;
+    settings = (BattleEnemyModelSettings*)(u_long)(u32)((BattleModelFileHeader*)*data)->settingsAddress;
+    g_BattleModels[actor].deathType = settings->deathType;
+    g_BattleModels[actor].collisionRadius = settings->collisionRadius;
+    g_BattleModels[actor].modelSetting1 = settings->settings[0];
+    g_BattleModels[actor].modelSetting2 = settings->settings[1];
+    g_BattleModels[actor].modelSetting3 = settings->settings[2];
+    modelState = &g_BattleModels[actor];
+    modelState->colorB = 0;
+    modelState->colorG = 0;
+    g_BattleModels[actor].colorR = 0;
+    g_BattleModels[actor].animDescOffset = *(u16*)((u8*)&D_800F7DF4 + (model - 2) * sizeof(s32));
+    if (settings->animDescOffset != 0) {
+        g_BattleModels[actor].deathType |= 0x40;
+    }
+    D_80151200[actor].height = settings->height;
+    D_80151200[actor].unk28 = settings->unkE;
+    D_80151200[actor].unk2A = settings->height - 0x384;
+    D_80151200[actor].D_8015122E = 0;
+    D_80151200[actor].D_80151230 = settings->value64;
+    for (i = 0; i < LEN(settings->values44); i++) {
+        D_80151200[actor].values4[i] = settings->values44[i];
+    }
+    for (i = 0; i < LEN(settings->values4C); i++) {
+        D_80151200[arg0 & 0xFF].valuesE[i] = settings->values4C[i];
+        D_80151200[arg0 & 0xFF].values1A[i] = settings->values58[i];
+    }
+    actor = arg0 & 0xFF;
+    g_BattleData.actors[actor].D_801636BC = g_BattleModels[actor].deathType & 0x3F;
+    if (g_BattleModels[actor].deathType & 0x80) {
+        BattleBoneSetParentMatrix(&g_BattleModels[actor].stageMatrix, D_800FA6D8[actor].unk8);
+        BattleGetWeaponBoneNumAndInitBones(
+            &D_800FA6D8[actor].unk3C,
+            (u16*)(((BattleEnemyOffsets*)D_800F8384[model])
+                       ->offsets[((BattleEnemyOffsets*)D_800F8384[model])->numOffsets - 2] +
+                   (u_long)D_800F8384[model]),
+            actor);
+    }
+    model = 0;
+    flags = g_BattleModels[actor].boneIndices;
+    for (; model < LEN(settings->boneIndices); model++) {
+        *flags++ = settings->boneIndices[model];
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEnemyModelsUpdateBonesPosClut);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5AAC);
+void func_800B5AAC(s32 arg0) {
+    u8 actor = arg0 & 0xFF;
+    Unk80151200* state;
+    s32 i;
+    g_BattleModels[actor].rootTrans.vx = D_80163C80[actor].vx;
+    g_BattleModels[actor].rootTrans.vy = D_80163C80[actor].vy;
+    g_BattleModels[actor].rootTrans.vz = D_80163C80[actor].vz;
+    g_BattleModels[actor].scale = 0x1000;
+    state = &D_80151200[actor];
+    state->D_8015123C = 0x1000;
+    state->D_8015123A = 0x1000;
+    D_80151200[actor].D_80151238 = 0x1000;
+    D_80151200[actor].D_8015120C = 0;
+    D_80151200[actor].D_80151200 = 0;
+    for (i = 0; i < g_BattleModels[actor].numBones; i++) {
+        g_BattleModels[actor].boneTransforms[i].trans.vy = 0;
+    }
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadPlayerModel);
+void BattleLoadPlayerModel(s32 actor) {
+    u32* data = (u32*)0x801B0000;
+    ActiveCharacterData* player;
+    u32 count;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadEnemyModel);
+    func_8001C3CC(D_80103200 + actor * 0xF000, data, data[data[0] - 16]);
+    player = SysGetPartyPlayerStructureAddressByPartyId(actor);
+    count = data[0];
+    func_8001C3CC(D_80163F34[actor], (u8*)data + data[count + (player->weapon.weaponModel & 0xF) - 15], 0x1000);
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadEnemyTexture);
+s32 BattleLoadEnemyModel(s32 slot) {
+    u32* data = (u32*)0x801B0000;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleLoadPlayerTexture);
+    func_8001C3CC(D_800F8384[slot + 3], data, data[data[0]]);
+    return data[data[0]];
+}
+
+void BattleLoadEnemyTexture(s32 slot) {
+    u32* data = (u32*)0x801B0000;
+    u32 offset;
+    s32 i;
+    if (g_BattleData.activeEncounter.setup.stageID == 0x4E) {
+        BattleSetLoadTimToVram((u_long*)(data[data[0]] + (u8*)data), (s16)(slot + 0x13), 0, 0);
+    } else {
+        BattleSetLoadTimToVram((u_long*)(data[data[0]] + (u8*)data), (s16)(slot + 0x12), 0, (s16)((slot + 3) * 3));
+    }
+    for (i = 4; i < D_800F7DF4.enemyCount + 4; i++) {
+        if (D_800F7DF4.enemies[i - 4].modelIndex == slot + 3) {
+            offset = data[0] * 4;
+            BattleStoreUnitClut((u_long*)((u8*)data + *(u32*)((u8*)data + offset)), i);
+        }
+    }
+}
+
+void BattleLoadPlayerTexture(s32 actor) {
+    s16 texture;
+    s32 clutSlot;
+    s16 clutOffset;
+    u32* data;
+    switch (actor) {
+    case 0:
+        texture = 0;
+        clutSlot = 0;
+        clutOffset = 0;
+        break;
+    case 1:
+        texture = 16;
+        clutSlot = 1;
+        clutOffset = 192;
+        break;
+    case 2:
+        texture = 17;
+        clutSlot = 2;
+        clutOffset = 384;
+        break;
+    }
+    if (g_BattleData.actors[actor].charId != -1) {
+        data = (u32*)0x801B0000;
+        BattleSetLoadTimToVram((u_long*)((u8*)data + data[data[0] - 16]), texture, 0, (s16)(actor * 3));
+        BattleStoreUnitClut((u_long*)((u8*)data + data[data[0] - 16]), clutSlot);
+        g_BattleModels[actor].clutOffset = clutOffset;
+        BattleBoneSetParentMatrix(&g_BattleModels[actor].stageMatrix, &g_BattleModels[actor].boneTransforms[49]);
+    }
+}
 
 static void func_800B5FC4(s16 arg0) { BattleModelStartFades(arg0); }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B5FE8);
+void func_800B5FE8(s16 actor) {
+    s32 i;
+    u8* flags;
+    for (i = 0; i < g_BattleModels[actor].numBones; i++) {
+        g_BattleModels[actor].boneFlags[i] |= 8;
+    }
+    for (i = 0; i < D_800FA6D8[actor].unk3C; i++) {
+        flags = (u8*)&D_800FA6D8[actor] + ((u8*)D_800FA6D8[0].unk3E - (u8*)&D_800FA6D8[0]);
+        flags[i] |= 8;
+    }
+}
 
 void BattleModelStartFades(s16 actor) {
     if (g_BattleModels[actor].animControlFlags & ANIM_CTRL_FADE_OUT) {
@@ -427,7 +717,7 @@ void BattleModelStartFades(s16 actor) {
             D_80153BDD &= ~BATTLE_MODEL_HIDDEN;
             func_800B5FE8(EFFECT_MODEL_SLOT);
         }
-        if (actor < START_ENEMY || D_800F7E10[actor - START_ENEMY][0] & 1) {
+        if (actor < START_ENEMY || D_800F7DF4.enemies[actor - START_ENEMY].flags & 1) {
             g_BattleModels[actor].specialFlags &= ~BATTLE_MODEL_HIDDEN;
         }
         func_800B5FE8(actor);
@@ -784,7 +1074,7 @@ static void func_800BA40C(void) {
 static void func_800BA4C8(void) {
     s32 i;
 
-    for (i = 4; i < D_800F7E04[0] + 4; i++) {
+    for (i = 4; i < D_800F7DF4.enemyCount + 4; i++) {
         if (!(g_BattleModels[i].specialFlags & 0x80)) {
             continue;
         }
@@ -2084,6 +2374,56 @@ void BattleLoadEffectModel(void) {
     g_BattleModels[EFFECT_MODEL_SLOT].animId = 0;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleGetModelBoneNumAndInitBones);
+void BattleGetModelBoneNumAndInitBones(s16* count, u16* data, s16 actor) {
+    s32 offset;
+    BattleModelSub* bones;
+    BattleModel* boneModel;
+    BattleModel* model;
+    s32 modelOffset;
+    s32 boneIndex;
+    s32 updatedBoneIndex;
+    s32 boneOffset;
+    BattleModelSub* actorBones;
+    model = &g_BattleModels[actor];
+    model->boneTransforms[0].trans.vz = 0;
+    model->boneTransforms[0].trans.vy = 0;
+    g_BattleModels[actor].boneTransforms[0].trans.vx = 0;
+    *count = *data + 1;
+    *(s32*)0x1F800000 = 0;
+    data += 2;
+    while (*(s32*)0x1F800000 < *count) {
+        g_BattleModels[actor].boneFlags[*(s32*)0x1F800000] = 0;
+        offset = ((BattleModelBoneEntry*)data)[*(s32*)0x1F800000].modelOffset;
+        if (offset != 0) {
+            if (offset < 0) {
+                g_BattleModels[actor].boneFlags[*(s32*)0x1F800000] = 1;
+                g_BattleModels[actor].boneModels[*(s32*)0x1F800000] =
+                    (s32*)((u8*)data +
+                           ((((BattleModelBoneEntry*)data)[*(s32*)0x1F800000].modelOffset & 0x7FFFFFFF) - 4));
+            } else {
+                g_BattleModels[actor].boneModels[*(s32*)0x1F800000] = (s32*)((u8*)data + (offset - 4));
+            }
+        } else {
+            g_BattleModels[actor].boneModels[*(s32*)0x1F800000] = NULL;
+        }
+        boneIndex = *(s32*)0x1F800000;
+        if (boneIndex != 0) {
+            modelOffset = actor * sizeof(BattleModel);
+            bones = g_BattleModels[0].boneTransforms;
+            actorBones = (BattleModelSub*)((u8*)bones + modelOffset);
+            BattleBoneSetParentMatrix(
+                &actorBones[((BattleModelBoneEntry*)data)[boneIndex].parent].m, &actorBones[boneIndex]);
+            updatedBoneIndex = *(s32*)0x1F800000;
+            bones = (BattleModelSub*)((u8*)bones - ((u8*)g_BattleModels[0].boneTransforms - (u8*)g_BattleModels));
+            boneOffset = updatedBoneIndex * sizeof(BattleModelSub) + modelOffset;
+            boneModel = (BattleModel*)(boneOffset + (u8*)bones);
+            boneModel->boneTransforms[0].trans.vy = 0;
+            ((BattleModel*)((u8*)g_BattleModels + boneOffset))->boneTransforms[0].trans.vx = 0;
+            ((BattleModel*)((u8*)g_BattleModels + boneOffset))->boneTransforms[0].trans.vz =
+                ((BattleModelBoneEntry*)data)[((BattleModelBoneEntry*)data)[updatedBoneIndex].parent].z;
+        }
+        (*(s32*)0x1F800000)++;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleGetWeaponBoneNumAndInitBones);

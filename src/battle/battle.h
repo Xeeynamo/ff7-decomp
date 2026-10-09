@@ -444,8 +444,8 @@ typedef struct {
     /* 0x002 */ s16 animId;
     /* 0x004 */ s16 queuedActionId;
     /* 0x006 */ s16 scale;
-    /* 0x008 */ s16 modelSetting1;
-    /* 0x00A */ s16 modelSetting2;
+    /* 0x008 */ u16 modelSetting1;
+    /* 0x00A */ u16 modelSetting2;
     /* 0x00C */ s16 modelSetting3;
     /* 0x00E */ s16 nextAnimId;
     /* 0x010 */ s16 numBones;
@@ -474,7 +474,7 @@ typedef struct {
     /* 0x03E */ u8 animControlFlags;
     /* 0x03F */ u8 boneFlags[53];
     /* 0x074 */ s32 animInProgress;
-    /* 0x078 */ u8 unk5C[0xC8];
+    /* 0x078 */ s32* boneModels[50];
     /* 0x140 */ MATRIX stageMatrix;
     /* 0x160 */ SVECTOR rootRot;
     /* 0x168 */ SVECTOR rootTrans;

@@ -351,17 +351,13 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ s32 D_80151200;
-    /* 0x04 */ s32 D_80151204;
-    /* 0x08 */ s32 D_80151208;
+    /* 0x04 */ u16 values4[4];
     /* 0x0C */ s16 D_8015120C;
-    /* 0x0E */ s16 D_8015120E;
-    /* 0x10 */ s32 D_80151210;
-    /* 0x14 */ s32 D_80151214;
-    /* 0x18 */ s32 D_80151218;
-    /* 0x1C */ s32 D_8015121C;
-    /* 0x20 */ s32 D_80151220;
-    /* 0x24 */ s32 D_80151224;
-    /* 0x28 */ s32 D_80151228;
+    /* 0x0E */ u16 valuesE[6];
+    /* 0x1A */ u16 values1A[6];
+    /* 0x26 */ u16 height;
+    /* 0x28 */ u16 unk28;
+    /* 0x2A */ u16 unk2A;
     /* 0x2C */ s16 D_8015122C;
     /* 0x2E */ s16 D_8015122E;
     /* 0x30 */ u16 D_80151230;
@@ -374,19 +370,7 @@ typedef struct {
     /* 0x3A */ s16 D_8015123A;
     /* 0x3C */ s16 D_8015123C;
     /* 0x3E */ s16 D_8015123E;
-    /* 0x40 */ s32 D_80151240;
-    /* 0x44 */ s32 D_80151244;
-    /* 0x48 */ s32 D_80151248;
-    /* 0x4C */ s32 D_8015124C;
-    /* 0x50 */ s32 D_80151250;
-    /* 0x54 */ s32 D_80151254;
-    /* 0x58 */ s32 D_80151258;
-    /* 0x5C */ s32 D_8015125C;
-    /* 0x60 */ s32 D_80151260;
-    /* 0x64 */ s32 D_80151264;
-    /* 0x68 */ s32 D_80151268;
-    /* 0x6C */ s32 D_8015126C;
-    /* 0x70 */ s32 D_80151270;
+    /* 0x40 */ BattleModelSub bone;
 } Unk80151200; // size:0x74
 
 typedef struct {
@@ -560,9 +544,8 @@ extern s32 g_BattleCmdOpcodeOffs[];
 extern u8 D_800F38A0;
 extern u8 D_800F38A1;
 extern s16 D_800F38A2;
-extern s32 D_800F4300;  // write cursor into the shared script buffer
-extern s32 D_800F4304;  // slot cursor, wraps at 0x40
-extern u8 D_800F7E04[]; // part of a struct
+extern s32 D_800F4300; // write cursor into the shared script buffer
+extern s32 D_800F4304; // slot cursor, wraps at 0x40
 extern u8 D_800F7ED4;
 extern u8 D_800F38A7;
 extern u8 D_800F389C;
@@ -620,8 +603,25 @@ extern EffectModel* D_800F57D0;
 extern u8 D_800F57D4;
 extern u16 D_800F7DE2[]; // All Lucky 7s trigger count
 extern s8 D_800F7DE4;
-extern u8 D_800F7DF4;
-extern s32 D_800F7DF8[3];
+typedef struct {
+    s16 modelIndex;
+    ShortVectorXYZ position;
+    s32 flags;
+} BattleEnemyModelMapping;
+
+typedef struct {
+    u8 count;
+    s32 modelIds[3];
+    u8 enemyCount;
+    BattleEnemyModelMapping enemies[6];
+} BattleEnemyModelFiles;
+
+typedef struct {
+    s16 file;
+    s16 actor;
+} BattlePlayerModelFile;
+
+extern BattleEnemyModelFiles D_800F7DF4;
 typedef struct {
     /* 0x00 */ s16 D_800F7ED8;
     /* 0x02 */ s16 D_800F7EDA;
@@ -640,13 +640,10 @@ enum BattleEffectModelState {
 };
 extern u8 g_BattleEffectModelState;
 extern u8 g_BattleModelFadeFrames;
-extern s32 D_800F7E10[16][3];
 extern u8 D_800F837C;
 extern u8 D_800F8380;
-extern u8* D_800F8384[3];
+extern u8* D_800F8384[7];
 extern s8 D_800F83AB[];
-extern u8* D_800F8390[3];
-extern s32* D_800F839C; // CD offset?
 extern u8 D_800F83A4[]; // shared battle-script variable bank (BattleOpcodeValOffs)
 extern u8 D_800F83A6;
 extern s8 D_800F8CF0;
@@ -682,9 +679,7 @@ extern MATRIX D_800FA958;
 extern void (*g_BattleCameraCallbacks[16])(void);
 extern s32 D_800FA9B8;
 extern s16 g_BattleCameraCount;
-extern s16 D_800FA9C4;
-extern s16 D_800FA9C6;
-extern s16 D_800FA9C8;
+extern BattlePlayerModelFile D_800FA9C4[3];
 extern u8 D_801031F4[12];
 extern u8 D_80151688[12];
 extern u8 g_BattleSavedSpecialFlags[10];
@@ -734,7 +729,14 @@ extern s16 g_BattleCameraTarget;
 extern u8 D_801031F0;
 extern u8 D_80103200[];
 extern u8 D_80130200[];
-extern Unk80151200 D_80151200[3];
+
+typedef struct {
+    s16 parent;
+    u16 z;
+    s32 modelOffset;
+} BattleModelBoneEntry;
+
+extern Unk80151200 D_80151200[NUM_BATTLE_ACTOR];
 extern Unk80151360 D_80151360;
 extern u16 D_80151694;
 extern s16 g_BattleEffectCursor;
@@ -987,3 +989,7 @@ extern u8 D_80151698;
 extern u8 D_80166F74;
 extern u8 D_80166F75;
 extern BattleItemEntry D_801671B8[];
+
+ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId);
+extern u8 D_80163F34[NUM_PARTY][0x100C];
+void func_8001C3CC(void* dst, const void* src, u32 size);
