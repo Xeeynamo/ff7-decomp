@@ -475,32 +475,26 @@ void BattlePlayerInitModelWithSettings(u8 arg0) {
         g_BattleModels[actor].modelSetting3 = settings->settings[2];
         g_BattleModels[actor].animDescOffset = settings->animDescOffset;
         D_80151200[actor].height = settings->height;
-        i = 0;
         D_80151200[actor].unk28 = settings->unkE;
         height = settings->unk10;
         D_80151200[actor].D_8015122E = 0;
         D_80151200[actor].unk2A = height;
         D_80151200[actor].D_80151230 = settings->value64;
-        do {
+        for (i = 0; i < LEN(settings->values44); i++) {
             D_80151200[actor].values4[i] = settings->values44[i];
-            i++;
-        } while (i < LEN(settings->values44));
-        i = 0;
-        do {
+        }
+        for (i = 0; i < LEN(settings->values4C); i++) {
             D_80151200[arg0 & 0xFF].valuesE[i] = settings->values4C[i];
             D_80151200[arg0 & 0xFF].values1A[i] = settings->values58[i];
-            i++;
-        } while (i < LEN(settings->values4C));
+        }
         actor = arg0 & 0xFF;
         if (g_BattleModels[actor].deathType & 0x80) {
             BattleBoneSetParentMatrix(&g_BattleModels[actor].stageMatrix, D_800FA6D8[actor].unk8);
             BattleGetWeaponBoneNumAndInitBones(&D_800FA6D8[actor].unk3C, D_80163F34[actor], actor);
         }
-        index = 0;
-        do {
+        for (index = 0; index < LEN(settings->boneIndices); index++) {
             g_BattleModels[actor].boneIndices[index] = settings->boneIndices[index];
-            index++;
-        } while (index < LEN(settings->boneIndices));
+        }
     }
 }
 
@@ -544,60 +538,53 @@ void BattleEnemyInitModelWithSettings(u8 arg0) {
     } else {
         model = D_800F7DF4.enemies[actor - START_ENEMY].modelIndex;
     }
-    {
-        data = D_800F8384;
-        data += model;
-        BattleUnitInitBonesAndMatrixes(
-            arg0 & 0xFF, (void*)(((BattleModelFileHeader*)*data)->skeletonOffset + (u_long)*data), 1);
-        arg0 &= 0xFF;
-        actor = arg0;
-        settings = (BattleEnemyModelSettings*)(u_long)(u32)((BattleModelFileHeader*)*data)->settingsAddress;
-        g_BattleModels[actor].deathType = settings->deathType;
-        g_BattleModels[actor].collisionRadius = settings->collisionRadius;
-        g_BattleModels[actor].modelSetting1 = settings->settings[0];
-        g_BattleModels[actor].modelSetting2 = settings->settings[1];
-        g_BattleModels[actor].modelSetting3 = settings->settings[2];
-        modelState = &g_BattleModels[actor];
-        modelState->colorB = 0;
-        modelState->colorG = 0;
-        g_BattleModels[actor].colorR = 0;
-        g_BattleModels[actor].animDescOffset = *(u16*)((u8*)&D_800F7DF4 + (model - 2) * sizeof(s32));
-        if (settings->animDescOffset != 0) {
-            g_BattleModels[actor].deathType |= 0x40;
-        }
-        D_80151200[actor].height = settings->height;
-        D_80151200[actor].unk28 = settings->unkE;
-        D_80151200[actor].unk2A = settings->height - 0x384;
-        D_80151200[actor].D_8015122E = 0;
-        D_80151200[actor].D_80151230 = settings->value64;
-        i = 0;
-        do {
-            D_80151200[actor].values4[i] = settings->values44[i];
-            i++;
-        } while (i < LEN(settings->values44));
-        i = 0;
-        do {
-            D_80151200[arg0 & 0xFF].valuesE[i] = settings->values4C[i];
-            D_80151200[arg0 & 0xFF].values1A[i] = settings->values58[i];
-            i++;
-        } while (i < LEN(settings->values4C));
-        actor = arg0 & 0xFF;
-        g_BattleData.actors[actor].D_801636BC = g_BattleModels[actor].deathType & 0x3F;
-        if (g_BattleModels[actor].deathType & 0x80) {
-            BattleBoneSetParentMatrix(&g_BattleModels[actor].stageMatrix, D_800FA6D8[actor].unk8);
-            BattleGetWeaponBoneNumAndInitBones(
-                &D_800FA6D8[actor].unk3C,
-                (u16*)(((BattleEnemyOffsets*)D_800F8384[model])
-                           ->offsets[((BattleEnemyOffsets*)D_800F8384[model])->numOffsets - 2] +
-                       (u_long)D_800F8384[model]),
-                actor);
-        }
-        model = 0;
-        flags = g_BattleModels[actor].boneIndices;
-        do {
-            *flags++ = settings->boneIndices[model];
-            model++;
-        } while (model < LEN(settings->boneIndices));
+    data = D_800F8384;
+    data += model;
+    BattleUnitInitBonesAndMatrixes(
+        arg0 & 0xFF, (void*)(((BattleModelFileHeader*)*data)->skeletonOffset + (u_long)*data), 1);
+    arg0 &= 0xFF;
+    actor = arg0;
+    settings = (BattleEnemyModelSettings*)(u_long)(u32)((BattleModelFileHeader*)*data)->settingsAddress;
+    g_BattleModels[actor].deathType = settings->deathType;
+    g_BattleModels[actor].collisionRadius = settings->collisionRadius;
+    g_BattleModels[actor].modelSetting1 = settings->settings[0];
+    g_BattleModels[actor].modelSetting2 = settings->settings[1];
+    g_BattleModels[actor].modelSetting3 = settings->settings[2];
+    modelState = &g_BattleModels[actor];
+    modelState->colorB = 0;
+    modelState->colorG = 0;
+    g_BattleModels[actor].colorR = 0;
+    g_BattleModels[actor].animDescOffset = *(u16*)((u8*)&D_800F7DF4 + (model - 2) * sizeof(s32));
+    if (settings->animDescOffset != 0) {
+        g_BattleModels[actor].deathType |= 0x40;
+    }
+    D_80151200[actor].height = settings->height;
+    D_80151200[actor].unk28 = settings->unkE;
+    D_80151200[actor].unk2A = settings->height - 0x384;
+    D_80151200[actor].D_8015122E = 0;
+    D_80151200[actor].D_80151230 = settings->value64;
+    for (i = 0; i < LEN(settings->values44); i++) {
+        D_80151200[actor].values4[i] = settings->values44[i];
+    }
+    for (i = 0; i < LEN(settings->values4C); i++) {
+        D_80151200[arg0 & 0xFF].valuesE[i] = settings->values4C[i];
+        D_80151200[arg0 & 0xFF].values1A[i] = settings->values58[i];
+    }
+    actor = arg0 & 0xFF;
+    g_BattleData.actors[actor].D_801636BC = g_BattleModels[actor].deathType & 0x3F;
+    if (g_BattleModels[actor].deathType & 0x80) {
+        BattleBoneSetParentMatrix(&g_BattleModels[actor].stageMatrix, D_800FA6D8[actor].unk8);
+        BattleGetWeaponBoneNumAndInitBones(
+            &D_800FA6D8[actor].unk3C,
+            (u16*)(((BattleEnemyOffsets*)D_800F8384[model])
+                       ->offsets[((BattleEnemyOffsets*)D_800F8384[model])->numOffsets - 2] +
+                   (u_long)D_800F8384[model]),
+            actor);
+    }
+    model = 0;
+    flags = g_BattleModels[actor].boneIndices;
+    for (; model < LEN(settings->boneIndices); model++) {
+        *flags++ = settings->boneIndices[model];
     }
 }
 
@@ -691,18 +678,12 @@ void BattleLoadPlayerTexture(s32 actor) {
 static void func_800B5FC4(s16 arg0) { BattleModelStartFades(arg0); }
 
 void func_800B5FE8(s16 actor) {
-    s32 i = 0;
-    s16 count;
+    s32 i;
     u8* flags;
-    count = g_BattleModels[actor].numBones;
-    if (i < count) {
-        do {
-            g_BattleModels[actor].boneFlags[i] |= 8;
-            i++;
-        } while (i < g_BattleModels[actor].numBones);
+    for (i = 0; i < g_BattleModels[actor].numBones; i++) {
+        g_BattleModels[actor].boneFlags[i] |= 8;
     }
-    i = 0;
-    for (; i < D_800FA6D8[actor].unk3C; i++) {
+    for (i = 0; i < D_800FA6D8[actor].unk3C; i++) {
         flags = (u8*)&D_800FA6D8[actor] + ((u8*)D_800FA6D8[0].unk3E - (u8*)&D_800FA6D8[0]);
         flags[i] |= 8;
     }
@@ -2364,40 +2345,38 @@ void BattleGetModelBoneNumAndInitBones(s16* count, u16* data, s16 actor) {
     *count = *data + 1;
     *(s32*)0x1F800000 = 0;
     data += 2;
-    if (*count > 0) {
-        do {
-            g_BattleModels[actor].boneFlags[*(s32*)0x1F800000] = 0;
-            offset = ((BattleModelBoneEntry*)data)[*(s32*)0x1F800000].modelOffset;
-            if (offset != 0) {
-                if (offset < 0) {
-                    g_BattleModels[actor].boneFlags[*(s32*)0x1F800000] = 1;
-                    g_BattleModels[actor].boneModels[*(s32*)0x1F800000] =
-                        (s32*)((u8*)data +
-                               ((((BattleModelBoneEntry*)data)[*(s32*)0x1F800000].modelOffset & 0x7FFFFFFF) - 4));
-                } else {
-                    g_BattleModels[actor].boneModels[*(s32*)0x1F800000] = (s32*)((u8*)data + (offset - 4));
-                }
+    while (*(s32*)0x1F800000 < *count) {
+        g_BattleModels[actor].boneFlags[*(s32*)0x1F800000] = 0;
+        offset = ((BattleModelBoneEntry*)data)[*(s32*)0x1F800000].modelOffset;
+        if (offset != 0) {
+            if (offset < 0) {
+                g_BattleModels[actor].boneFlags[*(s32*)0x1F800000] = 1;
+                g_BattleModels[actor].boneModels[*(s32*)0x1F800000] =
+                    (s32*)((u8*)data +
+                           ((((BattleModelBoneEntry*)data)[*(s32*)0x1F800000].modelOffset & 0x7FFFFFFF) - 4));
             } else {
-                g_BattleModels[actor].boneModels[*(s32*)0x1F800000] = NULL;
+                g_BattleModels[actor].boneModels[*(s32*)0x1F800000] = (s32*)((u8*)data + (offset - 4));
             }
-            boneIndex = *(s32*)0x1F800000;
-            if (boneIndex != 0) {
-                modelOffset = actor * sizeof(BattleModel);
-                bones = g_BattleModels[0].boneTransforms;
-                actorBones = (BattleModelSub*)((u8*)bones + modelOffset);
-                BattleBoneSetParentMatrix(
-                    &actorBones[((BattleModelBoneEntry*)data)[boneIndex].parent].m, &actorBones[boneIndex]);
-                updatedBoneIndex = *(s32*)0x1F800000;
-                bones = (BattleModelSub*)((u8*)bones - ((u8*)g_BattleModels[0].boneTransforms - (u8*)g_BattleModels));
-                boneOffset = updatedBoneIndex * sizeof(BattleModelSub) + modelOffset;
-                boneModel = (BattleModel*)(boneOffset + (u8*)bones);
-                boneModel->boneTransforms[0].trans.vy = 0;
-                ((BattleModel*)((u8*)g_BattleModels + boneOffset))->boneTransforms[0].trans.vx = 0;
-                ((BattleModel*)((u8*)g_BattleModels + boneOffset))->boneTransforms[0].trans.vz =
-                    ((BattleModelBoneEntry*)data)[((BattleModelBoneEntry*)data)[updatedBoneIndex].parent].z;
-            }
-            (*(s32*)0x1F800000)++;
-        } while (*(s32*)0x1F800000 < *count);
+        } else {
+            g_BattleModels[actor].boneModels[*(s32*)0x1F800000] = NULL;
+        }
+        boneIndex = *(s32*)0x1F800000;
+        if (boneIndex != 0) {
+            modelOffset = actor * sizeof(BattleModel);
+            bones = g_BattleModels[0].boneTransforms;
+            actorBones = (BattleModelSub*)((u8*)bones + modelOffset);
+            BattleBoneSetParentMatrix(
+                &actorBones[((BattleModelBoneEntry*)data)[boneIndex].parent].m, &actorBones[boneIndex]);
+            updatedBoneIndex = *(s32*)0x1F800000;
+            bones = (BattleModelSub*)((u8*)bones - ((u8*)g_BattleModels[0].boneTransforms - (u8*)g_BattleModels));
+            boneOffset = updatedBoneIndex * sizeof(BattleModelSub) + modelOffset;
+            boneModel = (BattleModel*)(boneOffset + (u8*)bones);
+            boneModel->boneTransforms[0].trans.vy = 0;
+            ((BattleModel*)((u8*)g_BattleModels + boneOffset))->boneTransforms[0].trans.vx = 0;
+            ((BattleModel*)((u8*)g_BattleModels + boneOffset))->boneTransforms[0].trans.vz =
+                ((BattleModelBoneEntry*)data)[((BattleModelBoneEntry*)data)[updatedBoneIndex].parent].z;
+        }
+        (*(s32*)0x1F800000)++;
     }
 }
 
