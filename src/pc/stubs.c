@@ -88,7 +88,7 @@ void func_801D080C(void) { NOT_IMPLEMENTED; }
 
 Gpu g_PolyPtr;
 u16 g_SaveSlotMask;
-u16 D_80062F50;
+u16 g_MenuLocationFlags;
 u8 g_KernRndTable[256];
 DRAWENV D_800706A4[2];
 DISPENV D_8007075C[2];
@@ -392,7 +392,7 @@ void func_80032E6C() { NOT_IMPLEMENTED; }
 void func_80032ED0() { NOT_IMPLEMENTED; }
 void func_80033894() { NOT_IMPLEMENTED; }
 void func_80038F04() { NOT_IMPLEMENTED; }
-void func_801D0BA0() { NOT_IMPLEMENTED; }
+void ITEMMENU_Init() { NOT_IMPLEMENTED; }
 void func_801D3228() { NOT_IMPLEMENTED; }
 s32 DSCHANGE_WaitDiskLoop(s32 diskNo) { return 0; }
 s32 FetchMemCardStatus(s32 cardId) {
