@@ -780,6 +780,15 @@ typedef struct {
 } KernelLimitRecord;
 
 typedef struct {
+    u32 materiaId : 8;
+    u32 ap : 24;
+} Materia;
+
+enum MateriaType {
+    MATERIA_TYPE_ENEMY_SKILL = 7,
+};
+
+typedef struct {
     u16 levelUpApLimits[4];
     u8 equipEffect;
     u8 statusEffects[3];

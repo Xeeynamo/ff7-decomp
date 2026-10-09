@@ -106,23 +106,20 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     }
 }
 
-static void GiveMateriaAp(SavePartyMember* c, s32 ap) {
-    s32 bits;
+static void LearnEnemySkills(SavePartyMember* c, u32 skills) {
+    u32 bits;
     s32 i;
-    s32 m;
     u8 id;
 
-    bits = ap << 8;
+    bits = skills << 8;
     for (i = 0; i < 8; i++) {
-        m = c->materia_weapon[i];
-        id = m;
-        if (id != 0xFF && (g_MateriaData[id].materiaType & 0xF) == 7) {
-            c->materia_weapon[i] = m | bits;
+        id = c->materia_weapon[i];
+        if (id != 0xFF && (g_MateriaData[id].materiaType & 0xF) == MATERIA_TYPE_ENEMY_SKILL) {
+            c->materia_weapon[i] |= bits;
         }
-        m = c->materia_armor[i];
-        id = m;
-        if (id != 0xFF && (g_MateriaData[id].materiaType & 0xF) == 7) {
-            c->materia_armor[i] = m | bits;
+        id = c->materia_armor[i];
+        if (id != 0xFF && (g_MateriaData[id].materiaType & 0xF) == MATERIA_TYPE_ENEMY_SKILL) {
+            c->materia_armor[i] |= bits;
         }
     }
 }
