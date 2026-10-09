@@ -70,6 +70,7 @@ BattleResolveMagicActionIndex = 0x800A73C0;
 BattleResolveSummonActionIndex = 0x800A73D8;
 BattlePrepareTmpFromItemForUse = 0x800A73F8;
 BattleSetupThrowAction = 0x800A7458;
+BattleSetupCoinThrowAction = 0x800A7560;
 BattleResolveEnemySkillActionIndex = 0x800A76AC;
 BattleActionType04 = 0x800A76CC;
 BattlePrepareTmpForDefend = 0x800A7784;

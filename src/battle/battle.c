@@ -1504,7 +1504,46 @@ void BattleSetupThrowAction(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A7560);
+void BattleSetupCoinThrowAction(void) {
+    s32 cost = g_CurrentAction->relativeActionIndex * 10;
+    s32 i;
+
+    // no fixed amount chosen: cost scales with the strongest enemy's HP × the number of enemies
+    if (g_CurrentAction->relativeActionIndex == 0xFFFF) {
+        s32 highestHp = 0;
+        s32 numEnemies = 0;
+
+        for (i = START_ENEMY; i < NUM_BATTLE_ACTOR; i++) {
+            if (((g_BattleData.unk14C & 0x3F0) >> i) & 1) {
+                if (highestHp < g_BattleState.combatant[i].curHP) {
+                    highestHp = g_BattleState.combatant[i].curHP;
+                }
+                numEnemies++;
+            }
+        }
+
+        if (highestHp > 10000) {
+            highestHp = 10000;
+        }
+
+        cost = highestHp * numEnemies * 10;
+    }
+
+    if (cost > 600000) {
+        cost = 600000;
+    }
+
+    if (!(g_CurrentAction->unk90 & 0x400000)) {
+        if (Savemap.gil < cost) {
+            cost = Savemap.gil;
+        }
+        Savemap.gil -= cost;
+    }
+
+    g_CurrentAction->relativeActionIndex = cost / 10;
+    g_CurrentAction->power = cost / 10;
+    g_CurrentAction->unk98 = g_CurrentAction->relativeActionIndex;
+}
 
 void BattleResolveEnemySkillActionIndex(void) {
     g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex + NUM_MAGICS + NUM_SUMMONS;
