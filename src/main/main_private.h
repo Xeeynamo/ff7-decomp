@@ -49,6 +49,7 @@ typedef enum {
     KERNEL_TEXT_NAME_KEY_ITEM,   // 0x0F
     KERNEL_TEXT_BATTLE_MESSAGES, // 0x10
     KERNEL_TEXT_NAME_SUMMON,     // 0x11
+    KERNEL_TEXT_INVALID = 0xFF
 } KernelTextBlockID;
 
 typedef struct {

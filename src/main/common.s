@@ -91,7 +91,7 @@
 /* 80063028 */ glabel transform_matrix;                     .space 0x20
 /* 80063048 */ glabel D_80063048;                           .space 0x518
 /* 80063560 */ glabel D_80063560;                           .space 0x100
-/* 80063660 */ glabel D_80063660;                           .space 0x30
+/* 80063660 */ glabel D_80063660;                           .space 0x30  # 14C70.c (SysKernGetString)
 /* 80063690 */ glabel g_KernelTextBuffer;                   .space 0x5dec  # 14C70.c (SysGetPointerToTextInKernWithBlockAndTextId, func_80014C80)
 /* 8006947C */ glabel D_8006947C;                           .space 0x10
 /* 8006948C */ glabel D_8006948C;                           .space 0x4

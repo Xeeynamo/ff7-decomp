@@ -1507,7 +1507,7 @@ void BattleSetupThrowAction(void) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A7560);
 
 void BattleResolveEnemySkillActionIndex(void) {
-    g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex + 72;
+    g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex + NUM_MAGICS + NUM_SUMMONS;
 }
 
 static u32 func_800B12DC(void);

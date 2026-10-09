@@ -140,7 +140,7 @@ enum CombatantStateFlags {
 
 typedef enum {
     BATTLE_MSG_ARG_CHAR_NAME = 0xEA,
-    BATTLE_MSG_ARG_UNK_EB = 0xEB, // item name maybe? Haven't traced SysKernGetString(4, arg, 8)
+    BATTLE_MSG_ARG_ITEM_NAME = 0xEB,
     BATTLE_MSG_ARG_NUMBER = 0xEC,
     BATTLE_MSG_ARG_UNIT_NAME = 0xED,
     BATTLE_MSG_ARG_MAGIC_NAME = 0xEE,
@@ -748,3 +748,5 @@ void BattleInitTurnWorkHPMP(void);
 void BattleAddAutoBattleActionByChance(s32 arg0, s32 arg1);
 void BattleInitUnitAction(s32 index);
 void BattleEnableLimitToPlayerWithSpeed(s32 index);
+s32 BattleCopyMessageWithArgs(u8* dst, const u8* src, const u16* args);
+s8* BattleGetStringPtrFromStringBuffer(s32 arg0);
