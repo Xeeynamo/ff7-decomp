@@ -510,7 +510,7 @@ void HighwayRiderMove(s32 index) {
         if (!state->common.onPath) {
             if (rand() % 30 == 0) {
                 if (!state->common.unk10C) {
-                    HighwayPlaySfx(0x12D, 2, 0);
+                    HighwayPlaySfx(SFX_HIGHWAY_SMACK, 2, 0);
                 }
                 state->common.unk10C = 3;
             }
@@ -701,7 +701,7 @@ void HighwayRiderCollision(s16 a, s16 b, s32 angle) {
         playSfx = 1;
     }
     if (playSfx == 1) {
-        HighwayPlaySfx(0x91, 2, 5);
+        HighwayPlaySfx(SFX_HOLLOW_METAL, 2, 5);
         HighwaySetSlotVolume(0x6F, 2);
         HighwaySetSlotPitch(0, 2);
     }
@@ -765,7 +765,7 @@ void HighwayRiderDamage(s32 index, s32 damage) {
     case 2:
         if (state->common.hp <= 0) {
             g_HighwayScore += 500;
-            HighwayPlaySfx(0x138, 1, 10);
+            HighwayPlaySfx(SFX_HIGHWAY_ROAD_SCRAPE, 1, 10);
             state->common.status = 2;
             state->common.unk118 = rand() % 3;
             state->common.unk108 = 59;
