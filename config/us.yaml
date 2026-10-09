@@ -614,6 +614,7 @@ overlays:
     segments:
       - [0x0, .rodata, highway_track]
       - [0x10, rodata, highway]
+      - [0x50, .rodata, highway_race]
       - [0xD0, c, highway]
       - [0x3BC8, c, highway_node]
       - [0x4144, c, highway_track]
