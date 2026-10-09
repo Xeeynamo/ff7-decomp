@@ -45,13 +45,13 @@ static void BattleSetFocusedActor(s32 arg0) {
         if (D_800E7A38 == arg0) {
             return;
         }
-        for (i = 0; i < 64; i++) {
+        for (i = 0; i < LEN(g_BattleSceneContext.actionQueue); i++) {
             if (g_BattleSceneContext.actionQueue[i].priority == 6 &&
                 g_BattleSceneContext.actionQueue[i].unitID == D_800E7A38) {
                 break;
             }
         }
-        if (i == 64) {
+        if (i == LEN(g_BattleSceneContext.actionQueue)) {
             g_BattleWork.turn[D_800E7A38].unk2A++;
             BattleReqReturnReservedItems(*(s16*)&D_800E7A38);
             BattleQueueEvent(0, D_800E7A38, 0, 0);
@@ -81,7 +81,7 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
         rescan = 0;
         for (priority = 0; priority < numPriorities; priority++) {
             g_BattleSceneContext.currentQueuePriority = priority;
-            if (g_BattleSceneContext.partySlotMap[priority] == g_BattleSceneContext.enemySlotMap[priority]) {
+            if (g_BattleSceneContext.nextOrderToExecute[priority] == g_BattleSceneContext.nextOrderToAssign[priority]) {
                 continue;
             }
 
@@ -90,14 +90,14 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
             for (i = 0; i < LEN(g_BattleSceneContext.actionQueue); i++) {
                 if (g_BattleSceneContext.actionQueue[i].priority == priority &&
                     (u8)g_BattleSceneContext.actionQueue[i].orderInPriority ==
-                        g_BattleSceneContext.partySlotMap[priority]) {
+                        g_BattleSceneContext.nextOrderToExecute[priority]) {
                     g_BattleSceneContext.currentAction = g_BattleSceneContext.actionQueue[i];
                     g_BattleSceneContext.actionQueue[i].priority = 0xFF;
                     break;
                 }
             }
 
-            g_BattleSceneContext.partySlotMap[priority]++;
+            g_BattleSceneContext.nextOrderToExecute[priority]++;
 
             if (i == LEN(g_BattleSceneContext.actionQueue)) {
                 continue;
@@ -160,7 +160,7 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
 
                     // The main script's actions are queued at tier 2 (last argument above);
                     // an empty tier 2 means it queued nothing
-                    if (g_BattleSceneContext.partySlotMap[2] == g_BattleSceneContext.enemySlotMap[2]) {
+                    if (g_BattleSceneContext.nextOrderToExecute[2] == g_BattleSceneContext.nextOrderToAssign[2]) {
                         BattleSetFocusedActor(slot);
                     }
                     rescan = 1;
@@ -398,7 +398,7 @@ static void func_800A32C0(s32 arg0) {
         if (arg0 != 0) {
             if (g_BattleSceneContext.currentQueuePriority == 6) {
                 var_a3 = 1;
-                if (g_BattleSceneContext.activeTargetSlot != g_BattleSceneContext.cursorFocusSlot) {
+                if (g_BattleSceneContext.nextOrderToExecute[6] != g_BattleSceneContext.nextOrderToAssign[6]) {
                     var_a3 = 3;
                 }
                 BattleQueueEvent(0, 0, 7, var_a3);
@@ -518,9 +518,9 @@ static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* action) {
     priorityTier = action->priority;
     for (i = 0; i < LEN(g_BattleSceneContext.actionQueue); i++) {
         if (g_BattleSceneContext.actionQueue[i].priority == 0xFF) {
-            action->orderInPriority = g_BattleSceneContext.enemySlotMap[priorityTier];
+            action->orderInPriority = g_BattleSceneContext.nextOrderToAssign[priorityTier];
             g_BattleSceneContext.actionQueue[i] = *action;
-            g_BattleSceneContext.enemySlotMap[priorityTier] += 1;
+            g_BattleSceneContext.nextOrderToAssign[priorityTier]++;
             g_BattleSceneContext.pendingActionPriority = priorityTier;
             if (action->priority >= 2) {
                 g_BattleState.combatant[action->unitID].stateFlags &= ~COMBATANT_DEFENDING;
@@ -1227,7 +1227,8 @@ void BattleOpcodeCycle(s32, s32, s32);
 // scriptType 0 is run when the battle starts (see BattleInitPartyScripts/BattleInitEnemyAI)
 // scriptType 1 is run when a unit runs its own logic under normal conditions (see BattleBattleActionQueueExecute)
 // scriptType 3 is run when a unit is KO'd (see func_800A6278)
-void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 arg2) {
+// priority is the queue tier for actions the script queues: main runs at 2, KO and battle start at 0
+void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 priority) {
     s32 scriptOffset = 0;
     s32 presetIdx = -1;
     s32 remapped;
@@ -1263,7 +1264,7 @@ void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 arg2) {
             snapshot[i].idleActionId = g_BattleState.combatant[i].idleActionId;
             snapshot[i].hurtActionId = g_BattleState.combatant[i].hurtActionId;
         }
-        BattleInitScriptContext(actorId, arg2);
+        BattleInitScriptContext(actorId, priority);
         BattleOpcodeCycle(actorId, scriptOffset, presetIdx);
         for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
             if (snapshot[i].rowFlags != g_BattleState.combatant[i].rowFlags) {
@@ -1297,7 +1298,7 @@ void BattleExecFormationAIScripts(void) {
 // arg0 is the killer, arg1 is the victim, arg2: 1 from func_800AFECC, 0 from BattleCmdScriptDispatch
 void func_800A6278(s32 arg0, s32 arg1, s32 arg2) {
     s32 var_s3;
-    u8 prevSlotMap0;
+    u8 nextAssignedOrder;
 
     var_s3 = 0;
     if (arg1 >= START_ENEMY) {
@@ -1311,7 +1312,7 @@ void func_800A6278(s32 arg0, s32 arg1, s32 arg2) {
     }
 
     if (!(g_BattleState.combatant[arg1].stateFlags & 0x2000)) {
-        prevSlotMap0 = g_BattleSceneContext.enemySlotMap[0];
+        nextAssignedOrder = g_BattleSceneContext.nextOrderToAssign[0];
         g_BattleState.combatant[arg1].stateFlags |= 0x2000;
 
         if (arg0 >= START_ENEMY) {
@@ -1326,7 +1327,8 @@ void func_800A6278(s32 arg0, s32 arg1, s32 arg2) {
 
         BattleRunUnitScript(arg1, 3, 0);
 
-        if ((g_BattleSceneContext.enemySlotMap[0] != prevSlotMap0) || (arg2 != 0)) {
+        // Queue action only if the above script queued something at tier 0 or arg2 is set
+        if ((g_BattleSceneContext.nextOrderToAssign[0] != nextAssignedOrder) || (arg2 != 0)) {
             if (!(g_BattleState.combatant[arg1].stateFlags & 0x1000)) {
                 g_BattleState.scriptOpponentNonPetrifiedMask = 1 << arg1;
                 BattleQueueOpcodeAction(arg1, 0x25, 0);
@@ -3949,7 +3951,7 @@ static s32 BattleScriptCollapseVarBank(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeCycle);
 
-void BattleInitScriptContext(s32 arg0, s32 arg1, s32 arg2) {
+void BattleInitScriptContext(s32 arg0, s32 priority, s32 arg2) {
     s32 opponentAliveMask;
     s32 opponentDeadMask;
     s32 allyAliveMask;
@@ -3958,7 +3960,7 @@ void BattleInitScriptContext(s32 arg0, s32 arg1, s32 arg2) {
     s32 activeAllies;
     s32 swapTmp;
 
-    D_800F4AC8 = arg1;
+    g_BattleScriptActionPriority = priority;
     D_800F4ACC = arg2;
 
     if (arg0 < 0) {
@@ -4016,7 +4018,7 @@ static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex)
 
     mask = g_BattleState.scriptOpponentNonPetrifiedMask;
     g_BattleState.combatant[unitId].attackMask = mask;
-    action.priority = D_800F4AC8;
+    action.priority = g_BattleScriptActionPriority;
     action.unitID = unitId;
     action.actionType = actionType;
     action.attackIndex = attackIndex;

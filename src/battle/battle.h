@@ -380,10 +380,8 @@ typedef struct {
     /* 0x09F0 */ BattleActionEntry actionQueue[64];
     /* 0x0BF0 */ BattleActionEntry subActionSlots[10];
     /* 0x0C40 */ BattleActionEntry postExecAction[2];
-    /* 0x0C50 */ u8 partySlotMap[6];
-    /* 0x0C56 */ u8 activeTargetSlot;
-    /* 0x0C57 */ u8 enemySlotMap[6];
-    /* 0x0C5D */ u8 cursorFocusSlot;
+    /* 0x0C50 */ u8 nextOrderToExecute[7];
+    /* 0x0C57 */ u8 nextOrderToAssign[7];
     /* 0x0C5E */ u8 unkC5E[2];
     /* 0x0C60 */ FormationAIScripts formationAI;
     /* 0x0E60 */ u8 aiScriptBuffer[0x1000];

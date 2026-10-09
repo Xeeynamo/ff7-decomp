@@ -600,7 +600,7 @@ extern s32 D_800F4920;
 extern u16 D_800F4938[];
 extern s8 D_800F494C[];
 extern u16 D_800F4958;
-extern s32 D_800F4AC8;
+extern s32 g_BattleScriptActionPriority;
 extern s32 D_800F4ACC;
 extern s16 D_800F4AD0;
 extern s32 D_800F4AD4;
@@ -882,7 +882,7 @@ static void BattleInvalidateQueuedMessages(s32 arg0, s32 arg1);
 static void func_800A32C0(s32 arg0);
 static void BattleAddBattleActionToBattleQueue(s32 unitId, s32 prio, s32 type, s32 index, s32 target);
 static s32 BattleGetBerserkToadAttackTypeId(s32 arg0);
-void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 arg2);
+void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 priority);
 static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0);
 void BattleCmdScriptDispatch(BattleActionEntry*);
 
