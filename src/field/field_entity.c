@@ -200,7 +200,7 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
                 }
                 FieldEntityAddRotate(activeKeys, i);
                 g_FieldEntity[g_PlayerModelId].activeAnimId = g_FieldState.idleAnimId;
-                if (activeKeys & PADRdown) {
+                if (activeKeys & PAD_CROSS) {
                     if (!g_FieldState.backgroundMovieEnabled) {
                         g_FieldEntity[g_PlayerModelId].MoveSpeed = g_FieldState.currentFieldScale << 12 >> 9;
                     } else {
@@ -211,28 +211,28 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
                 } else {
                     g_FieldEntity[g_PlayerModelId].MoveSpeed = (3072 * g_FieldState.currentFieldScale) >> 10;
                 }
-                if (activeKeys & (PADLup | PADLright | PADLdown | PADLleft)) {
-                    if (activeKeys & PADLup) {
+                if (activeKeys & (PAD_UP | PAD_RIGHT | PAD_DOWN | PAD_LEFT)) {
+                    if (activeKeys & PAD_UP) {
                         g_FieldEntity[i].MoveDir = 0;
-                        if (activeKeys & PADLleft) {
+                        if (activeKeys & PAD_LEFT) {
                             g_FieldEntity[i].MoveDir = 32;
                         }
-                        if (activeKeys & PADLright) {
+                        if (activeKeys & PAD_RIGHT) {
                             g_FieldEntity[i].MoveDir = 224;
                         }
-                    } else if (activeKeys & PADLdown) {
+                    } else if (activeKeys & PAD_DOWN) {
                         g_FieldEntity[i].MoveDir = 128;
-                        if (activeKeys & PADLleft) {
+                        if (activeKeys & PAD_LEFT) {
                             g_FieldEntity[i].MoveDir = 96;
                         }
-                        if (activeKeys & PADLright) {
+                        if (activeKeys & PAD_RIGHT) {
                             g_FieldEntity[i].MoveDir = 160;
                         }
                     } else {
-                        if (activeKeys & PADLright) {
+                        if (activeKeys & PAD_RIGHT) {
                             g_FieldEntity[i].MoveDir = 192;
                         }
-                        if (activeKeys & PADLleft) {
+                        if (activeKeys & PAD_LEFT) {
                             g_FieldEntity[i].MoveDir = 64;
                         }
                     }
@@ -336,7 +336,7 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
                 } else {
                     if (i == g_PlayerModelId && !g_FieldState.characterLock) {
                         if (!g_FieldEntity[i].ActionArg) {
-                            if (activeKeys & PADLup) {
+                            if (activeKeys & PAD_UP) {
                                 if (!g_FieldEntity[i].MoveStep) {
                                     g_FieldEntity[i].ActionState = 2;
                                 } else {
@@ -347,7 +347,7 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
                                     }
                                 }
                             }
-                            if (activeKeys & PADLdown) {
+                            if (activeKeys & PAD_DOWN) {
                                 if (g_FieldEntity[i].MoveStep == g_FieldEntity[i].MoveSteps) {
                                     g_FieldEntity[i].PosI = g_FieldEntity[i].MoveEndI;
                                     g_FieldEntity[i].ActionState = 2;
@@ -360,7 +360,7 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
                                 }
                             }
                         } else {
-                            if (activeKeys & PADLdown) {
+                            if (activeKeys & PAD_DOWN) {
                                 if (!g_FieldEntity[i].MoveStep) {
                                     g_FieldEntity[i].ActionState = 2;
                                 } else {
@@ -371,7 +371,7 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
                                     }
                                 }
                             }
-                            if (activeKeys & PADLup) {
+                            if (activeKeys & PAD_UP) {
                                 if (g_FieldEntity[i].MoveStep == g_FieldEntity[i].MoveSteps) {
                                     g_FieldEntity[i].PosI = g_FieldEntity[i].MoveEndI;
                                     g_FieldEntity[i].ActionState = 2;
@@ -432,7 +432,7 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
                 } else {
                     if (i == g_PlayerModelId && !g_FieldState.characterLock) {
                         if (!g_FieldEntity[i].ActionArg) {
-                            if (activeKeys & PADLleft) {
+                            if (activeKeys & PAD_LEFT) {
                                 if (!g_FieldEntity[i].MoveStep) {
                                     g_FieldEntity[i].ActionState = 2;
                                 } else {
@@ -443,7 +443,7 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
                                     }
                                 }
                             }
-                            if (activeKeys & PADLright) {
+                            if (activeKeys & PAD_RIGHT) {
                                 if (g_FieldEntity[i].MoveStep == g_FieldEntity[i].MoveSteps) {
                                     g_FieldEntity[i].PosI = g_FieldEntity[i].MoveEndI;
                                     g_FieldEntity[i].ActionState = 2;
@@ -456,7 +456,7 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
                                 }
                             }
                         } else {
-                            if (activeKeys & PADLright) {
+                            if (activeKeys & PAD_RIGHT) {
                                 if (!g_FieldEntity[i].MoveStep) {
                                     g_FieldEntity[i].ActionState = 2;
                                 } else {
@@ -467,7 +467,7 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
                                     }
                                 }
                             }
-                            if (activeKeys & PADLleft) {
+                            if (activeKeys & PAD_LEFT) {
                                 if (g_FieldEntity[i].MoveStep == g_FieldEntity[i].MoveSteps) {
                                     g_FieldEntity[i].PosI = g_FieldEntity[i].MoveEndI;
                                     g_FieldEntity[i].ActionState = 2;
@@ -888,7 +888,7 @@ s32 FieldEntityMove(s16 modelId) {
             u8 activeAnimation;
 
             g_FieldEntity[modelId].animSpeed = 16;
-            if (g_FieldKeyState & PADRdown) {
+            if (g_FieldKeyState & PAD_CROSS) {
                 activeAnimation = 0;
                 if (g_FieldModelData->modelEntries[g_FieldModelLoaderData[modelId].modelEntryIndex].animationCount >
                     g_FieldState.runAnimId) {
