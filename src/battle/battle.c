@@ -3105,12 +3105,12 @@ const u8 g_StatusBitTable[] = {
     0x0A, 0x19, 0x15, 0x0D, 0x10, 0x11, 0x03, 0x02, 0x0F, 0x1B, 0x14, 0x18, 0xFF, 0xFF, 0xFF, 0xFF};
 int BattleUpperFunc00();
 void BattleRollMagicalHit();
-static void BattleRollPhysicalHit(void);
+static void BattleRollCriticalHit(void);
 static int BattleUpperFunc03();
 int BattleUpperFunc06();
 static void BattleUpperFunc07(void);
 int (* const g_BattleHitFormulaJmpTbl[])() = {
-    BattleUpperFunc00, (void*)BattleRollMagicalHit, (void*)BattleRollPhysicalHit, BattleUpperFunc03, BattleUpperFunc03,
+    BattleUpperFunc00, (void*)BattleRollMagicalHit, (void*)BattleRollCriticalHit, BattleUpperFunc03, BattleUpperFunc03,
     BattleUpperFunc03, BattleUpperFunc06,           (void*)BattleUpperFunc07,
 };
 // ___end
@@ -3587,7 +3587,7 @@ void BattleRollMagicalHit(void) {
 }
 
 static s32 BattleGetRnd164(void);
-static void BattleRollPhysicalHit(void) {
+static void BattleRollCriticalHit(void) {
     s32 acc;
     s32 attacker;
     s32 target;
@@ -3597,7 +3597,7 @@ static void BattleRollPhysicalHit(void) {
     target = g_CurrentAction->targetId;
     if (!(g_CurrentAction->unk218 & 1)) {
         acc = 0xFF;
-        if (!(g_CurrentAction->attackerStatus & 0x40000000)) {
+        if (!(g_CurrentAction->attackerStatus & STATUS_LUCKY_GIRL)) {
             v = (g_CurrentAction->characterLevel + g_BattleState.combatant[attacker].luck) -
                 g_BattleState.combatant[target].level;
             acc = v / 4;
