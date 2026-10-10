@@ -2122,9 +2122,47 @@ static void BattleLearnEnemySkill(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AB830);
+void func_800AB830(s32 arg0, s32 arg1) {
+    BattleQueueTargetEntry* entry;
+    s32 damage;
+    u16 flags = 1;
 
-void func_800AB830(s32, s32);
+    if (arg1 != 0) {
+        damage = g_BattleWork.turn[arg0].action09Data2;
+        g_BattleWork.turn[arg0].action09Data2 = 0;
+    } else {
+        damage = g_BattleWork.turn[arg0].action09Data1;
+        g_BattleWork.turn[arg0].action09Data1 = 0;
+    }
+
+    g_CurrentAction->targetId = arg0;
+    g_CurrentAction->damageFlags = arg1 != 0 ? 4 : 0;
+
+    if (damage < 0) {
+        damage = -damage;
+        g_CurrentAction->damageFlags |= 1;
+    }
+
+    if (BattleIsDamageNullified(arg0) != 0) {
+        damage = 0;
+    }
+
+    g_CurrentAction->tmpDamage = damage;
+    func_800AD0FC();
+
+    if (g_BattleState.combatant[arg0].status & STATUS_DEATH) {
+        flags |= 4;
+        g_CurrentAction->unk7C |= 1 << arg0;
+    }
+
+    entry = BattleQueue2GetPtr();
+    entry->targetId = arg0;
+    entry->attackerId = arg0;
+    entry->hurtAnimScript = 0x2E;
+    entry->flags = flags;
+    entry->targetStatus = g_BattleState.combatant[arg0].status;
+    BattleCreateImpactData(entry, g_CurrentAction->tmpDamage, g_CurrentAction->damageFlags, -1, -1);
+}
 
 static void func_800AB9C4(s32 arg0, s32 arg1) {
     BattleActionQueueEntry* temp_v0;
