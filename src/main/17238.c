@@ -374,11 +374,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToAllMagics);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToMagic);
 
-typedef struct {
-    u32 materiaId : 8;
-    u32 ap : 24;
-} Materia;
-
 void SysAddPairWithQuadraMagic(s32 arg0, s32 allCount, Materia materia) {
     s32 materiaId;
     s32 ap;

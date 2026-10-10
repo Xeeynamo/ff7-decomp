@@ -21,7 +21,7 @@ static void BattleInitCharCmdMenu(s32 slot);
 void BattleInitCharCmdState(s32 slot);
 static s32 BattleInitApplyStartFX(s32 slot);
 static void BattleInitLimits(s32 charId, s32 learnedLimits, BattleLimitData* data);
-static s32 BattleGetEquipMateriaVal(u32* equipment);
+static s32 BattleGetEquipEnemySkillMask(SavePartyMember* member);
 void BattleInitEnemyUnits(void);
 
 // entrypoint
@@ -413,7 +413,7 @@ static void BattleInitPlayer(void) {
             if (unit->status != 0) {
                 BattleInitUnitAction(i);
             }
-            enemySkillMateria = BattleGetEquipMateriaVal(member);
+            enemySkillMateria = BattleGetEquipEnemySkillMask(member);
             party->enemySkillMateriaData = enemySkillMateria;
             party->enemySkillMateriaData2 = enemySkillMateria;
             memberCount += 1;
@@ -606,26 +606,24 @@ static void BattleInitLimits(s32 charId, s32 learnedLimits, BattleLimitData* dat
     data->activeLimits = activeLimits;
 }
 
-static s32 BattleGetMateriaValue(u32 sceneID) {
-    u8 temp_v1;
+static s32 BattleGetEnemySkillMask(Materia materia) {
     s32 ret;
 
-    temp_v1 = sceneID;
     ret = 0;
-    if (temp_v1 != 0xFF && (g_MateriaData[temp_v1].materiaType & 0xF) == 7) {
-        ret = (sceneID >> 8) | 0x80000000;
+    if (materia.materiaId != 0xFF && (g_MateriaData[materia.materiaId].materiaType & 0xF) == MATERIA_TYPE_ENEMY_SKILL) {
+        ret = materia.ap | 0x80000000;
     }
     return ret;
 }
 
-static s32 BattleGetEquipMateriaVal(u32* equipment) {
+static s32 BattleGetEquipEnemySkillMask(SavePartyMember* member) {
     s32 ret;
     s32 i;
 
     ret = 0;
     for (i = 0; i < 8; i++) {
-        ret |= BattleGetMateriaValue(equipment[0x10 + i]);
-        ret |= BattleGetMateriaValue(equipment[0x18 + i]);
+        ret |= BattleGetEnemySkillMask(*(Materia*)&member->materia_weapon[i]);
+        ret |= BattleGetEnemySkillMask(*(Materia*)&member->materia_armor[i]);
     }
     return ret;
 }

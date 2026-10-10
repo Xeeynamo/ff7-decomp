@@ -1,5 +1,5 @@
 CommitBattleResults = 0x801B09C0;
-GiveMateriaAp = 0x801B0C74;
+LearnEnemySkills = 0x801B0C74;
 GiveSharedExp = 0x801B0D14;
 ResetBattleResults = 0x801B0E20;
 LoadResultsRow = 0x801B1008;
