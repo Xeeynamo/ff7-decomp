@@ -2395,7 +2395,7 @@ static s32 SetAndApplyAkao(void) {
         if (g_DebugLevel & 3) {
             FieldDebugAddParseValueToPage2("music=", akaoId, 2);
         }
-        g_AkaoCmd.params[0] = (s32)((u8*)g_FieldScripts + GetAkaoBlockOffset(akaoId));
+        g_AkaoCmd.params[0] = (u_long)((u8*)g_FieldScripts + GetAkaoBlockOffset(akaoId));
         g_pFieldState->nextFieldMusic = g_AkaoCmd.params[0];
         AkaoExec();
     }

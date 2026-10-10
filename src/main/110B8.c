@@ -349,7 +349,7 @@ void main(void) {
                             if (g_FieldState.nextBattleMusic) {
                                 AkaoCmd* cmd = &g_AkaoCmd;
                                 cmd->opcode = AKAO_PLAY_MUSIC_SAVE_CURR;
-                                cmd->params[0] = (s32)g_FieldState.nextBattleMusic;
+                                cmd->params[0] = (u_long)g_FieldState.nextBattleMusic;
                                 AkaoExec();
                             }
                             D_800722C8 = (u_long*)0x801C0000;

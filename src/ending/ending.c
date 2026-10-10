@@ -1343,7 +1343,7 @@ s32 EndingOpHideSprite(void) {
 
 s32 EndingOpPlayMusic(void) {
     g_AkaoCmd.opcode = AKAO_PLAY_MUSIC;
-    g_AkaoCmd.params[0] = (u32)SysCdromGetPackPointer((void*)0x800D0000, *g_endingScriptPc++);
+    g_AkaoCmd.params[0] = (u_long)SysCdromGetPackPointer((void*)0x800D0000, *g_endingScriptPc++);
     AkaoExec();
 
     return 1;

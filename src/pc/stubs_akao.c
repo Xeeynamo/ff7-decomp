@@ -6,7 +6,7 @@ AkaoChannelConfig g_AkaoPrevBgmLanes[2];
 AkaoSoundConfig g_AkaoSfxLanes[1];
 AkaoChannel g_AkaoSavedChannels0[AKAO_NUM_VOICES];
 AkaoChannel g_AkaoSavedChannels1[AKAO_NUM_VOICES];
-AkaoQueuedCommand g_AkaoCommandQueue[32];
+AkaoCmd g_AkaoCommandQueue[32];
 AkaoVoiceAttr g_AkaoVoiceAttr;
 AkaoVoiceWork g_AkaoVoiceWork[AKAO_NUM_VOICES];
 AkaoInstrument g_AkaoInstrument[AKAO_INSTR_COUNT];

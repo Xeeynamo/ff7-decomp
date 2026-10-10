@@ -1309,10 +1309,10 @@ typedef struct WindowData {
 } WindowData; // size:0x30
 
 typedef struct {
-    u16 opcode;
-    s16 pad;
-    s32 params[6];
-} AkaoCmd;
+    /* 0x00 */ u16 opcode;
+    /* 0x02 */ u16 pad;
+    /* 0x04 */ u_long params[8];
+} AkaoCmd; // size:0x24
 
 typedef struct {
     /* 0x00 */ u8 unk0;
