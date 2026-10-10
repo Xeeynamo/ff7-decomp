@@ -585,7 +585,8 @@ typedef struct {
     /* 0x254 */ s32 unk254;
     /* 0x258 */ s32 unk258;
     /* 0x25C */ s32 unk25C;
-} Unk800A8D04; // size: 0x260
+    /* 0x260 */ s32 unk260;
+} Unk800A8D04; // size: 0x264
 
 // Targeting byte shared by weapons, magic, items and battle commands.
 // Bit meanings per https://ff7-mods.github.io/ff7-flat-wiki/FF7/Battle/Targeting_Data.html

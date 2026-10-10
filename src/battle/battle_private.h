@@ -846,6 +846,7 @@ void BattleDmgFormulaRun(void);
 void func_800AE82C(void);
 s32 BattleGetStatusProtectionMask(s32, s32, s32);
 void func_800AF9C8(void);
+static s32 BattleApplyConditionalReduction(s32);
 s32 BattleOpcodeGetRndBit(u16);
 void BattlePlayerModelsUpdateBonesPos(void);
 s32 BattleLoadEnemyModel(s32);

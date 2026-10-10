@@ -3104,14 +3104,14 @@ void BattleUnitInitStatusTimer(s32 arg0, s32 statusBit, s32 arg2) {
 const u8 g_StatusBitTable[] = {
     0x0A, 0x19, 0x15, 0x0D, 0x10, 0x11, 0x03, 0x02, 0x0F, 0x1B, 0x14, 0x18, 0xFF, 0xFF, 0xFF, 0xFF};
 int BattleUpperFunc00();
-int BattleUpperFunc01();
+void BattleRollMagicalHit();
 static void BattleRollPhysicalHit(void);
 static int BattleUpperFunc03();
 int BattleUpperFunc06();
 static void BattleUpperFunc07(void);
 int (* const g_BattleHitFormulaJmpTbl[])() = {
-    BattleUpperFunc00, BattleUpperFunc01, (void*)BattleRollPhysicalHit, BattleUpperFunc03, BattleUpperFunc03,
-    BattleUpperFunc03, BattleUpperFunc06, (void*)BattleUpperFunc07,
+    BattleUpperFunc00, (void*)BattleRollMagicalHit, (void*)BattleRollPhysicalHit, BattleUpperFunc03, BattleUpperFunc03,
+    BattleUpperFunc03, BattleUpperFunc06,           (void*)BattleUpperFunc07,
 };
 // ___end
 
@@ -3543,7 +3543,48 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0234);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpperFunc00);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpperFunc01);
+void BattleRollMagicalHit(void) {
+    s32 hitChance = g_CurrentAction->unk260;
+    s32 halfTargetLevel = g_BattleState.combatant[g_CurrentAction->targetId].level >> 1;
+    s32 levelAdjustment = g_CurrentAction->characterLevel - halfTargetLevel;
+    s32 evadeRoll = SysGetRandomByteRange(100);
+    s32 hitRoll = SysGetRandomByteRange(100) + 1;
+
+    const s32 vulnerableStatusMask =
+        STATUS_DEATH | STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_PETRIFY | STATUS_PARALYSIS;
+
+    // Auto-hit if the ability's MAt% is 255
+    if (hitChance >= 255) {
+        return;
+    }
+
+    // Auto-hit on element Death-weakness, Auto-Hit weakness, Immune or Absorb
+    if (g_CurrentAction->unk230 & 0x63) {
+        return;
+    }
+
+    // Auto-hit if the ability is reflectable and the target has Reflect
+    if (!(g_CurrentAction->unk6C & 0x200) && (g_CurrentAction->unk228 & STATUS_REFLECT)) {
+        return;
+    }
+
+    // Auto-hit if the ability inflicts no status and the target has a vulnerable status
+    if (!g_CurrentAction->unk80 && (g_CurrentAction->unk228 & vulnerableStatusMask)) {
+        return;
+    }
+
+    // Apply 30% reduction if the attacker has fury status
+    hitChance = BattleApplyConditionalReduction(hitChance);
+
+    // Finally must pass the check against target's m.evade and level-adjusted hit chance to hit
+    if (evadeRoll >= g_BattleState.combatant[g_CurrentAction->targetId].magEvade &&
+        hitRoll < hitChance + levelAdjustment) {
+        return;
+    }
+
+    // Mark a miss
+    g_CurrentAction->unk218 |= 1;
+}
 
 static s32 BattleGetRnd164(void);
 static void BattleRollPhysicalHit(void) {
@@ -3669,10 +3710,9 @@ static void func_800B0DF8(void) {
     }
 }
 
-// same ~30% reduction as BattleApplySadnessReduction, gated on a bit of unkC8
-// (not unk218)
+// same ~30% reduction as BattleApplySadnessReduction, gated on fury status
 static s32 BattleApplyConditionalReduction(s32 arg0) {
-    if ((arg0 < 0xFF) && (g_CurrentAction->attackerStatus & 0x20)) {
+    if ((arg0 < 0xFF) && (g_CurrentAction->attackerStatus & STATUS_FURY)) {
         arg0 -= (arg0 * 3) / 10;
     }
     return arg0;
