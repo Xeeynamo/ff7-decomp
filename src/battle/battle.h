@@ -363,13 +363,13 @@ typedef struct {
 } BattleData; // size:0x178
 
 typedef struct {
-    u8 priority;
-    s8 orderInPriority;
-    s8 unitID;
-    u8 actionType;
-    s16 attackIndex;
-    s16 targetMask;
-} BattleActionEntry; // size:8
+    /* 0x0 */ u8 priority;
+    /* 0x1 */ s8 orderInPriority;
+    /* 0x2 */ s8 unitID;
+    /* 0x3 */ u8 actionType;
+    /* 0x4 */ s16 attackIndex;
+    /* 0x6 */ s16 targetMask;
+} BattleActionEntry; // size:0x8
 
 typedef struct {
     /* 0x0000 */ SceneEnemy enemy[3];
@@ -380,10 +380,8 @@ typedef struct {
     /* 0x09F0 */ BattleActionEntry actionQueue[64];
     /* 0x0BF0 */ BattleActionEntry subActionSlots[10];
     /* 0x0C40 */ BattleActionEntry postExecAction[2];
-    /* 0x0C50 */ u8 partySlotMap[6];
-    /* 0x0C56 */ u8 activeTargetSlot;
-    /* 0x0C57 */ u8 enemySlotMap[6];
-    /* 0x0C5D */ u8 cursorFocusSlot;
+    /* 0x0C50 */ u8 nextOrderToExecute[7];
+    /* 0x0C57 */ u8 nextOrderToAssign[7];
     /* 0x0C5E */ u8 unkC5E[2];
     /* 0x0C60 */ FormationAIScripts formationAI;
     /* 0x0E60 */ u8 aiScriptBuffer[0x1000];
@@ -608,7 +606,7 @@ typedef struct {
     /* 0x2C */ s32 action09Data1;
     /* 0x30 */ s32 action09Data2;
     /* 0x34 */ s32 statusProtectionMask;
-    /* 0x38 */ u8* enemyNamePtr;
+    /* 0x38 */ SceneEnemy* enemy;
     /* 0x3C */ u16 prevHP;
     /* 0x3E */ u16 prevMP;
     /* 0x40 */ s32 unk40;
