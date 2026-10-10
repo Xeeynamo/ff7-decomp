@@ -1,7 +1,8 @@
-//! PSYQ=4.0 CC1=2.7.2 UNROLL=true
+//! PSYQ=4.0 CC1=2.7.2 UNROLL=true FORCE_ADDR=true
 #include <game.h>
 #include <libgte.h>
 #include "chocobo_private.h"
+#include "libgpu.h"
 #include <libetc.h>
 
 extern s32 D_800B22D0[];
@@ -11,6 +12,7 @@ extern s32 D_800B23C0[];
 extern ChocoboPrizePtr D_800B7458[1];
 extern Unk800B7480 D_800B7480[5][3];
 extern u8* D_800F502C;
+extern u8 D_800B23EC[][16];
 
 #ifdef __psyz
 #define SPRT_TAG(len) 0, len
@@ -190,36 +192,50 @@ INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/ch_bet", func_800ABABC);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/ch_bet", func_800AC554);
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/ch_bet", func_800AD52C);
+void ChocoboDrawPrizes(void) {
+    s32 i;
 
-void ChocoboDrawText(const char* str, s32 len, s32 x, s32 y) { SysMenuDrawString(x, y, str, 7); }
+    ChocoboDrawText(D_800B23EC[D_800B745C[0]], 16, 0x25, 0xAC);
+    ChocoboDrawText(D_800B23EC[D_800B745C[1]], 16, 0x25, 0xC0);
+    ChocoboDrawText(D_800B23EC[D_800B745C[2]], 16, 0x25, 0xD4);
+    for (i = 0; i < 3; i++) {
+        D_800F5074->prims[D_800F5034].x0 = D_800F5074->prims[D_800F5034].x2 = 15;
+        D_800F5074->prims[D_800F5034].y0 = D_800F5074->prims[D_800F5034].y1 = i * 21 + 0xA9;
+        D_800F5074->prims[D_800F5034].x1 = D_800F5074->prims[D_800F5034].x3 = 15 + 16;
+        D_800F5074->prims[D_800F5034].y2 = D_800F5074->prims[D_800F5034].y3 = i * 21 + 0xA9 + 16;
+        D_800F5074->prims[D_800F5034].tpage = GetTPage(0, 0, 640, 256);
+        D_800F5074->prims[D_800F5034].clut = 0x7A64;
+        D_800F5074->prims[D_800F5034].u0 = D_800F5074->prims[D_800F5034].u2 = 0xD8;
+        D_800F5074->prims[D_800F5034].u1 = D_800F5074->prims[D_800F5034].u3 = 0xD8 + 16;
+        D_800F5074->prims[D_800F5034].v0 = D_800F5074->prims[D_800F5034].v1 = i * 34 + 0x98;
+        D_800F5074->prims[D_800F5034].v2 = D_800F5074->prims[D_800F5034].v3 = i * 34 + 0x98 + 16;
+        *(u32*)&D_800F5074->prims[D_800F5034].r0 = 0x2E808080; // setPolyFT4, rgb at 128, 128, 128
+        setlen(&D_800F5074->prims[D_800F5034], 9);
+        addPrim(&D_800F5074->ot[2], &D_800F5074->prims[D_800F5034]);
+        D_800F5034++;
+    }
+}
+
+void ChocoboDrawText(const u8* str, s32 len, s32 x, s32 y) { SysMenuDrawString(x, y, (const char*)str, 7); }
 
 void ChocoboDrawFade(void) {
     DRAWENV env;
     DR_ENV dr;
-    DRAWENV* src;
-    POLY_F4* prim;
-    s32* fade;
-    s32* speed;
 
     if (D_800B7514) {
-        src = &D_800F5074->draw;
-        env = *src;
+        env = D_800F5074->draw;
         env.tpage = GetTPage(0, 2, 0, 0);
         env.isbg = 0;
         SetDrawEnv(&dr, &env);
         DrawPrim(&dr);
-        prim = &D_800B14B4;
-        prim->r0 = prim->g0 = prim->b0 = D_800B7514;
-        DrawPrim(prim);
+        D_800B14B4.r0 = D_800B14B4.g0 = D_800B14B4.b0 = D_800B7514;
+        DrawPrim(&D_800B14B4);
     }
-    fade = &D_800B7514;
-    speed = &D_800F5040.fadeSpeed;
-    *fade += *speed;
-    if (*fade < 0) {
-        *fade = 0;
-        *speed = 0;
-    } else if (*fade > 0x100) {
-        *fade = 0x100;
+    D_800B7514 += D_800F5040.fadeSpeed;
+    if (D_800B7514 < 0) {
+        D_800B7514 = 0;
+        D_800F5040.fadeSpeed = 0;
+    } else if (D_800B7514 > 0x100) {
+        D_800B7514 = 0x100;
     }
 }

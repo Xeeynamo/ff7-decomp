@@ -307,7 +307,7 @@ void func_800A7CA4(void);
 void func_800A8AE8(void);
 void func_800A9D94(void);
 void func_800AC554(void);
-void ChocoboDrawText(const char* str, s32 len, s32 x, s32 y);
+void ChocoboDrawText(const u8* str, s32 len, s32 x, s32 y);
 void ChocoboDrawFade(void);
 u8* ChocoboModelSetupParts(ChocoboModel* model, u8* buf, s32 arg2);
 u8* func_800AD9D8(ChocoboModelPart*, u8*, s32, s32);

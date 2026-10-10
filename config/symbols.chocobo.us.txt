@@ -32,6 +32,7 @@ ChocoboSetNodeStep = 0x800A8940;
 ChocoboCalcAngle = 0x800A89A0;
 ChocoboCalcAngleToPoint = 0x800A8A18;
 ChocoboSetPrizeTable = 0x800AB410;
+ChocoboDrawPrizes = 0x800AD52C;
 ChocoboDrawText = 0x800AD7B8;
 ChocoboDrawFade = 0x800AD7E8;
 ChocoboModelSetupParts = 0x800AD91C;
