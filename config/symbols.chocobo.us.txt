@@ -22,6 +22,7 @@ ChocoboDrawTrackTris = 0x800A2984;
 ChocoboDrawTrackSegments = 0x800A2AFC;
 ChocoboApplyItemEffect = 0x800A3308;
 ChocoboUpdateRanking = 0x800A44E4;
+ChocoboUpdateRacer = 0x800A4888;
 ChocoboSelectRacer = 0x800A68D4;
 ChocoboSelectRacerAtSegment = 0x800A6B9C;
 ChocoboQueueEvent = 0x800A7840;

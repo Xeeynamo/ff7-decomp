@@ -300,7 +300,7 @@ void ChocoboApplyItemEffect(s32 id, s32 effect);
 void func_800A34A8(void);
 void ChocoboUpdateRanking(void);
 void ChocoboSelectRacer(s32);
-void func_800A4888(s32 id);
+void ChocoboUpdateRacer(s32 id);
 void ChocoboSelectRacerAtSegment(s32 id, s32 speed, s32 seg);
 void func_800A6E50(s32);
 void func_800A7CA4(void);

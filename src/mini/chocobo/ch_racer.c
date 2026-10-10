@@ -90,7 +90,7 @@ void ChocoboUpdateRanking(void) {
     }
     D_800B733C = ids[NUM_CHOCOBO - 1];
     for (i = 0; i < NUM_CHOCOBO; i++) {
-        func_800A4888(i);
+        ChocoboUpdateRacer(i);
     }
     if (D_800B7A48.unk0) {
         func_800A6E50(1);
@@ -99,7 +99,7 @@ void ChocoboUpdateRanking(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/ch_racer", func_800A4888);
+INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/ch_racer", ChocoboUpdateRacer);
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/ch_racer", func_800A500C);
 
