@@ -94,7 +94,7 @@ typedef struct {
     /* 0x7E */ s16 unk7E;
     /* 0x80 */ s16 unk80;
     /* 0x82 */ s16 rank;
-    /* 0x84 */ u8 unk84[0x2];
+    /* 0x84 */ s16 unk84;
     /* 0x86 */ s16 unk86;
     /* 0x88 */ u8 unk88[0x8];
     /* 0x90 */ s16 unk90;
