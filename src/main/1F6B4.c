@@ -609,9 +609,6 @@ void HandleLoadCoinTexture(void) {
 // Savemap.memory_bank_2+0xC4. The endgame battle AI (Jenova-SYNTHESIS) counts how many of
 // these are 99 to scale Safer-Sephiroth's HP.
 
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SnapshotPartyLevels);
-#else
 void SnapshotPartyLevels(void) {
     s32 i;
     u16* present;
@@ -621,7 +618,6 @@ void SnapshotPartyLevels(void) {
         }
     }
 }
-#endif
 
 void HandleScalePartyHp(void) {
     LoadMenuOvl(YAMA_BGINMENU);
