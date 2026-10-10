@@ -115,10 +115,10 @@ void BatInitMain(s32 sceneID) {
 
         if (!(D_80062F88 & 4)) {
             D_80062F88 |= 4;
-            D_80075D04 = -1;
+            g_BatresSummary.displayExp[0] = -1;
         }
 
-        order = D_80075D08;
+        order = &g_BatresSummary.displayExp[1];
         prev = order - 1;
         mask = 1 << (g_BattleState.arenaRound * 6);
 
