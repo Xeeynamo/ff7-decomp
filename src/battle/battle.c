@@ -2122,9 +2122,47 @@ static void BattleLearnEnemySkill(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AB830);
+void func_800AB830(s32 arg0, s32 arg1) {
+    BattleQueueTargetEntry* entry;
+    s32 damage;
+    u16 flags = 1;
 
-void func_800AB830(s32, s32);
+    if (arg1 != 0) {
+        damage = g_BattleWork.turn[arg0].action09Data2;
+        g_BattleWork.turn[arg0].action09Data2 = 0;
+    } else {
+        damage = g_BattleWork.turn[arg0].action09Data1;
+        g_BattleWork.turn[arg0].action09Data1 = 0;
+    }
+
+    g_CurrentAction->targetId = arg0;
+    g_CurrentAction->damageFlags = arg1 != 0 ? 4 : 0;
+
+    if (damage < 0) {
+        damage = -damage;
+        g_CurrentAction->damageFlags |= 1;
+    }
+
+    if (BattleIsDamageNullified(arg0) != 0) {
+        damage = 0;
+    }
+
+    g_CurrentAction->tmpDamage = damage;
+    func_800AD0FC();
+
+    if (g_BattleState.combatant[arg0].status & STATUS_DEATH) {
+        flags |= 4;
+        g_CurrentAction->unk7C |= 1 << arg0;
+    }
+
+    entry = BattleQueue2GetPtr();
+    entry->targetId = arg0;
+    entry->attackerId = arg0;
+    entry->hurtAnimScript = 0x2E;
+    entry->flags = flags;
+    entry->targetStatus = g_BattleState.combatant[arg0].status;
+    BattleCreateImpactData(entry, g_CurrentAction->tmpDamage, g_CurrentAction->damageFlags, -1, -1);
+}
 
 static void func_800AB9C4(s32 arg0, s32 arg1) {
     BattleActionQueueEntry* temp_v0;
@@ -2727,7 +2765,7 @@ static s32 BattleAddSplitQuaterModifier(s32 arg0, s32 arg1) {
 
 // reduces arg0 by ~30% when Sadness (status bit 0x10, see D_800A03A0) is set
 // on the current action's status mask; same reduction as
-// BattleApplyConditionalReduction, gated on a different bit
+// BattleApplyFuryHitChanceReduction, gated on a different bit
 static s32 BattleApplySadnessReduction(s32 arg0) {
     if (g_CurrentAction->unk228 & 0x10) {
         arg0 -= (arg0 * 3) / 10;
@@ -3065,15 +3103,21 @@ void BattleUnitInitStatusTimer(s32 arg0, s32 statusBit, s32 arg2) {
 // this data belong to functions located above:
 const u8 g_StatusBitTable[] = {
     0x0A, 0x19, 0x15, 0x0D, 0x10, 0x11, 0x03, 0x02, 0x0F, 0x1B, 0x14, 0x18, 0xFF, 0xFF, 0xFF, 0xFF};
-int BattleUpperFunc00();
-int BattleUpperFunc01();
-static void BattleRollPhysicalHit(void);
+void BattleRollPhysicalHit();
+void BattleRollMagicalHit();
+static void BattleRollCriticalHit(void);
 static int BattleUpperFunc03();
 int BattleUpperFunc06();
 static void BattleUpperFunc07(void);
 int (* const g_BattleHitFormulaJmpTbl[])() = {
-    BattleUpperFunc00, BattleUpperFunc01, (void*)BattleRollPhysicalHit, BattleUpperFunc03, BattleUpperFunc03,
-    BattleUpperFunc03, BattleUpperFunc06, (void*)BattleUpperFunc07,
+    (void*)BattleRollPhysicalHit,
+    (void*)BattleRollMagicalHit,
+    (void*)BattleRollCriticalHit,
+    BattleUpperFunc03,
+    BattleUpperFunc03,
+    BattleUpperFunc03,
+    BattleUpperFunc06,
+    (void*)BattleUpperFunc07,
 };
 // ___end
 
@@ -3503,13 +3547,131 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0170);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0234);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpperFunc00);
+void BattleRollPhysicalHit(void) {
+    BattleUnit* attacker = &g_BattleState.combatant[g_CurrentAction->actorId];
+    s32 attackerDefPercent;
+    s32 targetDefPercent;
+    s32 baseHitChance;
+    s32 luckyRoll;
+    s32 hitChance;
+    s32 dexterity;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpperFunc01);
+    const s32 vulnerableStatusMask = STATUS_DEATH | STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_PETRIFY |
+                                     STATUS_MANIPULATE | STATUS_PARALYSIS;
 
-static s32 BattleGetRnd164(void);
-static void BattleRollPhysicalHit(void) {
-    s32 acc;
+    func_800B0C14();
+
+    hitChance = -1;
+    if (g_CurrentAction->unk234 & 1) {
+        hitChance = 255;
+    }
+
+    // Auto-hit on element Death-weakness, Auto-Hit weakness, Immune or Absorb
+    if (g_CurrentAction->unk230 & 0x63) {
+        hitChance = 255;
+    }
+
+    // Auto-hit if the target has a vulnerable status; sleep, confuse, and manipulate are removed on hit
+    if (g_CurrentAction->unk228 & vulnerableStatusMask) {
+        if (g_CurrentAction->unk228 & STATUS_SLEEP) {
+            g_CurrentAction->unk23C |= STATUS_SLEEP;
+        }
+        if (g_CurrentAction->unk228 & STATUS_CONFU) {
+            g_CurrentAction->unk23C |= STATUS_CONFU;
+        }
+        if (g_CurrentAction->unk228 & STATUS_MANIPULATE) {
+            g_CurrentAction->unk23C |= STATUS_MANIPULATE;
+        }
+        hitChance = 255;
+    }
+
+    if (g_CurrentAction->unk218 & 0x20) {
+        hitChance = 255;
+    }
+
+    dexterity = BattleApplyStatMult(g_CurrentAction->actorId, attacker->dexterity, STAT_MULT_DEXTERITY);
+    baseHitChance = g_CurrentAction->unk260 + dexterity / 4;
+    attackerDefPercent = BattleCalcDefPercent(g_CurrentAction->actorId);
+    targetDefPercent = BattleCalcDefPercent(g_CurrentAction->targetId);
+
+    // Calculate the actual hit chance if we haven't guaranteed a hit
+    // Hit% = ([Attacker's Dex / 4] + At%) + Attacker's Df% - Target's Df%
+    if (hitChance == -1) {
+        hitChance = (baseHitChance + attackerDefPercent) - targetDefPercent;
+
+        // Apply 30% reduction if the attacker has fury status
+        hitChance = BattleApplyFuryHitChanceReduction(hitChance);
+    }
+
+    // Floor is 1, but a value of 1 can never hit
+    if (hitChance <= 0) {
+        hitChance = 1;
+    }
+
+    // Calculate lucky hits (affects all) and evades (party only when attacked by enemy)
+    luckyRoll = SysGetRandomByteRange(100);
+    if (luckyRoll < (g_BattleState.combatant[g_CurrentAction->actorId].luck >> 2)) {
+        hitChance = 255;
+    } else if (g_CurrentAction->actorId >= START_ENEMY && (g_CurrentAction->targetId < NUM_PARTY) &&
+               (luckyRoll < (g_BattleState.combatant[g_CurrentAction->targetId].luck >> 2))) {
+        hitChance = 0;
+    }
+
+    // Roll for hit in range 1..100 inclusive
+    if (BattleGetRnd164() < hitChance) {
+        func_800B0DF8();
+        return;
+    }
+
+    // Mark a miss
+    g_CurrentAction->unk218 |= 1;
+}
+
+void BattleRollMagicalHit(void) {
+    s32 hitChance = g_CurrentAction->unk260;
+    s32 halfTargetLevel = g_BattleState.combatant[g_CurrentAction->targetId].level >> 1;
+    s32 levelAdjustment = g_CurrentAction->characterLevel - halfTargetLevel;
+    s32 evadeRoll = SysGetRandomByteRange(100);
+    s32 hitRoll = SysGetRandomByteRange(100) + 1;
+
+    const s32 vulnerableStatusMask =
+        STATUS_DEATH | STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_PETRIFY | STATUS_PARALYSIS;
+
+    // Auto-hit if the ability's MAt% is 255
+    if (hitChance >= 255) {
+        return;
+    }
+
+    // Auto-hit on element Death-weakness, Auto-Hit weakness, Immune or Absorb
+    if (g_CurrentAction->unk230 & 0x63) {
+        return;
+    }
+
+    // Auto-hit if the ability is reflectable and the target has Reflect
+    if (!(g_CurrentAction->unk6C & 0x200) && (g_CurrentAction->unk228 & STATUS_REFLECT)) {
+        return;
+    }
+
+    // Auto-hit if the ability inflicts no status and the target has a vulnerable status
+    if (!g_CurrentAction->unk80 && (g_CurrentAction->unk228 & vulnerableStatusMask)) {
+        return;
+    }
+
+    // Apply 30% reduction if the attacker has fury status
+    hitChance = BattleApplyFuryHitChanceReduction(hitChance);
+
+    // Finally must pass the check against target's m.evade and level-adjusted hit chance to hit
+    if (evadeRoll >= g_BattleState.combatant[g_CurrentAction->targetId].magEvade &&
+        hitRoll < hitChance + levelAdjustment) {
+        return;
+    }
+
+    // Mark a miss
+    g_CurrentAction->unk218 |= 1;
+}
+
+static void BattleRollCriticalHit(void) {
+    s32 critChance;
     s32 attacker;
     s32 target;
     s32 v;
@@ -3517,16 +3679,16 @@ static void BattleRollPhysicalHit(void) {
     attacker = g_CurrentAction->actorId;
     target = g_CurrentAction->targetId;
     if (!(g_CurrentAction->unk218 & 1)) {
-        acc = 0xFF;
-        if (!(g_CurrentAction->attackerStatus & 0x40000000)) {
+        critChance = 0xFF;
+        if (!(g_CurrentAction->attackerStatus & STATUS_LUCKY_GIRL)) {
             v = (g_CurrentAction->characterLevel + g_BattleState.combatant[attacker].luck) -
                 g_BattleState.combatant[target].level;
-            acc = v / 4;
+            critChance = v / 4;
             if (attacker < NUM_PARTY) {
-                acc += g_BattleWork.setup[attacker].criticalHitChance;
+                critChance += g_BattleWork.setup[attacker].criticalHitChance;
             }
         }
-        if (acc >= BattleGetRnd164()) {
+        if (critChance >= BattleGetRnd164()) {
             g_CurrentAction->damageFlags |= 2;
         }
     }
@@ -3545,15 +3707,15 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpperFunc06);
 
 static int BattleUpperFunc03(void) {}
 
-void func_800B0B94(s32 arg0) {
+s32 BattleCalcDefPercent(s32 arg0) {
     s32 evade;
 
-    if (arg0 < 4) {
+    if (arg0 < START_ENEMY) {
         evade = g_BattleState.combatant[arg0].dexterity / 4 + g_BattleState.combatant[arg0].physEvade;
     } else {
         evade = g_BattleState.combatant[arg0].physEvade;
     }
-    func_800B1218(arg0, evade, 4);
+    return BattleApplyStatMult(arg0, evade, STAT_MULT_PHYS_EVADE);
 }
 
 void func_800B0C14(void) {
@@ -3631,13 +3793,13 @@ static void func_800B0DF8(void) {
     }
 }
 
-// same ~30% reduction as BattleApplySadnessReduction, gated on a bit of unkC8
-// (not unk218)
-static s32 BattleApplyConditionalReduction(s32 arg0) {
-    if ((arg0 < 0xFF) && (g_CurrentAction->attackerStatus & 0x20)) {
-        arg0 -= (arg0 * 3) / 10;
+// Reduces hit chance by 30% if the attacker is afflicted by fury
+// Returns the reduced hit chance
+static s32 BattleApplyFuryHitChanceReduction(s32 hitChance) {
+    if ((hitChance < 0xFF) && (g_CurrentAction->attackerStatus & STATUS_FURY)) {
+        hitChance -= (hitChance * 3) / 10;
     }
-    return arg0;
+    return hitChance;
 }
 
 static s32 BattleUnitIsOnPartyTeam(s32 arg0) {
@@ -3713,10 +3875,12 @@ static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0) {
     return i;
 }
 
-static s32 func_800B1218(s32 arg0, s32 arg1, s32 arg2) {
-    s32 mult = g_BattleWork.turn[arg0].statMults[arg2];
+// Applies the stat multiplier for the given value and returns it
+// statIndex: BattleStatMultIndex
+static s32 BattleApplyStatMult(s32 arg0, s32 value, s32 statIndex) {
+    s32 mult = g_BattleWork.turn[arg0].statMults[statIndex];
 
-    return arg1 + ((arg1 * mult) / 100);
+    return value + ((value * mult) / 100);
 }
 
 // adds deltaPct to each stat multiplier selected by statMask (bit i = index into statMults), clamped to +-100

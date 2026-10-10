@@ -493,99 +493,100 @@ typedef struct {
 } MainMenuColorLabels;
 
 typedef struct {
-    s32 actorId;
-    s32 characterLevel;
-    s32 unk8;
-    s32 unkC;
-    s32 relativeActionIndex; // index within its own category (spell #, summon
-                             // #, etc) -- see D_800A0290 in battle.c
-    s32 unk14;
-    s32 allowedTargetsMask;
-    s32 unk1C;
-    s32 unk20; // pending message/animation id, -1 = none
-    s32 unk24;
-    s32 cmdIndex;
-    s32 absoluteActionIndex; // relativeActionIndex remapped into the single
-                             // shared spell/summon/enemy-skill/limit name
-                             // table (kernel.bin section 18) via
-                             // D_800A0290's per-category base offset
-    s32 unk30;
-    u8 unk34[4]; // character spacing array
-    s32 unk38;
-    s32 unk3C;
-    s32 unk40;
-    s32 elements;
-    s32 power;
-    s32 attackStat;
-    s32 targetFlags;
-    s32 unk54;
-    s32 unk58;
-    s32 unk5C;
-    s32 unk60;
-    s32 unk64;
-    s32 unk68;
-    s32 unk6C;
-    s32 unk70;
-    s32 unk74;
-    s32 unk78;
-    s32 unk7C;
-    s32 unk80;
-    s32 unk84;
-    s32 unk88;
-    s32 unk8C;
-    s32 unk90;
-    s32 unk94;
-    s32 unk98;
-    s32 unk9C;
-    s32 unkA0;
-    s32 unkA4;
-    s32 unkA8;
-    s32 unkAC;
-    s32 unkB0;
-    s32 unkB4;
-    s32 unkB8;
-    s32 unkBC;
-    s32 unkC0;
-    s32 unkC4;
-    s32 attackerStatus;
-    s32 unkCC;
-    u8 unkD0[8];
-    s32 unkD8;
-    s32 unkDC;
-    s32 unkE0;
-    s32 unkE4;
-    s32 unkE8;
-    s32 unkEC;
-    s32 unkF0;
-    s32 unkF4;
-    s32 unkF8;
-    s32 unkFC;
-    s32 unk100[0x40];
-    void* unk200;
-    void* unk204;
-    s32 targetId;
-    s32 unk20C;
-    s32 targetDefense;
-    s32 tmpDamage;
-    s32 unk218;
-    s32 unk21C;
-    s32 damageFlags;
-    s32 unk224;
-    u32 unk228;
-    s32 unk22C;
-    s32 unk230;
-    s32 unk234;
-    s32 unk238;
-    s32 unk23C;
-    s32 unk240;
-    s32 unk244;
-    s32 unk248;
-    s32 unk24C;
-    s32 unk250;
-    s32 unk254;
-    s32 unk258;
-    s32 unk25C;
-} Unk800A8D04; // size: ???
+    /* 0x000 */ s32 actorId;
+    /* 0x004 */ s32 characterLevel;
+    /* 0x008 */ s32 unk8;
+    /* 0x00C */ s32 unkC;
+    /* 0x010 */ s32 relativeActionIndex; // index within its own category (spell #, summon
+                                         // #, etc) -- see D_800A0290 in battle.c
+    /* 0x014 */ s32 unk14;
+    /* 0x018 */ s32 allowedTargetsMask;
+    /* 0x01C */ s32 unk1C;
+    /* 0x020 */ s32 unk20; // pending message/animation id, -1 = none
+    /* 0x024 */ s32 unk24;
+    /* 0x028 */ s32 cmdIndex;
+    /* 0x02C */ s32 absoluteActionIndex; // relativeActionIndex remapped into the single
+                                         // shared spell/summon/enemy-skill/limit name
+                                         // table (kernel.bin section 18) via
+                                         // D_800A0290's per-category base offset
+    /* 0x030 */ s32 unk30;
+    /* 0x034 */ u8 unk34[4]; // character spacing array
+    /* 0x038 */ s32 unk38;
+    /* 0x03C */ s32 unk3C;
+    /* 0x040 */ s32 unk40;
+    /* 0x044 */ s32 elements;
+    /* 0x048 */ s32 power;
+    /* 0x04C */ s32 attackStat;
+    /* 0x050 */ s32 targetFlags;
+    /* 0x054 */ s32 unk54;
+    /* 0x058 */ s32 unk58;
+    /* 0x05C */ s32 unk5C;
+    /* 0x060 */ s32 unk60;
+    /* 0x064 */ s32 unk64;
+    /* 0x068 */ s32 unk68;
+    /* 0x06C */ s32 unk6C;
+    /* 0x070 */ s32 unk70;
+    /* 0x074 */ s32 unk74;
+    /* 0x078 */ s32 unk78;
+    /* 0x07C */ s32 unk7C;
+    /* 0x080 */ s32 unk80;
+    /* 0x084 */ s32 unk84;
+    /* 0x088 */ s32 unk88;
+    /* 0x08C */ s32 unk8C;
+    /* 0x090 */ s32 unk90;
+    /* 0x094 */ s32 unk94;
+    /* 0x098 */ s32 unk98;
+    /* 0x09C */ s32 unk9C;
+    /* 0x0A0 */ s32 unkA0;
+    /* 0x0A4 */ s32 unkA4;
+    /* 0x0A8 */ s32 unkA8;
+    /* 0x0AC */ s32 unkAC;
+    /* 0x0B0 */ s32 unkB0;
+    /* 0x0B4 */ s32 unkB4;
+    /* 0x0B8 */ s32 unkB8;
+    /* 0x0BC */ s32 unkBC;
+    /* 0x0C0 */ s32 unkC0;
+    /* 0x0C4 */ s32 unkC4;
+    /* 0x0C8 */ s32 attackerStatus;
+    /* 0x0CC */ s32 unkCC;
+    /* 0x0D0 */ u8 unkD0[8];
+    /* 0x0D8 */ s32 unkD8;
+    /* 0x0DC */ s32 unkDC;
+    /* 0x0E0 */ s32 unkE0;
+    /* 0x0E4 */ s32 unkE4;
+    /* 0x0E8 */ s32 unkE8;
+    /* 0x0EC */ s32 unkEC;
+    /* 0x0F0 */ s32 unkF0;
+    /* 0x0F4 */ s32 unkF4;
+    /* 0x0F8 */ s32 unkF8;
+    /* 0x0FC */ s32 unkFC;
+    /* 0x100 */ s32 unk100[0x40];
+    /* 0x200 */ void* unk200;
+    /* 0x204 */ void* unk204;
+    /* 0x208 */ s32 targetId;
+    /* 0x20C */ s32 unk20C;
+    /* 0x210 */ s32 targetDefense;
+    /* 0x214 */ s32 tmpDamage;
+    /* 0x218 */ s32 unk218;
+    /* 0x21C */ s32 unk21C;
+    /* 0x220 */ s32 damageFlags;
+    /* 0x224 */ s32 unk224;
+    /* 0x228 */ u32 unk228;
+    /* 0x22C */ s32 unk22C;
+    /* 0x230 */ s32 unk230;
+    /* 0x234 */ s32 unk234;
+    /* 0x238 */ s32 unk238;
+    /* 0x23C */ s32 unk23C;
+    /* 0x240 */ s32 unk240;
+    /* 0x244 */ s32 unk244;
+    /* 0x248 */ s32 unk248;
+    /* 0x24C */ s32 unk24C;
+    /* 0x250 */ s32 unk250;
+    /* 0x254 */ s32 unk254;
+    /* 0x258 */ s32 unk258;
+    /* 0x25C */ s32 unk25C;
+    /* 0x260 */ s32 unk260;
+} Unk800A8D04; // size: 0x264
 
 // Targeting byte shared by weapons, magic, items and battle commands.
 // Bit meanings per https://ff7-mods.github.io/ff7-flat-wiki/FF7/Battle/Targeting_Data.html
