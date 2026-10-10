@@ -554,11 +554,6 @@ static void SetNotificationText(u8* text) {
     }
 }
 
-// Currently sitting at 99.93% matching
-#ifndef NON_MATCHING
-INCLUDE_ASM("asm/us/menu/nonmatchings/itemmenu", ITEMMENU_Main);
-#else
-
 typedef struct {
     s16 unk0;
     s16 unk2;
@@ -945,12 +940,16 @@ char ITEMMENU_Main(s32 arg0) {
         if (var_s6 != 0) {
             var_s5 *= 0x12;
             do {
+                u16 item;
+                s32 itemWord;
+                s32 count;
+
                 var_s1_2 = (*((s16*)((((u8*)g_ItemMenuWidgets) + 2) + var_s5))) + var_s2_4;
-                temp_v1_3 = *(D_8009CBE0 + var_s1_2);
-                var_s1_2 = temp_v1_3 & 0xFFFF;
-                if (var_s1_2 != 0xFFFF) {
-                    var_s4 = temp_v1_3 & 0x1FF;
-                    var_s1_2 = (s32)(((u32)var_s1_2) >> 9);
+                item = *(D_8009CBE0 + var_s1_2);
+                itemWord = item & 0xFFFF;
+                if (itemWord != 0xFFFF) {
+                    var_s4 = item & 0x1FF;
+                    count = (u32)itemWord >> 9;
                     new_var19 = func_801D0DCC(var_s4) & 4;
                     var_s3 = (-(new_var19 == 0)) & 7;
                     ((void (*)())ITEMMENU_DrawItemTypeIcon)(
@@ -958,8 +957,7 @@ char ITEMMENU_Main(s32 arg0) {
                     SysMenuDrawSingleFontLetter(
                         0x13F, (s32)(((s8*)(var_s2_4 * 0x10)) + ((D_801D3DEB[var_s5] * 4) + 0x3C)), 0xD5, var_s3);
                     SysMenuDrawDigitsWithoutLeadingZeroes(
-                        0x140, (s32)(((s8*)(var_s2_4 * 0x10)) + ((D_801D3DEB[var_s5] * 4) + 0x3B)), var_s1_2, 3,
-                        var_s3);
+                        0x140, (s32)(((s8*)(var_s2_4 * 0x10)) + ((D_801D3DEB[var_s5] * 4) + 0x3B)), count, 3, var_s3);
                 }
                 var_s2_4 += 1;
             } while (var_s2_4 < var_s6);
@@ -1560,7 +1558,6 @@ char ITEMMENU_Main(s32 arg0) {
         }
     }
 }
-#endif
 
 static void ITEMMENU_Noop(void) {}
 
