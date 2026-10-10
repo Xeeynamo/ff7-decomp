@@ -597,26 +597,6 @@ s32 func_801D0D24(u8);
 s32 func_801D0DCC(s32);
 void func_801D0E4C(s32*);
 
-extern u8 D_8009C740[];
-extern u8 D_8009C744[];
-extern u8 D_8009C757[];
-extern u16 D_8009C75A[];
-extern s8 D_8009CA50;
-extern s8 D_8009CA51;
-extern s8 D_8009CA5E;
-extern u8 D_8009CA5F;
-extern s32 D_8009CA8C;
-extern s8 D_8009CAD4;
-extern s8 D_8009CAD5;
-extern s8 D_8009CAE2;
-extern u8 D_8009CAE3;
-extern s32 D_8009CB10;
-extern u8 D_8009CBCF[];
-extern u8 D_8009CBDC[];
-extern u16 D_8009CBE0[];
-extern u8 D_8009D5E8;
-extern s16 D_8009D85C[];
-extern s16 D_8009D85E[];
 extern s32 D_801D3282;
 extern s32 D_801D3590;
 extern s32 D_801D3CD4;
@@ -624,13 +604,10 @@ extern s32 D_801D3CF8;
 extern unsigned char D_801D3D25[];
 extern s32 D_801D3D5C;
 extern RECT D_801D3D74;
-extern s16 D_801D3D76;
 extern s32 D_801D3D84;
 extern s32 D_801D3D88;
 extern s32 D_801D3D8C;
 extern unsigned char D_801D3DE4[];
-extern s8 D_801D3DE6;
-extern s8 D_801D3DEB[];
 extern s16 D_801D3DF0;
 extern s16 D_801D3DF6;
 extern s8 D_801D3DF9[];
@@ -663,26 +640,19 @@ char ITEMMENU_Main(s32 arg0) {
     s32* var_a0_2;
     s8* var_s1_3;
     s8* var_s1_4;
-    s32 temp_a0_10;
     s8* var_s2;
     int new_var6;
     unsigned char new_var11;
     short new_var13;
     s32 var_a0;
-    s32 temp_a0_11;
     s32 temp_a0_4;
     s32 temp_a0_5;
-    s32 temp_a0_6;
-    s32 temp_a0_7;
-    s32 temp_a0_8;
-    s32 temp_a0_9;
     s8* new_var16;
     s32 var_s0_2;
     s32 temp_s1_2;
     s32 temp_s3_2;
     s32 temp_v1;
     s32 temp_v1_2;
-    s32 temp_v1_6;
     s8* var_s0;
     // s32 temp_e5c;
     MenuTable* new_var5;
@@ -748,7 +718,7 @@ char ITEMMENU_Main(s32 arg0) {
     if (g_ItemMenuCurrentScreen == 2) {
         // temp_e5c = D_801D3E5C;
         if (D_801D3E5C == 0) {
-            temp_v1 = D_8009CBE0[D_801D3DF9[0] + D_801D3DF0] & 0x1FF;
+            temp_v1 = Savemap.inventory[D_801D3DF9[0] + D_801D3DF0] & 0x1FF;
             if (((temp_v1 == 6) || (temp_v1 == 0x46)) != 0) {
                 var_v0_2 = arg0;
                 var_v0_2 = var_v0_2 % 3;
@@ -768,12 +738,12 @@ char ITEMMENU_Main(s32 arg0) {
     SysMenuUnkNoop(0x80);
     switch (g_ItemMenuCurrentScreen) {
     case 0:
-        SysMenuDrawCursor((D_801D3DE6 * 0x38) + 8, 0xC);
+        SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
         break;
 
     case 1:
         if (arg0 & 2) {
-            SysMenuDrawCursor((D_801D3DE6 * 0x38) + 8, 0xC);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
         }
         SysMenuDrawCursor(0xA9, (D_801D3DF9[0] * 0x10) + 0x3C);
         var_s4 = D_801D3DF9[0] + D_801D3DF0;
@@ -781,14 +751,14 @@ char ITEMMENU_Main(s32 arg0) {
 
     case 2:
         if (arg0 & 2) {
-            SysMenuDrawCursor((D_801D3DE6 * 0x38) + 8, 0xC);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
         }
         var_s4 = D_801D3DF9[0] + D_801D3DF0;
         goto block_33;
 
     case 3:
         if (arg0 & 2) {
-            SysMenuDrawCursor((D_801D3DE6 * 0x38) + 8, 0xC);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
         }
         SysMenuDrawCursor((D_801D3E1C[0] * 0xA6) + 3, (D_801D3E1D * 0x10) + 0x3C);
         new_var14 = 0xFF;
@@ -804,7 +774,7 @@ char ITEMMENU_Main(s32 arg0) {
 
     case 4:
         if (arg0 & 2) {
-            SysMenuDrawCursor((D_801D3DE6 * 0x38) + 8, 0xC);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
         }
         var_s0 = 0;
         temp_a0_4 = D_801D3D74.x;
@@ -829,11 +799,11 @@ char ITEMMENU_Main(s32 arg0) {
 
     case 5:
         if (arg0 & 2) {
-            SysMenuDrawCursor((D_801D3DE6 * 0x38) + 8, 0xC);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
         }
         var_s4 = D_801D3E41[0] + D_801D3E38;
     block_33:
-        var_a1 = D_8009CBE0[var_s4];
+        var_a1 = Savemap.inventory[var_s4];
 
         var_a0 = 4;
         if ((var_a1 & 0xFFFF) != 0xFFFF) {
@@ -850,7 +820,7 @@ char ITEMMENU_Main(s32 arg0) {
     sp40[3] = 0x100;
     SysMenuSetDrawMode(0, 1, 0x7F, sp40);
     var_s1_2 = 0xD;
-    if (D_801D3DE6 != 2) {
+    if (g_ItemMenuWidgets[0].column != 2) {
         var_s0 = 0;
         var_s6 = 0x30;
         var_s5 = 0x100;
@@ -858,7 +828,7 @@ char ITEMMENU_Main(s32 arg0) {
         var_s3 = 0x36;
         var_s2 = (s8*)0x3B;
         do {
-            if (D_8009CBCF[var_s1_2] != 0xFF) {
+            if (((u8*)&Savemap.partyID[0] - 0xD)[var_s1_2] != 0xFF) {
                 SysMenuDrawCharNameLvHpMpByPartyId(0x50, (s32)var_s2, (s32)var_s0);
                 SysMenuDrawAvatar(0x16, var_s3, 0x30, 0x30, 0, var_s4, var_s6, var_s6, var_s1_2, 0);
                 sp40[0] = 0;
@@ -890,7 +860,7 @@ char ITEMMENU_Main(s32 arg0) {
     sp40[0] = 0;
     sp40[1] = 0;
     SysMenuSetDrawenv((void*)(((u8*)D_800706A4) + (g_MenuRenderBufferIndex * 0x5C)), sp40);
-    if (D_801D3DE6 != 2) {
+    if (g_ItemMenuWidgets[0].column != 2) {
         if (g_ItemMenuCurrentScreen == 5) {
             if ((D_801D3D84 != 0) && (arg0 & 2)) {
                 temp_v1_2 = ((D_801D3D8C - D_801D3E38) * 0x10) + (D_801D3E45 * 4);
@@ -926,12 +896,13 @@ char ITEMMENU_Main(s32 arg0) {
             do {
                 new_var6 = 0x3A;
                 var_s1 = (*((s16*)((((u8*)g_ItemMenuWidgets) + 2) + ((s32)var_s0)))) + var_s2_4;
-                temp_a0 = *(D_8009CBE0 - (-var_s1));
+                temp_a0 = *(Savemap.inventory - (-var_s1));
                 if ((temp_a0 & 0xFFFF) != 0xFFFF) {
                     var_s4 = temp_a0 & 0x1FF;
                     var_s3 = (-((func_801D0DCC(var_s4) & 4) == 0)) & 7;
-                    SysMenuDrawString(0xD6, (var_s2_4 * 0x10) + ((D_801D3DEB[(s32)var_s0] * 4) + new_var6),
-                                      SysKernGetString(4, var_s4, 8), var_s3);
+                    SysMenuDrawString(
+                        0xD6, (var_s2_4 * 0x10) + (((&g_ItemMenuWidgets[0].scrollAnimY)[(s32)var_s0] * 4) + new_var6),
+                        SysKernGetString(4, var_s4, 8), var_s3);
                 }
                 var_s2_4 += 1;
             } while (var_s2_4 < var_s6);
@@ -945,7 +916,7 @@ char ITEMMENU_Main(s32 arg0) {
                 s32 count;
 
                 var_s1_2 = (*((s16*)((((u8*)g_ItemMenuWidgets) + 2) + var_s5))) + var_s2_4;
-                item = *(D_8009CBE0 + var_s1_2);
+                item = *(Savemap.inventory + var_s1_2);
                 itemWord = item & 0xFFFF;
                 if (itemWord != 0xFFFF) {
                     var_s4 = item & 0x1FF;
@@ -953,11 +924,16 @@ char ITEMMENU_Main(s32 arg0) {
                     new_var19 = func_801D0DCC(var_s4) & 4;
                     var_s3 = (-(new_var19 == 0)) & 7;
                     ((void (*)())ITEMMENU_DrawItemTypeIcon)(
-                        0xC4, ((s8*)(var_s2_4 * 0x10)) + ((D_801D3DEB[var_s5] * 4) + 0x38), var_s4, 0);
+                        0xC4, ((s8*)(var_s2_4 * 0x10)) + (((&g_ItemMenuWidgets[0].scrollAnimY)[var_s5] * 4) + 0x38),
+                        var_s4, 0);
                     SysMenuDrawSingleFontLetter(
-                        0x13F, (s32)(((s8*)(var_s2_4 * 0x10)) + ((D_801D3DEB[var_s5] * 4) + 0x3C)), 0xD5, var_s3);
+                        0x13F,
+                        (s32)(((s8*)(var_s2_4 * 0x10)) + (((&g_ItemMenuWidgets[0].scrollAnimY)[var_s5] * 4) + 0x3C)),
+                        0xD5, var_s3);
                     SysMenuDrawDigitsWithoutLeadingZeroes(
-                        0x140, (s32)(((s8*)(var_s2_4 * 0x10)) + ((D_801D3DEB[var_s5] * 4) + 0x3B)), count, 3, var_s3);
+                        0x140,
+                        (s32)(((s8*)(var_s2_4 * 0x10)) + (((&g_ItemMenuWidgets[0].scrollAnimY)[var_s5] * 4) + 0x3B)),
+                        count, 3, var_s3);
                 }
                 var_s2_4 += 1;
             } while (var_s2_4 < var_s6);
@@ -1018,7 +994,7 @@ char ITEMMENU_Main(s32 arg0) {
         case 0:
             if (g_Pad0KeysPressed & 0x20) {
                 PlayItemMenuSfx(SFX_MENU_CURSOR_MOVE);
-                new_var5 = (MenuTable*)(&D_801D3DE6);
+                new_var5 = (MenuTable*)(&g_ItemMenuWidgets[0].column);
                 switch (*((s8*)new_var5)) {
                 case 0:
                     g_ItemMenuCurrentScreen = 1;
@@ -1049,27 +1025,27 @@ char ITEMMENU_Main(s32 arg0) {
             if (D_801D3DF6 == 0) {
                 if (g_Pad0KeysPressed & 0x20) {
                     var_s4 = D_801D3DF9[0] + D_801D3DF0;
-                    temp_a0_2 = D_8009CBE0[var_s4];
+                    temp_a0_2 = Savemap.inventory[var_s4];
                     if (((temp_a0_2 & 0xFFFF) != 0xFFFF) && (!(func_801D0DCC(var_s4 = temp_a0_2 & 0x1FF) & 4))) {
                         if (var_s4 != 0x62) {
                             if (var_s4 == 0x67) {
                                 PlayItemMenuSfx(SFX_MENU_APPLY);
-                                D_8009CA51 = 1;
-                                D_8009CA5E = 1;
-                                D_8009CA50 = 6;
-                                D_8009CA5F = 0xFF;
-                                D_8009CA8C = 0xFFFFFF;
-                                D_8009CAD5 = 1;
-                                D_8009CAD4 = 7;
-                                D_8009CAE2 = 1;
-                                D_8009CAE3 = 0xFF;
-                                D_8009CB10 = 0xFFFFFF;
+                                Savemap.party[6].level = 1;
+                                Savemap.party[6].limit_level = 1;
+                                Savemap.party[6].char_id = 6;
+                                Savemap.party[6].limit_charge = 0xFF;
+                                Savemap.party[6].exp = 0xFFFFFF;
+                                Savemap.party[7].level = 1;
+                                Savemap.party[7].char_id = 7;
+                                Savemap.party[7].limit_level = 1;
+                                Savemap.party[7].limit_charge = 0xFF;
+                                Savemap.party[7].exp = 0xFFFFFF;
                                 return;
                             }
                             goto block_e48;
                         }
                         PlayItemMenuSfx(SFX_MENU_APPLY);
-                        D_8009D5E8 |= 1;
+                        Savemap.memory_bank_4[0x60] |= 1;
                         SysMenuSetMenuListAnimation(5, 0);
                         SysMenuLoadMenuFileById(0);
                         SysMenuClose();
@@ -1092,8 +1068,8 @@ char ITEMMENU_Main(s32 arg0) {
         case 2:
             if (D_801D3E5C == 0) {
                 if (g_Pad0KeysPressed & 0x20) {
-                    temp_a0_4 = D_8009CBDC[D_801D3E0B[0]];
-                    var_s4 = D_8009CBE0[D_801D3DF9[0] + D_801D3DF0] & 0x1FF;
+                    temp_a0_4 = Savemap.partyID[D_801D3E0B[0]];
+                    var_s4 = Savemap.inventory[D_801D3DF9[0] + D_801D3DF0] & 0x1FF;
                     new_var4 = var_s4 < 0x5FU;
                     temp_a0_3 = temp_a0_4;
                     var_v0_4 = new_var4;
@@ -1107,14 +1083,14 @@ char ITEMMENU_Main(s32 arg0) {
                         switch (var_s4) {
                         case 0xD:
                             temp_a0_4 = temp_a0_3 * 0x84;
-                            temp_v1_4 = D_8009C757[temp_a0_4];
+                            temp_v1_4 = (&Savemap.party[0].status_flags)[temp_a0_4];
                             if (!(temp_v1_4 & 0x20)) {
                                 if (!(temp_v1_4 & 0x10)) {
                                     var_v0_5 = temp_v1_4 | 0x20;
                                 } else {
                                     var_v0_5 = temp_v1_4 & 0xEF;
                                 }
-                                D_8009C757[temp_a0_4] = var_v0_5;
+                                (&Savemap.party[0].status_flags)[temp_a0_4] = var_v0_5;
                                 PlayItemMenuSfx(SFX_MENU_APPLY);
                                 SysMenuRemoveItem(var_s4 | 0x200);
                                 if ((SysMenuSearchItem(var_s4) & 0xFFFF) != 0xFFFF) {
@@ -1131,12 +1107,12 @@ char ITEMMENU_Main(s32 arg0) {
                         case 0xE:
                             temp_a0_5 = temp_a0_3;
                             temp_a0_5 *= 0x84;
-                            temp_v1_5 = D_8009C757[temp_a0_5];
+                            temp_v1_5 = (&Savemap.party[0].status_flags)[temp_a0_5];
                             region_e_cond = 0x20;
                             region_e_cond = (temp_v1_5 & region_e_cond) != 0;
                             if (region_e_cond || ((temp_v1_5 & 0x10) == 0)) {
                                 var_v0_6 = (region_e_cond) ? (temp_v1_5 & 0xDF) : (temp_v1_5 | 0x10);
-                                D_8009C757[temp_a0_5] = var_v0_6;
+                                (&Savemap.party[0].status_flags)[temp_a0_5] = var_v0_6;
                                 PlayItemMenuSfx(SFX_MENU_APPLY);
                                 SysMenuRemoveItem(var_s4 | 0x200);
                                 if ((SysMenuSearchItem(var_s4) & 0xFFFF) != 0xFFFF) {
@@ -1168,9 +1144,7 @@ char ITEMMENU_Main(s32 arg0) {
                             if (temp_a0_3 == D_801D3D25[var_s4]) {
                                 if (func_801D0D24(temp_a0_3) != 0) {
                                     PlayItemMenuSfx(SFX_MENU_SET);
-                                    temp_v1_6 = D_801D3D25[var_s4] * 0x84;
-                                    *((u16*)(((u8*)D_8009C75A) + temp_v1_6)) =
-                                        (*((u16*)(((u8*)D_8009C75A) + temp_v1_6))) | 0x200;
+                                    Savemap.party[D_801D3D25[var_s4]].limit_learn |= 0x200;
                                     SysMenuRemoveItem(var_s4 | 0x200);
                                     ;
                                     if ((SysMenuSearchItem(var_s4) & 0xFFFF) == 0xFFFF) {
@@ -1215,10 +1189,9 @@ char ITEMMENU_Main(s32 arg0) {
                         case 0x4C:
                             switch (var_s4) {
                             case 0x47:
-                                temp_a0_6 = temp_a0_3 * 0x84;
-                                temp_v1_7 = D_8009C740[temp_a0_6];
+                                temp_v1_7 = Savemap.party[temp_a0_3].strength_bonus;
                                 if (temp_v1_7 < 0xFFU) {
-                                    D_8009C740[temp_a0_6] = temp_v1_7 - (-1);
+                                    Savemap.party[temp_a0_3].strength_bonus = temp_v1_7 - (-1);
                                 default:
                                     goto src_tail;
 
@@ -1229,10 +1202,9 @@ char ITEMMENU_Main(s32 arg0) {
                                 break;
 
                             case 0x48:
-                                temp_a0_7 = 33 * (4 * temp_a0_3);
-                                temp_v1_8 = D_8009C740[1 + temp_a0_7];
+                                temp_v1_8 = Savemap.party[temp_a0_3].vitality_bonus;
                                 if (temp_v1_8 < 0xFFU) {
-                                    D_8009C740[1 + temp_a0_7] = temp_v1_8 + 1;
+                                    Savemap.party[temp_a0_3].vitality_bonus = temp_v1_8 + 1;
                                     goto src_tail;
                                     PlayItemMenuSfx(SFX_MENU_BAD);
                                 }
@@ -1240,40 +1212,36 @@ char ITEMMENU_Main(s32 arg0) {
                                 return;
 
                             case 0x49:
-                                temp_a0_8 = temp_a0_3 * 0x84;
-                                temp_v1_9 = D_8009C740[2 + temp_a0_8];
+                                temp_v1_9 = Savemap.party[temp_a0_3].magic_bonus;
                                 if (temp_v1_9 < 0xFFU) {
-                                    D_8009C740[2 + temp_a0_8] = temp_v1_9 + 1;
+                                    Savemap.party[temp_a0_3].magic_bonus = temp_v1_9 + 1;
                                     goto src_tail;
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
 
                             case 0x4A:
-                                temp_a0_9 = temp_a0_3 * 0x84;
-                                temp_v1_10 = D_8009C740[3 + temp_a0_9];
+                                temp_v1_10 = Savemap.party[temp_a0_3].spirit_bonus;
                                 if (temp_v1_10 < 0xFFU) {
-                                    D_8009C740[3 + temp_a0_9] = temp_v1_10 + 1;
+                                    Savemap.party[temp_a0_3].spirit_bonus = temp_v1_10 + 1;
                                     goto src_tail;
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
 
                             case 0x4B:
-                                temp_a0_10 = temp_a0_3 * 0x84;
-                                temp_v1_11 = D_8009C744[temp_a0_10];
+                                temp_v1_11 = Savemap.party[temp_a0_3].dexterity_bonus;
                                 if (temp_v1_11 < 0xFFU) {
-                                    D_8009C744[temp_a0_10] = temp_v1_11 + 1;
+                                    Savemap.party[temp_a0_3].dexterity_bonus = temp_v1_11 + 1;
                                     goto src_tail;
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
 
                             case 0x4C:
-                                temp_a0_11 = temp_a0_3 * 0x84;
-                                temp_v1_12 = D_8009C744[1 + temp_a0_11];
+                                temp_v1_12 = Savemap.party[temp_a0_3].luck_bonus;
                                 if (temp_v1_12 < 0xFFU) {
-                                    D_8009C744[1 + temp_a0_11] = temp_v1_12 + 1;
+                                    Savemap.party[temp_a0_3].luck_bonus = temp_v1_12 + 1;
                                 src_tail:
                                     PlayItemMenuSfx(SFX_MENU_APPLY);
 
@@ -1293,8 +1261,7 @@ char ITEMMENU_Main(s32 arg0) {
                             break;
 
                         case 0x0:
-                            if ((func_801D0CAC(D_801D3E0B[0]) == 0) &&
-                                ((*((s16*)(((u8*)D_8009D85C) + (D_801D3E0B[0] * 0x440)))) != 0)) {
+                            if ((func_801D0CAC(D_801D3E0B[0]) == 0) && (g_ActiveCharacters[D_801D3E0B[0]].hp != 0)) {
                                 PlayItemMenuSfx(SFX_MENU_APPLY);
                                 SystemMenuAddHpByPartyId(D_801D3E0B[0], 0x64);
                                 SysMenuRemoveItem(var_s4 | 0x200);
@@ -1310,8 +1277,7 @@ char ITEMMENU_Main(s32 arg0) {
                             break;
 
                         case 0x1:
-                            if ((func_801D0CAC(D_801D3E0B[0]) == 0) &&
-                                ((*((s16*)(((u8*)D_8009D85C) + (D_801D3E0B[0] * 0x440)))) != 0)) {
+                            if ((func_801D0CAC(D_801D3E0B[0]) == 0) && (g_ActiveCharacters[D_801D3E0B[0]].hp != 0)) {
                                 PlayItemMenuSfx(SFX_MENU_APPLY);
                                 SystemMenuAddHpByPartyId(D_801D3E0B[0], 0x1F4);
                                 SysMenuRemoveItem(var_s4 | 0x200);
@@ -1329,7 +1295,7 @@ char ITEMMENU_Main(s32 arg0) {
                         case 0x3:
                             temp_s3 = func_801D0CE8(D_801D3E0B[0]) == 0;
                             var_s2_4 = (new_var7 = 0);
-                            if (temp_s3 && ((*((s16*)(((u8*)D_8009D85C) + (D_801D3E0B[var_s2_4] * 0x440)))) != 0)) {
+                            if (temp_s3 && (g_ActiveCharacters[D_801D3E0B[var_s2_4]].hp != 0)) {
                                 PlayItemMenuSfx(SFX_MENU_APPLY);
                                 SystemMenuAddMpByPartyId(D_801D3E0B[0], 0x64);
                                 SysMenuRemoveItem(var_s4 | 0x200);
@@ -1345,8 +1311,7 @@ char ITEMMENU_Main(s32 arg0) {
                             break;
 
                         case 0x4:
-                            if ((func_801D0CE8(D_801D3E0B[0]) == 0) &&
-                                ((*((s16*)(((u8*)D_8009D85C) + (D_801D3E0B[0] * 0x440)))) != 0)) {
+                            if ((func_801D0CE8(D_801D3E0B[0]) == 0) && (g_ActiveCharacters[D_801D3E0B[0]].hp != 0)) {
                                 PlayItemMenuSfx(SFX_MENU_APPLY);
                                 SystemMenuAddMpByPartyId(D_801D3E0B[0], 0x2710);
                                 SysMenuRemoveItem(var_s4 | 0x200);
@@ -1362,10 +1327,9 @@ char ITEMMENU_Main(s32 arg0) {
                             break;
 
                         case 0x7:
-                            if ((*((s16*)(((u8*)D_8009D85C) + (0x440 * D_801D3E0B[0])))) == 0) {
+                            if (g_ActiveCharacters[D_801D3E0B[0]].hp == 0) {
                                 PlayItemMenuSfx(SFX_MENU_APPLY);
-                                SystemMenuAddHpByPartyId(
-                                    D_801D3E0B[0], (*((s16*)(((u8*)D_8009D85E) + (D_801D3E0B[0] * 0x440)))) / 4);
+                                SystemMenuAddHpByPartyId(D_801D3E0B[0], g_ActiveCharacters[D_801D3E0B[0]].baseHp / 4);
                                 SysMenuRemoveItem(var_s4 | 0x200);
                                 if ((SysMenuSearchItem(var_s4) & 0xFFFF) != 0xFFFF) {
                                     return;
@@ -1384,7 +1348,7 @@ char ITEMMENU_Main(s32 arg0) {
                             if (var_s4) {
                             }
                             do {
-                                if ((D_8009CBDC[(s32)var_s0] != 0xFF) &&
+                                if ((Savemap.partyID[(s32)var_s0] != 0xFF) &&
                                     ((func_801D0CAC((s32)var_s0) == 0) || (func_801D0CE8((s32)var_s0) == 0))) {
                                     var_s1_5 = 1;
                                 }
@@ -1395,8 +1359,8 @@ char ITEMMENU_Main(s32 arg0) {
                                 new_var15 = 0xFF;
                                 var_s1_5 = 0;
                                 do {
-                                    if (((*((s16*)(((u8*)D_8009D85C) + var_s1_5))) != 0) &&
-                                        (D_8009CBDC[(s32)var_s0] != new_var15)) {
+                                    if (((*((s16*)(((u8*)&g_ActiveCharacters[0].hp) + var_s1_5))) != 0) &&
+                                        (Savemap.partyID[(s32)var_s0] != new_var15)) {
                                         SystemMenuAddHpByPartyId((s32)var_s0, 0x2710);
                                         SystemMenuAddMpByPartyId((s32)var_s0, 0x2710);
                                     }
@@ -1418,8 +1382,7 @@ char ITEMMENU_Main(s32 arg0) {
                             break;
 
                         case 0x2:
-                            if ((func_801D0CAC(D_801D3E0B[0]) == 0) &&
-                                ((*((s16*)(((u8*)D_8009D85C) + (D_801D3E0B[0] * 0x440)))) != 0)) {
+                            if ((func_801D0CAC(D_801D3E0B[0]) == 0) && (g_ActiveCharacters[D_801D3E0B[0]].hp != 0)) {
                                 PlayItemMenuSfx(SFX_MENU_APPLY);
                                 SystemMenuAddHpByPartyId(D_801D3E0B[0], 0x2710);
                                 SysMenuRemoveItem(var_s4 | 0x200);
@@ -1436,17 +1399,17 @@ char ITEMMENU_Main(s32 arg0) {
 
                         case 0x5:
                             if (((func_801D0CAC(D_801D3E0B[0]) == 0) || (func_801D0CE8(D_801D3E0B[0]) == 0)) &&
-                                ((*((s16*)(((u8*)D_8009D85C) + (D_801D3E0B[0] * 0x440)))) != 0)) {
+                                (g_ActiveCharacters[D_801D3E0B[0]].hp != 0)) {
                                 PlayItemMenuSfx(SFX_MENU_APPLY);
                                 SystemMenuAddHpByPartyId(D_801D3E0B[0], 0x2710);
                                 SystemMenuAddMpByPartyId(D_801D3E0B[0], 0x2710);
                                 SysMenuRemoveItem(var_s4 | 0x200);
-                                temp_v1_5 = D_8009C757[temp_a0_5];
+                                temp_v1_5 = (&Savemap.party[0].status_flags)[temp_a0_5];
                                 if ((SysMenuSearchItem(var_s4) & 0xFFFF) != 0xFFFF) {
                                     return;
                                 }
                                 g_ItemMenuCurrentScreen = 1;
-                                if (!D_801D3DE6) {
+                                if (!g_ItemMenuWidgets[0].column) {
                                 }
                                 return;
                             } else {
@@ -1459,7 +1422,7 @@ char ITEMMENU_Main(s32 arg0) {
                             var_s0 = 0;
                             var_s1_7 = 0;
                             do {
-                                if ((D_8009CBDC[(s32)var_s0] != 0xFF) &&
+                                if ((Savemap.partyID[(s32)var_s0] != 0xFF) &&
                                     ((func_801D0CAC((s32)var_s0) == 0) || (func_801D0CE8((s32)var_s0) == 0))) {
                                     var_s1_7 = 1;
                                 }
@@ -1470,8 +1433,8 @@ char ITEMMENU_Main(s32 arg0) {
                                 new_var12 = 0xFF;
                                 var_loopc = 0;
                                 do {
-                                    if (((*((s16*)(((u8*)D_8009D85C) + var_loopc))) != 0) &&
-                                        (D_8009CBDC[(s32)var_s0] != new_var12)) {
+                                    if (((*((s16*)(((u8*)&g_ActiveCharacters[0].hp) + var_loopc))) != 0) &&
+                                        (Savemap.partyID[(s32)var_s0] != new_var12)) {
                                         SystemMenuAddHpByPartyId((s32)var_s0, 0x2710);
                                         SystemMenuAddMpByPartyId((s32)var_s0, 0x2710);
                                     }
@@ -1535,13 +1498,13 @@ char ITEMMENU_Main(s32 arg0) {
 
                 case 1:
                     PlayItemMenuSfx(SFX_MENU_CURSOR_MOVE);
-                    temp_v1_13 = &D_8009CBE0[D_801D3D8C];
+                    temp_v1_13 = &Savemap.inventory[D_801D3D8C];
                     new_var16 = D_801D3E41;
                     new_var = temp_v1_13;
                     temp_a0_12 = *new_var;
-                    *temp_v1_13 = D_8009CBE0[new_var16[0] + D_801D3E38];
+                    *temp_v1_13 = Savemap.inventory[new_var16[0] + D_801D3E38];
                     D_801D3D84 = 0;
-                    D_8009CBE0[new_var16[0] + D_801D3E38] = temp_a0_12;
+                    Savemap.inventory[new_var16[0] + D_801D3E38] = temp_a0_12;
                     return;
                 }
 
