@@ -253,9 +253,6 @@ typedef struct {
     /* 0x7 */ u8 unk7;
 } Unk800B7480;
 
-extern SVECTOR D_800A0000;
-extern VECTOR D_800A0008;
-extern VECTOR D_800A0068;
 extern Unk800B1254 D_800B1254;
 extern s32 D_800B7478;
 extern s32 D_800B733C; // id of the last chocobo
@@ -293,6 +290,8 @@ void ChocoboResetRacerColors(void);
 void ChocoboRaceInit(void);
 void ChocoboInitMusic(void);
 void func_800A18BC(void);
+void func_800A9828(void);
+s32 ChocoboCalcAngle(s16 x, s16 y);
 void func_800A1F40(ChocoboModels* models, s32 arg1);
 void ChocoboDrawTrackTris(void);
 void ChocoboDrawTrackSegments(void);

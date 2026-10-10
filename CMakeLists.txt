@@ -75,7 +75,14 @@ set(FF7_WORLD
 
 set(FF7_MINI
     src/mini/chocobo/chocobo.c
-    src/mini/chocobo/chocobo2.c
+    src/mini/chocobo/ch_init.c
+    src/mini/chocobo/ch_track.c
+    src/mini/chocobo/ch_racer.c
+    src/mini/chocobo/ch_camera.c
+    src/mini/chocobo/ch_angle.c
+    src/mini/chocobo/ch_hud.c
+    src/mini/chocobo/ch_bet.c
+    src/mini/chocobo/ch_data.c
     src/mini/chocobo/chocobo_model.c
 )
 

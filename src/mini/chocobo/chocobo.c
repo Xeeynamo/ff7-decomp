@@ -25,6 +25,9 @@
 #define ResetSpadStack()
 #endif
 
+const SVECTOR D_800A0000 = {0, 0, 0, 0};
+const VECTOR D_800A0008 = {0, 0x190, 0x1E8, 0};
+
 static void ChocoboDrawTrackProps(void);
 static void ChocoboDrawTrackPropRange(s32 start, s32 end);
 
@@ -332,5 +335,20 @@ static void ChocoboDrawTrackPropRange(s32 start, s32 end) {
         if (prop->frame < 0) {
             prop->frame = 0;
         }
+    }
+}
+
+void ChocoboResetRacerColors(void) {
+    Unk800B1254* table;
+    ChocoboModel* model;
+    Chocobo* chocobo;
+    s32 i;
+
+    for (i = 0, table = &D_800B1254; i < NUM_CHOCOBO; i++) {
+        chocobo = &D_800B75CC[i];
+        model = &table->unk0->models[chocobo->unk92];
+        table->unk0->models[chocobo->unk90].r = model->r = 0xC0;
+        table->unk0->models[chocobo->unk90].g = model->g = 0;
+        table->unk0->models[chocobo->unk90].b = model->b = 0x80;
     }
 }
