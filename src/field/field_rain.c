@@ -64,17 +64,10 @@ void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* ra
     *ot = (*ot & 0xFF000000) | ((u32)rainDm & 0xFFFFFF);
 }
 
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/field/nonmatchings/field_rain", FieldRainUpdate);
-#else
-
-extern FieldEntity g_FieldEntities[];
-
 void FieldRainUpdate(void) {
     s32 i;
     s32 limit;
     s32 player;
-    s32 max = 255;
     s32 vz;
 
     if ((Savemap.memory_bank_5[0x83] & 0x80) == 0) {
@@ -82,7 +75,7 @@ void FieldRainUpdate(void) {
             g_RainForce--;
         }
     } else {
-        if (g_RainForce != max) {
+        if (g_RainForce != 255) {
             g_RainForce++;
         }
     }
@@ -101,15 +94,15 @@ void FieldRainUpdate(void) {
                 g_FieldRain[i].wait = 7;
 
                 g_FieldRain[i].p2.vx =
-                    (g_FieldEntities[player].PosX >> 12) + g_RandomTable[g_FieldRain[i].rndSeed & 0xFF] * 12 - 0x600;
+                    (g_FieldEntity[player].PosX >> 12) + g_RandomTable[g_FieldRain[i].rndSeed & 0xFF] * 12 - 0x600;
 
                 seed3 = g_FieldRain[i].rndSeed * 3;
-                g_FieldRain[i].p2.vy = (g_FieldEntities[player].PosY >> 12) + g_RandomTable[seed3] * 12 - 0x600;
+                g_FieldRain[i].p2.vy = (g_FieldEntity[player].PosY >> 12) + g_RandomTable[seed3] * 12 - 0x600;
 
                 g_FieldRain[i].p1.vx = g_FieldRain[i].p2.vx;
                 g_FieldRain[i].p1.vy = g_FieldRain[i].p2.vy;
 
-                g_FieldRain[i].z = (g_FieldEntities[player].PosZ >> 12) - 0x300;
+                g_FieldRain[i].z = (g_FieldEntity[player].PosZ >> 12) - 0x300;
             } else {
                 g_FieldRain[i].wait = 1;
                 g_FieldRain[i].render = 0;
@@ -126,4 +119,3 @@ void FieldRainUpdate(void) {
         g_FieldRain[i].wait--;
     }
 }
-#endif
