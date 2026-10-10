@@ -4,7 +4,59 @@
 #include <psxsdk/inline_c.h>
 #include "chocobo_private.h"
 
-INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/ch_racer", func_800A3308);
+void ChocoboApplyItemEffect(s32 id, s32 effect) {
+    Chocobo* base = D_800B75CC;
+    Chocobo* c = &base[id];
+
+    switch (effect) {
+    case 1:
+        c->unk98 = D_800F5078.track->unk4 + 20;
+        break;
+    case 2:
+        c->unk6C += c->unk6C * 4 / 3;
+        c->unk68 = c->unk6C;
+        break;
+    case 3:
+        c->unk98 = D_800F5078.track->unk4 - 20;
+        break;
+    case 4:
+        c->unk4C = 2;
+        break;
+    case 5:
+        c->unk9A = 0;
+        break;
+    case 6:
+        c->unk64 = 100;
+        c->unk52 = 0;
+        c->unk6 = 3;
+        break;
+    case 7:
+        c->unk9C = -1;
+        break;
+    case 8:
+        c->unk6C /= 2;
+        c->unk68 = c->unk6C;
+        break;
+    case 9:
+        c->unk86 &= 2;
+        break;
+    case 10:
+        c->unk86 &= 1;
+        break;
+    case 11:
+        c->unkA0 = -1;
+        if (rand() & 1) {
+            c->unk6C /= 2;
+        }
+        break;
+    case 12:
+        c->unkA2 = -1;
+        break;
+    case 13:
+        c->unk52 = 3;
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/ch_racer", func_800A34A8);
 

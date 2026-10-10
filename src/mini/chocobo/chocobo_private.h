@@ -201,7 +201,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ s32 count;
-    /* 0x04 */ u8 unk4[0x4];
+    /* 0x04 */ s32 unk4;
     /* 0x08 */ ChocoboTrackSegment* segments;
     /* 0x0C */ u8 unkC[0x18];
     /* 0x24 */ s16 nTris;
@@ -296,6 +296,7 @@ void func_800A1F40(ChocoboModels* models, s32 arg1);
 void ChocoboDrawTrackTris(void);
 void ChocoboDrawTrackSegments(void);
 void func_800A2BD4(s32 start, s32 end);
+void ChocoboApplyItemEffect(s32 id, s32 effect);
 void func_800A34A8(void);
 void ChocoboUpdateRanking(void);
 void ChocoboSelectRacer(s32);
