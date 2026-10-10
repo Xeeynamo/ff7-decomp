@@ -771,7 +771,7 @@ void AkaoMusicChannelsInit(void) {
     active = *(s32*)offsets & 0xFFFFFF;
     offsets += 2;
 #endif
-    channel = g_Channel1;
+    channel = g_Channels;
     g_AkaoBgmLanes->offMask |= 0xFFFFFF;
     g_AkaoBgmLanes->activeMask = active;
     bit = 1;
@@ -854,7 +854,7 @@ static void AkaoMusicStopChannels1(void) {
     s32 altMask;
 
     if (g_AkaoBgmLanes->activeMask) {
-        channel = g_Channel1;
+        channel = g_Channels;
         bit = 1;
         overMask = g_AkaoBgmLanes->overMask;
         altMask = g_AkaoBgmLanes->altMask;
@@ -889,7 +889,7 @@ void AkaoMusicStopChannels12(void) {
         s32 overMask;
         s32 altMask;
 
-        channel = g_Channel1;
+        channel = g_Channels;
         bit = 1;
         overMask = g_AkaoBgmLanes->overMask;
         altMask = g_AkaoBgmLanes->altMask;
@@ -918,7 +918,7 @@ void AkaoMusicStopChannels12(void) {
         s32 overMask;
         s32 altMask;
 
-        channel = g_Channel2;
+        channel = &g_Channels[AKAO_NUM_VOICES];
         bit = 1;
         overMask = g_AkaoBgmLanes[1].overMask;
         altMask = g_AkaoBgmLanes[1].altMask;
@@ -951,7 +951,7 @@ void AkaoSoundChannelsInit(u16 volPan, s32 channelId, s32 seq1, s32 seq2) {
     active = 0;
     volPan = (volPan & 0x7F) << 8;
     id = channelId;
-    channel = &g_Channel1[id];
+    channel = &g_Channels[id];
     channel[0].length = 0x101;
     channel[1].length = 0x101;
     channel[0].akaoSequencePointer = g_AkaoDummyStopSequence;
@@ -986,7 +986,7 @@ void AkaoSoundChannelsInit(u16 volPan, s32 channelId, s32 seq1, s32 seq2) {
     g_AkaoSfxLanes->pitchLfoMask &= active;
     if (g_AkaoControlFlags & AKAO_CONTROL_PAUSE_UPDATE) {
         active = all;
-        if (g_AkaoSoundSlots[3].voices[0].playingType == AKAO_MENU) {
+        if (g_Channels[AKAO_NUM_VOICES * 2 + 6].playingType == AKAO_MENU) {
             g_AkaoSfxLanes[0].activeMask = active & 0xC00000;
             active &= ~0xC00000;
         } else {
@@ -1004,7 +1004,7 @@ void AkaoSoundMenuChannelsInit(s32 seq0, s32 seq1) {
     u32 active;
 
     active = 0;
-    channel = g_AkaoSoundSlots[3].voices;
+    channel = &g_Channels[AKAO_NUM_VOICES * 2 + 6];
     channel[1].length = channel[active].length = 0x101;
     channel[active].akaoSequencePointer = g_AkaoDummyStopSequence;
     channel[1].akaoSequencePointer = g_AkaoDummyStopSequence;
@@ -1046,13 +1046,13 @@ void AkaoSoundChannelsStop(void) {
     AkaoChannel* channel;
     u16 i;
 
-    for (channel = g_AkaoSoundSlots[0].voices, i = 0x30; i < 0x38; i++, channel++) {
+    for (channel = &g_Channels[AKAO_NUM_VOICES * 2], i = 0x30; i < 0x38; i++, channel++) {
         if (channel->playingType != AKAO_MENU) {
             channel->length = 0x204;
             channel->akaoSequencePointer = g_AkaoDummyStopSequence;
         }
     }
-    if (g_AkaoSoundSlots[3].voices[0].playingType == AKAO_MENU) {
+    if (g_Channels[AKAO_NUM_VOICES * 2 + 6].playingType == AKAO_MENU) {
         g_AkaoSfxLanes->onMask &= 0xC00000;
         g_AkaoSfxLanes->keyedMask &= 0xC00000;
         g_AkaoSfxLanes->offMask = g_AkaoSfxLanes->offMask & (~0xC00000 & g_AkaoSfxLanes->activeMask);
@@ -1065,17 +1065,15 @@ void AkaoSoundChannelsStop(void) {
 
 void AkaoSoundChannelsClear(u16 voice, s32 slots) {
     AkaoChannel* channel;
-    u32 mask;
     u16 i;
 
-    channel = &g_AkaoSoundSlots[0].voices[voice + 1];
+    channel = &g_Channels[AKAO_NUM_VOICES * 2 + voice + 1];
     i = slots * 2;
     switch (slots & 0xFFFF) {
     case 1:
-        mask = 3 << (voice + 0x10);
-        g_AkaoSfxLanes->onMask &= ~mask;
-        g_AkaoSfxLanes->keyedMask &= ~mask;
-        g_AkaoSfxLanes->offMask |= mask;
+        g_AkaoSfxLanes->onMask &= ~(3 << (voice + 16));
+        g_AkaoSfxLanes->keyedMask &= ~(3 << (voice + 16));
+        g_AkaoSfxLanes->offMask |= (3 << (voice + 16));
         break;
     case 2:
         g_AkaoSfxLanes->onMask &= ~0x3C0000;
@@ -1136,7 +1134,7 @@ void AkaoMusicVolReset(void) {
     s32 mask;
 
     active = g_AkaoBgmLanes[0].activeMask;
-    channel = g_Channel1;
+    channel = g_Channels;
     if (active) {
         mask = 1;
         while (active) {
@@ -1156,7 +1154,7 @@ void AkaoSoundVolReset(void) {
     s32 mask;
 
     active = g_AkaoSfxLanes->activeMask;
-    channel = g_AkaoSoundSlots[0].voices;
+    channel = &g_Channels[AKAO_NUM_VOICES * 2];
     if (active) {
         mask = 0x10000;
         while (active) {
@@ -1180,7 +1178,7 @@ void AkaoMusicSyncKeyStatus(void) {
     active = (g_AkaoBgmLanes->activeMask | g_AkaoBgmLanes->overMask) & ~(g_AkaoSfxLanes->activeMask | g_AkaoStreamMask);
     if (active) {
         bit = 1;
-        channel = g_Channel1;
+        channel = g_Channels;
         g_AkaoBgmLanes->onMask = g_AkaoBgmLanes->keyedMask;
         while (active) {
             if (active & bit) {
@@ -1217,7 +1215,7 @@ void AkaoSoundSyncKeyStatus(void) {
     active = g_AkaoSfxLanes->activeMask;
     bit = 0x10000;
     if (active) {
-        channel = g_AkaoSoundSlots[0].voices;
+        channel = &g_Channels[AKAO_NUM_VOICES * 2];
         g_AkaoSfxLanes->onMask = g_AkaoSfxLanes->keyedMask;
         while (active) {
             if (active & bit) {
@@ -1283,12 +1281,12 @@ void AkaoMusicRestoreChannelsAndConfig(u16 slot) {
     if (!slot) {
         src = (u32*)(g_AkaoSavedChannels1 - AKAO_NUM_VOICES);
     }
-    for (dst = (u32*)g_Channel1, i = sizeof(AkaoChannel) * AKAO_NUM_VOICES / 4; i; i--, src++, dst++) {
+    for (dst = (u32*)g_Channels, i = sizeof(AkaoChannel) * AKAO_NUM_VOICES / 4; i; i--, src++, dst++) {
         *dst = *src;
     }
     active = g_AkaoBgmLanes->activeMask;
     if (active) {
-        for (j = AKAO_NUM_VOICES, channel = g_Channel1, bit = 1; j; j--, channel++, bit <<= 1) {
+        for (j = AKAO_NUM_VOICES, channel = g_Channels, bit = 1; j; j--, channel++, bit <<= 1) {
             if (!(active & bit)) {
                 channel->length = 0x204;
                 channel->akaoSequencePointer = g_AkaoDummyStopSequence;
@@ -1297,7 +1295,7 @@ void AkaoMusicRestoreChannelsAndConfig(u16 slot) {
     }
     active |= g_AkaoBgmLanes->overMask;
     g_AkaoBgmLanes->offMask = ~g_AkaoBgmLanes->onMask & 0xFFFFFF;
-    channel = g_Channel1;
+    channel = g_Channels;
     bit = 1;
     while (active) {
         if (active & bit) {
@@ -1331,8 +1329,8 @@ void AkaoMusicCopyChannels1Into2(void) {
     AkaoChannel* channel;
     u16 remaining;
 
-    for (i = sizeof(AkaoChannel) * AKAO_NUM_VOICES / 4, src = (u32*)g_Channel1,
-        dst = (u32*)(g_Channel1 + AKAO_NUM_VOICES);
+    for (i = sizeof(AkaoChannel) * AKAO_NUM_VOICES / 4, src = (u32*)g_Channels,
+        dst = (u32*)(g_Channels + AKAO_NUM_VOICES);
          i; i--, src++, dst++) {
         *dst = *src;
     }
@@ -1343,7 +1341,7 @@ void AkaoMusicCopyChannels1Into2(void) {
     for (src = (u32*)g_AkaoMusicBuffer, dst = (u32*)g_AkaoMusicBuffer + 0xC00, i = 0xC00; i; i--, src++, dst++) {
         *dst = *src;
     }
-    for (channel = g_Channel2, i = AKAO_NUM_VOICES; i; i--, channel++) {
+    for (channel = &g_Channels[AKAO_NUM_VOICES], i = AKAO_NUM_VOICES; i; i--, channel++) {
         channel->akaoSequencePointer += 0x3000;
         channel->drumOffset += 0x3000;
         channel->loopPoint[0] += 0x3000;
@@ -1387,7 +1385,7 @@ void AkaoCmd_10_PlayMusic(AkaoQueuedCommand* cmd) {
     AkaoCopyMusic((s32*)(u_long)(u32)cmd->param0, cmd->param1);
     if (g_AkaoBgmLanes->musicId == BGM_TA) { // Final Fantasy VII Main Theme (World Map)
         AkaoMusicSyncKeyStatus();
-        AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels1, g_AkaoBgmLanes, &g_AkaoPrevBgmLanes[1]);
+        AkaoMusicCopyChannelsAndConfig(g_Channels, g_AkaoSavedChannels1, g_AkaoBgmLanes, &g_AkaoPrevBgmLanes[1]);
     }
     AkaoMusicStopChannels1();
     if (g_AkaoPrevBgmLanes[0].musicId && g_AkaoPrevBgmLanes[0].musicId == (u16)cmd->param2) {
@@ -1411,9 +1409,9 @@ void AkaoCmd_14_PlayMusicSaveCurrent(AkaoQueuedCommand* cmd) {
     channelConfig = g_AkaoBgmLanes;
     if (g_AkaoBgmLanes[0].musicId) {
         if (g_AkaoBgmLanes[0].musicId == BGM_TA) { // Final Fantasy VII Main Theme (World Map)
-            AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels1, channelConfig, &g_AkaoPrevBgmLanes[1]);
+            AkaoMusicCopyChannelsAndConfig(g_Channels, g_AkaoSavedChannels1, channelConfig, &g_AkaoPrevBgmLanes[1]);
         } else {
-            AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels0, channelConfig, g_AkaoPrevBgmLanes);
+            AkaoMusicCopyChannelsAndConfig(g_Channels, g_AkaoSavedChannels0, channelConfig, g_AkaoPrevBgmLanes);
         }
     }
     AkaoMusicStopChannels1();
@@ -1431,34 +1429,34 @@ void AkaoCmd_15_PlayMusicSwapSaved(AkaoQueuedCommand* cmd) {
     AkaoCopyMusic((s32*)(u_long)(u32)cmd->param0, cmd->param1);
     AkaoMusicSyncKeyStatus();
     if (g_AkaoPrevBgmLanes[0].musicId == (u16)cmd->param2) {
-        AkaoMusicCopyChannelsAndConfig(g_Channel1, g_Channel1 + AKAO_NUM_VOICES, g_AkaoBgmLanes, &g_AkaoBgmLanes[1]);
+        AkaoMusicCopyChannelsAndConfig(g_Channels, g_Channels + AKAO_NUM_VOICES, g_AkaoBgmLanes, &g_AkaoBgmLanes[1]);
         AkaoMusicStopChannels1();
         AkaoMusicRestoreChannelsAndConfig(0);
         if (g_AkaoBgmLanes[1].musicId == BGM_TA) {
             AkaoMusicCopyChannelsAndConfig(
-                g_Channel1 + AKAO_NUM_VOICES, g_AkaoSavedChannels1, &g_AkaoBgmLanes[1], &g_AkaoPrevBgmLanes[1]);
+                g_Channels + AKAO_NUM_VOICES, g_AkaoSavedChannels1, &g_AkaoBgmLanes[1], &g_AkaoPrevBgmLanes[1]);
         } else {
             AkaoMusicCopyChannelsAndConfig(
-                g_Channel1 + AKAO_NUM_VOICES, g_AkaoSavedChannels0, &g_AkaoBgmLanes[1], g_AkaoPrevBgmLanes);
+                g_Channels + AKAO_NUM_VOICES, g_AkaoSavedChannels0, &g_AkaoBgmLanes[1], g_AkaoPrevBgmLanes);
         }
     } else if (g_AkaoPrevBgmLanes[1].musicId == (u16)cmd->param2) {
-        AkaoMusicCopyChannelsAndConfig(g_Channel1, g_Channel1 + AKAO_NUM_VOICES, g_AkaoBgmLanes, &g_AkaoBgmLanes[1]);
+        AkaoMusicCopyChannelsAndConfig(g_Channels, g_Channels + AKAO_NUM_VOICES, g_AkaoBgmLanes, &g_AkaoBgmLanes[1]);
         AkaoMusicStopChannels1();
         AkaoMusicRestoreChannelsAndConfig(1);
         if (g_AkaoBgmLanes[1].musicId == BGM_TA) {
             AkaoMusicCopyChannelsAndConfig(
-                g_Channel1 + AKAO_NUM_VOICES, g_AkaoSavedChannels1, &g_AkaoBgmLanes[1], &g_AkaoPrevBgmLanes[1]);
+                g_Channels + AKAO_NUM_VOICES, g_AkaoSavedChannels1, &g_AkaoBgmLanes[1], &g_AkaoPrevBgmLanes[1]);
         } else {
             AkaoMusicCopyChannelsAndConfig(
-                g_Channel1 + AKAO_NUM_VOICES, g_AkaoSavedChannels0, &g_AkaoBgmLanes[1], g_AkaoPrevBgmLanes);
+                g_Channels + AKAO_NUM_VOICES, g_AkaoSavedChannels0, &g_AkaoBgmLanes[1], g_AkaoPrevBgmLanes);
         }
     } else {
         if (g_AkaoBgmLanes->musicId) {
             if (g_AkaoBgmLanes->musicId == BGM_TA) {
                 AkaoMusicCopyChannelsAndConfig(
-                    g_Channel1, g_AkaoSavedChannels1, g_AkaoBgmLanes, &g_AkaoPrevBgmLanes[1]);
+                    g_Channels, g_AkaoSavedChannels1, g_AkaoBgmLanes, &g_AkaoPrevBgmLanes[1]);
             } else {
-                AkaoMusicCopyChannelsAndConfig(g_Channel1, g_AkaoSavedChannels0, g_AkaoBgmLanes, g_AkaoPrevBgmLanes);
+                AkaoMusicCopyChannelsAndConfig(g_Channels, g_AkaoSavedChannels0, g_AkaoBgmLanes, g_AkaoPrevBgmLanes);
             }
         }
         AkaoMusicStopChannels1();
@@ -1668,177 +1666,198 @@ void AkaoCmd_CA_CdVolSlideBetweenTargets(AkaoCdVolSlideBetweenTargets* cmd) {
 // Sets the volume balance for a 2-voice SFX audio channel pair (voice[0]
 // and voice[1]). Clears any active balance slide and flags the hardware voices
 // (SPU_VOICE_VOLL | SPU_VOICE_VOLR) for volume recalculation.
-static void AkaoSoundChannelSetVolBalance(AkaoQueuedCommand* cmd, AkaoSoundSlot* slot) {
+static void AkaoSoundChannelSetVolBalance(AkaoQueuedCommand* cmd, AkaoChannel* channels) {
     u16 balance;
     s32 mask1;
     s32 mask0;
-    AkaoChannel* voice = slot->voices;
+
     // The do{}while(0) affects register allocation and is required for the
     // match.
     do {
         balance = *(u16*)&cmd->param0;
-        mask1 = voice[1].voiceAttr.mask;
-        voice[1].volBalanceSlideSteps = 0;
-        voice[0].volBalanceSlideSteps = 0;
-        voice[1].volBalance = (s16)((balance & AKAO_VOL_MAX) << 8);
+        mask1 = channels[1].voiceAttr.mask;
+        channels[1].volBalanceSlideSteps = 0;
+        channels[0].volBalanceSlideSteps = 0;
+        channels[1].volBalance = (s16)((balance & AKAO_VOL_MAX) << 8);
     } while (0);
-    voice[0].volBalance = (s16)((balance & AKAO_VOL_MAX) << 8);
-    mask0 = voice[0].voiceAttr.mask;
-    voice[1].voiceAttr.mask = mask1 | AKAO_UPDATE_SPU_VOICE;
-    voice[0].voiceAttr.mask = mask0 | AKAO_UPDATE_SPU_VOICE;
+    channels[0].volBalance = (s16)((balance & AKAO_VOL_MAX) << 8);
+    mask0 = channels[0].voiceAttr.mask;
+    channels[1].voiceAttr.mask = mask1 | AKAO_UPDATE_SPU_VOICE;
+    channels[0].voiceAttr.mask = mask0 | AKAO_UPDATE_SPU_VOICE;
 }
 
 // Starts a volume balance slide from current balance toward target in cmd over
 // the specified step count for a 2-voice SFX audio channel pair.
-static void AkaoSoundChannelSlideVolBalance(AkaoQueuedCommand* cmd, AkaoSoundSlot* slot) {
+static void AkaoSoundChannelSlideVolBalance(AkaoQueuedCommand* cmd, AkaoChannel* channels) {
     s16 steps;
     s32 rawSteps;
-    AkaoChannel* voice = slot->voices;
 
     rawSteps = cmd->param0;
     steps = 1;
     if (rawSteps) {
         steps = *(u16*)&cmd->param0;
     }
-    voice[0].volBalanceSlideStep = (s16)(((*(u16*)&cmd->param1 & AKAO_VOL_MAX) << 8) - voice[0].volBalance) / steps;
-    voice[1].volBalanceSlideStep = (s16)(((*(u16*)&cmd->param1 & AKAO_VOL_MAX) << 8) - voice[1].volBalance) / steps;
-    voice[1].volBalanceSlideSteps = steps;
-    voice[0].volBalanceSlideSteps = steps;
+    channels[0].volBalanceSlideStep =
+        (s16)(((*(u16*)&cmd->param1 & AKAO_VOL_MAX) << 8) - channels[0].volBalance) / steps;
+    channels[1].volBalanceSlideStep =
+        (s16)(((*(u16*)&cmd->param1 & AKAO_VOL_MAX) << 8) - channels[1].volBalance) / steps;
+    channels[1].volBalanceSlideSteps = steps;
+    channels[0].volBalanceSlideSteps = steps;
 }
 
 // Sets the volume balance across all 4 SFX audio channel slots (slots 3, 2, 1, 0)
-// in g_AkaoSoundSlots.
+// in slot channels.
 void AkaoCmd_B8_SetAllVolBalance(AkaoQueuedCommand* cmd) {
-    AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[3]);
-    AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[2]);
-    AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[1]);
-    AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[0]);
+    AkaoSoundChannelSetVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 6]);
+    AkaoSoundChannelSetVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 4]);
+    AkaoSoundChannelSetVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 2]);
+    AkaoSoundChannelSetVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 0]);
 }
 
 // Slides the volume balance across all 4 SFX audio channel slots (slots 3, 2, 1, 0)
-// in g_AkaoSoundSlots toward the target balance in cmd.
+// in slot channels toward the target balance in cmd.
 void AkaoCmd_B9_SlideAllVolBalance(AkaoQueuedCommand* cmd) {
-    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[3]);
-    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[2]);
-    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[1]);
-    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[0]);
+    AkaoSoundChannelSlideVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 6]);
+    AkaoSoundChannelSlideVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 4]);
+    AkaoSoundChannelSlideVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 2]);
+    AkaoSoundChannelSlideVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 0]);
 }
 
-void AkaoCmd_A0_SetVolBalanceSlot2(AkaoQueuedCommand* cmd) { AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[2]); }
+void AkaoCmd_A0_SetVolBalanceSlot2(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSetVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 4]);
+}
 
 void AkaoCmd_A4_SlideVolBalanceSlot2(AkaoQueuedCommand* cmd) {
-    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[2]);
+    AkaoSoundChannelSlideVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 4]);
 }
 
-void AkaoCmd_A1_SetVolBalanceSlot1(AkaoQueuedCommand* cmd) { AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[1]); }
+void AkaoCmd_A1_SetVolBalanceSlot1(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSetVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 2]);
+}
 
 void AkaoCmd_A5_SlideVolBalanceSlot1(AkaoQueuedCommand* cmd) {
-    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[1]);
+    AkaoSoundChannelSlideVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 2]);
 }
 
-void AkaoCmd_A2_SetVolBalanceSlot0(AkaoQueuedCommand* cmd) { AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[0]); }
+void AkaoCmd_A2_SetVolBalanceSlot0(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSetVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 0]);
+}
 
 void AkaoCmd_A6_SlideVolBalanceSlot0(AkaoQueuedCommand* cmd) {
-    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[0]);
+    AkaoSoundChannelSlideVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 0]);
 }
 
-void AkaoCmd_A3_SetVolBalanceSlot3(AkaoQueuedCommand* cmd) { AkaoSoundChannelSetVolBalance(cmd, &g_AkaoSoundSlots[3]); }
+void AkaoCmd_A3_SetVolBalanceSlot3(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSetVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 6]);
+}
 
 void AkaoCmd_A7_SlideVolBalanceSlot3(AkaoQueuedCommand* cmd) {
-    AkaoSoundChannelSlideVolBalance(cmd, &g_AkaoSoundSlots[3]);
+    AkaoSoundChannelSlideVolBalance(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 6]);
 }
 
 // Sets the stereo pan for a 2-voice SFX audio channel pair (voice[0]
 // and voice[1]). Clears any active pan slide and flags the hardware voices
 // (SPU_VOICE_VOLL | SPU_VOICE_VOLR) for volume recalculation.
-static void AkaoSoundChannelSetPan(AkaoQueuedCommand* cmd, AkaoSoundSlot* slot) {
+static void AkaoSoundChannelSetPan(AkaoQueuedCommand* cmd, AkaoChannel* channels) {
     s16 pan;
     s32 mask1;
-    AkaoChannel* voice = slot->voices;
 
     pan = (*(u16*)&cmd->param0 & AKAO_PAN_MAX) << 8;
-    mask1 = voice[1].voiceAttr.mask;
-    voice[1].volPanSlideSteps = 0;
-    voice[0].volPanSlideSteps = 0;
-    voice[1].volPan = pan;
-    voice[0].volPan = pan;
-    voice[0].voiceAttr.mask = voice[0].voiceAttr.mask | AKAO_UPDATE_SPU_VOICE;
-    voice[1].voiceAttr.mask = (mask1 | AKAO_UPDATE_SPU_VOICE);
+    mask1 = channels[1].voiceAttr.mask;
+    channels[1].volPanSlideSteps = 0;
+    channels[0].volPanSlideSteps = 0;
+    channels[1].volPan = pan;
+    channels[0].volPan = pan;
+    channels[0].voiceAttr.mask = channels[0].voiceAttr.mask | AKAO_UPDATE_SPU_VOICE;
+    channels[1].voiceAttr.mask = (mask1 | AKAO_UPDATE_SPU_VOICE);
 }
 
 // Starts a pan slide from current pan toward target in cmd over
 // the specified step count for a 2-voice SFX audio channel pair.
-static void AkaoSoundChannelSlidePan(AkaoQueuedCommand* cmd, AkaoSoundSlot* slot) {
+static void AkaoSoundChannelSlidePan(AkaoQueuedCommand* cmd, AkaoChannel* channels) {
     s16 steps;
     s32 rawSteps;
-    AkaoChannel* voice = slot->voices;
 
     rawSteps = cmd->param0;
     steps = 1;
     if (rawSteps) {
         steps = *(u16*)&cmd->param0;
     }
-    voice[0].volPanSlideStep = (s16)(((*(u16*)&cmd->param1 & AKAO_PAN_MAX) << 8) - voice[0].volPan) / steps;
-    voice[1].volPanSlideStep = (s16)(((*(u16*)&cmd->param1 & AKAO_PAN_MAX) << 8) - voice[1].volPan) / steps;
-    voice[1].volPanSlideSteps = steps;
-    voice[0].volPanSlideSteps = steps;
+    channels[0].volPanSlideStep = (s16)(((*(u16*)&cmd->param1 & AKAO_PAN_MAX) << 8) - channels[0].volPan) / steps;
+    channels[1].volPanSlideStep = (s16)(((*(u16*)&cmd->param1 & AKAO_PAN_MAX) << 8) - channels[1].volPan) / steps;
+    channels[1].volPanSlideSteps = steps;
+    channels[0].volPanSlideSteps = steps;
 }
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
 void AkaoCmd_BA_SetAllPan(AkaoQueuedCommand* cmd) {
-    AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[3]);
-    AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[2]);
-    AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[1]);
-    AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[0]);
+    AkaoSoundChannelSetPan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 6]);
+    AkaoSoundChannelSetPan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 4]);
+    AkaoSoundChannelSetPan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 2]);
+    AkaoSoundChannelSetPan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 0]);
 }
 
 // Apply the paired handler to 4 blocks spaced 0x210 bytes apart.
 void AkaoCmd_BB_SlideAllPan(AkaoQueuedCommand* cmd) {
-    AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[3]);
-    AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[2]);
-    AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[1]);
-    AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[0]);
+    AkaoSoundChannelSlidePan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 6]);
+    AkaoSoundChannelSlidePan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 4]);
+    AkaoSoundChannelSlidePan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 2]);
+    AkaoSoundChannelSlidePan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 0]);
 }
 
-void AkaoCmd_A8_SetPanSlot2(AkaoQueuedCommand* cmd) { AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[2]); }
+void AkaoCmd_A8_SetPanSlot2(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSetPan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 4]);
+}
 
-void AkaoCmd_AC_SlidePanSlot2(AkaoQueuedCommand* cmd) { AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[2]); }
+void AkaoCmd_AC_SlidePanSlot2(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSlidePan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 4]);
+}
 
-void AkaoCmd_A9_SetPanSlot1(AkaoQueuedCommand* cmd) { AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[1]); }
+void AkaoCmd_A9_SetPanSlot1(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSetPan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 2]);
+}
 
-void AkaoCmd_AD_SlidePanSlot1(AkaoQueuedCommand* cmd) { AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[1]); }
+void AkaoCmd_AD_SlidePanSlot1(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSlidePan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 2]);
+}
 
-void AkaoCmd_AA_SetPanSlot0(AkaoQueuedCommand* cmd) { AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[0]); }
+void AkaoCmd_AA_SetPanSlot0(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSetPan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 0]);
+}
 
-void AkaoCmd_AE_SlidePanSlot0(AkaoQueuedCommand* cmd) { AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[0]); }
+void AkaoCmd_AE_SlidePanSlot0(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSlidePan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 0]);
+}
 
-void AkaoCmd_AB_SetPanSlot3(AkaoQueuedCommand* cmd) { AkaoSoundChannelSetPan(cmd, &g_AkaoSoundSlots[3]); }
+void AkaoCmd_AB_SetPanSlot3(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSetPan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 6]);
+}
 
-void AkaoCmd_AF_SlidePanSlot3(AkaoQueuedCommand* cmd) { AkaoSoundChannelSlidePan(cmd, &g_AkaoSoundSlots[3]); }
+void AkaoCmd_AF_SlidePanSlot3(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSlidePan(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 6]);
+}
 
 // Sets the pitch multiplier for a 2-voice SFX audio channel pair
 // (voice[0] and voice[1]). Clears any active pitch slide and flags the hardware voices
 // (SPU_VOICE_PITCH) for pitch recalculation.
-static void AkaoSoundChannelSetPitch(AkaoQueuedCommand* cmd, AkaoSoundSlot* slot) {
+static void AkaoSoundChannelSetPitch(AkaoQueuedCommand* cmd, AkaoChannel* channels) {
     s32 pitch;
     s32 mask1;
     s8* cmdBytes = (s8*)cmd;
-    AkaoChannel* voice = slot->voices;
 
     pitch = cmdBytes[4] << 8;
-    mask1 = voice[1].voiceAttr.mask;
-    voice[1].pitchMulSoundSlideSteps = 0;
-    voice[0].pitchMulSoundSlideSteps = 0;
-    voice[1].pitchMulSound = pitch;
-    voice[0].pitchMulSound = pitch;
-    voice[0].voiceAttr.mask = voice[0].voiceAttr.mask | SPU_VOICE_PITCH;
-    voice[1].voiceAttr.mask = mask1 | SPU_VOICE_PITCH;
+    mask1 = channels[1].voiceAttr.mask;
+    channels[1].pitchMulSoundSlideSteps = 0;
+    channels[0].pitchMulSoundSlideSteps = 0;
+    channels[1].pitchMulSound = pitch;
+    channels[0].pitchMulSound = pitch;
+    channels[0].voiceAttr.mask = channels[0].voiceAttr.mask | SPU_VOICE_PITCH;
+    channels[1].voiceAttr.mask = mask1 | SPU_VOICE_PITCH;
 }
 
-static void AkaoSoundChannelSlidePitch(AkaoQueuedCommand* cmd, AkaoSoundSlot* slot) {
+static void AkaoSoundChannelSlidePitch(AkaoQueuedCommand* cmd, AkaoChannel* channels) {
     s8* cmdBytes = (s8*)cmd;
     s32 temp;
-    AkaoChannel* voice = slot->voices;
     s32 steps;
 
     steps = 1;
@@ -1846,45 +1865,61 @@ static void AkaoSoundChannelSlidePitch(AkaoQueuedCommand* cmd, AkaoSoundSlot* sl
     if (temp) {
         steps = cmd->param0;
     }
-    voice[0].pitchMulSoundSlideStep = (s32)((cmdBytes[8] << 8) - voice[0].pitchMulSound) / steps;
-    temp = (s32)((cmdBytes[8] << 8) - voice[1].pitchMulSound) / steps;
-    voice[1].pitchMulSoundSlideStep = temp;
-    voice[0].pitchMulSoundSlideSteps = voice[1].pitchMulSoundSlideSteps = steps;
+    channels[0].pitchMulSoundSlideStep = (s32)((cmdBytes[8] << 8) - channels[0].pitchMulSound) / steps;
+    temp = (s32)((cmdBytes[8] << 8) - channels[1].pitchMulSound) / steps;
+    channels[1].pitchMulSoundSlideStep = temp;
+    channels[0].pitchMulSoundSlideSteps = channels[1].pitchMulSoundSlideSteps = steps;
 }
 
 // Sets the pitch multiplier across all 4 SFX audio channel slots (slots 3, 2, 1, 0)
-// in g_AkaoSoundSlots.
+// in slot channels.
 void AkaoCmd_BC_SetAllPitch(AkaoQueuedCommand* cmd) {
-    AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[3]);
-    AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[2]);
-    AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[1]);
-    AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[0]);
+    AkaoSoundChannelSetPitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 6]);
+    AkaoSoundChannelSetPitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 4]);
+    AkaoSoundChannelSetPitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 2]);
+    AkaoSoundChannelSetPitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 0]);
 }
 
 // Slides the pitch multiplier across all 4 SFX audio channel slots (slots 3, 2, 1, 0)
-// in g_AkaoSoundSlots toward the target pitch multiplier in cmd.
+// in slot channels toward the target pitch multiplier in cmd.
 void AkaoCmd_BD_SlideAllPitch(AkaoQueuedCommand* cmd) {
-    AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[3]);
-    AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[2]);
-    AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[1]);
-    AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[0]);
+    AkaoSoundChannelSlidePitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 6]);
+    AkaoSoundChannelSlidePitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 4]);
+    AkaoSoundChannelSlidePitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 2]);
+    AkaoSoundChannelSlidePitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 0]);
 }
 
-void AkaoCmd_B0_SetPitchSlot2(AkaoQueuedCommand* cmd) { AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[2]); }
+void AkaoCmd_B0_SetPitchSlot2(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSetPitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 4]);
+}
 
-void AkaoCmd_B4_SlidePitchSlot2(AkaoQueuedCommand* cmd) { AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[2]); }
+void AkaoCmd_B4_SlidePitchSlot2(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSlidePitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 4]);
+}
 
-void AkaoCmd_B1_SetPitchSlot1(AkaoQueuedCommand* cmd) { AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[1]); }
+void AkaoCmd_B1_SetPitchSlot1(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSetPitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 2]);
+}
 
-void AkaoCmd_B5_SlidePitchSlot1(AkaoQueuedCommand* cmd) { AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[1]); }
+void AkaoCmd_B5_SlidePitchSlot1(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSlidePitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 2]);
+}
 
-void AkaoCmd_B2_SetPitchSlot0(AkaoQueuedCommand* cmd) { AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[0]); }
+void AkaoCmd_B2_SetPitchSlot0(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSetPitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 0]);
+}
 
-void AkaoCmd_B6_SlidePitchSlot0(AkaoQueuedCommand* cmd) { AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[0]); }
+void AkaoCmd_B6_SlidePitchSlot0(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSlidePitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 0]);
+}
 
-void AkaoCmd_B3_SetPitchSlot3(AkaoQueuedCommand* cmd) { AkaoSoundChannelSetPitch(cmd, &g_AkaoSoundSlots[3]); }
+void AkaoCmd_B3_SetPitchSlot3(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSetPitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 6]);
+}
 
-void AkaoCmd_B7_SlidePitchSlot3(AkaoQueuedCommand* cmd) { AkaoSoundChannelSlidePitch(cmd, &g_AkaoSoundSlots[3]); }
+void AkaoCmd_B7_SlidePitchSlot3(AkaoQueuedCommand* cmd) {
+    AkaoSoundChannelSlidePitch(cmd, &g_Channels[AKAO_NUM_VOICES * 2 + 6]);
+}
 
 void AkaoCmd_D0_SetTempo(AkaoTempoPitchSlide* cmd) {
     s32 tempo = cmd->start;
@@ -1997,7 +2032,7 @@ void AkaoCmd_90_SetMuteMusicMask(AkaoQueuedCommand* cmd) {
     u16 i;
 
     g_AkaoMuteMusicMask = cmd->param0;
-    for (i = 0, channel = g_Channel1; i < AKAO_NUM_VOICES; i++, channel++) {
+    for (i = 0, channel = g_Channels; i < AKAO_NUM_VOICES; i++, channel++) {
         channel->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE;
     }
 }
@@ -2011,20 +2046,21 @@ void AkaoCmd_9B_ApplyPendingMusicUpdates(AkaoQueuedCommand* cmd) {
     s32 bit;
     s32 pendingBits;
     s32 voiceIdx;
+    AkaoVoiceAttr* attr;
 
     if (g_AkaoBgmLanes->activeMask) {
         pendingBits = (g_AkaoBgmLanes->activeMask | g_AkaoBgmLanes->overMask | g_AkaoBgmLanes->altMask) &
                       ~(g_AkaoSfxLanes->activeMask | g_AkaoStreamMask);
         if (pendingBits) {
-            bit = 1;
-            voiceIdx = 0;
-            g_AkaoVoiceAttr->vol_r = 0;
-            g_AkaoVoiceAttr->vol_l = 0;
-            g_AkaoVoiceAttr->sr = AKAO_VOL_MAX;
-            for (; pendingBits != 0; bit <<= 1, voiceIdx += 1) {
+            attr = &g_AkaoVoiceAttr;
+            attr->vol_l = attr->vol_r = 0;
+            attr->sr = AKAO_VOL_MAX;
+
+            for (bit = 1, voiceIdx = 0; pendingBits != 0; bit <<= 1, voiceIdx += 1) {
                 if (pendingBits & bit) {
-                    g_AkaoVoiceAttr->mask = AKAO_UPDATE_SPU_VOICE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
-                    AkaoUpdateChannelParamsToSpu(voiceIdx & 0xFFFF, g_AkaoVoiceAttr);
+                    attr = &g_AkaoVoiceAttr;
+                    attr->mask = AKAO_UPDATE_SPU_VOICE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
+                    AkaoUpdateChannelParamsToSpu(voiceIdx & 0xFFFF, attr);
                     pendingBits ^= bit;
                 }
             }
@@ -2048,7 +2084,7 @@ void AkaoCmd_9A_FlushPendingMusicUpdates(void) {
     pendingBits = g_AkaoBgmLanes->activeMaskStored;
     if (pendingBits) {
         bit = 1;
-        voice = g_Channel1;
+        voice = g_Channels;
         do {
             if (pendingBits & bit) {
                 pendingBits ^= bit;
@@ -2070,32 +2106,30 @@ void AkaoCmd_9A_FlushPendingMusicUpdates(void) {
 
 void AkaoCmd_9D_ApplyPendingSfxUpdates(void) {
     s32 savedMask;
-    short cleared;
     s32 newMask;
     s32 bit;
     s32 voiceIdx;
+    AkaoVoiceAttr* attr;
 
     newMask = g_AkaoSfxLanes->activeMask;
     savedMask = newMask;
     if (newMask) {
-        bit = 0x10000;
-        if (g_AkaoSoundSlots[3].voices[0].playingType == AKAO_MENU) {
+        if (g_Channels[AKAO_NUM_VOICES * 2 + 6].playingType == AKAO_MENU) {
             newMask &= ~((1 << 22) | (1 << 23));
         }
         g_AkaoSfxLanes->activeMaskStored = newMask;
-        // FAKE MATCH
-        *(&g_AkaoSfxLanes->activeMask + (cleared = 0)) = newMask ^ savedMask;
-        g_AkaoVoiceAttr->vol_r = cleared;
-        g_AkaoVoiceAttr->vol_l = cleared;
-        g_AkaoVoiceAttr->sr = AKAO_VOL_MAX;
-        voiceIdx = 0x10;
-        if (newMask != cleared) {
-            for (; newMask != 0; bit <<= 1, voiceIdx += 1) {
-                if (newMask & bit) {
-                    g_AkaoVoiceAttr->mask = AKAO_UPDATE_SPU_VOICE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
-                    AkaoUpdateChannelParamsToSpu(voiceIdx & 0xFFFF, g_AkaoVoiceAttr);
-                    newMask ^= bit;
-                }
+        g_AkaoSfxLanes->activeMask = newMask ^ savedMask;
+
+        attr = &g_AkaoVoiceAttr;
+        attr->vol_l = attr->vol_r = 0;
+        attr->sr = AKAO_VOL_MAX;
+
+        for (bit = 0x10000, voiceIdx = 0x10; newMask != 0; bit <<= 1, voiceIdx += 1) {
+            if (newMask & bit) {
+                attr = &g_AkaoVoiceAttr;
+                attr->mask = AKAO_UPDATE_SPU_VOICE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
+                AkaoUpdateChannelParamsToSpu(voiceIdx & 0xFFFF, attr);
+                newMask ^= bit;
             }
         }
     }
@@ -2111,7 +2145,7 @@ void AkaoCmd_9C_FlushPendingSfxUpdates(void) {
 
     pendingBits = g_AkaoSfxLanes->activeMaskStored;
     if (pendingBits) {
-        for (bit = 0x10000, half = &g_AkaoSoundSlots[0].voices[0]; pendingBits != 0; bit <<= 1, half++) {
+        for (bit = 0x10000, half = &g_Channels[AKAO_NUM_VOICES * 2 + 0]; pendingBits != 0; bit <<= 1, half++) {
             if (pendingBits & bit) {
                 pendingBits ^= bit;
                 half->voiceAttr.mask |= AKAO_UPDATE_SPU_VOICE | SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
@@ -2161,9 +2195,9 @@ void AkaoCmd_F4_SaveState(AkaoQueuedCommand* cmd) {
     u16 i;
 
     AkaoSoundSyncKeyStatus();
-    src = (u32*)g_AkaoSoundSlots;
+    src = (u32*)&g_Channels[AKAO_NUM_VOICES * 2];
     dst = (u32*)((AkaoChannel*)src - AKAO_NUM_VOICES);
-    i = sizeof(AkaoSoundSlot) * 4 / sizeof(u32);
+    i = sizeof(AkaoChannel) * 8 / sizeof(u32);
     do {
         i--;
         *dst++ = *src++;
@@ -2175,7 +2209,7 @@ void AkaoCmd_F4_SaveState(AkaoQueuedCommand* cmd) {
         i--;
         *dst++ = *src++;
     } while (i);
-    if (g_AkaoSoundSlots[3].voices[0].playingType == AKAO_MENU) {
+    if (g_Channels[AKAO_NUM_VOICES * 2 + 6].playingType == AKAO_MENU) {
         savedLane->activeMask &= ~0xC00000;
         savedLane->onMask &= ~0xC00000;
     }
@@ -2194,9 +2228,9 @@ void AkaoCmd_F5_RestoreState(AkaoQueuedCommand* cmd) {
     u16 i;
 
     if (g_AkaoControlFlags & AKAO_CONTROL_STATE_SAVED) {
-        src = (u32*)g_Channel2;
+        src = (u32*)&g_Channels[AKAO_NUM_VOICES];
         dst = (u32*)((AkaoChannel*)src + AKAO_NUM_VOICES);
-        i = sizeof(AkaoSoundSlot) * 4 / sizeof(u32);
+        i = sizeof(AkaoChannel) * 8 / sizeof(u32);
         do {
             i--;
             *dst++ = *src++;
@@ -2266,9 +2300,11 @@ void AkaoStreamInit(AkaoQueuedCommand* cmd) {
     g_AkaoStreamRemainingBytes = *(u32*)g_AkaoStreamSrc;
     if (g_AkaoStreamRemainingBytes) {
         g_AkaoStreamSrc += 4;
+
         flags = *(u32*)g_AkaoStreamSrc;
+        g_AkaoStreamFormat = flags;
         g_AkaoStreamSrc += 4;
-        *(u32*)&g_AkaoStreamFormat = flags;
+
         loopOffset = *(u32*)g_AkaoStreamSrc;
         g_AkaoStreamSrc += 8;
         if (flags & 2) {
@@ -2309,49 +2345,53 @@ void AkaoStreamInit(AkaoQueuedCommand* cmd) {
 
 // Configures the voice-attribute block for a mono CD-stream voice (ADSR
 // envelope, pan, reverb-echo work area) and applies it via AkaoUpdateChannelParamsToSpu.
-//
-// NOTE: g_AkaoVoiceAttr is an array so fields can be reached with `->`, which gives one lui/sw per access.
-// `g_AkaoVoiceAttr[0].field` keeps the address in a register instead and does not match here.
 static void AkaoStreamVoiceAttrMono(void) {
-    g_AkaoVoiceAttr->mask = 0x1FF93;
-    g_AkaoVoiceAttr->ar = 0;
-    g_AkaoVoiceAttr->addr = 0x77000;
-    g_AkaoVoiceAttr->loop_addr = 0x77000;
-    g_AkaoVoiceAttr->dr = 0xF;
-    g_AkaoVoiceAttr->sl = 0xF;
-    g_AkaoVoiceAttr->sr = 0x7F;
-    g_AkaoVoiceAttr->rr = 6;
-    g_AkaoVoiceAttr->a_mode = 1;
-    g_AkaoVoiceAttr->s_mode = 3;
-    g_AkaoVoiceAttr->r_mode = 3;
-    g_AkaoVoiceAttr->vol_l = (g_AkaoStreamPan ^ AKAO_PAN_MAX) * g_AkaoStreamVol >> 7;
-    g_AkaoVoiceAttr->pitch = g_AkaoStreamFormat.pitch;
-    g_AkaoVoiceAttr->vol_r = g_AkaoStreamVol * g_AkaoStreamPan >> 7;
-    AkaoUpdateChannelParamsToSpu(0x10, g_AkaoVoiceAttr);
+    AkaoVoiceAttr* attr;
+
+    attr = &g_AkaoVoiceAttr;
+    attr->mask = 0x1FF93;
+    attr->addr = 0x77000;
+    attr->loop_addr = 0x77000;
+    attr->vol_l = (g_AkaoStreamPan ^ AKAO_PAN_MAX) * g_AkaoStreamVol >> 7;
+    attr->vol_r = g_AkaoStreamVol * g_AkaoStreamPan >> 7;
+    attr->ar = 0;
+    attr->dr = 0xF;
+    attr->sl = 0xF;
+    attr->sr = 0x7F;
+    attr->rr = 6;
+    attr->a_mode = 1;
+    attr->s_mode = 3;
+    attr->r_mode = 3;
+    attr->pitch = g_AkaoStreamFormat >> 16;
+    AkaoUpdateChannelParamsToSpu(0x10, attr);
 }
 
 static void AkaoStreamVoiceAttrSplit(void) {
-    g_AkaoVoiceAttr->mask = 0x1FF93;
-    g_AkaoVoiceAttr->addr = 0x77000;
-    g_AkaoVoiceAttr->loop_addr = 0x78000;
-    g_AkaoVoiceAttr->dr = 0xF;
-    g_AkaoVoiceAttr->sl = 0xF;
-    g_AkaoVoiceAttr->sr = 0x7F;
-    g_AkaoVoiceAttr->rr = 6;
-    g_AkaoVoiceAttr->a_mode = 1;
-    g_AkaoVoiceAttr->s_mode = 3;
-    g_AkaoVoiceAttr->r_mode = 3;
-    g_AkaoVoiceAttr->vol_r = 0;
-    g_AkaoVoiceAttr->ar = 0;
-    g_AkaoVoiceAttr->vol_l = g_AkaoStreamVol >> 1;
-    g_AkaoVoiceAttr->pitch = g_AkaoStreamFormat.pitch;
-    AkaoUpdateChannelParamsToSpu(0x10, g_AkaoVoiceAttr);
-    g_AkaoVoiceAttr->mask = 0x1FF93;
-    g_AkaoVoiceAttr->vol_l = 0;
-    g_AkaoVoiceAttr->addr = 0x77800;
-    g_AkaoVoiceAttr->loop_addr = 0x78800;
-    g_AkaoVoiceAttr->vol_r = g_AkaoStreamVol >> 1;
-    AkaoUpdateChannelParamsToSpu(0x11, g_AkaoVoiceAttr);
+    AkaoVoiceAttr* attr;
+
+    attr = &g_AkaoVoiceAttr;
+    attr->mask = 0x1FF93;
+    attr->vol_l = g_AkaoStreamVol >> 1;
+    attr->vol_r = 0;
+    attr->addr = 0x77000;
+    attr->loop_addr = 0x78000;
+    attr->ar = 0;
+    attr->dr = 0xF;
+    attr->sl = 0xF;
+    attr->sr = 0x7F;
+    attr->rr = 6;
+    attr->a_mode = 1;
+    attr->s_mode = 3;
+    attr->r_mode = 3;
+    attr->pitch = g_AkaoStreamFormat >> 16;
+    AkaoUpdateChannelParamsToSpu(0x10, attr);
+
+    attr->mask = 0x1FF93;
+    attr->vol_l = 0;
+    attr->vol_r = g_AkaoStreamVol >> 1;
+    attr->addr = 0x77800;
+    attr->loop_addr = 0x78800;
+    AkaoUpdateChannelParamsToSpu(0x11, attr);
 }
 
 static void AkaoStreamIrqCallbackMono0(void);
@@ -3246,7 +3286,7 @@ void AkaoUpdateChannelAndOvlParamsToSpu(AkaoChannel* channel, u32 mask, u32 voic
     vol = channel->voiceAttr.vol_l;
     balance = 0x7F - (channel->volBalance >> 8);
     channel->voiceAttr.vol_l = (vol * balance) >> 8;
-    overlay = &g_Channel1[channel->overlayChannelId];
+    overlay = &g_Channels[channel->overlayChannelId];
     overlay->voiceAttr.vol_l = (vol * channel->volBalance) >> 16;
     vol = channel->voiceAttr.vol_r;
     channel->voiceAttr.vol_r = (vol * balance) >> 8;
@@ -3297,7 +3337,7 @@ void AkaoUpdateKeysOn(void) {
     if (active) {
         bit = 1;
         voice = 0;
-        channel = g_Channel2;
+        channel = &g_Channels[AKAO_NUM_VOICES];
         free = ~(g_AkaoSfxLanes->activeMask | g_AkaoStreamMask) & g_Channel2VoiceMask;
         active &= free & g_AkaoBgmLanes[1].keyedMask;
         keyOn = free & g_AkaoBgmLanes[1].onMask;
@@ -3341,7 +3381,7 @@ void AkaoUpdateKeysOn(void) {
     if (active) {
         bit = 1;
         voice = 0;
-        channel = g_Channel1;
+        channel = g_Channels;
         free = ~(g_Channel2VoiceMask | g_AkaoSfxLanes->activeMask | g_AkaoStreamMask);
         active &= free & g_AkaoBgmLanes->keyedMask;
         keyOn |= free & g_AkaoBgmLanes->onMask;
@@ -3385,7 +3425,7 @@ void AkaoUpdateKeysOn(void) {
     active = g_AkaoSfxLanes->activeMask;
     if (active) {
         bit = 0x10000;
-        channel = g_AkaoSoundSlots[0].voices;
+        channel = &g_Channels[AKAO_NUM_VOICES * 2];
         keyOn |= g_AkaoSfxLanes->onMask;
         active &= g_AkaoSfxLanes->keyedMask;
         do {
@@ -3447,7 +3487,7 @@ void AkaoUpdateKeysOff(void) {
         active = g_AkaoBgmLanes[1].offMask & g_Channel2VoiceMask & ~(g_AkaoSfxLanes->activeMask | g_AkaoStreamMask);
         if (active) {
             AkaoCollectChannelsVoicesMask(
-                g_Channel2, &voices, active, ~(g_AkaoSfxLanes->activeMask | g_AkaoStreamMask));
+                &g_Channels[AKAO_NUM_VOICES], &voices, active, ~(g_AkaoSfxLanes->activeMask | g_AkaoStreamMask));
         }
         g_AkaoBgmLanes[1].offMask = 0;
     }
@@ -3455,7 +3495,7 @@ void AkaoUpdateKeysOff(void) {
         free = ~(g_Channel2VoiceMask | g_AkaoSfxLanes->activeMask | g_AkaoStreamMask);
         active = free & g_AkaoBgmLanes->offMask;
         if (active) {
-            AkaoCollectChannelsVoicesMask(g_Channel1, &voices, active, free);
+            AkaoCollectChannelsVoicesMask(g_Channels, &voices, active, free);
         }
         g_AkaoBgmLanes->offMask = 0;
     }
@@ -3474,12 +3514,13 @@ void AkaoUpdateNoiseVoices(void) {
     voices = 0;
     active = g_AkaoBgmLanes[1].noiseMask & g_Channel2VoiceMask & ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask);
     if (active) {
-        AkaoCollectChannelsVoicesMask(g_Channel2, &voices, active, ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask));
+        AkaoCollectChannelsVoicesMask(
+            &g_Channels[AKAO_NUM_VOICES], &voices, active, ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask));
     }
     free = ~(g_Channel2VoiceMask | g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask);
     active = free & g_AkaoBgmLanes->noiseMask;
     if (active) {
-        AkaoCollectChannelsVoicesMask(g_Channel1, &voices, active, free);
+        AkaoCollectChannelsVoicesMask(g_Channels, &voices, active, free);
     }
     voices |= g_AkaoSfxLanes->noiseMask;
     SpuSetNoiseVoice(SPU_ON, voices);
@@ -3495,7 +3536,8 @@ void AkaoUpdateReverbVoices(void) {
     voices = 0;
     active = g_AkaoBgmLanes[1].reverbMask & g_Channel2VoiceMask & ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask);
     if (active) {
-        AkaoCollectChannelsVoicesMask(g_Channel2, &voices, active, ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask));
+        AkaoCollectChannelsVoicesMask(
+            &g_Channels[AKAO_NUM_VOICES], &voices, active, ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask));
     }
     if (g_AkaoControlFlags & AKAO_CONTROL_REVERB_ENABLE) {
         voices = 0xFFFFFF;
@@ -3503,7 +3545,7 @@ void AkaoUpdateReverbVoices(void) {
         free = ~(g_Channel2VoiceMask | g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask);
         active = free & g_AkaoBgmLanes->reverbMask;
         if (active) {
-            AkaoCollectChannelsVoicesMask(g_Channel1, &voices, active, free);
+            AkaoCollectChannelsVoicesMask(g_Channels, &voices, active, free);
         }
     }
     voices |= g_AkaoSfxLanes->reverbMask;
@@ -3520,12 +3562,13 @@ void AkaoUpdatePitchLfoVoices(void) {
     voices = 0;
     active = g_AkaoBgmLanes[1].pitchLfoMask & g_Channel2VoiceMask & ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask);
     if (active) {
-        AkaoCollectChannelsVoicesMask(g_Channel2, &voices, active, ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask));
+        AkaoCollectChannelsVoicesMask(
+            &g_Channels[AKAO_NUM_VOICES], &voices, active, ~(g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask));
     }
     free = ~(g_Channel2VoiceMask | g_AkaoSfxLanes[0].activeMask | g_AkaoStreamMask);
     active = free & g_AkaoBgmLanes->pitchLfoMask;
     if (active) {
-        AkaoCollectChannelsVoicesMask(g_Channel1, &voices, active, free);
+        AkaoCollectChannelsVoicesMask(g_Channels, &voices, active, free);
     }
     voices |= g_AkaoSfxLanes->pitchLfoMask;
     SpuSetPitchLFOVoice(SPU_ON, voices);
@@ -3622,7 +3665,7 @@ void AkaoUpdateGlobalSlides(void) {
             value = g_AkaoPitchMulMusic + g_AkaoPitchMulMusicSlideStep;
             if ((value & 0xFF0000) != (g_AkaoPitchMulMusic & 0xFF0000)) {
                 mask = AKAO_NUM_VOICES;
-                channel = g_Channel1;
+                channel = g_Channels;
                 do {
                     mask--;
                     channel->voiceAttr.mask |= SPU_VOICE_PITCH;
@@ -3634,9 +3677,9 @@ void AkaoUpdateGlobalSlides(void) {
     }
     active = g_AkaoSfxLanes->activeMask;
     if (active) {
-        sound = g_AkaoSoundSlots[0].voices;
+        sound = &g_Channels[AKAO_NUM_VOICES * 2];
         mask = 0x10000;
-        channel = g_AkaoSoundSlots[0].voices;
+        channel = &g_Channels[AKAO_NUM_VOICES * 2];
         do {
             if (active & mask) {
                 if (channel->volBalanceSlideSteps) {
@@ -3683,13 +3726,13 @@ void AkaoUpdateGlobalSlides(void) {
     current = &g_AkaoVoiceWork[0].currentKey;
     fade = (s32*)((u8*)current - 8);
     if (*current) {
-        sound = g_Channel2;
+        sound = &g_Channels[AKAO_NUM_VOICES];
         mask = 1;
         state = g_AkaoVoiceWork;
         config = &g_AkaoBgmLanes[1].activeMask;
 #ifdef PLATFORM_PSYZ
         // The native build allocates the two music channel arrays separately.
-        musicMask = &g_Channel1[0].voiceAttr;
+        musicMask = &g_Channels[0].voiceAttr;
 #else
         // FAKE: The original likely used a shared owner for the two music channel arrays.
         musicMask = &sound[-AKAO_NUM_VOICES].voiceAttr;
@@ -3762,7 +3805,7 @@ void AkaoMainUpdate(void) {
         g_AkaoBgmLanes->tempoUpdate += tempo;
         if ((g_AkaoBgmLanes->tempoUpdate & 0xFFFF0000) || (g_AkaoControlFlags & AKAO_CONTROL_DOUBLE_SPEED)) {
             mask = 1;
-            channel = g_Channel1;
+            channel = g_Channels;
             g_AkaoBgmLanes->tempoUpdate &= 0xFFFF;
             g_AkaoMusicSlot = 0;
             do {
@@ -3819,7 +3862,7 @@ void AkaoMainUpdate(void) {
             g_AkaoBgmLanes[1].tempoUpdate &= 0xFFFF;
             g_AkaoMusicSlot = 1;
             mask = 1;
-            channel = g_Channel2;
+            channel = &g_Channels[AKAO_NUM_VOICES];
             do {
                 if (active & mask) {
                     length = channel->length - 0x101;
@@ -3850,7 +3893,7 @@ void AkaoMainUpdate(void) {
         if ((g_AkaoSfxLanes->tempoUpdate & 0xFFFF0000) || (g_AkaoControlFlags & AKAO_CONTROL_DOUBLE_SPEED)) {
             g_AkaoSfxLanes->tempoUpdate &= 0xFFFF;
             mask = 0x10000;
-            channel = g_AkaoSoundSlots[0].voices;
+            channel = &g_Channels[AKAO_NUM_VOICES * 2];
             while (active) {
                 if (active & mask) {
                     if (!(g_AkaoControlFlags & AKAO_CONTROL_PAUSE_UPDATE) || channel->playingType == AKAO_MENU) {
@@ -4317,7 +4360,7 @@ void AkaoOp_F4_OverlayVoiceOn(AkaoChannel* track, AkaoChannelConfig* config, u32
         inst2 = *track->akaoSequencePointer++;
 
         AkaoInstrInit(track, inst1);
-        AkaoInstrInit(&g_Channel1[voice], inst2);
+        AkaoInstrInit(&g_Channels[voice], inst2);
     }
 }
 
@@ -4467,7 +4510,7 @@ void AkaoOp_B3_ResetAdsr(AkaoChannel* track, AkaoChannelConfig* config, u32 mask
     track->voiceAttr.r_mode = instr->rMode;
     track->voiceAttr.mask |= AKAO_UPDATE_SPU_ADSR;
     if (track->updateFlags & AKAO_UPDATE_OVERLAY) {
-        overlay = &g_Channel1[track->overlayChannelId];
+        overlay = &g_Channels[track->overlayChannelId];
         overlay->voiceAttr.ar = track->voiceAttr.ar;
         overlay->voiceAttr.dr = track->voiceAttr.dr;
         overlay->voiceAttr.sl = track->voiceAttr.sl;
@@ -4774,7 +4817,7 @@ void AkaoOp_AD_SetAr(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
     track->voiceAttr.ar = *track->akaoSequencePointer++;
     track->voiceAttr.mask |= SPU_VOICE_ADSR_AMODE | SPU_VOICE_ADSR_AR;
     if (track->updateFlags & AKAO_UPDATE_OVERLAY) {
-        g_Channel1[track->overlayChannelId].voiceAttr.ar = track->voiceAttr.ar;
+        g_Channels[track->overlayChannelId].voiceAttr.ar = track->voiceAttr.ar;
     }
 }
 
@@ -4782,7 +4825,7 @@ void AkaoOp_AE_SetDr(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
     track->voiceAttr.dr = *track->akaoSequencePointer++;
     track->voiceAttr.mask |= SPU_VOICE_ADSR_DR;
     if (track->updateFlags & AKAO_UPDATE_OVERLAY) {
-        g_Channel1[track->overlayChannelId].voiceAttr.dr = track->voiceAttr.dr;
+        g_Channels[track->overlayChannelId].voiceAttr.dr = track->voiceAttr.dr;
     }
 }
 
@@ -4790,7 +4833,7 @@ void AkaoOp_AF_SetSl(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
     track->voiceAttr.sl = *track->akaoSequencePointer++;
     track->voiceAttr.mask |= SPU_VOICE_ADSR_SL;
     if (track->updateFlags & AKAO_UPDATE_OVERLAY) {
-        g_Channel1[track->overlayChannelId].voiceAttr.sl = track->voiceAttr.sl;
+        g_Channels[track->overlayChannelId].voiceAttr.sl = track->voiceAttr.sl;
     }
 }
 
@@ -4798,7 +4841,7 @@ void AkaoOp_B1_SetSr(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
     track->voiceAttr.sr = *track->akaoSequencePointer++;
     track->voiceAttr.mask |= SPU_VOICE_ADSR_SMODE | SPU_VOICE_ADSR_SR;
     if (track->updateFlags & AKAO_UPDATE_OVERLAY) {
-        g_Channel1[track->overlayChannelId].voiceAttr.sr = track->voiceAttr.sr;
+        g_Channels[track->overlayChannelId].voiceAttr.sr = track->voiceAttr.sr;
     }
 }
 
@@ -4806,7 +4849,7 @@ void AkaoOp_B2_SetRr(AkaoChannel* track, AkaoChannelConfig* config, u32 mask) {
     track->voiceAttr.rr = *track->akaoSequencePointer++;
     track->voiceAttr.mask |= SPU_VOICE_ADSR_RMODE | SPU_VOICE_ADSR_RR;
     if (track->updateFlags & AKAO_UPDATE_OVERLAY) {
-        g_Channel1[track->overlayChannelId].voiceAttr.rr = track->voiceAttr.rr;
+        g_Channels[track->overlayChannelId].voiceAttr.rr = track->voiceAttr.rr;
     }
 }
 
@@ -4814,7 +4857,7 @@ void AkaoOp_B7_AttackMode(AkaoChannel* track, AkaoChannelConfig* config, u32 mas
     track->voiceAttr.a_mode = *track->akaoSequencePointer++;
     track->voiceAttr.mask |= SPU_VOICE_ADSR_AMODE;
     if (track->updateFlags & AKAO_UPDATE_OVERLAY) {
-        g_Channel1[track->overlayChannelId].voiceAttr.a_mode = track->voiceAttr.a_mode;
+        g_Channels[track->overlayChannelId].voiceAttr.a_mode = track->voiceAttr.a_mode;
     }
 }
 
@@ -4822,7 +4865,7 @@ void AkaoOp_BB_SustainMode(AkaoChannel* track, AkaoChannelConfig* config, u32 ma
     track->voiceAttr.s_mode = *track->akaoSequencePointer++;
     track->voiceAttr.mask |= SPU_VOICE_ADSR_SMODE;
     if (track->updateFlags & AKAO_UPDATE_OVERLAY) {
-        g_Channel1[track->overlayChannelId].voiceAttr.s_mode = track->voiceAttr.s_mode;
+        g_Channels[track->overlayChannelId].voiceAttr.s_mode = track->voiceAttr.s_mode;
     }
 }
 
@@ -4830,7 +4873,7 @@ void AkaoOp_BF_ReleaseMode(AkaoChannel* track, AkaoChannelConfig* config, u32 ma
     track->voiceAttr.r_mode = *track->akaoSequencePointer++;
     track->voiceAttr.mask |= SPU_VOICE_ADSR_RMODE;
     if (track->updateFlags & AKAO_UPDATE_OVERLAY) {
-        g_Channel1[track->overlayChannelId].voiceAttr.r_mode = track->voiceAttr.r_mode;
+        g_Channels[track->overlayChannelId].voiceAttr.r_mode = track->voiceAttr.r_mode;
     }
 }
 
@@ -5077,7 +5120,7 @@ void AkaoOp_A0_FinishChannel(AkaoChannel* track, AkaoChannelConfig* config, u32 
         g_AkaoBgmLanes->onMask &= ~mask;
         g_AkaoBgmLanes->keyedMask &= ~mask;
         g_AkaoBgmLanes->offMask &= ~mask;
-        channel = &g_Channel1[track->alternativeChannelId];
+        channel = &g_Channels[track->alternativeChannelId];
         channel->voiceAttr.mask |= AKAO_UPDATE_SPU_BASE;
     }
     track->updateFlags = 0;

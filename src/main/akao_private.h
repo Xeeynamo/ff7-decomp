@@ -151,11 +151,6 @@ typedef struct {
     /* 0xDC */ AkaoVoiceAttr voiceAttr;
 } AkaoChannel;
 
-// Each sound effect slot occupies a stereo voice pair (2 audio channels, 0x210 bytes).
-typedef struct {
-    AkaoChannel voices[2];
-} AkaoSoundSlot; // size: 0x210
-
 typedef struct {
     /* 0x00 */ u16 opcode;
     /* 0x02 */ u16 pad;
@@ -234,11 +229,7 @@ extern u8 g_AkaoDefaultSound[0x20];
 extern u32 g_AkaoSoundEvent;
 extern s32 g_AkaoStreamMask;
 extern u32 g_AkaoStreamLoopSize;
-typedef struct {
-    u16 flags;
-    u16 pitch;
-} AkaoStreamFormat;
-extern AkaoStreamFormat g_AkaoStreamFormat;
+extern u32 g_AkaoStreamFormat;
 // Music-driver slide state: each MulMusic value is a fixed-point scalar for
 // pitch/volume/tempo (current value in the upper 16 bits, lower 16 bits are
 // fractional precision the driver accumulates every tick for a smooth
@@ -272,18 +263,16 @@ extern s32 g_AkaoControlFlags;
 extern u8* g_AkaoStreamLoopSrc;
 extern u32 g_AkaoStreamRemainingBytes;
 extern s32 g_AkaoCommandQueueId; // sound message queue count
-extern AkaoVoiceAttr g_AkaoVoiceAttr[1];
+extern AkaoVoiceAttr g_AkaoVoiceAttr;
 extern u16 g_AkaoMusicFadeSteps; // music fade/transition steps (default 0x10)
 extern AkaoChannel g_AkaoSavedChannels0[AKAO_NUM_VOICES];
 extern AkaoChannel g_AkaoSavedChannels1[AKAO_NUM_VOICES];
 extern AkaoQueuedCommand g_AkaoCommandQueue[32]; // sound messages queue
 extern s32 g_AkaoMusicBuffer[];
-extern AkaoChannel g_Channel1[];
-extern AkaoChannel g_Channel2[];
+extern AkaoChannel g_Channels[];
 extern s32 g_AkaoStreamVoice16UpdateMask;
 extern s32 g_AkaoStreamVoice17UpdateMask;
-extern AkaoSoundSlot g_AkaoSoundSlots[];
-extern s32 g_AkaoMusicSlot; // 0 while g_Channel1 is being sequenced, 1 for g_Channel2
+extern s32 g_AkaoMusicSlot; // Set of g_Channels being sequenced, 0 = first set, 1 = second set
 
 // Integer part of a 16.16 fixed point global, and the low byte of it.
 #define FIXED_HI(x) (*((u16*)&(x) + 1))

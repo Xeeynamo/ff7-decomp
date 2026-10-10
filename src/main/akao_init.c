@@ -119,7 +119,7 @@ void AkaoInitData(void) {
     g_AkaoControlFlags = 0;
     g_AkaoReverbPan = AKAO_PAN_CENTER;
     work = g_AkaoVoiceWork;
-    channel = g_Channel1;
+    channel = g_Channels;
     for (i = 0; i < AKAO_NUM_VOICES; i++, channel++, work++) {
         work->currentKey = 0;
         work->volSlide = 0;
@@ -130,7 +130,7 @@ void AkaoInitData(void) {
         SpuSetVoiceVolumeAttr(i, 0, 0, 0, 0);
         work->pitchSlide = 0x7F0000;
     }
-    channel = g_AkaoSoundSlots[0].voices;
+    channel = &g_Channels[AKAO_NUM_VOICES * 2];
     for (i = 16; i < AKAO_NUM_VOICES; i++, channel++) {
         channel->pitchMulSoundSlideSteps = 0;
         channel->pitchMulSound = 0;
