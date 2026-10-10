@@ -1736,7 +1736,6 @@ void BattlePrepareTmpForManip(void) {
 void BattleQueueIntroCamera(s32);
 void func_800A795C(void) { BattleQueueIntroCamera(g_CurrentAction->relativeActionIndex); }
 
-void func_800AF9C8();
 void BattleActionType0A(void) { func_800AF9C8(); }
 
 void BattleActionType0B(void) {
@@ -3367,8 +3366,131 @@ s32 BattleGetStatusProtectionMask(s32 arg0, s32 arg1, s32 arg2) {
     return statusProtectionMask;
 }
 
-void func_800AF9C8();
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF9C8);
+void func_800AF9C8(void) {
+    s32 targetFlags = g_CurrentAction->targetFlags;
+    s32 validTargets = g_BattleData.unitPresentMask;
+    s32 invalidTargets;
+    s32 targetMultiple;
+    s32 i;
+
+    if (!(g_CurrentAction->unk90 & 0x01000000)) {
+        validTargets &= g_BattleData.unk14C;
+        if ((g_CurrentAction->unk6C & 0x900) != 0x900) {
+            validTargets |= g_BattleData.downedActors & ~g_BattleSceneContext.unk1E88;
+        }
+    } else {
+        validTargets |= g_BattleData.downedActors;
+    }
+
+    invalidTargets = (g_CurrentAction->allowedTargetsMask ^ validTargets) & g_CurrentAction->allowedTargetsMask;
+    if (invalidTargets != 0) {
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            if (((invalidTargets >> i) & 1) && g_BattleWork.turn[i].senseTargetMask != 0xFF) {
+                g_CurrentAction->allowedTargetsMask |= (1 << g_BattleWork.turn[i].senseTargetMask);
+            }
+        }
+    }
+
+    if (targetFlags == 0) {
+        g_CurrentAction->allowedTargetsMask = 1 << g_CurrentAction->actorId;
+    } else {
+        targetMultiple = 0;
+        if (targetFlags & TARGET_ALL_ROWS) {
+            g_CurrentAction->allowedTargetsMask = g_BattleData.unk14C & ~g_BattleData.downedActors;
+        } else {
+            s32 isConfused = 0;
+            s32 startEnemyRow = targetFlags & TARGET_START_ENEMY_ROW;
+            s32 targetTeamMask;
+            s32 targetParty;
+
+            targetParty = startEnemyRow != 0;
+            if (g_CurrentAction->actorId < START_ENEMY) {
+                targetParty ^= 1;
+            }
+
+            if (g_CurrentAction->cmdIndex != CMD_SUMMON && g_CurrentAction->cmdIndex != CMD_LIMIT) {
+                if (g_BattleState.combatant[g_CurrentAction->actorId].status & (STATUS_CONFU | STATUS_MANIPULATE)) {
+                    targetParty ^= 1;
+                }
+
+                if (g_BattleState.combatant[g_CurrentAction->actorId].status & STATUS_CONFU) {
+                    isConfused = 1;
+                }
+            }
+
+            if ((targetFlags & (TARGET_MULTIPLE_DEFAULT | TARGET_TOGGLE_MULTIPLE)) == TARGET_MULTIPLE_DEFAULT) {
+                targetMultiple = 1;
+            }
+
+            if (g_CurrentAction->unkAC != 0) {
+                targetMultiple = 1;
+                targetFlags |= TARGET_MULTIPLE_DEFAULT;
+            }
+
+            targetTeamMask = targetParty ? 0xF : 0x3F0;
+
+            if (isConfused) {
+                g_CurrentAction->allowedTargetsMask = targetTeamMask;
+                if (!(g_CurrentAction->unk90 & 0x200)) {
+                    g_CurrentAction->allowedTargetsMask = SysSelectRandomBit(targetTeamMask);
+                }
+            }
+
+            if (targetFlags & TARGET_ONE_ROW_ONLY) {
+                validTargets &= targetTeamMask;
+            } else if (targetFlags & TARGET_SHORT_RANGE) {
+                validTargets &= g_BattleData.unk150;
+            }
+
+            g_CurrentAction->allowedTargetsMask &= validTargets;
+            targetTeamMask &= validTargets;
+
+            if (!(g_CurrentAction->unk90 & 0x200000)) {
+                if ((g_CurrentAction->allowedTargetsMask && (SysCountActiveBits(g_CurrentAction->unk94) >= 2)) ||
+                    targetMultiple) {
+                    if (g_CurrentAction->allowedTargetsMask & 0xF) {
+                        validTargets &= 0xF;
+                    } else {
+                        validTargets &= 0x3F0;
+                    }
+
+                    if (!(g_CurrentAction->allowedTargetsMask & g_BattleData.unitZoneMask[0])) {
+                        validTargets &= ~g_BattleData.unitZoneMask[0];
+                    }
+                    if (!(g_CurrentAction->allowedTargetsMask & g_BattleData.unitZoneMask[2])) {
+                        validTargets &= ~g_BattleData.unitZoneMask[2];
+                    }
+                    g_CurrentAction->allowedTargetsMask = validTargets;
+                }
+
+                if (g_CurrentAction->allowedTargetsMask == 0) {
+                    if (targetFlags & TARGET_MULTIPLE_DEFAULT) {
+                        if ((targetFlags & TARGET_TOGGLE_MULTIPLE) && !(g_CurrentAction->unk90 & 0x200)) {
+                            targetTeamMask = SysSelectRandomBit(targetTeamMask);
+                        }
+                    }
+                    g_CurrentAction->allowedTargetsMask = targetTeamMask;
+                }
+
+                if (!(targetFlags & TARGET_MULTIPLE_DEFAULT) || ((g_CurrentAction->unk90 & 0x100200) == 0x100200)) {
+                    g_CurrentAction->allowedTargetsMask = SysSelectRandomBit(g_CurrentAction->allowedTargetsMask);
+                }
+            }
+
+            // Restrict targets to either side in the case of a pincer/side attack
+            if ((g_CurrentAction->allowedTargetsMask & g_BattleData.unitZoneMask[0]) &&
+                (g_CurrentAction->allowedTargetsMask & g_BattleData.unitZoneMask[2])) {
+                s32 zoneIndex = SysGetRandomByteFromTable() & 2; // 0 or 2
+                g_CurrentAction->allowedTargetsMask &= g_BattleData.unitZoneMask[zoneIndex];
+                g_CurrentAction->unkEC &= g_BattleData.unitZoneMask[zoneIndex];
+            }
+        }
+    }
+
+    if (g_CurrentAction->unk94 == 0) {
+        g_CurrentAction->unk94 = g_CurrentAction->allowedTargetsMask;
+    }
+}
 
 extern s32 D_800F499C;
 extern s32 D_800F49F8[][10];
