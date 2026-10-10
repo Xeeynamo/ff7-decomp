@@ -506,7 +506,7 @@ typedef struct {
     } u;
 } BattleWorldView; // size:0x38
 
-// Flag word at offset 4, as func_800D29D4 tests it. Each mirror bit negates
+// Flag word at offset 4, as BattleDrawModel tests it. Each mirror bit negates
 // one rotation column, reversing polygon winding, so the cull test XORs their
 // parity back out. Readings agree with Akari's q-gears_reverse
 // (ffvii/DISC/BATTLE/BATTLE.X_model.cpp, "funcd29d4").
@@ -522,7 +522,7 @@ enum ModelRenderFlags {
     MODEL_PRIM_PACKET_BITS = 0x100, // primitive byte 7 << 18 ORed into colour
 };
 
-// Model descriptor read by func_800D29D4. Field readings agree with Akari's
+// Model descriptor read by BattleDrawModel. Field readings agree with Akari's
 // q-gears_reverse (ffvii/DISC/BATTLE/BATTLE.X_model.cpp, "funcd29d4").
 typedef struct {
     /* 0x0 */ s32* model;
@@ -706,7 +706,7 @@ extern SavePartyMember D_80167938;
 s32 BattleEffectRegister(void (*func)(void));
 void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void BattleEnqueueClearImage(RECT* rect, s32 arg1, s32 arg2, s32 arg3);
-void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);
+void* BattleDrawModel(ModelRenderDesc* desc, u_long** ot, int otLen, void* prim);
 // Build the model matrix for a battle effect: `scale` goes on the matrix
 // diagonal, `pos` is transformed into view space to become the translation,
 // and `depthBias` nudges it along that view vector (negative pulls it toward

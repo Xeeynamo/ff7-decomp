@@ -296,6 +296,7 @@ BattleFlushImageQueue = 0x800D25E8;
 BattleSetLoadClutToVram = 0x800D2710;
 BattleSetLoadTextureToVram = 0x800D2828;
 BattleSetLoadTimToVram = 0x800D2980;
+BattleDrawModel = 0x800D29D4;
 BattleModelFlipR11R21R31 = 0x800D3418;
 BattleModelFlipR12R22R32 = 0x800D3474;
 BattleModelFlipR13R23R33 = 0x800D34C8;

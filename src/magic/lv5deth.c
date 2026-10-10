@@ -92,7 +92,7 @@ static void Lv5DeathRenderRing(void) {
     }
 
     SetFarColor(0, 0, 0);
-    g_Lv5DeathBufferPtr = func_800D29D4(desc, g_cDb->unk70, 12, g_Lv5DeathBufferPtr);
+    g_Lv5DeathBufferPtr = BattleDrawModel(desc, g_cDb->unk70, 12, g_Lv5DeathBufferPtr);
 
     if (effect->AnimationFrame >= TARGET_LIFETIME) {
         effect->StartFrame = -1;

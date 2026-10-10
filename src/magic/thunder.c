@@ -70,7 +70,7 @@ static void ThunderRenderModel(void) {
     CompMatrix(&g_BattleWorldView.m, &thunder_model_matrix, &matrix);
     SetRotMatrix(&matrix);
     SetTransMatrix(&matrix);
-    g_ThunderBufferPtr = func_800D29D4(&thunder_model_desc, g_cDb->unk70, 12, g_ThunderBufferPtr);
+    g_ThunderBufferPtr = BattleDrawModel(&thunder_model_desc, g_cDb->unk70, 12, g_ThunderBufferPtr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         effect->Scale += effect->ScaleStep;

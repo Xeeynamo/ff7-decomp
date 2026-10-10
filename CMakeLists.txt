@@ -52,6 +52,7 @@ set(FF7_BATTLE
     src/battle/batres.c
     src/battle/battle1.c
     src/battle/battle2.c
+    src/battle/D3548.c
     src/battle/battle3.c
     src/battle/battle.c
 )

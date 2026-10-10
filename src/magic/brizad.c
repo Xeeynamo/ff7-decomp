@@ -76,7 +76,7 @@ static void BrizadRenderIce(void) {
     SetTransMatrix(&matrix);
     SetFarColor(0, 0, 0);
     brizad_render_desc.color = fade;
-    brizad_buffer_ptr = func_800D29D4(&brizad_render_desc, g_cDb->unk70, 12, brizad_buffer_ptr);
+    brizad_buffer_ptr = BattleDrawModel(&brizad_render_desc, g_cDb->unk70, 12, brizad_buffer_ptr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         if (effect->AnimationFrame >= BRIZAD_LIFETIME) {

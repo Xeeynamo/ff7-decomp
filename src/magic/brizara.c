@@ -56,7 +56,7 @@ static void BrizaraRenderModel0(void) {
     CompMatrix(&g_BattleWorldView.m, matrix, matrix);
     SetRotMatrix(matrix);
     SetTransMatrix(matrix);
-    brizara_buffer_ptr = func_800D29D4(&brizara_render_desc0, g_cDb->unk70, 12, brizara_buffer_ptr);
+    brizara_buffer_ptr = BattleDrawModel(&brizara_render_desc0, g_cDb->unk70, 12, brizara_buffer_ptr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
         effect->Rot.vx += 0x100;
@@ -107,7 +107,7 @@ static void BrizaraRenderModel1(void) {
     CompMatrix(&g_BattleWorldView.m, matrix, matrix);
     SetRotMatrix(matrix);
     SetTransMatrix(matrix);
-    brizara_buffer_ptr = func_800D29D4(&brizara_render_desc1, g_cDb->unk70, 12, brizara_buffer_ptr);
+    brizara_buffer_ptr = BattleDrawModel(&brizara_render_desc1, g_cDb->unk70, 12, brizara_buffer_ptr);
     if (D_80062D98 == 0) {
         effect->AnimationFrame++;
     }
