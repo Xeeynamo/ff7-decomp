@@ -37,7 +37,7 @@ u8 D_800DF115 = 12;
 u8 D_800DF116 = 14;
 u8 D_800DF117 = 0;
 
-struct FieldRenderData* D_800DF118 = NULL;
+FieldRenderData* D_800DF118 = NULL;
 FieldKawaiHandler* g_FieldKawaiHandlers = g_FieldKawaiHandlerTable;
 
 s16 D_800DF120[256][2] = {

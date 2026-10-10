@@ -18,7 +18,7 @@ void FieldArrowsInit(SPRT_16* arrows, DR_MODE* drawMode) {
     SetDrawMode(drawMode, 0, 1, GetTPage(0, 0, 960, 256), NULL);
 }
 
-void FieldArrowsAddToRender(struct FieldRenderData* renderData, MATRIX* matrix, FieldGateway* gateways) {
+void FieldArrowsAddToRender(FieldRenderData* renderData, MATRIX* matrix, FieldGateway* gateways) {
     SVECTOR pos;
     long p;
     long flag;

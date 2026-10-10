@@ -910,8 +910,8 @@ typedef struct {
 typedef struct {
     /* 0x00 */ LinePos pos;
     /* 0x0C */ DVECTOR destFieldPos;
-    /* 0x10 */ s16 pcWalkMeshTriangleId;
-    /* 0x12 */ u16 fieldId;
+    /* 0x10 */ s16 pcPosI;
+    /* 0x12 */ u16 fieldMapId;
     /* 0x14 */ u8 pcDirection;
     /* 0x15 */ u8 unk15[3];
 } FieldGateway; // size: 0x18
@@ -988,8 +988,7 @@ typedef struct {
     s32 MoveStartY;       // 0x1C
     s32 MoveStartZ;       // 0x20
     s8 Unk24[8];          // 0x24-0x2B
-    s16 MoveB;            // 0x2C
-    u8 Unk2E[2];          // 0x2E-0x2F
+    s32 MoveB;            // 0x2C
     s16 MoveSteps;        // 0x30
     s16 MoveStep;         // 0x32
     u8 Unk34;             // 0x34
@@ -1033,7 +1032,7 @@ typedef struct {
     u16 TalkRange;        // 0x6E
     u16 MoveSpeed;        // 0x70
     u16 PosI;             // 0x72
-    s16 MoveEndI;         // 0x74
+    u16 MoveEndI;         // 0x74
     u16 Pad76;
     s32 MoveEndX; // 0x78
     s32 MoveEndY; // 0x7C
@@ -1175,14 +1174,14 @@ typedef struct {
     u16 cameraScrollNumSteps;
     // Following two variables are set when exiting from field to mini games,
     // world map, or another field map.
-    u16 pcWalkMeshId;      // Walk mesh triangle id player is inside of.
+    u16 pcPosI;           // Walk mesh triangle id player is inside of.
     s16 pcDirection;       // Direction player is facing.
     s16 movieCommandState; // enum MovieCommandState.
     s16 modelCount;
     s16 pcModelId;
-    u16 idleAnimId;
-    u16 walkAnimId;
-    u16 runAnimId;
+    s16 idleAnimId;
+    s16 walkAnimId;
+    s16 runAnimId;
     u8 characterLock;
     u8 suspendWalkAndAnim;
     u8 menuDisabled; // Set by MENU2.
@@ -1241,13 +1240,13 @@ typedef struct {
     FieldShakeData shakeX;
     FieldShakeData shakeY;
     // Set by BGSCR. Affects parallax effect on camera movements.
-    u16 layer2_bgScrollXSpeed;
-    u16 layer2_bgScrollYSpeed;
-    u16 layer3_bgScrollXSpeed;
-    u16 layer3_bgScrollYSpeed;
+    u16 layer2ScrollXSpeed;
+    u16 layer2ScrollYSpeed;
+    u16 layer3ScrollXSpeed;
+    u16 layer3ScrollYSpeed;
     // Can be overridden by BGPDH.
-    u16 layer3_depth; // Default: 1.
-    u16 layer2_depth; // Default: 4095.
+    u16 layer3Depth; // Default: 1.
+    u16 layer2Depth; // Default: 4095.
     // Bit fields that define which walk mesh triangles
     // the player can't travel between. IDLCK can override the accesses.
     u8 blockedAccesses[64];
@@ -1367,7 +1366,6 @@ extern s8 g_FieldDebugCurPage;
 extern u8 D_80071E24;
 extern u8 g_WindowCount;
 extern u8 g_BattleLock;
-extern MATRIX* D_80071E40;
 extern u8 g_PartyUpdatedByFieldScript;
 extern u8 g_CurrentEntity; // entity owning the currently executing script
 extern MateriaData g_MateriaData[100];
@@ -1427,7 +1425,7 @@ extern u8 D_80099FFC;
 extern AkaoCmd g_AkaoCmd;
 extern s32 g_MemcardEvents[8];
 extern u8 g_FieldCurrentOpcode;
-extern s16 g_CurrentFieldIndex;
+extern s16 g_FieldCurrentMap;
 extern s32 D_8009A064;
 extern MenuTable g_PartyMenuTables[3];
 extern u8 g_FieldScriptPriority[48]; // active scripts execution priority

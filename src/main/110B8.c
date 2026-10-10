@@ -232,7 +232,7 @@ static void InitWorldFromSavemap(void) {
         Savemap.worldmap_exit_action = 0;
         Savemap.current_module = 1;
     }
-    Savemap.current_location_id = g_CurrentFieldIndex;
+    Savemap.current_location_id = g_FieldCurrentMap;
     modelId = g_PlayerModelId;
     Savemap.field_x = g_FieldEntity[modelId].PosX >> 12;
     Savemap.field_y = g_FieldEntity[modelId].PosY >> 12;
@@ -251,11 +251,11 @@ static void InitFieldFromSavemap(void) {
     if (g_GameState == 0) {
         g_GameState = 1;
     }
-    g_CurrentFieldIndex = Savemap.current_location_id;
+    g_FieldCurrentMap = Savemap.current_location_id;
     g_FieldState.prevFieldId = Savemap.current_location_id;
     g_FieldState.pcPosX = Savemap.field_x;
     g_FieldState.pcPosY = Savemap.field_y;
-    g_FieldState.pcWalkMeshId = Savemap.field_triangle;
+    g_FieldState.pcPosI = Savemap.field_triangle;
     g_FieldState.pcDirection = Savemap.field_direction;
     D_8009C540 = Savemap.step_id;
     D_8009AD2C = Savemap.step_offset;

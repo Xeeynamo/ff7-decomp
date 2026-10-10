@@ -345,7 +345,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "B-R    X=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][0].vx, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3].vx, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 9, g_DebugText);
@@ -355,10 +355,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "Y=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][0].vy, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3].vy, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " Z=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][0].vz, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3].vz, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 10, g_DebugText);
@@ -367,7 +367,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "R-G    X=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][1].vx, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 1].vx, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 11, g_DebugText);
@@ -377,10 +377,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "Y=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][1].vy, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 1].vy, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " Z=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][1].vz, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 1].vz, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 12, g_DebugText);
@@ -389,7 +389,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "G-B    X=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][2].vx, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 2].vx, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 13, g_DebugText);
@@ -399,10 +399,10 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "Y=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][2].vy, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 2].vy, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " Z=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI][2].vz, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 2].vz, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 14, g_DebugText);
@@ -476,7 +476,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
         }
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 18, g_DebugText);
-            if ((u_long)D_80075E10 > (u_long)(void*)0x801AFFFF) {
+            if ((u_long)D_80075E10 >= (u_long)FIELD_LOAD_BUFFER) {
                 if (Savemap.memory_bank_1[19] & 0x10) {
                     SetDebugStrRowColor(arg0, 18, 5);
                 } else {
@@ -2198,7 +2198,7 @@ static s32 OpcodeFuncMjump(void) {
         GET_PARAM_S16(g_pFieldState->eventCmdParam, 1);
         GET_PARAM_S16(g_pFieldState->pcPosX, 3);
         GET_PARAM_S16(g_pFieldState->pcPosY, 5);
-        GET_PARAM_S16(g_pFieldState->pcWalkMeshId, 7);
+        GET_PARAM_S16(g_pFieldState->pcPosI, 7);
         g_pFieldState->pcDirection = GET_PARAM_U8(9);
         return 1;
     case EVTCMD_FIELD_MAP_CHANGE:
@@ -2249,7 +2249,7 @@ static s32 OpcodeFuncMgame(void) {
         GET_PARAM_S16(g_pFieldState->eventCmdParam, 1);
         GET_PARAM_S16(g_pFieldState->pcPosX, 3);
         GET_PARAM_S16(g_pFieldState->pcPosY, 5);
-        GET_PARAM_S16(g_pFieldState->pcWalkMeshId, 7);
+        GET_PARAM_S16(g_pFieldState->pcPosI, 7);
         g_pFieldState->pcDirection = GET_PARAM_U8(9);
         g_pFieldState->backgroundLayerVisibility[0] = GET_PARAM_U8(10); // Minigame id
         return 1;
@@ -6545,12 +6545,12 @@ static s32 OpcodeFuncBgscr(void) {
     }
     switch (GET_PARAM_U8(2)) {
     case 2:
-        g_pFieldState->layer2_bgScrollXSpeed = FieldEventReadMemoryS16(1, 3);
-        g_pFieldState->layer2_bgScrollYSpeed = FieldEventReadMemoryS16(2, 5);
+        g_pFieldState->layer2ScrollXSpeed = FieldEventReadMemoryS16(1, 3);
+        g_pFieldState->layer2ScrollYSpeed = FieldEventReadMemoryS16(2, 5);
         break;
     case 3:
-        g_pFieldState->layer3_bgScrollXSpeed = FieldEventReadMemoryS16(1, 3);
-        g_pFieldState->layer3_bgScrollYSpeed = FieldEventReadMemoryS16(2, 5);
+        g_pFieldState->layer3ScrollXSpeed = FieldEventReadMemoryS16(1, 3);
+        g_pFieldState->layer3ScrollYSpeed = FieldEventReadMemoryS16(2, 5);
         break;
     default:
         break;
@@ -6566,10 +6566,10 @@ static s32 OpcodeFuncBgdph(void) {
     }
     switch (GET_PARAM_U8(2)) {
     case 2:
-        g_pFieldState->layer2_depth = FieldEventReadMemoryS16(1, 3);
+        g_pFieldState->layer2Depth = FieldEventReadMemoryS16(1, 3);
         break;
     case 3:
-        g_pFieldState->layer3_depth = FieldEventReadMemoryS16(1, 3);
+        g_pFieldState->layer3Depth = FieldEventReadMemoryS16(1, 3);
         break;
     default:
         break;

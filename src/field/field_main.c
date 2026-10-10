@@ -13,11 +13,9 @@ extern u16 D_8007173C;
 extern s8 D_80071A58;
 extern FieldScriptHeader** D_8007EB64;
 extern u8 D_8007EBC8;
-extern s32** D_8009A044;
 extern s8 D_8009A048[16];
 extern volatile s16 g_GameState;
 extern u8 D_8009C6D8;
-extern u8** D_8009D848;
 extern DRAWENV D_80113FE4[2];
 extern DRAWENV D_8011409C[2];
 extern DRAWENV D_80114154[2];
@@ -30,21 +28,22 @@ void FieldEventInit(FieldState* fieldState, FieldEntity* fieldModels, FieldScrip
 void SysFadeCopyScreen(void);
 void SysFadeInitPoly(void);
 void SystemCdromAbortLoading(void);
+
 static void FieldLoadMimDatFiles(void) {
 
-    if (g_IsFieldLoading == 0) {
-        SysCdromStartLoadLzs(g_FieldFileInfo[g_CurrentFieldIndex * 6 + 2], g_FieldFileInfo[g_CurrentFieldIndex * 6 + 3],
-                             (u_long*)0x80128000, NULL);
-        while (SystemCdromReadChain() != 0) {
+    if (!g_IsFieldLoading) {
+        SysCdromStartLoadLzs(g_FieldFileInfo[g_FieldCurrentMap * 6 + 2], g_FieldFileInfo[g_FieldCurrentMap * 6 + 3],
+                             FIELD_TEXTURE_BUFFER, NULL);
+        while (SystemCdromReadChain()) {
         }
     } else {
-        while (SystemCdromReadChain() != 0) {
+        while (SystemCdromReadChain()) {
         }
-        SystemLzsDecompress((u8*)0x801B0000, (u8*)0x80128000);
+        SystemLzsDecompress(FIELD_LOAD_BUFFER, FIELD_TEXTURE_BUFFER);
     }
-    SysCdromStartLoadLzs(g_FieldFileInfo[g_CurrentFieldIndex * 6 + 0], g_FieldFileInfo[g_CurrentFieldIndex * 6 + 1],
-                         (u_long*)0x80114FE4, NULL);
-    while (SystemCdromReadChain() != 0) {
+    SysCdromStartLoadLzs(g_FieldFileInfo[g_FieldCurrentMap * 6 + 0], g_FieldFileInfo[g_FieldCurrentMap * 6 + 1],
+                         (u_long*)FIELD_DAT_HEADER, NULL);
+    while (SystemCdromReadChain()) {
     }
     g_FieldTriggers = *g_FieldTriggersP;
     g_FieldEncounters = *g_FieldEncountersP;
@@ -75,13 +74,13 @@ void PreloadNextFieldMap(FieldEntity* player, FieldGateway* gateways) {
 
     if (!g_FieldState.characterLock) {
         for (i = 0; i < 12; i++, gateways++) {
-            if (gateways->fieldId != 32767) {
+            if (gateways->fieldMapId != 32767) {
                 dx = gateways->pos.x1 - pos->vx;
                 dy = gateways->pos.y1 - pos->vy;
                 distance = dx * dx + dy * dy;
                 if (distance < minDistance) {
                     minDistance = distance;
-                    g_FieldPreloadMapId = gateways->fieldId;
+                    g_FieldPreloadMapId = gateways->fieldMapId;
                 }
             }
         }
@@ -103,9 +102,9 @@ void PreloadNextFieldMap(FieldEntity* player, FieldGateway* gateways) {
     D_80071A5C = g_FieldPreloadMapId;
     if (D_80071A5C >= 65) {
         SystemLoadFileBySector(
-            g_FieldFileInfo[D_80071A5C * 6 + 2], g_FieldFileInfo[D_80071A5C * 6 + 3], (u_long*)0x801B0000, NULL);
+            g_FieldFileInfo[D_80071A5C * 6 + 2], g_FieldFileInfo[D_80071A5C * 6 + 3], FIELD_LOAD_BUFFER, NULL);
     } else {
-        SystemLoadFileBySector(g_WmPreSector, g_WmPreSize, (u_long*)0x801B0000, NULL);
+        SystemLoadFileBySector(g_WmPreSector, g_WmPreSize, FIELD_LOAD_BUFFER, NULL);
     }
     g_IsFieldLoading = 1;
 }
@@ -177,13 +176,13 @@ void FIELD_Main(void) {
             D_80095DD4 = 1;
         }
         if (g_PrevGameState != GAMESTATE_MENU && g_PrevGameState != GAMESTATE_MENU_COMMANND) {
-            D_8007EB64 = (FieldScriptHeader**)0x80114FE4;
-            D_8009A044 = (s32**)0x80114FE8;
-            D_8009D848 = (u8**)0x80114FEC;
-            D_80083578 = (MATRIX**)0x80114FF0;
-            g_FieldTriggersP = (FieldTriggers**)0x80114FF4;
-            g_FieldEncountersP = (FieldEncounterTable**)0x80114FF8;
-            g_FieldModelsP = (FieldModelLoaderHeader**)0x80114FFC;
+            D_8007EB64 = &FIELD_DAT_HEADER->scripts;
+            D_8009A044 = &FIELD_DAT_HEADER->walkmesh;
+            g_FieldTilemap = &FIELD_DAT_HEADER->tilemap;
+            D_80083578 = &FIELD_DAT_HEADER->camera;
+            g_FieldTriggersP = &FIELD_DAT_HEADER->triggers;
+            g_FieldEncountersP = &FIELD_DAT_HEADER->encounters;
+            g_FieldModelsP = &FIELD_DAT_HEADER->modelLoader;
             FieldLoadMimDatFiles();
         }
         if (g_PrevGameState == GAMESTATE_BATTLE) {
@@ -211,19 +210,19 @@ void FIELD_Main(void) {
             g_PrevGameState == GAMESTATE_HIGHWAY || g_PrevGameState == GAMESTATE_SNOWBOARD1 ||
             g_PrevGameState == GAMESTATE_CHOCOBO || g_PrevGameState == GAMESTATE_FORTCONDOR ||
             g_PrevGameState == GAMESTATE_JET || g_PrevGameState == GAMESTATE_SUBMARIME) {
-            g_FieldState.layer2_bgScrollXSpeed = 0;
-            g_FieldState.layer2_bgScrollYSpeed = 0;
-            g_FieldState.layer3_bgScrollXSpeed = 0;
-            g_FieldState.layer3_bgScrollYSpeed = 0;
-            g_FieldState.layer3_depth = 1;
-            g_FieldState.layer2_depth = 4095;
+            g_FieldState.layer2ScrollXSpeed = 0;
+            g_FieldState.layer2ScrollYSpeed = 0;
+            g_FieldState.layer3ScrollXSpeed = 0;
+            g_FieldState.layer3ScrollYSpeed = 0;
+            g_FieldState.layer3Depth = 1;
+            g_FieldState.layer2Depth = 4095;
             g_CameraScrollEnabled = 0;
             g_CameraScrollX = 0;
             g_CameraScrollY = 0;
             g_FieldState.viewOffset = g_FieldTriggers->viewOffset;
             FieldEventInit(&g_FieldState, g_FieldEntity, *D_8007EB64);
             g_FieldEntity[g_FieldState.pcModelId].Dir = g_FieldState.pcDirection;
-            if (!(Savemap.memory_bank_5[0x83] & 0x80)) {
+            if (!(Savemap.memory_bank_5[131] & 0x80)) {
                 g_RainForce = 0;
             } else {
                 g_RainForce = 0xFF;
@@ -241,7 +240,7 @@ void FIELD_Main(void) {
         FieldArrowsInit(g_FieldRenderData[0].arrows, &g_FieldRenderData[0].arrowsDm);
         FieldArrowsInit(g_FieldRenderData[1].arrows, &g_FieldRenderData[1].arrowsDm);
         if (g_PrevGameState != GAMESTATE_MENU && g_PrevGameState != GAMESTATE_MENU_COMMANND) {
-            FieldLoadMimToVram(0, (void*)0x80128000);
+            FieldLoadMimToVram(0, FIELD_TEXTURE_BUFFER);
         }
         if (g_PrevGameState == GAMESTATE_BATTLE) {
             g_AkaoCmd.opcode = AKAO_RESTORE_STATE;
@@ -265,12 +264,12 @@ void FIELD_Main(void) {
             break;
         }
         if (g_FieldState.eventCmd == EVTCMD_FIELD_MAP_CHANGE) {
-            g_FieldState.prevFieldId = g_CurrentFieldIndex;
-            g_CurrentFieldIndex = g_FieldState.eventCmdParam;
-            if (g_CurrentFieldIndex != D_80071A5C) {
+            g_FieldState.prevFieldId = g_FieldCurrentMap;
+            g_FieldCurrentMap = g_FieldState.eventCmdParam;
+            if (g_FieldCurrentMap != D_80071A5C) {
                 StopFieldMapPreload();
             }
-            if (((u16)g_CurrentFieldIndex - 1) < 64U) {
+            if (((u16)g_FieldCurrentMap - 1) < 64U) {
                 g_GameState = GAMESTATE_WORLD;
                 SysFadeCopyScreen();
                 g_FieldState.fadeType = FFT_SYS_FADE_TO_BLACK_FIELD_CHANGE;
@@ -282,8 +281,8 @@ void FIELD_Main(void) {
             }
         }
         if (g_FieldState.eventCmd == EVTCMD_LOAD_MINIGAME) {
-            g_FieldState.prevFieldId = g_CurrentFieldIndex;
-            g_CurrentFieldIndex = g_FieldState.eventCmdParam;
+            g_FieldState.prevFieldId = g_FieldCurrentMap;
+            g_FieldCurrentMap = g_FieldState.eventCmdParam;
             switch (g_FieldState.backgroundLayerVisibility[0]) {
             case 0:
                 g_GameState = GAMESTATE_HIGHWAY;

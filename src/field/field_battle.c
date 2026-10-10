@@ -33,7 +33,7 @@ void FieldBattleCheck(void) {
     u8 rand;
     s32 i;
     u8 prob;
-    FieldEncounterTable* encTable;
+    FieldEncounters* encTable;
 
     if (!g_FieldState.encounterTableId) {
         encTable = &g_FieldEncounters[0];
