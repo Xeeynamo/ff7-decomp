@@ -55,10 +55,8 @@ typedef struct {
     /* 0x0A */ s16 D_80162982;
     /* 0x0C */ s16 unkC;
     /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s16 unk14;
-    /* 0x16 */ s16 unk16;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
     /* 0x18 */ u8 unk18;
     /* 0x19 */ u8 unk19;
     /* 0x1A */ s16 unk1A;
@@ -109,6 +107,7 @@ typedef struct {
 } Unk80162200;
 typedef union {
     u8* ptr;
+    s32 value;
     Unk80162200 unk;
 } Union80162200;
 
@@ -602,7 +601,7 @@ extern s32 D_800F57CC; // btlmenu_cursorMemory
 extern EffectModel* D_800F57D0;
 extern u8 D_800F57D4;
 extern u16 D_800F7DE2[]; // All Lucky 7s trigger count
-extern s8 D_800F7DE4;
+extern u8 D_800F7DE4;
 typedef struct {
     s16 modelIndex;
     ShortVectorXYZ position;
@@ -625,7 +624,21 @@ extern BattleEnemyModelFiles D_800F7DF4;
 typedef struct {
     /* 0x00 */ s16 D_800F7ED8;
     /* 0x02 */ s16 D_800F7EDA;
-    /* 0x04 */ u8 unk4[0x24];
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ s16 unk18;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 unk20[8];
 } Unk800F7ED8; // size:0x28
 
 extern Unk800F7ED8 g_BattleCameraSlots[];
@@ -667,7 +680,7 @@ extern u8 D_800F9D94;
 extern u8 D_800F9D98;
 extern u8 D_800F9D9C;
 extern u16 D_800F9DA4;
-extern u8 D_800F9DA8[];
+
 extern BattleWorldView g_BattleWorldView;
 extern s16 D_800FA69C;
 extern u8 D_800FA6A0;
@@ -688,16 +701,8 @@ extern s32 D_801516CC[10];
 extern s32 D_8015174C[10];
 extern s32 D_8015178C[10];
 extern s32 D_801517C8[10];
-typedef struct {
-    /* 0x0 */ u16 pos;
-    /* 0x2 */ u16 unk2;
-    /* 0x4 */ u8 unk4;
-    /* 0x5 */ u8 unk5[0x9];
-} BattleQueue1CamCursor; // size:0xE
 
-extern BattleQueue1CamCursor g_BattleQueue1CamReadCursor[4]; // read cursor per category
 extern s32 D_8015187C[10];
-extern BattleQueue1CamCursor g_BattleQueue1CamWriteCursor[4]; // write cursor per category
 // queued-action-ish record, allocated by BattleQueue2GetPtr (unk3 set to -1,
 // marking it unassigned) and searched by func_800A34CC. Traced through
 // BattleCreateImpactData's callers (func_800AB830/BattleMainDmgCalculation):
@@ -725,7 +730,7 @@ extern s32 D_800FAFF0;
 extern DB g_db;
 extern u8 D_801031E0;
 extern s32 D_801031E4;
-extern s16 g_BattleCameraTarget;
+extern SVECTOR g_BattleCameraTarget;
 extern u8 D_801031F0;
 extern u8 D_80103200[];
 extern u8 D_80130200[];
@@ -764,7 +769,7 @@ extern u8 D_800F3163[];
 extern ModelScreenPos g_modelScreenPos[10];
 extern u8 D_801517BC;
 extern u8 D_801517C4;
-extern s16 g_BattleCameraPos;
+extern SVECTOR g_BattleCameraPos;
 extern s32 D_80158D08;
 extern u_long D_80158D0C[];
 extern u8 D_801518DC;
@@ -863,7 +868,7 @@ static s32 BattleApplyStatMult(s32 arg0, s32 arg1, s32 arg2);
 void BattleInitScriptContext(/*s32, s32, s32*/);
 s16 func_800B888C(s32);
 void func_800B8438(void);
-void func_800B8A34(s16, s32);
+void func_800B8A34(s32, s32);
 static void func_800BA40C();
 static void func_800BB030(s16 arg0);
 void func_800BB2A8(u8);
@@ -1007,3 +1012,96 @@ extern BattleItemEntry D_801671B8[];
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId);
 extern u8 D_80163F34[NUM_PARTY][0x100C];
 void func_8001C3CC(void* dst, const void* src, u32 size);
+
+typedef struct {
+    u16 unk0;
+    u16 unk2;
+    s16 unk4;
+    s16 unk6;
+    u16 actor;
+    u16 targetIndex;
+} BattleTargetEffectSettings; // size:0xC
+
+typedef struct {
+    s16 stringId;
+    s16 playSound;
+    u8 delay;
+    u8 duration;
+} BattleBannerMessage; // size:0x6
+
+typedef struct {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+    /* 0x6 */ u16 unk6;
+    /* 0x8 */ u16 cursor;
+    /* 0xA */ u16 wait;
+    /* 0xC */ u8 flags;
+    /* 0xD */ u8 unkD;
+} BattleCameraScriptState; // size:0xE
+
+typedef struct {
+    BattleModelSub bones[256];
+    u8 unk3400[0x400];
+    u8 state[256][2];
+} StageParticles; // size:0x3A00
+
+typedef union {
+    EffectModelHeader header;
+    struct {
+        s32 numOffsets;
+        s32 layoutOffset;
+        s32 modelOffset;
+    } modelHeader;
+    u8 bytes[0x8D04];
+    struct {
+        u8 modelData[0x5104];
+        StageParticles particles;
+    } stage;
+} BattleStageFile; // size:0x8D04
+
+typedef struct {
+    MATRIX* parent;
+    MATRIX matrix;
+} BattleMatrixScratch; // size:0x24
+
+extern Yamada D_800E7D50[];
+extern Yamada D_800E7D98[];
+extern SVECTOR D_800E7D08;
+extern Yamada D_800E8C90[];
+extern u8 D_800EA230[];
+extern s32 D_800EA470[];
+extern u8 D_800F4B00;
+extern SVECTOR* D_800F4B04;
+extern u8 D_800EA1E8[4];
+extern u16 D_800EA1EC;
+extern SVECTOR D_800EA264[4];
+extern SVECTOR D_800EA284[2];
+extern RECT D_800F4B1C;
+extern BattleModelSub D_800F8158[NUM_BATTLE_ACTOR];
+extern s8 D_800F8378;
+extern BattleTargetEffectSettings D_800F99EC[];
+extern u16 D_801517B4;
+extern BattleCameraScriptState D_80151844[4];
+extern BattleCameraScriptState D_801518A4[4];
+extern u8 D_800FAFE0;
+extern BattleStageFile D_801590E4;
+extern u16 D_80161DE8;
+extern u16 D_80162088;
+extern s8 D_80162090;
+extern u8 D_80161EEC;
+extern BattleModelSub D_80163A9C[NUM_PARTY];
+extern u8 D_80163B3C;
+extern u8 D_800F9774;
+extern u8 D_80158CFC;
+extern SVECTOR* D_800F4B08;
+extern s16 D_800F4B0C[4];
+extern CVECTOR D_800F5B70;
+extern s16 D_800F5B74;
+
+extern BattleBannerMessage D_800F9DA8[64];
+
+extern MATRIX D_800E7D30;
+extern SVECTOR D_800EA1C8[4];
+
+s16 BattleGetStatusFlashState(s16 status);
