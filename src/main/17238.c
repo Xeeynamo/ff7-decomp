@@ -13,7 +13,7 @@ static u32 D_80062E78;
 static s32 D_80062E7C;
 static s32 D_80062E80;
 static s32 D_80062E84;
-static u32 D_80062E88;
+static u16 D_80062E88;
 static u32 D_80062E8C;
 static u32 D_80062E90;
 
@@ -38,6 +38,8 @@ s32 SysGetMateriaActivatedStars(u8 arg0, s32 arg1);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 void SysRemoveStealIfMug(void);
 void SysAddMateriaEquipStatBonus(u8 materiaId);
+void SysAddMateria25(u8, s32);
+void SysAddMateria35(u8, s32);
 static void SysAddMateriaX0(u8 materiaSubType, u8 materiaId, s32 materiaAp);
 void SysAddMateriaX1(u8 materiaSubType, u8 materiaId, s32 materiaAp);
 void SysAddMateriaX2(u8 materiaSubType, u8 materiaId, s32 materiaAp);
@@ -54,6 +56,7 @@ void SysAddMateriaXc(void);
 u8 SysGetCommandOrder(u8 commandId);
 void SysCopyCommandToUnitStructure(u8 commandId, u8 order);
 void SysAddPairMateriaUnordered(u32 materia1, u32 materia2, u8 arg2, u8 arg3, u8 arg4);
+void SysAddPairMateriaOrdered(u32 materia1, u32 materia2, u8 arg2, u8 arg3);
 u8* GetPartySlotArmorMateriaSlots(s32 arg0);
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId);
 u8 D_80063020; // %gp_rel
@@ -63,6 +66,7 @@ void SysAddPairMagicWithQuadraMagic(u8 allCount, u8 materiaId, s32 ap);
 void SysAddPairMasterMagicWithQuadraMagic(u8 allCount);
 void SysAddPairSummonWithQuadraMagic(u8 allCount, u8 materiaId);
 void SysAddPairMasterSummonWithQuadraMagic(u8 allCount);
+s32 SysSearchExistedCommand(u8 commandId);
 
 static s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
     *arg2 = arg0;
@@ -334,11 +338,65 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMateriaOrdered);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithElemental);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithAddedEffect);
+void SysAddPairWithAddedEffect(s32 arg0, u8 arg1, u8 arg2) {
+    u32 statusEffects;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithCounter);
+    statusEffects = g_MateriaData[arg1].statusEffects[0] + (g_MateriaData[arg1].statusEffects[1] << 8) +
+                    (g_MateriaData[arg1].statusEffects[2] << 16);
+    if (arg2 == 0) {
+        D_80062E60->physicalAttackStatuses |= statusEffects;
+    } else {
+        D_80062E60->immuneStatuses |= statusEffects;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithMagicCounter);
+void SysAddPairWithCounter(s32 arg0, s32 allCount, u32 materia) {
+    s32 materiaId;
+    s32 ap;
+    s32 type;
+
+    materiaId = materia & 0xFF;
+    ap = materia >> 8;
+    type = g_MateriaData[materiaId].materiaType & 0xF;
+    D_80062E88 = 0;
+    switch (type) {
+    case 6:
+        SysAddPairCommandWithCounter(allCount & 0xFF, materiaId, ap);
+        break;
+    case 8:
+        SysAddPairMasterMateriaWithCounter(allCount & 0xFF, 0xFD);
+        break;
+    }
+}
+
+void SysAddPairMagicWithMagicCounter(u8 allCount, u8 materiaId, s32 ap);
+void SysAddPairSummonWithMagicCounter(u8 allCount, u8 materiaId, s32 ap);
+void SysAddPairMasterMateriaWithCounter(s32 arg0, u8 arg1);
+
+void SysAddPairWithMagicCounter(s32 arg0, s32 allCount, u32 materia) {
+    s32 materiaId;
+    s32 ap;
+    s32 type;
+
+    materiaId = materia & 0xFF;
+    ap = materia >> 8;
+    type = g_MateriaData[materiaId].materiaType & 0xF;
+    D_80062E88 = 0;
+    switch (type) {
+    case 9:
+        SysAddPairMagicWithMagicCounter(allCount & 0xFF, materiaId, ap);
+        break;
+    case 0xA:
+        SysAddPairMasterMateriaWithCounter(allCount & 0xFF, 0xFE);
+        break;
+    case 0xB:
+        SysAddPairSummonWithMagicCounter(allCount & 0xFF, materiaId, ap);
+        break;
+    case 0xC:
+        SysAddPairMasterMateriaWithCounter(allCount & 0xFF, 0xFF);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithSneakFinalAttack);
 
@@ -350,25 +408,165 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMagicWithMagicCounter);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairSummonWithMagicCounter);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairSummonWithMpTurbo);
+void SysAddPairSummonWithMpTurbo(s32 arg0, s32 arg1, s32 arg2) {
+    s32 count;
+    u8 costMod;
+    s32 newVal;
+    u8 maskedArg0;
+    u8 id;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMasterSummonWithMpTurbo);
+    id = arg1;
+    count = SysGetMateriaActivatedStars(id, arg2);
+    if (count > 0) {
+        maskedArg0 = arg0;
+        do {
+            costMod = D_80062E60->enabledMagic[g_MateriaData[id].materiaAttributes[count - 1]].costModifier;
+            newVal = (costMod >> 5) + maskedArg0;
+            if (newVal >= 6) {
+                newVal = 5;
+            }
+            D_80062E60->enabledMagic[g_MateriaData[id].materiaAttributes[count - 1]].costModifier =
+                (costMod & 0x1F) | ((newVal & 7) << 5);
+            count--;
+        } while (count > 0);
+    }
+}
+
+void SysAddPairMasterSummonWithMpTurbo(u32 arg0) {
+    s32 i;
+    u8 costMod;
+    s32 newVal;
+
+    i = 0;
+    arg0 &= 0xFF;
+    for (; i < 16; i++) {
+        costMod = D_80062E60->enabledMagic[56 + i].costModifier;
+        newVal = (costMod >> 5) + arg0;
+        if (newVal >= 6) {
+            newVal = 5;
+        }
+        D_80062E60->enabledMagic[56 + i].costModifier = (costMod & 0x1F) | ((newVal & 7) << 5);
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMasterMagicWithMpTurbo);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMagicWithMpTurbo);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithMpTurbo);
+void SysAddPairMagicWithMpTurbo(s32, s32, s32);
+void SysAddPairSummonWithMpTurbo(s32, s32, s32);
+void SysAddPairFlagToActiveCommand(s32);
+void SysAddPairFlagToAllActiveCommands(void);
+void SysAddPairFlagToMagic(s32, s32);
+void SysAddPairFlagToAllMagics(void);
+void SysAddPairFlagToSummon(s32, s32);
+void SysAddPairFlagToAllSummons(void);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToCommandMagicSummon);
+void SysAddPairWithMpTurbo(s32 arg0, u32 arg1) {
+    s32 materiaId;
+    s32 ap;
+    s32 type;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToSummon);
+    materiaId = arg1 & 0xFF;
+    ap = arg1 >> 8;
+    type = g_MateriaData[materiaId].materiaType & 0xF;
+    switch (type) {
+    case 9:
+        SysAddPairMagicWithMpTurbo(arg0 & 0xFF, materiaId, ap);
+        break;
+    case 0xA:
+        SysAddPairMasterMagicWithMpTurbo(arg0 & 0xFF);
+        break;
+    case 0xB:
+        SysAddPairSummonWithMpTurbo(arg0 & 0xFF, materiaId, ap);
+        break;
+    case 0xC:
+        SysAddPairMasterSummonWithMpTurbo(arg0 & 0xFF);
+        break;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToAllSummons);
+void SysAddPairFlagToCommandMagicSummon(u32 materia) {
+    u8 materiaId;
+    s32 ap;
+    s32 type;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToActiveCommand);
+    materiaId = materia;
+    type = g_MateriaData[materiaId].materiaType & 0xF;
+    ap = materia >> 8;
+    switch (type) {
+    case 6:
+        SysAddPairFlagToActiveCommand(materiaId);
+        break;
+    case 8:
+        SysAddPairFlagToAllActiveCommands();
+        break;
+    case 9:
+        SysAddPairFlagToMagic(materiaId, ap);
+        break;
+    case 10:
+        SysAddPairFlagToAllMagics();
+        break;
+    case 11:
+        SysAddPairFlagToSummon(materiaId, ap);
+        break;
+    case 12:
+        SysAddPairFlagToAllSummons();
+        break;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToAllActiveCommands);
+void SysAddPairFlagToSummon(s32 arg0, s32 arg1) {
+    s32 id;
+    s32 stars;
+    u8 attr;
+    id = arg0 & 0xFF;
+    stars = SysGetMateriaActivatedStars(id, arg1);
+    if (stars > 0) {
+        do {
+            attr = g_MateriaData[id].materiaAttributes[stars - 1];
+            D_80062E60->enabledMagic[attr].costModifier |= D_80062E78;
+            stars--;
+        } while (stars > 0);
+    }
+}
+
+void SysAddPairFlagToAllSummons(void) {
+    s32 i;
+
+    for (i = 0; i < 16; i++) {
+        D_80062E60->enabledMagic[56 + i].costModifier |= D_80062E78;
+    }
+}
+
+void SysAddPairFlagToActiveCommand(s32 arg0) {
+    s32 cmdIdx;
+    u8 id;
+
+    cmdIdx = SysSearchExistedCommand(g_MateriaData[arg0 & 0xFF].materiaAttributes[0]);
+    if (cmdIdx != -1) {
+        D_80069508[cmdIdx].materiaEffectFlags |= D_80062E78;
+    }
+    id = g_MateriaData[arg0 & 0xFF].materiaAttributes[1];
+    if (id == 7 || id == 0x11) {
+        cmdIdx = SysSearchExistedCommand(id);
+        if (cmdIdx != -1) {
+            D_80069508[cmdIdx].materiaEffectFlags |= D_80062E78;
+        }
+    }
+}
+
+void SysAddPairFlagToAllActiveCommands(void) {
+    s32 cmdIdx;
+    s32 i;
+
+    for (i = 0; i < 16; i++) {
+        cmdIdx = SysSearchExistedCommand(D_80069508[i].id);
+        if (cmdIdx != -1) {
+            D_80069508[cmdIdx].materiaEffectFlags |= D_80062E78;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairFlagToAllMagics);
 
@@ -439,11 +637,51 @@ void SysAddPairMasterSummonWithQuadraMagic(u8 allCount) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithAll);
+void SysAddPairMagicWithAll(u8, u8, s32);
+void SysAddPairMasterMagicWithAll(u8, u8, s32);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMasterMagicWithAll);
+void SysAddPairWithAll(s32 arg0, s32 allCount, Materia materia) {
+    u8 type;
+    s32 ap;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMagicWithAll);
+    type = g_MateriaData[materia.materiaId].materiaType & 0xF;
+    ap = materia.ap;
+
+    switch (type) {
+    case 9:
+        SysAddPairMagicWithAll(allCount, materia.materiaId, ap);
+        break;
+    case 10:
+        SysAddPairMasterMagicWithAll(allCount, materia.materiaId, ap);
+        break;
+    }
+}
+
+void SysAddPairMasterMagicWithAll(u8 allCount, u8 materiaId, s32 ap) {
+    s32 i;
+    s32 foundIdx;
+
+    for (i = 0; i < 0x38; i++) {
+        foundIdx = SysSearchExistedMagic(i);
+        if (foundIdx != -1) {
+            D_80069554[foundIdx].quadCount += allCount;
+        }
+    }
+}
+
+void SysAddPairMagicWithAll(u8 allCount, u8 materiaId, s32 ap) {
+    s32 i;
+    s32 stars;
+    s32 foundIdx;
+
+    stars = SysGetMateriaActivatedStars(materiaId, ap);
+    for (i = stars; i > 0; i--) {
+        foundIdx = SysSearchExistedMagic(g_MateriaData[materiaId].materiaAttributes[i - 1]);
+        if (foundIdx != -1) {
+            D_80069554[foundIdx].quadCount += allCount;
+        }
+    }
+}
 
 s32 SysSearchExistedCommand(u8 commandId) {
     s32 i;
@@ -569,7 +807,18 @@ void SysParseMateriaEquip(u32 materia) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaEquipStatBonus);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX2);
+void SysAddMateria12(u8, u8);
+
+void SysAddMateriaX2(u8 materiaSubType, u8 materiaId, s32 materiaAp) {
+    u8 materiaLevel;
+    u8 id;
+
+    id = materiaId;
+    materiaLevel = SysGetMateriaActivatedStars(id, materiaAp);
+    if (materiaSubType == 1) {
+        SysAddMateria12(materiaLevel, id);
+    }
+}
 
 static void SysAddMateria30(u8 arg0, u8 arg1) {
     if (arg1 == 0xB) {
@@ -577,19 +826,137 @@ static void SysAddMateria30(u8 arg0, u8 arg1) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaCounterAttack);
+void SysAddMateriaCounterAttack(s32 arg0, s32 arg1) {
+    s32 counterIdx;
+    if (D_80063020 == 0) {
+        if (D_80062E80 != 8) {
+            D_80062E60->enabledCounters[D_80062E80].counterType = 9;
+            D_80062E60->enabledCounters[D_80062E80].battleCommand = 9;
+            counterIdx = D_80062E80;
+            D_80062E80++;
+            D_80062E60->enabledCounters[counterIdx].materiaAttribute =
+                g_MateriaData[arg1 & 0xFF].materiaAttributes[arg0 & 0xFF];
+        }
+    } else {
+        D_80062FFC = 0x12;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaLongRange);
+void SysAddMateriaLongRange(void) {
+    if (D_80063020 == 0) {
+        D_80062E60->characterFlags |= 4;
+        return;
+    }
+    D_80062FFC = 0x12;
+}
+void SysAddMateria12(u8 arg0, u8 arg1) {
+    s32 i;
+    u8* ptr;
+    Unk80062F7C* unk;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria12);
+    i = 0;
+    if (D_80063020 == 0) {
+        for (i = arg0 - 1; i > 0; i--) {
+            if (g_MateriaData[arg1].materiaAttributes[i] != 0xFF) {
+                break;
+            }
+        }
+        D_80069508[0].id = g_MateriaData[arg1].materiaAttributes[i];
+    } else {
+        unk = D_80062F7C;
+        ptr = g_MateriaData[arg1].materiaAttributes;
+        do {
+            unk->materiaAttributes[i].value = *ptr++;
+            unk->materiaAttributes[i].selected = 0;
+            i++;
+        } while (i < 5);
+        if (unk->unk1 == arg0) {
+            unk->materiaAttributes[arg0 - 2].selected = 1;
+        } else {
+            unk->materiaAttributes[arg0 - 1].selected = 1;
+        }
+        D_80062FFC = 0x13;
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX3);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX5);
+void SysAddMateriaX5(u8 materiaSubType, u8 materiaId, s32 materiaAp) {
+    switch (materiaSubType) {
+    case 2:
+        SysAddMateria25(materiaId, materiaAp);
+        break;
+    case 3:
+        SysAddMateria35(materiaId, materiaAp);
+        break;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria35);
+void SysAddMateria35(u8 arg0, s32 arg1) {
+    Unk80062F7C* attr;
+    u8 star;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria25);
+    star = SysGetMateriaActivatedStars(arg0, arg1);
+    if (D_80063020 != 0) {
+        attr = D_80062F7C;
+        attr->materiaAttributes[0].value = g_MateriaData[arg0].materiaAttributes[0];
+        attr->materiaAttributes[0].selected = star;
+        switch (g_MateriaData[arg0].materiaAttributes[0]) {
+        case 0x57:
+            D_80062FFC = 0x10;
+            break;
+        case 0x51:
+        case 0x63:
+            D_80062FFC = 0xF;
+            break;
+        }
+    }
+}
+
+void SysAddMateria25(u8 arg0, s32 arg1) {
+    Unk80062F7C* attr;
+    s32 star;
+
+    star = SysGetMateriaActivatedStars(arg0, arg1);
+    if (D_80063020) {
+        attr = D_80062F7C;
+        attr->materiaAttributes[0].value = g_MateriaData[arg0].materiaAttributes[0];
+        attr->materiaAttributes[0].selected = star * 10;
+        switch (g_MateriaData[arg0].materiaAttributes[0]) {
+        case 0x64:
+            D_80062FFC = 0x10;
+            break;
+        case 0x58:
+            D_80062FFC = 0x10;
+            break;
+        case 0x59:
+            D_80062FFC = 0x10;
+            break;
+        case 0x5A:
+            D_80062FFC = 0x10;
+            break;
+        case 0x56:
+            D_80062FFC = 0x10;
+            break;
+        case 0x5C:
+            D_80062FFC = 0x10;
+            break;
+        case 0x5D:
+            D_80062FFC = 0x10;
+            break;
+        case 0x5E:
+            D_80062FFC = 0x10;
+            break;
+        case 0x5F:
+            D_80062FFC = 0x10;
+            break;
+        case 0x54:
+        case 0x55:
+            D_80062FFC = 0xF;
+            break;
+        }
+    }
+}
 
 s8 D_80062FFC; // %gp_rel
 void SysAddMateriaX4(u8 arg0, s32 arg1) {
@@ -622,7 +989,19 @@ void SysAddMateriaX7(s32 arg0, s32 arg1, s32 arg2) {
     D_80062FFC = 8;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX8);
+void SysAddMateriaX8(void) {
+    if (D_80063020 == 0) {
+        SysAddCommandToTemp(5);
+        SysAddCommandToTemp(6);
+        SysAddCommandToTemp(7);
+        SysAddCommandToTemp(9);
+        SysAddCommandToTemp(0xA);
+        SysAddCommandToTemp(0xB);
+        SysAddCommandToTemp(0xC);
+        return;
+    }
+    D_80062FFC = 5;
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaXa);
 
@@ -655,11 +1034,45 @@ static void SysAddMateriaX0(u8 materiaSubType, u8 materiaId, s32 materiaAp) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria00);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria20);
+void SysAddMateria20(u8 arg0, s32 arg1) {
+    u8 materiaId;
+    s32 stars;
+    Unk80062F7C* unk;
+
+    materiaId = arg0;
+    stars = SysGetMateriaActivatedStars(materiaId, arg1);
+    if (materiaId == 0xD) {
+        SysAddMateriaCounterAttack((u8)stars, 0xD);
+        return;
+    }
+    if (D_80063020 == 0) {
+        D_800694E4[g_MateriaData[materiaId].materiaAttributes[0]] += g_MateriaData[materiaId].materiaAttributes[stars];
+    } else {
+        unk = D_80062F7C;
+        unk->materiaAttributes[0].value = g_MateriaData[materiaId].materiaAttributes[0];
+        unk->materiaAttributes[0].selected = g_MateriaData[materiaId].materiaAttributes[stars];
+        D_80062FFC = 4;
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria40);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX1);
+void SysAddMateria21(u8, s32);
+void SysAddMateria41(u8, s32);
+
+void SysAddMateriaX1(u8 materiaSubType, u8 materiaId, s32 materiaAp) {
+    s32 subType;
+
+    subType = materiaSubType & 0xFF;
+    switch (subType) {
+    case 4:
+        SysAddMateria41(materiaId & 0xFF, materiaAp);
+        return;
+    case 2:
+        SysAddMateria21(materiaId & 0xFF, materiaAp);
+        return;
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria21);
 
@@ -741,11 +1154,59 @@ void SysCopySummonToUnitStructure(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX9);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaX6);
+void SysAddMateriaX6(u8 materiaId, s32 materiaAp) {
+    s32 star;
+    Unk80062F7C* unk;
+    u8* ptr;
+    s32 i;
+
+    star = SysGetMateriaActivatedStars(materiaId, materiaAp);
+    if (D_80063020 == 0) {
+        for (i = star - 1; i >= 0; i--) {
+            if (g_MateriaData[materiaId].materiaAttributes[i] != 0xFF) {
+                break;
+            }
+        }
+        SysAddCommandToTemp(g_MateriaData[materiaId].materiaAttributes[i]);
+    } else {
+        i = 0;
+        unk = D_80062F7C;
+        ptr = g_MateriaData[materiaId].materiaAttributes;
+        do {
+            unk->materiaAttributes[i].value = *ptr++;
+            unk->materiaAttributes[i].selected = 0;
+            i++;
+        } while (i < 5);
+        if (unk->unk1 == star) {
+            unk->materiaAttributes[star - 2].selected = 1;
+        } else {
+            unk->materiaAttributes[star - 1].selected = 1;
+        }
+        D_80062FFC = 3;
+    }
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddCommandToTemp);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysRemoveStealIfMug);
+void SysRemoveStealIfMug(void) {
+    s32 i;
+    s32 hasMug = 0;
+
+    for (i = 0; i < 16; i++) {
+        if (D_80069508[i].id == 0x11) {
+            hasMug = 1;
+            break;
+        }
+    }
+
+    for (i = 0; i < 16; i++) {
+        if (hasMug == 1) {
+            if (D_80069508[i].id == 5) {
+                D_80069508[i].id = 0xFF;
+            }
+        }
+    }
+}
 
 void SysCopyAndSortCommand(void) {
     s32 i;
@@ -770,7 +1231,22 @@ void SysCopyAndSortCommand(void) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysGetCommandOrder);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysCopyCommandToUnitStructure);
+void SysCopyCommandToUnitStructure(u8 commandId, u8 order) {
+    s32 i;
+
+    D_80062E60->commandMenu[order].id = commandId;
+    D_80062E60->commandMenu[order].unk4 = 0;
+    D_80062E60->commandMenu[order].initialCursorAction = D_800707C4[commandId].initialCursorAction;
+    D_80062E60->commandMenu[order].targetFlags = D_800707C4[commandId].targetFlags;
+
+    for (i = 0; i < 16; i++) {
+        if (commandId == D_80069508[i].id) {
+            D_80062E60->commandMenu[order].allCount = D_80069508[i].allCount;
+            D_80062E60->commandMenu[order].materiaEffectFlags = D_80069508[i].materiaEffectFlags;
+            break;
+        }
+    }
+}
 
 void SysCopyTempMagicToUnitStructure(void) {
     s32 i;
