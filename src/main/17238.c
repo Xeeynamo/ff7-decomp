@@ -422,7 +422,7 @@ void SysAddPairSummonWithMpTurbo(s32 arg0, s32 arg1, s32 arg2) {
         do {
             costMod = D_80062E60->enabledMagic[g_MateriaData[id].materiaAttributes[count - 1]].costModifier;
             newVal = (costMod >> 5) + maskedArg0;
-            if (newVal >= 6) {
+            if (newVal > 5) {
                 newVal = 5;
             }
             D_80062E60->enabledMagic[g_MateriaData[id].materiaAttributes[count - 1]].costModifier =
@@ -439,13 +439,13 @@ void SysAddPairMasterSummonWithMpTurbo(u32 arg0) {
 
     i = 0;
     arg0 &= 0xFF;
-    for (; i < 16; i++) {
-        costMod = D_80062E60->enabledMagic[56 + i].costModifier;
+    for (; i < NUM_SUMMONS; i++) {
+        costMod = D_80062E60->enabledMagic[NUM_MAGICS + i].costModifier;
         newVal = (costMod >> 5) + arg0;
-        if (newVal >= 6) {
+        if (newVal > 5) {
             newVal = 5;
         }
-        D_80062E60->enabledMagic[56 + i].costModifier = (costMod & 0x1F) | ((newVal & 7) << 5);
+        D_80062E60->enabledMagic[NUM_MAGICS + i].costModifier = (costMod & 0x1F) | ((newVal & 7) << 5);
     }
 }
 
@@ -534,8 +534,8 @@ void SysAddPairFlagToSummon(s32 arg0, s32 arg1) {
 void SysAddPairFlagToAllSummons(void) {
     s32 i;
 
-    for (i = 0; i < 16; i++) {
-        D_80062E60->enabledMagic[56 + i].costModifier |= D_80062E78;
+    for (i = 0; i < NUM_SUMMONS; i++) {
+        D_80062E60->enabledMagic[NUM_MAGICS + i].costModifier |= D_80062E78;
     }
 }
 
@@ -582,16 +582,16 @@ void SysAddPairWithQuadraMagic(s32 arg0, s32 allCount, Materia materia) {
     type = g_MateriaData[materiaId].materiaType & 0xF;
     switch (type) {
     case 9:
-        SysAddPairMagicWithQuadraMagic(allCount & 0xFF, materiaId, ap);
+        SysAddPairMagicWithQuadraMagic(allCount, materiaId, ap);
         break;
     case 0xA:
-        SysAddPairMasterMagicWithQuadraMagic(allCount & 0xFF);
+        SysAddPairMasterMagicWithQuadraMagic(allCount);
         break;
     case 0xB:
-        SysAddPairSummonWithQuadraMagic(allCount & 0xFF, materiaId);
+        SysAddPairSummonWithQuadraMagic(allCount, materiaId);
         break;
     case 0xC:
-        SysAddPairMasterSummonWithQuadraMagic(allCount & 0xFF);
+        SysAddPairMasterSummonWithQuadraMagic(allCount);
         break;
     }
 }
@@ -1145,10 +1145,10 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaXb);
 void SysCopySummonToUnitStructure(void) {
     s32 i;
 
-    for (i = 0; i < 16; i++) {
-        D_80062E60->enabledMagic[56 + i].quadraAttacksLeft = D_800694B4[i];
-        D_80062E60->enabledMagic[56 + i].quadEnabled = D_800694C4[i];
-        D_80062E60->enabledMagic[56 + i].allAttacksLeft = D_800694D4[i];
+    for (i = 0; i < NUM_SUMMONS; i++) {
+        D_80062E60->enabledMagic[NUM_MAGICS + i].quadraAttacksLeft = D_800694B4[i];
+        D_80062E60->enabledMagic[NUM_MAGICS + i].quadEnabled = D_800694C4[i];
+        D_80062E60->enabledMagic[NUM_MAGICS + i].allAttacksLeft = D_800694D4[i];
     }
 }
 
