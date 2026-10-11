@@ -12,6 +12,12 @@ typedef enum {
 } ItemMenuScreen;
 
 typedef enum {
+    USE_ITEM_MENU_SELECTED = 0,
+    ARRANGE_MENU_SELECTED = 1,
+    KEY_ITEMS_MENU_SELECTED = 2,
+} ItemMenuSelected;
+
+typedef enum {
     WEAPON_INDEX_CLOUD_MAX = 0x10,
     WEAPON_INDEX_BARRET_MAX = 0x20,
     WEAPON_INDEX_TIFA_MAX = 0x30,
@@ -59,6 +65,7 @@ typedef enum {
 #define ITEM_ID_MASK 0x1FF
 #define ITEM_QTY_SHIFT 9
 #define ITEM_EMPTY_SLOT 0xFFFF
+#define ITEM_REGUALR = 0x5FU
 #define SORT_KEY_EMPTY_SLOT 0x4E20
 
 #define ITEM_USAGE_FLAG_BATTLE 0x2
@@ -961,29 +968,29 @@ char ITEMMENU_Main(s32 frameCount) {
     if (SysMenuGetMenuListState() == 0) {
         SysMenuHandleButtons((MenuTable*)(((u8*)g_ItemMenuWidgets) + (g_ItemMenuCurrentScreen * 0x12)));
         switch (g_ItemMenuCurrentScreen) {
-        case 0:
-            if (g_Pad0KeysPressed & 0x20) {
+        case ITEMMENU_SCREEN_SELECTOR:
+            if (g_Pad0KeysPressed & PAD_CIRCLE) {
                 PlayItemMenuSfx(SFX_MENU_CURSOR_MOVE);
                 menuWidget = (MenuTable*)(&g_ItemMenuWidgets[0].column);
                 switch (*((s8*)menuWidget)) {
-                case 0:
-                    g_ItemMenuCurrentScreen = 1;
+                case USE_ITEM_MENU_SELECTED:
+                    g_ItemMenuCurrentScreen = ITEMMENU_SCREEN_USE;
                     return;
 
-                case 1:
+                case ARRANGE_MENU_SELECTED:
                     SysMenuSetCursorMovement((MenuTable*)(((s8*)menuWidget) + 0x3E), 0, 0, 1, 8, 0, 0,
                                              (s32)(*((s8*)menuWidget)), 8, 0, 0, 0, (s32)(*((s8*)menuWidget)), 0);
-                    g_ItemMenuCurrentScreen = 4;
+                    g_ItemMenuCurrentScreen = ITEMMENU_SCREEN_ARRANGE_SELECT;
                     return;
 
-                case 2:
+                case KEY_ITEMS_MENU_SELECTED:
                     SysMenuSetCursorMovement((MenuTable*)(((s8*)menuWidget) + 0x2C), 0, 0, 2, 0xA, 0, 0,
                                              (s32)(*((s8*)menuWidget)), 0x20, 0, 0, (s32)(*((s8*)menuWidget)), 0, 0);
-                    g_ItemMenuCurrentScreen = 3;
+                    g_ItemMenuCurrentScreen = ITEMMENU_SCREEN_KEY_ITEMS;
                     return;
                 }
 
-            } else if (g_Pad0KeysRepeat & 0x40) {
+            } else if (g_Pad0KeysRepeat & PAD_CROSS) {
                 PlayItemMenuSfx(SFX_MENU_BACK);
                 SysMenuSetMenuListAnimation(5, 0);
                 SysMenuLoadMenuFileById(0);
@@ -991,9 +998,9 @@ char ITEMMENU_Main(s32 frameCount) {
             }
             break;
 
-        case 1:
+        case ITEMMENU_SCREEN_USE:
             if (D_801D3DF6 == 0) {
-                if (g_Pad0KeysPressed & 0x20) {
+                if (g_Pad0KeysPressed & PAD_CIRCLE) {
                     selectedItemId = g_ItemUseListCursorPos[0] + g_ItemListOffet;
                     selectedItemEntry = Savemap.inventory[selectedItemId];
                     if (((selectedItemEntry & 0xFFFF) != 0xFFFF) &&
@@ -1036,23 +1043,23 @@ char ITEMMENU_Main(s32 frameCount) {
             }
             break;
 
-        case 2:
+        case ITEMMENU_SCREEN_ITEM_SELECTED:
             if (g_ItemMenuTargetSelectDelay == 0) {
-                if (g_Pad0KeysPressed & 0x20) {
+                if (g_Pad0KeysPressed & PAD_CIRCLE) {
                     cursorPosX = Savemap.partyID[g_PartySlotSelected[0]];
                     selectedItemId = Savemap.inventory[g_ItemUseListCursorPos[0] + g_ItemListOffet] & 0x1FF;
                     isRegularItem = selectedItemId < 0x5FU;
                     characterId = cursorPosX;
                     isItemUsable = isRegularItem;
                     if (characterId == 0xFF) {
-                        if ((selectedItemId != 6) && (selectedItemId != 0x46)) {
+                        if ((selectedItemId != 6) && (selectedItemId != ITEM_TENT)) {
                             PlayItemMenuSfx(SFX_MENU_BAD);
                             return;
                         }
                     }
                     {
                         switch (selectedItemId) {
-                        case 0xD:
+                        case ITEM_HYPER:
                             cursorPosX = characterId * 0x84;
                             statusFlags = (&Savemap.party[0].status_flags)[cursorPosX];
                             if (!(statusFlags & 0x20)) {
@@ -1075,7 +1082,7 @@ char ITEMMENU_Main(s32 frameCount) {
                             }
                             break;
 
-                        case 0xE:
+                        case ITEM_TRANQUILIZER:
                             charStructOffset = characterId;
                             charStructOffset *= 0x84;
                             statusFlagsTranquilizer = (&Savemap.party[0].status_flags)[charStructOffset];
@@ -1098,21 +1105,22 @@ char ITEMMENU_Main(s32 frameCount) {
                             }
                             break;
 
-                        case 0x57:
+                        // Apply final limit breaks
+                        case ITEM_OMNISLASH:
 
-                        case 0x58:
+                        case ITEM_CATASTROPHE:
 
-                        case 0x59:
+                        case ITEM_FINAL_HEAVEN:
 
-                        case 0x5A:
+                        case ITEM_GREAT_GOSPEL:
 
-                        case 0x5B:
+                        case ITEM_COSMO_MEMORY:
 
-                        case 0x5C:
+                        case ITEM_ALL_CREATION:
 
-                        case 0x5D:
+                        case ITEM_CHAOS:
 
-                        case 0x5E:
+                        case ITEM_HIGHWIND:
                             if (characterId == D_801D3D25[selectedItemId]) {
                                 if (func_801D0D24(characterId) != 0) {
                                     PlayItemMenuSfx(SFX_MENU_SET);
@@ -1433,7 +1441,7 @@ char ITEMMENU_Main(s32 frameCount) {
                             break;
                         }
                     }
-                } else if (g_Pad0KeysPressed & 0x40) {
+                } else if (g_Pad0KeysPressed & PAD_CROSS) {
                     PlayItemMenuSfx(SFX_MENU_BACK);
                     g_ItemMenuCurrentScreen = 1;
                     return;
@@ -1441,12 +1449,12 @@ char ITEMMENU_Main(s32 frameCount) {
             }
             break;
 
-        case 3:
-            cancelButtonPressed = g_Pad0KeysPressed & 0x40;
+        case ITEMMENU_SCREEN_KEY_ITEMS:
+            cancelButtonPressed = g_Pad0KeysPressed & PAD_CROSS;
             goto block_217;
 
-        case 4:
-            if (g_Pad0KeysPressed & 0x20) {
+        case ITEMMENU_SCREEN_ARRANGE_SELECT:
+            if (g_Pad0KeysPressed & PAD_CIRCLE) {
                 PlayItemMenuSfx(SFX_MENU_CURSOR_MOVE);
                 isCustomizeMode = D_801D3E2F[0] == 0;
                 if (isCustomizeMode) {
@@ -1461,11 +1469,11 @@ char ITEMMENU_Main(s32 frameCount) {
                 ArrangeItems(D_801D3E2F[0]);
                 goto block_219;
             }
-            cancelButtonPressed = g_Pad0KeysPressed & 0x40;
+            cancelButtonPressed = g_Pad0KeysPressed & PAD_CROSS;
             goto block_217;
 
-        case 5:
-            if (g_Pad0KeysPressed & 0x20) {
+        case ITEMMENU_SCREEN_ARRANGE_CUSTOM:
+            if (g_Pad0KeysPressed & PAD_CIRCLE) {
                 switch (D_801D3D84) {
                 case 0:
                     PlayItemMenuSfx(SFX_MENU_CURSOR_MOVE);
@@ -1487,7 +1495,7 @@ char ITEMMENU_Main(s32 frameCount) {
                 }
 
             } else {
-                cancelButtonPressed = g_Pad0KeysPressed & 0x40;
+                cancelButtonPressed = g_Pad0KeysPressed & PAD_CROSS;
             block_217:
                 if (cancelButtonPressed != 0) {
                     PlayItemMenuSfx(SFX_MENU_BACK);
