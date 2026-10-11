@@ -3746,25 +3746,116 @@ void func_800AF9C8(void) {
 }
 
 extern volatile s32 D_800F499C;
+extern s32 D_800F49A0[2];
+extern s32 D_800F49A8[][10];
 extern s32 D_800F49F8[][10];
+extern s32 D_800F4A48[10];
+extern s32 D_800F4A70[10];
+extern s32 D_800F4A98[10];
 
 static s32 func_800AFE98(s32 arg0) { return D_800F49F8[D_800F499C][arg0] >> 0xC; }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AFECC);
+void func_800AFECC(void) {
+    s32* unitSpeeds;
+    s32* speedMultipliers;
+    s32 bufferIndex = D_800F499C;
+    s32 ticks;
+    s32 i;
+    s32 k;
 
-extern /*?*/ s32 D_800F49A0[2];
-extern /*?*/ s32 D_800F49A8[][10];
+    speedMultipliers = D_800F49F8[bufferIndex];
+    unitSpeeds = D_800F49A8[bufferIndex];
+
+    D_800F499C ^= 1;
+    ticks = D_800F49A0[bufferIndex] >> 13;
+    D_800F49A0[bufferIndex] &= 0x1FFF;
+
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        s32 unk6 = g_BattleWork.turn[i].unk6;
+        s32 unitSpeed = unitSpeeds[i];
+        s32 speedMulti = speedMultipliers[i];
+        s32 unitTicks;
+        s32 atbTicks;
+        s32 hpChange;
+        s32 deltaHP;
+        s32 sum1;
+        s32 sum2;
+
+        sum1 = D_800F4A48[i] + unitSpeed;
+        D_800F4A48[i] = sum1 & 0x1FFF;
+
+        sum2 = D_800F4A70[i] + speedMulti;
+        D_800F4A70[i] = sum2 & 0xFFF;
+
+        hpChange = D_800F4A98[i] + unitSpeed * unk6;
+        D_800F4A98[i] = hpChange & 0x7FFF;
+
+        unitSpeeds[i] = 0;
+        speedMultipliers[i] = 0;
+
+        unitTicks = sum1 >> 13;
+        atbTicks = sum2 >> 12;
+        deltaHP = hpChange >> 15;
+
+        if (!(g_BattleState.combatant[i].status & STATUS_DEATH)) {
+            s32 maxHP = g_BattleState.combatant[i].maxHP;
+            s32 newHP = g_BattleState.combatant[i].curHP + deltaHP;
+            if (newHP < 0) {
+                g_BattleState.combatant[i].status |= STATUS_DEATH;
+                func_800A6278(i, i, 1);
+                BattleExecFormationAIScripts();
+                newHP = 0;
+            } else if (maxHP < newHP) {
+                newHP = maxHP;
+            }
+            g_BattleState.combatant[i].curHP = newHP;
+        }
+
+        for (k = 0; k < NUM_STATUS_TIMERS; k++) {
+            s32 timer = g_BattleWork.turn[i].statusTimers[k];
+            s32 delta;
+
+            if (timer) {
+                switch (k) {
+                case TIMER_STOP:
+                    delta = ticks;
+                    break;
+
+                case TIMER_D_SENTENCE:
+                case TIMER_SLOW_NUMB:
+                    delta = atbTicks;
+                    break;
+
+                default:
+                    delta = unitTicks;
+                    break;
+                }
+
+                timer -= delta;
+
+                if (timer < 0) {
+                    timer = 0;
+                }
+                if (timer == 0) {
+                    BattleQueueEvent(2, i, k, k);
+                }
+
+                g_BattleWork.turn[i].statusTimers[k] = timer;
+            }
+        }
+    }
+}
 
 void func_800B0170(void) {
-    s32* unitSpeed = D_800F49A8[D_800F499C];
-    s32* speedMultiplier = D_800F49F8[D_800F499C];
+    s32* unitSpeeds = D_800F49A8[D_800F499C];
+    s32* speedMultipliers = D_800F49F8[D_800F499C];
     s32 i;
 
     D_800F49A0[D_800F499C] += g_BattleSceneContext.battleSpeed;
 
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
-        unitSpeed[i] += g_BattleWork.turn[i].unitSpeed;
-        speedMultiplier[i] += g_BattleWork.turn[i].atbSpeedMultiplier;
+        unitSpeeds[i] += g_BattleWork.turn[i].unitSpeed;
+        speedMultipliers[i] += g_BattleWork.turn[i].atbSpeedMultiplier;
     }
 }
 
