@@ -384,13 +384,13 @@ void SysAddPairWithMagicCounter(s32 arg0, s32 allCount, u32 materia) {
     D_80062E88 = 0;
     switch (type) {
     case 9:
-        SysAddPairMagicWithMagicCounter(allCount & 0xFF, materiaId, ap);
+        SysAddPairMagicWithMagicCounter(allCount, materiaId, ap);
         break;
     case 0xA:
         SysAddPairMasterMateriaWithCounter(allCount & 0xFF, 0xFE);
         break;
     case 0xB:
-        SysAddPairSummonWithMagicCounter(allCount & 0xFF, materiaId, ap);
+        SysAddPairSummonWithMagicCounter(allCount, materiaId, ap);
         break;
     case 0xC:
         SysAddPairMasterMateriaWithCounter(allCount & 0xFF, 0xFF);
@@ -1066,10 +1066,10 @@ void SysAddMateriaX1(u8 materiaSubType, u8 materiaId, s32 materiaAp) {
     subType = materiaSubType & 0xFF;
     switch (subType) {
     case 4:
-        SysAddMateria41(materiaId & 0xFF, materiaAp);
+        SysAddMateria41(materiaId, materiaAp);
         return;
     case 2:
-        SysAddMateria21(materiaId & 0xFF, materiaAp);
+        SysAddMateria21(materiaId, materiaAp);
         return;
     }
 }
