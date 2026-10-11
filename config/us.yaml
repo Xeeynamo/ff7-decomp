@@ -794,3 +794,16 @@ overlays:
       - [0, c, thundera]
       - [0x97c, data, thundera_model]
       - [0x190BC, .data, thundera]
+  # SENNKOKU.BIN -- "Death Sentence" and "Roulette" (enemy skills)
+  - name: sennkoku
+    disk_path: disks/us/MAGIC/SENNKOKU.BIN
+    sha1: 122301325eed5dc29a99482f897cc98bc8cf9344
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-sennkoku.us.txt
+    segments:
+      - [0, c, sennkoku]
+      - [0x930, data, sennkoku_model]
+      - [0x559C, data, sennkoku_buffers]
