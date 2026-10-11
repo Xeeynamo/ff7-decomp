@@ -556,12 +556,12 @@ typedef struct {
 } BattleSpriteDesc;      // size:0x10
 
 typedef struct {
-    /* 0x00 */ u16 unitSpeed;
+    /* 0x00 */ u16 varSpeed;
     /* 0x02 */ s16 atbIncrement;
     /* 0x04 */ u16 atbGauge; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
     /* 0x06 */ s16 unk6;
     /* 0x08 */ s16 limitSpeedFlag;
-    /* 0x0A */ u16 atbSpeedMultiplier;
+    /* 0x0A */ u16 constSpeed;
     /* 0x0C */ u8 senseTargetMask;
     /* 0x0D */ u8 accessoryEffectId;
     /* 0x0E */ u8 hasLimitBreak;

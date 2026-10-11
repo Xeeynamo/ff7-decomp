@@ -3294,8 +3294,8 @@ void BattleCalcAffinityFlags(void) {
 void BattleRecalcUnitSpeed(s32 index) {
     // Status alterations in this function are local only; the unit status is never written back
     s32 status = g_BattleState.combatant[index].status;
-    s32 unitSpeed = 0;
-    s16 atbSpeedMultiplier = 0;
+    s32 varSpeed = 0;
+    s16 constSpeed = 0;
     s32 atbIncrement;
 
     if (status & STATUS_IMPRISONED) {
@@ -3311,33 +3311,33 @@ void BattleRecalcUnitSpeed(s32 index) {
     }
 
     if (!(status & (STATUS_STOP | STATUS_DEATH))) {
-        unitSpeed = g_BattleSceneContext.battleSpeed;
-        atbSpeedMultiplier = 0x22; // Slow (0.5x)
+        varSpeed = g_BattleSceneContext.battleSpeed;
+        constSpeed = 0x22; // Slow (0.5x)
 
         if (!(status & STATUS_SLOW)) {
-            unitSpeed *= 2;
-            atbSpeedMultiplier = 0x44; // Normal (1.0x)
+            varSpeed *= 2;
+            constSpeed = 0x44; // Normal (1.0x)
             if (status & STATUS_HASTE) {
-                unitSpeed *= 2;
-                atbSpeedMultiplier = 0x88; // Haste (2.0x)
+                varSpeed *= 2;
+                constSpeed = 0x88; // Haste (2.0x)
             }
         }
     }
 
     if (index < NUM_PARTY) {
         s32 totalDex = BattleApplyStatMult(index, g_BattleState.combatant[index].dexterity, STAT_MULT_DEXTERITY) + 50;
-        atbIncrement = unitSpeed * totalDex / g_BattleSceneContext.avgPartyDexterity;
+        atbIncrement = varSpeed * totalDex / g_BattleSceneContext.avgPartyDexterity;
     } else {
-        atbIncrement = (unitSpeed * g_BattleState.combatant[index].dexterity) / g_BattleSceneContext.avgPartyDexterity;
+        atbIncrement = (varSpeed * g_BattleState.combatant[index].dexterity) / g_BattleSceneContext.avgPartyDexterity;
     }
 
     if (status & (STATUS_PARALYSIS | STATUS_PETRIFY | STATUS_SLEEP)) {
         atbIncrement = 0;
     }
 
-    g_BattleWork.turn[index].unitSpeed = unitSpeed;
+    g_BattleWork.turn[index].varSpeed = varSpeed;
     g_BattleWork.turn[index].atbIncrement = atbIncrement;
-    g_BattleWork.turn[index].atbSpeedMultiplier = atbSpeedMultiplier;
+    g_BattleWork.turn[index].constSpeed = constSpeed;
 }
 
 const u8 g_StatusTimerInitValues[] = {
@@ -3791,56 +3791,57 @@ void func_800AF9C8(void) {
     }
 }
 
-extern volatile s32 D_800F499C;
-extern s32 D_800F49A0[2];
-extern s32 D_800F49A8[][10];
-extern s32 D_800F49F8[][10];
-extern s32 D_800F4A48[10];
-extern s32 D_800F4A70[10];
-extern s32 D_800F4A98[10];
+extern volatile s32 g_BattleTimerBufferIndex;
+extern s32 g_BattleGlobalTimerAccum[2];
+extern s32 g_BattleVarTimerAccum[2][NUM_BATTLE_ACTOR];
+extern s32 g_BattleConstTimerAccum[2][NUM_BATTLE_ACTOR];
+extern s32 g_BattleVarTimerFrac[NUM_BATTLE_ACTOR];
+extern s32 g_BattleConstTimerFrac[NUM_BATTLE_ACTOR];
+extern s32 g_BattleHpChangeFrac[NUM_BATTLE_ACTOR];
 
-static s32 func_800AFE98(s32 arg0) { return D_800F49F8[D_800F499C][arg0] >> 0xC; }
+static s32 func_800AFE98(s32 arg0) { return g_BattleConstTimerAccum[g_BattleTimerBufferIndex][arg0] >> 12; }
 
+// Called during BATTLE_Main (main consumer thread)
 void func_800AFECC(void) {
-    s32* unitSpeeds;
-    s32* speedMultipliers;
-    s32 bufferIndex = D_800F499C;
-    s32 ticks;
+    s32* varTimerAccum;
+    s32* constTimerAccum;
+    s32 bufferIndex = g_BattleTimerBufferIndex;
+    s32 globalUnits;
     s32 i;
     s32 k;
 
-    speedMultipliers = D_800F49F8[bufferIndex];
-    unitSpeeds = D_800F49A8[bufferIndex];
+    constTimerAccum = g_BattleConstTimerAccum[bufferIndex];
+    varTimerAccum = g_BattleVarTimerAccum[bufferIndex];
 
-    D_800F499C ^= 1;
-    ticks = D_800F49A0[bufferIndex] >> 13;
-    D_800F49A0[bufferIndex] &= 0x1FFF;
+    g_BattleTimerBufferIndex ^= 1;
+    globalUnits = g_BattleGlobalTimerAccum[bufferIndex] >> 13;
+    g_BattleGlobalTimerAccum[bufferIndex] &= 0x1FFF;
 
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         s32 unk6 = g_BattleWork.turn[i].unk6;
-        s32 unitSpeed = unitSpeeds[i];
-        s32 speedMulti = speedMultipliers[i];
-        s32 unitTicks;
-        s32 atbTicks;
+        s32 varTimerInc = varTimerAccum[i];
+        s32 constTimerInc = constTimerAccum[i];
+        s32 varUnits;
+        s32 constUnits;
         s32 hpChange;
         s32 deltaHP;
-        s32 sum1;
-        s32 sum2;
+        s32 varTimer;
+        s32 constTimer;
 
-        sum1 = D_800F4A48[i] + unitSpeed;
-        D_800F4A48[i] = sum1 & 0x1FFF;
+        varTimer = g_BattleVarTimerFrac[i] + varTimerInc;
+        g_BattleVarTimerFrac[i] = varTimer & 0x1FFF;
 
-        sum2 = D_800F4A70[i] + speedMulti;
-        D_800F4A70[i] = sum2 & 0xFFF;
+        constTimer = g_BattleConstTimerFrac[i] + constTimerInc;
+        g_BattleConstTimerFrac[i] = constTimer & 0xFFF;
 
-        hpChange = D_800F4A98[i] + unitSpeed * unk6;
-        D_800F4A98[i] = hpChange & 0x7FFF;
+        hpChange = g_BattleHpChangeFrac[i] + varTimerInc * unk6;
+        g_BattleHpChangeFrac[i] = hpChange & 0x7FFF;
 
-        unitSpeeds[i] = 0;
-        speedMultipliers[i] = 0;
+        varTimerAccum[i] = 0;
+        constTimerAccum[i] = 0;
 
-        unitTicks = sum1 >> 13;
-        atbTicks = sum2 >> 12;
+        varUnits = varTimer >> 13;
+        constUnits = constTimer >> 12;
         deltaHP = hpChange >> 15;
 
         if (!(g_BattleState.combatant[i].status & STATUS_DEATH)) {
@@ -3864,16 +3865,16 @@ void func_800AFECC(void) {
             if (timer) {
                 switch (k) {
                 case TIMER_STOP:
-                    delta = ticks;
+                    delta = globalUnits;
                     break;
 
                 case TIMER_D_SENTENCE:
                 case TIMER_SLOW_NUMB:
-                    delta = atbTicks;
+                    delta = constUnits;
                     break;
 
                 default:
-                    delta = unitTicks;
+                    delta = varUnits;
                     break;
                 }
 
@@ -3892,32 +3893,33 @@ void func_800AFECC(void) {
     }
 }
 
+// Called during VSync (the producer thread)
 void func_800B0170(void) {
-    s32* unitSpeeds = D_800F49A8[D_800F499C];
-    s32* speedMultipliers = D_800F49F8[D_800F499C];
+    s32* varTimerAccum = g_BattleVarTimerAccum[g_BattleTimerBufferIndex];
+    s32* constTimerAccum = g_BattleConstTimerAccum[g_BattleTimerBufferIndex];
     s32 i;
 
-    D_800F49A0[D_800F499C] += g_BattleSceneContext.battleSpeed;
+    g_BattleGlobalTimerAccum[g_BattleTimerBufferIndex] += g_BattleSceneContext.battleSpeed;
 
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
-        unitSpeeds[i] += g_BattleWork.turn[i].unitSpeed;
-        speedMultipliers[i] += g_BattleWork.turn[i].atbSpeedMultiplier;
+        varTimerAccum[i] += g_BattleWork.turn[i].varSpeed;
+        constTimerAccum[i] += g_BattleWork.turn[i].constSpeed;
     }
 }
 
 void func_800B0234(void) {
-    s32* unitSpeeds = D_800F49A8[D_800F499C];
+    s32* varTimerAccum = g_BattleVarTimerAccum[g_BattleTimerBufferIndex];
     s32 i;
 
     for (i = 0; i < NUM_PARTY; i++) {
         s32 unk6 = g_BattleWork.turn[i].unk6;
-        s32 unitSpeed = unitSpeeds[i];
+        s32 varTimerInc = varTimerAccum[i];
         s32 prevMP = g_BattleWork.turn[i].prevMP;
         s32 newHP = g_BattleWork.turn[i].prevHP;
         s32 barrierTimer = g_BattleWork.turn[i].statusTimers[TIMER_BARRIER];
         s32 mbarrierTimer = g_BattleWork.turn[i].statusTimers[TIMER_M_BARRIER];
 
-        newHP += (unk6 * unitSpeed) >> 15;
+        newHP += (unk6 * varTimerInc) >> 15;
 
         if (newHP < 0) {
             newHP = 0;
@@ -3925,8 +3927,8 @@ void func_800B0234(void) {
             newHP = g_BattleState.combatant[i].maxHP;
         }
 
-        barrierTimer -= unitSpeed >> 13;
-        mbarrierTimer -= unitSpeed >> 13;
+        barrierTimer -= varTimerInc >> 13;
+        mbarrierTimer -= varTimerInc >> 13;
         if (barrierTimer < 0) {
             barrierTimer = 0;
         }
