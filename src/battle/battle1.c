@@ -1180,7 +1180,7 @@ void BattleQueue1CameraInit(void) {
 static void func_800BB75C(BattleWorldView* view, MATRIX* camera, s16* cameraPos, s16* cameraTarget) {
     s32 flag;
 
-    func_800D85B0(camera, cameraPos, cameraTarget, &D_800E7D10);
+    BattleLookAt(camera, cameraPos, cameraTarget, &D_800E7D10);
     RotMatrixYXZ(&view->rot, &view->m);
     TransMatrix(&view->m, &view->u.v);
     MulMatrix2(camera, &view->m);
