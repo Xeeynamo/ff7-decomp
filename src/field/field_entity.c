@@ -6,6 +6,8 @@
 extern s16 D_800DF120[][2];
 extern u16 D_80113F28;
 extern s16 D_801144CC;
+extern u8 D_80071C0C;
+extern u32 g_FieldKeyState;
 
 static s16 D_800DEF88[130] = {
     0,  0,  1,  1,  1,  2,  2,  2,  3,  3,  3,  4,  4,  4,  4,  5,  5,  5,  6,  6,  6,  7,  7,  7,  8,  8,
@@ -646,7 +648,6 @@ s32 FieldEntityAutoMove(FieldEntity* data, s16 targetRadius) {
 }
 
 s32 FieldEntityWalkmeshCross(u16* triangleId, VECTOR* testPoint, VECTOR* testProbe, VECTOR* blockedEdge) {
-    // Scratchpad holds three edge vectors followed by the test point.
     VECTOR* vectors = (VECTOR*)getScratchAddr(0);
     s16 access;
     s32 cross1, cross2, cross3;
@@ -752,9 +753,6 @@ s32 FieldEntityCalculateZ(VECTOR* edge1, VECTOR* edge2, VECTOR* point, SVECTOR* 
             normal.vy * point->vy) /
            normal.vz;
 }
-
-extern u8 D_80071C0C;
-extern u32 g_FieldKeyState;
 
 s32 FieldEntityMove(s16 modelId) {
     VECTOR* vectors = (VECTOR*)getScratchAddr(sizeof(VECTOR) / 4 * 4);

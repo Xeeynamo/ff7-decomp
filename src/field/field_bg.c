@@ -4,15 +4,6 @@
 #include <libgte.h>
 #include "field_private.h"
 
-s32 FieldEntityGetDirVectorY(u8 angle);
-
-extern s16 g_CameraScrollCurrentStep;
-extern s16 g_CameraScrollStartX;
-extern s16 g_CameraScrollTargetX;
-extern s16 g_CameraScrollStartY;
-extern s16 g_CameraScrollTargetY;
-extern s16 g_CameraScrollNumSteps;
-
 typedef struct {
     s16 x;
     s16 y;
@@ -35,17 +26,33 @@ typedef struct {
     u8 state;
 } FieldBgAnimatedTile16;
 
-extern FieldBgTile* g_FieldBgLayer3;
-
 typedef struct FieldBgSourceOffsets {
     DVECTOR layer01;
     DVECTOR layer2;
     DVECTOR layer3;
 } FieldBgSourceOffsets;
 
+extern DVECTOR g_FieldPlayerScreenPos;
+extern s32 D_800E48EC;
+extern DRAWENV D_80113FE4[2];
+extern DRAWENV D_8011409C[2];
+extern DRAWENV D_80114154[2];
+extern DRAWENV D_8011420C[2];
+extern s16 g_PosCursorX;
+extern s16 g_PosCursorY;
+extern FieldBgSourceOffsets g_FieldBgSourceOffsets;
+extern s16 g_CameraScrollCurrentStep;
+extern s16 g_CameraScrollStartX;
+extern s16 g_CameraScrollTargetX;
+extern s16 g_CameraScrollStartY;
+extern s16 g_CameraScrollTargetY;
+extern s16 g_CameraScrollNumSteps;
+extern FieldBgTile* g_FieldBgLayer3;
 extern s16 g_FieldBgSpriteToDrawModeOffset;
 extern s16 g_FieldBg16SpriteCount;
 extern s16 g_FieldBgAnimatedDrawModeCount;
+
+s32 FieldEntityGetDirVectorY(u8 angle);
 
 void FieldBackgroundInitPackets(SPRT_16* sprite16, SPRT* sprite, FieldBgAnimEntry* anim, DR_MODE* mode) {
     s16* record;
@@ -175,8 +182,6 @@ void FieldBackgroundInitPackets(SPRT_16* sprite16, SPRT* sprite, FieldBgAnimEntr
         }
     }
 }
-
-extern FieldBgSourceOffsets g_FieldBgSourceOffsets;
 
 void AddBackgroundToRender(FieldRenderData* renderData) {
     s16 index;
@@ -595,15 +600,6 @@ void FieldBGScrollUpdate(void) {
         break;
     }
 }
-
-extern DVECTOR g_FieldPlayerScreenPos;
-extern s32 D_800E48EC;
-extern DRAWENV D_80113FE4[2];
-extern DRAWENV D_8011409C[2];
-extern DRAWENV D_80114154[2];
-extern DRAWENV D_8011420C[2];
-extern s16 g_PosCursorX;
-extern s16 g_PosCursorY;
 
 void FieldBGUpdateDrawenv(FieldRenderData* renderData) {
     SVECTOR pos;
