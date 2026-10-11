@@ -15,7 +15,7 @@ This is a signposting tool ONLY, not a progress report. It answers "what can I r
 and "where would work be useful?", it says plainly which overlays it could not
 examine rather than passing over them.
 
-Writes Nothing
+Read-only: it never writes to src/, config/, or build/.
 
 Offsets
 -------
@@ -61,11 +61,17 @@ def parse_config(path):
         name = m.group(1)
         disk = re.search(r"disk_path:\s*(\S+)", block)
         vram = re.search(r"vram_start:\s*(0x[0-9A-Fa-f]+)", block)
+        base = re.search(r"base_path:\s*(\S+)", block)
         if not disk:
             continue
         overlays[name] = {
             "disk_path": disk.group(1),
             "vram_start": int(vram.group(1), 16) if vram else None,
+            # The source directory this overlay is built from. It equals the
+            # overlay name for most overlays but is "magic" for all 275 magic
+            # ones, which is what lets a stub be attributed to a single magic
+            # overlay instead of to all of them.
+            "base_path": base.group(1) if base else name,
         }
     return overlays
 
@@ -190,10 +196,56 @@ def canonical(insns, ram, file_offset):
 # ---------------------------------------------------------------------------
 
 
-def include_asm_names(src_root):
-    """Every function still waiting to be decompiled, repo-wide."""
-    names = set()
+def overlay_owners(overlays):
+    """overlay -> source directory it is built from.
+
+    The directory is base_path, which is not the overlay name for magic: 275
+    overlays all build from src/magic. Where one directory holds many overlays
+    the file name is what distinguishes them, src/magic/lamu.c being overlay
+    lamu, so that mapping is recorded too and consulted per file.
+    """
+    by_dir = collections.defaultdict(list)
+    for name, ov in overlays.items():
+        by_dir[ov.get("base_path") or name].append(name)
+    return by_dir
+
+
+def owning_overlay(relpath, filename, by_dir):
+    """Which overlay a source file belongs to, or None if it cannot be told.
+
+    relpath is the source file's directory relative to src/. base_path is not
+    always a single directory - it is "magic" for 286 magic overlays but
+    "mini/highway" for highway - so the path is normalised and matched whole.
+    """
+    directory = relpath.replace(os.sep, "/")
+    candidates = by_dir.get(directory)
+    if not candidates:
+        return None
+    if len(candidates) == 1:
+        return candidates[0]
+    # Several overlays share one directory, so the file name picks the overlay.
+    stem = filename[:-2]  # strip .c
+    if stem in candidates:
+        return stem
+    return None
+
+
+def include_asm_symbols(src_root, overlays):
+    """Every function still waiting to be decompiled, repo-wide.
+
+    Keyed by (overlay, symbol), not by symbol alone. Placeholder names are
+    reused across overlays - func_801B102C exists in both lamu and reazer - so a
+    bare name set makes a stub in one overlay mark the identically named,
+    already-solved function in every other overlay as pending. That reported a
+    just-matched function as a quick win against itself.
+
+    A file whose overlay cannot be attributed is keyed under None and matches
+    any overlay, which errs toward reporting rather than hiding.
+    """
+    by_dir = overlay_owners(overlays)
+    result = set()
     for dirpath, _, files in os.walk(src_root):
+        relpath = os.path.relpath(dirpath, src_root)
         for fn in files:
             if not fn.endswith(".c"):
                 continue
@@ -201,10 +253,15 @@ def include_asm_names(src_root):
                 text = open(os.path.join(dirpath, fn), errors="ignore").read()
             except OSError:
                 continue
-            names |= set(
-                re.findall(r'INCLUDE_ASM\("[^"]*",\s*(\w+)\)', text)
-            )
-    return names
+            owner = owning_overlay(relpath, fn, by_dir)
+            for sym in re.findall(r'INCLUDE_ASM\("[^"]*",\s*(\w+)\)', text):
+                result.add((owner, sym))
+    return result
+
+
+def is_pending(symbol, overlay, nonmatching):
+    """True when this specific overlay's copy of `symbol` is still a stub."""
+    return (overlay, symbol) in nonmatching or (None, symbol) in nonmatching
 
 
 def elf_symbols(elf):
@@ -257,7 +314,7 @@ def collect(overlays, consts, asm_dir, src_root, verbose=False):
     that nm reports as 'T' with a size. lv5deth's 48 KB g_Lv5DeathPrimBuffer0 is
     the clearest example, in an overlay that is itself fully matched.
     """
-    nonmatching = include_asm_names(src_root)
+    nonmatching = include_asm_symbols(src_root, overlays)
     matched = collections.defaultdict(list)  # canonical -> [(overlay, name, insns)]
     pending = []  # (overlay, name, data, offset, size, ram, insn_count)
     out_of_range = collections.Counter()
@@ -289,7 +346,7 @@ def collect(overlays, consts, asm_dir, src_root, verbose=False):
                 unreadable_syms[name] += 1
                 continue
             canon = canonical(insns, ram, offset)
-            if sym in nonmatching:
+            if is_pending(sym, name, nonmatching):
                 pending.append((name, sym, data, offset, size, ram, len(insns)))
             else:
                 matched[canon].append((name, sym, len(insns)))
@@ -498,22 +555,57 @@ def find(query, matched, pending):
 
     Asked about an unmatched function, this answers "what can help me?".
     Asked about a solved one, it answers "where would this be useful?".
+
+    Placeholder names are reused across overlays, so a bare name can be
+    ambiguous - func_801B102C exists in both lamu and reazer. Accept
+    "overlay:symbol" to pick one; given a bare name that matches more than one,
+    list every candidate rather than silently reporting the first.
     """
-    canon_to_members = matched
-    # find the canonical form of the query
-    for overlay, sym, data, offset, size, ram, count in pending:
-        if sym != query:
-            continue
-        insns = disassemble(data, offset, size)
-        key = canonical(insns, ram, offset)
-        report_family(query, overlay, key, canon_to_members, pending, solved=False)
-        return
-    for key, members in canon_to_members.items():
-        if any(m[1] == query for m in members):
-            overlay = next(m[0] for m in members if m[1] == query)
-            report_family(query, overlay, key, canon_to_members, pending, solved=True)
+    overlay = None
+    if ":" in query:
+        overlay, query = query.split(":", 1)
+        matches = [(name, sym) for name, sym, *_ in pending if sym == query and name == overlay]
+        matches += [
+            (name, sym)
+            for key, members in matched.items()
+            for name, sym, _ in members
+            if sym == query and name == overlay
+        ]
+        if not matches:
+            print("no function named %s:%s is known. Is it built? Try --verbose." % (overlay, query))
             return
-    print("no function named %s is known. Is it built? Try --verbose." % query)
+    else:
+        candidates = [(name, sym) for name, sym, *_ in pending if sym == query]
+        candidates += [
+            (name, sym)
+            for key, members in matched.items()
+            for name, sym, _ in members
+            if sym == query
+        ]
+        distinct = sorted(set(candidates))
+        if len(distinct) > 1:
+            print()
+            print("  %s is ambiguous, it exists in %d overlays:" % (query, len(distinct)))
+            for name, _ in distinct:
+                print("    %-9s %s" % (name, query))
+            print()
+            print("  Ask about one of them as overlay:symbol.")
+            return
+        if not distinct:
+            print("no function named %s is known. Is it built? Try --verbose." % query)
+            return
+        overlay = distinct[0][0]
+
+    for name, sym, data, offset, size, ram, count in pending:
+        if sym == query and name == overlay:
+            insns = disassemble(data, offset, size)
+            key = canonical(insns, ram, offset)
+            report_family(query, overlay, key, matched, pending, solved=False)
+            return
+    for key, members in matched.items():
+        if any(m[0] == overlay and m[1] == query for m in members):
+            report_family(query, overlay, key, matched, pending, solved=True)
+            return
 
 
 def report_family(query, overlay, key, matched, pending, solved):
@@ -567,7 +659,8 @@ def main():
     ap.add_argument("--find", metavar="FUNC",
                     help="look up one function and show its twin family, "
                          "either direction: 'what can help me?' or "
-                         "'where would my work apply?'")
+                         "'where would my work apply?'. Names reused across "
+                         "overlays take OVERLAY:FUNC.")
     args = ap.parse_args()
 
     if not os.path.exists(args.config):
