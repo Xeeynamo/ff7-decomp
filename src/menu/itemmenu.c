@@ -604,7 +604,6 @@ extern RECT g_ItemArrangeWindow;
 extern s32 g_ItemSwapState;
 extern s32 g_ItemSwapSourceColumn;
 extern s32 g_ItemSwapSourceSlot;
-extern u8 g_ItemMenuWidgetScrolling[];
 extern s16 g_ItemListOffet;
 extern s16 g_ItemListScrolling;
 extern s8 g_ItemUseListCursorPos[];
@@ -863,7 +862,7 @@ char ITEMMENU_Main(s32 frameCount) {
         g_ItemMenuScrollbarTopRow = scrollPos;
         numVisibleRows = 0xA;
         SysMenuDrawScrollbar(g_ItemMenuScrollbar, scrollPos);
-        hasScrollAnimation = *((s16*)(((u8*)g_ItemMenuWidgetScrolling) + ((s32)slotIdx)));
+        hasScrollAnimation = *((s16*)((((u8*)g_ItemMenuWidgets) + 8) + ((s32)slotIdx)));
         if (hasScrollAnimation != 0) {
             numVisibleRows = 0xB;
         }

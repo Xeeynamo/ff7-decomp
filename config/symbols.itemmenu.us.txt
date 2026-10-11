@@ -45,7 +45,6 @@ g_ItemSwapSourceColumn = 0x801D3D88;
 g_ItemSwapSourceSlot = 0x801D3D8C;
 g_KeyItemList = 0x801D3D90;
 g_ItemMenuWidgets = 0x801D3DDC;
-g_ItemMenuWidgetScrolling = 0x801D3DE4;
 g_ItemListOffet = 0x801D3DF0;
 g_ItemListScrolling = 0x801D3DF6;
 g_ItemUseListCursorPos = 0x801D3DF9;
