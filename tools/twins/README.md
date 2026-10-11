@@ -8,7 +8,8 @@ Run it from the repo root, after a build:
 python3 tools/twins/twins.py
 ```
 
-Never writes.
+It is read-only. It never writes to `src/`, `config/`, or `build/`, so it cannot
+disturb anything that has already been matched.
 
 ## What it reports
 
@@ -17,15 +18,15 @@ Three kinds of sharing exist in this project and they are not the same thing.
 **Shared work** (reported first). Unmatched functions identical to *other
 unmatched functions*. Neither side is solved, but they are the same code, so
 matching one body covers every copy. Largest category in the magic overlays,
-where nothing has been solved yet: 76 bodies cover 392 functions; one 624-
+where nothing has been solved yet: 75 bodies cover 390 functions; one 624-
 instruction body is shared by 8 overlays and one 95-instruction body by 38.
 Sorted by payoff (size x copies) rather than size alone, because a small
 function in 38 overlays can save more work than a large one copied twice.
 
 **Duplicated function bodies.** The same function compiled into two different
 overlays. This is the copy-paste-and-go case: the solved source is almost
-directly reusable. `highway func_800B0754` and `field FieldModelCreatePktsForPart`
-are the same 727-instruction function.
+directly reusable. `field FieldModelCreatePktsForPart`, `chocobo func_800AD9D8`
+and `highway func_800B0754` are the same 727-instruction function.
 
 **Call-level reuse.** Overlays that duplicate no code at all but call shared
 helpers defined elsewhere. Most of the 286 magic effect overlays are this shape:
@@ -48,6 +49,20 @@ python3 tools/twins/twins.py --only bodies      # unmatched with a solved twin
 python3 tools/twins/twins.py --only deps        # call-level reuse only
 python3 tools/twins/twins.py --only coverage    # what was and was not examined
 python3 tools/twins/twins.py --find FUNC        # one function's twin family
+python3 tools/twins/twins.py --find OVL:FUNC    # when FUNC is ambiguous
+```
+
+Placeholder names are reused across overlays - `func_801B102C` exists in both
+`lamu` and `reazer` - so a bare name can match more than one function. When it
+does, the tool lists the overlays and asks you to disambiguate with
+`overlay:symbol` rather than silently picking one:
+
+```
+$ python3 tools/twins/twins.py --find func_801B102C
+  func_801B102C is ambiguous, it exists in 2 overlays:
+    lamu      func_801B102C
+    reazer    func_801B102C
+  Ask about one of them as overlay:symbol.
 ```
 
 `--find` works from either end. Asked about an unmatched function it answers
@@ -55,16 +70,14 @@ python3 tools/twins/twins.py --find FUNC        # one function's twin family
 apply?" Both are the same fact read from opposite directions:
 
 ```
-$ python3 tools/twins/twins.py --find func_800B0754
-  This is unmatched. Identical, already-solved copies:
-    field     FieldModelCreatePktsForPart      727 insns
-    chocobo   func_800AD9D8                    727 insns
-
 $ python3 tools/twins/twins.py --find FieldModelCreatePktsForPart
   This is solved. Anywhere else it appears, the same work applies:
     chocobo   func_800AD9D8                    727 insns
-  Still unmatched elsewhere:
-    highway   func_800B0754
+    highway   func_800B0754                    727 insns
+
+$ python3 tools/twins/twins.py --find heatbu:func_801B0054
+  This is unmatched. Identical, already-solved copies:
+    thunder   MAGIC_Thunder                      8 insns
 ```
 
 ## How it works, and why it is written this way
