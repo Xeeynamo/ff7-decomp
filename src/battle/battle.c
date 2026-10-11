@@ -3291,8 +3291,54 @@ void BattleCalcAffinityFlags(void) {
     }
 }
 
-void BattleRecalcUnitSpeed(int index);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRecalcUnitSpeed);
+void BattleRecalcUnitSpeed(s32 index) {
+    // Status alterations in this function are local only; the unit status is never written back
+    s32 status = g_BattleState.combatant[index].status;
+    s32 unitSpeed = 0;
+    s16 atbSpeedMultiplier = 0;
+    s32 atbIncrement;
+
+    if (status & STATUS_IMPRISONED) {
+        switch (g_BattleSceneContext.imprisonedType) {
+        case 0:
+        case 3:
+            status |= STATUS_STOP;
+            break;
+        case 1:
+            status |= STATUS_PARALYSIS;
+            break;
+        }
+    }
+
+    if (!(status & (STATUS_STOP | STATUS_DEATH))) {
+        unitSpeed = g_BattleSceneContext.battleSpeed;
+        atbSpeedMultiplier = 0x22; // Slow (0.5x)
+
+        if (!(status & STATUS_SLOW)) {
+            unitSpeed *= 2;
+            atbSpeedMultiplier = 0x44; // Normal (1.0x)
+            if (status & STATUS_HASTE) {
+                unitSpeed *= 2;
+                atbSpeedMultiplier = 0x88; // Haste (2.0x)
+            }
+        }
+    }
+
+    if (index < NUM_PARTY) {
+        s32 totalDex = BattleApplyStatMult(index, g_BattleState.combatant[index].dexterity, STAT_MULT_DEXTERITY) + 50;
+        atbIncrement = unitSpeed * totalDex / g_BattleSceneContext.avgPartyDexterity;
+    } else {
+        atbIncrement = (unitSpeed * g_BattleState.combatant[index].dexterity) / g_BattleSceneContext.avgPartyDexterity;
+    }
+
+    if (status & (STATUS_PARALYSIS | STATUS_PETRIFY | STATUS_SLEEP)) {
+        atbIncrement = 0;
+    }
+
+    g_BattleWork.turn[index].unitSpeed = unitSpeed;
+    g_BattleWork.turn[index].atbIncrement = atbIncrement;
+    g_BattleWork.turn[index].atbSpeedMultiplier = atbSpeedMultiplier;
+}
 
 const u8 g_StatusTimerInitValues[] = {
     0x1E, 0x14, 0x3C, 0x1E, 0x7F, 0x7F, 0x0A, 0x64, 0x7F, 0x7F, 0x40, 0x40, 0x00, 0x00, 0x00, 0x00};
