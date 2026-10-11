@@ -257,8 +257,6 @@ static void func_800A2CC4(s32 arg0) {
 
 const u8 D_800A01A8[] = {0x05, 0x06, 0x07, 0x12, 0x0F, 0x00, 0x03, 0xA6};
 static s32 func_800A2D0C(void) {
-    s32 temp_v1;
-
     if (g_CurrentAction->targetId >= NUM_PARTY) {
         return g_BattleState.combatant[g_CurrentAction->targetId].hurtActionId;
     }
@@ -1729,7 +1727,7 @@ const s32 D_800A029C[] = {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType07);
 
 void BattlePrepareTmpForManip(void) {
-    g_CurrentAction->unk80 = 0x400000;
+    g_CurrentAction->unk80[0] = 0x400000;
     g_CurrentAction->unkE4 = 0x59;
 }
 
@@ -1840,7 +1838,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8A6C);
 void BattleActionType18(void) {
     g_CurrentAction->unk8C = 0xFF;
     g_CurrentAction->unk40 = 0xB0;
-    g_CurrentAction->unk80 |= 1;
+    g_CurrentAction->unk80[0] |= 1;
     g_CurrentAction->unk3C = (s32)g_CurrentAction->unk3C >> 1;
 }
 
@@ -1872,26 +1870,23 @@ static void SetActionStatusChange(u32 arg0, s32 statusMask) {
     u8 unused[8]; // retail reserves it, nothing reads it
     Unk800A8D04* act = g_CurrentAction;
     s32 idx = arg0 >> 6;
-    s32 v;
-    s32 slot;
-    s32 tmp;
+    s32 chance;
+    s32 mask;
 
-    act->unk80 = 0;
-    act->unk84 = 0;
-    act->unk88 = 0;
+    act->unk80[0] = 0;
+    act->unk80[1] = 0;
+    act->unk80[2] = 0;
 
     if (idx < 3) {
-        v = (arg0 & 0x3F) * 4;
-        slot = idx;
-        tmp = 0x80000000;
-
+        chance = (arg0 & 0x3F) * 4;
+        mask = 0x80000000;
         if (statusMask < 0) {
-            act->unk80 = tmp;
+            act->unk80[0] = mask;
             g_BattleSceneContext.imprisonedType = statusMask & 3;
         } else {
-            act->unk8C = v;
-            tmp = (s32)act;
-            *(s32*)((slot * 4) + tmp + 0x80) = statusMask;
+            mask = statusMask;
+            act->unk8C = chance;
+            act->unk80[idx] = mask;
         }
     }
 }
@@ -2073,9 +2068,86 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA950);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType09);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AB308);
+void BattleResolveAffinityPreDamage(void) {
+    s32 tmp;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AB480);
+    if (g_CurrentAction->affinityFlags & AFFINITY_ABSORB) {
+        tmp = g_CurrentAction->unk238[1];
+        g_CurrentAction->unk238[1] = g_CurrentAction->unk238[0];
+        g_CurrentAction->unk238[0] = tmp;
+
+        if (tmp & 1) {
+            g_CurrentAction->unk238[0] = tmp & ~1;
+            g_CurrentAction->affinityFlags = AFFINITY_DEATH;
+        }
+        if (g_CurrentAction->unk238[1] & 1) {
+            g_CurrentAction->unk238[1] &= ~1;
+            g_CurrentAction->affinityFlags = AFFINITY_FULL_CURE;
+        }
+    }
+
+    if (g_CurrentAction->affinityFlags & AFFINITY_DEATH) {
+        switch (g_CurrentAction->unkA4) {
+        case 3:
+        case 4:
+            if ((u8)SysGetRandomByteRange(0x20) >= g_CurrentAction->power) {
+                g_CurrentAction->affinityFlags = (g_CurrentAction->affinityFlags & ~AFFINITY_DEATH) | AFFINITY_NULLIFY;
+            }
+            break;
+        }
+    }
+
+    if (g_CurrentAction->power == 0) {
+        if (g_CurrentAction->affinityFlags & AFFINITY_DOUBLE) {
+            g_CurrentAction->attackPercent *= 2;
+        }
+        if (g_CurrentAction->affinityFlags & AFFINITY_HALF) {
+            g_CurrentAction->attackPercent >>= 1;
+        }
+    }
+}
+
+void BattleResolveAffinityPostDamage(void) {
+    if (g_CurrentAction->affinityFlags & AFFINITY_ABSORB) {
+        g_CurrentAction->damageFlags ^= 1;
+    } else {
+        if (g_CurrentAction->affinityFlags & AFFINITY_DOUBLE) {
+            g_CurrentAction->tmpDamage *= 2;
+        }
+        if (g_CurrentAction->affinityFlags & AFFINITY_HALF) {
+            g_CurrentAction->tmpDamage++;
+            g_CurrentAction->tmpDamage >>= 1;
+        }
+    }
+
+    if (g_CurrentAction->affinityFlags & AFFINITY_DEATH) {
+        if (g_CurrentAction->targetStatus & STATUS_DEATH) {
+            g_CurrentAction->unk218 |= 3;
+            func_800ACA24();
+        } else {
+            g_CurrentAction->unk250 = -2;
+            g_CurrentAction->unk238[0] |= 1;
+            g_CurrentAction->unk238[1] &= ~1;
+            g_CurrentAction->unk218 &= ~2;
+            g_CurrentAction->damageFlags &= ~1;
+        }
+    } else if (g_CurrentAction->affinityFlags & AFFINITY_FULL_CURE) {
+        g_BattleState.combatant[g_CurrentAction->targetId].curHP =
+            g_BattleState.combatant[g_CurrentAction->targetId].maxHP;
+        g_BattleState.combatant[g_CurrentAction->targetId].curMP =
+            g_BattleState.combatant[g_CurrentAction->targetId].maxMP;
+
+        g_CurrentAction->damageFlags = 1;
+        g_CurrentAction->unk250 = -3;
+        g_CurrentAction->unk218 &= ~2;
+        g_CurrentAction->unk238[0] &= ~1;
+    } else if (g_CurrentAction->affinityFlags & AFFINITY_NULLIFY) {
+        if ((g_CurrentAction->unk244 != 0) || (g_CurrentAction->elements & 8)) {
+            g_CurrentAction->unk218 |= 1;
+        }
+        func_800ACA24();
+    }
+}
 
 static void BattleDropDyingEnemiesFromTargets(void) {
     s32 mask;
@@ -2105,19 +2177,14 @@ static void BattleDropDyingEnemiesFromTargets(void) {
 static void BattleLearnEnemySkill(void) {
     u16 id;
     s32 bit = 1 << (g_CurrentAction->absoluteActionIndex - 0x48);
-    s32* flags;
-    s32 mask;
 
     if (!(g_BattleData.flags & 0x40)) {
-        flags = (s32*)((u8*)g_CurrentAction->unk204 + 0x24);
-        mask = *flags;
-
-        if (!(mask & bit)) {
-            *flags = mask | bit;
+        if (!(g_CurrentAction->partyWork->enemySkillMateriaData & bit)) {
+            g_CurrentAction->partyWork->enemySkillMateriaData |= bit;
             id = (u16)g_CurrentAction->absoluteActionIndex;
             BattleAddStringToDisplay(g_CurrentAction->targetId, 0x73, 1, &id);
             BattleQueueEvent(2, g_CurrentAction->targetId, 0x12, id);
-            g_CurrentAction->unk224 = 0xA;
+            g_CurrentAction->hurtAnimScript = 0xA;
         }
     }
 }
@@ -2232,8 +2299,8 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     // reload the (possibly redirected) target id, then run the damage/effect
     // calculation pipeline for this hit
     arg1 = g_CurrentAction->targetId;
-    func_800AE82C();
-    func_800AB308();
+    BattleCalcAffinityFlags();
+    BattleResolveAffinityPreDamage();
     if (g_CurrentAction->elements & 0x200) {
         g_CurrentAction->damageFlags |= 1;
     }
@@ -2252,17 +2319,17 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
         g_CurrentAction->unk218 |= 2;
     }
     if (func_800ACD88(arg1) != 0) {
-        g_CurrentAction->unk230 = 0x20;
+        g_CurrentAction->affinityFlags = AFFINITY_NULLIFY;
     }
 
     // Reflect check: bounce the effect back instead of applying it here
     isReflected = 0;
-    func_800AB480();
+    BattleResolveAffinityPostDamage();
     if (!(g_CurrentAction->unk6C & 0x200) && !((D_800F4958 >> arg1) & 1)) {
-        isReflected = (g_CurrentAction->unk228 >> 18) & 1;
+        isReflected = (g_CurrentAction->targetStatus >> 18) & 1;
     }
-    if (!(g_CurrentAction->unk6C & 0x100) && !isReflected && !(g_CurrentAction->unk228 & 1) &&
-        !(g_CurrentAction->unk230 & 0xC1)) {
+    if (!(g_CurrentAction->unk6C & 0x100) && !isReflected && !(g_CurrentAction->targetStatus & STATUS_DEATH) &&
+        !(g_CurrentAction->affinityFlags & (AFFINITY_DEATH | AFFINITY_ABSORB | AFFINITY_FULL_CURE))) {
         g_CurrentAction->unk218 |= 1;
     }
 
@@ -2291,18 +2358,18 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
             D_800F4920 |= 2;
             D_800F4938[arg1] |= 1 << bounceTarget;
             func_800ACA24();
-            entry = g_CurrentAction->unk200;
+            entry = g_CurrentAction->turnWork;
             if (entry->statusProtectionMask & 0x40000) {
                 D_800F4958 |= 1 << arg1;
             } else if (entry->unk28 != 0) {
                 entry->unk28--;
             } else {
-                g_CurrentAction->unk23C |= 0x40000;
+                g_CurrentAction->unk238[1] |= 0x40000;
             }
             g_CurrentAction->unk218 |= 2;
             act->flags |= 2;
             if (arg1 < NUM_PARTY) {
-                g_CurrentAction->unk224 = 0xA;
+                g_CurrentAction->hurtAnimScript = 0xA;
             }
         }
         if (g_CurrentAction->unk218 & 0x4000) {
@@ -2357,7 +2424,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
             g_CurrentAction->unk248 = g_CurrentAction->unk54;
         }
         if ((g_CurrentAction->damageFlags & 1) || (g_CurrentAction->unk250 == 0)) {
-            g_CurrentAction->unk224 = 0x33;
+            g_CurrentAction->hurtAnimScript = 0x33;
         } else {
             func_800AC6B4(0);
         }
@@ -2365,7 +2432,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
         g_CurrentAction->unk248 = g_CurrentAction->unk5C;
     } else {
         g_CurrentAction->unk248 = g_CurrentAction->unk54;
-        if (g_CurrentAction->unk230 & 1) {
+        if (g_CurrentAction->affinityFlags & AFFINITY_DEATH) {
             func_800AC6B4(0);
         }
     }
@@ -2373,19 +2440,19 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     if (!(g_CurrentAction->unk218 & 1)) {
         // apply the pending status changes, honoring immunities (mask) and
         // the mutually-exclusive status pairs (Slow/Haste, Sadness/Fury)
-        mask = ~g_CurrentAction->unk22C;
-        oldStatus = g_CurrentAction->unk228;
+        mask = ~g_CurrentAction->targetProtectionStatus;
+        oldStatus = g_CurrentAction->targetStatus;
         newStatus = oldStatus;
         for (i = 0; i < 2; i++) {
             for (j = 0; j < 2; j++) {
-                if (g_CurrentAction->unk238 & D_800A03A0[i][j]) {
+                if (g_CurrentAction->unk238[0] & D_800A03A0[i][j]) {
                     if ((i == 1) && (newStatus & D_800A03A0[1][j ^ 1])) {
                         // e.g. casting Fury on an already-Sad target just
                         // cancels the Sadness instead of stacking
-                        g_CurrentAction->unk238 &= ~D_800A03A0[1][j];
+                        g_CurrentAction->unk238[0] &= ~D_800A03A0[1][j];
                     }
                     // queue the paired status for removal
-                    g_CurrentAction->unk23C |= D_800A03A0[i][j ^ 1];
+                    g_CurrentAction->unk238[1] |= D_800A03A0[i][j ^ 1];
                 }
             }
         }
@@ -2393,10 +2460,10 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
             mask |= 1;
         }
         // apply / remove / toggle against the immunity mask
-        newStatus |= g_CurrentAction->unk238 & mask;
-        newStatus &= ~(g_CurrentAction->unk23C & mask);
-        newStatus ^= g_CurrentAction->unk240 & mask;
-        g_CurrentAction->unk228 = newStatus;
+        newStatus |= g_CurrentAction->unk238[0] & mask;
+        newStatus &= ~(g_CurrentAction->unk238[1] & mask);
+        newStatus ^= g_CurrentAction->unk238[2] & mask;
+        g_CurrentAction->targetStatus = newStatus;
         g_BattleState.combatant[arg1].status = newStatus;
         if (oldStatus != newStatus) {
             if (newStatus & g_CurrentAction->unk244) {
@@ -2404,9 +2471,9 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
                     g_CurrentAction->unkA8 |= 1 << arg1;
                 }
             }
-            if ((oldStatus ^ newStatus) & 1) {
+            if ((oldStatus ^ newStatus) & STATUS_DEATH) {
                 // Death bit flipped -- pick the death/revive message
-                func_800AC6B4(oldStatus & 1);
+                func_800AC6B4(oldStatus & STATUS_DEATH);
             } else {
                 act->flags |= 8;
             }
@@ -2439,15 +2506,14 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
         func_800AD324(g_CurrentAction->unkF4, g_CurrentAction->targetId, g_CurrentAction->tmpDamage / 10, 2);
     }
     if (arg1 < NUM_PARTY && g_CurrentAction->actorId >= START_ENEMY) {
-        // enemy attack triggered a scripted counter/follow-up
-        if ((*(s32*)(g_CurrentAction->unk204 + 0x24) != 0) && (g_CurrentAction->cmdIndex == 0xD)) {
+        if (g_CurrentAction->partyWork->enemySkillMateriaData && (g_CurrentAction->cmdIndex == 0xD)) {
             BattleLearnEnemySkill();
         }
     }
 
     // finalize the action-result descriptor for whatever consumes it next
     act->targetStatus = g_BattleState.combatant[arg1].status;
-    act->hurtAnimScript = g_CurrentAction->unk224;
+    act->hurtAnimScript = g_CurrentAction->hurtAnimScript;
     if (g_CurrentAction->unk218 & 0x20) {
         act->hurtAnimScript = 9;
     }
@@ -2466,32 +2532,96 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
 }
 
 void func_800AC6B4(s32 arg0) {
-    s32 temp_a0;
-
     if (arg0 != 0) {
         if (g_CurrentAction->targetId >= 4) {
-            g_CurrentAction->unk224 = 0x39;
+            g_CurrentAction->hurtAnimScript = 0x39;
         }
     } else {
-        temp_a0 = g_CurrentAction->unk228;
-        if (temp_a0 & 0x400) {
-            g_CurrentAction->unk224 = 0x30;
-        } else if (temp_a0 & 0x800) {
-            g_CurrentAction->unk224 = 5;
+        if (g_CurrentAction->targetStatus & STATUS_STOP) {
+            g_CurrentAction->hurtAnimScript = 0x30;
+        } else if (g_CurrentAction->targetStatus & STATUS_FROG) {
+            g_CurrentAction->hurtAnimScript = 5;
         } else {
-            g_CurrentAction->unk224 = func_800A2D0C();
+            g_CurrentAction->hurtAnimScript = func_800A2D0C();
         }
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleCalcTargStats);
+void BattleCalcTargStats(s32 arg0) {
+    s32 i;
+
+    g_CurrentAction->targetId = arg0;
+    g_CurrentAction->targetEnemyId = -1;
+    g_CurrentAction->unk21C = 0;
+    g_CurrentAction->damageFlags = 0;
+    g_CurrentAction->targetDefense = 0;
+    g_CurrentAction->tmpDamage = 0;
+    g_CurrentAction->unk234 = 0;
+    g_CurrentAction->unk218 = g_CurrentAction->unk90;
+    g_CurrentAction->attackPercent = g_CurrentAction->unk3C;
+    g_CurrentAction->hurtAnimScript = g_BattleState.combatant[arg0].unk56;
+    g_CurrentAction->targetStatus = g_BattleState.combatant[arg0].status;
+    g_CurrentAction->targetLevel = g_BattleState.combatant[arg0].level;
+    g_CurrentAction->targetHP = g_BattleState.combatant[arg0].curHP;
+    g_CurrentAction->targetMP = g_BattleState.combatant[arg0].curMP;
+    g_CurrentAction->turnWork = &g_BattleWork.turn[arg0];
+
+    if (arg0 < NUM_PARTY) {
+        g_CurrentAction->partyWork = &g_BattleWork.party[arg0];
+    } else {
+        g_CurrentAction->partyWork = -1;
+    }
+
+    g_CurrentAction->unk248 = -1;
+    g_CurrentAction->unk24C = -1;
+    g_CurrentAction->unk250 = -1;
+
+    func_800ACA24();
+
+    if (g_CurrentAction->power == 0) {
+        g_CurrentAction->hurtAnimScript = 0x33;
+    }
+
+    if (func_800ACE88()) {
+        g_CurrentAction->unk244 = 0;
+        for (i = 0; i < 3; i++) {
+            g_CurrentAction->unk238[i] = g_CurrentAction->unk80[i];
+            if (i == 0 && (g_CurrentAction->targetStatus & STATUS_PETRIFY)) {
+                g_CurrentAction->unk238[i] = 0;
+            }
+            g_CurrentAction->unk244 |= g_CurrentAction->unk238[i];
+        }
+    } else if (g_CurrentAction->power == 0) {
+        g_CurrentAction->unk218 |= 1;
+    }
+
+    g_CurrentAction->targetProtectionStatus =
+        BattleGetStatusProtectionMask(g_CurrentAction->targetId, 1, g_CurrentAction->unk238[1] & 1);
+    if (g_CurrentAction->unk6C & 0x400) {
+        if (!(g_CurrentAction->unk6C & 4)) {
+            g_CurrentAction->targetDefense =
+                BattleApplyStatMult(arg0, g_BattleState.combatant[arg0].physDefence, STAT_MULT_PHYS_DEFENCE);
+        } else {
+            g_CurrentAction->targetDefense =
+                BattleApplyStatMult(arg0, g_BattleState.combatant[arg0].magDefence, STAT_MULT_MAG_DEFENCE);
+        }
+    }
+
+    if (g_CurrentAction->targetDefense > 0x200) {
+        g_CurrentAction->targetDefense = 0x200;
+    }
+
+    if (arg0 >= START_ENEMY) {
+        g_CurrentAction->targetEnemyId = g_BattleData.activeEncounter.formation[arg0 - START_ENEMY].enemyID;
+    }
+}
 
 void func_800ACA24(void) {
-    g_CurrentAction->unk238 = 0;
-    g_CurrentAction->unk23C = 0;
-    g_CurrentAction->unk240 = 0;
+    g_CurrentAction->unk238[0] = 0;
+    g_CurrentAction->unk238[1] = 0;
+    g_CurrentAction->unk238[2] = 0;
     g_CurrentAction->unk244 = 0;
-    g_CurrentAction->unk230 = 0;
+    g_CurrentAction->affinityFlags = 0;
     g_CurrentAction->tmpDamage = 0;
 }
 
@@ -2590,7 +2720,7 @@ s32 func_800ACB98(void) {
 
         msg = -1;
         if (blocked == 0) {
-            if ((u16)g_BattleState.combatant[g_CurrentAction->actorId].curMP >= g_CurrentAction->unk38) {
+            if (g_BattleState.combatant[g_CurrentAction->actorId].curMP >= g_CurrentAction->unk38) {
                 g_BattleState.combatant[g_CurrentAction->actorId].curMP -= g_CurrentAction->unk38;
             } else {
                 msg = (g_CurrentAction->actorId < NUM_PARTY) ? 0x5B : 0x5C;
@@ -2628,13 +2758,14 @@ static s32 BattleIsDamageNullified(s32 arg0) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACE88);
 
 // arg0 never got a ring slot from BattleAllocImpactData (still unassigned) --
-// queue a placeholder display entry via BattleCreateImpactData anyway. unk22C here
+// queue a placeholder display entry via BattleCreateImpactData anyway. targetProtectionStatus here
 // is the same status-immunity mask BattleMainDmgCalculation (this function's only
 // caller) uses earlier.
 static void BattleQueueUnassignedResultDisplay(BattleQueueTargetEntry* entry) {
     s8 impactEffectId;
 
-    if ((g_CurrentAction->unk80 | g_CurrentAction->unk84 | g_CurrentAction->unk88) & ~g_CurrentAction->unk22C) {
+    if ((g_CurrentAction->unk80[0] | g_CurrentAction->unk80[1] | g_CurrentAction->unk80[2]) &
+        ~g_CurrentAction->targetProtectionStatus) {
         impactEffectId = entry->extraDataIndex;
         if (impactEffectId == -1) {
             BattleCreateImpactData(entry, -1, 0, -1, impactEffectId);
@@ -2652,8 +2783,8 @@ void func_800AD324(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     temp_t0 = g_CurrentAction->damageFlags & 1;
     if (arg3 & 1) {
         if (arg1 == g_CurrentAction->targetId) {
-            if (g_CurrentAction->unk25C < var_a2) {
-                var_a2 = g_CurrentAction->unk25C;
+            if (g_CurrentAction->targetMP < var_a2) {
+                var_a2 = g_CurrentAction->targetMP;
             }
         }
         if (temp_t0) {
@@ -2663,8 +2794,8 @@ void func_800AD324(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
     if (arg3 & 2) {
         if (arg1 == g_CurrentAction->targetId) {
-            if (g_CurrentAction->unk258 < var_a2) {
-                var_a2 = g_CurrentAction->unk258;
+            if (g_CurrentAction->targetHP < var_a2) {
+                var_a2 = g_CurrentAction->targetHP;
             }
         }
         if (temp_t0) {
@@ -2722,10 +2853,10 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleSetFormulaAndBaseDmg);
 
 static s32 BattleAddBarriersModifier(s32 arg0) {
     if (g_CurrentAction->unk6C & 4) {
-        if (g_CurrentAction->unk228 & 0x20000) {
+        if (g_CurrentAction->targetStatus & STATUS_M_BARRIER) {
             g_CurrentAction->unk218 |= 0x8000;
         }
-    } else if (g_CurrentAction->unk228 & 0x10000) {
+    } else if (g_CurrentAction->targetStatus & STATUS_BARRIER) {
         g_CurrentAction->unk218 |= 0x4000;
     }
 
@@ -2763,14 +2894,13 @@ static s32 BattleAddSplitQuaterModifier(s32 arg0, s32 arg1) {
     return arg0;
 }
 
-// reduces arg0 by ~30% when Sadness (status bit 0x10, see D_800A03A0) is set
-// on the current action's status mask; same reduction as
-// BattleApplyFuryHitChanceReduction, gated on a different bit
-static s32 BattleApplySadnessReduction(s32 arg0) {
-    if (g_CurrentAction->unk228 & 0x10) {
-        arg0 -= (arg0 * 3) / 10;
+// Reduces damage by 30% if the target is afflicted by sadness
+// Returns the reduced damage
+static s32 BattleApplySadnessDamageReduction(s32 damage) {
+    if (g_CurrentAction->targetStatus & STATUS_SADNESS) {
+        damage -= (damage * 3) / 10;
     }
-    return arg0;
+    return damage;
 }
 
 // scale arg0 by a fixed-point random variance factor (~93.77%..100%), then
@@ -2839,7 +2969,7 @@ void BattleSetTmpDmgAsPhysical(void) {
     if (g_CurrentAction->attackerStatus & STATUS_FROG) {
         damage >>= 2;
     }
-    damage = BattleAddBarriersModifier(BattleAddSplitQuaterModifier(BattleApplySadnessReduction(damage), 0));
+    damage = BattleAddBarriersModifier(BattleAddSplitQuaterModifier(BattleApplySadnessDamageReduction(damage), 0));
     if (g_CurrentAction->attackerStatus & STATUS_SMALL) {
         damage = 0;
     }
@@ -2858,8 +2988,8 @@ void BattleSetTmpDmgAsMagical(void) {
     if (var_v1 < 0) {
         var_v1 += 0x1FFF;
     }
-    g_CurrentAction->tmpDamage = BattleAddRndModifierAndZeroCheck(
-        BattleAddBarriersModifier(BattleAddSplitQuaterModifier(BattleApplySadnessReduction(var_v1 >> 0xD), temp_s0)));
+    g_CurrentAction->tmpDamage = BattleAddRndModifierAndZeroCheck(BattleAddBarriersModifier(
+        BattleAddSplitQuaterModifier(BattleApplySadnessDamageReduction(var_v1 >> 0xD), temp_s0)));
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADC70);
@@ -2887,10 +3017,10 @@ void BattleLowerFunc07(void) {
 }
 
 void BattleLowerFunc08(void) {
-    if (g_CurrentAction->unk230 & 0x40) {
-        g_CurrentAction->unk230 = 1;
+    if (g_CurrentAction->affinityFlags & AFFINITY_ABSORB) {
+        g_CurrentAction->affinityFlags = AFFINITY_DEATH;
     } else {
-        g_CurrentAction->unk230 = 0x80;
+        g_CurrentAction->affinityFlags = AFFINITY_FULL_CURE;
     }
 }
 
@@ -3037,15 +3167,63 @@ void BattleCalcMateriaSlotScore(void) {
     g_CurrentAction->tmpDamage = count * 1111;
 }
 
-void func_800AE42C(s32, s32, s32, s32*, s32, s32);
+// masks: 16 s32 masks, 0..7 elements (bank0), 8..15 statuses (bank1);
+// index = bank * 8 + type (4 halve, 5 nullify, 6 absorb)
+void BattleGetAffinityMasks(s32 elementMask, s32 statusMask, s32 arg2, s32* masks, s32 arg4, s32 arg5) {
+    ActiveCharacterData* charData;
+    s32 i;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE42C);
+    for (i = 0; i < 8; i++) {
+        masks[i] = 0;
+        masks[i + 8] = 0;
+    }
+
+    if (arg2 < NUM_PARTY) {
+        charData = &g_ActiveCharacters[arg2];
+        masks[4] = charData->halvedElements;
+        masks[5] = charData->nullifiedElements;
+        masks[6] = charData->absorbedElements;
+    } else if (arg2 >= START_ENEMY) {
+        SceneEnemy* enemy =
+            &g_BattleSceneContext.enemy[g_BattleData.activeEncounter.formation[arg2 - START_ENEMY].enemyID];
+        for (i = 0; i < sizeof(enemy->affinityIds); i++) {
+            s32 id = enemy->affinityIds[i];
+            s32 type = enemy->affinityTypes[i];
+            if (id != 0xFF) {
+                masks[(id / 32) * 8 + type] |= 1 << (id % 32);
+            }
+        }
+    }
+
+    masks[13] |= BattleGetStatusProtectionMask(arg2, arg4, arg5);
+
+    if (arg4 != 0 && (g_BattleState.combatant[arg2].status & STATUS_SHIELD)) {
+        masks[6] |= 0x1FF;
+        masks[5] |= 0x7E00;
+    }
+
+    masks[6] |= g_BattleState.combatant[arg2].elemAbsorbExtra;
+    masks[5] |= g_BattleState.combatant[arg2].elemImmuneExtra;
+
+    if ((masks[5] & 0x10) || (masks[13] & STATUS_POISON)) {
+        masks[5] |= 0x10;
+        masks[13] |= STATUS_POISON;
+    }
+
+    for (i = 0; i < 8; i++) {
+        masks[i] &= elementMask;
+        masks[i + 8] &= statusMask;
+        if (i == 5 && masks[13] != statusMask) {
+            masks[13] = 0;
+        }
+    }
+}
 
 static s32 func_800AE6C0(s32 arg0, s32 arg1, s32 arg2) {
     s32 masks[2][8];
     s32 i;
 
-    func_800AE42C(arg1, arg2, arg0, (s32*)masks, 0, 0);
+    BattleGetAffinityMasks(arg1, arg2, arg0, (s32*)masks, 0, 0);
 
     for (i = 0; i < 8; i++) {
         if ((masks[0][i] & arg1) || (masks[1][i] & arg2)) {
@@ -3080,7 +3258,38 @@ static void func_800AE764(s32 mask, s32 arg1, s32 arg2) {
     g_BattleState.scriptOpponentNonPetrifiedMask = result;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AE82C);
+void BattleCalcAffinityFlags(void) {
+    s32 masks[16];
+    s32 elements = g_CurrentAction->elements;
+    s32 result = 0;
+    s32 statusMask = 0;
+    s32 i;
+    s32 unkC;
+    s32 unk84;
+
+    for (i = 0; i < 3; i++) {
+        statusMask |= g_CurrentAction->unk80[i];
+    }
+
+    unkC = g_CurrentAction->unkC != 4;
+    unk84 = g_CurrentAction->unk80[1] & 1;
+    BattleGetAffinityMasks(elements, statusMask, g_CurrentAction->targetId, masks, unkC, unk84);
+
+    if (g_CurrentAction->power != 0 && masks[13] != 0) {
+        masks[13] = 0;
+    }
+
+    for (i = 0; i < LEN(masks); i++) {
+        if (masks[i] != 0) {
+            result |= 1 << (i % 8);
+        }
+    }
+
+    g_CurrentAction->affinityFlags = result & 0xFFFF;
+    if (!(g_CurrentAction->unk6C & 0x80)) {
+        g_CurrentAction->affinityFlags = 0;
+    }
+}
 
 void BattleRecalcUnitSpeed(int index);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRecalcUnitSpeed);
@@ -3567,20 +3776,20 @@ void BattleRollPhysicalHit(void) {
     }
 
     // Auto-hit on element Death-weakness, Auto-Hit weakness, Immune or Absorb
-    if (g_CurrentAction->unk230 & 0x63) {
+    if (g_CurrentAction->affinityFlags & (AFFINITY_DEATH | AFFINITY_UNK2 | AFFINITY_NULLIFY | AFFINITY_ABSORB)) {
         hitChance = 255;
     }
 
     // Auto-hit if the target has a vulnerable status; sleep, confuse, and manipulate are removed on hit
-    if (g_CurrentAction->unk228 & vulnerableStatusMask) {
-        if (g_CurrentAction->unk228 & STATUS_SLEEP) {
-            g_CurrentAction->unk23C |= STATUS_SLEEP;
+    if (g_CurrentAction->targetStatus & vulnerableStatusMask) {
+        if (g_CurrentAction->targetStatus & STATUS_SLEEP) {
+            g_CurrentAction->unk238[1] |= STATUS_SLEEP;
         }
-        if (g_CurrentAction->unk228 & STATUS_CONFU) {
-            g_CurrentAction->unk23C |= STATUS_CONFU;
+        if (g_CurrentAction->targetStatus & STATUS_CONFU) {
+            g_CurrentAction->unk238[1] |= STATUS_CONFU;
         }
-        if (g_CurrentAction->unk228 & STATUS_MANIPULATE) {
-            g_CurrentAction->unk23C |= STATUS_MANIPULATE;
+        if (g_CurrentAction->targetStatus & STATUS_MANIPULATE) {
+            g_CurrentAction->unk238[1] |= STATUS_MANIPULATE;
         }
         hitChance = 255;
     }
@@ -3590,7 +3799,7 @@ void BattleRollPhysicalHit(void) {
     }
 
     dexterity = BattleApplyStatMult(g_CurrentAction->actorId, attacker->dexterity, STAT_MULT_DEXTERITY);
-    baseHitChance = g_CurrentAction->unk260 + dexterity / 4;
+    baseHitChance = g_CurrentAction->attackPercent + dexterity / 4;
     attackerDefPercent = BattleCalcDefPercent(g_CurrentAction->actorId);
     targetDefPercent = BattleCalcDefPercent(g_CurrentAction->targetId);
 
@@ -3628,7 +3837,7 @@ void BattleRollPhysicalHit(void) {
 }
 
 void BattleRollMagicalHit(void) {
-    s32 hitChance = g_CurrentAction->unk260;
+    s32 hitChance = g_CurrentAction->attackPercent;
     s32 halfTargetLevel = g_BattleState.combatant[g_CurrentAction->targetId].level >> 1;
     s32 levelAdjustment = g_CurrentAction->characterLevel - halfTargetLevel;
     s32 evadeRoll = SysGetRandomByteRange(100);
@@ -3637,23 +3846,23 @@ void BattleRollMagicalHit(void) {
     const s32 vulnerableStatusMask =
         STATUS_DEATH | STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_PETRIFY | STATUS_PARALYSIS;
 
-    // Auto-hit if the ability's MAt% is 255
+    // Auto-hit if the ability's At% is 255
     if (hitChance >= 255) {
         return;
     }
 
     // Auto-hit on element Death-weakness, Auto-Hit weakness, Immune or Absorb
-    if (g_CurrentAction->unk230 & 0x63) {
+    if (g_CurrentAction->affinityFlags & (AFFINITY_DEATH | AFFINITY_UNK2 | AFFINITY_NULLIFY | AFFINITY_ABSORB)) {
         return;
     }
 
     // Auto-hit if the ability is reflectable and the target has Reflect
-    if (!(g_CurrentAction->unk6C & 0x200) && (g_CurrentAction->unk228 & STATUS_REFLECT)) {
+    if (!(g_CurrentAction->unk6C & 0x200) && (g_CurrentAction->targetStatus & STATUS_REFLECT)) {
         return;
     }
 
     // Auto-hit if the ability inflicts no status and the target has a vulnerable status
-    if (!g_CurrentAction->unk80 && (g_CurrentAction->unk228 & vulnerableStatusMask)) {
+    if (!g_CurrentAction->unk80[0] && (g_CurrentAction->targetStatus & vulnerableStatusMask)) {
         return;
     }
 
@@ -3695,10 +3904,7 @@ static void BattleRollCriticalHit(void) {
 }
 
 static void BattleUpperFunc07(void) {
-    s32 temp_v1;
-
-    temp_v1 = g_CurrentAction->unk3C;
-    if ((temp_v1 != 0) && ((g_CurrentAction->unk254 % temp_v1) != 0)) {
+    if ((g_CurrentAction->unk3C != 0) && ((g_CurrentAction->targetLevel % g_CurrentAction->unk3C) != 0)) {
         g_CurrentAction->unk218 |= 1;
     }
 }

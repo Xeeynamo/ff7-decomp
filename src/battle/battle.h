@@ -127,6 +127,17 @@ typedef enum {
 } BattleStatMultIndex;
 
 typedef enum {
+    AFFINITY_DEATH = 0x1,
+    AFFINITY_UNK2 = 0x2,
+    AFFINITY_DOUBLE = 0x4,
+    AFFINITY_UNK8 = 0x8, // Unused?
+    AFFINITY_HALF = 0x10,
+    AFFINITY_NULLIFY = 0x20,
+    AFFINITY_ABSORB = 0x40,
+    AFFINITY_FULL_CURE = 0x80,
+} BattleAffinityFlags;
+
+typedef enum {
     SPRITE_QUAD_FLIP_U = 0x1,
     SPRITE_QUAD_FLIP_V = 0x2,
     SPRITE_QUAD_SEMI_TRANS = 0x100,
@@ -177,12 +188,12 @@ typedef struct {
     /* 0x18 */ u16 attackMask;
     /* 0x1A */ u16 attackerMask;
     /* 0x1C */ s32 statusAppliedMask;
-    /* 0x20 */ s16 physDefence;
-    /* 0x22 */ s16 magDefence;
+    /* 0x20 */ u16 physDefence;
+    /* 0x22 */ u16 magDefence;
     /* 0x24 */ u16 enemyId;
     /* 0x26 */ u16 elemAbsorbExtra;
-    /* 0x28 */ s16 curMP;
-    /* 0x2A */ s16 maxMP;
+    /* 0x28 */ u16 curMP;
+    /* 0x2A */ u16 maxMP;
     /* 0x2C */ u32 curHP;
     /* 0x30 */ u32 maxHP;
     /* 0x34 */ u32 elemHalve;
@@ -276,8 +287,8 @@ typedef struct {
     /* 0x25 */ u8 defense;
     /* 0x26 */ u8 magic;
     /* 0x27 */ u8 magicDef;
-    /* 0x28 */ u8 elementTypes[8];
-    /* 0x30 */ u8 elementRates[8];
+    /* 0x28 */ u8 affinityIds[8];   // which element or status bit (0-63, 0xFF empty)
+    /* 0x30 */ u8 affinityTypes[8]; // 4 = half, 5 = nullify, 6 = absorb
     /* 0x38 */ u8 actionAnimeIdx[16];
     /* 0x48 */ u16 attackID[16];
     /* 0x68 */ u16 cameraMovementIDs[16];
@@ -680,6 +691,98 @@ typedef struct {
     /* 0x2A8 */ BattlePartyWork party[NUM_PARTY];
     /* 0x344 */ BattleUnitAttackSetup setup[NUM_PARTY];
 } BattleWork; // size:0x38C
+
+typedef struct Unk800A8D04 {
+    /* 0x000 */ s32 actorId;
+    /* 0x004 */ s32 characterLevel;
+    /* 0x008 */ s32 unk8;
+    /* 0x00C */ s32 unkC;
+    /* 0x010 */ s32 relativeActionIndex; // index within its own category (spell #, summon
+                                         // #, etc) -- see D_800A0290 in battle.c
+    /* 0x014 */ s32 unk14;
+    /* 0x018 */ s32 allowedTargetsMask;
+    /* 0x01C */ s32 unk1C;
+    /* 0x020 */ s32 unk20; // pending message/animation id, -1 = none
+    /* 0x024 */ s32 unk24;
+    /* 0x028 */ s32 cmdIndex;
+    /* 0x02C */ s32 absoluteActionIndex; // relativeActionIndex remapped into the single
+                                         // shared spell/summon/enemy-skill/limit name
+                                         // table (kernel.bin section 18) via
+                                         // D_800A0290's per-category base offset
+    /* 0x030 */ s32 unk30;
+    /* 0x034 */ u8 unk34[4]; // character spacing array
+    /* 0x038 */ s32 unk38;
+    /* 0x03C */ s32 unk3C;
+    /* 0x040 */ s32 unk40;
+    /* 0x044 */ s32 elements;
+    /* 0x048 */ s32 power;
+    /* 0x04C */ s32 attackStat;
+    /* 0x050 */ s32 targetFlags;
+    /* 0x054 */ s32 unk54;
+    /* 0x058 */ s32 unk58;
+    /* 0x05C */ s32 unk5C;
+    /* 0x060 */ s32 unk60;
+    /* 0x064 */ s32 unk64;
+    /* 0x068 */ s32 unk68;
+    /* 0x06C */ s32 unk6C;
+    /* 0x070 */ s32 unk70;
+    /* 0x074 */ s32 unk74;
+    /* 0x078 */ s32 unk78;
+    /* 0x07C */ s32 unk7C;
+    /* 0x080 */ s32 unk80[3];
+    /* 0x08C */ s32 unk8C;
+    /* 0x090 */ s32 unk90;
+    /* 0x094 */ s32 unk94;
+    /* 0x098 */ s32 unk98;
+    /* 0x09C */ s32 unk9C;
+    /* 0x0A0 */ s32 unkA0;
+    /* 0x0A4 */ s32 unkA4;
+    /* 0x0A8 */ s32 unkA8;
+    /* 0x0AC */ s32 unkAC;
+    /* 0x0B0 */ s32 unkB0;
+    /* 0x0B4 */ s32 unkB4;
+    /* 0x0B8 */ s32 unkB8;
+    /* 0x0BC */ s32 unkBC;
+    /* 0x0C0 */ s32 unkC0;
+    /* 0x0C4 */ s32 unkC4;
+    /* 0x0C8 */ s32 attackerStatus;
+    /* 0x0CC */ s32 unkCC;
+    /* 0x0D0 */ u8 unkD0[8];
+    /* 0x0D8 */ s32 unkD8;
+    /* 0x0DC */ s32 unkDC;
+    /* 0x0E0 */ s32 unkE0;
+    /* 0x0E4 */ s32 unkE4;
+    /* 0x0E8 */ s32 unkE8;
+    /* 0x0EC */ s32 unkEC;
+    /* 0x0F0 */ s32 unkF0;
+    /* 0x0F4 */ s32 unkF4;
+    /* 0x0F8 */ s32 unkF8;
+    /* 0x0FC */ s32 unkFC;
+    /* 0x100 */ s32 unk100[0x40];
+    /* 0x200 */ BattleTurnWork* turnWork;
+    /* 0x204 */ BattlePartyWork* partyWork;
+    /* 0x208 */ s32 targetId;
+    /* 0x20C */ s32 targetEnemyId;
+    /* 0x210 */ s32 targetDefense;
+    /* 0x214 */ s32 tmpDamage;
+    /* 0x218 */ s32 unk218;
+    /* 0x21C */ s32 unk21C;
+    /* 0x220 */ s32 damageFlags;
+    /* 0x224 */ s32 hurtAnimScript;
+    /* 0x228 */ u32 targetStatus;
+    /* 0x22C */ s32 targetProtectionStatus;
+    /* 0x230 */ s32 affinityFlags;
+    /* 0x234 */ s32 unk234;
+    /* 0x238 */ s32 unk238[3];
+    /* 0x244 */ s32 unk244;
+    /* 0x248 */ s32 unk248;
+    /* 0x24C */ s32 unk24C;
+    /* 0x250 */ s32 unk250;
+    /* 0x254 */ s32 targetLevel;
+    /* 0x258 */ s32 targetHP;
+    /* 0x25C */ s32 targetMP;
+    /* 0x260 */ s32 attackPercent;
+} Unk800A8D04; // size: 0x264
 
 extern s16 D_800F5B74;
 extern BattleWork g_BattleWork;

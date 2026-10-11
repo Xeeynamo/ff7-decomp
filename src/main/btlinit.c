@@ -12,11 +12,11 @@ void func_800148A0(void);
 INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", func_800148A0);
 
 extern u8 D_80063048;
-Unk800A8D04* g_CurrentAction;
+struct Unk800A8D04* g_CurrentAction;
 
 int func_800148B4(void) {
     func_800148A0();
-    g_CurrentAction = (Unk800A8D04*)0x1F800000;
+    g_CurrentAction = (struct Unk800A8D04*)0x1F800000;
     D_800707C0 = &D_80063048;
     func_80014610();
     func_80014C70();
