@@ -3745,14 +3745,28 @@ void func_800AF9C8(void) {
     }
 }
 
-extern s32 D_800F499C;
+extern volatile s32 D_800F499C;
 extern s32 D_800F49F8[][10];
 
 static s32 func_800AFE98(s32 arg0) { return D_800F49F8[D_800F499C][arg0] >> 0xC; }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AFECC);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0170);
+extern /*?*/ s32 D_800F49A0[2];
+extern /*?*/ s32 D_800F49A8[][10];
+
+void func_800B0170(void) {
+    s32* unitSpeed = D_800F49A8[D_800F499C];
+    s32* speedMultiplier = D_800F49F8[D_800F499C];
+    s32 i;
+
+    D_800F49A0[D_800F499C] += g_BattleSceneContext.battleSpeed;
+
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        unitSpeed[i] += g_BattleWork.turn[i].unitSpeed;
+        speedMultiplier[i] += g_BattleWork.turn[i].atbSpeedMultiplier;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0234);
 
