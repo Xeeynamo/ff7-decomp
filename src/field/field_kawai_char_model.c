@@ -280,7 +280,7 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
         counts = *(u32*)&part->polyGT4Count;
         count = counts & 0xFF;
         for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), polygons += 6) {
-            POLY_GT4 *polyGT4 = (POLY_GT4*)packets;
+            POLY_GT4* polyGT4 = (POLY_GT4*)packets;
             code = getcode(polyGT4);
             KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
             gte_ldcv(&polygons[1]);
@@ -303,7 +303,7 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
 
         count = (counts & 0xFF00) >> 8;
         for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), polygons += 5) {
-            POLY_GT3 *polyGT3 = (POLY_GT3*)packets;
+            POLY_GT3* polyGT3 = (POLY_GT3*)packets;
             code = getcode(polyGT3);
             KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
             gte_ldcv(&polygons[1]);
