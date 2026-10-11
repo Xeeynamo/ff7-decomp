@@ -19,6 +19,8 @@ typedef struct {
     /* 0x00014 */ POLY_FT4* ft4Cursor;
     /* 0x00018 */ POLY_GT3* gt3Cursor;
     /* 0x0001C */ POLY_GT4* gt4Cursor;
+    /* 0x00020 */ POLY_F3 f3[0];
+    /* 0x00020 */ POLY_F4 f4[0];
     /* 0x00020 */ POLY_G3 g3[2500];
     /* 0x11190 */ POLY_G4 g4[2];
     /* 0x111D8 */ POLY_FT3 ft3[800];
@@ -262,6 +264,31 @@ typedef struct {
     /* 0x34 */ HighwayEvent* events;
 } HighwayCourse; // size: 0x38
 
+typedef struct {
+    /* 0x0 */ u8 count;
+    /* 0x4 */ FieldModelEntry* models;
+} HighwayKawaiHeader; // size: 0x8
+
+extern s32 D_800B3BF8;
+extern VECTOR g_HighwayCameraPos; // subtracted from every drawn node
+extern s32 g_HighwayLeftWallOtBias;
+extern s32 g_HighwayRightWallOtBias;
+extern u8 g_HighwayKawaiBufferIndex[4];
+extern OT_TYPE* g_HighwayKawaiOt;
+extern s32 g_HighwayLeftPlaneInsideRef;
+extern s32 g_HighwayRightPlaneInsideRef;
+extern s32 g_HighwayLeftPlaneDistance;
+extern s32 g_HighwayRightPlaneDistance;
+extern s32 D_800BE2F0;
+extern s32 D_800BE53C;
+extern s32 g_HighwayLeftNormalLength;
+extern s32 g_HighwayRightNormalLength;
+extern HighwayBuffer g_HighwayBuffers[2];
+extern HighwayBuffer* g_HighwayBufferPtr;
+extern VECTOR g_HighwayLeftPlaneNormal;
+extern VECTOR g_HighwayRightPlaneNormal;
+extern u32 g_HighwayHighScore; // kept in Savemap bank 3 [0x6D..0x6E]
+extern DR_MODE D_80116358;
 extern SVECTOR D_800B4220;
 extern VECTOR D_800B4228;
 extern Yamada g_HighwayAssetFiles[3];
@@ -549,5 +576,47 @@ void HighwaySetSlotPan(s32 pan, u8 slot);
 void HighwayEventsUpdate(void);
 u8 HighwayDrawFade(HighwayBuffer* db, u8 mode);
 void HighwayDrawGauges(HighwayBuffer* db);
+void func_800A00D0(void);
+void HighwayDrawRoad(HighwayBuffer* db);
+MATRIX* HighwayNodeViewMatrix(HighwayBuffer* db, JetNode* node, MATRIX* m);
+void HighwayDrawScore(HighwayBuffer* db);
+void HighwayInit(void);
+void HighwayBuffersInit(void);
+void HighwayBufferReset(void);
+void HighwayPrimsInit(HighwayPrimBuffer* prims);
+void HighwayPrimCursorsReset(HighwayPrimBuffer* prims);
+void HighwayRiderDraw(s32 index);
+void HighwayRiderDrawEffects(s32 index);
+void HighwayCameraUpdate(s32 trackPos);
+void HighwayInputUpdate(void);
+void HighwayFrustumInit(void);
+s32 HighwayVectorInsidePlanes(VECTOR* point);
+s32 HighwaySVectorInsidePlanes(SVECTOR* point);
+s32 HighwayLeftPlaneHalfSpace(s32 x, s32 y, s32 z);
+s32 HighwayRightPlaneHalfSpace(s32 x, s32 y, s32 z);
+s32 HighwaySphereInsidePlanes(VECTOR* center, s16 radius);
+s32 HighwaySphereInsideLeftPlane(s32 x, s32 y, s32 z, s16 radius);
+s32 HighwaySphereInsideRightPlane(s32 x, s32 y, s32 z, s16 radius);
+void HighwayDrawNumber(HighwayBuffer* db, s32 value, s32 x, s32 y, s16 zeroPad);
+void HighwayDrawNumberSmall(HighwayBuffer* db, s32 value, s32 x, s32 y, s16 zeroPad);
+void HighwayKawaiModelsInit(void);
+void HighwayObjectsUpdate(HighwayBuffer* db);
+POLY_FT3* func_800B404C(JetQuad* quad, POLY_FT3* prim, OT_TYPE* ot);
+POLY_FT3* func_800B3EC0(JetQuad* quad, POLY_FT3* prim, OT_TYPE* ot);
+POLY_G3* func_800B3BFC(JetModelDrawArgs* args);
+POLY_G3* func_800B3D28(JetModelDrawArgs* args);
+void HighwayDrawSprite(HighwayBuffer* db, s16 sprite, s16 x, s16 y, s16 w, s16 h, u8 u, u8 v, u8 textureWidth,
+                       u8 textureHeight, u8 semiTrans);
+
+extern s32 D_800B6D4C;
+extern u8 g_HighwayKawaiLight[100];
+extern FieldModelAnimation* g_HighwayKawaiAnim;
+extern u8* g_HighwayKawaiPktCursor;
+extern s32 D_80110A94;
+extern HighwayKawaiHeader* g_HighwayKawai;
+u8* func_800B0698(FieldModelEntry* model, u8* nextFree, s32 modelId);
+void func_800B12B0(FieldModelEntry* model);
+void func_800B1E98(FieldModelEntry* model, MATRIX* matrix, s32 animationId, s32 frame);
+s32 func_800B2E58(FieldModelEntry* model, u8* light);
 
 #endif

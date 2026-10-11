@@ -55,3 +55,36 @@ func TestLoadSymbolTableUnionRejectsConflict(t *testing.T) {
 		t.Errorf("error should name the symbol, got %v", err)
 	}
 }
+
+func TestSymbolTableForOverlayExcludesBattleSymbolsFromHighway(t *testing.T) {
+	dir := t.TempDir()
+	mainSyms := writeSymFile(t, dir, "main.txt", "Savemap = 0x8009C6E4;\n")
+	battleSyms := writeSymFile(t, dir, "battle.txt", "g_FFTextLetterOffset = 0x800F7ED0;\n")
+	highwaySyms := writeSymFile(t, dir, "highway.txt", "g_HighwayBuffers = 0x800C4C4C;\n")
+	all := []Overlay{
+		{Name: "main", Imports: []string{"battle", "highway"}, SymbolAddrsPath: []string{mainSyms}},
+		{Name: "battle", Imports: []string{"main"}, SymbolAddrsPath: []string{battleSyms}},
+		{Name: "highway", Imports: []string{"main"}, SymbolAddrsPath: []string{highwaySyms}},
+	}
+	union, err := LoadSymbolTableUnion(all)
+	if err != nil {
+		t.Fatal(err)
+	}
+	table, err := symbolTableForOverlay(all[2], all, union, 0x800A0000)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if table["Savemap"] != 0x8009C6E4 || table["g_HighwayBuffers"] != 0x800C4C4C {
+		t.Fatal("shared or overlay-local symbol is missing")
+	}
+	if _, ok := table["g_FFTextLetterOffset"]; ok {
+		t.Fatal("battle-only symbol leaked into highway")
+	}
+	battle, err := symbolTableForOverlay(all[1], all, union, 0x800A0000)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if battle["g_FFTextLetterOffset"] != 0x800F7ED0 {
+		t.Fatal("battle symbol is missing")
+	}
+}
