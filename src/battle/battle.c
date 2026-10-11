@@ -3905,7 +3905,44 @@ void func_800B0170(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0234);
+void func_800B0234(void) {
+    s32* unitSpeeds = D_800F49A8[D_800F499C];
+    s32 i;
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        s32 unk6 = g_BattleWork.turn[i].unk6;
+        s32 unitSpeed = unitSpeeds[i];
+        s32 prevMP = g_BattleWork.turn[i].prevMP;
+        s32 newHP = g_BattleWork.turn[i].prevHP;
+        s32 barrierTimer = g_BattleWork.turn[i].statusTimers[TIMER_BARRIER];
+        s32 mbarrierTimer = g_BattleWork.turn[i].statusTimers[TIMER_M_BARRIER];
+
+        newHP += (unk6 * unitSpeed) >> 15;
+
+        if (newHP < 0) {
+            newHP = 0;
+        } else if (g_BattleState.combatant[i].maxHP < newHP) {
+            newHP = g_BattleState.combatant[i].maxHP;
+        }
+
+        barrierTimer -= unitSpeed >> 13;
+        mbarrierTimer -= unitSpeed >> 13;
+        if (barrierTimer < 0) {
+            barrierTimer = 0;
+        }
+        if (mbarrierTimer < 0) {
+            mbarrierTimer = 0;
+        }
+
+        if (!(g_BattleState.setupFlags & SETUP_UNK2)) {
+            g_ActiveCharacters[i].hp = newHP;
+            g_ActiveCharacters[i].mp = prevMP;
+        }
+
+        g_ActiveCharacters[i].counterActionIndex = barrierTimer * 2;
+        g_ActiveCharacters[i].counterChance = mbarrierTimer * 2;
+    }
+}
 
 void BattleRollPhysicalHit(void) {
     BattleUnit* attacker = &g_BattleState.combatant[g_CurrentAction->actorId];

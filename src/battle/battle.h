@@ -8,8 +8,9 @@
 
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleFlags.cs#L4
 typedef enum {
-    SETUP_CANNOT_ESCAPE = 4,
-    SETUP_NO_VICTORY_POSE = 8,
+    SETUP_UNK2 = 0x2,
+    SETUP_CANNOT_ESCAPE = 0x4,
+    SETUP_NO_VICTORY_POSE = 0x8,
     SETUP_NO_PREEMPTIVE_STRIKE = 0x10,
 } BattleSetupFlags;
 
