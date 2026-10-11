@@ -243,7 +243,11 @@ u32 D_8006966C[16];
 Unk8009D7BC D_8009D7BC;
 u8 D_80063048[0x648];
 const char* SysDecompKernStringWithF9(s32 a, s32 b, s32 c) { return 0; }
-void BROM_Handle(void) { NOT_IMPLEMENTED; }
+DRAWENV D_800A06CC;
+DISPENV D_800A0728;
+u8 D_800A073C[2][0x2000];
+OT_TYPE D_800A473C[2];
+void func_80025174(void) { NOT_IMPLEMENTED; }
 void func_801D11A8(void) { NOT_IMPLEMENTED; }
 void SysCopyBoostedStatToUnitStructure(void) { NOT_IMPLEMENTED; }
 void SysSortMagicInUnitStructure(s32 partyId) { NOT_IMPLEMENTED; }

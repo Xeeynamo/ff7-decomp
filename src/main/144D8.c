@@ -68,7 +68,7 @@ void func_800146A4(void) {
         switch (g_GameState) {
         case GAMESTATE_BROM:
             SystemCdWaitCallback(0);
-            func_80014658(BATTLE_BROM, BROM_Handle);
+            func_80014658(BATTLE_BROM, BROM_Main);
             break;
         case GAMESTATE_BATTLE:
             SysBattleSwirlInit();

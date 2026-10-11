@@ -396,7 +396,7 @@ overlays:
     vram_start: 0x800A0000
     segments:
       - [0x0, c, brom]
-      - [0x6B4, data]
+      - [0x6B4, .data, brom]
   - name: dschange
     disk_path: disks/us/FIELD/DSCHANGE.X
     sha1: e884441c5ceacdeb94e16a603b73ca53706078e8

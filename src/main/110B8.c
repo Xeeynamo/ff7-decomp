@@ -52,7 +52,7 @@ static void func_800111E4(void) {
     if (!(Savemap.memory_bank_4[97] & 0x30)) {
         AkaoPlaySoundEffect(SFX_BATTLE_SWIRL);
     }
-    D_800707BC.battleId = g_FieldState.eventCmdParam;
+    D_800707BC.sceneId = g_FieldState.eventCmdParam;
     D_800707BC.mode = g_FieldState.battleMode2;
     D_800707BC.mode = D_800716D0 | D_800707BC.mode;
     func_800146A4();

@@ -1,1 +1,1 @@
-BROM_Handle = 0x800A00CC;
+BROM_Main = 0x800A00CC;
