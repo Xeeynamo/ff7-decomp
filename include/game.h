@@ -36,6 +36,8 @@
 #define NUM_MENU_COLOR 12
 #define LABEL_SIZE 12
 #define STAT_MAX 255
+#define MAX_HP 10000
+#define MAX_MP 10000
 
 typedef enum {
     CHAR_CLOUD = 0,
