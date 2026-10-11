@@ -345,7 +345,8 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "B-R    X=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3].vx, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(
+            g_WalkmeshTriangles[g_FieldEntity[g_FieldState.pcModelId].PosI * 3].vx, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 9, g_DebugText);
@@ -355,10 +356,12 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "Y=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3].vy, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(
+            g_WalkmeshTriangles[g_FieldEntity[g_FieldState.pcModelId].PosI * 3].vy, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " Z=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3].vz, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(
+            g_WalkmeshTriangles[g_FieldEntity[g_FieldState.pcModelId].PosI * 3].vz, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 10, g_DebugText);
@@ -367,7 +370,8 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "R-G    X=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 1].vx, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(
+            g_WalkmeshTriangles[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 1].vx, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 11, g_DebugText);
@@ -377,10 +381,12 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "Y=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 1].vy, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(
+            g_WalkmeshTriangles[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 1].vy, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " Z=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 1].vz, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(
+            g_WalkmeshTriangles[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 1].vz, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 12, g_DebugText);
@@ -389,7 +395,8 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "G-B    X=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 2].vx, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(
+            g_WalkmeshTriangles[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 2].vx, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 13, g_DebugText);
@@ -399,10 +406,12 @@ void DebugUpdateActor(s16 arg0, s16 entityId) {
             DebugPrintToFieldWindow(g_DebugText);
         }
         FieldDebugStringCopy(g_DebugText, "Y=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 2].vy, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(
+            g_WalkmeshTriangles[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 2].vy, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, " Z=");
-        FieldDebugStringU32hex(D_800E4274[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 2].vz, g_DebugMessageBuffer);
+        FieldDebugStringU32hex(
+            g_WalkmeshTriangles[g_FieldEntity[g_FieldState.pcModelId].PosI * 3 + 2].vz, g_DebugMessageBuffer);
         FieldDebugStringConcat(g_DebugText, g_DebugMessageBuffer);
         if (D_8009FE8C | (D_80071E24 & 1)) {
             SetStrToDebugRow(arg0, 14, g_DebugText);

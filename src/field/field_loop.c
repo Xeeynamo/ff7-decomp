@@ -66,8 +66,8 @@ s32 FieldMainLoop(void) {
     if (g_PrevGameState != GAMESTATE_MENU && g_PrevGameState != GAMESTATE_MENU_COMMANND) {
         FieldModelLoadAndInit();
     }
-    D_800E4274 = (SVECTOR*)(*D_8009A044)->data;
-    D_80114458 = (FieldWalkmeshAccess*)(D_800E4274 + (*D_8009A044)->numTriangles * 3);
+    g_WalkmeshTriangles = (SVECTOR*)(*D_8009A044)->data;
+    g_WalkmeshAccesses = (FieldWalkmeshAccess*)(g_WalkmeshTriangles + (*D_8009A044)->triangleCount * 3);
     if (g_PrevGameState != GAMESTATE_MENU && g_PrevGameState != GAMESTATE_BATTLE &&
         g_PrevGameState != GAMESTATE_MENU_COMMANND) {
         FieldEntityInitPos();

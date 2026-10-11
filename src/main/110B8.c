@@ -99,16 +99,16 @@ void func_800112E8(void) {
         } else {
             D_80071E28 = 0;
         }
-        D_800730CC = g_CurrentFieldIndex;
+        D_800730CC = g_FieldCurrentMap;
     }
-    if (g_CurrentFieldIndex != D_80071A5C || g_CurrentFieldIndex == 0) {
+    if (g_FieldCurrentMap != D_80071A5C || g_FieldCurrentMap == 0) {
         D_80075DEC = WORLD_Main(&D_80071E28, &D_800730CC, &D_80095DDC, 0);
     } else {
         D_80075DEC = WORLD_Main(&D_80071E28, &D_800730CC, &D_80095DDC, 0x801B0000);
         D_80071A5C = 0;
         g_IsFieldLoading = 0;
     }
-    g_CurrentFieldIndex = g_FieldState.eventCmdParam;
+    g_FieldCurrentMap = g_FieldState.eventCmdParam;
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysBgFadeRender);

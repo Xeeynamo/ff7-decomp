@@ -12,6 +12,8 @@
 #define gte_ldv3(r0, r1, r2)
 #define gte_ldv3c(r0)
 #define gte_ldrgb(r0)
+#define gte_ldcv(r0)
+#define gte_lddp(r0)
 #define gte_strgb(r0)
 #define gte_SetGeomScreen(r0)
 #define gte_SetRotMatrix(r0)
@@ -25,6 +27,7 @@
 #define gte_rtv0()
 #define gte_nclip()
 #define gte_nccs()
+#define gte_gpl0()
 #define gte_stsxy(r0)
 #define gte_stsxy3(r0, r1, r2)
 #define gte_stsxy3_g3(r0)
@@ -50,6 +53,22 @@
 
 #define gte_ldrgb( r0 ) __asm__ volatile (			\
 	"lwc2	$6, 0( %0 )"					\
+	:							\
+	: "r"( r0 ) )
+
+#define gte_ldcv( r0 ) __asm__ volatile (			\
+	"lbu	$12, 0( %0 );"					\
+	"lbu	$13, 1( %0 );"					\
+	"lbu	$14, 2( %0 );"					\
+	"mtc2	$12, $9;"					\
+	"mtc2	$13, $10;"					\
+	"mtc2	$14, $11"					\
+	:							\
+	: "r"( r0 )						\
+	: "$12", "$13", "$14" )
+
+#define gte_lddp( r0 ) __asm__ volatile (			\
+	"mtc2	%0, $8"						\
 	:							\
 	: "r"( r0 ) )
 
@@ -180,6 +199,11 @@
 	"nop;"							\
 	"nop;"							\
 	".word 0x4B08041B" )
+
+#define gte_gpl0() __asm__ volatile (				\
+	"nop;"							\
+	"nop;"							\
+	".word 0x4BA0003E" )
 
 /*
  * Type 3 functions

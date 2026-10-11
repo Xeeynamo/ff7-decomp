@@ -1174,7 +1174,7 @@ typedef struct {
     u16 cameraScrollNumSteps;
     // Following two variables are set when exiting from field to mini games,
     // world map, or another field map.
-    u16 pcPosI;           // Walk mesh triangle id player is inside of.
+    u16 pcPosI;            // Walk mesh triangle id player is inside of.
     s16 pcDirection;       // Direction player is facing.
     s16 movieCommandState; // enum MovieCommandState.
     s16 modelCount;

@@ -39,31 +39,35 @@ void FieldEntityInitPos(void) {
         g_FieldEntity[g_PlayerModelId].PosI = g_FieldState.pcPosI;
         if (g_FieldState.pcPosX == 0x7FFF) {
             g_FieldEntity[g_PlayerModelId].PosX =
-                ((D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3].vx +
-                  D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3 + 1].vx +
-                  D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3 + 2].vx) /
-                 3) << 12;
+                ((g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3].vx +
+                  g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3 + 1].vx +
+                  g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3 + 2].vx) /
+                 3)
+                << 12;
             g_FieldEntity[g_PlayerModelId].PosY =
-                ((D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3].vy +
-                  D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3 + 1].vy +
-                  D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3 + 2].vy) /
-                 3) << 12;
+                ((g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3].vy +
+                  g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3 + 1].vy +
+                  g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3 + 2].vy) /
+                 3)
+                << 12;
             g_FieldEntity[g_PlayerModelId].PosZ =
-                ((D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3].vz +
-                  D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3 + 1].vz +
-                  D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3 + 2].vz) /
-                 3) << 12;
+                ((g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3].vz +
+                  g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3 + 1].vz +
+                  g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3 + 2].vz) /
+                 3)
+                << 12;
         } else {
             g_FieldEntity[g_PlayerModelId].PosX = g_FieldState.pcPosX << 12;
             g_FieldEntity[g_PlayerModelId].PosY = g_FieldState.pcPosY << 12;
-            FieldEntityVectorSub(&edge1, &D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3 + 1],
-                                 &D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3]);
-            FieldEntityVectorSub(&edge2, &D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3 + 2],
-                                 &D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3 + 1]);
+            FieldEntityVectorSub(&edge1, &g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3 + 1],
+                                 &g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3]);
+            FieldEntityVectorSub(&edge2, &g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3 + 2],
+                                 &g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3 + 1]);
             point.vx = g_FieldState.pcPosX;
             point.vy = g_FieldState.pcPosY;
             g_FieldEntity[g_PlayerModelId].PosZ =
-                FieldEntityCalculateZ(&edge1, &edge2, &point, &D_800E4274[g_FieldEntity[g_PlayerModelId].PosI * 3])
+                FieldEntityCalculateZ(
+                    &edge1, &edge2, &point, &g_WalkmeshTriangles[g_FieldEntity[g_PlayerModelId].PosI * 3])
                 << 12;
         }
         g_FieldEntity[g_PlayerModelId].SolidRange = (34 * g_FieldState.currentFieldScale) >> 9;
@@ -275,14 +279,15 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
                 g_FieldEntity[i].MoveStartX = g_FieldEntity[i].PosX;
                 g_FieldEntity[i].MoveStartY = g_FieldEntity[i].PosY;
                 g_FieldEntity[i].MoveStartZ = g_FieldEntity[i].PosZ;
-                FieldEntityVectorSub(
-                    &edge1, &D_800E4274[g_FieldEntity[i].MoveEndI * 3 + 1], &D_800E4274[g_FieldEntity[i].MoveEndI * 3]);
-                FieldEntityVectorSub(&edge2, &D_800E4274[g_FieldEntity[i].MoveEndI * 3 + 2],
-                                     &D_800E4274[g_FieldEntity[i].MoveEndI * 3 + 1]);
+                FieldEntityVectorSub(&edge1, &g_WalkmeshTriangles[g_FieldEntity[i].MoveEndI * 3 + 1],
+                                     &g_WalkmeshTriangles[g_FieldEntity[i].MoveEndI * 3]);
+                FieldEntityVectorSub(&edge2, &g_WalkmeshTriangles[g_FieldEntity[i].MoveEndI * 3 + 2],
+                                     &g_WalkmeshTriangles[g_FieldEntity[i].MoveEndI * 3 + 1]);
                 point.vx = g_FieldEntity[i].MoveEndX / 4096;
                 point.vy = g_FieldEntity[i].MoveEndY / 4096;
                 g_FieldEntity[i].MoveEndZ =
-                    FieldEntityCalculateZ(&edge1, &edge2, &point, &D_800E4274[g_FieldEntity[i].MoveEndI * 3]) << 12;
+                    FieldEntityCalculateZ(&edge1, &edge2, &point, &g_WalkmeshTriangles[g_FieldEntity[i].MoveEndI * 3])
+                    << 12;
                 g_FieldEntity[i].MoveB =
                     (g_FieldEntity[i].MoveEndZ - g_FieldEntity[i].MoveStartZ) / g_FieldEntity[i].MoveSteps -
                     -16000 * g_FieldEntity[i].MoveSteps / 2;
@@ -653,22 +658,25 @@ s32 FieldEntityWalkmeshCross(u16* triangleId, VECTOR* testPoint, VECTOR* testPro
     D_80113F28 = 0xFFFF;
 
     while (1) {
-        FieldEntityVectorSub(&vectors[0], &D_800E4274[*triangleId * 3 + 1], &D_800E4274[*triangleId * 3]);
-        FieldEntityVectorSub(&vectors[1], &D_800E4274[*triangleId * 3 + 2], &D_800E4274[*triangleId * 3 + 1]);
-        FieldEntityVectorSub(&vectors[2], &D_800E4274[*triangleId * 3], &D_800E4274[*triangleId * 3 + 2]);
+        FieldEntityVectorSub(
+            &vectors[0], &g_WalkmeshTriangles[*triangleId * 3 + 1], &g_WalkmeshTriangles[*triangleId * 3]);
+        FieldEntityVectorSub(
+            &vectors[1], &g_WalkmeshTriangles[*triangleId * 3 + 2], &g_WalkmeshTriangles[*triangleId * 3 + 1]);
+        FieldEntityVectorSub(
+            &vectors[2], &g_WalkmeshTriangles[*triangleId * 3], &g_WalkmeshTriangles[*triangleId * 3 + 2]);
 
-        cross1 = (vectors[3].vx - D_800E4274[*triangleId * 3].vx) * vectors[0].vy -
-                 (vectors[3].vy - D_800E4274[*triangleId * 3].vy) * vectors[0].vx;
-        cross2 = (vectors[3].vx - D_800E4274[*triangleId * 3 + 1].vx) * vectors[1].vy -
-                 (vectors[3].vy - D_800E4274[*triangleId * 3 + 1].vy) * vectors[1].vx;
-        cross3 = (vectors[3].vx - D_800E4274[*triangleId * 3 + 2].vx) * vectors[2].vy -
-                 (vectors[3].vy - D_800E4274[*triangleId * 3 + 2].vy) * vectors[2].vx;
+        cross1 = (vectors[3].vx - g_WalkmeshTriangles[*triangleId * 3].vx) * vectors[0].vy -
+                 (vectors[3].vy - g_WalkmeshTriangles[*triangleId * 3].vy) * vectors[0].vx;
+        cross2 = (vectors[3].vx - g_WalkmeshTriangles[*triangleId * 3 + 1].vx) * vectors[1].vy -
+                 (vectors[3].vy - g_WalkmeshTriangles[*triangleId * 3 + 1].vy) * vectors[1].vx;
+        cross3 = (vectors[3].vx - g_WalkmeshTriangles[*triangleId * 3 + 2].vx) * vectors[2].vy -
+                 (vectors[3].vy - g_WalkmeshTriangles[*triangleId * 3 + 2].vy) * vectors[2].vx;
 
         if (cross1 >= 0 && cross2 >= 0 && cross3 >= 0) {
             break;
         }
         if (cross1 < 0) {
-            access = D_80114458[*triangleId].access1;
+            access = g_WalkmeshAccesses[*triangleId].access1;
             if (access >= 0 && !((g_FieldState.blockedAccesses[access >> 3] >> (access % 8)) & 1)) {
                 *triangleId = access;
             } else {
@@ -685,7 +693,7 @@ s32 FieldEntityWalkmeshCross(u16* triangleId, VECTOR* testPoint, VECTOR* testPro
                 break;
             }
         } else if (cross2 < 0) {
-            access = D_80114458[*triangleId].access2;
+            access = g_WalkmeshAccesses[*triangleId].access2;
             if (access >= 0 && !((g_FieldState.blockedAccesses[access >> 3] >> (access % 8)) & 1)) {
                 *triangleId = access;
             } else {
@@ -702,7 +710,7 @@ s32 FieldEntityWalkmeshCross(u16* triangleId, VECTOR* testPoint, VECTOR* testPro
                 break;
             }
         } else if (cross3 < 0) {
-            access = D_80114458[*triangleId].access3;
+            access = g_WalkmeshAccesses[*triangleId].access3;
             if (access >= 0 && !((g_FieldState.blockedAccesses[access >> 3] >> (access % 8)) & 1)) {
                 *triangleId = access;
             } else {
@@ -720,7 +728,7 @@ s32 FieldEntityWalkmeshCross(u16* triangleId, VECTOR* testPoint, VECTOR* testPro
             }
         }
     }
-    testPoint->vz = FieldEntityCalculateZ(&vectors[0], &vectors[1], &vectors[3], &D_800E4274[*triangleId * 3]);
+    testPoint->vz = FieldEntityCalculateZ(&vectors[0], &vectors[1], &vectors[3], &g_WalkmeshTriangles[*triangleId * 3]);
     return result;
 }
 
@@ -758,12 +766,12 @@ s32 FieldEntityMove(s16 modelId) {
     u32 i;
 
     triangleId = g_FieldEntity[modelId].PosI;
-    vectors[0].vx = D_800E4274[triangleId * 3 + 1].vx - D_800E4274[triangleId * 3].vx;
-    vectors[0].vy = D_800E4274[triangleId * 3 + 1].vy - D_800E4274[triangleId * 3].vy;
-    vectors[0].vz = D_800E4274[triangleId * 3 + 1].vz - D_800E4274[triangleId * 3].vz;
-    vectors[1].vx = D_800E4274[triangleId * 3 + 2].vx - D_800E4274[triangleId * 3 + 1].vx;
-    vectors[1].vy = D_800E4274[triangleId * 3 + 2].vy - D_800E4274[triangleId * 3 + 1].vy;
-    vectors[1].vz = D_800E4274[triangleId * 3 + 2].vz - D_800E4274[triangleId * 3 + 1].vz;
+    vectors[0].vx = g_WalkmeshTriangles[triangleId * 3 + 1].vx - g_WalkmeshTriangles[triangleId * 3].vx;
+    vectors[0].vy = g_WalkmeshTriangles[triangleId * 3 + 1].vy - g_WalkmeshTriangles[triangleId * 3].vy;
+    vectors[0].vz = g_WalkmeshTriangles[triangleId * 3 + 1].vz - g_WalkmeshTriangles[triangleId * 3].vz;
+    vectors[1].vx = g_WalkmeshTriangles[triangleId * 3 + 2].vx - g_WalkmeshTriangles[triangleId * 3 + 1].vx;
+    vectors[1].vy = g_WalkmeshTriangles[triangleId * 3 + 2].vy - g_WalkmeshTriangles[triangleId * 3 + 1].vy;
+    vectors[1].vz = g_WalkmeshTriangles[triangleId * 3 + 2].vz - g_WalkmeshTriangles[triangleId * 3 + 1].vz;
     OuterProduct0(&vectors[0], &vectors[1], &vectors[2]);
     vectors[2].vx /= 256;
     vectors[2].vy /= 256;
@@ -819,8 +827,10 @@ s32 FieldEntityMove(s16 modelId) {
         vectors[3].vy = g_FieldEntity[modelId].PosY + vectors[3].vy;
         vectors[3].vz = g_FieldEntity[modelId].PosZ;
 
-        vectors[5].vx = FieldEntityGetDirVectorX(g_FieldEntity[modelId].MoveDir + 32) * g_FieldEntity[modelId].SolidRange;
-        vectors[5].vy = -FieldEntityGetDirVectorY(g_FieldEntity[modelId].MoveDir + 32) * g_FieldEntity[modelId].SolidRange;
+        vectors[5].vx =
+            FieldEntityGetDirVectorX(g_FieldEntity[modelId].MoveDir + 32) * g_FieldEntity[modelId].SolidRange;
+        vectors[5].vy =
+            -FieldEntityGetDirVectorY(g_FieldEntity[modelId].MoveDir + 32) * g_FieldEntity[modelId].SolidRange;
         vectors[4].vx = vectors[3].vx + vectors[5].vx;
         vectors[4].vy = vectors[3].vy + vectors[5].vy;
         vectors[4].vz = vectors[3].vz;
@@ -828,8 +838,10 @@ s32 FieldEntityMove(s16 modelId) {
         leftContact = FieldEntityCollisionCheck(modelId, &vectors[4]) != 0;
         triangleId = g_FieldEntity[modelId].PosI;
 
-        vectors[5].vx = FieldEntityGetDirVectorX(g_FieldEntity[modelId].MoveDir - 32) * g_FieldEntity[modelId].SolidRange;
-        vectors[5].vy = -FieldEntityGetDirVectorY(g_FieldEntity[modelId].MoveDir - 32) * g_FieldEntity[modelId].SolidRange;
+        vectors[5].vx =
+            FieldEntityGetDirVectorX(g_FieldEntity[modelId].MoveDir - 32) * g_FieldEntity[modelId].SolidRange;
+        vectors[5].vy =
+            -FieldEntityGetDirVectorY(g_FieldEntity[modelId].MoveDir - 32) * g_FieldEntity[modelId].SolidRange;
         vectors[4].vx = vectors[3].vx + vectors[5].vx;
         vectors[4].vy = vectors[3].vy + vectors[5].vy;
         vectors[4].vz = vectors[3].vz;

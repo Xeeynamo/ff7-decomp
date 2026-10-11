@@ -87,14 +87,16 @@ typedef struct {
     s16 access3;
 } FieldWalkmeshAccess; // size: 0x06
 
-// Each triangle contains three SVECTORs; access records follow the vertices.
 typedef struct {
-    u16 numTriangles;
+    u16 triangleCount;
     u16 pad;
     u8 data[1];
+    /*
+    SVECTOR triangles[triangleCount][3];
+    FieldWalkmeshAccess[triangleCount];
+    */
 } FieldWalkmesh; // data offset: 0x04
 
-// DAT section pointers are absolute addresses for the fixed load location.
 typedef struct {
     /* 0x00 */ FieldScriptHeader* scripts;
     /* 0x04 */ FieldWalkmesh* walkmesh;
@@ -107,7 +109,7 @@ typedef struct {
 
 #define FIELD_DAT ((u8*)0x80115000)
 #define FIELD_DAT_HEADER ((FieldDatHeader*)(FIELD_DAT - sizeof(FieldDatHeader)))
-// MIM during map loading, then face textures after the MIM is uploaded.
+// MIM during map loading then face textures after the MIM is uploaded.
 #define FIELD_TEXTURE_BUFFER ((void*)0x80128000)
 // Shared by map preloads, BSX staging, and movie playback.
 #define FIELD_LOAD_BUFFER ((void*)0x801B0000)
@@ -133,8 +135,8 @@ extern u8 g_RandomTable[256];
 extern u8 g_RainForce;
 extern u8 g_FieldPrimitiveBufferIndex;
 extern FieldWalkmesh** D_8009A044;
-extern SVECTOR* D_800E4274;
-extern FieldWalkmeshAccess* D_80114458;
+extern SVECTOR* g_WalkmeshTriangles;
+extern FieldWalkmeshAccess* g_WalkmeshAccesses;
 extern DRAWENV D_80113F2C[2];
 extern s16 D_801142C8;
 extern u8 D_80114498[48];
