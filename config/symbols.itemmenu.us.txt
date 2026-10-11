@@ -39,3 +39,9 @@ g_ItemMenuCurrentScreen = 0x801D3E48;
 g_ItemMenuTargetSelectDelay = 0x801D3E5C;
 g_ItemMenuNotificationText = 0x801D3E60;
 g_MateriaStealLoot = 0x801D3F60; // size:0xC0
+
+
+IsCharacterHpFull = 0x801D0CAC;
+IsCharacterMpFull = 0x801D0CE8;
+
+//HasLearnedAllLimits = 0x801D0D24;

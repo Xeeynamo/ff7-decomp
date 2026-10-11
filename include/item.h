@@ -1,3 +1,10 @@
+
+#define RESTORE_POTION_HP 100
+#define RESTORE_HI_POTION_HP 500
+#define RESTORE_ETHER_MP 100
+#define RESTORE_TURBO_ETHER 10000
+
+
 typedef enum {
     ITEM_POTION = 0x00,
     ITEM_HI_POTION = 0x01,

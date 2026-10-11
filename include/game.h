@@ -35,6 +35,23 @@
 #define MAX_MATERIA_COUNT 200
 #define NUM_MENU_COLOR 12
 #define LABEL_SIZE 12
+#define STAT_MAX 255
+
+typedef enum {
+    CHAR_CLOUD = 0,
+    CHAR_BARRET = 1,
+    CHAR_TIFA = 2,
+    CHAR_AERITH = 3,
+    CHAR_RED = 4,
+    CHAR_YUFFIE = 5,
+    CHAR_CAITSITH = 6,
+    CHAR_VINCENT = 7,
+    CHAR_CID = 8,
+    CHAR_YOUNGCLOUD = 9,
+    CHAR_SEPHIROTH = 10,
+    CHAR_CHOCOBO = 11,
+    CHAR_EMPTY = 0xFF
+} CharacterId;
 
 enum PadButtons {
     PAD_NONE = 0x0000,
@@ -303,6 +320,42 @@ typedef enum {
     ANIMSTATUS_PLAY_ONCE_THEN_HOLD,  // Non-blocking one-shot, go to HOLD_FRAME
                                      // when done.
 } ModelAnimationStatus;
+
+// full standard FF7 status bitmask
+typedef enum {
+    STATUS_DEATH = 0x1,
+    STATUS_NEAR_DEATH = 0x2,
+    STATUS_SLEEP = 0x4,
+    STATUS_POISON = 0x8,
+    STATUS_SADNESS = 0x10,
+    STATUS_FURY = 0x20,
+    STATUS_CONFU = 0x40,
+    STATUS_SILENCE = 0x80,
+    STATUS_HASTE = 0x100,
+    STATUS_SLOW = 0x200,
+    STATUS_STOP = 0x400,
+    STATUS_FROG = 0x800,
+    STATUS_SMALL = 0x1000,
+    STATUS_SLOW_NUMB = 0x2000,
+    STATUS_PETRIFY = 0x4000,
+    STATUS_REGEN = 0x8000,
+    STATUS_BARRIER = 0x10000,
+    STATUS_M_BARRIER = 0x20000,
+    STATUS_REFLECT = 0x40000,
+    STATUS_DUAL = 0x80000,
+    STATUS_SHIELD = 0x100000,
+    STATUS_D_SENTENCE = 0x200000,
+    STATUS_MANIPULATE = 0x400000,
+    STATUS_BERSERK = 0x800000,
+    STATUS_PEERLESS = 0x1000000,
+    STATUS_PARALYSIS = 0x2000000,
+    STATUS_DARKNESS = 0x4000000,
+    STATUS_DUAL_DRAIN = 0x8000000,
+    STATUS_DEATH_FORCE = 0x10000000,
+    STATUS_RESIST = 0x20000000,
+    STATUS_LUCKY_GIRL = 0x40000000,
+    STATUS_IMPRISONED = 0x80000000,
+} BattleStatusFlags;
 
 typedef struct {
     s16 x1;
