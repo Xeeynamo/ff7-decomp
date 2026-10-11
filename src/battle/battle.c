@@ -3312,14 +3312,14 @@ void BattleRecalcUnitSpeed(s32 index) {
 
     if (!(status & (STATUS_STOP | STATUS_DEATH))) {
         varSpeed = g_BattleSceneContext.battleSpeed;
-        constSpeed = 0x22; // Slow (0.5x)
+        constSpeed = (1 << BATTLE_CONST_TIMER_FRAC_BITS) / 120; // Slow (0.5x)
 
         if (!(status & STATUS_SLOW)) {
             varSpeed *= 2;
-            constSpeed = 0x44; // Normal (1.0x)
+            constSpeed = (1 << BATTLE_CONST_TIMER_FRAC_BITS) / 60; // Normal (1.0x)
             if (status & STATUS_HASTE) {
                 varSpeed *= 2;
-                constSpeed = 0x88; // Haste (2.0x)
+                constSpeed = (1 << BATTLE_CONST_TIMER_FRAC_BITS) / 30; // Haste (2.0x)
             }
         }
     }
@@ -3791,22 +3791,16 @@ void func_800AF9C8(void) {
     }
 }
 
-extern volatile s32 g_BattleTimerBufferIndex;
-extern s32 g_BattleGlobalTimerAccum[2];
-extern s32 g_BattleVarTimerAccum[2][NUM_BATTLE_ACTOR];
-extern s32 g_BattleConstTimerAccum[2][NUM_BATTLE_ACTOR];
-extern s32 g_BattleVarTimerFrac[NUM_BATTLE_ACTOR];
-extern s32 g_BattleConstTimerFrac[NUM_BATTLE_ACTOR];
-extern s32 g_BattleHpChangeFrac[NUM_BATTLE_ACTOR];
-
-static s32 func_800AFE98(s32 arg0) { return g_BattleConstTimerAccum[g_BattleTimerBufferIndex][arg0] >> 12; }
+static s32 func_800AFE98(s32 arg0) {
+    return BATTLE_TICKS(g_BattleConstTimerAccum[g_BattleTimerBufferIndex][arg0], BATTLE_CONST_TIMER_FRAC_BITS);
+}
 
 // Called during BATTLE_Main (main consumer thread)
 void func_800AFECC(void) {
     s32* varTimerAccum;
     s32* constTimerAccum;
     s32 bufferIndex = g_BattleTimerBufferIndex;
-    s32 globalUnits;
+    s32 globalTicks;
     s32 i;
     s32 k;
 
@@ -3814,35 +3808,35 @@ void func_800AFECC(void) {
     varTimerAccum = g_BattleVarTimerAccum[bufferIndex];
 
     g_BattleTimerBufferIndex ^= 1;
-    globalUnits = g_BattleGlobalTimerAccum[bufferIndex] >> 13;
-    g_BattleGlobalTimerAccum[bufferIndex] &= 0x1FFF;
+    globalTicks = BATTLE_TICKS(g_BattleGlobalTimerAccum[bufferIndex], BATTLE_TIMER_FRAC_BITS);
+    g_BattleGlobalTimerAccum[bufferIndex] = BATTLE_FRAC(g_BattleGlobalTimerAccum[bufferIndex], BATTLE_TIMER_FRAC_BITS);
 
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         s32 unk6 = g_BattleWork.turn[i].unk6;
         s32 varTimerInc = varTimerAccum[i];
         s32 constTimerInc = constTimerAccum[i];
-        s32 varUnits;
-        s32 constUnits;
+        s32 varTicks;
+        s32 constTicks;
         s32 hpChange;
         s32 deltaHP;
         s32 varTimer;
         s32 constTimer;
 
         varTimer = g_BattleVarTimerFrac[i] + varTimerInc;
-        g_BattleVarTimerFrac[i] = varTimer & 0x1FFF;
+        g_BattleVarTimerFrac[i] = BATTLE_FRAC(varTimer, BATTLE_TIMER_FRAC_BITS);
 
         constTimer = g_BattleConstTimerFrac[i] + constTimerInc;
-        g_BattleConstTimerFrac[i] = constTimer & 0xFFF;
+        g_BattleConstTimerFrac[i] = BATTLE_FRAC(constTimer, BATTLE_CONST_TIMER_FRAC_BITS);
 
         hpChange = g_BattleHpChangeFrac[i] + varTimerInc * unk6;
-        g_BattleHpChangeFrac[i] = hpChange & 0x7FFF;
+        g_BattleHpChangeFrac[i] = BATTLE_FRAC(hpChange, BATTLE_HP_CHANGE_FRAC_BITS);
 
         varTimerAccum[i] = 0;
         constTimerAccum[i] = 0;
 
-        varUnits = varTimer >> 13;
-        constUnits = constTimer >> 12;
-        deltaHP = hpChange >> 15;
+        varTicks = BATTLE_TICKS(varTimer, BATTLE_TIMER_FRAC_BITS);
+        constTicks = BATTLE_TICKS(constTimer, BATTLE_CONST_TIMER_FRAC_BITS);
+        deltaHP = BATTLE_TICKS(hpChange, BATTLE_HP_CHANGE_FRAC_BITS);
 
         if (!(g_BattleState.combatant[i].status & STATUS_DEATH)) {
             s32 maxHP = g_BattleState.combatant[i].maxHP;
@@ -3865,16 +3859,16 @@ void func_800AFECC(void) {
             if (timer) {
                 switch (k) {
                 case TIMER_STOP:
-                    delta = globalUnits;
+                    delta = globalTicks;
                     break;
 
                 case TIMER_D_SENTENCE:
                 case TIMER_SLOW_NUMB:
-                    delta = constUnits;
+                    delta = constTicks;
                     break;
 
                 default:
-                    delta = varUnits;
+                    delta = varTicks;
                     break;
                 }
 
@@ -3919,7 +3913,7 @@ void func_800B0234(void) {
         s32 barrierTimer = g_BattleWork.turn[i].statusTimers[TIMER_BARRIER];
         s32 mbarrierTimer = g_BattleWork.turn[i].statusTimers[TIMER_M_BARRIER];
 
-        newHP += (unk6 * varTimerInc) >> 15;
+        newHP += BATTLE_TICKS(unk6 * varTimerInc, BATTLE_HP_CHANGE_FRAC_BITS);
 
         if (newHP < 0) {
             newHP = 0;
@@ -3927,8 +3921,8 @@ void func_800B0234(void) {
             newHP = g_BattleState.combatant[i].maxHP;
         }
 
-        barrierTimer -= varTimerInc >> 13;
-        mbarrierTimer -= varTimerInc >> 13;
+        barrierTimer -= BATTLE_TICKS(varTimerInc, BATTLE_TIMER_FRAC_BITS);
+        mbarrierTimer -= BATTLE_TICKS(varTimerInc, BATTLE_TIMER_FRAC_BITS);
         if (barrierTimer < 0) {
             barrierTimer = 0;
         }
