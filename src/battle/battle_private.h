@@ -877,6 +877,7 @@ void func_800D0C80(u8 arg0);
 void BattleEffectSingleDustCloud();
 void BattleSetVsyncMode(s8);
 int BattleFlipDoubleBuffer(void);
+void BattleLookAt(MATRIX*, SVECTOR*, SVECTOR*, VECTOR*);
 void func_800D91DC(s32, s32, s16, u8, s32, s32);
 void BattleMenuWidgetOpen(s16, s16, s16);
 void func_800DCFD4(u_long*);

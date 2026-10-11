@@ -2,6 +2,7 @@
 #include "battle_private.h"
 #include "../magic/magic.h"
 #include <libc.h>
+#include <psxsdk/inline_o.h>
 #include <libetc.h>
 
 void func_800D751C();
@@ -3273,8 +3274,127 @@ static void BattleCopyEffectState(UnkStruct800D8468* dst, UnkStruct800D8468* src
     dst->unk1C = src->unk1C;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D84F8);
+// Same as EndingSetViewMatrix.
+void BattleSetViewMatrix(MATRIX* m, SVECTOR* pos, SVECTOR* rot) {
+    RotMatrix(rot, m);
+    gte_SetRotMatrix(m);
+    gte_ldv0(pos);
+    gte_rtv0();
+    gte_stlvnl(m->t);
+    m->t[0] = -m->t[0];
+    m->t[1] = -m->t[1];
+    m->t[2] = -m->t[2];
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D85B0);
+// Same as EndingLookAt.
+void BattleLookAt(MATRIX* m, SVECTOR* eye, SVECTOR* target, VECTOR* up) {
+    VECTOR d;
+    VECTOR x;
+    VECTOR y;
+    VECTOR z;
+    s32 val;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D87EC);
+    d.vx = target->vx - eye->vx;
+    d.vy = target->vy - eye->vy;
+    d.vz = target->vz - eye->vz;
+    VectorNormal(&d, &z);
+
+    if (z.vz == up->vz) {
+        z.vz++;
+    }
+
+    gte_ldopv1(&z);
+    gte_ldopv2(up);
+    gte_op12();
+    gte_stlvnl(&d);
+    VectorNormal(&d, &x);
+
+    gte_ldopv1(&z);
+    gte_ldopv2(&x);
+    gte_op12();
+    gte_stlvnl(&d);
+    VectorNormal(&d, &y);
+
+    // Unlike the Ending version, each component goes through an s32 temporary.
+    val = x.vx;
+    m->m[0][0] = val;
+    val = x.vy;
+    m->m[0][1] = val;
+    val = x.vz;
+    m->m[0][2] = val;
+    val = y.vx;
+    m->m[1][0] = val;
+    val = y.vy;
+    m->m[1][1] = val;
+    val = y.vz;
+    m->m[1][2] = val;
+    val = z.vx;
+    m->m[2][0] = val;
+    val = z.vy;
+    m->m[2][1] = val;
+    val = z.vz;
+    m->m[2][2] = val;
+
+    gte_SetRotMatrix(m);
+    gte_ldv0(eye);
+    gte_rtv0();
+    gte_stlvnl(m->t);
+    m->t[0] = -m->t[0];
+    m->t[1] = -m->t[1];
+    m->t[2] = -m->t[2];
+}
+
+// Same as EndingLookAtNoNegate.
+void BattleLookAtNoNegate(MATRIX* m, SVECTOR* eye, SVECTOR* target, VECTOR* up) {
+    VECTOR d;
+    VECTOR x;
+    VECTOR y;
+    VECTOR z;
+    s32 val;
+
+    d.vx = target->vx - eye->vx;
+    d.vy = target->vy - eye->vy;
+    d.vz = target->vz - eye->vz;
+    VectorNormal(&d, &z);
+
+    if (z.vz == up->vz) {
+        z.vz++;
+    }
+
+    gte_ldopv1(&z);
+    gte_ldopv2(up);
+    gte_op12();
+    gte_stlvnl(&d);
+    VectorNormal(&d, &x);
+
+    gte_ldopv1(&z);
+    gte_ldopv2(&x);
+    gte_op12();
+    gte_stlvnl(&d);
+    VectorNormal(&d, &y);
+
+    // Unlike the Ending version, each component goes through an s32 temporary.
+    val = x.vx;
+    m->m[0][0] = val;
+    val = x.vy;
+    m->m[0][1] = val;
+    val = x.vz;
+    m->m[0][2] = val;
+    val = y.vx;
+    m->m[1][0] = val;
+    val = y.vy;
+    m->m[1][1] = val;
+    val = y.vz;
+    m->m[1][2] = val;
+    val = z.vx;
+    m->m[2][0] = val;
+    val = z.vy;
+    m->m[2][1] = val;
+    val = z.vz;
+    m->m[2][2] = val;
+
+    gte_SetRotMatrix(m);
+    gte_ldv0(eye);
+    gte_rtv0();
+    gte_stlvnl(m->t);
+}
