@@ -418,7 +418,7 @@ DISPENV D_8007EB68[2];
 u8 D_8009AD2C;
 u8 D_8009C540;
 AkaoCmd g_AkaoCmd;
-s16 g_CurrentFieldIndex;
+s16 g_FieldCurrentMap;
 FieldEntity g_FieldEntity[0x100];
 s16 g_PlayerModelId;
 

@@ -12,50 +12,44 @@ static Yamada global_model_files[9] = {
 
 static Yamada face_texture_file = {126879, 13631};
 
-extern struct FieldRenderData* D_800DF118;
+extern FieldRenderData* D_800DF118;
 extern u8 D_801144D8;
 
 void FieldModelPrepareRender(FieldModelEntry* model);
 s32 KawaiExecute(FieldModelEntry* model, u8* params, s32 modelId, MATRIX* matrix);
 
 void FieldModelLoadAndInit(void) {
-    FieldModelEntry** entries;
-    FieldModelEntry* entry;
-    u8* result;
-    s32 offset;
     u32 i;
 
-    g_FieldFaceTextureData = (FieldFaceTextureHeader*)0x80128000;
-    result = FieldModelStructInit(D_8007E770, g_FieldModelData);
-    D_80075E10 = result;
-    D_800E0204 = result;
-    SysCdromStartLoadLzs(g_FieldFileInfo[g_CurrentFieldIndex * 6 + 4], g_FieldFileInfo[g_CurrentFieldIndex * 6 + 5],
-                         (u_long*)0x801B0000, NULL);
+    g_FieldFaceTextureData = FIELD_TEXTURE_BUFFER;
+    D_80075E10 = FieldModelStructInit(D_8007E770, g_FieldModelData);
+    D_800E0204 = D_80075E10;
+    SysCdromStartLoadLzs(g_FieldFileInfo[g_FieldCurrentMap * 6 + 4], g_FieldFileInfo[g_FieldCurrentMap * 6 + 5],
+                         FIELD_LOAD_BUFFER, NULL);
     while (SystemCdromReadChain()) {
     }
 
     *(Yamada**)getScratchAddr(0) = global_model_files;
     *(Yamada**)getScratchAddr(1) = &face_texture_file;
     D_80075E10 = FieldModelLoadGlobalModels(D_8007E770, g_FieldModelData, D_80075E10, 1);
-    D_80075E10 = LoadLocalFieldModelAndInitAll(D_8007E770, g_FieldModelData, &D_800A00DC, (u32*)0x801B0000);
+    D_80075E10 = LoadLocalFieldModelAndInitAll(D_8007E770, g_FieldModelData, &D_800A00DC, FIELD_LOAD_BUFFER);
 
     for (i = 1; i < g_FieldModelData->modelCount; i++) {
         g_FieldModelData->modelEntries[i].flags = 0;
     }
 
     for (i = 0; i < g_FieldModelData->modelCount; i++) {
-        *(u8*)0x1F800001 = 1;
-        *(u8*)0x1F800002 = 0;
-        *(u8*)0x1F800003 = i;
-        entries = &g_FieldModelData->modelEntries;
-        entry = *entries + i;
-        *(u8*)0x1F800000 = 1;
-        KawaiLoadEyesMouthTexToVram(entry, (u8*)0x1F800000);
+        u8* faceParams = (u8*)getScratchAddr(0);
+        faceParams[1] = 1;
+        faceParams[2] = 0;
+        faceParams[3] = i;
+        faceParams[0] = 1;
+        KawaiLoadEyesMouthTexToVram(&g_FieldModelData->modelEntries[i], faceParams);
     }
     KawaiClearData();
 }
 
-void HandleKawaiDataInModel(struct FieldRenderData* buf) {
+void HandleKawaiDataInModel(FieldRenderData* buf) {
     SVECTOR pos;
     SVECTOR screenPos;
     MATRIX identity;
@@ -97,7 +91,7 @@ void HandleKawaiDataInModel(struct FieldRenderData* buf) {
             FieldModelAnimCalcMtrxs(&g_FieldModelData->modelEntries[models[i].modelEntryIndex], &identity,
                                     g_FieldEntity[i].activeAnimId, g_FieldEntity[i].animCurrentFrame >> 4);
             matrixDst = (u32*)g_FieldModelData->modelEntries[models[i].modelEntryIndex].partMatrices;
-            matrixSrc = (u32*)D_80071E40;
+            matrixSrc = (u32*)&g_FieldCamera->lookAt;
             matrixDst[0] = matrixSrc[0];
             matrixDst[1] = matrixSrc[1];
             matrixDst[2] = matrixSrc[2];
@@ -108,7 +102,7 @@ void HandleKawaiDataInModel(struct FieldRenderData* buf) {
             matrixDst[7] = matrixSrc[7];
         } else {
             *getScratchAddr(0) = 3;
-            FieldModelAnimCalcMtrxs(&g_FieldModelData->modelEntries[models[i].modelEntryIndex], D_80071E40,
+            FieldModelAnimCalcMtrxs(&g_FieldModelData->modelEntries[models[i].modelEntryIndex], &g_FieldCamera->lookAt,
                                     g_FieldEntity[i].activeAnimId, g_FieldEntity[i].animCurrentFrame >> 4);
         }
     }
@@ -141,7 +135,8 @@ void HandleKawaiDataInModel(struct FieldRenderData* buf) {
             pos.vz = (g_FieldEntity[i].PosZ >> 12) - 10;
             if (FieldCalcWorldToScreenPos(&pos, &screenPos) < 3840) {
                 if (KawaiExecute(&g_FieldModelData->modelEntries[models[i].modelEntryIndex],
-                                 g_FieldEntity[i].KawaiDataOffset, models[i].modelEntryIndex, D_80071E40) == 1) {
+                                 g_FieldEntity[i].KawaiDataOffset, models[i].modelEntryIndex, &g_FieldCamera->lookAt) ==
+                    1) {
                     g_FieldEntity[i].KawaiOp1 = 2;
                 }
             }
@@ -174,9 +169,9 @@ void DebugRunEveryLoop(void) {}
 
 void FieldCameraAssign(void) {
     if (g_FieldMovieJustStarted == 0 || g_FieldState.movieCamDisabled == 1) {
-        D_80071E40 = *D_80083578;
+        g_FieldCamera = *D_80083578;
     } else {
-        D_80071E40 = D_80083270;
+        g_FieldCamera = g_MovieCamera;
     }
 }
 
@@ -197,10 +192,10 @@ void FieldUpdateMovieStream(void) {
     switch (SystemCdromReadChain()) {
     case 0:
         if (g_FieldState.eventCmd == EVTCMD_LOAD_MOVIE && g_FieldState.movieCommandState == MOVCMD_IDLE) {
-            if (D_80075E10 <= (u8*)0x801AFFFF) {
+            if (D_80075E10 < (u8*)FIELD_LOAD_BUFFER) {
                 SysMoviePlay(D_80075E10, g_FieldState.eventCmdParam);
             } else {
-                SysMoviePlay((void*)0x801B0000, g_FieldState.eventCmdParam);
+                SysMoviePlay(FIELD_LOAD_BUFFER, g_FieldState.eventCmdParam);
             }
             g_FieldState.movieCommandState = MOVCMD_ACTIVE;
             g_FieldMoviePlayed = 1;

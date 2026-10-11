@@ -1,7 +1,23 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include <game.h>
 #include <libetc.h>
+#include <inline_c.h>
 #include "field_private.h"
+
+#ifdef PLATFORM_PSYZ
+#define KAWAI_LOAD_COLOR_OFFSETS(r, g, b)
+#define KAWAI_STORE_RGB0(dst)
+#define KAWAI_STORE_RGB1(dst)
+#else
+#define KAWAI_LOAD_COLOR_OFFSETS(r, g, b)                                                                              \
+    __asm__ volatile("mtc2 %0, $25;"                                                                                   \
+                     "mtc2 %1, $26;"                                                                                   \
+                     "mtc2 %2, $27"                                                                                    \
+                     :                                                                                                 \
+                     : "r"(r), "r"(g), "r"(b))
+#define KAWAI_STORE_RGB0(dst) __asm__ volatile("swc2 $20, 0(%0)" : : "r"(dst) : "memory")
+#define KAWAI_STORE_RGB1(dst) __asm__ volatile("swc2 $21, 0(%0)" : : "r"(dst) : "memory")
+#endif
 
 typedef struct {
     u8 modelCount;
@@ -13,6 +29,7 @@ typedef s32 (*FieldKawaiHandler)(FieldModelEntry* model, u8* params);
 
 s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params);
 s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params);
+void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b);
 s32 KawaiSetCustomLightToModelPkts(FieldModelEntry* model, u8* params);
 s32 KawaiSetColorToPktsBelowLvl(FieldModelEntry* model, u8* params);
 s32 KawaiSetLightingToModelPkts(FieldModelEntry* model, u8* params);
@@ -37,7 +54,7 @@ u8 D_800DF115 = 12;
 u8 D_800DF116 = 14;
 u8 D_800DF117 = 0;
 
-struct FieldRenderData* D_800DF118 = NULL;
+FieldRenderData* D_800DF118 = NULL;
 FieldKawaiHandler* g_FieldKawaiHandlers = g_FieldKawaiHandlerTable;
 
 s16 D_800DF120[256][2] = {
@@ -229,18 +246,315 @@ s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params) {
     u8 unused[8]; // Never read; only here to pad the stack frame out to 0x40.
 
     count = model->partCount;
-    parts = (FieldModelPart*)(model->partsOffset + (u_long)model->modelData);
+    parts = (FieldModelPart*)(model->modelData + model->partsOffset);
     r = (params[1] << 8) | params[0];
     g = (params[3] << 8) | params[2];
     b = (params[5] << 8) | params[4];
-    *(s32*)getScratchAddr(0x80) = params[6];
+    *(s32*)getScratchAddr(128) = params[6];
     for (i = 0; i < count; i++) {
         KawaiSetColorToPartPkts(&parts[i], r, g, b);
     }
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetColorToPartPkts);
+void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
+    u8* packets;
+    u32* polygons;
+    u32 counts;
+    u32 count;
+    u32 i;
+    u32 code;
+    s32 rOffset, gOffset, bOffset;
+
+    packets = part->packets;
+    polygons = (u32*)(part->data + part->polygonsOffset);
+    if (g_FieldPrimitiveBufferIndex) {
+        packets += part->packetBufferSize;
+    }
+    gte_lddp(16);
+    rOffset = r << 4;
+    gOffset = g << 4;
+    bOffset = b << 4;
+
+    if (*(s32*)getScratchAddr(128) & 1) {
+        counts = *(u32*)&part->polyGT4Count;
+        count = counts & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), polygons += 6) {
+            POLY_GT4* polyGT4 = (POLY_GT4*)packets;
+            code = getcode(polyGT4);
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[1]);
+            gte_gpl0();
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[2]);
+            gte_gpl0();
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[3]);
+            gte_gpl0();
+            KAWAI_STORE_RGB0(&polyGT4->r0);
+            KAWAI_STORE_RGB1(&polyGT4->r1);
+            gte_strgb(&polyGT4->r2);
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[4]);
+            gte_gpl0();
+            gte_strgb(&polyGT4->r3);
+            setcode(polyGT4, code);
+        }
+
+        count = (counts & 0xFF00) >> 8;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), polygons += 5) {
+            POLY_GT3* polyGT3 = (POLY_GT3*)packets;
+            code = getcode(polyGT3);
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[1]);
+            gte_gpl0();
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[2]);
+            gte_gpl0();
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[3]);
+            gte_gpl0();
+            KAWAI_STORE_RGB0(&polyGT3->r0);
+            KAWAI_STORE_RGB1(&polyGT3->r1);
+            gte_strgb(&polyGT3->r2);
+            setcode(polyGT3, code);
+        }
+
+        count = (counts >> 16) & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT4), polygons += 3) {
+            POLY_FT4* polyFT4 = (POLY_FT4*)packets;
+            code = getcode(polyFT4);
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[1]);
+            gte_gpl0();
+            gte_strgb(&polyFT4->r0);
+            setcode(polyFT4, code);
+        }
+
+        count = counts >> 24;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT3), polygons += 3) {
+            POLY_FT3* polyFT3 = (POLY_FT3*)packets;
+            code = getcode(polyFT3);
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[1]);
+            gte_gpl0();
+            gte_strgb(&polyFT3->r0);
+            setcode(polyFT3, code);
+        }
+
+        counts = *(u32*)&part->polyF3Count;
+        count = counts & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F3), polygons += 2) {
+            POLY_F3* polyF3 = (POLY_F3*)packets;
+            code = getcode(polyF3);
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[1]);
+            gte_gpl0();
+            gte_strgb(&polyF3->r0);
+            setcode(polyF3, code);
+        }
+
+        count = (counts & 0xFF00) >> 8;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F4), polygons += 2) {
+            POLY_F4* polyF4 = (POLY_F4*)packets;
+            code = getcode(polyF4);
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[1]);
+            gte_gpl0();
+            gte_strgb(&polyF4->r0);
+            setcode(polyF4, code);
+        }
+
+        count = (counts >> 16) & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G3), polygons += 4) {
+            POLY_G3* polyG3 = (POLY_G3*)packets;
+            code = getcode(polyG3);
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[1]);
+            gte_gpl0();
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[2]);
+            gte_gpl0();
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[3]);
+            gte_gpl0();
+            KAWAI_STORE_RGB0(&polyG3->r0);
+            KAWAI_STORE_RGB1(&polyG3->r1);
+            gte_strgb(&polyG3->r2);
+            setcode(polyG3, code);
+        }
+
+        count = counts >> 24;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G4), polygons += 5) {
+            POLY_G4* polyG4 = (POLY_G4*)packets;
+            code = getcode(polyG4);
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[1]);
+            gte_gpl0();
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[2]);
+            gte_gpl0();
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[3]);
+            gte_gpl0();
+            KAWAI_STORE_RGB0(&polyG4->r0);
+            KAWAI_STORE_RGB1(&polyG4->r1);
+            gte_strgb(&polyG4->r2);
+            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+            gte_ldcv(&polygons[4]);
+            gte_gpl0();
+            gte_strgb(&polyG4->r3);
+            setcode(polyG4, code);
+        }
+
+    } else {
+        counts = *(u32*)&part->polyGT4Count;
+        count = counts & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), polygons += 6) {
+            POLY_GT4* polyGT4 = (POLY_GT4*)packets;
+            if (polyGT4->tag << 8) {
+                code = getcode(polyGT4);
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[1]);
+                gte_gpl0();
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[2]);
+                gte_gpl0();
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[3]);
+                gte_gpl0();
+                KAWAI_STORE_RGB0(&polyGT4->r0);
+                KAWAI_STORE_RGB1(&polyGT4->r1);
+                gte_strgb(&polyGT4->r2);
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[4]);
+                gte_gpl0();
+                gte_strgb(&polyGT4->r3);
+                setcode(polyGT4, code);
+            }
+        }
+
+        count = (counts & 0xFF00) >> 8;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), polygons += 5) {
+            POLY_GT3* polyGT3 = (POLY_GT3*)packets;
+            if (polyGT3->tag << 8) {
+                code = getcode(polyGT3);
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[1]);
+                gte_gpl0();
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[2]);
+                gte_gpl0();
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[3]);
+                gte_gpl0();
+                KAWAI_STORE_RGB0(&polyGT3->r0);
+                KAWAI_STORE_RGB1(&polyGT3->r1);
+                gte_strgb(&polyGT3->r2);
+                setcode(polyGT3, code);
+            }
+        }
+
+        count = (counts >> 16) & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT4), polygons += 3) {
+            POLY_FT4* polyFT4 = (POLY_FT4*)packets;
+            if (polyFT4->tag << 8) {
+                code = getcode(polyFT4);
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[1]);
+                gte_gpl0();
+                gte_strgb(&polyFT4->r0);
+                setcode(polyFT4, code);
+            }
+        }
+
+        count = counts >> 24;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT3), polygons += 3) {
+            POLY_FT3* polyFT3 = (POLY_FT3*)packets;
+            if (polyFT3->tag << 8) {
+                code = getcode(polyFT3);
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[1]);
+                gte_gpl0();
+                gte_strgb(&polyFT3->r0);
+                setcode(polyFT3, code);
+            }
+        }
+
+        counts = *(u32*)&part->polyF3Count;
+        count = counts & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F3), polygons += 2) {
+            POLY_F3* polyF3 = (POLY_F3*)packets;
+            if (polyF3->tag << 8) {
+                code = getcode(polyF3);
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[1]);
+                gte_gpl0();
+                gte_strgb(&polyF3->r0);
+                setcode(polyF3, code);
+            }
+        }
+
+        count = (counts & 0xFF00) >> 8;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F4), polygons += 2) {
+            POLY_F4* polyF4 = (POLY_F4*)packets;
+            if (polyF4->tag << 8) {
+                code = getcode(polyF4);
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[1]);
+                gte_gpl0();
+                gte_strgb(&polyF4->r0);
+                setcode(polyF4, code);
+            }
+        }
+
+        count = (counts >> 16) & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G3), polygons += 4) {
+            POLY_G3* polyG3 = (POLY_G3*)packets;
+            if (polyG3->tag << 8) {
+                code = getcode(polyG3);
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[1]);
+                gte_gpl0();
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[2]);
+                gte_gpl0();
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[3]);
+                gte_gpl0();
+                KAWAI_STORE_RGB0(&polyG3->r0);
+                KAWAI_STORE_RGB1(&polyG3->r1);
+                gte_strgb(&polyG3->r2);
+                setcode(polyG3, code);
+            }
+        }
+
+        count = counts >> 24;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G4), polygons += 5) {
+            POLY_G4* polyG4 = (POLY_G4*)packets;
+            if (polyG4->tag << 8) {
+                code = getcode(polyG4);
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[1]);
+                gte_gpl0();
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[2]);
+                gte_gpl0();
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[3]);
+                gte_gpl0();
+                KAWAI_STORE_RGB0(&polyG4->r0);
+                KAWAI_STORE_RGB1(&polyG4->r1);
+                gte_strgb(&polyG4->r2);
+                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
+                gte_ldcv(&polygons[4]);
+                gte_gpl0();
+                gte_strgb(&polyG4->r3);
+                setcode(polyG4, code);
+            }
+        }
+    }
+}
 
 s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* model, u8* params) {
     RECT rect;
@@ -279,7 +593,107 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiLightingApp
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiLightingApplyToPolyColor);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetModelTransparency);
+s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params) {
+    FieldModelPart* parts;
+    FieldModelPart* part;
+    u8* packets;
+    POLY_GT4* polyGT4;
+    POLY_GT3* polyGT3;
+    POLY_FT4* polyFT4;
+    POLY_FT3* polyFT3;
+    POLY_F3* polyF3;
+    POLY_F4* polyF4;
+    POLY_G3* polyG3;
+    POLY_G4* polyG4;
+    u32 i, j, k;
+    u32 polygonCount;
+    u32 enabled;
+
+    parts = (FieldModelPart*)(model->modelData + model->partsOffset);
+    enabled = params[0];
+    for (i = 0; i < model->partCount; i++) {
+        part = &parts[i];
+        for (j = 0; j < 2; j++) {
+            packets = part->packets;
+            if (j) {
+                packets += part->packetBufferSize;
+            }
+
+            polyGT4 = (POLY_GT4*)packets;
+            polygonCount = part->polyGT4Count;
+            for (k = 0; k < polygonCount; k++) {
+                setSemiTrans(polyGT4, enabled);
+                setShadeTex(polyGT4, enabled);
+                polyGT4++;
+                packets += sizeof(POLY_GT4);
+            }
+
+            polyGT3 = (POLY_GT3*)packets;
+            polygonCount = part->polyGT3Count;
+            for (k = 0; k < polygonCount; k++) {
+                setSemiTrans(polyGT3, enabled);
+                setShadeTex(polyGT3, enabled);
+                polyGT3++;
+                packets += sizeof(POLY_GT3);
+            }
+
+            polyFT4 = (POLY_FT4*)packets;
+            polygonCount = part->polyFT4Count;
+            for (k = 0; k < polygonCount; k++) {
+                setSemiTrans(polyFT4, enabled);
+                setShadeTex(polyFT4, enabled);
+                polyFT4++;
+                packets += sizeof(POLY_FT4);
+            }
+
+            polyFT3 = (POLY_FT3*)packets;
+            polygonCount = part->polyFT3Count;
+            for (k = 0; k < polygonCount; k++) {
+                setSemiTrans(polyFT3, enabled);
+                setShadeTex(polyFT3, enabled);
+                polyFT3++;
+                packets += sizeof(POLY_FT3);
+            }
+
+            polyF3 = (POLY_F3*)packets;
+            polygonCount = part->polyF3Count;
+            for (k = 0; k < polygonCount; k++) {
+                setSemiTrans(polyF3, enabled);
+                setShadeTex(polyF3, enabled);
+                polyF3++;
+                packets += sizeof(POLY_F3);
+            }
+
+            polyF4 = (POLY_F4*)packets;
+            polygonCount = part->polyF4Count;
+            for (k = 0; k < polygonCount; k++) {
+                setSemiTrans(polyF4, enabled);
+                setShadeTex(polyF4, enabled);
+                polyF4++;
+                packets += sizeof(POLY_F4);
+            }
+
+            polyG3 = (POLY_G3*)packets;
+            polygonCount = part->polyG3Count;
+            for (k = 0; k < polygonCount; k++) {
+                setSemiTrans(polyG3, enabled);
+                setShadeTex(polyG3, enabled);
+                polyG3++;
+                packets += sizeof(POLY_G3);
+            }
+
+            polyG4 = (POLY_G4*)packets;
+            polygonCount = part->polyG4Count;
+            for (k = 0; k < polygonCount; k++) {
+                setSemiTrans(polyG4, enabled);
+                setShadeTex(polyG4, enabled);
+                polyG4++;
+                packets += sizeof(POLY_G4);
+            }
+        }
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetColorToPktsBelowLvl);
 

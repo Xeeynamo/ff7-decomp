@@ -14,7 +14,7 @@ struct FieldRain {
 
 extern struct FieldRain g_FieldRain[64];
 
-void FieldRainInit(struct FieldRenderData* renderData) {
+void FieldRainInit(FieldRenderData* renderData) {
     LINE_F2* line;
     s32 i;
     s32 adjustedIndex;
@@ -24,14 +24,14 @@ void FieldRainInit(struct FieldRenderData* renderData) {
         g_FieldRain[i].rndSeed = i * 4;
         g_FieldRain[i].wait = i % 8;
 
-        line = &renderData->Rain[i];
+        line = &renderData->rain[i];
 
         SetLineF2(line);
         SetSemiTrans(line, 1);
 
-        renderData->Rain[i].r0 = 0x10;
-        renderData->Rain[i].g0 = 0x10;
-        renderData->Rain[i].b0 = 0x10;
+        renderData->rain[i].r0 = 0x10;
+        renderData->rain[i].g0 = 0x10;
+        renderData->rain[i].b0 = 0x10;
     }
 
     SetDrawMode(&renderData->rainDm, 0, 0, GetTPage(0, 1, 0, 0) & 0xffff, NULL);

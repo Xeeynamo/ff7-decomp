@@ -6,38 +6,34 @@
 extern u32 g_FieldKeyState;
 extern s8 D_80071C0C;
 extern OT_TYPE D_8007E7A0[2];
-extern s32 D_8007EB90;
-extern s32 D_8007EB94;
 extern s32 D_800965E4;
-extern s32** D_8009A044;
 extern s32 D_8009A060;
-extern u_long* D_800E4D90;
-extern u32 D_800E4D94;
-extern u16 D_800E4D98;
-extern u16 D_800E4D9A;
-extern u16 D_800E4D9C;
-extern u16 D_800E4D9E;
-extern u_long* D_800E4DA4;
-extern u32 D_800E4DA8;
-extern s16 D_800E4DAC;
-extern s16 D_800E4DAE;
-extern u16 D_800E4DB0;
-extern u16 D_800E4DB2;
-extern u16 D_800E4DB4;
-extern u_long* D_800E4DD4;
-extern u32 D_800E4DD8;
-extern s16 D_800E4DDC;
-extern s16 D_800E4DDE;
-extern u16 D_800E4DE0;
-extern u16 D_800E4DE2;
-extern u16 D_800E4DE4;
-extern s16 (*D_80114458)[3];
+extern u_long* g_MimPaletteData;
+extern u32 g_MimPaletteBlockSize;
+extern u16 g_MimPaletteX;
+extern u16 g_MimPaletteY;
+extern u16 g_MimPaletteWidth;
+extern u16 g_MimPaletteHeight;
+extern u_long* g_MimImage1Data;
+extern u32 g_MimImage1BlockSize;
+extern s16 g_MimImage1X;
+extern s16 g_MimImage1Y;
+extern u16 g_MimImage1Width;
+extern u16 g_MimImage1Height;
+extern u16 g_MimImage1TPage;
+extern u_long* g_MimImage2Data;
+extern u32 g_MimImage2BlockSize;
+extern s16 g_MimImage2X;
+extern s16 g_MimImage2Y;
+extern u16 g_MimImage2Width;
+extern u16 g_MimImage2Height;
+extern u16 g_MimImage2TPage;
 extern s32 D_80114478;
 extern s32 D_8011447C;
 extern volatile s16 g_GameState;
 
 void FieldEntityLineInteract(FieldEntity* entity, FieldLine* lines);
-void HandleKawaiDataInModel(struct FieldRenderData* renderData);
+void HandleKawaiDataInModel(FieldRenderData* renderData);
 void FieldModelLoadAndInit(void);
 void FieldEntityInitPos(void);
 void FieldCameraAssign(void);
@@ -45,11 +41,11 @@ void FieldEventUpdate(OT_TYPE* ot);
 void FieldBGScrollInit(void);
 void FieldBGScrollUpdate(void);
 void FieldBGShakeUpdate(FieldShakeData* data);
-void FieldBGUpdateDrawenv(struct FieldRenderData* renderData);
+void FieldBGUpdateDrawenv(FieldRenderData* renderData);
 void FieldEntityMovementUpdate(u32 keys);
 void FieldEntityCheckTalk(void);
 void FieldRainUpdate(void);
-void FieldArrowsAddToRender(struct FieldRenderData* renderData, MATRIX* matrix, FieldGateway* gateways);
+void FieldArrowsAddToRender(FieldRenderData* renderData, MATRIX* matrix, FieldGateway* gateways);
 void SysFadeUpdate(void);
 void FieldUpdateMovieStream(void);
 
@@ -63,15 +59,15 @@ s32 FieldMainLoop(void) {
     RECT middle = {0, 232, 320, 8};
     RECT bottom = {0, 464, 320, 8};
     s16 displayDelay;
-    struct FieldRenderData* renderData;
+    FieldRenderData* renderData;
 
-    D_8007EB90 = 160;
-    D_8007EB94 = 120;
+    g_CameraCenterX = 160;
+    g_CameraCenterY = 120;
     if (g_PrevGameState != GAMESTATE_MENU && g_PrevGameState != GAMESTATE_MENU_COMMANND) {
         FieldModelLoadAndInit();
     }
-    D_800E4274 = (SVECTOR(*)[3])(*D_8009A044 + 1);
-    D_80114458 = (s16(*)[3])(D_800E4274 + *(u16*)*D_8009A044);
+    g_WalkmeshTriangles = (SVECTOR*)(*D_8009A044)->data;
+    g_WalkmeshAccesses = (FieldWalkmeshAccess*)(g_WalkmeshTriangles + (*D_8009A044)->triangleCount * 3);
     if (g_PrevGameState != GAMESTATE_MENU && g_PrevGameState != GAMESTATE_BATTLE &&
         g_PrevGameState != GAMESTATE_MENU_COMMANND) {
         FieldEntityInitPos();
@@ -166,7 +162,7 @@ s32 FieldMainLoop(void) {
         if (g_FieldState.eventCmd == EVTCMD_ENTERING_BATTLE) {
             g_FieldState.pcPosX = g_FieldEntity[g_PlayerModelId].PosX / 4096;
             g_FieldState.pcPosY = g_FieldEntity[g_PlayerModelId].PosY / 4096;
-            g_FieldState.pcWalkMeshId = g_FieldEntity[g_PlayerModelId].PosI;
+            g_FieldState.pcPosI = g_FieldEntity[g_PlayerModelId].PosI;
             g_GameState = GAMESTATE_BATTLE;
             StopFieldMapPreload();
             return;
@@ -179,8 +175,8 @@ s32 FieldMainLoop(void) {
         }
         HandleKawaiDataInModel(renderData);
         FieldRainUpdate();
-        FieldRainAddToRender(renderData->ot, renderData->Rain, D_80071E40, &renderData->rainDm);
-        FieldArrowsAddToRender(renderData, D_80071E40, g_FieldTriggers->gateways);
+        FieldRainAddToRender(renderData->ot, renderData->rain, &g_FieldCamera->lookAt, &renderData->rainDm);
+        FieldArrowsAddToRender(renderData, &g_FieldCamera->lookAt, g_FieldTriggers->gateways);
         SysFadeUpdate();
         D_80114478 = VSync(1);
         while (DrawSync(1)) {
@@ -233,37 +229,39 @@ void FieldLoadMimToVram(s32 arg0, void* mimData) {
     u8 unused[40];
     u_long* data = mimData;
 
-    D_800E4D94 = *data++;
-    D_800E4D98 = *data & 0xFFFF;
-    D_800E4D9A = *data++ >> 16;
-    D_800E4D9C = *data & 0xFFFF;
-    D_800E4D9E = *data++ >> 16;
-    D_800E4D90 = data;
-    data += D_800E4D94 / 4 - 3;
+    g_MimPaletteBlockSize = *data++;
+    g_MimPaletteX = *data;
+    g_MimPaletteY = *data++ >> 16;
+    g_MimPaletteWidth = *data;
+    g_MimPaletteHeight = *data++ >> 16;
+    g_MimPaletteData = data;
+    data += g_MimPaletteBlockSize / 4 - 3;
 
-    D_800E4DA8 = *data++;
-    D_800E4DAC = *data & 0xFFFF;
-    D_800E4DAE = *data++ >> 16;
-    D_800E4DB0 = (*data & 0xFFFF) * 2;
-    D_800E4DB2 = *data++ >> 16;
-    D_800E4DA4 = data;
-    data += D_800E4DA8 / 4 - 3;
+    g_MimImage1BlockSize = *data++;
+    g_MimImage1X = *data;
+    g_MimImage1Y = *data++ >> 16;
+    g_MimImage1Width = *(u16*)data * 2;
+    g_MimImage1Height = *data++ >> 16;
+    g_MimImage1Data = data;
+    data += g_MimImage1BlockSize / 4 - 3;
 
-    D_800E4DD8 = *data++;
-    D_800E4DDC = *data & 0xFFFF;
-    D_800E4DDE = *data++ >> 16;
-    D_800E4DE0 = (*data & 0xFFFF) * 2;
-    D_800E4DE2 = *data++ >> 16;
-    D_800E4DD4 = data;
+    g_MimImage2BlockSize = *data++;
+    g_MimImage2X = *data;
+    g_MimImage2Y = *data++ >> 16;
+    g_MimImage2Width = *(u16*)data * 2;
+    g_MimImage2Height = *data++ >> 16;
+    g_MimImage2Data = data;
 
     setRECT(&rect, 0, 480, 256, 16);
     DrawSync(0);
-    LoadImage(&rect, D_800E4D90);
+    LoadImage(&rect, g_MimPaletteData);
     DrawSync(0);
-    D_800E4DB4 = LoadTPage(D_800E4DA4, 1, 0, D_800E4DAC, D_800E4DAE, D_800E4DB0, D_800E4DB2);
-    if (D_800E4DD8) {
+    g_MimImage1TPage =
+        LoadTPage(g_MimImage1Data, 1, 0, g_MimImage1X, g_MimImage1Y, g_MimImage1Width, g_MimImage1Height);
+    if (g_MimImage2BlockSize) {
         DrawSync(0);
-        D_800E4DE4 = LoadTPage(D_800E4DD4, 1, 0, D_800E4DDC, D_800E4DDE, D_800E4DE0, D_800E4DE2);
+        g_MimImage2TPage =
+            LoadTPage(g_MimImage2Data, 1, 0, g_MimImage2X, g_MimImage2Y, g_MimImage2Width, g_MimImage2Height);
     }
     DrawSync(0);
 }

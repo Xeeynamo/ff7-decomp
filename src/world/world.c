@@ -5375,7 +5375,7 @@ void WmSetFieldToLoad(s32 arg0) {
     g_FieldState.eventCmdParam = *(u16*)(p + 6);
     g_FieldState.pcPosX = *(u16*)(p + 0);
     g_FieldState.pcPosY = *(u16*)(p + 2);
-    g_FieldState.pcWalkMeshId = *(u16*)(p + 4);
+    g_FieldState.pcPosI = *(u16*)(p + 4);
     D_8011626C = 0;
     D_80116270 = arg0;
     g_FieldState.pcDirection = p[8];
