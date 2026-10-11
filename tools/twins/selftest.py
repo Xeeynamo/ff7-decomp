@@ -195,6 +195,72 @@ check(
 )
 
 # ---------------------------------------------------------------------------
+print("\noverlay attribution")
+# ---------------------------------------------------------------------------
+
+# func_801B102C exists in both lamu and reazer. lamu's copy is solved and
+# reazer's is a stub, so keying the stub index by bare symbol name marked the
+# solved one as pending too and reported it as a quick win against itself.
+check(
+    "a name reused across overlays is attributed to each overlay separately",
+    twins.is_pending("func_801B102C", "reazer", nonmatching)
+    and not twins.is_pending("func_801B102C", "lamu", nonmatching),
+)
+check(
+    "the solved lamu copy is indexed as matched, not pending",
+    not any(
+        name == "lamu" and sym == "func_801B102C"
+        for name, sym, *_ in pending
+    ),
+)
+check(
+    "the stub reazer copy is still indexed as pending",
+    any(
+        name == "reazer" and sym == "func_801B102C"
+        for name, sym, *_ in pending
+    ),
+)
+# every stub should be attributable, or at least most of them; an unattributed
+# file falls back to matching any overlay, which is safe but hides mistakes
+attributed = sum(1 for owner, _ in nonmatching if owner is not None)
+check(
+    "stubs are attributed to an overlay",
+    attributed > len(nonmatching) * 0.5,
+    "%d of %d" % (attributed, len(nonmatching)),
+)
+by_dir = twins.overlay_owners(config)
+check(
+    "magic overlays map to the shared src/magic directory",
+    len(by_dir.get("magic", [])) > 200,
+    "%d overlays" % len(by_dir.get("magic", [])),
+)
+check(
+    "a magic overlay is identified by its file name",
+    twins.owning_overlay("magic", "lamu.c", by_dir) == "lamu"
+    and twins.owning_overlay("mini/highway", "highway_model.c", by_dir) == "highway",
+    "lamu.c->%s highway_model.c->%s"
+    % (
+        twins.owning_overlay("magic", "lamu.c", by_dir),
+        twins.owning_overlay("mini/highway", "highway_model.c", by_dir),
+    ),
+)
+# --find has to cope with the same ambiguity
+ambiguous = "func_801B102C"
+seen = set()
+for name, sym, *_ in pending:
+    if sym == ambiguous:
+        seen.add(name)
+for key, members in matched.items():
+    for name, sym, _ in members:
+        if sym == ambiguous:
+            seen.add(name)
+check(
+    "the ambiguous name really does span two overlays",
+    len(seen) == 2,
+    "%s" % sorted(seen),
+)
+
+# ---------------------------------------------------------------------------
 print("\nsymbol filtering")
 # ---------------------------------------------------------------------------
 
