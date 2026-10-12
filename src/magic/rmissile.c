@@ -109,7 +109,7 @@ void RmissileSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset
     SetTransMatrix(&matrix);
 }
 
-// Same as EnergyDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 static void RmissileDoubleBufferFlip(void) {
     RmissileData* effect;
 
@@ -216,7 +216,6 @@ extern u16 D_801031EA;
 extern s32 D_801D2524[];
 extern s32 D_801D42C8[];
 
-// Same as func_801B07A0.
 void RmissileFlashModelTick(void) {
     MATRIX matrix;
     MATRIX composed;
@@ -471,7 +470,6 @@ void RmissileTargetSetup(s32 target, s32 callbackArg) {
     effect->unk1E = callbackArg;
 }
 
-// Same as func_801B1990.
 void RmissileStart(s32 targetMask, s32 callbackArg) {
     BattleEffectRegister(RmissileDoubleBufferFlip);
     BattleSetLoadTimToVram(D_801B178C, 0, 0, 0);

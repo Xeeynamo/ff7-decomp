@@ -309,7 +309,6 @@ void FaigaFlashSpriteTick(void) {
     }
 }
 
-// Same as func_801B1988 in club2.c.
 void FaigaSparkSpriteTick(void) {
     FaigaData* effect;
     s16 scale;

@@ -65,7 +65,6 @@ void CometTargetTick(void);
 void CometTargetSetup(s32 target, s32 callbackArg);
 void CometBufferFlip(void);
 
-// Same as MAGIC_Biora.
 void MAGIC_Comet(s32 targetMask, s32 callbackArg) { CometStart(targetMask, callbackArg); }
 
 void CometRockTrailParticleTick(void) {
@@ -388,7 +387,7 @@ void CometTargetSetup(s32 target, s32 callbackArg) {
     BattleGetPartPosition(target, g_BattleModels[target].boneIndices[0], &effect->Pos);
 }
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 void CometBufferFlip(void) {
     CometData* effect;
 

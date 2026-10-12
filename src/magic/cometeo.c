@@ -67,7 +67,6 @@ void CometeoDriverTick(void);
 void CometeoMainTick(void);
 void CometeoBufferFlip(void);
 
-// Same as MAGIC_Biora.
 void MAGIC_Cometeo(s32 targetMask, s32 callbackArg) { CometeoStart(targetMask, callbackArg); }
 
 void CometeoRockTrailParticleTick(void) {
