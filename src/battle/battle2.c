@@ -1427,9 +1427,8 @@ static void BattleFixedPointRampSpawnChildEffects(void) {
         }
         g_BattleEffectSlots[g_BattleEffectCursor].raw.D_80162978 = -1;
         return;
-    } else {
-        g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.framesLeft--;
     }
+    g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.framesLeft--;
 }
 
 void func_800CEB48(void);
@@ -1454,9 +1453,8 @@ void BattleFixedPointRampSpawnChildEffectsWithFade(void) {
         }
         func_800CEB48();
         return;
-    } else {
-        g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.framesLeft--;
     }
+    g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.framesLeft--;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CEB48);
@@ -2072,11 +2070,10 @@ s32 BattleModelAnimReadDynamicFrameOffsBits(u8* arg0, s32* arg1) {
     if ((window & mask) == 0) {
         *arg1 = pos + 8;
         return (s32)(window << (bit + 1) << 16) >> 0x19;
-    } else {
-        window = (window << 8) | p[2];
-        *arg1 = pos + 0x11;
-        return (s32)(window << (bit + 1) << 8) >> 0x10;
     }
+    window = (window << 8) | p[2];
+    *arg1 = pos + 0x11;
+    return (s32)(window << (bit + 1) << 8) >> 0x10;
 }
 
 static s32 BattleModelAnimReadBitStream(u8* arg0, s32* arg1, s32 arg2) {
@@ -2470,11 +2467,11 @@ extern s16 D_800F4D2C[16][10];
 
 // Enqueue a value into the 16-entry circular battle queue and return
 // the associated data slot for the newly queued entry.
-s16* BattleEventQueuePush(s32 arg0) {
+s16* BattleEventQueuePush(s32 type) {
     s32 idx = D_800F10D8;
     s32 next = (idx + 1) & 0xF;
 
-    D_800F4CEC[idx] = arg0;
+    D_800F4CEC[idx] = type;
     D_800F10D8 = next;
     return D_800F4D2C[idx];
 }
@@ -2485,12 +2482,11 @@ s32 BattleEventQueuePop(s16** arg0) {
     if (D_800F10D8 == D_800F10DC) {
         *arg0 = D_800F4D2C[(D_800F10D8 - 1) & 0xF];
         return 0;
-    } else {
-        ret = D_800F4CEC[D_800F10DC];
-        *arg0 = D_800F4D2C[D_800F10DC];
-        D_800F10DC = (D_800F10DC + 1) & 0xF;
-        return ret;
     }
+    ret = D_800F4CEC[D_800F10DC];
+    *arg0 = D_800F4D2C[D_800F10DC];
+    D_800F10DC = (D_800F10DC + 1) & 0xF;
+    return ret;
 }
 extern Unk80162978* D_800F10E0;
 
@@ -2663,8 +2659,8 @@ SVECTOR* BattleEntityGetCenter(s32 targetMask, SVECTOR* center) {
     return center;
 }
 
-s32 func_800D55A4(s32 arg0) {
-    return (g_BattleModels[arg0].collisionRadius * 0x10) * g_BattleModels[arg0].scale >> 0xC;
+s32 func_800D55A4(s32 target) {
+    return (g_BattleModels[target].collisionRadius * 0x10) * g_BattleModels[target].scale >> 0xC;
 }
 
 // Generic AKAO sound-command dispatcher: the first vararg's low 16 bits are
@@ -2731,17 +2727,17 @@ s32 BattleEntityGetStereoPan(s32 arg0) {
 
 // Queue a popup carrying bit index arg0, using push type 6 if that bit is
 // set in the D_800F836C flag word, else type 4.
-void func_800D5774(u32 arg0) {
+void func_800D5774(u32 targetIndex) {
     s32 cond;
     s16* ptr;
 
-    cond = (D_800F836C >> arg0) & 1;
+    cond = (D_800F836C >> targetIndex) & 1;
     if (cond) {
         ptr = BattleEventQueuePush(6);
     } else {
         ptr = BattleEventQueuePush(4);
     }
-    *ptr = arg0;
+    *ptr = targetIndex;
 }
 
 void func_800D57C0();

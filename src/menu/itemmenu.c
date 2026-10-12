@@ -107,7 +107,7 @@ extern u8 g_KeyItemList[]; // Key Items menu list: obtained key-item IDs in
 s32 SysMenuGetInventoryRestrictionMask(s32); // returns an item's usage flags (0x2 battle, 0x4 field, 0x8 throw)
 typedef s32 (*SortCmp)(s32, s32, s32*);
 typedef void (*SortSwap)(s32, s32, s32*);
-static s32 Quicksort(s32, s32, SortCmp, SortSwap);
+static s32 Quicksort(s32 base, s32 count, SortCmp cmp, SortSwap swap);
 s32 SysGetLimitCmdId(s32, s32);
 void SysMenuDrawTexturedRect(s16, s16, s32, s32, s32, s32, s32, s32);
 
@@ -572,7 +572,7 @@ extern DRAWENV D_800706A4[];
 extern u16 g_Pad0KeysPressed;
 extern u16 g_Pad0KeysRepeat;
 
-void ArrangeItems(s32);
+void ArrangeItems(s32 mode);
 const char* SysKernGetString(s32, s32, s32);
 void SysMenuDrawAvatar(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
 void SysMenuSetWindowRect(s32*, s32, s32, s32, s32);
@@ -591,8 +591,8 @@ void SystemMenuAddMpByPartyId(s32, s32);
 void SysMenuSetDrawenv(void*, s16*);
 void SysMenuDrawSingleFontLetter(s32, s32, s32, s32);
 void SysMenuDrawScrollbar();
-s32 IsCharacterHpFull(s32);
-s32 IsCharacterMpFull(s32);
+s32 IsCharacterHpFull(s32 charIdx);
+s32 IsCharacterMpFull(s32 charIdx);
 
 extern s32 g_LimitManualAlreadyLearnedMsg;
 extern s32 g_LimitManualNoUserMsg;
@@ -1078,10 +1078,9 @@ char ITEMMENU_Main(s32 frameCount) {
                                 }
                                 g_ItemMenuCurrentScreen = 1;
                                 return;
-                            } else {
-                                PlayItemMenuSfx(SFX_MENU_BAD);
-                                return;
                             }
+                            PlayItemMenuSfx(SFX_MENU_BAD);
+                            return;
                             break;
 
                         // Inflicts Sadness / Heal Fury
@@ -1093,8 +1092,8 @@ char ITEMMENU_Main(s32 frameCount) {
                             hasFuryCondition = (statusFlagsTranquilizer & hasFuryCondition) != 0;
                             if (hasFuryCondition || ((statusFlagsTranquilizer & STATUS_SADNESS) == 0)) {
                                 newStatusFlagsTranquilizer =
-                                    (hasFuryCondition) ? (statusFlagsTranquilizer & CLEAR_FURY)
-                                                       : (statusFlagsTranquilizer | STATUS_SADNESS);
+                                    hasFuryCondition ? (statusFlagsTranquilizer & CLEAR_FURY)
+                                                     : (statusFlagsTranquilizer | STATUS_SADNESS);
                                 (&Savemap.party[0].status_flags)[charStructOffset] = newStatusFlagsTranquilizer;
                                 PlayItemMenuSfx(SFX_MENU_APPLY);
                                 SysMenuRemoveItem(selectedItemId | ITEM_CONSUMED);
@@ -1103,10 +1102,8 @@ char ITEMMENU_Main(s32 frameCount) {
                                 }
                                 g_ItemMenuCurrentScreen = 1;
                                 return;
-                            } else {
-                                PlayItemMenuSfx(SFX_MENU_BAD);
-                                return;
                             }
+                            PlayItemMenuSfx(SFX_MENU_BAD);
                             break;
 
                         // Apply final limit breaks
@@ -1256,10 +1253,9 @@ char ITEMMENU_Main(s32 frameCount) {
                                 }
                                 g_ItemMenuCurrentScreen = 1;
                                 return;
-                            } else {
-                                PlayItemMenuSfx(SFX_MENU_BAD);
-                                return;
                             }
+                            PlayItemMenuSfx(SFX_MENU_BAD);
+                            return;
                             break;
 
                         case ITEM_HI_POTION:
@@ -1273,10 +1269,9 @@ char ITEMMENU_Main(s32 frameCount) {
                                 }
                                 g_ItemMenuCurrentScreen = 1;
                                 return;
-                            } else {
-                                PlayItemMenuSfx(SFX_MENU_BAD);
-                                return;
                             }
+                            PlayItemMenuSfx(SFX_MENU_BAD);
+                            return;
                             break;
 
                         case ITEM_ETHER:
@@ -1291,10 +1286,9 @@ char ITEMMENU_Main(s32 frameCount) {
                                 }
                                 g_ItemMenuCurrentScreen = 1;
                                 return;
-                            } else {
-                                PlayItemMenuSfx(SFX_MENU_BAD);
-                                return;
                             }
+                            PlayItemMenuSfx(SFX_MENU_BAD);
+                            return;
                             break;
 
                         case ITEM_TURBO_ETHER:
@@ -1308,10 +1302,9 @@ char ITEMMENU_Main(s32 frameCount) {
                                 }
                                 g_ItemMenuCurrentScreen = 1;
                                 return;
-                            } else {
-                                PlayItemMenuSfx(SFX_MENU_BAD);
-                                return;
                             }
+                            PlayItemMenuSfx(SFX_MENU_BAD);
+                            return;
                             break;
 
                         case ITEM_PHOENIXDOWN:
@@ -1325,10 +1318,9 @@ char ITEMMENU_Main(s32 frameCount) {
                                 }
                                 g_ItemMenuCurrentScreen = 1;
                                 return;
-                            } else {
-                                PlayItemMenuSfx(SFX_MENU_BAD);
-                                return;
                             }
+                            PlayItemMenuSfx(SFX_MENU_BAD);
+                            return;
                             break;
 
                         case ITEM_TENT:
@@ -1365,10 +1357,9 @@ char ITEMMENU_Main(s32 frameCount) {
                                 }
                                 g_ItemMenuCurrentScreen = 1;
                                 return;
-                            } else {
-                                PlayItemMenuSfx(SFX_MENU_BAD);
-                                return;
                             }
+                            PlayItemMenuSfx(SFX_MENU_BAD);
+                            return;
                             break;
 
                         case ITEM_XPOTION:
@@ -1382,10 +1373,9 @@ char ITEMMENU_Main(s32 frameCount) {
                                 }
                                 g_ItemMenuCurrentScreen = 1;
                                 return;
-                            } else {
-                                PlayItemMenuSfx(SFX_MENU_BAD);
-                                return;
                             }
+                            PlayItemMenuSfx(SFX_MENU_BAD);
+                            return;
                             break;
 
                         case ITEM_ELIXIR:
@@ -1404,10 +1394,9 @@ char ITEMMENU_Main(s32 frameCount) {
                                 if (!g_ItemMenuWidgets[0].column) {
                                 }
                                 return;
-                            } else {
-                                PlayItemMenuSfx(SFX_MENU_BAD);
-                                return;
                             }
+                            PlayItemMenuSfx(SFX_MENU_BAD);
+                            return;
                             break;
 
                         case ITEM_MEGALIXIR:
@@ -1441,10 +1430,9 @@ char ITEMMENU_Main(s32 frameCount) {
                                 }
                                 g_ItemMenuCurrentScreen = 1;
                                 return;
-                            } else {
-                                PlayItemMenuSfx(SFX_MENU_BAD);
-                                return;
                             }
+                            PlayItemMenuSfx(SFX_MENU_BAD);
+                            return;
                             break;
                         }
                     }

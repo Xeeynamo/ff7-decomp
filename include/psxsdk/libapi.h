@@ -40,7 +40,7 @@ extern void _bu_init(void);
  * Opens a device for low-level input/output and returns
  * the descriptor. Returns -1 on failure.
  */
-int open(const char* __file, int __oflag);
+int open(const char* devname, int flag);
 
 extern long lseek(long, long, long);
 

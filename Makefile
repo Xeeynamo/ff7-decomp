@@ -47,7 +47,7 @@ format:
 
 .PHONY: lint
 lint: bin/cc1-psx-26 bin/cc1-psx-272 bin/str
-	@./mako.sh lint --min-overlaps 6
+	@./mako.sh lint --min-overlaps 4
 
 .PHONY: rebuild
 rebuild:

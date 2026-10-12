@@ -74,9 +74,9 @@ static s32 FieldEntityTurnToEntity(s16 entityId);
 static void FieldEventRectClear(RECT* rect);
 
 void FieldEventDebugError(const char* errmsg);
-void FieldDebugStringU8hex(s32 val, char* msg_out);
-void FieldDebugStringU16hex(s32 val, char* msg_out);
-void FieldDebugStringU32hex(s32 val, char* msg_out);
+void FieldDebugStringU8hex(s32 val, char* msgOut);
+void FieldDebugStringU16hex(s32 val, char* msgOut);
+void FieldDebugStringU32hex(s32 val, char* msgOut);
 void SetDebugStrRowColor(s16 page, s16 row, s16 color);
 void FieldDebugPageSetColor(s32 page, s32 r, s32 g, s32 b);
 
@@ -109,7 +109,7 @@ static s32 OpcodeFuncWsize(void);
 
 void DebugUpdateActor(s16 arg0, s16 entityId) {
     if (arg0 == 4) {
-        if (!(D_80071E24 & 4) || (D_80114498[entityId])) {
+        if (!(D_80071E24 & 4) || D_80114498[entityId]) {
             D_800716C8 = entityId;
             if (D_80114498[entityId]) {
                 FieldDebugPageSetColor(4, 127, 1, 127);
@@ -646,12 +646,12 @@ void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind) {
     }
 }
 
-static u8 FieldEventReadMemoryU8(s16 mb_half, s16 offset) {
+static u8 FieldEventReadMemoryU8(s16 mbHalf, s16 offset) {
     s32 indx;
     u8 value;
     u8 bankId;
 
-    switch (mb_half) {
+    switch (mbHalf) {
     case 1:
         bankId = GET_PARAM_U8(1) >> 4;
         break;
@@ -828,12 +828,12 @@ static void FieldEventWriteMemoryU8(s16 arg0, s16 arg1, u8 value) {
     FieldEventDebugError("Bad Event arg!");
 }
 
-static s16 FieldEventReadMemoryS16(s16 bank_id, s16 offset) {
+static s16 FieldEventReadMemoryS16(s16 bank, s16 offset) {
     u8 bankId;
     s32 indx;
     s16 value;
 
-    switch (bank_id) {
+    switch (bank) {
     case 1:
         bankId = GET_PARAM_U8(1) >> 4;
         break;
@@ -1800,9 +1800,8 @@ static s32 OpcodeFuncKeyEx(void) {
     }
     if (GET_PARAM_U8(2) & 2) {
         return KeyCheck((u16)g_pFieldState->activeKeys);
-    } else {
-        return KeyCheck((u16)g_pFieldState->activeKeysRaw);
     }
+    return KeyCheck((u16)g_pFieldState->activeKeysRaw);
 }
 
 /*
@@ -1817,9 +1816,8 @@ static s32 OpcodeFuncKeyon(void) {
     }
     if (GET_PARAM_U8(2) & 2) {
         return KeyCheck((u16)g_pFieldState->pressedKeys);
-    } else {
-        return KeyCheck((u16)g_pFieldState->pressedKeysRaw);
     }
+    return KeyCheck((u16)g_pFieldState->pressedKeysRaw);
 }
 
 /*
@@ -1834,9 +1832,8 @@ static s32 OpcodeFuncKeyof(void) {
     }
     if (GET_PARAM_U8(2) & 2) {
         return KeyCheck((u16)g_pFieldState->releasedKeys);
-    } else {
-        return KeyCheck((u16)g_pFieldState->releasedKeysRaw);
     }
+    return KeyCheck((u16)g_pFieldState->releasedKeysRaw);
 }
 
 static s32 KeyCheck(u16 keys) {
@@ -1990,7 +1987,8 @@ static s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
             }
         }
         return 1;
-    } else if (g_FieldScriptPriority[target] < priority) {
+    }
+    if (g_FieldScriptPriority[target] < priority) {
         if (g_SavedFieldScriptPC[target][priority] != 0) {
             switch (type) {
             case 1:
@@ -2029,7 +2027,8 @@ static s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
             return 1;
         }
         return 1;
-    } else if (g_FieldScriptSyncState[target][priority] == SYNC_NONE) {
+    }
+    if (g_FieldScriptSyncState[target][priority] == SYNC_NONE) {
         s32 scriptOffset;
         s32 entityDataSize;
         s32 extrasHeaderSize;
@@ -3556,9 +3555,10 @@ static s32 OpcodeFuncTurnr(void) {
             g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnSteps = 0;
             PC_INC(6);
             return 0;
-        } else if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStep == 0 ||
-                   g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnType != GET_PARAM_U8(5) ||
-                   g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnSteps != GET_PARAM_U8(4)) {
+        }
+        if (g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStep == 0 ||
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnType != GET_PARAM_U8(5) ||
+            g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnSteps != GET_PARAM_U8(4)) {
             g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStart =
                 g_FieldModels[g_EntityToModel[g_CurrentEntity]].Dir;
             g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnType = GET_PARAM_U8(5);
@@ -3576,9 +3576,8 @@ static s32 OpcodeFuncTurnr(void) {
                         g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnStart) {
                         g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd -= 256;
                         return 1;
-                    } else {
-                        g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd += 256;
                     }
+                    g_FieldModels[g_EntityToModel[g_CurrentEntity]].TurnEnd += 256;
                 }
                 break;
             case 1:
@@ -6385,7 +6384,7 @@ static s32 OpcodeFuncStitm(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("stitm", 4);
     }
-    item = (FieldEventReadMemoryU8(2, 4)) << 9;
+    item = FieldEventReadMemoryU8(2, 4) << 9;
     item |= FieldEventReadMemoryS16(1, 2);
     if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("S item=", item, 4);
@@ -6401,7 +6400,7 @@ static s32 OpcodeFuncDlitm(void) {
     if (g_DebugLevel & 3) {
         DebugPrintOpcode("dlitm", 4);
     }
-    item = (FieldEventReadMemoryU8(2, 4)) << 9;
+    item = FieldEventReadMemoryU8(2, 4) << 9;
     item |= FieldEventReadMemoryS16(1, 2);
     if (g_DebugLevel & 3) {
         FieldDebugAddParseValueToPage2("G item=", item, 4);
@@ -6595,8 +6594,8 @@ static s32 OpcodeFuncSmtra(void) {
         DebugPrintOpcode("smtra", 6);
     }
     materia = FieldEventReadMemoryU8(1, 3);
-    materia |= (FieldEventReadMemoryU8(2, 4)) << 8;
-    materia |= (FieldEventReadMemoryU8(3, 5)) << 16;
+    materia |= FieldEventReadMemoryU8(2, 4) << 8;
+    materia |= FieldEventReadMemoryU8(3, 5) << 16;
     materia |= FieldEventReadMemoryU8(4, 6) << 24;
     if (SysMenuAddMateria(materia) == -1) {
         Savemap.memory_bank_4[31] = 0;
@@ -6614,8 +6613,8 @@ static s32 OpcodeFuncDmtra(void) {
         DebugPrintOpcode("dmtra", 7);
     }
     materia = FieldEventReadMemoryU8(1, 3);
-    materia |= (FieldEventReadMemoryU8(2, 4)) << 8;
-    materia |= (FieldEventReadMemoryU8(3, 5)) << 16;
+    materia |= FieldEventReadMemoryU8(2, 4) << 8;
+    materia |= FieldEventReadMemoryU8(3, 5) << 16;
     materia |= FieldEventReadMemoryU8(4, 6) << 24;
     SysMenuRemoveMateria(materia, GET_PARAM_U8(7));
     PC_INC(8);
@@ -6629,8 +6628,8 @@ static s32 OpcodeFuncCmtra(void) {
         DebugPrintOpcode("cmtra", 8);
     }
     materia = FieldEventReadMemoryU8(1, 4);
-    materia |= (FieldEventReadMemoryU8(2, 5)) << 8;
-    materia |= (FieldEventReadMemoryU8(3, 6)) << 16;
+    materia |= FieldEventReadMemoryU8(2, 5) << 8;
+    materia |= FieldEventReadMemoryU8(3, 6) << 16;
     materia |= FieldEventReadMemoryU8(4, 7) << 24;
     FieldEventWriteMemoryU8(6, 9, func_80025650(materia, GET_PARAM_U8(8)));
     PC_INC(10);

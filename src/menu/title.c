@@ -174,8 +174,9 @@ void SaveHandleScrollCursor(MenuTable* menu) {
                 }
                 break;
             case 2:
-                if (menu->column == 0 && menu->row == 0 && menu->rowOffset == 0)
+                if (menu->column == 0 && menu->row == 0 && menu->rowOffset == 0) {
                     return;
+                }
                 menu->column--;
                 if (menu->column < 0) {
                     menu->column = menu->numColumns - 1;
@@ -210,8 +211,9 @@ void SaveHandleScrollCursor(MenuTable* menu) {
                 break;
             case 2:
                 if (menu->column == menu->numColumns - 1 && menu->row == menu->numRowsPerPage - 1 &&
-                    menu->rowOffset == (menu->numTotalRows - menu->numRowsPerPage))
+                    menu->rowOffset == (menu->numTotalRows - menu->numRowsPerPage)) {
                     return;
+                }
                 menu->column++;
                 if (menu->column >= menu->numColumns) {
                     menu->column = 0;
@@ -245,8 +247,9 @@ void SaveHandleScrollCursor(MenuTable* menu) {
                     menu->rowOffset = 0;
                     return;
                 }
-            } else
+            } else {
                 return;
+            }
         }
         TitlePlaySfx(SFX_MENU_CURSOR_MOVE);
     } else {
@@ -538,7 +541,7 @@ static s32 TitleUpdate(s32 counter) {
                 SysGetSingleStringWidth(g_SaveLabels[SAVE_STR_FILE]) + 0xD0, 11,
                 ((13 + g_TitleMenuTables[TITLE_TABLE_FILES].row + g_TitleMenuTables[TITLE_TABLE_FILES].rowOffset) *
                  36) +
-                    (g_SaveLabels[LABEL_LOAD]),
+                    g_SaveLabels[LABEL_LOAD],
                 7);
             SysMenuSetWindowRect(&windowRect, 200, 5, 0x4E, 0x18);
             SysMenuDrawWindow(&windowRect);

@@ -87,19 +87,19 @@ s32 D_80062ECC;
 
 u8 SysMenuIsWindowActive(void) { return D_80062DDB; }
 
-void SysMenuRequestAddWindow(u8* arg0, s8 arg1) {
+void SysMenuRequestAddWindow(u8* text, s8 palette) {
     D_80062DDB = 1;
-    D_80062DDC = arg1;
+    D_80062DDC = palette;
     D_80062DE0 = 0x28;
-    D_80062EB8 = arg0;
+    D_80062EB8 = text;
     D_80062DE5 = 1;
 }
 
-void SysMenuSetPosAddWindow(s16 arg0, s16 arg1, s16 arg2) {
-    D_80062DE4 = arg0;
-    if (arg0) {
-        D_80062DE6 = arg1;
-        D_80062DE8 = arg2;
+void SysMenuSetPosAddWindow(s16 enabled, s16 x, s16 y) {
+    D_80062DE4 = enabled;
+    if (enabled) {
+        D_80062DE6 = x;
+        D_80062DE8 = y;
     } else {
         D_80062DDB = 0;
     }
@@ -282,13 +282,13 @@ void SysAddStatusAttackBit(s32 charId, s32 statusId) {
     }
 }
 
-void SysAddStatusProtectBit(s32 charId, s32 arg1) {
-    if (arg1 < 0x41) {
-        g_ActiveCharacters[charId].immuneStatuses |= 1 << arg1;
+void SysAddStatusProtectBit(s32 charId, s32 statusId) {
+    if (statusId < 0x41) {
+        g_ActiveCharacters[charId].immuneStatuses |= 1 << statusId;
     }
 }
 
-void SysAddStatusProtect(s32 charId, s32 arg1) { g_ActiveCharacters[charId].immuneStatuses |= arg1; }
+void SysAddStatusProtect(s32 charId, s32 statusMask) { g_ActiveCharacters[charId].immuneStatuses |= statusMask; }
 
 void SysInitPlayerStatFromEquip(s32 charId) {
     ArmorRecord* armor;
@@ -403,33 +403,33 @@ INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpBySaveCha
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", SysMenuDrawCharNameLvHpMpByPartyId);
 
-void SysMenuCreateDrawenvDispenv(DRAWENV* draw_env, DISPENV* disp_env) {
+void SysMenuCreateDrawenvDispenv(DRAWENV* drawEnv, DISPENV* dispEnv) {
     VSync(0);
-    SetDefDrawEnv(draw_env, 0, 0, 0x180, 0x1D8);
-    draw_env[0].dfe = 1;
-    draw_env[0].isbg = 1;
-    PutDrawEnv(draw_env);
+    SetDefDrawEnv(drawEnv, 0, 0, 0x180, 0x1D8);
+    drawEnv[0].dfe = 1;
+    drawEnv[0].isbg = 1;
+    PutDrawEnv(drawEnv);
     VSync(0);
-    SetDefDrawEnv(draw_env, 0, 8, 0x180, 0xE0);
-    SetDefDrawEnv(&draw_env[1], 0, 0xF0, 0x180, 0xE0);
-    SetDefDispEnv(&disp_env[0], 0, 0xE8, 0x16C, 0xF0);
-    SetDefDispEnv(&disp_env[1], 0, 0, 0x16C, 0xF0);
-    draw_env[1].isbg = 1;
-    draw_env[0].isbg = 1;
-    draw_env[1].dfe = 1;
-    draw_env[0].dfe = 1;
-    draw_env[1].dtd = 1;
-    draw_env[0].dtd = 1;
-    draw_env[0].r0 = 0;
-    draw_env[0].g0 = 0;
-    draw_env[0].b0 = 0;
-    draw_env[1].r0 = 0;
-    draw_env[1].g0 = 0;
-    draw_env[1].b0 = 0;
-    draw_env[0].tpage = draw_env[1].tpage = GetGraphType() != 1 && GetGraphType() != 2 ? 0x3F : 0xAF;
+    SetDefDrawEnv(drawEnv, 0, 8, 0x180, 0xE0);
+    SetDefDrawEnv(&drawEnv[1], 0, 0xF0, 0x180, 0xE0);
+    SetDefDispEnv(&dispEnv[0], 0, 0xE8, 0x16C, 0xF0);
+    SetDefDispEnv(&dispEnv[1], 0, 0, 0x16C, 0xF0);
+    drawEnv[1].isbg = 1;
+    drawEnv[0].isbg = 1;
+    drawEnv[1].dfe = 1;
+    drawEnv[0].dfe = 1;
+    drawEnv[1].dtd = 1;
+    drawEnv[0].dtd = 1;
+    drawEnv[0].r0 = 0;
+    drawEnv[0].g0 = 0;
+    drawEnv[0].b0 = 0;
+    drawEnv[1].r0 = 0;
+    drawEnv[1].g0 = 0;
+    drawEnv[1].b0 = 0;
+    drawEnv[0].tpage = drawEnv[1].tpage = GetGraphType() != 1 && GetGraphType() != 2 ? 0x3F : 0xAF;
     VSync(0);
-    PutDispEnv(disp_env);
-    PutDrawEnv(draw_env);
+    PutDispEnv(dispEnv);
+    PutDrawEnv(drawEnv);
     SetDispMask(1);
 }
 

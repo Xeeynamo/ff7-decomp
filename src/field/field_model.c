@@ -94,7 +94,7 @@ void FieldModelScaleModel(FieldModelEntry* model, s16 scale, s32 force);
 void FieldModelScalePartVrtxs(FieldModelPart* part, s16 scale, s32 force);
 void FieldModelScaleAnimTranslat(FieldModelAnimation* animation, s16 scale, s32 force);
 s32 KawaiLightingApplyToModel(FieldModelEntry* model, u8* params);
-u8* FieldModelLoadBcx(FieldModelLoaderHeader*, FieldModelData*, u8*, u32);
+u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8* nextFree, u32 modelIndex);
 
 u8* LoadLocalFieldModelAndInitAll(
     FieldModelLoaderHeader* header, FieldModelData* models, const u32* options, void* data) {

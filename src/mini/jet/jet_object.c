@@ -56,7 +56,7 @@ static s16 JetObjectIndexAlloc(void);
 static void JetObjectIndexFree(s16 index);
 static void JetObjectCreate(s16 x, s16 y, s16 z, s16 type, s16 modelId);
 static void JetObjectDamage(JetObject* object);
-static void JetObjectAwardPoints(JetObject* arg0);
+static void JetObjectAwardPoints(JetObject* obj);
 
 const u8 g_JetObjectRotOrder = 0;
 

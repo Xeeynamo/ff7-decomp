@@ -894,7 +894,7 @@ s32 BattleLoadEnemyModel(s32);
 void BattleLoadEnemyTexture(s32);
 void BattleInitModelsAnimAndColor(s32, s32);
 void BattleCdromReadChain(void);
-static s32 BattleApplyStatMult(s32 arg0, s32 arg1, s32 arg2);
+static s32 BattleApplyStatMult(s32 arg0, s32 value, s32 statIndex);
 // definition takes 3 args (a2 -> D_800F4ACC), but existing callers only pass 2
 void BattleInitScriptContext(/*s32, s32, s32*/);
 s16 func_800B888C(s32);

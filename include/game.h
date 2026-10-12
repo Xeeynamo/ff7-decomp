@@ -1427,7 +1427,7 @@ void SysGiveApToEquippedMateria(s16 partyId, u16 ap);
 void func_8001C3C4(void);
 u32 InputReadPadsRaw(); // jet passes a pad id the main exe ignores
 u32 InputReadPads(void);
-void SysMenuCreateDrawenvDispenv(DRAWENV* draw_env, DISPENV* disp_env);
+void SysMenuCreateDrawenvDispenv(DRAWENV* drawEnv, DISPENV* dispEnv);
 s32 SysMenuGetMenuListState(void);
 void SysMenuSetMenuListAnimation(s32 state, s32 menuId);
 u8* GetCharacterName(s32 battleCharId);
@@ -1436,7 +1436,7 @@ void SysMenuSetCursorMovement(MenuTable* table, s32 column, s32 row, s32 numColu
                               s32 rowOffset, s32 numTotalColumns, s32 numTotalRows, s32 scrollAnimX, s32 scrollAnimY,
                               s32 wrapModeX, s32 wrapModeY, u16 scrolling);
 void SysMenuHandleButtons(MenuTable* table);
-void SysMenuSetPoly(void* poly);
+void SysMenuSetPoly(void* prim);
 void SysMenuSavePoly(void);
 void SysMenuRestorePoly(void);
 void SysMenuSetOtag(OT_TYPE* otag);
@@ -1454,10 +1454,10 @@ void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 strin
 s32 AkaoExec(void);
 void AkaoPlaySoundEffect(u16 soundId);
 void SysInitRndTablePos(s32 seed);
-void SysInitPlayerStatFromEquip(s32 arg0);
+void SysInitPlayerStatFromEquip(s32 charId);
 void SysInitPlayerStatFromMateria(s32 arg0);
 void SysCalcTotalLureGilPreempVal(void);
-s32 SysMenuGetMateriaColorByType(s32 arg0);
+s32 SysMenuGetMateriaColorByType(s32 materiaId);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
 s32 SysAddCommandToTemp(s32);
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, s32 tpage, RECT* tw);
@@ -1472,14 +1472,14 @@ void func_800354CC(void);
 void MENU_LoadTim(u_long* addr, s32 px, s32 py, s32 cx, s32 cy);
 void MENU_SetWindowColors(u8* menuColors);
 
-int func_80033DAC(int sector_no, void (*cb)());
-int func_80033DE4(int sector_no);
-int SystemLoadFileBySector(int sector_no, size_t size, u_long* dst, void (*cb)());
-int SysCdromStartLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)());
-int func_80033EDC(int sector_no, void (*cb)());
-int SysCdromLoadFile(int sector_no, size_t size, u_long* dst, void (*cb)());
-int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)());
-void SystemLzsDecompress(u8* dst, u8* src);
+int func_80033DAC(int sectorNo, void (*cb)());
+int func_80033DE4(int sectorNo);
+int SystemLoadFileBySector(int sectorNo, size_t size, u_long* dst, void (*cb)());
+int SysCdromStartLoadLzs(int sectorNo, size_t size, u_long* dst, void (*cb)());
+int func_80033EDC(int sectorNo, void (*cb)());
+int SysCdromLoadFile(int sectorNo, size_t size, u_long* dst, void (*cb)());
+int SysCdromLoadLzs(int sectorNo, size_t size, u_long* dst, void (*cb)());
+void SystemLzsDecompress(u8* src, u8* dst);
 u32 SystemCdromReadChain(void);
 s32 SysGetLimitCmdId(s32 charId, s32 limitIndex);
 int SYS_GetDiskNo(void);

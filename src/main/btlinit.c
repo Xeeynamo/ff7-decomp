@@ -1,7 +1,7 @@
 //! G=8 COMM=true
 #include "main_private.h"
 
-void func_80014578(s32 file_no, void* dst, void (*cb)(void));
+void func_80014578(s32 fileNo, void* dst, void (*cb)(void));
 s32 SysGzipPackDecompressById(u8* src, void* dst, s32 type);
 void func_80014610(void);
 void func_80014750(void);

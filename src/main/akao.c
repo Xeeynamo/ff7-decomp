@@ -698,13 +698,13 @@ static void AkaoStreamStop(void) {
     AkaoUpdateNoiseVoices();
 }
 
-static void SetReverbMode(s32 in_ReverbMode) {
+static void SetReverbMode(s32 inReverbMode) {
     AkaoStreamStop();
     SpuGetReverbModeParam(&g_ReverbAttr);
-    if (g_ReverbAttr.mode != in_ReverbMode) {
-        g_AkaoBgmLanes[0].reverbMode = in_ReverbMode;
+    if (g_ReverbAttr.mode != inReverbMode) {
+        g_AkaoBgmLanes[0].reverbMode = inReverbMode;
         SpuSetReverb(SPU_OFF);
-        g_ReverbAttr.mode = in_ReverbMode | SPU_REV_MODE_CLEAR_WA;
+        g_ReverbAttr.mode = inReverbMode | SPU_REV_MODE_CLEAR_WA;
         g_ReverbAttr.mask = SPU_REV_MODE;
         SpuSetReverbModeParam(&g_ReverbAttr);
         SpuSetReverb(SPU_ON);
@@ -724,7 +724,7 @@ static void AkaoCopyMusic(s32* src, u32 size) {
     }
 }
 
-void AkaoInstrInit(AkaoChannel*, u16);
+void AkaoInstrInit(AkaoChannel* channel, u16 instrument);
 
 // Resets and initializes SFX audio channel parameters, pointing to seqData with default volume and instrument 5.
 static void SoundChannelInit(AkaoChannel* channel, u8* seqData) {
@@ -2519,9 +2519,9 @@ static void AkaoStreamIrqCallbackSplit1(void) {
     SpuSetIRQ(1);
 }
 
-static void AkaoGetCommandQueue(AkaoCmd** out_cmd) {
-    *out_cmd = g_AkaoCommandQueue;
-    *out_cmd = &g_AkaoCommandQueue[g_AkaoCommandQueueId];
+static void AkaoGetCommandQueue(AkaoCmd** outCmd) {
+    *outCmd = g_AkaoCommandQueue;
+    *outCmd = &g_AkaoCommandQueue[g_AkaoCommandQueueId];
     g_AkaoCommandQueueId++;
 }
 

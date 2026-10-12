@@ -764,7 +764,7 @@ extern Unk80166F78 D_80166F78[NUM_ENEMY][16];
 // Scratch copy of a party member's save record, taken when g_BattleData.flags bit EVENT_BATTLE_SQUARE is set.
 extern SavePartyMember D_80167938;
 
-s32 BattleEffectRegister(void (*func)(void));
+s32 BattleEffectRegister(void (*callback)(void));
 void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void BattleEnqueueClearImage(RECT* rect, s32 arg1, s32 arg2, s32 arg3);
 void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);
@@ -800,11 +800,11 @@ void BattleActionQueueReset(void);
 void BattleCmdScriptInitTbl(void);
 void BattleHitFormulaInit(void);
 void BattleEventQueueInit(void);
-void BattleBannerSetEncounterString(s16 arg0);
+void BattleBannerSetEncounterString(s16 stringId);
 void BattleResetReservedItems(void);
 void BattleExecFormationAIScripts(void);
 void BattleInitTurnWorkHPMP(void);
-void BattleAddAutoBattleActionByChance(s32 arg0, s32 arg1);
+void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode);
 void BattleInitUnitAction(s32 index);
 void BattleEnableLimitToPlayerWithSpeed(s32 index);
 s32 BattleCopyMessageWithArgs(u8* dst, const u8* src, const u16* args);

@@ -249,7 +249,8 @@ static void func_800A2B28(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2BF4);
 
-static void BattleQueueEffect(s32, s32, s32, s32, s32, s32, s32);
+static void BattleQueueEffect(
+    s32 actorId, s32 animeId, s32 actioId, s32 effectParam, s32 arg4, s32 flags, s32 statusMask);
 static void func_800A2CC4(s32 arg0) {
     BattleQueueEffect(g_CurrentAction->actorId, arg0, g_CurrentAction->cmdIndex, g_CurrentAction->unk24,
                       g_CurrentAction->unk98, 0, 0);
@@ -385,8 +386,8 @@ static void func_800A329C(void) {
     }
 }
 
-void BattleQueueEvent(s32, s32, s32, s32);
-static s32 func_800A37F8(s32);
+void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+static s32 func_800A37F8(s32 arg0);
 static s32 func_800A4A80(void);
 
 static void func_800A32C0(s32 arg0) {
@@ -546,7 +547,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3ED0);
 
 static void func_800A4D88(s32 arg0);
 static void BattleAddUnitReservedItem(s16 arg0, s16 arg1);
-static s32 BattleGetManipulatorIdByEnemyUnitId(s32 arg0);
+static s32 BattleGetManipulatorIdByEnemyUnitId(s32 enemyId);
 void func_800A4350(s16 actorId, s16 cmdIndex, s16 attackIndex, u16 targetMask) {
     QueuedAction* entry;
 
@@ -1530,12 +1531,12 @@ void BattleHudResetLimit(s32 arg0) {
     }
 }
 
-void BattleQueueEvent(s32, s32, s32, s32);
+void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 void func_800A6E6C(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 13, arg1); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRemovePlayersFromBattle);
 
-static void BattleAddStringToDisplay(s32, s32, s32, s16*);
+static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* args);
 void BattleSetItemWasStolenStringToDisplay(s32 arg0, s16 arg1) {
     s16 out = arg1;
     BattleAddStringToDisplay(arg0, 0x53, 1, &out);
@@ -1596,7 +1597,7 @@ void BattleResolveSummonActionIndex(void) {
     g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex + 56;
 }
 
-static void BattleRemoveUnitReservedItem(s16, s16);
+static void BattleRemoveUnitReservedItem(s16 arg0, s16 arg1);
 void BattlePrepareTmpFromItemForUse(void) {
     g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex;
     g_CurrentAction->unk24 = g_CurrentAction->relativeActionIndex;
@@ -1731,7 +1732,7 @@ void BattlePrepareTmpForManip(void) {
     g_CurrentAction->unkE4 = 0x59;
 }
 
-void BattleQueueIntroCamera(s32);
+void BattleQueueIntroCamera(s32 arg0);
 void func_800A795C(void) { BattleQueueIntroCamera(g_CurrentAction->relativeActionIndex); }
 
 void BattleActionType0A(void) { func_800AF9C8(); }
@@ -1745,7 +1746,7 @@ void BattleActionType0C();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType0C);
 
 static void BattleCopyTargTypeDatToTmp(s32 arg0);
-static void SetActionStatusChange(u32 arg0, s32 arg1);
+static void SetActionStatusChange(u32 arg0, s32 statusMask);
 static void func_800A8D88(s32 arg0, s32 arg1);
 void BattleLoadActionAttackData(void) {
     AttackData* atk;
@@ -2996,8 +2997,8 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADC70);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleLowerFunc04);
 
-static s32 BattleAddSplitQuaterModifier(s32, s32);
-static s32 BattleAddBarriersModifier(s32);
+static s32 BattleAddSplitQuaterModifier(s32 arg0, s32 arg1);
+static s32 BattleAddBarriersModifier(s32 arg0);
 
 void BattleLowerFunc05(void) {
     s32 base = g_CurrentAction->attackStat + g_CurrentAction->characterLevel;
@@ -3376,7 +3377,7 @@ int (* const g_BattleHitFormulaJmpTbl[])() = {
 };
 // ___end
 
-void BattleInitUnitAction(s32 arg0);
+void BattleInitUnitAction(s32 index);
 
 void func_800AEB80(s32 arg0, s32 statusBit, s32 arg2) {
     s32 index = BattleStatusBitToTimerIndex(statusBit);
@@ -3498,10 +3499,10 @@ void BattleRestoreBattleActionIfCan(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-void BattleQueueEvent(s32, s32, s32, s32);
+void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 void func_battle_800AF1A8(s32 arg0) { BattleQueueEvent(0, arg0, 8, 0); }
 
-void BattleRestoreBattleActionIfCan(s32, s32, s32);
+void BattleRestoreBattleActionIfCan(s32 arg0, s32 arg1, s32 arg2);
 
 // skips (does nothing) while combatant[arg0].status has Berserk or Confusion
 void BattleTryApplyHitEffect(s32 arg0, s32 arg1, s32 arg2) {
@@ -3600,7 +3601,7 @@ void BattleClearActorSlotReferences(s32 arg0, s32 arg1, s32 arg2) {
     BattleInitUnitAction(arg0);
 }
 
-void BattleInitUnitAction(s32 arg0);
+void BattleInitUnitAction(s32 index);
 void func_800AF63C(s32 arg0) { BattleInitUnitAction(arg0); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF65C);
@@ -4216,7 +4217,7 @@ static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* args) {
 
 void BattleQueueIntroCamera(s32 arg0) { func_800A31A0(10, 2, 1, arg0); }
 
-void BattleInitUnitAction(s32 arg0) { func_800A31A0(arg0, 5, 0, 0); }
+void BattleInitUnitAction(s32 index) { func_800A31A0(index, 5, 0, 0); }
 
 // true when the combatant's HP is at or below a quarter of max -- the "Near
 // Death" threshold used by weapon-specific damage formulas (e.g. Powersoul's
@@ -4743,7 +4744,7 @@ static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex)
     BattleCopyBattleActionToBattleQueue(&action);
 }
 
-static AttackData* BattleGetAttackData(s32);
+static AttackData* BattleGetAttackData(s32 id);
 static s32 func_800B2C60(s32 arg0) {
     s32 var_s0;
     AttackData* ret;

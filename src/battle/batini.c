@@ -17,7 +17,7 @@ static s32 BattleGetScenePackId(s32 sceneID);
 static s32 BattleBoostVal25Percent(s32 value);
 static void BattleInitPlayer(void);
 static void BattleInitApplyAccStatus(s32 slot, s32 accessory);
-static void BattleInitCharCmdMenu(s32 slot);
+static void BattleInitCharCmdMenu(s32 sceneID);
 void BattleInitCharCmdState(s32 slot);
 static s32 BattleInitApplyStartFX(s32 slot);
 static void BattleInitLimits(s32 charId, s32 learnedLimits, BattleLimitData* data);

@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"errors"
+
 	"github.com/spf13/cobra"
 	"github.com/xeeynamo/ff7-decomp/tools/builder/lint"
 )
@@ -12,11 +14,18 @@ var (
 
 var lintCmd = &cobra.Command{
 	Use:           "lint [overlay...]",
-	Short:         "Detect symbols whose memory ranges overlap",
+	Short:         "Symbol overlap detection, clant-tidy, etc",
 	SilenceErrors: true,
 	SilenceUsage:  true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return lint.Lint(lint.Options{Only: args, Verbose: lintVerbose, MinOverlaps: lintMinOverlaps})
+		overlapErr := lint.Lint(lint.Options{Only: args, Verbose: lintVerbose, MinOverlaps: lintMinOverlaps})
+		if len(args) > 0 {
+			return overlapErr
+		}
+		if err := lint.Tidy(); err != nil {
+			return errors.Join(overlapErr, err)
+		}
+		return overlapErr
 	},
 }
 

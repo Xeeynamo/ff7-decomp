@@ -4,7 +4,6 @@
 #include <libgte.h>
 
 #ifdef PLATFORM_PSYZ
-#include <libgte.h>
 
 // the pc build has no gte, so every macro defined below needs a stand in here or a file
 // that includes this header fails with an implicit declaration. inline_o.h already does this.

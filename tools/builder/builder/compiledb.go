@@ -33,6 +33,7 @@ func writeCompileCommands(b BuildConfig) error {
 			"-Iinclude", "-Iinclude/psxsdk",
 			// The source's own dir, so quoted "*_private.h" includes resolve.
 			"-I" + filepath.Dir(path),
+			"-DPLATFORM_PSYZ", "-Itools/psyz/psyz/include",
 			"-c", path,
 		}
 		db = append(db, compileDBEntry{
