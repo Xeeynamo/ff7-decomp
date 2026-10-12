@@ -821,3 +821,17 @@ overlays:
       - [0x13e8, data, comet_model]
       # REVIEW (split): the last 0xE4 bytes of comet_model (0x233D8 to 0x234BC) are the effect's own descriptors (six model descs, three matrices, a scale vector, a rotation vector, one SpriteRenderDesc); cost: none, data only, as biora
       - [0x233D8, .data, comet]
+  # COMETEO.BIN -- "Comet2", the tier-2 comet spell
+  - name: cometeo
+    disk_path: disks/us/MAGIC/COMETEO.BIN
+    sha1: b3ac68c3f3fccec56b4c05a44080dcd95944aed8
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-cometeo.us.txt
+    segments:
+      - [0, c, cometeo]
+      - [0x154c, data, cometeo_model]
+      # REVIEW (split): the last 0xE4 bytes of cometeo_model (0x2416C to 0x24250) are the effect's own descriptors (six model descs, three matrices, a scale vector, a rotation vector, one SpriteRenderDesc), same layout as comet; cost: none, data only, as comet
+      - [0x2416C, .data, cometeo]
