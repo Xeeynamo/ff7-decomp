@@ -7,7 +7,7 @@
 
 // Big Bomber (ビッグボンバー / Biggu Bonba).
 
-void func_801B1290(s32 targetMask, s32 callbackArg);
+void Hakugek1Start(s32 targetMask, s32 callbackArg);
 
 // Primitive buffer pages, one 0xC000 page per double-buffered frame.
 extern u8 g_Hakugek1PrimBuffer[2][0xC000];
@@ -44,14 +44,14 @@ extern s32 D_801D20E4[];
 extern u16 D_801D2A74[];
 extern u_long D_801B12FC[];
 extern void* D_80163C74;
-void func_801B11B4(s32 target, s32 callbackArg);
+void Hakugek1TargetSetup(s32 target, s32 callbackArg);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
-void func_801B0D84(void);
+void Hakugek1TargetTick(void);
 
 // Same as MAGIC_Biora.
-void func_801B0000(s32 targetMask, s32 callbackArg) { func_801B1290(targetMask, callbackArg); }
+void MAGIC_Hakugek1(s32 targetMask, s32 callbackArg) { Hakugek1Start(targetMask, callbackArg); }
 
-void func_801B0020(s16 targetMask, SVECTOR* out) {
+void Hakugek1TargetCenterCalc(s16 targetMask, SVECTOR* out) {
     VECTOR sum;
     SVECTOR pos;
     s16 i;
@@ -73,7 +73,7 @@ void func_801B0020(s16 targetMask, SVECTOR* out) {
     out->vz = sum.vz / count;
 }
 
-void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
+void Hakugek1SprayVectorCalc(s32 offset, s16 spread, SVECTOR* out) {
     SVECTOR in;
     SVECTOR rot;
     MATRIX matrix;
@@ -88,7 +88,7 @@ void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
     ApplyMatrixSV(&matrix, &in, out);
 }
 
-void func_801B02FC(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
+void Hakugek1SpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
     MATRIX matrix;
     MATRIX rotated;
     VECTOR dir;
@@ -160,7 +160,7 @@ void func_801B04C8(void) {
     }
 }
 
-void func_801B062C(void) {
+void Hakugek1DebrisTick(void) {
     MATRIX rotated;
     MATRIX matrix;
     SVECTOR rot;
@@ -206,7 +206,7 @@ void func_801B062C(void) {
         }
     }
 }
-void func_801B0878(void) {
+void Hakugek1PillarRiseTick(void) {
     SVECTOR rot;
     MATRIX matrix;
     MATRIX composed;
@@ -241,7 +241,7 @@ void func_801B0878(void) {
     }
 }
 
-void func_801B09F0(void) {
+void Hakugek1ShockwaveTick(void) {
     SVECTOR rot;
     MATRIX matrix;
     MATRIX composed;
@@ -304,7 +304,7 @@ void func_801B09F0(void) {
     }
 }
 
-void func_801B0D84(void) {
+void Hakugek1TargetTick(void) {
     SVECTOR pos;
     s32 pad[10]; // unused; gives the function its 0x60 byte stack frame (match)
     Hakugek1Data* effect;
@@ -336,21 +336,21 @@ void func_801B0D84(void) {
                 pos.vz = effect->PartPos.vz + (rsin((i << 16 >> 5) + 0x200) * 800 >> 12);
                 j = 0;
                 do {
-                    child = &g_BattleEffectSlots[BattleEffectRegister(func_801B062C)];
+                    child = &g_BattleEffectSlots[BattleEffectRegister(Hakugek1DebrisTick)];
                     child->Pos.vx = pos.vx + rand() % 400 - 200;
                     child->Pos.vz = pos.vz + rand() % 400 - 200;
                     child->Pos.vy = 0;
-                    func_801B01CC(-300, 50, &child->PartPos);
+                    Hakugek1SprayVectorCalc(-300, 50, &child->PartPos);
                     child->unk16 = rand() % 9;
                     j++;
                 } while (j < 24);
-                child = &g_BattleEffectSlots[BattleEffectRegister(func_801B09F0)];
+                child = &g_BattleEffectSlots[BattleEffectRegister(Hakugek1ShockwaveTick)];
                 child->Pos.vx = pos.vx;
                 child->Pos.vy = 0;
                 child->Pos.vz = pos.vz;
                 j = 0;
                 do {
-                    child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0878)];
+                    child = &g_BattleEffectSlots[BattleEffectRegister(Hakugek1PillarRiseTick)];
                     child->Pos.vx = pos.vx;
                     child->Pos.vy = pos.vy;
                     child->Pos.vz = pos.vz;
@@ -374,10 +374,10 @@ void func_801B0D84(void) {
     }
 }
 
-void func_801B11B4(s32 target, s32 callbackArg) {
+void Hakugek1TargetSetup(s32 target, s32 callbackArg) {
     Hakugek1Data* effect;
 
-    effect = &g_BattleEffectSlots[BattleEffectRegister(func_801B0D84)];
+    effect = &g_BattleEffectSlots[BattleEffectRegister(Hakugek1TargetTick)];
     BattleGetPartPosition(callbackArg, g_BattleModels[callbackArg].boneIndices[0], &effect->Pos);
     BattleGetPartPosition(target, g_BattleModels[target].boneIndices[0], &effect->PartPos);
     effect->unk1C = target;
@@ -385,8 +385,8 @@ void func_801B11B4(s32 target, s32 callbackArg) {
     func_800BBA84(0x14, callbackArg, 0);
 }
 
-void func_801B1290(s32 targetMask, s32 callbackArg) {
+void Hakugek1Start(s32 targetMask, s32 callbackArg) {
     BattleEffectRegister(Hakugek1DoubleBufferFlip);
     BattleSetLoadTimToVram(D_801B12FC, 0, 0, 0);
-    MagicAnimationRegister(targetMask, callbackArg, 4, func_801B11B4);
+    MagicAnimationRegister(targetMask, callbackArg, 4, Hakugek1TargetSetup);
 }

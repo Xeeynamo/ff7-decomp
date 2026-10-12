@@ -7,7 +7,7 @@
 
 // Effect shared by Fire Shell (火炎弾), Gush (噴火) and S-Mine (Sマイン).
 
-void func_801B10BC(s32 targetMask, s32 callbackArg);
+void Kaen2Start(s32 targetMask, s32 callbackArg);
 
 // Primitive buffer pages, one 0xC000 page per double-buffered frame.
 extern u8 g_Kaen2PrimBuffer[2][0xC000];
@@ -42,14 +42,14 @@ extern s32* D_801D4120[];
 extern u_long D_801B1128[];
 extern void* D_80163C74;
 s32 BattleDetachedRegister(void (*func)(void));
-void func_801B0FF0(s32 target, s32 callbackArg);
-void func_801B04C8(void);
-void func_801B0B40(void);
+void Kaen2TargetSetup(s32 target, s32 callbackArg);
+void Kaen2FlameSpriteTick(void);
+void Kaen2TargetTick(void);
 
 // Same as MAGIC_Biora.
-void func_801B0000(s32 targetMask, s32 callbackArg) { func_801B10BC(targetMask, callbackArg); }
+void MAGIC_Kaen2(s32 targetMask, s32 callbackArg) { Kaen2Start(targetMask, callbackArg); }
 
-void func_801B0020(s16 targetMask, SVECTOR* out) {
+void Kaen2TargetCenterCalc(s16 targetMask, SVECTOR* out) {
     VECTOR sum;
     SVECTOR pos;
     s16 i;
@@ -71,7 +71,7 @@ void func_801B0020(s16 targetMask, SVECTOR* out) {
     out->vz = sum.vz / count;
 }
 
-void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
+void Kaen2SprayVectorCalc(s32 offset, s16 spread, SVECTOR* out) {
     SVECTOR in;
     SVECTOR rot;
     MATRIX matrix;
@@ -86,7 +86,7 @@ void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
     ApplyMatrixSV(&matrix, &in, out);
 }
 
-void func_801B02FC(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
+void Kaen2SpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
     MATRIX matrix;
     MATRIX rotated;
     VECTOR dir;
@@ -126,7 +126,7 @@ static void Kaen2DoubleBufferFlip(void) {
     }
 }
 
-void func_801B04C8(void) {
+void Kaen2FlameSpriteTick(void) {
     Kaen2Data* effect;
 
     effect = &g_BattleDetachedSlots[g_BattleDetachedCursor];
@@ -150,7 +150,7 @@ void func_801B04C8(void) {
     }
 }
 
-void func_801B0658(void) {
+void Kaen2EmberTick(void) {
     MATRIX rotated;
     MATRIX matrix;
     SVECTOR rot;
@@ -206,7 +206,7 @@ void func_801B0658(void) {
     }
 }
 
-void func_801B0888(void) {
+void Kaen2FireballTick(void) {
     MATRIX dirMatrix;
     MATRIX matrix;
     MATRIX composed;
@@ -235,7 +235,7 @@ void func_801B0888(void) {
         effect->Pos.vz += effect->PartPos.vz;
         effect->AnimationFrame++;
         if (effect->AnimationFrame == 8) {
-            child = &g_BattleDetachedSlots[BattleDetachedRegister(func_801B04C8)];
+            child = &g_BattleDetachedSlots[BattleDetachedRegister(Kaen2FlameSpriteTick)];
             child->Pos.vx = effect->Pos.vx + rand() % 800 - 400;
             child->Pos.vy = effect->Pos.vy + rand() % 800 - 400;
             child->Pos.vz = effect->Pos.vz + rand() % 800 - 400;
@@ -245,7 +245,7 @@ void func_801B0888(void) {
     }
 }
 
-void func_801B0B40(void) {
+void Kaen2TargetTick(void) {
     SVECTOR in;
     SVECTOR rot;
     MATRIX matrix;
@@ -257,12 +257,12 @@ void func_801B0B40(void) {
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame < 12) {
             if ((effect->AnimationFrame % 4) == 0) {
-                child = &g_BattleDetachedSlots[BattleDetachedRegister(func_801B04C8)];
+                child = &g_BattleDetachedSlots[BattleDetachedRegister(Kaen2FlameSpriteTick)];
                 child->Pos.vx = effect->Pos.vx;
                 child->Pos.vy = effect->Pos.vy;
                 child->Pos.vz = effect->Pos.vz;
                 child->unk16 = 2;
-                child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0888)];
+                child = &g_BattleEffectSlots[BattleEffectRegister(Kaen2FireballTick)];
                 child->Pos.vx = effect->Pos.vx;
                 child->Pos.vy = effect->Pos.vy;
                 child->Pos.vz = effect->Pos.vz;
@@ -275,11 +275,11 @@ void func_801B0B40(void) {
         if (effect->AnimationFrame == 14) {
             i = 0;
             do {
-                child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0658)];
+                child = &g_BattleEffectSlots[BattleEffectRegister(Kaen2EmberTick)];
                 child->Pos.vx = effect->PartPos.vx + rand() % 400 - 200;
                 child->Pos.vz = effect->PartPos.vz + rand() % 400 - 200;
                 child->Pos.vy = 0;
-                func_801B01CC(-250, 100, &child->PartPos);
+                Kaen2SprayVectorCalc(-250, 100, &child->PartPos);
                 child->unk16 = rand() % 20;
                 i++;
             } while (i < 8);
@@ -288,7 +288,7 @@ void func_801B0B40(void) {
         if (effect->AnimationFrame >= 12 && effect->AnimationFrame < 19) {
             i = 0;
             do {
-                child = &g_BattleDetachedSlots[BattleDetachedRegister(func_801B04C8)];
+                child = &g_BattleDetachedSlots[BattleDetachedRegister(Kaen2FlameSpriteTick)];
                 child->Pos.vx = effect->PartPos.vx + rand() % 1200 - 600;
                 child->Pos.vy = effect->PartPos.vy + rand() % 1200 - 600;
                 child->Pos.vz = effect->PartPos.vz + rand() % 1200 - 600;
@@ -314,18 +314,18 @@ void func_801B0B40(void) {
     }
 }
 
-void func_801B0FF0(s32 target, s32 callbackArg) {
+void Kaen2TargetSetup(s32 target, s32 callbackArg) {
     Kaen2Data* effect;
 
-    effect = &g_BattleEffectSlots[BattleEffectRegister(func_801B0B40)];
+    effect = &g_BattleEffectSlots[BattleEffectRegister(Kaen2TargetTick)];
     BattleGetPartPosition(callbackArg, g_BattleModels[callbackArg].boneIndices[8], &effect->Pos);
     BattleGetPartPosition(target, g_BattleModels[target].boneIndices[0], &effect->PartPos);
     effect->unk1C = target;
     effect->unk1E = callbackArg;
 }
 
-void func_801B10BC(s32 targetMask, s32 callbackArg) {
+void Kaen2Start(s32 targetMask, s32 callbackArg) {
     BattleEffectRegister(Kaen2DoubleBufferFlip);
     BattleSetLoadTimToVram(D_801B1128, 0, 0, 0);
-    MagicAnimationRegister(targetMask, callbackArg, 4, func_801B0FF0);
+    MagicAnimationRegister(targetMask, callbackArg, 4, Kaen2TargetSetup);
 }
