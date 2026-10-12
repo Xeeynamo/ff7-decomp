@@ -34,7 +34,7 @@ extern s32* D_801D0E80; // slot running SailessBufferFlip
 extern void* D_801D0E7C;
 void SailessStart(s32 targetMask, s32 callbackArg);
 
-// Same as BarrierDoubleBufferFlip.
+// Same as Lv5DeathBufferFlip.
 static void SailessBufferFlip(void) {
     D_801D0E7C = g_dbIndex == 0 ? D_801B8E7C : D_801C4E7C;
     if (g_BattleEffectCount < 2) {
