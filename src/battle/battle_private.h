@@ -91,10 +91,8 @@ typedef struct {
     /* 0x0A */ s16 D_80162982;
     /* 0x0C */ s16 unkC;
     /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s16 unk14;
-    /* 0x16 */ s16 unk16;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
     /* 0x18 */ u8 unk18;
     /* 0x19 */ u8 unk19;
     /* 0x1A */ s16 unk1A;
@@ -942,7 +940,7 @@ static s32 BattleApplyStatMult(s32 arg0, s32 value, s32 statIndex);
 void BattleInitScriptContext(/*s32, s32, s32*/);
 s16 func_800B888C(s32);
 void func_800B8438(void);
-void func_800B8A34(s16, s32);
+void func_800B8A34(s32, s32);
 static void func_800BA40C();
 static void func_800BB030(s16 arg0);
 void func_800BB2A8(u8);
@@ -1088,6 +1086,15 @@ extern u8 D_80163F34[NUM_PARTY][0x100C];
 void func_8001C3CC(void* dst, const void* src, u32 size);
 
 typedef struct {
+    u16 unk0;
+    u16 unk2;
+    s16 unk4;
+    s16 unk6;
+    u16 actor;
+    u16 targetIndex;
+} BattleTargetEffectSettings; // size:0xC
+
+typedef struct {
     BattleModelSub bones[256];
     u8 unk3400[0x400];
     u8 state[256][2];
@@ -1118,4 +1125,16 @@ extern RECT D_800F4B1C;
 extern BattleModelSub D_800F8158[NUM_BATTLE_ACTOR];
 extern BattleStageFile D_801590E4;
 extern CVECTOR D_800F5B70;
+extern SVECTOR D_800E7D08;
+extern Yamada D_800E8C90[];
+extern s8 D_800F8378;
+extern BattleTargetEffectSettings D_800F99EC[];
+extern u16 D_801517B4;
+extern u8 D_800FAFE0;
+extern u16 D_80161DE8;
+extern u16 D_80162088;
+extern s8 D_80162090;
+extern u8 D_80161EEC;
+extern BattleModelSub D_80163A9C[NUM_PARTY];
+extern u8 D_800F9774;
 extern s16 D_800F5B74;
