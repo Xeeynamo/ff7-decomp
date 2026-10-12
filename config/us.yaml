@@ -820,3 +820,16 @@ overlays:
       - [0, c, hadoho]
       - [0x1B40, data, hadoho_model]
       - [0x25648, data, hadoho_buffers]
+  # SHAKU.BIN -- effect overlay
+  - name: shaku
+    disk_path: disks/us/MAGIC/SHAKU.BIN
+    sha1: fe2958f8b1b2ac815ba968c1e9979e88daa943c2
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-shaku.us.txt
+    segments:
+      - [0, c, shaku]
+      - [0x1B38, data, shaku_model]
+      - [0x25768, data, shaku_buffers]
