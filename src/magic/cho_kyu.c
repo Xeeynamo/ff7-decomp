@@ -68,7 +68,7 @@ void ChoKyuDriftSpriteTick(void);
 void ChoKyuPulseSpriteTick(void);
 void ChoKyuBeamColumnTick(void);
 void ChoKyuBeamHeadTick(void);
-void func_801B19C4(void);
+void ChoKyuChargeSparkTick(void);
 
 void MAGIC_ChoKyu(s32 targetMask, s32 callbackArg) { ChoKyuStart(targetMask, callbackArg); }
 
@@ -552,7 +552,7 @@ void ChoKyuBeamHeadTick(void) {
     }
 }
 
-void func_801B19C4(void) {
+void ChoKyuChargeSparkTick(void) {
     SVECTOR pos;
     s32 flag;
     ChoKyuData* effect;
@@ -609,7 +609,7 @@ void ChoKyuMainTick(void) {
         }
         if (effect->AnimationFrame < 16) {
             for (i = 0; i < 4; i++) {
-                child = &g_BattleEffectSlots[BattleEffectRegister(func_801B19C4)];
+                child = &g_BattleEffectSlots[BattleEffectRegister(ChoKyuChargeSparkTick)];
                 child->Pos.vx = effect->Pos.vx;
                 child->Pos.vy = effect->Pos.vy;
                 child->Pos.vz = effect->Pos.vz;

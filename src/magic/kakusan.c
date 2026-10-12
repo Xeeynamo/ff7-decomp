@@ -157,7 +157,7 @@ void KakusanFlashSpriteTick(void) {
     }
 }
 
-void func_801B0580(void) {
+void KakusanGroundFlameTick(void) {
     MATRIX matrix;
     MATRIX rotated;
     s32 flag;
@@ -193,7 +193,7 @@ void func_801B0580(void) {
     }
 }
 
-void func_801B075C(void) {
+void KakusanStreakTick(void) {
     // pad0 and pad1 are unused; they only reproduce the original 0x98 stack frame.
     VECTOR pad0;
     MATRIX matrix;
@@ -238,7 +238,7 @@ void func_801B075C(void) {
     }
 }
 
-void func_801B0958(void) {
+void KakusanOrbTick(void) {
     MATRIX composed;
     MATRIX matrix;
     KakusanData* effect;
@@ -270,7 +270,7 @@ void func_801B0958(void) {
     }
 }
 
-void func_801B0B5C(void) {
+void KakusanBeamTick(void) {
     MATRIX matrix;
     MATRIX composed;
     VECTOR scale;
@@ -310,7 +310,7 @@ void KakusanMainTick(void) {
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == 0) {
             for (i = 0; i < 20; i++) {
-                child = &g_BattleEffectSlots[BattleEffectRegister(func_801B075C)];
+                child = &g_BattleEffectSlots[BattleEffectRegister(KakusanStreakTick)];
                 child->Pos.vx = effect->Pos.vx;
                 child->Pos.vy = effect->Pos.vy;
                 child->Pos.vz = effect->Pos.vz;
@@ -321,15 +321,15 @@ void KakusanMainTick(void) {
                 child->unk14 = rand() % 8;
                 child->unk16 = i % 2;
             }
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0B5C)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(KakusanBeamTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0958)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(KakusanOrbTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0580)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(KakusanGroundFlameTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
