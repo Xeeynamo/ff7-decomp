@@ -7,23 +7,27 @@
 #define BATTLE_EVENT_QUEUE_SIZE 128
 
 // Battle timers
-// The timer accumulators are fixed-point values: the low fracBits bits are a fraction
+// The timer accumulators are fixed-point values: the low *_FRAC_BITS bits are a fraction
 // carried to the next update, the rest is whole ticks. Status timers count down one per
 // tick. The HP change uses the same split, giving whole HP.
 // See the Battle Mechanics FAQ for more details.
 #define BATTLE_TIMER_FRAC_BITS 13       // global and var timers: 8192 per tick
 #define BATTLE_CONST_TIMER_FRAC_BITS 12 // const timer: 4096 per tick
-#define BATTLE_CONST_TICK (1 << BATTLE_CONST_TIMER_FRAC_BITS)
-#define BATTLE_CONST_SPEED_NORMAL (BATTLE_CONST_TICK / 60) // 1 tick per 60 updates
 #define BATTLE_HP_CHANGE_FRAC_BITS 15
-#define BATTLE_TICKS(value, fracBits) ((value) >> (fracBits))
-#define BATTLE_FRAC(value, fracBits) ((value) & ((1 << (fracBits)) - 1))
+
+#define BATTLE_CONST_SPEED_NORMAL ((1 << BATTLE_CONST_TIMER_FRAC_BITS) / 60) // 1 tick per 60 updates
+
+#define BATTLE_TICKS(x) ((x) >> BATTLE_TIMER_FRAC_BITS)
+#define BATTLE_CONST_TICKS(x) ((x) >> BATTLE_CONST_TIMER_FRAC_BITS)
+#define BATTLE_HP_DELTA(x) ((x) >> BATTLE_HP_CHANGE_FRAC_BITS)
+#define BATTLE_TIMER_FRAC(x) ((x) & ((1 << BATTLE_TIMER_FRAC_BITS) - 1))
+#define BATTLE_CONST_FRAC(x) ((x) & ((1 << BATTLE_CONST_TIMER_FRAC_BITS) - 1))
+#define BATTLE_HP_FRAC(x) ((x) & ((1 << BATTLE_HP_CHANGE_FRAC_BITS) - 1))
 
 // Timer accumulators are double buffered: BattleAdvanceTimers adds into the current set
 // from the VSync interrupt, while BattleProcessTimers (BATTLE_Main) flips the index and
 // consumes the other set, so an interrupt arriving mid-consume never loses an update.
 // volatile: shared with the interrupt handler, so it must be re-read from memory.
-// when consumed by the main loop.
 extern volatile s32 g_BattleTimerBufferIndex;
 
 // Added to on every VSync by BattleAdvanceTimers.
