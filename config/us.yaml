@@ -863,3 +863,16 @@ overlays:
       - [0, c, hakugek1]
       - [0x12FC, data, hakugek1_model]
       - [0x22A80, data, hakugek1_buffers]
+  # HAKUGEK2.BIN -- effect overlay
+  - name: hakugek2
+    disk_path: disks/us/MAGIC/HAKUGEK2.BIN
+    sha1: a7385d17eb1439af1cb9b1282abd9e163e563b5f
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-hakugek2.us.txt
+    segments:
+      - [0, c, hakugek2]
+      - [0x11E8, data, hakugek2_model]
+      - [0x2296C, data, hakugek2_buffers]

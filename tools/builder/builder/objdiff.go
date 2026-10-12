@@ -117,6 +117,7 @@ var metaOverlays = map[string]metaOverlay{
 	"kaen2":    {"kaen2", "magic", "KAEN2"},
 	"gas":      {"gas", "magic", "GAS"},
 	"hakugek1": {"hakugek1", "magic", "HAKUGEK1"},
+	"hakugek2": {"hakugek2", "magic", "HAKUGEK2"},
 }
 
 func makeObjdiffConfig(b BuildConfig) objdiffConfig {
