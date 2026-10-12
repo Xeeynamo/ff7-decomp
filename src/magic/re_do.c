@@ -7,7 +7,7 @@
 
 u_long* func_800C4FC8();
 
-// Effect RE_DO.
+// Big Breath (大口ブレス / Oguchi Buresu).
 
 void func_801B1A54(s32 targetMask, s32 callbackArg);
 

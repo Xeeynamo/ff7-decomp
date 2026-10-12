@@ -7,7 +7,7 @@
 
 u_long* func_800C4FC8();
 
-// Effect SHAKU.
+// Effect shared by Wave Artillery (波動砲) and Golem Laser (ゴーレムレーザー).
 
 void func_801B1970(s32 targetMask, s32 callbackArg);
 

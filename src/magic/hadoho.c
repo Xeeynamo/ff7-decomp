@@ -7,7 +7,8 @@
 
 u_long* func_800C4FC8();
 
-// Effect HADOHO.
+// Dragon Cannon (怒龍砲 / Doryuho).
+// The file name (波動砲, Wave Artillery) is the attack that uses SHAKU.
 
 void func_801B1978(s32 targetMask, s32 callbackArg);
 
