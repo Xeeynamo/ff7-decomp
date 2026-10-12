@@ -7,7 +7,7 @@
 
 // Effect shared by Funny Breath (ファニーのいき) and Shady Breath (怪しい息).
 
-void func_801B04E4(s32 targetMask, s32 callbackArg);
+void AyasiiStart(s32 targetMask, s32 callbackArg);
 
 // Primitive buffer, one 0xC000 page per double-buffered frame.
 extern char g_AyasiiPrimBuffer0[];
@@ -35,7 +35,7 @@ extern AyasiiData g_BattleEffectSlots[];
 extern u_long D_801B0584[];
 extern s32 D_801CE994;
 extern s32 D_801CE998;
-void func_801B0428(void);
+void AyasiiEmitterSetup(void);
 
 typedef struct {
     /* 0x0 */ SVECTOR Pos;
@@ -55,9 +55,9 @@ static void AyasiiBufferFlip(void) {
 }
 
 // Same as MAGIC_Biora.
-void func_801B0054(s32 targetMask, s32 callbackArg) { func_801B04E4(targetMask, callbackArg); }
+void MAGIC_Ayasii(s32 targetMask, s32 callbackArg) { AyasiiStart(targetMask, callbackArg); }
 
-void func_801B0074(void) {
+void AyasiiCloudPuffTick(void) {
     AyasiiData* effect;
     s32 i;
     s32 n;
@@ -81,7 +81,7 @@ void func_801B0074(void) {
     }
 }
 
-void func_801B0190(void) {
+void AyasiiCloudEmitterTick(void) {
     AyasiiData* slots;
     AyasiiData* effect;
     s32 n;
@@ -96,7 +96,7 @@ void func_801B0190(void) {
     effect = &slots[g_BattleEffectCursor];
     if ((u16)(effect->AnimationFrame - 2) < 0x1F) {
         n = D_801CE998;
-        child = BattleEffectRegister(func_801B0074);
+        child = BattleEffectRegister(AyasiiCloudPuffTick);
         slots[child].unk18 = n;
         for (i = 0; i < 4; i++) {
             r = rand() % 0x1000 + 0x800;
@@ -124,13 +124,13 @@ void func_801B0190(void) {
     effect->AnimationFrame++;
 }
 
-void func_801B0428(void) {
+void AyasiiEmitterSetup(void) {
     AyasiiData* child;
     AyasiiData* slots;
     s32 idx;
 
     g_BattleEffectSlots[g_BattleEffectCursor].StartFrame = -1;
-    idx = BattleEffectRegister(func_801B0190);
+    idx = BattleEffectRegister(AyasiiCloudEmitterTick);
     slots = g_BattleEffectSlots;
     child = &slots[idx];
     BattleEntityGetCenter(D_801CE994, &child->Pos);
@@ -143,10 +143,10 @@ void func_801B0428(void) {
     child->unk10 <<= 1;
 }
 
-void func_801B04E4(s32 targetMask, s32 callbackArg) {
+void AyasiiStart(s32 targetMask, s32 callbackArg) {
     g_AyasiiFlipEffect = (s32*)&g_BattleEffectSlots[BattleEffectRegister(AyasiiBufferFlip)];
     BattleSetLoadTimToVram(D_801B0584, 0, 0, 0);
-    BattleEffectRegister(func_801B0428);
+    BattleEffectRegister(AyasiiEmitterSetup);
     D_801CE994 = targetMask;
     D_801CE998 = 0;
     BattleAkaoCommand(AKAO_PLAY_SOUND, BattleEntityGetStereoPan(targetMask), 0xA2);

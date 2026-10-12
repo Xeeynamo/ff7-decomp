@@ -29,7 +29,7 @@ extern u_long D_801B03B4[];
 extern void* D_801D0588;
 
 // Same as ChikasuiDoubleBufferFlip.
-static void func_801B0000(void) {
+static void Jibaku1DoubleBufferFlip(void) {
     Jibaku1Data* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -40,7 +40,7 @@ static void func_801B0000(void) {
     }
 }
 
-void func_801B006C(void) {
+void Jibaku1ExplosionSpriteTick(void) {
     Jibaku1Data* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -55,14 +55,14 @@ void func_801B006C(void) {
     }
 }
 
-void func_801B0128(void) {
+void Jibaku1TargetTick(void) {
     Jibaku1Data* effect;
     Jibaku1Data* child;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (D_80062D98 == 0) {
         if ((u16)effect->AnimationFrame < 10) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B006C)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(Jibaku1ExplosionSpriteTick)];
             child->Pos.vx = effect->Pos.vx + rand() % 1000 - 500;
             child->Pos.vy = effect->Pos.vy + rand() % 1000 - 500;
             child->Pos.vz = effect->Pos.vz + rand() % 1000 - 500;
@@ -77,17 +77,17 @@ void func_801B0128(void) {
     }
 }
 
-void func_801B02B0(s32 target, s32 callbackArg) {
+void Jibaku1TargetSetup(s32 target, s32 callbackArg) {
     Jibaku1Data* effect;
 
-    effect = &g_BattleEffectSlots[BattleEffectRegister(func_801B0128)];
+    effect = &g_BattleEffectSlots[BattleEffectRegister(Jibaku1TargetTick)];
     BattleGetPartPosition(callbackArg, g_BattleModels[callbackArg].boneIndices[0], &effect->Pos);
     effect->unk14 = target;
 }
 
 void func_801B0338(s32 targetMask, s32 callbackArg) {
-    BattleEffectRegister(func_801B0000);
+    BattleEffectRegister(Jibaku1DoubleBufferFlip);
     BattleSetLoadTimToVram(D_801B03B4, 0, 0, 0);
-    MagicAnimationRegister(targetMask, callbackArg, 4, func_801B02B0);
+    MagicAnimationRegister(targetMask, callbackArg, 4, Jibaku1TargetSetup);
     func_800BBA84(0x7C, callbackArg, 0);
 }

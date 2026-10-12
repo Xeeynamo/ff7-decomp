@@ -1,5 +1,5 @@
-func_801B0000 = 0x801B0000;
-func_801B006C = 0x801B006C;
-func_801B0128 = 0x801B0128;
-func_801B02B0 = 0x801B02B0;
+Jibaku1DoubleBufferFlip = 0x801B0000;
+Jibaku1ExplosionSpriteTick = 0x801B006C;
+Jibaku1TargetTick = 0x801B0128;
+Jibaku1TargetSetup = 0x801B02B0;
 func_801B0338 = 0x801B0338;

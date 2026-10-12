@@ -9,7 +9,7 @@
 // Silence (サイレス / Silence).
 
 extern u_long D_801B0498[];
-void func_801B02E0(s32 target, s32 callbackArg);
+void SailessTargetSetup(s32 target, s32 callbackArg);
 
 // Only StartFrame/AnimationFrame are common to every magic overlay.
 typedef struct {
@@ -32,7 +32,7 @@ extern char D_801C4E7C[];
 extern s32 D_801B84D8[];
 extern s32* D_801D0E80; // slot running func_801B0000
 extern void* D_801D0E7C;
-void func_801B03FC(s32 targetMask, s32 callbackArg);
+void SailessStart(s32 targetMask, s32 callbackArg);
 
 // Same as Dia2BufferFlip.
 static void func_801B0000(void) {
@@ -42,10 +42,10 @@ static void func_801B0000(void) {
     }
 }
 
-void func_801B0054(s32 targetMask, s32 callbackArg) { func_801B03FC(targetMask, callbackArg); }
+void MAGIC_Sailess(s32 targetMask, s32 callbackArg) { SailessStart(targetMask, callbackArg); }
 
 // Same as func_801B0F9C.
-void func_801B0074(void) {
+void SailessRingModelTick(void) {
     SVECTOR rotA;
     SVECTOR rotB;
     SVECTOR offset;
@@ -107,11 +107,11 @@ void func_801B0074(void) {
     }
 }
 
-void func_801B02E0(s32 target, s32 callbackArg) {
+void SailessTargetSetup(s32 target, s32 callbackArg) {
     SailessData* effect;
     s32 radius;
 
-    effect = &g_BattleEffectSlots[BattleEffectRegister(func_801B0074)];
+    effect = &g_BattleEffectSlots[BattleEffectRegister(SailessRingModelTick)];
     BattleGetPartPosition(target, g_BattleModels[target].boneIndices[0], &effect->Pos);
     effect->unkC = 0;
     effect->unkE = g_BattleModels[target].rootRot.vy;
@@ -130,9 +130,9 @@ void func_801B02E0(s32 target, s32 callbackArg) {
 }
 
 // Same as QueikStart.
-void func_801B03FC(s32 targetMask, s32 callbackArg) {
+void SailessStart(s32 targetMask, s32 callbackArg) {
     D_801D0E80 = (s32*)&g_BattleEffectSlots[BattleEffectRegister(func_801B0000)];
     BattleSetLoadTimToVram(D_801B0498, 0, 0, 0);
-    MagicAnimationRegister(targetMask, callbackArg, 1, func_801B02E0);
+    MagicAnimationRegister(targetMask, callbackArg, 1, SailessTargetSetup);
     BattleAkaoCommand(AKAO_PLAY_SOUND, BattleEntityGetStereoPan(targetMask), 0x54);
 }
