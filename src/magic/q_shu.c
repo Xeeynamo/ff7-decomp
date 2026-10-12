@@ -45,7 +45,7 @@ typedef struct {
 
 extern QShuData g_BattleEffectSlots[];
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 void QShuDoubleBufferFlip(void) {
     QShuData* effect;
 

@@ -44,7 +44,7 @@ typedef struct {
 
 extern QKetsuData g_BattleEffectSlots[];
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 void QKetsuDoubleBufferFlip(void) {
     QKetsuData* effect;
 
