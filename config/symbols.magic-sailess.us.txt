@@ -1,4 +1,4 @@
-func_801B0000 = 0x801B0000;
+SailessBufferFlip = 0x801B0000;
 MAGIC_Sailess = 0x801B0054;
 SailessRingModelTick = 0x801B0074;
 SailessTargetSetup = 0x801B02E0;

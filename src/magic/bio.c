@@ -29,12 +29,12 @@ extern SpriteAnim g_BioRenderData1;
 static SpriteRenderDesc bio_render_desc0 = {&g_BioRenderData0, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
 static SpriteRenderDesc bio_render_desc1 = {&g_BioRenderData1, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
 
-void func_801B0000(void);
+void BioCloudParticleTick(void);
 void func_801B0178(void);
 void BioTargetTick(void);
 void BioTargetSetup(s32 target, s32 callbackArg);
 
-void func_801B0000(void) {
+void BioCloudParticleTick(void) {
     BioData* effect;
     s32 shade;
 
@@ -82,7 +82,7 @@ void BioTargetTick(void) {
     if (D_80062D98 == 0) {
         if ((u16)effect->AnimationFrame < 15) {
             if ((effect->AnimationFrame & 3) == 0) {
-                child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0000)];
+                child = &g_BattleEffectSlots[BattleEffectRegister(BioCloudParticleTick)];
                 child->Pos.vx = effect->Pos.vx + (rand() % 1000 - 500);
                 child->Pos.vy = 0;
                 child->Pos.vz = effect->Pos.vz + (rand() % 1000 - 500);

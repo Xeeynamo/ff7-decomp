@@ -30,12 +30,12 @@ extern SailessData g_BattleEffectSlots[];
 extern char D_801B8E7C[];
 extern char D_801C4E7C[];
 extern s32 D_801B84D8[];
-extern s32* D_801D0E80; // slot running func_801B0000
+extern s32* D_801D0E80; // slot running SailessBufferFlip
 extern void* D_801D0E7C;
 void SailessStart(s32 targetMask, s32 callbackArg);
 
 // Same as Dia2BufferFlip.
-static void func_801B0000(void) {
+static void SailessBufferFlip(void) {
     D_801D0E7C = g_dbIndex == 0 ? D_801B8E7C : D_801C4E7C;
     if (g_BattleEffectCount < 2) {
         *D_801D0E80 = -1;
@@ -131,7 +131,7 @@ void SailessTargetSetup(s32 target, s32 callbackArg) {
 
 // Same as QueikStart.
 void SailessStart(s32 targetMask, s32 callbackArg) {
-    D_801D0E80 = (s32*)&g_BattleEffectSlots[BattleEffectRegister(func_801B0000)];
+    D_801D0E80 = (s32*)&g_BattleEffectSlots[BattleEffectRegister(SailessBufferFlip)];
     BattleSetLoadTimToVram(D_801B0498, 0, 0, 0);
     MagicAnimationRegister(targetMask, callbackArg, 1, SailessTargetSetup);
     BattleAkaoCommand(AKAO_PLAY_SOUND, BattleEntityGetStereoPan(targetMask), 0x54);

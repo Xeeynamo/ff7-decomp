@@ -1,4 +1,4 @@
-func_801B0000 = 0x801B0000;
+BioCloudParticleTick = 0x801B0000;
 func_801B0178 = 0x801B0178;
 BioTargetTick = 0x801B0238;
 BioTargetSetup = 0x801B0554;
