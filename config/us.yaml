@@ -822,3 +822,16 @@ overlays:
       - [0x10, c, kaen]
       - [0xFE8, data, kaen_model]
       - [0x23F30, data, kaen_buffers]
+  # KAEN2.BIN -- effect overlay
+  - name: kaen2
+    disk_path: disks/us/MAGIC/KAEN2.BIN
+    sha1: 0bb5bf470e3b04dd658b7c28ff374464a1401ca6
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-kaen2.us.txt
+    segments:
+      - [0, c, kaen2]
+      - [0x1128, data, kaen2_model]
+      - [0x24140, data, kaen2_buffers]
