@@ -5,7 +5,7 @@
 #include "kakusan.h"
 #include "../battle/battle.h"
 
-// Effect KAKUSAN.
+// Effect shared by Molotov Cocktail (モロトフカクテル) and an unnamed attack (エサ喰い).
 
 void func_801B1190(s32 targetMask, s32 callbackArg);
 

@@ -7,7 +7,7 @@
 
 u_long* func_800C4FC8();
 
-// Effect CHO_KYU.
+// Effect shared by Ultima Beam (アルテマビーム), Beam Cannon (ビームキャノン) and Pale Horse (ペイルホース).
 
 extern void* D_80163C74;
 extern SpriteRenderDesc D_801D7348;
