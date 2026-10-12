@@ -91,6 +91,7 @@ set(FF7_MAGIC
     src/magic/brizad.c
     src/magic/lv5deth.c
     src/magic/mabaria.c
+    src/magic/q_ketsu.c
     src/magic/sennkoku.c
     src/magic/thunder.c
 )

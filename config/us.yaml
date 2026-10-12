@@ -807,3 +807,17 @@ overlays:
       - [0, c, sennkoku]
       - [0x930, data, sennkoku_model]
       - [0x559C, data, sennkoku_buffers]
+  # Q_KETSU.BIN -- effect overlay
+  - name: q_ketsu
+    disk_path: disks/us/MAGIC/Q_KETSU.BIN
+    sha1: 66cda108823bda268f71222de2e8aedb1f55faa7
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-q_ketsu.us.txt
+    segments:
+      - [0, rodata, q_ketsu]
+      - [0x10, c, q_ketsu]
+      - [0x10A4, data, q_ketsu_model]
+      - [0xDAE4, data, q_ketsu_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral

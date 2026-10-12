@@ -1,0 +1,10 @@
+QKetsuDoubleBufferFlip = 0x801B0010;
+QKetsuHitSparkleSpriteTick = 0x801B007C;
+QKetsuRisingSparkleSpriteTick = 0x801B0138;
+QKetsuSpiralSparkleSpriteTick = 0x801B0264;
+QKetsuTrailSparkleSpriteTick = 0x801B03FC;
+QKetsuOrbSpriteTick = 0x801B04B4;
+QKetsuModelTick = 0x801B08E0;
+QKetsuTargetTick = 0x801B0C5C;
+QKetsuTargetSetup = 0x801B0F5C;
+MAGIC_QKetsu = 0x801B1028;
