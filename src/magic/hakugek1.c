@@ -128,7 +128,7 @@ static void Hakugek1DoubleBufferFlip(void) {
     }
 }
 
-void func_801B04C8(void) {
+void Hakugek1FirePuffTick(void) {
     MATRIX matrix;
     MATRIX rotated;
     s32 flag;
@@ -317,12 +317,12 @@ void Hakugek1TargetTick(void) {
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == 0) {
             ang = ratan2(effect->PartPos.vx - effect->Pos.vx, effect->PartPos.vz - effect->Pos.vz);
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B04C8)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(Hakugek1FirePuffTick)];
             BattleGetPartPosition(effect->unk1E, g_BattleModels[effect->unk1E].boneIndices[11], &child->Pos);
             child->PartPos.vx = 0;
             child->PartPos.vy = ang + 0x400;
             child->PartPos.vz = -0x200;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B04C8)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(Hakugek1FirePuffTick)];
             BattleGetPartPosition(effect->unk1E, g_BattleModels[effect->unk1E].boneIndices[12], &child->Pos);
             child->PartPos.vx = 0;
             child->PartPos.vy = ang + 0x400;
