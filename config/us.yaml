@@ -876,3 +876,16 @@ overlays:
       - [0, c, kaeru]
       - [0xDDC, data, kaeru_model]
       - [0xD28C, data, kaeru_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral
+  # RMISSILE.BIN -- effect overlay
+  - name: rmissile
+    disk_path: disks/us/MAGIC/RMISSILE.BIN
+    sha1: 4daa7f97f36ea8e59e22a5ac3a2a86f662e38078
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-rmissile.us.txt
+    segments:
+      - [0, c, rmissile]
+      - [0x178C, data, rmissile_model]
+      - [0x24848, data, rmissile_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral

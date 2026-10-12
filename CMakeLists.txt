@@ -96,6 +96,7 @@ set(FF7_MAGIC
     src/magic/kaeru.c
     src/magic/lv5deth.c
     src/magic/mabaria.c
+    src/magic/rmissile.c
     src/magic/sennkoku.c
     src/magic/thunder.c
 )
