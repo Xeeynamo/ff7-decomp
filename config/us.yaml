@@ -863,3 +863,16 @@ overlays:
     segments:
       - [0, c, gravide]
       - [0x7a0, data, gravide_model]
+  # KAERU.BIN -- effect overlay
+  - name: kaeru
+    disk_path: disks/us/MAGIC/KAERU.BIN
+    sha1: b27805693a8629e6f74ac74bbb9ecd4e40042874
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-kaeru.us.txt
+    segments:
+      - [0, c, kaeru]
+      - [0xDDC, data, kaeru_model]
+      - [0xD28C, data, kaeru_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral

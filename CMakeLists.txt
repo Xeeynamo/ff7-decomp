@@ -93,6 +93,7 @@ set(FF7_MAGIC
     src/magic/cometeo.c
     src/magic/faiga.c
     src/magic/gravide.c
+    src/magic/kaeru.c
     src/magic/lv5deth.c
     src/magic/mabaria.c
     src/magic/sennkoku.c
