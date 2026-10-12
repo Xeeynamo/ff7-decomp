@@ -807,3 +807,18 @@ overlays:
       - [0, c, sennkoku]
       - [0x930, data, sennkoku_model]
       - [0x559C, data, sennkoku_buffers]
+  # KAEN.BIN -- effect overlay
+  - name: kaen
+    disk_path: disks/us/MAGIC/KAEN.BIN
+    sha1: 2dc7702de646e5288feeae5f349b58ce88135b5e
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-kaen.us.txt
+    segments:
+      # REVIEW (split): the 0x10 bytes before the code are the effect's sprite descriptor; the linker script puts rodata first, so it is a rodata segment; cost: none, data only
+      - [0, rodata, kaen]
+      - [0x10, c, kaen]
+      - [0xFE8, data, kaen_model]
+      - [0x23F30, data, kaen_buffers]
