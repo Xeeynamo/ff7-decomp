@@ -80,7 +80,7 @@ void BatInitMain(s32 sceneID) {
     pUnit = pCombatantBase;
     g_BattleSceneContext.atbWaitMode = (Savemap.config & 0xC0) >> 6;
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
-        BattleRecalcUnitSpeed(i);
+        BattleUnitCalcSpeed(i);
         if ((s8)pUnit[i].actorId != -1) {
             *(u16*)((u8*)pCombatantBase - 0x32) |= 1 << i;
         }
@@ -183,7 +183,7 @@ static void BattleInitSetup(s32 sceneID) {
     BattleInitEnemyUnits();
     g_BattleState.presentMask = 0;
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
-        BattleRecalcUnitSpeed(i);
+        BattleUnitCalcSpeed(i);
         unit = &g_BattleState.combatant[i];
         if (unit->actorId != -1) {
             g_BattleState.presentMask |= 1 << i;

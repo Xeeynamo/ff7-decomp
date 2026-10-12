@@ -8,8 +8,9 @@
 
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleFlags.cs#L4
 typedef enum {
-    SETUP_CANNOT_ESCAPE = 4,
-    SETUP_NO_VICTORY_POSE = 8,
+    SETUP_UNK2 = 0x2,
+    SETUP_CANNOT_ESCAPE = 0x4,
+    SETUP_NO_VICTORY_POSE = 0x8,
     SETUP_NO_PREEMPTIVE_STRIKE = 0x10,
 } BattleSetupFlags;
 
@@ -555,12 +556,12 @@ typedef struct {
 } BattleSpriteDesc;      // size:0x10
 
 typedef struct {
-    /* 0x00 */ s16 unitSpeed;
+    /* 0x00 */ u16 varSpeed;
     /* 0x02 */ s16 atbIncrement;
-    /* 0x04 */ u16 atbGauge; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
-    /* 0x06 */ s16 unk6;
+    /* 0x04 */ u16 atbGauge;     // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
+    /* 0x06 */ s16 hpChangeRate; // HP per 4 var ticks: +maxHP/32 Regen, -maxHP/32 Dual Drain
     /* 0x08 */ s16 limitSpeedFlag;
-    /* 0x0A */ u16 atbSpeedMultiplier;
+    /* 0x0A */ u16 constSpeed;
     /* 0x0C */ u8 senseTargetMask;
     /* 0x0D */ u8 accessoryEffectId;
     /* 0x0E */ u8 hasLimitBreak;
@@ -792,7 +793,7 @@ s32 BattleEntityGetStereoPan(s32 arg0);
 void func_800D5774(u32 targetIndex);
 void BattleRunFrame(void);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-void BattleRecalcUnitSpeed(s32 index);
+void BattleUnitCalcSpeed(s32 index);
 void BattleUpdateUnitMasks(void);
 void BattleCheckAllLucky7s(void);
 void BattleActionQueueReset(void);
