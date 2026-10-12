@@ -28,6 +28,7 @@
 #define gte_nclip()
 #define gte_nccs()
 #define gte_gpl0()
+#define gte_avsz4()
 #define gte_stsxy(r0)
 #define gte_stsxy3(r0, r1, r2)
 #define gte_stsxy3_g3(r0)
@@ -38,6 +39,7 @@
 #define gte_stflg(r0)
 #define gte_readflg(r0)
 #define gte_stopz(r0)
+#define gte_stotz(r0)
 #define gte_stlvnl(r0)
 #else
 
@@ -205,6 +207,11 @@
 	"nop;"							\
 	".word 0x4BA0003E" )
 
+#define gte_avsz4() __asm__ volatile (				\
+	"nop;"							\
+	"nop;"							\
+	".word 0x4B68002E" )
+
 /*
  * Type 3 functions
  */
@@ -276,6 +283,12 @@
 
 #define gte_stopz( r0 ) __asm__ volatile (			\
 	"swc2	$24, 0( %0 )"					\
+	:							\
+	: "r"( r0 )						\
+	: "memory" )
+
+#define gte_stotz( r0 ) __asm__ volatile (			\
+	"swc2	$7, 0( %0 )"					\
 	:							\
 	: "r"( r0 )						\
 	: "memory" )
