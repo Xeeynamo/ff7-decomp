@@ -829,11 +829,11 @@ char ITEMMENU_Main(s32 frameCount) {
                     count = (u32)itemWord >> 9;
                     itemUsableFlag = func_801D0DCC(selectedItemId) & 4;
                     textColor = (-(itemUsableFlag == 0)) & 7;
-                    ((void (*)())ITEMMENU_DrawItemTypeIcon)(
+                    ((void (*)(s32, s32, s32, s32))ITEMMENU_DrawItemTypeIcon)(
                         ITEMMENU_ICON_X,
-                        ((s8*)(rowIdx * ITEMMENU_ROW_HEIGHT)) +
-                            (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * ITEMMENU_SCROLL_ANIM_SCALE) +
-                             ITEMMENU_ICON_Y),
+                        (s32)(((s8*)(rowIdx * ITEMMENU_ROW_HEIGHT)) +
+                              (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * ITEMMENU_SCROLL_ANIM_SCALE) +
+                               ITEMMENU_ICON_Y)),
                         selectedItemId, 0);
                     SysMenuDrawSingleFontLetter(
                         ITEMMENU_QTY_X_MULTIPLY,
