@@ -10,7 +10,7 @@ void BattleGetWeaponBoneNumAndInitBones(s16* count, u16* data, s16 actor);
 void BattleBoneSetParentMatrix(MATRIX* parent, BattleModelSub* bone);
 
 void BattleUpdateModelMatrixesWithSelfAndParent(s32 actor);
-void func_800BBA84(u16 sound, s32 actor, s32 pan);
+void func_800BBA84(u16 sound, s16 actor, s32 pan);
 void func_800C494C(void);
 static void func_800C5694(void);
 static void BattleEffectModelTick(void);
@@ -249,15 +249,16 @@ void BattleEnemyPlayInitAnims(void) {
     s32 steps;
     s32 i;
     EffectModel* data;
-    if (!(g_BattleData.activeEncounter.setup.flags & 2)) {
-        steps = 4;
-        for (actor = 5; actor < D_800F7DF4.enemyCount + 4; actor++) {
-            for (i = 0; i < steps; i++) {
-                data = (EffectModel*)D_800F8384[D_800F7DF4.enemies[actor - 4].modelIndex];
-                BattleExecuteUnitAnimScript(actor, data->header.offsets[1] + 0x68, &data->header.offsets[2], data);
-            }
-            steps += 4;
+    if (g_BattleData.activeEncounter.setup.flags & 2) {
+        return;
+    }
+    steps = 4;
+    for (actor = 5; actor < D_800F7DF4.enemyCount + 4; actor++) {
+        for (i = 0; i < steps; i++) {
+            data = (EffectModel*)D_800F8384[D_800F7DF4.enemies[actor - 4].modelIndex];
+            BattleExecuteUnitAnimScript(actor, data->header.offsets[1] + 0x68, &data->header.offsets[2], data);
         }
+        steps += 4;
     }
 }
 
@@ -494,7 +495,6 @@ void func_800B430C(void) {
     BattleModelSub* bone3;
     u8* offsets;
 
-    i = 0;
     D_80163B44[0] = 0;
     D_80163B44[1] = 0x10;
     g_BattleWorldView.u.sub.trans.vz = 0;
@@ -503,7 +503,7 @@ void func_800B430C(void) {
     g_BattleWorldView.rot.vz = 0;
     g_BattleWorldView.rot.vy = 0;
     g_BattleWorldView.rot.vx = 0;
-    for (; i < NUM_BATTLE_ACTOR; i++) {
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         bone = &D_800F8158[i];
         bone->rot.vz = 0;
         bone->rot.vy = 0;
@@ -525,8 +525,7 @@ void func_800B430C(void) {
         D_800F8158[4].trans.vy = 0x30D4;
         break;
     case 0:
-        i = 0;
-        for (; i < NUM_BATTLE_ACTOR; i++) {
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
             BattleBoneSetParentMatrix(&g_BattleWorldView.m, &D_800F8158[i]);
         }
         D_800F8158[2].trans.vz = 30000;
@@ -549,8 +548,7 @@ void func_800B430C(void) {
         BattleBoneSetParentMatrix(&g_BattleWorldView.m, &bone3[2]);
         break;
     }
-    i = 0;
-    for (; i < NUM_BATTLE_ACTOR; i++) {
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         model = &g_BattleModels[i];
         model->rootTrans.vz = 0;
         model->rootTrans.vy = 0;
@@ -1025,40 +1023,41 @@ void BattleInitModelsAnimAndColor(s32 first, s32 end) {
     s32 one;
     s16 scale;
     actor = first;
-    if (actor < end) {
-        one = 1;
-        scale = 0x1000;
-        stateOffset = actor * (s32)sizeof(Unk80151200);
-        modelIndex = actor;
-        animControl = (u8*)&g_BattleModels[modelIndex].animControlFlags;
-        for (; actor < end; actor++) {
-            g_BattleModels[modelIndex].unk24 = 31;
-            g_BattleModels[modelIndex].specialFlags = 0x80;
-            g_BattleModels[modelIndex].blendAlpha = 0;
-            g_BattleModels[modelIndex].colorR = 0;
-            g_BattleModels[modelIndex].colorG = 0;
-            g_BattleModels[modelIndex].colorB = 0;
-            if (actor >= START_ENEMY) {
-                if (!(D_800F7DF4.enemies[modelIndex - START_ENEMY].flags & 4)) {
-                    g_BattleModels[modelIndex].specialFlags = 0;
-                }
-                if (!(D_800F7DF4.enemies[modelIndex - START_ENEMY].flags & 1)) {
-                    g_BattleModels[modelIndex].specialFlags |= 4;
-                }
+    if (actor >= end) {
+        return;
+    }
+    one = 1;
+    scale = 0x1000;
+    stateOffset = actor * (s32)sizeof(Unk80151200);
+    modelIndex = actor;
+    animControl = (u8*)&g_BattleModels[modelIndex].animControlFlags;
+    for (; actor < end; actor++) {
+        g_BattleModels[modelIndex].unk24 = 31;
+        g_BattleModels[modelIndex].specialFlags = 0x80;
+        g_BattleModels[modelIndex].blendAlpha = 0;
+        g_BattleModels[modelIndex].colorR = 0;
+        g_BattleModels[modelIndex].colorG = 0;
+        g_BattleModels[modelIndex].colorB = 0;
+        if (actor >= START_ENEMY) {
+            if (!(D_800F7DF4.enemies[modelIndex - START_ENEMY].flags & 4)) {
+                g_BattleModels[modelIndex].specialFlags = 0;
             }
-            state = (Unk80151200*)((u8*)D_80151200 + stateOffset);
-            *animControl = one;
-            g_BattleModels[modelIndex].animId = 0;
-            g_BattleModels[modelIndex].scale = scale;
-            state->D_8015123C = scale;
-            state->D_8015123A = scale;
-            ((Unk80151200*)((u8*)D_80151200 + stateOffset))->D_80151238 = scale;
-            g_BattleModels[modelIndex].ready = one;
-            ((Unk80151200*)((u8*)D_80151200 + stateOffset))->D_80151233 = 0;
-            stateOffset += sizeof(Unk80151200);
-            animControl += sizeof(BattleModel);
-            modelIndex++;
+            if (!(D_800F7DF4.enemies[modelIndex - START_ENEMY].flags & 1)) {
+                g_BattleModels[modelIndex].specialFlags |= 4;
+            }
         }
+        state = (Unk80151200*)((u8*)D_80151200 + stateOffset);
+        *animControl = one;
+        g_BattleModels[modelIndex].animId = 0;
+        g_BattleModels[modelIndex].scale = scale;
+        state->D_8015123C = scale;
+        state->D_8015123A = scale;
+        ((Unk80151200*)((u8*)D_80151200 + stateOffset))->D_80151238 = scale;
+        g_BattleModels[modelIndex].ready = one;
+        ((Unk80151200*)((u8*)D_80151200 + stateOffset))->D_80151233 = 0;
+        stateOffset += sizeof(Unk80151200);
+        animControl += sizeof(BattleModel);
+        modelIndex++;
     }
 }
 
@@ -1427,8 +1426,9 @@ void BattleUpdateModelMatrixesWithSelfAndParent(s32 actor) {
     BattleMatrixScratch* scratch = (BattleMatrixScratch*)0x1F800020;
     BattleModelSub* bone;
     MATRIX* parent;
-    s32 i = 0;
-    for (; i < g_BattleModels[actor].numBones; i++) {
+    s32 i;
+
+    for (i = 0; i < g_BattleModels[actor].numBones; i++) {
         bone = &g_BattleModels[actor].boneTransforms[i];
         parent = bone->parentMatrix;
         scratch->parent = parent;
@@ -1502,18 +1502,14 @@ static void func_800BB030(s16 arg0) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB2A8);
 
 void BattleModelUpdateAllBonesHeight(s16 actor, s16 height) {
-    s32 i = 0;
+    s32 i;
     s32* model;
-    s32 count;
-    count = g_BattleModels[actor].numBones;
-    if (i < count) {
-        do {
-            model = g_BattleModels[actor].boneModels[i];
-            i++;
-            if (model != NULL) {
-                BattleModelUpdateBoneHeight(model, height);
-            }
-        } while (i < g_BattleModels[actor].numBones);
+
+    for (i = 0; i < g_BattleModels[actor].numBones; i++) {
+        model = g_BattleModels[actor].boneModels[i];
+        if (model != NULL) {
+            BattleModelUpdateBoneHeight(model, height);
+        }
     }
 }
 
@@ -1664,13 +1660,13 @@ static void func_800BBA40(s32 arg0) {
     AkaoExec();
 }
 
-void func_800BBA84(u16 sound, s32 actor, s32 pan) {
+void func_800BBA84(u16 sound, s16 actor, s32 pan) {
     s32 value;
 
-    if ((s16)actor == -1) {
+    if (actor == -1) {
         value = pan & 0xFF;
     } else {
-        value = (((s16)g_modelScreenPos[(s16)actor].prevX / 5) * 2) & 0x7E;
+        value = ((g_modelScreenPos[actor].prevX / 5) * 2) & 0x7E;
     }
     g_AkaoCmd.params[0] = value;
     g_AkaoCmd.opcode = AKAO_PLAY_SOUND;
@@ -2400,7 +2396,7 @@ void BattleSelectPlayerModelFiles(void) {
     s32 leftFile;
     s32 leftActor;
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < NUM_PARTY; i++) {
         if (g_BattleData.actors[i].charId == -1) {
             D_800FA9C4[i].file = 200;
         } else {
