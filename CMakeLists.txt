@@ -90,6 +90,7 @@ set(FF7_MAGIC
     src/magic/barrier.c
     src/magic/brizad.c
     src/magic/hikari2.c
+    src/magic/hikari3.c
     src/magic/lv5deth.c
     src/magic/mabaria.c
     src/magic/sennkoku.c

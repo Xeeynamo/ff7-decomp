@@ -1,0 +1,10 @@
+MAGIC_Hikari3 = 0x801B0000;
+Hikari3DoubleBufferFlip = 0x801B0020;
+Hikari3ViewportFlashTick = 0x801B008C;
+Hikari3FlashFadeInSetup = 0x801B0120;
+Hikari3FlashFadeOutSetup = 0x801B0190;
+Hikari3SparkSpriteTick = 0x801B01E8;
+Hikari3HitSpriteTick = 0x801B02A0;
+Hikari3TargetTick = 0x801B035C;
+Hikari3TargetSetup = 0x801B078C;
+Hikari3Start = 0x801B0814;

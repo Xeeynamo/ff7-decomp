@@ -820,3 +820,16 @@ overlays:
       - [0, c, hikari2]
       - [0x8E8, data, hikari2_model]
       - [0x8AE0, data, hikari2_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral
+  # HIKARI3.BIN -- effect overlay
+  - name: hikari3
+    disk_path: disks/us/MAGIC/HIKARI3.BIN
+    sha1: 9c541c2e30e2fa5eca482081d46168bf97d7852d
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-hikari3.us.txt
+    segments:
+      - [0, c, hikari3]
+      - [0x8A8, data, hikari3_model]
+      - [0x8AA0, data, hikari3_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral
