@@ -5,6 +5,7 @@
 #include <libgte.h>
 #include <libgpu.h>
 #include "item.h"
+#include "materia.h"
 #include "sfx.h"
 #include "bgm.h"
 #include "akao.h"
@@ -31,7 +32,6 @@
 #define NUM_MAGICS 56
 #define NUM_MAGICS_ALL (NUM_MAGICS + 40)
 #define NUM_SUMMONS 16
-#define MAX_INVENTORY_COUNT 320
 #define MAX_MATERIA_COUNT 200
 #define NUM_MENU_COLOR 12
 #define LABEL_SIZE 12

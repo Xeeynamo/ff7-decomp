@@ -1,92 +1,8 @@
 //! PSYQ=3.3 CC1=2.7.2
 #include <game.h>
+#include "itemmenu.h"
 
-// Item-menu screen/sub-state selector.
-typedef enum {
-    ITEMMENU_SCREEN_SELECTOR = 0,
-    ITEMMENU_SCREEN_USE = 1,
-    ITEMMENU_SCREEN_ITEM_SELECTED = 2,
-    ITEMMENU_SCREEN_KEY_ITEMS = 3,
-    ITEMMENU_SCREEN_ARRANGE_SELECT = 4,
-    ITEMMENU_SCREEN_ARRANGE_CUSTOM = 5
-} ItemMenuScreen;
 
-typedef enum {
-    USE_ITEM_MENU_SELECTED = 0,
-    ARRANGE_MENU_SELECTED = 1,
-    KEY_ITEMS_MENU_SELECTED = 2,
-} ItemMenuSelected;
-
-typedef enum {
-    WEAPON_INDEX_CLOUD_MAX = 0x10,
-    WEAPON_INDEX_BARRET_MAX = 0x20,
-    WEAPON_INDEX_TIFA_MAX = 0x30,
-    WEAPON_INDEX_AERIS_MAX = 0x3E,
-    WEAPON_INDEX_RED_XIII_MAX = 0x49,
-    WEAPON_INDEX_YUFFIE_MAX = 0x57,
-    WEAPON_INDEX_CAIT_SITH_MAX = 0x65,
-    WEAPON_INDEX_VINCENT_MAX = 0x72
-} WeaponIndex;
-
-typedef enum {
-    ITEM_ICON_ITEM = 0,
-    ITEM_ICON_SWORD = 1,
-    ITEM_ICON_GLOVE = 2,
-    ITEM_ICON_GUN_ARM = 3,
-    ITEM_ICON_CLIP = 4,
-    ITEM_ICON_STAFF = 5,
-    ITEM_ICON_MEGAPHONE = 6,
-    ITEM_ICON_GUN = 7,
-    ITEM_ICON_SPEAR = 8,
-    ITEM_ICON_SHURIKEN = 9,
-    ITEM_ICON_ARMOR = 0xA,
-    ITEM_ICON_ACCESSORY = 0xB
-} ItemIcon;
-
-typedef enum {
-    ITEM_ARRANGE_CUSTOMIZE = 0,
-    ITEM_ARRANGE_FIELD = 1,
-    ITEM_ARRANGE_BATTLE = 2,
-    ITEM_ARRANGE_THROW = 3,
-    ITEM_ARRANGE_TYPE = 4,
-    ITEM_ARRANGE_NAME = 5,
-    ITEM_ARRANGE_MOST = 6,
-    ITEM_ARRANGE_LEAST = 7,
-} ItemArrangeMode;
-
-#define ITEM_TYPE_WEAPON_BASE 0x80
-#define ITEM_TYPE_ARMOR_BASE 0x100
-#define ITEM_TYPE_ACCESSORY_BASE 0x120
-#define ITEM_TYPE_REGUALR_BASE 0x5FU
-
-#define ITEM_ICON_BASE_U 0x60
-#define ITEM_ICON_BASE_V 0x70
-#define ITEM_ICON_SIZE 0x10
-#define ITEM_ICON_CLUT 1
-
-#define ITEM_ID_MASK 0x1FF
-#define ITEM_CONSUMED 0x200
-#define ITEM_QTY_SHIFT 9
-#define ITEM_EMPTY_SLOT 0xFFFF
-#define SORT_KEY_EMPTY_SLOT 0x4E20
-
-#define CLEAR_SADNESS 0xEF
-#define CLEAR_FURY 0xDF
-
-#define ITEM_USAGE_FLAG_BATTLE 0x2
-#define ITEM_USAGE_FLAG_FIELD 0x4
-#define ITEM_USAGE_FLAG_THROW 0x8
-
-#define MENU_LOCATION_TENT_ALLOWED 0x200
-#define SAVE_CRYSTAL_USED_FLAG 0x2
-
-#define MAX_KEY_ITEMS 0x40
-#define MAX_STOLEN_MATERIA 0x30
-#define NOTIFICATION_TEXT_SIZE 0x50
-#define EMPTY_MATERIA_SLOT (-1)
-#define EMPTY_ACCESSORY_SLOT 0xFF
-#define EMPTY_LIMIT_COMMAND 0x7F
-#define NUM_LIMIT_SLOTS 10
 
 // [0]: single-slot, non-scrolling widget (total=1, 1/page) - purpose not yet
 //      identified.
@@ -697,14 +613,14 @@ char ITEMMENU_Main(s32 frameCount) {
             if (((cursorItemId == ITEM_MEGALIXIR) || (cursorItemId == ITEM_TENT)) != 0) {
                 targetPartySlot = frameCount;
                 targetPartySlot = targetPartySlot % 3;
-                SysMenuDrawCursor(0, (targetPartySlot * 0x38) + 0x4B);
+                SysMenuDrawCursor(0, (targetPartySlot * ITEMMENU_PARTY_SLOT_HEIGHT) + ITEMMENU_PARTY_CURSOR_Y);
             } else {
                 targetPartySlot = g_PartySlotSelected[0];
-                SysMenuDrawCursor(0, (targetPartySlot * 0x38) + 0x4B);
+                SysMenuDrawCursor(0, (targetPartySlot * ITEMMENU_PARTY_SLOT_HEIGHT) + ITEMMENU_PARTY_CURSOR_Y);
             }
         }
         if ((frameCount & 2) != 0) {
-            SysMenuDrawCursor(0xA9, (g_ItemUseListCursorPos[0] * 0x10) + 0x3C);
+            SysMenuDrawCursor(ITEMMENU_LIST_CURSOR_X, (g_ItemUseListCursorPos[0] * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
         }
         if (g_ItemMenuTargetSelectDelay) {
             g_ItemMenuTargetSelectDelay -= 1;
@@ -713,29 +629,29 @@ char ITEMMENU_Main(s32 frameCount) {
     SysMenuUnkNoop(0x80);
     switch (g_ItemMenuCurrentScreen) {
     case ITEMMENU_SCREEN_SELECTOR:
-        SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
+        SysMenuDrawCursor((g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
         break;
 
     case ITEMMENU_SCREEN_USE:
         if (frameCount & 2) {
-            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
         }
-        SysMenuDrawCursor(0xA9, (g_ItemUseListCursorPos[0] * 0x10) + 0x3C);
+        SysMenuDrawCursor(ITEMMENU_LIST_CURSOR_X, (g_ItemUseListCursorPos[0] * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
         selectedItemId = g_ItemUseListCursorPos[0] + g_ItemListOffet;
         goto block_33;
 
     case ITEMMENU_SCREEN_ITEM_SELECTED:
         if (frameCount & 2) {
-            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
         }
         selectedItemId = g_ItemUseListCursorPos[0] + g_ItemListOffet;
         goto block_33;
 
     case ITEMMENU_SCREEN_KEY_ITEMS:
         if (frameCount & 2) {
-            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
         }
-        SysMenuDrawCursor((g_KeyItemCursorColumn[0] * 0xA6) + 3, (g_KeyItemCursorRow * 0x10) + 0x3C);
+        SysMenuDrawCursor((g_KeyItemCursorColumn[0] * ITEMMENU_KEY_COLUMN_WIDTH) + ITEMMENU_KEY_CURSOR_X, (g_KeyItemCursorRow * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
         emptyKeyItem = 0xFF;
         selectedItemId = ((g_KeyItemCursorRow + g_KeyItemListOffset) * 2) + g_KeyItemCursorColumn[0];
         rawItemData = g_KeyItemList[selectedItemId];
@@ -749,19 +665,19 @@ char ITEMMENU_Main(s32 frameCount) {
 
     case ITEMMENU_SCREEN_ARRANGE_SELECT:
         if (frameCount & 2) {
-            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
         }
         slotIdx = 0;
         cursorPosX = g_ItemArrangeWindow.x;
         textColor = (s32)&g_ItemArrangeWindow;
         menuStrPtr = (s8*)&g_ItemArrangeLabels;
-        itemSlot = 6;
-        SysMenuDrawCursor(cursorPosX - 0x12, (g_ItemArrangeWindow.y + 8) + g_ArrangeMenuCursorRow[0] * 12);
+        itemSlot = ITEMMENU_ARRANGE_TEXT_DY;
+        SysMenuDrawCursor(cursorPosX - ITEMMENU_ARRANGE_CURSOR_DX, (g_ItemArrangeWindow.y + ITEMMENU_ARRANGE_CURSOR_DY) + g_ArrangeMenuCursorRow[0] * ITEMMENU_ARRANGE_ROW_HEIGHT);
         do {
-            SysMenuDrawString(((RECT*)textColor)->x + 8, ((RECT*)textColor)->y + itemSlot, (const char*)menuStrPtr, 7);
-            menuStrPtr += 0xC;
+            SysMenuDrawString(((RECT*)textColor)->x + ITEMMENU_ARRANGE_TEXT_DX, ((RECT*)textColor)->y + itemSlot, (const char*)menuStrPtr, 7);
+            menuStrPtr += ITEMMENU_ARRANGE_ROW_HEIGHT;
             slotIdx += 1;
-            itemSlot += 0xC;
+            itemSlot += ITEMMENU_ARRANGE_ROW_HEIGHT;
         } while (((s32)slotIdx) < 8);
         drawRect[0] = 0;
         drawRect[1] = 0;
@@ -774,7 +690,7 @@ char ITEMMENU_Main(s32 frameCount) {
 
     case ITEMMENU_SCREEN_ARRANGE_CUSTOM:
         if (frameCount & 2) {
-            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
         }
         selectedItemId = g_ItemSwapCursorRow[0] + g_ItemSwapListOffset;
     block_33:
@@ -784,7 +700,7 @@ char ITEMMENU_Main(s32 frameCount) {
         if ((rawItemData & 0xFFFF) != 0xFFFF) {
             rawItemData = rawItemData & ITEM_ID_MASK;
         block_35:
-            SysMenuDrawString(0x10, 0x23, SysKernGetString(stringCategory, rawItemData, 0), 7);
+            SysMenuDrawString(ITEMMENU_DESC_X, ITEMMENU_DESC_Y, SysKernGetString(stringCategory, rawItemData, 0), 7);
         }
     }
 
@@ -800,13 +716,13 @@ char ITEMMENU_Main(s32 frameCount) {
         numVisibleRows = 0x30;
         widgetScreen = 0x100;
         selectedItemId = 0x38;
-        textColor = 0x36;
-        menuStrPtr = (s8*)0x3B;
+        textColor = ITEMMENU_PARTY_AVATAR_Y;
+        menuStrPtr = (s8*)ITEMMENU_PARTY_NAME_Y;
         do {
             if (((u8*)&Savemap.partyID[0] - 0xD)[charSlot] != 0xFF) {
-                SysMenuDrawCharNameLvHpMpByPartyId(0x50, (s32)menuStrPtr, (s32)slotIdx);
+                SysMenuDrawCharNameLvHpMpByPartyId(ITEMMENU_PARTY_NAME_X, (s32)menuStrPtr, (s32)slotIdx);
                 SysMenuDrawAvatar(
-                    0x16, textColor, 0x30, 0x30, 0, selectedItemId, numVisibleRows, numVisibleRows, charSlot, 0);
+                    ITEMMENU_PARTY_AVATAR_X, textColor, 0x30, 0x30, 0, selectedItemId, numVisibleRows, numVisibleRows, charSlot, 0);
                 drawRect[0] = 0;
                 drawRect[1] = 0;
                 drawRect[2] = widgetScreen;
@@ -815,50 +731,50 @@ char ITEMMENU_Main(s32 frameCount) {
             }
             charSlot = charSlot + 1;
             selectedItemId += 0x30;
-            textColor += 0x38;
+            textColor += ITEMMENU_PARTY_SLOT_HEIGHT;
             slotIdx += 1;
-            menuStrPtr += 0x38;
+            menuStrPtr += ITEMMENU_PARTY_SLOT_HEIGHT;
         } while (((s32)slotIdx) < 3);
-        SysMenuSetWindowRect(subWindowRect, 0, 0x32, 0xAA, 0xAB);
+        SysMenuSetWindowRect(subWindowRect, 0, ITEMMENU_PARTY_WINDOW_Y, ITEMMENU_PARTY_WINDOW_W, ITEMMENU_PARTY_WINDOW_H);
         SysMenuDrawWindow(subWindowRect);
     }
     menuStrPtr = (s8*)0;
     tabNamePtr = (s8*)(&g_ItemMenuTabLabels);
-    slotIdx = (s8*)0x22;
+    slotIdx = (s8*)ITEMMENU_TAB_LABEL_X;
     do {
-        SysMenuDrawString((s32)slotIdx, 0xD, tabNamePtr, 7);
+        SysMenuDrawString((s32)slotIdx, ITEMMENU_TAB_LABEL_Y, tabNamePtr, 7);
         tabNamePtr += 0xC;
         menuStrPtr += 1;
-        slotIdx += 0x38;
+        slotIdx += ITEMMENU_TAB_SPACING_X;
     } while (((s32)menuStrPtr) < 3);
-    drawRect[2] = 0x16C;
-    drawRect[3] = 0xE0;
+    drawRect[2] = ITEMMENU_CLIP_W;
+    drawRect[3] = ITEMMENU_HEADER_CLIP_H;
     drawRect[0] = 0;
     drawRect[1] = 0;
     SysMenuSetDrawenv((void*)(((u8*)D_800706A4) + (g_MenuRenderBufferIndex * 0x5C)), drawRect);
     if (g_ItemMenuWidgets[0].column != 2) {
         if (g_ItemMenuCurrentScreen == 5) {
             if ((g_ItemSwapState != 0) && (frameCount & 2)) {
-                cursorYOffset = ((g_ItemSwapSourceSlot - g_ItemSwapListOffset) * 0x10) + (g_ItemSwapScrollAnimY * 4);
+                cursorYOffset = ((g_ItemSwapSourceSlot - g_ItemSwapListOffset) * ITEMMENU_ROW_HEIGHT) + (g_ItemSwapScrollAnimY * ITEMMENU_SCROLL_ANIM_SCALE);
                 if (((u32)(cursorYOffset + 0xB)) < 0x10FU) {
-                    SysMenuDrawCursor(0xA5, cursorYOffset + 0x38);
+                    SysMenuDrawCursor(ITEMMENU_SWAP_CURSOR_X, cursorYOffset + ITEMMENU_ICON_Y);
                 }
             }
-            SysMenuDrawCursor(0xA9, (g_ItemSwapCursorRow[0] * 0x10) + 0x3C);
+            SysMenuDrawCursor(ITEMMENU_LIST_CURSOR_X, (g_ItemSwapCursorRow[0] * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
             widgetScreen = 5;
         } else {
             widgetScreen = 1;
         }
         do {
-            g_ItemMenuScrollbar[0] = 0xA;
-            g_ItemMenuScrollbarTotalRows = 0x140;
+            g_ItemMenuScrollbar[0] = ITEMMENU_SCROLLBAR_VISIBLE_ROWS;
+            g_ItemMenuScrollbarTotalRows = ITEMMENU_INVENTORY_ROWS;
         } while (0);
         slotIdx = (s8*)(widgetScreen * 0x12);
         scrollPos = *((u16*)((((u8*)g_ItemMenuWidgets) + 2) + ((s32)slotIdx)));
-        g_ItemMenuScrollbarTrackX = 0x160;
-        g_ItemMenuScrollbarTrackY = 0x35;
-        g_ItemMenuScrollbarTrackW = 0xA;
-        g_ItemMenuScrollbarTrackH = 0xA5;
+        g_ItemMenuScrollbarTrackX = ITEMMENU_SCROLLBAR_X;
+        g_ItemMenuScrollbarTrackY = ITEMMENU_SCROLLBAR_Y;
+        g_ItemMenuScrollbarTrackW = ITEMMENU_SCROLLBAR_W;
+        g_ItemMenuScrollbarTrackH = ITEMMENU_SCROLLBAR_H;
         g_ItemMenuScrollbarTopRow = scrollPos;
         numVisibleRows = 0xA;
         SysMenuDrawScrollbar(g_ItemMenuScrollbar, scrollPos);
@@ -870,14 +786,14 @@ char ITEMMENU_Main(s32 frameCount) {
         rowIdx = 0;
         if ((s16)numVisibleRows != 0) {
             do {
-                yBaseOffset = 0x3A;
+                yBaseOffset = ITEMMENU_NAME_Y;
                 itemSlot = (*((s16*)((((u8*)g_ItemMenuWidgets) + 2) + ((s32)slotIdx)))) + rowIdx;
                 invItem = *(Savemap.inventory - (-itemSlot));
                 if ((invItem & 0xFFFF) != 0xFFFF) {
                     selectedItemId = invItem & 0x1FF;
                     textColor = (-((func_801D0DCC(selectedItemId) & 4) == 0)) & 7;
                     SysMenuDrawString(
-                        0xD6, (rowIdx * 0x10) + (((&g_ItemMenuWidgets[0].scrollAnimY)[(s32)slotIdx] * 4) + yBaseOffset),
+                        ITEMMENU_NAME_X, (rowIdx * ITEMMENU_ROW_HEIGHT) + (((&g_ItemMenuWidgets[0].scrollAnimY)[(s32)slotIdx] * ITEMMENU_SCROLL_ANIM_SCALE) + yBaseOffset),
                         SysKernGetString(4, selectedItemId, 8), textColor);
                 }
                 rowIdx += 1;
@@ -900,17 +816,17 @@ char ITEMMENU_Main(s32 frameCount) {
                     itemUsableFlag = func_801D0DCC(selectedItemId) & 4;
                     textColor = (-(itemUsableFlag == 0)) & 7;
                     ((void (*)())ITEMMENU_DrawItemTypeIcon)(
-                        0xC4, ((s8*)(rowIdx * 0x10)) + (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * 4) + 0x38),
+                        ITEMMENU_ICON_X, ((s8*)(rowIdx * ITEMMENU_ROW_HEIGHT)) + (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * ITEMMENU_SCROLL_ANIM_SCALE) + ITEMMENU_ICON_Y),
                         selectedItemId, 0);
                     SysMenuDrawSingleFontLetter(
-                        0x13F,
-                        (s32)(((s8*)(rowIdx * 0x10)) +
-                              (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * 4) + 0x3C)),
+                        ITEMMENU_QTY_X_MULTIPLY,
+                        (s32)(((s8*)(rowIdx * ITEMMENU_ROW_HEIGHT)) +
+                              (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * ITEMMENU_SCROLL_ANIM_SCALE) + ITEMMENU_LIST_TOP_Y)),
                         0xD5, textColor);
                     SysMenuDrawDigitsWithoutLeadingZeroes(
-                        0x140,
-                        (s32)(((s8*)(rowIdx * 0x10)) +
-                              (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * 4) + 0x3B)),
+                        ITEMMENU_QTY_X,
+                        (s32)(((s8*)(rowIdx * ITEMMENU_ROW_HEIGHT)) +
+                              (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * ITEMMENU_SCROLL_ANIM_SCALE) + ITEMMENU_QTY_Y)),
                         count, 3, textColor);
                 }
                 rowIdx += 1;
@@ -918,12 +834,12 @@ char ITEMMENU_Main(s32 frameCount) {
         }
     } else {
         numVisibleRows = 0xA;
-        g_ItemMenuScrollbar[0] = 0xA;
-        g_ItemMenuScrollbarTotalRows = 0x20;
-        g_ItemMenuScrollbarTrackW = 0xA;
-        g_ItemMenuScrollbarTrackX = 0x160;
-        g_ItemMenuScrollbarTrackY = 0x35;
-        g_ItemMenuScrollbarTrackH = 0xA5;
+        g_ItemMenuScrollbar[0] = ITEMMENU_SCROLLBAR_VISIBLE_ROWS;
+        g_ItemMenuScrollbarTotalRows = ITEMMENU_KEY_TOTAL_ROWS;
+        g_ItemMenuScrollbarTrackW = ITEMMENU_SCROLLBAR_W;
+        g_ItemMenuScrollbarTrackX = ITEMMENU_SCROLLBAR_X;
+        g_ItemMenuScrollbarTrackY = ITEMMENU_SCROLLBAR_Y;
+        g_ItemMenuScrollbarTrackH = ITEMMENU_SCROLLBAR_H;
         g_ItemMenuScrollbarTopRow = (u16)g_KeyItemListOffset;
         keyRowIdx = 0;
         selectedItemId = 0x38;
@@ -933,19 +849,19 @@ char ITEMMENU_Main(s32 frameCount) {
         SysMenuUnkNoop(9);
         slotIdx = 0;
         do {
-            widgetScreen = keyRowIdx * 0x10;
-            textColor = 0x20;
+            widgetScreen = keyRowIdx * ITEMMENU_ROW_HEIGHT;
+            textColor = ITEMMENU_KEY_TEXT_X;
             itemSlot = (g_KeyItemListOffset + keyRowIdx) * 2;
         loop_66:
             selectedItemId = itemSlot + ((s32)slotIdx);
 
             keyItemId = g_KeyItemList[selectedItemId];
             if (keyItemId != 0xFF) {
-                SysMenuDrawString(textColor, widgetScreen + (scrollAnimOffset = (g_KeyItemScrollAnimY * 4) + 0x3A),
+                SysMenuDrawString(textColor, widgetScreen + (scrollAnimOffset = (g_KeyItemScrollAnimY * ITEMMENU_SCROLL_ANIM_SCALE) + ITEMMENU_NAME_Y),
                                   SysKernGetString(0xE, keyItemId, 8), 7);
             }
             slotIdx += 1;
-            textColor += 0xA6;
+            textColor += ITEMMENU_KEY_COLUMN_WIDTH;
             if (((s32)slotIdx) < 2) {
                 goto loop_66;
             }
@@ -953,10 +869,10 @@ char ITEMMENU_Main(s32 frameCount) {
             slotIdx = 0;
         } while (((s32)keyRowIdx) < 0xC);
     }
-    canRestoreMp = 0x35;
+    canRestoreMp = ITEMMENU_LIST_CLIP_Y;
     drawRect[1] = canRestoreMp;
-    drawRect[2] = 0x16C;
-    drawRect[3] = 0xA5;
+    drawRect[2] = ITEMMENU_CLIP_W;
+    drawRect[3] = ITEMMENU_LIST_CLIP_H;
     drawRect[0] = 0;
     SysMenuSetDrawenv((void*)(((u8*)D_800706A4) + (g_MenuRenderBufferIndex * 0x5C)), drawRect);
     slotIdx = 0;
