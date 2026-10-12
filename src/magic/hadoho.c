@@ -10,7 +10,7 @@ u_long* func_800C4FC8();
 // Dragon Cannon (怒龍砲 / Doryuho).
 // The file name (波動砲, Wave Artillery) is the attack that uses SHAKU.
 
-void func_801B1978(s32 targetMask, s32 callbackArg);
+void HadohoStart(s32 targetMask, s32 callbackArg);
 
 // Primitive buffer pages, one 0xC000 page per double-buffered frame.
 extern u8 g_HadohoPrimBuffer[2][0xC000];
@@ -73,17 +73,17 @@ extern u_long D_801B1B40[];
 extern void* D_80163C74;
 s32 BattleDetachedRegister(void (*func)(void));
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
-void func_801B04C8(void);
-void func_801B066C(void);
-void func_801B0888(void);
-void func_801B0B44(void);
-void func_801B10A8(void);
-void func_801B1598(void);
+void HadohoViewportFlashTick(void);
+void HadohoEmberTick(void);
+void HadohoRisingModelTick(void);
+void HadohoShrinkingModelTick(void);
+void HadohoBeamHeadTick(void);
+void HadohoMainTick(void);
 
 // Same as MAGIC_Biora.
-void func_801B0000(s32 targetMask, s32 callbackArg) { func_801B1978(targetMask, callbackArg); }
+void MAGIC_Hadoho(s32 targetMask, s32 callbackArg) { HadohoStart(targetMask, callbackArg); }
 
-void func_801B0020(s16 targetMask, SVECTOR* out) {
+void HadohoTargetCenterCalc(s16 targetMask, SVECTOR* out) {
     VECTOR sum;
     SVECTOR pos;
     s16 i;
@@ -105,7 +105,7 @@ void func_801B0020(s16 targetMask, SVECTOR* out) {
     out->vz = sum.vz / count;
 }
 
-void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
+void HadohoSprayVectorCalc(s32 offset, s16 spread, SVECTOR* out) {
     SVECTOR in;
     SVECTOR rot;
     MATRIX matrix;
@@ -120,7 +120,7 @@ void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
     ApplyMatrixSV(&matrix, &in, out);
 }
 
-void func_801B02FC(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
+void HadohoSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
     MATRIX matrix;
     MATRIX rotated;
     VECTOR dir;
@@ -160,7 +160,7 @@ static void HadohoDoubleBufferFlip(void) {
     }
 }
 
-void func_801B04C8(void) {
+void HadohoViewportFlashTick(void) {
     HadohoData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -179,7 +179,7 @@ void func_801B04C8(void) {
     }
 }
 
-void func_801B05B0(void) {
+void HadohoSparkSpriteTick(void) {
     HadohoData* effect;
 
     effect = &g_BattleDetachedSlots[g_BattleDetachedCursor];
@@ -194,7 +194,7 @@ void func_801B05B0(void) {
     }
 }
 
-void func_801B066C(void) {
+void HadohoEmberTick(void) {
     MATRIX rotated;
     MATRIX matrix;
     SVECTOR rot;
@@ -245,7 +245,7 @@ void func_801B066C(void) {
     }
 }
 
-void func_801B0888(void) {
+void HadohoRisingModelTick(void) {
     MATRIX matrix;
     MATRIX composed;
     SVECTOR rot;
@@ -276,7 +276,7 @@ void func_801B0888(void) {
     }
 }
 
-void func_801B09E8(void) {
+void HadohoGrowingModelTick(void) {
     MATRIX matrix;
     MATRIX composed;
     VECTOR scale;
@@ -304,7 +304,7 @@ void func_801B09E8(void) {
     }
 }
 
-void func_801B0B44(void) {
+void HadohoShrinkingModelTick(void) {
     MATRIX matrix;
     MATRIX composed;
     VECTOR scale;
@@ -334,7 +334,7 @@ void func_801B0B44(void) {
     }
 }
 
-void func_801B0CC8(void) {
+void HadohoDriftSpriteTick(void) {
     HadohoData* effect;
 
     effect = &g_BattleDetachedSlots[g_BattleDetachedCursor];
@@ -352,7 +352,7 @@ void func_801B0CC8(void) {
     }
 }
 
-void func_801B0DB4(void) {
+void HadohoPulseSpriteTick(void) {
     HadohoData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -367,7 +367,7 @@ void func_801B0DB4(void) {
     }
 }
 
-void func_801B0EB4(void) {
+void HadohoBeamColumnTick(void) {
     MATRIX matrix;
     MATRIX composed;
     VECTOR scale;
@@ -402,7 +402,7 @@ void func_801B0EB4(void) {
     }
 }
 
-void func_801B10A8(void) {
+void HadohoBeamHeadTick(void) {
     MATRIX matrix;
     MATRIX composed;
     HadohoData* effect;
@@ -434,13 +434,13 @@ void func_801B10A8(void) {
         effect->Pos.vy += effect->PartPos.vy;
         effect->Pos.vz += effect->PartPos.vz;
         if ((effect->AnimationFrame & 1) == 0) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0B44)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(HadohoShrinkingModelTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
         }
         if (effect->Pos.vy < 0) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B066C)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(HadohoEmberTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vz = effect->Pos.vz;
             child->Pos.vy = 0;
@@ -450,7 +450,7 @@ void func_801B10A8(void) {
             child->PartPos.vy = -rand() % 300 - 50;
             child->unk16 = rand() % 7;
             if (effect->AnimationFrame % 3 == 0) {
-                child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0888)];
+                child = &g_BattleEffectSlots[BattleEffectRegister(HadohoRisingModelTick)];
                 child->Pos.vx = effect->Pos.vx + rand() % 4000 - 2000;
                 child->Pos.vz = effect->Pos.vz + rand() % 4000 - 2000;
                 child->Pos.vy = 0;
@@ -466,7 +466,7 @@ void func_801B10A8(void) {
         }
     }
 }
-void func_801B1598(void) {
+void HadohoMainTick(void) {
     SVECTOR in;
     SVECTOR rot;
     MATRIX matrix;
@@ -480,22 +480,22 @@ void func_801B1598(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == 0) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B09E8)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(HadohoGrowingModelTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0DB4)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(HadohoPulseSpriteTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
             func_800BBA84(0x174, effect->unk1E, 0x40);
         }
         if (effect->AnimationFrame == 20) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0EB4)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(HadohoBeamColumnTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B10A8)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(HadohoBeamHeadTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
@@ -505,7 +505,7 @@ void func_801B1598(void) {
             func_800BBA84(0x176, effect->unk1E, 0x40);
         }
         if (effect->AnimationFrame == 20) {
-            BattleEffectRegister(func_801B04C8);
+            BattleEffectRegister(HadohoViewportFlashTick);
         }
         if (effect->AnimationFrame == 54) {
             BattleFixedPointRampUpdateInit(0, 16);
@@ -513,7 +513,7 @@ void func_801B1598(void) {
         if (effect->AnimationFrame >= 37 && effect->AnimationFrame < 44) {
             for (i = 0; i < 10; i++) {
                 if ((D_801D563C >> i) & 1) {
-                    child = &g_BattleDetachedSlots[BattleDetachedRegister(func_801B0CC8)];
+                    child = &g_BattleDetachedSlots[BattleDetachedRegister(HadohoDriftSpriteTick)];
                     BattleGetPartPosition(i, g_BattleModels[i].boneIndices[0], &child->Pos);
                     in.vy = 0x50;
                     in.vz = 0;
@@ -551,16 +551,16 @@ void func_801B1598(void) {
     }
 }
 
-void func_801B1978(s32 targetMask, s32 callbackArg) {
+void HadohoStart(s32 targetMask, s32 callbackArg) {
     VECTOR vec;
     SVECTOR dir;
     HadohoData* effect;
 
     BattleEffectRegister(HadohoDoubleBufferFlip);
     D_801D563C = targetMask;
-    effect = &g_BattleEffectSlots[BattleEffectRegister(func_801B1598)];
+    effect = &g_BattleEffectSlots[BattleEffectRegister(HadohoMainTick)];
     BattleGetPartPosition(callbackArg, g_BattleModels[callbackArg].boneIndices[8], &effect->Pos);
-    func_801B0020(targetMask, &D_801D5640);
+    HadohoTargetCenterCalc(targetMask, &D_801D5640);
     vec.vx = dir.vx = D_801D5640.vx - effect->Pos.vx;
     vec.vy = dir.vy = D_801D5640.vy - effect->Pos.vy;
     vec.vz = dir.vz = D_801D5640.vz - effect->Pos.vz;

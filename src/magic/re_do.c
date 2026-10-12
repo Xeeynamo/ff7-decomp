@@ -9,7 +9,7 @@ u_long* func_800C4FC8();
 
 // Big Breath (大口ブレス / Oguchi Buresu).
 
-void func_801B1A54(s32 targetMask, s32 callbackArg);
+void ReDoStart(s32 targetMask, s32 callbackArg);
 
 // Primitive buffer pages, one 0xC000 page per double-buffered frame.
 extern u8 g_ReDoPrimBuffer[2][0xC000];
@@ -73,17 +73,17 @@ extern u_long D_801B1B38[];
 extern void* D_80163C74;
 s32 BattleDetachedRegister(void (*func)(void));
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
-void func_801B04C8(void);
-void func_801B0664(void);
-void func_801B0880(void);
-void func_801B0B3C(void);
-void func_801B10A0(void);
-void func_801B1590(void);
+void ReDoViewportFlashTick(void);
+void ReDoEmberTick(void);
+void ReDoRisingModelTick(void);
+void ReDoShrinkingModelTick(void);
+void ReDoBeamHeadTick(void);
+void ReDoMainTick(void);
 
 // Same as MAGIC_Biora.
-void func_801B0000(s32 targetMask, s32 callbackArg) { func_801B1A54(targetMask, callbackArg); }
+void MAGIC_ReDo(s32 targetMask, s32 callbackArg) { ReDoStart(targetMask, callbackArg); }
 
-void func_801B0020(s16 targetMask, SVECTOR* out) {
+void ReDoTargetCenterCalc(s16 targetMask, SVECTOR* out) {
     VECTOR sum;
     SVECTOR pos;
     s16 i;
@@ -105,7 +105,7 @@ void func_801B0020(s16 targetMask, SVECTOR* out) {
     out->vz = sum.vz / count;
 }
 
-void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
+void ReDoSprayVectorCalc(s32 offset, s16 spread, SVECTOR* out) {
     SVECTOR in;
     SVECTOR rot;
     MATRIX matrix;
@@ -120,7 +120,7 @@ void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
     ApplyMatrixSV(&matrix, &in, out);
 }
 
-void func_801B02FC(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
+void ReDoSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
     MATRIX matrix;
     MATRIX rotated;
     VECTOR dir;
@@ -160,7 +160,7 @@ static void ReDoDoubleBufferFlip(void) {
     }
 }
 
-void func_801B04C8(void) {
+void ReDoViewportFlashTick(void) {
     ReDoData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -179,7 +179,7 @@ void func_801B04C8(void) {
     }
 }
 
-void func_801B05A8(void) {
+void ReDoSparkSpriteTick(void) {
     ReDoData* effect;
 
     effect = &g_BattleDetachedSlots[g_BattleDetachedCursor];
@@ -194,7 +194,7 @@ void func_801B05A8(void) {
     }
 }
 
-void func_801B0664(void) {
+void ReDoEmberTick(void) {
     MATRIX rotated;
     MATRIX matrix;
     SVECTOR rot;
@@ -245,7 +245,7 @@ void func_801B0664(void) {
     }
 }
 
-void func_801B0880(void) {
+void ReDoRisingModelTick(void) {
     MATRIX matrix;
     MATRIX composed;
     SVECTOR rot;
@@ -276,7 +276,7 @@ void func_801B0880(void) {
     }
 }
 
-void func_801B09E0(void) {
+void ReDoGrowingModelTick(void) {
     MATRIX matrix;
     MATRIX composed;
     VECTOR scale;
@@ -304,7 +304,7 @@ void func_801B09E0(void) {
     }
 }
 
-void func_801B0B3C(void) {
+void ReDoShrinkingModelTick(void) {
     MATRIX matrix;
     MATRIX composed;
     VECTOR scale;
@@ -334,7 +334,7 @@ void func_801B0B3C(void) {
     }
 }
 
-void func_801B0CC0(void) {
+void ReDoDriftSpriteTick(void) {
     ReDoData* effect;
 
     effect = &g_BattleDetachedSlots[g_BattleDetachedCursor];
@@ -352,7 +352,7 @@ void func_801B0CC0(void) {
     }
 }
 
-void func_801B0DAC(void) {
+void ReDoPulseSpriteTick(void) {
     ReDoData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -368,7 +368,7 @@ void func_801B0DAC(void) {
     }
 }
 
-void func_801B0EAC(void) {
+void ReDoBeamColumnTick(void) {
     MATRIX matrix;
     MATRIX composed;
     VECTOR scale;
@@ -403,7 +403,7 @@ void func_801B0EAC(void) {
     }
 }
 
-void func_801B10A0(void) {
+void ReDoBeamHeadTick(void) {
     MATRIX matrix;
     MATRIX composed;
     ReDoData* effect;
@@ -435,13 +435,13 @@ void func_801B10A0(void) {
         effect->Pos.vy += effect->PartPos.vy;
         effect->Pos.vz += effect->PartPos.vz;
         if ((effect->AnimationFrame & 1) == 0) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0B3C)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ReDoShrinkingModelTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
         }
         if (effect->Pos.vy < 0) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0664)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ReDoEmberTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vz = effect->Pos.vz;
             child->Pos.vy = 0;
@@ -451,7 +451,7 @@ void func_801B10A0(void) {
             child->PartPos.vy = -rand() % 300 - 50;
             child->unk16 = rand() % 7;
             if (effect->AnimationFrame % 3 == 0) {
-                child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0880)];
+                child = &g_BattleEffectSlots[BattleEffectRegister(ReDoRisingModelTick)];
                 child->Pos.vx = effect->Pos.vx + rand() % 4000 - 2000;
                 child->Pos.vz = effect->Pos.vz + rand() % 4000 - 2000;
                 child->Pos.vy = 0;
@@ -468,7 +468,7 @@ void func_801B10A0(void) {
     }
 }
 
-void func_801B1590(void) {
+void ReDoMainTick(void) {
     SVECTOR in;
     SVECTOR rot;
     MATRIX matrix;
@@ -491,22 +491,22 @@ void func_801B1590(void) {
             effect->PartPos.vx = in.vx * 75 >> 9;
             effect->PartPos.vy = in.vy * 75 >> 9;
             effect->PartPos.vz = in.vz * 75 >> 9;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B09E0)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ReDoGrowingModelTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0DAC)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ReDoPulseSpriteTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
             func_800BBA84(0x174, effect->unk1E, 0x40);
         }
         if (effect->AnimationFrame == 20) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0EAC)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ReDoBeamColumnTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B10A0)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ReDoBeamHeadTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
@@ -516,7 +516,7 @@ void func_801B1590(void) {
             func_800BBA84(0x164, effect->unk1E, 0x40);
         }
         if (effect->AnimationFrame == 20) {
-            BattleEffectRegister(func_801B04C8);
+            BattleEffectRegister(ReDoViewportFlashTick);
         }
         if (effect->AnimationFrame == 54) {
             BattleFixedPointRampUpdateInit(0, 16);
@@ -524,7 +524,7 @@ void func_801B1590(void) {
         if (effect->AnimationFrame >= 37 && effect->AnimationFrame < 44) {
             for (i = 0; i < 10; i++) {
                 if ((D_801D572C >> i) & 1) {
-                    child = &g_BattleDetachedSlots[BattleDetachedRegister(func_801B0CC0)];
+                    child = &g_BattleDetachedSlots[BattleDetachedRegister(ReDoDriftSpriteTick)];
                     BattleGetPartPosition(i, g_BattleModels[i].boneIndices[0], &child->Pos);
                     in.vy = 0x50;
                     in.vz = 0;
@@ -561,15 +561,15 @@ void func_801B1590(void) {
     }
 }
 
-void func_801B1A54(s32 targetMask, s32 callbackArg) {
+void ReDoStart(s32 targetMask, s32 callbackArg) {
     // pad0 and pad1 are unused; they only reproduce the original 0x38 stack frame.
     VECTOR pad0;
     SVECTOR pad1;
 
     BattleEffectRegister(ReDoDoubleBufferFlip);
     D_801D572C = targetMask;
-    g_BattleEffectSlots[BattleEffectRegister(func_801B1590)].unk1E = callbackArg;
-    func_801B0020(targetMask, &D_801D5730);
+    g_BattleEffectSlots[BattleEffectRegister(ReDoMainTick)].unk1E = callbackArg;
+    ReDoTargetCenterCalc(targetMask, &D_801D5730);
     BattleSetLoadTimToVram(D_801B1B08, 0, 0, 0);
     D_800F5B70 = D_800F5B71 = D_800F5B72 = 0;
     BattleFixedPointRampUpdateInit(0x1000, 0x10);
