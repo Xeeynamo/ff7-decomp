@@ -851,3 +851,15 @@ overlays:
       - [0x30, c, faiga]
       - [0xFC0, data, faiga_model]
       - [0x1AFC0, data, faiga_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral
+  # GRAVIDE.BIN -- "Demi", the tier-1 gravity spell
+  - name: gravide
+    disk_path: disks/us/MAGIC/GRAVIDE.BIN
+    sha1: f69f606e8c8dd3442a826cec6a8aa0e34ff56169
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-gravide.us.txt
+    segments:
+      - [0, c, gravide]
+      - [0x7a0, data, gravide_model]

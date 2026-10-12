@@ -1,0 +1,13 @@
+func_801B0000 = 0x801B0000;
+func_801B00F0 = 0x801B00F0;
+func_801B01F4 = 0x801B01F4;
+GravideTargetTick = 0x801B02E8;
+GravideTargetSetup = 0x801B0568;
+GravideDoubleBufferFlip = 0x801B06C4;
+MAGIC_Gravide = 0x801B0730;
+g_GravideTexture = 0x801B07A0;
+g_GravideDescA = 0x801D0A40;
+g_GravideDescB = 0x801D0A4C;
+g_GravideDescC = 0x801D0A58;
+g_GravideBuffer = 0x801D0A64;
+g_GravideBufferPtr = 0x801EEA64;
