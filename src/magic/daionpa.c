@@ -39,7 +39,7 @@ extern DaionpaData g_BattleEffectSlots[];
 
 void MAGIC_Daionpa(s32 targetMask, s32 callbackArg) { DaionpaStart(targetMask, callbackArg); }
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 void DaionpaDoubleBufferFlip(void) {
     DaionpaData* effect;
 

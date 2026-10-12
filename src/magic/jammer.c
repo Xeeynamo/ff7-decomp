@@ -5,7 +5,7 @@
 #include "jammer.h"
 #include "../battle/battle.h"
 
-// Magic Extinguish (魔法消滅).
+// Magic Extinguish (魔法消滅 / Maho Shometsu).
 
 void JammerStart(s32 targetMask, s32 callbackArg);
 void JammerTargetTick(void);
@@ -34,7 +34,7 @@ extern JammerData g_BattleEffectSlots[];
 
 void MAGIC_Jammer(s32 targetMask, s32 callbackArg) { JammerStart(targetMask, callbackArg); }
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 void JammerDoubleBufferFlip(void) {
     JammerData* effect;
 
