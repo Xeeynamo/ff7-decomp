@@ -4246,7 +4246,6 @@ void AkaoOp_E9_TempoSlide(AkaoChannel* track, AkaoChannelConfig* config, u32 mas
 }
 
 static void AkaoOp_EA_ReverbDepth(AkaoChannel* track, AkaoChannelConfig* config) {
-
     s32 depth;
 
     depth = *track->akaoSequencePointer++ << 16;

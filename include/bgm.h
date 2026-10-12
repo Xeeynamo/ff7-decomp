@@ -1,4 +1,3 @@
-
 typedef enum {
     BGM_NONE = 0x00,     // none
     BGM_NOTHING = 0x01,  // nothing

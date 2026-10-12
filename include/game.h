@@ -13,7 +13,7 @@
 #include <psyz.h>
 #include <psyz/log.h>
 // psyz's libetc.h has no getScratchAddr yet
-#define getScratchAddr(offset) ((u_long*)(0x1f800000 + (offset) * 4))
+#define getScratchAddr(offset) ((u_long*)(0x1F800000 + (offset) * 4))
 #else
 #define INFOF(...) (void)0
 #endif

@@ -651,7 +651,7 @@ void BattleUpdateUnitMasks(void) {
         }
     }
 
-    enemyFrontRow = 0xffff; // This was probably defined as a constant somewhere (eg: INVALID_INDEX)
+    enemyFrontRow = 0xFFFF; // This was probably defined as a constant somewhere (eg: INVALID_INDEX)
     g_BattleSceneContext.petrifiedMask = petrifiedActors;
     g_BattleData.unk14C = var_t3;
     g_BattleData.unk15C = var_s1;

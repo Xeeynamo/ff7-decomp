@@ -116,8 +116,8 @@ u8* LoadLocalFieldModelAndInitAll(
     u32 byteSize;
     u32* bones;
     // Used for optimized struct copying.
-    u32(*parts)[8];
-    u32(*anims)[4];
+    u32 (*parts)[8];
+    u32 (*anims)[4];
     u8* nextFree;
     u8* params = (u8*)getScratchAddr(0);
     u8* bufferIndex;
@@ -181,7 +181,7 @@ u8* LoadLocalFieldModelAndInitAll(
                 bones[model->boneStart + j] = *src++;
             }
             count = model->partCount;
-            parts = (u32(*)[8])(entry->modelData + entry->partsOffset);
+            parts = (u32 (*)[8])(entry->modelData + entry->partsOffset);
             for (j = 0; j < count; j++) {
                 parts[model->partStart + j][0] = src[0];
                 parts[model->partStart + j][1] = src[1];
@@ -195,7 +195,7 @@ u8* LoadLocalFieldModelAndInitAll(
                 src += 8;
             }
             count = model->animationCount;
-            anims = (u32(*)[4])(entry->modelData + entry->animationOffset);
+            anims = (u32 (*)[4])(entry->modelData + entry->animationOffset);
             for (j = 0; j < count; j++) {
                 anims[model->animationStart + j][0] = src[0];
                 anims[model->animationStart + j][1] = src[1];
@@ -716,10 +716,10 @@ u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8
     u32* sourceBones;
     u32* bones;
     // Used for optimized struct copying.
-    u32(*partSrc)[8];
-    u32(*partDst)[8];
-    u32(*animationSrc)[4];
-    u32(*animationDst)[4];
+    u32 (*partSrc)[8];
+    u32 (*partDst)[8];
+    u32 (*animationSrc)[4];
+    u32 (*animationDst)[4];
 
     if (entry->npcFlag) {
         globalModelId = (s8)entry->globalModelId;
@@ -772,8 +772,8 @@ u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8
                     bones[i] = sourceBones[i];
                 }
                 count = source->partCount;
-                partDst = (u32(*)[8])(model->modelData + model->partsOffset);
-                partSrc = (u32(*)[8])(source->modelData + source->partsOffset);
+                partDst = (u32 (*)[8])(model->modelData + model->partsOffset);
+                partSrc = (u32 (*)[8])(source->modelData + source->partsOffset);
                 for (i = 0; i < count; i++) {
                     partDst[i][0] = partSrc[i][0];
                     partDst[i][1] = partSrc[i][1];
@@ -787,8 +787,8 @@ u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8
                     partDst[i][6] = relocation + partSrc[i][6];
                 }
                 count = source->animationCount;
-                animationDst = (u32(*)[4])(model->modelData + model->animationOffset);
-                animationSrc = (u32(*)[4])(source->modelData + source->animationOffset);
+                animationDst = (u32 (*)[4])(model->modelData + model->animationOffset);
+                animationSrc = (u32 (*)[4])(source->modelData + source->animationOffset);
                 for (i = 0; i < count; i++) {
                     animationDst[i][0] = animationSrc[i][0];
                     animationDst[i][1] = animationSrc[i][1];
@@ -811,8 +811,8 @@ u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8
                         bones[j] = sourceBones[j];
                     }
                     copyCount = source->partCount;
-                    partDst = (u32(*)[8])(model->modelData + model->partsOffset);
-                    partSrc = (u32(*)[8])(source->modelData + source->partsOffset);
+                    partDst = (u32 (*)[8])(model->modelData + model->partsOffset);
+                    partSrc = (u32 (*)[8])(source->modelData + source->partsOffset);
                     for (j = 0; j < copyCount; j++) {
                         partDst[j][0] = partSrc[j][0];
                         partDst[j][1] = partSrc[j][1];
@@ -824,8 +824,8 @@ u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8
                         partDst[j][7] = partSrc[j][7];
                     }
                     copyCount = source->animationCount;
-                    animationDst = (u32(*)[4])(model->modelData + model->animationOffset);
-                    animationSrc = (u32(*)[4])(source->modelData + source->animationOffset);
+                    animationDst = (u32 (*)[4])(model->modelData + model->animationOffset);
+                    animationSrc = (u32 (*)[4])(source->modelData + source->animationOffset);
                     for (j = 0; j < copyCount; j++) {
                         animationDst[j][0] = animationSrc[j][0];
                         animationDst[j][1] = animationSrc[j][1];

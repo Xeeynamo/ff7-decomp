@@ -1782,7 +1782,6 @@ void WmExtractLoopCoordsTopBottomParts(VECTOR* arg0, SVECTOR* arg1, s16* arg2, s
 }
 
 void WmLoopCoordsAroundWorld(VECTOR* arg0) {
-
     if (arg0 != NULL) {
         if (arg0->vx > 0x47FFF) {
             arg0->vx -= 0x48000;

@@ -2075,7 +2075,7 @@ static s32 FieldEventRequest(s16 type, u8 target, u8 priority, u8 scriptId) {
 
 static s32 OpcodeFuncRet(void) {
     u16* fieldScriptPC;
-    u16(*savedPC)[8];
+    u16 (*savedPC)[8];
     u16* savedRow;
     u16 scriptPc;
     u32 entity;

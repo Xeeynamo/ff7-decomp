@@ -34,7 +34,7 @@ void FieldRainInit(FieldRenderData* renderData) {
         renderData->rain[i].b0 = 0x10;
     }
 
-    SetDrawMode(&renderData->rainDm, 0, 0, GetTPage(0, 1, 0, 0) & 0xffff, NULL);
+    SetDrawMode(&renderData->rainDm, 0, 0, GetTPage(0, 1, 0, 0) & 0xFFFF, NULL);
 }
 
 void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm) {
@@ -86,7 +86,6 @@ void FieldRainUpdate(void) {
     for (i = 0; i < 0x40; i++) {
         if (g_FieldRain[i].wait == 0) {
             if (i < limit) {
-
                 u8 seed3;
 
                 g_FieldRain[i].render = 1;

@@ -432,7 +432,6 @@ static void JetDrawTrack(void) {
 
 // Build the world matrix from the camera rotation and the view position.
 static void JetSetWorldMatrix(void) {
-
     g_JetViewMatrix->t[0] = -g_JetCameraPos.vx;
     g_JetViewMatrix->t[1] = -g_JetCameraPos.vy;
     g_JetViewMatrix->t[2] = -g_JetCameraPos.vz;

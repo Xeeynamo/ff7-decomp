@@ -113,7 +113,6 @@ void SysCdromInit(void) {
 void func_80033BE0(void) {
     SystemCdromAbortLoading();
     do {
-
     } while (SystemCdromReadChain() != 0);
     CdFlush();
     CdReset(0);
@@ -165,7 +164,6 @@ int func_80033DAC(int sector_no, void (*cb)()) {
 int func_80033DE4(int sector_no) {
     SysCdromSetChainParam(CDOP_IDLE, sector_no, 0, NULL, NULL);
     do {
-
     } while (CdControl(CdlSetloc, (u_char*)&D_80071A68, NULL) == 0);
     return 0;
 }

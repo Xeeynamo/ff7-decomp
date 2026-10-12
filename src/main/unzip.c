@@ -64,8 +64,8 @@ static u16 cpdist[] = {1,   2,   3,   4,   5,   7,    9,    13,   17,   25,   33
 /* Extra bits for distance codes */
 static u16 cpdext[] = {
     0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13};
-static u16 mask_bits[] = {0x0000, 0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,
-                          0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff};
+static u16 mask_bits[] = {0x0000, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF,
+                          0x01FF, 0x03FF, 0x07FF, 0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF};
 static u32 inflateMemAlloced = 0;
 static s32 lbits = 9; /* bits in base literal/length lookup table */
 static s32 dbits = 6; /* bits in base distance lookup table */
@@ -367,10 +367,10 @@ static s32 inflate_stored() {
 
     /* get the length and its complement */
     NEEDBITS(16);
-    n = ((u32)b & 0xffff);
+    n = ((u32)b & 0xFFFF);
     DUMPBITS(16);
     NEEDBITS(16);
-    if (n != (u32)((~b) & 0xffff))
+    if (n != (u32)((~b) & 0xFFFF))
         return 1; /* error in compressed data */
     DUMPBITS(16);
 
@@ -457,13 +457,13 @@ static s32 inflate_dynamic() {
 
     /* read in table lengths */
     NEEDBITS(5);
-    nl = 257 + ((u32)b & 0x1f); /* number of literal/length codes */
+    nl = 257 + ((u32)b & 0x1F); /* number of literal/length codes */
     DUMPBITS(5);
     NEEDBITS(5);
-    nd = 1 + ((u32)b & 0x1f); /* number of distance codes */
+    nd = 1 + ((u32)b & 0x1F); /* number of distance codes */
     DUMPBITS(5);
     NEEDBITS(4);
-    nb = 4 + ((u32)b & 0xf); /* number of bit length codes */
+    nb = 4 + ((u32)b & 0xF); /* number of bit length codes */
     DUMPBITS(4);
 
     if (nl > 286 || nd > 30)
@@ -516,7 +516,7 @@ static s32 inflate_dynamic() {
             l = 0;
         } else { /* j == 18: 11 to 138 zero length codes */
             NEEDBITS(7);
-            j = 11 + ((u32)b & 0x7f);
+            j = 11 + ((u32)b & 0x7F);
             DUMPBITS(7);
             if ((u32)i + j > n)
                 return 1;

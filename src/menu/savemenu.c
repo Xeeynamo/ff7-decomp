@@ -825,7 +825,7 @@ static s32 WriteSaveFile(s8* path, u8* title) {
         // The store into fd is dead; the overlay stops matching without it.
         existingFd = fd = open(path, 1);
         if (existingFd != -1) {
-            delete (path);
+            delete(path);
             close(existingFd);
             break;
         }
