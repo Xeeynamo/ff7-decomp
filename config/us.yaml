@@ -850,3 +850,16 @@ overlays:
       - [0x10, c, gas]
       - [0xFF0, data, gas_model]
       - [0x23FF8, data, gas_buffers]
+  # HAKUGEK1.BIN -- effect overlay
+  - name: hakugek1
+    disk_path: disks/us/MAGIC/HAKUGEK1.BIN
+    sha1: 5cf866b06953286fa308f84b04fc327c50c56669
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-hakugek1.us.txt
+    segments:
+      - [0, c, hakugek1]
+      - [0x12FC, data, hakugek1_model]
+      - [0x22A80, data, hakugek1_buffers]
