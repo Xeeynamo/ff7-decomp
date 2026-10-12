@@ -1,6 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 
 #include "common.h"
+#include <libetc.h>
 #include "magic.h"
 #include "whirl.h"
 #include "../battle/battle.h"
@@ -82,9 +83,9 @@ WhirlParticle* WhirlSpriteParticleAlloc(void) {
 }
 
 void WhirlSpriteParticleTick(WhirlParticle* particle) {
-    SVECTOR* vec = (SVECTOR*)0x1F800000;
-    SVECTOR* rot = (SVECTOR*)0x1F800008;
-    MATRIX* matrix = (MATRIX*)0x1F800010;
+    SVECTOR* vec = (SVECTOR*)getScratchAddr(0);
+    SVECTOR* rot = (SVECTOR*)getScratchAddr(2);
+    MATRIX* matrix = (MATRIX*)getScratchAddr(4);
     s32 i;
     s32 count;
     s32 slot;
@@ -138,13 +139,13 @@ void WhirlSpriteParticleTick(WhirlParticle* particle) {
 
 void WhirlRibbonParticleTick(WhirlParticle* particle) {
     u32 col = 0x3A000000;
-    SVECTOR* vec = (SVECTOR*)0x1F800000;
-    SVECTOR* rot = (SVECTOR*)0x1F800008;
-    SVECTOR* a = (SVECTOR*)0x1F800010;
-    SVECTOR* b = (SVECTOR*)0x1F800018;
-    SVECTOR* c = (SVECTOR*)0x1F800020;
-    SVECTOR* d = (SVECTOR*)0x1F800028;
-    MATRIX* matrix = (MATRIX*)0x1F800030;
+    SVECTOR* vec = (SVECTOR*)getScratchAddr(0);
+    SVECTOR* rot = (SVECTOR*)getScratchAddr(2);
+    SVECTOR* a = (SVECTOR*)getScratchAddr(4);
+    SVECTOR* b = (SVECTOR*)getScratchAddr(6);
+    SVECTOR* c = (SVECTOR*)getScratchAddr(8);
+    SVECTOR* d = (SVECTOR*)getScratchAddr(10);
+    MATRIX* matrix = (MATRIX*)getScratchAddr(12);
     POLY_G4* poly;
     s32 i;
     s32 count;
@@ -281,8 +282,8 @@ void WhirlRibbonDriverTick(void) {
 
 void WhirlModelTick(void) {
     WhirlData* effect;
-    VECTOR* scale = (VECTOR*)0x1F800020;
-    MATRIX* matrix = (MATRIX*)0x1F800000;
+    VECTOR* scale = (VECTOR*)getScratchAddr(8);
+    MATRIX* matrix = (MATRIX*)getScratchAddr(0);
     s32 frame;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
