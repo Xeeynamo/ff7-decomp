@@ -80,7 +80,6 @@ void HadohoShrinkingModelTick(void);
 void HadohoBeamHeadTick(void);
 void HadohoMainTick(void);
 
-// Same as MAGIC_Biora.
 void MAGIC_Hadoho(s32 targetMask, s32 callbackArg) { HadohoStart(targetMask, callbackArg); }
 
 void HadohoTargetCenterCalc(s16 targetMask, SVECTOR* out) {
@@ -148,7 +147,7 @@ void HadohoSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) 
     SetTransMatrix(&matrix);
 }
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 static void HadohoDoubleBufferFlip(void) {
     HadohoData* effect;
 

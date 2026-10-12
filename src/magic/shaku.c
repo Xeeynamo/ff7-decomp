@@ -79,7 +79,6 @@ void ShakuShrinkingModelTick(void);
 void ShakuBeamHeadTick(void);
 void ShakuMainTick(void);
 
-// Same as MAGIC_Biora.
 void MAGIC_Shaku(s32 targetMask, s32 callbackArg) { ShakuStart(targetMask, callbackArg); }
 
 void ShakuTargetCenterCalc(s16 targetMask, SVECTOR* out) {
@@ -147,7 +146,7 @@ void ShakuSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
     SetTransMatrix(&matrix);
 }
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 static void ShakuDoubleBufferFlip(void) {
     ShakuData* effect;
 

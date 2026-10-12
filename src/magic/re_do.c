@@ -80,7 +80,6 @@ void ReDoShrinkingModelTick(void);
 void ReDoBeamHeadTick(void);
 void ReDoMainTick(void);
 
-// Same as MAGIC_Biora.
 void MAGIC_ReDo(s32 targetMask, s32 callbackArg) { ReDoStart(targetMask, callbackArg); }
 
 void ReDoTargetCenterCalc(s16 targetMask, SVECTOR* out) {
@@ -148,7 +147,7 @@ void ReDoSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
     SetTransMatrix(&matrix);
 }
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 static void ReDoDoubleBufferFlip(void) {
     ReDoData* effect;
 
