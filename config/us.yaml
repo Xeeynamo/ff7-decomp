@@ -860,3 +860,16 @@ overlays:
       - [0, c, queik]
       - [0x3cc, data, queik_model]
       - [0x8AE8, data, queik_buffers]
+  # SAILESS.BIN -- effect overlay
+  - name: sailess
+    disk_path: disks/us/MAGIC/SAILESS.BIN
+    sha1: 0d6c1fe797a9ff50924fb81550a9b77e9d15f5b7
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-sailess.us.txt
+    segments:
+      - [0, c, sailess]
+      - [0x498, data, sailess_model]
+      - [0x8E74, data, sailess_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral
