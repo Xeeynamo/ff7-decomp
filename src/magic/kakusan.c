@@ -62,7 +62,6 @@ void KakusanTargetCenterCalc(s16 targetMask, SVECTOR* out);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 void KakusanMainTick(void);
 
-// Same as MAGIC_Biora.
 void MAGIC_Kakusan(s32 targetMask, s32 callbackArg) { KakusanStart(targetMask, callbackArg); }
 
 void KakusanTargetCenterCalc(s16 targetMask, SVECTOR* out) {
@@ -130,7 +129,7 @@ void KakusanSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset)
     SetTransMatrix(&matrix);
 }
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 static void KakusanDoubleBufferFlip(void) {
     KakusanData* effect;
 

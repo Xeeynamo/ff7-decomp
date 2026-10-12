@@ -137,7 +137,7 @@ void ChoKyuSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) 
     SetTransMatrix(&matrix);
 }
 
-// Same as EnergyDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 static void ChoKyuDoubleBufferFlip(void) {
     ChoKyuData* effect;
 
@@ -215,7 +215,6 @@ void ChoKyuFlashShellTick(void) {
     }
 }
 
-// Same as func_801B0584.
 void ChoKyuEmberTick(void) {
     MATRIX rotated;
     MATRIX matrix;
