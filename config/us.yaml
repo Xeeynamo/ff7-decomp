@@ -807,3 +807,16 @@ overlays:
       - [0, c, sennkoku]
       - [0x930, data, sennkoku_model]
       - [0x559C, data, sennkoku_buffers]
+  # TORNADO.BIN -- effect overlay
+  - name: tornado
+    disk_path: disks/us/MAGIC/TORNADO.BIN
+    sha1: c9ca61f5c400f2f5be76ca310f449f32cdee8db9
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-tornado.us.txt
+    segments:
+      - [0, c, tornado]
+      - [0x1164, data, tornado_model]
+      - [0x12F10, data, tornado_buffers]

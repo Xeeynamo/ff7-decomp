@@ -93,6 +93,7 @@ set(FF7_MAGIC
     src/magic/mabaria.c
     src/magic/sennkoku.c
     src/magic/thunder.c
+    src/magic/tornado.c
 )
 
 add_executable(str tools/str.c)

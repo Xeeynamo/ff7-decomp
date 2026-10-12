@@ -1,0 +1,12 @@
+MAGIC_Tornado = 0x801B0000;
+TornadoSpriteParticleAlloc = 0x801B0020;
+TornadoSpriteParticleTick = 0x801B0098;
+TornadoRibbonParticleTick = 0x801B03AC;
+TornadoRibbonParticleAlloc = 0x801B07E0;
+TornadoSpriteDriverTick = 0x801B0858;
+TornadoRibbonDriverTick = 0x801B0924;
+TornadoModelTick = 0x801B0A1C;
+TornadoTargetTick = 0x801B0C8C;
+TornadoTargetSetup = 0x801B0F60;
+TornadoDoubleBufferFlip = 0x801B1070;
+TornadoStart = 0x801B10F4;
