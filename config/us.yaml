@@ -807,3 +807,17 @@ overlays:
       - [0, c, sennkoku]
       - [0x930, data, sennkoku_model]
       - [0x559C, data, sennkoku_buffers]
+  # COMET.BIN -- "Comet", the tier-1 comet spell
+  - name: comet
+    disk_path: disks/us/MAGIC/COMET.BIN
+    sha1: 66f577e61c4ae0c8687b5cb1ef7018596f92b166
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-comet.us.txt
+    segments:
+      - [0, c, comet]
+      - [0x13e8, data, comet_model]
+      # REVIEW (split): the last 0xE4 bytes of comet_model (0x233D8 to 0x234BC) are the effect's own descriptors (six model descs, three matrices, a scale vector, a rotation vector, one SpriteRenderDesc); cost: none, data only, as biora
+      - [0x233D8, .data, comet]
