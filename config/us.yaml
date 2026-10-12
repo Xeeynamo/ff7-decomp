@@ -807,3 +807,16 @@ overlays:
       - [0, c, sennkoku]
       - [0x930, data, sennkoku_model]
       - [0x559C, data, sennkoku_buffers]
+  # HADOHO.BIN -- effect overlay
+  - name: hadoho
+    disk_path: disks/us/MAGIC/HADOHO.BIN
+    sha1: 850cc7b46911dd9c300f4c0a7928a55cd097d84c
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-hadoho.us.txt
+    segments:
+      - [0, c, hadoho]
+      - [0x1B40, data, hadoho_model]
+      - [0x25648, data, hadoho_buffers]
