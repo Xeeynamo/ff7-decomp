@@ -820,3 +820,16 @@ overlays:
       - [0, c, tornado]
       - [0x1164, data, tornado_model]
       - [0x12F10, data, tornado_buffers]
+  # WHIRL.BIN -- effect overlay
+  - name: whirl
+    disk_path: disks/us/MAGIC/WHIRL.BIN
+    sha1: 9b34335281ec8a5bead8d231ad0654ba9b0c3b61
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-whirl.us.txt
+    segments:
+      - [0, c, whirl]
+      - [0x1150, data, whirl_model]
+      - [0x12EFC, data, whirl_buffers]

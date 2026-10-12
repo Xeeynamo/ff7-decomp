@@ -1,0 +1,12 @@
+MAGIC_Whirl = 0x801B0000;
+WhirlSpriteParticleAlloc = 0x801B0020;
+WhirlSpriteParticleTick = 0x801B0098;
+WhirlRibbonParticleTick = 0x801B0398;
+WhirlRibbonParticleAlloc = 0x801B07CC;
+WhirlSpriteDriverTick = 0x801B0844;
+WhirlRibbonDriverTick = 0x801B0910;
+WhirlModelTick = 0x801B0A08;
+WhirlTargetTick = 0x801B0C78;
+WhirlTargetSetup = 0x801B0F4C;
+WhirlDoubleBufferFlip = 0x801B105C;
+WhirlStart = 0x801B10E0;

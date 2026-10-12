@@ -94,6 +94,7 @@ set(FF7_MAGIC
     src/magic/sennkoku.c
     src/magic/thunder.c
     src/magic/tornado.c
+    src/magic/whirl.c
 )
 
 add_executable(str tools/str.c)
