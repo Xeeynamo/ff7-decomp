@@ -1,0 +1,16 @@
+MAGIC_Jammer = 0x801B0000;
+JammerDoubleBufferFlip = 0x801B0020;
+JammerWaveSpriteTick = 0x801B008C;
+JammerImpactModelTick = 0x801B01AC;
+JammerRingSpriteTick = 0x801B0324;
+JammerTargetTick = 0x801B050C;
+JammerTargetSetup = 0x801B0A68;
+JammerStart = 0x801B0B44;
+g_JammerSpriteDesc = 0x801D126C;
+g_JammerSpriteAnims = 0x801D1278;
+g_JammerModelDesc = 0x801D1284;
+g_JammerRotation = 0x801D1294;
+g_JammerSpriteDesc2 = 0x801D129C;
+g_JammerSpriteAnims2 = 0x801D12A8;
+g_JammerPrimBuffer = 0x801D12D8;
+g_JammerBufferPtr = 0x801E92D8;
