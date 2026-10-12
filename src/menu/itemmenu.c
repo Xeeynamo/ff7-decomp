@@ -533,7 +533,7 @@ void SystemMenuAddHpByPartyId(s32, s32);
 void SystemMenuAddMpByPartyId(s32, s32);
 void SysMenuSetDrawenv(void*, s16*);
 void SysMenuDrawSingleFontLetter(s32, s32, s32, s32);
-void SysMenuDrawScrollbar();
+void SysMenuDrawScrollbar(MenuScrollbar* bar);
 s32 IsCharacterHpFull(s32);
 s32 IsCharacterMpFull(s32);
 
@@ -788,7 +788,7 @@ char ITEMMENU_Main(s32 frameCount) {
         g_ItemMenuScrollbarTrackH = ITEMMENU_SCROLLBAR_H;
         g_ItemMenuScrollbarTopRow = scrollPos;
         numVisibleRows = 10;
-        SysMenuDrawScrollbar(g_ItemMenuScrollbar, scrollPos);
+        SysMenuDrawScrollbar(g_ItemMenuScrollbar);
         hasScrollAnimation = *((s16*)((((u8*)g_ItemMenuWidgets) + 8) + ((s32)slotIdx)));
         if (hasScrollAnimation != 0) {
             numVisibleRows = 11;
@@ -864,7 +864,7 @@ char ITEMMENU_Main(s32 frameCount) {
         selectedItemId = 0x38;
         do {
         } while (0);
-        ((void (*)())SysMenuDrawScrollbar)(g_ItemMenuScrollbar);
+       	SysMenuDrawScrollbar(g_ItemMenuScrollbar);
         SysMenuUnkNoop(9);
         slotIdx = 0;
         do {
