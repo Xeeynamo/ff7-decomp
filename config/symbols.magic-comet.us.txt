@@ -1,8 +1,8 @@
 MAGIC_Comet = 0x801B0000;
-func_801B0020 = 0x801B0020;
-func_801B017C = 0x801B017C;
-func_801B0608 = 0x801B0608;
-func_801B0850 = 0x801B0850;
+CometRockTrailParticleTick = 0x801B0020;
+CometRockTick = 0x801B017C;
+CometBlastModelTick = 0x801B0608;
+CometDebrisModelTick = 0x801B0850;
 func_801B0B94 = 0x801B0B94;
 CometTargetTick = 0x801B0C58;
 CometTargetSetup = 0x801B1258;

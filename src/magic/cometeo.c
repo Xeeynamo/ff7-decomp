@@ -58,10 +58,10 @@ static ModelRenderDesc cometeo_model_desc5 = {D_800EA294, MODEL_DEPTH_CUE | MODE
 static SpriteRenderDesc cometeo_render_desc = {(SpriteAnim*)D_801D40A4, {0x80, 0x80, 0x80, 0x2E}, 0, 0};
 
 void CometeoStart(s32 targetMask, s32 callbackArg);
-void func_801B0020(void);
+void CometeoRockTrailParticleTick(void);
 void CometeoRockTick(void);
-void func_801B0608(void);
-void func_801B0844(void);
+void CometeoBlastModelTick(void);
+void CometeoDebrisModelTick(void);
 void func_801B0B88(void);
 void CometeoDriverTick(void);
 void CometeoMainTick(void);
@@ -70,7 +70,7 @@ void CometeoBufferFlip(void);
 // Same as MAGIC_Biora.
 void MAGIC_Cometeo(s32 targetMask, s32 callbackArg) { CometeoStart(targetMask, callbackArg); }
 
-void func_801B0020(void) {
+void CometeoRockTrailParticleTick(void) {
     CometeoData* effect;
     TILE_1* prim;
     long depth;
@@ -153,7 +153,7 @@ void CometeoRockTick(void) {
             tmp->vy = rcos(angle) * 1000 >> 12;
             tmp->vz = rand() % 1000;
             RotTrans(tmp, out, &flag);
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0020)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(CometeoRockTrailParticleTick)];
             child->Pos.vx = out->vx;
             child->Pos.vy = out->vy;
             child->Pos.vz = out->vz;
@@ -177,7 +177,7 @@ void CometeoRockTick(void) {
     }
 }
 
-void func_801B0608(void) {
+void CometeoBlastModelTick(void) {
     CometeoData* effect;
     s32 frame;
     s32 delta;
@@ -221,7 +221,7 @@ void func_801B0608(void) {
     }
 }
 
-void func_801B0844(void) {
+void CometeoDebrisModelTick(void) {
     CometeoData* effect;
     MATRIX m;
     VECTOR scale;
@@ -333,10 +333,10 @@ void CometeoDriverTick(void) {
         child->Pos.vz -= dir.vz * 500 >> 12;
     }
     if (effect->AnimationFrame == 9) {
-        child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0608)];
+        child = &g_BattleEffectSlots[BattleEffectRegister(CometeoBlastModelTick)];
         child->Pos = effect->Pos;
         for (i = 0; i < 5; i++) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0844)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(CometeoDebrisModelTick)];
             child->Pos = effect->Pos;
             child->Pos.vy = 0;
             child->Vel.vx = rand() % 500 - 250;

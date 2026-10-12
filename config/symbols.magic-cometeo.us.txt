@@ -1,8 +1,8 @@
 MAGIC_Cometeo = 0x801B0000;
-func_801B0020 = 0x801B0020;
+CometeoRockTrailParticleTick = 0x801B0020;
 CometeoRockTick = 0x801B017C;
-func_801B0608 = 0x801B0608;
-func_801B0844 = 0x801B0844;
+CometeoBlastModelTick = 0x801B0608;
+CometeoDebrisModelTick = 0x801B0844;
 func_801B0B88 = 0x801B0B88;
 CometeoDriverTick = 0x801B0C4C;
 CometeoMainTick = 0x801B11F4;

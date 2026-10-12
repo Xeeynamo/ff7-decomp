@@ -56,10 +56,10 @@ static ModelRenderDesc comet_model_desc5 = {D_800EA294, MODEL_DEPTH_CUE | MODEL_
 static SpriteRenderDesc comet_render_desc = {(SpriteAnim*)D_801D3310, {0x80, 0x80, 0x80, 0x2E}, 0, 0};
 
 void CometStart(s32 targetMask, s32 callbackArg);
-void func_801B0020(void);
-void func_801B017C(void);
-void func_801B0608(void);
-void func_801B0850(void);
+void CometRockTrailParticleTick(void);
+void CometRockTick(void);
+void CometBlastModelTick(void);
+void CometDebrisModelTick(void);
 void func_801B0B94(void);
 void CometTargetTick(void);
 void CometTargetSetup(s32 target, s32 callbackArg);
@@ -68,7 +68,7 @@ void CometBufferFlip(void);
 // Same as MAGIC_Biora.
 void MAGIC_Comet(s32 targetMask, s32 callbackArg) { CometStart(targetMask, callbackArg); }
 
-void func_801B0020(void) {
+void CometRockTrailParticleTick(void) {
     CometData* effect;
     TILE_1* prim;
     long depth;
@@ -101,7 +101,7 @@ void func_801B0020(void) {
     }
 }
 
-void func_801B017C(void) {
+void CometRockTick(void) {
     CometData* effect;
     CometData* child;
     SVECTOR dir;
@@ -151,7 +151,7 @@ void func_801B017C(void) {
             tmp->vy = rcos(angle) * 1000 >> 12;
             tmp->vz = rand() % 1000;
             RotTrans(tmp, out, &flag);
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0020)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(CometRockTrailParticleTick)];
             child->Pos.vx = out->vx;
             child->Pos.vy = out->vy;
             child->Pos.vz = out->vz;
@@ -175,7 +175,7 @@ void func_801B017C(void) {
     }
 }
 
-void func_801B0608(void) {
+void CometBlastModelTick(void) {
     CometData* effect;
     s32 frame;
     s32 delta;
@@ -219,7 +219,7 @@ void func_801B0608(void) {
     }
 }
 
-void func_801B0850(void) {
+void CometDebrisModelTick(void) {
     CometData* effect;
     MATRIX m;
     VECTOR scale;
@@ -320,7 +320,7 @@ void CometTargetTick(void) {
     }
     frame -= 4;
     if (frame == 0) {
-        child = &g_BattleEffectSlots[BattleEffectRegister(func_801B017C)];
+        child = &g_BattleEffectSlots[BattleEffectRegister(CometRockTick)];
         child->Pos.vx =
             g_BattleModels[D_801D34BC].rootTrans.vx + (rsin(g_BattleModels[D_801D34BC].rootRot.vy) * 2000 >> 12);
         child->Pos.vy = -5000;
@@ -339,12 +339,12 @@ void CometTargetTick(void) {
         BattleAkaoCommand(0x21, 0x40, 0x4C, 0x4D);
     }
     if (frame == 15) {
-        child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0608)];
+        child = &g_BattleEffectSlots[BattleEffectRegister(CometBlastModelTick)];
         child->Pos.vx = effect->Pos.vx;
         child->Pos.vy = 0;
         child->Pos.vz = effect->Pos.vz;
         for (i = 0; i < 10; i++) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0850)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(CometDebrisModelTick)];
             child->Pos = effect->Pos;
             child->Pos.vy = 0;
             child->Vel.vx = rand() % 500 - 250;
