@@ -1080,7 +1080,6 @@ char ITEMMENU_Main(s32 frameCount) {
                                 return;
                             }
                             PlayItemMenuSfx(SFX_MENU_BAD);
-                            return;
                             break;
 
                         // Inflicts Sadness / Heal Fury
@@ -1255,7 +1254,6 @@ char ITEMMENU_Main(s32 frameCount) {
                                 return;
                             }
                             PlayItemMenuSfx(SFX_MENU_BAD);
-                            return;
                             break;
 
                         case ITEM_HI_POTION:
@@ -1271,7 +1269,6 @@ char ITEMMENU_Main(s32 frameCount) {
                                 return;
                             }
                             PlayItemMenuSfx(SFX_MENU_BAD);
-                            return;
                             break;
 
                         case ITEM_ETHER:
@@ -1288,7 +1285,6 @@ char ITEMMENU_Main(s32 frameCount) {
                                 return;
                             }
                             PlayItemMenuSfx(SFX_MENU_BAD);
-                            return;
                             break;
 
                         case ITEM_TURBO_ETHER:
@@ -1304,7 +1300,6 @@ char ITEMMENU_Main(s32 frameCount) {
                                 return;
                             }
                             PlayItemMenuSfx(SFX_MENU_BAD);
-                            return;
                             break;
 
                         case ITEM_PHOENIXDOWN:
@@ -1320,7 +1315,6 @@ char ITEMMENU_Main(s32 frameCount) {
                                 return;
                             }
                             PlayItemMenuSfx(SFX_MENU_BAD);
-                            return;
                             break;
 
                         case ITEM_TENT:
@@ -1359,7 +1353,6 @@ char ITEMMENU_Main(s32 frameCount) {
                                 return;
                             }
                             PlayItemMenuSfx(SFX_MENU_BAD);
-                            return;
                             break;
 
                         case ITEM_XPOTION:
@@ -1375,7 +1368,6 @@ char ITEMMENU_Main(s32 frameCount) {
                                 return;
                             }
                             PlayItemMenuSfx(SFX_MENU_BAD);
-                            return;
                             break;
 
                         case ITEM_ELIXIR:
@@ -1396,7 +1388,6 @@ char ITEMMENU_Main(s32 frameCount) {
                                 return;
                             }
                             PlayItemMenuSfx(SFX_MENU_BAD);
-                            return;
                             break;
 
                         case ITEM_MEGALIXIR:
@@ -1432,7 +1423,6 @@ char ITEMMENU_Main(s32 frameCount) {
                                 return;
                             }
                             PlayItemMenuSfx(SFX_MENU_BAD);
-                            return;
                             break;
                         }
                     }
