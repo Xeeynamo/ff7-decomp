@@ -137,7 +137,7 @@ void KaeruPlaneProjectPoint(SVECTOR* a, SVECTOR* b, VECTOR* n) {
     a->vz -= (dot * n->vz) >> 12;
 }
 
-s16 func_801B03A8(SVECTOR* a, SVECTOR* b, VECTOR* n) {
+s16 KaeruPlaneRayDistanceCalc(SVECTOR* a, SVECTOR* b, VECTOR* n) {
     VECTOR dir;
     s32 pa;
     s32 pb;

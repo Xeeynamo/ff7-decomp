@@ -60,7 +60,7 @@ void CometRockTrailParticleTick(void);
 void CometRockTick(void);
 void CometBlastModelTick(void);
 void CometDebrisModelTick(void);
-void func_801B0B94(void);
+void CometImpactBurstTick(void);
 void CometTargetTick(void);
 void CometTargetSetup(s32 target, s32 callbackArg);
 void CometBufferFlip(void);
@@ -287,7 +287,7 @@ void CometDebrisModelTick(void) {
     }
 }
 
-void func_801B0B94(void) {
+void CometImpactBurstTick(void) {
     CometData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -367,7 +367,7 @@ void CometTargetTick(void) {
     }
     if ((u32)(frame - 15) < 20) {
         for (i = 0; i < 1; i++) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0B94)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(CometImpactBurstTick)];
             child->Pos.vx = effect->Pos.vx + (rand() % 2000 - 1000);
             child->Pos.vy = -(rand() % 1000);
             child->Pos.vz = effect->Pos.vz + (rand() % 2000 - 1000);

@@ -62,7 +62,7 @@ void CometeoRockTrailParticleTick(void);
 void CometeoRockTick(void);
 void CometeoBlastModelTick(void);
 void CometeoDebrisModelTick(void);
-void func_801B0B88(void);
+void CometeoImpactBurstTick(void);
 void CometeoDriverTick(void);
 void CometeoMainTick(void);
 void CometeoBufferFlip(void);
@@ -289,7 +289,7 @@ void CometeoDebrisModelTick(void) {
     }
 }
 
-void func_801B0B88(void) {
+void CometeoImpactBurstTick(void) {
     CometeoData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -352,7 +352,7 @@ void CometeoDriverTick(void) {
     }
     if ((u32)((u16)effect->AnimationFrame - 10) < 15) {
         for (i = 0; i < 1; i++) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0B88)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(CometeoImpactBurstTick)];
             child->Pos.vx = effect->Pos.vx + (rand() % 0xA00 - 0x500);
             child->Pos.vy = effect->Pos.vy - rand() % 0x500;
             child->Pos.vz = effect->Pos.vz + (rand() % 0xA00 - 0x500);

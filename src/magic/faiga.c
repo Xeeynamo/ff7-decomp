@@ -36,7 +36,7 @@ extern s32* g_FaigaFlipEffect; // slot running FaigaBufferFlip
 
 void FaigaStart(s32 targetMask, s32 callbackArg);
 void FaigaEmitterSetup(void);
-void func_801B0914(void);
+void FaigaFlashSpriteTick(void);
 void FaigaHitTimeline(void);
 void FaigaSparkEmitterTick(void);
 extern u_long D_801B0FC0[];
@@ -268,7 +268,7 @@ void FaigaHitTimeline(void) {
 
 extern SpriteRenderDesc D_801CAFAC;
 
-void func_801B0914(void) {
+void FaigaFlashSpriteTick(void) {
     FaigaData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -380,7 +380,7 @@ void FaigaEmitterSetup(void) {
     }
     g_BattleEffectSlots[g_BattleEffectCursor].StartFrame = -1;
     slots = g_BattleEffectSlots;
-    effect = &slots[BattleEffectRegister(func_801B0914)];
+    effect = &slots[BattleEffectRegister(FaigaFlashSpriteTick)];
     if (count == 1) {
         BattleGetPartPosition(unit, g_BattleModels[unit].boneIndices[0], &effect->Pos);
         size = g_BattleModels[unit].collisionRadius + 0x100;

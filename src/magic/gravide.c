@@ -31,7 +31,7 @@ extern u_long g_GravideTexture[];
 extern void* g_GravideBufferPtr; // must land right after the buffer
 void GravideTrailSpriteTick(void);
 void GravideImpactRingTick(void);
-void func_801B01F4(void);
+void GravideImpactLightningTick(void);
 void GravideDoubleBufferFlip(void);
 void GravideTargetSetup(s32 targetMask, s32 callbackArg);
 void GravideTargetTick(void);
@@ -75,7 +75,7 @@ void GravideImpactRingTick(void) {
     }
 }
 
-void func_801B01F4(void) {
+void GravideImpactLightningTick(void) {
     GravideData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -115,7 +115,7 @@ void GravideTargetTick(void) {
         effect->Pos.vz += effect->Step.vz;
         effect->AnimationFrame++;
         if (effect->AnimationFrame >= 8) {
-            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B01F4)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(GravideImpactLightningTick)];
             next->Pos = effect->Pos;
             next = &g_BattleEffectSlots[BattleEffectRegister(GravideImpactRingTick)];
             next->Pos = effect->Pos;
