@@ -782,6 +782,8 @@ extern Unk80166F78 D_80166F78[NUM_ENEMY][16];
 extern SavePartyMember D_80167938;
 
 s32 BattleEffectRegister(void (*callback)(void));
+void BattleSpawnFloatingIcon(s32 actor, s32 icon);
+void BattleSpawnFloatingIconAtPart(s32 actor, s32 icon, s32 scale);
 void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void BattleEnqueueClearImage(RECT* rect, s32 arg1, s32 arg2, s32 arg3);
 void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);
