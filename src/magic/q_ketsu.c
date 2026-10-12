@@ -5,7 +5,7 @@
 #include "q_ketsu.h"
 #include "../battle/battle.h"
 
-// Effect shared by Drain, Dance and Eyesight.
+// Effect shared by Drain (ドレイン), Dance (おどり) and Eyesight (眼力).
 
 // Primitive buffer pages, one 0xC000 page per double-buffered frame.
 extern u8 D_801BDAE8[2][0xC000];

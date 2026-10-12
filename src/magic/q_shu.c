@@ -5,7 +5,8 @@
 #include "q_shu.h"
 #include "../battle/battle.h"
 
-// Effect shared by Aspil, Energy Siphon, Magic Cutter, Dance and Eyesight.
+// Effect shared by Aspil (アスピル), Energy Siphon (エネルギー吸収), Magic Cutter (魔吸軟骨剣),
+// Dance (おどり) and Eyesight (眼力).
 
 // Primitive buffer pages, one 0xC000 page per double-buffered frame.
 extern u8 D_801BDAE8[2][0xC000];
