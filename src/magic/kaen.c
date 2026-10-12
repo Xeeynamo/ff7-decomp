@@ -8,7 +8,7 @@
 // Effect shared by Fire Veil (火とん), Fireball (ファイアボール), Flame (火炎), Ghenghana (ゲヘナガナー)
 // and Turk Light (タークス光線).
 
-void func_801B0F6C(s32 targetMask, s32 callbackArg);
+void KaenStart(s32 targetMask, s32 callbackArg);
 
 // Primitive buffer pages, one 0xC000 page per double-buffered frame.
 extern u8 g_KaenPrimBuffer[2][0xC000];
@@ -47,7 +47,7 @@ void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 void KaenTargetTick(void);
 
 // Same as MAGIC_Biora.
-void MAGIC_Kaen(s32 targetMask, s32 callbackArg) { func_801B0F6C(targetMask, callbackArg); }
+void MAGIC_Kaen(s32 targetMask, s32 callbackArg) { KaenStart(targetMask, callbackArg); }
 
 void KaenTargetCenterCalc(s16 targetMask, SVECTOR* out) {
     VECTOR sum;
@@ -300,7 +300,7 @@ void KaenTargetSetup(s32 target, s32 callbackArg) {
     effect->unk1C = target;
 }
 
-void func_801B0F6C(s32 targetMask, s32 callbackArg) {
+void KaenStart(s32 targetMask, s32 callbackArg) {
     BattleEffectRegister(KaenDoubleBufferFlip);
     BattleSetLoadTimToVram(D_801B0FE8, 0, 0, 0);
     MagicAnimationRegister(targetMask, callbackArg, 4, KaenTargetSetup);

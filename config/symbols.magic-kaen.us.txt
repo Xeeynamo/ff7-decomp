@@ -8,6 +8,6 @@ KaenEmberTick = 0x801B05DC;
 KaenFireballTick = 0x801B080C;
 KaenTargetTick = 0x801B0AEC;
 KaenTargetSetup = 0x801B0EAC;
-func_801B0F6C = 0x801B0F6C;
+KaenStart = 0x801B0F6C;
 g_KaenPrimBuffer = 0x801D3F30;
 g_KaenBufferPtr = 0x801EBF30;
