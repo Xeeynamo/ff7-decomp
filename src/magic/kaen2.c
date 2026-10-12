@@ -46,7 +46,6 @@ void Kaen2TargetSetup(s32 target, s32 callbackArg);
 void Kaen2FlameSpriteTick(void);
 void Kaen2TargetTick(void);
 
-// Same as MAGIC_Biora.
 void MAGIC_Kaen2(s32 targetMask, s32 callbackArg) { Kaen2Start(targetMask, callbackArg); }
 
 void Kaen2TargetCenterCalc(s16 targetMask, SVECTOR* out) {
@@ -114,7 +113,7 @@ void Kaen2SpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
     SetTransMatrix(&matrix);
 }
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 static void Kaen2DoubleBufferFlip(void) {
     Kaen2Data* effect;
 

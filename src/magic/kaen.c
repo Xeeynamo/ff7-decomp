@@ -46,7 +46,6 @@ s32 BattleDetachedRegister(void (*func)(void));
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 void KaenTargetTick(void);
 
-// Same as MAGIC_Biora.
 void MAGIC_Kaen(s32 targetMask, s32 callbackArg) { KaenStart(targetMask, callbackArg); }
 
 void KaenTargetCenterCalc(s16 targetMask, SVECTOR* out) {
@@ -114,7 +113,7 @@ void KaenSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
     SetTransMatrix(&matrix);
 }
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 static void KaenDoubleBufferFlip(void) {
     KaenData* effect;
 

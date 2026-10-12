@@ -45,7 +45,6 @@ s32 BattleDetachedRegister(void (*func)(void));
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 void GasTargetTick(void);
 
-// Same as MAGIC_Biora.
 void MAGIC_Gas(s32 targetMask, s32 callbackArg) { GasStart(targetMask, callbackArg); }
 
 void GasTargetCenterCalc(s16 targetMask, SVECTOR* out) {
@@ -113,7 +112,7 @@ void GasSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
     SetTransMatrix(&matrix);
 }
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 static void GasDoubleBufferFlip(void) {
     GasData* effect;
 

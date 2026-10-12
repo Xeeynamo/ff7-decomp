@@ -48,7 +48,6 @@ void Hakugek1TargetSetup(s32 target, s32 callbackArg);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
 void Hakugek1TargetTick(void);
 
-// Same as MAGIC_Biora.
 void MAGIC_Hakugek1(s32 targetMask, s32 callbackArg) { Hakugek1Start(targetMask, callbackArg); }
 
 void Hakugek1TargetCenterCalc(s16 targetMask, SVECTOR* out) {
@@ -116,7 +115,7 @@ void Hakugek1SpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset
     SetTransMatrix(&matrix);
 }
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 static void Hakugek1DoubleBufferFlip(void) {
     Hakugek1Data* effect;
 
