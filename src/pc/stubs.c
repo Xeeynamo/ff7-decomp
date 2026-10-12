@@ -262,7 +262,6 @@ s8* BattleGetStringPtrFromStringBuffer(s32 arg0) {
 }
 // battle overlay globals read by main (14C70.c)
 BattleWork g_BattleWork;
-BattleSceneContext g_BattleSceneContext;
 BattleState g_BattleState;
 BattleData g_BattleData;
 s32 g_FFTextLetterOffset;
