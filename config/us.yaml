@@ -807,3 +807,17 @@ overlays:
       - [0, c, sennkoku]
       - [0x930, data, sennkoku_model]
       - [0x559C, data, sennkoku_buffers]
+  # BIORA.BIN -- "Bio2", the tier-2 poison spell
+  - name: biora
+    disk_path: disks/us/MAGIC/BIORA.BIN
+    sha1: 3111ff45f8e372901e74a68f3fdc744e0ee45dc8
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-biora.us.txt
+    segments:
+      - [0, c, biora]
+      - [0xc00, data, biora_model]
+      # REVIEW (split): the last 0x68 bytes of biora_model are the effect's own descriptors (model desc, model pointer tables, matrix, two SpriteRenderDesc); cost: none, data only, as thundera and bio
+      - [0x1CC10, .data, biora]
