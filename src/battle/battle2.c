@@ -2439,7 +2439,6 @@ void BattleKeyframeEffectTick(void) {
     }
 }
 
-static void BattleSpawnFloatingIconAt(void* arg0, s32 arg1, s32 arg2);
 void func_800D4C08(SVECTOR* pos, s32 scriptAndFlags, s32 scale, s32 depthBias) {
     BattleKeyframeEffectSlot* slot;
 
@@ -2451,7 +2450,7 @@ void func_800D4C08(SVECTOR* pos, s32 scriptAndFlags, s32 scale, s32 depthBias) {
     slot->depthBias = depthBias;
 }
 
-static void BattleSpawnFloatingIconAtPart(s32 actor, s32 arg1, s32 arg2) {
+void BattleSpawnFloatingIconAtPart(s32 actor, s32 arg1, s32 arg2) {
     SVECTOR pos;
 
     BattleGetPartPosition(actor, g_BattleModels[actor].boneIndices[0], &pos);
@@ -2460,7 +2459,7 @@ static void BattleSpawnFloatingIconAtPart(s32 actor, s32 arg1, s32 arg2) {
 
 static void BattleSpawnFloatingIcon(s32 actor, s32 arg1) { BattleSpawnFloatingIconAtPart(actor, arg1, 0x1000); }
 
-static void BattleSpawnFloatingIconAt(void* arg0, s32 arg1, s32 arg2) { func_800D4C08(arg0, arg1, 0x1000, arg2); }
+void BattleSpawnFloatingIconAt(void* arg0, s32 arg1, s32 arg2) { func_800D4C08(arg0, arg1, 0x1000, arg2); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D4D90);
 

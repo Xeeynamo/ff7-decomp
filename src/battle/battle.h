@@ -767,6 +767,8 @@ s32 BattleEffectRegister(void (*func)(void));
 void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void BattleEnqueueClearImage(RECT* rect, s32 arg1, s32 arg2, s32 arg3);
 void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);
+void BattleSpawnFloatingIconAtPart(s32 actor, s32 arg1, s32 arg2);
+void BattleSpawnFloatingIconAt(void* arg0, s32 arg1, s32 arg2);
 // Build the model matrix for a battle effect: `scale` goes on the matrix
 // diagonal, `pos` is transformed into view space to become the translation,
 // and `depthBias` nudges it along that view vector (negative pulls it toward
