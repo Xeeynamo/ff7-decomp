@@ -597,6 +597,7 @@ extern s32 D_800F39D8; // read index into D_800F3958
 extern s32 D_800F39DC; // write index into D_800F3958
 extern s32 D_800F39E0;
 extern s32 D_800F39E4;
+extern s32 D_800F39E8;
 extern volatile s32 D_800F39EC; // polled by a tight wait loop
 extern u8 D_800F39F0[][6];
 extern s32 D_800F3A1C;     // write index into D_800F3A20
@@ -863,6 +864,9 @@ extern u8 D_80166F68;
 extern u16 g_BattleScreenFadeR;
 
 void func_800A4350(s16, s16, s16, u16);
+static void func_800A4D2C(s32 arg0);
+void BattleReturnReservedItems(void);
+void func_800A72C8(s32);
 void func_800A8E84(s32);
 void func_800AA950(BattleQueueTargetEntry*);
 void BattleResolveAffinityPreDamage(void);
@@ -883,6 +887,8 @@ void BattleDmgFormulaRun(void);
 void BattleCalcAffinityFlags(void);
 s32 BattleGetStatusProtectionMask(s32, s32, s32);
 void func_800AF9C8(void);
+void BattleAdvanceTimers(void);
+void func_800B0234(void);
 s32 BattleCalcDefPercent(s32);
 void func_800B0C14(void);
 static void func_800B0DF8(void);

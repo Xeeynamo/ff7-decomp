@@ -511,7 +511,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ u16 varSpeed;
-    /* 0x02 */ s16 atbIncrement;
+    /* 0x02 */ u16 atbIncrement;
     /* 0x04 */ u16 atbGauge;     // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
     /* 0x06 */ s16 hpChangeRate; // HP per 4 var ticks: +maxHP/32 Regen, -maxHP/32 Dual Drain
     /* 0x08 */ s16 limitSpeedFlag;
@@ -620,8 +620,8 @@ typedef struct {
     /* 0x21F0 */ u16 avgPartyDexterity;
     /* 0x21F2 */ u16 atbWaitMode;
     /* 0x21F4 */ u16 activeUnitCmdMask;
-    /* 0x21F6 */ u16 pad21F6;
-    /* 0x21F8 */ u16 pad21F8;
+    /* 0x21F6 */ u16 unk21F6;
+    /* 0x21F8 */ u16 unk21F8;
     /* 0x21FA */ u16 escapeCounter1;
     /* 0x21FC */ u16 escapeSubCounter;
     /* 0x21FE */ u16 escapeCounter2;

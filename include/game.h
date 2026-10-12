@@ -797,50 +797,50 @@ typedef enum {
 // Field names and offsets per the "Active Character Data" table in
 // https://ff7-mods.github.io/ff7-flat-wiki/FF7/Battle/Battle_Mechanics.html
 typedef struct {
-    u8 id;
-    u8 coverChance;
-    u8 strength;
-    u8 vitality;
-    u8 magic;
-    u8 spirit;
-    u8 dexterity;
-    u8 luck;
-    u16 physAttack;
-    u16 physDefence;
-    u16 magAttack;
-    u16 magDefence;
-    s16 hp;
-    s16 baseHp;
-    s16 mp;
-    s16 baseMp;
-    u16 atbTimer; // seeded from BattleWork.turn[].unk4
-    u16 unk1A;    // BattlePartyWork.limitBar << 8
-    u16 counterActionIndex;
-    u16 counterChance;
-    s8 limitLevel; // 1-based, unlike BattlePartyWork.limitLevel
-    u8 unk21;
-    s8 unk22;
-    u8 characterFlags;
-    ActiveCharEnabledCounter enabledCounters[8];
-    u16 physicalAttackElements;
-    u16 halvedElements;
-    u16 nullifiedElements;
-    u16 absorbedElements;
-    u32 physicalAttackStatuses;
-    u32 immuneStatuses;
-    ActiveCharCommandMenu commandMenu[NUM_BATTLE_COMMANDS];
-    BattleLimitData limits;
-    MagicRecord enabledMagic[NUM_MAGICS_ALL];
-    WeaponRecord weapon;
-    s16 unk434;
-    u8 unk436;
-    u8 encounterDownRate;
-    s16 unk438;
-    s16 unk43A;
-    u8 gilBonus;
-    u8 encounterRate;
-    u8 chocoboChance;
-    u8 preemptiveChance;
+    /* 0x000 */ u8 id;
+    /* 0x001 */ u8 coverChance;
+    /* 0x002 */ u8 strength;
+    /* 0x003 */ u8 vitality;
+    /* 0x004 */ u8 magic;
+    /* 0x005 */ u8 spirit;
+    /* 0x006 */ u8 dexterity;
+    /* 0x007 */ u8 luck;
+    /* 0x008 */ u16 physAttack;
+    /* 0x00A */ u16 physDefence;
+    /* 0x00C */ u16 magAttack;
+    /* 0x00E */ u16 magDefence;
+    /* 0x010 */ s16 hp;
+    /* 0x012 */ s16 baseHp;
+    /* 0x014 */ s16 mp;
+    /* 0x016 */ s16 baseMp;
+    /* 0x018 */ u16 atbTimer; // seeded from BattleWork.turn[].unk4
+    /* 0x01A */ u16 unk1A;    // BattlePartyWork.limitBar << 8
+    /* 0x01C */ u16 counterActionIndex;
+    /* 0x01E */ u16 counterChance;
+    /* 0x020 */ s8 limitLevel; // 1-based, unlike BattlePartyWork.limitLevel
+    /* 0x021 */ u8 unk21;
+    /* 0x022 */ s8 unk22;
+    /* 0x023 */ u8 characterFlags;
+    /* 0x024 */ ActiveCharEnabledCounter enabledCounters[8];
+    /* 0x03C */ u16 physicalAttackElements;
+    /* 0x03E */ u16 halvedElements;
+    /* 0x040 */ u16 nullifiedElements;
+    /* 0x042 */ u16 absorbedElements;
+    /* 0x044 */ u32 physicalAttackStatuses;
+    /* 0x048 */ u32 immuneStatuses;
+    /* 0x04C */ ActiveCharCommandMenu commandMenu[NUM_BATTLE_COMMANDS];
+    /* 0x0AC */ BattleLimitData limits;
+    /* 0x108 */ MagicRecord enabledMagic[NUM_MAGICS_ALL];
+    /* 0x408 */ WeaponRecord weapon;
+    /* 0x434 */ s16 unk434;
+    /* 0x436 */ u8 unk436;
+    /* 0x437 */ u8 encounterDownRate;
+    /* 0x438 */ s16 unk438;
+    /* 0x43A */ s16 unk43A;
+    /* 0x43C */ u8 gilBonus;
+    /* 0x43D */ u8 encounterRate;
+    /* 0x43E */ u8 chocoboChance;
+    /* 0x43F */ u8 preemptiveChance;
 } ActiveCharacterData; // size: 0x440
 
 typedef struct {

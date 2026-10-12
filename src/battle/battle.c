@@ -116,7 +116,7 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
                 }
 
                 if (priority >= 5) {
-                    if ((u16)g_BattleWork.turn[slot].atbIncrement == 0) {
+                    if (g_BattleWork.turn[slot].atbIncrement == 0) {
                         g_BattleWork.subActionSlots[slot] = g_BattleWork.currentAction;
                         break;
                     }
@@ -506,7 +506,123 @@ static s32 func_800A3828(void) {
     return ret;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A38FC);
+void func_800A38FC(void) {
+    const u16 escapePadKeys = PAD_L1 | PAD_R1;
+    u16 padKeys = g_Pad0Keys;
+    s32 i;
+
+    func_800A72C8(0);
+    D_800F7DE8 |= 1;
+
+    if (!func_800A3828()) {
+        D_800F7DE8 &= ~1;
+
+        if (g_BattleWork.escapeCounter1 && g_BattleWork.escapeCounter1 == g_BattleWork.escapeCounter2) {
+            if ((padKeys & escapePadKeys) == escapePadKeys) {
+                g_BattleWork.unk21F6++;
+            }
+
+            g_BattleWork.unk21F8++;
+            g_BattleWork.escapeSubCounter += g_BattleWork.battleSpeed;
+
+            if (g_BattleWork.escapeSubCounter > 0x2000) {
+                g_BattleWork.escapeSubCounter -= 0x2000;
+
+                if (g_BattleWork.unk21F8 < g_BattleWork.unk21F6 * 2 &&
+                    (g_BattleWork.unk2218 < 0x4000 || g_BattleWork.encounterType == SETUP_PREEMPTIVE ||
+                     g_BattleWork.encounterType == SETUP_SIDE_ATTACK)) {
+                    g_BattleWork.escapeCounter1--;
+                }
+
+                g_BattleWork.unk21F8 = 0;
+                g_BattleWork.unk21F6 = 0;
+            }
+        }
+
+        BattleAdvanceTimers();
+
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            BattleTurnWork* turnWork;
+            s32 atbIncrement;
+            s32 atbGauge;
+
+            if (!((((g_BattleData.unitPresentMask | 0x3F0) & (g_BattleData.unk15C | 7)) >> i) & 1)) {
+                continue;
+            }
+
+            turnWork = &g_BattleWork.turn[i];
+            atbIncrement = turnWork->atbIncrement;
+            atbGauge = turnWork->atbGauge;
+            if (atbGauge == 0xFFFF) {
+                continue;
+            }
+
+            if (turnWork->limitSpeedFlag & 1) {
+                atbIncrement *= 4;
+            }
+            if ((g_BattleWork.manipulatedUnitMask >> i) & 1) {
+                atbIncrement = 0;
+            }
+
+            atbGauge += atbIncrement;
+            if (atbGauge > 0xFFFF) {
+                atbGauge = 0xFFFF;
+            }
+
+            turnWork->atbGauge = atbGauge;
+            if (atbGauge != 0xFFFF) {
+                continue;
+            }
+
+            if (i >= NUM_PARTY || (g_BattleState.combatant[i].stateFlags & 0x10)) {
+                func_800A4350(i, -1, 0, 0);
+            } else if ((g_BattleWork.disabledUnitMask >> i) & 1) {
+                func_800A4350(i, BattleGetBerserkToadAttackTypeId(i), 0, 0);
+            } else {
+                func_800A4D2C(i);
+                g_BattleWork.activeUnitCmdMask |= 1 << i;
+            }
+
+            turnWork->limitSpeedFlag &= ~1;
+            D_800F39E0 |= 2;
+        }
+    }
+
+    func_800B0234();
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        ActiveCharacterData* charData = &g_ActiveCharacters[i];
+        s32 limitBarUI = g_BattleWork.party[i].limitBarUI;
+        s32 limitBar = charData->unk1A >> 8;
+
+        if (g_BattleState.setupFlags & SETUP_NO_VICTORY_POSE) {
+            limitBarUI = (D_800F39E8 * 255) / g_BattleState.arenaRound;
+            if (limitBarUI > 255) {
+                limitBarUI = 255;
+            }
+        }
+
+        if (limitBar >= limitBarUI) {
+            continue;
+        }
+
+        limitBar += 4;
+        if (limitBar > limitBarUI) {
+            limitBar = limitBarUI;
+        }
+        if (limitBar == 255) {
+            BattleEnableLimitToPlayerWithSpeed(i);
+            BattleQueueEvent(1, i, 1, 0);
+        }
+        charData->unk1A = limitBar << 8;
+    }
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        g_ActiveCharacters[i].atbTimer = g_BattleWork.turn[i].atbGauge;
+    }
+
+    BattleReturnReservedItems();
+}
 
 static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* action) {
     s32 priorityTier;
