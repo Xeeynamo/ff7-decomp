@@ -835,3 +835,19 @@ overlays:
       - [0x154c, data, cometeo_model]
       # REVIEW (split): the last 0xE4 bytes of cometeo_model (0x2416C to 0x24250) are the effect's own descriptors (six model descs, three matrices, a scale vector, a rotation vector, one SpriteRenderDesc), same layout as comet; cost: none, data only, as comet
       - [0x2416C, .data, cometeo]
+  # FAIGA.BIN -- effect overlay, level 3 fire, first overlay
+  - name: faiga
+    disk_path: disks/us/MAGIC/FAIGA.BIN
+    sha1: 62bef1a4bb2c3e2a1bf727e5bd66788c425b07db
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    # REVIEW (split): rodata moved into the C file's functions so the jump table of func_801B0914 (switch) can be matched; rodata-only change
+    migrate_rodata_to_functions: true
+    symbol_addrs_path:
+      - config/symbols.magic-faiga.us.txt
+    segments:
+      - [0, .rodata, faiga]
+      - [0x30, c, faiga]
+      - [0xFC0, data, faiga_model]
+      - [0x1AFC0, data, faiga_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral
