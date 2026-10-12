@@ -2,10 +2,10 @@
 
 #include "highway_private.h"
 
-extern const VECTOR g_HighwayFrustumBottomLeft;
-extern const VECTOR g_HighwayFrustumBottomRight;
-extern const VECTOR g_HighwayFrustumTopLeft;
-extern const VECTOR g_HighwayFrustumTopRight;
+const VECTOR g_HighwayFrustumBottomLeft = {-160, 120, 300, 0};
+const VECTOR g_HighwayFrustumBottomRight = {160, 120, 300, 0};
+const VECTOR g_HighwayFrustumTopLeft = {-160, -120, 300, 0};
+const VECTOR g_HighwayFrustumTopRight = {160, -120, 300, 0};
 extern VECTOR g_HighwayLeftPlaneNormal;
 extern VECTOR g_HighwayRightPlaneNormal;
 extern s32 g_HighwayLeftPlaneDistance;
@@ -152,7 +152,48 @@ s32 HighwayRightPlaneHalfSpace(s32 x, s32 y, s32 z) {
            ((z >> 2) * g_HighwayRightPlaneNormal.vz) + g_HighwayRightPlaneDistance;
 }
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_collide", func_800ACCDC);
+s32 HighwaySphereInsidePlanes(VECTOR* center, s16 radius) {
+    s32 leftOk;
+    s32 hsLeft;
+    s32 rightOk;
+    s32 hsRight;
+    s32 planeDistance;
+    s32 len;
+
+    leftOk = 0;
+    rightOk = 0;
+    hsLeft = (center->vx >> 2) * g_HighwayLeftPlaneNormal.vx + (center->vy >> 2) * g_HighwayLeftPlaneNormal.vy +
+             (center->vz >> 2) * g_HighwayLeftPlaneNormal.vz + g_HighwayLeftPlaneDistance;
+    if (g_HighwayLeftPlaneInsideRef > 0 && hsLeft >= 0) {
+        leftOk = 1;
+    }
+    if (g_HighwayLeftPlaneInsideRef < 0 && hsLeft <= 0) {
+        leftOk = 1;
+    }
+    if (!leftOk) {
+        len = g_HighwayLeftNormalLength;
+        planeDistance = ((hsLeft < 0) ? -hsLeft : hsLeft) / len;
+        if (planeDistance < radius) {
+            leftOk = 1;
+        }
+    }
+    hsRight = (center->vx >> 2) * g_HighwayRightPlaneNormal.vx + (center->vy >> 2) * g_HighwayRightPlaneNormal.vy +
+              (center->vz >> 2) * g_HighwayRightPlaneNormal.vz + g_HighwayRightPlaneDistance;
+    if (g_HighwayRightPlaneInsideRef > 0 && hsRight >= 0) {
+        rightOk = 1;
+    }
+    if (g_HighwayRightPlaneInsideRef < 0 && hsRight <= 0) {
+        rightOk = 1;
+    }
+    if (!rightOk) {
+        len = g_HighwayRightNormalLength;
+        planeDistance = ((hsRight < 0) ? -hsRight : hsRight) / len;
+        if (planeDistance < radius) {
+            rightOk = 1;
+        }
+    }
+    return leftOk & rightOk;
+}
 
 // Same as JetSphereInsideLeftPlane.
 s32 HighwaySphereInsideLeftPlane(s32 x, s32 y, s32 z, s16 radius) {

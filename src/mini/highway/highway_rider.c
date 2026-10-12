@@ -2,6 +2,8 @@
 
 #include "highway_private.h"
 
+void HighwayDrawNode();
+
 HighwayRider g_HighwayRiders[6];
 u8 g_HighwayArcadeMode;
 s32 g_HighwayInputDisabled;
@@ -100,6 +102,7 @@ inline void HighwayRiderReset(s32 index) {
     state->common.status = 5;
 }
 
+// TODO: replace the indexed initializer with named state fields once it matches.
 void HighwayRidersSetup(void) {
     s32* params;
 
@@ -255,7 +258,40 @@ void HighwayRidersClamp(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_rider", HighwayRiderClamp);
+void HighwayRiderClamp(s32 index) {
+    // FAKE: preserves stack space; the original local declarations are unknown.
+    VECTOR unused[2];
+    HighwayRiderState* state;
+    s32 limit;
+    s32 i;
+
+    state = &g_HighwayRiders[index].state;
+    i = (((state->common.z >> 8) + g_HighwayTrackPos) >> 8) % LEN(g_HighwayRoad);
+    limit = ((g_HighwayRoad[i].width >> 1) - 0x60) << 8;
+    if (index != 5) {
+        if (state->common.x > limit) {
+            state->common.x = limit;
+        }
+        if (state->common.x < -limit) {
+            state->common.x = -limit;
+        }
+    } else {
+        if (state->common.x > limit - 0x7800) {
+            state->common.x = limit - 0x7800;
+        }
+        if (state->common.x < -limit + 0x7800) {
+            state->common.x = -limit + 0x7800;
+        }
+    }
+    if (index == 0) {
+        if (state->common.z > state->common.maxZ) {
+            state->common.z = state->common.maxZ;
+        }
+        if (state->common.z < state->common.minZ) {
+            state->common.z = state->common.minZ;
+        }
+    }
+}
 
 void HighwayEnemiesSpawn(void) {
     if (!g_HighwayEnemiesDisabled && !g_HighwayEnemySpawnDelay) {
@@ -561,7 +597,20 @@ void HighwayRiderMove(s32 index) {
     }
 }
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_rider", HighwayEnemyMove);
+void HighwayEnemyMove(s32 index) {
+    // FAKE: preserves stack space; the original local declarations are unknown.
+    MATRIX unused[2];
+    SVECTOR unused2;
+    HighwayRiderState* state;
+
+    state = &g_HighwayRiders[index].state;
+    if (state->common.status != 5) {
+        HighwayEnemyAi(index);
+        if (state->common.z > state->common.maxZ) {
+            state->common.z = state->common.maxZ;
+        }
+    }
+}
 
 void HighwayRidersAction(void) {
     if (g_HighwayRiders[0].state.common.status != 5) {
@@ -584,15 +633,414 @@ void HighwayRidersAction(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_rider", HighwayRiderAction);
+void HighwayRiderAction(s32 index) {
+    VECTOR pos;
+    VECTOR ahead;
+    SVECTOR rot;
+    SVECTOR aheadRot;
+    u8 hits[6];
+    // FAKE: preserves stack space; the original local declarations are unknown.
+    VECTOR unused;
+    HighwayRiderState* state;
+    HighwayRiderState* despawn;
+    JetNode* node;
+    MATRIX* m;
+    HighwayObject* object;
+    s16 turn;
+    s32 frame;
+    s32 i;
+    s32 j;
+    s32 angle;
+    u8 hit;
+    u8 found;
+    u8 inRange;
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_rider", HighwayRidersDraw);
+    state = &g_HighwayRiders[index].state;
+    node = g_HighwayRiders[index].nodes[0];
+    m = &node->m;
+    switch (state->common.type) {
+    case 0:
+        state->common.unkB0 = 0;
+        HighwayTrackSample((state->common.z >> 8) + g_HighwayRidersTrackPos, state->common.x >> 8, &pos, &rot);
+        if ((g_HighwayPadKeys & 0x2000) && state->common.unk110 < 0x200) {
+            state->common.unk110 += state->common.unk7C;
+        }
+        if ((g_HighwayPadKeys & 0x8000) && state->common.unk110 > -0x200) {
+            state->common.unk110 -= state->common.unk7C;
+        }
+        if (!g_HighwayPadDir) {
+            if (state->common.unk110 > state->common.unk80) {
+                state->common.unk110 -= state->common.unk80;
+            }
+            if (-state->common.unk80 > state->common.unk110) {
+                state->common.unk110 += state->common.unk80;
+            }
+            if (-state->common.unk80 < state->common.unk110 && state->common.unk110 < state->common.unk80) {
+                state->common.unk110 = 0;
+            }
+        }
+        if (state->common.attackTimer) {
+            state->common.unkB0 = 1;
+            if (state->common.attackTimer > 0) {
+                state->common.attackTimer--;
+                state->common.unkB4 = 2;
+                state->common.unkB8 = 29 - state->common.attackTimer;
+            }
+            if (state->common.attackTimer < 0) {
+                state->common.attackTimer++;
+                state->common.unkB4 = 3;
+                state->common.unkB8 = state->common.attackTimer + 29;
+            }
+            inRange = state->common.attackTimer >= -22 && state->common.attackTimer <= -11;
+            if (state->common.attackTimer >= 11 && state->common.attackTimer <= 19) {
+                inRange = 1;
+            }
+            found = 0;
+            if (inRange) {
+                hits[2] = 0;
+                hits[3] = 0;
+                hits[4] = 0;
+                HighwaySetSlotVolume(g_HighwayEngineVolume, 2);
+                HighwayPlaySfx(5, 2, 14);
+                HighwaySetSlotPitch(0, 2);
+                for (i = 2; i < 6; i++) {
+                    if ((u32)g_HighwayRiders[i].state.common.status < 2 &&
+                        HighwayRiderDistance(&g_HighwayRiders[0], &g_HighwayRiders[i]) < 160) {
+                        angle = HighwayRiderAngle(&g_HighwayRiders[0], &g_HighwayRiders[i]);
+                        hit = 0;
+                        if (angle < 0) {
+                            angle += 0x1000;
+                        }
+                        if (state->common.attackTimer < 0) {
+                            hit = angle >= 1 && angle <= 0x383;
+                            if (angle >= 0xE71 && angle <= 0xFFF) {
+                                hit = 1;
+                            }
+                        }
+                        if (state->common.attackTimer > 0 && angle >= 0x47D && angle <= 0x98F) {
+                            hit = 1;
+                        }
+                        if (hit == 1) {
+                            hits[i] = 1;
+                            found = 1;
+                        }
+                    }
+                }
+                if (found == 1) {
+                    HighwaySetSlotVolume(g_HighwayEngineVolume, 2);
+                    HighwayPlaySfx(0x12, 2, -30);
+                    HighwaySetSlotPitch(0, 2);
+                    for (i = 2; i < 5; i++) {
+                        if (hits[i] == 1) {
+                            HighwayRiderDamage(i, 50);
+                        }
+                    }
+                }
+            }
+        }
+        if (!state->common.unk108) {
+            turn = state->common.unk110;
+            if (rand() % 10 == 0) {
+                state->common.unkF4 = 1;
+            }
+            if (rand() % 30 == 0) {
+                if (!state->common.unkF0) {
+                    HighwayPlaySfx(0x12D, 2, 0);
+                }
+                state->common.unkF0 = 3;
+            }
+        } else {
+            turn = 0;
+            if (state->common.unk108 >= 2) {
+                state->common.unk108--;
+            }
+            state->common.unkB0 = 1;
+            state->common.unkB4 = 6;
+            state->common.unkBC = 1;
+            state->common.unkC0 = 1;
+            state->common.unkB8 = 0x49 - state->common.unk108;
+            state->common.unkC4 = 0x49 - state->common.unk108;
+        }
+        rot.vz += turn;
+        if (turn > -50 && turn < 50) {
+            turn = 0;
+        }
+        frame = (turn >> 4) + (state->common.unk10C >> 10) + 18;
+        if (frame < 1) {
+            frame = 1;
+        } else if (frame > 36) {
+            frame = 36;
+        }
+        if (turn && !state->common.unkBC && !state->common.attackTimer) {
+            state->common.unkB0 = 1;
+            state->common.unkB4 = 1;
+            state->common.unkB8 = frame;
+        }
+        m->t[0] = pos.vx;
+        m->t[1] = pos.vy;
+        m->t[2] = pos.vz;
+        RotMatrixYXZ(&rot, m);
+        break;
+    case 1:
+        HighwayTrackSample((state->common.z >> 8) + g_HighwayRidersTrackPos, state->common.x >> 8, &pos, &rot);
+        HighwayTrackSample(
+            (state->common.z >> 8) + g_HighwayRidersTrackPos + 4000, state->common.x >> 8, &ahead, &aheadRot);
+        if (state->common.status == 1) {
+            if (--state->common.unk100 == -1) {
+                state->common.status = 0;
+            }
+            state->common.unkC0 = 3;
+            state->common.unkBC = 1;
+            state->common.unkC4 = 18 - state->common.unk100;
+        }
+        if (state->common.unkFC >= 2) {
+            if (state->common.unkFC >= 3) {
+                state->common.unkFC--;
+            }
+            state->common.unkBC = 1;
+            state->common.unkC0 = 2;
+            state->common.unkB0 = 1;
+            state->common.unkB4 = 1;
+            state->common.unkC4 = 49 - state->common.unkFC;
+            state->common.unkB8 = 49 - state->common.unkFC;
+        }
+        turn = aheadRot.vy - rot.vy;
+        if (turn > 0x800) {
+            turn -= 0x1000;
+        }
+        if (turn < -0x800) {
+            turn += 0x1000;
+        }
+        if (turn < -10 || turn > 10) {
+            frame = -(turn >> 4) + 10;
+            if (frame < 1) {
+                frame = 1;
+            }
+            if (frame > 18) {
+                frame = 18;
+            }
+            state->common.unkBC = 1;
+            state->common.unkC0 = 1;
+            state->common.unkC4 = frame;
+        }
+        rot.vz += -turn >> 1;
+        m->t[0] = pos.vx;
+        m->t[1] = pos.vy;
+        m->t[2] = pos.vz;
+        RotMatrixYXZ(&rot, m);
+        break;
+    case 10:
+        HighwayTrackSample((state->common.z >> 8) + g_HighwayRidersTrackPos, state->common.x >> 8, &pos, &rot);
+        node->m.t[0] = pos.vx;
+        node->m.t[1] = pos.vy;
+        node->m.t[2] = pos.vz;
+        RotMatrixYXZ(&rot, m);
+        break;
+    case 2:
+        HighwayTrackSample(
+            (state->common.z >> 8) + g_HighwayRidersTrackPos + 4000, state->common.x >> 8, &ahead, &aheadRot);
+        HighwayTrackSample((state->common.z >> 8) + g_HighwayRidersTrackPos, state->common.x >> 8, &pos, &rot);
+        turn = (aheadRot.vy - rot.vy) >> 1;
+        if (turn > 0x800) {
+            turn -= 0x1000;
+        }
+        if (turn < -0x800) {
+            turn += 0x1000;
+        }
+        frame = (turn >> 4) + 9;
+        rot.vz += turn << 1;
+        if (frame < 1) {
+            frame = 1;
+        }
+        if (frame > 17) {
+            frame = 17;
+        }
+        if (turn && !state->common.unkB0) {
+            state->common.unkB0 = 1;
+            state->common.unkB4 = 1;
+            state->common.unkB8 = frame;
+        }
+        if (state->common.status == 1) {
+            if (--state->common.attackTimer == -1) {
+                state->common.status = 0;
+            }
+            state->common.unkB4 = 2;
+            state->common.unkB0 = 1;
+            state->common.unkBC = 1;
+            state->common.unkC0 = 1;
+            state->common.unkB8 = 28 - state->common.attackTimer;
+            state->common.unkC4 = 28 - state->common.attackTimer;
+        }
+        if (state->common.status == 2) {
+            if (--state->common.unk108 == -1) {
+                despawn = &g_HighwayRiders[index].state;
+                g_HighwayKawaiModels[despawn->common.unk8].flags = 0;
+                g_HighwayKawaiModels[despawn->common.unkC].flags = 0;
+                despawn->common.status = 5;
+                for (j = 0; j < despawn->common.unk14; j++) {
+                    HighwayNodeFree(g_HighwayRiders[index].nodes[j]);
+                }
+            }
+            state->common.unkB0 = 1;
+            state->common.unkBC = 1;
+            state->common.unkB4 = state->common.unk118 + 3;
+            state->common.unkB8 = 59 - state->common.unk108;
+            state->common.unkC4 = 59 - state->common.unk108;
+            state->common.unkC0 = state->common.unk118 + 2;
+            state->common.unk110 += 0x200;
+            state->common.z -= state->common.unk110;
+            object = HighwayObjectSpawn(pos.vx, pos.vy, pos.vz, 2, 0xAA);
+            object->rotation.vx = rot.vx;
+            object->rotation.vy = rot.vy;
+            object->rotation.vz = rot.vz;
+        }
+        m->t[0] = pos.vx;
+        m->t[1] = pos.vy;
+        m->t[2] = pos.vz;
+        RotMatrixYXZ(&rot, m);
+        break;
+    }
+}
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_rider", HighwayRiderDraw);
+void HighwayRidersDraw(void) {
+    if (g_HighwayRiders[0].state.common.status != 5) {
+        HighwayRiderDraw(0);
+    }
+    if (g_HighwayRiders[1].state.common.status != 5) {
+        HighwayRiderDraw(1);
+    }
+    if (g_HighwayRiders[2].state.common.status != 5) {
+        HighwayRiderDraw(2);
+    }
+    if (g_HighwayRiders[3].state.common.status != 5) {
+        HighwayRiderDraw(3);
+    }
+    if (g_HighwayRiders[4].state.common.status != 5) {
+        HighwayRiderDraw(4);
+    }
+    if (g_HighwayRiders[5].state.common.status != 5) {
+        HighwayRiderDraw(5);
+    }
+}
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_rider", HighwayRidersDrawEffects);
+void HighwayRiderDraw(s32 index) {
+    HighwayRiderState* state;
+    HighwayKawaiState* a;
+    HighwayKawaiState* b;
+    s32 unkC;
+    s32 unk8;
+    s32 i;
+    // FAKE: preserves stack space; the original local declarations are unknown.
+    MATRIX unused;
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_rider", HighwayRiderDrawEffects);
+    state = &g_HighwayRiders[index].state;
+    unkC = state->common.unkC;
+    unk8 = state->common.unk8;
+    b = &g_HighwayKawaiStates[unkC];
+    a = &g_HighwayKawaiStates[unk8];
+    for (i = 1; i < state->common.nodeCount; i++) {
+        HighwayDrawNode(
+            g_HighwayBufferPtr, g_HighwayRiders[index].nodes[i], state->common.unk48[i] + g_HighwayOtOffset, 0);
+    }
+    if (unk8 != 19) {
+        if (!state->common.unkBC) {
+            a->frame++;
+            a->animation = 0;
+            a->frame = a->frame % a->lastFrame[0];
+        } else {
+            a->animation = state->common.unkC0;
+            a->frame = state->common.unkC4;
+            state->common.unkBC = 0;
+        }
+        HighwayNodeViewMatrix(g_HighwayBufferPtr, g_HighwayRiders[index].nodes[0], &g_HighwayKawaiStates[unk8].m);
+        if (HighwaySphereInsidePlanes((VECTOR*)g_HighwayKawaiStates[unk8].m.t, g_HighwayModelTable[129]->unk1C)) {
+            g_HighwayKawaiModels[unk8].flags = 1;
+        } else {
+            g_HighwayKawaiModels[unk8].flags = 0;
+        }
+    }
+    if (unkC != 19) {
+        if (!state->common.unkB0) {
+            b->frame++;
+            b->animation = 0;
+            b->frame = b->frame % b->lastFrame[0];
+        } else {
+            b->animation = state->common.unkB4;
+            b->frame = state->common.unkB8;
+            state->common.unkB0 = 0;
+        }
+        HighwayNodeViewMatrix(g_HighwayBufferPtr, g_HighwayRiders[index].nodes[0], &g_HighwayKawaiStates[unkC].m);
+        if (HighwaySphereInsidePlanes((VECTOR*)g_HighwayKawaiStates[unk8].m.t, g_HighwayModelTable[129]->unk1C)) {
+            g_HighwayKawaiModels[unkC].flags = 1;
+        } else {
+            g_HighwayKawaiModels[unkC].flags = 0;
+        }
+    }
+}
+
+void HighwayRidersDrawEffects(void) {
+    if (g_HighwayRiders[0].state.common.status != 5) {
+        HighwayRiderDrawEffects(0);
+    }
+    if (g_HighwayRiders[1].state.common.status != 5) {
+        HighwayRiderDrawEffects(1);
+    }
+    if (g_HighwayRiders[2].state.common.status != 5) {
+        HighwayRiderDrawEffects(2);
+    }
+    if (g_HighwayRiders[3].state.common.status != 5) {
+        HighwayRiderDrawEffects(3);
+    }
+    if (g_HighwayRiders[4].state.common.status != 5) {
+        HighwayRiderDrawEffects(4);
+    }
+    if (g_HighwayRiders[5].state.common.status != 5) {
+        HighwayRiderDrawEffects(5);
+    }
+}
+
+void HighwayRiderDrawEffects(s32 index) {
+    HighwayRiderState* state;
+
+    state = &g_HighwayRiders[index].state;
+    switch (state->common.type) {
+    case 0:
+        if (state->common.unkF0) {
+            state->common.unkF0--;
+            g_HighwayRiders[index].nodes[3]->model =
+                g_HighwayModelTable[g_HighwayEffectModels[0] - state->common.unkF0];
+            HighwayDrawNode(
+                g_HighwayBufferPtr, g_HighwayRiders[index].nodes[3], state->common.unk48[3] + g_HighwayOtOffset, 0);
+        }
+        if (state->common.unkF4) {
+            state->common.unkF4 = 0;
+            state->common.unkF8 = (state->common.unkF8 + 1) % 3;
+            g_HighwayRiders[index].nodes[2]->model =
+                g_HighwayModelTable[g_HighwayEffectModels[1] + state->common.unkF8];
+            HighwayDrawNode(
+                g_HighwayBufferPtr, g_HighwayRiders[index].nodes[2], state->common.unk48[2] + g_HighwayOtOffset, 0);
+        }
+        break;
+    case 2:
+        if (state->common.unkF0) {
+            state->common.unkF0--;
+            g_HighwayRiders[index].nodes[2]->model =
+                g_HighwayModelTable[g_HighwayEffectModels[2] - state->common.unkF0];
+            HighwayDrawNode(
+                g_HighwayBufferPtr, g_HighwayRiders[index].nodes[2], state->common.unk48[2] + g_HighwayOtOffset, 0);
+        }
+        break;
+    case 10:
+        if (state->common.unk10C) {
+            state->common.unk10C--;
+            g_HighwayRiders[index].nodes[1]->model =
+                g_HighwayModelTable[g_HighwayEffectModels[3] - state->common.unk10C];
+            HighwayDrawNode(
+                g_HighwayBufferPtr, g_HighwayRiders[index].nodes[1], state->common.unk48[2] + g_HighwayOtOffset, 0);
+        }
+        break;
+    }
+}
 
 // Angle on the XZ plane from rider a to rider b.
 inline s32 HighwayRiderAngle(HighwayRider* a, HighwayRider* b) {
@@ -620,7 +1068,34 @@ inline s32 HighwayRiderDistance(HighwayRider* a, HighwayRider* b) {
     return SquareRoot0(dx * dx + dy * dy + dz * dz);
 }
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_rider", HighwayRiderEndpoints);
+void HighwayRiderEndpoints(s16 index, SVECTOR* front, SVECTOR* back, s16* outDiff) {
+    SVECTOR frontOfs;
+    SVECTOR backOfs;
+    s32 x0; // never initialised
+    s32 x1; // never initialised
+    s32 d;
+    s32 frontZ;
+    s32 backZ;
+
+    frontZ = g_HighwayRiders[index].state.common.unk60;
+    backZ = g_HighwayRiders[index].state.common.unk64;
+    frontOfs.vx = 0;
+    frontOfs.vy = 0;
+    backOfs.vx = 0;
+    backOfs.vy = 0;
+    frontOfs.vz = frontZ;
+    backOfs.vz = backZ;
+    d = x0 - x1;
+    *outDiff = (d < 0 ? -d : d) >> 2;
+    ApplyMatrixSV(&g_HighwayRiders[index].nodes[0]->m, &frontOfs, front);
+    ApplyMatrixSV(&g_HighwayRiders[index].nodes[0]->m, &backOfs, back);
+    front->vx += g_HighwayRiders[index].nodes[0]->m.t[0];
+    front->vy += g_HighwayRiders[index].nodes[0]->m.t[1];
+    front->vz += g_HighwayRiders[index].nodes[0]->m.t[2];
+    back->vx += g_HighwayRiders[index].nodes[0]->m.t[0];
+    back->vy += g_HighwayRiders[index].nodes[0]->m.t[1];
+    back->vz += g_HighwayRiders[index].nodes[0]->m.t[2];
+}
 
 void HighwayRidersCollide(void) {
     VECTOR pos;
@@ -1041,7 +1516,239 @@ void HighwayCameraInit(void) {
     D_800BE550 = g_HighwayPathOffsets;
 }
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_rider", HighwayCameraUpdate);
+void HighwayCameraUpdate(s32 trackPos) {
+    // FAKE: preserves stack space; the original local declarations are unknown.
+    MATRIX unused0;
+    SVECTOR unused1;
+    VECTOR d;
+    VECTOR n;
+    // FAKE: preserves stack space; the original local declarations are unknown.
+    VECTOR unused2;
+    SVECTOR rot;
+    SVECTOR outRot;
+    SVECTOR near;
+    SVECTOR far;
+    // FAKE: preserves stack space; the original local declarations are unknown.
+    VECTOR unused3;
+    VECTOR delta[6];
+    VECTOR norm[6];
+    s32 dist[6];
+    s32 vol[6];
+    s32 pan;
+    s32 lift;
+    s32 offset;
+    s32 i;
+    JetNode* node;
+    HighwayRiderState* state;
+
+    delta[0].vx = g_HighwayRiders->nodes[0]->m.t[0] - g_HighwayCameraEye.vx;
+    delta[0].vy = g_HighwayRiders->nodes[0]->m.t[1] - g_HighwayCameraEye.vy;
+    delta[0].vz = g_HighwayRiders->nodes[0]->m.t[2] - g_HighwayCameraEye.vz;
+    dist[0] = SquareRoot0(delta[0].vx * delta[0].vx + delta[0].vy * delta[0].vy + delta[0].vz * delta[0].vz);
+    vol[0] = dist[0] >> 5;
+    VectorNormal(&delta[0], &norm[0]);
+    pan = g_HighwayCameraYaw + (0x400 - ratan2(norm[0].vz, norm[0].vx));
+    if (pan > 0x800) {
+        pan -= 0x1000;
+    }
+    if (pan < -0x800) {
+        pan += 0x1000;
+    }
+    pan >>= 2;
+    pan += 0x40;
+    if (pan >= 0x80) {
+        pan = 0x7F;
+    }
+    if (pan < 0) {
+        pan = 0;
+    }
+    if (vol[0] > 90) {
+        vol[0] = 90;
+    }
+    if (vol[0] < 0) {
+        vol[0] = 0;
+    }
+    D_80110BD8 = g_HighwayEngineVolume = 0x7F - vol[0];
+    HighwaySetSlotPan(pan, 2);
+    HighwaySetSlotPan(pan, 4);
+    HighwaySetSlotVolume(g_HighwayEngineVolume, 1);
+    HighwaySetSlotVolume(g_HighwayEngineVolume, 4);
+    g_HighwayNearestEnemyDist = 0x7FFFFFFF;
+    g_HighwayNearestEnemy = 0;
+    g_HighwayNearestRiderDist = dist[0];
+    for (i = 1; i < 6; i++) {
+        node = g_HighwayRiders[i].nodes[0];
+        delta[i].vx = node->m.t[0] - g_HighwayCameraEye.vx;
+        delta[i].vy = node->m.t[1] - g_HighwayCameraEye.vy;
+        delta[i].vz = node->m.t[2] - g_HighwayCameraEye.vz;
+        state = &g_HighwayRiders[i].state;
+        dist[i] = SquareRoot0(delta[i].vx * delta[i].vx + delta[i].vy * delta[i].vy + delta[i].vz * delta[i].vz);
+        vol[i] = dist[i] >> 5;
+        if (dist[i] < g_HighwayNearestRiderDist && i > 0 && state->common.status != 5) {
+            g_HighwayNearestRiderDist = dist[i];
+        }
+        if (dist[i] < g_HighwayNearestEnemyDist && i >= 2 && state->common.status != 5) {
+            g_HighwayNearestEnemy = i;
+            g_HighwayNearestEnemyDist = dist[i];
+        }
+    }
+    if (g_HighwayNearestEnemy) {
+        VectorNormal(&delta[g_HighwayNearestEnemy], &norm[g_HighwayNearestEnemy]);
+        pan = g_HighwayCameraYaw + (0x400 - ratan2(norm[g_HighwayNearestEnemy].vz, norm[g_HighwayNearestEnemy].vx));
+        if (pan > 0x800) {
+            pan -= 0x1000;
+        }
+        if (pan < -0x800) {
+            pan += 0x1000;
+        }
+        pan >>= 2;
+        pan += 0x40;
+        if (pan >= 0x80) {
+            pan = 0x7F;
+        }
+        if (pan < 0) {
+            pan = 0;
+        }
+        if (vol[g_HighwayNearestEnemy] > 90) {
+            vol[g_HighwayNearestEnemy] = 90;
+        }
+        if (vol[g_HighwayNearestEnemy] < 0) {
+            vol[g_HighwayNearestEnemy] = 0;
+        }
+        g_HighwayEnemyEngineVolume = 0x7F - vol[g_HighwayNearestEnemy];
+        HighwaySetSlotPan(pan, 3);
+        HighwaySetSlotVolume(g_HighwayEnemyEngineVolume, 3);
+    } else {
+        HighwaySetSlotVolume(0, 3);
+    }
+    g_HighwayCameraLift = 0;
+    if (g_HighwayNearestRiderDist < 800) {
+        g_HighwayCameraLift = (800 - g_HighwayNearestRiderDist) >> 2;
+    }
+    lift = (g_HighwayRiders->state.common.z - 350000) >> 11;
+    if (lift < 0) {
+        lift = 0;
+    }
+    if (g_HighwayCameraLift < lift) {
+        g_HighwayCameraLift = lift;
+    }
+    switch (g_HighwayCameraMode) {
+    case 1:
+        near.vx = -(g_HighwayRiders->state.common.x >> 9) * 4 / 3;
+        near.vy = 0x55;
+        near.vz = g_HighwayRiders->state.common.z >> 9;
+        far.vx = g_HighwayRiders->state.common.x >> 8;
+        far.vy = 0x78;
+        far.vz = g_HighwayRiders->state.common.z >> 8;
+        HighwayTrackSample(trackPos + near.vz, near.vx, &g_HighwayCameraEye, &outRot);
+        HighwayTrackSamplePos(trackPos + far.vz, far.vx, &g_HighwayCameraTarget);
+        g_HighwayLeftWallOtBias = 150;
+        g_HighwayRightWallOtBias = 150;
+        g_HighwayOtOffset = 0;
+        g_HighwayCameraEye.vy -= near.vy;
+        offset = g_HighwayCameraTarget.vy - far.vy;
+        g_HighwayCameraTarget.vy = lift * 2 + offset;
+        break;
+    case 4:
+        HighwayPathSample(g_HighwayCameraPathPos, g_HighwayCameraPath, &g_HighwayCameraOffset, 1);
+        near.vy = 0x55;
+        far.vy = 0x78;
+        far.vx = g_HighwayRiders->state.common.x >> 8;
+        far.vz = g_HighwayRiders->state.common.z >> 8;
+        near.vz = (g_HighwayRiders->state.common.z >> 9) + g_HighwayCameraOffset.vz;
+        near.vx = -(g_HighwayRiders->state.common.x >> 9) * 4 / 3 + g_HighwayCameraOffset.vx;
+        HighwayTrackSample(trackPos + near.vz, near.vx, &g_HighwayCameraEye, &outRot);
+        HighwayTrackSamplePos(trackPos + far.vz, far.vx, &g_HighwayCameraTarget);
+        g_HighwayLeftWallOtBias = 200;
+        g_HighwayRightWallOtBias = 200;
+        g_HighwayCameraEye.vy -= near.vy;
+        g_HighwayCameraEye.vy -= g_HighwayCameraOffset.vy;
+        g_HighwayCameraTarget.vy -= far.vy;
+        g_HighwayCameraTarget.vy += lift * 2;
+        if (g_HighwayCameraOffset.vx > 350) {
+            g_HighwayRightWallOtBias = 40;
+        }
+        if (g_HighwayCameraOffset.vx < -350) {
+            g_HighwayLeftWallOtBias = 40;
+        }
+        g_HighwayCameraPathPos += g_HighwayCameraPathStep;
+        if (g_HighwayCameraPathPos > g_HighwayCameraPathEnd) {
+            g_HighwayCameraMode = 1;
+        }
+        if (g_HighwayArcadeMode == 1) {
+            if (g_HighwayCameraEye.vy >= -2899 && g_HighwayBanner == 2) {
+                g_HighwayOtOffset = 300;
+            } else {
+                g_HighwayOtOffset = 0;
+            }
+        }
+        break;
+    case 5:
+        HighwayTrackSample(g_HighwayCameraFixedPos, g_HighwayCameraFixedOffset.vx + g_HighwayCameraEyeOffset.vx,
+                           &g_HighwayCameraEye, &outRot);
+        HighwayTrackSamplePos(trackPos + (g_HighwayRiders->state.common.z >> 8), g_HighwayRiders->state.common.x >> 8,
+                              &g_HighwayCameraTarget);
+        g_HighwayLeftWallOtBias = 200;
+        g_HighwayRightWallOtBias = 200;
+        g_HighwayCameraEye.vy -= g_HighwayCameraFixedOffset.vy;
+        g_HighwayCameraOffset.vx = g_HighwayCameraEyeOffset.vx;
+        g_HighwayCameraOffset.vy = g_HighwayCameraEyeOffset.vy;
+        g_HighwayCameraOffset.vz = g_HighwayCameraEyeOffset.vz;
+        if (g_HighwayCameraEyeOffset.vx > 350) {
+            g_HighwayRightWallOtBias = 40;
+        }
+        if (g_HighwayCameraEyeOffset.vx < -350) {
+            g_HighwayLeftWallOtBias = 40;
+        }
+        break;
+    case 0:
+        HighwayTrackSample(
+            trackPos + g_HighwayCameraEyeOffset.vz, g_HighwayCameraEyeOffset.vx, &g_HighwayCameraEye, &outRot);
+        HighwayTrackSamplePos(trackPos + g_HighwayCameraTargetOffset.vz + (g_HighwayRiders->state.common.z >> 8),
+                              g_HighwayCameraTargetOffset.vx, &g_HighwayCameraTarget);
+        g_HighwayLeftWallOtBias = 200;
+        g_HighwayRightWallOtBias = 200;
+        g_HighwayCameraTarget.vy += g_HighwayCameraTargetOffset.vy;
+        g_HighwayCameraEye.vy += g_HighwayCameraEyeOffset.vy;
+        g_HighwayCameraOffset.vx = g_HighwayCameraEyeOffset.vx;
+        g_HighwayCameraOffset.vy = g_HighwayCameraEyeOffset.vy;
+        g_HighwayCameraOffset.vz = g_HighwayCameraEyeOffset.vz;
+        if (g_HighwayCameraEyeOffset.vx > 350) {
+            g_HighwayRightWallOtBias = 40;
+        }
+        if (g_HighwayCameraEyeOffset.vx < -350) {
+            g_HighwayLeftWallOtBias = 40;
+        }
+        break;
+    }
+    d.vx = g_HighwayCameraTarget.vx - g_HighwayCameraEye.vx;
+    d.vy = g_HighwayCameraTarget.vy - (g_HighwayCameraEye.vy - g_HighwayCameraLift);
+    d.vz = g_HighwayCameraTarget.vz - g_HighwayCameraEye.vz;
+    g_HighwayCameraPos.vx = g_HighwayCameraTarget.vx;
+    g_HighwayCameraPos.vy = g_HighwayCameraTarget.vy - (g_HighwayCameraLift >> 1);
+    g_HighwayCameraPos.vz = g_HighwayCameraTarget.vz;
+    if (SquareRoot0(d.vx * d.vx + d.vy * d.vy + d.vz * d.vz) > 0x1000) {
+        VectorNormal(&d, &n);
+        rot.vx = ratan2(n.vy, SquareRoot0(n.vx * n.vx + n.vz * n.vz));
+        rot.vy = ratan2(n.vz, n.vx) - 0x400;
+        rot.vz = 0;
+    } else {
+        rot.vx = ratan2(d.vy, SquareRoot0(d.vx * d.vx + d.vz * d.vz));
+        rot.vy = ratan2(d.vz, d.vx) - 0x400;
+        rot.vz = 0;
+    }
+    g_HighwayCameraMatrices->m[1].t[0] = d.vx;
+    g_HighwayCameraMatrices->m[1].t[1] = d.vy;
+    g_HighwayCameraMatrices->m[1].t[2] = d.vz;
+    g_HighwayCameraMatrices->rot[0].vz = -outRot.vz;
+    g_HighwayCameraRolled = g_HighwayCameraMatrices->rot[0].vz != 0;
+    RotMatrix(&g_HighwayCameraMatrices->rot[0], &g_HighwayCameraMatrices->m[3]);
+    RotMatrix(&rot, &g_HighwayCameraMatrices->m[2]);
+    CompMatrix(&g_HighwayCameraMatrices->m[2], &g_HighwayCameraMatrices->m[1], &g_HighwayCameraMatrices->m[0]);
+    CompMatrix(&g_HighwayCameraMatrices->m[2], &g_HighwayCameraMatrices->m[1], &g_HighwayCameraMatrices->m[4]);
+    CompMatrix(&g_HighwayCameraMatrices->m[3], &g_HighwayCameraMatrices->m[0], &g_HighwayCameraMatrices->m[0]);
+    g_HighwayCameraYaw = rot.vy;
+}
 
 void func_800AC2FC(void) {}
 
@@ -1115,4 +1822,51 @@ void HighwayInputReset(void) {
     g_HighwayInputDisabled = 0;
 }
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_rider", HighwayInputUpdate);
+static inline s32 HighwayReadPad(void) {
+    if (!g_HighwayInputDisabled) {
+        g_HighwayPadKeys = InputReadPadsRaw(1);
+        return 0;
+    }
+    g_HighwayPadKeys = 0;
+    return 0;
+}
+
+void HighwayInputUpdate(void) {
+    // FAKE: preserves stack space; the original local declarations are unknown.
+    VECTOR unused;
+
+    if (!HighwayReadPad()) {
+        g_HighwayPadDir = 0;
+        g_HighwayPadAction = 0;
+        if (g_HighwayPadKeys & PAD_LEFT) {
+            g_HighwayPadDir = 4;
+        }
+        if (g_HighwayPadKeys & PAD_RIGHT) {
+            g_HighwayPadDir = 6;
+        }
+        if (g_HighwayPadKeys & PAD_UP) {
+            g_HighwayPadDir = 8;
+            if (g_HighwayPadKeys & PAD_LEFT) {
+                g_HighwayPadDir = 7;
+            }
+            if (g_HighwayPadKeys & PAD_RIGHT) {
+                g_HighwayPadDir = 9;
+            }
+        }
+        if (g_HighwayPadKeys & PAD_DOWN) {
+            g_HighwayPadDir = 2;
+            if (g_HighwayPadKeys & PAD_LEFT) {
+                g_HighwayPadDir = 1;
+            }
+            if (g_HighwayPadKeys & PAD_RIGHT) {
+                g_HighwayPadDir = 3;
+            }
+        }
+        if (g_HighwayPadKeys & PAD_SQUARE) {
+            g_HighwayPadAction = 1;
+        }
+        if (g_HighwayPadKeys & PAD_CIRCLE) {
+            g_HighwayPadAction = 2;
+        }
+    }
+}

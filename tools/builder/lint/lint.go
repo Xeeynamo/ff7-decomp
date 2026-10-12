@@ -46,7 +46,11 @@ func Lint(opts Options) error {
 	for i, ovl := range overlays {
 		i, ovl := i, ovl
 		eg.Go(func() error {
-			symbols, resolver, err := lintOverlay(ovl, table, opts.Verbose)
+			overlayTable, err := symbolTableForOverlay(ovl, all, table, sharedEnd)
+			if err != nil {
+				return fmt.Errorf("%s: %w", ovl.Name, err)
+			}
+			symbols, resolver, err := lintOverlay(ovl, overlayTable, opts.Verbose)
 			if err != nil {
 				return fmt.Errorf("%s: %w", ovl.Name, err)
 			}

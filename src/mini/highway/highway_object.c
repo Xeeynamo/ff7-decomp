@@ -2,6 +2,8 @@
 
 #include "highway_private.h"
 
+void HighwayDrawNode(HighwayBuffer* db, JetNode* node, s16 otIndex, s32 unused);
+
 // Mark every object free and rebuild the object index free list.
 void HighwayObjectsInit(void) {
     s32 i;
@@ -69,7 +71,110 @@ void HighwayObjectIndexFree(s16 index) {
     g_HighwayObjectFreeList[index] = next;
 }
 
-INCLUDE_ASM("asm/us/mini/highway/nonmatchings/highway_object", func_800B01AC);
+void HighwayObjectsUpdate(HighwayBuffer* db) {
+    // FAKE: preserves stack space; the original local declarations are unknown.
+    VECTOR unused;
+    HighwayObject* obj;
+    HighwayRiderState* state;
+    s32 i;
+    u8 order;
+    u8 drawMode;
+    u16 otIndex;
+
+    for (i = 0; i < LEN(g_HighwayObjects); i++) {
+        otIndex = 0;
+        obj = &g_HighwayObjects[i];
+        if (!obj->active) {
+            continue;
+        }
+        order = 2;
+        drawMode = 0;
+        switch (obj->unk28) {
+        case 1:
+            state = &g_HighwayRiders[obj->unk78].state;
+            if (!obj->unk34) {
+                obj->unk34 = 1;
+                obj->unk38 = 0;
+                obj->unk50 = 0;
+                obj->unk54 = 0;
+            }
+            HighwayTrackSample(g_HighwayTrackPos + obj->unk50 + (state->common.z >> 8), state->common.x >> 8,
+                               &obj->position, &obj->rotation);
+            obj->unk38++;
+            obj->unk50 -= 40;
+            obj->unk54 += rand() % 20;
+            obj->position.vy -= obj->unk54;
+            if (obj->unk38 > 10) {
+                HighwayObjectFree(obj);
+            }
+            break;
+        case 2:
+            if (!obj->unk34) {
+                obj->unk34 = 1;
+                obj->unk38 = 0;
+                obj->unk50 = 0;
+                obj->unk54 = 0;
+                obj->unk58 = 0;
+            }
+            obj->unk58 = (obj->unk58 + 1) % 3;
+            obj->unk5C = obj->unk58 + 170;
+            obj->node->model = g_HighwayModelTable[obj->unk5C];
+            obj->unk38++;
+            if (obj->unk38 >= 3) {
+                HighwayObjectFree(obj);
+            }
+            break;
+        case 3:
+            if (!obj->unk34) {
+                obj->unk34 = 1;
+                obj->unk38 = 0;
+                obj->unk50 = 0;
+                obj->unk54 = 0;
+                obj->unk58 = 0;
+            }
+            obj->unk58 = (obj->unk58 + 1) % 3;
+            obj->unk5C = obj->unk58 + 178;
+            obj->node->model = g_HighwayModelTable[obj->unk5C];
+            obj->unk38++;
+            if (obj->unk38 >= 2) {
+                HighwayObjectFree(obj);
+            }
+            break;
+        case 4:
+            if (!obj->unk34) {
+                obj->unk34 = 1;
+                obj->unk38 = 0;
+                obj->unk50 = 0;
+                obj->unk54 = -30;
+                obj->unk58 = 0;
+            }
+            obj->unk58++;
+            obj->rotation.vy += 0x100;
+            obj->position.vy += obj->unk54;
+            obj->unk54++;
+            obj->unk38++;
+            if (obj->unk38 > 60) {
+                HighwayObjectFree(obj);
+            }
+            break;
+        }
+        obj->node->m.t[0] = obj->position.vx;
+        obj->node->m.t[1] = obj->position.vy;
+        obj->node->m.t[2] = obj->position.vz;
+        if (!order) {
+            RotMatrixYXZ(&obj->rotation, &obj->node->m);
+        }
+        if (order == 1) {
+            RotMatrixZYX(&obj->rotation, &obj->node->m);
+        }
+        if (order == 2) {
+            RotMatrix(&obj->rotation, &obj->node->m);
+        }
+        if (!drawMode) {
+            HighwayDrawNode(db, obj->node, otIndex, 0);
+        }
+    }
+}
 
 HighwayObject* HighwayObjectSpawn(s16 x, s16 y, s16 z, s16 type, s16 modelId) {
     g_HighwayObjectTemplate.position.vx = x;
