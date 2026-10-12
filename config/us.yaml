@@ -873,3 +873,16 @@ overlays:
       - [0, c, sailess]
       - [0x498, data, sailess_model]
       - [0x8E74, data, sailess_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral
+  # JIBAKU1.BIN -- effect overlay
+  - name: jibaku1
+    disk_path: disks/us/MAGIC/JIBAKU1.BIN
+    sha1: eb1b5e288df837a3e8a656bc8de5138bc94a02bd
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-jibaku1.us.txt
+    segments:
+      - [0, c, jibaku1]
+      - [0x3B4, data, jibaku1_model]
+      - [0x8584, data, jibaku1_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral

@@ -91,6 +91,7 @@ set(FF7_MAGIC
     src/magic/barrier.c
     src/magic/bio.c
     src/magic/brizad.c
+    src/magic/jibaku1.c
     src/magic/kusai.c
     src/magic/lv5deth.c
     src/magic/mabaria.c
