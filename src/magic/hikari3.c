@@ -5,6 +5,9 @@
 #include "hikari3.h"
 #include "../battle/battle.h"
 
+// Effect shared by Red Light (赤い光), Petrif-Eye (石化にらみ), Heatwing (ヒートウィング)
+// and Eyesight (眼力).
+
 void Hikari3Start(s32 targetMask, s32 callbackArg);
 extern s16 D_801D0AA8[];
 extern s16 D_800F5B74;

@@ -5,6 +5,8 @@
 #include "hikari2.h"
 #include "../battle/battle.h"
 
+// Effect shared by Blue Light (青い光), Smog Alert (超有害スモッグ) and Eyesight (眼力).
+
 void Hikari2Start(s32 targetMask, s32 callbackArg);
 void Hikari2SparkSpriteTick(void);
 void Hikari2HitSpriteTick(void);
