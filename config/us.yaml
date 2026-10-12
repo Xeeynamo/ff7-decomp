@@ -821,3 +821,17 @@ overlays:
       - [0x10, c, q_ketsu]
       - [0x10A4, data, q_ketsu_model]
       - [0xDAE4, data, q_ketsu_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral
+  # Q_SHU.BIN -- effect overlay
+  - name: q_shu
+    disk_path: disks/us/MAGIC/Q_SHU.BIN
+    sha1: e180f519db423f6eb419203f59abe619f88b5c11
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-q_shu.us.txt
+    segments:
+      - [0, rodata, q_shu]
+      - [0x10, c, q_shu]
+      - [0x10A4, data, q_shu_model]
+      - [0xDAE4, data, q_shu_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral

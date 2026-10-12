@@ -1,0 +1,10 @@
+QShuDoubleBufferFlip = 0x801B0010;
+QShuHitSparkleSpriteTick = 0x801B007C;
+QShuRisingSparkleSpriteTick = 0x801B0138;
+QShuSpiralSparkleSpriteTick = 0x801B0264;
+QShuTrailSparkleSpriteTick = 0x801B03FC;
+QShuOrbSpriteTick = 0x801B04B4;
+QShuModelTick = 0x801B08E0;
+QShuTargetTick = 0x801B0C5C;
+QShuTargetSetup = 0x801B0F5C;
+MAGIC_QShu = 0x801B1028;
