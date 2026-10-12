@@ -387,7 +387,6 @@ void CometTargetSetup(s32 target, s32 callbackArg) {
     BattleGetPartPosition(target, g_BattleModels[target].boneIndices[0], &effect->Pos);
 }
 
-// Same as BarrierDoubleBufferFlip.
 void CometBufferFlip(void) {
     CometData* effect;
 
