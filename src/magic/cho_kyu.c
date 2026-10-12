@@ -59,20 +59,20 @@ extern u8 D_801D7498[2][0xC000];
 extern u_long D_801B21F0[];
 extern void* D_801EF498;
 s32 BattleDetachedRegister(void (*func)(void));
-void func_801B2028(s32 targetMask, s32 callbackArg);
+void ChoKyuStart(s32 targetMask, s32 callbackArg);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
-void func_801B04C8(void);
-void func_801B0664(void);
-void func_801B0B58(void);
-void func_801B0E38(void);
-void func_801B0F24(void);
-void func_801B11F4(void);
-void func_801B13E8(void);
+void ChoKyuViewportFlashTick(void);
+void ChoKyuFlashShellTick(void);
+void ChoKyuGrowingModelTick(void);
+void ChoKyuDriftSpriteTick(void);
+void ChoKyuPulseSpriteTick(void);
+void ChoKyuBeamColumnTick(void);
+void ChoKyuBeamHeadTick(void);
 void func_801B19C4(void);
 
-void func_801B0000(s32 targetMask, s32 callbackArg) { func_801B2028(targetMask, callbackArg); }
+void MAGIC_ChoKyu(s32 targetMask, s32 callbackArg) { ChoKyuStart(targetMask, callbackArg); }
 
-void func_801B0020(s16 targetMask, SVECTOR* out) {
+void ChoKyuTargetCenterCalc(s16 targetMask, SVECTOR* out) {
     VECTOR sum;
     SVECTOR pos;
     s16 i;
@@ -94,7 +94,7 @@ void func_801B0020(s16 targetMask, SVECTOR* out) {
     out->vz = sum.vz / count;
 }
 
-void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
+void ChoKyuSprayVectorCalc(s32 offset, s16 spread, SVECTOR* out) {
     SVECTOR in;
     SVECTOR rot;
     MATRIX matrix;
@@ -109,7 +109,7 @@ void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
     ApplyMatrixSV(&matrix, &in, out);
 }
 
-void func_801B02FC(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
+void ChoKyuSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
     MATRIX matrix;
     MATRIX rotated;
     VECTOR dir;
@@ -138,7 +138,7 @@ void func_801B02FC(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
 }
 
 // Same as EnergyDoubleBufferFlip.
-static void func_801B045C(void) {
+static void ChoKyuDoubleBufferFlip(void) {
     ChoKyuData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -149,7 +149,7 @@ static void func_801B045C(void) {
     }
 }
 
-void func_801B04C8(void) {
+void ChoKyuViewportFlashTick(void) {
     ChoKyuData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -168,7 +168,7 @@ void func_801B04C8(void) {
     }
 }
 
-void func_801B05A8(void) {
+void ChoKyuSparkSpriteTick(void) {
     ChoKyuData* effect;
 
     effect = &g_BattleDetachedSlots[g_BattleDetachedCursor];
@@ -183,7 +183,7 @@ void func_801B05A8(void) {
     }
 }
 
-void func_801B0664(void) {
+void ChoKyuFlashShellTick(void) {
     MATRIX matrix;
     MATRIX rotated;
     s32 flag;
@@ -216,7 +216,7 @@ void func_801B0664(void) {
 }
 
 // Same as func_801B0584.
-void func_801B07DC(void) {
+void ChoKyuEmberTick(void) {
     MATRIX rotated;
     MATRIX matrix;
     SVECTOR rot;
@@ -267,7 +267,7 @@ void func_801B07DC(void) {
     }
 }
 
-void func_801B09F8(void) {
+void ChoKyuRisingModelTick(void) {
     MATRIX matrix;
     MATRIX composed;
     SVECTOR rot;
@@ -298,7 +298,7 @@ void func_801B09F8(void) {
     }
 }
 
-void func_801B0B58(void) {
+void ChoKyuGrowingModelTick(void) {
     MATRIX matrix;
     MATRIX composed;
     VECTOR scale;
@@ -329,7 +329,7 @@ void func_801B0B58(void) {
 extern SVECTOR D_801D739C;
 extern ModelRenderDesc D_801D73A4;
 
-void func_801B0CB4(void) {
+void ChoKyuShrinkingModelTick(void) {
     MATRIX matrix;
     MATRIX composed;
     VECTOR scale;
@@ -359,7 +359,7 @@ void func_801B0CB4(void) {
     }
 }
 
-void func_801B0E38(void) {
+void ChoKyuDriftSpriteTick(void) {
     ChoKyuData* effect;
 
     effect = &g_BattleDetachedSlots[g_BattleDetachedCursor];
@@ -384,7 +384,7 @@ extern VECTOR D_801D7458;
 extern s32 D_801D61A8[];
 extern s32 D_801D684C[];
 
-void func_801B0F24(void) {
+void ChoKyuPulseSpriteTick(void) {
     MATRIX matrix;
     MATRIX composed;
     ChoKyuData* effect;
@@ -429,7 +429,7 @@ void func_801B0F24(void) {
     }
 }
 
-void func_801B11F4(void) {
+void ChoKyuBeamColumnTick(void) {
     MATRIX matrix;
     MATRIX composed;
     VECTOR scale;
@@ -474,7 +474,7 @@ extern s32 D_801D3038[];
 extern s32 D_801D3FDC[];
 extern s32 D_801D4F80[];
 
-void func_801B13E8(void) {
+void ChoKyuBeamHeadTick(void) {
     MATRIX matrix;
     MATRIX composed;
     SVECTOR pos;
@@ -519,13 +519,13 @@ void func_801B13E8(void) {
         RotTransSV(&pos, &pos, &flag);
         BattleSpawnFloatingIconAt(&pos, 0x44, 0);
         if ((effect->AnimationFrame & 1) == 0) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0CB4)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ChoKyuShrinkingModelTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
         }
         if (effect->Pos.vy < 0) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B07DC)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ChoKyuEmberTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vz = effect->Pos.vz;
             child->Pos.vy = 0;
@@ -535,7 +535,7 @@ void func_801B13E8(void) {
             child->PartPos.vy = -rand() % 300 - 50;
             child->unk16 = rand() % 7;
             if (effect->AnimationFrame % 3 == 0) {
-                child = &g_BattleEffectSlots[BattleEffectRegister(func_801B09F8)];
+                child = &g_BattleEffectSlots[BattleEffectRegister(ChoKyuRisingModelTick)];
                 child->Pos.vx = effect->Pos.vx + rand() % 4000 - 2000;
                 child->Pos.vz = effect->Pos.vz + rand() % 4000 - 2000;
                 child->Pos.vy = 0;
@@ -578,7 +578,7 @@ void func_801B19C4(void) {
     }
 }
 
-void func_801B1B3C(void) {
+void ChoKyuMainTick(void) {
     SVECTOR in;
     SVECTOR rot;
     MATRIX matrix;
@@ -593,15 +593,15 @@ void func_801B1B3C(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == 0) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0B58)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ChoKyuGrowingModelTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0F24)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ChoKyuPulseSpriteTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0664)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ChoKyuFlashShellTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
@@ -620,11 +620,11 @@ void func_801B1B3C(void) {
             }
         }
         if (effect->AnimationFrame == 20) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B11F4)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ChoKyuBeamColumnTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B13E8)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(ChoKyuBeamHeadTick)];
             child->Pos.vx = effect->Pos.vx;
             child->Pos.vy = effect->Pos.vy;
             child->Pos.vz = effect->Pos.vz;
@@ -634,7 +634,7 @@ void func_801B1B3C(void) {
             func_800BBA84(0x176, effect->unk1E, 0x40);
         }
         if (effect->AnimationFrame == 20) {
-            BattleEffectRegister(func_801B04C8);
+            BattleEffectRegister(ChoKyuViewportFlashTick);
         }
         if (effect->AnimationFrame == 54) {
             BattleFixedPointRampUpdateInit(0, 16);
@@ -642,7 +642,7 @@ void func_801B1B3C(void) {
         if (effect->AnimationFrame >= 37 && effect->AnimationFrame < 44) {
             for (i = 0; i < 10; i++) {
                 if ((D_801D748C >> i) & 1) {
-                    child = &g_BattleDetachedSlots[BattleDetachedRegister(func_801B0E38)];
+                    child = &g_BattleDetachedSlots[BattleDetachedRegister(ChoKyuDriftSpriteTick)];
                     BattleGetPartPosition(i, g_BattleModels[i].boneIndices[0], &child->Pos);
                     in.vy = 0x64;
                     in.vz = 0;
@@ -680,16 +680,16 @@ void func_801B1B3C(void) {
     }
 }
 
-void func_801B2028(s32 targetMask, s32 callbackArg) {
+void ChoKyuStart(s32 targetMask, s32 callbackArg) {
     VECTOR vec;
     SVECTOR dir;
     ChoKyuData* effect;
 
-    BattleEffectRegister(func_801B045C);
+    BattleEffectRegister(ChoKyuDoubleBufferFlip);
     D_801D748C = targetMask;
-    effect = &g_BattleEffectSlots[BattleEffectRegister(func_801B1B3C)];
+    effect = &g_BattleEffectSlots[BattleEffectRegister(ChoKyuMainTick)];
     BattleGetPartPosition(callbackArg, g_BattleModels[callbackArg].boneIndices[15], &effect->Pos);
-    func_801B0020(targetMask, &D_801D7490);
+    ChoKyuTargetCenterCalc(targetMask, &D_801D7490);
     vec.vx = dir.vx = D_801D7490.vx - effect->Pos.vx;
     vec.vy = dir.vy = D_801D7490.vy - effect->Pos.vy;
     vec.vz = dir.vz = D_801D7490.vz - effect->Pos.vz;

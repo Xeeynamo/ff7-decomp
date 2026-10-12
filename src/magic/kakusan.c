@@ -7,7 +7,7 @@
 
 // Effect shared by Molotov Cocktail (モロトフカクテル) and an unnamed attack (エサ喰い).
 
-void func_801B1190(s32 targetMask, s32 callbackArg);
+void KakusanStart(s32 targetMask, s32 callbackArg);
 
 // Primitive buffer pages, one 0xC000 page per double-buffered frame.
 extern u8 g_KakusanPrimBuffer[2][0xC000];
@@ -58,14 +58,14 @@ extern u8 D_800F5B71;
 extern u8 D_800F5B72;
 extern u_long D_801B1324[];
 extern void* D_80163C74;
-void func_801B0020(s16 targetMask, SVECTOR* out);
+void KakusanTargetCenterCalc(s16 targetMask, SVECTOR* out);
 void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
-void func_801B0CB4(void);
+void KakusanMainTick(void);
 
 // Same as MAGIC_Biora.
-void func_801B0000(s32 targetMask, s32 callbackArg) { func_801B1190(targetMask, callbackArg); }
+void MAGIC_Kakusan(s32 targetMask, s32 callbackArg) { KakusanStart(targetMask, callbackArg); }
 
-void func_801B0020(s16 targetMask, SVECTOR* out) {
+void KakusanTargetCenterCalc(s16 targetMask, SVECTOR* out) {
     VECTOR sum;
     SVECTOR pos;
     s16 i;
@@ -87,7 +87,7 @@ void func_801B0020(s16 targetMask, SVECTOR* out) {
     out->vz = sum.vz / count;
 }
 
-void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
+void KakusanSprayVectorCalc(s32 offset, s16 spread, SVECTOR* out) {
     SVECTOR in;
     SVECTOR rot;
     MATRIX matrix;
@@ -102,7 +102,7 @@ void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
     ApplyMatrixSV(&matrix, &in, out);
 }
 
-void func_801B02FC(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
+void KakusanSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
     MATRIX matrix;
     MATRIX rotated;
     VECTOR dir;
@@ -142,7 +142,7 @@ static void KakusanDoubleBufferFlip(void) {
     }
 }
 
-void func_801B04C8(void) {
+void KakusanFlashSpriteTick(void) {
     KakusanData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -298,7 +298,7 @@ void func_801B0B5C(void) {
     }
 }
 
-void func_801B0CB4(void) {
+void KakusanMainTick(void) {
     MATRIX matrix;
     SVECTOR move;
     SVECTOR rot;
@@ -343,7 +343,7 @@ void func_801B0CB4(void) {
         if (effect->AnimationFrame < 40) {
             for (i = 0; i < 10; i++) {
                 if ((D_801E98E8 >> i) & 1) {
-                    child = &g_BattleEffectSlots[BattleEffectRegister(func_801B04C8)];
+                    child = &g_BattleEffectSlots[BattleEffectRegister(KakusanFlashSpriteTick)];
                     BattleGetPartPosition(i, g_BattleModels[i].boneIndices[0], &child->Pos);
                     move.vx = 0;
                     move.vy = 0;
@@ -377,16 +377,16 @@ void func_801B0CB4(void) {
     }
 }
 
-void func_801B1190(s32 targetMask, s32 callbackArg) {
+void KakusanStart(s32 targetMask, s32 callbackArg) {
     SVECTOR dir;
     KakusanData* effect;
 
     BattleEffectRegister(KakusanDoubleBufferFlip);
     BattleSetLoadTimToVram(D_801B1324, 0, 0, 0);
     D_801E98E8 = targetMask;
-    effect = &g_BattleEffectSlots[BattleEffectRegister(func_801B0CB4)];
+    effect = &g_BattleEffectSlots[BattleEffectRegister(KakusanMainTick)];
     BattleGetPartPosition(callbackArg, g_BattleModels[callbackArg].boneIndices[9], &effect->Pos);
-    func_801B0020(targetMask, &D_801E98EC);
+    KakusanTargetCenterCalc(targetMask, &D_801E98EC);
     dir.vx = D_801E98EC.vx - effect->Pos.vx;
     dir.vy = D_801E98EC.vy - effect->Pos.vy;
     dir.vz = D_801E98EC.vz - effect->Pos.vz;
