@@ -5,7 +5,8 @@
 #include "kaen.h"
 #include "../battle/battle.h"
 
-// Effect KAEN.
+// Effect shared by Fire Veil (火とん), Fireball (ファイアボール), Flame (火炎), Ghenghana (ゲヘナガナー)
+// and Turk Light (タークス光線).
 
 void func_801B0F6C(s32 targetMask, s32 callbackArg);
 

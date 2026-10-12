@@ -5,7 +5,7 @@
 #include "gas.h"
 #include "../battle/battle.h"
 
-// Effect GAS.
+// Effect shared by St. Elmos Fire (セントエルモスファイアー), Cold (冷気) and Diamond Fire (ダイヤファイア).
 
 void func_801B0F84(s32 targetMask, s32 callbackArg);
 

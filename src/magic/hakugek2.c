@@ -5,7 +5,7 @@
 #include "hakugek2.h"
 #include "../battle/battle.h"
 
-// Effect HAKUGEK2.
+// Effect shared by Seed Bullet (シード弾) and Throw (投げる).
 
 void func_801B117C(s32 targetMask, s32 callbackArg);
 

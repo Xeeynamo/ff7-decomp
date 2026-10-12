@@ -5,7 +5,7 @@
 #include "kaen2.h"
 #include "../battle/battle.h"
 
-// Effect KAEN2.
+// Effect shared by Fire Shell (火炎弾), Gush (噴火) and S-Mine (Sマイン).
 
 void func_801B10BC(s32 targetMask, s32 callbackArg);
 

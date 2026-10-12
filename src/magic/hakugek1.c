@@ -5,7 +5,7 @@
 #include "hakugek1.h"
 #include "../battle/battle.h"
 
-// Effect HAKUGEK1.
+// Big Bomber (ビッグボンバー / Biggu Bonba).
 
 void func_801B1290(s32 targetMask, s32 callbackArg);
 
