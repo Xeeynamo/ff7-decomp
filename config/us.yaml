@@ -807,3 +807,16 @@ overlays:
       - [0, c, sennkoku]
       - [0x930, data, sennkoku_model]
       - [0x559C, data, sennkoku_buffers]
+  # AYASII.BIN -- effect overlay
+  - name: ayasii
+    disk_path: disks/us/MAGIC/AYASII.BIN
+    sha1: d8a951159a2293d9a39521f42cc351f3b6dea268
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-ayasii.us.txt
+    segments:
+      - [0, c, ayasii]
+      - [0x584, data, ayasii_model]
+      - [0x698C, data, ayasii_buffers]
