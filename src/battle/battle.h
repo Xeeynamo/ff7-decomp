@@ -558,8 +558,8 @@ typedef struct {
 typedef struct {
     /* 0x00 */ u16 varSpeed;
     /* 0x02 */ s16 atbIncrement;
-    /* 0x04 */ u16 atbGauge; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
-    /* 0x06 */ s16 unk6;
+    /* 0x04 */ u16 atbGauge;     // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
+    /* 0x06 */ s16 hpChangeRate; // HP per 4 var ticks: +maxHP/32 Regen, -maxHP/32 Dual Drain
     /* 0x08 */ s16 limitSpeedFlag;
     /* 0x0A */ u16 constSpeed;
     /* 0x0C */ u8 senseTargetMask;
@@ -793,7 +793,7 @@ s32 BattleEntityGetStereoPan(s32 arg0);
 void func_800D5774(u32 targetIndex);
 void BattleRunFrame(void);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-void BattleRecalcUnitSpeed(s32 index);
+void BattleUnitCalcSpeed(s32 index);
 void BattleUpdateUnitMasks(void);
 void BattleCheckAllLucky7s(void);
 void BattleActionQueueReset(void);
