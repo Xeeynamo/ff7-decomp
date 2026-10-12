@@ -691,7 +691,21 @@ extern BattleEnemyModelFiles D_800F7DF4;
 typedef struct {
     /* 0x00 */ s16 D_800F7ED8;
     /* 0x02 */ s16 D_800F7EDA;
-    /* 0x04 */ u8 unk4[0x24];
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ s16 unk18;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 unk20[8];
 } Unk800F7ED8; // size:0x28
 
 extern Unk800F7ED8 g_BattleCameraSlots[];
@@ -754,16 +768,8 @@ extern s32 D_801516CC[10];
 extern s32 D_8015174C[10];
 extern s32 D_8015178C[10];
 extern s32 D_801517C8[10];
-typedef struct {
-    /* 0x0 */ u16 pos;
-    /* 0x2 */ u16 unk2;
-    /* 0x4 */ u8 unk4;
-    /* 0x5 */ u8 unk5[0x9];
-} BattleQueue1CamCursor; // size:0xE
 
-extern BattleQueue1CamCursor g_BattleQueue1CamReadCursor[4]; // read cursor per category
 extern s32 D_8015187C[10];
-extern BattleQueue1CamCursor g_BattleQueue1CamWriteCursor[4]; // write cursor per category
 // queued-action-ish record, allocated by BattleQueue2GetPtr (unk3 set to -1,
 // marking it unassigned) and searched by func_800A34CC. Traced through
 // BattleCreateImpactData's callers (func_800AB830/BattleMainDmgCalculation):
@@ -791,7 +797,7 @@ extern s32 D_800FAFF0;
 extern DB g_db;
 extern u8 D_801031E0;
 extern s32 D_801031E4;
-extern s16 g_BattleCameraTarget;
+extern SVECTOR g_BattleCameraTarget;
 extern u8 D_801031F0;
 extern u8 D_80103200[];
 extern u8 D_80130200[];
@@ -830,7 +836,7 @@ extern u8 D_800F3163[];
 extern ModelScreenPos g_modelScreenPos[10];
 extern u8 D_801517BC;
 extern u8 D_801517C4;
-extern s16 g_BattleCameraPos;
+extern SVECTOR g_BattleCameraPos;
 extern s32 D_80158D08;
 extern u_long D_80158D0C[];
 extern u8 D_801518DC;
@@ -1141,3 +1147,22 @@ extern BattleModelSub D_800F8158[NUM_BATTLE_ACTOR];
 extern BattleStageFile D_801590E4;
 extern CVECTOR D_800F5B70;
 extern s16 D_800F5B74;
+
+typedef struct {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+    /* 0x6 */ u16 unk6;
+    /* 0x8 */ u16 cursor;
+    /* 0xA */ u16 wait;
+    /* 0xC */ u8 flags;
+    /* 0xD */ u8 unkD;
+} BattleCameraScriptState; // size:0xE
+extern s32 D_800EA470[];
+extern u8 D_800F4B00;
+extern BattleCameraScriptState D_80151844[4];
+extern BattleCameraScriptState D_801518A4[4];
+extern u8 D_80163B3C;
+extern u8 D_80158CFC;
+
+s16 BattleGetStatusFlashState(s16 status);

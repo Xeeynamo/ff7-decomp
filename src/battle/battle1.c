@@ -11,6 +11,15 @@ void BattleBoneSetParentMatrix(MATRIX* parent, BattleModelSub* bone);
 
 void BattleUpdateModelMatrixesWithSelfAndParent(s32 actor);
 void func_800BBA84(u16 sound, s16 actor, s32 pan);
+void CopyCameraStartEndFromBattleSetup(void);
+void func_800BE49C(void);
+void func_800BE69C(s16 actor, s32 categoryArg, u8* sequence, s32 flags);
+void func_800BE86C(s16 actor, s32 categoryArg, u8* sequence);
+void func_800BFB88(void);
+void func_800BFDA0(void);
+void func_800BFF88(s16 actor, s16 bone, s32 category, s32 flags);
+void func_800C0088(s16 actor, s16 bone, s32 categoryArg);
+void func_800C14C0(s32 actorArg);
 void func_800C494C(void);
 static void func_800C5694(void);
 static void BattleEffectModelTick(void);
@@ -57,6 +66,9 @@ static void func_800C17A0(s32 arg0, s32 arg1);
 static void func_800C4B60(s16 arg0);
 u_long* func_800C4FC8(u8 r, u8 g, u8 b);
 void func_800C57B0(void);
+void func_800C1394(s32 actorArg);
+void BattleAddStatusIconToRender(s32 arg0, s16 flags);
+void BattleAddStatusDigitsToRender(s32 arg0, u8 arg1);
 void func_800C5CC0(void);
 s32 func_800C60F4(void);
 static void func_800C610C(void);
@@ -1221,7 +1233,7 @@ void func_800B8438(void) {
     SetFarColor(0, 0, 0);
     BattleDetachedUpdate();
     BattleEffectUpdate();
-    func_800BB75C(&g_BattleWorldView, &D_800FA958, &g_BattleCameraPos, &g_BattleCameraTarget);
+    func_800BB75C(&g_BattleWorldView, &D_800FA958, &g_BattleCameraPos.vx, &g_BattleCameraTarget.vx);
     func_800C627C();
 }
 
@@ -1514,14 +1526,14 @@ void BattleQueue1CameraInit(void) {
     }
     D_800F8370 = command;
     D_801590DC = 0;
-    g_BattleQueue1CamWriteCursor[3].pos = 0xFF;
-    g_BattleQueue1CamWriteCursor[2].pos = 0xFF;
-    g_BattleQueue1CamWriteCursor[1].pos = 0xFF;
-    g_BattleQueue1CamWriteCursor[0].pos = 0xFF;
-    g_BattleQueue1CamReadCursor[3].pos = 0xFF;
-    g_BattleQueue1CamReadCursor[2].pos = 0xFF;
-    g_BattleQueue1CamReadCursor[1].pos = 0xFF;
-    g_BattleQueue1CamReadCursor[0].pos = 0xFF;
+    D_801518A4[3].cursor = 0xFF;
+    D_801518A4[2].cursor = 0xFF;
+    D_801518A4[1].cursor = 0xFF;
+    D_801518A4[0].cursor = 0xFF;
+    D_80151844[3].cursor = 0xFF;
+    D_80151844[2].cursor = 0xFF;
+    D_80151844[1].cursor = 0xFF;
+    D_80151844[0].cursor = 0xFF;
     BattleCameraResetCallbacks();
     if (D_800F837C != 3) {
         category = D_801516F4 & 3;
@@ -1852,7 +1864,15 @@ static void func_800BC72C(void) {
     func_800BCA58(3);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", CopyCameraStartEndFromBattleSetup);
+void CopyCameraStartEndFromBattleSetup(void) {
+    s32 camera = D_80163B3C;
+    g_BattleCameraPos.vx = g_BattleData.activeEncounter.camera[camera].start.x;
+    g_BattleCameraPos.vy = g_BattleData.activeEncounter.camera[camera].start.y;
+    g_BattleCameraPos.vz = g_BattleData.activeEncounter.camera[camera].start.z;
+    g_BattleCameraTarget.vx = g_BattleData.activeEncounter.camera[camera].direction.x;
+    g_BattleCameraTarget.vy = g_BattleData.activeEncounter.camera[camera].direction.y;
+    g_BattleCameraTarget.vz = g_BattleData.activeEncounter.camera[camera].direction.z;
+}
 
 // run both per-slot handlers for each of the three party slots, then the
 // shared tail step; skipped entirely while D_801590DC is set
@@ -1870,52 +1890,221 @@ static void func_800BC81C(s16 arg0, s16 arg1) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BC8B0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BCA58);
+void func_800BCA58(s32 arg0) {
+    s32 index = (s16)arg0;
+    g_BattleCameraPos.vx = D_80151844[index].x;
+    g_BattleCameraPos.vy = D_80151844[index].y;
+    g_BattleCameraPos.vz = D_80151844[index].z;
+    g_BattleCameraTarget.vx = D_801518A4[index].x;
+    g_BattleCameraTarget.vy = D_801518A4[index].y;
+    g_BattleCameraTarget.vz = D_801518A4[index].z;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BCB1C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BE49C);
+void func_800BE49C(void) {
+    s32 slotIndex;
+    s32 category;
+    s16 angle;
+    slotIndex = g_BattleCameraCursor;
+    category = (u8)g_BattleCameraSlots[slotIndex].unk18;
+    if (g_BattleCameraSlots[slotIndex].unk4 == 1) {
+        g_BattleCameraSlots[slotIndex].D_800F7ED8 = -1;
+    }
+    angle = (u16)g_BattleCameraSlots[slotIndex].unkC + (u16)g_BattleCameraSlots[slotIndex].unk8;
+    g_BattleCameraSlots[slotIndex].unkC = angle;
+    D_80151844[category].x = ((rsin(angle) * g_BattleCameraSlots[slotIndex].unkA) >> 9) + D_801518A4[category].x;
+    D_80151844[category].z = ((rcos(g_BattleCameraSlots[slotIndex].unkC) * g_BattleCameraSlots[slotIndex].unkA) >> 9) +
+                             D_801518A4[category].z;
+    D_80151844[category].y += (u16)g_BattleCameraSlots[slotIndex].unk6;
+    g_BattleCameraSlots[slotIndex].unkA += g_BattleCameraSlots[slotIndex].unkE;
+    g_BattleCameraSlots[slotIndex].unk4--;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BE69C);
+void func_800BE69C(s16 actor, s32 categoryArg, u8* sequence, s32 flags) {
+    Unk800F7ED8* slot;
+    s32 categoryIndex;
+    s32 category;
+    u16 cursor;
+    u16 z;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BE86C);
+    category = (u8)categoryArg;
+    *(s32*)0x1F800000 = (s32)func_800BFA98(sequence, category);
+    *(s32*)0x1F800004 = (s32)func_800BFA98(sequence, category);
+    categoryIndex = category;
+    *(s32*)0x1F800008 = (s32)func_800BFA98(sequence, category);
+    cursor = D_80151844[category].cursor;
+    D_80151844[category].cursor = cursor + 1;
+    *(s32*)0x1F80000C = (s32)sequence[cursor];
+    func_800C018C(actor, *(s16*)0x1F800014, category, flags & 0xFF);
+    slot = &g_BattleCameraSlots[BattleCameraRegister(func_800C0410)];
+    slot->unk6 = (u16) * (s32*)0x1F800000;
+    slot->unk8 = (u16) * (s32*)0x1F800004;
+    slot->unkA = (u16) * (s32*)0x1F800008;
+    slot->unk4 = (u16) * (s32*)0x1F80000C;
+    slot->unkC = (u16)D_80151844[categoryIndex].x;
+    slot->unkE = (u16)D_80151844[categoryIndex].y;
+    z = D_80151844[categoryIndex].z;
+    slot->unk12 = (u8)categoryArg;
+    slot->unk10 = z;
+}
+
+void func_800BE86C(s16 actor, s32 categoryArg, u8* sequence) {
+    Unk800F7ED8* slot;
+    s32 category;
+    s32 savedCategory = categoryArg;
+    s32 categoryIndex;
+    u16 cursor;
+    u16 z;
+
+    category = (u8)savedCategory;
+    *(s32*)0x1F800000 = (s32)func_800BFB10(sequence, category);
+    *(s32*)0x1F800004 = (s32)func_800BFB10(sequence, category);
+    *(s32*)0x1F800008 = (s32)func_800BFB10(sequence, category);
+    cursor = D_801518A4[category].cursor;
+    D_801518A4[category].cursor = cursor + 1;
+    *(s32*)0x1F80000C = (s32)sequence[cursor];
+    func_800C0254(actor, *(s16*)0x1F800014);
+    slot = &g_BattleCameraSlots[BattleCameraRegister(func_800C0900)];
+    slot->unk6 = (u16) * (s32*)0x1F800000;
+    if (D_800F4B00 != 0) {
+        slot->unk8 = 0U;
+    } else {
+        slot->unk8 = (u16) * (s32*)0x1F800004;
+    }
+    slot->unkA = (u16) * (s32*)0x1F800008;
+    slot->unk4 = (u16) * (s32*)0x1F80000C;
+    categoryIndex = savedCategory & 0xFF;
+    slot->unkC = (u16)D_801518A4[categoryIndex].x;
+    slot->unkE = (u16)D_801518A4[categoryIndex].y;
+    z = D_801518A4[categoryIndex].z;
+    slot->unk12 = (u8)savedCategory;
+    slot->unk10 = z;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BEA38);
 
 // Read the next u16 from arg0's byte stream via this category's read cursor.
 static s16 func_800BFA98(u8* arg0, s32 arg1) {
     s32 category = arg1 & 0xFF;
-    u16 pos = g_BattleQueue1CamReadCursor[category].pos;
+    u16 pos = D_80151844[category].cursor;
     u32 lo;
     u8 hi;
 
-    g_BattleQueue1CamReadCursor[category].pos = pos + 1;
+    D_80151844[category].cursor = pos + 1;
     lo = arg0[pos];
-    g_BattleQueue1CamReadCursor[category].pos = pos + 2;
+    D_80151844[category].cursor = pos + 2;
     hi = arg0[(u16)(pos + 1)];
     return (hi << 8) + lo;
 }
 
 static s16 func_800BFB10(u8* arg0, s32 arg1) {
     s32 category = arg1 & 0xFF;
-    u16 pos = g_BattleQueue1CamWriteCursor[category].pos;
+    u16 pos = D_801518A4[category].cursor;
     u32 lo;
     u8 hi;
 
-    g_BattleQueue1CamWriteCursor[category].pos = pos + 1;
+    D_801518A4[category].cursor = pos + 1;
     lo = arg0[pos];
-    g_BattleQueue1CamWriteCursor[category].pos = pos + 2;
+    D_801518A4[category].cursor = pos + 2;
     hi = arg0[(u16)(pos + 1)];
     return (hi << 8) + lo;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BFB88);
+void func_800BFB88(void) {
+    SVECTOR pos;
+    s16 actor;
+    s16 bone;
+    s32 category;
+    s32 slotIndex;
+    s32 slotIndexAfterCall;
+    s32 slotIndexAfterUpdate;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BFDA0);
+    if (g_BattleCameraSlots[g_BattleCameraCursor].unk4 == 1) {
+        g_BattleCameraSlots[g_BattleCameraCursor].D_800F7ED8 = -1;
+    }
+    slotIndex = g_BattleCameraCursor;
+    actor = g_BattleCameraSlots[slotIndex].unk8;
+    *(s32*)0x1F80000C = actor;
+    bone = g_BattleCameraSlots[slotIndex].unkA;
+    *(s32*)0x1F800014 = bone;
+    *(s32*)0x1F800018 = g_BattleCameraSlots[slotIndex].unkC;
+    BattleGetPartPosition(actor, bone, &pos);
+    slotIndexAfterCall = g_BattleCameraCursor;
+    *(s32*)0x1F800000 = g_BattleCameraSlots[slotIndexAfterCall].unkE;
+    *(s32*)0x1F800004 = g_BattleCameraSlots[slotIndexAfterCall].unk10;
+    *(s32*)0x1F800008 = g_BattleCameraSlots[slotIndexAfterCall].unk6;
+    func_800C0DD8((s16) * (s32*)0x1F80000C, (u8)g_BattleCameraSlots[slotIndexAfterCall].unkC,
+                  (u8)g_BattleCameraSlots[slotIndexAfterCall].unk18);
+    category = *(s32*)0x1F800018;
+    D_80151844[category].x = (u16)pos.vx + (u16) * (s32*)0x1F800000;
+    D_80151844[category].y = (u16)pos.vy + (u16) * (s32*)0x1F800004;
+    slotIndexAfterUpdate = g_BattleCameraCursor;
+    D_80151844[category].z = (u16)pos.vz + (u16) * (s32*)0x1F800008;
+    g_BattleCameraSlots[slotIndexAfterUpdate].unk4 = g_BattleCameraSlots[slotIndexAfterUpdate].unk4 - 1;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BFF88);
+void func_800BFDA0(void) {
+    SVECTOR pos;
+    s16 actor;
+    s16 bone;
+    s32 category;
+    s32 slotIndexAfterCall;
+    s32 slotIndex;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0088);
+    if (g_BattleCameraSlots[g_BattleCameraCursor].unk4 == 1) {
+        g_BattleCameraSlots[g_BattleCameraCursor].D_800F7ED8 = -1;
+    }
+    slotIndex = g_BattleCameraCursor;
+    actor = g_BattleCameraSlots[slotIndex].unk8;
+    *(s32*)0x1F80000C = actor;
+    bone = g_BattleCameraSlots[slotIndex].unkA;
+    *(s32*)0x1F800014 = bone;
+    *(s32*)0x1F800018 = g_BattleCameraSlots[slotIndex].unkC;
+    BattleGetPartPosition(actor, bone, &pos);
+    *(s32*)0x1F800004 = func_800C0314(*(s32*)0x1F800004, (u8) * (s32*)0x1F80000C);
+    slotIndexAfterCall = g_BattleCameraCursor;
+    *(s32*)0x1F800000 = g_BattleCameraSlots[slotIndexAfterCall].unkE;
+    *(s32*)0x1F800004 = g_BattleCameraSlots[slotIndexAfterCall].unk10;
+    *(s32*)0x1F800008 = g_BattleCameraSlots[slotIndexAfterCall].unk6;
+    category = *(s32*)0x1F800018;
+    D_801518A4[category].x = (u16)pos.vx + (u16) * (s32*)0x1F800000;
+    D_801518A4[category].y = (u16)pos.vy + (u16) * (s32*)0x1F800004;
+    D_801518A4[category].z = (u16)pos.vz + (u16) * (s32*)0x1F800008;
+    g_BattleCameraSlots[slotIndexAfterCall].unk4 = g_BattleCameraSlots[slotIndexAfterCall].unk4 - 1;
+}
+
+void func_800BFF88(s16 actor, s16 bone, s32 category, s32 flags) {
+    SVECTOR pos;
+    s32 index;
+    if (actor == 15) {
+        BattleEntityGetCenter(g_BattleCurrentTargetMask, &pos);
+    } else {
+        BattleGetPartPosition(actor, bone, &pos);
+        flags &= 0xFF;
+        func_800C0DD8(actor, category & 0xFF, flags);
+    }
+    index = (s16)category;
+    D_80151844[index].x = (u16)pos.vx + *(u16*)0x1F800000;
+    D_80151844[index].y = (u16)pos.vy + *(u16*)0x1F800004;
+    D_80151844[index].z = (u16)pos.vz + *(u16*)0x1F800008;
+}
+
+void func_800C0088(s16 actor, s16 bone, s32 categoryArg) {
+    SVECTOR pos;
+    s32 index;
+    s32 category = categoryArg;
+    if (actor == 15) {
+        BattleEntityGetCenter(g_BattleCurrentTargetMask, &pos);
+    } else {
+        BattleGetPartPosition(actor, bone, &pos);
+        *(s32*)0x1F800004 = func_800C0314(*(s32*)0x1F800004, (u8)actor);
+    }
+    index = (s16)category;
+    D_801518A4[index].x = (u16)pos.vx + *(u16*)0x1F800000;
+    D_801518A4[index].y = (u16)pos.vy + *(u16*)0x1F800004;
+    D_801518A4[index].z = (u16)pos.vz + *(u16*)0x1F800008;
+}
 
 // Sample sp, then accumulate it into the scratchpad totals at 0x1F800000.
 static void func_800C018C(s16 arg0, s16 arg1, s32 arg2, s32 arg3) {
@@ -1946,7 +2135,13 @@ static void func_800C0254(s16 arg0, s16 arg1) {
     *(s32*)0x1F800008 += sp.vz;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0314);
+s32 func_800C0314(s32 value, s32 arg1) {
+    u8 actor = arg1;
+    if (g_BattleModels[actor].animId == 1 && (s16)D_80151200[actor].D_80151230 > 0) {
+        return value;
+    }
+    return value + (s16)D_80151200[actor].D_80151230;
+}
 
 // magnitude of (arg0 - arg1) via GTE sqrt
 static s16 func_800C03B8(s16 arg0, s16 arg1) {
@@ -1958,8 +2153,8 @@ static s16 func_800C03B8(s16 arg0, s16 arg1) {
 
 static s32 func_800C03FC(s32 arg0, s32 arg1) { return arg0 < 0 ? -arg1 : arg1; }
 
-void func_800C0480(s16); // TODO: mark as static once decompiled
-void func_800C0630(s16); // TODO: mark as static once decompiled
+static void func_800C0480(s16);
+static void func_800C0630(s16);
 static void func_800C0410(void) {
     switch (g_BattleCameraSlots[g_BattleCameraCursor].D_800F7EDA) {
     case 0:
@@ -1972,12 +2167,61 @@ static void func_800C0410(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0480);
+static void func_800C0480(s16 arg0) {
+    Unk800F7ED8* slot;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0630);
+    slot = &g_BattleCameraSlots[arg0];
+    slot->D_800F7EDA = (u16)slot->D_800F7EDA + 1;
+    if (D_80151844[slot->unk12].unkD == 0) {
+        slot->unk1E = 0;
+        slot->unk1A = (u16)slot->unk4;
+        return;
+    }
+    slot->unk14 =
+        ((func_800C03FC(slot->unk6 - slot->unkC, func_800C03B8(slot->unk6, slot->unkC)) + 1) * 0x10) / slot->unk4;
+    slot->unk16 =
+        ((func_800C03FC(slot->unk8 - slot->unkE, func_800C03B8(slot->unk8, slot->unkE)) + 1) * 0x10) / slot->unk4;
+    slot->unk18 =
+        ((func_800C03FC(slot->unkA - slot->unk10, func_800C03B8(slot->unkA, slot->unk10)) + 1) * 0x10) / slot->unk4;
+}
 
-void func_800C0970(s16); // TODO: mark as static once decompiled
-void func_800C0B20(s16); // TODO: mark as static once decompiled
+static void func_800C0630(s16 slotIndex) {
+    Unk800F7ED8* slot;
+    s32 z;
+    s32 y;
+    s32 x;
+    s32 categoryIndex;
+
+    slot = &g_BattleCameraSlots[slotIndex];
+    if (slot->unk4 == 1) {
+        slot->D_800F7ED8 = -1;
+        D_80151844[slot->unk12].x = slot->unk6;
+        D_80151844[slot->unk12].y = slot->unk8;
+        D_80151844[slot->unk12].z = slot->unkA;
+        return;
+    }
+    categoryIndex = slot->unk12;
+    if (D_80151844[categoryIndex].unkD == 0) {
+        D_80151844[slot->unk12].x = func_800C1304(slot->unkC, slot->unk6, slot->unk1A, slot->unk1E);
+        D_80151844[slot->unk12].y = func_800C1304(slot->unkE, slot->unk8, slot->unk1A, slot->unk1E);
+        D_80151844[slot->unk12].z = func_800C1304(slot->unk10, slot->unkA, slot->unk1A, slot->unk1E);
+        slot->unk1E = (s16)((u16)slot->unk1E + 1);
+    } else {
+        x = D_80151844[categoryIndex].x * 0x10;
+        *(s32*)0x1F800000 = x;
+        y = D_80151844[slot->unk12].y * 0x10;
+        *(s32*)0x1F800004 = y;
+        z = D_80151844[slot->unk12].z * 0x10;
+        *(s32*)0x1F800008 = z;
+        D_80151844[slot->unk12].x = (slot->unk14 + x) >> 4;
+        D_80151844[slot->unk12].y = (slot->unk16 + y) >> 4;
+        D_80151844[slot->unk12].z = (slot->unk18 + z) >> 4;
+    }
+    slot->unk4 = (s16)((u16)slot->unk4 - 1);
+}
+
+static void func_800C0970(s16);
+static void func_800C0B20(s16);
 static void func_800C0900(void) {
     switch (g_BattleCameraSlots[g_BattleCameraCursor].D_800F7EDA) {
     case 0:
@@ -1990,13 +2234,140 @@ static void func_800C0900(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0970);
+static void func_800C0970(s16 arg0) {
+    Unk800F7ED8* slot;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0B20);
+    slot = &g_BattleCameraSlots[arg0];
+    slot->D_800F7EDA = (u16)slot->D_800F7EDA + 1;
+    if (D_801518A4[slot->unk12].flags == 0) {
+        slot->unk1E = 0;
+        slot->unk1A = (u16)slot->unk4;
+        return;
+    }
+    slot->unk14 =
+        ((func_800C03FC(slot->unk6 - slot->unkC, func_800C03B8(slot->unk6, slot->unkC)) + 1) * 0x10) / slot->unk4;
+    slot->unk16 =
+        ((func_800C03FC(slot->unk8 - slot->unkE, func_800C03B8(slot->unk8, slot->unkE)) + 1) * 0x10) / slot->unk4;
+    slot->unk18 =
+        ((func_800C03FC(slot->unkA - slot->unk10, func_800C03B8(slot->unkA, slot->unk10)) + 1) * 0x10) / slot->unk4;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C0DD8);
+static void func_800C0B20(s16 slotIndex) {
+    Unk800F7ED8* slot;
+    s32 z;
+    s32 y;
+    s32 x;
+    s32 categoryIndex;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1104);
+    slot = &g_BattleCameraSlots[slotIndex];
+    if (slot->unk4 == 1) {
+        slot->D_800F7ED8 = -1;
+        D_801518A4[slot->unk12].x = slot->unk6;
+        D_801518A4[slot->unk12].y = slot->unk8;
+        D_801518A4[slot->unk12].z = slot->unkA;
+        return;
+    }
+    categoryIndex = slot->unk12;
+    if (D_801518A4[categoryIndex].flags == 0) {
+        D_801518A4[slot->unk12].x = func_800C1304(slot->unkC, slot->unk6, slot->unk1A, slot->unk1E);
+        D_801518A4[slot->unk12].y = func_800C1304(slot->unkE, slot->unk8, slot->unk1A, slot->unk1E);
+        D_801518A4[slot->unk12].z = func_800C1304(slot->unk10, slot->unkA, slot->unk1A, slot->unk1E);
+    } else {
+        x = D_801518A4[categoryIndex].x * 0x10;
+        *(s32*)0x1F800000 = x;
+        y = D_801518A4[slot->unk12].y * 0x10;
+        *(s32*)0x1F800004 = y;
+        z = D_801518A4[slot->unk12].z * 0x10;
+        *(s32*)0x1F800008 = z;
+        D_801518A4[slot->unk12].x = (slot->unk14 + x) >> 4;
+        D_801518A4[slot->unk12].y = (slot->unk16 + y) >> 4;
+        D_801518A4[slot->unk12].z = (slot->unk18 + z) >> 4;
+    }
+    slot->unk1E = (s16)((u16)slot->unk1E + 1);
+    slot->unk4 = (s16)((u16)slot->unk4 - 1);
+}
+
+void func_800C0DD8(s16 actor, s32 categoryArg, s32 flagsArg) {
+    s32 z;
+    s32 radius;
+    s32 x;
+    s32 angle;
+    u32 scale;
+    s32 category = categoryArg;
+    s32 flags = flagsArg;
+
+    scale = D_80151200[actor].values4[0];
+    if (g_BattleModels[actor].scale < 0x1000) {
+        scale >>= 1;
+        if ((s32)scale < 0x100) {
+            scale = 0x100;
+        }
+    }
+    *(s32*)0x1F800000 = (s32)(scale * *(s32*)0x1F800000) >> 8;
+    scale = D_80151200[actor].values4[1];
+    if (g_BattleModels[actor].scale < 0x1000) {
+        scale >>= 1;
+        if ((s32)scale < 0x100) {
+            scale = 0x100;
+        }
+    }
+    *(s32*)0x1F800004 = (s32)(scale * *(s32*)0x1F800004) >> 8;
+    scale = D_80151200[actor].values4[2];
+    if (g_BattleModels[actor].scale < 0x1000) {
+        scale >>= 1;
+        if ((s32)scale < 0x100) {
+            scale = 0x100;
+        }
+    }
+    z = (s32)(scale * *(s32*)0x1F800008) >> 8;
+    *(s32*)0x1F800008 = z;
+    if (D_80151844[category & 0xFF].flags != 0) {
+        x = *(s32*)0x1F800000;
+        radius = SquareRoot0((x * x) + (z * z));
+        if (flags & 0xFF) {
+            angle = ratan2(*(s32*)0x1F800000, *(s32*)0x1F800008) + D_80151200[actor].D_8015122C;
+        } else {
+            angle = ratan2(*(s32*)0x1F800000, *(s32*)0x1F800008) + g_BattleModels[actor].rootRot.vy;
+        }
+        *(s32*)0x1F800000 = (s32)((s32)(rsin(angle) * radius) >> 0xC);
+        *(s32*)0x1F800008 = (s32)((s32)(rcos(angle) * radius) >> 0xC);
+    }
+}
+
+void func_800C1104(void) {
+    s32 cameraIndex;
+    s32 dx;
+    s32 targetDy;
+    s32 targetDx;
+    s32 dz;
+    s32 dy;
+    s32 targetDz;
+
+    D_80151844[3].x = (u16)g_BattleCameraPos.vx;
+    D_80151844[3].y = g_BattleCameraPos.vy;
+    D_80151844[3].z = g_BattleCameraPos.vz;
+    D_801518A4[3].x = (u16)g_BattleCameraTarget.vx;
+    D_801518A4[3].y = g_BattleCameraTarget.vy;
+    D_801518A4[3].z = g_BattleCameraTarget.vz;
+    if (D_801031E0 != 0) {
+        cameraIndex = D_80163B3C;
+        dx = (s32)(g_BattleData.activeEncounter.camera[D_80163B3C].start.x - g_BattleCameraPos.vx) / 2;
+        D_80151844[3].x = (u16)g_BattleCameraPos.vx + dx;
+        dy = (s32)(g_BattleData.activeEncounter.camera[cameraIndex].start.y - g_BattleCameraPos.vy) / 2;
+        D_80151844[3].y = g_BattleCameraPos.vy + dy;
+        dz = (s32)(g_BattleData.activeEncounter.camera[cameraIndex].start.z - g_BattleCameraPos.vz) / 2;
+        D_80151844[3].z = g_BattleCameraPos.vz + dz;
+        targetDx = (s32)(g_BattleData.activeEncounter.camera[cameraIndex].direction.x - g_BattleCameraTarget.vx) / 2;
+        D_801518A4[3].x = (u16)g_BattleCameraTarget.vx + targetDx;
+        targetDy = (s32)(g_BattleData.activeEncounter.camera[cameraIndex].direction.y - g_BattleCameraTarget.vy) / 2;
+        D_801518A4[3].y = g_BattleCameraTarget.vy + targetDy;
+        targetDz = (s32)(g_BattleData.activeEncounter.camera[cameraIndex].direction.z - g_BattleCameraTarget.vz) / 2;
+        D_801518A4[3].z = g_BattleCameraTarget.vz + targetDz;
+        if ((dx == 0) && (dy == 0) && (dz == 0) && (targetDx == 0) && (targetDy == 0) && (targetDz == 0)) {
+            D_801031E0 = 0;
+        }
+    }
+}
 
 // cosine-eased interpolation between arg0 and arg1
 static s32 func_800C1304(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
@@ -2008,9 +2379,63 @@ static s32 func_800C1304(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     return arg0 + val / 0x2000;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C1394);
+void func_800C1394(s32 actorArg) {
+    s32 actor = actorArg & 0xFF;
+    BattleModelSub* bones;
+    BattleModelSub* flash;
+    bones = g_BattleModels[actor].boneTransforms;
+    g_BattleModels[actor].boneTransforms[49].trans.vy = D_80151200[actor].height;
+    g_BattleModels[actor].boneTransforms[49].rot.vy += 0x80;
+    flash = &bones[49];
+    RotMatrixYXZ(&bones[49].rot, &flash->m);
+    BattleUpdateMatrixWithSelfAndParentAndSetToGte(flash);
+    *(s32**)0x1F800020 = D_800EA470;
+    *(s32*)0x1F800024 = 0x90;
+    *(s16*)0x1F80002E = 0;
+    *(s16*)0x1F80002A = 0;
+    *(s16*)0x1F800028 = 0;
+    *(s16*)0x1F80002C = 0x20;
+    D_80163C74 = func_800D29D4((ModelRenderDesc*)0x1F800020, g_cDb->unk70, 0xC, D_80163C74);
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C14C0);
+void func_800C14C0(s32 actorArg) {
+    u8 actor;
+    s32 status;
+    s32 flags;
+    s32 selected;
+    s32 savedActor;
+
+    actor = actorArg;
+    if (actor != 3) {
+        if (!(g_BattleModels[actor].specialFlags & 4)) {
+            status = g_BattleData.actors[actor].D_801636C4;
+            if (status & 0x200000) {
+                BattleAddStatusDigitsToRender(actor, g_BattleData.actors[actor].D_801636BA);
+            } else if (status & 0x2000) {
+                BattleAddStatusDigitsToRender(actor, g_BattleData.actors[actor].D_801636BB);
+            } else {
+                flags = D_80151200[actor].D_80151200;
+                if (flags & 4) {
+                    BattleAddStatusIconToRender(actor, 0xE0);
+                } else if (flags & 0x80) {
+                    BattleAddStatusIconToRender(actor, 0xEF);
+                }
+            }
+        }
+        savedActor = actorArg & 0xFF;
+        if (!(g_BattleModels[savedActor].specialFlags & 1)) {
+            if (BattleGetStatusFlashState(1) == 2 && D_800F38A0 == savedActor) {
+                func_800C1394(D_800F38A0);
+            }
+            if (BattleGetStatusFlashState(0x13) == 2) {
+                selected = D_80158CFC + 4;
+                if (selected == (actorArg & 0xFF)) {
+                    func_800C1394(selected);
+                }
+            }
+        }
+    }
+}
 
 static s32 func_800C169C(u8 arg0) {
     g_BattleModels[arg0].specialFlags |= 8;
