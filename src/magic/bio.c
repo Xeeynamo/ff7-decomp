@@ -30,7 +30,7 @@ static SpriteRenderDesc bio_render_desc0 = {&g_BioRenderData0, {0x80, 0x80, 0x80
 static SpriteRenderDesc bio_render_desc1 = {&g_BioRenderData1, {0x80, 0x80, 0x80, 0x2C}, 0, 0};
 
 void BioCloudParticleTick(void);
-void func_801B0178(void);
+void BioBubbleSpriteTick(void);
 void BioTargetTick(void);
 void BioTargetSetup(s32 target, s32 callbackArg);
 
@@ -59,7 +59,7 @@ void BioCloudParticleTick(void) {
     }
 }
 
-void func_801B0178(void) {
+void BioBubbleSpriteTick(void) {
     BioData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -92,7 +92,7 @@ void BioTargetTick(void) {
         }
         if ((u16)effect->AnimationFrame < 15) {
             if ((effect->AnimationFrame & 1) == 0) {
-                child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0178)];
+                child = &g_BattleEffectSlots[BattleEffectRegister(BioBubbleSpriteTick)];
                 child->Pos.vx = effect->Pos.vx + rand() % 800 - 400;
                 child->Pos.vy = effect->Pos.vy + rand() % 800 - 400;
                 child->Pos.vz = effect->Pos.vz + rand() % 800 - 400;

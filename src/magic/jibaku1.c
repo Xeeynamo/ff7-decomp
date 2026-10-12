@@ -85,7 +85,7 @@ void Jibaku1TargetSetup(s32 target, s32 callbackArg) {
     effect->unk14 = target;
 }
 
-void func_801B0338(s32 targetMask, s32 callbackArg) {
+void MAGIC_Jibaku1(s32 targetMask, s32 callbackArg) {
     BattleEffectRegister(Jibaku1DoubleBufferFlip);
     BattleSetLoadTimToVram(D_801B03B4, 0, 0, 0);
     MagicAnimationRegister(targetMask, callbackArg, 4, Jibaku1TargetSetup);
