@@ -43,6 +43,10 @@ void func_800BFDA0(void);
 void func_800BFF88(s16 actor, s16 bone, s32 category, s32 flags);
 void func_800C0088(s16 actor, s16 bone, s32 categoryArg);
 void func_800C14C0(s32 actorArg);
+void func_800C2864(s32 arg0);
+void func_800C2928(void);
+s32 func_800C2F20(s32 number, s16* digits);
+void func_800C5864(void);
 void func_800C328C(void);
 void func_800C3578(void);
 void func_800C3950(void);
@@ -106,7 +110,10 @@ void func_800C5C18(s32 id, s32 delay, s32 duration, s32 playSound);
 void func_800C1394(s32 actorArg);
 void BattleAddStatusIconToRender(s32 arg0, s16 flags);
 void BattleAddStatusDigitsToRender(s32 arg0, u8 arg1);
-void func_800C2FD4(u8 actor, s16 sound, s32 enabled);
+void* BattleCreateStatusIconPacket(OT_TYPE** ot, SVECTOR* pos, s16 u, s16 v);
+void func_800C2FD4(u8 actor, s16 sound, u8 enabled);
+void* func_800C59B8(OT_TYPE* ot, s16 texture);
+void* func_800C5ADC(OT_TYPE** ot);
 void func_800C33F0(s32 effectArg);
 void func_800C3AA0(s32 effectArg);
 void func_800C3F44(s32 effectArg);
@@ -119,6 +126,8 @@ void func_800C61C0(void);
 void func_800C64AC(void);
 void BattleStartEffectWithModel(s32 targetMask, s32 callbackArg);
 void BattleFadeOutEffectModel(void);
+void* BattleCreateStatusDigitsPackets(OT_TYPE** ot, SVECTOR* pos, u8 digit1, u8 digit2);
+void* func_800C2704(OT_TYPE** ot, s16 x, s16 y, s16 u, u16 v, u16 w, u16 h, s32 flags);
 
 static void func_800B37A0(void);
 static void func_800B37EC(void);
@@ -3068,9 +3077,77 @@ static void func_800C1908(u8 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleCreateStatusIconPacket);
+void* BattleCreateStatusIconPacket(OT_TYPE** ot, SVECTOR* pos, s16 u, s16 v) {
+    MATRIX* matrix;
+    s32* widthFlag;
+    s32* heightFlag;
+    POLY_FT4* poly;
+    s16 top;
+    s32 depth;
+    s32 height;
+    s32 width;
+    s32 adjustedWidth;
+    s32 otIndex;
+    widthFlag = (s32*)0x1F800010;
+    heightFlag = (s32*)0x1F800014;
+    poly = D_80163C74;
+    SetPolyFT4(poly);
+    poly->tpage = 0x3F;
+    poly->clut = GetClut(0x100, 0x1E1);
+    poly->r0 = 0x80;
+    poly->g0 = 0x80;
+    poly->b0 = 0x80;
+    RotTrans(pos, (VECTOR*)D_800E7D30.t, (s32*)0x1F800008);
+    matrix = &D_800E7D30;
+    SetRotMatrix(matrix);
+    SetTransMatrix(matrix);
+    *heightFlag = 0;
+    *widthFlag = 0;
+    depth = RotAverage4(&D_800EA1C8[0], &D_800EA1C8[1], &D_800EA1C8[2], &D_800EA1C8[3], (s32*)&poly->x0,
+                        (s32*)&poly->x1, (s32*)&poly->x2, (s32*)&poly->x3, (s32*)0x1F800000, (s32*)0x1F800008);
+    width = poly->x1 - poly->x0;
+    *(s32*)0x1F800000 = width;
+    if (width < 0x10) {
+        poly->x0 = (s16)((u16)poly->x1 - 0xF);
+        poly->x2 = (s16)(poly->x3 - 0xF);
+        *widthFlag = 1;
+    }
+    height = poly->y2 - poly->y0;
+    *(s32*)0x1F800000 = height;
+    if (height < 0x10) {
+        top = (u16)poly->y2 - 0x10;
+        poly->y1 = top;
+        poly->y0 = top;
+        *heightFlag = 1;
+    }
+    adjustedWidth = *widthFlag;
+    if ((adjustedWidth == 1) && (*heightFlag == adjustedWidth)) {
+        setUV4(poly, u, v, u + 0xF, v, u, v + 0x10, u + 0xF, v + 0x10);
+    } else {
+        setUV4(poly, u, v, u + 0xF, v, u, v + 0xF, u + 0xF, v + 0xF);
+    }
+    depth >>= 2;
+    if (depth >= 2) {
+        if (depth > 0x1000) {
+            otIndex = 0x1000;
+        } else {
+            otIndex = depth;
+        }
+    } else {
+        otIndex = 2;
+    }
+    addPrim(ot[otIndex], poly);
+    return poly + 1;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleAddStatusIconToRender);
+void BattleAddStatusIconToRender(s32 arg0, s16 flags) {
+    u8 actor = arg0;
+    D_800F4B04->vx = g_BattleModels[actor].boneTransforms[0].trans.vx;
+    D_800F4B04->vy = (s16)D_80151200[actor].unk2A;
+    D_800F4B04->vz = g_BattleModels[actor].boneTransforms[0].trans.vz;
+    D_80163C74 = BattleCreateStatusIconPacket(g_cDb->unk70, D_800F4B04, D_800EA1E8[(D_800EA1EC >> 3) & 3], flags);
+    D_800EA1EC++;
+}
 
 static void BattleGet4DigitsFromValue(s16 arg0, s16* arg1) {
     s32 i;
@@ -3081,21 +3158,132 @@ static void BattleGet4DigitsFromValue(s16 arg0, s16* arg1) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleAddStatusDigitsToRender);
+void BattleAddStatusDigitsToRender(s32 arg0, u8 arg1) {
+    u8 actor = arg0;
+
+    D_800F4B08->vx = g_BattleModels[actor].boneTransforms[0].trans.vx;
+    D_800F4B08->vy = (s16)D_80151200[actor].unk2A;
+    D_800F4B08->vz = g_BattleModels[actor].boneTransforms[0].trans.vz;
+    if ((arg1 & 0xFF) != 0xFF) {
+        BattleGet4DigitsFromValue(arg1, D_800F4B0C);
+        D_80163C74 =
+            BattleCreateStatusDigitsPackets(g_cDb->unk70, D_800F4B08, ((u8*)D_800F4B0C)[4], ((u8*)D_800F4B0C)[6]);
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleCreateStatusDigitsPackets);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2704);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2864);
+void func_800C2864(s32 arg0) {
+    u8 actor = arg0;
+    if (D_80163C7C == 4 && D_800FAFDC == 0 && D_801620A4 == 0) {
+        D_80163C74 = func_800C2704(&g_cDb->unk4080[1], (s16)((s16)g_modelScreenPos[actor].x + 3),
+                                   (s16)(g_modelScreenPos[actor].y - 14), 0, 0xD0, 0x30, 0x10, 0);
+    }
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2928);
+void func_800C2928(void) {
+    Unk801621F0* slots = g_BattleDetachedSlots;
+    s32 slotOffset = g_BattleDetachedCursor * sizeof(Unk801621F0);
+    s16 stateId = *(s16*)((u8*)&g_BattleDetachedSlots[0].raw.D_801621F2 + slotOffset);
+    Unk801621F0* slot = (Unk801621F0*)((u8*)slots + slotOffset);
+    BattleModelSub* bone;
+    Unk80151200* state;
+    s32 depth;
+    s16* screen;
+    s32 y;
+    s32 actorOffset;
+    s32 actor, boneActor, boneIndex;
+    u16 frame;
+    s32 updatedOffset;
+    switch (stateId) {
+    case 0:
+        slot->D_801621F2 = 1;
+        actor = slot->unk10.value;
+        slot->D_801621F4 = 11;
+        slot->unkC = 0;
+        boneActor = slot->unk10.value;
+        boneIndex = g_BattleModels[boneActor].boneIndices[0];
+        *(s32*)0x1F800000 = boneIndex;
+        BattleGetPartPosition(actor, boneIndex, &D_80151200[actor].bone.trans);
+        actorOffset = slot->unk10.value * sizeof(Unk80151200);
+        state = (Unk80151200*)((u8*)D_80151200 + actorOffset);
+        state->bone.rot.vz = 0;
+        state->bone.rot.vy = 0;
+        *(s16*)((u8*)&D_80151200[0].bone.rot.vx + actorOffset) = 0;
+        D_80151200[slot->unk10.value].bone.parentMatrix = &D_800F8158[0].m;
+        return;
+    case 1:
+        if (slot->D_801621F4 == 0) {
+            slot->D_801621F0 = -1;
+            return;
+        }
+        bone = &D_80151200[slot->unk10.value].bone;
+        RotMatrixYXZ(&bone->rot, &bone->m);
+        BattleUpdateMatrixWithSelfAndParentAndSetToGte(&D_80151200[slot->unk10.value].bone);
+        depth = RotTransPers(&D_800E7D08, (long*)0x1F800004, (long*)0x1F800008, (long*)0x1F80000C);
+        screen = (s16*)0x1F800004;
+        slot->D_801621F6 = (u16)screen[0];
+        y = *(s32*)screen >> 16;
+        slot->unkA = y;
+        *(s32*)0x1F800010 = depth;
+        slot->unk8 = y - D_800EA230[slot->unkC];
+        if (slot->D_801621F6 < 24) {
+            slot->D_801621F6 = 24;
+        }
+        if (slot->D_801621F6 > 296) {
+            slot->D_801621F6 = 296;
+        }
+        if (slot->unk8 < 16) {
+            slot->unk8 = 16;
+        }
+        if (slot->unk8 > 150) {
+            slot->unk8 = 150;
+        }
+        frame = slot->unkC;
+        slot->unkC = frame + 1;
+        func_800C2C1C(slot->D_801621F6, slot->unk8, slot->unkE, D_800EA230[(s16)frame], (s16)slot->unk14);
+        updatedOffset = g_BattleDetachedCursor * sizeof(Unk801621F0);
+        slots[g_BattleDetachedCursor].D_801621F4 =
+            *(u16*)((u8*)&g_BattleDetachedSlots[0].raw.D_801621F4 + updatedOffset) - 1;
+        return;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2C1C);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2F20);
+s32 func_800C2F20(s32 number, s16* digits) {
+    s16 value = number;
+    s32 i = 0;
+    s32 quotient;
+    s32 previous;
+    s32 digitIndex;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2FD4);
+    for (; i < 4; i++) {
+        digitIndex = 3 - i;
+        previous = (s16)value;
+        quotient = previous / 10;
+        value = quotient;
+        digits[digitIndex] = (previous - quotient * 10) * 8 + 0x98;
+    }
+    for (i = 0; i < 3; i++) {
+        if (digits[i] != 0x98) {
+            return (4 - i) & 0xFF;
+        }
+        digits[i] = 0;
+    }
+    return 1;
+}
+
+void func_800C2FD4(u8 actor, s16 sound, u8 enabled) {
+    if (enabled) {
+        g_AkaoCmd.opcode = 0x2A;
+        g_AkaoCmd.params[0] = (((s16)g_modelScreenPos[actor].prevX / 5) * 2) & 0x7E;
+        g_AkaoCmd.params[1] = sound;
+        AkaoExec();
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C3068);
 
@@ -3636,13 +3824,111 @@ static void func_800C5694(void) {
     g_BattleEffectSlots[g_BattleEffectCursor].modelScale.framesLeft--;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C57B0);
+void func_800C57B0(void) {
+    StageParticles* particles = &D_801590E4.stage.particles;
+    BattleModelSub* bone = particles->bones;
+    u8* state = (u8*)&particles->state;
+    s32 i;
+    for (i = 0; i < 256; i++) {
+        bone->trans.vx = (BattleGetRndU16() & 0x3FFF) - 0x2000;
+        bone->trans.vy = -10000 - BattleGetRndU16() / 2;
+        bone->trans.vz = (BattleGetRndU16() & 0x3FFF) - 0x2000;
+        bone->rot.vx = 0;
+        bone->rot.vy = 0;
+        bone->rot.vz = 0;
+        bone->parentMatrix = &g_BattleWorldView.m;
+        bone++;
+        state[0] = 0;
+        state[1] = 0;
+        state += 2;
+    }
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5864);
+void func_800C5864(void) {
+    StageParticles* particles = &D_801590E4.stage.particles;
+    BattleModelSub* bone = particles->bones;
+    u8* state = (u8*)&particles->state;
+    s32 i = 0;
+    u8* texture = (u8*)&particles->state + 1;
+    BattleModelSub* transform = bone;
+    do {
+        switch (*state) {
+        case 0:
+            if (transform->trans.vy > 0) {
+                *state = 1;
+            } else {
+                transform->trans.vy += 400;
+            }
+            break;
+        case 8:
+            *state = 0;
+            transform->trans.vy = -10000 - BattleGetRndU16() / 2;
+            break;
+        default:
+            transform->trans.vy = 0;
+            break;
+        }
+        RotMatrixYXZ(&transform->rot, &bone->m);
+        BattleUpdateMatrixWithSelfAndParentAndSetToGte(bone);
+        if (*state == 0) {
+            D_80163C74 = func_800C5ADC(g_cDb->unk70);
+        } else {
+            (*state)++;
+            *texture += 32;
+            D_80163C74 = func_800C59B8(g_cDb->unk4078, *texture);
+        }
+        transform++;
+        bone++;
+        texture += 2;
+        i++;
+        state += 2;
+    } while (i < 256);
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C59B8);
+void* func_800C59B8(OT_TYPE* ot, s16 texture) {
+    POLY_FT4* poly = D_80163C74;
+    SetPolyFT4(poly);
+    poly->tpage = 0x28A;
+    poly->clut = GetClut(0x140, 0x1FE);
+    poly->r0 = 0x80;
+    poly->g0 = 0x80;
+    poly->b0 = 0x80;
+    RotTransPers4(&D_800EA264[0], &D_800EA264[1], &D_800EA264[2], &D_800EA264[3], (s32*)&poly->x0, (s32*)&poly->x1,
+                  (s32*)&poly->x2, (s32*)&poly->x3, (s32*)0x1F800000, (s32*)0x1F800008);
+    setUV4(poly, texture, 0xA0, texture + 32, 0xA0, texture, 0xC0, texture + 32, 0xC0);
+    addPrim(ot, poly);
+    return poly + 1;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5ADC);
+void* func_800C5ADC(OT_TYPE** ot) {
+    s32 p;
+    s32 flag;
+    LINE_G2* line = D_80163C74;
+    s32 depth;
+    s32 result;
+    u8 color;
+    SetLineG2(line);
+    RotTransPers(&D_800EA284[0], (s32*)&line->x0, &p, &flag);
+    result = RotTransPers(&D_800EA284[1], (s32*)&line->x1, &p, &flag);
+    color = 0x80;
+    line->r1 = color;
+    line->g1 = color;
+    line->b1 = color;
+    color = 1;
+    depth = result >> 2;
+    line->r0 = color;
+    line->g0 = color;
+    line->b0 = color;
+    if (depth >= 2) {
+        if (depth > 0x1000) {
+            depth = 0x1000;
+        }
+    } else {
+        depth = 2;
+    }
+    addPrim(ot[depth], line);
+    return line + 1;
+}
 
 // reset each slot's first field to -1 (empty)
 static void func_800C5BEC(void) {
@@ -3651,13 +3937,71 @@ static void func_800C5BEC(void) {
 
     fill = -1;
     for (i = 0x17A; i >= 0; i -= 6) {
-        *(s16*)&D_800F9DA8[i] = fill;
+        *(s16*)&((u8*)D_800F9DA8)[i] = fill;
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5C18);
+void func_800C5C18(s32 id, s32 delay, s32 duration, s32 playSound) {
+    s32 i = 0;
+    s32 empty;
+    u8* target;
+    BattleBannerMessage* slot;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5CC0);
+    empty = -1;
+    delay += 0xFF;
+    target = &D_800F9DA8[0].duration;
+    slot = (BattleBannerMessage*)(target - 5);
+    for (; i < 64; i++) {
+        if (slot->stringId == empty) {
+            slot->stringId = id;
+            D_800F9DA8[i].delay = delay;
+            D_800F9DA8[i].playSound = playSound;
+            if (!(u8)duration) {
+                *target = func_800C60F4();
+            } else {
+                *target = duration;
+            }
+            return;
+        }
+        target += 6;
+        slot++;
+    }
+}
+
+void func_800C5CC0(void) {
+    s32 i;
+    s32 j;
+    D_800F9DA4 |= 2;
+    if (D_800F9DA8[0].stringId != -1) {
+        if (D_800F9DA8[0].delay == 0) {
+            if (D_800F9DA8[0].playSound != 0) {
+                func_800BBA40(0x2D7);
+                D_800F9DA8[0].playSound = 0;
+            }
+            if (D_800F9DA8[0].duration == 0) {
+                D_800F9DA8[0].stringId = -1;
+                for (i = 0; i < 64; i++) {
+                    if (D_800F9DA8[0].stringId == -1) {
+                        for (j = 0; j < 63; j++) {
+                            D_800F9DA8[j].stringId = D_800F9DA8[j + 1].stringId;
+                            D_800F9DA8[j].delay = D_800F9DA8[j + 1].delay;
+                            D_800F9DA8[j].duration = D_800F9DA8[j + 1].duration;
+                            D_800F9DA8[j].playSound = D_800F9DA8[j + 1].playSound;
+                        }
+                        D_800F9DA8[63].stringId = -1;
+                    }
+                }
+            } else {
+                BattleBannerSetEncounterString(D_800F9DA8[0].stringId);
+                D_800F9DA8[0].duration--;
+            }
+            return;
+        }
+        D_800F9DA8[0].delay--;
+    }
+    BattleBannerSetEncounterString(-1);
+    D_800F9DA4 &= ~2;
+}
 
 void BattleSelectPlayerModelFiles(void) {
     s32 i;
