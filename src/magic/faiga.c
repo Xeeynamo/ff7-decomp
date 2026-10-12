@@ -6,7 +6,7 @@
 #include "faiga.h"
 #include "../battle/battle.h"
 
-// Effect FAIGA.
+// Fire3 (ファイガ / Firaga), tier 3.
 
 typedef struct {
     /* 0x00 */ s16 StartFrame;

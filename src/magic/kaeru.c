@@ -5,7 +5,7 @@
 #include "kaeru.h"
 #include "../battle/battle.h"
 
-// Effect KAERU.
+// Frog Song (カエルのうた / Kaeru no Uta).
 
 // Only StartFrame/AnimationFrame are common to every magic overlay; the
 // rest is payload this effect lays out for itself.
