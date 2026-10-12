@@ -847,3 +847,16 @@ overlays:
       - [0x6c8, data, bio_model]
       # REVIEW (split): the last 24 bytes of bio_model are two SpriteRenderDesc the code writes (frameIndex, color); cost: none, data only, as thundera
       - [0x7870, .data, bio]
+  # QUEIK.BIN -- "Quake", the tier-1 earth spell
+  - name: queik
+    disk_path: disks/us/MAGIC/QUEIK.BIN
+    sha1: 3ea159eccccee88f18ead87f4066b62a2a331e8b
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-queik.us.txt
+    segments:
+      - [0, c, queik]
+      - [0x3cc, data, queik_model]
+      - [0x8AE8, data, queik_buffers]

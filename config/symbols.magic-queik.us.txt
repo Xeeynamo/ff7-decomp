@@ -1,0 +1,11 @@
+QueikBufferFlip = 0x801B0000;
+MAGIC_Quake = 0x801B0054;
+QueikTargetTick = 0x801B0074;
+QueikTargetSetup = 0x801B024C;
+QueikStart = 0x801B0330;
+g_QueikTexture = 0x801B03CC;
+g_QueikModel = 0x801B840C;
+g_QueikPrimBuffer0 = 0x801B8AE8;
+g_QueikPrimBuffer1 = 0x801C4AE8;
+g_QueikBufferPtr = 0x801D0AE8;
+g_QueikFlipEffect = 0x801D0AEC;
