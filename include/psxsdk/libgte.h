@@ -32,7 +32,7 @@ typedef struct {    // 2D short vector
 
 MATRIX* RotMatrix(SVECTOR* r, MATRIX* m);
 void SetGeomOffset(long ofx, long ofy);
-long RotTransPers(SVECTOR*, long*, long*, long*);
+int RotTransPers(SVECTOR*, int*, int*, int*);
 void SetGeomScreen(long h);
 void SetRotMatrix(MATRIX* m);
 MATRIX* TransMatrix(MATRIX* m, VECTOR* v);

@@ -1067,116 +1067,112 @@ void BattleQueue1Execute(void) {
     u8 index;
     u8 targetId;
     index = D_801590E0;
-    if (g_BattleActionQueue[index].actionId != -1) {
-        do {
-            switch (g_BattleActionQueue[index].unk1) {
-            case 5:
-                g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].animControlFlags |= 0x20;
-                actor = g_BattleActionQueue[D_801590E0].actionId;
-                D_80151200[actor].D_80151200 = g_BattleData.actors[actor].D_801636C0;
-                actor2 = g_BattleActionQueue[D_801590E0].actionId;
-                flags = D_80151200[actor2].D_80151200;
-                if (flags != 0x10 && flags != 0x20)
-                    g_BattleModels[actor2].rootRot.vy = g_BattleModels[actor2].defaultRotX;
-                BattleUpdateRender();
-                D_801590E0++;
-                break;
-            case 0:
-                BattleDetachedRegister(func_800C494C);
-                BattleUpdateRender();
-                D_801590E0++;
-                break;
-            case 2:
-                func_800C5C18(g_BattleActionQueue[D_801590E0].unk6, (u8)g_BattleActionQueue[D_801590E0].unk5,
-                              (u8)g_BattleActionQueue[D_801590E0].unk3, (u8)g_BattleActionQueue[D_801590E0].unk2);
-                BattleUpdateRender();
-                D_801590E0++;
-                break;
-            case 4:
-                if (D_800F7DE4 != 0) {
-                    D_800F7DE4 = 0;
-                    *(s32*)0x1F800004 = g_BattleActionQueue[D_801590E0].unk5 << 8;
-                    *(s32*)0x1F800008 = g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].scale;
-                    effect = BattleEffectRegister(func_800C5694);
-                    target = *(s32*)0x1F800004;
-                    current = *(s32*)0x1F800008;
-                    if (target < current)
-                        *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297A + (effect << 5))) =
-                            (current - target) / g_BattleActionQueue[D_801590E0].unk6;
-                    else
-                        *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297A + (effect << 5))) =
-                            (target - current) / g_BattleActionQueue[D_801590E0].unk6;
-                    g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].ready = 0;
-                    *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297E + (effect << 5))) =
-                        g_BattleActionQueue[D_801590E0].actionId;
-                    *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297C + (effect << 5))) =
-                        g_BattleActionQueue[D_801590E0].unk6;
-                    g_BattleActionQueue[D_801590E0].unk8 = -1;
-                }
-                goto render;
-            case 3:
-                if (D_800F7DE4 != 0) {
-                    D_800F7DE4 = 0;
-                    BattleQueue1CameraInit();
-                    D_801590CC = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].attackerId;
-                    g_BattleModels[D_801590CC].ready = 1;
-                    BattleQueue1InitPlayAnim();
-                    D_800F9774 = 0;
-                    if (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId != -1) {
-                        terminal = -1;
-                        do {
-                            BattleQueue1AddNewTarg();
-                            g_BattleActionQueue[D_801590E0].targetIndex++;
-                        } while (
-                            g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId != terminal);
-                    }
-                    D_801517BC = 1;
-                    BattleQueue1UpdateTargMasks();
-                }
-                goto render;
-            case 1:
-                if (D_800F7DE4 != 0) {
-                    D_800F7DE4 = 0;
-                    BattleQueue1CameraInit();
-                    D_801590CC = (u8)g_BattleActionQueue[D_801590E0].actionId;
-                    g_BattleModels[D_801590CC].animControlFlags |= 1;
-                    g_BattleModels[D_801590CC].ready = 0;
-                    BattleQueue1InitPlayAnim();
-                    D_800F9774 = 0;
-                    while (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId != -1) {
-                        D_800FAFE0 = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].attackerId;
-                        BattleQueue1AddNewTarg();
-                        if (D_800F9774 == 1) {
-                            targetId = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId;
-                            D_800FA6D4 = targetId;
-                            D_800F99E8 = targetId;
-                            D_80161EEC = targetId;
-                            if (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].hurtAnimScript == 9)
-                                D_800F99E8 =
-                                    g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].attackerId;
-                            D_801031F0 = 0;
-                        } else {
-                            D_800FA6D4 = 15;
-                            D_80161EEC = 15;
-                            D_800F99E8 = 15;
-                            D_801031F0 = 1;
-                        }
-                        g_BattleActionQueue[D_801590E0].targetIndex++;
-                    }
-                    BattleQueue1UpdateTargMasks();
-                }
-                D_801517BC = 0;
-                goto render;
-            }
-            goto next;
-        render:
+    while (g_BattleActionQueue[index].actionId != -1) {
+        switch (g_BattleActionQueue[index].unk1) {
+        case 5:
+            g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].animControlFlags |= 0x20;
+            actor = g_BattleActionQueue[D_801590E0].actionId;
+            D_80151200[actor].D_80151200 = g_BattleData.actors[actor].D_801636C0;
+            actor2 = g_BattleActionQueue[D_801590E0].actionId;
+            flags = D_80151200[actor2].D_80151200;
+            if (flags != 0x10 && flags != 0x20)
+                g_BattleModels[actor2].rootRot.vy = g_BattleModels[actor2].defaultRotX;
             BattleUpdateRender();
-            if (D_800F7DE4 == 0)
-                goto next;
             D_801590E0++;
-        next:
-            index = D_801590E0;
-        } while (g_BattleActionQueue[index].actionId != -1);
+            break;
+        case 0:
+            BattleDetachedRegister(func_800C494C);
+            BattleUpdateRender();
+            D_801590E0++;
+            break;
+        case 2:
+            func_800C5C18(g_BattleActionQueue[D_801590E0].unk6, (u8)g_BattleActionQueue[D_801590E0].unk5,
+                          (u8)g_BattleActionQueue[D_801590E0].unk3, (u8)g_BattleActionQueue[D_801590E0].unk2);
+            BattleUpdateRender();
+            D_801590E0++;
+            break;
+        case 4:
+            if (D_800F7DE4 != 0) {
+                D_800F7DE4 = 0;
+                *(s32*)0x1F800004 = g_BattleActionQueue[D_801590E0].unk5 << 8;
+                *(s32*)0x1F800008 = g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].scale;
+                effect = BattleEffectRegister(func_800C5694);
+                target = *(s32*)0x1F800004;
+                current = *(s32*)0x1F800008;
+                if (target < current)
+                    *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297A + (effect << 5))) =
+                        (current - target) / g_BattleActionQueue[D_801590E0].unk6;
+                else
+                    *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297A + (effect << 5))) =
+                        (target - current) / g_BattleActionQueue[D_801590E0].unk6;
+                g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].ready = 0;
+                *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297E + (effect << 5))) =
+                    g_BattleActionQueue[D_801590E0].actionId;
+                *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297C + (effect << 5))) =
+                    g_BattleActionQueue[D_801590E0].unk6;
+                g_BattleActionQueue[D_801590E0].unk8 = -1;
+            }
+            goto render;
+        case 3:
+            if (D_800F7DE4 != 0) {
+                D_800F7DE4 = 0;
+                BattleQueue1CameraInit();
+                D_801590CC = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].attackerId;
+                g_BattleModels[D_801590CC].ready = 1;
+                BattleQueue1InitPlayAnim();
+                D_800F9774 = 0;
+                if (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId != -1) {
+                    terminal = -1;
+                    do {
+                        BattleQueue1AddNewTarg();
+                        g_BattleActionQueue[D_801590E0].targetIndex++;
+                    } while (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId != terminal);
+                }
+                D_801517BC = 1;
+                BattleQueue1UpdateTargMasks();
+            }
+            goto render;
+        case 1:
+            if (D_800F7DE4 != 0) {
+                D_800F7DE4 = 0;
+                BattleQueue1CameraInit();
+                D_801590CC = (u8)g_BattleActionQueue[D_801590E0].actionId;
+                g_BattleModels[D_801590CC].animControlFlags |= 1;
+                g_BattleModels[D_801590CC].ready = 0;
+                BattleQueue1InitPlayAnim();
+                D_800F9774 = 0;
+                while (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId != -1) {
+                    D_800FAFE0 = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].attackerId;
+                    BattleQueue1AddNewTarg();
+                    if (D_800F9774 == 1) {
+                        targetId = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId;
+                        D_800FA6D4 = targetId;
+                        D_800F99E8 = targetId;
+                        D_80161EEC = targetId;
+                        if (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].hurtAnimScript == 9)
+                            D_800F99E8 = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].attackerId;
+                        D_801031F0 = 0;
+                    } else {
+                        D_800FA6D4 = 15;
+                        D_80161EEC = 15;
+                        D_800F99E8 = 15;
+                        D_801031F0 = 1;
+                    }
+                    g_BattleActionQueue[D_801590E0].targetIndex++;
+                }
+                BattleQueue1UpdateTargMasks();
+            }
+            D_801517BC = 0;
+            goto render;
+        }
+        goto next;
+    render:
+        BattleUpdateRender();
+        if (D_800F7DE4 == 0)
+            goto next;
+        D_801590E0++;
+    next:
+        index = D_801590E0;
     }
     D_801590E0 = 0;
     BattleUpdateRender();
@@ -1692,7 +1688,7 @@ void func_800B91CC(void) {
         rotation = rotationBase;
         partyModelOffset = 0;
         boneOffset = 0;
-        for (; actor < 3; actor++) {
+        for (; actor < NUM_PARTY; actor++) {
             ((BattleModelSub*)((u8*)D_80163A9C + boneOffset))->parentMatrix =
                 ((BattleModel*)((u8*)g_BattleModels + partyModelOffset))->pCameraMatrix;
             transX = ((BattleModel*)((u8*)g_BattleModels + partyModelOffset))->rootTrans.vx;
@@ -1710,11 +1706,7 @@ void func_800B91CC(void) {
             RotMatrixYXZ(rotation, &bone->m);
             rotation = (SVECTOR*)((u_long)rotation + sizeof(BattleModelSub));
             BattleUpdateMatrixWithSelfAndParentAndSetToGte(bone);
-#ifdef PLATFORM_PSYZ
             RotTransPers(&D_800E7D08, &screen.packed, &p, &flag);
-#else
-            RotTransPers(&D_800E7D08, (long*)&screen.packed, (long*)&p, (long*)&flag);
-#endif
             bone++;
             boneOffset += sizeof(BattleModelSub);
             x = (u16)screen.point.vx;
@@ -1723,7 +1715,7 @@ void func_800B91CC(void) {
             ((ModelScreenPos*)((u8*)g_modelScreenPos + partyScreenOffset))->y = y;
             partyScreenOffset += sizeof(ModelScreenPos);
         }
-        actor = 4;
+        actor = START_ENEMY;
         enemyScreenOffset = 4 * sizeof(ModelScreenPos);
         enemyBoneIndex = &g_BattleModels[4].boneIndices[0];
         enemyModelOffset = 4 * sizeof(BattleModel);
@@ -1735,18 +1727,14 @@ void func_800B91CC(void) {
             SetRotMatrix((MATRIX*)((u_long)enemyMatrix + *enemyBoneIndex * sizeof(BattleModelSub)));
             actor++;
             SetTransMatrix((MATRIX*)((u_long)enemyMatrix + *enemyBoneIndex * sizeof(BattleModelSub)));
-#ifdef PLATFORM_PSYZ
             RotTransPers(&D_800E7D08, &screen.packed, &p, &flag);
-#else
-            RotTransPers(&D_800E7D08, (long*)&screen.packed, (long*)&p, (long*)&flag);
-#endif
             enemyBoneIndex = (u8*)((u_long)enemyBoneIndex + sizeof(BattleModel));
             x = (u16)screen.point.vx;
             y = screen.packed >> 16;
             ((ModelScreenPos*)((u8*)g_modelScreenPos + enemyScreenOffset))->x = x;
             ((ModelScreenPos*)((u8*)g_modelScreenPos + enemyScreenOffset))->y = y;
             enemyScreenOffset += sizeof(ModelScreenPos);
-        } while (actor < 10);
+        } while (actor < NUM_BATTLE_ACTOR);
         return;
     }
     actor = 0;
@@ -1760,18 +1748,14 @@ void func_800B91CC(void) {
         SetRotMatrix((MATRIX*)((u_long)matrix + *boneIndex * sizeof(BattleModelSub)));
         actor++;
         SetTransMatrix((MATRIX*)((u_long)matrix + *boneIndex * sizeof(BattleModelSub)));
-#ifdef PLATFORM_PSYZ
         RotTransPers(&D_800E7D08, &screen.packed, &p, &flag);
-#else
-        RotTransPers(&D_800E7D08, (long*)&screen.packed, (long*)&p, (long*)&flag);
-#endif
         boneIndex = (u8*)((u_long)boneIndex + sizeof(BattleModel));
         x = (u16)screen.point.vx;
         y = screen.packed >> 16;
         ((ModelScreenPos*)((u8*)g_modelScreenPos + screenOffset))->x = x;
         ((ModelScreenPos*)((u8*)g_modelScreenPos + screenOffset))->y = y;
         screenOffset += sizeof(ModelScreenPos);
-    } while (actor < 10);
+    } while (actor < NUM_BATTLE_ACTOR);
 }
 
 // promote each model's staged (x, y) into its committed (prevX, prevY)
