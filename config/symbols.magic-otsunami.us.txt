@@ -1,0 +1,8 @@
+MAGIC_Otsunami = 0x801B0000;
+OtsunamiDoubleBufferFlip = 0x801B0020;
+OtsunamiWaveSpriteTick = 0x801B008C;
+OtsunamiUvPairMirror = 0x801B018C;
+OtsunamiWaveHeightCalc = 0x801B01DC;
+OtsunamiWaveMeshTick = 0x801B0270;
+OtsunamiMainTick = 0x801B07CC;
+OtsunamiStart = 0x801B0BC8;

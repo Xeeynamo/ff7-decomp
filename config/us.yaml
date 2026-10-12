@@ -820,3 +820,16 @@ overlays:
       - [0, c, gesui]
       - [0xE9C, data, gesui_model]
       - [0x11108, data, gesui_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral
+  # OTSUNAMI.BIN -- effect overlay
+  - name: otsunami
+    disk_path: disks/us/MAGIC/OTSUNAMI.BIN
+    sha1: ac522b10b7bc63f7dafa4171d6a979aa33052c15
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-otsunami.us.txt
+    segments:
+      - [0, c, otsunami]
+      - [0xD20, data, otsunami_model]
+      - [0x10F8C, data, otsunami_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral
