@@ -1,0 +1,10 @@
+MAGIC_Gesui = 0x801B0000;
+MAGIC_Gesui2 = 0x801B0020;
+GesuiDoubleBufferFlip = 0x801B0040;
+GesuiWaveSpriteTick = 0x801B00AC;
+GesuiUvPairMirror = 0x801B01AC;
+GesuiWaveHeightCalc = 0x801B01FC;
+GesuiWaveMeshTick = 0x801B0290;
+GesuiMainTick = 0x801B07EC;
+GesuiStart = 0x801B0BE8;
+GesuiStartMirrored = 0x801B0D44;
