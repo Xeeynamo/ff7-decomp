@@ -39,6 +39,14 @@ void func_800BFDA0(void);
 void func_800BFF88(s16 actor, s16 bone, s32 category, s32 flags);
 void func_800C0088(s16 actor, s16 bone, s32 categoryArg);
 void func_800C14C0(s32 actorArg);
+void func_800C328C(void);
+void func_800C3578(void);
+void func_800C3950(void);
+void func_800C3CA8(void);
+void func_800C3DE4(void);
+void func_800C40F4(void);
+void func_800C44B4(void);
+void func_800C4814(void);
 void func_800C494C(void);
 static void func_800C5694(void);
 static void BattleEffectModelTick(void);
@@ -88,6 +96,12 @@ void func_800C57B0(void);
 void func_800C1394(s32 actorArg);
 void BattleAddStatusIconToRender(s32 arg0, s16 flags);
 void BattleAddStatusDigitsToRender(s32 arg0, u8 arg1);
+void func_800C2FD4(s32 actor, s16 sound, s32 enabled);
+void func_800C33F0(s32 effectArg);
+void func_800C3AA0(s32 effectArg);
+void func_800C3F44(s32 effectArg);
+void func_800C428C(s32 effectArg);
+void func_800C45EC(s32 effectArg);
 void func_800C5CC0(void);
 s32 func_800C60F4(void);
 static void func_800C610C(void);
@@ -2596,33 +2610,393 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2FD4);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C3068);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C328C);
+void func_800C328C(void) {
+    s16 phase;
+    s32 actor;
+    s32 modelIndex;
+    s32 effectIndex;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C33F0);
+    effectIndex = g_BattleEffectCursor;
+    phase = g_BattleEffectSlots[effectIndex].raw.D_8016297A;
+    switch (phase) {
+    case 0:
+        g_BattleEffectSlots[effectIndex].raw.D_8016297C = 0xE;
+        g_BattleEffectSlots[effectIndex].raw.D_8016297A++;
+        actor = g_BattleEffectSlots[effectIndex].raw.D_80162980;
+        func_800C2FD4(actor & 0xFF, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
+        D_80151200[actor].D_80151233 = 3;
+        modelIndex = actor;
+        g_BattleModels[modelIndex].colorR = 0xF8;
+        g_BattleModels[modelIndex].colorG = 0;
+        g_BattleModels[modelIndex].colorB = 0;
+        g_BattleModels[modelIndex].blendAlpha = 0x800;
+        func_800B5FE8(actor);
+        /* fallthrough */
+    case 1:
+        func_800C3068((u8)g_BattleEffectCursor);
+        return;
+    }
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C3578);
+void func_800C33F0(s32 effectArg) {
+    s32 actor;
+    s32 effectIndex;
+    s32 modelIndexOnFinish;
+    s32 effectIndexForUpdate;
+    s32 stateIndexOnFinish;
+    s32 modelIndex;
+
+    effectIndex = effectArg & 0xFF;
+    effectIndexForUpdate = effectIndex;
+    actor = g_BattleEffectSlots[effectIndexForUpdate].raw.D_80162980;
+    if (g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C == 0) {
+        g_BattleEffectSlots[effectIndex].raw.D_80162978 = -1;
+        modelIndexOnFinish = actor;
+        g_BattleModels[modelIndexOnFinish].specialFlags = g_BattleModels[modelIndexOnFinish].specialFlags & 0x7F;
+        stateIndexOnFinish = actor;
+        D_80151200[stateIndexOnFinish].D_8015120C = D_80151200[stateIndexOnFinish].D_8015120C & 0xFFDF;
+        g_BattleModels[modelIndexOnFinish].ready = 1;
+        func_800B5AAC(actor & 0xFF);
+        return;
+    }
+    modelIndex = actor;
+    g_BattleModels[modelIndex].blendAlpha = g_BattleModels[modelIndex].blendAlpha + 0x80;
+    g_BattleModels[modelIndex].colorR = g_BattleModels[modelIndex].colorR + 0xF0;
+    g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C =
+        g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C - 1;
+}
+
+void func_800C3578(void) {
+    s16 phase;
+    s32 actor;
+    s32 modelIndex;
+    s32 effectIndex;
+
+    effectIndex = g_BattleEffectCursor;
+    phase = g_BattleEffectSlots[effectIndex].raw.D_8016297A;
+    switch (phase) {
+    case 0:
+        g_BattleEffectSlots[effectIndex].raw.D_8016297C = 0xE;
+        g_BattleEffectSlots[effectIndex].raw.D_8016297A++;
+        actor = g_BattleEffectSlots[effectIndex].raw.D_80162980;
+        func_800C2FD4(actor & 0xFF, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
+        modelIndex = actor;
+        g_BattleModels[modelIndex].colorR = 0xF8;
+        g_BattleModels[modelIndex].colorG = 0;
+        g_BattleModels[modelIndex].colorB = 0;
+        g_BattleModels[modelIndex].blendAlpha = 0x800;
+        func_800B5FE8(actor);
+        /* fallthrough */
+    case 1:
+        func_800C33F0((u8)g_BattleEffectCursor);
+        return;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C36B4);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C3950);
+void func_800C3950(void) {
+    s16 phase;
+    s32 actor;
+    s32 movementIndex;
+    s32 modelIndex;
+    u8 color;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C3AA0);
+    movementIndex = g_BattleMovementCursor;
+    phase = g_BattleMovementSlots[movementIndex].D_801620AE;
+    switch (phase) {
+    case 0:
+        g_BattleMovementSlots[movementIndex].D_801620B0 = 0xE;
+        g_BattleMovementSlots[movementIndex].D_801620AE++;
+        actor = g_BattleMovementSlots[movementIndex].D_801620B4;
+        func_800C2FD4(actor & 0xFF, 0x16, (u8)g_BattleMovementSlots[movementIndex].D_801620B2);
+        modelIndex = actor;
+        g_BattleModels[modelIndex].blendAlpha = 0x800;
+        color = (u8)g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
+        g_BattleModels[modelIndex].colorG = 0;
+        g_BattleModels[modelIndex].colorB = 0;
+        g_BattleModels[modelIndex].colorR = color;
+        func_800B5FE8(actor);
+        /* fallthrough */
+    case 1:
+        func_800C36B4((u8)g_BattleMovementCursor);
+        return;
+    }
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C3CA8);
+void func_800C3AA0(s32 effectArg) {
+    s32 actor;
+    s32 effectIndex;
+    s32 modelIndexOnFinish;
+    s32 effectIndexForUpdate;
+    s32 stateIndexOnFinish;
+    s32 modelIndex;
+    s32 stateIndex;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C3DE4);
+    effectIndex = effectArg & 0xFF;
+    effectIndexForUpdate = effectIndex;
+    actor = g_BattleEffectSlots[effectIndexForUpdate].raw.D_80162980;
+    if (g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C == 0) {
+        g_BattleEffectSlots[effectIndex].raw.D_80162978 = -1;
+        modelIndexOnFinish = actor;
+        g_BattleModels[modelIndexOnFinish].specialFlags = g_BattleModels[modelIndexOnFinish].specialFlags & 0x7F;
+        stateIndexOnFinish = actor;
+        D_80151200[stateIndexOnFinish].D_8015120C = D_80151200[stateIndexOnFinish].D_8015120C & 0xFFDF;
+        g_BattleModels[modelIndexOnFinish].ready = 1;
+        func_800B5AAC(actor & 0xFF);
+        return;
+    }
+    modelIndex = actor;
+    g_BattleModels[modelIndex].blendAlpha = g_BattleModels[modelIndex].blendAlpha + 0x80;
+    stateIndex = actor;
+    g_BattleModels[modelIndex].colorR = g_BattleModels[modelIndex].colorR + 0xF0;
+    D_80151200[stateIndex].D_80151238 = D_80151200[stateIndex].D_80151238 + 0x100;
+    D_80151200[stateIndex].D_8015123A = D_80151200[stateIndex].D_8015123A - 0x100;
+    D_80151200[stateIndex].D_8015123C = D_80151200[stateIndex].D_8015123C + 0x100;
+    g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C =
+        g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C - 1;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C3F44);
+void func_800C3CA8(void) {
+    s16 phase;
+    s32 actor;
+    s32 modelIndex;
+    s32 effectIndex;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C40F4);
+    effectIndex = g_BattleEffectCursor;
+    phase = g_BattleEffectSlots[effectIndex].raw.D_8016297A;
+    switch (phase) {
+    case 0:
+        g_BattleEffectSlots[effectIndex].raw.D_8016297C = 0xE;
+        g_BattleEffectSlots[effectIndex].raw.D_8016297A++;
+        actor = g_BattleEffectSlots[effectIndex].raw.D_80162980;
+        func_800C2FD4(actor & 0xFF, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
+        modelIndex = actor;
+        g_BattleModels[modelIndex].colorR = 0xF8;
+        g_BattleModels[modelIndex].colorG = 0;
+        g_BattleModels[modelIndex].colorB = 0;
+        g_BattleModels[modelIndex].blendAlpha = 0x800;
+        func_800B5FE8(actor);
+        /* fallthrough */
+    case 1:
+        func_800C3AA0((u8)g_BattleEffectCursor);
+        return;
+    }
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C428C);
+void func_800C3DE4(void) {
+    s16 frames;
+    s32 actor;
+    s32 slotIndex;
+    s32 slotIndexBeforeCall;
+    s32 slotIndexAfterCall;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C44B4);
+    slotIndexBeforeCall = g_BattleDetachedCursor;
+    frames = g_BattleDetachedSlots[slotIndexBeforeCall].raw.D_801621F4;
+    actor = g_BattleDetachedSlots[slotIndexBeforeCall].raw.unk8;
+    slotIndex = g_BattleDetachedCursor;
+    if (frames == 0) {
+        g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+        return;
+    }
+    if ((frames == 0x3A) || (frames == 0x40)) {
+        D_80163C74 = func_800C4FC8(0xFAU, 0xFAU, 0xFAU);
+    }
+    if (g_BattleDetachedSlots[slotIndex].raw.D_801621F4 & 1) {
+        g_BattleModels[actor].rootTrans.vz = g_BattleDetachedSlots[slotIndex].raw.unkA + 0x40;
+    } else {
+        g_BattleModels[actor].rootTrans.vz = g_BattleDetachedSlots[slotIndex].raw.unkA - 0x40;
+    }
+    slotIndexAfterCall = slotIndex;
+    g_BattleDetachedSlots[slotIndexAfterCall].raw.D_801621F4 =
+        g_BattleDetachedSlots[slotIndexAfterCall].raw.D_801621F4 - 1;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C45EC);
+void func_800C3F44(s32 effectArg) {
+    s32 actor;
+    s32 effectIndex;
+    s32 modelIndexOnFinish;
+    s32 effectIndexForUpdate;
+    s32 stateIndexOnFinish;
+    s32 modelIndex;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C4814);
+    effectIndex = effectArg & 0xFF;
+    effectIndexForUpdate = effectIndex;
+    actor = g_BattleEffectSlots[effectIndexForUpdate].raw.D_80162980;
+    if (g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C == 1) {
+        g_BattleEffectSlots[effectIndex].raw.D_80162978 = -1;
+        modelIndexOnFinish = actor;
+        g_BattleModels[modelIndexOnFinish].specialFlags = g_BattleModels[modelIndexOnFinish].specialFlags & 0x7F;
+        stateIndexOnFinish = actor;
+        D_80151200[stateIndexOnFinish].D_8015120C = D_80151200[stateIndexOnFinish].D_8015120C & 0xFFDF;
+        g_BattleModels[modelIndexOnFinish].ready = 1;
+        g_BattleModels[modelIndexOnFinish].colorR = 0;
+        g_BattleModels[modelIndexOnFinish].blendAlpha = 0x1000;
+        func_800B5AAC(actor & 0xFF);
+        return;
+    }
+    modelIndex = actor;
+    g_BattleModels[modelIndex].blendAlpha = g_BattleModels[modelIndex].blendAlpha + 0x20;
+    g_BattleModels[modelIndex].colorR = g_BattleModels[modelIndex].colorR + 0xFC;
+    g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C =
+        g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C - 1;
+}
+
+void func_800C40F4(void) {
+    s16 phase;
+    s32 actor;
+    s32 modelIndex;
+    s32 slotIndex;
+    s32 effectIndex;
+
+    effectIndex = g_BattleEffectCursor;
+    phase = g_BattleEffectSlots[effectIndex].raw.D_8016297A;
+    switch (phase) {
+    case 0:
+        g_BattleEffectSlots[effectIndex].raw.D_8016297C = 0x40;
+        g_BattleEffectSlots[effectIndex].raw.D_8016297A++;
+        actor = g_BattleEffectSlots[effectIndex].raw.D_80162980;
+        func_800C2FD4(actor & 0xFF, 0x1C0, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
+        slotIndex = BattleDetachedRegister(func_800C3DE4);
+        modelIndex = actor;
+        g_BattleDetachedSlots[slotIndex].raw.unk8 = actor;
+        g_BattleDetachedSlots[slotIndex].raw.D_801621F4 = 0x40;
+        g_BattleDetachedSlots[slotIndex].raw.unkA = g_BattleModels[modelIndex].rootTrans.vz;
+        g_BattleModels[modelIndex].colorR = 0xFF;
+        g_BattleModels[modelIndex].colorG = 0;
+        g_BattleModels[modelIndex].colorB = 0;
+        g_BattleModels[modelIndex].blendAlpha = 0x800;
+        func_800B5FE8(actor);
+        /* fallthrough */
+    case 1:
+        func_800C3F44((u8)g_BattleEffectCursor);
+        return;
+    }
+}
+
+void func_800C428C(s32 effectArg) {
+    s32 actor;
+    s32 effectIndex;
+    s32 modelIndexOnFinish;
+    s32 effectIndexForUpdate;
+    s32 stateIndexOnFinish;
+    s32 stateIndex;
+    s32 modelIndex;
+
+    effectIndex = effectArg & 0xFF;
+    effectIndexForUpdate = effectIndex;
+    actor = g_BattleEffectSlots[effectIndexForUpdate].raw.D_80162980;
+    if (g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C == 0) {
+        g_BattleEffectSlots[effectIndex].raw.D_80162978 = -1;
+        modelIndexOnFinish = actor;
+        g_BattleModels[modelIndexOnFinish].specialFlags = g_BattleModels[modelIndexOnFinish].specialFlags & 0x7F;
+        stateIndexOnFinish = actor;
+        D_80151200[stateIndexOnFinish].D_8015120C = D_80151200[stateIndexOnFinish].D_8015120C & 0xFFDF;
+        g_BattleModels[modelIndexOnFinish].ready = 1;
+        return;
+    }
+    modelIndex = actor;
+    g_BattleModels[modelIndex].blendAlpha = g_BattleModels[modelIndex].blendAlpha + 0x80;
+    g_BattleModels[modelIndex].colorR = g_BattleModels[modelIndex].colorR + 0xF8;
+    g_BattleModels[modelIndex].colorG = g_BattleModels[modelIndex].colorG + 0xF8;
+    stateIndex = actor;
+    g_BattleModels[modelIndex].colorB = g_BattleModels[modelIndex].colorB + 0xF8;
+    D_80151200[stateIndex].D_80151238 = 0;
+    D_80151200[stateIndex].D_8015123A = 0x1000;
+    D_80151200[stateIndex].D_8015123C = 0x1000;
+    g_BattleModels[modelIndex].rootRot.vy = g_BattleModels[modelIndex].rootRot.vy + 0x100;
+    g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C =
+        g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C - 1;
+}
+
+void func_800C44B4(void) {
+    s16 phase;
+    s32 actor;
+    s32 modelIndex;
+    s32 effectIndex;
+
+    effectIndex = g_BattleEffectCursor;
+    phase = g_BattleEffectSlots[effectIndex].raw.D_8016297A;
+    switch (phase) {
+    case 0:
+        g_BattleEffectSlots[effectIndex].raw.D_8016297C = 0x10;
+        g_BattleEffectSlots[effectIndex].raw.D_8016297A++;
+        actor = g_BattleEffectSlots[effectIndex].raw.D_80162980;
+        func_800C2FD4(actor & 0xFF, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
+        modelIndex = actor;
+        g_BattleModels[modelIndex].colorR = 0x80;
+        g_BattleModels[modelIndex].colorG = 0x80;
+        g_BattleModels[modelIndex].colorB = 0x80;
+        g_BattleModels[modelIndex].blendAlpha = 0;
+        func_800B5FE8(actor);
+        /* fallthrough */
+    case 1:
+        func_800C428C((u8)g_BattleEffectCursor);
+        return;
+    }
+}
+
+void func_800C45EC(s32 effectArg) {
+    s32 actor;
+    s32 effectIndex;
+    s32 modelIndexOnFinish;
+    s32 effectIndexForUpdate;
+    s32 stateIndexOnFinish;
+    s32 stateIndex;
+    s32 modelIndex;
+
+    effectIndex = effectArg & 0xFF;
+    effectIndexForUpdate = effectIndex;
+    actor = g_BattleEffectSlots[effectIndexForUpdate].raw.D_80162980;
+    if (g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C == 0) {
+        g_BattleEffectSlots[effectIndex].raw.D_80162978 = -1;
+        modelIndexOnFinish = actor;
+        g_BattleModels[modelIndexOnFinish].specialFlags = g_BattleModels[modelIndexOnFinish].specialFlags & 0x7F;
+        stateIndexOnFinish = actor;
+        D_80151200[stateIndexOnFinish].D_8015120C = D_80151200[stateIndexOnFinish].D_8015120C & 0xFFDF;
+        g_BattleModels[modelIndexOnFinish].ready = 1;
+        return;
+    }
+    modelIndex = actor;
+    g_BattleModels[modelIndex].blendAlpha = g_BattleModels[modelIndex].blendAlpha + 0x80;
+    g_BattleModels[modelIndex].colorR = g_BattleModels[modelIndex].colorR + 0xF8;
+    g_BattleModels[modelIndex].colorG = g_BattleModels[modelIndex].colorG + 0xF8;
+    stateIndex = actor;
+    g_BattleModels[modelIndex].colorB = g_BattleModels[modelIndex].colorB + 0xF8;
+    D_80151200[stateIndex].D_80151238 = 0x1000;
+    D_80151200[stateIndex].D_8015123A = 0x1000;
+    D_80151200[stateIndex].D_8015123C = 0;
+    g_BattleModels[modelIndex].rootTrans.vy = g_BattleModels[modelIndex].rootTrans.vy - 0x80;
+    g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C =
+        g_BattleEffectSlots[effectIndexForUpdate].raw.D_8016297C - 1;
+}
+
+void func_800C4814(void) {
+    s16 phase;
+    s32 actor;
+    s32 modelIndex;
+    s32 effectIndex;
+
+    effectIndex = g_BattleEffectCursor;
+    phase = g_BattleEffectSlots[effectIndex].raw.D_8016297A;
+    switch (phase) {
+    case 0:
+        g_BattleEffectSlots[effectIndex].raw.D_8016297C = 0x10;
+        g_BattleEffectSlots[effectIndex].raw.D_8016297A++;
+        actor = g_BattleEffectSlots[effectIndex].raw.D_80162980;
+        func_800C2FD4(actor & 0xFF, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
+        modelIndex = actor;
+        g_BattleModels[modelIndex].colorR = 0x80;
+        g_BattleModels[modelIndex].colorG = 0x80;
+        g_BattleModels[modelIndex].colorB = 0x80;
+        g_BattleModels[modelIndex].blendAlpha = 0;
+        func_800B5FE8(actor);
+        /* fallthrough */
+    case 1:
+        func_800C45EC((u8)g_BattleEffectCursor);
+        return;
+    }
+}
 
 void func_800C494C(void) {
     switch (g_BattleDetachedSlots[g_BattleDetachedCursor].screenFade.state) {
