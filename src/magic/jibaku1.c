@@ -5,7 +5,8 @@
 #include "jibaku1.h"
 #include "../battle/battle.h"
 
-// Effect JIBAKU1.
+// Effect shared by Suicide (自爆), Self-destruct (自爆), Suicide Yang (ヤン自爆) and Destroyed (副砲破壊,
+// 主砲破壊).
 
 // Only StartFrame/AnimationFrame are common to every magic overlay; the
 // rest is payload this effect lays out for itself.

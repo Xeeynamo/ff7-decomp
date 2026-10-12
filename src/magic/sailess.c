@@ -6,7 +6,7 @@
 #include "sailess.h"
 #include "../battle/battle.h"
 
-// Effect SAILESS.
+// Silence (サイレス / Silence).
 
 extern u_long D_801B0498[];
 void func_801B02E0(s32 target, s32 callbackArg);

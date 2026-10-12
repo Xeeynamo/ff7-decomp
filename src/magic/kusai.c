@@ -5,7 +5,7 @@
 #include "kusai.h"
 #include "../battle/battle.h"
 
-// Effect KUSAI.
+// Bad Breath (臭い息 / Kusai Iki).
 
 void func_801B04E4(s32 targetMask, s32 callbackArg);
 

@@ -5,7 +5,7 @@
 #include "ayasii.h"
 #include "../battle/battle.h"
 
-// Effect AYASII.
+// Effect shared by Funny Breath (ファニーのいき) and Shady Breath (怪しい息).
 
 void func_801B04E4(s32 targetMask, s32 callbackArg);
 
