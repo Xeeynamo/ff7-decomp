@@ -833,3 +833,16 @@ overlays:
       - [0, c, shaku]
       - [0x1B38, data, shaku_model]
       - [0x25768, data, shaku_buffers]
+  # RE_DO.BIN -- effect overlay
+  - name: re_do
+    disk_path: disks/us/MAGIC/RE_DO.BIN
+    sha1: f27b56b6b0666873bb632a35d345ecbf6b15b52f
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-re_do.us.txt
+    segments:
+      - [0, c, re_do]
+      - [0x1B08, data, re_do_model]
+      - [0x25738, data, re_do_buffers]

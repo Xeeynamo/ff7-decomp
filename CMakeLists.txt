@@ -92,6 +92,7 @@ set(FF7_MAGIC
     src/magic/hadoho.c
     src/magic/lv5deth.c
     src/magic/mabaria.c
+    src/magic/re_do.c
     src/magic/sennkoku.c
     src/magic/shaku.c
     src/magic/thunder.c
