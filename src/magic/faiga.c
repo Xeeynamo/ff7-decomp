@@ -32,18 +32,18 @@ extern s32 D_801C9364[];
 extern char g_FaigaPrimBuffer0[];
 extern char g_FaigaPrimBuffer1[];
 extern void* g_FaigaBufferPtr;
-extern s32* g_FaigaFlipEffect; // slot running func_801B0030
+extern s32* g_FaigaFlipEffect; // slot running FaigaBufferFlip
 
-void func_801B0F28(s32 targetMask, s32 callbackArg);
-void func_801B0D48(void);
+void FaigaStart(s32 targetMask, s32 callbackArg);
+void FaigaEmitterSetup(void);
 void func_801B0914(void);
-void func_801B062C(void);
-void func_801B0B04(void);
+void FaigaHitTimeline(void);
+void FaigaSparkEmitterTick(void);
 extern u_long D_801B0FC0[];
 extern s32 D_801E2FCC;
 
 // Same as Lv5DeathBufferFlip.
-void func_801B0030(void) {
+void FaigaBufferFlip(void) {
     g_FaigaBufferPtr = g_dbIndex == 0 ? g_FaigaPrimBuffer0 : g_FaigaPrimBuffer1;
     if (g_BattleEffectCount < 2) {
         *g_FaigaFlipEffect = -1;
@@ -51,9 +51,9 @@ void func_801B0030(void) {
 }
 
 // Entry: calls the effect setup.
-void func_801B0084(s32 targetMask, s32 callbackArg) { func_801B0F28(targetMask, callbackArg); }
+void MAGIC_Faiga(s32 targetMask, s32 callbackArg) { FaigaStart(targetMask, callbackArg); }
 
-void func_801B00A4(void) {
+void FaigaFlameModelTickA(void) {
     s32 temp;
     FaigaData* effect;
     SVECTOR rot;
@@ -102,7 +102,7 @@ void func_801B00A4(void) {
     }
 }
 
-void func_801B0284(void) {
+void FaigaFlameModelTickB(void) {
     s32 temp;
     FaigaData* effect;
     SVECTOR rot;
@@ -151,7 +151,7 @@ void func_801B0284(void) {
     }
 }
 
-void func_801B0458(void) {
+void FaigaFlameModelTickC(void) {
     s32 temp;
     FaigaData* effect;
     SVECTOR rot;
@@ -200,7 +200,7 @@ void func_801B0458(void) {
     }
 }
 
-void func_801B062C(void) {
+void FaigaHitTimeline(void) {
     FaigaData* effect;
     FaigaData* child;
     s32 i;
@@ -211,21 +211,21 @@ void func_801B062C(void) {
         effect = &g_BattleEffectSlots[g_BattleEffectCursor];
         if (effect->AnimationFrame == 8) {
             size = effect->Scale << 12;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B00A4)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(FaigaFlameModelTickA)];
             child->unkC = 0;
             child->unkE = 0;
             child->unk10 = -0x14;
             child->Pos = effect->Pos;
             child->Scale = (size / 750) >> 1;
             child->unk14 = size / 24000;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0284)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(FaigaFlameModelTickB)];
             child->unkC = 0;
             child->unkE = -0x400;
             child->unk10 = -0x22;
             child->Pos = effect->Pos;
             child->Scale = (size / 620) >> 1;
             child->unk14 = size / 19840;
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0458)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(FaigaFlameModelTickC)];
             child->unkC = 0;
             child->unkE = -0x400;
             child->unk10 = -0x1A;
@@ -310,7 +310,7 @@ void func_801B0914(void) {
 }
 
 // Same as func_801B1988 in club2.c.
-void func_801B0A38(void) {
+void FaigaSparkSpriteTick(void) {
     FaigaData* effect;
     s16 scale;
 
@@ -327,7 +327,7 @@ void func_801B0A38(void) {
     }
 }
 
-void func_801B0B04(void) {
+void FaigaSparkEmitterTick(void) {
     FaigaData* effect;
     FaigaData* child;
     s32 i;
@@ -343,7 +343,7 @@ void func_801B0B04(void) {
             range += range >> 1;
             diameter = range * 2;
             for (i = 0; i < 3; i++) {
-                child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0A38)];
+                child = &g_BattleEffectSlots[BattleEffectRegister(FaigaSparkSpriteTick)];
                 child->Pos = effect->Pos;
                 child->Pos.vx += rand() % diameter - range;
                 child->Pos.vy += rand() % diameter - range;
@@ -359,7 +359,7 @@ void func_801B0B04(void) {
     }
 }
 
-void func_801B0D48(void) {
+void FaigaEmitterSetup(void) {
     FaigaData* effect;
     FaigaData* child;
     s32 i;
@@ -397,21 +397,21 @@ void func_801B0D48(void) {
     effect->unk10 = size >> 1;
     effect->unk16 = effect->Scale;
 
-    child = &g_BattleEffectSlots[BattleEffectRegister(func_801B062C)];
+    child = &g_BattleEffectSlots[BattleEffectRegister(FaigaHitTimeline)];
     child->Pos = effect->Pos;
     child->Scale = size;
 
-    child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0B04)];
+    child = &g_BattleEffectSlots[BattleEffectRegister(FaigaSparkEmitterTick)];
     child->Pos = effect->Pos;
     child->Scale = size;
     child->unk14 = 0;
     child->unk16 = 0x80;
 }
 
-void func_801B0F28(s32 targetMask, s32 callbackArg) {
-    g_FaigaFlipEffect = (s32*)&g_BattleEffectSlots[BattleEffectRegister(func_801B0030)];
+void FaigaStart(s32 targetMask, s32 callbackArg) {
+    g_FaigaFlipEffect = (s32*)&g_BattleEffectSlots[BattleEffectRegister(FaigaBufferFlip)];
     BattleSetLoadTimToVram(D_801B0FC0, 0, 0, 0);
-    BattleEffectRegister(func_801B0D48);
+    BattleEffectRegister(FaigaEmitterSetup);
     D_801E2FCC = targetMask;
     BattleAkaoCommand(AKAO_PLAY_SOUND, BattleEntityGetStereoPan(targetMask), 0x8E);
 }

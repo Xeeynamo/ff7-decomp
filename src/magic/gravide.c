@@ -29,14 +29,14 @@ extern GravideData g_BattleEffectSlots[];
 extern u8 g_GravideBuffer[2][GRAVIDE_PAGE_SIZE];
 extern u_long g_GravideTexture[];
 extern void* g_GravideBufferPtr; // must land right after the buffer
-void func_801B0000(void);
-void func_801B00F0(void);
+void GravideTrailSpriteTick(void);
+void GravideImpactRingTick(void);
 void func_801B01F4(void);
 void GravideDoubleBufferFlip(void);
 void GravideTargetSetup(s32 targetMask, s32 callbackArg);
 void GravideTargetTick(void);
 
-void func_801B0000(void) {
+void GravideTrailSpriteTick(void) {
     GravideData* effect;
     MATRIX* matrix;
 
@@ -55,7 +55,7 @@ void func_801B0000(void) {
     }
 }
 
-void func_801B00F0(void) {
+void GravideImpactRingTick(void) {
     GravideData* effect;
     MATRIX* matrix;
 
@@ -96,19 +96,19 @@ void GravideTargetTick(void) {
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (D_80062D98 == 0) {
-        next = &g_BattleEffectSlots[BattleEffectRegister(func_801B0000)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(GravideTrailSpriteTick)];
         next->Pos = effect->Pos;
         next->AnimationFrame = 2;
         effect->Pos.vx += effect->Step.vx;
         effect->Pos.vy += effect->Step.vy;
         effect->Pos.vz += effect->Step.vz;
-        next = &g_BattleEffectSlots[BattleEffectRegister(func_801B0000)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(GravideTrailSpriteTick)];
         next->Pos = effect->Pos;
         next->AnimationFrame = 1;
         effect->Pos.vx += effect->Step.vx;
         effect->Pos.vy += effect->Step.vy;
         effect->Pos.vz += effect->Step.vz;
-        next = &g_BattleEffectSlots[BattleEffectRegister(func_801B0000)];
+        next = &g_BattleEffectSlots[BattleEffectRegister(GravideTrailSpriteTick)];
         next->Pos = effect->Pos;
         effect->Pos.vx += effect->Step.vx;
         effect->Pos.vy += effect->Step.vy;
@@ -117,7 +117,7 @@ void GravideTargetTick(void) {
         if (effect->AnimationFrame >= 8) {
             next = &g_BattleEffectSlots[BattleEffectRegister(func_801B01F4)];
             next->Pos = effect->Pos;
-            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B00F0)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(GravideImpactRingTick)];
             next->Pos = effect->Pos;
             next->Scale = 0x200;
             next->ScaleStep = 0x2D0;

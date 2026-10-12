@@ -11,7 +11,7 @@ extern void* D_80163C74;
 extern SpriteRenderDesc D_801D47DC;
 
 extern u_long D_801B178C[];
-void func_801B1654(s32 target, s32 callbackArg);
+void RmissileTargetSetup(s32 target, s32 callbackArg);
 
 // Only StartFrame/AnimationFrame are common to every magic overlay; the
 // rest is payload this effect lays out for itself.
@@ -37,14 +37,14 @@ extern s32 D_801D4638;
 extern s32 D_801D4700;
 extern u8 D_801D4850[2][0xC000];
 extern void* D_801EC850;
-void func_801B1720(s32 targetMask, s32 callbackArg);
-void func_801B0994(void);
-void func_801B0DA0(void);
-void func_801B134C(void);
+void RmissileStart(s32 targetMask, s32 callbackArg);
+void RmissileBlastTick(void);
+void RmissileMissileTick(void);
+void RmissileTargetTick(void);
 
-void func_801B0000(s32 targetMask, s32 callbackArg) { func_801B1720(targetMask, callbackArg); }
+void MAGIC_Rmissile(s32 targetMask, s32 callbackArg) { RmissileStart(targetMask, callbackArg); }
 
-void func_801B0020(s16 targetMask, SVECTOR* out) {
+void RmissileTargetCenterCalc(s16 targetMask, SVECTOR* out) {
     VECTOR sum;
     SVECTOR pos;
     s16 i;
@@ -66,7 +66,7 @@ void func_801B0020(s16 targetMask, SVECTOR* out) {
     out->vz = sum.vz / count;
 }
 
-void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
+void RmissileSprayVectorCalc(s32 offset, s16 spread, SVECTOR* out) {
     SVECTOR in;
     SVECTOR rot;
     MATRIX matrix;
@@ -81,7 +81,7 @@ void func_801B01CC(s32 offset, s16 spread, SVECTOR* out) {
     ApplyMatrixSV(&matrix, &in, out);
 }
 
-void func_801B02FC(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
+void RmissileSpriteMatrixSetup(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
     MATRIX matrix;
     MATRIX rotated;
     VECTOR dir;
@@ -110,7 +110,7 @@ void func_801B02FC(SVECTOR* pos, SVECTOR* rot, s16 scale, s32 offset) {
 }
 
 // Same as EnergyDoubleBufferFlip.
-static void func_801B045C(void) {
+static void RmissileDoubleBufferFlip(void) {
     RmissileData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -121,7 +121,7 @@ static void func_801B045C(void) {
     }
 }
 
-void func_801B04C8(void) {
+void RmissileSparkSpriteTick(void) {
     RmissileData* effect;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
@@ -136,7 +136,7 @@ void func_801B04C8(void) {
     }
 }
 
-void func_801B0584(void) {
+void RmissileDustSpriteTick(void) {
     RmissileData* effect;
 
     effect = &g_BattleDetachedSlots[g_BattleDetachedCursor];
@@ -151,8 +151,8 @@ void func_801B0584(void) {
     }
 }
 
-// Same as func_801B0584.
-void func_801B0640(void) {
+// Same as RmissileDustSpriteTick.
+void RmissileDebrisTick(void) {
     MATRIX rotated;
     MATRIX matrix;
     SVECTOR rot;
@@ -217,7 +217,7 @@ extern s32 D_801D2524[];
 extern s32 D_801D42C8[];
 
 // Same as func_801B07A0.
-void func_801B085C(void) {
+void RmissileFlashModelTick(void) {
     MATRIX matrix;
     MATRIX composed;
     VECTOR scale;
@@ -243,7 +243,7 @@ void func_801B085C(void) {
     }
 }
 
-void func_801B0994(void) {
+void RmissileBlastTick(void) {
     MATRIX matrix;
     MATRIX composed;
     SVECTOR rot;
@@ -296,7 +296,7 @@ void func_801B0994(void) {
         if (effect->AnimationFrame < 0x16) {
             for (i = 0, radius = (s16)(effect->AnimationFrame * 5 << 4); i < 6; i++) {
                 angle = rand() % 0x1000;
-                chip = &g_BattleDetachedSlots[BattleDetachedRegister(func_801B0584)];
+                chip = &g_BattleDetachedSlots[BattleDetachedRegister(RmissileDustSpriteTick)];
                 chip->Pos.vx = effect->Pos.vx + (rcos(angle) * radius >> 12);
                 chip->Pos.vz = effect->Pos.vz + (rsin(angle) * radius >> 12);
                 chip->Pos.vy = -0x96;
@@ -316,7 +316,7 @@ void func_801B0994(void) {
     }
 }
 
-void func_801B0DA0(void) {
+void RmissileMissileTick(void) {
     MATRIX matrix;
     MATRIX composed;
     SVECTOR rot;
@@ -411,7 +411,7 @@ void func_801B0DA0(void) {
     }
 }
 
-void func_801B134C(void) {
+void RmissileTargetTick(void) {
     s32 pad[14]; // frame size only, needed for the match
     RmissileData* effect;
     RmissileData* next;
@@ -420,7 +420,7 @@ void func_801B134C(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame < 6 && effect->AnimationFrame % 5 == 0) {
-            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B0DA0)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(RmissileMissileTick)];
             next->Pos.vx = effect->Pos.vx;
             next->Pos.vy = effect->Pos.vy - effect->AnimationFrame * 30;
             next->Pos.vz = effect->Pos.vz;
@@ -435,21 +435,21 @@ void func_801B134C(void) {
             func_800D5774(effect->unk1C);
         }
         if (effect->AnimationFrame == 0x14) {
-            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B0994)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(RmissileBlastTick)];
             next->Pos.vx = effect->PartPos.vx;
             next->Pos.vy = 0;
             next->Pos.vz = effect->PartPos.vz;
             next->unk18 = 0;
-            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B085C)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(RmissileFlashModelTick)];
             next->Pos.vx = effect->PartPos.vx;
             next->Pos.vy = -0x12C;
             next->Pos.vz = effect->PartPos.vz;
             for (i = 0; i < 20; i++) {
-                next = &g_BattleEffectSlots[BattleEffectRegister(func_801B0640)];
+                next = &g_BattleEffectSlots[BattleEffectRegister(RmissileDebrisTick)];
                 next->Pos.vx = effect->PartPos.vx;
                 next->Pos.vz = effect->PartPos.vz;
                 next->Pos.vy = 0;
-                func_801B01CC(-0xFA, 0x64, &next->PartPos);
+                RmissileSprayVectorCalc(-0xFA, 0x64, &next->PartPos);
                 next->unk18 = rand() % 7;
             }
             func_800BBA84(0x176, effect->unk1C, 0x40);
@@ -461,10 +461,10 @@ void func_801B134C(void) {
     }
 }
 
-void func_801B1654(s32 target, s32 callbackArg) {
+void RmissileTargetSetup(s32 target, s32 callbackArg) {
     RmissileData* effect;
 
-    effect = &g_BattleEffectSlots[BattleEffectRegister(func_801B134C)];
+    effect = &g_BattleEffectSlots[BattleEffectRegister(RmissileTargetTick)];
     BattleGetPartPosition(callbackArg, g_BattleModels[callbackArg].boneIndices[9], &effect->Pos);
     BattleGetPartPosition(target, g_BattleModels[target].boneIndices[0], &effect->PartPos);
     effect->unk1C = target;
@@ -472,8 +472,8 @@ void func_801B1654(s32 target, s32 callbackArg) {
 }
 
 // Same as func_801B1990.
-void func_801B1720(s32 targetMask, s32 callbackArg) {
-    BattleEffectRegister(func_801B045C);
+void RmissileStart(s32 targetMask, s32 callbackArg) {
+    BattleEffectRegister(RmissileDoubleBufferFlip);
     BattleSetLoadTimToVram(D_801B178C, 0, 0, 0);
-    MagicAnimationRegister(targetMask, callbackArg, 4, func_801B1654);
+    MagicAnimationRegister(targetMask, callbackArg, 4, RmissileTargetSetup);
 }

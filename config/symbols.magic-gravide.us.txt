@@ -1,5 +1,5 @@
-func_801B0000 = 0x801B0000;
-func_801B00F0 = 0x801B00F0;
+GravideTrailSpriteTick = 0x801B0000;
+GravideImpactRingTick = 0x801B00F0;
 func_801B01F4 = 0x801B01F4;
 GravideTargetTick = 0x801B02E8;
 GravideTargetSetup = 0x801B0568;

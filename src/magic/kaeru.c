@@ -32,7 +32,7 @@ extern SVECTOR D_801D52A0[];
 extern SpriteRenderDesc D_801BD268;
 extern SpriteRenderDesc D_801BD274;
 
-void func_801B0D08(s32 targetMask, s32 callbackArg);
+void KaeruStart(s32 targetMask, s32 callbackArg);
 
 // Scratchpad block read by func_801B0EB4 and func_801B2F08.
 typedef struct {
@@ -58,28 +58,28 @@ typedef struct {
 extern char D_801BD290[];
 extern char D_801C9290[];
 extern void* D_801D5290;
-extern s32* D_801D5294; // slot running func_801B0000
+extern s32* D_801D5294; // slot running KaeruBufferFlip
 extern s32 D_801D5298;
 extern s32 D_801D529C;
 extern u_long D_801B0DDC[];
-void func_801B0B68(void);
-void func_801B09E8(void);
-void func_801B0838(void);
+void KaeruEmitterSetup(void);
+void KaeruRingEmitterTick(void);
+void KaeruRingSpriteTick(void);
 extern SVECTOR g_BattleCameraPos;
 extern VECTOR D_801BD280;
 extern MATRIX D_801D5990;
-void func_801B05A8(void);
+void KaeruCloudEmitterTick(void);
 
-void func_801B0000(void) {
+void KaeruBufferFlip(void) {
     D_801D5290 = g_dbIndex == 0 ? D_801BD290 : D_801C9290;
     if (g_BattleEffectCount < 2) {
         *D_801D5294 = -1;
     }
 }
 
-void func_801B0054(s32 targetMask, s32 callbackArg) { func_801B0D08(targetMask, callbackArg); }
+void MAGIC_Kaeru(s32 targetMask, s32 callbackArg) { KaeruStart(targetMask, callbackArg); }
 
-s32 func_801B0074(VECTOR* a, VECTOR* b, VECTOR* out) {
+s32 KaeruVectorAngleCalc(VECTOR* a, VECTOR* b, VECTOR* out) {
     char pad[0x10]; // match: gives the function its 0x30 byte stack frame
     s32 dot;
     s32 len;
@@ -93,7 +93,7 @@ s32 func_801B0074(VECTOR* a, VECTOR* b, VECTOR* out) {
     return angle;
 }
 
-void func_801B0150(s32 angle, MATRIX* m, VECTOR* axis) {
+void KaeruAxisAngleMatrixBuild(s32 angle, MATRIX* m, VECTOR* axis) {
     s32 sn;
     s32 cs;
     s32 omc;
@@ -124,7 +124,7 @@ void func_801B0150(s32 angle, MATRIX* m, VECTOR* axis) {
     m->m[2][2] = zz + (((0x1000 - zz) * cs) >> 12);
 }
 
-void func_801B02CC(SVECTOR* a, SVECTOR* b, VECTOR* n) {
+void KaeruPlaneProjectPoint(SVECTOR* a, SVECTOR* b, VECTOR* n) {
     VECTOR d;
     s32 dot;
 
@@ -152,8 +152,8 @@ s16 func_801B03A8(SVECTOR* a, SVECTOR* b, VECTOR* n) {
     return (pb - pa) / pd;
 }
 
-// Same as func_801B0074.
-void func_801B048C(void) {
+// Same as KaeruVectorAngleCalc.
+void KaeruCloudPuffTick(void) {
     KaeruData* effect;
     s32 i;
     s32 n;
@@ -179,7 +179,7 @@ void func_801B048C(void) {
     }
 }
 
-void func_801B05A8(void) {
+void KaeruCloudEmitterTick(void) {
     KaeruData* effect;
     KaeruData* next;
     s32 i;
@@ -190,7 +190,7 @@ void func_801B05A8(void) {
         effect = &g_BattleEffectSlots[g_BattleEffectCursor];
         if ((u16)(effect->AnimationFrame - 0x12) < 0x24) {
             n = D_801D529C;
-            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B048C)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(KaeruCloudPuffTick)];
             next->unk18 = n;
             for (i = 0; i < 4; i++) {
                 scale = rand() % 0x1000 + 0x800;
@@ -218,7 +218,7 @@ void func_801B05A8(void) {
     }
 }
 
-void func_801B0838(void) {
+void KaeruRingSpriteTick(void) {
     KaeruData* effect;
     SVECTOR rot;
     SVECTOR pos;
@@ -254,7 +254,7 @@ void func_801B0838(void) {
     }
 }
 
-void func_801B09E8(void) {
+void KaeruRingEmitterTick(void) {
     KaeruData* effect;
     KaeruData* next;
     VECTOR dir;
@@ -267,11 +267,11 @@ void func_801B09E8(void) {
     dir.vy = 0;
     dir.vz = g_BattleCameraPos.vz - effect->Pos.vz;
     VectorNormal(&dir, &unit);
-    angle = func_801B0074(&D_801BD280, &unit, &normal);
-    func_801B0150(angle, &D_801D5990, &normal);
+    angle = KaeruVectorAngleCalc(&D_801BD280, &unit, &normal);
+    KaeruAxisAngleMatrixBuild(angle, &D_801D5990, &normal);
     if (D_80062D98 == 0) {
         if ((u16)(effect->AnimationFrame - 1) < 0x14) {
-            next = &g_BattleEffectSlots[BattleEffectRegister(func_801B0838)];
+            next = &g_BattleEffectSlots[BattleEffectRegister(KaeruRingSpriteTick)];
             next->Pos = effect->Pos;
             next->unkC = effect->unkC;
             next->unk10 = (7 - (effect->AnimationFrame & 7)) << 9;
@@ -285,7 +285,7 @@ void func_801B09E8(void) {
     }
 }
 
-void func_801B0B68(void) {
+void KaeruEmitterSetup(void) {
     KaeruData* effect;
     KaeruData* next;
     s32 radius;
@@ -293,7 +293,7 @@ void func_801B0B68(void) {
 
     g_BattleEffectSlots[g_BattleEffectCursor].StartFrame = -1;
     slots = g_BattleEffectSlots;
-    effect = &slots[BattleEffectRegister(func_801B05A8)];
+    effect = &slots[BattleEffectRegister(KaeruCloudEmitterTick)];
     BattleGetPartPosition(D_801D5298, g_BattleModels[D_801D5298].boneIndices[0], &effect->Pos);
     radius = g_BattleModels[D_801D5298].collisionRadius + 0xE0;
     if (radius > 0x4F2) {
@@ -303,17 +303,17 @@ void func_801B0B68(void) {
     effect->unkE = radius << 1;
     effect->unk10 = -((u16)effect->Pos.vy << 1);
     effect->unk14 = (radius << 12) / 450;
-    next = &slots[BattleEffectRegister(func_801B09E8)];
+    next = &slots[BattleEffectRegister(KaeruRingEmitterTick)];
     next->Pos = effect->Pos;
     next->unkE = radius;
     next->unkC = (radius << 12) / 1500;
 }
 
-void func_801B0D08(s32 targetMask, s32 callbackArg) {
+void KaeruStart(s32 targetMask, s32 callbackArg) {
     s32 i;
     s32 count;
 
-    D_801D5294 = (s32*)&g_BattleEffectSlots[BattleEffectRegister(func_801B0000)];
+    D_801D5294 = (s32*)&g_BattleEffectSlots[BattleEffectRegister(KaeruBufferFlip)];
     BattleSetLoadTimToVram(D_801B0DDC, 0, 0, 0);
     for (i = 0, count = 0; i < 10; i++) {
         if ((targetMask >> i) & 1) {
@@ -323,7 +323,7 @@ void func_801B0D08(s32 targetMask, s32 callbackArg) {
             }
         }
     }
-    BattleEffectRegister(func_801B0B68);
+    BattleEffectRegister(KaeruEmitterSetup);
     D_801D529C = 0;
     BattleAkaoCommand(0x20, BattleEntityGetStereoPan(targetMask), 0x9B);
 }
