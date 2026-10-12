@@ -807,3 +807,16 @@ overlays:
       - [0, c, sennkoku]
       - [0x930, data, sennkoku_model]
       - [0x559C, data, sennkoku_buffers]
+  # CHO_KYU.BIN -- effect overlay
+  - name: cho_kyu
+    disk_path: disks/us/MAGIC/CHO_KYU.BIN
+    sha1: 935c051e9442de2b297672f64b86b54fe8f3492b
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-cho_kyu.us.txt
+    segments:
+      - [0, c, cho_kyu]
+      - [0x21F0, data, cho_kyu_model]
+      - [0x27440, data, cho_kyu_buffers]  # REVIEW (split): first aligned word after the last non-zero byte; a cut inside the zero fill is byte-neutral
