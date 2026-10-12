@@ -833,3 +833,17 @@ overlays:
       - [0, c, kusai]
       - [0x584, data, kusai_model]
       - [0x698C, data, kusai_buffers]
+  # BIO.BIN -- "Bio", the tier-1 poison spell
+  - name: bio
+    disk_path: disks/us/MAGIC/BIO.BIN
+    sha1: dd85dde908e5d8395fadc70b122d8bced484b109
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-bio.us.txt
+    segments:
+      - [0, c, bio]
+      - [0x6c8, data, bio_model]
+      # REVIEW (split): the last 24 bytes of bio_model are two SpriteRenderDesc the code writes (frameIndex, color); cost: none, data only, as thundera
+      - [0x7870, .data, bio]

@@ -1,0 +1,11 @@
+func_801B0000 = 0x801B0000;
+func_801B0178 = 0x801B0178;
+BioTargetTick = 0x801B0238;
+BioTargetSetup = 0x801B0554;
+BioDoubleBufferFlip = 0x801B05E0;
+MAGIC_Bio = 0x801B0640;
+g_BioTexture = 0x801B06C8;
+g_BioRenderData0 = 0x801B7728;
+g_BioRenderData1 = 0x801B77D8;
+bio_prim_buffer = 0x801B7888;
+bio_buffer_ptr = 0x801D7888;
