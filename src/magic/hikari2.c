@@ -50,7 +50,7 @@ extern Hikari2Data g_BattleEffectSlots[];
 
 void MAGIC_Hikari2(s32 targetMask, s32 callbackArg) { Hikari2Start(targetMask, callbackArg); }
 
-// Same as BioraDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 void Hikari2DoubleBufferFlip(void) {
     Hikari2Data* effect;
 
