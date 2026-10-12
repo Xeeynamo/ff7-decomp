@@ -597,7 +597,7 @@ extern s32 D_800F39D8; // read index into D_800F3958
 extern s32 D_800F39DC; // write index into D_800F3958
 extern s32 D_800F39E0;
 extern s32 D_800F39E4;
-extern s32 D_800F39E8;
+extern s32 g_BattleFrameCount;  // Frame count since the battle started, incremented once per BattleUpdateRender call
 extern volatile s32 D_800F39EC; // polled by a tight wait loop
 extern u8 D_800F39F0[][6];
 extern s32 D_800F3A1C;     // write index into D_800F3A20

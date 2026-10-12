@@ -519,23 +519,25 @@ void func_800A38FC(void) {
 
         if (g_BattleWork.escapeCounter1 && g_BattleWork.escapeCounter1 == g_BattleWork.escapeCounter2) {
             if ((padKeys & escapePadKeys) == escapePadKeys) {
-                g_BattleWork.unk21F6++;
+                g_BattleWork.escapeHoldTicks++;
             }
 
-            g_BattleWork.unk21F8++;
+            g_BattleWork.escapeTicks++;
             g_BattleWork.escapeSubCounter += g_BattleWork.battleSpeed;
 
+            // Each time the counter exceeds 8192, if L1+R1 were held for more than half the
+            // ticks, lower escapeCounter1 (25% chance unless preemptive/side attack)
             if (g_BattleWork.escapeSubCounter > 0x2000) {
                 g_BattleWork.escapeSubCounter -= 0x2000;
 
-                if (g_BattleWork.unk21F8 < g_BattleWork.unk21F6 * 2 &&
+                if (g_BattleWork.escapeTicks < g_BattleWork.escapeHoldTicks * 2 &&
                     (g_BattleWork.unk2218 < 0x4000 || g_BattleWork.encounterType == SETUP_PREEMPTIVE ||
                      g_BattleWork.encounterType == SETUP_SIDE_ATTACK)) {
                     g_BattleWork.escapeCounter1--;
                 }
 
-                g_BattleWork.unk21F8 = 0;
-                g_BattleWork.unk21F6 = 0;
+                g_BattleWork.escapeTicks = 0;
+                g_BattleWork.escapeHoldTicks = 0;
             }
         }
 
@@ -546,6 +548,7 @@ void func_800A38FC(void) {
             s32 atbIncrement;
             s32 atbGauge;
 
+            // ATB gauges only fill for party members in unitPresentMask, or enemies whose bit in unk15C is set
             if (!((((g_BattleData.unitPresentMask | 0x3F0) & (g_BattleData.unk15C | 7)) >> i) & 1)) {
                 continue;
             }
@@ -560,6 +563,7 @@ void func_800A38FC(void) {
             if (turnWork->limitSpeedFlag & 1) {
                 atbIncrement *= 4;
             }
+
             if ((g_BattleWork.manipulatedUnitMask >> i) & 1) {
                 atbIncrement = 0;
             }
@@ -574,6 +578,7 @@ void func_800A38FC(void) {
                 continue;
             }
 
+            // A party member with the stateFlags 0x10 bit set will also meet this condition
             if (i >= NUM_PARTY || (g_BattleState.combatant[i].stateFlags & 0x10)) {
                 func_800A4350(i, -1, 0, 0);
             } else if ((g_BattleWork.disabledUnitMask >> i) & 1) {
@@ -592,29 +597,33 @@ void func_800A38FC(void) {
 
     for (i = 0; i < NUM_PARTY; i++) {
         ActiveCharacterData* charData = &g_ActiveCharacters[i];
-        s32 limitBarUI = g_BattleWork.party[i].limitBarUI;
-        s32 limitBar = charData->unk1A >> 8;
+        s32 targetGauge = g_BattleWork.party[i].limitBarUI;
+        s32 curGauge = charData->unk1A >> 8;
 
+        // Automatically fill over time the limit bar gauge with the SETUP_NO_VICTORY_POSE
+        // flag. This might be used for the final fight between Cloud and Sephiroth.
         if (g_BattleState.setupFlags & SETUP_NO_VICTORY_POSE) {
-            limitBarUI = (D_800F39E8 * 255) / g_BattleState.arenaRound;
-            if (limitBarUI > 255) {
-                limitBarUI = 255;
+            targetGauge = (g_BattleFrameCount * 255) / g_BattleState.arenaRound;
+            if (targetGauge > 255) {
+                targetGauge = 255;
             }
         }
 
-        if (limitBar >= limitBarUI) {
+        if (curGauge >= targetGauge) {
             continue;
         }
 
-        limitBar += 4;
-        if (limitBar > limitBarUI) {
-            limitBar = limitBarUI;
+        curGauge += 4;
+        if (curGauge > targetGauge) {
+            curGauge = targetGauge;
         }
-        if (limitBar == 255) {
+
+        if (curGauge == 255) {
             BattleEnableLimitToPlayerWithSpeed(i);
             BattleQueueEvent(1, i, 1, 0);
         }
-        charData->unk1A = limitBar << 8;
+
+        charData->unk1A = curGauge << 8;
     }
 
     for (i = 0; i < NUM_PARTY; i++) {

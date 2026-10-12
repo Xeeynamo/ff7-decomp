@@ -813,8 +813,8 @@ typedef struct {
     /* 0x012 */ s16 baseHp;
     /* 0x014 */ s16 mp;
     /* 0x016 */ s16 baseMp;
-    /* 0x018 */ u16 atbTimer; // seeded from BattleWork.turn[].unk4
-    /* 0x01A */ u16 unk1A;    // BattlePartyWork.limitBar << 8
+    /* 0x018 */ u16 atbTimer; // seeded from BattleWork.turn[].atbGauge
+    /* 0x01A */ u16 unk1A;    // only upper 8 bits seem to be used
     /* 0x01C */ u16 counterActionIndex;
     /* 0x01E */ u16 counterChance;
     /* 0x020 */ s8 limitLevel; // 1-based, unlike BattlePartyWork.limitLevel

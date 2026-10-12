@@ -620,8 +620,8 @@ typedef struct {
     /* 0x21F0 */ u16 avgPartyDexterity;
     /* 0x21F2 */ u16 atbWaitMode;
     /* 0x21F4 */ u16 activeUnitCmdMask;
-    /* 0x21F6 */ u16 unk21F6;
-    /* 0x21F8 */ u16 unk21F8;
+    /* 0x21F6 */ u16 escapeHoldTicks;
+    /* 0x21F8 */ u16 escapeTicks;
     /* 0x21FA */ u16 escapeCounter1;
     /* 0x21FC */ u16 escapeSubCounter;
     /* 0x21FE */ u16 escapeCounter2;
