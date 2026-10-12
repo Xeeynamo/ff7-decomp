@@ -365,7 +365,8 @@ overlays:
     base_path: battle
     imports: [
       main, batini, batres,
-      barrier, brizad, lv5deth, thunder, mabaria, refrec, fire, faira, brizara, thundera, choco0
+      barrier, brizad, lv5deth, thunder, mabaria, refrec, fire, faira, brizara, thundera, choco0,
+      gattai, jinrai, smkball, threat, tears, echoes, magend, hakai, boost, minimam
     ]
     symbol_addrs_path:
       - config/symbols.battle.txt
@@ -808,3 +809,122 @@ overlays:
       - [0, c, sennkoku]
       - [0x930, data, sennkoku_model]
       - [0x559C, data, sennkoku_buffers]
+
+  - name: gattai
+    disk_path: disks/us/MAGIC/GATTAI.BIN
+    sha1: 1e3c0b5dd198f0a2c8d93bc575adeaed66a3d057
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-gattai.us.txt
+    segments:
+      - [0, c, gattai]
+
+  - name: jinrai
+    disk_path: disks/us/MAGIC/JINRAI.BIN
+    sha1: d28d5e991126ca8500f410377a2ef73d93324f67
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-jinrai.us.txt
+    segments:
+      - [0, c, jinrai]
+      - [0x310, data, jinrai_assets]
+
+  - name: smkball
+    disk_path: disks/us/MAGIC/SMKBALL.BIN
+    sha1: 1888a8fe8e808e76598bdd396a38d3c264238873
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-smkball.us.txt
+    segments:
+      - [0, c, smkball]
+      - [0x310, data, smkball_assets]
+
+  - name: threat
+    disk_path: disks/us/MAGIC/THREAT.BIN
+    sha1: 1ceaba779b289a572ad08fe67d36ba90996f1566
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-threat.us.txt
+    segments:
+      - [0, c, threat]
+      - [0x410, data, threat_assets]
+
+  - name: tears
+    disk_path: disks/us/MAGIC/TEARS.BIN
+    sha1: decdeb398bcfb4e8c09d0600bfba9edb4766fe4b
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-tears.us.txt
+    segments:
+      - [0, c, tears]
+      - [0x450, data, tears_assets]
+
+  - name: echoes
+    disk_path: disks/us/MAGIC/ECHOES.BIN
+    sha1: cf7b802d0a7807fb8cc32bba1e51fb5c994b064c
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-echoes.us.txt
+    segments:
+      - [0, c, echoes]
+      - [0x474, data, echoes_assets]
+
+  - name: magend
+    disk_path: disks/us/MAGIC/MAGEND.BIN
+    sha1: 2af3b214c94b309918fb2a8664f7512a9c60d5ca
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-magend.us.txt
+    segments:
+      - [0, c, magend]
+      - [0x4B4, data, magend_assets]
+
+  - name: hakai
+    disk_path: disks/us/MAGIC/HAKAI.BIN
+    sha1: 90098828bf03bd13ae535a566c10ff522158963b
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-hakai.us.txt
+    segments:
+      - [0, c, hakai]
+      - [0x4C4, data, hakai_assets]
+
+  - name: boost
+    disk_path: disks/us/MAGIC/BOOST.BIN
+    sha1: 119e4dccbf935a2636540d309e6592f3f73dc596
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-boost.us.txt
+    segments:
+      - [0, c, boost]
+      - [0x4CC, data, boost_assets]
+
+  - name: minimam
+    disk_path: disks/us/MAGIC/MINIMAM.BIN
+    sha1: f2ec8681e080b3f24c48b34e5f92c37b2c8c1aa9
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-minimam.us.txt
+    segments:
+      - [0, c, minimam]
+      - [0x5B8, data, minimam_assets]

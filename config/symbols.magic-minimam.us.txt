@@ -1,0 +1,6 @@
+func_minimam_801B0000 = 0x801B0000; // type:func
+MAGIC_Minimam = 0x801B0054; // type:func
+func_minimam_801B0074 = 0x801B0074; // type:func
+func_minimam_801B0190 = 0x801B0190; // type:func
+func_minimam_801B0414 = 0x801B0414; // type:func
+func_minimam_801B0514 = 0x801B0514; // type:func
