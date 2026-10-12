@@ -1,7 +1,7 @@
 MAGIC_Biora = 0x801B0000;
 BioraBubbleTick = 0x801B0020;
 func_801B0350 = 0x801B0350;
-func_801B0410 = 0x801B0410;
+BioraCloudParticleTick = 0x801B0410;
 BioraCloudEmitterTick = 0x801B0588;
 BioraTargetTick = 0x801B0734;
 BioraTargetSetup = 0x801B0A94;

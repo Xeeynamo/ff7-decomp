@@ -37,7 +37,7 @@ static SpriteRenderDesc biora_render_desc1 = {&g_BioraRenderData1, {0x80, 0x80, 
 
 void BioraBubbleTick(void);
 void func_801B0350(void);
-void func_801B0410(void);
+void BioraCloudParticleTick(void);
 void BioraCloudEmitterTick(void);
 void BioraTargetTick(void);
 void BioraTargetSetup(s32 target, s32 callbackArg);
@@ -112,7 +112,7 @@ void func_801B0350(void) {
     }
 }
 
-void func_801B0410(void) {
+void BioraCloudParticleTick(void) {
     BioraData* effect;
     s32 shade;
 
@@ -144,7 +144,7 @@ void BioraCloudEmitterTick(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (!D_80062D98) {
         if ((effect->AnimationFrame & 3) == 0) {
-            child = &g_BattleEffectSlots[BattleEffectRegister(func_801B0410)];
+            child = &g_BattleEffectSlots[BattleEffectRegister(BioraCloudParticleTick)];
             child->Pos.vx = effect->Pos.vx + rand() % 2000 - 1000;
             child->Pos.vy = 0;
             child->Pos.vz = effect->Pos.vz + rand() % 2000 - 1000;
