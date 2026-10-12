@@ -89,6 +89,7 @@ set(FF7_MINI
 set(FF7_MAGIC
     src/magic/barrier.c
     src/magic/brizad.c
+    src/magic/gas.c
     src/magic/kaen.c
     src/magic/kaen2.c
     src/magic/lv5deth.c

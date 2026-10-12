@@ -835,3 +835,18 @@ overlays:
       - [0, c, kaen2]
       - [0x1128, data, kaen2_model]
       - [0x24140, data, kaen2_buffers]
+  # GAS.BIN -- effect overlay
+  - name: gas
+    disk_path: disks/us/MAGIC/GAS.BIN
+    sha1: 5fe66342aeed0b053440d8c66bc144a49445a016
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-gas.us.txt
+    segments:
+      # REVIEW (split): the 0x10 bytes before the code are the effect's sprite descriptor; the linker script puts rodata first, so it is a rodata segment; cost: none, data only
+      - [0, rodata, gas]
+      - [0x10, c, gas]
+      - [0xFF0, data, gas_model]
+      - [0x23FF8, data, gas_buffers]
