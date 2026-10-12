@@ -820,3 +820,16 @@ overlays:
       - [0, c, ayasii]
       - [0x584, data, ayasii_model]
       - [0x698C, data, ayasii_buffers]
+  # KUSAI.BIN -- effect overlay
+  - name: kusai
+    disk_path: disks/us/MAGIC/KUSAI.BIN
+    sha1: 170230ed864f65ecd30ba2c726f5c253a92f2031
+    base_path: magic
+    imports: [main, battle]
+    vram_start: 0x801B0000
+    symbol_addrs_path:
+      - config/symbols.magic-kusai.us.txt
+    segments:
+      - [0, c, kusai]
+      - [0x584, data, kusai_model]
+      - [0x698C, data, kusai_buffers]

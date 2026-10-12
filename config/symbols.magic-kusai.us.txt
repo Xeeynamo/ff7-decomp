@@ -1,0 +1,12 @@
+KusaiBufferFlip = 0x801B0000;
+func_801B0054 = 0x801B0054;
+func_801B0074 = 0x801B0074;
+func_801B0190 = 0x801B0190;
+func_801B0428 = 0x801B0428;
+func_801B04E4 = 0x801B04E4;
+g_KusaiPrimBuffer0 = 0x801B698C;
+g_KusaiPrimBuffer1 = 0x801C298C;
+g_KusaiBufferPtr = 0x801CE98C;
+g_KusaiFlipEffect = 0x801CE990;
+D_801CE994 = 0x801CE994;
+D_801CE998 = 0x801CE998;
