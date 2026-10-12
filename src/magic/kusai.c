@@ -54,7 +54,6 @@ static void KusaiBufferFlip(void) {
     }
 }
 
-// Same as MAGIC_Biora.
 void MAGIC_Kusai(s32 targetMask, s32 callbackArg) { KusaiStart(targetMask, callbackArg); }
 
 void KusaiCloudPuffTick(void) {

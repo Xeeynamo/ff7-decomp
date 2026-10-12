@@ -34,7 +34,7 @@ extern s32* D_801D0E80; // slot running SailessBufferFlip
 extern void* D_801D0E7C;
 void SailessStart(s32 targetMask, s32 callbackArg);
 
-// Same as Dia2BufferFlip.
+// Same as BarrierDoubleBufferFlip.
 static void SailessBufferFlip(void) {
     D_801D0E7C = g_dbIndex == 0 ? D_801B8E7C : D_801C4E7C;
     if (g_BattleEffectCount < 2) {
@@ -44,7 +44,6 @@ static void SailessBufferFlip(void) {
 
 void MAGIC_Sailess(s32 targetMask, s32 callbackArg) { SailessStart(targetMask, callbackArg); }
 
-// Same as func_801B0F9C.
 void SailessRingModelTick(void) {
     SVECTOR rotA;
     SVECTOR rotB;

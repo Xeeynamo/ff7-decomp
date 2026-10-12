@@ -28,7 +28,7 @@ extern u8 D_801B8588[2][0xC000];
 extern u_long D_801B03B4[];
 extern void* D_801D0588;
 
-// Same as ChikasuiDoubleBufferFlip.
+// Same as BarrierDoubleBufferFlip.
 static void Jibaku1DoubleBufferFlip(void) {
     Jibaku1Data* effect;
 

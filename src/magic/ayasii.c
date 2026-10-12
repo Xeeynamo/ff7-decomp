@@ -54,7 +54,6 @@ static void AyasiiBufferFlip(void) {
     }
 }
 
-// Same as MAGIC_Biora.
 void MAGIC_Ayasii(s32 targetMask, s32 callbackArg) { AyasiiStart(targetMask, callbackArg); }
 
 void AyasiiCloudPuffTick(void) {
