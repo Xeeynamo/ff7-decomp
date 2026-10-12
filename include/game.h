@@ -40,6 +40,25 @@
 #define MAX_MP 10000
 
 typedef enum {
+    KERN_TXT_MAGIC_1 = 0x00, // Magic
+    KERN_TXT_MAGIC_2 = 0x01, // Summon(?)
+    KERN_TXT_MAGIC_3 = 0x02, // Enemy Skill(?)
+    KERN_TXT_MAGIC_4 = 0x03, // Limit Break(?)
+    KERN_TXT_ITEM = 0x04,
+    KERN_TXT_COMMAND = 0x05,
+    KERN_TXT_UNKWOWN_1 = 0x06,
+    KERN_TXT_UNKWOWN_2 = 0x07,
+    KERN_TXT_UNKWOWN_3 = 0x08,
+    KERN_TXT_UNKWOWN_4 = 0x09,
+    KERN_TXT_WEAPON = 0x0A,
+    KERN_TXT_ARMOR = 0x0B,
+    KERN_TXT_ACCESSORY = 0x0C,
+    KERN_TXT_MATERIA = 0x0D,
+    KERN_TXT_KEY_ITEM = 0x0E,
+    KERN_TXT_UNUSED = 0x0F,
+} SysKernStringType;
+
+typedef enum {
     CHAR_CLOUD = 0,
     CHAR_BARRET = 1,
     CHAR_TIFA = 2,
