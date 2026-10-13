@@ -85,9 +85,17 @@ void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugPageSetPosSize);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugPageAddPos);
+void FieldDebugPageAddPos(s16 pageId, s16 dx, s16 dy) {
+    g_FieldDebugPages[pageId].x += dx;
+    g_FieldDebugPages[pageId].y += dy;
+    D_8009D824 = 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugPageAddSize);
+void FieldDebugPageAddSize(s16 pageId, s16 dw, s16 dh) {
+    g_FieldDebugPages[pageId].width += dw;
+    g_FieldDebugPages[pageId].height += dh;
+    D_8009D824 = 1;
+}
 
 static s32 FieldDebugPageIsRender(s16 pageId) { return g_FieldDebugPages[pageId].state == 0; }
 
@@ -126,7 +134,10 @@ static void FieldDebugPageSetHeadRow(s16 pageId, s16 row) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugPageSetColor);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugPageNotInit);
+void FieldDebugPageNotInit(s16 pageId) {
+    g_FieldDebugPages[pageId].state = 1;
+    D_8009D824 = 1;
+}
 
 static void FieldDebugPageHide(s16 pageId) {
     g_FieldDebugPages[pageId].state = 2;
