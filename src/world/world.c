@@ -6,7 +6,7 @@
 
 static void WmSetActiveEntityDirectionAndRot(s16 arg0);
 static void WmMapLoadFinishedCallback(void);
-void WmStartLoadingMapFileBlock(WorldListNode*);
+void WmStartLoadingMapFileBlock(WorldListNode* node);
 static void WmGetPosFromPcEntity(VECTOR* arg0);
 static void WmGetPos2FromPcEntity(VECTOR* arg0);
 static void WmSetPcEntityAsActiveEntity(void);
@@ -27,11 +27,11 @@ void WmRotateVectorByYAngle(SVECTOR* vec, s16 angle);
 void WmQueueBlocksAroundPos(VECTOR* pos);
 void func_800A5E28(void);
 void WmRequestVisibleChunks(VECTOR* pos, s16 angle);
-s32 func_800A63FC(WorldChunkHeader*, s16, s16, s16*, s16*);
+s32 func_800A63FC(WorldChunkHeader* chunk, s16 x, s16 z, s16* dx, s16* dz);
 static WorldChunkHeader* AllocChunk(void);
 void func_800A6168(VECTOR*, s32, s32 (*)[5]);
 void func_800A71E8(VECTOR*, VECTOR*, VECTOR*, s16);
-void WmMovePcEntityByDistance(s32);
+void WmMovePcEntityByDistance(s32 distance);
 static void WmRestoreEntityPosAndDirFromSavemap(WorldActor* arg0);
 s32 func_800ADFC0(void);
 static s32 func_800B0800(void);
@@ -1408,6 +1408,8 @@ void WmStartLoadingMapFileBlock(WorldListNode* node) {
     worldId = WmGetWmId();
     if (worldId == 0) {
         value = D_800E5824;
+        // Keep this expression to preserve the original compiler's branch layout.
+        // NOLINTBEGIN(readability-avoid-nested-conditional-operator)
         D_800E581C =
             value > 0 && node->unk4 == 50    ? 63
             : value >= 2 && node->unk4 == 41 ? 64
@@ -1416,6 +1418,7 @@ void WmStartLoadingMapFileBlock(WorldListNode* node) {
             : value >= 4 && node->unk4 == 47 ? 67
             : value >= 4 && node->unk4 == 48 ? 68
                                              : node->unk4;
+        // NOLINTEND(readability-avoid-nested-conditional-operator)
     } else {
         D_800E581C = node->unk4;
     }
