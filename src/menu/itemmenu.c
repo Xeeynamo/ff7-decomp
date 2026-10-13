@@ -397,14 +397,14 @@ static void ArrangeItems(s32 mode) {
     }
 }
 
-// exported, see 800493A8
+// exported, see g_MenuInitTable (D_800493A8) in src/main/ovl.c
 // Configures 3 widgets (g_ItemMenuWidgets[0..2], see MenuTable and the comment on
 // its extern decl for what each backs) and defaults the item-menu to the Use
-// tab, then continues in BuildKeyItemList. That default is later overwritten by
-// func_801D131C if the player picks Arrange or Key Items instead, or by
-// func_801D1A6C if they back out to the tab selector (see ItemMenuScreen).
-// Reached from src/main/ovl.c's D_800493A8 per-screen entry table for
-// several item-menu pages, called out of SysMenuDrawMenuList in
+// tab, then continues in BuildKeyItemList. That default is later overwritten in
+// ITEMMENU_Main (at offset 0x801D131C) if the player picks Arrange or Key Items instead,
+// or when backing out to the tab selector (at offset 0x801D1A6C, see ItemMenuScreen).
+// Reached from src/main/ovl.c's g_MenuInitTable (D_800493A8) per-screen entry table
+// for several item-menu pages, called out of SysMenuDrawMenuList in
 // src/main/1F6B4.c.
 void ITEMMENU_Init(void) {
     g_ItemMenuCurrentScreen = ITEMMENU_SCREEN_USE;
@@ -481,6 +481,7 @@ extern s32 g_MenuRenderBufferIndex;
 extern s32 g_ItemMenuCurrentScreen;
 extern u8 g_KeyItemList[];
 extern DRAWENV D_800706A4[];
+#define g_MenuDrawEnv D_800706A4
 extern u16 g_Pad0KeysPressed;
 extern u16 g_Pad0KeysRepeat;
 extern s32 g_LimitManualAlreadyLearnedMsg;
@@ -768,7 +769,7 @@ char ITEMMENU_Main(s32 frameCount) {
     drawRect[3] = ITEMMENU_HEADER_CLIP_H;
     drawRect[0] = 0;
     drawRect[1] = 0;
-    SysMenuSetDrawenv((void*)(((u8*)D_800706A4) + (g_MenuRenderBufferIndex * 0x5C)), drawRect);
+    SysMenuSetDrawenv(&g_MenuDrawEnv[g_MenuRenderBufferIndex], drawRect);
     if (g_ItemMenuWidgets[0].column != 2) {
         if (g_ItemMenuCurrentScreen == 5) {
             if ((g_ItemSwapState != 0) && (frameCount & 2)) {
@@ -810,7 +811,7 @@ char ITEMMENU_Main(s32 frameCount) {
                 invItem = *(Savemap.inventory - (-itemSlot));
                 if ((invItem & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) {
                     selectedItemId = invItem & ITEM_ID_MASK;
-                    textColor = (-((func_801D0DCC(selectedItemId) & 4) == 0)) & 7;
+                    textColor = (-((GetItemUseFlagsContext(selectedItemId) & 4) == 0)) & 7;
                     SysMenuDrawString(
                         ITEMMENU_NAME_X,
                         (rowIdx * ITEMMENU_ROW_HEIGHT) +
@@ -835,7 +836,7 @@ char ITEMMENU_Main(s32 frameCount) {
                 if (itemWord != ITEM_EMPTY_SLOT) {
                     selectedItemId = item & ITEM_ID_MASK;
                     count = (u32)itemWord >> 9;
-                    itemUsableFlag = func_801D0DCC(selectedItemId) & 4;
+                    itemUsableFlag = GetItemUseFlagsContext(selectedItemId) & 4;
                     textColor = (-(itemUsableFlag == 0)) & 7;
                     ((void (*)(s32, s32, s32, s32))ITEMMENU_DrawItemTypeIcon)(
                         ITEMMENU_ICON_X,
@@ -904,7 +905,7 @@ char ITEMMENU_Main(s32 frameCount) {
     drawRect[2] = ITEMMENU_CLIP_W;
     drawRect[3] = ITEMMENU_LIST_CLIP_H;
     drawRect[0] = 0;
-    SysMenuSetDrawenv((void*)(((u8*)D_800706A4) + (g_MenuRenderBufferIndex * 0x5C)), drawRect);
+    SysMenuSetDrawenv(&g_MenuDrawEnv[g_MenuRenderBufferIndex], drawRect);
     slotIdx = 0;
     windowDefPtr = (s8*)(&g_ItemMenuWindows);
     do {
@@ -1780,7 +1781,7 @@ void ITEMMENU_RestoreCharacterMateria(s32 charIdx) {
 
 // Uploads the coin-pattern texture at g_CoinTextureTim (64x32, 4bpp, seamlessly
 // tileable) into VRAM: pixel data to (0x3F0, 0x120), CLUT to (0x110, 0x1E0).
-// Runs once at boot/menu init (main -> func_80026258 -> HandleLoadCoinTexture); the
+// Runs once at boot/menu init (main -> SysMenuInit/func_80026258 -> HandleLoadCoinTexture); the
 // texture stays resident so the battle UI can scroll it as the animated
 // backdrop behind the coin-throw amount prompt.
 void ITEMMENU_LoadCoinTexture(void) { MENU_LoadTim((u_long*)g_CoinTextureTim, 0x3F0, 0x120, 0x110, 0x1E0); }
