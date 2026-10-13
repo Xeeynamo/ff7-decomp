@@ -1368,8 +1368,10 @@ extern s32 D_80075D08[];
 extern volatile s16 D_80075DEC;  // buffer index, also updated by the VSync callback
 extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
+#define g_MenuPolygonBuffer D_80077F64
 extern u8* g_FieldText;
 extern FieldLine g_FieldLines[32];
+#define g_MenuDrawEnv D_800706A4
 extern DRAWENV D_8007EAAC[2];
 extern DISPENV D_8007EB68[2];
 extern u8 g_EntityToModel[48]; // entity id -> model id (0xFF: none)
