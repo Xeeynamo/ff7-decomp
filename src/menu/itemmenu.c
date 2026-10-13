@@ -573,7 +573,6 @@ char ITEMMENU_Main(s32 frameCount) {
     s32 hasScrollAnimation;
     s32 numVisibleRows;
     s32 hasFuryCondition;
-    s32 cancelButtonPressed;
     s32 isItemUsable;
     s32 charMsgIdx;
     s32 isCustomizeMode;
@@ -638,7 +637,13 @@ char ITEMMENU_Main(s32 frameCount) {
         SysMenuDrawCursor(
             ITEMMENU_LIST_CURSOR_X, (g_ItemUseListCursorPos[0] * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
         selectedItemId = g_ItemUseListCursorPos[0] + g_ItemListOffet;
-        goto block_33;
+        rawItemData = Savemap.inventory[selectedItemId];
+        stringCategory = KERN_TXT_ITEM;
+        if ((rawItemData & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) {
+            rawItemData = rawItemData & ITEM_ID_MASK;
+            SysMenuDrawString(ITEMMENU_DESC_X, ITEMMENU_DESC_Y, SysKernGetString(stringCategory, rawItemData, 0), 7);
+        }
+        break;
 
     case ITEMMENU_SCREEN_ITEM_SELECTED:
         if (frameCount & 2) {
@@ -646,7 +651,13 @@ char ITEMMENU_Main(s32 frameCount) {
                 (g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
         }
         selectedItemId = g_ItemUseListCursorPos[0] + g_ItemListOffet;
-        goto block_33;
+        rawItemData = Savemap.inventory[selectedItemId];
+        stringCategory = KERN_TXT_ITEM;
+        if ((rawItemData & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) {
+            rawItemData = rawItemData & ITEM_ID_MASK;
+            SysMenuDrawString(ITEMMENU_DESC_X, ITEMMENU_DESC_Y, SysKernGetString(stringCategory, rawItemData, 0), 7);
+        }
+        break;
 
     case ITEMMENU_SCREEN_KEY_ITEMS:
         if (frameCount & 2) {
@@ -660,9 +671,7 @@ char ITEMMENU_Main(s32 frameCount) {
         rawItemData = g_KeyItemList[selectedItemId];
         stringCategory = 0xE;
         if (rawItemData != emptyKeyItem) {
-            do {
-            } while (0);
-            goto block_35;
+            SysMenuDrawString(ITEMMENU_DESC_X, ITEMMENU_DESC_Y, SysKernGetString(stringCategory, rawItemData, 0), 7);
         }
         break;
 
@@ -701,15 +710,14 @@ char ITEMMENU_Main(s32 frameCount) {
                 (g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
         }
         selectedItemId = g_ItemSwapCursorRow[0] + g_ItemSwapListOffset;
-    block_33:
         rawItemData = Savemap.inventory[selectedItemId];
 
         stringCategory = KERN_TXT_ITEM;
         if ((rawItemData & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) {
             rawItemData = rawItemData & ITEM_ID_MASK;
-        block_35:
             SysMenuDrawString(ITEMMENU_DESC_X, ITEMMENU_DESC_Y, SysKernGetString(stringCategory, rawItemData, 0), 7);
         }
+        break;
     }
 
     SysMenuUnkNoop(8);
@@ -959,15 +967,14 @@ char ITEMMENU_Main(s32 frameCount) {
                                 Savemap.party[7].exp = 0xFFFFFF;
                                 return;
                             }
-                            goto block_e48;
+                        } else {
+                            PlayItemMenuSfx(SFX_MENU_APPLY);
+                            Savemap.memory_bank_4[0x60] |= 1;
+                            SysMenuSetMenuListAnimation(5, 0);
+                            SysMenuLoadMenuFileById(0);
+                            SysMenuClose();
+                            return;
                         }
-                        PlayItemMenuSfx(SFX_MENU_APPLY);
-                        Savemap.memory_bank_4[0x60] |= 1;
-                        SysMenuSetMenuListAnimation(5, 0);
-                        SysMenuLoadMenuFileById(0);
-                        SysMenuClose();
-                        return;
-                    block_e48:
                         PlayItemMenuSfx(SFX_MENU_CURSOR_MOVE);
 
                         g_ItemMenuTargetSelectDelay = 0;
@@ -977,8 +984,10 @@ char ITEMMENU_Main(s32 frameCount) {
                     PlayItemMenuSfx(SFX_MENU_BAD);
                     return;
                 }
-                cancelButtonPressed = g_Pad0KeysPressed & PAD_CROSS;
-                goto block_217;
+                if (g_Pad0KeysPressed & PAD_CROSS) {
+                    PlayItemMenuSfx(SFX_MENU_BACK);
+                    g_ItemMenuCurrentScreen = 0;
+                }
             }
             break;
 
@@ -1110,22 +1119,17 @@ char ITEMMENU_Main(s32 frameCount) {
                             case ITEM_POWER_SOURCE:
                                 strengthBonus = Savemap.party[characterId].strength_bonus;
                                 if (strengthBonus < STAT_MAX) {
-                                    Savemap.party[characterId].strength_bonus = strengthBonus - (-1);
-                                default:
-                                    goto src_tail;
-
-                                } else {
-                                    PlayItemMenuSfx(SFX_MENU_BAD);
-                                    return;
+                                    Savemap.party[characterId].strength_bonus = strengthBonus + 1;
+                                    break;
                                 }
-                                break;
+                                PlayItemMenuSfx(SFX_MENU_BAD);
+                                return;
 
                             case ITEM_GUARD_SOURCE:
                                 vitalityBonus = Savemap.party[characterId].vitality_bonus;
                                 if (vitalityBonus < STAT_MAX) {
                                     Savemap.party[characterId].vitality_bonus = vitalityBonus + 1;
-                                    goto src_tail;
-                                    PlayItemMenuSfx(SFX_MENU_BAD);
+                                    break;
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
@@ -1134,7 +1138,7 @@ char ITEMMENU_Main(s32 frameCount) {
                                 magicBonus = Savemap.party[characterId].magic_bonus;
                                 if (magicBonus < STAT_MAX) {
                                     Savemap.party[characterId].magic_bonus = magicBonus + 1;
-                                    goto src_tail;
+                                    break;
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
@@ -1143,7 +1147,7 @@ char ITEMMENU_Main(s32 frameCount) {
                                 spiritBonus = Savemap.party[characterId].spirit_bonus;
                                 if (spiritBonus < STAT_MAX) {
                                     Savemap.party[characterId].spirit_bonus = spiritBonus + 1;
-                                    goto src_tail;
+                                    break;
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
@@ -1152,7 +1156,7 @@ char ITEMMENU_Main(s32 frameCount) {
                                 dexterityBonus = Savemap.party[characterId].dexterity_bonus;
                                 if (dexterityBonus < STAT_MAX) {
                                     Savemap.party[characterId].dexterity_bonus = dexterityBonus + 1;
-                                    goto src_tail;
+                                    break;
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
@@ -1161,21 +1165,22 @@ char ITEMMENU_Main(s32 frameCount) {
                                 luckBonus = Savemap.party[characterId].luck_bonus;
                                 if (luckBonus < STAT_MAX) {
                                     Savemap.party[characterId].luck_bonus = luckBonus + 1;
-                                src_tail:
-                                    PlayItemMenuSfx(SFX_MENU_APPLY);
-
-                                    SysInitPlayerStatFromEquip(g_PartySlotSelected[0]);
-                                    SysInitPlayerStatFromMateria(*((u8*)g_PartySlotSelected));
-                                    SysMenuRemoveItem(selectedItemId | ITEM_CONSUMED);
-                                    if ((SysMenuSearchItem(selectedItemId) & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) {
-                                        return;
-                                    }
-                                    g_ItemMenuCurrentScreen = 1;
-                                    return;
+                                    break;
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
                             }
+
+                            PlayItemMenuSfx(SFX_MENU_APPLY);
+
+                            SysInitPlayerStatFromEquip(g_PartySlotSelected[0]);
+                            SysInitPlayerStatFromMateria(*((u8*)g_PartySlotSelected));
+                            SysMenuRemoveItem(selectedItemId | ITEM_CONSUMED);
+                            if ((SysMenuSearchItem(selectedItemId) & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) {
+                                return;
+                            }
+                            g_ItemMenuCurrentScreen = 1;
+                            return;
 
                             break;
 
@@ -1373,8 +1378,11 @@ char ITEMMENU_Main(s32 frameCount) {
             break;
 
         case ITEMMENU_SCREEN_KEY_ITEMS:
-            cancelButtonPressed = g_Pad0KeysPressed & PAD_CROSS;
-            goto block_217;
+            if (g_Pad0KeysPressed & PAD_CROSS) {
+                PlayItemMenuSfx(SFX_MENU_BACK);
+                g_ItemMenuCurrentScreen = 0;
+            }
+            break;
 
         case ITEMMENU_SCREEN_ARRANGE_SELECT:
             if (g_Pad0KeysPressed & PAD_CIRCLE) {
@@ -1390,10 +1398,14 @@ char ITEMMENU_Main(s32 frameCount) {
                     return;
                 }
                 ArrangeItems(g_ArrangeMenuCursorRow[0]);
-                goto block_219;
+                g_ItemMenuCurrentScreen = 0;
+                break;
             }
-            cancelButtonPressed = g_Pad0KeysPressed & PAD_CROSS;
-            goto block_217;
+            if (g_Pad0KeysPressed & PAD_CROSS) {
+                PlayItemMenuSfx(SFX_MENU_BACK);
+                g_ItemMenuCurrentScreen = 0;
+            }
+            break;
 
         case ITEMMENU_SCREEN_ARRANGE_CUSTOM:
             if (g_Pad0KeysPressed & PAD_CIRCLE) {
@@ -1417,14 +1429,9 @@ char ITEMMENU_Main(s32 frameCount) {
                     return;
                 }
 
-            } else {
-                cancelButtonPressed = g_Pad0KeysPressed & PAD_CROSS;
-            block_217:
-                if (cancelButtonPressed != 0) {
-                    PlayItemMenuSfx(SFX_MENU_BACK);
-                block_219:
-                    g_ItemMenuCurrentScreen = 0;
-                }
+            } else if (g_Pad0KeysPressed & PAD_CROSS) {
+                PlayItemMenuSfx(SFX_MENU_BACK);
+                g_ItemMenuCurrentScreen = 0;
             }
             break;
         }
