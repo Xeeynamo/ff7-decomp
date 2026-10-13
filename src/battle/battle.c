@@ -3026,6 +3026,50 @@ void BattleHitFormulaInit(void) {
     }
 }
 
+u8 g_BattleHitFormulaOpcodeStream[] = {
+    0x08, 0x00, 0x02, 0x08, 0x01, 0x08, 0x03, 0x08, 0x04, 0x08, 0x05, 0x08, 0x00, 0x02, 0x08,
+    0x01, 0x08, 0x07, 0x08, 0x06, 0x08, 0x00, 0x02, 0x08, 0x00, 0x08, 0x08, 0x08, 0x08, 0x08,
+};
+
+u8 D_800E7BEC[] = {
+    0x01, 0x01, 0x00, 0x01, 0x00, 0x00, 0x03, 0x02, 0x00, 0x00, 0x05, 0x01, 0x00, 0x00, 0x00, 0x00,
+};
+
+void (*g_BattleDmgFormulaJmpTbl[])(void) = {
+    BattleLowerFunc00,
+    BattleSetTmpDmgAsPhysical,
+    BattleSetTmpDmgAsMagical,
+    BattleLowerFunc03,
+    BattleLowerFunc04,
+    BattleLowerFunc05,
+    BattleLowerFunc06,
+    BattleLowerFunc07,
+    BattleLowerFunc08,
+    BattleLowerFunc09,
+    BattleLowerFunc0a,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    func_battle_800ADFC0,
+    BattleSetTmpDmgAsMaxHpMinusCurrentHp,
+    func_800AE050,
+    func_800AE058,
+    func_800AE060,
+    func_800AE068,
+    func_800AE070,
+    func_800AE078,
+    BattleLowerFunc18,
+    BattleSetTmpDmgAsNumOfEscapes,
+    BattleSetTmpDmgAsTargHpMinusOne,
+    func_800AE2A0,
+    BattleApplyKillCountBonus,
+    BattleCalcMateriaSlotScore,
+    NULL,
+    NULL,
+};
+
 void BattleDmgFormulaRun(void) {
     void (*fnDamageFormula)(void) = g_BattleDmgFormulaJmpTbl[g_CurrentAction->unkA4];
     s32 i = g_BattleHitFormulaOffs[g_CurrentAction->unkA0];
