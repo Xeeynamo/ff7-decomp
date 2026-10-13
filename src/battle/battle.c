@@ -45,13 +45,12 @@ static void BattleSetFocusedActor(s32 arg0) {
         if (D_800E7A38 == arg0) {
             return;
         }
-        for (i = 0; i < LEN(g_BattleSceneContext.actionQueue); i++) {
-            if (g_BattleSceneContext.actionQueue[i].priority == 6 &&
-                g_BattleSceneContext.actionQueue[i].unitID == D_800E7A38) {
+        for (i = 0; i < LEN(g_BattleWork.actionQueue); i++) {
+            if (g_BattleWork.actionQueue[i].priority == 6 && g_BattleWork.actionQueue[i].unitID == D_800E7A38) {
                 break;
             }
         }
-        if (i == LEN(g_BattleSceneContext.actionQueue)) {
+        if (i == LEN(g_BattleWork.actionQueue)) {
             g_BattleWork.turn[D_800E7A38].unk2A++;
             BattleReqReturnReservedItems(*(s16*)&D_800E7A38);
             BattleQueueEvent(0, D_800E7A38, 0, 0);
@@ -80,30 +79,29 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
     do {
         rescan = 0;
         for (priority = 0; priority < numPriorities; priority++) {
-            g_BattleSceneContext.currentQueuePriority = priority;
-            if (g_BattleSceneContext.nextOrderToExecute[priority] == g_BattleSceneContext.nextOrderToAssign[priority]) {
+            g_BattleWork.currentQueuePriority = priority;
+            if (g_BattleWork.nextOrderToExecute[priority] == g_BattleWork.nextOrderToAssign[priority]) {
                 continue;
             }
 
             // Each tier is a FIFO: find the entry holding this tier's next order
             // number (see BattleCopyBattleActionToBattleQueue for the enqueue side)
-            for (i = 0; i < LEN(g_BattleSceneContext.actionQueue); i++) {
-                if (g_BattleSceneContext.actionQueue[i].priority == priority &&
-                    (u8)g_BattleSceneContext.actionQueue[i].orderInPriority ==
-                        g_BattleSceneContext.nextOrderToExecute[priority]) {
-                    g_BattleSceneContext.currentAction = g_BattleSceneContext.actionQueue[i];
-                    g_BattleSceneContext.actionQueue[i].priority = 0xFF;
+            for (i = 0; i < LEN(g_BattleWork.actionQueue); i++) {
+                if (g_BattleWork.actionQueue[i].priority == priority &&
+                    (u8)g_BattleWork.actionQueue[i].orderInPriority == g_BattleWork.nextOrderToExecute[priority]) {
+                    g_BattleWork.currentAction = g_BattleWork.actionQueue[i];
+                    g_BattleWork.actionQueue[i].priority = 0xFF;
                     break;
                 }
             }
 
-            g_BattleSceneContext.nextOrderToExecute[priority]++;
+            g_BattleWork.nextOrderToExecute[priority]++;
 
-            if (i == LEN(g_BattleSceneContext.actionQueue)) {
+            if (i == LEN(g_BattleWork.actionQueue)) {
                 continue;
             }
 
-            slot = g_BattleSceneContext.currentAction.unitID;
+            slot = g_BattleWork.currentAction.unitID;
             if (slot == -1) {
                 break;
             }
@@ -118,8 +116,8 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
                 }
 
                 if (priority >= 5) {
-                    if ((u16)g_BattleWork.turn[slot].atbIncrement == 0) {
-                        g_BattleSceneContext.subActionSlots[slot] = g_BattleSceneContext.currentAction;
+                    if (g_BattleWork.turn[slot].atbIncrement == 0) {
+                        g_BattleWork.subActionSlots[slot] = g_BattleWork.currentAction;
                         break;
                     }
 
@@ -128,7 +126,7 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
             }
 
             forceAction = 0;
-            if ((s8)g_BattleSceneContext.currentAction.actionType == -1) {
+            if ((s8)g_BattleWork.currentAction.actionType == -1) {
                 s32 attackId = 0;
 
                 if (slot >= START_ENEMY) {
@@ -160,7 +158,7 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
 
                     // The main script's actions are queued at tier 2 (last argument above);
                     // an empty tier 2 means it queued nothing
-                    if (g_BattleSceneContext.nextOrderToExecute[2] == g_BattleSceneContext.nextOrderToAssign[2]) {
+                    if (g_BattleWork.nextOrderToExecute[2] == g_BattleWork.nextOrderToAssign[2]) {
                         BattleSetFocusedActor(slot);
                     }
                     rescan = 1;
@@ -172,15 +170,15 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
                     }
                 }
 
-                if (slot < NUM_PARTY && g_BattleSceneContext.currentAction.priority >= 5U &&
+                if (slot < NUM_PARTY && g_BattleWork.currentAction.priority >= 5U &&
                     g_BattleState.combatant[slot].status & STATUS_BERSERK) {
-                    g_BattleSceneContext.currentAction.actionType = BattleGetBerserkToadAttackTypeId(slot);
-                    g_BattleSceneContext.currentAction.attackIndex = 0;
-                    g_BattleSceneContext.currentAction.targetMask = 0;
+                    g_BattleWork.currentAction.actionType = BattleGetBerserkToadAttackTypeId(slot);
+                    g_BattleWork.currentAction.attackIndex = 0;
+                    g_BattleWork.currentAction.targetMask = 0;
                     BattleInvalidateQueuedMessages(slot, 6);
                 }
 
-                BattleCmdScriptDispatch(&g_BattleSceneContext.currentAction);
+                BattleCmdScriptDispatch(&g_BattleWork.currentAction);
             }
 
             BattleExecFormationAIScripts();
@@ -393,11 +391,11 @@ static s32 func_800A4A80(void);
 static void func_800A32C0(s32 arg0) {
     s32 var_a3;
 
-    if (g_BattleSceneContext.atbWaitMode != 0) {
+    if (g_BattleWork.atbWaitMode != 0) {
         if (arg0 != 0) {
-            if (g_BattleSceneContext.currentQueuePriority == 6) {
+            if (g_BattleWork.currentQueuePriority == 6) {
                 var_a3 = 1;
-                if (g_BattleSceneContext.nextOrderToExecute[6] != g_BattleSceneContext.nextOrderToAssign[6]) {
+                if (g_BattleWork.nextOrderToExecute[6] != g_BattleWork.nextOrderToAssign[6]) {
                     var_a3 = 3;
                 }
                 BattleQueueEvent(0, 0, 7, var_a3);
@@ -483,9 +481,9 @@ static s32 func_800A37F8(s32 arg0) {
 static s32 func_800A3828(void) {
     s32 ret = 0;
     if (D_800F39E0 == 3) {
-        D_800F39E4 += g_BattleSceneContext.battleSpeed;
+        D_800F39E4 += g_BattleWork.battleSpeed;
     }
-    if (g_BattleSceneContext.atbWaitMode == 2) {
+    if (g_BattleWork.atbWaitMode == 2) {
         switch (D_800F3896) {
         case 0:
         case 4:
@@ -508,19 +506,144 @@ static s32 func_800A3828(void) {
     return ret;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A38FC);
+void func_800A38FC(void) {
+    const u16 escapePadKeys = PAD_L1 | PAD_R1;
+    u16 padKeys = g_Pad0Keys;
+    s32 i;
+
+    func_800A72C8(0);
+    D_800F7DE8 |= 1;
+
+    if (!func_800A3828()) {
+        D_800F7DE8 &= ~1;
+
+        if (g_BattleWork.escapeCounter1 && g_BattleWork.escapeCounter1 == g_BattleWork.escapeCounter2) {
+            if ((padKeys & escapePadKeys) == escapePadKeys) {
+                g_BattleWork.escapeHoldTicks++;
+            }
+
+            g_BattleWork.escapeTicks++;
+            g_BattleWork.escapeSubCounter += g_BattleWork.battleSpeed;
+
+            // Each time the counter exceeds 8192, if L1+R1 were held for more than half the
+            // ticks, lower escapeCounter1 (25% chance unless preemptive/side attack)
+            if (g_BattleWork.escapeSubCounter > 0x2000) {
+                g_BattleWork.escapeSubCounter -= 0x2000;
+
+                if (g_BattleWork.escapeTicks < g_BattleWork.escapeHoldTicks * 2 &&
+                    (g_BattleWork.unk2218 < 0x4000 || g_BattleWork.encounterType == SETUP_PREEMPTIVE ||
+                     g_BattleWork.encounterType == SETUP_SIDE_ATTACK)) {
+                    g_BattleWork.escapeCounter1--;
+                }
+
+                g_BattleWork.escapeTicks = 0;
+                g_BattleWork.escapeHoldTicks = 0;
+            }
+        }
+
+        BattleAdvanceTimers();
+
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            BattleTurnWork* turnWork;
+            s32 atbIncrement;
+            s32 atbGauge;
+
+            // ATB gauges only fill for party members in unitPresentMask, or enemies whose bit in unk15C is set
+            if (!((((g_BattleData.unitPresentMask | 0x3F0) & (g_BattleData.unk15C | 7)) >> i) & 1)) {
+                continue;
+            }
+
+            turnWork = &g_BattleWork.turn[i];
+            atbIncrement = turnWork->atbIncrement;
+            atbGauge = turnWork->atbGauge;
+            if (atbGauge == 0xFFFF) {
+                continue;
+            }
+
+            if (turnWork->limitSpeedFlag & 1) {
+                atbIncrement *= 4;
+            }
+
+            if ((g_BattleWork.manipulatedUnitMask >> i) & 1) {
+                atbIncrement = 0;
+            }
+
+            atbGauge += atbIncrement;
+            if (atbGauge > 0xFFFF) {
+                atbGauge = 0xFFFF;
+            }
+
+            turnWork->atbGauge = atbGauge;
+            if (atbGauge != 0xFFFF) {
+                continue;
+            }
+
+            // A party member with the stateFlags 0x10 bit set will also meet this condition
+            if (i >= NUM_PARTY || (g_BattleState.combatant[i].stateFlags & 0x10)) {
+                func_800A4350(i, -1, 0, 0);
+            } else if ((g_BattleWork.disabledUnitMask >> i) & 1) {
+                func_800A4350(i, BattleGetBerserkToadAttackTypeId(i), 0, 0);
+            } else {
+                func_800A4D2C(i);
+                g_BattleWork.activeUnitCmdMask |= 1 << i;
+            }
+
+            turnWork->limitSpeedFlag &= ~1;
+            D_800F39E0 |= 2;
+        }
+    }
+
+    func_800B0234();
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        ActiveCharacterData* charData = &g_ActiveCharacters[i];
+        s32 targetGauge = g_BattleWork.party[i].limitBarUI;
+        s32 curGauge = charData->unk1A >> 8;
+
+        // Automatically fill over time the limit bar gauge with the SETUP_NO_VICTORY_POSE
+        // flag. This might be used for the final fight between Cloud and Sephiroth.
+        if (g_BattleState.setupFlags & SETUP_NO_VICTORY_POSE) {
+            targetGauge = (g_BattleFrameCount * 255) / g_BattleState.arenaRound;
+            if (targetGauge > 255) {
+                targetGauge = 255;
+            }
+        }
+
+        if (curGauge >= targetGauge) {
+            continue;
+        }
+
+        curGauge += 4;
+        if (curGauge > targetGauge) {
+            curGauge = targetGauge;
+        }
+
+        if (curGauge == 255) {
+            BattleEnableLimitToPlayerWithSpeed(i);
+            BattleQueueEvent(1, i, 1, 0);
+        }
+
+        charData->unk1A = curGauge << 8;
+    }
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        g_ActiveCharacters[i].atbTimer = g_BattleWork.turn[i].atbGauge;
+    }
+
+    BattleReturnReservedItems();
+}
 
 static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* action) {
     s32 priorityTier;
     s32 i;
 
     priorityTier = action->priority;
-    for (i = 0; i < LEN(g_BattleSceneContext.actionQueue); i++) {
-        if (g_BattleSceneContext.actionQueue[i].priority == 0xFF) {
-            action->orderInPriority = g_BattleSceneContext.nextOrderToAssign[priorityTier];
-            g_BattleSceneContext.actionQueue[i] = *action;
-            g_BattleSceneContext.nextOrderToAssign[priorityTier]++;
-            g_BattleSceneContext.pendingActionPriority = priorityTier;
+    for (i = 0; i < LEN(g_BattleWork.actionQueue); i++) {
+        if (g_BattleWork.actionQueue[i].priority == 0xFF) {
+            action->orderInPriority = g_BattleWork.nextOrderToAssign[priorityTier];
+            g_BattleWork.actionQueue[i] = *action;
+            g_BattleWork.nextOrderToAssign[priorityTier]++;
+            g_BattleWork.pendingActionPriority = priorityTier;
             if (action->priority >= 2) {
                 g_BattleState.combatant[action->unitID].stateFlags &= ~COMBATANT_DEFENDING;
                 if ((action->actionType & 0x3F) == 0x13) {
@@ -576,8 +699,8 @@ void func_800A4350(s16 actorId, s16 cmdIndex, s16 attackIndex, u16 targetMask) {
     }
 
     func_800A4D88(BattleGetManipulatorIdByEnemyUnitId(actorId));
-    g_BattleSceneContext.activeUnitCmdMask &= ~(1 << actorId);
-    g_BattleSceneContext.turnReadyUnitMask |= 1 << actorId;
+    g_BattleWork.activeUnitCmdMask &= ~(1 << actorId);
+    g_BattleWork.turnReadyUnitMask |= 1 << actorId;
     D_800F39DC = (D_800F39DC + 1) & 0xF;
 }
 
@@ -599,7 +722,7 @@ static s32 BattleGetManipulatorIdByEnemyUnitId(s32 enemyId) {
     if (enemyId < START_ENEMY) {
         goto end;
     }
-    if (!((g_BattleSceneContext.manipulatedUnitMask >> enemyId) & 1)) {
+    if (!((g_BattleWork.manipulatedUnitMask >> enemyId) & 1)) {
         goto end;
     }
     for (i = 0; i < LEN(g_BattleWork.party); i++) {
@@ -646,14 +769,13 @@ void BattleUpdateUnitMasks(void) {
         if (status & STATUS_DEATH) {
             downedActors |= actorMask;
         }
-        if (status & STATUS_IMPRISONED &&
-            (g_BattleSceneContext.imprisonedType == 0 || g_BattleSceneContext.imprisonedType == 3)) {
+        if (status & STATUS_IMPRISONED && (g_BattleWork.imprisonedType == 0 || g_BattleWork.imprisonedType == 3)) {
             downedActors |= actorMask;
         }
     }
 
     enemyFrontRow = 0xFFFF; // This was probably defined as a constant somewhere (eg: INVALID_INDEX)
-    g_BattleSceneContext.petrifiedMask = petrifiedActors;
+    g_BattleWork.petrifiedMask = petrifiedActors;
     g_BattleData.unk14C = var_t3;
     g_BattleData.unk15C = var_s1;
     g_BattleData.downedActors = downedActors;
@@ -694,7 +816,7 @@ void BattleUpdateUnitMasks(void) {
     actorMask = g_BattleState.presentMask & ((~downedActors & 0xF) | ((var_s1 | var_t3) & 0x3F0));
     g_BattleData.unitPresentMask = actorMask;
 
-    if (g_BattleSceneContext.encounterType == SETUP_PINCER) {
+    if (g_BattleWork.encounterType == SETUP_PINCER) {
         actorMask &= 0x3F0;
         // Odd loop, looks like it indexes out of bounds at first glance but checks
         // [0] and [2]; i represents the index of the first zone without an actor
@@ -817,7 +939,7 @@ static s32 BattleGetManipIdByPlayerUnitId(s32 arg0) {
 
     if (arg0 < NUM_PARTY) {
         temp_v1 = g_BattleWork.party[arg0].unk6;
-        if ((temp_v1 >= START_ENEMY) && ((g_BattleSceneContext.manipulatedUnitMask >> temp_v1) & 1)) {
+        if ((temp_v1 >= START_ENEMY) && ((g_BattleWork.manipulatedUnitMask >> temp_v1) & 1)) {
             arg0 = temp_v1;
         }
     }
@@ -1240,11 +1362,11 @@ void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 priority) {
         u8 unk4;
     } snapshot[NUM_BATTLE_ACTOR];
 
-    g_BattleSceneContext.activeScriptMask |= 1 << scriptType;
+    g_BattleWork.activeScriptMask |= 1 << scriptType;
 
     if (actorId >= START_ENEMY) {
         s32 enemySlot = actorId - START_ENEMY;
-        scriptOffset = GetEnemyAiScriptOffs(&g_BattleSceneContext.activeScriptMask - 0x80C,
+        scriptOffset = GetEnemyAiScriptOffs(&g_BattleWork.activeScriptMask - 0x80C,
                                             g_BattleData.activeEncounter.formation[enemySlot].enemyID, scriptType);
     } else if (actorId < NUM_PARTY) {
         presetIdx = g_BattleData.actors[actorId].charId;
@@ -1282,10 +1404,9 @@ void BattleExecFormationAIScripts(void) {
 
     BattleInitScriptContext(-1, 0);
     for (i = 0; i < 8; i++) {
-        if ((g_BattleSceneContext.activeScriptMask >> i) & 1) {
-            g_BattleSceneContext.activeScriptMask &= ~(1 << i);
-            scriptOffset =
-                GetEnemyAiScriptOffs(g_BattleSceneContext.formationAI.scriptOffsets, g_BattleState.sceneID & 3, i);
+        if ((g_BattleWork.activeScriptMask >> i) & 1) {
+            g_BattleWork.activeScriptMask &= ~(1 << i);
+            scriptOffset = GetEnemyAiScriptOffs(g_BattleWork.formationAI.scriptOffsets, g_BattleState.sceneID & 3, i);
             if (scriptOffset != 0) {
                 BattleOpcodeCycle(3, scriptOffset, -1);
             }
@@ -1311,7 +1432,7 @@ void func_800A6278(s32 arg0, s32 arg1, s32 arg2) {
     }
 
     if (!(g_BattleState.combatant[arg1].stateFlags & 0x2000)) {
-        nextAssignedOrder = g_BattleSceneContext.nextOrderToAssign[0];
+        nextAssignedOrder = g_BattleWork.nextOrderToAssign[0];
         g_BattleState.combatant[arg1].stateFlags |= 0x2000;
 
         if (arg0 >= START_ENEMY) {
@@ -1327,7 +1448,7 @@ void func_800A6278(s32 arg0, s32 arg1, s32 arg2) {
         BattleRunUnitScript(arg1, 3, 0);
 
         // Queue action only if the above script queued something at tier 0 or arg2 is set
-        if ((g_BattleSceneContext.nextOrderToAssign[0] != nextAssignedOrder) || (arg2 != 0)) {
+        if ((g_BattleWork.nextOrderToAssign[0] != nextAssignedOrder) || (arg2 != 0)) {
             if (!(g_BattleState.combatant[arg1].stateFlags & 0x1000)) {
                 g_BattleState.scriptOpponentNonPetrifiedMask = 1 << arg1;
                 BattleQueueOpcodeAction(arg1, 0x25, 0);
@@ -1367,7 +1488,7 @@ static u16 BattleGetItemFromSlot(s32 arg0) {
 void BattleResetManipulatorTimer(s32 arg0) {
     s32 index = BattleGetManipulatorIdByEnemyUnitId(arg0);
     g_BattleWork.turn[index].atbGauge = 0;
-    g_BattleSceneContext.turnReadyUnitMask &= ~(1 << index);
+    g_BattleWork.turnReadyUnitMask &= ~(1 << index);
 }
 
 void func_800A6590(s32 arg0) { func_800A4D88(arg0); }
@@ -1382,12 +1503,12 @@ void BattleEnableLimitToPlayerResettingBar(s32 charIdx, s32 arg1) {
 
 void BattleUnitChkClearActiveTurn(s32 unitIdx) {
     func_800A4D88(unitIdx);
-    if ((g_BattleSceneContext.activeUnitCmdMask >> unitIdx) & 1) {
+    if ((g_BattleWork.activeUnitCmdMask >> unitIdx) & 1) {
         if (g_BattleWork.turn[unitIdx].atbGauge == 0xFFFF) {
             func_800A4D2C(unitIdx);
             return;
         }
-        g_BattleSceneContext.activeUnitCmdMask &= ~(1 << unitIdx);
+        g_BattleWork.activeUnitCmdMask &= ~(1 << unitIdx);
     }
 }
 
@@ -1395,8 +1516,8 @@ void BattleUnitSetCtrlState(s32 unitIdx, s32 limitParam) {
     BattleResetManipulatorTimer(unitIdx);
     BattleEnableLimitToPlayerResettingBar(unitIdx, limitParam);
     func_800A4D88(unitIdx);
-    g_BattleSceneContext.activeUnitCmdMask &= ~(1 << unitIdx);
-    g_BattleSceneContext.disabledUnitMask &= ~(1 << unitIdx);
+    g_BattleWork.activeUnitCmdMask &= ~(1 << unitIdx);
+    g_BattleWork.disabledUnitMask &= ~(1 << unitIdx);
 }
 
 void BattleAddStolenItemToReservedItem(s32 arg0, s16 arg1) { BattleAddUnitReservedItem(10, arg1); }
@@ -1404,30 +1525,30 @@ void BattleAddStolenItemToReservedItem(s32 arg0, s16 arg1) { BattleAddUnitReserv
 void func_800A6748(s32 arg0) {
     BattleResetManipulatorTimer(arg0);
     func_800A4D88(arg0);
-    g_BattleSceneContext.activeUnitCmdMask &= ~(1 << arg0);
+    g_BattleWork.activeUnitCmdMask &= ~(1 << arg0);
 }
 
 void func_800A6798(s32 arg0, s32 arg1) { func_800A37F8(arg1); }
 
 void BattleUnitEnableBerserkToad(s32 unitIdx) {
     func_800A4D88(unitIdx);
-    g_BattleSceneContext.disabledUnitMask |= 1 << unitIdx;
-    if ((g_BattleSceneContext.activeUnitCmdMask >> unitIdx) & 1) {
+    g_BattleWork.disabledUnitMask |= 1 << unitIdx;
+    if ((g_BattleWork.activeUnitCmdMask >> unitIdx) & 1) {
         func_800A4350(unitIdx, BattleGetBerserkToadAttackTypeId(unitIdx), 0, 0);
     }
 }
 
-void BattleUnitClrDisabledTurn(s32 unitIdx) { g_BattleSceneContext.disabledUnitMask &= ~(1 << unitIdx); }
+void BattleUnitClrDisabledTurn(s32 unitIdx) { g_BattleWork.disabledUnitMask &= ~(1 << unitIdx); }
 
 void BattleUnitSetManipulated(s32 unitIdx, s32 isManipulated) {
     if (isManipulated) {
         BattleUnitSetCtrlState(unitIdx, isManipulated);
-        g_BattleSceneContext.manipulatedUnitMask |= 1 << unitIdx;
+        g_BattleWork.manipulatedUnitMask |= 1 << unitIdx;
         return;
     }
 
-    g_BattleSceneContext.manipulatedUnitMask &= ~(1 << unitIdx);
-    if ((g_BattleSceneContext.activeUnitCmdMask >> unitIdx) & 1) {
+    g_BattleWork.manipulatedUnitMask &= ~(1 << unitIdx);
+    if ((g_BattleWork.activeUnitCmdMask >> unitIdx) & 1) {
         func_800A4D88(unitIdx);
         func_800A4350(unitIdx, -1, 0, 0);
     }
@@ -1443,10 +1564,10 @@ void func_800A6A70(s32 arg0, s32 arg1) {
 }
 
 void BattleUnitFlushEnemyTurnMasks(void) {
-    g_BattleSceneContext.disabledUnitMask &= 0xFC0F;
-    g_BattleSceneContext.manipulatedUnitMask &= 0xFC0F;
-    g_BattleSceneContext.activeUnitCmdMask &= 0xFC0F;
-    g_BattleSceneContext.turnReadyUnitMask &= 0xFC0F;
+    g_BattleWork.disabledUnitMask &= 0xFC0F;
+    g_BattleWork.manipulatedUnitMask &= 0xFC0F;
+    g_BattleWork.activeUnitCmdMask &= 0xFC0F;
+    g_BattleWork.turnReadyUnitMask &= 0xFC0F;
 }
 
 void BattleTurnSchedUpdateParty(void) {
@@ -1455,13 +1576,13 @@ void BattleTurnSchedUpdateParty(void) {
     u16 pending;
 
     for (i = 0; i < NUM_PARTY; i++) {
-        if (!((g_BattleSceneContext.disabledUnitMask >> i) & 1)) {
-            scratch = g_BattleSceneContext.turnReadyUnitMask;
+        if (!((g_BattleWork.disabledUnitMask >> i) & 1)) {
+            scratch = g_BattleWork.turnReadyUnitMask;
             pending = scratch;
 
             if ((pending >> i) & 1) {
-                g_BattleSceneContext.turnReadyUnitMask = pending & ~(1 << i);
-                g_BattleSceneContext.activeUnitCmdMask |= 1 << i;
+                g_BattleWork.turnReadyUnitMask = pending & ~(1 << i);
+                g_BattleWork.activeUnitCmdMask |= 1 << i;
             }
         }
     }
@@ -1484,9 +1605,8 @@ void func_800A6BFC(void) {}
 
 void BattleSetLimitBreakStringToDisplay(s32 arg0) {
     s16 msgArgs = (s16)g_BattleData.actors[arg0].charId;
-    g_BattleSceneContext.lucky7777StringID =
-        BattleAddMessageToStringBuffer(SysGetKernBattleTextPtr(0x26), &msgArgs) + 0x100;
-    g_BattleSceneContext.lucky7777ActionParam = 0xF;
+    g_BattleWork.lucky7777StringID = BattleAddMessageToStringBuffer(SysGetKernBattleTextPtr(0x26), &msgArgs) + 0x100;
+    g_BattleWork.lucky7777ActionParam = 0xF;
 }
 
 void func_800A6C5C(s32 arg0, s32 arg1) {
@@ -1883,7 +2003,7 @@ static void SetActionStatusChange(u32 arg0, s32 statusMask) {
         mask = 0x80000000;
         if (statusMask < 0) {
             act->unk80[0] = mask;
-            g_BattleSceneContext.imprisonedType = statusMask & 3;
+            g_BattleWork.imprisonedType = statusMask & 3;
         } else {
             mask = statusMask;
             act->unk8C = chance;
@@ -3185,8 +3305,7 @@ void BattleGetAffinityMasks(s32 elementMask, s32 statusMask, s32 arg2, s32* mask
         masks[5] = charData->nullifiedElements;
         masks[6] = charData->absorbedElements;
     } else if (arg2 >= START_ENEMY) {
-        SceneEnemy* enemy =
-            &g_BattleSceneContext.enemy[g_BattleData.activeEncounter.formation[arg2 - START_ENEMY].enemyID];
+        SceneEnemy* enemy = &g_BattleWork.enemy[g_BattleData.activeEncounter.formation[arg2 - START_ENEMY].enemyID];
         for (i = 0; i < sizeof(enemy->affinityIds); i++) {
             s32 id = enemy->affinityIds[i];
             s32 type = enemy->affinityTypes[i];
@@ -3300,7 +3419,7 @@ void BattleUnitCalcSpeed(s32 index) {
     s32 atbIncrement;
 
     if (status & STATUS_IMPRISONED) {
-        switch (g_BattleSceneContext.imprisonedType) {
+        switch (g_BattleWork.imprisonedType) {
         case 0:
         case 3:
             status |= STATUS_STOP;
@@ -3312,7 +3431,7 @@ void BattleUnitCalcSpeed(s32 index) {
     }
 
     if (!(status & (STATUS_STOP | STATUS_DEATH))) {
-        varSpeed = g_BattleSceneContext.battleSpeed;
+        varSpeed = g_BattleWork.battleSpeed;
         constSpeed = BATTLE_CONST_SPEED_NORMAL / 2; // Slow
 
         if (!(status & STATUS_SLOW)) {
@@ -3327,9 +3446,9 @@ void BattleUnitCalcSpeed(s32 index) {
 
     if (index < NUM_PARTY) {
         s32 totalDex = BattleApplyStatMult(index, g_BattleState.combatant[index].dexterity, STAT_MULT_DEXTERITY) + 50;
-        atbIncrement = varSpeed * totalDex / g_BattleSceneContext.avgPartyDexterity;
+        atbIncrement = varSpeed * totalDex / g_BattleWork.avgPartyDexterity;
     } else {
-        atbIncrement = (varSpeed * g_BattleState.combatant[index].dexterity) / g_BattleSceneContext.avgPartyDexterity;
+        atbIncrement = (varSpeed * g_BattleState.combatant[index].dexterity) / g_BattleWork.avgPartyDexterity;
     }
 
     if (status & (STATUS_PARALYSIS | STATUS_PETRIFY | STATUS_SLEEP)) {
@@ -3424,7 +3543,7 @@ void BattlePostAddDeath(s32 arg0, s32 arg1, s32 arg2) {
     func_800AEBF0(arg0, arg1, arg2);
 
     g_BattleWork.turn[arg0].hpChangeRate = 0;
-    g_BattleSceneContext.subActionSlots[arg0].priority = 0xFF;
+    g_BattleWork.subActionSlots[arg0].priority = 0xFF;
     BattleReqReturnReservedItems(arg0);
 
     for (i = 0; i < NUM_STATUS_TIMERS; i++) {
@@ -3435,7 +3554,7 @@ void BattlePostAddDeath(s32 arg0, s32 arg1, s32 arg2) {
         g_BattleWork.turn[arg0].statMults[i] = 0;
     }
 
-    if (!((g_BattleSceneContext.unk1E88 >> arg0) & 1)) {
+    if (!((g_BattleWork.unk2214 >> arg0) & 1)) {
         // This is probably stolen gil being returned on kill
         unk50 = g_BattleState.combatant[arg0].unk50;
         if (unk50 != 0) {
@@ -3490,10 +3609,10 @@ void BattleRestoreBattleActionIfCan(s32 arg0, s32 arg1, s32 arg2) {
         BattleQueueEvent(0, arg0, 6, 0);
     }
     if (!(g_BattleState.combatant[arg0].status & 0x2004404)) {
-        if ((g_BattleSceneContext.turnReadyUnitMask >> arg0) & 1) {
-            if (g_BattleSceneContext.subActionSlots[arg0].priority != 0xFF) {
-                BattleCopyBattleActionToBattleQueue(&g_BattleSceneContext.subActionSlots[arg0]);
-                g_BattleSceneContext.subActionSlots[arg0].priority = 0xFF;
+        if ((g_BattleWork.turnReadyUnitMask >> arg0) & 1) {
+            if (g_BattleWork.subActionSlots[arg0].priority != 0xFF) {
+                BattleCopyBattleActionToBattleQueue(&g_BattleWork.subActionSlots[arg0]);
+                g_BattleWork.subActionSlots[arg0].priority = 0xFF;
             }
         }
     }
@@ -3544,7 +3663,7 @@ void BattleUnitSetHpChangeRate(s32 arg0, s32 arg1, s32 arg2) {
     step = g_BattleState.combatant[arg0].maxHP >> 5;
     status = g_BattleState.combatant[arg0].status;
     if (status < 0) {
-        if (g_BattleSceneContext.imprisonedType == 1) {
+        if (g_BattleWork.imprisonedType == 1) {
             status |= STATUS_DUAL_DRAIN;
         }
     }
@@ -3565,7 +3684,7 @@ void BattleUnitSetHpChangeRate(s32 arg0, s32 arg1, s32 arg2) {
 void func_800AF470(s32 arg0) { g_BattleWork.turn[arg0].unk28 = 3; }
 
 void func_800AF494(s32 arg0, s32 arg1, s32 arg2) {
-    switch (g_BattleSceneContext.imprisonedType) {
+    switch (g_BattleWork.imprisonedType) {
     case 1:
         BattleUnitSetHpChangeRate(arg0, arg1, arg2);
         /* fallthrough */
@@ -3579,7 +3698,7 @@ void func_800AF494(s32 arg0, s32 arg1, s32 arg2) {
         break;
     }
 
-    if (g_BattleSceneContext.imprisonedType == 3) {
+    if (g_BattleWork.imprisonedType == 3) {
         g_BattleState.combatant[arg0].unk16 = arg2 ? 0x13 : 0;
     }
 }
@@ -3676,7 +3795,7 @@ void func_800AF9C8(void) {
     if (!(g_CurrentAction->unk90 & 0x01000000)) {
         validTargets &= g_BattleData.unk14C;
         if ((g_CurrentAction->unk6C & 0x900) != 0x900) {
-            validTargets |= g_BattleData.downedActors & ~g_BattleSceneContext.unk1E88;
+            validTargets |= g_BattleData.downedActors & ~g_BattleWork.unk2214;
         }
     } else {
         validTargets |= g_BattleData.downedActors;
@@ -3894,7 +4013,7 @@ void BattleAdvanceTimers(void) {
     s32* constTimerAccum = g_BattleConstTimerAccum[g_BattleTimerBufferIndex];
     s32 i;
 
-    g_BattleGlobalTimerAccum[g_BattleTimerBufferIndex] += g_BattleSceneContext.battleSpeed;
+    g_BattleGlobalTimerAccum[g_BattleTimerBufferIndex] += g_BattleWork.battleSpeed;
 
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         varTimerAccum[i] += g_BattleWork.turn[i].varSpeed;
@@ -4250,19 +4369,19 @@ static void BattleQueueEffect(
     func_800A317C();
 }
 
-// find arg0 in g_BattleSceneContext.attackIDs[]; returns its index, or 0x20 (and signals
+// find arg0 in g_BattleWork.attackIDs[]; returns its index, or 0x20 (and signals
 // SysSetEngineErrorCode) if it is not present
 static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0) {
     s32 i;
     u16* p;
 
-    for (i = 0, p = g_BattleSceneContext.attackIDs; i < LEN(g_BattleSceneContext.attackIDs); i++) {
+    for (i = 0, p = g_BattleWork.attackIDs; i < LEN(g_BattleWork.attackIDs); i++) {
         if (*p == arg0) {
             break;
         }
         p++;
     }
-    if (i == LEN(g_BattleSceneContext.attackIDs)) {
+    if (i == LEN(g_BattleWork.attackIDs)) {
         SysSetEngineErrorCode(0x20);
     }
     return i;
@@ -4295,13 +4414,13 @@ static void BattleAddStatMult(s32 unitId, s32 deltaPct, s32 statMask) {
     }
 }
 
-// nonzero if g_BattleSceneContext.encounterType is < 3
+// nonzero if g_BattleWork.encounterType is < 3
 static u32 func_800B12DC(void) {
     u32 result = 0;
-    s32 cmp = (s32)g_BattleSceneContext.encounterType;
+    s32 cmp = (s32)g_BattleWork.encounterType;
 
     if (cmp < 3) {
-        result = (u32)~g_BattleSceneContext.encounterType >> 0x1F;
+        result = (u32)~g_BattleWork.encounterType >> 0x1F;
     }
     return result;
 }
@@ -4312,11 +4431,11 @@ static u32 func_800B12DC(void) {
 static void BattleInvalidateQueuedMessages(s32 arg0, s32 arg1) {
     s32 i;
 
-    for (i = 0; i < LEN(g_BattleSceneContext.actionQueue); i++) {
-        if (g_BattleSceneContext.actionQueue[i].unitID == arg0) {
-            u8 val = g_BattleSceneContext.actionQueue[i].priority;
+    for (i = 0; i < LEN(g_BattleWork.actionQueue); i++) {
+        if (g_BattleWork.actionQueue[i].unitID == arg0) {
+            u8 val = g_BattleWork.actionQueue[i].priority;
             if (val != 0xFF && val >= arg1) {
-                g_BattleSceneContext.actionQueue[i].unitID = -1;
+                g_BattleWork.actionQueue[i].unitID = -1;
             }
         }
     }
@@ -4705,7 +4824,7 @@ void BattleInitScriptContext(s32 arg0, s32 priority, s32 arg2) {
         allyDeadMask = swapTmp;
     }
 
-    opponentAliveMask &= ~g_BattleSceneContext.petrifiedMask;
+    opponentAliveMask &= ~g_BattleWork.petrifiedMask;
 
     g_BattleState.scriptSelfMask = 1 << arg0;
     g_BattleState.scriptAllyAliveMask = allyAliveMask;
@@ -4807,8 +4926,8 @@ static AttackData* BattleGetAttackData(s32 id) {
         ret = &D_800708C4[id];
     } else {
         for (i = 0; i < 32; i++) {
-            if (g_BattleSceneContext.attackIDs[i] == id) {
-                ret = &g_BattleSceneContext.attacks[i];
+            if (g_BattleWork.attackIDs[i] == id) {
+                ret = &g_BattleWork.attacks[i];
                 break;
             }
         }

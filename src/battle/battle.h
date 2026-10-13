@@ -340,52 +340,6 @@ typedef struct {
     /* 0x6 */ s16 targetMask;
 } BattleActionEntry; // size:0x8
 
-typedef struct {
-    /* 0x0000 */ SceneEnemy enemy[3];
-    /* 0x0228 */ AttackData attacks[0x20];
-    /* 0x05A8 */ u16 attackIDs[0x20];
-    /* 0x05E8 */ u8 attackNames[0x20][0x20];
-    /* 0x09E8 */ BattleActionEntry currentAction;
-    /* 0x09F0 */ BattleActionEntry actionQueue[64];
-    /* 0x0BF0 */ BattleActionEntry subActionSlots[10];
-    /* 0x0C40 */ BattleActionEntry postExecAction[2];
-    /* 0x0C50 */ u8 nextOrderToExecute[7];
-    /* 0x0C57 */ u8 nextOrderToAssign[7];
-    /* 0x0C5E */ u8 unkC5E[2];
-    /* 0x0C60 */ FormationAIScripts formationAI;
-    /* 0x0E60 */ u8 aiScriptBuffer[0x1000];
-    /* 0x1E60 */ u16 configFlags;
-    /* 0x1E62 */ u16 battleSpeed;
-    /* 0x1E64 */ u16 avgPartyDexterity;
-    /* 0x1E66 */ u16 atbWaitMode;
-    /* 0x1E68 */ u16 activeUnitCmdMask;
-    /* 0x1E6A */ u16 pad1E6A;
-    /* 0x1E6C */ u16 pad1E6C;
-    /* 0x1E6E */ u16 escapeCounter1;
-    /* 0x1E70 */ u16 escapeSubCounter;
-    /* 0x1E72 */ u16 escapeCounter2;
-    /* 0x1E74 */ u16 isQueueExecuting;
-    /* 0x1E76 */ u16 currentQueuePriority;
-    /* 0x1E78 */ u16 activeScriptMask;
-    /* 0x1E7A */ u16 lucky7777StringID;
-    /* 0x1E7C */ u16 lucky7777ActionParam;
-    /* 0x1E7E */ u16 turnReadyUnitMask;
-    /* 0x1E80 */ u16 disabledUnitMask;
-    /* 0x1E82 */ u16 imprisonedType;
-    /* 0x1E84 */ u16 encounterType;
-    /* 0x1E86 */ u16 manipulatedUnitMask;
-    /* 0x1E88 */ u16 unk1E88;
-    /* 0x1E8A */ u16 petrifiedMask;
-    /* 0x1E8C */ u16 unk1E8C;
-    /* 0x1E8E */ u16 reviveMask;
-    /* 0x1E90 */ u8 enemyTypeCount[3];
-    /* 0x1E93 */ u8 pad1E93;
-    /* 0x1E94 */ u16 attackerUnitMask;
-    /* 0x1E96 */ u16 playerContextOffset;
-    /* 0x1E98 */ u16 pad1E98;
-    /* 0x1E9A */ s16 pendingActionPriority;
-} BattleSceneContext; // size:0x1E9C
-
 #define BATTTLE_SCENE 7
 
 typedef struct {
@@ -557,7 +511,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ u16 varSpeed;
-    /* 0x02 */ s16 atbIncrement;
+    /* 0x02 */ u16 atbIncrement;
     /* 0x04 */ u16 atbGauge;     // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
     /* 0x06 */ s16 hpChangeRate; // HP per 4 var ticks: +maxHP/32 Regen, -maxHP/32 Dual Drain
     /* 0x08 */ s16 limitSpeedFlag;
@@ -645,10 +599,53 @@ typedef struct {
 } BattleUnitAttackSetup; // size:0x18
 
 typedef struct {
-    /* 0x000 */ BattleTurnWork turn[NUM_BATTLE_ACTOR];
-    /* 0x2A8 */ BattlePartyWork party[NUM_PARTY];
-    /* 0x344 */ BattleUnitAttackSetup setup[NUM_PARTY];
-} BattleWork; // size:0x38C
+    /* 0x0000 */ BattleTurnWork turn[NUM_BATTLE_ACTOR];
+    /* 0x02A8 */ BattlePartyWork party[NUM_PARTY];
+    /* 0x0344 */ BattleUnitAttackSetup setup[NUM_PARTY];
+    /* 0x038C */ SceneEnemy enemy[3];
+    /* 0x05B4 */ AttackData attacks[0x20];
+    /* 0x0934 */ u16 attackIDs[0x20];
+    /* 0x0974 */ u8 attackNames[0x20][0x20];
+    /* 0x0D74 */ BattleActionEntry currentAction;
+    /* 0x0D7C */ BattleActionEntry actionQueue[64];
+    /* 0x0F7C */ BattleActionEntry subActionSlots[10];
+    /* 0x0FCC */ BattleActionEntry postExecAction[2];
+    /* 0x0FDC */ u8 nextOrderToExecute[7];
+    /* 0x0FE3 */ u8 nextOrderToAssign[7];
+    /* 0x0FEA */ u8 unkFEA[2];
+    /* 0x0FEC */ FormationAIScripts formationAI;
+    /* 0x11EC */ u8 aiScriptBuffer[0x1000];
+    /* 0x21EC */ u16 configFlags;
+    /* 0x21EE */ u16 battleSpeed;
+    /* 0x21F0 */ u16 avgPartyDexterity;
+    /* 0x21F2 */ u16 atbWaitMode;
+    /* 0x21F4 */ u16 activeUnitCmdMask;
+    /* 0x21F6 */ u16 escapeHoldTicks;
+    /* 0x21F8 */ u16 escapeTicks;
+    /* 0x21FA */ u16 escapeCounter1;
+    /* 0x21FC */ u16 escapeSubCounter;
+    /* 0x21FE */ u16 escapeCounter2;
+    /* 0x2200 */ u16 isQueueExecuting;
+    /* 0x2202 */ u16 currentQueuePriority;
+    /* 0x2204 */ u16 activeScriptMask;
+    /* 0x2206 */ u16 lucky7777StringID;
+    /* 0x2208 */ u16 lucky7777ActionParam;
+    /* 0x220A */ u16 turnReadyUnitMask;
+    /* 0x220C */ u16 disabledUnitMask;
+    /* 0x220E */ u16 imprisonedType;
+    /* 0x2210 */ u16 encounterType;
+    /* 0x2212 */ u16 manipulatedUnitMask;
+    /* 0x2214 */ u16 unk2214;
+    /* 0x2216 */ u16 petrifiedMask;
+    /* 0x2218 */ u16 unk2218;
+    /* 0x221A */ u16 reviveMask;
+    /* 0x221C */ u8 enemyTypeCount[3];
+    /* 0x221F */ u8 pad221F;
+    /* 0x2220 */ u16 attackerUnitMask;
+    /* 0x2222 */ u16 playerContextOffset;
+    /* 0x2224 */ u16 pad2224;
+    /* 0x2226 */ s16 pendingActionPriority;
+} BattleWork; // size:0x2228
 
 typedef struct Unk800A8D04 {
     /* 0x000 */ s32 actorId;
@@ -744,7 +741,6 @@ typedef struct Unk800A8D04 {
 
 extern s16 D_800F5B74;
 extern BattleWork g_BattleWork;
-extern BattleSceneContext g_BattleSceneContext;
 extern u16 D_800F7DE8;
 extern u8 g_EncounterType;
 extern BattleState g_BattleState;
