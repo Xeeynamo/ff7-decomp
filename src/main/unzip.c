@@ -64,8 +64,8 @@ static u16 cpdist[] = {1,   2,   3,   4,   5,   7,    9,    13,   17,   25,   33
 /* Extra bits for distance codes */
 static u16 cpdext[] = {
     0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13};
-static u16 mask_bits[] = {0x0000, 0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,
-                          0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff};
+static u16 mask_bits[] = {0x0000, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF,
+                          0x01FF, 0x03FF, 0x07FF, 0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF};
 static u32 inflateMemAlloced = 0;
 static s32 lbits = 9; /* bits in base literal/length lookup table */
 static s32 dbits = 6; /* bits in base distance lookup table */
@@ -114,8 +114,9 @@ static s32 huft_build(u32* b, u32 n, u32 s, u16* d, u16* e, huft** t, s32* m) {
     u32 z;           /* number of entries in current table */
 
     /* Generate counts for each bit length */
-    for (clear = BMAX; clear >= 0; clear--)
+    for (clear = BMAX; clear >= 0; clear--) {
         c[clear] = 0;
+    }
     p = b;
     i = n;
     do {
@@ -130,41 +131,52 @@ static s32 huft_build(u32* b, u32 n, u32 s, u16* d, u16* e, huft** t, s32* m) {
 
     /* Find minimum and maximum length, bound *m by those */
     l = *m;
-    for (j = 1; j <= BMAX; j++)
-        if (c[j] != 0)
+    for (j = 1; j <= BMAX; j++) {
+        if (c[j] != 0) {
             break;
+        }
+    }
     k = j; /* minimum code length */
-    if ((u32)l < j)
+    if ((u32)l < j) {
         l = j;
-    for (i = BMAX; i != 0; i--)
-        if (c[i] != 0)
+    }
+    for (i = BMAX; i != 0; i--) {
+        if (c[i] != 0) {
             break;
+        }
+    }
     g = i; /* maximum code length */
-    if ((u32)l > i)
+    if ((u32)l > i) {
         l = i;
+    }
     *m = l;
 
     /* Adjust last length count to fill out codes, if needed */
-    for (y = 1 << j; j < i; j++, y <<= 1)
-        if ((y -= c[j]) < 0)
+    for (y = 1 << j; j < i; j++, y <<= 1) {
+        if ((y -= c[j]) < 0) {
             return 2; /* bad input: more codes than bits */
-    if ((y -= c[i]) < 0)
+        }
+    }
+    if ((y -= c[i]) < 0) {
         return 2;
+    }
     c[i] += y;
 
     /* Generate starting offsets into the value table for each length */
     x[1] = j = 0;
     p = c + 1;
     xp = x + 2;
-    while (--i != 0) /* note that i == g from above */
+    while (--i != 0) { /* note that i == g from above */
         *xp++ = (j += *p++);
+    }
 
     /* Make a table of values in order of bit lengths */
     p = b;
     i = 0;
     do {
-        if ((j = *p++) != 0)
+        if ((j = *p++) != 0) {
             v[x[j]++] = i;
+        }
     } while (++i < n);
 
     /* Generate the Huffman codes and for each, make the table entries */
@@ -193,9 +205,10 @@ static s32 huft_build(u32* b, u32 n, u32 s, u16* d, u16* e, huft** t, s32* m) {
                     f -= a + 1; /* deduct codes from patterns left */
                     xp = c + k;
                     while (++j < z) { /* try smaller tables up to db bits */
-                        if ((f <<= 1) <= *++xp)
+                        if ((f <<= 1) <= *++xp) {
                             break; /* enough codes to use up j bits */
-                        f -= *xp;  /* else deduct codes from patterns */
+                        }
+                        f -= *xp; /* else deduct codes from patterns */
                     }
                 }
                 z = 1 << j; /* table entries for j-bit table */
@@ -204,13 +217,14 @@ static s32 huft_build(u32* b, u32 n, u32 s, u16* d, u16* e, huft** t, s32* m) {
                 // FF7 uses own malloc replacement here as hufts are stored on
                 // the stack.
                 if ((q = (huft*)inflate_malloc((z + 1) * sizeof(huft))) == NULL) {
-                    if (h != 0)
+                    if (h != 0) {
                         huft_free(u[0]);
+                    }
                     return 3; /* not enough memory */
                 }
                 hufts += z + 1; /* track memory usage */
                 *t = q + 1;     /* link to list for huft_free() */
-                *(t = &(q->v.t)) = NULL;
+                *(t = &q->v.t) = NULL;
                 u[h] = ++q; /* table starts after link */
 
                 /* connect to last table, if there is one */
@@ -226,9 +240,9 @@ static s32 huft_build(u32* b, u32 n, u32 s, u16* d, u16* e, huft** t, s32* m) {
 
             /* set up table entry in r */
             r.b = (u8)(k - w);
-            if (p >= v + n)
+            if (p >= v + n) {
                 r.e = 99; /* out of values--invalid code */
-            else if (*p < s) {
+            } else if (*p < s) {
                 r.e = (u8)(*p < 256 ? 16 : 15); /* 256 is end-of-block code */
                 r.v.n = (u16)(*p);              /* simple code is just the value */
                 p++;                            /* one compiler does not like *p++ */
@@ -239,12 +253,14 @@ static s32 huft_build(u32* b, u32 n, u32 s, u16* d, u16* e, huft** t, s32* m) {
 
             /* fill code-like entries with r */
             f = 1 << (k - w);
-            for (j = i >> w; j < z; j += f)
+            for (j = i >> w; j < z; j += f) {
                 q[j] = r;
+            }
 
             /* backwards increment the k-bit code i */
-            for (j = 1 << (k - 1); i & j; j >>= 1)
+            for (j = 1 << (k - 1); i & j; j >>= 1) {
                 i ^= j;
+            }
             i ^= j;
 
             /* backup over finished tables */
@@ -262,8 +278,9 @@ static s32 huft_build(u32* b, u32 n, u32 s, u16* d, u16* e, huft** t, s32* m) {
 // As FF7 uses stack memory to store hufts, there's nothing to free. We just
 // iterate back through the linked list as is expected of the caller.
 static s32 huft_free(huft* t) {
-    while (t != NULL)
+    while (t != NULL) {
         t = (--t)->v.t;
+    }
     return 0;
 }
 
@@ -294,8 +311,9 @@ static s32 inflate_codes(huft* tl, huft* td, s32 bl, s32 bd) {
         NEEDBITS((u32)bl);
         if ((e = (t = tl + ((u32)b & ml))->e) > 16) {
             do {
-                if (e == 99)
+                if (e == 99) {
                     return 1;
+                }
                 DUMPBITS(t->b);
                 e -= 16;
                 NEEDBITS(e);
@@ -306,8 +324,9 @@ static s32 inflate_codes(huft* tl, huft* td, s32 bl, s32 bd) {
             slide[w++] = (u8)t->v.n;
         } else { /* it's an EOB or a length */
             /* exit if end of block */
-            if (e == 15)
+            if (e == 15) {
                 break;
+            }
 
             /* get length of block to copy */
             NEEDBITS(e);
@@ -316,14 +335,16 @@ static s32 inflate_codes(huft* tl, huft* td, s32 bl, s32 bd) {
 
             /* decode distance of block to copy */
             NEEDBITS((u32)bd);
-            if ((e = (t = td + ((u32)b & md))->e) > 16)
+            if ((e = (t = td + ((u32)b & md))->e) > 16) {
                 do {
-                    if (e == 99)
+                    if (e == 99) {
                         return 1;
+                    }
                     DUMPBITS(t->b);
                     e -= 16;
                     NEEDBITS(e);
                 } while ((e = (t = t->v.t + ((u32)b & mask_bits[e]))->e) > 16);
+            }
             DUMPBITS(t->b);
             NEEDBITS(e);
             d = w - t->v.n - ((u32)b & mask_bits[e]);
@@ -367,11 +388,12 @@ static s32 inflate_stored() {
 
     /* get the length and its complement */
     NEEDBITS(16);
-    n = ((u32)b & 0xffff);
+    n = ((u32)b & 0xFFFF);
     DUMPBITS(16);
     NEEDBITS(16);
-    if (n != (u32)((~b) & 0xffff))
+    if (n != (u32)((~b) & 0xFFFF)) {
         return 1; /* error in compressed data */
+    }
     DUMPBITS(16);
 
     /* read and output the compressed data */
@@ -400,21 +422,27 @@ static s32 inflate_fixed() {
     unsigned l[288]; /* length list for huft_build */
 
     /* set up literal table */
-    for (i = 0; i < 144; i++)
+    for (i = 0; i < 144; i++) {
         l[i] = 8;
-    for (; i < 256; i++)
+    }
+    for (; i < 256; i++) {
         l[i] = 9;
-    for (; i < 280; i++)
+    }
+    for (; i < 280; i++) {
         l[i] = 7;
-    for (; i < 288; i++) /* make a complete, but wrong code set */
+    }
+    for (; i < 288; i++) { /* make a complete, but wrong code set */
         l[i] = 8;
+    }
     bl = 7;
-    if ((i = huft_build(l, 288, 257, cplens, cplext, &tl, &bl)) != 0)
+    if ((i = huft_build(l, 288, 257, cplens, cplext, &tl, &bl)) != 0) {
         return i;
+    }
 
     /* set up distance table */
-    for (i = 0; i < 30; i++) /* make an incomplete code set */
+    for (i = 0; i < 30; i++) { /* make an incomplete code set */
         l[i] = 5;
+    }
     bd = 5;
     if ((i = huft_build(l, 30, 0, cpdist, cpdext, &td, &bd)) > 1) {
         huft_free(tl);
@@ -422,8 +450,9 @@ static s32 inflate_fixed() {
     }
 
     /* decompress until an end-of-block code */
-    if (inflate_codes(tl, td, bl, bd) != 0)
+    if (inflate_codes(tl, td, bl, bd) != 0) {
         return 1;
+    }
 
     /* free the decoding tables, return */
     huft_free(tl);
@@ -457,17 +486,18 @@ static s32 inflate_dynamic() {
 
     /* read in table lengths */
     NEEDBITS(5);
-    nl = 257 + ((u32)b & 0x1f); /* number of literal/length codes */
+    nl = 257 + ((u32)b & 0x1F); /* number of literal/length codes */
     DUMPBITS(5);
     NEEDBITS(5);
-    nd = 1 + ((u32)b & 0x1f); /* number of distance codes */
+    nd = 1 + ((u32)b & 0x1F); /* number of distance codes */
     DUMPBITS(5);
     NEEDBITS(4);
-    nb = 4 + ((u32)b & 0xf); /* number of bit length codes */
+    nb = 4 + ((u32)b & 0xF); /* number of bit length codes */
     DUMPBITS(4);
 
-    if (nl > 286 || nd > 30)
+    if (nl > 286 || nd > 30) {
         return 1; /* bad lengths */
+    }
 
     /* read in bit-length-code lengths */
     for (j = 0; j < nb; j++) {
@@ -475,14 +505,16 @@ static s32 inflate_dynamic() {
         ll[border[j]] = (u32)b & 7;
         DUMPBITS(3);
     }
-    for (; j < 19; j++)
+    for (; j < 19; j++) {
         ll[border[j]] = 0;
+    }
 
     /* build decoding table for trees--single level, 7 bit lookup */
     bl = 7;
     if ((i = huft_build(ll, 19, 19, NULL, NULL, &tl, &bl)) != 0) {
-        if (i == 1)
+        if (i == 1) {
             huft_free(tl);
+        }
         return i; /* incomplete code set */
     }
 
@@ -495,33 +527,39 @@ static s32 inflate_dynamic() {
         j = (td = tl + ((u32)b & m))->b;
         DUMPBITS(j);
         j = td->v.n;
-        if (j < 16)          /* length of code in bits (0..15) */
-            ll[i++] = l = j; /* save last length in l */
-        else if (j == 16) {  /* repeat last length 3 to 6 times */
+        if (j < 16) {         /* length of code in bits (0..15) */
+            ll[i++] = l = j;  /* save last length in l */
+        } else if (j == 16) { /* repeat last length 3 to 6 times */
             NEEDBITS(2);
             j = 3 + ((u32)b & 3);
             DUMPBITS(2);
-            if ((u32)i + j > n)
+            if ((u32)i + j > n) {
                 return 1;
-            while (j--)
+            }
+            while (j--) {
                 ll[i++] = l;
+            }
         } else if (j == 17) { /* 3 to 10 zero length codes */
             NEEDBITS(3);
             j = 3 + ((u32)b & 7);
             DUMPBITS(3);
-            if ((u32)i + j > n)
+            if ((u32)i + j > n) {
                 return 1;
-            while (j--)
+            }
+            while (j--) {
                 ll[i++] = 0;
+            }
             l = 0;
         } else { /* j == 18: 11 to 138 zero length codes */
             NEEDBITS(7);
-            j = 11 + ((u32)b & 0x7f);
+            j = 11 + ((u32)b & 0x7F);
             DUMPBITS(7);
-            if ((u32)i + j > n)
+            if ((u32)i + j > n) {
                 return 1;
-            while (j--)
+            }
+            while (j--) {
                 ll[i++] = 0;
+            }
             l = 0;
         }
     }
@@ -551,8 +589,9 @@ static s32 inflate_dynamic() {
     }
 
     /* decompress until an end-of-block code */
-    if (inflate_codes(tl, td, bl, bd) != 0)
+    if (inflate_codes(tl, td, bl, bd) != 0) {
         return 1;
+    }
 
     /* free the decoding tables, return */
     huft_free(tl);
@@ -584,12 +623,15 @@ static s32 inflate_block(s32* e) {
     bk = k;
 
     /* inflate that block type */
-    if (t == 2) // Dynamic Huffman compressed block.
+    if (t == 2) { // Dynamic Huffman compressed block.
         return inflate_dynamic();
-    if (t == 0) // A stored block, no compression.
+    }
+    if (t == 0) { // A stored block, no compression.
         return inflate_stored();
-    if (t == 1) // Static huffman compressed block.
+    }
+    if (t == 1) { // Static huffman compressed block.
         return inflate_fixed();
+    }
 
     /* bad block type */
     return 2;
@@ -607,8 +649,9 @@ static s32 inflate() {
     /* decompress until the last block */
     do {
         hufts = 0;
-        if ((r = inflate_block(&e)) != 0)
+        if ((r = inflate_block(&e)) != 0) {
             return r;
+        }
     } while (e == 0);
 
     /* Undo too much lookahead. The next read will be byte aligned so we
@@ -642,16 +685,19 @@ s32 Unzip(u8* src, u8* dst) {
 
     magic1 = NEXTBYTE() != GZIP_MAGIC[0];
     magic2 = NEXTBYTE() != GZIP_MAGIC[1];
-    if (magic1 | magic2)
+    if (magic1 | magic2) {
         return -1;
+    }
 
     compMethod = NEXTBYTE();
-    if (compMethod != DEFLATED)
+    if (compMethod != DEFLATED) {
         return -1;
+    }
 
     // Flags, check that none are set as they're not supported.
-    if (NEXTBYTE() != 0)
+    if (NEXTBYTE() != 0) {
         return -1;
+    }
 
     // Move position beyond 10 byte gzip header to start of compressed data.
     NEXTBYTE();
@@ -662,22 +708,26 @@ s32 Unzip(u8* src, u8* dst) {
     NEXTBYTE();
 
     res = inflate();
-    if (res == 3) // Out of memory.
+    if (res == 3) { // Out of memory.
         return -1;
-    if (res != 0) // Invalid compressed data--format violated.
+    }
+    if (res != 0) { // Invalid compressed data--format violated.
         return -1;
+    }
 
     // Read CRC32 and size of uncompressed data.
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < 8; i++) {
         buf[i] = NEXTBYTE();
+    }
 
     crc = buf[0] | (buf[1] << 8);
     crc |= (buf[2] | (buf[3] << 8)) << 16;
     size = buf[4];
     size |= buf[5] << 8;
     size |= (buf[6] | (buf[7] << 8)) << 16;
-    if (size != wp)
+    if (size != wp) {
         return -1;
+    }
     // Return size if unzip is successful. Will cause overflow if size is larger
     // than 2^31 - 1.
     return size;

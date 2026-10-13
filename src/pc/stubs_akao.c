@@ -31,15 +31,15 @@ s32 g_AkaoStreamPan;
 s32 g_AkaoStreamVoice16UpdateMask;
 s32 g_AkaoStreamVoice17UpdateMask;
 
-void SpuSetVoiceVolumeAttr(int vNum, short volL, short volR, short volModeL, short volModeR) {
+void SpuSetVoiceVolumeAttr(int voiceBit, short voll, short volr, short volmodeL, short volmodeR) {
     SpuVoiceAttr attr;
 
-    attr.voice = 1 << vNum;
+    attr.voice = 1 << voiceBit;
     attr.mask = SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_VOLMODEL | SPU_VOICE_VOLMODER;
-    attr.volume.left = volL;
-    attr.volume.right = volR;
-    attr.volmode.left = volModeL;
-    attr.volmode.right = volModeR;
+    attr.volume.left = voll;
+    attr.volume.right = volr;
+    attr.volmode.left = volmodeL;
+    attr.volmode.right = volmodeR;
     SpuSetVoiceAttr(&attr);
 }
 

@@ -593,7 +593,7 @@ static const char D_801D0194[] = "bu00:%s";
 
 SaveHeader* SaveGetHeader(s32 arg0) { return &D_801E3864[arg0]; }
 
-s32 LoadSaveHeader(s32 save_id) {
+s32 LoadSaveHeader(s32 saveId) {
     // Declared but never used, like the one GetSaveSlotMask passes to
     // firstfile(); it still occupies its stack slot.
     struct DIRENTRY dirEntry;
@@ -608,10 +608,10 @@ s32 LoadSaveHeader(s32 save_id) {
 
     // Only the header page is needed to build the slot preview.
     g_SaveWriteRemaining = 0x280;
-    if (save_id & 0x10) {
-        sprintf(path, D_801D018C, D_801E2C78[save_id & 15]);
+    if (saveId & 0x10) {
+        sprintf(path, D_801D018C, D_801E2C78[saveId & 15]);
     } else {
-        sprintf(path, D_801D0194, D_801E2C78[save_id & 15]);
+        sprintf(path, D_801D0194, D_801E2C78[saveId & 15]);
     }
     fd = open(path, 1);
     if (fd == -1) {
@@ -635,7 +635,7 @@ s32 LoadSaveHeader(s32 save_id) {
     return 2;
 read_ok:
     close(fd);
-    slot = save_id & 15;
+    slot = saveId & 15;
     headers = D_801E3864;
     headerDst = (u8*)&headers[slot];
     headerSrc = (u8*)&g_SaveFile.save;
@@ -643,7 +643,7 @@ read_ok:
     return 0;
 }
 
-s32 LoadSaveFile(s32 save_id) {
+s32 LoadSaveFile(s32 saveId) {
     // Declared but never used, like the one GetSaveSlotMask passes to
     // firstfile(); it still occupies its stack slot.
     struct DIRENTRY dirEntry;
@@ -655,9 +655,9 @@ s32 LoadSaveFile(s32 save_id) {
     u8* saveSrc;
     u8* saveDst;
 
-    // readCount doubles as a scratch copy of save_id here; the overlay
+    // readCount doubles as a scratch copy of saveId here; the overlay
     // stops matching if either reuse below is given its own variable.
-    readCount = save_id;
+    readCount = saveId;
     g_SaveWriteRemaining = sizeof(MemcardSaveFile);
     if (readCount & 0x10) {
         fd = readCount;
@@ -825,7 +825,7 @@ static s32 WriteSaveFile(s8* path, u8* title) {
         // The store into fd is dead; the overlay stops matching without it.
         existingFd = fd = open(path, 1);
         if (existingFd != -1) {
-            delete (path);
+            delete(path);
             close(existingFd);
             break;
         }
@@ -876,17 +876,17 @@ static const char* D_801E2CB8[] = {
     "ＦＦ７／ＳＡＶＥ１３／１１：１１", "ＦＦ７／ＳＡＶＥ１４／１１：１１", "ＦＦ７／ＳＡＶＥ１５／１１：１１",
 };
 
-static s16 SaveCheckFile(s32 save_id) {
+static s16 SaveCheckFile(s32 saveId) {
     char path[0x40];
     s32 ret;
     s32 slot;
 
-    if (save_id & 0x10) {
-        sprintf(path, D_801D018C, D_801E2C78[save_id & 15]);
+    if (saveId & 0x10) {
+        sprintf(path, D_801D018C, D_801E2C78[saveId & 15]);
     } else {
-        sprintf(path, D_801D0194, D_801E2C78[save_id & 15]);
+        sprintf(path, D_801D0194, D_801E2C78[saveId & 15]);
     }
-    slot = save_id & 15;
+    slot = saveId & 15;
     g_SaveSlot = slot;
     ret = WriteSaveFile(path, (u8*)D_801E2CB8[slot]);
     if (!(s16)ret) {

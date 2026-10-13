@@ -30,7 +30,6 @@ void SysFadeInitPoly(void);
 void SystemCdromAbortLoading(void);
 
 static void FieldLoadMimDatFiles(void) {
-
     if (!g_IsFieldLoading) {
         SysCdromStartLoadLzs(g_FieldFileInfo[g_FieldCurrentMap * 6 + 2], g_FieldFileInfo[g_FieldCurrentMap * 6 + 3],
                              FIELD_TEXTURE_BUFFER, NULL);

@@ -8,8 +8,9 @@
 
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleFlags.cs#L4
 typedef enum {
-    SETUP_CANNOT_ESCAPE = 4,
-    SETUP_NO_VICTORY_POSE = 8,
+    SETUP_UNK2 = 0x2,
+    SETUP_CANNOT_ESCAPE = 0x4,
+    SETUP_NO_VICTORY_POSE = 0x8,
     SETUP_NO_PREEMPTIVE_STRIKE = 0x10,
 } BattleSetupFlags;
 
@@ -555,12 +556,12 @@ typedef struct {
 } BattleSpriteDesc;      // size:0x10
 
 typedef struct {
-    /* 0x00 */ s16 unitSpeed;
+    /* 0x00 */ u16 varSpeed;
     /* 0x02 */ s16 atbIncrement;
-    /* 0x04 */ u16 atbGauge; // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
-    /* 0x06 */ s16 unk6;
+    /* 0x04 */ u16 atbGauge;     // ATB fill gauge, saturates/compares at 0xFFFF -- unsigned
+    /* 0x06 */ s16 hpChangeRate; // HP per 4 var ticks: +maxHP/32 Regen, -maxHP/32 Dual Drain
     /* 0x08 */ s16 limitSpeedFlag;
-    /* 0x0A */ u16 atbSpeedMultiplier;
+    /* 0x0A */ u16 constSpeed;
     /* 0x0C */ u8 senseTargetMask;
     /* 0x0D */ u8 accessoryEffectId;
     /* 0x0E */ u8 hasLimitBreak;
@@ -763,7 +764,7 @@ extern Unk80166F78 D_80166F78[NUM_ENEMY][16];
 // Scratch copy of a party member's save record, taken when g_BattleData.flags bit EVENT_BATTLE_SQUARE is set.
 extern SavePartyMember D_80167938;
 
-s32 BattleEffectRegister(void (*func)(void));
+s32 BattleEffectRegister(void (*callback)(void));
 void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void BattleEnqueueClearImage(RECT* rect, s32 arg1, s32 arg2, s32 arg3);
 void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);
@@ -792,18 +793,18 @@ s32 BattleEntityGetStereoPan(s32 arg0);
 void func_800D5774(u32 targetIndex);
 void BattleRunFrame(void);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-void BattleRecalcUnitSpeed(s32 index);
+void BattleUnitCalcSpeed(s32 index);
 void BattleUpdateUnitMasks(void);
 void BattleCheckAllLucky7s(void);
 void BattleActionQueueReset(void);
 void BattleCmdScriptInitTbl(void);
 void BattleHitFormulaInit(void);
 void BattleEventQueueInit(void);
-void BattleBannerSetEncounterString(s16 arg0);
+void BattleBannerSetEncounterString(s16 stringId);
 void BattleResetReservedItems(void);
 void BattleExecFormationAIScripts(void);
 void BattleInitTurnWorkHPMP(void);
-void BattleAddAutoBattleActionByChance(s32 arg0, s32 arg1);
+void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode);
 void BattleInitUnitAction(s32 index);
 void BattleEnableLimitToPlayerWithSpeed(s32 index);
 s32 BattleCopyMessageWithArgs(u8* dst, const u8* src, const u16* args);

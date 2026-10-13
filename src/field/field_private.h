@@ -159,7 +159,7 @@ void StopFieldMapPreload(void);
 void PreloadNextFieldMap(FieldEntity* player, FieldGateway* gateways);
 s32 FieldMainLoop(void);
 void FieldLoadMimToVram(s32 arg0, void* mimData);
-void FieldBackgroundInitPackets(SPRT_16* bg1, SPRT* bg2, FieldBgAnimEntry* animation, DR_MODE* drawMode);
+void FieldBackgroundInitPackets(SPRT_16* sprite16, SPRT* sprite, FieldBgAnimEntry* animation, DR_MODE* drawMode);
 void AddBackgroundToRender(FieldRenderData* renderData);
 s32 FieldCalcWorldToScreenPos(SVECTOR* worldPos, SVECTOR* screenPos);
 u8 FieldEntityDirByVec(VECTOR* start, VECTOR* target, s32* distance);
@@ -168,11 +168,11 @@ void DebugRunEveryLoop(void);
 void FieldRainInit(FieldRenderData* renderData);
 void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm);
 u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelData);
-u8* FieldModelLoadGlobalModels(FieldModelLoaderHeader* header, FieldModelData* modelData, u8* buffer, s32 arg3);
+u8* FieldModelLoadGlobalModels(FieldModelLoaderHeader* header, FieldModelData* modelData, u8* buffer, s32 loadTextures);
 u8* LoadLocalFieldModelAndInitAll(
-    FieldModelLoaderHeader* header, FieldModelData* modelData, const u32* arg2, void* arg3);
+    FieldModelLoaderHeader* header, FieldModelData* models, const u32* options, void* data);
 void FieldModelAnimCalcMtrxs(FieldModelEntry* model, MATRIX* matrix, u8 animationId, s32 frame);
-s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* entry, u8* params);
+s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* model, u8* params);
 s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params);
 void KawaiClearData(void);
 

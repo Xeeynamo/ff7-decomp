@@ -17,7 +17,7 @@ static s32 BattleGetScenePackId(s32 sceneID);
 static s32 BattleBoostVal25Percent(s32 value);
 static void BattleInitPlayer(void);
 static void BattleInitApplyAccStatus(s32 slot, s32 accessory);
-static void BattleInitCharCmdMenu(s32 slot);
+static void BattleInitCharCmdMenu(s32 sceneID);
 void BattleInitCharCmdState(s32 slot);
 static s32 BattleInitApplyStartFX(s32 slot);
 static void BattleInitLimits(s32 charId, s32 learnedLimits, BattleLimitData* data);
@@ -80,7 +80,7 @@ void BatInitMain(s32 sceneID) {
     pUnit = pCombatantBase;
     g_BattleSceneContext.atbWaitMode = (Savemap.config & 0xC0) >> 6;
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
-        BattleRecalcUnitSpeed(i);
+        BattleUnitCalcSpeed(i);
         if ((s8)pUnit[i].actorId != -1) {
             *(u16*)((u8*)pCombatantBase - 0x32) |= 1 << i;
         }
@@ -183,7 +183,7 @@ static void BattleInitSetup(s32 sceneID) {
     BattleInitEnemyUnits();
     g_BattleState.presentMask = 0;
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
-        BattleRecalcUnitSpeed(i);
+        BattleUnitCalcSpeed(i);
         unit = &g_BattleState.combatant[i];
         if (unit->actorId != -1) {
             g_BattleState.presentMask |= 1 << i;

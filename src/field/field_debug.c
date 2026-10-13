@@ -176,23 +176,23 @@ static void FieldDebugStringPartCopy(char* dst, char* src, s32 len) {
     }
 }
 
-void FieldDebugStringU8hex(s32 val, char* msg_out) {
-    msg_out[1] = '\0';
-    msg_out[0] = g_FieldDebugDigits[val & 0xF];
+void FieldDebugStringU8hex(s32 val, char* msgOut) {
+    msgOut[1] = '\0';
+    msgOut[0] = g_FieldDebugDigits[val & 0xF];
 }
 
-void FieldDebugStringU16hex(s32 val, char* msg_out) {
-    msg_out[2] = '\0';
-    msg_out[0] = g_FieldDebugDigits[(val & 0xF0) >> 4];
-    msg_out[1] = g_FieldDebugDigits[val & 0xF];
+void FieldDebugStringU16hex(s32 val, char* msgOut) {
+    msgOut[2] = '\0';
+    msgOut[0] = g_FieldDebugDigits[(val & 0xF0) >> 4];
+    msgOut[1] = g_FieldDebugDigits[val & 0xF];
 }
 
-void FieldDebugStringU32hex(s32 val, char* msg_out) {
-    msg_out[4] = '\0';
-    msg_out[0] = g_FieldDebugDigits[(val & 0xF000) >> 0xC];
-    msg_out[1] = g_FieldDebugDigits[(val & 0xF00) >> 8];
-    msg_out[2] = g_FieldDebugDigits[(val & 0xF0) >> 4];
-    msg_out[3] = g_FieldDebugDigits[val & 0xF];
+void FieldDebugStringU32hex(s32 val, char* msgOut) {
+    msgOut[4] = '\0';
+    msgOut[0] = g_FieldDebugDigits[(val & 0xF000) >> 0xC];
+    msgOut[1] = g_FieldDebugDigits[(val & 0xF00) >> 8];
+    msgOut[2] = g_FieldDebugDigits[(val & 0xF0) >> 4];
+    msgOut[3] = g_FieldDebugDigits[val & 0xF];
 }
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugIntToString);

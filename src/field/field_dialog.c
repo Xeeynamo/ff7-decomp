@@ -258,7 +258,6 @@ s32 FieldDialogMessageUpdateStates(u8 window, u8 message) {
 
 s32 FieldDialogAskUpdateStates(u8 window, u8 message, u8 first, u8 last, s16* selectedLine) {
     switch (g_WindowData[window].state) {
-
     // Clears window, sets width/height to 1/4 of what was previously set
     // with FieldDialogSetSize, and sets state = WSTATE_SHOW.
     case WSTATE_INIT:

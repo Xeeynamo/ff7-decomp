@@ -146,8 +146,8 @@ static void func_8001D47C(s16 x0, s16 x1, s16 y, s32 color) {
     g_PolyPtr.linef2++;
 }
 
-static void func_8001D56C(s16 x0, s16 y0, s16 x1, s16 y1, s16 is_yellow) {
-    if (is_yellow) {
+static void func_8001D56C(s16 x0, s16 y0, s16 x1, s16 y1, s16 isYellow) {
+    if (isYellow) {
         SetLineF2(g_PolyPtr.linef2);
         g_PolyPtr.linef2->r0 = 0xFF;
         g_PolyPtr.linef2->g0 = 0xFF;
@@ -181,8 +181,9 @@ static s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
     colorCycleCount = 0;
     for (i = 0; i < 1024; i++, colorCycleCount++) {
         c = *txt;
-        if (D_80062DBC == 0 || c == 0xFF || c == 0xE8 || c == 0xE9)
+        if (D_80062DBC == 0 || c == 0xFF || c == 0xE8 || c == 0xE9) {
             break;
+        }
 
         if (c == 0xE7) {
             x = 8;
@@ -259,8 +260,9 @@ static s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
 
                     setSprt(g_PolyPtr.sprt);
                     SetShadeTex(g_PolyPtr.sprt, 1);
-                    if (D_80062DC0 != 0)
+                    if (D_80062DC0 != 0) {
                         SetSemiTrans(g_PolyPtr.sprt, 1);
+                    }
                     g_PolyPtr.sprt->x0 = x;
                     g_PolyPtr.sprt->y0 = y - 2;
                     switch (*txt - 0xF6) {
@@ -336,8 +338,9 @@ static s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
 
             setSprt(g_PolyPtr.sprt);
             SetShadeTex(g_PolyPtr.sprt, 1);
-            if (D_80062DC0 != 0)
+            if (D_80062DC0 != 0) {
                 SetSemiTrans(g_PolyPtr.sprt, 1);
+            }
             g_PolyPtr.sprt->x0 = x;
             g_PolyPtr.sprt->y0 = y;
             g_PolyPtr.sprt->u0 = tu;
@@ -347,10 +350,11 @@ static s16 SysMenuDrawDialogString(s16 x, s16 y, s16 w, u8* txt) {
             g_PolyPtr.sprt->clut = GetClut((width << 16 >> 16) | 0x100, textColor);
             AddPrim(g_CurrentOT, g_PolyPtr.sprt++);
 
-            if (D_80062DC4 == 0)
+            if (D_80062DC4 == 0) {
                 x += D_800707C0[next + windowBinOffset] & 0x1F;
-            else
+            } else {
                 x += 13;
+            }
             txt++;
             D_80062DBC--;
             D_80062FF0++;

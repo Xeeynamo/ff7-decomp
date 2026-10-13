@@ -58,11 +58,11 @@ u8* GetPartySlotArmorMateriaSlots(s32 arg0);
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId);
 u8 D_80063020; // %gp_rel
 extern s32 D_80062FBC;
-s32 SysSearchExistedMagic(u8);
-void SysAddPairMagicWithQuadraMagic(u8, u8, s32);
-void SysAddPairMasterMagicWithQuadraMagic(u8);
-void SysAddPairSummonWithQuadraMagic(u8, u8);
-void SysAddPairMasterSummonWithQuadraMagic(u8);
+s32 SysSearchExistedMagic(u8 magicId);
+void SysAddPairMagicWithQuadraMagic(u8 allCount, u8 materiaId, s32 ap);
+void SysAddPairMasterMagicWithQuadraMagic(u8 allCount);
+void SysAddPairSummonWithQuadraMagic(u8 allCount, u8 materiaId);
+void SysAddPairMasterSummonWithQuadraMagic(u8 allCount);
 
 static s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
     *arg2 = arg0;

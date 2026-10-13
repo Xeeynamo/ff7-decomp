@@ -603,7 +603,8 @@ void main(void) {
                 func_80033BE0();
                 AkaoDeinit();
                 break;
-            } else if (g_FieldState.eventCmd == EVTCMD_GAME_OVER) {
+            }
+            if (g_FieldState.eventCmd == EVTCMD_GAME_OVER) {
                 g_FieldState.eventCmd = EVTCMD_NONE;
                 AkaoExec();
                 SysCdromLoadFile(yama_field_dschange.loc, yama_field_dschange.len, (u_long*)0x800A0000, NULL);
@@ -617,7 +618,8 @@ void main(void) {
                 func_80033BE0();
                 AkaoDeinit();
                 break;
-            } else if (g_FieldState.eventCmd == EVTCMD_TITLE_SCREEN) {
+            }
+            if (g_FieldState.eventCmd == EVTCMD_TITLE_SCREEN) {
                 g_FieldState.eventCmd = EVTCMD_NONE;
                 func_80033BE0();
                 AkaoDeinit();

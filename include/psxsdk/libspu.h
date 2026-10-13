@@ -116,7 +116,7 @@ extern long SpuSetReverbDepth(SpuReverbAttr* attr);
 extern long SpuSetNoiseClock(long n_clock);
 
 extern void SpuSetVoiceAttr(SpuVoiceAttr* arg);
-extern void SpuSetVoiceVolumeAttr(int voice_bit, short voll, short volr, short volmode_l, short volmode_r);
+extern void SpuSetVoiceVolumeAttr(int voiceBit, short voll, short volr, short volmodeL, short volmodeR);
 extern void SpuSetKey(long on_off, unsigned long voice_bit);
 extern void SpuSetVoiceVolume(int voiceNum, short volumeL, short volumeR);
 extern void SpuSetVoicePitch(int voiceNum, unsigned short pitch);

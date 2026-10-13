@@ -249,7 +249,8 @@ static void func_800A2B28(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2BF4);
 
-static void BattleQueueEffect(s32, s32, s32, s32, s32, s32, s32);
+static void BattleQueueEffect(
+    s32 actorId, s32 animeId, s32 actioId, s32 effectParam, s32 arg4, s32 flags, s32 statusMask);
 static void func_800A2CC4(s32 arg0) {
     BattleQueueEffect(g_CurrentAction->actorId, arg0, g_CurrentAction->cmdIndex, g_CurrentAction->unk24,
                       g_CurrentAction->unk98, 0, 0);
@@ -385,8 +386,8 @@ static void func_800A329C(void) {
     }
 }
 
-void BattleQueueEvent(s32, s32, s32, s32);
-static s32 func_800A37F8(s32);
+void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+static s32 func_800A37F8(s32 arg0);
 static s32 func_800A4A80(void);
 
 static void func_800A32C0(s32 arg0) {
@@ -546,7 +547,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3ED0);
 
 static void func_800A4D88(s32 arg0);
 static void BattleAddUnitReservedItem(s16 arg0, s16 arg1);
-static s32 BattleGetManipulatorIdByEnemyUnitId(s32 arg0);
+static s32 BattleGetManipulatorIdByEnemyUnitId(s32 enemyId);
 void func_800A4350(s16 actorId, s16 cmdIndex, s16 attackIndex, u16 targetMask) {
     QueuedAction* entry;
 
@@ -651,7 +652,7 @@ void BattleUpdateUnitMasks(void) {
         }
     }
 
-    enemyFrontRow = 0xffff; // This was probably defined as a constant somewhere (eg: INVALID_INDEX)
+    enemyFrontRow = 0xFFFF; // This was probably defined as a constant somewhere (eg: INVALID_INDEX)
     g_BattleSceneContext.petrifiedMask = petrifiedActors;
     g_BattleData.unk14C = var_t3;
     g_BattleData.unk15C = var_s1;
@@ -1293,7 +1294,7 @@ void BattleExecFormationAIScripts(void) {
 }
 
 // Seems to be a KO handler when a unit is killed on the battlefield
-// arg0 is the killer, arg1 is the victim, arg2: 1 from func_800AFECC, 0 from BattleCmdScriptDispatch
+// arg0 is the killer, arg1 is the victim, arg2: 1 from BattleProcessTimers, 0 from BattleCmdScriptDispatch
 void func_800A6278(s32 arg0, s32 arg1, s32 arg2) {
     s32 var_s3;
     u8 nextAssignedOrder;
@@ -1530,12 +1531,12 @@ void BattleHudResetLimit(s32 arg0) {
     }
 }
 
-void BattleQueueEvent(s32, s32, s32, s32);
+void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 void func_800A6E6C(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 13, arg1); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRemovePlayersFromBattle);
 
-static void BattleAddStringToDisplay(s32, s32, s32, s16*);
+static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* args);
 void BattleSetItemWasStolenStringToDisplay(s32 arg0, s16 arg1) {
     s16 out = arg1;
     BattleAddStringToDisplay(arg0, 0x53, 1, &out);
@@ -1596,7 +1597,7 @@ void BattleResolveSummonActionIndex(void) {
     g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex + 56;
 }
 
-static void BattleRemoveUnitReservedItem(s16, s16);
+static void BattleRemoveUnitReservedItem(s16 arg0, s16 arg1);
 void BattlePrepareTmpFromItemForUse(void) {
     g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex;
     g_CurrentAction->unk24 = g_CurrentAction->relativeActionIndex;
@@ -1731,7 +1732,7 @@ void BattlePrepareTmpForManip(void) {
     g_CurrentAction->unkE4 = 0x59;
 }
 
-void BattleQueueIntroCamera(s32);
+void BattleQueueIntroCamera(s32 arg0);
 void func_800A795C(void) { BattleQueueIntroCamera(g_CurrentAction->relativeActionIndex); }
 
 void BattleActionType0A(void) { func_800AF9C8(); }
@@ -1745,7 +1746,7 @@ void BattleActionType0C();
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType0C);
 
 static void BattleCopyTargTypeDatToTmp(s32 arg0);
-static void SetActionStatusChange(u32 arg0, s32 arg1);
+static void SetActionStatusChange(u32 arg0, s32 statusMask);
 static void func_800A8D88(s32 arg0, s32 arg1);
 void BattleLoadActionAttackData(void) {
     AttackData* atk;
@@ -1997,7 +1998,7 @@ void BattleApplyVincentLimitTransform(void) {
         g_BattleState.combatant[unitId].maxHP = g_BattleWork.party[unitId].capHP;
     }
     g_BattleState.combatant[unitId].curHP = g_BattleState.combatant[unitId].maxHP;
-    BattleRecalcUnitSpeed(unitId);
+    BattleUnitCalcSpeed(unitId);
     BattleQueueEvent(2, unitId, 0x18, 1);
 }
 
@@ -2996,8 +2997,8 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADC70);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleLowerFunc04);
 
-static s32 BattleAddSplitQuaterModifier(s32, s32);
-static s32 BattleAddBarriersModifier(s32);
+static s32 BattleAddSplitQuaterModifier(s32 arg0, s32 arg1);
+static s32 BattleAddBarriersModifier(s32 arg0);
 
 void BattleLowerFunc05(void) {
     s32 base = g_CurrentAction->attackStat + g_CurrentAction->characterLevel;
@@ -3291,8 +3292,54 @@ void BattleCalcAffinityFlags(void) {
     }
 }
 
-void BattleRecalcUnitSpeed(int index);
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRecalcUnitSpeed);
+void BattleUnitCalcSpeed(s32 index) {
+    // Status alterations in this function are local only; the unit status is never written back
+    s32 status = g_BattleState.combatant[index].status;
+    s32 varSpeed = 0;
+    s16 constSpeed = 0;
+    s32 atbIncrement;
+
+    if (status & STATUS_IMPRISONED) {
+        switch (g_BattleSceneContext.imprisonedType) {
+        case 0:
+        case 3:
+            status |= STATUS_STOP;
+            break;
+        case 1:
+            status |= STATUS_PARALYSIS;
+            break;
+        }
+    }
+
+    if (!(status & (STATUS_STOP | STATUS_DEATH))) {
+        varSpeed = g_BattleSceneContext.battleSpeed;
+        constSpeed = BATTLE_CONST_SPEED_NORMAL / 2; // Slow
+
+        if (!(status & STATUS_SLOW)) {
+            varSpeed *= 2;
+            constSpeed = BATTLE_CONST_SPEED_NORMAL; // Normal
+            if (status & STATUS_HASTE) {
+                varSpeed *= 2;
+                constSpeed = BATTLE_CONST_SPEED_NORMAL * 2; // Haste
+            }
+        }
+    }
+
+    if (index < NUM_PARTY) {
+        s32 totalDex = BattleApplyStatMult(index, g_BattleState.combatant[index].dexterity, STAT_MULT_DEXTERITY) + 50;
+        atbIncrement = varSpeed * totalDex / g_BattleSceneContext.avgPartyDexterity;
+    } else {
+        atbIncrement = (varSpeed * g_BattleState.combatant[index].dexterity) / g_BattleSceneContext.avgPartyDexterity;
+    }
+
+    if (status & (STATUS_PARALYSIS | STATUS_PETRIFY | STATUS_SLEEP)) {
+        atbIncrement = 0;
+    }
+
+    g_BattleWork.turn[index].varSpeed = varSpeed;
+    g_BattleWork.turn[index].atbIncrement = atbIncrement;
+    g_BattleWork.turn[index].constSpeed = constSpeed;
+}
 
 const u8 g_StatusTimerInitValues[] = {
     0x1E, 0x14, 0x3C, 0x1E, 0x7F, 0x7F, 0x0A, 0x64, 0x7F, 0x7F, 0x40, 0x40, 0x00, 0x00, 0x00, 0x00};
@@ -3330,7 +3377,7 @@ int (* const g_BattleHitFormulaJmpTbl[])() = {
 };
 // ___end
 
-void BattleInitUnitAction(s32 arg0);
+void BattleInitUnitAction(s32 index);
 
 void func_800AEB80(s32 arg0, s32 statusBit, s32 arg2) {
     s32 index = BattleStatusBitToTimerIndex(statusBit);
@@ -3342,7 +3389,7 @@ void func_800AEB80(s32 arg0, s32 statusBit, s32 arg2) {
     }
 }
 
-void func_800AEBF0(s32 index, s32 arg1, s32 arg2) { BattleRecalcUnitSpeed(index); }
+void func_800AEBF0(s32 index, s32 arg1, s32 arg2) { BattleUnitCalcSpeed(index); }
 
 #ifndef PLATFORM_PSYZ
 // Original call in BattlePostAddDeath had no prototype in scope, but signature is correct according to other callers
@@ -3376,7 +3423,7 @@ void BattlePostAddDeath(s32 arg0, s32 arg1, s32 arg2) {
     g_BattleState.combatant[arg0].curHP = 0;
     func_800AEBF0(arg0, arg1, arg2);
 
-    g_BattleWork.turn[arg0].unk6 = 0;
+    g_BattleWork.turn[arg0].hpChangeRate = 0;
     g_BattleSceneContext.subActionSlots[arg0].priority = 0xFF;
     BattleReqReturnReservedItems(arg0);
 
@@ -3452,10 +3499,10 @@ void BattleRestoreBattleActionIfCan(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-void BattleQueueEvent(s32, s32, s32, s32);
+void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 void func_battle_800AF1A8(s32 arg0) { BattleQueueEvent(0, arg0, 8, 0); }
 
-void BattleRestoreBattleActionIfCan(s32, s32, s32);
+void BattleRestoreBattleActionIfCan(s32 arg0, s32 arg1, s32 arg2);
 
 // skips (does nothing) while combatant[arg0].status has Berserk or Confusion
 void BattleTryApplyHitEffect(s32 arg0, s32 arg1, s32 arg2) {
@@ -3488,7 +3535,7 @@ void func_800AF320(s32 arg0, s32 arg1, s32 arg2) {
 
 void func_800AF380(s32 arg0) { BattleQueueEvent(2, arg0, 0x15, 0xF); }
 
-void BattleApplyRegenPoisonTick(s32 arg0, s32 arg1, s32 arg2) {
+void BattleUnitSetHpChangeRate(s32 arg0, s32 arg1, s32 arg2) {
     s32 amount;
     s32 status;
     s32 step;
@@ -3507,7 +3554,7 @@ void BattleApplyRegenPoisonTick(s32 arg0, s32 arg1, s32 arg2) {
     if (status & STATUS_DUAL_DRAIN) {
         amount -= step;
     }
-    g_BattleWork.turn[arg0].unk6 = amount;
+    g_BattleWork.turn[arg0].hpChangeRate = amount;
     if (arg2 != 0) {
         BattleUnitInitStatusTimer(arg0, arg1, arg2);
     } else {
@@ -3520,7 +3567,7 @@ void func_800AF470(s32 arg0) { g_BattleWork.turn[arg0].unk28 = 3; }
 void func_800AF494(s32 arg0, s32 arg1, s32 arg2) {
     switch (g_BattleSceneContext.imprisonedType) {
     case 1:
-        BattleApplyRegenPoisonTick(arg0, arg1, arg2);
+        BattleUnitSetHpChangeRate(arg0, arg1, arg2);
         /* fallthrough */
     case 0:
     case 3:
@@ -3554,7 +3601,7 @@ void BattleClearActorSlotReferences(s32 arg0, s32 arg1, s32 arg2) {
     BattleInitUnitAction(arg0);
 }
 
-void BattleInitUnitAction(s32 arg0);
+void BattleInitUnitAction(s32 index);
 void func_800AF63C(s32 arg0) { BattleInitUnitAction(arg0); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF65C);
@@ -3745,16 +3792,156 @@ void func_800AF9C8(void) {
     }
 }
 
-extern s32 D_800F499C;
-extern s32 D_800F49F8[][10];
+static s32 BattleUnitGetPendingConstTicks(s32 arg0) {
+    return BATTLE_CONST_TICKS(g_BattleConstTimerAccum[g_BattleTimerBufferIndex][arg0]);
+}
 
-static s32 func_800AFE98(s32 arg0) { return D_800F49F8[D_800F499C][arg0] >> 0xC; }
+// Called from BATTLE_Main; consumes the set filled by BattleAdvanceTimers
+void BattleProcessTimers(void) {
+    s32* varTimerAccum;
+    s32* constTimerAccum;
+    s32 bufferIndex = g_BattleTimerBufferIndex;
+    s32 globalTicks;
+    s32 i;
+    s32 k;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AFECC);
+    constTimerAccum = g_BattleConstTimerAccum[bufferIndex];
+    varTimerAccum = g_BattleVarTimerAccum[bufferIndex];
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0170);
+    g_BattleTimerBufferIndex ^= 1;
+    globalTicks = BATTLE_TICKS(g_BattleGlobalTimerAccum[bufferIndex]);
+    g_BattleGlobalTimerAccum[bufferIndex] = BATTLE_TIMER_FRAC(g_BattleGlobalTimerAccum[bufferIndex]);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800B0234);
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        s32 hpChangeRate = g_BattleWork.turn[i].hpChangeRate;
+        s32 varTimerInc = varTimerAccum[i];
+        s32 constTimerInc = constTimerAccum[i];
+        s32 varTicks;
+        s32 constTicks;
+        s32 hpChange;
+        s32 deltaHP;
+        s32 varTimer;
+        s32 constTimer;
+
+        varTimer = g_BattleVarTimerFrac[i] + varTimerInc;
+        g_BattleVarTimerFrac[i] = BATTLE_TIMER_FRAC(varTimer);
+
+        constTimer = g_BattleConstTimerFrac[i] + constTimerInc;
+        g_BattleConstTimerFrac[i] = BATTLE_CONST_FRAC(constTimer);
+
+        hpChange = g_BattleHpChangeFrac[i] + varTimerInc * hpChangeRate;
+        g_BattleHpChangeFrac[i] = BATTLE_HP_FRAC(hpChange);
+
+        varTimerAccum[i] = 0;
+        constTimerAccum[i] = 0;
+
+        varTicks = BATTLE_TICKS(varTimer);
+        constTicks = BATTLE_CONST_TICKS(constTimer);
+        deltaHP = BATTLE_HP_DELTA(hpChange);
+
+        if (!(g_BattleState.combatant[i].status & STATUS_DEATH)) {
+            s32 maxHP = g_BattleState.combatant[i].maxHP;
+            s32 newHP = g_BattleState.combatant[i].curHP + deltaHP;
+            if (newHP < 0) {
+                g_BattleState.combatant[i].status |= STATUS_DEATH;
+                func_800A6278(i, i, 1);
+                BattleExecFormationAIScripts();
+                newHP = 0;
+            } else if (maxHP < newHP) {
+                newHP = maxHP;
+            }
+            g_BattleState.combatant[i].curHP = newHP;
+        }
+
+        for (k = 0; k < NUM_STATUS_TIMERS; k++) {
+            s32 timer = g_BattleWork.turn[i].statusTimers[k];
+            s32 delta;
+
+            if (timer) {
+                switch (k) {
+                case TIMER_STOP:
+                    delta = globalTicks;
+                    break;
+
+                case TIMER_D_SENTENCE:
+                case TIMER_SLOW_NUMB:
+                    delta = constTicks;
+                    break;
+
+                default:
+                    delta = varTicks;
+                    break;
+                }
+
+                timer -= delta;
+
+                if (timer < 0) {
+                    timer = 0;
+                }
+                if (timer == 0) {
+                    BattleQueueEvent(2, i, k, k);
+                }
+
+                g_BattleWork.turn[i].statusTimers[k] = timer;
+            }
+        }
+    }
+}
+
+// Called on every VSync from the interrupt callback
+void BattleAdvanceTimers(void) {
+    s32* varTimerAccum = g_BattleVarTimerAccum[g_BattleTimerBufferIndex];
+    s32* constTimerAccum = g_BattleConstTimerAccum[g_BattleTimerBufferIndex];
+    s32 i;
+
+    g_BattleGlobalTimerAccum[g_BattleTimerBufferIndex] += g_BattleSceneContext.battleSpeed;
+
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        varTimerAccum[i] += g_BattleWork.turn[i].varSpeed;
+        constTimerAccum[i] += g_BattleWork.turn[i].constSpeed;
+    }
+}
+
+// Copies party HP/MP and Barrier/M-Barrier timers, adjusted
+// by the pending var ticks, into g_ActiveCharacters
+void func_800B0234(void) {
+    s32* varTimerAccum = g_BattleVarTimerAccum[g_BattleTimerBufferIndex];
+    s32 i;
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        s32 hpChangeRate = g_BattleWork.turn[i].hpChangeRate;
+        s32 varTimerInc = varTimerAccum[i];
+        s32 prevMP = g_BattleWork.turn[i].prevMP;
+        s32 newHP = g_BattleWork.turn[i].prevHP;
+        s32 barrierTimer = g_BattleWork.turn[i].statusTimers[TIMER_BARRIER];
+        s32 mbarrierTimer = g_BattleWork.turn[i].statusTimers[TIMER_M_BARRIER];
+
+        newHP += BATTLE_HP_DELTA(hpChangeRate * varTimerInc);
+
+        if (newHP < 0) {
+            newHP = 0;
+        } else if (g_BattleState.combatant[i].maxHP < newHP) {
+            newHP = g_BattleState.combatant[i].maxHP;
+        }
+
+        barrierTimer -= BATTLE_TICKS(varTimerInc);
+        mbarrierTimer -= BATTLE_TICKS(varTimerInc);
+        if (barrierTimer < 0) {
+            barrierTimer = 0;
+        }
+        if (mbarrierTimer < 0) {
+            mbarrierTimer = 0;
+        }
+
+        if (!(g_BattleState.setupFlags & SETUP_UNK2)) {
+            g_ActiveCharacters[i].hp = newHP;
+            g_ActiveCharacters[i].mp = prevMP;
+        }
+
+        g_ActiveCharacters[i].counterActionIndex = barrierTimer * 2;
+        g_ActiveCharacters[i].counterChance = mbarrierTimer * 2;
+    }
+}
 
 void BattleRollPhysicalHit(void) {
     BattleUnit* attacker = &g_BattleState.combatant[g_CurrentAction->actorId];
@@ -4030,7 +4217,7 @@ static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* args) {
 
 void BattleQueueIntroCamera(s32 arg0) { func_800A31A0(10, 2, 1, arg0); }
 
-void BattleInitUnitAction(s32 arg0) { func_800A31A0(arg0, 5, 0, 0); }
+void BattleInitUnitAction(s32 index) { func_800A31A0(index, 5, 0, 0); }
 
 // true when the combatant's HP is at or below a quarter of max -- the "Near
 // Death" threshold used by weapon-specific damage formulas (e.g. Powersoul's
@@ -4557,7 +4744,7 @@ static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex)
     BattleCopyBattleActionToBattleQueue(&action);
 }
 
-static AttackData* BattleGetAttackData(s32);
+static AttackData* BattleGetAttackData(s32 id);
 static s32 func_800B2C60(s32 arg0) {
     s32 var_s0;
     AttackData* ret;
@@ -4594,7 +4781,7 @@ void func_800B2CFC(s32 arg0, s32 arg1) {
     g_BattleState.combatant[arg0].status = g_BattleState.combatant[arg1].status;
     g_BattleState.combatant[arg0].prevStatus = g_BattleState.combatant[arg1].prevStatus;
 
-    g_BattleWork.turn[arg0].unk6 = g_BattleWork.turn[arg1].unk6;
+    g_BattleWork.turn[arg0].hpChangeRate = g_BattleWork.turn[arg1].hpChangeRate;
     g_BattleWork.turn[arg0].unk28 = g_BattleWork.turn[arg1].unk28;
     g_BattleWork.turn[arg0].turnFlags = g_BattleWork.turn[arg1].turnFlags;
 
@@ -4606,7 +4793,7 @@ void func_800B2CFC(s32 arg0, s32 arg1) {
         g_BattleWork.turn[arg0].statMults[i] = g_BattleWork.turn[arg1].statMults[i];
     }
 
-    BattleRecalcUnitSpeed(arg0);
+    BattleUnitCalcSpeed(arg0);
     BattleInitUnitAction(arg0);
 }
 

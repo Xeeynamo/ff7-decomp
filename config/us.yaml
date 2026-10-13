@@ -622,7 +622,7 @@ overlays:
     vram_start: 0x800A0000
     segments:
       - [0x0, .rodata, highway_track]
-      - [0x10, rodata, highway]
+      - [0x10, .rodata, highway_collide]
       - [0x50, .rodata, highway_race]
       - [0xD0, c, highway]
       - [0x3BC8, c, highway_node]
@@ -637,7 +637,8 @@ overlays:
       - [0x112B0, c, highway_model_gte]
       - [0x12760, c, highway_model2]
       - [0x13BF8, asm, highway_gte]
-      - [0x141C8, data, highway]
+      - [0x141C8, .data, highway]
+      - [0x143BC, data, highway_remaining]
   - name: barrier
     disk_path: disks/us/MAGIC/BARRIER.BIN
     sha1: e93c458117a937879f1a6d8c956dfbdacd6286e0

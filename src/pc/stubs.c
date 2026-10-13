@@ -426,7 +426,7 @@ u_long* BreakDraw(void) {
     NOT_IMPLEMENTED;
     return 0;
 }
-int IsIdleGPU(int max_count) {
+int IsIdleGPU(int maxCount) {
     NOT_IMPLEMENTED;
     return 0;
 }

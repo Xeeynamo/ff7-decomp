@@ -4,9 +4,9 @@
 #include <psxsdk/inline_c.h>
 
 s32 WmCreatePacketForModelPart(FieldModelPart*, s32, s32, s32);
-void WmScaleModelVertexes(FieldModelPart*, s16, s32);
+void WmScaleModelVertexes(FieldModelPart* part, s16 scale, s32 force);
 void WmScaleModelAnimations(FieldModelAnimation*, s16, s32);
-void WmScaleModelAll(FieldModelEntry*, s16, s32);
+void WmScaleModelAll(FieldModelEntry* model, s16 scale, s32 force);
 void WmApplyPolyLightingToPacket(FieldModelPart*, s32, s32, s32);
 
 s32 WmLoadModelPacketAndScale(FieldModelEntry* model, s32 packet, s32 arg2) {

@@ -113,7 +113,6 @@ void SysCdromInit(void) {
 void func_80033BE0(void) {
     SystemCdromAbortLoading();
     do {
-
     } while (SystemCdromReadChain() != 0);
     CdFlush();
     CdReset(0);
@@ -157,33 +156,32 @@ static void SysCdromSetChainParam(int op, int sector, size_t len, u_long* dst, v
     D_80071A60 = op;
 }
 
-int func_80033DAC(int sector_no, void (*cb)()) {
-    SysCdromSetChainParam(CDOP_SEEK, sector_no, 0, NULL, cb);
+int func_80033DAC(int sectorNo, void (*cb)()) {
+    SysCdromSetChainParam(CDOP_SEEK, sectorNo, 0, NULL, cb);
     return 0;
 }
 
-int func_80033DE4(int sector_no) {
-    SysCdromSetChainParam(CDOP_IDLE, sector_no, 0, NULL, NULL);
+int func_80033DE4(int sectorNo) {
+    SysCdromSetChainParam(CDOP_IDLE, sectorNo, 0, NULL, NULL);
     do {
-
     } while (CdControl(CdlSetloc, (u_char*)&D_80071A68, NULL) == 0);
     return 0;
 }
 
-int SystemLoadFileBySector(int sector_no, size_t size, u_long* dst, void (*cb)()) {
-    SysCdromSetChainParam(CDOP_READ_SEEK, sector_no, size, dst, cb);
+int SystemLoadFileBySector(int sectorNo, size_t size, u_long* dst, void (*cb)()) {
+    SysCdromSetChainParam(CDOP_READ_SEEK, sectorNo, size, dst, cb);
     return 0;
 }
 
-int SysCdromStartLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)()) {
-    SysCdromSetChainParam(CDOP_LZS_SEEK, sector_no, size, dst, cb);
-    D_800698E8 = sector_no;
+int SysCdromStartLoadLzs(int sectorNo, size_t size, u_long* dst, void (*cb)()) {
+    SysCdromSetChainParam(CDOP_LZS_SEEK, sectorNo, size, dst, cb);
+    D_800698E8 = sectorNo;
     SysCdromSetLzsExtract(D_800698F0, dst);
     return 0;
 }
 
-int func_80033EDC(int sector_no, void (*cb)()) {
-    while (func_80033DAC(sector_no, cb)) {
+int func_80033EDC(int sectorNo, void (*cb)()) {
+    while (func_80033DAC(sectorNo, cb)) {
     }
     while (SystemCdromReadChain()) {
         VSync(0);
@@ -191,8 +189,8 @@ int func_80033EDC(int sector_no, void (*cb)()) {
     return 0;
 }
 
-int SysCdromLoadFile(int sector_no, size_t size, u_long* dst, void (*cb)()) {
-    while (SystemLoadFileBySector(sector_no, size, dst, cb)) {
+int SysCdromLoadFile(int sectorNo, size_t size, u_long* dst, void (*cb)()) {
+    while (SystemLoadFileBySector(sectorNo, size, dst, cb)) {
     }
     while (SystemCdromReadChain()) {
         VSync(0);
@@ -200,8 +198,8 @@ int SysCdromLoadFile(int sector_no, size_t size, u_long* dst, void (*cb)()) {
     return 0;
 }
 
-int SysCdromLoadLzs(int sector_no, size_t size, u_long* dst, void (*cb)()) {
-    while (SysCdromStartLoadLzs(sector_no, size, dst, cb)) {
+int SysCdromLoadLzs(int sectorNo, size_t size, u_long* dst, void (*cb)()) {
+    while (SysCdromStartLoadLzs(sectorNo, size, dst, cb)) {
     }
     while (SystemCdromReadChain()) {
         VSync(0);

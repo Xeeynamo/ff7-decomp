@@ -24,17 +24,17 @@ static void* D_80048DD4[] = {
 };
 
 // obtain file sector from a YamadaFile
-s32 SystemGetFileLBA(s32 file_no) { return D_80048D84[file_no].loc; }
+s32 SystemGetFileLBA(s32 fileNo) { return D_80048D84[fileNo].loc; }
 
-static void func_800144F0(s32 file_no) { func_80033DAC(file_no, 0); }
+static void func_800144F0(s32 fileNo) { func_80033DAC(fileNo, 0); }
 
-static void func_80014510(s32 file_no) { func_800144F0(D_80048D84[file_no].loc); }
+static void func_80014510(s32 fileNo) { func_800144F0(D_80048D84[fileNo].loc); }
 
 // used to load WORLD/WORLD.BIN or FIELD/FIELD.BIN
 void func_80014540(void) { SystemLoadFileBySector(D_80071744, D_80095DD8, D_800722C8, NULL); }
 
-void func_80014578(s32 file_no, void* dst, void (*cb)(void)) {
-    SystemLoadFileBySector(D_80048D84[file_no].loc, D_80048D84[file_no].len, dst, cb);
+void func_80014578(s32 fileNo, void* dst, void (*cb)(void)) {
+    SystemLoadFileBySector(D_80048D84[fileNo].loc, D_80048D84[fileNo].len, dst, cb);
 }
 
 void SystemCdWaitCallback(void (*cb)(void)) {
@@ -55,8 +55,8 @@ void func_80014610(void) {
     SysMemCopy32(D_80048D84, &buf, sizeof(Yamada) * YAMADA_FILE_NUM);
 }
 
-static void func_80014658(s32 file_no, void (*cb)(void)) {
-    func_80014578(file_no, (void*)0x801B0000, 0);
+static void func_80014658(s32 fileNo, void (*cb)(void)) {
+    func_80014578(fileNo, (void*)0x801B0000, 0);
     SystemCdWaitCallback(0);
     SysGzipBinDecompress((GzHeader*)0x801B0000, (u8*)0x800A0000);
     cb();

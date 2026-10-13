@@ -121,6 +121,29 @@ func ClangFormat(args ...string) error {
 	}).Run()
 }
 
+func ClangTidy(args ...string) ([]byte, error) {
+	binPath := "bin/clang-tidy"
+	if err := downloadFromGithubIfNotExists("Xeeynamo/ff7-decomp", "init", filepath.Base(binPath)+".gz", binPath); err != nil {
+		return nil, err
+	}
+	stdout := bytes.NewBuffer(nil)
+	stderr := bytes.NewBuffer(nil)
+	err := (&exec.Cmd{
+		Path:   binPath,
+		Args:   append([]string{binPath}, args...),
+		Stdout: stdout,
+		Stderr: stderr,
+	}).Run()
+	exitErr, ok := err.(*exec.ExitError)
+	if err != nil && !ok {
+		return nil, err
+	}
+	if ok && exitErr.ExitCode() == -1 {
+		return nil, fmt.Errorf("%s: %v", args[len(args)-1], err)
+	}
+	return append(stdout.Bytes(), stderr.Bytes()...), nil
+}
+
 // Cpp runs the cross preprocessor and returns its stdout.
 func Cpp(args ...string) ([]byte, error) {
 	binPath, err := exec.LookPath("mipsel-linux-gnu-cpp")

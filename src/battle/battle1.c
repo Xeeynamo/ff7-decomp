@@ -18,14 +18,14 @@ static void func_800B3E2C(void);
 static s32 func_800B3FAC(s32 arg0);
 static void BattleQueue1ClearTargs(void);
 static void BattleUpdateRender(void);
-static void func_800B8360(s32);
+static void func_800B8360(s32 arg0);
 static void func_800B85E0();
 static void func_800B88CC(s32 arg0);
 static void func_800B8E48(s32 arg0);
 static void func_800BA24C(void);
 static void func_800BA4C8(void);
 void func_800BA598(s16);
-static void func_800BB030(s16);
+static void func_800BB030(s16 arg0);
 void BattleQueue1CameraInit(void);
 static void func_800BB75C(BattleWorldView* view, MATRIX* camera, s16* cameraPos, s16* cameraTarget);
 static void func_800BB804(void);
@@ -44,7 +44,7 @@ static void func_800C0900(void);
 static void BattleGet4DigitsFromValue(s16 arg0, s16* arg1);
 static void func_800C4D10(void);
 DR_MODE* func_800C4DC8(s16 x, s16 y, s16 w, s16 h, s32*);
-static void BattleStoreUnitClut(u_long* arg0, s32 arg1);
+static void BattleStoreUnitClut(u_long* pTim, s32 palIndex);
 static void func_800C627C(void);
 void func_800C62F4(s32);
 static void func_800BC81C(s16 arg0, s16 arg1);
@@ -58,12 +58,12 @@ void BattleFadeInUntargetedEnemies(void);
 static void func_800C74A4(void);
 void BattleUnitInitBonesAndMatrixes(s32 arg0, void* arg1, s32 arg2);
 static void BattleLoadSecondPlayer(void);
-void BattleLoadPlayerModel(s32);
-void BattleLoadPlayerTexture(s32);
+void BattleLoadPlayerModel(s32 actor);
+void BattleLoadPlayerTexture(s32 actor);
 void BattleLoadThirdPlayer(void);
 static void func_800C5BEC(void);
-void BattleModelStartFades(s16);
-void func_800B5FE8(s16);
+void BattleModelStartFades(s16 actor);
+void func_800B5FE8(s16 actor);
 void BattleModelFadeOutTick(void);
 void BattleModelFadeInTick(void);
 static void func_800BB89C(void);
@@ -1126,8 +1126,9 @@ static void func_800BB030(s16 arg0) {
 
     for (i = 0; i < D_800FA6D8[arg0].unk3C; i++) {
         BattleUpdateMatrixWithSelfAndParentAndSetToGte(&D_800FA6D8[arg0].unk8[i]);
-        if (!D_800FA6D8[arg0].unk4[i])
+        if (!D_800FA6D8[arg0].unk4[i]) {
             continue;
+        }
         unk->model = D_800FA6D8[arg0].unk4[i];
         unk->flags = D_800FA6D8[arg0].unk3E[i] | MODEL_PRIM_PACKET_BITS | MODEL_DEPTH_CUE;
         unk->uvOffset = 0;

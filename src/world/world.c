@@ -6,34 +6,34 @@
 
 static void WmSetActiveEntityDirectionAndRot(s16 arg0);
 static void WmGetPosFromPcEntity(VECTOR* arg0);
-static void WmGetPos2FromPcEntity(VECTOR*);
+static void WmGetPos2FromPcEntity(VECTOR* arg0);
 static void WmSetPcEntityAsActiveEntity(void);
 static void func_800B7820(void);
 static s32 func_800BC1AC(void);
-static void func_800AA8D8(s16, s16, s16);
-WorldListNode* WmAssignRegionToNode(WorldListNode*);
+static void func_800AA8D8(s16 arg0, s16 arg1, s16 arg2);
+WorldListNode* WmAssignRegionToNode(WorldListNode* node);
 static s32 WmGetPcEntityWalkmeshRegion(void);
-static void CopyAreaName(s16);
-static void WmSetPcEntityY(s32);
-static void WmSetPcEntityYAndMarkMoved(s32);
+static void CopyAreaName(s16 arg0);
+static void WmSetPcEntityY(s32 arg0);
+static void WmSetPcEntityYAndMarkMoved(s32 arg0);
 void func_800A12AC(void);
 s32 WmFadeIsStopped(void);
 void WmWriteSavemap(void);
 void WmSyncPartyAndPcModel(void);
 void SysMenuShow(s32);
-void WmRotateVectorByYAngle(SVECTOR*, s16);
-void WmQueueBlocksAroundPos(VECTOR*);
+void WmRotateVectorByYAngle(SVECTOR* vec, s16 angle);
+void WmQueueBlocksAroundPos(VECTOR* pos);
 void func_800A5E28(void);
-void WmRequestVisibleChunks(VECTOR*, s16);
+void WmRequestVisibleChunks(VECTOR* pos, s16 angle);
 s32 func_800A63FC(WorldChunkHeader*, s16, s16, s16*, s16*);
 static WorldChunkHeader* AllocChunk(void);
 void func_800A6168(VECTOR*, s32, s32 (*)[5]);
 void func_800A71E8(VECTOR*, VECTOR*, VECTOR*, s16);
 void WmMovePcEntityByDistance(s32);
-static void WmRestoreEntityPosAndDirFromSavemap(WorldActor*);
+static void WmRestoreEntityPosAndDirFromSavemap(WorldActor* arg0);
 s32 func_800ADFC0(void);
 static s32 func_800B0800(void);
-static void WmCreateShadowPacket(POLY_FT4*, RECT*);
+static void WmCreateShadowPacket(POLY_FT4* prims, RECT* rect);
 static s32 func_800B716C(void);
 static s32 func_800B7B2C(void);
 static s32 func_800B7B3C(void);
@@ -78,34 +78,34 @@ void WmDialogUpdate(void);
 void WmFadeInit(void);
 void WmFadeRender(void);
 void WmHandleButtons(void);
-void WmLoadTxzDataAndInit(s32);
+void WmLoadTxzDataAndInit(s32 arg0);
 void WmRenderAll(s16);
-void WmScriptInitVariables(WorldScriptData*);
+void WmScriptInitVariables(WorldScriptData* data);
 void WmUiMapCreate(void);
 void WmUiMapUpdate(s16);
 void WmUpdateLightingFromPoints(VECTOR*);
-void WmUpdateSkyboxOverlayVertexes(s16);
+void WmUpdateSkyboxOverlayVertexes(s16 angle);
 void func_800A12AC(void);
 void WmUpdateWorldState(void);
 void func_800A3C74(void);
-void WmUpdateStreamingAndCamera(s16, s32);
+void WmUpdateStreamingAndCamera(s16 angle, s32 arg1);
 void func_800A835C(void);
 void func_800AEA48(s16);
 void func_800B04AC(void);
 void func_800B650C(void);
-void WmReadSavemap(s32*, s32*, s32);
+void WmReadSavemap(s32* arg0, s32* arg1, s32 arg2);
 void func_800B0250(void);
 void func_800B0334(s32);
 static void WmInitModelVariablesAndArray(void);
-static void func_800B7104(s16);
-void WmInitMusicData(WmDataHeader*);
-void WmLzsDecompress(s32*, u8*);
+static void func_800B7104(s16 arg0);
+void WmInitMusicData(WmDataHeader* file);
+void WmLzsDecompress(s32* file, u8* dst);
 static void InitWorldState(void);
 static void WmAbortMapLoadingWrapper(void);
-static void func_800A886C(s32);
+static void func_800A886C(s32 arg0);
 static void func_800A8A88(void);
 static s32 WmGetPcEntityOriginalY(void);
-static void WmSetPcEntityY(s32);
+static void WmSetPcEntityY(s32 arg0);
 static void func_800AA238(void);
 static void WmPrepareEntities(void);
 static void func_800AB570(void);
@@ -116,22 +116,22 @@ static void func_800B104C(void);
 static void UpdateWorldMode(void);
 static void InitEffectPool(void);
 static void WmUpdateEffects(void);
-static void func_800B63E0(s32);
+static void func_800B63E0(s32 arg0);
 static void WmPlayCurrentMusicTrack(void);
 static s32 WmGetCurrentMusicTrack(void);
-static void WmSetMusicVolume(u32);
+static void WmSetMusicVolume(u32 arg0);
 static void func_800B6E78(void);
-static void func_800B715C(s32);
+static void func_800B715C(s32 arg0);
 static s32 func_800B717C(void);
 static s32 func_800B7218(void);
-static void GetSavedParams(s32*, s32*, s32*);
+static void GetSavedParams(s32* arg0, s32* arg1, s32* arg2);
 static void func_800B76A8(void);
 static void func_800B7C1C(void);
-static void func_800B7C6C(s32);
+static void func_800B7C6C(s32 arg0);
 static void func_800B832C(void);
-static void WmDialogsInit(FieldScriptHeader*);
+static void WmDialogsInit(FieldScriptHeader* fieldScripts);
 static void func_800BB8B0(void);
-static void func_800BBD20(s32);
+static void func_800BBD20(s32 arg0);
 static s32 WmScriptIsAnyScriptRuns(void);
 void func_800ADC70(void);
 void WmInitOverlayTexturePrims(void);
@@ -139,7 +139,7 @@ void WmUpdateZolom(void);
 void WmUpdateAmbientSoundTimers(void);
 static s32 func_800A9878(void);
 static s32 func_800A82F0(void);
-static s32 WmIsPcEntityModelInMask(s32);
+static s32 WmIsPcEntityModelInMask(s32 arg0);
 
 extern s32 D_800BD13C;
 extern u8 D_800BE5E8[];
@@ -930,16 +930,18 @@ static void func_800A44C4(void) {
     case 1:
         D_800E5608 += D_800E561C;
         D_800E5638 = D_800E5638 + D_800E5624;
-        if (D_800E5638 >= 0x3A99)
+        if (D_800E5638 > 0x3A98) {
             D_800E5638 = 0x3A98;
-        else if (D_800E5638 < 0x3E8)
+        } else if (D_800E5638 < 0x3E8) {
             D_800E5638 = 0x3E8;
+        }
 
         D_800E563C = D_800E563C + D_800E5620;
-        if (D_800E563C >= 0x781)
+        if (D_800E563C > 0x780) {
             D_800E563C = 0x780;
-        else if (D_800E563C < 0x480)
+        } else if (D_800E563C < 0x480) {
             D_800E563C = 0x480;
+        }
     }
 }
 
@@ -1164,14 +1166,18 @@ static s16 WmGetBlockIdByXZForPlanet(s16 x, s16 y) {
 
     var_a2 = x;
     var_v1 = y;
-    if (x < 0)
+    if (x < 0) {
         var_a2 = x + 9;
-    if (var_a2 >= 9)
+    }
+    if (var_a2 >= 9) {
         var_a2 -= 9;
-    if (y < 0)
+    }
+    if (y < 0) {
         var_v1 = y + 7;
-    if (var_v1 >= 7)
+    }
+    if (var_v1 >= 7) {
         var_v1 -= 7;
+    }
     return var_a2 + var_v1 * 9;
 }
 
@@ -1782,7 +1788,6 @@ void WmExtractLoopCoordsTopBottomParts(VECTOR* arg0, SVECTOR* arg1, s16* arg2, s
 }
 
 void WmLoopCoordsAroundWorld(VECTOR* arg0) {
-
     if (arg0 != NULL) {
         if (arg0->vx > 0x47FFF) {
             arg0->vx -= 0x48000;
@@ -1838,8 +1843,9 @@ static void func_800A6BCC(SVECTOR* arg0) {
 }
 
 static void func_800A6C00(SVECTOR* arg0) {
-    if (func_800A1DB0() != 2)
+    if (func_800A1DB0() != 2) {
         WmSetTranslationVectorInScreenSpace(arg0);
+    }
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A6C3C);
@@ -2145,8 +2151,9 @@ static WorldActor* WmInsertInEntityStructList(void) {
     WorldActor* next;
 
     temp_s0 = D_8010AD34;
-    if (temp_s0 == NULL)
+    if (temp_s0 == NULL) {
         func_800A0B40(0x32);
+    }
     next = temp_s0->next;
     temp_v1 = D_8010AD38;
     D_8010AD3C = temp_s0;
@@ -2160,8 +2167,9 @@ static WorldActor* WmInsertInEntityStructList(void) {
 static void func_800A8A88(void) {
     WorldActor* var_v0;
 
-    for (var_v0 = D_8010AD38; var_v0 != NULL; var_v0 = var_v0->next)
+    for (var_v0 = D_8010AD38; var_v0 != NULL; var_v0 = var_v0->next) {
         var_v0->unk5E = -1;
+    }
 }
 
 void WmCleanEntityStruct(WorldActor* arg0) {
@@ -2169,8 +2177,9 @@ void WmCleanEntityStruct(WorldActor* arg0) {
 
     arg0->unk5E = -1;
 
-    for (var_v1 = &arg0->collide; var_v1 < (WorldActor**)(arg0 + 1); var_v1++)
+    for (var_v1 = &arg0->collide; var_v1 < (WorldActor**)(arg0 + 1); var_v1++) {
         *var_v1 = NULL;
+    }
 }
 
 static void WmUnlinkEntityAndInsertAsNew(WorldActor* arg0) {
@@ -2258,8 +2267,9 @@ static void func_800A8D58(void) {
     WorldActor* temp_v0;
     u16 temp_v1;
 
-    if (D_8010AD40 == NULL)
+    if (D_8010AD40 == NULL) {
         return;
+    }
     temp_s0 = D_8010AD40->riding;
     if (temp_s0 != NULL) {
         WmInsertStructInEntityStructList(temp_s0);
@@ -2283,8 +2293,9 @@ static void func_800A8E50(void) {
     WorldActor* temp_v0;
     u16 temp_v1;
 
-    if (D_8010AD3C == NULL)
+    if (D_8010AD3C == NULL) {
         return;
+    }
     temp_s0 = D_8010AD3C->riding;
     if (temp_s0 != NULL) {
         WmInsertStructInEntityStructList(temp_s0);
@@ -2306,20 +2317,23 @@ static void func_800A8E50(void) {
 static s32 WmIsActiveEntityRiding(void) { return D_8010AD3C == NULL ? 0 : D_8010AD3C->riding != NULL; }
 
 void WmUnlinkPcEntityFromAll(void) {
-    if (D_8010AD40)
+    if (D_8010AD40) {
         WmUnlinkEntityAndInsertAsNew(D_8010AD40);
+    }
 }
 
 static void WmUnlinkActiveEntityFromAll(void) {
-    if (D_8010AD3C)
+    if (D_8010AD3C) {
         WmUnlinkEntityAndInsertAsNew(D_8010AD3C);
+    }
 }
 
 void WmUnlinkPcLinkedEntityFromAll(void) {
     WorldActor* temp_a0;
 
-    if (D_8010AD40 == NULL)
+    if (D_8010AD40 == NULL) {
         return;
+    }
     temp_a0 = D_8010AD40->riding;
     if (temp_a0 != NULL) {
         WmUnlinkEntityAndInsertAsNew(temp_a0);
@@ -2330,8 +2344,9 @@ void WmUnlinkPcLinkedEntityFromAll(void) {
 static void func_800A9018(void) {
     WorldActor* temp_a0;
 
-    if (D_8010AD3C == NULL)
+    if (D_8010AD3C == NULL) {
         return;
+    }
     temp_a0 = D_8010AD3C->riding;
     if (temp_a0 != NULL) {
         WmUnlinkEntityAndInsertAsNew(temp_a0);
@@ -2343,20 +2358,25 @@ static void func_800A9064(s16 x, s16 z) {
     WorldActor* a;
     WorldStoredTriangle* tri;
 
-    for (a = D_8010AD38; a != NULL; a = a->next)
-        for (tri = &a->storedTris[0]; tri < &a->storedTris[6]; tri++)
-            if ((tri->x == x) && (tri->z == z))
+    for (a = D_8010AD38; a != NULL; a = a->next) {
+        for (tri = &a->storedTris[0]; tri < &a->storedTris[6]; tri++) {
+            if ((tri->x == x) && (tri->z == z)) {
                 tri->tri = NULL;
+            }
+        }
+    }
 }
 
 static void WmSetPcEntityAsActiveEntity(void) {
-    if (D_8010AD40 != NULL)
+    if (D_8010AD40 != NULL) {
         D_8010AD3C = D_8010AD40;
+    }
 }
 
 void WmSetActiveEntityAsPcEntity(void) {
-    if (D_8010AD3C != NULL)
+    if (D_8010AD3C != NULL) {
         D_8010AD40 = D_8010AD3C;
+    }
 }
 
 static WorldStoredTriangle* func_800A9134(void) { return D_8010AD40 != NULL ? D_8010AD40->storedTris : NULL; }
@@ -2383,10 +2403,12 @@ static s32 func_800A9240(void) {
     if (D_8010AD40 != NULL) {
         out = 0;
         if (D_8010AD40->actorType == 4 || D_8010AD40->actorType == 0x13 || D_8010AD40->actorType == 0x29 ||
-            D_8010AD40->actorType == 0x2A)
+            D_8010AD40->actorType == 0x2A) {
             out = 1;
-    } else
+        }
+    } else {
         out = 0;
+    }
     return out;
 }
 
@@ -2396,10 +2418,12 @@ s32 func_800A929C(void) {
     if (D_8010AD3C != NULL) {
         out = 0;
         if (D_8010AD3C->actorType == 4 || D_8010AD3C->actorType == 0x13 || D_8010AD3C->actorType == 0x29 ||
-            D_8010AD3C->actorType == 0x2A)
+            D_8010AD3C->actorType == 0x2A) {
             out = 1;
-    } else
+        }
+    } else {
         out = 0;
+    }
     return out;
 }
 
@@ -2423,8 +2447,9 @@ static void WmInitActiveEntityStruct(s32 arg0) {
         case 28:
             break;
         case 3:
-            if (func_800B716C() == 0)
+            if (func_800B716C() == 0) {
                 D_8010AD3C->riding = &D_80109E54;
+            }
 
             rect.x = 0x18;
             rect.y = 0x48;
@@ -2525,8 +2550,9 @@ s16 WmGetActiveEntityTotalRot(void) { return D_8010AD3C == NULL ? 0 : D_8010AD3C
 static s16 WmGetPcEntityTotalRot(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->unk3C + D_8010AD40->unk3E; }
 
 static void WmAddToActiveEntityY(s32 arg0) {
-    if (D_8010AD3C != NULL)
+    if (D_8010AD3C != NULL) {
         D_8010AD3C->pos.vy += arg0;
+    }
 }
 
 static s32 func_800A984C(void) { return D_8010AD3C == NULL ? 0 : D_8010AD3C->flags1 & 1; }
@@ -2540,10 +2566,11 @@ void func_800A98A4(s32 arg0) {
     var_v1 = D_8010AD40;
 
     if (var_v1 != NULL) {
-        if (arg0 != 0)
+        if (arg0 != 0) {
             var_v0 = var_v1->flags1 | 0x80;
-        else
+        } else {
             var_v0 = var_v1->flags1 & 0x7F;
+        }
         var_v1->flags1 = var_v0;
     }
 }
@@ -2557,14 +2584,16 @@ static s32 WmSetActiveEntityWithModelId(s32 arg0) {
 
     for (var_v1 = D_8010AD38; var_v1 != NULL && var_v1->actorType != arg0; var_v1 = var_v1->next)
         ;
-    if (var_v1 != NULL)
+    if (var_v1 != NULL) {
         D_8010AD3C = var_v1;
+    }
     return var_v1 != NULL;
 }
 
 static void WmSetCollidingActorAsActiveEntity(void) {
-    if (D_8010AD40 != NULL && D_8010AD40->collide != NULL)
+    if (D_8010AD40 != NULL && D_8010AD40->collide != NULL) {
         D_8010AD3C = D_8010AD40->collide;
+    }
 }
 
 s32 WmIsActiveEntitySeparateFromPcEntity(void) {
@@ -2572,13 +2601,15 @@ s32 WmIsActiveEntitySeparateFromPcEntity(void) {
 }
 
 static void WmSetPcEntityModelId(s8 actorType) {
-    if (D_8010AD40)
+    if (D_8010AD40) {
         D_8010AD40->actorType = actorType;
+    }
 }
 
 static void WmSetPcEntityTerrainData(s16 walkmesh) {
-    if (D_8010AD40)
+    if (D_8010AD40) {
         D_8010AD40->walkmesh = walkmesh;
+    }
 }
 
 static s32 WmGetPcEntityTerrainId(void) { return D_8010AD40 == NULL ? 0 : D_8010AD40->walkmesh & 0x1F; }
@@ -2657,15 +2688,17 @@ static void WmSetPcEntityPos(VECTOR* arg0) { WmSetActorPos(D_8010AD40, arg0); }
 
 static void WmSetPcEntityPosAndAltPos(VECTOR* arg0) {
     WmSetActorPos(D_8010AD40, arg0);
-    if (D_8010AD40 != NULL)
+    if (D_8010AD40 != NULL) {
         D_8010AD40->altPos = D_8010AD40->pos;
+    }
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A9E14);
 
 static void WmSetPcEntityY(s32 arg0) {
-    if (D_8010AD40)
+    if (D_8010AD40) {
         D_8010AD40->pos.vy = arg0;
+    }
 }
 
 static void WmSetPcEntityYAndMarkMoved(s32 arg0) {
@@ -2676,28 +2709,33 @@ static void WmSetPcEntityYAndMarkMoved(s32 arg0) {
 }
 
 static void func_800AA078(s16 arg0) {
-    if (D_8010AD40)
+    if (D_8010AD40) {
         D_8010AD40->unk4E = arg0;
+    }
 }
 
 static void WmGetPosFromActiveEntity(VECTOR* arg0) {
-    if (arg0 != NULL && D_8010AD3C != NULL)
+    if (arg0 != NULL && D_8010AD3C != NULL) {
         *arg0 = D_8010AD3C->pos;
+    }
 }
 
 static void WmGetPosFromPcEntity(VECTOR* arg0) {
-    if (arg0 != NULL && D_8010AD40 != NULL)
+    if (arg0 != NULL && D_8010AD40 != NULL) {
         *arg0 = D_8010AD40->pos;
+    }
 }
 
 static void WmGetPos2FromActiveEntity(VECTOR* arg0) {
-    if (arg0 != NULL && D_8010AD3C != NULL)
+    if (arg0 != NULL && D_8010AD3C != NULL) {
         *arg0 = D_8010AD3C->altPos;
+    }
 }
 
 static void WmGetPos2FromPcEntity(VECTOR* arg0) {
-    if (arg0 != NULL && D_8010AD40 != NULL)
+    if (arg0 != NULL && D_8010AD40 != NULL) {
         *arg0 = D_8010AD40->altPos;
+    }
 }
 
 static void func_800AA1B8(void) {
@@ -2731,13 +2769,15 @@ static void func_800AA238(void) {
 }
 
 static void func_800AA2B8(void) {
-    if (D_8010AD40 != NULL)
+    if (D_8010AD40 != NULL) {
         D_8010AD40->flags1 &= 0xFD;
+    }
 }
 
 static void WmSetActiveEntityAnimId(s8 arg0) {
-    if (D_8010AD3C)
+    if (D_8010AD3C) {
         D_8010AD3C->animId = arg0;
+    }
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800AA304);
@@ -2770,16 +2810,18 @@ static WorldActor* func_800AA640(void) {
     WorldActor* actor;
 
     actor = FindCollidingActor(D_8010AD3C);
-    if (actor)
+    if (actor) {
         func_800AA1B8();
+    }
     return actor;
 }
 
 static WorldActor* WmGetActiveEntityCollidingActor(void) { return D_8010AD3C != NULL ? D_8010AD3C->collide : NULL; }
 
 static void func_800AA6A4(void) {
-    if (D_8010AD40 != NULL)
+    if (D_8010AD40 != NULL) {
         D_8010AD40->flags1 |= 2;
+    }
 }
 
 static void func_800AA6D0(WorldChunkHeader* arg0) {
@@ -2809,14 +2851,18 @@ static void WmMoveActiveEntity(s32 arg0, s32 arg1) {
     if ((D_8010AD3C != NULL) && ((arg0 != 0) || (arg1 != 0))) {
         D_8010AD3C->pos.vx += arg0;
         D_8010AD3C->pos.vz += arg1;
-        if (D_8010AD3C->pos.vx < 0)
+        if (D_8010AD3C->pos.vx < 0) {
             D_8010AD3C->pos.vx = D_8010AD3C->pos.vx + 0x48000;
-        if (D_8010AD3C->pos.vx > 0x47FFF)
+        }
+        if (D_8010AD3C->pos.vx > 0x47FFF) {
             D_8010AD3C->pos.vx = D_8010AD3C->pos.vx - 0x48000;
-        if (D_8010AD3C->pos.vz < 0)
+        }
+        if (D_8010AD3C->pos.vz < 0) {
             D_8010AD3C->pos.vz = D_8010AD3C->pos.vz + 0x38000;
-        if (D_8010AD3C->pos.vz > 0x37FFF)
+        }
+        if (D_8010AD3C->pos.vz > 0x37FFF) {
             D_8010AD3C->pos.vz = D_8010AD3C->pos.vz - 0x38000;
+        }
         D_8010AD3C->flags1 |= 1;
     }
 }
@@ -2917,27 +2963,32 @@ void func_800AB398(WorldActor* arg0) {
 }
 
 void func_800AB48C(WorldActor* arg0) {
-    if ((arg0->collide != NULL) && ((arg0->flags1 & 1) || (arg0->collide->flags1 & 1)))
+    if ((arg0->collide != NULL) && ((arg0->flags1 & 1) || (arg0->collide->flags1 & 1))) {
         arg0->collide = NULL;
+    }
     arg0->altPos = arg0->pos;
 }
 
 static void WmPrepareEntities(void) {
     WorldActor* var_s0;
 
-    for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next)
+    for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next) {
         func_800AB48C(var_s0);
-    for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next)
+    }
+    for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next) {
         var_s0->flags1 &= 0xF8;
+    }
 }
 
 static void func_800AB570(void) {
     WorldActor* var_s0;
 
-    for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next)
+    for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next) {
         func_800AAB18(var_s0);
-    for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next)
+    }
+    for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next) {
         func_800AB398(var_s0);
+    }
 }
 
 void WmScriptInitVariables(WorldScriptData* data) {
@@ -2973,8 +3024,9 @@ static void WmScriptRunFunction(s32 arg0, s32 arg1) {
     var_s2 = 0;
     if (D_8010AD3C != NULL && (D_8010AD3C->scriptPriority < arg1 || (D_8010AD3C->scriptPriority == arg1 && arg1 == 3) ||
                                D_8010AD3C->scriptIdx == 0)) {
-        if (D_8010AD3C->scriptCallDepth >= 4)
+        if (D_8010AD3C->scriptCallDepth >= 4) {
             func_800A0B40(0x41);
+        }
         if (D_8010AD3C->scriptIdx != 0) {
             temp_a1 = &D_8010AD3C->scriptStack[D_8010AD3C->scriptCallDepth++];
             temp_a1->scriptIdx = D_8010AD3C->scriptIdx;
@@ -2984,12 +3036,14 @@ static void WmScriptRunFunction(s32 arg0, s32 arg1) {
         }
 
         for (var_v1 = 0x40, var_a0 = &D_8010AD68->bst[0x80]; var_v1 != 0; var_v1 >>= 1) {
-            if (var_a0->unk0 == arg0)
+            if (var_a0->unk0 == arg0) {
                 break;
-            else if (var_a0->unk0 < arg0)
+            }
+            if (var_a0->unk0 < arg0) {
                 var_a0 += var_v1;
-            else
+            } else {
                 var_a0 -= var_v1;
+            }
         }
 
         if (var_a0->unk0 == arg0) {
@@ -3010,10 +3064,11 @@ static void WmScriptRunFunction(s32 arg0, s32 arg1) {
 
 void WmScriptDisableForPcEntity(s32 arg0) {
     if (D_8010AD40 != NULL) {
-        if (arg0 != 0)
+        if (arg0 != 0) {
             D_8010AD40->flags1 = D_8010AD40->flags1 | 0x10;
-        else
+        } else {
             D_8010AD40->flags1 = D_8010AD40->flags1 & 0xEF;
+        }
     }
 }
 
@@ -3025,10 +3080,12 @@ static void func_800AB92C(s32 arg0) {
         var_a1 = arg0 - 2;
         if (!(D_8010AD3C->flags1 & 0x10)) {
             var_a0 = arg0 & 0xFF;
-            if (var_a1 < 0)
+            if (var_a1 < 0) {
                 var_a1 = 0;
-            if (var_a1 >= 4)
+            }
+            if (var_a1 > 3) {
                 var_a1 = 3;
+            }
             WmScriptRunFunction(var_a0, var_a1);
         }
     }
@@ -3047,10 +3104,12 @@ static void func_800AB988(s32 arg0, s32 arg1) {
             tmp0 = (arg0 << 8) & 0x3F00;
             tmp1 = (arg1 & 0xFF) | 0x4000;
             tmp2 = tmp0 | tmp1;
-            if (var_a1 < 0)
+            if (var_a1 < 0) {
                 var_a1 = 0;
-            if (var_a1 >= 4)
+            }
+            if (var_a1 > 3) {
                 var_a1 = 3;
+            }
             WmScriptRunFunction(tmp2, var_a1);
         }
     }
@@ -3061,14 +3120,17 @@ void func_800ABA18(s32 arg0) {
     s32 var_a0;
 
     D_8010AD3C = &D_80109D74;
-    if (arg0 == 1)
+    if (arg0 == 1) {
         D_8010ADEC = arg0;
+    }
     var_a1 = arg0 - 2;
     var_a0 = arg0 & 0xFF;
-    if (var_a1 < 0)
+    if (var_a1 < 0) {
         var_a1 = 0;
-    if (var_a1 >= 4)
+    }
+    if (var_a1 >= 4) {
         var_a1 = 3;
+    }
     WmScriptRunFunction(var_a0, var_a1);
 }
 
@@ -3161,7 +3223,7 @@ static s32 WmScriptPopStack(void) {
             var_s0 = WmDialogGetAskResult();
             break;
         case 13: // Script index of current mesh triangle of active actor
-            var_s0 = ((D_8010AD3C->walkmesh) >> 5) & 7;
+            var_s0 = (D_8010AD3C->walkmesh >> 5) & 7;
             break;
         case 14: // Player party member model ID (0=Cloud, 1=Tifa, 2=Cid)
             var_s0 = WmGetPcCharModelIdFromParty();
@@ -3345,7 +3407,7 @@ void WmScriptOpcode000Handle(u16 arg0) {
         D_8010AD90->unk0 = (func_800AF9A0(&sp10) << 0x10) >> 0x14;
         break;
     }
-    (D_8010AD90)->unk4 = 0x110;
+    D_8010AD90->unk4 = 0x110;
     D_8010AD90++;
 }
 
@@ -3359,7 +3421,7 @@ void WmScriptOpcode100Handle(u16 arg0) {
         func_800A0B40(0x3D);
     }
     D_8010AD90->unk4 = arg0;
-    (D_8010AD90++)->unk0 = (D_8010AD6C[D_8010ADE4->scriptIdx++]);
+    (D_8010AD90++)->unk0 = D_8010AD6C[D_8010ADE4->scriptIdx++];
 }
 
 // script opcode 0x2XX, flow control
@@ -3444,16 +3506,18 @@ void WmScriptRunOne(WorldActor* arg0) {
         } while (var_s0 == 0);
     }
     WmMoveActiveEntityByDistance(arg0->direction);
-    if (arg0->collide != NULL && D_8010ADEC == 0 && func_800A21A4() != 0)
+    if (arg0->collide != NULL && D_8010ADEC == 0 && func_800A21A4() != 0) {
         func_800AB988(arg0->collide->actorType, (InputReadPads() & PAD_CIRCLE) ? 4 : 3);
+    }
 }
 
 static void WmScriptRunAll(void) {
     WorldActor* var_s0;
 
     WmScriptRunOne(D_8010AD3C = D_8010ADE4 = &D_80109D74);
-    for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next)
+    for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next) {
         WmScriptRunOne(D_8010ADE4 = D_8010AD3C = var_s0);
+    }
 }
 
 static void UpdateSurfaceEffect(void) {
@@ -3513,9 +3577,11 @@ void SaveActorState(WorldActor* actor) {
 static void func_800ADA08(void) {
     WorldActor* var_s0;
 
-    for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next)
-        if (!(var_s0->flags1 & 8))
+    for (var_s0 = D_8010AD38; var_s0 != NULL; var_s0 = var_s0->next) {
+        if (!(var_s0->flags1 & 8)) {
             SaveActorState(var_s0);
+        }
+    }
 }
 
 static void WmRestoreEntityPosAndDirFromSavemap(WorldActor* arg0) {
@@ -3630,25 +3696,29 @@ static s32 WmAddMutexPriority(s16 arg0) {
 void WmRemoveMutexPriority(s16 arg0) {
     u32 var_v1;
 
-    if (((-1 << (arg0 + 1)) & D_8010AE54) || !((D_8010AE54 >> arg0) & 1))
+    if (((-1 << (arg0 + 1)) & D_8010AE54) || !((D_8010AE54 >> arg0) & 1)) {
         func_800A0B40(0x50);
+    }
 
     D_8010AE54 = ~(1 << arg0) & D_8010AE54;
     if (arg0 != 0) {
         for (var_v1 = 1 << (arg0 - 1); var_v1 && !(var_v1 & D_8010AE54); var_v1 >>= 1)
             ;
-        if (var_v1 == 1)
+        if (var_v1 == 1) {
             func_800A8048();
+        }
     }
 }
 
 // Shuffle World Map RNG Buffer
 static void WmRandomTwiddle(void) {
     s32 i;
-    for (i = 0; i < 0x20; i++)
+    for (i = 0; i < 0x20; i++) {
         D_8010AE5C[i] ^= D_8010AE5C[0x1E9 + i];
-    for (i = 0x20; i < 0x209; i++)
+    }
+    for (i = 0x20; i < 0x209; i++) {
         D_8010AE5C[i] ^= D_8010AE5C[i - 0x20];
+    }
 }
 
 // seed RNG
@@ -3667,10 +3737,12 @@ static void WmRandomInit(s32 arg0) {
         arr[var_a2] = var_a3;
     }
     arr[0x10] = (arr[0x10] << 0x17) ^ (arr[0] >> 9) ^ arr[0xF];
-    for (var_a2 = 0x11; var_a2 <= 0x208; var_a2++)
-        arr[var_a2] = (arr[var_a2 - 0x11] << 0x17) ^ (arr[var_a2 - 0x10] >> 0x9) ^ (arr[var_a2 - 0x1]);
-    for (var_a2 = 0; var_a2 <= 0x208; var_a2++)
+    for (var_a2 = 0x11; var_a2 <= 0x208; var_a2++) {
+        arr[var_a2] = (arr[var_a2 - 0x11] << 0x17) ^ (arr[var_a2 - 0x10] >> 0x9) ^ arr[var_a2 - 0x1];
+    }
+    for (var_a2 = 0; var_a2 <= 0x208; var_a2++) {
         D_8010AE5C[var_a2] = arr[var_a2];
+    }
     WmRandomTwiddle();
     WmRandomTwiddle();
     WmRandomTwiddle();
@@ -3701,26 +3773,31 @@ static s32 WmGetDistanceBetweenPoints(VECTOR* arg0, VECTOR* arg1) {
     temp_v1 = arg0->vx;
     temp_v0 = arg1->vx;
     var_a2 = temp_v1 - temp_v0;
-    if (var_a2 <= 0)
+    if (var_a2 <= 0) {
         var_a2 = temp_v0 - temp_v1;
+    }
 
-    if (var_a2 >= 0x24000)
+    if (var_a2 >= 0x24000) {
         var_a2 = 0x48000 - var_a2;
+    }
 
     temp_v1_2 = arg0->vy;
     temp_v0_2 = arg1->vy;
     var_a3 = temp_v1_2 - temp_v0_2;
-    if (var_a3 <= 0)
+    if (var_a3 <= 0) {
         var_a3 = temp_v0_2 - temp_v1_2;
+    }
 
     temp_a0 = arg0->vz;
     temp_a1 = arg1->vz;
     var_v1 = temp_a0 - temp_a1;
-    if (var_v1 <= 0)
+    if (var_v1 <= 0) {
         var_v1 = temp_a1 - temp_a0;
+    }
 
-    if (var_v1 >= 0x1C000)
+    if (var_v1 >= 0x1C000) {
         var_v1 = 0x38000 - var_v1;
+    }
 
     return var_a2 + var_a3 + var_v1;
 }
@@ -3985,13 +4062,15 @@ static void WmSetActivePointColour(u8 arg0, u8 arg1, u8 arg2) {
 }
 
 static void func_800AF2E4(s32 arg0) {
-    if (D_8010B3B8)
+    if (D_8010B3B8) {
         D_8010B3B8->unk1C = arg0;
+    }
 }
 
 static void func_800AF304(s32 arg0) {
-    if (D_8010B3B8)
+    if (D_8010B3B8) {
         D_8010B3B8->unk20 = arg0;
+    }
 }
 
 static void WmSetActivePointSkyColour(u8 arg0, u8 arg1, u8 arg2) {
@@ -4097,20 +4176,21 @@ static void func_800B0670(void) {
     WorldZolomSegment* var_a0;
 
     WmGetPosFromPcEntity(&sp10);
-    if (sp10.vz <= 0x23A97)
+    if (sp10.vz <= 0x23A97) {
         for (var_a0 = D_8010C2AC; var_a0 < &D_8010C2AC[0x30]; var_a0++) {
             var_a0->x = 0x2008;
             var_a0->z = 0x6338;
             var_a0->z2 = 0;
             var_a0->x2 = 0;
         }
-    else
+    } else {
         for (var_a0 = D_8010C2AC; var_a0 < &D_8010C2AC[0x30]; var_a0++) {
             var_a0->x = 0x1D4C;
             var_a0->z = 0x11F8;
             var_a0->z2 = 0;
             var_a0->x2 = 0;
         }
+    }
     D_8010C7F0 = 0x400;
     D_8010C42C = D_8010C2AC;
 }
@@ -4400,12 +4480,15 @@ static void func_800B28CC(s32 arg0) {
     if (D_8010CAF0 != 3) {
         if (arg0 != 1) {
             param = 0x26;
-            if (arg0 == 2)
+            if (arg0 == 2) {
                 param = 0x2A;
-        } else
+            }
+        } else {
             param = 0x29;
-    } else
+        }
+    } else {
         param = 4;
+    }
     WmSetActiveEntityWithModelId(param);
     switch (D_8010CAF0) {
     case 3:
@@ -4416,8 +4499,9 @@ static void func_800B28CC(s32 arg0) {
         if (WmIsActiveEntityRiding() != 0) {
             WmSetActiveEntityAsPcEntity();
             func_800BBD0C();
-        } else
+        } else {
             func_800AB988(WmGetModelIdFromActiveEntity(), 5);
+        }
         break;
     case 2:
         func_800A9018();
@@ -4457,8 +4541,9 @@ static s32 func_800B2FD0(void) { return D_8010CACC != 0 || D_8010CAD0 != 0 || D_
 
 static void func_800B3018(void) {
     D_8010CAF4 = 1;
-    if (D_8010CA8C != 1)
+    if (D_8010CA8C != 1) {
         D_8010CA8C = 0;
+    }
 }
 
 static void WmSnowReset(s16 arg0) {
@@ -4537,12 +4622,14 @@ static s32 func_800B3350(void) {
     return D_800C68E8[0].timer | (D_800C68E8[1].timer << 8) | (D_800C68E8[2].timer << 0x10) | (D_8010CB14 << 0x18);
 }
 
+// NOLINTBEGIN(readability-avoid-nested-conditional-operator): only the nested ternary matches
 WorldSoundArea* func_800B338C(s16 arg0, s16 arg1) {
     return (arg0 == 5 && arg1 == 18)   ? D_800C68E8
            : (arg0 == 4 && arg1 == 17) ? &D_800C68E8[1]
            : (arg0 == 4 && arg1 == 14) ? &D_800C68E8[2]
                                        : NULL;
 }
+// NOLINTEND(readability-avoid-nested-conditional-operator)
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B3418);
 
@@ -5139,12 +5226,15 @@ void func_800B6E08(void) {
 static void func_800B6E78(void) {
     s32 temp_v0;
 
-    if (D_80115A60 != 0)
+    if (D_80115A60 != 0) {
         SystemCdromReadChain();
-    if (D_80115A50 != 0 && func_800A8CA4() == 0)
+    }
+    if (D_80115A50 != 0 && func_800A8CA4() == 0) {
         func_800B6E08();
-    if (D_80115A64 != 0 && --D_80115A64 == 0)
+    }
+    if (D_80115A64 != 0 && --D_80115A64 == 0) {
         func_800A8048();
+    }
 }
 
 void* WmGetModelDataByModelId(s16 modelId) {
@@ -5208,13 +5298,15 @@ static s32 func_800B717C(void) {
     if (*(u16*)Savemap.memory_bank_1 >= 1000) {
         if (*(u16*)Savemap.memory_bank_1 < 1580) {
             temp_a0 = Savemap.memory_bank_1[0x7A] & 1;
-            if (*(u16*)Savemap.memory_bank_1 >= 1620)
+            if (*(u16*)Savemap.memory_bank_1 >= 1620) {
                 return (temp_a0 | 2) + 1;
+            }
             return temp_a0 + 1;
         }
         temp_v1 = (*(u16*)Savemap.memory_bank_1 < 1620) ^ 1;
-        if (Savemap.memory_bank_4[0x86] & 0x10)
+        if (Savemap.memory_bank_4[0x86] & 0x10) {
             return (temp_v1 | 2) + 5;
+        }
         return temp_v1 + 5;
     }
     return var_v0;
@@ -5227,7 +5319,7 @@ s32 func_800B7200(void) {
 
 static s32 func_800B7218(void) { return Savemap.memory_bank_4[0xFE]; }
 
-void WmInitAllEntityStructs(u8*);
+void WmInitAllEntityStructs(u8* savemap);
 
 void WmReadSavemap(s32* arg0, s32* arg1, s32 arg2) {
     VECTOR pos;
@@ -5382,7 +5474,7 @@ void WmSetFieldToLoad(s32 arg0) {
 }
 
 void func_800B77A8(s32 arg0) {
-    void WmSetFieldToLoad(s32);
+    void WmSetFieldToLoad(s32 arg0);
 
     if (arg0 & 0x40000000) {
         WmSetFieldToLoad(0x2100);
@@ -5465,7 +5557,7 @@ s32 WmGetPcCharModelIdFromParty(void) {
     return 0;
 }
 
-static void WmScriptSetFirstToStoreStack(s8);
+static void WmScriptSetFirstToStoreStack(s8 arg0);
 static s32 WmScriptIsDataInStoreStack(void);
 
 void WmSyncPartyAndPcModel(void) {
@@ -5510,8 +5602,9 @@ static s32 func_800B7B54(void) {
     u32 var_v1;
 
     var_v1 = D_80062F19;
-    if (var_v1 > 0x10)
+    if (var_v1 > 0x10) {
         var_v1 *= 2;
+    }
     return var_v1;
 }
 
@@ -5519,8 +5612,9 @@ static s32 func_800B7B78(void) {
     s32 var_v1;
 
     var_v1 = D_80062F1B & 0x7F;
-    if (var_v1 >= 0x11)
+    if (var_v1 >= 0x11) {
         var_v1 *= 2;
+    }
     return var_v1;
 }
 
@@ -5536,8 +5630,9 @@ static s32 func_800B7BD8(void) {
     s32 var_a0;
     s32 var_v1;
 
-    for (var_a0 = 0, var_v1 = 0; var_v1 < 3; var_v1++)
+    for (var_a0 = 0, var_v1 = 0; var_v1 < 3; var_v1++) {
         var_a0 += Savemap.partyID[var_v1] != 0xFF;
+    }
     return (var_a0 < 2) ^ 1;
 }
 
@@ -5723,8 +5818,9 @@ static void func_800B832C(void) {
         WmGetPos2FromPcEntity(&sp20);
         if (WmIsPcEntityModelInMask(0x47) && D_80116280) {
             if ((temp_s0 == 0) && (sp10.vx != sp20.vx || sp10.vz != sp20.vz)) {
-                if ((D_8011627C == 8) || (D_8011627C == 0x10))
+                if ((D_8011627C == 8) || (D_8011627C == 0x10)) {
                     func_800262D8();
+                }
                 temp_v0 = D_8011627C < 0x10;
                 D_8011627C += 1;
                 if (temp_v0 == 0) {
@@ -5736,8 +5832,9 @@ static void func_800B832C(void) {
                     }
                 }
             }
-        } else
+        } else {
             D_8011627C = 0;
+        }
     }
 }
 
@@ -6857,8 +6954,9 @@ void WmScriptPushToStoreStack(u8 arg0) {
 }
 
 static u8 WmScriptPopFromStoreStack(void) {
-    if (&D_801163E0 >= D_801163E8)
+    if (&D_801163E0 >= D_801163E8) {
         return 0;
+    }
 
     D_801163E8 = D_801163E8 - 1;
     return D_801163E8[0];
@@ -6868,8 +6966,9 @@ static u8 WmScriptGetTopFromStoreStack(void) {
     u8 var_a0;
 
     var_a0 = 0;
-    if (&D_801163E0 < D_801163E8)
+    if (&D_801163E0 < D_801163E8) {
         var_a0 = D_801163E8[-1];
+    }
 
     return var_a0;
 }
@@ -6921,8 +7020,9 @@ s32 func_800BBBB0(void) {
     s32 temp_s0;
 
     temp_s0 = WmGetPcEntityTerrainId();
-    if (func_800A9240())
+    if (func_800A9240()) {
         return (0x221B0F03 >> temp_s0) & 1;
+    }
 
     switch (WmGetModelIdFromPcEntity()) {
     case 3:
@@ -6943,16 +7043,19 @@ static void func_800BBC4C(void) {
     temp_s0 = WmGetModelIdFromPcEntity();
     if (D_801163D4 == 0) {
         if (func_800BBBB0() != 0) {
-            if ((temp_s0 == 3) || ((temp_s0 == 5) && (WmIsPcEntityPosNeedRecalculation() != 0)))
+            if ((temp_s0 == 3) || ((temp_s0 == 5) && (WmIsPcEntityPosNeedRecalculation() != 0))) {
                 func_800A368C(-1);
-            else
+            } else {
                 func_800A2108(0, 2);
+            }
             D_801163D4 = 1;
-            if (temp_s0 == 3 || temp_s0 == 4)
+            if (temp_s0 == 3 || temp_s0 == 4) {
                 WmScriptDisableForPcEntity(1);
+            }
         }
-        if (WmGetPcEntityTerrainId() == 0x1B)
+        if (WmGetPcEntityTerrainId() == 0x1B) {
             func_800ABA18(9);
+        }
     }
 }
 
@@ -6982,15 +7085,16 @@ static void func_800BBD20(s32 arg0) {
             var_v0 = func_800A9240() == 0 ? temp_s4 & PAD_CROSS
                                           : temp_s4 & (PAD_UP | PAD_DOWN | PAD_LEFT | PAD_RIGHT | PAD_CROSS);
             if ((var_v0 == 0) && D_801163DC > 0 && D_801163DC < 15 &&
-                ((WmIsPcEntityModelInMask(0x2000) == 0) || (WmGetPcEntityTerrainId() == 0x12)))
+                ((WmIsPcEntityModelInMask(0x2000) == 0) || (WmGetPcEntityTerrainId() == 0x12))) {
                 func_800BBC4C();
-            else
+            } else {
                 goto block_15;
+            }
         } else {
         block_15:
-            if (D_801163D4 == 1)
+            if (D_801163D4 == 1) {
                 D_801163D4 = 2;
-            else if (D_801163D4 == 2) {
+            } else if (D_801163D4 == 2) {
                 D_801163D4 = 0;
                 WmSetPcEntityAsActiveEntity();
                 temp_s1 = WmGetModelIdFromActiveEntity();
@@ -7005,31 +7109,34 @@ static void func_800BBD20(s32 arg0) {
                     }
                     func_800AA1B8();
                     func_800A1DD0(0);
-                    if ((temp_s1 == 5) && (WmIsPcEntityPosNeedRecalculation() != 0))
+                    if ((temp_s1 == 5) && (WmIsPcEntityPosNeedRecalculation() != 0)) {
                         func_800A98A4(0);
-                    else {
-                        if (temp_s1 == 4)
+                    } else {
+                        if (temp_s1 == 4) {
                             WmScriptDisableForPcEntity(0);
+                        }
 
                         func_800AB988(temp_s1, 5);
-                        if (temp_s1 == 4)
+                        if (temp_s1 == 4) {
                             WmScriptDisableForPcEntity(1);
+                        }
 
                         if (func_800A929C() != 0) {
                             temp_v0 = WmGetRotFromEntityToEntity(&sp20, &sp10) - 0x400;
                             WmSetActiveEntityDirectionAndRot(temp_v0);
                             WmScriptPopFromStoreStack();
                             func_800A8E50();
-                            if (temp_s1 < 0x29)
+                            if (temp_s1 < 0x29) {
                                 WmSetActiveEntityAsPcEntity();
+                            }
 
                             WmSetActiveEntityAnimId(2);
                             WmSetActiveEntityDirectionAndRot(temp_v0);
                             PlayMusicTrack(1);
                             func_800A2108(0, 6);
-                            if (temp_s1 == 4)
+                            if (temp_s1 == 4) {
                                 func_800A82DC();
-                            else if (temp_s1 >= 0x29) {
+                            } else if (temp_s1 >= 0x29) {
                                 WmSetActiveEntityWithModelId(WmGetPcCharModelIdFromParty());
                                 WmSetActiveEntityAsPcEntity();
                             }
@@ -7046,30 +7153,35 @@ static void func_800BBD20(s32 arg0) {
                             } else {
                                 WmInitActiveEntityStruct(temp_s0);
                                 WmSetActiveEntityAsPcEntity();
-                                if (temp_s2 != 0)
+                                if (temp_s2 != 0) {
                                     func_800BCA48();
+                                }
                             }
                             WmSetPcEntityPosAndAltPos(&sp10);
-                            if (func_800A9240() != 0)
+                            if (func_800A9240() != 0) {
                                 PlayMusicTrack(2);
-                            else
+                            } else {
                                 PlayMusicTrack(1);
+                            }
 
-                            if (temp_s1 == 6)
+                            if (temp_s1 == 6) {
                                 ToggleAmbientSound(-0x1EC);
-                            else if (temp_s1 == 5)
+                            } else if (temp_s1 == 5) {
                                 ToggleAmbientSound(-0x1ED);
+                            }
 
                             func_800A6994(&sp10, 1);
                         }
                     }
                 } else {
-                    if ((WmGetModelIdFromPcEntity() == 3) || (WmGetModelIdFromPcEntity() == 4))
+                    if ((WmGetModelIdFromPcEntity() == 3) || (WmGetModelIdFromPcEntity() == 4)) {
                         WmScriptDisableForPcEntity(0);
+                    }
 
                     if ((temp_s2 != 0) ||
-                        ((WmGetModelIdFromPcEntity() == 5) && (WmIsPcEntityPosNeedRecalculation() != 0)))
+                        ((WmGetModelIdFromPcEntity() == 5) && (WmIsPcEntityPosNeedRecalculation() != 0))) {
                         func_800A368C(1);
+                    }
                 }
             }
         }
@@ -7091,15 +7203,17 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world", WmUiMapUpdate);
 
 static void WmSetCamMode(s16 arg0) {
     D_801164F8 = arg0;
-    if (WmGetModelIdFromPcEntity() != 3)
+    if (WmGetModelIdFromPcEntity() != 3) {
         D_801164FC = D_801164F8;
+    }
 }
 
 static s16 WmGetCamMode(void) { return D_801164F8; }
 
 static void func_800BCA48(void) {
-    if (D_801164F8 == 1)
+    if (D_801164F8 == 1) {
         D_801164F8 = D_801164FC;
+    }
 }
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800BCA78);

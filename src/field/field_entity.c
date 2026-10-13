@@ -27,7 +27,7 @@ static void FieldEntityTriggerCheck(FieldEntity* entity, FieldBgTrigger* trigger
 s32 FieldCalcLinearStep(s32 start, s32 target, s32 duration, s32 step);
 s32 FieldCalcEaseInOut(s32 start, s32 target, s32 duration, s32 step);
 s32 FieldEntityMove(s16 modelId);
-s32 FieldEntityAutoMove(FieldEntity* entity, s16 targetRadius);
+s32 FieldEntityAutoMove(FieldEntity* data, s16 targetRadius);
 void FieldBattleCheck(void);
 
 void FieldEntityInitPos(void) {

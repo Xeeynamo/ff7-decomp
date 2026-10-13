@@ -534,7 +534,6 @@ u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId) {
 
     // Only request script if active script has lower priority.
     if (g_FieldScriptPriority[entityId] > priority) {
-
         // Entity is busy waiting for another script to return.
         if (g_FieldScriptSyncState[entityId][priority] != SYNC_NONE) {
             return g_FieldScriptSyncState[entityId][priority];
@@ -549,7 +548,6 @@ u8 FieldEventRequestRun(s16 entityId, s16 priority, s16 scriptId) {
 
         // Empty event scripts consist of just a RET (0x00) opcode.
         if (((u8*)g_FieldScripts)[offset] != 0) {
-
             // Save position of current active script of lower priority and
             // replace with new script.
             SavedScriptIds[entityId][priority] = scriptId;

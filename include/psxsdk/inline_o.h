@@ -3,6 +3,16 @@
 
 #ifdef PLATFORM_PSYZ
 #include <libgte.h>
+
+#define gte_stsv(r1) \
+    do { \
+        VECTOR result; \
+        SVECTOR* vector = (SVECTOR*)(r1); \
+        gte_stlvl(&result); \
+        vector->vx = result.vx; \
+        vector->vy = result.vy; \
+        vector->vz = result.vz; \
+    } while (0)
 #else
 /*
  * Type 1 functions
@@ -154,6 +164,17 @@
     {                                                                                                                  \
         __asm__ volatile("move  $12,%0" : : "r"(r1) : "$12", "$13", "$14", "$15", "memory");                           \
         __asm__ volatile("swc2  $24,0($12)" : : : "$12", "$13", "$14", "$15", "memory");                               \
+    }
+
+#define gte_stsv(r1)                                                                                                   \
+    {                                                                                                                  \
+        __asm__ volatile("move  $12,%0" : : "r"(r1) : "$12", "$13", "$14", "$15", "memory");                           \
+        __asm__ volatile("mfc2  $13,$9" : : : "$12", "$13", "$14", "$15", "memory");                                   \
+        __asm__ volatile("mfc2  $14,$10" : : : "$12", "$13", "$14", "$15", "memory");                                  \
+        __asm__ volatile("mfc2  $15,$11" : : : "$12", "$13", "$14", "$15", "memory");                                  \
+        __asm__ volatile("sh    $13,0($12)" : : : "$12", "$13", "$14", "$15", "memory");                               \
+        __asm__ volatile("sh    $14,2($12)" : : : "$12", "$13", "$14", "$15", "memory");                               \
+        __asm__ volatile("sh    $15,4($12)" : : : "$12", "$13", "$14", "$15", "memory");                               \
     }
 
 #define gte_stlvnl(r1)                                                                                                 \

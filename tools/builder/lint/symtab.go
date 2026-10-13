@@ -91,3 +91,31 @@ func resolveAddress(name string, table map[string]uint32) (uint32, bool) {
 	}
 	return 0, false
 }
+
+// symbolTableForOverlay excludes names belonging to unrelated overlays while
+// retaining shared addresses and symbols from direct imports. Imports describe
+// symbol references, so main's own imports do not make every overlay resident.
+func symbolTableForOverlay(ovl Overlay, all []Overlay, union map[string]uint32, sharedEnd uint32) (map[string]uint32, error) {
+	table := map[string]uint32{}
+	for name, addr := range union {
+		if sharedEnd != 0 && addr < sharedEnd {
+			table[name] = addr
+		}
+	}
+	paths := append([]string{}, ovl.SymbolAddrsPath...)
+	for _, name := range ovl.Imports {
+		for _, imported := range all {
+			if imported.Name == name {
+				paths = append(paths, imported.SymbolAddrsPath...)
+			}
+		}
+	}
+	local, err := LoadSymbolTable(paths)
+	if err != nil {
+		return nil, err
+	}
+	for name, addr := range local {
+		table[name] = addr
+	}
+	return table, nil
+}

@@ -250,18 +250,14 @@ static void ChocoboLoadTrackData(s32 arg0, s32 arg1) {
 static void ChocoboLoadTextures(void) {
     SysCdromStartLoadLzs(0x4C9, 0x1000, (u_long*)&D_80077F64[0][0x2000], NULL);
     do {
-
     } while (SystemCdromReadChain());
     SysCdromStartLoadLzs(0x4CA, 0x1000, (u_long*)&D_80077F64[0][0x3000], NULL);
     do {
-
     } while (SystemCdromReadChain());
     SysCdromStartLoadLzs(0x4C8, 0x800U, (u_long*)&D_80077F64[1][0xC00], NULL);
     do {
-
     } while (SystemCdromReadChain());
     SysCdromStartLoadLzs(0x4C7, 0x800U, (u_long*)&D_80077F64[1][0x1400], NULL);
     do {
-
     } while (SystemCdromReadChain());
 }

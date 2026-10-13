@@ -291,7 +291,7 @@ void JetPrimCursorsReset(JetPrimBuffer* prims);
 void JetNodeFree(JetNode* node);
 void JetPlaySfx(s16 soundId);
 void JetDrawObjectAndCheckHit(JetBuffer* db, JetNode* node, s16 otIndex, s32 unusedArg, JetObject* object);
-s32 JetVectorInsidePlanes(VECTOR* arg0);
+s32 JetVectorInsidePlanes(VECTOR* point);
 void JetObjectsInit(void);
 void JetFrustumInit(void);
 void JetModelsReset(void);

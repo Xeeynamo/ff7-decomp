@@ -14,7 +14,7 @@ OT_TYPE* g_CurrentOT;
 void* D_80063008;
 OT_TYPE* D_8006300C;
 
-void SysMenuSetPoly(void* arg0) { g_PolyPtr.poly = arg0; }
+void SysMenuSetPoly(void* prim) { g_PolyPtr.poly = prim; }
 
 void SysMenuSavePoly(void) { D_80063008 = g_PolyPtr.poly; }
 

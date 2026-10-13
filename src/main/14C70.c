@@ -209,10 +209,10 @@ u8* SysExpandBattleString(u8* dst, const u8* src) {
 s32 SysDecompKernStringWithF9(u16* arg0, u16* arg1);
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysDecompKernStringWithF9);
 
-u8* SysGetKernBattleTextPtr(s32 TextId) { return SysGetKernTextPtr(KERNEL_TEXT_BATTLE_MESSAGES, TextId, 0); }
+u8* SysGetKernBattleTextPtr(s32 textId) { return SysGetKernTextPtr(KERNEL_TEXT_BATTLE_MESSAGES, textId, 0); }
 
-s32 SysGetKernBattleTextById(s32 TextId) {
-    u8* tmpBuf = SysGetKernBattleTextPtr(TextId);
+s32 SysGetKernBattleTextById(s32 textId) {
+    u8* tmpBuf = SysGetKernBattleTextPtr(textId);
     return SysDecompKernStringWithF9(tmpBuf, tmpBuf);
 }
 

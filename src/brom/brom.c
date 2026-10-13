@@ -16,7 +16,7 @@ extern struct {
 } D_800707BC;
 
 void func_80014540(void);
-void func_80014578(s32 file_no, void* dst, void (*cb)(void));
+void func_80014578(s32 fileNo, void* dst, void (*cb)(void));
 void SystemCdWaitCallback(void (*cb)(void));
 void InputUpdateBattleKeyStates(void);
 void func_80025174(void);
@@ -38,7 +38,7 @@ extern OT_TYPE D_800A473C[2];
 
 static void ScenePickerMain(void);
 static void func_800A0534(BromStruct* arg0);
-static u16 func_800A05D4(BromStruct* img, s32 arg1, s32 arg2);
+static u16 func_800A05D4(BromStruct* img, s32 x, s32 arg2);
 
 static void ScenePickerInit(void) {
     ResetGraph(0);
@@ -222,14 +222,18 @@ static u16 func_800A05D4(BromStruct* img, s32 x, s32 arg2) {
     s32 y;
     u16 temp_v1;
 
-    if ((temp_v1 = img->magic[0]) != 0x4152)
+    if ((temp_v1 = img->magic[0]) != 0x4152) {
         return temp_v1;
-    if ((temp_v1 = img->magic[1]) != 0x2057)
+    }
+    if ((temp_v1 = img->magic[1]) != 0x2057) {
         return temp_v1;
-    if ((temp_v1 = img->magic[2]) != 0x4752)
+    }
+    if ((temp_v1 = img->magic[2]) != 0x4752) {
         return temp_v1;
-    if ((temp_v1 = img->magic[3]) != 0x2042)
+    }
+    if ((temp_v1 = img->magic[3]) != 0x2042) {
         return temp_v1;
+    }
 
     w = (img->unk8 >> 8) | (img->unk8 << 8);
     h = (img->unkA >> 8) | (img->unkA << 8);

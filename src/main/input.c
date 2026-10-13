@@ -32,7 +32,7 @@ Max possible number of received bytes is 32 (when offset 1, lower 4 bits = 0) so
 
 Macros inspired by CTRLLER.H from SDK samples.
 */
-#define GOOD_DATA(x) ((x)[0] != 0xff)
+#define GOOD_DATA(x) ((x)[0] != 0xFF)
 #define GOOD_FORMAT(x) ((x)[1] == 0x41)
 #define GET_KEYS(x) (~((x)[3] | ((x)[2] << 8)))
 
@@ -330,7 +330,6 @@ void InputUpdateKeyStates(void) {
         s_PadRepeatState.counter[0] = 0;
         s_PadRepeatState.enabled[0] = 0;
     } else if (s_PadRepeatState.enabled[0]) {
-
         if (s_PadRepeatState.counter[0] == 3) {
             g_Pad0KeysRepeat = g_Pad0Keys;
             s_PadRepeatState.counter[0] = 0;
@@ -338,7 +337,6 @@ void InputUpdateKeyStates(void) {
             s_PadRepeatState.counter[0]++;
         }
     } else {
-
         if (s_PadRepeatState.counter[0] == 15) {
             s_PadRepeatState.enabled[0] = 1;
             s_PadRepeatState.counter[0] = 0;
