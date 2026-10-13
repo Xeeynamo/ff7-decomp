@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "common.h"
 #include "magic.h"
-#include "../battle/battle.h"
+#include "threat_assets.h"
 // THREAT.BIN: An emitter travels from the source to the target over sixteen updates, leaving a sprite trail.
 
 typedef struct {
@@ -10,10 +10,7 @@ typedef struct {
     s16 unk14, unk16, unk18, unk1A, TargetIndex, SourceIndex;
 } ThreatEffect;
 extern ThreatEffect g_BattleEffectSlots[];
-extern u_long D_801B0410[];
 extern s32 D_801B8454;
-extern SpriteRenderDesc D_801B8548;
-extern u8 D_801B8554[];
 extern void* D_801D8554;
 
 void MAGIC_Threat(s32 arg0, s32 arg1) { MAGIC_ThreatSetup(arg0, arg1); }
@@ -26,12 +23,13 @@ static void func_threat_801B0020(void) {
     BattleSetBillboardMatrix(&effect->Pos, (s32)effect->unk14, 0);
     D_801B8548.frameIndex = (u16)effect->AnimationFrame;
     D_801D8554 = func_800D4D90(&D_801B8548, g_cDb->unk70, 0xC, D_801D8554);
-    if (D_80062D98 == 0) {
-        nextFrame = (u16)effect->AnimationFrame + 1;
-        effect->AnimationFrame = nextFrame;
-        if (nextFrame >= D_801B8454) {
-            effect->StartFrame = -1;
-        }
+    if (D_80062D98 != 0) {
+        return;
+    }
+    nextFrame = (u16)effect->AnimationFrame + 1;
+    effect->AnimationFrame = nextFrame;
+    if (nextFrame >= D_801B8454) {
+        effect->StartFrame = -1;
     }
 }
 
@@ -41,20 +39,21 @@ static void func_threat_801B00DC(void) {
     s16 nextFrame;
 
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
-    if (D_80062D98 == 0) {
-        effect->Pos.vx = (u16)effect->Pos.vx + (u16)effect->Velocity.vx;
-        effect->Pos.vy = (u16)effect->Pos.vy + (u16)effect->Velocity.vy;
-        effect->Pos.vz = (u16)effect->Pos.vz + (u16)effect->Velocity.vz;
-        particle = &g_BattleEffectSlots[BattleEffectRegister(func_threat_801B0020)];
-        particle->Pos = effect->Pos;
-        particle->unk14 = 0x2000;
-        nextFrame = (u16)effect->AnimationFrame + 1;
-        effect->AnimationFrame = nextFrame;
-        if (nextFrame >= 0x10) {
-            BattleSpawnFloatingIcon(effect->unk16, 0x32);
-            func_800D5774((u32)effect->unk16);
-            effect->StartFrame = -1;
-        }
+    if (D_80062D98 != 0) {
+        return;
+    }
+    effect->Pos.vx = (u16)effect->Pos.vx + (u16)effect->Velocity.vx;
+    effect->Pos.vy = (u16)effect->Pos.vy + (u16)effect->Velocity.vy;
+    effect->Pos.vz = (u16)effect->Pos.vz + (u16)effect->Velocity.vz;
+    particle = &g_BattleEffectSlots[BattleEffectRegister(func_threat_801B0020)];
+    particle->Pos = effect->Pos;
+    particle->unk14 = 0x2000;
+    nextFrame = (u16)effect->AnimationFrame + 1;
+    effect->AnimationFrame = nextFrame;
+    if (nextFrame >= 0x10) {
+        BattleSpawnFloatingIcon(effect->unk16, 0x32);
+        func_800D5774((u32)effect->unk16);
+        effect->StartFrame = -1;
     }
 }
 
@@ -98,7 +97,7 @@ static void func_threat_801B0304(void) {
 }
 
 void MAGIC_ThreatSetup(s32 arg0, s32 arg1) {
-    BattleSetLoadTimToVram(D_801B0410, 0, 0, 0);
+    BattleSetLoadTimToVram(threat_texture_tim, 0, 0, 0);
     BattleEffectRegister(func_threat_801B0304);
     MagicAnimationRegister(arg0, arg1, 4, func_threat_801B01D8);
     BattleAkaoCommand(0x20, BattlePositionToStereoPan(&g_BattleModels[arg1].rootTrans), 0x31);
