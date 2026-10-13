@@ -339,7 +339,11 @@ def add_splat_config(ovl_name: str, file_name: str):
             if kind == "data":
                 add_s(cfg, f"data/{name}.data")
             elif kind == "databin":
-                add_s(cfg, f"data/{name}", implicit=[f"{asset_path(cfg)}/{name}.databin.bin"])
+                add_s(
+                    cfg,
+                    f"data/{name}",
+                    implicit=[f"{asset_path(cfg)}/{name}.databin.bin"],
+                )
             elif kind == "rodata":
                 add_s(cfg, f"data/{name}.rodata")
             elif kind == "bss":

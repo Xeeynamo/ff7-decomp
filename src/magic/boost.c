@@ -17,10 +17,10 @@ extern s32 D_801B8530;
 extern EffectModel D_801B868C;
 extern void* D_80163C74;
 void func_800BBA84(s32, s32, s32);
-static void func_boost_801B046C(s32, s32);
+static void func_boost_801B046C(s32 arg0, s32 arg1);
 
-EffectModel* MAGIC_Boost(s32 arg0, s32 arg1) {
-    func_boost_801B046C(arg0, arg1);
+EffectModel* MAGIC_Boost(s32 targetMask, s32 callbackArg) {
+    func_boost_801B046C(targetMask, callbackArg);
     return &D_801B868C;
 }
 

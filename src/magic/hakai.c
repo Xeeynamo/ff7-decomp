@@ -15,9 +15,9 @@ extern HakaiEffect g_BattleEffectSlots[];
 extern s32 D_80163C74;
 void func_800BBA84(s32, s32, s32);
 s32 func_800C4FC8(s32, s32, s16);
-static void func_hakai_801B0448(s32, s32);
+static void func_hakai_801B0448(s32 arg0, s32 arg1);
 
-void MAGIC_Hakai(s32 arg0, s32 arg1) { func_hakai_801B0448(arg0, arg1); }
+void MAGIC_Hakai(s32 targetMask, s32 callbackArg) { func_hakai_801B0448(targetMask, callbackArg); }
 
 static void func_hakai_801B0020(void) {
     HakaiEffect* effect;

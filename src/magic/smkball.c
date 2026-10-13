@@ -13,9 +13,9 @@ typedef struct {
 } SmkballEffect;
 extern SmkballEffect g_BattleEffectSlots[];
 extern void* D_801D6738;
-static void func_smkball_801B02B0(s32, s32);
+static void func_smkball_801B02B0(s32 arg0, s32 arg1);
 
-void MAGIC_Smkball(s32 arg0, s32 arg1) { func_smkball_801B02B0(arg0, arg1); }
+void MAGIC_Smkball(s32 targetMask, s32 callbackArg) { func_smkball_801B02B0(targetMask, callbackArg); }
 
 static void func_smkball_801B0020(void) {
     SmkballEffect* effect;

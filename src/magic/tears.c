@@ -13,9 +13,9 @@ typedef struct {
 } TearsEffect;
 extern TearsEffect g_BattleEffectSlots[];
 extern void* D_801D0460;
-static void func_tears_801B03E4(s32, s32);
+static void func_tears_801B03E4(s32 arg0, s32 arg1);
 
-void MAGIC_Tears(s32 arg0, s32 arg1) { func_tears_801B03E4(arg0, arg1); }
+void MAGIC_Tears(s32 targetMask, s32 callbackArg) { func_tears_801B03E4(targetMask, callbackArg); }
 
 static void func_tears_801B0020(void) {
     TearsEffect* effect;

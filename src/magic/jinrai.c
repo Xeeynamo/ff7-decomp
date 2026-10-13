@@ -13,12 +13,12 @@ extern JinraiEffect g_BattleEffectSlots[];
 extern s32 D_801B3354;
 extern EffectModel D_801B3470;
 extern void* D_80163C74;
-static void func_jinrai_801B02B0(s32, s32);
+static void func_jinrai_801B02B0(s32 arg0, s32 arg1);
 
 void func_800BBA84(s32, s32, s32);
 
-EffectModel* MAGIC_Jinrai(s32 arg0, s32 arg1) {
-    func_jinrai_801B02B0(arg0, arg1);
+EffectModel* MAGIC_Jinrai(s32 targetMask, s32 callbackArg) {
+    func_jinrai_801B02B0(targetMask, callbackArg);
     return &D_801B3470;
 }
 
