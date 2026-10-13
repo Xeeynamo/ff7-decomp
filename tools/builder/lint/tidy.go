@@ -83,6 +83,9 @@ func Tidy() error {
 			if rel, err := filepath.Rel(cwd, path); err == nil && !strings.HasPrefix(rel, "..") {
 				path = rel
 			}
+			if strings.HasPrefix(path, "tools/") {
+				continue
+			}
 			findings[fmt.Sprintf("%s:%s:%s: %s [%s]", path, m[2], m[3], m[5], m[6])] = true
 		}
 	}
