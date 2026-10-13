@@ -515,7 +515,7 @@ extern s16 g_ItemMenuScrollbarTrackW;
 extern s16 g_ItemMenuScrollbarTrackH;
 extern s32 g_ItemMenuTargetSelectDelay;
 
-void ArrangeItems(s32);
+void ArrangeItems(s32 mode);
 const char* SysKernGetString(s32, s32, s32);
 void SysMenuDrawAvatar(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
 void SysMenuSetWindowRect(s32*, s32, s32, s32, s32);
@@ -534,8 +534,8 @@ void SystemMenuAddMpByPartyId(s32, s32);
 void SysMenuSetDrawenv(void*, s16*);
 void SysMenuDrawSingleFontLetter(s32, s32, s32, s32);
 void SysMenuDrawScrollbar(MenuScrollbar* bar);
-s32 IsCharacterHpFull(s32);
-s32 IsCharacterMpFull(s32);
+s32 IsCharacterHpFull(s32 charIdx);
+s32 IsCharacterMpFull(s32 charIdx);
 
 void g_LimitManualMsgs();
 
