@@ -13,7 +13,7 @@ extern ThreatEffect g_BattleEffectSlots[];
 extern s32 D_801B8454;
 extern void* D_801D8554;
 
-void MAGIC_Threat(s32 arg0, s32 arg1) { MAGIC_ThreatSetup(arg0, arg1); }
+void MAGIC_Threat(s32 targetMask, s32 callbackArg) { MAGIC_ThreatSetup(targetMask, callbackArg); }
 
 static void func_threat_801B0020(void) {
     ThreatEffect* effect;
@@ -96,9 +96,9 @@ static void func_threat_801B0304(void) {
     }
 }
 
-void MAGIC_ThreatSetup(s32 arg0, s32 arg1) {
+void MAGIC_ThreatSetup(s32 targetMask, s32 callbackArg) {
     BattleSetLoadTimToVram(threat_texture_tim, 0, 0, 0);
     BattleEffectRegister(func_threat_801B0304);
-    MagicAnimationRegister(arg0, arg1, 4, func_threat_801B01D8);
-    BattleAkaoCommand(0x20, BattlePositionToStereoPan(&g_BattleModels[arg1].rootTrans), 0x31);
+    MagicAnimationRegister(targetMask, callbackArg, 4, func_threat_801B01D8);
+    BattleAkaoCommand(0x20, BattlePositionToStereoPan(&g_BattleModels[callbackArg].rootTrans), 0x31);
 }

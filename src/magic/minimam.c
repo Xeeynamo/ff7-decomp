@@ -13,7 +13,7 @@ typedef struct {
     char pad1A[6];
 } MinimamEffect;
 extern MinimamEffect g_BattleEffectSlots[];
-static void func_minimam_801B0514(s32, s32);
+static void func_minimam_801B0514(s32 arg0, s32 arg1);
 
 static void func_minimam_801B0000(void) {
     u8* offset;
@@ -28,7 +28,7 @@ static void func_minimam_801B0000(void) {
     }
 }
 
-void MAGIC_Minimam(s32 arg0, s32 arg1) { func_minimam_801B0514(arg0, arg1); }
+void MAGIC_Minimam(s32 targetMask, s32 callbackArg) { func_minimam_801B0514(targetMask, callbackArg); }
 
 static void func_minimam_801B0074(void) {
     MinimamEffect* effect;

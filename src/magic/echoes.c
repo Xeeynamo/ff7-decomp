@@ -13,9 +13,9 @@ typedef struct {
 } EchoesEffect;
 extern EchoesEffect g_BattleEffectSlots[];
 extern void* D_801D687C;
-static void func_echoes_801B0404(s32, s32);
+static void func_echoes_801B0404(s32 arg0, s32 arg1);
 
-void MAGIC_Echoes(s32 arg0, s32 arg1) { func_echoes_801B0404(arg0, arg1); }
+void MAGIC_Echoes(s32 targetMask, s32 callbackArg) { func_echoes_801B0404(targetMask, callbackArg); }
 
 static void func_echoes_801B0020(void) {
     EchoesEffect* effect;

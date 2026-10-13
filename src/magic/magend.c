@@ -13,9 +13,9 @@ typedef struct {
 } MagendEffect;
 extern MagendEffect g_BattleEffectSlots[];
 void RotTransSV(SVECTOR*, SVECTOR*, s32*);
-static void func_magend_801B0448(s32, s32);
+static void func_magend_801B0448(s32 arg0, s32 arg1);
 
-void MAGIC_Magend(s32 arg0, s32 arg1) { func_magend_801B0448(arg0, arg1); }
+void MAGIC_Magend(s32 targetMask, s32 callbackArg) { func_magend_801B0448(targetMask, callbackArg); }
 
 static void func_magend_801B0020(void) {
     MagendEffect* effect;
