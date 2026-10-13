@@ -321,23 +321,15 @@ void func_800A0C58(void) { NOT_IMPLEMENTED; }
 void func_800B6B58(void) { NOT_IMPLEMENTED; }
 
 // Unmatched pieces of src/main/17238.c, referenced by the matched ones.
-void SysAddMateriaLongRange(u8 arg0) { NOT_IMPLEMENTED; }
 void SysAddMagicSummonSkillToUnitStructure(u8 arg0, u8 arg1, u8 arg2) { NOT_IMPLEMENTED; }
 s32 SysAddCommandToTemp(s32 arg0) {
     NOT_IMPLEMENTED;
     return 0;
 }
 void SysAddMateria00(u8 arg0, s32 arg1) { NOT_IMPLEMENTED; }
-void SysAddMateria20(u8 arg0, s32 arg1) { NOT_IMPLEMENTED; }
 void SysAddMateria40(u8 arg0, s32 arg1) { NOT_IMPLEMENTED; }
-void SysRemoveStealIfMug(void) { NOT_IMPLEMENTED; }
 void SysAddMateriaEquipStatBonus(u8 materiaId) { NOT_IMPLEMENTED; }
-void SysAddMateriaX1(u8 materiaSubType, u8 materiaId, s32 materiaAp) { NOT_IMPLEMENTED; }
-void SysAddMateriaX2(u8 materiaSubType, u8 materiaId, s32 materiaAp) { NOT_IMPLEMENTED; }
 void SysAddMateriaX3(u8 materiaSubType, u8 materiaId, s32 materiaAp) { NOT_IMPLEMENTED; }
-void SysAddMateriaX5(u8 materiaSubType, u8 materiaId, s32 materiaAp) { NOT_IMPLEMENTED; }
-void SysAddMateriaX6(u8 materiaId, s32 materiaAp) { NOT_IMPLEMENTED; }
-void SysAddMateriaX8(void) { NOT_IMPLEMENTED; }
 void SysAddMateriaX9(u8 materiaId, s32 materiaAp) { NOT_IMPLEMENTED; }
 void SysAddMateriaXa(void) { NOT_IMPLEMENTED; }
 void SysAddMateriaXb(u8 materiaId, s32 materiaAp) { NOT_IMPLEMENTED; }
@@ -346,8 +338,17 @@ u8 SysGetCommandOrder(u8 commandId) {
     NOT_IMPLEMENTED;
     return 0;
 }
-void SysCopyCommandToUnitStructure(u8 commandId, u8 order) { NOT_IMPLEMENTED; }
 void SysAddPairMateriaUnordered(u32 materia1, u32 materia2, u8 arg2, u8 arg3, u8 arg4) { NOT_IMPLEMENTED; }
+void SysAddMateria21(u8 arg0, s32 arg1) { NOT_IMPLEMENTED; }
+void SysAddMateria41(u8 arg0, s32 arg1) { NOT_IMPLEMENTED; }
+void SysAddPairCommandWithCounter(s32 arg0, s32 arg1, s32 arg2) { NOT_IMPLEMENTED; }
+void SysAddPairMasterMateriaWithCounter(s32 arg0, u8 arg1) { NOT_IMPLEMENTED; }
+void SysAddPairMagicWithMagicCounter(u8 allCount, u8 materiaId, s32 ap) { NOT_IMPLEMENTED; }
+void SysAddPairSummonWithMagicCounter(u8 allCount, u8 materiaId, s32 ap) { NOT_IMPLEMENTED; }
+void SysAddPairMagicWithMpTurbo(s32 arg0, s32 arg1, s32 arg2) { NOT_IMPLEMENTED; }
+void SysAddPairMasterMagicWithMpTurbo(s32 arg0) { NOT_IMPLEMENTED; }
+void SysAddPairFlagToMagic(s32 arg0, s32 arg1) { NOT_IMPLEMENTED; }
+void SysAddPairFlagToAllMagics(void) { NOT_IMPLEMENTED; }
 
 // Per-character scratch tables filled by src/main/17238.c while it parses equipped materia.
 u8 D_800694B4[16];
