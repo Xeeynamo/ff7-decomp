@@ -38,8 +38,8 @@ s32 SysGetMateriaActivatedStars(u8 arg0, s32 arg1);
 void SysAddMagicSummonSkillToUnitStructure(u8, u8, u8);
 void SysRemoveStealIfMug(void);
 void SysAddMateriaEquipStatBonus(u8 materiaId);
-void SysAddMateria25(u8, s32);
-void SysAddMateria35(u8, s32);
+void SysAddMateria25(u8 arg0, s32 arg1);
+void SysAddMateria35(u8 arg0, s32 arg1);
 static void SysAddMateriaX0(u8 materiaSubType, u8 materiaId, s32 materiaAp);
 void SysAddMateriaX1(u8 materiaSubType, u8 materiaId, s32 materiaAp);
 void SysAddMateriaX2(u8 materiaSubType, u8 materiaId, s32 materiaAp);
@@ -67,6 +67,28 @@ void SysAddPairMasterMagicWithQuadraMagic(u8 allCount);
 void SysAddPairSummonWithQuadraMagic(u8 allCount, u8 materiaId);
 void SysAddPairMasterSummonWithQuadraMagic(u8 allCount);
 s32 SysSearchExistedCommand(u8 commandId);
+void SysAddPairMagicWithMagicCounter(u8 allCount, u8 materiaId, s32 ap);
+void SysAddPairSummonWithMagicCounter(u8 allCount, u8 materiaId, s32 ap);
+void SysAddPairMasterMateriaWithCounter(s32 arg0, u8 arg1);
+void SysAddPairMagicWithMpTurbo(s32, s32, s32);
+void SysAddPairSummonWithMpTurbo(s32 arg0, s32 arg1, s32 arg2);
+void SysAddPairFlagToActiveCommand(s32 arg0);
+void SysAddPairFlagToAllActiveCommands(void);
+void SysAddPairFlagToMagic(s32, s32);
+void SysAddPairFlagToAllMagics(void);
+void SysAddPairFlagToSummon(s32 arg0, s32 arg1);
+void SysAddPairFlagToAllSummons(void);
+void SysAddPairMagicWithAll(u8 allCount, u8 materiaId, s32 ap);
+void SysAddPairMasterMagicWithAll(u8 allCount, u8 materiaId, s32 ap);
+void SysAddMateria12(u8 arg0, u8 arg1);
+void SysAddMateria00(u8, s32);
+void SysAddMateria20(u8 arg0, s32 arg1);
+void SysAddMateria40(u8, s32);
+void SysAddMateria21(u8, s32);
+void SysAddMateria41(u8, s32);
+void SysAddPairCommandWithCounter(s32 arg0, s32 arg1, s32 arg2);
+void SysAddPairMasterMagicWithMpTurbo(s32 arg0);
+void SysAddMateriaLongRange(u8 arg0);
 
 static s32 func_80017238(u32 arg0, u32* arg1, u8* arg2) {
     *arg2 = arg0;
@@ -343,7 +365,7 @@ void SysAddPairWithAddedEffect(s32 arg0, u8 arg1, u8 arg2) {
 
     statusEffects = g_MateriaData[arg1].statusEffects[0] + (g_MateriaData[arg1].statusEffects[1] << 8) +
                     (g_MateriaData[arg1].statusEffects[2] << 16);
-    if (arg2 == 0) {
+    if (!arg2) {
         D_80062E60->physicalAttackStatuses |= statusEffects;
     } else {
         D_80062E60->immuneStatuses |= statusEffects;
@@ -360,18 +382,14 @@ void SysAddPairWithCounter(s32 arg0, s32 allCount, u32 materia) {
     type = g_MateriaData[materiaId].materiaType & 0xF;
     D_80062E88 = 0;
     switch (type) {
-    case 6:
+    case MATERIA_TYPE_COMMAND:
         SysAddPairCommandWithCounter(allCount & 0xFF, materiaId, ap);
         break;
-    case 8:
+    case MATERIA_TYPE_MASTER_COMMAND:
         SysAddPairMasterMateriaWithCounter(allCount & 0xFF, 0xFD);
         break;
     }
 }
-
-void SysAddPairMagicWithMagicCounter(u8 allCount, u8 materiaId, s32 ap);
-void SysAddPairSummonWithMagicCounter(u8 allCount, u8 materiaId, s32 ap);
-void SysAddPairMasterMateriaWithCounter(s32 arg0, u8 arg1);
 
 void SysAddPairWithMagicCounter(s32 arg0, s32 allCount, u32 materia) {
     s32 materiaId;
@@ -383,16 +401,16 @@ void SysAddPairWithMagicCounter(s32 arg0, s32 allCount, u32 materia) {
     type = g_MateriaData[materiaId].materiaType & 0xF;
     D_80062E88 = 0;
     switch (type) {
-    case 9:
+    case MATERIA_TYPE_MAGIC:
         SysAddPairMagicWithMagicCounter(allCount, materiaId, ap);
         break;
-    case 0xA:
+    case MATERIA_TYPE_MASTER_MAGIC:
         SysAddPairMasterMateriaWithCounter(allCount & 0xFF, 0xFE);
         break;
-    case 0xB:
+    case MATERIA_TYPE_SUMMON:
         SysAddPairSummonWithMagicCounter(allCount, materiaId, ap);
         break;
-    case 0xC:
+    case MATERIA_TYPE_MASTER_SUMMON:
         SysAddPairMasterMateriaWithCounter(allCount & 0xFF, 0xFF);
         break;
     }
@@ -416,30 +434,26 @@ void SysAddPairSummonWithMpTurbo(s32 arg0, s32 arg1, s32 arg2) {
     u8 id;
 
     id = arg1;
+    maskedArg0 = arg0;
     count = SysGetMateriaActivatedStars(id, arg2);
-    if (count > 0) {
-        maskedArg0 = arg0;
-        do {
-            costMod = D_80062E60->enabledMagic[g_MateriaData[id].materiaAttributes[count - 1]].costModifier;
-            newVal = (costMod >> 5) + maskedArg0;
-            if (newVal > 5) {
-                newVal = 5;
-            }
-            D_80062E60->enabledMagic[g_MateriaData[id].materiaAttributes[count - 1]].costModifier =
-                (costMod & 0x1F) | ((newVal & 7) << 5);
-            count--;
-        } while (count > 0);
+    while (count > 0) {
+        costMod = D_80062E60->enabledMagic[g_MateriaData[id].materiaAttributes[count - 1]].costModifier;
+        newVal = (costMod >> 5) + maskedArg0;
+        if (newVal > 5) {
+            newVal = 5;
+        }
+        D_80062E60->enabledMagic[g_MateriaData[id].materiaAttributes[count - 1]].costModifier =
+            (costMod & 0x1F) | ((newVal & 7) << 5);
+        count--;
     }
 }
 
-void SysAddPairMasterSummonWithMpTurbo(u32 arg0) {
+void SysAddPairMasterSummonWithMpTurbo(u8 arg0) {
     s32 i;
     u8 costMod;
     s32 newVal;
 
-    i = 0;
-    arg0 &= 0xFF;
-    for (; i < NUM_SUMMONS; i++) {
+    for (i = 0; i < NUM_SUMMONS; i++) {
         costMod = D_80062E60->enabledMagic[NUM_MAGICS + i].costModifier;
         newVal = (costMod >> 5) + arg0;
         if (newVal > 5) {
@@ -453,15 +467,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMasterMagicWithMpTurbo);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMagicWithMpTurbo);
 
-void SysAddPairMagicWithMpTurbo(s32, s32, s32);
-void SysAddPairSummonWithMpTurbo(s32, s32, s32);
-void SysAddPairFlagToActiveCommand(s32);
-void SysAddPairFlagToAllActiveCommands(void);
-void SysAddPairFlagToMagic(s32, s32);
-void SysAddPairFlagToAllMagics(void);
-void SysAddPairFlagToSummon(s32, s32);
-void SysAddPairFlagToAllSummons(void);
-
 void SysAddPairWithMpTurbo(s32 arg0, u32 arg1) {
     s32 materiaId;
     s32 ap;
@@ -471,16 +476,16 @@ void SysAddPairWithMpTurbo(s32 arg0, u32 arg1) {
     ap = arg1 >> 8;
     type = g_MateriaData[materiaId].materiaType & 0xF;
     switch (type) {
-    case 9:
+    case MATERIA_TYPE_MAGIC:
         SysAddPairMagicWithMpTurbo(arg0 & 0xFF, materiaId, ap);
         break;
-    case 0xA:
+    case MATERIA_TYPE_MASTER_MAGIC:
         SysAddPairMasterMagicWithMpTurbo(arg0 & 0xFF);
         break;
-    case 0xB:
+    case MATERIA_TYPE_SUMMON:
         SysAddPairSummonWithMpTurbo(arg0 & 0xFF, materiaId, ap);
         break;
-    case 0xC:
+    case MATERIA_TYPE_MASTER_SUMMON:
         SysAddPairMasterSummonWithMpTurbo(arg0 & 0xFF);
         break;
     }
@@ -495,22 +500,22 @@ void SysAddPairFlagToCommandMagicSummon(u32 materia) {
     type = g_MateriaData[materiaId].materiaType & 0xF;
     ap = materia >> 8;
     switch (type) {
-    case 6:
+    case MATERIA_TYPE_COMMAND:
         SysAddPairFlagToActiveCommand(materiaId);
         break;
-    case 8:
+    case MATERIA_TYPE_MASTER_COMMAND:
         SysAddPairFlagToAllActiveCommands();
         break;
-    case 9:
+    case MATERIA_TYPE_MAGIC:
         SysAddPairFlagToMagic(materiaId, ap);
         break;
-    case 10:
+    case MATERIA_TYPE_MASTER_MAGIC:
         SysAddPairFlagToAllMagics();
         break;
-    case 11:
+    case MATERIA_TYPE_SUMMON:
         SysAddPairFlagToSummon(materiaId, ap);
         break;
-    case 12:
+    case MATERIA_TYPE_MASTER_SUMMON:
         SysAddPairFlagToAllSummons();
         break;
     }
@@ -522,12 +527,10 @@ void SysAddPairFlagToSummon(s32 arg0, s32 arg1) {
     u8 attr;
     id = arg0 & 0xFF;
     stars = SysGetMateriaActivatedStars(id, arg1);
-    if (stars > 0) {
-        do {
-            attr = g_MateriaData[id].materiaAttributes[stars - 1];
-            D_80062E60->enabledMagic[attr].costModifier |= D_80062E78;
-            stars--;
-        } while (stars > 0);
+    while (stars > 0) {
+        attr = g_MateriaData[id].materiaAttributes[stars - 1];
+        D_80062E60->enabledMagic[attr].costModifier |= D_80062E78;
+        stars--;
     }
 }
 
@@ -548,11 +551,12 @@ void SysAddPairFlagToActiveCommand(s32 arg0) {
         D_80069508[cmdIdx].materiaEffectFlags |= D_80062E78;
     }
     id = g_MateriaData[arg0 & 0xFF].materiaAttributes[1];
-    if (id == 7 || id == 0x11) {
-        cmdIdx = SysSearchExistedCommand(id);
-        if (cmdIdx != -1) {
-            D_80069508[cmdIdx].materiaEffectFlags |= D_80062E78;
-        }
+    if (id != 7 && id != 0x11) {
+        return;
+    }
+    cmdIdx = SysSearchExistedCommand(id);
+    if (cmdIdx != -1) {
+        D_80069508[cmdIdx].materiaEffectFlags |= D_80062E78;
     }
 }
 
@@ -560,7 +564,7 @@ void SysAddPairFlagToAllActiveCommands(void) {
     s32 cmdIdx;
     s32 i;
 
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
         cmdIdx = SysSearchExistedCommand(D_80069508[i].id);
         if (cmdIdx != -1) {
             D_80069508[cmdIdx].materiaEffectFlags |= D_80062E78;
@@ -581,16 +585,16 @@ void SysAddPairWithQuadraMagic(s32 arg0, s32 allCount, Materia materia) {
     ap = materia.ap;
     type = g_MateriaData[materiaId].materiaType & 0xF;
     switch (type) {
-    case 9:
+    case MATERIA_TYPE_MAGIC:
         SysAddPairMagicWithQuadraMagic(allCount, materiaId, ap);
         break;
-    case 0xA:
+    case MATERIA_TYPE_MASTER_MAGIC:
         SysAddPairMasterMagicWithQuadraMagic(allCount);
         break;
-    case 0xB:
+    case MATERIA_TYPE_SUMMON:
         SysAddPairSummonWithQuadraMagic(allCount, materiaId);
         break;
-    case 0xC:
+    case MATERIA_TYPE_MASTER_SUMMON:
         SysAddPairMasterSummonWithQuadraMagic(allCount);
         break;
     }
@@ -637,9 +641,6 @@ void SysAddPairMasterSummonWithQuadraMagic(u8 allCount) {
     }
 }
 
-void SysAddPairMagicWithAll(u8, u8, s32);
-void SysAddPairMasterMagicWithAll(u8, u8, s32);
-
 void SysAddPairWithAll(s32 arg0, s32 allCount, Materia materia) {
     u8 type;
     s32 ap;
@@ -648,10 +649,10 @@ void SysAddPairWithAll(s32 arg0, s32 allCount, Materia materia) {
     ap = materia.ap;
 
     switch (type) {
-    case 9:
+    case MATERIA_TYPE_MAGIC:
         SysAddPairMagicWithAll(allCount, materia.materiaId, ap);
         break;
-    case 10:
+    case MATERIA_TYPE_MASTER_MAGIC:
         SysAddPairMasterMagicWithAll(allCount, materia.materiaId, ap);
         break;
     }
@@ -661,7 +662,7 @@ void SysAddPairMasterMagicWithAll(u8 allCount, u8 materiaId, s32 ap) {
     s32 i;
     s32 foundIdx;
 
-    for (i = 0; i < 0x38; i++) {
+    for (i = 0; i < NUM_MAGICS; i++) {
         foundIdx = SysSearchExistedMagic(i);
         if (foundIdx != -1) {
             D_80069554[foundIdx].quadCount += allCount;
@@ -763,51 +764,49 @@ void SysParseMateriaEquip(u32 materia) {
     SysAddMateriaEquipStatBonus(materiaId);
     subType = g_MateriaData[materiaId].materiaType >> 4;
     switch (g_MateriaData[materiaId].materiaType & 0xF) {
-    case 0:
+    case MATERIA_TYPE_UNK_0:
         SysAddMateriaX0(subType, materiaId, materiaAp);
         break;
-    case 1:
+    case MATERIA_TYPE_UNK_1:
         SysAddMateriaX1(subType, materiaId, materiaAp);
         break;
-    case 2:
+    case MATERIA_TYPE_COMMAND_REPLACE:
         SysAddMateriaX2(subType, materiaId, materiaAp);
         break;
-    case 3:
+    case MATERIA_TYPE_W_COMMAND:
         SysAddMateriaX3(subType, materiaId, materiaAp);
         break;
-    case 4:
+    case MATERIA_TYPE_MEGA_ALL:
         SysAddMateriaX4(materiaId, materiaAp);
         break;
-    case 5:
+    case MATERIA_TYPE_SUPPORT:
         SysAddMateriaX5(subType, materiaId, materiaAp);
         break;
-    case 6:
+    case MATERIA_TYPE_COMMAND:
         SysAddMateriaX6(materiaId, materiaAp);
         break;
-    case 7:
+    case MATERIA_TYPE_ENEMY_SKILL:
         SysAddMateriaX7(subType, materiaId, materiaAp);
         break;
-    case 8:
+    case MATERIA_TYPE_MASTER_COMMAND:
         SysAddMateriaX8();
         break;
-    case 9:
+    case MATERIA_TYPE_MAGIC:
         SysAddMateriaX9(materiaId, materiaAp);
         break;
-    case 10:
+    case MATERIA_TYPE_MASTER_MAGIC:
         SysAddMateriaXa();
         break;
-    case 11:
+    case MATERIA_TYPE_SUMMON:
         SysAddMateriaXb(materiaId, materiaAp);
         break;
-    case 12:
+    case MATERIA_TYPE_MASTER_SUMMON:
         SysAddMateriaXc();
         break;
     }
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaEquipStatBonus);
-
-void SysAddMateria12(u8, u8);
 
 void SysAddMateriaX2(u8 materiaSubType, u8 materiaId, s32 materiaAp) {
     u8 materiaLevel;
@@ -828,7 +827,7 @@ static void SysAddMateria30(u8 arg0, u8 arg1) {
 
 void SysAddMateriaCounterAttack(s32 arg0, s32 arg1) {
     s32 counterIdx;
-    if (D_80063020 == 0) {
+    if (!D_80063020) {
         if (D_80062E80 != 8) {
             D_80062E60->enabledCounters[D_80062E80].counterType = 9;
             D_80062E60->enabledCounters[D_80062E80].battleCommand = 9;
@@ -842,8 +841,8 @@ void SysAddMateriaCounterAttack(s32 arg0, s32 arg1) {
     }
 }
 
-void SysAddMateriaLongRange(void) {
-    if (D_80063020 == 0) {
+void SysAddMateriaLongRange(u8 arg0) {
+    if (!D_80063020) {
         D_80062E60->characterFlags |= 4;
         return;
     }
@@ -855,7 +854,7 @@ void SysAddMateria12(u8 arg0, u8 arg1) {
     Unk80062F7C* unk;
 
     i = 0;
-    if (D_80063020 == 0) {
+    if (!D_80063020) {
         for (i = arg0 - 1; i > 0; i--) {
             if (g_MateriaData[arg1].materiaAttributes[i] != 0xFF) {
                 break;
@@ -865,11 +864,10 @@ void SysAddMateria12(u8 arg0, u8 arg1) {
     } else {
         unk = D_80062F7C;
         ptr = g_MateriaData[arg1].materiaAttributes;
-        do {
+        for (; i < 5; i++) {
             unk->materiaAttributes[i].value = *ptr++;
             unk->materiaAttributes[i].selected = 0;
-            i++;
-        } while (i < 5);
+        }
         if (unk->unk1 == arg0) {
             unk->materiaAttributes[arg0 - 2].selected = 1;
         } else {
@@ -897,19 +895,20 @@ void SysAddMateria35(u8 arg0, s32 arg1) {
     u8 star;
 
     star = SysGetMateriaActivatedStars(arg0, arg1);
-    if (D_80063020 != 0) {
-        attr = D_80062F7C;
-        attr->materiaAttributes[0].value = g_MateriaData[arg0].materiaAttributes[0];
-        attr->materiaAttributes[0].selected = star;
-        switch (g_MateriaData[arg0].materiaAttributes[0]) {
-        case 0x57:
-            D_80062FFC = 0x10;
-            break;
-        case 0x51:
-        case 0x63:
-            D_80062FFC = 0xF;
-            break;
-        }
+    if (!D_80063020) {
+        return;
+    }
+    attr = D_80062F7C;
+    attr->materiaAttributes[0].value = g_MateriaData[arg0].materiaAttributes[0];
+    attr->materiaAttributes[0].selected = star;
+    switch (g_MateriaData[arg0].materiaAttributes[0]) {
+    case 0x57:
+        D_80062FFC = 0x10;
+        break;
+    case 0x51:
+    case 0x63:
+        D_80062FFC = 0xF;
+        break;
     }
 }
 
@@ -918,43 +917,44 @@ void SysAddMateria25(u8 arg0, s32 arg1) {
     s32 star;
 
     star = SysGetMateriaActivatedStars(arg0, arg1);
-    if (D_80063020) {
-        attr = D_80062F7C;
-        attr->materiaAttributes[0].value = g_MateriaData[arg0].materiaAttributes[0];
-        attr->materiaAttributes[0].selected = star * 10;
-        switch (g_MateriaData[arg0].materiaAttributes[0]) {
-        case 0x64:
-            D_80062FFC = 0x10;
-            break;
-        case 0x58:
-            D_80062FFC = 0x10;
-            break;
-        case 0x59:
-            D_80062FFC = 0x10;
-            break;
-        case 0x5A:
-            D_80062FFC = 0x10;
-            break;
-        case 0x56:
-            D_80062FFC = 0x10;
-            break;
-        case 0x5C:
-            D_80062FFC = 0x10;
-            break;
-        case 0x5D:
-            D_80062FFC = 0x10;
-            break;
-        case 0x5E:
-            D_80062FFC = 0x10;
-            break;
-        case 0x5F:
-            D_80062FFC = 0x10;
-            break;
-        case 0x54:
-        case 0x55:
-            D_80062FFC = 0xF;
-            break;
-        }
+    if (!D_80063020) {
+        return;
+    }
+    attr = D_80062F7C;
+    attr->materiaAttributes[0].value = g_MateriaData[arg0].materiaAttributes[0];
+    attr->materiaAttributes[0].selected = star * 10;
+    switch (g_MateriaData[arg0].materiaAttributes[0]) {
+    case 0x64:
+        D_80062FFC = 0x10;
+        break;
+    case 0x58:
+        D_80062FFC = 0x10;
+        break;
+    case 0x59:
+        D_80062FFC = 0x10;
+        break;
+    case 0x5A:
+        D_80062FFC = 0x10;
+        break;
+    case 0x56:
+        D_80062FFC = 0x10;
+        break;
+    case 0x5C:
+        D_80062FFC = 0x10;
+        break;
+    case 0x5D:
+        D_80062FFC = 0x10;
+        break;
+    case 0x5E:
+        D_80062FFC = 0x10;
+        break;
+    case 0x5F:
+        D_80062FFC = 0x10;
+        break;
+    case 0x54:
+    case 0x55:
+        D_80062FFC = 0xF;
+        break;
     }
 }
 
@@ -972,7 +972,7 @@ void SysAddMateriaX7(s32 arg0, s32 arg1, s32 arg2) {
     s32 enabled;
     s32 bits;
 
-    if (D_80063020 == 0) {
+    if (!D_80063020) {
         bits = arg2 & 0xFFFFFF;
         for (i = 0; i < 0x18; i++) {
             enabled = bits & 1;
@@ -990,7 +990,7 @@ void SysAddMateriaX7(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 void SysAddMateriaX8(void) {
-    if (D_80063020 == 0) {
+    if (!D_80063020) {
         SysAddCommandToTemp(5);
         SysAddCommandToTemp(6);
         SysAddCommandToTemp(7);
@@ -1007,9 +1007,6 @@ INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaXa);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateriaXc);
 
-void SysAddMateria00(u8, s32);
-void SysAddMateria20(u8, s32);
-void SysAddMateria40(u8, s32);
 static void SysAddMateriaX0(u8 materiaSubType, u8 materiaId, s32 materiaAp) {
     u8 id;
     u8 materiaLevel;
@@ -1045,7 +1042,7 @@ void SysAddMateria20(u8 arg0, s32 arg1) {
         SysAddMateriaCounterAttack((u8)stars, 0xD);
         return;
     }
-    if (D_80063020 == 0) {
+    if (!D_80063020) {
         D_800694E4[g_MateriaData[materiaId].materiaAttributes[0]] += g_MateriaData[materiaId].materiaAttributes[stars];
     } else {
         unk = D_80062F7C;
@@ -1056,9 +1053,6 @@ void SysAddMateria20(u8 arg0, s32 arg1) {
 }
 
 INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddMateria40);
-
-void SysAddMateria21(u8, s32);
-void SysAddMateria41(u8, s32);
 
 void SysAddMateriaX1(u8 materiaSubType, u8 materiaId, s32 materiaAp) {
     s32 subType;
@@ -1161,7 +1155,7 @@ void SysAddMateriaX6(u8 materiaId, s32 materiaAp) {
     s32 i;
 
     star = SysGetMateriaActivatedStars(materiaId, materiaAp);
-    if (D_80063020 == 0) {
+    if (!D_80063020) {
         for (i = star - 1; i >= 0; i--) {
             if (g_MateriaData[materiaId].materiaAttributes[i] != 0xFF) {
                 break;
@@ -1192,18 +1186,19 @@ void SysRemoveStealIfMug(void) {
     s32 i;
     s32 hasMug = 0;
 
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
         if (D_80069508[i].id == 0x11) {
             hasMug = 1;
             break;
         }
     }
 
-    for (i = 0; i < 16; i++) {
-        if (hasMug == 1) {
-            if (D_80069508[i].id == 5) {
-                D_80069508[i].id = 0xFF;
-            }
+    for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
+        if (hasMug != 1) {
+            continue;
+        }
+        if (D_80069508[i].id == 5) {
+            D_80069508[i].id = 0xFF;
         }
     }
 }
@@ -1214,17 +1209,18 @@ void SysCopyAndSortCommand(void) {
     D_80062E7C = 0;
     D_80062E80 = 0;
     SysRemoveStealIfMug();
-    for (i = 0; i < 16; i++) {
-        if (D_80069508[i].id != 0xFF) {
-            if (D_80069508[i].id == 2 && (u8)D_80062E8C == 2) {
-                D_80069508[i].id = 21;
-            }
-            if (D_80069508[i].id == 3 && (u8)D_80062E90 == 2) {
-                D_80069508[i].id = 22;
-            }
-            SysCopyCommandToUnitStructure(D_80069508[i].id, SysGetCommandOrder(D_80069508[i].id));
-            D_80062E7C++;
+    for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
+        if (D_80069508[i].id == 0xFF) {
+            continue;
         }
+        if (D_80069508[i].id == 2 && (u8)D_80062E8C == 2) {
+            D_80069508[i].id = 21;
+        }
+        if (D_80069508[i].id == 3 && (u8)D_80062E90 == 2) {
+            D_80069508[i].id = 22;
+        }
+        SysCopyCommandToUnitStructure(D_80069508[i].id, SysGetCommandOrder(D_80069508[i].id));
+        D_80062E7C++;
     }
     D_80062E60->unk21 = (D_80062E7C - 1) / 4 + 1;
 }
@@ -1239,12 +1235,13 @@ void SysCopyCommandToUnitStructure(u8 commandId, u8 order) {
     D_80062E60->commandMenu[order].initialCursorAction = D_800707C4[commandId].initialCursorAction;
     D_80062E60->commandMenu[order].targetFlags = D_800707C4[commandId].targetFlags;
 
-    for (i = 0; i < 16; i++) {
-        if (commandId == D_80069508[i].id) {
-            D_80062E60->commandMenu[order].allCount = D_80069508[i].allCount;
-            D_80062E60->commandMenu[order].materiaEffectFlags = D_80069508[i].materiaEffectFlags;
-            break;
+    for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
+        if (commandId != D_80069508[i].id) {
+            continue;
         }
+        D_80062E60->commandMenu[order].allCount = D_80069508[i].allCount;
+        D_80062E60->commandMenu[order].materiaEffectFlags = D_80069508[i].materiaEffectFlags;
+        break;
     }
 }
 
@@ -1288,18 +1285,18 @@ void SysInitPlayerTempStat(u8 partyId, ActiveCharacterData* chr) {
         chr->enabledMagic[i].quadraAttacksLeft = 0;
         chr->enabledMagic[i].costModifier = 0;
     }
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < LEN(D_800694D4); i++) {
         D_800694D4[i] = 0;
         D_800694C4[i] = 0;
         D_800694B4[i] = 0;
     }
-    for (i = 0; i < 12; i++) {
+    for (i = 0; i < LEN(D_800694E4); i++) {
         D_800694E4[i] = 0;
     }
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < LEN(D_800694FC); i++) {
         D_800694FC[i] = 0;
     }
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
         D_80069508[i].id = 0xFF;
         D_80069508[i].allCount = 0;
         D_80069508[i].materiaEffectFlags = 0;
@@ -1332,7 +1329,7 @@ void SysInitPlayerTempStat(u8 partyId, ActiveCharacterData* chr) {
     D_80069538.magDefence = SysGetPlayerBaseAttackDefense(partyId, 3);
     SysAddCommandToTemp(1);
     SysAddCommandToTemp(4);
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < LEN(D_80062E6C); i++) {
         D_80062E6C[i] = 0;
     }
     D_80062E74 = 0;
