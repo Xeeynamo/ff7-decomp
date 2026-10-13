@@ -2048,7 +2048,33 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR12R22R32);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR13R23R33);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelUpdateBoneHeight);
+// Layout and field names from eduardovra's work in PR 285.
+typedef struct {
+    s32 boneOffset;
+    u8 data[0];
+} ModelBones;
+
+typedef struct {
+    s16 unk0;
+    s16 height;
+} Bone;
+
+// The original has the store before the return with an empty delay slot. A plain store is moved into the delay
+// slot by this compiler; a volatile one stays where it is written.
+s32 BattleModelUpdateBoneHeight(ModelBones* m, s32 delta) {
+    u8* base = m->data;
+    Bone* bone = (Bone*)(base + m->boneOffset);
+    s32 sum = delta + bone->height;
+
+    *(volatile s16*)&bone->height = sum;
+    return sum;
+}
+
+// A 4-byte pad word sits at 0x800D3544, before the next function at 0x800D3548. Nothing in the C or in this link
+// produces it (files are not aligned to 8 here: battle3 starts at 0x800D8A04), so it is emitted as one nop.
+#ifdef USE_INCLUDE_ASM
+__asm__(".text # maspsx-keep\n\tnop # maspsx-keep\n");
+#endif
 
 s32 BattleModelAnimReadDynamicFrameOffsBits(u8* arg0, s32* arg1) {
     s32 pos;
