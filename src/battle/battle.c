@@ -3188,7 +3188,21 @@ void BattleLowerFunc03(void) {
     g_CurrentAction->tmpDamage = damage;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleLowerFunc04);
+void BattleLowerFunc04(void) {
+    s32 damage;
+
+    if (g_CurrentAction->unk6C & 1) {
+        damage = g_BattleState.combatant[g_CurrentAction->targetId].maxHP;
+    } else {
+        damage = g_BattleState.combatant[g_CurrentAction->targetId].maxMP;
+    }
+
+    damage = damage * g_CurrentAction->power / 32;
+    if (g_CurrentAction->unkAC) {
+        damage >>= 1;
+    }
+    g_CurrentAction->tmpDamage = damage;
+}
 
 static s32 BattleAddSplitQuaterModifier(s32 arg0, s32 arg1);
 static s32 BattleAddBarriersModifier(s32 arg0);
