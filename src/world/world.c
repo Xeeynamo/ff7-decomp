@@ -1591,28 +1591,25 @@ void func_800A5AD8(WorldChunkHeader* chunk) {
     node = D_800E5A2C;
     if (node != NULL) {
         coordinates = *(s32*)&chunk->x;
-    find_chunk:
-        if (*(s32*)&node->chunk->x != coordinates) {
-            node = node->next;
-            if (node != NULL) {
-                goto find_chunk;
+        while (node != NULL) {
+            if (*(s32*)&node->chunk->x == coordinates) {
+                break;
             }
+            node = node->next;
         }
-        if (node == NULL) {
-            goto allocate_node;
+        if (node != NULL) {
+            return;
         }
-    } else {
-    allocate_node:
-        if (D_800E5A30 == NULL) {
-            func_800A0B40(0x16);
-        }
-        node = D_800E5A30;
-        next = node->next;
-        node->next = D_800E5A2C;
-        D_800E5A2C = node;
-        node->chunk = chunk;
-        D_800E5A30 = next;
     }
+    if (D_800E5A30 == NULL) {
+        func_800A0B40(0x16);
+    }
+    node = D_800E5A30;
+    next = node->next;
+    node->next = D_800E5A2C;
+    D_800E5A2C = node;
+    node->chunk = chunk;
+    D_800E5A30 = next;
 }
 
 static void RegisterChunksForNode(WorldListNode* arg0) {
@@ -1708,60 +1705,51 @@ void func_800A5E28(void) {
 
     cursor = D_800E5A2C;
     if (cursor != NULL) {
-    process_chunk:
-        if (cursor->chunk == NULL) {
-            func_800A0B40(0xC);
-        }
-        pending = cursor;
-        region = D_800E5764;
-        block = (pending->chunk->z >> 2) * 9 + (pending->chunk->x >> 2);
-        if (region != NULL) {
-        find_region:
-            if (region->unk4 != block) {
-                region = region->next;
-                if (region != NULL) {
-                    goto find_region;
-                }
+        do {
+            if (cursor->chunk == NULL) {
+                func_800A0B40(0xC);
             }
+            pending = cursor;
+            region = D_800E5764;
+            block = (pending->chunk->z >> 2) * 9 + (pending->chunk->x >> 2);
             if (region != NULL) {
-                prev = NULL;
-                WmLoadChunkGeometry(pending->chunk, region);
-                chunk = D_80109D40;
-                if (chunk != NULL) {
-                find_chunk:
-                    if (chunk != pending->chunk) {
+                while (region != NULL) {
+                    if (region->unk4 == block) {
+                        break;
+                    }
+                    region = region->next;
+                }
+                if (region != NULL) {
+                    prev = NULL;
+                    WmLoadChunkGeometry(pending->chunk, region);
+                    chunk = D_80109D40;
+                    while (chunk != NULL) {
+                        if (chunk == pending->chunk) {
+                            break;
+                        }
                         prev = chunk;
                         chunk = chunk->next;
-                        if (chunk != NULL) {
-                            goto find_chunk;
-                        }
                     }
                     if (chunk == NULL) {
-                        goto missing_chunk;
+                        func_800A0B40(0x17);
                     }
-                } else {
-                missing_chunk:
-                    func_800A0B40(0x17);
+                    if (prev != NULL) {
+                        prev->next = chunk->next;
+                    } else {
+                        D_80109D40 = chunk->next;
+                    }
+                    chunk->next = D_80109D3C;
+                    next = pending->next;
+                    freeNode = D_800E5A30;
+                    D_80109D3C = chunk;
+                    D_800E5A30 = pending;
+                    pending->next = freeNode;
+                    D_800E5A2C = next;
                 }
-                if (prev != NULL) {
-                    prev->next = chunk->next;
-                } else {
-                    D_80109D40 = chunk->next;
-                }
-                chunk->next = D_80109D3C;
-                next = pending->next;
-                freeNode = D_800E5A30;
-                D_80109D3C = chunk;
-                D_800E5A30 = pending;
-                pending->next = freeNode;
-                D_800E5A2C = next;
             }
-        }
-        cursor = D_800E5A2C;
-        flags = D_800E5A34;
-        if (cursor != NULL && flags == 0) {
-            goto process_chunk;
-        }
+            cursor = D_800E5A2C;
+            flags = D_800E5A34;
+        } while (cursor != NULL && flags == 0);
     }
     D_800E5A34 = 1;
 }
@@ -2719,34 +2707,34 @@ void WmMoveActorByDistance(WorldActor* actor, s16 angle) {
     u32 rotation;
 
     target = angle;
-    if (actor != NULL) {
-        if (angle < 0) {
-            target = angle + 0x1000;
-        }
-        d0 = actor->unk3C - (s16)target > 0 ? actor->unk3C - target : target - actor->unk3C;
-        d1 = abs(actor->unk3C - (s16)target + 0x1000);
-        d2 =
-            actor->unk3C - (s16)target - 0x1000 > 0 ? actor->unk3C - target - 0x1000 : 0x1000 - (actor->unk3C - target);
-        if (d0 > d1) {
-            if (d1 > d2) {
-                target += 0x1000;
-            } else {
-                target -= 0x1000;
-            }
-        } else if (d2 < d0) {
+    if (actor == NULL) {
+        return;
+    }
+    if (angle < 0) {
+        target = angle + 0x1000;
+    }
+    d0 = actor->unk3C - (s16)target > 0 ? actor->unk3C - target : target - actor->unk3C;
+    d1 = abs(actor->unk3C - (s16)target + 0x1000);
+    d2 = actor->unk3C - (s16)target - 0x1000 > 0 ? actor->unk3C - target - 0x1000 : 0x1000 - (actor->unk3C - target);
+    if (d0 > d1) {
+        if (d1 > d2) {
             target += 0x1000;
-        }
-        if (D_8011650C == 1) {
-            rotation = (u32)(actor->unk3C * 7 + (s16)target) >> 3;
         } else {
-            rotation = (u32)(actor->unk3C * 3 + (s16)target) >> 2;
+            target -= 0x1000;
         }
-        actor->unk3C = rotation;
-        if ((s16)rotation < 0) {
-            actor->unk3C = rotation + 0x1000;
-        } else if ((s16)rotation >= 0x1000) {
-            actor->unk3C = rotation - 0x1000;
-        }
+    } else if (d2 < d0) {
+        target += 0x1000;
+    }
+    if (D_8011650C == 1) {
+        rotation = (u32)(actor->unk3C * 7 + (s16)target) >> 3;
+    } else {
+        rotation = (u32)(actor->unk3C * 3 + (s16)target) >> 2;
+    }
+    actor->unk3C = rotation;
+    if ((s16)rotation < 0) {
+        actor->unk3C = rotation + 0x1000;
+    } else if ((s16)rotation >= 0x1000) {
+        actor->unk3C = rotation - 0x1000;
     }
 }
 
