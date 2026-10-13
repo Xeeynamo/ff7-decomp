@@ -205,8 +205,43 @@ u8* SysExpandBattleString(u8* dst, const u8* src) {
     return dst;
 }
 
-s32 SysDecompKernStringWithF9(u16* arg0, u16* arg1);
-INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysDecompKernStringWithF9);
+extern u8 D_80063560[0x100];
+
+s32 SysDecompKernStringWithF9(u8* src, u8* base) {
+    u8 value;
+    s32 pos;
+    s32 len;
+    s32 count;
+    u32 i;
+    s32 off;
+
+    i = 0;
+    pos = 0;
+    do {
+        value = *src++;
+        pos++;
+        if (value == 0xF9) {
+            value = *src++;
+            pos++;
+            off = pos - 3;
+            off -= value & 0x3F;
+            len = (value >> 6) * 2 + 4;
+            for (count = 0; count < len; count++) {
+                value = base[off++];
+                D_80063560[i++] = value;
+            }
+        } else if ((u8)(value + 0x16) < 8) {
+            D_80063560[i++] = value;
+            pos++;
+            D_80063560[i++] = *src++;
+            pos++;
+            D_80063560[i++] = *src++;
+        } else {
+            D_80063560[i++] = value;
+        }
+    } while (value != 0xFF && i < 0x100);
+    return (s32)D_80063560;
+}
 
 u8* SysGetKernBattleTextPtr(s32 textId) { return SysGetKernTextPtr(KERNEL_TEXT_BATTLE_MESSAGES, textId, 0); }
 
@@ -329,6 +364,70 @@ void func_80015654(s32 arg0) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80015668);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_800159B0);
+void func_800159B0(void) {
+    s32 i;
+    s32 j;
+    s32 freeSlot;
+    s16 id;
+    s32 quantity;
+    u16 entry;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysGetLimitCmdId);
+    for (i = 0; i < LEN(g_BattleItemsEarned); i++) {
+        if ((u16)g_BattleItemsEarned[i].enabled == 0) {
+            continue;
+        }
+        id = g_BattleItemsEarned[i].id;
+        if (id == -1) {
+            continue;
+        }
+        quantity = g_BattleItemsEarned[i].quantity;
+        freeSlot = -1;
+        if (id < 0x180) {
+            for (j = 0; j < MAX_INVENTORY_COUNT; j++) {
+                entry = Savemap.inventory[j];
+                if ((entry & 0x1FF) == id) {
+                    quantity += entry >> 9;
+                    if (quantity > 99) {
+                        quantity = 99;
+                    }
+                    Savemap.inventory[j] = id | (quantity << 9);
+                    break;
+                }
+                if (entry == 0xFFFF && freeSlot == -1) {
+                    freeSlot = j;
+                }
+            }
+            if (j == MAX_INVENTORY_COUNT && freeSlot != -1) {
+                Savemap.inventory[freeSlot] = id | (quantity << 9);
+            }
+        } else {
+            // match: the original scans 0x100 slots, past MAX_MATERIA_COUNT (200)
+            for (j = 0; j < 0x100; j++) {
+                if (Savemap.materia[j] != -1) {
+                    continue;
+                }
+                quantity--;
+                Savemap.materia[j] = id - 0x180;
+                if (!quantity) {
+                    break;
+                }
+            }
+        }
+    }
+}
+
+extern u8 D_80082274[];
+
+s32 SysGetLimitCmdId(s32 charId, s32 limitIndex) {
+    u8 pad[0x30]; // match: needed to match the 0x30 stack frame
+    s32 cmdId;
+
+    cmdId = 0x7F;
+    if ((u32)charId < NUM_CHARACTERS) {
+        s32 addr;
+
+        addr = (s32)D_80082274 + charId * 0x38;
+        cmdId = *(u8*)(limitIndex + addr) - 0x80;
+    }
+    return cmdId;
+}

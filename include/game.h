@@ -1460,7 +1460,7 @@ void SysMenuStoreFontVram(u_long* image);
 void SysMenuRestoreFontVram(u_long* image);
 void SysMenuLoadPartyPortraits(void);
 void SysMenuUnkNoop(s32 arg0);
-void SysMenuDrawDigitsWithoutLeadingZeroes(s32 x, s32 y, s32 value, s32 digits, s32 color);
+void SysMenuDrawDigitsWithoutLeadingZeroes(s32 x, s32 y, u32 value, s32 digits, s32 clutY);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
 s32 AkaoExec(void);
