@@ -493,7 +493,8 @@ extern u8 D_800E7A58[];
 // BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
 extern u8 D_800E7BEC[16];
-extern void (*g_BattleDmgFormulaJmpTbl[])(void); // per-action epilogue hook
+extern int (* const g_BattleHitFormulaJmpTbl[])(void);
+extern void (*g_BattleDmgFormulaJmpTbl[])(void);
 extern Yamada D_800E8050[];
 extern VECTOR D_800E7D10;
 extern VECTOR D_800E7D20;

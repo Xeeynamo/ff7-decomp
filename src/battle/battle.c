@@ -3026,10 +3026,23 @@ void BattleHitFormulaInit(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleDmgFormulaRun);
+void BattleDmgFormulaRun(void) {
+    void (*fnDamageFormula)(void) = g_BattleDmgFormulaJmpTbl[g_CurrentAction->unkA4];
+    s32 i = g_BattleHitFormulaOffs[g_CurrentAction->unkA0];
+    s32 op;
 
-void BattleSetFormulaAndBaseDmg(void)
-{
+    while ((op = g_BattleHitFormulaOpcodeStream[i++]) != HIT_OPCODE_DELIM) {
+        g_BattleHitFormulaJmpTbl[op]();
+    }
+
+    if (g_CurrentAction->power && (fnDamageFormula != NULL)) {
+        func_800A8E84(0);
+        fnDamageFormula();
+        func_800A8E84(1);
+    }
+}
+
+void BattleSetFormulaAndBaseDmg(void) {
     static const u8 D_800A04B0[] = {0x0A, 0x0B, 0x0C, 0x0D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x7F, 0x03, 0x34};
     s32 damageCalcId = g_CurrentAction->unk40;
     s32 attack;
