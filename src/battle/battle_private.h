@@ -492,9 +492,17 @@ extern u8 D_800E7A58[];
 // checked in order against the 3 landed reel symbols (g_BattleData.caitSithRolls) -- see
 // BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
-extern u8 D_800E7BEC[16];
-extern int (* const g_BattleHitFormulaJmpTbl[])(void);
-extern void (*g_BattleDmgFormulaJmpTbl[])(void);
+
+extern u8 g_BattleFormulaModifierFlagsTable[16];
+
+typedef void (*BattleFormula)(void);
+
+// hit formulas, indexed by g_BattleHitFormulaOpcodeStream opcodes
+extern const BattleFormula g_BattleHitFormulaJmpTbl[];
+
+// damage formulas, indexed by g_CurrentAction->dmgFormulaId
+extern BattleFormula g_BattleDmgFormulaJmpTbl[];
+
 extern Yamada D_800E8050[];
 extern VECTOR D_800E7D10;
 extern VECTOR D_800E7D20;
@@ -870,6 +878,7 @@ void func_800A4350(s16, s16, s16, u16);
 static void func_800A4D2C(s32 arg0);
 void BattleReturnReservedItems(void);
 void func_800A72C8(s32);
+static void BattleSetActionEffect(s32 effectId, s32 effectModifier);
 void func_800A8E84(s32);
 void func_800AA950(BattleQueueTargetEntry*);
 void BattleResolveAffinityPreDamage(void);
@@ -883,15 +892,15 @@ s32 func_800ACD88(s32);
 s32 func_800ACE88(void);
 static s32 BattleIsDamageNullified(s32);
 static void BattleQueueUnassignedResultDisplay(BattleQueueTargetEntry*);
-void func_800AD0FC(void);
+void BattleApplyDamageAndChargeLimitGauge(void);
 void func_800AD324(s32, s32, s32, s32);
 static void BattleApplyDefaultAbsorbEffect(void);
 void BattleDmgFormulaRun(void);
 void BattleLowerFunc00(void);
 void BattleSetTmpDmgAsPhysical(void);
 void BattleSetTmpDmgAsMagical(void);
-void BattleLowerFunc03(void);
-void BattleLowerFunc04(void);
+void BattleSetTmpDmgFromCurrent(void);
+void BattleSetTmpDmgFromMax(void);
 void BattleLowerFunc05(void);
 void BattleLowerFunc06(void);
 void BattleLowerFunc07(void);

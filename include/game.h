@@ -627,7 +627,7 @@ typedef struct {
     /* 0x0A */ u16 cameraMultiID;
     /* 0x0C */ u8 targetFlags;
     /* 0x0D */ u8 attackEffectID;
-    /* 0x0E */ u8 damageCalcID;
+    /* 0x0E */ u8 damageCalcID; // Packed byte contains hit and damage formulas (hit formula << 4 | damage formula)
     /* 0x0F */ u8 strength;
     /* 0x10 */ u8 conditionSubmenu;
     /* 0x11 */ u8 statusChange;
