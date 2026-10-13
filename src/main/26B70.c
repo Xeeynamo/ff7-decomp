@@ -459,7 +459,7 @@ void SysMenuDrawProgressBar(s16 x, s16 y, s16 w, s16 h, u8 r, u8 g, u8 b) {
     AddPrim(g_CurrentOT, g_PolyPtr.polyg4++);
 }
 
-void func_80028930(s16 x, s16 y, s16 w, s16 h) {
+void SysMenuDrawGradientBand(s16 x, s16 y, s16 w, s16 h) {
     SetPolyG4(g_PolyPtr.polyg4);
     SetSemiTrans(g_PolyPtr.polyg4, 1);
     setXYWH(g_PolyPtr.polyg4, x, y, w, h / 3);

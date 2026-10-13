@@ -10,7 +10,7 @@ void func_80014C70(void);
 
 s32 D_80062F88;
 
-void func_800148A0(void) {
+void SysBattleModeReset(void) {
     D_80062F88 = 0;
     g_BattleMode = 0;
 }
@@ -19,7 +19,7 @@ extern u8 D_80063048;
 struct Unk800A8D04* g_CurrentAction;
 
 int func_800148B4(void) {
-    func_800148A0();
+    SysBattleModeReset();
     g_CurrentAction = (struct Unk800A8D04*)0x1F800000;
     D_800707C0 = &D_80063048;
     func_80014610();
@@ -32,7 +32,7 @@ int func_800148B4(void) {
 }
 
 void func_80014934(void) {
-    func_800148A0();
+    SysBattleModeReset();
     func_80014578(INIT_KERNEL, (void*)0x801B0000, 0);
     SystemCdWaitCallback(0);
     SysGzipPackDecompressById((u8*)0x801B0000, &Savemap.party, KERNEL_INIT);

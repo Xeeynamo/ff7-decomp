@@ -364,7 +364,7 @@ void func_80015654(s32 arg0) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80015668);
 
-void func_800159B0(void) {
+void SysAddBattleEarnedItems(void) {
     s32 i;
     s32 j;
     s32 freeSlot;
