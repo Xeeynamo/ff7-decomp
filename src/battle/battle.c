@@ -3028,8 +3028,44 @@ void BattleHitFormulaInit(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleDmgFormulaRun);
 
-const s8 D_800A04B0[] = {0x0A, 0x0B, 0x0C, 0x0D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x7F, 0x03, 0x34};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleSetFormulaAndBaseDmg);
+void BattleSetFormulaAndBaseDmg(void)
+{
+    static const u8 D_800A04B0[] = {0x0A, 0x0B, 0x0C, 0x0D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x7F, 0x03, 0x34};
+    s32 damageCalcId = g_CurrentAction->unk40;
+    s32 attack;
+    u8 flags;
+
+    // high nibble = hit-roll script (g_BattleHitFormulaOffs index)
+    // low nibble = damage formula (g_BattleDmgFormulaJmpTbl index)
+    g_CurrentAction->unkA0 = (damageCalcId & 0xF0) >> 4;
+    g_CurrentAction->unkA4 = damageCalcId & 0xF;
+
+    flags = D_800E7BEC[g_CurrentAction->unkA0];
+
+    // use Attack even for magical attacks
+    if (flags & 1) {
+        g_CurrentAction->unk6C &= ~4;
+    }
+
+    // use the second half of the damage formula table
+    if (flags & 2) {
+        g_CurrentAction->unkA4 |= 0x10;
+    }
+
+    // use the physical damage formula
+    if (flags & 4) {
+        g_CurrentAction->unkBC = D_800A04B0[g_CurrentAction->unkA4];
+        g_CurrentAction->unkA4 = 1;
+    }
+
+    if (g_CurrentAction->unk6C & 4) {
+        attack = g_BattleState.combatant[g_CurrentAction->actorId].magAttack;
+        g_CurrentAction->attackStat = BattleApplyStatMult(g_CurrentAction->actorId, attack, STAT_MULT_MAG_ATTACK);
+    } else {
+        attack = g_BattleState.combatant[g_CurrentAction->actorId].physAttack;
+        g_CurrentAction->attackStat = BattleApplyStatMult(g_CurrentAction->actorId, attack, STAT_MULT_PHYS_ATTACK);
+    }
+}
 
 static s32 BattleAddBarriersModifier(s32 arg0) {
     if (g_CurrentAction->unk6C & 4) {

@@ -133,7 +133,7 @@ typedef struct {
     /* 0x0B */ s8 minElemInfluence;
     /* 0x0C */ s8 formationIndex;
     /* 0x0D */ u8 physAttack;
-    /* 0x0E */ s8 magAttack;
+    /* 0x0E */ u8 magAttack;
     /* 0x0F */ u8 physEvade;
     /* 0x10 */ s8 idleActionId;
     /* 0x11 */ u8 hurtActionId;

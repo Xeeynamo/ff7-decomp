@@ -492,6 +492,7 @@ extern u8 D_800E7A58[];
 // checked in order against the 3 landed reel symbols (g_BattleData.caitSithRolls) -- see
 // BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
+extern u8 D_800E7BEC[16];
 extern void (*g_BattleDmgFormulaJmpTbl[])(void); // per-action epilogue hook
 extern Yamada D_800E8050[];
 extern VECTOR D_800E7D10;
