@@ -2894,7 +2894,66 @@ static void BattleQueueUnassignedResultDisplay(BattleQueueTargetEntry* entry) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AD0FC);
+void func_800AD0FC(void) {
+    BattleUnit* target = &g_BattleState.combatant[g_CurrentAction->targetId];
+    s32 isHeal = g_CurrentAction->damageFlags & 1;
+    u32 oldValue;
+    u32 baseCharge;
+    s32 mult;
+    s32 limitBar;
+
+    if (g_CurrentAction->tmpDamage == 0) {
+        return;
+    }
+
+    // oldValue is shared by the MP and HP paths; separate temps don't match (copy-paste from HP branch, or a macro?)
+    if (g_CurrentAction->damageFlags & 4) {
+        oldValue = target->curMP;
+        target->curMP = SysAddSubWithMaxMinBound(oldValue, g_CurrentAction->tmpDamage, target->maxMP, isHeal);
+        return;
+    }
+
+    oldValue = target->curHP;
+    target->curHP = SysAddSubWithMaxMinBound(oldValue, g_CurrentAction->tmpDamage, target->maxHP, isHeal);
+    if (target->curHP == 0 && oldValue != 0) {
+        target->status |= STATUS_DEATH;
+
+        if (g_CurrentAction->unk90 & 0x2000) {
+            func_800A2DB0();
+        }
+    }
+
+    // only party members charge their limit gauge, and only from enemy attacks
+    if (g_CurrentAction->targetId >= NUM_PARTY || g_CurrentAction->actorId < START_ENEMY || isHeal) {
+        return;
+    }
+
+    if (g_CurrentAction->partyWork->limitLevel >= 4 || g_BattleWork.turn[g_CurrentAction->targetId].turnFlags & 8) {
+        return;
+    }
+
+    mult = 256;
+    limitBar = g_CurrentAction->partyWork->limitBar;
+    if (g_CurrentAction->partyWork->limitBreakHPDivisor == 0) {
+        SysSetEngineErrorCode(0x22, g_CurrentAction->partyWork, limitBar);
+        return;
+    }
+
+    // charge = damage * 300 / maxHP * 256 / limitBreakHPDivisor, doubled under
+    // Fury and halved under Sadness, capped at a full gauge (255)
+    baseCharge = g_CurrentAction->tmpDamage * 300 / target->maxHP;
+    if (g_CurrentAction->targetStatus & STATUS_FURY) {
+        mult = 512;
+    } else if (g_CurrentAction->targetStatus & STATUS_SADNESS) {
+        mult = 128;
+    }
+    limitBar += baseCharge * mult / g_CurrentAction->partyWork->limitBreakHPDivisor;
+    if (limitBar > 255) {
+        limitBar = 255;
+    }
+
+    g_CurrentAction->partyWork->limitBar = limitBar;
+}
 
 void func_800AD324(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 temp_t0;

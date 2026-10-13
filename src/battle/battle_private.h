@@ -863,6 +863,7 @@ extern s8 D_80166F64;
 extern u8 D_80166F68;
 extern u16 g_BattleScreenFadeR;
 
+void func_800A2DB0(void);
 void func_800A4350(s16, s16, s16, u16);
 static void func_800A4D2C(s32 arg0);
 void BattleReturnReservedItems(void);
