@@ -1075,8 +1075,9 @@ void BattleQueue1Execute(void) {
             D_80151200[actor].D_80151200 = g_BattleData.actors[actor].D_801636C0;
             actor2 = g_BattleActionQueue[D_801590E0].actionId;
             flags = D_80151200[actor2].D_80151200;
-            if (flags != 0x10 && flags != 0x20)
+            if (flags != 0x10 && flags != 0x20) {
                 g_BattleModels[actor2].rootRot.vy = g_BattleModels[actor2].defaultRotX;
+            }
             BattleUpdateRender();
             D_801590E0++;
             break;
@@ -1099,12 +1100,13 @@ void BattleQueue1Execute(void) {
                 effect = BattleEffectRegister(func_800C5694);
                 target = *(s32*)0x1F800004;
                 current = *(s32*)0x1F800008;
-                if (target < current)
+                if (target < current) {
                     *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297A + (effect << 5))) =
                         (current - target) / g_BattleActionQueue[D_801590E0].unk6;
-                else
+                } else {
                     *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297A + (effect << 5))) =
                         (target - current) / g_BattleActionQueue[D_801590E0].unk6;
+                }
                 g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].ready = 0;
                 *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297E + (effect << 5))) =
                     g_BattleActionQueue[D_801590E0].actionId;
@@ -1112,7 +1114,11 @@ void BattleQueue1Execute(void) {
                     g_BattleActionQueue[D_801590E0].unk6;
                 g_BattleActionQueue[D_801590E0].unk8 = -1;
             }
-            goto render;
+            BattleUpdateRender();
+            if (D_800F7DE4 != 0) {
+                D_801590E0++;
+            }
+            break;
         case 3:
             if (D_800F7DE4 != 0) {
                 D_800F7DE4 = 0;
@@ -1131,7 +1137,11 @@ void BattleQueue1Execute(void) {
                 D_801517BC = 1;
                 BattleQueue1UpdateTargMasks();
             }
-            goto render;
+            BattleUpdateRender();
+            if (D_800F7DE4 != 0) {
+                D_801590E0++;
+            }
+            break;
         case 1:
             if (D_800F7DE4 != 0) {
                 D_800F7DE4 = 0;
@@ -1149,8 +1159,9 @@ void BattleQueue1Execute(void) {
                         D_800FA6D4 = targetId;
                         D_800F99E8 = targetId;
                         D_80161EEC = targetId;
-                        if (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].hurtAnimScript == 9)
+                        if (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].hurtAnimScript == 9) {
                             D_800F99E8 = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].attackerId;
+                        }
                         D_801031F0 = 0;
                     } else {
                         D_800FA6D4 = 15;
@@ -1163,15 +1174,12 @@ void BattleQueue1Execute(void) {
                 BattleQueue1UpdateTargMasks();
             }
             D_801517BC = 0;
-            goto render;
+            BattleUpdateRender();
+            if (D_800F7DE4 != 0) {
+                D_801590E0++;
+            }
+            break;
         }
-        goto next;
-    render:
-        BattleUpdateRender();
-        if (D_800F7DE4 == 0)
-            goto next;
-        D_801590E0++;
-    next:
         index = D_801590E0;
     }
     D_801590E0 = 0;
@@ -1537,7 +1545,7 @@ void func_800B8944(s32 actor, s32 target) {
     } else {
         stateOffset = actor * (s32)sizeof(Unk80151200);
         flags = *(s16*)((u8*)&D_80151200[0].D_8015120C + stateOffset);
-        flags &= 0xFFEF;
+        flags &= ~0x10;
     }
     *(s16*)((u8*)&D_80151200[0].D_8015120C + stateOffset) = flags;
 }
@@ -1610,8 +1618,6 @@ void func_800B8B48(void) {
         case 7:
             SysCdromStartLoadLzs(D_800E8C90[event[8]].loc, D_800E8C90[event[8]].len, *(void**)&event[6], NULL);
             BattleCdromReadChain();
-            break;
-        default:
             break;
         }
     }
@@ -1976,10 +1982,11 @@ void BattleUnitInitBonesAndMatrixes(s32 actorArg, void* data, s32 enemy) {
     s32 modelOffset;
     s16 actor = actorArg;
     if (D_801590E4.bytes[offsets[0]] == 2) {
-        if (enemy == 0)
+        if (enemy == 0) {
             BattleBoneSetParentMatrix(&D_800F8158[0].m, (BattleModelSub*)&g_BattleModels[actor].stageMatrix);
-        else
+        } else {
             BattleBoneSetParentMatrix(&D_800F8158[1].m, (BattleModelSub*)&g_BattleModels[actor].stageMatrix);
+        }
     } else if (actor == 3) {
         BattleBoneSetParentMatrix(&g_BattleWorldView.m, (BattleModelSub*)&g_BattleModels[3].stageMatrix);
     } else {
