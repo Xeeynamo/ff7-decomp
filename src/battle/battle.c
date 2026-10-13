@@ -930,9 +930,16 @@ static u8 func_800A4B3C(s32 index, s32 arg1) {
 
 static void func_800A4B9C(void) {}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleInitCharCmdState);
+void BattleInitCharCmdState(s32 arg0) {
+    D_800F39F0[arg0] = g_ActiveCharacters[arg0].commandMenu[0];
+    D_800F3A04[arg0] = D_800F39F0[arg0];
 
-static s32 BattleGetBerserkToadAttackTypeId(s32 arg0) { return D_800F39F0[arg0][0]; }
+    D_800F3A04[arg0].id = CMD_ATTACK;
+    D_800F3A04[arg0].initialCursorAction = g_BattleWork.turn[arg0].turnFlags & 2 ? 0 : 7;
+    D_800F3A04[arg0].targetFlags = g_BattleWork.setup[arg0].targetFlags;
+}
+
+static s32 BattleGetBerserkToadAttackTypeId(s32 arg0) { return D_800F39F0[arg0].id; }
 
 static s32 BattleGetManipIdByPlayerUnitId(s32 arg0) {
     s32 temp_v1;

@@ -777,12 +777,12 @@ typedef struct {
 } ActiveCharEnabledCounter; // size: 0x3
 
 typedef struct {
-    u8 id;
-    u8 initialCursorAction;
-    u8 targetFlags;
-    u8 unk4;
-    u8 allCount;
-    u8 materiaEffectFlags;
+    /* 0x0 */ u8 id;
+    /* 0x1 */ u8 initialCursorAction;
+    /* 0x2 */ u8 targetFlags;
+    /* 0x3 */ u8 unk3;
+    /* 0x4 */ u8 allCount;
+    /* 0x5 */ u8 materiaEffectFlags;
 } ActiveCharCommandMenu; // size: 0x6
 
 // The character's three limit techniques: their ids, the learned-limit filter
