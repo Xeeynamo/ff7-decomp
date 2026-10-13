@@ -153,8 +153,10 @@ int SAVEMENU_HandleSave(s32 counter) {
     case SAVE_MENU_STATE_SELECT_SLOT:
         SysMenuDrawCursor(g_SaveSlotSelectWindow.x - 18, g_SaveSlotSelectWindow.y + 6 + (menus.tables[0].row * 12));
         SysMenuDrawString(10, 11, g_SaveLabels[SAVE_STR_SELECT_SLOT], 7);
-        SysMenuDrawString(g_SaveSlotSelectWindow.x + 12, g_SaveSlotSelectWindow.y + 5, g_SaveLabels[SAVE_STR_SLOT_1], -(g_MemCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] != 0) & 7);
-        SysMenuDrawString(g_SaveSlotSelectWindow.x + 12, g_SaveSlotSelectWindow.y + 17, g_SaveLabels[SAVE_STR_SLOT_2], -(g_MemCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED] != 0) & 7);
+        SysMenuDrawString(g_SaveSlotSelectWindow.x + 12, g_SaveSlotSelectWindow.y + 5, g_SaveLabels[SAVE_STR_SLOT_1],
+                          -(g_MemCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] != 0) & 7);
+        SysMenuDrawString(g_SaveSlotSelectWindow.x + 12, g_SaveSlotSelectWindow.y + 17, g_SaveLabels[SAVE_STR_SLOT_2],
+                          -(g_MemCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED] != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 256;
@@ -169,7 +171,8 @@ int SAVEMENU_HandleSave(s32 counter) {
         rect.w = 256;
         rect.h = 256;
         SysMenuSetDrawMode(0, 1, 0x7F, &rect);
-        SysMenuDrawString(g_SaveConfirmWindow.x + 10, g_SaveConfirmWindow.y + 6, g_SaveLabels[SAVE_STR_CONFIRM_SAVE], 7);
+        SysMenuDrawString(
+            g_SaveConfirmWindow.x + 10, g_SaveConfirmWindow.y + 6, g_SaveLabels[SAVE_STR_CONFIRM_SAVE], 7);
         SysMenuDrawString(g_SaveConfirmWindow.x + 48, g_SaveConfirmWindow.y + 19, g_SaveLabels[SAVE_STR_YES], 7);
         SysMenuDrawString(g_SaveConfirmWindow.x + 48, g_SaveConfirmWindow.y + 31, g_SaveLabels[SAVE_STR_NO], 7);
         SysMenuDrawWindow(&g_SaveConfirmWindow);
@@ -191,11 +194,12 @@ int SAVEMENU_HandleSave(s32 counter) {
             for (var_s0 = 0; var_s0 < var_s3; var_s0++) {
                 if ((g_SaveSlotMask >> (var_s0 + menus.tables[1].rowOffset)) & 1) {
                     SysMenuStoreWindowColor();
-                    SaveDrawSlot(0, var_s0 * 64 + 29 + menus.tables[1].scrollAnimY * 8,
-                                 var_s0 + menus.tables[1].rowOffset);
+                    SaveDrawSlot(
+                        0, var_s0 * 64 + 29 + menus.tables[1].scrollAnimY * 8, var_s0 + menus.tables[1].rowOffset);
                     SysMenuRestoreWindowColor();
                 } else {
-                    SysMenuDrawString(50, var_s0 * 64 + 55 + menus.tables[1].scrollAnimY * 8, g_SaveLabels[SAVE_STR_EMPTY], 6);
+                    SysMenuDrawString(
+                        50, var_s0 * 64 + 55 + menus.tables[1].scrollAnimY * 8, g_SaveLabels[SAVE_STR_EMPTY], 6);
                     SysMenuCopyWindowRect(&sp38, &g_SaveSubWindowRects[2]);
                     SysMenuMoveWindowRect(&sp38, 0, var_s0 * 64 + 29 + menus.tables[1].scrollAnimY * 8);
                     SysMenuDrawWindow(&sp38);
@@ -254,9 +258,10 @@ int SAVEMENU_HandleSave(s32 counter) {
         if (counter & 2) {
             SysMenuDrawCursor(g_SaveSlotSelectWindow.x - 18, g_SaveSlotSelectWindow.y + 6 + menus.tables[0].row * 12);
         }
-        SysMenuDrawString(g_SaveSlotSelectWindow.x + 12, g_SaveSlotSelectWindow.y + 5, g_SaveLabels[SAVE_STR_SLOT_1], -(g_MemCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] != 0) & 7);
-        SysMenuDrawString(
-            g_SaveSlotSelectWindow.x + 12, g_SaveSlotSelectWindow.y + 17, g_SaveLabels[SAVE_STR_SLOT_2], -(g_MemCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED] != 0) & 7);
+        SysMenuDrawString(g_SaveSlotSelectWindow.x + 12, g_SaveSlotSelectWindow.y + 5, g_SaveLabels[SAVE_STR_SLOT_1],
+                          -(g_MemCardSlotStatus[CARD_SLOT_1][CARD_STATUS_INSERTED] != 0) & 7);
+        SysMenuDrawString(g_SaveSlotSelectWindow.x + 12, g_SaveSlotSelectWindow.y + 17, g_SaveLabels[SAVE_STR_SLOT_2],
+                          -(g_MemCardSlotStatus[CARD_SLOT_2][CARD_STATUS_INSERTED] != 0) & 7);
         rect.x = 0;
         rect.y = 0;
         rect.w = 256;
@@ -265,7 +270,8 @@ int SAVEMENU_HandleSave(s32 counter) {
         SysMenuDrawWindow(&g_SaveSlotSelectWindow);
         SysMenuDrawString(10, 11, g_SaveFormatStrings[SAVE_FORMAT_STR_UNFORMATTED], 7);
         temp_s2 = SysGetSingleStringWidth(g_SaveFormatStrings[SAVE_FORMAT_STR_PROMPT]) + 16;
-        SysMenuDrawString(190 - temp_s2 / 2, g_SaveSlotSelectWindow.h + 99, g_SaveFormatStrings[SAVE_FORMAT_STR_PROMPT], 7);
+        SysMenuDrawString(
+            190 - temp_s2 / 2, g_SaveSlotSelectWindow.h + 99, g_SaveFormatStrings[SAVE_FORMAT_STR_PROMPT], 7);
         SysMenuDrawString(228 - temp_s2 / 2, g_SaveSlotSelectWindow.h + 112, g_SaveLabels[SAVE_STR_YES], 7);
         SysMenuDrawString(228 - temp_s2 / 2, g_SaveSlotSelectWindow.h + 124, g_SaveLabels[SAVE_STR_NO], 7);
         SysMenuDrawCursor(200 - temp_s2 / 2, 115 + (menus.promptTables[0].row * 12) + g_SaveSlotSelectWindow.h);
@@ -280,7 +286,8 @@ int SAVEMENU_HandleSave(s32 counter) {
     }
     SysMenuSetWindowRect(&sp38, 0, 5, 364, 24);
     SysMenuDrawWindow(&sp38);
-    if (!(g_SaveMenuMode == 0 && !SysMenuGetMenuListState()) && (g_SaveMenuMode == 0 || g_SaveFadeState != SAVE_FADE_ACTIVE)) {
+    if (!(g_SaveMenuMode == 0 && !SysMenuGetMenuListState()) &&
+        (g_SaveMenuMode == 0 || g_SaveFadeState != SAVE_FADE_ACTIVE)) {
         return;
     }
     if (SysMenuIsWindowActive() & 0xFF) {
@@ -305,7 +312,9 @@ int SAVEMENU_HandleSave(s32 counter) {
                 }
             } else {
                 PlaySfx(SFX_MENU_BAD);
-                SysMenuRequestAddWindow(!g_SaveCardCheckWaitTimer ? g_SaveErrorStrings[SAVE_ERR_NO_CARD] : g_SaveFormatStrings[SAVE_FORMAT_STR_NO_CARD], 7);
+                SysMenuRequestAddWindow(!g_SaveCardCheckWaitTimer ? g_SaveErrorStrings[SAVE_ERR_NO_CARD]
+                                                                  : g_SaveFormatStrings[SAVE_FORMAT_STR_NO_CARD],
+                                        7);
             }
         } else {
             SysMenuHandleButtons(&menus.tables[0]);

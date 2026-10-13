@@ -592,7 +592,9 @@ char ITEMMENU_Main(s32 frameCount) {
     SysMenuDrawMenuList(g_MenuRenderBufferIndex);
     if (g_ItemMenuCurrentScreen == ITEMMENU_SCREEN_ITEM_SELECTED) {
         if (g_ItemMenuTargetSelectDelay == 0) {
-            cursorItemId = Savemap.inventory[g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row + g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].rowOffset] & ITEM_ID_MASK;
+            cursorItemId = Savemap.inventory[g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row +
+                                             g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].rowOffset] &
+                           ITEM_ID_MASK;
             // Selecting all with one item (Tent & Megaelixer heal all)
             if (((cursorItemId == ITEM_MEGALIXIR) || (cursorItemId == ITEM_TENT)) != 0) {
                 targetPartySlot = frameCount;
@@ -604,8 +606,8 @@ char ITEMMENU_Main(s32 frameCount) {
             }
         }
         if ((frameCount & 2) != 0) {
-            SysMenuDrawCursor(
-                ITEMMENU_LIST_CURSOR_X, (g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
+            SysMenuDrawCursor(ITEMMENU_LIST_CURSOR_X,
+                              (g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
         }
         if (g_ItemMenuTargetSelectDelay) {
             g_ItemMenuTargetSelectDelay -= 1;
@@ -623,8 +625,8 @@ char ITEMMENU_Main(s32 frameCount) {
             SysMenuDrawCursor(
                 (g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
         }
-        SysMenuDrawCursor(
-            ITEMMENU_LIST_CURSOR_X, (g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
+        SysMenuDrawCursor(ITEMMENU_LIST_CURSOR_X,
+                          (g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
         selectedItemId = g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row + g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].rowOffset;
         rawItemData = Savemap.inventory[selectedItemId];
         stringCategory = KERN_TXT_ITEM;
@@ -653,10 +655,12 @@ char ITEMMENU_Main(s32 frameCount) {
             SysMenuDrawCursor(
                 (g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
         }
-        SysMenuDrawCursor((g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].column * ITEMMENU_KEY_COLUMN_WIDTH) + ITEMMENU_KEY_CURSOR_X,
-                          (g_KeyItemCursorRow * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
+        SysMenuDrawCursor(
+            (g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].column * ITEMMENU_KEY_COLUMN_WIDTH) + ITEMMENU_KEY_CURSOR_X,
+            (g_KeyItemCursorRow * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
         emptyKeyItem = 0xFF;
-        selectedItemId = ((g_KeyItemCursorRow + g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].rowOffset) * 2) + g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].column;
+        selectedItemId = ((g_KeyItemCursorRow + g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].rowOffset) * 2) +
+                         g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].column;
         rawItemData = g_KeyItemList[selectedItemId];
         stringCategory = 0xE;
         if (rawItemData != emptyKeyItem) {
@@ -761,14 +765,16 @@ char ITEMMENU_Main(s32 frameCount) {
     if (g_ItemMenuWidgets[0].column != 2) {
         if (g_ItemMenuCurrentScreen == 5) {
             if ((g_ItemSwapState != 0) && (frameCount & 2)) {
-                cursorYOffset = ((g_ItemSwapSourceSlot - g_ItemSwapListOffset) * ITEMMENU_ROW_HEIGHT) +
-                                (g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_CUSTOM].scrollAnimY * ITEMMENU_SCROLL_ANIM_SCALE);
+                cursorYOffset =
+                    ((g_ItemSwapSourceSlot - g_ItemSwapListOffset) * ITEMMENU_ROW_HEIGHT) +
+                    (g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_CUSTOM].scrollAnimY * ITEMMENU_SCROLL_ANIM_SCALE);
                 if (((u32)(cursorYOffset + 0xB)) < 0x10FU) {
                     SysMenuDrawCursor(ITEMMENU_SWAP_CURSOR_X, cursorYOffset + ITEMMENU_ICON_Y);
                 }
             }
             SysMenuDrawCursor(
-                ITEMMENU_LIST_CURSOR_X, (g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_CUSTOM].row * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
+                ITEMMENU_LIST_CURSOR_X,
+                (g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_CUSTOM].row * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
             widgetScreen = 5;
         } else {
             widgetScreen = 1;
@@ -861,7 +867,7 @@ char ITEMMENU_Main(s32 frameCount) {
         selectedItemId = 0x38;
         do {
         } while (0);
-       	SysMenuDrawScrollbar((MenuScrollbar*)g_ItemMenuScrollbar);
+        SysMenuDrawScrollbar((MenuScrollbar*)g_ItemMenuScrollbar);
         SysMenuUnkNoop(9);
         slotIdx = 0;
         do {
@@ -876,7 +882,9 @@ char ITEMMENU_Main(s32 frameCount) {
                 SysMenuDrawString(
                     textColor,
                     widgetScreen +
-                        (scrollAnimOffset = (g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].scrollAnimY * ITEMMENU_SCROLL_ANIM_SCALE) + ITEMMENU_NAME_Y),
+                        (scrollAnimOffset =
+                             (g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].scrollAnimY * ITEMMENU_SCROLL_ANIM_SCALE) +
+                             ITEMMENU_NAME_Y),
                     SysKernGetString(KERN_TXT_KEY_ITEM, keyItemId, 8), 7);
             }
             slotIdx += 1;
@@ -937,7 +945,8 @@ char ITEMMENU_Main(s32 frameCount) {
         case ITEMMENU_SCREEN_USE:
             if (g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].scrolling == 0) {
                 if (g_Pad0KeysPressed & PAD_CIRCLE) {
-                    selectedItemId = g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row + g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].rowOffset;
+                    selectedItemId =
+                        g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row + g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].rowOffset;
                     selectedItemEntry = Savemap.inventory[selectedItemId];
                     if (((selectedItemEntry & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) &&
                         (!(GetItemUseFlagsContext(selectedItemId = selectedItemEntry & ITEM_ID_MASK) & 4))) {
@@ -984,7 +993,9 @@ char ITEMMENU_Main(s32 frameCount) {
             if (g_ItemMenuTargetSelectDelay == 0) {
                 if (g_Pad0KeysPressed & PAD_CIRCLE) {
                     cursorPosX = Savemap.partyID[g_PartySlotSelected[0]];
-                    selectedItemId = Savemap.inventory[g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row + g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].rowOffset] & ITEM_ID_MASK;
+                    selectedItemId = Savemap.inventory[g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row +
+                                                       g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].rowOffset] &
+                                     ITEM_ID_MASK;
                     isRegularItem = selectedItemId < ITEM_TYPE_REGUALR_BASE;
                     characterId = cursorPosX;
                     isItemUsable = isRegularItem;

@@ -335,7 +335,7 @@ void func_801D080C(s32 arg0) {
     s32 var_v1;
     u16 temp_v0;
     u16 var_a0_2;
-    u8(*var_a2)[0x30];
+    u8 (*var_a2)[0x30];
     u8 temp_v0_2;
     u8* var_s0_2;
 
@@ -451,7 +451,7 @@ void func_801D080C(s32 arg0) {
             func_801D014C(temp_s3_3, var_s2_2, (s32)*var_s0_2);
             temp_a1_2 = var_s2_2;
             var_s2_2 += 0x12;
-            func_801D014C(temp_s3_3 + 0x2C, temp_a1_2, (s32) * (&D_8009D7C0 + *var_s0_2));
+            func_801D014C(temp_s3_3 + 0x2C, temp_a1_2, (s32)*(&D_8009D7C0 + *var_s0_2));
             sp20 = 0;
             sp22 = 0;
             sp24 = 0x100;
