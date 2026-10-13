@@ -181,7 +181,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId);
 void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
 void FieldDebugStringCopy(char* dst, const char* src);
 void FieldDebugStringConcat(char* dest, const char* src);
-void AddStrNextDebugRow(s32 val, const char* msg_out);
+s32 AddStrNextDebugRow(s32 pageId, const char* msg);
 void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height);
 s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str);
 
