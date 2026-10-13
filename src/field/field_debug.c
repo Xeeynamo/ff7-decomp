@@ -85,14 +85,12 @@ void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugPageSetPosSize);
 
-// Same as WmDialogAddPos, and sets D_8009D824 as the other page functions here do.
 void FieldDebugPageAddPos(s16 pageId, s16 dx, s16 dy) {
     g_FieldDebugPages[pageId].x += dx;
     g_FieldDebugPages[pageId].y += dy;
     D_8009D824 = 1;
 }
 
-// Same shape as FieldDebugPageAddPos, on the size instead of the position.
 void FieldDebugPageAddSize(s16 pageId, s16 dw, s16 dh) {
     g_FieldDebugPages[pageId].width += dw;
     g_FieldDebugPages[pageId].height += dh;
@@ -136,7 +134,6 @@ static void FieldDebugPageSetHeadRow(s16 pageId, s16 row) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_debug", FieldDebugPageSetColor);
 
-// Same as FieldDebugPageHide.
 void FieldDebugPageNotInit(s16 pageId) {
     g_FieldDebugPages[pageId].state = 1;
     D_8009D824 = 1;

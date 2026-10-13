@@ -5,7 +5,7 @@
 
 s32 WmCreatePacketForModelPart(FieldModelPart*, s32, s32, s32);
 void WmScaleModelVertexes(FieldModelPart* part, s16 scale, s32 force);
-void WmScaleModelAnimations(FieldModelAnimation*, s16, s32);
+void WmScaleModelAnimations(FieldModelAnimation* animation, s16 scale, s32 force);
 void WmScaleModelAll(FieldModelEntry* model, s16 scale, s32 force);
 void WmApplyPolyLightingToPacket(FieldModelPart*, s32, s32, s32);
 
@@ -142,71 +142,81 @@ void WmScaleModelVertexes(FieldModelPart* part, s16 scale, s32 force) {
 
 // Same as FieldModelScaleAnimTranslat.
 void WmScaleModelAnimations(FieldModelAnimation* animation, s16 scale, s32 force) {
-    MATRIX* scaleMatrix = (MATRIX*)getScratchAddr(0);
-    // The matrix can be overwritten after it has been loaded into the GTE.
-    SVECTOR* input = (SVECTOR*)getScratchAddr(0);
-    VECTOR* output = (VECTOR*)getScratchAddr(2);
+    MATRIX* scaleMatrix;
+    SVECTOR* input;
+    VECTOR* output;
     u32 frameCount;
     u32 count;
     u32 groups;
     u32 i, j;
 
-    if (!*(u32*)animation->data || force) {
-        scaleMatrix->m[0][0] = scale;
-        scaleMatrix->m[1][1] = scale;
-        scaleMatrix->m[2][2] = scale;
-        scaleMatrix->m[0][1] = scaleMatrix->m[0][2] = scaleMatrix->m[1][0] = scaleMatrix->m[1][2] =
-            scaleMatrix->m[2][0] = scaleMatrix->m[2][1] = scaleMatrix->t[0] = scaleMatrix->t[1] = scaleMatrix->t[2] = 0;
-        gte_SetRotMatrix(scaleMatrix);
-        gte_SetTransMatrix(scaleMatrix);
-        count = animation->translationCount;
-        frameCount = animation->frameCount;
-        for (i = 0; i < count; i++) {
-            s16* trans = (s16*)(animation->data + animation->translationOffset) + i * frameCount;
-            groups = frameCount / 3;
-            for (j = 0; j < groups; j++) {
-                input->vx = trans[j * 3];
-                input->vy = trans[j * 3 + 1];
-                input->vz = trans[j * 3 + 2];
-                gte_ldv0(input);
-                gte_rt();
-                gte_stlvnl(output);
-                trans[j * 3] = output->vx;
-                trans[j * 3 + 1] = output->vy;
-                trans[j * 3 + 2] = output->vz;
-            }
-            for (j = groups * 3; j < frameCount; j++) {
-                input->vx = trans[j];
-                gte_ldv0(input);
-                gte_rt();
-                gte_stlvnl(output);
-                trans[j] = output->vx;
-            }
-        }
-        count = animation->staticTranslationCount;
-        groups = count / 3;
-        for (i = 0; i < groups; i++) {
-            s16* statics = (s16*)(animation->data + animation->staticTranslationsOffset) + i * 3;
-            input->vx = statics[0];
-            input->vy = statics[1];
-            input->vz = statics[2];
-            gte_ldv0(input);
-            gte_rt();
-            gte_stlvnl(output);
-            statics[0] = output->vx;
-            statics[1] = output->vy;
-            statics[2] = output->vz;
-        }
-        for (i = groups * 3; i < count; i++) {
-            s16* statics = (s16*)(animation->data + animation->staticTranslationsOffset) + i;
-            input->vx = *statics;
-            gte_ldv0(input);
-            gte_rt();
-            gte_stlvnl(output);
-            *statics = output->vx;
-        }
-        *(u32*)animation->data = 1;
+    scaleMatrix = (MATRIX*)getScratchAddr(0);
+    // The matrix can be overwritten after it has been loaded into the GTE.
+    input = (SVECTOR*)getScratchAddr(0);
+    output = (VECTOR*)getScratchAddr(2);
+    if (*(u32*)animation->data && !force) {
+        return;
     }
+    scaleMatrix->m[0][0] = scale;
+    scaleMatrix->m[1][1] = scale;
+    scaleMatrix->m[2][2] = scale;
+    scaleMatrix->m[0][1] = scaleMatrix->m[0][2] = scaleMatrix->m[1][0] = scaleMatrix->m[1][2] = scaleMatrix->m[2][0] =
+        scaleMatrix->m[2][1] = scaleMatrix->t[0] = scaleMatrix->t[1] = scaleMatrix->t[2] = 0;
+    gte_SetRotMatrix(scaleMatrix);
+    gte_SetTransMatrix(scaleMatrix);
+    count = animation->translationCount;
+    frameCount = animation->frameCount;
+    for (i = 0; i < count; i++) {
+        s16* trans;
+
+        trans = (s16*)(animation->data + animation->translationOffset) + i * frameCount;
+        groups = frameCount / 3;
+        for (j = 0; j < groups; j++) {
+            input->vx = trans[j * 3];
+            input->vy = trans[j * 3 + 1];
+            input->vz = trans[j * 3 + 2];
+            gte_ldv0(input);
+            gte_rt();
+            gte_stlvnl(output);
+            trans[j * 3] = output->vx;
+            trans[j * 3 + 1] = output->vy;
+            trans[j * 3 + 2] = output->vz;
+        }
+        for (j = groups * 3; j < frameCount; j++) {
+            input->vx = trans[j];
+            gte_ldv0(input);
+            gte_rt();
+            gte_stlvnl(output);
+            trans[j] = output->vx;
+        }
+    }
+    count = animation->staticTranslationCount;
+    groups = count / 3;
+    for (i = 0; i < groups; i++) {
+        s16* statics;
+
+        statics = (s16*)(animation->data + animation->staticTranslationsOffset) + i * 3;
+        input->vx = statics[0];
+        input->vy = statics[1];
+        input->vz = statics[2];
+        gte_ldv0(input);
+        gte_rt();
+        gte_stlvnl(output);
+        statics[0] = output->vx;
+        statics[1] = output->vy;
+        statics[2] = output->vz;
+    }
+    for (i = groups * 3; i < count; i++) {
+        s16* statics;
+
+        statics = (s16*)(animation->data + animation->staticTranslationsOffset) + i;
+        input->vx = *statics;
+        gte_ldv0(input);
+        gte_rt();
+        gte_stlvnl(output);
+        *statics = output->vx;
+    }
+    *(u32*)animation->data = 1;
 }
 
 s32 WmApplyModelLightingToPacket(FieldModelEntry* model, u8* light) {
