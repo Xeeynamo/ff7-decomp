@@ -2627,12 +2627,14 @@ void* BattleCreateStatusIconPacket(u_long** ot, SVECTOR* pos, s16 u, s16 v) {
     }
     depth >>= 2;
     if (depth >= 2) {
-        if (depth > 0x1000)
+        if (depth > 0x1000) {
             otIndex = 0x1000;
-        else
+        } else {
             otIndex = depth;
-    } else
+        }
+    } else {
         otIndex = 2;
+    }
     addPrim(ot[otIndex], poly);
     return poly + 1;
 }
@@ -2681,9 +2683,6 @@ void func_800C2864(s32 arg0) {
 }
 
 void func_800C2928(void) {
-#ifdef PLATFORM_PSYZ
-    s32 scratch[5];
-#endif
     Unk801621F0* slots = g_BattleDetachedSlots;
     s32 slotOffset = g_BattleDetachedCursor * sizeof(Unk801621F0);
     s16 stateId = *(s16*)((u8*)&g_BattleDetachedSlots[0].raw.D_801621F2 + slotOffset);
@@ -2691,9 +2690,7 @@ void func_800C2928(void) {
     BattleModelSub* bone;
     Unk80151200* state;
     s32 depth;
-#ifndef PLATFORM_PSYZ
     s16* screen;
-#endif
     s32 y;
     s32 actorOffset;
     s32 actor, boneActor, boneIndex;
@@ -2707,11 +2704,7 @@ void func_800C2928(void) {
         slot->unkC = 0;
         boneActor = slot->unk10.value;
         boneIndex = g_BattleModels[boneActor].boneIndices[0];
-#ifdef PLATFORM_PSYZ
-        scratch[0] = boneIndex;
-#else
         *(s32*)0x1F800000 = boneIndex;
-#endif
         BattleGetPartPosition(actor, boneIndex, &D_80151200[actor].bone.trans);
         actorOffset = slot->unk10.value * sizeof(Unk80151200);
         state = (Unk80151200*)((u8*)D_80151200 + actorOffset);
@@ -2728,33 +2721,25 @@ void func_800C2928(void) {
         bone = &D_80151200[slot->unk10.value].bone;
         RotMatrixYXZ(&bone->rot, &bone->m);
         BattleUpdateMatrixWithSelfAndParentAndSetToGte(&D_80151200[slot->unk10.value].bone);
-#ifdef PLATFORM_PSYZ
-        depth = RotTransPers(&D_800E7D08, &scratch[1], &scratch[2], &scratch[3]);
-        slot->D_801621F6 = (u16)scratch[1];
-        y = (s16)((u32)scratch[1] >> 16);
-#else
         depth = RotTransPers(&D_800E7D08, (long*)0x1F800004, (long*)0x1F800008, (long*)0x1F80000C);
         screen = (s16*)0x1F800004;
-#endif
-#ifndef PLATFORM_PSYZ
         slot->D_801621F6 = (u16)screen[0];
         y = *(s32*)screen >> 16;
-#endif
         slot->unkA = y;
-#ifdef PLATFORM_PSYZ
-        scratch[4] = depth;
-#else
         *(s32*)0x1F800010 = depth;
-#endif
         slot->unk8 = y - D_800EA230[slot->unkC];
-        if (slot->D_801621F6 < 24)
+        if (slot->D_801621F6 < 24) {
             slot->D_801621F6 = 24;
-        if (slot->D_801621F6 >= 297)
+        }
+        if (slot->D_801621F6 >= 297) {
             slot->D_801621F6 = 296;
-        if (slot->unk8 < 16)
+        }
+        if (slot->unk8 < 16) {
             slot->unk8 = 16;
-        if (slot->unk8 >= 151)
+        }
+        if (slot->unk8 >= 151) {
             slot->unk8 = 150;
+        }
         frame = slot->unkC;
         slot->unkC = frame + 1;
         func_800C2C1C(slot->D_801621F6, slot->unk8, slot->unkE, D_800EA230[(s16)frame], (s16)slot->unk14);
@@ -3074,8 +3059,9 @@ void* func_800C5ADC(u_long** ot) {
     line->g0 = color;
     line->b0 = color;
     if (depth >= 2) {
-        if (depth >= 0x1001)
+        if (depth >= 0x1001) {
             depth = 0x1000;
+        }
     } else {
         depth = 2;
     }
