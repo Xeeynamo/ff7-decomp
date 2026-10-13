@@ -3172,7 +3172,21 @@ void BattleSetTmpDmgAsMagical(void) {
         BattleAddSplitQuaterModifier(BattleApplySadnessDamageReduction(var_v1 >> 0xD), temp_s0)));
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ADC70);
+void BattleLowerFunc03(void) {
+    s32 damage;
+
+    if (g_CurrentAction->unk6C & 1) {
+        damage = g_BattleState.combatant[g_CurrentAction->targetId].curHP;
+    } else {
+        damage = g_BattleState.combatant[g_CurrentAction->targetId].curMP;
+    }
+
+    damage = damage * g_CurrentAction->power / 32;
+    if (g_CurrentAction->unkAC) {
+        damage >>= 1;
+    }
+    g_CurrentAction->tmpDamage = damage;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleLowerFunc04);
 
