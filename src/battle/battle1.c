@@ -69,7 +69,7 @@ void func_800BB4F8(void);
 void func_800BB90C(void);
 void func_800BB944(void);
 void func_800BB978(void);
-void func_800BB9FC(s32 arg0);
+void BattlePlaySoundSlot3(s32 arg0);
 static void func_800BBA40(s32 arg0);
 static void func_800BBDF8(void);
 static void func_800BC72C(void);
@@ -1624,22 +1624,22 @@ void func_800BB978(void) {
 
 // queue sound command 0x30, dispatched directly via AkaoDispatchCommand (akao.c)
 // rather than the g_AkaoCmd staging command used by the sibling functions below
-void func_800BB9B8(s32 arg0) {
+void BattlePlayMenuSound(s32 soundId) {
     s16* ptr;
 
     ptr = &D_800F4AD0;
     *ptr = AKAO_PLAY_MENU_SOUND;
-    D_800F4AD4 = arg0 & 0xFFFF;
-    D_800F4AD8 = arg0 & 0xFFFF;
+    D_800F4AD4 = soundId & 0xFFFF;
+    D_800F4AD8 = soundId & 0xFFFF;
     AkaoDispatchCommand(ptr);
 }
 
 // queue sound command 0x2B
-void func_800BB9FC(s32 arg0) {
+void BattlePlaySoundSlot3(s32 soundId) {
     s32 param;
 
     g_AkaoCmd.opcode = AKAO_PLAY_SLOT3;
-    param = arg0 & 0xFFFF;
+    param = soundId & 0xFFFF;
     g_AkaoCmd.params[0] = AKAO_PAN_CENTER;
     g_AkaoCmd.params[1] = param;
     AkaoExec();
