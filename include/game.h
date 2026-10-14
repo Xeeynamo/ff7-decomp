@@ -733,12 +733,19 @@ typedef struct {
                           // 0x04 use in menu (0xFFFE on every accessory)
 } AccessoryRecord;
 
-// Kernel limit-break record, one per character: the HP divisor for each of the
-// four limit levels, followed by the rest of the 0x38-byte stride.
+// Per-character record of KERNEL.BIN section 3 (battle and growth data), 0x38 bytes
+// each, nine of them from 0x80082268. The limit commands and HP divisors the
+// limit-break code reads are the third and last fields.
 typedef struct {
-    s32 hpDivisor[4];
-    u8 rest[0x28];
-} KernelLimitRecord;
+    /* 0x00 */ u8 curve[9]; // growth curve ids: str, vit, mag, spr, dex, lck, hp, mp, exp
+    /* 0x09 */ u8 unk9;
+    /* 0x0A */ s8 startLevelBias; // 0, -2, -4 ... added to the average party level
+    /* 0x0B */ u8 unkB;
+    /* 0x0C */ u8 limitCmdId[12]; // 3 per limit level; 0x80 + command id, 0xFF none
+    /* 0x18 */ u16 killsToLevel[2];
+    /* 0x1C */ u16 limitUses[6]; // (uses, 0xFFFF) pairs needed to learn the next limit
+    /* 0x28 */ s32 hpDivisor[4]; // by limit level
+} KernelCharRecord;
 
 typedef struct {
     u32 materiaId : 8;
@@ -1351,7 +1358,7 @@ extern AttackData D_800722CC[];            // magic/summon/skill table
 extern WeaponRecord g_WeaponTable[];       // 0x800738A0, by weapon id
 extern AccessoryRecord g_AccessoryTable[]; // 0x80071C24, by accessory id
 extern ArmorRecord g_ArmorTable[];         // 0x80071E44, by armor id
-extern KernelLimitRecord D_80082290[];     // 0x80082290, by character id
+extern KernelCharRecord D_80082268[];      // 0x80082268, by character id
 extern FieldEntity g_FieldEntity[];
 extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
 extern s32 g_PartyPortraitClut[];

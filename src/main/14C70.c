@@ -416,17 +416,15 @@ void SysAddBattleEarnedItems(void) {
     }
 }
 
-extern u8 D_80082274[];
-
 s32 SysGetLimitCmdId(s32 charId, s32 limitIndex) {
-    u8 pad[0x30]; // match: needed to match the 0x30 stack frame
+    u8 pad[0x30]; // FAKE: preserves stack space; the original local declarations are unknown.
     s32 cmdId;
 
     cmdId = 0x7F;
     if ((u32)charId < NUM_CHARACTERS) {
         s32 addr;
 
-        addr = (s32)D_80082274 + charId * 0x38;
+        addr = (s32)D_80082268[charId].limitCmdId;
         cmdId = *(u8*)(limitIndex + addr) - 0x80;
     }
     return cmdId;

@@ -387,7 +387,7 @@ static void BattleInitPlayer(void) {
                     party->limitLevel = limitLevel;
                     party->limitBar = limitCharge;
                     party->limitBarUI = limitCharge;
-                    party->limitBreakHPDivisor = D_80082290[charId].hpDivisor[limitLevel];
+                    party->limitBreakHPDivisor = D_80082268[charId].hpDivisor[limitLevel];
                     character->unk1A = party->limitBar << 8;
                     character->limitLevel = member->limit_level;
                     BattleInitLimits(charId, member->limit_learn, &character->limits);
