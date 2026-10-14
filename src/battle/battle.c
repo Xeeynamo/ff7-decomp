@@ -1046,33 +1046,33 @@ void func_800A4F60(s32 arg0, s32 arg1) {
 
     case 1:
         g_BattleWork.turn[arg0].hasLimitBreak = menuRebuildFlags & 0xDF;
-        if (func_800A50E0(arg0, status, 0, NUM_MAGICS)) {
+        if (BattleRefreshMagicMenu(arg0, status, 0, NUM_MAGICS)) {
             g_BattleWork.turn[arg0].hasLimitBreak |= 0x20;
         }
         break;
 
     case 2:
         g_BattleWork.turn[arg0].hasLimitBreak = menuRebuildFlags & 0xBF;
-        if (func_800A50E0(arg0, status, NUM_MAGICS, 0x10)) {
+        if (BattleRefreshMagicMenu(arg0, status, NUM_MAGICS, NUM_SUMMONS)) {
             g_BattleWork.turn[arg0].hasLimitBreak |= 0x40;
         }
         break;
 
     case 3:
         g_BattleWork.turn[arg0].hasLimitBreak = menuRebuildFlags & 0x7F;
-        if (func_800A50E0(arg0, status, NUM_MAGICS + NUM_SUMMONS, NUM_ENEMY_SKILLS)) {
+        if (BattleRefreshMagicMenu(arg0, status, NUM_MAGICS + NUM_SUMMONS, NUM_ENEMY_SKILLS)) {
             g_BattleWork.turn[arg0].hasLimitBreak |= 0x80;
         }
         break;
     }
 }
 
-// Updates the menu flags for a range of spell records.
-// Returns 1 if none can be cast.
-static s32 func_800A50E0(s32 arg0, u32 status, s32 start, s32 count) {
+// Refreshes the menu flags for a range of spell records.
+// Returns 1 if none can be cast (menu option is disabled).
+static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count) {
     s32 prevMp = g_BattleWork.turn[arg0].prevMP;
     MagicRecord* magic = &g_ActiveCharacters[arg0].enabledMagic[start];
-    s32 uncastable = 1;
+    s32 menuDisabled = 1;
     s32 isNotSilenced = !(status & STATUS_SILENCE);
     s32 isNotFrog = !(status & STATUS_FROG);
     s32 i;
@@ -1108,17 +1108,115 @@ static s32 func_800A50E0(s32 arg0, u32 status, s32 start, s32 count) {
             // Frogs can still cast Toad (attack id 10)
             if (prevMp >= magic[i].mpCost && !blocked && isNotSilenced && (isNotFrog || id == 10)) {
                 menuFlags &= ~2;
-                uncastable = 0;
+                menuDisabled = 0;
             }
         }
 
         magic[i].menuflags = menuFlags;
     }
 
-    return uncastable;
+    return menuDisabled;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A5250);
+static void func_800A5250(s32 arg0, u32 status) {
+    ActiveCharCommandMenu* cmd = &g_ActiveCharacters[arg0].commandMenu[0];
+    s32 isFrog;
+    s32 i;
+
+    const s32 multipleTargetMask = TARGET_MULTIPLE_DEFAULT | TARGET_TOGGLE_MULTIPLE;
+
+    cmd->unk3 = 0;
+    isFrog = (status & STATUS_FROG) != 0;
+    if ((g_BattleData.limitReadyMask & (1 << arg0) && !isFrog) || g_BattleState.setupFlags & 8) {
+        cmd->id = CMD_LIMIT;
+        cmd->initialCursorAction = D_800707C4[CMD_LIMIT].initialCursorAction;
+        cmd->targetFlags = D_800707C4[CMD_LIMIT].targetFlags;
+        cmd->materiaEffectFlags = 0;
+    } else if (cmd->allCount && !isFrog) {
+        cmd->id = D_800F39F0[arg0].id;
+        cmd->initialCursorAction = D_800F39F0[arg0].initialCursorAction;
+        cmd->targetFlags = D_800F39F0[arg0].targetFlags;
+        cmd->materiaEffectFlags = D_800F39F0[arg0].materiaEffectFlags;
+    } else {
+        cmd->id = D_800F3A04[arg0].id;
+        cmd->initialCursorAction = D_800F3A04[arg0].initialCursorAction;
+        cmd->targetFlags = D_800F3A04[arg0].targetFlags;
+        cmd->materiaEffectFlags = D_800F3A04[arg0].materiaEffectFlags;
+    }
+
+    for (i = 1; i < NUM_BATTLE_COMMANDS; i++) {
+        s32 id = cmd[i].id;
+        u8 flags;
+
+        if (id == 0xFF) {
+            continue;
+        }
+
+        flags = cmd[i].unk3;
+        flags &= ~(0x10 | 0x2);
+        switch (id) {
+        case CMD_MAGIC:
+        case CMD_W_MAGIC:
+            func_800A4F60(arg0, 1);
+            if (g_BattleWork.turn[arg0].hasLimitBreak & 0x20) {
+                flags |= 2;
+            }
+            break;
+        case CMD_SUMMON:
+        case CMD_W_SUMMON:
+            func_800A4F60(arg0, 2);
+            if (g_BattleWork.turn[arg0].hasLimitBreak & 0x40) {
+                flags |= 2;
+            }
+            break;
+        case CMD_ENEMY_SKILL:
+            func_800A4F60(arg0, 3);
+            if (g_BattleWork.turn[arg0].hasLimitBreak & 0x80) {
+                flags |= 2;
+            }
+            break;
+        case CMD_ITEM:
+        case CMD_W_ITEM:
+            if (g_BattleStartFXFlags & 0x20) {
+                flags |= 2;
+            }
+            break;
+
+        case CMD_STEAL:
+        case CMD_MELEE_ATTACK:
+            if (cmd[i].allCount == 0) {
+                cmd[i].initialCursorAction = 7;
+            }
+            break;
+        }
+
+        // Everything except Magic, Item, W-Magic and W-Item is disabled as a frog
+        if (isFrog) {
+            switch (id) {
+            case CMD_MAGIC:
+            case CMD_W_MAGIC:
+            case CMD_ITEM:
+            case CMD_W_ITEM:
+                break;
+            default:
+                flags |= 2;
+                break;
+            }
+        }
+
+        // Drop the multi-target bits when allCount is 0
+        if ((cmd[i].targetFlags & TARGET_TOGGLE_MULTIPLE) && cmd[i].allCount == 0) {
+            cmd[i].targetFlags &= ~multipleTargetMask;
+        }
+
+        // Still multi-target capable
+        if ((cmd[i].targetFlags & multipleTargetMask) == multipleTargetMask) {
+            flags |= 0x10;
+        }
+
+        cmd[i].unk3 = flags;
+    }
+}
 
 static void func_800A555C(s32 charIdx, s32 magicId) {
     MagicRecord* magic;
@@ -1226,11 +1324,6 @@ static s32 BattlePickRandomThrowItem(void) {
     }
     return ret;
 }
-
-const u8 D_800A0240[] = {
-    0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0x54, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A,
-    0x80, 0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0x94, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54,
-    0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0x14, 0x54, 0x0A, 0x80, 0x34, 0x54, 0x0A, 0x80, 0x74, 0x54, 0x0A, 0x80};
 
 static s32 BattleGetRndMasterCommand(s32 _) {
     static const u8 masterCommands[] = {

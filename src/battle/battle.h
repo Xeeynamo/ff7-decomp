@@ -753,6 +753,8 @@ extern BattleModel g_BattleModels[NUM_BATTLE_ACTOR];
 extern short g_BattleEffectCount;
 extern s32 D_801620A8;
 extern BattleData g_BattleData;
+// pending battle-start status flags, one bit per entry of D_801B001C / D_801B002C (bit 4 = full-heal)
+extern u8 g_BattleStartFXFlags;
 extern s32 D_800F87F0[NUM_BATTLE_ACTOR][32]; // per-combatant battle-script variable bank, 0x80 B
                                              // each (BattleOpcodeValOffs)
 extern Unk80166F78 D_80166F78[NUM_ENEMY][16];

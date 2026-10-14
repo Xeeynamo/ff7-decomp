@@ -677,8 +677,6 @@ static void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
 
 const s32 D_801B001C[] = {0x0000, 0x1000, 0x0008, 0x0800};
 const s32 D_801B002C[] = {0x0000, 0x000A, 0x0027, 0x000A};
-extern u8 g_BattleStartFXFlags; // pending battle-start status flags, one bit per entry
-                                // of D_801B001C / D_801B002C (bit 4 = full-heal)
 void BattleQueueEvent(s32, s32, s32, s32);
 
 // Applies the pending battle-start effects in g_BattleStartFXFlags to party member
