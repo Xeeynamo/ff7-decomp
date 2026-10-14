@@ -5,6 +5,7 @@
 #include <libgte.h>
 #include <libgpu.h>
 #include "item.h"
+#include "materia.h"
 #include "sfx.h"
 #include "bgm.h"
 #include "akao.h"
@@ -31,13 +32,31 @@
 #define NUM_MAGICS 56
 #define NUM_MAGICS_ALL (NUM_MAGICS + 40)
 #define NUM_SUMMONS 16
-#define MAX_INVENTORY_COUNT 320
 #define MAX_MATERIA_COUNT 200
 #define NUM_MENU_COLOR 12
 #define LABEL_SIZE 12
 #define STAT_MAX 255
 #define MAX_HP 10000
 #define MAX_MP 10000
+
+typedef enum {
+    KERN_TXT_MAGIC_1 = 0x00, // Magic
+    KERN_TXT_MAGIC_2 = 0x01, // Summon(?)
+    KERN_TXT_MAGIC_3 = 0x02, // Enemy Skill(?)
+    KERN_TXT_MAGIC_4 = 0x03, // Limit Break(?)
+    KERN_TXT_ITEM = 0x04,
+    KERN_TXT_COMMAND = 0x05,
+    KERN_TXT_UNKWOWN_1 = 0x06,
+    KERN_TXT_UNKWOWN_2 = 0x07,
+    KERN_TXT_UNKWOWN_3 = 0x08,
+    KERN_TXT_UNKWOWN_4 = 0x09,
+    KERN_TXT_WEAPON = 0x0A,
+    KERN_TXT_ARMOR = 0x0B,
+    KERN_TXT_ACCESSORY = 0x0C,
+    KERN_TXT_MATERIA = 0x0D,
+    KERN_TXT_KEY_ITEM = 0x0E,
+    KERN_TXT_UNUSED = 0x0F,
+} SysKernStringType;
 
 typedef enum {
     CHAR_CLOUD = 0,
@@ -1368,8 +1387,10 @@ extern BatresSummary g_BatresSummary;
 extern volatile s16 D_80075DEC;  // buffer index, also updated by the VSync callback
 extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
+#define g_MenuPolygonBuffer D_80077F64
 extern u8* g_FieldText;
 extern FieldLine g_FieldLines[32];
+#define g_MenuDrawEnv D_800706A4
 extern DRAWENV D_8007EAAC[2];
 extern DISPENV D_8007EB68[2];
 extern u8 g_EntityToModel[48]; // entity id -> model id (0xFF: none)

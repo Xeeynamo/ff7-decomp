@@ -1,7 +1,8 @@
 PlaySfx = 0x801D0408;
+SAVEMENU_Init = 0x801D05C0;
 SAVEMENU_HandleSave = 0x801D06B0;
 SAVEMENU_Main = 0x801D1774;
-func_801D1BAC = 0x801D1BAC;
+SaveTestCardEvent = 0x801D1BAC;
 LoadSaveHeader = 0x801D1D40;
 LoadSaveFile = 0x801D1F40;
 UpdateSaveHeader = 0x801D224C;

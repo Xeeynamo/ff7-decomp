@@ -300,4 +300,5 @@ typedef enum {
     ITEM_WATER_RING = 0x13D,
     ITEM_SNEAK_GLOVE = 0x13E,
     ITEM_HYPNO_CROWN = 0x13F,
+    MAX_INVENTORY_COUNT = 0x140 // 320
 } ItemId;
