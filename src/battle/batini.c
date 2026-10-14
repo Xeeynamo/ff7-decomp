@@ -569,7 +569,7 @@ static void BattleInitResetExtraCmds(s32 sceneID) {
         data->commandMenu[i].id = 0xFF;
         data->commandMenu[i].initialCursorAction = 0;
         data->commandMenu[i].targetFlags = 0;
-        data->commandMenu[i].unk3 = 3;
+        data->commandMenu[i].menuOptionFlags = MENU_OPTION_UNK1 | MENU_OPTION_DISABLED;
         data->commandMenu[i].allCount = 0;
         data->commandMenu[i].materiaEffectFlags = 0;
     }

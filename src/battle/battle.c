@@ -931,15 +931,15 @@ static u8 func_800A4B3C(s32 index, s32 arg1) {
 static void func_800A4B9C(void) {}
 
 void BattleInitCharCmdState(s32 arg0) {
-    D_800F39F0[arg0] = g_ActiveCharacters[arg0].commandMenu[0];
-    D_800F3A04[arg0] = D_800F39F0[arg0];
+    g_BattleOriginalAttackCmd[arg0] = g_ActiveCharacters[arg0].commandMenu[0];
+    g_BattleFallbackAttackCmd[arg0] = g_BattleOriginalAttackCmd[arg0];
 
-    D_800F3A04[arg0].id = CMD_ATTACK;
-    D_800F3A04[arg0].initialCursorAction = g_BattleWork.turn[arg0].turnFlags & 2 ? 0 : 7;
-    D_800F3A04[arg0].targetFlags = g_BattleWork.setup[arg0].targetFlags;
+    g_BattleFallbackAttackCmd[arg0].id = CMD_ATTACK;
+    g_BattleFallbackAttackCmd[arg0].initialCursorAction = g_BattleWork.turn[arg0].turnFlags & 2 ? 0 : 7;
+    g_BattleFallbackAttackCmd[arg0].targetFlags = g_BattleWork.setup[arg0].targetFlags;
 }
 
-static s32 BattleGetBerserkToadAttackTypeId(s32 arg0) { return D_800F39F0[arg0].id; }
+static s32 BattleGetBerserkToadAttackTypeId(s32 arg0) { return g_BattleOriginalAttackCmd[arg0].id; }
 
 static s32 BattleGetManipIdByPlayerUnitId(s32 arg0) {
     s32 temp_v1;
@@ -1013,61 +1013,63 @@ void BattleEnableLimitToPlayerWithSpeed(s32 index) {
     if (g_BattleWork.party[index].limitLevel != 0xFF) {
         g_BattleData.limitReadyMask |= (1 << index);
         g_BattleWork.turn[index].limitSpeedFlag |= 1;
-        g_BattleWork.turn[index].hasLimitBreak |= 1;
+        g_BattleWork.turn[index].menuListFlags |= MENU_LIST_DIRTY_COMMAND;
     }
 }
 
 static void BattleEnableLimitToPlayerWithoutSpeed(s32 turnIdx) {
     g_BattleWork.turn[turnIdx].limitSpeedFlag &= ~1;
-    g_BattleWork.turn[turnIdx].hasLimitBreak |= 1;
+    g_BattleWork.turn[turnIdx].menuListFlags |= MENU_LIST_DIRTY_COMMAND;
 }
 
-void func_800A4F60(s32 arg0, s32 arg1) {
-    u8 menuRebuildFlags;
+// Refreshes the character menu for the given type (command, magic, summon, enemy skill)
+void BattleRefreshMenu(s32 arg0, s32 menuType) {
+    u8 menuListFlags;
     u32 status;
 
     if (arg0 >= NUM_PARTY) {
         return;
     }
 
-    menuRebuildFlags = g_BattleWork.turn[arg0].hasLimitBreak;
-    if (!((menuRebuildFlags >> arg1) & 1)) {
+    // Nothing to do unless this menu is marked dirty
+    menuListFlags = g_BattleWork.turn[arg0].menuListFlags;
+    if (!((menuListFlags >> menuType) & 1)) {
         return;
     }
 
     status = g_BattleData.actors[arg0].status;
-    menuRebuildFlags &= ~(1 << arg1);
-    g_BattleWork.turn[arg0].hasLimitBreak = menuRebuildFlags;
+    menuListFlags &= ~(1 << menuType);
+    g_BattleWork.turn[arg0].menuListFlags = menuListFlags;
 
-    switch (arg1) {
-    case 0:
-        func_800A5250(arg0, status);
+    switch (menuType) {
+    case MENU_LIST_COMMAND:
+        BattleRefreshCmdMenu(arg0, status);
         break;
 
-    case 1:
-        g_BattleWork.turn[arg0].hasLimitBreak = menuRebuildFlags & 0xDF;
+    case MENU_LIST_MAGIC:
+        g_BattleWork.turn[arg0].menuListFlags = menuListFlags & ~MENU_LIST_DISABLED_MAGIC;
         if (BattleRefreshMagicMenu(arg0, status, 0, NUM_MAGICS)) {
-            g_BattleWork.turn[arg0].hasLimitBreak |= 0x20;
+            g_BattleWork.turn[arg0].menuListFlags |= MENU_LIST_DISABLED_MAGIC;
         }
         break;
 
-    case 2:
-        g_BattleWork.turn[arg0].hasLimitBreak = menuRebuildFlags & 0xBF;
+    case MENU_LIST_SUMMON:
+        g_BattleWork.turn[arg0].menuListFlags = menuListFlags & ~MENU_LIST_DISABLED_SUMMON;
         if (BattleRefreshMagicMenu(arg0, status, NUM_MAGICS, NUM_SUMMONS)) {
-            g_BattleWork.turn[arg0].hasLimitBreak |= 0x40;
+            g_BattleWork.turn[arg0].menuListFlags |= MENU_LIST_DISABLED_SUMMON;
         }
         break;
 
-    case 3:
-        g_BattleWork.turn[arg0].hasLimitBreak = menuRebuildFlags & 0x7F;
+    case MENU_LIST_ENEMY_SKILL:
+        g_BattleWork.turn[arg0].menuListFlags = menuListFlags & ~MENU_LIST_DISABLED_ENEMY_SKILL;
         if (BattleRefreshMagicMenu(arg0, status, NUM_MAGICS + NUM_SUMMONS, NUM_ENEMY_SKILLS)) {
-            g_BattleWork.turn[arg0].hasLimitBreak |= 0x80;
+            g_BattleWork.turn[arg0].menuListFlags |= MENU_LIST_DISABLED_ENEMY_SKILL;
         }
         break;
     }
 }
 
-// Refreshes the menu flags for a range of spell records.
+// Refreshes the menu option flags for a range of magic.
 // Returns 1 if none can be cast (menu option is disabled).
 static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count) {
     s32 prevMp = g_BattleWork.turn[arg0].prevMP;
@@ -1078,7 +1080,7 @@ static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count) {
     s32 i;
 
     for (i = 0; i < count; i++) {
-        s32 menuFlags = 2;
+        s32 optionFlags = MENU_OPTION_DISABLED;
 
         if (magic[i].id != 0xFF) {
             s32 id = magic[i].id + start;
@@ -1091,11 +1093,11 @@ static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count) {
                         targetFlags &= ~(TARGET_MULTIPLE_DEFAULT | TARGET_TOGGLE_MULTIPLE);
                     }
                     if (targetFlags & TARGET_TOGGLE_MULTIPLE) {
-                        menuFlags |= 0x10;
+                        optionFlags |= MENU_OPTION_MULTI_TARGET;
                     }
                 }
                 if (magic[i].allAttacksLeft) {
-                    menuFlags |= 0x10;
+                    optionFlags |= MENU_OPTION_MULTI_TARGET;
                     targetFlags &= ~TARGET_TOGGLE_MULTIPLE;
                     targetFlags |= TARGET_MULTIPLE_DEFAULT;
                 }
@@ -1107,83 +1109,87 @@ static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count) {
 
             // Frogs can still cast Toad (attack id 10)
             if (prevMp >= magic[i].mpCost && !blocked && isNotSilenced && (isNotFrog || id == 10)) {
-                menuFlags &= ~2;
+                optionFlags &= ~MENU_OPTION_DISABLED;
                 menuDisabled = 0;
             }
         }
 
-        magic[i].menuflags = menuFlags;
+        magic[i].menuOptionFlags = optionFlags;
     }
 
     return menuDisabled;
 }
 
-static void func_800A5250(s32 arg0, u32 status) {
+// Refreshes the main command window for a character, including updating the menu option flags for each command,
+// changing the default command to "Limit" when available, and setting the target flags.
+static void BattleRefreshCmdMenu(s32 arg0, u32 status) {
     ActiveCharCommandMenu* cmd = &g_ActiveCharacters[arg0].commandMenu[0];
     s32 isFrog;
     s32 i;
 
     const s32 multipleTargetMask = TARGET_MULTIPLE_DEFAULT | TARGET_TOGGLE_MULTIPLE;
 
-    cmd->unk3 = 0;
+    cmd->menuOptionFlags = MENU_OPTION_NONE;
     isFrog = (status & STATUS_FROG) != 0;
+
     if ((g_BattleData.limitReadyMask & (1 << arg0) && !isFrog) || g_BattleState.setupFlags & 8) {
         cmd->id = CMD_LIMIT;
         cmd->initialCursorAction = D_800707C4[CMD_LIMIT].initialCursorAction;
         cmd->targetFlags = D_800707C4[CMD_LIMIT].targetFlags;
         cmd->materiaEffectFlags = 0;
     } else if (cmd->allCount && !isFrog) {
-        cmd->id = D_800F39F0[arg0].id;
-        cmd->initialCursorAction = D_800F39F0[arg0].initialCursorAction;
-        cmd->targetFlags = D_800F39F0[arg0].targetFlags;
-        cmd->materiaEffectFlags = D_800F39F0[arg0].materiaEffectFlags;
+        cmd->id = g_BattleOriginalAttackCmd[arg0].id;
+        cmd->initialCursorAction = g_BattleOriginalAttackCmd[arg0].initialCursorAction;
+        cmd->targetFlags = g_BattleOriginalAttackCmd[arg0].targetFlags;
+        cmd->materiaEffectFlags = g_BattleOriginalAttackCmd[arg0].materiaEffectFlags;
     } else {
-        cmd->id = D_800F3A04[arg0].id;
-        cmd->initialCursorAction = D_800F3A04[arg0].initialCursorAction;
-        cmd->targetFlags = D_800F3A04[arg0].targetFlags;
-        cmd->materiaEffectFlags = D_800F3A04[arg0].materiaEffectFlags;
+        cmd->id = g_BattleFallbackAttackCmd[arg0].id;
+        cmd->initialCursorAction = g_BattleFallbackAttackCmd[arg0].initialCursorAction;
+        cmd->targetFlags = g_BattleFallbackAttackCmd[arg0].targetFlags;
+        cmd->materiaEffectFlags = g_BattleFallbackAttackCmd[arg0].materiaEffectFlags;
     }
 
     for (i = 1; i < NUM_BATTLE_COMMANDS; i++) {
         s32 id = cmd[i].id;
-        u8 flags;
+        u8 optionFlags;
 
         if (id == 0xFF) {
             continue;
         }
 
-        flags = cmd[i].unk3;
-        flags &= ~(0x10 | 0x2);
+        optionFlags = cmd[i].menuOptionFlags;
+        optionFlags &= ~(MENU_OPTION_DISABLED | MENU_OPTION_MULTI_TARGET);
+
         switch (id) {
         case CMD_MAGIC:
         case CMD_W_MAGIC:
-            func_800A4F60(arg0, 1);
-            if (g_BattleWork.turn[arg0].hasLimitBreak & 0x20) {
-                flags |= 2;
+            BattleRefreshMenu(arg0, MENU_LIST_MAGIC);
+            if (g_BattleWork.turn[arg0].menuListFlags & MENU_LIST_DISABLED_MAGIC) {
+                optionFlags |= MENU_OPTION_DISABLED;
             }
             break;
         case CMD_SUMMON:
         case CMD_W_SUMMON:
-            func_800A4F60(arg0, 2);
-            if (g_BattleWork.turn[arg0].hasLimitBreak & 0x40) {
-                flags |= 2;
+            BattleRefreshMenu(arg0, MENU_LIST_SUMMON);
+            if (g_BattleWork.turn[arg0].menuListFlags & MENU_LIST_DISABLED_SUMMON) {
+                optionFlags |= MENU_OPTION_DISABLED;
             }
             break;
         case CMD_ENEMY_SKILL:
-            func_800A4F60(arg0, 3);
-            if (g_BattleWork.turn[arg0].hasLimitBreak & 0x80) {
-                flags |= 2;
+            BattleRefreshMenu(arg0, MENU_LIST_ENEMY_SKILL);
+            if (g_BattleWork.turn[arg0].menuListFlags & MENU_LIST_DISABLED_ENEMY_SKILL) {
+                optionFlags |= MENU_OPTION_DISABLED;
             }
             break;
         case CMD_ITEM:
         case CMD_W_ITEM:
             if (g_BattleStartFXFlags & 0x20) {
-                flags |= 2;
+                optionFlags |= MENU_OPTION_DISABLED;
             }
             break;
 
         case CMD_STEAL:
-        case CMD_MELEE_ATTACK:
+        case CMD_MUG:
             if (cmd[i].allCount == 0) {
                 cmd[i].initialCursorAction = 7;
             }
@@ -1199,7 +1205,7 @@ static void func_800A5250(s32 arg0, u32 status) {
             case CMD_W_ITEM:
                 break;
             default:
-                flags |= 2;
+                optionFlags |= MENU_OPTION_DISABLED;
                 break;
             }
         }
@@ -1211,10 +1217,10 @@ static void func_800A5250(s32 arg0, u32 status) {
 
         // Still multi-target capable
         if ((cmd[i].targetFlags & multipleTargetMask) == multipleTargetMask) {
-            flags |= 0x10;
+            optionFlags |= MENU_OPTION_MULTI_TARGET;
         }
 
-        cmd[i].unk3 = flags;
+        cmd[i].menuOptionFlags = optionFlags;
     }
 }
 
@@ -1224,10 +1230,10 @@ static void func_800A555C(s32 charIdx, s32 magicId) {
 
     magic = &g_ActiveCharacters[charIdx].enabledMagic[magicId];
 
-    magic->menuflags = 2;
+    magic->menuOptionFlags = MENU_OPTION_DISABLED;
     magic->targetFlags = D_800708C4[magicId].targetFlags;
     magic->mpCost = D_800708C4[magicId].mpCost;
-    magic->id = magicId - 0x48;
+    magic->id = magicId - (NUM_MAGICS + NUM_SUMMONS);
 }
 
 typedef struct {
@@ -1748,11 +1754,11 @@ void BattleUnitSetManipulated(s32 unitIdx, s32 isManipulated) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A68FC);
 
-void func_800A6A3C(s32 arg0, s32 arg1) { g_BattleWork.turn[arg0].hasLimitBreak |= arg1; }
+void func_800A6A3C(s32 arg0, s32 menuListFlags) { g_BattleWork.turn[arg0].menuListFlags |= menuListFlags; }
 
 void func_800A6A70(s32 arg0, s32 arg1) {
     func_800A555C(arg0, arg1);
-    g_BattleWork.turn[arg0].hasLimitBreak |= 9;
+    g_BattleWork.turn[arg0].menuListFlags |= MENU_LIST_DIRTY_COMMAND | MENU_LIST_DIRTY_ENEMY_SKILL;
 }
 
 void BattleUnitFlushEnemyTurnMasks(void) {

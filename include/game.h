@@ -562,6 +562,14 @@ typedef enum {
     TARGET_RANDOM = 0x80,           // one of the selected targets is picked at random
 } TargetFlags;
 
+// MagicRecord.menuOptionFlags and ActiveCharCommandMenu.menuOptionFlags
+typedef enum {
+    MENU_OPTION_NONE = 0x00,
+    MENU_OPTION_UNK1 = 0x01,
+    MENU_OPTION_DISABLED = 0x02,     // greyed out and can't be selected
+    MENU_OPTION_MULTI_TARGET = 0x10, // shows the multi-target icon (red arrow >)
+} BattleMenuOptionFlags;
+
 typedef struct {
     /* 0x0 */ u8 id;
     /* 0x1 */ u8 mpCost;
@@ -569,7 +577,7 @@ typedef struct {
     /* 0x3 */ u8 quadEnabled;
     /* 0x4 */ u8 allAttacksLeft;
     /* 0x5 */ u8 targetFlags;
-    /* 0x6 */ u8 menuflags;
+    /* 0x6 */ u8 menuOptionFlags;
     /* 0x7 */ u8 costModifier;
 } MagicRecord; // size: 0x8
 
@@ -781,7 +789,7 @@ typedef struct {
     /* 0x0 */ u8 id;
     /* 0x1 */ u8 initialCursorAction;
     /* 0x2 */ u8 targetFlags;
-    /* 0x3 */ u8 unk3;
+    /* 0x3 */ u8 menuOptionFlags;
     /* 0x4 */ u8 allCount;
     /* 0x5 */ u8 materiaEffectFlags;
 } ActiveCharCommandMenu; // size: 0x6

@@ -429,10 +429,7 @@ typedef struct {
 // linked materia (Steal-All, Sense-All, etc) reuse their base command's
 // cmdIndex -- targetMask changes, not cmdIndex. 0x0E-0x10 and past 0x1B are
 // unused/no-op (injected directly, no visible effect and not reachable via
-// any known menu path). 0x11 forces a melee attack ignoring weapon range
-// (injected on Barret with a long-range weapon -- he closed to melee instead
-// of shooting), not reachable via any menu path either -- possibly an
-// internal command for a status-forced attack (Berserk?), unconfirmed.
+// any known menu path).
 typedef enum {
     CMD_ATTACK = 0x01,
     CMD_MAGIC = 0x02,
@@ -447,7 +444,7 @@ typedef enum {
     CMD_MANIPULATE = 0x0B,
     CMD_MIME = 0x0C,
     CMD_ENEMY_SKILL = 0x0D,
-    CMD_MELEE_ATTACK = 0x11, // ignores weapon range; not player-menu-reachable?
+    CMD_MUG = 0x11, // Steal + attack; Steal materia's second command once mastered
     CMD_CHANGE = 0x12,
     CMD_DEFEND = 0x13,
     CMD_LIMIT = 0x14, // priority-5 special case in func_800A4350
@@ -461,6 +458,27 @@ typedef enum {
     CMD_ENEMY_ATTACK = 0x20,
     CMD_NONE = 0xFF, // queued for an enemy turn; its real command is chosen later
 } BattleCommand;
+
+// Menus refreshed on demand by BattleRefreshMenu
+typedef enum {
+    /* 0 */ MENU_LIST_COMMAND,
+    /* 1 */ MENU_LIST_MAGIC,
+    /* 2 */ MENU_LIST_SUMMON,
+    /* 3 */ MENU_LIST_ENEMY_SKILL,
+} BattleMenuList;
+
+// BattleTurnWork.menuListFlags: lower nibble is used as "refresh"
+// flags, while the upper nibble is used as "disabled" flags
+typedef enum {
+    MENU_LIST_DIRTY_COMMAND = 1 << MENU_LIST_COMMAND,
+    MENU_LIST_DIRTY_MAGIC = 1 << MENU_LIST_MAGIC,
+    MENU_LIST_DIRTY_SUMMON = 1 << MENU_LIST_SUMMON,
+    MENU_LIST_DIRTY_ENEMY_SKILL = 1 << MENU_LIST_ENEMY_SKILL,
+    MENU_LIST_DISABLED_COMMAND = 0x10 << MENU_LIST_COMMAND, // unused
+    MENU_LIST_DISABLED_MAGIC = 0x10 << MENU_LIST_MAGIC,
+    MENU_LIST_DISABLED_SUMMON = 0x10 << MENU_LIST_SUMMON,
+    MENU_LIST_DISABLED_ENEMY_SKILL = 0x10 << MENU_LIST_ENEMY_SKILL,
+} BattleMenuListFlags;
 
 // Queued-action entry, matches
 // https://wiki.ffrtt.ru/index.php/FF7/Battle/Battle_Mechanics action-queue
@@ -599,8 +617,8 @@ extern s32 D_800F39E0;
 extern s32 D_800F39E4;
 extern s32 g_BattleFrameCount;  // Frame count since the battle started, incremented once per BattleUpdateRender call
 extern volatile s32 D_800F39EC; // polled by a tight wait loop
-extern ActiveCharCommandMenu D_800F39F0[NUM_PARTY];
-extern ActiveCharCommandMenu D_800F3A04[NUM_PARTY];
+extern ActiveCharCommandMenu g_BattleOriginalAttackCmd[NUM_PARTY];
+extern ActiveCharCommandMenu g_BattleFallbackAttackCmd[NUM_PARTY];
 extern s32 D_800F3A1C;     // write index into D_800F3A20
 extern s16 D_800F3A20[16]; // ring buffer, see BattleReqReturnReservedItems
 extern s8 D_800F3A80[];
@@ -866,9 +884,9 @@ extern u16 g_BattleScreenFadeR;
 
 void func_800A4350(s16, s16, s16, u16);
 static void func_800A4D2C(s32 arg0);
-void func_800A4F60(s32 arg0, s32 arg1);
+void BattleRefreshMenu(s32 arg0, s32 menuType);
 static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count);
-static void func_800A5250(s32 arg0, u32 status);
+static void BattleRefreshCmdMenu(s32 arg0, u32 status);
 void BattleReturnReservedItems(void);
 void func_800A72C8(s32);
 void func_800A8E84(s32);

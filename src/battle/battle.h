@@ -518,7 +518,7 @@ typedef struct {
     /* 0x0A */ u16 constSpeed;
     /* 0x0C */ u8 senseTargetMask;
     /* 0x0D */ u8 accessoryEffectId;
-    /* 0x0E */ u8 hasLimitBreak;
+    /* 0x0E */ u8 menuListFlags;
     /* 0x0F */ u8 formationIndex;
     /* 0x10 */ u8 statusTimers[NUM_STATUS_TIMERS];
     /* 0x20 */ s8 statMults[NUM_STAT_MULTS];

@@ -338,7 +338,7 @@ void BattleMenuWidgetCommandReset(void) {
     s16 rows;
 
     D_800F977C = 0;
-    func_800A4F60(D_800F38A0, 0);
+    BattleRefreshMenu(D_800F38A0, MENU_LIST_COMMAND);
     rows = g_ActiveCharacters[D_800F38A0].unk21;
     D_800F1EF0 = D_800F3163[rows];
     D_800F1F02 = D_800F3163[rows];
@@ -408,7 +408,7 @@ void BattleMenuWidgetSubReset(void) {
     s->scrollAnimX = 0;
     s->scrollAnimY = 0;
     s->scrolling = 0;
-    func_800A4F60(D_800F38A0, 1);
+    BattleRefreshMenu(D_800F38A0, MENU_LIST_MAGIC);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DF5C8);
@@ -464,7 +464,7 @@ void BattleMenuWidgetSub2Reset(void) {
     s->scrollAnimX = 0;
     s->scrollAnimY = 0;
     s->scrolling = 0;
-    func_800A4F60(D_800F38A0, 2);
+    BattleRefreshMenu(D_800F38A0, MENU_LIST_SUMMON);
 }
 
 void BattleMenuInputState7(void) {
@@ -474,7 +474,7 @@ void BattleMenuInputState7(void) {
     MagicRecord* summon;
     u8 id;
 
-    func_800A4F60(D_800F38A0, 2);
+    BattleRefreshMenu(D_800F38A0, MENU_LIST_SUMMON);
     if (D_800F3896 == 7 && D_800F99E4 == 0) {
         SysMenuHandleButtons(menu);
         if (menu->scrolling == 0) {
@@ -482,7 +482,7 @@ void BattleMenuInputState7(void) {
                 D_800F99E4 = 1;
                 index = menu->column + menu->row + menu->rowOffset;
                 summon = (MagicRecord*)((index * sizeof(MagicRecord)) + (s32)summons);
-                if (!(summon->menuflags & 2) && summon->id != 0xFF) {
+                if (!(summon->menuOptionFlags & MENU_OPTION_DISABLED) && summon->id != 0xFF) {
                     func_800BB9B8(1);
                     id = summon->id;
                     D_800FAFD4 = index;
