@@ -25,8 +25,9 @@ typedef struct {
 
 // Battle effect instances.
 extern BarrierData g_BattleEffectSlots[];
-static s32 bari_a1[] = {    // Embedded Model
-                            // 6 verts, 12 polys,1 group
+static s32 bari_a1[] = {
+    // Embedded Model
+    // 6 verts, 12 polys,1 group
     0x00000030,             // Vertex data size: 6 verts × 8 bytes
     0xFE0C0000, 0x000001CA, // (-500, 0, 458, 0)
     0x00000000, 0x0000FFD7, // (0, 0, -41, 0)
@@ -51,8 +52,9 @@ static s32 bari_a1[] = {    // Embedded Model
     0x00080000, 0x00280020, 0x38C0C0C0, 0x00FFFFFF, 0x006A6A6A, 0x006A6A6A, 0x00000010, 0x00200018, 0x38C0C0C0,
     0x00C0C0C0, 0x006A6A6A, 0x006A6A6A};
 
-static s32 bari_a2[] = {    // Embedded Model
-                            // 3 verts 2 ploys 1 group
+static s32 bari_a2[] = {
+    // Embedded Model
+    // 3 verts 2 ploys 1 group
     0x00000018,             // Vertex data size: 3 × 8 bytes
     0xFFEDFE2F, 0x000002C2, // vertex 0 (-19, -465, 706)
     0xFE2AFFF2, 0x000001C2, // vertex 1 (-470, -14, 450)
