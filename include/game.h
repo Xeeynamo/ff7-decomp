@@ -562,14 +562,14 @@ typedef enum {
 } TargetFlags;
 
 typedef struct {
-    u8 id;
-    u8 mpCost;
-    u8 quadraAttacksLeft;
-    u8 quadEnabled;
-    u8 allAttacksLeft;
-    u8 targetFlags;
-    u8 menuflags;
-    u8 costModifier;
+    /* 0x0 */ u8 id;
+    /* 0x1 */ u8 mpCost;
+    /* 0x2 */ u8 quadraAttacksLeft;
+    /* 0x3 */ u8 quadEnabled;
+    /* 0x4 */ u8 allAttacksLeft;
+    /* 0x5 */ u8 targetFlags;
+    /* 0x6 */ u8 menuflags;
+    /* 0x7 */ u8 costModifier;
 } MagicRecord; // size: 0x8
 
 typedef struct {

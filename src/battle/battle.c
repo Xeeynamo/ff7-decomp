@@ -1024,7 +1024,56 @@ static void BattleEnableLimitToPlayerWithoutSpeed(s32 turnIdx) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4F60);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A50E0);
+// Updates the menu flags for a range of spell records.
+// Returns 1 if none can be cast.
+static s32 func_800A50E0(s32 arg0, u32 status, s32 start, s32 count) {
+    s32 prevMp = g_BattleWork.turn[arg0].prevMP;
+    MagicRecord* magic = &g_ActiveCharacters[arg0].enabledMagic[start];
+    s32 uncastable = 1;
+    s32 isNotSilenced = !(status & STATUS_SILENCE);
+    s32 isNotFrog = !(status & STATUS_FROG);
+    s32 i;
+
+    for (i = 0; i < count; i++) {
+        s32 menuFlags = 2;
+
+        if (magic[i].id != 0xFF) {
+            s32 id = magic[i].id + start;
+            s32 targetFlags = D_800708C4[id].targetFlags;
+            s32 blocked = 0;
+
+            if (id < NUM_MAGICS) {
+                if (targetFlags & TARGET_TOGGLE_MULTIPLE) {
+                    if (magic[i].quadraAttacksLeft == 0 && magic[i].allAttacksLeft == 0) {
+                        targetFlags &= ~(TARGET_MULTIPLE_DEFAULT | TARGET_TOGGLE_MULTIPLE);
+                    }
+                    if (targetFlags & TARGET_TOGGLE_MULTIPLE) {
+                        menuFlags |= 0x10;
+                    }
+                }
+                if (magic[i].allAttacksLeft) {
+                    menuFlags |= 0x10;
+                    targetFlags &= ~TARGET_TOGGLE_MULTIPLE;
+                    targetFlags |= TARGET_MULTIPLE_DEFAULT;
+                }
+            } else if (id < NUM_MAGICS + NUM_SUMMONS && magic[i].quadraAttacksLeft == 0) {
+                blocked = 1;
+            }
+
+            magic[i].targetFlags = targetFlags;
+
+            // Frogs can still cast Toad (attack id 10)
+            if (prevMp >= magic[i].mpCost && !blocked && isNotSilenced && (isNotFrog || id == 10)) {
+                menuFlags &= ~2;
+                uncastable = 0;
+            }
+        }
+
+        magic[i].menuflags = menuFlags;
+    }
+
+    return uncastable;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A5250);
 
