@@ -207,7 +207,7 @@ u8* SysExpandBattleString(u8* dst, const u8* src) {
 
 extern u8 D_80063560[0x100];
 
-s32 SysDecompKernStringWithF9(u8* src, u8* base) {
+u8* SysDecompKernStringWithF9(u8* src, u8* dst) {
     u8 value;
     s32 pos;
     s32 len;
@@ -227,10 +227,10 @@ s32 SysDecompKernStringWithF9(u8* src, u8* base) {
             off -= value & 0x3F;
             len = (value >> 6) * 2 + 4;
             for (count = 0; count < len; count++) {
-                value = base[off++];
+                value = dst[off++];
                 D_80063560[i++] = value;
             }
-        } else if ((u8)(value + 0x16) < 8) {
+        } else if (value >= BATTLE_MSG_ARG_START && value <= BATTLE_MSG_ARG_END) {
             D_80063560[i++] = value;
             pos++;
             D_80063560[i++] = *src++;
@@ -240,7 +240,7 @@ s32 SysDecompKernStringWithF9(u8* src, u8* base) {
             D_80063560[i++] = value;
         }
     } while (value != 0xFF && i < 0x100);
-    return (s32)D_80063560;
+    return D_80063560;
 }
 
 u8* SysGetKernBattleTextPtr(s32 textId) { return SysGetKernTextPtr(KERNEL_TEXT_BATTLE_MESSAGES, textId, 0); }
