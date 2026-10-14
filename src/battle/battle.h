@@ -302,7 +302,7 @@ typedef struct {
     /* 0x04 */ u8 D_801636BC;
     /* 0x05 */ s8 D_801636BD;
     /* 0x06 */ s16 D_801636BE;
-    /* 0x08 */ s32 D_801636C0;
+    /* 0x08 */ s32 status;
     /* 0x0C */ s32 D_801636C4;
 } BattleActor; // size:0x10
 

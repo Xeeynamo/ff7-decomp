@@ -1022,7 +1022,50 @@ static void BattleEnableLimitToPlayerWithoutSpeed(s32 turnIdx) {
     g_BattleWork.turn[turnIdx].hasLimitBreak |= 1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4F60);
+void func_800A4F60(s32 arg0, s32 arg1) {
+    u8 menuRebuildFlags;
+    u32 status;
+
+    if (arg0 >= NUM_PARTY) {
+        return;
+    }
+
+    menuRebuildFlags = g_BattleWork.turn[arg0].hasLimitBreak;
+    if (!((menuRebuildFlags >> arg1) & 1)) {
+        return;
+    }
+
+    status = g_BattleData.actors[arg0].status;
+    menuRebuildFlags &= ~(1 << arg1);
+    g_BattleWork.turn[arg0].hasLimitBreak = menuRebuildFlags;
+
+    switch (arg1) {
+    case 0:
+        func_800A5250(arg0, status);
+        break;
+
+    case 1:
+        g_BattleWork.turn[arg0].hasLimitBreak = menuRebuildFlags & 0xDF;
+        if (func_800A50E0(arg0, status, 0, NUM_MAGICS)) {
+            g_BattleWork.turn[arg0].hasLimitBreak |= 0x20;
+        }
+        break;
+
+    case 2:
+        g_BattleWork.turn[arg0].hasLimitBreak = menuRebuildFlags & 0xBF;
+        if (func_800A50E0(arg0, status, NUM_MAGICS, 0x10)) {
+            g_BattleWork.turn[arg0].hasLimitBreak |= 0x40;
+        }
+        break;
+
+    case 3:
+        g_BattleWork.turn[arg0].hasLimitBreak = menuRebuildFlags & 0x7F;
+        if (func_800A50E0(arg0, status, NUM_MAGICS + NUM_SUMMONS, NUM_ENEMY_SKILLS)) {
+            g_BattleWork.turn[arg0].hasLimitBreak |= 0x80;
+        }
+        break;
+    }
+}
 
 // Updates the menu flags for a range of spell records.
 // Returns 1 if none can be cast.
