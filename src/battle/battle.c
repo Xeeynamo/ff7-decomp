@@ -505,7 +505,7 @@ static s32 func_800A3828(void) {
         D_800F39E4 += g_BattleWork.battleSpeed;
     }
     if (g_BattleWork.atbWaitMode == 2) {
-        switch (D_800F3896) {
+        switch (g_BattleMenuModalWidgetId) {
         case 0:
         case 4:
         case 5:
@@ -868,7 +868,7 @@ static s32 BattleRunToResultScreen(void) {
     for (i = 0; i < 4; i++) {
         BattleRunFrame();
     }
-    D_800F3896 = 0x1C;
+    g_BattleMenuModalWidgetId = 0x1C;
     BattleMenuWidgetOpen(-1, -1, 0x1C);
     while (D_800F39EC == 0) {
         BattleRunFrame();
@@ -893,7 +893,7 @@ static s32 BattleRunEscapeSequence(void) {
     for (i = 0; i < 4; i++) {
         BattleRunFrame();
     }
-    D_800F3896 = 9;
+    g_BattleMenuModalWidgetId = 9;
     BattleMenuWidgetOpen(-1, -1, 9);
     while (D_800F39EC == 0) {
         BattleRunFrame();

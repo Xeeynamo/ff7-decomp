@@ -63,10 +63,10 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D93E4);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D9BF4);
 
-s16 BattleGetStatusFlashState(s16 status) { return D_800F514C[status]; }
+s16 BattleGetStatusFlashState(s16 status) { return g_BattleWidgetState[status]; }
 
 void BattleMenuWidgetOpen(s16 x, s16 y, s16 id) {
-    D_800F514C[id] = 1;
+    g_BattleWidgetState[id] = 1;
     if (x != -1 && y != -1) {
         D_800F1E54[id].x = x;
         D_800F1E54[id].y = y;
@@ -77,7 +77,7 @@ void BattleMenuWidgetOpen(s16 x, s16 y, s16 id) {
     D_800F2F8C[id]();
 }
 
-static void BattleSetStatusFlashState(s16 arg0) { D_800F514C[arg0] = 3; }
+static void BattleSetStatusFlashState(s16 arg0) { g_BattleWidgetState[arg0] = 3; }
 
 static void BattleResetOtClipRegion(void) {
     D_800F311C = 0;
@@ -102,7 +102,7 @@ static void BattleAddOtPrim(OT_TYPE* arg0, s16 arg1) { func_800DBC18(arg0, arg1)
 // D_800F1994 double-buffer index -- forwarded through to BattleAddOtPrim and
 // func_800DB818's libgpu OT insert, not otherwise used here
 static void BattleAddOtPrimClipped(OT_TYPE* ot) {
-    if (D_800F3896 == 0) {
+    if (g_BattleMenuModalWidgetId == 0) {
         BattleAddOtPrim(ot, D_800F38A9);
         return;
     }
@@ -174,7 +174,7 @@ static void BattleDrawSetupTypeInfo(OT_TYPE* ot, s16 arg1) {
         func_800E2098();
         break;
     case 1:
-        func_800E2C6C(&D_800F90B4[D_800F38A0]);
+        func_800E2C6C(&D_800F90B4[g_BattleMenuPartySlot]);
         break;
     case 5:
         func_800E3088();
@@ -248,17 +248,17 @@ void BattleMenuDrawActiveWidgets(OT_TYPE* ot) {
     if (g_SavemapBusy) {
         BattleDrawPauseOverlay(ot);
     }
-    if ((D_800F514D != 0) && (Savemap.partyID[D_800F38A0] == 0xFF)) {
+    if ((D_800F514D != 0) && (Savemap.partyID[g_BattleMenuPartySlot] == 0xFF)) {
         for (i = 1; i < 32; i++) {
-            if (D_800F514C[i] != 0) {
+            if (g_BattleWidgetState[i] != 0) {
                 BattleSetStatusFlashState(i);
             }
         }
     }
     D_800F5628 = 0;
     for (i = 0; i < 32; i++) {
-        if (i == 0 || (D_800F514C[i] != 0 && !(g_Pad0Keys & PAD_SQUARE))) {
-            if (D_800F514C[i] != 0) {
+        if (i == 0 || (g_BattleWidgetState[i] != 0 && !(g_Pad0Keys & PAD_SQUARE))) {
+            if (g_BattleWidgetState[i] != 0) {
                 BattleAppendSetupInfoRow(ot, i);
             }
         }
@@ -338,11 +338,11 @@ void BattleMenuWidgetCommandReset(void) {
     s16 rows;
 
     D_800F977C = 0;
-    BattleRefreshMenu(D_800F38A0, MENU_LIST_COMMAND);
-    rows = g_ActiveCharacters[D_800F38A0].unk21;
+    BattleRefreshMenu(g_BattleMenuPartySlot, MENU_LIST_COMMAND);
+    rows = g_ActiveCharacters[g_BattleMenuPartySlot].unk21;
     D_800F1EF0 = D_800F3163[rows];
     D_800F1F02 = D_800F3163[rows];
-    s = &D_800F90B4[D_800F38A0].table00;
+    s = &D_800F90B4[g_BattleMenuPartySlot].table00;
     if (D_800F57CC == 0) {
         s->column = 0;
         s->row = 0;
@@ -365,7 +365,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DEC10);
 void BattleSetupScreenNoop11(void) {}
 
 void BattleMenuWidgetInit(void) {
-    BattleMenuWidget* widget = &D_800F90B4[D_800F38A0].widget;
+    BattleMenuWidget* widget = &D_800F90B4[g_BattleMenuPartySlot].widget;
     u8 v;
 
     if (D_800F57CC == 0) {
@@ -391,7 +391,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DF2CC);
 void BattleMenuWidgetNoop1(void) {}
 
 void BattleMenuWidgetSubReset(void) {
-    MenuTable* s = &D_800F90B4[D_800F38A0].table24;
+    MenuTable* s = &D_800F90B4[g_BattleMenuPartySlot].table24;
 
     if (D_800F57CC == 0) {
         s->column = 0;
@@ -408,7 +408,7 @@ void BattleMenuWidgetSubReset(void) {
     s->scrollAnimX = 0;
     s->scrollAnimY = 0;
     s->scrolling = 0;
-    BattleRefreshMenu(D_800F38A0, MENU_LIST_MAGIC);
+    BattleRefreshMenu(g_BattleMenuPartySlot, MENU_LIST_MAGIC);
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800DF5C8);
@@ -426,19 +426,19 @@ void BattleMenuNoop3(void) {}
 void BattleMenuInputState3(void) {
     u16* tapped;
 
-    if (D_800F3896 == 3 && D_800F99E4 == 0) {
+    if (g_BattleMenuModalWidgetId == 3 && D_800F99E4 == 0) {
         tapped = &g_Pad0KeysRepeat;
         if (*tapped & PAD_CIRCLE) {
             func_800BB9B8(1);
             D_800F99E4 = 1;
-            D_800F3896 = -1;
-            func_800A4350(D_800F38A0, D_800F389C, D_800F389E, D_801516F8);
+            g_BattleMenuModalWidgetId = -1;
+            func_800A4350(g_BattleMenuPartySlot, D_800F389C, D_800F389E, D_801516F8);
             BattleSetStatusFlashState(3);
             BattleSetStatusFlashState(1);
         } else if (g_Pad0KeysRepeat & (PAD_LEFT | PAD_CROSS)) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
-            D_800F3896 = 1;
+            g_BattleMenuModalWidgetId = 1;
             BattleSetStatusFlashState(3);
         }
     }
@@ -447,7 +447,7 @@ void BattleMenuInputState3(void) {
 void BattleMenuNoop4(void) {}
 
 void BattleMenuWidgetSub2Reset(void) {
-    MenuTable* s = &D_800F90B4[D_800F38A0].table36;
+    MenuTable* s = &D_800F90B4[g_BattleMenuPartySlot].table36;
 
     if (D_800F57CC == 0) {
         s->column = 0;
@@ -464,18 +464,18 @@ void BattleMenuWidgetSub2Reset(void) {
     s->scrollAnimX = 0;
     s->scrollAnimY = 0;
     s->scrolling = 0;
-    BattleRefreshMenu(D_800F38A0, MENU_LIST_SUMMON);
+    BattleRefreshMenu(g_BattleMenuPartySlot, MENU_LIST_SUMMON);
 }
 
 void BattleMenuInputState7(void) {
-    MagicRecord* summons = &g_ActiveCharacters[D_800F38A0].enabledMagic[SUMMON_START];
-    MenuTable* menu = &D_800F90B4[D_800F38A0].table36;
+    MagicRecord* summons = &g_ActiveCharacters[g_BattleMenuPartySlot].enabledMagic[SUMMON_START];
+    MenuTable* menu = &D_800F90B4[g_BattleMenuPartySlot].table36;
     s32 index;
     MagicRecord* summon;
     u8 id;
 
-    BattleRefreshMenu(D_800F38A0, MENU_LIST_SUMMON);
-    if (D_800F3896 == 7 && D_800F99E4 == 0) {
+    BattleRefreshMenu(g_BattleMenuPartySlot, MENU_LIST_SUMMON);
+    if (g_BattleMenuModalWidgetId == 7 && D_800F99E4 == 0) {
         SysMenuHandleButtons(menu);
         if (menu->scrolling == 0) {
             if (g_Pad0KeysRepeat & PAD_CIRCLE) {
@@ -489,7 +489,7 @@ void BattleMenuInputState7(void) {
                     D_800F389E = id;
                     D_800F38A2 = summon->targetFlags;
                     func_800E6B94();
-                    D_800F3896 = 0;
+                    g_BattleMenuModalWidgetId = 0;
                     D_800F3894 = 7;
                 } else {
                     func_800BB9B8(3);
@@ -497,7 +497,7 @@ void BattleMenuInputState7(void) {
             } else if (g_Pad0KeysRepeat & PAD_CROSS) {
                 func_800BB9B8(4);
                 D_800F99E4 = 1;
-                D_800F3896 = 1;
+                g_BattleMenuModalWidgetId = 1;
                 BattleSetStatusFlashState(7);
             }
         }
@@ -518,7 +518,7 @@ void BattleMenuInputState18(void) {
     BattleLimitData* limits = &g_ActiveCharacters[D_800F38A1].limits;
     MenuTable* menu = &D_800F90B4[D_800F38A1].table5A;
 
-    if (D_800F3896 == 0x18 && D_800F99E4 == 0) {
+    if (g_BattleMenuModalWidgetId == 0x18 && D_800F99E4 == 0) {
         SysMenuHandleButtons(menu);
         if (g_Pad0KeysRepeat & PAD_CIRCLE) {
             func_800BB9B8(1);
@@ -527,12 +527,12 @@ void BattleMenuInputState18(void) {
             D_800FAFD4 = menu->row;
             func_800E6B94();
             D_800F3894 = 0x18;
-            D_800F3896 = 0;
+            g_BattleMenuModalWidgetId = 0;
             D_800F99E4 = 1;
         } else if (g_Pad0KeysRepeat & PAD_CROSS) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
-            D_800F3896 = 1;
+            g_BattleMenuModalWidgetId = 1;
             BattleSetStatusFlashState(0x18);
         }
     }
@@ -547,7 +547,7 @@ void BattleMenuInputState1B(void) {
     BattleLimitData* temp_s0;
 
     temp_s0 = &g_ActiveCharacters[D_800F38A1].limits;
-    if (D_800F3896 == 0x1B && D_800F99E4 == 0) {
+    if (g_BattleMenuModalWidgetId == 0x1B && D_800F99E4 == 0) {
         if (g_Pad0KeysRepeat & PAD_CIRCLE) {
             if (BattleMenuGetSelectorStatusAlt() == 2) {
                 D_800F99E4 = 1;
@@ -564,7 +564,7 @@ void BattleMenuInputState1B(void) {
         } else if ((g_Pad0KeysRepeat & PAD_CROSS) && (BattleMenuGetSelectorStatusAlt() == 0)) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
-            D_800F3896 = 1;
+            g_BattleMenuModalWidgetId = 1;
             BattleSetStatusFlashState(0x1B);
         }
     }
@@ -578,7 +578,7 @@ void BattleMenuInputState1A(void) {
     BattleLimitData* temp_s0;
 
     temp_s0 = &g_ActiveCharacters[D_800F38A1].limits;
-    if ((D_800F3896 == 0x1A) && (D_800F99E4 == 0)) {
+    if ((g_BattleMenuModalWidgetId == 0x1A) && (D_800F99E4 == 0)) {
         if (g_Pad0KeysRepeat & PAD_CIRCLE) {
             D_800F99E4 = 1;
             if (BattleMenuGetSelectorStatus() == 2) {
@@ -595,7 +595,7 @@ void BattleMenuInputState1A(void) {
         } else if ((g_Pad0KeysRepeat & PAD_CROSS) && (BattleMenuGetSelectorStatus() == 0)) {
             func_800BB9B8(4);
             D_800F99E4 = 1;
-            D_800F3896 = 1;
+            g_BattleMenuModalWidgetId = 1;
             BattleSetStatusFlashState(0x1A);
         }
     }
@@ -608,7 +608,7 @@ void BattleMenuInitCommandCursor(void) {
 
     SysMenuSetCursorMovement(&D_800F90B4[0].table7E, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
     for (i = 1; i < 0x1C; i++) {
-        if (D_800F514C[i] != 0) {
+        if (g_BattleWidgetState[i] != 0) {
             BattleSetStatusFlashState(i);
         }
     }
@@ -626,7 +626,7 @@ void BattleMenuFlagTableReset(void) {
     SysMenuSetCursorMovement(&D_800F90B4[0].table90, 0, 0, 2, 1, 0, 0, 2, 1, 0, 0, 1, 0, 0);
     i = 1;
     do {
-        if ((i != 9) && (D_800F514C[i] != 0)) {
+        if ((i != 9) && (g_BattleWidgetState[i] != 0)) {
             BattleSetStatusFlashState(i);
         }
         i++;
@@ -634,7 +634,7 @@ void BattleMenuFlagTableReset(void) {
 }
 
 void BattleMenuInputState9(void) {
-    if (D_800F3896 == 9) {
+    if (g_BattleMenuModalWidgetId == 9) {
         SysMenuHandleButtons(&D_800F90B4[0].table90);
         if (g_Pad0KeysPressed & PAD_CIRCLE) {
             if (D_800F90B4[0].table90.column == 0) {
@@ -655,7 +655,7 @@ static void BattleMenuClearWidgetFlags(void) {
     s16 i;
 
     for (i = 0; i < 0x20; i++) {
-        D_800F514C[i] = 0;
+        g_BattleWidgetState[i] = 0;
     }
 }
 
@@ -679,14 +679,14 @@ static void BattleMenuUpdate(void) {
     BattleMenuWidget* menu;
     void (*handler)(void);
     s16 i;
-    if ((D_800F514D != 0) && (Savemap.partyID[D_800F38A0] == 0xFF)) {
+    if ((D_800F514D != 0) && (Savemap.partyID[g_BattleMenuPartySlot] == 0xFF)) {
         for (i = 1; i < 0x20; i++) {
-            if (D_800F514C[i] != 0) {
+            if (g_BattleWidgetState[i] != 0) {
                 BattleSetStatusFlashState(i);
             }
         }
     }
-    menu = &D_800F90B4[D_800F38A0].widget;
+    menu = &D_800F90B4[g_BattleMenuPartySlot].widget;
     list = D_801671B8;
     if (g_Pad0Keys & PAD_SQUARE) {
         D_800F99E4 = 1;
@@ -699,9 +699,9 @@ static void BattleMenuUpdate(void) {
                 func_800BB9B8(1);
                 func_800A4E40();
                 D_800F99E4 = 1;
-                D_800F3896 = -1;
+                g_BattleMenuModalWidgetId = -1;
                 for (i = 1; i < 0x20; i++) {
-                    if (D_800F514C[i] != 0) {
+                    if (g_BattleWidgetState[i] != 0) {
                         BattleSetStatusFlashState(i);
                     }
                 }
@@ -710,7 +710,7 @@ static void BattleMenuUpdate(void) {
     }
     {
         for (i = 0; i < 0x20; i++) {
-            switch (D_800F514C[i]) {
+            switch (g_BattleWidgetState[i]) {
             case 1:
                 func_800E08C4(i);
                 break;
@@ -735,7 +735,7 @@ static void BattleMenuUpdate(void) {
             }
         }
     }
-    if (D_800F3896 == 0) {
+    if (g_BattleMenuModalWidgetId == 0) {
         BattleMenuSetTargetMask();
         func_800E7170();
         D_800F310E = 0;
@@ -746,7 +746,7 @@ static void BattleMenuUpdate(void) {
             D_800F3120 = 1;
             D_80166F75 = 0;
             D_800F99E4 = 1;
-            D_800F3896 = (s16)D_800F3894;
+            g_BattleMenuModalWidgetId = (s16)D_800F3894;
             if (D_800F5161 != 0) {
                 BattleSetStatusFlashState(0x15);
             }
@@ -787,7 +787,7 @@ static void BattleMenuUpdate(void) {
                     D_800F5634 = D_801516F8;
                     D_800F5638 = D_800F38A7;
                     D_800F563C = D_80151698;
-                    D_800F3896 = (s16)D_800F3894;
+                    g_BattleMenuModalWidgetId = (s16)D_800F3894;
                     if (D_800F5161 != 0) {
                         BattleSetStatusFlashState(0x15);
                     }
@@ -813,7 +813,7 @@ static void BattleMenuUpdate(void) {
                 func_800BB9B8(4);
                 D_800F3120 = 1;
                 D_800F99E4 = 1;
-                D_800F3896 = (s16)D_800F3894;
+                g_BattleMenuModalWidgetId = (s16)D_800F3894;
                 if (D_800F5161 != 0) {
                     BattleSetStatusFlashState(0x15);
                 }
@@ -830,7 +830,7 @@ void BattleMenuInit(void) {
     BattleMenuUpdateHpMpBars();
     D_800F3150 = g_BattleData.limitReadyMask;
     D_800F3110 = 1;
-    D_800F3896 = -1;
+    g_BattleMenuModalWidgetId = -1;
     BattleMenuClearWidgetFlags();
     if (D_800F3110 != 0) {
         D_800F3110 = 0;
@@ -930,20 +930,20 @@ void BattleMenuUpdateHpMpBars(void) {
                 if (D_801516A4[i] < hp) {
                     D_801516A4[i] = activeCharacters[i].hp << 8;
                 }
-                D_8015174C[i] = hp;
-                D_801517C8[i] = D_801516A4[i];
+                g_BattleHpBarValue[i] = hp;
+                g_BattleHpBarFill[i] = D_801516A4[i];
                 D_801031F4[i] = 2;
             } else if (D_801516A4[i] < hp) {
                 D_801516A4[i] += (activeCharacters[i].baseHp << 8) / 240;
                 if (D_801516A4[i] > hp) {
                     D_801516A4[i] = activeCharacters[i].hp << 8;
                 }
-                D_8015174C[i] = D_801516A4[i];
-                D_801517C8[i] = hp;
+                g_BattleHpBarValue[i] = D_801516A4[i];
+                g_BattleHpBarFill[i] = hp;
                 D_801031F4[i] = 1;
             } else {
-                D_8015174C[i] = hp;
-                D_801517C8[i] = hp;
+                g_BattleHpBarValue[i] = hp;
+                g_BattleHpBarFill[i] = hp;
                 D_801031F4[i] = 0;
             }
 
@@ -953,20 +953,20 @@ void BattleMenuUpdateHpMpBars(void) {
                 if (D_801516CC[i] < mp) {
                     D_801516CC[i] = activeCharacters[i].mp << 8;
                 }
-                D_8015178C[i] = mp;
-                D_8015187C[i] = D_801516CC[i];
+                g_BattleMpBarValue[i] = mp;
+                g_BattleMpBarFill[i] = D_801516CC[i];
                 D_80151688[i] = 2;
             } else if (D_801516CC[i] < mp) {
                 D_801516CC[i] += (activeCharacters[i].baseMp << 8) / 240;
                 if (D_801516CC[i] > mp) {
                     D_801516CC[i] = activeCharacters[i].mp << 8;
                 }
-                D_8015178C[i] = D_801516CC[i];
-                D_8015187C[i] = mp;
+                g_BattleMpBarValue[i] = D_801516CC[i];
+                g_BattleMpBarFill[i] = mp;
                 D_80151688[i] = 1;
             } else {
-                D_8015187C[i] = mp;
-                D_8015178C[i] = mp;
+                g_BattleMpBarFill[i] = mp;
+                g_BattleMpBarValue[i] = mp;
                 D_80151688[i] = 0;
             }
         }
