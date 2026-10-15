@@ -523,6 +523,7 @@ g_EncounterType = 0x800F83A8;
 g_BattleState = 0x800F83AC; // size:0x444
 D_800F87F0 = 0x800F87F0; // size:0x500
 g_BattleStartFXFlags = 0x800F9DA0;
+D_800F9F3C = 0x800F9F3C; // size:0x700
 g_BattleWorldView = 0x800FA63C; // size:0x38
 D_800FA6D8 = 0x800FA6D8;
 D_800FA958 = 0x800FA958;
