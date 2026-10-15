@@ -627,7 +627,7 @@ typedef struct {
     /* 0x0A */ u16 cameraMultiID;
     /* 0x0C */ u8 targetFlags;
     /* 0x0D */ u8 attackEffectID;
-    /* 0x0E */ u8 damageCalcID;
+    /* 0x0E */ u8 damageCalcID; // Packed byte contains hit and damage formulas (hit formula << 4 | damage formula)
     /* 0x0F */ u8 strength;
     /* 0x10 */ u8 conditionSubmenu;
     /* 0x11 */ u8 statusChange;
@@ -1442,6 +1442,7 @@ void SysIncSeedForRandom(void);
 s32 SysGetKernBattleTextById(s32);
 const char* SysKernGetString(s32 type, s32 index, s32 blockOffset);
 void SysSetEngineErrorCode(s32, ...);
+u32 SysAddSubWithMaxMinBound(u32, u32, u32, s32);
 void SysGiveApToEquippedMateria(s16 partyId, u16 ap);
 void func_8001C3C4(void);
 u32 InputReadPadsRaw(); // jet passes a pad id the main exe ignores

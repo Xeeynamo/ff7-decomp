@@ -54,6 +54,13 @@ typedef enum {
     EVENT_BATTLE_SQUARE = 0x40,
 } BattleEventType;
 
+typedef enum {
+    FORMULA_MODIFIER_NONE = 0x0,
+    FORMULA_MODIFIER_FORCE_PHYSICAL = 0x1, // clears attackFlags 0x04 (magical attack)
+    FORMULA_MODIFIER_CUSTOM_DMG = 0x2,     // adds 16 to dmgFormulaId (custom formula slots)
+    FORMULA_MODIFIER_SPECIAL_EFFECT = 0x4, // selects effect from table, forces physical damage formula
+} BattleFormulaModifierFlags;
+
 // Used to index BattleTurnWork.statusTimers; g_StatusBitTable[index] is the bit
 // number (0-31) of the BattleUnit.status flag that timer belongs to, and also
 // used to index g_StatusTimerInitValues
@@ -133,7 +140,7 @@ typedef struct {
     /* 0x0B */ s8 minElemInfluence;
     /* 0x0C */ s8 formationIndex;
     /* 0x0D */ u8 physAttack;
-    /* 0x0E */ s8 magAttack;
+    /* 0x0E */ u8 magAttack;
     /* 0x0F */ u8 physEvade;
     /* 0x10 */ s8 idleActionId;
     /* 0x11 */ u8 hurtActionId;
@@ -668,7 +675,7 @@ typedef struct Unk800A8D04 {
     /* 0x034 */ u8 unk34[4]; // character spacing array
     /* 0x038 */ s32 unk38;
     /* 0x03C */ s32 unk3C;
-    /* 0x040 */ s32 unk40;
+    /* 0x040 */ s32 formulaIds;
     /* 0x044 */ s32 elements;
     /* 0x048 */ s32 power;
     /* 0x04C */ s32 attackStat;
@@ -679,7 +686,7 @@ typedef struct Unk800A8D04 {
     /* 0x060 */ s32 unk60;
     /* 0x064 */ s32 unk64;
     /* 0x068 */ s32 unk68;
-    /* 0x06C */ s32 unk6C;
+    /* 0x06C */ s32 attackFlags;
     /* 0x070 */ s32 unk70;
     /* 0x074 */ s32 unk74;
     /* 0x078 */ s32 unk78;
@@ -690,15 +697,15 @@ typedef struct Unk800A8D04 {
     /* 0x094 */ s32 unk94;
     /* 0x098 */ s32 unk98;
     /* 0x09C */ s32 unk9C;
-    /* 0x0A0 */ s32 unkA0;
-    /* 0x0A4 */ s32 unkA4;
+    /* 0x0A0 */ s32 hitFormulaId;
+    /* 0x0A4 */ s32 dmgFormulaId;
     /* 0x0A8 */ s32 unkA8;
     /* 0x0AC */ s32 unkAC;
     /* 0x0B0 */ s32 unkB0;
     /* 0x0B4 */ s32 unkB4;
     /* 0x0B8 */ s32 unkB8;
-    /* 0x0BC */ s32 unkBC;
-    /* 0x0C0 */ s32 unkC0;
+    /* 0x0BC */ s32 effectId;
+    /* 0x0C0 */ s32 effectModifier;
     /* 0x0C4 */ s32 unkC4;
     /* 0x0C8 */ s32 attackerStatus;
     /* 0x0CC */ s32 unkCC;

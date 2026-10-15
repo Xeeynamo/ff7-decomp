@@ -492,7 +492,17 @@ extern u8 D_800E7A58[];
 // checked in order against the 3 landed reel symbols (g_BattleData.caitSithRolls) -- see
 // BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
-extern void (*g_BattleDmgFormulaJmpTbl[])(void); // per-action epilogue hook
+
+extern u8 g_BattleFormulaModifierFlagsTable[16];
+
+typedef void (*BattleFormula)(void);
+
+// hit formulas, indexed by g_BattleHitFormulaOpcodeStream opcodes
+extern const BattleFormula g_BattleHitFormulaJmpTbl[];
+
+// damage formulas, indexed by g_CurrentAction->dmgFormulaId
+extern BattleFormula g_BattleDmgFormulaJmpTbl[];
+
 extern Yamada D_800E8050[];
 extern VECTOR D_800E7D10;
 extern VECTOR D_800E7D20;
@@ -863,10 +873,12 @@ extern s8 D_80166F64;
 extern u8 D_80166F68;
 extern u16 g_BattleScreenFadeR;
 
+void func_800A2DB0(void);
 void func_800A4350(s16, s16, s16, u16);
 static void func_800A4D2C(s32 arg0);
 void BattleReturnReservedItems(void);
 void func_800A72C8(s32);
+static void BattleSetActionEffect(s32 effectId, s32 effectModifier);
 void func_800A8E84(s32);
 void func_800AA950(BattleQueueTargetEntry*);
 void BattleResolveAffinityPreDamage(void);
@@ -880,10 +892,35 @@ s32 func_800ACD88(s32);
 s32 func_800ACE88(void);
 static s32 BattleIsDamageNullified(s32);
 static void BattleQueueUnassignedResultDisplay(BattleQueueTargetEntry*);
-void func_800AD0FC(void);
+void BattleApplyDamageAndChargeLimitGauge(void);
 void func_800AD324(s32, s32, s32, s32);
 static void BattleApplyDefaultAbsorbEffect(void);
 void BattleDmgFormulaRun(void);
+void BattleLowerFunc00(void);
+void BattleSetTmpDmgAsPhysical(void);
+void BattleSetTmpDmgAsMagical(void);
+void BattleSetTmpDmgFromCurrent(void);
+void BattleSetTmpDmgFromMax(void);
+void BattleLowerFunc05(void);
+void BattleLowerFunc06(void);
+void BattleLowerFunc07(void);
+void BattleLowerFunc08(void);
+void BattleLowerFunc09(void);
+void BattleLowerFunc0a(void);
+void func_battle_800ADFC0(void);
+void BattleSetTmpDmgAsMaxHpMinusCurrentHp(void);
+void func_800AE050(void);
+void func_800AE058(void);
+void func_800AE060(void);
+void func_800AE068(void);
+void func_800AE070(void);
+void func_800AE078(void);
+void BattleLowerFunc18(void);
+void BattleSetTmpDmgAsNumOfEscapes(void);
+void BattleSetTmpDmgAsTargHpMinusOne(void);
+void func_800AE2A0(void);
+void BattleApplyKillCountBonus(void);
+void BattleCalcMateriaSlotScore(void);
 void BattleCalcAffinityFlags(void);
 s32 BattleGetStatusProtectionMask(s32, s32, s32);
 void func_800AF9C8(void);
