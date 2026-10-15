@@ -748,60 +748,23 @@ void BattleEnemyInitModelWithSettings(u8 arg0) {
 
 void BattleEnemyModelsUpdateBonesPosClut(void) {
     s32 loaded;
-    u8* loadCount;
-    s32* modelIds;
-    s32 normalHeight;
-    s32 specialHeight;
-    s32 currentSpecial;
-    s32 currentNormal;
     s32 searchActor;
-    s32 heightActor;
     s32 modelOffset;
-    s32 searchOffset;
     s32 positionOffset;
     MATRIX* parent;
     BattleModelSub* bones;
     s16* clut;
     u16 z;
-    s32 step;
-    s32 count;
-    loadCount = &D_800F7DF4.count;
-    loaded = 0;
-    count = *loadCount;
-    if (loaded < count) {
-        modelIds = (s32*)((u8*)&D_800F7DF4 + loaded * sizeof(s32));
-        // Skip the count and padding word before the model IDs.
-        modelIds++;
-        normalHeight = (loaded + 18) * 0x10000;
-        specialHeight = (loaded + 19) * 0x10000;
-        for (; loaded < D_800F7DF4.count; loaded++) {
-            searchActor = 4;
-            currentSpecial = specialHeight;
-            currentNormal = normalHeight;
-            heightActor = 0x40000;
-            searchOffset = 4 * sizeof(BattleModel);
-        findModel:
-            if (((BattleModel*)((u8*)g_BattleModels + searchOffset))->animDescOffset == *modelIds) {
+    for (loaded = 0; loaded < D_800F7DF4.count; loaded++) {
+        for (searchActor = START_ENEMY; searchActor < NUM_BATTLE_ACTOR; searchActor++) {
+            if (g_BattleModels[searchActor].animDescOffset == D_800F7DF4.modelIds[loaded]) {
                 if (g_BattleData.activeEncounter.setup.stageID == 0x4E) {
-                    BattleModelUpdateAllBonesHeight(heightActor >> 16, currentSpecial >> 16);
-                    goto nextLoaded;
+                    BattleModelUpdateAllBonesHeight(searchActor, loaded + 19);
                 } else {
-                    BattleModelUpdateAllBonesHeight(heightActor >> 16, currentNormal >> 16);
-                    goto nextLoaded;
+                    BattleModelUpdateAllBonesHeight(searchActor, loaded + 18);
                 }
+                break;
             }
-            step = 0x10000;
-            heightActor += step;
-            searchActor++;
-            searchOffset += sizeof(BattleModel);
-            if (searchActor < 10) {
-                goto findModel;
-            }
-        nextLoaded:
-            step = 0x10000;
-            normalHeight += step;
-            specialHeight += step;
-            modelIds++;
         }
     }
     g_BattleModels[3].clutOffset = 0x240;
