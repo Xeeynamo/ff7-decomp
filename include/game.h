@@ -1246,6 +1246,15 @@ typedef struct {
 } FieldScriptHeader; // size:Varies
 
 typedef struct {
+    MATRIX lookAt;
+    DVECTOR offset;
+    s16 zoom;
+    u16 unk;
+} FieldCamera; // size: 0x28
+
+extern FieldCamera* g_MovieCamera;
+
+typedef struct {
     u16 unk0;
     u16 unk2;
     u16 unk4;
@@ -1490,7 +1499,7 @@ s32 SysAddCommandToTemp(s32);
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, s32 tpage, RECT* tw);
 void SysMovieAbortPlay(void);
 s32 func_80034410(void);
-void* SysMoviePlay(void* ptr, s32);
+void* SysMoviePlay(void* buffer, s32 movie);
 void* SysCdromGetPackPointer(void* ptr, s32);
 void SysCdromSetLzsExtract(void* src, void* dst);
 s32 func_80034D5C(void);

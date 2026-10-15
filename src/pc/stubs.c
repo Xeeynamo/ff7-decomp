@@ -41,7 +41,7 @@ s32 func_800484A8(void) { return 0; }
 s32 func_80048540(s32 arg0) { return 0; }
 MATRIX* MulMatrix2(MATRIX* m0, MATRIX* m1) { return m0; }
 void SysMovieAbortPlay(void) { NOT_IMPLEMENTED; }
-void* SysMoviePlay(void* ptr, s32 a) {
+void* SysMoviePlay(void* buffer, s32 movie) {
     NOT_IMPLEMENTED;
     return NULL;
 }

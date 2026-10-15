@@ -2,13 +2,6 @@
 #define FIELD_PRIVATE_H
 #include <game.h>
 
-typedef struct {
-    MATRIX lookAt;
-    DVECTOR offset;
-    s16 zoom;
-    u16 unk;
-} FieldCamera; // size: 0x28
-
 #define GET_ENTITY_NAME(entityId) ((char*)g_FieldScripts + sizeof(FieldScriptHeader) + (entityId) * 8)
 
 #define GET_FIELD_SCRIPT_OFFSET(dst, scriptOffset, entityDataOffset, extrasHeaderSize)                                 \
@@ -117,7 +110,6 @@ typedef struct {
 extern u8* D_80075E10;
 extern FieldTilemap** g_FieldTilemap;
 extern FieldCamera* g_FieldCamera;
-extern FieldCamera* g_MovieCamera;
 extern FieldCamera** D_80083578;
 extern u32 g_FieldFileInfo[787 * 6]; // Yamada pair for DAT, MIM, BSX
 

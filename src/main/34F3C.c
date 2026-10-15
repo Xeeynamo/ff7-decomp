@@ -42,13 +42,7 @@ typedef struct {
 
 typedef union {
     u32 words[10];
-    struct {
-        MATRIX matrix;
-        s16 unk20;
-        s16 unk22;
-        s16 unk24;
-        u16 rgb24;
-    } camera;
+    FieldCamera camera;
 } Unk80077F3C; // size:0x28
 
 extern u_long* D_8006E0FC;
@@ -61,7 +55,6 @@ extern u32 D_8006E114;
 extern s32 D_8006E118;
 extern Unk80075D00 D_80075DF0;
 extern Unk80077F3C D_80077F3C;
-extern MATRIX* D_80083270;
 extern Unk80095D88 D_80095D88;
 extern s32 D_800965E4;
 extern s32 D_8009A060;
@@ -149,7 +142,7 @@ void* SysMoviePlay(void* buffer, s32 movie) {
         D_80095D88.frames = frames;
         StSetRing((u_long*)buffer, 36);
         buffer += 0x12000;
-        D_80083270 = &D_80077F3C.camera.matrix;
+        g_MovieCamera = &D_80077F3C.camera;
         DecDCToutCallback(func_80036038);
         StSetStream(1, 0, -1, NULL, NULL);
         func_80033DAC(D_8009A1F4[movie].sector, func_80035D64);
@@ -224,7 +217,7 @@ s32 func_800354CC(void) {
             if (D_8006E108) {
                 D_8006E108 = 0;
                 D_80095D88.rgb24 = D_8006E104;
-            } else if (D_8006E100 != (rgb24 = D_80077F3C.camera.rgb24)) {
+            } else if (D_8006E100 != (rgb24 = D_80077F3C.camera.unk)) {
                 D_8006E100 = rgb24;
                 D_8006E104 = rgb24;
                 D_8006E108 = 1;
@@ -406,7 +399,7 @@ s32 func_80035F14(void) {
     if (D_8006E108) {
         D_8006E108 = 0;
         D_80095D88.rgb24 = D_8006E104;
-    } else if (D_8006E100 != (rgb24 = D_80077F3C.camera.rgb24)) {
+    } else if (D_8006E100 != (rgb24 = D_80077F3C.camera.unk)) {
         D_8006E100 = rgb24;
         D_8006E104 = rgb24;
         D_8006E108 = 1;
