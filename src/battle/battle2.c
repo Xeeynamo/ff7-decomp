@@ -2048,10 +2048,9 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR12R22R32);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR13R23R33);
 
-// Layout and field names from eduardovra's work in PR 285.
 typedef struct {
     s32 boneOffset;
-    u8 data[0];
+    u8 data[1];
 } ModelBones;
 
 typedef struct {
@@ -2059,8 +2058,6 @@ typedef struct {
     s16 height;
 } Bone;
 
-// The original has the store before the return with an empty delay slot. A plain store is moved into the delay
-// slot by this compiler; a volatile one stays where it is written.
 s32 BattleModelUpdateBoneHeight(ModelBones* m, s32 delta) {
     u8* base = m->data;
     Bone* bone = (Bone*)(base + m->boneOffset);
