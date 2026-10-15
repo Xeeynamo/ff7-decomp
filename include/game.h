@@ -1246,10 +1246,17 @@ typedef struct {
 } FieldScriptHeader; // size:Varies
 
 typedef struct {
-    s32 unk0;
-    s32 unk4;
+    u16 unk0;
+    u16 unk2;
+    u16 unk4;
+    u16 unk6;
     u32 unk8;
-} Unk80075D00;
+    u32 unkC;
+    u16 unk10;
+    u16 unk12;
+    u32 unk14;
+    u32 unk18;
+} Unk80075D00; // size:0x1C
 
 typedef struct WindowData {
     u8* text;
@@ -1483,12 +1490,12 @@ s32 SysAddCommandToTemp(s32);
 void SysMenuSetDrawMode(s32 dfe, s32 dtd, s32 tpage, RECT* tw);
 void SysMovieAbortPlay(void);
 s32 func_80034410(void);
-void SysMoviePlay(void* ptr, s16);
+void* SysMoviePlay(void* ptr, s32);
 void* SysCdromGetPackPointer(void* ptr, s32);
 void SysCdromSetLzsExtract(void* src, void* dst);
 s32 func_80034D5C(void);
 s32 func_80036244(void* anim, u16 frame);
-void func_800354CC(void);
+s32 func_800354CC(void);
 void MENU_LoadTim(u_long* addr, s32 px, s32 py, s32 cx, s32 cy);
 void MENU_SetWindowColors(u8* menuColors);
 

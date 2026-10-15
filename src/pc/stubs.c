@@ -2,6 +2,7 @@
 #include <libcd.h>
 #include <libspu.h>
 #include "../battle/battle.h"
+#include "../main/cd.h"
 
 u16 g_BattleMode;
 s16 g_isFieldLoading;
@@ -27,13 +28,8 @@ s32 D_800698EC;        // seek retries
 u8 D_800698F0[0x4800]; // disc buffer
 int D_8006E0F0;
 int D_8006E0F4;
-u32 D_8006E0F8;           // sectors in the current lzs chunk read
-s32 D_80071A60;           // current chain operation
-int D_80071A64;           // disk number
-CdlLOC D_80071A68;        // read position
-size_t D_80071A6C;        // sectors left to read
-u_long* D_80071A80;       // read destination
-void (*D_80071A84)(void); // completion callback
+u32 D_8006E0F8; // sectors in the current lzs chunk read
+Unk80071A60 D_80071A60;
 
 void CdOpMovieBuffer(void) { NOT_IMPLEMENTED; }
 void CdOpMoviePlay(void) { NOT_IMPLEMENTED; }
@@ -45,7 +41,10 @@ s32 func_800484A8(void) { return 0; }
 s32 func_80048540(s32 arg0) { return 0; }
 MATRIX* MulMatrix2(MATRIX* m0, MATRIX* m1) { return m0; }
 void SysMovieAbortPlay(void) { NOT_IMPLEMENTED; }
-void SysMoviePlay(void* ptr, s16 a) { NOT_IMPLEMENTED; }
+void* SysMoviePlay(void* ptr, s32 a) {
+    NOT_IMPLEMENTED;
+    return NULL;
+}
 void SystemAkaoExecute(void) { NOT_IMPLEMENTED; }
 s32 EndingOpcode15(void) { return 0; }
 void FIELD_Main(void) { NOT_IMPLEMENTED; }
@@ -60,7 +59,10 @@ int func_8002988C(void) { return 0; }
 int func_80029998(void) { return 0; }
 int func_80034444(void) { return 0; }
 int func_80034F3C(void) { return 0; }
-void func_800354CC(void) { NOT_IMPLEMENTED; }
+s32 func_800354CC(void) {
+    NOT_IMPLEMENTED;
+    return 0;
+}
 int func_80036298(void) { return 0; }
 int func_8003DDA4(void) { return 0; }
 int func_8003DE2C(void) { return 0; }
