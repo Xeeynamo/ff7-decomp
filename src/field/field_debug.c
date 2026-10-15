@@ -41,7 +41,7 @@ extern u16 D_800E4200[8];
 extern u32 D_800E41C8[2][7];
 
 void FieldDebugInitBuffers(void) {
-    u8 pad[0x20]; // match: needed to match stack frame
+    s32 unused[8]; // unknown locals
     s32 i;
     u16 tpage;
 
@@ -228,7 +228,6 @@ void FieldDebugRenderPage(s16 pageId) {
         FieldDebugRenderString(pageId, i, g_FieldDebugPages[pageId].text[i], g_FieldDebugPages[pageId].x + 2, y);
     }
     if (g_FieldDebugPages[pageId].headRow) {
-        // match: (&D_800E3B28[rb][n])->field written out because a local pointer differs in load order
         (&D_800E3B28[g_FieldDebugRb][g_FieldDebugRRect])->x0 = g_FieldDebugPages[pageId].x + 2;
         (&D_800E3B28[g_FieldDebugRb][g_FieldDebugRRect])->y0 =
             g_FieldDebugPages[pageId].y + (g_FieldDebugPages[pageId].headRow - 1) * 10 + 10;
