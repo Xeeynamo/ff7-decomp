@@ -4529,7 +4529,34 @@ static s32 BattleUnitIsOnPartyTeam(s32 arg0) {
     return count & 1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleGetRndItemIdForSteal);
+// Rolls for each of the enemies four drop slots until a roll is successful
+// Returns itemId if drop was successful, 0xFFFF otherwise
+u16 BattleGetRndItemIdForSteal(SceneEnemy* arg0, s32 arg1, s32 guaranteed, s32 rateScale) {
+    u16 itemId = 0xFFFF;
+    s32 i;
+    SceneEnemy* enemy = arg0; // copying arg0 here is needed for the match
+
+    for (i = 0; i < LEN(enemy->dropItemIDs); i++) {
+        s32 chance;
+
+        if ((enemy->dropItemRates[i] & ~0x3F) != arg1) {
+            continue;
+        }
+
+        chance = enemy->dropItemRates[i] & 0x3F;
+        if (guaranteed) {
+            chance = 256;
+        } else {
+            chance = chance * rateScale / 256;
+        }
+
+        if (chance >= (SysGetRandomByteFromTable() & 0x3F)) {
+            itemId = enemy->dropItemIDs[i];
+            break;
+        }
+    }
+    return itemId;
+}
 
 static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* args) {
     func_800A31A0(arg0, 2, arg2, BattleAddMessageToStringBuffer((u8*)SysGetKernBattleTextById(arg1), args) + 0x100);
