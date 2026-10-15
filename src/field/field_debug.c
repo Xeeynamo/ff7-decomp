@@ -77,11 +77,7 @@ void FieldDebugInitBuffers(void) {
         setLineF3(&D_800E3B28[1][i]);
     }
 
-    if (GetGraphType() == 1 || GetGraphType() == 2) {
-        tpage = 0x2F;
-    } else {
-        tpage = 0x1F;
-    }
+    tpage = getTPage(0, 0, 960, 256);
 
     for (i = 0; i < LEN(D_800E4128[0]); i++) {
         SetDrawMode(&D_800E4128[0][i], 0, 0, tpage, NULL);
@@ -431,13 +427,11 @@ void FieldDebugRenderString(s16 pageId, s16 row, char* str, s32 x, s32 y) {
     }
 }
 
-s32 AddStrNextDebugRow(s32 pageId, const char* msg) {
-    s16 page = pageId;
-
-    FieldDebugStringCopy(g_FieldDebugPages[page].text[g_FieldDebugPages[page].rowCount], msg);
-    g_FieldDebugPages[page].rowCount++;
-    if (g_FieldDebugPages[page].rowCount > (g_FieldDebugPages[page].height - 8) / 10) {
-        g_FieldDebugPages[page].rowCount = 0;
+s32 AddStrNextDebugRow(s16 pageId, const char* msg) {
+    FieldDebugStringCopy(g_FieldDebugPages[pageId].text[g_FieldDebugPages[pageId].rowCount], msg);
+    g_FieldDebugPages[pageId].rowCount++;
+    if (g_FieldDebugPages[pageId].rowCount > (g_FieldDebugPages[pageId].height - 8) / 10) {
+        g_FieldDebugPages[pageId].rowCount = 0;
     }
     D_8009D824 = 1;
     return 1;
