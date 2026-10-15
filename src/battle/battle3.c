@@ -468,7 +468,7 @@ void BattleMenuWidgetSub2Reset(void) {
 }
 
 void BattleMenuInputState7(void) {
-    MagicRecord* summons = &g_ActiveCharacters[D_800F38A0].enabledMagic[56];
+    MagicRecord* summons = &g_ActiveCharacters[D_800F38A0].enabledMagic[SUMMON_START];
     MenuTable* menu = &D_800F90B4[D_800F38A0].table36;
     s32 index;
     MagicRecord* summon;

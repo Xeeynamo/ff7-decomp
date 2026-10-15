@@ -660,7 +660,7 @@ typedef struct Unk800A8D04 {
     /* 0x008 */ s32 unk8;
     /* 0x00C */ s32 unkC;
     /* 0x010 */ s32 relativeActionIndex; // index within its own category (spell #, summon
-                                         // #, etc) -- see D_800A0290 in battle.c
+                                         // #, etc) - see MAGIC_START in game.h for range defines
     /* 0x014 */ s32 unk14;
     /* 0x018 */ s32 allowedTargetsMask;
     /* 0x01C */ s32 unk1C;
@@ -669,8 +669,8 @@ typedef struct Unk800A8D04 {
     /* 0x028 */ s32 cmdIndex;
     /* 0x02C */ s32 absoluteActionIndex; // relativeActionIndex remapped into the single
                                          // shared spell/summon/enemy-skill/limit name
-                                         // table (kernel.bin section 18) via
-                                         // D_800A0290's per-category base offset
+                                         // table (kernel.bin section 18) - see MAGIC_START
+                                         // in game.h for range defines
     /* 0x030 */ s32 unk30;
     /* 0x034 */ u8 unk34[4]; // character spacing array
     /* 0x038 */ s32 unk38;

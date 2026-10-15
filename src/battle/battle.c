@@ -1186,8 +1186,8 @@ u8 BattleGetRndAutoBattleAction(s32 arg0, s32 kind, s32 actionId, BattleAutoActi
     return targetFlags;
 }
 
-// Unreferenced byte after g_BattleAutoActionKindTable; owner unknown. Not padding:
-// the compiler would pad the 3-byte table with 0, the original has 0x86
+// Alignment padding after g_BattleAutoActionKindTable. The original toolchain left junk in
+// .rodata padding (0x00 here in the Japanese build); kept for the match
 const u8 D_800A028F = 0x86;
 
 void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
@@ -1711,11 +1711,11 @@ void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A72C8);
 
 void BattleResolveMagicActionIndex(void) {
-    g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex;
+    g_CurrentAction->absoluteActionIndex = MAGIC_START + g_CurrentAction->relativeActionIndex;
 }
 
 void BattleResolveSummonActionIndex(void) {
-    g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex + 56;
+    g_CurrentAction->absoluteActionIndex = SUMMON_START + g_CurrentAction->relativeActionIndex;
 }
 
 static void BattleRemoveUnitReservedItem(s16 arg0, s16 arg1);
@@ -1794,7 +1794,7 @@ void BattleSetupCoinThrowAction(void) {
 }
 
 void BattleResolveEnemySkillActionIndex(void) {
-    g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex + NUM_MAGICS + NUM_SUMMONS;
+    g_CurrentAction->absoluteActionIndex = ENEMY_SKILL_START + g_CurrentAction->relativeActionIndex;
 }
 
 static u32 func_800B12DC(void);
@@ -1833,21 +1833,22 @@ void BattleResolveLimitActionIndex(void) {
     relativeActionIndex = g_CurrentAction->relativeActionIndex;
     g_CurrentAction->absoluteActionIndex = relativeActionIndex;
     if (relativeActionIndex < 0x60) {
-        s32 off = actorId * 0x34;
         g_CurrentAction->absoluteActionIndex = relativeActionIndex + 0x80;
-        *(u16*)((u8*)g_BattleWork.party + off + 8) = 0; // ideally g_BattleWork.party[actorId].limitBar = 0;
+        g_BattleWork.party[actorId].limitBar = 0;
         g_BattleWork.party[actorId].limitCount++;
-        if (!(g_BattleState.setupFlags & 8)) {
+        if (!(g_BattleState.setupFlags & SETUP_NO_VICTORY_POSE)) {
             BattleQueueEvent(2, actorId, 0x11, 0);
         }
     }
 }
 
-void BattleActionType07(void)
-{
+// When an enemy attacks, rewrites the cmd index as the appropriate type
+// based on the absolute index, and stores the relative index in unk98
+void BattleActionType07(void) {
     g_CurrentAction->absoluteActionIndex = g_BattleWork.attackIDs[g_CurrentAction->relativeActionIndex];
     if (g_CurrentAction->unkC == CMD_ENEMY_ATTACK) {
-        u16 bases[] = {0, 56, 72, 96, 256};
+        // 256 is end of kernel attack list
+        u16 bases[] = {MAGIC_START, SUMMON_START, ENEMY_SKILL_START, ENEMY_SKILL_END, 256};
         u8 cmds[] = {CMD_MAGIC, CMD_SUMMON, CMD_ENEMY_SKILL, CMD_LIMIT};
         u32 i;
 
@@ -2067,8 +2068,7 @@ static void BattleResolveCaitSithSlotsResult(void) {
         g_CurrentAction->absoluteActionIndex = comboIndex + 0x68;
     } else {
         // Random Summon ID: sum of four Rnd(1..10) rolls, + Level/21, /2, -4,
-        // clamped [0,15], then the Summon category base (D_800A0290[1] ==
-        // 0x38 == 56).
+        // clamped [0,15], then the Summon category start
         rollSum = 4;
         for (comboIndex = 0; comboIndex < 4; comboIndex++) {
             rollSum += SysGetRandomByteRange(10) & 0xFF;
@@ -2083,8 +2083,8 @@ static void BattleResolveCaitSithSlotsResult(void) {
         if (rollSum > 0xF) {
             rollSum = 0xF;
         }
-        g_CurrentAction->absoluteActionIndex = rollSum + 0x38;
-        g_CurrentAction->cmdIndex = 3;
+        g_CurrentAction->absoluteActionIndex = SUMMON_START + rollSum;
+        g_CurrentAction->cmdIndex = CMD_SUMMON;
     }
     g_CurrentAction->targetFlags = 0xFF;
     g_CurrentAction->unk98 = g_CurrentAction->absoluteActionIndex;
@@ -2314,7 +2314,7 @@ static void BattleDropDyingEnemiesFromTargets(void) {
 
 static void BattleLearnEnemySkill(void) {
     u16 id;
-    s32 bit = 1 << (g_CurrentAction->absoluteActionIndex - 0x48);
+    s32 bit = 1 << (g_CurrentAction->absoluteActionIndex - ENEMY_SKILL_START);
 
     if (!(g_BattleData.flags & 0x40)) {
         if (!(g_CurrentAction->partyWork->enemySkillMateriaData & bit)) {
@@ -5057,8 +5057,8 @@ void BattleInitScriptContext(s32 arg0, s32 priority, s32 arg2) {
 
 static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex) {
     BattleActionEntry action;
-    u8 categories[2] = {CMD_SUMMON, CMD_ENEMY_SKILL};
-    u8 categoryBases[2] = {0x38, 0x48}; // D_800A0290[1], D_800A0290[2]
+    u8 categories[] = {CMD_SUMMON, CMD_ENEMY_SKILL};
+    u8 categoryBases[] = {SUMMON_START, ENEMY_SKILL_START};
     u32 i;
     u16 mask;
 

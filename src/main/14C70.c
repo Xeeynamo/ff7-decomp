@@ -15,19 +15,19 @@ typedef struct {
 static const KernelTextMaps kernel_maps = {
     // dataOffsets: AttackData base index used in func_80014CBC
     {
-        /* 0x00 */ 0,                        // Magic
-        /* 0x01 */ NUM_MAGICS,               // Summons
-        /* 0x02 */ NUM_MAGICS + NUM_SUMMONS, // Enemy skill
+        /* 0x00 */ MAGIC_START,       // Magic
+        /* 0x01 */ SUMMON_START,      // Summons
+        /* 0x02 */ ENEMY_SKILL_START, // Enemy skill
     },
     {0, 128, 256, 288, 384, 65535},
     {4, 10, 11, 12, 13},
     {0, 0, 0},
     // magicTypeOffsets: Attack-name base index for types 0–3
     {
-        /* 0x00 */ 0,                        // Magic
-        /* 0x01 */ NUM_MAGICS,               // Summons
-        /* 0x02 */ NUM_MAGICS + NUM_SUMMONS, // Enemy skill
-        /* 0x03 */ 128                       // Not sure, limit breaks maybe?
+        /* 0x00 */ MAGIC_START,       // Magic
+        /* 0x01 */ SUMMON_START,      // Summons
+        /* 0x02 */ ENEMY_SKILL_START, // Enemy skill
+        /* 0x03 */ 128                // Not sure, limit breaks maybe?
     },
     // typeToSection: Corresponds to the type used in SysKernGetString
     {/* 0x00 */ KERNEL_TEXT_DESC_MAGIC,
