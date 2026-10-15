@@ -1186,7 +1186,8 @@ u8 BattleGetRndAutoBattleAction(s32 arg0, s32 kind, s32 actionId, BattleAutoActi
     return targetFlags;
 }
 
-// Unreferenced byte between g_BattleAutoActionKindTable above and D_800A0290; owner unknown
+// Unreferenced byte after g_BattleAutoActionKindTable; owner unknown. Not padding:
+// the compiler would pad the 3-byte table with 0, the original has 0x86
 const u8 D_800A028F = 0x86;
 
 void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
@@ -1842,10 +1843,26 @@ void BattleResolveLimitActionIndex(void) {
     }
 }
 
-const s16 D_800A0290[] = {0, 56, 72, 96, 256};
-const s32 D_800A029C[] = {
-    0x140D0302, 0x3D3CFFFF, 0x41403F3E, 0xFFFFFF42, 0xFFFFFFFF, 0x43424140, 0x47464544, 0xFF444843, 0xFFFFFFFF};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType07);
+void BattleActionType07(void)
+{
+    g_CurrentAction->absoluteActionIndex = g_BattleWork.attackIDs[g_CurrentAction->relativeActionIndex];
+    if (g_CurrentAction->unkC == CMD_ENEMY_ATTACK) {
+        u16 bases[] = {0, 56, 72, 96, 256};
+        u8 cmds[] = {CMD_MAGIC, CMD_SUMMON, CMD_ENEMY_SKILL, CMD_LIMIT};
+        u32 i;
+
+        for (i = 0; i < LEN(bases) - 1; i++) {
+            if (g_CurrentAction->absoluteActionIndex < bases[i + 1]) {
+                g_CurrentAction->cmdIndex = cmds[i];
+                g_CurrentAction->unk98 = g_CurrentAction->absoluteActionIndex - bases[i];
+                break;
+            }
+        }
+    }
+}
+
+const s32 D_800A02A0[] = {
+    0x3D3CFFFF, 0x41403F3E, 0xFFFFFF42, 0xFFFFFFFF, 0x43424140, 0x47464544, 0xFF444843, 0xFFFFFFFF};
 
 void BattlePrepareTmpForManip(void) {
     g_CurrentAction->unk80[0] = 0x400000;
