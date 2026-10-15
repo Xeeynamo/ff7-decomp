@@ -2067,8 +2067,7 @@ s32 BattleModelUpdateBoneHeight(ModelBones* m, s32 delta) {
     return sum;
 }
 
-// A 4-byte pad word sits at 0x800D3544, before the next function at 0x800D3548. Nothing in the C or in this link
-// produces it (files are not aligned to 8 here: battle3 starts at 0x800D8A04), so it is emitted as one nop.
+// 4-byte pad before the next function
 #ifdef USE_INCLUDE_ASM
 __asm__(".text # maspsx-keep\n\tnop # maspsx-keep\n");
 #endif
