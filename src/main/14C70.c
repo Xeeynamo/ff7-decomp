@@ -401,7 +401,7 @@ void SysAddBattleEarnedItems(void) {
                 Savemap.inventory[freeSlot] = id | (quantity << 9);
             }
         } else {
-            // match: the original scans 0x100 slots, past MAX_MATERIA_COUNT (200)
+            // scans 0x100 slots, past MAX_MATERIA_COUNT (200)
             for (j = 0; j < 0x100; j++) {
                 if (Savemap.materia[j] != -1) {
                     continue;
@@ -417,7 +417,7 @@ void SysAddBattleEarnedItems(void) {
 }
 
 s32 SysGetLimitCmdId(s32 charId, s32 limitIndex) {
-    u8 pad[0x30]; // FAKE: preserves stack space; the original local declarations are unknown.
+    s32 unused[12]; // unknown locals
     s32 cmdId;
 
     cmdId = 0x7F;
