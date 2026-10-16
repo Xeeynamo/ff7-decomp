@@ -1465,7 +1465,7 @@ void SysIncSeedForRandom(void);
 s32 SysGetKernBattleTextById(s32);
 const char* SysKernGetString(s32 type, s32 index, s32 blockOffset);
 void SysSetEngineErrorCode(s32, ...);
-u32 SysAddSubWithMaxMinBound(u32, u32, u32, s32);
+u32 SysAddSubWithMaxMinBound(u32 val, u32 addend, u32 max, u32 isAdd);
 void SysGiveApToEquippedMateria(s16 partyId, u16 ap);
 void func_8001C3C4(void);
 u32 InputReadPadsRaw(); // jet passes a pad id the main exe ignores
