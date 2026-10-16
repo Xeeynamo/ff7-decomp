@@ -649,7 +649,7 @@ extern s32 D_800F57CC; // btlmenu_cursorMemory
 extern EffectModel* D_800F57D0;
 extern u8 D_800F57D4;
 extern u16 D_800F7DE2[]; // All Lucky 7s trigger count
-extern s8 D_800F7DE4;
+extern u8 D_800F7DE4;
 typedef struct {
     s16 modelIndex;
     ShortVectorXYZ position;
@@ -947,7 +947,7 @@ static void func_800BA40C();
 static void func_800BB030(s16 arg0);
 void func_800BB2A8(u8);
 void func_800BB9B8(s32);
-void func_800BBA84(u16 arg0, s32 arg1, s32 arg2);
+void func_800BBA84(u16 arg0, s16 arg1, s32 arg2);
 static void func_800C1908(u8 arg0);
 void BattleSelectPlayerModelFiles(void);
 void AkaoDispatchCommand(void*);
@@ -1086,3 +1086,36 @@ extern BattleItemEntry D_801671B8[];
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId);
 extern u8 D_80163F34[NUM_PARTY][0x100C];
 void func_8001C3CC(void* dst, const void* src, u32 size);
+
+typedef struct {
+    BattleModelSub bones[256];
+    u8 unk3400[0x400];
+    u8 state[256][2];
+} StageParticles; // size:0x3A00
+
+typedef union {
+    EffectModelHeader header;
+    struct {
+        s32 numOffsets;
+        s32 layoutOffset;
+        s32 modelOffset;
+    } modelHeader;
+    u8 bytes[0x8D04];
+    struct {
+        u8 modelData[0x5104];
+        StageParticles particles;
+    } stage;
+} BattleStageFile; // size:0x8D04
+
+typedef struct {
+    MATRIX* parent;
+    MATRIX matrix;
+} BattleMatrixScratch; // size:0x24
+
+extern Yamada D_800E7D50[];
+extern Yamada D_800E7D98[];
+extern RECT D_800F4B1C;
+extern BattleModelSub D_800F8158[NUM_BATTLE_ACTOR];
+extern BattleStageFile D_801590E4;
+extern CVECTOR D_800F5B70;
+extern s16 D_800F5B74;

@@ -1,5 +1,6 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "battle_private.h"
+#include "battle_gte_matrix.h"
 #include <libetc.h>
 #include <libgpu.h>
 
@@ -7,6 +8,62 @@ void BattleLoadPlayerFinish(void);
 void BattleGetModelBoneNumAndInitBones(s16* count, u16* data, s16 actor);
 void BattleGetWeaponBoneNumAndInitBones(s16* count, u16* data, s16 actor);
 void BattleBoneSetParentMatrix(MATRIX* parent, BattleModelSub* bone);
+
+void BattleUpdateModelMatrixesWithSelfAndParent(s32 actor);
+void func_800BBA84(u16 sound, s16 actor, s32 pan);
+void func_800C494C(void);
+static void func_800C5694(void);
+static void BattleEffectModelTick(void);
+void BattleNormalStartSeq(void);
+void BattleEnemyPlayInitAnims(void);
+void func_800B383C(void);
+static void BattleLoadEnemyFinish(void);
+static void BattleLoadThirdEnemy(void);
+static void BattleLoadFirstPlayer(void);
+void func_800B430C(void);
+void BattlePlayerModifyDefaultPosByFormation(void);
+void BattlePlayerInitModelWithSettings(u8 arg0);
+void BattleEnemyInitModelWithSettings(u8 arg0);
+void BattleEnemyModelsUpdateBonesPosClut(void);
+void func_800B5AAC(s32 arg0);
+static void func_800B5FC4(s16 arg0);
+static void func_800B7F6C(void);
+static void func_800B8234(s32 arg0);
+static void func_800B8268(void);
+static void func_800B83C4();
+void func_800B8B48(void);
+void func_800B8EE4(void);
+void func_800B91CC(void);
+static void BattleUpdateMatrixWithSelfAndParentAndSetToGte(BattleModelSub* modelSub);
+static void BattleUpdateMatrixWithScaleAndSetToGte(MATRIX* m, VECTOR* v);
+void BattleModelUpdateAllBonesHeight(s16 actor, s16 height);
+void func_800BB4F8(void);
+void func_800BB90C(void);
+void func_800BB944(void);
+void func_800BB978(void);
+void func_800BB9FC(s32 arg0);
+static void func_800BBA40(s32 arg0);
+static void func_800BBDF8(void);
+static void func_800BC72C(void);
+static s16 func_800BFA98(u8* arg0, s32 arg1);
+static s16 func_800BFB10(u8* arg0, s32 arg1);
+static void func_800C018C(s16 arg0, s16 arg1, s32 arg2, s32 arg3);
+static void func_800C0254(s16 arg0, s16 arg1);
+static s16 func_800C03B8(s16 arg0, s16 arg1);
+static s32 func_800C03FC(s32 arg0, s32 arg1);
+static s32 func_800C1304(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+static s32 func_800C169C(u8 arg0);
+static void func_800C17A0(s32 arg0, s32 arg1);
+static void func_800C4B60(s16 arg0);
+u_long* func_800C4FC8(u8 r, u8 g, u8 b);
+void func_800C57B0(void);
+void func_800C5CC0(void);
+s32 func_800C60F4(void);
+static void func_800C610C(void);
+void func_800C61C0(void);
+void func_800C64AC(void);
+void BattleStartEffectWithModel(s32 targetMask, s32 callbackArg);
+void BattleFadeOutEffectModel(void);
 
 static void func_800B37A0(void);
 static void func_800B37EC(void);
@@ -187,7 +244,23 @@ void BattleNormalStartSeq(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleNextStartSeq);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEnemyPlayInitAnims);
+void BattleEnemyPlayInitAnims(void) {
+    s32 actor;
+    s32 steps;
+    s32 i;
+    EffectModel* data;
+    if (g_BattleData.activeEncounter.setup.flags & 2) {
+        return;
+    }
+    steps = 4;
+    for (actor = 5; actor < D_800F7DF4.enemyCount + 4; actor++) {
+        for (i = 0; i < steps; i++) {
+            data = (EffectModel*)D_800F8384[D_800F7DF4.enemies[actor - 4].modelIndex];
+            BattleExecuteUnitAnimScript(actor, data->header.offsets[1] + 0x68, &data->header.offsets[2], data);
+        }
+        steps += 4;
+    }
+}
 
 // one-shot setup call centered on the 320x240 screen
 static void func_800B37A0(void) {
@@ -203,7 +276,15 @@ static void func_800B37EC(void) {
 }
 
 // Load stage files
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B383C);
+void func_800B383C(void) {
+    func_800B3FFC();
+    SysCdromLoadLzs(*&D_800E7D50[D_800FA6D0].loc, *&D_800E7D50[D_800FA6D0].len, (u32*)0x801A0000, NULL);
+    SysCdromLoadLzs(*&D_800E7D98[g_BattleData.activeEncounter.setup.stageID].loc,
+                    *&D_800E7D98[g_BattleData.activeEncounter.setup.stageID].len, (u32*)0x801B0000, NULL);
+    func_800BB4F8();
+    func_8001C3CC(&D_801590E4, (void*)0x801B0000, 0x8D04);
+    DrawSync(0);
+}
 
 // load stage entry i (D_800F7DF4.modelIds[0]) into VRAM staging via SysCdromStartLoadLzs
 static void BattleLoadFirstEnemy(void) {
@@ -406,7 +487,83 @@ static s32 func_800B3FAC(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B3FFC);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800B430C);
+void func_800B430C(void) {
+    BattleModelSub* bone;
+    BattleModel* model;
+    s32 i;
+    u8 stageType;
+    BattleModelSub* bone3;
+    u8* offsets;
+
+    D_80163B44[0] = 0;
+    D_80163B44[1] = 0x10;
+    g_BattleWorldView.u.sub.trans.vz = 0;
+    g_BattleWorldView.u.sub.trans.vy = 0;
+    g_BattleWorldView.u.sub.trans.vx = 0;
+    g_BattleWorldView.rot.vz = 0;
+    g_BattleWorldView.rot.vy = 0;
+    g_BattleWorldView.rot.vx = 0;
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        bone = &D_800F8158[i];
+        bone->rot.vz = 0;
+        bone->rot.vy = 0;
+        D_800F8158[i].rot.vx = 0;
+        bone->trans.vz = 0;
+        bone->trans.vy = 0;
+        D_800F8158[i].trans.vx = 0;
+    }
+    BattleBoneSetParentMatrix(&g_BattleWorldView.m, D_800F8158);
+    offsets = (u8*)&D_801590E4 + sizeof(s32);
+    offsets -= -D_801590E4.modelHeader.layoutOffset;
+    stageType = offsets[-4];
+    switch (stageType) {
+    case 2:
+        BattleBoneSetParentMatrix(&g_BattleWorldView.m, &D_800F8158[1]);
+        BattleBoneSetParentMatrix(&g_BattleWorldView.m, &D_800F8158[2]);
+        BattleBoneSetParentMatrix(&g_BattleWorldView.m, &D_800F8158[3]);
+        BattleBoneSetParentMatrix(&g_BattleWorldView.m, &D_800F8158[4]);
+        D_800F8158[4].trans.vy = 0x30D4;
+        break;
+    case 0:
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            BattleBoneSetParentMatrix(&g_BattleWorldView.m, &D_800F8158[i]);
+        }
+        D_800F8158[2].trans.vz = 30000;
+        D_800F8158[3].trans.vz = 20000;
+        D_800F8158[4].trans.vz = 10000;
+        D_800F8158[6].trans.vz = -10000;
+        D_800F8158[7].trans.vz = -20000;
+        D_800F8158[5].trans.vz = 0;
+        D_800F8158[8].trans.vz = 25536;
+        break;
+    case 4:
+        BattleBoneSetParentMatrix(&g_BattleWorldView.m, &D_800F8158[6]);
+        BattleBoneSetParentMatrix(&g_BattleWorldView.m, &D_800F8158[5]);
+        BattleBoneSetParentMatrix(&g_BattleWorldView.m, &D_800F8158[4]);
+        /* fallthrough */
+    case 3:
+        bone3 = &D_800F8158[1];
+        BattleBoneSetParentMatrix(&g_BattleWorldView.m, &bone3[0]);
+        BattleBoneSetParentMatrix(&g_BattleWorldView.m, &bone3[1]);
+        BattleBoneSetParentMatrix(&g_BattleWorldView.m, &bone3[2]);
+        break;
+    }
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        model = &g_BattleModels[i];
+        model->rootTrans.vz = 0;
+        model->rootTrans.vy = 0;
+        g_BattleModels[i].rootTrans.vx = 0;
+        D_80151200[i].D_80151234 = 0;
+    }
+    D_800F5B70.cd = 0x1F;
+    D_800F5B70.b = 0;
+    D_800F5B70.g = 0;
+    D_800F5B70.r = 0;
+    D_800F5B74 = 0;
+    if (g_BattleData.activeEncounter.setup.stageID == 0x3A) {
+        func_800C57B0();
+    }
+}
 
 extern ShortVectorXYZ D_800E8E84[9][NUM_PARTY];
 extern s16 D_800E8F94[9][NUM_PARTY];
@@ -589,7 +746,60 @@ void BattleEnemyInitModelWithSettings(u8 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleEnemyModelsUpdateBonesPosClut);
+void BattleEnemyModelsUpdateBonesPosClut(void) {
+    s32 loaded;
+    s32 searchActor;
+    s32 modelOffset;
+    s32 positionOffset;
+    MATRIX* parent;
+    BattleModelSub* bones;
+    s16* clut;
+    u16 z;
+    for (loaded = 0; loaded < D_800F7DF4.count; loaded++) {
+        for (searchActor = START_ENEMY; searchActor < NUM_BATTLE_ACTOR; searchActor++) {
+            if (g_BattleModels[searchActor].animDescOffset == D_800F7DF4.modelIds[loaded]) {
+                if (g_BattleData.activeEncounter.setup.stageID == 0x4E) {
+                    BattleModelUpdateAllBonesHeight(searchActor, loaded + 19);
+                } else {
+                    BattleModelUpdateAllBonesHeight(searchActor, loaded + 18);
+                }
+                break;
+            }
+        }
+    }
+    g_BattleModels[3].clutOffset = 0x240;
+    if (g_BattleData.activeEncounter.setup.stageID == 0x4E) {
+        g_BattleModels[4].clutOffset = 0;
+        loaded = 4;
+    } else {
+        g_BattleModels[4].clutOffset = 0x300;
+        loaded = 4;
+    }
+    positionOffset = 4 * sizeof(ShortVectorXYZ);
+    clut = &g_BattleModels[5].clutOffset;
+    bones = &g_BattleModels[4].boneTransforms[0];
+    parent = &g_BattleModels[4].stageMatrix;
+    modelOffset = 4 * sizeof(BattleModel);
+    *clut = 0x3C0;
+    g_BattleModels[6].clutOffset = 0x480;
+    g_BattleModels[7].clutOffset = 0x540;
+    g_BattleModels[8].clutOffset = 0x600;
+    g_BattleModels[9].clutOffset = 0x6C0;
+    do {
+        BattleBoneSetParentMatrix(parent, &bones[49]);
+        bones = (BattleModelSub*)((u8*)bones + sizeof(BattleModel));
+        parent = (MATRIX*)((u8*)parent + sizeof(BattleModel));
+        ((BattleModel*)((u8*)g_BattleModels + modelOffset))->rootTrans.vx =
+            ((ShortVectorXYZ*)((u8*)D_80163C80 + positionOffset))->vx;
+        loaded++;
+        ((BattleModel*)((u8*)g_BattleModels + modelOffset))->rootTrans.vy =
+            ((ShortVectorXYZ*)((u8*)D_80163C80 + positionOffset))->vy;
+        z = ((ShortVectorXYZ*)((u8*)D_80163C80 + positionOffset))->vz;
+        positionOffset += sizeof(ShortVectorXYZ);
+        ((BattleModel*)((u8*)g_BattleModels + modelOffset))->rootTrans.vz = z;
+        modelOffset += sizeof(BattleModel);
+    } while (loaded < 10);
+}
 
 void func_800B5AAC(s32 arg0) {
     u8 actor = arg0 & 0xFF;
@@ -724,11 +934,95 @@ void BattleModelStartFades(s16 actor) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleModelFadeOutTick);
+void BattleModelFadeOutTick(void) {
+    s16 actor = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
+    *(s32*)0x1F800008 = actor;
+    if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
+        g_BattleModels[actor].blendAlpha = 0;
+        g_BattleModels[actor].specialFlags |= 4;
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
+        D_80151200[*(s32*)0x1F800008].D_80151235 = 0;
+        return;
+    }
+    g_BattleModels[actor].blendAlpha += g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+    g_BattleModels[actor].colorR -= g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
+    g_BattleModels[*(s32*)0x1F800008].colorG -= g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
+    g_BattleModels[*(s32*)0x1F800008].colorB -= g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+    D_80151200[*(s32*)0x1F800008].D_80151235 = 1;
+    g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleModelFadeInTick);
+void BattleModelFadeInTick(void) {
+    s16 actor = g_BattleMovementSlots[g_BattleMovementCursor].D_801620B2;
+    s32 i;
+    *(s32*)0x1F800008 = actor;
+    if (g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0 == 0) {
+        g_BattleModels[actor].blendAlpha = 0;
+        for (i = 0; i < g_BattleModels[*(s32*)0x1F800008].numBones; i++) {
+            g_BattleModels[*(s32*)0x1F800008].boneFlags[i] &= 0xF7;
+        }
+        for (i = 0; i < D_800FA6D8[*(s32*)0x1F800008].unk3C; i++) {
+            D_800FA6D8[*(s32*)0x1F800008].unk3E[i] &= 0xF7;
+        }
+        g_BattleMovementSlots[g_BattleMovementCursor].D_801620AC = -1;
+        D_80151200[*(s32*)0x1F800008].D_80151235 = 0;
+        g_BattleModels[*(s32*)0x1F800008].animControlFlags |= 0x20;
+        return;
+    }
+    g_BattleModels[actor].blendAlpha -= g_BattleMovementSlots[g_BattleMovementCursor].unkE;
+    g_BattleModels[actor].colorR += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B4;
+    g_BattleModels[*(s32*)0x1F800008].colorG += g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
+    g_BattleModels[*(s32*)0x1F800008].colorB += g_BattleMovementSlots[g_BattleMovementCursor].unkC;
+    D_80151200[*(s32*)0x1F800008].D_80151235 = 1;
+    g_BattleMovementSlots[g_BattleMovementCursor].D_801620B0--;
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleInitModelsAnimAndColor);
+void BattleInitModelsAnimAndColor(s32 first, s32 end) {
+    s32 actor;
+    Unk80151200* state;
+    u8* animControl;
+    s32 stateOffset;
+    s32 modelIndex;
+    s32 one;
+    s16 scale;
+    actor = first;
+    if (actor >= end) {
+        return;
+    }
+    one = 1;
+    scale = 0x1000;
+    stateOffset = actor * (s32)sizeof(Unk80151200);
+    modelIndex = actor;
+    animControl = (u8*)&g_BattleModels[modelIndex].animControlFlags;
+    for (; actor < end; actor++) {
+        g_BattleModels[modelIndex].unk24 = 31;
+        g_BattleModels[modelIndex].specialFlags = 0x80;
+        g_BattleModels[modelIndex].blendAlpha = 0;
+        g_BattleModels[modelIndex].colorR = 0;
+        g_BattleModels[modelIndex].colorG = 0;
+        g_BattleModels[modelIndex].colorB = 0;
+        if (actor >= START_ENEMY) {
+            if (!(D_800F7DF4.enemies[modelIndex - START_ENEMY].flags & 4)) {
+                g_BattleModels[modelIndex].specialFlags = 0;
+            }
+            if (!(D_800F7DF4.enemies[modelIndex - START_ENEMY].flags & 1)) {
+                g_BattleModels[modelIndex].specialFlags |= 4;
+            }
+        }
+        state = (Unk80151200*)((u8*)D_80151200 + stateOffset);
+        *animControl = one;
+        g_BattleModels[modelIndex].animId = 0;
+        g_BattleModels[modelIndex].scale = scale;
+        state->D_8015123C = scale;
+        state->D_8015123A = scale;
+        ((Unk80151200*)((u8*)D_80151200 + stateOffset))->D_80151238 = scale;
+        g_BattleModels[modelIndex].ready = one;
+        ((Unk80151200*)((u8*)D_80151200 + stateOffset))->D_80151233 = 0;
+        stateOffset += sizeof(Unk80151200);
+        animControl += sizeof(BattleModel);
+        modelIndex++;
+    }
+}
 
 // drains g_BattleActionQueue (12-byte entries, -1-terminated, index D_801590E0), one
 // entry per call, dispatched by a type byte (0-5, jtbl_800A05FC) via m2c
@@ -1091,7 +1385,34 @@ static void func_800BA4C8(void) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BA598);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleUpdateModelMatrixesWithSelfAndParent);
+void BattleUpdateModelMatrixesWithSelfAndParent(s32 actor) {
+    BattleMatrixScratch* scratch = (BattleMatrixScratch*)0x1F800020;
+    BattleModelSub* bone;
+    MATRIX* parent;
+    s32 i;
+
+    for (i = 0; i < g_BattleModels[actor].numBones; i++) {
+        bone = &g_BattleModels[actor].boneTransforms[i];
+        parent = bone->parentMatrix;
+        scratch->parent = parent;
+        scratch->matrix = *parent;
+        gte_SetRotMatrix(&scratch->matrix);
+        gte_ldclmv(&bone->m.m[0][0]);
+        gte_rtir();
+        gte_stclmv(&bone->m.m[0][0]);
+        gte_ldclmv(&bone->m.m[0][1]);
+        gte_rtir();
+        gte_stclmv(&bone->m.m[0][1]);
+        gte_ldclmv(&bone->m.m[0][2]);
+        gte_rtir();
+        gte_stclmv(&bone->m.m[0][2]);
+        gte_SetRotMatrix(&scratch->matrix);
+        gte_SetTransMatrix(&scratch->matrix);
+        gte_ldv0(&bone->trans);
+        gte_rt();
+        gte_stlvnl(bone->m.t);
+    }
+}
 
 static void BattleUpdateMatrixWithSelfAndParentAndSetToGte(BattleModelSub* modelSub) {
     s32 flag;
@@ -1144,11 +1465,43 @@ static void func_800BB030(s16 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB2A8);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleModelUpdateAllBonesHeight);
+void BattleModelUpdateAllBonesHeight(s16 actor, s16 height) {
+    s32 i;
+    s32* model;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BB4F8);
+    for (i = 0; i < g_BattleModels[actor].numBones; i++) {
+        model = g_BattleModels[actor].boneModels[i];
+        if (model != NULL) {
+            BattleModelUpdateBoneHeight(model, height);
+        }
+    }
+}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleUnitInitBonesAndMatrixes);
+void func_800BB4F8(void) {
+    u32* data = (u32*)0x801B0000;
+
+    BattleSetLoadTimToVram((u_long*)((u8*)data + data[data[0]]), 0, 0, 0);
+}
+
+void BattleUnitInitBonesAndMatrixes(s32 actorArg, void* data, s32 enemy) {
+    s32* offsets = D_801590E4.header.offsets;
+    s32 modelOffset;
+    s16 actor = actorArg;
+    if (D_801590E4.bytes[offsets[0]] == 2) {
+        if (enemy == 0)
+            BattleBoneSetParentMatrix(&D_800F8158[0].m, (BattleModelSub*)&g_BattleModels[actor].stageMatrix);
+        else
+            BattleBoneSetParentMatrix(&D_800F8158[1].m, (BattleModelSub*)&g_BattleModels[actor].stageMatrix);
+    } else if (actor == 3) {
+        BattleBoneSetParentMatrix(&g_BattleWorldView.m, (BattleModelSub*)&g_BattleModels[3].stageMatrix);
+    } else {
+        BattleBoneSetParentMatrix(&D_800F8158[0].m, (BattleModelSub*)&g_BattleModels[actor].stageMatrix);
+    }
+    modelOffset = actor * (s32)sizeof(BattleModel);
+    BattleBoneSetParentMatrix((MATRIX*)((u8*)&g_BattleModels[0].stageMatrix + modelOffset),
+                              (BattleModelSub*)((u8*)&g_BattleModels[0].boneTransforms[0] + modelOffset));
+    BattleGetModelBoneNumAndInitBones((s16*)((u8*)&g_BattleModels[0].numBones + modelOffset), data, actor);
+}
 
 void BattleBoneSetParentMatrix(MATRIX* parent, BattleModelSub* bone) { bone->parentMatrix = parent; }
 
@@ -1271,7 +1624,19 @@ static void func_800BBA40(s32 arg0) {
     AkaoExec();
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBA84);
+void func_800BBA84(u16 sound, s16 actor, s32 pan) {
+    s32 value;
+
+    if (actor == -1) {
+        value = pan & 0xFF;
+    } else {
+        value = ((g_modelScreenPos[actor].prevX / 5) * 2) & 0x7E;
+    }
+    g_AkaoCmd.params[0] = value;
+    g_AkaoCmd.opcode = AKAO_PLAY_SOUND;
+    g_AkaoCmd.params[1] = sound & 0xFFFF;
+    AkaoExec();
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BBB20);
 
@@ -1986,7 +2351,78 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5C18);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C5CC0);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", BattleSelectPlayerModelFiles);
+void BattleSelectPlayerModelFiles(void) {
+    s32 i;
+    s32 pass;
+    s32 weapon;
+    u16 tmpFile;
+    u16 tmpActor;
+    s32 leftFile;
+    s32 leftActor;
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        if (g_BattleData.actors[i].charId == -1) {
+            D_800FA9C4[i].file = 200;
+        } else {
+            switch (g_BattleData.actors[i].charId) {
+            case 1:
+                weapon = SysGetPartyPlayerStructureAddressByPartyId(i)->weapon.weaponModel & 0xF0;
+                switch (weapon) {
+                case 0x10:
+                    D_800FA9C4[i].file = 11;
+                    break;
+                case 0x20:
+                    D_800FA9C4[i].file = 12;
+                    break;
+                case 0x30:
+                    D_800FA9C4[i].file = 13;
+                    break;
+                default:
+                    D_800FA9C4[i].file = 1;
+                    break;
+                }
+                break;
+            case 7:
+                weapon = SysGetPartyPlayerStructureAddressByPartyId(i)->weapon.weaponModel & 0xF0;
+                switch (weapon) {
+                case 0x10:
+                    D_800FA9C4[i].file = 14;
+                    break;
+                case 0x20:
+                    D_800FA9C4[i].file = 15;
+                    break;
+                default:
+                    D_800FA9C4[i].file = 7;
+                    break;
+                }
+                break;
+            default:
+                if (g_BattleData.activeEncounter.setup.stageID == 0x4E && g_BattleData.actors[i].charId == 0) {
+                    D_800FA9C4[i].file = 16;
+                } else {
+                    D_800FA9C4[i].file = g_BattleData.actors[i].charId;
+                }
+                break;
+            }
+        }
+        D_800FA9C4[i].actor = i;
+    }
+
+    for (pass = 0; pass < 2; pass++) {
+        for (i = 0; i < 2; i++) {
+            leftFile = D_800FA9C4[i].file;
+            tmpFile = D_800FA9C4[i + 1].file;
+            if ((s16)tmpFile < leftFile) {
+                D_800FA9C4[i].file = tmpFile;
+                tmpActor = D_800FA9C4[i + 1].actor;
+                D_800FA9C4[i + 1].file = leftFile;
+                leftActor = D_800FA9C4[i].actor;
+                D_800FA9C4[i].actor = tmpActor;
+                D_800FA9C4[i + 1].actor = leftActor;
+            }
+        }
+    }
+}
 
 s32 func_800C60F4(void) { return Savemap.battle_msg_speed / 4 + 4; }
 
@@ -2010,7 +2446,18 @@ static void BattleStoreUnitClut(u_long* pTim, s32 palIndex) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C61C0);
+void func_800C61C0(void) {
+    s32 i;
+    for (i = 0; i < NUM_PARTY; i++) {
+        if (g_BattleData.actors[i].charId == 6) {
+            D_800F4B1C.x = 0x10;
+            D_800F4B1C.y = 0x1E0;
+            D_800F4B1C.w = 0x10;
+            D_800F4B1C.h = 3;
+            BattleEnqueueLoadImage(&D_800F4B1C, D_800F8CF4[i]);
+        }
+    }
+}
 
 // load an image into VRAM
 static void func_800C627C(void) {
