@@ -240,7 +240,6 @@ u8 D_80062F19;
 u8 D_80062F1A;
 u8 D_80062F1B;
 u32 D_8006966C[16];
-Unk8009D7BC D_8009D7BC;
 u8 D_80063048[0x648];
 const char* SysDecompKernStringWithF9(s32 a, s32 b, s32 c) { return 0; }
 DRAWENV D_800A06CC;

@@ -113,7 +113,7 @@ void BattleLoadEffectModel(void);
 void BattleFadeInAfterSummon(void);
 void BattleFadeInUntargetedEnemies(void);
 static void func_800C74A4(void);
-void BattleUnitInitBonesAndMatrixes(s32 arg0, void* arg1, s32 arg2);
+void BattleUnitInitBonesAndMatrixes(s32 actorArg, void* data, s32 enemy);
 static void BattleLoadSecondPlayer(void);
 void BattleLoadPlayerModel(s32 actor);
 void BattleLoadPlayerTexture(s32 actor);
