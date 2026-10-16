@@ -8,14 +8,18 @@ void func_80014750(void);
 void func_80014804(void);
 void func_80014C70(void);
 
-void func_800148A0(void);
-INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", func_800148A0);
+s32 D_80062F88;
+
+void SysBattleModeReset(void) {
+    D_80062F88 = 0;
+    g_BattleMode = 0;
+}
 
 extern u8 D_80063048;
 struct Unk800A8D04* g_CurrentAction;
 
 int func_800148B4(void) {
-    func_800148A0();
+    SysBattleModeReset();
     g_CurrentAction = (struct Unk800A8D04*)0x1F800000;
     D_800707C0 = &D_80063048;
     func_80014610();
@@ -28,13 +32,19 @@ int func_800148B4(void) {
 }
 
 void func_80014934(void) {
-    func_800148A0();
+    SysBattleModeReset();
     func_80014578(INIT_KERNEL, (void*)0x801B0000, 0);
     SystemCdWaitCallback(0);
     SysGzipPackDecompressById((u8*)0x801B0000, &Savemap.party, KERNEL_INIT);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", SysLoadUncompressImg);
+void SysLoadUncompressImg(u8* tim) {
+    if (((u32*)tim)[1] & 8) {
+        LoadImage((RECT*)(tim + 0xC), (u_long*)(tim + 0x14));
+        tim += (((u32*)tim)[2] >> 2) << 2;
+    }
+    LoadImage((RECT*)(tim + 0xC), (u_long*)(tim + 0x14));
+}
 
 void SysLoadDrawSync(void) { DrawSync(0); }
 
@@ -67,6 +77,38 @@ s32 SysCountActiveBits(u32 arg0) {
     return i;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", SysSelectRandomBit);
+s32 SysSelectRandomBit(u32 mask) {
+    s32 bit = 0;
+    s32 count = SysCountActiveBits(mask);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/btlinit", SysAddSubWithMaxMinBound);
+    if (count) {
+        count = (SysGetRandomByteFromTable() * count) >> 8;
+        for (bit = 1; bit != 0; bit <<= 1) {
+            if ((mask & bit) && --count < 0) {
+                break;
+            }
+        }
+    }
+    return bit;
+}
+
+u32 SysAddSubWithMaxMinBound(u32 val, u32 addend, u32 max, u32 isAdd) {
+    u32 orig_val;
+
+    orig_val = val;
+    if (isAdd) {
+        val += addend;
+        if (val < orig_val) {
+            val = max;
+        }
+        if (max < val) {
+            val = max;
+        }
+    } else {
+        val -= addend;
+        if (orig_val < val) {
+            val = 0;
+        }
+    }
+    return val;
+}

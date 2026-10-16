@@ -75,10 +75,6 @@ void* func_800A358C(void* a, s32 b, void* c, void* d) { return a; }
 
 void SysMenuInitInput(void) { NOT_IMPLEMENTED; }
 void SysMenuAddItem(s32 item) { NOT_IMPLEMENTED; }
-s32 SysGetLimitCmdId(s32 charId, s32 limitIndex) {
-    NOT_IMPLEMENTED;
-    return 0;
-}
 s32 func_800A0514(s32 arg0) {
     NOT_IMPLEMENTED;
     return 0;
@@ -204,11 +200,6 @@ int SysGetMinutesFromSeconds() {
     NOT_IMPLEMENTED;
     return 0;
 }
-int SysMenuDrawDigitsWithLeadingZeroes() {
-    NOT_IMPLEMENTED;
-    return 0;
-}
-void SysMenuDrawDigitsWithoutLeadingZeroes(s32 x, s32 y, s32 value, s32 digits, s32 color) { NOT_IMPLEMENTED; }
 int SysMenuDrawMenuList() {
     NOT_IMPLEMENTED;
     return 0;
@@ -225,7 +216,10 @@ void SysMenuSetMenuListAnimation(s32 state, s32 menuId) { NOT_IMPLEMENTED; }
 void SysBattleSwirlInit(void) { NOT_IMPLEMENTED; }
 
 s32 D_80010100[64];
+u8 D_80063560[0x100];
 u8 D_80063690[0x5E00];
+BattleItemReward g_BattleItemsEarned[4];
+KernelCharRecord D_80082268[NUM_CHARACTERS];
 u8 D_800696F0[NUM_MENU_COLOR];
 BattleCommandData D_800707C4[32];
 AttackData D_800708C4[256];
@@ -233,16 +227,13 @@ s32 D_80071744;
 u_long* D_800722C8;
 s32 D_80095DD8;
 volatile s16 D_8009C560;
-s32 D_80062F88;
 s32 D_80062F90;
 u8 D_80062F18;
 u8 D_80062F19;
 u8 D_80062F1A;
 u8 D_80062F1B;
 u32 D_8006966C[16];
-Unk8009D7BC D_8009D7BC;
 u8 D_80063048[0x648];
-const char* SysDecompKernStringWithF9(s32 a, s32 b, s32 c) { return 0; }
 DRAWENV D_800A06CC;
 DISPENV D_800A0728;
 u8 D_800A073C[2][0x2000];

@@ -31,6 +31,7 @@
 #define NUM_MAGICS 56
 #define NUM_MAGICS_ALL (NUM_MAGICS + 40)
 #define NUM_SUMMONS 16
+#define NUM_ENEMY_SKILLS 24
 #define MAX_INVENTORY_COUNT 320
 #define MAX_MATERIA_COUNT 200
 #define NUM_MENU_COLOR 12
@@ -561,15 +562,23 @@ typedef enum {
     TARGET_RANDOM = 0x80,           // one of the selected targets is picked at random
 } TargetFlags;
 
+// MagicRecord.menuOptionFlags and ActiveCharCommandMenu.menuOptionFlags
+typedef enum {
+    MENU_OPTION_NONE = 0x00,
+    MENU_OPTION_UNK1 = 0x01,
+    MENU_OPTION_DISABLED = 0x02,     // greyed out and can't be selected
+    MENU_OPTION_MULTI_TARGET = 0x10, // shows the multi-target icon (red arrow >)
+} BattleMenuOptionFlags;
+
 typedef struct {
-    u8 id;
-    u8 mpCost;
-    u8 quadraAttacksLeft;
-    u8 quadEnabled;
-    u8 allAttacksLeft;
-    u8 targetFlags;
-    u8 menuflags;
-    u8 costModifier;
+    /* 0x0 */ u8 id;
+    /* 0x1 */ u8 mpCost;
+    /* 0x2 */ u8 quadraAttacksLeft;
+    /* 0x3 */ u8 quadEnabled;
+    /* 0x4 */ u8 allAttacksLeft;
+    /* 0x5 */ u8 targetFlags;
+    /* 0x6 */ u8 menuOptionFlags;
+    /* 0x7 */ u8 costModifier;
 } MagicRecord; // size: 0x8
 
 typedef struct {
@@ -733,12 +742,19 @@ typedef struct {
                           // 0x04 use in menu (0xFFFE on every accessory)
 } AccessoryRecord;
 
-// Kernel limit-break record, one per character: the HP divisor for each of the
-// four limit levels, followed by the rest of the 0x38-byte stride.
+// Per-character record of KERNEL.BIN section 3 (battle and growth data), 0x38 bytes
+// each, nine of them from 0x80082268. The limit commands and HP divisors the
+// limit-break code reads are the third and last fields.
 typedef struct {
-    s32 hpDivisor[4];
-    u8 rest[0x28];
-} KernelLimitRecord;
+    /* 0x00 */ u8 curve[9]; // growth curve ids: str, vit, mag, spr, dex, lck, hp, mp, exp
+    /* 0x09 */ u8 unk9;
+    /* 0x0A */ s8 startLevelBias; // 0, -2, -4 ... added to the average party level
+    /* 0x0B */ u8 unkB;
+    /* 0x0C */ u8 limitCmdId[12]; // 3 per limit level; 0x80 + command id, 0xFF none
+    /* 0x18 */ u16 killsToLevel[2];
+    /* 0x1C */ u16 limitUses[6]; // (uses, 0xFFFF) pairs needed to learn the next limit
+    /* 0x28 */ s32 hpDivisor[4]; // by limit level
+} KernelCharRecord;
 
 typedef struct {
     u32 materiaId : 8;
@@ -777,12 +793,12 @@ typedef struct {
 } ActiveCharEnabledCounter; // size: 0x3
 
 typedef struct {
-    u8 id;
-    u8 initialCursorAction;
-    u8 targetFlags;
-    u8 unk4;
-    u8 allCount;
-    u8 materiaEffectFlags;
+    /* 0x0 */ u8 id;
+    /* 0x1 */ u8 initialCursorAction;
+    /* 0x2 */ u8 targetFlags;
+    /* 0x3 */ u8 menuOptionFlags;
+    /* 0x4 */ u8 allCount;
+    /* 0x5 */ u8 materiaEffectFlags;
 } ActiveCharCommandMenu; // size: 0x6
 
 // The character's three limit techniques: their ids, the learned-limit filter
@@ -1285,14 +1301,6 @@ typedef struct {
     /* 0x04 */ u_long params[8];
 } AkaoCmd; // size:0x24
 
-typedef struct {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 unk1;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ u8 unk4[16];
-    /* 0x14 */ u8 unk14;
-} Unk8009D7BC;
-
 extern u8* D_8003623C;
 extern u8* D_80036240;
 extern u16 g_Pad0Keys;
@@ -1351,7 +1359,7 @@ extern AttackData D_800722CC[];            // magic/summon/skill table
 extern WeaponRecord g_WeaponTable[];       // 0x800738A0, by weapon id
 extern AccessoryRecord g_AccessoryTable[]; // 0x80071C24, by accessory id
 extern ArmorRecord g_ArmorTable[];         // 0x80071E44, by armor id
-extern KernelLimitRecord D_80082290[];     // 0x80082290, by character id
+extern KernelCharRecord D_80082268[];      // 0x80082268, by character id
 extern FieldEntity g_FieldEntity[];
 extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
 extern s32 g_PartyPortraitClut[];
@@ -1420,7 +1428,6 @@ extern SaveWork Savemap;          // 0x8009C6E4
 extern u8 g_DebugLevel;           // field debug related
 extern CharacterLevelData g_CharacterLevelData[3];
 extern u8 D_8009D824;
-extern Unk8009D7BC D_8009D7BC;
 extern s16 g_FieldModelBaseAnimSpeed[16]; // per-model base animation speed
 extern BattleItemReward g_BattleItemsEarned[4];
 extern ActiveCharacterData g_ActiveCharacters[9];
@@ -1468,7 +1475,7 @@ void SysMenuStoreFontVram(u_long* image);
 void SysMenuRestoreFontVram(u_long* image);
 void SysMenuLoadPartyPortraits(void);
 void SysMenuUnkNoop(s32 arg0);
-void SysMenuDrawDigitsWithoutLeadingZeroes(s32 x, s32 y, s32 value, s32 digits, s32 color);
+void SysMenuDrawDigitsWithoutLeadingZeroes(s32 x, s32 y, u32 value, s32 digits, s32 clutY);
 s32 SysGetSingleStringWidth(unsigned char* str);
 void SysMenuDrawString(s32 x, s32 y, const char*, s32 color); // print FF7 string
 s32 AkaoExec(void);
