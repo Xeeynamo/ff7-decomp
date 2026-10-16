@@ -2048,7 +2048,29 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR12R22R32);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR13R23R33);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelUpdateBoneHeight);
+typedef struct {
+    s32 boneOffset;
+    u8 data[1];
+} ModelBones;
+
+typedef struct {
+    s16 unk0;
+    s16 height;
+} Bone;
+
+s32 BattleModelUpdateBoneHeight(ModelBones* m, s32 delta) {
+    u8* base = m->data;
+    Bone* bone = (Bone*)(base + m->boneOffset);
+    s32 sum = delta + bone->height;
+
+    *(volatile s16*)&bone->height = sum;
+    return sum;
+}
+
+// 4-byte pad before the next function
+#ifdef USE_INCLUDE_ASM
+__asm__(".text # maspsx-keep\n\tnop # maspsx-keep\n");
+#endif
 
 s32 BattleModelAnimReadDynamicFrameOffsBits(u8* arg0, s32* arg1) {
     s32 pos;
