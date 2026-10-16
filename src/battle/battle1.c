@@ -1103,7 +1103,7 @@ void BattleQueue1Execute(void) {
         case 5:
             g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].animControlFlags |= 0x20;
             actor = g_BattleActionQueue[D_801590E0].actionId;
-            D_80151200[actor].D_80151200 = g_BattleData.actors[actor].D_801636C0;
+            D_80151200[actor].D_80151200 = g_BattleData.actors[actor].status;
             actor2 = g_BattleActionQueue[D_801590E0].actionId;
             flags = D_80151200[actor2].D_80151200;
             if (flags != 0x10 && flags != 0x20) {
