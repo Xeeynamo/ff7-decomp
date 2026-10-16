@@ -145,6 +145,7 @@ typedef struct {
 } Unk80162200;
 typedef union {
     u8* ptr;
+    s32 value;
     Unk80162200 unk;
 } Union80162200;
 
@@ -747,7 +748,7 @@ extern u8 D_800F9D94;
 extern u8 D_800F9D98;
 extern u8 D_800F9D9C;
 extern u16 D_800F9DA4;
-extern u8 D_800F9DA8[];
+
 extern BattleWorldView g_BattleWorldView;
 extern s16 D_800FA69C;
 extern u8 D_800FA6A0;
@@ -1116,6 +1117,13 @@ extern u8 D_80163F34[NUM_PARTY][0x100C];
 void func_8001C3CC(void* dst, const void* src, u32 size);
 
 typedef struct {
+    s16 stringId;
+    s16 playSound;
+    u8 delay;
+    u8 duration;
+} BattleBannerMessage; // size:0x6
+
+typedef struct {
     BattleModelSub bones[256];
     u8 unk3400[0x400];
     u8 state[256][2];
@@ -1166,3 +1174,15 @@ extern u8 D_80163B3C;
 extern u8 D_80158CFC;
 
 s16 BattleGetStatusFlashState(s16 status);
+extern SVECTOR D_800E7D08;
+extern u8 D_800EA230[];
+extern SVECTOR* D_800F4B04;
+extern u8 D_800EA1E8[4];
+extern u16 D_800EA1EC;
+extern SVECTOR D_800EA264[4];
+extern SVECTOR D_800EA284[2];
+extern SVECTOR* D_800F4B08;
+extern s16 D_800F4B0C[4];
+extern BattleBannerMessage D_800F9DA8[64];
+extern MATRIX D_800E7D30;
+extern SVECTOR D_800EA1C8[4];
