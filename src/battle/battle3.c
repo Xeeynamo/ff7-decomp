@@ -63,7 +63,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D93E4);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle3", func_800D9BF4);
 
-u8 BattleGetStatusFlashState(s16 arg0) { return D_800F514C[arg0]; }
+s16 BattleGetStatusFlashState(s16 status) { return D_800F514C[status]; }
 
 void BattleMenuWidgetOpen(s16 x, s16 y, s16 id) {
     D_800F514C[id] = 1;
