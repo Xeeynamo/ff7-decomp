@@ -1488,10 +1488,11 @@ void BattleUnitInitBonesAndMatrixes(s32 actorArg, void* data, s32 enemy) {
     s32 modelOffset;
     s16 actor = actorArg;
     if (D_801590E4.bytes[offsets[0]] == 2) {
-        if (enemy == 0)
+        if (enemy == 0) {
             BattleBoneSetParentMatrix(&D_800F8158[0].m, (BattleModelSub*)&g_BattleModels[actor].stageMatrix);
-        else
+        } else {
             BattleBoneSetParentMatrix(&D_800F8158[1].m, (BattleModelSub*)&g_BattleModels[actor].stageMatrix);
+        }
     } else if (actor == 3) {
         BattleBoneSetParentMatrix(&g_BattleWorldView.m, (BattleModelSub*)&g_BattleModels[3].stageMatrix);
     } else {
