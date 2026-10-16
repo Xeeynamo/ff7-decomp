@@ -1231,7 +1231,7 @@ void SysCopyCommandToUnitStructure(u8 commandId, u8 order) {
     s32 i;
 
     D_80062E60->commandMenu[order].id = commandId;
-    D_80062E60->commandMenu[order].unk4 = 0;
+    D_80062E60->commandMenu[order].menuOptionFlags = MENU_OPTION_NONE;
     D_80062E60->commandMenu[order].initialCursorAction = D_800707C4[commandId].initialCursorAction;
     D_80062E60->commandMenu[order].targetFlags = D_800707C4[commandId].targetFlags;
 
@@ -1303,7 +1303,7 @@ void SysInitPlayerTempStat(u8 partyId, ActiveCharacterData* chr) {
     }
     for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
         chr->commandMenu[i].id = 0xFF;
-        chr->commandMenu[i].unk4 = 1;
+        chr->commandMenu[i].menuOptionFlags = MENU_OPTION_UNK1;
         chr->commandMenu[i].materiaEffectFlags = 0;
     }
     for (i = 0; i < 8; i++) {

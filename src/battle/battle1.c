@@ -1237,7 +1237,7 @@ static void func_800B85E0() {
         BattleQueue1CameraInit();
         for (i = 0; i < 3; i++) {
             g_BattleModels[i].animControlFlags |= 0x20;
-            D_80151200[i].D_80151200 = g_BattleData.actors[i].D_801636C0;
+            D_80151200[i].D_80151200 = g_BattleData.actors[i].status;
         }
     }
     if (D_800F9D98 != 100 && (g_BattleMode & 1)) {
@@ -1258,7 +1258,7 @@ static void func_800B85E0() {
                 g_BattleModels[i].animControlFlags |= 1;
                 g_BattleModels[i].animId = g_BattleData.actors[i].idleActionId;
                 g_BattleModels[i].animControlFlags |= 0x20;
-                D_80151200[i].D_80151200 = g_BattleData.actors[i].D_801636C0;
+                D_80151200[i].D_80151200 = g_BattleData.actors[i].status;
             }
             D_800F9D9C = 100;
             D_80163C7C = 5;
@@ -2068,7 +2068,7 @@ static void func_800C1908(u8 arg0) {
     temp_s0 = arg0;
     if (g_BattleModels[temp_s0].animControlFlags & 0x20) {
         if (temp_s0 < 4) {
-            D_800F9F28[temp_s0] = g_BattleData.actors[temp_s0].D_801636C0;
+            D_800F9F28[temp_s0] = g_BattleData.actors[temp_s0].status;
         }
         func_800C5170(temp_s0);
         func_800C5468(temp_s0);

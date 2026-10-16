@@ -309,7 +309,7 @@ typedef struct {
     /* 0x04 */ u8 D_801636BC;
     /* 0x05 */ s8 D_801636BD;
     /* 0x06 */ s16 D_801636BE;
-    /* 0x08 */ s32 D_801636C0;
+    /* 0x08 */ s32 status;
     /* 0x0C */ s32 D_801636C4;
 } BattleActor; // size:0x10
 
@@ -525,7 +525,7 @@ typedef struct {
     /* 0x0A */ u16 constSpeed;
     /* 0x0C */ u8 senseTargetMask;
     /* 0x0D */ u8 accessoryEffectId;
-    /* 0x0E */ u8 hasLimitBreak;
+    /* 0x0E */ u8 menuListFlags;
     /* 0x0F */ u8 formationIndex;
     /* 0x10 */ u8 statusTimers[NUM_STATUS_TIMERS];
     /* 0x20 */ s8 statMults[NUM_STAT_MULTS];
@@ -760,6 +760,8 @@ extern BattleModel g_BattleModels[NUM_BATTLE_ACTOR];
 extern short g_BattleEffectCount;
 extern s32 D_801620A8;
 extern BattleData g_BattleData;
+// pending battle-start status flags, one bit per entry of D_801B001C / D_801B002C (bit 4 = full-heal)
+extern u8 g_BattleStartFXFlags;
 extern s32 D_800F87F0[NUM_BATTLE_ACTOR][32]; // per-combatant battle-script variable bank, 0x80 B
                                              // each (BattleOpcodeValOffs)
 extern Unk80166F78 D_80166F78[NUM_ENEMY][16];
