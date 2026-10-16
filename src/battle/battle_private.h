@@ -53,7 +53,7 @@ enum AccessWidthType { WIDTH_BIT, WIDTH_BYTE, WIDTH_HALF, WIDTH_WORD };
 
 typedef struct {
     s8 actionId;
-    s8 unk1;
+    s8 type;
     s8 unk2;
     s8 unk3;
     s8 unk4;

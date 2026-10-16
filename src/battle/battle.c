@@ -348,21 +348,21 @@ static void func_800A317C(void) {
     ret->targetId = -1;
 }
 
-void func_800A31A0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void func_800A31A0(s32 arg0, s32 type, s32 arg2, s32 arg3) {
     BattleActionQueueEntry* unk = BattleActionQueueAlloc();
     unk->actionId = arg0;
-    unk->unk1 = arg1;
+    unk->type = type;
     unk->unk5 = arg2;
     unk->unk6 = arg3;
     unk->unk8 = -1;
     unk->targetIndex = -1;
 }
 
-static void func_800A3208(s32 arg0, s32 arg1) {
+static void BattleSetLastMsgTimeAndSfx(s32 msgDisplayTime, s32 playSfx) {
     if (g_BattleActionQueueIndex != 0) {
         BattleActionQueueEntry* ptr = &g_BattleActionQueue[g_BattleActionQueueIndex - 1];
-        ptr->unk3 = arg0;
-        ptr->unk2 = arg1;
+        ptr->unk3 = msgDisplayTime;
+        ptr->unk2 = playSfx;
     }
 }
 
@@ -1897,7 +1897,7 @@ void BattleQueueCurrentActionEffect(void) {
     if (g_CurrentAction->unk20 >= 0) {
         unk = BattleActionQueueAlloc();
         unk->actionId = g_CurrentAction->actorId;
-        unk->unk1 = g_CurrentAction->unk1C;
+        unk->type = g_CurrentAction->unk1C;
         unk->unk5 = g_CurrentAction->unk20;
         unk->unk3 = g_CurrentAction->cmdIndex;
         unk->unk2 = g_CurrentAction->unk24;
@@ -2050,7 +2050,7 @@ void BattleActionType16(void) {
 
         // Initial message plays a sfx but the value here is really an on/off switch; the real
         // value is truncated along the way and hardcoded in func_800C5CC0 during the render loop
-        func_800A3208(msgTime, SFX_2D7);
+        BattleSetLastMsgTimeAndSfx(msgTime, SFX_2D7);
 
         msgArgs[0] = g_BattleState.combatant[i].curHP;
         msgArgs[1] = g_BattleState.combatant[i].maxHP;
@@ -2064,7 +2064,7 @@ void BattleActionType16(void) {
 
         // "HP:{cur}/{max}", plus "  MP:{cur}/{max}" when the target has MP
         BattleAddStringToDisplay(g_CurrentAction->actorId, msgId, 1, msgArgs);
-        func_800A3208(msgTime, 0);
+        BattleSetLastMsgTimeAndSfx(msgTime, 0);
 
         for (j = 0; j < 16; j++) {
             if ((weakElemMasks[i] >> j) & 1) {
@@ -2072,7 +2072,7 @@ void BattleActionType16(void) {
 
                 // "Weak against {element}.", where msgArgs[0] is the name of element
                 BattleAddStringToDisplay(g_CurrentAction->actorId, 0x6D, 1, msgArgs);
-                func_800A3208(msgTime, 0);
+                BattleSetLastMsgTimeAndSfx(msgTime, 0);
             }
         }
 
@@ -2484,7 +2484,7 @@ static void func_800AB9C4(s32 arg0, s32 arg1) {
 
     if (!(g_BattleState.combatant[arg0].status & STATUS_DEATH)) {
         temp_v0 = BattleActionQueueAlloc();
-        temp_v0->unk1 = 1;
+        temp_v0->type = 1;
         temp_v0->unk5 = 0x2E;
         temp_v0->actionId = arg0;
         temp_v0->unk3 = 0;
@@ -4681,7 +4681,7 @@ static void BattleQueueEffect(
 
     action = BattleActionQueueAlloc();
     target = BattleQueue2GetPtr();
-    action->unk1 = 1;
+    action->type = 1;
     action->unk8 = -1;
     action->actionId = actorId;
     action->unk5 = animeId;
