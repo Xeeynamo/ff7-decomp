@@ -358,7 +358,7 @@ void func_800A31A0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     unk->targetIndex = -1;
 }
 
-static void func_800A3208(s8 arg0, s8 arg1) {
+static void func_800A3208(s32 arg0, s32 arg1) {
     if (g_BattleActionQueueIndex != 0) {
         BattleActionQueueEntry* ptr = &g_BattleActionQueue[g_BattleActionQueueIndex - 1];
         ptr->unk3 = arg0;
@@ -1951,7 +1951,134 @@ void BattleActionType15(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType16);
+// Sense command handler
+void BattleActionType16(void) {
+    s32 weakElemMasks[NUM_BATTLE_ACTOR];
+    s32 sensedEnemyIds[3];
+    u16 msgArgs[4];
+    s32 targetMask = g_CurrentAction->allowedTargetsMask;
+    s32 msgDelay = 0x20;
+    s32 numWeaknesses = 0;
+    s32 numTargets = 0;
+    s32 totalMsgs;
+    s32 msgTime;
+    s32 msgId;
+    s32 enemyId;
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < LEN(sensedEnemyIds); i++) {
+        sensedEnemyIds[i] = -1;
+    }
+
+    // Targets with 30000 or more max HP are immune to sense
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        if (((targetMask >> i) & 1) && g_BattleState.combatant[i].maxHP >= 30000) {
+            targetMask &= ~(1 << i);
+        }
+    }
+
+    if (!targetMask) {
+        // "Couldn't sense."
+        BattleAddStringToDisplay(g_CurrentAction->actorId, 0x76, msgDelay, msgArgs);
+        return;
+    }
+
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        weakElemMasks[i] = 0;
+        if (!((targetMask >> i) & 1)) {
+            continue;
+        }
+
+        enemyId = g_BattleState.combatant[i].enemyId;
+        for (j = 0; j < LEN(sensedEnemyIds); j++) {
+            if (enemyId == sensedEnemyIds[j]) {
+                break;
+            }
+        }
+
+        // Weaknesses are listed once per enemy type, for the first target of
+        // each type. Bit j of weakElemMasks is element j (16 elements).
+        if (j == LEN(sensedEnemyIds)) {
+            for (j = 0; j < LEN(sensedEnemyIds); j++) {
+                if (sensedEnemyIds[j] == -1) {
+                    sensedEnemyIds[j] = enemyId;
+                    break;
+                }
+            }
+
+            for (j = 0; j < 16; j++) {
+                // First 3 affinities count as a weakness: death, always-hit, double damage
+                if (func_800AE6C0(i, 1 << j, 0) < 3) {
+                    numWeaknesses++;
+                    weakElemMasks[i] |= 1 << j;
+                }
+            }
+        }
+
+        numTargets++;
+    }
+
+    // Split the display time (60 frames, 90 for several targets) across all messages
+    msgTime = numTargets >= 2 ? 90 : 60;
+    totalMsgs = numTargets * 2 + numWeaknesses;
+
+    if (totalMsgs) {
+        msgTime /= totalMsgs;
+    }
+
+    if (msgTime < 4) {
+        msgTime = 4;
+    }
+
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        if (!((targetMask >> i) & 1)) {
+            continue;
+        }
+
+        BattleQueueEvent(2, i, 0x16, 0);
+
+        msgArgs[0] = i;
+        msgArgs[1] = -1;
+        if (g_BattleWork.turn[i].formationIndex != 0xFF) {
+            msgArgs[1] = g_BattleWork.turn[i].formationIndex;
+        }
+        msgArgs[2] = g_BattleState.combatant[i].level;
+
+        // "{name}{enemy letter}  Level:{level}"
+        BattleAddStringToDisplay(g_CurrentAction->actorId, 0x74, msgDelay, msgArgs);
+
+        // Initial message plays a sfx but the value here is really an on/off switch; the real
+        // value is truncated along the way and hardcoded in func_800C5CC0 during the render loop
+        func_800A3208(msgTime, SFX_2D7);
+
+        msgArgs[0] = g_BattleState.combatant[i].curHP;
+        msgArgs[1] = g_BattleState.combatant[i].maxHP;
+        msgArgs[2] = g_BattleState.combatant[i].curMP;
+        msgArgs[3] = g_BattleState.combatant[i].maxMP;
+
+        msgId = 0x72;
+        if (g_BattleState.combatant[i].maxMP) {
+            msgId = 0x75;
+        }
+
+        // "HP:{cur}/{max}", plus "  MP:{cur}/{max}" when the target has MP
+        BattleAddStringToDisplay(g_CurrentAction->actorId, msgId, 1, msgArgs);
+        func_800A3208(msgTime, 0);
+
+        for (j = 0; j < 16; j++) {
+            if ((weakElemMasks[i] >> j) & 1) {
+                msgArgs[0] = j + 0x5D;
+
+                // "Weak against {element}.", where msgArgs[0] is the name of element
+                BattleAddStringToDisplay(g_CurrentAction->actorId, 0x6D, 1, msgArgs);
+                func_800A3208(msgTime, 0);
+            }
+        }
+
+        msgDelay = 1;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8A6C);
 
@@ -3539,18 +3666,19 @@ void BattleGetAffinityMasks(s32 elementMask, s32 statusMask, s32 arg2, s32* mask
     }
 }
 
-static s32 func_800AE6C0(s32 arg0, s32 arg1, s32 arg2) {
+static s32 func_800AE6C0(s32 arg0, s32 elementMask, s32 statusMask) {
     s32 masks[2][8];
     s32 i;
 
-    BattleGetAffinityMasks(arg1, arg2, arg0, (s32*)masks, 0, 0);
+    BattleGetAffinityMasks(elementMask, statusMask, arg0, (s32*)masks, 0, 0);
 
     for (i = 0; i < 8; i++) {
-        if ((masks[0][i] & arg1) || (masks[1][i] & arg2)) {
+        if ((masks[0][i] & elementMask) || (masks[1][i] & statusMask)) {
             break;
         }
     }
 
+    // If no affinity is found, default to no special affinity (normal/neutral)?
     if (i == 8) {
         i = 3;
     }

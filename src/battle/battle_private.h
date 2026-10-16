@@ -921,6 +921,7 @@ void BattleSetTmpDmgAsTargHpMinusOne(void);
 void func_800AE2A0(void);
 void BattleApplyKillCountBonus(void);
 void BattleCalcMateriaSlotScore(void);
+static s32 func_800AE6C0(s32, s32, s32);
 void BattleCalcAffinityFlags(void);
 s32 BattleGetStatusProtectionMask(s32, s32, s32);
 void func_800AF9C8(void);
