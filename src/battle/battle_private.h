@@ -740,7 +740,7 @@ typedef struct {
     /* 0xC */ s16 impactEffectId;
 } BattleImpactData; // size:0xE
 
-extern BattleImpactData D_800F9F3C[];
+extern BattleImpactData D_800F9F3C[128];
 extern u8 D_800F99E8;
 extern s32 D_800F99E4;
 extern u8 D_800F9D94;
@@ -900,6 +900,7 @@ extern u16 g_BattleScreenFadeR;
 
 void func_800A2DB0(void);
 void func_800A4350(s16, s16, s16, u16);
+void func_800A3534(s32 unused, s16 index);
 static void func_800A4D2C(s32 arg0);
 void BattleRefreshMenu(s32 arg0, s32 menuType);
 static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count);

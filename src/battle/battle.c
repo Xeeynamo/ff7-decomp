@@ -465,7 +465,28 @@ static void func_800A34CC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3534);
+// Copies a snapshot of HP/MP when the impact was created and
+// stores it in the  targetId's BattleTurnWork slot
+void func_800A3534(s32 unused, s16 index) {
+    u32 targetId;
+
+    if (index < 0) {
+        return;
+    }
+
+    targetId = D_800F9F3C[index].targetId;
+    if (targetId >= NUM_PARTY) {
+        return;
+    }
+
+    if (g_BattleState.combatant[targetId].maxHP >= D_800F9F3C[index].currentHp) {
+        g_BattleWork.turn[targetId].prevHP = D_800F9F3C[index].currentHp;
+    }
+
+    if (g_BattleState.combatant[targetId].maxMP >= D_800F9F3C[index].currentMp) {
+        g_BattleWork.turn[targetId].prevMP = D_800F9F3C[index].currentMp;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A35F8);
 
