@@ -65,7 +65,7 @@ void BattlePlayerModifyDefaultPosByFormation(void);
 void BattlePlayerInitModelWithSettings(u8 arg0);
 void BattleEnemyInitModelWithSettings(u8 arg0);
 void BattleEnemyModelsUpdateBonesPosClut(void);
-void func_800B5AAC(s32 arg0);
+void func_800B5AAC(u8 actor);
 static void func_800B5FC4(s16 arg0);
 void BattleQueue1InitPlayAnim(void);
 void BattleQueue1AddNewTarg(void);
@@ -106,7 +106,7 @@ void func_800C5C18(s32 id, s32 delay, s32 duration, s32 playSound);
 void func_800C1394(s32 actorArg);
 void BattleAddStatusIconToRender(s32 arg0, s16 flags);
 void BattleAddStatusDigitsToRender(s32 arg0, u8 arg1);
-void func_800C2FD4(s32 actor, s16 sound, s32 enabled);
+void func_800C2FD4(u8 actor, s16 sound, s32 enabled);
 void func_800C33F0(s32 effectArg);
 void func_800C3AA0(s32 effectArg);
 void func_800C3F44(s32 effectArg);
@@ -856,8 +856,7 @@ void BattleEnemyModelsUpdateBonesPosClut(void) {
     } while (loaded < 10);
 }
 
-void func_800B5AAC(s32 arg0) {
-    u8 actor = arg0 & 0xFF;
+void func_800B5AAC(u8 actor) {
     Unk80151200* state;
     s32 i;
     g_BattleModels[actor].rootTrans.vx = D_80163C80[actor].vx;
@@ -3114,7 +3113,7 @@ void func_800C328C(void) {
         g_BattleEffectSlots[effectIndex].raw.D_8016297C = 0xE;
         g_BattleEffectSlots[effectIndex].raw.D_8016297A++;
         actor = g_BattleEffectSlots[effectIndex].raw.D_80162980;
-        func_800C2FD4(actor & 0xFF, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
+        func_800C2FD4(actor, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
         D_80151200[actor].D_80151233 = 3;
         modelIndex = actor;
         g_BattleModels[modelIndex].colorR = 0xF8;
@@ -3147,7 +3146,7 @@ void func_800C33F0(s32 effectArg) {
         stateIndexOnFinish = actor;
         D_80151200[stateIndexOnFinish].D_8015120C = D_80151200[stateIndexOnFinish].D_8015120C & 0xFFDF;
         g_BattleModels[modelIndexOnFinish].ready = 1;
-        func_800B5AAC(actor & 0xFF);
+        func_800B5AAC(actor);
         return;
     }
     modelIndex = actor;
@@ -3170,7 +3169,7 @@ void func_800C3578(void) {
         g_BattleEffectSlots[effectIndex].raw.D_8016297C = 0xE;
         g_BattleEffectSlots[effectIndex].raw.D_8016297A++;
         actor = g_BattleEffectSlots[effectIndex].raw.D_80162980;
-        func_800C2FD4(actor & 0xFF, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
+        func_800C2FD4(actor, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
         modelIndex = actor;
         g_BattleModels[modelIndex].colorR = 0xF8;
         g_BattleModels[modelIndex].colorG = 0;
@@ -3200,7 +3199,7 @@ void func_800C3950(void) {
         g_BattleMovementSlots[movementIndex].D_801620B0 = 0xE;
         g_BattleMovementSlots[movementIndex].D_801620AE++;
         actor = g_BattleMovementSlots[movementIndex].D_801620B4;
-        func_800C2FD4(actor & 0xFF, 0x16, (u8)g_BattleMovementSlots[movementIndex].D_801620B2);
+        func_800C2FD4(actor, 0x16, (u8)g_BattleMovementSlots[movementIndex].D_801620B2);
         modelIndex = actor;
         g_BattleModels[modelIndex].blendAlpha = 0x800;
         color = (u8)g_BattleMovementSlots[g_BattleMovementCursor].D_801620B6;
@@ -3234,7 +3233,7 @@ void func_800C3AA0(s32 effectArg) {
         stateIndexOnFinish = actor;
         D_80151200[stateIndexOnFinish].D_8015120C = D_80151200[stateIndexOnFinish].D_8015120C & 0xFFDF;
         g_BattleModels[modelIndexOnFinish].ready = 1;
-        func_800B5AAC(actor & 0xFF);
+        func_800B5AAC(actor);
         return;
     }
     modelIndex = actor;
@@ -3261,7 +3260,7 @@ void func_800C3CA8(void) {
         g_BattleEffectSlots[effectIndex].raw.D_8016297C = 0xE;
         g_BattleEffectSlots[effectIndex].raw.D_8016297A++;
         actor = g_BattleEffectSlots[effectIndex].raw.D_80162980;
-        func_800C2FD4(actor & 0xFF, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
+        func_800C2FD4(actor, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
         modelIndex = actor;
         g_BattleModels[modelIndex].colorR = 0xF8;
         g_BattleModels[modelIndex].colorG = 0;
@@ -3323,7 +3322,7 @@ void func_800C3F44(s32 effectArg) {
         g_BattleModels[modelIndexOnFinish].ready = 1;
         g_BattleModels[modelIndexOnFinish].colorR = 0;
         g_BattleModels[modelIndexOnFinish].blendAlpha = 0x1000;
-        func_800B5AAC(actor & 0xFF);
+        func_800B5AAC(actor);
         return;
     }
     modelIndex = actor;
@@ -3347,7 +3346,7 @@ void func_800C40F4(void) {
         g_BattleEffectSlots[effectIndex].raw.D_8016297C = 0x40;
         g_BattleEffectSlots[effectIndex].raw.D_8016297A++;
         actor = g_BattleEffectSlots[effectIndex].raw.D_80162980;
-        func_800C2FD4(actor & 0xFF, 0x1C0, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
+        func_800C2FD4(actor, 0x1C0, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
         slotIndex = BattleDetachedRegister(func_800C3DE4);
         modelIndex = actor;
         g_BattleDetachedSlots[slotIndex].raw.unk8 = actor;
@@ -3413,7 +3412,7 @@ void func_800C44B4(void) {
         g_BattleEffectSlots[effectIndex].raw.D_8016297C = 0x10;
         g_BattleEffectSlots[effectIndex].raw.D_8016297A++;
         actor = g_BattleEffectSlots[effectIndex].raw.D_80162980;
-        func_800C2FD4(actor & 0xFF, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
+        func_800C2FD4(actor, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
         modelIndex = actor;
         g_BattleModels[modelIndex].colorR = 0x80;
         g_BattleModels[modelIndex].colorG = 0x80;
@@ -3475,7 +3474,7 @@ void func_800C4814(void) {
         g_BattleEffectSlots[effectIndex].raw.D_8016297C = 0x10;
         g_BattleEffectSlots[effectIndex].raw.D_8016297A++;
         actor = g_BattleEffectSlots[effectIndex].raw.D_80162980;
-        func_800C2FD4(actor & 0xFF, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
+        func_800C2FD4(actor, 0x16, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
         modelIndex = actor;
         g_BattleModels[modelIndex].colorR = 0x80;
         g_BattleModels[modelIndex].colorG = 0x80;
