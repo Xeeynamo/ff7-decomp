@@ -5,6 +5,13 @@
 #include "field_private.h"
 
 #define KAWAI_READ_S16(params, offset) ((s16)((((params)[(offset) + 1] << 8) & 0xFF00) | ((params)[(offset)] & 0xFF)))
+#define KAWAI_READ_S32(params, offset)                                                                                 \
+    ((s32)((((params)[(offset) + 3] << 24) & 0xFF000000) | (((params)[(offset) + 2] << 16) & 0xFF0000) |               \
+           (((params)[(offset) + 1] << 8) & 0xFF00) | ((params)[(offset)] & 0xFF)))
+#define KAWAI_WRITE_S16(params, offset, value) ((params)[(offset)] = (value), (params)[(offset) + 1] = (value) >> 8)
+#define KAWAI_WRITE_S32(params, offset, value)                                                                         \
+    ((params)[(offset)] = (value), (params)[(offset) + 1] = (value) >> 8, (params)[(offset) + 2] = (value) >> 16,      \
+     (params)[(offset) + 3] = (value) >> 24)
 
 #ifdef PLATFORM_PSYZ
 #define KAWAI_LOAD_COLOR_OFFSETS(r, g, b)
@@ -22,53 +29,179 @@
 #endif
 
 typedef struct {
-    u8 modelCount;
-    u8 unused;
-    u8 modelParams[15][2];
+    /* 0x00 */ u8 modelCount;
+    /* 0x01 */ u8 unused;
+    /* 0x02 */ u8 modelParams[15][2];
 } FieldKawaiState; // size:0x20
 
 typedef struct {
-    FieldKawaiState state;
-    u8 params[32];
-    u32 data[16][15];
+    /* 0x00 */ FieldKawaiState state;
+    /* 0x20 */ u8 params[32];
+    /* 0x40 */ u32 data[16][15];
 } FieldKawaiWorkspace; // size:0x400
 
 typedef struct {
-    s16 r;
-    s16 g;
-    s16 b;
-    s16 targetR;
-    s16 targetG;
-    s16 targetB;
-    s16 stepR;
-    s16 stepG;
-    s16 stepB;
-    u8 flags;
-    u8 finished;
-} FieldKawaiColorFade;
+    /* 0x00 */ s16 r;
+    /* 0x02 */ s16 g;
+    /* 0x04 */ s16 b;
+    /* 0x06 */ s16 targetR;
+    /* 0x08 */ s16 targetG;
+    /* 0x0A */ s16 targetB;
+    /* 0x0C */ s16 stepR;
+    /* 0x0E */ s16 stepG;
+    /* 0x10 */ s16 stepB;
+    /* 0x12 */ u8 flags;
+    /* 0x13 */ u8 finished;
+} FieldKawaiColorFade; // size:0x14
 
 typedef struct {
-    s16 r;
-    s16 g;
-    s16 b;
-    s16 level;
-    s16 targetR;
-    s16 targetG;
-    s16 targetB;
-    s16 targetLevel;
-    s16 stepR;
-    s16 stepG;
-    s16 stepB;
-    s16 stepLevel;
-    u8 flags;
-    u8 finished;
-} FieldKawaiColorFadeBelowLvl;
+    /* 0x00 */ s16 r;
+    /* 0x02 */ s16 g;
+    /* 0x04 */ s16 b;
+    /* 0x06 */ s16 level;
+    /* 0x08 */ s16 targetR;
+    /* 0x0A */ s16 targetG;
+    /* 0x0C */ s16 targetB;
+    /* 0x0E */ s16 targetLevel;
+    /* 0x10 */ s16 stepR;
+    /* 0x12 */ s16 stepG;
+    /* 0x14 */ s16 stepB;
+    /* 0x16 */ s16 stepLevel;
+    /* 0x18 */ u8 flags;
+    /* 0x19 */ u8 finished;
+} FieldKawaiColorFadeBelowLvl; // size:0x1A
 
 typedef struct {
-    u8 ambient[3];
-    u8 lightColors[3][3];
-    s16 lightMatrix[3][3];
-} FieldKawaiLighting;
+    /* 0x00 */ u8 ambient[3];
+    /* 0x03 */ u8 lightColors[3][3];
+    /* 0x0C */ s16 lightMatrix[3][3];
+} FieldKawaiLighting; // size:0x1E
+
+typedef struct {
+    /* 0x00 */ s16 r;
+    /* 0x02 */ s16 g;
+    /* 0x04 */ s16 b;
+    /* 0x06 */ s16 level;
+    /* 0x08 */ s16 targetR;
+    /* 0x0A */ s16 targetG;
+    /* 0x0C */ s16 targetB;
+    /* 0x0E */ s16 targetLevel;
+    /* 0x10 */ u8 flags;
+} FieldKawaiGradient; // size:0x12
+
+typedef struct {
+    /* 0x00 */ s16 level;
+    /* 0x02 */ s16 r;
+    /* 0x04 */ s16 g;
+    /* 0x06 */ s16 b;
+    /* 0x08 */ s16 frame;
+    /* 0x0A */ s16 timer;
+    /* 0x0C */ u8 flags;
+} FieldKawaiSplash; // size:0x0E
+
+typedef struct {
+    /* 0x00 */ s16 normal[3];
+    /* 0x06 */ s16 distance;
+    /* 0x08 */ s16 unitNormal[3];
+    /* 0x0E */ s16 anchor[3];
+    /* 0x14 */ s16 rotation[3][3];
+} FieldKawaiClipPlane; // size:0x26
+
+typedef struct {
+    /* 0x00 */ s16 phase;
+    /* 0x02 */ s16 timer;
+    /* 0x04 */ s16 state;
+    /* 0x06 */ s16 phaseStep;
+    /* 0x08 */ s16 r;
+    /* 0x0A */ s16 g;
+    /* 0x0C */ s16 b;
+    /* 0x0E */ s16 waitFrames;
+    /* 0x10 */ s16 radius;
+    /* 0x12 */ s16 xShift;
+    /* 0x14 */ s16 yShift;
+    /* 0x16 */ s16 zShift;
+    /* 0x18 */ s16 zPhaseShift;
+    /* 0x1A */ s16 zOffset;
+} FieldKawaiPointLight; // size:0x1C
+
+typedef struct {
+    /* 0x00 */ s32 screen;
+    /* 0x04 */ u32 depth;
+    /* 0x08 */ SVECTOR position;
+} FieldKawaiClippedVertex; // size:0x10
+
+// One per-bone slot for the waterline effect: a pair of blending textured quads plus the
+// per-bone vector and scale used to displace them.
+typedef struct {
+    /* 0x00 */ POLY_FT4 poly[2];
+    /* 0x50 */ SVECTOR position;
+    /* 0x58 */ s16 effectScale; // abs() divisor, negated bone length
+    /* 0x5A */ s16 flags;       // bitmask
+} FieldSplashEntry;             // size:0x5C
+
+// Thirty slots of scratch per model, pointed at by g_FieldKawaiSplashEntries.
+#define FIELD_SPLASH_SLOTS 30
+
+typedef struct {
+    /* 0x00 */ u8 r;
+    /* 0x01 */ u8 g;
+    /* 0x02 */ u8 b;
+    /* 0x03 */ u8 normalIndex;
+} FieldModelColor; // size:0x04
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[4];
+    /* 0x04 */ FieldModelColor colors[4];
+    /* 0x14 */ u8 texCoordIndices[4];
+} FieldModelPolyGT4; // size:0x18
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[3];
+    /* 0x03 */ u8 pad1;
+    /* 0x04 */ FieldModelColor colors[3];
+    /* 0x10 */ u8 texCoordIndices[3];
+    /* 0x13 */ u8 pad2;
+} FieldModelPolyGT3; // size:0x14
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[4];
+    /* 0x04 */ FieldModelColor color;
+    /* 0x08 */ u8 texCoordIndices[4];
+} FieldModelPolyFT4; // size:0x0C
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[3];
+    /* 0x03 */ u8 pad1;
+    /* 0x04 */ FieldModelColor color;
+    /* 0x08 */ u8 texCoordIndices[3];
+    /* 0x0B */ u8 pad2;
+} FieldModelPolyFT3; // size:0x0C
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[3];
+    /* 0x03 */ u8 pad;
+    /* 0x04 */ FieldModelColor color;
+} FieldModelPolyF3; // size:0x08
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[4];
+    /* 0x04 */ FieldModelColor color;
+} FieldModelPolyF4; // size:0x08
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[3];
+    /* 0x03 */ u8 pad;
+    /* 0x04 */ FieldModelColor colors[3];
+} FieldModelPolyG3; // size:0x10
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[4];
+    /* 0x04 */ FieldModelColor colors[4];
+} FieldModelPolyG4; // size:0x14
+
+#define KAWAI_PART_FLAGS (*(s32*)getScratchAddr(128))
+#define KAWAI_PART_LEVEL (*(s16*)getScratchAddr(129))
+#define KAWAI_GRADIENT_FLAGS (*getScratchAddr(251))
 
 typedef s32 (*FieldKawaiHandler)(FieldModelEntry* model, u8* params);
 
@@ -97,9 +230,10 @@ static FieldKawaiHandler kawai_ops_table[14] = {
 };
 
 u8 g_FieldPrimitiveBufferIndex = 0;
-u8 D_800DF115 = 12;
-u8 D_800DF116 = 14;
-u8 D_800DF117 = 0;
+// Unused.
+static u8 D_800DF115 = 12;
+static u8 D_800DF116 = 14;
+static u8 D_800DF117 = 0;
 
 FieldRenderData* g_FieldCurrentRenderData = NULL;
 static FieldKawaiHandler* kawai_ops = kawai_ops_table;
@@ -209,42 +343,22 @@ static SVECTOR normal_table[240] = {
 
 FieldFaceTextureHeader* g_FieldFaceTextureData = (FieldFaceTextureHeader*)0x801E01F0;
 
+// clang-format off
 static u8 eye_tex_ids[34][7] = {
-    {126, 0, 1, 2, 3, 4, 7},
-    {126, 8, 9, 10, 11, 12, 15},
-    {126, 16, 17, 18, 19, 20, 23},
-    {126, 24, 25, 26, 27, 28, 31},
-    {126, 32, 33, 34, 35, 36, 39},
-    {126, 40, 41, 42, 43, 44, 47},
-    {126, 48, 49, 50, 51, 52, 55},
-    {126, 56, 57, 58, 59, 60, 63},
-    {126, 64, 65, 66, 67, 68, 71},
-    {126, 72, 73, 74, 75, 76, 79},
-    {126, 80, 126, 126, 126, 126, 126},
-    {126, 82, 126, 126, 126, 126, 126},
-    {126, 84, 126, 126, 126, 126, 126},
-    {126, 86, 126, 126, 126, 126, 126},
-    {126, 88, 126, 126, 126, 126, 126},
-    {126, 90, 126, 126, 126, 126, 126},
-    {126, 92, 126, 126, 126, 126, 126},
-    {126, 94, 126, 126, 126, 126, 126},
-    {126, 96, 126, 126, 126, 126, 126},
-    {126, 98, 126, 126, 126, 126, 126},
-    {126, 100, 126, 126, 126, 126, 126},
-    {126, 102, 126, 126, 126, 126, 126},
-    {126, 104, 126, 126, 126, 126, 126},
-    {126, 106, 126, 126, 126, 126, 126},
-    {126, 108, 126, 126, 126, 126, 126},
-    {126, 110, 126, 126, 126, 126, 126},
-    {126, 112, 126, 126, 126, 126, 126},
-    {126, 114, 126, 126, 126, 126, 126},
-    {126, 116, 126, 126, 126, 126, 126},
-    {126, 118, 126, 126, 126, 126, 126},
-    {126, 120, 126, 126, 126, 126, 126},
-    {126, 122, 126, 126, 126, 126, 126},
-    {126, 124, 126, 126, 126, 126, 126},
+    {126, 0, 1, 2, 3, 4, 7},             {126, 8, 9, 10, 11, 12, 15},         {126, 16, 17, 18, 19, 20, 23},
+    {126, 24, 25, 26, 27, 28, 31},       {126, 32, 33, 34, 35, 36, 39},       {126, 40, 41, 42, 43, 44, 47},
+    {126, 48, 49, 50, 51, 52, 55},       {126, 56, 57, 58, 59, 60, 63},       {126, 64, 65, 66, 67, 68, 71},
+    {126, 72, 73, 74, 75, 76, 79},       {126, 80, 126, 126, 126, 126, 126},  {126, 82, 126, 126, 126, 126, 126},
+    {126, 84, 126, 126, 126, 126, 126},  {126, 86, 126, 126, 126, 126, 126},  {126, 88, 126, 126, 126, 126, 126},
+    {126, 90, 126, 126, 126, 126, 126},  {126, 92, 126, 126, 126, 126, 126},  {126, 94, 126, 126, 126, 126, 126},
+    {126, 96, 126, 126, 126, 126, 126},  {126, 98, 126, 126, 126, 126, 126},  {126, 100, 126, 126, 126, 126, 126},
+    {126, 102, 126, 126, 126, 126, 126}, {126, 104, 126, 126, 126, 126, 126}, {126, 106, 126, 126, 126, 126, 126},
+    {126, 108, 126, 126, 126, 126, 126}, {126, 110, 126, 126, 126, 126, 126}, {126, 112, 126, 126, 126, 126, 126},
+    {126, 114, 126, 126, 126, 126, 126}, {126, 116, 126, 126, 126, 126, 126}, {126, 118, 126, 126, 126, 126, 126},
+    {126, 120, 126, 126, 126, 126, 126}, {126, 122, 126, 126, 126, 126, 126}, {126, 124, 126, 126, 126, 126, 126},
     {126, 126, 126, 126, 126, 126, 126},
 };
+// clang-format on
 
 static u8 mouth_tex_ids[34][3] = {
     {126, 5, 6},     {126, 13, 14},   {126, 21, 22},   {126, 29, 30},   {126, 38, 39},   {126, 45, 46},
@@ -256,7 +370,7 @@ static u8 mouth_tex_ids[34][3] = {
 };
 
 static FieldKawaiWorkspace kawai_work = {0};
-static void* clipped_verts = (void*)0x801AF800;
+static FieldKawaiClippedVertex* clipped_verts = (FieldKawaiClippedVertex*)0x801AF800;
 u8* g_FieldKawaiSplashEntries = NULL;
 u8* g_FieldModelLoadCursor = NULL;
 
@@ -282,18 +396,15 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetVertexCo
 
 s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params) {
     FieldModelPart* parts;
-    u32 i;
-    u32 count;
-    s16 r;
-    s16 g;
-    s16 b;
+    u32 i, count;
+    s16 r, g, b;
 
     count = model->partCount;
     parts = (FieldModelPart*)(model->modelData + model->partsOffset);
     r = KAWAI_READ_S16(params, 0);
     g = KAWAI_READ_S16(params, 2);
     b = KAWAI_READ_S16(params, 4);
-    *(s32*)getScratchAddr(128) = params[6];
+    KAWAI_PART_FLAGS = params[6];
     for (i = 0; i < count; i++) {
         KawaiSetColorToPartPkts(&parts[i], r, g, b);
     }
@@ -303,9 +414,7 @@ s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params) {
 void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
     u8* packets;
     u32* polygons;
-    u32 counts;
-    u32 count;
-    u32 i;
+    u32 i, counts, count;
     u32 code;
     s32 rOffset, gOffset, bOffset;
 
@@ -319,67 +428,71 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
     gOffset = g << 4;
     bOffset = b << 4;
 
-    if (*(s32*)getScratchAddr(128) & 1) {
+    if (KAWAI_PART_FLAGS & 1) {
         counts = *(u32*)&part->polyGT4Count;
         count = counts & 0xFF;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), polygons += 6) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), polygons += sizeof(FieldModelPolyGT4)) {
             POLY_GT4* polyGT4 = (POLY_GT4*)packets;
+            FieldModelPolyGT4* source = (FieldModelPolyGT4*)polygons;
             code = getcode(polyGT4);
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[1]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[0]);
             gte_gpl0();
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[2]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[1]);
             gte_gpl0();
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[3]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[2]);
             gte_gpl0();
-            KAWAI_STORE_RGB0(&polyGT4->r0);
-            KAWAI_STORE_RGB1(&polyGT4->r1);
+            gte_stRGB0(&polyGT4->r0);
+            gte_stRGB1(&polyGT4->r1);
             gte_strgb(&polyGT4->r2);
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[4]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[3]);
             gte_gpl0();
             gte_strgb(&polyGT4->r3);
             setcode(polyGT4, code);
         }
 
         count = (counts & 0xFF00) >> 8;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), polygons += 5) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), polygons += sizeof(FieldModelPolyGT3)) {
             POLY_GT3* polyGT3 = (POLY_GT3*)packets;
+            FieldModelPolyGT3* source = (FieldModelPolyGT3*)polygons;
             code = getcode(polyGT3);
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[1]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[0]);
             gte_gpl0();
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[2]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[1]);
             gte_gpl0();
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[3]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[2]);
             gte_gpl0();
-            KAWAI_STORE_RGB0(&polyGT3->r0);
-            KAWAI_STORE_RGB1(&polyGT3->r1);
+            gte_stRGB0(&polyGT3->r0);
+            gte_stRGB1(&polyGT3->r1);
             gte_strgb(&polyGT3->r2);
             setcode(polyGT3, code);
         }
 
         count = (counts >> 16) & 0xFF;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_FT4), polygons += 3) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT4), polygons += sizeof(FieldModelPolyFT4)) {
             POLY_FT4* polyFT4 = (POLY_FT4*)packets;
+            FieldModelPolyFT4* source = (FieldModelPolyFT4*)polygons;
             code = getcode(polyFT4);
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[1]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->color);
             gte_gpl0();
             gte_strgb(&polyFT4->r0);
             setcode(polyFT4, code);
         }
 
         count = counts >> 24;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_FT3), polygons += 3) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT3), polygons += sizeof(FieldModelPolyFT3)) {
             POLY_FT3* polyFT3 = (POLY_FT3*)packets;
+            FieldModelPolyFT3* source = (FieldModelPolyFT3*)polygons;
             code = getcode(polyFT3);
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[1]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->color);
             gte_gpl0();
             gte_strgb(&polyFT3->r0);
             setcode(polyFT3, code);
@@ -387,90 +500,94 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
 
         counts = *(u32*)&part->polyF3Count;
         count = counts & 0xFF;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_F3), polygons += 2) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F3), polygons += sizeof(FieldModelPolyF3)) {
             POLY_F3* polyF3 = (POLY_F3*)packets;
+            FieldModelPolyF3* source = (FieldModelPolyF3*)polygons;
             code = getcode(polyF3);
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[1]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->color);
             gte_gpl0();
             gte_strgb(&polyF3->r0);
             setcode(polyF3, code);
         }
 
         count = (counts & 0xFF00) >> 8;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_F4), polygons += 2) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F4), polygons += sizeof(FieldModelPolyF4)) {
             POLY_F4* polyF4 = (POLY_F4*)packets;
+            FieldModelPolyF4* source = (FieldModelPolyF4*)polygons;
             code = getcode(polyF4);
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[1]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->color);
             gte_gpl0();
             gte_strgb(&polyF4->r0);
             setcode(polyF4, code);
         }
 
         count = (counts >> 16) & 0xFF;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_G3), polygons += 4) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G3), polygons += sizeof(FieldModelPolyG3)) {
             POLY_G3* polyG3 = (POLY_G3*)packets;
+            FieldModelPolyG3* source = (FieldModelPolyG3*)polygons;
             code = getcode(polyG3);
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[1]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[0]);
             gte_gpl0();
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[2]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[1]);
             gte_gpl0();
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[3]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[2]);
             gte_gpl0();
-            KAWAI_STORE_RGB0(&polyG3->r0);
-            KAWAI_STORE_RGB1(&polyG3->r1);
+            gte_stRGB0(&polyG3->r0);
+            gte_stRGB1(&polyG3->r1);
             gte_strgb(&polyG3->r2);
             setcode(polyG3, code);
         }
 
         count = counts >> 24;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_G4), polygons += 5) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G4), polygons += sizeof(FieldModelPolyG4)) {
             POLY_G4* polyG4 = (POLY_G4*)packets;
+            FieldModelPolyG4* source = (FieldModelPolyG4*)polygons;
             code = getcode(polyG4);
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[1]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[0]);
             gte_gpl0();
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[2]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[1]);
             gte_gpl0();
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[3]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[2]);
             gte_gpl0();
-            KAWAI_STORE_RGB0(&polyG4->r0);
-            KAWAI_STORE_RGB1(&polyG4->r1);
+            gte_stRGB0(&polyG4->r0);
+            gte_stRGB1(&polyG4->r1);
             gte_strgb(&polyG4->r2);
-            KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-            gte_ldcv(&polygons[4]);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[3]);
             gte_gpl0();
             gte_strgb(&polyG4->r3);
             setcode(polyG4, code);
         }
-
     } else {
         counts = *(u32*)&part->polyGT4Count;
         count = counts & 0xFF;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), polygons += 6) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), polygons += sizeof(FieldModelPolyGT4)) {
             POLY_GT4* polyGT4 = (POLY_GT4*)packets;
+            FieldModelPolyGT4* source = (FieldModelPolyGT4*)polygons;
             if (polyGT4->tag << 8) {
                 code = getcode(polyGT4);
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[1]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[0]);
                 gte_gpl0();
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[2]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[1]);
                 gte_gpl0();
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[3]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[2]);
                 gte_gpl0();
-                KAWAI_STORE_RGB0(&polyGT4->r0);
-                KAWAI_STORE_RGB1(&polyGT4->r1);
+                gte_stRGB0(&polyGT4->r0);
+                gte_stRGB1(&polyGT4->r1);
                 gte_strgb(&polyGT4->r2);
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[4]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[3]);
                 gte_gpl0();
                 gte_strgb(&polyGT4->r3);
                 setcode(polyGT4, code);
@@ -478,33 +595,35 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
         }
 
         count = (counts & 0xFF00) >> 8;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), polygons += 5) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), polygons += sizeof(FieldModelPolyGT3)) {
             POLY_GT3* polyGT3 = (POLY_GT3*)packets;
+            FieldModelPolyGT3* source = (FieldModelPolyGT3*)polygons;
             if (polyGT3->tag << 8) {
                 code = getcode(polyGT3);
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[1]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[0]);
                 gte_gpl0();
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[2]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[1]);
                 gte_gpl0();
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[3]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[2]);
                 gte_gpl0();
-                KAWAI_STORE_RGB0(&polyGT3->r0);
-                KAWAI_STORE_RGB1(&polyGT3->r1);
+                gte_stRGB0(&polyGT3->r0);
+                gte_stRGB1(&polyGT3->r1);
                 gte_strgb(&polyGT3->r2);
                 setcode(polyGT3, code);
             }
         }
 
         count = (counts >> 16) & 0xFF;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_FT4), polygons += 3) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT4), polygons += sizeof(FieldModelPolyFT4)) {
             POLY_FT4* polyFT4 = (POLY_FT4*)packets;
+            FieldModelPolyFT4* source = (FieldModelPolyFT4*)polygons;
             if (polyFT4->tag << 8) {
                 code = getcode(polyFT4);
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[1]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->color);
                 gte_gpl0();
                 gte_strgb(&polyFT4->r0);
                 setcode(polyFT4, code);
@@ -512,12 +631,13 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
         }
 
         count = counts >> 24;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_FT3), polygons += 3) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT3), polygons += sizeof(FieldModelPolyFT3)) {
             POLY_FT3* polyFT3 = (POLY_FT3*)packets;
+            FieldModelPolyFT3* source = (FieldModelPolyFT3*)polygons;
             if (polyFT3->tag << 8) {
                 code = getcode(polyFT3);
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[1]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->color);
                 gte_gpl0();
                 gte_strgb(&polyFT3->r0);
                 setcode(polyFT3, code);
@@ -526,12 +646,13 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
 
         counts = *(u32*)&part->polyF3Count;
         count = counts & 0xFF;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_F3), polygons += 2) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F3), polygons += sizeof(FieldModelPolyF3)) {
             POLY_F3* polyF3 = (POLY_F3*)packets;
+            FieldModelPolyF3* source = (FieldModelPolyF3*)polygons;
             if (polyF3->tag << 8) {
                 code = getcode(polyF3);
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[1]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->color);
                 gte_gpl0();
                 gte_strgb(&polyF3->r0);
                 setcode(polyF3, code);
@@ -539,12 +660,13 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
         }
 
         count = (counts & 0xFF00) >> 8;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_F4), polygons += 2) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F4), polygons += sizeof(FieldModelPolyF4)) {
             POLY_F4* polyF4 = (POLY_F4*)packets;
+            FieldModelPolyF4* source = (FieldModelPolyF4*)polygons;
             if (polyF4->tag << 8) {
                 code = getcode(polyF4);
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[1]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->color);
                 gte_gpl0();
                 gte_strgb(&polyF4->r0);
                 setcode(polyF4, code);
@@ -552,45 +674,47 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
         }
 
         count = (counts >> 16) & 0xFF;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_G3), polygons += 4) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G3), polygons += sizeof(FieldModelPolyG3)) {
             POLY_G3* polyG3 = (POLY_G3*)packets;
+            FieldModelPolyG3* source = (FieldModelPolyG3*)polygons;
             if (polyG3->tag << 8) {
                 code = getcode(polyG3);
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[1]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[0]);
                 gte_gpl0();
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[2]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[1]);
                 gte_gpl0();
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[3]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[2]);
                 gte_gpl0();
-                KAWAI_STORE_RGB0(&polyG3->r0);
-                KAWAI_STORE_RGB1(&polyG3->r1);
+                gte_stRGB0(&polyG3->r0);
+                gte_stRGB1(&polyG3->r1);
                 gte_strgb(&polyG3->r2);
                 setcode(polyG3, code);
             }
         }
 
         count = counts >> 24;
-        for (i = 0; i < count; i++, packets += sizeof(POLY_G4), polygons += 5) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G4), polygons += sizeof(FieldModelPolyG4)) {
             POLY_G4* polyG4 = (POLY_G4*)packets;
+            FieldModelPolyG4* source = (FieldModelPolyG4*)polygons;
             if (polyG4->tag << 8) {
                 code = getcode(polyG4);
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[1]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[0]);
                 gte_gpl0();
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[2]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[1]);
                 gte_gpl0();
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[3]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[2]);
                 gte_gpl0();
-                KAWAI_STORE_RGB0(&polyG4->r0);
-                KAWAI_STORE_RGB1(&polyG4->r1);
+                gte_stRGB0(&polyG4->r0);
+                gte_stRGB1(&polyG4->r1);
                 gte_strgb(&polyG4->r2);
-                KAWAI_LOAD_COLOR_OFFSETS(rOffset, gOffset, bOffset);
-                gte_ldcv(&polygons[4]);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[3]);
                 gte_gpl0();
                 gte_strgb(&polyG4->r3);
                 setcode(polyG4, code);
@@ -602,8 +726,7 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
 s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* model, u8* params) {
     RECT rect;
     s32 slot;
-    s32 x;
-    s32 y;
+    s32 x, y;
     u_long* image;
     s32 textureIndex;
 
