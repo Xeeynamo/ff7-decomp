@@ -976,7 +976,7 @@ void func_800B8A34(s32, s32);
 static void func_800BA40C();
 static void func_800BB030(s16 arg0);
 void func_800BB2A8(u8);
-void func_800BB9B8(s32);
+void BattlePlayMenuSound(u16 soundId);
 void func_800BBA84(u16 sound, s16 actor, s32 pan);
 static void func_800C1908(u8 arg0);
 void BattleSelectPlayerModelFiles(void);
