@@ -225,7 +225,33 @@ void BattleCheckAllLucky7s(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2974);
+// Attempts to steal an item from the target and queues the text result for the player
+void BattleUnitAttemptSteal(void) {
+    s32 targetId = g_CurrentAction->targetId;
+    u16 itemId = 0;
+    s32 textId = 0x31; // "Nothing to steal."
+
+    if (g_CurrentAction->targetEnemyId != -1) {
+        SceneEnemy* enemy = &g_BattleWork.enemy[g_CurrentAction->targetEnemyId];
+        if (BattleGetRndItemIdForSteal(enemy, 0x80, 1, 0) != 0xFFFF && !(g_BattleWork.turn[targetId].turnFlags & 1)) {
+            s32 levelDiff = g_CurrentAction->characterLevel + 40 - g_CurrentAction->targetLevel;
+            // accessory special effect 4: Sneak Glove
+            if (g_BattleWork.turn[g_CurrentAction->actorId].accessoryEffectId == 4 && levelDiff < 100) {
+                levelDiff = 100;
+            }
+            itemId = BattleGetRndItemIdForSteal(enemy, 0x80, 0, levelDiff * 512 / 100);
+            if (itemId == 0xFFFF) {
+                textId = 0x30; // "Couldn't steal anything"
+            } else {
+                BattleQueueEvent(0, g_CurrentAction->actorId, 3, itemId);
+                textId = 0x2F; // "Stole {item}!"
+                g_BattleWork.turn[targetId].turnFlags |= 1;
+            }
+        }
+    }
+
+    BattleAddStringToDisplay(g_CurrentAction->actorId, textId, 1, &itemId);
+}
 
 static void func_800A2B28(s32 arg0) {
     if (arg0 & 1) {
@@ -348,21 +374,21 @@ static void func_800A317C(void) {
     ret->targetId = -1;
 }
 
-void func_800A31A0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void func_800A31A0(s32 arg0, s32 type, s32 arg2, s32 arg3) {
     BattleActionQueueEntry* unk = BattleActionQueueAlloc();
     unk->actionId = arg0;
-    unk->unk1 = arg1;
+    unk->type = type;
     unk->unk5 = arg2;
     unk->unk6 = arg3;
     unk->unk8 = -1;
     unk->targetIndex = -1;
 }
 
-static void func_800A3208(s8 arg0, s8 arg1) {
+static void BattleSetLastMsgTimeAndSfx(s32 msgDisplayTime, s32 playSfx) {
     if (g_BattleActionQueueIndex != 0) {
         BattleActionQueueEntry* ptr = &g_BattleActionQueue[g_BattleActionQueueIndex - 1];
-        ptr->unk3 = arg0;
-        ptr->unk2 = arg1;
+        ptr->unk3 = msgDisplayTime;
+        ptr->unk2 = playSfx;
     }
 }
 
@@ -505,7 +531,7 @@ static s32 func_800A3828(void) {
         D_800F39E4 += g_BattleWork.battleSpeed;
     }
     if (g_BattleWork.atbWaitMode == 2) {
-        switch (D_800F3896) {
+        switch (g_BattleMenuModalWidgetId) {
         case 0:
         case 4:
         case 5:
@@ -868,7 +894,7 @@ static s32 BattleRunToResultScreen(void) {
     for (i = 0; i < 4; i++) {
         BattleRunFrame();
     }
-    D_800F3896 = 0x1C;
+    g_BattleMenuModalWidgetId = 0x1C;
     BattleMenuWidgetOpen(-1, -1, 0x1C);
     while (D_800F39EC == 0) {
         BattleRunFrame();
@@ -893,7 +919,7 @@ static s32 BattleRunEscapeSequence(void) {
     for (i = 0; i < 4; i++) {
         BattleRunFrame();
     }
-    D_800F3896 = 9;
+    g_BattleMenuModalWidgetId = 9;
     BattleMenuWidgetOpen(-1, -1, 9);
     while (D_800F39EC == 0) {
         BattleRunFrame();
@@ -1876,7 +1902,6 @@ void func_800A6E6C(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 13, arg1); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRemovePlayersFromBattle);
 
-static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* args);
 void BattleSetItemWasStolenStringToDisplay(s32 arg0, s16 arg1) {
     s16 out = arg1;
     BattleAddStringToDisplay(arg0, 0x53, 1, &out);
@@ -2154,7 +2179,7 @@ void BattleQueueCurrentActionEffect(void) {
     if (g_CurrentAction->unk20 >= 0) {
         unk = BattleActionQueueAlloc();
         unk->actionId = g_CurrentAction->actorId;
-        unk->unk1 = g_CurrentAction->unk1C;
+        unk->type = g_CurrentAction->unk1C;
         unk->unk5 = g_CurrentAction->unk20;
         unk->unk3 = g_CurrentAction->cmdIndex;
         unk->unk2 = g_CurrentAction->unk24;
@@ -2208,7 +2233,134 @@ void BattleActionType15(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType16);
+// Sense command handler
+void BattleActionType16(void) {
+    s32 weakElemMasks[NUM_BATTLE_ACTOR];
+    s32 sensedEnemyIds[3];
+    u16 msgArgs[4];
+    s32 targetMask = g_CurrentAction->allowedTargetsMask;
+    s32 msgDelay = 0x20;
+    s32 numWeaknesses = 0;
+    s32 numTargets = 0;
+    s32 totalMsgs;
+    s32 msgTime;
+    s32 msgId;
+    s32 enemyId;
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < LEN(sensedEnemyIds); i++) {
+        sensedEnemyIds[i] = -1;
+    }
+
+    // Targets with 30000 or more max HP are immune to sense
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        if (((targetMask >> i) & 1) && g_BattleState.combatant[i].maxHP >= 30000) {
+            targetMask &= ~(1 << i);
+        }
+    }
+
+    if (!targetMask) {
+        // "Couldn't sense."
+        BattleAddStringToDisplay(g_CurrentAction->actorId, 0x76, msgDelay, msgArgs);
+        return;
+    }
+
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        weakElemMasks[i] = 0;
+        if (!((targetMask >> i) & 1)) {
+            continue;
+        }
+
+        enemyId = g_BattleState.combatant[i].enemyId;
+        for (j = 0; j < LEN(sensedEnemyIds); j++) {
+            if (enemyId == sensedEnemyIds[j]) {
+                break;
+            }
+        }
+
+        // Weaknesses are listed once per enemy type, for the first target of
+        // each type. Bit j of weakElemMasks is element j (16 elements).
+        if (j == LEN(sensedEnemyIds)) {
+            for (j = 0; j < LEN(sensedEnemyIds); j++) {
+                if (sensedEnemyIds[j] == -1) {
+                    sensedEnemyIds[j] = enemyId;
+                    break;
+                }
+            }
+
+            for (j = 0; j < 16; j++) {
+                // First 3 affinities count as a weakness: death, always-hit, double damage
+                if (func_800AE6C0(i, 1 << j, 0) < 3) {
+                    numWeaknesses++;
+                    weakElemMasks[i] |= 1 << j;
+                }
+            }
+        }
+
+        numTargets++;
+    }
+
+    // Split the display time (60 frames, 90 for several targets) across all messages
+    msgTime = numTargets >= 2 ? 90 : 60;
+    totalMsgs = numTargets * 2 + numWeaknesses;
+
+    if (totalMsgs) {
+        msgTime /= totalMsgs;
+    }
+
+    if (msgTime < 4) {
+        msgTime = 4;
+    }
+
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        if (!((targetMask >> i) & 1)) {
+            continue;
+        }
+
+        BattleQueueEvent(2, i, 0x16, 0);
+
+        msgArgs[0] = i;
+        msgArgs[1] = -1;
+        if (g_BattleWork.turn[i].formationIndex != 0xFF) {
+            msgArgs[1] = g_BattleWork.turn[i].formationIndex;
+        }
+        msgArgs[2] = g_BattleState.combatant[i].level;
+
+        // "{name}{enemy letter}  Level:{level}"
+        BattleAddStringToDisplay(g_CurrentAction->actorId, 0x74, msgDelay, msgArgs);
+
+        // Initial message plays a sfx but the value here is really an on/off switch; the real
+        // value is truncated along the way and hardcoded in func_800C5CC0 during the render loop
+        BattleSetLastMsgTimeAndSfx(msgTime, SFX_2D7);
+
+        msgArgs[0] = g_BattleState.combatant[i].curHP;
+        msgArgs[1] = g_BattleState.combatant[i].maxHP;
+        msgArgs[2] = g_BattleState.combatant[i].curMP;
+        msgArgs[3] = g_BattleState.combatant[i].maxMP;
+
+        msgId = 0x72;
+        if (g_BattleState.combatant[i].maxMP) {
+            msgId = 0x75;
+        }
+
+        // "HP:{cur}/{max}", plus "  MP:{cur}/{max}" when the target has MP
+        BattleAddStringToDisplay(g_CurrentAction->actorId, msgId, 1, msgArgs);
+        BattleSetLastMsgTimeAndSfx(msgTime, 0);
+
+        for (j = 0; j < 16; j++) {
+            if ((weakElemMasks[i] >> j) & 1) {
+                msgArgs[0] = j + 0x5D;
+
+                // "Weak against {element}.", where msgArgs[0] is the name of element
+                BattleAddStringToDisplay(g_CurrentAction->actorId, 0x6D, 1, msgArgs);
+                BattleSetLastMsgTimeAndSfx(msgTime, 0);
+            }
+        }
+
+        msgDelay = 1;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8A6C);
 
@@ -2613,7 +2765,7 @@ static void func_800AB9C4(s32 arg0, s32 arg1) {
 
     if (!(g_BattleState.combatant[arg0].status & STATUS_DEATH)) {
         temp_v0 = BattleActionQueueAlloc();
-        temp_v0->unk1 = 1;
+        temp_v0->type = 1;
         temp_v0->unk5 = 0x2E;
         temp_v0->actionId = arg0;
         temp_v0->unk3 = 0;
@@ -2719,7 +2871,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
             g_CurrentAction->unk78 |= 1 << arg1;
         }
         if ((g_CurrentAction->unk218 & 4) && (g_CurrentAction->unkB0 < 9)) {
-            func_800A2974();
+            BattleUnitAttemptSteal();
         }
         if (isReflected) {
             // pick who the effect bounces to (self, or a cycled ally) and
@@ -3795,18 +3947,19 @@ void BattleGetAffinityMasks(s32 elementMask, s32 statusMask, s32 arg2, s32* mask
     }
 }
 
-static s32 func_800AE6C0(s32 arg0, s32 arg1, s32 arg2) {
+static s32 func_800AE6C0(s32 arg0, s32 elementMask, s32 statusMask) {
     s32 masks[2][8];
     s32 i;
 
-    BattleGetAffinityMasks(arg1, arg2, arg0, (s32*)masks, 0, 0);
+    BattleGetAffinityMasks(elementMask, statusMask, arg0, (s32*)masks, 0, 0);
 
     for (i = 0; i < 8; i++) {
-        if ((masks[0][i] & arg1) || (masks[1][i] & arg2)) {
+        if ((masks[0][i] & elementMask) || (masks[1][i] & statusMask)) {
             break;
         }
     }
 
+    // If no affinity is found, default to no special affinity (normal/neutral)?
     if (i == 8) {
         i = 3;
     }
@@ -4785,7 +4938,34 @@ static s32 BattleUnitIsOnPartyTeam(s32 arg0) {
     return count & 1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleGetRndItemIdForSteal);
+// Rolls for each of the enemies four drop slots until a roll is successful
+// Returns itemId if drop was successful, 0xFFFF otherwise
+u16 BattleGetRndItemIdForSteal(void* enemyArg, s32 arg1, s32 guaranteed, s32 rateScale) {
+    SceneEnemy* enemy = enemyArg;
+    u16 itemId = 0xFFFF;
+    s32 i;
+
+    for (i = 0; i < LEN(enemy->dropItemIDs); i++) {
+        s32 chance;
+
+        if ((enemy->dropItemRates[i] & ~0x3F) != arg1) {
+            continue;
+        }
+
+        chance = enemy->dropItemRates[i] & 0x3F;
+        if (guaranteed) {
+            chance = 256;
+        } else {
+            chance = chance * rateScale / 256;
+        }
+
+        if (chance >= (SysGetRandomByteFromTable() & 0x3F)) {
+            itemId = enemy->dropItemIDs[i];
+            break;
+        }
+    }
+    return itemId;
+}
 
 static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* args) {
     func_800A31A0(arg0, 2, arg2, BattleAddMessageToStringBuffer((u8*)SysGetKernBattleTextById(arg1), args) + 0x100);
@@ -4809,7 +4989,7 @@ static void BattleQueueEffect(
 
     action = BattleActionQueueAlloc();
     target = BattleQueue2GetPtr();
-    action->unk1 = 1;
+    action->type = 1;
     action->unk8 = -1;
     action->actionId = actorId;
     action->unk5 = animeId;

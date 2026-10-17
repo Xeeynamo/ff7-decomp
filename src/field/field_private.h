@@ -142,7 +142,7 @@ extern char g_DebugText[];
 extern char g_DebugMessageBuffer[];
 
 extern FieldFaceTextureHeader* g_FieldFaceTextureData;
-extern u8* D_800E0204;
+extern u8* g_FieldModelLoadCursor;
 extern volatile s16 g_FieldMovieJustStarted;
 extern u8 SavedScriptIds[48][8];
 extern s32 (*g_FieldOpcodes[256])(void);

@@ -56,12 +56,12 @@ make disks
 ## Tooling
 
 * `make build`: build project
-* `make clean`: remove generated files from build
+* `make clean`: remove generated files from `./build`
 * `make format`: format codebase
-* `make disks` : extract the individual data files from the .bin disk image 
-* `./mako.sh rank <source_path>`: find remaning functions to decompile sorted from easier to hardest
+* `make disks`: extract the individual data files from the .bin disk image
+* `./mako.sh rank <source_path>`: find remaining functions to decompile, sorted from easiest to hardest
 * `./mako.sh dec <function_name>`: decompile function
-* `./mako.sh symbols add <path> <name> <offset> [size]`: add or rename symbol
+* `./mako.sh symbols add <path> <name> <offset> [size]`: add or rename a symbol
 
 ## Game strings
 
@@ -77,6 +77,12 @@ make bin/str
 # specify an overlay and an offset in hex
 bin/str disks/us/MENU/SAVEMENU.MNU 12DF8
 
-# The program will print the decoded string to your terminal:
+# the program prints the decoded string to your terminal:
 Saving. Do not remove Memory card.
 ```
+
+## AI / LLM stance
+
+The matching decompilation of Final Fantasy VII in this repository is done by humans. Every pull request submitted will strictly be reviewed by humans, line by line to ensure the highest quality bar is maintained. This project has no place for LLM-accelerated decompilation work. You may use LLMs for tooling, to permute a hard function, or to hunt bugs at runtime; ultimately the decompiled code you submit must be your own work. Any hostile fork used as a fast-lane is strictly forbidden, and we will enforce the project's license against them. Please familiarize yourself with [CONTRIBUTING.md](./CONTRIBUTING.md) to learn more about our LLM stance.
+
+Decompiling a game is not a sprint, it is a marathon.

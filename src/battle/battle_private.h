@@ -53,7 +53,7 @@ enum AccessWidthType { WIDTH_BIT, WIDTH_BYTE, WIDTH_HALF, WIDTH_WORD };
 
 typedef struct {
     s8 actionId;
-    s8 unk1;
+    s8 type;
     s8 unk2;
     s8 unk3;
     s8 unk4;
@@ -91,10 +91,8 @@ typedef struct {
     /* 0x0A */ s16 D_80162982;
     /* 0x0C */ s16 unkC;
     /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s16 unk14;
-    /* 0x16 */ s16 unk16;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
     /* 0x18 */ u8 unk18;
     /* 0x19 */ u8 unk19;
     /* 0x1A */ s16 unk1A;
@@ -605,7 +603,7 @@ extern u8 D_800F381C[];
 extern u8 D_800F3828[];
 extern unsigned char D_800F384A[];
 extern s32 g_BattleCmdOpcodeOffs[];
-extern u8 D_800F38A0;
+extern u8 g_BattleMenuPartySlot;
 extern u8 D_800F38A1;
 extern s16 D_800F38A2;
 extern s32 D_800F4300; // write cursor into the shared script buffer
@@ -614,7 +612,7 @@ extern u8 D_800F7ED4;
 extern u8 D_800F38A7;
 extern u8 D_800F389C;
 extern s16 D_800F389E;
-extern s16 D_800F3896; // btlmenu_activeWindowId
+extern s16 g_BattleMenuModalWidgetId; // btlmenu_activeWindowId
 extern s32 g_BattleActionQueueIndex;
 extern s32 g_BattleActionQueueTargIndex;
 extern s32 D_800F394C;
@@ -661,7 +659,7 @@ extern RECT g_BattleModelClutRect;
 extern RECT D_800F4B2C[];
 extern RECT D_800F4B6C[];
 extern Unk800F01DC D_800F4BAC[];
-extern u8 D_800F514C[];
+extern u8 g_BattleWidgetState[];
 extern s8 D_800F5760;
 extern u8 D_800F5764;
 extern u8 D_800F5774;
@@ -766,11 +764,11 @@ extern u8 D_80151688[12];
 extern u8 g_BattleSavedSpecialFlags[10];
 extern s32 D_801516A4[10];
 extern s32 D_801516CC[10];
-extern s32 D_8015174C[10];
-extern s32 D_8015178C[10];
-extern s32 D_801517C8[10];
+extern s32 g_BattleHpBarValue[10];
+extern s32 g_BattleMpBarValue[10];
+extern s32 g_BattleHpBarFill[10];
 
-extern s32 D_8015187C[10];
+extern s32 g_BattleMpBarFill[10];
 // queued-action-ish record, allocated by BattleQueue2GetPtr (unk3 set to -1,
 // marking it unassigned) and searched by func_800A34CC. Traced through
 // BattleCreateImpactData's callers (func_800AB830/BattleMainDmgCalculation):
@@ -951,6 +949,7 @@ void BattleSetTmpDmgAsTargHpMinusOne(void);
 void func_800AE2A0(void);
 void BattleApplyKillCountBonus(void);
 void BattleCalcMateriaSlotScore(void);
+static s32 func_800AE6C0(s32, s32, s32);
 void BattleCalcAffinityFlags(void);
 s32 BattleGetStatusProtectionMask(s32, s32, s32);
 void func_800AF9C8(void);
@@ -960,6 +959,8 @@ s32 BattleCalcDefPercent(s32);
 void func_800B0C14(void);
 static void func_800B0DF8(void);
 static s32 BattleApplyFuryHitChanceReduction(s32);
+u16 BattleGetRndItemIdForSteal(void*, s32, s32, s32);
+static void BattleAddStringToDisplay(s32, s32, s32, s16*);
 static s32 BattleGetRnd164(void);
 s32 BattleOpcodeGetRndBit(u16);
 void BattlePlayerModelsUpdateBonesPos(void);
@@ -972,11 +973,11 @@ static s32 BattleApplyStatMult(s32 arg0, s32 value, s32 statIndex);
 void BattleInitScriptContext(/*s32, s32, s32*/);
 s16 func_800B888C(s32);
 void func_800B8438(void);
-void func_800B8A34(s16, s32);
+void func_800B8A34(s32, s32);
 static void func_800BA40C();
 static void func_800BB030(s16 arg0);
 void func_800BB2A8(u8);
-void func_800BB9B8(s32);
+void BattlePlayMenuSound(u16 soundId);
 void func_800BBA84(u16 sound, s16 actor, s32 pan);
 static void func_800C1908(u8 arg0);
 void BattleSelectPlayerModelFiles(void);
@@ -1117,6 +1118,15 @@ extern u8 D_80163F34[NUM_PARTY][0x100C];
 void func_8001C3CC(void* dst, const void* src, u32 size);
 
 typedef struct {
+    u16 unk0;
+    u16 unk2;
+    s16 unk4;
+    s16 unk6;
+    u16 actor;
+    u16 targetIndex;
+} BattleTargetEffectSettings; // size:0xC
+
+typedef struct {
     BattleModelSub bones[256];
     u8 unk3400[0x400];
     u8 state[256][2];
@@ -1147,6 +1157,18 @@ extern RECT D_800F4B1C;
 extern BattleModelSub D_800F8158[NUM_BATTLE_ACTOR];
 extern BattleStageFile D_801590E4;
 extern CVECTOR D_800F5B70;
+extern SVECTOR D_800E7D08;
+extern Yamada D_800E8C90[];
+extern s8 D_800F8378;
+extern BattleTargetEffectSettings D_800F99EC[];
+extern u16 D_801517B4;
+extern u8 D_800FAFE0;
+extern u16 D_80161DE8;
+extern u16 D_80162088;
+extern s8 D_80162090;
+extern u8 D_80161EEC;
+extern BattleModelSub D_80163A9C[NUM_PARTY];
+extern u8 D_800F9774;
 extern s16 D_800F5B74;
 
 typedef struct {

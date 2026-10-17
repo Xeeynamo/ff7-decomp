@@ -3,7 +3,7 @@
 #include <libetc.h>
 #include "field_private.h"
 
-extern s16 D_800DF120[][2];
+extern s16 g_FieldSinCosTable[256][2];
 extern u16 D_80113F28;
 extern s16 D_801144CC;
 extern u8 D_80071C0C;
@@ -570,9 +570,9 @@ void FieldEntityCheckTalk(void) {
     }
 }
 
-static s16 FieldEntityGetDirVectorX(u8 arg0) { return D_800DF120[arg0][0]; }
+static s16 FieldEntityGetDirVectorX(u8 arg0) { return g_FieldSinCosTable[arg0][0]; }
 
-s16 FieldEntityGetDirVectorY(u8 arg0) { return D_800DF120[arg0][1]; }
+s16 FieldEntityGetDirVectorY(u8 arg0) { return g_FieldSinCosTable[arg0][1]; }
 
 u8 FieldEntityDirByVec(VECTOR* start, VECTOR* target, s32* distance) {
     u8 angle;

@@ -1058,7 +1058,7 @@ typedef struct {
 typedef struct {
     s16 length;
     s8 parentIndex;
-    u8 hasPart;
+    s8 hasPart;
 } FieldModelBone;
 
 typedef struct {
@@ -1111,12 +1111,12 @@ typedef struct {
     /* 0x10 */ s32 translationZ;
     /* 0x14 */ u8 globalModelId;
     /* 0x15 */ u8 textureFaceId;
-    /* 0x16 */ u16 scale;
+    /* 0x16 */ s16 scale;
     /* 0x18 */ u16 partsOffset;
     /* 0x1A */ u16 animationOffset;
     /* 0x1C */ u8* modelData;
-    /* 0x20 */ u8* partMatrices; // part matrix data
-} FieldModelEntry;               // size:0x24
+    /* 0x20 */ MATRIX* partMatrices; // part matrix data
+} FieldModelEntry;                   // size:0x24
 
 typedef struct {
     /* 0x00 */ u8 modelCount;
@@ -1476,7 +1476,7 @@ void SysIncSeedForRandom(void);
 s32 SysGetKernBattleTextById(s32);
 const char* SysKernGetString(s32 type, s32 index, s32 blockOffset);
 void SysSetEngineErrorCode(s32, ...);
-u32 SysAddSubWithMaxMinBound(u32, u32, u32, s32);
+u32 SysAddSubWithMaxMinBound(u32 val, u32 addend, u32 max, u32 isAdd);
 void SysGiveApToEquippedMateria(s16 partyId, u16 ap);
 void func_8001C3C4(void);
 u32 InputReadPadsRaw(); // jet passes a pad id the main exe ignores
