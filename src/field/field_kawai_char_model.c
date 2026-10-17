@@ -192,7 +192,6 @@ typedef struct {
 typedef s32 (*FieldKawaiHandler)(FieldModelEntry* model, u8* params);
 
 s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params);
-s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params);
 void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b);
 void KawaiSetColorToPartPktsBelowLvl(FieldModelPart* part, s32 r, s32 g, s32 b);
 void KawaiSetLightingToPartPkts(FieldModelPart* part, s16* light);
@@ -405,7 +404,7 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
     s32 rOffset, gOffset, bOffset;
 
     packets = part->packets;
-    polygons = (u32*)(part->data + part->polygonsOffset);
+    polygons = part->data + part->polygonsOffset;
     if (g_FieldPrimitiveBufferIndex) {
         packets += part->packetBufferSize;
     }
@@ -1010,6 +1009,7 @@ s32 KawaiColorFadeBelowLvl(FieldModelEntry* model, u8* params) {
             }
             return 0;
         }
+        break;
     }
     return 1;
 }
