@@ -12,7 +12,7 @@ static Yamada global_model_files[9] = {
 
 static Yamada face_texture_file = {126879, 13631};
 
-extern FieldRenderData* D_800DF118;
+extern FieldRenderData* g_FieldCurrentRenderData;
 extern u8 D_801144D8;
 
 void FieldModelPrepareRender(FieldModelEntry* model);
@@ -23,7 +23,7 @@ void FieldModelLoadAndInit(void) {
 
     g_FieldFaceTextureData = FIELD_TEXTURE_BUFFER;
     D_80075E10 = FieldModelStructInit(D_8007E770, g_FieldModelData);
-    D_800E0204 = D_80075E10;
+    g_FieldModelLoadCursor = D_80075E10;
     SysCdromStartLoadLzs(g_FieldFileInfo[g_FieldCurrentMap * 6 + 4], g_FieldFileInfo[g_FieldCurrentMap * 6 + 5],
                          FIELD_LOAD_BUFFER, NULL);
     while (SystemCdromReadChain()) {
@@ -63,7 +63,7 @@ void HandleKawaiDataInModel(FieldRenderData* buf) {
     u32* matrixDst;
 
     g_FieldPrimitiveBufferIndex = D_80075DEC;
-    D_800DF118 = buf;
+    g_FieldCurrentRenderData = buf;
     models = (FieldModelLoaderData*)(D_8007E770 + 1);
 
     for (i = 0; i < g_FieldState.modelCount; i++) {
