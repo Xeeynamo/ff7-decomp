@@ -636,10 +636,11 @@ extern u16 D_800F4280[];
 
 typedef struct {
     u8 unitId;
-    s8 callbackId;
-    s16 param;
+    u8 callbackId;
+    u16 param;
 } BattleCallbackEvent;
 extern BattleCallbackEvent g_BattleCallbackEvent[][128];
+extern void (**g_BattleEventHandlerTables[])(s32, s32);
 
 extern u8 g_BattleHitFormulaOpcodeStream[];
 extern s32 g_BattlePartyEventReadIdx[];
@@ -906,7 +907,7 @@ void BattleRefreshMenu(s32 arg0, s32 menuType);
 static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count);
 static void BattleRefreshCmdMenu(s32 arg0, u32 status);
 void BattleReturnReservedItems(void);
-void func_800A72C8(s32);
+void BattleProcessEventQueue(s32);
 static void BattleSetActionEffect(s32 effectId, s32 effectModifier);
 void func_800A8E84(s32);
 void func_800AA950(BattleQueueTargetEntry*);

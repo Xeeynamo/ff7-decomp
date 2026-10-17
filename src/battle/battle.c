@@ -532,7 +532,7 @@ void func_800A38FC(void) {
     u16 padKeys = g_Pad0Keys;
     s32 i;
 
-    func_800A72C8(0);
+    BattleProcessEventQueue(0);
     D_800F7DE8 |= 1;
 
     if (!func_800A3828()) {
@@ -1890,8 +1890,7 @@ void func_800A70C4(s32 arg0, s32 arg1) {
     BattleQueueEffect(arg0, 0x34, 2, D_800708C4[arg1].attackEffectID, 0, 9, g_BattleState.combatant[arg0].status);
 }
 
-void func_800A7130(s32 arg0, s32 arg1)
-{
+void func_800A7130(s32 arg0, s32 arg1) {
     if (arg0 < NUM_PARTY) {
         if (arg1 != 0) {
             g_ActiveCharacters[arg0].baseHp = g_BattleState.combatant[arg0].maxHP;
@@ -1905,7 +1904,7 @@ void func_800A7130(s32 arg0, s32 arg1)
 
 void func_800A71E0(void) {}
 
-s32 func_800A71E8(s32 arg0) { return (arg0 + 1) & 0x7F; }
+s32 BattleGetNextEventQueueIndex(s32 arg0) { return (arg0 + 1) & 0x7F; }
 
 void BattleEventQueueInit(void) {
     s32 i;
@@ -1934,11 +1933,21 @@ void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
         temp_a0->param = arg3;
         temp_a0->callbackId = arg2;
         temp_a0->unitId = arg1;
-        *temp_s0 = func_800A71E8(temp_t0);
+        *temp_s0 = BattleGetNextEventQueueIndex(temp_t0);
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A72C8);
+void BattleProcessEventQueue(s32 arg0) {
+    BattleCallbackEvent* e;
+    s32 i;
+
+    // Reassigns the read index each pass (verified in PC build also)
+    while ((e = &g_BattleCallbackEvent[arg0][i = g_BattlePartyEventReadIdx[arg0]])->unitId != 0xFF) {
+        g_BattleEventHandlerTables[arg0][e->callbackId](e->unitId, e->param);
+        e->unitId = 0xFF;
+        g_BattlePartyEventReadIdx[arg0] = BattleGetNextEventQueueIndex(i);
+    }
+}
 
 void BattleResolveMagicActionIndex(void) {
     g_CurrentAction->absoluteActionIndex = MAGIC_START + g_CurrentAction->relativeActionIndex;
