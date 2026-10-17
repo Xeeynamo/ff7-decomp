@@ -8,6 +8,7 @@ BattleSetFocusedActor = 0x800A22C0;
 BattleBattleActionQueueExecute = 0x800A23E0;
 BattleCmdScriptInitTbl = 0x800A283C;
 BattleCheckAllLucky7s = 0x800A2894;
+BattleUnitAttemptSteal = 0x800A2974;
 BattleActionQueueAlloc = 0x800A2F4C;
 BattleQueue2GetPtr = 0x800A2FD0;
 BattleDropSupersededQueuedActions = 0x800A304C;

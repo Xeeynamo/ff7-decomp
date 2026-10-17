@@ -225,7 +225,33 @@ void BattleCheckAllLucky7s(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2974);
+// Attempts to steal an item from the target and queues the text result for the player
+void BattleUnitAttemptSteal(void) {
+    s32 targetId = g_CurrentAction->targetId;
+    u16 itemId = 0;
+    s32 textId = 0x31; // "Nothing to steal."
+
+    if (g_CurrentAction->targetEnemyId != -1) {
+        SceneEnemy* enemy = &g_BattleWork.enemy[g_CurrentAction->targetEnemyId];
+        if (BattleGetRndItemIdForSteal(enemy, 0x80, 1, 0) != 0xFFFF && !(g_BattleWork.turn[targetId].turnFlags & 1)) {
+            s32 levelDiff = g_CurrentAction->characterLevel + 40 - g_CurrentAction->targetLevel;
+            // accessory special effect 4: Sneak Glove
+            if (g_BattleWork.turn[g_CurrentAction->actorId].accessoryEffectId == 4 && levelDiff < 100) {
+                levelDiff = 100;
+            }
+            itemId = BattleGetRndItemIdForSteal(enemy, 0x80, 0, levelDiff * 512 / 100);
+            if (itemId == 0xFFFF) {
+                textId = 0x30; // "Couldn't steal anything"
+            } else {
+                BattleQueueEvent(0, g_CurrentAction->actorId, 3, itemId);
+                textId = 0x2F; // "Stole {item}!"
+                g_BattleWork.turn[targetId].turnFlags |= 1;
+            }
+        }
+    }
+
+    BattleAddStringToDisplay(g_CurrentAction->actorId, textId, 1, &itemId);
+}
 
 static void func_800A2B28(s32 arg0) {
     if (arg0 & 1) {
@@ -1876,7 +1902,6 @@ void func_800A6E6C(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 13, arg1); }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRemovePlayersFromBattle);
 
-static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* args);
 void BattleSetItemWasStolenStringToDisplay(s32 arg0, s16 arg1) {
     s16 out = arg1;
     BattleAddStringToDisplay(arg0, 0x53, 1, &out);
@@ -2699,7 +2724,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
             g_CurrentAction->unk78 |= 1 << arg1;
         }
         if ((g_CurrentAction->unk218 & 4) && (g_CurrentAction->unkB0 < 9)) {
-            func_800A2974();
+            BattleUnitAttemptSteal();
         }
         if (isReflected) {
             // pick who the effect bounces to (self, or a cycled ally) and
@@ -4765,7 +4790,34 @@ static s32 BattleUnitIsOnPartyTeam(s32 arg0) {
     return count & 1;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleGetRndItemIdForSteal);
+// Rolls for each of the enemies four drop slots until a roll is successful
+// Returns itemId if drop was successful, 0xFFFF otherwise
+u16 BattleGetRndItemIdForSteal(void* enemyArg, s32 arg1, s32 guaranteed, s32 rateScale) {
+    SceneEnemy* enemy = enemyArg;
+    u16 itemId = 0xFFFF;
+    s32 i;
+
+    for (i = 0; i < LEN(enemy->dropItemIDs); i++) {
+        s32 chance;
+
+        if ((enemy->dropItemRates[i] & ~0x3F) != arg1) {
+            continue;
+        }
+
+        chance = enemy->dropItemRates[i] & 0x3F;
+        if (guaranteed) {
+            chance = 256;
+        } else {
+            chance = chance * rateScale / 256;
+        }
+
+        if (chance >= (SysGetRandomByteFromTable() & 0x3F)) {
+            itemId = enemy->dropItemIDs[i];
+            break;
+        }
+    }
+    return itemId;
+}
 
 static void BattleAddStringToDisplay(s32 arg0, s32 arg1, s32 arg2, s16* args) {
     func_800A31A0(arg0, 2, arg2, BattleAddMessageToStringBuffer((u8*)SysGetKernBattleTextById(arg1), args) + 0x100);

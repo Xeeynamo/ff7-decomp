@@ -957,6 +957,8 @@ s32 BattleCalcDefPercent(s32);
 void func_800B0C14(void);
 static void func_800B0DF8(void);
 static s32 BattleApplyFuryHitChanceReduction(s32);
+u16 BattleGetRndItemIdForSteal(void*, s32, s32, s32);
+static void BattleAddStringToDisplay(s32, s32, s32, s16*);
 static s32 BattleGetRnd164(void);
 s32 BattleOpcodeGetRndBit(u16);
 void BattlePlayerModelsUpdateBonesPos(void);
