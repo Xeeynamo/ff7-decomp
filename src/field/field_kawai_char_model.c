@@ -4,6 +4,8 @@
 #include <inline_c.h>
 #include "field_private.h"
 
+#define KAWAI_READ_S16(params, offset) ((s16)((((params)[(offset) + 1] << 8) & 0xFF00) | ((params)[(offset)] & 0xFF)))
+
 #ifdef PLATFORM_PSYZ
 #define KAWAI_LOAD_COLOR_OFFSETS(r, g, b)
 #define KAWAI_STORE_RGB0(dst)
@@ -25,11 +27,56 @@ typedef struct {
     u8 modelParams[15][2];
 } FieldKawaiState; // size:0x20
 
+typedef struct {
+    FieldKawaiState state;
+    u8 params[32];
+    u32 data[16][15];
+} FieldKawaiWorkspace; // size:0x400
+
+typedef struct {
+    s16 r;
+    s16 g;
+    s16 b;
+    s16 targetR;
+    s16 targetG;
+    s16 targetB;
+    s16 stepR;
+    s16 stepG;
+    s16 stepB;
+    u8 flags;
+    u8 finished;
+} FieldKawaiColorFade;
+
+typedef struct {
+    s16 r;
+    s16 g;
+    s16 b;
+    s16 level;
+    s16 targetR;
+    s16 targetG;
+    s16 targetB;
+    s16 targetLevel;
+    s16 stepR;
+    s16 stepG;
+    s16 stepB;
+    s16 stepLevel;
+    u8 flags;
+    u8 finished;
+} FieldKawaiColorFadeBelowLvl;
+
+typedef struct {
+    u8 ambient[3];
+    u8 lightColors[3][3];
+    s16 lightMatrix[3][3];
+} FieldKawaiLighting;
+
 typedef s32 (*FieldKawaiHandler)(FieldModelEntry* model, u8* params);
 
 s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params);
 s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params);
 void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b);
+void KawaiSetColorToPartPktsBelowLvl(FieldModelPart* part, s32 r, s32 g, s32 b);
+void KawaiSetLightingToPartPkts(FieldModelPart* part, s16* light);
 s32 KawaiSetCustomLightToModelPkts(FieldModelEntry* model, u8* params);
 s32 KawaiSetColorToPktsBelowLvl(FieldModelEntry* model, u8* params);
 s32 KawaiSetLightingToModelPkts(FieldModelEntry* model, u8* params);
@@ -42,7 +89,7 @@ s32 KawaiDirectionalColorGradient(FieldModelEntry* model, u8* params);
 s32 KawaiApplyBoneTransform(FieldModelEntry* model, u8* params);
 s32 KawaiAnimatedPointLight(FieldModelEntry* model, u8* params);
 
-FieldKawaiHandler g_FieldKawaiHandlerTable[14] = {
+static FieldKawaiHandler kawai_ops_table[14] = {
     KawaiLoadEyesMouthTexToVram, KawaiSetModelTransparency,    KawaiSetColorToModelPkts, KawaiSetCustomLightToModelPkts,
     KawaiSetColorToPktsBelowLvl, KawaiSetLightingToModelPkts,  KawaiFadeModelColor,      KawaiSetCustomLighting,
     KawaiColorFadeBelowLvl,      KawaiSetSplashToPktsBelowLvl, KawaiSetPartAttribute,    KawaiDirectionalColorGradient,
@@ -54,10 +101,10 @@ u8 D_800DF115 = 12;
 u8 D_800DF116 = 14;
 u8 D_800DF117 = 0;
 
-FieldRenderData* D_800DF118 = NULL;
-FieldKawaiHandler* g_FieldKawaiHandlers = g_FieldKawaiHandlerTable;
+FieldRenderData* g_FieldCurrentRenderData = NULL;
+static FieldKawaiHandler* kawai_ops = kawai_ops_table;
 
-s16 D_800DF120[256][2] = {
+s16 g_FieldSinCosTable[256][2] = {
     {0, 4096},      {100, 4094},    {200, 4091},    {301, 4084},    {401, 4076},    {501, 4065},    {601, 4051},
     {700, 4035},    {799, 4017},    {897, 3996},    {995, 3973},    {1092, 3947},   {1189, 3919},   {1284, 3889},
     {1379, 3856},   {1474, 3821},   {1567, 3784},   {1659, 3744},   {1751, 3702},   {1841, 3658},   {1930, 3612},
@@ -97,7 +144,7 @@ s16 D_800DF120[256][2] = {
     {-401, 4076},   {-301, 4084},   {-200, 4091},   {-100, 4094},
 };
 
-SVECTOR D_800DF520[240] = {
+static SVECTOR normal_table[240] = {
     {4012, -69, 818, 0},      {4012, -700, 428, 0},     {4012, 700, -428, 0},     {4012, 69, -818, 0},
     {4011, 705, 435, 0},      {4011, -705, -435, 0},    {3853, -1181, -730, 0},   {3853, 1181, 730, 0},
     {3727, 69, -1696, 0},     {3727, -1486, 821, 0},    {3727, -69, 1696, 0},     {3727, 1486, -821, 0},
@@ -162,7 +209,7 @@ SVECTOR D_800DF520[240] = {
 
 FieldFaceTextureHeader* g_FieldFaceTextureData = (FieldFaceTextureHeader*)0x801E01F0;
 
-u8 g_FieldEyeTextureIndices[34][7] = {
+static u8 eye_tex_ids[34][7] = {
     {126, 0, 1, 2, 3, 4, 7},
     {126, 8, 9, 10, 11, 12, 15},
     {126, 16, 17, 18, 19, 20, 23},
@@ -199,7 +246,7 @@ u8 g_FieldEyeTextureIndices[34][7] = {
     {126, 126, 126, 126, 126, 126, 126},
 };
 
-u8 g_FieldMouthTextureIndices[34][3] = {
+static u8 mouth_tex_ids[34][3] = {
     {126, 5, 6},     {126, 13, 14},   {126, 21, 22},   {126, 29, 30},   {126, 38, 39},   {126, 45, 46},
     {126, 53, 54},   {126, 61, 62},   {126, 69, 70},   {126, 77, 78},   {126, 81, 126},  {126, 83, 126},
     {126, 85, 126},  {126, 87, 126},  {126, 89, 126},  {126, 91, 126},  {126, 93, 126},  {126, 95, 126},
@@ -208,18 +255,15 @@ u8 g_FieldMouthTextureIndices[34][3] = {
     {126, 121, 126}, {126, 123, 126}, {126, 125, 126}, {126, 126, 126},
 };
 
-FieldKawaiState g_FieldKawaiState = {0};
-u8 g_FieldKawaiParams[32] = {0};
-// Sixteen shared effect slots; each handler interprets each 60-byte slot differently.
-u32 D_800DFE3C[16][15] = {0};
-void* D_800E01FC = (void*)0x801AF800;
-u8* D_800E0200 = NULL;
-u8* D_800E0204 = NULL;
+static FieldKawaiWorkspace kawai_work = {0};
+static void* clipped_verts = (void*)0x801AF800;
+u8* g_FieldKawaiSplashEntries = NULL;
+u8* g_FieldModelLoadCursor = NULL;
 
 void KawaiClearData(void) {
     s32 count;
     s32 i;
-    FieldKawaiState* state = &g_FieldKawaiState;
+    FieldKawaiState* state = &kawai_work.state;
 
     count = 16;
     state->modelCount = count;
@@ -243,13 +287,12 @@ s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params) {
     s16 r;
     s16 g;
     s16 b;
-    u8 unused[8]; // Never read; only here to pad the stack frame out to 0x40.
 
     count = model->partCount;
     parts = (FieldModelPart*)(model->modelData + model->partsOffset);
-    r = (params[1] << 8) | params[0];
-    g = (params[3] << 8) | params[2];
-    b = (params[5] << 8) | params[4];
+    r = KAWAI_READ_S16(params, 0);
+    g = KAWAI_READ_S16(params, 2);
+    b = KAWAI_READ_S16(params, 4);
     *(s32*)getScratchAddr(128) = params[6];
     for (i = 0; i < count; i++) {
         KawaiSetColorToPartPkts(&parts[i], r, g, b);
@@ -568,7 +611,7 @@ s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* model, u8* params) {
     if (slot < 33) {
         textureIndex = params[0];
         image = (u_long*)((u8*)g_FieldFaceTextureData + g_FieldFaceTextureData->texturesOffset +
-                          g_FieldEyeTextureIndices[model->textureFaceId][textureIndex] * 512);
+                          eye_tex_ids[model->textureFaceId][textureIndex] * 512);
         x = (slot % 4) * 16;
         y = (slot / 4) * 32 + 256;
         setRECT(&rect, x + 768, y, 8, 32);
@@ -576,13 +619,13 @@ s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* model, u8* params) {
 
         textureIndex = params[1];
         image = (u_long*)((u8*)g_FieldFaceTextureData + g_FieldFaceTextureData->texturesOffset +
-                          g_FieldEyeTextureIndices[model->textureFaceId][textureIndex] * 512);
+                          eye_tex_ids[model->textureFaceId][textureIndex] * 512);
         setRECT(&rect, x + 776, y, 8, 32);
         LoadImage(&rect, image);
 
         textureIndex = params[2];
         image = (u_long*)((u8*)g_FieldFaceTextureData + g_FieldFaceTextureData->texturesOffset +
-                          g_FieldMouthTextureIndices[model->textureFaceId][textureIndex] * 512);
+                          mouth_tex_ids[model->textureFaceId][textureIndex] * 512);
         setRECT(&rect, (slot % 8) * 8 + 768, (slot / 8) * 32 + 416, 8, 32);
         LoadImage(&rect, image);
     }
@@ -695,17 +738,259 @@ s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params) {
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetColorToPktsBelowLvl);
+s32 KawaiSetColorToPktsBelowLvl(FieldModelEntry* model, u8* params) {
+    FieldModelPart* parts;
+    u32 i;
+    u8 count;
+    s16 r, g, b;
+    s16 level;
+    s32 flags;
+
+    count = model->partCount;
+    parts = (FieldModelPart*)(model->modelData + model->partsOffset);
+    r = KAWAI_READ_S16(params, 0);
+    g = KAWAI_READ_S16(params, 2);
+    b = KAWAI_READ_S16(params, 4);
+    level = KAWAI_READ_S16(params, 6);
+    flags = KAWAI_READ_S16(params, 8);
+    for (i = 0; i < count; i++) {
+        *(s16*)getScratchAddr(129) = level;
+        *(s32*)getScratchAddr(128) = flags;
+        gte_SetRotMatrix(&model->partMatrices[parts[i].boneIndex]);
+        gte_SetTransMatrix(&model->partMatrices[parts[i].boneIndex]);
+        KawaiSetColorToPartPktsBelowLvl(&parts[i], r, g, b);
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetColorToPartPktsBelowLvl);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiFadeModelColor);
+s32 KawaiFadeModelColor(FieldModelEntry* model, u8* params) {
+    u8* colorParams;
+    FieldKawaiColorFade* fade;
+    s32 finished;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetCustomLighting);
+    fade = (FieldKawaiColorFade*)kawai_work.data[params[1]];
+    switch (params[0]) {
+    case 0:
+        fade->r = KAWAI_READ_S16(params, 2);
+        fade->g = KAWAI_READ_S16(params, 4);
+        fade->b = KAWAI_READ_S16(params, 6);
+        fade->targetR = KAWAI_READ_S16(params, 8);
+        fade->targetG = KAWAI_READ_S16(params, 10);
+        fade->targetB = KAWAI_READ_S16(params, 12);
+        fade->stepR = KAWAI_READ_S16(params, 14);
+        fade->stepG = KAWAI_READ_S16(params, 16);
+        fade->stepB = KAWAI_READ_S16(params, 18);
+        fade->flags = params[20];
+        fade->finished = 0;
+        return 1;
+    case 1:
+        finished = 0;
+        colorParams = kawai_work.params;
+        colorParams[0] = fade->r;
+        colorParams[1] = fade->r >> 8;
+        colorParams[2] = fade->g;
+        colorParams[3] = fade->g >> 8;
+        colorParams[4] = fade->b;
+        colorParams[5] = fade->b >> 8;
+        colorParams[6] = fade->flags;
+        KawaiSetColorToModelPkts(model, colorParams);
+        if (!fade->finished) {
+            fade->r += fade->stepR;
+            if ((fade->stepR >= 0 && fade->r >= fade->targetR) || (fade->stepR < 0 && fade->r <= fade->targetR)) {
+                finished |= 1;
+                fade->r = fade->targetR;
+            }
+            fade->g += fade->stepG;
+            if ((fade->stepG >= 0 && fade->g >= fade->targetG) || (fade->stepG < 0 && fade->g <= fade->targetG)) {
+                finished |= 2;
+                fade->g = fade->targetG;
+            }
+            fade->b += fade->stepB;
+            if ((fade->stepB >= 0 && fade->b >= fade->targetB) || (fade->stepB < 0 && fade->b <= fade->targetB)) {
+                finished |= 4;
+                fade->b = fade->targetB;
+            }
+            if (finished == 7) {
+                fade->finished++;
+            }
+            return 0;
+        }
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiColorFadeBelowLvl);
+s32 KawaiSetCustomLighting(FieldModelEntry* model, u8* params) {
+    u8* lightParams;
+    FieldKawaiLighting* lighting = (FieldKawaiLighting*)kawai_work.data[params[1]];
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetLightingToModelPkts);
+    switch (params[0]) {
+    case 0:
+        lighting->ambient[0] = params[2];
+        lighting->ambient[1] = params[3];
+        lighting->ambient[2] = params[4];
+        lighting->lightColors[0][0] = params[5];
+        lighting->lightColors[0][1] = params[6];
+        lighting->lightColors[0][2] = params[7];
+        lighting->lightColors[1][0] = params[8];
+        lighting->lightColors[1][1] = params[9];
+        lighting->lightColors[1][2] = params[10];
+        lighting->lightColors[2][0] = params[11];
+        lighting->lightColors[2][1] = params[12];
+        lighting->lightColors[2][2] = params[13];
+        lighting->lightMatrix[0][0] = KAWAI_READ_S16(params, 14);
+        lighting->lightMatrix[0][1] = KAWAI_READ_S16(params, 16);
+        lighting->lightMatrix[0][2] = KAWAI_READ_S16(params, 18);
+        lighting->lightMatrix[1][0] = KAWAI_READ_S16(params, 20);
+        lighting->lightMatrix[1][1] = KAWAI_READ_S16(params, 22);
+        lighting->lightMatrix[1][2] = KAWAI_READ_S16(params, 24);
+        lighting->lightMatrix[2][0] = KAWAI_READ_S16(params, 26);
+        lighting->lightMatrix[2][1] = KAWAI_READ_S16(params, 28);
+        lighting->lightMatrix[2][2] = KAWAI_READ_S16(params, 30);
+        return 1;
+    case 1:
+        lightParams = kawai_work.params;
+        lightParams[0] = lighting->ambient[0];
+        lightParams[1] = lighting->ambient[1];
+        lightParams[2] = lighting->ambient[2];
+        lightParams[3] = lighting->lightColors[0][0];
+        lightParams[4] = lighting->lightColors[0][1];
+        lightParams[5] = lighting->lightColors[0][2];
+        lightParams[6] = lighting->lightColors[1][0];
+        lightParams[7] = lighting->lightColors[1][1];
+        lightParams[8] = lighting->lightColors[1][2];
+        lightParams[9] = lighting->lightColors[2][0];
+        lightParams[10] = lighting->lightColors[2][1];
+        lightParams[11] = lighting->lightColors[2][2];
+        lightParams[12] = lighting->lightMatrix[0][0];
+        lightParams[13] = lighting->lightMatrix[0][0] >> 8;
+        lightParams[14] = lighting->lightMatrix[0][1];
+        lightParams[15] = lighting->lightMatrix[0][1] >> 8;
+        lightParams[16] = lighting->lightMatrix[0][2];
+        lightParams[17] = lighting->lightMatrix[0][2] >> 8;
+        lightParams[18] = lighting->lightMatrix[1][0];
+        lightParams[19] = lighting->lightMatrix[1][0] >> 8;
+        lightParams[20] = lighting->lightMatrix[1][1];
+        lightParams[21] = lighting->lightMatrix[1][1] >> 8;
+        lightParams[22] = lighting->lightMatrix[1][2];
+        lightParams[23] = lighting->lightMatrix[1][2] >> 8;
+        lightParams[24] = lighting->lightMatrix[2][0];
+        lightParams[25] = lighting->lightMatrix[2][0] >> 8;
+        lightParams[26] = lighting->lightMatrix[2][1];
+        lightParams[27] = lighting->lightMatrix[2][1] >> 8;
+        lightParams[28] = lighting->lightMatrix[2][2];
+        lightParams[29] = lighting->lightMatrix[2][2] >> 8;
+        KawaiSetCustomLightToModelPkts(model, lightParams);
+    }
+    return 0;
+}
+
+s32 KawaiColorFadeBelowLvl(FieldModelEntry* model, u8* params) {
+    u8* colorParams;
+    s32 finished;
+    FieldKawaiColorFadeBelowLvl* fade = (FieldKawaiColorFadeBelowLvl*)kawai_work.data[params[1]];
+
+    switch (params[0]) {
+    case 0:
+        fade->r = KAWAI_READ_S16(params, 2);
+        fade->g = KAWAI_READ_S16(params, 4);
+        fade->b = KAWAI_READ_S16(params, 6);
+        fade->level = KAWAI_READ_S16(params, 8);
+        fade->targetR = KAWAI_READ_S16(params, 10);
+        fade->targetG = KAWAI_READ_S16(params, 12);
+        fade->targetB = KAWAI_READ_S16(params, 14);
+        fade->targetLevel = KAWAI_READ_S16(params, 16);
+        fade->stepR = KAWAI_READ_S16(params, 18);
+        fade->stepG = KAWAI_READ_S16(params, 20);
+        fade->stepB = KAWAI_READ_S16(params, 22);
+        fade->stepLevel = KAWAI_READ_S16(params, 24);
+        fade->flags = params[26];
+        fade->finished = 0;
+        return 1;
+    case 1:
+        finished = 0;
+        colorParams = kawai_work.params;
+        colorParams[0] = fade->r;
+        colorParams[1] = fade->r >> 8;
+        colorParams[2] = fade->g;
+        colorParams[3] = fade->g >> 8;
+        colorParams[4] = fade->b;
+        colorParams[5] = fade->b >> 8;
+        colorParams[6] = fade->level;
+        colorParams[7] = fade->level >> 8;
+        colorParams[8] = fade->flags;
+        KawaiSetColorToPktsBelowLvl(model, colorParams);
+        if (!fade->finished) {
+            fade->r += fade->stepR;
+            if ((fade->stepR >= 0 && fade->r >= fade->targetR) || (fade->stepR < 0 && fade->r <= fade->targetR)) {
+                finished |= 1;
+                fade->r = fade->targetR;
+            }
+            fade->g += fade->stepG;
+            if ((fade->stepG >= 0 && fade->g >= fade->targetG) || (fade->stepG < 0 && fade->g <= fade->targetG)) {
+                finished |= 2;
+                fade->g = fade->targetG;
+            }
+            fade->b += fade->stepB;
+            if ((fade->stepB >= 0 && fade->b >= fade->targetB) || (fade->stepB < 0 && fade->b <= fade->targetB)) {
+                finished |= 4;
+                fade->b = fade->targetB;
+            }
+            fade->level += fade->stepLevel;
+            if ((fade->stepLevel >= 0 && fade->level >= fade->targetLevel) ||
+                (fade->stepLevel < 0 && fade->level <= fade->targetLevel)) {
+                finished |= 8;
+                fade->level = fade->targetLevel;
+            }
+            if (finished == 0xF) {
+                fade->finished++;
+            }
+            return 0;
+        }
+    }
+    return 1;
+}
+
+s32 KawaiSetLightingToModelPkts(FieldModelEntry* model, u8* params) {
+    u32 i;
+    s16 light[4];
+    MATRIX* color;
+    MATRIX* partMatrices = model->partMatrices;
+    FieldModelPart* parts = (FieldModelPart*)(model->modelData + model->partsOffset);
+
+    gte_SetBackColor(KAWAI_READ_S16(params, 14), KAWAI_READ_S16(params, 16), KAWAI_READ_S16(params, 18));
+    color = (MATRIX*)getScratchAddr(128);
+    color->m[0][0] = KAWAI_READ_S16(params, 8) << 4;
+    color->m[1][0] = KAWAI_READ_S16(params, 10) << 4;
+    color->m[2][0] = KAWAI_READ_S16(params, 12) << 4;
+    color->m[0][1] = 0;
+    color->m[1][1] = 0;
+    color->m[2][1] = 0;
+    color->m[0][2] = 0;
+    color->m[1][2] = 0;
+    color->m[2][2] = 0;
+    gte_SetColorMatrix(color);
+    color->m[1][0] = 0;
+    color->m[1][1] = 0;
+    color->m[1][2] = 0;
+    color->m[2][0] = 0;
+    color->m[2][1] = 0;
+    color->m[2][2] = 0;
+    gte_SetLightMatrix(color);
+    light[0] = KAWAI_READ_S16(params, 0);
+    light[1] = KAWAI_READ_S16(params, 2);
+    light[2] = KAWAI_READ_S16(params, 4);
+    light[3] = KAWAI_READ_S16(params, 6);
+    for (i = 0; i < model->partCount; i++) {
+        if (parts[i].flags) {
+            gte_SetRotMatrix(&partMatrices[parts[i].boneIndex]);
+            gte_SetTransMatrix(&partMatrices[parts[i].boneIndex]);
+            KawaiSetLightingToPartPkts(&parts[i], light);
+        }
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetLightingToPartPkts);
 
@@ -723,7 +1008,7 @@ typedef struct {
     /* 0x5A */ u16 flags;       // bitmask
 } FieldSplashEntry;             // size:0x5C
 
-// Thirty slots of scratch per model, pointed at by D_800E0200.
+// Thirty slots of scratch per model, pointed at by g_FieldKawaiSplashEntries.
 #define FIELD_SPLASH_SLOTS 30
 
 void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
@@ -734,23 +1019,21 @@ void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
     s32 last; // Named so gcc keeps the bound in a register (slt) rather than folding it to a slti.
     s32 i;
 
-    entries = (FieldSplashEntry*)((u8*)D_800E0200 + slot * FIELD_SPLASH_SLOTS * sizeof(FieldSplashEntry));
-    clut = 0x6C2C;
-    // GetGraphType is deliberately called twice cache drops jal
-    tpage = getTPage(1, 0, 0x2C0, 0x100);
+    entries = (FieldSplashEntry*)(g_FieldKawaiSplashEntries + slot * FIELD_SPLASH_SLOTS * sizeof(FieldSplashEntry));
+    clut = getClut(704, 432);
+    tpage = getTPage(1, 0, 704, 256);
     bones = (FieldModelBone*)model->modelData;
     last = FIELD_SPLASH_SLOTS + 1;
     for (i = 1; i < last; i++) {
         FieldSplashEntry* entry = &entries[i];
-
         setPolyFT4(&entry->poly[0]);
         setPolyFT4(&entry->poly[1]);
-        entry->poly[1].b0 = 0x80;
-        entry->poly[0].b0 = 0x80;
-        entry->poly[1].g0 = 0x80;
-        entry->poly[0].g0 = 0x80;
-        entry->poly[1].r0 = 0x80;
-        entry->poly[0].r0 = 0x80;
+        entry->poly[1].b0 = 128;
+        entry->poly[0].b0 = 128;
+        entry->poly[1].g0 = 128;
+        entry->poly[0].g0 = 128;
+        entry->poly[1].r0 = 128;
+        entry->poly[0].r0 = 128;
         entry->poly[1].clut = clut;
         entry->poly[0].clut = clut;
         entry->poly[1].tpage = tpage;

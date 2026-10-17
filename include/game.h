@@ -29,7 +29,7 @@
 #define NUM_MATERIA_ROW 8 // maximum amount of materia per row (weapon or armor)
 #define NUM_BATTLE_COMMANDS 16
 #define NUM_MAGICS 56
-#define NUM_MAGICS_ALL (NUM_MAGICS + 40)
+#define NUM_MAGICS_ALL (NUM_MAGICS + NUM_SUMMONS + NUM_ENEMY_SKILLS)
 #define NUM_SUMMONS 16
 #define NUM_ENEMY_SKILLS 24
 #define MAX_INVENTORY_COUNT 320
@@ -39,6 +39,17 @@
 #define STAT_MAX 255
 #define MAX_HP 10000
 #define MAX_MP 10000
+
+// Index ranges for spells, summons and enemy skills. The same layout is used by
+// enabledMagic[] slots and by attack ids. Ends are exclusive (start + count).
+// Useful because these are stored in one long list in the kernel, and code often
+// requires operating on specific subregions of this list.
+#define MAGIC_START 0
+#define MAGIC_END (MAGIC_START + NUM_MAGICS)
+#define SUMMON_START MAGIC_END
+#define SUMMON_END (SUMMON_START + NUM_SUMMONS)
+#define ENEMY_SKILL_START SUMMON_END
+#define ENEMY_SKILL_END (ENEMY_SKILL_START + NUM_ENEMY_SKILLS)
 
 typedef enum {
     CHAR_CLOUD = 0,
@@ -1047,7 +1058,7 @@ typedef struct {
 typedef struct {
     s16 length;
     s8 parentIndex;
-    u8 hasPart;
+    s8 hasPart;
 } FieldModelBone;
 
 typedef struct {
@@ -1100,12 +1111,12 @@ typedef struct {
     /* 0x10 */ s32 translationZ;
     /* 0x14 */ u8 globalModelId;
     /* 0x15 */ u8 textureFaceId;
-    /* 0x16 */ u16 scale;
+    /* 0x16 */ s16 scale;
     /* 0x18 */ u16 partsOffset;
     /* 0x1A */ u16 animationOffset;
     /* 0x1C */ u8* modelData;
-    /* 0x20 */ u8* partMatrices; // part matrix data
-} FieldModelEntry;               // size:0x24
+    /* 0x20 */ MATRIX* partMatrices; // part matrix data
+} FieldModelEntry;                   // size:0x24
 
 typedef struct {
     /* 0x00 */ u8 modelCount;

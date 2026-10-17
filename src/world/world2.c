@@ -13,7 +13,7 @@ s32 WmLoadModelPacketAndScale(FieldModelEntry* model, s32 packet, s32 arg2) {
     FieldModelPart* parts;
     u32 i;
 
-    model->partMatrices = (u8*)packet;
+    model->partMatrices = (MATRIX*)packet;
     packet += model->boneCount * 32;
     parts = (FieldModelPart*)(model->partsOffset + (u_long)model->modelData);
     for (i = 0; i < model->partCount; i++) {

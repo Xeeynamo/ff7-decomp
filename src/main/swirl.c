@@ -76,7 +76,7 @@ static RECT buf_rect = {0, SWIRL_DRAW_Y, SCREEN_WIDTH, DRAW_HEIGHT};
 extern MATRIX transform_matrix;
 
 static void SysBattleSwirlUpdate(void) {
-    long p, flag;
+    int p, flag;
     CVECTOR color;
     SwirlPacketBuffer* buf;
     s32 i, j, delta;
@@ -127,7 +127,7 @@ static void SysBattleSwirlUpdate(void) {
 
     for (j = 0; j < SWIRL_VERTEX_ROWS; j++) {
         for (i = 0; i < SWIRL_VERTEX_COLS; i++) {
-            RotTransPers(&SWIRL_DATA->vertices[i][j], (long*)&SWIRL_DATA->points[i][j], &p, &flag);
+            RotTransPers(&SWIRL_DATA->vertices[i][j], (int*)&SWIRL_DATA->points[i][j], &p, &flag);
         }
     }
 

@@ -508,7 +508,7 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
 
     e = &g_ActiveCharacters[sceneID];
     e->unk21 = 1;
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < LEN(e->commandMenu); i++) {
         flags = 0xFF;
         cmd = e->commandMenu[i].id;
         if (cmd != 0xFF) {
@@ -527,12 +527,12 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
                 }
                 if (e->commandMenu[i].allCount != 0) {
                     if (e->commandMenu[i].id != 0x19) {
-                        flags |= 0xC;
+                        flags |= TARGET_MULTIPLE_DEFAULT | TARGET_TOGGLE_MULTIPLE;
                     }
                 }
                 cmd = e->commandMenu[i].id;
                 if (cmd == 5 || cmd == 0x11) {
-                    flags |= 0x10;
+                    flags |= TARGET_ONE_ROW_ONLY;
                     if (e->commandMenu[i].allCount != 0) {
                         e->commandMenu[i].initialCursorAction = 0;
                     }
@@ -542,15 +542,15 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
         }
         e->commandMenu[i].targetFlags = flags;
     }
-    for (i = 0; i < 0x60; i++) {
+    for (i = 0; i < NUM_MAGICS_ALL; i++) {
         id = e->enabledMagic[i].id;
         if (id != 0xFF) {
-            if (i >= 0x48) {
-                id += 0x48;
-            } else if (i >= 0x38) {
-                id += 0x38;
+            if (i >= ENEMY_SKILL_START) {
+                id += ENEMY_SKILL_START;
+            } else if (i >= SUMMON_START) {
+                id += SUMMON_START;
             }
-            if (i < 0x38) {
+            if (i < MAGIC_END) {
                 if (!(D_800708C4[id].targetFlags & TARGET_TOGGLE_MULTIPLE)) {
                     e->enabledMagic[i].quadraAttacksLeft = 0;
                 }

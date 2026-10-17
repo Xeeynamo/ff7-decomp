@@ -84,7 +84,7 @@ typedef struct {
     u32 unk4;
 } FieldTdbHeader;
 
-extern u8* D_800E0200;
+extern u8* g_FieldKawaiSplashEntries;
 
 u8* FieldModelCreatePktsAndScale(FieldModelEntry* model, u8* nextFree, s32 modelId);
 u8* FieldModelCreatePktsForPart(FieldModelPart* part, u8* nextFree, s32 relocate, s32 modelId);
@@ -140,7 +140,7 @@ u8* LoadLocalFieldModelAndInitAll(
     } else {
         copySrc = (u32*)file;
         byteSize = file->size;
-        copyDst = (u32*)D_800E0204;
+        copyDst = (u32*)g_FieldModelLoadCursor;
         wholeWords = byteSize >> 2;
         byteSize &= 3;
         words = wholeWords + (byteSize != 0);
@@ -156,7 +156,7 @@ u8* LoadLocalFieldModelAndInitAll(
         for (k = blocks * 4; k < words; k++) {
             *copyDst++ = *copySrc++;
         }
-        file = (FieldBsxFile*)D_800E0204;
+        file = (FieldBsxFile*)g_FieldModelLoadCursor;
     }
     section = (FieldBsxSection*)((u8*)file + file->sectionOffset);
     textures = (FieldBsxTextures*)((u8*)section + section->texturesOffset);
@@ -306,7 +306,7 @@ u8* LoadLocalFieldModelAndInitAll(
         }
     }
 
-    D_800E0200 = workspaceEnd;
+    g_FieldKawaiSplashEntries = workspaceEnd;
     return workspaceEnd;
 }
 
@@ -314,7 +314,7 @@ u8* FieldModelCreatePktsAndScale(FieldModelEntry* model, u8* nextFree, s32 model
     FieldModelPart* parts;
     u32 i;
 
-    model->partMatrices = nextFree;
+    model->partMatrices = (MATRIX*)nextFree;
     nextFree += model->boneCount * sizeof(MATRIX);
     parts = (FieldModelPart*)(model->modelData + model->partsOffset);
     for (i = 0; i < model->partCount; i++) {
@@ -677,7 +677,7 @@ u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelDa
             buffer += loaders[i].boneCount * 4 + (loaders[i].partCount << 5) + loaders[i].animationCount * 16;
         }
     }
-    D_800E0204 = 0;
+    g_FieldModelLoadCursor = NULL;
     return buffer;
 }
 
@@ -797,7 +797,7 @@ u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8
 
                     animationDst[i][3] = relocation + animationSrc[i][3];
                 }
-                D_800E0204 = (u8*)source;
+                g_FieldModelLoadCursor = (u8*)source;
                 return (u8*)source;
             }
             for (existingIndex = 0; existingIndex < modelIndex; existingIndex++) {
@@ -835,7 +835,7 @@ u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8
                     break;
                 }
             }
-            D_800E0204 = nextFree;
+            g_FieldModelLoadCursor = nextFree;
         }
     }
     return nextFree;

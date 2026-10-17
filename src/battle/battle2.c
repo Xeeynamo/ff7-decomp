@@ -2731,7 +2731,7 @@ s32 BattlePositionToStereoPan(SVECTOR* sv) {
 
     SetRotMatrix(&g_BattleWorldView.m);
     SetTransMatrix(&g_BattleWorldView.m);
-    RotTransPers(sv, (long*)sxy, (long*)&p, (long*)&flag);
+    RotTransPers(sv, (int*)sxy, &p, &flag);
     if (sxy[0] < 0) {
         sxy[0] = 0;
     } else if (sxy[0] >= 0x140) {
