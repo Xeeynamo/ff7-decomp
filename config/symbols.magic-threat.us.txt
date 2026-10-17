@@ -1,0 +1,6 @@
+MAGIC_Threat = 0x801B0000; // type:func
+func_threat_801B0020 = 0x801B0020; // type:func
+func_threat_801B00DC = 0x801B00DC; // type:func
+func_threat_801B01D8 = 0x801B01D8; // type:func
+func_threat_801B0304 = 0x801B0304; // type:func
+MAGIC_ThreatSetup = 0x801B0364; // type:func

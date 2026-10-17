@@ -1,0 +1,6 @@
+MAGIC_Hakai = 0x801B0000; // type:func
+func_hakai_801B0020 = 0x801B0020; // type:func
+func_hakai_801B008C = 0x801B008C; // type:func
+func_hakai_801B0180 = 0x801B0180; // type:func
+func_hakai_801B03F4 = 0x801B03F4; // type:func
+func_hakai_801B0448 = 0x801B0448; // type:func

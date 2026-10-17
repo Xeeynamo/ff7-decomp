@@ -79,6 +79,7 @@ var metaCategories = map[string]string{
 }
 
 var metaOverlays = map[string]metaOverlay{
+
 	"main": {"main", "main", "Game engine"},
 
 	"batini": {"batini", "battle", "Battle init"},
@@ -113,6 +114,16 @@ var metaOverlays = map[string]metaOverlay{
 	"lv5deth":  {"lv5deth", "magic", "LV.5 Death"},
 	"choco0":   {"choco0", "magic", "choco0"},
 	"sennkoku": {"sennkoku", "magic", "Death Sentence / Roulette"},
+	"gattai":   {"gattai", "magic", "GATTAI"},
+	"jinrai":   {"jinrai", "magic", "JINRAI"},
+	"smkball":  {"smkball", "magic", "SMKBALL"},
+	"threat":   {"threat", "magic", "THREAT"},
+	"tears":    {"tears", "magic", "TEARS"},
+	"echoes":   {"echoes", "magic", "ECHOES"},
+	"magend":   {"magend", "magic", "MAGEND"},
+	"hakai":    {"hakai", "magic", "HAKAI"},
+	"boost":    {"boost", "magic", "BOOST"},
+	"minimam":  {"minimam", "magic", "Mini"},
 }
 
 func makeObjdiffConfig(b BuildConfig) objdiffConfig {
