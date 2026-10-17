@@ -71,9 +71,9 @@ extern SennkokuData g_BattleEffectSlots[];
 // Scratchpad layout this effect uses while drawing the pointer.
 typedef struct {
     /* 0x00 */ char pad00[4];
-    /* 0x04 */ long p;
+    /* 0x04 */ int p;
     /* 0x08 */ char pad08[4];
-    /* 0x0C */ long flag;
+    /* 0x0C */ int flag;
     /* 0x10 */ char pad10[0x20];
     /* 0x30 */ SVECTOR pos;
     /* 0x38 */ char pad38[0x78];
@@ -169,7 +169,7 @@ void SennkokuRouletteSpinTick(void) {
     BattleGetPartPosition(unit, g_BattleModels[unit].boneIndices[0], &scratch->pos);
     SetRotMatrix(&g_BattleWorldView.m);
     SetTransMatrix(&g_BattleWorldView.m);
-    RotTransPers(&scratch->pos, (long*)&scratch->corner[0], &scratch->p, &scratch->flag);
+    RotTransPers(&scratch->pos, (int*)&scratch->corner[0], &scratch->p, &scratch->flag);
     scratch->corner[1] = scratch->corner[2] = scratch->corner[3] = scratch->corner[0];
 
     // The pointer is a 24x16 sprite beside the unit, mirrored for the enemy side. Each word below packs
