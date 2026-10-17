@@ -92,7 +92,7 @@ s32 SysSelectRandomBit(u32 mask) {
     return bit;
 }
 
-u32 SysAddSubWithMaxMinBound(u32 val, u32 addend, u32 max, s32 isAdd) {
+u32 SysAddSubWithMaxMinBound(u32 val, u32 addend, u32 max, u32 isAdd) {
     u32 orig_val;
 
     orig_val = val;

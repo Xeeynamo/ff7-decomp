@@ -1058,7 +1058,7 @@ typedef struct {
 typedef struct {
     s16 length;
     s8 parentIndex;
-    u8 hasPart;
+    s8 hasPart;
 } FieldModelBone;
 
 typedef struct {
@@ -1111,12 +1111,12 @@ typedef struct {
     /* 0x10 */ s32 translationZ;
     /* 0x14 */ u8 globalModelId;
     /* 0x15 */ u8 textureFaceId;
-    /* 0x16 */ u16 scale;
+    /* 0x16 */ s16 scale;
     /* 0x18 */ u16 partsOffset;
     /* 0x1A */ u16 animationOffset;
     /* 0x1C */ u8* modelData;
-    /* 0x20 */ u8* partMatrices; // part matrix data
-} FieldModelEntry;               // size:0x24
+    /* 0x20 */ MATRIX* partMatrices; // part matrix data
+} FieldModelEntry;                   // size:0x24
 
 typedef struct {
     /* 0x00 */ u8 modelCount;
