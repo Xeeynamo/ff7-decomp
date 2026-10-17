@@ -2558,7 +2558,40 @@ static void func_800AA4FC(void) {
     g_CurrentAction->tmpDamage *= var_s0;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA574);
+// Used in Barret's Missing Score (ultimate weapon) damage calculation
+// Sets power from the AP of the actor's weapon materia:
+// power = totalAp / 10000 * unkC4 / 16 + 1. Each materia's AP is capped at
+// its highest level-up threshold, so AP past that point doesn't count.
+void BattleSetPowerFromWeaponMateriaAp(void) {
+    SavePartyMember* partyMember = g_BattleWork.party[g_CurrentAction->actorId].partyMember;
+    s32 totalAp = 0;
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < NUM_MATERIA_ROW; i++) {
+        u32 materia = partyMember->materia_weapon[i]; // id stored in lower byte
+        s32 ap = materia >> 8;                        // ap stored in upper bits
+
+        if (materia != -1) {
+            MateriaData* materiaData = &g_MateriaData[materia & 0xFF];
+            s32 maxAp = 0;
+
+            for (j = 0; j < LEN(materiaData->levelUpApLimits); j++) {
+                if (materiaData->levelUpApLimits[j] != 0xFFFF) {
+                    maxAp = materiaData->levelUpApLimits[j] * 100;
+                }
+            }
+
+            if (maxAp < ap) {
+                ap = maxAp;
+            }
+
+            totalAp += ap;
+        }
+    }
+
+    g_CurrentAction->power = totalAp / 10000 * g_CurrentAction->unkC4 / 16 + 1;
+}
 
 static void func_800AA688(void) {
     s32 var_a0;
