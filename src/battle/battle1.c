@@ -1113,7 +1113,7 @@ void BattleQueue1Execute(void) {
     u8 targetId;
     index = D_801590E0;
     while (g_BattleActionQueue[index].actionId != -1) {
-        switch (g_BattleActionQueue[index].unk1) {
+        switch (g_BattleActionQueue[index].type) {
         case 5:
             g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].animControlFlags |= 0x20;
             actor = g_BattleActionQueue[D_801590E0].actionId;
