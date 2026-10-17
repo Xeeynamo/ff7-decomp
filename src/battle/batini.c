@@ -387,7 +387,7 @@ static void BattleInitPlayer(void) {
                     party->limitLevel = limitLevel;
                     party->limitBar = limitCharge;
                     party->limitBarUI = limitCharge;
-                    party->limitBreakHPDivisor = D_80082290[charId].hpDivisor[limitLevel];
+                    party->limitBreakHPDivisor = D_80082268[charId].hpDivisor[limitLevel];
                     character->unk1A = party->limitBar << 8;
                     character->limitLevel = member->limit_level;
                     BattleInitLimits(charId, member->limit_learn, &character->limits);
@@ -508,7 +508,7 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
 
     e = &g_ActiveCharacters[sceneID];
     e->unk21 = 1;
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < LEN(e->commandMenu); i++) {
         flags = 0xFF;
         cmd = e->commandMenu[i].id;
         if (cmd != 0xFF) {
@@ -527,12 +527,12 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
                 }
                 if (e->commandMenu[i].allCount != 0) {
                     if (e->commandMenu[i].id != 0x19) {
-                        flags |= 0xC;
+                        flags |= TARGET_MULTIPLE_DEFAULT | TARGET_TOGGLE_MULTIPLE;
                     }
                 }
                 cmd = e->commandMenu[i].id;
                 if (cmd == 5 || cmd == 0x11) {
-                    flags |= 0x10;
+                    flags |= TARGET_ONE_ROW_ONLY;
                     if (e->commandMenu[i].allCount != 0) {
                         e->commandMenu[i].initialCursorAction = 0;
                     }
@@ -542,15 +542,15 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
         }
         e->commandMenu[i].targetFlags = flags;
     }
-    for (i = 0; i < 0x60; i++) {
+    for (i = 0; i < NUM_MAGICS_ALL; i++) {
         id = e->enabledMagic[i].id;
         if (id != 0xFF) {
-            if (i >= 0x48) {
-                id += 0x48;
-            } else if (i >= 0x38) {
-                id += 0x38;
+            if (i >= ENEMY_SKILL_START) {
+                id += ENEMY_SKILL_START;
+            } else if (i >= SUMMON_START) {
+                id += SUMMON_START;
             }
-            if (i < 0x38) {
+            if (i < MAGIC_END) {
                 if (!(D_800708C4[id].targetFlags & TARGET_TOGGLE_MULTIPLE)) {
                     e->enabledMagic[i].quadraAttacksLeft = 0;
                 }
@@ -569,7 +569,7 @@ static void BattleInitResetExtraCmds(s32 sceneID) {
         data->commandMenu[i].id = 0xFF;
         data->commandMenu[i].initialCursorAction = 0;
         data->commandMenu[i].targetFlags = 0;
-        data->commandMenu[i].unk4 = 3;
+        data->commandMenu[i].menuOptionFlags = MENU_OPTION_UNK1 | MENU_OPTION_DISABLED;
         data->commandMenu[i].allCount = 0;
         data->commandMenu[i].materiaEffectFlags = 0;
     }
@@ -677,8 +677,6 @@ static void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
 
 const s32 D_801B001C[] = {0x0000, 0x1000, 0x0008, 0x0800};
 const s32 D_801B002C[] = {0x0000, 0x000A, 0x0027, 0x000A};
-extern u8 g_BattleStartFXFlags; // pending battle-start status flags, one bit per entry
-                                // of D_801B001C / D_801B002C (bit 4 = full-heal)
 void BattleQueueEvent(s32, s32, s32, s32);
 
 // Applies the pending battle-start effects in g_BattleStartFXFlags to party member

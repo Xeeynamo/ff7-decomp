@@ -459,7 +459,25 @@ void SysMenuDrawProgressBar(s16 x, s16 y, s16 w, s16 h, u8 r, u8 g, u8 b) {
     AddPrim(g_CurrentOT, g_PolyPtr.polyg4++);
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", func_80028930);
+void SysMenuDrawReelShade(s16 x, s16 y, s16 w, s16 h) {
+    SetPolyG4(g_PolyPtr.polyg4);
+    SetSemiTrans(g_PolyPtr.polyg4, 1);
+    setXYWH(g_PolyPtr.polyg4, x, y, w, h / 3);
+    setRGB0(g_PolyPtr.polyg4, 0xFF, 0xFF, 0xFF);
+    setRGB1(g_PolyPtr.polyg4, 0xFF, 0xFF, 0xFF);
+    setRGB2(g_PolyPtr.polyg4, 0, 0, 0);
+    setRGB3(g_PolyPtr.polyg4, 0, 0, 0);
+    AddPrim(g_CurrentOT, g_PolyPtr.polyg4++);
+
+    SetPolyG4(g_PolyPtr.polyg4);
+    SetSemiTrans(g_PolyPtr.polyg4, 1);
+    setXYWH(g_PolyPtr.polyg4, x, y + h - h / 3, w, h / 3);
+    setRGB0(g_PolyPtr.polyg4, 0, 0, 0);
+    setRGB1(g_PolyPtr.polyg4, 0, 0, 0);
+    setRGB2(g_PolyPtr.polyg4, 0xFF, 0xFF, 0xFF);
+    setRGB3(g_PolyPtr.polyg4, 0xFF, 0xFF, 0xFF);
+    AddPrim(g_CurrentOT, g_PolyPtr.polyg4++);
+}
 
 void SysMenuDrawTexturedRect(s16 x, s16 y, u8 u, u8 v, s16 w, s16 h, s16 clutY, s16 semiTrans) {
     setSprt(g_PolyPtr.sprt);
@@ -475,6 +493,85 @@ void SysMenuDrawTexturedRect(s16 x, s16 y, u8 u, u8 v, s16 w, s16 h, s16 clutY, 
     g_PolyPtr.sprt++;
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawDigitsWithoutLeadingZeroes);
+void SysMenuDrawDigitsWithoutLeadingZeroes(x, y, value, digits, clutY) s16 x;
+s16 y;
+u32 value;
+u8 digits;
+u8 clutY;
+{
+    u32 div = 1;
+    s16 first = 1;
+    s16 i;
+    u32 digit;
+    u32 val;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/26B70", SysMenuDrawDigitsWithLeadingZeroes);
+    for (i = 1; i < digits; i++) {
+        div *= 10;
+    }
+    val = value;
+    if (digits == 3 && val > 999) {
+        val = 999;
+    }
+    for (i = 1; i < digits; i++) {
+        setSprt(g_PolyPtr.sprt);
+        SetShadeTex(g_PolyPtr.sprt, 1);
+        digit = val / div;
+        setXY0(g_PolyPtr.sprt, x + (i - 1) * 7, y);
+        setUV0(g_PolyPtr.sprt, digit * 8 + 0x88, 0);
+        setWH(g_PolyPtr.sprt, 7, 8);
+        g_PolyPtr.sprt->clut = GetClut(0x100, clutY + 0x1E0);
+        if (first == 0 || digit != 0) {
+            first = 0;
+            AddPrim(g_CurrentOT, g_PolyPtr.sprt);
+            g_PolyPtr.sprt++;
+        }
+        val %= div;
+        div /= 10;
+    }
+    setSprt(g_PolyPtr.sprt);
+    SetShadeTex(g_PolyPtr.sprt, 1);
+    setXY0(g_PolyPtr.sprt, x + (digits - 1) * 7, y);
+    setUV0(g_PolyPtr.sprt, val * 8 + 0x88, 0);
+    setWH(g_PolyPtr.sprt, 7, 8);
+    g_PolyPtr.sprt->clut = GetClut(0x100, clutY + 0x1E0);
+    AddPrim(g_CurrentOT, g_PolyPtr.sprt);
+    g_PolyPtr.sprt++;
+}
+
+void SysMenuDrawDigitsWithLeadingZeroes(x, y, value, digits, clutY) s16 x;
+s16 y;
+u32 value;
+u8 digits;
+u8 clutY;
+{
+    u32 div = 1;
+    s16 i;
+    u32 digit;
+    u32 val;
+
+    for (i = 1; i < digits; i++) {
+        div *= 10;
+    }
+    val = value;
+    for (i = 1; i < digits; i++) {
+        setSprt(g_PolyPtr.sprt);
+        SetShadeTex(g_PolyPtr.sprt, 1);
+        digit = val / div;
+        setXY0(g_PolyPtr.sprt, x + (i - 1) * 7, y);
+        setUV0(g_PolyPtr.sprt, digit * 8 + 0x88, 0);
+        setWH(g_PolyPtr.sprt, 7, 8);
+        g_PolyPtr.sprt->clut = GetClut(0x100, clutY + 0x1E0);
+        AddPrim(g_CurrentOT, g_PolyPtr.sprt);
+        g_PolyPtr.sprt++;
+        val %= div;
+        div /= 10;
+    }
+    setSprt(g_PolyPtr.sprt);
+    SetShadeTex(g_PolyPtr.sprt, 1);
+    setXY0(g_PolyPtr.sprt, x + (digits - 1) * 7, y);
+    setUV0(g_PolyPtr.sprt, val * 8 + 0x88, 0);
+    setWH(g_PolyPtr.sprt, 7, 8);
+    g_PolyPtr.sprt->clut = GetClut(0x100, clutY + 0x1E0);
+    AddPrim(g_CurrentOT, g_PolyPtr.sprt);
+    g_PolyPtr.sprt++;
+}

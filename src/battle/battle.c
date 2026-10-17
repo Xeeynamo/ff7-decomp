@@ -491,7 +491,28 @@ static void func_800A34CC(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3534);
+// Copies a snapshot of HP/MP when the impact was created and
+// stores it in the  targetId's BattleTurnWork slot
+void func_800A3534(s32 unused, s16 index) {
+    u32 targetId;
+
+    if (index < 0) {
+        return;
+    }
+
+    targetId = D_800F9F3C[index].targetId;
+    if (targetId >= NUM_PARTY) {
+        return;
+    }
+
+    if (g_BattleState.combatant[targetId].maxHP >= D_800F9F3C[index].currentHp) {
+        g_BattleWork.turn[targetId].prevHP = D_800F9F3C[index].currentHp;
+    }
+
+    if (g_BattleState.combatant[targetId].maxMP >= D_800F9F3C[index].currentMp) {
+        g_BattleWork.turn[targetId].prevMP = D_800F9F3C[index].currentMp;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A35F8);
 
@@ -510,7 +531,7 @@ static s32 func_800A3828(void) {
         D_800F39E4 += g_BattleWork.battleSpeed;
     }
     if (g_BattleWork.atbWaitMode == 2) {
-        switch (D_800F3896) {
+        switch (g_BattleMenuModalWidgetId) {
         case 0:
         case 4:
         case 5:
@@ -873,7 +894,7 @@ static s32 BattleRunToResultScreen(void) {
     for (i = 0; i < 4; i++) {
         BattleRunFrame();
     }
-    D_800F3896 = 0x1C;
+    g_BattleMenuModalWidgetId = 0x1C;
     BattleMenuWidgetOpen(-1, -1, 0x1C);
     while (D_800F39EC == 0) {
         BattleRunFrame();
@@ -898,7 +919,7 @@ static s32 BattleRunEscapeSequence(void) {
     for (i = 0; i < 4; i++) {
         BattleRunFrame();
     }
-    D_800F3896 = 9;
+    g_BattleMenuModalWidgetId = 9;
     BattleMenuWidgetOpen(-1, -1, 9);
     while (D_800F39EC == 0) {
         BattleRunFrame();
@@ -956,9 +977,16 @@ static u8 func_800A4B3C(s32 index, s32 arg1) {
 
 static void func_800A4B9C(void) {}
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleInitCharCmdState);
+void BattleInitCharCmdState(s32 arg0) {
+    g_BattleOriginalAttackCmd[arg0] = g_ActiveCharacters[arg0].commandMenu[0];
+    g_BattleFallbackAttackCmd[arg0] = g_BattleOriginalAttackCmd[arg0];
 
-static s32 BattleGetBerserkToadAttackTypeId(s32 arg0) { return D_800F39F0[arg0][0]; }
+    g_BattleFallbackAttackCmd[arg0].id = CMD_ATTACK;
+    g_BattleFallbackAttackCmd[arg0].initialCursorAction = g_BattleWork.turn[arg0].turnFlags & 2 ? 0 : 7;
+    g_BattleFallbackAttackCmd[arg0].targetFlags = g_BattleWork.setup[arg0].targetFlags;
+}
+
+static s32 BattleGetBerserkToadAttackTypeId(s32 arg0) { return g_BattleOriginalAttackCmd[arg0].id; }
 
 static s32 BattleGetManipIdByPlayerUnitId(s32 arg0) {
     s32 temp_v1;
@@ -1032,20 +1060,216 @@ void BattleEnableLimitToPlayerWithSpeed(s32 index) {
     if (g_BattleWork.party[index].limitLevel != 0xFF) {
         g_BattleData.limitReadyMask |= (1 << index);
         g_BattleWork.turn[index].limitSpeedFlag |= 1;
-        g_BattleWork.turn[index].hasLimitBreak |= 1;
+        g_BattleWork.turn[index].menuListFlags |= MENU_LIST_DIRTY_COMMAND;
     }
 }
 
 static void BattleEnableLimitToPlayerWithoutSpeed(s32 turnIdx) {
     g_BattleWork.turn[turnIdx].limitSpeedFlag &= ~1;
-    g_BattleWork.turn[turnIdx].hasLimitBreak |= 1;
+    g_BattleWork.turn[turnIdx].menuListFlags |= MENU_LIST_DIRTY_COMMAND;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A4F60);
+// Refreshes the character menu for the given type (command, magic, summon, enemy skill)
+void BattleRefreshMenu(s32 arg0, s32 menuType) {
+    u8 menuListFlags;
+    u32 status;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A50E0);
+    if (arg0 >= NUM_PARTY) {
+        return;
+    }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A5250);
+    // Nothing to do unless this menu is marked dirty
+    menuListFlags = g_BattleWork.turn[arg0].menuListFlags;
+    if (!((menuListFlags >> menuType) & 1)) {
+        return;
+    }
+
+    status = g_BattleData.actors[arg0].status;
+    menuListFlags &= ~(1 << menuType);
+    g_BattleWork.turn[arg0].menuListFlags = menuListFlags;
+
+    switch (menuType) {
+    case MENU_LIST_COMMAND:
+        BattleRefreshCmdMenu(arg0, status);
+        break;
+
+    case MENU_LIST_MAGIC:
+        g_BattleWork.turn[arg0].menuListFlags = menuListFlags & ~MENU_LIST_DISABLED_MAGIC;
+        if (BattleRefreshMagicMenu(arg0, status, 0, NUM_MAGICS)) {
+            g_BattleWork.turn[arg0].menuListFlags |= MENU_LIST_DISABLED_MAGIC;
+        }
+        break;
+
+    case MENU_LIST_SUMMON:
+        g_BattleWork.turn[arg0].menuListFlags = menuListFlags & ~MENU_LIST_DISABLED_SUMMON;
+        if (BattleRefreshMagicMenu(arg0, status, NUM_MAGICS, NUM_SUMMONS)) {
+            g_BattleWork.turn[arg0].menuListFlags |= MENU_LIST_DISABLED_SUMMON;
+        }
+        break;
+
+    case MENU_LIST_ENEMY_SKILL:
+        g_BattleWork.turn[arg0].menuListFlags = menuListFlags & ~MENU_LIST_DISABLED_ENEMY_SKILL;
+        if (BattleRefreshMagicMenu(arg0, status, NUM_MAGICS + NUM_SUMMONS, NUM_ENEMY_SKILLS)) {
+            g_BattleWork.turn[arg0].menuListFlags |= MENU_LIST_DISABLED_ENEMY_SKILL;
+        }
+        break;
+    }
+}
+
+// Refreshes the menu option flags for a range of magic.
+// Returns 1 if none can be cast (menu option is disabled).
+static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count) {
+    s32 prevMp = g_BattleWork.turn[arg0].prevMP;
+    MagicRecord* magic = &g_ActiveCharacters[arg0].enabledMagic[start];
+    s32 menuDisabled = 1;
+    s32 isNotSilenced = !(status & STATUS_SILENCE);
+    s32 isNotFrog = !(status & STATUS_FROG);
+    s32 i;
+
+    for (i = 0; i < count; i++) {
+        s32 optionFlags = MENU_OPTION_DISABLED;
+
+        if (magic[i].id != 0xFF) {
+            s32 id = magic[i].id + start;
+            s32 targetFlags = D_800708C4[id].targetFlags;
+            s32 blocked = 0;
+
+            if (id < NUM_MAGICS) {
+                if (targetFlags & TARGET_TOGGLE_MULTIPLE) {
+                    if (magic[i].quadraAttacksLeft == 0 && magic[i].allAttacksLeft == 0) {
+                        targetFlags &= ~(TARGET_MULTIPLE_DEFAULT | TARGET_TOGGLE_MULTIPLE);
+                    }
+                    if (targetFlags & TARGET_TOGGLE_MULTIPLE) {
+                        optionFlags |= MENU_OPTION_MULTI_TARGET;
+                    }
+                }
+                if (magic[i].allAttacksLeft) {
+                    optionFlags |= MENU_OPTION_MULTI_TARGET;
+                    targetFlags &= ~TARGET_TOGGLE_MULTIPLE;
+                    targetFlags |= TARGET_MULTIPLE_DEFAULT;
+                }
+            } else if (id < NUM_MAGICS + NUM_SUMMONS && magic[i].quadraAttacksLeft == 0) {
+                blocked = 1;
+            }
+
+            magic[i].targetFlags = targetFlags;
+
+            // Frogs can still cast Toad (attack id 10)
+            if (prevMp >= magic[i].mpCost && !blocked && isNotSilenced && (isNotFrog || id == 10)) {
+                optionFlags &= ~MENU_OPTION_DISABLED;
+                menuDisabled = 0;
+            }
+        }
+
+        magic[i].menuOptionFlags = optionFlags;
+    }
+
+    return menuDisabled;
+}
+
+// Refreshes the main command window for a character, including updating the menu option flags for each command,
+// changing the default command to "Limit" when available, and setting the target flags.
+static void BattleRefreshCmdMenu(s32 arg0, u32 status) {
+    ActiveCharCommandMenu* cmd = &g_ActiveCharacters[arg0].commandMenu[0];
+    s32 isFrog;
+    s32 i;
+
+    const s32 multipleTargetMask = TARGET_MULTIPLE_DEFAULT | TARGET_TOGGLE_MULTIPLE;
+
+    cmd->menuOptionFlags = MENU_OPTION_NONE;
+    isFrog = (status & STATUS_FROG) != 0;
+
+    if ((g_BattleData.limitReadyMask & (1 << arg0) && !isFrog) || g_BattleState.setupFlags & 8) {
+        cmd->id = CMD_LIMIT;
+        cmd->initialCursorAction = D_800707C4[CMD_LIMIT].initialCursorAction;
+        cmd->targetFlags = D_800707C4[CMD_LIMIT].targetFlags;
+        cmd->materiaEffectFlags = 0;
+    } else if (cmd->allCount && !isFrog) {
+        cmd->id = g_BattleOriginalAttackCmd[arg0].id;
+        cmd->initialCursorAction = g_BattleOriginalAttackCmd[arg0].initialCursorAction;
+        cmd->targetFlags = g_BattleOriginalAttackCmd[arg0].targetFlags;
+        cmd->materiaEffectFlags = g_BattleOriginalAttackCmd[arg0].materiaEffectFlags;
+    } else {
+        cmd->id = g_BattleFallbackAttackCmd[arg0].id;
+        cmd->initialCursorAction = g_BattleFallbackAttackCmd[arg0].initialCursorAction;
+        cmd->targetFlags = g_BattleFallbackAttackCmd[arg0].targetFlags;
+        cmd->materiaEffectFlags = g_BattleFallbackAttackCmd[arg0].materiaEffectFlags;
+    }
+
+    for (i = 1; i < NUM_BATTLE_COMMANDS; i++) {
+        s32 id = cmd[i].id;
+        u8 optionFlags;
+
+        if (id == 0xFF) {
+            continue;
+        }
+
+        optionFlags = cmd[i].menuOptionFlags;
+        optionFlags &= ~(MENU_OPTION_DISABLED | MENU_OPTION_MULTI_TARGET);
+
+        switch (id) {
+        case CMD_MAGIC:
+        case CMD_W_MAGIC:
+            BattleRefreshMenu(arg0, MENU_LIST_MAGIC);
+            if (g_BattleWork.turn[arg0].menuListFlags & MENU_LIST_DISABLED_MAGIC) {
+                optionFlags |= MENU_OPTION_DISABLED;
+            }
+            break;
+        case CMD_SUMMON:
+        case CMD_W_SUMMON:
+            BattleRefreshMenu(arg0, MENU_LIST_SUMMON);
+            if (g_BattleWork.turn[arg0].menuListFlags & MENU_LIST_DISABLED_SUMMON) {
+                optionFlags |= MENU_OPTION_DISABLED;
+            }
+            break;
+        case CMD_ENEMY_SKILL:
+            BattleRefreshMenu(arg0, MENU_LIST_ENEMY_SKILL);
+            if (g_BattleWork.turn[arg0].menuListFlags & MENU_LIST_DISABLED_ENEMY_SKILL) {
+                optionFlags |= MENU_OPTION_DISABLED;
+            }
+            break;
+        case CMD_ITEM:
+        case CMD_W_ITEM:
+            if (g_BattleStartFXFlags & 0x20) {
+                optionFlags |= MENU_OPTION_DISABLED;
+            }
+            break;
+
+        case CMD_STEAL:
+        case CMD_MUG:
+            if (cmd[i].allCount == 0) {
+                cmd[i].initialCursorAction = 7;
+            }
+            break;
+        }
+
+        // Everything except Magic, Item, W-Magic and W-Item is disabled as a frog
+        if (isFrog) {
+            switch (id) {
+            case CMD_MAGIC:
+            case CMD_W_MAGIC:
+            case CMD_ITEM:
+            case CMD_W_ITEM:
+                break;
+            default:
+                optionFlags |= MENU_OPTION_DISABLED;
+                break;
+            }
+        }
+
+        // Drop the multi-target bits when allCount is 0
+        if ((cmd[i].targetFlags & TARGET_TOGGLE_MULTIPLE) && cmd[i].allCount == 0) {
+            cmd[i].targetFlags &= ~multipleTargetMask;
+        }
+
+        // Still multi-target capable
+        if ((cmd[i].targetFlags & multipleTargetMask) == multipleTargetMask) {
+            optionFlags |= MENU_OPTION_MULTI_TARGET;
+        }
+
+        cmd[i].menuOptionFlags = optionFlags;
+    }
+}
 
 static void func_800A555C(s32 charIdx, s32 magicId) {
     MagicRecord* magic;
@@ -1053,10 +1277,10 @@ static void func_800A555C(s32 charIdx, s32 magicId) {
 
     magic = &g_ActiveCharacters[charIdx].enabledMagic[magicId];
 
-    magic->menuflags = 2;
+    magic->menuOptionFlags = MENU_OPTION_DISABLED;
     magic->targetFlags = D_800708C4[magicId].targetFlags;
     magic->mpCost = D_800708C4[magicId].mpCost;
-    magic->id = magicId - 0x48;
+    magic->id = magicId - (NUM_MAGICS + NUM_SUMMONS);
 }
 
 typedef struct {
@@ -1154,11 +1378,6 @@ static s32 BattlePickRandomThrowItem(void) {
     return ret;
 }
 
-const u8 D_800A0240[] = {
-    0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0x54, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A,
-    0x80, 0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0x94, 0x54, 0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0xA8, 0x54,
-    0x0A, 0x80, 0xA8, 0x54, 0x0A, 0x80, 0x14, 0x54, 0x0A, 0x80, 0x34, 0x54, 0x0A, 0x80, 0x74, 0x54, 0x0A, 0x80};
-
 static s32 BattleGetRndMasterCommand(s32 _) {
     static const u8 masterCommands[] = {
         CMD_STEAL, CMD_SENSE, CMD_THROW, CMD_MORPH, CMD_DEATHBLOW, CMD_MANIPULATE, CMD_MIME};
@@ -1212,7 +1431,8 @@ u8 BattleGetRndAutoBattleAction(s32 arg0, s32 kind, s32 actionId, BattleAutoActi
     return targetFlags;
 }
 
-// Unreferenced byte between g_BattleAutoActionKindTable above and D_800A0290; owner unknown
+// Alignment padding after g_BattleAutoActionKindTable. The original toolchain left junk in
+// .rodata padding (0x00 here in the Japanese build); kept for the match
 const u8 D_800A028F = 0x86;
 
 void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
@@ -1582,11 +1802,11 @@ void BattleUnitSetManipulated(s32 unitIdx, s32 isManipulated) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A68FC);
 
-void func_800A6A3C(s32 arg0, s32 arg1) { g_BattleWork.turn[arg0].hasLimitBreak |= arg1; }
+void func_800A6A3C(s32 arg0, s32 menuListFlags) { g_BattleWork.turn[arg0].menuListFlags |= menuListFlags; }
 
 void func_800A6A70(s32 arg0, s32 arg1) {
     func_800A555C(arg0, arg1);
-    g_BattleWork.turn[arg0].hasLimitBreak |= 9;
+    g_BattleWork.turn[arg0].menuListFlags |= MENU_LIST_DIRTY_COMMAND | MENU_LIST_DIRTY_ENEMY_SKILL;
 }
 
 void BattleUnitFlushEnemyTurnMasks(void) {
@@ -1735,11 +1955,11 @@ void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A72C8);
 
 void BattleResolveMagicActionIndex(void) {
-    g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex;
+    g_CurrentAction->absoluteActionIndex = MAGIC_START + g_CurrentAction->relativeActionIndex;
 }
 
 void BattleResolveSummonActionIndex(void) {
-    g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex + 56;
+    g_CurrentAction->absoluteActionIndex = SUMMON_START + g_CurrentAction->relativeActionIndex;
 }
 
 static void BattleRemoveUnitReservedItem(s16 arg0, s16 arg1);
@@ -1818,7 +2038,7 @@ void BattleSetupCoinThrowAction(void) {
 }
 
 void BattleResolveEnemySkillActionIndex(void) {
-    g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex + NUM_MAGICS + NUM_SUMMONS;
+    g_CurrentAction->absoluteActionIndex = ENEMY_SKILL_START + g_CurrentAction->relativeActionIndex;
 }
 
 static u32 func_800B12DC(void);
@@ -1857,20 +2077,37 @@ void BattleResolveLimitActionIndex(void) {
     relativeActionIndex = g_CurrentAction->relativeActionIndex;
     g_CurrentAction->absoluteActionIndex = relativeActionIndex;
     if (relativeActionIndex < 0x60) {
-        s32 off = actorId * 0x34;
         g_CurrentAction->absoluteActionIndex = relativeActionIndex + 0x80;
-        *(u16*)((u8*)g_BattleWork.party + off + 8) = 0; // ideally g_BattleWork.party[actorId].limitBar = 0;
+        g_BattleWork.party[actorId].limitBar = 0;
         g_BattleWork.party[actorId].limitCount++;
-        if (!(g_BattleState.setupFlags & 8)) {
+        if (!(g_BattleState.setupFlags & SETUP_NO_VICTORY_POSE)) {
             BattleQueueEvent(2, actorId, 0x11, 0);
         }
     }
 }
 
-const s16 D_800A0290[] = {0, 56, 72, 96, 256};
-const s32 D_800A029C[] = {
-    0x140D0302, 0x3D3CFFFF, 0x41403F3E, 0xFFFFFF42, 0xFFFFFFFF, 0x43424140, 0x47464544, 0xFF444843, 0xFFFFFFFF};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType07);
+// When an enemy attacks, rewrites the cmd index as the appropriate type
+// based on the absolute index, and stores the relative index in unk98
+void BattleActionType07(void) {
+    g_CurrentAction->absoluteActionIndex = g_BattleWork.attackIDs[g_CurrentAction->relativeActionIndex];
+    if (g_CurrentAction->unkC == CMD_ENEMY_ATTACK) {
+        // 256 is end of kernel attack list
+        u16 bases[] = {MAGIC_START, SUMMON_START, ENEMY_SKILL_START, ENEMY_SKILL_END, 256};
+        u8 cmds[] = {CMD_MAGIC, CMD_SUMMON, CMD_ENEMY_SKILL, CMD_LIMIT};
+        u32 i;
+
+        for (i = 0; i < LEN(bases) - 1; i++) {
+            if (g_CurrentAction->absoluteActionIndex < bases[i + 1]) {
+                g_CurrentAction->cmdIndex = cmds[i];
+                g_CurrentAction->unk98 = g_CurrentAction->absoluteActionIndex - bases[i];
+                break;
+            }
+        }
+    }
+}
+
+const s32 D_800A02A0[] = {
+    0x3D3CFFFF, 0x41403F3E, 0xFFFFFF42, 0xFFFFFFFF, 0x43424140, 0x47464544, 0xFF444843, 0xFFFFFFFF};
 
 void BattlePrepareTmpForManip(void) {
     g_CurrentAction->unk80[0] = 0x400000;
@@ -2075,8 +2312,7 @@ static void BattleResolveCaitSithSlotsResult(void) {
         g_CurrentAction->absoluteActionIndex = comboIndex + 0x68;
     } else {
         // Random Summon ID: sum of four Rnd(1..10) rolls, + Level/21, /2, -4,
-        // clamped [0,15], then the Summon category base (D_800A0290[1] ==
-        // 0x38 == 56).
+        // clamped [0,15], then the Summon category start
         rollSum = 4;
         for (comboIndex = 0; comboIndex < 4; comboIndex++) {
             rollSum += SysGetRandomByteRange(10) & 0xFF;
@@ -2091,8 +2327,8 @@ static void BattleResolveCaitSithSlotsResult(void) {
         if (rollSum > 0xF) {
             rollSum = 0xF;
         }
-        g_CurrentAction->absoluteActionIndex = rollSum + 0x38;
-        g_CurrentAction->cmdIndex = 3;
+        g_CurrentAction->absoluteActionIndex = SUMMON_START + rollSum;
+        g_CurrentAction->cmdIndex = CMD_SUMMON;
     }
     g_CurrentAction->targetFlags = 0xFF;
     g_CurrentAction->unk98 = g_CurrentAction->absoluteActionIndex;
@@ -2322,7 +2558,7 @@ static void BattleDropDyingEnemiesFromTargets(void) {
 
 static void BattleLearnEnemySkill(void) {
     u16 id;
-    s32 bit = 1 << (g_CurrentAction->absoluteActionIndex - 0x48);
+    s32 bit = 1 << (g_CurrentAction->absoluteActionIndex - ENEMY_SKILL_START);
 
     if (!(g_BattleData.flags & 0x40)) {
         if (!(g_CurrentAction->partyWork->enemySkillMateriaData & bit)) {
@@ -5092,8 +5328,8 @@ void BattleInitScriptContext(s32 arg0, s32 priority, s32 arg2) {
 
 static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex) {
     BattleActionEntry action;
-    u8 categories[2] = {CMD_SUMMON, CMD_ENEMY_SKILL};
-    u8 categoryBases[2] = {0x38, 0x48}; // D_800A0290[1], D_800A0290[2]
+    u8 categories[] = {CMD_SUMMON, CMD_ENEMY_SKILL};
+    u8 categoryBases[] = {SUMMON_START, ENEMY_SKILL_START};
     u32 i;
     u16 mask;
 

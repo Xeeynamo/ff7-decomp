@@ -1,3 +1,4 @@
+g_BgFadeMode = 0x80071A58;
 D_800A00BC = 0x800A00BC; // size:0x8
 D_800A0238 = 0x800A0238; // force_migration:True
 D_800A023C = 0x800A023C; // force_migration:True

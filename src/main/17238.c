@@ -310,7 +310,7 @@ void SysInitPlayerStatFromMateria(s32 arg0) {
         SysParseMegaallMateria(D_8006966C[i]);
     }
     SysSortMagicInUnitStructure(partyId);
-    for (i = 0; i < 72; i++) {
+    for (i = MAGIC_START; i < SUMMON_END; i++) {
         if (D_80062E60->enabledMagic[i].costModifier & 0xE0) {
             mpCost =
                 D_80062E60->enabledMagic[i].mpCost +
@@ -627,7 +627,7 @@ void SysAddPairMasterMagicWithQuadraMagic(u8 allCount) {
 void SysAddPairSummonWithQuadraMagic(u8 allCount, u8 materiaId) {
     s32 idx;
 
-    idx = g_MateriaData[materiaId].materiaAttributes[0] - 0x38;
+    idx = g_MateriaData[materiaId].materiaAttributes[0] - SUMMON_START;
     D_800694C4[idx] = D_800694C4[idx] + 1;
     D_800694D4[idx] = D_800694D4[idx] + allCount;
 }
@@ -974,11 +974,11 @@ void SysAddMateriaX7(s32 arg0, s32 arg1, s32 arg2) {
 
     if (!D_80063020) {
         bits = arg2 & 0xFFFFFF;
-        for (i = 0; i < 0x18; i++) {
+        for (i = 0; i < NUM_ENEMY_SKILLS; i++) {
             enabled = bits & 1;
             bits >>= 1;
             if (enabled) {
-                param = i + 0x48;
+                param = ENEMY_SKILL_START + i;
                 SysAddMagicSummonSkillToUnitStructure(i, param, param);
             }
         }
@@ -1231,7 +1231,7 @@ void SysCopyCommandToUnitStructure(u8 commandId, u8 order) {
     s32 i;
 
     D_80062E60->commandMenu[order].id = commandId;
-    D_80062E60->commandMenu[order].unk4 = 0;
+    D_80062E60->commandMenu[order].menuOptionFlags = MENU_OPTION_NONE;
     D_80062E60->commandMenu[order].initialCursorAction = D_800707C4[commandId].initialCursorAction;
     D_80062E60->commandMenu[order].targetFlags = D_800707C4[commandId].targetFlags;
 
@@ -1303,7 +1303,7 @@ void SysInitPlayerTempStat(u8 partyId, ActiveCharacterData* chr) {
     }
     for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
         chr->commandMenu[i].id = 0xFF;
-        chr->commandMenu[i].unk4 = 1;
+        chr->commandMenu[i].menuOptionFlags = MENU_OPTION_UNK1;
         chr->commandMenu[i].materiaEffectFlags = 0;
     }
     for (i = 0; i < 8; i++) {

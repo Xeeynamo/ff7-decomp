@@ -50,7 +50,7 @@
 /* 80062F7C */ glabel D_80062F7C;                           .space 4     # !!GP!! 17238.c
 /* 80062F80 */ glabel D_80062F80;                           .space 4     # !!GP!! 1F6B4.c
 /* 80062F84 */ glabel g_AkaoEffectsAllSeq;                           .space 4     # !!GP!! akao.c (AkaoStart)
-/* 80062F88 */ glabel D_80062F88;                           .space 4     # !!GP!! btlinit.c (func_800148A0)
+/* 80062F88 */ glabel D_80062F88;                           .space 4     # !!GP!! btlinit.c (SysBattleModeReset)
 /* 80062F8C */ glabel g_AkaoMutex;                           .space 4     # !!GP!! akao.c (AkaoInitData)
 /* 80062F90 */ glabel D_80062F90;                           .space 4     # !!GP!! 1F6B4.c
 /* 80062F94 */ glabel g_PartyMenuSelectedMenuId;            .space 4     # !!GP!! 1F6B4.c
