@@ -26,7 +26,6 @@ typedef struct {
     /* 0x80 */ u32 expLevelEnd;
 } BatresRow; // size:0x84
 
-extern u8 D_80082268[];
 extern u8 D_80082460[3][12]; // one 12-entry roll table per gauge kind
 extern StatGrowth D_80082484[][8];
 extern s32 D_8009D7D8;
@@ -242,7 +241,7 @@ static void StoreResultsRow(BatresRow* p, SavePartyMember* c) {
 static void InitResultsRow(BatresRow* p) {
     s32 i;
 
-    p->curve = &D_80082268[p->charId * 56];
+    p->curve = D_80082268[p->charId].curve;
     for (i = 0; i < 8; i++) {
         if (p->baseStat[i] == 0) {
             p->baseStat[i] = 1;

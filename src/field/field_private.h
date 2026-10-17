@@ -2,13 +2,6 @@
 #define FIELD_PRIVATE_H
 #include <game.h>
 
-typedef struct {
-    MATRIX lookAt;
-    DVECTOR offset;
-    s16 zoom;
-    u16 unk;
-} FieldCamera; // size: 0x28
-
 #define GET_ENTITY_NAME(entityId) ((char*)g_FieldScripts + sizeof(FieldScriptHeader) + (entityId) * 8)
 
 #define GET_FIELD_SCRIPT_OFFSET(dst, scriptOffset, entityDataOffset, extrasHeaderSize)                                 \
@@ -117,7 +110,6 @@ typedef struct {
 extern u8* D_80075E10;
 extern FieldTilemap** g_FieldTilemap;
 extern FieldCamera* g_FieldCamera;
-extern FieldCamera* g_MovieCamera;
 extern FieldCamera** D_80083578;
 extern u32 g_FieldFileInfo[787 * 6]; // Yamada pair for DAT, MIM, BSX
 
@@ -181,7 +173,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId);
 void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
 void FieldDebugStringCopy(char* dst, const char* src);
 void FieldDebugStringConcat(char* dest, const char* src);
-void AddStrNextDebugRow(s32 val, const char* msg_out);
+s32 AddStrNextDebugRow(s16 pageId, const char* msg);
 void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height);
 s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str);
 

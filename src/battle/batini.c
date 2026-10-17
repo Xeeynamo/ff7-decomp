@@ -387,7 +387,7 @@ static void BattleInitPlayer(void) {
                     party->limitLevel = limitLevel;
                     party->limitBar = limitCharge;
                     party->limitBarUI = limitCharge;
-                    party->limitBreakHPDivisor = D_80082290[charId].hpDivisor[limitLevel];
+                    party->limitBreakHPDivisor = D_80082268[charId].hpDivisor[limitLevel];
                     character->unk1A = party->limitBar << 8;
                     character->limitLevel = member->limit_level;
                     BattleInitLimits(charId, member->limit_learn, &character->limits);
@@ -569,7 +569,7 @@ static void BattleInitResetExtraCmds(s32 sceneID) {
         data->commandMenu[i].id = 0xFF;
         data->commandMenu[i].initialCursorAction = 0;
         data->commandMenu[i].targetFlags = 0;
-        data->commandMenu[i].unk4 = 3;
+        data->commandMenu[i].menuOptionFlags = MENU_OPTION_UNK1 | MENU_OPTION_DISABLED;
         data->commandMenu[i].allCount = 0;
         data->commandMenu[i].materiaEffectFlags = 0;
     }
@@ -677,8 +677,6 @@ static void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
 
 const s32 D_801B001C[] = {0x0000, 0x1000, 0x0008, 0x0800};
 const s32 D_801B002C[] = {0x0000, 0x000A, 0x0027, 0x000A};
-extern u8 g_BattleStartFXFlags; // pending battle-start status flags, one bit per entry
-                                // of D_801B001C / D_801B002C (bit 4 = full-heal)
 void BattleQueueEvent(s32, s32, s32, s32);
 
 // Applies the pending battle-start effects in g_BattleStartFXFlags to party member
