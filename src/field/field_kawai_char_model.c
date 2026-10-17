@@ -2,6 +2,7 @@
 #include <game.h>
 #include <libetc.h>
 #include <inline_c.h>
+#include <gte.h>
 #include "field_private.h"
 
 #define KAWAI_READ_S16(params, offset) ((s16)((((params)[(offset) + 1] << 8) & 0xFF00) | ((params)[(offset)] & 0xFF)))
@@ -12,21 +13,6 @@
 #define KAWAI_WRITE_S32(params, offset, value)                                                                         \
     ((params)[(offset)] = (value), (params)[(offset) + 1] = (value) >> 8, (params)[(offset) + 2] = (value) >> 16,      \
      (params)[(offset) + 3] = (value) >> 24)
-
-#ifdef PLATFORM_PSYZ
-#define KAWAI_LOAD_COLOR_OFFSETS(r, g, b)
-#define KAWAI_STORE_RGB0(dst)
-#define KAWAI_STORE_RGB1(dst)
-#else
-#define KAWAI_LOAD_COLOR_OFFSETS(r, g, b)                                                                              \
-    __asm__ volatile("mtc2 %0, $25;"                                                                                   \
-                     "mtc2 %1, $26;"                                                                                   \
-                     "mtc2 %2, $27"                                                                                    \
-                     :                                                                                                 \
-                     : "r"(r), "r"(g), "r"(b))
-#define KAWAI_STORE_RGB0(dst) __asm__ volatile("swc2 $20, 0(%0)" : : "r"(dst) : "memory")
-#define KAWAI_STORE_RGB1(dst) __asm__ volatile("swc2 $21, 0(%0)" : : "r"(dst) : "memory")
-#endif
 
 typedef struct {
     /* 0x00 */ u8 modelCount;
@@ -413,9 +399,9 @@ s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params) {
 
 void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
     u8* packets;
-    u32* polygons;
+    u8* polygons;
     u32 i, counts, count;
-    u32 code;
+    u8 code;
     s32 rOffset, gOffset, bOffset;
 
     packets = part->packets;
@@ -763,17 +749,8 @@ s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params) {
     FieldModelPart* parts;
     FieldModelPart* part;
     u8* packets;
-    POLY_GT4* polyGT4;
-    POLY_GT3* polyGT3;
-    POLY_FT4* polyFT4;
-    POLY_FT3* polyFT3;
-    POLY_F3* polyF3;
-    POLY_F4* polyF4;
-    POLY_G3* polyG3;
-    POLY_G4* polyG4;
     u32 i, j, k;
-    u32 polygonCount;
-    u32 enabled;
+    u32 count, enabled;
 
     parts = (FieldModelPart*)(model->modelData + model->partsOffset);
     enabled = params[0];
@@ -785,76 +762,52 @@ s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params) {
                 packets += part->packetBufferSize;
             }
 
-            polyGT4 = (POLY_GT4*)packets;
-            polygonCount = part->polyGT4Count;
-            for (k = 0; k < polygonCount; k++) {
-                setSemiTrans(polyGT4, enabled);
-                setShadeTex(polyGT4, enabled);
-                polyGT4++;
-                packets += sizeof(POLY_GT4);
+            count = part->polyGT4Count;
+            for (k = 0; k < count; packets += sizeof(POLY_GT4), k++) {
+                setSemiTrans(packets, enabled);
+                setShadeTex(packets, enabled);
             }
 
-            polyGT3 = (POLY_GT3*)packets;
-            polygonCount = part->polyGT3Count;
-            for (k = 0; k < polygonCount; k++) {
-                setSemiTrans(polyGT3, enabled);
-                setShadeTex(polyGT3, enabled);
-                polyGT3++;
-                packets += sizeof(POLY_GT3);
+            count = part->polyGT3Count;
+            for (k = 0; k < count; packets += sizeof(POLY_GT3), k++) {
+                setSemiTrans(packets, enabled);
+                setShadeTex(packets, enabled);
             }
 
-            polyFT4 = (POLY_FT4*)packets;
-            polygonCount = part->polyFT4Count;
-            for (k = 0; k < polygonCount; k++) {
-                setSemiTrans(polyFT4, enabled);
-                setShadeTex(polyFT4, enabled);
-                polyFT4++;
-                packets += sizeof(POLY_FT4);
+            count = part->polyFT4Count;
+            for (k = 0; k < count; packets += sizeof(POLY_FT4), k++) {
+                setSemiTrans(packets, enabled);
+                setShadeTex(packets, enabled);
             }
 
-            polyFT3 = (POLY_FT3*)packets;
-            polygonCount = part->polyFT3Count;
-            for (k = 0; k < polygonCount; k++) {
-                setSemiTrans(polyFT3, enabled);
-                setShadeTex(polyFT3, enabled);
-                polyFT3++;
-                packets += sizeof(POLY_FT3);
+            count = part->polyFT3Count;
+            for (k = 0; k < count; packets += sizeof(POLY_FT3), k++) {
+                setSemiTrans(packets, enabled);
+                setShadeTex(packets, enabled);
             }
 
-            polyF3 = (POLY_F3*)packets;
-            polygonCount = part->polyF3Count;
-            for (k = 0; k < polygonCount; k++) {
-                setSemiTrans(polyF3, enabled);
-                setShadeTex(polyF3, enabled);
-                polyF3++;
-                packets += sizeof(POLY_F3);
+            count = part->polyF3Count;
+            for (k = 0; k < count; packets += sizeof(POLY_F3), k++) {
+                setSemiTrans(packets, enabled);
+                setShadeTex(packets, enabled);
             }
 
-            polyF4 = (POLY_F4*)packets;
-            polygonCount = part->polyF4Count;
-            for (k = 0; k < polygonCount; k++) {
-                setSemiTrans(polyF4, enabled);
-                setShadeTex(polyF4, enabled);
-                polyF4++;
-                packets += sizeof(POLY_F4);
+            count = part->polyF4Count;
+            for (k = 0; k < count; packets += sizeof(POLY_F4), k++) {
+                setSemiTrans(packets, enabled);
+                setShadeTex(packets, enabled);
             }
 
-            polyG3 = (POLY_G3*)packets;
-            polygonCount = part->polyG3Count;
-            for (k = 0; k < polygonCount; k++) {
-                setSemiTrans(polyG3, enabled);
-                setShadeTex(polyG3, enabled);
-                polyG3++;
-                packets += sizeof(POLY_G3);
+            count = part->polyG3Count;
+            for (k = 0; k < count; packets += sizeof(POLY_G3), k++) {
+                setSemiTrans(packets, enabled);
+                setShadeTex(packets, enabled);
             }
 
-            polyG4 = (POLY_G4*)packets;
-            polygonCount = part->polyG4Count;
-            for (k = 0; k < polygonCount; k++) {
-                setSemiTrans(polyG4, enabled);
-                setShadeTex(polyG4, enabled);
-                polyG4++;
-                packets += sizeof(POLY_G4);
+            count = part->polyG4Count;
+            for (k = 0; k < count; packets += sizeof(POLY_G4), k++) {
+                setSemiTrans(packets, enabled);
+                setShadeTex(packets, enabled);
             }
         }
     }
@@ -877,8 +830,8 @@ s32 KawaiSetColorToPktsBelowLvl(FieldModelEntry* model, u8* params) {
     level = KAWAI_READ_S16(params, 6);
     flags = KAWAI_READ_S16(params, 8);
     for (i = 0; i < count; i++) {
-        *(s16*)getScratchAddr(129) = level;
-        *(s32*)getScratchAddr(128) = flags;
+        KAWAI_PART_LEVEL = level;
+        KAWAI_PART_FLAGS = flags;
         gte_SetRotMatrix(&model->partMatrices[parts[i].boneIndex]);
         gte_SetTransMatrix(&model->partMatrices[parts[i].boneIndex]);
         KawaiSetColorToPartPktsBelowLvl(&parts[i], r, g, b);
@@ -911,12 +864,9 @@ s32 KawaiFadeModelColor(FieldModelEntry* model, u8* params) {
     case 1:
         finished = 0;
         colorParams = kawai_work.params;
-        colorParams[0] = fade->r;
-        colorParams[1] = fade->r >> 8;
-        colorParams[2] = fade->g;
-        colorParams[3] = fade->g >> 8;
-        colorParams[4] = fade->b;
-        colorParams[5] = fade->b >> 8;
+        KAWAI_WRITE_S16(colorParams, 0, fade->r);
+        KAWAI_WRITE_S16(colorParams, 2, fade->g);
+        KAWAI_WRITE_S16(colorParams, 4, fade->b);
         colorParams[6] = fade->flags;
         KawaiSetColorToModelPkts(model, colorParams);
         if (!fade->finished) {
@@ -940,6 +890,7 @@ s32 KawaiFadeModelColor(FieldModelEntry* model, u8* params) {
             }
             return 0;
         }
+        break;
     }
     return 1;
 }
@@ -986,25 +937,17 @@ s32 KawaiSetCustomLighting(FieldModelEntry* model, u8* params) {
         lightParams[9] = lighting->lightColors[2][0];
         lightParams[10] = lighting->lightColors[2][1];
         lightParams[11] = lighting->lightColors[2][2];
-        lightParams[12] = lighting->lightMatrix[0][0];
-        lightParams[13] = lighting->lightMatrix[0][0] >> 8;
-        lightParams[14] = lighting->lightMatrix[0][1];
-        lightParams[15] = lighting->lightMatrix[0][1] >> 8;
-        lightParams[16] = lighting->lightMatrix[0][2];
-        lightParams[17] = lighting->lightMatrix[0][2] >> 8;
-        lightParams[18] = lighting->lightMatrix[1][0];
-        lightParams[19] = lighting->lightMatrix[1][0] >> 8;
-        lightParams[20] = lighting->lightMatrix[1][1];
-        lightParams[21] = lighting->lightMatrix[1][1] >> 8;
-        lightParams[22] = lighting->lightMatrix[1][2];
-        lightParams[23] = lighting->lightMatrix[1][2] >> 8;
-        lightParams[24] = lighting->lightMatrix[2][0];
-        lightParams[25] = lighting->lightMatrix[2][0] >> 8;
-        lightParams[26] = lighting->lightMatrix[2][1];
-        lightParams[27] = lighting->lightMatrix[2][1] >> 8;
-        lightParams[28] = lighting->lightMatrix[2][2];
-        lightParams[29] = lighting->lightMatrix[2][2] >> 8;
+        KAWAI_WRITE_S16(lightParams, 12, lighting->lightMatrix[0][0]);
+        KAWAI_WRITE_S16(lightParams, 14, lighting->lightMatrix[0][1]);
+        KAWAI_WRITE_S16(lightParams, 16, lighting->lightMatrix[0][2]);
+        KAWAI_WRITE_S16(lightParams, 18, lighting->lightMatrix[1][0]);
+        KAWAI_WRITE_S16(lightParams, 20, lighting->lightMatrix[1][1]);
+        KAWAI_WRITE_S16(lightParams, 22, lighting->lightMatrix[1][2]);
+        KAWAI_WRITE_S16(lightParams, 24, lighting->lightMatrix[2][0]);
+        KAWAI_WRITE_S16(lightParams, 26, lighting->lightMatrix[2][1]);
+        KAWAI_WRITE_S16(lightParams, 28, lighting->lightMatrix[2][2]);
         KawaiSetCustomLightToModelPkts(model, lightParams);
+        break;
     }
     return 0;
 }
@@ -1034,14 +977,10 @@ s32 KawaiColorFadeBelowLvl(FieldModelEntry* model, u8* params) {
     case 1:
         finished = 0;
         colorParams = kawai_work.params;
-        colorParams[0] = fade->r;
-        colorParams[1] = fade->r >> 8;
-        colorParams[2] = fade->g;
-        colorParams[3] = fade->g >> 8;
-        colorParams[4] = fade->b;
-        colorParams[5] = fade->b >> 8;
-        colorParams[6] = fade->level;
-        colorParams[7] = fade->level >> 8;
+        KAWAI_WRITE_S16(colorParams, 0, fade->r);
+        KAWAI_WRITE_S16(colorParams, 2, fade->g);
+        KAWAI_WRITE_S16(colorParams, 4, fade->b);
+        KAWAI_WRITE_S16(colorParams, 6, fade->level);
         colorParams[8] = fade->flags;
         KawaiSetColorToPktsBelowLvl(model, colorParams);
         if (!fade->finished) {
@@ -1119,30 +1058,13 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetLighting
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetSplashToPktsBelowLvl);
 
-// One per-bone slot for the waterline effect: a pair of blending textured quads plus the
-// per-bone vector and scale used to displace them.
-typedef struct {
-    /* 0x00 */ POLY_FT4 poly[2];
-    /* 0x50 */ s16 unk50;       // x, loaded into the GTE as the per-bone vertex
-    /* 0x52 */ s16 unk52;       // y
-    /* 0x54 */ s16 unk54;       // z
-    /* 0x56 */ u16 unk56;       // never read or written by this module
-    /* 0x58 */ s16 effectScale; // abs() divisor, negated bone length
-    /* 0x5A */ u16 flags;       // bitmask
-} FieldSplashEntry;             // size:0x5C
-
-// Thirty slots of scratch per model, pointed at by g_FieldKawaiSplashEntries.
-#define FIELD_SPLASH_SLOTS 30
-
 void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
     FieldSplashEntry* entries;
     FieldModelBone* bones;
-    u16 clut;
-    u16 tpage;
-    s32 last; // Named so gcc keeps the bound in a register (slt) rather than folding it to a slti.
-    s32 i;
+    u16 clut, tpage;
+    s32 i, last;
 
-    entries = (FieldSplashEntry*)(g_FieldKawaiSplashEntries + slot * FIELD_SPLASH_SLOTS * sizeof(FieldSplashEntry));
+    entries = (FieldSplashEntry*)g_FieldKawaiSplashEntries + slot * FIELD_SPLASH_SLOTS;
     clut = getClut(704, 432);
     tpage = getTPage(1, 0, 704, 256);
     bones = (FieldModelBone*)model->modelData;
@@ -1161,9 +1083,7 @@ void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
         entry->poly[0].clut = clut;
         entry->poly[1].tpage = tpage;
         entry->poly[0].tpage = tpage;
-        entry->unk50 = 0;
-        entry->unk52 = 0;
-        entry->unk54 = 0;
+        setVector(&entry->position, 0, 0, 0);
         setSemiTrans(&entry->poly[0], 1);
         setSemiTrans(&entry->poly[1], 1);
         entry->effectScale = -bones[i].length;
