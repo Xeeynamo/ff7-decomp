@@ -2938,8 +2938,8 @@ void func_800C14C0(s32 actorArg) {
         }
         savedActor = actorArg & 0xFF;
         if (!(g_BattleModels[savedActor].specialFlags & 1)) {
-            if (BattleGetStatusFlashState(1) == 2 && D_800F38A0 == savedActor) {
-                func_800C1394(D_800F38A0);
+            if (BattleGetStatusFlashState(1) == 2 && g_BattleMenuPartySlot == savedActor) {
+                func_800C1394(g_BattleMenuPartySlot);
             }
             if (BattleGetStatusFlashState(0x13) == 2) {
                 selected = D_80158CFC + 4;
