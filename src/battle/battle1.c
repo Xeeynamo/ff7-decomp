@@ -674,12 +674,12 @@ void BattlePlayerInitModelWithSettings(u8 arg0) {
     s32 i;
     s32 index;
     u16 height;
-    actor = arg0 & 0xFF;
+    actor = arg0;
     if (g_BattleData.actors[actor].charId != -1) {
         index = D_80151200[actor].D_80151232;
         data = &D_800F8384[index];
         BattleUnitInitBonesAndMatrixes(
-            arg0 & 0xFF, (void*)(((BattleModelFileHeader*)*data)->skeletonOffset + (u_long)*data), 0);
+            arg0, (void*)(((BattleModelFileHeader*)*data)->skeletonOffset + (u_long)*data), 0);
         settings = (BattleModelSettings*)(u_long)(u32)((BattleModelFileHeader*)*data)->settingsAddress;
         g_BattleModels[actor].deathType = settings->deathType;
         g_BattleModels[actor].collisionRadius = settings->collisionRadius;
@@ -697,10 +697,10 @@ void BattlePlayerInitModelWithSettings(u8 arg0) {
             D_80151200[actor].values4[i] = settings->values44[i];
         }
         for (i = 0; i < LEN(settings->values4C); i++) {
-            D_80151200[arg0 & 0xFF].valuesE[i] = settings->values4C[i];
-            D_80151200[arg0 & 0xFF].values1A[i] = settings->values58[i];
+            D_80151200[arg0].valuesE[i] = settings->values4C[i];
+            D_80151200[arg0].values1A[i] = settings->values58[i];
         }
-        actor = arg0 & 0xFF;
+        actor = arg0;
         if (g_BattleModels[actor].deathType & 0x80) {
             BattleBoneSetParentMatrix(&g_BattleModels[actor].stageMatrix, D_800FA6D8[actor].unk8);
             BattleGetWeaponBoneNumAndInitBones(&D_800FA6D8[actor].unk3C, D_80163F34[actor], actor);
@@ -745,7 +745,7 @@ void BattleEnemyInitModelWithSettings(u8 arg0) {
     s32 i;
     u8* flags;
     BattleModel* modelState;
-    actor = arg0 & 0xFF;
+    actor = arg0;
     if (D_80151200[actor].D_80151232 == 6) {
         model = 6;
     } else {
@@ -753,8 +753,7 @@ void BattleEnemyInitModelWithSettings(u8 arg0) {
     }
     data = D_800F8384;
     data += model;
-    BattleUnitInitBonesAndMatrixes(
-        arg0 & 0xFF, (void*)(((BattleModelFileHeader*)*data)->skeletonOffset + (u_long)*data), 1);
+    BattleUnitInitBonesAndMatrixes(arg0, (void*)(((BattleModelFileHeader*)*data)->skeletonOffset + (u_long)*data), 1);
     arg0 &= 0xFF;
     actor = arg0;
     settings = (BattleEnemyModelSettings*)(u_long)(u32)((BattleModelFileHeader*)*data)->settingsAddress;
@@ -780,10 +779,10 @@ void BattleEnemyInitModelWithSettings(u8 arg0) {
         D_80151200[actor].values4[i] = settings->values44[i];
     }
     for (i = 0; i < LEN(settings->values4C); i++) {
-        D_80151200[arg0 & 0xFF].valuesE[i] = settings->values4C[i];
-        D_80151200[arg0 & 0xFF].values1A[i] = settings->values58[i];
+        D_80151200[arg0].valuesE[i] = settings->values4C[i];
+        D_80151200[arg0].values1A[i] = settings->values58[i];
     }
-    actor = arg0 & 0xFF;
+    actor = arg0;
     g_BattleData.actors[actor].D_801636BC = g_BattleModels[actor].deathType & 0x3F;
     if (g_BattleModels[actor].deathType & 0x80) {
         BattleBoneSetParentMatrix(&g_BattleModels[actor].stageMatrix, D_800FA6D8[actor].unk8);
@@ -2904,7 +2903,7 @@ static s32 func_800C1304(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 }
 
 void func_800C1394(s32 actorArg) {
-    s32 actor = actorArg & 0xFF;
+    u8 actor = actorArg;
     BattleModelSub* bones;
     BattleModelSub* flash;
     bones = g_BattleModels[actor].boneTransforms;
@@ -2946,14 +2945,14 @@ void func_800C14C0(s32 actorArg) {
                 }
             }
         }
-        savedActor = actorArg & 0xFF;
+        savedActor = actor;
         if (!(g_BattleModels[savedActor].specialFlags & 1)) {
             if (BattleGetStatusFlashState(1) == 2 && g_BattleMenuPartySlot == savedActor) {
                 func_800C1394(g_BattleMenuPartySlot);
             }
             if (BattleGetStatusFlashState(0x13) == 2) {
                 selected = D_80158CFC + 4;
-                if (selected == (actorArg & 0xFF)) {
+                if (selected == actor) {
                     func_800C1394(selected);
                 }
             }
