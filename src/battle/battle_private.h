@@ -53,7 +53,7 @@ enum AccessWidthType { WIDTH_BIT, WIDTH_BYTE, WIDTH_HALF, WIDTH_WORD };
 
 typedef struct {
     s8 actionId;
-    s8 unk1;
+    s8 type;
     s8 unk2;
     s8 unk3;
     s8 unk4;
@@ -948,6 +948,7 @@ void BattleSetTmpDmgAsTargHpMinusOne(void);
 void func_800AE2A0(void);
 void BattleApplyKillCountBonus(void);
 void BattleCalcMateriaSlotScore(void);
+static s32 func_800AE6C0(s32, s32, s32);
 void BattleCalcAffinityFlags(void);
 s32 BattleGetStatusProtectionMask(s32, s32, s32);
 void func_800AF9C8(void);
