@@ -1890,7 +1890,18 @@ void func_800A70C4(s32 arg0, s32 arg1) {
     BattleQueueEffect(arg0, 0x34, 2, D_800708C4[arg1].attackEffectID, 0, 9, g_BattleState.combatant[arg0].status);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A7130);
+void func_800A7130(s32 arg0, s32 arg1)
+{
+    if (arg0 < NUM_PARTY) {
+        if (arg1 != 0) {
+            g_ActiveCharacters[arg0].baseHp = g_BattleState.combatant[arg0].maxHP;
+            g_ActiveCharacters[arg0].baseMp = g_BattleState.combatant[arg0].maxMP;
+        } else {
+            g_ActiveCharacters[arg0].baseHp = g_BattleWork.party[arg0].maxHP;
+            g_ActiveCharacters[arg0].baseMp = g_BattleWork.party[arg0].maxMP;
+        }
+    }
+}
 
 void func_800A71E0(void) {}
 
