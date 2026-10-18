@@ -2906,7 +2906,6 @@ void BattleHitFlashGrowTick(void) {
 
 void BattleHitFlashBurstTick(void) {
     BattleHitFlashSlot* slot = &g_BattleDetachedSlots[g_BattleDetachedCursor].hitFlash;
-    u16 v;
 
     D_800F16CC.m[0][0] = D_800F16CC.m[2][2] = (slot->frame * 3) << 9;
     if (slot->frame < 8) {
@@ -2923,9 +2922,7 @@ void BattleHitFlashBurstTick(void) {
     D_800F1698.model = D_800F14E0;
     BattleDrawHitFlashModel(D_800F16EC);
     if (D_80062D98 == 0) {
-        v = slot->frame + 1;
-        slot->frame = v;
-        if ((s16)v == 16) {
+        if (++slot->frame == 16) {
             slot->unk0 = -1;
         }
     }
@@ -2933,7 +2930,6 @@ void BattleHitFlashBurstTick(void) {
 
 void BattleHitFlashShrinkTick(void) {
     BattleHitFlashSlot* slot;
-    u16 frame;
 
     slot = &g_BattleDetachedSlots[g_BattleDetachedCursor].hitFlash;
     D_800F16F0.m[1][1] = rsin((14 - slot->frame) << 7) + 0x1000;
@@ -2952,9 +2948,7 @@ void BattleHitFlashShrinkTick(void) {
     D_800F1698.clut = 0x80;
     BattleDrawHitFlashModel(D_800F1710);
     if (D_80062D98 == 0) {
-        frame = slot->frame + 1;
-        slot->frame = frame;
-        if ((s16)frame == 16) {
+        if (++slot->frame == 16) {
             slot->unk0 = -1;
         }
     }
@@ -3014,16 +3008,13 @@ void func_800D6F78(void) {
 void BattleSpawnTrailEffect(void) {
     BattleHitFlashSlot* src = &g_BattleDetachedSlots[g_BattleDetachedCursor].hitFlash;
     BattleHitFlashSlot* dst;
-    u16 v;
 
     if (D_80062D98 == 0) {
         if (!(src->frame & 3)) {
             dst = &g_BattleDetachedSlots[BattleDetachedRegister(src->spawnCallback)].hitFlash;
             dst->pos = src->pos;
         }
-        v = src->frame + 1;
-        src->frame = v;
-        if ((s16)v == 0xD) {
+        if (++src->frame == 0xD) {
             src->unk0 = -1;
         }
     }
