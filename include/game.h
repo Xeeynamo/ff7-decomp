@@ -57,7 +57,7 @@
            (((params)[(offset) + 1] << 8) & 0xFF00) | ((params)[(offset)] & 0xFF)))
 #define KAWAI_WRITE_S16(params, offset, value) ((params)[(offset)] = (value), (params)[(offset) + 1] = (value) >> 8)
 #define KAWAI_WRITE_S32(params, offset, value)                                                                         \
-    ((params)[(offset)] = (value), (params)[(offset) + 1] = (value) >> 8, (params)[(offset) + 2] = (value) >> 16,        \
+    ((params)[(offset)] = (value), (params)[(offset) + 1] = (value) >> 8, (params)[(offset) + 2] = (value) >> 16,      \
      (params)[(offset) + 3] = (value) >> 24)
 
 typedef enum {
