@@ -2253,7 +2253,7 @@ s32 BattleDetachedRegister(void (*callback)(void)) {
         if (!g_BattleDetachedCallbacks[i]) {
             if (i >= g_BattleDetachedCursor) {
                 g_BattleDetachedCallbacks[i] = callback;
-                g_BattleDetachedSlots[i].raw.D_801621F0 = g_BattleDetachedCursor;
+                g_BattleDetachedSlots[i].base.id = g_BattleDetachedCursor;
                 g_BattleDetachedCount++;
                 return i;
             }
@@ -2300,7 +2300,7 @@ static void BattleCallbacksReset(void) {
     }
     for (i = 0; i < 60; i++) {
         g_BattleDetachedCallbacks[i] = NULL;
-        g_BattleDetachedSlots[i].raw.D_801621F0 = g_BattleDetachedSlots[i].raw.D_801621F2 = 0;
+        g_BattleDetachedSlots[i].base.id = g_BattleDetachedSlots[i].base.state = 0;
     }
 
     BattleCameraResetCallbacks();
@@ -2362,9 +2362,9 @@ static void BattleDetachedUpdate(void) {
         callback = g_BattleDetachedCallbacks[g_BattleDetachedCursor];
         if (callback) {
             callback();
-            if (g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 == -1) {
-                g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = 0;
-                g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F2 = 0;
+            if (g_BattleDetachedSlots[g_BattleDetachedCursor].base.id == -1) {
+                g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = 0;
+                g_BattleDetachedSlots[g_BattleDetachedCursor].base.state = 0;
                 g_BattleDetachedCallbacks[g_BattleDetachedCursor] = NULL;
                 g_BattleDetachedCount--;
             }
@@ -3184,67 +3184,64 @@ void func_800C2864(s32 arg0) {
 
 void func_800C2C1C(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
 void func_800C2928(void) {
-    Unk801621F0* slots = g_BattleDetachedSlots;
-    s32 slotOffset = g_BattleDetachedCursor * sizeof(Unk801621F0);
-    s16 stateId = *(s16*)((u8*)&g_BattleDetachedSlots[0].raw.D_801621F2 + slotOffset);
-    Unk801621F0* slot = (Unk801621F0*)((u8*)slots + slotOffset);
+    BattleDetachedSlot* slots = g_BattleDetachedSlots;
+    s32 slotOffset = g_BattleDetachedCursor * sizeof(BattleDetachedSlot);
+    s16 stateId = *(s16*)((u8*)&g_BattleDetachedSlots[0].damagePopup.state + slotOffset);
+    BattleDamagePopupSlot* slot = (BattleDamagePopupSlot*)((u8*)slots + slotOffset);
     BattleModelSub* bone;
     Unk80151200* state;
     s32 depth;
     s16* screen;
     s32 y;
-    s32 actorOffset;
     s32 actor, boneActor, boneIndex;
+    s32 stateActor;
     u16 frame;
-    s32 updatedOffset;
     switch (stateId) {
     case 0:
-        slot->D_801621F2 = 1;
-        actor = slot->unk10.value;
-        slot->D_801621F4 = 11;
-        slot->unkC = 0;
-        boneActor = slot->unk10.value;
+        slot->state = 1;
+        actor = slot->actor.value;
+        slot->framesLeft = 11;
+        slot->frame = 0;
+        boneActor = slot->actor.value;
         boneIndex = g_BattleModels[boneActor].boneIndices[0];
         *(s32*)0x1F800000 = boneIndex;
         BattleGetPartPosition(actor, boneIndex, &D_80151200[actor].bone.trans);
-        actorOffset = slot->unk10.value * sizeof(Unk80151200);
-        state = (Unk80151200*)((u8*)D_80151200 + actorOffset);
+        stateActor = slot->actor.value;
+        state = &D_80151200[stateActor];
         state->bone.rot.vz = 0;
         state->bone.rot.vy = 0;
-        *(s16*)((u8*)&D_80151200[0].bone.rot.vx + actorOffset) = 0;
-        D_80151200[slot->unk10.value].bone.parentMatrix = &D_800F8158[0].m;
+        D_80151200[stateActor].bone.rot.vx = 0;
+        D_80151200[slot->actor.value].bone.parentMatrix = &D_800F8158[0].m;
         break;
     case 1:
-        if (slot->D_801621F4 == 0) {
-            slot->D_801621F0 = -1;
+        if (slot->framesLeft == 0) {
+            slot->unk0 = -1;
             return;
         }
-        bone = &D_80151200[slot->unk10.value].bone;
+        bone = &D_80151200[slot->actor.value].bone;
         RotMatrixYXZ(&bone->rot, &bone->m);
-        BattleUpdateMatrixWithSelfAndParentAndSetToGte(&D_80151200[slot->unk10.value].bone);
+        BattleUpdateMatrixWithSelfAndParentAndSetToGte(&D_80151200[slot->actor.value].bone);
         depth = RotTransPers(&D_800E7D08, (long*)0x1F800004, (long*)0x1F800008, (long*)0x1F80000C);
         screen = (s16*)0x1F800004;
-        slot->D_801621F6 = (u16)screen[0];
+        slot->screenX = screen[0];
         y = *(s32*)screen >> 16;
-        slot->unkA = y;
+        slot->baseY = y;
         *(s32*)0x1F800010 = depth;
-        slot->unk8 = y - D_800EA230[slot->unkC];
-        if (slot->D_801621F6 < 24) {
-            slot->D_801621F6 = 24;
+        slot->screenY = y - D_800EA230[slot->frame];
+        if (slot->screenX < 24) {
+            slot->screenX = 24;
         }
-        if (slot->D_801621F6 > 296) {
-            slot->D_801621F6 = 296;
+        if (slot->screenX > 296) {
+            slot->screenX = 296;
         }
-        if (slot->unk8 < 16) {
-            slot->unk8 = 16;
+        if (slot->screenY < 16) {
+            slot->screenY = 16;
         }
-        if (slot->unk8 > 150) {
-            slot->unk8 = 150;
+        if (slot->screenY > 150) {
+            slot->screenY = 150;
         }
-        func_800C2C1C(slot->D_801621F6, slot->unk8, slot->unkE, D_800EA230[slot->unkC++], slot->unk14);
-        updatedOffset = g_BattleDetachedCursor * sizeof(Unk801621F0);
-        slots[g_BattleDetachedCursor].D_801621F4 =
-            *(u16*)((u8*)&g_BattleDetachedSlots[0].raw.D_801621F4 + updatedOffset) - 1;
+        func_800C2C1C(slot->screenX, slot->screenY, slot->unkE, D_800EA230[slot->frame++], slot->unk14);
+        g_BattleDetachedSlots[g_BattleDetachedCursor].damagePopup.framesLeft--;
         break;
     }
 }
@@ -3467,24 +3464,24 @@ void func_800C3DE4(void) {
     s32 slotIndexAfterCall;
 
     slotIndexBeforeCall = g_BattleDetachedCursor;
-    frames = g_BattleDetachedSlots[slotIndexBeforeCall].raw.D_801621F4;
-    actor = g_BattleDetachedSlots[slotIndexBeforeCall].raw.unk8;
+    frames = g_BattleDetachedSlots[slotIndexBeforeCall].modelShake.framesLeft;
+    actor = g_BattleDetachedSlots[slotIndexBeforeCall].modelShake.actor;
     slotIndex = g_BattleDetachedCursor;
     if (frames == 0) {
-        g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+        g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
         return;
     }
     if ((frames == 0x3A) || (frames == 0x40)) {
         D_80163C74 = func_800C4FC8(0xFAU, 0xFAU, 0xFAU);
     }
-    if (g_BattleDetachedSlots[slotIndex].raw.D_801621F4 & 1) {
-        g_BattleModels[actor].rootTrans.vz = g_BattleDetachedSlots[slotIndex].raw.unkA + 0x40;
+    if (g_BattleDetachedSlots[slotIndex].modelShake.framesLeft & 1) {
+        g_BattleModels[actor].rootTrans.vz = g_BattleDetachedSlots[slotIndex].modelShake.baseZ + 0x40;
     } else {
-        g_BattleModels[actor].rootTrans.vz = g_BattleDetachedSlots[slotIndex].raw.unkA - 0x40;
+        g_BattleModels[actor].rootTrans.vz = g_BattleDetachedSlots[slotIndex].modelShake.baseZ - 0x40;
     }
     slotIndexAfterCall = slotIndex;
-    g_BattleDetachedSlots[slotIndexAfterCall].raw.D_801621F4 =
-        g_BattleDetachedSlots[slotIndexAfterCall].raw.D_801621F4 - 1;
+    g_BattleDetachedSlots[slotIndexAfterCall].modelShake.framesLeft =
+        g_BattleDetachedSlots[slotIndexAfterCall].modelShake.framesLeft - 1;
 }
 
 void func_800C3F44(s32 effectArg) {
@@ -3534,9 +3531,9 @@ void func_800C40F4(void) {
         func_800C2FD4(actor, 0x1C0, (u8)g_BattleEffectSlots[effectIndex].raw.D_8016297E);
         slotIndex = BattleDetachedRegister(func_800C3DE4);
         modelIndex = actor;
-        g_BattleDetachedSlots[slotIndex].raw.unk8 = actor;
-        g_BattleDetachedSlots[slotIndex].raw.D_801621F4 = 0x40;
-        g_BattleDetachedSlots[slotIndex].raw.unkA = g_BattleModels[modelIndex].rootTrans.vz;
+        g_BattleDetachedSlots[slotIndex].modelShake.actor = actor;
+        g_BattleDetachedSlots[slotIndex].modelShake.framesLeft = 0x40;
+        g_BattleDetachedSlots[slotIndex].modelShake.baseZ = g_BattleModels[modelIndex].rootTrans.vz;
         g_BattleModels[modelIndex].colorR = 0xFF;
         g_BattleModels[modelIndex].colorG = 0;
         g_BattleModels[modelIndex].colorB = 0;
@@ -3712,7 +3709,7 @@ void func_800C494C(void) {
 
 static void func_800C4B60(s16 arg0) {
     if (g_BattleDetachedSlots[arg0].bands.framesLeft == 0) {
-        g_BattleDetachedSlots[arg0].raw.D_801621F0 = -1;
+        g_BattleDetachedSlots[arg0].base.id = -1;
         return;
     }
     D_80163C74 = func_800C4DC8(0, g_BattleDetachedSlots[arg0].bands.upperY, 320, 47, &D_800EA25C);
@@ -3803,7 +3800,7 @@ static void func_800C5468(u8 arg0) {
 
 static void func_800C55B8(void) {
     if (g_BattleDetachedSlots[g_BattleDetachedCursor].modelScale.framesLeft == 0) {
-        g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+        g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
         return;
     }
     g_BattleModels[g_BattleDetachedSlots[g_BattleDetachedCursor].modelScale.actor].scale +=
@@ -4358,7 +4355,7 @@ void BattleFadeInAfterSummon(void) {
     } else {
         timer = g_BattleDetachedSlots[g_BattleDetachedCursor].fade.framesLeft;
         if (timer == 0) {
-            g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+            g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
             D_800FAFDC = 0;
             g_BattleModels[EFFECT_MODEL_SLOT].ready = 1;
         } else {
@@ -4376,7 +4373,7 @@ void BattleFadeOutEffectModel(void) {
     } else if (g_BattleDetachedSlots[g_BattleDetachedCursor].fade.framesLeft == 0) {
         g_BattleModels[EFFECT_MODEL_SLOT].specialFlags |= BATTLE_MODEL_INACTIVE;
         g_BattleModels[EFFECT_MODEL_SLOT].specialFlags &= ~BATTLE_MODEL_NO_SHADOW;
-        g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+        g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
         g_BattleModels[EFFECT_MODEL_SLOT].ready = 1;
         return;
     } else {

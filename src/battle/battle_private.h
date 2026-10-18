@@ -158,43 +158,12 @@ typedef struct {
 } Pair16x2;
 
 typedef struct {
-    s16 D_801621F0;
-    s16 D_801621F2;
-    s16 D_801621F4;
-    s16 D_801621F6; // player idx? 0, 1 or 2. See func_800D0C80
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    s16 unkE;
-    Union80162200 unk10;
-    s32 unk14;
-    u8 unk18;
-    s8 unk19;
-    s16 unk1A;
-    void* unk1C;
-} Unk801621F0; // size:0x20
-
-typedef struct {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 frame;
-    /* 0x04 */ SVECTOR pos;
-    /* 0x0C */ u8 unkC[0x14];
-} BattleHitFlashSlot; // size:0x20
-
-typedef struct {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 frame;
     /* 0x04 */ SVECTOR pos;
     /* 0x0C */ u8 unkC[0x10];
     /* 0x1C */ void (*spawnCallback)(void);
-} BattleTrailSlot; // size:0x20
-
-typedef struct {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 frame;
-    /* 0x04 */ SVECTOR pos;
-    /* 0x0C */ u8 unkC[0x14];
-} Unk800D6F78Slot; // size:0x20
+} BattleHitFlashSlot; // size:0x20
 
 typedef struct {
     /* 0x00 */ s16 palette;
@@ -234,13 +203,14 @@ typedef struct {
 } BattleKeyframeParticleSlot; // size:0x20
 
 typedef struct {
-    /* 0x00 */ s16 unk0;
+    /* 0x00 */ s16 unk0; // BattleEffectDustClouds keeps its actor here
     /* 0x02 */ s16 frame;
     /* 0x04 */ SVECTOR pos;
-    /* 0x0C */ s16 unkC;
+    /* 0x0C */ s16 delay;
     /* 0x0E */ s16 scaleX;
     /* 0x10 */ s16 scaleY;
-    /* 0x12 */ u8 unk12[0xE];
+    /* 0x12 */ s16 actor;
+    /* 0x14 */ u8 unk14[0xC];
 } BattleSparkleSlot; // size:0x20
 
 typedef struct {
@@ -334,11 +304,78 @@ typedef struct {
     /* 0x19 */ u8 unk19[7];
 } BattleEffectScriptSlot; // size:0x20
 
+typedef struct {
+    /* 0x00 */ s16 id;
+    /* 0x02 */ s16 state;
+    /* 0x04 */ u8 unk4[0x1C];
+} BattleDetachedHeader; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 state;
+    /* 0x04 */ s16 framesLeft;
+    /* 0x06 */ s16 screenX;
+    /* 0x08 */ s16 screenY;
+    /* 0x0A */ s16 baseY;
+    /* 0x0C */ s16 frame;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ Union80162200 actor;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ u8 unk18[8];
+} BattleDamagePopupSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 framesLeft;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 actor;
+    /* 0x0A */ s16 baseZ;
+    /* 0x0C */ u8 unkC[0x14];
+} BattleModelShakeSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 state;
+    /* 0x04 */ s16 framesLeft;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 arg1;
+    /* 0x0A */ s16 arg0;
+    /* 0x0C */ u8 unkC[0x14];
+} BattleDelayedCleanupSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ u8* unk10;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ u8 unk18[8];
+} BattleBlinkSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 elapsed;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 actor;
+    /* 0x08 */ s16 delay;
+    /* 0x0A */ s16 flags;
+    /* 0x0C */ u8 unkC[0xE];
+    /* 0x1A */ s16 depth;
+    /* 0x1C */ void* matrix;
+} BattleSpriteEffectSlot; // size:0x20
+
 typedef union {
-    Unk801621F0 raw; // kept around for accesses that haven't been typed yet
+    BattleDetachedHeader base;
+    BattleDamagePopupSlot damagePopup;
+    BattleModelShakeSlot modelShake;
+    BattleDelayedCleanupSlot delayedCleanup;
+    BattleBlinkSlot blink;
+    BattleSpriteEffectSlot spriteEffect;
     BattleHitFlashSlot hitFlash;
-    BattleTrailSlot trail;
-    Unk800D6F78Slot unk800D6F78;
     Unk800D6D8CSlot unk800D6D8C;
     BattleKeyframeEffectSlot keyframeEffect;
     BattleKeyframeParticleSlot keyframeParticle;
