@@ -59,9 +59,7 @@ void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* ra
 
     PopMatrix();
 
-    *(u32*)rainDm = (*(u32*)rainDm & 0xFF000000) | (*ot & 0xFFFFFF);
-
-    *ot = (*ot & 0xFF000000) | ((u32)rainDm & 0xFFFFFF);
+    addPrim(ot, rainDm);
 }
 
 void FieldRainUpdate(void) {

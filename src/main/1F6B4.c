@@ -553,7 +553,7 @@ int HandleTitle(void) {
     LoadMenuOvl(YAMA_SAVEMENU_TITLE);
     do {
     } while (SystemCdromReadChain());
-    SAVEMENU_Title();
+    return SAVEMENU_Title();
 }
 
 void HandleSaveMenu(void) {

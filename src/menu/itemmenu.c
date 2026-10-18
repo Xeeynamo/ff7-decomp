@@ -951,7 +951,7 @@ char ITEMMENU_Main(s32 frameCount) {
             }
             keyRowIdx += 1;
             slotIdx = 0;
-        } while (((s32)keyRowIdx) < 0xC);
+        } while (keyRowIdx < 0xC);
     }
     canRestoreMp = 0x35;
     drawRect[1] = canRestoreMp;

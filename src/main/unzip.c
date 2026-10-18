@@ -309,7 +309,7 @@ static s32 inflate_codes(huft* tl, huft* td, s32 bl, s32 bd) {
 
     for (;;) { /* do until end of block */
         NEEDBITS((u32)bl);
-        if ((e = (t = tl + ((u32)b & ml))->e) > 16) {
+        if ((e = (t = tl + (b & ml))->e) > 16) {
             do {
                 if (e == 99) {
                     return 1;
@@ -317,7 +317,7 @@ static s32 inflate_codes(huft* tl, huft* td, s32 bl, s32 bd) {
                 DUMPBITS(t->b);
                 e -= 16;
                 NEEDBITS(e);
-            } while ((e = (t = t->v.t + ((u32)b & mask_bits[e]))->e) > 16);
+            } while ((e = (t = t->v.t + (b & mask_bits[e]))->e) > 16);
         }
         DUMPBITS(t->b);
         if (e == 16) { /* then it's a literal */
@@ -330,12 +330,12 @@ static s32 inflate_codes(huft* tl, huft* td, s32 bl, s32 bd) {
 
             /* get length of block to copy */
             NEEDBITS(e);
-            n = t->v.n + ((u32)b & mask_bits[e]);
+            n = t->v.n + (b & mask_bits[e]);
             DUMPBITS(e);
 
             /* decode distance of block to copy */
             NEEDBITS((u32)bd);
-            if ((e = (t = td + ((u32)b & md))->e) > 16) {
+            if ((e = (t = td + (b & md))->e) > 16) {
                 do {
                     if (e == 99) {
                         return 1;
@@ -343,11 +343,11 @@ static s32 inflate_codes(huft* tl, huft* td, s32 bl, s32 bd) {
                     DUMPBITS(t->b);
                     e -= 16;
                     NEEDBITS(e);
-                } while ((e = (t = t->v.t + ((u32)b & mask_bits[e]))->e) > 16);
+                } while ((e = (t = t->v.t + (b & mask_bits[e]))->e) > 16);
             }
             DUMPBITS(t->b);
             NEEDBITS(e);
-            d = w - t->v.n - ((u32)b & mask_bits[e]);
+            d = w - t->v.n - (b & mask_bits[e]);
             DUMPBITS(e);
 
             /* do the copy */
@@ -388,7 +388,7 @@ static s32 inflate_stored() {
 
     /* get the length and its complement */
     NEEDBITS(16);
-    n = ((u32)b & 0xFFFF);
+    n = (b & 0xFFFF);
     DUMPBITS(16);
     NEEDBITS(16);
     if (n != (u32)((~b) & 0xFFFF)) {
@@ -486,13 +486,13 @@ static s32 inflate_dynamic() {
 
     /* read in table lengths */
     NEEDBITS(5);
-    nl = 257 + ((u32)b & 0x1F); /* number of literal/length codes */
+    nl = 257 + (b & 0x1F); /* number of literal/length codes */
     DUMPBITS(5);
     NEEDBITS(5);
-    nd = 1 + ((u32)b & 0x1F); /* number of distance codes */
+    nd = 1 + (b & 0x1F); /* number of distance codes */
     DUMPBITS(5);
     NEEDBITS(4);
-    nb = 4 + ((u32)b & 0xF); /* number of bit length codes */
+    nb = 4 + (b & 0xF); /* number of bit length codes */
     DUMPBITS(4);
 
     if (nl > 286 || nd > 30) {
@@ -502,7 +502,7 @@ static s32 inflate_dynamic() {
     /* read in bit-length-code lengths */
     for (j = 0; j < nb; j++) {
         NEEDBITS(3);
-        ll[border[j]] = (u32)b & 7;
+        ll[border[j]] = b & 7;
         DUMPBITS(3);
     }
     for (; j < 19; j++) {
@@ -524,14 +524,14 @@ static s32 inflate_dynamic() {
     i = l = 0;
     while ((u32)i < n) {
         NEEDBITS((u32)bl);
-        j = (td = tl + ((u32)b & m))->b;
+        j = (td = tl + (b & m))->b;
         DUMPBITS(j);
         j = td->v.n;
         if (j < 16) {         /* length of code in bits (0..15) */
             ll[i++] = l = j;  /* save last length in l */
         } else if (j == 16) { /* repeat last length 3 to 6 times */
             NEEDBITS(2);
-            j = 3 + ((u32)b & 3);
+            j = 3 + (b & 3);
             DUMPBITS(2);
             if ((u32)i + j > n) {
                 return 1;
@@ -541,7 +541,7 @@ static s32 inflate_dynamic() {
             }
         } else if (j == 17) { /* 3 to 10 zero length codes */
             NEEDBITS(3);
-            j = 3 + ((u32)b & 7);
+            j = 3 + (b & 7);
             DUMPBITS(3);
             if ((u32)i + j > n) {
                 return 1;
@@ -552,7 +552,7 @@ static s32 inflate_dynamic() {
             l = 0;
         } else { /* j == 18: 11 to 138 zero length codes */
             NEEDBITS(7);
-            j = 11 + ((u32)b & 0x7F);
+            j = 11 + (b & 0x7F);
             DUMPBITS(7);
             if ((u32)i + j > n) {
                 return 1;
@@ -615,7 +615,7 @@ static s32 inflate_block(s32* e) {
 
     /* read in block type */
     NEEDBITS(2);
-    t = (u32)b & 3;
+    t = b & 3;
     DUMPBITS(2);
 
     /* restore the global bit buffer */

@@ -409,8 +409,8 @@ overlays:
     vram_start: 0x800A0000
     segments:
       - [0x0, c, dschange]
-      - [0x1580, data]
-      - [0x15E0, bss]
+      - [0x1580, .data, dschange]
+      - [0x15E0, .bss, dschange]
   - name: ending
     disk_path: disks/us/FIELD/ENDING.X
     sha1: 1b3fbf999913024209b23a1bb8a6874a66fc19ba
