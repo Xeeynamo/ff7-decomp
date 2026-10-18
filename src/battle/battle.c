@@ -226,7 +226,7 @@ void BattleCheckAllLucky7s(void) {
 }
 
 // Attempts to steal an item from the target and queues the text result for the player
-void BattleUnitAttemptSteal(void) {
+void BattleAttemptStealFromEnemy(void) {
     s32 targetId = g_CurrentAction->targetId;
     u16 itemId = 0;
     s32 textId = 0x31; // "Nothing to steal."
@@ -1800,7 +1800,38 @@ void BattleUnitSetManipulated(s32 unitIdx, s32 isManipulated) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A68FC);
+// Takes one random item from the battle inventory and queues it as stolen by the given unit
+// Does nothing if player has no eligible items to steal
+void BattleUnitStealRndPartyItem(s32 arg0) {
+    s32 count = 0;
+    u16 itemId = 0xFFFF;
+    s32 n;
+    s32 i;
+
+    for (i = 0; i < MAX_INVENTORY_COUNT; i++) {
+        // Slots with unk4 bit 0 set are skipped; maybe a locked or important item?
+        if (D_801671B8[i].id != 0xFFFF && !(D_801671B8[i].unk4 & 1)) {
+            count++;
+        }
+    }
+
+    if (count == 0) {
+        return;
+    }
+
+    // Walk the eligible list and pick the n-th item
+    n = g_BattleWork.unk2218 % count;
+    for (i = 0; i < MAX_INVENTORY_COUNT; i++) {
+        if (D_801671B8[i].id != 0xFFFF && !(D_801671B8[i].unk4 & 1) && --n < 0) {
+            itemId = BattleGetItemFromSlot(i);
+            break;
+        }
+    }
+
+    if (itemId != 0xFFFF) {
+        BattleQueueEvent(1, arg0, 2, itemId);
+    }
+}
 
 void func_800A6A3C(s32 arg0, s32 menuListFlags) { g_BattleWork.turn[arg0].menuListFlags |= menuListFlags; }
 
@@ -2904,7 +2935,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
             g_CurrentAction->unk78 |= 1 << arg1;
         }
         if ((g_CurrentAction->unk218 & 4) && (g_CurrentAction->unkB0 < 9)) {
-            BattleUnitAttemptSteal();
+            BattleAttemptStealFromEnemy();
         }
         if (isReflected) {
             // pick who the effect bounces to (self, or a cycled ally) and
