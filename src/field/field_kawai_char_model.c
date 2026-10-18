@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include <game.h>
 #include <libetc.h>
-#include <inline_c.h>
+#include <psxsdk/inline_c.h>
 #include <gte.h>
 #include "field_private.h"
 

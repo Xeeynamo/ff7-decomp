@@ -129,7 +129,7 @@ u8* LoadLocalFieldModelAndInitAll(
     s32 wholeWords;
     s32 blocks;
     u32 relocation;
-    s32 loaderAddress;
+    u_long loaderAddress;
 
     fileInfo = *(Yamada**)params;
     file = data;
@@ -232,7 +232,7 @@ u8* LoadLocalFieldModelAndInitAll(
         FieldModelLoaderData* entry = loader;
         model = &((FieldBsxModel*)workspaceEnd)[i];
 
-        loaderAddress = (s32)entry;
+        loaderAddress = (u_long)entry;
         entry = (FieldModelLoaderData*)(i * sizeof(FieldModelLoaderData) + loaderAddress);
         if (entry->npcFlag) {
             modelId = entry->modelEntryIndex;
@@ -684,13 +684,13 @@ u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelDa
 u8* FieldModelLoadGlobalModels(
     FieldModelLoaderHeader* header, FieldModelData* modelData, u8* buffer, s32 loadTextures) {
     FieldModelLzsRequest* request;
-    s32 savedScratch;
+    Yamada* globalModels;
     u32 i;
 
-    savedScratch = *(u_long*)getScratchAddr(0);
-    request = *(FieldModelLzsRequest**)getScratchAddr(1);
+    globalModels = FIELD_MODEL_SCRATCH->globalModels;
+    request = FIELD_MODEL_SCRATCH->faceTexture;
     for (i = 0; i < header->modelCount; i++) {
-        *(u_long*)0x1F800000 = savedScratch;
+        FIELD_MODEL_SCRATCH->globalModels = globalModels;
         buffer = FieldModelLoadBcx(header, modelData, buffer, i);
     }
     if (loadTextures) {
@@ -704,7 +704,7 @@ u8* FieldModelLoadGlobalModels(
 u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8* nextFree, u32 modelIndex) {
     FieldModelLoaderData* loader = (FieldModelLoaderData*)(header + 1);
     FieldModelLoaderData* entry = (FieldModelLoaderData*)(modelIndex * sizeof(FieldModelLoaderData) + (u32)loader);
-    Yamada* fileInfo = *(Yamada**)getScratchAddr(0);
+    Yamada* fileInfo = FIELD_MODEL_SCRATCH->globalModels;
     s32 globalModelId;
     u32 relocation;
     u32 i, j;

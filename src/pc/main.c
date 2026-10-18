@@ -10,7 +10,7 @@
 #define DEFAULT_DISK_CUE "disks/Final Fantasy VII (USA) (Disc 1).cue"
 
 static void ReserveAddrRam(uintptr_t addr, size_t size) {
-    void* p = mmap((void*)addr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    void* p = mmap((void*)addr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED_NOREPLACE, -1, 0);
     if (p == MAP_FAILED) {
         ERRORF("failed to reserve 0x%08X with len 0x%x", addr, size);
         exit(1);

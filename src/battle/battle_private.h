@@ -143,6 +143,7 @@ typedef struct {
 } Unk80162200;
 typedef union {
     u8* ptr;
+    s32 value;
     Unk80162200 unk;
 } Union80162200;
 
@@ -157,43 +158,12 @@ typedef struct {
 } Pair16x2;
 
 typedef struct {
-    s16 D_801621F0;
-    s16 D_801621F2;
-    s16 D_801621F4;
-    s16 D_801621F6; // player idx? 0, 1 or 2. See func_800D0C80
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    s16 unkE;
-    Union80162200 unk10;
-    s32 unk14;
-    u8 unk18;
-    s8 unk19;
-    s16 unk1A;
-    void* unk1C;
-} Unk801621F0; // size:0x20
-
-typedef struct {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 frame;
-    /* 0x04 */ SVECTOR pos;
-    /* 0x0C */ u8 unkC[0x14];
-} BattleHitFlashSlot; // size:0x20
-
-typedef struct {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 frame;
     /* 0x04 */ SVECTOR pos;
     /* 0x0C */ u8 unkC[0x10];
     /* 0x1C */ void (*spawnCallback)(void);
-} BattleTrailSlot; // size:0x20
-
-typedef struct {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 frame;
-    /* 0x04 */ SVECTOR pos;
-    /* 0x0C */ u8 unkC[0x14];
-} Unk800D6F78Slot; // size:0x20
+} BattleHitFlashSlot; // size:0x20
 
 typedef struct {
     /* 0x00 */ s16 palette;
@@ -233,13 +203,14 @@ typedef struct {
 } BattleKeyframeParticleSlot; // size:0x20
 
 typedef struct {
-    /* 0x00 */ s16 unk0;
+    /* 0x00 */ s16 unk0; // BattleEffectDustClouds keeps its actor here
     /* 0x02 */ s16 frame;
     /* 0x04 */ SVECTOR pos;
-    /* 0x0C */ s16 unkC;
+    /* 0x0C */ s16 delay;
     /* 0x0E */ s16 scaleX;
     /* 0x10 */ s16 scaleY;
-    /* 0x12 */ u8 unk12[0xE];
+    /* 0x12 */ s16 actor;
+    /* 0x14 */ u8 unk14[0xC];
 } BattleSparkleSlot; // size:0x20
 
 typedef struct {
@@ -333,11 +304,78 @@ typedef struct {
     /* 0x19 */ u8 unk19[7];
 } BattleEffectScriptSlot; // size:0x20
 
+typedef struct {
+    /* 0x00 */ s16 id;
+    /* 0x02 */ s16 state;
+    /* 0x04 */ u8 unk4[0x1C];
+} BattleDetachedHeader; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 state;
+    /* 0x04 */ s16 framesLeft;
+    /* 0x06 */ s16 screenX;
+    /* 0x08 */ s16 screenY;
+    /* 0x0A */ s16 baseY;
+    /* 0x0C */ s16 frame;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ Union80162200 actor;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ u8 unk18[8];
+} BattleDamagePopupSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 framesLeft;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 actor;
+    /* 0x0A */ s16 baseZ;
+    /* 0x0C */ u8 unkC[0x14];
+} BattleModelShakeSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 state;
+    /* 0x04 */ s16 framesLeft;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 arg1;
+    /* 0x0A */ s16 arg0;
+    /* 0x0C */ u8 unkC[0x14];
+} BattleDelayedCleanupSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ u8* unk10;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ u8 unk18[8];
+} BattleBlinkSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 elapsed;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 actor;
+    /* 0x08 */ s16 delay;
+    /* 0x0A */ s16 flags;
+    /* 0x0C */ u8 unkC[0xE];
+    /* 0x1A */ s16 depth;
+    /* 0x1C */ void* matrix;
+} BattleSpriteEffectSlot; // size:0x20
+
 typedef union {
-    Unk801621F0 raw; // kept around for accesses that haven't been typed yet
+    BattleDetachedHeader base;
+    BattleDamagePopupSlot damagePopup;
+    BattleModelShakeSlot modelShake;
+    BattleDelayedCleanupSlot delayedCleanup;
+    BattleBlinkSlot blink;
+    BattleSpriteEffectSlot spriteEffect;
     BattleHitFlashSlot hitFlash;
-    BattleTrailSlot trail;
-    Unk800D6F78Slot unk800D6F78;
     Unk800D6D8CSlot unk800D6D8C;
     BattleKeyframeEffectSlot keyframeEffect;
     BattleKeyframeParticleSlot keyframeParticle;
@@ -422,7 +460,7 @@ typedef struct {
     /* 0x2F */ u8 unk2F;
 } Unk80151360; // size:0x30
 
-// Confirmed live via PCSX-Redux (exec breakpoint on func_800A4350, one command
+// Confirmed live via PCSX-Redux (exec breakpoint on BattleQueuePendingAction, one command
 // at a time, plus direct cmdIndex injection for the remaining gaps). "All"-
 // linked materia (Steal-All, Sense-All, etc) reuse their base command's
 // cmdIndex -- targetMask changes, not cmdIndex. 0x0E-0x10 and past 0x1B are
@@ -445,7 +483,7 @@ typedef enum {
     CMD_MUG = 0x11, // Steal + attack; Steal materia's second command once mastered
     CMD_CHANGE = 0x12,
     CMD_DEFEND = 0x13,
-    CMD_LIMIT = 0x14, // priority-5 special case in func_800A4350
+    CMD_LIMIT = 0x14, // priority-5 special case in BattleQueuePendingAction
     CMD_W_MAGIC = 0x15,
     CMD_W_SUMMON = 0x16,
     CMD_W_ITEM = 0x17,
@@ -477,29 +515,6 @@ typedef enum {
     MENU_LIST_DISABLED_SUMMON = 0x10 << MENU_LIST_SUMMON,
     MENU_LIST_DISABLED_ENEMY_SKILL = 0x10 << MENU_LIST_ENEMY_SKILL,
 } BattleMenuListFlags;
-
-// Queued-action entry, matches
-// https://wiki.ffrtt.ru/index.php/FF7/Battle/Battle_Mechanics action-queue
-// layout exactly (priority/queue-pos/actorId/cmdIndex/attackIndex/targetMask).
-// D_800F3958 is a 16-entry ring buffer of these (D_800F39D8 read idx,
-// D_800F39DC write idx); the wiki describes up to 64 queued actions, so this
-// may be a smaller staging ring rather than the full logical queue --
-// unconfirmed. Drain chain: func_800A3ED0 drains this ring into a 64-slot
-// priority table (BattleCopyBattleActionToBattleQueue), which BattleBattleActionQueueExecute drains in priority
-// order into BattleCmdScriptDispatch, which runs the command as a byte-coded sequence
-// of opcodes (g_BattleCmdOpcodeOffs/g_BattleCmdOpcodeStream/g_BattleCmdOpcodeJmpTbl), not a single switch on
-// cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
-typedef struct {
-    /* 0x0 */ u8 priority; // 0=limits/counters, 6=player spells (see func_800A4350)
-    /* 0x1 */ u8 queuePos; // position within priority band; not set by func_800A4350
-    /* 0x2 */ u8 actorId;
-    /* 0x3 */ s8 cmdIndex;     // BattleCommand, stored raw (not the enum type --
-                               // keeps this struct's confirmed 0x8-byte layout)
-    /* 0x4 */ s16 attackIndex; // command-dependent: spell id for CMD_MAGIC,
-                               // damage dealt for CMD_COIN, skill id for
-                               // CMD_ENEMY_SKILL, etc -- not a uniform lookup
-    /* 0x6 */ u16 targetMask;
-} QueuedAction; // size:0x8
 
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
@@ -618,9 +633,13 @@ extern s32 g_BattleActionQueueTargIndex;
 extern s32 D_800F394C;
 extern s32 D_800F3950;
 extern s32 D_800F3954;
-extern QueuedAction D_800F3958[16];
-extern s32 D_800F39D8; // read index into D_800F3958
-extern s32 D_800F39DC; // write index into D_800F3958
+
+// 16-entry ring of actions queued from the VSync interrupt (ATB fills, the battle menu) by
+// BattleQueuePendingAction; func_800A3ED0 drains it into g_BattleWork.actionQueue once per frame.
+// The writer only advances WriteIdx and the reader only advances ReadIdx, so no locking is needed.
+extern BattleActionEntry g_BattlePendingActions[16];
+extern s32 g_BattlePendingActionReadIdx;
+extern s32 g_BattlePendingActionWriteIdx;
 extern s32 D_800F39E0;
 extern s32 D_800F39E4;
 extern s32 g_BattleFrameCount;  // Frame count since the battle started, incremented once per BattleUpdateRender call
@@ -746,7 +765,7 @@ extern u8 D_800F9D94;
 extern u8 D_800F9D98;
 extern u8 D_800F9D9C;
 extern u16 D_800F9DA4;
-extern u8 D_800F9DA8[];
+
 extern BattleWorldView g_BattleWorldView;
 extern s16 D_800FA69C;
 extern u8 D_800FA6A0;
@@ -898,13 +917,14 @@ extern u8 D_80166F68;
 extern u16 g_BattleScreenFadeR;
 
 void func_800A2DB0(void);
-void func_800A4350(s16, s16, s16, u16);
+void BattleQueuePendingAction(s16, s16, s16, u16);
 void func_800A3534(s32 unused, s16 index);
 static void func_800A4D2C(s32 arg0);
 void BattleRefreshMenu(s32 arg0, s32 menuType);
 static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count);
 static void BattleRefreshCmdMenu(s32 arg0, u32 status);
 void BattleReturnReservedItems(void);
+static s32 BattleAddMessageToStringBuffer(u8* src, u16* args);
 void BattleProcessEventQueue(s32);
 static void BattleSetActionEffect(s32 effectId, s32 effectModifier);
 void func_800A8E84(s32);
@@ -953,6 +973,7 @@ static s32 func_800AE6C0(s32, s32, s32);
 void BattleCalcAffinityFlags(void);
 s32 BattleGetStatusProtectionMask(s32, s32, s32);
 void func_800AF9C8(void);
+static s32 BattleUnitGetPendingConstTicks(s32 arg0);
 void BattleAdvanceTimers(void);
 void func_800B0234(void);
 s32 BattleCalcDefPercent(s32);
@@ -1000,7 +1021,7 @@ void BattleReqReturnReservedItems(s16 arg0);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 static void BattleInvalidateQueuedMessages(s32 arg0, s32 arg1);
 static void func_800A32C0(s32 arg0);
-static void BattleAddBattleActionToBattleQueue(s32 unitId, s32 prio, s32 type, s32 index, s32 target);
+static void BattleQueueImmediateAction(s32 unitId, s32 prio, s32 type, s32 index, s32 target);
 static s32 BattleGetBerserkToadAttackTypeId(s32 arg0);
 static s32 BattleRunToResultScreen(void);
 void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 priority);
@@ -1010,7 +1031,7 @@ void BattleCmdScriptDispatch(BattleActionEntry*);
 // func_800A6278 does not match if this is forward declared because the types do not agree
 // but the modern build fails if it is not declared
 #ifdef PLATFORM_PSYZ
-static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex);
+static void BattleQueueOpcodeAction(s16 unitId, s16 cmdIndex, s16 attackIndex);
 #endif
 
 /* battle menu widget block (one per widget id, 0x240 apart) -- partial */
@@ -1119,6 +1140,13 @@ extern u8 D_80163F34[NUM_PARTY][0x100C];
 void func_8001C3CC(void* dst, const void* src, u32 size);
 
 typedef struct {
+    s16 stringId;
+    s16 playSound;
+    u8 delay;
+    u8 duration;
+} BattleBannerMessage; // size:0x6
+
+typedef struct {
     u16 unk0;
     u16 unk2;
     s16 unk4;
@@ -1190,3 +1218,15 @@ extern u8 D_80163B3C;
 extern u8 D_80158CFC;
 
 s16 BattleGetStatusFlashState(s16 status);
+extern SVECTOR D_800E7D08;
+extern u8 D_800EA230[];
+extern SVECTOR* D_800F4B04;
+extern u8 D_800EA1E8[4];
+extern u16 D_800EA1EC;
+extern SVECTOR D_800EA264[4];
+extern SVECTOR D_800EA284[2];
+extern SVECTOR* D_800F4B08;
+extern s16 D_800F4B0C[4];
+extern BattleBannerMessage D_800F9DA8[64];
+extern MATRIX D_800E7D30;
+extern SVECTOR D_800EA1C8[4];

@@ -2108,8 +2108,8 @@ static s32 OpcodeFuncRet(void) {
         g_FieldScriptPriority[g_CurrentEntity]++;
         entity = g_CurrentEntity;
 
-        activePcSlot = (u16*)((entity * sizeof(*fieldScriptPC)) + (s32)fieldScriptPC);
-        loopSavedRow = (u16*)((entity * sizeof(*savedPC)) + (s32)savedPC);
+        activePcSlot = (u16*)((entity * sizeof(*fieldScriptPC)) + (u_long)fieldScriptPC);
+        loopSavedRow = (u16*)((entity * sizeof(*savedPC)) + (u_long)savedPC);
         nextPc = loopSavedRow[g_FieldScriptPriority[entity]];
 
         *activePcSlot = nextPc;
@@ -2412,10 +2412,10 @@ static s32 SetAndApplyAkao(void) {
 }
 
 static u32 GetAkaoBlockOffset(s16 akaoId) {
-    s32 akaoData;
+    u_long akaoData;
     u32 akaoOffset;
 
-    akaoData = akaoId * 4 + g_FieldScripts->numEntities * 8 + (u32)g_FieldScripts;
+    akaoData = akaoId * 4 + g_FieldScripts->numEntities * 8 + (u_long)g_FieldScripts;
     akaoOffset = ((u8*)akaoData)[sizeof(FieldScriptHeader)];
     akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 1] << 8;
     akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 2] << 16;

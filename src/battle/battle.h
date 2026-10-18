@@ -338,12 +338,24 @@ typedef struct {
     /* 0x176 */ u16 unk176;
 } BattleData; // size:0x178
 
+// Action entry, matches
+// https://wiki.ffrtt.ru/index.php/FF7/Battle/Battle_Mechanics action-queue
+// layout exactly (priority/queue-pos/slot/cmdIndex/attackIndex/targetMask).
+// Entries reach g_BattleWork.actionQueue (a 64-slot priority table) through BattleScheduleAction,
+// either directly (BattleQueueImmediateAction) or via the g_BattlePendingActions ring
+// (BattleQueuePendingAction). BattleBattleActionQueueExecute drains the table in priority
+// order into BattleCmdScriptDispatch, which runs the command as a byte-coded sequence
+// of opcodes (g_BattleCmdOpcodeOffs/g_BattleCmdOpcodeStream/g_BattleCmdOpcodeJmpTbl), not a single switch on
+// cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
 typedef struct {
-    /* 0x0 */ u8 priority;
-    /* 0x1 */ s8 orderInPriority;
-    /* 0x2 */ s8 unitID;
-    /* 0x3 */ u8 actionType;
-    /* 0x4 */ s16 attackIndex;
+    /* 0x0 */ u8 priority;        // BattleQueuePendingAction: 5 = CMD_LIMIT, 6 = other commands
+    /* 0x1 */ s8 orderInPriority; // position within the priority band, set by BattleScheduleAction
+    /* 0x2 */ s8 unitSlot;
+    /* 0x3 */ s8 cmdIndex;     // BattleCommand, stored raw (not the enum type -- keeps the 0x8-byte layout);
+                               // -1 = the AI picks the command
+    /* 0x4 */ s16 attackIndex; // command-dependent: spell id for CMD_MAGIC,
+                               // damage dealt for CMD_COIN, skill id for
+                               // CMD_ENEMY_SKILL, etc -- not a uniform lookup
     /* 0x6 */ s16 targetMask;
 } BattleActionEntry; // size:0x8
 
@@ -644,7 +656,7 @@ typedef struct {
     /* 0x2212 */ u16 manipulatedUnitMask;
     /* 0x2214 */ u16 unk2214;
     /* 0x2216 */ u16 petrifiedMask;
-    /* 0x2218 */ u16 unk2218; // rnd u16, used in escape and steal related functions
+    /* 0x2218 */ u16 frameRnd; // Random u16 roll every frame, used for steal and escape
     /* 0x221A */ u16 reviveMask;
     /* 0x221C */ u8 enemyTypeCount[3];
     /* 0x221F */ u8 pad221F;

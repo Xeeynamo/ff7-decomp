@@ -152,7 +152,7 @@ typedef struct {
     s32 len; // file size in bytes
 } Yamada;
 
-typedef enum {
+typedef enum Lba {
     LBA_SYSTEM_CNF = 23,         // SYSTEM.CNF
     LBA_SOUND_INSTR_ALL = 219,   // SOUND/INSTR.ALL
     LBA_SOUND_EFFECT = 455,      // SOUND/EFFECT.ALL
@@ -187,6 +187,20 @@ typedef enum {
     LBA_FIELD_FIELD = 55000,     // FIELD/FIELD.BIN
     LBA_FIELD_DSCHANGE = 126886, // FIELD/DSCHANGE.X
     LBA_FIELD_ENDING = 126889,   // FIELD/ENDING.X
+    LBA_MOVIE_OVER = 128000,     // MOVIE/OVER.LZS
+    LBA_MOVIE_OVER2 = 128128,    // MOVIE/OVER2.SND
+    LBA_MOVIE_DISK1 = 128129,    // MOVIE/DISK1.LZS
+    LBA_MOVIE_DISK2 = 128143,    // MOVIE/DISK2.LZS
+    LBA_MOVIE_DISK3 = 128157,    // MOVIE/DISK3.LZS
+    LBA_MOVIE_CHANGE0 = 128171,  // MOVIE/CHANGE0.LZS
+    LBA_MOVIE_CHANGE1 = 128243,  // MOVIE/CHANGE1.LZS
+    LBA_MOVIE_CHANGE2 = 128322,  // MOVIE/CHANGE2.LZS
+    LBA_MOVIE_CHANGE3 = 128378,  // MOVIE/CHANGE3.LZS
+    LBA_MOVIE_CHANGE4 = 128444,  // MOVIE/CHANGE4.LZS
+    LBA_MOVIE_CHANGE5 = 128514,  // MOVIE/CHANGE5.LZS
+    LBA_MOVIE_CHANGE6 = 128609,  // MOVIE/CHANGE6.LZS
+    LBA_MOVIE_CHANGE7 = 128685,  // MOVIE/CHANGE7.LZS
+    LBA_MOVIE_CHANGE8 = 128751,  // MOVIE/CHANGE8.LZS
     LBA_MOVIE_STAFF = 128825,    // MOVIE/STAFF.BIN
     LBA_MOVIE_STAFF2 = 129036,   // MOVIE/STAFF2.BIN
     LBA_MOVIE_OPENING = 129179,  // MOVIE/OPENING.BIN
@@ -1348,10 +1362,13 @@ extern u8 D_80062D98;
 extern volatile u8 g_SavemapBusy;
 extern s32 D_80062DCC;
 extern u8 _D_80062DFD;
+extern s32 D_80062F14; // engine error code, -1 = none; set by SysSetEngineErrorCode
 extern u8 D_80062F18;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
 extern u8 D_80062F1A;
 extern u8 D_80062F1B;
+extern s32 D_80062F54;
+extern s32 D_80062F60;
 extern Gpu g_PolyPtr;
 extern u16 g_SaveSlotMask;
 extern s32 g_MenuRenderBufferIndex;
@@ -1473,7 +1490,9 @@ s32 SetGraphDebug(s32);
 void SystemError(char c, long n);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
 void SysIncSeedForRandom(void);
+u16 SysRandomTwoBytes(void);
 s32 SysGetKernBattleTextById(s32);
+u8* SysGetKernBattleTextPtr(s32 textId);
 const char* SysKernGetString(s32 type, s32 index, s32 blockOffset);
 void SysSetEngineErrorCode(s32, ...);
 u32 SysAddSubWithMaxMinBound(u32 val, u32 addend, u32 max, u32 isAdd);

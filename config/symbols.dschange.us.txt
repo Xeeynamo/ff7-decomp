@@ -1,1 +1,2 @@
 DSCHANGE_WaitDiskLoop = 0x800A0000;
+DSCHANGE_GameOver = 0x800A0C58;
