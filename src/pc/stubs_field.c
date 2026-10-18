@@ -185,16 +185,7 @@ s32 KawaiExecute(FieldModelEntry* model, u8* params, s32 modelId, MATRIX* matrix
     NOT_IMPLEMENTED;
     return 0;
 }
-s32 KawaiLightingApplyToModel(FieldModelEntry* model, u8* params) {
-    NOT_IMPLEMENTED;
-    return 0;
-}
 void KawaiSetColorToPartPktsBelowLvl(FieldModelPart* part, s32 r, s32 g, s32 b) { NOT_IMPLEMENTED; }
-s32 KawaiSetCustomLightToModelPkts(FieldModelEntry* model, u8* params) {
-    NOT_IMPLEMENTED;
-    return 0;
-}
-void KawaiSetLightingToPartPkts(FieldModelPart* part, s16* light) { NOT_IMPLEMENTED; }
 s32 KawaiSetSplashToPktsBelowLvl(FieldModelEntry* model, u8* params) {
     NOT_IMPLEMENTED;
     return 0;
