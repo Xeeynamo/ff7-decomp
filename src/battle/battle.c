@@ -578,7 +578,7 @@ void func_800A38FC(void) {
                 g_BattleWork.escapeSubCounter -= 0x2000;
 
                 if (g_BattleWork.escapeTicks < g_BattleWork.escapeHoldTicks * 2 &&
-                    (g_BattleWork.unk2218 < 0x4000 || g_BattleWork.encounterType == SETUP_PREEMPTIVE ||
+                    (g_BattleWork.frameRnd < 0x4000 || g_BattleWork.encounterType == SETUP_PREEMPTIVE ||
                      g_BattleWork.encounterType == SETUP_SIDE_ATTACK)) {
                     g_BattleWork.escapeCounter1--;
                 }
@@ -713,7 +713,126 @@ static void BattleAddBattleActionToBattleQueue(s32 unitId, s32 prio, s32 type, s
     BattleCopyBattleActionToBattleQueue(&battleAction);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3ED0);
+// Per-frame battle update, called from BattleUpdateRender
+// Does many things, see inline comments below for details
+void func_800A3ED0(void) {
+    const u16 escapePadKeys = PAD_L1 | PAD_R1;
+    s32 isEscaping = (g_Pad0Keys & escapePadKeys) == escapePadKeys;
+    s32 stopMask = 0;
+    s32 errorCode = D_80062F14;
+    s32 i;
+
+    g_BattleFrameCount += 1;
+
+    // Shows the battle banner when an error code is active
+    if (errorCode >= 0x100) {
+        u16 msgArgs[2];
+        s32 textId = D_80062F60++ / 32 % 3 + 0x6E;
+        s32 strId;
+
+        msgArgs[0] = D_80062F54;
+        msgArgs[1] = (u8)errorCode;
+
+        strId = BattleAddMessageToStringBuffer(SysGetKernBattleTextPtr(textId), msgArgs) + 0x100;
+        BattleBannerSetEncounterString(strId);
+        return;
+    }
+
+    g_BattleWork.frameRnd = SysRandomTwoBytes();
+    BattleProcessEventQueue(1);
+
+    // Players whose atb gauge isn't increasing (stop, sleep, paralyze, etc)
+    for (i = 0; i < NUM_PARTY; i++) {
+        s32 mask = 1 << i;
+        if ((g_BattleState.playerUnitMask & mask) && !g_BattleWork.turn[i].atbIncrement) {
+            stopMask |= mask;
+        }
+    }
+
+    if (!g_BattleState.cycleFlags && isEscaping) {
+        if (!(g_BattleData.flags & 8) && (stopMask != g_BattleState.playerUnitMask) && g_BattleData.unk174 < 2) {
+            if ((g_BattleWork.escapeCounter2 != g_BattleWork.escapeCounter1) && !g_BattleWork.escapeCounter1) {
+                g_BattleState.cycleFlags |= 4;
+                for (i = 0; i < NUM_PARTY; i++) {
+                    g_BattleState.combatant[i].unk16 = 13;
+                }
+            }
+            g_BattleWork.escapeCounter2 = g_BattleWork.escapeCounter1;
+        } else {
+            BattleBannerSetEncounterString(0x36); // "Can't escape!"
+        }
+    }
+
+    if (g_BattleWork.lucky7777ActionParam) {
+        BattleBannerSetEncounterString(g_BattleWork.lucky7777StringID);
+        g_BattleWork.lucky7777ActionParam--;
+    }
+
+    // Drain the action queue
+    while (D_800F39D8 != D_800F39DC) {
+        BattleCopyBattleActionToBattleQueue((BattleActionEntry*)&D_800F3958[D_800F39D8]);
+        D_800F39D8++;
+        D_800F39D8 &= 0xF;
+    }
+
+    // Set the idle action if the player unit is dead, suffering a status effect, or attempting to flee
+    for (i = 0; i < NUM_PARTY; i++) {
+        ActiveCharacterData* charData = &g_ActiveCharacters[i];
+        BattleUnit* unit = &g_BattleState.combatant[i];
+        u8 idleActionId = unit->unk16;
+        s32 isLowHp = charData->hp * 4;
+
+        // below 25% HP; computed up front, before the death check (required for match)
+        isLowHp = isLowHp < charData->baseHp;
+
+        if (g_BattleData.actors[i].D_801636C4 & STATUS_DEATH) {
+            idleActionId = 2;
+        } else if (!g_BattleState.cycleFlags && !idleActionId) {
+            const s32 statusMask = STATUS_SLEEP | STATUS_POISON | STATUS_SILENCE | STATUS_D_SENTENCE |
+                                   STATUS_PARALYSIS | STATUS_DARKNESS | STATUS_DUAL_DRAIN;
+
+            if (isLowHp || g_BattleData.actors[i].D_801636C4 & statusMask) {
+                idleActionId = 1;
+            }
+
+            if (isEscaping && !((stopMask >> i) & 1)) {
+                idleActionId = 13;
+            }
+        }
+
+        unit->idleActionId = idleActionId;
+    }
+
+    // remaining Death Sentence / Slow-numb counts, 0xFF when the status isn't active
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        BattleTurnWork* turnWork = &g_BattleWork.turn[i];
+        s32 constTicks = 0xFF;
+
+        if (g_BattleData.actors[i].D_801636C4 & STATUS_D_SENTENCE) {
+            constTicks = turnWork->statusTimers[TIMER_D_SENTENCE];
+            if (constTicks != 0xFF) {
+                constTicks -= BattleUnitGetPendingConstTicks(i);
+            }
+            if (constTicks < 0) {
+                constTicks = 0;
+            }
+        }
+        g_BattleData.actors[i].D_801636BA = constTicks;
+
+        constTicks = 0xFF;
+        if (g_BattleData.actors[i].D_801636C4 & STATUS_SLOW_NUMB) {
+            constTicks = turnWork->statusTimers[TIMER_SLOW_NUMB] - BattleUnitGetPendingConstTicks(i);
+            if (constTicks < 0) {
+                constTicks = 0;
+            }
+        }
+        g_BattleData.actors[i].D_801636BB = constTicks;
+    }
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        g_BattleData.actors[i].idleActionId = g_BattleState.combatant[i].idleActionId;
+    }
+}
 
 static void func_800A4D88(s32 arg0);
 static void BattleAddUnitReservedItem(s16 arg0, s16 arg1);
@@ -1820,7 +1939,7 @@ void BattleUnitStealRndPartyItem(s32 arg0) {
     }
 
     // Walk the eligible list and pick the n-th item
-    n = g_BattleWork.unk2218 % count;
+    n = g_BattleWork.frameRnd % count;
     for (i = 0; i < MAX_INVENTORY_COUNT; i++) {
         if (D_801671B8[i].id != 0xFFFF && !(D_801671B8[i].unk4 & 1) && --n < 0) {
             itemId = BattleGetItemFromSlot(i);

@@ -644,7 +644,7 @@ typedef struct {
     /* 0x2212 */ u16 manipulatedUnitMask;
     /* 0x2214 */ u16 unk2214;
     /* 0x2216 */ u16 petrifiedMask;
-    /* 0x2218 */ u16 unk2218; // rnd u16, used in escape and steal related functions
+    /* 0x2218 */ u16 frameRnd; // Random u16 roll every frame, used for steal and escape
     /* 0x221A */ u16 reviveMask;
     /* 0x221C */ u8 enemyTypeCount[3];
     /* 0x221F */ u8 pad221F;
