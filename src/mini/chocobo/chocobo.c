@@ -141,9 +141,9 @@ void MINI_Chocobo(void) {
             pos2 = model->unk80;
             dir = model->unk72;
             *(u_long*)getScratchAddr(0) = mode;
-            func_800AF11C(&modelTable->unk0->models[model->unk90], &D_800B7544, pos2, dir >> 8);
+            func_800AF11C(&modelTable->unk0->modelEntries[model->unk90], &D_800B7544, pos2, dir >> 8);
             *(u_long*)getScratchAddr(0) = mode;
-            func_800AF11C(&modelTable->unk0->models[model->unk92], &D_800B7544, pos2, dir >> 8);
+            func_800AF11C(&modelTable->unk0->modelEntries[model->unk92], &D_800B7544, pos2, dir >> 8);
         }
         for (i = 0; i < NUM_CHOCOBO; i++) {
             if (!D_800B7564[i]) {
@@ -153,9 +153,9 @@ void MINI_Chocobo(void) {
             count = D_800F5078.count;
             next = count + 1;
             D_800F5078.count = next;
-            D_800F50A0[count] = &(models = D_800B1254.unk0)->models[model->unk90];
+            D_800F50A0[count] = &(models = D_800B1254.unk0)->modelEntries[model->unk90];
             D_800F5078.count = count + 2;
-            D_800F50A0[next] = &models->models[model->unk92];
+            D_800F50A0[next] = &models->modelEntries[model->unk92];
         }
         for (i = 0; i < D_800F5078.count; i++) {
             func_800AE534(D_800F50A0[i]);
@@ -321,8 +321,8 @@ static void ChocoboDrawTrackPropRange(s32 start, s32 end) {
         model->rotationZ = prop->b;
         PushMatrix();
         *(u_long*)getScratchAddr(0) = 3;
-        func_800AF11C(&table->unk0->models[id], &D_800B7544, 0, prop->frame);
-        D_800F50A0[D_800F5078.count++] = &table->unk0->models[id];
+        func_800AF11C(&table->unk0->modelEntries[id], &D_800B7544, 0, prop->frame);
+        D_800F50A0[D_800F5078.count++] = &table->unk0->modelEntries[id];
         PopMatrix();
         prop->frame += prop->step;
         if (prop->frame >= *anim) {
