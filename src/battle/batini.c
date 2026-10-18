@@ -59,7 +59,7 @@ void BatInitMain(s32 sceneID) {
         g_BattleWork.subActionSlots[i].priority = 0xFF;
     }
     for (i = 0; i < LEN(g_BattleWork.postExecAction); i++) {
-        g_BattleWork.postExecAction[i].unitID = 0xFF;
+        g_BattleWork.postExecAction[i].unitSlot = -1;
     }
     BattleEventQueueInit();
     D_801620A8 = -1; // This is not referenced anywhere in the code
@@ -169,8 +169,8 @@ static void BattleInitSetup(s32 sceneID) {
         BattleQueueEvent(0, 0, 14, 0);
     }
     for (i = 0; i < 0x40; i++) {
-        if (g_BattleWork.actionQueue[i].unitID >= var_s1) {
-            g_BattleWork.actionQueue[i].unitID = -1;
+        if (g_BattleWork.actionQueue[i].unitSlot >= var_s1) {
+            g_BattleWork.actionQueue[i].unitSlot = -1;
         }
     }
     for (i = 0; i < NUM_PARTY; i++) {
