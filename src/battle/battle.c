@@ -514,7 +514,61 @@ void func_800A3534(s32 unused, s16 index) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A35F8);
+u16 func_800A35F8(void) {
+    u16 result = 0xFFFF;
+    s32 mask = 0;
+    s32 type;
+    s32 next;
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < LEN(g_BattleData.activeEncounter.setup.D_8016361C); i++) {
+        if (g_BattleData.activeEncounter.setup.D_8016361C[i] != 0xFFFF) {
+            mask |= 1 << i;
+        }
+    }
+
+    if (!mask) {
+        return result;
+    }
+
+    func_80014578(BATTLE_CO, (void*)0x801C0000, NULL);
+    SystemCdWaitCallback(BattleRunFrame);
+    SysGzipSetDataBlock((u8*)0x801C0000);
+
+    while ((type = SysGzipGetType()) != 0xFFFF) {
+        u8* dst = (u8*)0x801B0000 + type * 0x8000;
+        SysGzipPackDecompressNextBlock(dst);
+
+        if (type == 1) {
+            SysLoadUncompressImg(dst);
+        }
+    }
+
+    next = SysGetLsbNumber(SysSelectRandomBit(mask));
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        s32 id = Savemap.partyID[i];
+
+        for (j = 0; j < NUM_CHARACTERS; j++) {
+            if (Savemap.party[j].char_id == id) {
+                Savemap.party[j].curHP = g_BattleState.combatant[i].curHP;
+                Savemap.party[j].curMP = g_BattleState.combatant[i].curMP;
+                break;
+            }
+        }
+    }
+
+    g_BattleData.isMultiBattle++;
+    if (g_BattleData.isMultiBattle < 8) {
+        if (BattleRunToResultScreen()) {
+            result = g_BattleData.activeEncounter.setup.D_8016361C[next];
+        } else {
+            g_BattleState.cycleFlags |= 4;
+        }
+    }
+    return result;
+}
 
 static s32 func_800A37F8(s32 arg0) {
     if (arg0 >= 0) {

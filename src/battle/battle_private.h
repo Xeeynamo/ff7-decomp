@@ -1002,6 +1002,7 @@ static void BattleInvalidateQueuedMessages(s32 arg0, s32 arg1);
 static void func_800A32C0(s32 arg0);
 static void BattleAddBattleActionToBattleQueue(s32 unitId, s32 prio, s32 type, s32 index, s32 target);
 static s32 BattleGetBerserkToadAttackTypeId(s32 arg0);
+static s32 BattleRunToResultScreen(void);
 void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 priority);
 static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0);
 void BattleCmdScriptDispatch(BattleActionEntry*);
