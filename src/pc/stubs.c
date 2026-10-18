@@ -309,7 +309,6 @@ u16 MINI_Jet(void) {
     NOT_IMPLEMENTED;
     return 0;
 }
-void func_800A0C58(void) { NOT_IMPLEMENTED; }
 void func_800B6B58(void) { NOT_IMPLEMENTED; }
 
 // Unmatched pieces of src/main/17238.c, referenced by the matched ones.
@@ -398,7 +397,6 @@ void func_80033894() { NOT_IMPLEMENTED; }
 void func_80038F04() { NOT_IMPLEMENTED; }
 void ITEMMENU_Init() { NOT_IMPLEMENTED; }
 void func_801D3228() { NOT_IMPLEMENTED; }
-s32 DSCHANGE_WaitDiskLoop(s32 diskNo) { return 0; }
 s32 FetchMemCardStatus(s32 cardId) {
     NOT_IMPLEMENTED;
     return 0;
