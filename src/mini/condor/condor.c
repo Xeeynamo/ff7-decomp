@@ -48,7 +48,9 @@ typedef struct {
     /* 0x5A */ u16 unk5A;
     /* 0x5C */ u8 unk5C[4];
     /* 0x60 */ u16 unk60;
-    /* 0x62 */ u8 unk62[0x16];
+    /* 0x62 */ u8 unk62[2];
+    /* 0x64 */ u16 unk64;
+    /* 0x66 */ u8 unk66[0x12];
 } CondorUnit;
 
 // The x/y pair the spawn helpers take.
@@ -123,7 +125,15 @@ void func_800ABE54(CondorUnit*);
 void func_800AC72C(CondorUnit*, CondorSpawn*, s32, s16*);
 s16 func_800AC5C0(s16, CondorPoint*);
 s16 func_800B0604(CondorUnit*, s32);
-s16 func_800A8004(CondorUnit*, CondorPoint*, u8*, u16);
+s16 func_800A8004(CondorUnit*);
+u16 func_800A7584(u16* vector);
+extern s32 D_8012C554;
+extern s32 D_8012C558;
+extern s32 D_8012C55C;
+extern s32 D_8012C560;
+extern s32 D_8012C564;
+extern s32 D_8012C568;
+
 void func_800B332C(void);
 void func_800B3A48(CondorUnit*, s32);
 void func_800B42AC(CondorUnit*);
@@ -326,11 +336,148 @@ void CondorAngleToVector(s32 angle) {
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A77EC);
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A7BF4);
+s16 func_800A7BF4(SVECTOR* first, SVECTOR* second) {
+    SVECTOR vector;
+    s32 dx, y, destY;
+    s32 x, destX;
+    x = first->vx;
+    destX = second->vx;
+    dx = destX - x;
+    y = first->vy + 0x4000;
+    destY = second->vy + 0x4000;
+    D_8012C560 = 0;
+    D_8012C55C = 0;
+    D_8012C568 = 0;
+    D_8012C564 = 0;
+    D_8012C554 = dx;
+    if (D_8012C554 < 0) {
+        D_8012C564 = 1;
+        D_8012C554 = -D_8012C554;
+    }
+    D_8012C558 = destY - y;
+    if (D_8012C558 < 0) {
+        D_8012C568 = 1;
+        D_8012C558 = -D_8012C558;
+    }
+    if (D_8012C554 >= D_8012C558) {
+        D_8012C544 = 256;
+        if ((D_8012C558 << 8) == 0) {
+            D_8012C548 = 1;
+        } else {
+            D_8012C548 = (D_8012C558 << 8) / D_8012C554;
+        }
+        if (D_8012C548 == 0) {
+            D_8012C548 = 1;
+        }
+    } else {
+        D_8012C548 = 256;
+        if ((D_8012C554 << 8) == 0) {
+            D_8012C544 = 1;
+        } else {
+            D_8012C544 = (D_8012C554 << 8) / D_8012C558;
+        }
+        if (D_8012C544 == 0) {
+            D_8012C544 = 1;
+        }
+    }
+    if (D_8012C564 != 0) {
+        D_8012C544 = -D_8012C544;
+    }
+    if (D_8012C568 != 0) {
+        D_8012C548 = -D_8012C548;
+    }
+    vector.vz = 0;
+    vector.vx = D_8012C544;
+    vector.vy = D_8012C548;
+    return (s16)func_800A7584((u16*)&vector);
+}
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A7E20);
+typedef struct {
+    /* 0x00 */ SVECTOR vectors[4];
+    /* 0x20 */ s16 neighbors[3];
+    /* 0x26 */ u8 unk26[2];
+    /* 0x28 */ SVECTOR vertices[3];
+    /* 0x40 */ s16 minX;
+    /* 0x42 */ s16 maxX;
+    /* 0x44 */ s16 minY;
+    /* 0x46 */ s16 maxY;
+    /* 0x48 */ u16 unk48;
+    /* 0x4A */ u16 unk4A;
+} CondorMapTriangle; // size:0x4C
+extern CondorMapTriangle D_8010C33C[];
+extern s32 D_8012C518;
+extern s16 D_8012C5A4;
+extern s16 D_8012C5A8;
+extern s16 D_8012C5AC;
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A8004);
+static inline s32 CondorAngleOutside(s16 point, s16 first, s16 last) {
+    s16 high, low;
+    if (first >= last) {
+        high = first;
+        low = last;
+    } else {
+        high = last;
+        low = first;
+    }
+    if (high - low < 2048) {
+        if (high < point || point < low) {
+            return 1;
+        }
+    } else {
+        if (point < high && low < point) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+s32 func_800A7E20(CondorMapTriangle* triangle, s16 x, s16 y) {
+    SVECTOR point;
+    SVECTOR* vertex;
+    point.vx = x;
+    point.vy = y;
+    point.vz = 0;
+    vertex = &triangle->vertices[0];
+    D_8012C5A4 = func_800A7BF4(vertex, &point);
+    D_8012C5A8 = func_800A7BF4(vertex, &triangle->vertices[1]);
+    D_8012C5AC = func_800A7BF4(vertex, &triangle->vertices[2]) + 8;
+    if (CondorAngleOutside(D_8012C5A4, D_8012C5A8, D_8012C5AC)) {
+        return 1;
+    }
+    vertex = &triangle->vertices[1];
+    D_8012C5A4 = func_800A7BF4(vertex, &point);
+    D_8012C5A8 = func_800A7BF4(vertex, &triangle->vertices[2]);
+    D_8012C5AC = func_800A7BF4(vertex, &triangle->vertices[0]);
+    return CondorAngleOutside(D_8012C5A4, D_8012C5A8, D_8012C5AC);
+}
+
+s16 func_800A8004(CondorUnit* unit) {
+    CondorMapTriangle* triangle;
+    s16 index;
+    u16 x;
+    u16 y;
+    s16 shiftedX;
+    s16 shiftedY;
+    triangle = D_8010C33C;
+    index = 0;
+    x = unit->unk50;
+    y = unit->unk52;
+    shiftedX = x + 0x4000;
+    shiftedY = y + 0x4000;
+    if (D_8012C518 > 0) {
+        do {
+            if (shiftedX >= triangle->minX && shiftedX <= triangle->maxX && shiftedY >= triangle->minY &&
+                shiftedY <= triangle->maxY && (s16)func_800A7E20(triangle, x, y) == 0) {
+                unit->unk60 = triangle->unk48;
+                unit->unk64 = triangle->unk4A;
+                return index;
+            }
+            index++;
+            triangle++;
+        } while (index < D_8012C518);
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A8158);
 
