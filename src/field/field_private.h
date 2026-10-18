@@ -5,9 +5,9 @@
 #define GET_ENTITY_NAME(entityId) ((char*)g_FieldScripts + sizeof(FieldScriptHeader) + (entityId) * 8)
 
 #define GET_FIELD_SCRIPT_OFFSET(dst, scriptOffset, entityDataOffset, extrasHeaderSize)                                 \
-    (dst) = *((u8*)((scriptOffset) + (entityDataOffset) + (extrasHeaderSize) + (s32)g_FieldScripts) +                  \
+    (dst) = *((u8*)((scriptOffset) + (entityDataOffset) + (extrasHeaderSize) + (u_long)g_FieldScripts) +               \
               sizeof(FieldScriptHeader));                                                                              \
-    (dst) |= *((u8*)((scriptOffset) + ((entityDataOffset) + (s32)g_FieldScripts) + (extrasHeaderSize)) +               \
+    (dst) |= *((u8*)((scriptOffset) + ((entityDataOffset) + (u_long)g_FieldScripts) + (extrasHeaderSize)) +            \
                sizeof(FieldScriptHeader) + 1)                                                                          \
              << 8
 
@@ -58,6 +58,13 @@ typedef struct {
     /* 0x0 */ s32 sector;
     /* 0x4 */ s32 size;
 } FieldModelLzsRequest;
+
+typedef struct {
+    /* 0x0 */ Yamada* globalModels;
+    /* 0x4 */ FieldModelLzsRequest* faceTexture;
+} FieldModelScratch;
+
+#define FIELD_MODEL_SCRATCH ((FieldModelScratch*)getScratchAddr(0))
 
 typedef struct {
     u32 size;

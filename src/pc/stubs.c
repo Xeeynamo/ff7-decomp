@@ -16,7 +16,8 @@ s16 D_8009A000[1];
 u_long D_8009A004[1];
 s32 D_8009A008[1];
 u8 D_80062D99;
-Unk80075D00* D_80075D00;
+static Unk80075D00 D_80075DF0; // no movie is ever playing
+Unk80075D00* D_80075D00 = &D_80075DF0;
 DRAWENV* D_8007EBD0;
 DISPENV* D_8007EBD8;
 
@@ -47,12 +48,10 @@ void* SysMoviePlay(void* buffer, s32 movie) {
 }
 void SystemAkaoExecute(void) { NOT_IMPLEMENTED; }
 s32 EndingOpcode15(void) { return 0; }
-void FIELD_Main(void) { NOT_IMPLEMENTED; }
 s32 EndingOpcode1C(void) { return 0; }
 s32 EndingOpcode1D(void) { return 0; }
 s32 func_800A1EEC(void) { return 0; }
 s32 func_800A1F48(void) { return 0; }
-void FIELD_Init(void) { NOT_IMPLEMENTED; }
 int func_8001117C(void) { return 0; }
 int func_80029818(void) { return 0; }
 int func_8002988C(void) { return 0; }
@@ -68,7 +67,11 @@ int func_8003DDA4(void) { return 0; }
 int func_8003DE2C(void) { return 0; }
 int func_800D8D78(void) { return 0; }
 int SysBattleSwirlRender(void) { return 0; }
-int SysBgFadeRender(void) { return 0; }
+// Finish the fade at once, as FIELD_Main spins until the VSync callback clears D_80095DD4
+int SysBgFadeRender(void) {
+    D_80095DD4 = 0;
+    return 0;
+}
 int SysMenuDrawBattleResult(void) { return 0; }
 int SysMovieLoadMovieSettings(void) { return 0; }
 

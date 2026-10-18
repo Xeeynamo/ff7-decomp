@@ -29,8 +29,8 @@ void FieldModelLoadAndInit(void) {
     while (SystemCdromReadChain()) {
     }
 
-    *(Yamada**)getScratchAddr(0) = global_model_files;
-    *(Yamada**)getScratchAddr(1) = &face_texture_file;
+    FIELD_MODEL_SCRATCH->globalModels = global_model_files;
+    FIELD_MODEL_SCRATCH->faceTexture = (FieldModelLzsRequest*)&face_texture_file;
     D_80075E10 = FieldModelLoadGlobalModels(D_8007E770, g_FieldModelData, D_80075E10, 1);
     D_80075E10 = LoadLocalFieldModelAndInitAll(D_8007E770, g_FieldModelData, &D_800A00DC, FIELD_LOAD_BUFFER);
 

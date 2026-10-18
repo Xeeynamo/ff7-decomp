@@ -9,6 +9,7 @@ set(FF7_PSYZ
     src/pc/unzip.c
     src/pc/stubs.c
     src/pc/stubs_akao.c
+    src/pc/stubs_field.c
     src/pc/lzs.c
 )
 
@@ -57,15 +58,22 @@ set(FF7_BATTLE
 )
 
 set(FF7_FIELD
-    src/field/field_dialog.c
-    src/field/field_debug.c
-    src/field/field_fileInfo.c
     src/field/field_main.c
     src/field/field_loop.c
     src/field/field_bg.c
-    src/field/field_rand.c
+    src/field/field_entity.c
+    src/field/field_camera.c
+    src/field/field_rain.c
+    src/field/field_battle.c
+    src/field/field_arrow.c
+    src/field/field_model.c
+    src/field/field_kawai_char_model.c
     src/field/field_event.c
     src/field/field_opcodes.c
+    src/field/field_dialog.c
+    src/field/field_debug.c
+    src/field/field_fileInfo.c
+    src/field/field_rand.c
 )
 
 set(FF7_WORLD
@@ -183,7 +191,8 @@ endfunction()
 option(FF7_ASAN "Build the PC executable with AddressSanitizer" OFF)
 
 add_executable(${PROJECT_NAME}
-    ${FF7_STR_PSYZ} ${FF7_STR_MAIN} ${FF7_STR_MENU} ${FF7_STR_MISC})
+    ${FF7_STR_PSYZ} ${FF7_STR_MAIN} ${FF7_STR_MENU} ${FF7_STR_MISC}
+    ${FF7_STR_FIELD})
 ff7_configure(${PROJECT_NAME})
 
 add_library(${PROJECT_NAME}_lib
