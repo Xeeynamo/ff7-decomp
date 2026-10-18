@@ -3164,10 +3164,9 @@ void BattleAddStatusDigitsToRender(s32 arg0, u8 arg1) {
     D_800F4B08->vx = g_BattleModels[actor].boneTransforms[0].trans.vx;
     D_800F4B08->vy = (s16)D_80151200[actor].unk2A;
     D_800F4B08->vz = g_BattleModels[actor].boneTransforms[0].trans.vz;
-    if ((arg1 & 0xFF) != 0xFF) {
+    if (arg1 != 0xFF) {
         BattleGet4DigitsFromValue(arg1, D_800F4B0C);
-        D_80163C74 =
-            BattleCreateStatusDigitsPackets(g_cDb->unk70, D_800F4B08, ((u8*)D_800F4B0C)[4], ((u8*)D_800F4B0C)[6]);
+        D_80163C74 = BattleCreateStatusDigitsPackets(g_cDb->unk70, D_800F4B08, D_800F4B0C[2], D_800F4B0C[3]);
     }
 }
 
@@ -3178,11 +3177,12 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800C2704);
 void func_800C2864(s32 arg0) {
     u8 actor = arg0;
     if (D_80163C7C == 4 && D_800FAFDC == 0 && D_801620A4 == 0) {
-        D_80163C74 = func_800C2704(&g_cDb->unk4080[1], (s16)((s16)g_modelScreenPos[actor].x + 3),
-                                   (s16)(g_modelScreenPos[actor].y - 14), 0, 0xD0, 0x30, 0x10, 0);
+        D_80163C74 = func_800C2704(
+            &g_cDb->unk4080[1], g_modelScreenPos[actor].x + 3, g_modelScreenPos[actor].y - 14, 0, 0xD0, 0x30, 0x10, 0);
     }
 }
 
+void func_800C2C1C(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
 void func_800C2928(void) {
     Unk801621F0* slots = g_BattleDetachedSlots;
     s32 slotOffset = g_BattleDetachedCursor * sizeof(Unk801621F0);
@@ -3213,7 +3213,7 @@ void func_800C2928(void) {
         state->bone.rot.vy = 0;
         *(s16*)((u8*)&D_80151200[0].bone.rot.vx + actorOffset) = 0;
         D_80151200[slot->unk10.value].bone.parentMatrix = &D_800F8158[0].m;
-        return;
+        break;
     case 1:
         if (slot->D_801621F4 == 0) {
             slot->D_801621F0 = -1;
@@ -3241,13 +3241,11 @@ void func_800C2928(void) {
         if (slot->unk8 > 150) {
             slot->unk8 = 150;
         }
-        frame = slot->unkC;
-        slot->unkC = frame + 1;
-        func_800C2C1C(slot->D_801621F6, slot->unk8, slot->unkE, D_800EA230[(s16)frame], (s16)slot->unk14);
+        func_800C2C1C(slot->D_801621F6, slot->unk8, slot->unkE, D_800EA230[slot->unkC++], slot->unk14);
         updatedOffset = g_BattleDetachedCursor * sizeof(Unk801621F0);
         slots[g_BattleDetachedCursor].D_801621F4 =
             *(u16*)((u8*)&g_BattleDetachedSlots[0].raw.D_801621F4 + updatedOffset) - 1;
-        return;
+        break;
     }
 }
 
