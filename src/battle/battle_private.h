@@ -460,7 +460,7 @@ typedef struct {
     /* 0x2F */ u8 unk2F;
 } Unk80151360; // size:0x30
 
-// Confirmed live via PCSX-Redux (exec breakpoint on func_800A4350, one command
+// Confirmed live via PCSX-Redux (exec breakpoint on BattleQueuePendingAction, one command
 // at a time, plus direct cmdIndex injection for the remaining gaps). "All"-
 // linked materia (Steal-All, Sense-All, etc) reuse their base command's
 // cmdIndex -- targetMask changes, not cmdIndex. 0x0E-0x10 and past 0x1B are
@@ -483,7 +483,7 @@ typedef enum {
     CMD_MUG = 0x11, // Steal + attack; Steal materia's second command once mastered
     CMD_CHANGE = 0x12,
     CMD_DEFEND = 0x13,
-    CMD_LIMIT = 0x14, // priority-5 special case in func_800A4350
+    CMD_LIMIT = 0x14, // priority-5 special case in BattleQueuePendingAction
     CMD_W_MAGIC = 0x15,
     CMD_W_SUMMON = 0x16,
     CMD_W_ITEM = 0x17,
@@ -515,29 +515,6 @@ typedef enum {
     MENU_LIST_DISABLED_SUMMON = 0x10 << MENU_LIST_SUMMON,
     MENU_LIST_DISABLED_ENEMY_SKILL = 0x10 << MENU_LIST_ENEMY_SKILL,
 } BattleMenuListFlags;
-
-// Queued-action entry, matches
-// https://wiki.ffrtt.ru/index.php/FF7/Battle/Battle_Mechanics action-queue
-// layout exactly (priority/queue-pos/actorId/cmdIndex/attackIndex/targetMask).
-// D_800F3958 is a 16-entry ring buffer of these (D_800F39D8 read idx,
-// D_800F39DC write idx); the wiki describes up to 64 queued actions, so this
-// may be a smaller staging ring rather than the full logical queue --
-// unconfirmed. Drain chain: func_800A3ED0 drains this ring into a 64-slot
-// priority table (BattleCopyBattleActionToBattleQueue), which BattleBattleActionQueueExecute drains in priority
-// order into BattleCmdScriptDispatch, which runs the command as a byte-coded sequence
-// of opcodes (g_BattleCmdOpcodeOffs/g_BattleCmdOpcodeStream/g_BattleCmdOpcodeJmpTbl), not a single switch on
-// cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
-typedef struct {
-    /* 0x0 */ u8 priority; // 0=limits/counters, 6=player spells (see func_800A4350)
-    /* 0x1 */ u8 queuePos; // position within priority band; not set by func_800A4350
-    /* 0x2 */ u8 actorId;
-    /* 0x3 */ s8 cmdIndex;     // BattleCommand, stored raw (not the enum type --
-                               // keeps this struct's confirmed 0x8-byte layout)
-    /* 0x4 */ s16 attackIndex; // command-dependent: spell id for CMD_MAGIC,
-                               // damage dealt for CMD_COIN, skill id for
-                               // CMD_ENEMY_SKILL, etc -- not a uniform lookup
-    /* 0x6 */ u16 targetMask;
-} QueuedAction; // size:0x8
 
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
@@ -656,9 +633,13 @@ extern s32 g_BattleActionQueueTargIndex;
 extern s32 D_800F394C;
 extern s32 D_800F3950;
 extern s32 D_800F3954;
-extern QueuedAction D_800F3958[16];
-extern s32 D_800F39D8; // read index into D_800F3958
-extern s32 D_800F39DC; // write index into D_800F3958
+
+// 16-entry ring of actions queued from the VSync interrupt (ATB fills, the battle menu) by
+// BattleQueuePendingAction; func_800A3ED0 drains it into g_BattleWork.actionQueue once per frame.
+// The writer only advances WriteIdx and the reader only advances ReadIdx, so no locking is needed.
+extern BattleActionEntry g_BattlePendingActions[16];
+extern s32 g_BattlePendingActionReadIdx;
+extern s32 g_BattlePendingActionWriteIdx;
 extern s32 D_800F39E0;
 extern s32 D_800F39E4;
 extern s32 g_BattleFrameCount;  // Frame count since the battle started, incremented once per BattleUpdateRender call
@@ -936,13 +917,14 @@ extern u8 D_80166F68;
 extern u16 g_BattleScreenFadeR;
 
 void func_800A2DB0(void);
-void func_800A4350(s16, s16, s16, u16);
+void BattleQueuePendingAction(s16, s16, s16, u16);
 void func_800A3534(s32 unused, s16 index);
 static void func_800A4D2C(s32 arg0);
 void BattleRefreshMenu(s32 arg0, s32 menuType);
 static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count);
 static void BattleRefreshCmdMenu(s32 arg0, u32 status);
 void BattleReturnReservedItems(void);
+static s32 BattleAddMessageToStringBuffer(u8* src, u16* args);
 void BattleProcessEventQueue(s32);
 static void BattleSetActionEffect(s32 effectId, s32 effectModifier);
 void func_800A8E84(s32);
@@ -991,6 +973,7 @@ static s32 func_800AE6C0(s32, s32, s32);
 void BattleCalcAffinityFlags(void);
 s32 BattleGetStatusProtectionMask(s32, s32, s32);
 void func_800AF9C8(void);
+static s32 BattleUnitGetPendingConstTicks(s32 arg0);
 void BattleAdvanceTimers(void);
 void func_800B0234(void);
 s32 BattleCalcDefPercent(s32);
@@ -1038,7 +1021,7 @@ void BattleReqReturnReservedItems(s16 arg0);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 static void BattleInvalidateQueuedMessages(s32 arg0, s32 arg1);
 static void func_800A32C0(s32 arg0);
-static void BattleAddBattleActionToBattleQueue(s32 unitId, s32 prio, s32 type, s32 index, s32 target);
+static void BattleQueueImmediateAction(s32 unitId, s32 prio, s32 type, s32 index, s32 target);
 static s32 BattleGetBerserkToadAttackTypeId(s32 arg0);
 void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 priority);
 static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0);
@@ -1047,7 +1030,7 @@ void BattleCmdScriptDispatch(BattleActionEntry*);
 // func_800A6278 does not match if this is forward declared because the types do not agree
 // but the modern build fails if it is not declared
 #ifdef PLATFORM_PSYZ
-static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex);
+static void BattleQueueOpcodeAction(s16 unitId, s16 cmdIndex, s16 attackIndex);
 #endif
 
 /* battle menu widget block (one per widget id, 0x240 apart) -- partial */

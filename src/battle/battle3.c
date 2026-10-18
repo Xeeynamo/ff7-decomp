@@ -432,7 +432,7 @@ void BattleMenuInputState3(void) {
             BattlePlayMenuSound(1);
             D_800F99E4 = 1;
             g_BattleMenuModalWidgetId = -1;
-            func_800A4350(g_BattleMenuPartySlot, D_800F389C, D_800F389E, D_801516F8);
+            BattleQueuePendingAction(g_BattleMenuPartySlot, D_800F389C, D_800F389E, D_801516F8);
             BattleSetStatusFlashState(3);
             BattleSetStatusFlashState(1);
         } else if (g_Pad0KeysRepeat & (PAD_LEFT | PAD_CROSS)) {

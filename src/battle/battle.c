@@ -46,7 +46,7 @@ static void BattleSetFocusedActor(s32 arg0) {
             return;
         }
         for (i = 0; i < LEN(g_BattleWork.actionQueue); i++) {
-            if (g_BattleWork.actionQueue[i].priority == 6 && g_BattleWork.actionQueue[i].unitID == D_800E7A38) {
+            if (g_BattleWork.actionQueue[i].priority == 6 && g_BattleWork.actionQueue[i].unitSlot == D_800E7A38) {
                 break;
             }
         }
@@ -85,7 +85,7 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
             }
 
             // Each tier is a FIFO: find the entry holding this tier's next order
-            // number (see BattleCopyBattleActionToBattleQueue for the enqueue side)
+            // number (see BattleScheduleAction for the enqueue side)
             for (i = 0; i < LEN(g_BattleWork.actionQueue); i++) {
                 if (g_BattleWork.actionQueue[i].priority == priority &&
                     (u8)g_BattleWork.actionQueue[i].orderInPriority == g_BattleWork.nextOrderToExecute[priority]) {
@@ -101,7 +101,7 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
                 continue;
             }
 
-            slot = g_BattleWork.currentAction.unitID;
+            slot = g_BattleWork.currentAction.unitSlot;
             if (slot == -1) {
                 break;
             }
@@ -126,7 +126,7 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
             }
 
             forceAction = 0;
-            if ((s8)g_BattleWork.currentAction.actionType == -1) {
+            if (g_BattleWork.currentAction.cmdIndex == -1) {
                 s32 attackId = 0;
 
                 if (slot >= START_ENEMY) {
@@ -151,7 +151,7 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
                 }
 
                 if (forceAction) {
-                    BattleAddBattleActionToBattleQueue(slot, 2, 0x20, BattleGetAttackIdInSceneByAttackId(attackId), 0);
+                    BattleQueueImmediateAction(slot, 2, 0x20, BattleGetAttackIdInSceneByAttackId(attackId), 0);
                 } else if (g_BattleState.combatant[slot].stateFlags & 0x10) {
                     func_800A32C0(1);
                     BattleRunUnitScript(slot, 1, 2);
@@ -172,7 +172,7 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
 
                 if (slot < NUM_PARTY && g_BattleWork.currentAction.priority >= 5U &&
                     g_BattleState.combatant[slot].status & STATUS_BERSERK) {
-                    g_BattleWork.currentAction.actionType = BattleGetBerserkToadAttackTypeId(slot);
+                    g_BattleWork.currentAction.cmdIndex = BattleGetBerserkToadAttackTypeId(slot);
                     g_BattleWork.currentAction.attackIndex = 0;
                     g_BattleWork.currentAction.targetMask = 0;
                     BattleInvalidateQueuedMessages(slot, 6);
@@ -219,7 +219,7 @@ void BattleCheckAllLucky7s(void) {
         if (g_BattleState.combatant[i].curHP == 7777 && !(g_BattleWork.turn[i].turnFlags & 0x80)) {
             if ((*D_800F7DE2)++ < 64) {
                 g_BattleWork.turn[i].turnFlags |= 0x80;
-                BattleAddBattleActionToBattleQueue(i, 1, 1, 0, 0);
+                BattleQueueImmediateAction(i, 1, 1, 0, 0);
             }
         }
     }
@@ -578,7 +578,7 @@ void func_800A38FC(void) {
                 g_BattleWork.escapeSubCounter -= 0x2000;
 
                 if (g_BattleWork.escapeTicks < g_BattleWork.escapeHoldTicks * 2 &&
-                    (g_BattleWork.unk2218 < 0x4000 || g_BattleWork.encounterType == SETUP_PREEMPTIVE ||
+                    (g_BattleWork.frameRnd < 0x4000 || g_BattleWork.encounterType == SETUP_PREEMPTIVE ||
                      g_BattleWork.encounterType == SETUP_SIDE_ATTACK)) {
                     g_BattleWork.escapeCounter1--;
                 }
@@ -627,9 +627,9 @@ void func_800A38FC(void) {
 
             // A party member with the stateFlags 0x10 bit set will also meet this condition
             if (i >= NUM_PARTY || (g_BattleState.combatant[i].stateFlags & 0x10)) {
-                func_800A4350(i, -1, 0, 0);
+                BattleQueuePendingAction(i, -1, 0, 0);
             } else if ((g_BattleWork.disabledUnitMask >> i) & 1) {
-                func_800A4350(i, BattleGetBerserkToadAttackTypeId(i), 0, 0);
+                BattleQueuePendingAction(i, BattleGetBerserkToadAttackTypeId(i), 0, 0);
             } else {
                 func_800A4D2C(i);
                 g_BattleWork.activeUnitCmdMask |= 1 << i;
@@ -680,7 +680,7 @@ void func_800A38FC(void) {
     BattleReturnReservedItems();
 }
 
-static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* action) {
+static void BattleScheduleAction(BattleActionEntry* action) {
     s32 priorityTier;
     s32 i;
 
@@ -692,9 +692,9 @@ static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* action) {
             g_BattleWork.nextOrderToAssign[priorityTier]++;
             g_BattleWork.pendingActionPriority = priorityTier;
             if (action->priority >= 2) {
-                g_BattleState.combatant[action->unitID].stateFlags &= ~COMBATANT_DEFENDING;
-                if ((action->actionType & 0x3F) == 0x13) {
-                    g_BattleState.combatant[action->unitID].stateFlags |= COMBATANT_DEFENDING;
+                g_BattleState.combatant[action->unitSlot].stateFlags &= ~COMBATANT_DEFENDING;
+                if ((action->cmdIndex & 0x3F) == CMD_DEFEND) { // Why mask lower 6 bits here? More than just cmd index?
+                    g_BattleState.combatant[action->unitSlot].stateFlags |= COMBATANT_DEFENDING;
                 }
             }
             return;
@@ -702,32 +702,154 @@ static void BattleCopyBattleActionToBattleQueue(BattleActionEntry* action) {
     }
 }
 
-static void BattleAddBattleActionToBattleQueue(s32 unitId, s32 prio, s32 type, s32 index, s32 target) {
+// Immediate here means it is scheduled right away, not executed
+static void BattleQueueImmediateAction(s32 unitId, s32 prio, s32 type, s32 index, s32 target) {
     BattleActionEntry battleAction;
 
-    battleAction.unitID = unitId;
+    battleAction.unitSlot = unitId;
     battleAction.priority = prio;
-    battleAction.actionType = type;
+    battleAction.cmdIndex = type;
     battleAction.attackIndex = index;
     battleAction.targetMask = target;
-    BattleCopyBattleActionToBattleQueue(&battleAction);
+    BattleScheduleAction(&battleAction);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A3ED0);
+// Per-frame battle update, called from BattleUpdateRender
+// Does many things, see inline comments below for details
+void func_800A3ED0(void) {
+    const u16 escapePadKeys = PAD_L1 | PAD_R1;
+    s32 isEscaping = (g_Pad0Keys & escapePadKeys) == escapePadKeys;
+    s32 stopMask = 0;
+    s32 errorCode = D_80062F14;
+    s32 i;
+
+    g_BattleFrameCount += 1;
+
+    // Shows the battle banner when an error code is active
+    if (errorCode >= 0x100) {
+        u16 msgArgs[2];
+        s32 textId = D_80062F60++ / 32 % 3 + 0x6E;
+        s32 strId;
+
+        msgArgs[0] = D_80062F54;
+        msgArgs[1] = (u8)errorCode;
+
+        strId = BattleAddMessageToStringBuffer(SysGetKernBattleTextPtr(textId), msgArgs) + 0x100;
+        BattleBannerSetEncounterString(strId);
+        return;
+    }
+
+    g_BattleWork.frameRnd = SysRandomTwoBytes();
+    BattleProcessEventQueue(1);
+
+    // Players whose atb gauge isn't increasing (stop, sleep, paralyze, etc)
+    for (i = 0; i < NUM_PARTY; i++) {
+        s32 mask = 1 << i;
+        if ((g_BattleState.playerUnitMask & mask) && !g_BattleWork.turn[i].atbIncrement) {
+            stopMask |= mask;
+        }
+    }
+
+    if (!g_BattleState.cycleFlags && isEscaping) {
+        if (!(g_BattleData.flags & 8) && (stopMask != g_BattleState.playerUnitMask) && g_BattleData.unk174 < 2) {
+            if ((g_BattleWork.escapeCounter2 != g_BattleWork.escapeCounter1) && !g_BattleWork.escapeCounter1) {
+                g_BattleState.cycleFlags |= 4;
+                for (i = 0; i < NUM_PARTY; i++) {
+                    g_BattleState.combatant[i].unk16 = 13;
+                }
+            }
+            g_BattleWork.escapeCounter2 = g_BattleWork.escapeCounter1;
+        } else {
+            BattleBannerSetEncounterString(0x36); // "Can't escape!"
+        }
+    }
+
+    if (g_BattleWork.lucky7777ActionParam) {
+        BattleBannerSetEncounterString(g_BattleWork.lucky7777StringID);
+        g_BattleWork.lucky7777ActionParam--;
+    }
+
+    // Drain the action queue
+    while (g_BattlePendingActionReadIdx != g_BattlePendingActionWriteIdx) {
+        BattleScheduleAction(&g_BattlePendingActions[g_BattlePendingActionReadIdx]);
+        g_BattlePendingActionReadIdx++;
+        g_BattlePendingActionReadIdx &= 0xF;
+    }
+
+    // Set the idle action if the player unit is dead, suffering a status effect, or attempting to flee
+    for (i = 0; i < NUM_PARTY; i++) {
+        ActiveCharacterData* charData = &g_ActiveCharacters[i];
+        BattleUnit* unit = &g_BattleState.combatant[i];
+        u8 idleActionId = unit->unk16;
+        s32 isLowHp = charData->hp * 4;
+
+        // below 25% HP; computed up front, before the death check (required for match)
+        isLowHp = isLowHp < charData->baseHp;
+
+        if (g_BattleData.actors[i].D_801636C4 & STATUS_DEATH) {
+            idleActionId = 2;
+        } else if (!g_BattleState.cycleFlags && !idleActionId) {
+            const s32 statusMask = STATUS_SLEEP | STATUS_POISON | STATUS_SILENCE | STATUS_D_SENTENCE |
+                                   STATUS_PARALYSIS | STATUS_DARKNESS | STATUS_DUAL_DRAIN;
+
+            if (isLowHp || g_BattleData.actors[i].D_801636C4 & statusMask) {
+                idleActionId = 1;
+            }
+
+            if (isEscaping && !((stopMask >> i) & 1)) {
+                idleActionId = 13;
+            }
+        }
+
+        unit->idleActionId = idleActionId;
+    }
+
+    // remaining Death Sentence / Slow-numb counts, 0xFF when the status isn't active
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        BattleTurnWork* turnWork = &g_BattleWork.turn[i];
+        s32 constTicks = 0xFF;
+
+        if (g_BattleData.actors[i].D_801636C4 & STATUS_D_SENTENCE) {
+            constTicks = turnWork->statusTimers[TIMER_D_SENTENCE];
+            if (constTicks != 0xFF) {
+                constTicks -= BattleUnitGetPendingConstTicks(i);
+            }
+            if (constTicks < 0) {
+                constTicks = 0;
+            }
+        }
+        g_BattleData.actors[i].D_801636BA = constTicks;
+
+        constTicks = 0xFF;
+        if (g_BattleData.actors[i].D_801636C4 & STATUS_SLOW_NUMB) {
+            constTicks = turnWork->statusTimers[TIMER_SLOW_NUMB] - BattleUnitGetPendingConstTicks(i);
+            if (constTicks < 0) {
+                constTicks = 0;
+            }
+        }
+        g_BattleData.actors[i].D_801636BB = constTicks;
+    }
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        g_BattleData.actors[i].idleActionId = g_BattleState.combatant[i].idleActionId;
+    }
+}
 
 static void func_800A4D88(s32 arg0);
 static void BattleAddUnitReservedItem(s16 arg0, s16 arg1);
 static s32 BattleGetManipulatorIdByEnemyUnitId(s32 enemyId);
-void func_800A4350(s16 actorId, s16 cmdIndex, s16 attackIndex, u16 targetMask) {
-    QueuedAction* entry;
 
-    if (D_800F39D8 == ((D_800F39DC + 1) & 0xF)) {
+// Pending actions go into a global queue and are drained once a frame in func_800A3ED0
+void BattleQueuePendingAction(s16 actorId, s16 cmdIndex, s16 attackIndex, u16 targetMask) {
+    BattleActionEntry* entry;
+
+    if (g_BattlePendingActionReadIdx == ((g_BattlePendingActionWriteIdx + 1) & 0xF)) {
         return;
     }
 
-    entry = &D_800F3958[D_800F39DC];
+    entry = &g_BattlePendingActions[g_BattlePendingActionWriteIdx];
     entry->priority = (cmdIndex == CMD_LIMIT) ? 5 : 6;
-    entry->actorId = actorId;
+    entry->unitSlot = actorId;
     entry->cmdIndex = cmdIndex;
     entry->attackIndex = attackIndex;
     entry->targetMask = targetMask;
@@ -748,7 +870,7 @@ void func_800A4350(s16 actorId, s16 cmdIndex, s16 attackIndex, u16 targetMask) {
     func_800A4D88(BattleGetManipulatorIdByEnemyUnitId(actorId));
     g_BattleWork.activeUnitCmdMask &= ~(1 << actorId);
     g_BattleWork.turnReadyUnitMask |= 1 << actorId;
-    D_800F39DC = (D_800F39DC + 1) & 0xF;
+    g_BattlePendingActionWriteIdx = (g_BattlePendingActionWriteIdx + 1) & 0xF;
 }
 
 void BattleInitTurnWorkHPMP(void) {
@@ -1504,7 +1626,7 @@ void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
                     break;
                 }
 
-                BattleAddBattleActionToBattleQueue(arg0, priority, autoAction.cmdIndex, autoAction.attackIndex, target);
+                BattleQueueImmediateAction(arg0, priority, autoAction.cmdIndex, autoAction.attackIndex, target);
             }
         }
     }
@@ -1780,7 +1902,7 @@ void BattleUnitEnableBerserkToad(s32 unitIdx) {
     func_800A4D88(unitIdx);
     g_BattleWork.disabledUnitMask |= 1 << unitIdx;
     if ((g_BattleWork.activeUnitCmdMask >> unitIdx) & 1) {
-        func_800A4350(unitIdx, BattleGetBerserkToadAttackTypeId(unitIdx), 0, 0);
+        BattleQueuePendingAction(unitIdx, BattleGetBerserkToadAttackTypeId(unitIdx), 0, 0);
     }
 }
 
@@ -1796,7 +1918,7 @@ void BattleUnitSetManipulated(s32 unitIdx, s32 isManipulated) {
     g_BattleWork.manipulatedUnitMask &= ~(1 << unitIdx);
     if ((g_BattleWork.activeUnitCmdMask >> unitIdx) & 1) {
         func_800A4D88(unitIdx);
-        func_800A4350(unitIdx, -1, 0, 0);
+        BattleQueuePendingAction(unitIdx, -1, 0, 0);
     }
 }
 
@@ -1820,7 +1942,7 @@ void BattleUnitStealRndPartyItem(s32 arg0) {
     }
 
     // Walk the eligible list and pick the n-th item
-    n = g_BattleWork.unk2218 % count;
+    n = g_BattleWork.frameRnd % count;
     for (i = 0; i < MAX_INVENTORY_COUNT; i++) {
         if (D_801671B8[i].id != 0xFFFF && !(D_801671B8[i].unk4 & 1) && --n < 0) {
             itemId = BattleGetItemFromSlot(i);
@@ -1898,7 +2020,7 @@ void BattleClearStatusBit(s32 arg0, s32 arg1) {
     g_BattleState.combatant[arg0].status &= mask;
 }
 
-void BattleExpireDeathSentence(s32 arg0) { BattleAddBattleActionToBattleQueue(arg0, 3, 2, 54, 0); }
+void BattleExpireDeathSentence(s32 arg0) { BattleQueueImmediateAction(arg0, 3, 2, 54, 0); }
 
 void BattleChangeSlownumbToPetrify(s32 arg0) {
     s32 temp_v1;
@@ -1912,7 +2034,7 @@ void BattleChangeSlownumbToPetrify(s32 arg0) {
 void BattleTickPoison(s32 arg0) {
     if (g_BattleState.combatant[arg0].status & STATUS_POISON) {
         g_BattleWork.turn[arg0].statusTimers[TIMER_POISON] = 0xA;
-        BattleAddBattleActionToBattleQueue(arg0, 3, 0x23, 0, 0);
+        BattleQueueImmediateAction(arg0, 3, 0x23, 0, 0);
     }
 }
 
@@ -2530,7 +2652,7 @@ void BattleApplyVincentLimitTransform(void) {
     g_BattleState.combatant[unitId].stateFlags |= 0x10;
     g_BattleState.combatant[unitId].status &= ~(STATUS_CONFU | STATUS_FROG | STATUS_BERSERK);
     g_BattleWork.turn[unitId].turnFlags |= 8;
-    BattleAddBattleActionToBattleQueue(unitId, 0, -1, 0, 0);
+    BattleQueueImmediateAction(unitId, 0, -1, 0, 0);
     D_800F83AB[0] = g_CurrentAction->effectModifier;
     switch (g_CurrentAction->effectModifier) {
     case 0: // Lvl 1. Galian Beast
@@ -4285,7 +4407,7 @@ void BattleRestoreBattleActionIfCan(s32 arg0, s32 arg1, s32 arg2) {
     if (!(g_BattleState.combatant[arg0].status & 0x2004404)) {
         if ((g_BattleWork.turnReadyUnitMask >> arg0) & 1) {
             if (g_BattleWork.subActionSlots[arg0].priority != 0xFF) {
-                BattleCopyBattleActionToBattleQueue(&g_BattleWork.subActionSlots[arg0]);
+                BattleScheduleAction(&g_BattleWork.subActionSlots[arg0]);
                 g_BattleWork.subActionSlots[arg0].priority = 0xFF;
             }
         }
@@ -5127,16 +5249,16 @@ static u32 func_800B12DC(void) {
 }
 
 // invalidates (unk2 = -1) any occupied actionQueue entry (unk0 != 0xFF)
-// of category arg0 whose priority is >= arg1; see BattleCopyBattleActionToBattleQueue, which pushes
+// of category arg0 whose priority is >= arg1; see BattleScheduleAction, which pushes
 // entries into this same queue
 static void BattleInvalidateQueuedMessages(s32 arg0, s32 arg1) {
     s32 i;
 
     for (i = 0; i < LEN(g_BattleWork.actionQueue); i++) {
-        if (g_BattleWork.actionQueue[i].unitID == arg0) {
+        if (g_BattleWork.actionQueue[i].unitSlot == arg0) {
             u8 val = g_BattleWork.actionQueue[i].priority;
             if (val != 0xFF && val >= arg1) {
-                g_BattleWork.actionQueue[i].unitID = -1;
+                g_BattleWork.actionQueue[i].unitSlot = -1;
             }
         }
     }
@@ -5538,7 +5660,7 @@ void BattleInitScriptContext(s32 arg0, s32 priority, s32 arg2) {
     g_BattleState.partyGil = Savemap.gil;
 }
 
-static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex) {
+static void BattleQueueOpcodeAction(s16 unitId, s16 cmdIndex, s16 attackIndex) {
     BattleActionEntry action;
     u8 categories[] = {CMD_SUMMON, CMD_ENEMY_SKILL};
     u8 categoryBases[] = {SUMMON_START, ENEMY_SKILL_START};
@@ -5546,22 +5668,22 @@ static void BattleQueueOpcodeAction(s16 unitId, s16 actionType, s16 attackIndex)
     u16 mask;
 
     for (i = 0; i < LEN(categories); i++) {
-        if (actionType == categories[i]) {
+        if (cmdIndex == categories[i]) {
             attackIndex -= categoryBases[i];
         }
     }
-    if (actionType == 0x20) { // non-player: monster/counter scene-attack id
+    if (cmdIndex == CMD_ENEMY_ATTACK) { // non-player: monster/counter scene-attack id
         attackIndex = BattleGetAttackIdInSceneByAttackId(attackIndex);
     }
 
     mask = g_BattleState.scriptOpponentNonPetrifiedMask;
     g_BattleState.combatant[unitId].attackMask = mask;
     action.priority = g_BattleScriptActionPriority;
-    action.unitID = unitId;
-    action.actionType = actionType;
+    action.unitSlot = unitId;
+    action.cmdIndex = cmdIndex;
     action.attackIndex = attackIndex;
     action.targetMask = mask;
-    BattleCopyBattleActionToBattleQueue(&action);
+    BattleScheduleAction(&action);
 }
 
 static AttackData* BattleGetAttackData(s32 id);

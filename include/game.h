@@ -1362,10 +1362,13 @@ extern u8 D_80062D98;
 extern volatile u8 g_SavemapBusy;
 extern s32 D_80062DCC;
 extern u8 _D_80062DFD;
+extern s32 D_80062F14; // engine error code, -1 = none; set by SysSetEngineErrorCode
 extern u8 D_80062F18;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
 extern u8 D_80062F1A;
 extern u8 D_80062F1B;
+extern s32 D_80062F54;
+extern s32 D_80062F60;
 extern Gpu g_PolyPtr;
 extern u16 g_SaveSlotMask;
 extern s32 g_MenuRenderBufferIndex;
@@ -1487,7 +1490,9 @@ s32 SetGraphDebug(s32);
 void SystemError(char c, long n);
 void SysMemCopy32(void* dst, const void* src, const s32 len);
 void SysIncSeedForRandom(void);
+u16 SysRandomTwoBytes(void);
 s32 SysGetKernBattleTextById(s32);
+u8* SysGetKernBattleTextPtr(s32 textId);
 const char* SysKernGetString(s32 type, s32 index, s32 blockOffset);
 void SysSetEngineErrorCode(s32, ...);
 u32 SysAddSubWithMaxMinBound(u32 val, u32 addend, u32 max, u32 isAdd);
