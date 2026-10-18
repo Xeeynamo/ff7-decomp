@@ -325,6 +325,7 @@ extern u8 D_800C7304[16];
 extern s32 D_800C74E4[][2];
 extern s8 D_800C752D;
 extern OT_TYPE* D_800C7530;
+extern SVECTOR D_800C7938[240]; // Same as field's normal_table.
 extern s32 D_800D05E8;
 extern WorldScriptData D_800D05EC;
 extern s32 D_800E55EC;

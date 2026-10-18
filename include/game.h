@@ -51,6 +51,15 @@
 #define ENEMY_SKILL_START SUMMON_END
 #define ENEMY_SKILL_END (ENEMY_SKILL_START + NUM_ENEMY_SKILLS)
 
+#define KAWAI_READ_S16(params, offset) ((s16)((((params)[(offset) + 1] << 8) & 0xFF00) | ((params)[(offset)] & 0xFF)))
+#define KAWAI_READ_S32(params, offset)                                                                                 \
+    ((s32)((((params)[(offset) + 3] << 24) & 0xFF000000) | (((params)[(offset) + 2] << 16) & 0xFF0000) |               \
+           (((params)[(offset) + 1] << 8) & 0xFF00) | ((params)[(offset)] & 0xFF)))
+#define KAWAI_WRITE_S16(params, offset, value) ((params)[(offset)] = (value), (params)[(offset) + 1] = (value) >> 8)
+#define KAWAI_WRITE_S32(params, offset, value)                                                                         \
+    ((params)[(offset)] = (value), (params)[(offset) + 1] = (value) >> 8, (params)[(offset) + 2] = (value) >> 16,        \
+     (params)[(offset) + 3] = (value) >> 24)
+
 typedef enum {
     CHAR_CLOUD = 0,
     CHAR_BARRET = 1,
@@ -1139,6 +1148,63 @@ typedef struct {
     /* 0x04 */ FieldModelEntry* modelEntries; // per-model-file records
     /* 0x08 */ void* unk8;                    // (initialized to NULL)
 } FieldModelData;                             // size:0xC
+
+typedef struct {
+    /* 0x00 */ u8 r;
+    /* 0x01 */ u8 g;
+    /* 0x02 */ u8 b;
+    /* 0x03 */ u8 normalIndex;
+} FieldModelColor; // size:0x04
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[4];
+    /* 0x04 */ FieldModelColor colors[4];
+    /* 0x14 */ u8 texCoordIndices[4];
+} FieldModelPolyGT4; // size:0x18
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[3];
+    /* 0x03 */ u8 pad1;
+    /* 0x04 */ FieldModelColor colors[3];
+    /* 0x10 */ u8 texCoordIndices[3];
+    /* 0x13 */ u8 pad2;
+} FieldModelPolyGT3; // size:0x14
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[4];
+    /* 0x04 */ FieldModelColor color;
+    /* 0x08 */ u8 texCoordIndices[4];
+} FieldModelPolyFT4; // size:0x0C
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[3];
+    /* 0x03 */ u8 pad1;
+    /* 0x04 */ FieldModelColor color;
+    /* 0x08 */ u8 texCoordIndices[3];
+    /* 0x0B */ u8 pad2;
+} FieldModelPolyFT3; // size:0x0C
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[3];
+    /* 0x03 */ u8 pad;
+    /* 0x04 */ FieldModelColor color;
+} FieldModelPolyF3; // size:0x08
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[4];
+    /* 0x04 */ FieldModelColor color;
+} FieldModelPolyF4; // size:0x08
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[3];
+    /* 0x03 */ u8 pad;
+    /* 0x04 */ FieldModelColor colors[3];
+} FieldModelPolyG3; // size:0x10
+
+typedef struct {
+    /* 0x00 */ u8 vertexIndices[4];
+    /* 0x04 */ FieldModelColor colors[4];
+} FieldModelPolyG4; // size:0x14
 
 typedef struct {
     u8 enabled;

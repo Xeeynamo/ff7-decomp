@@ -74,7 +74,7 @@ static s32 func_800B786C(void);
 static void WmDialogSetModeAndPermanency(s16 window, s16 style, s16 preventClose);
 void func_800B4244(void);
 void WmCalculateBoneMatrixes(void*, MATRIX*, s32, s32);
-void WmCalculateModelLighting(void*, u8*);
+s32 WmCalculateModelLighting(FieldModelEntry* model, u8* params);
 void func_800B5314(WorldActor*, s32);
 void WmDialogUpdate(void);
 void WmFadeInit(void);
