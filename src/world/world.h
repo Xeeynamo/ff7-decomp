@@ -85,7 +85,7 @@ typedef struct {
     /* 0x04 */ u32 unk4;
     /* 0x08 */ u32 packets; // the render packet area starts 4 bytes after this offset
     /* 0x0C */ u32 unkC;
-    /* 0x10 */ FieldModelEntry* models;
+    /* 0x10 */ FieldModel* models;
 } WmPackModels;
 
 // One half of the world map double buffer
@@ -216,7 +216,7 @@ void func_800A5AD8(WorldChunkHeader*);
 void func_800A6994(VECTOR*, s32);
 void WmCleanEntityStruct(WorldActor*);
 void WmUnlinkEntityFromAll(WorldActor*);
-void WmSetCalculateAllPartsLighting(FieldModelEntry*);
+void WmSetCalculateAllPartsLighting(FieldModel*);
 void WmInsertStructInEntityStructList(WorldActor*);
 void WmLinkPcToActiveEntity();
 void WmUnlinkPcEntityFromAll();
@@ -268,8 +268,8 @@ typedef struct {
 } WorldTextureBlock;
 
 void WmLoadTexturesToVram(WorldTextureBlock*);
-s32 WmLoadModelPacketAndScale(FieldModelEntry*, s32, s32);
-void WmCalculateBonesAndLighting(FieldModelEntry*);
+s32 WmLoadModelPacketAndScale(FieldModel*, s32, s32);
+void WmCalculateBonesAndLighting(FieldModel*);
 void WmPcCharModelLoadFileCallback(void);
 void WmPackModelLoadFileCallback(void);
 s32 WmDialogSetAskToShow(u8, u8, u8, u8, s16*);
@@ -279,9 +279,9 @@ s32 WmGetHorizonCurveDrop(s32, s32);
 void WmDrawGroundQuad(s16, s16, s16, s16, POLY_FT4*, s32);
 void func_800B5C7C(WorldActor*);
 void* WmGetModelDataByModelId(s16);
-s32 WmGetModelTotalRenderPacketSize(FieldModelEntry*);
+s32 WmGetModelTotalRenderPacketSize(FieldModel*);
 void WmLoadPcCharModelFile(s16);
-s32 WmApplyModelLightingToPacket(FieldModelEntry*, u8*);
+s32 WmApplyModelLightingToPacket(FieldModel*, u8*);
 void WmApplyModelLightingById(s16, s16);
 void PlayMusicTrack(s32);
 s32 func_80025658(s32 partySlot);
@@ -587,9 +587,9 @@ extern s32 D_80115A5C;
 extern u8 D_80115A6C[];
 extern s16 D_80116290;
 extern u8 D_8013A800; // model count of the map data file
-extern FieldModelEntry* D_8013A804;
+extern FieldModel* D_8013A804;
 extern u32 D_8014A608;
-extern FieldModelEntry* D_8014A610;
+extern FieldModel* D_8014A610;
 extern s32 D_80116274;
 extern s16 D_80116288;
 extern s16 D_8011628C;

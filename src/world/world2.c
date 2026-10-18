@@ -8,12 +8,12 @@
 s32 WmCreatePacketForModelPart(FieldModelPart*, s32, s32, s32);
 void WmScaleModelVertexes(FieldModelPart* part, s16 scale, s32 force);
 void WmScaleModelAnimations(FieldModelAnimation* animation, s16 scale, s32 force);
-void WmScaleModelAll(FieldModelEntry* model, s16 scale, s32 force);
+void WmScaleModelAll(FieldModel* model, s16 scale, s32 force);
 void WmApplyPolyLightingToPacket(FieldModelPart* part, s16 r, s16 g, s16 b);
 void WmUpdatePartLighting(FieldModelPart* part);
 void WmCalculatePartLighting(FieldModelPart* part, s32 force);
 
-s32 WmLoadModelPacketAndScale(FieldModelEntry* model, s32 packet, s32 arg2) {
+s32 WmLoadModelPacketAndScale(FieldModel* model, s32 packet, s32 arg2) {
     FieldModelPart* parts;
     u32 i;
 
@@ -54,7 +54,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmUpdatePacketForModelPartWithou
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmCalculateBoneMatrixes);
 
-void WmScaleModelAll(FieldModelEntry* model, s16 scale, s32 force) {
+void WmScaleModelAll(FieldModel* model, s16 scale, s32 force) {
     MATRIX* m;
     SVECTOR* tmp;
     VECTOR* out;
@@ -223,7 +223,7 @@ void WmScaleModelAnimations(FieldModelAnimation* animation, s16 scale, s32 force
     *(u32*)animation->data = 1;
 }
 
-s32 WmApplyModelLightingToPacket(FieldModelEntry* model, u8* params) {
+s32 WmApplyModelLightingToPacket(FieldModel* model, u8* params) {
     FieldModelPart* parts;
     u32 i, count;
     s16 r, g, b;
@@ -554,7 +554,7 @@ void WmApplyPolyLightingToPacket(FieldModelPart* part, s16 r, s16 g, s16 b) {
     }
 }
 
-s32 WmCalculateModelLighting(FieldModelEntry* model, u8* params) {
+s32 WmCalculateModelLighting(FieldModel* model, u8* params) {
     MATRIX direction;
     MATRIX* partMatrices;
     FieldModelPart* parts;
@@ -752,7 +752,7 @@ INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmUpdateModelPacket);
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmUpdatePacketForModelPartWithMatrixes);
 
-s32 WmUpdateModelLighting(FieldModelEntry* model, u8* params) {
+s32 WmUpdateModelLighting(FieldModel* model, u8* params) {
     MATRIX direction;
     MATRIX* partMatrices;
     FieldModelPart* parts;
@@ -907,7 +907,7 @@ void WmUpdatePartLighting(FieldModelPart* part) {
     }
 }
 
-s32 WmGetModelTotalRenderPacketSize(FieldModelEntry* model) {
+s32 WmGetModelTotalRenderPacketSize(FieldModel* model) {
     FieldModelPart* part;
     u32 i;
     s32 size;

@@ -266,7 +266,7 @@ typedef struct {
 
 typedef struct {
     /* 0x0 */ u8 count;
-    /* 0x4 */ FieldModelEntry* models;
+    /* 0x4 */ FieldModel* models;
 } HighwayKawaiHeader; // size: 0x8
 
 extern s32 D_800B3BF8;
@@ -506,7 +506,7 @@ extern s32 g_HighwayPadKeys;
 extern s32 g_HighwayNearestEnemy;
 extern s32 g_HighwayNearestEnemyDist;
 extern u8 g_HighwayEnemiesDisabled;
-extern FieldModelEntry* g_HighwayKawaiModels;
+extern FieldModel* g_HighwayKawaiModels;
 extern s32 g_HighwayRidersTrackPos;
 extern SVECTOR* g_HighwayCameraPath;
 extern s32 g_HighwayPadDir;
@@ -614,9 +614,9 @@ extern FieldModelAnimation* g_HighwayKawaiAnim;
 extern u8* g_HighwayKawaiPktCursor;
 extern s32 D_80110A94;
 extern HighwayKawaiHeader* g_HighwayKawai;
-u8* func_800B0698(FieldModelEntry* model, u8* nextFree, s32 modelId);
-void func_800B12B0(FieldModelEntry* model);
-void func_800B1E98(FieldModelEntry* model, MATRIX* matrix, s32 animationId, s32 frame);
-s32 func_800B2E58(FieldModelEntry* model, u8* light);
+u8* func_800B0698(FieldModel* model, u8* nextFree, s32 modelId);
+void func_800B12B0(FieldModel* model);
+void func_800B1E98(FieldModel* model, MATRIX* matrix, s32 animationId, s32 frame);
+s32 func_800B2E58(FieldModel* model, u8* light);
 
 #endif

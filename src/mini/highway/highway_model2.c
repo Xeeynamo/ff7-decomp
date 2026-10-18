@@ -10,7 +10,7 @@ void HighwayModelScaleAnimTranslat(FieldModelAnimation* animation, s16 scale, s3
 void func_800B2F2C(FieldModelPart* part, s16 r, s16 g, s16 b);
 
 // Same as FieldModelScaleModel.
-void HighwayModelScaleModel(FieldModelEntry* model, s16 scale, s32 force) {
+void HighwayModelScaleModel(FieldModel* model, s16 scale, s32 force) {
     MATRIX* scaleMatrix = (MATRIX*)getScratchAddr(0);
     SVECTOR* input = (SVECTOR*)getScratchAddr(8);
     VECTOR* output = (VECTOR*)getScratchAddr(10);
@@ -159,7 +159,7 @@ void HighwayModelScaleAnimTranslat(FieldModelAnimation* animation, s16 scale, s3
 }
 
 // Same as WmApplyModelLightingToPacket, except the scratchpad word is written through getScratchAddr(0x80).
-s32 HighwayApplyModelLightingToPacket(FieldModelEntry* model, u8* light) {
+s32 HighwayApplyModelLightingToPacket(FieldModel* model, u8* light) {
     FieldModelPart* parts;
     u32 i;
     u32 count;

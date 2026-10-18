@@ -1066,7 +1066,7 @@ typedef struct {
     /* 0x01 */ u8 boneCount;       // number of bones
     /* 0x02 */ u8 partCount;       // number of model parts
     /* 0x03 */ u8 animationCount;  // number of animations
-    /* 0x04 */ u8 modelEntryIndex; // index into FieldModelData->modelEntries
+    /* 0x04 */ u8 modelEntryIndex; // index into FieldModelData->models
     /* 0x05 */ u8 npcFlag;         // NPC/model type flag?
     /* 0x06 */ u8 globalModelLoaded;
     /* 0x07 */ s8 globalModelId; // BCX/global model lookup id
@@ -1139,15 +1139,15 @@ typedef struct {
     /* 0x1A */ u16 animationOffset;
     /* 0x1C */ u8* modelData;
     /* 0x20 */ MATRIX* partMatrices; // part matrix data
-} FieldModelEntry;                   // size:0x24
+} FieldModel;                        // size:0x24
 
 typedef struct {
     /* 0x00 */ u8 modelCount;
-    /* 0x01 */ u8 unk1;                       // (initialized to 0)
-    /* 0x02 */ u16 unk2;                      // (initialized to 0)
-    /* 0x04 */ FieldModelEntry* modelEntries; // per-model-file records
-    /* 0x08 */ void* unk8;                    // (initialized to NULL)
-} FieldModelData;                             // size:0xC
+    /* 0x01 */ u8 unk1;            // (initialized to 0)
+    /* 0x02 */ u16 unk2;           // (initialized to 0)
+    /* 0x04 */ FieldModel* models; // per-model-file records
+    /* 0x08 */ void* unk8;         // (initialized to NULL)
+} FieldModelData;                  // size:0xC
 
 typedef struct {
     /* 0x00 */ u8 r;

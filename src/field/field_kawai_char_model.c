@@ -124,25 +124,25 @@ typedef struct {
 #define KAWAI_PART_LEVEL (*(s16*)getScratchAddr(129))
 #define KAWAI_GRADIENT_FLAGS (*getScratchAddr(251))
 
-typedef s32 (*FieldKawaiHandler)(FieldModelEntry* model, u8* params);
+typedef s32 (*FieldKawaiHandler)(FieldModel* model, u8* params);
 
-s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params);
+s32 KawaiSetModelTransparency(FieldModel* model, u8* params);
 void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b);
 void KawaiSetColorToPartPktsBelowLvl(FieldModelPart* part, s32 r, s32 g, s32 b);
 void KawaiSetLightingToPartPkts(FieldModelPart* part, s16* light);
-s32 KawaiSetCustomLightToModelPkts(FieldModelEntry* model, u8* params);
+s32 KawaiSetCustomLightToModelPkts(FieldModel* model, u8* params);
 void KawaiSetVertexColorFromLighting(FieldModelPart* part);
 void KawaiLightingApplyToPolyColor(FieldModelPart* part, s32 force);
-s32 KawaiSetColorToPktsBelowLvl(FieldModelEntry* model, u8* params);
-s32 KawaiSetLightingToModelPkts(FieldModelEntry* model, u8* params);
-s32 KawaiFadeModelColor(FieldModelEntry* model, u8* params);
-s32 KawaiSetCustomLighting(FieldModelEntry* model, u8* params);
-s32 KawaiColorFadeBelowLvl(FieldModelEntry* model, u8* params);
-s32 KawaiSetSplashToPktsBelowLvl(FieldModelEntry* model, u8* params);
-s32 KawaiSetPartAttribute(FieldModelEntry* model, u8* params);
-s32 KawaiDirectionalColorGradient(FieldModelEntry* model, u8* params);
-s32 KawaiApplyBoneTransform(FieldModelEntry* model, u8* params);
-s32 KawaiAnimatedPointLight(FieldModelEntry* model, u8* params);
+s32 KawaiSetColorToPktsBelowLvl(FieldModel* model, u8* params);
+s32 KawaiSetLightingToModelPkts(FieldModel* model, u8* params);
+s32 KawaiFadeModelColor(FieldModel* model, u8* params);
+s32 KawaiSetCustomLighting(FieldModel* model, u8* params);
+s32 KawaiColorFadeBelowLvl(FieldModel* model, u8* params);
+s32 KawaiSetSplashToPktsBelowLvl(FieldModel* model, u8* params);
+s32 KawaiSetPartAttribute(FieldModel* model, u8* params);
+s32 KawaiDirectionalColorGradient(FieldModel* model, u8* params);
+s32 KawaiApplyBoneTransform(FieldModel* model, u8* params);
+s32 KawaiAnimatedPointLight(FieldModel* model, u8* params);
 
 static FieldKawaiHandler kawai_ops_table[14] = {
     KawaiLoadEyesMouthTexToVram, KawaiSetModelTransparency,    KawaiSetColorToModelPkts, KawaiSetCustomLightToModelPkts,
@@ -312,7 +312,7 @@ void KawaiClearData(void) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiExecute);
 
-s32 KawaiSetCustomLightToModelPkts(FieldModelEntry* model, u8* params) {
+s32 KawaiSetCustomLightToModelPkts(FieldModel* model, u8* params) {
     MATRIX direction;
     MATRIX* partMatrices;
     FieldModelPart* parts;
@@ -467,7 +467,7 @@ void KawaiSetVertexColorFromLighting(FieldModelPart* part) {
     }
 }
 
-s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params) {
+s32 KawaiSetColorToModelPkts(FieldModel* model, u8* params) {
     FieldModelPart* parts;
     u32 i, count;
     s16 r, g, b;
@@ -796,7 +796,7 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
     }
 }
 
-s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* model, u8* params) {
+s32 KawaiLoadEyesMouthTexToVram(FieldModel* model, u8* params) {
     RECT rect;
     s32 slot;
     s32 x, y;
@@ -828,7 +828,7 @@ s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* model, u8* params) {
     return 1;
 }
 
-s32 KawaiLightingApplyToModel(FieldModelEntry* model, u8* params) {
+s32 KawaiLightingApplyToModel(FieldModel* model, u8* params) {
     MATRIX direction;
     MATRIX* partMatrices;
     FieldModelPart* parts;
@@ -969,7 +969,7 @@ void KawaiLightingApplyToPolyColor(FieldModelPart* part, s32 force) {
     *(u32*)part->data |= 0x2;
 }
 
-s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params) {
+s32 KawaiSetModelTransparency(FieldModel* model, u8* params) {
     FieldModelPart* parts;
     FieldModelPart* part;
     u8* packets;
@@ -1038,7 +1038,7 @@ s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params) {
     return 1;
 }
 
-s32 KawaiSetColorToPktsBelowLvl(FieldModelEntry* model, u8* params) {
+s32 KawaiSetColorToPktsBelowLvl(FieldModel* model, u8* params) {
     FieldModelPart* parts;
     u32 i;
     u8 count;
@@ -1065,7 +1065,7 @@ s32 KawaiSetColorToPktsBelowLvl(FieldModelEntry* model, u8* params) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetColorToPartPktsBelowLvl);
 
-s32 KawaiFadeModelColor(FieldModelEntry* model, u8* params) {
+s32 KawaiFadeModelColor(FieldModel* model, u8* params) {
     u8* colorParams;
     FieldKawaiColorFade* fade;
     s32 finished;
@@ -1119,7 +1119,7 @@ s32 KawaiFadeModelColor(FieldModelEntry* model, u8* params) {
     return 1;
 }
 
-s32 KawaiSetCustomLighting(FieldModelEntry* model, u8* params) {
+s32 KawaiSetCustomLighting(FieldModel* model, u8* params) {
     u8* lightParams;
     FieldKawaiLighting* lighting = (FieldKawaiLighting*)kawai_work.data[params[1]];
 
@@ -1176,7 +1176,7 @@ s32 KawaiSetCustomLighting(FieldModelEntry* model, u8* params) {
     return 0;
 }
 
-s32 KawaiColorFadeBelowLvl(FieldModelEntry* model, u8* params) {
+s32 KawaiColorFadeBelowLvl(FieldModel* model, u8* params) {
     u8* colorParams;
     s32 finished;
     FieldKawaiColorFadeBelowLvl* fade = (FieldKawaiColorFadeBelowLvl*)kawai_work.data[params[1]];
@@ -1239,7 +1239,7 @@ s32 KawaiColorFadeBelowLvl(FieldModelEntry* model, u8* params) {
     return 1;
 }
 
-s32 KawaiSetLightingToModelPkts(FieldModelEntry* model, u8* params) {
+s32 KawaiSetLightingToModelPkts(FieldModel* model, u8* params) {
     u32 i;
     s16 light[4];
     MATRIX* color;
@@ -1486,7 +1486,7 @@ void KawaiSetLightingToPartPkts(FieldModelPart* part, s16* light) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetSplashToPktsBelowLvl);
 
-void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
+void KawaiInitSplashPkts(FieldModel* model, s32 slot) {
     FieldSplashEntry* entries;
     FieldModelBone* bones;
     u16 clut, tpage;
@@ -1519,7 +1519,7 @@ void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
     }
 }
 
-s32 KawaiSetPartAttribute(FieldModelEntry* model, u8* params) {
+s32 KawaiSetPartAttribute(FieldModel* model, u8* params) {
     s32 count = params[0];
     s32 i;
     s32 partId;

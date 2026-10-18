@@ -6,7 +6,7 @@
 #include <psxsdk/inline_c.h>
 #include "sincos.h"
 
-u8* ChocoboModelSetupParts(FieldModelEntry* model, u8* nextFree, s32 arg2) {
+u8* ChocoboModelSetupParts(FieldModel* model, u8* nextFree, s32 arg2) {
     FieldModelPart* parts;
     u32 i;
 
@@ -71,7 +71,7 @@ void ChocoboScalePartVerts(FieldModelPart* part, s16 scale, s32 force) {
 
 INCLUDE_ASM("asm/us/mini/chocobo/nonmatchings/chocobo_model", func_800AFDBC);
 
-s32 ChocoboModelApplyPartRotation(FieldModelEntry* model, u8* data) {
+s32 ChocoboModelApplyPartRotation(FieldModel* model, u8* data) {
     FieldModelPart* parts;
     u32 i;
     u32 n;
@@ -405,7 +405,7 @@ void func_800B01B0(FieldModelPart* part, s16 r, s16 g, s16 b) {
     }
 }
 
-s32 func_800B0E7C(FieldModelEntry* model, u8* params) {
+s32 func_800B0E7C(FieldModel* model, u8* params) {
     FieldModelPart* parts;
     FieldModelPart* part;
     u8* packets;

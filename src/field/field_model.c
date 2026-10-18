@@ -86,14 +86,14 @@ typedef struct {
 
 extern u8* g_FieldKawaiSplashEntries;
 
-u8* FieldModelCreatePktsAndScale(FieldModelEntry* model, u8* nextFree, s32 modelId);
+u8* FieldModelCreatePktsAndScale(FieldModel* model, u8* nextFree, s32 modelId);
 u8* FieldModelCreatePktsForPart(FieldModelPart* part, u8* nextFree, s32 relocate, s32 modelId);
 void FieldModelLoadBsxTexToVram(FieldBsxTextures* textures);
 void FieldModelBsxTdbModify(void* data);
-void FieldModelScaleModel(FieldModelEntry* model, s16 scale, s32 force);
+void FieldModelScaleModel(FieldModel* model, s16 scale, s32 force);
 void FieldModelScalePartVrtxs(FieldModelPart* part, s16 scale, s32 force);
 void FieldModelScaleAnimTranslat(FieldModelAnimation* animation, s16 scale, s32 force);
-s32 KawaiLightingApplyToModel(FieldModelEntry* model, u8* params);
+s32 KawaiLightingApplyToModel(FieldModel* model, u8* params);
 u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8* nextFree, u32 modelIndex);
 
 u8* LoadLocalFieldModelAndInitAll(
@@ -109,7 +109,7 @@ u8* LoadLocalFieldModelAndInitAll(
     FieldBsxModel* model;
     FieldBsxModel* copyModelSrc;
     FieldBsxModel* copyModelDst;
-    FieldModelEntry* entry;
+    FieldModel* entry;
     u32* src;
     u32* copySrc;
     u32* copyDst;
@@ -172,7 +172,7 @@ u8* LoadLocalFieldModelAndInitAll(
         if (loader[i].npcFlag) {
             j = 0;
             model = &((FieldBsxModel*)(section + 1))[i];
-            entry = &models->modelEntries[loader[i].modelEntryIndex];
+            entry = &models->models[loader[i].modelEntryIndex];
             entry->scale = model->scale;
             src = (u32*)((u8*)model + model->dataOffset);
             count = model->boneCount;
@@ -236,22 +236,22 @@ u8* LoadLocalFieldModelAndInitAll(
         entry = (FieldModelLoaderData*)(i * sizeof(FieldModelLoaderData) + loaderAddress);
         if (entry->npcFlag) {
             modelId = entry->modelEntryIndex;
-            nextFree = FieldModelCreatePktsAndScale(&models->modelEntries[modelId], nextFree, modelId);
-            if (models->modelEntries[modelId].textureFaceId < 33) {
+            nextFree = FieldModelCreatePktsAndScale(&models->models[modelId], nextFree, modelId);
+            if (models->models[modelId].textureFaceId < 33) {
                 setRECT(&rect, 320, 480 + modelId, 16, 1);
                 LoadImage(&rect, (u_long*)((u8*)g_FieldFaceTextureData + g_FieldFaceTextureData->palettesOffset +
-                                           models->modelEntries[modelId].textureFaceId * 32));
+                                           models->models[modelId].textureFaceId * 32));
                 params[0] = 0;
                 params[1] = 0;
                 params[2] = 0;
                 params[3] = modelId;
-                KawaiLoadEyesMouthTexToVram(&models->modelEntries[modelId], params);
+                KawaiLoadEyesMouthTexToVram(&models->models[modelId], params);
             }
             identity.m[0][0] = identity.m[1][1] = identity.m[2][2] = 4096;
             identity.m[0][1] = identity.m[0][2] = identity.m[1][0] = identity.m[1][2] = identity.m[2][0] =
                 identity.m[2][1] = identity.t[0] = identity.t[1] = identity.t[2] = 0;
             *(u32*)getScratchAddr(0) = 1;
-            FieldModelAnimCalcMtrxs(&models->modelEntries[modelId], &identity, 0, 0);
+            FieldModelAnimCalcMtrxs(&models->models[modelId], &identity, 0, 0);
             params[0] = model->ambientR;
             params[1] = model->ambientG;
             params[2] = model->ambientB;
@@ -283,7 +283,7 @@ u8* LoadLocalFieldModelAndInitAll(
             params[28] = model->light3Z;
             params[29] = model->light3Z >> 8;
             params[30] = 0;
-            KawaiLightingApplyToModel(&models->modelEntries[modelId], params);
+            KawaiLightingApplyToModel(&models->models[modelId], params);
             params[0] = 0;
             params[1] = 0;
             params[2] = 0;
@@ -291,7 +291,7 @@ u8* LoadLocalFieldModelAndInitAll(
             params[4] = 0;
             params[5] = 0;
             params[6] = 1;
-            KawaiSetColorToModelPkts(&models->modelEntries[modelId], params);
+            KawaiSetColorToModelPkts(&models->models[modelId], params);
             bufferIndex = &g_FieldPrimitiveBufferIndex;
             *bufferIndex ^= 1;
             params[0] = 0;
@@ -301,7 +301,7 @@ u8* LoadLocalFieldModelAndInitAll(
             params[4] = 0;
             params[5] = 0;
             params[6] = 1;
-            KawaiSetColorToModelPkts(&models->modelEntries[modelId], params);
+            KawaiSetColorToModelPkts(&models->models[modelId], params);
             *bufferIndex ^= 1;
         }
     }
@@ -310,7 +310,7 @@ u8* LoadLocalFieldModelAndInitAll(
     return workspaceEnd;
 }
 
-u8* FieldModelCreatePktsAndScale(FieldModelEntry* model, u8* nextFree, s32 modelId) {
+u8* FieldModelCreatePktsAndScale(FieldModel* model, u8* nextFree, s32 modelId) {
     FieldModelPart* parts;
     u32 i;
 
@@ -627,7 +627,7 @@ void FieldModelBsxTdbModify(void* data) {
 
 u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelData) {
     FieldModelLoaderData* loaders;
-    FieldModelEntry* entry;
+    FieldModel* entry;
     u8* buffer;
     s16 partsOffset;
     u32 i;
@@ -646,15 +646,15 @@ u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelDa
 
     modelData->unk2 = 0;
     modelData->unk1 = 0;
-    modelData->modelEntries = (FieldModelEntry*)(modelData + 1);
+    modelData->models = (FieldModel*)(modelData + 1);
     modelData->unk8 = NULL;
-    buffer += sizeof(FieldModelData) + modelData->modelCount * sizeof(FieldModelEntry);
+    buffer += sizeof(FieldModelData) + modelData->modelCount * sizeof(FieldModel);
     for (i = 0; i < header->modelCount; i++) {
         if (loaders[i].npcFlag) {
             if (loaders[i].globalModelId > 0 && loaders[i].globalModelId < 10 && loaders[i].animationCount < 3) {
                 loaders[i].animationCount = 3;
             }
-            entry = &modelData->modelEntries[loaders[i].modelEntryIndex];
+            entry = &modelData->models[loaders[i].modelEntryIndex];
             entry->flags = 1;
             entry->kawaiType = -1;
             entry->boneCount = loaders[i].boneCount;
@@ -711,8 +711,8 @@ u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8
     u32 count;
     u32 copyCount;
     u32 existingIndex;
-    FieldModelEntry* source;
-    FieldModelEntry* model;
+    FieldModel* source;
+    FieldModel* model;
     u32* sourceBones;
     u32* bones;
     // Used for optimized struct copying.
@@ -761,8 +761,8 @@ u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8
                         loader[i].globalModelLoaded = 1;
                     }
                 }
-                model = &models->modelEntries[loader[modelIndex].modelEntryIndex];
-                source = (FieldModelEntry*)(nextFree + ((FieldBsxFile*)nextFree)->sectionOffset);
+                model = &models->models[loader[modelIndex].modelEntryIndex];
+                source = (FieldModel*)(nextFree + ((FieldBsxFile*)nextFree)->sectionOffset);
                 relocation = (u32)nextFree - 0x80000000;
                 count = source->boneCount;
                 source->modelData = (u8*)(relocation + (u32)source->modelData);
@@ -802,8 +802,8 @@ u8* FieldModelLoadBcx(FieldModelLoaderHeader* header, FieldModelData* models, u8
             }
             for (existingIndex = 0; existingIndex < modelIndex; existingIndex++) {
                 if ((s8)loader[existingIndex].globalModelId == globalModelId) {
-                    model = &models->modelEntries[loader[modelIndex].modelEntryIndex];
-                    source = &models->modelEntries[existingIndex];
+                    model = &models->models[loader[modelIndex].modelEntryIndex];
+                    source = &models->models[existingIndex];
                     bones = (u32*)model->modelData;
                     copyCount = source->boneCount;
                     sourceBones = (u32*)source->modelData;
@@ -847,7 +847,7 @@ INCLUDE_ASM("asm/us/field/nonmatchings/field_model", FieldModelAddToRender);
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_model", FieldModelAnimCalcMtrxs);
 
-void FieldModelScaleModel(FieldModelEntry* model, s16 scale, s32 force) {
+void FieldModelScaleModel(FieldModel* model, s16 scale, s32 force) {
     MATRIX* scaleMatrix = (MATRIX*)getScratchAddr(0);
     SVECTOR* input = (SVECTOR*)getScratchAddr(8);
     VECTOR* output = (VECTOR*)getScratchAddr(10);
