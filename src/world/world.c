@@ -2673,7 +2673,7 @@ static void WmInitActiveEntityStruct(s32 arg0) {
 static void WmSetActiveEntityDirectionAndRot(s16 arg0) {
     if (D_8010AD3C != NULL) {
         D_8010AD3C->direction = arg0;
-        D_8010AD3C->facing = (s16)arg0;
+        D_8010AD3C->facing = arg0;
         D_8010AD3C->unk3E = 0;
     }
 }
@@ -2689,7 +2689,7 @@ static void func_800A94A8(u16 arg0) {
 static void WmSetActiveEntityDirection(s16 arg0) {
     if (D_8010AD3C != NULL) {
         D_8010AD3C->direction = arg0;
-        D_8010AD3C->facing = (s16)arg0;
+        D_8010AD3C->facing = arg0;
     }
 }
 
@@ -2697,7 +2697,7 @@ static void func_800A94F4(s16 arg0) {
     if (D_8010AD3C != NULL) {
         D_8010AD3C->direction = arg0;
         D_8010AD3C->unk3C = arg0;
-        D_8010AD3C->facing = (s16)arg0;
+        D_8010AD3C->facing = arg0;
         D_8010AD3C->unk3E = 0;
     }
 }
@@ -2716,9 +2716,9 @@ void WmMoveActorByDistance(WorldActor* actor, s16 angle) {
     if (angle < 0) {
         target = angle + 0x1000;
     }
-    d0 = actor->unk3C - (s16)target > 0 ? actor->unk3C - target : target - actor->unk3C;
-    d1 = abs(actor->unk3C - (s16)target + 0x1000);
-    d2 = actor->unk3C - (s16)target - 0x1000 > 0 ? actor->unk3C - target - 0x1000 : 0x1000 - (actor->unk3C - target);
+    d0 = actor->unk3C - target > 0 ? actor->unk3C - target : target - actor->unk3C;
+    d1 = abs(actor->unk3C - target + 0x1000);
+    d2 = actor->unk3C - target - 0x1000 > 0 ? actor->unk3C - target - 0x1000 : 0x1000 - (actor->unk3C - target);
     if (d0 > d1) {
         if (d1 > d2) {
             target += 0x1000;
@@ -2729,9 +2729,9 @@ void WmMoveActorByDistance(WorldActor* actor, s16 angle) {
         target += 0x1000;
     }
     if (D_8011650C == 1) {
-        rotation = (u32)(actor->unk3C * 7 + (s16)target) >> 3;
+        rotation = (u32)(actor->unk3C * 7 + target) >> 3;
     } else {
-        rotation = (u32)(actor->unk3C * 3 + (s16)target) >> 2;
+        rotation = (u32)(actor->unk3C * 3 + target) >> 2;
     }
     actor->unk3C = rotation;
     if ((s16)rotation < 0) {

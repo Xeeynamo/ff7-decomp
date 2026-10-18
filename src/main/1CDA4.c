@@ -88,7 +88,7 @@ void SysMenuDrawAvatar(s16 x, s16 y, s16 w, s16 h, u16 tx, u16 ty, u16 tw, u16 t
     g_PolyPtr.ft4->v2 = ty + th;
     g_PolyPtr.ft4->u3 = tx + tw;
     g_PolyPtr.ft4->v3 = ty + th;
-    g_PolyPtr.ft4->clut = GetClut(0x100, (s16)clut + 0x1E0);
+    g_PolyPtr.ft4->clut = GetClut(0x100, clut + 0x1E0);
     g_PolyPtr.ft4->tpage = GetTPage(1, 0, 0x3C0, 0x100);
     AddPrim(g_CurrentOT, g_PolyPtr.ft4);
     g_PolyPtr.ft4++;
@@ -116,7 +116,7 @@ void SysMenuDrawAvatar2(s16 x, s16 y, s16 w, s16 h, u16 tx, u16 ty, u16 tw, u16 
     g_PolyPtr.ft4->v2 = ty + th;
     g_PolyPtr.ft4->u3 = tx + tw;
     g_PolyPtr.ft4->v3 = ty + th;
-    g_PolyPtr.ft4->clut = GetClut(0x180, (s16)clut);
+    g_PolyPtr.ft4->clut = GetClut(0x180, clut);
     g_PolyPtr.ft4->tpage = GetTPage(1, 0, 0x340, 0x100);
     AddPrim(g_CurrentOT, g_PolyPtr.ft4);
     g_PolyPtr.ft4++;

@@ -3257,7 +3257,7 @@ s32 func_800C2F20(s32 number, s16* digits) {
 
     for (; i < 4; i++) {
         digitIndex = 3 - i;
-        previous = (s16)value;
+        previous = value;
         quotient = previous / 10;
         value = quotient;
         digits[digitIndex] = (previous - quotient * 10) * 8 + 0x98;
