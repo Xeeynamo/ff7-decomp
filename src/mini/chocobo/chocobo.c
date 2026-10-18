@@ -48,7 +48,7 @@ void MINI_Chocobo(void) {
     s32* flags;
     Chocobo* model;
     POLY_F4* tile;
-    ChocoboModels* models;
+    FieldModelData* models;
     s32 i;
     s32 j;
     s32 k;
@@ -141,9 +141,9 @@ void MINI_Chocobo(void) {
             pos2 = model->unk80;
             dir = model->unk72;
             *(u_long*)getScratchAddr(0) = mode;
-            func_800AF11C(&modelTable->unk0->models[model->unk90], &D_800B7544, pos2, dir >> 8);
+            func_800AF11C(&modelTable->unk0->modelEntries[model->unk90], &D_800B7544, pos2, dir >> 8);
             *(u_long*)getScratchAddr(0) = mode;
-            func_800AF11C(&modelTable->unk0->models[model->unk92], &D_800B7544, pos2, dir >> 8);
+            func_800AF11C(&modelTable->unk0->modelEntries[model->unk92], &D_800B7544, pos2, dir >> 8);
         }
         for (i = 0; i < NUM_CHOCOBO; i++) {
             if (!D_800B7564[i]) {
@@ -153,9 +153,9 @@ void MINI_Chocobo(void) {
             count = D_800F5078.count;
             next = count + 1;
             D_800F5078.count = next;
-            D_800F50A0[count] = &(models = D_800B1254.unk0)->models[model->unk90];
+            D_800F50A0[count] = &(models = D_800B1254.unk0)->modelEntries[model->unk90];
             D_800F5078.count = count + 2;
-            D_800F50A0[next] = &models->models[model->unk92];
+            D_800F50A0[next] = &models->modelEntries[model->unk92];
         }
         for (i = 0; i < D_800F5078.count; i++) {
             func_800AE534(D_800F50A0[i]);
@@ -289,7 +289,7 @@ static void ChocoboDrawTrackProps(void) {
 
 static void ChocoboDrawTrackPropRange(s32 start, s32 end) {
     ChocoboTrackNode* prop;
-    ChocoboModel* model;
+    FieldModelEntry* model;
     u16* anim;
     s32 flag;
     s32 i;
@@ -307,22 +307,22 @@ static void ChocoboDrawTrackPropRange(s32 start, s32 end) {
         id = prop->model;
         gte_ldv0(prop);
         gte_rtps();
-        model = &table->unk0->models[id];
-        anim = (u16*)(model->animOffset + model->data);
+        model = &table->unk0->modelEntries[id];
+        anim = (u16*)(model->animationOffset + model->modelData);
         gte_stflg(&flag);
         if (flag < 0) {
             continue;
         }
-        model->x = prop->x;
-        model->y = prop->y;
-        model->z = prop->z;
-        model->r = prop->r;
-        model->g = prop->g;
-        model->b = prop->b;
+        model->translationX = prop->x;
+        model->translationY = prop->y;
+        model->translationZ = prop->z;
+        model->rotationX = prop->r;
+        model->rotationY = prop->g;
+        model->rotationZ = prop->b;
         PushMatrix();
         *(u_long*)getScratchAddr(0) = 3;
-        func_800AF11C(&table->unk0->models[id], &D_800B7544, 0, prop->frame);
-        D_800F50A0[D_800F5078.count++] = &table->unk0->models[id];
+        func_800AF11C(&table->unk0->modelEntries[id], &D_800B7544, 0, prop->frame);
+        D_800F50A0[D_800F5078.count++] = &table->unk0->modelEntries[id];
         PopMatrix();
         prop->frame += prop->step;
         if (prop->frame >= *anim) {
@@ -340,15 +340,15 @@ static void ChocoboDrawTrackPropRange(s32 start, s32 end) {
 
 void ChocoboResetRacerColors(void) {
     Unk800B1254* table;
-    ChocoboModel* model;
+    FieldModelEntry* model;
     Chocobo* chocobo;
     s32 i;
 
     for (i = 0, table = &D_800B1254; i < NUM_CHOCOBO; i++) {
         chocobo = &D_800B75CC[i];
-        model = &table->unk0->models[chocobo->unk92];
-        table->unk0->models[chocobo->unk90].r = model->r = 0xC0;
-        table->unk0->models[chocobo->unk90].g = model->g = 0;
-        table->unk0->models[chocobo->unk90].b = model->b = 0x80;
+        model = &table->unk0->modelEntries[chocobo->unk92];
+        table->unk0->modelEntries[chocobo->unk90].rotationX = model->rotationX = 0xC0;
+        table->unk0->modelEntries[chocobo->unk90].rotationY = model->rotationY = 0;
+        table->unk0->modelEntries[chocobo->unk90].rotationZ = model->rotationZ = 0x80;
     }
 }

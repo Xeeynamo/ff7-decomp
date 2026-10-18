@@ -1,5 +1,6 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "world.h"
+#include <gte.h>
 #include <libetc.h>
 #include <psxsdk/gtemac.h>
 #include <psxsdk/inline_c.h>
@@ -8,7 +9,7 @@ s32 WmCreatePacketForModelPart(FieldModelPart*, s32, s32, s32);
 void WmScaleModelVertexes(FieldModelPart* part, s16 scale, s32 force);
 void WmScaleModelAnimations(FieldModelAnimation* animation, s16 scale, s32 force);
 void WmScaleModelAll(FieldModelEntry* model, s16 scale, s32 force);
-void WmApplyPolyLightingToPacket(FieldModelPart*, s32, s32, s32);
+void WmApplyPolyLightingToPacket(FieldModelPart* part, s16 r, s16 g, s16 b);
 void WmUpdatePartLighting(FieldModelPart* part);
 void WmCalculatePartLighting(FieldModelPart* part, s32 force);
 
@@ -239,7 +240,319 @@ s32 WmApplyModelLightingToPacket(FieldModelEntry* model, u8* params) {
     return 1;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world2", WmApplyPolyLightingToPacket);
+void WmApplyPolyLightingToPacket(FieldModelPart* part, s16 r, s16 g, s16 b) {
+    u8* packets;
+    u8* polygons;
+    u32 counts;
+    u32 count;
+    u32 i;
+    u8 code;
+    s32 rOffset, gOffset, bOffset;
+
+    packets = part->packets;
+    polygons = part->data + part->polygonsOffset;
+    if (D_800C752C) {
+        packets += part->packetBufferSize;
+    }
+    gte_lddp(16);
+    rOffset = r << 4;
+    gOffset = g << 4;
+    bOffset = b << 4;
+
+    if (*(s32*)getScratchAddr(128) & 1) {
+        counts = *(u32*)&part->polyGT4Count;
+        count = counts & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), polygons += sizeof(FieldModelPolyGT4)) {
+            POLY_GT4* polyGT4 = (POLY_GT4*)packets;
+            FieldModelPolyGT4* source = (FieldModelPolyGT4*)polygons;
+            code = getcode(polyGT4);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[0]);
+            gte_gpl0();
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[1]);
+            gte_gpl0();
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[2]);
+            gte_gpl0();
+            gte_stRGB0(&polyGT4->r0);
+            gte_stRGB1(&polyGT4->r1);
+            gte_strgb(&polyGT4->r2);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[3]);
+            gte_gpl0();
+            gte_strgb(&polyGT4->r3);
+            setcode(polyGT4, code);
+        }
+
+        count = (counts & 0xFF00) >> 8;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), polygons += sizeof(FieldModelPolyGT3)) {
+            POLY_GT3* polyGT3 = (POLY_GT3*)packets;
+            FieldModelPolyGT3* source = (FieldModelPolyGT3*)polygons;
+            code = getcode(polyGT3);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[0]);
+            gte_gpl0();
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[1]);
+            gte_gpl0();
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[2]);
+            gte_gpl0();
+            gte_stRGB0(&polyGT3->r0);
+            gte_stRGB1(&polyGT3->r1);
+            gte_strgb(&polyGT3->r2);
+            setcode(polyGT3, code);
+        }
+
+        count = (counts >> 16) & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT4), polygons += sizeof(FieldModelPolyFT4)) {
+            POLY_FT4* polyFT4 = (POLY_FT4*)packets;
+            FieldModelPolyFT4* source = (FieldModelPolyFT4*)polygons;
+            code = getcode(polyFT4);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->color);
+            gte_gpl0();
+            gte_strgb(&polyFT4->r0);
+            setcode(polyFT4, code);
+        }
+
+        count = counts >> 24;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT3), polygons += sizeof(FieldModelPolyFT3)) {
+            POLY_FT3* polyFT3 = (POLY_FT3*)packets;
+            FieldModelPolyFT3* source = (FieldModelPolyFT3*)polygons;
+            code = getcode(polyFT3);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->color);
+            gte_gpl0();
+            gte_strgb(&polyFT3->r0);
+            setcode(polyFT3, code);
+        }
+
+        counts = *(u32*)&part->polyF3Count;
+        count = counts & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F3), polygons += sizeof(FieldModelPolyF3)) {
+            POLY_F3* polyF3 = (POLY_F3*)packets;
+            FieldModelPolyF3* source = (FieldModelPolyF3*)polygons;
+            code = getcode(polyF3);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->color);
+            gte_gpl0();
+            gte_strgb(&polyF3->r0);
+            setcode(polyF3, code);
+        }
+
+        count = (counts & 0xFF00) >> 8;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F4), polygons += sizeof(FieldModelPolyF4)) {
+            POLY_F4* polyF4 = (POLY_F4*)packets;
+            FieldModelPolyF4* source = (FieldModelPolyF4*)polygons;
+            code = getcode(polyF4);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->color);
+            gte_gpl0();
+            gte_strgb(&polyF4->r0);
+            setcode(polyF4, code);
+        }
+
+        count = (counts >> 16) & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G3), polygons += sizeof(FieldModelPolyG3)) {
+            POLY_G3* polyG3 = (POLY_G3*)packets;
+            FieldModelPolyG3* source = (FieldModelPolyG3*)polygons;
+            code = getcode(polyG3);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[0]);
+            gte_gpl0();
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[1]);
+            gte_gpl0();
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[2]);
+            gte_gpl0();
+            gte_stRGB0(&polyG3->r0);
+            gte_stRGB1(&polyG3->r1);
+            gte_strgb(&polyG3->r2);
+            setcode(polyG3, code);
+        }
+
+        count = counts >> 24;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G4), polygons += sizeof(FieldModelPolyG4)) {
+            POLY_G4* polyG4 = (POLY_G4*)packets;
+            FieldModelPolyG4* source = (FieldModelPolyG4*)polygons;
+            code = getcode(polyG4);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[0]);
+            gte_gpl0();
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[1]);
+            gte_gpl0();
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[2]);
+            gte_gpl0();
+            gte_stRGB0(&polyG4->r0);
+            gte_stRGB1(&polyG4->r1);
+            gte_strgb(&polyG4->r2);
+            gte_LoadMAC(rOffset, gOffset, bOffset);
+            gte_ldcv(&source->colors[3]);
+            gte_gpl0();
+            gte_strgb(&polyG4->r3);
+            setcode(polyG4, code);
+        }
+    } else {
+        counts = *(u32*)&part->polyGT4Count;
+        count = counts & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), polygons += sizeof(FieldModelPolyGT4)) {
+            POLY_GT4* polyGT4 = (POLY_GT4*)packets;
+            FieldModelPolyGT4* source = (FieldModelPolyGT4*)polygons;
+            if (polyGT4->tag << 8) {
+                code = getcode(polyGT4);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[0]);
+                gte_gpl0();
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[1]);
+                gte_gpl0();
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[2]);
+                gte_gpl0();
+                gte_stRGB0(&polyGT4->r0);
+                gte_stRGB1(&polyGT4->r1);
+                gte_strgb(&polyGT4->r2);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[3]);
+                gte_gpl0();
+                gte_strgb(&polyGT4->r3);
+                setcode(polyGT4, code);
+            }
+        }
+
+        count = (counts & 0xFF00) >> 8;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), polygons += sizeof(FieldModelPolyGT3)) {
+            POLY_GT3* polyGT3 = (POLY_GT3*)packets;
+            FieldModelPolyGT3* source = (FieldModelPolyGT3*)polygons;
+            if (polyGT3->tag << 8) {
+                code = getcode(polyGT3);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[0]);
+                gte_gpl0();
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[1]);
+                gte_gpl0();
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[2]);
+                gte_gpl0();
+                gte_stRGB0(&polyGT3->r0);
+                gte_stRGB1(&polyGT3->r1);
+                gte_strgb(&polyGT3->r2);
+                setcode(polyGT3, code);
+            }
+        }
+
+        count = (counts >> 16) & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT4), polygons += sizeof(FieldModelPolyFT4)) {
+            POLY_FT4* polyFT4 = (POLY_FT4*)packets;
+            FieldModelPolyFT4* source = (FieldModelPolyFT4*)polygons;
+            if (polyFT4->tag << 8) {
+                code = getcode(polyFT4);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->color);
+                gte_gpl0();
+                gte_strgb(&polyFT4->r0);
+                setcode(polyFT4, code);
+            }
+        }
+
+        count = counts >> 24;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT3), polygons += sizeof(FieldModelPolyFT3)) {
+            POLY_FT3* polyFT3 = (POLY_FT3*)packets;
+            FieldModelPolyFT3* source = (FieldModelPolyFT3*)polygons;
+            if (polyFT3->tag << 8) {
+                code = getcode(polyFT3);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->color);
+                gte_gpl0();
+                gte_strgb(&polyFT3->r0);
+                setcode(polyFT3, code);
+            }
+        }
+
+        counts = *(u32*)&part->polyF3Count;
+        count = counts & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F3), polygons += sizeof(FieldModelPolyF3)) {
+            POLY_F3* polyF3 = (POLY_F3*)packets;
+            FieldModelPolyF3* source = (FieldModelPolyF3*)polygons;
+            if (polyF3->tag << 8) {
+                code = getcode(polyF3);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->color);
+                gte_gpl0();
+                gte_strgb(&polyF3->r0);
+                setcode(polyF3, code);
+            }
+        }
+
+        count = (counts & 0xFF00) >> 8;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F4), polygons += sizeof(FieldModelPolyF4)) {
+            POLY_F4* polyF4 = (POLY_F4*)packets;
+            FieldModelPolyF4* source = (FieldModelPolyF4*)polygons;
+            if (polyF4->tag << 8) {
+                code = getcode(polyF4);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->color);
+                gte_gpl0();
+                gte_strgb(&polyF4->r0);
+                setcode(polyF4, code);
+            }
+        }
+
+        count = (counts >> 16) & 0xFF;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G3), polygons += sizeof(FieldModelPolyG3)) {
+            POLY_G3* polyG3 = (POLY_G3*)packets;
+            FieldModelPolyG3* source = (FieldModelPolyG3*)polygons;
+            if (polyG3->tag << 8) {
+                code = getcode(polyG3);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[0]);
+                gte_gpl0();
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[1]);
+                gte_gpl0();
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[2]);
+                gte_gpl0();
+                gte_stRGB0(&polyG3->r0);
+                gte_stRGB1(&polyG3->r1);
+                gte_strgb(&polyG3->r2);
+                setcode(polyG3, code);
+            }
+        }
+
+        count = counts >> 24;
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G4), polygons += sizeof(FieldModelPolyG4)) {
+            POLY_G4* polyG4 = (POLY_G4*)packets;
+            FieldModelPolyG4* source = (FieldModelPolyG4*)polygons;
+            if (polyG4->tag << 8) {
+                code = getcode(polyG4);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[0]);
+                gte_gpl0();
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[1]);
+                gte_gpl0();
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[2]);
+                gte_gpl0();
+                gte_stRGB0(&polyG4->r0);
+                gte_stRGB1(&polyG4->r1);
+                gte_strgb(&polyG4->r2);
+                gte_LoadMAC(rOffset, gOffset, bOffset);
+                gte_ldcv(&source->colors[3]);
+                gte_gpl0();
+                gte_strgb(&polyG4->r3);
+                setcode(polyG4, code);
+            }
+        }
+    }
+}
 
 s32 WmCalculateModelLighting(FieldModelEntry* model, u8* params) {
     MATRIX direction;

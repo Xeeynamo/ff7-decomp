@@ -1126,9 +1126,9 @@ typedef struct {
     /* 0x02 */ u8 boneCount;
     /* 0x03 */ u8 partCount;
     /* 0x04 */ u8 animationCount;
-    /* 0x05 */ s8 rotationX;
-    /* 0x06 */ s8 rotationY;
-    /* 0x07 */ s8 rotationZ;
+    /* 0x05 */ u8 rotationX;
+    /* 0x06 */ u8 rotationY;
+    /* 0x07 */ u8 rotationZ;
     /* 0x08 */ s32 translationX;
     /* 0x0C */ s32 translationY;
     /* 0x10 */ s32 translationZ;
