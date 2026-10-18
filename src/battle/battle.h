@@ -329,7 +329,7 @@ typedef struct {
     /* 0x15A */ u16 downedActors;
     /* 0x15C */ u16 unk15C;
     /* 0x15E */ u16 flags;
-    /* 0x160 */ u16 isMultiBattle;
+    /* 0x160 */ u16 isMultiBattle;           // This is actually a counter for consecutive battles (battle square?)
     /* 0x162 */ u16 unitZoneMask[NUM_ZONES]; // set by BattleInitFormation; [1] is the middle in pincer/side attacks
     /* 0x168 */ u8 caitSithRolls[4];         // Dice: packed die values, 2 per byte; Slots: the 3 landed reel symbols
     /* 0x16C */ u8 unk16C[7];
