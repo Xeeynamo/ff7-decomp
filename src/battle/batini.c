@@ -1,8 +1,6 @@
 #include "battle.h"
 #include "unzip.h"
 
-#define BATTLE_TEXT_OFFSET_ENTRY 0x7E
-
 static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void));
 static void BattleInitEnemyAI(void);
 static void BattleInitPartyFromSavemap(void);
@@ -734,7 +732,15 @@ static void BattleInitCharStats(ActiveCharacterData* character, BattlePartyWork*
     }
 }
 
-const u8 D_801B003C[] = {0xFF, 0x32, 0x33, 0x34, 0x35, 0xFF, 0x48, 0x07};
+const u8 D_801B003C[] = {
+    0xFF,
+    BATTLE_TEXT_PREEMPTIVE_ATTACK,
+    BATTLE_TEXT_BACK_ATTACK,
+    BATTLE_TEXT_SIDE_ATTACK,
+    BATTLE_TEXT_PINCER_ATTACK,
+    0xFF,
+    0x48,
+    0x07};
 void BattleQueueIntroCamera(s32);
 
 // Lays out the two sides for the opening of the battle. D_801B003C picks the

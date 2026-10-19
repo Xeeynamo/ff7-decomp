@@ -229,7 +229,7 @@ void BattleCheckAllLucky7s(void) {
 void BattleAttemptStealFromEnemy(void) {
     s32 targetId = g_CurrentAction->targetId;
     u16 itemId = 0;
-    s32 textId = 0x31; // "Nothing to steal."
+    s32 textId = BATTLE_TEXT_NOTHING_TO_STEAL;
 
     if (g_CurrentAction->targetEnemyId != -1) {
         SceneEnemy* enemy = &g_BattleWork.enemy[g_CurrentAction->targetEnemyId];
@@ -241,10 +241,10 @@ void BattleAttemptStealFromEnemy(void) {
             }
             itemId = BattleGetRndItemIdForSteal(enemy, 0x80, 0, levelDiff * 512 / 100);
             if (itemId == 0xFFFF) {
-                textId = 0x30; // "Couldn't steal anything"
+                textId = BATTLE_TEXT_STEAL_FAILED;
             } else {
                 BattleQueueEvent(0, g_CurrentAction->actorId, 3, itemId);
-                textId = 0x2F; // "Stole {item}!"
+                textId = BATTLE_TEXT_STOLE_ITEM;
                 g_BattleWork.turn[targetId].turnFlags |= 1;
             }
         }
@@ -782,7 +782,7 @@ void func_800A3ED0(void) {
     // Shows the battle banner when an error code is active
     if (errorCode >= 0x100) {
         u16 msgArgs[2];
-        s32 textId = D_80062F60++ / 32 % 3 + 0x6E;
+        s32 textId = D_80062F60++ / 32 % 3 + BATTLE_TEXT_DATA_ERROR_START;
         s32 strId;
 
         msgArgs[0] = D_80062F54;
@@ -814,7 +814,7 @@ void func_800A3ED0(void) {
             }
             g_BattleWork.escapeCounter2 = g_BattleWork.escapeCounter1;
         } else {
-            BattleBannerSetEncounterString(0x36); // "Can't escape!"
+            BattleBannerSetEncounterString(BATTLE_TEXT_CANNOT_ESCAPE);
         }
     }
 
@@ -2058,7 +2058,9 @@ void func_800A6BFC(void) {}
 
 void BattleSetLimitBreakStringToDisplay(s32 arg0) {
     s16 msgArgs = (s16)g_BattleData.actors[arg0].charId;
-    g_BattleWork.lucky7777StringID = BattleAddMessageToStringBuffer(SysGetKernBattleTextPtr(0x26), &msgArgs) + 0x100;
+    u8* text = SysGetKernBattleTextPtr(BATTLE_TEXT_LIMIT_BREAK);
+
+    g_BattleWork.lucky7777StringID = BattleAddMessageToStringBuffer(text, &msgArgs) + 0x100;
     g_BattleWork.lucky7777ActionParam = 0xF;
 }
 
@@ -2111,7 +2113,7 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRemovePlayersFromBattle);
 
 void BattleSetItemWasStolenStringToDisplay(s32 arg0, s16 arg1) {
     s16 out = arg1;
-    BattleAddStringToDisplay(arg0, 0x53, 1, &out);
+    BattleAddStringToDisplay(arg0, BATTLE_TEXT_ITEM_STOLEN, 1, &out);
 }
 
 void func_800A7060(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 12, arg1); }
@@ -2468,8 +2470,7 @@ void BattleActionType16(void) {
     }
 
     if (!targetMask) {
-        // "Couldn't sense."
-        BattleAddStringToDisplay(g_CurrentAction->actorId, 0x76, msgDelay, msgArgs);
+        BattleAddStringToDisplay(g_CurrentAction->actorId, BATTLE_TEXT_SENSE_FAILED, msgDelay, msgArgs);
         return;
     }
 
@@ -2534,8 +2535,7 @@ void BattleActionType16(void) {
         }
         msgArgs[2] = g_BattleState.combatant[i].level;
 
-        // "{name}{enemy letter}  Level:{level}"
-        BattleAddStringToDisplay(g_CurrentAction->actorId, 0x74, msgDelay, msgArgs);
+        BattleAddStringToDisplay(g_CurrentAction->actorId, BATTLE_TEXT_SENSE_NAME_LEVEL, msgDelay, msgArgs);
 
         // Initial message plays a sfx but the value here is really an on/off switch; the real
         // value is truncated along the way and hardcoded in func_800C5CC0 during the render loop
@@ -2546,21 +2546,19 @@ void BattleActionType16(void) {
         msgArgs[2] = g_BattleState.combatant[i].curMP;
         msgArgs[3] = g_BattleState.combatant[i].maxMP;
 
-        msgId = 0x72;
+        msgId = BATTLE_TEXT_SENSE_HP;
         if (g_BattleState.combatant[i].maxMP) {
-            msgId = 0x75;
+            msgId = BATTLE_TEXT_SENSE_HP_MP;
         }
 
-        // "HP:{cur}/{max}", plus "  MP:{cur}/{max}" when the target has MP
         BattleAddStringToDisplay(g_CurrentAction->actorId, msgId, 1, msgArgs);
         BattleSetLastMsgTimeAndSfx(msgTime, 0);
 
         for (j = 0; j < 16; j++) {
             if ((weakElemMasks[i] >> j) & 1) {
-                msgArgs[0] = j + 0x5D;
+                msgArgs[0] = BATTLE_TEXT_ELEMENT_NAMES_START + j;
 
-                // "Weak against {element}.", where msgArgs[0] is the name of element
-                BattleAddStringToDisplay(g_CurrentAction->actorId, 0x6D, 1, msgArgs);
+                BattleAddStringToDisplay(g_CurrentAction->actorId, BATTLE_TEXT_WEAK_AGAINST_ELEMENT, 1, msgArgs);
                 BattleSetLastMsgTimeAndSfx(msgTime, 0);
             }
         }
@@ -2951,7 +2949,7 @@ static void BattleLearnEnemySkill(void) {
         if (!(g_CurrentAction->partyWork->enemySkillMateriaData & bit)) {
             g_CurrentAction->partyWork->enemySkillMateriaData |= bit;
             id = (u16)g_CurrentAction->absoluteActionIndex;
-            BattleAddStringToDisplay(g_CurrentAction->targetId, 0x73, 1, &id);
+            BattleAddStringToDisplay(g_CurrentAction->targetId, BATTLE_TEXT_LEARNED_ENEMY_SKILL, 1, &id);
             BattleQueueEvent(2, g_CurrentAction->targetId, 0x12, id);
             g_CurrentAction->hurtAnimScript = 0xA;
         }
@@ -3492,7 +3490,9 @@ s32 func_800ACB98(void) {
             if (g_BattleState.combatant[g_CurrentAction->actorId].curMP >= g_CurrentAction->unk38) {
                 g_BattleState.combatant[g_CurrentAction->actorId].curMP -= g_CurrentAction->unk38;
             } else {
-                msg = (g_CurrentAction->actorId < NUM_PARTY) ? 0x5B : 0x5C;
+                msg = (g_CurrentAction->actorId < NUM_PARTY)
+                          ? BATTLE_TEXT_NOT_ENOUGH_MP
+                          : BATTLE_TEXT_SKILL_POWER_USED_UP;
                 func_800ACA4C(msg);
                 result = 1;
             }
@@ -4411,7 +4411,7 @@ void BattlePostAddDeath(s32 arg0, s32 arg1, s32 arg2) {
             s16 strArg = unk50;
             g_BattleState.combatant[arg0].unk50 = 0;
             Savemap.gil += unk50;
-            BattleAddStringToDisplay(0xA, 0x54, 1, &strArg);
+            BattleAddStringToDisplay(0xA, BATTLE_TEXT_RECEIVED_GIL, 1, &strArg);
         }
 
         // This is probably stolen items being returned on kill
@@ -4420,7 +4420,7 @@ void BattlePostAddDeath(s32 arg0, s32 arg1, s32 arg2) {
             s16 strArg = unk52;
             g_BattleState.combatant[arg0].unk52 = 0xFFFF;
             BattleQueueEvent(0, g_CurrentAction->actorId, 3, unk52);
-            BattleAddStringToDisplay(0xA, 0x52, 1, &strArg);
+            BattleAddStringToDisplay(0xA, BATTLE_TEXT_RECEIVED_ITEM, 1, &strArg);
         }
     }
 
