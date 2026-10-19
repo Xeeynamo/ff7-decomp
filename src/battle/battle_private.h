@@ -425,11 +425,18 @@ typedef struct {
 } ShortVectorXYZ;
 
 typedef struct {
+    /* 0x00 */ ShortVectorXYZ position;
+    /* 0x06 */ u16 unknown[3];
+} BattleCameraPosition; // size:0xC
+
+typedef struct {
     /* 0x00 */ s32 D_80151200;
     /* 0x04 */ u16 values4[4];
     /* 0x0C */ s16 D_8015120C;
-    /* 0x0E */ u16 valuesE[6];
-    /* 0x1A */ u16 values1A[6];
+    /* 0x0E */ union {
+        u16 values[2][6];
+        BattleCameraPosition points[2];
+    } cameraPositions;
     /* 0x26 */ u16 height;
     /* 0x28 */ u16 unk28;
     /* 0x2A */ u16 unk2A;
@@ -718,11 +725,19 @@ typedef struct {
     /* 0x0A */ s16 unkA;
     /* 0x0C */ s16 unkC;
     /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
+    /* 0x10 */ union {
+        struct {
+            s16 value;
+            s16 category;
+        } fields;
+        s32 word;
+    } unk10;
     /* 0x14 */ s16 unk14;
     /* 0x16 */ s16 unk16;
-    /* 0x18 */ s16 unk18;
+    /* 0x18 */ union {
+        s16 half;
+        u8 byte;
+    } unk18;
     /* 0x1A */ s16 unk1A;
     /* 0x1C */ s16 unk1C;
     /* 0x1E */ s16 unk1E;
@@ -916,7 +931,7 @@ extern s8 D_80166F58;
 extern u16 g_BattleScreenFadeB;
 extern u16 g_BattleScreenFadeG;
 extern s8 D_80166F64;
-extern u8 D_80166F68;
+extern u8 D_80166F68[];
 extern u16 g_BattleScreenFadeR;
 
 void func_800A2DB0(void);
@@ -1002,7 +1017,7 @@ static void func_800BA40C();
 static void func_800BB030(s16 arg0);
 void func_800BB2A8(u8);
 void BattlePlayMenuSound(u16 soundId);
-void func_800BBA84(u16 sound, s16 actor, s32 pan);
+void func_800BBA84(s32 sound, s16 actor, s32 pan);
 static void func_800C1908(u8 arg0);
 void BattleSelectPlayerModelFiles(void);
 void AkaoDispatchCommand(void*);
