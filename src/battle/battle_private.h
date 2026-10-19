@@ -1,3 +1,6 @@
+#ifndef BATTLE_PRIVATE_H
+#define BATTLE_PRIVATE_H
+
 // should be imported only by the BATTLE overlay, not BATINI or similar
 #include "battle.h"
 #include "../magic/magic.h"
@@ -1230,3 +1233,5 @@ extern s16 D_800F4B0C[4];
 extern BattleBannerMessage D_800F9DA8[64];
 extern MATRIX D_800E7D30;
 extern SVECTOR D_800EA1C8[4];
+
+#endif

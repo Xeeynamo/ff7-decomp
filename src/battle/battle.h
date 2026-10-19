@@ -1,3 +1,6 @@
+#ifndef BATTLE_H
+#define BATTLE_H
+
 #include <game.h>
 
 #define EFFECT_MODEL_SLOT (NUM_PARTY) // holds the model an effect overlay supplies
@@ -826,3 +829,5 @@ void BattleInitUnitAction(s32 index);
 void BattleEnableLimitToPlayerWithSpeed(s32 index);
 s32 BattleCopyMessageWithArgs(u8* dst, const u8* src, const u16* args);
 s8* BattleGetStringPtrFromStringBuffer(s32 arg0);
+
+#endif
