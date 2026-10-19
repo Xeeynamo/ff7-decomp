@@ -5,10 +5,10 @@
 #include <psxsdk/inline_c.h>
 
 u8* HighwayModelCreatePktsForPart(FieldModelPart* part, u8* nextFree, s32 relocate, s32 modelId);
-void HighwayModelScaleModel(FieldModelEntry* model, s16 scale, s32 force);
+void HighwayModelScaleModel(FieldModel* model, s16 scale, s32 force);
 
 // Same as FieldModelCreatePktsAndScale.
-u8* HighwayModelCreatePktsAndScale(FieldModelEntry* model, u8* nextFree, s32 modelId) {
+u8* HighwayModelCreatePktsAndScale(FieldModel* model, u8* nextFree, s32 modelId) {
     FieldModelPart* parts;
     u32 i;
 

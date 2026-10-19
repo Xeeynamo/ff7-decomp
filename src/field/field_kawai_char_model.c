@@ -2,17 +2,9 @@
 #include <game.h>
 #include <libetc.h>
 #include <psxsdk/inline_c.h>
+#include <psxsdk/gtemac.h>
 #include <gte.h>
 #include "field_private.h"
-
-#define KAWAI_READ_S16(params, offset) ((s16)((((params)[(offset) + 1] << 8) & 0xFF00) | ((params)[(offset)] & 0xFF)))
-#define KAWAI_READ_S32(params, offset)                                                                                 \
-    ((s32)((((params)[(offset) + 3] << 24) & 0xFF000000) | (((params)[(offset) + 2] << 16) & 0xFF0000) |               \
-           (((params)[(offset) + 1] << 8) & 0xFF00) | ((params)[(offset)] & 0xFF)))
-#define KAWAI_WRITE_S16(params, offset, value) ((params)[(offset)] = (value), (params)[(offset) + 1] = (value) >> 8)
-#define KAWAI_WRITE_S32(params, offset, value)                                                                         \
-    ((params)[(offset)] = (value), (params)[(offset) + 1] = (value) >> 8, (params)[(offset) + 2] = (value) >> 16,      \
-     (params)[(offset) + 3] = (value) >> 24)
 
 typedef struct {
     /* 0x00 */ u8 modelCount;
@@ -128,84 +120,29 @@ typedef struct {
 // Thirty slots of scratch per model, pointed at by g_FieldKawaiSplashEntries.
 #define FIELD_SPLASH_SLOTS 30
 
-typedef struct {
-    /* 0x00 */ u8 r;
-    /* 0x01 */ u8 g;
-    /* 0x02 */ u8 b;
-    /* 0x03 */ u8 normalIndex;
-} FieldModelColor; // size:0x04
-
-typedef struct {
-    /* 0x00 */ u8 vertexIndices[4];
-    /* 0x04 */ FieldModelColor colors[4];
-    /* 0x14 */ u8 texCoordIndices[4];
-} FieldModelPolyGT4; // size:0x18
-
-typedef struct {
-    /* 0x00 */ u8 vertexIndices[3];
-    /* 0x03 */ u8 pad1;
-    /* 0x04 */ FieldModelColor colors[3];
-    /* 0x10 */ u8 texCoordIndices[3];
-    /* 0x13 */ u8 pad2;
-} FieldModelPolyGT3; // size:0x14
-
-typedef struct {
-    /* 0x00 */ u8 vertexIndices[4];
-    /* 0x04 */ FieldModelColor color;
-    /* 0x08 */ u8 texCoordIndices[4];
-} FieldModelPolyFT4; // size:0x0C
-
-typedef struct {
-    /* 0x00 */ u8 vertexIndices[3];
-    /* 0x03 */ u8 pad1;
-    /* 0x04 */ FieldModelColor color;
-    /* 0x08 */ u8 texCoordIndices[3];
-    /* 0x0B */ u8 pad2;
-} FieldModelPolyFT3; // size:0x0C
-
-typedef struct {
-    /* 0x00 */ u8 vertexIndices[3];
-    /* 0x03 */ u8 pad;
-    /* 0x04 */ FieldModelColor color;
-} FieldModelPolyF3; // size:0x08
-
-typedef struct {
-    /* 0x00 */ u8 vertexIndices[4];
-    /* 0x04 */ FieldModelColor color;
-} FieldModelPolyF4; // size:0x08
-
-typedef struct {
-    /* 0x00 */ u8 vertexIndices[3];
-    /* 0x03 */ u8 pad;
-    /* 0x04 */ FieldModelColor colors[3];
-} FieldModelPolyG3; // size:0x10
-
-typedef struct {
-    /* 0x00 */ u8 vertexIndices[4];
-    /* 0x04 */ FieldModelColor colors[4];
-} FieldModelPolyG4; // size:0x14
-
 #define KAWAI_PART_FLAGS (*(s32*)getScratchAddr(128))
 #define KAWAI_PART_LEVEL (*(s16*)getScratchAddr(129))
 #define KAWAI_GRADIENT_FLAGS (*getScratchAddr(251))
 
-typedef s32 (*FieldKawaiHandler)(FieldModelEntry* model, u8* params);
+typedef s32 (*FieldKawaiHandler)(FieldModel* model, u8* params);
 
-s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params);
+s32 KawaiSetModelTransparency(FieldModel* model, u8* params);
 void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b);
 void KawaiSetColorToPartPktsBelowLvl(FieldModelPart* part, s32 r, s32 g, s32 b);
 void KawaiSetLightingToPartPkts(FieldModelPart* part, s16* light);
-s32 KawaiSetCustomLightToModelPkts(FieldModelEntry* model, u8* params);
-s32 KawaiSetColorToPktsBelowLvl(FieldModelEntry* model, u8* params);
-s32 KawaiSetLightingToModelPkts(FieldModelEntry* model, u8* params);
-s32 KawaiFadeModelColor(FieldModelEntry* model, u8* params);
-s32 KawaiSetCustomLighting(FieldModelEntry* model, u8* params);
-s32 KawaiColorFadeBelowLvl(FieldModelEntry* model, u8* params);
-s32 KawaiSetSplashToPktsBelowLvl(FieldModelEntry* model, u8* params);
-s32 KawaiSetPartAttribute(FieldModelEntry* model, u8* params);
-s32 KawaiDirectionalColorGradient(FieldModelEntry* model, u8* params);
-s32 KawaiApplyBoneTransform(FieldModelEntry* model, u8* params);
-s32 KawaiAnimatedPointLight(FieldModelEntry* model, u8* params);
+s32 KawaiSetCustomLightToModelPkts(FieldModel* model, u8* params);
+void KawaiSetVertexColorFromLighting(FieldModelPart* part);
+void KawaiLightingApplyToPolyColor(FieldModelPart* part, s32 force);
+s32 KawaiSetColorToPktsBelowLvl(FieldModel* model, u8* params);
+s32 KawaiSetLightingToModelPkts(FieldModel* model, u8* params);
+s32 KawaiFadeModelColor(FieldModel* model, u8* params);
+s32 KawaiSetCustomLighting(FieldModel* model, u8* params);
+s32 KawaiColorFadeBelowLvl(FieldModel* model, u8* params);
+s32 KawaiSetSplashToPktsBelowLvl(FieldModel* model, u8* params);
+s32 KawaiSetPartAttribute(FieldModel* model, u8* params);
+s32 KawaiDirectionalColorGradient(FieldModel* model, u8* params);
+s32 KawaiApplyBoneTransform(FieldModel* model, u8* params);
+s32 KawaiAnimatedPointLight(FieldModel* model, u8* params);
 
 static FieldKawaiHandler kawai_ops_table[14] = {
     KawaiLoadEyesMouthTexToVram, KawaiSetModelTransparency,    KawaiSetColorToModelPkts, KawaiSetCustomLightToModelPkts,
@@ -375,11 +312,162 @@ void KawaiClearData(void) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiExecute);
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetCustomLightToModelPkts);
+s32 KawaiSetCustomLightToModelPkts(FieldModel* model, u8* params) {
+    MATRIX direction;
+    MATRIX* partMatrices;
+    FieldModelPart* parts;
+    u32 i;
+    MATRIX* color;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetVertexColorFromLighting);
+    parts = (FieldModelPart*)(model->modelData + model->partsOffset);
+    partMatrices = model->partMatrices;
+    gte_SetBackColor(params[0], params[1], params[2]);
+    color = (MATRIX*)getScratchAddr(128);
+    color->m[0][0] = params[3] << 4;
+    color->m[1][0] = params[4] << 4;
+    color->m[2][0] = params[5] << 4;
+    color->m[0][1] = params[6] << 4;
+    color->m[1][1] = params[7] << 4;
+    color->m[2][1] = params[8] << 4;
+    color->m[0][2] = params[9] << 4;
+    color->m[1][2] = params[10] << 4;
+    color->m[2][2] = params[11] << 4;
+    color->t[0] = color->t[1] = color->t[2] = 0;
+    gte_SetColorMatrix(color);
+    direction.m[0][0] = KAWAI_READ_S16(params, 12);
+    direction.m[0][1] = KAWAI_READ_S16(params, 14);
+    direction.m[0][2] = KAWAI_READ_S16(params, 16);
+    direction.m[1][0] = KAWAI_READ_S16(params, 18);
+    direction.m[1][1] = KAWAI_READ_S16(params, 20);
+    direction.m[1][2] = KAWAI_READ_S16(params, 22);
+    direction.m[2][0] = KAWAI_READ_S16(params, 24);
+    direction.m[2][1] = KAWAI_READ_S16(params, 26);
+    direction.m[2][2] = KAWAI_READ_S16(params, 28);
+    direction.t[0] = direction.t[1] = direction.t[2] = 0;
+    for (i = 0; i < model->partCount; i++) {
+        if (parts[i].flags) {
+            MATRIX* light = (MATRIX*)getScratchAddr(136);
+            gte_CompMatrix(&direction, &partMatrices[parts[i].boneIndex], light);
+            gte_SetLightMatrix(light);
+        }
+        KawaiSetVertexColorFromLighting(&parts[i]);
+    }
+    return 1;
+}
 
-s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params) {
+void KawaiSetVertexColorFromLighting(FieldModelPart* part) {
+    u8* packets;
+    SVECTOR* normalTable;
+    u8* polygons;
+    u32 counts, count, i, j;
+
+    normalTable = normal_table;
+    packets = part->packets;
+    polygons = part->data + part->polygonsOffset;
+    if (g_FieldPrimitiveBufferIndex) {
+        packets += part->packetBufferSize;
+    }
+    counts = *(u32*)&part->polyGT4Count;
+    count = counts & 0xFF;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), polygons += sizeof(FieldModelPolyGT4)) {
+        POLY_GT4* poly = (POLY_GT4*)packets;
+        if (poly->tag) {
+            FieldModelPolyGT4* source = (FieldModelPolyGT4*)polygons;
+            u8* output;
+            u8 code = getcode(poly);
+            for (j = 0, output = &poly->r0; j < 4; output += 12, j++) {
+                gte_NormalColorCol(&normalTable[source->colors[j].normalIndex], &source->colors[j], output);
+            }
+            setcode(poly, code);
+        }
+    }
+    count = (counts & 0xFF00) >> 8;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), polygons += sizeof(FieldModelPolyGT3)) {
+        POLY_GT3* poly = (POLY_GT3*)packets;
+        if (poly->tag) {
+            FieldModelPolyGT3* source = (FieldModelPolyGT3*)polygons;
+            u8* output;
+            u8 code = getcode(poly);
+            for (j = 0, output = &poly->r0; j < 3; output += 12, j++) {
+                gte_NormalColorCol(&normalTable[source->colors[j].normalIndex], &source->colors[j], output);
+            }
+            setcode(poly, code);
+        }
+    }
+    count = (counts >> 16) & 0xFF;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_FT4), polygons += sizeof(FieldModelPolyFT4)) {
+        POLY_FT4* poly = (POLY_FT4*)packets;
+        if (poly->tag) {
+            FieldModelPolyFT4* source = (FieldModelPolyFT4*)polygons;
+            u8 code = getcode(poly);
+            u8* output = &poly->r0;
+            gte_NormalColorCol(&normalTable[source->color.normalIndex], &source->color, output);
+            setcode(poly, code);
+        }
+    }
+    count = counts >> 24;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_FT3), polygons += sizeof(FieldModelPolyFT3)) {
+        POLY_FT3* poly = (POLY_FT3*)packets;
+        if (poly->tag) {
+            FieldModelPolyFT3* source = (FieldModelPolyFT3*)polygons;
+            u8 code = getcode(poly);
+            u8* output = &poly->r0;
+            gte_NormalColorCol(&normalTable[source->color.normalIndex], &source->color, output);
+            setcode(poly, code);
+        }
+    }
+    counts = *(u32*)&part->polyF3Count;
+    count = counts & 0xFF;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_F3), polygons += sizeof(FieldModelPolyF3)) {
+        POLY_F3* poly = (POLY_F3*)packets;
+        if (poly->tag) {
+            FieldModelPolyF3* source = (FieldModelPolyF3*)polygons;
+            u8 code = getcode(poly);
+            u8* output = &poly->r0;
+            gte_NormalColorCol(&normalTable[source->color.normalIndex], &source->color, output);
+            setcode(poly, code);
+        }
+    }
+    count = (counts & 0xFF00) >> 8;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_F4), polygons += sizeof(FieldModelPolyF4)) {
+        POLY_F4* poly = (POLY_F4*)packets;
+        if (poly->tag) {
+            FieldModelPolyF4* source = (FieldModelPolyF4*)polygons;
+            u8 code = getcode(poly);
+            u8* output = &poly->r0;
+            gte_NormalColorCol(&normalTable[source->color.normalIndex], &source->color, output);
+            setcode(poly, code);
+        }
+    }
+    count = (counts >> 16) & 0xFF;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_G3), polygons += sizeof(FieldModelPolyG3)) {
+        POLY_G3* poly = (POLY_G3*)packets;
+        if (poly->tag) {
+            FieldModelPolyG3* source = (FieldModelPolyG3*)polygons;
+            u8* output;
+            u8 code = getcode(poly);
+            for (j = 0, output = &poly->r0; j < 3; output += 8, j++) {
+                gte_NormalColorCol(&normalTable[source->colors[j].normalIndex], &source->colors[j], output);
+            }
+            setcode(poly, code);
+        }
+    }
+    count = counts >> 24;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_G4), polygons += sizeof(FieldModelPolyG4)) {
+        POLY_G4* poly = (POLY_G4*)packets;
+        if (poly->tag) {
+            FieldModelPolyG4* source = (FieldModelPolyG4*)polygons;
+            u8* output;
+            u8 code = getcode(poly);
+            for (j = 0, output = &poly->r0; j < 4; output += 8, j++) {
+                gte_NormalColorCol(&normalTable[source->colors[j].normalIndex], &source->colors[j], output);
+            }
+            setcode(poly, code);
+        }
+    }
+}
+
+s32 KawaiSetColorToModelPkts(FieldModel* model, u8* params) {
     FieldModelPart* parts;
     u32 i, count;
     s16 r, g, b;
@@ -708,7 +796,7 @@ void KawaiSetColorToPartPkts(FieldModelPart* part, s16 r, s16 g, s16 b) {
     }
 }
 
-s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* model, u8* params) {
+s32 KawaiLoadEyesMouthTexToVram(FieldModel* model, u8* params) {
     RECT rect;
     s32 slot;
     s32 x, y;
@@ -740,11 +828,148 @@ s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* model, u8* params) {
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiLightingApplyToModel);
+s32 KawaiLightingApplyToModel(FieldModel* model, u8* params) {
+    MATRIX direction;
+    MATRIX* partMatrices;
+    FieldModelPart* parts;
+    u32 i;
+    MATRIX* color;
+    s32 force;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiLightingApplyToPolyColor);
+    parts = (FieldModelPart*)(model->modelData + model->partsOffset);
+    partMatrices = model->partMatrices;
+    gte_SetBackColor((s32)params[0], (s32)params[1], (s32)params[2]);
+    color = (MATRIX*)getScratchAddr(128);
+    color->m[0][0] = params[3] << 4;
+    color->m[1][0] = params[4] << 4;
+    color->m[2][0] = params[5] << 4;
+    color->m[0][1] = params[6] << 4;
+    color->m[1][1] = params[7] << 4;
+    color->m[2][1] = params[8] << 4;
+    color->m[0][2] = params[9] << 4;
+    color->m[1][2] = params[10] << 4;
+    color->m[2][2] = params[11] << 4;
+    color->t[0] = color->t[1] = color->t[2] = 0;
+    gte_SetColorMatrix(color);
+    direction.m[0][0] = KAWAI_READ_S16(params, 12);
+    direction.m[0][1] = KAWAI_READ_S16(params, 14);
+    direction.m[0][2] = KAWAI_READ_S16(params, 16);
+    direction.m[1][0] = KAWAI_READ_S16(params, 18);
+    direction.m[1][1] = KAWAI_READ_S16(params, 20);
+    direction.m[1][2] = KAWAI_READ_S16(params, 22);
+    direction.m[2][0] = KAWAI_READ_S16(params, 24);
+    direction.m[2][1] = KAWAI_READ_S16(params, 26);
+    direction.m[2][2] = KAWAI_READ_S16(params, 28);
+    direction.t[0] = direction.t[1] = direction.t[2] = 0;
+    force = params[30];
+    for (i = 0; i < model->partCount; i++) {
+        if (parts[i].flags) {
+            MATRIX* light = (MATRIX*)getScratchAddr(136);
+            if (model->kawaiType != -1) {
+                MATRIX* transformedLight = (MATRIX*)getScratchAddr(144);
+                gte_CompMatrix(partMatrices, &partMatrices[parts[i].boneIndex], light);
+                gte_CompMatrix(&direction, light, transformedLight);
+                gte_SetLightMatrix(transformedLight);
+            } else {
+                gte_CompMatrix(&direction, &partMatrices[parts[i].boneIndex], light);
+                gte_SetLightMatrix(light);
+            }
+        }
+        KawaiLightingApplyToPolyColor(&parts[i], force);
+    }
+    return 1;
+}
 
-s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params) {
+void KawaiLightingApplyToPolyColor(FieldModelPart* part, s32 force) {
+    u8* polygons;
+    SVECTOR* normalTable;
+    CVECTOR* result;
+    u32 counts, count, i, j;
+
+    normalTable = normal_table;
+    result = (CVECTOR*)getScratchAddr(0);
+    if ((*(u32*)part->data & 0x2) && !force) {
+        return;
+    }
+    polygons = part->data + part->polygonsOffset;
+    counts = *(u32*)&part->polyGT4Count;
+    count = counts & 0xFF;
+    for (i = 0; i < count; i++, polygons += sizeof(FieldModelPolyGT4)) {
+        FieldModelPolyGT4* source = (FieldModelPolyGT4*)polygons;
+        for (j = 0; j < 4; j++) {
+            gte_NormalColorCol(&normalTable[source->colors[j].normalIndex], &source->colors[j].r, result);
+            source->colors[j].r = result->r;
+            source->colors[j].g = result->g;
+            source->colors[j].b = result->b;
+        }
+    }
+    count = (counts & 0xFF00) >> 8;
+    for (i = 0; i < count; i++, polygons += sizeof(FieldModelPolyGT3)) {
+        FieldModelPolyGT3* source = (FieldModelPolyGT3*)polygons;
+        for (j = 0; j < 3; j++) {
+            gte_NormalColorCol(&normalTable[source->colors[j].normalIndex], &source->colors[j].r, result);
+            source->colors[j].r = result->r;
+            source->colors[j].g = result->g;
+            source->colors[j].b = result->b;
+        }
+    }
+    count = (counts >> 16) & 0xFF;
+    for (i = 0; i < count; i++, polygons += sizeof(FieldModelPolyFT4)) {
+        FieldModelPolyFT4* source = (FieldModelPolyFT4*)polygons;
+        gte_NormalColorCol(&normalTable[source->color.normalIndex], &source->color.r, result);
+        source->color.r = result->r;
+        source->color.g = result->g;
+        source->color.b = result->b;
+    }
+    count = counts >> 24;
+    for (i = 0; i < count; i++, polygons += sizeof(FieldModelPolyFT3)) {
+        FieldModelPolyFT3* source = (FieldModelPolyFT3*)polygons;
+        gte_NormalColorCol(&normalTable[source->color.normalIndex], &source->color.r, result);
+        source->color.r = result->r;
+        source->color.g = result->g;
+        source->color.b = result->b;
+    }
+    counts = *(u32*)&part->polyF3Count;
+    count = counts & 0xFF;
+    for (i = 0; i < count; i++, polygons += sizeof(FieldModelPolyF3)) {
+        FieldModelPolyF3* source = (FieldModelPolyF3*)polygons;
+        gte_NormalColorCol(&normalTable[source->color.normalIndex], &source->color.r, result);
+        source->color.r = result->r;
+        source->color.g = result->g;
+        source->color.b = result->b;
+    }
+    count = (counts & 0xFF00) >> 8;
+    for (i = 0; i < count; i++, polygons += sizeof(FieldModelPolyF4)) {
+        FieldModelPolyF4* source = (FieldModelPolyF4*)polygons;
+        gte_NormalColorCol(&normalTable[source->color.normalIndex], &source->color.r, result);
+        source->color.r = result->r;
+        source->color.g = result->g;
+        source->color.b = result->b;
+    }
+    count = (counts >> 16) & 0xFF;
+    for (i = 0; i < count; i++, polygons += sizeof(FieldModelPolyG3)) {
+        FieldModelPolyG3* source = (FieldModelPolyG3*)polygons;
+        for (j = 0; j < 3; j++) {
+            gte_NormalColorCol(&normalTable[source->colors[j].normalIndex], &source->colors[j].r, result);
+            source->colors[j].r = result->r;
+            source->colors[j].g = result->g;
+            source->colors[j].b = result->b;
+        }
+    }
+    count = counts >> 24;
+    for (i = 0; i < count; i++, polygons += sizeof(FieldModelPolyG4)) {
+        FieldModelPolyG4* source = (FieldModelPolyG4*)polygons;
+        for (j = 0; j < 4; j++) {
+            gte_NormalColorCol(&normalTable[source->colors[j].normalIndex], &source->colors[j].r, result);
+            source->colors[j].r = result->r;
+            source->colors[j].g = result->g;
+            source->colors[j].b = result->b;
+        }
+    }
+    *(u32*)part->data |= 0x2;
+}
+
+s32 KawaiSetModelTransparency(FieldModel* model, u8* params) {
     FieldModelPart* parts;
     FieldModelPart* part;
     u8* packets;
@@ -813,7 +1038,7 @@ s32 KawaiSetModelTransparency(FieldModelEntry* model, u8* params) {
     return 1;
 }
 
-s32 KawaiSetColorToPktsBelowLvl(FieldModelEntry* model, u8* params) {
+s32 KawaiSetColorToPktsBelowLvl(FieldModel* model, u8* params) {
     FieldModelPart* parts;
     u32 i;
     u8 count;
@@ -840,7 +1065,7 @@ s32 KawaiSetColorToPktsBelowLvl(FieldModelEntry* model, u8* params) {
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetColorToPartPktsBelowLvl);
 
-s32 KawaiFadeModelColor(FieldModelEntry* model, u8* params) {
+s32 KawaiFadeModelColor(FieldModel* model, u8* params) {
     u8* colorParams;
     FieldKawaiColorFade* fade;
     s32 finished;
@@ -894,7 +1119,7 @@ s32 KawaiFadeModelColor(FieldModelEntry* model, u8* params) {
     return 1;
 }
 
-s32 KawaiSetCustomLighting(FieldModelEntry* model, u8* params) {
+s32 KawaiSetCustomLighting(FieldModel* model, u8* params) {
     u8* lightParams;
     FieldKawaiLighting* lighting = (FieldKawaiLighting*)kawai_work.data[params[1]];
 
@@ -951,7 +1176,7 @@ s32 KawaiSetCustomLighting(FieldModelEntry* model, u8* params) {
     return 0;
 }
 
-s32 KawaiColorFadeBelowLvl(FieldModelEntry* model, u8* params) {
+s32 KawaiColorFadeBelowLvl(FieldModel* model, u8* params) {
     u8* colorParams;
     s32 finished;
     FieldKawaiColorFadeBelowLvl* fade = (FieldKawaiColorFadeBelowLvl*)kawai_work.data[params[1]];
@@ -1014,7 +1239,7 @@ s32 KawaiColorFadeBelowLvl(FieldModelEntry* model, u8* params) {
     return 1;
 }
 
-s32 KawaiSetLightingToModelPkts(FieldModelEntry* model, u8* params) {
+s32 KawaiSetLightingToModelPkts(FieldModel* model, u8* params) {
     u32 i;
     s16 light[4];
     MATRIX* color;
@@ -1054,11 +1279,214 @@ s32 KawaiSetLightingToModelPkts(FieldModelEntry* model, u8* params) {
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetLightingToPartPkts);
+void KawaiSetLightingToPartPkts(FieldModelPart* part, s16* light) {
+    MATRIX* matrix;
+    VECTOR* transformed;
+    SVECTOR* lightVectors;
+    SVECTOR* vertices;
+    SVECTOR* vector;
+    SVECTOR* normalTable;
+    u8* packets;
+    u8* polygons;
+    u32 counts, count, i, j;
+    s16 lightX, lightY, lightZ;
+    s32 dx, dy, dz, distance, attenuation;
+
+    lightVectors = (SVECTOR*)getScratchAddr(16);
+    matrix = (MATRIX*)getScratchAddr(8);
+    transformed = (VECTOR*)getScratchAddr(0);
+    vector = (SVECTOR*)getScratchAddr(0);
+    normalTable = normal_table;
+    vertices = (SVECTOR*)(part->data + 4);
+    count = part->vertexCount;
+    light[3]++;
+    lightX = light[0];
+    lightY = light[1];
+    lightZ = light[2];
+    for (i = 0; i < count; i++) {
+        gte_ldv0(&vertices[i]);
+        gte_rt();
+        gte_stlvnl(transformed);
+        dx = lightX - transformed->vx;
+        dy = lightY - transformed->vy;
+        dz = lightZ - transformed->vz;
+        distance = SquareRoot0(dx * dx + dy * dy + dz * dz) + 2;
+        setVector(&lightVectors[i], (dx << 12) / distance, (dy << 12) / distance, (dz << 12) / distance);
+        attenuation = light[3] - distance;
+        if (attenuation < 0) {
+            attenuation = 0;
+        }
+        lightVectors[i].pad = (attenuation << 12) / light[3]; // Pad stores attenuation.
+    }
+
+    gte_ReadRotMatrix(matrix);
+    TransposeMatrix(matrix, (MATRIX*)getScratchAddr(0));
+    gte_SetRotMatrix((MATRIX*)getScratchAddr(0));
+    gte_SetTransMatrix((MATRIX*)getScratchAddr(0));
+    packets = part->packets;
+    polygons = part->data + part->polygonsOffset;
+    if (g_FieldPrimitiveBufferIndex) {
+        packets += part->packetBufferSize;
+    }
+    counts = *(u32*)&part->polyGT4Count;
+    count = counts & 0xFF;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), polygons += sizeof(FieldModelPolyGT4)) {
+        POLY_GT4* poly = (POLY_GT4*)packets;
+        if (poly->tag) {
+            FieldModelPolyGT4* source = (FieldModelPolyGT4*)polygons;
+            u8 code = getcode(poly);
+            u8* output;
+            for (j = 0, output = &poly->r0; j < 4; output += 12, j++) {
+                SVECTOR* lightVector = &lightVectors[source->vertexIndices[j]];
+                setVector(vector, (lightVector->vx * lightVector->pad) >> 12,
+                          (lightVector->vy * lightVector->pad) >> 12, (lightVector->vz * lightVector->pad) >> 12);
+                gte_ldv0(vector);
+                gte_rtv0();
+                gte_stsv(vector);
+                gte_ldsvllrow0(vector);
+                gte_NormalColorCol(&normalTable[source->colors[j].normalIndex], &source->colors[j], output);
+            }
+            setcode(poly, code);
+        }
+    }
+    count = (counts & 0xFF00) >> 8;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), polygons += sizeof(FieldModelPolyGT3)) {
+        POLY_GT3* poly = (POLY_GT3*)packets;
+        if (poly->tag) {
+            FieldModelPolyGT3* source = (FieldModelPolyGT3*)polygons;
+            u8 code = getcode(poly);
+            u8* output;
+            for (j = 0, output = &poly->r0; j < 3; output += 12, j++) {
+                SVECTOR* lightVector = &lightVectors[source->vertexIndices[j]];
+                setVector(vector, (lightVector->vx * lightVector->pad) >> 12,
+                          (lightVector->vy * lightVector->pad) >> 12, (lightVector->vz * lightVector->pad) >> 12);
+                gte_ldv0(vector);
+                gte_rtv0();
+                gte_stsv(vector);
+                gte_ldsvllrow0(vector);
+                gte_NormalColorCol(&normalTable[source->colors[j].normalIndex], &source->colors[j], output);
+            }
+            setcode(poly, code);
+        }
+    }
+    count = (counts >> 16) & 0xFF;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_FT4), polygons += sizeof(FieldModelPolyFT4)) {
+        POLY_FT4* poly = (POLY_FT4*)packets;
+        if (poly->tag) {
+            FieldModelPolyFT4* source = (FieldModelPolyFT4*)polygons;
+            u8 code = getcode(poly);
+            u8* output = &poly->r0;
+            SVECTOR* lightVector = &lightVectors[source->vertexIndices[0]];
+            setVector(vector, (lightVector->vx * lightVector->pad) >> 12, (lightVector->vy * lightVector->pad) >> 12,
+                      (lightVector->vz * lightVector->pad) >> 12);
+            gte_ldv0(vector);
+            gte_rtv0();
+            gte_stsv(vector);
+            gte_ldsvllrow0(vector);
+            gte_NormalColorCol(&normalTable[source->color.normalIndex], &source->color, output);
+            setcode(poly, code);
+        }
+    }
+    count = counts >> 24;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_FT3), polygons += sizeof(FieldModelPolyFT3)) {
+        POLY_FT3* poly = (POLY_FT3*)packets;
+        if (poly->tag) {
+            FieldModelPolyFT3* source = (FieldModelPolyFT3*)polygons;
+            u8 code = getcode(poly);
+            u8* output = &poly->r0;
+            SVECTOR* lightVector = &lightVectors[source->vertexIndices[0]];
+            setVector(vector, (lightVector->vx * lightVector->pad) >> 12, (lightVector->vy * lightVector->pad) >> 12,
+                      (lightVector->vz * lightVector->pad) >> 12);
+            gte_ldv0(vector);
+            gte_rtv0();
+            gte_stsv(vector);
+            gte_ldsvllrow0(vector);
+            gte_NormalColorCol(&normalTable[source->color.normalIndex], &source->color, output);
+            setcode(poly, code);
+        }
+    }
+    counts = *(u32*)&part->polyF3Count;
+    count = counts & 0xFF;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_F3), polygons += sizeof(FieldModelPolyF3)) {
+        POLY_F3* poly = (POLY_F3*)packets;
+        if (poly->tag) {
+            FieldModelPolyF3* source = (FieldModelPolyF3*)polygons;
+            u8 code = getcode(poly);
+            u8* output = &poly->r0;
+            SVECTOR* lightVector = &lightVectors[source->vertexIndices[0]];
+            setVector(vector, (lightVector->vx * lightVector->pad) >> 12, (lightVector->vy * lightVector->pad) >> 12,
+                      (lightVector->vz * lightVector->pad) >> 12);
+            gte_ldv0(vector);
+            gte_rtv0();
+            gte_stsv(vector);
+            gte_ldsvllrow0(vector);
+            gte_NormalColorCol(&normalTable[source->color.normalIndex], &source->color, output);
+            setcode(poly, code);
+        }
+    }
+    count = (counts & 0xFF00) >> 8;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_F4), polygons += sizeof(FieldModelPolyF4)) {
+        POLY_F4* poly = (POLY_F4*)packets;
+        if (poly->tag) {
+            FieldModelPolyF4* source = (FieldModelPolyF4*)polygons;
+            u8 code = getcode(poly);
+            u8* output = &poly->r0;
+            SVECTOR* lightVector = &lightVectors[source->vertexIndices[0]];
+            setVector(vector, (lightVector->vx * lightVector->pad) >> 12, (lightVector->vy * lightVector->pad) >> 12,
+                      (lightVector->vz * lightVector->pad) >> 12);
+            gte_ldv0(vector);
+            gte_rtv0();
+            gte_stsv(vector);
+            gte_ldsvllrow0(vector);
+            gte_NormalColorCol(&normalTable[source->color.normalIndex], &source->color, output);
+            setcode(poly, code);
+        }
+    }
+    count = (counts >> 16) & 0xFF;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_G3), polygons += sizeof(FieldModelPolyG3)) {
+        POLY_G3* poly = (POLY_G3*)packets;
+        if (poly->tag) {
+            FieldModelPolyG3* source = (FieldModelPolyG3*)polygons;
+            u8 code = getcode(poly);
+            u8* output;
+            for (j = 0, output = &poly->r0; j < 3; output += 8, j++) {
+                SVECTOR* lightVector = &lightVectors[source->vertexIndices[j]];
+                setVector(vector, (lightVector->vx * lightVector->pad) >> 12,
+                          (lightVector->vy * lightVector->pad) >> 12, (lightVector->vz * lightVector->pad) >> 12);
+                gte_ldv0(vector);
+                gte_rtv0();
+                gte_stsv(vector);
+                gte_ldsvllrow0(vector);
+                gte_NormalColorCol(&normalTable[source->colors[j].normalIndex], &source->colors[j], output);
+            }
+            setcode(poly, code);
+        }
+    }
+    count = counts >> 24;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_G4), polygons += sizeof(FieldModelPolyG4)) {
+        POLY_G4* poly = (POLY_G4*)packets;
+        if (poly->tag) {
+            FieldModelPolyG4* source = (FieldModelPolyG4*)polygons;
+            u8 code = getcode(poly);
+            u8* output;
+            for (j = 0, output = &poly->r0; j < 4; output += 8, j++) {
+                SVECTOR* lightVector = &lightVectors[source->vertexIndices[j]];
+                setVector(vector, (lightVector->vx * lightVector->pad) >> 12,
+                          (lightVector->vy * lightVector->pad) >> 12, (lightVector->vz * lightVector->pad) >> 12);
+                gte_ldv0(vector);
+                gte_rtv0();
+                gte_stsv(vector);
+                gte_ldsvllrow0(vector);
+                gte_NormalColorCol(&normalTable[source->colors[j].normalIndex], &source->colors[j], output);
+            }
+            setcode(poly, code);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiSetSplashToPktsBelowLvl);
 
-void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
+void KawaiInitSplashPkts(FieldModel* model, s32 slot) {
     FieldSplashEntry* entries;
     FieldModelBone* bones;
     u16 clut, tpage;
@@ -1091,7 +1519,7 @@ void KawaiInitSplashPkts(FieldModelEntry* model, s32 slot) {
     }
 }
 
-s32 KawaiSetPartAttribute(FieldModelEntry* model, u8* params) {
+s32 KawaiSetPartAttribute(FieldModel* model, u8* params) {
     s32 count = params[0];
     s32 i;
     s32 partId;

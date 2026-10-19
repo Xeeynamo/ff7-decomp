@@ -1,6 +1,6 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "battle_private.h"
-#include "battle_gte_matrix.h"
+#include <psxsdk/inline_c.h>
 #include <libetc.h>
 #include <libgpu.h>
 

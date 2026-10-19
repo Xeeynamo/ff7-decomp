@@ -436,7 +436,7 @@ static void FieldUpdateAnimationState(void) {
     s32 i;
     s32 modelEntryId;
     FieldModelAnimation* anims;
-    FieldModelEntry* model;
+    FieldModel* model;
 
     for (i = 0; i < g_FieldScripts->numEntities; i++) {
         if (g_EntityToModel[i] != 0xFF &&
@@ -448,13 +448,13 @@ static void FieldUpdateAnimationState(void) {
                     g_FieldModels[g_EntityToModel[i]].animSpeed = g_FieldModelEffAnimSpeed[g_EntityToModel[i]];
                     g_FieldModels[g_EntityToModel[i]].animCurrentFrame = 0;
                     modelEntryId = g_FieldModelLoaderData[g_EntityToModel[i]].modelEntryIndex;
-                    model = &g_FieldModelData->modelEntries[modelEntryId];
+                    model = &g_FieldModelData->models[modelEntryId];
                     anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
                     g_FieldModels[g_EntityToModel[i]].animLastFrame =
                         anims[g_FieldEntity[g_EntityToModel[i]].activeAnimId].frameCount - 1;
                 } else {
                     modelEntryId = g_FieldModelLoaderData[g_EntityToModel[i]].modelEntryIndex;
-                    model = &g_FieldModelData->modelEntries[modelEntryId];
+                    model = &g_FieldModelData->models[modelEntryId];
                     anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
                     g_FieldModels[g_EntityToModel[i]].animLastFrame =
                         anims[g_FieldEntity[g_EntityToModel[i]].activeAnimId].frameCount - 1;

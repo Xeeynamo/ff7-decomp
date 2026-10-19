@@ -166,36 +166,27 @@ s16 g_WindowTotalRowsHeight[4];
 s16 g_WindowWaitTime[4];
 u8 SavedScriptIds[48][8];
 
-void FieldModelAnimCalcMtrxs(FieldModelEntry* model, MATRIX* matrix, u8 animationId, s32 frame) { NOT_IMPLEMENTED; }
-void FieldModelPrepareRender(FieldModelEntry* model) { NOT_IMPLEMENTED; }
+void FieldModelAnimCalcMtrxs(FieldModel* model, MATRIX* matrix, u8 animationId, s32 frame) { NOT_IMPLEMENTED; }
+void FieldModelPrepareRender(FieldModel* model) { NOT_IMPLEMENTED; }
 void func_800262D8(void) { NOT_IMPLEMENTED; }
-s32 KawaiAnimatedPointLight(FieldModelEntry* model, u8* params) {
+s32 KawaiAnimatedPointLight(FieldModel* model, u8* params) {
     NOT_IMPLEMENTED;
     return 0;
 }
-s32 KawaiApplyBoneTransform(FieldModelEntry* model, u8* params) {
+s32 KawaiApplyBoneTransform(FieldModel* model, u8* params) {
     NOT_IMPLEMENTED;
     return 0;
 }
-s32 KawaiDirectionalColorGradient(FieldModelEntry* model, u8* params) {
+s32 KawaiDirectionalColorGradient(FieldModel* model, u8* params) {
     NOT_IMPLEMENTED;
     return 0;
 }
-s32 KawaiExecute(FieldModelEntry* model, u8* params, s32 modelId, MATRIX* matrix) {
-    NOT_IMPLEMENTED;
-    return 0;
-}
-s32 KawaiLightingApplyToModel(FieldModelEntry* model, u8* params) {
+s32 KawaiExecute(FieldModel* model, u8* params, s32 modelId, MATRIX* matrix) {
     NOT_IMPLEMENTED;
     return 0;
 }
 void KawaiSetColorToPartPktsBelowLvl(FieldModelPart* part, s32 r, s32 g, s32 b) { NOT_IMPLEMENTED; }
-s32 KawaiSetCustomLightToModelPkts(FieldModelEntry* model, u8* params) {
-    NOT_IMPLEMENTED;
-    return 0;
-}
-void KawaiSetLightingToPartPkts(FieldModelPart* part, s16* light) { NOT_IMPLEMENTED; }
-s32 KawaiSetSplashToPktsBelowLvl(FieldModelEntry* model, u8* params) {
+s32 KawaiSetSplashToPktsBelowLvl(FieldModel* model, u8* params) {
     NOT_IMPLEMENTED;
     return 0;
 }

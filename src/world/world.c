@@ -74,7 +74,7 @@ static s32 func_800B786C(void);
 static void WmDialogSetModeAndPermanency(s16 window, s16 style, s16 preventClose);
 void func_800B4244(void);
 void WmCalculateBoneMatrixes(void*, MATRIX*, s32, s32);
-void WmCalculateModelLighting(void*, u8*);
+s32 WmCalculateModelLighting(FieldModel* model, u8* params);
 void func_800B5314(WorldActor*, s32);
 void WmDialogUpdate(void);
 void WmFadeInit(void);
@@ -628,7 +628,7 @@ void func_800A368C(s32 arg0) { D_800E5658 = arg0; }
 
 static s32 func_800A369C(void) { return D_800E5658; }
 
-void WmSetModelTransformMatrix(FieldModelEntry* model, SVECTOR* rot, MATRIX* m, s32 arg3) {
+void WmSetModelTransformMatrix(FieldModel* model, SVECTOR* rot, MATRIX* m, s32 arg3) {
     MATRIX tmp;
     VECTOR trans;
     SVECTOR v;
@@ -2379,7 +2379,7 @@ static void WmUnlinkEntityAndInsertAsNew(WorldActor* arg0) {
 void WmUnlinkEntityFromAll(WorldActor* actor) {
     WorldActor* it;
     WorldActor* prev;
-    FieldModelEntry* model;
+    FieldModel* model;
 
     if (actor == D_8010AD3C) {
         D_8010AD3C = NULL;
@@ -5116,7 +5116,7 @@ void WmDrawGroundQuad(s16 halfX, s16 halfZ, s16 y, s16 angle, POLY_FT4* prim, s3
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B5C7C);
 
-void WmSetCalculateAllPartsLighting(FieldModelEntry* model) {
+void WmSetCalculateAllPartsLighting(FieldModel* model) {
     u8* part;
     s32 i;
 
@@ -5277,7 +5277,7 @@ static void WmInitModelVariablesAndArray(void) {
     D_800C80BC = D_80115A6C;
 }
 
-void WmCalculateBonesAndLighting(FieldModelEntry* model) {
+void WmCalculateBonesAndLighting(FieldModel* model) {
     MATRIX m;
     u8* packet;
     u8* buffer;
@@ -5345,7 +5345,7 @@ void WmCalculateBonesAndLighting(FieldModelEntry* model) {
 INCLUDE_ASM("asm/us/world/nonmatchings/world", WmLoadPcCharModelFile);
 
 void WmLoadPcCharModelIntoMemory(void) {
-    FieldModelEntry* model;
+    FieldModel* model;
 
     WmLoadTexturesToVram((WorldTextureBlock*)(((D_8014A608 >> 2) << 2) + 0x8014A604));
     model = D_8014A610;
@@ -5369,7 +5369,7 @@ void WmLoadModelPacketsForSet(s16 arg0) {
     s32 i;
     s32 j;
     s8 id;
-    FieldModelEntry* model;
+    FieldModel* model;
     FieldModelPart* parts;
 
     dst = 0x80117000;
@@ -5460,7 +5460,7 @@ static void func_800B6E78(void) {
 }
 
 void* WmGetModelDataByModelId(s16 modelId) {
-    FieldModelEntry* model;
+    FieldModel* model;
     s32 index;
 
     if (modelId < 0 || modelId >= 43) {

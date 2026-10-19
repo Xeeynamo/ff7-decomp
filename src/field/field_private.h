@@ -170,9 +170,9 @@ u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelDa
 u8* FieldModelLoadGlobalModels(FieldModelLoaderHeader* header, FieldModelData* modelData, u8* buffer, s32 loadTextures);
 u8* LoadLocalFieldModelAndInitAll(
     FieldModelLoaderHeader* header, FieldModelData* models, const u32* options, void* data);
-void FieldModelAnimCalcMtrxs(FieldModelEntry* model, MATRIX* matrix, u8 animationId, s32 frame);
-s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* model, u8* params);
-s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params);
+void FieldModelAnimCalcMtrxs(FieldModel* model, MATRIX* matrix, u8 animationId, s32 frame);
+s32 KawaiLoadEyesMouthTexToVram(FieldModel* model, u8* params);
+s32 KawaiSetColorToModelPkts(FieldModel* model, u8* params);
 void KawaiClearData(void);
 
 void DebugPrintToFieldWindow(const char* str);
