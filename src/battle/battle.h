@@ -684,16 +684,16 @@ typedef struct Unk800A8D04 {
     /* 0x030 */ s32 unk30;
     /* 0x034 */ u8 unk34[4]; // character spacing array
     /* 0x038 */ s32 unk38;
-    /* 0x03C */ s32 unk3C;
+    /* 0x03C */ s32 attackPercent;
     /* 0x040 */ s32 formulaIds;
     /* 0x044 */ s32 elements;
     /* 0x048 */ s32 power;
     /* 0x04C */ s32 attackStat;
     /* 0x050 */ s32 targetFlags;
-    /* 0x054 */ s32 unk54[3];
+    /* 0x054 */ s32 impactSfxIds[3];
     /* 0x060 */ s32 unk60;
     /* 0x064 */ s32 unk64;
-    /* 0x068 */ s32 unk68;
+    /* 0x068 */ s32 impactEffectId;
     /* 0x06C */ s32 attackFlags;
     /* 0x070 */ s32 unk70;
     /* 0x074 */ s32 unk74;
@@ -745,13 +745,13 @@ typedef struct Unk800A8D04 {
     /* 0x234 */ s32 unk234;
     /* 0x238 */ s32 unk238[3];
     /* 0x244 */ s32 unk244;
-    /* 0x248 */ s32 unk248;
-    /* 0x24C */ s32 unk24C;
+    /* 0x248 */ s32 targetImpactSfxId;
+    /* 0x24C */ s32 targetImpactEffectId;
     /* 0x250 */ s32 unk250;
     /* 0x254 */ s32 targetLevel;
     /* 0x258 */ s32 targetHP;
     /* 0x25C */ s32 targetMP;
-    /* 0x260 */ s32 attackPercent;
+    /* 0x260 */ s32 targetAttackPercent;
 } Unk800A8D04; // size: 0x264
 
 extern s16 D_800F5B74;
