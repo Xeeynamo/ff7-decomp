@@ -1,6 +1,10 @@
 //! PSYQ=3.3
 #include <game.h>
 
+const u32 D_800A0000[] = {
+    0x220002, 0x10015, 0x15000C, 0x0, 0x10000, 0x15000C, 0x0, 0x20000, 0x180022, 0x0, 0x20000, 0x150022, 0xC0001, 0x18};
+const u32 D_800A0038[] = {0x60A, 0x4000200, 0x50600, 0x4050205, 0x60A0605, 0x60A060A, 0x20A000A, 0x0};
+
 // The condor minigame's unit record. Only the fields reached so far are named;
 // the gaps stay as filler so every later offset keeps its place.
 typedef struct {
@@ -11,7 +15,8 @@ typedef struct {
     /* 0x06 */ u16 unk06;
     /* 0x08 */ u8 unk08[2];
     /* 0x0A */ u16 unk0A;
-    /* 0x0C */ u8 unk0C[7];
+    /* 0x0C */ u8 unk0C[6];
+    /* 0x12 */ u8 unk12;
     /* 0x13 */ u8 unk13;
     /* 0x14 */ u8 unk14[8];
     /* 0x1C */ u16 timer;
@@ -35,7 +40,9 @@ typedef struct {
     /* 0x3B */ u8 unk3B;
     /* 0x3C */ u8 unk3C[5];
     /* 0x41 */ u8 unk41;
-    /* 0x42 */ u8 unk42[6];
+    /* 0x42 */ u8 unk42;
+    /* 0x43 */ u8 unk43;
+    /* 0x44 */ u8 unk44[4];
     /* 0x48 */ s16 unk48;
     /* 0x4A */ s16 unk4A;
     /* 0x4C */ u16 unk4C;
@@ -590,9 +597,175 @@ INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AF278);
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AF470);
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AF5A8);
+typedef struct {
+    DRAWENV draw;
+    DISPENV display;
+    OT_TYPE ot[4096];
+} CondorDrawBuffer;
+extern CondorDrawBuffer* D_80129F34;
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AF98C);
+typedef struct {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ u16 z;
+    /* 0x6 */ u8 unk6[2];
+    /* 0x8 */ u8 state;
+    /* 0x9 */ u8 timer;
+    /* 0xA */ u8 image;
+    /* 0xB */ u8 unkB;
+    /* 0xC */ u8 unkC;
+    /* 0xD */ u8 unkD[3];
+} CondorEffect;
+const u32 D_800A01BC[] = {0x4030201, 0x7050D0C, 0x0};
+const u32 D_800A01C8[] = {0x4030201, 0x7050D0C, 0x8};
+const u32 D_800A01D4[] = {0x4030201, 0x6050D0C, 0x7};
+const u32 D_800A01E0[] = {0x4030201, 0x6050D0C, 0x807};
+
+s32 func_800AF278(CondorUnit* unit);
+
+void func_800AF5A8(POLY_FT4* poly, CondorEffect* effect) {
+    CondorUnit impact;
+    // Each frame stores the blend mode, duration, and image index.
+    s16 frames[12][3] = {{4, 1, 0}, {1, 1, 0}, {0, 1, 0}, {0, 2, 1}, {0, 2, 2}, {0, 2, 3},
+                         {0, 4, 4}, {0, 6, 5}, {0, 6, 6}, {1, 6, 7}, {4, 6, 7}, {4, 1, 7}};
+    s16 blendMode;
+    u32 state;
+    s16 timer;
+    u16 depth;
+    state = effect->state;
+    if (state >= 0x40) {
+        effect->state = 0xFF;
+        effect->timer = 0;
+    } else if (state < 0xB) {
+        if (effect->timer == 0) {
+            effect->state++;
+            // The animation reads the low byte of the duration and image words.
+            timer = *((u8*)frames + 2 + effect->state * 6);
+            timer--;
+            effect->timer = timer;
+            effect->image = *((u8*)frames + 4 + effect->state * 6);
+            poly->clut = GetClut(0x340, 0xF1);
+        } else {
+            timer = effect->timer;
+            timer--;
+            effect->timer = timer;
+        }
+        blendMode = frames[effect->state][0];
+        if (blendMode == 0) {
+            SetSemiTrans(poly, 0);
+        }
+        if (blendMode == 1) {
+            SetSemiTrans(poly, 1);
+            poly->tpage = GetTPage(0, 1, 0x340, 0);
+        }
+        if (blendMode == 4) {
+            SetSemiTrans(poly, 1);
+            poly->tpage = GetTPage(0, 3, 0x340, 0);
+        }
+        poly->u0 = (effect->image & 3) << 6;
+        poly->v0 = (effect->image & 4) * 8;
+        poly->u1 = ((effect->image & 3) << 6) + 0x3F;
+        poly->v1 = (effect->image & 4) * 8;
+        poly->u2 = (effect->image & 3) << 6;
+        poly->v2 = (effect->image & 4) * 8 + 0x1F;
+        poly->u3 = ((effect->image & 3) << 6) + 0x3F;
+        poly->v3 = (effect->image & 4) * 8 + 0x1F;
+        poly->x0 = effect->x + 0x80;
+        poly->y0 = effect->y + 0x68;
+        poly->x1 = effect->x + 0xC0;
+        poly->y1 = effect->y + 0x68;
+        poly->x2 = effect->x + 0x80;
+        poly->y2 = effect->y + 0x88;
+        poly->x3 = effect->x + 0xC0;
+        poly->y3 = effect->y + 0x88;
+        AddPrim(&D_80129F34->ot[0], poly);
+    } else {
+        effect->state++;
+    }
+    if (effect->state == 0xC) {
+        impact.unk48 = effect->x + 0x100;
+        impact.unk4A = effect->y + 0x210;
+        depth = effect->z;
+        impact.width = 0x40;
+        impact.height = 0x20;
+        impact.unk4C = depth;
+        impact.unk12 = effect->unkB;
+        impact.unk43 = effect->unkC;
+        func_800AF278(&impact);
+    }
+}
+
+void func_800AF98C(POLY_FT4* poly, CondorEffect* effect) {
+    CondorUnit impact;
+    // Each frame stores the blend mode, duration, and image index.
+    s16 frames[12][3] = {{4, 1, 0}, {0, 1, 0}, {0, 1, 0}, {0, 2, 1}, {4, 2, 2}, {4, 2, 3},
+                         {4, 4, 4}, {4, 6, 5}, {4, 6, 6}, {4, 3, 7}, {4, 2, 7}, {4, 1, 7}};
+    s16 blendMode;
+    u32 state;
+    s16 timer;
+    u16 depth;
+    state = effect->state;
+    if (state >= 0x40) {
+        effect->state = 0xFF;
+        effect->timer = 0;
+    } else if (state < 0xB) {
+        if (effect->timer == 0) {
+            effect->state++;
+            // The animation reads the low byte of the duration and image words.
+            timer = *((u8*)frames + 2 + effect->state * 6);
+            timer--;
+            effect->timer = timer;
+            effect->image = *((u8*)frames + 4 + effect->state * 6);
+            poly->clut = GetClut(0x340, 0xF3);
+        } else {
+            timer = effect->timer;
+            timer--;
+            effect->timer = timer;
+        }
+        blendMode = frames[effect->state][0];
+        if (blendMode == 0) {
+            SetSemiTrans(poly, 0);
+        }
+        if (blendMode == 1) {
+            SetSemiTrans(poly, 1);
+            poly->tpage = GetTPage(0, 1, 0x340, 0);
+        }
+        if (blendMode == 4) {
+            SetSemiTrans(poly, 1);
+            poly->tpage = GetTPage(0, 3, 0x340, 0);
+        }
+        poly->u0 = (effect->image & 3) << 6;
+        poly->v0 = (effect->image & 4) * 8 + 0x40;
+        poly->u1 = ((effect->image & 3) << 6) + 0x3F;
+        poly->v1 = (effect->image & 4) * 8 + 0x40;
+        poly->u2 = (effect->image & 3) << 6;
+        poly->v2 = (effect->image & 4) * 8 + 0x5F;
+        poly->u3 = ((effect->image & 3) << 6) + 0x3F;
+        poly->v3 = (effect->image & 4) * 8 + 0x5F;
+        poly->x0 = effect->x + 0x80;
+        poly->y0 = effect->y + 0x68;
+        poly->x1 = effect->x + 0xC0;
+        poly->y1 = effect->y + 0x68;
+        poly->x2 = effect->x + 0x80;
+        poly->y2 = effect->y + 0x88;
+        poly->x3 = effect->x + 0xC0;
+        poly->y3 = effect->y + 0x88;
+        AddPrim(&D_80129F34->ot[0], poly);
+    } else {
+        effect->state++;
+    }
+    if (effect->state == 0xA) {
+        impact.unk48 = effect->x + 0x100;
+        impact.unk4A = effect->y + 0x210;
+        depth = effect->z;
+        impact.width = 0x20;
+        impact.height = 0x20;
+        impact.unk4C = depth;
+        impact.unk12 = effect->unkB;
+        impact.unk43 = effect->unkC;
+        func_800AF278(&impact);
+    }
+}
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AFD74);
 
@@ -651,6 +824,8 @@ INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800B1FD0);
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800B21A8);
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800B2520);
+
+const u8 D_800A02EC[] = {0, 40, 40, 44, 40, 20, 28, 44, 44, 0, 0, 0, 40, 40, 20, 20, 48, 38, 30, 40, 20, 20, 20, 20};
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800B2804);
 

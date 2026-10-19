@@ -607,10 +607,10 @@ overlays:
     imports: [main]
     symbol_addrs_path:
       - config/symbols.condor.us.txt
-    migrate_rodata_to_functions: false
+    migrate_rodata_to_functions: true
     vram_start: 0x800A0000
     segments:
-      - [0x0, rodata, condor]
+      - [0x0, .rodata, condor]
       - [0x37C, c, condor]
       - [0x1E7D8, data, condor]
   - name: highway
