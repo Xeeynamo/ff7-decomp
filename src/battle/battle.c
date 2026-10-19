@@ -2377,7 +2377,58 @@ void BattleLoadActionAttackData(void) {
     BattleSetActionEffect(atk->additionalEffects, atk->effectsModifier);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType0E);
+void BattleActionType0E(void) {
+    BattleUnitAttackSetup* attackSetup;
+    s32 i;
+
+    g_CurrentAction->power = 16;
+
+    if (g_CurrentAction->actorId < NUM_PARTY) {
+        attackSetup = &g_BattleWork.setup[g_CurrentAction->actorId];
+        g_CurrentAction->unk24 = attackSetup->attackEffectId;
+        g_CurrentAction->formulaIds = attackSetup->damageFormulaId;
+        g_CurrentAction->unk3C = attackSetup->hitChance;
+        g_CurrentAction->unk68 = attackSetup->impactEffectId;
+        g_CurrentAction->elements = attackSetup->attackElement;
+
+        SetActionStatusChange(5, attackSetup->attackStatusMask);
+
+        if (g_CurrentAction->unk60 == 0xFFFF) {
+            g_CurrentAction->unk60 = attackSetup->cameraMovementId;
+        }
+
+        if (g_CurrentAction->unk64 == 0xFFFF) {
+            g_CurrentAction->unk64 = attackSetup->cameraMovementId;
+        }
+
+        g_CurrentAction->attackFlags = attackSetup->specialAttackFlags;
+        BattleCopyTargTypeDatToTmp(attackSetup->targetFlags);
+
+        for (i = 0; i < LEN(attackSetup->attackSound); i++) {
+            g_CurrentAction->unk54[i] = attackSetup->attackSound[i];
+        }
+
+        g_CurrentAction->elements |= g_ActiveCharacters[g_CurrentAction->actorId].physicalAttackElements;
+    }
+
+    if (g_BattleState.combatant[g_CurrentAction->actorId].status & STATUS_DARKNESS) {
+        g_CurrentAction->unk3C >>= 1;
+    }
+
+    if (g_BattleState.combatant[g_CurrentAction->actorId].status & STATUS_FROG) {
+        g_CurrentAction->unk54[0] = SFX_16B;
+        g_CurrentAction->unk54[1] = SFX_16C;
+        g_CurrentAction->unk54[2] = SFX_SWORD_MISS;
+        g_CurrentAction->unk68 = 0;
+    }
+
+    if (g_BattleWork.turn[g_CurrentAction->actorId].prevHP == 7777) {
+        g_CurrentAction->elements = 0;
+        g_CurrentAction->unk80[0] = 0;
+        g_CurrentAction->unk80[1] = 0;
+        g_CurrentAction->unk80[2] = 0;
+    }
+}
 
 void BattleQueueCurrentActionEffect(void) {
     BattleActionQueueEntry* unk;
@@ -3264,9 +3315,9 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
         }
         g_CurrentAction->unk24C = g_CurrentAction->unk68;
         if (g_CurrentAction->damageFlags & 2) {
-            g_CurrentAction->unk248 = g_CurrentAction->unk58;
+            g_CurrentAction->unk248 = g_CurrentAction->unk54[1];
         } else {
-            g_CurrentAction->unk248 = g_CurrentAction->unk54;
+            g_CurrentAction->unk248 = g_CurrentAction->unk54[0];
         }
         if ((g_CurrentAction->damageFlags & 1) || (g_CurrentAction->unk250 == 0)) {
             g_CurrentAction->hurtAnimScript = 0x33;
@@ -3274,9 +3325,9 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
             func_800AC6B4(0);
         }
     } else if (flags & 1) {
-        g_CurrentAction->unk248 = g_CurrentAction->unk5C;
+        g_CurrentAction->unk248 = g_CurrentAction->unk54[2];
     } else {
-        g_CurrentAction->unk248 = g_CurrentAction->unk54;
+        g_CurrentAction->unk248 = g_CurrentAction->unk54[0];
         if (g_CurrentAction->affinityFlags & AFFINITY_DEATH) {
             func_800AC6B4(0);
         }

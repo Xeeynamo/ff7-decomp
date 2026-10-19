@@ -609,7 +609,7 @@ typedef struct {
     /* 0x05 */ u8 criticalHitChance;
     /* 0x06 */ u8 unk06;
     /* 0x07 */ u8 unk07;
-    /* 0x08 */ u16 attackSound[3]; // [0] normal hit, [1] critical, [2] miss; 0x100 set from WeaponRecord.soundIdMask
+    /* 0x08 */ s16 attackSound[3]; // [0] normal hit, [1] critical, [2] miss; 0x100 set from WeaponRecord.soundIdMask
     /* 0x0E */ u16 attackElement;
     /* 0x10 */ u16 cameraMovementId;
     /* 0x12 */ u16 specialAttackFlags;
@@ -690,9 +690,7 @@ typedef struct Unk800A8D04 {
     /* 0x048 */ s32 power;
     /* 0x04C */ s32 attackStat;
     /* 0x050 */ s32 targetFlags;
-    /* 0x054 */ s32 unk54;
-    /* 0x058 */ s32 unk58;
-    /* 0x05C */ s32 unk5C;
+    /* 0x054 */ s32 unk54[3];
     /* 0x060 */ s32 unk60;
     /* 0x064 */ s32 unk64;
     /* 0x068 */ s32 unk68;
