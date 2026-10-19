@@ -2,7 +2,6 @@
 #define BATTLE_PRIVATE_H
 
 // should be imported only by the BATTLE overlay, not BATINI or similar
-
 #include "battle.h"
 #include "../magic/magic.h"
 
