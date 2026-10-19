@@ -2569,7 +2569,83 @@ void BattleActionType16(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8A6C);
+extern s32 D_801517B8;
+
+// Mime command handler
+void BattleActionType17(void) {
+    s32 actorId = g_CurrentAction->actorId;
+    s32 count = 0;
+    s32 charId;
+    s32 textId = -1;
+    s16 msgArgs[2];
+    s32 animId = 3;
+    s32 attackIndex;
+    s32 cmdIndex;
+    u16 targetMask;
+    s32 priority;
+    s32 i;
+    s32 j;
+
+    msgArgs[0] = actorId;
+    charId = g_BattleData.actors[actorId].charId;
+
+    for (i = 0; i < LEN(g_BattleWork.postExecAction); i++) {
+        g_BattleWork.party[actorId].unk18[i] = 0xFFFF;
+        if (g_BattleWork.postExecAction[i].unitSlot == -1) {
+            continue;
+        }
+
+        attackIndex = g_BattleWork.postExecAction[i].attackIndex;
+        targetMask = g_BattleWork.postExecAction[i].targetMask;
+        cmdIndex = g_BattleWork.postExecAction[i].cmdIndex & 0x3F;
+        if (cmdIndex == CMD_MIME) {
+            continue;
+        }
+
+        if (cmdIndex == CMD_LIMIT) {
+            for (j = 0; j < 12; j++) {
+                if (SysGetLimitCmdId(charId, j) == attackIndex) {
+                    break;
+                }
+            }
+
+            if (j == 12) {
+                textId = 0x57;
+                animId = 0x35;
+                g_CurrentAction->unk98 = attackIndex;
+                msgArgs[1] = attackIndex + 0x80;
+                continue;
+            }
+        }
+
+        priority = g_BattleWork.currentQueuePriority;
+        if (priority != 1) {
+            priority = 4;
+        }
+
+        D_801517B8++;
+
+        BattleQueueImmediateAction(actorId, priority, cmdIndex | 0x40, attackIndex, targetMask);
+        count++;
+        g_BattleWork.party[actorId].unk18[i] = g_BattleWork.playerContextOffset[i];
+    }
+
+    if (count != 0) {
+        return;
+    }
+
+    if (textId == -1) {
+        textId = 0x58;
+    }
+
+    func_800A2CC4(animId);
+    BattleAddStringToDisplay(actorId, textId, 1, msgArgs);
+
+    if (animId == 3) {
+        func_800A2CC4(0x3B);
+        func_800A2CC4(4);
+    }
+}
 
 void BattleActionType18(void) {
     g_CurrentAction->unk8C = 0xFF;

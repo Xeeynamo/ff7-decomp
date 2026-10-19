@@ -589,8 +589,7 @@ typedef struct {
     /* 0x12 */ u16 maxHP;
     /* 0x14 */ u16 capMP;
     /* 0x16 */ u16 capHP;
-    /* 0x18 */ u16 unk18;
-    /* 0x1A */ u16 unk1A;
+    /* 0x18 */ u16 unk18[2];
     /* 0x1C */ u32 limitBreakHPDivisor;
     /* 0x20 */ u32 accessoryStatusMask; // status mask granted by the equipped accessory
     /* 0x24 */ u32 enemySkillMateriaData;
@@ -661,8 +660,7 @@ typedef struct {
     /* 0x221C */ u8 enemyTypeCount[3];
     /* 0x221F */ u8 pad221F;
     /* 0x2220 */ u16 attackerUnitMask;
-    /* 0x2222 */ u16 playerContextOffset;
-    /* 0x2224 */ u16 pad2224;
+    /* 0x2222 */ u16 playerContextOffset[2];
     /* 0x2226 */ s16 pendingActionPriority;
 } BattleWork; // size:0x2228
 
