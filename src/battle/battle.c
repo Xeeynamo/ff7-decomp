@@ -2956,7 +2956,42 @@ static s32 BattleGetRndOpponentBit(s32 arg0) {
     return BattleOpcodeGetRndBit(g_BattleData.unk14C & var_v0) & 0xFFFF;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA738);
+// Queues a battle action from the current action state
+void func_800AA738(s32 arg0) {
+    BattleActionQueueEntry* entry = BattleActionQueueAlloc();
+    s32 i;
+
+    g_CurrentAction->unkB8 = SysCountActiveBits(arg0);
+    entry->actionId = g_CurrentAction->actorId;
+    entry->type = g_CurrentAction->unk1C;
+    entry->unk5 = g_CurrentAction->unk20;
+
+    // Enemies with Frog use substitute ids for their attack
+    if (g_CurrentAction->actorId >= START_ENEMY && (g_CurrentAction->attackerStatus & STATUS_FROG) &&
+        entry->unk5 != 0x34) {
+        if (g_CurrentAction->cmdIndex == CMD_ENEMY_ATTACK && g_CurrentAction->unk24 == 0xFF) {
+            entry->unk5 = 0x14;
+        } else if (g_CurrentAction->cmdIndex <= CMD_ENEMY_ATTACK) {
+            entry->unk5 = 0x1D;
+        }
+    }
+
+    // Party actions remap some ids through D_800E7BBC under some unknown conditions
+    if (g_CurrentAction->actorId < NUM_PARTY && (g_CurrentAction->unkB8 >= 2 || (g_CurrentAction->unk90 & 0x20000))) {
+        for (i = 0; i < LEN(D_800E7BBC); i++) {
+            if (entry->unk5 == D_800E7BBC[i][0]) {
+                entry->unk5 = D_800E7BBC[i][1];
+                break;
+            }
+        }
+    }
+
+    entry->unk3 = g_CurrentAction->cmdIndex;
+    entry->unk2 = g_CurrentAction->unk24;
+    entry->unk8 = g_CurrentAction->unkB8 >= 2 ? g_CurrentAction->unk64 : g_CurrentAction->unk60;
+    entry->unk6 = g_CurrentAction->unk98;
+    entry->unk4 = 0;
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA950);
 
