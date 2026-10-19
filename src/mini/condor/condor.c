@@ -125,7 +125,7 @@ void func_800ABE54(CondorUnit*);
 void func_800AC72C(CondorUnit*, CondorSpawn*, s32, s16*);
 s16 func_800AC5C0(s16, CondorPoint*);
 s16 func_800B0604(CondorUnit*, s32);
-s16 func_800A8004(CondorUnit*);
+s16 func_800A8004(CondorUnit* unit);
 u16 func_800A7584(u16* vector);
 extern s32 D_8012C554;
 extern s32 D_8012C558;
@@ -459,22 +459,17 @@ s16 func_800A8004(CondorUnit* unit) {
     s16 shiftedX;
     s16 shiftedY;
     triangle = D_8010C33C;
-    index = 0;
     x = unit->unk50;
     y = unit->unk52;
     shiftedX = x + 0x4000;
     shiftedY = y + 0x4000;
-    if (D_8012C518 > 0) {
-        do {
-            if (shiftedX >= triangle->minX && shiftedX <= triangle->maxX && shiftedY >= triangle->minY &&
-                shiftedY <= triangle->maxY && (s16)func_800A7E20(triangle, x, y) == 0) {
-                unit->unk60 = triangle->unk48;
-                unit->unk64 = triangle->unk4A;
-                return index;
-            }
-            index++;
-            triangle++;
-        } while (index < D_8012C518);
+    for (index = 0; index < D_8012C518; index++, triangle++) {
+        if (shiftedX >= triangle->minX && shiftedX <= triangle->maxX && shiftedY >= triangle->minY &&
+            shiftedY <= triangle->maxY && (s16)func_800A7E20(triangle, x, y) == 0) {
+            unit->unk60 = triangle->unk48;
+            unit->unk64 = triangle->unk4A;
+            return index;
+        }
     }
     return -1;
 }
