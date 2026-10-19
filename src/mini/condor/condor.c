@@ -90,8 +90,8 @@ extern s16 D_8012C430;
 extern u32 D_8012C53C;
 extern s16 D_8012C5CC;
 extern s32 D_8012C3EC;
-extern s32 D_8012C3A4[];
-extern s32 D_8012C3AC[];
+extern CondorPoint D_8012C3A4;
+extern CondorPoint D_8012C3AC;
 extern s16 D_8012C40C;
 extern u16 D_8012AF54;
 extern u8 D_8012AF5C[];
@@ -135,7 +135,7 @@ void func_800B5BDC(CondorUnit*);
 void func_800B6758(void);
 s16 func_800B64EC(void);
 void func_800B47C8(CondorUnit*, s32);
-void func_800AB71C(s32, s32*);
+void func_800AB71C(u32 buttons, CondorPoint* position);
 void func_800B7638(void);
 void func_800A427C(void);
 void func_800AB5BC(s32, s32);
@@ -351,16 +351,16 @@ s32 CondorTrySpawn(void) {
         if ((D_8012C5CC == 0) && (D_8012C41C == -1)) {
             if (D_8012C508 < 0x14) {
                 if (D_8012C404 == 1) {
-                    if (((s16*)D_8012C3A4)[1] >= 0x2A0) {
+                    if (D_8012C3A4.y >= 0x2A0) {
                         return 1;
                     }
-                } else if (((s16*)D_8012C3A4)[1] >= D_8012C530) {
+                } else if (D_8012C3A4.y >= D_8012C530) {
                     return 1;
                 }
                 {
                     at.z = -0x28;
-                    at.x = *(u16*)D_8012C3A4;
-                    at.y = 0x400 - ((u16*)D_8012C3A4)[1];
+                    at.x = D_8012C3A4.x;
+                    at.y = 0x400 - (u16)D_8012C3A4.y;
                     if (func_800AC5C0(0, &at) != 1) {
                         D_8012C5C0 = 1;
                         return 0;
@@ -385,20 +385,148 @@ INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A9B20);
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AB5BC);
 
 void func_800AB6B0(s32 arg0) {
-    s32* table = D_8012C3A4;
+    CondorPoint* table = &D_8012C3A4;
 
     if (D_8012C5CC == 0) {
-        table = D_8012C3AC;
+        table = &D_8012C3AC;
     }
     if ((D_8012C3E8 != 3) && (D_8012C3EC == 0)) {
-        table = D_8012C3A4;
+        table = &D_8012C3A4;
     }
     func_800AB71C(arg0, table);
 }
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AB71C);
+extern u16 D_8012C434;
+extern u16 D_8012C438;
+extern VECTOR D_8012C6EC;
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800ABA58);
+void func_800AB71C(u32 buttons, CondorPoint* position) {
+    DVECTOR relative;
+    s32 moveRelative;
+    relative.vx = position->x - D_8012C434;
+    relative.vy = position->y - D_8012C438;
+    if (buttons & 0x1000) {
+        moveRelative = 0;
+        if (relative.vy >= 105) {
+            moveRelative = 1;
+        } else {
+            D_8012C438--;
+            if (D_8012C438 > 0x8000) {
+                D_8012C438 = 0;
+                moveRelative = 1;
+            } else {
+                D_8012C6EC.vy++;
+            }
+        }
+        if (moveRelative) {
+            relative.vy--;
+            if (relative.vy < 0) {
+                relative.vy = 0;
+            }
+        }
+    }
+    if (buttons & 0x4000) {
+        moveRelative = 0;
+        if (relative.vy < 104) {
+            moveRelative = 1;
+        } else {
+            D_8012C438++;
+            if (D_8012C438 >= 805) {
+                D_8012C438 = 804;
+                moveRelative = 1;
+            } else {
+                D_8012C6EC.vy--;
+            }
+        }
+        if (moveRelative) {
+            relative.vy++;
+            if (relative.vy >= 204) {
+                relative.vy = 204;
+            }
+        }
+    }
+    if (buttons & 0x8000) {
+        moveRelative = 0;
+        if (relative.vx >= 161) {
+            moveRelative = 1;
+        } else {
+            D_8012C434--;
+            if (D_8012C434 > 0x8000) {
+                moveRelative = 1;
+                D_8012C434 = 0;
+                D_8012C6EC.vx &= ~7;
+            } else {
+                D_8012C6EC.vx++;
+            }
+        }
+        if (moveRelative) {
+            relative.vx--;
+            if (relative.vx < 0) {
+                relative.vx = 0;
+            }
+        }
+    }
+    if (buttons & 0x2000) {
+        moveRelative = 0;
+        if (relative.vx < 160) {
+            moveRelative = 1;
+        } else {
+            D_8012C434++;
+            if (D_8012C434 >= 193) {
+                moveRelative = 1;
+                D_8012C434 = 192;
+                D_8012C6EC.vx &= ~7;
+            } else {
+                D_8012C6EC.vx--;
+            }
+        }
+        if (moveRelative) {
+            relative.vx++;
+            if (relative.vx >= 320) {
+                relative.vx = 320;
+            }
+        }
+    }
+    position->x = relative.vx + D_8012C434;
+    position->y = relative.vy + D_8012C438;
+}
+
+void func_800ABA58(u32 buttons) {
+    if (buttons & 0x1000) {
+        D_8012C438--;
+        if (D_8012C438 > 0x8000) {
+            D_8012C438 = 0;
+        } else {
+            D_8012C6EC.vy++;
+        }
+    }
+    if (buttons & 0x4000) {
+        D_8012C438++;
+        if (D_8012C438 > 0x324) {
+            D_8012C438 = 0x324;
+        } else {
+            D_8012C6EC.vy--;
+        }
+    }
+    if (buttons & 0x8000) {
+        D_8012C434--;
+        if (D_8012C434 > 0x8000) {
+            D_8012C434 = 0;
+            D_8012C6EC.vx &= ~7;
+        } else {
+            D_8012C6EC.vx++;
+        }
+    }
+    if (buttons & 0x2000) {
+        D_8012C434++;
+        if (D_8012C434 > 0xC0) {
+            D_8012C434 = 0xC0;
+            D_8012C6EC.vx &= ~7;
+        } else {
+            D_8012C6EC.vx--;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800ABC18);
 
