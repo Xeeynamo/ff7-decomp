@@ -59,6 +59,7 @@ make disks
 * `make clean`: remove generated files from `./build`
 * `make format`: format codebase
 * `make disks`: extract the individual data files from the .bin disk image
+* `make kernel-text`: dumps all the string tables from the KERNEL.bin file
 * `./mako.sh rank <source_path>`: find remaining functions to decompile, sorted from easiest to hardest
 * `./mako.sh dec <function_name>`: decompile function
 * `./mako.sh symbols add <path> <name> <offset> [size]`: add or rename a symbol
@@ -79,6 +80,20 @@ bin/str disks/us/MENU/SAVEMENU.MNU 12DF8
 
 # the program prints the decoded string to your terminal:
 Saving. Do not remove Memory card.
+```
+
+There is another tool which can extract text strings from the KERNEL.bin:
+
+```shell
+# Dump all strings (same as `make kernel-text`)
+python3 ./tools/dump_kernel_strings.py
+
+# Dump all strings in a specific section
+python3 ./tools/dump_kernel_strings.py --section battle_messages
+python3 ./tools/dump_kernel_strings.py --section desc_command
+
+# Dump a specific string ID
+python3 ./tools/dump_kernel_strings.py --section battle_messages 0x5B
 ```
 
 ## AI / LLM stance
