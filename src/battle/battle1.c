@@ -1,8 +1,8 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "battle_private.h"
 #include <psxsdk/inline_c.h>
-#include <psxsdk/libetc.h>
-#include <psxsdk/libgpu.h>
+#include <libetc.h>
+#include <libgpu.h>
 
 // The camera handlers share these fields in the mapped PS1 scratchpad.
 typedef struct {

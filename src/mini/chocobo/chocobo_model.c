@@ -1,8 +1,8 @@
 //! PSYQ=3.3
 #include "chocobo_private.h"
 #include <gte.h>
-#include <psxsdk/libetc.h>
-#include <psxsdk/libgte.h>
+#include <libetc.h>
+#include <libgte.h>
 #include <psxsdk/inline_c.h>
 #include "sincos.h"
 

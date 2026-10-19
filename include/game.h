@@ -2,8 +2,8 @@
 #define GAME_H
 
 #include <common.h>
-#include <psxsdk/libgte.h>
-#include <psxsdk/libgpu.h>
+#include <libgte.h>
+#include <libgpu.h>
 #include "item.h"
 #include "sfx.h"
 #include "bgm.h"
