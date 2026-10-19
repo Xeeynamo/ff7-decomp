@@ -79,7 +79,6 @@ var metaCategories = map[string]string{
 }
 
 var metaOverlays = map[string]metaOverlay{
-
 	"main": {"main", "main", "Game engine"},
 
 	"batini": {"batini", "battle", "Battle init"},

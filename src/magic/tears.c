@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "common.h"
 #include "magic.h"
-#include "tears_assets.h"
+#include "../battle/battle.h"
 // TEARS.BIN: Three falling sprites per update, distributed around the target in the x/z plane.
 
 extern s32 rand(void);
@@ -12,6 +12,8 @@ typedef struct {
     s16 unk14, unk16, unk18, unk1A, TargetIndex, SourceIndex;
 } TearsEffect;
 extern TearsEffect g_BattleEffectSlots[];
+extern BattleSpriteDesc D_801B0450;
+extern u8 D_801B0460[];
 extern void* D_801D0460;
 static void func_tears_801B03E4(s32 arg0, s32 arg1);
 
@@ -58,22 +60,19 @@ static void func_tears_801B0158(void) {
     if (D_80062D98 != 0) {
         return;
     }
-    i = 0;
     if (effect->AnimationFrame < 0x1E) {
-    loop_2:
-        i += 1;
-        particle = &g_BattleEffectSlots[BattleEffectRegister(func_tears_801B0020)];
-        temp_s1 = rand() & 0xFFF;
-        temp_s2 = rand() % 1000;
-        particle->Pos.vx = (u16)effect->Pos.vx + ((s32)(rsin(temp_s1) * temp_s2) >> 0xC);
-        particle->Pos.vy = (rand() % 100) - 0x834;
-        zOffset = rcos(temp_s1) * temp_s2;
-        particle->Pos.vz = (u16)effect->Pos.vz + (zOffset >> 0xC);
-        particle->Velocity.vy = 0x64;
-        particle->unk14 = 0x1000;
-        particle->StartFrame = rand() & 7;
-        if (i < 3) {
-            goto loop_2;
+        for (i = 0; i < 3;) {
+            i += 1;
+            particle = &g_BattleEffectSlots[BattleEffectRegister(func_tears_801B0020)];
+            temp_s1 = rand() & 0xFFF;
+            temp_s2 = rand() % 1000;
+            particle->Pos.vx = (u16)effect->Pos.vx + ((s32)(rsin(temp_s1) * temp_s2) >> 0xC);
+            particle->Pos.vy = (rand() % 100) - 0x834;
+            zOffset = rcos(temp_s1) * temp_s2;
+            particle->Pos.vz = (u16)effect->Pos.vz + (zOffset >> 0xC);
+            particle->Velocity.vy = 0x64;
+            particle->unk14 = 0x1000;
+            particle->StartFrame = rand() & 7;
         }
     } else {
         func_800D5774((u32)effect->StartFrame);

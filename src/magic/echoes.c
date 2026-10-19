@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "common.h"
 #include "magic.h"
-#include "echoes_assets.h"
+#include "../battle/battle.h"
 // ECHOES.BIN: Seven billboard sprites per update, with random offsets bounded by the target radius.
 
 extern s32 rand(void);
@@ -12,6 +12,10 @@ typedef struct {
     s16 unk14, unk16, unk18, unk1A, TargetIndex, SourceIndex;
 } EchoesEffect;
 extern EchoesEffect g_BattleEffectSlots[];
+extern u_long D_801B0474[];
+extern u8 D_801B64B4[];
+extern SpriteRenderDesc D_801B6870;
+extern u8 D_801B687C[];
 extern void* D_801D687C;
 static void func_echoes_801B0404(s32 arg0, s32 arg1);
 
@@ -34,7 +38,7 @@ static void func_echoes_801B0020(void) {
     }
     nextFrame = (u16)effect->AnimationFrame + 1;
     effect->AnimationFrame = nextFrame;
-    if ((s16)nextFrame >= (s32)(u8)g_EchoesAnimation0.frameCount) {
+    if ((s16)nextFrame >= (s32)D_801B64B4[4]) {
         effect->StartFrame = -1;
     }
 }
@@ -55,9 +59,7 @@ static void func_echoes_801B0108(void) {
         return;
     }
     if (effect->AnimationFrame < 0xF) {
-        i = 0;
-        fullTurn = 0x1000;
-        do {
+        for (i = 0, fullTurn = 0x1000; i < 7;) {
             particle = &g_BattleEffectSlots[BattleEffectRegister(func_echoes_801B0020)];
             particle->Pos = effect->Pos;
             angle = rand() & 0x7FF;
@@ -75,11 +77,10 @@ static void func_echoes_801B0108(void) {
             }
             particle->Velocity.vy = (s16)((s32)(effect->Velocity.vy * offsetY) >> 0xC);
             randomValue = rand();
-            // match: the quotient form keeps one shared shift after the sign correction.
             particle->Velocity.vz = (randomValue - (randomValue / 4096) * 4096) + 0x2000;
             i += 1;
             particle->Velocity.pad = (s16)(u16)effect->Velocity.pad;
-        } while (i < 7);
+        }
     } else {
         func_800D5774((u32)effect->StartFrame);
         effect->StartFrame = -1;
@@ -119,7 +120,7 @@ static void func_echoes_801B03A4(void) {
 }
 
 static void func_echoes_801B0404(s32 arg0, s32 arg1) {
-    BattleSetLoadTimToVram(echoes_texture_tim, 0, 0, 0);
+    BattleSetLoadTimToVram(D_801B0474, 0, 0, 0);
     BattleEffectRegister(func_echoes_801B03A4);
     MagicAnimationRegister(arg0, arg1, 0, func_echoes_801B02BC);
 }

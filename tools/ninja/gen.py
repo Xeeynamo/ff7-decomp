@@ -338,10 +338,6 @@ def add_splat_config(ovl_name: str, file_name: str):
                         name = str.format("{0:X}", offset)
             if kind == "data":
                 add_s(cfg, f"data/{name}.data")
-            elif kind == "databin":
-                asset_file = f"{asset_path(cfg)}/{name}.databin.bin"
-                nw.build(rule="phony", outputs=[asset_file], implicit=[ld_path(cfg)])
-                add_s(cfg, f"data/{name}", implicit=[asset_file])
             elif kind == "rodata":
                 add_s(cfg, f"data/{name}.rodata")
             elif kind == "bss":

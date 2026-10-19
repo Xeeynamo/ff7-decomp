@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "common.h"
 #include "magic.h"
-#include "hakai_assets.h"
+#include "../battle/battle.h"
 // HAKAI.BIN: Random body-part sprites alternate between two frame sequences while the screen effect pulses.
 
 extern s32 rand(void);
@@ -13,8 +13,13 @@ typedef struct {
 } HakaiEffect;
 extern HakaiEffect g_BattleEffectSlots[];
 extern s32 D_80163C74;
-void func_800BBA84(s32, s32, s32);
-s32 func_800C4FC8(s32, s32, s16);
+extern u_long D_801B04C4[];
+extern SpriteRenderDesc D_801B6754;
+extern SpriteAnim* D_801B6760[];
+extern u8 D_801B6768[];
+extern void* D_801CE768;
+void func_800BBA84(s32 arg0, s32 arg1, s32 arg2);
+s32 func_800C4FC8(s32 arg0, s32 arg1, s16 arg2);
 static void func_hakai_801B0448(s32 arg0, s32 arg1);
 
 void MAGIC_Hakai(s32 targetMask, s32 callbackArg) { func_hakai_801B0448(targetMask, callbackArg); }
@@ -90,7 +95,7 @@ static void func_hakai_801B03F4(s32 arg0, s32 arg1) {
 
 static void func_hakai_801B0448(s32 arg0, s32 arg1) {
     BattleEffectRegister(func_hakai_801B0020);
-    BattleSetLoadTimToVram(hakai_texture_tim, 0, 0, 0);
+    BattleSetLoadTimToVram(D_801B04C4, 0, 0, 0);
     MagicAnimationRegister(arg0, arg1, 4, func_hakai_801B03F4);
     func_800BBA84(0x186, arg1, 0);
 }

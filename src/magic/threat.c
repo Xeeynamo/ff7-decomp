@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "common.h"
 #include "magic.h"
-#include "threat_assets.h"
+#include "../battle/battle.h"
 // THREAT.BIN: An emitter travels from the source to the target over sixteen updates, leaving a sprite trail.
 
 typedef struct {
@@ -10,7 +10,10 @@ typedef struct {
     s16 unk14, unk16, unk18, unk1A, TargetIndex, SourceIndex;
 } ThreatEffect;
 extern ThreatEffect g_BattleEffectSlots[];
+extern u_long D_801B0410[];
 extern s32 D_801B8454;
+extern SpriteRenderDesc D_801B8548;
+extern u8 D_801B8554[];
 extern void* D_801D8554;
 
 void MAGIC_Threat(s32 targetMask, s32 callbackArg) { MAGIC_ThreatSetup(targetMask, callbackArg); }
@@ -97,7 +100,7 @@ static void func_threat_801B0304(void) {
 }
 
 void MAGIC_ThreatSetup(s32 targetMask, s32 callbackArg) {
-    BattleSetLoadTimToVram(threat_texture_tim, 0, 0, 0);
+    BattleSetLoadTimToVram(D_801B0410, 0, 0, 0);
     BattleEffectRegister(func_threat_801B0304);
     MagicAnimationRegister(targetMask, callbackArg, 4, func_threat_801B01D8);
     BattleAkaoCommand(0x20, BattlePositionToStereoPan(&g_BattleModels[callbackArg].rootTrans), 0x31);

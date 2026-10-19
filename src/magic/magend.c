@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "common.h"
 #include "magic.h"
-#include "magend_assets.h"
+#include "../battle/battle.h"
 // MAGEND.BIN: One particle per update; random rotation determines its velocity and gravity pulls it down.
 
 extern s32 rand(void);
@@ -12,7 +12,13 @@ typedef struct {
     s16 unk14, unk16, unk18, unk1A, TargetIndex, SourceIndex;
 } MagendEffect;
 extern MagendEffect g_BattleEffectSlots[];
-void RotTransSV(SVECTOR*, SVECTOR*, s32*);
+extern u_long D_801B04B4[];
+extern s16 D_801B1730;
+extern SpriteRenderDesc D_801B1734;
+extern SVECTOR D_801B1740;
+extern u8 D_801B1748[];
+extern void* D_801C1748;
+void RotTransSV(SVECTOR* input, SVECTOR* output, s32* flags);
 static void func_magend_801B0448(s32 arg0, s32 arg1);
 
 void MAGIC_Magend(s32 targetMask, s32 callbackArg) { func_magend_801B0448(targetMask, callbackArg); }
@@ -90,6 +96,6 @@ static void func_magend_801B03F4(s32 arg0, s32 arg1) {
 
 static void func_magend_801B0448(s32 arg0, s32 arg1) {
     BattleEffectRegister(func_magend_801B0020);
-    BattleSetLoadTimToVram(magend_texture_tim, 0, 0, 0);
+    BattleSetLoadTimToVram(D_801B04B4, 0, 0, 0);
     MagicAnimationRegister(arg0, arg1, 4, func_magend_801B03F4);
 }

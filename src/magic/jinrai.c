@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "common.h"
 #include "magic.h"
-#include "jinrai_assets.h"
+#include "../battle/battle.h"
 // JINRAI.BIN: Two target-position sprite bursts, scheduled at frames 22 and 55.
 
 typedef struct {
@@ -10,12 +10,14 @@ typedef struct {
     s16 unk14, unk16, unk18, unk1A, TargetIndex, SourceIndex;
 } JinraiEffect;
 extern JinraiEffect g_BattleEffectSlots[];
+extern void* D_80163C74;
+extern u_long D_801B0310[];
 extern s32 D_801B3354;
 extern EffectModel D_801B3470;
-extern void* D_80163C74;
+extern SpriteRenderDesc D_801B5220;
 static void func_jinrai_801B02B0(s32 arg0, s32 arg1);
 
-void func_800BBA84(s32, s32, s32);
+void func_800BBA84(s32 arg0, s32 arg1, s32 arg2);
 
 EffectModel* MAGIC_Jinrai(s32 targetMask, s32 callbackArg) {
     func_jinrai_801B02B0(targetMask, callbackArg);
@@ -82,6 +84,6 @@ static void func_jinrai_801B01E4(s32 arg0, s32 arg1) {
 }
 
 static void func_jinrai_801B02B0(s32 arg0, s32 arg1) {
-    BattleSetLoadTimToVram(jinrai_texture_tim, 0, 0, 0);
+    BattleSetLoadTimToVram(D_801B0310, 0, 0, 0);
     MagicAnimationRegister(arg0, arg1, 4, func_jinrai_801B01E4);
 }

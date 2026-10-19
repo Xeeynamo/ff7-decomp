@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "common.h"
 #include "magic.h"
-#include "minimam_assets.h"
+#include "../battle/battle.h"
 // MINIMAM.BIN: A circular pool of 444 position/scale records feeds groups of three billboard sprites.
 
 extern s32 rand(void);
@@ -13,6 +13,17 @@ typedef struct {
     char pad1A[6];
 } MinimamEffect;
 extern MinimamEffect g_BattleEffectSlots[];
+extern u_long D_801B05B8[];
+extern SpriteRenderDesc D_801B48A0;
+extern u8 D_801B48AC[];
+extern u8 D_801C08AC[];
+extern void* D_801CC8AC;
+extern s32* D_801CC8B0;
+extern s32 D_801CC8B4;
+extern u8 D_801CC8B8[];
+extern u8 D_801CC8BA[];
+extern u8 D_801CC8BC[];
+extern u8 D_801CC8BE[];
 static void func_minimam_801B0514(s32 arg0, s32 arg1);
 
 static void func_minimam_801B0000(void) {
@@ -41,8 +52,8 @@ static void func_minimam_801B0074(void) {
     D_801B48A0.frameIndex = (u16)effect->AnimationFrame;
     randomScale = effect->TargetIndex * 8;
     for (i = 0; i < 3; i++) {
-        position = (SVECTOR*)((u8*)g_MinimamParticles + randomScale);
-        temp_a2 = *(s16*)((u8*)&g_MinimamParticles[0].pad + randomScale);
+        position = (SVECTOR*)((u8*)D_801CC8B8 + randomScale);
+        temp_a2 = *(s16*)(D_801CC8BE + randomScale);
         randomScale += 8;
         BattleSetBillboardMatrix(position, temp_a2, -(temp_a2 >> 2));
         D_801CC8AC = func_800D4D90(&D_801B48A0, g_cDb->unk70, 0xC, D_801CC8AC);
@@ -78,14 +89,12 @@ static void func_minimam_801B0190(void) {
         particle[BattleEffectRegister(func_minimam_801B0074)].TargetIndex = (s16)iValue;
         for (iValueValue = 0; iValueValue < 3; iValueValue++) {
             randomScale = rand() % 4096 + 2048;
-            *(s16*)((u8*)g_MinimamParticles + i) =
-                ((u16)effect->Pos.vx + (rand() % (s16)effect->Width)) - (u16)effect->Radius;
+            *(s16*)((u8*)D_801CC8B8 + i) = ((u16)effect->Pos.vx + (rand() % (s16)effect->Width)) - (u16)effect->Radius;
             iValue += 1;
-            *(s16*)((u8*)&g_MinimamParticles[0].vy + i) =
+            *(s16*)(D_801CC8BA + i) =
                 ((u16)effect->Pos.vy - (rand() % (s16)effect->HeightRange)) + (u16)effect->HeightBias;
-            *(s16*)((u8*)&g_MinimamParticles[0].vz + i) =
-                ((u16)effect->Pos.vz + (rand() % (s16)effect->Width)) - (u16)effect->Radius;
-            *(s16*)((u8*)&g_MinimamParticles[0].pad + i) = (s16)((s32)(effect->Scale * randomScale) >> 0xC);
+            *(s16*)(D_801CC8BC + i) = ((u16)effect->Pos.vz + (rand() % (s16)effect->Width)) - (u16)effect->Radius;
+            *(s16*)(D_801CC8BE + i) = (s16)((s32)(effect->Scale * randomScale) >> 0xC);
             i += 8;
             if (iValue >= 0x1BC) {
                 i = 0;
@@ -129,7 +138,7 @@ static void func_minimam_801B0414(s32 arg0, s32 arg1) {
 
 static void func_minimam_801B0514(s32 arg0, s32 arg1) {
     D_801CC8B0 = (s32*)&g_BattleEffectSlots[BattleEffectRegister(func_minimam_801B0000)];
-    BattleSetLoadTimToVram(minimam_texture_tim, 0, 0, 0);
+    BattleSetLoadTimToVram(D_801B05B8, 0, 0, 0);
     MagicAnimationRegister(arg0, arg1, 1, func_minimam_801B0414);
     D_801CC8B4 = 0;
     BattleAkaoCommand(0x20, BattleEntityGetStereoPan(arg0), 0x134);

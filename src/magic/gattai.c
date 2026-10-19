@@ -14,12 +14,12 @@ typedef struct {
 
 // Detached slot fields are separated by sixteen halfwords.
 extern GattaiEffect g_BattleEffectSlots[];
-extern s16 D_801621F2[];
-extern s16 D_801621F4[];
-extern s16 D_801621F6[];
 extern u8 D_80151922[];
 extern u8 D_801524BE;
 extern u8 D_8015305A;
+extern s16 D_801621F2[];
+extern s16 D_801621F4[];
+extern s16 D_801621F6[];
 extern s8 g_BattleModelFadeFrames;
 void D_800C55B8(void);
 s32 BattleDetachedRegister(void (*callback)(void));

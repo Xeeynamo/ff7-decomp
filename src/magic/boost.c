@@ -1,7 +1,7 @@
 //! PSYQ=3.3 CC1=2.6.3
 #include "common.h"
 #include "magic.h"
-#include "boost_assets.h"
+#include "../battle/battle.h"
 // BOOST.BIN: A timed sequence of radial sprites followed by a target-position burst.
 
 extern s32 rand(void);
@@ -12,11 +12,14 @@ typedef struct {
     s16 unk14, unk16, unk18, unk1A, TargetIndex, SourceIndex;
 } BoostEffect;
 extern BoostEffect g_BattleEffectSlots[];
-extern s32 D_801B85F8;
-extern s32 D_801B8530;
-extern EffectModel D_801B868C;
 extern void* D_80163C74;
-void func_800BBA84(s32, s32, s32);
+extern u_long D_801B04CC[];
+extern s32 D_801B8530;
+extern s32 D_801B85F8;
+extern EffectModel D_801B868C;
+extern SpriteRenderDesc D_801BA264;
+extern SpriteRenderDesc D_801BA270;
+void func_800BBA84(s32 arg0, s32 arg1, s32 arg2);
 static void func_boost_801B046C(s32 arg0, s32 arg1);
 
 EffectModel* MAGIC_Boost(s32 targetMask, s32 callbackArg) {
@@ -79,8 +82,7 @@ static void func_boost_801B01C8(void) {
         func_800BBA84(0x30, (s32)effect->SourceIndex, 0);
     }
     if (effect->AnimationFrame == 0x3A) {
-        i = 0;
-        do {
+        for (i = 0; i < 0x10;) {
             particle = &g_BattleEffectSlots[BattleEffectRegister(func_boost_801B00E0)];
             modelOffset = (s32)(i << 0x10) >> 8;
             nextX = effect->Velocity.vx;
@@ -92,7 +94,7 @@ static void func_boost_801B01C8(void) {
             nextIndex = i + 1;
             i = nextIndex;
             particle->Velocity.vy = -rand() % 200;
-        } while (nextIndex < 0x10);
+        }
         BattleSpawnFloatingIconAtPart((s32)effect->TargetIndex, 0x21, 0x1000);
         func_800BBA84(0x15A, (s32)effect->SourceIndex, 0);
     }
@@ -121,6 +123,6 @@ static void func_boost_801B03D8(s32 arg0, s32 arg1) {
 }
 
 static void func_boost_801B046C(s32 arg0, s32 arg1) {
-    BattleSetLoadTimToVram(boost_texture_tim, 0, 0, 0);
+    BattleSetLoadTimToVram(D_801B04CC, 0, 0, 0);
     MagicAnimationRegister(arg0, arg1, 4, func_boost_801B03D8);
 }
