@@ -127,8 +127,8 @@ def decode_str(section: bytes, offset: int) -> str:
         if BattleMsgArg.START <= c <= BattleMsgArg.END:  # placeholder: 2 parameter bytes follow
             result += f'{{{BattleMsgArg(c).name}}}'
             i += 3
-        # elif c in TWO_BYTE_CODES:
-        #     i += 2
+        elif c in TWO_BYTE_CODES:
+            i += 2
         else:  # ordinary encoding
             result += decode_en(c)
             i += 1
