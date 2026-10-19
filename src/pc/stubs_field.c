@@ -173,10 +173,6 @@ s32 KawaiAnimatedPointLight(FieldModel* model, u8* params) {
     NOT_IMPLEMENTED;
     return 0;
 }
-s32 KawaiApplyBoneTransform(FieldModel* model, u8* params) {
-    NOT_IMPLEMENTED;
-    return 0;
-}
 s32 KawaiDirectionalColorGradient(FieldModel* model, u8* params) {
     NOT_IMPLEMENTED;
     return 0;
