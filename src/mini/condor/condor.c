@@ -123,17 +123,9 @@ extern s32 D_8012C548;
 u32 func_800AC498(CondorUnit*);
 void func_800ABE54(CondorUnit*);
 void func_800AC72C(CondorUnit*, CondorSpawn*, s32, s16*);
-s16 func_800AC5C0(s16, CondorPoint*);
+s16 func_800AC5C0(s16 index, CondorPoint* pos);
 s16 func_800B0604(CondorUnit*, s32);
 s16 func_800A8004(CondorUnit* unit);
-u16 func_800A7584(u16* vector);
-extern s32 D_8012C554;
-extern s32 D_8012C558;
-extern s32 D_8012C55C;
-extern s32 D_8012C560;
-extern s32 D_8012C564;
-extern s32 D_8012C568;
-
 void func_800B332C(void);
 void func_800B3A48(CondorUnit*, s32);
 void func_800B42AC(CondorUnit*);
@@ -335,6 +327,14 @@ void CondorAngleToVector(s32 angle) {
 }
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A77EC);
+
+u16 func_800A7584(u16* vector);
+extern s32 D_8012C554;
+extern s32 D_8012C558;
+extern s32 D_8012C55C;
+extern s32 D_8012C560;
+extern s32 D_8012C564;
+extern s32 D_8012C568;
 
 s16 func_800A7BF4(SVECTOR* first, SVECTOR* second) {
     SVECTOR vector;
