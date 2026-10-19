@@ -481,20 +481,20 @@ const u32 D_800A01E0[] = {0x4030201, 0x6050D0C, 0x807};
 
 s32 func_800AF278(CondorUnit* unit);
 
-void func_800AF5A8(POLY_FT4* packet, CondorEffect* effect) {
+void func_800AF5A8(POLY_FT4* poly, CondorEffect* effect) {
     CondorUnit impact;
     // Each frame stores the blend mode, duration, and image index.
     s16 frames[12][3] = {{4, 1, 0}, {1, 1, 0}, {0, 1, 0}, {0, 2, 1}, {0, 2, 2}, {0, 2, 3},
                          {0, 4, 4}, {0, 6, 5}, {0, 6, 6}, {1, 6, 7}, {4, 6, 7}, {4, 1, 7}};
     s16 blendMode;
-    s32 state;
+    u32 state;
     s16 timer;
     u16 depth;
     state = effect->state;
-    if (state >= 0x40U) {
-        effect->state = 0xFFU;
-        effect->timer = 0U;
-    } else if (state < 0xBU) {
+    if (state >= 0x40) {
+        effect->state = 0xFF;
+        effect->timer = 0;
+    } else if (state < 0xB) {
         if (effect->timer == 0) {
             effect->state++;
             // The animation reads the low byte of the duration and image words.
@@ -502,7 +502,7 @@ void func_800AF5A8(POLY_FT4* packet, CondorEffect* effect) {
             timer--;
             effect->timer = timer;
             effect->image = *((u8*)frames + 4 + effect->state * 6);
-            packet->clut = GetClut(0x340, 0xF1);
+            poly->clut = GetClut(0x340, 0xF1);
         } else {
             timer = effect->timer;
             timer--;
@@ -510,33 +510,33 @@ void func_800AF5A8(POLY_FT4* packet, CondorEffect* effect) {
         }
         blendMode = frames[effect->state][0];
         if (blendMode == 0) {
-            SetSemiTrans(packet, 0);
+            SetSemiTrans(poly, 0);
         }
         if (blendMode == 1) {
-            SetSemiTrans(packet, 1);
-            packet->tpage = GetTPage(0, 1, 0x340, 0);
+            SetSemiTrans(poly, 1);
+            poly->tpage = GetTPage(0, 1, 0x340, 0);
         }
         if (blendMode == 4) {
-            SetSemiTrans(packet, 1);
-            packet->tpage = GetTPage(0, 3, 0x340, 0);
+            SetSemiTrans(poly, 1);
+            poly->tpage = GetTPage(0, 3, 0x340, 0);
         }
-        packet->u0 = ((effect->image & 3) << 6);
-        packet->v0 = ((effect->image & 4) * 8);
-        packet->u1 = (((effect->image & 3) << 6) + 0x3F);
-        packet->v1 = ((effect->image & 4) * 8);
-        packet->u2 = ((effect->image & 3) << 6);
-        packet->v2 = (((effect->image & 4) * 8) + 0x1F);
-        packet->u3 = (((effect->image & 3) << 6) + 0x3F);
-        packet->v3 = (((effect->image & 4) * 8) + 0x1F);
-        packet->x0 = (s16)(effect->x + 0x80);
-        packet->y0 = (s16)(effect->y + 0x68);
-        packet->x1 = (s16)(effect->x + 0xC0);
-        packet->y1 = (s16)(effect->y + 0x68);
-        packet->x2 = (s16)(effect->x + 0x80);
-        packet->y2 = (s16)(effect->y + 0x88);
-        packet->x3 = (s16)(effect->x + 0xC0);
-        packet->y3 = (s16)(effect->y + 0x88);
-        AddPrim(&D_80129F34->ot[0], packet);
+        poly->u0 = (effect->image & 3) << 6;
+        poly->v0 = (effect->image & 4) * 8;
+        poly->u1 = ((effect->image & 3) << 6) + 0x3F;
+        poly->v1 = (effect->image & 4) * 8;
+        poly->u2 = (effect->image & 3) << 6;
+        poly->v2 = (effect->image & 4) * 8 + 0x1F;
+        poly->u3 = ((effect->image & 3) << 6) + 0x3F;
+        poly->v3 = (effect->image & 4) * 8 + 0x1F;
+        poly->x0 = effect->x + 0x80;
+        poly->y0 = effect->y + 0x68;
+        poly->x1 = effect->x + 0xC0;
+        poly->y1 = effect->y + 0x68;
+        poly->x2 = effect->x + 0x80;
+        poly->y2 = effect->y + 0x88;
+        poly->x3 = effect->x + 0xC0;
+        poly->y3 = effect->y + 0x88;
+        AddPrim(&D_80129F34->ot[0], poly);
     } else {
         effect->state++;
     }
@@ -553,20 +553,20 @@ void func_800AF5A8(POLY_FT4* packet, CondorEffect* effect) {
     }
 }
 
-void func_800AF98C(POLY_FT4* packet, CondorEffect* effect) {
+void func_800AF98C(POLY_FT4* poly, CondorEffect* effect) {
     CondorUnit impact;
     // Each frame stores the blend mode, duration, and image index.
     s16 frames[12][3] = {{4, 1, 0}, {0, 1, 0}, {0, 1, 0}, {0, 2, 1}, {4, 2, 2}, {4, 2, 3},
                          {4, 4, 4}, {4, 6, 5}, {4, 6, 6}, {4, 3, 7}, {4, 2, 7}, {4, 1, 7}};
     s16 blendMode;
-    s32 state;
+    u32 state;
     s16 timer;
     u16 depth;
     state = effect->state;
-    if (state >= 0x40U) {
-        effect->state = 0xFFU;
-        effect->timer = 0U;
-    } else if (state < 0xBU) {
+    if (state >= 0x40) {
+        effect->state = 0xFF;
+        effect->timer = 0;
+    } else if (state < 0xB) {
         if (effect->timer == 0) {
             effect->state++;
             // The animation reads the low byte of the duration and image words.
@@ -574,7 +574,7 @@ void func_800AF98C(POLY_FT4* packet, CondorEffect* effect) {
             timer--;
             effect->timer = timer;
             effect->image = *((u8*)frames + 4 + effect->state * 6);
-            packet->clut = GetClut(0x340, 0xF3);
+            poly->clut = GetClut(0x340, 0xF3);
         } else {
             timer = effect->timer;
             timer--;
@@ -582,33 +582,33 @@ void func_800AF98C(POLY_FT4* packet, CondorEffect* effect) {
         }
         blendMode = frames[effect->state][0];
         if (blendMode == 0) {
-            SetSemiTrans(packet, 0);
+            SetSemiTrans(poly, 0);
         }
         if (blendMode == 1) {
-            SetSemiTrans(packet, 1);
-            packet->tpage = GetTPage(0, 1, 0x340, 0);
+            SetSemiTrans(poly, 1);
+            poly->tpage = GetTPage(0, 1, 0x340, 0);
         }
         if (blendMode == 4) {
-            SetSemiTrans(packet, 1);
-            packet->tpage = GetTPage(0, 3, 0x340, 0);
+            SetSemiTrans(poly, 1);
+            poly->tpage = GetTPage(0, 3, 0x340, 0);
         }
-        packet->u0 = ((effect->image & 3) << 6);
-        packet->v0 = ((effect->image & 4) * 8) + 0x40;
-        packet->u1 = (((effect->image & 3) << 6) + 0x3F);
-        packet->v1 = ((effect->image & 4) * 8) + 0x40;
-        packet->u2 = ((effect->image & 3) << 6);
-        packet->v2 = (((effect->image & 4) * 8) + 0x5F);
-        packet->u3 = (((effect->image & 3) << 6) + 0x3F);
-        packet->v3 = (((effect->image & 4) * 8) + 0x5F);
-        packet->x0 = (s16)(effect->x + 0x80);
-        packet->y0 = (s16)(effect->y + 0x68);
-        packet->x1 = (s16)(effect->x + 0xC0);
-        packet->y1 = (s16)(effect->y + 0x68);
-        packet->x2 = (s16)(effect->x + 0x80);
-        packet->y2 = (s16)(effect->y + 0x88);
-        packet->x3 = (s16)(effect->x + 0xC0);
-        packet->y3 = (s16)(effect->y + 0x88);
-        AddPrim(&D_80129F34->ot[0], packet);
+        poly->u0 = (effect->image & 3) << 6;
+        poly->v0 = (effect->image & 4) * 8 + 0x40;
+        poly->u1 = ((effect->image & 3) << 6) + 0x3F;
+        poly->v1 = (effect->image & 4) * 8 + 0x40;
+        poly->u2 = (effect->image & 3) << 6;
+        poly->v2 = (effect->image & 4) * 8 + 0x5F;
+        poly->u3 = ((effect->image & 3) << 6) + 0x3F;
+        poly->v3 = (effect->image & 4) * 8 + 0x5F;
+        poly->x0 = effect->x + 0x80;
+        poly->y0 = effect->y + 0x68;
+        poly->x1 = effect->x + 0xC0;
+        poly->y1 = effect->y + 0x68;
+        poly->x2 = effect->x + 0x80;
+        poly->y2 = effect->y + 0x88;
+        poly->x3 = effect->x + 0xC0;
+        poly->y3 = effect->y + 0x88;
+        AddPrim(&D_80129F34->ot[0], poly);
     } else {
         effect->state++;
     }
