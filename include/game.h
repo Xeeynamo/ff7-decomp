@@ -1207,6 +1207,20 @@ typedef struct {
 } FieldModelPolyG4; // size:0x14
 
 typedef struct {
+    /* 0x00 */ s16 normal[3];
+    /* 0x06 */ s16 distance;
+    /* 0x08 */ s16 unitNormal[3];
+    /* 0x0E */ s16 anchor[3];
+    /* 0x14 */ s16 rotation[3][3];
+} KawaiClipPlane; // size:0x26
+
+typedef struct {
+    /* 0x00 */ s32 screen;
+    /* 0x04 */ u32 depth;
+    /* 0x08 */ SVECTOR position;
+} KawaiClippedVertex; // size:0x10
+
+typedef struct {
     u8 enabled;
     u8 segmentActive;
     u8 rngId;

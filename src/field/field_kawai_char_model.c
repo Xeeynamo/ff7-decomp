@@ -78,14 +78,6 @@ typedef struct {
 } FieldKawaiSplash; // size:0x0E
 
 typedef struct {
-    /* 0x00 */ s16 normal[3];
-    /* 0x06 */ s16 distance;
-    /* 0x08 */ s16 unitNormal[3];
-    /* 0x0E */ s16 anchor[3];
-    /* 0x14 */ s16 rotation[3][3];
-} FieldKawaiClipPlane; // size:0x26
-
-typedef struct {
     /* 0x00 */ s16 phase;
     /* 0x02 */ s16 timer;
     /* 0x04 */ s16 state;
@@ -101,12 +93,6 @@ typedef struct {
     /* 0x18 */ s16 zPhaseShift;
     /* 0x1A */ s16 zOffset;
 } FieldKawaiPointLight; // size:0x1C
-
-typedef struct {
-    /* 0x00 */ s32 screen;
-    /* 0x04 */ u32 depth;
-    /* 0x08 */ SVECTOR position;
-} FieldKawaiClippedVertex; // size:0x10
 
 // One per-bone slot for the waterline effect: a pair of blending textured quads plus the
 // per-bone vector and scale used to displace them.
@@ -142,6 +128,7 @@ s32 KawaiSetSplashToPktsBelowLvl(FieldModel* model, u8* params);
 s32 KawaiSetPartAttribute(FieldModel* model, u8* params);
 s32 KawaiDirectionalColorGradient(FieldModel* model, u8* params);
 s32 KawaiApplyBoneTransform(FieldModel* model, u8* params);
+void KawaiRenderClippedPart(FieldModelPart* part, SVECTOR* normal, MATRIX* toPlane, MATRIX* fromPlane);
 s32 KawaiAnimatedPointLight(FieldModel* model, u8* params);
 
 static FieldKawaiHandler kawai_ops_table[14] = {
@@ -292,7 +279,7 @@ static u8 mouth_tex_ids[34][3] = {
 };
 
 static FieldKawaiWorkspace kawai_work = {0};
-static FieldKawaiClippedVertex* clipped_verts = (FieldKawaiClippedVertex*)0x801AF800;
+static KawaiClippedVertex* clipped_verts = (KawaiClippedVertex*)0x801AF800;
 u8* g_FieldKawaiSplashEntries = NULL;
 u8* g_FieldModelLoadCursor = NULL;
 
@@ -1537,9 +1524,414 @@ s32 KawaiSetPartAttribute(FieldModel* model, u8* params) {
     return 1;
 }
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiApplyBoneTransform);
+s32 KawaiApplyBoneTransform(FieldModel* model, u8* params) {
+    KawaiClipPlane* plane;
+    MATRIX* partMatrices;
 
-INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiRenderClippedPart);
+    plane = (KawaiClipPlane*)kawai_work.data[params[1]];
+    switch (params[0]) {
+    case 0: {
+        u32 i;
+        FieldModelPart* parts;
+        SVECTOR* normal = (SVECTOR*)getScratchAddr(128);
+        SVECTOR* unit = (SVECTOR*)getScratchAddr(130);
+        SVECTOR* anchor = (SVECTOR*)getScratchAddr(132);
+        SVECTOR* reference = (SVECTOR*)getScratchAddr(134);
+        SVECTOR* axis = (SVECTOR*)getScratchAddr(136);
+        SVECTOR* unitAxis = (SVECTOR*)getScratchAddr(138);
+        s16 cosine;
+        s16 sine;
+        s32 xx, yy, zz, xy, xz, yz, xs, ys, zs;
+        s32 complement;
+
+        plane->normal[0] = KAWAI_READ_S16(params, 2);
+        plane->normal[1] = KAWAI_READ_S16(params, 4);
+        plane->normal[2] = KAWAI_READ_S16(params, 6);
+        plane->distance = KAWAI_READ_S16(params, 8);
+        setVector(normal, plane->normal[0], plane->normal[1], plane->normal[2]);
+        normal->pad = 0;
+        VectorNormalSS(normal, unit);
+        plane->unitNormal[0] = unit->vx;
+        plane->unitNormal[1] = unit->vy;
+        plane->unitNormal[2] = unit->vz;
+        if (unit->vz) {
+            anchor->vy = 0;
+            anchor->vx = 0;
+            anchor->vz = (plane->distance << 12) / unit->vz;
+        } else if (unit->vy) {
+            anchor->vz = 0;
+            anchor->vx = 0;
+            anchor->vy = (plane->distance << 12) / unit->vy;
+        } else if (unit->vx) {
+            anchor->vz = 0;
+            anchor->vy = 0;
+            anchor->vx = (plane->distance << 12) / unit->vx;
+        } else {
+            return 1;
+        }
+        plane->anchor[0] = anchor->vx;
+        plane->anchor[1] = anchor->vy;
+        plane->anchor[2] = anchor->vz;
+        setVector(reference, 0, 0, 4096);
+        cosine = (unit->vx * reference->vx + unit->vy * reference->vy + unit->vz * reference->vz) / 4096;
+        setVector(axis, (unit->vy * reference->vz - reference->vy * unit->vz) / 4096,
+                  (reference->vx * unit->vz - unit->vx * reference->vz) / 4096,
+                  (unit->vx * reference->vy - reference->vx * unit->vy) / 4096);
+        sine = SquareRoot0(axis->vx * axis->vx + axis->vy * axis->vy + axis->vz * axis->vz);
+        VectorNormalSS(axis, unitAxis);
+        if (!unitAxis->vx && !unitAxis->vy && !unitAxis->vz) {
+            plane->rotation[0][0] = 4096;
+            plane->rotation[0][1] = 0;
+            plane->rotation[0][2] = 0;
+            plane->rotation[1][0] = 0;
+            plane->rotation[1][1] = 4096;
+            plane->rotation[1][2] = 0;
+            plane->rotation[2][0] = 0;
+            plane->rotation[2][1] = 0;
+            plane->rotation[2][2] = 4096;
+        } else {
+            xx = unitAxis->vx * unitAxis->vx;
+            yy = unitAxis->vy * unitAxis->vy;
+            zz = unitAxis->vz * unitAxis->vz;
+            xy = unitAxis->vx * unitAxis->vy;
+            xz = unitAxis->vx * unitAxis->vz;
+            yz = unitAxis->vy * unitAxis->vz;
+            xs = unitAxis->vx * sine;
+            ys = unitAxis->vy * sine;
+            zs = unitAxis->vz * sine;
+            complement = 4096 - cosine;
+            plane->rotation[0][0] = (xx + cosine * ((4096 * 4096 - xx) / 4096)) / 4096;
+            plane->rotation[0][1] = ((xy / 4096) * complement - zs) / 4096;
+            plane->rotation[0][2] = ((xz / 4096) * complement + ys) / 4096;
+            plane->rotation[1][0] = ((xy / 4096) * complement + zs) / 4096;
+            plane->rotation[1][1] = (yy + cosine * ((4096 * 4096 - yy) / 4096)) / 4096;
+            plane->rotation[1][2] = ((yz / 4096) * complement - xs) / 4096;
+            plane->rotation[2][0] = ((xz / 4096) * complement - ys) / 4096;
+            plane->rotation[2][1] = ((yz / 4096) * complement + xs) / 4096;
+            plane->rotation[2][2] = (zz + cosine * ((4096 * 4096 - zz) / 4096)) / 4096;
+        }
+        parts = (FieldModelPart*)(model->modelData + model->partsOffset);
+        for (i = 0; i < model->partCount; i++) {
+            parts[i].flags = 0;
+        }
+        break;
+    }
+    case 1: {
+        u32 i;
+        FieldModelPart* parts;
+        SVECTOR* normal = (SVECTOR*)getScratchAddr(128);
+        MATRIX* translation = (MATRIX*)getScratchAddr(130);
+        MATRIX* rotation = (MATRIX*)getScratchAddr(138);
+        MATRIX* transpose = (MATRIX*)getScratchAddr(146);
+        MATRIX* toPlane = (MATRIX*)getScratchAddr(154);
+        MATRIX* fromPlane = (MATRIX*)getScratchAddr(162);
+
+        parts = (FieldModelPart*)(model->modelData + model->partsOffset);
+        partMatrices = model->partMatrices;
+        translation->m[0][0] = translation->m[1][1] = translation->m[2][2] = 4096;
+        translation->t[0] = translation->t[1] = translation->t[2] = 0;
+        translation->m[0][1] = translation->m[0][2] = translation->m[1][0] = translation->m[1][2] =
+            translation->m[2][0] = translation->m[2][1] = 0;
+        rotation->t[0] = rotation->t[1] = rotation->t[2] = 0;
+        transpose->t[0] = transpose->t[1] = transpose->t[2] = 0;
+        setVector(normal, plane->unitNormal[0], plane->unitNormal[1], plane->unitNormal[2]);
+        normal->pad = 0;
+        for (i = 0; i < model->partCount; i++) {
+            translation->t[0] = -plane->anchor[0];
+            translation->t[1] = -plane->anchor[1];
+            translation->t[2] = -plane->anchor[2];
+            rotation->m[0][0] = plane->rotation[0][0];
+            rotation->m[0][1] = plane->rotation[0][1];
+            rotation->m[0][2] = plane->rotation[0][2];
+            rotation->m[1][0] = plane->rotation[1][0];
+            rotation->m[1][1] = plane->rotation[1][1];
+            rotation->m[1][2] = plane->rotation[1][2];
+            rotation->m[2][0] = plane->rotation[2][0];
+            rotation->m[2][1] = plane->rotation[2][1];
+            rotation->m[2][2] = plane->rotation[2][2];
+            gte_CompMatrix(translation, &partMatrices[parts[i].boneIndex], toPlane);
+            gte_CompMatrix(rotation, toPlane, toPlane);
+            translation->t[0] = plane->anchor[0];
+            translation->t[1] = plane->anchor[1];
+            translation->t[2] = plane->anchor[2];
+            TransposeMatrix(rotation, transpose);
+            gte_CompMatrix(partMatrices, translation, fromPlane);
+            gte_CompMatrix(fromPlane, transpose, fromPlane);
+            KawaiRenderClippedPart(&parts[i], normal, toPlane, fromPlane);
+        }
+        return 0;
+    }
+    }
+    return 1;
+}
+
+void KawaiRenderClippedPart(FieldModelPart* part, SVECTOR* normal, MATRIX* toPlane, MATRIX* fromPlane) {
+    FieldRenderData* renderData;
+    KawaiClippedVertex* vertices;
+    u8* data;
+    u8* packets;
+    u32 counts;
+    u32 count;
+    u32 i;
+    s32 reverse;
+
+    renderData = g_FieldCurrentRenderData;
+    gte_SetRotMatrix(toPlane);
+    gte_SetTransMatrix(toPlane);
+    data = part->data + 4;
+    count = part->vertexCount;
+    vertices = clipped_verts;
+    reverse = !normal->vx && !normal->vy && normal->vz == -4096;
+    for (i = 0; i < count; i++) {
+        gte_ldv0(data);
+        gte_rtv0tr();
+        data += sizeof(SVECTOR);
+        gte_stsv(&vertices[i].position);
+        if (reverse) {
+            if (vertices[i].position.vz > 0) {
+                vertices[i].position.vz = 0;
+            }
+        } else if (vertices[i].position.vz < 0) {
+            vertices[i].position.vz = 0;
+        }
+    }
+    gte_SetRotMatrix(fromPlane);
+    gte_SetTransMatrix(fromPlane);
+    for (i = 0; i < count; i++) {
+        gte_ldv0(&vertices[i].position);
+        gte_rtps();
+        gte_stsxy(&vertices[i].screen);
+        gte_stsz(&vertices[i].depth);
+    }
+    packets = part->packets;
+    if (g_FieldPrimitiveBufferIndex) {
+        packets += part->packetBufferSize;
+    }
+    counts = *(u32*)&part->polyGT4Count;
+    count = counts & 0xFF;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), data += sizeof(FieldModelPolyGT4)) {
+        POLY_GT4* polygon = (POLY_GT4*)packets;
+        u32 indices = *(u32*)data;
+        KawaiClippedVertex* v0 = &vertices[indices & 0xFF];
+        KawaiClippedVertex* v1 = &vertices[(indices & 0xFF00) >> 8];
+        KawaiClippedVertex* v2 = &vertices[(indices >> 16) & 0xFF];
+        KawaiClippedVertex* v3 = &vertices[indices >> 24];
+        s32 facing;
+        s32 screen0 = v0->screen;
+        s32 screen1 = v1->screen;
+        s32 screen2 = v2->screen;
+        s32 screen3 = v3->screen;
+
+        gte_ldsxy3(screen0, screen1, screen2);
+        gte_nclip();
+        *(s32*)&polygon->x0 = screen0;
+        *(s32*)&polygon->x1 = screen1;
+        *(s32*)&polygon->x2 = screen2;
+        *(s32*)&polygon->x3 = screen3;
+        gte_rdMAC0(facing);
+        if (facing <= 0 || (!v0->position.vz && !v1->position.vz && !v2->position.vz && !v3->position.vz)) {
+            setaddr(polygon, 0);
+        } else {
+            addPrim(&renderData->ot[(v0->depth + v1->depth + v2->depth + v3->depth) >> 4], polygon);
+        }
+    }
+    count = (counts & 0xFF00) >> 8;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), data += sizeof(FieldModelPolyGT3)) {
+        POLY_GT3* polygon = (POLY_GT3*)packets;
+        u32 indices = *(u32*)data;
+        KawaiClippedVertex* v0 = &vertices[indices & 0xFF];
+        KawaiClippedVertex* v1 = &vertices[(indices & 0xFF00) >> 8];
+        KawaiClippedVertex* v2 = &vertices[(indices >> 16) & 0xFF];
+        s32 facing;
+        u32 depth;
+        s32 screen0 = v0->screen;
+        s32 screen1 = v1->screen;
+        s32 screen2 = v2->screen;
+
+        gte_ldsxy3(screen0, screen1, screen2);
+        gte_nclip();
+        *(s32*)&polygon->x0 = screen0;
+        *(s32*)&polygon->x1 = screen1;
+        *(s32*)&polygon->x2 = screen2;
+        gte_rdMAC0(facing);
+        if (facing <= 0 || (!v0->position.vz && !v1->position.vz && !v2->position.vz)) {
+            setaddr(polygon, 0);
+        } else {
+            gte_ldsz3(v0->depth, v1->depth, v2->depth);
+            gte_avsz3();
+            gte_rdOTZ(depth);
+            addPrim(&renderData->ot[depth], polygon);
+        }
+    }
+    count = (counts >> 16) & 0xFF;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_FT4), data += sizeof(FieldModelPolyFT4)) {
+        POLY_FT4* polygon = (POLY_FT4*)packets;
+        u32 indices = *(u32*)data;
+        KawaiClippedVertex* v0 = &vertices[indices & 0xFF];
+        KawaiClippedVertex* v1 = &vertices[(indices & 0xFF00) >> 8];
+        KawaiClippedVertex* v2 = &vertices[(indices >> 16) & 0xFF];
+        KawaiClippedVertex* v3 = &vertices[indices >> 24];
+        s32 facing;
+        s32 screen0 = v0->screen;
+        s32 screen1 = v1->screen;
+        s32 screen2 = v2->screen;
+        s32 screen3 = v3->screen;
+
+        gte_ldsxy3(screen0, screen1, screen2);
+        gte_nclip();
+        *(s32*)&polygon->x0 = screen0;
+        *(s32*)&polygon->x1 = screen1;
+        *(s32*)&polygon->x2 = screen2;
+        *(s32*)&polygon->x3 = screen3;
+        gte_rdMAC0(facing);
+        if (facing <= 0 || (!v0->position.vz && !v1->position.vz && !v2->position.vz && !v3->position.vz)) {
+            setaddr(polygon, 0);
+        } else {
+            addPrim(&renderData->ot[(v0->depth + v1->depth + v2->depth + v3->depth) >> 4], polygon);
+        }
+    }
+    count = counts >> 24;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_FT3), data += sizeof(FieldModelPolyFT3)) {
+        POLY_FT3* polygon = (POLY_FT3*)packets;
+        u32 indices = *(u32*)data;
+        KawaiClippedVertex* v0 = &vertices[indices & 0xFF];
+        KawaiClippedVertex* v1 = &vertices[(indices & 0xFF00) >> 8];
+        KawaiClippedVertex* v2 = &vertices[(indices >> 16) & 0xFF];
+        s32 facing;
+        u32 depth;
+        s32 screen0 = v0->screen;
+        s32 screen1 = v1->screen;
+        s32 screen2 = v2->screen;
+
+        gte_ldsxy3(screen0, screen1, screen2);
+        gte_nclip();
+        *(s32*)&polygon->x0 = screen0;
+        *(s32*)&polygon->x1 = screen1;
+        *(s32*)&polygon->x2 = screen2;
+        gte_rdMAC0(facing);
+        if (facing <= 0 || (!v0->position.vz && !v1->position.vz && !v2->position.vz)) {
+            setaddr(polygon, 0);
+        } else {
+            gte_ldsz3(v0->depth, v1->depth, v2->depth);
+            gte_avsz3();
+            gte_rdOTZ(depth);
+            addPrim(&renderData->ot[depth], polygon);
+        }
+    }
+    counts = *(u32*)&part->polyF3Count;
+    count = counts & 0xFF;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_F3), data += sizeof(FieldModelPolyF3)) {
+        POLY_F3* polygon = (POLY_F3*)packets;
+        u32 indices = *(u32*)data;
+        KawaiClippedVertex* v0 = &vertices[indices & 0xFF];
+        KawaiClippedVertex* v1 = &vertices[(indices & 0xFF00) >> 8];
+        KawaiClippedVertex* v2 = &vertices[(indices >> 16) & 0xFF];
+        s32 facing;
+        u32 depth;
+        s32 screen0 = v0->screen;
+        s32 screen1 = v1->screen;
+        s32 screen2 = v2->screen;
+
+        gte_ldsxy3(screen0, screen1, screen2);
+        gte_nclip();
+        *(s32*)&polygon->x0 = screen0;
+        *(s32*)&polygon->x1 = screen1;
+        *(s32*)&polygon->x2 = screen2;
+        gte_rdMAC0(facing);
+        if (facing <= 0 || (!v0->position.vz && !v1->position.vz && !v2->position.vz)) {
+            setaddr(polygon, 0);
+        } else {
+            gte_ldsz3(v0->depth, v1->depth, v2->depth);
+            gte_avsz3();
+            gte_rdOTZ(depth);
+            addPrim(&renderData->ot[depth], polygon);
+        }
+    }
+    count = (counts & 0xFF00) >> 8;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_F4), data += sizeof(FieldModelPolyF4)) {
+        POLY_F4* polygon = (POLY_F4*)packets;
+        u32 indices = *(u32*)data;
+        KawaiClippedVertex* v0 = &vertices[indices & 0xFF];
+        KawaiClippedVertex* v1 = &vertices[(indices & 0xFF00) >> 8];
+        KawaiClippedVertex* v2 = &vertices[(indices >> 16) & 0xFF];
+        KawaiClippedVertex* v3 = &vertices[indices >> 24];
+        s32 facing;
+        s32 screen0 = v0->screen;
+        s32 screen1 = v1->screen;
+        s32 screen2 = v2->screen;
+        s32 screen3 = v3->screen;
+
+        gte_ldsxy3(screen0, screen1, screen2);
+        gte_nclip();
+        *(s32*)&polygon->x0 = screen0;
+        *(s32*)&polygon->x1 = screen1;
+        *(s32*)&polygon->x2 = screen2;
+        *(s32*)&polygon->x3 = screen3;
+        gte_rdMAC0(facing);
+        // Unlike GT4 and FT4, the original leaves v3 out of this test.
+        if (facing <= 0 || (!v0->position.vz && !v1->position.vz && !v2->position.vz)) {
+            setaddr(polygon, 0);
+        } else {
+            addPrim(&renderData->ot[(v0->depth + v1->depth + v2->depth + v3->depth) >> 4], polygon);
+        }
+    }
+    count = (counts >> 16) & 0xFF;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_G3), data += sizeof(FieldModelPolyG3)) {
+        POLY_G3* polygon = (POLY_G3*)packets;
+        u32 indices = *(u32*)data;
+        KawaiClippedVertex* v0 = &vertices[indices & 0xFF];
+        KawaiClippedVertex* v1 = &vertices[(indices & 0xFF00) >> 8];
+        KawaiClippedVertex* v2 = &vertices[(indices >> 16) & 0xFF];
+        s32 facing;
+        u32 depth;
+        s32 screen0 = v0->screen;
+        s32 screen1 = v1->screen;
+        s32 screen2 = v2->screen;
+
+        gte_ldsxy3(screen0, screen1, screen2);
+        gte_nclip();
+        *(s32*)&polygon->x0 = screen0;
+        *(s32*)&polygon->x1 = screen1;
+        *(s32*)&polygon->x2 = screen2;
+        gte_rdMAC0(facing);
+        if (facing <= 0 || (!v0->position.vz && !v1->position.vz && !v2->position.vz)) {
+            setaddr(polygon, 0);
+        } else {
+            gte_ldsz3(v0->depth, v1->depth, v2->depth);
+            gte_avsz3();
+            gte_rdOTZ(depth);
+            addPrim(&renderData->ot[depth], polygon);
+        }
+    }
+    count = counts >> 24;
+    for (i = 0; i < count; i++, packets += sizeof(POLY_G4), data += sizeof(FieldModelPolyG4)) {
+        POLY_G4* polygon = (POLY_G4*)packets;
+        u32 indices = *(u32*)data;
+        KawaiClippedVertex* v0 = &vertices[indices & 0xFF];
+        KawaiClippedVertex* v1 = &vertices[(indices & 0xFF00) >> 8];
+        KawaiClippedVertex* v2 = &vertices[(indices >> 16) & 0xFF];
+        KawaiClippedVertex* v3 = &vertices[indices >> 24];
+        s32 facing;
+        s32 screen0 = v0->screen;
+        s32 screen1 = v1->screen;
+        s32 screen2 = v2->screen;
+        s32 screen3 = v3->screen;
+
+        gte_ldsxy3(screen0, screen1, screen2);
+        gte_nclip();
+        *(s32*)&polygon->x0 = screen0;
+        *(s32*)&polygon->x1 = screen1;
+        *(s32*)&polygon->x2 = screen2;
+        *(s32*)&polygon->x3 = screen3;
+        gte_rdMAC0(facing);
+        // Unlike GT4 and FT4, the original leaves v3 out of this test.
+        if (facing <= 0 || (!v0->position.vz && !v1->position.vz && !v2->position.vz)) {
+            setaddr(polygon, 0);
+        } else {
+            addPrim(&renderData->ot[(v0->depth + v1->depth + v2->depth + v3->depth) >> 4], polygon);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/field/nonmatchings/field_kawai_char_model", KawaiDirectionalColorGradient);
 

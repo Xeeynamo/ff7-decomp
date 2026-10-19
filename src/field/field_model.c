@@ -258,48 +258,33 @@ u8* LoadLocalFieldModelAndInitAll(
             params[3] = model->light1R;
             params[4] = model->light1G;
             params[5] = model->light1B;
-            params[12] = model->light1X;
-            params[13] = model->light1X >> 8;
-            params[14] = model->light1Y;
-            params[15] = model->light1Y >> 8;
-            params[16] = model->light1Z;
-            params[17] = model->light1Z >> 8;
+            KAWAI_WRITE_S16(params, 12, model->light1X);
+            KAWAI_WRITE_S16(params, 14, model->light1Y);
+            KAWAI_WRITE_S16(params, 16, model->light1Z);
             params[6] = model->light2R;
             params[7] = model->light2G;
             params[8] = model->light2B;
-            params[18] = model->light2X;
-            params[19] = model->light2X >> 8;
-            params[20] = model->light2Y;
-            params[21] = model->light2Y >> 8;
-            params[22] = model->light2Z;
-            params[23] = model->light2Z >> 8;
+            KAWAI_WRITE_S16(params, 18, model->light2X);
+            KAWAI_WRITE_S16(params, 20, model->light2Y);
+            KAWAI_WRITE_S16(params, 22, model->light2Z);
             params[9] = model->light3R;
             params[10] = model->light3G;
             params[11] = model->light3B;
-            params[24] = model->light3X;
-            params[25] = model->light3X >> 8;
-            params[26] = model->light3Y;
-            params[27] = model->light3Y >> 8;
-            params[28] = model->light3Z;
-            params[29] = model->light3Z >> 8;
+            KAWAI_WRITE_S16(params, 24, model->light3X);
+            KAWAI_WRITE_S16(params, 26, model->light3Y);
+            KAWAI_WRITE_S16(params, 28, model->light3Z);
             params[30] = 0;
             KawaiLightingApplyToModel(&models->models[modelId], params);
-            params[0] = 0;
-            params[1] = 0;
-            params[2] = 0;
-            params[3] = 0;
-            params[4] = 0;
-            params[5] = 0;
+            KAWAI_WRITE_S16(params, 0, 0);
+            KAWAI_WRITE_S16(params, 2, 0);
+            KAWAI_WRITE_S16(params, 4, 0);
             params[6] = 1;
             KawaiSetColorToModelPkts(&models->models[modelId], params);
             bufferIndex = &g_FieldPrimitiveBufferIndex;
             *bufferIndex ^= 1;
-            params[0] = 0;
-            params[1] = 0;
-            params[2] = 0;
-            params[3] = 0;
-            params[4] = 0;
-            params[5] = 0;
+            KAWAI_WRITE_S16(params, 0, 0);
+            KAWAI_WRITE_S16(params, 2, 0);
+            KAWAI_WRITE_S16(params, 4, 0);
             params[6] = 1;
             KawaiSetColorToModelPkts(&models->models[modelId], params);
             *bufferIndex ^= 1;
@@ -326,8 +311,8 @@ u8* FieldModelCreatePktsAndScale(FieldModel* model, u8* nextFree, s32 modelId) {
 
 u8* FieldModelCreatePktsForPart(FieldModelPart* part, u8* nextFree, s32 relocate, s32 modelId) {
     u8* textureFlags;
-    u32* polygon;
-    u8* cursor;
+    u32* polygons;
+    u8* packets;
     u32 buffer;
     u32 i;
     u32 count;
@@ -339,14 +324,6 @@ u8* FieldModelCreatePktsForPart(FieldModelPart* part, u8* nextFree, s32 relocate
     s32 vOffset8;
     u16* texCoords;
     u32* textures;
-    POLY_GT4* polyGT4;
-    POLY_GT3* polyGT3;
-    POLY_FT4* polyFT4;
-    POLY_FT3* polyFT3;
-    POLY_F3* polyF3;
-    POLY_F4* polyF4;
-    POLY_G3* polyG3;
-    POLY_G4* polyG4;
 
     textures = (u32*)(part->data + part->texturesOffset);
     texCoords = (u16*)(part->data + part->texCoordsOffset);
@@ -360,35 +337,35 @@ u8* FieldModelCreatePktsForPart(FieldModelPart* part, u8* nextFree, s32 relocate
     vOffset8 = (modelId / 8) * 32;
 
     for (buffer = 0; buffer < 2; buffer++) {
-        cursor = nextFree;
+        packets = nextFree;
         textureFlags = part->data + part->textureFlagsOffset;
         if (buffer) {
-            cursor += part->packetBufferSize;
+            packets += part->packetBufferSize;
         }
-        polygon = (u32*)(part->data + part->polygonsOffset);
+        polygons = (u32*)(part->data + part->polygonsOffset);
         count = part->polyGT4Count;
-        for (i = 0; i < count; i++, cursor += sizeof(POLY_GT4), polygon += 6) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT4), polygons += sizeof(FieldModelPolyGT4) / sizeof(u32)) {
+            POLY_GT4* poly = (POLY_GT4*)packets;
             u32 uvIndices;
             u32 texture;
             u32 mode;
             s32 paletteOffset;
             u8 flags;
 
-            polyGT4 = (POLY_GT4*)cursor;
-            *(u32*)&polyGT4->r0 = polygon[1];
-            *(u32*)&polyGT4->r1 = polygon[2];
-            *(u32*)&polyGT4->r2 = polygon[3];
-            *(u32*)&polyGT4->r3 = polygon[4];
-            uvIndices = polygon[5];
-            *(u16*)&polyGT4->u0 = texCoords[uvIndices & 0xFF],
-            *(u16*)&polyGT4->u1 = texCoords[(uvIndices & 0xFF00) >> 8],
-            *(u16*)&polyGT4->u2 = texCoords[(uvIndices & 0xFF0000) >> 16],
-            *(u16*)&polyGT4->u3 = texCoords[uvIndices >> 24];
+            *(u32*)&poly->r0 = polygons[1];
+            *(u32*)&poly->r1 = polygons[2];
+            *(u32*)&poly->r2 = polygons[3];
+            *(u32*)&poly->r3 = polygons[4];
+            uvIndices = polygons[5];
+            *(u16*)&poly->u0 = texCoords[uvIndices & 0xFF];
+            *(u16*)&poly->u1 = texCoords[(uvIndices & 0xFF00) >> 8];
+            *(u16*)&poly->u2 = texCoords[(uvIndices & 0xFF0000) >> 16];
+            *(u16*)&poly->u3 = texCoords[uvIndices >> 24];
             flags = *textureFlags++;
             texture = textures[flags & 0xF];
             paletteOffset = (texture & 0x3F) == 2 ? 0 : modelId;
-            polyGT4->clut = getClut(((texture >> 16) & 0x3F) * 16, ((texture & 0x7FC00000) >> 22) + paletteOffset);
-            polyGT4->tpage =
+            poly->clut = getClut(((texture >> 16) & 0x3F) * 16, ((texture & 0x7FC00000) >> 22) + paletteOffset);
+            poly->tpage =
                 getTPage((texture & 0xC0) >> 6, flags >> 5, (texture & 0xF00) >> 2, ((texture >> 12) & 0x1) * 256);
             mode = texture & 0x3F;
             if (mode == 0) {
@@ -398,43 +375,42 @@ u8* FieldModelCreatePktsForPart(FieldModelPart* part, u8* nextFree, s32 relocate
                 uOffset = uOffset8;
                 vOffset = vOffset8;
             } else {
-                vOffset = 0;
-                uOffset = 0;
+                uOffset = vOffset = 0;
             }
-            setPolyGT4(polyGT4);
-            polyGT4->u0 += uOffset;
-            polyGT4->v0 += vOffset;
-            polyGT4->u1 += uOffset;
-            polyGT4->v1 += vOffset;
-            polyGT4->u2 += uOffset;
-            polyGT4->v2 += vOffset;
-            polyGT4->u3 += uOffset;
-            polyGT4->v3 += vOffset;
+            setPolyGT4(poly);
+            poly->u0 += uOffset;
+            poly->v0 += vOffset;
+            poly->u1 += uOffset;
+            poly->v1 += vOffset;
+            poly->u2 += uOffset;
+            poly->v2 += vOffset;
+            poly->u3 += uOffset;
+            poly->v3 += vOffset;
             if (flags & 0x10) {
-                setcode(polyGT4, 62);
+                setcode(poly, 0x3E);
             }
         }
         count = part->polyGT3Count;
-        for (i = 0; i < count; i++, cursor += sizeof(POLY_GT3), polygon += 5) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_GT3), polygons += sizeof(FieldModelPolyGT3) / sizeof(u32)) {
+            POLY_GT3* poly = (POLY_GT3*)packets;
             u32 uvIndices;
             u32 texture;
             u32 mode;
             s32 paletteOffset;
             u8 flags;
 
-            polyGT3 = (POLY_GT3*)cursor;
-            *(u32*)&polyGT3->r0 = polygon[1];
-            *(u32*)&polyGT3->r1 = polygon[2];
-            *(u32*)&polyGT3->r2 = polygon[3];
-            uvIndices = polygon[4];
-            *(u16*)&polyGT3->u0 = texCoords[uvIndices & 0xFF],
-            *(u16*)&polyGT3->u1 = texCoords[(uvIndices & 0xFF00) >> 8],
-            *(u16*)&polyGT3->u2 = texCoords[(uvIndices & 0xFF0000) >> 16];
+            *(u32*)&poly->r0 = polygons[1];
+            *(u32*)&poly->r1 = polygons[2];
+            *(u32*)&poly->r2 = polygons[3];
+            uvIndices = polygons[4];
+            *(u16*)&poly->u0 = texCoords[uvIndices & 0xFF];
+            *(u16*)&poly->u1 = texCoords[(uvIndices & 0xFF00) >> 8];
+            *(u16*)&poly->u2 = texCoords[(uvIndices & 0xFF0000) >> 16];
             flags = *textureFlags++;
             texture = textures[flags & 0xF];
             paletteOffset = (texture & 0x3F) == 2 ? 0 : modelId;
-            polyGT3->clut = getClut(((texture >> 16) & 0x3F) * 16, ((texture & 0x7FC00000) >> 22) + paletteOffset);
-            polyGT3->tpage =
+            poly->clut = getClut(((texture >> 16) & 0x3F) * 16, ((texture & 0x7FC00000) >> 22) + paletteOffset);
+            poly->tpage =
                 getTPage((texture & 0xC0) >> 6, flags >> 5, (texture & 0xF00) >> 2, ((texture >> 12) & 0x1) * 256);
             mode = texture & 0x3F;
             if (mode == 0) {
@@ -444,40 +420,39 @@ u8* FieldModelCreatePktsForPart(FieldModelPart* part, u8* nextFree, s32 relocate
                 uOffset = uOffset8;
                 vOffset = vOffset8;
             } else {
-                vOffset = 0;
-                uOffset = 0;
+                uOffset = vOffset = 0;
             }
-            setPolyGT3(polyGT3);
-            polyGT3->u0 += uOffset;
-            polyGT3->v0 += vOffset;
-            polyGT3->u1 += uOffset;
-            polyGT3->v1 += vOffset;
-            polyGT3->u2 += uOffset;
-            polyGT3->v2 += vOffset;
+            setPolyGT3(poly);
+            poly->u0 += uOffset;
+            poly->v0 += vOffset;
+            poly->u1 += uOffset;
+            poly->v1 += vOffset;
+            poly->u2 += uOffset;
+            poly->v2 += vOffset;
             if (flags & 0x10) {
-                setcode(polyGT3, 54);
+                setcode(poly, 0x36);
             }
         }
         count = part->polyFT4Count;
-        for (i = 0; i < count; i++, cursor += sizeof(POLY_FT4), polygon += 3) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT4), polygons += sizeof(FieldModelPolyFT4) / sizeof(u32)) {
+            POLY_FT4* poly = (POLY_FT4*)packets;
             u32 uvIndices;
             u32 texture;
             u32 mode;
             s32 paletteOffset;
             u8 flags;
 
-            polyFT4 = (POLY_FT4*)cursor;
-            *(u32*)&polyFT4->r0 = polygon[1];
-            uvIndices = polygon[2];
-            *(u16*)&polyFT4->u0 = texCoords[uvIndices & 0xFF],
-            *(u16*)&polyFT4->u1 = texCoords[(uvIndices & 0xFF00) >> 8],
-            *(u16*)&polyFT4->u2 = texCoords[(uvIndices & 0xFF0000) >> 16],
-            *(u16*)&polyFT4->u3 = texCoords[uvIndices >> 24];
+            *(u32*)&poly->r0 = polygons[1];
+            uvIndices = polygons[2];
+            *(u16*)&poly->u0 = texCoords[uvIndices & 0xFF];
+            *(u16*)&poly->u1 = texCoords[(uvIndices & 0xFF00) >> 8];
+            *(u16*)&poly->u2 = texCoords[(uvIndices & 0xFF0000) >> 16];
+            *(u16*)&poly->u3 = texCoords[uvIndices >> 24];
             flags = *textureFlags++;
             texture = textures[flags & 0xF];
             paletteOffset = (texture & 0x3F) == 2 ? 0 : modelId;
-            polyFT4->clut = getClut(((texture >> 16) & 0x3F) * 16, ((texture & 0x7FC00000) >> 22) + paletteOffset);
-            polyFT4->tpage =
+            poly->clut = getClut(((texture >> 16) & 0x3F) * 16, ((texture & 0x7FC00000) >> 22) + paletteOffset);
+            poly->tpage =
                 getTPage((texture & 0xC0) >> 6, flags >> 5, (texture & 0xF00) >> 2, ((texture >> 12) & 0x1) * 256);
             mode = texture & 0x3F;
             if (mode == 0) {
@@ -487,41 +462,40 @@ u8* FieldModelCreatePktsForPart(FieldModelPart* part, u8* nextFree, s32 relocate
                 uOffset = uOffset8;
                 vOffset = vOffset8;
             } else {
-                vOffset = 0;
-                uOffset = 0;
+                uOffset = vOffset = 0;
             }
-            setPolyFT4(polyFT4);
-            polyFT4->u0 += uOffset;
-            polyFT4->v0 += vOffset;
-            polyFT4->u1 += uOffset;
-            polyFT4->v1 += vOffset;
-            polyFT4->u2 += uOffset;
-            polyFT4->v2 += vOffset;
-            polyFT4->u3 += uOffset;
-            polyFT4->v3 += vOffset;
+            setPolyFT4(poly);
+            poly->u0 += uOffset;
+            poly->v0 += vOffset;
+            poly->u1 += uOffset;
+            poly->v1 += vOffset;
+            poly->u2 += uOffset;
+            poly->v2 += vOffset;
+            poly->u3 += uOffset;
+            poly->v3 += vOffset;
             if (flags & 0x10) {
-                setcode(polyFT4, 46);
+                setcode(poly, 0x2E);
             }
         }
         count = part->polyFT3Count;
-        for (i = 0; i < count; i++, cursor += sizeof(POLY_FT3), polygon += 3) {
+        for (i = 0; i < count; i++, packets += sizeof(POLY_FT3), polygons += sizeof(FieldModelPolyFT3) / sizeof(u32)) {
+            POLY_FT3* poly = (POLY_FT3*)packets;
             u32 uvIndices;
             u32 texture;
             u32 mode;
             s32 paletteOffset;
             u8 flags;
 
-            polyFT3 = (POLY_FT3*)cursor;
-            *(u32*)&polyFT3->r0 = polygon[1];
-            uvIndices = polygon[2];
-            *(u16*)&polyFT3->u0 = texCoords[uvIndices & 0xFF],
-            *(u16*)&polyFT3->u1 = texCoords[(uvIndices & 0xFF00) >> 8],
-            *(u16*)&polyFT3->u2 = texCoords[(uvIndices & 0xFF0000) >> 16];
+            *(u32*)&poly->r0 = polygons[1];
+            uvIndices = polygons[2];
+            *(u16*)&poly->u0 = texCoords[uvIndices & 0xFF];
+            *(u16*)&poly->u1 = texCoords[(uvIndices & 0xFF00) >> 8];
+            *(u16*)&poly->u2 = texCoords[(uvIndices & 0xFF0000) >> 16];
             flags = *textureFlags++;
             texture = textures[flags & 0xF];
             paletteOffset = (texture & 0x3F) == 2 ? 0 : modelId;
-            polyFT3->clut = getClut(((texture >> 16) & 0x3F) * 16, ((texture & 0x7FC00000) >> 22) + paletteOffset);
-            polyFT3->tpage =
+            poly->clut = getClut(((texture >> 16) & 0x3F) * 16, ((texture & 0x7FC00000) >> 22) + paletteOffset);
+            poly->tpage =
                 getTPage((texture & 0xC0) >> 6, flags >> 5, (texture & 0xF00) >> 2, ((texture >> 12) & 0x1) * 256);
             mode = texture & 0x3F;
             if (mode == 0) {
@@ -531,48 +505,47 @@ u8* FieldModelCreatePktsForPart(FieldModelPart* part, u8* nextFree, s32 relocate
                 uOffset = uOffset8;
                 vOffset = vOffset8;
             } else {
-                vOffset = 0;
-                uOffset = 0;
+                uOffset = vOffset = 0;
             }
-            setPolyFT3(polyFT3);
-            polyFT3->u0 += uOffset;
-            polyFT3->v0 += vOffset;
-            polyFT3->u1 += uOffset;
-            polyFT3->v1 += vOffset;
-            polyFT3->u2 += uOffset;
-            polyFT3->v2 += vOffset;
+            setPolyFT3(poly);
+            poly->u0 += uOffset;
+            poly->v0 += vOffset;
+            poly->u1 += uOffset;
+            poly->v1 += vOffset;
+            poly->u2 += uOffset;
+            poly->v2 += vOffset;
             if (flags & 0x10) {
-                setcode(polyFT3, 38);
+                setcode(poly, 0x26);
             }
         }
         count = part->polyF3Count;
-        for (i = 0; i < count; i++, cursor += sizeof(POLY_F3), polygon += 2) {
-            polyF3 = (POLY_F3*)cursor;
-            *(u32*)&polyF3->r0 = polygon[1];
-            setPolyF3(polyF3);
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F3), polygons += sizeof(FieldModelPolyF3) / sizeof(u32)) {
+            POLY_F3* poly = (POLY_F3*)packets;
+            *(u32*)&poly->r0 = polygons[1];
+            setPolyF3(poly);
         }
         count = part->polyF4Count;
-        for (i = 0; i < count; i++, cursor += sizeof(POLY_F4), polygon += 2) {
-            polyF4 = (POLY_F4*)cursor;
-            *(u32*)&polyF4->r0 = polygon[1];
-            setPolyF4(polyF4);
+        for (i = 0; i < count; i++, packets += sizeof(POLY_F4), polygons += sizeof(FieldModelPolyF4) / sizeof(u32)) {
+            POLY_F4* poly = (POLY_F4*)packets;
+            *(u32*)&poly->r0 = polygons[1];
+            setPolyF4(poly);
         }
         count = part->polyG3Count;
-        for (i = 0; i < count; i++, cursor += sizeof(POLY_G3), polygon += 4) {
-            polyG3 = (POLY_G3*)cursor;
-            *(u32*)&polyG3->r0 = polygon[1];
-            *(u32*)&polyG3->r1 = polygon[2];
-            *(u32*)&polyG3->r2 = polygon[3];
-            setPolyG3(polyG3);
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G3), polygons += sizeof(FieldModelPolyG3) / sizeof(u32)) {
+            POLY_G3* poly = (POLY_G3*)packets;
+            *(u32*)&poly->r0 = polygons[1];
+            *(u32*)&poly->r1 = polygons[2];
+            *(u32*)&poly->r2 = polygons[3];
+            setPolyG3(poly);
         }
         count = part->polyG4Count;
-        for (i = 0; i < count; i++, cursor += sizeof(POLY_G4), polygon += 5) {
-            polyG4 = (POLY_G4*)cursor;
-            *(u32*)&polyG4->r0 = polygon[1];
-            *(u32*)&polyG4->r1 = polygon[2];
-            *(u32*)&polyG4->r2 = polygon[3];
-            *(u32*)&polyG4->r3 = polygon[4];
-            setPolyG4(polyG4);
+        for (i = 0; i < count; i++, packets += sizeof(POLY_G4), polygons += sizeof(FieldModelPolyG4) / sizeof(u32)) {
+            POLY_G4* poly = (POLY_G4*)packets;
+            *(u32*)&poly->r0 = polygons[1];
+            *(u32*)&poly->r1 = polygons[2];
+            *(u32*)&poly->r2 = polygons[3];
+            *(u32*)&poly->r3 = polygons[4];
+            setPolyG4(poly);
         }
     }
     return nextFree + part->packetBufferSize * 2;

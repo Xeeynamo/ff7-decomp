@@ -268,7 +268,7 @@ typedef struct {
 } WorldTextureBlock;
 
 void WmLoadTexturesToVram(WorldTextureBlock*);
-s32 WmLoadModelPacketAndScale(FieldModel*, s32, s32);
+u8* WmLoadModelPacketAndScale(FieldModel* model, u8* nextFree, s32 modelId);
 void WmCalculateBonesAndLighting(FieldModel*);
 void WmPcCharModelLoadFileCallback(void);
 void WmPackModelLoadFileCallback(void);
@@ -554,7 +554,8 @@ extern MATRIX D_800C6848;
 extern u8 D_800C6940;
 extern u8 D_800C6A10[];
 extern s32 D_800C74C4[][2];
-extern u8* D_800C80BC;
+extern KawaiClippedVertex* D_800C80BC;
+extern u32 D_800C8100[16][15];
 extern u8* D_8010AD50;
 extern s32 D_8010CB20;
 extern u8 D_8010CB24[];
@@ -579,12 +580,12 @@ void func_800B3C40(POLY_FT4*, u8*, SVECTOR*, u8);
 extern s32 D_8010D9AC;
 extern s32 D_8010D9B0;
 extern s32 D_8010D9B4;
-extern s32 D_80115A44;
+extern u8* D_80115A44;
 extern s32 D_80115A48;
 extern s32 D_80115A4C;
 extern s32 D_80115A54;
 extern s32 D_80115A5C;
-extern u8 D_80115A6C[];
+extern KawaiClippedVertex D_80115A6C[];
 extern s16 D_80116290;
 extern u8 D_8013A800; // model count of the map data file
 extern FieldModel* D_8013A804;

@@ -261,7 +261,7 @@ void func_800AC554(void);
 void ChocoboDrawText(const u8* str, s32 len, s32 x, s32 y);
 void ChocoboDrawFade(void);
 u8* ChocoboModelSetupParts(FieldModel* model, u8* nextFree, s32 arg2);
-u8* func_800AD9D8(FieldModelPart*, u8*, s32, s32);
+u8* func_800AD9D8(FieldModelPart* part, u8* nextFree, s32 relocate, s32 modelId);
 void func_800AE534(FieldModel*);
 void func_800AF11C(FieldModel*, MATRIX*, s32, s32);
 void func_800AF9E4(FieldModel* model, s16 scale, s32 force);
