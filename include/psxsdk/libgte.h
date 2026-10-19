@@ -76,6 +76,7 @@ void RotTrans(SVECTOR* v0, VECTOR* v1, int* flag);
 VECTOR* ApplyRotMatrix(SVECTOR* v0, VECTOR* v1);
 void VectorNormal(VECTOR* v0, VECTOR* v1);
 long VectorNormalS(VECTOR* v0, SVECTOR* v1);
+long VectorNormalSS(SVECTOR* v0, SVECTOR* v1);
 long ReadGeomScreen(void);
 void SetBackColor(long rbk, long gbk, long bbk);
 void SetColorMatrix(MATRIX* m);

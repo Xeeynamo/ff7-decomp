@@ -13,6 +13,8 @@
 #define gte_ldrgb(r0)
 #define gte_ldcv(r0)
 #define gte_lddp(r0)
+#define gte_ldsxy3(r0, r1, r2)
+#define gte_ldsz3(r0, r1, r2)
 #define gte_strgb(r0)
 #define gte_SetGeomScreen(r0)
 #define gte_SetRotMatrix(r0)
@@ -24,7 +26,9 @@
 #define gte_rtpt()
 #define gte_rt()
 #define gte_rtv0()
+#define gte_rtv0tr()
 #define gte_nclip()
+#define gte_avsz3()
 #define gte_nccs()
 #define gte_gpl0()
 #define gte_stsxy(r0)
@@ -119,6 +123,20 @@
 	"mtc2	%0, $8"						\
 	:							\
 	: "r"( r0 ) )
+
+#define gte_ldsxy3( r0, r1, r2 ) __asm__ volatile (		\
+	"mtc2	%0, $12;"					\
+	"mtc2	%2, $14;"					\
+	"mtc2	%1, $13"					\
+	:							\
+	: "r"( r0 ), "r"( r1 ), "r"( r2 ) )
+
+#define gte_ldsz3( r0, r1, r2 ) __asm__ volatile (		\
+	"mtc2	%0, $17;"					\
+	"mtc2	%1, $18;"					\
+	"mtc2	%2, $19"					\
+	:							\
+	: "r"( r0 ), "r"( r1 ), "r"( r2 ) )
 
 #define gte_strgb( r0 ) __asm__ volatile (			\
 	"swc2	$22, 0( %0 )"					\
@@ -242,10 +260,20 @@
 	"nop;"							\
 	".word 0x4A486012" )
 
+#define gte_rtv0tr() __asm__ volatile (				\
+	"nop;"							\
+	"nop;"							\
+	".word 0x4A480012" )
+
 #define gte_nclip() __asm__ volatile (				\
 	"nop;"							\
 	"nop;"							\
 	".word 0x4B400006" )
+
+#define gte_avsz3() __asm__ volatile (				\
+	"nop;"							\
+	"nop;"							\
+	".word 0x4B58002D" )
 
 #define gte_nccs() __asm__ volatile (				\
 	"nop;"							\

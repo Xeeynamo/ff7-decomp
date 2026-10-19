@@ -5149,12 +5149,9 @@ void WmApplyModelLightingById(s16 modelId, s16 lightId) {
     light = &D_800C70DC[lightId];
     buffer = &D_800C752C;
     do {
-        packet[0] = light->vx;
-        packet[1] = (u16)light->vx >> 8;
-        packet[2] = light->vy;
-        packet[3] = (u16)light->vy >> 8;
-        packet[4] = light->vz;
-        packet[5] = (u16)light->vz >> 8;
+        KAWAI_WRITE_S16(packet, 0, light->vx);
+        KAWAI_WRITE_S16(packet, 2, light->vy);
+        KAWAI_WRITE_S16(packet, 4, light->vz);
         packet[6] = 1;
         WmApplyModelLightingToPacket(model, packet);
         i++;
@@ -5264,7 +5261,7 @@ static void WmInitModelVariablesAndArray(void) {
         D_80115A14[i] = 0;
     }
     D_80115A40 = NULL;
-    D_80115A44 = 0;
+    D_80115A44 = NULL;
     D_80115A50 = 0;
     D_80115A4C = 0;
     D_80115A48 = 0;
@@ -5349,7 +5346,7 @@ void WmLoadPcCharModelIntoMemory(void) {
 
     WmLoadTexturesToVram((WorldTextureBlock*)(((D_8014A608 >> 2) << 2) + 0x8014A604));
     model = D_8014A610;
-    WmLoadModelPacketAndScale(model, 0x8014FC00, 0);
+    WmLoadModelPacketAndScale(model, (u8*)0x8014FC00, 0);
     WmCalculateBonesAndLighting(model);
     D_80115A48 = 1;
     D_801159E8[0] = D_801159E8[1] = D_801159E8[2] = -1;
@@ -5365,14 +5362,14 @@ void WmPcCharModelLoadFileCallback(void) {
 }
 
 void WmLoadModelPacketsForSet(s16 arg0) {
-    s32 dst;
+    u8* dst;
     s32 i;
     s32 j;
     s8 id;
     FieldModel* model;
     FieldModelPart* parts;
 
-    dst = 0x80117000;
+    dst = (u8*)0x80117000;
     for (i = 0; i < D_8013A800; i++) {
         dst = WmLoadModelPacketAndScale(&D_8013A804[i], dst, i);
     }
@@ -5411,7 +5408,7 @@ void WmLoadPackModelsIntoMemory(void) {
 
     D_80115A50 = 1;
     offset = ((pack->packets >> 2) << 2) + 4;
-    D_80115A44 = offset + (s32)pack;
+    D_80115A44 = (u8*)(offset + (s32)pack);
     for (i = 32; i < 43; i++) {
         D_801159E8[i] = i - 19;
         if (D_801159E8[i] >= 0 && i >= 41 && i < 43) {
