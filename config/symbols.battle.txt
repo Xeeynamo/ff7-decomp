@@ -92,6 +92,7 @@ BattleActionType10 = 0x800A8528;
 BattleActionType12 = 0x800A85A0;
 BattleActionType15 = 0x800A85FC;
 BattleActionType16 = 0x800A866C;
+BattleActionType17 = 0x800A8A6C;
 BattleActionType18 = 0x800A8C94;
 BattleActionType1B = 0x800A8CC8;
 BattleActionType1C = 0x800A8D04;

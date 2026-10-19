@@ -619,8 +619,7 @@ typedef struct {
     /* 0x12 */ u16 maxHP;
     /* 0x14 */ u16 capMP;
     /* 0x16 */ u16 capHP;
-    /* 0x18 */ u16 unk18;
-    /* 0x1A */ u16 unk1A;
+    /* 0x18 */ u16 unk18[2];
     /* 0x1C */ u32 limitBreakHPDivisor;
     /* 0x20 */ u32 accessoryStatusMask; // status mask granted by the equipped accessory
     /* 0x24 */ u32 enemySkillMateriaData;
@@ -640,7 +639,7 @@ typedef struct {
     /* 0x05 */ u8 criticalHitChance;
     /* 0x06 */ u8 unk06;
     /* 0x07 */ u8 unk07;
-    /* 0x08 */ u16 attackSound[3]; // [0] normal hit, [1] critical, [2] miss; 0x100 set from WeaponRecord.soundIdMask
+    /* 0x08 */ s16 attackSound[3]; // [0] normal hit, [1] critical, [2] miss; 0x100 set from WeaponRecord.soundIdMask
     /* 0x0E */ u16 attackElement;
     /* 0x10 */ u16 cameraMovementId;
     /* 0x12 */ u16 specialAttackFlags;
@@ -691,8 +690,7 @@ typedef struct {
     /* 0x221C */ u8 enemyTypeCount[3];
     /* 0x221F */ u8 pad221F;
     /* 0x2220 */ u16 attackerUnitMask;
-    /* 0x2222 */ u16 playerContextOffset;
-    /* 0x2224 */ u16 pad2224;
+    /* 0x2222 */ u16 playerContextOffset[2];
     /* 0x2226 */ s16 pendingActionPriority;
 } BattleWork; // size:0x2228
 
@@ -716,18 +714,16 @@ typedef struct Unk800A8D04 {
     /* 0x030 */ s32 unk30;
     /* 0x034 */ u8 unk34[4]; // character spacing array
     /* 0x038 */ s32 unk38;
-    /* 0x03C */ s32 unk3C;
+    /* 0x03C */ s32 attackPercent;
     /* 0x040 */ s32 formulaIds;
     /* 0x044 */ s32 elements;
     /* 0x048 */ s32 power;
     /* 0x04C */ s32 attackStat;
     /* 0x050 */ s32 targetFlags;
-    /* 0x054 */ s32 unk54;
-    /* 0x058 */ s32 unk58;
-    /* 0x05C */ s32 unk5C;
+    /* 0x054 */ s32 impactSfxIds[3];
     /* 0x060 */ s32 unk60;
     /* 0x064 */ s32 unk64;
-    /* 0x068 */ s32 unk68;
+    /* 0x068 */ s32 impactEffectId;
     /* 0x06C */ s32 attackFlags;
     /* 0x070 */ s32 unk70;
     /* 0x074 */ s32 unk74;
@@ -779,13 +775,13 @@ typedef struct Unk800A8D04 {
     /* 0x234 */ s32 unk234;
     /* 0x238 */ s32 unk238[3];
     /* 0x244 */ s32 unk244;
-    /* 0x248 */ s32 unk248;
-    /* 0x24C */ s32 unk24C;
+    /* 0x248 */ s32 targetImpactSfxId;
+    /* 0x24C */ s32 targetImpactEffectId;
     /* 0x250 */ s32 unk250;
     /* 0x254 */ s32 targetLevel;
     /* 0x258 */ s32 targetHP;
     /* 0x25C */ s32 targetMP;
-    /* 0x260 */ s32 attackPercent;
+    /* 0x260 */ s32 targetAttackPercent;
 } Unk800A8D04; // size: 0x264
 
 extern s16 D_800F5B74;
