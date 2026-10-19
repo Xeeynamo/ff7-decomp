@@ -112,6 +112,7 @@ BattleCreateImpactData = 0x800ABA68;
 BattleMainDmgCalculation = 0x800ABB0C;
 BattleCalcTargStats = 0x800AC73C;
 BattleIsDamageNullified = 0x800ACE14;
+BattleRollStatusHit = 0x800ACE88;
 BattleQueueUnassignedResultDisplay = 0x800AD088;
 BattleApplyDamageAndChargeLimitGauge = 0x800AD0FC;
 BattleApplyDefaultAbsorbEffect = 0x800AD420;
