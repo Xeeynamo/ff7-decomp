@@ -2833,7 +2833,81 @@ static s32 BattleGetRndOpponentBit(s32 arg0) {
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA738);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA950);
+// Selects a random eligible party member in the same zone to cover the targeted ally, and
+// redirects the attack to them
+void BattleResolveCover(BattleQueueTargetEntry* entry) {
+    const s32 coverBlockStatuses =
+        (STATUS_DEATH | STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_FROG | STATUS_SMALL | STATUS_PETRIFY |
+         STATUS_BERSERK | STATUS_PARALYSIS | STATUS_DARKNESS | STATUS_IMPRISONED);
+    s32 targetId = entry->targetId;
+    u16 targetZone;
+    s32 statuses;
+    s32 coverMask;
+    s32 i;
+    s32 j;
+
+    // Identify which zone the target is in
+    for (i = 0; i < LEN(g_BattleData.unitZoneMask); i++) {
+        targetZone = g_BattleData.unitZoneMask[i];
+        if ((targetZone >> targetId) & 1) {
+            break;
+        }
+    }
+
+    if (targetId >= NUM_PARTY) {
+        return;
+    }
+
+    if (g_CurrentAction->power == 0) {
+        return;
+    }
+
+    if (targetId == g_CurrentAction->actorId) {
+        return;
+    }
+
+    if (g_CurrentAction->unkB8 != 1) {
+        return;
+    }
+
+    statuses = g_CurrentAction->unk80[0] | g_CurrentAction->unk80[1] | g_CurrentAction->unk80[2];
+    if (g_CurrentAction->attackFlags & 4 || statuses & STATUS_FROG) {
+        return;
+    }
+
+    if (g_CurrentAction->cmdIndex == CMD_ENEMY_ATTACK && g_CurrentAction->unk24 != 0xFF) {
+        return;
+    }
+
+    coverMask = 0;
+    for (j = 0; j < NUM_PARTY; j++) {
+        if (!(g_BattleWork.turn[j].turnFlags & 8) && (targetZone >> j) & 1) {
+            s32 coverChance = g_ActiveCharacters[j].coverChance;
+            if (!coverChance) {
+                continue;
+            }
+
+            if (g_CurrentAction->actorId == j || targetId == j) {
+                continue;
+            }
+
+            if (g_BattleState.combatant[j].status & coverBlockStatuses) {
+                continue;
+            }
+
+            if ((u8)SysGetRandomByteRange(100) < coverChance) {
+                coverMask |= 1 << j;
+            }
+        }
+    }
+
+    coverMask = SysSelectRandomBit(coverMask & g_BattleState.playerUnitMask);
+    if (coverMask) {
+        entry->targetId = SysGetLsbNumber(coverMask);
+        entry->attackerId = targetId;
+        g_BattleState.combatant[entry->targetId].coverTargetSlot = g_BattleState.combatant[targetId].formationIndex;
+    }
+}
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType09);
 
@@ -3057,7 +3131,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     act->attackerId = arg0;
     act->flags = 0;
     g_BattleState.combatant[arg1].coverTargetSlot = 0xFF;
-    func_800AA950(act);
+    BattleResolveCover(act);
     BattleCalcTargStats(act->targetId);
     if (act->targetId != arg1) {
         // target got redirected (e.g. covered by another actor) -- flag it

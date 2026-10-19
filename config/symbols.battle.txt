@@ -103,6 +103,7 @@ BattleResolveCaitSithSlotsResult = 0x800A9C24;
 BattleApplyVincentLimitTransform = 0x800AA1C8;
 BattleSetPowerFromWeaponMateriaAp = 0x800AA574;
 BattleGetRndOpponentBit = 0x800AA700;
+BattleResolveCover = 0x800AA950;
 BattleActionType09 = 0x800AABBC;
 BattleResolveAffinityPreDamage = 0x800AB308;
 BattleResolveAffinityPostDamage = 0x800AB480;

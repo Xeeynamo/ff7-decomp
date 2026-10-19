@@ -928,7 +928,7 @@ static s32 BattleAddMessageToStringBuffer(u8* src, u16* args);
 void BattleProcessEventQueue(s32);
 static void BattleSetActionEffect(s32 effectId, s32 effectModifier);
 void func_800A8E84(s32);
-void func_800AA950(BattleQueueTargetEntry*);
+void BattleResolveCover(BattleQueueTargetEntry*);
 void BattleResolveAffinityPreDamage(void);
 void BattleResolveAffinityPostDamage(void);
 static void BattleLearnEnemySkill(void);
