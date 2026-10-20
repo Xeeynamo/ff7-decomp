@@ -5,6 +5,8 @@
 #include <psxsdk/inline_o.h>
 
 static void WmSetActiveEntityDirectionAndRot(s16 arg0);
+static void WmMapLoadFinishedCallback(void);
+void WmStartLoadingMapFileBlock(WorldListNode* node);
 static void WmGetPosFromPcEntity(VECTOR* arg0);
 static void WmGetPos2FromPcEntity(VECTOR* arg0);
 static void WmSetPcEntityAsActiveEntity(void);
@@ -25,11 +27,11 @@ void WmRotateVectorByYAngle(SVECTOR* vec, s16 angle);
 void WmQueueBlocksAroundPos(VECTOR* pos);
 void func_800A5E28(void);
 void WmRequestVisibleChunks(VECTOR* pos, s16 angle);
-s32 func_800A63FC(WorldChunkHeader*, s16, s16, s16*, s16*);
+s32 func_800A63FC(WorldChunkHeader* chunk, s16 x, s16 z, s16* dx, s16* dz);
 static WorldChunkHeader* AllocChunk(void);
 void func_800A6168(VECTOR*, s32, s32 (*)[5]);
 void func_800A71E8(VECTOR*, VECTOR*, VECTOR*, s16);
-void WmMovePcEntityByDistance(s32);
+void WmMovePcEntityByDistance(s32 distance);
 static void WmRestoreEntityPosAndDirFromSavemap(WorldActor* arg0);
 s32 func_800ADFC0(void);
 static s32 func_800B0800(void);
@@ -72,7 +74,7 @@ static s32 func_800B786C(void);
 static void WmDialogSetModeAndPermanency(s16 window, s16 style, s16 preventClose);
 void func_800B4244(void);
 void WmCalculateBoneMatrixes(void*, MATRIX*, s32, s32);
-void WmCalculateModelLighting(void*, u8*);
+s32 WmCalculateModelLighting(FieldModel* model, u8* params);
 void func_800B5314(WorldActor*, s32);
 void WmDialogUpdate(void);
 void WmFadeInit(void);
@@ -626,7 +628,7 @@ void func_800A368C(s32 arg0) { D_800E5658 = arg0; }
 
 static s32 func_800A369C(void) { return D_800E5658; }
 
-void WmSetModelTransformMatrix(FieldModelEntry* model, SVECTOR* rot, MATRIX* m, s32 arg3) {
+void WmSetModelTransformMatrix(FieldModel* model, SVECTOR* rot, MATRIX* m, s32 arg3) {
     MATRIX tmp;
     VECTOR trans;
     SVECTOR v;
@@ -1395,7 +1397,81 @@ static void WmLoadClosestMapFileBlock(s16 arg0, s16 arg1) {
     FreeListNode(best, bestPrev);
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmStartLoadingMapFileBlock);
+void WmStartLoadingMapFileBlock(WorldListNode* node) {
+    s32 worldId;
+    s32 block;
+    s32 column;
+    s32 originalRow;
+    s32 value;
+    s32 fileOffset;
+
+    worldId = WmGetWmId();
+    if (worldId == 0) {
+        value = D_800E5824;
+        // Keep this expression to preserve the original compiler's branch layout.
+        // NOLINTBEGIN(readability-avoid-nested-conditional-operator)
+        D_800E581C =
+            value > 0 && node->unk4 == 50    ? 63
+            : value >= 2 && node->unk4 == 41 ? 64
+            : value >= 2 && node->unk4 == 42 ? 65
+            : value >= 3 && node->unk4 == 60 ? 66
+            : value >= 4 && node->unk4 == 47 ? 67
+            : value >= 4 && node->unk4 == 48 ? 68
+                                             : node->unk4;
+        // NOLINTEND(readability-avoid-nested-conditional-operator)
+    } else {
+        D_800E581C = node->unk4;
+    }
+    block = D_800E581C;
+    if (worldId == 2) {
+        originalRow = block / 9;
+        block = originalRow - 2;
+        if (block < 0) {
+            block = originalRow + 2;
+        } else if (block >= 4) {
+            block = originalRow - 6;
+        }
+        // Keep the signed remainder when remapping the nine-column layout.
+        value = D_800E581C - (D_800E581C / 9) * 9;
+        column = value - 3;
+        if (column < 0) {
+            column = value;
+        } else if (column >= 3) {
+            column = value - 6;
+        }
+        block = block * 3 + column;
+        fileOffset = worldId * 8;
+    } else {
+        fileOffset = worldId * 8;
+        if (worldId == 3) {
+            block = block / 9;
+            if (block >= 3) {
+                block -= 7;
+            }
+            if (block < 0) {
+                block += 2;
+            } else if (block >= 2) {
+                block -= 2;
+            }
+            column = D_800E581C % 9;
+            if (column >= 4) {
+                column -= 9;
+            }
+            if (column < 0) {
+                column += 2;
+            } else if (column >= 2) {
+                column -= 2;
+            }
+            block = block * 2 + column;
+            fileOffset = worldId * 8;
+        }
+    }
+    SystemLoadFileBySector(block * 23 + *(s32*)((u8*)D_800C74E4 + fileOffset), 0xB800,
+                           (u_long*)(node->unk6 * 0xB800 + D_800E5714), WmMapLoadFinishedCallback);
+    SystemCdromReadChain();
+    D_800E5814 = D_8011650C * 5;
+    D_800E5820 = node->unk6;
+}
 
 static void UpdateRegionLoad(void) {
     WorldListNode* node;
@@ -1510,7 +1586,34 @@ static s32 IsRegionLoading(s16 arg0) {
     return node != NULL;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5AD8);
+void func_800A5AD8(WorldChunkHeader* chunk) {
+    WorldChunkNode* next;
+    WorldChunkNode* node;
+    s32 coordinates;
+
+    node = D_800E5A2C;
+    if (node != NULL) {
+        coordinates = *(s32*)&chunk->x;
+        while (node != NULL) {
+            if (*(s32*)&node->chunk->x == coordinates) {
+                break;
+            }
+            node = node->next;
+        }
+        if (node != NULL) {
+            return;
+        }
+    }
+    if (D_800E5A30 == NULL) {
+        func_800A0B40(0x16);
+    }
+    node = D_800E5A30;
+    next = node->next;
+    node->next = D_800E5A2C;
+    D_800E5A2C = node;
+    node->chunk = chunk;
+    D_800E5A30 = next;
+}
 
 static void RegisterChunksForNode(WorldListNode* arg0) {
     WorldChunkHeader* c;
@@ -1592,7 +1695,67 @@ static void WmLoadChunkGeometry(WorldChunkHeader* chunk, WorldListNode* node) {
     chunk->norms = (SVECTOR*)((u_long)chunk->verts + (*(s16*)(buf + 2) * 8));
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A5E28);
+void func_800A5E28(void) {
+    WorldChunkHeader* chunk;
+    WorldChunkHeader* prev;
+    WorldChunkNode* cursor;
+    WorldChunkNode* freeNode;
+    WorldChunkNode* pending;
+    s32 block;
+    s32 flags;
+    WorldChunkNode* next;
+    WorldListNode* region;
+
+    cursor = D_800E5A2C;
+    if (cursor != NULL) {
+        do {
+            if (cursor->chunk == NULL) {
+                func_800A0B40(0xC);
+            }
+            pending = cursor;
+            region = D_800E5764;
+            block = (pending->chunk->z >> 2) * 9 + (pending->chunk->x >> 2);
+            if (region != NULL) {
+                while (region != NULL) {
+                    if (region->unk4 == block) {
+                        break;
+                    }
+                    region = region->next;
+                }
+                if (region != NULL) {
+                    prev = NULL;
+                    WmLoadChunkGeometry(pending->chunk, region);
+                    chunk = D_80109D40;
+                    while (chunk != NULL) {
+                        if (chunk == pending->chunk) {
+                            break;
+                        }
+                        prev = chunk;
+                        chunk = chunk->next;
+                    }
+                    if (chunk == NULL) {
+                        func_800A0B40(0x17);
+                    }
+                    if (prev != NULL) {
+                        prev->next = chunk->next;
+                    } else {
+                        D_80109D40 = chunk->next;
+                    }
+                    chunk->next = D_80109D3C;
+                    next = pending->next;
+                    freeNode = D_800E5A30;
+                    D_80109D3C = chunk;
+                    D_800E5A30 = pending;
+                    pending->next = freeNode;
+                    D_800E5A2C = next;
+                }
+            }
+            cursor = D_800E5A2C;
+            flags = D_800E5A34;
+        } while (cursor != NULL && flags == 0);
+    }
+    D_800E5A34 = 1;
+}
 
 static s32 ExpireChunks(void) {
     WorldChunkHeader* chunk;
@@ -1666,7 +1829,29 @@ static void InitChunkPool(void) {
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A6168);
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800A63FC);
+s32 func_800A63FC(WorldChunkHeader* chunk, s16 x, s16 z, s16* dx, s16* dz) {
+    s32 nearby;
+    s32 distanceZ;
+
+    *dx = (u16)chunk->x - x;
+    if (*dx > 18) {
+        *dx -= 36;
+    } else if (*dx < -18) {
+        *dx += 36;
+    }
+    *dz = (u16)chunk->z - z;
+    if (*dz > 14) {
+        *dz -= 28;
+    } else if (*dz < -14) {
+        *dz += 28;
+    }
+    nearby = 0;
+    if (abs(*dx) < 3) {
+        distanceZ = abs(*dz);
+        nearby = distanceZ < 3;
+    }
+    return nearby;
+}
 
 void WmRequestVisibleChunks(VECTOR* pos, s16 angle) {
     s32 visible[5][5];
@@ -2194,7 +2379,7 @@ static void WmUnlinkEntityAndInsertAsNew(WorldActor* arg0) {
 void WmUnlinkEntityFromAll(WorldActor* actor) {
     WorldActor* it;
     WorldActor* prev;
-    FieldModelEntry* model;
+    FieldModel* model;
 
     if (actor == D_8010AD3C) {
         D_8010AD3C = NULL;
@@ -2488,7 +2673,7 @@ static void WmInitActiveEntityStruct(s32 arg0) {
 static void WmSetActiveEntityDirectionAndRot(s16 arg0) {
     if (D_8010AD3C != NULL) {
         D_8010AD3C->direction = arg0;
-        D_8010AD3C->facing = (s16)arg0;
+        D_8010AD3C->facing = arg0;
         D_8010AD3C->unk3E = 0;
     }
 }
@@ -2504,7 +2689,7 @@ static void func_800A94A8(u16 arg0) {
 static void WmSetActiveEntityDirection(s16 arg0) {
     if (D_8010AD3C != NULL) {
         D_8010AD3C->direction = arg0;
-        D_8010AD3C->facing = (s16)arg0;
+        D_8010AD3C->facing = arg0;
     }
 }
 
@@ -2512,12 +2697,49 @@ static void func_800A94F4(s16 arg0) {
     if (D_8010AD3C != NULL) {
         D_8010AD3C->direction = arg0;
         D_8010AD3C->unk3C = arg0;
-        D_8010AD3C->facing = (s16)arg0;
+        D_8010AD3C->facing = arg0;
         D_8010AD3C->unk3E = 0;
     }
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmMoveActorByDistance);
+void WmMoveActorByDistance(WorldActor* actor, s16 angle) {
+    s16 d0;
+    s16 d1;
+    s16 d2;
+    s16 target;
+    u32 rotation;
+
+    target = angle;
+    if (actor == NULL) {
+        return;
+    }
+    if (angle < 0) {
+        target = angle + 0x1000;
+    }
+    d0 = actor->unk3C - target > 0 ? actor->unk3C - target : target - actor->unk3C;
+    d1 = abs(actor->unk3C - target + 0x1000);
+    d2 = actor->unk3C - target - 0x1000 > 0 ? actor->unk3C - target - 0x1000 : 0x1000 - (actor->unk3C - target);
+    if (d0 > d1) {
+        if (d1 > d2) {
+            target += 0x1000;
+        } else {
+            target -= 0x1000;
+        }
+    } else if (d2 < d0) {
+        target += 0x1000;
+    }
+    if (D_8011650C == 1) {
+        rotation = (u32)(actor->unk3C * 7 + target) >> 3;
+    } else {
+        rotation = (u32)(actor->unk3C * 3 + target) >> 2;
+    }
+    actor->unk3C = rotation;
+    if ((s16)rotation < 0) {
+        actor->unk3C = rotation + 0x1000;
+    } else if ((s16)rotation >= 0x1000) {
+        actor->unk3C = rotation - 0x1000;
+    }
+}
 
 static void WmMoveActiveEntityByDistance(s16 arg0) { WmMoveActorByDistance(D_8010AD3C, arg0); }
 
@@ -4894,7 +5116,7 @@ void WmDrawGroundQuad(s16 halfX, s16 halfZ, s16 y, s16 angle, POLY_FT4* prim, s3
 
 INCLUDE_ASM("asm/us/world/nonmatchings/world", func_800B5C7C);
 
-void WmSetCalculateAllPartsLighting(FieldModelEntry* model) {
+void WmSetCalculateAllPartsLighting(FieldModel* model) {
     u8* part;
     s32 i;
 
@@ -4927,12 +5149,9 @@ void WmApplyModelLightingById(s16 modelId, s16 lightId) {
     light = &D_800C70DC[lightId];
     buffer = &D_800C752C;
     do {
-        packet[0] = light->vx;
-        packet[1] = (u16)light->vx >> 8;
-        packet[2] = light->vy;
-        packet[3] = (u16)light->vy >> 8;
-        packet[4] = light->vz;
-        packet[5] = (u16)light->vz >> 8;
+        KAWAI_WRITE_S16(packet, 0, light->vx);
+        KAWAI_WRITE_S16(packet, 2, light->vy);
+        KAWAI_WRITE_S16(packet, 4, light->vz);
         packet[6] = 1;
         WmApplyModelLightingToPacket(model, packet);
         i++;
@@ -5042,7 +5261,7 @@ static void WmInitModelVariablesAndArray(void) {
         D_80115A14[i] = 0;
     }
     D_80115A40 = NULL;
-    D_80115A44 = 0;
+    D_80115A44 = NULL;
     D_80115A50 = 0;
     D_80115A4C = 0;
     D_80115A48 = 0;
@@ -5055,7 +5274,7 @@ static void WmInitModelVariablesAndArray(void) {
     D_800C80BC = D_80115A6C;
 }
 
-void WmCalculateBonesAndLighting(FieldModelEntry* model) {
+void WmCalculateBonesAndLighting(FieldModel* model) {
     MATRIX m;
     u8* packet;
     u8* buffer;
@@ -5123,11 +5342,11 @@ void WmCalculateBonesAndLighting(FieldModelEntry* model) {
 INCLUDE_ASM("asm/us/world/nonmatchings/world", WmLoadPcCharModelFile);
 
 void WmLoadPcCharModelIntoMemory(void) {
-    FieldModelEntry* model;
+    FieldModel* model;
 
     WmLoadTexturesToVram((WorldTextureBlock*)(((D_8014A608 >> 2) << 2) + 0x8014A604));
     model = D_8014A610;
-    WmLoadModelPacketAndScale(model, 0x8014FC00, 0);
+    WmLoadModelPacketAndScale(model, (u8*)0x8014FC00, 0);
     WmCalculateBonesAndLighting(model);
     D_80115A48 = 1;
     D_801159E8[0] = D_801159E8[1] = D_801159E8[2] = -1;
@@ -5143,14 +5362,14 @@ void WmPcCharModelLoadFileCallback(void) {
 }
 
 void WmLoadModelPacketsForSet(s16 arg0) {
-    s32 dst;
+    u8* dst;
     s32 i;
     s32 j;
     s8 id;
-    FieldModelEntry* model;
+    FieldModel* model;
     FieldModelPart* parts;
 
-    dst = 0x80117000;
+    dst = (u8*)0x80117000;
     for (i = 0; i < D_8013A800; i++) {
         dst = WmLoadModelPacketAndScale(&D_8013A804[i], dst, i);
     }
@@ -5189,7 +5408,7 @@ void WmLoadPackModelsIntoMemory(void) {
 
     D_80115A50 = 1;
     offset = ((pack->packets >> 2) << 2) + 4;
-    D_80115A44 = offset + (s32)pack;
+    D_80115A44 = (u8*)(offset + (s32)pack);
     for (i = 32; i < 43; i++) {
         D_801159E8[i] = i - 19;
         if (D_801159E8[i] >= 0 && i >= 41 && i < 43) {
@@ -5238,7 +5457,7 @@ static void func_800B6E78(void) {
 }
 
 void* WmGetModelDataByModelId(s16 modelId) {
-    FieldModelEntry* model;
+    FieldModel* model;
     s32 index;
 
     if (modelId < 0 || modelId >= 43) {
@@ -6941,7 +7160,30 @@ static void func_800BB8B0(void) {
     D_801163DC = 0;
 }
 
-INCLUDE_ASM("asm/us/world/nonmatchings/world", WmMovePcEntityByDistance);
+void WmMovePcEntityByDistance(s32 distance) {
+    SVECTOR movement;
+    s16 defaultDistance;
+    s32 modelId;
+
+    func_800AA238();
+    WmSetPcEntityAsActiveEntity();
+    movement.vy = 0;
+    movement.vx = 0;
+    modelId = WmGetModelIdFromPcEntity();
+    if (modelId == 5 || modelId == 13) {
+        if (distance != 0) {
+            movement.vz = distance;
+        } else {
+            defaultDistance = WmIsPcEntityPosNeedRecalculation() ? 100 : 800;
+            movement.vz = defaultDistance;
+        }
+        WmRotateVectorByYAngle(&movement, WmGetPcEntityTotalRot());
+    } else {
+        movement.vz = 300;
+        WmRotateVectorByYAngle(&movement, WmGetPcEntityTotalRot() + 0x400);
+    }
+    WmMoveActiveEntity(movement.vx, movement.vz);
+}
 
 void WmScriptPushToStoreStack(u8 arg0) {
     s8* temp_v1;

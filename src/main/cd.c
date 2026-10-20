@@ -3,29 +3,7 @@
 #include <libcd.h>
 #include <libetc.h>
 
-typedef enum {
-    CDOP_IDLE,           // nothing in progress
-    CDOP_SEEK,           // send Setloc for a seek-only request
-    CDOP_SEEK_WAIT,      // wait for the seek, then COMPLETE
-    CDOP_READ_SEEK,      // send Setloc for a raw file read
-    CDOP_READ_SEEK_WAIT, // wait for the seek, then READ
-    CDOP_READ,           // start CdRead of the whole file
-    CDOP_READ_WAIT,      // wait for CdRead, then COMPLETE
-    CDOP_STOPPED,        // drive stopped after too many errors, func_80034150 recovers it
-    CDOP_MOVIE_PLAY,     // movie is streaming
-    CDOP_MOVIE_BUFFER,   // movie stream started, waiting for buffer to fill
-    CDOP_MOVIE_READY,    // movie buffered, waiting for playback to start
-    CDOP_LZS_SEEK,       // seek to next lzs chunk
-    CDOP_LZS_SEEK_WAIT,  // wait for the seek, then LZS_READ
-    CDOP_LZS_READ,       // start CdRead of up to 9 sectors
-    CDOP_LZS_READ_WAIT,  // wait for CdRead, extract the chunk, then LZS_SEEK or COMPLETE
-    CDOP_UNUSED_15,      // never set, handler does nothing
-    CDOP_CALLBACK,       // go IDLE and invoke the user callback
-    CDOP_COMPLETE,       // request finished, CALLBACK on the next tick
-    CDOP_PAUSE_SYNC,     // pauses the drive
-    CDOP_PAUSE,          // send Pause to abort the current request
-    CDOP_PAUSE_WAIT,     // wait for the pause, then go IDLE and invoke the callback
-} CdOp;
+#include "cd.h"
 
 extern CdlATV D_800698E4; // CD audio volume
 extern u8* D_80034CF0;    // lzs extract source
@@ -34,13 +12,7 @@ extern s32 D_800698EC;
 extern u8 D_800698F0[0x4800]; // disc buffer
 extern int D_8006E0F0;
 extern int D_8006E0F4;
-extern u32 D_8006E0F8;       // sectors in the current lzs chunk read
-extern CdOp D_80071A60;      // current state of the read chain
-extern int D_80071A64;       //
-extern CdlLOC D_80071A68;    // cd sector
-extern size_t D_80071A6C;    // amount of sectors to read
-extern u_long* D_80071A80;   // read content destination
-extern void (*D_80071A84)(); // callback
+extern u32 D_8006E0F8; // sectors in the current lzs chunk read
 
 void SystemCdromAbortLoading(void);
 static void func_80034CAC(u32 arg0);
@@ -98,7 +70,7 @@ void SysSavemapReset(void) {
 void SysCdromInit(void) {
     while (!CdInit()) {
     }
-    D_80071A60 = CDOP_IDLE;
+    D_80071A60.op = CDOP_IDLE;
     CdSetDebug(0);
     func_80034F3C();
 #ifndef PLATFORM_PSYZ
@@ -106,7 +78,7 @@ void SysCdromInit(void) {
     CdControlB(CdlSetmode, (u8*)CdlModeSpeed, NULL);
 #endif
     VSync(3);
-    D_80071A64 = ReadDiskNo();
+    D_80071A60.disc = ReadDiskNo();
     SysMovieLoadMovieSettings();
 }
 
@@ -149,11 +121,11 @@ static void SysCdromSetChainParam(int op, int sector, size_t len, u_long* dst, v
             break;
         }
     } while (nextOp);
-    CdIntToPos(sector, &D_80071A68);
-    D_80071A6C = (len + 0x7FF) / 0x800;
-    D_80071A80 = dst;
-    D_80071A84 = cb;
-    D_80071A60 = op;
+    CdIntToPos(sector, &D_80071A60.loc);
+    D_80071A60.sectors = (len + 0x7FF) / 0x800;
+    D_80071A60.dst = dst;
+    D_80071A60.callback = cb;
+    D_80071A60.op = op;
 }
 
 int func_80033DAC(int sectorNo, void (*cb)()) {
@@ -164,7 +136,7 @@ int func_80033DAC(int sectorNo, void (*cb)()) {
 int func_80033DE4(int sectorNo) {
     SysCdromSetChainParam(CDOP_IDLE, sectorNo, 0, NULL, NULL);
     do {
-    } while (CdControl(CdlSetloc, (u_char*)&D_80071A68, NULL) == 0);
+    } while (CdControl(CdlSetloc, (u_char*)&D_80071A60.loc, NULL) == 0);
     return 0;
 }
 
@@ -208,15 +180,15 @@ int SysCdromLoadLzs(int sectorNo, size_t size, u_long* dst, void (*cb)()) {
 }
 
 static void func_80034048(void) {
-    D_80071A6C = 0;
-    D_80071A80 = NULL;
-    D_80071A84 = NULL;
-    D_80071A60 = CDOP_PAUSE;
+    D_80071A60.sectors = 0;
+    D_80071A60.dst = NULL;
+    D_80071A60.callback = NULL;
+    D_80071A60.op = CDOP_PAUSE;
     SystemCdromReadChain();
 }
 
 void SystemCdromAbortLoading(void) {
-    switch (D_80071A60) {
+    switch (D_80071A60.op) {
     case CDOP_IDLE:
     case CDOP_STOPPED:
         return;
@@ -251,7 +223,7 @@ void func_80034104(void) {
     CdControlB(CdlSetmode, NULL, NULL);
     VSync(3);
     CdControlB(CdlStop, NULL, NULL);
-    D_80071A60 = CDOP_STOPPED;
+    D_80071A60.op = CDOP_STOPPED;
 }
 
 s32 func_80034150(void) {
@@ -259,7 +231,7 @@ s32 func_80034150(void) {
     CdlLOC loc;
     s32 i;
 
-    if (D_80071A60 == CDOP_STOPPED) {
+    if (D_80071A60.op == CDOP_STOPPED) {
         CdControlB(CdlNop, NULL, result);
         if (result[0] & CdlStatShellOpen) {
             return 3;
@@ -308,9 +280,9 @@ s32 func_80034150(void) {
         CdControlB(CdlSetmode, (u8*)CdlModeSpeed, result);
 #endif
         VSync(3);
-        D_80071A60 = CDOP_IDLE;
-        D_80071A64 = ReadDiskNo();
-        switch (D_80071A64) {
+        D_80071A60.op = CDOP_IDLE;
+        D_80071A60.disc = ReadDiskNo();
+        switch (D_80071A60.disc) {
         case 0:
             func_80034104();
             return 6;
@@ -359,24 +331,24 @@ static s32 ReadDiskNo(void) {
 
 s32 SYS_GetDiskNo(void) { return ReadDiskNo(); }
 
-s32 func_80034410(void) { return D_80071A60; }
+s32 func_80034410(void) { return D_80071A60.op; }
 
 static void CdOpNop(void) {}
 
 static void CdOpStopped(void) {}
 
-static void CdOpComplete(void) { D_80071A60 = CDOP_CALLBACK; }
+static void CdOpComplete(void) { D_80071A60.op = CDOP_CALLBACK; }
 
 static void CdOpCallback(void) {
-    D_80071A60 = CDOP_IDLE;
-    if (D_80071A84 != NULL) {
-        D_80071A84();
+    D_80071A60.op = CDOP_IDLE;
+    if (D_80071A60.callback != NULL) {
+        D_80071A60.callback();
     }
 }
 
 static void CdOpSeek(void) {
-    CdControlF(CdlSetloc, (u_char*)&D_80071A68);
-    D_80071A60 = CDOP_SEEK_WAIT;
+    CdControlF(CdlSetloc, (u_char*)&D_80071A60.loc);
+    D_80071A60.op = CDOP_SEEK_WAIT;
     D_8006E0F4 = 0;
     D_800698EC = 0;
 }
@@ -388,7 +360,7 @@ static void CdOpSeekWait(void) {
 
     switch (CdSync(1, 0)) {
     case 2:
-        D_80071A60 = CDOP_COMPLETE;
+        D_80071A60.op = CDOP_COMPLETE;
         break;
     case 5:
         retries = &D_800698EC;
@@ -400,7 +372,7 @@ static void CdOpSeekWait(void) {
                 func_80034CAC(3);
             } while (func_80034150());
         }
-        D_80071A60 = CDOP_SEEK;
+        D_80071A60.op = CDOP_SEEK;
         break;
     default:
         temp_v0 = VSync(-1);
@@ -409,7 +381,7 @@ static void CdOpSeekWait(void) {
             *var_a1 = temp_v0;
             D_8006E0F4++;
             if (D_8006E0F4 == 3600) {
-                D_80071A60 = CDOP_SEEK;
+                D_80071A60.op = CDOP_SEEK;
                 func_80034CAC(3);
             }
         }
@@ -418,8 +390,8 @@ static void CdOpSeekWait(void) {
 }
 
 static void CdOpReadSeek(void) {
-    CdControlF(CdlSetloc, (u_char*)&D_80071A68);
-    D_80071A60 = CDOP_READ_SEEK_WAIT;
+    CdControlF(CdlSetloc, (u_char*)&D_80071A60.loc);
+    D_80071A60.op = CDOP_READ_SEEK_WAIT;
     D_8006E0F4 = 0;
     D_800698EC = 0;
 }
@@ -431,7 +403,7 @@ static void CdOpReadSeekWait(void) {
 
     switch (CdSync(1, 0)) {
     case 2:
-        D_80071A60 = CDOP_READ;
+        D_80071A60.op = CDOP_READ;
         break;
     case 5:
         retries = &D_800698EC;
@@ -443,7 +415,7 @@ static void CdOpReadSeekWait(void) {
                 func_80034CAC(3);
             } while (func_80034150());
         }
-        D_80071A60 = CDOP_READ_SEEK;
+        D_80071A60.op = CDOP_READ_SEEK;
         break;
     default:
         temp_v0 = VSync(-1);
@@ -452,7 +424,7 @@ static void CdOpReadSeekWait(void) {
             *var_a1 = temp_v0;
             D_8006E0F4++;
             if (D_8006E0F4 == 3600) {
-                D_80071A60 = CDOP_READ_SEEK;
+                D_80071A60.op = CDOP_READ_SEEK;
                 func_80034CAC(3);
             }
         }
@@ -461,29 +433,29 @@ static void CdOpReadSeekWait(void) {
 }
 
 static void CdOpRead(void) {
-    if (CdRead(D_80071A6C, D_80071A80, CdlModeSpeed) == 0) {
-        D_80071A60 = CDOP_READ_SEEK;
+    if (CdRead(D_80071A60.sectors, D_80071A60.dst, CdlModeSpeed) == 0) {
+        D_80071A60.op = CDOP_READ_SEEK;
         func_80034CAC(0x10);
         return;
     }
-    D_80071A60 = CDOP_READ_WAIT;
+    D_80071A60.op = CDOP_READ_WAIT;
 }
 
 static void CdOpReadWait(void) {
     switch (CdReadSync(1, NULL)) {
     case 0:
-        D_80071A60 = CDOP_COMPLETE;
+        D_80071A60.op = CDOP_COMPLETE;
         break;
     case -1:
-        D_80071A60 = CDOP_READ_SEEK;
+        D_80071A60.op = CDOP_READ_SEEK;
         func_80034CAC(3);
         break;
     }
 }
 
 static void CdOpLzsSeek(void) {
-    CdControlF(CdlSetloc, (u_char*)&D_80071A68);
-    D_80071A60 = CDOP_LZS_SEEK_WAIT;
+    CdControlF(CdlSetloc, (u_char*)&D_80071A60.loc);
+    D_80071A60.op = CDOP_LZS_SEEK_WAIT;
     D_8006E0F4 = 0;
     D_800698EC = 0;
 }
@@ -495,7 +467,7 @@ static void CdOpLzsSeekWait(void) {
 
     switch (CdSync(1, 0)) {
     case 2:
-        D_80071A60 = CDOP_LZS_READ;
+        D_80071A60.op = CDOP_LZS_READ;
         break;
     case 5:
         retries = &D_800698EC;
@@ -507,7 +479,7 @@ static void CdOpLzsSeekWait(void) {
                 func_80034CAC(3);
             } while (func_80034150());
         }
-        D_80071A60 = CDOP_LZS_SEEK;
+        D_80071A60.op = CDOP_LZS_SEEK;
         break;
     default:
         temp_v0 = VSync(-1);
@@ -516,7 +488,7 @@ static void CdOpLzsSeekWait(void) {
             *var_a1 = temp_v0;
             D_8006E0F4++;
             if (D_8006E0F4 == 3600) {
-                D_80071A60 = CDOP_LZS_SEEK;
+                D_80071A60.op = CDOP_LZS_SEEK;
                 func_80034CAC(3);
             }
         }
@@ -525,28 +497,28 @@ static void CdOpLzsSeekWait(void) {
 }
 
 static void CdOpLzsRead(void) {
-    D_8006E0F8 = D_80071A6C;
+    D_8006E0F8 = D_80071A60.sectors;
     if (D_8006E0F8 > 8) {
         D_8006E0F8 = 9;
     }
     if (CdRead(D_8006E0F8, (u_long*)D_800698F0, CdlModeSpeed) == 0) {
-        D_80071A60 = CDOP_LZS_SEEK;
+        D_80071A60.op = CDOP_LZS_SEEK;
         func_80034CAC(3);
         return;
     }
-    D_80071A60 = CDOP_LZS_READ_WAIT;
+    D_80071A60.op = CDOP_LZS_READ_WAIT;
 }
 
 static void CdOpLzsReadWait(void) {
     s32* sector;
-    CdOp* op;
+    s32* op;
 
     switch (CdReadSync(1, NULL)) {
     case 0:
         sector = &D_800698E8;
-        op = &D_80071A60;
+        op = &D_80071A60.op;
         D_80034CF0 = D_800698F0;
-        D_80071A6C -= 9;
+        D_80071A60.sectors -= 9;
         *sector += 9;
         if (func_80034D5C() == 0) {
             *op = CDOP_COMPLETE;
@@ -554,15 +526,15 @@ static void CdOpLzsReadWait(void) {
         }
 #ifdef PLATFORM_PSYZ
         // globals are not laid out in address order on PC
-        CdIntToPos(*sector, &D_80071A68);
+        CdIntToPos(*sector, &D_80071A60.loc);
 #else
         CdIntToPos(*sector, (CdlLOC*)(op + 2));
 #endif
         *op = CDOP_LZS_SEEK;
         break;
     case -1:
-        CdIntToPos(D_800698E8, &D_80071A68);
-        D_80071A60 = CDOP_LZS_SEEK;
+        CdIntToPos(D_800698E8, &D_80071A60.loc);
+        D_80071A60.op = CDOP_LZS_SEEK;
         func_80034CAC(3);
         break;
     }
@@ -570,7 +542,7 @@ static void CdOpLzsReadWait(void) {
 
 static void CdOpPause(void) {
     CdControlF(CdlPause, NULL);
-    D_80071A60 = CDOP_PAUSE_WAIT;
+    D_80071A60.op = CDOP_PAUSE_WAIT;
     D_8006E0F4 = 0;
 }
 
@@ -583,7 +555,7 @@ static void CdOpPauseWait(void) {
         CdOpCallback();
         return;
     case 5:
-        D_80071A60 = CDOP_PAUSE;
+        D_80071A60.op = CDOP_PAUSE;
         return;
     default:
         temp_v0 = VSync(-1);
@@ -592,7 +564,7 @@ static void CdOpPauseWait(void) {
             *var_a1 = temp_v0;
             D_8006E0F4++;
             if (D_8006E0F4 == 3600) {
-                D_80071A60 = CDOP_PAUSE;
+                D_80071A60.op = CDOP_PAUSE;
                 func_80034CAC(3);
             }
         }
@@ -626,11 +598,11 @@ static void (*cd_op_handlers[])(void) = {
 
 u32 SystemCdromReadChain(void) {
     u32* op;
-    if (D_80071A60 >= LEN(cd_op_handlers)) {
+    if ((u32)D_80071A60.op >= LEN(cd_op_handlers)) {
         while (1) {
         }
     }
-    op = &D_80071A60;
+    op = &D_80071A60.op;
     cd_op_handlers[*op]();
     return *op;
 }

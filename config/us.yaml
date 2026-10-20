@@ -382,6 +382,8 @@ overlays:
       - [0x27B60, c, battle2]
       - [0x38A04, c, battle3]
       - [0x47A38, data]
+      - [0x47BCC, .data, battle]
+      - [0x47C7C, data]
       - [0x4F5B0, .data, battle2]
       - [0x501DC, data]
       - [0x538AC, bss]
@@ -407,8 +409,8 @@ overlays:
     vram_start: 0x800A0000
     segments:
       - [0x0, c, dschange]
-      - [0x1580, data]
-      - [0x15E0, bss]
+      - [0x1580, .data, dschange]
+      - [0x15E0, .bss, dschange]
   - name: ending
     disk_path: disks/us/FIELD/ENDING.X
     sha1: 1b3fbf999913024209b23a1bb8a6874a66fc19ba
@@ -605,10 +607,10 @@ overlays:
     imports: [main]
     symbol_addrs_path:
       - config/symbols.condor.us.txt
-    migrate_rodata_to_functions: false
+    migrate_rodata_to_functions: true
     vram_start: 0x800A0000
     segments:
-      - [0x0, rodata, condor]
+      - [0x0, .rodata, condor]
       - [0x37C, c, condor]
       - [0x1E7D8, data, condor]
   - name: highway

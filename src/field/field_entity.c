@@ -3,7 +3,7 @@
 #include <libetc.h>
 #include "field_private.h"
 
-extern s16 D_800DF120[][2];
+extern s16 g_FieldSinCosTable[256][2];
 extern u16 D_80113F28;
 extern s16 D_801144CC;
 extern u8 D_80071C0C;
@@ -95,12 +95,12 @@ void FieldEntityAddRotate(u32 activeKeys, s16 modelId) {
 
 void FieldEntityAnimationUpdate(s32 modelId) {
     u8 modelEntryId;
-    FieldModelEntry* model;
+    FieldModel* model;
     FieldModelAnimation* anims;
 
     modelEntryId = g_FieldModelLoaderData[modelId].modelEntryIndex;
     if (modelEntryId != 0xFF) {
-        model = &g_FieldModelData->modelEntries[modelEntryId];
+        model = &g_FieldModelData->models[modelEntryId];
         anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
         if (!g_FieldState.suspendWalkAndAnim) {
             g_FieldEntity[modelId].animCurrentFrame += g_FieldEntity[modelId].animSpeed;
@@ -127,7 +127,7 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
     for (i = 0; i < g_FieldState.modelCount; i++) {
         u8 modelEntryId = g_FieldModelLoaderData[i].modelEntryIndex;
         if (modelEntryId != 0xFF) {
-            FieldModelEntry* model = &g_FieldModelData->modelEntries[modelEntryId];
+            FieldModel* model = &g_FieldModelData->models[modelEntryId];
             if (g_FieldEntity[i].visible == 1) {
                 model->flags = 1;
             } else {
@@ -319,7 +319,7 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
     for (i = 0; i < g_FieldState.modelCount; i++) {
         if (g_FieldEntity[i].scriptedMoveMode == SMODE_LADDER_V) {
             if (g_FieldModelLoaderData[i].modelEntryIndex != 0xFF) {
-                FieldModelEntry* model = &g_FieldModelData->modelEntries[g_FieldModelLoaderData[i].modelEntryIndex];
+                FieldModel* model = &g_FieldModelData->models[g_FieldModelLoaderData[i].modelEntryIndex];
                 FieldModelAnimation* anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
 
                 if (!g_FieldEntity[i].ActionState) {
@@ -416,7 +416,7 @@ void FieldEntityMovementUpdate(u32 activeKeys) {
     for (i = 0; i < g_FieldState.modelCount; i++) {
         if (g_FieldEntity[i].scriptedMoveMode == SMODE_LADDER_H) {
             if (g_FieldModelLoaderData[i].modelEntryIndex != 0xFF) {
-                FieldModelEntry* model = &g_FieldModelData->modelEntries[g_FieldModelLoaderData[i].modelEntryIndex];
+                FieldModel* model = &g_FieldModelData->models[g_FieldModelLoaderData[i].modelEntryIndex];
                 FieldModelAnimation* anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
 
                 if (!g_FieldEntity[i].ActionState) {
@@ -570,9 +570,9 @@ void FieldEntityCheckTalk(void) {
     }
 }
 
-static s16 FieldEntityGetDirVectorX(u8 arg0) { return D_800DF120[arg0][0]; }
+static s16 FieldEntityGetDirVectorX(u8 arg0) { return g_FieldSinCosTable[arg0][0]; }
 
-s16 FieldEntityGetDirVectorY(u8 arg0) { return D_800DF120[arg0][1]; }
+s16 FieldEntityGetDirVectorY(u8 arg0) { return g_FieldSinCosTable[arg0][1]; }
 
 u8 FieldEntityDirByVec(VECTOR* start, VECTOR* target, s32* distance) {
     u8 angle;
@@ -900,14 +900,14 @@ s32 FieldEntityMove(s16 modelId) {
             g_FieldEntity[modelId].animSpeed = 16;
             if (g_FieldKeyState & PAD_CROSS) {
                 activeAnimation = 0;
-                if (g_FieldModelData->modelEntries[g_FieldModelLoaderData[modelId].modelEntryIndex].animationCount >
+                if (g_FieldModelData->models[g_FieldModelLoaderData[modelId].modelEntryIndex].animationCount >
                     g_FieldState.runAnimId) {
                     activeAnimation = g_FieldState.runAnimId;
                 }
                 g_FieldEntity[modelId].activeAnimId = activeAnimation;
             } else {
                 activeAnimation = 0;
-                if (g_FieldModelData->modelEntries[g_FieldModelLoaderData[modelId].modelEntryIndex].animationCount >
+                if (g_FieldModelData->models[g_FieldModelLoaderData[modelId].modelEntryIndex].animationCount >
                     g_FieldState.walkAnimId) {
                     activeAnimation = g_FieldState.walkAnimId;
                 }

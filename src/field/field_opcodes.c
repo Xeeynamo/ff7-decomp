@@ -2108,8 +2108,8 @@ static s32 OpcodeFuncRet(void) {
         g_FieldScriptPriority[g_CurrentEntity]++;
         entity = g_CurrentEntity;
 
-        activePcSlot = (u16*)((entity * sizeof(*fieldScriptPC)) + (s32)fieldScriptPC);
-        loopSavedRow = (u16*)((entity * sizeof(*savedPC)) + (s32)savedPC);
+        activePcSlot = (u16*)((entity * sizeof(*fieldScriptPC)) + (u_long)fieldScriptPC);
+        loopSavedRow = (u16*)((entity * sizeof(*savedPC)) + (u_long)savedPC);
         nextPc = loopSavedRow[g_FieldScriptPriority[entity]];
 
         *activePcSlot = nextPc;
@@ -2412,10 +2412,10 @@ static s32 SetAndApplyAkao(void) {
 }
 
 static u32 GetAkaoBlockOffset(s16 akaoId) {
-    s32 akaoData;
+    u_long akaoData;
     u32 akaoOffset;
 
-    akaoData = akaoId * 4 + g_FieldScripts->numEntities * 8 + (u32)g_FieldScripts;
+    akaoData = akaoId * 4 + g_FieldScripts->numEntities * 8 + (u_long)g_FieldScripts;
     akaoOffset = ((u8*)akaoData)[sizeof(FieldScriptHeader)];
     akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 1] << 8;
     akaoOffset |= ((u8*)akaoData)[sizeof(FieldScriptHeader) + 2] << 16;
@@ -2718,14 +2718,14 @@ static s32 OpcodeFuncCcanm(void) {
  */
 static void StartModelAnimation(void) {
     FieldModelAnimation* anims;
-    FieldModelEntry* model;
+    FieldModel* model;
 
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].activeAnimId = GET_PARAM_U8(1);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animSpeed =
         g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(2);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
 
-    model = &g_FieldModelData->modelEntries[g_FieldModelLoaderData[g_EntityToModel[g_CurrentEntity]].modelEntryIndex];
+    model = &g_FieldModelData->models[g_FieldModelLoaderData[g_EntityToModel[g_CurrentEntity]].modelEntryIndex];
     anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animLastFrame =
         anims[g_FieldEntity[g_EntityToModel[g_CurrentEntity]].activeAnimId].frameCount - 1;
@@ -2806,7 +2806,7 @@ static s32 OpcodeFuncAnimEx(void) {
 }
 
 static s32 OpcodeFuncCanim(void) {
-    FieldModelEntry* model;
+    FieldModel* model;
     FieldModelAnimation* anims;
     s16 animationLastFrame;
     s16 requestedLastFrame;
@@ -2831,8 +2831,7 @@ static s32 OpcodeFuncCanim(void) {
             g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] / speed;
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 16 * (GET_PARAM_U8(2) / speed);
 
-        model =
-            &g_FieldModelData->modelEntries[g_FieldModelLoaderData[g_EntityToModel[g_CurrentEntity]].modelEntryIndex];
+        model = &g_FieldModelData->models[g_FieldModelLoaderData[g_EntityToModel[g_CurrentEntity]].modelEntryIndex];
         anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
         animationLastFrame = anims[g_FieldEntity[g_EntityToModel[g_CurrentEntity]].activeAnimId].frameCount - 1;
         requestedLastFrame = GET_PARAM_U8(3) / speed;
@@ -2859,7 +2858,7 @@ static s32 OpcodeFuncCanim(void) {
 }
 
 static s32 OpcodeFuncCanmEx(void) {
-    FieldModelEntry* model;
+    FieldModel* model;
     FieldModelAnimation* animations;
     s16 animationLastFrame;
     s16 requestedLastFrame;
@@ -2884,8 +2883,7 @@ static s32 OpcodeFuncCanmEx(void) {
             g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] / speed;
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 16 * GET_PARAM_U8(2);
 
-        model =
-            &g_FieldModelData->modelEntries[g_FieldModelLoaderData[g_EntityToModel[g_CurrentEntity]].modelEntryIndex];
+        model = &g_FieldModelData->models[g_FieldModelLoaderData[g_EntityToModel[g_CurrentEntity]].modelEntryIndex];
         animations = (FieldModelAnimation*)(model->modelData + model->animationOffset);
         animationLastFrame = animations[g_FieldEntity[g_EntityToModel[g_CurrentEntity]].activeAnimId].frameCount - 1;
         requestedLastFrame = GET_PARAM_U8(3) / speed;
@@ -2951,7 +2949,7 @@ static s32 OpcodeFuncAnimb(void) {
 
 static s32 OpcodeFuncMove(void) {
     FieldEntity* entity;
-    FieldModelEntry* model;
+    FieldModel* model;
     FieldModelAnimation* anims;
     s32 modelEntryId;
 
@@ -2976,7 +2974,7 @@ static s32 OpcodeFuncMove(void) {
             g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
 
             modelEntryId = g_FieldModelLoaderData[g_EntityToModel[g_CurrentEntity]].modelEntryIndex;
-            model = &g_FieldModelData->modelEntries[modelEntryId];
+            model = &g_FieldModelData->models[modelEntryId];
             anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
             g_FieldModels[g_EntityToModel[g_CurrentEntity]].animLastFrame =
                 anims[g_FieldEntity[g_EntityToModel[g_CurrentEntity]].activeAnimId].frameCount - 1;
@@ -2988,7 +2986,7 @@ static s32 OpcodeFuncMove(void) {
             g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
 
             modelEntryId = g_FieldModelLoaderData[g_EntityToModel[g_CurrentEntity]].modelEntryIndex;
-            model = &g_FieldModelData->modelEntries[modelEntryId];
+            model = &g_FieldModelData->models[modelEntryId];
             anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
             g_FieldModels[g_EntityToModel[g_CurrentEntity]].animLastFrame =
                 anims[g_FieldEntity[g_EntityToModel[g_CurrentEntity]].activeAnimId].frameCount - 1;
@@ -3175,8 +3173,8 @@ static s32 OpcodeFuncLader(void) {
         g_FieldModelBaseAnimSpeed[g_EntityToModel[g_CurrentEntity]] / GET_PARAM_U8(14);
     g_FieldModels[g_EntityToModel[g_CurrentEntity]].animCurrentFrame = 0;
     {
-        FieldModelEntry* entry =
-            &g_FieldModelData->modelEntries[g_FieldModelLoaderData[g_EntityToModel[g_CurrentEntity]].modelEntryIndex];
+        FieldModel* entry =
+            &g_FieldModelData->models[g_FieldModelLoaderData[g_EntityToModel[g_CurrentEntity]].modelEntryIndex];
         FieldModelAnimation* anims = (FieldModelAnimation*)(entry->modelData + entry->animationOffset);
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].animLastFrame =
             anims[g_FieldEntity[g_EntityToModel[g_CurrentEntity]].activeAnimId].frameCount - 1;
@@ -3208,8 +3206,8 @@ static s32 OpcodeFuncMova(void) {
 }
 
 static s32 FieldMoveToEntityUpdate(u8 entityId) {
-    FieldModelEntry* entry;
-    FieldModelEntry* modelEntries;
+    FieldModel* entry;
+    FieldModel* models;
     FieldModelAnimation* anims;
     s32 entryId;
     u8 modelId;
@@ -3236,7 +3234,7 @@ static s32 FieldMoveToEntityUpdate(u8 entityId) {
 
                     modelId = g_EntityToModel[g_CurrentEntity];
                     entryId = g_FieldModelLoaderData[modelId].modelEntryIndex;
-                    entry = &g_FieldModelData->modelEntries[entryId];
+                    entry = &g_FieldModelData->models[entryId];
                     anims = (FieldModelAnimation*)(entry->modelData + entry->animationOffset);
                     g_FieldModels[modelId].animLastFrame = anims[g_FieldEntity[modelId].activeAnimId].frameCount - 1;
                 }
@@ -3247,7 +3245,7 @@ static s32 FieldMoveToEntityUpdate(u8 entityId) {
 
                 modelId = g_EntityToModel[g_CurrentEntity];
                 entryId = g_FieldModelLoaderData[modelId].modelEntryIndex;
-                entry = &g_FieldModelData->modelEntries[entryId];
+                entry = &g_FieldModelData->models[entryId];
                 anims = (FieldModelAnimation*)(entry->modelData + entry->animationOffset);
                 g_FieldModels[modelId].animLastFrame = anims[g_FieldEntity[modelId].activeAnimId].frameCount - 1;
             }
@@ -6085,7 +6083,7 @@ static s32 FieldEventSplitSet(s16 entityId, s16 x, s16 y, u8 direction, s16 spee
 static void FieldEventSplitJoinSetMove(s16 entityId, s16 x, s16 y, s16 speed, s16 copyPcPos) {
     VECTOR start, target;
     s32 distance;
-    FieldModelEntry* model;
+    FieldModel* model;
     s32 modelEntryId;
     FieldModelAnimation* anims;
     s16 pcEntity;
@@ -6134,7 +6132,7 @@ static void FieldEventSplitJoinSetMove(s16 entityId, s16 x, s16 y, s16 speed, s1
             g_FieldModels[g_EntityToModel[entityId]].animCurrentFrame = 0;
 
             modelEntryId = g_FieldModelLoaderData[g_EntityToModel[entityId]].modelEntryIndex;
-            model = &g_FieldModelData->modelEntries[modelEntryId];
+            model = &g_FieldModelData->models[modelEntryId];
             anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
             g_FieldModels[g_EntityToModel[entityId]].animLastFrame =
                 anims[g_FieldEntity[g_EntityToModel[entityId]].activeAnimId].frameCount - 1;
@@ -6145,7 +6143,7 @@ static void FieldEventSplitJoinSetMove(s16 entityId, s16 x, s16 y, s16 speed, s1
         g_FieldModels[g_EntityToModel[entityId]].animCurrentFrame = 0;
 
         modelEntryId = g_FieldModelLoaderData[g_EntityToModel[entityId]].modelEntryIndex;
-        model = &g_FieldModelData->modelEntries[modelEntryId];
+        model = &g_FieldModelData->models[modelEntryId];
         anims = (FieldModelAnimation*)(model->modelData + model->animationOffset);
         g_FieldModels[g_EntityToModel[entityId]].animLastFrame =
             anims[g_FieldEntity[g_EntityToModel[entityId]].activeAnimId].frameCount - 1;
@@ -7213,7 +7211,7 @@ static s32 OpcodeFuncKawai(void) {
     modelId = g_EntityToModel[g_CurrentEntity];
     if (modelId != 0xFF) {
         kawaiType = GET_PARAM_U8(2);
-        g_FieldModelData->modelEntries[g_FieldModelLoaderData[modelId].modelEntryIndex].kawaiType = kawaiType;
+        g_FieldModelData->models[g_FieldModelLoaderData[modelId].modelEntryIndex].kawaiType = kawaiType;
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].KawaiOp1 = 1;
         type = kawaiType;
         g_FieldModels[g_EntityToModel[g_CurrentEntity]].KawaiOp0 = 0;

@@ -34,6 +34,13 @@ disks/us: disks/Final\ Fantasy\ VII\ (USA)\ (Disc\ 1).iso
 disks/betaus: disks/Final\ Fantasy\ VII\ (USA)\ (Interactive\ Sampler\ CD).iso
 	7z x "$<" -o$@
 
+.PHONY: kernel-text
+kernel-text: build/us/kernel_text.txt
+
+build/us/kernel_text.txt: tools/dump_kernel_strings.py | disks/us
+	mkdir -p $(@D)
+	python3 $< -k disks/us/INIT/KERNEL.BIN > $@
+
 psyz: build
 	cmake -B build/psyz -GNinja && cmake --build build/psyz
 
@@ -47,7 +54,7 @@ format:
 
 .PHONY: lint
 lint: bin/cc1-psx-26 bin/cc1-psx-272 bin/str
-	@./mako.sh lint --min-overlaps 4
+	@./mako.sh lint --min-overlaps 0
 
 .PHONY: rebuild
 rebuild:

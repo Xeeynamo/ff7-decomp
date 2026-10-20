@@ -38,8 +38,8 @@ void FieldRainInit(FieldRenderData* renderData) {
 }
 
 void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* rainDm) {
-    long p;
-    long flag;
+    int p;
+    int flag;
     s32 i;
     s32 j;
 
@@ -50,8 +50,8 @@ void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* ra
     for (i = 0, j = 0; i < LEN(g_FieldRain); i++) {
         // 12 * sizeof(s16) = 24 bytes (0x18), the exact size of FieldRain
         if (g_FieldRain[i].render == 1) {
-            RotTransPers(&g_FieldRain[i].p1, (long*)&rain->x0, &p, &flag);
-            RotTransPers(&g_FieldRain[i].p2, (long*)&rain->x1, &p, &flag);
+            RotTransPers(&g_FieldRain[i].p1, (int*)&rain->x0, &p, &flag);
+            RotTransPers(&g_FieldRain[i].p2, (int*)&rain->x1, &p, &flag);
             AddPrim(ot, rain);
         }
         rain++;
@@ -59,9 +59,7 @@ void FieldRainAddToRender(u_long* ot, LINE_F2* rain, MATRIX* matrix, DR_MODE* ra
 
     PopMatrix();
 
-    *(u32*)rainDm = (*(u32*)rainDm & 0xFF000000) | (*ot & 0xFFFFFF);
-
-    *ot = (*ot & 0xFF000000) | ((u32)rainDm & 0xFFFFFF);
+    addPrim(ot, rainDm);
 }
 
 void FieldRainUpdate(void) {

@@ -15,19 +15,19 @@ typedef struct {
 static const KernelTextMaps kernel_maps = {
     // dataOffsets: AttackData base index used in func_80014CBC
     {
-        /* 0x00 */ 0,                        // Magic
-        /* 0x01 */ NUM_MAGICS,               // Summons
-        /* 0x02 */ NUM_MAGICS + NUM_SUMMONS, // Enemy skill
+        /* 0x00 */ MAGIC_START,       // Magic
+        /* 0x01 */ SUMMON_START,      // Summons
+        /* 0x02 */ ENEMY_SKILL_START, // Enemy skill
     },
     {0, 128, 256, 288, 384, 65535},
     {4, 10, 11, 12, 13},
     {0, 0, 0},
     // magicTypeOffsets: Attack-name base index for types 0–3
     {
-        /* 0x00 */ 0,                        // Magic
-        /* 0x01 */ NUM_MAGICS,               // Summons
-        /* 0x02 */ NUM_MAGICS + NUM_SUMMONS, // Enemy skill
-        /* 0x03 */ 128                       // Not sure, limit breaks maybe?
+        /* 0x00 */ MAGIC_START,       // Magic
+        /* 0x01 */ SUMMON_START,      // Summons
+        /* 0x02 */ ENEMY_SKILL_START, // Enemy skill
+        /* 0x03 */ 128                // Not sure, limit breaks maybe?
     },
     // typeToSection: Corresponds to the type used in SysKernGetString
     {/* 0x00 */ KERNEL_TEXT_DESC_MAGIC,
@@ -172,8 +172,7 @@ u8* SysExpandBattleString(u8* dst, const u8* src) {
                     cursor = SysAppendCharName(g_BattleData.actors[arg].charId, cursor);
                 } else if (arg >= START_ENEMY) {
                     s16 enemyId = g_BattleData.activeEncounter.formation[arg - START_ENEMY].enemyID;
-                    cursor = SysAppendString(
-                        cursor, g_BattleSceneContext.enemy[enemyId].name, LEN(g_BattleSceneContext.enemy[0].name));
+                    cursor = SysAppendString(cursor, g_BattleWork.enemy[enemyId].name, LEN(g_BattleWork.enemy[0].name));
                 }
 
                 break;
@@ -206,8 +205,43 @@ u8* SysExpandBattleString(u8* dst, const u8* src) {
     return dst;
 }
 
-s32 SysDecompKernStringWithF9(u16* arg0, u16* arg1);
-INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysDecompKernStringWithF9);
+extern u8 D_80063560[0x100];
+
+u8* SysDecompKernStringWithF9(u8* src, u8* dst) {
+    u8 value;
+    s32 pos;
+    s32 len;
+    s32 count;
+    u32 i;
+    s32 off;
+
+    i = 0;
+    pos = 0;
+    do {
+        value = *src++;
+        pos++;
+        if (value == 0xF9) {
+            value = *src++;
+            pos++;
+            off = pos - 3;
+            off -= value & 0x3F;
+            len = (value >> 6) * 2 + 4;
+            for (count = 0; count < len; count++) {
+                value = dst[off++];
+                D_80063560[i++] = value;
+            }
+        } else if (value >= BATTLE_MSG_ARG_START && value <= BATTLE_MSG_ARG_END) {
+            D_80063560[i++] = value;
+            pos++;
+            D_80063560[i++] = *src++;
+            pos++;
+            D_80063560[i++] = *src++;
+        } else {
+            D_80063560[i++] = value;
+        }
+    } while (value != 0xFF && i < 0x100);
+    return D_80063560;
+}
 
 u8* SysGetKernBattleTextPtr(s32 textId) { return SysGetKernTextPtr(KERNEL_TEXT_BATTLE_MESSAGES, textId, 0); }
 
@@ -275,8 +309,7 @@ const char* SysKernGetString(s32 type, s32 index, s32 blockOffset) {
 
                 slot = index + START_ENEMY;
                 str = SysAppendString(
-                    &D_80063660, g_BattleSceneContext.enemy[g_BattleData.activeEncounter.formation[index].enemyID].name,
-                    0x20);
+                    &D_80063660, g_BattleWork.enemy[g_BattleData.activeEncounter.formation[index].enemyID].name, 0x20);
 
                 if (g_BattleWork.turn[slot].formationIndex != 0xFF) {
                     *str++ = g_BattleWork.turn[slot].formationIndex + g_FFTextLetterOffset;
@@ -311,7 +344,7 @@ const char* SysKernGetString(s32 type, s32 index, s32 blockOffset) {
                 break;
 
             case 9:
-                result = g_BattleSceneContext.attackNames[index];
+                result = g_BattleWork.attackNames[index];
                 break;
             }
         }
@@ -331,6 +364,68 @@ void func_80015654(s32 arg0) {
 
 INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_80015668);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/14C70", func_800159B0);
+void SysAddBattleEarnedItems(void) {
+    s32 i;
+    s32 j;
+    s32 freeSlot;
+    s16 id;
+    s32 quantity;
+    u16 entry;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/14C70", SysGetLimitCmdId);
+    for (i = 0; i < LEN(g_BattleItemsEarned); i++) {
+        if ((u16)g_BattleItemsEarned[i].enabled == 0) {
+            continue;
+        }
+        id = g_BattleItemsEarned[i].id;
+        if (id == -1) {
+            continue;
+        }
+        quantity = g_BattleItemsEarned[i].quantity;
+        freeSlot = -1;
+        if (id < 0x180) {
+            for (j = 0; j < MAX_INVENTORY_COUNT; j++) {
+                entry = Savemap.inventory[j];
+                if ((entry & 0x1FF) == id) {
+                    quantity += entry >> 9;
+                    if (quantity > 99) {
+                        quantity = 99;
+                    }
+                    Savemap.inventory[j] = id | (quantity << 9);
+                    break;
+                }
+                if (entry == 0xFFFF && freeSlot == -1) {
+                    freeSlot = j;
+                }
+            }
+            if (j == MAX_INVENTORY_COUNT && freeSlot != -1) {
+                Savemap.inventory[freeSlot] = id | (quantity << 9);
+            }
+        } else {
+            // scans 0x100 slots, past MAX_MATERIA_COUNT (200)
+            for (j = 0; j < 0x100; j++) {
+                if (Savemap.materia[j] != -1) {
+                    continue;
+                }
+                quantity--;
+                Savemap.materia[j] = id - 0x180;
+                if (!quantity) {
+                    break;
+                }
+            }
+        }
+    }
+}
+
+s32 SysGetLimitCmdId(s32 charId, s32 limitIndex) {
+    s32 unused[12]; // unknown locals
+    s32 cmdId;
+
+    cmdId = 0x7F;
+    if ((u32)charId < NUM_CHARACTERS) {
+        s32 addr;
+
+        addr = (s32)D_80082268[charId].limitCmdId;
+        cmdId = *(u8*)(limitIndex + addr) - 0x80;
+    }
+    return cmdId;
+}

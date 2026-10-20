@@ -10,7 +10,7 @@ extern FieldTriggers** g_FieldTriggersP;
 extern s16 g_FieldPreloadMapId;
 extern u8 D_800716D0;
 extern u16 D_8007173C;
-extern s8 D_80071A58;
+extern s8 g_BgFadeMode;
 extern FieldScriptHeader** D_8007EB64;
 extern u8 D_8007EBC8;
 extern s8 D_8009A048[16];
@@ -169,7 +169,7 @@ void FIELD_Main(void) {
             g_FieldState.fadeType == FFT_INSTANT) {
             SysFadeCopyScreen();
             g_FieldState.fadeType = FFT_SYS_FADE_TO_BLACK_FIELD_CHANGE;
-            D_80071A58 = 3;
+            g_BgFadeMode = 3;
             g_FieldState.fadeAdjust = 0;
             D_8007E768 = 0;
             D_80095DD4 = 1;
@@ -272,7 +272,7 @@ void FIELD_Main(void) {
                 g_GameState = GAMESTATE_WORLD;
                 SysFadeCopyScreen();
                 g_FieldState.fadeType = FFT_SYS_FADE_TO_BLACK_FIELD_CHANGE;
-                D_80071A58 = 3;
+                g_BgFadeMode = 3;
                 g_FieldState.fadeAdjust = 0;
                 D_8007E768 = 0;
                 D_80095DD4 = 1;
@@ -313,7 +313,7 @@ void FIELD_Main(void) {
         if (g_GameState == GAMESTATE_MENU) {
             SysFadeCopyScreen();
             g_FieldState.fadeType = FFT_SYS_FADE_TO_BLACK_MENU;
-            D_80071A58 = 13;
+            g_BgFadeMode = 13;
             g_FieldState.fadeAdjust = 0;
             D_8007E768 = 0;
             D_80095DD4 = 1;

@@ -2,19 +2,12 @@
 #define FIELD_PRIVATE_H
 #include <game.h>
 
-typedef struct {
-    MATRIX lookAt;
-    DVECTOR offset;
-    s16 zoom;
-    u16 unk;
-} FieldCamera; // size: 0x28
-
 #define GET_ENTITY_NAME(entityId) ((char*)g_FieldScripts + sizeof(FieldScriptHeader) + (entityId) * 8)
 
 #define GET_FIELD_SCRIPT_OFFSET(dst, scriptOffset, entityDataOffset, extrasHeaderSize)                                 \
-    (dst) = *((u8*)((scriptOffset) + (entityDataOffset) + (extrasHeaderSize) + (s32)g_FieldScripts) +                  \
+    (dst) = *((u8*)((scriptOffset) + (entityDataOffset) + (extrasHeaderSize) + (u_long)g_FieldScripts) +               \
               sizeof(FieldScriptHeader));                                                                              \
-    (dst) |= *((u8*)((scriptOffset) + ((entityDataOffset) + (s32)g_FieldScripts) + (extrasHeaderSize)) +               \
+    (dst) |= *((u8*)((scriptOffset) + ((entityDataOffset) + (u_long)g_FieldScripts) + (extrasHeaderSize)) +            \
                sizeof(FieldScriptHeader) + 1)                                                                          \
              << 8
 
@@ -67,6 +60,13 @@ typedef struct {
 } FieldModelLzsRequest;
 
 typedef struct {
+    /* 0x0 */ Yamada* globalModels;
+    /* 0x4 */ FieldModelLzsRequest* faceTexture;
+} FieldModelScratch;
+
+#define FIELD_MODEL_SCRATCH ((FieldModelScratch*)getScratchAddr(0))
+
+typedef struct {
     u32 size;
     u16 textureCount;
     u16 paletteCount;
@@ -117,7 +117,6 @@ typedef struct {
 extern u8* D_80075E10;
 extern FieldTilemap** g_FieldTilemap;
 extern FieldCamera* g_FieldCamera;
-extern FieldCamera* g_MovieCamera;
 extern FieldCamera** D_80083578;
 extern u32 g_FieldFileInfo[787 * 6]; // Yamada pair for DAT, MIM, BSX
 
@@ -150,7 +149,7 @@ extern char g_DebugText[];
 extern char g_DebugMessageBuffer[];
 
 extern FieldFaceTextureHeader* g_FieldFaceTextureData;
-extern u8* D_800E0204;
+extern u8* g_FieldModelLoadCursor;
 extern volatile s16 g_FieldMovieJustStarted;
 extern u8 SavedScriptIds[48][8];
 extern s32 (*g_FieldOpcodes[256])(void);
@@ -171,9 +170,9 @@ u8* FieldModelStructInit(FieldModelLoaderHeader* header, FieldModelData* modelDa
 u8* FieldModelLoadGlobalModels(FieldModelLoaderHeader* header, FieldModelData* modelData, u8* buffer, s32 loadTextures);
 u8* LoadLocalFieldModelAndInitAll(
     FieldModelLoaderHeader* header, FieldModelData* models, const u32* options, void* data);
-void FieldModelAnimCalcMtrxs(FieldModelEntry* model, MATRIX* matrix, u8 animationId, s32 frame);
-s32 KawaiLoadEyesMouthTexToVram(FieldModelEntry* model, u8* params);
-s32 KawaiSetColorToModelPkts(FieldModelEntry* model, u8* params);
+void FieldModelAnimCalcMtrxs(FieldModel* model, MATRIX* matrix, u8 animationId, s32 frame);
+s32 KawaiLoadEyesMouthTexToVram(FieldModel* model, u8* params);
+s32 KawaiSetColorToModelPkts(FieldModel* model, u8* params);
 void KawaiClearData(void);
 
 void DebugPrintToFieldWindow(const char* str);
@@ -181,7 +180,7 @@ void DebugUpdateActor(s16 arg0, s16 entityId);
 void FieldDebugAddParseValueToPage2(const char* str, s32 val, s32 kind);
 void FieldDebugStringCopy(char* dst, const char* src);
 void FieldDebugStringConcat(char* dest, const char* src);
-void AddStrNextDebugRow(s32 val, const char* msg_out);
+s32 AddStrNextDebugRow(s16 pageId, const char* msg);
 void FieldDebugPageInit(s16 pageId, s16 x, s16 y, s16 width, s16 height);
 s32 SetStrToDebugRow(s16 pageId, s16 row, const char* str);
 

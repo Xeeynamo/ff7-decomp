@@ -85,7 +85,7 @@ typedef struct {
     /* 0x04 */ u32 unk4;
     /* 0x08 */ u32 packets; // the render packet area starts 4 bytes after this offset
     /* 0x0C */ u32 unkC;
-    /* 0x10 */ FieldModelEntry* models;
+    /* 0x10 */ FieldModel* models;
 } WmPackModels;
 
 // One half of the world map double buffer
@@ -216,7 +216,7 @@ void func_800A5AD8(WorldChunkHeader*);
 void func_800A6994(VECTOR*, s32);
 void WmCleanEntityStruct(WorldActor*);
 void WmUnlinkEntityFromAll(WorldActor*);
-void WmSetCalculateAllPartsLighting(FieldModelEntry*);
+void WmSetCalculateAllPartsLighting(FieldModel*);
 void WmInsertStructInEntityStructList(WorldActor*);
 void WmLinkPcToActiveEntity();
 void WmUnlinkPcEntityFromAll();
@@ -268,8 +268,8 @@ typedef struct {
 } WorldTextureBlock;
 
 void WmLoadTexturesToVram(WorldTextureBlock*);
-s32 WmLoadModelPacketAndScale(FieldModelEntry*, s32, s32);
-void WmCalculateBonesAndLighting(FieldModelEntry*);
+u8* WmLoadModelPacketAndScale(FieldModel* model, u8* nextFree, s32 modelId);
+void WmCalculateBonesAndLighting(FieldModel*);
 void WmPcCharModelLoadFileCallback(void);
 void WmPackModelLoadFileCallback(void);
 s32 WmDialogSetAskToShow(u8, u8, u8, u8, s16*);
@@ -279,9 +279,9 @@ s32 WmGetHorizonCurveDrop(s32, s32);
 void WmDrawGroundQuad(s16, s16, s16, s16, POLY_FT4*, s32);
 void func_800B5C7C(WorldActor*);
 void* WmGetModelDataByModelId(s16);
-s32 WmGetModelTotalRenderPacketSize(FieldModelEntry*);
+s32 WmGetModelTotalRenderPacketSize(FieldModel*);
 void WmLoadPcCharModelFile(s16);
-s32 WmApplyModelLightingToPacket(FieldModelEntry*, u8*);
+s32 WmApplyModelLightingToPacket(FieldModel*, u8*);
 void WmApplyModelLightingById(s16, s16);
 void PlayMusicTrack(s32);
 s32 func_80025658(s32 partySlot);
@@ -325,6 +325,7 @@ extern u8 D_800C7304[16];
 extern s32 D_800C74E4[][2];
 extern s8 D_800C752D;
 extern OT_TYPE* D_800C7530;
+extern SVECTOR D_800C7938[240]; // Same as field's normal_table.
 extern s32 D_800D05E8;
 extern WorldScriptData D_800D05EC;
 extern s32 D_800E55EC;
@@ -553,7 +554,8 @@ extern MATRIX D_800C6848;
 extern u8 D_800C6940;
 extern u8 D_800C6A10[];
 extern s32 D_800C74C4[][2];
-extern u8* D_800C80BC;
+extern KawaiClippedVertex* D_800C80BC;
+extern u32 D_800C8100[16][15];
 extern u8* D_8010AD50;
 extern s32 D_8010CB20;
 extern u8 D_8010CB24[];
@@ -578,17 +580,17 @@ void func_800B3C40(POLY_FT4*, u8*, SVECTOR*, u8);
 extern s32 D_8010D9AC;
 extern s32 D_8010D9B0;
 extern s32 D_8010D9B4;
-extern s32 D_80115A44;
+extern u8* D_80115A44;
 extern s32 D_80115A48;
 extern s32 D_80115A4C;
 extern s32 D_80115A54;
 extern s32 D_80115A5C;
-extern u8 D_80115A6C[];
+extern KawaiClippedVertex D_80115A6C[];
 extern s16 D_80116290;
 extern u8 D_8013A800; // model count of the map data file
-extern FieldModelEntry* D_8013A804;
+extern FieldModel* D_8013A804;
 extern u32 D_8014A608;
-extern FieldModelEntry* D_8014A610;
+extern FieldModel* D_8014A610;
 extern s32 D_80116274;
 extern s16 D_80116288;
 extern s16 D_8011628C;

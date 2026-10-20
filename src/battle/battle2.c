@@ -1190,7 +1190,7 @@ static void BattleModelRestoreVelocity(u8 arg0) {
 
 static void BattleClearEffectAndFlag(void) {
     D_801590DC = 1;
-    g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+    g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800CD860);
@@ -1212,7 +1212,7 @@ void BattleApplyToggleFlag(void) {
 static void BattleSpawnPartEffectTick(void) {
     func_800BBA84(g_BattleDetachedSlots[g_BattleDetachedCursor].partEffect.unk4, D_801590CC, 0);
     BattleSpawnPartEffect(D_801590CC, g_BattleDetachedSlots[g_BattleDetachedCursor].partEffect.hitFlashType);
-    g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+    g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
 }
 
 static void BattleApplyFacingFlipTick(void) {
@@ -1222,7 +1222,7 @@ static void BattleApplyFacingFlipTick(void) {
     }
     BattleSpawnFloatingIcon(g_BattleDetachedSlots[g_BattleDetachedCursor].facingFlip.actor,
                             g_BattleDetachedSlots[g_BattleDetachedCursor].facingFlip.unk14);
-    g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+    g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
 }
 
 void BattleQueueImpactEffect(s32 arg0, s16 arg1) {
@@ -1234,7 +1234,7 @@ void BattleQueueImpactEffect(s32 arg0, s16 arg1) {
 static void BattleFadeToGreyTick(void) {
     if (!g_BattleDetachedSlots[g_BattleDetachedCursor].delay.framesLeft) {
         D_80163C74 = (DR_MODE*)func_800C4FC8(0xFA, 0xFA, 0xFA);
-        g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+        g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
         return;
     }
     g_BattleDetachedSlots[g_BattleDetachedCursor].delay.framesLeft--;
@@ -1348,7 +1348,7 @@ static void BattleEffectScriptTick(void) {
 
     if (D_80151200[g_BattleDetachedSlots[g_BattleDetachedCursor].effectScript.actor].D_80151234 !=
         g_BattleDetachedSlots[g_BattleDetachedCursor].effectScript.unk2) {
-        g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+        g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
         return;
     }
     if (g_BattleDetachedSlots[g_BattleDetachedCursor].effectScript.framesLeft) {
@@ -1373,7 +1373,7 @@ static void BattleEffectScriptTick(void) {
             g_BattleDetachedSlots[g_BattleDetachedCursor].effectScript.scriptPos = 0;
             break;
         case 0xFF:
-            g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+            g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
             do_work = 0;
             break;
         default:
@@ -1384,17 +1384,17 @@ static void BattleEffectScriptTick(void) {
 }
 
 static void BattleEffectDelayedCleanupTick(void) {
-    switch (g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F2) {
+    switch (g_BattleDetachedSlots[g_BattleDetachedCursor].delayedCleanup.state) {
     case 0:
-        g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F4 = 3;
-        g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F2++;
+        g_BattleDetachedSlots[g_BattleDetachedCursor].delayedCleanup.framesLeft = 3;
+        g_BattleDetachedSlots[g_BattleDetachedCursor].delayedCleanup.state++;
     case 1:
-        if (g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F4 == 0) {
-            g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
-            func_800A3534(g_BattleDetachedSlots[g_BattleDetachedCursor].raw.unkA,
-                          g_BattleDetachedSlots[g_BattleDetachedCursor].raw.unk8);
+        if (g_BattleDetachedSlots[g_BattleDetachedCursor].delayedCleanup.framesLeft == 0) {
+            g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
+            func_800A3534(g_BattleDetachedSlots[g_BattleDetachedCursor].delayedCleanup.arg0,
+                          g_BattleDetachedSlots[g_BattleDetachedCursor].delayedCleanup.arg1);
         }
-        g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F4--;
+        g_BattleDetachedSlots[g_BattleDetachedCursor].delayedCleanup.framesLeft--;
         break;
     }
 }
@@ -1417,13 +1417,13 @@ static void BattleFixedPointRampSpawnChildEffects(void) {
         if (g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unk6 != -1) {
             BattleDispatchFlagEffect();
             dst = BattleDetachedRegister(func_800C2928);
-            g_BattleDetachedSlots[dst].raw.unk14 = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unkE;
-            g_BattleDetachedSlots[dst].raw.unkE = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unkA;
-            g_BattleDetachedSlots[dst].raw.unk10.ptr =
+            g_BattleDetachedSlots[dst].damagePopup.unk14 = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unkE;
+            g_BattleDetachedSlots[dst].damagePopup.unkE = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unkA;
+            g_BattleDetachedSlots[dst].damagePopup.actor.ptr =
                 (u8*)(u32)g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unk8;
             dst = BattleDetachedRegister(BattleEffectDelayedCleanupTick);
-            g_BattleDetachedSlots[dst].raw.unkA = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unk19;
-            g_BattleDetachedSlots[dst].raw.unk8 = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unk6;
+            g_BattleDetachedSlots[dst].delayedCleanup.arg0 = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unk19;
+            g_BattleDetachedSlots[dst].delayedCleanup.arg1 = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unk6;
         }
         g_BattleEffectSlots[g_BattleEffectCursor].raw.D_80162978 = -1;
         return;
@@ -1443,13 +1443,13 @@ void BattleFixedPointRampSpawnChildEffectsWithFade(void) {
             g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unk18 != 1) {
             BattleDispatchFlagEffect();
             dst = BattleDetachedRegister(func_800C2928);
-            g_BattleDetachedSlots[dst].raw.unk14 = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unkE;
-            g_BattleDetachedSlots[dst].raw.unkE = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unkA;
-            g_BattleDetachedSlots[dst].raw.unk10.ptr =
+            g_BattleDetachedSlots[dst].damagePopup.unk14 = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unkE;
+            g_BattleDetachedSlots[dst].damagePopup.unkE = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unkA;
+            g_BattleDetachedSlots[dst].damagePopup.actor.ptr =
                 (u8*)(u32)g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unk8;
             dst = BattleDetachedRegister(BattleEffectDelayedCleanupTick);
-            g_BattleDetachedSlots[dst].raw.unkA = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unk19;
-            g_BattleDetachedSlots[dst].raw.unk8 = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unk6;
+            g_BattleDetachedSlots[dst].delayedCleanup.arg0 = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unk19;
+            g_BattleDetachedSlots[dst].delayedCleanup.arg1 = g_BattleEffectSlots[g_BattleEffectCursor].rampSpawn.unk6;
         }
         func_800CEB48();
         return;
@@ -1690,7 +1690,7 @@ static void BattleApplyDelayedFlagTick(void) {
     if (g_BattleDetachedSlots[g_BattleDetachedCursor].delay.framesLeft == 0) {
         BattleSpawnFloatingIcon(g_BattleDetachedSlots[g_BattleDetachedCursor].delay.actor,
                                 g_BattleDetachedSlots[g_BattleDetachedCursor].delay.unk6);
-        g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+        g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
         return;
     }
     g_BattleDetachedSlots[g_BattleDetachedCursor].delay.framesLeft--;
@@ -1699,7 +1699,7 @@ static void BattleApplyDelayedFlagTick(void) {
 static void BattleApplyDelayedActionTick(void) {
     if (g_BattleDetachedSlots[g_BattleDetachedCursor].delay.framesLeft == 0) {
         func_800BBA84(g_BattleDetachedSlots[g_BattleDetachedCursor].delay.unk6, D_801590CC, 0);
-        g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+        g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
         return;
     }
     g_BattleDetachedSlots[g_BattleDetachedCursor].delay.framesLeft--;
@@ -1709,7 +1709,7 @@ static void BattleApplyGatedDelayedTick(void) {
     if (g_BattleDetachedSlots[g_BattleDetachedCursor].delay.framesLeft == 0) {
         if (D_801518DC == 0) {
             func_800D0C80(g_BattleDetachedSlots[g_BattleDetachedCursor].delay.unk6);
-            g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+            g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
         }
     } else {
         g_BattleDetachedSlots[g_BattleDetachedCursor].delay.framesLeft--;
@@ -1758,7 +1758,7 @@ void BattleInitMagicCastEffect(void) {
 
 static void BattleEffectTimeoutTick(void) {
     if (!g_BattleDetachedSlots[g_BattleDetachedCursor].delay.framesLeft) {
-        g_BattleDetachedSlots[g_BattleDetachedCursor].raw.D_801621F0 = -1;
+        g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
         func_800BB978();
         return;
     }
@@ -2048,7 +2048,29 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR12R22R32);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelFlipR13R23R33);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleModelUpdateBoneHeight);
+typedef struct {
+    s32 boneOffset;
+    u8 data[1];
+} ModelBones;
+
+typedef struct {
+    s16 unk0;
+    s16 height;
+} Bone;
+
+s32 BattleModelUpdateBoneHeight(ModelBones* m, s32 delta) {
+    u8* base = m->data;
+    Bone* bone = (Bone*)(base + m->boneOffset);
+    s32 sum = delta + bone->height;
+
+    *(volatile s16*)&bone->height = sum;
+    return sum;
+}
+
+// 4-byte pad before the next function
+#ifdef USE_INCLUDE_ASM
+__asm__(".text # maspsx-keep\n\tnop # maspsx-keep\n");
+#endif
 
 s32 BattleModelAnimReadDynamicFrameOffsBits(u8* arg0, s32* arg1) {
     s32 pos;
@@ -2144,56 +2166,56 @@ extern BattleSpriteDesc D_800F0218;
 void BattleEffectSingleDustCloud(void) {
     MATRIX m = D_800A0D98;
     s32 flag;
-    Unk801621F0* slot;
+    BattleSparkleSlot* slot;
 
-    slot = &g_BattleDetachedSlots[g_BattleDetachedCursor].raw;
-    D_800F0218.u = slot->D_801621F2 * 32;
+    slot = &g_BattleDetachedSlots[g_BattleDetachedCursor].sparkle;
+    D_800F0218.u = slot->frame * 32;
     SetRotMatrix(&g_BattleWorldView.m);
     SetTransMatrix(&g_BattleWorldView.m);
-    RotTrans((SVECTOR*)&slot->D_801621F4, (VECTOR*)m.t, &flag);
-    m.t[2] -= (s16)slot->unk10.unk.unk0 >> 4;
-    m.m[0][0] = slot->unkE + ((slot->unkE * slot->D_801621F2) >> 3);
-    m.m[1][1] = (s16)slot->unk10.unk.unk0 + (((s16)slot->unk10.unk.unk0 * slot->D_801621F2) >> 3);
+    RotTrans(&slot->pos, (VECTOR*)m.t, &flag);
+    m.t[2] -= slot->scaleY >> 4;
+    m.m[0][0] = slot->scaleX + ((slot->scaleX * slot->frame) >> 3);
+    m.m[1][1] = slot->scaleY + ((slot->scaleY * slot->frame) >> 3);
     SetRotMatrix(&m);
     SetTransMatrix(&m);
     D_80163C74 = BattleEffectSpriteAdd(&D_800F0218, g_cDb->unk70, 12, D_80163C74);
     if (D_80062D98 == 0) {
-        if (slot->D_801621F2++ >= 7) {
-            slot->D_801621F0 = -1;
+        if (slot->frame++ >= 7) {
+            slot->unk0 = -1;
         }
     }
 }
 
 static void BattleEffectDustClouds(void) {
-    Unk801621F0* temp_s0_2;
-    Unk801621F0* temp_s1;
+    BattleSparkleSlot* temp_s0_2;
+    BattleSparkleSlot* temp_s1;
     s32 temp_s0;
     u16 temp_s2;
 
-    temp_s1 = &g_BattleDetachedSlots[g_BattleDetachedCursor].raw;
-    temp_s0 = temp_s1->D_801621F0;
-    temp_s2 = (&g_BattleModels[temp_s0].boneIndices[11])[temp_s1->D_801621F2 & 1];
+    temp_s1 = &g_BattleDetachedSlots[g_BattleDetachedCursor].sparkle;
+    temp_s0 = temp_s1->unk0;
+    temp_s2 = (&g_BattleModels[temp_s0].boneIndices[11])[temp_s1->frame & 1];
     temp_s0++; // !FAKE
     temp_s0--; // !FAKE
     if (temp_s2 != 0xFF) {
-        temp_s0_2 = &g_BattleDetachedSlots[BattleDetachedRegister(BattleEffectSingleDustCloud)].raw;
-        BattleGetPartPosition(temp_s0, temp_s2, (SVECTOR*)&temp_s0_2->D_801621F4);
-        temp_s0_2->D_801621F6 = 0;
-        temp_s0_2->unkE = temp_s1->unkE;
-        temp_s0_2->unk10.unk.unk0 = temp_s1->unk10.unk.unk0;
+        temp_s0_2 = &g_BattleDetachedSlots[BattleDetachedRegister(BattleEffectSingleDustCloud)].sparkle;
+        BattleGetPartPosition(temp_s0, temp_s2, &temp_s0_2->pos);
+        temp_s0_2->pos.vy = 0;
+        temp_s0_2->scaleX = temp_s1->scaleX;
+        temp_s0_2->scaleY = temp_s1->scaleY;
     }
-    temp_s1->D_801621F2++;
-    if (temp_s1->D_801621F2 == 4) {
-        temp_s1->D_801621F0 = -1;
+    temp_s1->frame++;
+    if (temp_s1->frame == 4) {
+        temp_s1->unk0 = -1;
     }
 }
 
 static void BattleSpawnPartFlickerEffect(s32 arg0) {
-    Unk801621F0* temp_v0;
+    BattleSparkleSlot* temp_v0;
 
-    temp_v0 = &g_BattleDetachedSlots[BattleDetachedRegister(BattleEffectDustClouds)].raw;
-    temp_v0->D_801621F0 = arg0;
-    temp_v0->unkE = *(s16*)& temp_v0->unk10 = g_BattleModels[arg0].scale;
+    temp_v0 = &g_BattleDetachedSlots[BattleDetachedRegister(BattleEffectDustClouds)].sparkle;
+    temp_v0->unk0 = arg0;
+    temp_v0->scaleX = temp_v0->scaleY = g_BattleModels[arg0].scale;
 }
 
 void BattleSpawnSparkleEffect(SVECTOR* pos, s16 scaleX, s16 scaleY) {
@@ -2206,22 +2228,22 @@ void BattleSpawnSparkleEffect(SVECTOR* pos, s16 scaleX, s16 scaleY) {
 }
 
 static void BattleDelayedRotatedSpawnTick(void) {
-    Unk801621F0* temp_s0;
-    Unk801621F0* temp_s1;
+    BattleSparkleSlot* temp_s0;
+    BattleSparkleSlot* temp_s1;
 
-    temp_s1 = &g_BattleDetachedSlots[g_BattleDetachedCursor].raw;
+    temp_s1 = &g_BattleDetachedSlots[g_BattleDetachedCursor].sparkle;
     if (D_80062D98 == 0) {
-        temp_s1->unkC--;
-        if (temp_s1->unkC == -1) {
-            temp_s0 = &g_BattleDetachedSlots[BattleDetachedRegister(func_800D3AF0)].raw;
-            RotMatrixYXZ(&g_BattleModels[temp_s1->unk10.unk.unk2].rootRot, (MATRIX*)0x1F800008);
-            ApplyMatrixSV((MATRIX*)0x1F800008, (SVECTOR*)&temp_s1->D_801621F4, (SVECTOR*)0x1F800000);
-            temp_s0->D_801621F4 = g_BattleModels[temp_s1->unk10.unk.unk2].rootTrans.vx + ((SVECTOR*)0x1F800000)->vx;
-            temp_s0->D_801621F6 = g_BattleModels[temp_s1->unk10.unk.unk2].rootTrans.vy + ((SVECTOR*)0x1F800000)->vy;
-            temp_s0->unk8 = g_BattleModels[temp_s1->unk10.unk.unk2].rootTrans.vz + ((SVECTOR*)0x1F800000)->vz;
-            temp_s0->unkE = temp_s1->unkE;
-            temp_s0->unk10.unk.unk0 = temp_s1->unk10.unk.unk0;
-            temp_s1->D_801621F0 = -1;
+        temp_s1->delay--;
+        if (temp_s1->delay == -1) {
+            temp_s0 = &g_BattleDetachedSlots[BattleDetachedRegister(func_800D3AF0)].sparkle;
+            RotMatrixYXZ(&g_BattleModels[temp_s1->actor].rootRot, (MATRIX*)0x1F800008);
+            ApplyMatrixSV((MATRIX*)0x1F800008, &temp_s1->pos, (SVECTOR*)0x1F800000);
+            temp_s0->pos.vx = g_BattleModels[temp_s1->actor].rootTrans.vx + ((SVECTOR*)0x1F800000)->vx;
+            temp_s0->pos.vy = g_BattleModels[temp_s1->actor].rootTrans.vy + ((SVECTOR*)0x1F800000)->vy;
+            temp_s0->pos.vz = g_BattleModels[temp_s1->actor].rootTrans.vz + ((SVECTOR*)0x1F800000)->vz;
+            temp_s0->scaleX = temp_s1->scaleX;
+            temp_s0->scaleY = temp_s1->scaleY;
+            temp_s1->unk0 = -1;
         }
     }
 }
@@ -2709,7 +2731,7 @@ s32 BattlePositionToStereoPan(SVECTOR* sv) {
 
     SetRotMatrix(&g_BattleWorldView.m);
     SetTransMatrix(&g_BattleWorldView.m);
-    RotTransPers(sv, (long*)sxy, (long*)&p, (long*)&flag);
+    RotTransPers(sv, (int*)sxy, &p, &flag);
     if (sxy[0] < 0) {
         sxy[0] = 0;
     } else if (sxy[0] >= 0x140) {
@@ -2775,15 +2797,15 @@ INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5B6C);
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", func_800D5D28);
 
 void BattleSpawnBlinkEffect(s32 arg0, s16 arg1, u32 arg2, s32 arg3, s32 arg4) {
-    Unk801621F0* dst = &g_BattleDetachedSlots[BattleDetachedRegister(func_800D5D28)].raw;
+    BattleBlinkSlot* dst = &g_BattleDetachedSlots[BattleDetachedRegister(func_800D5D28)].blink;
 
-    dst->D_801621F0 = (s16)(arg2 >> 24);
-    *(s32*)&dst->D_801621F4 = arg0;
-    ((s16*)&dst->unk14)[0] = -arg1;
-    *(s32*)&dst->unk8 = 0;
-    *(s32*)&dst->unkC = (arg2 & 0xFFFFFF) | 0x3A000000;
-    dst->unk10.ptr = (u8*)BattleDivideColorChannels(arg2, arg3);
-    ((s16*)&dst->unk14)[1] = (s16)arg4;
+    dst->unk0 = arg2 >> 24;
+    dst->unk4 = arg0;
+    dst->unk14 = -arg1;
+    dst->unk8 = 0;
+    dst->unkC = (arg2 & 0xFFFFFF) | 0x3A000000;
+    dst->unk10 = (u8*)BattleDivideColorChannels(arg2, arg3);
+    dst->unk16 = arg4;
 }
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle2", BattleEffectSpriteAdd);
@@ -2884,7 +2906,6 @@ void BattleHitFlashGrowTick(void) {
 
 void BattleHitFlashBurstTick(void) {
     BattleHitFlashSlot* slot = &g_BattleDetachedSlots[g_BattleDetachedCursor].hitFlash;
-    u16 v;
 
     D_800F16CC.m[0][0] = D_800F16CC.m[2][2] = (slot->frame * 3) << 9;
     if (slot->frame < 8) {
@@ -2901,9 +2922,7 @@ void BattleHitFlashBurstTick(void) {
     D_800F1698.model = D_800F14E0;
     BattleDrawHitFlashModel(D_800F16EC);
     if (D_80062D98 == 0) {
-        v = slot->frame + 1;
-        slot->frame = v;
-        if ((s16)v == 16) {
+        if (++slot->frame == 16) {
             slot->unk0 = -1;
         }
     }
@@ -2911,7 +2930,6 @@ void BattleHitFlashBurstTick(void) {
 
 void BattleHitFlashShrinkTick(void) {
     BattleHitFlashSlot* slot;
-    u16 frame;
 
     slot = &g_BattleDetachedSlots[g_BattleDetachedCursor].hitFlash;
     D_800F16F0.m[1][1] = rsin((14 - slot->frame) << 7) + 0x1000;
@@ -2930,9 +2948,7 @@ void BattleHitFlashShrinkTick(void) {
     D_800F1698.clut = 0x80;
     BattleDrawHitFlashModel(D_800F1710);
     if (D_80062D98 == 0) {
-        frame = slot->frame + 1;
-        slot->frame = frame;
-        if ((s16)frame == 16) {
+        if (++slot->frame == 16) {
             slot->unk0 = -1;
         }
     }
@@ -2968,12 +2984,12 @@ void func_800D6D8C(void) {
 
 void func_800D6F78(void) {
     u8 unused[0x50];
-    Unk800D6F78Slot* slot;
+    BattleHitFlashSlot* slot;
     Unk800D6D8CSlot* spark;
     s32 palette;
     s32 angle;
 
-    slot = &g_BattleDetachedSlots[g_BattleDetachedCursor].unk800D6F78;
+    slot = &g_BattleDetachedSlots[g_BattleDetachedCursor].hitFlash;
     if (D_80062D98 == 0) {
         spark = &g_BattleDetachedSlots[BattleDetachedRegister(func_800D6D8C)].unk800D6D8C;
         spark->palette = (slot->frame + palette) % 5;
@@ -2990,26 +3006,23 @@ void func_800D6F78(void) {
 }
 
 void BattleSpawnTrailEffect(void) {
-    BattleTrailSlot* src = &g_BattleDetachedSlots[g_BattleDetachedCursor].trail;
+    BattleHitFlashSlot* src = &g_BattleDetachedSlots[g_BattleDetachedCursor].hitFlash;
     BattleHitFlashSlot* dst;
-    u16 v;
 
     if (D_80062D98 == 0) {
         if (!(src->frame & 3)) {
             dst = &g_BattleDetachedSlots[BattleDetachedRegister(src->spawnCallback)].hitFlash;
             dst->pos = src->pos;
         }
-        v = src->frame + 1;
-        src->frame = v;
-        if ((s16)v == 0xD) {
+        if (++src->frame == 0xD) {
             src->unk0 = -1;
         }
     }
 }
 
 void BattleSpawnPartEffect(s32 actor, s32 hitFlashType) {
-    BattleTrailSlot* dst = &g_BattleDetachedSlots[BattleDetachedRegister(BattleSpawnTrailEffect)].trail;
-    Unk800D6F78Slot* dst2;
+    BattleHitFlashSlot* dst = &g_BattleDetachedSlots[BattleDetachedRegister(BattleSpawnTrailEffect)].hitFlash;
+    BattleHitFlashSlot* dst2;
 
     BattleGetPartPosition(actor, g_BattleModels[actor].boneIndices[0], &dst->pos);
     switch (hitFlashType) {
@@ -3024,25 +3037,25 @@ void BattleSpawnPartEffect(s32 actor, s32 hitFlashType) {
         return;
     case 3:
         dst->spawnCallback = BattleHitFlashGrowTick;
-        dst2 = &g_BattleDetachedSlots[BattleDetachedRegister(func_800D6F78)].unk800D6F78;
+        dst2 = &g_BattleDetachedSlots[BattleDetachedRegister(func_800D6F78)].hitFlash;
         dst2->pos = dst->pos;
         return;
     }
 }
 
 static void BattleFixedPointRampEffectTick(void) {
-    Unk801621F0* elem = &g_BattleDetachedSlots[g_BattleDetachedCursor].raw;
+    BattleDetachedHeader* elem = &g_BattleDetachedSlots[g_BattleDetachedCursor].base;
 
     if (D_80062D98 == 0) {
         // Advance this slot's per-tick state machine (field 0x2).
-        if (elem->D_801621F2 == 0) {
+        if (elem->state == 0) {
             BattleFixedPointRampInit(1);
         }
-        if (elem->D_801621F2 == 2) {
+        if (elem->state == 2) {
             BattleFixedPointRampReconfigure(1);
-            elem->D_801621F0 = -1;
+            elem->id = -1;
         }
-        elem->D_801621F2++;
+        elem->state++;
     }
 }
 
@@ -3136,16 +3149,16 @@ void BattleSpawnStreakEffect(SVECTOR* pos) {
 
 void BattleSubModelFlashTick(void) {
     MATRIX m;
-    Unk801621F0* slot;
+    BattleSpriteEffectSlot* slot;
     BattleStreakSlot* streak;
 
-    slot = &g_BattleDetachedSlots[g_BattleDetachedCursor].raw;
-    if (D_80062D98 == 0 && slot->D_801621F2 != 0) {
-        slot->D_801621F0 = -1;
+    slot = &g_BattleDetachedSlots[g_BattleDetachedCursor].spriteEffect;
+    if (D_80062D98 == 0 && slot->elapsed != 0) {
+        slot->unk0 = -1;
         return;
     }
-    D_800F195C.t[2] = -slot->unk1A;
-    CompMatrix(slot->unk1C, &D_800F195C, &m);
+    D_800F195C.t[2] = -slot->depth;
+    CompMatrix(slot->matrix, &D_800F195C, &m);
     SetRotMatrix(&m);
     SetTransMatrix(&m);
     D_80163C74 = func_800D29D4(&D_800F197C, g_cDb->unk70, 12, D_80163C74);
@@ -3157,64 +3170,64 @@ void BattleSubModelFlashTick(void) {
         TransposeMatrix(&g_BattleWorldView.m, &m);
         ApplyMatrixSV(&m, &streak->pos, &streak->pos);
         streak->unk0 = 0;
-        slot->D_801621F2++;
+        slot->elapsed++;
     }
 }
 
 void func_800D7888(void) {
     MATRIX facing;
     SVECTOR velocity;
-    Unk801621F0* slot;
-    Unk801621F0* child;
+    BattleSpriteEffectSlot* slot;
+    BattleSpriteEffectSlot* child;
     BattleBounceParticle* particle;
     SVECTOR* pos;
     s32 elapsed;
 
-    slot = &g_BattleDetachedSlots[g_BattleDetachedCursor].raw;
+    slot = &g_BattleDetachedSlots[g_BattleDetachedCursor].spriteEffect;
     if (D_80062D98 == 0) {
-        elapsed = slot->D_801621F2;
-        if (elapsed >= slot->unk8) {
-            elapsed -= slot->unk8;
-            if (elapsed < (s16)(slot->unkA & ~0x80)) {
+        elapsed = slot->elapsed;
+        if (elapsed >= slot->delay) {
+            elapsed -= slot->delay;
+            if (elapsed < (s16)(slot->flags & ~0x80)) {
                 if (!(elapsed & 1)) {
-                    child = &g_BattleDetachedSlots[BattleDetachedRegister(BattleSubModelFlashTick)].raw;
-                    child->D_801621F6 = slot->D_801621F6;
-                    child->D_801621F4 = slot->D_801621F4;
-                    child->unk1C = slot->unk1C;
-                    child->unk1A = slot->unk1A;
-                    if (!(slot->unkA & 0x80)) {
-                        child = &g_BattleDetachedSlots[BattleDetachedRegister(func_800D7368)].raw;
+                    child = &g_BattleDetachedSlots[BattleDetachedRegister(BattleSubModelFlashTick)].spriteEffect;
+                    child->actor = slot->actor;
+                    child->unk4 = slot->unk4;
+                    child->matrix = slot->matrix;
+                    child->depth = slot->depth;
+                    if (!(slot->flags & 0x80)) {
+                        child = &g_BattleDetachedSlots[BattleDetachedRegister(func_800D7368)].spriteEffect;
                         particle = (BattleBounceParticle*)child;
                         pos = &particle->pos;
-                        BattleGetMatrixPosition(slot->unk1C, pos);
+                        BattleGetMatrixPosition(slot->matrix, pos);
                         velocity.vx = -60 - (rand() & 0xF);
                         velocity.vy = (rand() & 0x1F) - 150;
                         velocity.vz = (rand() & 0xF) + 20;
-                        RotMatrixYXZ(&g_BattleModels[slot->D_801621F6].rootRot, &facing);
+                        RotMatrixYXZ(&g_BattleModels[slot->actor].rootRot, &facing);
                         ApplyMatrixSV(&facing, &velocity, &particle->velocity);
-                        particle->actor = slot->D_801621F6;
+                        particle->actor = slot->actor;
                         particle->bounces = 0;
-                        particle->facing = g_BattleModels[slot->D_801621F6].rootRot.vy;
+                        particle->facing = g_BattleModels[slot->actor].rootRot.vy;
                         BattleSpawnSparkleEffect(pos, 0x400, 0x800);
                     }
                 }
             } else {
-                slot->D_801621F0 = -1;
+                slot->unk0 = -1;
             }
         }
-        slot->D_801621F2++;
+        slot->elapsed++;
     }
 }
 
 void BattleSpawnSpriteEffect(s32 arg0, s32 actor, BattleModelSub* bone, s16 arg3, s32 arg4, s32 arg5) {
-    Unk801621F0* slot = &g_BattleDetachedSlots[BattleDetachedRegister(func_800D7888)].raw;
+    BattleSpriteEffectSlot* slot = &g_BattleDetachedSlots[BattleDetachedRegister(func_800D7888)].spriteEffect;
 
-    slot->D_801621F4 = arg0;
-    slot->D_801621F6 = actor;
-    slot->unk1C = bone;
-    slot->unk1A = arg3;
-    slot->unk8 = (s16)arg4;
-    slot->unkA = (s16)arg5;
+    slot->unk4 = arg0;
+    slot->actor = actor;
+    slot->matrix = bone;
+    slot->depth = arg3;
+    slot->delay = arg4;
+    slot->flags = arg5;
 }
 
 void BattleSpawnSpriteEffectAtSubModel(s32 arg0, s32 idx, s32 arg2, s32 arg3) {

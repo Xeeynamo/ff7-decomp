@@ -290,7 +290,7 @@ void main(void) {
     while (1) {
         g_FieldState.battleMode2 = 0;
         g_FieldState.battlesDisabled = 0;
-        func_800148A0();
+        SysBattleModeReset();
         AkaoInit();
         InputInit();
         SysCdromLoadFile(yama_field_ending.loc, yama_field_ending.len, (u_long*)0x800A0000, NULL);
@@ -608,7 +608,7 @@ void main(void) {
                 g_FieldState.eventCmd = EVTCMD_NONE;
                 AkaoExec();
                 SysCdromLoadFile(yama_field_dschange.loc, yama_field_dschange.len, (u_long*)0x800A0000, NULL);
-                func_800A0C58();
+                DSCHANGE_GameOver();
                 {
                     AkaoCmd* cmd = &g_AkaoCmd;
                     cmd->opcode = AKAO_VOLUME_SET;

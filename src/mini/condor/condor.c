@@ -1,6 +1,10 @@
 //! PSYQ=3.3
 #include <game.h>
 
+const u32 D_800A0000[] = {
+    0x220002, 0x10015, 0x15000C, 0x0, 0x10000, 0x15000C, 0x0, 0x20000, 0x180022, 0x0, 0x20000, 0x150022, 0xC0001, 0x18};
+const u32 D_800A0038[] = {0x60A, 0x4000200, 0x50600, 0x4050205, 0x60A0605, 0x60A060A, 0x20A000A, 0x0};
+
 // The condor minigame's unit record. Only the fields reached so far are named;
 // the gaps stay as filler so every later offset keeps its place.
 typedef struct {
@@ -11,7 +15,8 @@ typedef struct {
     /* 0x06 */ u16 unk06;
     /* 0x08 */ u8 unk08[2];
     /* 0x0A */ u16 unk0A;
-    /* 0x0C */ u8 unk0C[7];
+    /* 0x0C */ u8 unk0C[6];
+    /* 0x12 */ u8 unk12;
     /* 0x13 */ u8 unk13;
     /* 0x14 */ u8 unk14[8];
     /* 0x1C */ u16 timer;
@@ -35,7 +40,9 @@ typedef struct {
     /* 0x3B */ u8 unk3B;
     /* 0x3C */ u8 unk3C[5];
     /* 0x41 */ u8 unk41;
-    /* 0x42 */ u8 unk42[6];
+    /* 0x42 */ u8 unk42;
+    /* 0x43 */ u8 unk43;
+    /* 0x44 */ u8 unk44[4];
     /* 0x48 */ s16 unk48;
     /* 0x4A */ s16 unk4A;
     /* 0x4C */ u16 unk4C;
@@ -48,7 +55,9 @@ typedef struct {
     /* 0x5A */ u16 unk5A;
     /* 0x5C */ u8 unk5C[4];
     /* 0x60 */ u16 unk60;
-    /* 0x62 */ u8 unk62[0x16];
+    /* 0x62 */ u8 unk62[2];
+    /* 0x64 */ u16 unk64;
+    /* 0x66 */ u8 unk66[0x12];
 } CondorUnit;
 
 // The x/y pair the spawn helpers take.
@@ -90,8 +99,8 @@ extern s16 D_8012C430;
 extern u32 D_8012C53C;
 extern s16 D_8012C5CC;
 extern s32 D_8012C3EC;
-extern s32 D_8012C3A4[];
-extern s32 D_8012C3AC[];
+extern CondorPoint D_8012C3A4;
+extern CondorPoint D_8012C3AC;
 extern s16 D_8012C40C;
 extern u16 D_8012AF54;
 extern u8 D_8012AF5C[];
@@ -121,9 +130,9 @@ extern s32 D_8012C548;
 u32 func_800AC498(CondorUnit*);
 void func_800ABE54(CondorUnit*);
 void func_800AC72C(CondorUnit*, CondorSpawn*, s32, s16*);
-s16 func_800AC5C0(s16, CondorPoint*);
+s16 func_800AC5C0(s16 index, CondorPoint* pos);
 s16 func_800B0604(CondorUnit*, s32);
-s16 func_800A8004(CondorUnit*, CondorPoint*, u8*, u16);
+s16 func_800A8004(CondorUnit* unit);
 void func_800B332C(void);
 void func_800B3A48(CondorUnit*, s32);
 void func_800B42AC(CondorUnit*);
@@ -135,7 +144,7 @@ void func_800B5BDC(CondorUnit*);
 void func_800B6758(void);
 s16 func_800B64EC(void);
 void func_800B47C8(CondorUnit*, s32);
-void func_800AB71C(s32, s32*);
+void func_800AB71C(u32 buttons, CondorPoint* position);
 void func_800B7638(void);
 void func_800A427C(void);
 void func_800AB5BC(s32, s32);
@@ -326,11 +335,151 @@ void CondorAngleToVector(s32 angle) {
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A77EC);
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A7BF4);
+u16 func_800A7584(u16* vector);
+extern s32 D_8012C554;
+extern s32 D_8012C558;
+extern s32 D_8012C55C;
+extern s32 D_8012C560;
+extern s32 D_8012C564;
+extern s32 D_8012C568;
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A7E20);
+s16 func_800A7BF4(SVECTOR* first, SVECTOR* second) {
+    SVECTOR vector;
+    s32 dx, y, destY;
+    s32 x, destX;
+    x = first->vx;
+    destX = second->vx;
+    dx = destX - x;
+    y = first->vy + 0x4000;
+    destY = second->vy + 0x4000;
+    D_8012C560 = 0;
+    D_8012C55C = 0;
+    D_8012C568 = 0;
+    D_8012C564 = 0;
+    D_8012C554 = dx;
+    if (D_8012C554 < 0) {
+        D_8012C564 = 1;
+        D_8012C554 = -D_8012C554;
+    }
+    D_8012C558 = destY - y;
+    if (D_8012C558 < 0) {
+        D_8012C568 = 1;
+        D_8012C558 = -D_8012C558;
+    }
+    if (D_8012C554 >= D_8012C558) {
+        D_8012C544 = 256;
+        if ((D_8012C558 << 8) == 0) {
+            D_8012C548 = 1;
+        } else {
+            D_8012C548 = (D_8012C558 << 8) / D_8012C554;
+        }
+        if (D_8012C548 == 0) {
+            D_8012C548 = 1;
+        }
+    } else {
+        D_8012C548 = 256;
+        if ((D_8012C554 << 8) == 0) {
+            D_8012C544 = 1;
+        } else {
+            D_8012C544 = (D_8012C554 << 8) / D_8012C558;
+        }
+        if (D_8012C544 == 0) {
+            D_8012C544 = 1;
+        }
+    }
+    if (D_8012C564 != 0) {
+        D_8012C544 = -D_8012C544;
+    }
+    if (D_8012C568 != 0) {
+        D_8012C548 = -D_8012C548;
+    }
+    vector.vz = 0;
+    vector.vx = D_8012C544;
+    vector.vy = D_8012C548;
+    return (s16)func_800A7584((u16*)&vector);
+}
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A8004);
+typedef struct {
+    /* 0x00 */ SVECTOR vectors[4];
+    /* 0x20 */ s16 neighbors[3];
+    /* 0x26 */ u8 unk26[2];
+    /* 0x28 */ SVECTOR vertices[3];
+    /* 0x40 */ s16 minX;
+    /* 0x42 */ s16 maxX;
+    /* 0x44 */ s16 minY;
+    /* 0x46 */ s16 maxY;
+    /* 0x48 */ u16 unk48;
+    /* 0x4A */ u16 unk4A;
+} CondorMapTriangle; // size:0x4C
+extern CondorMapTriangle D_8010C33C[];
+extern s32 D_8012C518;
+extern s16 D_8012C5A4;
+extern s16 D_8012C5A8;
+extern s16 D_8012C5AC;
+
+static inline s32 CondorAngleOutside(s16 point, s16 first, s16 last) {
+    s16 high, low;
+    if (first >= last) {
+        high = first;
+        low = last;
+    } else {
+        high = last;
+        low = first;
+    }
+    if (high - low < 2048) {
+        if (high < point || point < low) {
+            return 1;
+        }
+    } else {
+        if (point < high && low < point) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+s32 func_800A7E20(CondorMapTriangle* triangle, s16 x, s16 y) {
+    SVECTOR point;
+    SVECTOR* vertex;
+    point.vx = x;
+    point.vy = y;
+    point.vz = 0;
+    vertex = &triangle->vertices[0];
+    D_8012C5A4 = func_800A7BF4(vertex, &point);
+    D_8012C5A8 = func_800A7BF4(vertex, &triangle->vertices[1]);
+    D_8012C5AC = func_800A7BF4(vertex, &triangle->vertices[2]) + 8;
+    if (CondorAngleOutside(D_8012C5A4, D_8012C5A8, D_8012C5AC)) {
+        return 1;
+    }
+    vertex = &triangle->vertices[1];
+    D_8012C5A4 = func_800A7BF4(vertex, &point);
+    D_8012C5A8 = func_800A7BF4(vertex, &triangle->vertices[2]);
+    D_8012C5AC = func_800A7BF4(vertex, &triangle->vertices[0]);
+    return CondorAngleOutside(D_8012C5A4, D_8012C5A8, D_8012C5AC);
+}
+
+s16 func_800A8004(CondorUnit* unit) {
+    CondorMapTriangle* triangle;
+    s16 index;
+    u16 x;
+    u16 y;
+    s16 shiftedX;
+    s16 shiftedY;
+    triangle = D_8010C33C;
+    x = unit->unk50;
+    y = unit->unk52;
+    shiftedX = x + 0x4000;
+    shiftedY = y + 0x4000;
+    for (index = 0; index < D_8012C518; index++, triangle++) {
+        if (shiftedX >= triangle->minX && shiftedX <= triangle->maxX && shiftedY >= triangle->minY &&
+            shiftedY <= triangle->maxY && (s16)func_800A7E20(triangle, x, y) == 0) {
+            unit->unk60 = triangle->unk48;
+            unit->unk64 = triangle->unk4A;
+            return index;
+        }
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A8158);
 
@@ -351,16 +500,16 @@ s32 CondorTrySpawn(void) {
         if ((D_8012C5CC == 0) && (D_8012C41C == -1)) {
             if (D_8012C508 < 0x14) {
                 if (D_8012C404 == 1) {
-                    if (((s16*)D_8012C3A4)[1] >= 0x2A0) {
+                    if (D_8012C3A4.y >= 0x2A0) {
                         return 1;
                     }
-                } else if (((s16*)D_8012C3A4)[1] >= D_8012C530) {
+                } else if (D_8012C3A4.y >= D_8012C530) {
                     return 1;
                 }
                 {
                     at.z = -0x28;
-                    at.x = *(u16*)D_8012C3A4;
-                    at.y = 0x400 - ((u16*)D_8012C3A4)[1];
+                    at.x = D_8012C3A4.x;
+                    at.y = 0x400 - (u16)D_8012C3A4.y;
                     if (func_800AC5C0(0, &at) != 1) {
                         D_8012C5C0 = 1;
                         return 0;
@@ -385,20 +534,148 @@ INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800A9B20);
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AB5BC);
 
 void func_800AB6B0(s32 arg0) {
-    s32* table = D_8012C3A4;
+    CondorPoint* table = &D_8012C3A4;
 
     if (D_8012C5CC == 0) {
-        table = D_8012C3AC;
+        table = &D_8012C3AC;
     }
     if ((D_8012C3E8 != 3) && (D_8012C3EC == 0)) {
-        table = D_8012C3A4;
+        table = &D_8012C3A4;
     }
     func_800AB71C(arg0, table);
 }
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AB71C);
+extern u16 D_8012C434;
+extern u16 D_8012C438;
+extern VECTOR D_8012C6EC;
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800ABA58);
+void func_800AB71C(u32 buttons, CondorPoint* position) {
+    DVECTOR relative;
+    s32 moveRelative;
+    relative.vx = position->x - D_8012C434;
+    relative.vy = position->y - D_8012C438;
+    if (buttons & 0x1000) {
+        moveRelative = 0;
+        if (relative.vy >= 105) {
+            moveRelative = 1;
+        } else {
+            D_8012C438--;
+            if (D_8012C438 > 0x8000) {
+                D_8012C438 = 0;
+                moveRelative = 1;
+            } else {
+                D_8012C6EC.vy++;
+            }
+        }
+        if (moveRelative) {
+            relative.vy--;
+            if (relative.vy < 0) {
+                relative.vy = 0;
+            }
+        }
+    }
+    if (buttons & 0x4000) {
+        moveRelative = 0;
+        if (relative.vy < 104) {
+            moveRelative = 1;
+        } else {
+            D_8012C438++;
+            if (D_8012C438 >= 805) {
+                D_8012C438 = 804;
+                moveRelative = 1;
+            } else {
+                D_8012C6EC.vy--;
+            }
+        }
+        if (moveRelative) {
+            relative.vy++;
+            if (relative.vy >= 204) {
+                relative.vy = 204;
+            }
+        }
+    }
+    if (buttons & 0x8000) {
+        moveRelative = 0;
+        if (relative.vx >= 161) {
+            moveRelative = 1;
+        } else {
+            D_8012C434--;
+            if (D_8012C434 > 0x8000) {
+                moveRelative = 1;
+                D_8012C434 = 0;
+                D_8012C6EC.vx &= ~7;
+            } else {
+                D_8012C6EC.vx++;
+            }
+        }
+        if (moveRelative) {
+            relative.vx--;
+            if (relative.vx < 0) {
+                relative.vx = 0;
+            }
+        }
+    }
+    if (buttons & 0x2000) {
+        moveRelative = 0;
+        if (relative.vx < 160) {
+            moveRelative = 1;
+        } else {
+            D_8012C434++;
+            if (D_8012C434 >= 193) {
+                moveRelative = 1;
+                D_8012C434 = 192;
+                D_8012C6EC.vx &= ~7;
+            } else {
+                D_8012C6EC.vx--;
+            }
+        }
+        if (moveRelative) {
+            relative.vx++;
+            if (relative.vx >= 320) {
+                relative.vx = 320;
+            }
+        }
+    }
+    position->x = relative.vx + D_8012C434;
+    position->y = relative.vy + D_8012C438;
+}
+
+void func_800ABA58(u32 buttons) {
+    if (buttons & 0x1000) {
+        D_8012C438--;
+        if (D_8012C438 > 0x8000) {
+            D_8012C438 = 0;
+        } else {
+            D_8012C6EC.vy++;
+        }
+    }
+    if (buttons & 0x4000) {
+        D_8012C438++;
+        if (D_8012C438 > 0x324) {
+            D_8012C438 = 0x324;
+        } else {
+            D_8012C6EC.vy--;
+        }
+    }
+    if (buttons & 0x8000) {
+        D_8012C434--;
+        if (D_8012C434 > 0x8000) {
+            D_8012C434 = 0;
+            D_8012C6EC.vx &= ~7;
+        } else {
+            D_8012C6EC.vx++;
+        }
+    }
+    if (buttons & 0x2000) {
+        D_8012C434++;
+        if (D_8012C434 > 0xC0) {
+            D_8012C434 = 0xC0;
+            D_8012C6EC.vx &= ~7;
+        } else {
+            D_8012C6EC.vx--;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800ABC18);
 
@@ -448,9 +725,175 @@ INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AF278);
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AF470);
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AF5A8);
+typedef struct {
+    DRAWENV draw;
+    DISPENV display;
+    OT_TYPE ot[4096];
+} CondorDrawBuffer;
+extern CondorDrawBuffer* D_80129F34;
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AF98C);
+typedef struct {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ u16 z;
+    /* 0x6 */ u8 unk6[2];
+    /* 0x8 */ u8 state;
+    /* 0x9 */ u8 timer;
+    /* 0xA */ u8 image;
+    /* 0xB */ u8 unkB;
+    /* 0xC */ u8 unkC;
+    /* 0xD */ u8 unkD[3];
+} CondorEffect;
+const u32 D_800A01BC[] = {0x4030201, 0x7050D0C, 0x0};
+const u32 D_800A01C8[] = {0x4030201, 0x7050D0C, 0x8};
+const u32 D_800A01D4[] = {0x4030201, 0x6050D0C, 0x7};
+const u32 D_800A01E0[] = {0x4030201, 0x6050D0C, 0x807};
+
+s32 func_800AF278(CondorUnit* unit);
+
+void func_800AF5A8(POLY_FT4* poly, CondorEffect* effect) {
+    CondorUnit impact;
+    // Each frame stores the blend mode, duration, and image index.
+    s16 frames[12][3] = {{4, 1, 0}, {1, 1, 0}, {0, 1, 0}, {0, 2, 1}, {0, 2, 2}, {0, 2, 3},
+                         {0, 4, 4}, {0, 6, 5}, {0, 6, 6}, {1, 6, 7}, {4, 6, 7}, {4, 1, 7}};
+    s16 blendMode;
+    u32 state;
+    s16 timer;
+    u16 depth;
+    state = effect->state;
+    if (state >= 0x40) {
+        effect->state = 0xFF;
+        effect->timer = 0;
+    } else if (state < 0xB) {
+        if (effect->timer == 0) {
+            effect->state++;
+            // The animation reads the low byte of the duration and image words.
+            timer = *((u8*)frames + 2 + effect->state * 6);
+            timer--;
+            effect->timer = timer;
+            effect->image = *((u8*)frames + 4 + effect->state * 6);
+            poly->clut = GetClut(0x340, 0xF1);
+        } else {
+            timer = effect->timer;
+            timer--;
+            effect->timer = timer;
+        }
+        blendMode = frames[effect->state][0];
+        if (blendMode == 0) {
+            SetSemiTrans(poly, 0);
+        }
+        if (blendMode == 1) {
+            SetSemiTrans(poly, 1);
+            poly->tpage = GetTPage(0, 1, 0x340, 0);
+        }
+        if (blendMode == 4) {
+            SetSemiTrans(poly, 1);
+            poly->tpage = GetTPage(0, 3, 0x340, 0);
+        }
+        poly->u0 = (effect->image & 3) << 6;
+        poly->v0 = (effect->image & 4) * 8;
+        poly->u1 = ((effect->image & 3) << 6) + 0x3F;
+        poly->v1 = (effect->image & 4) * 8;
+        poly->u2 = (effect->image & 3) << 6;
+        poly->v2 = (effect->image & 4) * 8 + 0x1F;
+        poly->u3 = ((effect->image & 3) << 6) + 0x3F;
+        poly->v3 = (effect->image & 4) * 8 + 0x1F;
+        poly->x0 = effect->x + 0x80;
+        poly->y0 = effect->y + 0x68;
+        poly->x1 = effect->x + 0xC0;
+        poly->y1 = effect->y + 0x68;
+        poly->x2 = effect->x + 0x80;
+        poly->y2 = effect->y + 0x88;
+        poly->x3 = effect->x + 0xC0;
+        poly->y3 = effect->y + 0x88;
+        AddPrim(&D_80129F34->ot[0], poly);
+    } else {
+        effect->state++;
+    }
+    if (effect->state == 0xC) {
+        impact.unk48 = effect->x + 0x100;
+        impact.unk4A = effect->y + 0x210;
+        depth = effect->z;
+        impact.width = 0x40;
+        impact.height = 0x20;
+        impact.unk4C = depth;
+        impact.unk12 = effect->unkB;
+        impact.unk43 = effect->unkC;
+        func_800AF278(&impact);
+    }
+}
+
+void func_800AF98C(POLY_FT4* poly, CondorEffect* effect) {
+    CondorUnit impact;
+    // Each frame stores the blend mode, duration, and image index.
+    s16 frames[12][3] = {{4, 1, 0}, {0, 1, 0}, {0, 1, 0}, {0, 2, 1}, {4, 2, 2}, {4, 2, 3},
+                         {4, 4, 4}, {4, 6, 5}, {4, 6, 6}, {4, 3, 7}, {4, 2, 7}, {4, 1, 7}};
+    s16 blendMode;
+    u32 state;
+    s16 timer;
+    u16 depth;
+    state = effect->state;
+    if (state >= 0x40) {
+        effect->state = 0xFF;
+        effect->timer = 0;
+    } else if (state < 0xB) {
+        if (effect->timer == 0) {
+            effect->state++;
+            // The animation reads the low byte of the duration and image words.
+            timer = *((u8*)frames + 2 + effect->state * 6);
+            timer--;
+            effect->timer = timer;
+            effect->image = *((u8*)frames + 4 + effect->state * 6);
+            poly->clut = GetClut(0x340, 0xF3);
+        } else {
+            timer = effect->timer;
+            timer--;
+            effect->timer = timer;
+        }
+        blendMode = frames[effect->state][0];
+        if (blendMode == 0) {
+            SetSemiTrans(poly, 0);
+        }
+        if (blendMode == 1) {
+            SetSemiTrans(poly, 1);
+            poly->tpage = GetTPage(0, 1, 0x340, 0);
+        }
+        if (blendMode == 4) {
+            SetSemiTrans(poly, 1);
+            poly->tpage = GetTPage(0, 3, 0x340, 0);
+        }
+        poly->u0 = (effect->image & 3) << 6;
+        poly->v0 = (effect->image & 4) * 8 + 0x40;
+        poly->u1 = ((effect->image & 3) << 6) + 0x3F;
+        poly->v1 = (effect->image & 4) * 8 + 0x40;
+        poly->u2 = (effect->image & 3) << 6;
+        poly->v2 = (effect->image & 4) * 8 + 0x5F;
+        poly->u3 = ((effect->image & 3) << 6) + 0x3F;
+        poly->v3 = (effect->image & 4) * 8 + 0x5F;
+        poly->x0 = effect->x + 0x80;
+        poly->y0 = effect->y + 0x68;
+        poly->x1 = effect->x + 0xC0;
+        poly->y1 = effect->y + 0x68;
+        poly->x2 = effect->x + 0x80;
+        poly->y2 = effect->y + 0x88;
+        poly->x3 = effect->x + 0xC0;
+        poly->y3 = effect->y + 0x88;
+        AddPrim(&D_80129F34->ot[0], poly);
+    } else {
+        effect->state++;
+    }
+    if (effect->state == 0xA) {
+        impact.unk48 = effect->x + 0x100;
+        impact.unk4A = effect->y + 0x210;
+        depth = effect->z;
+        impact.width = 0x20;
+        impact.height = 0x20;
+        impact.unk4C = depth;
+        impact.unk12 = effect->unkB;
+        impact.unk43 = effect->unkC;
+        func_800AF278(&impact);
+    }
+}
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AFD74);
 
@@ -509,6 +952,8 @@ INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800B1FD0);
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800B21A8);
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800B2520);
+
+const u8 D_800A02EC[] = {0, 40, 40, 44, 40, 20, 28, 44, 44, 0, 0, 0, 40, 40, 20, 20, 48, 38, 30, 40, 20, 20, 20, 20};
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800B2804);
 

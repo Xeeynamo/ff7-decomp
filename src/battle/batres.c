@@ -19,14 +19,13 @@ typedef struct {
     /* 0x28 */ u8* curve;
     /* 0x2C */ u32 expStart;
     /* 0x30 */ u32 exp;
-    /* 0x34 */ s32 unk34;
-    /* 0x38 */ s32 unk38;
-    /* 0x3C */ s32 unk3C[16];
+    /* 0x34 */ s32 expGain;
+    /* 0x38 */ s32 startLevelExp;
+    /* 0x3C */ s32 nextLevelExp[16];
     /* 0x7C */ u32 expLevelStart;
     /* 0x80 */ u32 expLevelEnd;
 } BatresRow; // size:0x84
 
-extern u8 D_80082268[];
 extern u8 D_80082460[3][12]; // one 12-entry roll table per gauge kind
 extern StatGrowth D_80082484[][8];
 extern s32 D_8009D7D8;
@@ -35,7 +34,7 @@ extern s32 D_8009D7E0;
 extern u8 D_80163790[]; // the char_id occupying each of the three party slots
 extern SavePartyMember D_80167938;
 
-void func_801B0EF8(SavePartyMember* c, s32 exp, s32 slot);
+void GivePartyMemberExp(SavePartyMember* c, s32 exp, s32 slot);
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/batres", func_801B0000);
 
@@ -64,7 +63,7 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
         hp = g_BattleState.combatant[slot].curHP;
         mp = g_BattleState.combatant[slot].curMP;
         id = D_80163790[slot];
-        if ((g_BattleSceneContext.reviveMask >> slot) & 1) {
+        if ((g_BattleWork.reviveMask >> slot) & 1) {
             hp = hpOverride;
             mp = mpOverride;
         }
@@ -137,7 +136,7 @@ static void GiveSharedExp(s32 mask) {
             c = &Savemap.party[i];
             hp = c->hp_base;
             mp = c->mp_base;
-            func_801B0EF8(c, D_8009D7D8 / 2, -1);
+            GivePartyMemberExp(c, D_8009D7D8 / 2, -1);
             if (c->curHP != 0) {
                 if (hp < c->hp_base) {
                     c->curHP += c->hp_base - hp;
@@ -174,7 +173,33 @@ static void ResetBattleResults(void) {
     func_80015654(mask);
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/batres", func_801B0EF8);
+static void LoadResultsRow(BatresRow* p, SavePartyMember* c);
+static void StoreResultsRow(BatresRow* p, SavePartyMember* c);
+static void InitResultsRow(BatresRow* p);
+static void GiveExp(BatresRow* p);
+
+void GivePartyMemberExp(SavePartyMember* c, s32 exp, s32 slot) {
+    BatresRow row;
+    s32 i;
+
+    LoadResultsRow(&row, c);
+    if (slot != -1) {
+        g_BatresSummary.expFrac[slot] = 0;
+        g_BatresSummary.startLevel[slot] = row.level;
+    }
+    InitResultsRow(&row);
+    row.expGain = exp;
+    GiveExp(&row);
+    if (slot != -1) {
+        g_BatresSummary.exp[slot] = row.exp;
+        g_BatresSummary.displayExp[slot] = row.expStart;
+        g_BatresSummary.levelExp[slot][0] = row.startLevelExp;
+        for (i = 0; i < LEN(g_BatresSummary.levelExp[0]) - 1; i++) {
+            g_BatresSummary.levelExp[slot][i + 1] = row.nextLevelExp[i];
+        }
+    }
+    StoreResultsRow(&row, c);
+}
 
 // Load a party member's saved stats into a results row.
 static void LoadResultsRow(BatresRow* p, SavePartyMember* c) {
@@ -216,15 +241,15 @@ static void StoreResultsRow(BatresRow* p, SavePartyMember* c) {
 static void InitResultsRow(BatresRow* p) {
     s32 i;
 
-    p->curve = &D_80082268[p->charId * 56];
+    p->curve = D_80082268[p->charId].curve;
     for (i = 0; i < 8; i++) {
         if (p->baseStat[i] == 0) {
             p->baseStat[i] = 1;
         }
         p->stat[i] = p->baseStat[i];
     }
-    for (i = 15; i >= 0; i--) {
-        p->unk3C[i] = 0;
+    for (i = LEN(p->nextLevelExp) - 1; i >= 0; i--) {
+        p->nextLevelExp[i] = 0;
     }
 }
 
@@ -238,19 +263,19 @@ static void GiveExp(BatresRow* p) {
     s32 lv;
     u32 next;
 
-    p->exp = p->expStart + p->unk34;
+    p->exp = p->expStart + p->expGain;
     i = 0;
     if (p->exp > 999999999) {
         p->exp = 999999999;
     }
-    p->unk38 = CalcTotalExp(p, p->level - 1);
-    p->expLevelStart = p->unk38;
+    p->startLevelExp = CalcTotalExp(p, p->level - 1);
+    p->expLevelStart = p->startLevelExp;
     lv = p->level;
     while (lv < 99) {
         next = CalcTotalExp(p, lv);
         p->expLevelEnd = next;
-        if (i < 16) {
-            p->unk3C[i] = next;
+        if (i < LEN(p->nextLevelExp)) {
+            p->nextLevelExp[i] = next;
             i++;
         }
         if (p->exp < next) {

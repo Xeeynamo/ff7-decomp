@@ -200,10 +200,9 @@ void HighwayKawaiModelsInit(void) {
         g_HighwayKawaiPktCursor = func_800B0698(&g_HighwayKawaiModels[i], g_HighwayKawaiPktCursor, i);
         g_HighwayKawaiModels[i].flags = 0;
         g_HighwayKawaiStates[i].unkB0 = g_HighwayKawaiModels[i].animationCount - 1;
-        g_HighwayKawaiModels[i].rotationX = 0x40;
+        g_HighwayKawaiModels[i].rotationX = 64;
         g_HighwayKawaiModels[i].rotationY = 0;
-        // The stored angle is an unsigned byte encoding of a half-turn.
-        *(u8*)&g_HighwayKawaiModels[i].rotationZ = 0x80;
+        g_HighwayKawaiModels[i].rotationZ = 128;
     }
     for (i = 0; i < g_HighwayKawai->count; i++) {
         for (k = LEN(g_HighwayKawaiStates[i].lastFrame) - 1; k >= 0; k--) {
@@ -234,30 +233,24 @@ void HighwayKawaiModelsUpdate(void) {
 
     state = g_HighwayKawaiStates;
     for (i = 0; i < g_HighwayKawai->count; i++, state++) {
-        *(s32*)0x1F800000 = 3;
+        *getScratchAddr(0) = 3;
         func_800B1E98(&g_HighwayKawaiModels[i], &state->m, state->animation, state->frame);
     }
     state = g_HighwayKawaiStates;
     for (i = 0; i < g_HighwayKawai->count; i++, state++) {
         if (state->unkAE == 1) {
-            g_HighwayKawaiLight[0] = state->flash;
-            g_HighwayKawaiLight[1] = state->flash >> 8;
-            g_HighwayKawaiLight[2] = state->flash;
-            g_HighwayKawaiLight[3] = state->flash >> 8;
-            g_HighwayKawaiLight[4] = state->flash;
-            g_HighwayKawaiLight[5] = state->flash >> 8;
+            KAWAI_WRITE_S16(g_HighwayKawaiLight, 0, state->flash);
+            KAWAI_WRITE_S16(g_HighwayKawaiLight, 2, state->flash);
+            KAWAI_WRITE_S16(g_HighwayKawaiLight, 4, state->flash);
             g_HighwayKawaiLight[6] = 1;
             func_800B2E58(&g_HighwayKawaiModels[i], g_HighwayKawaiLight);
             state->unkAE = 0;
         }
         if (state->flash > 0) {
             state->flash -= 0x80;
-            g_HighwayKawaiLight[0] = state->flash;
-            g_HighwayKawaiLight[1] = state->flash >> 8;
-            g_HighwayKawaiLight[2] = state->flash;
-            g_HighwayKawaiLight[3] = state->flash >> 8;
-            g_HighwayKawaiLight[4] = state->flash;
-            g_HighwayKawaiLight[5] = state->flash >> 8;
+            KAWAI_WRITE_S16(g_HighwayKawaiLight, 0, state->flash);
+            KAWAI_WRITE_S16(g_HighwayKawaiLight, 2, state->flash);
+            KAWAI_WRITE_S16(g_HighwayKawaiLight, 4, state->flash);
             g_HighwayKawaiLight[6] = 1;
             func_800B2E58(&g_HighwayKawaiModels[i], g_HighwayKawaiLight);
             if (state->flash < 0) {

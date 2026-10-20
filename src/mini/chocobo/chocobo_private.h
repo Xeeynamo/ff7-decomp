@@ -11,55 +11,6 @@
     } name = {n, {__VA_ARGS__}}
 
 typedef struct {
-    /* 0x0 */ u32 flags; // bit 0 is set once the vertices got scaled
-    /* 0x4 */ SVECTOR verts[1];
-} ChocoboPartVerts;
-
-typedef struct {
-    /* 0x00 */ u8 unk0[0x2];
-    /* 0x02 */ u8 nVerts;
-    /* 0x03 */ u8 unk3[0x15];
-    /* 0x18 */ ChocoboPartVerts* verts;
-    /* 0x1C */ u8 unk1C[0x4];
-} ChocoboModelPart; // size:0x20
-
-typedef struct {
-    /* 0x00 */ u16 nValues; // values per frame
-    /* 0x02 */ u8 unk2;
-    /* 0x03 */ u8 nFrames;
-    /* 0x04 */ u8 nExtra;
-    /* 0x05 */ u8 unk5;
-    /* 0x06 */ u16 framesOffset;
-    /* 0x08 */ u16 extraOffset;
-    /* 0x0A */ u8 unkA[0x2];
-    /* 0x0C */ s32 data; // the first word is set once the values got scaled
-} ChocoboModelAnim;      // size:0x10
-
-typedef struct {
-    /* 0x00 */ u8 unk0[0x2];
-    /* 0x02 */ u8 unk2;
-    /* 0x03 */ u8 nParts;
-    /* 0x04 */ u8 nAnims;
-    /* 0x05 */ u8 r;
-    /* 0x06 */ u8 g;
-    /* 0x07 */ u8 b;
-    /* 0x08 */ s32 x;
-    /* 0x0C */ s32 y;
-    /* 0x10 */ s32 z;
-    /* 0x14 */ u8 unk14[0x2];
-    /* 0x16 */ s16 unk16;
-    /* 0x18 */ u16 partsOffset;
-    /* 0x1A */ u16 animOffset;
-    /* 0x1C */ u8* data;
-    /* 0x20 */ u8* unk20;
-} ChocoboModel; // size:0x24
-
-typedef struct {
-    /* 0x0 */ s32 unk0;
-    /* 0x4 */ ChocoboModel* models;
-} ChocoboModels;
-
-typedef struct {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ s16 speed;
@@ -122,7 +73,7 @@ typedef struct {
 } ChocoboTrackSegment; // size:0x18
 
 typedef struct {
-    /* 0x0 */ ChocoboModels* unk0;
+    /* 0x0 */ FieldModelData* unk0;
 } Unk800B1254;
 
 typedef struct {
@@ -272,7 +223,7 @@ extern Unk800F5040 D_800F5040;
 extern GpuBuffer* D_800F5074;
 extern GpuBuffer D_800B7A68[2];
 extern Unk800F5078 D_800F5078;
-extern ChocoboModel* D_800F50A0[];
+extern FieldModel* D_800F50A0[];
 extern s32 D_800B7598;
 extern s32 D_800B74F8;
 extern s32 D_800B74FC;
@@ -292,7 +243,7 @@ void ChocoboInitMusic(void);
 void func_800A18BC(void);
 void func_800A9828(void);
 s32 ChocoboCalcAngle(s16 x, s16 y);
-void func_800A1F40(ChocoboModels* models, s32 arg1);
+void func_800A1F40(FieldModelData* models, s32 arg1);
 void ChocoboDrawTrackTris(void);
 void ChocoboDrawTrackSegments(void);
 void func_800A2BD4(s32 start, s32 end);
@@ -309,14 +260,15 @@ void func_800A9D94(void);
 void func_800AC554(void);
 void ChocoboDrawText(const u8* str, s32 len, s32 x, s32 y);
 void ChocoboDrawFade(void);
-u8* ChocoboModelSetupParts(ChocoboModel* model, u8* buf, s32 arg2);
-u8* func_800AD9D8(ChocoboModelPart*, u8*, s32, s32);
-void func_800AE534(ChocoboModel*);
-void func_800AF11C(ChocoboModel*, MATRIX*, s32, s32);
-void func_800AF9E4(ChocoboModel* model, s16 scale, s32 force);
-void ChocoboScalePartVerts(ChocoboModelPart* part, s16 scale, s32 force);
-void func_800AFDBC(ChocoboModelAnim* anim, s16 scale, s32 force);
-s32 ChocoboModelApplyPartRotation(ChocoboModel* model, u8* data);
-void func_800B01B0(ChocoboModelPart*, s32, s32, s32);
+u8* ChocoboModelSetupParts(FieldModel* model, u8* nextFree, s32 arg2);
+u8* func_800AD9D8(FieldModelPart* part, u8* nextFree, s32 relocate, s32 modelId);
+void func_800AE534(FieldModel*);
+void func_800AF11C(FieldModel*, MATRIX*, s32, s32);
+void func_800AF9E4(FieldModel* model, s16 scale, s32 force);
+void ChocoboScalePartVerts(FieldModelPart* part, s16 scale, s32 force);
+void func_800AFDBC(FieldModelAnimation* animation, s16 scale, s32 force);
+s32 ChocoboModelApplyPartRotation(FieldModel* model, u8* data);
+void func_800B01B0(FieldModelPart* part, s16 r, s16 g, s16 b);
+s32 func_800B0E7C(FieldModel* model, u8* params);
 
 #endif

@@ -10,7 +10,7 @@
 #define DEFAULT_DISK_CUE "disks/Final Fantasy VII (USA) (Disc 1).cue"
 
 static void ReserveAddrRam(uintptr_t addr, size_t size) {
-    void* p = mmap((void*)addr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    void* p = mmap((void*)addr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED_NOREPLACE, -1, 0);
     if (p == MAP_FAILED) {
         ERRORF("failed to reserve 0x%08X with len 0x%x", addr, size);
         exit(1);
@@ -63,13 +63,7 @@ void func_80014804(void) {
     }
 }
 
-extern s32 D_80062F88;
 extern u8 D_80063048[];
-
-void func_800148A0(void) {
-    D_80062F88 = 0;
-    g_BattleMode = 0;
-}
 
 extern s32 D_80062F90;
 void InputInit(void);
@@ -78,21 +72,13 @@ void func_80026258(void) {
 
     D_80062F90 = 0;
     InputInit();
-    D_8009D7BC.unk0 = 0x80;
-    D_8009D7BC.unk1 = 0x80;
-    D_8009D7BC.unk14 = 0x80;
-    D_8009D7BC.unk2 = 0x41;
-    for (i = 0; i < 16; i++) {
-        D_8009D7BC.unk4[i] = i;
+    Savemap.battle_speed = 128;
+    Savemap.battle_msg_speed = 128;
+    Savemap.field_msg_speed = 128;
+    Savemap.config = 0x40 | 1;
+    for (i = 0; i < LEN(Savemap.button_config); i++) {
+        Savemap.button_config[i] = i;
     }
-}
-
-void SysLoadUncompressImg(u8* tim) {
-    if (*(u32*)(tim + 4) & 8) {
-        LoadImage((RECT*)(tim + 0xC), (u_long*)(tim + 0x14));
-        tim += (*(u32*)(tim + 8) >> 2) << 2;
-    }
-    LoadImage((RECT*)(tim + 0xC), (u_long*)(tim + 0x14));
 }
 
 void* SysCdromGetPackPointer(void* ptr, s32 idx) { return (u8*)ptr + ((s32*)ptr)[idx]; }
