@@ -3069,7 +3069,227 @@ void BattleResolveCover(BattleQueueTargetEntry* entry) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType09);
+static void BattleDropDyingEnemiesFromTargets(void);
+static void func_800AB9C4(s32 arg0, s32 arg1);
+static void BattleMainDmgCalculation(s32 arg0, s32 arg1);
+
+void BattleActionType09(void) {
+    s32 i;
+
+    D_800F4920 = 0;
+
+    if (g_CurrentAction->unk20 == -1) {
+        return;
+    }
+
+    if (g_CurrentAction->unkDC != -1) {
+        func_800ACA4C(g_CurrentAction->unkDC);
+        return;
+    }
+
+    if (g_CurrentAction->cmdIndex <= CMD_ENEMY_ATTACK && func_800ACB98()) {
+        return;
+    }
+
+    if (g_CurrentAction->unkF0) {
+        func_800A2B28(g_CurrentAction->unkF0);
+    }
+
+    g_CurrentAction->unkEC = g_CurrentAction->allowedTargetsMask;
+    g_CurrentAction->unkC4 = g_CurrentAction->power;
+    g_CurrentAction->unkB4--;
+
+    while (g_CurrentAction->unkB4 != -1) {
+        for (i = 0; i < LEN(g_CurrentAction->unkD0); i++) {
+            s32 unkD0 = g_CurrentAction->unkD0[i];
+            if (unkD0 == 0xFF) {
+                continue;
+            }
+
+            g_CurrentAction->unkD0[i] = 0xFF;
+            g_CurrentAction->absoluteActionIndex = unkD0 & ~0x80;
+            g_CurrentAction->unk98 = unkD0 & ~0x80;
+            g_CurrentAction->targetFlags = 0xFF;
+
+            func_800A8E34();
+            if (unkD0 & 0x80) {
+                g_CurrentAction->attackFlags &= ~0x2000;
+            }
+            break;
+        }
+
+        D_800F4958 = 0;
+
+        g_CurrentAction->allowedTargetsMask = g_CurrentAction->unkEC;
+        g_CurrentAction->unkFC = g_CurrentAction->unkB0;
+
+        func_800AF9C8();
+        BattleDropDyingEnemiesFromTargets();
+
+        if (g_CurrentAction->unk90 & 0x80000) {
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                if (((g_CurrentAction->allowedTargetsMask >> i) & 1) &&
+                    (g_BattleState.combatant[i].status & STATUS_DEATH)) {
+                    g_CurrentAction->allowedTargetsMask = g_CurrentAction->allowedTargetsMask & ~(1 << i);
+                }
+            }
+            if (!g_CurrentAction->allowedTargetsMask) {
+                func_800A2CC4(g_CurrentAction->unk20);
+                break;
+            }
+        } else if (!g_CurrentAction->allowedTargetsMask) {
+            func_800ACA4C(g_CurrentAction->unkDC);
+            break;
+        }
+
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            D_800F4938[i] = 0;
+            D_800F494C[i] = -1;
+        }
+
+        BattleSetFormulaAndBaseDmg();
+
+        D_800F4920 |= 9;
+        D_800F4938[g_CurrentAction->actorId] = g_CurrentAction->allowedTargetsMask;
+
+        while (D_800F4920 & 1) {
+            if (D_800F4920 & 6) {
+                D_800F4920 &= ~2;
+
+                if (g_CurrentAction->cmdIndex != CMD_SUMMON) {
+                    g_CurrentAction->unk1C = 3;
+                }
+            }
+
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                D_800F4924[i] = D_800F4938[i];
+                D_800F4938[i] = 0;
+            }
+
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                s32 mask = D_800F4924[i];
+
+                if (!mask) {
+                    continue;
+                }
+
+                g_CurrentAction->unkF4 = i;
+                g_CurrentAction->landedHitCount = 0;
+                g_CurrentAction->unkB0 = g_CurrentAction->unkFC;
+
+                func_800A2EFC();
+                func_800AA738(mask);
+
+                while (1) {
+                    const s32 multiTargetFlags = TARGET_TOGGLE_MULTIPLE | TARGET_MULTIPLE_DEFAULT;
+                    s32 pickRnd = g_CurrentAction->unkB0 != 0;
+                    s32 j;
+
+                    g_CurrentAction->allowedTargetsMask = mask;
+                    if (g_CurrentAction->unkAC &&
+                        (g_CurrentAction->targetFlags & multiTargetFlags) != TARGET_MULTIPLE_DEFAULT) {
+                        pickRnd = 1;
+                    }
+
+                    if (g_CurrentAction->targetFlags & TARGET_RANDOM) {
+                        pickRnd = 1;
+                    }
+
+                    if (g_CurrentAction->cmdIndex == CMD_SUMMON) {
+                        pickRnd = 0;
+                    }
+
+                    if (pickRnd) {
+                        g_CurrentAction->allowedTargetsMask = SysSelectRandomBit(g_CurrentAction->allowedTargetsMask);
+                    }
+
+                    for (j = 0; j < NUM_BATTLE_ACTOR; j++) {
+                        if ((g_CurrentAction->allowedTargetsMask >> j) & 1) {
+                            BattleMainDmgCalculation(i, j);
+                        }
+                    }
+
+                    if (g_CurrentAction->unkB0 == 0 || --g_CurrentAction->unkB0 == 0) {
+                        break;
+                    }
+                }
+
+                func_800A317C();
+                func_800A8E84(5);
+            }
+
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                if (g_BattleWork.turn[i].action09Data1) {
+                    func_800AB9C4(i, 0);
+                }
+
+                if (g_BattleWork.turn[i].action09Data2) {
+                    func_800AB9C4(i, 1);
+                }
+            }
+
+            if (!(D_800F4920 & 2)) {
+                if (g_CurrentAction->unkAC) {
+                    g_CurrentAction->unkAC--;
+                }
+
+                if (g_CurrentAction->unkAC) {
+                    s32 allowedMask = g_CurrentAction->allowedTargetsMask;
+                    if (g_CurrentAction->cmdIndex == CMD_SUMMON) {
+                        allowedMask = g_BattleData.unk14C & 0x3F0;
+                    }
+
+                    if (allowedMask) {
+                        s32 k;
+                        for (k = 0; k < NUM_BATTLE_ACTOR; k++) {
+                            if (g_BattleState.combatant[k].status & STATUS_DEATH) {
+                                allowedMask &= ~(1 << k);
+                            }
+                        }
+
+                        D_800F4938[g_CurrentAction->actorId] = allowedMask;
+                        if (!allowedMask) {
+                            g_CurrentAction->unkAC = 0;
+                        }
+                    }
+                }
+                if (g_CurrentAction->unkAC) {
+                    D_800F4920 |= 4;
+                } else {
+                    D_800F4920 &= ~1;
+                }
+            }
+
+            if (g_CurrentAction->unk90 & 0x1000) {
+                g_CurrentAction->unk60 = -4;
+            } else {
+                g_CurrentAction->unk60 = -1;
+            }
+            g_CurrentAction->unk64 = g_CurrentAction->unk60;
+        }
+
+        if (g_CurrentAction->unk20 == 24) {
+            g_CurrentAction->unk20 = 0x19;
+        } else if (g_CurrentAction->unk20 == 25) {
+            g_CurrentAction->unk20 = 0x1A;
+        } else if (g_CurrentAction->unk20 == 26) {
+            g_CurrentAction->unk20 = 0x1B;
+        } else if (g_CurrentAction->unk20 == 22) {
+            g_CurrentAction->unk20 = 0x17;
+            g_CurrentAction->unkEC = g_CurrentAction->allowedTargetsMask;
+        }
+
+        g_CurrentAction->unkB4--;
+    }
+
+    if (g_CurrentAction->unk90 & 0x10000) {
+        func_800A2CC4(0x47);
+    }
+
+    if (g_CurrentAction->unkE4 != -1) {
+        BattleQueueIntroCamera(g_CurrentAction->unkE4);
+    }
+}
 
 void BattleResolveAffinityPreDamage(void) {
     s32 tmp;
@@ -3337,8 +3557,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     }
 
     if (!(g_CurrentAction->unk218 & 1)) {
-        // hit actually lands on the target
-        g_CurrentAction->unkE0++;
+        g_CurrentAction->landedHitCount++;
         act->flags |= 1;
         func_800A8E84(4);
         if (g_CurrentAction->actorId != arg1) {

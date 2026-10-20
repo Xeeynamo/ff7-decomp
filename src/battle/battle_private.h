@@ -670,6 +670,7 @@ extern s32 g_BattlePartyEventReadIdx[];
 extern s32 g_BattlePartyEventWriteIdx[];
 extern s32 g_BattleHitFormulaOffs[];
 extern s32 D_800F4920;
+extern u16 D_800F4924[];
 extern u16 D_800F4938[];
 extern s8 D_800F494C[];
 extern u16 D_800F4958;
