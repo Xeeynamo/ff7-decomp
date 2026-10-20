@@ -424,19 +424,14 @@ typedef struct {
     short vx, vy, vz;
 } ShortVectorXYZ;
 
-typedef struct {
-    /* 0x00 */ ShortVectorXYZ position;
-    /* 0x06 */ u16 unknown[3];
-} BattleCameraPosition; // size:0xC
+// XYZ coordinates followed by three unknown values.
+typedef s16 BattleCameraPosition[6];
 
 typedef struct {
     /* 0x00 */ s32 D_80151200;
     /* 0x04 */ u16 values4[4];
     /* 0x0C */ s16 D_8015120C;
-    /* 0x0E */ union {
-        u16 values[2][6];
-        BattleCameraPosition points[2];
-    } cameraPositions;
+    /* 0x0E */ BattleCameraPosition cameraPositions[2];
     /* 0x26 */ u16 height;
     /* 0x28 */ u16 unk28;
     /* 0x2A */ u16 unk2A;
@@ -725,26 +720,66 @@ typedef struct {
     /* 0x0A */ s16 unkA;
     /* 0x0C */ s16 unkC;
     /* 0x0E */ s16 unkE;
-    /* 0x10 */ union {
-        struct {
-            s16 value;
-            s16 category;
-        } fields;
-        s32 word;
-    } unk10;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
     /* 0x14 */ s16 unk14;
     /* 0x16 */ s16 unk16;
-    /* 0x18 */ union {
-        s16 half;
-        u8 byte;
-    } unk18;
+    /* 0x18 */ s16 unk18;
     /* 0x1A */ s16 unk1A;
     /* 0x1C */ s16 unk1C;
     /* 0x1E */ s16 unk1E;
     /* 0x20 */ u8 unk20[8];
 } Unk800F7ED8; // size:0x28
 
-extern Unk800F7ED8 g_BattleCameraSlots[];
+// Bone-following camera scripts store a full word for the Y offset.
+typedef struct {
+    /* 0x00 */ s16 callback;
+    /* 0x02 */ s16 phase;
+    /* 0x04 */ s16 frames;
+    /* 0x06 */ s16 z;
+    /* 0x08 */ s16 actor;
+    /* 0x0A */ s16 bone;
+    /* 0x0C */ s16 category;
+    /* 0x0E */ s16 x;
+    /* 0x10 */ s32 y;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ u8 relative;
+    /* 0x19 */ u8 pad19;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 unk20[8];
+} BattleCameraFollowSlot; // size:0x28
+
+typedef struct {
+    /* 0x00 */ s16 callback;
+    /* 0x02 */ s16 phase;
+    /* 0x04 */ s16 frames;
+    /* 0x06 */ s16 heightStep;
+    /* 0x08 */ s16 angle;
+    /* 0x0A */ s16 radius;
+    /* 0x0C */ s16 angleStep;
+    /* 0x0E */ s16 radiusStep;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ u8 category;
+    /* 0x19 */ u8 pad19;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 unk20[8];
+} BattleCameraOrbitSlot; // size:0x28
+
+typedef union {
+    Unk800F7ED8 raw;
+    BattleCameraFollowSlot follow;
+    BattleCameraOrbitSlot orbit;
+} BattleCameraSlot; // size:0x28
+
+extern BattleCameraSlot g_BattleCameraSlots[];
 extern s16 D_800F8182[];
 extern s16 g_BattleCameraCursor;
 extern s16 D_800F836C;
