@@ -1,6 +1,92 @@
 //! PSYQ=3.3 CC1=2.7.2
 #include <game.h>
-#include "itemmenu.h"
+
+// Item-menu screen/sub-state selector.
+typedef enum {
+    ITEMMENU_SCREEN_SELECTOR = 0,
+    ITEMMENU_SCREEN_USE = 1,
+    ITEMMENU_SCREEN_ITEM_SELECTED = 2,
+    ITEMMENU_SCREEN_KEY_ITEMS = 3,
+    ITEMMENU_SCREEN_ARRANGE_SELECT = 4,
+    ITEMMENU_SCREEN_ARRANGE_CUSTOM = 5
+} ItemMenuScreen;
+
+typedef enum {
+    USE_ITEM_MENU_SELECTED = 0,
+    ARRANGE_MENU_SELECTED = 1,
+    KEY_ITEMS_MENU_SELECTED = 2,
+} ItemMenuSelected;
+
+typedef enum {
+    WEAPON_INDEX_CLOUD_MAX = 0x10,
+    WEAPON_INDEX_BARRET_MAX = 0x20,
+    WEAPON_INDEX_TIFA_MAX = 0x30,
+    WEAPON_INDEX_AERIS_MAX = 0x3E,
+    WEAPON_INDEX_RED_XIII_MAX = 0x49,
+    WEAPON_INDEX_YUFFIE_MAX = 0x57,
+    WEAPON_INDEX_CAIT_SITH_MAX = 0x65,
+    WEAPON_INDEX_VINCENT_MAX = 0x72
+} WeaponIndex;
+
+typedef enum {
+    ITEM_ICON_ITEM = 0,
+    ITEM_ICON_SWORD = 1,
+    ITEM_ICON_GLOVE = 2,
+    ITEM_ICON_GUN_ARM = 3,
+    ITEM_ICON_CLIP = 4,
+    ITEM_ICON_STAFF = 5,
+    ITEM_ICON_MEGAPHONE = 6,
+    ITEM_ICON_GUN = 7,
+    ITEM_ICON_SPEAR = 8,
+    ITEM_ICON_SHURIKEN = 9,
+    ITEM_ICON_ARMOR = 0xA,
+    ITEM_ICON_ACCESSORY = 0xB
+} ItemIcon;
+
+typedef enum {
+    ITEM_ARRANGE_CUSTOMIZE = 0,
+    ITEM_ARRANGE_FIELD = 1,
+    ITEM_ARRANGE_BATTLE = 2,
+    ITEM_ARRANGE_THROW = 3,
+    ITEM_ARRANGE_TYPE = 4,
+    ITEM_ARRANGE_NAME = 5,
+    ITEM_ARRANGE_MOST = 6,
+    ITEM_ARRANGE_LEAST = 7,
+} ItemArrangeMode;
+
+#define ITEM_TYPE_WEAPON_BASE 0x80
+#define ITEM_TYPE_ARMOR_BASE 0x100
+#define ITEM_TYPE_ACCESSORY_BASE 0x120
+#define ITEM_TYPE_REGUALR_BASE 0x5FU
+
+#define ITEM_ICON_BASE_U 0x60
+#define ITEM_ICON_BASE_V 0x70
+#define ITEM_ICON_SIZE 0x10
+#define ITEM_ICON_CLUT 1
+
+#define ITEM_ID_MASK 0x1FF
+#define ITEM_CONSUMED 0x200
+#define ITEM_QTY_SHIFT 9
+#define ITEM_EMPTY_SLOT 0xFFFF
+#define SORT_KEY_EMPTY_SLOT 0x4E20
+
+#define CLEAR_SADNESS 0xEF
+#define CLEAR_FURY 0xDF
+
+#define ITEM_USAGE_FLAG_BATTLE 0x2
+#define ITEM_USAGE_FLAG_FIELD 0x4
+#define ITEM_USAGE_FLAG_THROW 0x8
+
+#define MENU_LOCATION_TENT_ALLOWED 0x200
+#define SAVE_CRYSTAL_USED_FLAG 0x2
+
+#define MAX_KEY_ITEMS 0x40
+#define MAX_STOLEN_MATERIA 0x30
+#define NOTIFICATION_TEXT_SIZE 0x50
+#define EMPTY_MATERIA_SLOT (-1)
+#define EMPTY_ACCESSORY_SLOT 0xFF
+#define EMPTY_LIMIT_COMMAND 0x7F
+#define NUM_LIMIT_SLOTS 10
 
 // [0]: single-slot, non-scrolling widget (total=1, 1/page) - purpose not yet
 //      identified.
@@ -397,14 +483,14 @@ static void ArrangeItems(s32 mode) {
     }
 }
 
-// exported, see g_MenuInitTable (D_800493A8) in src/main/ovl.c
+// exported, see 800493A8
 // Configures 3 widgets (g_ItemMenuWidgets[0..2], see MenuTable and the comment on
 // its extern decl for what each backs) and defaults the item-menu to the Use
-// tab, then continues in BuildKeyItemList. That default is later overwritten in
-// ITEMMENU_Main (at offset 0x801D131C) if the player picks Arrange or Key Items instead,
-// or when backing out to the tab selector (at offset 0x801D1A6C, see ItemMenuScreen).
-// Reached from src/main/ovl.c's g_MenuInitTable (D_800493A8) per-screen entry table
-// for several item-menu pages, called out of SysMenuDrawMenuList in
+// tab, then continues in BuildKeyItemList. That default is later overwritten by
+// func_801D131C if the player picks Arrange or Key Items instead, or by
+// func_801D1A6C if they back out to the tab selector (see ItemMenuScreen).
+// Reached from src/main/ovl.c's D_800493A8 per-screen entry table for
+// several item-menu pages, called out of SysMenuDrawMenuList in
 // src/main/1F6B4.c.
 void ITEMMENU_Init(void) {
     g_ItemMenuCurrentScreen = ITEMMENU_SCREEN_USE;
@@ -477,32 +563,14 @@ typedef struct {
     u16 rowOffset;
 } ItemMenuWidget;
 
+// --- Missing Globals & Inferred Function Prototypes ---
 extern s32 g_MenuRenderBufferIndex;
 extern s32 g_ItemMenuCurrentScreen;
 extern u8 g_KeyItemList[];
 extern DRAWENV D_800706A4[];
-#define g_MenuDrawEnv D_800706A4
+
 extern u16 g_Pad0KeysPressed;
 extern u16 g_Pad0KeysRepeat;
-extern s32 g_LimitManualAlreadyLearnedMsg;
-extern s32 g_LimitManualNoUserMsg;
-extern s32 g_ItemMenuTabLabels;
-extern s32 g_ItemArrangeLabels;
-extern u8 g_LimitManualCharIds[];
-extern s32 g_ItemMenuWindows;
-extern RECT g_ItemArrangeWindow;
-extern s32 g_ItemSwapState;
-extern s32 g_ItemSwapSourceColumn;
-extern s32 g_ItemSwapSourceSlot;
-extern s8 g_ItemUseListCursorPos[];
-extern s8 g_PartySlotSelected[];
-extern s8 g_KeyItemCursorColumn[];
-extern s8 g_KeyItemCursorRow;
-extern s8 g_ArrangeMenuCursorRow[];
-extern s16 g_ItemSwapListOffset;
-extern s8 g_ItemSwapCursorRow[];
-extern s16 g_ItemMenuScrollbar[];
-extern s32 g_ItemMenuTargetSelectDelay;
 
 void ArrangeItems(s32 mode);
 const char* SysKernGetString(s32, s32, s32);
@@ -522,15 +590,46 @@ void SystemMenuAddHpByPartyId(s32, s32);
 void SystemMenuAddMpByPartyId(s32, s32);
 void SysMenuSetDrawenv(void*, s16*);
 void SysMenuDrawSingleFontLetter(s32, s32, s32, s32);
-void SysMenuDrawScrollbar(MenuScrollbar* bar);
+void SysMenuDrawScrollbar();
 s32 IsCharacterHpFull(s32 charIdx);
 s32 IsCharacterMpFull(s32 charIdx);
 
+extern s32 g_LimitManualAlreadyLearnedMsg;
+extern s32 g_LimitManualNoUserMsg;
+extern s32 g_ItemMenuTabLabels;
+extern s32 g_ItemArrangeLabels;
+extern u8 g_LimitManualCharIds[];
+extern s32 g_ItemMenuWindows;
+extern RECT g_ItemArrangeWindow;
+extern s32 g_ItemSwapState;
+extern s32 g_ItemSwapSourceColumn;
+extern s32 g_ItemSwapSourceSlot;
+extern s16 g_ItemListOffet;
+extern s16 g_ItemListScrolling;
+extern s8 g_ItemUseListCursorPos[];
+extern s8 g_PartySlotSelected[];
+extern s16 g_KeyItemListOffset;
+extern s8 g_KeyItemCursorColumn[];
+extern s8 g_KeyItemCursorRow;
+extern s8 g_KeyItemScrollAnimY;
+extern s8 g_ArrangeMenuCursorRow[];
+extern s16 g_ItemSwapListOffset;
+extern s8 g_ItemSwapCursorColumn;
+extern s8 g_ItemSwapCursorRow[];
+extern s8 g_ItemSwapScrollAnimY;
+extern s16 g_ItemMenuScrollbar[];
+extern s16 g_ItemMenuScrollbarTotalRows;
+extern u16 g_ItemMenuScrollbarTopRow;
+extern s16 g_ItemMenuScrollbarTrackX;
+extern s16 g_ItemMenuScrollbarTrackY;
+extern s16 g_ItemMenuScrollbarTrackW;
+extern s16 g_ItemMenuScrollbarTrackH;
+extern s32 g_ItemMenuTargetSelectDelay;
 void g_LimitManualMsgs();
 
 char ITEMMENU_Main(s32 frameCount) {
     u8 canRestoreMp;
-    MenuRect subWindowRect;
+    s32 subWindowRect[2];
     s16 drawRect[12];
     s32* msgPtr;
     s8* tabNamePtr;
@@ -562,6 +661,7 @@ char ITEMMENU_Main(s32 frameCount) {
     s32 hasScrollAnimation;
     s32 numVisibleRows;
     s32 hasFuryCondition;
+    s32 cancelButtonPressed;
     s32 isItemUsable;
     s32 charMsgIdx;
     s32 isCustomizeMode;
@@ -592,22 +692,19 @@ char ITEMMENU_Main(s32 frameCount) {
     SysMenuDrawMenuList(g_MenuRenderBufferIndex);
     if (g_ItemMenuCurrentScreen == ITEMMENU_SCREEN_ITEM_SELECTED) {
         if (g_ItemMenuTargetSelectDelay == 0) {
-            cursorItemId = Savemap.inventory[g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row +
-                                             g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].rowOffset] &
-                           ITEM_ID_MASK;
+            cursorItemId = Savemap.inventory[g_ItemUseListCursorPos[0] + g_ItemListOffet] & ITEM_ID_MASK;
             // Selecting all with one item (Tent & Megaelixer heal all)
             if (((cursorItemId == ITEM_MEGALIXIR) || (cursorItemId == ITEM_TENT)) != 0) {
                 targetPartySlot = frameCount;
                 targetPartySlot = targetPartySlot % 3;
-                SysMenuDrawCursor(0, (targetPartySlot * ITEMMENU_PARTY_SLOT_HEIGHT) + ITEMMENU_PARTY_CURSOR_Y);
+                SysMenuDrawCursor(0, (targetPartySlot * 0x38) + 0x4B);
             } else {
                 targetPartySlot = g_PartySlotSelected[0];
-                SysMenuDrawCursor(0, (targetPartySlot * ITEMMENU_PARTY_SLOT_HEIGHT) + ITEMMENU_PARTY_CURSOR_Y);
+                SysMenuDrawCursor(0, (targetPartySlot * 0x38) + 0x4B);
             }
         }
         if ((frameCount & 2) != 0) {
-            SysMenuDrawCursor(ITEMMENU_LIST_CURSOR_X,
-                              (g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
+            SysMenuDrawCursor(0xA9, (g_ItemUseListCursorPos[0] * 0x10) + 0x3C);
         }
         if (g_ItemMenuTargetSelectDelay) {
             g_ItemMenuTargetSelectDelay -= 1;
@@ -616,77 +713,55 @@ char ITEMMENU_Main(s32 frameCount) {
     SysMenuUnkNoop(0x80);
     switch (g_ItemMenuCurrentScreen) {
     case ITEMMENU_SCREEN_SELECTOR:
-        SysMenuDrawCursor(
-            (g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
+        SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
         break;
 
     case ITEMMENU_SCREEN_USE:
         if (frameCount & 2) {
-            SysMenuDrawCursor(
-                (g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
         }
-        SysMenuDrawCursor(ITEMMENU_LIST_CURSOR_X,
-                          (g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
-        selectedItemId = g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row + g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].rowOffset;
-        rawItemData = Savemap.inventory[selectedItemId];
-        stringCategory = KERN_TXT_ITEM;
-        if ((rawItemData & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) {
-            rawItemData = rawItemData & ITEM_ID_MASK;
-            SysMenuDrawString(ITEMMENU_DESC_X, ITEMMENU_DESC_Y, SysKernGetString(stringCategory, rawItemData, 0), 7);
-        }
-        break;
+        SysMenuDrawCursor(0xA9, (g_ItemUseListCursorPos[0] * 0x10) + 0x3C);
+        selectedItemId = g_ItemUseListCursorPos[0] + g_ItemListOffet;
+        goto block_33;
 
     case ITEMMENU_SCREEN_ITEM_SELECTED:
         if (frameCount & 2) {
-            SysMenuDrawCursor(
-                (g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
         }
-        selectedItemId = g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row + g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].rowOffset;
-        rawItemData = Savemap.inventory[selectedItemId];
-        stringCategory = KERN_TXT_ITEM;
-        if ((rawItemData & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) {
-            rawItemData = rawItemData & ITEM_ID_MASK;
-            SysMenuDrawString(ITEMMENU_DESC_X, ITEMMENU_DESC_Y, SysKernGetString(stringCategory, rawItemData, 0), 7);
-        }
-        break;
+        selectedItemId = g_ItemUseListCursorPos[0] + g_ItemListOffet;
+        goto block_33;
 
     case ITEMMENU_SCREEN_KEY_ITEMS:
         if (frameCount & 2) {
-            SysMenuDrawCursor(
-                (g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
         }
-        SysMenuDrawCursor(
-            (g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].column * ITEMMENU_KEY_COLUMN_WIDTH) + ITEMMENU_KEY_CURSOR_X,
-            (g_KeyItemCursorRow * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
+        SysMenuDrawCursor((g_KeyItemCursorColumn[0] * 0xA6) + 3, (g_KeyItemCursorRow * 0x10) + 0x3C);
         emptyKeyItem = 0xFF;
-        selectedItemId = ((g_KeyItemCursorRow + g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].rowOffset) * 2) +
-                         g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].column;
+        selectedItemId = ((g_KeyItemCursorRow + g_KeyItemListOffset) * 2) + g_KeyItemCursorColumn[0];
         rawItemData = g_KeyItemList[selectedItemId];
         stringCategory = 0xE;
         if (rawItemData != emptyKeyItem) {
-            SysMenuDrawString(ITEMMENU_DESC_X, ITEMMENU_DESC_Y, SysKernGetString(stringCategory, rawItemData, 0), 7);
+            do {
+            } while (0);
+            goto block_35;
         }
         break;
 
     case ITEMMENU_SCREEN_ARRANGE_SELECT:
         if (frameCount & 2) {
-            SysMenuDrawCursor(
-                (g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
         }
         slotIdx = 0;
         cursorPosX = g_ItemArrangeWindow.x;
         textColor = (s32)&g_ItemArrangeWindow;
         menuStrPtr = (s8*)&g_ItemArrangeLabels;
-        itemSlot = ITEMMENU_ARRANGE_TEXT_DY;
-        SysMenuDrawCursor(cursorPosX - ITEMMENU_ARRANGE_CURSOR_DX,
-                          (g_ItemArrangeWindow.y + ITEMMENU_ARRANGE_CURSOR_DY) +
-                              g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_SELECT].row * ITEMMENU_ARRANGE_ROW_HEIGHT);
+        itemSlot = 6;
+        SysMenuDrawCursor(cursorPosX - 0x12, (g_ItemArrangeWindow.y + 8) + g_ArrangeMenuCursorRow[0] * 12);
         do {
-            SysMenuDrawString(((RECT*)textColor)->x + ITEMMENU_ARRANGE_TEXT_DX, ((RECT*)textColor)->y + itemSlot,
-                              (const char*)menuStrPtr, 7);
-            menuStrPtr += ITEMMENU_ARRANGE_ROW_HEIGHT;
+            SysMenuDrawString(((RECT*)textColor)->x + 8, ((RECT*)textColor)->y + itemSlot, (const char*)menuStrPtr, 7);
+            menuStrPtr += 0xC;
             slotIdx += 1;
-            itemSlot += ITEMMENU_ARRANGE_ROW_HEIGHT;
+            itemSlot += 0xC;
         } while (((s32)slotIdx) < 8);
         drawRect[0] = 0;
         drawRect[1] = 0;
@@ -699,18 +774,18 @@ char ITEMMENU_Main(s32 frameCount) {
 
     case ITEMMENU_SCREEN_ARRANGE_CUSTOM:
         if (frameCount & 2) {
-            SysMenuDrawCursor(
-                (g_ItemMenuWidgets[0].column * ITEMMENU_TAB_SPACING_X) + ITEMMENU_TAB_CURSOR_X, ITEMMENU_TAB_CURSOR_Y);
+            SysMenuDrawCursor((g_ItemMenuWidgets[0].column * 0x38) + 8, 0xC);
         }
-        selectedItemId = g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_CUSTOM].row + g_ItemSwapListOffset;
+        selectedItemId = g_ItemSwapCursorRow[0] + g_ItemSwapListOffset;
+    block_33:
         rawItemData = Savemap.inventory[selectedItemId];
 
-        stringCategory = KERN_TXT_ITEM;
-        if ((rawItemData & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) {
+        stringCategory = 4;
+        if ((rawItemData & 0xFFFF) != 0xFFFF) {
             rawItemData = rawItemData & ITEM_ID_MASK;
-            SysMenuDrawString(ITEMMENU_DESC_X, ITEMMENU_DESC_Y, SysKernGetString(stringCategory, rawItemData, 0), 7);
+        block_35:
+            SysMenuDrawString(0x10, 0x23, SysKernGetString(stringCategory, rawItemData, 0), 7);
         }
-        break;
     }
 
     SysMenuUnkNoop(8);
@@ -729,9 +804,9 @@ char ITEMMENU_Main(s32 frameCount) {
         menuStrPtr = (s8*)0x3B;
         do {
             if (((u8*)&Savemap.partyID[0] - 0xD)[charSlot] != 0xFF) {
-                SysMenuDrawCharNameLvHpMpByPartyId(ITEMMENU_PARTY_NAME_X, (s32)menuStrPtr, (s32)slotIdx);
-                SysMenuDrawAvatar(ITEMMENU_PARTY_AVATAR_X, textColor, 0x30, 0x30, 0, selectedItemId, numVisibleRows,
-                                  numVisibleRows, charSlot, 0);
+                SysMenuDrawCharNameLvHpMpByPartyId(0x50, (s32)menuStrPtr, (s32)slotIdx);
+                SysMenuDrawAvatar(
+                    0x16, textColor, 0x30, 0x30, 0, selectedItemId, numVisibleRows, numVisibleRows, charSlot, 0);
                 drawRect[0] = 0;
                 drawRect[1] = 0;
                 drawRect[2] = widgetScreen;
@@ -740,78 +815,70 @@ char ITEMMENU_Main(s32 frameCount) {
             }
             charSlot = charSlot + 1;
             selectedItemId += 0x30;
-            textColor += ITEMMENU_PARTY_SLOT_HEIGHT;
+            textColor += 0x38;
             slotIdx += 1;
-            menuStrPtr += ITEMMENU_PARTY_SLOT_HEIGHT;
+            menuStrPtr += 0x38;
         } while (((s32)slotIdx) < 3);
-        SysMenuSetWindowRect(
-            (s32*)&subWindowRect, 0, ITEMMENU_PARTY_WINDOW_Y, ITEMMENU_PARTY_WINDOW_W, ITEMMENU_PARTY_WINDOW_H);
-        SysMenuDrawWindow((s32*)&subWindowRect);
+        SysMenuSetWindowRect(subWindowRect, 0, 0x32, 0xAA, 0xAB);
+        SysMenuDrawWindow(subWindowRect);
     }
     menuStrPtr = (s8*)0;
     tabNamePtr = (s8*)(&g_ItemMenuTabLabels);
-    slotIdx = (s8*)ITEMMENU_TAB_LABEL_X;
+    slotIdx = (s8*)0x22;
     do {
-        SysMenuDrawString((s32)slotIdx, ITEMMENU_TAB_LABEL_Y, tabNamePtr, 7);
+        SysMenuDrawString((s32)slotIdx, 0xD, tabNamePtr, 7);
         tabNamePtr += 0xC;
         menuStrPtr += 1;
-        slotIdx += ITEMMENU_TAB_SPACING_X;
+        slotIdx += 0x38;
     } while (((s32)menuStrPtr) < 3);
-    drawRect[2] = ITEMMENU_CLIP_W;
-    drawRect[3] = ITEMMENU_HEADER_CLIP_H;
+    drawRect[2] = 0x16C;
+    drawRect[3] = 0xE0;
     drawRect[0] = 0;
     drawRect[1] = 0;
-    SysMenuSetDrawenv(&g_MenuDrawEnv[g_MenuRenderBufferIndex], drawRect);
+    SysMenuSetDrawenv((void*)(((u8*)D_800706A4) + (g_MenuRenderBufferIndex * 0x5C)), drawRect);
     if (g_ItemMenuWidgets[0].column != 2) {
         if (g_ItemMenuCurrentScreen == 5) {
             if ((g_ItemSwapState != 0) && (frameCount & 2)) {
-                cursorYOffset =
-                    ((g_ItemSwapSourceSlot - g_ItemSwapListOffset) * ITEMMENU_ROW_HEIGHT) +
-                    (g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_CUSTOM].scrollAnimY * ITEMMENU_SCROLL_ANIM_SCALE);
+                cursorYOffset = ((g_ItemSwapSourceSlot - g_ItemSwapListOffset) * 0x10) + (g_ItemSwapScrollAnimY * 4);
                 if (((u32)(cursorYOffset + 0xB)) < 0x10FU) {
-                    SysMenuDrawCursor(ITEMMENU_SWAP_CURSOR_X, cursorYOffset + ITEMMENU_ICON_Y);
+                    SysMenuDrawCursor(0xA5, cursorYOffset + 0x38);
                 }
             }
-            SysMenuDrawCursor(
-                ITEMMENU_LIST_CURSOR_X,
-                (g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_CUSTOM].row * ITEMMENU_ROW_HEIGHT) + ITEMMENU_LIST_TOP_Y);
+            SysMenuDrawCursor(0xA9, (g_ItemSwapCursorRow[0] * 0x10) + 0x3C);
             widgetScreen = 5;
         } else {
             widgetScreen = 1;
         }
         do {
-            g_ItemMenuScrollbar[0] = ITEMMENU_SCROLLBAR_VISIBLE_ROWS;
-            ((MenuScrollbar*)g_ItemMenuScrollbar)->totalRows = ITEMMENU_INVENTORY_ROWS;
+            g_ItemMenuScrollbar[0] = 0xA;
+            g_ItemMenuScrollbarTotalRows = 0x140;
         } while (0);
         slotIdx = (s8*)(widgetScreen * 0x12);
         scrollPos = *((u16*)((((u8*)g_ItemMenuWidgets) + 2) + ((s32)slotIdx)));
-        ((MenuScrollbar*)g_ItemMenuScrollbar)->track.x = ITEMMENU_SCROLLBAR_X;
-        ((MenuScrollbar*)g_ItemMenuScrollbar)->track.y = ITEMMENU_SCROLLBAR_Y;
-        ((MenuScrollbar*)g_ItemMenuScrollbar)->track.w = ITEMMENU_SCROLLBAR_W;
-        ((MenuScrollbar*)g_ItemMenuScrollbar)->track.h = ITEMMENU_SCROLLBAR_H;
-        ((MenuScrollbar*)g_ItemMenuScrollbar)->topRow = scrollPos;
-        numVisibleRows = 10;
-        SysMenuDrawScrollbar((MenuScrollbar*)g_ItemMenuScrollbar);
+        g_ItemMenuScrollbarTrackX = 0x160;
+        g_ItemMenuScrollbarTrackY = 0x35;
+        g_ItemMenuScrollbarTrackW = 0xA;
+        g_ItemMenuScrollbarTrackH = 0xA5;
+        g_ItemMenuScrollbarTopRow = scrollPos;
+        numVisibleRows = 0xA;
+        SysMenuDrawScrollbar(g_ItemMenuScrollbar, scrollPos);
         hasScrollAnimation = *((s16*)((((u8*)g_ItemMenuWidgets) + 8) + ((s32)slotIdx)));
         if (hasScrollAnimation != 0) {
-            numVisibleRows = 11;
+            numVisibleRows = 0xB;
         }
         SysMenuUnkNoop(9);
         rowIdx = 0;
         if ((s16)numVisibleRows != 0) {
             do {
-                yBaseOffset = ITEMMENU_NAME_Y;
+                yBaseOffset = 0x3A;
                 itemSlot = (*((s16*)((((u8*)g_ItemMenuWidgets) + 2) + ((s32)slotIdx)))) + rowIdx;
                 invItem = *(Savemap.inventory - (-itemSlot));
-                if ((invItem & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) {
-                    selectedItemId = invItem & ITEM_ID_MASK;
-                    textColor = (-((GetItemUseFlagsContext(selectedItemId) & 4) == 0)) & 7;
+                if ((invItem & 0xFFFF) != 0xFFFF) {
+                    selectedItemId = invItem & 0x1FF;
+                    textColor = (-((func_801D0DCC(selectedItemId) & 4) == 0)) & 7;
                     SysMenuDrawString(
-                        ITEMMENU_NAME_X,
-                        (rowIdx * ITEMMENU_ROW_HEIGHT) +
-                            (((&g_ItemMenuWidgets[0].scrollAnimY)[(s32)slotIdx] * ITEMMENU_SCROLL_ANIM_SCALE) +
-                             yBaseOffset),
-                        SysKernGetString(KERN_TXT_ITEM, selectedItemId, 8), textColor);
+                        0xD6, (rowIdx * 0x10) + (((&g_ItemMenuWidgets[0].scrollAnimY)[(s32)slotIdx] * 4) + yBaseOffset),
+                        SysKernGetString(4, selectedItemId, 8), textColor);
                 }
                 rowIdx += 1;
             } while (rowIdx < numVisibleRows);
@@ -826,29 +893,24 @@ char ITEMMENU_Main(s32 frameCount) {
 
                 charSlot = (*((s16*)((((u8*)g_ItemMenuWidgets) + 2) + widgetScreen))) + rowIdx;
                 item = *(Savemap.inventory + charSlot);
-                itemWord = item & ITEM_EMPTY_SLOT;
-                if (itemWord != ITEM_EMPTY_SLOT) {
-                    selectedItemId = item & ITEM_ID_MASK;
+                itemWord = item & 0xFFFF;
+                if (itemWord != 0xFFFF) {
+                    selectedItemId = item & 0x1FF;
                     count = (u32)itemWord >> 9;
-                    itemUsableFlag = GetItemUseFlagsContext(selectedItemId) & 4;
+                    itemUsableFlag = func_801D0DCC(selectedItemId) & 4;
                     textColor = (-(itemUsableFlag == 0)) & 7;
-                    ((void (*)(s32, s32, s32, s32))ITEMMENU_DrawItemTypeIcon)(
-                        ITEMMENU_ICON_X,
-                        (s32)(((s8*)(rowIdx * ITEMMENU_ROW_HEIGHT)) +
-                              (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * ITEMMENU_SCROLL_ANIM_SCALE) +
-                               ITEMMENU_ICON_Y)),
+                    ((void (*)())ITEMMENU_DrawItemTypeIcon)(
+                        0xC4, ((s8*)(rowIdx * 0x10)) + (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * 4) + 0x38),
                         selectedItemId, 0);
                     SysMenuDrawSingleFontLetter(
-                        ITEMMENU_QTY_X_MULTIPLY,
-                        (s32)(((s8*)(rowIdx * ITEMMENU_ROW_HEIGHT)) +
-                              (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * ITEMMENU_SCROLL_ANIM_SCALE) +
-                               ITEMMENU_LIST_TOP_Y)),
+                        0x13F,
+                        (s32)(((s8*)(rowIdx * 0x10)) +
+                              (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * 4) + 0x3C)),
                         0xD5, textColor);
                     SysMenuDrawDigitsWithoutLeadingZeroes(
-                        ITEMMENU_QTY_X,
-                        (s32)(((s8*)(rowIdx * ITEMMENU_ROW_HEIGHT)) +
-                              (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * ITEMMENU_SCROLL_ANIM_SCALE) +
-                               ITEMMENU_QTY_Y)),
+                        0x140,
+                        (s32)(((s8*)(rowIdx * 0x10)) +
+                              (((&g_ItemMenuWidgets[0].scrollAnimY)[widgetScreen] * 4) + 0x3B)),
                         count, 3, textColor);
                 }
                 rowIdx += 1;
@@ -856,39 +918,34 @@ char ITEMMENU_Main(s32 frameCount) {
         }
     } else {
         numVisibleRows = 0xA;
-        g_ItemMenuScrollbar[0] = ITEMMENU_SCROLLBAR_VISIBLE_ROWS;
-        ((MenuScrollbar*)g_ItemMenuScrollbar)->totalRows = ITEMMENU_KEY_TOTAL_ROWS;
-        ((MenuScrollbar*)g_ItemMenuScrollbar)->track.w = ITEMMENU_SCROLLBAR_W;
-        ((MenuScrollbar*)g_ItemMenuScrollbar)->track.x = ITEMMENU_SCROLLBAR_X;
-        ((MenuScrollbar*)g_ItemMenuScrollbar)->track.y = ITEMMENU_SCROLLBAR_Y;
-        ((MenuScrollbar*)g_ItemMenuScrollbar)->track.h = ITEMMENU_SCROLLBAR_H;
-        ((MenuScrollbar*)g_ItemMenuScrollbar)->topRow = (u16)g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].rowOffset;
+        g_ItemMenuScrollbar[0] = 0xA;
+        g_ItemMenuScrollbarTotalRows = 0x20;
+        g_ItemMenuScrollbarTrackW = 0xA;
+        g_ItemMenuScrollbarTrackX = 0x160;
+        g_ItemMenuScrollbarTrackY = 0x35;
+        g_ItemMenuScrollbarTrackH = 0xA5;
+        g_ItemMenuScrollbarTopRow = (u16)g_KeyItemListOffset;
         keyRowIdx = 0;
         selectedItemId = 0x38;
         do {
         } while (0);
-        SysMenuDrawScrollbar((MenuScrollbar*)g_ItemMenuScrollbar);
+        ((void (*)())SysMenuDrawScrollbar)(g_ItemMenuScrollbar);
         SysMenuUnkNoop(9);
         slotIdx = 0;
         do {
-            widgetScreen = keyRowIdx * ITEMMENU_ROW_HEIGHT;
-            textColor = ITEMMENU_KEY_TEXT_X;
-            itemSlot = (g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].rowOffset + keyRowIdx) * 2;
+            widgetScreen = keyRowIdx * 0x10;
+            textColor = 0x20;
+            itemSlot = (g_KeyItemListOffset + keyRowIdx) * 2;
         loop_66:
             selectedItemId = itemSlot + ((s32)slotIdx);
 
             keyItemId = g_KeyItemList[selectedItemId];
             if (keyItemId != 0xFF) {
-                SysMenuDrawString(
-                    textColor,
-                    widgetScreen +
-                        (scrollAnimOffset =
-                             (g_ItemMenuWidgets[ITEMMENU_SCREEN_KEY_ITEMS].scrollAnimY * ITEMMENU_SCROLL_ANIM_SCALE) +
-                             ITEMMENU_NAME_Y),
-                    SysKernGetString(KERN_TXT_KEY_ITEM, keyItemId, 8), 7);
+                SysMenuDrawString(textColor, widgetScreen + (scrollAnimOffset = (g_KeyItemScrollAnimY * 4) + 0x3A),
+                                  SysKernGetString(0xE, keyItemId, 8), 7);
             }
             slotIdx += 1;
-            textColor += ITEMMENU_KEY_COLUMN_WIDTH;
+            textColor += 0xA6;
             if (((s32)slotIdx) < 2) {
                 goto loop_66;
             }
@@ -896,12 +953,12 @@ char ITEMMENU_Main(s32 frameCount) {
             slotIdx = 0;
         } while (keyRowIdx < 0xC);
     }
-    canRestoreMp = ITEMMENU_LIST_CLIP_Y;
+    canRestoreMp = 0x35;
     drawRect[1] = canRestoreMp;
-    drawRect[2] = ITEMMENU_CLIP_W;
-    drawRect[3] = ITEMMENU_LIST_CLIP_H;
+    drawRect[2] = 0x16C;
+    drawRect[3] = 0xA5;
     drawRect[0] = 0;
-    SysMenuSetDrawenv(&g_MenuDrawEnv[g_MenuRenderBufferIndex], drawRect);
+    SysMenuSetDrawenv((void*)(((u8*)D_800706A4) + (g_MenuRenderBufferIndex * 0x5C)), drawRect);
     slotIdx = 0;
     windowDefPtr = (s8*)(&g_ItemMenuWindows);
     do {
@@ -910,7 +967,7 @@ char ITEMMENU_Main(s32 frameCount) {
         windowDefPtr = windowDefPtr + 8;
     } while (((s32)slotIdx) < 3);
     if (SysMenuGetMenuListState() == 0) {
-        SysMenuHandleButtons(&g_ItemMenuWidgets[g_ItemMenuCurrentScreen]);
+        SysMenuHandleButtons((MenuTable*)(((u8*)g_ItemMenuWidgets) + (g_ItemMenuCurrentScreen * 0x12)));
         switch (g_ItemMenuCurrentScreen) {
         case ITEMMENU_SCREEN_SELECTOR:
             if (g_Pad0KeysPressed & PAD_CIRCLE) {
@@ -943,10 +1000,9 @@ char ITEMMENU_Main(s32 frameCount) {
             break;
 
         case ITEMMENU_SCREEN_USE:
-            if (g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].scrolling == 0) {
+            if (g_ItemListScrolling == 0) {
                 if (g_Pad0KeysPressed & PAD_CIRCLE) {
-                    selectedItemId =
-                        g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row + g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].rowOffset;
+                    selectedItemId = g_ItemUseListCursorPos[0] + g_ItemListOffet;
                     selectedItemEntry = Savemap.inventory[selectedItemId];
                     if (((selectedItemEntry & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) &&
                         (!(GetItemUseFlagsContext(selectedItemId = selectedItemEntry & ITEM_ID_MASK) & 4))) {
@@ -965,14 +1021,15 @@ char ITEMMENU_Main(s32 frameCount) {
                                 Savemap.party[7].exp = 0xFFFFFF;
                                 return;
                             }
-                        } else {
-                            PlayItemMenuSfx(SFX_MENU_APPLY);
-                            Savemap.memory_bank_4[0x60] |= 1;
-                            SysMenuSetMenuListAnimation(5, 0);
-                            SysMenuLoadMenuFileById(0);
-                            SysMenuClose();
-                            return;
+                            goto block_e48;
                         }
+                        PlayItemMenuSfx(SFX_MENU_APPLY);
+                        Savemap.memory_bank_4[0x60] |= 1;
+                        SysMenuSetMenuListAnimation(5, 0);
+                        SysMenuLoadMenuFileById(0);
+                        SysMenuClose();
+                        return;
+                    block_e48:
                         PlayItemMenuSfx(SFX_MENU_CURSOR_MOVE);
 
                         g_ItemMenuTargetSelectDelay = 0;
@@ -982,10 +1039,8 @@ char ITEMMENU_Main(s32 frameCount) {
                     PlayItemMenuSfx(SFX_MENU_BAD);
                     return;
                 }
-                if (g_Pad0KeysPressed & PAD_CROSS) {
-                    PlayItemMenuSfx(SFX_MENU_BACK);
-                    g_ItemMenuCurrentScreen = 0;
-                }
+                cancelButtonPressed = g_Pad0KeysPressed & PAD_CROSS;
+                goto block_217;
             }
             break;
 
@@ -993,9 +1048,7 @@ char ITEMMENU_Main(s32 frameCount) {
             if (g_ItemMenuTargetSelectDelay == 0) {
                 if (g_Pad0KeysPressed & PAD_CIRCLE) {
                     cursorPosX = Savemap.partyID[g_PartySlotSelected[0]];
-                    selectedItemId = Savemap.inventory[g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].row +
-                                                       g_ItemMenuWidgets[ITEMMENU_SCREEN_USE].rowOffset] &
-                                     ITEM_ID_MASK;
+                    selectedItemId = Savemap.inventory[g_ItemUseListCursorPos[0] + g_ItemListOffet] & ITEM_ID_MASK;
                     isRegularItem = selectedItemId < ITEM_TYPE_REGUALR_BASE;
                     characterId = cursorPosX;
                     isItemUsable = isRegularItem;
@@ -1119,17 +1172,22 @@ char ITEMMENU_Main(s32 frameCount) {
                             case ITEM_POWER_SOURCE:
                                 strengthBonus = Savemap.party[characterId].strength_bonus;
                                 if (strengthBonus < STAT_MAX) {
-                                    Savemap.party[characterId].strength_bonus = strengthBonus + 1;
-                                    break;
+                                    Savemap.party[characterId].strength_bonus = strengthBonus - (-1);
+                                default:
+                                    goto src_tail;
+
+                                } else {
+                                    PlayItemMenuSfx(SFX_MENU_BAD);
+                                    return;
                                 }
-                                PlayItemMenuSfx(SFX_MENU_BAD);
-                                return;
+                                break;
 
                             case ITEM_GUARD_SOURCE:
                                 vitalityBonus = Savemap.party[characterId].vitality_bonus;
                                 if (vitalityBonus < STAT_MAX) {
                                     Savemap.party[characterId].vitality_bonus = vitalityBonus + 1;
-                                    break;
+                                    goto src_tail;
+                                    PlayItemMenuSfx(SFX_MENU_BAD);
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
@@ -1138,7 +1196,7 @@ char ITEMMENU_Main(s32 frameCount) {
                                 magicBonus = Savemap.party[characterId].magic_bonus;
                                 if (magicBonus < STAT_MAX) {
                                     Savemap.party[characterId].magic_bonus = magicBonus + 1;
-                                    break;
+                                    goto src_tail;
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
@@ -1147,7 +1205,7 @@ char ITEMMENU_Main(s32 frameCount) {
                                 spiritBonus = Savemap.party[characterId].spirit_bonus;
                                 if (spiritBonus < STAT_MAX) {
                                     Savemap.party[characterId].spirit_bonus = spiritBonus + 1;
-                                    break;
+                                    goto src_tail;
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
@@ -1156,7 +1214,7 @@ char ITEMMENU_Main(s32 frameCount) {
                                 dexterityBonus = Savemap.party[characterId].dexterity_bonus;
                                 if (dexterityBonus < STAT_MAX) {
                                     Savemap.party[characterId].dexterity_bonus = dexterityBonus + 1;
-                                    break;
+                                    goto src_tail;
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
@@ -1165,22 +1223,21 @@ char ITEMMENU_Main(s32 frameCount) {
                                 luckBonus = Savemap.party[characterId].luck_bonus;
                                 if (luckBonus < STAT_MAX) {
                                     Savemap.party[characterId].luck_bonus = luckBonus + 1;
-                                    break;
+                                src_tail:
+                                    PlayItemMenuSfx(SFX_MENU_APPLY);
+
+                                    SysInitPlayerStatFromEquip(g_PartySlotSelected[0]);
+                                    SysInitPlayerStatFromMateria(*((u8*)g_PartySlotSelected));
+                                    SysMenuRemoveItem(selectedItemId | ITEM_CONSUMED);
+                                    if ((SysMenuSearchItem(selectedItemId) & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) {
+                                        return;
+                                    }
+                                    g_ItemMenuCurrentScreen = 1;
+                                    return;
                                 }
                                 PlayItemMenuSfx(SFX_MENU_BAD);
                                 return;
                             }
-
-                            PlayItemMenuSfx(SFX_MENU_APPLY);
-
-                            SysInitPlayerStatFromEquip(g_PartySlotSelected[0]);
-                            SysInitPlayerStatFromMateria(*((u8*)g_PartySlotSelected));
-                            SysMenuRemoveItem(selectedItemId | ITEM_CONSUMED);
-                            if ((SysMenuSearchItem(selectedItemId) & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) {
-                                return;
-                            }
-                            g_ItemMenuCurrentScreen = 1;
-                            return;
 
                             break;
 
@@ -1378,18 +1435,15 @@ char ITEMMENU_Main(s32 frameCount) {
             break;
 
         case ITEMMENU_SCREEN_KEY_ITEMS:
-            if (g_Pad0KeysPressed & PAD_CROSS) {
-                PlayItemMenuSfx(SFX_MENU_BACK);
-                g_ItemMenuCurrentScreen = 0;
-            }
-            break;
+            cancelButtonPressed = g_Pad0KeysPressed & PAD_CROSS;
+            goto block_217;
 
         case ITEMMENU_SCREEN_ARRANGE_SELECT:
             if (g_Pad0KeysPressed & PAD_CIRCLE) {
                 PlayItemMenuSfx(SFX_MENU_CURSOR_MOVE);
-                isCustomizeMode = g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_SELECT].row == 0;
+                isCustomizeMode = g_ArrangeMenuCursorRow[0] == 0;
                 if (isCustomizeMode) {
-                    arrangeWidget = (MenuTable*)((&g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_SELECT].row) + 7);
+                    arrangeWidget = (MenuTable*)((&g_ArrangeMenuCursorRow[0]) + 7);
                     SysMenuSetCursorMovement(arrangeWidget, 0, 0, 1, 0xA, 0, 0, 1, 0x140, 0, 0, 0, 0, 0);
                     g_ItemSwapState = 0;
                     g_ItemSwapSourceColumn = 0;
@@ -1397,23 +1451,19 @@ char ITEMMENU_Main(s32 frameCount) {
                     g_ItemMenuCurrentScreen = 5;
                     return;
                 }
-                ArrangeItems(g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_SELECT].row);
-                g_ItemMenuCurrentScreen = 0;
-                break;
+                ArrangeItems(g_ArrangeMenuCursorRow[0]);
+                goto block_219;
             }
-            if (g_Pad0KeysPressed & PAD_CROSS) {
-                PlayItemMenuSfx(SFX_MENU_BACK);
-                g_ItemMenuCurrentScreen = 0;
-            }
-            break;
+            cancelButtonPressed = g_Pad0KeysPressed & PAD_CROSS;
+            goto block_217;
 
         case ITEMMENU_SCREEN_ARRANGE_CUSTOM:
             if (g_Pad0KeysPressed & PAD_CIRCLE) {
                 switch (g_ItemSwapState) {
                 case 0:
                     PlayItemMenuSfx(SFX_MENU_CURSOR_MOVE);
-                    g_ItemSwapSourceColumn = (s32)g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_CUSTOM].column;
-                    g_ItemSwapSourceSlot = g_ItemMenuWidgets[ITEMMENU_SCREEN_ARRANGE_CUSTOM].row + g_ItemSwapListOffset;
+                    g_ItemSwapSourceColumn = (s32)g_ItemSwapCursorColumn;
+                    g_ItemSwapSourceSlot = g_ItemSwapCursorRow[0] + g_ItemSwapListOffset;
                     g_ItemSwapState += 1;
                     return;
 
@@ -1429,9 +1479,14 @@ char ITEMMENU_Main(s32 frameCount) {
                     return;
                 }
 
-            } else if (g_Pad0KeysPressed & PAD_CROSS) {
-                PlayItemMenuSfx(SFX_MENU_BACK);
-                g_ItemMenuCurrentScreen = 0;
+            } else {
+                cancelButtonPressed = g_Pad0KeysPressed & PAD_CROSS;
+            block_217:
+                if (cancelButtonPressed != 0) {
+                    PlayItemMenuSfx(SFX_MENU_BACK);
+                block_219:
+                    g_ItemMenuCurrentScreen = 0;
+                }
             }
             break;
         }
@@ -1780,7 +1835,7 @@ void ITEMMENU_RestoreCharacterMateria(s32 charIdx) {
 
 // Uploads the coin-pattern texture at g_CoinTextureTim (64x32, 4bpp, seamlessly
 // tileable) into VRAM: pixel data to (0x3F0, 0x120), CLUT to (0x110, 0x1E0).
-// Runs once at boot/menu init (main -> SysMenuInit/func_80026258 -> HandleLoadCoinTexture); the
+// Runs once at boot/menu init (main -> func_80026258 -> HandleLoadCoinTexture); the
 // texture stays resident so the battle UI can scroll it as the animated
 // backdrop behind the coin-throw amount prompt.
 void ITEMMENU_LoadCoinTexture(void) { MENU_LoadTim((u_long*)g_CoinTextureTim, 0x3F0, 0x120, 0x110, 0x1E0); }
