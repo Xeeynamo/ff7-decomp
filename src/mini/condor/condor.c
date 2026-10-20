@@ -120,7 +120,7 @@ extern s16 D_8012C4FC;
 extern u16 D_8012C388;
 extern s32 D_8012C530;
 extern s16 D_8012C5C0;
-extern u16 D_8012B85C;
+extern s16 D_8012B85C;
 extern u16 D_80180000[];
 extern s32 D_8012C544;
 extern s32 D_8012C548;
@@ -685,9 +685,51 @@ INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AC1A8);
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AC498);
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AC5C0);
+void func_800A2414(CondorUnit* self, s32 first, s16 end);
 
-INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AC68C);
+s16 func_800AC5C0(s16 index, CondorPoint* pos) {
+    CondorUnit unit;
+    CondorUnit* unitPtr = &unit;
+    u8* record;
+    u16 depth;
+    s32 result;
+    unitPtr->unk48 = pos->x;
+    depth = D_8012C388;
+    unitPtr->unk4A = 0x400 - pos->y;
+    unitPtr->unk4C = depth;
+    record = *(u16*)0x80180000 + (u8*)0x80180000;
+    record += index * 32;
+    unitPtr->unk50 = pos->x - 0x100;
+    unitPtr->unk52 = 0x200 - pos->y;
+    unitPtr->unk54 = depth;
+    unitPtr->width = record[13];
+    unitPtr->height = record[14];
+    func_800A2414(unitPtr, 0, 0x27);
+    result = 1;
+    if (D_8012B85C == 0) {
+        result = func_800A8004(unitPtr);
+        return result == -1;
+    }
+    return result;
+}
+
+s32 func_800AC68C(s16 index, CondorPoint* pos) {
+    CondorUnit unit;
+    u8* record;
+    u16 depth;
+    unit.unk48 = pos->x;
+    depth = D_8012C388;
+    unit.unk4A = 0x400 - pos->y;
+    unit.unk4C = depth;
+    record = *(u16*)0x80180000 + (u8*)0x80180000;
+    record += index * 32;
+    unit.unk50 = pos->x - 0x100;
+    unit.unk52 = 0x200 - pos->y;
+    unit.unk54 = depth;
+    unit.width = record[13];
+    unit.height = record[14];
+    return func_800A8004(&unit) == -1;
+}
 
 INCLUDE_ASM("asm/us/mini/condor/nonmatchings/condor", func_800AC72C);
 
