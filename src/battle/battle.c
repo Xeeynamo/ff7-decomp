@@ -2659,7 +2659,7 @@ void BattleActionType17(void) {
             }
 
             if (j == 12) {
-                textId = 0x57;
+                textId = BATTLE_TEXT_CANNOT_MIMIC;
                 animId = 0x35;
                 g_CurrentAction->unk98 = attackIndex;
                 msgArgs[1] = attackIndex + 0x80;
@@ -2684,7 +2684,7 @@ void BattleActionType17(void) {
     }
 
     if (textId == -1) {
-        textId = 0x58;
+        textId = BATTLE_TEXT_USELESS_IMITATION;
     }
 
     func_800A2CC4(animId);
