@@ -299,7 +299,30 @@ static void func_800A2D68(u8 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2DB0);
+// Attempts to morph the enemy; does nothing if target cannot be morphed
+void BattleMorphEnemy(void) {
+    s32 enemyId;
+    u16 morphItem;
+
+    if (g_CurrentAction->targetId < START_ENEMY || g_BattleWork.turn[g_CurrentAction->targetId].turnFlags & 0x10) {
+        return;
+    }
+
+    enemyId = g_BattleData.activeEncounter.formation[g_CurrentAction->targetId - START_ENEMY].enemyID;
+    morphItem = g_BattleWork.enemy[enemyId].morphItem;
+    if (morphItem == 0xFFFF) {
+        return;
+    }
+
+    if (g_BattleData.actors[g_CurrentAction->targetId].D_801636BC < 0x11) {
+        g_BattleData.actors[g_CurrentAction->targetId].D_801636BC = 7;
+    }
+
+    BattleQueueEvent(0, g_CurrentAction->actorId, 3, morphItem);
+    BattleAddStringToDisplay(g_CurrentAction->actorId, BATTLE_TEXT_MORPH_ITEM, 1, &morphItem);
+
+    g_BattleWork.turn[g_CurrentAction->targetId].turnFlags |= 0x10;
+}
 
 static void func_800A2EFC(void) {
     D_800F3950 = g_BattleActionQueueIndex;
@@ -4087,7 +4110,7 @@ void BattleApplyDamageAndChargeLimitGauge(void) {
         target->status |= STATUS_DEATH;
 
         if (g_CurrentAction->unk90 & 0x2000) {
-            func_800A2DB0();
+            BattleMorphEnemy();
         }
     }
 
