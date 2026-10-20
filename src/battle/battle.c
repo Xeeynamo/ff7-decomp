@@ -2362,8 +2362,8 @@ const s32 D_800A02A0[] = {
     0x3D3CFFFF, 0x41403F3E, 0xFFFFFF42, 0xFFFFFFFF, 0x43424140, 0x47464544, 0xFF444843, 0xFFFFFFFF};
 
 void BattlePrepareTmpForManip(void) {
-    g_CurrentAction->unk80[0] = 0x400000;
-    g_CurrentAction->unkE4 = 0x59;
+    g_CurrentAction->unk80[0] = STATUS_MANIPULATE;
+    g_CurrentAction->unkE4 = BATTLE_TEXT_CANNOT_MANIPULATE;
 }
 
 void BattleQueueIntroCamera(s32 arg0);
@@ -4874,7 +4874,7 @@ void BattleRollPhysicalHit();
 void BattleRollMagicalHit();
 static void BattleRollCriticalHit(void);
 static void BattleUpperFunc03();
-void BattleUpperFunc06();
+void BattleRollManipulateHit();
 static void BattleUpperFunc07(void);
 
 const BattleFormula g_BattleHitFormulaJmpTbl[] = {
@@ -4884,7 +4884,7 @@ const BattleFormula g_BattleHitFormulaJmpTbl[] = {
     /* 0x3 */ BattleUpperFunc03,
     /* 0x4 */ BattleUpperFunc03,
     /* 0x5 */ BattleUpperFunc03,
-    /* 0x6 */ BattleUpperFunc06,
+    /* 0x6 */ BattleRollManipulateHit,
     /* 0x7 */ BattleUpperFunc07,
 };
 // ___end
@@ -5609,7 +5609,67 @@ static void BattleUpperFunc07(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpperFunc06);
+void BattleRollManipulateHit(void) {
+    s32 targetId = g_CurrentAction->targetId;
+    s32 success = 0;
+    u16 msgArgs[2];
+    s32 chance;
+    s32 i;
+
+    // fails if a party member is already manipulating the target
+    for (i = 0; i < NUM_PARTY; i++) {
+        if (g_BattleWork.party[i].unk6 == targetId) {
+            break;
+        }
+    }
+
+    if (i == NUM_PARTY && targetId >= START_ENEMY && g_CurrentAction->actorId < NUM_PARTY &&
+        g_BattleWork.party[g_CurrentAction->actorId].unk6 == 0 &&
+        !(g_CurrentAction->targetStatus & STATUS_MANIPULATE) && g_BattleWork.turn[targetId].atbIncrement &&
+        !(g_CurrentAction->affinityFlags & AFFINITY_NULLIFY)) {
+        chance = 50 + g_CurrentAction->characterLevel - g_CurrentAction->targetLevel;
+        if (chance < 0) {
+            chance = 0;
+        }
+
+        // Mega-all adjustment: reduce accuracy if 2 or more enemies targetted
+        if (g_CurrentAction->unkB8 >= 2) {
+            chance = (chance * 4) / 5;
+        }
+
+        if (g_CurrentAction->unkAC) {
+            chance = chance >> 1;
+        }
+
+        if (g_CurrentAction->affinityFlags & AFFINITY_UNK2) {
+            chance = 255;
+        }
+
+        // accessory special effect 5: Hypno Crown
+        if (g_BattleWork.turn[g_CurrentAction->actorId].accessoryEffectId == 5 && chance < 100) {
+            chance = 100;
+        }
+
+        if (SysGetRandomByteRange(100) < chance) {
+            success = 1;
+        }
+    }
+
+    if (success) {
+        msgArgs[0] = targetId;
+        msgArgs[1] = 0xFFFF;
+
+        if (g_BattleWork.turn[targetId].formationIndex != 0xFF) {
+            msgArgs[1] = g_BattleWork.turn[targetId].formationIndex;
+        }
+
+        g_BattleWork.party[g_CurrentAction->actorId].unk6 = targetId;
+        BattleAddStringToDisplay(g_CurrentAction->actorId, BATTLE_TEXT_MANIPULATED, 1, msgArgs);
+        g_CurrentAction->unkE4 = -1;
+    } else {
+        g_CurrentAction->unk218 |= 1;
+    }
+}
 
 static void BattleUpperFunc03(void) {}
 
