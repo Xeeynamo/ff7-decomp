@@ -4839,7 +4839,61 @@ void BattleClearActorSlotReferences(s32 arg0, s32 arg1, s32 arg2) {
 void BattleInitUnitAction(s32 index);
 void func_800AF63C(s32 arg0) { BattleInitUnitAction(arg0); }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF65C);
+extern void (*g_BattleStatusChangeHandlers[])(s32, s32, s32);
+extern u8 g_BattleStatusGainHandlerIds[];
+extern u8 g_BattleStatusLossHandlerIds[];
+
+s32 BattleProcessStatusChanges(void) {
+    const s32 keepOnDeath = STATUS_DEATH | STATUS_FROG | STATUS_SMALL | STATUS_IMPRISONED;
+    s32 changed = 0;
+    s32 i;
+    s32 j;
+
+    // A dead unit loses every status except these and the ones in its statusProtectionMask
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        if (g_BattleState.combatant[i].status & STATUS_DEATH) {
+            g_BattleState.combatant[i].status &= g_BattleWork.turn[i].statusProtectionMask | keepOnDeath;
+        }
+    }
+
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        s32 status = g_BattleState.combatant[i].status;
+        s32 prevStatus = g_BattleState.combatant[i].prevStatus;
+        s32 handlersRun = 0;
+
+        g_BattleState.combatant[i].prevStatus = status;
+        if (g_BattleState.combatant[i].actorId == -1) {
+            continue;
+        }
+
+        if (prevStatus != status) {
+            s32 bit = 1;
+            s32 diff = prevStatus ^ status;
+
+            for (j = 0; j < 32; j++, bit <<= 1) {
+                if (bit & diff) {
+                    s32 gained = (bit & status) != 0;
+                    u8 handler = gained ? g_BattleStatusGainHandlerIds[j] : g_BattleStatusLossHandlerIds[j];
+                    if (handler != 0xFF) {
+                        // Status timers (13/14) run once per changed bit, other handlers at most once per unit
+                        s32 handlerBit = (1 << handler) & ~0x6000;
+
+                        if (!(handlersRun & handlerBit)) {
+                            handlersRun |= handlerBit;
+                            g_BattleStatusChangeHandlers[handler](i, j, gained);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (g_BattleState.combatant[i].prevStatus != g_BattleState.combatant[i].status) {
+            changed = 1;
+        }
+    }
+
+    return changed;
+}
 
 static s32 BattleStatusBitToTimerIndex(s32 statusBit) {
     s32 result;
