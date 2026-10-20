@@ -2864,9 +2864,11 @@ void func_800BE49C(void) {
     }
     angle = (u16)g_BattleCameraSlots[slotIndex].orbit.angleStep + (u16)g_BattleCameraSlots[slotIndex].orbit.angle;
     g_BattleCameraSlots[slotIndex].orbit.angleStep = angle;
-    D_80151844[category].x = ((rsin(angle) * g_BattleCameraSlots[slotIndex].orbit.radius) >> 9) + D_801518A4[category].x;
-    D_80151844[category].z = ((rcos(g_BattleCameraSlots[slotIndex].orbit.angleStep) * g_BattleCameraSlots[slotIndex].orbit.radius) >> 9) +
-                             D_801518A4[category].z;
+    D_80151844[category].x =
+        ((rsin(angle) * g_BattleCameraSlots[slotIndex].orbit.radius) >> 9) + D_801518A4[category].x;
+    D_80151844[category].z =
+        ((rcos(g_BattleCameraSlots[slotIndex].orbit.angleStep) * g_BattleCameraSlots[slotIndex].orbit.radius) >> 9) +
+        D_801518A4[category].z;
     D_80151844[category].y += (u16)g_BattleCameraSlots[slotIndex].orbit.heightStep;
     g_BattleCameraSlots[slotIndex].orbit.radius += g_BattleCameraSlots[slotIndex].orbit.radiusStep;
     g_BattleCameraSlots[slotIndex].orbit.frames--;
@@ -3133,10 +3135,7 @@ static void func_800C0480(s16 arg0) {
     slot->unk16 =
         ((func_800C03FC(slot->unk8 - slot->unkE, func_800C03B8(slot->unk8, slot->unkE)) + 1) * 0x10) / slot->unk4;
     slot->unk18 =
-        ((func_800C03FC(slot->unkA - slot->unk10, func_800C03B8(slot->unkA, slot->unk10)) +
-          1) *
-         0x10) /
-        slot->unk4;
+        ((func_800C03FC(slot->unkA - slot->unk10, func_800C03B8(slot->unkA, slot->unk10)) + 1) * 0x10) / slot->unk4;
 }
 
 static void func_800C0630(s16 slotIndex) {
@@ -3158,8 +3157,7 @@ static void func_800C0630(s16 slotIndex) {
     if (D_80151844[categoryIndex].unkD == 0) {
         D_80151844[slot->unk12].x = func_800C1304(slot->unkC, slot->unk6, slot->unk1A, slot->unk1E);
         D_80151844[slot->unk12].y = func_800C1304(slot->unkE, slot->unk8, slot->unk1A, slot->unk1E);
-        D_80151844[slot->unk12].z =
-            func_800C1304(slot->unk10, slot->unkA, slot->unk1A, slot->unk1E);
+        D_80151844[slot->unk12].z = func_800C1304(slot->unk10, slot->unkA, slot->unk1A, slot->unk1E);
         slot->unk1E = (s16)((u16)slot->unk1E + 1);
     } else {
         x = D_80151844[categoryIndex].x * 0x10;
@@ -3204,10 +3202,7 @@ static void func_800C0970(s16 arg0) {
     slot->unk16 =
         ((func_800C03FC(slot->unk8 - slot->unkE, func_800C03B8(slot->unk8, slot->unkE)) + 1) * 0x10) / slot->unk4;
     slot->unk18 =
-        ((func_800C03FC(slot->unkA - slot->unk10, func_800C03B8(slot->unkA, slot->unk10)) +
-          1) *
-         0x10) /
-        slot->unk4;
+        ((func_800C03FC(slot->unkA - slot->unk10, func_800C03B8(slot->unkA, slot->unk10)) + 1) * 0x10) / slot->unk4;
 }
 
 static void func_800C0B20(s16 slotIndex) {
@@ -3229,8 +3224,7 @@ static void func_800C0B20(s16 slotIndex) {
     if (D_801518A4[categoryIndex].flags == 0) {
         D_801518A4[slot->unk12].x = func_800C1304(slot->unkC, slot->unk6, slot->unk1A, slot->unk1E);
         D_801518A4[slot->unk12].y = func_800C1304(slot->unkE, slot->unk8, slot->unk1A, slot->unk1E);
-        D_801518A4[slot->unk12].z =
-            func_800C1304(slot->unk10, slot->unkA, slot->unk1A, slot->unk1E);
+        D_801518A4[slot->unk12].z = func_800C1304(slot->unk10, slot->unkA, slot->unk1A, slot->unk1E);
     } else {
         x = D_801518A4[categoryIndex].x * 0x10;
         CAMERA_SCRATCH(x) = x;
