@@ -5332,7 +5332,68 @@ static void BattleUpperFunc07(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleUpperFunc06);
+void BattleUpperFunc06(void) {
+    s32 targetId = g_CurrentAction->targetId;
+    s32 success = 0;
+    u16 msgArgs[2];
+    s32 chance;
+    s32 i;
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        if (g_BattleWork.party[i].unk6 == targetId) {
+            break;
+        }
+    }
+
+    if (i == 3 && targetId >= 4) {
+        s32 actorId = g_CurrentAction->actorId;
+
+        if (actorId < NUM_PARTY && g_BattleWork.party[actorId].unk6 == 0 &&
+            !(g_CurrentAction->targetStatus & STATUS_MANIPULATE) && g_BattleWork.turn[targetId].atbIncrement != 0) {
+            if (!(g_CurrentAction->affinityFlags & AFFINITY_NULLIFY)) {
+                chance = g_CurrentAction->characterLevel + 50 - g_CurrentAction->targetLevel;
+                if (chance < 0) {
+                    chance = 0;
+                }
+
+                if (g_CurrentAction->unkB8 >= 2) {
+                    chance = (chance * 4) / 5;
+                }
+
+                if (g_CurrentAction->unkAC) {
+                    chance = chance >> 1;
+                }
+
+                if (g_CurrentAction->affinityFlags & AFFINITY_UNK2) {
+                    chance = 255;
+                }
+
+                if (g_BattleWork.turn[actorId].accessoryEffectId == 5 && (chance < 100)) {
+                    chance = 100;
+                }
+
+                if (SysGetRandomByteRange(100) < chance) {
+                    success = 1;
+                }
+            }
+        }
+    }
+
+    if (success) {
+        msgArgs[0] = targetId;
+        msgArgs[1] = 0xFFFF;
+
+        if ((g_BattleWork.turn[targetId].formationIndex & 0xFF) != 0xFF) {
+            msgArgs[1] = g_BattleWork.turn[targetId].formationIndex;
+        }
+
+        g_BattleWork.party[g_CurrentAction->actorId].unk6 = targetId;
+        BattleAddStringToDisplay(g_CurrentAction->actorId, 0x5A, 1, msgArgs);
+        g_CurrentAction->unkE4 = -1;
+    } else {
+        g_CurrentAction->unk218 |= 1;
+    }
+}
 
 static void BattleUpperFunc03(void) {}
 
