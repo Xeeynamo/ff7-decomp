@@ -527,6 +527,9 @@ extern u8 D_800E7A58[];
 // BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
 
+// func_800AA738 uses this to remap some party command IDs under certain conditions
+extern u8 D_800E7BBC[7][2];
+
 extern u8 g_BattleFormulaModifierFlagsTable[16];
 
 typedef void (*BattleFormula)(void);
@@ -667,6 +670,7 @@ extern s32 g_BattlePartyEventReadIdx[];
 extern s32 g_BattlePartyEventWriteIdx[];
 extern s32 g_BattleHitFormulaOffs[];
 extern s32 D_800F4920;
+extern u16 D_800F4924[];
 extern u16 D_800F4938[];
 extern s8 D_800F494C[];
 extern u16 D_800F4958;
@@ -931,7 +935,7 @@ static s32 BattleAddMessageToStringBuffer(u8* src, u16* args);
 void BattleProcessEventQueue(s32);
 static void BattleSetActionEffect(s32 effectId, s32 effectModifier);
 void func_800A8E84(s32);
-void func_800AA950(BattleQueueTargetEntry*);
+void BattleResolveCover(BattleQueueTargetEntry*);
 void BattleResolveAffinityPreDamage(void);
 void BattleResolveAffinityPostDamage(void);
 static void BattleLearnEnemySkill(void);
@@ -940,7 +944,7 @@ void func_800AC6B4(s32);
 void BattleCalcTargStats(s32);
 void func_800ACA24(void);
 s32 func_800ACD88(s32);
-s32 func_800ACE88(void);
+s32 BattleRollStatusHit(void);
 static s32 BattleIsDamageNullified(s32);
 static void BattleQueueUnassignedResultDisplay(BattleQueueTargetEntry*);
 void BattleApplyDamageAndChargeLimitGauge(void);

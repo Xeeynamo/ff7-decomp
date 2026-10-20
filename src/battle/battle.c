@@ -2682,7 +2682,7 @@ void BattleActionType17(void) {
             }
 
             if (j == 12) {
-                textId = 0x57;
+                textId = BATTLE_TEXT_CANNOT_MIMIC;
                 animId = 0x35;
                 g_CurrentAction->unk98 = attackIndex;
                 msgArgs[1] = attackIndex + 0x80;
@@ -2707,7 +2707,7 @@ void BattleActionType17(void) {
     }
 
     if (textId == -1) {
-        textId = 0x58;
+        textId = BATTLE_TEXT_USELESS_IMITATION;
     }
 
     func_800A2CC4(animId);
@@ -2720,7 +2720,7 @@ void BattleActionType17(void) {
 }
 
 void BattleActionType18(void) {
-    g_CurrentAction->unk8C = 0xFF;
+    g_CurrentAction->statusChangeChance = 0xFF;
     g_CurrentAction->formulaIds = 0xB0;
     g_CurrentAction->unk80[0] |= 1;
     g_CurrentAction->attackPercent >>= 1;
@@ -2769,7 +2769,7 @@ static void SetActionStatusChange(u32 arg0, s32 statusMask) {
             g_BattleWork.imprisonedType = statusMask & 3;
         } else {
             mask = statusMask;
-            act->unk8C = chance;
+            act->statusChangeChance = chance;
             act->unk80[idx] = mask;
         }
     }
@@ -2979,11 +2979,340 @@ static s32 BattleGetRndOpponentBit(s32 arg0) {
     return BattleOpcodeGetRndBit(g_BattleData.unk14C & var_v0) & 0xFFFF;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA738);
+// Queues a battle action from the current action state
+void func_800AA738(s32 arg0) {
+    BattleActionQueueEntry* entry = BattleActionQueueAlloc();
+    s32 i;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AA950);
+    g_CurrentAction->unkB8 = SysCountActiveBits(arg0);
+    entry->actionId = g_CurrentAction->actorId;
+    entry->type = g_CurrentAction->unk1C;
+    entry->unk5 = g_CurrentAction->unk20;
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType09);
+    // Enemies with Frog use substitute ids for their attack
+    if (g_CurrentAction->actorId >= START_ENEMY && (g_CurrentAction->attackerStatus & STATUS_FROG) &&
+        entry->unk5 != 0x34) {
+        if (g_CurrentAction->cmdIndex == CMD_ENEMY_ATTACK && g_CurrentAction->unk24 == 0xFF) {
+            entry->unk5 = 0x14;
+        } else if (g_CurrentAction->cmdIndex <= CMD_ENEMY_ATTACK) {
+            entry->unk5 = 0x1D;
+        }
+    }
+
+    // Party actions remap some ids through D_800E7BBC under some unknown conditions
+    if (g_CurrentAction->actorId < NUM_PARTY && (g_CurrentAction->unkB8 >= 2 || (g_CurrentAction->unk90 & 0x20000))) {
+        for (i = 0; i < LEN(D_800E7BBC); i++) {
+            if (entry->unk5 == D_800E7BBC[i][0]) {
+                entry->unk5 = D_800E7BBC[i][1];
+                break;
+            }
+        }
+    }
+
+    entry->unk3 = g_CurrentAction->cmdIndex;
+    entry->unk2 = g_CurrentAction->unk24;
+    entry->unk8 = g_CurrentAction->unkB8 >= 2 ? g_CurrentAction->unk64 : g_CurrentAction->unk60;
+    entry->unk6 = g_CurrentAction->unk98;
+    entry->unk4 = 0;
+}
+
+// Selects a random eligible party member in the same zone to cover the targeted ally, and
+// redirects the attack to them
+void BattleResolveCover(BattleQueueTargetEntry* entry) {
+    const s32 coverBlockStatuses =
+        (STATUS_DEATH | STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_FROG | STATUS_SMALL | STATUS_PETRIFY |
+         STATUS_BERSERK | STATUS_PARALYSIS | STATUS_DARKNESS | STATUS_IMPRISONED);
+    s32 targetId = entry->targetId;
+    u16 targetZone;
+    s32 statuses;
+    s32 coverMask;
+    s32 i;
+    s32 j;
+
+    // Identify which zone the target is in
+    for (i = 0; i < LEN(g_BattleData.unitZoneMask); i++) {
+        targetZone = g_BattleData.unitZoneMask[i];
+        if ((targetZone >> targetId) & 1) {
+            break;
+        }
+    }
+
+    if (targetId >= NUM_PARTY) {
+        return;
+    }
+
+    if (g_CurrentAction->power == 0) {
+        return;
+    }
+
+    if (targetId == g_CurrentAction->actorId) {
+        return;
+    }
+
+    if (g_CurrentAction->unkB8 != 1) {
+        return;
+    }
+
+    statuses = g_CurrentAction->unk80[0] | g_CurrentAction->unk80[1] | g_CurrentAction->unk80[2];
+    if (g_CurrentAction->attackFlags & 4 || statuses & STATUS_FROG) {
+        return;
+    }
+
+    if (g_CurrentAction->cmdIndex == CMD_ENEMY_ATTACK && g_CurrentAction->unk24 != 0xFF) {
+        return;
+    }
+
+    coverMask = 0;
+    for (j = 0; j < NUM_PARTY; j++) {
+        if (!(g_BattleWork.turn[j].turnFlags & 8) && (targetZone >> j) & 1) {
+            s32 coverChance = g_ActiveCharacters[j].coverChance;
+            if (!coverChance) {
+                continue;
+            }
+
+            if (g_CurrentAction->actorId == j || targetId == j) {
+                continue;
+            }
+
+            if (g_BattleState.combatant[j].status & coverBlockStatuses) {
+                continue;
+            }
+
+            if ((u8)SysGetRandomByteRange(100) < coverChance) {
+                coverMask |= 1 << j;
+            }
+        }
+    }
+
+    coverMask = SysSelectRandomBit(coverMask & g_BattleState.playerUnitMask);
+    if (coverMask) {
+        entry->targetId = SysGetLsbNumber(coverMask);
+        entry->attackerId = targetId;
+        g_BattleState.combatant[entry->targetId].coverTargetSlot = g_BattleState.combatant[targetId].formationIndex;
+    }
+}
+
+static void BattleDropDyingEnemiesFromTargets(void);
+static void func_800AB9C4(s32 arg0, s32 arg1);
+static void BattleMainDmgCalculation(s32 arg0, s32 arg1);
+
+void BattleActionType09(void) {
+    s32 i;
+
+    D_800F4920 = 0;
+
+    if (g_CurrentAction->unk20 == -1) {
+        return;
+    }
+
+    if (g_CurrentAction->unkDC != -1) {
+        func_800ACA4C(g_CurrentAction->unkDC);
+        return;
+    }
+
+    if (g_CurrentAction->cmdIndex <= CMD_ENEMY_ATTACK && func_800ACB98()) {
+        return;
+    }
+
+    if (g_CurrentAction->unkF0) {
+        func_800A2B28(g_CurrentAction->unkF0);
+    }
+
+    g_CurrentAction->unkEC = g_CurrentAction->allowedTargetsMask;
+    g_CurrentAction->unkC4 = g_CurrentAction->power;
+    g_CurrentAction->unkB4--;
+
+    while (g_CurrentAction->unkB4 != -1) {
+        for (i = 0; i < LEN(g_CurrentAction->unkD0); i++) {
+            s32 unkD0 = g_CurrentAction->unkD0[i];
+            if (unkD0 == 0xFF) {
+                continue;
+            }
+
+            g_CurrentAction->unkD0[i] = 0xFF;
+            g_CurrentAction->absoluteActionIndex = unkD0 & ~0x80;
+            g_CurrentAction->unk98 = unkD0 & ~0x80;
+            g_CurrentAction->targetFlags = 0xFF;
+
+            func_800A8E34();
+            if (unkD0 & 0x80) {
+                g_CurrentAction->attackFlags &= ~0x2000;
+            }
+            break;
+        }
+
+        D_800F4958 = 0;
+
+        g_CurrentAction->allowedTargetsMask = g_CurrentAction->unkEC;
+        g_CurrentAction->unkFC = g_CurrentAction->unkB0;
+
+        func_800AF9C8();
+        BattleDropDyingEnemiesFromTargets();
+
+        if (g_CurrentAction->unk90 & 0x80000) {
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                if (((g_CurrentAction->allowedTargetsMask >> i) & 1) &&
+                    (g_BattleState.combatant[i].status & STATUS_DEATH)) {
+                    g_CurrentAction->allowedTargetsMask = g_CurrentAction->allowedTargetsMask & ~(1 << i);
+                }
+            }
+            if (!g_CurrentAction->allowedTargetsMask) {
+                func_800A2CC4(g_CurrentAction->unk20);
+                break;
+            }
+        } else if (!g_CurrentAction->allowedTargetsMask) {
+            func_800ACA4C(g_CurrentAction->unkDC);
+            break;
+        }
+
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            D_800F4938[i] = 0;
+            D_800F494C[i] = -1;
+        }
+
+        BattleSetFormulaAndBaseDmg();
+
+        D_800F4920 |= 9;
+        D_800F4938[g_CurrentAction->actorId] = g_CurrentAction->allowedTargetsMask;
+
+        while (D_800F4920 & 1) {
+            if (D_800F4920 & 6) {
+                D_800F4920 &= ~2;
+
+                if (g_CurrentAction->cmdIndex != CMD_SUMMON) {
+                    g_CurrentAction->unk1C = 3;
+                }
+            }
+
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                D_800F4924[i] = D_800F4938[i];
+                D_800F4938[i] = 0;
+            }
+
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                s32 mask = D_800F4924[i];
+
+                if (!mask) {
+                    continue;
+                }
+
+                g_CurrentAction->unkF4 = i;
+                g_CurrentAction->landedHitCount = 0;
+                g_CurrentAction->unkB0 = g_CurrentAction->unkFC;
+
+                func_800A2EFC();
+                func_800AA738(mask);
+
+                while (1) {
+                    const s32 multiTargetFlags = TARGET_TOGGLE_MULTIPLE | TARGET_MULTIPLE_DEFAULT;
+                    s32 pickRnd = g_CurrentAction->unkB0 != 0;
+                    s32 j;
+
+                    g_CurrentAction->allowedTargetsMask = mask;
+                    if (g_CurrentAction->unkAC &&
+                        (g_CurrentAction->targetFlags & multiTargetFlags) != TARGET_MULTIPLE_DEFAULT) {
+                        pickRnd = 1;
+                    }
+
+                    if (g_CurrentAction->targetFlags & TARGET_RANDOM) {
+                        pickRnd = 1;
+                    }
+
+                    if (g_CurrentAction->cmdIndex == CMD_SUMMON) {
+                        pickRnd = 0;
+                    }
+
+                    if (pickRnd) {
+                        g_CurrentAction->allowedTargetsMask = SysSelectRandomBit(g_CurrentAction->allowedTargetsMask);
+                    }
+
+                    for (j = 0; j < NUM_BATTLE_ACTOR; j++) {
+                        if ((g_CurrentAction->allowedTargetsMask >> j) & 1) {
+                            BattleMainDmgCalculation(i, j);
+                        }
+                    }
+
+                    if (g_CurrentAction->unkB0 == 0 || --g_CurrentAction->unkB0 == 0) {
+                        break;
+                    }
+                }
+
+                func_800A317C();
+                func_800A8E84(5);
+            }
+
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                if (g_BattleWork.turn[i].action09Data1) {
+                    func_800AB9C4(i, 0);
+                }
+
+                if (g_BattleWork.turn[i].action09Data2) {
+                    func_800AB9C4(i, 1);
+                }
+            }
+
+            if (!(D_800F4920 & 2)) {
+                if (g_CurrentAction->unkAC) {
+                    g_CurrentAction->unkAC--;
+                }
+
+                if (g_CurrentAction->unkAC) {
+                    s32 allowedMask = g_CurrentAction->allowedTargetsMask;
+                    if (g_CurrentAction->cmdIndex == CMD_SUMMON) {
+                        allowedMask = g_BattleData.unk14C & 0x3F0;
+                    }
+
+                    if (allowedMask) {
+                        s32 k;
+                        for (k = 0; k < NUM_BATTLE_ACTOR; k++) {
+                            if (g_BattleState.combatant[k].status & STATUS_DEATH) {
+                                allowedMask &= ~(1 << k);
+                            }
+                        }
+
+                        D_800F4938[g_CurrentAction->actorId] = allowedMask;
+                        if (!allowedMask) {
+                            g_CurrentAction->unkAC = 0;
+                        }
+                    }
+                }
+                if (g_CurrentAction->unkAC) {
+                    D_800F4920 |= 4;
+                } else {
+                    D_800F4920 &= ~1;
+                }
+            }
+
+            if (g_CurrentAction->unk90 & 0x1000) {
+                g_CurrentAction->unk60 = -4;
+            } else {
+                g_CurrentAction->unk60 = -1;
+            }
+            g_CurrentAction->unk64 = g_CurrentAction->unk60;
+        }
+
+        if (g_CurrentAction->unk20 == 24) {
+            g_CurrentAction->unk20 = 0x19;
+        } else if (g_CurrentAction->unk20 == 25) {
+            g_CurrentAction->unk20 = 0x1A;
+        } else if (g_CurrentAction->unk20 == 26) {
+            g_CurrentAction->unk20 = 0x1B;
+        } else if (g_CurrentAction->unk20 == 22) {
+            g_CurrentAction->unk20 = 0x17;
+            g_CurrentAction->unkEC = g_CurrentAction->allowedTargetsMask;
+        }
+
+        g_CurrentAction->unkB4--;
+    }
+
+    if (g_CurrentAction->unk90 & 0x10000) {
+        func_800A2CC4(0x47);
+    }
+
+    if (g_CurrentAction->unkE4 != -1) {
+        BattleQueueIntroCamera(g_CurrentAction->unkE4);
+    }
+}
 
 void BattleResolveAffinityPreDamage(void) {
     s32 tmp;
@@ -3205,7 +3534,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     act->attackerId = arg0;
     act->flags = 0;
     g_BattleState.combatant[arg1].coverTargetSlot = 0xFF;
-    func_800AA950(act);
+    BattleResolveCover(act);
     BattleCalcTargStats(act->targetId);
     if (act->targetId != arg1) {
         // target got redirected (e.g. covered by another actor) -- flag it
@@ -3251,8 +3580,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     }
 
     if (!(g_CurrentAction->unk218 & 1)) {
-        // hit actually lands on the target
-        g_CurrentAction->unkE0++;
+        g_CurrentAction->landedHitCount++;
         act->flags |= 1;
         func_800A8E84(4);
         if (g_CurrentAction->actorId != arg1) {
@@ -3499,7 +3827,7 @@ void BattleCalcTargStats(s32 arg0) {
         g_CurrentAction->hurtAnimScript = 0x33;
     }
 
-    if (func_800ACE88()) {
+    if (BattleRollStatusHit()) {
         g_CurrentAction->unk244 = 0;
         for (i = 0; i < 3; i++) {
             g_CurrentAction->unk238[i] = g_CurrentAction->unk80[i];
@@ -3674,7 +4002,72 @@ static s32 BattleIsDamageNullified(s32 arg0) {
     return func_800ACD88(arg0) != 0 || (g_BattleState.combatant[arg0].status & (STATUS_PEERLESS | STATUS_PETRIFY)) != 0;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACE88);
+// Decides whether the current action's status changes land on the current target.
+// Returns 1 if they do, 0 otherwise. Some cases skip the roll entirely.
+s32 BattleRollStatusHit(void) {
+    s32 chance;
+    s32 levelDiff;
+    s32 statDiff;
+    s32 mask;
+    s32 result;
+
+    chance = g_CurrentAction->statusChangeChance;
+
+    // These two calculations are unused, but needed for match. The levelDiff calculation and the
+    // branch below don't appear in the target asm at all (recovered from the PC port's disassembly).
+    levelDiff = g_CurrentAction->characterLevel - g_CurrentAction->targetLevel;
+    statDiff = g_BattleState.combatant[g_CurrentAction->actorId].magAttack -
+               g_BattleState.combatant[g_CurrentAction->targetId].magDefence;
+
+    mask = g_CurrentAction->unk80[0] | g_CurrentAction->unk80[1] | g_CurrentAction->unk80[2];
+    result = 1;
+
+    // Also dead code - GCC strips this and leaves only indirect traces
+    if (g_CurrentAction->characterLevel < g_CurrentAction->targetLevel) {
+        levelDiff *= 2;
+        statDiff /= 16;
+    } else {
+        levelDiff /= 2;
+        statDiff /= 8;
+    }
+
+    if ((g_CurrentAction->targetStatus & STATUS_FROG) == mask) {
+        chance = 252;
+    }
+
+    if ((g_CurrentAction->targetStatus & STATUS_SMALL) == mask) {
+        chance = 252;
+    }
+
+    if (g_CurrentAction->targetId < NUM_PARTY && (mask & (STATUS_HASTE | STATUS_SHIELD | STATUS_BERSERK))) {
+        chance = 252;
+    }
+
+    if (chance < 252) {
+        const s32 multiTargetFlags = TARGET_MULTIPLE_DEFAULT | TARGET_TOGGLE_MULTIPLE;
+
+        chance += chance * g_CurrentAction->unkE8 / 100;
+
+        if (((g_CurrentAction->targetFlags & multiTargetFlags) != TARGET_MULTIPLE_DEFAULT) &&
+            (g_CurrentAction->unkB8 >= 2)) {
+            chance = (chance * 2) / 3;
+        }
+
+        if (g_CurrentAction->unkAC != 0) {
+            chance >>= 1;
+        }
+
+        if ((u8)SysGetRandomByteRange(100) + 1 >= chance) {
+            result = 0;
+        }
+    }
+
+    if ((mask & STATUS_DEATH) && ((g_BattleWork.unk2214 >> g_CurrentAction->targetId) & 1)) {
+        result = 0;
+    }
+
+    return result;
+}
 
 // arg0 never got a ring slot from BattleAllocImpactData (still unassigned) --
 // queue a placeholder display entry via BattleCreateImpactData anyway. targetProtectionStatus here
