@@ -527,6 +527,9 @@ extern u8 D_800E7A58[];
 // BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
 
+// func_800AA738 uses this to remap some party command IDs under certain conditions
+extern u8 D_800E7BBC[7][2];
+
 extern u8 g_BattleFormulaModifierFlagsTable[16];
 
 typedef void (*BattleFormula)(void);
