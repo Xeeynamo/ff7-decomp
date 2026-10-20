@@ -730,7 +730,7 @@ typedef struct Unk800A8D04 {
     /* 0x078 */ s32 unk78;
     /* 0x07C */ s32 unk7C;
     /* 0x080 */ s32 unk80[3];
-    /* 0x08C */ s32 unk8C;
+    /* 0x08C */ s32 statusChangeChance;
     /* 0x090 */ s32 unk90;
     /* 0x094 */ s32 unk94;
     /* 0x098 */ s32 unk98;

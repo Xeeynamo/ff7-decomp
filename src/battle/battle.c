@@ -2697,7 +2697,7 @@ void BattleActionType17(void) {
 }
 
 void BattleActionType18(void) {
-    g_CurrentAction->unk8C = 0xFF;
+    g_CurrentAction->statusChangeChance = 0xFF;
     g_CurrentAction->formulaIds = 0xB0;
     g_CurrentAction->unk80[0] |= 1;
     g_CurrentAction->attackPercent >>= 1;
@@ -2746,7 +2746,7 @@ static void SetActionStatusChange(u32 arg0, s32 statusMask) {
             g_BattleWork.imprisonedType = statusMask & 3;
         } else {
             mask = statusMask;
-            act->unk8C = chance;
+            act->statusChangeChance = chance;
             act->unk80[idx] = mask;
         }
     }
@@ -3476,7 +3476,7 @@ void BattleCalcTargStats(s32 arg0) {
         g_CurrentAction->hurtAnimScript = 0x33;
     }
 
-    if (func_800ACE88()) {
+    if (BattleRollStatusHit()) {
         g_CurrentAction->unk244 = 0;
         for (i = 0; i < 3; i++) {
             g_CurrentAction->unk238[i] = g_CurrentAction->unk80[i];
@@ -3651,7 +3651,72 @@ static s32 BattleIsDamageNullified(s32 arg0) {
     return func_800ACD88(arg0) != 0 || (g_BattleState.combatant[arg0].status & (STATUS_PEERLESS | STATUS_PETRIFY)) != 0;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800ACE88);
+// Decides whether the current action's status changes land on the current target.
+// Returns 1 if they do, 0 otherwise. Some cases skip the roll entirely.
+s32 BattleRollStatusHit(void) {
+    s32 chance;
+    s32 levelDiff;
+    s32 statDiff;
+    s32 mask;
+    s32 result;
+
+    chance = g_CurrentAction->statusChangeChance;
+
+    // These two calculations are unused, but needed for match. The levelDiff calculation and the
+    // branch below don't appear in the target asm at all (recovered from the PC port's disassembly).
+    levelDiff = g_CurrentAction->characterLevel - g_CurrentAction->targetLevel;
+    statDiff = g_BattleState.combatant[g_CurrentAction->actorId].magAttack -
+               g_BattleState.combatant[g_CurrentAction->targetId].magDefence;
+
+    mask = g_CurrentAction->unk80[0] | g_CurrentAction->unk80[1] | g_CurrentAction->unk80[2];
+    result = 1;
+
+    // Also dead code - GCC strips this and leaves only indirect traces
+    if (g_CurrentAction->characterLevel < g_CurrentAction->targetLevel) {
+        levelDiff *= 2;
+        statDiff /= 16;
+    } else {
+        levelDiff /= 2;
+        statDiff /= 8;
+    }
+
+    if ((g_CurrentAction->targetStatus & STATUS_FROG) == mask) {
+        chance = 252;
+    }
+
+    if ((g_CurrentAction->targetStatus & STATUS_SMALL) == mask) {
+        chance = 252;
+    }
+
+    if (g_CurrentAction->targetId < NUM_PARTY && (mask & (STATUS_HASTE | STATUS_SHIELD | STATUS_BERSERK))) {
+        chance = 252;
+    }
+
+    if (chance < 252) {
+        const s32 multiTargetFlags = TARGET_MULTIPLE_DEFAULT | TARGET_TOGGLE_MULTIPLE;
+
+        chance += chance * g_CurrentAction->unkE8 / 100;
+
+        if (((g_CurrentAction->targetFlags & multiTargetFlags) != TARGET_MULTIPLE_DEFAULT) &&
+            (g_CurrentAction->unkB8 >= 2)) {
+            chance = (chance * 2) / 3;
+        }
+
+        if (g_CurrentAction->unkAC != 0) {
+            chance >>= 1;
+        }
+
+        if ((u8)SysGetRandomByteRange(100) + 1 >= chance) {
+            result = 0;
+        }
+    }
+
+    if ((mask & STATUS_DEATH) && ((g_BattleWork.unk2214 >> g_CurrentAction->targetId) & 1)) {
+        result = 0;
+    }
+
+    return result;
+}
 
 // arg0 never got a ring slot from BattleAllocImpactData (still unassigned) --
 // queue a placeholder display entry via BattleCreateImpactData anyway. targetProtectionStatus here
