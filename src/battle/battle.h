@@ -71,6 +71,9 @@ typedef enum {
     BATTLE_TEXT_RECEIVED_ITEM = 0x52,
     BATTLE_TEXT_ITEM_STOLEN = 0x53,
     BATTLE_TEXT_RECEIVED_GIL = 0x54,
+    BATTLE_TEXT_MORPH_ITEM = 0x56,
+    BATTLE_TEXT_CANNOT_MIMIC = 0x57,
+    BATTLE_TEXT_USELESS_IMITATION = 0x58,
     BATTLE_TEXT_CANNOT_MANIPULATE = 0x59,
     BATTLE_TEXT_MANIPULATED = 0x5A,
     BATTLE_TEXT_NOT_ENOUGH_MP = 0x5B,
@@ -752,7 +755,7 @@ typedef struct Unk800A8D04 {
     /* 0x0D0 */ u8 unkD0[8];
     /* 0x0D8 */ s32 unkD8;
     /* 0x0DC */ s32 unkDC;
-    /* 0x0E0 */ s32 unkE0;
+    /* 0x0E0 */ s32 landedHitCount;
     /* 0x0E4 */ s32 unkE4;
     /* 0x0E8 */ s32 unkE8;
     /* 0x0EC */ s32 unkEC;

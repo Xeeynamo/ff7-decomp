@@ -527,6 +527,9 @@ extern u8 D_800E7A58[];
 // BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
 
+// func_800AA738 uses this to remap some party command IDs under certain conditions
+extern u8 D_800E7BBC[7][2];
+
 extern u8 g_BattleFormulaModifierFlagsTable[16];
 
 typedef void (*BattleFormula)(void);
@@ -667,6 +670,7 @@ extern s32 g_BattlePartyEventReadIdx[];
 extern s32 g_BattlePartyEventWriteIdx[];
 extern s32 g_BattleHitFormulaOffs[];
 extern s32 D_800F4920;
+extern u16 D_800F4924[];
 extern u16 D_800F4938[];
 extern s8 D_800F494C[];
 extern u16 D_800F4958;
@@ -919,7 +923,7 @@ extern s8 D_80166F64;
 extern u8 D_80166F68;
 extern u16 g_BattleScreenFadeR;
 
-void func_800A2DB0(void);
+void BattleMorphEnemy(void);
 void BattleQueuePendingAction(s16, s16, s16, u16);
 void func_800A3534(s32 unused, s16 index);
 static void func_800A4D2C(s32 arg0);
