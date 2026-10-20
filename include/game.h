@@ -665,9 +665,8 @@ typedef struct {
     /* 0x02 */ u8 impactAnimID;
     /* 0x03 */ u8 pad3;
     /* 0x04 */ u16 mpCost;
-    /* 0x06 */ u16 impactSfxID;
-    /* 0x08 */ u16 cameraSingleID;
-    /* 0x0A */ u16 cameraMultiID;
+    /* 0x06 */ s16 impactSfxID;
+    /* 0x08 */ u16 cameraIDs[2]; // [0] single target, [1] multiple targets
     /* 0x0C */ u8 targetFlags;
     /* 0x0D */ u8 attackEffectID;
     /* 0x0E */ u8 damageCalcID; // Packed byte contains hit and damage formulas (hit formula << 4 | damage formula)
@@ -842,11 +841,7 @@ typedef struct {
     /* 03 */ u8 unk3[3];
     /* 06 */ u8 activeLimits;
     /* 07 */ u8 unk7;
-    /* 08 */ struct {
-        u8 unk0[0xC];
-        u8 unkC;
-        u8 unkD[0xF];
-    } limitData[3];
+    /* 08 */ AttackData limitData[3];
 } BattleLimitData; // size:0x5C
 
 // ActiveCharacterData.characterFlags bits.

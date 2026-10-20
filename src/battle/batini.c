@@ -594,7 +594,7 @@ static void BattleInitLimits(s32 charId, s32 learnedLimits, BattleLimitData* dat
                 SysSetEngineErrorCode(0x26);
             } else if ((learnedLimits >> j) & 1) {
                 activeLimits++;
-                data->unk3[i] = data->limitData[i].unkC;
+                data->unk3[i] = data->limitData[i].targetFlags;
             }
         }
     }
@@ -871,7 +871,7 @@ static void BattleInitItemList(void) {
             count = (u32)id >> 9;
             id &= 0x1FF;
             if (id < 0x80) {
-                flags = D_800722CC[id].cameraMultiID & 0xB;
+                flags = D_800722CC[id].cameraIDs[1] & 0xB;
                 targetFlags = D_800722CC[id].targetFlags;
             } else if (id < 0x100) {
                 flags = g_WeaponTable[id - 0x80].restrictionMask & 0xB;
