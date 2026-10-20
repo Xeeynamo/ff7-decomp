@@ -919,7 +919,7 @@ extern s8 D_80166F64;
 extern u8 D_80166F68;
 extern u16 g_BattleScreenFadeR;
 
-void func_800A2DB0(void);
+void BattleMorphEnemy(void);
 void BattleQueuePendingAction(s16, s16, s16, u16);
 void func_800A3534(s32 unused, s16 index);
 static void func_800A4D2C(s32 arg0);
