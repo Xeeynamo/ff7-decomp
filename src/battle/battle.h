@@ -750,7 +750,7 @@ typedef struct Unk800A8D04 {
     /* 0x0D0 */ u8 unkD0[8];
     /* 0x0D8 */ s32 unkD8;
     /* 0x0DC */ s32 unkDC;
-    /* 0x0E0 */ s32 unkE0;
+    /* 0x0E0 */ s32 landedHitCount;
     /* 0x0E4 */ s32 unkE4;
     /* 0x0E8 */ s32 unkE8;
     /* 0x0EC */ s32 unkEC;

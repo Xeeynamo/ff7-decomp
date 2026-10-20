@@ -3116,6 +3116,7 @@ void BattleActionType09(void) {
 
         D_800F4920 |= 9;
         D_800F4938[g_CurrentAction->actorId] = g_CurrentAction->allowedTargetsMask;
+
         while (D_800F4920 & 1) {
             if (D_800F4920 & 6) {
                 D_800F4920 &= ~2;
@@ -3138,7 +3139,7 @@ void BattleActionType09(void) {
                 }
 
                 g_CurrentAction->unkF4 = i;
-                g_CurrentAction->unkE0 = 0;
+                g_CurrentAction->landedHitCount = 0;
                 g_CurrentAction->unkB0 = g_CurrentAction->unkFC;
 
                 func_800A2EFC();
@@ -3154,9 +3155,11 @@ void BattleActionType09(void) {
                         (g_CurrentAction->targetFlags & multiTargetFlags) != TARGET_MULTIPLE_DEFAULT) {
                         pickRnd = 1;
                     }
+
                     if (g_CurrentAction->targetFlags & TARGET_RANDOM) {
                         pickRnd = 1;
                     }
+
                     if (g_CurrentAction->cmdIndex == CMD_SUMMON) {
                         pickRnd = 0;
                     }
@@ -3194,6 +3197,7 @@ void BattleActionType09(void) {
                 if (g_CurrentAction->unkAC) {
                     g_CurrentAction->unkAC--;
                 }
+
                 if (g_CurrentAction->unkAC) {
                     s32 allowedMask = g_CurrentAction->allowedTargetsMask;
                     if (g_CurrentAction->cmdIndex == CMD_SUMMON) {
@@ -3518,8 +3522,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     }
 
     if (!(g_CurrentAction->unk218 & 1)) {
-        // hit actually lands on the target
-        g_CurrentAction->unkE0++;
+        g_CurrentAction->landedHitCount++;
         act->flags |= 1;
         func_800A8E84(4);
         if (g_CurrentAction->actorId != arg1) {
