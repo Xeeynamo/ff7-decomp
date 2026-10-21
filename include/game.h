@@ -50,6 +50,7 @@
 #define SUMMON_END (SUMMON_START + NUM_SUMMONS)
 #define ENEMY_SKILL_START SUMMON_END
 #define ENEMY_SKILL_END (ENEMY_SKILL_START + NUM_ENEMY_SKILLS)
+#define LIMIT_START 0x80
 
 #define KAWAI_READ_S16(params, offset) ((s16)((((params)[(offset) + 1] << 8) & 0xFF00) | ((params)[(offset)] & 0xFF)))
 #define KAWAI_READ_S32(params, offset)                                                                                 \
@@ -659,6 +660,13 @@ typedef struct {
     u16 cameraMovementMultipleTargets;
 } BattleCommandData; // size: 0x8
 
+// Used with AttackData.cameraIDs[]
+typedef enum {
+    BATTLE_ATK_CAMERA_SINGLE,
+    BATTLE_ATK_CAMERA_MULTI,
+    NUM_BATTLE_ATK_CAMERAS,
+} BattleAttackCameraIndex;
+
 typedef struct {
     /* 0x00 */ u8 accuracyRate;
     /* 0x01 */ u8 impactEffectID;
@@ -666,7 +674,7 @@ typedef struct {
     /* 0x03 */ u8 pad3;
     /* 0x04 */ u16 mpCost;
     /* 0x06 */ s16 impactSfxID;
-    /* 0x08 */ u16 cameraIDs[2]; // [0] single target, [1] multiple targets
+    /* 0x08 */ u16 cameraIDs[NUM_BATTLE_ATK_CAMERAS]; // Use BattleAttackCameraIndex
     /* 0x0C */ u8 targetFlags;
     /* 0x0D */ u8 attackEffectID;
     /* 0x0E */ u8 damageCalcID; // Packed byte contains hit and damage formulas (hit formula << 4 | damage formula)
@@ -838,7 +846,7 @@ typedef struct {
 // applied by BattleInitLimits, and the 0x1C-byte record behind each one.
 typedef struct {
     /* 00 */ u8 limitId[3];
-    /* 03 */ u8 unk3[3];
+    /* 03 */ u8 targetFlags[3];
     /* 06 */ u8 activeLimits;
     /* 07 */ u8 unk7;
     /* 08 */ AttackData limitData[3];

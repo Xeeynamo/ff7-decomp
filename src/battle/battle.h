@@ -703,10 +703,10 @@ typedef struct Unk800A8D04 {
     /* 0x000 */ s32 actorId;
     /* 0x004 */ s32 characterLevel;
     /* 0x008 */ s32 unk8;
-    /* 0x00C */ s32 unkC;
+    /* 0x00C */ s32 queuedCmdIndex;
     /* 0x010 */ s32 relativeActionIndex; // index within its own category (spell #, summon
                                          // #, etc) - see MAGIC_START in game.h for range defines
-    /* 0x014 */ s32 unk14;
+    /* 0x014 */ s32 enabledMagicIndex;   // -1 means unset
     /* 0x018 */ s32 allowedTargetsMask;
     /* 0x01C */ s32 unk1C;
     /* 0x020 */ s32 unk20; // pending message/animation id, -1 = none
@@ -718,7 +718,7 @@ typedef struct Unk800A8D04 {
                                          // in game.h for range defines
     /* 0x030 */ s32 unk30;
     /* 0x034 */ u8 unk34[4]; // character spacing array
-    /* 0x038 */ s32 unk38;
+    /* 0x038 */ s32 mpCost;
     /* 0x03C */ s32 attackPercent;
     /* 0x040 */ s32 formulaIds;
     /* 0x044 */ s32 elements;

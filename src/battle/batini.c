@@ -594,7 +594,7 @@ static void BattleInitLimits(s32 charId, s32 learnedLimits, BattleLimitData* dat
                 SysSetEngineErrorCode(0x26);
             } else if ((learnedLimits >> j) & 1) {
                 activeLimits++;
-                data->unk3[i] = data->limitData[i].targetFlags;
+                data->targetFlags[i] = data->limitData[i].targetFlags;
             }
         }
     }
