@@ -9,8 +9,6 @@ typedef struct {
     u16 colors[1];
 } BromStruct;
 
-extern volatile s16 g_GameState;
-
 void func_80014540(void);
 void func_80014578(s32 fileNo, void* dst, void (*cb)(void));
 void SystemCdWaitCallback(void (*cb)(void));
@@ -63,7 +61,7 @@ void BROM_Main(void) {
     D_80075DEC = 1;
     ScenePickerInit();
     ScenePickerMain();
-    if (g_BattleMode) {
+    if (g_BattleParams.mode) {
         g_GameState = GAMESTATE_BATTLE;
     } else {
         g_GameState = GAMESTATE_FIELD;
@@ -91,9 +89,9 @@ static void ScenePickerMain(void) {
     s32 buf;
     s32 n;
 
-    sceneId = D_800707BC.sceneId;
+    sceneId = g_BattleParams.sceneId;
     done = 0;
-    g_BattleMode = 0;
+    g_BattleParams.mode = 0;
     InputUpdateBattleKeyStates();
     InputUpdateBattleKeyStates();
     for (i = 0; i < NUM_PARTY; i++) {
@@ -126,7 +124,7 @@ static void ScenePickerMain(void) {
                 break;
             }
             if (pressed & (PAD_START | PAD_CIRCLE)) {
-                g_BattleMode = 0x8000;
+                g_BattleParams.mode = 0x8000;
                 done = 1;
                 break;
             }
@@ -187,7 +185,7 @@ static void ScenePickerMain(void) {
             VSync(2);
         }
     }
-    D_800707BC.sceneId = sceneId;
+    g_BattleParams.sceneId = sceneId;
 }
 
 static s32 SwapRGB(u16 color) {

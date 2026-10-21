@@ -26,47 +26,37 @@ const u8 g_BattleCmdOpcodeStream[] = {
 const s32 D_800A0108 = 21;
 const s32 D_800A010C[] = {2, 22, 3, 23, 4};
 
+void func_801B0000(void); // BATRES entry point
+
 // entrypoint
-void BattleInitMain(s32 sceneID);
-void BattleInitSetup(s32 sceneID);
-void BattleNextStartSeq(void);
-void BattleNormalStartSeq(void);
-// void SysGzipBinDecompress(GzHeader* src, u8* dst);
-
-s32 func_800AF65C(); // extern
-void func_801B0000();
-
-extern s32 D_801517B8;
-extern /*?*/ u8 D_80163790[]; //
-extern s16 g_GameState;
-
 void BATTLE_Main(void) {
     void (*fnBattleSetup)(s32);
     void (*fnBattleStart)(void);
     void (*fnBattleRunFrame)(void);
     s32 mask;
-    s32 temp_v1_2;
     s32 battleCount;
     s32 done;
     s32 sceneId;
     u16 prevMask;
     s32 i;
 
-    for (i = 0; i < START_ENEMY; i++) {
+    for (i = 0; i < LEN(Savemap.partyID); i++) {
         D_80163790[i] = Savemap.partyID[i];
     }
 
-    sceneId = D_800707BC.sceneId;
+    sceneId = g_BattleParams.sceneId;
     D_80062F14 = -1;
     D_801517B8 = 0;
-    g_BattleData.flags = D_800707BC.mode;
+    g_BattleData.flags = g_BattleParams.mode;
     battleCount = 0;
 
+    // One pass per battle; a battle can chain into the next scene
     while (sceneId != 0xFFFF) {
         battleCount++;
         D_80062F54 = sceneId;
-        D_800707BC.mode = 0;
+        g_BattleParams.mode = 0;
 
+        // Chained battles keep running battle frames while BATINI loads
         if (battleCount != 1) {
             fnBattleStart = BattleNextStartSeq;
             fnBattleRunFrame = BattleRunFrame;
@@ -77,12 +67,12 @@ void BATTLE_Main(void) {
             fnBattleSetup = BattleInitMain;
         }
 
-        func_80014578(6, (void*)0x801C0000, NULL);
+        func_80014578(BATTLE_BATINI, (void*)0x801C0000, NULL);
         SystemCdWaitCallback(fnBattleRunFrame);
-        SysGzipBinDecompress(0x801C0000, 0x801B0000);
+        SysGzipBinDecompress((GzHeader*)0x801C0000, (u8*)0x801B0000);
 
         fnBattleSetup(sceneId);
-        g_BattleState.setupFlags &= 0xFFFD;
+        g_BattleState.setupFlags &= ~0x2;
 
         for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
             g_BattleData.actors[i].status = g_BattleState.combatant[i].status & 0x0FFFFFFF;
@@ -92,7 +82,7 @@ void BATTLE_Main(void) {
 
         fnBattleStart();
 
-        for (i = 4; i < NUM_BATTLE_ACTOR; i++) {
+        for (i = START_ENEMY; i < NUM_BATTLE_ACTOR; i++) {
             if (g_BattleState.combatant[i].unk4F != 0xFF) {
                 func_800A4B3C(i, g_BattleState.combatant[i].unk4F);
             }
@@ -152,7 +142,8 @@ void BATTLE_Main(void) {
                 g_BattleWork.party[i].curMP = g_BattleState.combatant[i].curMP;
             }
 
-            g_BattleState.cycleFlags &= 0xFFDD;
+            // Flag a side with no unpetrified units left
+            g_BattleState.cycleFlags &= ~(0x20 | 0x2);
             mask = g_BattleData.unitPresentMask & ~g_BattleWork.petrifiedMask;
             if (!(mask & 0xF)) {
                 g_BattleState.cycleFlags |= 0x22;
@@ -160,10 +151,11 @@ void BATTLE_Main(void) {
                 g_BattleState.cycleFlags |= 0x20;
             }
 
+            // The countdown timer ran out
             if ((g_BattleData.flags & 2) && !Savemap.countdown_timer_seconds) {
                 g_BattleState.cycleFlags |= 0x30;
-                D_800707BC.mode |= 2;
-                g_BattleData.activeEncounter.setup.flags &= 0xFFF7;
+                g_BattleParams.mode |= 2;
+                g_BattleData.activeEncounter.setup.flags &= ~SETUP_NO_VICTORY_POSE;
             }
 
             if ((g_BattleState.setupFlags & 4) &&
@@ -192,17 +184,16 @@ void BATTLE_Main(void) {
         }
     }
 
-    func_80014578(8, (void*)0x801C0000, NULL);
+    func_80014578(BATTLE_BATRES, (void*)0x801C0000, NULL);
     SystemCdWaitCallback(BattleRunFrame);
-    SysGzipBinDecompress(0x801C0000, 0x801B0000);
-
+    SysGzipBinDecompress((GzHeader*)0x801C0000, (u8*)0x801B0000);
     func_801B0000();
 
-    for (i = 0; i < START_ENEMY; i++) {
+    for (i = 0; i < LEN(Savemap.partyID); i++) {
         Savemap.partyID[i] = D_80163790[i];
     }
 
-    g_GameState = 1;
+    g_GameState = GAMESTATE_FIELD;
 }
 
 // per-command opcode dispatcher: reads cmdIndex from the turn context
@@ -713,7 +704,7 @@ void func_800A3534(s32 unused, s16 index) {
     }
 }
 
-u16 func_800A35F8(void) {
+s32 func_800A35F8(void) {
     u16 result = 0xFFFF;
     s32 mask = 0;
     s32 type;

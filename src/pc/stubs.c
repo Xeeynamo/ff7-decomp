@@ -4,7 +4,6 @@
 #include "../battle/battle.h"
 #include "../main/cd.h"
 
-u16 g_BattleMode;
 s16 g_isFieldLoading;
 FieldState g_FieldState;
 SaveWork Savemap;
@@ -21,7 +20,7 @@ Unk80075D00* D_80075D00 = &D_80075DF0;
 DRAWENV* D_8007EBD0;
 DISPENV* D_8007EBD8;
 
-Unk800707BC D_800707BC;
+BattleParams g_BattleParams;
 u16 D_800716D0;
 CdlATV D_800698E4;     // CD audio volume
 int D_800698E8;        // LZS source sector

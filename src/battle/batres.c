@@ -31,7 +31,6 @@ extern StatGrowth D_80082484[][8];
 extern s32 D_8009D7D8;
 extern s32 D_8009D7DC;
 extern s32 D_8009D7E0;
-extern u8 D_80163790[]; // the char_id occupying each of the three party slots
 extern SavePartyMember D_80167938;
 
 void GivePartyMemberExp(SavePartyMember* c, s32 exp, s32 slot);

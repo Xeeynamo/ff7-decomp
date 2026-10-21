@@ -52,11 +52,6 @@ typedef enum {
     KERNEL_TEXT_INVALID = 0xFF
 } KernelTextBlockID;
 
-typedef struct {
-    s32 len; // decompressed length
-    s32 unk4;
-} GzHeader;
-
 extern u16 g_Pad0KeysPrev;
 extern u16 g_Pad1Keys;
 extern u16 g_Pad1KeysPrev;
@@ -119,7 +114,6 @@ extern s32 D_80095DD8;                     // LBA len for func_80014540
 void BROM_Main(void);                      // battle/brom entrypoint
 void BATTLE_Main(void);                    // battle/battle entrypoint
 
-void SysGzipBinDecompress(GzHeader* src, u8* dst);
 u16 SysGzipGetSize(void);
 u16 SaveCalcChecksum(u16 len, u8* data);
 u8* SysGetKernTextPtrByBlock(s32 arg0, s32 arg1, s32 arg2);

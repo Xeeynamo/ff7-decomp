@@ -35,7 +35,6 @@ extern s32 D_800730CC; // Field the world map was entered from
 extern u8* g_MenuTutorial;
 extern s32 SYS_GetDiskNo(void);
 extern s32 SysMenuShow(u8*);
-extern volatile s16 g_GameState;
 
 void AkaoPlaySoundEffect(u16 soundId) {
     g_AkaoCmd.opcode = AKAO_STOP_ALL_SOUNDS;
@@ -52,9 +51,9 @@ static void func_800111E4(void) {
     if (!(Savemap.memory_bank_4[97] & 0x30)) {
         AkaoPlaySoundEffect(SFX_BATTLE_SWIRL);
     }
-    D_800707BC.sceneId = g_FieldState.eventCmdParam;
-    D_800707BC.mode = g_FieldState.battleMode2;
-    D_800707BC.mode = D_800716D0 | D_800707BC.mode;
+    g_BattleParams.sceneId = g_FieldState.eventCmdParam;
+    g_BattleParams.mode = g_FieldState.battleMode2;
+    g_BattleParams.mode = D_800716D0 | g_BattleParams.mode;
     func_800146A4();
     D_800716D0 = 0;
 }
@@ -356,17 +355,17 @@ void main(void) {
                             D_80071744 = yama_field_field.loc;
                             D_80095DD8 = yama_field_field.len;
                             func_800111E4();
-                            if (D_800707BC.mode & 8) {
+                            if (g_BattleParams.mode & 8) {
                                 Savemap.memory_bank_1[26] += 1;
                                 if (!Savemap.memory_bank_1[26]) {
                                     Savemap.memory_bank_1[27] += 1;
                                 }
                             }
                         }
-                        if (D_800707BC.mode & 1) {
+                        if (g_BattleParams.mode & 1) {
                             if (!g_FieldState.battleMode1) {
                                 g_FieldState.eventCmd = EVTCMD_GAME_OVER;
-                                D_800707BC.mode = 0;
+                                g_BattleParams.mode = 0;
                             }
                         }
                         g_PrevGameState = GAMESTATE_BATTLE;
@@ -385,14 +384,14 @@ void main(void) {
                         D_80071744 = yama_world_world.loc;
                         D_80095DD8 = yama_world_world.len;
                         func_800111E4();
-                        if (D_800707BC.mode & 8) {
+                        if (g_BattleParams.mode & 8) {
                             Savemap.memory_bank_1[26] += 1;
                             if (!Savemap.memory_bank_1[26]) {
                                 Savemap.memory_bank_1[27] += 1;
                             }
                         } else if (
-                            D_800707BC.mode & 1 || (!Savemap.countdown_timer_seconds && D_80095DDC & 0x20000000)) {
-                            D_800707BC.mode = 0;
+                            g_BattleParams.mode & 1 || (!Savemap.countdown_timer_seconds && D_80095DDC & 0x20000000)) {
+                            g_BattleParams.mode = 0;
                             g_FieldState.eventCmd = EVTCMD_GAME_OVER;
                         } else if (D_80095DDC & 0x40000000) { // Yuffie battle
                             while (D_80095DD4) {

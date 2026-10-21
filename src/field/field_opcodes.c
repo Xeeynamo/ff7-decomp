@@ -7163,7 +7163,7 @@ static s32 OpcodeFuncBtrlt(void) {
         DebugPrintOpcode("btrlt", 2);
     }
 
-    FieldEventWriteMemoryS16(2, 2, g_BattleMode);
+    FieldEventWriteMemoryS16(2, 2, g_BattleParams.mode);
 
     PC_INC(3);
     return 0;

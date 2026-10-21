@@ -5814,7 +5814,7 @@ static void func_800B7B1C(s32 arg0) { Savemap.memory_bank_4[0xFC] = arg0; }
 
 static s32 func_800B7B2C(void) { return Savemap.memory_bank_4[0xFC]; }
 
-static s32 func_800B7B3C(void) { return (g_BattleMode >> 3) & 1; }
+static s32 func_800B7B3C(void) { return (g_BattleParams.mode >> 3) & 1; }
 
 // Enemy Lure/Away Modifier
 static s32 func_800B7B54(void) {

@@ -162,6 +162,11 @@ typedef struct {
     s32 len; // file size in bytes
 } Yamada;
 
+typedef struct {
+    s32 len; // decompressed length
+    s32 unk4;
+} GzHeader;
+
 typedef enum Lba {
     LBA_SYSTEM_CNF = 23,         // SYSTEM.CNF
     LBA_SOUND_INSTR_ALL = 219,   // SOUND/INSTR.ALL
@@ -1394,7 +1399,7 @@ typedef struct {
 typedef struct {
     u16 sceneId;
     u16 mode;
-} Unk800707BC;
+} BattleParams;
 
 typedef struct WindowData {
     u8* text;
@@ -1469,8 +1474,7 @@ extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
 extern u8 D_80070788;
 extern u8 g_MovieLock;
 extern u8 g_EntityToLine[48];
-extern Unk800707BC D_800707BC;
-extern u16 g_BattleMode;
+extern BattleParams g_BattleParams;
 extern u16 g_FieldWaitCounter[48];      // Used by WAIT opcode to pause script
 extern u16 g_SavedFieldScriptPC[48][8]; // Program counters of paused scripts
 extern s16 D_80071A5C;
@@ -1554,7 +1558,8 @@ extern u8 D_8009AD2C;
 extern u8 g_CharIdToEntity[9];
 extern u8 D_8009C540;
 extern FieldEntity* g_FieldModels; // loaded field models
-extern u8 g_FieldModelCount;       // number of allocated field models
+extern volatile s16 g_GameState;
+extern u8 g_FieldModelCount; // number of allocated field models
 extern FieldScriptHeader* g_FieldScripts;
 extern FieldState* g_pFieldState; // points to g_FieldState
 extern SaveWork Savemap;          // 0x8009C6E4
@@ -1588,6 +1593,7 @@ u32 SysAddSubWithMaxMinBound(u32 val, u32 addend, u32 max, u32 isAdd);
 void SysGiveApToEquippedMateria(s16 partyId, u16 ap);
 void func_80014578(s32 fileNo, void* dst, void (*cb)(void));
 void SystemCdWaitCallback(void (*cb)(void));
+void SysGzipBinDecompress(GzHeader* src, u8* dst);
 void SysLoadUncompressImg(u8* tim);
 s32 SysGetLsbNumber(u32 arg0);
 s32 SysSelectRandomBit(u32 mask);

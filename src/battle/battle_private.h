@@ -859,6 +859,7 @@ extern s16 D_800F3110;
 extern u8 D_800F3150; // btlmenu_prevLimitReadyMask
 extern u8 D_800F3163[];
 extern ModelScreenPos g_modelScreenPos[10];
+extern s32 D_801517B8; // incremented per action Mime queues (BattleActionType17)
 extern u8 D_801517BC;
 extern u8 D_801517C4;
 extern SVECTOR g_BattleCameraPos;
@@ -925,7 +926,11 @@ extern u16 g_BattleScreenFadeR;
 
 void BattleMorphEnemy(void);
 void BattleQueuePendingAction(s16, s16, s16, u16);
+static void func_800A345C(void);
 void func_800A3534(s32 unused, s16 index);
+s32 func_800A35F8(void);
+static s32 BattleRunEscapeSequence(void);
+static u8 func_800A4B3C(s32 index, s32 arg1);
 static void func_800A4D2C(s32 arg0);
 void BattleRefreshMenu(s32 arg0, s32 menuType);
 static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count);
@@ -981,6 +986,7 @@ void BattleApplyKillCountBonus(void);
 void BattleCalcMateriaSlotScore(void);
 static s32 func_800AE6C0(s32, s32, s32);
 void BattleCalcAffinityFlags(void);
+s32 func_800AF65C(void);
 s32 BattleGetStatusProtectionMask(s32, s32, s32);
 void func_800AF9C8(void);
 static s32 BattleUnitGetPendingConstTicks(s32 arg0);
@@ -994,6 +1000,8 @@ u16 BattleGetRndItemIdForSteal(void*, s32, s32, s32);
 static void BattleAddStringToDisplay(s32, s32, s32, s16*);
 static s32 BattleGetRnd164(void);
 s32 BattleOpcodeGetRndBit(u16);
+void BattleNormalStartSeq(void);
+void BattleNextStartSeq(void);
 void BattlePlayerModelsUpdateBonesPos(void);
 s32 BattleLoadEnemyModel(s32);
 void BattleLoadEnemyTexture(s32);

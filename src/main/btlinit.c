@@ -12,7 +12,7 @@ s32 D_80062F88;
 
 void SysBattleModeReset(void) {
     D_80062F88 = 0;
-    g_BattleMode = 0;
+    g_BattleParams.mode = 0;
 }
 
 extern u8 D_80063048;
