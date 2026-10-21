@@ -167,7 +167,7 @@ static void ThunderaSpawnBolt(void) {
             next->Pos = effect->Pos;
             next->Pos.vy = 0;
             next->DepthBias = effect->DepthBias;
-            func_800D5774(effect->TargetIndex);
+            BattleQueueTargetImpact(effect->TargetIndex);
         }
         frame = effect->AnimationFrame;
         if (frame < 21 && !(frame & 1)) {

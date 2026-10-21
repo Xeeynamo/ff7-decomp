@@ -126,7 +126,7 @@ void SennkokuHitTimeline(void) {
     }
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == APPLY_FRAME) {
-            func_800D5774(g_SennkokuTargetUnit);
+            BattleQueueTargetImpact(g_SennkokuTargetUnit);
         }
         effect->AnimationFrame++;
     }

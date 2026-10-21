@@ -107,7 +107,7 @@ static void RefrecAnimationUpdate(void) {
             next->ScaleStep = 0x1A0;
         }
         if (effect->AnimationFrame == 0x18) {
-            func_800D5774(effect->TargetIndex);
+            BattleQueueTargetImpact(effect->TargetIndex);
             effect->StartFrame = -1;
         }
         effect->AnimationFrame++;

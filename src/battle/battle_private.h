@@ -129,16 +129,26 @@ typedef struct {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ s16 framesLeft;
-    /* 0x06 */ s16 unk6;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ u8 unk10[8];
+    /* 0x06 */ s16 extraDataIndex;
+    /* 0x08 */ s16 target;
+    /* 0x0A */ s16 damage;
+    /* 0x0C */ s16 attacker;
+    /* 0x0E */ s16 damageFlags;
+    /* 0x10 */ s32 sfxId;
+    /* 0x14 */ s32 effectId; // -1 for none
     /* 0x18 */ u8 unk18;
-    /* 0x19 */ u8 unk19;
+    /* 0x19 */ u8 targetIndex;
     /* 0x1A */ u8 unk1A[6];
-} BattleRampSpawnSlot; // size:0x20
+} BattleImpactSlot; // size:0x20
+
+typedef struct {
+    /* 0x00 */ s16 cursor; // -1 once every target is sent
+    /* 0x02 */ s16 frame;
+    /* 0x04 */ s16 delay;
+    /* 0x06 */ s16 interval;
+    /* 0x08 */ s16 targetMask;
+    /* 0x0A */ u8 unkA[0x16];
+} BattleTargetEventSlot; // size:0x20
 
 typedef struct {
     u16 unk0;
@@ -321,9 +331,9 @@ typedef struct {
     /* 0x08 */ s16 screenY;
     /* 0x0A */ s16 baseY;
     /* 0x0C */ s16 frame;
-    /* 0x0E */ s16 unkE;
+    /* 0x0E */ s16 damage;
     /* 0x10 */ Union80162200 actor;
-    /* 0x14 */ s32 unk14;
+    /* 0x14 */ s32 damageFlags;
     /* 0x18 */ u8 unk18[8];
 } BattleDamagePopupSlot; // size:0x20
 
@@ -360,6 +370,14 @@ typedef struct {
 } BattleBlinkSlot; // size:0x20
 
 typedef struct {
+    /* 0x00 */ s16 id;
+    /* 0x02 */ s16 frame;
+    /* 0x04 */ s32* model;
+    /* 0x08 */ s16 actor;
+    /* 0x0A */ u8 unkA[0x16];
+} BattleActorFlashSlot; // size:0x20
+
+typedef struct {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 elapsed;
     /* 0x04 */ s16 unk4;
@@ -377,6 +395,7 @@ typedef union {
     BattleModelShakeSlot modelShake;
     BattleDelayedCleanupSlot delayedCleanup;
     BattleBlinkSlot blink;
+    BattleActorFlashSlot actorFlash;
     BattleSpriteEffectSlot spriteEffect;
     BattleHitFlashSlot hitFlash;
     Unk800D6D8CSlot unk800D6D8C;
@@ -399,7 +418,8 @@ typedef union {
     Unk80162978 raw; // kept around for accesses that haven't been typed yet
     MagicAnimationData magicAnimation;
     BattleRampRepeatSlot rampRepeat;
-    BattleRampSpawnSlot rampSpawn;
+    BattleImpactSlot impact;
+    BattleTargetEventSlot targetEvent;
     BattleModelScaleSlot modelScale;
 } BattleEffectSlot; // size:0x20
 
@@ -736,7 +756,7 @@ typedef struct {
 extern Unk800F7ED8 g_BattleCameraSlots[];
 extern s16 D_800F8182[];
 extern s16 g_BattleCameraCursor;
-extern s16 D_800F836C;
+extern s16 g_BattleReflectTargetMask;
 extern s16 D_800F8370;
 enum BattleEffectModelState {
     EFFECT_MODEL_STARTING = 0,
@@ -774,7 +794,7 @@ extern u8 D_800F9D9C;
 extern u16 D_800F9DA4;
 
 extern BattleWorldView g_BattleWorldView;
-extern s16 D_800FA69C;
+extern s16 g_BattleMBarrierTargetMask;
 extern u8 D_800FA6A0;
 extern u16 D_800FA6B8;
 extern u8 D_800FA6D0;
@@ -890,7 +910,7 @@ extern u8 D_801635F8;
 extern u8 D_801635FC;
 extern u8 D_80163600;
 extern u8 D_80163604;
-extern s16 D_80163608;
+extern s16 g_BattleBarrierTargetMask;
 extern u8 D_80163784[3];
 extern s8 D_80163787; // suspicious, very likely part of a struct
 extern u8 D_8016378C[];
@@ -1111,6 +1131,7 @@ void func_800E08C4(s32);
 void func_800E0BE0(s32);
 void func_800E7170(void);
 extern void BattleFixedPointRampSpawnChildEffectsWithFade(void);
+void BattleTriggerReflectFlash(s32 actor);
 extern void (*D_800F300C[])();
 extern s16 D_800F310E;
 extern s16 D_800F3120;
@@ -1154,11 +1175,11 @@ typedef struct {
 } BattleBannerMessage; // size:0x6
 
 typedef struct {
-    u16 unk0;
-    u16 unk2;
-    s16 unk4;
-    s16 unk6;
-    u16 actor;
+    u16 damage;
+    u16 damageFlags;
+    s16 impactSfxId;
+    s16 impactEffectId;
+    u16 extraDataIndex;
     u16 targetIndex;
 } BattleTargetEffectSettings; // size:0xC
 
@@ -1195,13 +1216,13 @@ extern BattleStageFile D_801590E4;
 extern CVECTOR D_800F5B70;
 extern SVECTOR D_800E7D08;
 extern Yamada D_800E8C90[];
-extern s8 D_800F8378;
+extern u8 D_800F8378;
 extern BattleTargetEffectSettings D_800F99EC[];
 extern u16 D_801517B4;
 extern u8 D_800FAFE0;
-extern u16 D_80161DE8;
+extern s16 D_80161DE8;
 extern u16 D_80162088;
-extern s8 D_80162090;
+extern u8 D_80162090;
 extern u8 D_80161EEC;
 extern BattleModelSub D_80163A9C[NUM_PARTY];
 extern u8 D_800F9774;

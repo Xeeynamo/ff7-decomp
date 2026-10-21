@@ -1,4 +1,3 @@
-#include "common.h"
 #include "../battle/battle.h"
 #include "choco0.h"
 

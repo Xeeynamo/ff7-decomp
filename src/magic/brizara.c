@@ -154,7 +154,7 @@ static void BrizaraAnimationUpdate(void) {
             next->Rot.vz = 0x200;
         }
         if (effect->AnimationFrame == 25) {
-            func_800D5774(effect->TargetIndex);
+            BattleQueueTargetImpact(effect->TargetIndex);
             if (effect->AnimationFrame == 25) {
                 effect->StartFrame = -1;
             }

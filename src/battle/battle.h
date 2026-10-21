@@ -829,16 +829,18 @@ s32 func_800D55A4(s32 target);
 void BattleAkaoCommand(s32 cmdId, ...);
 void BattleGetPartPosition(s32 actor, s32 bone, SVECTOR* pos);
 SVECTOR* BattleEntityGetCenter(s32 targetMask, SVECTOR* center);
-enum BattleEventType {
+enum BattleEventQueueType {
     BATTLE_EVENT_EFFECT_MODEL_START = 1,
     BATTLE_EVENT_EFFECT_MODEL_END = 2,
+    BATTLE_EVENT_TARGET_IMPACT = 4,
+    BATTLE_EVENT_TARGET_REFLECT = 6,
 };
 s16* BattleEventQueuePush(s32 type);
 // Runs `func` once per set bit in targetMask, frameStep frames apart.
 void MagicAnimationRegister(s32 targetMask, s32 callbackArg, s32 frameStep, void (*func)(s32, s32));
 s32 BattlePositionToStereoPan(SVECTOR* sv);
 s32 BattleEntityGetStereoPan(s32 arg0);
-void func_800D5774(u32 targetIndex);
+void BattleQueueTargetImpact(u32 target);
 void BattleRunFrame(void);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 void BattleUnitCalcSpeed(s32 index);

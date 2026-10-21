@@ -1086,28 +1086,6 @@ void BattleInitModelsAnimAndColor(s32 first, s32 end) {
     }
 }
 
-// drains g_BattleActionQueue (12-byte entries, -1-terminated, index D_801590E0), one
-// entry per call, dispatched by a type byte (0-5, jtbl_800A05FC) via m2c
-// structural read (not yet decompiled):
-//   0 callback-driven step (BattleDetachedRegister(&func_800C494C)), immediate
-//   1 gated on D_800F7DE4: walks a linked status list (g_BattleQueueTargets/1/2),
-//     looks like "hide next status icon" (sets D_800FA6D4/D_80161EEC/
-//     D_800F99E8 icon slots, or 0xF when the list is exhausted)
-//   2 func_800C5C18(4 entry fields), immediate -- shape matches a sound cue
-//   3 gated on D_800F7DE4: same linked-list shape as case 1, opposite flag
-//     direction -- looks like "show next status icon"
-//   4 gated on D_800F7DE4: HP-counter tick-animation init -- writes to PS1
-//     scratchpad (0x1F800004/8), computes abs(diff)/entryField, stores
-//     start/target/increment into a g_BattleEffectSlots slot (allocated via
-//     BattleEffectRegister)
-//   5 immediate: sets a per-actor "step complete" flag, conditionally
-//     copies animation-state fields
-// D_800F7DE4 (the gate for cases 1/3/4) is set once per frame by
-// BattleUpdateRender below, once all actor slots are ready -- so this function
-// is a generic "process the next queued visual/counter effect, one per
-// frame" drainer, not itself the source of any particular command's
-// damage/effect. See BattleActionType14's comment in battle.c: opcode 0x14 just
-// spins this to drain whatever's already queued
 void BattleQueue1Execute(void) {
     s32 actor;
     s32 actor2;
@@ -1287,23 +1265,23 @@ void BattleQueue1AddNewTarg(void) {
     g_BattleModels[D_80163CC0[targetSlot].D_80163CC0].queuedActionId =
         g_BattleQueueTargets[g_BattleActionQueue[queueIndex].targetIndex].hurtAnimScript;
     payloadOffset = D_800F9774 * (s32)sizeof(BattleTargetEffectSettings);
-    (*(u16*)((u8*)&D_800F99EC[0].unk0 + payloadOffset)) =
+    (*(u16*)((u8*)&D_800F99EC[0].damage + payloadOffset)) =
         D_800F9F3C[g_BattleQueueTargets[g_BattleActionQueue[queueIndex].targetIndex].extraDataIndex].damage;
-    (*(u16*)((u8*)&D_800F99EC[0].unk2 + payloadOffset)) =
+    (*(u16*)((u8*)&D_800F99EC[0].damageFlags + payloadOffset)) =
         D_800F9F3C[g_BattleQueueTargets[g_BattleActionQueue[queueIndex].targetIndex].extraDataIndex].damageFlags;
-    (*(u16*)((u8*)&D_800F99EC[0].actor + payloadOffset)) =
+    (*(u16*)((u8*)&D_800F99EC[0].extraDataIndex + payloadOffset)) =
         g_BattleQueueTargets[g_BattleActionQueue[queueIndex].targetIndex].extraDataIndex;
     (*(u16*)((u8*)&D_800F99EC[0].targetIndex + payloadOffset)) = g_BattleActionQueue[queueIndex].targetIndex;
     if (g_BattleQueueTargets[g_BattleActionQueue[queueIndex].targetIndex].extraDataIndex == -1) {
         value = -1;
-        (*(s16*)((u8*)&D_800F99EC[0].unk4 + payloadOffset)) = -1;
+        (*(s16*)((u8*)&D_800F99EC[0].impactSfxId + payloadOffset)) = -1;
     } else {
-        (*(s16*)((u8*)&D_800F99EC[0].unk4 + payloadOffset)) =
+        (*(s16*)((u8*)&D_800F99EC[0].impactSfxId + payloadOffset)) =
             D_800F9F3C[g_BattleQueueTargets[g_BattleActionQueue[queueIndex].targetIndex].extraDataIndex].impactSfxId;
         value =
             D_800F9F3C[g_BattleQueueTargets[g_BattleActionQueue[queueIndex].targetIndex].extraDataIndex].impactEffectId;
     }
-    (*(s16*)((u8*)&D_800F99EC[0].unk6 + payloadOffset)) = value;
+    (*(s16*)((u8*)&D_800F99EC[0].impactEffectId + payloadOffset)) = value;
     D_800F9774++;
 }
 
@@ -1316,11 +1294,11 @@ void BattleQueue1UpdateTargMasks(void) {
     s32 mask;
     u16 flags;
 
-    D_800FA69C = 0;
-    D_80163608 = 0;
+    g_BattleMBarrierTargetMask = 0;
+    g_BattleBarrierTargetMask = 0;
     D_80162088 = 0;
     D_80161DE8 = 0;
-    D_800F836C = 0;
+    g_BattleReflectTargetMask = 0;
     D_801517B4 = 0;
     g_BattleCurrentTargetMask = 0;
     index = 0;
@@ -1337,7 +1315,7 @@ void BattleQueue1UpdateTargMasks(void) {
                 D_801517B4 = (bitBase << target->D_80163CC0) | D_801517B4;
             }
             if (*targetFlags & 2) {
-                D_800F836C = (bitBase << target->D_80163CC0) | (u16)D_800F836C;
+                g_BattleReflectTargetMask = (bitBase << target->D_80163CC0) | (u16)g_BattleReflectTargetMask;
             }
             if (*targetFlags & 4) {
                 D_80161DE8 = (bitBase << target->D_80163CC0) | D_80161DE8;
@@ -1346,12 +1324,12 @@ void BattleQueue1UpdateTargMasks(void) {
                 D_80162088 = (bitBase << target->D_80163CC0) | D_80162088;
             }
             if (*targetFlags & 0x10) {
-                D_80163608 = (bitBase << target->D_80163CC0) | (u16)D_80163608;
+                g_BattleBarrierTargetMask = (bitBase << target->D_80163CC0) | (u16)g_BattleBarrierTargetMask;
             }
             flags = *targetFlags & 0x20;
             targetFlags = (u16*)((u8*)targetFlags + sizeof(*target));
             if (flags) {
-                D_800FA69C = (bitBase << target->D_80163CC0) | (u16)D_800FA69C;
+                g_BattleMBarrierTargetMask = (bitBase << target->D_80163CC0) | (u16)g_BattleMBarrierTargetMask;
             }
             target++;
         }
@@ -1577,8 +1555,8 @@ s16 func_800B888C(s32 arg0) {
 static void func_800B88CC(s32 arg0) {
     s32 v = BattleEffectRegister(&BattleFixedPointRampSpawnChildEffectsWithFade);
 
-    g_BattleEffectSlots[v].raw.D_8016297C = 0;
-    g_BattleEffectSlots[v].raw.D_80162980 = arg0;
+    g_BattleEffectSlots[v].impact.framesLeft = 0;
+    g_BattleEffectSlots[v].impact.target = arg0;
     func_800B8A34(func_800B888C(arg0), v);
 }
 
@@ -1587,8 +1565,8 @@ void func_800B8944(s32 actor, s32 target) {
     s16 flags;
     s32 stateOffset;
     slot = BattleEffectRegister(BattleFixedPointRampSpawnChildEffectsWithFade);
-    g_BattleEffectSlots[slot].raw.D_8016297C = 0;
-    g_BattleEffectSlots[slot].raw.D_80162980 = actor;
+    g_BattleEffectSlots[slot].impact.framesLeft = 0;
+    g_BattleEffectSlots[slot].impact.target = actor;
     func_800B8A34(target, slot);
     if (D_80163CC0[target].D_80163CC2 & 4) {
         stateOffset = actor * (s32)sizeof(Unk80151200);
@@ -1604,16 +1582,16 @@ void func_800B8944(s32 actor, s32 target) {
 
 void func_800B8A34(s32 target, s32 slot) {
     u16 next;
-    g_BattleEffectSlots[slot].raw.D_80162982 = D_800F99EC[target].unk0;
-    next = D_800F99EC[target].unk2;
-    g_BattleEffectSlots[slot].raw.unkC = D_801590CC;
-    g_BattleEffectSlots[slot].raw.unkE = next;
-    g_BattleEffectSlots[slot].raw.unk10 = D_800F99EC[target].unk4;
-    g_BattleEffectSlots[slot].raw.unk14 = D_800F99EC[target].unk6;
-    next = D_800F99EC[target].actor;
-    g_BattleEffectSlots[slot].raw.unk18 = (u8)D_800F8CF0;
-    g_BattleEffectSlots[slot].raw.D_8016297E = next;
-    g_BattleEffectSlots[slot].raw.unk19 = (u8)D_800F99EC[target].targetIndex;
+    g_BattleEffectSlots[slot].impact.damage = D_800F99EC[target].damage;
+    next = D_800F99EC[target].damageFlags;
+    g_BattleEffectSlots[slot].impact.attacker = D_801590CC;
+    g_BattleEffectSlots[slot].impact.damageFlags = next;
+    g_BattleEffectSlots[slot].impact.sfxId = D_800F99EC[target].impactSfxId;
+    g_BattleEffectSlots[slot].impact.effectId = D_800F99EC[target].impactEffectId;
+    next = D_800F99EC[target].extraDataIndex;
+    g_BattleEffectSlots[slot].impact.unk18 = (u8)D_800F8CF0;
+    g_BattleEffectSlots[slot].impact.extraDataIndex = next;
+    g_BattleEffectSlots[slot].impact.targetIndex = (u8)D_800F99EC[target].targetIndex;
 }
 
 void func_800B8B48(void) {
@@ -1630,7 +1608,7 @@ void func_800B8B48(void) {
         case 3:
         case 8:
             break;
-        case 4:
+        case BATTLE_EVENT_TARGET_IMPACT:
         case 5:
             actor = event[0];
             D_800F8378 = 0;
@@ -1651,7 +1629,7 @@ void func_800B8B48(void) {
             D_80151200[actor].D_80151200 = D_80163CC0[func_800B888C(actor)].D_80163CC4;
             D_80163B38++;
             break;
-        case 1:
+        case BATTLE_EVENT_EFFECT_MODEL_START:
             g_BattleEffectModelStartPos.vx = event[2];
             g_BattleEffectModelStartPos.vy = event[3];
             g_BattleEffectModelStartPos.vz = event[4];
@@ -1659,12 +1637,12 @@ void func_800B8B48(void) {
             BattleEffectRegister(BattleEffectModelTick);
             g_BattleEffectModelState = 0;
             break;
-        case 2:
+        case BATTLE_EVENT_EFFECT_MODEL_END:
             g_BattleEffectModelState = 0xFF;
             break;
-        case 6:
+        case BATTLE_EVENT_TARGET_REFLECT:
             actor = event[0];
-            BattleTriggerActorFlashMode2(actor);
+            BattleTriggerReflectFlash(actor);
             g_BattleModels[actor].ready = 1;
             break;
         case 7:
@@ -3240,7 +3218,7 @@ void func_800C2928(void) {
         if (slot->screenY > 150) {
             slot->screenY = 150;
         }
-        func_800C2C1C(slot->screenX, slot->screenY, slot->unkE, D_800EA230[slot->frame++], slot->unk14);
+        func_800C2C1C(slot->screenX, slot->screenY, slot->damage, D_800EA230[slot->frame++], slot->damageFlags);
         g_BattleDetachedSlots[g_BattleDetachedCursor].damagePopup.framesLeft--;
         break;
     }
