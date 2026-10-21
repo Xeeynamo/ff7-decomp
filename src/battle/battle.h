@@ -248,7 +248,7 @@ typedef struct {
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleSetupData.cs
 typedef struct {
     /* 0x00 0x80163614 */ u16 stageID; // load STAGE/ files
-    /* 0x02 0x80163616 */ s16 nextStageID;
+    /* 0x02 0x80163616 */ u16 nextStageID;
     /* 0x04 0x80163618 */ s16 escapeCounter;
     /* 0x06 0x8016361A */ s16 D_8016361A;
     /* 0x08 0x8016361C */ u16 D_8016361C[4];

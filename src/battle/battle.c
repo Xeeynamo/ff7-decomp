@@ -27,7 +27,183 @@ const s32 D_800A0108 = 21;
 const s32 D_800A010C[] = {2, 22, 3, 23, 4};
 
 // entrypoint
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BATTLE_Main);
+void BattleInitMain(s32 sceneID);
+void BattleInitSetup(s32 sceneID);
+void BattleNextStartSeq(void);
+void BattleNormalStartSeq(void);
+// void SysGzipBinDecompress(GzHeader* src, u8* dst);
+
+s32 func_800AF65C(); // extern
+void func_801B0000();
+
+extern s32 D_801517B8;
+extern /*?*/ u8 D_80163790[]; //
+extern s16 g_GameState;
+
+void BATTLE_Main(void) {
+    void (*fnBattleSetup)(s32);
+    void (*fnBattleStart)(void);
+    void (*fnBattleRunFrame)(void);
+    s32 mask;
+    s32 temp_v1_2;
+    s32 battleCount;
+    s32 done;
+    s32 sceneId;
+    u16 prevMask;
+    s32 i;
+
+    for (i = 0; i < START_ENEMY; i++) {
+        D_80163790[i] = Savemap.partyID[i];
+    }
+
+    sceneId = D_800707BC.sceneId;
+    D_80062F14 = -1;
+    D_801517B8 = 0;
+    g_BattleData.flags = D_800707BC.mode;
+    battleCount = 0;
+
+    while (sceneId != 0xFFFF) {
+        battleCount++;
+        D_80062F54 = sceneId;
+        D_800707BC.mode = 0;
+
+        if (battleCount != 1) {
+            fnBattleStart = BattleNextStartSeq;
+            fnBattleRunFrame = BattleRunFrame;
+            fnBattleSetup = BattleInitSetup;
+        } else {
+            fnBattleStart = BattleNormalStartSeq;
+            fnBattleRunFrame = NULL;
+            fnBattleSetup = BattleInitMain;
+        }
+
+        func_80014578(6, (void*)0x801C0000, NULL);
+        SystemCdWaitCallback(fnBattleRunFrame);
+        SysGzipBinDecompress(0x801C0000, 0x801B0000);
+
+        fnBattleSetup(sceneId);
+        g_BattleState.setupFlags &= 0xFFFD;
+
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            g_BattleData.actors[i].status = g_BattleState.combatant[i].status & 0x0FFFFFFF;
+            g_BattleData.actors[i].D_801636C4 = g_BattleData.actors[i].status;
+            g_BattleWork.turn[i].menuListFlags |= 0xF;
+        }
+
+        fnBattleStart();
+
+        for (i = 4; i < NUM_BATTLE_ACTOR; i++) {
+            if (g_BattleState.combatant[i].unk4F != 0xFF) {
+                func_800A4B3C(i, g_BattleState.combatant[i].unk4F);
+            }
+            g_BattleWork.turn[i].deathEffectState = g_BattleData.actors[i].D_801636BC;
+        }
+
+        for (i = 0; i < NUM_PARTY; i++) {
+            if (g_BattleWork.turn[i].atbIncrement) {
+                BattleQueueEvent(0, i, 6, 0);
+            }
+        }
+
+        done = 0;
+        g_BattleState.cycleFlags = 0;
+        prevMask = g_BattleData.unitPresentMask;
+        func_800A345C();
+
+        while (g_BattleState.cycleFlags == 0 || !done) {
+            done = BattleBattleActionQueueExecute((g_BattleState.cycleFlags & 0x25) ? 1 : 7);
+            g_BattleWork.pendingActionPriority = -1;
+
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                g_BattleData.actors[i].status = g_BattleState.combatant[i].status & 0x0FFFFFFF;
+            }
+
+            BattleRunFrame();
+            BattleProcessTimers();
+            BattleProcessEventQueue(2);
+
+            while (func_800AF65C()) {
+            }
+
+            BattleReqReturnReservedItems(0xA);
+
+            for (i = 0; i < NUM_PARTY; i++) {
+                g_BattleWork.party[i].limitBarUI = g_BattleWork.party[i].limitBar;
+            }
+
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                g_BattleData.actors[i].status = g_BattleState.combatant[i].status & 0x0FFFFFFF;
+                g_BattleData.actors[i].D_801636C4 = g_BattleData.actors[i].status;
+            }
+
+            func_800A345C();
+            BattleProcessEventQueue(2);
+            BattleUpdateUnitMasks();
+            BattleInitTurnWorkHPMP();
+
+            if (g_BattleWork.pendingActionPriority != -1) {
+                done = 0;
+            }
+
+            for (i = 0; i < NUM_PARTY; i++) {
+                if (g_BattleWork.party[i].curMP != g_BattleState.combatant[i].curMP) {
+                    BattleQueueEvent(0, i, 0xC, 0xF);
+                }
+                g_BattleWork.party[i].curMP = g_BattleState.combatant[i].curMP;
+            }
+
+            g_BattleState.cycleFlags &= 0xFFDD;
+            mask = g_BattleData.unitPresentMask & ~g_BattleWork.petrifiedMask;
+            if (!(mask & 0xF)) {
+                g_BattleState.cycleFlags |= 0x22;
+            } else if (!(mask & 0x3F0)) {
+                g_BattleState.cycleFlags |= 0x20;
+            }
+
+            if ((g_BattleData.flags & 2) && !Savemap.countdown_timer_seconds) {
+                g_BattleState.cycleFlags |= 0x30;
+                D_800707BC.mode |= 2;
+                g_BattleData.activeEncounter.setup.flags &= 0xFFF7;
+            }
+
+            if ((g_BattleState.setupFlags & 4) &&
+                (g_BattleWork.nextOrderToAssign[0] == g_BattleWork.nextOrderToExecute[0])) {
+                s32 enemyMask = g_BattleData.unitPresentMask & prevMask & 0x3F0;
+                if ((prevMask & 0x3F0) != enemyMask && enemyMask && BattleRunEscapeSequence()) {
+                    break;
+                }
+                prevMask = g_BattleData.unitPresentMask;
+            }
+            if (g_BattleState.cycleFlags & 8) {
+                break;
+            }
+        }
+
+        if ((g_BattleData.flags & 0x40) && (g_BattleState.cycleFlags & 4)) {
+            g_BattleState.cycleFlags = (g_BattleState.cycleFlags & ~4) | 2;
+        }
+
+        sceneId = 0xFFFF;
+        if (!(g_BattleState.cycleFlags & 0x1E)) {
+            sceneId = g_BattleData.activeEncounter.setup.nextStageID;
+            if (g_BattleData.flags & 0x40) {
+                sceneId = func_800A35F8();
+            }
+        }
+    }
+
+    func_80014578(8, (void*)0x801C0000, NULL);
+    SystemCdWaitCallback(BattleRunFrame);
+    SysGzipBinDecompress(0x801C0000, 0x801B0000);
+
+    func_801B0000();
+
+    for (i = 0; i < START_ENEMY; i++) {
+        Savemap.partyID[i] = D_80163790[i];
+    }
+
+    g_GameState = 1;
+}
 
 // per-command opcode dispatcher: reads cmdIndex from the turn context
 // (g_CurrentAction->queuedCmdIndex), looks up its opcode-sequence start via
@@ -2804,8 +2980,6 @@ void BattleActionType16(void) {
         msgDelay = 1;
     }
 }
-
-extern s32 D_801517B8;
 
 // Mime command handler
 void BattleActionType17(void) {

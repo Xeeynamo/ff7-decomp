@@ -1391,6 +1391,11 @@ typedef struct {
     u32 unk18;
 } Unk80075D00; // size:0x1C
 
+typedef struct {
+    u16 sceneId;
+    u16 mode;
+} Unk800707BC;
+
 typedef struct WindowData {
     u8* text;
     s16 x;
@@ -1464,6 +1469,7 @@ extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
 extern u8 D_80070788;
 extern u8 g_MovieLock;
 extern u8 g_EntityToLine[48];
+extern Unk800707BC D_800707BC;
 extern u16 g_BattleMode;
 extern u16 g_FieldWaitCounter[48];      // Used by WAIT opcode to pause script
 extern u16 g_SavedFieldScriptPC[48][8]; // Program counters of paused scripts

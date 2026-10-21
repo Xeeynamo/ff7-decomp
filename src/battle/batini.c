@@ -23,7 +23,7 @@ static s32 BattleGetEquipEnemySkillMask(SavePartyMember* member);
 void BattleInitEnemyUnits(void);
 
 // entrypoint
-void BatInitMain(s32 sceneID) {
+void BattleInitMain(s32 sceneID) {
     s32 mask;
     s32 i;
     s32* order;
@@ -155,7 +155,7 @@ void BatInitMain(s32 sceneID) {
     }
 }
 
-static void BattleInitSetup(s32 sceneID) {
+void BattleInitSetup(s32 sceneID) {
     BattleUnit* unit;
     s32 i;
     s32 var_s1;

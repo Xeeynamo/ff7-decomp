@@ -10,10 +10,6 @@ typedef struct {
 } BromStruct;
 
 extern volatile s16 g_GameState;
-extern struct {
-    u16 sceneId;
-    u16 mode;
-} D_800707BC;
 
 void func_80014540(void);
 void func_80014578(s32 fileNo, void* dst, void (*cb)(void));

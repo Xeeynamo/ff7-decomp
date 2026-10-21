@@ -108,10 +108,6 @@ extern s16 D_800694E4[12];
 extern s16 D_800694FC[6];
 extern u8 D_80069800[48];
 extern DISPENV D_8007075C[2]; // active display environments (double-buffered)
-extern struct {
-    u16 sceneId;
-    u16 mode;
-} D_800707BC;
 extern u8 D_800716D0;
 extern s32 D_80071744; // LBA loc for func_80014540
 extern s16 D_80071A5C;
