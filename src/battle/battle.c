@@ -2132,7 +2132,43 @@ void BattleHudResetLimit(s32 arg0) {
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 void func_800A6E6C(s32 arg0, s32 arg1) { BattleQueueEvent(0, arg0, 13, arg1); }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleRemovePlayersFromBattle);
+void BattleRemovePlayersFromBattle(s32 unused, s32 mask) {
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        s32 bit = 1 << i;
+        if (!(mask & bit)) {
+            continue;
+        }
+
+        g_BattleState.presentMask &= ~bit;
+        g_BattleState.playerUnitMask &= ~bit;
+
+        Savemap.partyID[i] = -1;
+
+        g_BattleData.actors[i].charId = -1;
+        g_BattleState.combatant[i].actorId = -1;
+        g_BattleState.combatant[i].formationIndex = -1;
+        g_BattleState.combatant[i].status = 0;
+        g_BattleState.combatant[i].stateFlags = 0;
+        g_BattleWork.turn[i].hpChangeRate = 0;
+
+        for (j = 0; j < NUM_STATUS_TIMERS; j++) {
+            g_BattleWork.turn[i].statusTimers[j] = 0;
+        }
+
+        for (j = 0; j < LEN(g_BattleWork.actionQueue); j++) {
+            if (g_BattleWork.actionQueue[j].unitSlot == i) {
+                g_BattleWork.actionQueue[j].unitSlot = -1;
+            }
+        }
+
+        BattleUnitCalcSpeed(i);
+        BattleReqReturnReservedItems(i);
+        BattleQueueEvent(0, i, 2, 0);
+    }
+}
 
 void BattleSetItemWasStolenStringToDisplay(s32 arg0, s16 arg1) {
     s16 out = arg1;
