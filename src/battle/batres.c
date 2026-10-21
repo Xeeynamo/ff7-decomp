@@ -184,18 +184,18 @@ void GivePartyMemberExp(SavePartyMember* c, s32 exp, s32 slot) {
 
     LoadResultsRow(&row, c);
     if (slot != -1) {
-        g_BatresSummary.expFrac[slot] = 0;
-        g_BatresSummary.startLevel[slot] = row.level;
+        g_BatresShared.summary.expFrac[slot] = 0;
+        g_BatresShared.summary.startLevel[slot] = row.level;
     }
     InitResultsRow(&row);
     row.expGain = exp;
     GiveExp(&row);
     if (slot != -1) {
-        g_BatresSummary.exp[slot] = row.exp;
-        g_BatresSummary.displayExp[slot] = row.expStart;
-        g_BatresSummary.levelExp[slot][0] = row.startLevelExp;
-        for (i = 0; i < LEN(g_BatresSummary.levelExp[0]) - 1; i++) {
-            g_BatresSummary.levelExp[slot][i + 1] = row.nextLevelExp[i];
+        g_BatresShared.summary.exp[slot] = row.exp;
+        g_BatresShared.summary.displayExp[slot] = row.expStart;
+        g_BatresShared.summary.levelExp[slot][0] = row.startLevelExp;
+        for (i = 0; i < LEN(g_BatresShared.summary.levelExp[0]) - 1; i++) {
+            g_BatresShared.summary.levelExp[slot][i + 1] = row.nextLevelExp[i];
         }
     }
     StoreResultsRow(&row, c);

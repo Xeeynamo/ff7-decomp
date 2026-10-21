@@ -237,13 +237,37 @@ typedef struct {
     /* 0x022 */ u16 pad22;
     /* 0x024 */ u16 setupFlags;
     /* 0x026 */ u16 attackCategoryFlags;
-    /* 0x028 */ u16 arenaRound;
+    /* 0x028 */ u16 setupParam;
     /* 0x02A */ u16 pad2A;
     /* 0x02C */ u16 unk2C;
     /* 0x02E */ u16 pad2E;
     /* 0x030 */ u32 partyGil;
     /* 0x034 */ BattleUnit combatant[NUM_BATTLE_ACTOR];
 } BattleState; // size:0x444
+
+typedef struct {
+    /* 0x00 */ s32 displayExp[4];
+    /* 0x10 */ s32 exp[4];
+    /* 0x20 */ s32 levelExp[4][12];
+    /* 0xE0 */ u8 expFrac[4];
+    /* 0xE4 */ u8 startLevel[4];
+} BatresSummary;
+
+// Enemy HP carried over between battles. BattleInitMain restores it when
+// setupFlags & 4 is set. This is probably used in the Bizarro-Sephiroth fight
+// where the party can be split up into up to 3 groups and take turns fighting
+typedef struct {
+    /* 0x00 */ s32 restoreSkipMask; // bit (tableIndex * NUM_ENEMY + enemy slot) skips one restore
+    /* 0x04 */ s32 tableIndex;
+    /* 0x08 */ s32 enemyHP[3][NUM_ENEMY]; // [tableIndex][enemy slot]
+} BattleSavedEnemyHP;
+
+// The results summary and the saved enemy HP use the same memory; these share the
+// same memory region and are accessed differently depending on the battle setup flags
+typedef union {
+    BatresSummary summary;
+    BattleSavedEnemyHP savedEnemyHP;
+} BatresShared;
 
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleSetupData.cs
 typedef struct {
@@ -794,6 +818,7 @@ extern BattleWork g_BattleWork;
 extern u16 D_800F7DE8;
 extern u8 g_EncounterType;
 extern BattleState g_BattleState;
+extern BatresShared g_BatresShared;
 extern BattleWorldView g_BattleWorldView;
 extern DB* g_cDb;
 extern s32 g_dbIndex;
