@@ -1460,7 +1460,7 @@ extern u8 D_80062F18;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
 extern u8 D_80062F1A;
 extern u8 D_80062F1B;
-extern s32 D_80062F54;
+extern s32 g_BattleSceneID;
 extern s32 D_80062F60;
 extern Gpu g_PolyPtr;
 extern u16 g_SaveSlotMask;

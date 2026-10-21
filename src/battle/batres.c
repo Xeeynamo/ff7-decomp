@@ -61,7 +61,7 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     for (slot = 0; slot < NUM_PARTY; slot++) {
         hp = g_BattleState.combatant[slot].curHP;
         mp = g_BattleState.combatant[slot].curMP;
-        id = D_80163790[slot];
+        id = g_BattlePartyIDs[slot];
         if ((g_BattleWork.reviveMask >> slot) & 1) {
             hp = hpOverride;
             mp = mpOverride;
