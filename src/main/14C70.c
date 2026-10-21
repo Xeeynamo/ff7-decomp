@@ -27,7 +27,7 @@ static const KernelTextMaps kernel_maps = {
         /* 0x00 */ MAGIC_START,       // Magic
         /* 0x01 */ SUMMON_START,      // Summons
         /* 0x02 */ ENEMY_SKILL_START, // Enemy skill
-        /* 0x03 */ 128                // Not sure, limit breaks maybe?
+        /* 0x03 */ LIMIT_START        // Limit breaks
     },
     // typeToSection: Corresponds to the type used in SysKernGetString
     {/* 0x00 */ KERNEL_TEXT_DESC_MAGIC,
@@ -425,7 +425,7 @@ s32 SysGetLimitCmdId(s32 charId, s32 limitIndex) {
         s32 addr;
 
         addr = (s32)D_80082268[charId].limitCmdId;
-        cmdId = *(u8*)(limitIndex + addr) - 0x80;
+        cmdId = *(u8*)(limitIndex + addr) - LIMIT_START;
     }
     return cmdId;
 }

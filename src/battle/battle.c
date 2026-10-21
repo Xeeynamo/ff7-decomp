@@ -30,7 +30,7 @@ const s32 D_800A010C[] = {2, 22, 3, 23, 4};
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BATTLE_Main);
 
 // per-command opcode dispatcher: reads cmdIndex from the turn context
-// (g_CurrentAction->unkC), looks up its opcode-sequence start via
+// (g_CurrentAction->queuedCmdIndex), looks up its opcode-sequence start via
 // g_BattleCmdOpcodeOffs[cmdIndex] into g_BattleCmdOpcodeStream, then for each byte until the 0x1F
 // delimiter, jalr's through g_BattleCmdOpcodeJmpTbl[opcode]. After each call, checks
 // D_80062F14 -- if it goes >= 0 the whole sequence aborts immediately
@@ -2099,7 +2099,7 @@ void BattleClearStatusBit(s32 arg0, s32 arg1) {
     g_BattleState.combatant[arg0].status &= mask;
 }
 
-void BattleExpireDeathSentence(s32 arg0) { BattleQueueImmediateAction(arg0, 3, 2, 54, 0); }
+void BattleExpireDeathSentence(s32 arg0) { BattleQueueImmediateAction(arg0, 3, CMD_MAGIC, 54, 0); }
 
 void BattleChangeSlownumbToPetrify(s32 arg0) {
     s32 temp_v1;
@@ -2329,7 +2329,7 @@ void BattleResolveLimitActionIndex(void) {
     relativeActionIndex = g_CurrentAction->relativeActionIndex;
     g_CurrentAction->absoluteActionIndex = relativeActionIndex;
     if (relativeActionIndex < 0x60) {
-        g_CurrentAction->absoluteActionIndex = relativeActionIndex + 0x80;
+        g_CurrentAction->absoluteActionIndex = relativeActionIndex + LIMIT_START;
         g_BattleWork.party[actorId].limitBar = 0;
         g_BattleWork.party[actorId].limitCount++;
         if (!(g_BattleState.setupFlags & SETUP_NO_VICTORY_POSE)) {
@@ -2342,7 +2342,7 @@ void BattleResolveLimitActionIndex(void) {
 // based on the absolute index, and stores the relative index in unk98
 void BattleActionType07(void) {
     g_CurrentAction->absoluteActionIndex = g_BattleWork.attackIDs[g_CurrentAction->relativeActionIndex];
-    if (g_CurrentAction->unkC == CMD_ENEMY_ATTACK) {
+    if (g_CurrentAction->queuedCmdIndex == CMD_ENEMY_ATTACK) {
         // 256 is end of kernel attack list
         u16 bases[] = {MAGIC_START, SUMMON_START, ENEMY_SKILL_START, ENEMY_SKILL_END, 256};
         u8 cmds[] = {CMD_MAGIC, CMD_SUMMON, CMD_ENEMY_SKILL, CMD_LIMIT};
@@ -2358,8 +2358,9 @@ void BattleActionType07(void) {
     }
 }
 
-const s32 D_800A02A0[] = {
-    0x3D3CFFFF, 0x41403F3E, 0xFFFFFF42, 0xFFFFFFFF, 0x43424140, 0x47464544, 0xFF444843, 0xFFFFFFFF};
+const u8 D_800A02A0[] = {
+    0xFF, 0xFF, 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x43, 0x48, 0x44, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 void BattlePrepareTmpForManip(void) {
     g_CurrentAction->unk80[0] = STATUS_MANIPULATE;
@@ -2376,11 +2377,174 @@ void BattleActionType0B(void) {
     g_CurrentAction->allowedTargetsMask = 1 << g_CurrentAction->actorId;
 }
 
-void BattleActionType0C();
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleActionType0C);
+// Loads the AttackData for a Magic/Summon/E.Skill/Limit/enemy attack action into g_CurrentAction
+void BattleActionType0C(void) {
+    s32 cameraId = 0xFFFF;
+    AttackData* attackData = NULL;
+    s32 isDeathSentenceExpiry = 0;
+    s32 i;
+    s32 j;
 
-static void BattleCopyTargTypeDatToTmp(s32 arg0);
-static void SetActionStatusChange(u32 arg0, s32 statusMask);
+    g_CurrentAction->mpCost = -1;
+    if (g_CurrentAction->cmdIndex == CMD_ENEMY_ATTACK) {
+        s32 index = BattleGetAttackIdInSceneByAttackId(g_CurrentAction->absoluteActionIndex);
+        attackData = &g_BattleWork.attacks[index];
+        g_CurrentAction->unk98 = index;
+    } else if (g_CurrentAction->absoluteActionIndex < LIMIT_START) {
+        attackData = &D_800708C4[g_CurrentAction->absoluteActionIndex];
+        if (g_CurrentAction->absoluteActionIndex >= ENEMY_SKILL_END) {
+            u8 animId = D_800A02A0[g_CurrentAction->absoluteActionIndex - ENEMY_SKILL_END];
+            if (animId != 0xFF) {
+                g_CurrentAction->unk20 = animId;
+            }
+            g_CurrentAction->enabledMagicIndex = -1;
+        }
+    } else if (g_CurrentAction->actorId < NUM_PARTY) {
+        s32 charId = g_BattleData.actors[g_CurrentAction->actorId].charId;
+        BattleLimitData* limits = &g_ActiveCharacters[g_CurrentAction->actorId].limits;
+        for (i = 0; i < NUM_PARTY; i++) {
+            s32 limitId = limits->limitId[i];
+            if (LIMIT_START + limitId == g_CurrentAction->absoluteActionIndex) {
+                s32 count = 0;
+                for (j = 0; j < 12; j++) {
+                    s32 cmdId = SysGetLimitCmdId(charId, j);
+                    if (cmdId != 0x7F) { // 0x7F = empty slot
+                        if (cmdId == limitId) {
+                            break;
+                        }
+                        count++;
+                    }
+                }
+
+                attackData = &limits->limitData[i];
+                g_CurrentAction->unk20 = count + 0x3C;
+                break;
+            }
+        }
+    }
+
+    if (attackData == NULL) {
+        SysSetEngineErrorCode(0x20);
+        return;
+    }
+
+    // Queued by BattleExpireDeathSentence
+    if (g_CurrentAction->queuedCmdIndex == CMD_MAGIC && g_CurrentAction->absoluteActionIndex == 54) {
+        isDeathSentenceExpiry = 1;
+    }
+
+    if (g_CurrentAction->enabledMagicIndex != -1 && !(g_CurrentAction->unk90 & 0x400000)) {
+        s32 magicIndex = g_CurrentAction->enabledMagicIndex;
+        MagicRecord* magicRecord = &g_ActiveCharacters[g_CurrentAction->actorId].enabledMagic[magicIndex];
+
+        g_CurrentAction->mpCost = magicRecord->mpCost;
+
+        if (magicRecord->allAttacksLeft && magicRecord->quadEnabled) {
+            magicRecord->allAttacksLeft--;
+
+            func_800A8E54(magicRecord->quadEnabled);
+            BattleQueueEvent(2, g_CurrentAction->actorId, 0x15, 6);
+        } else if (g_CurrentAction->cmdIndex == CMD_SUMMON) {
+            if (magicRecord->quadraAttacksLeft) {
+                if (magicRecord->quadraAttacksLeft != 0xFF) {
+                    magicRecord->quadraAttacksLeft--;
+
+                    BattleQueueEvent(2, g_CurrentAction->actorId, 0x15, 4);
+                }
+            } else {
+                g_CurrentAction->unkDC = 0x79;
+            }
+        } else if (g_CurrentAction->unk90 & 0x200) {
+            if (magicRecord->quadraAttacksLeft) {
+                if (magicRecord->quadraAttacksLeft != 0xFF) {
+                    magicRecord->quadraAttacksLeft--;
+
+                    BattleQueueEvent(2, g_CurrentAction->actorId, 0x15, 2);
+                }
+            } else if (attackData->targetFlags & TARGET_TOGGLE_MULTIPLE) {
+                g_CurrentAction->unk90 |= 0x100000;
+            }
+        }
+
+        if (g_BattleWork.currentAction.priority >= 5 && !(g_CurrentAction->unk90 & 0x400000)) {
+            g_CurrentAction->unkF0 = magicRecord->costModifier;
+        }
+    }
+
+    if (!isDeathSentenceExpiry) {
+        if (g_CurrentAction->actorId >= START_ENEMY) {
+            SceneEnemy* enemy = &g_BattleWork.enemy[g_CurrentAction->unk8];
+
+            for (i = 0; i < LEN(enemy->attackID); i++) {
+                if (g_CurrentAction->absoluteActionIndex == enemy->attackID[i]) {
+                    g_CurrentAction->unk20 = enemy->actionAnimeIdx[i];
+                    cameraId = enemy->cameraMovementIDs[i];
+                    break;
+                }
+            }
+
+            if (i == LEN(enemy->attackID)) {
+                SysSetEngineErrorCode(0x20);
+                return;
+            }
+        }
+    } else {
+        g_CurrentAction->unk20 = 0x34;
+    }
+
+    if (g_CurrentAction->mpCost < 0) {
+        g_CurrentAction->mpCost = attackData->mpCost;
+    }
+
+    if (g_BattleWork.currentAction.priority == 3 || (g_CurrentAction->unk90 & 0x400000)) {
+        g_CurrentAction->mpCost = 0;
+    }
+
+    g_CurrentAction->attackPercent = attackData->accuracyRate;
+    g_CurrentAction->formulaIds = attackData->damageCalcID;
+    g_CurrentAction->elements = (attackData->elements == 0xFFFF) ? 0 : attackData->elements;
+    g_CurrentAction->power = attackData->strength;
+    g_CurrentAction->unkCC = attackData->impactAnimID;
+
+    BattleCopyTargTypeDatToTmp(attackData->targetFlags);
+
+    if (g_CurrentAction->cmdIndex == CMD_LIMIT) {
+        // Same as (setupFlags & SETUP_NO_VICTORY_POSE) != 0 ? attackData->cameraIDs[1] : attackData->cameraIDs[0]
+        cameraId = attackData->cameraIDs[(g_BattleState.setupFlags & SETUP_NO_VICTORY_POSE) >> 3];
+    }
+
+    if (cameraId == 0xFFFF) {
+        g_CurrentAction->unk60 = attackData->cameraIDs[BATTLE_ATK_CAMERA_SINGLE];
+        g_CurrentAction->unk64 = attackData->cameraIDs[BATTLE_ATK_CAMERA_MULTI];
+    } else {
+        g_CurrentAction->unk60 = cameraId;
+        g_CurrentAction->unk64 = cameraId;
+    }
+
+    if (attackData->impactEffectID != 0xFF) {
+        g_CurrentAction->impactEffectId = attackData->impactEffectID;
+    }
+
+    g_CurrentAction->unk24 = attackData->attackEffectID;
+    g_CurrentAction->attackFlags = attackData->flags;
+    g_CurrentAction->impactSfxIds[0] = attackData->impactSfxID;
+    g_CurrentAction->impactSfxIds[1] = attackData->impactSfxID;
+    g_CurrentAction->impactSfxIds[2] = attackData->impactSfxID;
+
+    if (!(g_CurrentAction->attackFlags & 4) &&
+        (g_BattleState.combatant[g_CurrentAction->actorId].status & STATUS_DARKNESS)) {
+        g_CurrentAction->attackPercent >>= 1;
+    }
+
+    SetActionStatusChange(attackData->statusChange, attackData->statuses);
+
+    if (isDeathSentenceExpiry) {
+        g_BattleState.combatant[g_CurrentAction->actorId].status &= ~STATUS_D_SENTENCE;
+    }
+
+    BattleSetActionEffect(attackData->additionalEffects, attackData->effectsModifier);
+}
+
 void BattleLoadActionAttackData(void) {
     AttackData* atk;
     u16 elements;
@@ -2393,8 +2557,8 @@ void BattleLoadActionAttackData(void) {
     if (elements != 0xFFFF) {
         g_CurrentAction->elements = elements;
     }
-    g_CurrentAction->unk60 = atk->cameraSingleID;
-    g_CurrentAction->unk64 = atk->cameraSingleID;
+    g_CurrentAction->unk60 = atk->cameraIDs[BATTLE_ATK_CAMERA_SINGLE];
+    g_CurrentAction->unk64 = atk->cameraIDs[BATTLE_ATK_CAMERA_SINGLE];
     g_CurrentAction->unk24 = atk->attackEffectID;
     g_CurrentAction->attackFlags = atk->flags;
     BattleCopyTargTypeDatToTmp(atk->targetFlags);
@@ -2507,7 +2671,7 @@ void BattleActionType15(void) {
     if (g_CurrentAction->actorId < NUM_PARTY) {
         g_CurrentAction->unk20 = -1;
     } else {
-        g_CurrentAction->unkC = 1;
+        g_CurrentAction->queuedCmdIndex = CMD_ATTACK;
         g_CurrentAction->targetFlags = 0;
         allowedTargetsMask = BattleOpcodeGetRndBit((u16)g_CurrentAction->allowedTargetsMask);
         g_CurrentAction->allowedTargetsMask = allowedTargetsMask;
@@ -2685,7 +2849,7 @@ void BattleActionType17(void) {
                 textId = BATTLE_TEXT_CANNOT_MIMIC;
                 animId = 0x35;
                 g_CurrentAction->unk98 = attackIndex;
-                msgArgs[1] = attackIndex + 0x80;
+                msgArgs[1] = LIMIT_START + attackIndex;
                 continue;
             }
         }
@@ -2837,7 +3001,7 @@ static void BattleResolveCaitSithSlotsResult(void) {
     savedUnk20 = g_CurrentAction->unk20;
     func_800A8E34();
     g_CurrentAction->unk20 = savedUnk20;
-    g_CurrentAction->unk38 = 0;
+    g_CurrentAction->mpCost = 0;
 }
 
 const u8 D_800A0398[] = {0x64, 0x14, 0x14, 0x14, 0xEC, 0xCE, 0xCE, 0x00};
@@ -3933,7 +4097,7 @@ s32 func_800ACB98(void) {
                 blocked = 1;
                 break;
             case CMD_ENEMY_ATTACK:
-                if (g_CurrentAction->unk38 != 0) {
+                if (g_CurrentAction->mpCost != 0) {
                     blocked = 1;
                 }
                 break;
@@ -3953,7 +4117,7 @@ s32 func_800ACB98(void) {
                 }
                 break;
             case CMD_ENEMY_ATTACK:
-                if (g_CurrentAction->unk38 != 0) {
+                if (g_CurrentAction->mpCost != 0) {
                     blocked = 1;
                 }
                 break;
@@ -3965,8 +4129,8 @@ s32 func_800ACB98(void) {
 
         msg = -1;
         if (blocked == 0) {
-            if (g_BattleState.combatant[g_CurrentAction->actorId].curMP >= g_CurrentAction->unk38) {
-                g_BattleState.combatant[g_CurrentAction->actorId].curMP -= g_CurrentAction->unk38;
+            if (g_BattleState.combatant[g_CurrentAction->actorId].curMP >= g_CurrentAction->mpCost) {
+                g_BattleState.combatant[g_CurrentAction->actorId].curMP -= g_CurrentAction->mpCost;
             } else {
                 msg = (g_CurrentAction->actorId < NUM_PARTY)
                           ? BATTLE_TEXT_NOT_ENOUGH_MP
@@ -3979,7 +4143,7 @@ s32 func_800ACB98(void) {
             result = 1;
         }
     }
-    g_CurrentAction->unk38 = 0;
+    g_CurrentAction->mpCost = 0;
     return result;
 }
 
@@ -4776,16 +4940,16 @@ void BattleCalcAffinityFlags(void) {
     s32 result = 0;
     s32 statusMask = 0;
     s32 i;
-    s32 unkC;
+    s32 isNotItem;
     s32 unk84;
 
     for (i = 0; i < 3; i++) {
         statusMask |= g_CurrentAction->unk80[i];
     }
 
-    unkC = g_CurrentAction->unkC != 4;
+    isNotItem = g_CurrentAction->queuedCmdIndex != CMD_ITEM;
     unk84 = g_CurrentAction->unk80[1] & 1;
-    BattleGetAffinityMasks(elements, statusMask, g_CurrentAction->targetId, masks, unkC, unk84);
+    BattleGetAffinityMasks(elements, statusMask, g_CurrentAction->targetId, masks, isNotItem, unk84);
 
     if (g_CurrentAction->power != 0 && masks[13] != 0) {
         masks[13] = 0;

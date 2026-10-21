@@ -205,7 +205,7 @@ static void func_8001FAF0(void) {}
 
 u16 SysMenuGetInventoryRestrictionMask(s32 itemId) {
     if (itemId < 0x80) {
-        return D_800722CC[itemId].cameraMultiID;
+        return D_800722CC[itemId].cameraIDs[1];
     }
     if (itemId < 0x100) {
         return g_WeaponTable[itemId - 0x80].restrictionMask;
