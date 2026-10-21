@@ -10,7 +10,7 @@ jobs:
     # Building and testing cannot work if the repository owner is not Xeeynamo
     # due to the missing secrets to clone the CI dependencies
     if: github.repository == 'Xeeynamo/ff7-decomp'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - run: sudo apt-get install -y ninja-build 7zip libsdl2-dev libxtst-dev
     # Ubuntu 24.04 uses binutils 2.42, which ships a version of mipsel-linux-gnu-ld that does not match the game.
