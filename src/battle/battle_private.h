@@ -445,7 +445,7 @@ typedef struct {
 } ShortVectorXYZ;
 
 typedef struct {
-    /* 0x00 */ s32 D_80151200;
+    /* 0x00 */ s32 status;
     /* 0x04 */ u16 values4[4];
     /* 0x0C */ s16 D_8015120C;
     /* 0x0E */ u16 valuesE[6];

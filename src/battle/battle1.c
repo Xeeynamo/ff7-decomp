@@ -876,7 +876,7 @@ void func_800B5AAC(u8 actor) {
     state->D_8015123A = 0x1000;
     D_80151200[actor].D_80151238 = 0x1000;
     D_80151200[actor].D_8015120C = 0;
-    D_80151200[actor].D_80151200 = 0;
+    D_80151200[actor].status = 0;
     for (i = 0; i < g_BattleModels[actor].numBones; i++) {
         g_BattleModels[actor].boneTransforms[i].trans.vy = 0;
     }
@@ -1102,9 +1102,9 @@ void BattleQueue1Execute(void) {
         case 5:
             g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].animControlFlags |= 0x20;
             actor = g_BattleActionQueue[D_801590E0].actionId;
-            D_80151200[actor].D_80151200 = g_BattleData.actors[actor].status;
+            D_80151200[actor].status = g_BattleData.actors[actor].status;
             actor2 = g_BattleActionQueue[D_801590E0].actionId;
-            flags = D_80151200[actor2].D_80151200;
+            flags = D_80151200[actor2].status;
             if (flags != 0x10 && flags != 0x20) {
                 g_BattleModels[actor2].rootRot.vy = g_BattleModels[actor2].defaultRotX;
             }
@@ -1506,7 +1506,7 @@ static void func_800B85E0() {
         BattleQueue1CameraInit();
         for (i = 0; i < 3; i++) {
             g_BattleModels[i].animControlFlags |= 0x20;
-            D_80151200[i].D_80151200 = g_BattleData.actors[i].status;
+            D_80151200[i].status = g_BattleData.actors[i].status;
         }
     }
     if (D_800F9D98 != 100 && (g_BattleMode & 1)) {
@@ -1527,7 +1527,7 @@ static void func_800B85E0() {
                 g_BattleModels[i].animControlFlags |= 1;
                 g_BattleModels[i].animId = g_BattleData.actors[i].idleActionId;
                 g_BattleModels[i].animControlFlags |= 0x20;
-                D_80151200[i].D_80151200 = g_BattleData.actors[i].status;
+                D_80151200[i].status = g_BattleData.actors[i].status;
             }
             D_800F9D9C = 100;
             D_80163C7C = 5;
@@ -1614,7 +1614,7 @@ void func_800B8B48(void) {
             D_800F8378 = 0;
             func_800B88CC(actor);
             g_BattleModels[actor].animControlFlags |= 0x20;
-            D_80151200[actor].D_80151200 = D_80163CC0[func_800B888C(actor)].D_80163CC4;
+            D_80151200[actor].status = D_80163CC0[func_800B888C(actor)].D_80163CC4;
             break;
         case 9:
             actor9 = event[0];
@@ -1626,7 +1626,7 @@ void func_800B8B48(void) {
             actor = event[0];
             func_800B8944(actor, event[8]);
             g_BattleModels[actor].animControlFlags |= 0x20;
-            D_80151200[actor].D_80151200 = D_80163CC0[func_800B888C(actor)].D_80163CC4;
+            D_80151200[actor].status = D_80163CC0[func_800B888C(actor)].D_80163CC4;
             D_80163B38++;
             break;
         case BATTLE_EVENT_EFFECT_MODEL_START:
@@ -2924,7 +2924,7 @@ void func_800C14C0(s32 actorArg) {
             } else if (status & 0x2000) {
                 BattleAddStatusDigitsToRender(actor, g_BattleData.actors[actor].D_801636BB);
             } else {
-                flags = D_80151200[actor].D_80151200;
+                flags = D_80151200[actor].status;
                 if (flags & 4) {
                     BattleAddStatusIconToRender(actor, 0xE0);
                 } else if (flags & 0x80) {
@@ -2949,28 +2949,28 @@ void func_800C14C0(s32 actorArg) {
 
 static s32 func_800C169C(u8 arg0) {
     g_BattleModels[arg0].specialFlags |= 8;
-    if (D_80151200[arg0].D_80151200 & 0x2000) {
+    if (D_80151200[arg0].status & STATUS_SLOW_NUMB) {
         return 10;
     }
-    if (D_80151200[arg0].D_80151200 & 0x4000) {
+    if (D_80151200[arg0].status & STATUS_PETRIFY) {
         return 5;
     }
-    if (D_80151200[arg0].D_80151200 & 0x0008) {
+    if (D_80151200[arg0].status & STATUS_POISON) {
         return 1;
     }
-    if (D_80151200[arg0].D_80151200 & 0x800000) {
+    if (D_80151200[arg0].status & STATUS_BERSERK) {
         return 3;
     }
-    if (D_80151200[arg0].D_80151200 & 0x01000000) {
+    if (D_80151200[arg0].status & STATUS_PEERLESS) {
         return 6;
     }
-    if (D_80151200[arg0].D_80151200 & 0x04000000) {
+    if (D_80151200[arg0].status & STATUS_DARKNESS) {
         return 8;
     }
-    if (D_80151200[arg0].D_80151200 & 0x8000) {
+    if (D_80151200[arg0].status & STATUS_REGEN) {
         return 9;
     }
-    if (D_80151200[arg0].D_80151200 & 0x400000) {
+    if (D_80151200[arg0].status & STATUS_MANIPULATE) {
         return 7;
     }
     g_BattleModels[arg0].specialFlags &= ~8;
@@ -3012,30 +3012,30 @@ static void func_800C1908(u8 arg0) {
     }
     temp_a1 = arg0;
     if (D_80151200[temp_a1].D_80151235 == 0) {
-        if (D_80151200[temp_a1].D_80151200 & 0x4000) {
+        if (D_80151200[temp_a1].status & STATUS_PETRIFY) {
             D_80151200[temp_a1].D_80151233 = 3;
             return;
         }
         D_80151200[temp_a1].D_80151233 = 0;
-        if (D_80151200[temp_a1].D_80151200 & 0x100) {
+        if (D_80151200[temp_a1].status & STATUS_HASTE) {
             D_80151200[temp_a1].D_80151233 = 1;
         }
-        if (D_80151200[temp_a1].D_80151200 & 0x200) {
+        if (D_80151200[temp_a1].status & STATUS_SLOW) {
             D_80151200[temp_a1].D_80151233 = 2;
         }
-        if (D_80151200[temp_a1].D_80151200 & 0x400) {
+        if (D_80151200[temp_a1].status & STATUS_STOP) {
             D_80151200[temp_a1].D_80151233 = 3;
         }
-        if (D_80151200[temp_a1].D_80151200 & 0x02000000) {
+        if (D_80151200[temp_a1].status & STATUS_PARALYSIS) {
             D_80151200[temp_a1].D_80151233 = 3;
         }
-        if (D_80151200[temp_a1].D_80151200 & 0x40) {
+        if (D_80151200[temp_a1].status & STATUS_CONFU) {
             if (g_BattleModels[temp_a1].animId == D_80163784[temp_a1]) {
                 g_BattleModels[temp_a1].rootRot.vy += 0x100;
             }
         }
         var_a0 = arg0;
-        if (D_80151200[var_a0].D_80151200 & 0x400000 && g_BattleModels[var_a0].animId == D_80163784[var_a0]) {
+        if (D_80151200[var_a0].status & STATUS_MANIPULATE && g_BattleModels[var_a0].animId == D_80163784[var_a0]) {
             if (g_BattleModels[var_a0].defaultRotX == 0) {
                 g_BattleModels[var_a0].rootRot.vy = 0x800;
             } else {
@@ -3754,7 +3754,7 @@ static void func_800C5468(u8 arg0) {
     u16 temp_a1;
 
     var_v0 = arg0;
-    if (D_80151200[var_v0].D_80151200 & 0x1000) {
+    if (D_80151200[var_v0].status & STATUS_SMALL) {
         temp_a1 = D_80151200[var_v0].D_8015120C;
         if (!(temp_a1 & 0x80)) {
             D_80151200[var_v0].D_8015120C |= 0x80;

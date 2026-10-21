@@ -1232,7 +1232,7 @@ static void BattleApplyFacingFlipTick(void) {
 }
 
 void BattleQueueImpactEffect(s32 arg0, s16 arg1) {
-    func_800BBA84(0x14, arg1, 0);
+    func_800BBA84(SFX_GRENADE, arg1, 0);
     BattleSpawnActorRampEffect(arg0, 1, 1);
     BattleSpawnFloatingIcon(D_800FA6D4, 0x2C);
 }
@@ -1475,8 +1475,8 @@ void func_800CEB48(void) {
 
     if (g_BattleEffectSlots[g_BattleEffectCursor].impact.sfxId != -1) {
         if (g_BattleEffectSlots[g_BattleEffectCursor].impact.damage == -1 &&
-            g_BattleEffectSlots[g_BattleEffectCursor].impact.attacker >= 4) {
-            func_800BBA84(5, g_BattleEffectSlots[g_BattleEffectCursor].impact.target, 0);
+            g_BattleEffectSlots[g_BattleEffectCursor].impact.attacker >= START_ENEMY) {
+            func_800BBA84(SFX_SWORD_MISS, g_BattleEffectSlots[g_BattleEffectCursor].impact.target, 0);
         } else {
             func_800BBA84(g_BattleEffectSlots[g_BattleEffectCursor].impact.sfxId,
                           g_BattleEffectSlots[g_BattleEffectCursor].impact.target, 0);
@@ -1492,7 +1492,7 @@ void func_800CEB48(void) {
     target = g_BattleEffectSlots[g_BattleEffectCursor].impact.target;
     if (attacker != target) {
         if (g_BattleModels[target].queuedActionId == 0x33) {
-            if (target >= 4) {
+            if (target >= START_ENEMY) {
                 if (D_800F8378 == 0) {
                     cond = (D_80161DE8 >> target) & 1;
                 } else {
@@ -1522,13 +1522,13 @@ void func_800CEB48(void) {
             if (!(g_BattleModels[D_801590CC].attackEffectId == 0x15 && // SENNKOKU.BIN
                   g_BattleModels[D_801590CC].currentActionId == CMD_ENEMY_SKILL) &&
                 !(g_BattleModels[D_800FA6D4].deathType & 0x40) && D_801031F0 == 0 &&
-                !(D_80151200[D_800FA6D4].D_80151200 & 0x4000) && !(D_80151200[D_800FA6D4].D_80151200 & 0x400) &&
+                !(D_80151200[D_800FA6D4].status & STATUS_PETRIFY) && !(D_80151200[D_800FA6D4].status & STATUS_STOP) &&
                 D_80162090 == 0) {
                 g_BattleModels[D_800FA6D4].rootRot.vy = D_80151200[D_800FA6D4].D_8015122C;
             }
         }
     } else if ((D_80161DE8 >> attacker) & 1) {
-        if (attacker >= 4) {
+        if (attacker >= START_ENEMY) {
             g_BattleModels[attacker].animId = g_BattleModels[attacker].queuedActionId;
             g_BattleModels[g_BattleEffectSlots[g_BattleEffectCursor].impact.target].animControlFlags |= 1;
             D_80151200[g_BattleEffectSlots[g_BattleEffectCursor].impact.target].D_8015120C |= 8;
