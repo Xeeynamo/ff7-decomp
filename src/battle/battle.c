@@ -26,8 +26,6 @@ const u8 g_BattleCmdOpcodeStream[] = {
 const s32 D_800A0108 = 21;
 const s32 D_800A010C[] = {2, 22, 3, 23, 4};
 
-void func_801B0000(void); // BATRES entry point
-
 // entrypoint
 void BATTLE_Main(void) {
     void (*fnBattleSetup)(s32);
@@ -187,7 +185,8 @@ void BATTLE_Main(void) {
     func_80014578(BATTLE_BATRES, (void*)0x801C0000, NULL);
     SystemCdWaitCallback(BattleRunFrame);
     SysGzipBinDecompress((GzHeader*)0x801C0000, (u8*)0x801B0000);
-    func_801B0000();
+    
+    BattleResultsMain();
 
     for (i = 0; i < LEN(Savemap.partyID); i++) {
         Savemap.partyID[i] = D_80163790[i];

@@ -863,4 +863,7 @@ s8* BattleGetStringPtrFromStringBuffer(s32 arg0);
 void BattleInitMain(s32 sceneID);
 void BattleInitSetup(s32 sceneID);
 
+// BATRES entry point, called by BATTLE_Main after the battle ends
+void BattleResultsMain(void);
+
 #endif

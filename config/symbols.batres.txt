@@ -1,3 +1,4 @@
+BattleResultsMain = 0x801B0000;
 CommitBattleResults = 0x801B09C0;
 LearnEnemySkills = 0x801B0C74;
 GiveSharedExp = 0x801B0D14;

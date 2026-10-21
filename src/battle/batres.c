@@ -35,7 +35,7 @@ extern SavePartyMember D_80167938;
 
 void GivePartyMemberExp(SavePartyMember* c, s32 exp, s32 slot);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/batres", func_801B0000);
+INCLUDE_ASM("asm/us/battle/nonmatchings/batres", BattleResultsMain);
 
 static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     SavePartyMember* c;
