@@ -155,6 +155,7 @@ func_battle_800AF1A8 = 0x800AF1A8;
 BattleTryApplyHitEffect = 0x800AF1D4;
 BattleUnitSetHpChangeRate = 0x800AF3AC;
 BattleClearActorSlotReferences = 0x800AF594;
+BattleProcessStatusChanges = 0x800AF65C;
 BattleStatusBitToTimerIndex = 0x800AF834;
 BattleGetStatusProtectionMask = 0x800AF874;
 BattleUnitGetPendingConstTicks = 0x800AFE98;

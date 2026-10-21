@@ -5116,7 +5116,87 @@ void BattleClearActorSlotReferences(s32 arg0, s32 arg1, s32 arg2) {
 void BattleInitUnitAction(s32 index);
 void func_800AF63C(s32 arg0) { BattleInitUnitAction(arg0); }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800AF65C);
+// Runs the gain/loss handler for each status bit that changed since the last call, after
+// stripping a dead unit's statuses. Returns 1 if a handler changed a unit's status again
+s32 BattleProcessStatusChanges(void) {
+    static void (*statusChangeHandlerJmpTbl[])(s32, s32, s32) = {
+        /* 0x00 */ BattlePostAddDeath,
+        /* 0x01 */ BattlePostRemoveDeath,
+        /* 0x02 */ func_800AEBF0,
+        /* 0x03 */ func_800AF380,
+        /* 0x04 */ func_800AF264,
+        /* 0x05 */ func_800AF320,
+        /* 0x06 */ BattleUnitSetHpChangeRate,
+        /* 0x07 */ func_800AF470,
+        /* 0x08 */ func_battle_800AF1A8,
+        /* 0x09 */ BattleRestoreBattleActionIfCan,
+        /* 0x0A */ BattleTryApplyHitEffect,
+        /* 0x0B */ func_800AF494,
+        /* 0x0C */ BattleClearActorSlotReferences,
+        /* 0x0D */ BattleUnitInitStatusTimer,
+        /* 0x0E */ func_800AEB80,
+        /* 0x0F */ func_800AF63C};
+
+    // The gain and loss handlers follow the same index order as BattleStatusFlags, and
+    // are used to index the handler jump table above
+    static u8 statusGainHandlerIds[] = {
+        0x00, 0xFF, 0x04, 0x0D, 0xFF, 0xFF, 0x08, 0x03, 0x02, 0x02, 0x04, 0x03, 0xFF, 0x0D, 0x04, 0x06,
+        0x0D, 0x0D, 0x07, 0xFF, 0x0D, 0x0D, 0x0C, 0x08, 0x0D, 0x04, 0xFF, 0x06, 0xFF, 0xFF, 0xFF, 0x0B};
+
+    static u8 statusLossHandlerIds[] = {
+        0x01, 0xFF, 0x05, 0x0E, 0xFF, 0xFF, 0x0A, 0x03, 0x02, 0x02, 0x05, 0x03, 0xFF, 0x0E, 0x05, 0x06,
+        0x0E, 0x0E, 0x0F, 0xFF, 0x0E, 0x0E, 0x0C, 0x0A, 0x0E, 0x05, 0xFF, 0x06, 0xFF, 0xFF, 0xFF, 0x0B};
+
+    const s32 keepOnDeath = STATUS_DEATH | STATUS_FROG | STATUS_SMALL | STATUS_IMPRISONED;
+    s32 changed = 0;
+    s32 i;
+    s32 j;
+
+    // A dead unit loses every status except these and the ones in its statusProtectionMask
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        if (g_BattleState.combatant[i].status & STATUS_DEATH) {
+            g_BattleState.combatant[i].status &= g_BattleWork.turn[i].statusProtectionMask | keepOnDeath;
+        }
+    }
+
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        s32 status = g_BattleState.combatant[i].status;
+        s32 prevStatus = g_BattleState.combatant[i].prevStatus;
+        s32 handlersRun = 0;
+
+        g_BattleState.combatant[i].prevStatus = status;
+        if (g_BattleState.combatant[i].actorId == -1) {
+            continue;
+        }
+
+        if (prevStatus != status) {
+            s32 bit = 1;
+            s32 diff = prevStatus ^ status;
+
+            for (j = 0; j < LEN(statusGainHandlerIds); j++, bit <<= 1) {
+                if (bit & diff) {
+                    s32 gained = (bit & status) != 0;
+                    u8 handler = gained ? statusGainHandlerIds[j] : statusLossHandlerIds[j];
+                    if (handler != 0xFF) {
+                        // Status timers (13/14) run once per changed bit, other handlers at most once per unit
+                        s32 handlerBit = (1 << handler) & ~(1 << 0x0D | 1 << 0x0E);
+
+                        if (!(handlersRun & handlerBit)) {
+                            handlersRun |= handlerBit;
+                            statusChangeHandlerJmpTbl[handler](i, j, gained);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (g_BattleState.combatant[i].prevStatus != g_BattleState.combatant[i].status) {
+            changed = 1;
+        }
+    }
+
+    return changed;
+}
 
 static s32 BattleStatusBitToTimerIndex(s32 statusBit) {
     s32 result;
@@ -6266,6 +6346,8 @@ static s32 BattleScriptCollapseVarBank(s32 arg0) {
     }
     return i;
 }
+
+s32 D_800E7CFC[] = {0x00000001, 0x00000002, 0x00000003};
 
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeCycle);
 
