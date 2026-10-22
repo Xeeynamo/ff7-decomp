@@ -901,7 +901,7 @@ void func_800A38FC(void) {
         // Automatically fill over time the limit bar gauge with the SETUP_NO_VICTORY_POSE
         // flag. This might be used for the final fight between Cloud and Sephiroth.
         if (g_BattleState.setupFlags & SETUP_NO_VICTORY_POSE) {
-            targetGauge = (g_BattleFrameCount * 255) / g_BattleState.arenaRound;
+            targetGauge = (g_BattleFrameCount * 255) / g_BattleState.setupParam;
             if (targetGauge > 255) {
                 targetGauge = 255;
             }

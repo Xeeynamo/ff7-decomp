@@ -1501,15 +1501,6 @@ extern FieldEntity g_FieldEntity[];
 extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
 extern s32 g_PartyPortraitClut[];
 extern Unk80075D00* D_80075D00;
-typedef struct {
-    /* 0x00 */ s32 displayExp[4];
-    /* 0x10 */ s32 exp[4];
-    /* 0x20 */ s32 levelExp[4][12];
-    /* 0xE0 */ u8 expFrac[4];
-    /* 0xE4 */ u8 startLevel[4];
-} BatresSummary;
-
-extern BatresSummary g_BatresSummary;
 extern volatile s16 D_80075DEC;  // buffer index, also updated by the VSync callback
 extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
