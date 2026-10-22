@@ -273,7 +273,7 @@ static void BarrierAnimationUpdate(void) {
     }
 
     if (barrier->AnimationFrame == 17) {
-        func_800D5774(barrier->TargetIndex);
+        BattleQueueTargetImpact(barrier->TargetIndex);
         barrier->StartFrame = -1;
     }
 

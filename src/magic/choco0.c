@@ -665,7 +665,7 @@ static void Choco0AnimationUpdate(void) {
         if (frame == 0) {
             for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
                 if ((choco0_target_mask >> i) & 1) {
-                    func_800D5774(i);
+                    BattleQueueTargetImpact(i);
                 }
             }
         }

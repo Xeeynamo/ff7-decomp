@@ -131,7 +131,7 @@ static void Lv5DeathRenderTargetSprite(void) {
     }
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == RESULT_POPUP_FRAME) {
-            func_800D5774(effect->u.TargetIndex);
+            BattleQueueTargetImpact(effect->u.TargetIndex);
         }
         effect->AnimationFrame++;
     }

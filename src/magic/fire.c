@@ -50,7 +50,7 @@ static void FireAnimationUpdate(void) {
     effect = &g_BattleEffectSlots[g_BattleEffectCursor];
     if (D_80062D98 == 0) {
         if (effect->AnimationFrame == 0) {
-            func_800D5774(effect->TargetIndex);
+            BattleQueueTargetImpact(effect->TargetIndex);
         }
         if (!(effect->AnimationFrame & 1)) {
             next = &g_BattleEffectSlots[BattleEffectRegister(FireRenderSprite)];

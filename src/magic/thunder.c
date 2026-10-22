@@ -127,7 +127,7 @@ static void ThunderSpawnBolt(void) {
             next->Pos = effect->Pos;
             next->Pos.vy = 0;
             next->DepthBias = effect->DepthBias;
-            func_800D5774(effect->TargetIndex);
+            BattleQueueTargetImpact(effect->TargetIndex);
             if (effect->AnimationFrame == 0) {
                 next = &g_BattleEffectSlots[BattleEffectRegister(ThunderRenderModel)];
                 next->Pos = effect->Pos;

@@ -88,7 +88,7 @@ static void FairaAttachToTarget(s32 target, s32 callbackArg) {
         scale = SCALE_MAX;
     }
     effect->Scale = scale;
-    func_800D5774(target);
+    BattleQueueTargetImpact(target);
 }
 
 // This slot uses AnimationFrame as a 0/1 page index, not as a frame counter.
