@@ -27,7 +27,181 @@ const s32 D_800A0108 = 21;
 const s32 D_800A010C[] = {2, 22, 3, 23, 4};
 
 // entrypoint
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BATTLE_Main);
+void BATTLE_Main(void) {
+    const s32 visibleStatusMask = ~(STATUS_DEATH_FORCE | STATUS_RESIST | STATUS_LUCKY_GIRL | STATUS_IMPRISONED);
+    void (*fnBattleSetup)(s32);
+    void (*fnBattleStart)(void);
+    void (*fnBattleRunFrame)(void);
+    s32 mask;
+    s32 battleCount;
+    s32 done;
+    s32 sceneId;
+    u16 prevMask;
+    s32 i;
+
+    // Save a copy of the party members who entered the fight
+    for (i = 0; i < LEN(Savemap.partyID); i++) {
+        g_BattlePartyIDs[i] = Savemap.partyID[i];
+    }
+
+    sceneId = g_BattleParams.sceneId;
+    D_80062F14 = -1;
+    D_801517B8 = 0;
+    g_BattleData.flags = g_BattleParams.mode;
+    battleCount = 0;
+
+    // Outer loop takes care of multi-scene battles
+    while (sceneId != 0xFFFF) {
+        battleCount++;
+        g_BattleSceneID = sceneId;
+        g_BattleParams.mode = 0;
+
+        // Chained battles keep running battle frames while BATINI loads
+        if (battleCount != 1) {
+            fnBattleStart = BattleNextStartSeq;
+            fnBattleRunFrame = BattleRunFrame;
+            fnBattleSetup = BattleInitSetup;
+        } else {
+            fnBattleStart = BattleNormalStartSeq;
+            fnBattleRunFrame = NULL;
+            fnBattleSetup = BattleInitMain;
+        }
+
+        // Load the Battle init entry point
+        func_80014578(BATTLE_BATINI, (void*)0x801C0000, NULL);
+        SystemCdWaitCallback(fnBattleRunFrame);
+        SysGzipBinDecompress((GzHeader*)0x801C0000, (u8*)0x801B0000);
+
+        fnBattleSetup(sceneId);
+        g_BattleState.setupFlags &= ~0x2;
+
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            g_BattleData.actors[i].status = g_BattleState.combatant[i].status & visibleStatusMask;
+            g_BattleData.actors[i].D_801636C4 = g_BattleData.actors[i].status;
+            g_BattleWork.turn[i].menuListFlags |= 0xF;
+        }
+
+        fnBattleStart();
+
+        for (i = START_ENEMY; i < NUM_BATTLE_ACTOR; i++) {
+            if (g_BattleState.combatant[i].unk4F != 0xFF) {
+                func_800A4B3C(i, g_BattleState.combatant[i].unk4F);
+            }
+            g_BattleWork.turn[i].deathEffectState = g_BattleData.actors[i].D_801636BC;
+        }
+
+        for (i = 0; i < NUM_PARTY; i++) {
+            if (g_BattleWork.turn[i].atbIncrement) {
+                BattleQueueEvent(0, i, 6, 0);
+            }
+        }
+
+        done = 0;
+        g_BattleState.cycleFlags = 0;
+        prevMask = g_BattleData.unitPresentMask;
+        BattleRunFrameIfActionQueued();
+
+        // Main loop
+        while (g_BattleState.cycleFlags == 0 || !done) {
+            done = BattleBattleActionQueueExecute((g_BattleState.cycleFlags & 0x25) ? 1 : 7);
+            g_BattleWork.pendingActionPriority = -1;
+
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                g_BattleData.actors[i].status = g_BattleState.combatant[i].status & visibleStatusMask;
+            }
+
+            BattleRunFrame();
+            BattleProcessTimers();
+            BattleProcessEventQueue(2);
+
+            while (BattleProcessStatusChanges()) {
+                // Spin until all status changes have been processed
+            }
+
+            BattleReqReturnReservedItems(0xA);
+
+            for (i = 0; i < NUM_PARTY; i++) {
+                g_BattleWork.party[i].limitBarUI = g_BattleWork.party[i].limitBar;
+            }
+
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                g_BattleData.actors[i].status = g_BattleState.combatant[i].status & visibleStatusMask;
+                g_BattleData.actors[i].D_801636C4 = g_BattleData.actors[i].status;
+            }
+
+            BattleRunFrameIfActionQueued();
+            BattleProcessEventQueue(2);
+            BattleUpdateUnitMasks();
+            BattleInitTurnWorkHPMP();
+
+            if (g_BattleWork.pendingActionPriority != -1) {
+                done = 0;
+            }
+
+            for (i = 0; i < NUM_PARTY; i++) {
+                if (g_BattleWork.party[i].curMP != g_BattleState.combatant[i].curMP) {
+                    BattleQueueEvent(0, i, 0xC, 0xF);
+                }
+                g_BattleWork.party[i].curMP = g_BattleState.combatant[i].curMP;
+            }
+
+            // Flag a side with no unpetrified units left
+            g_BattleState.cycleFlags &= ~(0x20 | 0x2);
+            mask = g_BattleData.unitPresentMask & ~g_BattleWork.petrifiedMask;
+            if (!(mask & 0xF)) {
+                g_BattleState.cycleFlags |= 0x22;
+            } else if (!(mask & 0x3F0)) {
+                g_BattleState.cycleFlags |= 0x20;
+            }
+
+            // The countdown timer ran out
+            if ((g_BattleData.flags & 2) && !Savemap.countdown_timer_seconds) {
+                g_BattleState.cycleFlags |= 0x30;
+                g_BattleParams.mode |= 2;
+                g_BattleData.activeEncounter.setup.flags &= ~SETUP_NO_VICTORY_POSE;
+            }
+
+            if ((g_BattleState.setupFlags & 4) &&
+                (g_BattleWork.nextOrderToAssign[0] == g_BattleWork.nextOrderToExecute[0])) {
+                s32 enemyMask = g_BattleData.unitPresentMask & prevMask & 0x3F0;
+                if ((prevMask & 0x3F0) != enemyMask && enemyMask && BattleRunEscapeSequence()) {
+                    break;
+                }
+                prevMask = g_BattleData.unitPresentMask;
+            }
+            if (g_BattleState.cycleFlags & 8) {
+                break;
+            }
+        }
+
+        if ((g_BattleData.flags & 0x40) && (g_BattleState.cycleFlags & 4)) {
+            g_BattleState.cycleFlags = (g_BattleState.cycleFlags & ~4) | 2;
+        }
+
+        // Load the next scene if this is a multi-part battle
+        sceneId = 0xFFFF;
+        if (!(g_BattleState.cycleFlags & 0x1E)) {
+            sceneId = g_BattleData.activeEncounter.setup.nextStageID;
+            if (g_BattleData.flags & 0x40) {
+                sceneId = func_800A35F8();
+            }
+        }
+    }
+
+    // Load the Battle results entry point
+    func_80014578(BATTLE_BATRES, (void*)0x801C0000, NULL);
+    SystemCdWaitCallback(BattleRunFrame);
+    SysGzipBinDecompress((GzHeader*)0x801C0000, (u8*)0x801B0000);
+
+    BattleResultsMain();
+
+    // Restore the saved party members in the Savemap at the end
+    for (i = 0; i < LEN(Savemap.partyID); i++) {
+        Savemap.partyID[i] = g_BattlePartyIDs[i];
+    }
+
+    g_GameState = GAMESTATE_FIELD;
+}
 
 // per-command opcode dispatcher: reads cmdIndex from the turn context
 // (g_CurrentAction->queuedCmdIndex), looks up its opcode-sequence start via
@@ -483,7 +657,7 @@ void BattleRunFrame(void) {
     }
 }
 
-static void func_800A345C(void) {
+static void BattleRunFrameIfActionQueued(void) {
     if (g_BattleActionQueueIndex) {
         BattleRunFrame();
     }
@@ -537,7 +711,7 @@ void func_800A3534(s32 unused, s16 index) {
     }
 }
 
-u16 func_800A35F8(void) {
+s32 func_800A35F8(void) {
     u16 result = 0xFFFF;
     s32 mask = 0;
     s32 type;
@@ -808,7 +982,7 @@ void func_800A3ED0(void) {
         s32 textId = D_80062F60++ / 32 % 3 + BATTLE_TEXT_DATA_ERROR_START;
         s32 strId;
 
-        msgArgs[0] = D_80062F54;
+        msgArgs[0] = g_BattleSceneID;
         msgArgs[1] = (u8)errorCode;
 
         strId = BattleAddMessageToStringBuffer(SysGetKernBattleTextPtr(textId), msgArgs) + 0x100;
@@ -2840,8 +3014,6 @@ void BattleActionType16(void) {
         msgDelay = 1;
     }
 }
-
-extern s32 D_801517B8;
 
 // Mime command handler
 void BattleActionType17(void) {

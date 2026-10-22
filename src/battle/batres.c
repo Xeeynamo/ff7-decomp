@@ -31,12 +31,11 @@ extern StatGrowth D_80082484[][8];
 extern s32 D_8009D7D8;
 extern s32 D_8009D7DC;
 extern s32 D_8009D7E0;
-extern u8 D_80163790[]; // the char_id occupying each of the three party slots
 extern SavePartyMember D_80167938;
 
 void GivePartyMemberExp(SavePartyMember* c, s32 exp, s32 slot);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/batres", func_801B0000);
+INCLUDE_ASM("asm/us/battle/nonmatchings/batres", BattleResultsMain);
 
 static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     SavePartyMember* c;
@@ -62,7 +61,7 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     for (slot = 0; slot < NUM_PARTY; slot++) {
         hp = g_BattleState.combatant[slot].curHP;
         mp = g_BattleState.combatant[slot].curMP;
-        id = D_80163790[slot];
+        id = g_BattlePartyIDs[slot];
         if ((g_BattleWork.reviveMask >> slot) & 1) {
             hp = hpOverride;
             mp = mpOverride;

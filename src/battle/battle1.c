@@ -58,7 +58,6 @@ void func_800C4814(void);
 void func_800C494C(void);
 static void func_800C5694(void);
 static void BattleEffectModelTick(void);
-void BattleNormalStartSeq(void);
 void BattleEnemyPlayInitAnims(void);
 void func_800B383C(void);
 static void BattleLoadEnemyFinish(void);
@@ -1531,7 +1530,7 @@ static void func_800B85E0() {
             D_80151200[i].D_80151200 = g_BattleData.actors[i].status;
         }
     }
-    if (D_800F9D98 != 100 && (g_BattleMode & 1)) {
+    if (D_800F9D98 != 100 && (g_BattleParams.mode & 1)) {
         D_80163C7C = 5;
         BattlePlaySavemapDoneSound();
         D_800F9D98 = 100;
@@ -1544,7 +1543,7 @@ static void func_800B85E0() {
     }
     if (D_800F9D9C != 100) {
         i = 0;
-        if (g_BattleMode & 8) {
+        if (g_BattleParams.mode & 8) {
             for (; i < 3; i++) {
                 g_BattleModels[i].animControlFlags |= 1;
                 g_BattleModels[i].animId = g_BattleData.actors[i].idleActionId;

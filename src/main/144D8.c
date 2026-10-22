@@ -1,8 +1,6 @@
 //! PSYQ=3.6 G=0
 #include "main_private.h"
 
-extern volatile s16 g_GameState;
-
 // placeholder sectors and sizes, replaced at boot with INIT/YAMADA.BIN
 static Yamada D_80048D84[YAMADA_FILE_NUM] = {
     {501, 2048},     // INIT_YAMADA,

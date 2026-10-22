@@ -14,7 +14,6 @@ extern s8 g_BgFadeMode;
 extern FieldScriptHeader** D_8007EB64;
 extern u8 D_8007EBC8;
 extern s8 D_8009A048[16];
-extern volatile s16 g_GameState;
 extern u8 D_8009C6D8;
 extern DRAWENV D_80113FE4[2];
 extern DRAWENV D_8011409C[2];
