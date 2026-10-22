@@ -29,7 +29,7 @@ void BattleGetWeaponBoneNumAndInitBones(s16* count, u16* data, s16 actor);
 void BattleBoneSetParentMatrix(MATRIX* parent, BattleModelSub* bone);
 
 void BattleUpdateModelMatrixesWithSelfAndParent(s32 actor);
-void func_800BBA84(u16 sound, s16 actor, s32 pan);
+void func_800BBA84(s32 sound, s16 actor, s32 pan);
 void BattleQueue1Execute(void);
 void func_800B8FCC(s32 actor);
 void func_800BA11C(s32 index, s32 step, s16 initial, s16 reset);
@@ -190,7 +190,7 @@ void BattleModelFadeInTick(void);
 static void func_800BB89C(void);
 void func_800BCA58(s32 arg0);
 void func_800C1104();
-void func_800BCB1C(u8, s16, s16);
+void BattleExecuteCameraPositionScript(u8 category, s16 unused, s16 scriptId);
 void func_800BEA38(u8, s16, s16);
 void func_800C0DD8(s16 actor, s32 categoryArg, s32 flagsArg);
 s32 func_800C0314(s32 value, s32 arg1);
@@ -706,8 +706,8 @@ void BattlePlayerInitModelWithSettings(u8 arg0) {
             D_80151200[actor].values4[i] = settings->values44[i];
         }
         for (i = 0; i < LEN(settings->values4C); i++) {
-            D_80151200[arg0].valuesE[i] = settings->values4C[i];
-            D_80151200[arg0].values1A[i] = settings->values58[i];
+            D_80151200[arg0].cameraPositions[0][i] = settings->values4C[i];
+            D_80151200[arg0].cameraPositions[1][i] = settings->values58[i];
         }
         actor = arg0;
         if (g_BattleModels[actor].deathType & 0x80) {
@@ -788,8 +788,8 @@ void BattleEnemyInitModelWithSettings(u8 arg0) {
         D_80151200[actor].values4[i] = settings->values44[i];
     }
     for (i = 0; i < LEN(settings->values4C); i++) {
-        D_80151200[arg0].valuesE[i] = settings->values4C[i];
-        D_80151200[arg0].values1A[i] = settings->values58[i];
+        D_80151200[arg0].cameraPositions[0][i] = settings->values4C[i];
+        D_80151200[arg0].cameraPositions[1][i] = settings->values58[i];
     }
     actor = arg0;
     g_BattleData.actors[actor].D_801636BC = g_BattleModels[actor].deathType & 0x3F;
@@ -2168,7 +2168,7 @@ static void func_800BBA40(s32 arg0) {
     AkaoExec();
 }
 
-void func_800BBA84(u16 sound, s16 actor, s32 pan) {
+void func_800BBA84(s32 sound, s16 actor, s32 pan) {
     s32 value;
 
     if (actor == -1) {
@@ -2272,7 +2272,7 @@ static s32 BattleCameraRegister(void (*callback)(void)) {
     for (i = 0; i < 16; i++) {
         if (!g_BattleCameraCallbacks[i]) {
             g_BattleCameraCallbacks[i] = callback;
-            g_BattleCameraSlots[i].D_800F7ED8 = g_BattleCameraCursor;
+            g_BattleCameraSlots[i].raw.D_800F7ED8 = g_BattleCameraCursor;
             g_BattleCameraCount++;
             return i;
         }
@@ -2312,8 +2312,8 @@ static void BattleCameraResetCallbacks(void) {
     g_BattleCameraCount = 0;
     for (i = 0; i < 0x10; i++) {
         g_BattleCameraCallbacks[i] = 0;
-        g_BattleCameraSlots[i].D_800F7ED8 = 0;
-        g_BattleCameraSlots[i].D_800F7EDA = 0;
+        g_BattleCameraSlots[i].raw.D_800F7ED8 = 0;
+        g_BattleCameraSlots[i].raw.D_800F7EDA = 0;
     }
 }
 
@@ -2380,9 +2380,9 @@ static void BattleCameraUpdate(void) {
         callback = g_BattleCameraCallbacks[g_BattleCameraCursor];
         if (callback) {
             callback();
-            if (g_BattleCameraSlots[g_BattleCameraCursor].D_800F7ED8 == -1) {
-                g_BattleCameraSlots[g_BattleCameraCursor].D_800F7ED8 = 0;
-                g_BattleCameraSlots[g_BattleCameraCursor].D_800F7EDA = 0;
+            if (g_BattleCameraSlots[g_BattleCameraCursor].raw.D_800F7ED8 == -1) {
+                g_BattleCameraSlots[g_BattleCameraCursor].raw.D_800F7ED8 = 0;
+                g_BattleCameraSlots[g_BattleCameraCursor].raw.D_800F7EDA = 0;
                 g_BattleCameraCallbacks[g_BattleCameraCursor] = NULL;
                 g_BattleCameraCount--;
             }
@@ -2414,7 +2414,7 @@ static void func_800BC81C(s16 arg0, s16 arg1) {
     if (D_801590DC == 0) {
         for (i = 0; i < 3; i++) {
             func_800BEA38(i, arg1, arg0);
-            func_800BCB1C(i, arg1, arg0);
+            BattleExecuteCameraPositionScript(i, arg1, arg0);
         }
         BattleCameraUpdate();
     }
@@ -2432,25 +2432,446 @@ void func_800BCA58(s32 arg0) {
     g_BattleCameraTarget.vz = D_801518A4[index].z;
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle1", func_800BCB1C);
+typedef struct {
+    /* 0x0 */ u8 running;
+    /* 0x1 */ u8 opcode;
+    /* 0x2 */ u8 pad2[2];
+    /* 0x4 */ u8* sequence;
+    /* 0x8 */ s16 value;
+    /* 0xA */ s16 angle;
+} BattleCameraInterpreterScratch; // size:0xC
+
+extern u8* D_800E9E5C[];
+extern u8 D_800EA194[];
+extern u8 D_80163F30;
+extern u8** D_801A0000;
+extern u8** D_801A0008;
+void BattleApplyToggleFlag(void);
+
+void BattleExecuteCameraPositionScript(u8 category, s16 unused, s16 scriptId) {
+    Unk800F7ED8* slot;
+    BattleCameraInterpreterScratch* scratch;
+    s32 secondarySlotIndex;
+    s16 soundId;
+    s32 scriptSlotIndex;
+    s32 primarySlotIndex;
+    s16 retryCursor;
+    s32 angleBias;
+    s32 primaryModel, secondaryModel;
+    s32 cosineModelOffset;
+    u8** sequences;
+    s32 posX, posZ;
+    u16 slotX, slotY, slotZ, duration;
+    u16 startZ;
+    s32 cameraIndex;
+    s32 startCameraIndex;
+    s32 primaryRadiusModelIndex;
+    s32 secondaryRadiusModelIndex;
+    s32 commandValue;
+    s32 roundedCosine;
+    s32 sineProduct;
+    s32 positionActor;
+    s32 secondaryCosineModelOffset;
+    s32 cosineProduct;
+    s16 offsetZ;
+    u16 boneCursor;
+    u16 primaryBoneCursor;
+    u16 secondaryBoneCursor;
+    u16 mappedBoneCursor;
+    u16 moveBoneCursor;
+    u16 wait;
+    u16 opcodeCursor;
+    u16 actorCursor;
+    u16 moveDurationCursor;
+    u16 mappedActorCursor;
+    u16 moveActorCursor;
+    u16 cameraCursor;
+    u16 startDurationCursor;
+    u16 actorSelectCursor;
+    u16 waitCursor;
+    u16 orbitShiftCursor;
+    u16 secondaryShiftCursor;
+    u16 positionBoneCursor;
+    s32 scriptActor;
+    s32 positionIndex;
+    s32 mappedActor;
+    s32 moveActor;
+    s32 modelIndex;
+    s32 followActor;
+    s32 bone;
+    BattleCameraScriptState* state;
+
+    scratch = (BattleCameraInterpreterScratch*)getScratchAddr(8);
+    sequences = D_801A0000;
+    scratch->running = 1;
+    scratch->sequence = sequences[(scriptId * 3) + category];
+    if (scriptId == -3) {
+        sequences = D_801A0008;
+        scratch->sequence = sequences[category];
+    }
+    if (scriptId == -1) {
+        scratch->sequence = D_800EA194;
+    }
+    if (scriptId == -2) {
+        scratch->sequence = D_800E9E5C[D_80163F30];
+    }
+
+    if (D_80151844[category].cursor == 0xFF) {
+        D_80151844[category].flags = 0;
+        D_80151844[category].cursor = 0;
+        D_80151844[category].wait = 0;
+        D_80151844[category].unkD = 0;
+    }
+    while (scratch->running != 0) {
+        state = &D_80151844[category];
+        opcodeCursor = D_80151844[category].cursor++;
+        scratch->opcode = scratch->sequence[opcodeCursor];
+        switch (scratch->opcode) {
+        case 0xFE:
+            if (D_80151844[category].wait == 0) {
+                scratch->opcode = scratch->sequence[D_80151844[category].cursor];
+                if (scratch->opcode == 0xC0) {
+                    state->cursor = 0;
+                    D_80151844[category].wait = 0;
+                }
+            }
+            break;
+        case 0xD7:
+            CAMERA_SCRATCH(x) = scratch->sequence[D_80151844[category].cursor++];
+            CAMERA_SCRATCH(y) = scratch->sequence[D_80151844[category].cursor++];
+            D_80166F68[CAMERA_SCRATCH(x)] = CAMERA_SCRATCH(y);
+            BattleApplyToggleFlag();
+            break;
+        case 0xD5:
+            soundId = func_800BFA98(scratch->sequence, category);
+            CAMERA_SCRATCH(x) = soundId;
+            func_800BBA84(soundId, -1, 0x40);
+            break;
+        case 0xD6:
+            func_800BBA84(0x10CU, -1, 0x40);
+            D_80163C74 = func_800C4FC8(0xFAU, 0xFAU, 0xFAU);
+            break;
+        case 0xD9:
+            D_80151844[category].x = g_BattleCameraPos.vx;
+            D_80151844[category].y = g_BattleCameraPos.vy;
+            D_80151844[category].z = g_BattleCameraPos.vz;
+            break;
+        case 0xE1:
+            cameraIndex = D_80163B3C;
+            D_80151844[category].x = g_BattleData.activeEncounter.camera[D_80163B3C].start.x;
+            D_80151844[category].y = g_BattleData.activeEncounter.camera[cameraIndex].start.y;
+            D_80151844[category].z = g_BattleData.activeEncounter.camera[cameraIndex].start.z;
+            break;
+        case 0xDD:
+            cameraCursor = D_80151844[category].cursor++;
+            D_80163B3C = scratch->sequence[cameraCursor];
+            break;
+        case 0xE2:
+            slot = &g_BattleCameraSlots[BattleCameraRegister(func_800C0410)].raw;
+            startCameraIndex = D_80163B3C;
+            slot->unk6 = g_BattleData.activeEncounter.camera[startCameraIndex].start.x;
+            slot->unk8 = g_BattleData.activeEncounter.camera[startCameraIndex].start.y;
+            slot->unkA = g_BattleData.activeEncounter.camera[startCameraIndex].start.z;
+            startDurationCursor = D_80151844[category].cursor++;
+            slot->unk4 = scratch->sequence[startDurationCursor];
+            slot->unkC = D_80151844[category].x;
+            slot->unkE = D_80151844[category].y;
+            startZ = D_80151844[category].z;
+            slot->unk12 = category;
+            slot->unk10 = startZ;
+            break;
+        case 0xDA:
+            D_80151844[category].unkD = 0;
+            break;
+        case 0xDB:
+            D_80151844[category].unkD = 1;
+            break;
+        case 0xDE:
+            actorSelectCursor = D_80151844[category].cursor++;
+            if (scratch->sequence[actorSelectCursor] != 0) {
+                D_80161EEC = 3;
+            }
+            break;
+        case 0xF9:
+            D_80151844[category].x = func_800BFA98(scratch->sequence, category);
+            D_80151844[category].y = func_800BFA98(scratch->sequence, category);
+            D_80151844[category].z = func_800BFA98(scratch->sequence, category);
+            break;
+        case 0xF8:
+            commandValue = BattleCameraRegister(func_800BE49C);
+            g_BattleCameraSlots[commandValue].orbit.angle = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[commandValue].orbit.radius = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[commandValue].orbit.angleStep = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[commandValue].orbit.radiusStep = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[commandValue].orbit.heightStep = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[commandValue].orbit.frames = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[commandValue].orbit.category = category;
+            break;
+        case 0xF5:
+            waitCursor = D_80151844[category].cursor++;
+            D_80151844[category].wait = scratch->sequence[waitCursor];
+            break;
+        case 0xF4:
+            wait = D_80151844[category].wait;
+            if (wait != 0) {
+                state->wait = --wait;
+                retryCursor = D_80151844[category].cursor - 1;
+                state->cursor = retryCursor;
+                scratch->running = 0;
+            }
+            break;
+        case 0xDC:
+            D_80151844[category].flags = 1;
+            break;
+        case 0xF1:
+            D_80151844[category].flags = 0;
+            break;
+        case 0xDF:
+            D_80161EEC = 0xF;
+            break;
+        // Orbit either model using both scaled collision radii.
+        case 0xF3:
+            orbitShiftCursor = D_80151844[category].cursor++;
+            CAMERA_SCRATCH(argument) = scratch->sequence[orbitShiftCursor];
+            CAMERA_SCRATCH(z) = func_800BFA98(scratch->sequence, category);
+            angleBias = CAMERA_SCRATCH_U16(z);
+            primaryModel = D_80161EEC;
+            secondaryModel = D_801590CC;
+            angleBias += 0x800;
+            scratch->angle = angleBias - (g_BattleModels[primaryModel].rootRot.vy);
+            scratch->value =
+                ((g_BattleModels[secondaryModel].collisionRadius * g_BattleModels[secondaryModel].scale) >> 0xC) +
+                ((g_BattleModels[primaryModel].collisionRadius * g_BattleModels[primaryModel].scale) >> 0xC);
+            commandValue = rsin(scratch->angle) * scratch->value;
+            D_80151844[category].x =
+                g_BattleModels[D_80161EEC].rootTrans.vx - ((commandValue / 4096) << CAMERA_SCRATCH(argument));
+            cosineProduct = rcos(scratch->angle) * scratch->value;
+            modelIndex = D_80161EEC;
+            roundedCosine = cosineProduct;
+            cosineModelOffset = modelIndex * sizeof(BattleModel);
+            if (roundedCosine < 0) {
+                roundedCosine += 0xFFF;
+            }
+            D_80151844[category].z = ((BattleModel*)((u8*)g_BattleModels + cosineModelOffset))->rootTrans.vz +
+                                     ((roundedCosine >> 12) << CAMERA_SCRATCH(argument));
+            D_80151844[category].y = D_801518A4[category].y - func_800BFA98(scratch->sequence, category);
+            break;
+        case 0xF2:
+            secondaryShiftCursor = D_80151844[category].cursor++;
+            CAMERA_SCRATCH(argument) = scratch->sequence[secondaryShiftCursor];
+            CAMERA_SCRATCH(z) = func_800BFA98(scratch->sequence, category);
+            secondaryRadiusModelIndex = D_801590CC;
+            scratch->angle = CAMERA_SCRATCH_U16(z) + 0x800 - (u16)g_BattleModels[secondaryRadiusModelIndex].rootRot.vy;
+            primaryRadiusModelIndex = D_80161EEC;
+            scratch->value =
+                ((g_BattleModels[secondaryRadiusModelIndex].collisionRadius *
+                  g_BattleModels[secondaryRadiusModelIndex].scale) >>
+                 0xC) +
+                ((g_BattleModels[primaryRadiusModelIndex].collisionRadius *
+                  g_BattleModels[primaryRadiusModelIndex].scale) >>
+                 0xC);
+            sineProduct = rsin(scratch->angle) * scratch->value;
+            D_80151844[category].x =
+                g_BattleModels[D_801590CC].rootTrans.vx - ((sineProduct / 4096) << CAMERA_SCRATCH(argument));
+            cosineProduct = rcos(scratch->angle) * scratch->value;
+            modelIndex = D_801590CC;
+            roundedCosine = cosineProduct;
+            secondaryCosineModelOffset = modelIndex * sizeof(BattleModel);
+            if (roundedCosine < 0) {
+                roundedCosine += 0xFFF;
+            }
+            D_80151844[category].z = ((BattleModel*)((u8*)g_BattleModels + secondaryCosineModelOffset))->rootTrans.vz +
+                                     ((roundedCosine >> 12) << CAMERA_SCRATCH(argument));
+            D_80151844[category].y = D_801518A4[category].y - func_800BFA98(scratch->sequence, category);
+            break;
+        case 0xEF:
+            actorCursor = D_80151844[category].cursor++;
+            scriptActor = scratch->sequence[actorCursor];
+            CAMERA_SCRATCH(argument) = scriptActor;
+            boneCursor = D_80151844[category].cursor++;
+            CAMERA_SCRATCH(bone) = g_BattleModels[scriptActor].boneIndices[scratch->sequence[boneCursor]];
+            CAMERA_SCRATCH(x) = func_800BFA98(scratch->sequence, category);
+            CAMERA_SCRATCH(y) = func_800BFA98(scratch->sequence, category);
+            offsetZ = func_800BFA98(scratch->sequence, category);
+            CAMERA_SCRATCH(z) = offsetZ;
+            func_800BFF88(CAMERA_SCRATCH_S16(argument), CAMERA_SCRATCH_S16(bone), (s16)category, 0);
+            scratch->running = 0;
+            break;
+        case 0xF7:
+            primaryBoneCursor = D_80151844[category].cursor++;
+            CAMERA_SCRATCH(bone) = g_BattleModels[D_80161EEC].boneIndices[scratch->sequence[primaryBoneCursor]];
+            CAMERA_SCRATCH(x) = func_800BFA98(scratch->sequence, category);
+            CAMERA_SCRATCH(y) = func_800BFA98(scratch->sequence, category);
+            offsetZ = func_800BFA98(scratch->sequence, category);
+            CAMERA_SCRATCH(z) = offsetZ;
+            func_800BFF88(D_80161EEC, CAMERA_SCRATCH_S16(bone), (s16)category, 1);
+            scratch->running = 0;
+            break;
+        case 0xF0:
+            secondaryBoneCursor = D_80151844[category].cursor++;
+            CAMERA_SCRATCH(bone) = g_BattleModels[D_801590CC].boneIndices[scratch->sequence[secondaryBoneCursor]];
+            CAMERA_SCRATCH(x) = func_800BFA98(scratch->sequence, category);
+            CAMERA_SCRATCH(y) = func_800BFA98(scratch->sequence, category);
+            offsetZ = func_800BFA98(scratch->sequence, category);
+            CAMERA_SCRATCH(z) = offsetZ;
+            func_800BFF88(D_801590CC, CAMERA_SCRATCH_S16(bone), (s16)category, 0);
+            scratch->running = 0;
+            break;
+        // Follow a bone for the duration supplied by the script.
+        case 0xEB:
+            scriptSlotIndex = BattleCameraRegister(func_800BFB88);
+            scratch->value = scriptSlotIndex;
+            g_BattleCameraSlots[(s16)scriptSlotIndex].follow.actor = followActor =
+                scratch->sequence[D_80151844[category].cursor++];
+
+            CAMERA_SCRATCH(argument) = followActor;
+
+            g_BattleCameraSlots[scratch->value].follow.bone =
+                g_BattleModels[followActor].boneIndices[scratch->sequence[D_80151844[category].cursor++]];
+            g_BattleCameraSlots[scratch->value].follow.x = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[scratch->value].follow.y = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[scratch->value].follow.z = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[scratch->value].follow.frames = scratch->sequence[D_80151844[category].cursor++];
+            g_BattleCameraSlots[scratch->value].follow.category = category;
+            g_BattleCameraSlots[scratch->value].follow.relative = 0;
+            break;
+        case 0xE9:
+            primarySlotIndex = BattleCameraRegister(func_800BFB88);
+            scratch->value = primarySlotIndex;
+            g_BattleCameraSlots[(s16)primarySlotIndex].follow.actor = D_80161EEC;
+
+            g_BattleCameraSlots[scratch->value].follow.bone =
+                g_BattleModels[D_80161EEC].boneIndices[scratch->sequence[D_80151844[category].cursor++]];
+            g_BattleCameraSlots[scratch->value].follow.x = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[scratch->value].follow.y = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[scratch->value].follow.z = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[scratch->value].follow.frames = scratch->sequence[D_80151844[category].cursor++];
+            g_BattleCameraSlots[scratch->value].follow.category = category;
+            g_BattleCameraSlots[scratch->value].follow.relative = 1;
+            break;
+        case 0xE7:
+            secondarySlotIndex = BattleCameraRegister(func_800BFB88);
+            scratch->value = secondarySlotIndex;
+            g_BattleCameraSlots[(s16)secondarySlotIndex].follow.actor = D_801590CC;
+
+            g_BattleCameraSlots[scratch->value].follow.bone =
+                g_BattleModels[D_801590CC].boneIndices[scratch->sequence[D_80151844[category].cursor++]];
+            g_BattleCameraSlots[scratch->value].follow.x = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[scratch->value].follow.y = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[scratch->value].follow.z = func_800BFA98(scratch->sequence, category);
+            g_BattleCameraSlots[scratch->value].follow.frames = scratch->sequence[D_80151844[category].cursor++];
+            g_BattleCameraSlots[scratch->value].follow.category = category;
+            g_BattleCameraSlots[scratch->value].follow.relative = 0;
+            break;
+        case 0xE6:
+            slot = &g_BattleCameraSlots[BattleCameraRegister(func_800C0410)].raw;
+            slot->unk6 = func_800BFA98(scratch->sequence, category);
+            slot->unk8 = func_800BFA98(scratch->sequence, category);
+            slot->unkA = func_800BFA98(scratch->sequence, category);
+            moveDurationCursor = D_80151844[category].cursor++;
+            slot->unk4 = scratch->sequence[moveDurationCursor];
+            slot->unkC = D_80151844[category].x;
+            slot->unkE = D_80151844[category].y;
+            startZ = D_80151844[category].z;
+            slot->unk12 = category;
+            slot->unk10 = startZ;
+            break;
+        case 0xE0:
+            positionIndex = scratch->sequence[D_80151844[category].cursor++];
+            CAMERA_SCRATCH(bone) = positionIndex;
+            CAMERA_SCRATCH(argument) = scratch->sequence[D_80151844[category].cursor++];
+            positionActor = D_80161EEC;
+            posX = D_80151200[positionActor].cameraPositions[positionIndex][0] +
+                   g_BattleModels[positionActor].rootTrans.vx;
+            posZ = D_80151200[positionActor].cameraPositions[positionIndex][2] +
+                   g_BattleModels[positionActor].rootTrans.vz;
+            CAMERA_SCRATCH(x) = posX;
+            CAMERA_SCRATCH(z) = posZ;
+            if (positionIndex == 0) {
+                CAMERA_SCRATCH(y) = D_80151200[positionActor].cameraPositions[0][1];
+            } else {
+                CAMERA_SCRATCH(y) = D_80151200[positionActor].cameraPositions[positionIndex][1] +
+                                    g_BattleModels[positionActor].rootTrans.vy;
+            }
+            slot = &g_BattleCameraSlots[BattleCameraRegister(func_800C0410)].raw;
+            slotX = CAMERA_SCRATCH_U16(x);
+            slotY = CAMERA_SCRATCH_U16(y);
+            slotZ = CAMERA_SCRATCH_U16(z);
+            duration = CAMERA_SCRATCH_U16(argument);
+            slot->unk6 = slotX;
+            slot->unk8 = slotY;
+            slot->unkA = slotZ;
+            slot->unk4 = duration;
+            slot->unkC = D_80151844[category].x;
+            slot->unkE = D_80151844[category].y;
+            startZ = D_80151844[category].z;
+            slot->unk12 = category;
+            slot->unk10 = startZ;
+            break;
+        case 0xD8:
+            mappedActorCursor = D_80151844[category].cursor++;
+            mappedActor = D_801517F0[scratch->sequence[mappedActorCursor]];
+            CAMERA_SCRATCH(unused1C) = mappedActor;
+            mappedBoneCursor = D_80151844[category].cursor++;
+            bone = g_BattleModels[mappedActor].boneIndices[scratch->sequence[mappedBoneCursor]];
+            CAMERA_SCRATCH(bone) = bone;
+            func_800BE69C(CAMERA_SCRATCH_S16(unused1C), category, scratch->sequence, 1);
+            break;
+        case 0xE5:
+            moveBoneCursor = D_80151844[category].cursor;
+
+            D_80151844[category].cursor = moveBoneCursor + 1;
+            bone = g_BattleModels[D_80161EEC].boneIndices[scratch->sequence[moveBoneCursor]];
+            CAMERA_SCRATCH(bone) = bone;
+            func_800BE69C(D_80161EEC, category, scratch->sequence, 1);
+            break;
+        case 0xE4:
+            positionBoneCursor = D_80151844[category].cursor++;
+
+            bone = g_BattleModels[D_801590CC].boneIndices[scratch->sequence[positionBoneCursor]];
+            CAMERA_SCRATCH(bone) = bone;
+            func_800BE69C(D_801590CC, category, scratch->sequence, 0);
+            break;
+        case 0xE3:
+            moveActorCursor = D_80151844[category].cursor++;
+            moveActor = scratch->sequence[moveActorCursor];
+            CAMERA_SCRATCH(unused10) = moveActor;
+            positionBoneCursor = D_80151844[category].cursor++;
+            bone = g_BattleModels[moveActor].boneIndices[scratch->sequence[positionBoneCursor]];
+            CAMERA_SCRATCH(bone) = bone;
+            func_800BE69C(CAMERA_SCRATCH_S16(unused10), category, scratch->sequence, 0);
+            break;
+        case 0xFF:
+            retryCursor = D_80151844[category].cursor - 1;
+            state->cursor = retryCursor;
+            scratch->running = 0;
+            break;
+        default:
+            scratch->running = 0;
+            break;
+        }
+    }
+}
 
 void func_800BE49C(void) {
     s32 slotIndex;
     s32 category;
     s16 angle;
     slotIndex = g_BattleCameraCursor;
-    category = (u8)g_BattleCameraSlots[slotIndex].unk18;
-    if (g_BattleCameraSlots[slotIndex].unk4 == 1) {
-        g_BattleCameraSlots[slotIndex].D_800F7ED8 = -1;
+    category = g_BattleCameraSlots[slotIndex].orbit.category;
+    if (g_BattleCameraSlots[slotIndex].orbit.frames == 1) {
+        g_BattleCameraSlots[slotIndex].orbit.callback = -1;
     }
-    angle = (u16)g_BattleCameraSlots[slotIndex].unkC + (u16)g_BattleCameraSlots[slotIndex].unk8;
-    g_BattleCameraSlots[slotIndex].unkC = angle;
-    D_80151844[category].x = ((rsin(angle) * g_BattleCameraSlots[slotIndex].unkA) >> 9) + D_801518A4[category].x;
-    D_80151844[category].z = ((rcos(g_BattleCameraSlots[slotIndex].unkC) * g_BattleCameraSlots[slotIndex].unkA) >> 9) +
-                             D_801518A4[category].z;
-    D_80151844[category].y += (u16)g_BattleCameraSlots[slotIndex].unk6;
-    g_BattleCameraSlots[slotIndex].unkA += g_BattleCameraSlots[slotIndex].unkE;
-    g_BattleCameraSlots[slotIndex].unk4--;
+    angle = (u16)g_BattleCameraSlots[slotIndex].orbit.angleStep + (u16)g_BattleCameraSlots[slotIndex].orbit.angle;
+    g_BattleCameraSlots[slotIndex].orbit.angleStep = angle;
+    D_80151844[category].x =
+        ((rsin(angle) * g_BattleCameraSlots[slotIndex].orbit.radius) >> 9) + D_801518A4[category].x;
+    D_80151844[category].z =
+        ((rcos(g_BattleCameraSlots[slotIndex].orbit.angleStep) * g_BattleCameraSlots[slotIndex].orbit.radius) >> 9) +
+        D_801518A4[category].z;
+    D_80151844[category].y += (u16)g_BattleCameraSlots[slotIndex].orbit.heightStep;
+    g_BattleCameraSlots[slotIndex].orbit.radius += g_BattleCameraSlots[slotIndex].orbit.radiusStep;
+    g_BattleCameraSlots[slotIndex].orbit.frames--;
 }
 
 void func_800BE69C(s16 actor, s32 categoryArg, u8* sequence, s32 flags) {
@@ -2469,7 +2890,7 @@ void func_800BE69C(s16 actor, s32 categoryArg, u8* sequence, s32 flags) {
     D_80151844[category].cursor = cursor + 1;
     CAMERA_SCRATCH(argument) = sequence[cursor];
     func_800C018C(actor, CAMERA_SCRATCH_S16(bone), category, flags & 0xFF);
-    slot = &g_BattleCameraSlots[BattleCameraRegister(func_800C0410)];
+    slot = &g_BattleCameraSlots[BattleCameraRegister(func_800C0410)].raw;
     slot->unk6 = (u16)CAMERA_SCRATCH(x);
     slot->unk8 = (u16)CAMERA_SCRATCH(y);
     slot->unkA = (u16)CAMERA_SCRATCH(z);
@@ -2497,7 +2918,7 @@ void func_800BE86C(s16 actor, s32 categoryArg, u8* sequence) {
     D_801518A4[category].cursor = cursor + 1;
     CAMERA_SCRATCH(argument) = sequence[cursor];
     func_800C0254(actor, CAMERA_SCRATCH_S16(bone));
-    slot = &g_BattleCameraSlots[BattleCameraRegister(func_800C0900)];
+    slot = &g_BattleCameraSlots[BattleCameraRegister(func_800C0900)].raw;
     slot->unk6 = (u16)CAMERA_SCRATCH(x);
     if (D_800F4B00 != 0) {
         slot->unk8 = 0U;
@@ -2552,28 +2973,28 @@ void func_800BFB88(void) {
     s32 slotIndexAfterCall;
     s32 slotIndexAfterUpdate;
 
-    if (g_BattleCameraSlots[g_BattleCameraCursor].unk4 == 1) {
-        g_BattleCameraSlots[g_BattleCameraCursor].D_800F7ED8 = -1;
+    if (g_BattleCameraSlots[g_BattleCameraCursor].raw.unk4 == 1) {
+        g_BattleCameraSlots[g_BattleCameraCursor].raw.D_800F7ED8 = -1;
     }
     slotIndex = g_BattleCameraCursor;
-    actor = g_BattleCameraSlots[slotIndex].unk8;
+    actor = g_BattleCameraSlots[slotIndex].raw.unk8;
     CAMERA_SCRATCH(argument) = actor;
-    bone = g_BattleCameraSlots[slotIndex].unkA;
+    bone = g_BattleCameraSlots[slotIndex].raw.unkA;
     CAMERA_SCRATCH(bone) = bone;
-    CAMERA_SCRATCH(category) = g_BattleCameraSlots[slotIndex].unkC;
+    CAMERA_SCRATCH(category) = g_BattleCameraSlots[slotIndex].raw.unkC;
     BattleGetPartPosition(actor, bone, &pos);
     slotIndexAfterCall = g_BattleCameraCursor;
-    CAMERA_SCRATCH(x) = g_BattleCameraSlots[slotIndexAfterCall].unkE;
-    CAMERA_SCRATCH(y) = g_BattleCameraSlots[slotIndexAfterCall].unk10;
-    CAMERA_SCRATCH(z) = g_BattleCameraSlots[slotIndexAfterCall].unk6;
-    func_800C0DD8((s16)CAMERA_SCRATCH(argument), (u8)g_BattleCameraSlots[slotIndexAfterCall].unkC,
-                  (u8)g_BattleCameraSlots[slotIndexAfterCall].unk18);
+    CAMERA_SCRATCH(x) = g_BattleCameraSlots[slotIndexAfterCall].raw.unkE;
+    CAMERA_SCRATCH(y) = g_BattleCameraSlots[slotIndexAfterCall].raw.unk10;
+    CAMERA_SCRATCH(z) = g_BattleCameraSlots[slotIndexAfterCall].raw.unk6;
+    func_800C0DD8((s16)CAMERA_SCRATCH(argument), (u8)g_BattleCameraSlots[slotIndexAfterCall].raw.unkC,
+                  (u8)g_BattleCameraSlots[slotIndexAfterCall].raw.unk18);
     category = CAMERA_SCRATCH(category);
     D_80151844[category].x = (u16)pos.vx + (u16)CAMERA_SCRATCH(x);
     D_80151844[category].y = (u16)pos.vy + (u16)CAMERA_SCRATCH(y);
     slotIndexAfterUpdate = g_BattleCameraCursor;
     D_80151844[category].z = (u16)pos.vz + (u16)CAMERA_SCRATCH(z);
-    g_BattleCameraSlots[slotIndexAfterUpdate].unk4 = g_BattleCameraSlots[slotIndexAfterUpdate].unk4 - 1;
+    g_BattleCameraSlots[slotIndexAfterUpdate].raw.unk4 = g_BattleCameraSlots[slotIndexAfterUpdate].raw.unk4 - 1;
 }
 
 void func_800BFDA0(void) {
@@ -2584,26 +3005,26 @@ void func_800BFDA0(void) {
     s32 slotIndexAfterCall;
     s32 slotIndex;
 
-    if (g_BattleCameraSlots[g_BattleCameraCursor].unk4 == 1) {
-        g_BattleCameraSlots[g_BattleCameraCursor].D_800F7ED8 = -1;
+    if (g_BattleCameraSlots[g_BattleCameraCursor].raw.unk4 == 1) {
+        g_BattleCameraSlots[g_BattleCameraCursor].raw.D_800F7ED8 = -1;
     }
     slotIndex = g_BattleCameraCursor;
-    actor = g_BattleCameraSlots[slotIndex].unk8;
+    actor = g_BattleCameraSlots[slotIndex].raw.unk8;
     CAMERA_SCRATCH(argument) = actor;
-    bone = g_BattleCameraSlots[slotIndex].unkA;
+    bone = g_BattleCameraSlots[slotIndex].raw.unkA;
     CAMERA_SCRATCH(bone) = bone;
-    CAMERA_SCRATCH(category) = g_BattleCameraSlots[slotIndex].unkC;
+    CAMERA_SCRATCH(category) = g_BattleCameraSlots[slotIndex].raw.unkC;
     BattleGetPartPosition(actor, bone, &pos);
     CAMERA_SCRATCH(y) = func_800C0314(CAMERA_SCRATCH(y), (u8)CAMERA_SCRATCH(argument));
     slotIndexAfterCall = g_BattleCameraCursor;
-    CAMERA_SCRATCH(x) = g_BattleCameraSlots[slotIndexAfterCall].unkE;
-    CAMERA_SCRATCH(y) = g_BattleCameraSlots[slotIndexAfterCall].unk10;
-    CAMERA_SCRATCH(z) = g_BattleCameraSlots[slotIndexAfterCall].unk6;
+    CAMERA_SCRATCH(x) = g_BattleCameraSlots[slotIndexAfterCall].raw.unkE;
+    CAMERA_SCRATCH(y) = g_BattleCameraSlots[slotIndexAfterCall].raw.unk10;
+    CAMERA_SCRATCH(z) = g_BattleCameraSlots[slotIndexAfterCall].raw.unk6;
     category = CAMERA_SCRATCH(category);
     D_801518A4[category].x = (u16)pos.vx + (u16)CAMERA_SCRATCH(x);
     D_801518A4[category].y = (u16)pos.vy + (u16)CAMERA_SCRATCH(y);
     D_801518A4[category].z = (u16)pos.vz + (u16)CAMERA_SCRATCH(z);
-    g_BattleCameraSlots[slotIndexAfterCall].unk4 = g_BattleCameraSlots[slotIndexAfterCall].unk4 - 1;
+    g_BattleCameraSlots[slotIndexAfterCall].raw.unk4 = g_BattleCameraSlots[slotIndexAfterCall].raw.unk4 - 1;
 }
 
 void func_800BFF88(s16 actor, s16 bone, s32 category, s32 flags) {
@@ -2688,7 +3109,7 @@ static s32 func_800C03FC(s32 arg0, s32 arg1) { return arg0 < 0 ? -arg1 : arg1; }
 static void func_800C0480(s16 arg0);
 static void func_800C0630(s16 slotIndex);
 static void func_800C0410(void) {
-    switch (g_BattleCameraSlots[g_BattleCameraCursor].D_800F7EDA) {
+    switch (g_BattleCameraSlots[g_BattleCameraCursor].raw.D_800F7EDA) {
     case 0:
         func_800C0480(g_BattleCameraCursor);
         func_800C0630(g_BattleCameraCursor);
@@ -2702,7 +3123,7 @@ static void func_800C0410(void) {
 static void func_800C0480(s16 arg0) {
     Unk800F7ED8* slot;
 
-    slot = &g_BattleCameraSlots[arg0];
+    slot = &g_BattleCameraSlots[arg0].raw;
     slot->D_800F7EDA = (u16)slot->D_800F7EDA + 1;
     if (D_80151844[slot->unk12].unkD == 0) {
         slot->unk1E = 0;
@@ -2724,7 +3145,7 @@ static void func_800C0630(s16 slotIndex) {
     s32 x;
     s32 categoryIndex;
 
-    slot = &g_BattleCameraSlots[slotIndex];
+    slot = &g_BattleCameraSlots[slotIndex].raw;
     if (slot->unk4 == 1) {
         slot->D_800F7ED8 = -1;
         D_80151844[slot->unk12].x = slot->unk6;
@@ -2755,7 +3176,7 @@ static void func_800C0630(s16 slotIndex) {
 static void func_800C0970(s16 arg0);
 static void func_800C0B20(s16 slotIndex);
 static void func_800C0900(void) {
-    switch (g_BattleCameraSlots[g_BattleCameraCursor].D_800F7EDA) {
+    switch (g_BattleCameraSlots[g_BattleCameraCursor].raw.D_800F7EDA) {
     case 0:
         func_800C0970(g_BattleCameraCursor);
         func_800C0B20(g_BattleCameraCursor);
@@ -2769,7 +3190,7 @@ static void func_800C0900(void) {
 static void func_800C0970(s16 arg0) {
     Unk800F7ED8* slot;
 
-    slot = &g_BattleCameraSlots[arg0];
+    slot = &g_BattleCameraSlots[arg0].raw;
     slot->D_800F7EDA = (u16)slot->D_800F7EDA + 1;
     if (D_801518A4[slot->unk12].flags == 0) {
         slot->unk1E = 0;
@@ -2791,7 +3212,7 @@ static void func_800C0B20(s16 slotIndex) {
     s32 x;
     s32 categoryIndex;
 
-    slot = &g_BattleCameraSlots[slotIndex];
+    slot = &g_BattleCameraSlots[slotIndex].raw;
     if (slot->unk4 == 1) {
         slot->D_800F7ED8 = -1;
         D_801518A4[slot->unk12].x = slot->unk6;

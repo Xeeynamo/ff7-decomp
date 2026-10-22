@@ -424,12 +424,14 @@ typedef struct {
     short vx, vy, vz;
 } ShortVectorXYZ;
 
+// XYZ coordinates followed by three unknown values.
+typedef s16 BattleCameraPosition[6];
+
 typedef struct {
     /* 0x00 */ s32 D_80151200;
     /* 0x04 */ u16 values4[4];
     /* 0x0C */ s16 D_8015120C;
-    /* 0x0E */ u16 valuesE[6];
-    /* 0x1A */ u16 values1A[6];
+    /* 0x0E */ BattleCameraPosition cameraPositions[2];
     /* 0x26 */ u16 height;
     /* 0x28 */ u16 unk28;
     /* 0x2A */ u16 unk2A;
@@ -733,7 +735,55 @@ typedef struct {
     /* 0x20 */ u8 unk20[8];
 } Unk800F7ED8; // size:0x28
 
-extern Unk800F7ED8 g_BattleCameraSlots[];
+// Bone-following camera scripts store a full word for the Y offset.
+typedef struct {
+    /* 0x00 */ s16 callback;
+    /* 0x02 */ s16 phase;
+    /* 0x04 */ s16 frames;
+    /* 0x06 */ s16 z;
+    /* 0x08 */ s16 actor;
+    /* 0x0A */ s16 bone;
+    /* 0x0C */ s16 category;
+    /* 0x0E */ s16 x;
+    /* 0x10 */ s32 y;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ u8 relative;
+    /* 0x19 */ u8 pad19;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 unk20[8];
+} BattleCameraFollowSlot; // size:0x28
+
+typedef struct {
+    /* 0x00 */ s16 callback;
+    /* 0x02 */ s16 phase;
+    /* 0x04 */ s16 frames;
+    /* 0x06 */ s16 heightStep;
+    /* 0x08 */ s16 angle;
+    /* 0x0A */ s16 radius;
+    /* 0x0C */ s16 angleStep;
+    /* 0x0E */ s16 radiusStep;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ u8 category;
+    /* 0x19 */ u8 pad19;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 unk20[8];
+} BattleCameraOrbitSlot; // size:0x28
+
+typedef union {
+    Unk800F7ED8 raw;
+    BattleCameraFollowSlot follow;
+    BattleCameraOrbitSlot orbit;
+} BattleCameraSlot; // size:0x28
+
+extern BattleCameraSlot g_BattleCameraSlots[];
 extern s16 D_800F8182[];
 extern s16 g_BattleCameraCursor;
 extern s16 D_800F836C;
@@ -920,7 +970,7 @@ extern s8 D_80166F58;
 extern u16 g_BattleScreenFadeB;
 extern u16 g_BattleScreenFadeG;
 extern s8 D_80166F64;
-extern u8 D_80166F68;
+extern u8 D_80166F68[];
 extern u16 g_BattleScreenFadeR;
 
 void BattleMorphEnemy(void);
@@ -1009,7 +1059,7 @@ static void func_800BA40C();
 static void func_800BB030(s16 arg0);
 void func_800BB2A8(u8);
 void BattlePlayMenuSound(u16 soundId);
-void func_800BBA84(u16 sound, s16 actor, s32 pan);
+void func_800BBA84(s32 sound, s16 actor, s32 pan);
 static void func_800C1908(u8 arg0);
 void BattleSelectPlayerModelFiles(void);
 void AkaoDispatchCommand(void*);

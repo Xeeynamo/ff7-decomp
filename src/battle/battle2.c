@@ -1202,7 +1202,7 @@ static void BattleResetUnitAnimScript(s16 arg0) {
 }
 
 void BattleApplyToggleFlag(void) {
-    if (D_80166F68) {
+    if (D_80166F68[0]) {
         D_800F9DA4 = D_800F9DA4 | 1;
     } else {
         D_800F9DA4 = D_800F9DA4 & ~1;
@@ -1210,7 +1210,7 @@ void BattleApplyToggleFlag(void) {
 }
 
 static void BattleSpawnPartEffectTick(void) {
-    func_800BBA84(g_BattleDetachedSlots[g_BattleDetachedCursor].partEffect.unk4, D_801590CC, 0);
+    func_800BBA84((u16)g_BattleDetachedSlots[g_BattleDetachedCursor].partEffect.unk4, D_801590CC, 0);
     BattleSpawnPartEffect(D_801590CC, g_BattleDetachedSlots[g_BattleDetachedCursor].partEffect.hitFlashType);
     g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
 }
@@ -1698,7 +1698,7 @@ static void BattleApplyDelayedFlagTick(void) {
 
 static void BattleApplyDelayedActionTick(void) {
     if (g_BattleDetachedSlots[g_BattleDetachedCursor].delay.framesLeft == 0) {
-        func_800BBA84(g_BattleDetachedSlots[g_BattleDetachedCursor].delay.unk6, D_801590CC, 0);
+        func_800BBA84((u16)g_BattleDetachedSlots[g_BattleDetachedCursor].delay.unk6, D_801590CC, 0);
         g_BattleDetachedSlots[g_BattleDetachedCursor].base.id = -1;
         return;
     }
