@@ -42,7 +42,7 @@ build/us/kernel_text.txt: tools/dump_kernel_strings.py | disks/us
 	python3 $< -k disks/us/INIT/KERNEL.BIN > $@
 
 psyz: build
-	cmake -B build/psyz -GNinja && cmake --build build/psyz
+	cmake -B build/psyz -GNinja -DFF7_M32=ON && cmake --build build/psyz
 
 .PHONY: clean
 clean:
