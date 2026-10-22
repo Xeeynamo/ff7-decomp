@@ -1,4 +1,4 @@
-//! PSYQ=3.3 CC1=2.7.2 G=8
+//! PSYQ=3.3 CC1=2.7.2 G=8 COMM=true
 #include "game.h"
 #include "main_private.h"
 
@@ -22,6 +22,7 @@ u32 D_80062DEC = 0x801D0000;
 s32 D_80062DF0 = 0x00000084;
 s32 D_80062DF4 = 0xFFFFFFFF;
 s32 g_PartyMenuListState = 0x00000001;
+s32 D_80062F90;
 
 // clang-format off
 MainMenuColorLabels g_Labels = {
@@ -72,18 +73,18 @@ static u8 D_80049390[3][8] = {
     {0xBF, 0xC9, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00},
 };
 
-s32 g_RewardMenuHasEarnedItems;
-u_long* g_CurrentMenuOrderingTable;
-s32 D_80062EA8;
-s32 D_80062EAC;
-s32 D_80062EB0;
-u32 D_80062EB4;
-u8* D_80062EB8;
-u8 D_80062EBC;
-u32 D_80062EC0;
-u32 D_80062EC4;
-u32 D_80062EC8;
-s32 D_80062ECC;
+static s32 g_RewardMenuHasEarnedItems;
+static u_long* g_CurrentMenuOrderingTable;
+static s32 D_80062EA8;
+static s32 D_80062EAC;
+static s32 D_80062EB0;
+static u32 D_80062EB4;
+static u8* D_80062EB8;
+static u8 D_80062EBC;
+static u32 D_80062EC0;
+static u32 D_80062EC4;
+static u32 D_80062EC8;
+static s32 D_80062ECC;
 
 u8 SysMenuIsWindowActive(void) { return D_80062DDB; }
 
@@ -205,7 +206,7 @@ static void func_8001FAF0(void) {}
 
 u16 SysMenuGetInventoryRestrictionMask(s32 itemId) {
     if (itemId < 0x80) {
-        return D_800722CC[itemId].cameraMultiID;
+        return D_800722CC[itemId].cameraIDs[1];
     }
     if (itemId < 0x100) {
         return g_WeaponTable[itemId - 0x80].restrictionMask;
@@ -916,10 +917,6 @@ s32 SysMenuGetMateriaColorByType(s32 materiaId) {
     return D_80049520[D_80049528[g_MateriaData[materiaId & 0xFF].materiaType & 0xF]];
 }
 
-// matches once D_80062F90 can be defined here as a gp-relative variable
-#ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80026090);
-#else
 void func_80026090(void) {
     do {
     } while (SystemCdromReadChain());
@@ -929,9 +926,50 @@ void func_80026090(void) {
     func_801D11A8();
     D_80062F90 = 0;
 }
-#endif
 
-INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_800260DC);
+void func_800260DC(void) {
+    RECT rect;
+    u_long fontVram[0x480];
+    u_long buf[0x400];
+    s32 i;
+    s32 charId;
+    s32* sectorOff;
+    s32* length;
+
+    do {
+    } while (SystemCdromReadChain());
+    DrawSync(0);
+    SysMenuStoreFontVram(fontVram);
+    DrawSync(0);
+    i = 0;
+    sectorOff = &D_80048FE8->loc;
+    length = &D_80048FE8->len;
+    for (; i < NUM_PARTY; i++) {
+        charId = Savemap.partyID[i];
+        if (charId == CHAR_EMPTY) {
+            continue;
+        }
+        SysInitPlayerStatFromEquip(i);
+        SysInitPlayerStatFromMateria((u8)i);
+        SysCalcTotalLureGilPreempVal();
+        SysCdromLoadFile(sectorOff[charId * 2], length[charId * 2], buf, 0);
+        MENU_LoadTim(buf, 0x3C0, 0x138 + i * 48, 0x180, i);
+        DrawSync(0);
+    }
+    rect.x = 0x180;
+    rect.y = 0;
+    rect.w = 0x100;
+    rect.h = 3;
+    StoreImage(&rect, (u_long*)g_PartyPortraitClut);
+    DrawSync(0);
+    SysMenuRestoreFontVram(fontVram);
+    DrawSync(0);
+    VSync(6);
+    do {
+    } while (BreakDraw() == -1);
+    do {
+    } while (IsIdleGPU(1));
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/1F6B4", func_80026258);
 

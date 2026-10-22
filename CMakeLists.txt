@@ -4,6 +4,15 @@ project(ff7 C ASM)
 
 set(CMAKE_C_STANDARD 11)
 
+option(FF7_M32 "Build as a 32-bit executable" OFF)
+if(FF7_M32)
+    foreach(lang C CXX ASM)
+        string(APPEND CMAKE_${lang}_FLAGS " -m32")
+    endforeach()
+    set(ENV{PKG_CONFIG_LIBDIR} /usr/lib32/pkgconfig:/usr/share/pkgconfig)
+    set(ZLIB_LIBRARY_RELEASE /usr/lib32/libz.so CACHE FILEPATH "32-bit zlib" FORCE)
+endif()
+
 set(FF7_PSYZ
     src/pc/main.c
     src/pc/unzip.c

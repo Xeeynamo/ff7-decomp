@@ -424,12 +424,14 @@ typedef struct {
     short vx, vy, vz;
 } ShortVectorXYZ;
 
+// XYZ coordinates followed by three unknown values.
+typedef s16 BattleCameraPosition[6];
+
 typedef struct {
     /* 0x00 */ s32 D_80151200;
     /* 0x04 */ u16 values4[4];
     /* 0x0C */ s16 D_8015120C;
-    /* 0x0E */ u16 valuesE[6];
-    /* 0x1A */ u16 values1A[6];
+    /* 0x0E */ BattleCameraPosition cameraPositions[2];
     /* 0x26 */ u16 height;
     /* 0x28 */ u16 unk28;
     /* 0x2A */ u16 unk2A;
@@ -526,6 +528,9 @@ extern u8 D_800E7A58[];
 // checked in order against the 3 landed reel symbols (g_BattleData.caitSithRolls) -- see
 // BattleResolveCaitSithSlotsResult in battle.c
 extern u8 D_800E7BA4[7][3];
+
+// func_800AA738 uses this to remap some party command IDs under certain conditions
+extern u8 D_800E7BBC[7][2];
 
 extern u8 g_BattleFormulaModifierFlagsTable[16];
 
@@ -667,6 +672,7 @@ extern s32 g_BattlePartyEventReadIdx[];
 extern s32 g_BattlePartyEventWriteIdx[];
 extern s32 g_BattleHitFormulaOffs[];
 extern s32 D_800F4920;
+extern u16 D_800F4924[];
 extern u16 D_800F4938[];
 extern s8 D_800F494C[];
 extern u16 D_800F4958;
@@ -729,7 +735,55 @@ typedef struct {
     /* 0x20 */ u8 unk20[8];
 } Unk800F7ED8; // size:0x28
 
-extern Unk800F7ED8 g_BattleCameraSlots[];
+// Bone-following camera scripts store a full word for the Y offset.
+typedef struct {
+    /* 0x00 */ s16 callback;
+    /* 0x02 */ s16 phase;
+    /* 0x04 */ s16 frames;
+    /* 0x06 */ s16 z;
+    /* 0x08 */ s16 actor;
+    /* 0x0A */ s16 bone;
+    /* 0x0C */ s16 category;
+    /* 0x0E */ s16 x;
+    /* 0x10 */ s32 y;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ u8 relative;
+    /* 0x19 */ u8 pad19;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 unk20[8];
+} BattleCameraFollowSlot; // size:0x28
+
+typedef struct {
+    /* 0x00 */ s16 callback;
+    /* 0x02 */ s16 phase;
+    /* 0x04 */ s16 frames;
+    /* 0x06 */ s16 heightStep;
+    /* 0x08 */ s16 angle;
+    /* 0x0A */ s16 radius;
+    /* 0x0C */ s16 angleStep;
+    /* 0x0E */ s16 radiusStep;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ s16 unk16;
+    /* 0x18 */ u8 category;
+    /* 0x19 */ u8 pad19;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 unk20[8];
+} BattleCameraOrbitSlot; // size:0x28
+
+typedef union {
+    Unk800F7ED8 raw;
+    BattleCameraFollowSlot follow;
+    BattleCameraOrbitSlot orbit;
+} BattleCameraSlot; // size:0x28
+
+extern BattleCameraSlot g_BattleCameraSlots[];
 extern s16 D_800F8182[];
 extern s16 g_BattleCameraCursor;
 extern s16 D_800F836C;
@@ -855,6 +909,7 @@ extern s16 D_800F3110;
 extern u8 D_800F3150; // btlmenu_prevLimitReadyMask
 extern u8 D_800F3163[];
 extern ModelScreenPos g_modelScreenPos[10];
+extern s32 D_801517B8; // incremented per action Mime queues (BattleActionType17)
 extern u8 D_801517BC;
 extern u8 D_801517C4;
 extern SVECTOR g_BattleCameraPos;
@@ -916,12 +971,16 @@ extern s8 D_80166F58;
 extern u16 g_BattleScreenFadeB;
 extern u16 g_BattleScreenFadeG;
 extern s8 D_80166F64;
-extern u8 D_80166F68;
+extern u8 D_80166F68[];
 extern u16 g_BattleScreenFadeR;
 
-void func_800A2DB0(void);
+void BattleMorphEnemy(void);
 void BattleQueuePendingAction(s16, s16, s16, u16);
+static void BattleRunFrameIfActionQueued(void);
 void func_800A3534(s32 unused, s16 index);
+s32 func_800A35F8(void);
+static s32 BattleRunEscapeSequence(void);
+static u8 func_800A4B3C(s32 index, s32 arg1);
 static void func_800A4D2C(s32 arg0);
 void BattleRefreshMenu(s32 arg0, s32 menuType);
 static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count);
@@ -929,7 +988,10 @@ static void BattleRefreshCmdMenu(s32 arg0, u32 status);
 void BattleReturnReservedItems(void);
 static s32 BattleAddMessageToStringBuffer(u8* src, u16* args);
 void BattleProcessEventQueue(s32);
+static void BattleCopyTargTypeDatToTmp(s32 arg0);
 static void BattleSetActionEffect(s32 effectId, s32 effectModifier);
+static void SetActionStatusChange(u32 arg0, s32 statusMask);
+static void func_800A8E54(s32 arg0);
 void func_800A8E84(s32);
 void BattleResolveCover(BattleQueueTargetEntry*);
 void BattleResolveAffinityPreDamage(void);
@@ -974,9 +1036,11 @@ void BattleApplyKillCountBonus(void);
 void BattleCalcMateriaSlotScore(void);
 static s32 func_800AE6C0(s32, s32, s32);
 void BattleCalcAffinityFlags(void);
+s32 BattleProcessStatusChanges(void);
 s32 BattleGetStatusProtectionMask(s32, s32, s32);
 void func_800AF9C8(void);
 static s32 BattleUnitGetPendingConstTicks(s32 arg0);
+void BattleProcessTimers(void);
 void BattleAdvanceTimers(void);
 void func_800B0234(void);
 s32 BattleCalcDefPercent(s32);
@@ -987,6 +1051,8 @@ u16 BattleGetRndItemIdForSteal(void*, s32, s32, s32);
 static void BattleAddStringToDisplay(s32, s32, s32, s16*);
 static s32 BattleGetRnd164(void);
 s32 BattleOpcodeGetRndBit(u16);
+void BattleNormalStartSeq(void);
+void BattleNextStartSeq(void);
 void BattlePlayerModelsUpdateBonesPos(void);
 s32 BattleLoadEnemyModel(s32);
 void BattleLoadEnemyTexture(s32);
@@ -1002,7 +1068,7 @@ static void func_800BA40C();
 static void func_800BB030(s16 arg0);
 void func_800BB2A8(u8);
 void BattlePlayMenuSound(u16 soundId);
-void func_800BBA84(u16 sound, s16 actor, s32 pan);
+void func_800BBA84(s32 sound, s16 actor, s32 pan);
 static void func_800C1908(u8 arg0);
 void BattleSelectPlayerModelFiles(void);
 void AkaoDispatchCommand(void*);

@@ -3,8 +3,8 @@
 #include <libspu.h>
 #include "../battle/battle.h"
 #include "../main/cd.h"
+#include "psyz/log.h"
 
-u16 g_BattleMode;
 s16 g_isFieldLoading;
 FieldState g_FieldState;
 SaveWork Savemap;
@@ -21,7 +21,7 @@ Unk80075D00* D_80075D00 = &D_80075DF0;
 DRAWENV* D_8007EBD0;
 DISPENV* D_8007EBD8;
 
-s32 D_800707BC;
+BattleParams g_BattleParams;
 u16 D_800716D0;
 CdlATV D_800698E4;     // CD audio volume
 int D_800698E8;        // LZS source sector
@@ -232,7 +232,6 @@ s32 D_80071744;
 u_long* D_800722C8;
 s32 D_80095DD8;
 volatile s16 D_8009C560;
-s32 D_80062F90;
 u8 D_80062F18;
 u8 D_80062F19;
 u8 D_80062F1A;
@@ -294,7 +293,6 @@ s32 WORLD_Main(s32* exitAction, s32* fieldId, s32* battleFlags, s32 resume) {
     return 0;
 }
 void func_800119E4(void) { NOT_IMPLEMENTED; }
-void func_800260DC(void) { NOT_IMPLEMENTED; }
 void func_800299C8(void) { NOT_IMPLEMENTED; }
 s32 func_800A0000(s32 arg0) {
     NOT_IMPLEMENTED;

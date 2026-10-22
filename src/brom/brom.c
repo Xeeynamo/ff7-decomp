@@ -9,12 +9,6 @@ typedef struct {
     u16 colors[1];
 } BromStruct;
 
-extern volatile s16 g_GameState;
-extern struct {
-    u16 sceneId;
-    u16 mode;
-} D_800707BC;
-
 void func_80014540(void);
 void func_80014578(s32 fileNo, void* dst, void (*cb)(void));
 void SystemCdWaitCallback(void (*cb)(void));
@@ -50,7 +44,12 @@ static void ScenePickerInit(void) {
     D_800A06CC.dfe = 1;
     D_800A06CC.dtd = 0;
     D_800A06CC.isbg = 0;
+#ifdef PLATFORM_PSYZ
+    // FIX: allows the Scene selector text to be readable
+    D_800A06CC.tpage = 0x3F;
+#else
     D_800A06CC.tpage = 0;
+#endif
     VSync(0);
     PutDispEnv(&D_800A0728);
     PutDrawEnv(&D_800A06CC);
@@ -62,7 +61,7 @@ void BROM_Main(void) {
     D_80075DEC = 1;
     ScenePickerInit();
     ScenePickerMain();
-    if (g_BattleMode) {
+    if (g_BattleParams.mode) {
         g_GameState = GAMESTATE_BATTLE;
     } else {
         g_GameState = GAMESTATE_FIELD;
@@ -90,9 +89,9 @@ static void ScenePickerMain(void) {
     s32 buf;
     s32 n;
 
-    sceneId = D_800707BC.sceneId;
+    sceneId = g_BattleParams.sceneId;
     done = 0;
-    g_BattleMode = 0;
+    g_BattleParams.mode = 0;
     InputUpdateBattleKeyStates();
     InputUpdateBattleKeyStates();
     for (i = 0; i < NUM_PARTY; i++) {
@@ -125,7 +124,7 @@ static void ScenePickerMain(void) {
                 break;
             }
             if (pressed & (PAD_START | PAD_CIRCLE)) {
-                g_BattleMode = 0x8000;
+                g_BattleParams.mode = 0x8000;
                 done = 1;
                 break;
             }
@@ -186,7 +185,7 @@ static void ScenePickerMain(void) {
             VSync(2);
         }
     }
-    D_800707BC.sceneId = sceneId;
+    g_BattleParams.sceneId = sceneId;
 }
 
 static s32 SwapRGB(u16 color) {

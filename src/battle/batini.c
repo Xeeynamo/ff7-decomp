@@ -23,18 +23,13 @@ static s32 BattleGetEquipEnemySkillMask(SavePartyMember* member);
 void BattleInitEnemyUnits(void);
 
 // entrypoint
-void BatInitMain(s32 sceneID) {
+void BattleInitMain(s32 sceneID) {
     s32 mask;
     s32 i;
-    s32* order;
-    s32* order2;
-    s32* prev;
+    s32 tableIndex;
     u8* FFTextOffset;
     BattleUnit* pCombatantBase;
     BattleUnit* pUnit;
-    s32* next;
-    s32 offset;
-    s32 sentinel;
 
     SysInitRndTablePos(VSync(-1));
     VSync(-1);
@@ -109,53 +104,34 @@ void BatInitMain(s32 sceneID) {
     }
 
     if (g_BattleState.setupFlags & 4) {
-        i = 0;
-
         if (!(D_80062F88 & 4)) {
             D_80062F88 |= 4;
-            g_BatresSummary.displayExp[0] = -1;
+            g_BatresShared.savedEnemyHP.restoreSkipMask = -1;
         }
 
-        order = &g_BatresSummary.displayExp[1];
-        prev = order - 1;
-        mask = 1 << (g_BattleState.arenaRound * 6);
+        tableIndex = g_BattleState.setupParam;
+        g_BatresShared.savedEnemyHP.tableIndex = tableIndex;
+        mask = 1 << (tableIndex * NUM_ENEMY);
 
-        next = order + 1;
-        order2 = next + g_BattleState.arenaRound * 6;
-
-        order[0] = g_BattleState.arenaRound;
-
-        sentinel = -1;
-        offset = 0x1A0;
-
-    // This needs to be refactored to get rid of the goto.
-    loop:
-        if (*prev & mask) {
-            *prev &= ~mask;
-        } else if (((BattleUnit*)((u8*)g_BattleState.combatant + offset))->actorId != sentinel) {
-            ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->curHP = *order2;
-
-            if (((BattleUnit*)((u8*)g_BattleState.combatant + offset))->curHP == 0) {
-                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->status |= STATUS_DEATH;
-                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->prevStatus |= STATUS_DEATH;
-                ((BattleUnit*)((u8*)g_BattleState.combatant + offset))->stateFlags &= ~0x18;
+        for (i = 0; i < NUM_ENEMY; i++) {
+            if (g_BatresShared.savedEnemyHP.restoreSkipMask & mask) {
+                g_BatresShared.savedEnemyHP.restoreSkipMask &= ~mask;
+            } else if (g_BattleState.combatant[i + START_ENEMY].actorId != -1) {
+                g_BattleState.combatant[i + START_ENEMY].curHP = g_BatresShared.savedEnemyHP.enemyHP[tableIndex][i];
+                if (g_BattleState.combatant[i + START_ENEMY].curHP == 0) {
+                    g_BattleState.combatant[i + START_ENEMY].status |= STATUS_DEATH;
+                    g_BattleState.combatant[i + START_ENEMY].prevStatus |= STATUS_DEATH;
+                    g_BattleState.combatant[i + START_ENEMY].stateFlags &= ~0x18;
+                }
             }
-        }
-
-        mask <<= 1;
-        order2++;
-        i++;
-        offset += 0x68;
-
-        if (i < 6) {
-            goto loop;
+            mask <<= 1;
         }
 
         BattleUpdateUnitMasks();
     }
 }
 
-static void BattleInitSetup(s32 sceneID) {
+void BattleInitSetup(s32 sceneID) {
     BattleUnit* unit;
     s32 i;
     s32 var_s1;
@@ -594,7 +570,7 @@ static void BattleInitLimits(s32 charId, s32 learnedLimits, BattleLimitData* dat
                 SysSetEngineErrorCode(0x26);
             } else if ((learnedLimits >> j) & 1) {
                 activeLimits++;
-                data->unk3[i] = data->limitData[i].unkC;
+                data->targetFlags[i] = data->limitData[i].targetFlags;
             }
         }
     }
@@ -871,7 +847,7 @@ static void BattleInitItemList(void) {
             count = (u32)id >> 9;
             id &= 0x1FF;
             if (id < 0x80) {
-                flags = D_800722CC[id].cameraMultiID & 0xB;
+                flags = D_800722CC[id].cameraIDs[1] & 0xB;
                 targetFlags = D_800722CC[id].targetFlags;
             } else if (id < 0x100) {
                 flags = g_WeaponTable[id - 0x80].restrictionMask & 0xB;

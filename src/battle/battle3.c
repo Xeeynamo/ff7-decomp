@@ -522,7 +522,7 @@ void BattleMenuInputState18(void) {
         SysMenuHandleButtons(menu);
         if (g_Pad0KeysRepeat & PAD_CIRCLE) {
             BattlePlayMenuSound(1);
-            D_800F38A2 = limits->unk3[menu->row];
+            D_800F38A2 = limits->targetFlags[menu->row];
             D_800F389E = limits->limitId[menu->row];
             D_800FAFD4 = menu->row;
             func_800E6B94();
@@ -552,7 +552,7 @@ void BattleMenuInputState1B(void) {
             if (BattleMenuGetSelectorStatusAlt() == 2) {
                 D_800F99E4 = 1;
                 BattlePlayMenuSound(1);
-                D_800F38A2 = temp_s0->unk3[0];
+                D_800F38A2 = temp_s0->targetFlags[0];
                 D_800F389E = temp_s0->limitId[0];
                 D_800FAFD4 = 0;
                 func_800E6B94();
@@ -583,7 +583,7 @@ void BattleMenuInputState1A(void) {
             D_800F99E4 = 1;
             if (BattleMenuGetSelectorStatus() == 2) {
                 BattlePlayMenuSound(1);
-                D_800F38A2 = temp_s0->unk3[0];
+                D_800F38A2 = temp_s0->targetFlags[0];
                 D_800F389E = temp_s0->limitId[0];
                 D_800FAFD4 = 0;
                 func_800E6B94();

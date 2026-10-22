@@ -76,7 +76,6 @@ static inline void DsChangeInitGraph(s32 h) {
     s32 res;
 
     y = (h != 480) ? 240 : 0;
-#ifndef PLATFORM_PSYZ
     while ((res = BreakDraw()) == -1) {
         VSync(0);
     }
@@ -84,7 +83,6 @@ static inline void DsChangeInitGraph(s32 h) {
         do {
         } while (IsIdleGPU(1) != 0);
     }
-#endif
     ResetGraph(1);
     SetDefDrawEnv(&db_drawenv[0], 0, 0, 640, h);
     SetDefDispEnv(&db_dispenv[0], 0, y, 640, h);

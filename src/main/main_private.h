@@ -52,11 +52,6 @@ typedef enum {
     KERNEL_TEXT_INVALID = 0xFF
 } KernelTextBlockID;
 
-typedef struct {
-    s32 len; // decompressed length
-    s32 unk4;
-} GzHeader;
-
 extern u16 g_Pad0KeysPrev;
 extern u16 g_Pad1Keys;
 extern u16 g_Pad1KeysPrev;
@@ -78,12 +73,9 @@ extern u8 D_800494A4[92];
 extern s32 D_80049500[8]; // party slot -> character id (endgame level snapshot)
 extern u8 D_80049520[];
 extern u8 D_80049528[];
-extern s32 g_RewardMenuHasEarnedItems;
-extern u_long* g_CurrentMenuOrderingTable;
 extern s32 g_PartyMenuListState;
 extern s32 g_PartyMenuPreviousMenuId;
 extern s32 g_PartyMenuListTransitionFactor;
-extern s32 D_80062F90;
 extern s32 g_PartyMenuSelectedMenuId;
 extern u32 D_8006966C[16];
 extern s16 g_RewardMenuState;
@@ -108,10 +100,6 @@ extern s16 D_800694E4[12];
 extern s16 D_800694FC[6];
 extern u8 D_80069800[48];
 extern DISPENV D_8007075C[2]; // active display environments (double-buffered)
-extern struct {
-    u16 sceneId;
-    u16 mode;
-} D_800707BC;
 extern u8 D_800716D0;
 extern s32 D_80071744; // LBA loc for func_80014540
 extern s16 D_80071A5C;
@@ -123,7 +111,6 @@ extern s32 D_80095DD8;                     // LBA len for func_80014540
 void BROM_Main(void);                      // battle/brom entrypoint
 void BATTLE_Main(void);                    // battle/battle entrypoint
 
-void SysGzipBinDecompress(GzHeader* src, u8* dst);
 u16 SysGzipGetSize(void);
 u16 SaveCalcChecksum(u16 len, u8* data);
 u8* SysGetKernTextPtrByBlock(s32 arg0, s32 arg1, s32 arg2);

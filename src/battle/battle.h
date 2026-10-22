@@ -71,6 +71,11 @@ typedef enum {
     BATTLE_TEXT_RECEIVED_ITEM = 0x52,
     BATTLE_TEXT_ITEM_STOLEN = 0x53,
     BATTLE_TEXT_RECEIVED_GIL = 0x54,
+    BATTLE_TEXT_MORPH_ITEM = 0x56,
+    BATTLE_TEXT_CANNOT_MIMIC = 0x57,
+    BATTLE_TEXT_USELESS_IMITATION = 0x58,
+    BATTLE_TEXT_CANNOT_MANIPULATE = 0x59,
+    BATTLE_TEXT_MANIPULATED = 0x5A,
     BATTLE_TEXT_NOT_ENOUGH_MP = 0x5B,
     BATTLE_TEXT_SKILL_POWER_USED_UP = 0x5C,
     BATTLE_TEXT_ELEMENT_NAMES_START = 0x5D,
@@ -168,7 +173,7 @@ typedef struct {
     /* 0x09 */ u8 level;
     /* 0x0A */ s8 targetSubSlot;
     /* 0x0B */ s8 minElemInfluence;
-    /* 0x0C */ s8 formationIndex;
+    /* 0x0C */ u8 formationIndex;
     /* 0x0D */ u8 physAttack;
     /* 0x0E */ u8 magAttack;
     /* 0x0F */ u8 physEvade;
@@ -232,7 +237,7 @@ typedef struct {
     /* 0x022 */ u16 pad22;
     /* 0x024 */ u16 setupFlags;
     /* 0x026 */ u16 attackCategoryFlags;
-    /* 0x028 */ u16 arenaRound;
+    /* 0x028 */ u16 setupParam;
     /* 0x02A */ u16 pad2A;
     /* 0x02C */ u16 unk2C;
     /* 0x02E */ u16 pad2E;
@@ -240,10 +245,34 @@ typedef struct {
     /* 0x034 */ BattleUnit combatant[NUM_BATTLE_ACTOR];
 } BattleState; // size:0x444
 
+typedef struct {
+    /* 0x00 */ s32 displayExp[4];
+    /* 0x10 */ s32 exp[4];
+    /* 0x20 */ s32 levelExp[4][12];
+    /* 0xE0 */ u8 expFrac[4];
+    /* 0xE4 */ u8 startLevel[4];
+} BatresSummary;
+
+// Enemy HP carried over between battles. BattleInitMain restores it when
+// setupFlags & 4 is set. This is probably used in the Bizarro-Sephiroth fight
+// where the party can be split up into up to 3 groups and take turns fighting
+typedef struct {
+    /* 0x00 */ s32 restoreSkipMask; // bit (tableIndex * NUM_ENEMY + enemy slot) skips one restore
+    /* 0x04 */ s32 tableIndex;
+    /* 0x08 */ s32 enemyHP[3][NUM_ENEMY]; // [tableIndex][enemy slot]
+} BattleSavedEnemyHP;
+
+// The results summary and the saved enemy HP use the same memory; these share the
+// same memory region and are accessed differently depending on the battle setup flags
+typedef union {
+    BatresSummary summary;
+    BattleSavedEnemyHP savedEnemyHP;
+} BatresShared;
+
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleSetupData.cs
 typedef struct {
     /* 0x00 0x80163614 */ u16 stageID; // load STAGE/ files
-    /* 0x02 0x80163616 */ s16 nextStageID;
+    /* 0x02 0x80163616 */ u16 nextStageID;
     /* 0x04 0x80163618 */ s16 escapeCounter;
     /* 0x06 0x8016361A */ s16 D_8016361A;
     /* 0x08 0x8016361C */ u16 D_8016361C[4];
@@ -698,10 +727,10 @@ typedef struct Unk800A8D04 {
     /* 0x000 */ s32 actorId;
     /* 0x004 */ s32 characterLevel;
     /* 0x008 */ s32 unk8;
-    /* 0x00C */ s32 unkC;
+    /* 0x00C */ s32 queuedCmdIndex;
     /* 0x010 */ s32 relativeActionIndex; // index within its own category (spell #, summon
                                          // #, etc) - see MAGIC_START in game.h for range defines
-    /* 0x014 */ s32 unk14;
+    /* 0x014 */ s32 enabledMagicIndex;   // -1 means unset
     /* 0x018 */ s32 allowedTargetsMask;
     /* 0x01C */ s32 unk1C;
     /* 0x020 */ s32 unk20; // pending message/animation id, -1 = none
@@ -713,7 +742,7 @@ typedef struct Unk800A8D04 {
                                          // in game.h for range defines
     /* 0x030 */ s32 unk30;
     /* 0x034 */ u8 unk34[4]; // character spacing array
-    /* 0x038 */ s32 unk38;
+    /* 0x038 */ s32 mpCost;
     /* 0x03C */ s32 attackPercent;
     /* 0x040 */ s32 formulaIds;
     /* 0x044 */ s32 elements;
@@ -750,7 +779,7 @@ typedef struct Unk800A8D04 {
     /* 0x0D0 */ u8 unkD0[8];
     /* 0x0D8 */ s32 unkD8;
     /* 0x0DC */ s32 unkDC;
-    /* 0x0E0 */ s32 unkE0;
+    /* 0x0E0 */ s32 landedHitCount;
     /* 0x0E4 */ s32 unkE4;
     /* 0x0E8 */ s32 unkE8;
     /* 0x0EC */ s32 unkEC;
@@ -789,6 +818,7 @@ extern BattleWork g_BattleWork;
 extern u16 D_800F7DE8;
 extern u8 g_EncounterType;
 extern BattleState g_BattleState;
+extern BatresShared g_BatresShared;
 extern BattleWorldView g_BattleWorldView;
 extern DB* g_cDb;
 extern s32 g_dbIndex;
@@ -798,6 +828,7 @@ extern BattleModel g_BattleModels[NUM_BATTLE_ACTOR];
 extern short g_BattleEffectCount;
 extern s32 D_801620A8;
 extern BattleData g_BattleData;
+extern u8 g_BattlePartyIDs[]; // copy of Savemap.partyID taken when the battle starts
 // pending battle-start status flags, one bit per entry of D_801B001C / D_801B002C (bit 4 = full-heal)
 extern u8 g_BattleStartFXFlags;
 extern s32 D_800F87F0[NUM_BATTLE_ACTOR][32]; // per-combatant battle-script variable bank, 0x80 B
@@ -852,5 +883,12 @@ void BattleInitUnitAction(s32 index);
 void BattleEnableLimitToPlayerWithSpeed(s32 index);
 s32 BattleCopyMessageWithArgs(u8* dst, const u8* src, const u16* args);
 s8* BattleGetStringPtrFromStringBuffer(s32 arg0);
+
+// BATINI entry points, called by BATTLE_Main after loading the overlay
+void BattleInitMain(s32 sceneID);
+void BattleInitSetup(s32 sceneID);
+
+// BATRES entry point, called by BATTLE_Main after the battle ends
+void BattleResultsMain(void);
 
 #endif

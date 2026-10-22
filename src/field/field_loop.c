@@ -30,7 +30,6 @@ extern u16 g_MimImage2Height;
 extern u16 g_MimImage2TPage;
 extern s32 D_80114478;
 extern s32 D_8011447C;
-extern volatile s16 g_GameState;
 
 void FieldEntityLineInteract(FieldEntity* entity, FieldLine* lines);
 void HandleKawaiDataInModel(FieldRenderData* renderData);

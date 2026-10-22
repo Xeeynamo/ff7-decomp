@@ -51,6 +51,7 @@
 #define SUMMON_END (SUMMON_START + NUM_SUMMONS)
 #define ENEMY_SKILL_START SUMMON_END
 #define ENEMY_SKILL_END (ENEMY_SKILL_START + NUM_ENEMY_SKILLS)
+#define LIMIT_START 0x80
 
 #define KAWAI_READ_S16(params, offset) ((s16)((((params)[(offset) + 1] << 8) & 0xFF00) | ((params)[(offset)] & 0xFF)))
 #define KAWAI_READ_S32(params, offset)                                                                                 \
@@ -180,6 +181,11 @@ typedef struct {
     s32 loc; // disk sector where the file can be found
     s32 len; // file size in bytes
 } Yamada;
+
+typedef struct {
+    s32 len; // decompressed length
+    s32 unk4;
+} GzHeader;
 
 typedef enum Lba {
     LBA_SYSTEM_CNF = 23,         // SYSTEM.CNF
@@ -679,15 +685,21 @@ typedef struct {
     u16 cameraMovementMultipleTargets;
 } BattleCommandData; // size: 0x8
 
+// Used with AttackData.cameraIDs[]
+typedef enum {
+    BATTLE_ATK_CAMERA_SINGLE,
+    BATTLE_ATK_CAMERA_MULTI,
+    NUM_BATTLE_ATK_CAMERAS,
+} BattleAttackCameraIndex;
+
 typedef struct {
     /* 0x00 */ u8 accuracyRate;
     /* 0x01 */ u8 impactEffectID;
     /* 0x02 */ u8 impactAnimID;
     /* 0x03 */ u8 pad3;
     /* 0x04 */ u16 mpCost;
-    /* 0x06 */ u16 impactSfxID;
-    /* 0x08 */ u16 cameraSingleID;
-    /* 0x0A */ u16 cameraMultiID;
+    /* 0x06 */ s16 impactSfxID;
+    /* 0x08 */ u16 cameraIDs[NUM_BATTLE_ATK_CAMERAS]; // Use BattleAttackCameraIndex
     /* 0x0C */ u8 targetFlags;
     /* 0x0D */ u8 attackEffectID;
     /* 0x0E */ u8 damageCalcID; // Packed byte contains hit and damage formulas (hit formula << 4 | damage formula)
@@ -859,14 +871,10 @@ typedef struct {
 // applied by BattleInitLimits, and the 0x1C-byte record behind each one.
 typedef struct {
     /* 00 */ u8 limitId[3];
-    /* 03 */ u8 unk3[3];
+    /* 03 */ u8 targetFlags[3];
     /* 06 */ u8 activeLimits;
     /* 07 */ u8 unk7;
-    /* 08 */ struct {
-        u8 unk0[0xC];
-        u8 unkC;
-        u8 unkD[0xF];
-    } limitData[3];
+    /* 08 */ AttackData limitData[3];
 } BattleLimitData; // size:0x5C
 
 // ActiveCharacterData.characterFlags bits.
@@ -1408,6 +1416,11 @@ typedef struct {
     u32 unk18;
 } Unk80075D00; // size:0x1C
 
+typedef struct {
+    u16 sceneId;
+    u16 mode;
+} BattleParams;
+
 typedef struct WindowData {
     u8* text;
     s16 x;
@@ -1467,7 +1480,7 @@ extern u8 D_80062F18;
 extern u8 D_80062F19; // Enemy Lure/Away Modifier
 extern u8 D_80062F1A;
 extern u8 D_80062F1B;
-extern s32 D_80062F54;
+extern s32 g_BattleSceneID;
 extern s32 D_80062F60;
 extern Gpu g_PolyPtr;
 extern u16 g_SaveSlotMask;
@@ -1481,7 +1494,7 @@ extern u8 g_FieldMusicLock; // MUSIC/FMUSC skip the sound engine while nonzero
 extern u8 D_80070788;
 extern u8 g_MovieLock;
 extern u8 g_EntityToLine[48];
-extern u16 g_BattleMode;
+extern BattleParams g_BattleParams;
 extern u16 g_FieldWaitCounter[48];      // Used by WAIT opcode to pause script
 extern u16 g_SavedFieldScriptPC[48][8]; // Program counters of paused scripts
 extern s16 D_80071A5C;
@@ -1508,15 +1521,6 @@ extern FieldEntity g_FieldEntity[];
 extern u8 g_FieldModelAnimStatus[16]; // per-model flags, indexed by field model id
 extern s32 g_PartyPortraitClut[];
 extern Unk80075D00* D_80075D00;
-typedef struct {
-    /* 0x00 */ s32 displayExp[4];
-    /* 0x10 */ s32 exp[4];
-    /* 0x20 */ s32 levelExp[4][12];
-    /* 0xE0 */ u8 expFrac[4];
-    /* 0xE4 */ u8 startLevel[4];
-} BatresSummary;
-
-extern BatresSummary g_BatresSummary;
 extern volatile s16 D_80075DEC;  // buffer index, also updated by the VSync callback
 extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
@@ -1567,7 +1571,8 @@ extern u8 D_8009AD2C;
 extern u8 g_CharIdToEntity[9];
 extern u8 D_8009C540;
 extern FieldEntity* g_FieldModels; // loaded field models
-extern u8 g_FieldModelCount;       // number of allocated field models
+extern volatile s16 g_GameState;
+extern u8 g_FieldModelCount; // number of allocated field models
 extern FieldScriptHeader* g_FieldScripts;
 extern FieldState* g_pFieldState; // points to g_FieldState
 extern SaveWork Savemap;          // 0x8009C6E4
@@ -1601,6 +1606,7 @@ u32 SysAddSubWithMaxMinBound(u32 val, u32 addend, u32 max, u32 isAdd);
 void SysGiveApToEquippedMateria(s16 partyId, u16 ap);
 void func_80014578(s32 fileNo, void* dst, void (*cb)(void));
 void SystemCdWaitCallback(void (*cb)(void));
+void SysGzipBinDecompress(GzHeader* src, u8* dst);
 void SysLoadUncompressImg(u8* tim);
 s32 SysGetLsbNumber(u32 arg0);
 s32 SysSelectRandomBit(u32 mask);
