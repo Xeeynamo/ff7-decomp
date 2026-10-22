@@ -20,7 +20,7 @@ jobs:
     - run: |
         echo "deb http://archive.ubuntu.com/ubuntu/ questing main universe multiverse restricted" | sudo tee /etc/apt/sources.list.d/questing.list
         sudo apt-get update
-        sudo apt-get install -y -t questing binutils-mipsel-linux-gnu gcc-mipsel-linux-gnu
+        sudo apt-get install -y -t questing binutils-mipsel-linux-gnu cpp-mipsel-linux-gnu
         sudo rm /etc/apt/sources.list.d/questing.list
         sudo apt-get clean
         sudo rm -rf /var/lib/apt/lists/*
