@@ -173,7 +173,7 @@ typedef struct {
     /* 0x09 */ u8 level;
     /* 0x0A */ s8 targetSubSlot;
     /* 0x0B */ s8 minElemInfluence;
-    /* 0x0C */ s8 formationIndex;
+    /* 0x0C */ u8 formationIndex;
     /* 0x0D */ u8 physAttack;
     /* 0x0E */ u8 magAttack;
     /* 0x0F */ u8 physEvade;
