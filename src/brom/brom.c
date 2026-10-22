@@ -50,7 +50,12 @@ static void ScenePickerInit(void) {
     D_800A06CC.dfe = 1;
     D_800A06CC.dtd = 0;
     D_800A06CC.isbg = 0;
+#ifdef PLATFORM_PSYZ
+    // FIX: allows the Scene selector text to be readable
+    D_800A06CC.tpage = 0x3F;
+#else
     D_800A06CC.tpage = 0;
+#endif
     VSync(0);
     PutDispEnv(&D_800A0728);
     PutDrawEnv(&D_800A06CC);
