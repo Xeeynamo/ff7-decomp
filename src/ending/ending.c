@@ -1379,16 +1379,13 @@ static void EndingResetSystem(void) {
 
 static void EndingStopDrawing(void) {
     s32 res;
-#ifndef PLATFORM_PSYZ
     while ((res = BreakDraw()) == -1) {
         VSync(0);
     }
-
     if (res != 0) {
         do {
         } while (IsIdleGPU(1) != 0);
     }
-#endif
 }
 
 static void SetGameResolution(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
@@ -1398,16 +1395,13 @@ static void SetGameResolution(s32 w, s32 h, s32 dist, u8 r, u8 g, u8 b) {
 
     y = (h != 480) ? 240 : 0;
 
-#ifndef PLATFORM_PSYZ
     while ((res = BreakDraw()) == -1) {
         VSync(0);
     }
-
     if (res != 0) {
         do {
         } while (IsIdleGPU(1) != 0);
     }
-#endif
 
     ResetGraph(1);
     SetDispMask(0);

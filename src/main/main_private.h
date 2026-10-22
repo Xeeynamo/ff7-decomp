@@ -73,12 +73,9 @@ extern u8 D_800494A4[92];
 extern s32 D_80049500[8]; // party slot -> character id (endgame level snapshot)
 extern u8 D_80049520[];
 extern u8 D_80049528[];
-extern s32 g_RewardMenuHasEarnedItems;
-extern u_long* g_CurrentMenuOrderingTable;
 extern s32 g_PartyMenuListState;
 extern s32 g_PartyMenuPreviousMenuId;
 extern s32 g_PartyMenuListTransitionFactor;
-extern s32 D_80062F90;
 extern s32 g_PartyMenuSelectedMenuId;
 extern u32 D_8006966C[16];
 extern s16 g_RewardMenuState;
