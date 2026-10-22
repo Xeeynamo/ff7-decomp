@@ -1478,7 +1478,7 @@ void func_800CEB48(void) {
             g_BattleEffectSlots[g_BattleEffectCursor].impact.attacker >= START_ENEMY) {
             func_800BBA84(SFX_SWORD_MISS, g_BattleEffectSlots[g_BattleEffectCursor].impact.target, 0);
         } else {
-            func_800BBA84(g_BattleEffectSlots[g_BattleEffectCursor].impact.sfxId,
+            func_800BBA84((u16)g_BattleEffectSlots[g_BattleEffectCursor].impact.sfxId,
                           g_BattleEffectSlots[g_BattleEffectCursor].impact.target, 0);
         }
     }
