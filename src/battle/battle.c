@@ -1,17 +1,51 @@
 #include "battle_private.h"
 
-const u8 D_800A0000 = 0;
-const u8 D_800A0001 = 0;
-const u16 D_800A0002 = 0;
-const u8 D_800A0004[] = {
-    0x14, 0x11, 0x00, 0x00, 0x1D, 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x21, 0x37, 0x00, 0x00, 0x22, 0x00, 0x06,
-    0x00, 0x26, 0x00, 0x12, 0x04, 0x21, 0x0A, 0x00, 0x00, 0x21, 0x09, 0x00, 0x00, 0x28, 0xB1, 0x00, 0x20, 0x2A, 0x11,
-    0x00, 0x00, 0x2C, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x11, 0x04, 0x00, 0x00, 0x11, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x1D, 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00, 0x15, 0x11, 0x00,
-    0x00, 0x16, 0x11, 0x00, 0x10, 0x1C, 0x11, 0x02, 0x00, 0x18, 0x11, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x2E, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+typedef struct {
+    /* 0x0 */ u8 animId;
+    /* 0x1 */ u8 formulaIds;
+    /* 0x2 */ u16 flags;
+} Unk800A0000; // size: 0x4
+
+const Unk800A0000 D_800A0000[] = {
+    /* 0x00 */ {0x00, 0x00, 0x0000},
+    /* 0x01 */ {0x14, 0x11, 0x0000}, // CMD_ATTACK
+    /* 0x02 */ {0x1D, 0x00, 0x0000}, // CMD_MAGIC
+    /* 0x03 */ {0x1F, 0x00, 0x0000}, // CMD_SUMMON
+    /* 0x04 */ {0x21, 0x37, 0x0000}, // CMD_ITEM
+    /* 0x05 */ {0x22, 0x00, 0x0006}, // CMD_STEAL
+    /* 0x06 */ {0x26, 0x00, 0x0412}, // CMD_SENSE
+    /* 0x07 */ {0x21, 0x0A, 0x0000}, // CMD_COIN
+    /* 0x08 */ {0x21, 0x09, 0x0000}, // CMD_THROW
+    /* 0x09 */ {0x28, 0xB1, 0x2000}, // CMD_MORPH
+    /* 0x0A */ {0x2A, 0x11, 0x0000}, // CMD_DEATHBLOW
+    /* 0x0B */ {0x2C, 0x90, 0x0000}, // CMD_MANIPULATE
+    /* 0x0C */ {0x00, 0x00, 0x0000}, // CMD_MIME
+    /* 0x0D */ {0x1E, 0x00, 0x0000}, // CMD_ENEMY_SKILL
+    /* 0x0E */ {0x00, 0x00, 0x0000},
+    /* 0x0F */ {0x00, 0x00, 0x0000},
+    /* 0x10 */ {0x00, 0x00, 0x0000},
+    /* 0x11 */ {0x24, 0x11, 0x0004}, // CMD_MUG
+    /* 0x12 */ {0x00, 0x11, 0x0002}, // CMD_CHANGE
+    /* 0x13 */ {0x00, 0x00, 0x0000}, // CMD_DEFEND
+    /* 0x14 */ {0x00, 0x00, 0x0000}, // CMD_LIMIT
+    /* 0x15 */ {0x1D, 0x00, 0x0000}, // CMD_W_MAGIC
+    /* 0x16 */ {0x1F, 0x00, 0x0000}, // CMD_W_SUMMON
+    /* 0x17 */ {0x21, 0x00, 0x0000}, // CMD_W_ITEM
+    /* 0x18 */ {0x15, 0x11, 0x0000}, // CMD_SLASH_ALL
+    /* 0x19 */ {0x16, 0x11, 0x1000}, // CMD_2X_CUT
+    /* 0x1A */ {0x1C, 0x11, 0x0002}, // CMD_FLASH
+    /* 0x1B */ {0x18, 0x11, 0x1000}, // CMD_4X_CUT
+    /* 0x1C */ {0x00, 0x00, 0x0000},
+    /* 0x1D */ {0x00, 0x00, 0x0000},
+    /* 0x1E */ {0x00, 0x00, 0x0000},
+    /* 0x1F */ {0x00, 0x00, 0x0000},
+    /* 0x20 */ {0x00, 0x00, 0x0000}, // CMD_ENEMY_ATTACK
+    /* 0x21 */ {0x00, 0x00, 0x0000},
+    /* 0x22 */ {0x00, 0x00, 0x0000},
+    /* 0x23 */ {0x2E, 0x04, 0x0000},
+    /* 0x24 */ {0x00, 0x00, 0x0000},
+    /* 0x25 */ {0x00, 0x00, 0x0000},
+};
 // opcode-byte program for BattleCmdScriptDispatch's dispatch loop: a 0x1F-delimited
 // stream of per-command opcode sequences, sliced by g_BattleCmdOpcodeOffs[cmdIndex]
 // (see BattleCmdScriptInitTbl) into per-command runs; each byte indexes g_BattleCmdOpcodeJmpTbl
@@ -23,8 +57,17 @@ const u8 g_BattleCmdOpcodeStream[] = {
     0x1F, 0x06, 0x0C, 0x09, 0x1F, 0x00, 0x0C, 0x09, 0x1F, 0x01, 0x0C, 0x09, 0x1F, 0x02, 0x0D, 0x09, 0x1F, 0x0E, 0x09,
     0x1F, 0x12, 0x0E, 0x09, 0x1F, 0x0E, 0x18, 0x09, 0x1F, 0x10, 0x0E, 0x09, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x07, 0x0C,
     0x09, 0x1F, 0x08, 0x1F, 0x11, 0x1F, 0x13, 0x09, 0x1F, 0x14, 0x1F, 0x15, 0x0F, 0x1F, 0x00, 0x00, 0x00};
-const s32 D_800A0108 = 21;
-const s32 D_800A010C[] = {2, 22, 3, 23, 4};
+
+typedef struct {
+    /* 0x0 */ s32 from;
+    /* 0x4 */ s32 to;
+} Unk800A0108; // size: 0x8
+
+const Unk800A0108 D_800A0108[] = {
+    {CMD_W_MAGIC, CMD_MAGIC},
+    {CMD_W_SUMMON, CMD_SUMMON},
+    {CMD_W_ITEM, CMD_ITEM},
+};
 
 // entrypoint
 void BATTLE_Main(void) {
@@ -210,7 +253,341 @@ void BATTLE_Main(void) {
 // D_80062F14 -- if it goes >= 0 the whole sequence aborts immediately
 // (handler requested a suspend, e.g. to wait on an animation), otherwise
 // continues to the next opcode byte
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleCmdScriptDispatch);
+/*?*/ void func_800A2BF4(s32); // extern
+extern void (*g_BattleCmdOpcodeJmpTbl[])(void);
+
+extern s32 D_801517B8;
+
+// glabel g_BattleCmdOpcodeJmpTbl
+//     /* 47B28 800E7B28 C0730A80 */ .word BattleResolveMagicActionIndex
+//     /* 47B2C 800E7B2C D8730A80 */ .word BattleResolveSummonActionIndex
+//     /* 47B30 800E7B30 F8730A80 */ .word BattlePrepareTmpFromItemForUse
+//     /* 47B34 800E7B34 AC760A80 */ .word BattleResolveEnemySkillActionIndex
+//     /* 47B38 800E7B38 CC760A80 */ .word BattleActionType04
+//     /* 47B3C 800E7B3C 84770A80 */ .word BattlePrepareTmpForDefend
+//     /* 47B40 800E7B40 8C770A80 */ .word BattleResolveLimitActionIndex
+//     /* 47B44 800E7B44 4C780A80 */ .word BattleActionType07
+//     /* 47B48 800E7B48 5C790A80 */ .word func_800A795C
+//     /* 47B4C 800E7B4C BCAB0A80 */ .word BattleActionType09
+//     /* 47B50 800E7B50 88790A80 */ .word BattleActionType0A
+//     /* 47B54 800E7B54 A8790A80 */ .word BattleActionType0B
+//     /* 47B58 800E7B58 CC790A80 */ .word BattleActionType0C
+//     /* 47B5C 800E7B5C DC800A80 */ .word BattleLoadActionAttackData
+//     /* 47B60 800E7B60 B8810A80 */ .word BattleActionType0E
+//     /* 47B64 800E7B64 24840A80 */ .word BattleQueueCurrentActionEffect
+//     /* 47B68 800E7B68 28850A80 */ .word BattleActionType10
+//     /* 47B6C 800E7B6C 3C850A80 */ .word func_800A853C
+//     /* 47B70 800E7B70 A0850A80 */ .word BattleActionType12
+//     /* 47B74 800E7B74 B4850A80 */ .word func_800A85B4
+//     /* 47B78 800E7B78 F44A0A80 */ .word BattleActionType14
+//     /* 47B7C 800E7B7C FC850A80 */ .word BattleActionType15
+//     /* 47B80 800E7B80 6C860A80 */ .word BattleActionType16
+//     /* 47B84 800E7B84 6C8A0A80 */ .word BattleActionType17
+//     /* 47B88 800E7B88 948C0A80 */ .word BattleActionType18
+//     /* 47B8C 800E7B8C 58740A80 */ .word BattleSetupThrowAction
+//     /* 47B90 800E7B90 40790A80 */ .word BattlePrepareTmpForManip
+//     /* 47B94 800E7B94 C88C0A80 */ .word BattleActionType1B
+//     /* 47B98 800E7B98 048D0A80 */ .word BattleActionType1C
+//     /* 47B9C 800E7B9C 60750A80 */ .word BattleSetupCoinThrowAction
+//     /* 47BA0 800E7BA0 188D0A80 */ .word BattleActionType1E
+// .size g_BattleCmdOpcodeJmpTbl, . - g_BattleCmdOpcodeJmpTbl
+
+void BattleCmdScriptDispatch(BattleActionEntry* entry) {
+    ActiveCharCommandMenu* cmdMenu;
+    s32 hitMask;
+    s32 affectedMask;
+    s32 killedMask;
+    s32 mask;
+    s32 mimeContext;
+    s32 offset;
+    s32 opcode;
+    s32 slot;
+    s32 i;
+
+    g_BattleWork.isQueueExecuting = 0;
+    SysIncSeedForRandom();
+
+    if (entry->priority >= 2) {
+        g_BattleWork.attackerUnitMask = 1 << entry->unitSlot;
+    }
+
+    D_800F83A4[0] = entry->cmdIndex & 0x3F;
+    D_800F83A4[1] = entry->attackIndex;
+
+    if (entry->priority) {
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            BattleRunUnitScript(i, 7, 0);
+        }
+    }
+
+    // Clear the scratch (where g_CurrentAction sits)
+    for (i = 0; i < 0x100; i++) {
+        ((s32*)g_CurrentAction)[i] = 0;
+    }
+
+    slot = entry->unitSlot;
+
+    // A mimed action (queued by BattleActionType17 with cmdIndex | 0x40) takes the copied
+    // action's unkF0 / unkF8 back out of the party slot
+    mimeContext = -1;
+    if (entry->cmdIndex & 0x40) {
+        for (i = 0; i < LEN(g_BattleWork.party[slot].unk18); i++) {
+            if (g_BattleWork.party[slot].unk18[i] != 0xFFFF) {
+                mimeContext = g_BattleWork.party[slot].unk18[i];
+                g_BattleWork.party[slot].unk18[i] = 0xFFFF;
+                break;
+            }
+        }
+    }
+
+    entry->cmdIndex &= 0x3F;
+    if (slot < NUM_PARTY && (g_BattleState.combatant[slot].status & STATUS_FROG) &&
+        entry->cmdIndex == BattleGetBerserkToadAttackTypeId(slot)) {
+        entry->cmdIndex = CMD_ATTACK;
+        entry->targetMask = SysSelectRandomBit(entry->targetMask);
+    }
+
+    g_CurrentAction->actorId = slot;
+    g_CurrentAction->queuedCmdIndex = entry->cmdIndex;
+    g_CurrentAction->relativeActionIndex = entry->attackIndex;
+    g_CurrentAction->allowedTargetsMask = entry->targetMask;
+    g_CurrentAction->characterLevel = g_BattleState.combatant[slot].level;
+    g_CurrentAction->attackerStatus = g_BattleState.combatant[slot].status;
+    g_CurrentAction->unk1C = 1;
+    g_CurrentAction->unk20 = D_800A0000[g_CurrentAction->queuedCmdIndex].animId;
+    g_CurrentAction->formulaIds = D_800A0000[g_CurrentAction->queuedCmdIndex].formulaIds;
+    g_CurrentAction->unk90 = D_800A0000[g_CurrentAction->queuedCmdIndex].flags;
+    g_CurrentAction->enabledMagicIndex = -1;
+    g_CurrentAction->impactSfxIds[0] = -1;
+    g_CurrentAction->impactSfxIds[1] = -1;
+    g_CurrentAction->impactSfxIds[2] = -1;
+    g_CurrentAction->impactEffectId = -1;
+    g_CurrentAction->unk8 = -1;
+    g_CurrentAction->attackFlags = -1;
+    g_CurrentAction->unk60 = -1;
+    g_CurrentAction->unk64 = -1;
+    g_CurrentAction->effectId = -1;
+    g_CurrentAction->unkDC = -1;
+    g_CurrentAction->unkE4 = -1;
+    g_CurrentAction->unk30 = 1 << slot;
+    g_CurrentAction->unkB4 = 1;
+    g_CurrentAction->statusChangeChance = 0xFF;
+    g_CurrentAction->unk94 = g_CurrentAction->allowedTargetsMask;
+    g_CurrentAction->unk98 = g_CurrentAction->relativeActionIndex;
+
+    for (i = 0; i < LEN(g_CurrentAction->unkD0); i++) {
+        g_CurrentAction->unkD0[i] = 0xFF;
+    }
+
+    if (!g_CurrentAction->unk94) {
+        if (slot < NUM_PARTY) {
+            g_CurrentAction->unk90 |= 0x200;
+        }
+    } else if (SysCountActiveBits(g_CurrentAction->unk94) >= 2) {
+        g_CurrentAction->unk90 |= 0x200;
+    }
+
+    g_CurrentAction->targetFlags = 0xFF;
+    if (g_CurrentAction->queuedCmdIndex < LEN(D_800707C4)) {
+        g_CurrentAction->targetFlags = D_800707C4[g_CurrentAction->queuedCmdIndex].targetFlags;
+    }
+
+    if (mimeContext != -1) {
+        if (mimeContext >> 8) {
+            func_800A8E54(mimeContext >> 8);
+        }
+        g_CurrentAction->unkF0 = mimeContext & 0xFF;
+        g_CurrentAction->unk90 |= 0x400000;
+    }
+
+    if (slot < NUM_PARTY) {
+        func_800A2BF4(slot);
+
+        cmdMenu = g_ActiveCharacters[slot].commandMenu;
+        if (!(g_CurrentAction->unk90 & 0x400000)) {
+            for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
+                if (cmdMenu[i].id != g_CurrentAction->queuedCmdIndex) {
+                    continue;
+                }
+
+                if (g_BattleWork.currentAction.priority >= 5) {
+                    g_CurrentAction->unkF0 = cmdMenu[i].materiaEffectFlags;
+                }
+
+                switch (g_CurrentAction->queuedCmdIndex) {
+                case CMD_STEAL:
+                case CMD_SENSE:
+                case CMD_MORPH:
+                case CMD_DEATHBLOW:
+                case CMD_MANIPULATE:
+                case CMD_MUG:
+                    // Multi-target (mega-all) use of these commands spends one allCount
+                    if (g_CurrentAction->unk90 & 0x200) {
+                        if (cmdMenu[i].allCount) {
+                            cmdMenu[i].allCount--;
+                            BattleQueueEvent(2, slot, 0x15, 1);
+                        } else {
+                            g_CurrentAction->unk90 |= 0x100000;
+                        }
+                    }
+                    g_CurrentAction->targetFlags = cmdMenu[i].targetFlags;
+                    break;
+                }
+
+                break;
+            }
+        }
+    }
+
+    if (g_BattleWork.turn[slot].turnFlags & 0x80) {
+        g_BattleWork.turn[slot].turnFlags &= ~0x80;
+        if (g_BattleWork.turn[slot].prevHP == 7777) {
+            g_BattleWork.lucky7777StringID = 0x51;
+            g_BattleWork.lucky7777ActionParam = 0x2F;
+        }
+    }
+
+    // Remap W-Magic / W-Summon / W-Item as their base command
+    g_CurrentAction->cmdIndex = g_CurrentAction->queuedCmdIndex;
+    for (i = 0; i < LEN(D_800A0108); i++) {
+        if (g_CurrentAction->cmdIndex == D_800A0108[i].from) {
+            g_CurrentAction->cmdIndex = D_800A0108[i].to;
+        }
+    }
+
+    if (g_CurrentAction->queuedCmdIndex < LEN(D_800707C4)) {
+        g_CurrentAction->unk60 = D_800707C4[g_CurrentAction->queuedCmdIndex].cameraMovementSingleTarget;
+        g_CurrentAction->unk64 = D_800707C4[g_CurrentAction->queuedCmdIndex].cameraMovementMultipleTargets;
+    }
+
+    if (slot >= START_ENEMY) {
+        g_CurrentAction->unk8 = g_BattleData.activeEncounter.formation[slot - START_ENEMY].enemyID;
+    }
+
+    if (g_BattleWork.turn[slot].turnFlags & 4) {
+        s16 msgArgs = slot;
+        BattleAddStringToDisplay(slot, BATTLE_TEXT_CAUGHT_BY_SURPRISE, 1, &msgArgs);
+        g_BattleWork.turn[slot].turnFlags &= ~4;
+    }
+
+    // A handler that sets D_80062F14 >= 0 suspends the action; skip the bookkeeping below
+    offset = g_BattleCmdOpcodeOffs[g_CurrentAction->queuedCmdIndex];
+    while ((opcode = g_BattleCmdOpcodeStream[offset++]) != CMD_OPCODE_DELIM) {
+        g_BattleCmdOpcodeJmpTbl[opcode]();
+
+        if (D_80062F14 >= 0) {
+            return;
+        }
+    }
+
+    BattleDropSupersededQueuedActions();
+
+    // Record a party member's command (except Mime itself) for Mime to copy
+    if (slot < NUM_PARTY && g_CurrentAction->queuedCmdIndex != CMD_MIME &&
+        g_CurrentAction->queuedCmdIndex < LEN(D_800707C4)) {
+        s32 turnOrder = g_BattleWork.turn[slot].unk2A;
+        s32 j;
+
+        for (j = 0; j < LEN(g_BattleWork.postExecAction); j++) {
+            if (entry->priority == 3) {
+                continue;
+            }
+
+            // The same unit's second W-Magic-or-later command in one turn takes the next record
+            if (g_BattleWork.postExecAction[j].unitSlot == slot &&
+                (u8)g_BattleWork.postExecAction[j].orderInPriority == turnOrder &&
+                g_CurrentAction->queuedCmdIndex >= CMD_W_MAGIC) {
+                continue;
+            }
+
+            g_BattleWork.postExecAction[j].unitSlot = slot;
+            g_BattleWork.postExecAction[j].orderInPriority = turnOrder;
+            g_BattleWork.postExecAction[j].cmdIndex = g_CurrentAction->queuedCmdIndex;
+            g_BattleWork.postExecAction[j].attackIndex = g_CurrentAction->relativeActionIndex;
+            g_BattleWork.postExecAction[j].targetMask = g_CurrentAction->unk94;
+
+            g_BattleWork.playerContextOffset[j] = g_CurrentAction->unkF0;
+            if (g_CurrentAction->unkF8) {
+                g_BattleWork.playerContextOffset[j] |= g_CurrentAction->unkF8 << 8;
+            }
+
+            // Mark the next record empty
+            if (j + 1 < LEN(g_BattleWork.postExecAction)) {
+                g_BattleWork.postExecAction[j + 1].unitSlot = -1;
+            }
+            break;
+        }
+    }
+
+    if (g_CurrentAction->unk90 & 0x800) {
+        BattleQueueImmediateAction(slot, 3, CMD_ATTACK, 0, g_CurrentAction->unk94);
+    }
+
+    if (g_CurrentAction->cmdIndex == CMD_SENSE) {
+        g_CurrentAction->unk78 = 0;
+        g_CurrentAction->unkA8 = 0;
+    }
+
+    g_BattleState.attackCategoryFlags = g_CurrentAction->attackFlags;
+    D_800F83A4[0] = g_CurrentAction->queuedCmdIndex;
+    D_800F83A4[1] = g_CurrentAction->relativeActionIndex;
+    g_BattleState.pad22 = g_CurrentAction->absoluteActionIndex;
+    g_BattleState.unk1C = g_CurrentAction->elements;
+
+    mask = ~(g_BattleWork.unk2214 | D_800F7DE0[0]);
+    hitMask = g_CurrentAction->unk78 & mask;
+    affectedMask = g_CurrentAction->unkA8 & mask;
+    killedMask = g_CurrentAction->unk7C & mask;
+
+    // Run the targets' reaction scripts
+    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+        const s32 noCounterHitStatusMask =
+            STATUS_SLEEP | STATUS_STOP | STATUS_PETRIFY | STATUS_MANIPULATE | STATUS_PARALYSIS;
+
+        if ((killedMask >> i) & 1) {
+            g_BattleState.combatant[i].attackerMask = 1 << slot;
+            func_800A6278(slot, i, 0);
+            continue;
+        }
+
+        if (!((hitMask >> i) & 1) || ((g_BattleWork.attackerUnitMask >> i) & 1) ||
+            (g_BattleState.combatant[i].status & noCounterHitStatusMask)) {
+            continue;
+        }
+
+        g_BattleWork.attackerUnitMask |= 1 << i;
+        g_BattleState.combatant[i].attackerMask = 1 << slot;
+        BattleRunUnitScript(i, 2, 0);
+
+        if (!((affectedMask >> i) & 1)) {
+            continue;
+        }
+
+        if (slot >= START_ENEMY) {
+            BattleAddAutoBattleActionByChance(i, 2);
+        }
+
+        if (g_BattleState.attackCategoryFlags & 4) {
+            g_BattleState.combatant[i].unk1E = 1 << slot;
+            BattleRunUnitScript(i, 5, 0);
+        } else {
+            g_BattleState.combatant[i].unk1C = 1 << slot;
+            BattleRunUnitScript(i, 4, 0);
+        }
+    }
+
+    BattleCheckAllLucky7s();
+
+    // One mimed action fewer pending; the turn counter only moves after the last one
+    if (D_801517B8) {
+        D_801517B8--;
+        return;
+    }
+
+    if (entry->priority < 3) {
+        g_BattleWork.turn[slot].unk2A++;
+    }
+}
 
 static void BattleSetFocusedActor(s32 arg0) {
     s32 i;
@@ -3039,7 +3416,7 @@ void BattleActionType17(void) {
             continue;
         }
 
-        attackIndex = g_BattleWork.postExecAction[i].attackIndex;
+        attackIndex = (s16)g_BattleWork.postExecAction[i].attackIndex;
         targetMask = g_BattleWork.postExecAction[i].targetMask;
         cmdIndex = g_BattleWork.postExecAction[i].cmdIndex & 0x3F;
         if (cmdIndex == CMD_MIME) {

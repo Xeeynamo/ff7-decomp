@@ -86,6 +86,7 @@ typedef enum {
     BATTLE_TEXT_SENSE_NAME_LEVEL = 0x74,
     BATTLE_TEXT_SENSE_HP_MP = 0x75,
     BATTLE_TEXT_SENSE_FAILED = 0x76,
+    BATTLE_TEXT_CAUGHT_BY_SURPRISE = 0x7A,
     BATTLE_TEXT_OFFSET_ENTRY = 0x7E,
 } BattleTextId;
 
@@ -187,7 +188,8 @@ typedef struct {
     /* 0x17 */ u8 coverTargetSlot;
     /* 0x18 */ u16 attackMask;
     /* 0x1A */ u16 attackerMask;
-    /* 0x1C */ s32 statusAppliedMask;
+    /* 0x1C */ u16 unk1C;
+    /* 0x1E */ u16 unk1E;
     /* 0x20 */ u16 physDefence;
     /* 0x22 */ u16 magDefence;
     /* 0x24 */ u16 enemyId;
@@ -412,10 +414,10 @@ typedef struct {
     /* 0x2 */ s8 unitSlot;
     /* 0x3 */ s8 cmdIndex;     // BattleCommand, stored raw (not the enum type -- keeps the 0x8-byte layout);
                                // -1 = the AI picks the command
-    /* 0x4 */ s16 attackIndex; // command-dependent: spell id for CMD_MAGIC,
+    /* 0x4 */ u16 attackIndex; // command-dependent: spell id for CMD_MAGIC,
                                // damage dealt for CMD_COIN, skill id for
                                // CMD_ENEMY_SKILL, etc -- not a uniform lookup
-    /* 0x6 */ s16 targetMask;
+    /* 0x6 */ u16 targetMask;
 } BattleActionEntry; // size:0x8
 
 #define BATTTLE_SCENE 7
