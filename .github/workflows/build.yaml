@@ -12,7 +12,9 @@ jobs:
     if: github.repository == 'Xeeynamo/ff7-decomp'
     runs-on: ubuntu-24.04
     steps:
-    - run: sudo apt-get install -y ninja-build 7zip libsdl2-dev libxtst-dev
+    - run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build 7zip libsdl2-dev libxtst-dev
     # Ubuntu 24.04 uses binutils 2.42, which ships a version of mipsel-linux-gnu-ld that does not match the game.
     # Ubuntu 24.10 (binutils 2.42.90) and later fixes the issue
     - run: |
