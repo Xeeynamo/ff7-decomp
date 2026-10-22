@@ -14,7 +14,7 @@ jobs:
     steps:
     - run: |
         sudo apt-get update
-        sudo apt-get install -y ninja-build 7zip libsdl2-dev libxtst-dev
+        sudo apt-get install -y ninja-build 7zip libsdl2-dev libxtst-dev g++-multilib lib32z1-dev
     # Ubuntu 24.04 uses binutils 2.42, which ships a version of mipsel-linux-gnu-ld that does not match the game.
     # Ubuntu 24.10 (binutils 2.42.90) and later fixes the issue
     - run: |
