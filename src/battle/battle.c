@@ -1719,7 +1719,68 @@ void BattleReqReturnReservedItems(s16 arg0) {
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleReturnReservedItems);
+// Puts the items queued by BattleReqReturnReservedItems back into the battle item list;
+// one more of an item already listed (up to 99), otherwise a new entry in the first empty slot
+void BattleReturnReservedItems(void) {
+    BattleItemEntry* list;
+    BattleItemEntry* item;
+    s16 itemId;
+    s32 firstEmptySlot;
+    s32 rows;
+    s32 i;
+
+    while (D_800F3A1C != D_800F3A18) {
+        list = D_801671B8;
+        firstEmptySlot = -1;
+        itemId = D_800F3A20[D_800F3A18++];
+
+        if (itemId < 0x180) {
+            rows = 0;
+
+            for (i = 0; i < MAX_INVENTORY_COUNT; i++) {
+                if (list[i].id == itemId) {
+                    if (list[i].count < MAX_INVENTORY_STACK) {
+                        list[i].count++;
+                    }
+                    break;
+                }
+
+                if (list[i].id == 0xFFFF && firstEmptySlot == -1) {
+                    firstEmptySlot = i;
+                }
+            }
+
+            if (i == MAX_INVENTORY_COUNT && firstEmptySlot != -1) {
+                item = &D_801671B8[firstEmptySlot];
+                item->count = 1;
+                item->targetFlags = TARGET_ENABLE_SELECTION | TARGET_START_ENEMY_ROW;
+                item->id = itemId;
+
+                if (itemId < 0x80) {
+                    item->targetFlags = g_ItemTable[itemId].targetFlags;
+                    item->unk4 = g_ItemTable[itemId].restrictionMask;
+                } else if (itemId < 0x100) {
+                    item->targetFlags = g_WeaponTable[itemId - 0x80].targetFlags;
+                    item->unk4 = g_WeaponTable[itemId - 0x80].restrictionMask;
+                } else if (itemId < 0x120) {
+                    item->unk4 = g_ArmorTable[itemId - 0x100].restrictionMask;
+                } else if (itemId < 0x140) {
+                    item->unk4 = g_AccessoryTable[itemId - 0x120].restrictionMask;
+                }
+
+                item->unk4 &= 0xB;
+                rows = (firstEmptySlot + 1) / 2;
+            }
+
+            D_80166F75 = 0xFF;
+            if (D_80166F74 < rows) {
+                D_80166F74 = rows;
+            }
+        }
+
+        D_800F3A18 &= LEN(D_800F3A20) - 1;
+    }
+}
 
 // 0xFFFF when nothing is throwable, or the pick falls outside the range
 static s32 BattlePickRandomThrowItem(void) {
@@ -2756,19 +2817,19 @@ void BattleActionType0C(void) {
 }
 
 void BattleLoadActionAttackData(void) {
-    AttackData* atk;
+    ItemRecord* atk;
     u16 elements;
 
     g_CurrentAction->attackPercent = 0xFF;
-    atk = &D_800722CC[g_CurrentAction->absoluteActionIndex];
+    atk = &g_ItemTable[g_CurrentAction->absoluteActionIndex];
     g_CurrentAction->formulaIds = atk->damageCalcID;
     g_CurrentAction->power = atk->strength;
     elements = atk->elements;
     if (elements != 0xFFFF) {
         g_CurrentAction->elements = elements;
     }
-    g_CurrentAction->unk60 = atk->cameraIDs[BATTLE_ATK_CAMERA_SINGLE];
-    g_CurrentAction->unk64 = atk->cameraIDs[BATTLE_ATK_CAMERA_SINGLE];
+    g_CurrentAction->unk60 = atk->cameraID;
+    g_CurrentAction->unk64 = atk->cameraID;
     g_CurrentAction->unk24 = atk->attackEffectID;
     g_CurrentAction->attackFlags = atk->flags;
     BattleCopyTargTypeDatToTmp(atk->targetFlags);

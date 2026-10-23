@@ -57,7 +57,7 @@ MainMenuColorLabels g_Labels = {
 
 // kernel tables that hold equipment and materia records
 static void* D_8004935C[5] = {
-    D_800722CC, g_WeaponTable, g_ArmorTable, g_AccessoryTable, g_MateriaData,
+    g_ItemTable, g_WeaponTable, g_ArmorTable, g_AccessoryTable, g_MateriaData,
 };
 
 static s32 D_80049370[5] = {0xE00, 0x1600, 0x480, 0x200, 0x7D0};
@@ -206,7 +206,7 @@ static void func_8001FAF0(void) {}
 
 u16 SysMenuGetInventoryRestrictionMask(s32 itemId) {
     if (itemId < 0x80) {
-        return D_800722CC[itemId].cameraIDs[1];
+        return g_ItemTable[itemId].restrictionMask;
     }
     if (itemId < 0x100) {
         return g_WeaponTable[itemId - 0x80].restrictionMask;

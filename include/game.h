@@ -33,6 +33,7 @@
 #define NUM_SUMMONS 16
 #define NUM_ENEMY_SKILLS 24
 #define MAX_INVENTORY_COUNT 320
+#define MAX_INVENTORY_STACK 99
 #define MAX_MATERIA_COUNT 200
 #define NUM_MENU_COLOR 12
 #define LABEL_SIZE 12
@@ -692,6 +693,25 @@ typedef struct {
     /* 0x18 */ u16 elements;
     /* 0x1A */ u16 flags;
 } AttackData; // size: 0x1C
+
+// Kernel item record, one per item id below 0x80 (g_ItemTable). From 0x0C on it
+// has AttackData's layout and field names.
+typedef struct {
+    /* 0x00 */ u8 unk0[8]; // unused, filled with 0xFF
+    /* 0x08 */ u16 cameraID;
+    /* 0x0A */ u16 restrictionMask; // same bits as WeaponRecord.restrictionMask
+    /* 0x0C */ u8 targetFlags;
+    /* 0x0D */ u8 attackEffectID;
+    /* 0x0E */ u8 damageCalcID; // Packed byte contains hit and damage formulas (hit formula << 4 | damage formula)
+    /* 0x0F */ u8 strength;
+    /* 0x10 */ u8 conditionSubmenu;
+    /* 0x11 */ u8 statusChange;
+    /* 0x12 */ u8 additionalEffects;
+    /* 0x13 */ u8 effectsModifier;
+    /* 0x14 */ u32 statuses;
+    /* 0x18 */ u16 elements;
+    /* 0x1A */ u16 flags;
+} ItemRecord; // size: 0x1C
 
 // Kernel armor record, one per armor id (g_ArmorTable). Field meanings were
 // verified by dumping the live table and matching each field against
@@ -1492,7 +1512,7 @@ extern CurrentCharMagicCommand D_80069554[NUM_MAGICS];
 extern u8* D_800707C0;
 extern BattleCommandData D_800707C4[32];
 extern AttackData D_800708C4[];
-extern AttackData D_800722CC[];            // magic/summon/skill table
+extern ItemRecord g_ItemTable[];           // 0x800722CC, by item id
 extern WeaponRecord g_WeaponTable[];       // 0x800738A0, by weapon id
 extern AccessoryRecord g_AccessoryTable[]; // 0x80071C24, by accessory id
 extern ArmorRecord g_ArmorTable[];         // 0x80071E44, by armor id

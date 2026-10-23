@@ -674,6 +674,7 @@ extern s32 g_BattleFrameCount;  // Frame count since the battle started, increme
 extern volatile s32 D_800F39EC; // polled by a tight wait loop
 extern ActiveCharCommandMenu g_BattleOriginalAttackCmd[NUM_PARTY];
 extern ActiveCharCommandMenu g_BattleFallbackAttackCmd[NUM_PARTY];
+extern s32 D_800F3A18;     // read index into D_800F3A20
 extern s32 D_800F3A1C;     // write index into D_800F3A20
 extern s16 D_800F3A20[16]; // ring buffer, see BattleReqReturnReservedItems
 extern s8 D_800F3A80[];

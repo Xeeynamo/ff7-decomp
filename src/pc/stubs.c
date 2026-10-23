@@ -94,7 +94,7 @@ u8 g_KernRndTable[256];
 DRAWENV D_800706A4[2];
 DISPENV D_8007075C[2];
 u8* D_800707C0;
-AttackData D_800722CC[256];
+ItemRecord g_ItemTable[256];
 s32 g_PartyPortraitClut[256];
 s8 D_80077F64[2][0x3400];
 s32 g_MemcardEvents[8];

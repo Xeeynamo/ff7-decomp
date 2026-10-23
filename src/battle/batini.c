@@ -847,8 +847,8 @@ static void BattleInitItemList(void) {
             count = (u32)id >> 9;
             id &= 0x1FF;
             if (id < 0x80) {
-                flags = D_800722CC[id].cameraIDs[1] & 0xB;
-                targetFlags = D_800722CC[id].targetFlags;
+                flags = g_ItemTable[id].restrictionMask & 0xB;
+                targetFlags = g_ItemTable[id].targetFlags;
             } else if (id < 0x100) {
                 flags = g_WeaponTable[id - 0x80].restrictionMask & 0xB;
                 targetFlags = g_WeaponTable[id - 0x80].targetFlags;
