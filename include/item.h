@@ -1,6 +1,35 @@
+#ifndef ITEM_H
+#define ITEM_H
+
 #define RESTORE_POTION_HP 100
 #define RESTORE_HI_POTION_HP 500
 #define RESTORE_ETHER_MP 100
+
+#define NUM_ITEMS 128
+#define NUM_WEAPONS 128
+#define NUM_ARMORS 32
+#define NUM_ACCESSORIES 32
+
+// Item id ranges. Items, weapons, armor and accessories share one id space
+// (inventory entries, g_BattleItemList), each indexing its own kernel table.
+// Ends are exclusive (start + count)
+#define INV_TYPE_ITEM_START 0
+#define INV_TYPE_ITEM_END (INV_TYPE_ITEM_START + NUM_ITEMS)
+#define INV_TYPE_WEAPON_START INV_TYPE_ITEM_END
+#define INV_TYPE_WEAPON_END (INV_TYPE_WEAPON_START + NUM_WEAPONS)
+#define INV_TYPE_ARMOR_START INV_TYPE_WEAPON_END
+#define INV_TYPE_ARMOR_END (INV_TYPE_ARMOR_START + NUM_ARMORS)
+#define INV_TYPE_ACCESSORY_START INV_TYPE_ARMOR_END
+#define INV_TYPE_ACCESSORY_END (INV_TYPE_ACCESSORY_START + NUM_ACCESSORIES)
+
+// Item restriction bits (restrictionMask in the kernel item, weapon, armor and
+// accessory records). A set bit forbids the action.
+typedef enum {
+    ITEM_RESTRICT_SELL = 0x1,
+    ITEM_RESTRICT_BATTLE = 0x2,
+    ITEM_RESTRICT_FIELD = 0x4,
+    ITEM_RESTRICT_THROW = 0x8,
+} ItemRestrictionFlags;
 
 typedef enum {
     ITEM_POTION = 0x00,
@@ -301,3 +330,5 @@ typedef enum {
     ITEM_SNEAK_GLOVE = 0x13E,
     ITEM_HYPNO_CROWN = 0x13F,
 } ItemId;
+
+#endif // ITEM_H

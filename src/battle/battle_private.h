@@ -674,9 +674,17 @@ extern s32 g_BattleFrameCount;  // Frame count since the battle started, increme
 extern volatile s32 D_800F39EC; // polled by a tight wait loop
 extern ActiveCharCommandMenu g_BattleOriginalAttackCmd[NUM_PARTY];
 extern ActiveCharCommandMenu g_BattleFallbackAttackCmd[NUM_PARTY];
-extern s32 D_800F3A18;     // read index into D_800F3A20
-extern s32 D_800F3A1C;     // write index into D_800F3A20
-extern s16 D_800F3A20[16]; // ring buffer, see BattleReqReturnReservedItems
+extern s32 g_BattleIncomingItemReadIdx;
+extern s32 g_BattleIncomingItemWriteIdx;
+extern s16 g_BattleIncomingItemQueue[16]; // ring buffer, see BattleReleaseUnitReservedItems
+
+typedef struct {
+    s16 unitSlot;
+    s16 itemId;
+} BattleReservedItem;
+
+extern BattleReservedItem g_BattleReservedItems[16];
+
 extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
 
@@ -1006,7 +1014,7 @@ static void func_800A4D2C(s32 arg0);
 void BattleRefreshMenu(s32 arg0, s32 menuType);
 static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count);
 static void BattleRefreshCmdMenu(s32 arg0, u32 status);
-void BattleReturnReservedItems(void);
+void BattleProcessIncomingItems(void);
 static s32 BattleAddMessageToStringBuffer(u8* src, u16* args);
 void BattleProcessEventQueue(s32);
 static void BattleCopyTargTypeDatToTmp(s32 arg0);
@@ -1107,7 +1115,7 @@ void BattleMenuInit(void);
 void BattleMenuUpdateSelectorIconsAlt(void);
 void func_800E6B94(void);
 void BattleEnqueueLoadImage(RECT* rect, u_long* ptr);
-void BattleReqReturnReservedItems(s16 arg0);
+void BattleReleaseUnitReservedItems(s16 unitSlot);
 void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 static void BattleInvalidateQueuedMessages(s32 arg0, s32 arg1);
 static void func_800A32C0(s32 arg0);
@@ -1222,9 +1230,7 @@ extern u16 D_800F7DE0[];
 extern BattleMenuSlot D_800F90B4[];
 extern u8 D_800F977C;
 extern u8 D_80151698;
-extern u8 D_80166F74;
-extern u8 D_80166F75;
-extern BattleItemEntry D_801671B8[];
+extern u8 g_BattleItemListDirty;
 
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId);
 extern u8 D_80163F34[NUM_PARTY][0x100C];

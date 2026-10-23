@@ -742,8 +742,7 @@ typedef struct {
     u8 statBonusId[4];    // stat each slot boosts: 0=Str,1=Vit,2=Mag,3=Spr,
                           // 4=Dex,5=Lck; unused slot when paired value==0
     u8 statBonusValue[4]; // bonus amount; 0 = slot unused
-    u16 restrictionMask;  // usage flags (sellability / battle-use / menu-use);
-                          // 0xFFFE on armor
+    u16 restrictionMask;  // restriction flags (see ItemRestrictionFlags, 0xFFFE on armor)
     u16 unk22;            // unknown, always 0xFFFF
 } ArmorRecord;
 
@@ -783,8 +782,7 @@ typedef struct {
                             // else 0x05)
     u8 impactEffect;        // impact-effect id (varies per weapon)
     u16 specialAttackFlags; // always 0xFFFF
-    u16 restrictionMask;    // a set bit forbids: 0x01 sell, 0x02 use in battle,
-                            // 0x04 use in menu, 0x08 throw (0xFFF6 base; the
+    u16 restrictionMask;    // a set bit forbids: see ItemRestrictionFlags (0xFFF6 base; the
                             // initial weapons add sell+throw -> 0xFFFF)
 } WeaponRecord;
 
@@ -804,8 +802,7 @@ typedef struct {
     u8 statusProtect[4];  // status-immunity bitmask (u32); e.g. Ribbon sets most
     u8 equipMask[2];      // equippable-by-character bitmask (see ArmorRecord);
                           // 0x01FF (all nine) on every accessory
-    u16 restrictionMask;  // a set bit forbids: 0x01 sell, 0x02 use in battle,
-                          // 0x04 use in menu (0xFFFE on every accessory)
+    u16 restrictionMask;  // a set bit forbids: (see ItemRestrictionFlags, 0xFFFE on every accessory)
 } AccessoryRecord;
 
 // Per-character record of KERNEL.BIN section 3 (battle and growth data), 0x38 bytes

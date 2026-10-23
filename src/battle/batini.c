@@ -818,13 +818,10 @@ static void BattleInitFormation(void) {
     g_BattleData.unitZoneMask[2] = zone[2];
 }
 
-extern u8 D_80166F74;
-extern BattleItemEntry D_801671B8[];
-
 // Builds the in-battle item list from the inventory: every one of the 320
 // inventory slots becomes one BattleItemEntry, with the target and restriction
 // flags pulled from the item / weapon / armor / accessory table the id falls
-// in. D_80166F74 ends up as half the number of slots up to the last used one
+// in. g_BattleItemMenuRowCount ends up as half the number of slots up to the last used one
 // (at least 3) -- the row count the item widget scrolls over.
 static void BattleInitItemList(void) {
     BattleItemEntry* entry;
@@ -838,25 +835,25 @@ static void BattleInitItemList(void) {
 
     last = 0;
     for (i = 0; i < 0x140; i++) {
-        entry = &D_801671B8[i];
+        entry = &g_BattleItemList[i];
         id = Savemap.inventory[i];
         count = 0;
         targetFlags = 0;
-        flags = 0xB;
+        flags = BATTLE_ITEM_RESTRICT_MASK;
         if (id != 0xFFFF) {
             count = (u32)id >> 9;
             id &= 0x1FF;
-            if (id < 0x80) {
-                flags = g_ItemTable[id].restrictionMask & 0xB;
+            if (id < INV_TYPE_ITEM_END) {
+                flags = g_ItemTable[id].restrictionMask & BATTLE_ITEM_RESTRICT_MASK;
                 targetFlags = g_ItemTable[id].targetFlags;
-            } else if (id < 0x100) {
-                flags = g_WeaponTable[id - 0x80].restrictionMask & 0xB;
-                targetFlags = g_WeaponTable[id - 0x80].targetFlags;
-            } else if (id < 0x120) {
-                flags = g_ArmorTable[id - 0x100].restrictionMask & 0xB;
+            } else if (id < INV_TYPE_WEAPON_END) {
+                flags = g_WeaponTable[id - INV_TYPE_WEAPON_START].restrictionMask & BATTLE_ITEM_RESTRICT_MASK;
+                targetFlags = g_WeaponTable[id - INV_TYPE_WEAPON_START].targetFlags;
+            } else if (id < INV_TYPE_ARMOR_END) {
+                flags = g_ArmorTable[id - INV_TYPE_ARMOR_START].restrictionMask & BATTLE_ITEM_RESTRICT_MASK;
                 targetFlags = 3;
-            } else if (id < 0x140) {
-                flags = g_AccessoryTable[id - 0x120].restrictionMask & 0xB;
+            } else if (id < INV_TYPE_ACCESSORY_END) {
+                flags = g_AccessoryTable[id - INV_TYPE_ACCESSORY_START].restrictionMask & BATTLE_ITEM_RESTRICT_MASK;
                 targetFlags = 3;
             }
             last = i + 1;
@@ -864,13 +861,13 @@ static void BattleInitItemList(void) {
         entry->id = id;
         entry->count = count;
         entry->targetFlags = targetFlags;
-        entry->unk4 = flags;
+        entry->restrictionMask = flags;
     }
     rows = (last + 1) / 2;
     if (rows < 3) {
         rows = 3;
     }
-    D_80166F74 = rows;
+    g_BattleItemMenuRowCount = rows;
 }
 
 void BattleInitEnemyUnits(void) {

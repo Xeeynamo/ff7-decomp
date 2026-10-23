@@ -377,7 +377,7 @@ void BattleMenuWidgetInit(void) {
     widget->unkC = 1;
     widget->unkD = 3;
     *(u16*)widget->unk4 = 1;
-    v = D_80166F74;
+    v = g_BattleItemMenuRowCount;
     widget->unk10 = 2;
     widget->unk11 = 0;
     widget->unkE = 0;
@@ -665,7 +665,7 @@ static void BattleMenuClearWidgetFlags(void) {
 //
 // For the item list (menu state 0xA) this is where item counts change. Pressing
 // OK decrements the count of the entry under the cursor in the battle item list
-// (D_801671B8, one 6-byte entry per battle-usable item); on the first W-Item
+// (g_BattleItemList, one 6-byte entry per battle-usable item); on the first W-Item
 // selection it also saves the chosen entry (id/index/target) into
 // D_800F314E/D_800F562C/... before advancing to the second selection.
 //
@@ -687,7 +687,7 @@ static void BattleMenuUpdate(void) {
         }
     }
     menu = &D_800F90B4[g_BattleMenuPartySlot].widget;
-    list = D_801671B8;
+    list = g_BattleItemList;
     if (g_Pad0Keys & PAD_SQUARE) {
         D_800F99E4 = 1;
     } else {
@@ -742,9 +742,9 @@ static void BattleMenuUpdate(void) {
         if (!((((s32)D_801516F8) >> D_800F38A9) & 1)) {
             D_800F310E = 1;
         }
-        if ((D_80166F75 != 0) && (((D_800F389D == 0xA) || (D_800F389D == 3)) || (D_800F389D == 5))) {
+        if ((g_BattleItemListDirty != 0) && (((D_800F389D == 0xA) || (D_800F389D == 3)) || (D_800F389D == 5))) {
             D_800F3120 = 1;
-            D_80166F75 = 0;
+            g_BattleItemListDirty = 0;
             D_800F99E4 = 1;
             g_BattleMenuModalWidgetId = (s16)D_800F3894;
             if (D_800F5161 != 0) {
