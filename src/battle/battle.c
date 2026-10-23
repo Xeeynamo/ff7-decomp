@@ -1,74 +1,5 @@
 #include "battle_private.h"
 
-typedef struct {
-    /* 0x0 */ u8 animId;
-    /* 0x1 */ u8 formulaIds;
-    /* 0x2 */ u16 flags;
-} Unk800A0000; // size: 0x4
-
-const Unk800A0000 D_800A0000[] = {
-    /* 0x00 */ {0x00, 0x00, 0x0000},
-    /* 0x01 */ {0x14, 0x11, 0x0000}, // CMD_ATTACK
-    /* 0x02 */ {0x1D, 0x00, 0x0000}, // CMD_MAGIC
-    /* 0x03 */ {0x1F, 0x00, 0x0000}, // CMD_SUMMON
-    /* 0x04 */ {0x21, 0x37, 0x0000}, // CMD_ITEM
-    /* 0x05 */ {0x22, 0x00, 0x0006}, // CMD_STEAL
-    /* 0x06 */ {0x26, 0x00, 0x0412}, // CMD_SENSE
-    /* 0x07 */ {0x21, 0x0A, 0x0000}, // CMD_COIN
-    /* 0x08 */ {0x21, 0x09, 0x0000}, // CMD_THROW
-    /* 0x09 */ {0x28, 0xB1, 0x2000}, // CMD_MORPH
-    /* 0x0A */ {0x2A, 0x11, 0x0000}, // CMD_DEATHBLOW
-    /* 0x0B */ {0x2C, 0x90, 0x0000}, // CMD_MANIPULATE
-    /* 0x0C */ {0x00, 0x00, 0x0000}, // CMD_MIME
-    /* 0x0D */ {0x1E, 0x00, 0x0000}, // CMD_ENEMY_SKILL
-    /* 0x0E */ {0x00, 0x00, 0x0000},
-    /* 0x0F */ {0x00, 0x00, 0x0000},
-    /* 0x10 */ {0x00, 0x00, 0x0000},
-    /* 0x11 */ {0x24, 0x11, 0x0004}, // CMD_MUG
-    /* 0x12 */ {0x00, 0x11, 0x0002}, // CMD_CHANGE
-    /* 0x13 */ {0x00, 0x00, 0x0000}, // CMD_DEFEND
-    /* 0x14 */ {0x00, 0x00, 0x0000}, // CMD_LIMIT
-    /* 0x15 */ {0x1D, 0x00, 0x0000}, // CMD_W_MAGIC
-    /* 0x16 */ {0x1F, 0x00, 0x0000}, // CMD_W_SUMMON
-    /* 0x17 */ {0x21, 0x00, 0x0000}, // CMD_W_ITEM
-    /* 0x18 */ {0x15, 0x11, 0x0000}, // CMD_SLASH_ALL
-    /* 0x19 */ {0x16, 0x11, 0x1000}, // CMD_2X_CUT
-    /* 0x1A */ {0x1C, 0x11, 0x0002}, // CMD_FLASH
-    /* 0x1B */ {0x18, 0x11, 0x1000}, // CMD_4X_CUT
-    /* 0x1C */ {0x00, 0x00, 0x0000},
-    /* 0x1D */ {0x00, 0x00, 0x0000},
-    /* 0x1E */ {0x00, 0x00, 0x0000},
-    /* 0x1F */ {0x00, 0x00, 0x0000},
-    /* 0x20 */ {0x00, 0x00, 0x0000}, // CMD_ENEMY_ATTACK
-    /* 0x21 */ {0x00, 0x00, 0x0000},
-    /* 0x22 */ {0x00, 0x00, 0x0000},
-    /* 0x23 */ {0x2E, 0x04, 0x0000},
-    /* 0x24 */ {0x00, 0x00, 0x0000},
-    /* 0x25 */ {0x00, 0x00, 0x0000},
-};
-// opcode-byte program for BattleCmdScriptDispatch's dispatch loop: a 0x1F-delimited
-// stream of per-command opcode sequences, sliced by g_BattleCmdOpcodeOffs[cmdIndex]
-// (see BattleCmdScriptInitTbl) into per-command runs; each byte indexes g_BattleCmdOpcodeJmpTbl
-// (function-pointer table) for BattleCmdScriptDispatch to jalr through in order
-const u8 g_BattleCmdOpcodeStream[] = {
-    0x1F, 0x0E, 0x09, 0x1F, 0x00, 0x0C, 0x09, 0x1F, 0x01, 0x0C, 0x09, 0x1F, 0x02, 0x0D, 0x09, 0x1F, 0x1E, 0x09, 0x1F,
-    0x0A, 0x16, 0x09, 0x1F, 0x1D, 0x09, 0x1F, 0x19, 0x09, 0x1F, 0x0E, 0x1C, 0x09, 0x1F, 0x0E, 0x1B, 0x09, 0x1F, 0x1A,
-    0x09, 0x1F, 0x17, 0x1F, 0x03, 0x0C, 0x09, 0x1F, 0x1F, 0x1F, 0x1F, 0x0E, 0x09, 0x1F, 0x04, 0x0B, 0x0F, 0x1F, 0x05,
-    0x1F, 0x06, 0x0C, 0x09, 0x1F, 0x00, 0x0C, 0x09, 0x1F, 0x01, 0x0C, 0x09, 0x1F, 0x02, 0x0D, 0x09, 0x1F, 0x0E, 0x09,
-    0x1F, 0x12, 0x0E, 0x09, 0x1F, 0x0E, 0x18, 0x09, 0x1F, 0x10, 0x0E, 0x09, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x07, 0x0C,
-    0x09, 0x1F, 0x08, 0x1F, 0x11, 0x1F, 0x13, 0x09, 0x1F, 0x14, 0x1F, 0x15, 0x0F, 0x1F, 0x00, 0x00, 0x00};
-
-typedef struct {
-    /* 0x0 */ s32 from;
-    /* 0x4 */ s32 to;
-} Unk800A0108; // size: 0x8
-
-const Unk800A0108 D_800A0108[] = {
-    {CMD_W_MAGIC, CMD_MAGIC},
-    {CMD_W_SUMMON, CMD_SUMMON},
-    {CMD_W_ITEM, CMD_ITEM},
-};
-
 // entrypoint
 void BATTLE_Main(void) {
     const s32 visibleStatusMask = ~(STATUS_DEATH_FORCE | STATUS_RESIST | STATUS_LUCKY_GIRL | STATUS_IMPRISONED);
@@ -246,53 +177,119 @@ void BATTLE_Main(void) {
     g_GameState = GAMESTATE_FIELD;
 }
 
+typedef struct {
+    /* 0x0 */ u8 animId;
+    /* 0x1 */ u8 formulaIds;
+    /* 0x2 */ u16 flags;
+} Unk800A0000; // size: 0x4
+
+// Per-command table used by BattleCmdScriptDispatch
+const Unk800A0000 D_800A0000[] = {
+    /* 0x00 */ {0x00, 0x00, 0x0000},
+    /* 0x01 */ {0x14, 0x11, 0x0000}, // CMD_ATTACK
+    /* 0x02 */ {0x1D, 0x00, 0x0000}, // CMD_MAGIC
+    /* 0x03 */ {0x1F, 0x00, 0x0000}, // CMD_SUMMON
+    /* 0x04 */ {0x21, 0x37, 0x0000}, // CMD_ITEM
+    /* 0x05 */ {0x22, 0x00, 0x0006}, // CMD_STEAL
+    /* 0x06 */ {0x26, 0x00, 0x0412}, // CMD_SENSE
+    /* 0x07 */ {0x21, 0x0A, 0x0000}, // CMD_COIN
+    /* 0x08 */ {0x21, 0x09, 0x0000}, // CMD_THROW
+    /* 0x09 */ {0x28, 0xB1, 0x2000}, // CMD_MORPH
+    /* 0x0A */ {0x2A, 0x11, 0x0000}, // CMD_DEATHBLOW
+    /* 0x0B */ {0x2C, 0x90, 0x0000}, // CMD_MANIPULATE
+    /* 0x0C */ {0x00, 0x00, 0x0000}, // CMD_MIME
+    /* 0x0D */ {0x1E, 0x00, 0x0000}, // CMD_ENEMY_SKILL
+    /* 0x0E */ {0x00, 0x00, 0x0000},
+    /* 0x0F */ {0x00, 0x00, 0x0000},
+    /* 0x10 */ {0x00, 0x00, 0x0000},
+    /* 0x11 */ {0x24, 0x11, 0x0004}, // CMD_MUG
+    /* 0x12 */ {0x00, 0x11, 0x0002}, // CMD_CHANGE
+    /* 0x13 */ {0x00, 0x00, 0x0000}, // CMD_DEFEND
+    /* 0x14 */ {0x00, 0x00, 0x0000}, // CMD_LIMIT
+    /* 0x15 */ {0x1D, 0x00, 0x0000}, // CMD_W_MAGIC
+    /* 0x16 */ {0x1F, 0x00, 0x0000}, // CMD_W_SUMMON
+    /* 0x17 */ {0x21, 0x00, 0x0000}, // CMD_W_ITEM
+    /* 0x18 */ {0x15, 0x11, 0x0000}, // CMD_SLASH_ALL
+    /* 0x19 */ {0x16, 0x11, 0x1000}, // CMD_2X_CUT
+    /* 0x1A */ {0x1C, 0x11, 0x0002}, // CMD_FLASH
+    /* 0x1B */ {0x18, 0x11, 0x1000}, // CMD_4X_CUT
+    /* 0x1C */ {0x00, 0x00, 0x0000},
+    /* 0x1D */ {0x00, 0x00, 0x0000},
+    /* 0x1E */ {0x00, 0x00, 0x0000},
+    /* 0x1F */ {0x00, 0x00, 0x0000},
+    /* 0x20 */ {0x00, 0x00, 0x0000}, // CMD_ENEMY_ATTACK
+    /* 0x21 */ {0x00, 0x00, 0x0000},
+    /* 0x22 */ {0x00, 0x00, 0x0000},
+    /* 0x23 */ {0x2E, 0x04, 0x0000},
+    /* 0x24 */ {0x00, 0x00, 0x0000},
+    /* 0x25 */ {0x00, 0x00, 0x0000},
+};
+
+// opcode-byte program for BattleCmdScriptDispatch's dispatch loop: a 0x1F-delimited
+// stream of per-command opcode sequences, sliced by g_BattleCmdOpcodeOffs[cmdIndex]
+// (see BattleCmdScriptInitTbl) into per-command runs; each byte indexes cmdOpcodeHandlerJmpTbl
+// for BattleCmdScriptDispatch to jalr through in order
+const u8 g_BattleCmdOpcodeStream[] = {
+    0x1F, 0x0E, 0x09, 0x1F, 0x00, 0x0C, 0x09, 0x1F, 0x01, 0x0C, 0x09, 0x1F, 0x02, 0x0D, 0x09, 0x1F, 0x1E, 0x09, 0x1F,
+    0x0A, 0x16, 0x09, 0x1F, 0x1D, 0x09, 0x1F, 0x19, 0x09, 0x1F, 0x0E, 0x1C, 0x09, 0x1F, 0x0E, 0x1B, 0x09, 0x1F, 0x1A,
+    0x09, 0x1F, 0x17, 0x1F, 0x03, 0x0C, 0x09, 0x1F, 0x1F, 0x1F, 0x1F, 0x0E, 0x09, 0x1F, 0x04, 0x0B, 0x0F, 0x1F, 0x05,
+    0x1F, 0x06, 0x0C, 0x09, 0x1F, 0x00, 0x0C, 0x09, 0x1F, 0x01, 0x0C, 0x09, 0x1F, 0x02, 0x0D, 0x09, 0x1F, 0x0E, 0x09,
+    0x1F, 0x12, 0x0E, 0x09, 0x1F, 0x0E, 0x18, 0x09, 0x1F, 0x10, 0x0E, 0x09, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x07, 0x0C,
+    0x09, 0x1F, 0x08, 0x1F, 0x11, 0x1F, 0x13, 0x09, 0x1F, 0x14, 0x1F, 0x15, 0x0F, 0x1F, 0x00, 0x00, 0x00};
+
+typedef struct {
+    /* 0x0 */ s32 from;
+    /* 0x4 */ s32 to;
+} BattleDoubleToSingleCmdEntry; // size: 0x8
+
+const BattleDoubleToSingleCmdEntry D_800A0108[] = {
+    /* 0x0 */ {CMD_W_MAGIC, CMD_MAGIC},
+    /* 0x1 */ {CMD_W_SUMMON, CMD_SUMMON},
+    /* 0x2 */ {CMD_W_ITEM, CMD_ITEM},
+};
+
 // per-command opcode dispatcher: reads cmdIndex from the turn context
 // (g_CurrentAction->queuedCmdIndex), looks up its opcode-sequence start via
 // g_BattleCmdOpcodeOffs[cmdIndex] into g_BattleCmdOpcodeStream, then for each byte until the 0x1F
-// delimiter, jalr's through g_BattleCmdOpcodeJmpTbl[opcode]. After each call, checks
+// delimiter, jalr's through cmdOpcodeHandlerJmpTbl[opcode]. After each call, checks
 // D_80062F14 -- if it goes >= 0 the whole sequence aborts immediately
 // (handler requested a suspend, e.g. to wait on an animation), otherwise
 // continues to the next opcode byte
-/*?*/ void func_800A2BF4(s32); // extern
-extern void (*g_BattleCmdOpcodeJmpTbl[])(void);
-
-extern s32 D_801517B8;
-
-// glabel g_BattleCmdOpcodeJmpTbl
-//     /* 47B28 800E7B28 C0730A80 */ .word BattleResolveMagicActionIndex
-//     /* 47B2C 800E7B2C D8730A80 */ .word BattleResolveSummonActionIndex
-//     /* 47B30 800E7B30 F8730A80 */ .word BattlePrepareTmpFromItemForUse
-//     /* 47B34 800E7B34 AC760A80 */ .word BattleResolveEnemySkillActionIndex
-//     /* 47B38 800E7B38 CC760A80 */ .word BattleActionType04
-//     /* 47B3C 800E7B3C 84770A80 */ .word BattlePrepareTmpForDefend
-//     /* 47B40 800E7B40 8C770A80 */ .word BattleResolveLimitActionIndex
-//     /* 47B44 800E7B44 4C780A80 */ .word BattleActionType07
-//     /* 47B48 800E7B48 5C790A80 */ .word func_800A795C
-//     /* 47B4C 800E7B4C BCAB0A80 */ .word BattleActionType09
-//     /* 47B50 800E7B50 88790A80 */ .word BattleActionType0A
-//     /* 47B54 800E7B54 A8790A80 */ .word BattleActionType0B
-//     /* 47B58 800E7B58 CC790A80 */ .word BattleActionType0C
-//     /* 47B5C 800E7B5C DC800A80 */ .word BattleLoadActionAttackData
-//     /* 47B60 800E7B60 B8810A80 */ .word BattleActionType0E
-//     /* 47B64 800E7B64 24840A80 */ .word BattleQueueCurrentActionEffect
-//     /* 47B68 800E7B68 28850A80 */ .word BattleActionType10
-//     /* 47B6C 800E7B6C 3C850A80 */ .word func_800A853C
-//     /* 47B70 800E7B70 A0850A80 */ .word BattleActionType12
-//     /* 47B74 800E7B74 B4850A80 */ .word func_800A85B4
-//     /* 47B78 800E7B78 F44A0A80 */ .word BattleActionType14
-//     /* 47B7C 800E7B7C FC850A80 */ .word BattleActionType15
-//     /* 47B80 800E7B80 6C860A80 */ .word BattleActionType16
-//     /* 47B84 800E7B84 6C8A0A80 */ .word BattleActionType17
-//     /* 47B88 800E7B88 948C0A80 */ .word BattleActionType18
-//     /* 47B8C 800E7B8C 58740A80 */ .word BattleSetupThrowAction
-//     /* 47B90 800E7B90 40790A80 */ .word BattlePrepareTmpForManip
-//     /* 47B94 800E7B94 C88C0A80 */ .word BattleActionType1B
-//     /* 47B98 800E7B98 048D0A80 */ .word BattleActionType1C
-//     /* 47B9C 800E7B9C 60750A80 */ .word BattleSetupCoinThrowAction
-//     /* 47BA0 800E7BA0 188D0A80 */ .word BattleActionType1E
-// .size g_BattleCmdOpcodeJmpTbl, . - g_BattleCmdOpcodeJmpTbl
-
 void BattleCmdScriptDispatch(BattleActionEntry* entry) {
+    static void (*cmdOpcodeHandlerJmpTbl[])(void) = {
+        /* 0x00 */ BattleResolveMagicActionIndex,
+        /* 0x01 */ BattleResolveSummonActionIndex,
+        /* 0x02 */ BattlePrepareTmpFromItemForUse,
+        /* 0x03 */ BattleResolveEnemySkillActionIndex,
+        /* 0x04 */ BattleActionType04,
+        /* 0x05 */ BattlePrepareTmpForDefend,
+        /* 0x06 */ BattleResolveLimitActionIndex,
+        /* 0x07 */ BattleActionType07,
+        /* 0x08 */ func_800A795C,
+        /* 0x09 */ BattleActionType09,
+        /* 0x0A */ BattleActionType0A,
+        /* 0x0B */ BattleActionType0B,
+        /* 0x0C */ BattleActionType0C,
+        /* 0x0D */ BattleLoadActionAttackData,
+        /* 0x0E */ BattleActionType0E,
+        /* 0x0F */ BattleQueueCurrentActionEffect,
+        /* 0x10 */ BattleActionType10,
+        /* 0x11 */ func_800A853C,
+        /* 0x12 */ BattleActionType12,
+        /* 0x13 */ func_800A85B4,
+        /* 0x14 */ BattleActionType14,
+        /* 0x15 */ BattleActionType15,
+        /* 0x16 */ BattleActionType16,
+        /* 0x17 */ BattleActionType17,
+        /* 0x18 */ BattleActionType18,
+        /* 0x19 */ BattleSetupThrowAction,
+        /* 0x1A */ BattlePrepareTmpForManip,
+        /* 0x1B */ BattleActionType1B,
+        /* 0x1C */ BattleActionType1C,
+        /* 0x1D */ BattleSetupCoinThrowAction,
+        /* 0x1E */ BattleActionType1E,
+    };
+
     ActiveCharCommandMenu* cmdMenu;
     s32 hitMask;
     s32 affectedMask;
@@ -473,7 +470,7 @@ void BattleCmdScriptDispatch(BattleActionEntry* entry) {
     // A handler that sets D_80062F14 >= 0 suspends the action; skip the bookkeeping below
     offset = g_BattleCmdOpcodeOffs[g_CurrentAction->queuedCmdIndex];
     while ((opcode = g_BattleCmdOpcodeStream[offset++]) != CMD_OPCODE_DELIM) {
-        g_BattleCmdOpcodeJmpTbl[opcode]();
+        cmdOpcodeHandlerJmpTbl[opcode]();
 
         if (D_80062F14 >= 0) {
             return;
@@ -1700,7 +1697,7 @@ static s32 func_800A4A80(void) {
 
 void func_800A4ACC(s16 arg0, u16 arg1) { SysGiveApToEquippedMateria(arg0, arg1); }
 
-// opcode 0x14 handler (g_BattleCmdOpcodeJmpTbl[0x14]): spins on BattleQueue1Execute() until
+// opcode 0x14 handler (cmdOpcodeHandlerJmpTbl[0x14]): spins on BattleQueue1Execute() until
 // status bit D_800F9DA4 & 2 clears. Not itself a damage dealer -- injecting
 // cmdIndex 0x23 (single-opcode sequence: just this one) produced ~3.1%
 // max-HP damage, but BattleQueue1Execute (still nonmatching, battle1 overlay) is
@@ -3540,21 +3537,31 @@ const s16 D_800A02C0[] = {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8E84);
 
 // Cait Sith's "Slots" limit: check the 3 landed reel symbols against each of
-// D_800E7BA4's 7 known combos in order. comboIndex==0 (Bar/Bar/Bar) means
+// the 7 known combos in order. comboIndex==0 (Bar/Bar/Bar) means
 // "cast a random Summon"; comboIndex 1-6 select one of the other 6 named
-// results (Game Over, Death Joker, Toy Soldier, Lucky Girl, Moogle Dance,
-// Transform -- kernel.bin section 18, absolute 105-110); falling off the end
+// results (kernel.bin section 18, absolute 105-110); falling off the end
 // unmatched (comboIndex==7) lands on the generic "Toy Box" fallback (111).
 static void BattleResolveCaitSithSlotsResult(void) {
+    static u8 caitSithSlotsCombos[8][3] = {
+        /* 0x0 */ {0x01, 0x01, 0x01}, // random Summon
+        /* 0x1 */ {0x00, 0x00, 0x00}, // Game Over
+        /* 0x2 */ {0x00, 0x00, 0x01}, // Death Joker
+        /* 0x3 */ {0x02, 0x02, 0x02}, // Toy Soldier
+        /* 0x4 */ {0x03, 0x03, 0x03}, // Lucky Girl
+        /* 0x5 */ {0x04, 0x04, 0x04}, // Mog Dance
+        /* 0x6 */ {0x05, 0x05, 0x05}, // Transform
+        /* 0x7 */ {0x11, 0x11, 0x11}, // never checked; no match gives Toy Box
+    };
+
     s32 savedUnk20;
     s32 rollSum;
     s32 comboIndex;
 
     comboIndex = 0;
     while (comboIndex < 7) {
-        if (g_BattleData.caitSithRolls[0] == D_800E7BA4[comboIndex][0] &&
-            g_BattleData.caitSithRolls[1] == D_800E7BA4[comboIndex][1] &&
-            g_BattleData.caitSithRolls[2] == D_800E7BA4[comboIndex][2]) {
+        if (g_BattleData.caitSithRolls[0] == caitSithSlotsCombos[comboIndex][0] &&
+            g_BattleData.caitSithRolls[1] == caitSithSlotsCombos[comboIndex][1] &&
+            g_BattleData.caitSithRolls[2] == caitSithSlotsCombos[comboIndex][2]) {
             break;
         }
         comboIndex++;
@@ -3730,6 +3737,17 @@ static s32 BattleGetRndOpponentBit(s32 arg0) {
 
 // Queues a battle action from the current action state
 void func_800AA738(s32 arg0) {
+    static u8 singleToMultiAnimTable[8][2] = {
+        /* 0x0 */ {0x14, 0x15},
+        /* 0x1 */ {0x22, 0x23},
+        /* 0x2 */ {0x24, 0x25},
+        /* 0x3 */ {0x26, 0x27},
+        /* 0x4 */ {0x28, 0x29},
+        /* 0x5 */ {0x2A, 0x2B},
+        /* 0x6 */ {0x2C, 0x2D},
+        /* 0x7 */ {0xFF, 0xFF},
+    };
+
     BattleActionQueueEntry* entry = BattleActionQueueAlloc();
     s32 i;
 
@@ -3748,11 +3766,11 @@ void func_800AA738(s32 arg0) {
         }
     }
 
-    // Party actions remap some ids through D_800E7BBC under some unknown conditions
+    // Remap animId from single to multi when hitting multiple targets
     if (g_CurrentAction->actorId < NUM_PARTY && (g_CurrentAction->unkB8 >= 2 || (g_CurrentAction->unk90 & 0x20000))) {
-        for (i = 0; i < LEN(D_800E7BBC); i++) {
-            if (entry->unk5 == D_800E7BBC[i][0]) {
-                entry->unk5 = D_800E7BBC[i][1];
+        for (i = 0; i < LEN(singleToMultiAnimTable) - 1; i++) { // Only the first 7 entries are read
+            if (entry->unk5 == singleToMultiAnimTable[i][0]) {
+                entry->unk5 = singleToMultiAnimTable[i][1];
                 break;
             }
         }

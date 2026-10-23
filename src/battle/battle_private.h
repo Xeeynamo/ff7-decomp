@@ -544,13 +544,6 @@ typedef enum {
 extern s32 D_800E7A38;
 extern u8 D_800E7A48[0x10];
 extern u8 D_800E7A58[];
-// Cait Sith's "Slots" limit: 7 three-symbol combos (one row per combo)
-// checked in order against the 3 landed reel symbols (g_BattleData.caitSithRolls) -- see
-// BattleResolveCaitSithSlotsResult in battle.c
-extern u8 D_800E7BA4[7][3];
-
-// func_800AA738 uses this to remap some party command IDs under certain conditions
-extern u8 D_800E7BBC[7][2];
 
 extern u8 g_BattleFormulaModifierFlagsTable[16];
 
@@ -1116,6 +1109,41 @@ static s32 BattleRunToResultScreen(void);
 void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 priority);
 static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0);
 void BattleCmdScriptDispatch(BattleActionEntry*);
+void func_800A2BF4(s32 arg0);
+static void BattleDropSupersededQueuedActions(void);
+void func_800A6278(s32 arg0, s32 arg1, s32 arg2);
+// BattleCmdScriptDispatch's opcode handlers
+void BattleActionType14(void);
+void BattleResolveMagicActionIndex(void);
+void BattleResolveSummonActionIndex(void);
+void BattlePrepareTmpFromItemForUse(void);
+void BattleSetupThrowAction(void);
+void BattleSetupCoinThrowAction(void);
+void BattleResolveEnemySkillActionIndex(void);
+void BattleActionType04(void);
+void BattlePrepareTmpForDefend(void);
+void BattleResolveLimitActionIndex(void);
+void BattleActionType07(void);
+void BattlePrepareTmpForManip(void);
+void func_800A795C(void);
+void BattleActionType0A(void);
+void BattleActionType0B(void);
+void BattleActionType0C(void);
+void BattleLoadActionAttackData(void);
+void BattleActionType0E(void);
+void BattleQueueCurrentActionEffect(void);
+void BattleActionType10(void);
+void func_800A853C(void);
+void BattleActionType12(void);
+void func_800A85B4(void);
+void BattleActionType15(void);
+void BattleActionType16(void);
+void BattleActionType17(void);
+void BattleActionType18(void);
+void BattleActionType1B(void);
+void BattleActionType1C(void);
+void BattleActionType1E(void);
+void BattleActionType09(void);
 
 // func_800A6278 does not match if this is forward declared because the types do not agree
 // but the modern build fails if it is not declared

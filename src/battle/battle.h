@@ -406,7 +406,7 @@ typedef struct {
 // either directly (BattleQueueImmediateAction) or via the g_BattlePendingActions ring
 // (BattleQueuePendingAction). BattleBattleActionQueueExecute drains the table in priority
 // order into BattleCmdScriptDispatch, which runs the command as a byte-coded sequence
-// of opcodes (g_BattleCmdOpcodeOffs/g_BattleCmdOpcodeStream/g_BattleCmdOpcodeJmpTbl), not a single switch on
+// of opcodes (g_BattleCmdOpcodeOffs/g_BattleCmdOpcodeStream/cmdOpcodeHandlerJmpTbl), not a single switch on
 // cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
 typedef struct {
     /* 0x0 */ u8 priority;        // BattleQueuePendingAction: 5 = CMD_LIMIT, 6 = other commands
