@@ -922,7 +922,7 @@ extern s16 D_800F3110;
 extern u8 D_800F3150; // btlmenu_prevLimitReadyMask
 extern u8 D_800F3163[];
 extern ModelScreenPos g_modelScreenPos[10];
-extern s32 D_801517B8; // incremented per action Mime queues (BattleActionType17)
+extern s32 g_BattleMimedActionsLeft; // +1 per mime action queues, -1 per dispatch; turn counter waits for 0
 extern u8 D_801517BC;
 extern u8 D_801517C4;
 extern SVECTOR g_BattleCameraPos;
@@ -1111,7 +1111,7 @@ static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0);
 void BattleCmdScriptDispatch(BattleActionEntry*);
 void func_800A2BF4(s32 arg0);
 static void BattleDropSupersededQueuedActions(void);
-void func_800A6278(s32 arg0, s32 arg1, s32 arg2);
+void BattleProcessUnitKilled(s32 arg0, s32 arg1, s32 arg2);
 // BattleCmdScriptDispatch's opcode handlers
 void BattleActionType14(void);
 void BattleResolveMagicActionIndex(void);
@@ -1145,7 +1145,7 @@ void BattleActionType1C(void);
 void BattleActionType1E(void);
 void BattleActionType09(void);
 
-// func_800A6278 does not match if this is forward declared because the types do not agree
+// BattleProcessUnitKilled does not match if this is forward declared because the types do not agree
 // but the modern build fails if it is not declared
 #ifdef PLATFORM_PSYZ
 static void BattleQueueOpcodeAction(s16 unitId, s16 cmdIndex, s16 attackIndex);
