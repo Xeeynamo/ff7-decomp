@@ -4037,8 +4037,85 @@ static void BattleResolveCaitSithSlotsResult(void) {
     g_CurrentAction->mpCost = 0;
 }
 
-const u8 D_800A0398[] = {0x64, 0x14, 0x14, 0x14, 0xEC, 0xCE, 0xCE, 0x00};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A9DA0);
+void func_800A9DA0(void) {
+    static const s8 D_800A0398[] = {0x64, 0x14, 0x14, 0x14, 0xEC, 0xCE, 0xCE, 0x00};
+    s32 actor = g_CurrentAction->actorId;
+    s32 stats[8];
+    s32 count = 0;
+    s32 totalCurHp = 0;
+    s32 totalCurMp = 0;
+    s32 totalMaxHp = 0;
+    s32 totalMaxMp = 0;
+    s32 maxHp = g_BattleWork.party[actor].capHP;
+    s32 maxMp = g_BattleWork.party[actor].capMP;
+    s32 i;
+
+    for (i = 0; i < 8; i++) {
+        stats[i] = 0;
+    }
+
+    for (i = 0; i < NUM_PARTY; i++) {
+        if (g_BattleState.combatant[i].actorId != -1) {
+            stats[0] += g_BattleState.combatant[i].physAttack;
+            stats[1] += g_BattleState.combatant[i].magAttack;
+            stats[2] += g_BattleState.combatant[i].physDefence;
+            stats[3] += g_BattleState.combatant[i].magDefence;
+            stats[4] += g_BattleState.combatant[i].physEvade;
+            stats[5] += g_BattleState.combatant[i].magEvade;
+            stats[6] += g_BattleState.combatant[i].dexterity;
+            stats[7] += g_BattleState.combatant[i].luck;
+
+            totalCurHp += g_BattleState.combatant[i].curHP;
+            totalCurMp += g_BattleState.combatant[i].curMP;
+            totalMaxHp += g_BattleState.combatant[i].maxHP;
+            totalMaxMp += g_BattleState.combatant[i].maxMP;
+
+            if (actor != i) {
+                BattleQueueEvent(2, i, 0x13, 1 << i);
+            }
+
+            count++;
+            g_BattleWork.reviveMask |= 1 << i;
+        }
+    }
+
+    for (i = 0; i < 8; i++) {
+        stats[i] /= count;
+        stats[i] += stats[i] * D_800A0398[i] / 100;
+        if (stats[i] > 255) {
+            stats[i] = 255;
+        }
+    }
+
+    if (maxHp < totalCurHp) {
+        totalCurHp = maxHp;
+    }
+    if (maxHp < totalMaxHp) {
+        totalMaxHp = maxHp;
+    }
+    if (maxMp < totalCurMp) {
+        totalCurMp = maxMp;
+    }
+    if (maxMp < totalMaxMp) {
+        totalMaxMp = maxMp;
+    }
+
+    g_BattleState.combatant[actor].physAttack = stats[0];
+    g_BattleState.combatant[actor].magAttack = stats[1];
+    g_BattleState.combatant[actor].physDefence = stats[2];
+    g_BattleState.combatant[actor].magDefence = stats[3];
+    g_BattleState.combatant[actor].physEvade = stats[4];
+    g_BattleState.combatant[actor].magEvade = stats[5];
+    g_BattleState.combatant[actor].dexterity = stats[6];
+    g_BattleState.combatant[actor].luck = stats[7];
+    g_BattleState.combatant[actor].curHP = totalCurHp;
+    g_BattleState.combatant[actor].curMP = totalCurMp;
+    g_BattleState.combatant[actor].maxHP = totalMaxHp;
+    g_BattleState.combatant[actor].maxMP = totalMaxMp;
+
+    BattleQueueEvent(2, actor, 0x18, 1);
+    g_BattleWork.party[actor].limitLevel = 0xFF;
+}
 
 // attack additional-effect handler for Vincent's transformation Limits; the effect modifier (effectModifier) picks the
 // form
