@@ -1025,7 +1025,7 @@ static void SetActionStatusChange(u32 arg0, s32 statusMask);
 static void func_800A8E54(s32 arg0);
 s32 BattleApplyActionEffect(s32 effectPhase);
 static void BattleResolveCaitSithSlotsResult(void);
-void func_800A9DA0(void);
+static void BattleApplyCaitSithTransform(void);
 void BattleApplyVincentLimitTransform(void);
 static void func_800AA468(void);
 static void func_800AA4FC(void);
