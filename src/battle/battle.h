@@ -860,6 +860,8 @@ extern BattleItemEntry g_BattleItemList[];
 extern SavePartyMember D_80167938;
 
 s32 BattleEffectRegister(void (*callback)(void));
+void BattleSpawnFloatingIcon(s32 actor, s32 arg1);
+void BattleSpawnFloatingIconAtPart(s32 actor, s32 arg1, s32 arg2);
 void BattleSetLoadTimToVram(u_long* addr, s16 imgXY, s16 clutX, s16 clutY);
 void BattleEnqueueClearImage(RECT* rect, s32 arg1, s32 arg2, s32 arg3);
 void* func_800D29D4(ModelRenderDesc*, u_long**, int, void*);

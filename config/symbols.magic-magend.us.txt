@@ -1,0 +1,6 @@
+MAGIC_Magend = 0x801B0000; // type:func
+func_magend_801B0020 = 0x801B0020; // type:func
+func_magend_801B0080 = 0x801B0080; // type:func
+func_magend_801B0174 = 0x801B0174; // type:func
+func_magend_801B03F4 = 0x801B03F4; // type:func
+func_magend_801B0448 = 0x801B0448; // type:func
