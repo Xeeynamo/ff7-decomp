@@ -89,6 +89,7 @@ typedef enum {
     BATTLE_TEXT_SENSE_NAME_LEVEL = 0x74,
     BATTLE_TEXT_SENSE_HP_MP = 0x75,
     BATTLE_TEXT_SENSE_FAILED = 0x76,
+    BATTLE_TEXT_CAUGHT_BY_SURPRISE = 0x7A,
     BATTLE_TEXT_OFFSET_ENTRY = 0x7E,
 } BattleTextId;
 
@@ -189,8 +190,9 @@ typedef struct {
     /* 0x16 */ s8 unk16;
     /* 0x17 */ u8 coverTargetSlot;
     /* 0x18 */ u16 attackMask;
-    /* 0x1A */ u16 attackerMask;
-    /* 0x1C */ s32 statusAppliedMask;
+    /* 0x1A */ u16 attackerMask;     // bit of the last unit whose action hit or killed this one
+    /* 0x1C */ u16 physAttackerMask; // attackerMask, but only for physical actions that provoked this unit
+    /* 0x1E */ u16 magAttackerMask;  // attackerMask, but only for magical actions that provoked this unit
     /* 0x20 */ u16 physDefence;
     /* 0x22 */ u16 magDefence;
     /* 0x24 */ u16 enemyId;
@@ -234,10 +236,10 @@ typedef struct {
     /* 0x016 */ u16 pad16;
     /* 0x018 */ u16 unk18;
     /* 0x01A */ u16 cycleFlags;
-    /* 0x01C */ u16 unk1C;
+    /* 0x01C */ u16 lastActionElements; // g_CurrentAction->elements of the last dispatched action
     /* 0x01E */ u16 unk1E;
     /* 0x020 */ u16 sceneID;
-    /* 0x022 */ u16 pad22;
+    /* 0x022 */ u16 lastActionIndex; // g_CurrentAction->absoluteActionIndex of the last dispatched action
     /* 0x024 */ u16 setupFlags;
     /* 0x026 */ u16 attackCategoryFlags;
     /* 0x028 */ u16 setupParam;
@@ -407,19 +409,23 @@ typedef struct {
 // either directly (BattleQueueImmediateAction) or via the g_BattlePendingActions ring
 // (BattleQueuePendingAction). BattleBattleActionQueueExecute drains the table in priority
 // order into BattleCmdScriptDispatch, which runs the command as a byte-coded sequence
-// of opcodes (g_BattleCmdOpcodeOffs/g_BattleCmdOpcodeStream/g_BattleCmdOpcodeJmpTbl), not a single switch on
+// of opcodes (g_BattleCmdOpcodeOffs/g_BattleCmdOpcodeStream/cmdOpcodeHandlerJmpTbl), not a single switch on
 // cmdIndex. Full writeup: ff7-re/reference/BATTLE_COMMAND_QUEUE.md
 typedef struct {
     /* 0x0 */ u8 priority;        // BattleQueuePendingAction: 5 = CMD_LIMIT, 6 = other commands
     /* 0x1 */ s8 orderInPriority; // position within the priority band, set by BattleScheduleAction
     /* 0x2 */ s8 unitSlot;
     /* 0x3 */ s8 cmdIndex;     // BattleCommand, stored raw (not the enum type -- keeps the 0x8-byte layout);
-                               // -1 = the AI picks the command
-    /* 0x4 */ s16 attackIndex; // command-dependent: spell id for CMD_MAGIC,
+                               // -1 = the AI picks the command; CMD_FLAG_MIMED marks a mimed action
+    /* 0x4 */ u16 attackIndex; // command-dependent: spell id for CMD_MAGIC,
                                // damage dealt for CMD_COIN, skill id for
                                // CMD_ENEMY_SKILL, etc -- not a uniform lookup
-    /* 0x6 */ s16 targetMask;
+    /* 0x6 */ u16 targetMask;
 } BattleActionEntry; // size:0x8
+
+// BattleActionEntry.cmdIndex bits
+#define CMD_INDEX_MASK 0x3F
+#define CMD_FLAG_MIMED 0x40 // queued by Mime (BattleActionType17)
 
 #define BATTTLE_SCENE 7
 
@@ -605,7 +611,7 @@ typedef struct {
     /* 0x20 */ s8 statMults[NUM_STAT_MULTS];
     /* 0x28 */ u8 unk28;
     /* 0x29 */ u8 turnFlags;
-    /* 0x2A */ u8 unk2A;
+    /* 0x2A */ u8 turnCount; // turns this unit has finished; all multi-actions are grouped as one turn
     /* 0x2B */ u8 deathEffectState;
     /* 0x2C */ s32 action09Data1;
     /* 0x30 */ s32 action09Data2;
@@ -736,7 +742,7 @@ typedef struct Unk800A8D04 {
     /* 0x014 */ s32 enabledMagicIndex;   // -1 means unset
     /* 0x018 */ s32 allowedTargetsMask;
     /* 0x01C */ s32 unk1C;
-    /* 0x020 */ s32 unk20; // pending message/animation id, -1 = none
+    /* 0x020 */ s32 animId; // actor's animation (copied to BattleModel.animId), -1 = none
     /* 0x024 */ s32 unk24;
     /* 0x028 */ s32 cmdIndex;
     /* 0x02C */ s32 absoluteActionIndex; // relativeActionIndex remapped into the single
@@ -759,21 +765,21 @@ typedef struct Unk800A8D04 {
     /* 0x06C */ s32 attackFlags;
     /* 0x070 */ s32 unk70;
     /* 0x074 */ s32 unk74;
-    /* 0x078 */ s32 unk78;
-    /* 0x07C */ s32 unk7C;
+    /* 0x078 */ s32 hitMask;    // targets hit by this action (never the actor)
+    /* 0x07C */ s32 killedMask; // targets with STATUS_DEATH after this action's hit
     /* 0x080 */ s32 unk80[3];
     /* 0x08C */ s32 statusChangeChance;
     /* 0x090 */ s32 unk90;
-    /* 0x094 */ s32 unk94;
+    /* 0x094 */ s32 initialTargetMask; // targets as queued, before targeting logic (final targets if none were queued)
     /* 0x098 */ s32 unk98;
     /* 0x09C */ s32 unk9C;
     /* 0x0A0 */ s32 hitFormulaId;
     /* 0x0A4 */ s32 dmgFormulaId;
-    /* 0x0A8 */ s32 unkA8;
+    /* 0x0A8 */ s32 provokedMask; // targets damaged (not healed) or given one of the action's statuses
     /* 0x0AC */ s32 unkAC;
     /* 0x0B0 */ s32 unkB0;
     /* 0x0B4 */ s32 unkB4;
-    /* 0x0B8 */ s32 unkB8;
+    /* 0x0B8 */ s32 targetCount;
     /* 0x0BC */ s32 effectId;
     /* 0x0C0 */ s32 effectModifier;
     /* 0x0C4 */ s32 unkC4;
