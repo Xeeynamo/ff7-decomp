@@ -86,7 +86,7 @@ s32 func_80014CBC(s32 arg0, s32 arg1) {
         break;
     case 4:
         if (arg1 < 0x80) {
-            var_v1 = D_800722CC[arg1].conditionSubmenu;
+            var_v1 = g_ItemTable[arg1].conditionSubmenu;
         }
     }
     if (var_v1 != 0xFF) {

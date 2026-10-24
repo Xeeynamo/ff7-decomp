@@ -54,9 +54,6 @@ typedef enum {
     ITEM_ARRANGE_LEAST = 7,
 } ItemArrangeMode;
 
-#define ITEM_TYPE_WEAPON_BASE 0x80
-#define ITEM_TYPE_ARMOR_BASE 0x100
-#define ITEM_TYPE_ACCESSORY_BASE 0x120
 #define ITEM_TYPE_REGUALR_BASE 0x5FU
 
 #define ITEM_ICON_BASE_U 0x60
@@ -73,12 +70,9 @@ typedef enum {
 #define CLEAR_SADNESS 0xEF
 #define CLEAR_FURY 0xDF
 
-#define ITEM_USAGE_FLAG_BATTLE 0x2
-#define ITEM_USAGE_FLAG_FIELD 0x4
-#define ITEM_USAGE_FLAG_THROW 0x8
-
-#define MENU_LOCATION_TENT_ALLOWED 0x200
-#define SAVE_CRYSTAL_USED_FLAG 0x2
+#define MENU_LOCK_SAVE 0x200
+#define SAVE_CRYSTAL_USED_FLAG 0x1
+#define SAVE_CRYSTAL_USABLE_FLAG 0x2
 
 #define MAX_KEY_ITEMS 0x40
 #define MAX_STOLEN_MATERIA 0x30
@@ -103,7 +97,7 @@ extern u8 g_ItemMenuNotificationText[];
 extern u8 g_KeyItemList[]; // Key Items menu list: obtained key-item IDs in
                            // ascending order, 0xFF-padded to 64 entries.
 
-s32 SysMenuGetInventoryRestrictionMask(s32); // returns an item's usage flags (0x2 battle, 0x4 field, 0x8 throw)
+s32 SysMenuGetInventoryRestrictionMask(s32); // returns an item's ItemRestrictionFlags
 typedef s32 (*SortCmp)(s32, s32, s32*);
 typedef void (*SortSwap)(s32, s32, s32*);
 static s32 Quicksort(s32 base, s32 count, SortCmp cmp, SortSwap swap);
@@ -125,10 +119,10 @@ void PlayItemMenuSfx(u16 soundEffectId) {
 // SysMenuDrawTexturedRect.
 void ITEMMENU_DrawItemTypeIcon(s16 x, s16 y, s32 itemId) {
     s32 icon;
-    if (itemId < ITEM_TYPE_WEAPON_BASE) {
+    if (itemId < INV_TYPE_ITEM_END) {
         icon = ITEM_ICON_ITEM;
-    } else if (itemId < ITEM_TYPE_ARMOR_BASE) {
-        itemId -= ITEM_TYPE_WEAPON_BASE;
+    } else if (itemId < INV_TYPE_WEAPON_END) {
+        itemId -= INV_TYPE_WEAPON_START;
         if (itemId < WEAPON_INDEX_CLOUD_MAX) {
             icon = ITEM_ICON_SWORD;
         } else if (itemId < WEAPON_INDEX_BARRET_MAX) {
@@ -148,7 +142,7 @@ void ITEMMENU_DrawItemTypeIcon(s16 x, s16 y, s32 itemId) {
         } else {
             icon = ITEM_ICON_SPEAR;
         }
-    } else if (itemId < ITEM_TYPE_ACCESSORY_BASE) {
+    } else if (itemId < INV_TYPE_ARMOR_END) {
         icon = ITEM_ICON_ARMOR;
     } else {
         icon = ITEM_ICON_ACCESSORY;
@@ -380,7 +374,7 @@ static s32 CompareItemsByName(s16 slotA, s16 slotB, s32* inventoryBase) {
 }
 
 // Sort comparator for the "Field" arrange option: groups items usable in the
-// field (usage flag 0x4) ahead of others; empty slots (0xFFFF) sort first.
+// field (restrict flag 0x4) ahead of others; empty slots (0xFFFF) sort last.
 static s32 CompareItemsByField(s16 slotA, s16 slotB, s32* inventoryBase) {
     u16 itemA = *(u16*)(*inventoryBase + slotA * 2);
     s32 priorityA;
@@ -389,19 +383,19 @@ static s32 CompareItemsByField(s16 slotA, s16 slotB, s32* inventoryBase) {
     if (itemA == ITEM_EMPTY_SLOT) {
         priorityA = 0;
     } else {
-        priorityA = (SysMenuGetInventoryRestrictionMask(itemA & ITEM_ID_MASK) & ITEM_USAGE_FLAG_FIELD) ? 1 : 2;
+        priorityA = (SysMenuGetInventoryRestrictionMask(itemA & ITEM_ID_MASK) & ITEM_RESTRICT_FIELD) ? 1 : 2;
     }
     itemB = *(u16*)(*inventoryBase + slotB * 2);
     if (itemB == ITEM_EMPTY_SLOT) {
         priorityB = 0;
     } else {
-        priorityB = (SysMenuGetInventoryRestrictionMask(itemB & ITEM_ID_MASK) & ITEM_USAGE_FLAG_FIELD) ? 1 : 2;
+        priorityB = (SysMenuGetInventoryRestrictionMask(itemB & ITEM_ID_MASK) & ITEM_RESTRICT_FIELD) ? 1 : 2;
     }
     return Sign(priorityB - priorityA);
 }
 
 // Sort comparator for the "Battle" arrange option: groups items usable in
-// battle (usage flag 0x2) ahead of others; empty slots (0xFFFF) sort first.
+// battle (restrict flag 0x2) ahead of others; empty slots (0xFFFF) sort last.
 static s32 CompareItemsByBattle(s16 slotA, s16 slotB, s32* inventoryBase) {
     u16 itemA = *(u16*)(*inventoryBase + slotA * 2);
     s32 priorityA;
@@ -410,19 +404,19 @@ static s32 CompareItemsByBattle(s16 slotA, s16 slotB, s32* inventoryBase) {
     if (itemA == ITEM_EMPTY_SLOT) {
         priorityA = 0;
     } else {
-        priorityA = (SysMenuGetInventoryRestrictionMask(itemA & ITEM_ID_MASK) & ITEM_USAGE_FLAG_BATTLE) ? 1 : 2;
+        priorityA = (SysMenuGetInventoryRestrictionMask(itemA & ITEM_ID_MASK) & ITEM_RESTRICT_BATTLE) ? 1 : 2;
     }
     itemB = *(u16*)(*inventoryBase + slotB * 2);
     if (itemB == ITEM_EMPTY_SLOT) {
         priorityB = 0;
     } else {
-        priorityB = (SysMenuGetInventoryRestrictionMask(itemB & ITEM_ID_MASK) & ITEM_USAGE_FLAG_BATTLE) ? 1 : 2;
+        priorityB = (SysMenuGetInventoryRestrictionMask(itemB & ITEM_ID_MASK) & ITEM_RESTRICT_BATTLE) ? 1 : 2;
     }
     return Sign(priorityB - priorityA);
 }
 
 // Sort comparator for the "Throw" arrange option: groups throwable items
-// (usage flag 0x8) ahead of others; empty slots (0xFFFF) sort first.
+// (restrict flag 0x8) ahead of others; empty slots (0xFFFF) sort last.
 static s32 CompareItemsByThrow(s16 slotA, s16 slotB, s32* inventoryBase) {
     u16 itemA = *(u16*)(*inventoryBase + slotA * 2);
     s32 priorityA;
@@ -431,13 +425,13 @@ static s32 CompareItemsByThrow(s16 slotA, s16 slotB, s32* inventoryBase) {
     if (itemA == ITEM_EMPTY_SLOT) {
         priorityA = 0;
     } else {
-        priorityA = (SysMenuGetInventoryRestrictionMask(itemA & ITEM_ID_MASK) & ITEM_USAGE_FLAG_THROW) ? 1 : 2;
+        priorityA = (SysMenuGetInventoryRestrictionMask(itemA & ITEM_ID_MASK) & ITEM_RESTRICT_THROW) ? 1 : 2;
     }
     itemB = *(u16*)(*inventoryBase + slotB * 2);
     if (itemB == ITEM_EMPTY_SLOT) {
         priorityB = 0;
     } else {
-        priorityB = (SysMenuGetInventoryRestrictionMask(itemB & ITEM_ID_MASK) & ITEM_USAGE_FLAG_THROW) ? 1 : 2;
+        priorityB = (SysMenuGetInventoryRestrictionMask(itemB & ITEM_ID_MASK) & ITEM_RESTRICT_THROW) ? 1 : 2;
     }
     return Sign(priorityB - priorityA);
 }
@@ -524,21 +518,20 @@ static s32 HasLearnedAllLimits(s32 charIdx) {
     return (Savemap.party[charIdx].limit_learn ^ mask) == 0;
 }
 
-// Returns an item's usage flags (SysMenuGetInventoryRestrictionMask), with two
-// context-dependent overrides: item 0x46 (the Tent) becomes field-usable while
-// a location flag permits resting, and item 0x62 (the Save Crystal) while its
-// one-time-use save flag is still clear.
+// Returns an item's restriction flags (SysMenuGetInventoryRestrictionMask), with
+// two context-dependent overrides: the Tent can't be used while Save is locked,
+// and the Save Crystal only where its usable flag is set.
 static s32 GetItemUseFlagsContext(s32 itemId) {
     s32 flags = SysMenuGetInventoryRestrictionMask(itemId);
     if (itemId != ITEM_TENT) {
         if (itemId == ITEM_SAVE_CRYSTAL) {
-            if (!(Savemap.memory_bank_4[0x60] & SAVE_CRYSTAL_USED_FLAG)) {
-                flags |= ITEM_USAGE_FLAG_FIELD;
+            if (!(Savemap.memory_bank_4[0x60] & SAVE_CRYSTAL_USABLE_FLAG)) {
+                flags |= ITEM_RESTRICT_FIELD;
             }
         }
     } else {
-        if (g_MenuLocationFlags & MENU_LOCATION_TENT_ALLOWED) {
-            flags |= ITEM_USAGE_FLAG_FIELD;
+        if (g_MenuLocationFlags & MENU_LOCK_SAVE) {
+            flags |= ITEM_RESTRICT_FIELD;
         }
     }
     return flags;
@@ -1004,7 +997,8 @@ char ITEMMENU_Main(s32 frameCount) {
                     selectedItemId = g_ItemUseListCursorPos[0] + g_ItemListOffet;
                     selectedItemEntry = Savemap.inventory[selectedItemId];
                     if (((selectedItemEntry & ITEM_EMPTY_SLOT) != ITEM_EMPTY_SLOT) &&
-                        (!(GetItemUseFlagsContext(selectedItemId = selectedItemEntry & ITEM_ID_MASK) & 4))) {
+                        (!(GetItemUseFlagsContext(selectedItemId = selectedItemEntry & ITEM_ID_MASK) &
+                           ITEM_RESTRICT_FIELD))) {
                         if (selectedItemId != ITEM_SAVE_CRYSTAL) {
                             if (selectedItemId == ITEM_EARTH_HARP) {
                                 PlayItemMenuSfx(SFX_MENU_APPLY);
@@ -1023,7 +1017,7 @@ char ITEMMENU_Main(s32 frameCount) {
                             goto block_e48;
                         }
                         PlayItemMenuSfx(SFX_MENU_APPLY);
-                        Savemap.memory_bank_4[0x60] |= 1;
+                        Savemap.memory_bank_4[0x60] |= SAVE_CRYSTAL_USED_FLAG;
                         SysMenuSetMenuListAnimation(5, 0);
                         SysMenuLoadMenuFileById(0);
                         SysMenuClose();
@@ -1701,7 +1695,7 @@ void ITEMMENU_UnequipCharacterMateria(s32 charIdx) {
     }
     accessory = Savemap.party[charIdx].accessory;
     if (accessory != EMPTY_ACCESSORY_SLOT) {
-        SysMenuAddItem((accessory + ITEM_TYPE_ACCESSORY_BASE) | (1 << ITEM_QTY_SHIFT));
+        SysMenuAddItem((accessory + INV_TYPE_ACCESSORY_START) | (1 << ITEM_QTY_SHIFT));
         Savemap.party[charIdx].accessory = EMPTY_ACCESSORY_SLOT;
     }
 }
