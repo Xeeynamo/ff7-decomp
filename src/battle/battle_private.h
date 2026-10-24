@@ -707,7 +707,6 @@ extern u8 D_800F5774;
 extern s32 D_800F57CC; // btlmenu_cursorMemory
 extern EffectModel* D_800F57D0;
 extern u8 D_800F57D4;
-extern u16 D_800F7DE2[]; // All Lucky 7s trigger count
 extern u8 D_800F7DE4;
 typedef struct {
     s16 modelIndex;
@@ -994,7 +993,7 @@ typedef enum {
     EFFECT_PHASE_SETUP,          // T2: when the effect is assigned (BattleSetActionEffect)
     EFFECT_PHASE_AFTER_DAMAGE,   // T3: per target, after the damage step
     EFFECT_PHASE_LANDED_HIT,     // T4: per target, when the hit lands
-    EFFECT_PHASE_ACTION_END,     // T5: after all of the action's passes
+    EFFECT_PHASE_ACTION_END,     // T5: after each attacking unit's hits, every pass
 } BattleEffectPhase;
 
 void BattleMorphEnemy(void);
@@ -1078,7 +1077,7 @@ void func_800B0C14(void);
 static void func_800B0DF8(void);
 static s32 BattleApplyFuryHitChanceReduction(s32);
 u16 BattleGetRndItemIdForSteal(void*, s32, s32, s32);
-static void BattleAddStringToDisplay(s32, s32, s32, s16*);
+static void BattleAddStringToDisplay(s32, s32, s32, u16*);
 static s32 BattleGetRnd164(void);
 s32 BattleOpcodeGetRndBit(u16);
 void BattleNormalStartSeq(void);
@@ -1263,7 +1262,6 @@ extern u8 D_800F5630;
 extern u16 D_800F5634;
 extern u8 D_800F5638;
 extern u8 D_800F563C;
-extern u16 D_800F7DE0[];
 extern BattleMenuSlot D_800F90B4[];
 extern u8 D_800F977C;
 extern u8 D_80151698;

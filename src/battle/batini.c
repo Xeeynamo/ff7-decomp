@@ -329,8 +329,8 @@ static void BattleInitPlayer(void) {
             unit->magEvade = armor->magicDefensePercent;
             weapon = &character->weapon;
             BattleInitApplyAccStatus(i, member->accessory);
-            unit->unk50 = 0;
-            unit->unk52 = 0xFFFF;
+            unit->stolenGil = 0;
+            unit->stolenItem = 0xFFFF;
             for (soundIdx = 0; soundIdx < 3; soundIdx++) {
                 soundId = weapon->attackSound[soundIdx];
                 if (weapon->soundIdMask & bit) {
@@ -950,8 +950,8 @@ void BattleInitEnemyUnits(void) {
             combatant->idleActionId = 0;
             combatant->status = 0;
             combatant->prevStatus = 0;
-            combatant->unk50 = 0;
-            combatant->unk52 = 0xFFFF;
+            combatant->stolenGil = 0;
+            combatant->stolenItem = 0xFFFF;
             combatant->stateFlags = g_BattleData.activeEncounter.formation[i].flags & 0x1F;
             combatant->formationRow = g_BattleData.activeEncounter.formation[i].row;
 
@@ -1074,7 +1074,7 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
     g_BattleWork.encounterType = (u8)g_BattleTypeMap[g_BattleData.activeEncounter.setup.type];
     if (g_BattleData.flags & EVENT_BATTLE_SQUARE) {
         g_BattleData.activeEncounter.setup.stageID = 37;
-        g_BattleData.activeEncounter.setup.flags |= SETUP_CANNOT_ESCAPE;
+        g_BattleData.activeEncounter.setup.flags |= SETUP_CAN_ESCAPE;
         g_BattleData.activeEncounter.setup.cameraID = (SysGetRandomByteFromTable() & 3) + 0x60;
         g_BattleData.activeEncounter.setup.escapeCounter = 1;
         // enemy strength and magic is 25% higher at battle square
@@ -1084,9 +1084,9 @@ static void BattleInitLoadSceneData(s32 sceneID, void (*cb)(void)) {
             g_BattleWork.enemy[i].magic = BattleBoostVal25Percent(g_BattleWork.enemy[i].magic);
         }
     } else if (g_BattleData.flags & 8) {
-        g_BattleData.activeEncounter.setup.flags &= ~SETUP_CANNOT_ESCAPE;
+        g_BattleData.activeEncounter.setup.flags &= ~SETUP_CAN_ESCAPE;
     }
-    if (!(g_BattleData.activeEncounter.setup.flags & SETUP_CANNOT_ESCAPE)) {
+    if (!(g_BattleData.activeEncounter.setup.flags & SETUP_CAN_ESCAPE)) {
         g_BattleData.flags |= 8;
     }
     g_BattleWork.escapeCounter1 = g_BattleData.activeEncounter.setup.escapeCounter;

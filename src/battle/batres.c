@@ -79,7 +79,7 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
                 if (g_BattleState.setupFlags & 0x10) {
                     if (c->char_id == 0) {
                         for (k = 0; k < 12; k++) {
-                            if (SysGetLimitCmdId(id, k) != 0x7F) {
+                            if (SysGetLimitCmdId(id, k) != LIMIT_CMD_NONE) {
                                 c->limit_learn |= 1 << k;
                             }
                         }
