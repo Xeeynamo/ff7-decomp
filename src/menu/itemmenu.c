@@ -79,7 +79,6 @@ typedef enum {
 #define NOTIFICATION_TEXT_SIZE 0x50
 #define EMPTY_MATERIA_SLOT (-1)
 #define EMPTY_ACCESSORY_SLOT 0xFF
-#define EMPTY_LIMIT_COMMAND 0x7F
 #define NUM_LIMIT_SLOTS 10
 
 // [0]: single-slot, non-scrolling widget (total=1, 1/page) - purpose not yet
@@ -505,13 +504,13 @@ static s32 IsCharacterMpFull(s32 charIdx) {
 }
 
 // Builds a 10-bit mask of which of character charIdx's slots are occupied (slot
-// value != 0x7F), clears bit 9, and returns whether it matches the stored
+// value != LIMIT_CMD_NONE), clears bit 9, and returns whether it matches the stored
 // value.
 static s32 HasLearnedAllLimits(s32 charIdx) {
     s32 mask;
     s32 limitIdx;
     for (limitIdx = 0, mask = 0; limitIdx < NUM_LIMIT_SLOTS; limitIdx++) {
-        if (SysGetLimitCmdId(charIdx, limitIdx) != EMPTY_LIMIT_COMMAND) {
+        if (SysGetLimitCmdId(charIdx, limitIdx) != LIMIT_CMD_NONE) {
             mask |= 1 << limitIdx;
         }
     }

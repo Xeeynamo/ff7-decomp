@@ -3,6 +3,10 @@
 
 #include <game.h>
 
+#define PARTY_TEAM_MASK 0x7
+#define ALLY_TEAM_MASK 0xF
+#define ENEMY_TEAM_MASK 0x3F0
+
 #define EFFECT_MODEL_SLOT (NUM_PARTY) // holds the model an effect overlay supplies
 #define START_ENEMY (NUM_PARTY + 1)
 #define NUM_ENEMY (6)
@@ -15,7 +19,7 @@
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleFlags.cs#L4
 typedef enum {
     SETUP_UNK2 = 0x2,
-    SETUP_CANNOT_ESCAPE = 0x4,
+    SETUP_CAN_ESCAPE = 0x4,
     SETUP_NO_VICTORY_POSE = 0x8,
     SETUP_NO_PREEMPTIVE_STRIKE = 0x10,
 } BattleSetupFlags;
@@ -71,9 +75,11 @@ typedef enum {
     BATTLE_TEXT_SIDE_ATTACK = 0x34,
     BATTLE_TEXT_PINCER_ATTACK = 0x35,
     BATTLE_TEXT_CANNOT_ESCAPE = 0x36,
+    BATTLE_TEXT_FAIL_UNION = 0x50,
     BATTLE_TEXT_RECEIVED_ITEM = 0x52,
     BATTLE_TEXT_ITEM_STOLEN = 0x53,
     BATTLE_TEXT_RECEIVED_GIL = 0x54,
+    BATTLE_TEXT_GIL_STOLEN = 0x55,
     BATTLE_TEXT_MORPH_ITEM = 0x56,
     BATTLE_TEXT_CANNOT_MIMIC = 0x57,
     BATTLE_TEXT_USELESS_IMITATION = 0x58,
@@ -89,6 +95,8 @@ typedef enum {
     BATTLE_TEXT_SENSE_NAME_LEVEL = 0x74,
     BATTLE_TEXT_SENSE_HP_MP = 0x75,
     BATTLE_TEXT_SENSE_FAILED = 0x76,
+    BATTLE_TEXT_CANNOT_REACH = 0x77,
+    BATTLE_TEXT_SUMMON_DEPLETED = 0x79,
     BATTLE_TEXT_CAUGHT_BY_SURPRISE = 0x7A,
     BATTLE_TEXT_OFFSET_ENTRY = 0x7E,
 } BattleTextId;
@@ -211,8 +219,8 @@ typedef struct {
     /* 0x4D */ u8 magEvade;
     /* 0x4E */ u8 formationRow;
     /* 0x4F */ u8 unk4F;
-    /* 0x50 */ u16 unk50; // Stolen gil?
-    /* 0x52 */ u16 unk52; // Stolen item?
+    /* 0x50 */ u16 stolenGil;
+    /* 0x52 */ u16 stolenItem;
     /* 0x54 */ u16 elemImmuneExtra;
     /* 0x56 */ u8 unk56;
     /* 0x57 */ u8 unk57;
@@ -730,7 +738,9 @@ typedef struct {
     /* 0x2220 */ u16 attackerUnitMask;
     /* 0x2222 */ u16 playerContextOffset[2];
     /* 0x2226 */ s16 pendingActionPriority;
-} BattleWork; // size:0x2228
+    /* 0x2228 */ u16 unk2228;
+    /* 0x222A */ u16 lucky7777Count;
+} BattleWork; // size:0x222C
 
 typedef struct Unk800A8D04 {
     /* 0x000 */ s32 actorId;
@@ -777,25 +787,25 @@ typedef struct Unk800A8D04 {
     /* 0x0A4 */ s32 dmgFormulaId;
     /* 0x0A8 */ s32 provokedMask; // targets damaged (not healed) or given one of the action's statuses
     /* 0x0AC */ s32 unkAC;
-    /* 0x0B0 */ s32 unkB0;
-    /* 0x0B4 */ s32 unkB4;
+    /* 0x0B0 */ s32 multiHitsLeft;
+    /* 0x0B4 */ s32 sequenceLength;
     /* 0x0B8 */ s32 targetCount;
     /* 0x0BC */ s32 effectId;
     /* 0x0C0 */ s32 effectModifier;
-    /* 0x0C4 */ s32 unkC4;
+    /* 0x0C4 */ s32 basePower;
     /* 0x0C8 */ s32 attackerStatus;
     /* 0x0CC */ s32 unkCC;
-    /* 0x0D0 */ u8 unkD0[8];
+    /* 0x0D0 */ u8 sequenceActions[8]; // Action index per later sequence step; 0xFF = empty
     /* 0x0D8 */ s32 unkD8;
-    /* 0x0DC */ s32 unkDC;
+    /* 0x0DC */ s32 failReasonTextId;
     /* 0x0E0 */ s32 landedHitCount;
     /* 0x0E4 */ s32 unkE4;
     /* 0x0E8 */ s32 unkE8;
-    /* 0x0EC */ s32 unkEC;
+    /* 0x0EC */ s32 sequenceTargetsMask;
     /* 0x0F0 */ s32 unkF0;
     /* 0x0F4 */ s32 unkF4;
     /* 0x0F8 */ s32 unkF8;
-    /* 0x0FC */ s32 unkFC;
+    /* 0x0FC */ s32 multiHitCount; // 0 = not a multi-hit (one round of hits only)
     /* 0x100 */ s32 unk100[0x40];
     /* 0x200 */ BattleTurnWork* turnWork;
     /* 0x204 */ BattlePartyWork* partyWork;

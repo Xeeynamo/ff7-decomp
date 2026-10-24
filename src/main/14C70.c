@@ -420,7 +420,7 @@ s32 SysGetLimitCmdId(s32 charId, s32 limitIndex) {
     s32 unused[12]; // unknown locals
     s32 cmdId;
 
-    cmdId = 0x7F;
+    cmdId = LIMIT_CMD_NONE;
     if ((u32)charId < NUM_CHARACTERS) {
         s32 addr;
 

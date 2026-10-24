@@ -52,6 +52,7 @@
 #define ENEMY_SKILL_START SUMMON_END
 #define ENEMY_SKILL_END (ENEMY_SKILL_START + NUM_ENEMY_SKILLS)
 #define LIMIT_START 0x80
+#define LIMIT_CMD_NONE 0x7F // SysGetLimitCmdId: empty slot or invalid character
 
 #define KAWAI_READ_S16(params, offset) ((s16)((((params)[(offset) + 1] << 8) & 0xFF00) | ((params)[(offset)] & 0xFF)))
 #define KAWAI_READ_S32(params, offset)                                                                                 \

@@ -716,7 +716,6 @@ extern u8 D_800F5774;
 extern s32 D_800F57CC; // btlmenu_cursorMemory
 extern EffectModel* D_800F57D0;
 extern u8 D_800F57D4;
-extern u16 D_800F7DE2[]; // All Lucky 7s trigger count
 extern u8 D_800F7DE4;
 typedef struct {
     s16 modelIndex;
@@ -996,6 +995,16 @@ extern s8 D_80166F64;
 extern u8 D_80166F68[];
 extern u16 g_BattleScreenFadeR;
 
+// When BattleApplyActionEffect runs during an action
+typedef enum {
+    EFFECT_PHASE_BEFORE_FORMULA, // T0: before the damage formula (only when power != 0)
+    EFFECT_PHASE_AFTER_FORMULA,  // T1: after the damage formula (only when power != 0)
+    EFFECT_PHASE_SETUP,          // T2: when the effect is assigned (BattleSetActionEffect)
+    EFFECT_PHASE_AFTER_DAMAGE,   // T3: per target, after the damage step
+    EFFECT_PHASE_LANDED_HIT,     // T4: per target, when the hit lands
+    EFFECT_PHASE_ACTION_END,     // T5: after each attacking unit's hits, every pass
+} BattleEffectPhase;
+
 void BattleMorphEnemy(void);
 void BattleQueuePendingAction(s16, s16, s16, u16);
 static void BattleRunFrameIfActionQueued(void);
@@ -1014,7 +1023,14 @@ static void BattleCopyTargTypeDatToTmp(s32 arg0);
 static void BattleSetActionEffect(s32 effectId, s32 effectModifier);
 static void SetActionStatusChange(u32 arg0, s32 statusMask);
 static void func_800A8E54(s32 arg0);
-void func_800A8E84(s32);
+s32 BattleApplyActionEffect(s32 effectPhase);
+static void BattleResolveCaitSithSlotsResult(void);
+void func_800A9DA0(void);
+void BattleApplyVincentLimitTransform(void);
+static void func_800AA468(void);
+static void func_800AA4FC(void);
+void BattleSetPowerFromWeaponMateriaAp(void);
+static void func_800AA688(void);
 void BattleResolveCover(BattleQueueTargetEntry*);
 void BattleResolveAffinityPreDamage(void);
 void BattleResolveAffinityPostDamage(void);
@@ -1070,7 +1086,7 @@ void func_800B0C14(void);
 static void func_800B0DF8(void);
 static s32 BattleApplyFuryHitChanceReduction(s32);
 u16 BattleGetRndItemIdForSteal(void*, s32, s32, s32);
-static void BattleAddStringToDisplay(s32, s32, s32, s16*);
+static void BattleAddStringToDisplay(s32, s32, s32, u16*);
 static s32 BattleGetRnd164(void);
 s32 BattleOpcodeGetRndBit(u16);
 void BattleNormalStartSeq(void);
@@ -1081,6 +1097,7 @@ void BattleLoadEnemyTexture(s32);
 void BattleInitModelsAnimAndColor(s32, s32);
 void BattleCdromReadChain(void);
 static s32 BattleApplyStatMult(s32 arg0, s32 value, s32 statIndex);
+static void BattleAddStatMult(s32 unitId, s32 deltaPct, s32 statMask);
 // definition takes 3 args (a2 -> D_800F4ACC), but existing callers only pass 2
 void BattleInitScriptContext(/*s32, s32, s32*/);
 s16 func_800B888C(s32);
@@ -1254,7 +1271,6 @@ extern u8 D_800F5630;
 extern u16 D_800F5634;
 extern u8 D_800F5638;
 extern u8 D_800F563C;
-extern u16 D_800F7DE0[];
 extern BattleMenuSlot D_800F90B4[];
 extern u8 D_800F977C;
 extern u8 D_80151698;
