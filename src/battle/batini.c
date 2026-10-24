@@ -353,7 +353,7 @@ static void BattleInitPlayer(void) {
             character->counterChance = 0;
             character->unk1A = 0;
             character->limitLevel = 1;
-            party->limitLevel = 0xFF;
+            party->limitLevel = LIMIT_LEVEL_DISABLED;
             if (charId < NUM_CHARACTERS) {
                 limitLevel = member->limit_level - 1;
                 if (limitLevel < 4) {

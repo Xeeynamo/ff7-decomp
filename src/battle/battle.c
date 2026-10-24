@@ -1801,7 +1801,7 @@ void func_800A4E40(void) {
 }
 
 void BattleEnableLimitToPlayerWithSpeed(s32 index) {
-    if (g_BattleWork.party[index].limitLevel != 0xFF) {
+    if (g_BattleWork.party[index].limitLevel != LIMIT_LEVEL_DISABLED) {
         g_BattleData.limitReadyMask |= (1 << index);
         g_BattleWork.turn[index].limitSpeedFlag |= 1;
         g_BattleWork.turn[index].menuListFlags |= MENU_LIST_DIRTY_COMMAND;
@@ -3797,7 +3797,7 @@ s32 BattleApplyActionEffect(s32 effectPhase) {
             break;
         }
         case EFFECT_PHASE_ACTION_END:
-            func_800A9DA0();
+            BattleApplyCaitSithTransform();
             break;
         }
         break;
@@ -4037,20 +4037,24 @@ static void BattleResolveCaitSithSlotsResult(void) {
     g_CurrentAction->mpCost = 0;
 }
 
-void func_800A9DA0(void) {
-    static const s8 D_800A0398[] = {0x64, 0x14, 0x14, 0x14, 0xEC, 0xCE, 0xCE, 0x00};
+// Transform (Cait Sith's Slots): merges other party members into the actor. Their stats are
+// averaged and adjusted by statBonusPercent; HP and MP are summed and capped.
+static void BattleApplyCaitSithTransform(void) {
+    // physAttack, magAttack, physDefence, magDefence, physEvade, magEvade, dexterity, luck
+    static const s8 statBonusPercent[] = {100, 20, 20, 20, -20, -50, -50, 0};
+
     s32 actor = g_CurrentAction->actorId;
     s32 stats[8];
-    s32 count = 0;
+    s32 playerCount = 0;
     s32 totalCurHp = 0;
     s32 totalCurMp = 0;
     s32 totalMaxHp = 0;
     s32 totalMaxMp = 0;
-    s32 maxHp = g_BattleWork.party[actor].capHP;
-    s32 maxMp = g_BattleWork.party[actor].capMP;
+    s32 capHp = g_BattleWork.party[actor].capHP;
+    s32 capMp = g_BattleWork.party[actor].capMP;
     s32 i;
 
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < LEN(stats); i++) {
         stats[i] = 0;
     }
 
@@ -4074,30 +4078,30 @@ void func_800A9DA0(void) {
                 BattleQueueEvent(2, i, 0x13, 1 << i);
             }
 
-            count++;
+            playerCount++;
             g_BattleWork.reviveMask |= 1 << i;
         }
     }
 
-    for (i = 0; i < 8; i++) {
-        stats[i] /= count;
-        stats[i] += stats[i] * D_800A0398[i] / 100;
+    for (i = 0; i < LEN(stats); i++) {
+        stats[i] /= playerCount;
+        stats[i] += stats[i] * statBonusPercent[i] / 100;
         if (stats[i] > 255) {
             stats[i] = 255;
         }
     }
 
-    if (maxHp < totalCurHp) {
-        totalCurHp = maxHp;
+    if (capHp < totalCurHp) {
+        totalCurHp = capHp;
     }
-    if (maxHp < totalMaxHp) {
-        totalMaxHp = maxHp;
+    if (capHp < totalMaxHp) {
+        totalMaxHp = capHp;
     }
-    if (maxMp < totalCurMp) {
-        totalCurMp = maxMp;
+    if (capMp < totalCurMp) {
+        totalCurMp = capMp;
     }
-    if (maxMp < totalMaxMp) {
-        totalMaxMp = maxMp;
+    if (capMp < totalMaxMp) {
+        totalMaxMp = capMp;
     }
 
     g_BattleState.combatant[actor].physAttack = stats[0];
@@ -4114,7 +4118,7 @@ void func_800A9DA0(void) {
     g_BattleState.combatant[actor].maxMP = totalMaxMp;
 
     BattleQueueEvent(2, actor, 0x18, 1);
-    g_BattleWork.party[actor].limitLevel = 0xFF;
+    g_BattleWork.party[actor].limitLevel = LIMIT_LEVEL_DISABLED; // Cannot limit while transformed
 }
 
 // attack additional-effect handler for Vincent's transformation Limits; the effect modifier (effectModifier) picks the
