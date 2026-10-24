@@ -108,6 +108,7 @@ BattleSetActionEffect = 0x800A8D88;
 SetActionStatusChange = 0x800A8DCC;
 BattleApplyActionEffect = 0x800A8E84;
 BattleResolveCaitSithSlotsResult = 0x800A9C24;
+BattleApplyCaitSithTransform = 0x800A9DA0;
 BattleApplyVincentLimitTransform = 0x800AA1C8;
 BattleSetPowerFromWeaponMateriaAp = 0x800AA574;
 BattleGetRndOpponentBit = 0x800AA700;

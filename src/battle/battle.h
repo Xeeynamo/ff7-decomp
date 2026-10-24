@@ -12,6 +12,7 @@
 #define NUM_ENEMY (6)
 #define NUM_BATTLE_ACTOR (START_ENEMY + NUM_ENEMY) // 10
 #define NUM_ZONES (3)                              // battlefield zones, see BattleData.unitZoneMask
+#define LIMIT_LEVEL_DISABLED 0xFF                  // BattlePartyWork.limitLevel: no Limit Breaks
 
 // ItemRestrictionFlags kept in BattleItemEntry.restrictionMask; field use doesn't apply in battle
 #define BATTLE_ITEM_RESTRICT_MASK (ITEM_RESTRICT_SELL | ITEM_RESTRICT_BATTLE | ITEM_RESTRICT_THROW)
