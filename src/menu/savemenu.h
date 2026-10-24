@@ -63,6 +63,42 @@ typedef enum {
 #define TITLE_TRANSITION_DELAY 10
 #define TITLE_FADE_STEP 15
 
+#define SAVE_SCREEN_WIDTH 384
+#define SAVE_SCREEN_HEIGHT 232
+
+#define SAVE_CHECK_WAIT_FRAMES 240
+#define SAVE_SCAN_DELAY_FRAMES 60
+#define SAVE_TRANSITION_DELAY 10
+#define SAVE_RETRY_COUNT 30
+#define SAVE_DELETE_RETRY_COUNT 10
+
+#define SAVE_HEADER_PAGE_SIZE 0x280
+#define SAVE_CHECKSUM_SIZE 0x10F0
+#define SAVE_ICON_BITMAP_OFFSET 0x2C
+#define MEMCARD_TITLE_SIZE 0x40
+
+#define SAVE_LEADER_NAME_LIMIT 0x10
+#define SAVE_LOCATION_NAME_LIMIT 0x18
+#define SJIS_DIGITS_OFFSET 0x20
+#define NUM_MEMCARD_EVENTS 8
+
+typedef enum {
+    SAVE_MENU_STATE_SELECT_SLOT = 0,
+    SAVE_MENU_STATE_SELECT_FILE = 1,
+    SAVE_MENU_STATE_CHECKING_FILES = 2,
+    SAVE_MENU_STATE_CHECKING_WAIT = 3,
+    SAVE_MENU_STATE_SAVING = 4,
+    SAVE_MENU_STATE_FORMAT_PROMPT = 6,
+    SAVE_MENU_STATE_CONFIRM = 7,
+} SaveMenuState;
+
+typedef enum {
+    SAVE_FADE_DONE = -1,
+    SAVE_FADE_IN = 0,
+    SAVE_FADE_ACTIVE = 1,
+    SAVE_FADE_OUT = 2,
+} SaveFadeState;
+
 typedef enum {
     LABEL_LOAD = 0,
     SAVE_STR_SELECT_SLOT = 1,
@@ -77,8 +113,10 @@ typedef enum {
     SAVE_STR_CONTINUE = 10,
     SAVE_STR_COULD_NOT_LOAD = 11,
     SAVE_STR_CHECKING_CARD = 12,
+    SAVE_STR_SAVED = 28,
     SAVE_STR_FILE_RUINED = 31,
     SAVE_STR_NEW_GAME = 32,
+    SAVE_STR_CONFIRM_SAVE = 33,
     SAVE_STR_YES = 34,
     SAVE_STR_NO = 35,
     SAVE_STR_COMPLETED = 41,
@@ -88,15 +126,27 @@ typedef enum {
     SAVE_FORMAT_STR_FAILED = 3,
     SAVE_FORMAT_STR_UNFORMATTED = 4,
     SAVE_FORMAT_STR_PROMPT = 5,
+    SAVE_FORMAT_STR_NO_CARD = 6,
 } SaveFormatStringId;
+
+typedef enum {
+    SAVE_ERR_NO_CARD = 0,
+    SAVE_ERR_CARD_DAMAGED = 1,
+    SAVE_ERR_INSERT_ANOTHER = 2,
+    SAVE_ERR_OUT_OF_MEMORY = 3,
+    SAVE_ERR_USE_ANOTHER = 4,
+    SAVE_ERR_ERASE_BLOCK = 5,
+    SAVE_ERR_READ_FAILED = 8,
+    SAVE_ERR_STILL_BEGIN = 9,
+} SaveErrorStringId;
 
 typedef struct {
     // this whole thing might be a D_801E379C[6]
-    /* 0x00 */ MenuTable D_801E379C[2];
+    /* 0x00 */ MenuTable tables[2];
     /* 0x24 */ u8 unk24[0x40];
     /* 0x64 */ s32 D_801E3800;
     /* 0x68 */ s32 D_801E3804;
-    /* 0x6C */ MenuTable D_801E3808[2];
+    /* 0x6C */ MenuTable promptTables[2];
 } Menus; // size: 0x90
 
 // PlayStation memory-card file header: a 0x80 title frame followed by three
@@ -130,29 +180,29 @@ extern unsigned char g_SaveErrorStrings[][0x30];
 
 extern s32 g_TitleResult;
 extern u8 D_801E369C[4];
-extern s32 D_801E36A0;
-extern s32 D_801E36A4;
-extern s32 D_801E36A8;
-extern s32 D_801E36AC;
-extern s32 D_801E36B0;
-extern s32 D_801E36B4;
-extern s32 D_801E36B8;
-extern DRAWENV D_801E36BC[2];
-extern DISPENV D_801E3774[2];
+extern s32 g_SaveScanStatus;
+extern s32 g_SaveMenuDelayTimer;
+extern s32 g_SaveScanInitialCheck;
+extern s32 g_SaveScanSlotIndex;
+extern s32 g_SaveFadeState;
+extern s32 g_SaveBufferIndex;
+extern s32 g_SaveMenuMode;
+extern DRAWENV g_SaveDrawEnv[2];
+extern DISPENV g_SaveDispEnv[2];
 extern Menus menus;
 extern u8 D_801E382C[0x24];
-extern s32 D_801E3850;
-extern OT_TYPE* D_801E3854;
-extern OT_TYPE* D_801E3858[2][1];
-extern s32 D_801E3860;
-extern SaveHeader D_801E3864[15];
+extern s32 g_SaveMenuState;
+extern OT_TYPE* g_SaveOrderingTable;
+extern OT_TYPE* g_SaveOrderingTableBuffers[2][1];
+extern s32 g_SaveCardCheckWaitTimer;
+extern SaveHeader g_SaveSlotHeaders[15];
 extern s32 g_SaveSlot;
 extern u_long g_SaveCharClutBackup[0x183];
 extern u_long g_SaveFontVramBackup[0xA00];
 extern MemcardFileHeader g_SaveFileHeader;
 extern MemcardSaveFile g_SaveFile;
 extern u8 g_MemCardSlotStatus[2][3];
-extern u8 D_801E8F3E[2];
+extern u8 g_SaveSlotUnkFlags[2];
 extern s32 g_SaveWriteRemaining;
 extern u_long g_SaveAvatarVramBackup[0xB40];
 
@@ -160,6 +210,7 @@ s32 SysGetHoursFromSeconds(s32 seconds);
 s32 SysGetMinutesFromSeconds(s32 seconds);
 s32 SAVEMENU_Title(void);
 s32 SAVEMENU_Main(void);
+void SAVEMENU_Init(u8 arg0);
 int SAVEMENU_HandleSave(s32 counter);
 void SaveInitCardEvents(void);
 void SaveCleanupCardEvents(void);

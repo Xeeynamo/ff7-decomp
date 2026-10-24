@@ -98,7 +98,7 @@ struct Pad {
 };
 static struct Pad D_801D24B8 = {0, 0};
 static u16 D_801D24BC = 0;
-static u8 D_801D24C0[] = {4, 0, 0, 0, 5, 0, 0, 0, 6, 0, 0, 0};
+static s32 D_801D24C0[] = {4, 5, 6};
 
 // from now on this is the BSS section; this can be moved up if necessary
 static MenuTable D_801D24CC[4];
@@ -144,7 +144,10 @@ static u8 func_801D0118(u16 arg0) {
     return 0xFF;
 }
 
-static void func_801D014C(s16 x, s16 y, s32 value) {
+static void func_801D014C(x, y, value) s16 x;
+s16 y;
+s32 value;
+{
     u8 uv = D_801D1AAC[value * 2 + 0];
     u8 page = D_801D1AAC[value * 2 + 1];
     SysMenuDrawTexturedRect(x, y, (uv & 3) * 16 + 96, (uv >> 2) * 16 + 64, 16, 16, page, 0);
@@ -153,8 +156,8 @@ static void func_801D014C(s16 x, s16 y, s32 value) {
 static void func_801D01C8(void) {
     RECT rect;
     s32 temp_s4;
-    s32 y;
     s32 x;
+    s32 y;
     s32 var_s2;
     s32 i;
     s32 _setting;
@@ -251,7 +254,414 @@ void func_801D069C(void) {
     }
 }
 
-// exported, see 8004941C
+#ifndef NON_MATCHING
 INCLUDE_ASM("asm/us/menu/nonmatchings/cnfgmenu", func_801D080C);
+#else
+void func_801D080C(s32 arg0) {
+    RECT sp18;
+    RECT sp20;
+    RECT padding[2];
+    s16 temp_s0;
+    s32 temp_s0_9;
+    s32 temp_s3;
+    s32 x;
+    s32 y;
+    s32 temp_v1;
+    s32 var_a1_3;
+    s32 i;
+    u16 var_s2_3;
+    s32* var_a3;
+
+    D_801D24B8.press = InputReadPadsRaw();
+    D_801D24BC = D_801D24B8.press & (D_801D24B8.prev ^ D_801D24B8.press);
+    SysMenuDrawMenuList(g_MenuRenderBufferIndex);
+    switch (D_801D1AA8) {
+    case 0: // config menu
+        SysMenuDrawString(16, 11, SysKernGetString(8, D_801D24CC[0].row + 0x37, 8), 7);
+        if (D_801D24CC[0].row == 0) {
+            SysMenuDrawCursor(12, D_801D24A0[1].y + 0x10);
+        } else {
+            SysMenuDrawCursor(12, D_801D24A0[1].y + 0x23 + (D_801D24CC[0].row - 1) * 18);
+        }
+        break;
+    case 1: // window color sub-menu
+        if (arg0 & 2) {
+            if (D_801D24CC[0].row == 0) {
+                SysMenuDrawCursor(12, D_801D24A0[1].y + 0x10);
+            } else {
+                SysMenuDrawCursor(12, D_801D24A0[1].y + 0x25 + (D_801D24CC[0].row - 1) * 18);
+            }
+        }
+        SysMenuDrawCursor(D_801D24CC[1].column * 0x3D + 0x8D, D_801D24A0[1].y + 4 + D_801D24CC[1].row * 18);
+        break;
+    case 2: // RGB sub-menu
+        if (arg0 & 2) {
+            SysMenuDrawCursor(12, D_801D24A0[1].y + 0x10 + D_801D24CC[0].row * 18);
+            SysMenuDrawCursor(D_801D24CC[1].column * 0x3D + 0x8D, D_801D24A0[1].y + 4 + D_801D24CC[1].row * 19);
+        }
+        SysMenuDrawCursor(0x93, D_801D24A0[1].y + 0x24 + D_801D24CC[2].row * 12);
+        temp_s0 = D_801D24A0[1].y;
+        temp_s3 = D_801D24A0[1].x + 0xAD;
+        SysMenuDrawSingleFontLetter(temp_s3, temp_s0 + 0x23, D_801D2478[0][0], 2);
+        SysMenuDrawSingleFontLetter(temp_s3, temp_s0 + 0x2F, D_801D2478[1][0], 4);
+        SysMenuDrawSingleFontLetter(temp_s3, temp_s0 + 0x3B, D_801D2478[2][0], 1);
+
+        for (i = 0; i < 3; i++) {
+            SysMenuDrawDigitsWithLeadingZeroes(temp_s3 + 0x10, temp_s0 + 0x23 + i * 12,
+                                               D_801D252C[D_801D24CC[1].column * 3 + D_801D24CC[1].row * 6 + i], 3, 7);
+            sp20.x = D_801D252C[D_801D24CC[1].column * 3 + D_801D24CC[1].row * 6 + i] / 2 + 0xD5;
+            sp20.y = D_801D24A0[1].y + 0x21 + i * 12;
+            sp20.w = 8;
+            sp20.h = 0xB;
+            SysMenuDrawScrollbarSlider(&sp20);
+            sp20.x = 0xD5;
+            sp20.y = D_801D24A0[1].y + 0x21 + i * 12;
+            sp20.w = 0x88;
+            sp20.h = 0xB;
+            SysMenuDrawScrollbarTrack(&sp20);
+        }
+
+        sp20.x = 0;
+        sp20.y = 0;
+        sp20.w = 0x100;
+        sp20.h = 0x100;
+        SysMenuSetDrawMode(0, 1, 0x1F, &sp20);
+        SysMenuSetWindowRect(&sp18, D_801D24A0[1].x + 0xA5, D_801D24A0[1].y + 0x1D, 0xC0, 0x2B);
+        SysMenuDrawWindow(&sp18);
+        SysMenuSetWindowRect(&sp18, D_801D24A0[1].x + 0xF8, D_801D24A0[1].y + 7, 0x1A, 18);
+        temp_v1 = D_801D24CC[1].row * 6 + D_801D24CC[1].column * 3;
+        SysMenuDrawColoredRect(&sp18, D_801D252C[temp_v1], D_801D252C[temp_v1 + 1], D_801D252C[temp_v1 + 2]);
+        SysMenuSetWindowRect(&sp18, D_801D24A0[1].x + 0xF5, D_801D24A0[1].y + 4, 0x20, 0x18);
+        SysMenuDrawWindow(&sp18);
+        break;
+    case 3: // controller customization sub-menu
+        if (arg0 & 2) {
+            SysMenuDrawCursor(12, D_801D24A0[1].y + 10 + D_801D24CC[0].row * 0x15);
+        }
+        if (D_801D2528 == 0) {
+            SysMenuDrawString(0x10, 0xB, D_801D23E8[0], 7);
+        } else {
+            SysMenuDrawString(0x10, 0xB, D_801D2418[0], 7);
+        }
+        x = D_801D24A0[1].x + 0x8C;
+        y = D_801D24A0[1].y + 3;
+        if (D_801D2528 != 0) {
+            SysMenuDrawCursor(D_801D24A0[1].x + 0x78, y + 10 + (D_801D2528 - 1) * 18);
+        }
+        for (i = 0; i < 10; i++) {
+            SysMenuDrawSingleFontLetter(x + 0x22, y + 10 + i * 18, 0xDA, 5);
+        }
+        SysMenuSetWindowRect(&sp18, x, y, 0x78, 0xBB);
+        y += 6;
+        x += 10;
+        for (i = 0; i < 10; i++) {
+            func_801D014C(x, y + i * 18, D_801D1ADC[i]);
+            func_801D014C(x + 0x2C, y + i * 18, Savemap.button_config[D_801D1ADC[i]]);
+            sp20.x = 0;
+            sp20.y = 0;
+            sp20.w = 0x100;
+            sp20.h = 0x100;
+            SysMenuSetDrawMode(0, 1, 0x1F, &sp20);
+            SysMenuDrawString(x + 0x3E, y + 4 + i * 18 - 2, D_801D2238[Savemap.button_config[D_801D1ADC[i]]], 6);
+        }
+        SysMenuDrawWindow(&sp18);
+        break;
+    }
+    func_801D01C8();
+    sp20.x = 0;
+    sp20.y = 0;
+    sp20.w = 0xFF;
+    sp20.h = 0xFF;
+    SysMenuSetDrawMode(0, 1, 0x1F, &sp20);
+    SysMenuStoreWindowColor();
+    MENU_SetWindowColors(D_801D252C);
+    SysMenuSetWindowRect(&sp18, D_801D24A0[1].x + 0xA5, D_801D24A0[1].y + 4, 0x40, 0x18);
+    SysMenuDrawWindow(&sp18);
+    SysMenuRestoreWindowColor();
+    for (i = 0; i < 2; i++) {
+        SysMenuDrawWindow(&D_801D24A0[i]);
+    }
+    if (SysMenuGetMenuListState() == 0) {
+        SysMenuHandleButtons(&D_801D24CC[D_801D1AA8]);
+        switch (D_801D1AA8) {
+        case 4:
+            break;
+        case 0:
+            if (g_Pad0KeysRepeat & 0x40) {
+                func_801D0040(4);
+                SysMenuSetMenuListAnimation(5, 0);
+                SysMenuLoadMenuFileById(0);
+            } else {
+                switch (D_801D24CC[0].row) {
+                case 0: // window color
+                    if (g_Pad0KeysPressed & 0x20) {
+                        D_801D1AA8 = 1;
+                        func_801D0040(1);
+                    }
+                    break;
+                case 1: // sound
+                    var_s2_3 = Savemap.config & 3;
+                    if (g_Pad0KeysRepeat & 0x2000) {
+                        if (var_s2_3 != 1) {
+                            func_801D0040(1);
+                            var_s2_3++;
+                            Savemap.config &= 0xFFFC;
+                            Savemap.config |= var_s2_3 << 0;
+                            func_801D0080(var_s2_3);
+                        }
+                    }
+                    if (g_Pad0KeysRepeat & 0x8000) {
+                        if (var_s2_3 != 0) {
+                            func_801D0040(1);
+                            var_s2_3--;
+                            Savemap.config &= 0xFFFC;
+                            Savemap.config |= var_s2_3 << 0;
+                            func_801D0080(var_s2_3);
+                        }
+                    }
+                    break;
+                case 2: // controller
+                    var_s2_3 = (Savemap.config >> 2) & 3;
+                    if (g_Pad0KeysPressed & 0x20) {
+                        if (var_s2_3 == 1) {
+                            func_801D0040(1);
+                            D_801D1AA8 = 3;
+                            D_801D2528 = 0;
+                        }
+                    } else {
+                        if (g_Pad0KeysRepeat & 0x2000) {
+                            if (var_s2_3 != 1) {
+                                func_801D0040(1);
+                                var_s2_3++;
+                                Savemap.config &= 0xFFF3;
+                                Savemap.config |= var_s2_3 << 2;
+                            }
+                        }
+                        if (g_Pad0KeysRepeat & 0x8000) {
+                            if (var_s2_3 != 0) {
+                                func_801D0040(1);
+                                var_s2_3--;
+                                Savemap.config &= 0xFFF3;
+                                Savemap.config |= var_s2_3 << 2;
+                            }
+                        }
+                    }
+                    break;
+                case 3: // cursor
+                    var_s2_3 = (Savemap.config >> 4) & 3;
+                    if (g_Pad0KeysRepeat & 0x2000) {
+                        if (var_s2_3 != 1) {
+                            func_801D0040(1);
+                            var_s2_3++;
+                            Savemap.config &= 0xFFCF;
+                            Savemap.config |= var_s2_3 << 4;
+                        }
+                    }
+                    if (g_Pad0KeysRepeat & 0x8000) {
+                        if (var_s2_3 != 0) {
+                            func_801D0040(1);
+                            var_s2_3--;
+                            Savemap.config &= 0xFFCF;
+                            Savemap.config |= var_s2_3 << 4;
+                        }
+                    }
+                    break;
+                case 4: // ATB
+                    var_s2_3 = (Savemap.config >> 6) & 3;
+                    if (g_Pad0KeysRepeat & 0x2000) {
+                        if (var_s2_3 != 2) {
+                            var_s2_3++;
+                            func_801D0040(1);
+                            Savemap.config &= 0xFF3F;
+                            Savemap.config |= var_s2_3 << 6;
+                        }
+                    }
+                    if (g_Pad0KeysRepeat & 0x8000) {
+                        if (var_s2_3 != 0) {
+                            var_s2_3--;
+                            func_801D0040(1);
+                            Savemap.config &= 0xFF3F;
+                            Savemap.config |= var_s2_3 << 6;
+                        }
+                    }
+                    break;
+                case 5: // battle speed
+                    if (g_Pad0Keys & 0x2000) {
+                        if (Savemap.battle_speed != 0xFF) {
+                            if (arg0 & 4) {
+                                func_801D0040(1);
+                            }
+                            Savemap.battle_speed += 1;
+                        }
+                    }
+                    if (g_Pad0Keys & 0x8000) {
+                        if (Savemap.battle_speed != 0) {
+                            if (arg0 & 4) {
+                                func_801D0040(1);
+                            }
+                            Savemap.battle_speed -= 1;
+                        }
+                    }
+                    break;
+                case 6: // battle message
+                    if (g_Pad0Keys & 0x2000) {
+                        if (Savemap.battle_msg_speed != 0xFF) {
+                            if (arg0 & 4) {
+                                func_801D0040(1);
+                            }
+                            Savemap.battle_msg_speed += 1;
+                        }
+                    }
+                    if (g_Pad0Keys & 0x8000) {
+                        if (Savemap.battle_msg_speed != 0) {
+                            if (arg0 & 4) {
+                                func_801D0040(1);
+                            }
+                            Savemap.battle_msg_speed -= 1;
+                        }
+                    }
+                    break;
+                case 7: // field message
+                    if (g_Pad0Keys & 0x2000) {
+                        if (Savemap.field_msg_speed != 0xFF) {
+                            if (arg0 & 4) {
+                                func_801D0040(1);
+                            }
+                            Savemap.field_msg_speed += 1;
+                        }
+                    }
+                    if (g_Pad0Keys & 0x8000) {
+                        if (Savemap.field_msg_speed != 0) {
+                            if (arg0 & 4) {
+                                func_801D0040(1);
+                            }
+                            Savemap.field_msg_speed -= 1;
+                        }
+                    }
+                    break;
+                case 8: // camera angle
+                    var_s2_3 = (Savemap.config >> 8) & 3;
+                    if (g_Pad0KeysRepeat & 0x2000) {
+                        if (var_s2_3 != 1) {
+                            func_801D0040(1);
+                            var_s2_3++;
+                            Savemap.config &= ~0x300;
+                            Savemap.config |= var_s2_3 << 8;
+                        }
+                    }
+                    if (g_Pad0KeysRepeat & 0x8000) {
+                        if (var_s2_3 != 0) {
+                            func_801D0040(1);
+                            var_s2_3--;
+                            Savemap.config &= ~0x300;
+                            Savemap.config |= var_s2_3 << 8;
+                        }
+                    }
+                    break;
+                case 9: // magic order
+                    var_s2_3 = (Savemap.config >> 10) & 7;
+                    if (g_Pad0KeysRepeat & 0x2000) {
+                        if (var_s2_3 != 5) {
+                            func_801D0040(1);
+                            var_s2_3++;
+                            Savemap.config &= ~0x1C00;
+                            Savemap.config |= var_s2_3 << 10;
+                        }
+                    }
+                    if (g_Pad0KeysRepeat & 0x8000) {
+                        if (var_s2_3 != 0) {
+                            func_801D0040(1);
+                            var_s2_3--;
+                            Savemap.config &= ~0x1C00;
+                            Savemap.config |= var_s2_3 << 10;
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
+        case 1:
+            if (g_Pad0KeysPressed & 0x40) {
+                for (i = 0; i < 12; i++) {
+                    g_MenuColors[i] = D_801D252C[i];
+                }
+                func_801D0040(4);
+                D_801D1AA8 = 0;
+            } else if (g_Pad0KeysPressed & 0x20) {
+                D_801D1AA8 = 2;
+                func_801D0040(1);
+            }
+            break;
+        case 2:
+            temp_s0_9 = D_801D24CC[1].column * 3 + D_801D24CC[1].row * 6 + D_801D24CC[2].row;
+            if (g_Pad0KeysPressed & 0x40) {
+                func_801D0040(4);
+                D_801D1AA8 = 1;
+            } else if (g_Pad0Keys & 0x2000) {
+                if (D_801D252C[temp_s0_9] != 0xFF) {
+                    if (arg0 & 4) {
+                        func_801D0040(1);
+                    }
+                    D_801D252C[temp_s0_9]++;
+                }
+            } else if (g_Pad0Keys & 0x8000) {
+                if (D_801D252C[temp_s0_9] != 0) {
+                    if (arg0 & 4) {
+                        func_801D0040(1);
+                    }
+                    D_801D252C[temp_s0_9]--;
+                }
+            }
+            break;
+        case 3:
+            if (D_801D24BC & 0x40) {
+                if (D_801D2528 == 0) {
+                    func_801D0040(4);
+                    D_801D1AA8 = 0;
+                    break;
+                }
+            } else if (D_801D2528 == 0) {
+                if (D_801D24BC & 0x800) {
+                    D_801D2528 = 1;
+                }
+                break;
+            }
+            if (D_801D24BC != 0) {
+                if ((u8)func_801D0118(D_801D24BC) != 0xFF) {
+                    Savemap.button_config[D_801D1ADC[D_801D2528 - 1]] = func_801D0118(D_801D24BC);
+                } else if ((g_Pad0KeysRepeat & 0x1000) && D_801D2528 != 1) {
+                    func_801D0040(1);
+                    D_801D2528--;
+                } else if ((g_Pad0KeysRepeat & 0x4000) && D_801D2528 != 10) {
+                    func_801D0040(1);
+                    D_801D2528++;
+                } else {
+                    if (g_Pad0KeysRepeat & 0xA000) {
+                        var_a1_3 = 0;
+                        var_s2_3 = 0;
+                        var_a3 = D_801D24C0;
+                        for (; var_s2_3 < 3; var_s2_3++) {
+                            for (i = 0; i < 16; i++) {
+                                if (var_a3[var_s2_3] == Savemap.button_config[i]) {
+                                    var_a1_3 |= 1 << var_s2_3;
+                                }
+                            }
+                        }
+                        if (var_a1_3 == 7) {
+                            func_801D0040(1);
+                            D_801D2528 = 0;
+                            D_801D1AA8 = 0;
+                        } else {
+                            func_801D0040(3);
+                        }
+                    }
+                }
+            }
+            break;
+        }
+    }
+    D_801D24B8.prev = D_801D24B8.press;
+}
+#endif
 
 static void func_801D1AA0(void) {}
