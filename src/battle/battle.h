@@ -9,6 +9,9 @@
 #define NUM_BATTLE_ACTOR (START_ENEMY + NUM_ENEMY) // 10
 #define NUM_ZONES (3)                              // battlefield zones, see BattleData.unitZoneMask
 
+// ItemRestrictionFlags kept in BattleItemEntry.restrictionMask; field use doesn't apply in battle
+#define BATTLE_ITEM_RESTRICT_MASK (ITEM_RESTRICT_SELL | ITEM_RESTRICT_BATTLE | ITEM_RESTRICT_THROW)
+
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/BattleFlags.cs#L4
 typedef enum {
     SETUP_UNK2 = 0x2,
@@ -625,7 +628,7 @@ typedef struct {
     /* 0x0 */ u16 id;
     /* 0x2 */ u8 count;
     /* 0x3 */ u8 targetFlags;
-    /* 0x4 */ u8 unk4;
+    /* 0x4 */ u8 restrictionMask;
     /* 0x5 */ u8 unk5;
 } BattleItemEntry; /* size: 0x6 */
 
@@ -839,7 +842,9 @@ extern u8 g_BattlePartyIDs[]; // copy of Savemap.partyID taken when the battle s
 extern u8 g_BattleStartFXFlags;
 extern s32 D_800F87F0[NUM_BATTLE_ACTOR][32]; // per-combatant battle-script variable bank, 0x80 B
                                              // each (BattleOpcodeValOffs)
+extern u8 g_BattleItemMenuRowCount;
 extern Unk80166F78 D_80166F78[NUM_ENEMY][16];
+extern BattleItemEntry g_BattleItemList[];
 
 // Scratch copy of a party member's save record, taken when g_BattleData.flags bit EVENT_BATTLE_SQUARE is set.
 extern SavePartyMember D_80167938;

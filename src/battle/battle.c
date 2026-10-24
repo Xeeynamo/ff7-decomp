@@ -92,7 +92,7 @@ void BATTLE_Main(void) {
                 // Spin until all status changes have been processed
             }
 
-            BattleReqReturnReservedItems(0xA);
+            BattleReleaseUnitReservedItems(0xA);
 
             for (i = 0; i < NUM_PARTY; i++) {
                 g_BattleWork.party[i].limitBarUI = g_BattleWork.party[i].limitBar;
@@ -595,7 +595,7 @@ static void BattleSetFocusedActor(s32 arg0) {
         }
         if (i == LEN(g_BattleWork.actionQueue)) {
             g_BattleWork.turn[D_800E7A38].turnCount++;
-            BattleReqReturnReservedItems(*(s16*)&D_800E7A38);
+            BattleReleaseUnitReservedItems(*(s16*)&D_800E7A38);
             BattleQueueEvent(0, D_800E7A38, 0, 0);
         }
     }
@@ -1297,7 +1297,7 @@ void func_800A38FC(void) {
         g_ActiveCharacters[i].atbTimer = g_BattleWork.turn[i].atbGauge;
     }
 
-    BattleReturnReservedItems();
+    BattleProcessIncomingItems();
 }
 
 static void BattleScheduleAction(BattleActionEntry* action) {
@@ -1456,7 +1456,7 @@ void func_800A3ED0(void) {
 }
 
 static void func_800A4D88(s32 arg0);
-static void BattleAddUnitReservedItem(s16 arg0, s16 arg1);
+static void BattleAddUnitReservedItem(s16 unitSlot, s16 itemId);
 static s32 BattleGetManipulatorIdByEnemyUnitId(s32 enemyId);
 
 // Pending actions go into a global queue and are drained once a frame in func_800A3ED0
@@ -2025,70 +2025,123 @@ static void func_800A555C(s32 charIdx, s32 magicId) {
     magic->id = magicId - (NUM_MAGICS + NUM_SUMMONS);
 }
 
-typedef struct {
-    s16 a;
-    s16 b;
-} Unk800F3A40;
-
-extern Unk800F3A40 D_800F3A40[16];
-
 void BattleResetReservedItems(void) {
     s32 i;
 
-    for (i = 0; i < 16; i++) {
-        D_800F3A40[i].a = -1;
-        D_800F3A40[i].b = -1;
+    for (i = 0; i < LEN(g_BattleReservedItems); i++) {
+        g_BattleReservedItems[i].unitSlot = -1;
+        g_BattleReservedItems[i].itemId = -1;
     }
 }
 
-static void BattleRemoveUnitReservedItem(s16 arg0, s16 arg1) {
+static void BattleRemoveUnitReservedItem(s16 unitSlot, s16 itemId) {
     s32 i;
 
-    for (i = 0; i < LEN(D_800F3A40); i++) {
-        if (D_800F3A40[i].a == arg0 && D_800F3A40[i].b == arg1) {
-            D_800F3A40[i].a = -1;
-            D_800F3A40[i].b = -1;
+    for (i = 0; i < LEN(g_BattleReservedItems); i++) {
+        if (g_BattleReservedItems[i].unitSlot == unitSlot && g_BattleReservedItems[i].itemId == itemId) {
+            g_BattleReservedItems[i].unitSlot = -1;
+            g_BattleReservedItems[i].itemId = -1;
             return;
         }
     }
 }
 
-static void BattleAddUnitReservedItem(s16 arg0, s16 arg1) {
+static void BattleAddUnitReservedItem(s16 unitSlot, s16 itemId) {
     s32 i;
 
-    for (i = 0; i < LEN(D_800F3A40); i++) {
-        if (D_800F3A40[i].b == -1) {
-            D_800F3A40[i].a = arg0;
-            D_800F3A40[i].b = arg1;
+    for (i = 0; i < LEN(g_BattleReservedItems); i++) {
+        if (g_BattleReservedItems[i].itemId == -1) {
+            g_BattleReservedItems[i].unitSlot = unitSlot;
+            g_BattleReservedItems[i].itemId = itemId;
             return;
         }
     }
 }
 
-// finds the free-list slot (D_800F3A40, see BattleResetReservedItems/55F4/5660) whose
-// `.b` matches arg0, and moves it into the D_800F3A20 ring buffer (write
-// index D_800F3A1C, wraps at 16) before clearing the slot.
-void BattleReqReturnReservedItems(s16 arg0) {
+// Moves every item reserved by unitSlot into g_BattleIncomingItemQueue (16-entry ring,
+// write index g_BattleIncomingItemWriteIdx) and frees those reserved-item entries
+void BattleReleaseUnitReservedItems(s16 unitSlot) {
     s32 i;
     s16 entry;
     s32 nextIdx;
     s16* dst;
 
-    for (i = 0; i < LEN(D_800F3A40); i++) {
-        entry = D_800F3A40[i].b;
-        if ((entry != -1) && (D_800F3A40[i].a == arg0)) {
-            nextIdx = D_800F3A1C + 1;
-            dst = &D_800F3A20[D_800F3A1C];
-            D_800F3A1C = nextIdx;
+    for (i = 0; i < LEN(g_BattleReservedItems); i++) {
+        entry = g_BattleReservedItems[i].itemId;
+        if ((entry != -1) && (g_BattleReservedItems[i].unitSlot == unitSlot)) {
+            nextIdx = g_BattleIncomingItemWriteIdx + 1;
+            dst = &g_BattleIncomingItemQueue[g_BattleIncomingItemWriteIdx];
+            g_BattleIncomingItemWriteIdx = nextIdx;
             *dst = entry;
-            D_800F3A1C = nextIdx & 0xF;
-            D_800F3A40[i].a = -1;
-            D_800F3A40[i].b = -1;
+            g_BattleIncomingItemWriteIdx = nextIdx & (LEN(g_BattleIncomingItemQueue) - 1);
+            g_BattleReservedItems[i].unitSlot = -1;
+            g_BattleReservedItems[i].itemId = -1;
         }
     }
 }
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleReturnReservedItems);
+// Adds the items in g_BattleIncomingItemQueue to the battle item list: one more of an
+// item already listed (up to 99), otherwise a new entry in the first empty slot
+void BattleProcessIncomingItems(void) {
+    BattleItemEntry* list;
+    BattleItemEntry* item;
+    s16 itemId;
+    s32 firstEmptySlot;
+    s32 rows;
+    s32 i;
+
+    while (g_BattleIncomingItemWriteIdx != g_BattleIncomingItemReadIdx) {
+        list = g_BattleItemList;
+        firstEmptySlot = -1;
+        itemId = g_BattleIncomingItemQueue[g_BattleIncomingItemReadIdx++];
+
+        if (itemId < 0x180) {
+            rows = 0;
+
+            for (i = 0; i < MAX_INVENTORY_COUNT; i++) {
+                if (list[i].id == itemId) {
+                    if (list[i].count < MAX_INVENTORY_STACK) {
+                        list[i].count++;
+                    }
+                    break;
+                }
+
+                if (list[i].id == 0xFFFF && firstEmptySlot == -1) {
+                    firstEmptySlot = i;
+                }
+            }
+
+            if (i == MAX_INVENTORY_COUNT && firstEmptySlot != -1) {
+                item = &g_BattleItemList[firstEmptySlot];
+                item->count = 1;
+                item->targetFlags = TARGET_ENABLE_SELECTION | TARGET_START_ENEMY_ROW;
+                item->id = itemId;
+
+                if (itemId < INV_TYPE_ITEM_END) {
+                    item->targetFlags = g_ItemTable[itemId].targetFlags;
+                    item->restrictionMask = g_ItemTable[itemId].restrictionMask;
+                } else if (itemId < INV_TYPE_WEAPON_END) {
+                    item->targetFlags = g_WeaponTable[itemId - INV_TYPE_WEAPON_START].targetFlags;
+                    item->restrictionMask = g_WeaponTable[itemId - INV_TYPE_WEAPON_START].restrictionMask;
+                } else if (itemId < INV_TYPE_ARMOR_END) {
+                    item->restrictionMask = g_ArmorTable[itemId - INV_TYPE_ARMOR_START].restrictionMask;
+                } else if (itemId < INV_TYPE_ACCESSORY_END) {
+                    item->restrictionMask = g_AccessoryTable[itemId - INV_TYPE_ACCESSORY_START].restrictionMask;
+                }
+
+                item->restrictionMask &= BATTLE_ITEM_RESTRICT_MASK;
+                rows = (firstEmptySlot + 1) / 2;
+            }
+
+            g_BattleItemListDirty = -1;
+            if (g_BattleItemMenuRowCount < rows) {
+                g_BattleItemMenuRowCount = rows;
+            }
+        }
+
+        g_BattleIncomingItemReadIdx &= LEN(g_BattleIncomingItemQueue) - 1;
+    }
+}
 
 // 0xFFFF when nothing is throwable, or the pick falls outside the range
 static s32 BattlePickRandomThrowItem(void) {
@@ -2103,16 +2156,16 @@ static s32 BattlePickRandomThrowItem(void) {
     ret = 0xFFFF;
     n = 0;
     for (i = 0; i < 320; i++) {
-        id = D_801671B8[i].id;
-        flags = D_801671B8[i].unk4;
-        if (id != 0xFFFF && !(flags & 9)) {
+        id = g_BattleItemList[i].id;
+        flags = g_BattleItemList[i].restrictionMask;
+        if (id != 0xFFFF && !(flags & (ITEM_RESTRICT_SELL | ITEM_RESTRICT_THROW))) {
             list[n] = id;
             n++;
         }
     }
     if (n != 0) {
         pick = list[SysGetRandomByteRange(n)];
-        if (pick >= 0x80 && pick < 0x100) {
+        if (pick >= INV_TYPE_WEAPON_START && pick < INV_TYPE_WEAPON_END) {
             BattleQueueEvent(0, 0, 0x10, pick);
             ret = pick;
         }
@@ -2460,15 +2513,15 @@ static u16 BattleGetItemFromSlot(s32 arg0) {
     u8* countPtr;
 
     var_a0 = 0xFFFF;
-    if (D_801671B8[arg0].count != 0) {
-        D_801671B8[arg0].count -= 1;
-        countPtr = &D_801671B8[arg0].count;
-        var_a0 = D_801671B8[arg0].id;
+    if (g_BattleItemList[arg0].count != 0) {
+        g_BattleItemList[arg0].count -= 1;
+        countPtr = &g_BattleItemList[arg0].count;
+        var_a0 = g_BattleItemList[arg0].id;
         if (*countPtr == 0) {
-            D_801671B8[arg0].id = 0xFFFF;
-            D_801671B8[arg0].unk4 = 0xA;
+            g_BattleItemList[arg0].id = 0xFFFF;
+            g_BattleItemList[arg0].restrictionMask = ITEM_RESTRICT_BATTLE | ITEM_RESTRICT_THROW;
         }
-        D_80166F75 = 0xFF;
+        g_BattleItemListDirty = -1;
     }
     return var_a0;
 }
@@ -2508,7 +2561,8 @@ void BattleUnitSetCtrlState(s32 unitIdx, s32 limitParam) {
     g_BattleWork.disabledUnitMask &= ~(1 << unitIdx);
 }
 
-void BattleAddStolenItemToReservedItem(s32 arg0, s16 arg1) { BattleAddUnitReservedItem(10, arg1); }
+// Invoked when stealing an item, an enemy is morphed, or defeated enemy returns a stolen item
+void BattleReceiveItem(s32 arg0, s16 arg1) { BattleAddUnitReservedItem(10, arg1); }
 
 void func_800A6748(s32 arg0) {
     BattleResetManipulatorTimer(arg0);
@@ -2551,8 +2605,7 @@ void BattleUnitStealRndPartyItem(s32 arg0) {
     s32 i;
 
     for (i = 0; i < MAX_INVENTORY_COUNT; i++) {
-        // Slots with unk4 bit 0 set are skipped; maybe a locked or important item?
-        if (D_801671B8[i].id != 0xFFFF && !(D_801671B8[i].unk4 & 1)) {
+        if (g_BattleItemList[i].id != 0xFFFF && !(g_BattleItemList[i].restrictionMask & ITEM_RESTRICT_SELL)) {
             count++;
         }
     }
@@ -2564,7 +2617,8 @@ void BattleUnitStealRndPartyItem(s32 arg0) {
     // Walk the eligible list and pick the n-th item
     n = g_BattleWork.frameRnd % count;
     for (i = 0; i < MAX_INVENTORY_COUNT; i++) {
-        if (D_801671B8[i].id != 0xFFFF && !(D_801671B8[i].unk4 & 1) && --n < 0) {
+        if (g_BattleItemList[i].id != 0xFFFF && !(g_BattleItemList[i].restrictionMask & ITEM_RESTRICT_SELL) &&
+            --n < 0) {
             itemId = BattleGetItemFromSlot(i);
             break;
         }
@@ -2611,8 +2665,8 @@ void BattleSearchAndRemoveItemFromSlot(s32 arg0, s32 arg1) {
     s32 i;
 
     for (i = 0; i < 0x140; i++) {
-        if (D_801671B8[i].id == arg1) {
-            if (!(D_801671B8[i].unk4 & 9)) {
+        if (g_BattleItemList[i].id == arg1) {
+            if (!(g_BattleItemList[i].restrictionMask & (ITEM_RESTRICT_SELL | ITEM_RESTRICT_THROW))) {
                 BattleGetItemFromSlot(i);
             }
             return;
@@ -2708,7 +2762,7 @@ void BattleRemovePlayersFromBattle(s32 unused, s32 mask) {
         }
 
         BattleUnitCalcSpeed(i);
-        BattleReqReturnReservedItems(i);
+        BattleReleaseUnitReservedItems(i);
         BattleQueueEvent(0, i, 2, 0);
     }
 }
@@ -2793,7 +2847,7 @@ void BattleResolveSummonActionIndex(void) {
     g_CurrentAction->absoluteActionIndex = SUMMON_START + g_CurrentAction->relativeActionIndex;
 }
 
-static void BattleRemoveUnitReservedItem(s16 arg0, s16 arg1);
+static void BattleRemoveUnitReservedItem(s16 unitSlot, s16 itemId);
 void BattlePrepareTmpFromItemForUse(void) {
     g_CurrentAction->absoluteActionIndex = g_CurrentAction->relativeActionIndex;
     g_CurrentAction->unk24 = g_CurrentAction->relativeActionIndex;
@@ -2816,7 +2870,7 @@ void BattleSetupThrowAction(void) {
     if (id != 0xFFFF) {
         g_CurrentAction->absoluteActionIndex = id;
         g_CurrentAction->unk98 = g_CurrentAction->relativeActionIndex;
-        g_CurrentAction->unk24 = g_CurrentAction->relativeActionIndex - 0x80;
+        g_CurrentAction->unk24 = g_CurrentAction->relativeActionIndex - INV_TYPE_WEAPON_START;
         BattleRemoveUnitReservedItem(g_CurrentAction->actorId, g_CurrentAction->absoluteActionIndex);
         g_CurrentAction->power = 0x10;
         weapon = g_CurrentAction->unk24;
@@ -3125,19 +3179,19 @@ void BattleActionType0C(void) {
 }
 
 void BattleLoadActionAttackData(void) {
-    AttackData* atk;
+    ItemRecord* atk;
     u16 elements;
 
     g_CurrentAction->attackPercent = 0xFF;
-    atk = &D_800722CC[g_CurrentAction->absoluteActionIndex];
+    atk = &g_ItemTable[g_CurrentAction->absoluteActionIndex];
     g_CurrentAction->formulaIds = atk->damageCalcID;
     g_CurrentAction->power = atk->strength;
     elements = atk->elements;
     if (elements != 0xFFFF) {
         g_CurrentAction->elements = elements;
     }
-    g_CurrentAction->unk60 = atk->cameraIDs[BATTLE_ATK_CAMERA_SINGLE];
-    g_CurrentAction->unk64 = atk->cameraIDs[BATTLE_ATK_CAMERA_SINGLE];
+    g_CurrentAction->unk60 = atk->cameraID;
+    g_CurrentAction->unk64 = atk->cameraID;
     g_CurrentAction->unk24 = atk->attackEffectID;
     g_CurrentAction->attackFlags = atk->flags;
     BattleCopyTargTypeDatToTmp(atk->targetFlags);
@@ -5668,7 +5722,7 @@ void func_800AEBF0(s32 index, s32 arg1, s32 arg2) { BattleUnitCalcSpeed(index); 
 
 #ifndef PLATFORM_PSYZ
 // Original call in BattlePostAddDeath had no prototype in scope, but signature is correct according to other callers
-void BattleReqReturnReservedItems();
+void BattleReleaseUnitReservedItems();
 #endif
 
 void BattlePostAddDeath(s32 arg0, s32 arg1, s32 arg2) {
@@ -5700,7 +5754,7 @@ void BattlePostAddDeath(s32 arg0, s32 arg1, s32 arg2) {
 
     g_BattleWork.turn[arg0].hpChangeRate = 0;
     g_BattleWork.subActionSlots[arg0].priority = 0xFF;
-    BattleReqReturnReservedItems(arg0);
+    BattleReleaseUnitReservedItems(arg0);
 
     for (i = 0; i < NUM_STATUS_TIMERS; i++) {
         g_BattleWork.turn[arg0].statusTimers[i] = 0;

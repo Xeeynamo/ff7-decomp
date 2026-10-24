@@ -57,7 +57,7 @@ MainMenuColorLabels g_Labels = {
 
 // kernel tables that hold equipment and materia records
 static void* D_8004935C[5] = {
-    D_800722CC, g_WeaponTable, g_ArmorTable, g_AccessoryTable, g_MateriaData,
+    g_ItemTable, g_WeaponTable, g_ArmorTable, g_AccessoryTable, g_MateriaData,
 };
 
 static s32 D_80049370[5] = {0xE00, 0x1600, 0x480, 0x200, 0x7D0};
@@ -205,16 +205,16 @@ static void func_8001FAAC(u16 arg0) {
 static void func_8001FAF0(void) {}
 
 u16 SysMenuGetInventoryRestrictionMask(s32 itemId) {
-    if (itemId < 0x80) {
-        return D_800722CC[itemId].cameraIDs[1];
+    if (itemId < INV_TYPE_ITEM_END) {
+        return g_ItemTable[itemId].restrictionMask;
     }
-    if (itemId < 0x100) {
-        return g_WeaponTable[itemId - 0x80].restrictionMask;
+    if (itemId < INV_TYPE_WEAPON_END) {
+        return g_WeaponTable[itemId - INV_TYPE_WEAPON_START].restrictionMask;
     }
-    if (itemId < 0x120) {
-        return g_ArmorTable[itemId - 0x100].restrictionMask;
+    if (itemId < INV_TYPE_ARMOR_END) {
+        return g_ArmorTable[itemId - INV_TYPE_ARMOR_START].restrictionMask;
     }
-    return g_AccessoryTable[itemId - 0x120].restrictionMask;
+    return g_AccessoryTable[itemId - INV_TYPE_ACCESSORY_START].restrictionMask;
 }
 
 s32 SysGetPlayerBaseAttackDefense(s32 partyIdx, s32 kind, s32 fallback) {
@@ -363,7 +363,7 @@ void SysInitPlayerStatFromEquip(s32 charId) {
     luck =
         (Savemap.party[battleCharId].luck + Savemap.party[battleCharId].luck_bonus) + g_ActiveCharacters[charId].luck;
 
-    if ((Savemap.party[battleCharId].accessory + 0x120) == 0x139) {
+    if ((Savemap.party[battleCharId].accessory + INV_TYPE_ACCESSORY_START) == ITEM_CURSE_RING) {
         // Curse Ring stat boost
         strength += 15;
         dexterity += 15;
