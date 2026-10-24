@@ -104,6 +104,7 @@ BattleActionType1E = 0x800A8D18;
 BattleCopyTargTypeDatToTmp = 0x800A8D60;
 BattleSetActionEffect = 0x800A8D88;
 SetActionStatusChange = 0x800A8DCC;
+BattleApplyActionEffect = 0x800A8E84;
 BattleResolveCaitSithSlotsResult = 0x800A9C24;
 BattleApplyVincentLimitTransform = 0x800AA1C8;
 BattleSetPowerFromWeaponMateriaAp = 0x800AA574;

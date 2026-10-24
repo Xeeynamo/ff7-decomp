@@ -987,6 +987,16 @@ extern s8 D_80166F64;
 extern u8 D_80166F68[];
 extern u16 g_BattleScreenFadeR;
 
+// When BattleApplyActionEffect runs during an action
+typedef enum {
+    EFFECT_PHASE_BEFORE_FORMULA, // T0: before the damage formula (only when power != 0)
+    EFFECT_PHASE_AFTER_FORMULA,  // T1: after the damage formula (only when power != 0)
+    EFFECT_PHASE_SETUP,          // T2: when the effect is assigned (BattleSetActionEffect)
+    EFFECT_PHASE_AFTER_DAMAGE,   // T3: per target, after the damage step
+    EFFECT_PHASE_LANDED_HIT,     // T4: per target, when the hit lands
+    EFFECT_PHASE_ACTION_END,     // T5: after all of the action's passes
+} BattleEffectPhase;
+
 void BattleMorphEnemy(void);
 void BattleQueuePendingAction(s16, s16, s16, u16);
 static void BattleRunFrameIfActionQueued(void);
@@ -1005,7 +1015,14 @@ static void BattleCopyTargTypeDatToTmp(s32 arg0);
 static void BattleSetActionEffect(s32 effectId, s32 effectModifier);
 static void SetActionStatusChange(u32 arg0, s32 statusMask);
 static void func_800A8E54(s32 arg0);
-void func_800A8E84(s32);
+s32 BattleApplyActionEffect(s32 effectPhase);
+static void BattleResolveCaitSithSlotsResult(void);
+void func_800A9DA0(void);
+void BattleApplyVincentLimitTransform(void);
+static void func_800AA468(void);
+static void func_800AA4FC(void);
+void BattleSetPowerFromWeaponMateriaAp(void);
+static void func_800AA688(void);
 void BattleResolveCover(BattleQueueTargetEntry*);
 void BattleResolveAffinityPreDamage(void);
 void BattleResolveAffinityPostDamage(void);
@@ -1072,6 +1089,7 @@ void BattleLoadEnemyTexture(s32);
 void BattleInitModelsAnimAndColor(s32, s32);
 void BattleCdromReadChain(void);
 static s32 BattleApplyStatMult(s32 arg0, s32 value, s32 statIndex);
+static void BattleAddStatMult(s32 unitId, s32 deltaPct, s32 statMask);
 // definition takes 3 args (a2 -> D_800F4ACC), but existing callers only pass 2
 void BattleInitScriptContext(/*s32, s32, s32*/);
 s16 func_800B888C(s32);

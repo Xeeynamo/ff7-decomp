@@ -831,7 +831,7 @@ static s32 func_800A2D0C(void) {
     return D_800A01A8[g_CurrentAction->unkCC];
 }
 
-static void func_800A2D68(u8 arg0) {
+static void func_800A2D68(s32 arg0) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
@@ -3487,7 +3487,7 @@ static void BattleSetActionEffect(s32 effectId, s32 effectModifier) {
     if (effectId != 0xFF) {
         g_CurrentAction->effectId = effectId;
         g_CurrentAction->effectModifier = effectModifier;
-        func_800A8E84(2);
+        BattleApplyActionEffect(EFFECT_PHASE_SETUP);
     }
 }
 
@@ -3526,10 +3526,369 @@ static void func_800A8E54(s32 arg0) {
     }
 }
 
-const s16 D_800A02C0[] = {
+// Bit n is set when the effect has work to do in phase n (BattleEffectPhase)
+const u16 g_ActionEffectPhaseMasks[] = {
     0x04, 0x3C, 0x04, 0x20, 0x01, 0x24, 0x10, 0x10, 0x04, 0x02, 0x02, 0x02, 0x02, 0x01, 0x20, 0x04, 0x24, 0x10,
     0x10, 0x04, 0x20, 0x10, 0x10, 0x10, 0x30, 0x10, 0x20, 0x10, 0x10, 0x14, 0x01, 0x01, 0x01, 0x01, 0x01, 0x18};
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A8E84);
+
+// Runs the current action's additional effect (effectId) for one phase
+s32 BattleApplyActionEffect(s32 effectPhase) {
+    const s32 attStatsMask = 1 << STAT_MULT_PHYS_ATTACK | 1 << STAT_MULT_MAG_ATTACK;
+    const s32 defStatsMask = 1 << STAT_MULT_PHYS_DEFENCE | 1 << STAT_MULT_MAG_DEFENCE;
+    BattlePartyWork* party;
+    s32 actor;
+    s32 i;
+    s32 j;
+
+    if (g_CurrentAction->effectId == -1) {
+        return; // Bare return needed here
+    }
+
+    if (!((g_ActionEffectPhaseMasks[g_CurrentAction->effectId] >> effectPhase) & 1)) {
+        return 0;
+    }
+
+    actor = g_CurrentAction->actorId;
+    party = &g_BattleWork.party[actor];
+
+    switch (g_CurrentAction->effectId) {
+    case 0:
+        g_CurrentAction->unkB0 = g_CurrentAction->effectModifier;
+        break;
+    case 1:
+        switch (effectPhase) {
+        case EFFECT_PHASE_SETUP:
+            g_CurrentAction->unk90 |= 0x40000;
+            break;
+        case EFFECT_PHASE_ACTION_END:
+            if (!g_CurrentAction->landedHitCount) {
+                g_CurrentAction->unk98 = 0x61;
+                g_CurrentAction->unkB4++;
+
+                func_800A2F24();
+                func_800A2D68(g_CurrentAction->unk98);
+            }
+            break;
+        case EFFECT_PHASE_LANDED_HIT:
+            if (g_CurrentAction->targetId >= START_ENEMY) {
+                D_800F7DE0[0] |= 1 << g_CurrentAction->targetId;
+            }
+            break;
+        case EFFECT_PHASE_AFTER_DAMAGE:
+            if (g_CurrentAction->affinityFlags & AFFINITY_FULL_CURE) {
+                g_CurrentAction->unk218 |= 1;
+            }
+            break;
+        }
+        break;
+    case 2:
+        if ((u8)SysGetRandomByteFromTable() < g_CurrentAction->effectModifier) {
+            g_CurrentAction->absoluteActionIndex = 0x60;
+            g_CurrentAction->unk98 = 0x60;
+            func_800A8E34();
+        }
+        break;
+    case 3:
+        BattleApplyVincentLimitTransform();
+        break;
+    case 4: {
+        u32 stateFlags = g_BattleState.combatant[g_CurrentAction->targetId].stateFlags;
+
+        g_CurrentAction->unk234 &= ~1;
+        g_CurrentAction->damageFlags &= ~2;
+        if (((stateFlags >> 7) & 1) == g_CurrentAction->effectModifier) {
+            g_CurrentAction->unk234 |= 1;
+        }
+        break;
+    }
+    case 5:
+        switch (effectPhase) {
+        case EFFECT_PHASE_SETUP:
+            if (!(g_BattleData.activeEncounter.setup.flags & SETUP_CANNOT_ESCAPE)) {
+                g_CurrentAction->unkDC = 0x36;
+            }
+            break;
+        case EFFECT_PHASE_ACTION_END:
+            g_BattleState.cycleFlags |= 8;
+            break;
+        }
+        break;
+    case 6:
+        // Take up to level * 20 gil from the party and give it to the actor
+        if (g_CurrentAction->targetId < NUM_PARTY) {
+            u16 gil = g_CurrentAction->characterLevel * 20;
+            if (Savemap.gil < gil) {
+                gil = Savemap.gil;
+            }
+
+            if (gil && g_BattleState.combatant[actor].unk50 + gil < 0xFFFF) {
+                g_BattleState.combatant[actor].unk50 += gil;
+                Savemap.gil -= gil;
+                BattleAddStringToDisplay(actor, BATTLE_TEXT_GIL_STOLEN, 1, (s16*)&gil);
+            }
+        }
+
+        if (g_CurrentAction->power == 0) {
+            g_CurrentAction->unk218 |= 2;
+            g_CurrentAction->hurtAnimScript = g_BattleState.combatant[g_CurrentAction->targetId].hurtActionId;
+        }
+        break;
+    case 7:
+        if (g_BattleState.combatant[actor].unk52 == 0xFFFF && g_CurrentAction->targetId < NUM_PARTY) {
+            BattleQueueEvent(0, actor, 0xB, 0);
+        }
+
+        if (g_CurrentAction->power == 0) {
+            g_CurrentAction->unk218 |= 2;
+            g_CurrentAction->hurtAnimScript = g_BattleState.combatant[g_CurrentAction->targetId].hurtActionId;
+        }
+        break;
+    case 8:
+        g_CurrentAction->power = (u8)SysGetRandomByteRange(7);
+        g_CurrentAction->unk24 += g_CurrentAction->power;
+        g_CurrentAction->power = (g_CurrentAction->power + 4) * 8;
+        break;
+    case 9:
+        if (g_CurrentAction->characterLevel == g_CurrentAction->targetLevel) {
+            g_CurrentAction->tmpDamage *= 8;
+        }
+        break;
+    case 10:
+        func_800AA468();
+        break;
+    case 11:
+        func_800AA4FC();
+        break;
+    case 12:
+        func_800AA688();
+        break;
+    case 13: {
+        // Power = average level of the targeted enemies
+        s32 levelSum = 0;
+        s32 count = 0;
+        s32 unit;
+
+        for (unit = START_ENEMY; unit < NUM_BATTLE_ACTOR; unit++) {
+            if ((g_CurrentAction->allowedTargetsMask >> unit) & 1) {
+                count++;
+                levelSum += g_BattleState.combatant[unit].level;
+            }
+        }
+
+        if (count) {
+            levelSum /= count;
+        }
+        g_CurrentAction->power = levelSum;
+        break;
+    }
+    case 14:
+        // Revive dead party members at full HP
+        for (i = 0; i < NUM_PARTY; i++) {
+            if (g_BattleState.combatant[i].status & STATUS_DEATH) {
+                g_BattleState.combatant[i].status &= ~STATUS_DEATH;
+                g_BattleState.combatant[i].curHP = g_BattleState.combatant[i].maxHP;
+            }
+        }
+        break;
+    case 15:
+        BattleResolveCaitSithSlotsResult();
+        break;
+    case 16:
+        switch (effectPhase) {
+        case EFFECT_PHASE_SETUP: {
+            s32 count = 0;
+
+            for (i = 0; i < NUM_PARTY; i++) {
+                if (g_BattleState.combatant[i].actorId != -1) {
+                    count++;
+                }
+            }
+            if (count < 2) {
+                g_CurrentAction->unkDC = 0x50;
+            }
+            break;
+        }
+        case EFFECT_PHASE_ACTION_END:
+            func_800A9DA0();
+            break;
+        }
+        break;
+    case 17:
+        if (g_CurrentAction->targetId < NUM_PARTY) {
+            BattleQueueEvent(2, g_CurrentAction->targetId, 0x13, 1 << g_CurrentAction->targetId);
+        }
+
+        g_CurrentAction->hurtAnimScript = func_800A2D0C();
+        break;
+    case 18: {
+        s32 targetMask = 1 << g_CurrentAction->targetId;
+
+        if (g_CurrentAction->targetId < NUM_PARTY) {
+            BattleQueueEvent(2, g_CurrentAction->targetId, 0x13, targetMask);
+        }
+
+        g_BattleWork.unk2214 |= targetMask;
+        g_CurrentAction->hurtAnimScript = func_800A2D0C();
+        break;
+    }
+    case 19: {
+        s32 charId;
+        s32 learnedLimits;
+        s32 firstLimitId;
+        s32 limitId;
+        s32 value;
+
+        g_CurrentAction->allowedTargetsMask = 0;
+        g_CurrentAction->unkB4 = 0;
+
+        charId = g_BattleData.actors[actor].charId;
+        learnedLimits = g_BattleWork.party[actor].partyMember->limit_learn;
+        firstLimitId = SysGetLimitCmdId(charId, 0);
+        for (i = 0; i < LEN(g_BattleData.unk16C); i++) {
+            value = g_BattleData.unk16C[i];
+
+            // Take the next learned limit: the lowest bit still set in learnedLimits
+            limitId = 0x7F;
+            for (j = 0; j < 12; j++) {
+                if ((learnedLimits >> j) & 1) {
+                    limitId = SysGetLimitCmdId(charId, j);
+                    learnedLimits &= ~(1 << j);
+                    break;
+                }
+            }
+
+            limitId -= firstLimitId;
+            if (value && limitId < 7) {
+                limitId += 0x62;
+                if (value >= 2) {
+                    limitId |= 0x80;
+                }
+
+                func_800A2D68(limitId);
+                g_CurrentAction->unkB4++;
+            }
+        }
+
+        g_CurrentAction->unk90 |= 0x10000;
+        break;
+    }
+    case 20:
+        // Fill the other party members limit bars
+        for (i = 0; i < NUM_PARTY; i++) {
+            if (actor != i) {
+                g_BattleWork.party[i].limitBar = 0xFF;
+            }
+        }
+        break;
+    case 21:
+        BattleAddStatMult(
+            g_CurrentAction->targetId, g_CurrentAction->effectModifier - 100, attStatsMask | defStatsMask);
+        break;
+    case 22:
+        BattleAddStatMult(actor, g_CurrentAction->effectModifier - 100, 1 << STAT_MULT_PHYS_EVADE);
+        break;
+    case 23:
+        BattleAddStatMult(actor, g_CurrentAction->effectModifier - 100, 1 << STAT_MULT_PHYS_ATTACK);
+        break;
+    case 24:
+        switch (effectPhase) {
+        case EFFECT_PHASE_LANDED_HIT:
+            if (g_CurrentAction->targetId >= START_ENEMY) {
+                D_800F7DE0[0] |= 1 << g_CurrentAction->targetId;
+            }
+            break;
+        case EFFECT_PHASE_ACTION_END:
+            g_CurrentAction->unk98 = g_CurrentAction->effectModifier;
+            g_CurrentAction->unkEC = g_CurrentAction->allowedTargetsMask;
+            g_CurrentAction->unkB4++;
+
+            func_800A2D68(g_CurrentAction->unk98);
+            g_CurrentAction->unk90 |= 0x80000 | 0x1000;
+            break;
+        }
+        break;
+    case 25:
+        // Toggle a party target's row
+        if (func_800B12DC() && g_CurrentAction->targetId < NUM_PARTY) {
+            g_CurrentAction->hurtAnimScript =
+                (g_BattleState.combatant[g_CurrentAction->targetId].stateFlags & COMBATANT_BACK_ROW) ? 0x32 : 0x31;
+            g_BattleState.combatant[g_CurrentAction->targetId].stateFlags ^= COMBATANT_BACK_ROW;
+        }
+        break;
+    case 26: {
+        s32 allowed = g_CurrentAction->allowedTargetsMask;
+        s32 teamMask = g_CurrentAction->allowedTargetsMask & 0xF ? 0xF : 0x3F0;
+        s32 mask = g_BattleData.unk14C;
+        mask &= ~g_BattleData.downedActors;
+        mask &= teamMask;
+        mask &= ~allowed;
+
+        g_CurrentAction->unkEC = mask;
+        g_CurrentAction->unkB4++;
+        g_CurrentAction->unk98 = g_CurrentAction->effectModifier;
+
+        func_800A2D68(g_CurrentAction->unk98);
+
+        g_CurrentAction->unk90 |= 0x280000 | 0x1000;
+        break;
+    }
+    case 27:
+        if (g_CurrentAction->targetId >= START_ENEMY) {
+            s32 bit = 1 << g_CurrentAction->targetId;
+            g_BattleWork.unk2214 |= bit;
+        }
+        break;
+    case 28:
+        BattleAddStatMult(g_CurrentAction->targetId, g_CurrentAction->effectModifier - 100, defStatsMask);
+        break;
+    case 29:
+        switch (effectPhase) {
+        case EFFECT_PHASE_SETUP:
+            g_CurrentAction->unk90 |= 0x01000000;
+            break;
+        case EFFECT_PHASE_LANDED_HIT:
+            g_CurrentAction->hurtAnimScript = 0x33;
+            break;
+        }
+        break;
+    case 30:
+        g_CurrentAction->power =
+            g_CurrentAction->unkC4 * 3 * g_BattleWork.turn[actor].prevHP / g_BattleState.combatant[actor].maxHP + 1;
+        break;
+    case 31:
+        g_CurrentAction->power =
+            g_CurrentAction->unkC4 * 3 * g_BattleWork.turn[actor].prevMP / g_BattleState.combatant[actor].maxMP + 1;
+        break;
+    case 32:
+        BattleSetPowerFromWeaponMateriaAp();
+        break;
+    case 33:
+        g_CurrentAction->power = (party->partyMember->kill_count / 128) * g_CurrentAction->unkC4 / 16 + 10;
+        break;
+    case 34:
+        g_CurrentAction->power = (party->limitBarUI * (party->limitLevel + 1) >> 4) * g_CurrentAction->unkC4 / 16 + 1;
+        break;
+    case 35:
+        switch (effectPhase) {
+        case EFFECT_PHASE_AFTER_DAMAGE:
+            if (g_CurrentAction->affinityFlags & AFFINITY_FULL_CURE) {
+                g_CurrentAction->unk218 |= 1;
+            }
+            break;
+        case EFFECT_PHASE_LANDED_HIT:
+            if (g_CurrentAction->targetId >= START_ENEMY) {
+                s32 bit = 1 << g_CurrentAction->targetId;
+                D_800F7DE0[0] |= bit;
+                g_BattleWork.turn[g_CurrentAction->targetId].turnFlags |= 1;
+                g_BattleState.combatant[g_CurrentAction->targetId].gil = 0;
+            }
+            break;
+        }
+        break;
+    }
+
+    return 0;
+}
 
 // Cait Sith's "Slots" limit: check the 3 landed reel symbols against each of
 // the 7 known combos in order. comboIndex==0 (Bar/Bar/Bar) means
@@ -3593,8 +3952,6 @@ static void BattleResolveCaitSithSlotsResult(void) {
 
 const u8 D_800A0398[] = {0x64, 0x14, 0x14, 0x14, 0xEC, 0xCE, 0xCE, 0x00};
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A9DA0);
-
-static void BattleAddStatMult(s32 unitId, s32 deltaPct, s32 statMask);
 
 // attack additional-effect handler for Vincent's transformation Limits; the effect modifier (effectModifier) picks the
 // form
@@ -4001,7 +4358,7 @@ void BattleActionType09(void) {
                 }
 
                 func_800A317C();
-                func_800A8E84(5);
+                BattleApplyActionEffect(EFFECT_PHASE_ACTION_END);
             }
 
             for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
@@ -4323,7 +4680,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     if (!(g_CurrentAction->unk218 & 1)) {
         BattleDmgFormulaRun();
     }
-    func_800A8E84(3);
+    BattleApplyActionEffect(EFFECT_PHASE_AFTER_DAMAGE);
     if (g_CurrentAction->power == 0) {
         g_CurrentAction->unk218 |= 2;
     }
@@ -4345,7 +4702,7 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     if (!(g_CurrentAction->unk218 & 1)) {
         g_CurrentAction->landedHitCount++;
         act->flags |= 1;
-        func_800A8E84(4);
+        BattleApplyActionEffect(EFFECT_PHASE_LANDED_HIT);
         if (g_CurrentAction->actorId != arg1) {
             g_CurrentAction->hitMask |= 1 << arg1;
         }
@@ -5049,9 +5406,9 @@ void BattleDmgFormulaRun(void) {
     }
 
     if (g_CurrentAction->power && (fnDamageFormula != NULL)) {
-        func_800A8E84(0);
+        BattleApplyActionEffect(EFFECT_PHASE_BEFORE_FORMULA);
         fnDamageFormula();
-        func_800A8E84(1);
+        BattleApplyActionEffect(EFFECT_PHASE_AFTER_FORMULA);
     }
 }
 
