@@ -814,7 +814,45 @@ static void func_800A2B28(s32 arg0) {
     }
 }
 
+// Likely a separate TU: func_800A2BF4's jump table (.align 3) at 0x800A0154 only
+// lines up if this object's rodata starts right there
+#ifndef NON_MATCHINGS
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2BF4);
+#else
+void func_800A2BF4(s32 arg0) {
+    MagicRecord* records = &g_ActiveCharacters[arg0].enabledMagic;
+    s32 offset = MAGIC_START;
+    s32 count = 0;
+    s32 i;
+
+    switch (g_CurrentAction->queuedCmdIndex) {
+    case CMD_MAGIC:
+    case CMD_W_MAGIC:
+        count = NUM_MAGICS;
+        break;
+    case CMD_SUMMON:
+    case CMD_W_SUMMON:
+        offset = SUMMON_START;
+        count = NUM_SUMMONS;
+        break;
+    case CMD_ENEMY_SKILL:
+        offset = ENEMY_SKILL_START;
+        count = NUM_ENEMY_SKILLS;
+        break;
+    }
+
+    if (count == 0) {
+        return;
+    }
+
+    for (i = 0; i < count; i++) {
+        if (records[i + offset].id == g_CurrentAction->relativeActionIndex) {
+            g_CurrentAction->enabledMagicIndex = offset + i;
+            break;
+        }
+    }
+}
+#endif
 
 static void BattleQueueEffect(
     s32 actorId, s32 animeId, s32 actioId, s32 effectParam, s32 arg4, s32 flags, s32 statusMask);
