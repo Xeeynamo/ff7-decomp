@@ -1087,7 +1087,11 @@ static void func_800B0DF8(void);
 static s32 BattleApplyFuryHitChanceReduction(s32);
 u16 BattleGetRndItemIdForSteal(void*, s32, s32, s32);
 static void BattleAddStringToDisplay(s32, s32, s32, u16*);
+static s32 func_800B2C60(s32 arg0);
+static void func_800B2CAC(s32 arg0, s32 arg1);
+void func_800B2CFC(s32 arg0, s32 arg1);
 static s32 BattleGetRnd164(void);
+static s32 BattleOpcodeCountActiveBits(u16 arg0);
 s32 BattleOpcodeGetRndBit(u16);
 void BattleNormalStartSeq(void);
 void BattleNextStartSeq(void);
@@ -1220,12 +1224,12 @@ typedef struct {
     /* 0x04 */ s32 pc;
     /* 0x08 */ s32 sp;
     /* 0x0C */ s32 opcode;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ s32 unk14;
+    /* 0x10 */ s32 opcodeParam;
+    /* 0x14 */ s32 opcodeGroup;
     /* 0x18 */ s32 unk18[2];
     /* 0x20 */ s32 unk20[2];
     /* 0x28 */ u16 unk28[2];
-    /* 0x2C */ s32 var[2][10];
+    /* 0x2C */ u32 var[2][10];
     /* variable length: indexed by `sp`, extent unconfirmed */
     /* 0x7C */ u8 stack[1];
 } BattleScriptVm;

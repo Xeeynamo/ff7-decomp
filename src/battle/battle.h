@@ -6,6 +6,7 @@
 #define PARTY_TEAM_MASK 0x7
 #define ALLY_TEAM_MASK 0xF
 #define ENEMY_TEAM_MASK 0x3F0
+#define ALL_UNITS_MASK (ENEMY_TEAM_MASK | ALLY_TEAM_MASK)
 
 #define EFFECT_MODEL_SLOT (NUM_PARTY) // holds the model an effect overlay supplies
 #define START_ENEMY (NUM_PARTY + 1)
