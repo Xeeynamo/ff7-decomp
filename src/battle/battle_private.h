@@ -52,7 +52,20 @@ enum QueueMethod {
     QUEUE_CLEAR_IMAGE,
 };
 
-enum AccessWidthType { WIDTH_BIT, WIDTH_BYTE, WIDTH_HALF, WIDTH_WORD };
+// low nibble of a stack entry's header byte; also the width of memory reads/writes
+typedef enum {
+    WIDTH_BIT,  // 1 bit
+    WIDTH_BYTE, // 8 bits
+    WIDTH_HALF, // 16 bits
+    WIDTH_WORD  // 32 bits in memory; stack entries and script constants keep the low 24 bits
+} ScriptVmValueWidth;
+
+// Kind of a VM stack entry: the high nibble of its header byte
+typedef enum {
+    OPERAND_VALUE, // Stores a single value on the stack, loads into each unit's var slot with a mask of ALL_UNITS_MASK
+    OPERAND_ADDRESS, // Stores and loads a 16-bit (bit) address; the header's width is the size of the data it points to
+    OPERAND_SET      // Stores and loads a value per unit, filtered with a mask
+} ScriptVmOperandKind;
 
 typedef struct {
     s8 actionId;
@@ -819,9 +832,6 @@ extern u8 g_BattleModelFadeFrames;
 extern u8 D_800F837C;
 extern u8 D_800F8380;
 extern u8* D_800F8384[7];
-extern s8 D_800F83AB[];
-extern u8 D_800F83A4[]; // shared battle-script variable bank (BattleOpcodeValOffs)
-extern u8 D_800F83A6;
 extern s8 D_800F8CF0;
 extern u32 D_800F8CF4[][0x18];
 extern s32 D_800F9F28[]; // size is either 4 or 5
@@ -1087,7 +1097,7 @@ static void func_800B0DF8(void);
 static s32 BattleApplyFuryHitChanceReduction(s32);
 u16 BattleGetRndItemIdForSteal(void*, s32, s32, s32);
 static void BattleAddStringToDisplay(s32, s32, s32, u16*);
-static s32 func_800B2C60(s32 arg0);
+static s32 BattleGetAttackMpCost(s32 arg0);
 static void func_800B2CAC(s32 arg0, s32 arg1);
 void func_800B2CFC(s32 arg0, s32 arg1);
 static s32 BattleGetRnd164(void);
@@ -1215,23 +1225,23 @@ typedef struct {
 } BattleMenuSlot; /* size: 0x240 */
 
 /* State of the battle-script VM interpreted by BattleOpcodeCycle. Operands are
-   fetched from the script buffer D_800F4AC0 at `pc` and evaluated on `stack`,
+   fetched from the script buffer g_BattleScript at `pc` and evaluated on `stack`,
    which grows downwards: a push predecrements `sp` before storing, a pop reads
    at `sp` then postincrements it. Instructions address two operand slots by
    index, hence the [2] arrays. */
 typedef struct {
-    /* 0x00 */ s32 unk0;
+    /* 0x00 */ s32 unitSlot;
     /* 0x04 */ s32 pc;
     /* 0x08 */ s32 sp;
     /* 0x0C */ s32 opcode;
     /* 0x10 */ s32 opcodeParam;
     /* 0x14 */ s32 opcodeGroup;
-    /* 0x18 */ s32 unk18[2];
-    /* 0x20 */ s32 unk20[2];
-    /* 0x28 */ u16 unk28[2];
-    /* 0x2C */ u32 var[2][10];
-    /* variable length: indexed by `sp`, extent unconfirmed */
-    /* 0x7C */ u8 stack[1];
+    /* 0x18 */ s32 operandKind[2];  // ScriptVmOperandKind
+    /* 0x20 */ s32 operandWidth[2]; // ScriptVmValueWidth
+    /* 0x28 */ u16 operandMask[2];  // units with a value in var[slot]
+    /* 0x2C */ u32 var[2][NUM_BATTLE_ACTOR];
+    /* variable length: indexed by `sp`, size inferred from sp initialization */
+    /* 0x7C */ u8 stack[512];
 } BattleScriptVm;
 
 // Used for selecting an action with auto-battle units
@@ -1240,8 +1250,8 @@ typedef struct {
     /* 0x4 */ s32 attackIndex;
 } BattleAutoAction; // size:0x8
 
-extern u8* D_800F4AC0;
-extern BattleScriptVm* D_800F4AC4;
+extern u8* g_BattleScript;
+extern BattleScriptVm* g_BattleScriptVm;
 
 s32 BattleOpcodeLoadVal(s32);
 
