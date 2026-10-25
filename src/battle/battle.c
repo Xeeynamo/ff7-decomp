@@ -303,8 +303,8 @@ void BattleCmdScriptDispatch(BattleActionEntry* entry) {
         g_BattleWork.attackerUnitMask = 1 << entry->unitSlot;
     }
 
-    D_800F83A4[0] = entry->cmdIndex & CMD_INDEX_MASK;
-    D_800F83A4[1] = entry->attackIndex;
+    g_BattleState.lastActionCmdIndex = entry->cmdIndex & CMD_INDEX_MASK;
+    g_BattleState.lastActionRelIndex = entry->attackIndex;
 
     if (entry->priority) {
         for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
@@ -521,8 +521,8 @@ void BattleCmdScriptDispatch(BattleActionEntry* entry) {
     }
 
     g_BattleState.attackCategoryFlags = g_CurrentAction->attackFlags;
-    D_800F83A4[0] = g_CurrentAction->queuedCmdIndex;
-    D_800F83A4[1] = g_CurrentAction->relativeActionIndex;
+    g_BattleState.lastActionCmdIndex = g_CurrentAction->queuedCmdIndex;
+    g_BattleState.lastActionRelIndex = g_CurrentAction->relativeActionIndex;
     g_BattleState.lastActionIndex = g_CurrentAction->absoluteActionIndex;
     g_BattleState.lastActionElements = g_CurrentAction->elements;
 
@@ -2386,7 +2386,7 @@ static s32 GetEnemyAiScriptOffs(u16* arg0, s32 arg1, s32 arg2) {
 
 extern u16 D_80082884[];
 
-void BattleOpcodeCycle(s32, s32, s32);
+void BattleOpcodeCycle(s32 unitSlot, s32 script, s32 presetIdx);
 
 // scriptType 0 is run when the battle starts (see BattleInitPartyScripts/BattleInitEnemyAI)
 // scriptType 1 is run when a unit runs its own logic under normal conditions (see BattleBattleActionQueueExecute)
@@ -2508,7 +2508,7 @@ void BattleProcessUnitKilled(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-static void func_800A64A0(s32 arg0, s8 arg1) { D_800E7A58[arg0] = arg1; }
+static void func_800A64A0(s32 arg0, s32 arg1) { D_800E7A58[arg0] = arg1; }
 
 static u16 BattleGetItemFromSlot(s32 arg0) {
     u16 var_a0;
@@ -4131,7 +4131,7 @@ void BattleApplyVincentLimitTransform(void) {
     g_BattleState.combatant[unitId].status &= ~(STATUS_CONFU | STATUS_FROG | STATUS_BERSERK);
     g_BattleWork.turn[unitId].turnFlags |= 8;
     BattleQueueImmediateAction(unitId, 0, -1, 0, 0);
-    D_800F83AB[0] = g_CurrentAction->effectModifier;
+    g_BattleState.vincentLimitLevel = g_CurrentAction->effectModifier;
     switch (g_CurrentAction->effectModifier) {
     case 0: // Lvl 1. Galian Beast
         BattleAddStatMult(unitId, 0x14, 0x10);
@@ -7290,49 +7290,41 @@ static void BattleInvalidateQueuedMessages(s32 arg0, s32 arg1) {
     }
 }
 
-static s32 BattleScriptReadU16(void) {
+static u16 BattleScriptReadU16(void) {
     s32 value;
 
-    value = D_800F4AC0[D_800F4AC4->pc++];
-    value |= D_800F4AC0[D_800F4AC4->pc++] << 8;
+    value = g_BattleScript[g_BattleScriptVm->pc++];
+    value |= g_BattleScript[g_BattleScriptVm->pc++] << 8;
 
     return value;
 }
 
-// Resolve a packed variable reference for the battle-script VM (BattleOpcodeCycle):
-// map combatant arg0 + descriptor arg1 to a backing pointer (*arg2) and return
-// a bit offset into it. arg1 < 0x2000 selects the per-combatant variable bank
-// D_800F87F0[arg0] (0x80 bytes each); arg1 < 0x4000 selects the shared,
-// battle-wide bank D_800F83A4; otherwise the per-combatant stat record
-// g_BattleState.combatant[arg0] (0x68 bytes each). BattleOpcodeReadVal /
-// BattleOpcodeWriteVal then read or write at that bit offset.
-static s32 BattleOpcodeValOffs(s32 arg0, s32 arg1, void** arg2) {
-    s32 var_a1;
-
-    var_a1 = arg1;
-    if (var_a1 < 0x2000) {
-        *arg2 = &D_800F87F0[arg0];
-    } else if (var_a1 < 0x4000) {
-        *arg2 = D_800F83A4;
-        var_a1 -= 0x2000;
+// Maps a script address to its backing memory (*data); returns a bit offset into it;
+// addr range maps bits, not bytes (eg: 0x2008 = g_BattleState.lastActionRelIndex)
+static s32 BattleScriptResolveAddr(s32 unitSlot, s32 addr, void** data) {
+    if (addr < 0x2000) {
+        *data = &g_BattleState.scriptUnitVars[unitSlot];
+    } else if (addr < 0x4000) {
+        *data = &g_BattleState;
+        addr -= 0x2000;
     } else {
-        *arg2 = &g_BattleState.combatant[arg0];
-        var_a1 -= 0x4000;
+        *data = &g_BattleState.combatant[unitSlot];
+        addr -= 0x4000;
     }
-    return var_a1;
+    return addr;
 }
 
 // Writes `value` to the battle-script VM's variable storage at the
 // specified bit offset with the specified access width type.
 // A width type outside of the 0-3 range is undefined behaviour.
-void BattleOpcodeWriteVal(s32 arg0, s32 widthType, s32 arg2, s32 value) {
+void BattleOpcodeWriteVal(s32 unitSlot, s32 widthType, s32 addr, s32 value) {
     void* buffer;
     s32 bitOffset;
     u8 bitmask;
     u8* u8buffer;
     u16* u16buffer;
 
-    bitOffset = BattleOpcodeValOffs(arg0, arg2, &buffer);
+    bitOffset = BattleScriptResolveAddr(unitSlot, addr, &buffer);
     switch (widthType) {
     case WIDTH_BIT:
         u8buffer = (u8*)buffer;
@@ -7366,7 +7358,7 @@ void BattleOpcodeWriteVal(s32 arg0, s32 widthType, s32 arg2, s32 value) {
 // Reads a value from the battle-script VM's variable storage at the
 // specified bit offset with the specified access width type.
 // A width type outside of the 0-3 range is undefined behaviour.
-s32 BattleOpcodeReadVal(s32 arg0, s32 widthType, s32 arg2) {
+s32 BattleOpcodeReadVal(s32 unitSlot, s32 widthType, s32 addr) {
     s32 result;
     void* buffer;
     s32 bitOffset;
@@ -7377,7 +7369,7 @@ s32 BattleOpcodeReadVal(s32 arg0, s32 widthType, s32 arg2) {
     u16* u16buffer;
     u32* u32buffer;
 
-    bitOffset = BattleOpcodeValOffs(arg0, arg2, &buffer);
+    bitOffset = BattleScriptResolveAddr(unitSlot, addr, &buffer);
     switch (widthType) {
     case WIDTH_BIT:
         u8buffer = (u8*)buffer;
@@ -7399,69 +7391,71 @@ s32 BattleOpcodeReadVal(s32 arg0, s32 widthType, s32 arg2) {
     return result;
 }
 
-// Push `value` onto the operand stack as `size` bytes, most significant byte
-// first. Sizes above 3 (or negative) push nothing; the cases deliberately fall
-// through so that each one pushes one fewer byte than the last.
-static void BattleOpcodePushToStack(s32 size, u32 value) {
-    switch (size) {
-    case 3:
-        D_800F4AC4->stack[--D_800F4AC4->sp] = value;
+// Push `value` onto the operand stack, most significant byte
+// first. The cases deliberately fall through so that each one
+// pushes one fewer byte than the last.
+// 3 bytes for WIDTH_WORD, 2 for WIDTH_HALF, otherwise 1.
+static void BattleOpcodePushToStack(s32 widthType, u32 value) {
+    switch (widthType) {
+    case WIDTH_WORD:
+        g_BattleScriptVm->stack[--g_BattleScriptVm->sp] = value;
         value >>= 8;
-    case 2:
-        D_800F4AC4->stack[--D_800F4AC4->sp] = value;
+    case WIDTH_HALF:
+        g_BattleScriptVm->stack[--g_BattleScriptVm->sp] = value;
         value >>= 8;
-    case 1:
-    case 0:
-        D_800F4AC4->stack[--D_800F4AC4->sp] = value;
+    case WIDTH_BYTE:
+    case WIDTH_BIT:
+        g_BattleScriptVm->stack[--g_BattleScriptVm->sp] = value;
     }
 }
 
-// Stores a value to the battle-script VM's variable storage based on `arg0`. This
-// seems to be a "header" that encodes the type and size of the payload to be stored.
-void BattleOpcodeStoreVal(s32 arg0) {
-    // arg0 >> 4 seems to represent the type of payload layout,
-    // while the lower nibble represents the size of the payload (if applicable).
-    s32 selector = arg0 >> 4;
-    s32 size = arg0 & 0xF;
+// Pushes var[0] onto the operand stack, followed by the header byte. The
+// header encodes the type and width of the payload to be stored.
+void BattleOpcodeStoreVal(s32 header) {
+    // header >> 4 represents the type of payload layout,
+    // while the lower nibble represents the width of the payload (if applicable).
+    s32 selector = header >> 4;
+    s32 width = header & 0xF;
     s32 i;
 
     switch (selector) {
-    case 0:
-        BattleOpcodePushToStack(size, D_800F4AC4->var[0][0]);
+    case OPERAND_VALUE:
+        BattleOpcodePushToStack(width, g_BattleScriptVm->var[0][0]);
         break;
-    case 1:
-        BattleOpcodePushToStack(2, D_800F4AC4->var[0][0]);
+    case OPERAND_ADDRESS:
+        BattleOpcodePushToStack(WIDTH_HALF, g_BattleScriptVm->var[0][0]);
         break;
-    case 2:
-        for (i = LEN(D_800F4AC4->var[0]); i > 0; --i) {
-            if ((D_800F4AC4->unk28[0] >> i - 1) & 1) {
-                BattleOpcodePushToStack(size, D_800F4AC4->var[0][i - 1]);
+    case OPERAND_SET:
+        for (i = LEN(g_BattleScriptVm->var[0]); i > 0; --i) {
+            if ((g_BattleScriptVm->operandMask[0] >> i - 1) & 1) {
+                BattleOpcodePushToStack(width, g_BattleScriptVm->var[0][i - 1]);
             }
         }
-        BattleOpcodePushToStack(2, D_800F4AC4->unk28[0]);
+        BattleOpcodePushToStack(WIDTH_HALF, g_BattleScriptVm->operandMask[0]);
         break;
     }
 
-    D_800F4AC4->sp--;
-    D_800F4AC4->stack[D_800F4AC4->sp] = arg0;
+    g_BattleScriptVm->sp--;
+    g_BattleScriptVm->stack[g_BattleScriptVm->sp] = header;
 }
 
-// Pop a `size`-byte big-endian value off the operand stack. The inverse of
-// BattleOpcodePushToStack, and likewise falls through so each case consumes one byte.
-static s32 BattleOpcodePopFromStack(s32 size) {
+// Pop a big-endian value off the operand stack. The inverse of
+// BattleOpcodePushToStack, and likewise falls through so each case consumes one byte;
+// 3 bytes for WIDTH_WORD, 2 for WIDTH_HALF, otherwise 1.
+static s32 BattleOpcodePopFromStack(s32 widthType) {
     s32 value = 0;
     u8 byte;
 
-    switch (size) {
-    case 3:
-        value = D_800F4AC4->stack[D_800F4AC4->sp++];
-    case 2:
-        byte = D_800F4AC4->stack[D_800F4AC4->sp++];
+    switch (widthType) {
+    case WIDTH_WORD:
+        value = g_BattleScriptVm->stack[g_BattleScriptVm->sp++];
+    case WIDTH_HALF:
+        byte = g_BattleScriptVm->stack[g_BattleScriptVm->sp++];
         value <<= 8;
         value |= byte;
-    case 1:
-    case 0:
-        byte = D_800F4AC4->stack[D_800F4AC4->sp++];
+    case WIDTH_BYTE:
+    case WIDTH_BIT:
+        byte = g_BattleScriptVm->stack[g_BattleScriptVm->sp++];
         value <<= 8;
         value |= byte;
     }
@@ -7470,37 +7464,37 @@ static s32 BattleOpcodePopFromStack(s32 size) {
 
 // Loads a value from the battle-script VM's operand stack into the specified variable slot.
 // Returns the header byte that was popped from the stack.
-s32 BattleOpcodeLoadVal(s32 arg0) {
-    s32 header = D_800F4AC4->stack[D_800F4AC4->sp++];
+s32 BattleOpcodeLoadVal(s32 index) {
+    s32 header = g_BattleScriptVm->stack[g_BattleScriptVm->sp++];
     s32 payload;
     s32 selector;
-    s32 size;
+    s32 width;
     s32 i;
 
-    // Header byte: upper nibble seems to represent the type of payload stored,
-    // while the lower nibble represents the size of the payload (if applicable).
+    // Header byte: upper nibble represents the type of payload stored,
+    // while the lower nibble represents the width of the payload (if applicable).
     selector = header >> 4;
-    size = header & 0xF;
+    width = header & 0xF;
 
-    D_800F4AC4->unk18[arg0] = selector;
-    D_800F4AC4->unk20[arg0] = size;
+    g_BattleScriptVm->operandKind[index] = selector;
+    g_BattleScriptVm->operandWidth[index] = width;
 
     switch (selector) {
-    case 0:
-        D_800F4AC4->unk28[arg0] = 0x3FF;
-        payload = BattleOpcodePopFromStack(size);
-        for (i = LEN(D_800F4AC4->var[arg0]) - 1; i >= 0; i--) {
-            D_800F4AC4->var[arg0][i] = payload;
+    case OPERAND_VALUE:
+        g_BattleScriptVm->operandMask[index] = ALL_UNITS_MASK;
+        payload = BattleOpcodePopFromStack(width);
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            g_BattleScriptVm->var[index][i] = payload;
         }
         break;
-    case 1:
-        D_800F4AC4->var[arg0][0] = BattleOpcodePopFromStack(2);
+    case OPERAND_ADDRESS:
+        g_BattleScriptVm->var[index][0] = BattleOpcodePopFromStack(WIDTH_HALF);
         break;
-    case 2:
-        D_800F4AC4->unk28[arg0] = BattleOpcodePopFromStack(2);
-        for (i = 0; i < LEN(D_800F4AC4->var[arg0]); i++) {
-            if ((D_800F4AC4->unk28[arg0] >> i) & 1) {
-                D_800F4AC4->var[arg0][i] = BattleOpcodePopFromStack(size);
+    case OPERAND_SET:
+        g_BattleScriptVm->operandMask[index] = BattleOpcodePopFromStack(WIDTH_HALF);
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            if ((g_BattleScriptVm->operandMask[index] >> i) & 1) {
+                g_BattleScriptVm->var[index][i] = BattleOpcodePopFromStack(width);
             }
         }
         break;
@@ -7511,20 +7505,20 @@ s32 BattleOpcodeLoadVal(s32 arg0) {
 // Evaluate the operand at the script cursor without consuming it: run the
 // normal operand fetch, then rewind the stack pointer to where it started so
 // the operand bytes it popped stay available to the next read.
-static s32 BattleOpcodeLoadValWithoutPop(s32 arg0) {
-    s32 sp = D_800F4AC4->sp;
-    s32 result = BattleOpcodeLoadVal(arg0);
+static s32 BattleOpcodeLoadValWithoutPop(s32 index) {
+    s32 sp = g_BattleScriptVm->sp;
+    s32 result = BattleOpcodeLoadVal(index);
 
-    D_800F4AC4->sp = sp;
+    g_BattleScriptVm->sp = sp;
     return result;
 }
 
 u32 BattleOpcodeMakeMath(s32 lhs, s32 rhs) {
-    s32 a = D_800F4AC4->var[0][lhs];
-    s32 b = D_800F4AC4->var[1][rhs];
+    s32 a = g_BattleScriptVm->var[0][lhs];
+    s32 b = g_BattleScriptVm->var[1][rhs];
     u32 result = 0;
 
-    switch (D_800F4AC4->opcode) {
+    switch (g_BattleScriptVm->opcode) {
     case 0x30:
         result = a + b;
         break;
@@ -7554,11 +7548,11 @@ u32 BattleOpcodeMakeMath(s32 lhs, s32 rhs) {
 }
 
 static s32 BattleScriptCompare(s32 lhs, s32 rhs) {
-    u32 a = D_800F4AC4->var[0][lhs];
-    u32 b = D_800F4AC4->var[1][rhs];
+    u32 a = g_BattleScriptVm->var[0][lhs];
+    u32 b = g_BattleScriptVm->var[1][rhs];
     s32 result = 0;
 
-    switch (D_800F4AC4->opcode) {
+    switch (g_BattleScriptVm->opcode) {
     case 0x40:
         if (a == b) {
             result = 1;
@@ -7594,50 +7588,436 @@ static s32 BattleScriptCompare(s32 lhs, s32 rhs) {
     return result;
 }
 
-static s32 BattleOpcodeValueConvertToBool(s32 arg0) {
-    s32 result;
+static s32 BattleOpcodeValueConvertToBool(s32 index) {
+    u16 mask = g_BattleScriptVm->operandMask[index];
+    u16 result = 0;
     s32 i;
-    u16 mask;
 
-    result = 0;
-    i = 0;
-    mask = D_800F4AC4->unk28[arg0];
-    for (; i < LEN(D_800F4AC4->var[arg0]); i++) {
-        if (((mask >> i) & 1) && (D_800F4AC4->var[arg0][i] != 0)) {
+    for (i = 0; i < LEN(g_BattleScriptVm->var[index]); i++) {
+        if (((mask >> i) & 1) && (g_BattleScriptVm->var[index][i] != 0)) {
             result |= 1 << i;
         }
     }
 
-    return (result & 0xFFFF) != 0;
+    return result != 0;
 }
 
-static s32 BattleScriptCollapseVarBank(s32 arg0) {
+static s32 BattleScriptCollapseVarBank(s32 index) {
     s32 i;
     s32 v;
     s32 mask;
+    s32 result = 0;
 
-    i = 0;
-    if (D_800F4AC4->unk18[arg0] == 2) {
+    if (g_BattleScriptVm->operandKind[index] == OPERAND_SET) {
         v = 0;
-        mask = D_800F4AC4->unk28[arg0];
-        for (i = 0; i < 10; i++) {
+        mask = g_BattleScriptVm->operandMask[index];
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
             if ((mask >> i) & 1) {
-                v = D_800F4AC4->var[arg0][i];
+                v = g_BattleScriptVm->var[index][i];
                 break;
             }
         }
-        D_800F4AC4->unk28[arg0] = 0x3FF;
-        for (i = 9; i >= 0; i--) {
-            D_800F4AC4->var[arg0][i] = v;
+        g_BattleScriptVm->operandMask[index] = ALL_UNITS_MASK;
+        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+            g_BattleScriptVm->var[index][i] = v;
         }
-        i = 1;
+        result = 1;
     }
-    return i;
+    return result;
 }
 
-s32 D_800E7CFC[] = {0x00000001, 0x00000002, 0x00000003};
+static void BattleQueueOpcodeAction(s16 unitId, s16 cmdIndex, s16 attackIndex);
+u16 BattleGetRndU16(void);
 
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleOpcodeCycle);
+void BattleOpcodeCycle(s32 unitSlot, s32 script, s32 presetIdx) {
+    // stack header for a pushed constant, by its length in bytes minus one
+    static s32 constHeaders[] = {WIDTH_BYTE, WIDTH_HALF, WIDTH_WORD};
+    struct {
+        u8* format;
+        s32 args[17];
+    } debug;
+
+    u8 buffer[0x100]; // retail reserves it, nothing reads it (debug stripped?)
+    s32 width;
+    s32 dst;
+    s32 unitMask;
+    s32 done;
+    u8 data;
+    s32 value;
+    s32 addr;
+    s32 header;
+    s32 result;
+    s32 i;
+    s32 j;
+
+    done = 0;
+    g_BattleScript = (u8*)script;
+
+    // the VM state reuses the scratchpad that g_CurrentAction points to
+    g_BattleScriptVm = (BattleScriptVm*)g_CurrentAction;
+
+    g_BattleScriptVm->unitSlot = unitSlot;
+    g_BattleScriptVm->pc = 0;
+    g_BattleScriptVm->sp = 0x200;
+
+    while (!done) {
+        g_BattleScriptVm->opcode = g_BattleScript[g_BattleScriptVm->pc++];
+        g_BattleScriptVm->opcodeParam = g_BattleScriptVm->opcode & 0xF; // width, op filter, subop selector
+        g_BattleScriptVm->opcodeGroup = g_BattleScriptVm->opcode >> 4;
+
+        switch (g_BattleScriptVm->opcodeGroup) {
+        case 0: // 0W aaaa: Pushes value at address aaaa with a width of W
+            addr = BattleScriptReadU16();
+            if (addr >= 0x4000) {
+                // BattleUnit field: push it for every unit as a set
+                for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                    g_BattleScriptVm->var[0][i] = BattleOpcodeReadVal(i, g_BattleScriptVm->opcode, addr);
+                }
+                g_BattleScriptVm->operandMask[0] = ALL_UNITS_MASK;
+                BattleOpcodeStoreVal(g_BattleScriptVm->opcodeParam + (OPERAND_SET << 4));
+            } else {
+                s32 value = BattleOpcodeReadVal(g_BattleScriptVm->unitSlot, g_BattleScriptVm->opcode, addr);
+                g_BattleScriptVm->var[0][0] = value;
+                BattleOpcodeStoreVal(g_BattleScriptVm->opcode);
+            }
+            break;
+
+        case 1: // 1W aaaa: Pushes address aaaa with a width of W
+            g_BattleScriptVm->var[0][0] = BattleScriptReadU16();
+            BattleOpcodeStoreVal(g_BattleScriptVm->opcode);
+            break;
+
+        case 2: // Invalid opcode; falls through to end
+            break;
+
+        case 3: // 3X: math on the top two values (X = 7 is unary)
+            g_BattleScriptVm->operandWidth[1] = WIDTH_BIT;
+            g_BattleScriptVm->operandKind[1] = OPERAND_VALUE;
+            g_BattleScriptVm->operandMask[1] = ALL_UNITS_MASK;
+
+            if (g_BattleScriptVm->opcodeParam != 7) {
+                BattleOpcodeLoadVal(1);
+            }
+
+            BattleOpcodeLoadVal(0);
+
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                if (((g_BattleScriptVm->operandMask[0] & g_BattleScriptVm->operandMask[1]) >> i) & 1) {
+                    g_BattleScriptVm->var[0][i] = BattleOpcodeMakeMath(i, i);
+                }
+            }
+
+            header = g_BattleScriptVm->operandWidth[0];
+            if (header < g_BattleScriptVm->operandWidth[1]) {
+                header = g_BattleScriptVm->operandWidth[1];
+            }
+
+            if (g_BattleScriptVm->operandKind[0] != OPERAND_VALUE ||
+                g_BattleScriptVm->operandKind[1] != OPERAND_VALUE) {
+                header |= OPERAND_SET << 4;
+                g_BattleScriptVm->operandMask[0] &= g_BattleScriptVm->operandMask[1];
+            }
+            BattleOpcodeStoreVal(header);
+            break;
+
+        case 4: // 4X: comparison on the top two values; result is a bool, or mask of matching units if either is a set
+            result = 0;
+            BattleOpcodeLoadVal(1);
+            BattleOpcodeLoadVal(0);
+
+            for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                s32 mask = g_BattleScriptVm->operandMask[0] & g_BattleScriptVm->operandMask[1];
+                if (((mask >> i) & 1) && BattleScriptCompare(i, i)) {
+                    result |= 1 << i;
+                }
+            }
+
+            if (g_BattleScriptVm->operandKind[0] == OPERAND_VALUE &&
+                g_BattleScriptVm->operandKind[1] == OPERAND_VALUE) {
+                g_BattleScriptVm->var[0][0] = result != 0;
+                BattleOpcodeStoreVal(WIDTH_BIT);
+            } else {
+                g_BattleScriptVm->var[0][0] = result;
+                BattleOpcodeStoreVal(WIDTH_HALF);
+            }
+            break;
+
+        case 5: // 5X: boolean logic on top one or two values (depending on operation)
+            switch (g_BattleScriptVm->opcodeParam) {
+            case 0: // logical AND
+                BattleOpcodeLoadVal(1);
+                BattleOpcodeLoadVal(0);
+
+                g_BattleScriptVm->var[0][0] = BattleOpcodeValueConvertToBool(1) & BattleOpcodeValueConvertToBool(0);
+                BattleOpcodeStoreVal(WIDTH_BIT);
+                break;
+            case 1: // logical OR
+                BattleOpcodeLoadVal(1);
+                BattleOpcodeLoadVal(0);
+
+                g_BattleScriptVm->var[0][0] = BattleOpcodeValueConvertToBool(1) | BattleOpcodeValueConvertToBool(0);
+                BattleOpcodeStoreVal(WIDTH_BIT);
+                break;
+            case 2: // logical NOT
+                BattleOpcodeLoadVal(0);
+
+                g_BattleScriptVm->var[0][0] = BattleOpcodeValueConvertToBool(0) == 0;
+                BattleOpcodeStoreVal(WIDTH_BIT);
+                break;
+            }
+            break;
+
+        case 6: // 60 b|bb|bbb: push a 1, 2, or 3 byte constant
+            value = 0;
+            g_BattleScriptVm->var[0][0] = 0;
+            switch (g_BattleScriptVm->opcodeParam) {
+            case 2:
+                value = 1;
+                g_BattleScriptVm->var[0][0] = g_BattleScript[g_BattleScriptVm->pc + 2] << 0x10;
+            case 1:
+                value++;
+                g_BattleScriptVm->var[0][0] |= g_BattleScript[g_BattleScriptVm->pc + 1] << 8;
+            case 0:
+                g_BattleScriptVm->var[0][0] |= g_BattleScript[g_BattleScriptVm->pc];
+                g_BattleScriptVm->pc += 1 + value;
+                BattleOpcodeStoreVal(constHeaders[value]);
+                break;
+            }
+            break;
+
+        case 7: // 7x: logic flow subops
+            switch (g_BattleScriptVm->opcodeParam) {
+            case 0: { // 70 aaaa: conditional jump (pops value)
+                s32 target = BattleScriptReadU16();
+                BattleOpcodeLoadVal(0);
+                BattleScriptCollapseVarBank(0);
+                if (g_BattleScriptVm->var[0][0] == 0) {
+                    g_BattleScriptVm->pc = target;
+                }
+                break;
+            }
+            case 1: { // 71 aaaa: conditional jump (peeks value)
+                s32 target = BattleScriptReadU16();
+                BattleOpcodeLoadVal(1);
+                BattleScriptCollapseVarBank(1);
+                BattleOpcodeLoadValWithoutPop(0);
+                BattleScriptCollapseVarBank(0);
+                if (g_BattleScriptVm->var[0][0] != g_BattleScriptVm->var[1][0]) {
+                    g_BattleScriptVm->pc = target;
+                }
+                break;
+            }
+            case 2: // 72 aaaa: unconditional jump
+                g_BattleScriptVm->pc = BattleScriptReadU16();
+                break;
+            case 3: // 73: break/end script
+                done = 1;
+                break;
+            case 4: // 74: pop value
+                BattleOpcodeLoadVal(0);
+                break;
+            case 5: // 75: pop value with func_800A64A0
+                BattleOpcodeLoadVal(0);
+                if (presetIdx >= 0) {
+                    func_800A64A0(presetIdx, g_BattleScriptVm->var[0][0]);
+                }
+                break;
+            }
+            break;
+
+        case 8: // random subops
+            switch (g_BattleScriptVm->opcodeParam) {
+            case 0: // 80: Restrict a set to the units in a mask (does nothing when the top value is an address)
+                BattleOpcodeLoadValWithoutPop(0);
+                if (g_BattleScriptVm->operandKind[0] != OPERAND_ADDRESS) {
+                    s32 header = BattleOpcodeLoadVal(0);
+                    BattleOpcodeLoadVal(1);
+                    g_BattleScriptVm->operandMask[0] &= g_BattleScriptVm->var[1][0];
+                    BattleOpcodeStoreVal(header);
+                }
+                break;
+            case 2: // 82: Push one random set bit from a mask
+                BattleOpcodeLoadVal(0);
+                g_BattleScriptVm->var[0][0] = (u16)BattleOpcodeGetRndBit(g_BattleScriptVm->var[0][0]);
+                BattleOpcodeStoreVal(WIDTH_HALF);
+                break;
+            case 1: // 81: Push a random u16
+                g_BattleScriptVm->var[0][0] = BattleGetRndU16();
+                BattleOpcodeStoreVal(WIDTH_HALF);
+                break;
+            case 3: { // 83: Count the units in a mask; if the operand is a set, take the first unit's value instead
+                s32 header = WIDTH_BYTE;
+                BattleOpcodeLoadVal(0);
+                if (BattleScriptCollapseVarBank(0)) {
+                    header = g_BattleScriptVm->operandWidth[0];
+                } else {
+                    s32 count = BattleOpcodeCountActiveBits(g_BattleScriptVm->var[0][0] & ALL_UNITS_MASK);
+                    g_BattleScriptVm->var[0][0] = count;
+                }
+                BattleOpcodeStoreVal(header);
+                break;
+            }
+            case 4: { // 84: Mask of the units holding the maximum value (ties included)
+                u32 max = 0;
+                s32 result = 0;
+                s32 i;
+
+                BattleOpcodeLoadVal(0);
+
+                for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                    if ((g_BattleScriptVm->operandMask[0] >> i) & 1) {
+                        if (g_BattleScriptVm->var[0][i] == max) {
+                            result |= 1 << i;
+                        } else if (max < g_BattleScriptVm->var[0][i]) {
+                            max = g_BattleScriptVm->var[0][i];
+                            result = 1 << i;
+                        }
+                    }
+                }
+
+                g_BattleScriptVm->var[0][0] = (u16)result;
+                BattleOpcodeStoreVal(WIDTH_HALF);
+                break;
+            }
+            case 5: { // 85: Mask of the units holding the minimum value (ties included)
+                u32 min = 0xFFFFFF;
+                s32 result = 0;
+                s32 i;
+
+                BattleOpcodeLoadVal(0);
+
+                for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                    if ((g_BattleScriptVm->operandMask[0] >> i) & 1) {
+                        if (g_BattleScriptVm->var[0][i] == min) {
+                            result |= 1 << i;
+                        } else if (g_BattleScriptVm->var[0][i] < min) {
+                            min = g_BattleScriptVm->var[0][i];
+                            result = 1 << i;
+                        }
+                    }
+                }
+
+                g_BattleScriptVm->var[0][0] = (u16)result;
+                BattleOpcodeStoreVal(WIDTH_HALF);
+                break;
+            }
+            case 6: // 86:  MP cost of attack ID n
+                BattleOpcodeLoadVal(0);
+                g_BattleScriptVm->var[0][0] = BattleGetAttackMpCost(g_BattleScriptVm->var[0][0]);
+                BattleOpcodeStoreVal(WIDTH_HALF);
+                break;
+            case 7: // 87: 1 << n
+                BattleOpcodeLoadVal(0);
+                g_BattleScriptVm->var[0][0] = 1 << g_BattleScriptVm->var[0][0];
+                BattleOpcodeStoreVal(WIDTH_HALF);
+                break;
+            }
+            break;
+
+        case 9: // 9x: stores, actions and messages
+            switch (g_BattleScriptVm->opcodeParam) {
+            case 0: // 90: Pop a value and an address, then write; at 0x4000 and above, write each unit in the mask
+                BattleOpcodeLoadVal(0);
+                BattleScriptCollapseVarBank(0);
+                BattleOpcodeLoadVal(1);
+
+                width = g_BattleScriptVm->operandWidth[1];
+
+                if (g_BattleScriptVm->var[1][0] >= 0x4000U) {
+                    dst = g_BattleScriptVm->var[1][0];
+                    BattleOpcodeLoadVal(1);
+
+                    unitMask = BattleOpcodeReadVal(
+                        g_BattleScriptVm->unitSlot, g_BattleScriptVm->operandWidth[1], g_BattleScriptVm->var[1][0]);
+
+                    for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                        if ((1 << i) & unitMask) {
+                            BattleOpcodeWriteVal(i, width, dst, g_BattleScriptVm->var[0][0]);
+                        }
+                    }
+                } else {
+                    s32 value = g_BattleScriptVm->var[0][0];
+                    BattleOpcodeWriteVal(g_BattleScriptVm->unitSlot, width, g_BattleScriptVm->var[1][0], value);
+                }
+                break;
+            case 1: // 91: Pop a value
+                BattleOpcodeLoadVal(0);
+                break;
+            case 2: { // 92: Queue an action (command and attack from the two operands) for the script's own unit
+                s32 unitSlot;
+
+                BattleOpcodeLoadVal(1);
+                BattleOpcodeLoadVal(0);
+
+                unitSlot = SysGetLsbNumber(g_BattleState.scriptSelfMask);
+                BattleQueueOpcodeAction(unitSlot, g_BattleScriptVm->var[0][0], g_BattleScriptVm->var[1][0]);
+                break;
+            }
+            case 3: { // 93: Queue command 0x21 to show the inline message, then skip past the string
+                s32 msgId = BattleAddMessageToStringBuffer(&g_BattleScript[g_BattleScriptVm->pc], &g_BattleState.unk34);
+
+                BattleQueueOpcodeAction(g_BattleScriptVm->unitSlot, 0x21, msgId + 0x100);
+                while ((data = g_BattleScript[g_BattleScriptVm->pc++]) != 0xFF) {
+                    // control codes 0xEA-0xF1 are followed by 2 operand bytes
+                    if (data >= BATTLE_MSG_ARG_START && data <= BATTLE_MSG_ARG_END) {
+                        g_BattleScriptVm->pc += 2;
+                    }
+                }
+                break;
+            }
+            case 4: // 94: Copy HP, MP, status and turn state from the first unit in one mask to the units in another
+                BattleOpcodeLoadVal(1);
+                BattleOpcodeLoadVal(0);
+
+                for (j = 0; j < NUM_BATTLE_ACTOR; j++) {
+                    if (g_BattleScriptVm->var[1][0] & (1 << j)) {
+                        for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
+                            if (g_BattleScriptVm->var[0][0] & (1 << i)) {
+                                func_800B2CFC(i, j);
+                            }
+                        }
+                        break;
+                    }
+                }
+                break;
+            case 5: // 95: Copy a byte between a battle-wide variable and save memory bank 1 (func_800B2CAC)
+                BattleOpcodeLoadVal(1);
+                BattleOpcodeLoadVal(0);
+                func_800B2CAC(g_BattleScriptVm->var[0][0], g_BattleScriptVm->var[1][0]);
+                break;
+            case 6: // 96: Elemental check for the units in a mask (func_800AE764)
+                BattleOpcodeLoadVal(1);
+                BattleOpcodeLoadVal(0);
+                func_800AE764(g_BattleScriptVm->var[0][0], g_BattleScriptVm->var[1][0], 0);
+                break;
+            }
+            break;
+
+        case 10: // Ax: debug
+            switch (g_BattleScriptVm->opcodeParam) {
+            case 0: { // A0 n "format": debug print (call compiled out); still pops its n arguments
+                s32 argCount = g_BattleScript[g_BattleScriptVm->pc++];
+                debug.format = &g_BattleScript[g_BattleScriptVm->pc];
+
+                while (g_BattleScript[g_BattleScriptVm->pc++] != 0) {
+                }
+
+                for (i = 0; i < argCount; i++) {
+                    BattleOpcodeLoadVal(0);
+                    BattleScriptCollapseVarBank(0);
+                    debug.args[i] = g_BattleScriptVm->var[0][0];
+                }
+                break;
+            }
+            case 1: // A1: Pop two values
+                BattleOpcodeLoadVal(1);
+                BattleOpcodeLoadVal(0);
+                break;
+            }
+            break;
+        }
+    }
+}
 
 void BattleInitScriptContext(s32 arg0, s32 priority, s32 arg2) {
     s32 opponentAliveMask;
@@ -7715,27 +8095,25 @@ static void BattleQueueOpcodeAction(s16 unitId, s16 cmdIndex, s16 attackIndex) {
 }
 
 static AttackData* BattleGetAttackData(s32 id);
-static s32 func_800B2C60(s32 arg0) {
-    s32 var_s0;
-    AttackData* ret;
+static s32 BattleGetAttackMpCost(s32 arg0) {
+    s32 mp = 0;
 
-    var_s0 = 0;
-    if (arg0 <= 0xFFFE) {
-        ret = BattleGetAttackData(arg0);
-        if (ret) {
-            var_s0 = ret->mpCost;
+    if (arg0 < 0xFFFF) {
+        AttackData* data = BattleGetAttackData(arg0);
+        if (data) {
+            mp = data->mpCost;
         }
     }
-    return var_s0;
+    return mp;
 }
 
 static void func_800B2CAC(s32 arg0, s32 arg1) {
     switch (arg0) {
     case 0:
-        D_800F83A6 = Savemap.memory_bank_1[arg1];
+        g_BattleState.memoryBankValue = Savemap.memory_bank_1[arg1];
         return;
     case 1:
-        Savemap.memory_bank_1[arg1] = D_800F83A6;
+        Savemap.memory_bank_1[arg1] = g_BattleState.memoryBankValue;
         return;
     }
 }
