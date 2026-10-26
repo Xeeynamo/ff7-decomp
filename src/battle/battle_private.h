@@ -541,10 +541,6 @@ typedef enum {
     MENU_LIST_DISABLED_ENEMY_SKILL = 0x10 << MENU_LIST_ENEMY_SKILL,
 } BattleMenuListFlags;
 
-extern s32 D_800E7A38;
-extern u8 D_800E7A48[0x10];
-extern u8 D_800E7A58[];
-
 extern u8 g_BattleFormulaModifierFlagsTable[16];
 
 typedef void (*BattleFormula)(void);
@@ -687,7 +683,6 @@ typedef struct {
     u16 param;
 } BattleCallbackEvent;
 extern BattleCallbackEvent g_BattleCallbackEvent[][128];
-extern void (**g_BattleEventHandlerTables[])(s32, s32);
 
 extern u8 g_BattleHitFormulaOpcodeStream[];
 extern s32 g_BattlePartyEventReadIdx[];
