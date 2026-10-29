@@ -333,10 +333,6 @@ u8 SysGetCommandOrder(u8 commandId) {
 void SysAddPairMateriaUnordered(u32 materia1, u32 materia2, u8 arg2, u8 arg3, u8 arg4) { NOT_IMPLEMENTED; }
 void SysAddMateria21(u8 arg0, s32 arg1) { NOT_IMPLEMENTED; }
 void SysAddMateria41(u8 arg0, s32 arg1) { NOT_IMPLEMENTED; }
-void SysAddPairCommandWithCounter(s32 arg0, s32 arg1, s32 arg2) { NOT_IMPLEMENTED; }
-void SysAddPairMasterMateriaWithCounter(s32 arg0, u8 arg1) { NOT_IMPLEMENTED; }
-void SysAddPairMagicWithMagicCounter(u8 allCount, u8 materiaId, s32 ap) { NOT_IMPLEMENTED; }
-void SysAddPairSummonWithMagicCounter(u8 allCount, u8 materiaId, s32 ap) { NOT_IMPLEMENTED; }
 void SysAddPairMagicWithMpTurbo(s32 arg0, s32 arg1, s32 arg2) { NOT_IMPLEMENTED; }
 void SysAddPairMasterMagicWithMpTurbo(s32 arg0) { NOT_IMPLEMENTED; }
 void SysAddPairFlagToMagic(s32 arg0, s32 arg1) { NOT_IMPLEMENTED; }
