@@ -1529,6 +1529,7 @@ g_AkaoCmd = 0x8009A000; // size:0x24
 g_MemcardEvents = 0x8009A024; // size:0x20
 g_FieldCurrentOpcode = 0x8009A058; // size:0x4
 g_FieldCurrentMap = 0x8009A05C; // size:0x4
+g_FadePrims = 0x8009A068; // size:0x60
 g_PartyMenuTables = 0x8009A0C8; // size:0x36
 g_CameraScrollEnabled = 0x8009A100; // size:0x4
 g_AkaoBgmLanes = 0x8009A104; // size:0xC0
