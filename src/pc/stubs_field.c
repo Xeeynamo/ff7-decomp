@@ -186,8 +186,6 @@ s32 KawaiSetSplashToPktsBelowLvl(FieldModel* model, u8* params) {
     NOT_IMPLEMENTED;
     return 0;
 }
-void SysFadeCopyScreen(void) { NOT_IMPLEMENTED; }
-void SysFadeInitPoly(void) { NOT_IMPLEMENTED; }
 void SysFadeUpdate(void) { NOT_IMPLEMENTED; }
 void SysMenuRemoveHpByPartyId(s32 partyId, s32 hp) { NOT_IMPLEMENTED; }
 void SysMenuRemoveItem(s32 item) { NOT_IMPLEMENTED; }
