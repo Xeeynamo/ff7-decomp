@@ -1336,9 +1336,9 @@ typedef struct {
     s16 fadeRed;
     s16 fadeGreen;
     s16 fadeBlue;
-    u16 nFadeRedStart;
-    u16 nFadeGreenStart;
-    u16 nFadeBlueStart;
+    s16 nFadeRedStart;
+    s16 nFadeGreenStart;
+    s16 nFadeBlueStart;
     s16 nFadeRedTarget;
     s16 nFadeGreenTarget;
     s16 nFadeBlueTarget;

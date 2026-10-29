@@ -110,6 +110,7 @@ extern WeaponRecord g_WeaponTable[];       // weapon kernel table, by weapon id
 extern s32 D_80095DD8;                     // LBA len for func_80014540
 void BROM_Main(void);                      // battle/brom entrypoint
 void BATTLE_Main(void);                    // battle/battle entrypoint
+extern volatile s16 g_FieldMovieJustStarted;
 
 u16 SysGzipGetSize(void);
 u16 SaveCalcChecksum(u16 len, u8* data);
@@ -130,4 +131,5 @@ u8* func_80014C80(s32 arg0);
 void SysMenuDrawScrollbarSlider(RECT* rect);
 void SysMenuDrawScrollbarTrack(RECT* rect);
 void SysMenuDrawSingleFontLetter(s16 x, s16 y, s32 ch, u8 color);
+void SysFadeSetPolyRgbDirect(s16 r, s16 g, s16 b);
 int HandleTitle(void);
