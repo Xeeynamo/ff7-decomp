@@ -641,13 +641,47 @@ INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeSetPolyRgbGradual);
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeSetPolyRgbDirect);
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeStepsDec);
+void SysFadeStepsDec(void) {
+    FieldState* state;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeStepsInc);
+    state = &g_FieldState;
+    state->fadeAdjust -= state->fadeSpeed;
+    state->mpdspSet = 0;
+    if (state->fadeAdjust <= 0 || g_FieldMovieJustStarted == 1) {
+        state->fadeType = FFT_INSTANT;
+        state->fadeAdjust = 0;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeColorInterpolate);
+void SysFadeStepsInc(void) {
+    *(volatile u8*)&g_FieldState.mpdspSet = 0;
+    g_FieldState.fadeAdjust += g_FieldState.fadeSpeed;
+    if (g_FieldState.fadeAdjust > 255) {
+        g_FieldState.fadeAdjust = 255;
+    }
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeSetPolyRgbInterpolate);
+s16 SysFadeColorInterpolate(s32 start, s32 target, s16 step, s16 speed) {
+    return start + ((s16)(target - start) * step) / speed;
+}
+
+void SysFadeSetPolyRgbInterpolate(void) {
+    *(volatile u8*)&g_FieldState.mpdspSet = 0;
+    g_FieldState.fadeAdjust++;
+    if (g_FieldState.fadeAdjust >= g_FieldState.fadeSpeed) {
+        g_FieldState.nFadeRedStart = g_FieldState.nFadeRedTarget;
+        g_FieldState.nFadeGreenStart = g_FieldState.nFadeGreenTarget;
+        g_FieldState.nFadeBlueStart = g_FieldState.nFadeBlueTarget;
+        g_FieldState.fadeAdjust = g_FieldState.fadeSpeed;
+    }
+    g_FieldState.fadeRed = SysFadeColorInterpolate(
+        g_FieldState.nFadeRedStart, g_FieldState.nFadeRedTarget, g_FieldState.fadeAdjust, g_FieldState.fadeSpeed);
+    g_FieldState.fadeGreen = SysFadeColorInterpolate(
+        g_FieldState.nFadeGreenStart, g_FieldState.nFadeGreenTarget, g_FieldState.fadeAdjust, g_FieldState.fadeSpeed);
+    g_FieldState.fadeBlue = SysFadeColorInterpolate(
+        g_FieldState.nFadeBlueStart, g_FieldState.nFadeBlueTarget, g_FieldState.fadeAdjust, g_FieldState.fadeSpeed);
+    SysFadeSetPolyRgbDirect(g_FieldState.fadeRed, g_FieldState.fadeGreen, g_FieldState.fadeBlue);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeBgUpdate);
 
