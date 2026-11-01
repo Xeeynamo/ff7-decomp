@@ -6,6 +6,7 @@
 #define PARTY_TEAM_MASK 0x7
 #define ALLY_TEAM_MASK 0xF
 #define ENEMY_TEAM_MASK 0x3F0
+#define ALL_UNITS_MASK (ENEMY_TEAM_MASK | ALLY_TEAM_MASK)
 
 #define EFFECT_MODEL_SLOT (NUM_PARTY) // holds the model an effect overlay supplies
 #define START_ENEMY (NUM_PARTY + 1)
@@ -231,33 +232,47 @@ typedef struct {
 } BattleUnit; // size:0x68
 
 typedef struct {
-    /* 0x000 */ u16 unk0;
-    /* 0x002 */ u16 presentMask;
-    /* 0x004 */ u16 scriptSelfMask;
-    /* 0x006 */ u16 scriptOpponentNonPetrifiedMask;
-    /* 0x008 */ u16 scriptAllyAliveMask;
-    /* 0x00A */ u16 scriptAllyDeadMask;
-    /* 0x00C */ u16 scriptOpponentAliveMask;
-    /* 0x00E */ u16 scriptOpponentDeadMask;
-    /* 0x010 */ u16 playerUnitMask;
-    /* 0x012 */ u16 enemyUnitMask;
-    /* 0x014 */ u16 allUnitsMask;
-    /* 0x016 */ u16 pad16;
-    /* 0x018 */ u16 unk18;
-    /* 0x01A */ u16 cycleFlags;
-    /* 0x01C */ u16 lastActionElements; // g_CurrentAction->elements of the last dispatched action
-    /* 0x01E */ u16 unk1E;
-    /* 0x020 */ u16 sceneID;
-    /* 0x022 */ u16 lastActionIndex; // g_CurrentAction->absoluteActionIndex of the last dispatched action
-    /* 0x024 */ u16 setupFlags;
-    /* 0x026 */ u16 attackCategoryFlags;
-    /* 0x028 */ u16 setupParam;
-    /* 0x02A */ u16 pad2A;
-    /* 0x02C */ u16 unk2C;
-    /* 0x02E */ u16 pad2E;
-    /* 0x030 */ u32 partyGil;
-    /* 0x034 */ BattleUnit combatant[NUM_BATTLE_ACTOR];
-} BattleState; // size:0x444
+    // AI scripts address global battle data from 0x2000, in bits (byte n = 0x2000 + n * 8)
+    /* 0x000 */ u8 lastActionCmdIndex;
+    /* 0x001 */ u8 lastActionRelIndex;
+    /* 0x002 */ u8 memoryBankValue;
+    /* 0x003 */ u8 unk3;
+    /* 0x004 */ u8 encounterType;
+    /* 0x005 */ u8 unk5;
+    /* 0x006 */ u8 unk6;
+    /* 0x007 */ u8 vincentLimitLevel;
+    /* 0x008 */ u16 unk8;
+    /* 0x00A */ u16 presentMask;
+    /* 0x00C */ u16 scriptSelfMask;
+    /* 0x00E */ u16 scriptOpponentNonPetrifiedMask;
+    /* 0x010 */ u16 scriptAllyAliveMask;
+    /* 0x012 */ u16 scriptAllyDeadMask;
+    /* 0x014 */ u16 scriptOpponentAliveMask;
+    /* 0x016 */ u16 scriptOpponentDeadMask;
+    /* 0x018 */ u16 playerUnitMask;
+    /* 0x01A */ u16 enemyUnitMask;
+    /* 0x01C */ u16 allUnitsMask;
+    /* 0x01E */ u16 pad1E;
+    /* 0x020 */ u16 unk20;
+    /* 0x022 */ u16 cycleFlags;
+    /* 0x024 */ u16 lastActionElements; // g_CurrentAction->elements of the last dispatched action
+    /* 0x026 */ u16 unk26;
+    /* 0x028 */ u16 sceneID;
+    /* 0x02A */ u16 lastActionIndex; // g_CurrentAction->absoluteActionIndex of the last dispatched action
+    /* 0x02C */ u16 setupFlags;
+    /* 0x02E */ u16 attackCategoryFlags;
+    /* 0x030 */ u16 setupParam;
+    /* 0x032 */ u16 pad32;
+    /* 0x034 */ u16 unk34;
+    /* 0x036 */ u16 pad36;
+    /* 0x038 */ u32 partyGil;
+
+    // AI scripts address each unit's record from 0x4000, in bits (byte n of combatant[unit] = 0x4000 + n * 8)
+    /* 0x03C */ BattleUnit combatant[NUM_BATTLE_ACTOR];
+
+    // AI scripts address the running script's own unit vars from 0x0000, in bits (byte n = n * 8)
+    /* 0x44C */ s32 scriptUnitVars[NUM_BATTLE_ACTOR][32];
+} BattleState; // size:0x94C
 
 typedef struct {
     /* 0x00 */ s32 displayExp[4];
@@ -836,7 +851,6 @@ typedef struct Unk800A8D04 {
 extern s16 D_800F5B74;
 extern BattleWork g_BattleWork;
 extern u16 D_800F7DE8;
-extern u8 g_EncounterType;
 extern BattleState g_BattleState;
 extern BatresShared g_BatresShared;
 extern BattleWorldView g_BattleWorldView;
@@ -851,8 +865,6 @@ extern BattleData g_BattleData;
 extern u8 g_BattlePartyIDs[]; // copy of Savemap.partyID taken when the battle starts
 // pending battle-start status flags, one bit per entry of D_801B001C / D_801B002C (bit 4 = full-heal)
 extern u8 g_BattleStartFXFlags;
-extern s32 D_800F87F0[NUM_BATTLE_ACTOR][32]; // per-combatant battle-script variable bank, 0x80 B
-                                             // each (BattleOpcodeValOffs)
 extern u8 g_BattleItemMenuRowCount;
 extern Unk80166F78 D_80166F78[NUM_ENEMY][16];
 extern BattleItemEntry g_BattleItemList[];

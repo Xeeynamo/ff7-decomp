@@ -80,7 +80,7 @@ void BattleInitMain(s32 sceneID) {
     }
 
     g_BattleState.sceneID = sceneID;
-    g_EncounterType = g_BattleData.activeEncounter.setup.type;
+    g_BattleState.encounterType = g_BattleData.activeEncounter.setup.type;
     BattleInitFormation();
     BattleUpdateUnitMasks();
     BattleInitPartyScripts();
@@ -164,7 +164,7 @@ void BattleInitSetup(s32 sceneID) {
         }
     }
     g_BattleState.sceneID = sceneID;
-    g_EncounterType = g_BattleData.activeEncounter.setup.type;
+    g_BattleState.encounterType = g_BattleData.activeEncounter.setup.type;
     BattleInitFormation();
     BattleUpdateUnitMasks();
     BattleInitEnemyAI();
@@ -888,8 +888,8 @@ void BattleInitEnemyUnits(void) {
     }
 
     for (i = 0; i < NUM_ENEMY; i++) {
-        for (j = 0; j < LEN(D_800F87F0[0]); j++) {
-            D_800F87F0[i + START_ENEMY][j] = 0;
+        for (j = 0; j < LEN(g_BattleState.scriptUnitVars[0]); j++) {
+            g_BattleState.scriptUnitVars[i + START_ENEMY][j] = 0;
         }
     }
 
