@@ -820,7 +820,7 @@ static void func_800A2B28(s32 arg0) {
 INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2BF4);
 #else
 void func_800A2BF4(s32 arg0) {
-    MagicRecord* records = &g_ActiveCharacters[arg0].enabledMagic;
+    MagicRecord* records = g_ActiveCharacters[arg0].enabledMagic;
     s32 offset = MAGIC_START;
     s32 count = 0;
     s32 i;
