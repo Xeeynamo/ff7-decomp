@@ -1247,6 +1247,12 @@ typedef struct {
 } KawaiClippedVertex; // size:0x10
 
 typedef struct {
+    /* 0x00 */ DR_MODE mode;
+    /* 0x0C */ TILE tile[2];
+    /* 0x2C */ s32 unk2C;
+} FadePrims; // size:0x30
+
+typedef struct {
     u8 enabled;
     u8 segmentActive;
     u8 rngId;
@@ -1522,6 +1528,7 @@ extern Unk80075D00* D_80075D00;
 extern volatile s16 D_80075DEC;  // buffer index, also updated by the VSync callback
 extern u8 g_FieldMapVars[256];   // map-local memory bank for field scripts
 extern s8 D_80077F64[2][0x3400]; // polygon buffer
+extern OT_TYPE D_8007E7A0[2];
 extern u8* g_FieldText;
 extern FieldLine g_FieldLines[32];
 extern DRAWENV D_8007EAAC[2];
@@ -1560,6 +1567,7 @@ extern s32 g_MemcardEvents[8];
 extern u8 g_FieldCurrentOpcode;
 extern s16 g_FieldCurrentMap;
 extern s32 D_8009A064;
+extern FadePrims g_FadePrims[2];
 extern MenuTable g_PartyMenuTables[3];
 extern u8 g_FieldScriptPriority[48]; // active scripts execution priority
 extern FieldState g_FieldState;

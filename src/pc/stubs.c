@@ -98,6 +98,7 @@ ItemRecord g_ItemTable[NUM_ITEMS];
 s32 g_PartyPortraitClut[256];
 s8 D_80077F64[2][0x3400];
 s32 g_MemcardEvents[8];
+FadePrims g_FadePrims[2];
 u8 D_8009C778[256];
 u8 D_8009C798[256];
 s32 D_8009CE60[256];

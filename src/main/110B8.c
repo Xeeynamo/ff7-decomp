@@ -629,13 +629,49 @@ void main(void) {
 }
 
 // Start of field_fade.c
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeSetDrawMode);
+void SysFadeSetDrawMode(s32 abr) {
+    u16 tpage;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeInitPoly);
+    tpage = GetTPage(0, abr, 0, 0);
+    SetDrawMode(&g_FadePrims[0].mode, 0, 0, tpage, NULL);
+    SetDrawMode(&g_FadePrims[1].mode, 0, 0, tpage, NULL);
+}
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeCopyScreen);
+void SysFadeInitPoly(void) {
+    s32 i;
+    s32 j;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeSetPolyMonochrome);
+    for (i = 0; i < LEN(g_FadePrims); i++) {
+        for (j = 0; j < LEN(g_FadePrims[i].tile); j++) {
+            SetTile(&g_FadePrims[i].tile[j]);
+            SetSemiTrans(&g_FadePrims[i].tile[j], 1);
+            SetShadeTex(&g_FadePrims[i].tile[j], 1);
+            setRGB0(&g_FadePrims[i].tile[j], 0, 0, 0);
+            setWH(&g_FadePrims[i].tile[j], 160, 224);
+        }
+    }
+    setXY0(&g_FadePrims[0].tile[0], 0, 0);
+    setXY0(&g_FadePrims[0].tile[1], 160, 0);
+    setXY0(&g_FadePrims[1].tile[0], 0, 0);
+    setXY0(&g_FadePrims[1].tile[1], 160, 0);
+}
+
+void SysFadeCopyScreen(void) {
+    // copy the shown buffer onto the other one
+    MoveImage(
+        &D_8007EB68[D_80075DEC].disp, D_8007EB68[(D_80075DEC + 1) & 1].disp.x, D_8007EB68[(D_80075DEC + 1) & 1].disp.y);
+    while (DrawSync(1)) {
+    }
+}
+
+void SysFadeSetPolyMonochrome(s32 level) {
+    ClearOTagR(&D_8007E7A0[D_80075DEC], 1);
+    setRGB0(&g_FadePrims[D_80075DEC].tile[0], level, level, level);
+    setRGB0(&g_FadePrims[D_80075DEC].tile[1], level, level, level);
+    addPrim(&D_8007E7A0[D_80075DEC], &g_FadePrims[D_80075DEC].tile[0]);
+    addPrim(&D_8007E7A0[D_80075DEC], &g_FadePrims[D_80075DEC].tile[1]);
+    addPrim(&D_8007E7A0[D_80075DEC], &g_FadePrims[D_80075DEC].mode);
+}
 
 INCLUDE_ASM("asm/us/main/nonmatchings/110B8", SysFadeSetPolyRgbGradual);
 

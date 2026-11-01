@@ -5,7 +5,6 @@
 
 extern u32 g_FieldKeyState;
 extern s8 D_80071C0C;
-extern OT_TYPE D_8007E7A0[2];
 extern s32 D_800965E4;
 extern s32 D_8009A060;
 extern u_long* g_MimPaletteData;
