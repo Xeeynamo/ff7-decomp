@@ -29,6 +29,7 @@
 #define NUM_MATERIA_ROW 8 // maximum amount of materia per row (weapon or armor)
 #define NUM_BATTLE_COMMANDS 16
 #define NUM_MAGICS 56
+#define NUM_MAGICS_IN_MENU 54 // magics with an entry in the menu order table D_800831C4
 #define NUM_MAGICS_ALL (NUM_MAGICS + NUM_SUMMONS + NUM_ENEMY_SKILLS)
 #define NUM_SUMMONS 16
 #define NUM_ENEMY_SKILLS 24
@@ -1543,7 +1544,8 @@ extern u8 g_CharacterLock;               // mirror of the UC opcode's control-lo
 extern u8 g_EntitySplitJoinState[48];    // states for SPLIT and JOIN opcodes
 extern s16 g_FieldModelEffAnimSpeed[16]; // per-model current animation playback speed
 extern u8 D_80083184[0x40];
-extern u8 D_800831C4[];           // Magic Order table from kernel.bin section 3.
+// Magic Order table from kernel.bin section 3.
+extern u8 D_800831C4[NUM_MAGICS_IN_MENU];
 extern u16 g_FieldScriptPC[48];   // program counters for active entity scripts
 extern u8 g_FieldModelAnimId[16]; // per-model default animation id (DFANM)
 extern u8 g_WindowToEntity[4];
