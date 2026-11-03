@@ -1,0 +1,6 @@
+MAGIC_Echoes = 0x801B0000; // type:func
+func_echoes_801B0020 = 0x801B0020; // type:func
+func_echoes_801B0108 = 0x801B0108; // type:func
+func_echoes_801B02BC = 0x801B02BC; // type:func
+func_echoes_801B03A4 = 0x801B03A4; // type:func
+func_echoes_801B0404 = 0x801B0404; // type:func
