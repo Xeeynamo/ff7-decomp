@@ -2,6 +2,14 @@
 #include "game.h"
 #include "main_private.h"
 
+typedef struct {
+    /* 0x0 */ u8 type1;
+    /* 0x1 */ u8 type2;
+    /* 0x2 */ u8 unused[6]; // unknown locals
+    /* 0x8 */ u8 materiaId1;
+    /* 0x9 */ u8 materiaId2;
+} PairMateriaTypes; // size:0xA
+
 static u8 support_attributes[8];
 static u8 D_80062E5C;                   // Pre-emptive materia is at maximum level.
 static ActiveCharacterData* party_char; // Current active character.
@@ -9,7 +17,8 @@ static u32 D_80062E64;
 static u32 D_80062E68;
 static s16 D_80062E6C[4];
 static s16 D_80062E74;
-static u32 D_80062E78;
+static u16 pad_80062E76; // keeps materia_effect_flag at 0x80062E78
+static u8 materia_effect_flag;
 static s32 D_80062E7C;
 static s32 enabled_counter_count;
 static s32 counter_type_base;
@@ -55,8 +64,8 @@ void SysAddMateriaXb(u8 materiaId, s32 materiaAp);
 void SysAddMateriaXc(void);
 u8 SysGetCommandOrder(u8 commandId);
 void SysCopyCommandToUnitStructure(u8 commandId, u8 order);
-void SysAddPairMateriaUnordered(u32 materia1, u32 materia2, u8 arg2, u8 arg3, u8 arg4);
-void SysAddPairMateriaOrdered(u32 materia1, u32 materia2, u8 arg2, u8 arg3);
+void SysAddPairMateriaUnordered(u32 materia1, u32 materia2, u8 arg2, u8 arg3, u8 isArmor);
+void SysAddPairMateriaOrdered(u32 supportMateria, u32 pairedMateria, u8 unused, u8 isArmor);
 u8* GetPartySlotArmorMateriaSlots(s32 arg0);
 ActiveCharacterData* SysGetPartyPlayerStructureAddressByPartyId(s32 partyId);
 u8 D_80063020; // %gp_rel
@@ -354,11 +363,120 @@ void SysAddPairMateriaWithSlotCheck(u8 slot1, u8 slot2, u32 materia1, u32 materi
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMateriaUnordered);
+void SysAddPairMateriaUnordered(u32 materia1, u32 materia2, u8 arg2, u8 arg3, u8 isArmor) {
+    PairMateriaTypes types;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairMateriaOrdered);
+    types.materiaId1 = materia1;
+    types.type1 = g_MateriaData[types.materiaId1].materiaType & 0xF;
+    types.materiaId2 = materia2;
+    types.type2 = g_MateriaData[types.materiaId2].materiaType & 0xF;
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithElemental);
+    if (types.materiaId1 == 0xFF || types.materiaId2 == 0xFF) {
+        return;
+    }
+
+    if (types.type1 != MATERIA_TYPE_SUPPORT && types.type2 != MATERIA_TYPE_SUPPORT) {
+        return;
+    }
+    if (types.type1 == MATERIA_TYPE_SUPPORT && types.type2 == MATERIA_TYPE_SUPPORT) {
+        return;
+    }
+    if (types.type1 == MATERIA_TYPE_SUPPORT) {
+        SysAddPairMateriaOrdered(materia1, materia2, arg3, isArmor);
+    } else {
+        SysAddPairMateriaOrdered(materia2, materia1, arg2, isArmor);
+    }
+}
+
+void SysAddPairMateriaOrdered(u32 supportMateria, u32 pairedMateria, u8 unused, u8 isArmor) {
+    s32 i;
+    u8 stars;
+    u8 id;
+    MateriaSupportAbility ability;
+
+    id = supportMateria;
+    stars = SysGetMateriaActivatedStars(id, supportMateria >> 8);
+    for (i = 0; i < LEN(g_MateriaData[id].materiaAttributes) - 1; i++) {
+        support_attributes[i] = g_MateriaData[id].materiaAttributes[i + 1];
+    }
+    ability = g_MateriaData[id].materiaAttributes[0];
+    switch (ability) {
+    case MATERIA_SUPPORT_QUADRA_MAGIC:
+        SysAddPairWithQuadraMagic(id, stars, pairedMateria);
+        break;
+    case MATERIA_SUPPORT_ALL:
+        SysAddPairWithAll(id, stars, pairedMateria);
+        break;
+    case MATERIA_SUPPORT_FLAG_01:
+        materia_effect_flag = 1;
+        SysAddPairFlagToCommandMagicSummon(pairedMateria);
+        break;
+    case MATERIA_SUPPORT_FLAG_02:
+        materia_effect_flag = 2;
+        SysAddPairFlagToCommandMagicSummon(pairedMateria);
+        break;
+    case MATERIA_SUPPORT_MP_TURBO:
+        SysAddPairWithMpTurbo(stars, pairedMateria);
+        break;
+    case MATERIA_SUPPORT_FLAG_08:
+        materia_effect_flag = 8;
+        SysAddPairFlagToCommandMagicSummon(pairedMateria);
+        break;
+    case MATERIA_SUPPORT_FLAG_10:
+        materia_effect_flag = 0x10;
+        SysAddPairFlagToCommandMagicSummon(pairedMateria);
+        break;
+    case MATERIA_SUPPORT_SNEAK_ATTACK:
+        counter_type_base = 1;
+        SysAddPairWithSneakFinalAttack(id, stars, pairedMateria);
+        break;
+    case MATERIA_SUPPORT_FINAL_ATTACK:
+        counter_type_base = 4;
+        SysAddPairWithSneakFinalAttack(id, stars, pairedMateria);
+        break;
+    case MATERIA_SUPPORT_MAGIC_COUNTER:
+        counter_type_base = 7;
+        SysAddPairWithMagicCounter(id, stars, pairedMateria);
+        break;
+    case MATERIA_SUPPORT_COUNTER:
+        counter_type_base = 8;
+        SysAddPairWithCounter(id, stars, pairedMateria);
+        break;
+    case MATERIA_SUPPORT_ELEMENTAL:
+        SysAddPairWithElemental(stars, pairedMateria, isArmor);
+        break;
+    case MATERIA_SUPPORT_ADDED_EFFECT:
+        SysAddPairWithAddedEffect(stars, pairedMateria, isArmor);
+        break;
+    }
+}
+
+void SysAddPairWithElemental(u8 stars, u8 materiaId, u8 isArmor) {
+    u16 element;
+    u8 elementIndex;
+
+    elementIndex = g_MateriaData[materiaId].elementIndex;
+    if (elementIndex >= 32) {
+        return;
+    }
+    element = g_ElementIdToBitmask[elementIndex];
+    if (!isArmor) {
+        party_char->physicalAttackElements |= element;
+    } else {
+        switch (stars) {
+        case 1:
+            party_char->halvedElements |= element;
+            break;
+        case 2:
+            party_char->nullifiedElements |= element;
+            break;
+        case 3:
+        default:
+            party_char->absorbedElements |= element;
+            break;
+        }
+    }
+}
 
 void SysAddPairWithAddedEffect(s32 arg0, u8 arg1, u8 arg2) {
     u32 statusEffects;
@@ -416,7 +534,37 @@ void SysAddPairWithMagicCounter(s32 arg0, s32 allCount, u32 materia) {
     }
 }
 
-INCLUDE_ASM("asm/us/main/nonmatchings/17238", SysAddPairWithSneakFinalAttack);
+void SysAddPairWithSneakFinalAttack(s32 arg0, s32 allCount, u32 materia) {
+    u8 id;
+    s32 type;
+
+    id = materia;
+    materia >>= 8;
+    type = g_MateriaData[id].materiaType & 0xF;
+    counter_type_offset = 0;
+    switch (type) {
+    case MATERIA_TYPE_COMMAND:
+        counter_type_offset = 1;
+        SysAddPairCommandWithCounter(allCount, id, materia);
+        break;
+    case MATERIA_TYPE_MASTER_COMMAND:
+        counter_type_offset = 1;
+        SysAddPairMasterMateriaWithCounter(allCount, 0xFD);
+        break;
+    case MATERIA_TYPE_MAGIC:
+        SysAddPairMagicWithMagicCounter(allCount, id, materia);
+        break;
+    case MATERIA_TYPE_MASTER_MAGIC:
+        SysAddPairMasterMateriaWithCounter(allCount, 0xFE);
+        break;
+    case MATERIA_TYPE_SUMMON:
+        SysAddPairSummonWithMagicCounter(allCount, id, materia);
+        break;
+    case MATERIA_TYPE_MASTER_SUMMON:
+        SysAddPairMasterMateriaWithCounter(allCount, 0xFF);
+        break;
+    }
+}
 
 void SysAddPairMasterMateriaWithCounter(u8 allCount, u8 battleCommand) {
     if (enabled_counter_count == LEN(party_char->enabledCounters)) {
@@ -590,7 +738,7 @@ void SysAddPairFlagToSummon(s32 arg0, s32 arg1) {
     stars = SysGetMateriaActivatedStars(id, arg1);
     while (stars > 0) {
         attr = g_MateriaData[id].materiaAttributes[stars - 1];
-        party_char->enabledMagic[attr].costModifier |= D_80062E78;
+        party_char->enabledMagic[attr].costModifier |= materia_effect_flag;
         stars--;
     }
 }
@@ -599,7 +747,7 @@ void SysAddPairFlagToAllSummons(void) {
     s32 i;
 
     for (i = 0; i < NUM_SUMMONS; i++) {
-        party_char->enabledMagic[NUM_MAGICS + i].costModifier |= D_80062E78;
+        party_char->enabledMagic[NUM_MAGICS + i].costModifier |= materia_effect_flag;
     }
 }
 
@@ -609,7 +757,7 @@ void SysAddPairFlagToActiveCommand(s32 arg0) {
 
     cmdIdx = SysSearchExistedCommand(g_MateriaData[arg0 & 0xFF].materiaAttributes[0]);
     if (cmdIdx != -1) {
-        D_80069508[cmdIdx].materiaEffectFlags |= D_80062E78;
+        D_80069508[cmdIdx].materiaEffectFlags |= materia_effect_flag;
     }
     id = g_MateriaData[arg0 & 0xFF].materiaAttributes[1];
     if (id != 7 && id != 0x11) {
@@ -617,7 +765,7 @@ void SysAddPairFlagToActiveCommand(s32 arg0) {
     }
     cmdIdx = SysSearchExistedCommand(id);
     if (cmdIdx != -1) {
-        D_80069508[cmdIdx].materiaEffectFlags |= D_80062E78;
+        D_80069508[cmdIdx].materiaEffectFlags |= materia_effect_flag;
     }
 }
 
@@ -628,7 +776,7 @@ void SysAddPairFlagToAllActiveCommands(void) {
     for (i = 0; i < NUM_BATTLE_COMMANDS; i++) {
         cmdIdx = SysSearchExistedCommand(D_80069508[i].id);
         if (cmdIdx != -1) {
-            D_80069508[cmdIdx].materiaEffectFlags |= D_80062E78;
+            D_80069508[cmdIdx].materiaEffectFlags |= materia_effect_flag;
         }
     }
 }
