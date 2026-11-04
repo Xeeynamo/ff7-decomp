@@ -1339,6 +1339,7 @@ g_AkaoTransfer = 0x80062E08;
 support_attributes = 0x80062E54; // size:0x8
 party_char = 0x80062E60;
 D_80062E6C = 0x80062E6C; // size:0x8
+materia_effect_flag = 0x80062E78;
 enabled_counter_count = 0x80062E80;
 counter_type_base = 0x80062E84;
 counter_type_offset = 0x80062E88;
