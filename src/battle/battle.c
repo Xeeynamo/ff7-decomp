@@ -177,6 +177,106 @@ void BATTLE_Main(void) {
     g_GameState = GAMESTATE_FIELD;
 }
 
+s32 D_800E7A38 = -1;
+s32 D_800E7A3C[] = {0, 0, 0}; // unreferenced
+u8 D_800E7A48[0x10] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+u8 D_800E7A58[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+
+// handlers defined below; needed only because the tables come before them; can remove once table is embedded
+void BattleResetManipulatorTimer(s32 arg0);
+void BattleEnableLimitToPlayerResettingBar(s32 charIdx, s32 arg1);
+void BattleUnitSetCtrlState(s32 unitIdx, s32 limitParam);
+void BattleReceiveItem(s32 arg0, s16 arg1);
+void func_800A6590(s32 arg0);
+void func_800A6748(s32 arg0);
+void BattleUnitChkClearActiveTurn(s32 unitIdx);
+void func_800A6798(s32 arg0, s32 arg1);
+void BattleUnitEnableBerserkToad(s32 unitIdx);
+void BattleUnitClrDisabledTurn(s32 unitIdx);
+void BattleUnitSetManipulated(s32 unitIdx, s32 isManipulated);
+void BattleUnitStealRndPartyItem(s32 arg0);
+void func_800A6A3C(s32 arg0, s32 menuListFlags);
+void func_800A6A70(s32 arg0, s32 arg1);
+void BattleUnitFlushEnemyTurnMasks(void);
+void BattleTurnSchedUpdateParty(void);
+void BattleSearchAndRemoveItemFromSlot(s32 arg0, s32 arg1);
+void func_800A6BFC(void);
+void BattleSetLimitBreakStringToDisplay(s32 arg0);
+void func_800A6C5C(s32 arg0, s32 arg1);
+void BattleClearStatusBit(s32 arg0, s32 arg1);
+void BattleExpireDeathSentence(s32 arg0);
+void BattleChangeSlownumbToPetrify(s32 arg0);
+void BattleTickPoison(s32 arg0);
+void func_800A6DFC(void);
+void func_800A6E04(void);
+void BattleHudResetLimit(s32 arg0);
+void func_800A6E6C(s32 arg0, s32 arg1);
+void BattleRemovePlayersFromBattle(s32 unused, s32 mask);
+void BattleSetItemWasStolenStringToDisplay(s32 arg0, s16 arg1);
+void func_800A7060(s32 arg0, s32 arg1);
+void func_800A7090(s32 arg0);
+void func_800A70C4(s32 arg0, s32 arg1);
+void func_800A7130(s32 arg0, s32 arg1);
+void func_800A71E0(void);
+
+void (*D_800E7A64[])(s32, s32) = {
+    BattleResetManipulatorTimer,
+    BattleEnableLimitToPlayerResettingBar,
+    BattleUnitSetCtrlState,
+    BattleReceiveItem,
+    func_800A6590,
+    func_800A6748,
+    BattleUnitChkClearActiveTurn,
+    func_800A6798,
+    BattleUnitEnableBerserkToad,
+    BattleUnitClrDisabledTurn,
+    BattleUnitSetManipulated,
+    BattleUnitStealRndPartyItem,
+    func_800A6A3C,
+    func_800A6A70,
+    BattleUnitFlushEnemyTurnMasks,
+    BattleTurnSchedUpdateParty,
+    BattleSearchAndRemoveItemFromSlot,
+};
+
+void (*D_800E7AA8[])(s32, s32) = {
+    func_800A6BFC,
+    BattleSetLimitBreakStringToDisplay,
+    func_800A6C5C,
+};
+
+void (*g_StatusExpireTable[])(s32, s32) = {
+    BattleClearStatusBit,
+    BattleClearStatusBit,
+    BattleExpireDeathSentence,
+    BattleChangeSlownumbToPetrify,
+    BattleClearStatusBit,
+    BattleClearStatusBit,
+    BattleTickPoison,
+    BattleClearStatusBit,
+    BattleClearStatusBit,
+    BattleClearStatusBit,
+    BattleClearStatusBit,
+    BattleClearStatusBit,
+    func_800A6DFC,
+    func_800A6DFC,
+    func_800A6DFC,
+    func_800A6DFC,
+    func_800A6E04,
+    BattleHudResetLimit,
+    func_800A6E6C,
+    BattleRemovePlayersFromBattle,
+    BattleSetItemWasStolenStringToDisplay,
+    func_800A7060,
+    func_800A7090,
+    func_800A70C4,
+    func_800A7130,
+    func_800A71E0,
+};
+
+// These tables can all move inside BattleProcessEventQueue once the TU is split
+const void (**g_BattleEventHandlerTables[])(s32, s32) = {D_800E7A64, D_800E7AA8, g_StatusExpireTable};
+
 typedef struct {
     /* 0x0 */ u8 animId;
     /* 0x1 */ u8 formulaIds;
