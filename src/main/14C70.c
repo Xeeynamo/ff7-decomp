@@ -319,7 +319,7 @@ const char* SysKernGetString(s32 type, s32 index, s32 blockOffset) {
                     str = SysAppendString(str, SysGetKernBattleTextById(0x71), -1);
                 }
 
-                if (g_BattleWork.turn[slot].turnFlags & 0x40) {
+                if (g_BattleWork.turn[slot].miscFlags & BATTLE_MISC_SENSED) {
                     u16 strArgs[2];
                     strArgs[0] = g_BattleWork.turn[slot].prevHP;
                     strArgs[1] = g_BattleState.combatant[slot].maxHP;
