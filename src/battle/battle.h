@@ -158,10 +158,25 @@ typedef enum {
     SPRITE_QUAD_TEX_SIZE = 0x200,
 } SpriteQuadFlags;
 
-enum CombatantStateFlags {
-    COMBATANT_DEFENDING = 0x20,
-    COMBATANT_BACK_ROW = 0x40,
-};
+// BattleUnit.stateFlags. For enemies, the low five bits come from the formation data
+// (FormationEntry.flags). AI scripts address the bits as 0x4020 + n.
+typedef enum {
+    UNIT_VISIBLE = 0x1,      // read once at battle start: clear = the model starts hidden (still targetable)
+    UNIT_ALT_ZONE = 0x2,     // in zone index 2; only side-attack-style setups and pincers use it
+    UNIT_MODEL_ACTIVE = 0x4, // read once at battle start: clear = the model is never posed or drawn (still targetable)
+    UNIT_TARGETABLE = 0x8,
+    UNIT_AI_CONTROLLED = 0x10, // main AI script runs; a party member skips the command menu (e.g. Vincent's Limits)
+    UNIT_DEFENDING = 0x20,
+    UNIT_BACK_ROW = 0x40,
+    UNIT_FACING_REVERSED = 0x80, // turned 180 degrees from the default facing; enemies have it in a normal battle
+    UNIT_IMMUNE_PHYSICAL = 0x100,
+    UNIT_IMMUNE_MAGICAL = 0x200,
+    UNIT_SKIP_ACTION_CHECKS = 0x400, // skips the MP cost and the Silence/Frog checks
+    UNIT_BEHIND_COVER = 0x800,       // covered by an enemy in a lower row: short-range attacks can't target it
+    UNIT_UNK1000 = 0x1000,           // protects against Death and D.Sentence; on KO, default action 0x25 isn't queued
+    UNIT_KO_PROCESSED = 0x2000,      // KO handling has run; cleared on revive
+    UNIT_AUTO_EVADE = 0x4000,        // every action on this unit misses (even beneficial ones like Cure)
+} UnitStateFlags;
 
 typedef enum {
     BATTLE_MSG_ARG_CHAR_NAME = 0xEA,
@@ -180,9 +195,7 @@ typedef struct {
     // condition/status bitmask; see BattleStatusFlags above for the bits
     // confirmed live here
     /* 0x00 */ s32 status;
-    // CombatantStateFlags; also 0x10 = Limit transformation active (set by
-    // BattleApplyVincentLimitTransform)
-    /* 0x04 */ u32 stateFlags;
+    /* 0x04 */ u32 stateFlags; // UnitStateFlags
     /* 0x08 */ s8 actorId;
     /* 0x09 */ u8 level;
     /* 0x0A */ s8 targetSubSlot;
@@ -326,8 +339,8 @@ typedef struct {
     /* 0x06 */ s16 z;
     /* 0x08 */ u16 row;
     /* 0x0A */ u16 coverFlags;
-    /* 0x0C */ u32 flags;
-} FormationEntry; // size:0x10
+    /* 0x0C */ u32 flags; // the enemy's starting UnitStateFlags (low five bits)
+} FormationEntry;         // size:0x10
 
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/Enemy.cs
 typedef struct {

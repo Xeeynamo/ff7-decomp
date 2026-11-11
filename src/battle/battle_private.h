@@ -728,7 +728,7 @@ extern u8 D_800F7DE4;
 typedef struct {
     s16 modelIndex;
     ShortVectorXYZ position;
-    s32 flags;
+    s32 flags; // UnitStateFlags, copied from the formation entry
 } BattleEnemyModelMapping;
 
 typedef struct {
@@ -1087,8 +1087,8 @@ void BattleProcessTimers(void);
 void BattleAdvanceTimers(void);
 void func_800B0234(void);
 s32 BattleCalcDefPercent(s32);
-void func_800B0C14(void);
-static void func_800B0DF8(void);
+void BattleResolveAttackFacing(void);
+static void BattleApplyTargetFacing(void);
 static s32 BattleApplyFuryHitChanceReduction(s32);
 u16 BattleGetRndItemIdForSteal(void*, s32, s32, s32);
 static void BattleAddStringToDisplay(s32, s32, s32, u16*);

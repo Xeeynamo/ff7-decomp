@@ -315,7 +315,7 @@ const char* SysKernGetString(s32 type, s32 index, s32 blockOffset) {
                     *str++ = g_BattleWork.turn[slot].formationIndex + g_FFTextLetterOffset;
                 }
 
-                if (g_BattleState.combatant[slot].stateFlags & COMBATANT_BACK_ROW) {
+                if (g_BattleState.combatant[slot].stateFlags & UNIT_BACK_ROW) {
                     str = SysAppendString(str, SysGetKernBattleTextById(0x71), -1);
                 }
 
