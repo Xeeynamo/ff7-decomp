@@ -988,7 +988,7 @@ void BattleModelStartFades(s16 actor) {
             D_80153BDD &= ~BATTLE_MODEL_HIDDEN;
             func_800B5FE8(EFFECT_MODEL_SLOT);
         }
-        if (actor < START_ENEMY || D_800F7DF4.enemies[actor - START_ENEMY].flags & 1) {
+        if (actor < START_ENEMY || D_800F7DF4.enemies[actor - START_ENEMY].flags & UNIT_VISIBLE) {
             g_BattleModels[actor].specialFlags &= ~BATTLE_MODEL_HIDDEN;
         }
         func_800B5FE8(actor);
@@ -1063,10 +1063,10 @@ void BattleInitModelsAnimAndColor(s32 first, s32 end) {
         g_BattleModels[modelIndex].colorG = 0;
         g_BattleModels[modelIndex].colorB = 0;
         if (actor >= START_ENEMY) {
-            if (!(D_800F7DF4.enemies[modelIndex - START_ENEMY].flags & 4)) {
+            if (!(D_800F7DF4.enemies[modelIndex - START_ENEMY].flags & UNIT_MODEL_ACTIVE)) {
                 g_BattleModels[modelIndex].specialFlags = 0;
             }
-            if (!(D_800F7DF4.enemies[modelIndex - START_ENEMY].flags & 1)) {
+            if (!(D_800F7DF4.enemies[modelIndex - START_ENEMY].flags & UNIT_VISIBLE)) {
                 g_BattleModels[modelIndex].specialFlags |= 4;
             }
         }
