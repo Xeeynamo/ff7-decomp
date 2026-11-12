@@ -121,7 +121,7 @@ void BattleInitMain(s32 sceneID) {
                 if (g_BattleState.combatant[i + START_ENEMY].curHP == 0) {
                     g_BattleState.combatant[i + START_ENEMY].status |= STATUS_DEATH;
                     g_BattleState.combatant[i + START_ENEMY].prevStatus |= STATUS_DEATH;
-                    g_BattleState.combatant[i + START_ENEMY].stateFlags &= ~0x18;
+                    g_BattleState.combatant[i + START_ENEMY].stateFlags &= ~(UNIT_TARGETABLE | UNIT_AI_CONTROLLED);
                 }
             }
             mask <<= 1;
@@ -299,11 +299,11 @@ static void BattleInitPlayer(void) {
             unit->unk16 = 0;
             unit->unk56 = 8;
             unit->hurtActionId = 5;
-            unit->stateFlags = 8;
+            unit->stateFlags = UNIT_TARGETABLE;
             party->partyMember = member;
             g_BattleState.playerUnitMask |= bit << i;
             if (!(member->order & 1)) {
-                unit->stateFlags |= COMBATANT_BACK_ROW;
+                unit->stateFlags |= UNIT_BACK_ROW;
             }
             unit->curHP = character->hp;
             unit->curMP = character->mp;
@@ -372,7 +372,7 @@ static void BattleInitPlayer(void) {
                     SysSetEngineErrorCode(0x26);
                 }
             }
-            unit->stateFlags |= 8;
+            unit->stateFlags |= UNIT_TARGETABLE;
             if (unit->curHP == 0) {
                 unit->status |= STATUS_DEATH;
             }
@@ -722,9 +722,9 @@ void BattleQueueIntroCamera(s32);
 // Lays out the two sides for the opening of the battle. D_801B003C picks the
 // intro animation for the battle type, then the type decides which zones the
 // party and the enemies occupy (zone[0]/zone[1]/zone[2]) and which combatants
-// start "turned around" (bit 0x80 of unk4) -- back attacks, side attacks and
-// pincers each split the party differently. Finally the front/back row bit is
-// re-derived for the three party slots.
+// start with UNIT_FACING_REVERSED -- back attacks, side attacks and pincers each
+// split the party differently. Finally the front/back row bit is re-derived
+// for the three party slots.
 static void BattleInitFormation(void) {
     u16 zone[NUM_ZONES];
     s32 enemyMask;
@@ -766,7 +766,8 @@ static void BattleInitFormation(void) {
         zone[1] = partyMask;
         for (i = 0; i < NUM_ENEMY; i++) {
             if ((enemyMask >> (i + START_ENEMY)) & 1) {
-                zone[g_BattleState.combatant[i + START_ENEMY].stateFlags & 2] |= 1 << (i + START_ENEMY);
+                // UNIT_ALT_ZONE's value (0 or 2) is the zone index
+                zone[g_BattleState.combatant[i + START_ENEMY].stateFlags & UNIT_ALT_ZONE] |= 1 << (i + START_ENEMY);
             }
         }
         mask = zone[2] | (partyMask & 2);
@@ -787,28 +788,27 @@ static void BattleInitFormation(void) {
         break;
     }
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
-        g_BattleState.combatant[i].stateFlags &= ~0x82;
+        g_BattleState.combatant[i].stateFlags &= ~(UNIT_ALT_ZONE | UNIT_FACING_REVERSED);
         if ((zone[2] >> i) & 1) {
-            g_BattleState.combatant[i].stateFlags |= 2;
+            g_BattleState.combatant[i].stateFlags |= UNIT_ALT_ZONE;
         }
         if ((mask >> i) & 1) {
-            g_BattleState.combatant[i].stateFlags |= 0x80;
+            g_BattleState.combatant[i].stateFlags |= UNIT_FACING_REVERSED;
         }
     }
     for (i = 0; i < NUM_PARTY; i++) {
-        back = g_BattleState.combatant[i].stateFlags >> 6;
-        back &= 1;
+        back = (g_BattleState.combatant[i].stateFlags & UNIT_BACK_ROW) != 0;
         switch (g_BattleWork.encounterType) {
         case 0:
         case 1:
             break;
         case 2:
             back = !back;
-            g_BattleState.combatant[i].stateFlags ^= COMBATANT_BACK_ROW;
+            g_BattleState.combatant[i].stateFlags ^= UNIT_BACK_ROW;
             break;
         default:
             back = 0;
-            g_BattleState.combatant[i].stateFlags &= ~COMBATANT_BACK_ROW;
+            g_BattleState.combatant[i].stateFlags &= ~UNIT_BACK_ROW;
             break;
         }
         g_BattleData.actors[i].D_801636BE = back;
@@ -949,6 +949,7 @@ void BattleInitEnemyUnits(void) {
             combatant->prevStatus = 0;
             combatant->stolenGil = 0;
             combatant->stolenItem = 0xFFFF;
+            // the formation data supplies only UNIT_VISIBLE..UNIT_AI_CONTROLLED
             combatant->stateFlags = g_BattleData.activeEncounter.formation[i].flags & 0x1F;
             combatant->formationRow = g_BattleData.activeEncounter.formation[i].row;
 

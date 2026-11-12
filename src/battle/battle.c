@@ -795,7 +795,7 @@ s32 BattleBattleActionQueueExecute(s32 numPriorities) {
 
                 if (forceAction) {
                     BattleQueueImmediateAction(slot, 2, 0x20, BattleGetAttackIdInSceneByAttackId(attackId), 0);
-                } else if (g_BattleState.combatant[slot].stateFlags & 0x10) {
+                } else if (g_BattleState.combatant[slot].stateFlags & UNIT_AI_CONTROLLED) {
                     func_800A32C0(1);
                     BattleRunUnitScript(slot, 1, 2);
 
@@ -1387,8 +1387,8 @@ void func_800A38FC(void) {
                 continue;
             }
 
-            // A party member with the stateFlags 0x10 bit set will also meet this condition
-            if (i >= NUM_PARTY || (g_BattleState.combatant[i].stateFlags & 0x10)) {
+            // A party member with UNIT_AI_CONTROLLED set will also meet this condition
+            if (i >= NUM_PARTY || (g_BattleState.combatant[i].stateFlags & UNIT_AI_CONTROLLED)) {
                 BattleQueuePendingAction(i, -1, 0, 0);
             } else if ((g_BattleWork.disabledUnitMask >> i) & 1) {
                 BattleQueuePendingAction(i, BattleGetBerserkToadAttackTypeId(i), 0, 0);
@@ -1454,9 +1454,9 @@ static void BattleScheduleAction(BattleActionEntry* action) {
             g_BattleWork.nextOrderToAssign[priorityTier]++;
             g_BattleWork.pendingActionPriority = priorityTier;
             if (action->priority >= 2) {
-                g_BattleState.combatant[action->unitSlot].stateFlags &= ~COMBATANT_DEFENDING;
+                g_BattleState.combatant[action->unitSlot].stateFlags &= ~UNIT_DEFENDING;
                 if ((action->cmdIndex & CMD_INDEX_MASK) == CMD_DEFEND) {
-                    g_BattleState.combatant[action->unitSlot].stateFlags |= COMBATANT_DEFENDING;
+                    g_BattleState.combatant[action->unitSlot].stateFlags |= UNIT_DEFENDING;
                 }
             }
             return;
@@ -1688,10 +1688,10 @@ void BattleUpdateUnitMasks(void) {
         stateFlags = g_BattleState.combatant[i].stateFlags;
         status = g_BattleState.combatant[i].status;
 
-        if (stateFlags & 8) {
+        if (stateFlags & UNIT_TARGETABLE) {
             var_t3 |= actorMask;
         }
-        if (stateFlags & 0x10) {
+        if (stateFlags & UNIT_AI_CONTROLLED) {
             var_s1 |= actorMask;
         }
         if (status & STATUS_PETRIFY) {
@@ -1716,7 +1716,7 @@ void BattleUpdateUnitMasks(void) {
         enemyMask = 1 << j + START_ENEMY;
         if (var_t3 & enemyMask) {
             row = g_BattleState.combatant[j + START_ENEMY].formationRow;
-            g_BattleState.combatant[j + START_ENEMY].stateFlags &= ~0x840;
+            g_BattleState.combatant[j + START_ENEMY].stateFlags &= ~(UNIT_BEHIND_COVER | UNIT_BACK_ROW);
             for (k = 0; k < NUM_ENEMY; k++) {
                 if (((var_t3 >> (k + START_ENEMY)) & 1) &&
                     g_BattleState.combatant[k + START_ENEMY].formationRow < row) {
@@ -1726,7 +1726,7 @@ void BattleUpdateUnitMasks(void) {
 
             if (g_BattleData.activeEncounter.formation[j].coverFlags & frontCoverFlags) {
                 coveredEnemies |= enemyMask;
-                g_BattleState.combatant[j + START_ENEMY].stateFlags |= 0x800;
+                g_BattleState.combatant[j + START_ENEMY].stateFlags |= UNIT_BEHIND_COVER;
             }
 
             if (row < enemyFrontRow) {
@@ -1738,7 +1738,7 @@ void BattleUpdateUnitMasks(void) {
     for (i = 0; i < NUM_ENEMY; i++) {
         if ((var_t3 >> (i + START_ENEMY)) & 1 &&
             g_BattleState.combatant[i + START_ENEMY].formationRow != enemyFrontRow) {
-            g_BattleState.combatant[i + START_ENEMY].stateFlags |= 0x40;
+            g_BattleState.combatant[i + START_ENEMY].stateFlags |= UNIT_BACK_ROW;
         }
     }
 
@@ -2391,11 +2391,11 @@ void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode) {
     if (arg0 >= NUM_PARTY) {
         return;
     }
-    if (g_BattleState.combatant[arg0].stateFlags & 0x10) {
+    if (g_BattleState.combatant[arg0].stateFlags & UNIT_AI_CONTROLLED) {
         return;
     }
 
-    if (!(g_BattleState.combatant[arg0].stateFlags & 0x10)) {
+    if (!(g_BattleState.combatant[arg0].stateFlags & UNIT_AI_CONTROLLED)) {
         ActiveCharEnabledCounter* counters = g_ActiveCharacters[arg0].enabledCounters;
         for (i = 0; i < LEN(g_ActiveCharacters[arg0].enabledCounters); i++) {
             // Takes the mode and turns it into an offset (1, 4, 7) which suggests
@@ -2615,9 +2615,9 @@ void BattleProcessUnitKilled(s32 arg0, s32 arg1, s32 arg2) {
         }
     }
 
-    if (!(g_BattleState.combatant[arg1].stateFlags & 0x2000)) {
+    if (!(g_BattleState.combatant[arg1].stateFlags & UNIT_KO_PROCESSED)) {
         nextAssignedOrder = g_BattleWork.nextOrderToAssign[0];
-        g_BattleState.combatant[arg1].stateFlags |= 0x2000;
+        g_BattleState.combatant[arg1].stateFlags |= UNIT_KO_PROCESSED;
 
         if (arg0 >= START_ENEMY) {
             BattleAddAutoBattleActionByChance(arg1, 0);
@@ -2633,14 +2633,14 @@ void BattleProcessUnitKilled(s32 arg0, s32 arg1, s32 arg2) {
 
         // Queue action only if the above script queued something at tier 0 or arg2 is set
         if ((g_BattleWork.nextOrderToAssign[0] != nextAssignedOrder) || (arg2 != 0)) {
-            if (!(g_BattleState.combatant[arg1].stateFlags & 0x1000)) {
+            if (!(g_BattleState.combatant[arg1].stateFlags & UNIT_UNK1000)) {
                 g_BattleState.scriptOpponentNonPetrifiedMask = 1 << arg1;
                 BattleQueueOpcodeAction(arg1, 0x25, 0);
             }
             var_s3 = 1;
         }
     }
-    if (g_BattleState.combatant[arg1].stateFlags & 0x1000) {
+    if (g_BattleState.combatant[arg1].stateFlags & UNIT_UNK1000) {
         var_s3 = 1;
     }
 
@@ -3074,11 +3074,11 @@ void BattleActionType04(void) {
     g_CurrentAction->animId = -1;
     if (func_800B12DC() != 0) {
         val = 4;
-        if (g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & COMBATANT_BACK_ROW) {
+        if (g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & UNIT_BACK_ROW) {
             val = 3;
         }
         g_CurrentAction->animId = val;
-        g_BattleState.combatant[g_CurrentAction->actorId].stateFlags ^= COMBATANT_BACK_ROW;
+        g_BattleState.combatant[g_CurrentAction->actorId].stateFlags ^= UNIT_BACK_ROW;
     }
 }
 
@@ -3828,6 +3828,7 @@ s32 BattleApplyActionEffect(s32 effectPhase) {
 
         g_CurrentAction->unk234 &= ~1;
         g_CurrentAction->damageFlags &= ~2;
+        // bit 7 is UNIT_FACING_REVERSED
         if (((stateFlags >> 7) & 1) == g_CurrentAction->effectModifier) {
             g_CurrentAction->unk234 |= 1;
         }
@@ -4038,8 +4039,8 @@ s32 BattleApplyActionEffect(s32 effectPhase) {
     case 0x19: // Switch a party target's row (Electromag)
         if (func_800B12DC() && g_CurrentAction->targetId < NUM_PARTY) {
             g_CurrentAction->hurtAnimScript =
-                (g_BattleState.combatant[g_CurrentAction->targetId].stateFlags & COMBATANT_BACK_ROW) ? 0x32 : 0x31;
-            g_BattleState.combatant[g_CurrentAction->targetId].stateFlags ^= COMBATANT_BACK_ROW;
+                (g_BattleState.combatant[g_CurrentAction->targetId].stateFlags & UNIT_BACK_ROW) ? 0x32 : 0x31;
+            g_BattleState.combatant[g_CurrentAction->targetId].stateFlags ^= UNIT_BACK_ROW;
         }
         break;
     case 0x1A: { // Follow with attack [modifier] on the other units (Blade Beam)
@@ -4268,7 +4269,7 @@ void BattleApplyVincentLimitTransform(void) {
     s32 unitId;
 
     unitId = g_CurrentAction->actorId;
-    g_BattleState.combatant[unitId].stateFlags |= 0x10;
+    g_BattleState.combatant[unitId].stateFlags |= UNIT_AI_CONTROLLED;
     g_BattleState.combatant[unitId].status &= ~(STATUS_CONFU | STATUS_FROG | STATUS_BERSERK);
     g_BattleWork.turn[unitId].miscFlags |= BATTLE_MISC_TRANSFORMED;
     BattleQueueImmediateAction(unitId, 0, -1, 0, 0);
@@ -4982,9 +4983,8 @@ static void BattleMainDmgCalculation(s32 arg0, s32 arg1) {
     if (!(g_CurrentAction->attackFlags & 1)) {
         g_CurrentAction->damageFlags |= 4;
     }
-    if (g_BattleState.combatant[arg1].stateFlags & 0x4000) {
-        // target already marked -- treat as an automatic miss/no-effect
-        g_CurrentAction->unk218 |= 1;
+    if (g_BattleState.combatant[arg1].stateFlags & UNIT_AUTO_EVADE) {
+        g_CurrentAction->unk218 |= 1; // every attack on this unit misses
     }
     if (!(g_CurrentAction->unk218 & 1)) {
         BattleDmgFormulaRun();
@@ -5341,7 +5341,7 @@ void func_800ACA4C(s32 arg0) {
 }
 
 // Checks if an action can be performed for a unit, and deducts the required MP cost
-// stateFlags & 0x400 skips the MP cost and various checks (also skipped when animId == 0x34)
+// UNIT_SKIP_ACTION_CHECKS skips the MP cost and various checks (also skipped when animId == 0x34)
 // Returns 1 if the action is cancelled due to status effects or insufficient MP, 0 otherwise
 s32 func_800ACB98(void) {
     s32 blocked;
@@ -5349,7 +5349,8 @@ s32 func_800ACB98(void) {
     s32 msg;
 
     result = 0;
-    if (!(g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & 0x400) && (g_CurrentAction->animId != 0x34)) {
+    if (!(g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & UNIT_SKIP_ACTION_CHECKS) &&
+        (g_CurrentAction->animId != 0x34)) {
         blocked = 0;
 
         if (g_CurrentAction->attackerStatus & STATUS_SILENCE) {
@@ -5418,9 +5419,9 @@ s32 func_800ACD88(s32 arg0) {
 
     result = 0;
     if (g_CurrentAction->attackFlags & 4) {
-        flags = g_BattleState.combatant[arg0].stateFlags & 0x200;
+        flags = g_BattleState.combatant[arg0].stateFlags & UNIT_IMMUNE_MAGICAL;
         result = flags != 0;
-    } else if (g_BattleState.combatant[arg0].stateFlags & 0x100) {
+    } else if (g_BattleState.combatant[arg0].stateFlags & UNIT_IMMUNE_PHYSICAL) {
         result = 1;
     }
 
@@ -5860,10 +5861,10 @@ void BattleSetTmpDmgAsPhysical(void) {
         damage *= 3;
         damage >>= 1;
     }
-    isBackRow = g_BattleState.combatant[g_CurrentAction->targetId].stateFlags & COMBATANT_BACK_ROW;
+    isBackRow = g_BattleState.combatant[g_CurrentAction->targetId].stateFlags & UNIT_BACK_ROW;
     halve = isBackRow != 0;
     if ((g_CurrentAction->targetFlags & TARGET_SHORT_RANGE) || (g_CurrentAction->cmdIndex == CMD_ENEMY_ATTACK)) {
-        if (g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & COMBATANT_BACK_ROW) {
+        if (g_BattleState.combatant[g_CurrentAction->actorId].stateFlags & UNIT_BACK_ROW) {
             halve = 1;
         }
     } else {
@@ -5873,7 +5874,7 @@ void BattleSetTmpDmgAsPhysical(void) {
         damage = damage / 2;
     }
     target = g_CurrentAction->targetId;
-    if (g_BattleState.combatant[target].stateFlags & COMBATANT_DEFENDING) {
+    if (g_BattleState.combatant[target].stateFlags & UNIT_DEFENDING) {
         damage = damage / 2;
     }
     if (g_CurrentAction->unk234 & 1) {
@@ -6346,12 +6347,12 @@ void BattlePostAddDeath(s32 arg0, s32 arg1, s32 arg2) {
     s32 i;
 
     if (arg0 >= NUM_PARTY) {
-        g_BattleState.combatant[arg0].stateFlags &= ~0x18;
+        g_BattleState.combatant[arg0].stateFlags &= ~(UNIT_TARGETABLE | UNIT_AI_CONTROLLED);
     } else {
         g_BattleWork.party[arg0].limitBar = 0;
         if (g_BattleWork.turn[arg0].miscFlags & BATTLE_MISC_TRANSFORMED) {
             g_BattleWork.turn[arg0].miscFlags &= ~BATTLE_MISC_TRANSFORMED;
-            g_BattleState.combatant[arg0].stateFlags &= ~0x10;
+            g_BattleState.combatant[arg0].stateFlags &= ~UNIT_AI_CONTROLLED;
             BattleQueueEffect(arg0, 3, 0, 0, 0, 0, 0);
         }
         g_BattleState.combatant[arg0].maxHP = g_BattleWork.party[arg0].maxHP;
@@ -6407,10 +6408,10 @@ void BattlePostRemoveDeath(s32 arg0, s32 arg1, s32 arg2) {
     }
 
     if (arg0 >= NUM_PARTY) {
-        g_BattleState.combatant[arg0].stateFlags |= 0x18;
+        g_BattleState.combatant[arg0].stateFlags |= UNIT_TARGETABLE | UNIT_AI_CONTROLLED;
     }
 
-    g_BattleState.combatant[arg0].stateFlags &= ~0x2000;
+    g_BattleState.combatant[arg0].stateFlags &= ~UNIT_KO_PROCESSED;
     g_BattleData.actors[arg0].D_801636BC = g_BattleWork.turn[arg0].deathEffectState;
 
     func_800AEBF0(arg0, arg1, arg2);
@@ -6671,7 +6672,7 @@ s32 BattleGetStatusProtectionMask(s32 arg0, s32 arg1, s32 arg2) {
         statusProtectionMask &= ~STATUS_DEATH;
     }
 
-    if (g_BattleState.combatant[arg0].stateFlags & 0x1000) {
+    if (g_BattleState.combatant[arg0].stateFlags & UNIT_UNK1000) {
         statusProtectionMask |= STATUS_DEATH;
     }
 
@@ -6978,7 +6979,7 @@ void BattleRollPhysicalHit(void) {
     const s32 vulnerableStatusMask = STATUS_DEATH | STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_PETRIFY |
                                      STATUS_MANIPULATE | STATUS_PARALYSIS;
 
-    func_800B0C14();
+    BattleResolveAttackFacing();
 
     hitChance = -1;
     if (g_CurrentAction->unk234 & 1) {
@@ -7038,7 +7039,7 @@ void BattleRollPhysicalHit(void) {
 
     // Roll for hit in range 1..100 inclusive
     if (BattleGetRnd164() < hitChance) {
-        func_800B0DF8();
+        BattleApplyTargetFacing();
         return;
     }
 
@@ -7195,7 +7196,7 @@ s32 BattleCalcDefPercent(s32 arg0) {
     return BattleApplyStatMult(arg0, evade, STAT_MULT_PHYS_EVADE);
 }
 
-void func_800B0C14(void) {
+void BattleResolveAttackFacing(void) {
     s32 actorGroup = 0;
     s32 targetGroup = 0;
     s32 flagsDiffer = 0;
@@ -7203,17 +7204,17 @@ void func_800B0C14(void) {
     s32 actorBitMask = 1 << actorId;
     s32 targetId = g_CurrentAction->targetId;
     s32 targetBitMask = 1 << targetId;
-    s32 prevStateMask;
-    s32 stateMask;
+    s32 prevFacingReversedMask;
+    s32 facingReversedMask;
     s32 flipActor;
     s32 i;
 
-    // Branchless calculation of a mask if the actor is in a specific state, 0 otherwise
-    stateMask = actorBitMask & -((g_BattleState.combatant[actorId].stateFlags & 0x80) != 0);
-    if (g_BattleState.combatant[targetId].stateFlags & 0x80) {
-        stateMask |= targetBitMask;
+    // Branchless calculation of a mask if the actor's facing is reversed, 0 otherwise
+    facingReversedMask = actorBitMask & -((g_BattleState.combatant[actorId].stateFlags & UNIT_FACING_REVERSED) != 0);
+    if (g_BattleState.combatant[targetId].stateFlags & UNIT_FACING_REVERSED) {
+        facingReversedMask |= targetBitMask;
     }
-    prevStateMask = stateMask;
+    prevFacingReversedMask = facingReversedMask;
 
     for (i = 0; i < NUM_ZONES; i++) {
         if (g_BattleData.unitZoneMask[i] & actorBitMask) {
@@ -7232,41 +7233,41 @@ void func_800B0C14(void) {
             flipActor = 1;
             /* fallthrough */
         case 2:
-            if (stateMask & actorBitMask) {
+            if (facingReversedMask & actorBitMask) {
                 flipActor ^= 1;
             }
             if (flipActor) {
-                stateMask ^= actorBitMask;
+                facingReversedMask ^= actorBitMask;
             }
             break;
         }
     }
 
-    if (actorBitMask & stateMask) {
+    if (actorBitMask & facingReversedMask) {
         flagsDiffer ^= 1;
     }
-    if (targetBitMask & stateMask) {
+    if (targetBitMask & facingReversedMask) {
         flagsDiffer ^= 1;
     }
 
     if ((actorGroup != targetGroup) && (flagsDiffer == 0)) {
-        stateMask ^= targetBitMask;
+        facingReversedMask ^= targetBitMask;
         g_CurrentAction->unk234 |= 1;
     }
 
-    // Store only the changed bits back to stateMask
-    stateMask ^= prevStateMask;
-    if (stateMask & actorBitMask) {
-        g_BattleState.combatant[g_CurrentAction->actorId].stateFlags ^= 0x80;
+    // Store only the changed bits back to facingReversedMask
+    facingReversedMask ^= prevFacingReversedMask;
+    if (facingReversedMask & actorBitMask) {
+        g_BattleState.combatant[g_CurrentAction->actorId].stateFlags ^= UNIT_FACING_REVERSED;
     }
-    if (stateMask & targetBitMask) {
+    if (facingReversedMask & targetBitMask) {
         g_CurrentAction->unk234 |= 2;
     }
 }
 
-static void func_800B0DF8(void) {
+static void BattleApplyTargetFacing(void) {
     if (g_CurrentAction->unk234 & 2) {
-        g_BattleState.combatant[g_CurrentAction->targetId].stateFlags ^= 0x80;
+        g_BattleState.combatant[g_CurrentAction->targetId].stateFlags ^= UNIT_FACING_REVERSED;
     }
 }
 
