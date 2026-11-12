@@ -1,0 +1,6 @@
+MAGIC_Boost = 0x801B0000; // type:func
+func_boost_801B0028 = 0x801B0028; // type:func
+func_boost_801B00E0 = 0x801B00E0; // type:func
+func_boost_801B01C8 = 0x801B01C8; // type:func
+func_boost_801B03D8 = 0x801B03D8; // type:func
+func_boost_801B046C = 0x801B046C; // type:func

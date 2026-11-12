@@ -1,0 +1,5 @@
+MAGIC_Smkball = 0x801B0000; // type:func
+func_smkball_801B0020 = 0x801B0020; // type:func
+func_smkball_801B0124 = 0x801B0124; // type:func
+func_smkball_801B0250 = 0x801B0250; // type:func
+func_smkball_801B02B0 = 0x801B02B0; // type:func

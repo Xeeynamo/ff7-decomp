@@ -45,7 +45,7 @@ s32 BattleModelReadAnimStream(BattleModelSub* arg0, s32 arg1, s16 nItems, u8* ar
 void func_800D3AF0();
 void func_800D4710();
 MATRIX* BattleSetMatrixPosition(SVECTOR* pos, s32 depthBias, MATRIX* m);
-static void BattleSpawnFloatingIcon(s32 actor, s32 arg1);
+void BattleSpawnFloatingIcon(s32 actor, s32 arg1);
 void BattleQueueImpactEffect(s32 arg0, s16 arg1);
 void BattleInitMagicCastEffect(void);
 void BattleStartEffectWithModel(s32 targetMask, s32 callbackArg);
@@ -633,14 +633,14 @@ MagicEntry D_800EF9D8[] = {
     (MagicEntry)0x801B0A8C,              //   6 CAREL.BIN
     (MagicEntry)0x801B0EEC,              //   7 CAREL.BIN
     (MagicEntry)0x801B0B60,              //   8 CAREL.BIN
-    (MagicEntry)0x801B0364,              //   9 THREAT.BIN
+    (MagicEntry)MAGIC_ThreatSetup,       //   9 THREAT.BIN
     (MagicEntry)0x801B0054,              //  10 TODO.BIN
-    (MagicEntry)0x801B0054,              //  11 MINIMAM.BIN
-    (MagicEntry)0x801B0000,              //  12 ECHOES.BIN
-    (MagicEntry)0x801B0000,              //  13 HAKAI.BIN
-    (MagicEntry)0x801B0000,              //  14 TEARS.BIN
+    (MagicEntry)MAGIC_Minimam,           //  11 MINIMAM.BIN
+    (MagicEntry)MAGIC_Echoes,            //  12 ECHOES.BIN
+    (MagicEntry)MAGIC_Hakai,             //  13 HAKAI.BIN
+    (MagicEntry)MAGIC_Tears,             //  14 TEARS.BIN
     (MagicEntry)0x801B0000,              //  15 ALMIGHTY.BIN
-    (MagicEntry)0x801B0000,              //  16 SMKBALL.BIN
+    (MagicEntry)MAGIC_Smkball,           //  16 SMKBALL.BIN
     (MagicEntry)0x801B0054,              //  17 HEIST.BIN
     (MagicEntry)0x801B0054,              //  18 MYTYG.BIN
     (MagicEntry)0x801B0564,              //  19 RESIST.BIN
@@ -658,7 +658,7 @@ MagicEntry D_800EF9D8[] = {
     (MagicEntry)0x801B0084,              //  31 FAIGA2.BIN
     MAGIC_Brizara,                       //  32 BRIZARA.BIN
     (MagicEntry)0x801B0054,              //  33 BRIZAG2.BIN
-    MAGIC_Thundera,                      //  34 THUNDERA.BIN
+    MAGIC_Thundera,            //  34 THUNDERA.BIN
     (MagicEntry)0x801B000C,              //  35 THUNDG2.BIN
     (MagicEntry)0x801B0074,              //  36 QUEIR.BIN
     (MagicEntry)0x801B0054,              //  37 QUEIG.BIN
@@ -675,7 +675,7 @@ MagicEntry D_800EF9D8[] = {
     (MagicEntry)0x801B0054,              //  48 DAISENP.BIN
     (MagicEntry)0x801B0054,              //  49 AQUA.BIN
     (MagicEntry)0x801B0054,              //  50 TODO.BIN
-    (MagicEntry)0x801B0054,              //  51 MINIMAM.BIN
+    (MagicEntry)MAGIC_Minimam,           //  51 MINIMAM.BIN
     (MagicEntry)0x801B0000,              //  52 ESNA.BIN
     MAGIC_Fire,                          //  53 FIRE.BIN
     (MagicEntry)0x801B0000,              //  54 HAKUGEK2.BIN
@@ -707,7 +707,7 @@ MagicEntry D_800EFAF0[] = {
     (MagicEntry)0x801B0564,    //   6 RESIST.BIN
     BattleStartEffectWithModel, //   7 RAISE.BIN
     BattleStartEffectWithModel, //   8 RAISE.BIN
-    (MagicEntry)0x801B0054,    //   9 MINIMAM.BIN
+    (MagicEntry)MAGIC_Minimam, //   9 MINIMAM.BIN
     (MagicEntry)0x801B0054,    //  10 TODO.BIN
     (MagicEntry)0x801B0054,    //  11 SLIPL.BIN
     BattleStartEffectWithModel, //  12 CONF.BIN
@@ -848,7 +848,7 @@ MagicEntry D_800EFC28[] = {
     (MagicEntry)0x801B0000,                //  61 TOBOE.BIN
     (MagicEntry)0x801B0F18,                //  62 KAFUN.BIN
     (MagicEntry)0x801B0000,                //  63 ROCKET.BIN
-    (MagicEntry)0x801B0364,                //  64 THREAT.BIN
+    (MagicEntry)MAGIC_ThreatSetup,         //  64 THREAT.BIN
     (MagicEntry)0x801B1028,                //  65 Q_SHU.BIN
     (MagicEntry)0x801B0000,                //  66 JIBASIRI.BIN
     (MagicEntry)0x801B0000,                //  67 JIBAKU2.BIN
@@ -874,7 +874,7 @@ MagicEntry D_800EFC28[] = {
     (MagicEntry)0x801B0008,                //  87 SEKIKA.BIN
     (MagicEntry)0x801B0000,                //  88 HAKUGEK1.BIN
     (MagicEntry)0x801B0000,                //  89 HAKUGEK2.BIN
-    (MagicEntry)0x801B0000,                //  90 HAKAI.BIN
+    (MagicEntry)MAGIC_Hakai,               //  90 HAKAI.BIN
     (MagicEntry)0x801B0000,                //  91 WLASER.BIN
     (MagicEntry)0x801B0000,                //  92 AEROGA.BIN
     (MagicEntry)0x801B0054,                //  93 ZENBAKU.BIN
@@ -898,7 +898,7 @@ MagicEntry D_800EFC28[] = {
     (MagicEntry)0x801B0000,                // 111 KONA.BIN
     (MagicEntry)0x801B0000,                // 112 PINK.BIN
     (MagicEntry)0x801B0000,                // 113 JAMMER.BIN
-    (MagicEntry)0x801B0000,                // 114 TEARS.BIN
+    (MagicEntry)MAGIC_Tears,               // 114 TEARS.BIN
     (MagicEntry)0x801B0E98,                // 115 ELECBALL.BIN
     (MagicEntry)0x801B0054,                // 116 UTAGOE.BIN
     (MagicEntry)0x801B0000,                // 117 SAIKYO.BIN
@@ -929,7 +929,7 @@ MagicEntry D_800EFC28[] = {
     (MagicEntry)0x801B0040,                // 142 LASBOSS.BIN
     (MagicEntry)0x801B0040,                // 143 file id 318
     BattleStartEffectWithModel,             // 144 RAISE.BIN
-    (MagicEntry)0x801B0000,                // 145 MAGEND.BIN
+    (MagicEntry)MAGIC_Magend,              // 145 MAGEND.BIN
     (MagicEntry)0x801B0000,                // 146 TO_SEKI.BIN
     (MagicEntry)BattleInitMagicCastEffect, // 147 DEADSEF.BIN
     (MagicEntry)0x801B0A8C,                // 148 CAREL.BIN
@@ -974,7 +974,7 @@ MagicEntryResult D_800EFEA0[] = {
     (MagicEntryResult)0x801B0000,    //  25 TIFA.BIN
     (MagicEntryResult)0x801B0000,    //  26 TIFA.BIN
     (MagicEntryResult)0x801B0000,    //  27 TIFA.BIN
-    (MagicEntryResult)0x801B0000,    //  28 BOOST.BIN
+    (MagicEntryResult)MAGIC_Boost,   //  28 BOOST.BIN
     (MagicEntryResult)0x801B0000,    //  29 MOD.BIN
     (MagicEntryResult)0x801B0000,    //  30 HYPER.BIN
     (MagicEntryResult)0x801B0000,    //  31 DYNAMITE.BIN
@@ -995,18 +995,18 @@ MagicEntryResult D_800EFEA0[] = {
     (MagicEntryResult)0x801B0000,    //  46 FIRE.BIN
     (MagicEntryResult)0x801B0000,    //  47 FIRE.BIN
     (MagicEntryResult)0x801B0000,    //  48 FIRE.BIN
-    (MagicEntryResult)0x801B0000,    //  49 JINRAI.BIN
+    (MagicEntryResult)MAGIC_Jinrai,  //  49 JINRAI.BIN
     (MagicEntryResult)0x801B0000,    //  50 MEIKYO.BIN
     (MagicEntryResult)0x801B0000,    //  51 GAISEI.BIN
     (MagicEntryResult)0x801B0000,    //  52 CHI.BIN
     (MagicEntryResult)0x801B0000,    //  53 GAISHU.BIN
     (MagicEntryResult)0x801B0000,    //  54 SEIJA.BIN
     (MagicEntryResult)0x801B0000,    //  55 SHINRA.BIN
-    (MagicEntryResult)0x801B007C,    //  56 GATTAI.BIN
+    (MagicEntryResult)MAGIC_Gattai,  //  56 GATTAI.BIN
     (MagicEntryResult)BattleStartEffectWithModel, //  57 MDANCE.BIN
     (MagicEntryResult)BattleStartEffectWithModel, //  58 TSOL.BIN
     (MagicEntryResult)0x801B0054,    //  59 LGIRL.BIN
-    (MagicEntryResult)MAGIC_Lv5Death,//  60 LV5DETH.BIN
+    (MagicEntryResult)MAGIC_Lv5Death, //  60 LV5DETH.BIN
     (MagicEntryResult)BattleStartEffectWithModel, //  61 DEATH.BIN
     (MagicEntryResult)0x801B0054,    //  62 BEAST.BIN
     (MagicEntryResult)0x801B0054,    //  63 BEAST.BIN
@@ -2551,14 +2551,14 @@ void func_800D4C08(SVECTOR* pos, s32 scriptAndFlags, s32 scale, s32 depthBias) {
     slot->depthBias = depthBias;
 }
 
-static void BattleSpawnFloatingIconAtPart(s32 actor, s32 arg1, s32 arg2) {
+void BattleSpawnFloatingIconAtPart(s32 actor, s32 arg1, s32 arg2) {
     SVECTOR pos;
 
     BattleGetPartPosition(actor, g_BattleModels[actor].boneIndices[0], &pos);
     func_800D4C08(&pos, arg1, arg2, -g_BattleModels[actor].collisionRadius);
 }
 
-static void BattleSpawnFloatingIcon(s32 actor, s32 arg1) { BattleSpawnFloatingIconAtPart(actor, arg1, 0x1000); }
+void BattleSpawnFloatingIcon(s32 actor, s32 arg1) { BattleSpawnFloatingIconAtPart(actor, arg1, 0x1000); }
 
 static void BattleSpawnFloatingIconAt(void* arg0, s32 arg1, s32 arg2) { func_800D4C08(arg0, arg1, 0x1000, arg2); }
 
