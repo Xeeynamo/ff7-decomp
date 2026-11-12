@@ -633,6 +633,17 @@ typedef struct {
     /* 0xE */ u16 clut;  // POLY_FT4 clut halfword
 } BattleSpriteDesc;      // size:0x10
 
+typedef enum {
+    BATTLE_MISC_UNSTEALABLE = 0x1,   // can't be stolen from: party members, enemies stolen from or hit by Remove
+    BATTLE_MISC_LONG_RANGE = 0x2,    // attacks aren't short range (long-range weapon or CHARFLAG_LONG_RANGE)
+    BATTLE_MISC_SNEAK_ATTACK = 0x4,  // Sneak Attack auto action set to run; cleared by BattleCmdScriptDispatch
+    BATTLE_MISC_TRANSFORMED = 0x8,   // transformed by one of Vincent's Limits; cleared on KO
+    BATTLE_MISC_MORPHED = 0x10,      // Morph has already given this unit's item
+    BATTLE_MISC_KILL_COUNTED = 0x20, // enemy KO already processed for killCount (only party killers add to it)
+    BATTLE_MISC_SENSED = 0x40,       // Sense was used on the unit: its HP / max HP are shown with its name
+    BATTLE_MISC_LUCKY7 = 0x80,       // All Lucky 7s auto action set to run; cleared by BattleCmdScriptDispatch
+} BattleUnitMiscFlags;
+
 typedef struct {
     /* 0x00 */ u16 varSpeed;
     /* 0x02 */ u16 atbIncrement;
@@ -640,14 +651,14 @@ typedef struct {
     /* 0x06 */ s16 hpChangeRate; // HP per 4 var ticks: +maxHP/32 Regen, -maxHP/32 Dual Drain
     /* 0x08 */ s16 limitSpeedFlag;
     /* 0x0A */ u16 constSpeed;
-    /* 0x0C */ u8 senseTargetMask;
+    /* 0x0C */ u8 successorSlot; // slot that took over this unit's state (-1 = none)
     /* 0x0D */ u8 accessoryEffectId;
     /* 0x0E */ u8 menuListFlags;
     /* 0x0F */ u8 formationIndex;
     /* 0x10 */ u8 statusTimers[NUM_STATUS_TIMERS];
     /* 0x20 */ s8 statMults[NUM_STAT_MULTS];
     /* 0x28 */ u8 unk28;
-    /* 0x29 */ u8 turnFlags;
+    /* 0x29 */ u8 miscFlags; // BattleUnitMiscFlags
     /* 0x2A */ u8 turnCount; // turns this unit has finished; all multi-actions are grouped as one turn
     /* 0x2B */ u8 deathEffectState;
     /* 0x2C */ s32 action09Data1;

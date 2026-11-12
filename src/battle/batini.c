@@ -288,8 +288,8 @@ static void BattleInitPlayer(void) {
             if (member->char_id != charId) {
                 continue;
             }
-            turn->turnFlags = 1;
-            turn->senseTargetMask = 0xFF;
+            turn->miscFlags = BATTLE_MISC_UNSTEALABLE;
+            turn->successorSlot = -1;
             bit = 1;
             turn->formationIndex = 0xFF;
             g_BattleData.actors[i].charId = charId;
@@ -339,12 +339,12 @@ static void BattleInitPlayer(void) {
                 setup->attackSound[soundIdx] = soundId;
                 bit <<= 1;
             }
-            turn->turnFlags &= ~2;
+            turn->miscFlags &= ~BATTLE_MISC_LONG_RANGE;
             if (character->characterFlags & CHARFLAG_LONG_RANGE) {
                 setup->targetFlags &= ~TARGET_SHORT_RANGE;
             }
             if (!(setup->targetFlags & TARGET_SHORT_RANGE)) {
-                turn->turnFlags |= 2;
+                turn->miscFlags |= BATTLE_MISC_LONG_RANGE;
             }
             turn->atbGauge = 0;
             character->unk22 = 0;
@@ -435,12 +435,12 @@ void BattleInitPartyFromSavemap(void) {
                     setup->attackStatusMask = characterRecord->physicalAttackStatuses;
                     setup->hitChance = characterRecord->weapon.attackPercent;
                     setup->targetFlags = characterRecord->weapon.targetFlags;
-                    turn->turnFlags &= ~2;
+                    turn->miscFlags &= ~BATTLE_MISC_LONG_RANGE;
                     if (characterRecord->characterFlags & CHARFLAG_LONG_RANGE) {
                         setup->targetFlags &= ~TARGET_SHORT_RANGE;
                     }
                     if (!(setup->targetFlags & TARGET_SHORT_RANGE)) {
-                        turn->turnFlags |= 2;
+                        turn->miscFlags |= BATTLE_MISC_LONG_RANGE;
                     }
                     BattleInitApplyAccStatus(i, savedPartyMember->accessory);
                     BattleInitCharCmdMenu(i);
@@ -496,7 +496,7 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
                 }
             }
             if (e->commandMenu[i].initialCursorAction == 7) {
-                if (g_BattleWork.turn[sceneID].turnFlags & 2) {
+                if (g_BattleWork.turn[sceneID].miscFlags & BATTLE_MISC_LONG_RANGE) {
                     e->commandMenu[i].initialCursorAction = 0;
                 }
                 if (e->commandMenu[i].allCount != 0) {
@@ -665,7 +665,7 @@ static s32 BattleInitApplyStartFX(s32 slot) {
     mask = g_BattleWork.turn[slot].statusProtectionMask;
     g_BattleState.combatant[slot].status &= ~STATUS_D_SENTENCE;
     ret = 0;
-    if (g_BattleWork.turn[slot].turnFlags & 8) {
+    if (g_BattleWork.turn[slot].miscFlags & BATTLE_MISC_TRANSFORMED) {
         mask |= STATUS_FROG;
     }
     if (g_BattleStartFXFlags & 0x10) {
@@ -955,7 +955,7 @@ void BattleInitEnemyUnits(void) {
 
             turnWork->enemy = enemy;
             turnWork->accessoryEffectId = -1;
-            turnWork->senseTargetMask = -1;
+            turnWork->successorSlot = -1;
             turnWork->formationIndex = -1;
             turnWork->statusProtectionMask = ~enemy->statusImmunities;
 
@@ -999,7 +999,7 @@ void BattleInitEnemyUnits(void) {
                 unk->targetFlags = 0;
                 unk->unk3 = 3;
             }
-            turnWork->turnFlags = 0;
+            turnWork->miscFlags = 0;
         }
     }
 

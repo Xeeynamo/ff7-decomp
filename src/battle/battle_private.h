@@ -1094,7 +1094,7 @@ u16 BattleGetRndItemIdForSteal(void*, s32, s32, s32);
 static void BattleAddStringToDisplay(s32, s32, s32, u16*);
 static s32 BattleGetAttackMpCost(s32 arg0);
 static void func_800B2CAC(s32 arg0, s32 arg1);
-void func_800B2CFC(s32 arg0, s32 arg1);
+void BattleTransferUnitState(s32 arg0, s32 arg1);
 static s32 BattleGetRnd164(void);
 static s32 BattleOpcodeCountActiveBits(u16 arg0);
 s32 BattleOpcodeGetRndBit(u16);
