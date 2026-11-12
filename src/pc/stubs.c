@@ -226,6 +226,7 @@ u8 D_80063560[0x100];
 u8 D_80063690[0x5E00];
 BattleItemReward g_BattleItemsEarned[4];
 KernelCharRecord D_80082268[NUM_CHARACTERS];
+u8 D_800831C4[NUM_MAGICS_IN_MENU];
 u8 D_800696F0[NUM_MENU_COLOR];
 BattleCommandData D_800707C4[32];
 AttackData D_800708C4[256];
@@ -246,7 +247,6 @@ OT_TYPE D_800A473C[2];
 void func_80025174(void) { NOT_IMPLEMENTED; }
 void func_801D11A8(void) { NOT_IMPLEMENTED; }
 void SysCopyBoostedStatToUnitStructure(void) { NOT_IMPLEMENTED; }
-void SysSortMagicInUnitStructure(s32 partyId) { NOT_IMPLEMENTED; }
 void BATTLE_Main(void) { NOT_IMPLEMENTED; }
 s32 BattleCopyMessageWithArgs(u8* dst, const u8* src, const u16* args) {
     NOT_IMPLEMENTED;
