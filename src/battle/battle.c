@@ -183,7 +183,7 @@ u8 D_800E7A48[0x10] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF
 u8 D_800E7A58[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 // handlers defined below; needed only because the tables come before them; can remove once table is embedded
-void BattleResetManipulatorTimer(s32 arg0);
+void BattleUnitResetAtbGauge(s32 unitSlot);
 void BattleEnableLimitToPlayerResettingBar(s32 charIdx, s32 arg1);
 void BattleUnitSetCtrlState(s32 unitIdx, s32 limitParam);
 void BattleReceiveItem(s32 arg0, s16 arg1);
@@ -220,7 +220,7 @@ void func_800A7130(s32 arg0, s32 arg1);
 void func_800A71E0(void);
 
 void (*D_800E7A64[])(s32, s32) = {
-    BattleResetManipulatorTimer,
+    BattleUnitResetAtbGauge,
     BattleEnableLimitToPlayerResettingBar,
     BattleUnitSetCtrlState,
     BattleReceiveItem,
@@ -1599,7 +1599,7 @@ void func_800A3ED0(void) {
 
 static void func_800A4D88(s32 arg0);
 static void BattleAddUnitReservedItem(s16 unitSlot, s16 itemId);
-static s32 BattleGetManipulatorIdByEnemyUnitId(s32 enemyId);
+static s32 BattleUnitGetManipulatorSlot(s32 unitSlot);
 
 // Pending actions go into a global queue and are drained once a frame in func_800A3ED0
 void BattleQueuePendingAction(s16 actorId, s16 cmdIndex, s16 attackIndex, u16 targetMask) {
@@ -1629,7 +1629,7 @@ void BattleQueuePendingAction(s16 actorId, s16 cmdIndex, s16 attackIndex, u16 ta
         break;
     }
 
-    func_800A4D88(BattleGetManipulatorIdByEnemyUnitId(actorId));
+    func_800A4D88(BattleUnitGetManipulatorSlot(actorId));
     g_BattleWork.activeUnitCmdMask &= ~(1 << actorId);
     g_BattleWork.turnReadyUnitMask |= 1 << actorId;
     g_BattlePendingActionWriteIdx = (g_BattlePendingActionWriteIdx + 1) & 0xF;
@@ -1644,26 +1644,21 @@ void BattleInitTurnWorkHPMP(void) {
     }
 }
 
-// Manipulate redirect: if enemyId (an enemy id) is currently manipulated
-// (manipulatedUnitMask bit), return the party slot whose g_BattleWork.party[].unk6 is
-// tracking it in place of enemyId; otherwise enemyId passes through unchanged.
-static s32 BattleGetManipulatorIdByEnemyUnitId(s32 enemyId) {
+// Manipulate redirect: if unitSlot is currently manipulated
+// (manipulatedUnitMask bit), return the party slot whose g_BattleWork.party[].manipulatedSlot is
+// tracking it in place of unitSlot; otherwise unitSlot passes through unchanged.
+static s32 BattleUnitGetManipulatorSlot(s32 unitSlot) {
     s32 i;
 
-    if (enemyId < START_ENEMY) {
-        goto end;
-    }
-    if (!((g_BattleWork.manipulatedUnitMask >> enemyId) & 1)) {
-        goto end;
-    }
-    for (i = 0; i < LEN(g_BattleWork.party); i++) {
-        if (g_BattleWork.party[i].unk6 == enemyId) {
-            enemyId = i;
-            goto end;
+    if (unitSlot >= START_ENEMY && ((g_BattleWork.manipulatedUnitMask >> unitSlot) & 1)) {
+        for (i = 0; i < LEN(g_BattleWork.party); i++) {
+            if (g_BattleWork.party[i].manipulatedSlot == unitSlot) {
+                unitSlot = i;
+                break;
+            }
         }
     }
-end:
-    return enemyId;
+    return unitSlot;
 }
 
 void BattleUpdateUnitMasks(void) {
@@ -1873,16 +1868,19 @@ void BattleInitCharCmdState(s32 arg0) {
 
 static s32 BattleGetBerserkToadAttackTypeId(s32 arg0) { return g_BattleOriginalAttackCmd[arg0].id; }
 
-static s32 BattleGetManipIdByPlayerUnitId(s32 arg0) {
-    s32 temp_v1;
+// Inverse of BattleUnitGetManipulatorSlot: if unitSlot is a party member whose
+// g_BattleWork.party[].manipulatedSlot holds a currently manipulated enemy (manipulatedUnitMask bit),
+// return that enemy's slot; otherwise unitSlot passes through unchanged.
+static s32 BattleUnitGetManipulatedSlot(s32 unitSlot) {
+    s32 manipulatedSlot;
 
-    if (arg0 < NUM_PARTY) {
-        temp_v1 = g_BattleWork.party[arg0].unk6;
-        if ((temp_v1 >= START_ENEMY) && ((g_BattleWork.manipulatedUnitMask >> temp_v1) & 1)) {
-            arg0 = temp_v1;
+    if (unitSlot < NUM_PARTY) {
+        manipulatedSlot = g_BattleWork.party[unitSlot].manipulatedSlot;
+        if ((manipulatedSlot >= START_ENEMY) && ((g_BattleWork.manipulatedUnitMask >> manipulatedSlot) & 1)) {
+            unitSlot = manipulatedSlot;
         }
     }
-    return arg0;
+    return unitSlot;
 }
 
 static void func_800A4D2C(s32 arg0) {
@@ -1902,11 +1900,11 @@ static void func_800A4D2C(s32 arg0) {
     }
 }
 
-static void func_800A4D88(s32 arg0) {
+static void func_800A4D88(s32 unitSlot) {
     u32 i;
 
     for (i = 0; i < LEN(D_800E7A48); i++) {
-        if (D_800E7A48[i] == arg0) {
+        if (D_800E7A48[i] == unitSlot) {
             for (; i < LEN(D_800E7A48) - 1; i++) {
                 D_800E7A48[i] = D_800E7A48[i + 1];
                 if (D_800E7A48[i] == 0xFF) {
@@ -1926,7 +1924,7 @@ s16 func_800A4E00(void) {
     arg = D_800E7A48[0] & 0xFF;
     if (arg != 0xFF) {
         arg = -1;
-        result = BattleGetManipIdByPlayerUnitId(D_800E7A48[0]);
+        result = BattleUnitGetManipulatedSlot(D_800E7A48[0]);
     }
     return result;
 }
@@ -2669,10 +2667,12 @@ static u16 BattleGetItemFromSlot(s32 arg0) {
     return var_a0;
 }
 
-void BattleResetManipulatorTimer(s32 arg0) {
-    s32 index = BattleGetManipulatorIdByEnemyUnitId(arg0);
-    g_BattleWork.turn[index].atbGauge = 0;
-    g_BattleWork.turnReadyUnitMask &= ~(1 << index);
+// Empties the ATB gauge and clears the turn-ready bit of the unit in control of unitSlot:
+// its manipulator if it is a manipulated enemy, otherwise unitSlot itself.
+void BattleUnitResetAtbGauge(s32 unitSlot) {
+    unitSlot = BattleUnitGetManipulatorSlot(unitSlot);
+    g_BattleWork.turn[unitSlot].atbGauge = 0;
+    g_BattleWork.turnReadyUnitMask &= ~(1 << unitSlot);
 }
 
 void func_800A6590(s32 arg0) { func_800A4D88(arg0); }
@@ -2696,21 +2696,21 @@ void BattleUnitChkClearActiveTurn(s32 unitIdx) {
     }
 }
 
-void BattleUnitSetCtrlState(s32 unitIdx, s32 limitParam) {
-    BattleResetManipulatorTimer(unitIdx);
-    BattleEnableLimitToPlayerResettingBar(unitIdx, limitParam);
-    func_800A4D88(unitIdx);
-    g_BattleWork.activeUnitCmdMask &= ~(1 << unitIdx);
-    g_BattleWork.disabledUnitMask &= ~(1 << unitIdx);
+void BattleUnitSetCtrlState(s32 unitSlot, s32 limitParam) {
+    BattleUnitResetAtbGauge(unitSlot);
+    BattleEnableLimitToPlayerResettingBar(unitSlot, limitParam);
+    func_800A4D88(unitSlot);
+    g_BattleWork.activeUnitCmdMask &= ~(1 << unitSlot);
+    g_BattleWork.disabledUnitMask &= ~(1 << unitSlot);
 }
 
 // Invoked when stealing an item, an enemy is morphed, or defeated enemy returns a stolen item
 void BattleReceiveItem(s32 arg0, s16 arg1) { BattleAddUnitReservedItem(10, arg1); }
 
-void func_800A6748(s32 arg0) {
-    BattleResetManipulatorTimer(arg0);
-    func_800A4D88(arg0);
-    g_BattleWork.activeUnitCmdMask &= ~(1 << arg0);
+void func_800A6748(s32 unitSlot) {
+    BattleUnitResetAtbGauge(unitSlot);
+    func_800A4D88(unitSlot);
+    g_BattleWork.activeUnitCmdMask &= ~(1 << unitSlot);
 }
 
 void func_800A6798(s32 arg0, s32 arg1) { func_800A37F8(arg1); }
@@ -2725,17 +2725,17 @@ void BattleUnitEnableBerserkToad(s32 unitIdx) {
 
 void BattleUnitClrDisabledTurn(s32 unitIdx) { g_BattleWork.disabledUnitMask &= ~(1 << unitIdx); }
 
-void BattleUnitSetManipulated(s32 unitIdx, s32 isManipulated) {
+void BattleUnitSetManipulated(s32 unitSlot, s32 isManipulated) {
     if (isManipulated) {
-        BattleUnitSetCtrlState(unitIdx, isManipulated);
-        g_BattleWork.manipulatedUnitMask |= 1 << unitIdx;
+        BattleUnitSetCtrlState(unitSlot, isManipulated);
+        g_BattleWork.manipulatedUnitMask |= 1 << unitSlot;
         return;
     }
 
-    g_BattleWork.manipulatedUnitMask &= ~(1 << unitIdx);
-    if ((g_BattleWork.activeUnitCmdMask >> unitIdx) & 1) {
-        func_800A4D88(unitIdx);
-        BattleQueuePendingAction(unitIdx, -1, 0, 0);
+    g_BattleWork.manipulatedUnitMask &= ~(1 << unitSlot);
+    if ((g_BattleWork.activeUnitCmdMask >> unitSlot) & 1) {
+        func_800A4D88(unitSlot);
+        BattleQueuePendingAction(unitSlot, -1, 0, 0);
     }
 }
 
@@ -2780,10 +2780,10 @@ void func_800A6A70(s32 arg0, s32 arg1) {
 }
 
 void BattleUnitFlushEnemyTurnMasks(void) {
-    g_BattleWork.disabledUnitMask &= 0xFC0F;
-    g_BattleWork.manipulatedUnitMask &= 0xFC0F;
-    g_BattleWork.activeUnitCmdMask &= 0xFC0F;
-    g_BattleWork.turnReadyUnitMask &= 0xFC0F;
+    g_BattleWork.disabledUnitMask &= ~ENEMY_TEAM_MASK;
+    g_BattleWork.manipulatedUnitMask &= ~ENEMY_TEAM_MASK;
+    g_BattleWork.activeUnitCmdMask &= ~ENEMY_TEAM_MASK;
+    g_BattleWork.turnReadyUnitMask &= ~ENEMY_TEAM_MASK;
 }
 
 void BattleTurnSchedUpdateParty(void) {
@@ -4274,31 +4274,34 @@ void BattleApplyVincentLimitTransform(void) {
     g_BattleWork.turn[unitId].miscFlags |= BATTLE_MISC_TRANSFORMED;
     BattleQueueImmediateAction(unitId, 0, -1, 0, 0);
     g_BattleState.vincentLimitLevel = g_CurrentAction->effectModifier;
+
     switch (g_CurrentAction->effectModifier) {
     case 0: // Lvl 1. Galian Beast
-        BattleAddStatMult(unitId, 0x14, 0x10);
-        BattleAddStatMult(unitId, 0x32, 0x20);
+        BattleAddStatMult(unitId, 20, 0x10);
+        BattleAddStatMult(unitId, 50, 0x20);
         g_BattleState.combatant[unitId].maxHP = g_BattleState.combatant[unitId].maxHP * 13 / 10;
         break;
     case 1: // Lvl 2. Death Gigas
-        BattleAddStatMult(unitId, 0x32, 4);
-        BattleAddStatMult(unitId, -0x46, 8);
-        BattleAddStatMult(unitId, -0x14, 0x20);
+        BattleAddStatMult(unitId, 50, 4);
+        BattleAddStatMult(unitId, -70, 8);
+        BattleAddStatMult(unitId, -20, 0x20);
         g_BattleState.combatant[unitId].maxHP *= 2;
         break;
     case 2: // Lvl 3. Hellmasker
-        BattleAddStatMult(unitId, 0x32, 4);
-        BattleAddStatMult(unitId, 0x32, 0x10);
+        BattleAddStatMult(unitId, 50, 4);
+        BattleAddStatMult(unitId, 50, 0x10);
         break;
     case 3: // Lvl 4. Chaos
-        BattleAddStatMult(unitId, 0x64, 4);
-        BattleAddStatMult(unitId, 0x64, 8);
+        BattleAddStatMult(unitId, 100, 4);
+        BattleAddStatMult(unitId, 100, 8);
         break;
     }
+
     if (g_BattleState.combatant[unitId].maxHP > g_BattleWork.party[unitId].capHP) {
         g_BattleState.combatant[unitId].maxHP = g_BattleWork.party[unitId].capHP;
     }
     g_BattleState.combatant[unitId].curHP = g_BattleState.combatant[unitId].maxHP;
+
     BattleUnitCalcSpeed(unitId);
     BattleQueueEvent(2, unitId, 0x18, 1);
 }
@@ -4306,29 +4309,29 @@ void BattleApplyVincentLimitTransform(void) {
 static s32 func_800B10B4(s32 arg0);
 
 static void func_800AA468(void) {
-    s32 temp_s0;
-    s32 var_s1;
+    const u32 statusMask =
+        STATUS_DARKNESS | STATUS_SLOW | STATUS_SILENCE | STATUS_SADNESS | STATUS_POISON | STATUS_NEAR_DEATH;
+    s32 attackerStatus = g_CurrentAction->attackerStatus;
+    s32 dmgMulti;
 
-    var_s1 = g_CurrentAction->attackerStatus;
     if (func_800B10B4(g_CurrentAction->actorId)) {
-        var_s1 |= 2;
+        attackerStatus |= STATUS_NEAR_DEATH;
     }
-    temp_s0 = SysCountActiveBits(var_s1 & 0x0400029A);
-    temp_s0 += SysCountActiveBits(var_s1 & 0x202000) * 2;
-    g_CurrentAction->tmpDamage *= temp_s0 + 1;
+    dmgMulti = SysCountActiveBits(attackerStatus & statusMask);
+    dmgMulti += SysCountActiveBits(attackerStatus & (STATUS_D_SENTENCE | STATUS_SLOW_NUMB)) * 2;
+    g_CurrentAction->tmpDamage *= dmgMulti + 1;
 }
 
 static void func_800AA4FC(void) {
-    s32 var_s0;
+    s32 dmgMulti = 1;
 
-    var_s0 = 1;
-    if (func_800B10B4(g_CurrentAction->actorId) != 0) {
-        var_s0 = 2;
+    if (func_800B10B4(g_CurrentAction->actorId)) {
+        dmgMulti = 2;
     }
-    if (g_CurrentAction->attackerStatus & 0x200000) {
-        var_s0 *= 4;
+    if (g_CurrentAction->attackerStatus & STATUS_D_SENTENCE) {
+        dmgMulti *= 4;
     }
-    g_CurrentAction->tmpDamage *= var_s0;
+    g_CurrentAction->tmpDamage *= dmgMulti;
 }
 
 // Used in Barret's Missing Score (ultimate weapon) damage calculation
@@ -4367,16 +4370,15 @@ void BattleSetPowerFromWeaponMateriaAp(void) {
 }
 
 static void func_800AA688(void) {
-    s32 var_a0;
-    s32 var_a1;
+    s32 deadUnitMulti = 1;
+    s32 i;
 
-    var_a1 = 1;
-    for (var_a0 = 0; var_a0 < NUM_PARTY; var_a0++) {
-        if (g_BattleState.combatant[var_a0].status & STATUS_DEATH) {
-            var_a1 += 1;
+    for (i = 0; i < NUM_PARTY; i++) {
+        if (g_BattleState.combatant[i].status & STATUS_DEATH) {
+            deadUnitMulti += 1;
         }
     }
-    g_CurrentAction->tmpDamage *= var_a1;
+    g_CurrentAction->tmpDamage *= deadUnitMulti;
 }
 
 static s32 func_800AA6E8(s32 arg0, s32 arg1) {
@@ -4388,13 +4390,11 @@ static s32 func_800AA6E8(s32 arg0, s32 arg1) {
 }
 
 static s32 BattleGetRndOpponentBit(s32 arg0) {
-    s32 var_v0;
-
-    var_v0 = 0xF;
+    s32 teamMask = ALLY_TEAM_MASK;
     if (arg0 < START_ENEMY) {
-        var_v0 = ENEMY_TEAM_MASK;
+        teamMask = ENEMY_TEAM_MASK;
     }
-    return BattleOpcodeGetRndBit(g_BattleData.unk14C & var_v0) & 0xFFFF;
+    return BattleOpcodeGetRndBit(g_BattleData.unk14C & teamMask) & 0xFFFF;
 }
 
 // Queues a battle action from the current action state
@@ -6340,66 +6340,69 @@ void func_800AEBF0(s32 index, s32 arg1, s32 arg2) { BattleUnitCalcSpeed(index); 
 void BattleReleaseUnitReservedItems();
 #endif
 
-void BattlePostAddDeath(s32 arg0, s32 arg1, s32 arg2) {
+void BattlePostAddDeath(s32 unitSlot, s32 arg1, s32 arg2) {
     u16 stolenGil;
     u16 stolenItem;
     s32 target;
     s32 i;
 
-    if (arg0 >= NUM_PARTY) {
-        g_BattleState.combatant[arg0].stateFlags &= ~(UNIT_TARGETABLE | UNIT_AI_CONTROLLED);
+    if (unitSlot >= NUM_PARTY) {
+        g_BattleState.combatant[unitSlot].stateFlags &= ~(UNIT_TARGETABLE | UNIT_AI_CONTROLLED);
     } else {
-        g_BattleWork.party[arg0].limitBar = 0;
-        if (g_BattleWork.turn[arg0].miscFlags & BATTLE_MISC_TRANSFORMED) {
-            g_BattleWork.turn[arg0].miscFlags &= ~BATTLE_MISC_TRANSFORMED;
-            g_BattleState.combatant[arg0].stateFlags &= ~UNIT_AI_CONTROLLED;
-            BattleQueueEffect(arg0, 3, 0, 0, 0, 0, 0);
+        g_BattleWork.party[unitSlot].limitBar = 0;
+        if (g_BattleWork.turn[unitSlot].miscFlags & BATTLE_MISC_TRANSFORMED) {
+            g_BattleWork.turn[unitSlot].miscFlags &= ~BATTLE_MISC_TRANSFORMED;
+            g_BattleState.combatant[unitSlot].stateFlags &= ~UNIT_AI_CONTROLLED;
+            BattleQueueEffect(unitSlot, 3, 0, 0, 0, 0, 0);
         }
-        g_BattleState.combatant[arg0].maxHP = g_BattleWork.party[arg0].maxHP;
-        BattleQueueEvent(2, arg0, 0x18, 0);
+        g_BattleState.combatant[unitSlot].maxHP = g_BattleWork.party[unitSlot].maxHP;
+        BattleQueueEvent(2, unitSlot, 0x18, 0);
     }
 
-    target = g_BattleWork.party[arg0].unk6;
+    // Retail bug: no unitSlot < NUM_PARTY check, so an enemy's death reads past
+    // party[] (setup/enemy data) and may clear STATUS_MANIPULATE out of bounds.
+    // The 1998 PC port adds the missing check
+    target = g_BattleWork.party[unitSlot].manipulatedSlot;
     if (target >= START_ENEMY) {
         g_BattleState.combatant[target].status &= ~STATUS_MANIPULATE;
     }
 
-    g_BattleState.combatant[arg0].curHP = 0;
-    func_800AEBF0(arg0, arg1, arg2);
+    g_BattleState.combatant[unitSlot].curHP = 0;
+    func_800AEBF0(unitSlot, arg1, arg2);
 
-    g_BattleWork.turn[arg0].hpChangeRate = 0;
-    g_BattleWork.subActionSlots[arg0].priority = 0xFF;
-    BattleReleaseUnitReservedItems(arg0);
+    g_BattleWork.turn[unitSlot].hpChangeRate = 0;
+    g_BattleWork.subActionSlots[unitSlot].priority = 0xFF;
+    BattleReleaseUnitReservedItems(unitSlot);
 
     for (i = 0; i < NUM_STATUS_TIMERS; i++) {
-        g_BattleWork.turn[arg0].statusTimers[i] = 0;
+        g_BattleWork.turn[unitSlot].statusTimers[i] = 0;
     }
 
     for (i = 0; i < NUM_STAT_MULTS; i++) {
-        g_BattleWork.turn[arg0].statMults[i] = 0;
+        g_BattleWork.turn[unitSlot].statMults[i] = 0;
     }
 
-    if (!((g_BattleWork.unk2214 >> arg0) & 1)) {
-        stolenGil = g_BattleState.combatant[arg0].stolenGil;
+    if (!((g_BattleWork.unk2214 >> unitSlot) & 1)) {
+        stolenGil = g_BattleState.combatant[unitSlot].stolenGil;
         if (stolenGil != 0) {
             s16 strArg = stolenGil;
-            g_BattleState.combatant[arg0].stolenGil = 0;
+            g_BattleState.combatant[unitSlot].stolenGil = 0;
             Savemap.gil += stolenGil;
             BattleAddStringToDisplay(0xA, BATTLE_TEXT_RECEIVED_GIL, 1, &strArg);
         }
 
-        stolenItem = g_BattleState.combatant[arg0].stolenItem;
+        stolenItem = g_BattleState.combatant[unitSlot].stolenItem;
         if (stolenItem != 0xFFFF) {
             s16 strArg = stolenItem;
-            g_BattleState.combatant[arg0].stolenItem = 0xFFFF;
+            g_BattleState.combatant[unitSlot].stolenItem = 0xFFFF;
             BattleQueueEvent(0, g_CurrentAction->actorId, 3, stolenItem);
             BattleAddStringToDisplay(0xA, BATTLE_TEXT_RECEIVED_ITEM, 1, &strArg);
         }
     }
 
-    BattleQueueEvent(0, arg0, 2, 0);
-    BattleInitUnitAction(arg0);
-    BattleInvalidateQueuedMessages(arg0, 1);
+    BattleQueueEvent(0, unitSlot, 2, 0);
+    BattleInitUnitAction(unitSlot);
+    BattleInvalidateQueuedMessages(unitSlot, 1);
 }
 
 void BattlePostRemoveDeath(s32 arg0, s32 arg1, s32 arg2) {
@@ -6526,21 +6529,21 @@ void func_800AF494(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-void BattleClearActorSlotReferences(s32 arg0, s32 arg1, s32 arg2) {
+void BattleClearActorSlotReferences(s32 unitSlot, s32 arg1, s32 arg2) {
     s32 i;
 
-    BattleQueueEvent(0, arg0, 0xA, arg2);
+    BattleQueueEvent(0, unitSlot, 0xA, arg2);
     if (arg2 != 0) {
-        func_800A23BC(arg0);
+        func_800A23BC(unitSlot);
         return;
     }
     for (i = 0; i < LEN(g_BattleWork.party); i++) {
-        if (g_BattleWork.party[i].unk6 == arg0) {
-            g_BattleWork.party[i].unk6 = 0;
+        if (g_BattleWork.party[i].manipulatedSlot == unitSlot) {
+            g_BattleWork.party[i].manipulatedSlot = 0;
             BattleQueueEvent(0, i, 6, 0);
         }
     }
-    BattleInitUnitAction(arg0);
+    BattleInitUnitAction(unitSlot);
 }
 
 void BattleInitUnitAction(s32 index);
@@ -7130,13 +7133,13 @@ void BattleRollManipulateHit(void) {
 
     // fails if a party member is already manipulating the target
     for (i = 0; i < NUM_PARTY; i++) {
-        if (g_BattleWork.party[i].unk6 == targetId) {
+        if (g_BattleWork.party[i].manipulatedSlot == targetId) {
             break;
         }
     }
 
     if (i == NUM_PARTY && targetId >= START_ENEMY && g_CurrentAction->actorId < NUM_PARTY &&
-        g_BattleWork.party[g_CurrentAction->actorId].unk6 == 0 &&
+        g_BattleWork.party[g_CurrentAction->actorId].manipulatedSlot == 0 &&
         !(g_CurrentAction->targetStatus & STATUS_MANIPULATE) && g_BattleWork.turn[targetId].atbIncrement &&
         !(g_CurrentAction->affinityFlags & AFFINITY_NULLIFY)) {
         chance = 50 + g_CurrentAction->characterLevel - g_CurrentAction->targetLevel;
@@ -7175,7 +7178,7 @@ void BattleRollManipulateHit(void) {
             msgArgs[1] = g_BattleWork.turn[targetId].formationIndex;
         }
 
-        g_BattleWork.party[g_CurrentAction->actorId].unk6 = targetId;
+        g_BattleWork.party[g_CurrentAction->actorId].manipulatedSlot = targetId;
         BattleAddStringToDisplay(g_CurrentAction->actorId, BATTLE_TEXT_MANIPULATED, 1, msgArgs);
         g_CurrentAction->unkE4 = -1;
     } else {

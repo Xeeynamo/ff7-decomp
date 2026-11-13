@@ -148,7 +148,7 @@ void BattleInitSetup(s32 sceneID) {
         }
     }
     for (i = 0; i < NUM_PARTY; i++) {
-        g_BattleWork.party[i].unk6 = 0;
+        g_BattleWork.party[i].manipulatedSlot = 0;
     }
     if (g_BattleData.isMultiBattle) {
         BattleInitPartyFromSavemap();
