@@ -896,7 +896,8 @@ void BattleInitEnemyUnits(void) {
         turnWork = &g_BattleWork.turn[i + START_ENEMY];
         combatant = &g_BattleState.combatant[i + START_ENEMY];
 
-        id = g_BattleData.activeEncounter.formation[i].enemyID;
+        // Formation entries still hold SCENE.BIN enemy IDs here; swapped for the type index below
+        id = g_BattleData.activeEncounter.formation[i].enemyTypeIndex;
         combatant->actorId = -1;
         combatant->enemyId = -1;
         combatant->stateFlags = 0;
@@ -923,8 +924,9 @@ void BattleInitEnemyUnits(void) {
 
             g_BattleWork.enemyTypeCount[j]++;
 
+            // Swap the SCENE.BIN enemy ID for its type index; all later readers expect the index
             id = j;
-            g_BattleData.activeEncounter.formation[i].enemyID = id;
+            g_BattleData.activeEncounter.formation[i].enemyTypeIndex = id;
             enemy = &g_BattleWork.enemy[id];
             combatant->actorId = id;
             combatant->curHP = combatant->maxHP = enemy->hp;
@@ -1003,7 +1005,7 @@ void BattleInitEnemyUnits(void) {
     }
 
     for (i = 0; i < NUM_ENEMY; i++) {
-        if (g_BattleWork.enemyTypeCount[g_BattleData.activeEncounter.formation[i].enemyID] >= 2) {
+        if (g_BattleWork.enemyTypeCount[g_BattleData.activeEncounter.formation[i].enemyTypeIndex] >= 2) {
             g_BattleWork.turn[i + START_ENEMY].formationIndex = g_BattleState.combatant[i + START_ENEMY].formationIndex;
         }
     }
@@ -1013,7 +1015,7 @@ static void BattleInitEnemyAI(void) {
     s32 i;
 
     for (i = 0; i < NUM_ENEMY; i++) {
-        if (g_BattleData.activeEncounter.formation[i].enemyID != -1) {
+        if (g_BattleData.activeEncounter.formation[i].enemyTypeIndex != -1) {
             BattleRunUnitScript(i + START_ENEMY, 0, 0);
         }
     };

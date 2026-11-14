@@ -533,14 +533,14 @@ static void func_800B3E2C(void) {
     func_800C5BEC();
 }
 
-// search the formation's 6 enemy slots for one whose enemyID matches arg0;
+// search the formation's 6 enemy positions for one whose enemyTypeIndex matches arg0;
 // if found, bump a counter and return 0, else return -1
 static s32 func_800B3FAC(s32 arg0) {
     s32 i;
     u8* p = (u8*)&D_800F7DF4;
 
     for (i = 0; i < (s32)sizeof(g_BattleData.activeEncounter.formation); i += sizeof(FormationEntry)) {
-        if (((FormationEntry*)((u8*)g_BattleData.activeEncounter.formation + i))->enemyID == arg0) {
+        if (((FormationEntry*)((u8*)g_BattleData.activeEncounter.formation + i))->enemyTypeIndex == arg0) {
             *p += 1;
             return 0;
         }

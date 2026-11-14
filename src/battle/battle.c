@@ -454,7 +454,7 @@ void BattleCmdScriptDispatch(BattleActionEntry* entry) {
     g_CurrentAction->impactSfxIds[1] = -1;
     g_CurrentAction->impactSfxIds[2] = -1;
     g_CurrentAction->impactEffectId = -1;
-    g_CurrentAction->unk8 = -1;
+    g_CurrentAction->enemyTypeIndex = -1;
     g_CurrentAction->attackFlags = -1;
     g_CurrentAction->unk60 = -1;
     g_CurrentAction->unk64 = -1;
@@ -553,7 +553,7 @@ void BattleCmdScriptDispatch(BattleActionEntry* entry) {
     }
 
     if (unitSlot >= START_ENEMY) {
-        g_CurrentAction->unk8 = g_BattleData.activeEncounter.formation[unitSlot - START_ENEMY].enemyID;
+        g_CurrentAction->enemyTypeIndex = g_BattleData.activeEncounter.formation[unitSlot - START_ENEMY].enemyTypeIndex;
     }
 
     if (g_BattleWork.turn[unitSlot].miscFlags & BATTLE_MISC_SNEAK_ATTACK) {
@@ -874,8 +874,8 @@ void BattleAttemptStealFromEnemy(void) {
     u16 itemId = 0;
     s32 textId = BATTLE_TEXT_NOTHING_TO_STEAL;
 
-    if (g_CurrentAction->targetEnemyId != -1) {
-        SceneEnemy* enemy = &g_BattleWork.enemy[g_CurrentAction->targetEnemyId];
+    if (g_CurrentAction->targetEnemyTypeIndex != -1) {
+        SceneEnemy* enemy = &g_BattleWork.enemy[g_CurrentAction->targetEnemyTypeIndex];
         if (BattleGetRndItemIdForSteal(enemy, 0x80, 1, 0) != 0xFFFF &&
             !(g_BattleWork.turn[targetSlot].miscFlags & BATTLE_MISC_UNSTEALABLE)) {
             s32 levelDiff = g_CurrentAction->characterLevel + 40 - g_CurrentAction->targetLevel;
@@ -983,7 +983,7 @@ static void BattleAddSequenceAction(s32 actionIndex) {
 
 // Attempts to morph the enemy; does nothing if target cannot be morphed
 void BattleMorphEnemy(void) {
-    s32 enemyId;
+    s32 enemyTypeIndex;
     u16 morphItem;
 
     if (g_CurrentAction->targetSlot < START_ENEMY ||
@@ -991,8 +991,8 @@ void BattleMorphEnemy(void) {
         return;
     }
 
-    enemyId = g_BattleData.activeEncounter.formation[g_CurrentAction->targetSlot - START_ENEMY].enemyID;
-    morphItem = g_BattleWork.enemy[enemyId].morphItem;
+    enemyTypeIndex = g_BattleData.activeEncounter.formation[g_CurrentAction->targetSlot - START_ENEMY].enemyTypeIndex;
+    morphItem = g_BattleWork.enemy[enemyTypeIndex].morphItem;
     if (morphItem == 0xFFFF) {
         return;
     }
@@ -2545,8 +2545,9 @@ void BattleRunUnitScript(s32 unitSlot, s32 scriptType, s32 priority) {
 
     if (unitSlot >= START_ENEMY) {
         s32 enemyIndex = unitSlot - START_ENEMY;
-        scriptOffset = GetEnemyAiScriptOffs(&g_BattleWork.activeScriptMask - 0x80C,
-                                            g_BattleData.activeEncounter.formation[enemyIndex].enemyID, scriptType);
+        scriptOffset = GetEnemyAiScriptOffs(
+            &g_BattleWork.activeScriptMask - 0x80C, g_BattleData.activeEncounter.formation[enemyIndex].enemyTypeIndex,
+            scriptType);
     } else if (unitSlot < NUM_PARTY) {
         presetIdx = g_BattleData.actors[unitSlot].charId;
         if (presetIdx != -1) {
@@ -3239,7 +3240,7 @@ void BattleActionType0C(void) {
 
     if (!isDeathSentenceExpiry) {
         if (g_CurrentAction->actorSlot >= START_ENEMY) {
-            SceneEnemy* enemy = &g_BattleWork.enemy[g_CurrentAction->unk8];
+            SceneEnemy* enemy = &g_BattleWork.enemy[g_CurrentAction->enemyTypeIndex];
 
             for (i = 0; i < LEN(enemy->attackID); i++) {
                 if (g_CurrentAction->absoluteActionIndex == enemy->attackID[i]) {
@@ -3449,7 +3450,7 @@ void BattleActionType15(void) {
 // Sense command handler
 void BattleActionType16(void) {
     s32 weakElemMasks[NUM_BATTLE_ACTOR];
-    s32 sensedEnemyIds[3];
+    s32 sensedEnemyIds[NUM_ENEMY_TYPES];
     u16 msgArgs[4];
     s32 targetMask = g_CurrentAction->allowedTargetsMask;
     s32 msgDelay = 0x20;
@@ -5219,7 +5220,7 @@ void BattleCalcTargStats(s32 targetSlot) {
     s32 i;
 
     g_CurrentAction->targetSlot = targetSlot;
-    g_CurrentAction->targetEnemyId = -1;
+    g_CurrentAction->targetEnemyTypeIndex = -1;
     g_CurrentAction->unk21C = 0;
     g_CurrentAction->damageFlags = 0;
     g_CurrentAction->targetDefense = 0;
@@ -5280,7 +5281,8 @@ void BattleCalcTargStats(s32 targetSlot) {
     }
 
     if (targetSlot >= START_ENEMY) {
-        g_CurrentAction->targetEnemyId = g_BattleData.activeEncounter.formation[targetSlot - START_ENEMY].enemyID;
+        g_CurrentAction->targetEnemyTypeIndex =
+            g_BattleData.activeEncounter.formation[targetSlot - START_ENEMY].enemyTypeIndex;
     }
 }
 
@@ -6123,7 +6125,8 @@ void BattleGetAffinityMasks(s32 elementMask, s32 statusMask, s32 unitSlot, s32* 
         masks[5] = charData->nullifiedElements;
         masks[6] = charData->absorbedElements;
     } else if (unitSlot >= START_ENEMY) {
-        SceneEnemy* enemy = &g_BattleWork.enemy[g_BattleData.activeEncounter.formation[unitSlot - START_ENEMY].enemyID];
+        SceneEnemy* enemy =
+            &g_BattleWork.enemy[g_BattleData.activeEncounter.formation[unitSlot - START_ENEMY].enemyTypeIndex];
         for (i = 0; i < sizeof(enemy->affinityIds); i++) {
             s32 id = enemy->affinityIds[i];
             s32 type = enemy->affinityTypes[i];

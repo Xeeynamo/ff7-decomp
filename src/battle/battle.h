@@ -11,6 +11,7 @@
 #define EFFECT_MODEL_SLOT (NUM_PARTY) // holds the model an effect overlay supplies
 #define START_ENEMY (NUM_PARTY + 1)
 #define NUM_ENEMY (6)
+#define NUM_ENEMY_TYPES (3)                        // distinct enemy records per scene (SceneContainer.enemy)
 #define NUM_BATTLE_ACTOR (START_ENEMY + NUM_ENEMY) // 10
 #define NUM_ZONES (3)                              // battlefield zones, see BattleData.unitZoneMask
 #define LIMIT_LEVEL_DISABLED 0xFF                  // BattlePartyWork.limitLevel: no Limit Breaks
@@ -196,7 +197,8 @@ typedef struct {
     // confirmed live here
     /* 0x00 */ s32 status;
     /* 0x04 */ u32 stateFlags; // UnitStateFlags
-    /* 0x08 */ s8 actorId;
+    /* 0x08 */ s8 actorId;     // party: character ID (Savemap.partyID, BattleInitPlayer);
+                               // enemies: enemy type index (0-2, BattleInitEnemyUnits); -1 = empty slot
     /* 0x09 */ u8 level;
     /* 0x0A */ s8 targetSubSlot;
     /* 0x0B */ s8 minElemInfluence;
@@ -334,7 +336,9 @@ typedef struct {
 
 // https://github.com/petfriendamy/ff7-scarlet/blob/main/src/SceneEditor/EnemyLocation.cs
 typedef struct {
-    /* 0x00 */ s16 enemyID;
+    // SCENE.BIN enemy ID as loaded (-1 = empty position); BattleInitEnemyUnits replaces it
+    // with the enemy type index (0-2) into g_BattleWork.enemy[]
+    /* 0x00 */ s16 enemyTypeIndex;
     /* 0x02 */ u16 x, y;
     /* 0x06 */ s16 z;
     /* 0x08 */ u16 row;
@@ -387,7 +391,7 @@ typedef struct {
     /* 0x008 */ BattleSetup setup[4];
     /* 0x058 */ CameraPlacement camera[4][4];
     /* 0x118 */ FormationEntry formation[4][6];
-    /* 0x298 */ SceneEnemy enemy[3];
+    /* 0x298 */ SceneEnemy enemy[NUM_ENEMY_TYPES];
     /* 0x4C0 */ AttackData attacks[0x20];
     /* 0x840 */ u16 attackIDs[0x20];
     /* 0x880 */ u8 attackNames[0x20][0x20];
@@ -736,7 +740,7 @@ typedef struct {
     /* 0x0000 */ BattleTurnWork turn[NUM_BATTLE_ACTOR];
     /* 0x02A8 */ BattlePartyWork party[NUM_PARTY];
     /* 0x0344 */ BattleUnitAttackSetup setup[NUM_PARTY];
-    /* 0x038C */ SceneEnemy enemy[3];
+    /* 0x038C */ SceneEnemy enemy[NUM_ENEMY_TYPES];
     /* 0x05B4 */ AttackData attacks[0x20];
     /* 0x0934 */ u16 attackIDs[0x20];
     /* 0x0974 */ u8 attackNames[0x20][0x20];
@@ -773,7 +777,7 @@ typedef struct {
     /* 0x2216 */ u16 petrifiedMask;
     /* 0x2218 */ u16 frameRnd; // Random u16 roll every frame, used for steal and escape
     /* 0x221A */ u16 reviveMask;
-    /* 0x221C */ u8 enemyTypeCount[3];
+    /* 0x221C */ u8 enemyTypeCount[NUM_ENEMY_TYPES];
     /* 0x221F */ u8 pad221F;
     /* 0x2220 */ u16 attackerUnitMask;
     /* 0x2222 */ u16 playerContextOffset[2];
@@ -785,7 +789,7 @@ typedef struct {
 typedef struct Unk800A8D04 {
     /* 0x000 */ s32 actorSlot;
     /* 0x004 */ s32 characterLevel;
-    /* 0x008 */ s32 unk8;
+    /* 0x008 */ s32 enemyTypeIndex;
     /* 0x00C */ s32 queuedCmdIndex;
     /* 0x010 */ s32 relativeActionIndex; // index within its own category (spell #, summon
                                          // #, etc) - see MAGIC_START in game.h for range defines
@@ -850,7 +854,7 @@ typedef struct Unk800A8D04 {
     /* 0x200 */ BattleTurnWork* turnWork;
     /* 0x204 */ BattlePartyWork* partyWork;
     /* 0x208 */ s32 targetSlot;
-    /* 0x20C */ s32 targetEnemyId;
+    /* 0x20C */ s32 targetEnemyTypeIndex;
     /* 0x210 */ s32 targetDefense;
     /* 0x214 */ s32 tmpDamage;
     /* 0x218 */ s32 unk218;
