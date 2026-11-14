@@ -1180,6 +1180,8 @@ void BattleActionType1B(void);
 void BattleActionType1C(void);
 void BattleActionType1E(void);
 void BattleActionType09(void);
+void func_800ACA4C(s32 arg0);
+void BattleSetFormulaAndBaseDmg(void);
 
 // BattleProcessUnitKilled does not match if this is forward declared because the types do not agree
 // but the modern build fails if it is not declared

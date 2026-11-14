@@ -183,41 +183,41 @@ u8 D_800E7A48[0x10] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF
 u8 D_800E7A58[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 // handlers defined below; needed only because the tables come before them; can remove once table is embedded
-void BattleUnitResetAtbGauge(s32 unitSlot);
-void BattleEnableLimitToPlayerResettingBar(s32 unitSlot, s32 arg1);
+void BattleUnitResetAtbGauge(s32 unitSlot, s32 param);
+void BattleEnableLimitToPlayerResettingBar(s32 unitSlot, s32 param);
 void BattleUnitSetCtrlState(s32 unitSlot, s32 limitParam);
-void BattleReceiveItem(s32 arg0, s16 itemId);
-void func_800A6590(s32 unitSlot);
-void func_800A6748(s32 unitSlot);
-void BattleUnitChkClearActiveTurn(s32 unitSlot);
-void func_800A6798(s32 arg0, s32 arg1);
-void BattleUnitEnableBerserkToad(s32 unitSlot);
-void BattleUnitClrDisabledTurn(s32 unitSlot);
+void BattleReceiveItem(s32 unitSlot, s32 itemId);
+void func_800A6590(s32 unitSlot, s32 param);
+void func_800A6748(s32 unitSlot, s32 param);
+void BattleUnitChkClearActiveTurn(s32 unitSlot, s32 param);
+void func_800A6798(s32 unitSlot, s32 param);
+void BattleUnitEnableBerserkToad(s32 unitSlot, s32 param);
+void BattleUnitClrDisabledTurn(s32 unitSlot, s32 param);
 void BattleUnitSetManipulated(s32 unitSlot, s32 isManipulated);
-void BattleUnitStealRndPartyItem(s32 unitSlot);
+void BattleUnitStealRndPartyItem(s32 unitSlot, s32 param);
 void BattleUnitAddMenuListFlags(s32 unitSlot, s32 menuListFlags);
-void func_800A6A70(s32 unitSlot, s32 arg1);
-void BattleUnitFlushEnemyTurnMasks(void);
-void BattleTurnSchedUpdateParty(void);
-void BattleSearchAndRemoveItemFromSlot(s32 arg0, s32 itemId);
-void func_800A6BFC(void);
-void BattleSetLimitBreakStringToDisplay(s32 unitSlot);
+void func_800A6A70(s32 unitSlot, s32 param);
+void BattleUnitFlushEnemyTurnMasks(s32 unitSlot, s32 param);
+void BattleTurnSchedUpdateParty(s32 unitSlot, s32 param);
+void BattleSearchAndRemoveItemFromSlot(s32 unitSlot, s32 itemId);
+void func_800A6BFC(s32 unitSlot, s32 param);
+void BattleSetLimitBreakStringToDisplay(s32 unitSlot, s32 param);
 void BattleUnitSetStolenItem(s32 unitSlot, s32 itemId);
-void BattleClearStatusBit(s32 unitSlot, s32 arg1);
-void BattleExpireDeathSentence(s32 unitSlot);
-void BattleChangeSlownumbToPetrify(s32 unitSlot);
-void BattleTickPoison(s32 unitSlot);
-void func_800A6DFC(void);
-void func_800A6E04(void);
-void BattleHudResetLimit(s32 unitSlot);
-void func_800A6E6C(s32 unitSlot, s32 arg1);
-void BattleRemovePlayersFromBattle(s32 unused, s32 mask);
-void BattleSetItemWasStolenStringToDisplay(s32 unitSlot, s16 itemId);
-void func_800A7060(s32 unitSlot, s32 arg1);
-void BattleUnitMarkSensed(s32 unitSlot);
-void func_800A70C4(s32 unitSlot, s32 arg1);
-void func_800A7130(s32 unitSlot, s32 arg1);
-void func_800A71E0(void);
+void BattleClearStatusBit(s32 unitSlot, s32 param);
+void BattleExpireDeathSentence(s32 unitSlot, s32 param);
+void BattleChangeSlownumbToPetrify(s32 unitSlot, s32 param);
+void BattleTickPoison(s32 unitSlot, s32 param);
+void func_800A6DFC(s32 unitSlot, s32 param);
+void func_800A6E04(s32 unitSlot, s32 param);
+void BattleHudResetLimit(s32 unitSlot, s32 param);
+void func_800A6E6C(s32 unitSlot, s32 param);
+void BattleRemovePlayersFromBattle(s32 unitSlot, s32 mask);
+void BattleSetItemWasStolenStringToDisplay(s32 unitSlot, s32 itemId);
+void func_800A7060(s32 unitSlot, s32 param);
+void BattleUnitMarkSensed(s32 unitSlot, s32 param);
+void func_800A70C4(s32 unitSlot, s32 param);
+void func_800A7130(s32 unitSlot, s32 param);
+void func_800A71E0(s32 unitSlot, s32 param);
 
 void (*D_800E7A64[])(s32, s32) = {
     BattleUnitResetAtbGauge,
@@ -275,7 +275,7 @@ void (*g_StatusExpireTable[])(s32, s32) = {
 };
 
 // These tables can all move inside BattleProcessEventQueue once the TU is split
-const void (**g_BattleEventHandlerTables[])(s32, s32) = {D_800E7A64, D_800E7AA8, g_StatusExpireTable};
+void (**g_BattleEventHandlerTables[])(s32, s32) = {D_800E7A64, D_800E7AA8, g_StatusExpireTable};
 
 typedef struct {
     /* 0x0 */ u8 animId;
@@ -2501,8 +2501,8 @@ static s32 BattleAddMessageToStringBuffer(u8* src, u16* args) {
 
 s8* BattleGetStringPtrFromStringBuffer(s32 arg0) { return &D_800F3A80[D_800F4280[arg0]]; }
 
-static s32 GetEnemyAiScriptOffs(u16* arg0, s32 arg1, s32 arg2) {
-    s32 script = 0;
+static u8* GetEnemyAiScriptOffs(u16* arg0, s32 arg1, s32 arg2) {
+    u8* script = NULL;
     u16* scriptTable;
 
     if (arg1 != -1) {
@@ -2511,7 +2511,7 @@ static s32 GetEnemyAiScriptOffs(u16* arg0, s32 arg1, s32 arg2) {
             scriptTable = arg0 + (arg1 >> 1);
             arg1 = scriptTable[arg2];
             if (arg1 != 0xFFFF) {
-                script = (s32)scriptTable + arg1;
+                script = (u8*)scriptTable + arg1;
             }
         }
     }
@@ -2520,14 +2520,14 @@ static s32 GetEnemyAiScriptOffs(u16* arg0, s32 arg1, s32 arg2) {
 
 extern u16 D_80082884[];
 
-void BattleOpcodeCycle(s32 unitSlot, s32 script, s32 presetIdx);
+void BattleOpcodeCycle(s32 unitSlot, u8* script, s32 presetIdx);
 
 // scriptType 0 is run when the battle starts (see BattleInitPartyScripts/BattleInitEnemyAI)
 // scriptType 1 is run when a unit runs its own logic under normal conditions (see BattleBattleActionQueueExecute)
 // scriptType 3 is run when a unit is KO'd (see BattleProcessUnitKilled)
 // priority is the queue tier for actions the script queues: main runs at 2, KO and battle start at 0
 void BattleRunUnitScript(s32 unitSlot, s32 scriptType, s32 priority) {
-    s32 scriptOffset = 0;
+    u8* script = NULL;
     s32 presetIdx = -1;
     s32 remapped;
     s32 i;
@@ -2544,7 +2544,7 @@ void BattleRunUnitScript(s32 unitSlot, s32 scriptType, s32 priority) {
     if (unitSlot >= START_ENEMY) {
         s32 enemyIndex = unitSlot - START_ENEMY;
         s32 enemyTypeIndex = g_BattleData.activeEncounter.formation[enemyIndex].enemyTypeIndex;
-        scriptOffset = GetEnemyAiScriptOffs((u16*)g_BattleWork.aiScriptBuffer, enemyTypeIndex, scriptType);
+        script = GetEnemyAiScriptOffs((u16*)g_BattleWork.aiScriptBuffer, enemyTypeIndex, scriptType);
     } else if (unitSlot < NUM_PARTY) {
         presetIdx = g_BattleData.actors[unitSlot].charId;
         if (presetIdx != -1) {
@@ -2553,17 +2553,17 @@ void BattleRunUnitScript(s32 unitSlot, s32 scriptType, s32 priority) {
                 presetIdx = remapped;
             }
         }
-        scriptOffset = GetEnemyAiScriptOffs(D_80082884, presetIdx, scriptType);
+        script = GetEnemyAiScriptOffs(D_80082884, presetIdx, scriptType);
     }
 
-    if (scriptOffset) {
+    if (script) {
         for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
             snapshot[i].rowFlags = g_BattleState.combatant[i].rowFlags;
             snapshot[i].idleActionId = g_BattleState.combatant[i].idleActionId;
             snapshot[i].hurtActionId = g_BattleState.combatant[i].hurtActionId;
         }
         BattleInitScriptContext(unitSlot, priority);
-        BattleOpcodeCycle(unitSlot, scriptOffset, presetIdx);
+        BattleOpcodeCycle(unitSlot, script, presetIdx);
         for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
             if (snapshot[i].rowFlags != g_BattleState.combatant[i].rowFlags) {
                 func_800A31A0(i, 4, g_BattleState.combatant[i].rowFlags, 0x10);
@@ -2576,16 +2576,16 @@ void BattleRunUnitScript(s32 unitSlot, s32 scriptType, s32 priority) {
 }
 
 void BattleExecFormationAIScripts(void) {
-    s32 scriptOffset;
+    u8* script;
     s32 i;
 
     BattleInitScriptContext(-1, 0);
     for (i = 0; i < 8; i++) {
         if ((g_BattleWork.activeScriptMask >> i) & 1) {
             g_BattleWork.activeScriptMask &= ~(1 << i);
-            scriptOffset = GetEnemyAiScriptOffs(g_BattleWork.formationAI.scriptOffsets, g_BattleState.sceneID & 3, i);
-            if (scriptOffset != 0) {
-                BattleOpcodeCycle(3, scriptOffset, -1);
+            script = GetEnemyAiScriptOffs(g_BattleWork.formationAI.scriptOffsets, g_BattleState.sceneID & 3, i);
+            if (script != 0) {
+                BattleOpcodeCycle(3, script, -1);
             }
         }
     }
@@ -2661,15 +2661,15 @@ static u16 BattleGetItemFromSlot(s32 itemIndex) {
 
 // Empties the ATB gauge and clears the turn-ready bit of the unit in control of unitSlot:
 // its manipulator if it is a manipulated enemy, otherwise unitSlot itself.
-void BattleUnitResetAtbGauge(s32 unitSlot) {
+void BattleUnitResetAtbGauge(s32 unitSlot, s32 param) {
     unitSlot = BattleUnitGetManipulatorSlot(unitSlot);
     g_BattleWork.turn[unitSlot].atbGauge = 0;
     g_BattleWork.turnReadyUnitMask &= ~(1 << unitSlot);
 }
 
-void func_800A6590(s32 unitSlot) { func_800A4D88(unitSlot); }
+void func_800A6590(s32 unitSlot, s32 param) { func_800A4D88(unitSlot); }
 
-void BattleEnableLimitToPlayerResettingBar(s32 unitSlot, s32 arg1) {
+void BattleEnableLimitToPlayerResettingBar(s32 unitSlot, s32 param) {
     if (unitSlot < NUM_PARTY) {
         BattleEnableLimitToPlayerWithoutSpeed(unitSlot);
         g_ActiveCharacters[unitSlot].unk1A = 0;
@@ -2677,7 +2677,7 @@ void BattleEnableLimitToPlayerResettingBar(s32 unitSlot, s32 arg1) {
     }
 }
 
-void BattleUnitChkClearActiveTurn(s32 unitSlot) {
+void BattleUnitChkClearActiveTurn(s32 unitSlot, s32 param) {
     func_800A4D88(unitSlot);
     if ((g_BattleWork.activeUnitCmdMask >> unitSlot) & 1) {
         if (g_BattleWork.turn[unitSlot].atbGauge == 0xFFFF) {
@@ -2689,7 +2689,7 @@ void BattleUnitChkClearActiveTurn(s32 unitSlot) {
 }
 
 void BattleUnitSetCtrlState(s32 unitSlot, s32 limitParam) {
-    BattleUnitResetAtbGauge(unitSlot);
+    BattleUnitResetAtbGauge(unitSlot, limitParam);
     BattleEnableLimitToPlayerResettingBar(unitSlot, limitParam);
     func_800A4D88(unitSlot);
     g_BattleWork.activeUnitCmdMask &= ~(1 << unitSlot);
@@ -2697,17 +2697,17 @@ void BattleUnitSetCtrlState(s32 unitSlot, s32 limitParam) {
 }
 
 // Invoked when stealing an item, an enemy is morphed, or defeated enemy returns a stolen item
-void BattleReceiveItem(s32 arg0, s16 itemId) { BattleAddUnitReservedItem(10, itemId); }
+void BattleReceiveItem(s32 unitSlot, s32 itemId) { BattleAddUnitReservedItem(10, itemId); }
 
-void func_800A6748(s32 unitSlot) {
-    BattleUnitResetAtbGauge(unitSlot);
+void func_800A6748(s32 unitSlot, s32 param) {
+    BattleUnitResetAtbGauge(unitSlot, param);
     func_800A4D88(unitSlot);
     g_BattleWork.activeUnitCmdMask &= ~(1 << unitSlot);
 }
 
-void func_800A6798(s32 arg0, s32 arg1) { func_800A37F8(arg1); }
+void func_800A6798(s32 unitSlot, s32 param) { func_800A37F8(param); }
 
-void BattleUnitEnableBerserkToad(s32 unitSlot) {
+void BattleUnitEnableBerserkToad(s32 unitSlot, s32 param) {
     func_800A4D88(unitSlot);
     g_BattleWork.disabledUnitMask |= 1 << unitSlot;
     if ((g_BattleWork.activeUnitCmdMask >> unitSlot) & 1) {
@@ -2715,7 +2715,7 @@ void BattleUnitEnableBerserkToad(s32 unitSlot) {
     }
 }
 
-void BattleUnitClrDisabledTurn(s32 unitSlot) { g_BattleWork.disabledUnitMask &= ~(1 << unitSlot); }
+void BattleUnitClrDisabledTurn(s32 unitSlot, s32 param) { g_BattleWork.disabledUnitMask &= ~(1 << unitSlot); }
 
 void BattleUnitSetManipulated(s32 unitSlot, s32 isManipulated) {
     if (isManipulated) {
@@ -2733,7 +2733,7 @@ void BattleUnitSetManipulated(s32 unitSlot, s32 isManipulated) {
 
 // Takes one random item from the battle inventory and queues it as stolen by the given unit
 // Does nothing if player has no eligible items to steal
-void BattleUnitStealRndPartyItem(s32 unitSlot) {
+void BattleUnitStealRndPartyItem(s32 unitSlot, s32 param) {
     s32 count = 0;
     u16 itemId = 0xFFFF;
     s32 n;
@@ -2768,19 +2768,19 @@ void BattleUnitAddMenuListFlags(s32 unitSlot, s32 menuListFlags) {
     g_BattleWork.turn[unitSlot].menuListFlags |= menuListFlags;
 }
 
-void func_800A6A70(s32 unitSlot, s32 arg1) {
-    func_800A555C(unitSlot, arg1);
+void func_800A6A70(s32 unitSlot, s32 param) {
+    func_800A555C(unitSlot, param);
     g_BattleWork.turn[unitSlot].menuListFlags |= MENU_LIST_DIRTY_COMMAND | MENU_LIST_DIRTY_ENEMY_SKILL;
 }
 
-void BattleUnitFlushEnemyTurnMasks(void) {
+void BattleUnitFlushEnemyTurnMasks(s32 unitSlot, s32 param) {
     g_BattleWork.disabledUnitMask &= ~ENEMY_TEAM_MASK;
     g_BattleWork.manipulatedUnitMask &= ~ENEMY_TEAM_MASK;
     g_BattleWork.activeUnitCmdMask &= ~ENEMY_TEAM_MASK;
     g_BattleWork.turnReadyUnitMask &= ~ENEMY_TEAM_MASK;
 }
 
-void BattleTurnSchedUpdateParty(void) {
+void BattleTurnSchedUpdateParty(s32 unitSlot, s32 param) {
     s32 i;
     u32 scratch;
     u16 pending;
@@ -2798,7 +2798,7 @@ void BattleTurnSchedUpdateParty(void) {
     }
 }
 
-void BattleSearchAndRemoveItemFromSlot(s32 arg0, s32 itemId) {
+void BattleSearchAndRemoveItemFromSlot(s32 unitSlot, s32 itemId) {
     s32 i;
 
     for (i = 0; i < 0x140; i++) {
@@ -2811,9 +2811,9 @@ void BattleSearchAndRemoveItemFromSlot(s32 arg0, s32 itemId) {
     }
 }
 
-void func_800A6BFC(void) {}
+void func_800A6BFC(s32 unitSlot, s32 param) {}
 
-void BattleSetLimitBreakStringToDisplay(s32 unitSlot) {
+void BattleSetLimitBreakStringToDisplay(s32 unitSlot, s32 param) {
     s16 msgArgs = g_BattleData.actors[unitSlot].charId;
     u8* text = SysGetKernBattleTextPtr(BATTLE_TEXT_LIMIT_BREAK);
 
@@ -2828,32 +2828,32 @@ void BattleUnitSetStolenItem(s32 unitSlot, s32 itemId) {
 
 extern const u8 g_StatusBitTable[];
 
-void BattleClearStatusBit(s32 unitSlot, s32 arg1) {
-    u32 mask = ~(1 << g_StatusBitTable[arg1]);
+void BattleClearStatusBit(s32 unitSlot, s32 param) {
+    u32 mask = ~(1 << g_StatusBitTable[param]);
     g_BattleState.combatant[unitSlot].status &= mask;
 }
 
-void BattleExpireDeathSentence(s32 unitSlot) { BattleQueueImmediateAction(unitSlot, 3, CMD_MAGIC, 54, 0); }
+void BattleExpireDeathSentence(s32 unitSlot, s32 param) { BattleQueueImmediateAction(unitSlot, 3, CMD_MAGIC, 54, 0); }
 
-void BattleChangeSlownumbToPetrify(s32 unitSlot) {
+void BattleChangeSlownumbToPetrify(s32 unitSlot, s32 param) {
     if (g_BattleState.combatant[unitSlot].status & STATUS_SLOW_NUMB) {
         g_BattleState.combatant[unitSlot].status &= ~STATUS_SLOW_NUMB;
         g_BattleState.combatant[unitSlot].status |= STATUS_PETRIFY;
     }
 }
 
-void BattleTickPoison(s32 unitSlot) {
+void BattleTickPoison(s32 unitSlot, s32 param) {
     if (g_BattleState.combatant[unitSlot].status & STATUS_POISON) {
         g_BattleWork.turn[unitSlot].statusTimers[TIMER_POISON] = 0xA;
         BattleQueueImmediateAction(unitSlot, 3, 0x23, 0, 0);
     }
 }
 
-void func_800A6DFC(void) {}
+void func_800A6DFC(s32 unitSlot, s32 param) {}
 
-void func_800A6E04(void) {}
+void func_800A6E04(s32 unitSlot, s32 param) {}
 
-void BattleHudResetLimit(s32 unitSlot) {
+void BattleHudResetLimit(s32 unitSlot, s32 param) {
     if (unitSlot < NUM_PARTY) {
         g_BattleWork.party[unitSlot].limitBarUI = 0;
         g_BattleWork.party[unitSlot].limitBar = 0;
@@ -2861,9 +2861,9 @@ void BattleHudResetLimit(s32 unitSlot) {
     }
 }
 
-void func_800A6E6C(s32 unitSlot, s32 arg1) { BattleQueueEvent(0, unitSlot, 13, arg1); }
+void func_800A6E6C(s32 unitSlot, s32 param) { BattleQueueEvent(0, unitSlot, 13, param); }
 
-void BattleRemovePlayersFromBattle(s32 unused, s32 mask) {
+void BattleRemovePlayersFromBattle(s32 unitSlot, s32 mask) {
     s32 i;
     s32 j;
 
@@ -2901,23 +2901,23 @@ void BattleRemovePlayersFromBattle(s32 unused, s32 mask) {
     }
 }
 
-void BattleSetItemWasStolenStringToDisplay(s32 unitSlot, s16 itemId) {
+void BattleSetItemWasStolenStringToDisplay(s32 unitSlot, s32 itemId) {
     s16 out = itemId;
     BattleAddStringToDisplay(unitSlot, BATTLE_TEXT_ITEM_STOLEN, 1, &out);
 }
 
-void func_800A7060(s32 unitSlot, s32 arg1) { BattleQueueEvent(0, unitSlot, 12, arg1); }
+void func_800A7060(s32 unitSlot, s32 param) { BattleQueueEvent(0, unitSlot, 12, param); }
 
-void BattleUnitMarkSensed(s32 unitSlot) { g_BattleWork.turn[unitSlot].miscFlags |= BATTLE_MISC_SENSED; }
+void BattleUnitMarkSensed(s32 unitSlot, s32 param) { g_BattleWork.turn[unitSlot].miscFlags |= BATTLE_MISC_SENSED; }
 
-void func_800A70C4(s32 unitSlot, s32 arg1) {
+void func_800A70C4(s32 unitSlot, s32 param) {
     BattleQueueEffect(
-        unitSlot, 0x34, 2, D_800708C4[arg1].attackEffectID, 0, 9, g_BattleState.combatant[unitSlot].status);
+        unitSlot, 0x34, 2, D_800708C4[param].attackEffectID, 0, 9, g_BattleState.combatant[unitSlot].status);
 }
 
-void func_800A7130(s32 unitSlot, s32 arg1) {
+void func_800A7130(s32 unitSlot, s32 param) {
     if (unitSlot < NUM_PARTY) {
-        if (arg1 != 0) {
+        if (param != 0) {
             g_ActiveCharacters[unitSlot].baseHp = g_BattleState.combatant[unitSlot].maxHP;
             g_ActiveCharacters[unitSlot].baseMp = g_BattleState.combatant[unitSlot].maxMP;
         } else {
@@ -2927,7 +2927,7 @@ void func_800A7130(s32 unitSlot, s32 arg1) {
     }
 }
 
-void func_800A71E0(void) {}
+void func_800A71E0(s32 unitSlot, s32 param) {}
 
 s32 BattleGetNextEventQueueIndex(s32 arg0) { return (arg0 + 1) & 0x7F; }
 
@@ -5236,7 +5236,7 @@ void BattleCalcTargStats(s32 targetSlot) {
     if (targetSlot < NUM_PARTY) {
         g_CurrentAction->partyWork = &g_BattleWork.party[targetSlot];
     } else {
-        g_CurrentAction->partyWork = -1;
+        g_CurrentAction->partyWork = (BattlePartyWork*)-1;
     }
 
     g_CurrentAction->targetImpactSfxId = -1;
@@ -6274,7 +6274,7 @@ static const s32 UnkStatusTimerMask = 1 << TIMER_STOP | 1 << TIMER_PARALYSIS | 1
 
 static s32 BattleStatusBitToTimerIndex(s32 statusBit);
 
-void BattleUnitInitStatusTimer(s32 unitSlot, s32 statusBit, s32 arg2) {
+void BattleUnitInitStatusTimer(s32 unitSlot, s32 statusBit, s32 gained) {
     s32 index = BattleStatusBitToTimerIndex(statusBit);
     if (index >= 0) {
         g_BattleWork.turn[unitSlot].statusTimers[index] = g_StatusTimerInitValues[index];
@@ -6305,7 +6305,7 @@ const BattleFormula g_BattleHitFormulaJmpTbl[] = {
 
 void BattleInitUnitAction(s32 unitSlot);
 
-void BattleUnitClearStatusTimer(s32 unitSlot, s32 statusBit, s32 arg2) {
+void BattleUnitClearStatusTimer(s32 unitSlot, s32 statusBit, s32 gained) {
     s32 index = BattleStatusBitToTimerIndex(statusBit);
     if (index >= 0) {
         g_BattleWork.turn[unitSlot].statusTimers[index] = 0;
@@ -6315,14 +6315,14 @@ void BattleUnitClearStatusTimer(s32 unitSlot, s32 statusBit, s32 arg2) {
     }
 }
 
-void func_800AEBF0(s32 unitSlot, s32 arg1, s32 arg2) { BattleUnitCalcSpeed(unitSlot); }
+void func_800AEBF0(s32 unitSlot, s32 statusBit, s32 gained) { BattleUnitCalcSpeed(unitSlot); }
 
 #ifndef PLATFORM_PSYZ
 // Original call in BattlePostAddDeath had no prototype in scope, but signature is correct according to other callers
 void BattleReleaseUnitReservedItems();
 #endif
 
-void BattlePostAddDeath(s32 unitSlot, s32 arg1, s32 arg2) {
+void BattlePostAddDeath(s32 unitSlot, s32 statusBit, s32 gained) {
     u16 stolenGil;
     u16 stolenItem;
     s32 manipulatedSlot;
@@ -6350,7 +6350,7 @@ void BattlePostAddDeath(s32 unitSlot, s32 arg1, s32 arg2) {
     }
 
     g_BattleState.combatant[unitSlot].curHP = 0;
-    func_800AEBF0(unitSlot, arg1, arg2);
+    func_800AEBF0(unitSlot, statusBit, gained);
 
     g_BattleWork.turn[unitSlot].hpChangeRate = 0;
     g_BattleWork.subActionSlots[unitSlot].priority = 0xFF;
@@ -6387,7 +6387,7 @@ void BattlePostAddDeath(s32 unitSlot, s32 arg1, s32 arg2) {
     BattleInvalidateQueuedMessages(unitSlot, 1);
 }
 
-void BattlePostRemoveDeath(s32 unitSlot, s32 arg1, s32 arg2) {
+void BattlePostRemoveDeath(s32 unitSlot, s32 statusBit, s32 gained) {
     if (g_BattleState.combatant[unitSlot].curHP == 0) {
         g_BattleState.combatant[unitSlot].curHP = g_BattleState.combatant[unitSlot].maxHP;
     }
@@ -6399,7 +6399,7 @@ void BattlePostRemoveDeath(s32 unitSlot, s32 arg1, s32 arg2) {
     g_BattleState.combatant[unitSlot].stateFlags &= ~UNIT_KO_PROCESSED;
     g_BattleData.actors[unitSlot].D_801636BC = g_BattleWork.turn[unitSlot].deathEffectState;
 
-    func_800AEBF0(unitSlot, arg1, arg2);
+    func_800AEBF0(unitSlot, statusBit, gained);
 
     if (g_BattleState.combatant[unitSlot].status & STATUS_D_SENTENCE) {
         BattleUnitInitStatusTimer(unitSlot, 0x15, 1); // 0x15 = index of STATUS_D_SENTENCE
@@ -6412,7 +6412,7 @@ void BattlePostRemoveDeath(s32 unitSlot, s32 arg1, s32 arg2) {
     g_BattleWork.unk2228 &= ~(1 << unitSlot);
 }
 
-void BattleRestoreBattleActionIfCan(s32 unitSlot, s32 arg1, s32 arg2) {
+void BattleRestoreBattleActionIfCan(s32 unitSlot, s32 statusBit, s32 gained) {
     if (!(g_BattleState.combatant[unitSlot].status &
           (STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_PETRIFY | STATUS_BERSERK | STATUS_PARALYSIS))) {
         BattleQueueEvent(0, unitSlot, 6, 0);
@@ -6428,43 +6428,43 @@ void BattleRestoreBattleActionIfCan(s32 unitSlot, s32 arg1, s32 arg2) {
     }
 }
 
-void func_battle_800AF1A8(s32 unitSlot) { BattleQueueEvent(0, unitSlot, 8, 0); }
+void func_battle_800AF1A8(s32 unitSlot, s32 statusBit, s32 gained) { BattleQueueEvent(0, unitSlot, 8, 0); }
 
-void BattleRestoreBattleActionIfCan(s32 unitSlot, s32 arg1, s32 arg2);
+void BattleRestoreBattleActionIfCan(s32 unitSlot, s32 statusBit, s32 gained);
 
 // skips (does nothing) while combatant[unitSlot].status has Berserk or Confusion
-void BattleTryApplyHitEffect(s32 unitSlot, s32 arg1, s32 arg2) {
+void BattleTryApplyHitEffect(s32 unitSlot, s32 statusBit, s32 gained) {
     if (!(g_BattleState.combatant[unitSlot].status & (STATUS_BERSERK | STATUS_CONFU))) {
         BattleQueueEvent(0, unitSlot, 9, 0);
-        BattleRestoreBattleActionIfCan(unitSlot, arg1, arg2);
+        BattleRestoreBattleActionIfCan(unitSlot, statusBit, gained);
     }
 }
 
-void func_800AF264(s32 unitSlot, s32 arg1, s32 arg2) {
+void func_800AF264(s32 unitSlot, s32 statusBit, s32 gained) {
     s32 status;
 
-    func_800AEBF0(unitSlot, arg1, arg2);
-    BattleUnitInitStatusTimer(unitSlot, arg1, arg2);
+    func_800AEBF0(unitSlot, statusBit, gained);
+    BattleUnitInitStatusTimer(unitSlot, statusBit, gained);
     BattleQueueEvent(0, unitSlot, 4, 0);
 
     status = g_BattleState.combatant[unitSlot].status & ~STATUS_MANIPULATE;
     g_BattleState.combatant[unitSlot].status = status;
 
-    if (arg1 == 0xE) {
+    if (statusBit == 0xE) { // 0xE = index of STATUS_PETRIFY
         g_BattleState.combatant[unitSlot].status =
             status & ~(STATUS_SLEEP | STATUS_POISON | STATUS_CONFU | STATUS_REGEN | STATUS_DUAL_DRAIN);
     }
 }
 
-void func_800AF320(s32 unitSlot, s32 arg1, s32 arg2) {
-    func_800AEBF0(unitSlot, arg1, arg2);
-    BattleUnitClearStatusTimer(unitSlot, arg1, arg2);
-    BattleRestoreBattleActionIfCan(unitSlot, arg1, arg2);
+void func_800AF320(s32 unitSlot, s32 statusBit, s32 gained) {
+    func_800AEBF0(unitSlot, statusBit, gained);
+    BattleUnitClearStatusTimer(unitSlot, statusBit, gained);
+    BattleRestoreBattleActionIfCan(unitSlot, statusBit, gained);
 }
 
-void func_800AF380(s32 unitSlot) { BattleQueueEvent(2, unitSlot, 0x15, 0xF); }
+void func_800AF380(s32 unitSlot, s32 statusBit, s32 gained) { BattleQueueEvent(2, unitSlot, 0x15, 0xF); }
 
-void BattleUnitSetHpChangeRate(s32 unitSlot, s32 arg1, s32 arg2) {
+void BattleUnitSetHpChangeRate(s32 unitSlot, s32 statusBit, s32 gained) {
     s32 amount;
     s32 status;
     s32 step;
@@ -6484,40 +6484,40 @@ void BattleUnitSetHpChangeRate(s32 unitSlot, s32 arg1, s32 arg2) {
         amount -= step;
     }
     g_BattleWork.turn[unitSlot].hpChangeRate = amount;
-    if (arg2 != 0) {
-        BattleUnitInitStatusTimer(unitSlot, arg1, arg2);
+    if (gained != 0) {
+        BattleUnitInitStatusTimer(unitSlot, statusBit, gained);
     } else {
-        BattleUnitClearStatusTimer(unitSlot, arg1, 0);
+        BattleUnitClearStatusTimer(unitSlot, statusBit, 0);
     }
 }
 
-void func_800AF470(s32 unitSlot) { g_BattleWork.turn[unitSlot].unk28 = 3; }
+void func_800AF470(s32 unitSlot, s32 statusBit, s32 gained) { g_BattleWork.turn[unitSlot].unk28 = 3; }
 
-void func_800AF494(s32 unitSlot, s32 arg1, s32 arg2) {
+void func_800AF494(s32 unitSlot, s32 statusBit, s32 gained) {
     switch (g_BattleWork.imprisonedType) {
     case 1:
-        BattleUnitSetHpChangeRate(unitSlot, arg1, arg2);
+        BattleUnitSetHpChangeRate(unitSlot, statusBit, gained);
         /* fallthrough */
     case 0:
     case 3:
-        if (arg2 != 0) {
-            func_800AF264(unitSlot, arg1, arg2);
+        if (gained != 0) {
+            func_800AF264(unitSlot, statusBit, gained);
         } else {
-            func_800AF320(unitSlot, arg1, 0);
+            func_800AF320(unitSlot, statusBit, 0);
         }
         break;
     }
 
     if (g_BattleWork.imprisonedType == 3) {
-        g_BattleState.combatant[unitSlot].unk16 = arg2 ? 0x13 : 0;
+        g_BattleState.combatant[unitSlot].unk16 = gained ? 0x13 : 0;
     }
 }
 
-void BattleClearActorSlotReferences(s32 unitSlot, s32 arg1, s32 arg2) {
+void BattleClearActorSlotReferences(s32 unitSlot, s32 statusBit, s32 gained) {
     s32 i;
 
-    BattleQueueEvent(0, unitSlot, 0xA, arg2);
-    if (arg2 != 0) {
+    BattleQueueEvent(0, unitSlot, 0xA, gained);
+    if (gained != 0) {
         BattleClearFocusedActor(unitSlot);
         return;
     }
@@ -6531,7 +6531,7 @@ void BattleClearActorSlotReferences(s32 unitSlot, s32 arg1, s32 arg2) {
 }
 
 void BattleInitUnitAction(s32 unitSlot);
-void func_800AF63C(s32 unitSlot) { BattleInitUnitAction(unitSlot); }
+void func_800AF63C(s32 unitSlot, s32 statusBit, s32 gained) { BattleInitUnitAction(unitSlot); }
 
 // Runs the gain/loss handler for each status bit that changed since the last call, after
 // stripping a dead unit's statuses. Returns 1 if a handler changed a unit's status again
@@ -7761,7 +7761,7 @@ static s32 BattleScriptCollapseVarBank(s32 index) {
 static void BattleQueueOpcodeAction(s16 unitSlot, s16 cmdIndex, s16 attackIndex);
 u16 BattleGetRndU16(void);
 
-void BattleOpcodeCycle(s32 unitSlot, s32 script, s32 presetIdx) {
+void BattleOpcodeCycle(s32 unitSlot, u8* script, s32 presetIdx) {
     // stack header for a pushed constant, by its length in bytes minus one
     static s32 constHeaders[] = {WIDTH_BYTE, WIDTH_HALF, WIDTH_WORD};
     struct {
@@ -7783,7 +7783,7 @@ void BattleOpcodeCycle(s32 unitSlot, s32 script, s32 presetIdx) {
     s32 j;
 
     done = 0;
-    g_BattleScript = (u8*)script;
+    g_BattleScript = script;
 
     // the VM state reuses the scratchpad that g_CurrentAction points to
     g_BattleScriptVm = (BattleScriptVm*)g_CurrentAction;
