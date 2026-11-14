@@ -195,14 +195,14 @@ void BattleUnitEnableBerserkToad(s32 unitSlot);
 void BattleUnitClrDisabledTurn(s32 unitSlot);
 void BattleUnitSetManipulated(s32 unitSlot, s32 isManipulated);
 void BattleUnitStealRndPartyItem(s32 unitSlot);
-void func_800A6A3C(s32 unitSlot, s32 menuListFlags);
+void BattleUnitAddMenuListFlags(s32 unitSlot, s32 menuListFlags);
 void func_800A6A70(s32 unitSlot, s32 arg1);
 void BattleUnitFlushEnemyTurnMasks(void);
 void BattleTurnSchedUpdateParty(void);
 void BattleSearchAndRemoveItemFromSlot(s32 arg0, s32 itemId);
 void func_800A6BFC(void);
 void BattleSetLimitBreakStringToDisplay(s32 unitSlot);
-void func_800A6C5C(s32 unitSlot, s32 itemId);
+void BattleUnitSetStolenItem(s32 unitSlot, s32 itemId);
 void BattleClearStatusBit(s32 unitSlot, s32 arg1);
 void BattleExpireDeathSentence(s32 unitSlot);
 void BattleChangeSlownumbToPetrify(s32 unitSlot);
@@ -232,7 +232,7 @@ void (*D_800E7A64[])(s32, s32) = {
     BattleUnitClrDisabledTurn,
     BattleUnitSetManipulated,
     BattleUnitStealRndPartyItem,
-    func_800A6A3C,
+    BattleUnitAddMenuListFlags,
     func_800A6A70,
     BattleUnitFlushEnemyTurnMasks,
     BattleTurnSchedUpdateParty,
@@ -242,7 +242,7 @@ void (*D_800E7A64[])(s32, s32) = {
 void (*D_800E7AA8[])(s32, s32) = {
     func_800A6BFC,
     BattleSetLimitBreakStringToDisplay,
-    func_800A6C5C,
+    BattleUnitSetStolenItem,
 };
 
 void (*g_StatusExpireTable[])(s32, s32) = {
@@ -349,7 +349,7 @@ void BattleCmdScriptDispatch(BattleActionEntry* entry) {
         /* 0x05 */ BattlePrepareTmpForDefend,
         /* 0x06 */ BattleResolveLimitActionIndex,
         /* 0x07 */ BattleActionType07,
-        /* 0x08 */ func_800A795C,
+        /* 0x08 */ BattleActionType08,
         /* 0x09 */ BattleActionType09,
         /* 0x0A */ BattleActionType0A,
         /* 0x0B */ BattleActionType0B,
@@ -358,9 +358,9 @@ void BattleCmdScriptDispatch(BattleActionEntry* entry) {
         /* 0x0E */ BattleActionType0E,
         /* 0x0F */ BattleQueueCurrentActionEffect,
         /* 0x10 */ BattleActionType10,
-        /* 0x11 */ func_800A853C,
+        /* 0x11 */ BattleActionType11,
         /* 0x12 */ BattleActionType12,
-        /* 0x13 */ func_800A85B4,
+        /* 0x13 */ BattleActionType13,
         /* 0x14 */ BattleActionType14,
         /* 0x15 */ BattleActionType15,
         /* 0x16 */ BattleActionType16,
@@ -493,7 +493,7 @@ void BattleCmdScriptDispatch(BattleActionEntry* entry) {
     }
 
     if (unitSlot < NUM_PARTY) {
-        func_800A2BF4(unitSlot);
+        BattleSetEnabledMagicIndex(unitSlot);
 
         cmdMenu = g_ActiveCharacters[unitSlot].commandMenu;
         if (!(g_CurrentAction->unk90 & 0x400000)) {
@@ -702,7 +702,7 @@ static void BattleSetFocusedActor(s32 unitSlot) {
     D_800E7A38 = unitSlot;
 }
 
-static void func_800A23BC(s32 unitSlot) {
+static void BattleClearFocusedActor(s32 unitSlot) {
     if (D_800E7A38 == unitSlot) {
         D_800E7A38 = -1;
     }
@@ -915,12 +915,12 @@ static void func_800A2B28(s32 arg0) {
     }
 }
 
-// Likely a separate TU: func_800A2BF4's jump table (.align 3) at 0x800A0154 only
+// Likely a separate TU: BattleSetEnabledMagicIndex's jump table (.align 3) at 0x800A0154 only
 // lines up if this object's rodata starts right there
 #ifndef NON_MATCHINGS
-INCLUDE_ASM("asm/us/battle/nonmatchings/battle", func_800A2BF4);
+INCLUDE_ASM("asm/us/battle/nonmatchings/battle", BattleSetEnabledMagicIndex);
 #else
-void func_800A2BF4(s32 unitSlot) {
+void BattleSetEnabledMagicIndex(s32 unitSlot) {
     MagicRecord* records = g_ActiveCharacters[unitSlot].enabledMagic;
     s32 offset = MAGIC_START;
     s32 count = 0;
@@ -957,7 +957,7 @@ void func_800A2BF4(s32 unitSlot) {
 
 static void BattleQueueEffect(
     s32 unitSlot, s32 animId, s32 actioId, s32 effectParam, s32 arg4, s32 flags, s32 statusMask);
-static void func_800A2CC4(s32 animId) {
+static void BattleQueueActorAnim(s32 animId) {
     BattleQueueEffect(g_CurrentAction->actorSlot, animId, g_CurrentAction->cmdIndex, g_CurrentAction->unk24,
                       g_CurrentAction->unk98, 0, 0);
 }
@@ -1007,12 +1007,12 @@ void BattleMorphEnemy(void) {
     g_BattleWork.turn[g_CurrentAction->targetSlot].miscFlags |= BATTLE_MISC_MORPHED;
 }
 
-static void func_800A2EFC(void) {
+static void BattleSaveActionQueuePos(void) {
     D_800F3950 = g_BattleActionQueueIndex;
     D_800F3954 = g_BattleActionQueueTargIndex;
 }
 
-static void func_800A2F24(void) {
+static void BattleRestoreActionQueuePos(void) {
     g_BattleActionQueueIndex = D_800F3950;
     g_BattleActionQueueTargIndex = D_800F3954;
 }
@@ -1075,7 +1075,7 @@ static BattleImpactData* BattleAllocImpactData(BattleQueueTargetEntry* entry) {
     return ptr;
 }
 
-static void func_800A317C(void) {
+static void BattleEndQueueTargets(void) {
     BattleQueueTargetEntry* ret = BattleQueue2GetPtr();
     ret->targetSlot = -1;
 }
@@ -1110,7 +1110,7 @@ void BattleActionQueueReset(void) {
     g_BattleActionQueue[0].actorSlot = -1;
 }
 
-static void func_800A329C(void) {
+static void BattleActionQueueDropLast(void) {
     if (g_BattleActionQueueIndex) {
         g_BattleActionQueueIndex--;
     }
@@ -1824,7 +1824,7 @@ static s32 func_800A4A80(void) {
     return ret;
 }
 
-void func_800A4ACC(s16 partyId, u16 ap) { SysGiveApToEquippedMateria(partyId, ap); }
+void BattleGiveApToEquippedMateria(s16 partyId, u16 ap) { SysGiveApToEquippedMateria(partyId, ap); }
 
 // opcode 0x14 handler (cmdOpcodeHandlerJmpTbl[0x14]): spins on BattleQueue1Execute() until
 // status bit D_800F9DA4 & 2 clears. Not itself a damage dealer -- injecting
@@ -2764,7 +2764,9 @@ void BattleUnitStealRndPartyItem(s32 unitSlot) {
     }
 }
 
-void func_800A6A3C(s32 unitSlot, s32 menuListFlags) { g_BattleWork.turn[unitSlot].menuListFlags |= menuListFlags; }
+void BattleUnitAddMenuListFlags(s32 unitSlot, s32 menuListFlags) {
+    g_BattleWork.turn[unitSlot].menuListFlags |= menuListFlags;
+}
 
 void func_800A6A70(s32 unitSlot, s32 arg1) {
     func_800A555C(unitSlot, arg1);
@@ -2819,7 +2821,7 @@ void BattleSetLimitBreakStringToDisplay(s32 unitSlot) {
     g_BattleWork.lucky7777ActionParam = 0xF;
 }
 
-void func_800A6C5C(s32 unitSlot, s32 itemId) {
+void BattleUnitSetStolenItem(s32 unitSlot, s32 itemId) {
     BattleQueueEvent(2, unitSlot, 0x14, itemId);
     g_BattleState.combatant[unitSlot].stolenItem = itemId;
 }
@@ -3129,7 +3131,7 @@ void BattlePrepareTmpForManip(void) {
 }
 
 void BattleQueueIntroCamera(s32 arg0);
-void func_800A795C(void) { BattleQueueIntroCamera(g_CurrentAction->relativeActionIndex); }
+void BattleActionType08(void) { BattleQueueIntroCamera(g_CurrentAction->relativeActionIndex); }
 
 void BattleActionType0A(void) { func_800AF9C8(); }
 
@@ -3398,13 +3400,13 @@ void BattleQueueCurrentActionEffect(void) {
         act->sourceSlot = g_CurrentAction->actorSlot;
         act->hurtAnimScript = 0;
         act->flags = 0;
-        func_800A317C();
+        BattleEndQueueTargets();
     }
 }
 
 void BattleActionType10(void) { g_CurrentAction->sequenceLength = 4; }
 
-void func_800A853C(void) {
+void BattleActionType11(void) {
     s32 i;
 
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
@@ -3416,7 +3418,7 @@ void func_800A853C(void) {
 
 void BattleActionType12(void) { g_CurrentAction->sequenceLength = 2; }
 
-void func_800A85B4(void) {
+void BattleActionType13(void) {
     g_CurrentAction->elements = 0x10;
     g_CurrentAction->power = 1;
     g_CurrentAction->targetFlags = 0;
@@ -3498,7 +3500,7 @@ void BattleActionType16(void) {
 
             for (j = 0; j < 16; j++) {
                 // First 3 affinities count as a weakness: death, always-hit, double damage
-                if (func_800AE6C0(i, 1 << j, 0) < 3) {
+                if (BattleUnitGetFirstAffinityIndex(i, 1 << j, 0) < 3) {
                     numWeaknesses++;
                     weakElemMasks[i] |= 1 << j;
                 }
@@ -3633,12 +3635,12 @@ void BattleActionType17(void) {
         textId = BATTLE_TEXT_USELESS_IMITATION;
     }
 
-    func_800A2CC4(animId);
+    BattleQueueActorAnim(animId);
     BattleAddStringToDisplay(unitSlot, textId, 1, msgArgs);
 
     if (animId == 3) {
-        func_800A2CC4(0x3B);
-        func_800A2CC4(4);
+        BattleQueueActorAnim(0x3B);
+        BattleQueueActorAnim(4);
     }
 }
 
@@ -3796,7 +3798,7 @@ s32 BattleApplyActionEffect(s32 effectPhase) {
                 g_CurrentAction->unk98 = 0x61;
                 g_CurrentAction->sequenceLength++;
 
-                func_800A2F24();
+                BattleRestoreActionQueuePos();
                 BattleAddSequenceAction(g_CurrentAction->unk98);
             }
             break;
@@ -3875,13 +3877,13 @@ s32 BattleApplyActionEffect(s32 effectPhase) {
         }
         break;
     case 0x0A: // Damage x (1 + actor's status count) (Master Fist)
-        func_800AA468();
+        BattleApplyStatusCountDmgBonus();
         break;
     case 0x0B: // Damage x2 near death, x4 under Death Sentence (Powersoul)
-        func_800AA4FC();
+        BattleApplyNearDeathDmgBonus();
         break;
     case 0x0C: // Damage x (1 + KO'd party members) (Princess Guard)
-        func_800AA688();
+        BattleApplyKoAllyDmgBonus();
         break;
     case 0x0D: { // Power = average level of the targeted enemies (Conformer)
         s32 levelSum = 0;
@@ -4295,15 +4297,15 @@ void BattleApplyVincentLimitTransform(void) {
     BattleQueueEvent(2, unitSlot, 0x18, 1);
 }
 
-static s32 func_800B10B4(s32 unitSlot);
+static s32 BattleUnitIsNearDeath(s32 unitSlot);
 
-static void func_800AA468(void) {
+static void BattleApplyStatusCountDmgBonus(void) {
     const u32 statusMask =
         STATUS_DARKNESS | STATUS_SLOW | STATUS_SILENCE | STATUS_SADNESS | STATUS_POISON | STATUS_NEAR_DEATH;
     s32 attackerStatus = g_CurrentAction->attackerStatus;
     s32 dmgMulti;
 
-    if (func_800B10B4(g_CurrentAction->actorSlot)) {
+    if (BattleUnitIsNearDeath(g_CurrentAction->actorSlot)) {
         attackerStatus |= STATUS_NEAR_DEATH;
     }
     dmgMulti = SysCountActiveBits(attackerStatus & statusMask);
@@ -4311,10 +4313,10 @@ static void func_800AA468(void) {
     g_CurrentAction->tmpDamage *= dmgMulti + 1;
 }
 
-static void func_800AA4FC(void) {
+static void BattleApplyNearDeathDmgBonus(void) {
     s32 dmgMulti = 1;
 
-    if (func_800B10B4(g_CurrentAction->actorSlot)) {
+    if (BattleUnitIsNearDeath(g_CurrentAction->actorSlot)) {
         dmgMulti = 2;
     }
     if (g_CurrentAction->attackerStatus & STATUS_D_SENTENCE) {
@@ -4358,7 +4360,7 @@ void BattleSetPowerFromWeaponMateriaAp(void) {
     g_CurrentAction->power = totalAp / 10000 * g_CurrentAction->basePower / 16 + 1;
 }
 
-static void func_800AA688(void) {
+static void BattleApplyKoAllyDmgBonus(void) {
     s32 deadUnitMulti = 1;
     s32 i;
 
@@ -4370,12 +4372,12 @@ static void func_800AA688(void) {
     g_CurrentAction->tmpDamage *= deadUnitMulti;
 }
 
-static s32 func_800AA6E8(s32 arg0, s32 arg1) {
-    arg0 = arg0 < START_ENEMY ? 1 : 0;
-    if (arg1 < START_ENEMY) {
-        arg0++;
+static s32 BattleIsOpposingTeams(s32 firstSlot, s32 secondSlot) {
+    firstSlot = firstSlot < START_ENEMY;
+    if (secondSlot < START_ENEMY) {
+        firstSlot++;
     }
-    return arg0 & 1;
+    return firstSlot & 1;
 }
 
 static s32 BattleGetRndOpponentBit(s32 unitSlot) {
@@ -4512,7 +4514,7 @@ void BattleResolveCover(BattleQueueTargetEntry* entry) {
 }
 
 static void BattleDropDyingEnemiesFromTargets(void);
-static void func_800AB9C4(s32 unitSlot, s32 arg1);
+static void BattleApplyPendingAbsorb(s32 unitSlot, s32 arg1);
 static void BattleMainDmgCalculation(s32 sourceSlot, s32 targetSlot);
 
 void BattleActionType09(void) {
@@ -4576,7 +4578,7 @@ void BattleActionType09(void) {
                 }
             }
             if (!g_CurrentAction->allowedTargetsMask) {
-                func_800A2CC4(g_CurrentAction->animId);
+                BattleQueueActorAnim(g_CurrentAction->animId);
                 break;
             }
         } else if (!g_CurrentAction->allowedTargetsMask) {
@@ -4619,7 +4621,7 @@ void BattleActionType09(void) {
                 g_CurrentAction->landedHitCount = 0;
                 g_CurrentAction->multiHitsLeft = g_CurrentAction->multiHitCount;
 
-                func_800A2EFC();
+                BattleSaveActionQueuePos();
                 func_800AA738(mask);
 
                 while (1) {
@@ -4656,17 +4658,17 @@ void BattleActionType09(void) {
                     }
                 }
 
-                func_800A317C();
+                BattleEndQueueTargets();
                 BattleApplyActionEffect(EFFECT_PHASE_ACTION_END);
             }
 
             for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
                 if (g_BattleWork.turn[i].action09Data1) {
-                    func_800AB9C4(i, 0);
+                    BattleApplyPendingAbsorb(i, 0);
                 }
 
                 if (g_BattleWork.turn[i].action09Data2) {
-                    func_800AB9C4(i, 1);
+                    BattleApplyPendingAbsorb(i, 1);
                 }
             }
 
@@ -4725,7 +4727,7 @@ void BattleActionType09(void) {
     }
 
     if (g_CurrentAction->unk90 & 0x10000) {
-        func_800A2CC4(0x47);
+        BattleQueueActorAnim(0x47);
     }
 
     if (g_CurrentAction->unkE4 != -1) {
@@ -4788,7 +4790,7 @@ void BattleResolveAffinityPostDamage(void) {
     if (g_CurrentAction->affinityFlags & AFFINITY_DEATH) {
         if (g_CurrentAction->targetStatus & STATUS_DEATH) {
             g_CurrentAction->unk218 |= 3;
-            func_800ACA24();
+            BattleClearHitResult();
         } else {
             g_CurrentAction->unk250 = -2;
             g_CurrentAction->unk238[0] |= STATUS_DEATH;
@@ -4810,7 +4812,7 @@ void BattleResolveAffinityPostDamage(void) {
         if ((g_CurrentAction->unk244 != 0) || (g_CurrentAction->elements & 8)) {
             g_CurrentAction->unk218 |= 1;
         }
-        func_800ACA24();
+        BattleClearHitResult();
     }
 }
 
@@ -4896,7 +4898,7 @@ void func_800AB830(s32 targetSlot, s32 arg1) {
     BattleCreateImpactData(entry, g_CurrentAction->tmpDamage, g_CurrentAction->damageFlags, -1, -1);
 }
 
-static void func_800AB9C4(s32 unitSlot, s32 arg1) {
+static void BattleApplyPendingAbsorb(s32 unitSlot, s32 arg1) {
     BattleActionQueueEntry* entry;
 
     if (!(g_BattleState.combatant[unitSlot].status & STATUS_DEATH)) {
@@ -4910,7 +4912,7 @@ static void func_800AB9C4(s32 unitSlot, s32 arg1) {
         entry->unk6 = 0;
         entry->unk4 = 0;
         func_800AB830(unitSlot, arg1);
-        func_800A317C();
+        BattleEndQueueTargets();
     }
 }
 
@@ -4982,7 +4984,7 @@ static void BattleMainDmgCalculation(s32 sourceSlot, s32 targetSlot) {
     if (g_CurrentAction->power == 0) {
         g_CurrentAction->unk218 |= 2;
     }
-    if (func_800ACD88(targetSlot) != 0) {
+    if (BattleUnitIsImmuneToAttack(targetSlot) != 0) {
         g_CurrentAction->affinityFlags = AFFINITY_NULLIFY;
     }
 
@@ -5010,7 +5012,7 @@ static void BattleMainDmgCalculation(s32 sourceSlot, s32 targetSlot) {
         if (isReflected) {
             // pick who the effect bounces to (self, or a cycled ally) and
             // flag the reflect on the caster's status entry
-            if (func_800AA6E8(sourceSlot, targetSlot) != 0) {
+            if (BattleIsOpposingTeams(sourceSlot, targetSlot) != 0) {
                 bounceTarget = sourceSlot;
             } else {
                 if (D_800F494C[targetSlot] == -1) {
@@ -5020,7 +5022,7 @@ static void BattleMainDmgCalculation(s32 sourceSlot, s32 targetSlot) {
             }
             D_800F4920 |= 2;
             D_800F4938[targetSlot] |= 1 << bounceTarget;
-            func_800ACA24();
+            BattleClearHitResult();
             entry = g_CurrentAction->turnWork;
             if (entry->statusProtectionMask & STATUS_REFLECT) {
                 D_800F4958 |= 1 << targetSlot;
@@ -5043,7 +5045,7 @@ static void BattleMainDmgCalculation(s32 sourceSlot, s32 targetSlot) {
         }
     } else {
         // hit missed/had no effect -- wipe any accumulated status/damage
-        func_800ACA24();
+        BattleClearHitResult();
     }
 
     // clamp the computed damage to this target's HP or MP cap
@@ -5163,10 +5165,12 @@ static void BattleMainDmgCalculation(s32 sourceSlot, s32 targetSlot) {
     }
     if (g_CurrentAction->unk90 & 0x80) {
         // HP-absorb / MP-absorb bonus effects
-        func_800AD324(g_CurrentAction->sourceSlot, g_CurrentAction->targetSlot, g_CurrentAction->tmpDamage / 100, 1);
+        BattleAddPendingAbsorb(
+            g_CurrentAction->sourceSlot, g_CurrentAction->targetSlot, g_CurrentAction->tmpDamage / 100, 1);
     }
     if (g_CurrentAction->unk90 & 0x40) {
-        func_800AD324(g_CurrentAction->sourceSlot, g_CurrentAction->targetSlot, g_CurrentAction->tmpDamage / 10, 2);
+        BattleAddPendingAbsorb(
+            g_CurrentAction->sourceSlot, g_CurrentAction->targetSlot, g_CurrentAction->tmpDamage / 10, 2);
     }
     if (targetSlot < NUM_PARTY && g_CurrentAction->actorSlot >= START_ENEMY) {
         if (g_CurrentAction->partyWork->enemySkillMateriaData && (g_CurrentAction->cmdIndex == CMD_ENEMY_SKILL)) {
@@ -5239,7 +5243,7 @@ void BattleCalcTargStats(s32 targetSlot) {
     g_CurrentAction->targetImpactEffectId = -1;
     g_CurrentAction->unk250 = -1;
 
-    func_800ACA24();
+    BattleClearHitResult();
 
     if (g_CurrentAction->power == 0) {
         g_CurrentAction->hurtAnimScript = 0x33;
@@ -5280,7 +5284,7 @@ void BattleCalcTargStats(s32 targetSlot) {
     }
 }
 
-void func_800ACA24(void) {
+void BattleClearHitResult(void) {
     g_CurrentAction->unk238[0] = 0;
     g_CurrentAction->unk238[1] = 0;
     g_CurrentAction->unk238[2] = 0;
@@ -5311,13 +5315,13 @@ void func_800ACA4C(s32 arg0) {
     }
 
     if (g_CurrentAction->actorSlot < NUM_PARTY) {
-        func_800A2CC4(animId);
+        BattleQueueActorAnim(animId);
         if (arg0 != -1) {
             BattleQueueIntroCamera(arg0);
-            func_800A2CC4(0x3B);
+            BattleQueueActorAnim(0x3B);
         }
         if (animId == 3) {
-            func_800A2CC4(4);
+            BattleQueueActorAnim(4);
         }
     } else if (arg0 != -1) {
         strArgs[0] = g_CurrentAction->actorSlot;
@@ -5403,7 +5407,7 @@ s32 func_800ACB98(void) {
     return result;
 }
 
-s32 func_800ACD88(s32 unitSlot) {
+s32 BattleUnitIsImmuneToAttack(s32 unitSlot) {
     s32 result;
     s32 flags;
 
@@ -5419,7 +5423,7 @@ s32 func_800ACD88(s32 unitSlot) {
 }
 
 static s32 BattleIsDamageNullified(s32 unitSlot) {
-    return func_800ACD88(unitSlot) != 0 ||
+    return BattleUnitIsImmuneToAttack(unitSlot) != 0 ||
            (g_BattleState.combatant[unitSlot].status & (STATUS_PEERLESS | STATUS_PETRIFY)) != 0;
 }
 
@@ -5490,7 +5494,7 @@ s32 BattleRollStatusHit(void) {
     return result;
 }
 
-// arg0 never got a ring slot from BattleAllocImpactData (still unassigned) --
+// entry never got a ring slot from BattleAllocImpactData (still unassigned) --
 // queue a placeholder display entry via BattleCreateImpactData anyway. targetProtectionStatus here
 // is the same status-immunity mask BattleMainDmgCalculation (this function's only
 // caller) uses earlier.
@@ -5568,7 +5572,7 @@ void BattleApplyDamageAndChargeLimitGauge(void) {
     g_CurrentAction->partyWork->limitBar = limitBar;
 }
 
-void func_800AD324(s32 sourceSlot, s32 targetSlot, s32 amount, s32 arg3) {
+void BattleAddPendingAbsorb(s32 sourceSlot, s32 targetSlot, s32 amount, s32 arg3) {
     s32 isHeal = g_CurrentAction->damageFlags & 1;
 
     if (arg3 & 1) {
@@ -5595,7 +5599,7 @@ void func_800AD324(s32 sourceSlot, s32 targetSlot, s32 amount, s32 arg3) {
     }
 }
 
-// same target (unk208) and value (unk214) forwarded to func_800AD324 as
+// same target (unk208) and value (unk214) forwarded to BattleAddPendingAbsorb as
 // the absorb-effect calls below; result picks HP (bit0) / MP (bit1)
 static void BattleApplyDefaultAbsorbEffect(void) {
     s32 t0;
@@ -5612,7 +5616,8 @@ static void BattleApplyDefaultAbsorbEffect(void) {
     a3 = (a3 == 0) ? 3 : 0;
     result = t0 | a3;
 
-    func_800AD324(g_CurrentAction->sourceSlot, g_CurrentAction->targetSlot, g_CurrentAction->tmpDamage, result);
+    BattleAddPendingAbsorb(
+        g_CurrentAction->sourceSlot, g_CurrentAction->targetSlot, g_CurrentAction->tmpDamage, result);
 }
 
 void BattleHitFormulaInit(void) {
@@ -5677,18 +5682,18 @@ BattleFormula g_BattleDmgFormulaJmpTbl[] = {
     /* 0x0D */ NULL,
     /* 0x0E */ NULL,
     /* 0x0F */ NULL,
-    /* 0x10 */ func_battle_800ADFC0,
+    /* 0x10 */ BattleSetTmpDmgAsCurrentHp,
     /* 0x11 */ BattleSetTmpDmgAsMaxHpMinusCurrentHp,
-    /* 0x12 */ func_800AE050,
-    /* 0x13 */ func_800AE058,
-    /* 0x14 */ func_800AE060,
-    /* 0x15 */ func_800AE068,
-    /* 0x16 */ func_800AE070,
-    /* 0x17 */ func_800AE078,
+    /* 0x12 */ BattleLowerFunc12,
+    /* 0x13 */ BattleLowerFunc13,
+    /* 0x14 */ BattleLowerFunc14,
+    /* 0x15 */ BattleLowerFunc15,
+    /* 0x16 */ BattleLowerFunc16,
+    /* 0x17 */ BattleLowerFunc17,
     /* 0x18 */ BattleLowerFunc18,
     /* 0x19 */ BattleSetTmpDmgAsNumOfEscapes,
     /* 0x1A */ BattleSetTmpDmgAsTargHpMinusOne,
-    /* 0x1B */ func_800AE2A0,
+    /* 0x1B */ BattleSetTmpDmgAsPlayTime,
     /* 0x1C */ BattleApplyKillCountBonus,
     /* 0x1D */ BattleCalcMateriaSlotScore,
     /* 0x1E */ NULL,
@@ -5959,24 +5964,26 @@ void BattleLowerFunc0a(void) {
 }
 
 // White Wind "damage" formula. Restores HP equal to caster's HP to all allies.
-void func_battle_800ADFC0(void) { g_CurrentAction->tmpDamage = g_BattleWork.turn[g_CurrentAction->actorSlot].prevHP; }
+void BattleSetTmpDmgAsCurrentHp(void) {
+    g_CurrentAction->tmpDamage = g_BattleWork.turn[g_CurrentAction->actorSlot].prevHP;
+}
 
 void BattleSetTmpDmgAsMaxHpMinusCurrentHp(void) {
     s32 unitSlot = g_CurrentAction->actorSlot;
     g_CurrentAction->tmpDamage = g_BattleState.combatant[unitSlot].maxHP - g_BattleWork.turn[unitSlot].prevHP;
 }
 
-void func_800AE050(void) {}
+void BattleLowerFunc12(void) {}
 
-void func_800AE058(void) {}
+void BattleLowerFunc13(void) {}
 
-void func_800AE060(void) {}
+void BattleLowerFunc14(void) {}
 
-void func_800AE068(void) {}
+void BattleLowerFunc15(void) {}
 
-void func_800AE070(void) {}
+void BattleLowerFunc16(void) {}
 
-void func_800AE078(void) {}
+void BattleLowerFunc17(void) {}
 
 // Cait Sith's Dice attack damage formula.
 void BattleLowerFunc18(void) {
@@ -6043,7 +6050,7 @@ void BattleSetTmpDmgAsTargHpMinusOne(void) {
 }
 
 // Tonberry's Time Damage attack damage formula.
-void func_800AE2A0(void) {
+void BattleSetTmpDmgAsPlayTime(void) {
     s32 minutes = Savemap.time / 60;
     g_CurrentAction->tmpDamage = (minutes / 60) * 100 + minutes % 60;
 }
@@ -6136,7 +6143,7 @@ void BattleGetAffinityMasks(s32 elementMask, s32 statusMask, s32 unitSlot, s32* 
     }
 }
 
-static s32 func_800AE6C0(s32 unitSlot, s32 elementMask, s32 statusMask) {
+static s32 BattleUnitGetFirstAffinityIndex(s32 unitSlot, s32 elementMask, s32 statusMask) {
     s32 masks[2][8];
     s32 i;
 
@@ -6166,7 +6173,7 @@ static void func_800AE764(s32 mask, s32 arg1, s32 arg2) {
     for (i = 0; i < NUM_BATTLE_ACTOR; i++) {
         g_BattleState.combatant[i].minElemInfluence = 3;
         if ((mask >> i) & 1) {
-            v = func_800AE6C0(i, arg1, arg2);
+            v = BattleUnitGetFirstAffinityIndex(i, arg1, arg2);
             if (v != 3) {
                 g_BattleState.combatant[i].minElemInfluence = v;
                 result |= 1 << i;
@@ -6298,7 +6305,7 @@ const BattleFormula g_BattleHitFormulaJmpTbl[] = {
 
 void BattleInitUnitAction(s32 unitSlot);
 
-void func_800AEB80(s32 unitSlot, s32 statusBit, s32 arg2) {
+void BattleUnitClearStatusTimer(s32 unitSlot, s32 statusBit, s32 arg2) {
     s32 index = BattleStatusBitToTimerIndex(statusBit);
     if (index >= 0) {
         g_BattleWork.turn[unitSlot].statusTimers[index] = 0;
@@ -6451,7 +6458,7 @@ void func_800AF264(s32 unitSlot, s32 arg1, s32 arg2) {
 
 void func_800AF320(s32 unitSlot, s32 arg1, s32 arg2) {
     func_800AEBF0(unitSlot, arg1, arg2);
-    func_800AEB80(unitSlot, arg1, arg2);
+    BattleUnitClearStatusTimer(unitSlot, arg1, arg2);
     BattleRestoreBattleActionIfCan(unitSlot, arg1, arg2);
 }
 
@@ -6480,7 +6487,7 @@ void BattleUnitSetHpChangeRate(s32 unitSlot, s32 arg1, s32 arg2) {
     if (arg2 != 0) {
         BattleUnitInitStatusTimer(unitSlot, arg1, arg2);
     } else {
-        func_800AEB80(unitSlot, arg1, 0);
+        BattleUnitClearStatusTimer(unitSlot, arg1, 0);
     }
 }
 
@@ -6511,7 +6518,7 @@ void BattleClearActorSlotReferences(s32 unitSlot, s32 arg1, s32 arg2) {
 
     BattleQueueEvent(0, unitSlot, 0xA, arg2);
     if (arg2 != 0) {
-        func_800A23BC(unitSlot);
+        BattleClearFocusedActor(unitSlot);
         return;
     }
     for (i = 0; i < LEN(g_BattleWork.party); i++) {
@@ -6544,7 +6551,7 @@ s32 BattleProcessStatusChanges(void) {
         /* 0x0B */ func_800AF494,
         /* 0x0C */ BattleClearActorSlotReferences,
         /* 0x0D */ BattleUnitInitStatusTimer,
-        /* 0x0E */ func_800AEB80,
+        /* 0x0E */ BattleUnitClearStatusTimer,
         /* 0x0F */ func_800AF63C};
 
     // The gain and loss handlers follow the same index order as BattleStatusFlags, and
@@ -7315,7 +7322,7 @@ void BattleInitUnitAction(s32 unitSlot) { func_800A31A0(unitSlot, 5, 0, 0); }
 // true when the combatant's HP is at or below a quarter of max -- the "Near
 // Death" threshold used by weapon-specific damage formulas (e.g. Powersoul's
 // HP-based multiplier).
-static s32 func_800B10B4(s32 unitSlot) {
+static s32 BattleUnitIsNearDeath(s32 unitSlot) {
     return g_BattleState.combatant[unitSlot].curHP <= g_BattleState.combatant[unitSlot].maxHP / 4;
 }
 
@@ -7340,7 +7347,7 @@ static void BattleQueueEffect(
     target->hurtAnimScript = 0x33;
     target->flags = flags;
     target->targetStatus = statusMask;
-    func_800A317C();
+    BattleEndQueueTargets();
 }
 
 // find attackId in g_BattleWork.attackIDs[]; returns its index, or 0x20 (and signals
@@ -8289,14 +8296,14 @@ static AttackData* BattleGetAttackData(s32 id) {
     return ret;
 }
 
-static u8 func_800B2F30(void) { return SysGetRandomByteFromTable(); }
+static u8 BattleGetRndByte(void) { return SysGetRandomByteFromTable(); }
 
 u16 BattleGetRndU16(void) { return SysRandomTwoBytes(); }
 
 // scale a 16-bit value into the range 1..100
 static s32 BattleGetRnd164(void) { return (((BattleGetRndU16() & 0xFFFF) * 99) / 0xFFFF) + 1; }
 
-static s32 func_800B2FC4(s32 arg0) { return (arg0 * (func_800B2F30() + 0xF01)) >> 12; }
+static s32 func_800B2FC4(s32 arg0) { return (arg0 * (BattleGetRndByte() + 0xF01)) >> 12; }
 
 static s32 BattleOpcodeCountActiveBits(u16 mask) {
     s32 count = 0;
@@ -8318,7 +8325,7 @@ s32 BattleOpcodeGetRndBit(u16 mask) {
     s32 n = BattleOpcodeCountActiveBits(mask);
     if (n != 0) {
         // Get a random index within the range of set bits
-        n = func_800B2F30() % n;
+        n = BattleGetRndByte() % n;
 
         // Loop through each bit of mask until we find the random one
         for (bit = 1; bit != 0; bit <<= 1) {
