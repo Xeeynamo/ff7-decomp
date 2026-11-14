@@ -9,15 +9,15 @@ static void BattleInitFormation(void);
 static void BattleInitItemList(void);
 static void BattleInitPartyScripts(void);
 static void BattleInitSetSpeed(s32 speed);
-static void BattleInitResetExtraCmds(s32 sceneID);
+static void BattleInitResetExtraCmds(s32 unitSlot);
 static void BattleInitATBTimers(void);
 static s32 BattleGetScenePackId(s32 sceneID);
 static s32 BattleBoostVal25Percent(s32 value);
 static void BattleInitPlayer(void);
-static void BattleInitApplyAccStatus(s32 slot, s32 accessory);
-static void BattleInitCharCmdMenu(s32 sceneID);
-void BattleInitCharCmdState(s32 slot);
-static s32 BattleInitApplyStartFX(s32 slot);
+static void BattleInitApplyAccStatus(s32 unitSlot, s32 accessory);
+static void BattleInitCharCmdMenu(s32 unitSlot);
+void BattleInitCharCmdState(s32 unitSlot);
+static s32 BattleInitApplyStartFX(s32 unitSlot);
 static void BattleInitLimits(s32 charId, s32 learnedLimits, BattleLimitData* data);
 static s32 BattleGetEquipEnemySkillMask(SavePartyMember* member);
 void BattleInitEnemyUnits(void);
@@ -467,20 +467,20 @@ static void BattleInitPartyScripts(void) {
     }
 }
 
-// Fixes up party member sceneID's battle command list: each of the 16 command
+// Fixes up party member unitSlot's battle command list: each of the 16 command
 // slots gets its target flags from the command table (falling back to the
 // formation setup), with extra flags for the Enemy Skill / W- commands, and
 // unk21 ends up as the number of command rows in use. The second pass clears
 // the "usable" byte of every equipped materia whose attack is not flagged
 // battle-usable.
-static void BattleInitCharCmdMenu(s32 sceneID) {
+static void BattleInitCharCmdMenu(s32 unitSlot) {
     ActiveCharacterData* e;
     s32 cmd;
     s32 flags;
     s32 id;
     s32 i;
 
-    e = &g_ActiveCharacters[sceneID];
+    e = &g_ActiveCharacters[unitSlot];
     e->unk21 = 1;
     for (i = 0; i < LEN(e->commandMenu); i++) {
         flags = 0xFF;
@@ -488,7 +488,7 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
         if (cmd != 0xFF) {
             flags = D_800707C4[cmd].targetFlags;
             if (flags == 0xFF) {
-                flags = g_BattleWork.setup[sceneID].targetFlags;
+                flags = g_BattleWork.setup[unitSlot].targetFlags;
             }
             if (cmd < 0x1C) {
                 if (cmd >= 0x18) {
@@ -496,7 +496,7 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
                 }
             }
             if (e->commandMenu[i].initialCursorAction == 7) {
-                if (g_BattleWork.turn[sceneID].miscFlags & BATTLE_MISC_LONG_RANGE) {
+                if (g_BattleWork.turn[unitSlot].miscFlags & BATTLE_MISC_LONG_RANGE) {
                     e->commandMenu[i].initialCursorAction = 0;
                 }
                 if (e->commandMenu[i].allCount != 0) {
@@ -533,11 +533,11 @@ static void BattleInitCharCmdMenu(s32 sceneID) {
     }
 }
 
-static void BattleInitResetExtraCmds(s32 sceneID) {
+static void BattleInitResetExtraCmds(s32 unitSlot) {
     s32 i;
     ActiveCharacterData* data;
 
-    data = &g_ActiveCharacters[sceneID];
+    data = &g_ActiveCharacters[unitSlot];
     data->unk21 = 1;
     for (i = 1; i < 4; i++) {
         data->commandMenu[i].id = 0xFF;
@@ -600,18 +600,18 @@ static s32 BattleGetEquipEnemySkillMask(SavePartyMember* member) {
     return ret;
 }
 
-// Applies party member `slot`'s equipped accessory: the status the previously
+// Applies party member `unitSlot`'s equipped accessory: the status the previously
 // equipped one granted is cleared first, then the new accessory's permanent
 // status is ORed into the combatant, its turn state and the party record.
-static void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
+static void BattleInitApplyAccStatus(s32 unitSlot, s32 accessory) {
     BattleTurnWork* turn;
     BattlePartyWork* party;
     BattleUnit* battleUnit;
     u8 effect;
 
-    turn = &g_BattleWork.turn[slot];
-    party = &g_BattleWork.party[slot];
-    battleUnit = &g_BattleState.combatant[slot];
+    turn = &g_BattleWork.turn[unitSlot];
+    party = &g_BattleWork.party[unitSlot];
+    battleUnit = &g_BattleState.combatant[unitSlot];
     battleUnit->status &= ~party->accessoryStatusMask;
     turn->statusProtectionMask &= ~party->accessoryStatusMask;
     party->accessoryStatusMask = 0;
@@ -651,34 +651,33 @@ static void BattleInitApplyAccStatus(s32 slot, s32 accessory) {
 
 const s32 D_801B001C[] = {0x0000, 0x1000, 0x0008, 0x0800};
 const s32 D_801B002C[] = {0x0000, 0x000A, 0x0027, 0x000A};
-void BattleQueueEvent(s32, s32, s32, s32);
 
 // Applies the pending battle-start effects in g_BattleStartFXFlags to party member
-// `slot`: bit 4 restores half its max HP, bits 0-3 inflict the matching status
+// `unitSlot`: bit 4 restores half its max HP, bits 0-3 inflict the matching status
 // from D_801B001C unless the member's turn state already carries it. Returns
 // nonzero if any status was inflicted.
-static s32 BattleInitApplyStartFX(s32 slot) {
+static s32 BattleInitApplyStartFX(s32 unitSlot) {
     s32 mask;
     s32 ret;
     s32 i;
 
-    mask = g_BattleWork.turn[slot].statusProtectionMask;
-    g_BattleState.combatant[slot].status &= ~STATUS_D_SENTENCE;
+    mask = g_BattleWork.turn[unitSlot].statusProtectionMask;
+    g_BattleState.combatant[unitSlot].status &= ~STATUS_D_SENTENCE;
     ret = 0;
-    if (g_BattleWork.turn[slot].miscFlags & BATTLE_MISC_TRANSFORMED) {
+    if (g_BattleWork.turn[unitSlot].miscFlags & BATTLE_MISC_TRANSFORMED) {
         mask |= STATUS_FROG;
     }
     if (g_BattleStartFXFlags & 0x10) {
-        g_BattleState.combatant[slot].curHP += g_BattleState.combatant[slot].maxHP >> 1;
-        if (g_BattleState.combatant[slot].curHP > g_BattleState.combatant[slot].maxHP) {
-            g_BattleState.combatant[slot].curHP = g_BattleState.combatant[slot].maxHP;
+        g_BattleState.combatant[unitSlot].curHP += g_BattleState.combatant[unitSlot].maxHP >> 1;
+        if (g_BattleState.combatant[unitSlot].curHP > g_BattleState.combatant[unitSlot].maxHP) {
+            g_BattleState.combatant[unitSlot].curHP = g_BattleState.combatant[unitSlot].maxHP;
         }
-        BattleQueueEvent(2, slot, 0x17, 0);
+        BattleQueueEvent(2, unitSlot, 0x17, 0);
     }
     for (i = 0; i < 4; i++) {
         if ((g_BattleStartFXFlags >> i) & 1) {
-            g_BattleState.combatant[slot].status |= D_801B001C[i] & ~mask;
-            BattleQueueEvent(2, slot, 0x17, D_801B002C[i]);
+            g_BattleState.combatant[unitSlot].status |= D_801B001C[i] & ~mask;
+            BattleQueueEvent(2, unitSlot, 0x17, D_801B002C[i]);
             ret = 1;
         }
     }

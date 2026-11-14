@@ -783,7 +783,7 @@ typedef struct {
 } BattleWork; // size:0x222C
 
 typedef struct Unk800A8D04 {
-    /* 0x000 */ s32 actorId;
+    /* 0x000 */ s32 actorSlot;
     /* 0x004 */ s32 characterLevel;
     /* 0x008 */ s32 unk8;
     /* 0x00C */ s32 queuedCmdIndex;
@@ -843,13 +843,13 @@ typedef struct Unk800A8D04 {
     /* 0x0E8 */ s32 unkE8;
     /* 0x0EC */ s32 sequenceTargetsMask;
     /* 0x0F0 */ s32 unkF0;
-    /* 0x0F4 */ s32 unkF4;
+    /* 0x0F4 */ s32 sourceSlot; // unit the current hit comes from: the actor, or the reflector on a reflected pass
     /* 0x0F8 */ s32 unkF8;
     /* 0x0FC */ s32 multiHitCount; // 0 = not a multi-hit (one round of hits only)
     /* 0x100 */ s32 unk100[0x40];
     /* 0x200 */ BattleTurnWork* turnWork;
     /* 0x204 */ BattlePartyWork* partyWork;
-    /* 0x208 */ s32 targetId;
+    /* 0x208 */ s32 targetSlot;
     /* 0x20C */ s32 targetEnemyId;
     /* 0x210 */ s32 targetDefense;
     /* 0x214 */ s32 tmpDamage;
@@ -926,8 +926,8 @@ s32 BattlePositionToStereoPan(SVECTOR* sv);
 s32 BattleEntityGetStereoPan(s32 arg0);
 void BattleQueueTargetImpact(u32 target);
 void BattleRunFrame(void);
-void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-void BattleUnitCalcSpeed(s32 index);
+void BattleQueueEvent(s32 queue, s32 unitSlot, s32 callbackId, s32 param);
+void BattleUnitCalcSpeed(s32 unitSlot);
 void BattleUpdateUnitMasks(void);
 void BattleCheckAllLucky7s(void);
 void BattleActionQueueReset(void);
@@ -938,9 +938,9 @@ void BattleBannerSetEncounterString(s16 stringId);
 void BattleResetReservedItems(void);
 void BattleExecFormationAIScripts(void);
 void BattleInitTurnWorkHPMP(void);
-void BattleAddAutoBattleActionByChance(s32 arg0, s32 mode);
-void BattleInitUnitAction(s32 index);
-void BattleEnableLimitToPlayerWithSpeed(s32 index);
+void BattleAddAutoBattleActionByChance(s32 unitSlot, s32 mode);
+void BattleInitUnitAction(s32 unitSlot);
+void BattleEnableLimitToPlayerWithSpeed(s32 unitSlot);
 s32 BattleCopyMessageWithArgs(u8* dst, const u8* src, const u16* args);
 s8* BattleGetStringPtrFromStringBuffer(s32 arg0);
 
