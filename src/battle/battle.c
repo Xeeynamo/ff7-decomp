@@ -956,7 +956,7 @@ void BattleSetEnabledMagicIndex(s32 unitSlot) {
 #endif
 
 static void BattleQueueEffect(
-    s32 unitSlot, s32 animId, s32 actioId, s32 effectParam, s32 arg4, s32 flags, s32 statusMask);
+    s32 unitSlot, s32 animId, s32 actionId, s32 effectParam, s32 arg4, s32 flags, s32 statusMask);
 static void BattleQueueActorAnim(s32 animId) {
     BattleQueueEffect(g_CurrentAction->actorSlot, animId, g_CurrentAction->cmdIndex, g_CurrentAction->unk24,
                       g_CurrentAction->unk98, 0, 0);
@@ -2501,7 +2501,7 @@ static s32 BattleAddMessageToStringBuffer(u8* src, u16* args) {
 
 s8* BattleGetStringPtrFromStringBuffer(s32 arg0) { return &D_800F3A80[D_800F4280[arg0]]; }
 
-static u8* GetEnemyAiScriptOffs(u16* arg0, s32 arg1, s32 arg2) {
+static u8* BattleGetAiScript(u16* arg0, s32 arg1, s32 arg2) {
     u8* script = NULL;
     u16* scriptTable;
 
@@ -2544,7 +2544,7 @@ void BattleRunUnitScript(s32 unitSlot, s32 scriptType, s32 priority) {
     if (unitSlot >= START_ENEMY) {
         s32 enemyIndex = unitSlot - START_ENEMY;
         s32 enemyTypeIndex = g_BattleData.activeEncounter.formation[enemyIndex].enemyTypeIndex;
-        script = GetEnemyAiScriptOffs((u16*)g_BattleWork.aiScriptBuffer, enemyTypeIndex, scriptType);
+        script = BattleGetAiScript((u16*)g_BattleWork.aiScriptBuffer, enemyTypeIndex, scriptType);
     } else if (unitSlot < NUM_PARTY) {
         presetIdx = g_BattleData.actors[unitSlot].charId;
         if (presetIdx != -1) {
@@ -2553,7 +2553,7 @@ void BattleRunUnitScript(s32 unitSlot, s32 scriptType, s32 priority) {
                 presetIdx = remapped;
             }
         }
-        script = GetEnemyAiScriptOffs(D_80082884, presetIdx, scriptType);
+        script = BattleGetAiScript(D_80082884, presetIdx, scriptType);
     }
 
     if (script) {
@@ -2583,7 +2583,7 @@ void BattleExecFormationAIScripts(void) {
     for (i = 0; i < 8; i++) {
         if ((g_BattleWork.activeScriptMask >> i) & 1) {
             g_BattleWork.activeScriptMask &= ~(1 << i);
-            script = GetEnemyAiScriptOffs(g_BattleWork.formationAI.scriptOffsets, g_BattleState.sceneID & 3, i);
+            script = BattleGetAiScript(g_BattleWork.formationAI.scriptOffsets, g_BattleState.sceneID & 3, i);
             if (script != 0) {
                 BattleOpcodeCycle(3, script, -1);
             }
@@ -4373,11 +4373,12 @@ static void BattleApplyKoAllyDmgBonus(void) {
 }
 
 static s32 BattleIsOpposingTeams(s32 firstSlot, s32 secondSlot) {
-    firstSlot = firstSlot < START_ENEMY;
+    s32 partyCount = firstSlot < START_ENEMY;
+
     if (secondSlot < START_ENEMY) {
-        firstSlot++;
+        partyCount++;
     }
-    return firstSlot & 1;
+    return partyCount & 1;
 }
 
 static s32 BattleGetRndOpponentBit(s32 unitSlot) {
@@ -6056,7 +6057,7 @@ void BattleSetTmpDmgAsPlayTime(void) {
 }
 
 // target-side damage/effect scaling from the target's save-file kill count
-// (party members only -- targetIdx >= 3 is an enemy, contributes 0)
+// (party members only -- targetSlot >= NUM_PARTY contributes 0)
 void BattleApplyKillCountBonus(void) {
     s32 killCount = 0;
 
@@ -7327,7 +7328,7 @@ static s32 BattleUnitIsNearDeath(s32 unitSlot) {
 }
 
 static void BattleQueueEffect(
-    s32 unitSlot, s32 animId, s32 actioId, s32 effectParam, s32 arg4, s32 flags, s32 statusMask) {
+    s32 unitSlot, s32 animId, s32 actionId, s32 effectParam, s32 arg4, s32 flags, s32 statusMask) {
     BattleActionQueueEntry* action;
     BattleQueueTargetEntry* target;
 
@@ -7337,7 +7338,7 @@ static void BattleQueueEffect(
     action->unk8 = -1;
     action->actorSlot = unitSlot;
     action->unk5 = animId;
-    action->unk3 = actioId;
+    action->unk3 = actionId;
     action->unk2 = effectParam;
     action->unk4 = 0;
     action->unk6 = arg4;
