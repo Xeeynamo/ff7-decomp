@@ -3449,7 +3449,7 @@ static void func_800C1908(u8 arg0) {
         if (D_80151200[temp_a1].status & STATUS_PARALYSIS) {
             D_80151200[temp_a1].D_80151233 = 3;
         }
-        if (D_80151200[temp_a1].status & STATUS_CONFU) {
+        if (D_80151200[temp_a1].status & STATUS_CONFUSE) {
             if (g_BattleModels[temp_a1].animId == D_80163784[temp_a1]) {
                 g_BattleModels[temp_a1].rootRot.vy += 0x100;
             }

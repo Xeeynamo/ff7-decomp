@@ -2375,7 +2375,7 @@ void BattleAddAutoBattleActionByChance(s32 unitSlot, s32 mode) {
     s32 i;
     s32 kind;
 
-    const s32 inactionStatuses = STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_FROG | STATUS_PETRIFY |
+    const s32 inactionStatuses = STATUS_SLEEP | STATUS_CONFUSE | STATUS_STOP | STATUS_FROG | STATUS_PETRIFY |
                                  STATUS_BERSERK | STATUS_PARALYSIS | STATUS_IMPRISONED;
 
     if (mode != 0 && (g_BattleState.combatant[unitSlot].status & inactionStatuses)) {
@@ -4261,7 +4261,7 @@ void BattleApplyVincentLimitTransform(void) {
 
     unitSlot = g_CurrentAction->actorSlot;
     g_BattleState.combatant[unitSlot].stateFlags |= UNIT_AI_CONTROLLED;
-    g_BattleState.combatant[unitSlot].status &= ~(STATUS_CONFU | STATUS_FROG | STATUS_BERSERK);
+    g_BattleState.combatant[unitSlot].status &= ~(STATUS_CONFUSE | STATUS_FROG | STATUS_BERSERK);
     g_BattleWork.turn[unitSlot].miscFlags |= BATTLE_MISC_TRANSFORMED;
     BattleQueueImmediateAction(unitSlot, 0, -1, 0, 0);
     g_BattleState.vincentLimitLevel = g_CurrentAction->effectModifier;
@@ -4441,7 +4441,7 @@ void func_800AA738(s32 targetMask) {
 // redirects the attack to them
 void BattleResolveCover(BattleQueueTargetEntry* entry) {
     const s32 coverBlockStatuses =
-        (STATUS_DEATH | STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_FROG | STATUS_SMALL | STATUS_PETRIFY |
+        (STATUS_DEATH | STATUS_SLEEP | STATUS_CONFUSE | STATUS_STOP | STATUS_FROG | STATUS_SMALL | STATUS_PETRIFY |
          STATUS_BERSERK | STATUS_PARALYSIS | STATUS_DARKNESS | STATUS_IMPRISONED);
     s32 targetSlot = entry->targetSlot;
     u16 targetZone;
@@ -6414,7 +6414,7 @@ void BattlePostRemoveDeath(s32 unitSlot, s32 statusBit, s32 gained) {
 
 void BattleRestoreBattleActionIfCan(s32 unitSlot, s32 statusBit, s32 gained) {
     if (!(g_BattleState.combatant[unitSlot].status &
-          (STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_PETRIFY | STATUS_BERSERK | STATUS_PARALYSIS))) {
+          (STATUS_SLEEP | STATUS_CONFUSE | STATUS_STOP | STATUS_PETRIFY | STATUS_BERSERK | STATUS_PARALYSIS))) {
         BattleQueueEvent(0, unitSlot, 6, 0);
     }
     if (!(g_BattleState.combatant[unitSlot].status &
@@ -6434,7 +6434,7 @@ void BattleRestoreBattleActionIfCan(s32 unitSlot, s32 statusBit, s32 gained);
 
 // skips (does nothing) while combatant[unitSlot].status has Berserk or Confusion
 void BattleTryApplyHitEffect(s32 unitSlot, s32 statusBit, s32 gained) {
-    if (!(g_BattleState.combatant[unitSlot].status & (STATUS_BERSERK | STATUS_CONFU))) {
+    if (!(g_BattleState.combatant[unitSlot].status & (STATUS_BERSERK | STATUS_CONFUSE))) {
         BattleQueueEvent(0, unitSlot, 9, 0);
         BattleRestoreBattleActionIfCan(unitSlot, statusBit, gained);
     }
@@ -6452,7 +6452,7 @@ void func_800AF264(s32 unitSlot, s32 statusBit, s32 gained) {
 
     if (statusBit == 0xE) { // 0xE = index of STATUS_PETRIFY
         g_BattleState.combatant[unitSlot].status =
-            status & ~(STATUS_SLEEP | STATUS_POISON | STATUS_CONFU | STATUS_REGEN | STATUS_DUAL_DRAIN);
+            status & ~(STATUS_SLEEP | STATUS_POISON | STATUS_CONFUSE | STATUS_REGEN | STATUS_DUAL_DRAIN);
     }
 }
 
@@ -6634,7 +6634,7 @@ s32 BattleGetStatusProtectionMask(s32 unitSlot, s32 arg1, s32 arg2) {
 
     statusProtectionMask = g_BattleWork.turn[unitSlot].statusProtectionMask;
     if (g_BattleWork.turn[unitSlot].miscFlags & BATTLE_MISC_TRANSFORMED) {
-        statusProtectionMask |= (STATUS_BERSERK | STATUS_FROG | STATUS_CONFU);
+        statusProtectionMask |= (STATUS_BERSERK | STATUS_FROG | STATUS_CONFUSE);
     }
 
     if (arg1 != 0) {
@@ -6719,11 +6719,11 @@ void func_800AF9C8(void) {
             }
 
             if (g_CurrentAction->cmdIndex != CMD_SUMMON && g_CurrentAction->cmdIndex != CMD_LIMIT) {
-                if (g_BattleState.combatant[g_CurrentAction->actorSlot].status & (STATUS_CONFU | STATUS_MANIPULATE)) {
+                if (g_BattleState.combatant[g_CurrentAction->actorSlot].status & (STATUS_CONFUSE | STATUS_MANIPULATE)) {
                     targetParty ^= 1;
                 }
 
-                if (g_BattleState.combatant[g_CurrentAction->actorSlot].status & STATUS_CONFU) {
+                if (g_BattleState.combatant[g_CurrentAction->actorSlot].status & STATUS_CONFUSE) {
                     isConfused = 1;
                 }
             }
@@ -6963,7 +6963,7 @@ void BattleRollPhysicalHit(void) {
     s32 hitChance;
     s32 dexterity;
 
-    const s32 vulnerableStatusMask = STATUS_DEATH | STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_PETRIFY |
+    const s32 vulnerableStatusMask = STATUS_DEATH | STATUS_SLEEP | STATUS_CONFUSE | STATUS_STOP | STATUS_PETRIFY |
                                      STATUS_MANIPULATE | STATUS_PARALYSIS;
 
     BattleResolveAttackFacing();
@@ -6983,8 +6983,8 @@ void BattleRollPhysicalHit(void) {
         if (g_CurrentAction->targetStatus & STATUS_SLEEP) {
             g_CurrentAction->unk238[1] |= STATUS_SLEEP;
         }
-        if (g_CurrentAction->targetStatus & STATUS_CONFU) {
-            g_CurrentAction->unk238[1] |= STATUS_CONFU;
+        if (g_CurrentAction->targetStatus & STATUS_CONFUSE) {
+            g_CurrentAction->unk238[1] |= STATUS_CONFUSE;
         }
         if (g_CurrentAction->targetStatus & STATUS_MANIPULATE) {
             g_CurrentAction->unk238[1] |= STATUS_MANIPULATE;
@@ -7042,7 +7042,7 @@ void BattleRollMagicalHit(void) {
     s32 hitRoll = SysGetRandomByteRange(100) + 1;
 
     const s32 vulnerableStatusMask =
-        STATUS_DEATH | STATUS_SLEEP | STATUS_CONFU | STATUS_STOP | STATUS_PETRIFY | STATUS_PARALYSIS;
+        STATUS_DEATH | STATUS_SLEEP | STATUS_CONFUSE | STATUS_STOP | STATUS_PETRIFY | STATUS_PARALYSIS;
 
     // Auto-hit if the ability's At% is 255
     if (hitChance >= 255) {
@@ -7271,7 +7271,7 @@ static s32 BattleUnitIsOnPartyTeam(s32 unitSlot) {
     s32 status = g_BattleState.combatant[unitSlot].status;
     s32 count = unitSlot < START_ENEMY;
 
-    if (status & STATUS_CONFU) {
+    if (status & STATUS_CONFUSE) {
         count++;
     }
     if (status & STATUS_MANIPULATE) {
