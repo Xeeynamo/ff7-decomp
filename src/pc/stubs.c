@@ -33,6 +33,7 @@ u32 D_8006E0F8; // sectors in the current lzs chunk read
 Unk80071A60 D_80071A60;
 
 void CdOpMovieBuffer(void) { NOT_IMPLEMENTED; }
+void SysFadeSetPolyRgbDirect(s16 r, s16 g, s16 b) { NOT_IMPLEMENTED; }
 void CdOpMoviePlay(void) { NOT_IMPLEMENTED; }
 void func_8003DE6C(s32 arg0) { NOT_IMPLEMENTED; }
 void func_8003DE84(s32 arg0) { NOT_IMPLEMENTED; }
