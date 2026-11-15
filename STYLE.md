@@ -184,3 +184,49 @@ void func_80123456(s32 arg0) {
     }
 }
 ```
+
+## Naming conventions
+
+### Battle unit slots
+
+A battle has `NUM_BATTLE_ACTOR` (10) unit slots:
+
+* 0-2 (`< NUM_PARTY`): Reserved for party members
+* 3 (`EFFECT_MODEL_SLOT`): Reserved for effect models
+* 4-9 (`>= START_ENEMY`): Reserved for enemies
+
+A slot index is used to access `g_BattleState.combatant[]`, `g_BattleWork.turn[]` and `g_BattleData.actors[]`, and as a bit in unit masks (`1 << unitSlot`).
+
+Name any variable or parameter holding a slot index `unitSlot`.
+
+```c
+// when you see this
+void func_800A5678(s32 arg0) {
+    g_BattleWork.turn[arg0].atbGauge = 0;
+    g_BattleWork.disabledUnitMask |= 1 << arg0;
+}
+
+// name the slot
+void func_800A5678(s32 unitSlot) {
+    g_BattleWork.turn[unitSlot].atbGauge = 0;
+    g_BattleWork.disabledUnitMask |= 1 << unitSlot;
+}
+```
+
+When the code makes the unit's role clear, use a role variant instead (`targetSlot`, `attackerSlot`, `enemySlot`, etc).
+
+```c
+// when you see this
+void func_800A1234(s32 arg0, s32 arg1) {
+    g_BattleState.combatant[arg1].curHP -= g_BattleState.combatant[arg0].physAttack;
+    g_BattleWork.turnReadyUnitMask &= ~(1 << arg1);
+}
+
+// name the slots
+void func_800A1234(s32 attackerSlot, s32 targetSlot) {
+    g_BattleState.combatant[targetSlot].curHP -= g_BattleState.combatant[attackerSlot].physAttack;
+    g_BattleWork.turnReadyUnitMask &= ~(1 << targetSlot);
+}
+```
+
+Avoid `unitId`, `actorId`, `unitIdx` or a bare `slot` for these indices. A slot is a position, not an identity: the unit occupying it can change during a battle, and the unit's persistent identity is stored separately in `BattleUnit.actorId`.

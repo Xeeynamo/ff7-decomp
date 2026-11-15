@@ -68,7 +68,7 @@ typedef enum {
 } ScriptVmOperandKind;
 
 typedef struct {
-    s8 actionId;
+    s8 actorSlot;
     s8 type;
     s8 unk2;
     s8 unk3;
@@ -691,7 +691,7 @@ extern s8 D_800F3A80[];
 extern u16 D_800F4280[];
 
 typedef struct {
-    u8 unitId;
+    u8 unitSlot; // 0xFF marks a free entry
     u8 callbackId;
     u16 param;
 } BattleCallbackEvent;
@@ -832,7 +832,7 @@ extern u32 D_800F8CF4[][0x18];
 extern s32 D_800F9F28[]; // size is either 4 or 5
 extern u8 D_800F9F34;
 typedef struct {
-    /* 0x0 */ s16 targetId;
+    /* 0x0 */ s16 targetSlot;
     /* 0x2 */ s16 damage;
     /* 0x4 */ s16 damageFlags;
     /* 0x6 */ u16 currentHp;
@@ -871,17 +871,18 @@ extern s32 g_BattleMpBarValue[10];
 extern s32 g_BattleHpBarFill[10];
 
 extern s32 g_BattleMpBarFill[10];
-// queued-action-ish record, allocated by BattleQueue2GetPtr (unk3 set to -1,
-// marking it unassigned) and searched by func_800A34CC. Traced through
-// BattleCreateImpactData's callers (func_800AB830/BattleMainDmgCalculation):
-// unk0 is very likely an actorId (0-2) -- its source value independently
-// indexes D_800F83E0 with the same 0x68 stride confirmed elsewhere, in both
-// callers. unk1 is a second actor-related value (not always equal to unk0).
-// unk3 becomes a real D_800F9F3C slot index (0-0x7F) once BattleAllocImpactData
-// activates the record. unk4's bit 0x4 is checked by func_800A34CC.
+// Per-target hit record, allocated by BattleQueue2GetPtr (extraDataIndex set to -1,
+// marking it unassigned) and searched by func_800A34CC.
+// targetSlot is the unit the hit lands on. sourceSlot is the unit the hit comes from:
+// the acting unit, or the reflector on a reflected pass (BattleMainDmgCalculation).
+// BattleResolveCover replaces it with the covered unit when it redirects the hit,
+// and self-inflicted records (func_800AB830, BattleQueueEffect) store the target itself.
+// extraDataIndex becomes a real D_800F9F3C slot index (0-0x7F) once BattleAllocImpactData
+// activates the record. flags bit 0x4 is checked by func_800A34CC and
+// BattleDropSupersededQueuedActions.
 typedef struct {
-    /* 0x0 */ s8 targetId;
-    /* 0x1 */ s8 attackerId;
+    /* 0x0 */ s8 targetSlot;
+    /* 0x1 */ s8 sourceSlot;
     /* 0x2 */ s8 hurtAnimScript;
     /* 0x3 */ s8 extraDataIndex;
     /* 0x4 */ u16 flags;
@@ -1016,15 +1017,15 @@ static void BattleRunFrameIfActionQueued(void);
 void func_800A3534(s32 unused, s16 index);
 s32 func_800A35F8(void);
 static s32 BattleRunEscapeSequence(void);
-static u8 func_800A4B3C(s32 index, s32 arg1);
+static u8 func_800A4B3C(s32 unitSlot, s32 boneIndex);
 static void func_800A4D2C(s32 arg0);
-void BattleRefreshMenu(s32 arg0, s32 menuType);
-static s32 BattleRefreshMagicMenu(s32 arg0, u32 status, s32 start, s32 count);
-static void BattleRefreshCmdMenu(s32 arg0, u32 status);
+void BattleRefreshMenu(s32 unitSlot, s32 menuType);
+static s32 BattleRefreshMagicMenu(s32 unitSlot, u32 status, s32 start, s32 count);
+static void BattleRefreshCmdMenu(s32 unitSlot, u32 status);
 void BattleProcessIncomingItems(void);
 static s32 BattleAddMessageToStringBuffer(u8* src, u16* args);
 void BattleProcessEventQueue(s32);
-static void BattleCopyTargTypeDatToTmp(s32 arg0);
+static void BattleCopyTargTypeDatToTmp(s32 targetFlags);
 static void BattleSetActionEffect(s32 effectId, s32 effectModifier);
 static void SetActionStatusChange(u32 arg0, s32 statusMask);
 static void func_800A8E54(s32 arg0);
@@ -1032,10 +1033,10 @@ s32 BattleApplyActionEffect(s32 effectPhase);
 static void BattleResolveCaitSithSlotsResult(void);
 static void BattleApplyCaitSithTransform(void);
 void BattleApplyVincentLimitTransform(void);
-static void func_800AA468(void);
-static void func_800AA4FC(void);
+static void BattleApplyStatusCountDmgBonus(void);
+static void BattleApplyNearDeathDmgBonus(void);
 void BattleSetPowerFromWeaponMateriaAp(void);
-static void func_800AA688(void);
+static void BattleApplyKoAllyDmgBonus(void);
 void BattleResolveCover(BattleQueueTargetEntry*);
 void BattleResolveAffinityPreDamage(void);
 void BattleResolveAffinityPostDamage(void);
@@ -1043,13 +1044,13 @@ static void BattleLearnEnemySkill(void);
 void BattleCreateImpactData(BattleQueueTargetEntry*, s16, u16, s16, s16);
 void func_800AC6B4(s32);
 void BattleCalcTargStats(s32);
-void func_800ACA24(void);
-s32 func_800ACD88(s32);
+void BattleClearHitResult(void);
+s32 BattleUnitIsImmuneToAttack(s32);
 s32 BattleRollStatusHit(void);
 static s32 BattleIsDamageNullified(s32);
 static void BattleQueueUnassignedResultDisplay(BattleQueueTargetEntry*);
 void BattleApplyDamageAndChargeLimitGauge(void);
-void func_800AD324(s32, s32, s32, s32);
+void BattleAddPendingAbsorb(s32, s32, s32, s32);
 static void BattleApplyDefaultAbsorbEffect(void);
 void BattleDmgFormulaRun(void);
 void BattleLowerFunc00(void);
@@ -1063,26 +1064,26 @@ void BattleLowerFunc07(void);
 void BattleLowerFunc08(void);
 void BattleLowerFunc09(void);
 void BattleLowerFunc0a(void);
-void func_battle_800ADFC0(void);
+void BattleSetTmpDmgAsCurrentHp(void);
 void BattleSetTmpDmgAsMaxHpMinusCurrentHp(void);
-void func_800AE050(void);
-void func_800AE058(void);
-void func_800AE060(void);
-void func_800AE068(void);
-void func_800AE070(void);
-void func_800AE078(void);
+void BattleLowerFunc12(void);
+void BattleLowerFunc13(void);
+void BattleLowerFunc14(void);
+void BattleLowerFunc15(void);
+void BattleLowerFunc16(void);
+void BattleLowerFunc17(void);
 void BattleLowerFunc18(void);
 void BattleSetTmpDmgAsNumOfEscapes(void);
 void BattleSetTmpDmgAsTargHpMinusOne(void);
-void func_800AE2A0(void);
+void BattleSetTmpDmgAsPlayTime(void);
 void BattleApplyKillCountBonus(void);
 void BattleCalcMateriaSlotScore(void);
-static s32 func_800AE6C0(s32, s32, s32);
+static s32 BattleUnitGetFirstAffinityIndex(s32, s32, s32);
 void BattleCalcAffinityFlags(void);
 s32 BattleProcessStatusChanges(void);
 s32 BattleGetStatusProtectionMask(s32, s32, s32);
 void func_800AF9C8(void);
-static s32 BattleUnitGetPendingConstTicks(s32 arg0);
+static s32 BattleUnitGetPendingConstTicks(s32 unitSlot);
 void BattleProcessTimers(void);
 void BattleAdvanceTimers(void);
 void func_800B0234(void);
@@ -1092,11 +1093,11 @@ static void BattleApplyTargetFacing(void);
 static s32 BattleApplyFuryHitChanceReduction(s32);
 u16 BattleGetRndItemIdForSteal(void*, s32, s32, s32);
 static void BattleAddStringToDisplay(s32, s32, s32, u16*);
-static s32 BattleGetAttackMpCost(s32 arg0);
+static s32 BattleGetAttackMpCost(s32 attackId);
 static void func_800B2CAC(s32 arg0, s32 arg1);
-void BattleTransferUnitState(s32 arg0, s32 arg1);
+void BattleTransferUnitState(s32 successorSlot, s32 sourceSlot);
 static s32 BattleGetRnd164(void);
-static s32 BattleOpcodeCountActiveBits(u16 arg0);
+static s32 BattleOpcodeCountActiveBits(u16 mask);
 s32 BattleOpcodeGetRndBit(u16);
 void BattleNormalStartSeq(void);
 void BattleNextStartSeq(void);
@@ -1105,10 +1106,10 @@ s32 BattleLoadEnemyModel(s32);
 void BattleLoadEnemyTexture(s32);
 void BattleInitModelsAnimAndColor(s32, s32);
 void BattleCdromReadChain(void);
-static s32 BattleApplyStatMult(s32 arg0, s32 value, s32 statIndex);
-static void BattleAddStatMult(s32 unitId, s32 deltaPct, s32 statMask);
+static s32 BattleApplyStatMult(s32 unitSlot, s32 value, s32 statIndex);
+static void BattleAddStatMult(s32 unitSlot, s32 deltaPct, s32 statMask);
 // definition takes 3 args (a2 -> D_800F4ACC), but existing callers only pass 2
-void BattleInitScriptContext(/*s32, s32, s32*/);
+void BattleInitScriptContext(/*unitSlot, priority, s32*/);
 s16 func_800B888C(s32);
 void func_800B8438(void);
 void func_800B8A34(s32, s32);
@@ -1135,18 +1136,18 @@ void BattleMenuUpdateSelectorIconsAlt(void);
 void func_800E6B94(void);
 void BattleEnqueueLoadImage(RECT* rect, u_long* ptr);
 void BattleReleaseUnitReservedItems(s16 unitSlot);
-void BattleQueueEvent(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-static void BattleInvalidateQueuedMessages(s32 arg0, s32 arg1);
+void BattleQueueEvent(s32 queue, s32 unitSlot, s32 callbackId, s32 param);
+static void BattleInvalidateQueuedMessages(s32 unitSlot, s32 minPriority);
 static void func_800A32C0(s32 arg0);
-static void BattleQueueImmediateAction(s32 unitId, s32 prio, s32 type, s32 index, s32 target);
-static s32 BattleGetBerserkToadAttackTypeId(s32 arg0);
+static void BattleQueueImmediateAction(s32 unitSlot, s32 prio, s32 type, s32 index, s32 targetMask);
+static s32 BattleGetBerserkToadAttackTypeId(s32 unitSlot);
 static s32 BattleRunToResultScreen(void);
-void BattleRunUnitScript(s32 actorId, s32 scriptType, s32 priority);
-static s32 BattleGetAttackIdInSceneByAttackId(s32 arg0);
+void BattleRunUnitScript(s32 unitSlot, s32 scriptType, s32 priority);
+static s32 BattleGetAttackIdInSceneByAttackId(s32 attackId);
 void BattleCmdScriptDispatch(BattleActionEntry*);
-void func_800A2BF4(s32 arg0);
+void BattleSetEnabledMagicIndex(s32 unitSlot);
 static void BattleDropSupersededQueuedActions(void);
-void BattleProcessUnitKilled(s32 arg0, s32 arg1, s32 arg2);
+void BattleProcessUnitKilled(s32 attackerSlot, s32 victimSlot, s32 arg2);
 // BattleCmdScriptDispatch's opcode handlers
 void BattleActionType14(void);
 void BattleResolveMagicActionIndex(void);
@@ -1160,7 +1161,7 @@ void BattlePrepareTmpForDefend(void);
 void BattleResolveLimitActionIndex(void);
 void BattleActionType07(void);
 void BattlePrepareTmpForManip(void);
-void func_800A795C(void);
+void BattleActionType08(void);
 void BattleActionType0A(void);
 void BattleActionType0B(void);
 void BattleActionType0C(void);
@@ -1168,9 +1169,9 @@ void BattleLoadActionAttackData(void);
 void BattleActionType0E(void);
 void BattleQueueCurrentActionEffect(void);
 void BattleActionType10(void);
-void func_800A853C(void);
+void BattleActionType11(void);
 void BattleActionType12(void);
-void func_800A85B4(void);
+void BattleActionType13(void);
 void BattleActionType15(void);
 void BattleActionType16(void);
 void BattleActionType17(void);
@@ -1179,11 +1180,13 @@ void BattleActionType1B(void);
 void BattleActionType1C(void);
 void BattleActionType1E(void);
 void BattleActionType09(void);
+void func_800ACA4C(s32 arg0);
+void BattleSetFormulaAndBaseDmg(void);
 
 // BattleProcessUnitKilled does not match if this is forward declared because the types do not agree
 // but the modern build fails if it is not declared
 #ifdef PLATFORM_PSYZ
-static void BattleQueueOpcodeAction(s16 unitId, s16 cmdIndex, s16 attackIndex);
+static void BattleQueueOpcodeAction(s16 unitSlot, s16 cmdIndex, s16 attackIndex);
 #endif
 
 /* battle menu widget block (one per widget id, 0x240 apart) -- partial */

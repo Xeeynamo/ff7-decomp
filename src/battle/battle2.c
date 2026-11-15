@@ -1908,7 +1908,7 @@ void func_800D0C80(u8 arg0) {
         break;
     case CMD_LIMIT:
         if (g_BattleModels[arg0].attackEffectId == 2) {
-            if (D_801590CC == g_BattleQueueTargets[2].targetId) {
+            if (D_801590CC == g_BattleQueueTargets[2].targetSlot) {
                 D_80163A98 = 0;
             } else {
                 D_80163A98 = 1;

@@ -171,8 +171,9 @@ u8* SysExpandBattleString(u8* dst, const u8* src) {
                 if (arg < NUM_PARTY) {
                     cursor = SysAppendCharName(g_BattleData.actors[arg].charId, cursor);
                 } else if (arg >= START_ENEMY) {
-                    s16 enemyId = g_BattleData.activeEncounter.formation[arg - START_ENEMY].enemyID;
-                    cursor = SysAppendString(cursor, g_BattleWork.enemy[enemyId].name, LEN(g_BattleWork.enemy[0].name));
+                    s16 enemyTypeIndex = g_BattleData.activeEncounter.formation[arg - START_ENEMY].enemyTypeIndex;
+                    cursor = SysAppendString(
+                        cursor, g_BattleWork.enemy[enemyTypeIndex].name, LEN(g_BattleWork.enemy[0].name));
                 }
 
                 break;
@@ -309,7 +310,8 @@ const char* SysKernGetString(s32 type, s32 index, s32 blockOffset) {
 
                 slot = index + START_ENEMY;
                 str = SysAppendString(
-                    &D_80063660, g_BattleWork.enemy[g_BattleData.activeEncounter.formation[index].enemyID].name, 0x20);
+                    &D_80063660, g_BattleWork.enemy[g_BattleData.activeEncounter.formation[index].enemyTypeIndex].name,
+                    0x20);
 
                 if (g_BattleWork.turn[slot].formationIndex != 0xFF) {
                     *str++ = g_BattleWork.turn[slot].formationIndex + g_FFTextLetterOffset;

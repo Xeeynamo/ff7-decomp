@@ -533,14 +533,14 @@ static void func_800B3E2C(void) {
     func_800C5BEC();
 }
 
-// search the formation's 6 enemy slots for one whose enemyID matches arg0;
+// search the formation's 6 enemy positions for one whose enemyTypeIndex matches arg0;
 // if found, bump a counter and return 0, else return -1
 static s32 func_800B3FAC(s32 arg0) {
     s32 i;
     u8* p = (u8*)&D_800F7DF4;
 
     for (i = 0; i < (s32)sizeof(g_BattleData.activeEncounter.formation); i += sizeof(FormationEntry)) {
-        if (((FormationEntry*)((u8*)g_BattleData.activeEncounter.formation + i))->enemyID == arg0) {
+        if (((FormationEntry*)((u8*)g_BattleData.activeEncounter.formation + i))->enemyTypeIndex == arg0) {
             *p += 1;
             return 0;
         }
@@ -1096,13 +1096,13 @@ void BattleQueue1Execute(void) {
     u8 index;
     u8 targetId;
     index = D_801590E0;
-    while (g_BattleActionQueue[index].actionId != -1) {
+    while (g_BattleActionQueue[index].actorSlot != -1) {
         switch (g_BattleActionQueue[index].type) {
         case 5:
-            g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].animControlFlags |= 0x20;
-            actor = g_BattleActionQueue[D_801590E0].actionId;
+            g_BattleModels[g_BattleActionQueue[D_801590E0].actorSlot].animControlFlags |= 0x20;
+            actor = g_BattleActionQueue[D_801590E0].actorSlot;
             D_80151200[actor].status = g_BattleData.actors[actor].status;
-            actor2 = g_BattleActionQueue[D_801590E0].actionId;
+            actor2 = g_BattleActionQueue[D_801590E0].actorSlot;
             flags = D_80151200[actor2].status;
             if (flags != 0x10 && flags != 0x20) {
                 g_BattleModels[actor2].rootRot.vy = g_BattleModels[actor2].defaultRotX;
@@ -1125,7 +1125,7 @@ void BattleQueue1Execute(void) {
             if (D_800F7DE4 != 0) {
                 D_800F7DE4 = 0;
                 *(s32*)0x1F800004 = g_BattleActionQueue[D_801590E0].unk5 << 8;
-                *(s32*)0x1F800008 = g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].scale;
+                *(s32*)0x1F800008 = g_BattleModels[g_BattleActionQueue[D_801590E0].actorSlot].scale;
                 effect = BattleEffectRegister(func_800C5694);
                 target = *(s32*)0x1F800004;
                 current = *(s32*)0x1F800008;
@@ -1136,9 +1136,9 @@ void BattleQueue1Execute(void) {
                     *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297A + (effect << 5))) =
                         (target - current) / g_BattleActionQueue[D_801590E0].unk6;
                 }
-                g_BattleModels[g_BattleActionQueue[D_801590E0].actionId].ready = 0;
+                g_BattleModels[g_BattleActionQueue[D_801590E0].actorSlot].ready = 0;
                 *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297E + (effect << 5))) =
-                    g_BattleActionQueue[D_801590E0].actionId;
+                    g_BattleActionQueue[D_801590E0].actorSlot;
                 *((s16*)((u8*)&g_BattleEffectSlots[0].raw.D_8016297C + (effect << 5))) =
                     g_BattleActionQueue[D_801590E0].unk6;
                 g_BattleActionQueue[D_801590E0].unk8 = -1;
@@ -1152,16 +1152,16 @@ void BattleQueue1Execute(void) {
             if (D_800F7DE4 != 0) {
                 D_800F7DE4 = 0;
                 BattleQueue1CameraInit();
-                D_801590CC = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].attackerId;
+                D_801590CC = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].sourceSlot;
                 g_BattleModels[D_801590CC].ready = 1;
                 BattleQueue1InitPlayAnim();
                 D_800F9774 = 0;
-                if (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId != -1) {
+                if (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetSlot != -1) {
                     terminal = -1;
                     do {
                         BattleQueue1AddNewTarg();
                         g_BattleActionQueue[D_801590E0].targetIndex++;
-                    } while (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId != terminal);
+                    } while (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetSlot != terminal);
                 }
                 D_801517BC = 1;
                 BattleQueue1UpdateTargMasks();
@@ -1175,21 +1175,21 @@ void BattleQueue1Execute(void) {
             if (D_800F7DE4 != 0) {
                 D_800F7DE4 = 0;
                 BattleQueue1CameraInit();
-                D_801590CC = (u8)g_BattleActionQueue[D_801590E0].actionId;
+                D_801590CC = (u8)g_BattleActionQueue[D_801590E0].actorSlot;
                 g_BattleModels[D_801590CC].animControlFlags |= 1;
                 g_BattleModels[D_801590CC].ready = 0;
                 BattleQueue1InitPlayAnim();
                 D_800F9774 = 0;
-                while (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId != -1) {
-                    D_800FAFE0 = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].attackerId;
+                while (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetSlot != -1) {
+                    D_800FAFE0 = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].sourceSlot;
                     BattleQueue1AddNewTarg();
                     if (D_800F9774 == 1) {
-                        targetId = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId;
+                        targetId = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetSlot;
                         D_800FA6D4 = targetId;
                         D_800F99E8 = targetId;
                         D_80161EEC = targetId;
                         if (g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].hurtAnimScript == 9) {
-                            D_800F99E8 = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].attackerId;
+                            D_800F99E8 = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].sourceSlot;
                         }
                         D_801031F0 = 0;
                     } else {
@@ -1254,7 +1254,7 @@ void BattleQueue1AddNewTarg(void) {
     s16 value;
     s32 payloadOffset;
     firstSlot = D_800F9774;
-    target = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetId;
+    target = g_BattleQueueTargets[g_BattleActionQueue[D_801590E0].targetIndex].targetSlot;
     D_80163CC0[firstSlot].D_80163CC0 = target;
     D_801517F0[firstSlot] = target;
     queueIndex = D_801590E0;
@@ -3449,7 +3449,7 @@ static void func_800C1908(u8 arg0) {
         if (D_80151200[temp_a1].status & STATUS_PARALYSIS) {
             D_80151200[temp_a1].D_80151233 = 3;
         }
-        if (D_80151200[temp_a1].status & STATUS_CONFU) {
+        if (D_80151200[temp_a1].status & STATUS_CONFUSE) {
             if (g_BattleModels[temp_a1].animId == D_80163784[temp_a1]) {
                 g_BattleModels[temp_a1].rootRot.vy += 0x100;
             }

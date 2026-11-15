@@ -43,7 +43,7 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     SavePartyMember* dst;
     u8 gil[4];
     u32 i;
-    s32 slot;
+    s32 unitSlot;
     s32 j;
     s32 k;
     s32 hp;
@@ -58,11 +58,11 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
     for (i = 0; i < 4; i++) {
         Savemap.memory_bank_4[i + 2] = gil[i];
     }
-    for (slot = 0; slot < NUM_PARTY; slot++) {
-        hp = g_BattleState.combatant[slot].curHP;
-        mp = g_BattleState.combatant[slot].curMP;
-        id = g_BattlePartyIDs[slot];
-        if ((g_BattleWork.reviveMask >> slot) & 1) {
+    for (unitSlot = 0; unitSlot < NUM_PARTY; unitSlot++) {
+        hp = g_BattleState.combatant[unitSlot].curHP;
+        mp = g_BattleState.combatant[unitSlot].curMP;
+        id = g_BattlePartyIDs[unitSlot];
+        if ((g_BattleWork.reviveMask >> unitSlot) & 1) {
             hp = hpOverride;
             mp = mpOverride;
         }
@@ -74,8 +74,8 @@ static void CommitBattleResults(s32 hpOverride, s32 mpOverride) {
             if (id == c->char_id) {
                 c->curHP = hp;
                 c->curMP = mp;
-                c->limit_charge = g_BattleWork.party[slot].limitBar;
-                c->status_flags = g_BattleState.combatant[slot].status & 0x30;
+                c->limit_charge = g_BattleWork.party[unitSlot].limitBar;
+                c->status_flags = g_BattleState.combatant[unitSlot].status & 0x30;
                 if (g_BattleState.setupFlags & 0x10) {
                     if (c->char_id == 0) {
                         for (k = 0; k < 12; k++) {
