@@ -36,4 +36,16 @@ void MAGIC_Refrec(s32 targetMask, s32 callbackArg);
 void MAGIC_Lv5Death(s32 targetMask, s32 callbackArg);
 EffectModel* MAGIC_Choco0(s32 targetMask, s32 callbackArg);
 
+s32 MAGIC_Gattai(s32 targetMask, s32 callbackArg);
+EffectModel* MAGIC_Jinrai(s32 targetMask, s32 callbackArg);
+void MAGIC_Smkball(s32 targetMask, s32 callbackArg);
+void MAGIC_Threat(s32 targetMask, s32 callbackArg);
+void MAGIC_Tears(s32 targetMask, s32 callbackArg);
+void MAGIC_Echoes(s32 targetMask, s32 callbackArg);
+void MAGIC_Magend(s32 targetMask, s32 callbackArg);
+void MAGIC_Hakai(s32 targetMask, s32 callbackArg);
+EffectModel* MAGIC_Boost(s32 targetMask, s32 callbackArg);
+void MAGIC_Minimam(s32 targetMask, s32 callbackArg);
+void MAGIC_ThreatSetup(s32 targetMask, s32 callbackArg);
+
 #endif

@@ -1,0 +1,2 @@
+func_gattai_801B0000 = 0x801B0000; // type:func
+MAGIC_Gattai = 0x801B007C; // type:func

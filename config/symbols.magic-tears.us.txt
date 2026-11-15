@@ -1,0 +1,6 @@
+MAGIC_Tears = 0x801B0000; // type:func
+func_tears_801B0020 = 0x801B0020; // type:func
+func_tears_801B0158 = 0x801B0158; // type:func
+func_tears_801B0304 = 0x801B0304; // type:func
+func_tears_801B0384 = 0x801B0384; // type:func
+func_tears_801B03E4 = 0x801B03E4; // type:func
